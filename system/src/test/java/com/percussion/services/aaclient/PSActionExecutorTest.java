@@ -16,43 +16,39 @@
  */
 package com.percussion.services.aaclient;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 import com.percussion.services.assembly.IPSAssemblyResult;
 import com.percussion.services.assembly.data.PSAssemblyWorkItem;
-
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.Test;
 
 /**
  * @author Andriy Palamarchuk
  */
-public class PSActionExecutorTest
-{
-   /**
-    * Tests {@link PSActionExecutor#getSnippetBody(IPSAssemblyResult)}.
-    */
-   @Test
-   public void testGetSnippetBody() throws IOException {
-      final PSActionExecutor executor = new PSActionExecutor();
-      final PSAssemblyWorkItem result = new PSAssemblyWorkItem();
+public class PSActionExecutorTest {
+  /** Tests {@link PSActionExecutor#getSnippetBody(IPSAssemblyResult)}. */
+  @Test
+  public void testGetSnippetBody() throws IOException {
+    final PSActionExecutor executor = new PSActionExecutor();
+    final PSAssemblyWorkItem result = new PSAssemblyWorkItem();
 
-      // empty result
-      result.setResultData("".getBytes());
-      assertEquals("<br/>", executor.getSnippetBody(result));
+    // empty result
+    result.setResultData("".getBytes());
+    assertEquals("<br/>", executor.getSnippetBody(result));
 
-      final String content = "Some Content";
+    final String content = "Some Content";
 
-      // no content
-      result.setResultData(("ss<body></body>dd").getBytes());
-      assertEquals("<br/>", executor.getSnippetBody(result));
+    // no content
+    result.setResultData(("ss<body></body>dd").getBytes());
+    assertEquals("<br/>", executor.getSnippetBody(result));
 
-      // normal situation
-      result.setResultData(("ss<body>" + content + "</body>dd").getBytes());
-      assertEquals(content + "<br/>", executor.getSnippetBody(result));
+    // normal situation
+    result.setResultData(("ss<body>" + content + "</body>dd").getBytes());
+    assertEquals(content + "<br/>", executor.getSnippetBody(result));
 
-      // "body" tag in different case
-      result.setResultData(("sS<BoDy>" + content + "</BODy>dd").getBytes());
-      assertEquals(content + "<br/>", executor.getSnippetBody(result));
-   }
+    // "body" tag in different case
+    result.setResultData(("sS<BoDy>" + content + "</BODy>dd").getBytes());
+    assertEquals(content + "<br/>", executor.getSnippetBody(result));
+  }
 }

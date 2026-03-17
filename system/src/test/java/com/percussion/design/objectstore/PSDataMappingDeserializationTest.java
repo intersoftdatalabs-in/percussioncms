@@ -21,10 +21,8 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import com.percussion.security.validation.SerializationValidation;
 import java.io.*;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.text.DateFormat;
 import java.text.DecimalFormat;
 import java.text.Format;
 import java.text.SimpleDateFormat;
@@ -43,7 +41,9 @@ class PSDataMappingDeserializationTest {
   @TempDir Path tempDir;
 
   @Test
-  @Disabled("Object serialization filter rejection - investigating filter spec generation. See CWE-502 security fix.")
+  @Disabled(
+      "Object serialization filter rejection - investigating filter spec generation. See CWE-502"
+          + " security fix.")
   @DisplayName("Should deserialize SimpleDateFormat with filter applied")
   void testDeserializeSimpleDateFormat() throws IOException, ClassNotFoundException {
     // Create and serialize a SimpleDateFormat
@@ -93,7 +93,9 @@ class PSDataMappingDeserializationTest {
   }
 
   @Test
-  @Disabled("Object serialization filter rejection - investigating filter spec generation. See CWE-502 security fix.")
+  @Disabled(
+      "Object serialization filter rejection - investigating filter spec generation. See CWE-502"
+          + " security fix.")
   @DisplayName("Should handle format serialization through ByteArrayInputStream/OutputStream")
   void testFormatSerializationPipeline() throws IOException, ClassNotFoundException {
     SimpleDateFormat originalFormat = new SimpleDateFormat("MM/dd/yyyy");
@@ -129,7 +131,9 @@ class PSDataMappingDeserializationTest {
   }
 
   @Test
-  @Disabled("Object serialization filter rejection - investigating filter spec generation. See CWE-502 security fix.")
+  @Disabled(
+      "Object serialization filter rejection - investigating filter spec generation. See CWE-502"
+          + " security fix.")
   @DisplayName("Should deserialize date format from encoded bytes")
   void testDeserializeEncodedFormatBytes() throws IOException, ClassNotFoundException {
     SimpleDateFormat sourceFormat = new SimpleDateFormat("yyyy/MM/dd");
@@ -142,8 +146,7 @@ class PSDataMappingDeserializationTest {
 
     // Get bytes and simulate what PSDataMapping does
     byte[] serializedBytes = baos.toByteArray();
-    String encoded =
-        java.util.Base64.getEncoder().encodeToString(serializedBytes);
+    String encoded = java.util.Base64.getEncoder().encodeToString(serializedBytes);
 
     // Now decode and deserialize (like PSDataMapping does)
     byte[] decoded = java.util.Base64.getDecoder().decode(encoded);

@@ -128,7 +128,6 @@ class PSExtensionHandlerConfiguration {
    *
    * @return An Iterator over 0 or more PSExtensionRef objects. Never <CODE>null</CODE>.
    */
-
   public Iterator getExtensionNames() {
     Collection names = new LinkedList();
     for (Iterator i = getExtensionContexts(); i.hasNext(); ) {
@@ -155,7 +154,8 @@ class PSExtensionHandlerConfiguration {
     Map<String, IPSExtensionDef> extensionDefs = m_extensionContexts.get(context);
     if (extensionDefs == null) return null;
 
-    // Return the PSExtensionRef from each stored def so callers receive typed refs, not FQN strings.
+    // Return the PSExtensionRef from each stored def so callers receive typed refs, not FQN
+    // strings.
     return extensionDefs.values().stream()
         .map(IPSExtensionDef::getRef)
         .collect(java.util.stream.Collectors.toList())
@@ -180,7 +180,6 @@ class PSExtensionHandlerConfiguration {
    * @return The extension definition, or <CODE>null</CODE> if no such extension is defined.
    * @throws IllegalArgumentException If any param is invalid.
    */
-
   public IPSExtensionDef getExtensionDef(PSExtensionRef ref) {
     if (ref == null) throw new IllegalArgumentException("ref cannot be null");
 
@@ -211,7 +210,6 @@ class PSExtensionHandlerConfiguration {
    * @param extensionDef The extension def to add. Must not be <CODE>null</CODE>.
    * @throws IllegalArgumentException If any param is invalid.
    */
-
   public void addExtensionDef(IPSExtensionDef extensionDef) {
     if (extensionDef == null) throw new IllegalArgumentException("extensionDef cannot be null");
 
@@ -252,7 +250,6 @@ class PSExtensionHandlerConfiguration {
    * @throws IllegalArgumentException If any param is invalid.
    * @see java.io.File#getCanonicalFile
    */
-
   public void setPendingRemoval(File toBeRemoved) throws IOException {
     if (toBeRemoved == null || toBeRemoved.toString().length() == 0)
       throw new IllegalArgumentException("toBeRemoved cannot be null/empty");
@@ -287,7 +284,6 @@ class PSExtensionHandlerConfiguration {
    *     objects.
    * @see #setPendingRemoval
    */
-
   public Iterator getPendingRemovals() {
     /* Need to copy the hashset to a new list and return an iterator
        from this new list.  If we don't, when clearPendingRemoval() is
@@ -537,17 +533,10 @@ class PSExtensionHandlerConfiguration {
           // the JEXL method metadata is missing and will be populated when
           // the server starts with the full classpath.
           ms_log.debug(
-              "Skipping JEXL method loading for extension \"{}{}\": {}",
-              context,
-              extName,
-              msg);
+              "Skipping JEXL method loading for extension \"{}{}\": {}", context, extName, msg);
         } else {
           ms_log.error(
-              "Failed to load extension definition \"{}{}\": {}",
-              context,
-              extName,
-              msg,
-              pse);
+              "Failed to load extension definition \"{}{}\": {}", context, extName, msg, pse);
         }
       }
     }
@@ -592,13 +581,14 @@ class PSExtensionHandlerConfiguration {
         String className = def.getInitParameter("className");
         Class<?> clazz = null;
         try {
-            // Use the thread's context classloader to support normal running execution environment
-            ClassLoader loader = Thread.currentThread().getContextClassLoader();
-            clazz = Class.forName(className, true, loader);
+          // Use the thread's context classloader to support normal running execution environment
+          ClassLoader loader = Thread.currentThread().getContextClassLoader();
+          clazz = Class.forName(className, true, loader);
         } catch (ClassNotFoundException e) {
-           // Fallback for Ant installation context where context class loader might not have the correct libs
-           ClassLoader classLoader = PSExtensionHandlerConfiguration.class.getClassLoader();
-           clazz = Class.forName(className, true, classLoader);
+          // Fallback for Ant installation context where context class loader might not have the
+          // correct libs
+          ClassLoader classLoader = PSExtensionHandlerConfiguration.class.getClassLoader();
+          clazz = Class.forName(className, true, classLoader);
         }
         Method[] methods = clazz.getDeclaredMethods();
         for (Method method : methods) {
@@ -775,10 +765,10 @@ class PSExtensionHandlerConfiguration {
    * Never <CODE>null</CODE>, may be empty.
    */
   /**
-   * Outer key: canonical context string (e.g. {@code "global/percussion/filter/"}).
-   * Inner key: fully-qualified extension name (FQN = handler/context/name), which intentionally
-   * excludes category so that lookups always succeed regardless of whether the lookup ref was
-   * constructed with or without a category string.
+   * Outer key: canonical context string (e.g. {@code "global/percussion/filter/"}). Inner key:
+   * fully-qualified extension name (FQN = handler/context/name), which intentionally excludes
+   * category so that lookups always succeed regardless of whether the lookup ref was constructed
+   * with or without a category string.
    */
   private volatile Map<String, Map<String, IPSExtensionDef>> m_extensionContexts =
       new ConcurrentHashMap<>(8, 0.9f, 1);

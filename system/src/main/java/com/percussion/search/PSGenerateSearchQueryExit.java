@@ -54,7 +54,6 @@ import com.percussion.server.PSRequest;
 import com.percussion.server.PSServer;
 import com.percussion.system.utils.IPSHtmlParameters;
 import com.percussion.util.PSMapPair;
-import com.percussion.utils.collections.PSIteratorUtils;
 import com.percussion.webservices.PSErrorException;
 import com.percussion.webservices.PSErrorResultsException;
 import com.percussion.webservices.ui.IPSUiDesignWs;
@@ -105,7 +104,6 @@ import org.w3c.dom.Element;
  *   <li>inlinetype
  * </ul>
  */
-
 public class PSGenerateSearchQueryExit extends PSDefaultExtension
     implements IPSResultDocumentProcessor {
 

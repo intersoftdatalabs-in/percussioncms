@@ -16,67 +16,61 @@
  */
 package com.percussion.services.assembly.jexl;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 import com.percussion.services.assembly.IPSAssemblyResult;
 import com.percussion.services.assembly.data.PSAssemblyWorkItem;
 import java.io.IOException;
-import org.junit.jupiter.api.Test;
-import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Andriy Palamarchuk
  */
-public class PSDocumentUtilsTest 
-{
-   
-   /**
-    * Tests {@link PSDocumentUtils#extractBody(IPSAssemblyResult)} and
-    * {@link PSDocumentUtils#extractBody(String)}.
-    */
-   
-   public void testExtractBody() throws IOException
-   {
-      // empty result
-      assertExtractedBody("", "");
-      
-      final String content = "Some Content";
+public class PSDocumentUtilsTest {
 
-      // no content
-      // does not work as expected
-//      assertExtractedBody("ss<body></body>dd", "");
+  /**
+   * Tests {@link PSDocumentUtils#extractBody(IPSAssemblyResult)} and {@link
+   * PSDocumentUtils#extractBody(String)}.
+   */
+  public void testExtractBody() throws IOException {
+    // empty result
+    assertExtractedBody("", "");
 
-      // normal situation
-      assertExtractedBody("ss<body>" + content + "</body>dd", content);
+    final String content = "Some Content";
 
-      // "body" tag in different case
-      assertExtractedBody("sS<BoDy>" + content + "</BODy>dd", content);
-   }
+    // no content
+    // does not work as expected
+    //      assertExtractedBody("ss<body></body>dd", "");
 
-   /**
-    * Asserts that body extracted by
-    * {@link PSDocumentUtils#extractBody(IPSAssemblyResult)} and
-    * {@link PSDocumentUtils#extractBody(String)} from the <code>html</code>
-    * parameter equals to <code>body</body>.
-    * @param html the data to extract html body from.
-    * Assumed not <code>null</code>.
-    * @param body the expected extracted body content.
-    * Assumed not <code>null</code>.
-    */
-   private void assertExtractedBody(final String html, final String body)
-         throws IOException
-   {
-      final PSDocumentUtils utils = new PSDocumentUtils();
+    // normal situation
+    assertExtractedBody("ss<body>" + content + "</body>dd", content);
 
-      assertEquals(body, utils.extractBody(html));
+    // "body" tag in different case
+    assertExtractedBody("sS<BoDy>" + content + "</BODy>dd", content);
+  }
 
-      m_result.setResultData(html.getBytes());
-      assertEquals(body, utils.extractBody(m_result));
-   }
-   
-   /**
-    * Result variable used for testing to hold data.
-    */
-   final PSAssemblyWorkItem m_result = new PSAssemblyWorkItem();
-   {
-      m_result.setMimeType("text/html");
-   }
+  /**
+   * Asserts that body extracted by
+   * {@link PSDocumentUtils#extractBody(IPSAssemblyResult)} and
+   * {@link PSDocumentUtils#extractBody(String)} from the <code>html</code>
+   * parameter equals to <code>body</body>.
+   * @param html the data to extract html body from.
+   * Assumed not <code>null</code>.
+   * @param body the expected extracted body content.
+   * Assumed not <code>null</code>.
+   */
+  private void assertExtractedBody(final String html, final String body) throws IOException {
+    final PSDocumentUtils utils = new PSDocumentUtils();
+
+    assertEquals(body, utils.extractBody(html));
+
+    m_result.setResultData(html.getBytes());
+    assertEquals(body, utils.extractBody(m_result));
+  }
+
+  /** Result variable used for testing to hold data. */
+  final PSAssemblyWorkItem m_result = new PSAssemblyWorkItem();
+
+  {
+    m_result.setMimeType("text/html");
+  }
 }

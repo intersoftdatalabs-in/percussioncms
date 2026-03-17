@@ -16,61 +16,44 @@
  */
 package com.percussion.design.objectstore;
 
-
-import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
+/** Unit test for the {@link PSRelationshipSet} class. */
+public class PSRelationshipSetTest {
+  // see base class
 
-/**
- * Unit test for the {@link PSRelationshipSet} class.
- */
-public class PSRelationshipSetTest 
-{
-   // see base class
-   
-   
-   /**
-    * The all public constructor contracts.
-    * 
-    * @throws Exception for any error.
-    */
-   
-   public void testConstructors() throws Exception
-   {
-      Exception exception = null;
-      PSRelationshipSet rset = null;
-      try
-      {
-         rset = new PSRelationshipSet(null, null, null);
-      }
-      catch (Exception e)
-      {
-         exception = e;
-      }
-      assertTrue(exception instanceof PSUnknownNodeTypeException);
-   }
-   
-   /**
-    * Test public API contracts.
-    * 
-    * @throws Exception for all errors.
-    */
-   
-   public void testPublicAPI() throws Exception
-   {
-      Exception exception = null;
-      PSRelationshipSet rset = new PSRelationshipSet();
-      try
-      {
-         rset.toXml(null);
-      }
-      catch (Exception e)
-      {
-         exception = e;
-      }
-      assertTrue(exception instanceof NullPointerException);
-   }
-   
-   // collect all tests into a TestSuite and return it - see base class
-   
+  /**
+   * The all public constructor contracts.
+   *
+   * @throws Exception for any error.
+   */
+  public void testConstructors() throws Exception {
+    Exception exception = null;
+    PSRelationshipSet rset = null;
+    try {
+      rset = new PSRelationshipSet(null, null, null);
+    } catch (Exception e) {
+      exception = e;
+    }
+    assertTrue(exception instanceof PSUnknownNodeTypeException);
+  }
+
+  /**
+   * Test public API contracts.
+   *
+   * @throws Exception for all errors.
+   */
+  public void testPublicAPI() throws Exception {
+    Exception exception = null;
+    PSRelationshipSet rset = new PSRelationshipSet();
+    try {
+      rset.toXml(null);
+    } catch (Exception e) {
+      exception = e;
+    }
+    assertTrue(exception instanceof NullPointerException);
+  }
+
+  // collect all tests into a TestSuite and return it - see base class
+
 }

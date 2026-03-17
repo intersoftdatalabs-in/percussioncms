@@ -17,8 +17,13 @@
 
 package com.percussion.services.assembly.jexl;
 
-import com.percussion.security.error.PSExceptionUtils;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import com.percussion.security.error.PSExceptionUtils;
+import java.io.IOException;
+import java.io.StringWriter;
+import java.util.HashMap;
+import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -27,104 +32,90 @@ import org.apache.velocity.app.VelocityEngine;
 import org.apache.velocity.exception.MethodInvocationException;
 import org.apache.velocity.exception.ParseErrorException;
 import org.apache.velocity.exception.ResourceNotFoundException;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Disabled;
-
-import java.io.IOException;
-import java.io.StringWriter;
-import java.util.HashMap;
-import java.util.Map;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
+import org.junit.jupiter.api.Test;
 
 @Disabled("Temporarily disabled — failing in perc-system test run")
 public class PSJexlDbExtensionsTest {
 
-    private static final Logger log = LogManager.getLogger(PSJexlDbExtensionsTest.class);
+  private static final Logger log = LogManager.getLogger(PSJexlDbExtensionsTest.class);
 
-    /**
-     * Get a precomputed velocity context with the jexl extensions registered.
-     *
-     * @return the context, never <code>null</code>
-     */
-    public VelocityContext getContext()
-    {
-        VelocityContext rval = new VelocityContext();
-        Map<String, Object> sys = new HashMap<String, Object>();
-        rval.put("sys", sys);
+  /**
+   * Get a precomputed velocity context with the jexl extensions registered.
+   *
+   * @return the context, never <code>null</code>
+   */
+  public VelocityContext getContext() {
+    VelocityContext rval = new VelocityContext();
+    Map<String, Object> sys = new HashMap<String, Object>();
+    rval.put("sys", sys);
 
-        sys.put("string", new PSStringUtils());
-        sys.put("db", new PSDbUtils());
-        sys.put("doc", new PSDocumentUtils());
-        sys.put("guid", new PSGuidUtils());
-        sys.put("codec", new PSCodecUtils());
-        sys.put("link", new PSLinkUtils());
-        sys.put("cond", new PSCondUtils());
-        return rval;
-    }
-    public void doTest(VelocityContext ctx, String inputtemplate,
-                       String expectedoutput) throws ParseErrorException,
-            MethodInvocationException, ResourceNotFoundException, IOException
-    {
-        String out = run(ctx, inputtemplate);
-        assertEquals(expectedoutput, out);
-    }
-    /**
-     * Run the velocity engine. We use this here to run most of the tests
-     *
-     * @param ctx the context, from {@link #getContext()}
-     * @param template the template to run, never <code>null</code> or empty
-     * @return the result
-     * @throws ParseErrorException
-     * @throws MethodInvocationException
-     * @throws ResourceNotFoundException
-     * @throws IOException
-     */
-    public String run(VelocityContext ctx, String template)
-            throws ParseErrorException, MethodInvocationException,
-            ResourceNotFoundException, IOException
-    {
-        if (StringUtils.isBlank(template))
-        {
-            throw new IllegalArgumentException("template may not be null or empty");
-        }
-        StringWriter out = new StringWriter();
-        ms_engine.evaluate(ctx, out, "Velo", template);
-        return out.toString();
-    }
+    sys.put("string", new PSStringUtils());
+    sys.put("db", new PSDbUtils());
+    sys.put("doc", new PSDocumentUtils());
+    sys.put("guid", new PSGuidUtils());
+    sys.put("codec", new PSCodecUtils());
+    sys.put("link", new PSLinkUtils());
+    sys.put("cond", new PSCondUtils());
+    return rval;
+  }
 
-    /**
-     * @throws Exception
-     */
-    @Test
-    public void testDbUtils() throws Exception
-    {
-        VelocityContext ctx = getContext();
-        doTest(
-                ctx,
-                "$sys.db.get('rxdefault'," +
-                        "'select SLOTID, SLOTNAME from RXSLOTTYPE where SLOTID = 504')",
-                "[{SLOTNAME=rffContacts, SLOTID=504}]");
-    }
-    /**
-     * Velocity engine eis initialized in the static block, never
-     * <code>null</code> afterward
-     */
-    public static VelocityEngine ms_engine = null;
+  public void doTest(VelocityContext ctx, String inputtemplate, String expectedoutput)
+      throws ParseErrorException,
+          MethodInvocationException,
+          ResourceNotFoundException,
+          IOException {
+    String out = run(ctx, inputtemplate);
+    assertEquals(expectedoutput, out);
+  }
 
-    static
-    {
-        ms_engine = new VelocityEngine();
-        try
-        {
-            ms_engine.init();
-        }
-        catch (Exception e)
-        {
-            log.error(PSExceptionUtils.getMessageForLog(e));
-            log.debug(PSExceptionUtils.getDebugMessageForLog(e));
-        }
+  /**
+   * Run the velocity engine. We use this here to run most of the tests
+   *
+   * @param ctx the context, from {@link #getContext()}
+   * @param template the template to run, never <code>null</code> or empty
+   * @return the result
+   * @throws ParseErrorException
+   * @throws MethodInvocationException
+   * @throws ResourceNotFoundException
+   * @throws IOException
+   */
+  public String run(VelocityContext ctx, String template)
+      throws ParseErrorException,
+          MethodInvocationException,
+          ResourceNotFoundException,
+          IOException {
+    if (StringUtils.isBlank(template)) {
+      throw new IllegalArgumentException("template may not be null or empty");
     }
+    StringWriter out = new StringWriter();
+    ms_engine.evaluate(ctx, out, "Velo", template);
+    return out.toString();
+  }
+
+  /**
+   * @throws Exception
+   */
+  @Test
+  public void testDbUtils() throws Exception {
+    VelocityContext ctx = getContext();
+    doTest(
+        ctx,
+        "$sys.db.get('rxdefault',"
+            + "'select SLOTID, SLOTNAME from RXSLOTTYPE where SLOTID = 504')",
+        "[{SLOTNAME=rffContacts, SLOTID=504}]");
+  }
+
+  /** Velocity engine eis initialized in the static block, never <code>null</code> afterward */
+  public static VelocityEngine ms_engine = null;
+
+  static {
+    ms_engine = new VelocityEngine();
+    try {
+      ms_engine.init();
+    } catch (Exception e) {
+      log.error(PSExceptionUtils.getMessageForLog(e));
+      log.debug(PSExceptionUtils.getDebugMessageForLog(e));
+    }
+  }
 }

@@ -16,200 +16,148 @@
  */
 package com.percussion.design.objectstore;
 
-import com.percussion.util.PSCollection;
-import com.percussion.xml.PSXmlDocumentBuilder;
-
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-
-
-import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
+import com.percussion.xml.PSXmlDocumentBuilder;
+import org.w3c.dom.Document;
 
 /**
- * Directory object store class testing, including constructors,
- * <code>PSComponent</code> functionality, accessors and XML functionality.
+ * Directory object store class testing, including constructors, <code>PSComponent</code>
+ * functionality, accessors and XML functionality.
  */
-public class PSDirectorySetTest 
-{
-   /**
-    * Constructor to call base class constructor.
-    *
-    * @see TestCase#TestCase(String) for more information.
-    */
-   
+public class PSDirectorySetTest {
+  /**
+   * Constructor to call base class constructor.
+   *
+   * @see TestCase#TestCase(String) for more information.
+   */
 
-   // See base class
-   public void setUp()
-   {
-   }
+  // See base class
+  public void setUp() {}
 
-   /**
-    * Test component constructors and accessors.
-    *
-    * @throws Exception if any exceptions occur or assertions fail.
-    */
-   
-   public void testComponent() throws Exception
-   {
-      PSDirectorySet dirSet1 = new PSDirectorySet("dirSet1", "uid");
-      dirSet1.addDirectoryRef(ms_ref1);
+  /**
+   * Test component constructors and accessors.
+   *
+   * @throws Exception if any exceptions occur or assertions fail.
+   */
+  public void testComponent() throws Exception {
+    PSDirectorySet dirSet1 = new PSDirectorySet("dirSet1", "uid");
+    dirSet1.addDirectoryRef(ms_ref1);
 
-      PSDirectorySet dirSet2 = new PSDirectorySet("dirSet2", "uid");
-      dirSet2.addDirectoryRef(ms_ref2);
+    PSDirectorySet dirSet2 = new PSDirectorySet("dirSet2", "uid");
+    dirSet2.addDirectoryRef(ms_ref2);
 
-      PSDirectorySet dirSet3 = new PSDirectorySet("dirSet1", "uid");
-      dirSet3.addDirectoryRef(ms_ref1);
-      dirSet3.addDirectoryRef(ms_ref2);
+    PSDirectorySet dirSet3 = new PSDirectorySet("dirSet1", "uid");
+    dirSet3.addDirectoryRef(ms_ref1);
+    dirSet3.addDirectoryRef(ms_ref2);
 
-      // testing equals
-      assertEquals(dirSet1, dirSet1);
-      assertFalse(dirSet1.equals(dirSet2));
+    // testing equals
+    assertEquals(dirSet1, dirSet1);
+    assertFalse(dirSet1.equals(dirSet2));
 
-      // testing clone/copyFrom
-      Document doc = PSXmlDocumentBuilder.createXmlDocument();
+    // testing clone/copyFrom
+    Document doc = PSXmlDocumentBuilder.createXmlDocument();
 
-      PSDirectorySet clone = (PSDirectorySet) dirSet1.clone();
-      assertEquals(clone, dirSet1);
-      dirSet2.copyFrom(dirSet1);
-      assertEquals(dirSet2, dirSet3);
+    PSDirectorySet clone = (PSDirectorySet) dirSet1.clone();
+    assertEquals(clone, dirSet1);
+    dirSet2.copyFrom(dirSet1);
+    assertEquals(dirSet2, dirSet3);
 
-      // testing name accessors
-      boolean didThrow = false;
-      try
-      {
-         dirSet1.setName(null);
-      }
-      catch (IllegalArgumentException e)
-      {
-         didThrow = true;
-      }
-      assertTrue(didThrow);
+    // testing name accessors
+    boolean didThrow = false;
+    try {
+      dirSet1.setName(null);
+    } catch (IllegalArgumentException e) {
+      didThrow = true;
+    }
+    assertTrue(didThrow);
 
-      didThrow = false;
-      try
-      {
-         dirSet1.setName(" ");
-      }
-      catch (IllegalArgumentException e)
-      {
-         didThrow = true;
-      }
-      assertTrue(didThrow);
+    didThrow = false;
+    try {
+      dirSet1.setName(" ");
+    } catch (IllegalArgumentException e) {
+      didThrow = true;
+    }
+    assertTrue(didThrow);
 
-      // testing directory accessors
-      didThrow = false;
-      try
-      {
-         dirSet1.addDirectoryRef(null);
-      }
-      catch (IllegalArgumentException e)
-      {
-         didThrow = true;
-      }
-      assertTrue(didThrow);
-      didThrow = false;
-      try
-      {
-         dirSet1.addDirectoryRef(new PSReference("dir1", "invalidType"));
-      }
-      catch (IllegalArgumentException e)
-      {
-         didThrow = true;
-      }
-      assertTrue(didThrow);
-      
-      // testing known attributes accessors
-      didThrow = false;
-      try
-      {
-         dirSet1.setEmailAttributeName(null);
-      }
-      catch (IllegalArgumentException e)
-      {
-         didThrow = true;
-      }
-      assertFalse(didThrow);
-      didThrow = false;
-      try
-      {
-         dirSet1.setEmailAttributeName(" ");
-      }
-      catch (IllegalArgumentException e)
-      {
-         didThrow = true;
-      }
-      assertTrue(didThrow);
-      didThrow = false;
-      try
-      {
-         dirSet1.setObjectAttributeName(null);
-      }
-      catch (IllegalArgumentException e)
-      {
-         didThrow = true;
-      }
-      assertTrue(didThrow);
-      didThrow = false;
-      try
-      {
-         dirSet1.setObjectAttributeName(" ");
-      }
-      catch (IllegalArgumentException e)
-      {
-         didThrow = true;
-      }
-      assertTrue(didThrow);
-      assertTrue(dirSet1.getRequiredAttributeName(
-         PSDirectorySet.OBJECT_ATTRIBUTE_KEY) != null);
-   }
+    // testing directory accessors
+    didThrow = false;
+    try {
+      dirSet1.addDirectoryRef(null);
+    } catch (IllegalArgumentException e) {
+      didThrow = true;
+    }
+    assertTrue(didThrow);
+    didThrow = false;
+    try {
+      dirSet1.addDirectoryRef(new PSReference("dir1", "invalidType"));
+    } catch (IllegalArgumentException e) {
+      didThrow = true;
+    }
+    assertTrue(didThrow);
 
-   /**
-    * Test to and from xml methods of this os object.
-    *
-    * @throws Exception If any exceptions occur or assertions fail.
-    */
-   
-   public void testXml() throws Exception
-   {
-      Document doc = PSXmlDocumentBuilder.createXmlDocument();
+    // testing known attributes accessors
+    didThrow = false;
+    try {
+      dirSet1.setEmailAttributeName(null);
+    } catch (IllegalArgumentException e) {
+      didThrow = true;
+    }
+    assertFalse(didThrow);
+    didThrow = false;
+    try {
+      dirSet1.setEmailAttributeName(" ");
+    } catch (IllegalArgumentException e) {
+      didThrow = true;
+    }
+    assertTrue(didThrow);
+    didThrow = false;
+    try {
+      dirSet1.setObjectAttributeName(null);
+    } catch (IllegalArgumentException e) {
+      didThrow = true;
+    }
+    assertTrue(didThrow);
+    didThrow = false;
+    try {
+      dirSet1.setObjectAttributeName(" ");
+    } catch (IllegalArgumentException e) {
+      didThrow = true;
+    }
+    assertTrue(didThrow);
+    assertTrue(dirSet1.getRequiredAttributeName(PSDirectorySet.OBJECT_ATTRIBUTE_KEY) != null);
+  }
 
-      PSDirectorySet dirSet1 = new PSDirectorySet("dirSet1", "uid");
-      dirSet1.add(ms_ref1);
-      dirSet1.add(ms_ref2);
-      dirSet1.add(ms_ref3);
-      System.out.println("directorySet 1:\n" +
-         PSXmlDocumentBuilder.toString(dirSet1.toXml(doc)));
-      PSDirectorySet dirSet2 = new PSDirectorySet(dirSet1.toXml(doc));
-      System.out.println("directorySet 2:\n" +
-         PSXmlDocumentBuilder.toString(dirSet2.toXml(doc)));
-      assertEquals(dirSet1, dirSet2);
-   }
+  /**
+   * Test to and from xml methods of this os object.
+   *
+   * @throws Exception If any exceptions occur or assertions fail.
+   */
+  public void testXml() throws Exception {
+    Document doc = PSXmlDocumentBuilder.createXmlDocument();
 
-   /**
-    * Collect all tests into a TestSuite and return it.
-    *
-    * @return The suite of test methods for this class.  Not <code>null</code>.
-    */
-   
+    PSDirectorySet dirSet1 = new PSDirectorySet("dirSet1", "uid");
+    dirSet1.add(ms_ref1);
+    dirSet1.add(ms_ref2);
+    dirSet1.add(ms_ref3);
+    System.out.println("directorySet 1:\n" + PSXmlDocumentBuilder.toString(dirSet1.toXml(doc)));
+    PSDirectorySet dirSet2 = new PSDirectorySet(dirSet1.toXml(doc));
+    System.out.println("directorySet 2:\n" + PSXmlDocumentBuilder.toString(dirSet2.toXml(doc)));
+    assertEquals(dirSet1, dirSet2);
+  }
 
-   /**
-    * Directory reference 1.
-    */
-   public static PSReference ms_ref1 = new PSReference("dir1",
-      PSDirectory.class.getName());
+  /**
+   * Collect all tests into a TestSuite and return it.
+   *
+   * @return The suite of test methods for this class. Not <code>null</code>.
+   */
 
-   /**
-    * Directory reference 2.
-    */
-   public static PSReference ms_ref2 = new PSReference("dir2",
-      PSDirectory.class.getName());
+  /** Directory reference 1. */
+  public static PSReference ms_ref1 = new PSReference("dir1", PSDirectory.class.getName());
 
-   /**
-    * Directory reference 3.
-    */
-   public static PSReference ms_ref3 = new PSReference("dir3",
-      PSDirectory.class.getName());
+  /** Directory reference 2. */
+  public static PSReference ms_ref2 = new PSReference("dir2", PSDirectory.class.getName());
+
+  /** Directory reference 3. */
+  public static PSReference ms_ref3 = new PSReference("dir3", PSDirectory.class.getName());
 }
-

@@ -28,17 +28,18 @@ import org.w3c.dom.Element;
 
 /**
  * This class catalogs all macros defined on the server.
- * <p>
- * Macro catalog requests are sent to the server using the PSXMacroCatalog XML
- * document. It's definition is as follows:
+ *
+ * <p>Macro catalog requests are sent to the server using the PSXMacroCatalog XML document. It's
+ * definition is as follows:
+ *
  * <pre><code>
  *
  *  &lt;!ELEMENT PSXMacroCatalog EMPTY&gt;
  *
  * </code></pre>
  *
- * The PSXMacroCatalogResults XML document is sent as the response. It's
- * definition is as follows:
+ * The PSXMacroCatalogResults XML document is sent as the response. It's definition is as follows:
+ *
  * <pre>
  *  &lt;!ELEMENT PSXMacroDefinitionSet (PSXMacroDefinition*)&gt;
  * </pre>

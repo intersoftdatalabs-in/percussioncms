@@ -213,14 +213,12 @@ public class PSUpgradePluginPublishing implements IPSUpgradePlugin {
    *     </code> statements or (2) 0 for SQL statements that return nothing
    * @throws Exception if an error occurs.
    */
-
   private int executeUpdate(PrintStream logger, Connection conn, List bindValue, String sqlStmt)
       throws Exception {
     return executeUpdate(logger, conn, sqlStmt, bindValue.toArray());
   }
 
   /** Convenience method that calls {@link #executeUpdate(null, Connection, List, String)}. */
-
   private int executeUpdate(Connection conn, String sqlStmt, List bindValue) throws Exception {
     return executeUpdate(null, conn, bindValue, sqlStmt);
   }
@@ -349,7 +347,6 @@ public class PSUpgradePluginPublishing implements IPSUpgradePlugin {
    * @param conn the JDBC connection, assumed not <code>null</code>.
    * @throws Exception if an error occurs.
    */
-
   private void migratePubDocs(PrintStream logger, Connection conn) throws Exception {
     String oldPubDocsTable = getOldPubDocsTable();
     String newPubDocsTable = getNewPubDocsTable();

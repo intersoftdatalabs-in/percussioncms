@@ -16,49 +16,43 @@
  */
 package com.percussion.design.objectstore;
 
-import com.percussion.xml.PSXmlDocumentBuilder;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import com.percussion.xml.PSXmlDocumentBuilder;
 import org.junit.jupiter.api.Test;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+public class PSDisplayErrorTest {
 
-public class PSDisplayErrorTest
-{
+  @Test
+  public void testXml() throws Exception {
+    Document doc = PSXmlDocumentBuilder.createXmlDocument();
+    Element root = PSXmlDocumentBuilder.createRoot(doc, "DisplayError");
+    root.setAttribute("errorCount", "2");
+    Element gm = doc.createElement("GenericMessage");
+    gm.appendChild(doc.createTextNode("test generic message"));
+    root.appendChild(gm);
+    Element dt1 = doc.createElement("Details");
+    Element fe1 = doc.createElement("FieldError");
+    fe1.setAttribute("submitName", "sys_title");
+    fe1.setAttribute("displayName", "Content Title");
+    fe1.appendChild(doc.createTextNode("Content title must not be duplicate"));
+    dt1.appendChild(fe1);
+    root.appendChild(dt1);
 
-   @Test
-   public void testXml() throws Exception
-   {
-      Document doc = PSXmlDocumentBuilder.createXmlDocument();
-      Element root = PSXmlDocumentBuilder.createRoot(doc, "DisplayError");
-      root.setAttribute("errorCount", "2");
-      Element gm = doc.createElement("GenericMessage");
-      gm.appendChild(doc.createTextNode("test generic message"));
-      root.appendChild(gm);
-      Element dt1 = doc.createElement("Details");
-      Element fe1 = doc.createElement("FieldError");
-      fe1.setAttribute("submitName", "sys_title");
-      fe1.setAttribute("displayName", "Content Title");
-      fe1.appendChild(doc.createTextNode("Content title must not be duplicate"));
-      dt1.appendChild(fe1);
-      root.appendChild(dt1);
-      
-      Element dt2 = doc.createElement("Details");
-      Element fe2 = doc.createElement("FieldError");
-      fe2.setAttribute("submitName", "displaytitle");
-      fe2.setAttribute("displayName", "Title");
-      fe2.appendChild(doc.createTextNode("Title must not be empty"));
-      dt2.appendChild(fe2);
-      root.appendChild(dt2);
+    Element dt2 = doc.createElement("Details");
+    Element fe2 = doc.createElement("FieldError");
+    fe2.setAttribute("submitName", "displaytitle");
+    fe2.setAttribute("displayName", "Title");
+    fe2.appendChild(doc.createTextNode("Title must not be empty"));
+    dt2.appendChild(fe2);
+    root.appendChild(dt2);
 
-      Document newDoc = PSXmlDocumentBuilder.createXmlDocument();
-      PSDisplayError testFrom = new PSDisplayError(root);
-      Element testTo = testFrom.toXml(newDoc);
+    Document newDoc = PSXmlDocumentBuilder.createXmlDocument();
+    PSDisplayError testFrom = new PSDisplayError(root);
+    Element testTo = testFrom.toXml(newDoc);
 
-      assertEquals(PSXmlDocumentBuilder.toString(root),
-            PSXmlDocumentBuilder.toString(testTo));
-   }
-
+    assertEquals(PSXmlDocumentBuilder.toString(root), PSXmlDocumentBuilder.toString(testTo));
+  }
 }

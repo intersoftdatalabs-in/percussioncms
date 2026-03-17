@@ -57,7 +57,6 @@ public class PSGenericKeyDao implements IPSGenericKeyDao {
     return key;
   }
 
-
   @Override
   public IPSGenericKey findByResetKey(String resetKey) {
     Validate.notEmpty(resetKey);
@@ -135,7 +134,6 @@ public class PSGenericKeyDao implements IPSGenericKeyDao {
    * @param session Assumed not <code>null</code>.
    * @return The reset key, or <code>null</code> if not found.
    */
-
   private IPSGenericKey findGenericKey(String resetKey, Session session) {
     IPSGenericKey genericKey = null;
 

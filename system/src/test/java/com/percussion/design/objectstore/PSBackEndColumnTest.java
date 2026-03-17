@@ -16,154 +16,117 @@
  */
 package com.percussion.design.objectstore;
 
-import com.percussion.xml.PSXmlDocumentBuilder;
-
-
-import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
-
+import com.percussion.xml.PSXmlDocumentBuilder;
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-/**
- * Unit tests for the PSBackEndColumn class.
- */
-public class PSBackEndColumnTest
-{
+/** Unit tests for the PSBackEndColumn class. */
+public class PSBackEndColumnTest {
 
-
-
-
-
-   public void testConstructors() throws Exception
-   {
-      // create a valid table and column, create another column that should be
-      // equal
-      {
-         PSBackEndTable tab = new PSBackEndTable("foo");
-         PSBackEndColumn col = new PSBackEndColumn(tab, "bar");
-         PSBackEndColumn otherCol = new PSBackEndColumn(tab, "bar");
-         assertEquals(col, otherCol);
-      }
-
-      // try creating a column with a null table, make sure it throws
-      {
-         boolean didThrow = false;
-         try
-         {
-            PSBackEndColumn col = new PSBackEndColumn(null, "foo");
-         }
-         catch (IllegalArgumentException e)
-         {
-            didThrow = true;
-         }
-         assertTrue(didThrow, "Caught cons with null table?");
-      }
-
-      // try creating a column with a null col name, make sure it throws
-      {
-         boolean didThrow = false;
-         try
-         {
-            PSBackEndTable tab = new PSBackEndTable("foo");
-            PSBackEndColumn col = new PSBackEndColumn(tab, null);
-         }
-         catch (IllegalArgumentException e)
-         {
-            didThrow = true;
-         }
-         assertTrue(didThrow, "Caught cons with null col name?");
-      }
-
-      // try creating a column with an empty col name, make sure it throws
-      {
-         boolean didThrow = false;
-         try
-         {
-            PSBackEndTable tab = new PSBackEndTable("foo");
-            PSBackEndColumn col = new PSBackEndColumn(tab, "");
-         }
-         catch (IllegalArgumentException e)
-         {
-            didThrow = true;
-         }
-         assertTrue(didThrow, "Caught cons with empty col name?");
-      }
-   }
-
-
-
-   @Test
-   public void testGetSetColumn() throws Exception
-   {
-      String colName = "zoo";
+  public void testConstructors() throws Exception {
+    // create a valid table and column, create another column that should be
+    // equal
+    {
       PSBackEndTable tab = new PSBackEndTable("foo");
-      PSBackEndColumn col = new PSBackEndColumn(tab, colName);
-      assertEquals(colName, col.getColumn());
-      col.setColumn("bar");
-      assertEquals("bar", col.getColumn());
+      PSBackEndColumn col = new PSBackEndColumn(tab, "bar");
+      PSBackEndColumn otherCol = new PSBackEndColumn(tab, "bar");
+      assertEquals(col, otherCol);
+    }
 
+    // try creating a column with a null table, make sure it throws
+    {
       boolean didThrow = false;
-      try
-      {
-         col.setColumn("");
+      try {
+        PSBackEndColumn col = new PSBackEndColumn(null, "foo");
+      } catch (IllegalArgumentException e) {
+        didThrow = true;
       }
-      catch (IllegalArgumentException e)
-      {
-         didThrow = true;
+      assertTrue(didThrow, "Caught cons with null table?");
+    }
+
+    // try creating a column with a null col name, make sure it throws
+    {
+      boolean didThrow = false;
+      try {
+        PSBackEndTable tab = new PSBackEndTable("foo");
+        PSBackEndColumn col = new PSBackEndColumn(tab, null);
+      } catch (IllegalArgumentException e) {
+        didThrow = true;
       }
-      assertTrue(didThrow, "Caught setColumn with empty col name?");
-      assertEquals("bar", col.getColumn(), "Col name unchanged after illegal setColumn?");
+      assertTrue(didThrow, "Caught cons with null col name?");
+    }
 
-      didThrow = false;
-      try
-      {
-         col.setColumn(null);
+    // try creating a column with an empty col name, make sure it throws
+    {
+      boolean didThrow = false;
+      try {
+        PSBackEndTable tab = new PSBackEndTable("foo");
+        PSBackEndColumn col = new PSBackEndColumn(tab, "");
+      } catch (IllegalArgumentException e) {
+        didThrow = true;
       }
-      catch (IllegalArgumentException e)
-      {
-         didThrow = true;
-      }
-      assertTrue(didThrow, "Caught setColumn with null col name?");
-      assertEquals("bar", col.getColumn(), "Col name unchanged after illegal setColumn?");
-   }
+      assertTrue(didThrow, "Caught cons with empty col name?");
+    }
+  }
 
+  @Test
+  public void testGetSetColumn() throws Exception {
+    String colName = "zoo";
+    PSBackEndTable tab = new PSBackEndTable("foo");
+    PSBackEndColumn col = new PSBackEndColumn(tab, colName);
+    assertEquals(colName, col.getColumn());
+    col.setColumn("bar");
+    assertEquals("bar", col.getColumn());
 
+    boolean didThrow = false;
+    try {
+      col.setColumn("");
+    } catch (IllegalArgumentException e) {
+      didThrow = true;
+    }
+    assertTrue(didThrow, "Caught setColumn with empty col name?");
+    assertEquals("bar", col.getColumn(), "Col name unchanged after illegal setColumn?");
 
-   @Test
-   public void testGetSetTable() throws Exception
-   {
-      PSBackEndTable tab = new PSBackEndTable("baz");
-      PSBackEndColumn col = new PSBackEndColumn(tab, "foo");
-      assertEquals(tab, col.getTable());
-      PSBackEndTable otherTab = new PSBackEndTable("box");
-      col.setTable(otherTab);
-      assertEquals(otherTab, col.getTable());
-   }
+    didThrow = false;
+    try {
+      col.setColumn(null);
+    } catch (IllegalArgumentException e) {
+      didThrow = true;
+    }
+    assertTrue(didThrow, "Caught setColumn with null col name?");
+    assertEquals("bar", col.getColumn(), "Col name unchanged after illegal setColumn?");
+  }
 
-   /**
-    * Tests the XML serialization by using <code>fromXml()</code> to create an
-    * instance from the output of another instance's <code>toXml()</code>.
-    * These instances should be equal.
-    *
-    * @throws Exception if the test failed.
-    */
+  @Test
+  public void testGetSetTable() throws Exception {
+    PSBackEndTable tab = new PSBackEndTable("baz");
+    PSBackEndColumn col = new PSBackEndColumn(tab, "foo");
+    assertEquals(tab, col.getTable());
+    PSBackEndTable otherTab = new PSBackEndTable("box");
+    col.setTable(otherTab);
+    assertEquals(otherTab, col.getTable());
+  }
 
-   @Test
-   public void testXml() throws Exception
-   {
-      PSBackEndTable tab = new PSBackEndTable( "baz" );
-      PSBackEndColumn col = new PSBackEndColumn( tab, "foo" );
-      Document doc = PSXmlDocumentBuilder.createXmlDocument();
-      Element el = col.toXml( doc );
-      PSBackEndTable tab2 = new PSBackEndTable( "zap" );
-      PSBackEndColumn col2 = new PSBackEndColumn( tab2, "hohos" );
-      assertFalse(col2.equals( col ) );
-      col2.fromXml( el, null, null );
-      assertEquals( col, col2 );
-      assertEquals( col, new PSBackEndColumn( el, null, null ) );
-   }
-
-
+  /**
+   * Tests the XML serialization by using <code>fromXml()</code> to create an instance from the
+   * output of another instance's <code>toXml()</code>. These instances should be equal.
+   *
+   * @throws Exception if the test failed.
+   */
+  @Test
+  public void testXml() throws Exception {
+    PSBackEndTable tab = new PSBackEndTable("baz");
+    PSBackEndColumn col = new PSBackEndColumn(tab, "foo");
+    Document doc = PSXmlDocumentBuilder.createXmlDocument();
+    Element el = col.toXml(doc);
+    PSBackEndTable tab2 = new PSBackEndTable("zap");
+    PSBackEndColumn col2 = new PSBackEndColumn(tab2, "hohos");
+    assertFalse(col2.equals(col));
+    col2.fromXml(el, null, null);
+    assertEquals(col, col2);
+    assertEquals(col, new PSBackEndColumn(el, null, null));
+  }
 }

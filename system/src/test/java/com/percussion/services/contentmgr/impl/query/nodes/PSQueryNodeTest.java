@@ -16,43 +16,43 @@
  */
 package com.percussion.services.contentmgr.impl.query.nodes;
 
-import com.percussion.services.contentmgr.impl.query.nodes.IPSQueryNode.Op;
+import static org.junit.jupiter.api.Assertions.*;
 
+import com.percussion.services.contentmgr.impl.query.nodes.IPSQueryNode.Op;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.TimeZone;
 
-import org.junit.jupiter.api.Test;
-import static org.junit.jupiter.api.Assertions.*;
-
 /**
  * Basic query node test
- * @author dougrand
  *
+ * @author dougrand
  */
-public class PSQueryNodeTest 
-{   
-   /**
-    * Test serialization
-    */
-   
-   public void testSimpleToString()
-   {
-      Calendar cal = new GregorianCalendar();
-      cal.set(2004,1,1);
-      cal.set(Calendar.HOUR_OF_DAY, 0);
-      cal.set(Calendar.MINUTE, 0);
-      cal.set(Calendar.SECOND, 0);
-      IPSQueryNode n1 = new PSQueryNodeComparison(
+public class PSQueryNodeTest {
+  /** Test serialization */
+  public void testSimpleToString() {
+    Calendar cal = new GregorianCalendar();
+    cal.set(2004, 1, 1);
+    cal.set(Calendar.HOUR_OF_DAY, 0);
+    cal.set(Calendar.MINUTE, 0);
+    cal.set(Calendar.SECOND, 0);
+    IPSQueryNode n1 =
+        new PSQueryNodeComparison(
             new PSQueryNodeIdentifier("rx:sys_contentstartdate"),
-            new PSQueryNodeValue(cal.getTime()), Op.GT);
-      IPSQueryNode n2 = new PSQueryNodeComparison(
+            new PSQueryNodeValue(cal.getTime()),
+            Op.GT);
+    IPSQueryNode n2 =
+        new PSQueryNodeComparison(
             new PSQueryNodeIdentifier("rx:description"),
-            new PSQueryNodeValue("%guidelines%"), Op.LIKE);
-      IPSQueryNode n3 = new PSQueryNodeConjunction(n1, n2, Op.AND);
-      String sval = n3.toString();
-      String zone = TimeZone.getDefault().getDisplayName(false,0);
-      String test = "qn-conjunction(qn-compare(id(rx:sys_contentstartdate),GT,Sun Feb 01 00:00:00 "+zone+" 2004),AND,qn-compare(id(rx:description),LIKE,%guidelines%))";
-      assertEquals(test, sval);
-   }
+            new PSQueryNodeValue("%guidelines%"),
+            Op.LIKE);
+    IPSQueryNode n3 = new PSQueryNodeConjunction(n1, n2, Op.AND);
+    String sval = n3.toString();
+    String zone = TimeZone.getDefault().getDisplayName(false, 0);
+    String test =
+        "qn-conjunction(qn-compare(id(rx:sys_contentstartdate),GT,Sun Feb 01 00:00:00 "
+            + zone
+            + " 2004),AND,qn-compare(id(rx:description),LIKE,%guidelines%))";
+    assertEquals(test, sval);
+  }
 }

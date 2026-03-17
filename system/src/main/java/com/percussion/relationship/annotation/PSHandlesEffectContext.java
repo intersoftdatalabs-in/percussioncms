@@ -25,33 +25,14 @@ import java.lang.annotation.Target;
  * Annotation to define which contexts the effect handles and indicates new request processing is
  * supported.
  *
- * <p>
- *
- * {@code
- * @PSHandlesEffectContext(
- *    required={PSEffectContext.PRE_CONSTRUCTION, PSEffectContext.PRE_UPDATE},
- *    optional={PSEffectContext.PRE_DESTRUCTION}
- *    )
- * public class DemoEffect implements IPSEffect
- * {
- *    .....
- * }
- * }
+ * <p>{@code @PSHandlesEffectContext( required={PSEffectContext.PRE_CONSTRUCTION,
+ * PSEffectContext.PRE_UPDATE}, optional={PSEffectContext.PRE_DESTRUCTION} ) public class DemoEffect
+ * implements IPSEffect { ..... } }
  *
  * <p>or
  *
- * <p>
- *
- * {@code
- * @PSHandlesEffectContext(
- *    required={PSEffectContext.PRE_WORKFLOW},
- *    endpoint={PSEndpoint.BOTH}
- *    )
- * public class DemoEffect implements IPSEffect
- * {
- *    .....
- * }
- * }
+ * <p>{@code @PSHandlesEffectContext( required={PSEffectContext.PRE_WORKFLOW},
+ * endpoint={PSEndpoint.BOTH} ) public class DemoEffect implements IPSEffect { ..... } }
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)

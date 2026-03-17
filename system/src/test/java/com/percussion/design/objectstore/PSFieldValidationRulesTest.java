@@ -16,60 +16,44 @@
  */
 package com.percussion.design.objectstore;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 import com.percussion.util.PSCollection;
 import com.percussion.xml.PSXmlDocumentBuilder;
-
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-
-import org.junit.jupiter.api.Test;
-import static org.junit.jupiter.api.Assertions.*;
-
-
 // Test case
-public class PSFieldValidationRulesTest 
-{
-   
+public class PSFieldValidationRulesTest {
 
-   
-   
+  public void testEquals() throws Exception {}
 
-   public void testEquals() throws Exception
-   {
-   }
+  public void testXml() throws Exception {
+    Document doc = PSXmlDocumentBuilder.createXmlDocument();
+    Element root = PSXmlDocumentBuilder.createRoot(doc, "Test");
 
-   
+    // create test object
+    PSRule rule = new PSRule(new PSExtensionCallSet());
+    PSCollection ruleCol = new PSCollection(rule.getClass());
+    ruleCol.add(rule);
+    ruleCol.add(rule);
+    ruleCol.add(rule);
+    PSCollection ruleRefs = new PSCollection("java.lang.String");
+    ruleRefs.add("ref1");
+    ruleRefs.add("ref2");
+    ruleRefs.add("ref3");
 
-   public void testXml() throws Exception
-   {
-      Document doc = PSXmlDocumentBuilder.createXmlDocument();
-      Element root = PSXmlDocumentBuilder.createRoot(doc, "Test");
+    PSFieldValidationRules testTo = new PSFieldValidationRules();
+    testTo.setApplyWhen(new PSApplyWhen());
+    testTo.setName("fieldValidation");
+    testTo.setRuleReferences(ruleRefs);
+    testTo.setRules(ruleCol);
+    testTo.setErrorMessage(new PSDisplayText("one"));
+    Element elem = testTo.toXml(doc);
+    root.appendChild(elem);
 
-      // create test object
-      PSRule rule = new PSRule(new PSExtensionCallSet());
-      PSCollection ruleCol = new PSCollection(rule.getClass());
-      ruleCol.add(rule);
-      ruleCol.add(rule);
-      ruleCol.add(rule);
-      PSCollection ruleRefs = new PSCollection("java.lang.String");
-      ruleRefs.add("ref1");
-      ruleRefs.add("ref2");
-      ruleRefs.add("ref3");
-
-      PSFieldValidationRules testTo = new PSFieldValidationRules();
-      testTo.setApplyWhen(new PSApplyWhen());
-      testTo.setName("fieldValidation");
-      testTo.setRuleReferences(ruleRefs);
-      testTo.setRules(ruleCol);
-      testTo.setErrorMessage(new PSDisplayText("one"));
-      Element elem = testTo.toXml(doc);
-      root.appendChild(elem);
-
-      // create a new object and populate it from our testTo element
-      PSFieldValidationRules testFrom = new PSFieldValidationRules(elem, null, null);
-      assertEquals(testTo, testFrom);
-   }
-
-   
+    // create a new object and populate it from our testTo element
+    PSFieldValidationRules testFrom = new PSFieldValidationRules(elem, null, null);
+    assertEquals(testTo, testFrom);
+  }
 }

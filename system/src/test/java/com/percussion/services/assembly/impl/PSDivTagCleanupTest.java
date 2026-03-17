@@ -16,49 +16,39 @@
  */
 package com.percussion.services.assembly.impl;
 
-
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.Disabled;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.Tag;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
+
 /**
- * Test 
+ * Test
+ *
  * @author erikserating
  */
 @Tag("UnitTest")
-public class PSDivTagCleanupTest
-{
-   /**
-    * 
-    */
-   static final String ms_input = 
+public class PSDivTagCleanupTest {
+  /** */
+  static final String ms_input =
       "<div a='1' xmlns:goofy='http://www.goofy.org'>"
-      + "<div class='rxbodyfield'><!-- comment -->"
-      + "<el1 b='2'><el2 c='3' xmlns:bletch='somethingelse'/></el1>"
-      + "</div>"
-      + "<el1 xmlns:foobar='someotheruri'/>"
-      + "</div>";
-   
-   /**
-    * 
-    */
-   static final String ms_result = "<div a=\"1\"><!-- comment --><el1 b=\"2\">"
-         + "<el2 c=\"3\"/></el1>"
-         + "<el1/></div>";
+          + "<div class='rxbodyfield'><!-- comment -->"
+          + "<el1 b='2'><el2 c='3' xmlns:bletch='somethingelse'/></el1>"
+          + "</div>"
+          + "<el1 xmlns:foobar='someotheruri'/>"
+          + "</div>";
 
-   /**
-    * Test cleanup
-    */
-   @Test
-   //TODO: Fix me.  This test currently errors out if run with main build.  Passes locally.
-   @Disabled
-   public void testNSCleanup()
-   {
-      PSDivTagCleanup cleanup = new PSDivTagCleanup();
-      String result = (String) cleanup.translate(ms_input);
-      assertEquals(ms_result, result);
-   }
+  /** */
+  static final String ms_result =
+      "<div a=\"1\"><!-- comment --><el1 b=\"2\">" + "<el2 c=\"3\"/></el1>" + "<el1/></div>";
+
+  /** Test cleanup */
+  @Test
+  // TODO: Fix me.  This test currently errors out if run with main build.  Passes locally.
+  @Disabled
+  public void testNSCleanup() {
+    PSDivTagCleanup cleanup = new PSDivTagCleanup();
+    String result = (String) cleanup.translate(ms_input);
+    assertEquals(ms_result, result);
+  }
 }

@@ -100,9 +100,7 @@ class PSDataExtractorTest {
     assertEquals(source, result);
   }
 
-  /**
-   * Concrete implementation of PSDataExtractor for testing purposes.
-   */
+  /** Concrete implementation of PSDataExtractor for testing purposes. */
   private static class TestDataExtractor extends PSDataExtractor {
     public TestDataExtractor(IPSReplacementValue source) {
       super(source);

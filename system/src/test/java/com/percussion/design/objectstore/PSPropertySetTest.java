@@ -16,38 +16,31 @@
  */
 package com.percussion.design.objectstore;
 
-import com.percussion.xml.PSXmlDocumentBuilder;
-
-import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
+import com.percussion.xml.PSXmlDocumentBuilder;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
-/**
- * Unit test class for <code>PSPropertySet</code>
- */
-public class PSPropertySetTest 
-{
-   /**
-    * Tests that the XML serialization has a predictable ordering (ascending
-    * alphabetical property name).
-    */
-   
-   public void testXmlOrdering()
-   {
-      PSPropertySet pset = new PSPropertySet();     
-      pset.setProperty("p1", "v1");
-      pset.setProperty("p3", "v3");
-      pset.setProperty("p2", "v2");
-      
-      Document doc = PSXmlDocumentBuilder.createXmlDocument();
-      Element root = pset.toXml(doc);
-      NodeList fields = root.getElementsByTagName(PSProperty.XML_NODE_NAME);
-      assertEquals(3, fields.getLength());
-      assertEquals("p1", ((Element)fields.item(0)).getAttribute("name"));
-      assertEquals("p2", ((Element)fields.item(1)).getAttribute("name"));
-      assertEquals("p3", ((Element)fields.item(2)).getAttribute("name"));
-   }
+/** Unit test class for <code>PSPropertySet</code> */
+public class PSPropertySetTest {
+  /**
+   * Tests that the XML serialization has a predictable ordering (ascending alphabetical property
+   * name).
+   */
+  public void testXmlOrdering() {
+    PSPropertySet pset = new PSPropertySet();
+    pset.setProperty("p1", "v1");
+    pset.setProperty("p3", "v3");
+    pset.setProperty("p2", "v2");
+
+    Document doc = PSXmlDocumentBuilder.createXmlDocument();
+    Element root = pset.toXml(doc);
+    NodeList fields = root.getElementsByTagName(PSProperty.XML_NODE_NAME);
+    assertEquals(3, fields.getLength());
+    assertEquals("p1", ((Element) fields.item(0)).getAttribute("name"));
+    assertEquals("p2", ((Element) fields.item(1)).getAttribute("name"));
+    assertEquals("p3", ((Element) fields.item(2)).getAttribute("name"));
+  }
 }

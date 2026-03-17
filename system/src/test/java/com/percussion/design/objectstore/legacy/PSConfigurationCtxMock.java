@@ -22,23 +22,23 @@ import com.percussion.design.objectstore.PSUnknownNodeTypeException;
 import com.percussion.utils.container.IPSContainerUtils;
 import com.percussion.utils.container.PSMissingApplicationPolicyException;
 import com.percussion.utils.xml.PSInvalidXmlException;
+import java.io.IOException;
 import org.xml.sax.SAXException;
 
-import java.io.IOException;
+class PSConfigurationCtxMock extends PSConfigurationCtx {
 
-   class PSConfigurationCtxMock extends PSConfigurationCtx{
+  public PSConfigurationCtxMock(IPSConfigFileLocator locator, String partOneKey)
+      throws PSInvalidXmlException,
+          IOException,
+          SAXException,
+          PSMissingApplicationPolicyException,
+          PSUnknownDocTypeException,
+          PSUnknownNodeTypeException {
+    super(locator, partOneKey);
+  }
 
-     public PSConfigurationCtxMock(IPSConfigFileLocator locator, String partOneKey) throws PSInvalidXmlException,
-      IOException, SAXException, PSMissingApplicationPolicyException, PSUnknownDocTypeException,
-      PSUnknownNodeTypeException
-    {
-          super(locator, partOneKey);
-          
-    }
-
-    @Override
-      public IPSContainerUtils getUtils(){
-         throw new RuntimeException("FixMe");
-      }
-
+  @Override
+  public IPSContainerUtils getUtils() {
+    throw new RuntimeException("FixMe");
+  }
 }

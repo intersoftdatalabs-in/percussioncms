@@ -16,124 +16,107 @@
  */
 package com.percussion.services.utils.orm;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import com.percussion.services.PSBaseServiceLocator;
 import com.percussion.services.utils.orm.data.PSTempId;
-
 import com.percussion.utils.timing.PSStopwatch;
-
-import java.util.ArrayList;
-import java.util.List;
-
-import org.hibernate.Session;
-import org.hibernate.SessionFactory;
-
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.Tag;
-import org.junit.jupiter.api.Disabled;
-
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Root;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import java.util.ArrayList;
+import java.util.List;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 /**
  * Test the data collection helper for correct behavior.
  *
  * @author dougrand
  */
-
 @Disabled("Temporarily disabled — failing in perc-system test run")
-public class PSDataCollectionHelperTest
-{
-   /**
-    * Test
-    */
-   @Test
-   public void testCreateIdSet()
-   {
-      SessionFactory sf =
-         (SessionFactory) PSBaseServiceLocator.getBean("sys_sessionFactory");
-      Session s = sf.openSession();
+public class PSDataCollectionHelperTest {
+  /** Test */
+  @Test
+  public void testCreateIdSet() {
+    SessionFactory sf = (SessionFactory) PSBaseServiceLocator.getBean("sys_sessionFactory");
+    Session s = sf.openSession();
 
-      List<Long> ids = new ArrayList<Long>();
-      for (long i = 0; i < 1000; i++)
-      {
-         ids.add(i);
-      }
-      // Add a few dups to test for RX-11516
-      for (long i = 1; i < 5; i++)
-      {
-         ids.add(i);
-      }
+    List<Long> ids = new ArrayList<Long>();
+    for (long i = 0; i < 1000; i++) {
+      ids.add(i);
+    }
+    // Add a few dups to test for RX-11516
+    for (long i = 1; i < 5; i++) {
+      ids.add(i);
+    }
 
-      PSStopwatch sw = new PSStopwatch();
-      sw.start();
-      long idset1 = PSDataCollectionHelper.createIdSet(s, ids);
-      sw.stop();
-      System.out.println("First set created in " + sw);
-      sw.start();
-      long idset2 = PSDataCollectionHelper.createIdSet(s, ids);
-      sw.stop();
-      System.out.println("Second set created in " + sw);
-      sw.start();
-      long idset3 = PSDataCollectionHelper.createIdSet(s, ids);
-      sw.stop();
-      System.out.println("Third set created in " + sw);
-      sw.start();
-      long idset4 = PSDataCollectionHelper.createIdSet(s, ids);
-      sw.stop();
-      System.out.println("Fourth set created in " + sw);
+    PSStopwatch sw = new PSStopwatch();
+    sw.start();
+    long idset1 = PSDataCollectionHelper.createIdSet(s, ids);
+    sw.stop();
+    System.out.println("First set created in " + sw);
+    sw.start();
+    long idset2 = PSDataCollectionHelper.createIdSet(s, ids);
+    sw.stop();
+    System.out.println("Second set created in " + sw);
+    sw.start();
+    long idset3 = PSDataCollectionHelper.createIdSet(s, ids);
+    sw.stop();
+    System.out.println("Third set created in " + sw);
+    sw.start();
+    long idset4 = PSDataCollectionHelper.createIdSet(s, ids);
+    sw.stop();
+    System.out.println("Fourth set created in " + sw);
 
-      // Check contents
-      CriteriaBuilder builder = s.getCriteriaBuilder();
-      CriteriaQuery<PSTempId> criteria = builder.createQuery(PSTempId.class);
-      Root<PSTempId> critRoot = criteria.from(PSTempId.class);
-      criteria.where(builder.equal(critRoot.get("pk.id"), idset1));
-      List results = s.createQuery(criteria).getResultList();
-      assertEquals(ids.size(), results.size());
+    // Check contents
+    CriteriaBuilder builder = s.getCriteriaBuilder();
+    CriteriaQuery<PSTempId> criteria = builder.createQuery(PSTempId.class);
+    Root<PSTempId> critRoot = criteria.from(PSTempId.class);
+    criteria.where(builder.equal(critRoot.get("pk.id"), idset1));
+    List results = s.createQuery(criteria).getResultList();
+    assertEquals(ids.size(), results.size());
 
-      ids.clear();
-      for (long i = 0; i < 10000; i++)
-      {
-         ids.add(i);
-      }
-      sw.start();
-      long idset5 = PSDataCollectionHelper.createIdSet(s, ids);
-      sw.stop();
-      System.out.println("Fifth (10000) set created in " + sw);
+    ids.clear();
+    for (long i = 0; i < 10000; i++) {
+      ids.add(i);
+    }
+    sw.start();
+    long idset5 = PSDataCollectionHelper.createIdSet(s, ids);
+    sw.stop();
+    System.out.println("Fifth (10000) set created in " + sw);
 
-      // Check contents
-      criteria = builder.createQuery(PSTempId.class);
-      Root<PSTempId> crit = criteria.from(PSTempId.class);
-      criteria.where(builder.equal(crit.get("pk.id"), idset5));
-      results = s.createQuery(criteria).getResultList();
-      assertEquals(ids.size(), results.size());
+    // Check contents
+    criteria = builder.createQuery(PSTempId.class);
+    Root<PSTempId> crit = criteria.from(PSTempId.class);
+    criteria.where(builder.equal(crit.get("pk.id"), idset5));
+    results = s.createQuery(criteria).getResultList();
+    assertEquals(ids.size(), results.size());
 
+    // Clear
+    sw.start();
+    PSDataCollectionHelper.clearIdSet(s, idset1);
+    sw.stop();
+    System.out.println("First set cleared in " + sw);
+    sw.start();
+    PSDataCollectionHelper.clearIdSet(s, idset2);
+    sw.stop();
+    System.out.println("Second set cleared in " + sw);
+    sw.start();
+    PSDataCollectionHelper.clearIdSet(s, idset3);
+    sw.stop();
+    System.out.println("Third set cleared in " + sw);
+    sw.start();
+    PSDataCollectionHelper.clearIdSet(s, idset4);
+    sw.stop();
+    System.out.println("Fourth set cleared in " + sw);
+    sw.start();
+    PSDataCollectionHelper.clearIdSet(s, idset5);
+    sw.stop();
+    System.out.println("Fifth set cleared in " + sw);
 
-      // Clear
-      sw.start();
-      PSDataCollectionHelper.clearIdSet(s, idset1);
-      sw.stop();
-      System.out.println("First set cleared in " + sw);
-      sw.start();
-      PSDataCollectionHelper.clearIdSet(s, idset2);
-      sw.stop();
-      System.out.println("Second set cleared in " + sw);
-      sw.start();
-      PSDataCollectionHelper.clearIdSet(s, idset3);
-      sw.stop();
-      System.out.println("Third set cleared in " + sw);
-      sw.start();
-      PSDataCollectionHelper.clearIdSet(s, idset4);
-      sw.stop();
-      System.out.println("Fourth set cleared in " + sw);
-      sw.start();
-      PSDataCollectionHelper.clearIdSet(s, idset5);
-      sw.stop();
-      System.out.println("Fifth set cleared in " + sw);
-
-      s.close();
-   }
-
+    s.close();
+  }
 }

@@ -412,8 +412,8 @@ public abstract class PSFile extends PSComponent {
    *     </code>)
    * @param parentDoc the Java object which is the parent of this object
    * @param parentComponents the parent objects of this object
-   * @param nodeType the element tag name representing a subclass' object, such as
-   *     <code>PSXApplicationFile</code>
+   * @param nodeType the element tag name representing a subclass' object, such as <code>
+   *     PSXApplicationFile</code>
    * @exception PSUnknownNodeTypeException if the XML element node is not of the appropriate type
    */
   protected void fromXml(
@@ -532,9 +532,7 @@ public abstract class PSFile extends PSComponent {
     return true;
   }
 
-  /**
-   * Generates code of the object. Overrides {@link Object#hashCode()}.
-   */
+  /** Generates code of the object. Overrides {@link Object#hashCode()}. */
   @Override
   public int hashCode() {
     return new HashCodeBuilder().append(m_url).toHashCode();

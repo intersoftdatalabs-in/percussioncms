@@ -16,37 +16,29 @@
  */
 package com.percussion.rx.admin.jsf.nodes;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 import com.percussion.services.catalog.PSTypeEnum;
 import com.percussion.services.guidmgr.data.PSGuid;
 import com.percussion.services.schedule.data.PSNotifyWhen;
 import com.percussion.services.schedule.data.PSScheduledTask;
 
-import org.junit.jupiter.api.Test;
-import static org.junit.jupiter.api.Assertions.*;
-
 /**
  * @author Andriy Palamarchuk
  */
-public class PSTaskNodeTest 
-{
-   
-   public void testGetNotifyWhenChoices()
-   {
-      final PSScheduledTask schedule = new PSScheduledTask();
-      schedule.setId(new PSGuid(HOST_ID, PSTypeEnum.SCHEDULED_TASK, UUID));
-      schedule.setName("Label1");
-      final PSTaskNode n = new PSTaskNode(schedule);
-      assertEquals(PSNotifyWhen.values().length,
-            n.getNotifyWhenChoices().size());
-   }
+public class PSTaskNodeTest {
 
-   /**
-    * Sample GUID UUID.
-    */
-   protected static final int UUID = 123;
+  public void testGetNotifyWhenChoices() {
+    final PSScheduledTask schedule = new PSScheduledTask();
+    schedule.setId(new PSGuid(HOST_ID, PSTypeEnum.SCHEDULED_TASK, UUID));
+    schedule.setName("Label1");
+    final PSTaskNode n = new PSTaskNode(schedule);
+    assertEquals(PSNotifyWhen.values().length, n.getNotifyWhenChoices().size());
+  }
 
-   /**
-    * Sample GUID host id.
-    */
-   protected static final int HOST_ID = 10;
+  /** Sample GUID UUID. */
+  protected static final int UUID = 123;
+
+  /** Sample GUID host id. */
+  protected static final int HOST_ID = 10;
 }

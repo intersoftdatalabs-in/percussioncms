@@ -16,61 +16,48 @@
  */
 package com.percussion.design.objectstore;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 import com.percussion.util.PSCollection;
 import com.percussion.xml.PSXmlDocumentBuilder;
-
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-
-import org.junit.jupiter.api.Test;
-import static org.junit.jupiter.api.Assertions.*;
-
-
 // Test case
-public class PSCommandHandlerStylesheetsTest 
-{
-   
+public class PSCommandHandlerStylesheetsTest {
 
-   
-   
+  public void testEquals() throws Exception {}
 
-   public void testEquals() throws Exception
-   {
-   }
+  public void testXml() throws Exception {
+    Document doc = PSXmlDocumentBuilder.createXmlDocument();
+    Element root = PSXmlDocumentBuilder.createRoot(doc, "Test");
 
-   
+    // create test object
+    PSCollection parameters = new PSCollection("com.percussion.design.objectstore.PSParam");
+    PSUrlRequest request =
+        new PSUrlRequest("newRequest", "http://38.227.11.8/Rhythmyx/1111.htm", parameters);
+    PSUrlRequest request2 =
+        new PSUrlRequest("newRequest", "http://38.227.11.8/Rhythmyx/2222.htm", parameters);
+    PSCommandHandlerStylesheets testTo =
+        new PSCommandHandlerStylesheets("New", new PSStylesheet(request));
+    testTo.setDefaultStylesheet("Update", new PSStylesheet(request2));
 
-   public void testXml() throws Exception
-   {
-      Document doc = PSXmlDocumentBuilder.createXmlDocument();
-      Element root = PSXmlDocumentBuilder.createRoot(doc, "Test");
+    PSStylesheet condStylesheet = testTo.getDefaultStylesheet("New");
+    PSCollection conditions = new PSCollection(condStylesheet.getClass());
+    conditions.add(condStylesheet);
+    conditions.add(condStylesheet);
+    conditions.add(condStylesheet);
+    testTo.addConditionalStylesheets("New", conditions);
 
-      // create test object
-      PSCollection parameters = new PSCollection("com.percussion.design.objectstore.PSParam");
-      PSUrlRequest request = new PSUrlRequest("newRequest", "http://38.227.11.8/Rhythmyx/1111.htm", parameters);
-      PSUrlRequest request2 = new PSUrlRequest("newRequest", "http://38.227.11.8/Rhythmyx/2222.htm", parameters);
-      PSCommandHandlerStylesheets testTo = new PSCommandHandlerStylesheets("New", new PSStylesheet(request));
-      testTo.setDefaultStylesheet("Update", new PSStylesheet(request2));
+    Element elem = testTo.toXml(doc);
+    PSXmlDocumentBuilder.copyTree(doc, root, elem, true);
 
-      PSStylesheet condStylesheet = testTo.getDefaultStylesheet("New");
-      PSCollection conditions = new PSCollection(condStylesheet.getClass());
-      conditions.add(condStylesheet);
-      conditions.add(condStylesheet);
-      conditions.add(condStylesheet);
-      testTo.addConditionalStylesheets("New", conditions);
-
-      Element elem = testTo.toXml(doc);
-      PSXmlDocumentBuilder.copyTree(doc, root, elem, true);
-
-      // create a new object and populate it from our testTo element
-      PSCommandHandlerStylesheets testFrom = new PSCommandHandlerStylesheets(elem, null, null);
-      Document doc2 = PSXmlDocumentBuilder.createXmlDocument();
-      Element root2 = PSXmlDocumentBuilder.createRoot(doc2, "Test");
-      Element elem2 = testFrom.toXml(doc);
-      PSXmlDocumentBuilder.copyTree(doc2, root2, elem2, true);
-      assertEquals(testTo, testFrom);
-   }
-
-   
+    // create a new object and populate it from our testTo element
+    PSCommandHandlerStylesheets testFrom = new PSCommandHandlerStylesheets(elem, null, null);
+    Document doc2 = PSXmlDocumentBuilder.createXmlDocument();
+    Element root2 = PSXmlDocumentBuilder.createRoot(doc2, "Test");
+    Element elem2 = testFrom.toXml(doc);
+    PSXmlDocumentBuilder.copyTree(doc2, root2, elem2, true);
+    assertEquals(testTo, testFrom);
+  }
 }

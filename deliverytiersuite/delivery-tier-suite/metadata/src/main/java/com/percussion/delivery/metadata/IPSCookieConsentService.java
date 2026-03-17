@@ -29,21 +29,22 @@ public interface IPSCookieConsentService {
   /**
    * Saves the client cookie consent information.
    *
-   * @param consent the consent object to save.
+   * @param consentQueries the consent queries to save.
    */
   public void save(Collection<PSCookieConsentQuery> consentQueries);
 
   /**
    * Saves the client cookie consent information.
    *
-   * @param consent the consent object to save.
+   * @param oldName the old site name to replace.
+   * @param newName the new site name to use.
    */
   public void updateOldSiteName(String oldName, String newName);
 
   /**
    * Gets a list of cookie consent entries in the database.
    *
-   * @see {@link #PSCookieConsent}
+   * @see IPSCookieConsent
    * @return a list of cookie consent entries. May be empty, never <code>null</code>.
    */
   public Collection<IPSCookieConsent> getAllConsentStats();

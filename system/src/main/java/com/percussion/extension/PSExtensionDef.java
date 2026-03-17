@@ -323,8 +323,7 @@ public class PSExtensionDef implements IPSExtensionDef, Serializable, IPSCloneTu
   public void setRequiredApplications(Iterator<PSExtensionRef> apps) {
     if (apps == null) throw new IllegalArgumentException("apps may not be null");
     requiredApplications.clear();
-    while (apps.hasNext())
-      requiredApplications.add(apps.next().getFQN());
+    while (apps.hasNext()) requiredApplications.add(apps.next().getFQN());
   }
 
   // see IPSExtensionDef
@@ -349,11 +348,12 @@ public class PSExtensionDef implements IPSExtensionDef, Serializable, IPSCloneTu
   }
 
   /**
-   * Sets the required application names from an iterator of simple application names (not full FQNs).
-   * This is used when parsing extension definitions where only the application name is available,
-   * not the full handler/context/name reference.
+   * Sets the required application names from an iterator of simple application names (not full
+   * FQNs). This is used when parsing extension definitions where only the application name is
+   * available, not the full handler/context/name reference.
    *
-   * @param appNames Iterator of simple application name strings. If <code>null</code>, does nothing.
+   * @param appNames Iterator of simple application name strings. If <code>null</code>, does
+   *     nothing.
    */
   public void setRequiredApplicationNames(Iterator<String> appNames) {
     if (appNames == null) return;

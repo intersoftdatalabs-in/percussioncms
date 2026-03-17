@@ -23,11 +23,12 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * The PSColumnCatalogHandler class implements cataloging of virtual column
- * data using the file system driver.
- * <p>
- * Column catalog requests are sent to the server using the PSXColumnCatalog
- * XML document. Its definition is as follows:
+ * The PSColumnCatalogHandler class implements cataloging of virtual column data using the file
+ * system driver.
+ *
+ * <p>Column catalog requests are sent to the server using the PSXColumnCatalog XML document. Its
+ * definition is as follows:
+ *
  * <pre>
  *    &lt;!ELEMENT PSXColumnCatalog (driverName, serverName?, loginId?,
  *    loginPw?, databaseName?, schemaName?, tableName)&gt;
@@ -61,8 +62,8 @@ import org.w3c.dom.Element;
  *    &lt;!ELEMENT tableName        (#PCDATA)&gt;
  * </pre>
  *
- * The PSXColumnCatalogResults XML document is sent as the response. Its
- * definition is as follows:
+ * The PSXColumnCatalogResults XML document is sent as the response. Its definition is as follows:
+ *
  * <pre>
  *    &lt;!ELEMENT PSXColumnCatalogResults (driverName, serverName,
  *    databaseName, schemaName, tableName, Column*)&gt;
@@ -117,9 +118,9 @@ import org.w3c.dom.Element;
  *    &lt;!ELEMENT allowsNull              (yes | no | unknown)&gt;
  * </pre>
  *
- * @author     Tas Giakouminakis
- * @version    1.0
- * @since      1.0
+ * @author Tas Giakouminakis
+ * @version 1.0
+ * @since 1.0
  */
 public class PSColumnCatalogHandler implements IPSCatalogHandler {
   /** Constructs an instance of this handler. */

@@ -22,16 +22,18 @@ import org.junit.jupiter.api.Test;
 
 public class PSProxyURLTest {
 
-    public PSProxyURLTest(){}
+  public PSProxyURLTest() {}
 
-    @Test
-    public void testURL() throws Exception{
+  @Test
+  public void testURL() throws Exception {
 
-        String url = "http://macbook-pro.local:9992/Rhythmyx/psx_cepercRichTextAsset/percRichTextAsset.html?sys_revision=1&sys_contentid=10051&sys_command=edit&sys_pageid=0&sys_view=sys_HiddenFields%3Asys_title";
+    String url =
+        "http://macbook-pro.local:9992/Rhythmyx/psx_cepercRichTextAsset/percRichTextAsset.html?sys_revision=1&sys_contentid=10051&sys_command=edit&sys_pageid=0&sys_view=sys_HiddenFields%3Asys_title";
 
-        String result = PSCommandHandler.fixProxiedUrl(url, "macbook-pro.local",8080 );
-        System.out.println(result);
-        Assertions.assertTrue("http://macbook-pro.local:8080/Rhythmyx/psx_cepercRichTextAsset/percRichTextAsset.html?sys_revision=1&sys_contentid=10051&sys_command=edit&sys_pageid=0&sys_view=sys_HiddenFields%3Asys_title".equals(result));
-
-    }
+    String result = PSCommandHandler.fixProxiedUrl(url, "macbook-pro.local", 8080);
+    System.out.println(result);
+    Assertions.assertTrue(
+        "http://macbook-pro.local:8080/Rhythmyx/psx_cepercRichTextAsset/percRichTextAsset.html?sys_revision=1&sys_contentid=10051&sys_command=edit&sys_pageid=0&sys_view=sys_HiddenFields%3Asys_title"
+            .equals(result));
+  }
 }

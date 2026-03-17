@@ -71,7 +71,6 @@ import org.w3c.dom.*;
  * This class is a placeholder for several global constants or variables that need to be evaluated
  * only once, and also contains static functions used for workflow.
  */
-
 public class PSWorkFlowUtils {
   /** Role delimiter (in role list) */
   public static final String ROLE_DELIMITER = ",";
@@ -2010,7 +2009,6 @@ public class PSWorkFlowUtils {
    * @return A list of allowed transition objects, never <code>null</code>, may be empty.
    * @throws SQLException If there are errors accessing the database.
    */
-
   public static List<PSTransitionInfo> getAllowedTransitions(
       PSContentStatusContext csc,
       Connection conn,

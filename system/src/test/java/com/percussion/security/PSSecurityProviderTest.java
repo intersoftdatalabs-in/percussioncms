@@ -16,107 +16,103 @@
  */
 package com.percussion.security;
 
-import com.percussion.utils.server.IPSCgiVariables;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import com.percussion.server.PSRequest;
 import com.percussion.server.PSRequestTest;
 import com.percussion.testing.IPSCustomJunitTest;
-
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.Tag;
-
+import com.percussion.utils.server.IPSCgiVariables;
 import java.io.ByteArrayOutputStream;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
-
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
 
 /**
- * Security provider tests. Not part of the nightly test execution, only used
- * for debugging purposes.
+ * Security provider tests. Not part of the nightly test execution, only used for debugging
+ * purposes.
  *
- * This test needs the NT Guest account activated. It is excluded to run
- * on nightly builds.
+ * <p>This test needs the NT Guest account activated. It is excluded to run on nightly builds.
  */
 @Tag("UnitTest")
-public class PSSecurityProviderTest
-   implements IPSCustomJunitTest
-{
-   public PSSecurityProviderTest()
-   {
+public class PSSecurityProviderTest implements IPSCustomJunitTest {
+  public PSSecurityProviderTest() {}
 
-   }
+  /**
+   * Helper to create a new request used for testing.
+   *
+   * @return the newly created request , never <code>null</code>.
+   */
+  protected PSRequest createRequest() {
+    HashMap cookies = new HashMap();
+    HashMap cgiVars = new HashMap();
 
-   /**
-    * Helper to create a new request used for testing.
-    *
-    * @return the newly created request , never <code>null</code>.
-    */
-   protected PSRequest createRequest()
-   {
-      HashMap cookies = new HashMap();
-      HashMap cgiVars = new HashMap();
+    cgiVars.put(IPSCgiVariables.CGI_PS_REQUEST_TYPE, "design-");
 
-      cgiVars.put(IPSCgiVariables.CGI_PS_REQUEST_TYPE, "design-");
+    PSRequest req =
+        PSRequestTest.makeRequest(
+            "/foo",
+            "/foo",
+            new HashMap(), // params
+            cgiVars, // cgi vars
+            cookies, // cookies
+            null,
+            new ByteArrayOutputStream());
 
-      PSRequest req = PSRequestTest.makeRequest("/foo", "/foo",
-         new HashMap(), // params
-         cgiVars, // cgi vars
-         cookies, // cookies
-         null, new ByteArrayOutputStream());
+    return req;
+  }
 
-      return req;
-   }
+  /**
+   * Test the web server security provider.
+   *
+   * @throws Exception If the test fails
+   */
+  @Test
+  public void WebProviderTest() throws Exception {
+    Properties props = new Properties();
+    props.setProperty(
+        PSWebServerProvider.AUTHENTICATED_USER_HEADER, IPSCgiVariables.CGI_AUTH_USER_NAME);
+    props.setProperty(PSWebServerProvider.ROLE_LIST_DELIMITER, ";");
+    props.setProperty(PSWebServerProvider.USER_ROLE_LIST_HEADER, "HTTP_RXUSERROLES");
+    PSWebServerProvider webProvider = new PSWebServerProvider(props, "testInstance");
 
-   /**
-    * Test the web server security provider.
-    *
-    * @throws Exception If the test fails
-    */
-   @Test
-   public void WebProviderTest() throws Exception
-   {
-      Properties props = new Properties();
-      props.setProperty(PSWebServerProvider.AUTHENTICATED_USER_HEADER,
-         IPSCgiVariables.CGI_AUTH_USER_NAME);
-      props.setProperty(PSWebServerProvider.ROLE_LIST_DELIMITER, ";");
-      props.setProperty(PSWebServerProvider.USER_ROLE_LIST_HEADER,
-         "HTTP_RXUSERROLES");
-      PSWebServerProvider webProvider = new PSWebServerProvider(props,
-         "testInstance");
+    PSUserEntry ent;
 
-      PSUserEntry ent;
+    // Step 1: Send a basic authentication with user admin1
+    Map<String, String> cgiVars = new HashMap<String, String>();
+    cgiVars.put(IPSCgiVariables.CGI_AUTH_USER_NAME, "admin1");
+    cgiVars.put("HTTP_RXUSERROLES", "Admin");
+    cgiVars.put(IPSCgiVariables.CGI_AUTH_TYPE, "Basic");
+    ent = webProvider.authenticate("admin1", cgiVars);
 
-      // Step 1: Send a basic authentication with user admin1
-      Map<String, String> cgiVars = new HashMap<String, String>();
-      cgiVars.put(IPSCgiVariables.CGI_AUTH_USER_NAME, "admin1");
-      cgiVars.put("HTTP_RXUSERROLES", "Admin");
-      cgiVars.put(IPSCgiVariables.CGI_AUTH_TYPE, "Basic");
-      ent = webProvider.authenticate("admin1", cgiVars);
+    assertTrue(
+        ent.getName().equals("admin1"),
+        "Name not retrieved in user entry - " + ent.getName() + " was returned");
 
-      assertTrue(ent.getName().equals("admin1"), "Name not retrieved in user entry - " + ent.getName() + " was returned");
+    // Step 2: Send a NTLM authentication with user admin1
+    cgiVars = new HashMap<String, String>();
+    // TODO Fix test?
+    // req.setCgiVariables(cgiVars);
+    cgiVars.put(IPSCgiVariables.CGI_AUTH_USER_NAME, "admin1");
+    cgiVars.put("HTTP_RXUSERROLES", "Admin");
+    cgiVars.put(IPSCgiVariables.CGI_AUTH_TYPE, "NTLM");
 
-      // Step 2: Send a NTLM authentication with user admin1
-      cgiVars = new HashMap<String, String>();
-      // TODO Fix test?
-      // req.setCgiVariables(cgiVars);
-      cgiVars.put(IPSCgiVariables.CGI_AUTH_USER_NAME, "admin1");
-      cgiVars.put("HTTP_RXUSERROLES", "Admin");
-      cgiVars.put(IPSCgiVariables.CGI_AUTH_TYPE, "NTLM");
+    ent = webProvider.authenticate("admin1", cgiVars);
+    assertTrue(
+        ent.getName().equals("admin1"),
+        "Name not retrieved in user entry - " + ent.getName() + " was returned");
 
-      ent = webProvider.authenticate("admin1", cgiVars);
-      assertTrue(ent.getName().equals("admin1"), "Name not retrieved in user entry - " + ent.getName() + " was returned");
+    // Step 3: Send a NTLM authentication with user admin1
+    cgiVars = new HashMap<String, String>();
+    // TODO Fix test?
+    // req.setCgiVariables(cgiVars);
+    cgiVars.put("HTTP_RXUSERROLES", "Admin");
+    cgiVars.put(IPSCgiVariables.CGI_CERT_SUBJECT, "CN=Bugs Bunny,OU=TestOrgUnit,O=Earth,C=USA");
 
-      // Step 3: Send a NTLM authentication with user admin1
-      cgiVars = new HashMap<String, String>();
-      // TODO Fix test?
-      // req.setCgiVariables(cgiVars);
-      cgiVars.put("HTTP_RXUSERROLES", "Admin");
-      cgiVars.put(IPSCgiVariables.CGI_CERT_SUBJECT,
-         "CN=Bugs Bunny,OU=TestOrgUnit,O=Earth,C=USA");
-
-      ent = webProvider.authenticate("admin1", cgiVars);
-      assertTrue(ent.getName().equals("Bugs Bunny"), "Name not retrieved in user entry - " + ent.getName() + " was returned");
-   }
+    ent = webProvider.authenticate("admin1", cgiVars);
+    assertTrue(
+        ent.getName().equals("Bugs Bunny"),
+        "Name not retrieved in user entry - " + ent.getName() + " was returned");
+  }
 }

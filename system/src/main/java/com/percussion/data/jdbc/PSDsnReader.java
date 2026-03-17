@@ -34,32 +34,14 @@ import org.apache.logging.log4j.Logger;
  *
  * <p>The ODBC.INI file has the following format:
  *
- * &lt;DL&gt;
- *   &lt;LI&gt;[ODBC Data Sources]
- *   &lt;LI&gt;DATA_SOURCE_NAME1=DATA_SOURCE_DRIVER_NAME1
- *   &lt;LI&gt;DATA_SOURCE_NAME2=DATA_SOURCE_DRIVER_NAME2
- *   &lt;LI&gt;
- *   &lt;LI&gt;[DATA_SOURCE_NAME1]
- *   &lt;LI&gt;Driver=DATA_SOURCE_DRIVER_LOCATION
- *   &lt;LI&gt;OPTION1=
- *   &lt;LI&gt;OPTION2=
- *   &lt;LI&gt;...
- *   &lt;LI&gt;
- *   &lt;LI&gt;[DATA_SOURCE_NAME2]
- *   &lt;LI&gt;Driver=DATA_SOURCE_DRIVER_LOCATION
- *   &lt;LI&gt;OPTION1=
- *   &lt;LI&gt;OPTION2=
- *   &lt;LI&gt;...
- *   &lt;LI&gt;
- *   &lt;LI&gt;[ODBC System Data Sources]
- *   &lt;LI&gt;SYSTEM_DATA_SOURCE_NAME1=DATA_SOURCE_DRIVER_NAME3
- *   &lt;LI&gt;
- *   &lt;LI&gt;[SYSTEM_DATA_SOURCE_NAME1]
- *   &lt;LI&gt;Driver=DATA_SOURCE_DRIVER_LOCATION
- *   &lt;LI&gt;OPTION1=
- *   &lt;LI&gt;OPTION2=
- *   &lt;LI&gt;...
- * &lt;/DL&gt;
+ * <p>&lt;DL&gt; &lt;LI&gt;[ODBC Data Sources] &lt;LI&gt;DATA_SOURCE_NAME1=DATA_SOURCE_DRIVER_NAME1
+ * &lt;LI&gt;DATA_SOURCE_NAME2=DATA_SOURCE_DRIVER_NAME2 &lt;LI&gt; &lt;LI&gt;[DATA_SOURCE_NAME1]
+ * &lt;LI&gt;Driver=DATA_SOURCE_DRIVER_LOCATION &lt;LI&gt;OPTION1= &lt;LI&gt;OPTION2= &lt;LI&gt;...
+ * &lt;LI&gt; &lt;LI&gt;[DATA_SOURCE_NAME2] &lt;LI&gt;Driver=DATA_SOURCE_DRIVER_LOCATION
+ * &lt;LI&gt;OPTION1= &lt;LI&gt;OPTION2= &lt;LI&gt;... &lt;LI&gt; &lt;LI&gt;[ODBC System Data
+ * Sources] &lt;LI&gt;SYSTEM_DATA_SOURCE_NAME1=DATA_SOURCE_DRIVER_NAME3 &lt;LI&gt;
+ * &lt;LI&gt;[SYSTEM_DATA_SOURCE_NAME1] &lt;LI&gt;Driver=DATA_SOURCE_DRIVER_LOCATION
+ * &lt;LI&gt;OPTION1= &lt;LI&gt;OPTION2= &lt;LI&gt;... &lt;/DL&gt;
  */
 public class PSDsnReader {
   private static final Logger log = LogManager.getLogger(PSDsnReader.class);

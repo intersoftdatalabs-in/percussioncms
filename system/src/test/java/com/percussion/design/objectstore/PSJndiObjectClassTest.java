@@ -16,47 +16,32 @@
  */
 package com.percussion.design.objectstore;
 
-import org.junit.jupiter.api.Test;
-import static org.junit.jupiter.api.Assertions.*;
-
 import static com.percussion.design.objectstore.PSJndiObjectClass.MEMBER_ATTR_DYNAMIC;
 import static com.percussion.design.objectstore.PSJndiObjectClass.MEMBER_ATTR_STATIC;
 import static com.percussion.testing.PSTestCompare.assertEqualsWithHash;
+import static org.junit.jupiter.api.Assertions.*;
 
-public class PSJndiObjectClassTest 
-{
-   /**
-    * Tests behavior of equals() and hashCode() methods.
-    */
-   
-   public void testEqualsHashCode()
-   {
-      final PSJndiObjectClass objectClass =
-         new PSJndiObjectClass(OBJECT_CLASS, ATTR, MEMBER_ATTR_DYNAMIC);
-      assertFalse(objectClass.equals(new Object()));
-      assertEqualsWithHash(objectClass,
-            new PSJndiObjectClass(OBJECT_CLASS, ATTR, MEMBER_ATTR_DYNAMIC));
+public class PSJndiObjectClassTest {
+  /** Tests behavior of equals() and hashCode() methods. */
+  public void testEqualsHashCode() {
+    final PSJndiObjectClass objectClass =
+        new PSJndiObjectClass(OBJECT_CLASS, ATTR, MEMBER_ATTR_DYNAMIC);
+    assertFalse(objectClass.equals(new Object()));
+    assertEqualsWithHash(
+        objectClass, new PSJndiObjectClass(OBJECT_CLASS, ATTR, MEMBER_ATTR_DYNAMIC));
 
-      assertFalse(objectClass.equals(
-            new PSJndiObjectClass(SAMPLE_STR, ATTR, MEMBER_ATTR_DYNAMIC)));
-      assertFalse(objectClass.equals(
-            new PSJndiObjectClass(OBJECT_CLASS, SAMPLE_STR, MEMBER_ATTR_DYNAMIC)));
-      assertFalse(objectClass.equals(
-            new PSJndiObjectClass(OBJECT_CLASS, ATTR, MEMBER_ATTR_STATIC)));
-   }
+    assertFalse(objectClass.equals(new PSJndiObjectClass(SAMPLE_STR, ATTR, MEMBER_ATTR_DYNAMIC)));
+    assertFalse(
+        objectClass.equals(new PSJndiObjectClass(OBJECT_CLASS, SAMPLE_STR, MEMBER_ATTR_DYNAMIC)));
+    assertFalse(objectClass.equals(new PSJndiObjectClass(OBJECT_CLASS, ATTR, MEMBER_ATTR_STATIC)));
+  }
 
-   /**
-    * Sample object class.
-    */
-   private static final String OBJECT_CLASS = "Object Class";
-   
-   /**
-    * Sample attribute name.
-    */
-   private static final String ATTR = "Attr";
-   
-   /**
-    * Sample string.
-    */
-   private static final String SAMPLE_STR = "Other String";
+  /** Sample object class. */
+  private static final String OBJECT_CLASS = "Object Class";
+
+  /** Sample attribute name. */
+  private static final String ATTR = "Attr";
+
+  /** Sample string. */
+  private static final String SAMPLE_STR = "Other String";
 }

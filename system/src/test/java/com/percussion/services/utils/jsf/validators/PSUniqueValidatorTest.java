@@ -16,95 +16,78 @@
  */
 package com.percussion.services.utils.jsf.validators;
 
+import static org.junit.jupiter.api.Assertions.*;
+
+import jakarta.faces.validator.ValidatorException;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
-import jakarta.faces.validator.ValidatorException;
-import org.junit.jupiter.api.Test;
-import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Andriy Palamarchuk
  */
-public class PSUniqueValidatorTest 
-{
-   
-   public void testConstructor()
-   {
-      // not yet specified
-      final PSUniqueValidator v = new PSUniqueValidator();
-      try
-      {
-         v.validate(null, null, new Object());
-         fail();
-      }
-      catch (IllegalStateException expected) {}
+public class PSUniqueValidatorTest {
 
-      // specified
-      v.setValueProvider(new TestValueProvider());
+  public void testConstructor() {
+    // not yet specified
+    final PSUniqueValidator v = new PSUniqueValidator();
+    try {
       v.validate(null, null, new Object());
-   }
-   
-   
-   
-   public void testSetValueProvider()
-   {
-      final PSUniqueValidator v = new PSUniqueValidator();
-      try
-      {
-         v.setValueProvider(null);
-         fail();
-      }
-      catch (IllegalArgumentException expected) {}
-      
-      v.setValueProvider(new TestValueProvider());
-   }
-   
-   
-   
-   public void testValidate()
-   {
-      final String value1 = "Value 1";
-      final String value2 = "Value 2";
+      fail();
+    } catch (IllegalStateException expected) {
+    }
 
-      final PSUniqueValidator v = new PSUniqueValidator();
+    // specified
+    v.setValueProvider(new TestValueProvider());
+    v.validate(null, null, new Object());
+  }
 
-      // does not exist yet
-      final TestValueProvider valueProvider = new TestValueProvider();
-      valueProvider.mi_values.add(value2);
-      v.setValueProvider(valueProvider);
-      v.validate(null, null, value1);
-      v.validate(null, null, new Object());
+  public void testSetValueProvider() {
+    final PSUniqueValidator v = new PSUniqueValidator();
+    try {
+      v.setValueProvider(null);
+      fail();
+    } catch (IllegalArgumentException expected) {
+    }
 
-      // already exists
-      try
-      {
-         v.validate(null, null, value2);
-         fail();
-      }
-      catch (ValidatorException expected) {}
-      
-      //case insensitive
-      try
-      {
-         v.validate(null, null, value2.toLowerCase());
-         fail();
-      }
-      catch (ValidatorException expected) {}
-   }
-   
-   /**
-    * The value provider used for testing.
-    */
-   private static class TestValueProvider
-         implements IPSUniqueValidatorValueProvider
-   {
-      // see base
-      public Collection<Object> getAllValues()
-      {
-         return mi_values;
-      }
-      
-      private final Set<Object> mi_values = new HashSet<Object>();
-   }
+    v.setValueProvider(new TestValueProvider());
+  }
+
+  public void testValidate() {
+    final String value1 = "Value 1";
+    final String value2 = "Value 2";
+
+    final PSUniqueValidator v = new PSUniqueValidator();
+
+    // does not exist yet
+    final TestValueProvider valueProvider = new TestValueProvider();
+    valueProvider.mi_values.add(value2);
+    v.setValueProvider(valueProvider);
+    v.validate(null, null, value1);
+    v.validate(null, null, new Object());
+
+    // already exists
+    try {
+      v.validate(null, null, value2);
+      fail();
+    } catch (ValidatorException expected) {
+    }
+
+    // case insensitive
+    try {
+      v.validate(null, null, value2.toLowerCase());
+      fail();
+    } catch (ValidatorException expected) {
+    }
+  }
+
+  /** The value provider used for testing. */
+  private static class TestValueProvider implements IPSUniqueValidatorValueProvider {
+    // see base
+    public Collection<Object> getAllValues() {
+      return mi_values;
+    }
+
+    private final Set<Object> mi_values = new HashSet<Object>();
+  }
 }

@@ -17,7 +17,6 @@ package com.percussion.search;
 
 import org.junit.jupiter.api.Test;
 
-
 /**
  * This unit tests runs w/o the Rx server and attempts to do things that are not allowed and
  * verifies the proper exceptions are thrown.
@@ -25,25 +24,23 @@ import org.junit.jupiter.api.Test;
  * @author paulhoward
  */
 public class PSSearchEngineNegativeTest {
-   /**
-    * Tries to get the search engine instance w/o properties.
-    *
-    * @throws PSSearchException
-    */
-   @Test
-   public void testInitializeEngine() throws PSSearchException {
-      String oldTimeout = System.getProperty("com.percussion.search.init.timeout");
-      System.setProperty("com.percussion.search.init.timeout", "1");
-      try {
-         PSSearchEngine.getInstance();
-         org.junit.jupiter.api.Assertions.fail("Returned engine instance w/o properties.");
-      } catch (IllegalStateException ise) {
-         // expected
-      } finally {
-         if (oldTimeout != null)
-            System.setProperty("com.percussion.search.init.timeout", oldTimeout);
-         else
-            System.clearProperty("com.percussion.search.init.timeout");
-      }
-   }
+  /**
+   * Tries to get the search engine instance w/o properties.
+   *
+   * @throws PSSearchException
+   */
+  @Test
+  public void testInitializeEngine() throws PSSearchException {
+    String oldTimeout = System.getProperty("com.percussion.search.init.timeout");
+    System.setProperty("com.percussion.search.init.timeout", "1");
+    try {
+      PSSearchEngine.getInstance();
+      org.junit.jupiter.api.Assertions.fail("Returned engine instance w/o properties.");
+    } catch (IllegalStateException ise) {
+      // expected
+    } finally {
+      if (oldTimeout != null) System.setProperty("com.percussion.search.init.timeout", oldTimeout);
+      else System.clearProperty("com.percussion.search.init.timeout");
+    }
+  }
 }

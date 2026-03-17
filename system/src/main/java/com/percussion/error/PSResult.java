@@ -22,8 +22,8 @@ import com.percussion.cms.objectstore.PSKey;
 // REFACTORED: CP-JAVA11
 /**
  * This is the base class for all test results produced by different methods in the
- * com.percussion.relationship.IPSEffect interface. Implements common methods to pass information from the methods to the
- * relationship engine after execution.
+ * com.percussion.relationship.IPSEffect interface. Implements common methods to pass information
+ * from the methods to the relationship engine after execution.
  */
 public class PSResult {
   /** Default constructor. Does nothing special. */

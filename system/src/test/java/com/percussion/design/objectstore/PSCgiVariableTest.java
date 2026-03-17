@@ -16,98 +16,72 @@
  */
 package com.percussion.design.objectstore;
 
-import com.percussion.xml.PSXmlDocumentBuilder;
+import static org.junit.jupiter.api.Assertions.*;
 
+import com.percussion.xml.PSXmlDocumentBuilder;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
+/** Unit tests for the PSCgiVariable class. */
+public class PSCgiVariableTest {
 
-import org.junit.jupiter.api.Test;
-import static org.junit.jupiter.api.Assertions.*;
+  public void testConstructor() throws Exception {
 
-
-/**
- * Unit tests for the PSCgiVariable class.
- */
-public class PSCgiVariableTest 
-{
-   
-
-   
-   
-
-   public void testConstructor() throws Exception
-   {
-
-      {
-         PSCgiVariable var = new PSCgiVariable("foobar");
-         assertEquals("foobar", var.getName());
-      }
-
-      {
-         PSCgiVariable var = new PSCgiVariable("foobar");
-         PSCgiVariable otherVar = new PSCgiVariable("foobar");
-         assertEquals(var, otherVar);
-      }
-   
-      {
-         boolean didThrow = false;
-         try
-         {
-            PSCgiVariable var = new PSCgiVariable(null);
-         }
-         catch (IllegalArgumentException ex)
-         {
-            didThrow = true;
-         }
-         assertTrue(didThrow);
-      }
-
-      {
-         boolean didThrow = false;
-         try
-         {
-            PSCgiVariable var = new PSCgiVariable("");
-         }
-         catch (IllegalArgumentException ex)
-         {
-            didThrow = true;
-         }
-         assertTrue(didThrow);
-      }
-   }
-
-   
-
-   public void testXml() throws Exception
-   {
+    {
       PSCgiVariable var = new PSCgiVariable("foobar");
+      assertEquals("foobar", var.getName());
+    }
 
-      Document doc = PSXmlDocumentBuilder.createXmlDocument();
-      Element el = var.toXml(doc);
-      PSCgiVariable otherVar = new PSCgiVariable(el, null, null);
-
+    {
+      PSCgiVariable var = new PSCgiVariable("foobar");
+      PSCgiVariable otherVar = new PSCgiVariable("foobar");
       assertEquals(var, otherVar);
-   }
+    }
 
-   /**
-    * Tests that the <code>clone()</code> method produces a new instance of
-    * the class.  Assumes that <code>equals()</code> is implemented correctly.
-    * 
-    * @throws Exception if the test fails.
-    */ 
-   
-   public void testClone() throws Exception
-   {
-      PSCgiVariable foo = new PSCgiVariable("foo");
-      PSCgiVariable bar = (PSCgiVariable) foo.clone();
-      
-      assertEquals( foo, bar ); // I hope so!
-      
-      bar.setName( "bar" );
-      assertFalse(foo.equals( bar ) );
-   }
-   
-   
-   
+    {
+      boolean didThrow = false;
+      try {
+        PSCgiVariable var = new PSCgiVariable(null);
+      } catch (IllegalArgumentException ex) {
+        didThrow = true;
+      }
+      assertTrue(didThrow);
+    }
+
+    {
+      boolean didThrow = false;
+      try {
+        PSCgiVariable var = new PSCgiVariable("");
+      } catch (IllegalArgumentException ex) {
+        didThrow = true;
+      }
+      assertTrue(didThrow);
+    }
+  }
+
+  public void testXml() throws Exception {
+    PSCgiVariable var = new PSCgiVariable("foobar");
+
+    Document doc = PSXmlDocumentBuilder.createXmlDocument();
+    Element el = var.toXml(doc);
+    PSCgiVariable otherVar = new PSCgiVariable(el, null, null);
+
+    assertEquals(var, otherVar);
+  }
+
+  /**
+   * Tests that the <code>clone()</code> method produces a new instance of the class. Assumes that
+   * <code>equals()</code> is implemented correctly.
+   *
+   * @throws Exception if the test fails.
+   */
+  public void testClone() throws Exception {
+    PSCgiVariable foo = new PSCgiVariable("foo");
+    PSCgiVariable bar = (PSCgiVariable) foo.clone();
+
+    assertEquals(foo, bar); // I hope so!
+
+    bar.setName("bar");
+    assertFalse(foo.equals(bar));
+  }
 }

@@ -72,7 +72,6 @@ public class PSActionPanelServlet extends HttpServlet {
    * @see jakarta.servlet.http.HttpServlet#service(jakarta.servlet.http.HttpServletRequest,
    *     jakarta.servlet.http.HttpServletResponse)
    */
-
   @Override
   protected void service(HttpServletRequest request, HttpServletResponse response)
       throws ServletException, IOException {

@@ -17,17 +17,16 @@
 
 package com.percussion.server;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import com.percussion.security.xml.PSSecureXMLUtils;
 import com.percussion.security.xml.PSXmlSecurityOptions;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.w3c.dom.Document;
-
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class PSPageCacheTest {
 

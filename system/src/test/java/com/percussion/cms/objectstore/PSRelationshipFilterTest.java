@@ -16,82 +16,71 @@
  */
 package com.percussion.cms.objectstore;
 
-import com.percussion.cms.objectstore.PSRelationshipFilter;
+import static org.junit.jupiter.api.Assertions.*;
+
 import com.percussion.design.objectstore.PSLocator;
 import com.percussion.design.objectstore.PSRelationshipConfig;
 import com.percussion.xml.PSXmlDocumentBuilder;
-
 import java.util.ArrayList;
 import java.util.List;
-
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
+/** Unit test for the {@link PSRelationshipSet} class. */
+public class PSRelationshipFilterTest {
 
-import org.junit.jupiter.api.Test;
-import static org.junit.jupiter.api.Assertions.*;
+  /**
+   * Tests the Relationship Filter
+   *
+   * @throws Exception if an error occurs
+   */
+  @Test
+  public void testAll() throws Exception {
+    PSRelationshipFilter filter = new PSRelationshipFilter();
+    filter.setDependentContentTypeId(311);
+    testRoundTrip(filter);
+    assertTrue(filter.getDependentContentTypeId() == 311);
 
+    filter.setDependentContentTypeId(-1);
+    testRoundTrip(filter);
+    assertTrue(filter.getDependentContentTypeId() == -1);
+    assertTrue(filter.getDependentContentTypeIds() == null);
 
-/**
- * Unit test for the {@link PSRelationshipSet} class.
- */
-public class PSRelationshipFilterTest
-{
+    filter.setDependentContentTypeId(-2);
+    testRoundTrip(filter);
+    assertTrue(filter.getDependentContentTypeId() == -1);
+    assertTrue(filter.getDependentContentTypeIds() == null);
 
-   /**
-    * Tests the Relationship Filter
-    *
-    * @throws Exception if an error occurs
-    */
-   @Test
-   public void testAll() throws Exception
-   {
-      PSRelationshipFilter filter = new PSRelationshipFilter();
-      filter.setDependentContentTypeId(311);
-      testRoundTrip(filter);
-      assertTrue(filter.getDependentContentTypeId() == 311);
+    assertTrue(filter.getDependents() == null);
+    filter.setDependent(new PSLocator(2, -1));
+    testRoundTrip(filter);
+    assertTrue(filter.getDependents() != null);
 
-      filter.setDependentContentTypeId(-1);
-      testRoundTrip(filter);
-      assertTrue(filter.getDependentContentTypeId() == -1);
-      assertTrue(filter.getDependentContentTypeIds() == null);
+    filter.setDependent(null);
+    testRoundTrip(filter);
+    assertTrue(filter.getDependents() == null);
 
-      filter.setDependentContentTypeId(-2);
-      testRoundTrip(filter);
-      assertTrue(filter.getDependentContentTypeId() == -1);
-      assertTrue(filter.getDependentContentTypeIds() == null);
+    filter.setName(PSRelationshipConfig.TYPE_ACTIVE_ASSEMBLY);
+    testRoundTrip(filter);
 
-      assertTrue(filter.getDependents() == null);
-      filter.setDependent(new PSLocator(2, -1));
-      testRoundTrip(filter);
-      assertTrue(filter.getDependents() != null);
+    List<String> names = new ArrayList<String>();
+    names.add(PSRelationshipConfig.TYPE_ACTIVE_ASSEMBLY);
+    names.add(PSRelationshipConfig.TYPE_ACTIVE_ASSEMBLY_MANDATORY);
+    names.add(PSRelationshipConfig.TYPE_FOLDER_CONTENT);
+    testRoundTrip(filter);
+  }
 
-      filter.setDependent(null);
-      testRoundTrip(filter);
-      assertTrue(filter.getDependents() == null);
+  /**
+   * Testing to/from XML methods
+   *
+   * @param filter the tested object, assumed not <code>null</code>.
+   */
+  private void testRoundTrip(PSRelationshipFilter filter) {
+    Document doc = PSXmlDocumentBuilder.createXmlDocument();
+    Element filterEl = filter.toXml(doc);
+    PSRelationshipFilter tgtFilter = new PSRelationshipFilter(filterEl);
 
-      filter.setName(PSRelationshipConfig.TYPE_ACTIVE_ASSEMBLY);
-      testRoundTrip(filter);
-
-      List<String> names = new ArrayList<String>();
-      names.add(PSRelationshipConfig.TYPE_ACTIVE_ASSEMBLY);
-      names.add(PSRelationshipConfig.TYPE_ACTIVE_ASSEMBLY_MANDATORY);
-      names.add(PSRelationshipConfig.TYPE_FOLDER_CONTENT);
-      testRoundTrip(filter);
-   }
-
-   /**
-    * Testing to/from XML methods
-    *
-    * @param filter the tested object, assumed not <code>null</code>.
-    */
-   private void testRoundTrip(PSRelationshipFilter filter)
-   {
-      Document doc = PSXmlDocumentBuilder.createXmlDocument();
-      Element filterEl = filter.toXml(doc);
-      PSRelationshipFilter tgtFilter = new PSRelationshipFilter(filterEl);
-
-      assertTrue(filter.equals(tgtFilter));
-   }
-
+    assertTrue(filter.equals(tgtFilter));
+  }
 }

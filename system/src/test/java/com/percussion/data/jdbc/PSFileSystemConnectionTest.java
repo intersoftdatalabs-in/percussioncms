@@ -17,70 +17,57 @@
 
 package com.percussion.data.jdbc;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import com.percussion.cms.IPSConstants;
 import com.percussion.security.error.PSExceptionUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.junit.jupiter.api.BeforeEach;
-
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.io.TempDir;
-
 import java.io.File;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.util.Properties;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+public class PSFileSystemConnectionTest {
+  private static final Logger log = LogManager.getLogger(IPSConstants.TEST_LOG);
 
-public class PSFileSystemConnectionTest
-{
-   private static final Logger log = LogManager.getLogger(IPSConstants.TEST_LOG);
+  // the root dir for the tests
+  private File m_rootDir;
 
-   // the root dir for the tests
-   private File m_rootDir;
+  // the connection properties for the single root elem doc
+  private Properties m_connProperties;
 
-   // the connection properties for the single root elem doc
-   private Properties m_connProperties;
+  @TempDir public File tempFolder;
 
-   @TempDir
-   public File tempFolder;
+  @BeforeEach
+  public void setUp() {
 
-   @BeforeEach
-   public void setUp()
-   {
+    try {
+      m_rootDir = new File(tempFolder, "Testing");
+      m_connProperties = new Properties();
+      m_rootDir.mkdirs();
+      m_connProperties.setProperty("catalog", m_rootDir.getCanonicalPath());
+    } catch (IOException e) {
+      log.error(PSExceptionUtils.getDebugMessageForLog(e));
+    }
+  }
 
-      try
-      {
-         m_rootDir = new File(tempFolder, "Testing");
-         m_connProperties = new Properties();
-         m_rootDir.mkdirs();
-         m_connProperties.setProperty("catalog", m_rootDir.getCanonicalPath());
-      }
-      catch (IOException e)
-      {
-         log.error(PSExceptionUtils.getDebugMessageForLog(e));
-      }
-   }
+  @Test
+  public void testOpen() throws Exception {
+    // make sure the class loads itself and registers itself
+    Class.forName("com.percussion.data.jdbc.PSFileSystemDriver");
 
-   @Test
-   public void testOpen() throws Exception
-   {
-      // make sure the class loads itself and registers itself
-      Class.forName("com.percussion.data.jdbc.PSFileSystemDriver");
+    Connection fileConn = DriverManager.getConnection("jdbc:psfilesystem", m_connProperties);
 
-      Connection fileConn = DriverManager.getConnection("jdbc:psfilesystem",
-            m_connProperties);
+    assertFalse(fileConn.isClosed(), "Connection initially open");
 
-      assertFalse(fileConn.isClosed(), "Connection initially open");
+    fileConn.close();
 
-      fileConn.close();
-
-      assertTrue(fileConn.isClosed(), "Connection closes properly");
-   }
-
-
-
+    assertTrue(fileConn.isClosed(), "Connection closes properly");
+  }
 }

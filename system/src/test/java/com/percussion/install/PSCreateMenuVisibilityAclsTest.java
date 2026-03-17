@@ -17,34 +17,25 @@
 package com.percussion.install;
 
 import com.percussion.testing.PSAbstractSpringContextTest;
-import com.percussion.utils.annotations.IgnoreInWebAppSpringContext;
 import org.junit.jupiter.api.Disabled;
-
-import com.percussion.utils.testing.SpringContextTest;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-
 
 /**
  * Test menu visibility acl install plugin
  *
  * @author dougrand
  */
-
 @Tag("SpringContextTest")
- @ExtendWith(org.springframework.test.context.junit.jupiter.SpringExtension.class)
+@ExtendWith(org.springframework.test.context.junit.jupiter.SpringExtension.class)
 @Disabled
-public class PSCreateMenuVisibilityAclsTest extends PSAbstractSpringContextTest
-{
-   /**
-    * Test visibility acl checker
-    */
-   @Test
-   public void testMenuVisibility()
-   {
-      PSCreateMenuVisibilityAcls mva = new PSCreateMenuVisibilityAcls();
+public class PSCreateMenuVisibilityAclsTest extends PSAbstractSpringContextTest {
+  /** Test visibility acl checker */
+  @Test
+  public void testMenuVisibility() {
+    PSCreateMenuVisibilityAcls mva = new PSCreateMenuVisibilityAcls();
 
-      mva.process(null, null);
-   }
+    mva.process(null, null);
+  }
 }

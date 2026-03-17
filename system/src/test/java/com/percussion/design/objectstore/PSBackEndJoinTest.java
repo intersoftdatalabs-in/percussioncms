@@ -16,79 +16,63 @@
  */
 package com.percussion.design.objectstore;
 
-import com.percussion.xml.PSXmlDocumentBuilder;
+import static org.junit.jupiter.api.Assertions.*;
 
+import com.percussion.xml.PSXmlDocumentBuilder;
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
+/** Unit tests for the PSBackEndJoin class. */
+public class PSBackEndJoinTest {
 
-import org.junit.jupiter.api.Test;
-import static org.junit.jupiter.api.Assertions.*;
+  public void testConstructor() throws Exception {
+    PSBackEndTable leftTab = new PSBackEndTable("leftTable");
+    PSBackEndColumn leftCol = new PSBackEndColumn(leftTab, "leftColumn");
 
+    PSBackEndTable rightTab = new PSBackEndTable("rightTab");
+    PSBackEndColumn rightCol = new PSBackEndColumn(rightTab, "rightColumn");
 
-/**
- * Unit tests for the PSBackEndJoin class.
- */
-public class PSBackEndJoinTest
-{
+    PSBackEndJoin join = new PSBackEndJoin(leftCol, rightCol);
+    assertTrue(join.isInnerJoin());
+    assertEquals(leftCol, join.getLeftColumn());
+    assertEquals(rightCol, join.getRightColumn());
 
+    PSBackEndJoin otherJoin = new PSBackEndJoin(leftCol, rightCol);
+    assertEquals(join, otherJoin);
 
+    otherJoin.setFullOuterJoin();
+    assertTrue(otherJoin.isFullOuterJoin());
 
+    otherJoin.setLeftOuterJoin();
+    assertTrue(otherJoin.isLeftOuterJoin());
 
+    otherJoin.setRightOuterJoin();
+    assertTrue(otherJoin.isRightOuterJoin());
 
-   public void testConstructor() throws Exception
-   {
-      PSBackEndTable leftTab = new PSBackEndTable("leftTable");
-      PSBackEndColumn leftCol = new PSBackEndColumn(leftTab, "leftColumn");
+    assertFalse(join.equals(otherJoin));
+  }
 
-      PSBackEndTable rightTab = new PSBackEndTable("rightTab");
-      PSBackEndColumn rightCol = new PSBackEndColumn(rightTab, "rightColumn");
+  @Test
+  public void testXml() throws Exception {
+    PSBackEndTable leftTab = new PSBackEndTable("leftTable");
+    PSBackEndColumn leftCol = new PSBackEndColumn(leftTab, "leftColumn");
 
-      PSBackEndJoin join = new PSBackEndJoin(leftCol, rightCol);
-      assertTrue(join.isInnerJoin());
-      assertEquals(leftCol, join.getLeftColumn());
-      assertEquals(rightCol, join.getRightColumn());
+    PSBackEndTable rightTab = new PSBackEndTable("rightTab");
+    PSBackEndColumn rightCol = new PSBackEndColumn(rightTab, "rightColumn");
 
-      PSBackEndJoin otherJoin = new PSBackEndJoin(leftCol, rightCol);
-      assertEquals(join, otherJoin);
+    PSBackEndJoin join = new PSBackEndJoin(leftCol, rightCol);
+    PSBackEndJoin otherJoin = new PSBackEndJoin();
 
-      otherJoin.setFullOuterJoin();
-      assertTrue(otherJoin.isFullOuterJoin());
+    Document doc = PSXmlDocumentBuilder.createXmlDocument();
+    Element el = join.toXml(doc);
+    otherJoin.fromXml(el, null, null);
+    assertEquals(join, otherJoin);
 
-      otherJoin.setLeftOuterJoin();
-      assertTrue(otherJoin.isLeftOuterJoin());
-
-      otherJoin.setRightOuterJoin();
-      assertTrue(otherJoin.isRightOuterJoin());
-
-      assertFalse(join.equals(otherJoin));
-   }
-
-
-
-   @Test
-   public void testXml() throws Exception
-   {
-      PSBackEndTable leftTab = new PSBackEndTable("leftTable");
-      PSBackEndColumn leftCol = new PSBackEndColumn(leftTab, "leftColumn");
-
-      PSBackEndTable rightTab = new PSBackEndTable("rightTab");
-      PSBackEndColumn rightCol = new PSBackEndColumn(rightTab, "rightColumn");
-
-      PSBackEndJoin join = new PSBackEndJoin(leftCol, rightCol);
-      PSBackEndJoin otherJoin = new PSBackEndJoin();
-
-      Document doc = PSXmlDocumentBuilder.createXmlDocument();
-      Element el = join.toXml(doc);
-      otherJoin.fromXml(el, null, null);
-      assertEquals(join, otherJoin);
-
-      join.setLeftOuterJoin();
-      doc = PSXmlDocumentBuilder.createXmlDocument();
-      el = join.toXml(doc);
-      otherJoin.fromXml(el, null, null);
-      assertEquals(join, otherJoin);
-   }
-
-
+    join.setLeftOuterJoin();
+    doc = PSXmlDocumentBuilder.createXmlDocument();
+    el = join.toXml(doc);
+    otherJoin.fromXml(el, null, null);
+    assertEquals(join, otherJoin);
+  }
 }

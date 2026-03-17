@@ -16,85 +16,73 @@
  */
 package com.percussion.services.schedule.impl;
 
-import com.percussion.services.datasource.PSDatasourceMgrLocator;
-import com.percussion.services.utils.general.PSServiceConfigurationBean;
-
-import java.io.IOException;
-import java.util.Properties;
-
-
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.Tag;
-import org.junit.jupiter.api.Disabled;
-import org.quartz.Scheduler;
-import org.quartz.SchedulerException;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import com.percussion.services.datasource.PSDatasourceMgrLocator;
+import com.percussion.services.utils.general.PSServiceConfigurationBean;
+import java.io.IOException;
+import java.util.Properties;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import org.quartz.Scheduler;
+import org.quartz.SchedulerException;
+
 /**
  * @author Andriy Palamarchuk
  */
-
 @Disabled("Temporarily disabled — failing in perc-system test run")
-public class PSSchedulerBeanTest
-{
-   @Test
-   public void testIsSingleton()
-   {
-      assertTrue(create().isSingleton());
-   }
+public class PSSchedulerBeanTest {
+  @Test
+  public void testIsSingleton() {
+    assertTrue(create().isSingleton());
+  }
 
-   @Test
-   public void testGetObjectType()
-   {
-      assertEquals(Scheduler.class, create().getObjectType());
-   }
+  @Test
+  public void testGetObjectType() {
+    assertEquals(Scheduler.class, create().getObjectType());
+  }
 
-   @Test
-   public void testGetObject() throws SchedulerException, IOException
-   {
-      final PSSchedulerBean bean = new PSSchedulerBean()
-      {
-         @Override
-         void setConnectionProviderDatasourceManager()
-         {
+  @Test
+  public void testGetObject() throws SchedulerException, IOException {
+    final PSSchedulerBean bean =
+        new PSSchedulerBean() {
+          @Override
+          void setConnectionProviderDatasourceManager() {
             // disable this method, because datasource provider is global,
             // and it fails on an attempt to set datasource manager second time
-         }
-      };
-      assertNull(bean.getObject());
+          }
+        };
+    assertNull(bean.getObject());
 
-      bean.setQuartzProperties(getSampleQuartzProperties());
-      bean.setDatasourceManager(PSDatasourceMgrLocator.getDatasourceMgr());
-      bean.setConfigurationBean(new PSServiceConfigurationBean());
-      bean.afterPropertiesSet();
-      assertTrue(bean.getObject() instanceof Scheduler);
-   }
+    bean.setQuartzProperties(getSampleQuartzProperties());
+    bean.setDatasourceManager(PSDatasourceMgrLocator.getDatasourceMgr());
+    bean.setConfigurationBean(new PSServiceConfigurationBean());
+    bean.afterPropertiesSet();
+    assertTrue(bean.getObject() instanceof Scheduler);
+  }
 
-   /**
-    * Generates Quartz properties from the default Quartz properties distributed
-    * with the library.
-    * @return the properties object. Never null.
-    * @throws IOException on properties loading failure.
-    */
-   private Properties getSampleQuartzProperties() throws IOException
-   {
-      final Properties properties = new Properties();
-      properties.load(getClass().getClassLoader().getResourceAsStream(
-            "org/quartz/quartz.properties"));
-      properties.put("org.quartz.jobStore.tablePrefix", "PSX_Q");
-      return properties;
-   }
+  /**
+   * Generates Quartz properties from the default Quartz properties distributed with the library.
+   *
+   * @return the properties object. Never null.
+   * @throws IOException on properties loading failure.
+   */
+  private Properties getSampleQuartzProperties() throws IOException {
+    final Properties properties = new Properties();
+    properties.load(
+        getClass().getClassLoader().getResourceAsStream("org/quartz/quartz.properties"));
+    properties.put("org.quartz.jobStore.tablePrefix", "PSX_Q");
+    return properties;
+  }
 
-   /**
-    * Convenience method to create a scheduler factory.
-    * @return new scheduler factory, never null.
-    */
-   private PSSchedulerBean create()
-   {
-      return new PSSchedulerBean();
-   }
-
+  /**
+   * Convenience method to create a scheduler factory.
+   *
+   * @return new scheduler factory, never null.
+   */
+  private PSSchedulerBean create() {
+    return new PSSchedulerBean();
+  }
 }

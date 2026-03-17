@@ -230,7 +230,6 @@ public class PSStylesheetCleanupFilter {
    * @param namespaceUri the uri associated with this namespace, may be <code>null</code> or empty
    *     for bc
    */
-
   private void addNamespace(String ns, String namespaceUri) {
     if (!StringUtils.isEmpty(namespaceUri)) m_uris.put(ns, namespaceUri);
     if (!m_allowedNS.containsKey(ns)) {

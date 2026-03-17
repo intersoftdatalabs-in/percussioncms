@@ -144,7 +144,7 @@ public class PSMetadataDatedEvent {
   }
 
   /**
-   * @param sets the text color, maybe empty but never <code>null</code>.
+   * @param textColor sets the text color, may be empty but never <code>null</code>.
    */
   public void setTextColor(String textColor) {
     this.textColor = textColor;
@@ -158,7 +158,7 @@ public class PSMetadataDatedEvent {
   }
 
   /**
-   * @param sets the text background, maybe empty but never <code>null</code>.
+   * @param textBackground sets the text background, may be empty but never <code>null</code>.
    */
   public void setTextBackground(String textBackground) {
     this.textBackground = textBackground;

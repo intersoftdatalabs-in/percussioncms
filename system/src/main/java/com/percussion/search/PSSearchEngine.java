@@ -38,41 +38,35 @@ import org.w3c.dom.Element;
  * This class is the primary class for a pluggable-search-engine architecture. This 'virtual' search
  * engine may run in the same process or in a client- server mode, this is implementation dependent.
  *
- * &lt;p&gt;The search engine knows about Rhythmyx's units of content, which are the item and its complex
- * children. Each of these are treated as individual units by the engine when submitting data.
- * However, when data is queried, only the content item is returned in the result set. i.e. a query
- * that matches a child entry causes the parent to be returned in the result set.
+ * <p>&lt;p&gt;The search engine knows about Rhythmyx's units of content, which are the item and its
+ * complex children. Each of these are treated as individual units by the engine when submitting
+ * data. However, when data is queried, only the content item is returned in the result set. i.e. a
+ * query that matches a child entry causes the parent to be returned in the result set.
  *
- * &lt;p&gt;A search engine is configured at start up and can be reconfigured (and restarted) at nearly
- * any time.
+ * <p>&lt;p&gt;A search engine is configured at start up and can be reconfigured (and restarted) at
+ * nearly any time.
  *
- * &lt;p&gt;There are 3 additional 'interfaces' that make up the entire framework. Instances of each of
- * these can be obtained from this class. The 3 other types are:
+ * <p>&lt;p&gt;There are 3 additional 'interfaces' that make up the entire framework. Instances of
+ * each of these can be obtained from this class. The 3 other types are:
  *
- * &lt;ol&gt;
- *   &lt;li&gt;{@link PSSearchIndexer}&lt;/li&gt;
- *   &lt;li&gt;{@link PSSearchQuery}&lt;/li&gt;
- *   &lt;li&gt;{@link PSSearchAdmin}&lt;/li&gt;
- * &lt;/ol&gt;
+ * <p>&lt;ol&gt; &lt;li&gt;{@link PSSearchIndexer}&lt;/li&gt; &lt;li&gt;{@link
+ * PSSearchQuery}&lt;/li&gt; &lt;li&gt;{@link PSSearchAdmin}&lt;/li&gt; &lt;/ol&gt;
  *
- * &lt;p&gt;The indexer is used to submit content to the engine. The query is used to get results from the
- * engine. Finally, the admin is used to configure the engine for the different content types and
- * manage indexes.
+ * <p>&lt;p&gt;The indexer is used to submit content to the engine. The query is used to get results
+ * from the engine. Finally, the admin is used to configure the engine for the different content
+ * types and manage indexes.
  *
- * &lt;p&gt;This class should be used in the following manner:
+ * <p>&lt;p&gt;This class should be used in the following manner:
  *
- * &lt;ol&gt;
- *   &lt;li&gt;Call {@link #getInstance(Properties)} to initialize the engine&lt;/li&gt;
- *   &lt;li&gt;Call {@link #getSearchAdmin()} and configure and validate the engine for the current
- *       content editors&lt;/li&gt;
- *   &lt;li&gt;Call {@link #start()} to activate the engine&lt;/li&gt;
- *   &lt;li&gt;Submit 'units of content' and perform queries&lt;/li&gt;
- *   &lt;li&gt;Change the configuration as content editors are modified. {@link #restart()} must be called
- *       before the configuration changes will take effect.&lt;/li&gt;
- *   &lt;li&gt;When finished, call {@link #shutdown(boolean) shutdown}&lt;/li&gt;
- * &lt;/ol&gt;
+ * <p>&lt;ol&gt; &lt;li&gt;Call {@link #getInstance(Properties)} to initialize the engine&lt;/li&gt;
+ * &lt;li&gt;Call {@link #getSearchAdmin()} and configure and validate the engine for the current
+ * content editors&lt;/li&gt; &lt;li&gt;Call {@link #start()} to activate the engine&lt;/li&gt;
+ * &lt;li&gt;Submit 'units of content' and perform queries&lt;/li&gt; &lt;li&gt;Change the
+ * configuration as content editors are modified. {@link #restart()} must be called before the
+ * configuration changes will take effect.&lt;/li&gt; &lt;li&gt;When finished, call {@link
+ * #shutdown(boolean) shutdown}&lt;/li&gt; &lt;/ol&gt;
  *
- * &lt;p&gt;Note to implementers of plugins: There are a number of methods of the form "doXXX".
+ * <p>&lt;p&gt;Note to implementers of plugins: There are a number of methods of the form "doXXX".
  * These methods are equivalent to XXX, but don't need to check for a running server as that has
  * already been done by this class.
  *
@@ -252,8 +246,8 @@ public abstract class PSSearchEngine {
    * {@link #getInstance(Properties) getInstance} to instantiate the object. From then on, this
    * method should be used.
    *
-   * <p>The maximum time to wait for initialization can be controlled via the system property
-   * {@code com.percussion.search.init.timeout} (value in seconds; defaults to {@code 60}).
+   * <p>The maximum time to wait for initialization can be controlled via the system property {@code
+   * com.percussion.search.init.timeout} (value in seconds; defaults to {@code 60}).
    *
    * @return Never {@code null}.
    * @throws IllegalStateException If an instance hasn't been created yet.

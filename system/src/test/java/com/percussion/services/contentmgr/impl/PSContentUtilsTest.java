@@ -17,6 +17,7 @@
 package com.percussion.services.contentmgr.impl;
 
 import static org.junit.jupiter.api.Assertions.*;
+
 import org.junit.jupiter.api.Test;
 
 /**
@@ -24,19 +25,15 @@ import org.junit.jupiter.api.Test;
  *
  * @author dougrand
  */
-public class PSContentUtilsTest
-{
-   /**
-    * Check that pattern matching is correct for the collection ref method
-    */
-   @Test
-   public void testIdCollectionCheck()
-   {
-      assertTrue(PSContentUtils.isIdCollectionRef("t1.a.b"));
-      assertTrue(PSContentUtils.isIdCollectionRef("t92.aa.bb"));
-      assertFalse(PSContentUtils.isIdCollectionRef("t1.a"));
-      assertFalse(PSContentUtils.isIdCollectionRef("t1.a.b.c"));
-      assertFalse(PSContentUtils.isIdCollectionRef("t1a.b.c"));
-      assertFalse(PSContentUtils.isIdCollectionRef("t1.1a.c"));
-   }
+public class PSContentUtilsTest {
+  /** Check that pattern matching is correct for the collection ref method */
+  @Test
+  public void testIdCollectionCheck() {
+    assertTrue(PSContentUtils.isIdCollectionRef("t1.a.b"));
+    assertTrue(PSContentUtils.isIdCollectionRef("t92.aa.bb"));
+    assertFalse(PSContentUtils.isIdCollectionRef("t1.a"));
+    assertFalse(PSContentUtils.isIdCollectionRef("t1.a.b.c"));
+    assertFalse(PSContentUtils.isIdCollectionRef("t1a.b.c"));
+    assertFalse(PSContentUtils.isIdCollectionRef("t1.1a.c"));
+  }
 }

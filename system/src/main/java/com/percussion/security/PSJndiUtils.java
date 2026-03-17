@@ -102,11 +102,10 @@ public class PSJndiUtils {
   /**
    * Initializes the password filter instance, given the class name.
    *
-   * @param extensionName the password filter extension name. Must
-   *    not be <code>null</code> or empty.
+   * @param extensionName the password filter extension name. Must not be <code>null</code> or
+   *     empty.
    * @return the newly constructed password filter, never <code>null</code>.
-   * @throws PSRuntimeException if instance of filter class cannot be found
-   *    or constructed.
+   * @throws PSRuntimeException if instance of filter class cannot be found or constructed.
    */
   public static IPSPasswordFilter initPasswordFilter(String extensionName) {
     if ((extensionName == null)) throw new IllegalArgumentException("extensionName cannot be null");
@@ -173,14 +172,13 @@ public class PSJndiUtils {
   /**
    * Builds an AND filter for all entries in the supplied map.
    *
-   * @param values the filter values, where the key is the attribute name
-   *    as <code>String</code> and the value is the attribute value as
-   *    <code>String</code>, or a list of <code>String</code>snot
-   *    <code>null</code> or empty. <code>null</code> or empty attribute values
-   *    will be replace with a wildcard value '*'. <code>null</code> or
-   *    empty attribute keys are not allowed.
-   * @return the filter string in the form of (&(key1=value1)...(keyN=valueN))
-   *    for all map entries, never <code>null</code>.
+   * @param values the filter values, where the key is the attribute name as <code>String</code> and
+   *     the value is the attribute value as <code>String</code>, or a list of <code>String</code>
+   *     snot <code>null</code> or empty. <code>null</code> or empty attribute values will be
+   *     replace with a wildcard value '*'. <code>null</code> or empty attribute keys are not
+   *     allowed.
+   * @return the filter string in the form of (&(key1=value1)...(keyN=valueN)) for all map entries,
+   *     never <code>null</code>.
    */
   public static String buildFilter(Map<String, Object> values) {
     if (values == null) throw new IllegalArgumentException("values cannot be null");
@@ -246,12 +244,12 @@ public class PSJndiUtils {
   /**
    * Creates a new context for the supplied directory using the specified url.
    *
-   * @param directoryDef the directory definition for which to create the
-   *    context, not <code>null</code>.
-   * @param url The url to use, may be <code>null</code> to use the one defined
-   *    in the supplied directory def.
-   * @return a new directory context, never <code>null</code>. The caller is
-   *    responsible to close it.
+   * @param directoryDef the directory definition for which to create the context, not <code>null
+   *     </code>.
+   * @param url The url to use, may be <code>null</code> to use the one defined in the supplied
+   *     directory def.
+   * @return a new directory context, never <code>null</code>. The caller is responsible to close
+   *     it.
    * @throws NamingException if anything goes wrong creating the new context.
    */
   public static DirContext createContext(PSDirectoryDefinition directoryDef, String url)
@@ -339,11 +337,10 @@ public class PSJndiUtils {
   /**
    * Create new search controls for the supplied parameters.
    *
-   * @param directory the directory for which to create the search controls
-   *    for, not <code>null</code>.
-   * @param returnAttributes an array with all attribute names that must be
-   *    returned, <code>null</code> to return all attributes, empty to return
-   *    no attributes.
+   * @param directory the directory for which to create the search controls for, not <code>null
+   *     </code>.
+   * @param returnAttributes an array with all attribute names that must be returned, <code>null
+   *     </code> to return all attributes, empty to return no attributes.
    * @return a search control object, never <code>null</code>.
    */
   public static SearchControls createSearchControls(
@@ -365,11 +362,10 @@ public class PSJndiUtils {
   /**
    * Attempts to determine the base context from the provided URL.
    *
-   * @param providerUrl the url to the directory provider, may be
-   *           <code>null</code> or empty.
-   * @return the base context if there is one specified by the provided url,
-   *    or an empty string if there is not one specified, or <code>null</code>
-   *    if the provided url is <code>null</code> or malformed.
+   * @param providerUrl the url to the directory provider, may be <code>null</code> or empty.
+   * @return the base context if there is one specified by the provided url, or an empty string if
+   *     there is not one specified, or <code>null</code> if the provided url is <code>null</code>
+   *     or malformed.
    */
   public static String getBaseContext(String providerUrl) {
     String baseCtx = null;
@@ -392,20 +388,18 @@ public class PSJndiUtils {
   }
 
   /**
-   * Builds a fully qualified username using the principle attribute and the
-   * base context. Thus if the uid provided is "JoeBloe", the principle
-   * attribute is "cn", and the base context is
+   * Builds a fully qualified username using the principle attribute and the base context. Thus if
+   * the uid provided is "JoeBloe", the principle attribute is "cn", and the base context is
    * "ou=People,o=Percussion,c=us", then the result will be:
    * "cn=JoeBloe,ou=People,o=Percussion,c=us".
    *
-   * @param uid the value of the userid attribute in the directory we are
-   *    building a username for, my not be <code>null</code> or empty.
-   * @param principleAttribute the priciple attribute name, may be
-   *    <code>null</code> but not empty.
-   * @param baseContext the base context to build the full name for, may be
-   *    <code>null</code> but not empty.
-   * @return the fully qualified username, never <code>null</code> or empty.
-   *    The returned name is escaped.
+   * @param uid the value of the userid attribute in the directory we are building a username for,
+   *     my not be <code>null</code> or empty.
+   * @param principleAttribute the priciple attribute name, may be <code>null</code> but not empty.
+   * @param baseContext the base context to build the full name for, may be <code>null</code> but
+   *     not empty.
+   * @return the fully qualified username, never <code>null</code> or empty. The returned name is
+   *     escaped.
    */
   public static String getFullUserName(String uid, String principleAttribute, String baseContext) {
     if (uid == null) throw new IllegalArgumentException("uid cannot be null");
@@ -445,14 +439,13 @@ public class PSJndiUtils {
   }
 
   /**
-   * Creates a compound name from the supplied distinguished name and optional
-   * context.
+   * Creates a compound name from the supplied distinguished name and optional context.
    *
-   * @param dn the distinguished name to create the compound name from, not
-   *    <code>null</code> or empty.
-   * @param context if dn is relative to a search context, the distinguished
-   *    name of the entry the dn is relative to. This value is appended onto
-   *    the dn. May be <code>null</code> if dn is not a relative name.
+   * @param dn the distinguished name to create the compound name from, not <code>null</code> or
+   *     empty.
+   * @param context if dn is relative to a search context, the distinguished name of the entry the
+   *     dn is relative to. This value is appended onto the dn. May be <code>null</code> if dn is
+   *     not a relative name.
    * @return the compound name, never <code>null</code>.
    * @throws InvalidNameException if dn is malformed.
    */
@@ -471,10 +464,10 @@ public class PSJndiUtils {
    * Get the full password for the supplied parameters.
    *
    * @param pw the password, not <code>null</code>, may be empty.
-   * @param credentialAttribute the credential attribute name, may be
-   *    <code>null</code> but not empty.
-   * @return the full password which is <code>credentialAttribute=pw</code> if
-   *    a valid credential attribute was supplied, <code>pw</code> otherwise.
+   * @param credentialAttribute the credential attribute name, may be <code>null</code> but not
+   *     empty.
+   * @return the full password which is <code>credentialAttribute=pw</code> if a valid credential
+   *     attribute was supplied, <code>pw</code> otherwise.
    */
   public static String getFullPassword(String pw, String credentialAttribute) {
     if (pw == null) throw new IllegalArgumentException("pw cannot be null");

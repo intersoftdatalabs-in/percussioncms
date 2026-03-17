@@ -151,15 +151,12 @@ public class PSComponentSummary extends PSDbComponent implements Serializable {
 
   /**
    * Creates an instance from a previously serialized (using <code>toXml
-   * </code>)
-   * object.
+   * </code>) object.
    *
-   * @param source A valid element that meets the dtd defined in the
-   *           description of {@link #toXml(Document)}. Never
-   *           <code>null</code>.
-   *
-   * @throws PSUnknownNodeTypeException If the supplied source element does not
-   *            conform to the dtd defined in the <code>fromXml()</code> method.
+   * @param source A valid element that meets the dtd defined in the description of {@link
+   *     #toXml(Document)}. Never <code>null</code>.
+   * @throws PSUnknownNodeTypeException If the supplied source element does not conform to the dtd
+   *     defined in the <code>fromXml()</code> method.
    */
   public PSComponentSummary(Element source) throws PSUnknownNodeTypeException {
     super(source);

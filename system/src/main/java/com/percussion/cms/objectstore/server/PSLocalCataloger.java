@@ -104,7 +104,6 @@ public class PSLocalCataloger implements IPSCataloger {
    * @return Never <code>null</code>. Each entry is the internal name of a system field that matches
    *     the supplied flags.
    */
-
   public Set getSystemFields(int controlFlags) {
     initFieldCatalog();
 
@@ -555,7 +554,6 @@ public class PSLocalCataloger implements IPSCataloger {
    * @param f Assumed not <code>null</code>.
    * @param key Assumed not <code>null</code> or empty. Lowercased before performing search on map.
    */
-
   private void addToMap(Map map, FieldObject f, String key) {
     Collection c = (Collection) map.get(key);
     if (null == c) {

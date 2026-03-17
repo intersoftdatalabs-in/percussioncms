@@ -15,16 +15,12 @@
  */
 package com.percussion.design.objectstore.server;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import com.percussion.design.objectstore.PSApplication;
 import com.percussion.design.objectstore.PSObjectFactory;
 import com.percussion.error.PSException;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.junit.jupiter.api.Disabled;
-
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.io.TempDir;
-
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -32,9 +28,11 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.SecureRandom;
 import java.util.ArrayList;
-
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 /**
  * Multithreading tests for the lock manager implementation. Set up some fake applications to lock,
@@ -42,139 +40,136 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  */
 public class PSXmlObjectStoreLockManagerTest {
 
-   private static final Logger log = LogManager.getLogger(PSXmlObjectStoreLockManagerTest.class);
+  private static final Logger log = LogManager.getLogger(PSXmlObjectStoreLockManagerTest.class);
 
-   @TempDir
-   public Path temporaryFolder;
+  @TempDir public Path temporaryFolder;
 
-   public PSXmlObjectStoreLockManagerTest() {}
+  public PSXmlObjectStoreLockManagerTest() {}
 
-   @Test
-   public void testThreads() throws Exception {
-      int numThreads = 5;
-      int numTimes = 5;
-      SecureRandom rand = new SecureRandom();
+  @Test
+  public void testThreads() throws Exception {
+    int numThreads = 5;
+    int numTimes = 5;
+    SecureRandom rand = new SecureRandom();
 
-      Path lockDirPath = temporaryFolder.resolve(Paths.get("Temp", "Testing", "TestLocks"));
-      java.nio.file.Files.createDirectories(lockDirPath);
-      File lockDir = lockDirPath.toFile();
+    Path lockDirPath = temporaryFolder.resolve(Paths.get("Temp", "Testing", "TestLocks"));
+    java.nio.file.Files.createDirectories(lockDirPath);
+    File lockDir = lockDirPath.toFile();
 
-      IPSObjectStoreLockManager locker = new PSXmlObjectStoreLockManager(lockDir);
+    IPSObjectStoreLockManager locker = new PSXmlObjectStoreLockManager(lockDir);
 
-      ArrayList threads = new ArrayList(numThreads * 2);
+    ArrayList threads = new ArrayList(numThreads * 2);
 
-      for (int i = 0; i < numThreads; i++) {
-         threads.add(new Thread(new AppLockTest("testApp", locker, numTimes, rand.nextDouble())));
-         threads.add(new Thread(new AppLockTest("testApp_2", locker, numTimes, rand.nextDouble())));
-      }
+    for (int i = 0; i < numThreads; i++) {
+      threads.add(new Thread(new AppLockTest("testApp", locker, numTimes, rand.nextDouble())));
+      threads.add(new Thread(new AppLockTest("testApp_2", locker, numTimes, rand.nextDouble())));
+    }
 
-      for (int i = 0; i < threads.size(); i++) {
-         ((Thread) threads.get(i)).start();
-      }
+    for (int i = 0; i < threads.size(); i++) {
+      ((Thread) threads.get(i)).start();
+    }
 
-      for (int i = 0; i < threads.size(); i++) {
-         ((Thread) threads.get(i)).join();
-      }
-   }
+    for (int i = 0; i < threads.size(); i++) {
+      ((Thread) threads.get(i)).join();
+    }
+  }
 
-   public void doAssert(String msg, boolean cond) {
-      assertTrue(cond, msg);
-   }
+  public void doAssert(String msg, boolean cond) {
+    assertTrue(cond, msg);
+  }
 
-   /**
-    * Test {@link PSServerXmlObjectStore.RecoverableFile} class
-    */
-   @Test
-   @Disabled("TODO: This test has a logic problem.  Please fix it.")
-   public void testBackFile() throws IOException, PSException {
-      PSServerXmlObjectStore.RecoverableFile dirBkup;
+  /** Test {@link PSServerXmlObjectStore.RecoverableFile} class */
+  @Test
+  @Disabled("TODO: This test has a logic problem.  Please fix it.")
+  public void testBackFile() throws IOException, PSException {
+    PSServerXmlObjectStore.RecoverableFile dirBkup;
 
-      // cleanup both source and destination directories if exist
-      Path newAppDirPath = temporaryFolder.resolve(Paths.get("Temp", "TestDirDest"));
-      Files.createDirectories(newAppDirPath);
-      File newAppDir = newAppDirPath.toFile();
-      Path appDirPath = temporaryFolder.resolve(Paths.get("Temp", "TestDir"));
-      Files.createDirectories(appDirPath);
-      File appDir = appDirPath.toFile();
-      dirBkup = new PSServerXmlObjectStore.RecoverableFile(newAppDir);
-      dirBkup.delete();
-      dirBkup = new PSServerXmlObjectStore.RecoverableFile(appDir);
-      dirBkup.delete();
+    // cleanup both source and destination directories if exist
+    Path newAppDirPath = temporaryFolder.resolve(Paths.get("Temp", "TestDirDest"));
+    Files.createDirectories(newAppDirPath);
+    File newAppDir = newAppDirPath.toFile();
+    Path appDirPath = temporaryFolder.resolve(Paths.get("Temp", "TestDir"));
+    Files.createDirectories(appDirPath);
+    File appDir = appDirPath.toFile();
+    dirBkup = new PSServerXmlObjectStore.RecoverableFile(newAppDir);
+    dirBkup.delete();
+    dirBkup = new PSServerXmlObjectStore.RecoverableFile(appDir);
+    dirBkup.delete();
 
+    dirBkup = new PSServerXmlObjectStore.RecoverableFile(appDir);
+    assertTrue(!appDir.exists());
 
-      dirBkup = new PSServerXmlObjectStore.RecoverableFile(appDir);
-      assertTrue(!appDir.exists());
+    // test rename
+    boolean renamed = dirBkup.renameTo(newAppDir);
+    assertTrue(renamed);
+    assertTrue(newAppDir.exists());
 
-      // test rename
-      boolean renamed = dirBkup.renameTo(newAppDir);
-      assertTrue(renamed);
-      assertTrue(newAppDir.exists());
+    // test recover
+    boolean recovered = dirBkup.recover();
+    assertTrue(recovered);
+    assertTrue(appDir.exists());
 
-      // test recover
-      boolean recovered = dirBkup.recover();
-      assertTrue(recovered);
-      assertTrue(appDir.exists());
+    // failed to recover the 2nd time because it has already been done.
+    recovered = dirBkup.recover();
+    assertFalse(recovered);
 
-      // failed to recover the 2nd time because it has already been done.
-      recovered = dirBkup.recover();
-      assertFalse(recovered);
+    // test delete
+    dirBkup = new PSServerXmlObjectStore.RecoverableFile(appDir);
+    boolean deleted = dirBkup.delete();
+    assertTrue(deleted);
 
-      // test delete
-      dirBkup = new PSServerXmlObjectStore.RecoverableFile(appDir);
-      boolean deleted = dirBkup.delete();
-      assertTrue(deleted);
+    // has already been deleted
+    assertFalse(dirBkup.delete());
+  }
 
-      // has already been deleted
-      assertFalse(dirBkup.delete());
-   }
+  class AppLockTest extends PSObjectFactory implements Runnable {
+    public AppLockTest(
+        String appName, IPSObjectStoreLockManager locker, int numTimes, double releaseProb) {
+      m_appName = appName;
+      m_locker = locker;
+      m_numTimes = numTimes;
+      m_releaseProb = releaseProb;
+    }
 
+    public void run() {
+      try {
+        SecureRandom rand = new SecureRandom();
+        PSApplication testApp = PSObjectFactory.createApplication();
+        testApp.setName(m_appName);
+        while (m_numTimes-- > 0) {
+          Object lockKey = m_locker.getLockKey(testApp, m_locker.LOCKTYPE_EXCLUSIVE);
 
-   class AppLockTest extends PSObjectFactory implements Runnable {
-      public AppLockTest(String appName, IPSObjectStoreLockManager locker, int numTimes,
-            double releaseProb) {
-         m_appName = appName;
-         m_locker = locker;
-         m_numTimes = numTimes;
-         m_releaseProb = releaseProb;
-      }
+          PSXmlObjectStoreLockManagerTest.this.doAssert("" + lockKey, null != lockKey);
 
-      public void run() {
-         try {
-            SecureRandom rand = new SecureRandom();
-            PSApplication testApp = PSObjectFactory.createApplication();
-            testApp.setName(m_appName);
-            while (m_numTimes-- > 0) {
-               Object lockKey = m_locker.getLockKey(testApp, m_locker.LOCKTYPE_EXCLUSIVE);
+          PSXmlObjectStoreLockerId id =
+              new PSXmlObjectStoreLockerId(
+                  "" + Thread.currentThread(),
+                  false,
+                  "session" + Thread.currentThread().hashCode());
 
-               PSXmlObjectStoreLockManagerTest.this.doAssert("" + lockKey, null != lockKey);
-
-               PSXmlObjectStoreLockerId id =
-                     new PSXmlObjectStoreLockerId("" + Thread.currentThread(), false,
-                           "session" + Thread.currentThread().hashCode());
-
-               boolean didLock = m_locker.acquireLock(id, lockKey, rand.nextInt(100) + 10,
-                     rand.nextInt(200) + 10, null);
-               if (!didLock) {
-                  System.err.println(Thread.currentThread().toString() + " timed out.");
-               } else {
-                  System.err.println(Thread.currentThread().toString() + " acquired lock.");
-                  if (rand.nextDouble() < m_releaseProb) {
-                     m_locker.releaseLock(id, lockKey);
-                     System.err.println(Thread.currentThread().toString() + " released lock.");
-                  }
-               }
+          boolean didLock =
+              m_locker.acquireLock(
+                  id, lockKey, rand.nextInt(100) + 10, rand.nextInt(200) + 10, null);
+          if (!didLock) {
+            System.err.println(Thread.currentThread().toString() + " timed out.");
+          } else {
+            System.err.println(Thread.currentThread().toString() + " acquired lock.");
+            if (rand.nextDouble() < m_releaseProb) {
+              m_locker.releaseLock(id, lockKey);
+              System.err.println(Thread.currentThread().toString() + " released lock.");
             }
-         } catch (Throwable t) {
-            log.error(t.getMessage());
-            log.debug(t.getMessage(), t);
-            PSXmlObjectStoreLockManagerTest.this.doAssert("Caught exception: " + t.toString(),
-                  false);
-         }
+          }
+        }
+      } catch (Throwable t) {
+        log.error(t.getMessage());
+        log.debug(t.getMessage(), t);
+        PSXmlObjectStoreLockManagerTest.this.doAssert("Caught exception: " + t.toString(), false);
       }
+    }
 
-      private int m_numTimes;
-      private String m_appName;
-      private IPSObjectStoreLockManager m_locker;
-      private double m_releaseProb;
-   }
+    private int m_numTimes;
+    private String m_appName;
+    private IPSObjectStoreLockManager m_locker;
+    private double m_releaseProb;
+  }
 }

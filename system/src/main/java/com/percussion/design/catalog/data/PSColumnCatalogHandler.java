@@ -28,12 +28,12 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * The PSColumnCatalogHandler class implements cataloging of
- * columns. This request type is used to locate the columns
- * defined in a specific back-end table.
- * <p>
- * Column catalog requests are sent to the server using the PSXColumnCatalog
- * XML document. Its definition is as follows:
+ * The PSColumnCatalogHandler class implements cataloging of columns. This request type is used to
+ * locate the columns defined in a specific back-end table.
+ *
+ * <p>Column catalog requests are sent to the server using the PSXColumnCatalog XML document. Its
+ * definition is as follows:
+ *
  * <pre>
  *    &lt;!ELEMENT PSXColumnCatalog (datasource?, tableName)&gt;
  *
@@ -46,8 +46,8 @@ import org.w3c.dom.Element;
  *    &lt;!ELEMENT tableName        (#PCDATA)&gt;
  * </pre>
  *
- * The PSXColumnCatalogResults XML document is sent as the response. Its
- * definition is as follows:
+ * The PSXColumnCatalogResults XML document is sent as the response. Its definition is as follows:
+ *
  * <pre>
  *    &lt;!ELEMENT PSXColumnCatalogResults (datasource, tableName, Column*)&gt;
  *

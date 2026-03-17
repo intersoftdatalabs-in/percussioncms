@@ -634,7 +634,6 @@ public class PSContentEditorSystemDef implements IPSDocument {
    * @param exits The element containing the extension call sets
    * @throws PSUnknownNodeTypeException if the exits node is not of the appropriate type.
    */
-
   private void loadExits(Element exits) throws PSUnknownNodeTypeException {
     if (exits == null) throw new IllegalArgumentException("exits may not be null");
 
@@ -686,7 +685,6 @@ public class PSContentEditorSystemDef implements IPSDocument {
    * @param paramNames The XML element containing the param names.
    * @throws PSUnknownNodeTypeException if the paramNames node is not of the appropriate type.
    */
-
   private void loadParamNames(Element paramNames) throws PSUnknownNodeTypeException {
     if (paramNames == null) throw new IllegalArgumentException("paramNames may not be null");
 

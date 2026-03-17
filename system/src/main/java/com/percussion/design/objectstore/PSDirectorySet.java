@@ -85,10 +85,9 @@ public class PSDirectorySet extends PSCollectionComponent {
   /**
    * Get the requested required attribute name.
    *
-   * @param key the key of the attribute name, not <code>null</code> or empty,
-   *    must be one oc <code>REQUIRED_ATTRIBUTE_NAMES_ENUM</code>.
-   * @return the requested attribute name or <code>null</code> if no attribute
-   *    name was set yet.
+   * @param key the key of the attribute name, not <code>null</code> or empty, must be one oc <code>
+   *     REQUIRED_ATTRIBUTE_NAMES_ENUM</code>.
+   * @return the requested attribute name or <code>null</code> if no attribute name was set yet.
    */
   public String getRequiredAttributeName(String key) {
     if (key == null) throw new IllegalArgumentException("key cannot be null");
@@ -108,8 +107,8 @@ public class PSDirectorySet extends PSCollectionComponent {
   /**
    * Set a new attribute name for the email address.
    *
-   * @param name the new attribute name, may be <code>null</code> but not empty.
-   *    Supply <code>null</code> to clear the email attribute name.
+   * @param name the new attribute name, may be <code>null</code> but not empty. Supply <code>null
+   *     </code> to clear the email attribute name.
    */
   public void setEmailAttributeName(String name) {
     if (name != null) {
@@ -123,8 +122,8 @@ public class PSDirectorySet extends PSCollectionComponent {
   /**
    * Set a new attribute name for the role attribute.
    *
-   * @param name the new attribute name, may be <code>null</code> but not empty.
-   *    Supply <code>null</code> to clear the role attribute name.
+   * @param name the new attribute name, may be <code>null</code> but not empty. Supply <code>null
+   *     </code> to clear the role attribute name.
    */
   public void setRoleAttributeName(String name) {
     if (name != null) {
@@ -136,8 +135,8 @@ public class PSDirectorySet extends PSCollectionComponent {
   }
 
   /**
-   * Set a new object attribute name. This attribute name is used to lookup
-   * objects in the directory.
+   * Set a new object attribute name. This attribute name is used to lookup objects in the
+   * directory.
    *
    * @param name the new object attribute name, not <code>null</code> or empty.
    */
@@ -320,10 +319,7 @@ public class PSDirectorySet extends PSCollectionComponent {
           "reference must be of type " + PSDirectory.class.getName());
   }
 
-  /**
-   * Initializes all required attribute names with <code>null</code> values.
-   *
-   */
+  /** Initializes all required attribute names with <code>null</code> values. */
   private void initRequiredAttributeNames() {
     m_requiredAttributeNames = new HashMap();
 
@@ -359,10 +355,10 @@ public class PSDirectorySet extends PSCollectionComponent {
   private String m_name = null;
 
   /**
-   * A map that holds all required attribute names. All attribute names are
-   * initialized to <code>null</code> and can be set through the appropriate
-   * set method such as {@link #setEmailAttributeName(String)}. Initialized
-   * while constructed, never <code>null</code> or empty after that.
+   * A map that holds all required attribute names. All attribute names are initialized to <code>
+   * null</code> and can be set through the appropriate set method such as {@link
+   * #setEmailAttributeName(String)}. Initialized while constructed, never <code>null</code> or
+   * empty after that.
    */
   private Map m_requiredAttributeNames = null;
 

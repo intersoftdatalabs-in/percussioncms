@@ -16,253 +16,215 @@
  */
 package com.percussion.search.objectstore;
 
-import com.percussion.xml.PSXmlDocumentBuilder;
-
-import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
+import com.percussion.xml.PSXmlDocumentBuilder;
+import org.junit.jupiter.api.Test;
 
-/**
- * Test the ctors, equals and hashcode methods of the
- * <code>PSWSSearchFieldTest</code> class.
- */
-public class PSWSSearchFieldTest
-{
-   /**
-    * Create a new test
-    *
-    * @param name The name of the test
-    */
+/** Test the ctors, equals and hashcode methods of the <code>PSWSSearchFieldTest</code> class. */
+public class PSWSSearchFieldTest {
+  /**
+   * Create a new test
+   *
+   * @param name The name of the test
+   */
 
+  /**
+   * Test good and bad constructors - does not test XML ctor.
+   *
+   * @throws Exception
+   */
+  @Test
+  public void testCtor() throws Exception {
+    // test valid op
+    assertTrue(
+        constructField(
+            "name", PSWSSearchField.OP_ATTR_EQUAL, "val", PSWSSearchField.CONN_ATTR_AND));
+    assertTrue(
+        constructField("name", PSWSSearchField.OP_ATTR_ISNULL, "", PSWSSearchField.CONN_ATTR_AND));
 
+    // invalid op
+    assertFalse(constructField("name", -2, "val", PSWSSearchField.CONN_ATTR_AND));
+    assertFalse(constructField("name", 50, "val", PSWSSearchField.CONN_ATTR_AND));
+    // invalid connector
+    assertFalse(constructField("name", PSWSSearchField.OP_ATTR_EQUAL, "val", -2));
+    assertFalse(constructField("name", PSWSSearchField.OP_ATTR_EQUAL, "val", 50));
+    // invalid name
+    assertFalse(
+        constructField(null, PSWSSearchField.OP_ATTR_EQUAL, "val", PSWSSearchField.CONN_ATTR_AND));
+    assertFalse(
+        constructField("", PSWSSearchField.OP_ATTR_EQUAL, "val", PSWSSearchField.CONN_ATTR_AND));
+    // invalid value
+    assertFalse(
+        constructField("name", PSWSSearchField.OP_ATTR_EQUAL, null, PSWSSearchField.CONN_ATTR_AND));
 
-   /**
-    * Test good and bad constructors - does not test XML ctor.
-    *
-    * @throws Exception
-    */
+    // valid ext op
+    assertTrue(constructField("name", "concept", "val", PSWSSearchField.CONN_ATTR_AND));
+    // invalid name
+    assertFalse(constructField(null, "concept", "val", PSWSSearchField.CONN_ATTR_AND));
+    assertFalse(constructField("", "concept", "val", PSWSSearchField.CONN_ATTR_AND));
+    // invalid ext op
+    assertFalse(constructField("name", null, "val", PSWSSearchField.CONN_ATTR_AND));
+    assertFalse(constructField("name", "", "val", PSWSSearchField.CONN_ATTR_AND));
+    // invalid value
+    assertFalse(constructField("name", "concept", null, PSWSSearchField.CONN_ATTR_AND));
 
-   @Test
-   public void testCtor() throws Exception
-   {
-      // test valid op
-      assertTrue(constructField("name", PSWSSearchField.OP_ATTR_EQUAL, "val",
-         PSWSSearchField.CONN_ATTR_AND));
-      assertTrue(constructField("name", PSWSSearchField.OP_ATTR_ISNULL, "",
-         PSWSSearchField.CONN_ATTR_AND));
+    // invalid connector
+    assertFalse(constructField("name", "concept", "val", -2));
+    assertFalse(constructField("name", "concept", "val", 50));
+  }
 
-      // invalid op
-      assertFalse(constructField("name", -2, "val",
-         PSWSSearchField.CONN_ATTR_AND));
-      assertFalse(constructField("name", 50, "val",
-         PSWSSearchField.CONN_ATTR_AND));
-      // invalid connector
-      assertFalse(constructField("name", PSWSSearchField.OP_ATTR_EQUAL, "val",
-         -2));
-      assertFalse(constructField("name", PSWSSearchField.OP_ATTR_EQUAL, "val",
-         50));
-      // invalid name
-      assertFalse(constructField(null, PSWSSearchField.OP_ATTR_EQUAL, "val",
-         PSWSSearchField.CONN_ATTR_AND));
-      assertFalse(constructField("", PSWSSearchField.OP_ATTR_EQUAL, "val",
-         PSWSSearchField.CONN_ATTR_AND));
-      // invalid value
-      assertFalse(constructField("name", PSWSSearchField.OP_ATTR_EQUAL, null,
-         PSWSSearchField.CONN_ATTR_AND));
+  /**
+   * Test the equals and hashcode methods
+   *
+   * @throws Exception if there are any errors
+   */
+  @Test
+  public void testEquals() throws Exception {
+    // test same
+    PSWSSearchField field1 =
+        new PSWSSearchField(
+            "foo", PSWSSearchField.OP_ATTR_EQUAL, "bar", PSWSSearchField.CONN_ATTR_AND);
+    PSWSSearchField field2 =
+        new PSWSSearchField(
+            "foo", PSWSSearchField.OP_ATTR_EQUAL, "bar", PSWSSearchField.CONN_ATTR_AND);
+    assertEquals(field1, field2);
+    assertEquals(field1.hashCode(), field2.hashCode());
 
+    // same with other values
+    field1 =
+        new PSWSSearchField(
+            "foo2", PSWSSearchField.OP_ATTR_LESSTHAN, "bar2", PSWSSearchField.CONN_ATTR_OR);
+    field2 =
+        new PSWSSearchField(
+            "foo2", PSWSSearchField.OP_ATTR_LESSTHAN, "bar2", PSWSSearchField.CONN_ATTR_OR);
+    assertEquals(field1, field2);
+    assertEquals(field1.hashCode(), field2.hashCode());
 
-      // valid ext op
-      assertTrue(constructField("name", "concept", "val",
-         PSWSSearchField.CONN_ATTR_AND));
-      // invalid name
-      assertFalse(constructField(null, "concept", "val",
-         PSWSSearchField.CONN_ATTR_AND));
-      assertFalse(constructField("", "concept", "val",
-         PSWSSearchField.CONN_ATTR_AND));
-      // invalid ext op
-      assertFalse(constructField("name", null, "val",
-         PSWSSearchField.CONN_ATTR_AND));
-      assertFalse(constructField("name", "", "val",
-         PSWSSearchField.CONN_ATTR_AND));
-      // invalid value
-      assertFalse(constructField("name", "concept", null,
-         PSWSSearchField.CONN_ATTR_AND));
+    // diff name
+    field2 =
+        new PSWSSearchField(
+            "foo3", PSWSSearchField.OP_ATTR_LESSTHAN, "bar2", PSWSSearchField.CONN_ATTR_OR);
+    assertFalse(field1.equals(field2));
 
-      // invalid connector
-      assertFalse(constructField("name", "concept", "val",
-         -2));
-      assertFalse(constructField("name", "concept", "val",
-         50));
-   }
+    // diff op
+    field2 =
+        new PSWSSearchField(
+            "foo2", PSWSSearchField.OP_ATTR_EQUAL, "bar2", PSWSSearchField.CONN_ATTR_OR);
+    assertFalse(field1.equals(field2));
 
-   /**
-    * Test the equals and hashcode methods
-    *
-    * @throws Exception if there are any errors
-    */
+    // diff value
+    field2 =
+        new PSWSSearchField(
+            "foo2", PSWSSearchField.OP_ATTR_LESSTHAN, "bar3", PSWSSearchField.CONN_ATTR_OR);
+    assertFalse(field1.equals(field2));
 
-   @Test
-   public void testEquals() throws Exception
-   {
-      // test same
-      PSWSSearchField field1 = new PSWSSearchField("foo",
-         PSWSSearchField.OP_ATTR_EQUAL, "bar", PSWSSearchField.CONN_ATTR_AND);
-      PSWSSearchField field2 = new PSWSSearchField("foo",
-         PSWSSearchField.OP_ATTR_EQUAL, "bar", PSWSSearchField.CONN_ATTR_AND);
-      assertEquals(field1, field2);
-      assertEquals(field1.hashCode(), field2.hashCode());
+    // diff connector
+    field2 =
+        new PSWSSearchField(
+            "foo2", PSWSSearchField.OP_ATTR_LESSTHAN, "bar2", PSWSSearchField.CONN_ATTR_AND);
+    assertFalse(field1.equals(field2));
 
-      // same with other values
-      field1 = new PSWSSearchField("foo2", PSWSSearchField.OP_ATTR_LESSTHAN,
-         "bar2", PSWSSearchField.CONN_ATTR_OR);
-      field2 = new PSWSSearchField("foo2", PSWSSearchField.OP_ATTR_LESSTHAN,
-         "bar2", PSWSSearchField.CONN_ATTR_OR);
-      assertEquals(field1, field2);
-      assertEquals(field1.hashCode(), field2.hashCode());
+    // same ext op
+    field1 = new PSWSSearchField("foo3", "CONCEPT", "bar2", PSWSSearchField.CONN_ATTR_AND);
+    field2 = new PSWSSearchField("foo3", "CONCEPT", "bar2", PSWSSearchField.CONN_ATTR_AND);
+    assertEquals(field1, field2);
+    assertEquals(field1.hashCode(), field2.hashCode());
 
-      // diff name
-      field2 = new PSWSSearchField("foo3", PSWSSearchField.OP_ATTR_LESSTHAN,
-         "bar2", PSWSSearchField.CONN_ATTR_OR);
-      assertFalse(field1.equals(field2));
+    // diff ext op
+    field2 = new PSWSSearchField("foo3", "BOOLEAN", "bar2", PSWSSearchField.CONN_ATTR_AND);
+    assertFalse(field1.equals(field2));
 
-      // diff op
-      field2 = new PSWSSearchField("foo2", PSWSSearchField.OP_ATTR_EQUAL,
-         "bar2", PSWSSearchField.CONN_ATTR_OR);
-      assertFalse(field1.equals(field2));
+    // op vs ext op
+    field2 =
+        new PSWSSearchField(
+            "foo3", PSWSSearchField.OP_ATTR_LESSTHAN, "bar2", PSWSSearchField.CONN_ATTR_AND);
+    assertFalse(field1.equals(field2));
+  }
 
-      // diff value
-      field2 = new PSWSSearchField("foo2", PSWSSearchField.OP_ATTR_LESSTHAN,
-         "bar3", PSWSSearchField.CONN_ATTR_OR);
-      assertFalse(field1.equals(field2));
+  /**
+   * Test serializing object to and from XML
+   *
+   * @throws Exception if there are any errors.
+   */
+  @Test
+  public void testXml() throws Exception {
+    PSWSSearchField field1 =
+        new PSWSSearchField(
+            "foo", PSWSSearchField.OP_ATTR_EQUAL, "bar", PSWSSearchField.CONN_ATTR_AND);
+    assertEquals(field1, roundTrip(field1));
 
-      // diff connector
-      field2 = new PSWSSearchField("foo2", PSWSSearchField.OP_ATTR_LESSTHAN,
-         "bar2", PSWSSearchField.CONN_ATTR_AND);
-      assertFalse(field1.equals(field2));
+    // test diff op
+    field1 =
+        new PSWSSearchField(
+            "foo", PSWSSearchField.OP_ATTR_LESSTHANEQUAL, "bar", PSWSSearchField.CONN_ATTR_AND);
+    assertEquals(field1, roundTrip(field1));
 
-      // same ext op
-      field1 = new PSWSSearchField("foo3", "CONCEPT", "bar2",
-         PSWSSearchField.CONN_ATTR_AND);
-      field2 = new PSWSSearchField("foo3", "CONCEPT", "bar2",
-         PSWSSearchField.CONN_ATTR_AND);
-      assertEquals(field1, field2);
-      assertEquals(field1.hashCode(), field2.hashCode());
+    // test diff conn
+    field1 =
+        new PSWSSearchField(
+            "foo", PSWSSearchField.OP_ATTR_LESSTHANEQUAL, "bar", PSWSSearchField.CONN_ATTR_OR);
+    assertEquals(field1, roundTrip(field1));
 
-      // diff ext op
-      field2 = new PSWSSearchField("foo3", "BOOLEAN", "bar2",
-         PSWSSearchField.CONN_ATTR_AND);
-      assertFalse(field1.equals(field2));
+    // test external op
+    field1 = new PSWSSearchField("foo", "CONCEPT", "bar", PSWSSearchField.CONN_ATTR_AND);
+    assertEquals(field1, roundTrip(field1));
+    field1 = new PSWSSearchField("foo", "BOOL", "bar", PSWSSearchField.CONN_ATTR_OR);
+    assertEquals(field1, roundTrip(field1));
 
-      // op vs ext op
-      field2 = new PSWSSearchField("foo3", PSWSSearchField.OP_ATTR_LESSTHAN,
-         "bar2", PSWSSearchField.CONN_ATTR_AND);
-      assertFalse(field1.equals(field2));
+    // test failure (sanity check)
+    PSWSSearchField field2 =
+        new PSWSSearchField(
+            "foo", PSWSSearchField.OP_ATTR_EQUAL, "bar", PSWSSearchField.CONN_ATTR_AND);
+    assertFalse(field1.equals(roundTrip(field2)));
+  }
 
-   }
+  /**
+   * Serializes and then deserializes the supplied field to and from XML.
+   *
+   * @param field the field to round trip, assumed not <code>null</code>.
+   * @return The deserialized field, never <code>null</code>.
+   * @throws Exception if there are any errors.
+   */
+  private PSWSSearchField roundTrip(PSWSSearchField field) throws Exception {
+    return new PSWSSearchField(field.toXml(PSXmlDocumentBuilder.createXmlDocument()));
+  }
 
-   /**
-    * Test serializing object to and from XML
-    *
-    * @throws Exception if there are any errors.
-    */
+  /**
+   * Construct field with provided values. See {@link PSWSSearchField#PSWSSearchField(String, int,
+   * String, int) ctor} for info on params.
+   *
+   * @return <code>true</code> if constructor does not throw exception, <code>false</code> if it
+   *     does.
+   */
+  private boolean constructField(String name, int op, String value, int conn) {
+    boolean valid = true;
 
-   @Test
-   public void testXml() throws Exception
-   {
-      PSWSSearchField field1 = new PSWSSearchField("foo",
-         PSWSSearchField.OP_ATTR_EQUAL, "bar", PSWSSearchField.CONN_ATTR_AND);
-      assertEquals(field1, roundTrip(field1));
+    try {
+      new PSWSSearchField(name, op, value, conn);
+    } catch (Exception e) {
+      valid = false;
+    }
 
-      // test diff op
-      field1 = new PSWSSearchField("foo",
-         PSWSSearchField.OP_ATTR_LESSTHANEQUAL, "bar",
-         PSWSSearchField.CONN_ATTR_AND);
-      assertEquals(field1, roundTrip(field1));
+    return valid;
+  }
 
-      // test diff conn
-      field1 = new PSWSSearchField("foo",
-         PSWSSearchField.OP_ATTR_LESSTHANEQUAL, "bar",
-         PSWSSearchField.CONN_ATTR_OR);
-      assertEquals(field1, roundTrip(field1));
+  /**
+   * Construct field with provided values. See {@link PSWSSearchField#PSWSSearchField(String,
+   * String, String, int) ctor} for info on params.
+   *
+   * @return <code>true</code> if constructor does not throw exception, <code>false</code> if it
+   *     does.
+   */
+  private boolean constructField(String name, String extOp, String value, int conn) {
+    boolean valid = true;
 
-      // test external op
-      field1 = new PSWSSearchField("foo", "CONCEPT", "bar",
-         PSWSSearchField.CONN_ATTR_AND);
-      assertEquals(field1, roundTrip(field1));
-      field1 = new PSWSSearchField("foo", "BOOL", "bar",
-         PSWSSearchField.CONN_ATTR_OR);
-      assertEquals(field1, roundTrip(field1));
+    try {
+      new PSWSSearchField(name, extOp, value, conn);
+    } catch (Exception e) {
+      valid = false;
+    }
 
-      // test failure (sanity check)
-      PSWSSearchField field2 = new PSWSSearchField("foo",
-         PSWSSearchField.OP_ATTR_EQUAL, "bar", PSWSSearchField.CONN_ATTR_AND);
-      assertFalse(field1.equals(roundTrip(field2)));
-   }
-
-   /**
-    * Serializes and then deserializes the supplied field to and from XML.
-    *
-    * @param field the field to round trip, assumed not <code>null</code>.
-    *
-    * @return The deserialized field, never <code>null</code>.
-    *
-    * @throws Exception if there are any errors.
-    */
-   private PSWSSearchField roundTrip(PSWSSearchField field) throws Exception
-   {
-      return new PSWSSearchField(field.toXml(
-         PSXmlDocumentBuilder.createXmlDocument()));
-   }
-
-
-   /**
-    * Construct field with provided values.  See
-    * {@link PSWSSearchField#PSWSSearchField(String, int, String, int) ctor} for
-    * info on params.
-    *
-    * @return <code>true</code> if constructor does not throw exception,
-    * <code>false</code> if it does.
-    */
-   private boolean constructField(String name, int op, String value, int conn)
-   {
-      boolean valid = true;
-
-      try
-      {
-         new PSWSSearchField(name, op, value, conn);
-      }
-      catch (Exception e)
-      {
-         valid = false;
-      }
-
-      return valid;
-   }
-
-   /**
-    * Construct field with provided values.  See
-    * {@link PSWSSearchField#PSWSSearchField(String, String, String, int) ctor}
-    * for info on params.
-    *
-    * @return <code>true</code> if constructor does not throw exception,
-    * <code>false</code> if it does.
-    */
-   private boolean constructField(String name, String extOp, String value,
-      int conn)
-   {
-      boolean valid = true;
-
-      try
-      {
-         new PSWSSearchField(name, extOp, value, conn);
-      }
-      catch (Exception e)
-      {
-         valid = false;
-      }
-
-      return valid;
-   }
-
-
+    return valid;
+  }
 }

@@ -17,12 +17,10 @@
 
 package com.percussion.testing;
 
-import com.percussion.services.PSBaseServiceLocator;
-import com.percussion.utils.annotations.IgnoreInWebAppSpringContext;
-
-import com.percussion.utils.testing.SpringContextTest;
-import org.junit.jupiter.api.BeforeEach;
+import javax.naming.Context;
+import javax.naming.InitialContext;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,38 +28,35 @@ import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.web.context.WebApplicationContext;
 
-import javax.naming.Context;
-import javax.naming.InitialContext;
-
-//TODO: The spring tests need moved to a new jar.
-
+// TODO: The spring tests need moved to a new jar.
 
 @Tag("SpringContextTest")
-//@WebAppConfiguration("file:../modules/perc-distribution-tree/target/distribution/jetty/base/webapps/Rhythmyx/WEB-INF")
+// @WebAppConfiguration("file:../modules/perc-distribution-tree/target/distribution/jetty/base/webapps/Rhythmyx/WEB-INF")
 @ContextConfiguration(classes = {PSSpringContextTestConfig.class})
 @Disabled
 public class PSAbstractSpringContextTest {
 
-    @Autowired
-    protected WebApplicationContext wac;
+  @Autowired protected WebApplicationContext wac;
 
-    @Autowired
-    protected ConfigurableApplicationContext ctx;
+  @Autowired protected ConfigurableApplicationContext ctx;
 
-    @BeforeEach
-    public  void setContext(){
-        // No-op: PSBaseServiceLocator no longer exposes a public setCtx(ctx).
-        // The test harness provides application context via Spring annotations.
-    }
-    @BeforeAll
-    public static void setupJndi() throws Exception {
-        System.setProperty(Context.INITIAL_CONTEXT_FACTORY, "org.osjava.sj.memory.MemoryContextFactory");
-        System.setProperty("org.osjava.sj.jndi.shared", "true");
-        InitialContext ic = new InitialContext();
+  @BeforeEach
+  public void setContext() {
+    // No-op: PSBaseServiceLocator no longer exposes a public setCtx(ctx).
+    // The test harness provides application context via Spring annotations.
+  }
 
-        ic.createSubcontext("java:/comp/env/jdbc");
-        ic.createSubcontext("java:comp/env/jms");
-        ic.createSubcontext("java:comp/env/queue");
-      //  ic.bind("java:comp/env/jms/ConnectionFactory", PSMockJmsConnectionFactoryHelper.getMs_mockFactory());
-    }
+  @BeforeAll
+  public static void setupJndi() throws Exception {
+    System.setProperty(
+        Context.INITIAL_CONTEXT_FACTORY, "org.osjava.sj.memory.MemoryContextFactory");
+    System.setProperty("org.osjava.sj.jndi.shared", "true");
+    InitialContext ic = new InitialContext();
+
+    ic.createSubcontext("java:/comp/env/jdbc");
+    ic.createSubcontext("java:comp/env/jms");
+    ic.createSubcontext("java:comp/env/queue");
+    //  ic.bind("java:comp/env/jms/ConnectionFactory",
+    // PSMockJmsConnectionFactoryHelper.getMs_mockFactory());
+  }
 }

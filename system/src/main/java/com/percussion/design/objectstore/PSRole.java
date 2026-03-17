@@ -46,13 +46,10 @@ public class PSRole extends PSDatabaseComponent implements Comparable, IPSCatalo
   /**
    * Searches for a matching subject in this role.
    *
-   * @param   sub a subject, can't be <code>null</code>.
-   *
-   * @return  <code>true</code> if a matching subject is found (using the
-   *          {@link PSSubject#isMatch(PSSubject)} method, <code>false</code>
-   *          otherwise.
-   * @throws  IllegalArgumentException if <code>sub</code> is
-   *          <code>null</code>.
+   * @param sub a subject, can't be <code>null</code>.
+   * @return <code>true</code> if a matching subject is found (using the {@link
+   *     PSSubject#isMatch(PSSubject)} method, <code>false</code> otherwise.
+   * @throws IllegalArgumentException if <code>sub</code> is <code>null</code>.
    */
   public boolean containsCorrespondingSubject(PSSubject sub) {
     if (sub == null) {
@@ -413,10 +410,9 @@ public class PSRole extends PSDatabaseComponent implements Comparable, IPSCatalo
   }
 
   /**
-   * Get the attribute map for this role.  Any modifications to
-   * this map will affect the internal attributes of this role.
-   * The map will contain entries keyed by the attribute name with
-   * the associated value being the value of the attribute.
+   * Get the attribute map for this role. Any modifications to this map will affect the internal
+   * attributes of this role. The map will contain entries keyed by the attribute name with the
+   * associated value being the value of the attribute.
    *
    * @return The attribute list, never <code>null</code>.
    */

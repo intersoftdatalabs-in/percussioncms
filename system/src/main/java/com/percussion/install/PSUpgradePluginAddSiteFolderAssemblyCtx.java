@@ -43,7 +43,6 @@ public class PSUpgradePluginAddSiteFolderAssemblyCtx implements IPSUpgradePlugin
    *
    * @param module IPSUpgradeModule object. may not be <code>null</code>.
    * @param elemData data element of plugin.
-   *
    * @return plugin response, may be <code>null</code>.
    */
   public PSPluginResponse process(IPSUpgradeModule module, Element elemData) {

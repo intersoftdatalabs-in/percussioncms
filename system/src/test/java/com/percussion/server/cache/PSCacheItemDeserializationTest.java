@@ -96,7 +96,8 @@ class PSCacheItemDeserializationTest {
 
     // Verify filter spec contains rejection pattern
     assertNotNull(filterSpec);
-    assertTrue(filterSpec.contains("!*") || filterSpec.contains("maxdepth"),
+    assertTrue(
+        filterSpec.contains("!*") || filterSpec.contains("maxdepth"),
         "Filter spec should restrict dangerous classes");
   }
 

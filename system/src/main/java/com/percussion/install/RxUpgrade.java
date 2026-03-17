@@ -20,8 +20,8 @@ package com.percussion.install;
 import static com.percussion.utils.container.IPSJdbcDbmsDefConstants.PWD_ENCRYPTED_PROPERTY;
 
 import com.percussion.legacy.security.deprecated.PSLegacyEncrypter;
-import com.percussion.security.xml.PSSecureXMLUtils;
 import com.percussion.security.PSEncryptor;
+import com.percussion.security.xml.PSSecureXMLUtils;
 import com.percussion.tablefactory.PSJdbcDbmsDef;
 import com.percussion.util.PSCharSets;
 import com.percussion.util.PSFilenameFilter;

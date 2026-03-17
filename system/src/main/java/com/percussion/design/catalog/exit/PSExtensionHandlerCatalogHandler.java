@@ -31,18 +31,18 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * This class implements cataloging of extension handlers
- * installed on the server.
- * <p>
- * Extension handler catalog requests are sent to the server
- * using the PSXExtensionHandlerCatalog XML document. Its definition
- * is as follows:
+ * This class implements cataloging of extension handlers installed on the server.
+ *
+ * <p>Extension handler catalog requests are sent to the server using the PSXExtensionHandlerCatalog
+ * XML document. Its definition is as follows:
+ *
  * <pre>
  *    &lt;!ELEMENT PSXExtensionHandlerCatalog EMPTY&gt;
  * </pre>
  *
- * The PSXExtensionHandlerCatalogResults XML document is sent
- * as the response. Its definition is as follows:
+ * The PSXExtensionHandlerCatalogResults XML document is sent as the response. Its definition is as
+ * follows:
+ *
  * <pre>
  *    &lt;!ELEMENT PSXExtensionHandlerCatalogResults   (IPSExtensionHandlerDef*)&gt;
  * </pre>

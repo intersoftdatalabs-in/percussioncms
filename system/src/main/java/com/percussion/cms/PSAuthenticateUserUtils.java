@@ -93,10 +93,11 @@ public class PSAuthenticateUserUtils {
   }
 
   /**
-   * This mehod retrieves the community id from
-   * "sys_commSupport/communityidlookup" by their community name.
-   * @param request <code>IPSRequestContext</code> object that is available in
-   * the extension's process request method, assumed never <code>null</code>.
+   * This mehod retrieves the community id from "sys_commSupport/communityidlookup" by their
+   * community name.
+   *
+   * @param request <code>IPSRequestContext</code> object that is available in the extension's
+   *     process request method, assumed never <code>null</code>.
    * @param name Community name, can not be <code>null</code>
    * @return Community id.
    * @throws Exception

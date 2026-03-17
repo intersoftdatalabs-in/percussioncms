@@ -17,51 +17,38 @@
 package com.percussion.design.objectstore;
 
 import static com.percussion.testing.PSTestCompare.assertEqualsWithHash;
+import static org.junit.jupiter.api.Assertions.*;
 
 import java.net.MalformedURLException;
 import java.net.URL;
 
-import org.junit.jupiter.api.Test;
-import static org.junit.jupiter.api.Assertions.*;
+public class PSLoginWebPageTest {
+  /** Tests behavior of equals() and hashCode() methods. */
+  public void testEqualsHashCode() throws MalformedURLException {
+    final PSLoginWebPage webPage1 = new PSLoginWebPage(getUrl1(), true);
+    final PSLoginWebPage webPage2 = new PSLoginWebPage(getUrl1(), true);
 
-public class PSLoginWebPageTest 
-{
-   /**
-    * Tests behavior of equals() and hashCode() methods.
-    */
-   
-   public void testEqualsHashCode() throws MalformedURLException
-   {
-      final PSLoginWebPage webPage1 = new PSLoginWebPage(getUrl1(), true);
-      final PSLoginWebPage webPage2 = new PSLoginWebPage(getUrl1(), true);
-      
-      assertFalse(webPage1.equals(new Object()));
-      assertEqualsWithHash(webPage1, webPage2);
-      
-      webPage1.setSecure(false);
-      assertFalse(webPage1.equals(webPage2));
-      webPage1.setSecure(true);
-      assertEqualsWithHash(webPage1, webPage2);
-      
-      webPage1.setUrl(getUrl2());
-      assertFalse(webPage1.equals(webPage2));
-      webPage1.setUrl(getUrl1());
-      assertEqualsWithHash(webPage1, webPage2);
-   }
+    assertFalse(webPage1.equals(new Object()));
+    assertEqualsWithHash(webPage1, webPage2);
 
-   /**
-    * Creates sample url.
-    */
-   private URL getUrl1() throws MalformedURLException
-   {
-      return new URL("http://www.yahoo.com");
-   }
-   
-   /**
-    * Creates another sample url.
-    */
-   private URL getUrl2() throws MalformedURLException
-   {
-      return new URL("http://www.google.com");
-   }
+    webPage1.setSecure(false);
+    assertFalse(webPage1.equals(webPage2));
+    webPage1.setSecure(true);
+    assertEqualsWithHash(webPage1, webPage2);
+
+    webPage1.setUrl(getUrl2());
+    assertFalse(webPage1.equals(webPage2));
+    webPage1.setUrl(getUrl1());
+    assertEqualsWithHash(webPage1, webPage2);
+  }
+
+  /** Creates sample url. */
+  private URL getUrl1() throws MalformedURLException {
+    return new URL("http://www.yahoo.com");
+  }
+
+  /** Creates another sample url. */
+  private URL getUrl2() throws MalformedURLException {
+    return new URL("http://www.google.com");
+  }
 }

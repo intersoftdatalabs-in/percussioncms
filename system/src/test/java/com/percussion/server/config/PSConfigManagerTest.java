@@ -19,69 +19,51 @@ package com.percussion.server.config;
 import com.percussion.server.PSRequest;
 import com.percussion.testing.IPSServerBasedJunitTest;
 import com.percussion.testing.PSConfigHelperTestCase;
-import com.percussion.testing.PSRequestHandlerTestSuite;
-
-
-
-import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.TestInstance.Lifecycle;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
-/**
- * Unit test for the {@link PSRelationshipConfigurationCache} class.
- */
-
+/** Unit test for the {@link PSRelationshipConfigurationCache} class. */
 @TestInstance(Lifecycle.PER_CLASS)
-public class PSConfigManagerTest extends PSConfigHelperTestCase
-   implements IPSServerBasedJunitTest
+public class PSConfigManagerTest extends PSConfigHelperTestCase implements IPSServerBasedJunitTest {
 
-{
-   // see base class
+  // see base class
 
-   /* (non-Javadoc)
-    * @see com.percussion.testing.IPSServerBasedJunitTest#oneTimeSetUp(com.percussion.server.PSRequest)
-    */
-   public void oneTimeSetUp(PSRequest req) {
-      // TODO Auto-generated method stub
+  /* (non-Javadoc)
+   * @see com.percussion.testing.IPSServerBasedJunitTest#oneTimeSetUp(com.percussion.server.PSRequest)
+   */
+  public void oneTimeSetUp(PSRequest req) {
+    // TODO Auto-generated method stub
 
-   }
+  }
 
-   /**
-    * The loadable handler will call this method once before any test method.
-    *
-    * @param req The request that was passed to the loadable handler.
-    *            Never <code>null</code>;
-    */
-   @Override
-   public void oneTimeSetUp(Object req) {
+  /**
+   * The loadable handler will call this method once before any test method.
+   *
+   * @param req The request that was passed to the loadable handler. Never <code>null</code>;
+   */
+  @Override
+  public void oneTimeSetUp(Object req) {}
 
-   }
+  /* (non-Javadoc)
+   * @see com.percussion.testing.IPSServerBasedJunitTest#oneTimeTearDown()
+   */
+  public void oneTimeTearDown() {
+    // TODO Auto-generated method stub
 
-   /* (non-Javadoc)
-    * @see com.percussion.testing.IPSServerBasedJunitTest#oneTimeTearDown()
-    */
-   public void oneTimeTearDown() {
-      // TODO Auto-generated method stub
+  }
 
-   }
-
-   /**
-    * Test all public interfaces including the constructor.
-    * @throws Exception if any errors occur.
-    */
-   public void testConstruction() throws Exception
-   {
-      PSConfigManager manager = null;
-      try
-      {
-         manager = PSConfigManager.getInstance();
-         manager.reloadConfigs();
-      }
-      catch (Exception e)
-      {
-         org.junit.jupiter.api.Assertions.fail("construction failed");
-      }
-   }
+  /**
+   * Test all public interfaces including the constructor.
+   *
+   * @throws Exception if any errors occur.
+   */
+  public void testConstruction() throws Exception {
+    PSConfigManager manager = null;
+    try {
+      manager = PSConfigManager.getInstance();
+      manager.reloadConfigs();
+    } catch (Exception e) {
+      org.junit.jupiter.api.Assertions.fail("construction failed");
+    }
+  }
 }

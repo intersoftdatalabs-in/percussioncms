@@ -52,7 +52,7 @@ public class PSMetadataTagsHelper {
    *
    * @param results assumed not <code>null</code>.
    * @param sortOrder
-   * @return List<PSPair<String, Integer>>
+   * @return List PSPair String, Integer
    * @throws ServletException
    */
   public List<PSPair<String, Integer>> processTags(List<IPSMetadataEntry> results, String sortOrder)

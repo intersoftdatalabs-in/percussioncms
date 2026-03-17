@@ -16,162 +16,151 @@
  */
 package com.percussion.services.security;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 import com.percussion.security.PSGroupEntry;
 import com.percussion.security.PSRoleEntry;
 import com.percussion.security.PSUserAttributes;
 import com.percussion.security.PSUserEntry;
+import com.percussion.security.shim.acl.Group;
 import com.percussion.services.security.loginmods.data.PSGroup;
 import com.percussion.services.security.loginmods.data.PSPrincipal;
-
 import java.security.Principal;
-import com.percussion.security.shim.acl.Group;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
-
 import javax.security.auth.Subject;
-
 import org.apache.commons.collections.Predicate;
 import org.apache.commons.collections.iterators.FilterIterator;
-
 import org.junit.jupiter.api.BeforeEach;
-
-import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.Test;
-
 
 /**
  * Tests for utils
+ *
  * @author dougrand
  */
-public class PSJaasUtilsTest
-{
+public class PSJaasUtilsTest {
 
-   @BeforeEach
-   protected void setUp() throws Exception
-   {
-      ms_testData = new ArrayList<Principal>();
-      ms_testRoleGroup = new PSGroup("Roles");
+  @BeforeEach
+  protected void setUp() throws Exception {
+    ms_testData = new ArrayList<Principal>();
+    ms_testRoleGroup = new PSGroup("Roles");
+  }
 
-   }
+  /** Test data intiialized during {@link #setUp()}, never <code>null</code> after that. */
+  static Collection<Principal> ms_testData;
 
+  /** Test group initialized during {@link #setUp()}, never <code>null</code> after that. */
+  static Group ms_testRoleGroup;
 
+  /**
+   * Test locating the group containing role names.
+   *
+   * @throws Exception if the test failes.
+   */
+  @Test
+  public void testFindRoleGroup() throws Exception {
+    ms_testData.add(ms_testRoleGroup);
 
-   /**
-    * Test data intiialized during {@link #setUp()}, never <code>null</code>
-    * after that.
-    */
-   static Collection<Principal> ms_testData;
+    Group r = PSJaasUtils.findOrCreateGroup(ms_testData, PSJaasUtils.ROLE_GROUP_NAME);
+    assertTrue(r == ms_testRoleGroup);
 
-   /**
-    * Test group initialized during {@link #setUp()}, never <code>null</code>
-    * after that.
-    */
-   static Group ms_testRoleGroup;
+    ms_testData.remove(ms_testRoleGroup);
 
-   /**
-    * Test locating the group containing role names.
-    *
-    * @throws Exception if the test failes.
-    */
-   @Test
-   public void testFindRoleGroup() throws Exception
-   {
-      ms_testData.add(ms_testRoleGroup);
+    r = PSJaasUtils.findOrCreateGroup(ms_testData, PSJaasUtils.ROLE_GROUP_NAME);
+    assertTrue(!(r == ms_testRoleGroup));
+  }
 
-      Group r = PSJaasUtils.findOrCreateGroup(ms_testData,
-         PSJaasUtils.ROLE_GROUP_NAME);
-      assertTrue(r == ms_testRoleGroup);
+  /**
+   * Test various collection operations.
+   *
+   * @throws Exception if the test fails.
+   */
+  @SuppressWarnings(value = {"unchecked"})
+  @Test
+  public void testCollectionResults() throws Exception {
+    ms_testData.add(new PSPrincipal("user"));
+    ms_testData.add(new PSPrincipal("grape"));
+    ms_testData.add(new PSPrincipal("orange"));
 
-      ms_testData.remove(ms_testRoleGroup);
+    Iterator<Principal> rval;
 
-      r = PSJaasUtils.findOrCreateGroup(ms_testData,
-         PSJaasUtils.ROLE_GROUP_NAME);
-      assertTrue(!(r == ms_testRoleGroup));
-   }
+    Principal u = PSJaasUtils.findFirstPSPrincipal(ms_testData);
+    assertTrue(u == ms_testData.iterator().next());
 
-   /**
-    * Test various collection operations.
-    *
-    * @throws Exception if the test fails.
-    */
-   @SuppressWarnings(value={"unchecked"})
-   @Test
-   public void testCollectionResults() throws Exception
-   {
-      ms_testData.add(new PSPrincipal("user"));
-      ms_testData.add(new PSPrincipal("grape"));
-      ms_testData.add(new PSPrincipal("orange"));
+    rval =
+        new FilterIterator(
+            ms_testData.iterator(),
+            new Predicate() {
+              public boolean evaluate(Object principal) {
+                return true;
+              }
+            });
 
-      Iterator<Principal> rval;
+    Iterator<Principal> td = ms_testData.iterator();
 
-      Principal u = PSJaasUtils.findFirstPSPrincipal(ms_testData);
-      assertTrue(u == ms_testData.iterator().next());
+    assertEquals(rval.next(), td.next());
+    assertEquals(rval.next(), td.next());
+    assertEquals(rval.next(), td.next());
+    assertTrue(rval.hasNext() == false);
+    assertTrue(td.hasNext() == false);
+  }
 
-      rval =
-         new FilterIterator(ms_testData.iterator(), new Predicate()
-      {
-         public boolean evaluate(Object principal)
-         {
-            return true;
-         }
+  /**
+   * Test converting a subject to a user entry
+   *
+   * @throws Exception if the test fails.
+   */
+  @SuppressWarnings(value = {"unchecked"})
+  @Test
+  public void testSubjectToEntry() throws Exception {
+    PSGroupEntry group1 = new PSGroupEntry("group1", 0);
+    PSGroupEntry group2 = new PSGroupEntry("group2", 0);
+    PSGroupEntry[] groups = new PSGroupEntry[] {group1, group2};
 
-      });
+    PSRoleEntry role1 = new PSRoleEntry("role1", 0);
+    PSRoleEntry role2 = new PSRoleEntry("role2", 0);
+    PSRoleEntry[] roles = new PSRoleEntry[] {role1, role2};
 
-      Iterator<Principal> td = ms_testData.iterator();
+    PSUserAttributes attrs = new PSUserAttributes();
+    attrs.put("attr1", "attval1");
+    attrs.put("attr2", "attval2");
 
-      assertEquals(rval.next(), td.next());
-      assertEquals(rval.next(), td.next());
-      assertEquals(rval.next(), td.next());
-      assertTrue(rval.hasNext() == false);
-      assertTrue(td.hasNext() == false);
-   }
+    String username = "admin1";
+    String pwd = "demo";
+    PSUserEntry entry =
+        new PSUserEntry(
+            username, 0, groups, roles, attrs, PSUserEntry.createSignature(username, pwd));
+    Subject sub = PSJaasUtils.userEntryToSubject(entry, pwd);
+    PSUserEntry entry2 = PSJaasUtils.subjectToUserEntry(sub, username, pwd);
+    assertEquals(entry, entry2);
+    assertEquals(sub, PSJaasUtils.userEntryToSubject(entry2, pwd));
 
-   /**
-    * Test converting a subject to a user entry
-    *
-    * @throws Exception if the test fails.
-    */
-   @SuppressWarnings(value={"unchecked"})
-   @Test
-   public void testSubjectToEntry() throws Exception
-   {
-      PSGroupEntry group1 = new PSGroupEntry("group1", 0);
-      PSGroupEntry group2 = new PSGroupEntry("group2", 0);
-      PSGroupEntry[] groups = new PSGroupEntry[] {group1, group2};
+    entry =
+        new PSUserEntry(
+            username,
+            0,
+            groups,
+            roles,
+            new PSUserAttributes(),
+            PSUserEntry.createSignature(username, pwd));
+    assertFalse(sub.equals(PSJaasUtils.userEntryToSubject(entry, pwd)));
 
-      PSRoleEntry role1 = new PSRoleEntry("role1", 0);
-      PSRoleEntry role2 = new PSRoleEntry("role2", 0);
-      PSRoleEntry[] roles = new PSRoleEntry[] {role1, role2};
+    sub.getPrincipals().clear();
+    assertFalse(entry2.equals(PSJaasUtils.subjectToUserEntry(sub, username, pwd)));
 
+    entry =
+        new PSUserEntry(
+            username,
+            0,
+            groups,
+            new PSRoleEntry[0],
+            attrs,
+            PSUserEntry.createSignature(username, pwd));
+    assertFalse(sub.equals(PSJaasUtils.userEntryToSubject(entry, pwd)));
 
-      PSUserAttributes attrs = new PSUserAttributes();
-      attrs.put("attr1", "attval1");
-      attrs.put("attr2", "attval2");
-
-      String username = "admin1";
-      String pwd = "demo";
-      PSUserEntry entry = new PSUserEntry(username, 0, groups, roles, attrs,
-         PSUserEntry.createSignature(username, pwd));
-      Subject sub = PSJaasUtils.userEntryToSubject(entry, pwd);
-      PSUserEntry entry2 = PSJaasUtils.subjectToUserEntry(sub, username, pwd);
-      assertEquals(entry, entry2);
-      assertEquals(sub, PSJaasUtils.userEntryToSubject(entry2, pwd));
-
-      entry = new PSUserEntry(username, 0, groups, roles,
-         new PSUserAttributes(), PSUserEntry.createSignature(username, pwd));
-      assertFalse(sub.equals(PSJaasUtils.userEntryToSubject(entry, pwd)));
-
-      sub.getPrincipals().clear();
-      assertFalse(entry2.equals(PSJaasUtils.subjectToUserEntry(sub, username,
-         pwd)));
-
-      entry = new PSUserEntry(username, 0, groups, new PSRoleEntry[0], attrs,
-         PSUserEntry.createSignature(username, pwd));
-      assertFalse(sub.equals(PSJaasUtils.userEntryToSubject(entry, pwd)));
-
-      sub.getPrincipals().clear();
-      assertFalse(entry2.equals(PSJaasUtils.subjectToUserEntry(sub, username,
-         pwd)));
-   }
+    sub.getPrincipals().clear();
+    assertFalse(entry2.equals(PSJaasUtils.subjectToUserEntry(sub, username, pwd)));
+  }
 }

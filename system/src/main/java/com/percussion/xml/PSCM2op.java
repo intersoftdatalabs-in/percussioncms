@@ -27,15 +27,14 @@ import org.apache.xerces.impl.dtd.models.CMNode;
 public class PSCM2op extends CMBinOp {
   /**
    * Constructor
-   * @param type the language primitive associated with this content model
-   * node. Should be one of these values:
-   * org.apache.xerces.impl.dtd.XMLContentSpec.CONTENTSPECNODE_CHOICE or
-   * org.apache.xerces.impl.dtd.XMLContentSpec.CONTENTSPECNODE_SEQ
    *
-   * @param leftNode the content model node prior to the type separator, or
-   * <code>null</code> if left will be set later.
-   * @param rightNode the content model node after the type separator, or
-   * <code>null</code> if right will be set later.
+   * @param type the language primitive associated with this content model node. Should be one of
+   *     these values: org.apache.xerces.impl.dtd.XMLContentSpec.CONTENTSPECNODE_CHOICE or
+   *     org.apache.xerces.impl.dtd.XMLContentSpec.CONTENTSPECNODE_SEQ
+   * @param leftNode the content model node prior to the type separator, or <code>null</code> if
+   *     left will be set later.
+   * @param rightNode the content model node after the type separator, or <code>null</code> if right
+   *     will be set later.
    */
   public PSCM2op(int type, CMNode leftNode, CMNode rightNode) {
     super(type, leftNode, rightNode);

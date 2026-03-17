@@ -17,41 +17,31 @@
 
 package com.percussion.hooks;
 
-
-import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
+/** Unit test class for testing <code>PSServletException</code> */
+public class PSServletExceptionTest {
+  /**
+   * Construct this unit test
+   *
+   * @param name The name of this test.
+   */
 
-/**
- * Unit test class for testing <code>PSServletException</code>
- */
-public class PSServletExceptionTest 
-{
-   /**
-    * Construct this unit test
-    *
-    * @param name The name of this test.
-    */
-    
+  /**
+   * Tests all Xml functions for PSContentSelectorDef class
+   *
+   * @throws Exception if there are any errors.
+   */
+  public void testAll() throws Exception {
+    PSServletException e = new PSServletException(50155);
+    String errorMsg = e.getLocalizedMessage();
+    assertTrue(errorMsg.length() > String.valueOf(50155).length() + 2);
 
-   /**
-    * Tests all Xml functions for PSContentSelectorDef class
-    *
-    * @throws Exception if there are any errors.
-    */
-   
-   public void testAll() throws Exception
-   {
-      PSServletException e = new PSServletException(50155);
-      String errorMsg = e.getLocalizedMessage();
-      assertTrue(errorMsg.length() >  String.valueOf(50155).length() + 2);
-      
-      e = new PSServletException(100);
-      errorMsg = e.getLocalizedMessage();
-      assertTrue(errorMsg.length() > String.valueOf(100).length() + 2);
-   }
+    e = new PSServletException(100);
+    errorMsg = e.getLocalizedMessage();
+    assertTrue(errorMsg.length() > String.valueOf(100).length() + 2);
+  }
 
-   // collect all tests into a TestSuite and return it
-   
+  // collect all tests into a TestSuite and return it
 
 }

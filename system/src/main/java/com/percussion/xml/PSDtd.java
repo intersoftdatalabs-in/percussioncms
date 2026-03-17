@@ -581,7 +581,8 @@ public class PSDtd extends DTDGrammar {
    */
   protected void setContentSpecIndex(int elementDeclIndex, int contentSpecIndex) {
     super.setContentSpecIndex(elementDeclIndex, contentSpecIndex);
-    m_contentSpecIndexList.put(Integer.valueOf(elementDeclIndex), Integer.valueOf(contentSpecIndex));
+    m_contentSpecIndexList.put(
+        Integer.valueOf(elementDeclIndex), Integer.valueOf(contentSpecIndex));
   }
 
   /**

@@ -16,18 +16,14 @@
  */
 package com.percussion.test.http;
 
-/**
- * Exception to signal that an attempt to establish an HTTP connction failed.
- */
-public class HttpConnectException extends Exception
-{
-   /**
-    * A constructor taking an error message.
-    *
-    * @param msg the error message, may be <code>null</code> or empty.
-    */
-   public HttpConnectException(String msg)
-   {
-      super(msg);
-   }
+/** Exception to signal that an attempt to establish an HTTP connction failed. */
+public class HttpConnectException extends Exception {
+  /**
+   * A constructor taking an error message.
+   *
+   * @param msg the error message, may be <code>null</code> or empty.
+   */
+  public HttpConnectException(String msg) {
+    super(msg);
+  }
 }

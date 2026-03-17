@@ -16,332 +16,289 @@
  */
 package com.percussion.services.datasource;
 
-import com.percussion.utils.jdbc.PSDatasourceConfig;
-import com.percussion.xml.PSXmlDocumentBuilder;
-
-import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
+import com.percussion.utils.jdbc.PSDatasourceConfig;
+import com.percussion.xml.PSXmlDocumentBuilder;
 import org.w3c.dom.Document;
 
-/**
- * Unit test for the {@link PSDatasourceConfig} class.
- */
-public class PSDatasourceConfigTest 
-{
-   /**
-    * Construct a test case
-    * 
-    * @param name The name of the test.
-    */
-   
+/** Unit test for the {@link PSDatasourceConfig} class. */
+public class PSDatasourceConfigTest {
+  /**
+   * Construct a test case
+   *
+   * @param name The name of the test.
+   */
 
-   /**
-    * Test constructors 
-    * 
-    * @throws Exception If there are any errors or failures.
-    */
-   
-   public void testCtor() throws Exception
-   {
-      String name = "test";
-      String dsName = "testds";
-      String origin = "dbo";
-      String database = "rxrhino";
-      
-      PSDatasourceConfig config;
-      
-      //test valid, no origin or db
-      config = new PSDatasourceConfig(name, dsName, null, null);
-      assertEquals(name, config.getName());
-      assertEquals(dsName, config.getDataSource());
-      assertEquals("", config.getOrigin());
-      assertEquals("", config.getDatabase());
+  /**
+   * Test constructors
+   *
+   * @throws Exception If there are any errors or failures.
+   */
+  public void testCtor() throws Exception {
+    String name = "test";
+    String dsName = "testds";
+    String origin = "dbo";
+    String database = "rxrhino";
 
-      // test valid, empty origin or db
-      config = new PSDatasourceConfig(name, dsName, "", "");
-      assertEquals(name, config.getName());
-      assertEquals(dsName, config.getDataSource());
-      assertEquals("", config.getOrigin());
-      assertEquals("", config.getDatabase());
+    PSDatasourceConfig config;
 
-      // test valid, with origin/db
-      config = new PSDatasourceConfig(name, dsName, origin, database);
-      assertEquals(name, config.getName());
-      assertEquals(dsName, config.getDataSource());
-      assertEquals(origin, config.getOrigin());
-    
-      // test invalid
-      boolean didThrow = false;
-      try
-      {
-         config = new PSDatasourceConfig(null, dsName, origin, database);
-      }
-      catch (IllegalArgumentException e)
-      {
-         didThrow = true;
-      }
-      assertTrue(didThrow);
+    // test valid, no origin or db
+    config = new PSDatasourceConfig(name, dsName, null, null);
+    assertEquals(name, config.getName());
+    assertEquals(dsName, config.getDataSource());
+    assertEquals("", config.getOrigin());
+    assertEquals("", config.getDatabase());
 
-      didThrow = false;
-      try
-      {
-         config = new PSDatasourceConfig("", dsName, origin, database);
-      }
-      catch (IllegalArgumentException e)
-      {
-         didThrow = true;
-      }
-      assertTrue(didThrow);
+    // test valid, empty origin or db
+    config = new PSDatasourceConfig(name, dsName, "", "");
+    assertEquals(name, config.getName());
+    assertEquals(dsName, config.getDataSource());
+    assertEquals("", config.getOrigin());
+    assertEquals("", config.getDatabase());
 
-      didThrow = false;
-      try
-      {
-         config = new PSDatasourceConfig(name, null, origin, database);
-      }
-      catch (IllegalArgumentException e)
-      {
-         didThrow = true;
-      }
-      assertTrue(didThrow);
-      
-      didThrow = false;
-      try
-      {
-         config = new PSDatasourceConfig(name, "", origin, database);
-      }
-      catch (IllegalArgumentException e)
-      {
-         didThrow = true;
-      }
-      assertTrue(didThrow);      
-   }
+    // test valid, with origin/db
+    config = new PSDatasourceConfig(name, dsName, origin, database);
+    assertEquals(name, config.getName());
+    assertEquals(dsName, config.getDataSource());
+    assertEquals(origin, config.getOrigin());
 
-   /**
-    * Test setter and getter methods
-    * 
-    * @throws Exception If there are any errors or failures.
-    */
-   
-   public void testAccessors() throws Exception
-   {
-      String name = "test";
-      String dsName = "testds";
-      String origin = "dbo";
-      String database = "rxrhino";
-      String name2 = "test2";
-      String dsName2 = "testds2";
-      String origin2 = "dbo2";
-      String database2 = "rxrhino2";
+    // test invalid
+    boolean didThrow = false;
+    try {
+      config = new PSDatasourceConfig(null, dsName, origin, database);
+    } catch (IllegalArgumentException e) {
+      didThrow = true;
+    }
+    assertTrue(didThrow);
 
-      
-      PSDatasourceConfig config;
-      
-      // construct and basic getter test
-      config = new PSDatasourceConfig(name, dsName, origin, database);
-      assertEquals(name, config.getName());
-      assertEquals(dsName, config.getDataSource());
-      assertEquals(origin, config.getOrigin());
-      assertEquals(database, config.getDatabase());
+    didThrow = false;
+    try {
+      config = new PSDatasourceConfig("", dsName, origin, database);
+    } catch (IllegalArgumentException e) {
+      didThrow = true;
+    }
+    assertTrue(didThrow);
 
-      // set values and get
-      config.setName(name2);
-      config.setDataSource(dsName2);
-      config.setOrigin(origin2);
-      config.setDatabase(database2);
-      assertEquals(name2, config.getName());
-      assertEquals(dsName2, config.getDataSource());
-      assertEquals(origin2, config.getOrigin());
-      assertEquals(database2, config.getDatabase());
-      
-      // test empty and null origin
-      config.setOrigin("");
-      assertEquals("", config.getOrigin());
-      config.setOrigin(null);
-      assertEquals("", config.getOrigin());
+    didThrow = false;
+    try {
+      config = new PSDatasourceConfig(name, null, origin, database);
+    } catch (IllegalArgumentException e) {
+      didThrow = true;
+    }
+    assertTrue(didThrow);
 
-      config.setDatabase("");
-      assertEquals("", config.getDatabase());
-      config.setOrigin(null);
-      assertEquals("", config.getDatabase());
-      
-      // test empty and null name and dsname
-      boolean didThrow = false;
-      try
-      {
-         config.setName(null);
-      }
-      catch (IllegalArgumentException e)
-      {
-         didThrow = true;
-      }
-      assertTrue(didThrow);      
-      
-      didThrow = false;
-      try
-      {
-         config.setName("");
-      }
-      catch (IllegalArgumentException e)
-      {
-         didThrow = true;
-      }
-      assertTrue(didThrow);
-      
-      didThrow = false;
-      try
-      {
-         config.setDataSource(null);
-      }
-      catch (IllegalArgumentException e)
-      {
-         didThrow = true;
-      }
-      assertTrue(didThrow);
-      
-      didThrow = false;
-      try
-      {
-         config.setDataSource("");
-      }
-      catch (IllegalArgumentException e)
-      {
-         didThrow = true;
-      }
-      assertTrue(didThrow);
-   }
-   
-   /**
-    * Test equals
-    * 
-    * @throws Exception If there are any errors or failures.
-    */
-   
-   public void testEquals() throws Exception
-   {
-      String name = "test";
-      String dsName = "testds";
-      String origin = "dbo";
-      String database = "rxrhino";
-      String name2 = "test2";
-      String dsName2 = "testds2";
-      String origin2 = "dbo2";
-      String database2 = "rxrhino2";
+    didThrow = false;
+    try {
+      config = new PSDatasourceConfig(name, "", origin, database);
+    } catch (IllegalArgumentException e) {
+      didThrow = true;
+    }
+    assertTrue(didThrow);
+  }
 
-      
-      PSDatasourceConfig config1;
-      PSDatasourceConfig config2;
-      
-      config1 = new PSDatasourceConfig(name, dsName, origin, database);
-      config2 = new PSDatasourceConfig(name, dsName, origin, database);
-      assertEquals(config1, config2);
-      assertEquals(config2, config1);
-      
-      config2.setName(name2);
-      assertFalse(config1.equals(config2));
-      assertFalse(config2.equals(config1));
-      
-      config2.setName(name);
-      config2.setDataSource(dsName2);
-      assertFalse(config1.equals(config2));
-      assertFalse(config2.equals(config1));
+  /**
+   * Test setter and getter methods
+   *
+   * @throws Exception If there are any errors or failures.
+   */
+  public void testAccessors() throws Exception {
+    String name = "test";
+    String dsName = "testds";
+    String origin = "dbo";
+    String database = "rxrhino";
+    String name2 = "test2";
+    String dsName2 = "testds2";
+    String origin2 = "dbo2";
+    String database2 = "rxrhino2";
 
-      config2.setDataSource(dsName);
-      config2.setOrigin(origin2);
-      assertFalse(config1.equals(config2));
-      assertFalse(config2.equals(config1));
+    PSDatasourceConfig config;
 
-      config2.setOrigin(origin);
-      assertEquals(config1, config2);
-      assertEquals(config2, config1);
-      
-      config1.setOrigin(null);
-      config2.setOrigin("");
-      assertEquals(config1, config2);
-      assertEquals(config2, config1);
-      
-      config2.setOrigin(origin);
-      assertFalse(config1.equals(config2));
-      assertFalse(config2.equals(config1));
-      
-      config1.setOrigin(origin);
-      config2.setDatabase(database2);
-      assertFalse(config1.equals(config2));
-      assertFalse(config2.equals(config1));
-      
-      config1.setDatabase(null);
-      config2.setDatabase("");
-      assertEquals(config1, config2);
-      assertEquals(config2, config1);
-      
-      config2.setDatabase(database);
-      assertFalse(config1.equals(config2));
-      assertFalse(config2.equals(config1));      
-   }
-   
-   /**
-    * Test copy and clone.
-    * 
-    * @throws Exception If there are any errors or failures.
-    */
-   
-   public void testCopy() throws Exception
-   {
-      String name = "test";
-      String dsName = "testds";
-      String origin = "dbo";
-      String database = "database";
-      
-      PSDatasourceConfig config1;
-      PSDatasourceConfig config2;
-      
-      config1 = new PSDatasourceConfig(name, dsName, origin, database);
-      config2 = new PSDatasourceConfig(config1);
-      assertEquals(config1, config2);
-      config2 = (PSDatasourceConfig) config1.clone();
-      assertEquals(config1, config2);
-      
-      config1 = new PSDatasourceConfig(name, dsName, null, null);
-      config2 = new PSDatasourceConfig(config1);
-      assertEquals(config1, config2);
-      config2 = (PSDatasourceConfig) config1.clone();
-      assertEquals(config1, config2);
-      
-      config1 = new PSDatasourceConfig(name, dsName, "", "");
-      config2 = new PSDatasourceConfig(config1);
-      assertEquals(config1, config2);
-      config2 = (PSDatasourceConfig) config1.clone();
-      assertEquals(config1, config2);
-   }
-   
-   /**
-    * Test xml serialization
-    * 
-    * @throws Exception If there are any errors or failures.
-    */
-   
-   public void testXml() throws Exception
-   {
-      String name = "test";
-      String dsName = "testds";
-      String origin = "dbo";
-      String database = "database";      
-      
-      PSDatasourceConfig config1;
-      PSDatasourceConfig config2;
-      
-      Document doc = PSXmlDocumentBuilder.createXmlDocument();
-      config1 = new PSDatasourceConfig(name, dsName, origin, database);
-      config2 = new PSDatasourceConfig(config1.toXml(doc));
-      assertEquals(config1, config2);
-      
-      config1.setOrigin(null);
-      config2 = new PSDatasourceConfig(config1.toXml(doc));
-      assertEquals(config1, config2);
-      
-      config1.setDatabase(null);
-      config2 = new PSDatasourceConfig(config1.toXml(doc));
-      assertEquals(config1, config2);      
-   }
+    // construct and basic getter test
+    config = new PSDatasourceConfig(name, dsName, origin, database);
+    assertEquals(name, config.getName());
+    assertEquals(dsName, config.getDataSource());
+    assertEquals(origin, config.getOrigin());
+    assertEquals(database, config.getDatabase());
+
+    // set values and get
+    config.setName(name2);
+    config.setDataSource(dsName2);
+    config.setOrigin(origin2);
+    config.setDatabase(database2);
+    assertEquals(name2, config.getName());
+    assertEquals(dsName2, config.getDataSource());
+    assertEquals(origin2, config.getOrigin());
+    assertEquals(database2, config.getDatabase());
+
+    // test empty and null origin
+    config.setOrigin("");
+    assertEquals("", config.getOrigin());
+    config.setOrigin(null);
+    assertEquals("", config.getOrigin());
+
+    config.setDatabase("");
+    assertEquals("", config.getDatabase());
+    config.setOrigin(null);
+    assertEquals("", config.getDatabase());
+
+    // test empty and null name and dsname
+    boolean didThrow = false;
+    try {
+      config.setName(null);
+    } catch (IllegalArgumentException e) {
+      didThrow = true;
+    }
+    assertTrue(didThrow);
+
+    didThrow = false;
+    try {
+      config.setName("");
+    } catch (IllegalArgumentException e) {
+      didThrow = true;
+    }
+    assertTrue(didThrow);
+
+    didThrow = false;
+    try {
+      config.setDataSource(null);
+    } catch (IllegalArgumentException e) {
+      didThrow = true;
+    }
+    assertTrue(didThrow);
+
+    didThrow = false;
+    try {
+      config.setDataSource("");
+    } catch (IllegalArgumentException e) {
+      didThrow = true;
+    }
+    assertTrue(didThrow);
+  }
+
+  /**
+   * Test equals
+   *
+   * @throws Exception If there are any errors or failures.
+   */
+  public void testEquals() throws Exception {
+    String name = "test";
+    String dsName = "testds";
+    String origin = "dbo";
+    String database = "rxrhino";
+    String name2 = "test2";
+    String dsName2 = "testds2";
+    String origin2 = "dbo2";
+    String database2 = "rxrhino2";
+
+    PSDatasourceConfig config1;
+    PSDatasourceConfig config2;
+
+    config1 = new PSDatasourceConfig(name, dsName, origin, database);
+    config2 = new PSDatasourceConfig(name, dsName, origin, database);
+    assertEquals(config1, config2);
+    assertEquals(config2, config1);
+
+    config2.setName(name2);
+    assertFalse(config1.equals(config2));
+    assertFalse(config2.equals(config1));
+
+    config2.setName(name);
+    config2.setDataSource(dsName2);
+    assertFalse(config1.equals(config2));
+    assertFalse(config2.equals(config1));
+
+    config2.setDataSource(dsName);
+    config2.setOrigin(origin2);
+    assertFalse(config1.equals(config2));
+    assertFalse(config2.equals(config1));
+
+    config2.setOrigin(origin);
+    assertEquals(config1, config2);
+    assertEquals(config2, config1);
+
+    config1.setOrigin(null);
+    config2.setOrigin("");
+    assertEquals(config1, config2);
+    assertEquals(config2, config1);
+
+    config2.setOrigin(origin);
+    assertFalse(config1.equals(config2));
+    assertFalse(config2.equals(config1));
+
+    config1.setOrigin(origin);
+    config2.setDatabase(database2);
+    assertFalse(config1.equals(config2));
+    assertFalse(config2.equals(config1));
+
+    config1.setDatabase(null);
+    config2.setDatabase("");
+    assertEquals(config1, config2);
+    assertEquals(config2, config1);
+
+    config2.setDatabase(database);
+    assertFalse(config1.equals(config2));
+    assertFalse(config2.equals(config1));
+  }
+
+  /**
+   * Test copy and clone.
+   *
+   * @throws Exception If there are any errors or failures.
+   */
+  public void testCopy() throws Exception {
+    String name = "test";
+    String dsName = "testds";
+    String origin = "dbo";
+    String database = "database";
+
+    PSDatasourceConfig config1;
+    PSDatasourceConfig config2;
+
+    config1 = new PSDatasourceConfig(name, dsName, origin, database);
+    config2 = new PSDatasourceConfig(config1);
+    assertEquals(config1, config2);
+    config2 = (PSDatasourceConfig) config1.clone();
+    assertEquals(config1, config2);
+
+    config1 = new PSDatasourceConfig(name, dsName, null, null);
+    config2 = new PSDatasourceConfig(config1);
+    assertEquals(config1, config2);
+    config2 = (PSDatasourceConfig) config1.clone();
+    assertEquals(config1, config2);
+
+    config1 = new PSDatasourceConfig(name, dsName, "", "");
+    config2 = new PSDatasourceConfig(config1);
+    assertEquals(config1, config2);
+    config2 = (PSDatasourceConfig) config1.clone();
+    assertEquals(config1, config2);
+  }
+
+  /**
+   * Test xml serialization
+   *
+   * @throws Exception If there are any errors or failures.
+   */
+  public void testXml() throws Exception {
+    String name = "test";
+    String dsName = "testds";
+    String origin = "dbo";
+    String database = "database";
+
+    PSDatasourceConfig config1;
+    PSDatasourceConfig config2;
+
+    Document doc = PSXmlDocumentBuilder.createXmlDocument();
+    config1 = new PSDatasourceConfig(name, dsName, origin, database);
+    config2 = new PSDatasourceConfig(config1.toXml(doc));
+    assertEquals(config1, config2);
+
+    config1.setOrigin(null);
+    config2 = new PSDatasourceConfig(config1.toXml(doc));
+    assertEquals(config1, config2);
+
+    config1.setDatabase(null);
+    config2 = new PSDatasourceConfig(config1.toXml(doc));
+    assertEquals(config1, config2);
+  }
 }
-

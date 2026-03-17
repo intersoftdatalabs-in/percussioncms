@@ -16,134 +16,114 @@
  */
 package com.percussion.services.contentmgr;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import com.percussion.services.catalog.PSTypeEnum;
 import com.percussion.services.guidmgr.data.PSGuid;
 import com.percussion.utils.guid.IPSGuid;
-
 import java.util.ArrayList;
 import java.util.List;
-
-
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Disabled;
-import org.junit.jupiter.api.Tag;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import org.junit.jupiter.api.Test;
 
 /**
  * Test basic node definition methods, CRUD operations
  *
  * @author dougrand
  */
-
 @Disabled("Temporarily disabled — failing in perc-system test run")
-public class PSContentTypeMgrTest
-{
-   private static IPSContentMgr ms_mgr = PSContentMgrLocator.getContentMgr();
+public class PSContentTypeMgrTest {
+  private static IPSContentMgr ms_mgr = PSContentMgrLocator.getContentMgr();
 
-   static long start_count = System.currentTimeMillis() & 0x0FFFL;
+  static long start_count = System.currentTimeMillis() & 0x0FFFL;
 
-   /**
-    * Create a node definition object and setup basic relationships to templates.
-    * @return the initialized object, but not a persisted object
-    */
-   public IPSNodeDefinition createND()
-   {
-      IPSNodeDefinition rval = ms_mgr.createNodeDefinition();
+  /**
+   * Create a node definition object and setup basic relationships to templates.
+   *
+   * @return the initialized object, but not a persisted object
+   */
+  public IPSNodeDefinition createND() {
+    IPSNodeDefinition rval = ms_mgr.createNodeDefinition();
 
-      rval.setName("test_x_" + start_count++);
-      rval.setDescription("test nodedef");
-      rval.setLabel("test_node_definition");
-      rval.setObjectType(1);
+    rval.setName("test_x_" + start_count++);
+    rval.setDescription("test nodedef");
+    rval.setLabel("test_node_definition");
+    rval.setObjectType(1);
 
-      rval.addVariantGuid(new PSGuid(PSTypeEnum.TEMPLATE, 501));
-      rval.addVariantGuid(new PSGuid(PSTypeEnum.TEMPLATE, 502));
-      return rval;
-   }
+    rval.addVariantGuid(new PSGuid(PSTypeEnum.TEMPLATE, 501));
+    rval.addVariantGuid(new PSGuid(PSTypeEnum.TEMPLATE, 502));
+    return rval;
+  }
 
-   /**
-    * Really a cleanup for any leftover test data
-    */
-   @Test
-   public void testDeleteNodeDefs()
-   {
-      try
-      {
-         List<IPSNodeDefinition> defs = ms_mgr.findNodeDefinitionsByName("test_x_%");
-         ms_mgr.deleteNodeDefinitions(defs);
-      }
-      catch(Exception e)
-      {
-         // OK, no existing test defs
-      }
-   }
-
-   /**
-    * Test adding node definitions to the db
-    *
-    * @throws Exception
-    */
-   @Test
-   public void testAddNodedef() throws Exception
-   {
-      List<IPSNodeDefinition> defs = new ArrayList<IPSNodeDefinition>();
-      defs.add(createND());
-      defs.add(createND());
-      defs.add(createND());
-      ms_mgr.saveNodeDefinitions(defs);
-   }
-
-   /**
-    * Perform modifications on one of the node definitions saved in the previous
-    * test. Persist to exercise the machinery.
-    *
-    * @throws Exception
-    */
-   @Test
-   public void testModifyNodeDefinition() throws Exception
-   {
+  /** Really a cleanup for any leftover test data */
+  @Test
+  public void testDeleteNodeDefs() {
+    try {
       List<IPSNodeDefinition> defs = ms_mgr.findNodeDefinitionsByName("test_x_%");
+      ms_mgr.deleteNodeDefinitions(defs);
+    } catch (Exception e) {
+      // OK, no existing test defs
+    }
+  }
 
-      assertTrue(defs.size() > 0);
+  /**
+   * Test adding node definitions to the db
+   *
+   * @throws Exception
+   */
+  @Test
+  public void testAddNodedef() throws Exception {
+    List<IPSNodeDefinition> defs = new ArrayList<IPSNodeDefinition>();
+    defs.add(createND());
+    defs.add(createND());
+    defs.add(createND());
+    ms_mgr.saveNodeDefinitions(defs);
+  }
 
-      // Grab the first, remove a node def and persist
-      IPSNodeDefinition def = defs.get(0);
+  /**
+   * Perform modifications on one of the node definitions saved in the previous test. Persist to
+   * exercise the machinery.
+   *
+   * @throws Exception
+   */
+  @Test
+  public void testModifyNodeDefinition() throws Exception {
+    List<IPSNodeDefinition> defs = ms_mgr.findNodeDefinitionsByName("test_x_%");
 
-      def.removeVariantGuid(new PSGuid(PSTypeEnum.TEMPLATE, 503));
+    assertTrue(defs.size() > 0);
 
-      List<IPSNodeDefinition> sdefs = new ArrayList<IPSNodeDefinition>();
-      sdefs.add(def);
+    // Grab the first, remove a node def and persist
+    IPSNodeDefinition def = defs.get(0);
 
-      ms_mgr.saveNodeDefinitions(sdefs);
+    def.removeVariantGuid(new PSGuid(PSTypeEnum.TEMPLATE, 503));
 
-      List<IPSGuid> ids = new ArrayList<IPSGuid>();
-      ids.add(def.getGUID());
+    List<IPSNodeDefinition> sdefs = new ArrayList<IPSNodeDefinition>();
+    sdefs.add(def);
 
-      // Regrab the specific def and check the count
-      defs = ms_mgr.loadNodeDefinitions(ids);
+    ms_mgr.saveNodeDefinitions(sdefs);
 
-      assertTrue(defs.size() == 1);
+    List<IPSGuid> ids = new ArrayList<IPSGuid>();
+    ids.add(def.getGUID());
 
-      def = defs.get(0);
+    // Regrab the specific def and check the count
+    defs = ms_mgr.loadNodeDefinitions(ids);
 
-      assertEquals(def.getVariantGuids().size(), 2);
-   }
+    assertTrue(defs.size() == 1);
 
-   /**
-    * Cleanup for any leftover test data
-    */
-   @Test
-   public void testDeleteNodeDefs2()
-   {
-      try
-      {
-         List<IPSNodeDefinition> defs = ms_mgr.findNodeDefinitionsByName("test_x_%");
-         ms_mgr.deleteNodeDefinitions(defs);
-      }
-      catch(Exception e)
-      {
-         // OK, no existing test defs
-      }
-   }
+    def = defs.get(0);
+
+    assertEquals(def.getVariantGuids().size(), 2);
+  }
+
+  /** Cleanup for any leftover test data */
+  @Test
+  public void testDeleteNodeDefs2() {
+    try {
+      List<IPSNodeDefinition> defs = ms_mgr.findNodeDefinitionsByName("test_x_%");
+      ms_mgr.deleteNodeDefinitions(defs);
+    } catch (Exception e) {
+      // OK, no existing test defs
+    }
+  }
 }

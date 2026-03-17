@@ -17,65 +17,53 @@
 
 package com.percussion.design.objectstore;
 
-import com.percussion.util.PSCollection;
-
-import java.util.ArrayList;
-import java.util.List;
-
-
-import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
+import com.percussion.util.PSCollection;
+import java.util.ArrayList;
+import java.util.List;
+import org.junit.jupiter.api.Test;
 
-/**
- * Unit test for the PSView and PSViewSet classes.
- */
-public class PSViewSetTest
-{
-   // see base class
+/** Unit test for the PSView and PSViewSet classes. */
+public class PSViewSetTest {
+  // see base class
 
+  /**
+   * Tests creating views, adding them to a view set and retrieving them from the viewset by name.
+   *
+   * @throws Exception if the test fails or an error occurs
+   */
+  @Test
+  public void testViewSet() throws Exception {
+    PSViewSet viewSet = new PSViewSet();
 
-   /**
-    * Tests creating views, adding them to a view set and retrieving them from
-    * the viewset by name.
-    *
-    * @throws Exception if the test fails or an error occurs
-    */
+    List fieldList = new ArrayList();
+    fieldList.add("field1");
+    fieldList.add("field2");
+    PSView view1 = new PSView("view1", fieldList.iterator());
+    viewSet.addView(view1);
 
-   @Test
-   public void testViewSet() throws Exception
-   {
-      PSViewSet viewSet = new PSViewSet();
+    assertEquals(view1, viewSet.getView("VIEW1"), "getView");
+    assertTrue(viewSet.getView("VIEW2") == null, "get non-existant view");
 
-      List fieldList = new ArrayList();
-      fieldList.add("field1");
-      fieldList.add("field2");
-      PSView view1 = new PSView("view1", fieldList.iterator());
-      viewSet.addView(view1);
+    // test conditional views
+    assertTrue(
+        viewSet.getCondtionalViews("VIEW2") != null, "get invalid conditional views not null");
+    assertFalse(
+        viewSet.getCondtionalViews("VIEW2").hasNext(),
+        "get invalid conditional views returns empty iterator");
 
-      assertEquals(view1, viewSet.getView("VIEW1"), "getView");
-      assertTrue(viewSet.getView("VIEW2") == null, "get non-existant view");
+    boolean didThrow = false;
+    PSCollection conditions = new PSCollection(PSConditional.class);
+    conditions.add(new PSConditional(new PSTextLiteral("a"), "=", new PSTextLiteral("b")));
 
-      // test conditional views
-      assertTrue(viewSet.getCondtionalViews("VIEW2") != null, "get invalid conditional views not null");
-      assertFalse(viewSet.getCondtionalViews("VIEW2").hasNext(), "get invalid conditional views returns empty iterator");
+    PSConditionalView condView = new PSConditionalView("VIEW1", fieldList.iterator(), conditions);
+    viewSet.addConditionalView(condView);
+    assertTrue(viewSet.getCondtionalViews("VIEW1") != null, "getCondView not null");
+    assertTrue(viewSet.getCondtionalViews("VIEW1").hasNext(), "getCondView has next");
+    assertEquals(condView, viewSet.getCondtionalViews("VIEW1").next(), "getCondView equals");
+  }
 
-      boolean didThrow = false;
-      PSCollection conditions = new PSCollection(PSConditional.class);
-      conditions.add(new PSConditional(new PSTextLiteral("a"), "=",
-         new PSTextLiteral("b")));
-
-      PSConditionalView condView = new PSConditionalView("VIEW1",
-         fieldList.iterator(), conditions);
-      viewSet.addConditionalView(condView);
-      assertTrue(viewSet.getCondtionalViews("VIEW1") != null, "getCondView not null");
-      assertTrue(viewSet.getCondtionalViews("VIEW1").hasNext(), "getCondView has next");
-      assertEquals(condView, viewSet.getCondtionalViews("VIEW1").next(), "getCondView equals");
-
-   }
-
-   // collect all tests into a TestSuite and return it - see base class
-
-
+  // collect all tests into a TestSuite and return it - see base class
 
 }

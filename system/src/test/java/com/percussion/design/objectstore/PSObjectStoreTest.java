@@ -16,6 +16,9 @@
  */
 package com.percussion.design.objectstore;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import com.percussion.conn.PSDesignerConnection;
 import com.percussion.conn.PSServerException;
 import com.percussion.error.PSIllegalArgumentException;
@@ -32,7 +35,6 @@ import com.percussion.utils.container.jetty.PSJettyJndiDatasource;
 import com.percussion.utils.jdbc.IPSDatasourceConfig;
 import com.percussion.utils.jdbc.PSDatasourceConfig;
 import com.percussion.utils.jdbc.PSDatasourceResolver;
-
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
@@ -41,425 +43,378 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
-
-
-
-
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.BasicConfigurator;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.Tag;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
-/**
- * Tests for the object store. These tests require the server to be running.
- */
-
+/** Tests for the object store. These tests require the server to be running. */
 @Disabled("Temporarily disabled — failing in perc-system test run")
-public class PSObjectStoreTest extends PSClientTestCase
-{
+public class PSObjectStoreTest extends PSClientTestCase {
 
-   @BeforeAll
-   public static void setUp()
-   {
-      BasicConfigurator.configure();
-   }
+  @BeforeAll
+  public static void setUp() {
+    BasicConfigurator.configure();
+  }
 
-   // Provide a no-arg constructor so JUnit Jupiter can instantiate subclasses
-   public PSObjectStoreTest()
-   {
-      super();
-   }
+  // Provide a no-arg constructor so JUnit Jupiter can instantiate subclasses
+  public PSObjectStoreTest() {
+    super();
+  }
 
+  /**
+   * Tests loading and saving JNDI datasource configurations through the objectstore.
+   *
+   * @throws Exception If the test fails or there are any errors.
+   */
+  @Test
+  public void testGetAndSaveJndiDatasources() throws Exception {
+    // create a connection and an objectstore
+    PSDesignerConnection conn = makeConnection();
+    PSObjectStore os = makeObjectStore(conn);
 
-   /**
-    * Tests loading and saving JNDI datasource configurations through the
-    * objectstore.
-    *
-    * @throws Exception If the test fails or there are any errors.
-    */
-   @Test
-   public void testGetAndSaveJndiDatasources() throws Exception
-   {
-      // create a connection and an objectstore
-      PSDesignerConnection conn = makeConnection();
-      PSObjectStore os = makeObjectStore(conn);
+    // get and release config lock in case previous test left it locked
+    os.releaseServerConfigurationLock(os.getServerConfiguration(true, true));
 
-      // get and release config lock in case previous test left it locked
-      os.releaseServerConfigurationLock(os.getServerConfiguration(true, true));
-
-      // test load and save w/out lock
-      List<IPSJndiDatasource> datasources = os.getJndiDatasources(false);
-      IPSJndiDatasource newDs = new PSJettyJndiDatasource("jdbc/rxdefault3",
-         "jtds:sqlserver", "net.sourceforge.jtds.jdbc.Driver",
-          "//bender", "sa", "demo");
-      datasources.add(newDs);
-      boolean didThrow = false;
-      try
-      {
-         os.saveJndiDatasources(datasources);
-      }
-      catch (PSServerException e)
-      {
-         if (e.getOriginatingException() instanceof PSNotLockedException)
-            didThrow = true;
-         else
-            throw e;
-      }
-      assertTrue(didThrow);
-
-      // re-load locked and make sure save did not go through
-      List<IPSJndiDatasource> datasources2 = os.getJndiDatasources(true);
-      assertTrue(!datasources.equals(datasources2));
-
-      // save and compare
+    // test load and save w/out lock
+    List<IPSJndiDatasource> datasources = os.getJndiDatasources(false);
+    IPSJndiDatasource newDs =
+        new PSJettyJndiDatasource(
+            "jdbc/rxdefault3",
+            "jtds:sqlserver",
+            "net.sourceforge.jtds.jdbc.Driver",
+            "//bender",
+            "sa",
+            "demo");
+    datasources.add(newDs);
+    boolean didThrow = false;
+    try {
       os.saveJndiDatasources(datasources);
-      List<IPSJndiDatasource> datasources3 = os.getJndiDatasources(true);
-      assertEquals(datasources, datasources3);
+    } catch (PSServerException e) {
+      if (e.getOriginatingException() instanceof PSNotLockedException) didThrow = true;
+      else throw e;
+    }
+    assertTrue(didThrow);
 
-      // test removal
-      os.saveJndiDatasources(datasources2);
-      datasources3 = os.getJndiDatasources(true);
-      assertEquals(datasources2, datasources3);
-   }
+    // re-load locked and make sure save did not go through
+    List<IPSJndiDatasource> datasources2 = os.getJndiDatasources(true);
+    assertTrue(!datasources.equals(datasources2));
 
-   /**
-    * Tests loading and saving a datasource resolver containing datasource
-    * configurations through the objectstore.
-    *
-    * @throws Exception If the test fails or there are any errors.
-    */
-   @Test
-   public void testGetAndSaveCatalogerConfigs() throws Exception
-   {
-      // create a connection and an objectstore
-      PSDesignerConnection conn = makeConnection();
-      PSObjectStore os = makeObjectStore(conn);
+    // save and compare
+    os.saveJndiDatasources(datasources);
+    List<IPSJndiDatasource> datasources3 = os.getJndiDatasources(true);
+    assertEquals(datasources, datasources3);
 
-      // get and release config lock in case previous test left it locked
-      os.releaseServerConfigurationLock(os.getServerConfiguration(true, true));
+    // test removal
+    os.saveJndiDatasources(datasources2);
+    datasources3 = os.getJndiDatasources(true);
+    assertEquals(datasources2, datasources3);
+  }
 
-      // test load and save w/out lock
-      List<PSCatalogerConfig> configs = os.getCatalogerConfigs(false);
-      List<PSCatalogerConfig> oldconfigs = new ArrayList<PSCatalogerConfig>(
-         configs);
-      PSCatalogerConfig newConfig1 = new PSCatalogerConfig("config1",
-         PSCatalogerConfig.ConfigTypes.SUBJECT, "com.test.foo1",
-         "a test cataloger1", new HashMap<String, String>());
-      configs.add(newConfig1);
-      PSCatalogerConfig newConfig2 = new PSCatalogerConfig("config2",
-         PSCatalogerConfig.ConfigTypes.SUBJECT, "com.test.foo2",
-         "a test cataloger2", new HashMap<String, String>());
-      configs.add(newConfig2);
-      PSCatalogerConfig newConfig3 = new PSCatalogerConfig("config3",
-         PSCatalogerConfig.ConfigTypes.ROLE, "com.test.foo3",
-         "a test cataloger3", new HashMap<String, String>());
-      configs.add(newConfig3);
+  /**
+   * Tests loading and saving a datasource resolver containing datasource configurations through the
+   * objectstore.
+   *
+   * @throws Exception If the test fails or there are any errors.
+   */
+  @Test
+  public void testGetAndSaveCatalogerConfigs() throws Exception {
+    // create a connection and an objectstore
+    PSDesignerConnection conn = makeConnection();
+    PSObjectStore os = makeObjectStore(conn);
 
-      boolean didThrow = false;
-      try
-      {
-         os.saveCatalogerConfigs(configs);
-      }
-      catch (PSServerException e)
-      {
-         if (e.getOriginatingException() instanceof PSNotLockedException)
-            didThrow = true;
-         else
-            throw e;
-      }
-      assertTrue(didThrow);
+    // get and release config lock in case previous test left it locked
+    os.releaseServerConfigurationLock(os.getServerConfiguration(true, true));
 
-      // re-load locked and make sure save did not go through
-      List<PSCatalogerConfig> newconfigs = os.getCatalogerConfigs(true);
-      assertTrue(!configs.equals(newconfigs));
+    // test load and save w/out lock
+    List<PSCatalogerConfig> configs = os.getCatalogerConfigs(false);
+    List<PSCatalogerConfig> oldconfigs = new ArrayList<PSCatalogerConfig>(configs);
+    PSCatalogerConfig newConfig1 =
+        new PSCatalogerConfig(
+            "config1",
+            PSCatalogerConfig.ConfigTypes.SUBJECT,
+            "com.test.foo1",
+            "a test cataloger1",
+            new HashMap<String, String>());
+    configs.add(newConfig1);
+    PSCatalogerConfig newConfig2 =
+        new PSCatalogerConfig(
+            "config2",
+            PSCatalogerConfig.ConfigTypes.SUBJECT,
+            "com.test.foo2",
+            "a test cataloger2",
+            new HashMap<String, String>());
+    configs.add(newConfig2);
+    PSCatalogerConfig newConfig3 =
+        new PSCatalogerConfig(
+            "config3",
+            PSCatalogerConfig.ConfigTypes.ROLE,
+            "com.test.foo3",
+            "a test cataloger3",
+            new HashMap<String, String>());
+    configs.add(newConfig3);
 
-      // save and compare
+    boolean didThrow = false;
+    try {
       os.saveCatalogerConfigs(configs);
-      newconfigs = os.getCatalogerConfigs(true);
-      assertEquals(configs, newconfigs);
+    } catch (PSServerException e) {
+      if (e.getOriginatingException() instanceof PSNotLockedException) didThrow = true;
+      else throw e;
+    }
+    assertTrue(didThrow);
 
-      // test removal
-      os.saveCatalogerConfigs(oldconfigs);
-      newconfigs = os.getCatalogerConfigs(true);
-      assertEquals(oldconfigs, newconfigs);
-   }
+    // re-load locked and make sure save did not go through
+    List<PSCatalogerConfig> newconfigs = os.getCatalogerConfigs(true);
+    assertTrue(!configs.equals(newconfigs));
 
+    // save and compare
+    os.saveCatalogerConfigs(configs);
+    newconfigs = os.getCatalogerConfigs(true);
+    assertEquals(configs, newconfigs);
 
-   /**
-    * Tests loading and saving a datasource resolver containing datasource
-    * configurations through the objectstore.
-    *
-    * @throws Exception If the test fails or there are any errors.
-    */
-   @Test
-   public void testGetAndSaveDatasourceConfigs() throws Exception
-   {
-      // create a connection and an objectstore
-      PSDesignerConnection conn = makeConnection();
-      PSObjectStore os = makeObjectStore(conn);
+    // test removal
+    os.saveCatalogerConfigs(oldconfigs);
+    newconfigs = os.getCatalogerConfigs(true);
+    assertEquals(oldconfigs, newconfigs);
+  }
 
-      // get and release config lock in case previous test left it locked
-      os.releaseServerConfigurationLock(os.getServerConfiguration(true, true));
+  /**
+   * Tests loading and saving a datasource resolver containing datasource configurations through the
+   * objectstore.
+   *
+   * @throws Exception If the test fails or there are any errors.
+   */
+  @Test
+  public void testGetAndSaveDatasourceConfigs() throws Exception {
+    // create a connection and an objectstore
+    PSDesignerConnection conn = makeConnection();
+    PSObjectStore os = makeObjectStore(conn);
 
-      // test load and save w/out lock
-      PSDatasourceResolver curResolver = os.getDatasourceConfigs(false);
-      List<IPSDatasourceConfig> configs =
-         curResolver.getDatasourceConfigurations();
-      PSDatasourceConfig newConfig = new PSDatasourceConfig("testDS",
-         "jdbc/test", "dbo", "rxTestdb");
-      configs.add(newConfig);
-      curResolver.setRepositoryDatasource(newConfig.getName());
-      boolean didThrow = false;
-      try
-      {
-         os.saveDatsourceConfigs(curResolver);
-      }
-      catch (PSServerException e)
-      {
-         if (e.getOriginatingException() instanceof PSNotLockedException)
-            didThrow = true;
-         else
-            throw e;
-      }
-      assertTrue(didThrow);
+    // get and release config lock in case previous test left it locked
+    os.releaseServerConfigurationLock(os.getServerConfiguration(true, true));
 
-      // re-load locked and make sure save did not go through
-      PSDatasourceResolver newResolver = os.getDatasourceConfigs(true);
-      assertTrue(!configs.equals(newResolver.getDatasourceConfigurations()));
-      assertTrue(!newResolver.getRepositoryDatasource().equals(
-         curResolver.getRepositoryDatasource()));
-
-      // save and compare
+    // test load and save w/out lock
+    PSDatasourceResolver curResolver = os.getDatasourceConfigs(false);
+    List<IPSDatasourceConfig> configs = curResolver.getDatasourceConfigurations();
+    PSDatasourceConfig newConfig = new PSDatasourceConfig("testDS", "jdbc/test", "dbo", "rxTestdb");
+    configs.add(newConfig);
+    curResolver.setRepositoryDatasource(newConfig.getName());
+    boolean didThrow = false;
+    try {
       os.saveDatsourceConfigs(curResolver);
-      newResolver = os.getDatasourceConfigs(true);
-      assertEquals(configs, newResolver.getDatasourceConfigurations());
-      assertEquals(newConfig.getName(), newResolver.getRepositoryDatasource());
+    } catch (PSServerException e) {
+      if (e.getOriginatingException() instanceof PSNotLockedException) didThrow = true;
+      else throw e;
+    }
+    assertTrue(didThrow);
 
-      // test removal
-      configs.remove(configs.size() - 1);
-      curResolver.setRepositoryDatasource(configs.get(0).getName());
-      os.saveDatsourceConfigs(curResolver);
-      newResolver = os.getDatasourceConfigs(true);
-      assertEquals(curResolver.getDatasourceConfigurations(),
-         newResolver.getDatasourceConfigurations());
-      assertEquals(curResolver.getRepositoryDatasource(),
-         newResolver.getRepositoryDatasource());
-   }
+    // re-load locked and make sure save did not go through
+    PSDatasourceResolver newResolver = os.getDatasourceConfigs(true);
+    assertTrue(!configs.equals(newResolver.getDatasourceConfigurations()));
+    assertTrue(
+        !newResolver.getRepositoryDatasource().equals(curResolver.getRepositoryDatasource()));
 
-   /**
-    * Tests loading and saving a hibernate dialect configuration through the
-    * objectstore.
-    *
-    * @throws Exception If the test fails or there are any errors.
-    */
-   @Test
-   public void testGetAndSaveHibernateConfig() throws Exception
-   {
-      // create a connection and an objectstore
-      PSDesignerConnection conn = makeConnection();
-      PSObjectStore os = makeObjectStore(conn);
+    // save and compare
+    os.saveDatsourceConfigs(curResolver);
+    newResolver = os.getDatasourceConfigs(true);
+    assertEquals(configs, newResolver.getDatasourceConfigurations());
+    assertEquals(newConfig.getName(), newResolver.getRepositoryDatasource());
 
-      // get and release config lock in case previous test left it locked
-      os.releaseServerConfigurationLock(os.getServerConfiguration(true, true));
+    // test removal
+    configs.remove(configs.size() - 1);
+    curResolver.setRepositoryDatasource(configs.get(0).getName());
+    os.saveDatsourceConfigs(curResolver);
+    newResolver = os.getDatasourceConfigs(true);
+    assertEquals(
+        curResolver.getDatasourceConfigurations(), newResolver.getDatasourceConfigurations());
+    assertEquals(curResolver.getRepositoryDatasource(), newResolver.getRepositoryDatasource());
+  }
 
-      // test load and save w/out lock
-      PSHibernateDialectConfig curConfig = os.getHibernateDialectConfig(false);
-      curConfig.setDialect("foo", "org.foo.fooDialect");
-      Map<String, String> dialects = curConfig.getDialects();
-      boolean didThrow = false;
-      try
-      {
-         os.saveHibernateDialectConfig(curConfig);
-      }
-      catch (PSServerException e)
-      {
-         if (e.getOriginatingException() instanceof PSNotLockedException)
-            didThrow = true;
-         else
-            throw e;
-      }
-      assertTrue(didThrow);
+  /**
+   * Tests loading and saving a hibernate dialect configuration through the objectstore.
+   *
+   * @throws Exception If the test fails or there are any errors.
+   */
+  @Test
+  public void testGetAndSaveHibernateConfig() throws Exception {
+    // create a connection and an objectstore
+    PSDesignerConnection conn = makeConnection();
+    PSObjectStore os = makeObjectStore(conn);
 
-      // re-load locked and make sure save did not go through
-      PSHibernateDialectConfig newConfig = os.getHibernateDialectConfig(true);
-      assertTrue(!dialects.equals(newConfig.getDialects()));
+    // get and release config lock in case previous test left it locked
+    os.releaseServerConfigurationLock(os.getServerConfiguration(true, true));
 
-      // save and compare
+    // test load and save w/out lock
+    PSHibernateDialectConfig curConfig = os.getHibernateDialectConfig(false);
+    curConfig.setDialect("foo", "org.foo.fooDialect");
+    Map<String, String> dialects = curConfig.getDialects();
+    boolean didThrow = false;
+    try {
       os.saveHibernateDialectConfig(curConfig);
-      newConfig= os.getHibernateDialectConfig(true);
-      assertEquals(dialects, newConfig.getDialects());
+    } catch (PSServerException e) {
+      if (e.getOriginatingException() instanceof PSNotLockedException) didThrow = true;
+      else throw e;
+    }
+    assertTrue(didThrow);
 
-      // test removal
-      dialects.remove("foo");
-      curConfig.setDialects(dialects);
-      os.saveHibernateDialectConfig(curConfig);
-      newConfig = os.getHibernateDialectConfig(true);
-      assertEquals(curConfig.getDialects(), newConfig.getDialects());
-   }
+    // re-load locked and make sure save did not go through
+    PSHibernateDialectConfig newConfig = os.getHibernateDialectConfig(true);
+    assertTrue(!dialects.equals(newConfig.getDialects()));
 
+    // save and compare
+    os.saveHibernateDialectConfig(curConfig);
+    newConfig = os.getHibernateDialectConfig(true);
+    assertEquals(dialects, newConfig.getDialects());
 
-   /**
-    * Test creating, renaming, moving, and removing application files
-    *
-    * @throws Exception If the test fails or there are any errors.
-    */
-   @Test
-   public void testGetApplicationFiles() throws Exception
-   {
-      PSObjectStore os = makeObjectStore();
-      os.setClientGeneratedSessionId("uniqueOne123456");
-      PSApplication app = os.getApplication("sys_cxSupport", false);
-      os.getApplicationFiles(app, null);
+    // test removal
+    dialects.remove("foo");
+    curConfig.setDialects(dialects);
+    os.saveHibernateDialectConfig(curConfig);
+    newConfig = os.getHibernateDialectConfig(true);
+    assertEquals(curConfig.getDialects(), newConfig.getDialects());
+  }
 
-      byte[] fileContent = "test file content".getBytes();
-      File file1 = new File("testFile1");
-      File file2 = new File("testFile2");
-      File file1_2 = new File("doghouse");
-      PSApplicationFile newFile1 = new PSApplicationFile(
-         new ByteArrayInputStream(fileContent), file1);
-      PSApplicationFile newFile2 = new PSApplicationFile(
-         new ByteArrayInputStream(fileContent), file2);
+  /**
+   * Test creating, renaming, moving, and removing application files
+   *
+   * @throws Exception If the test fails or there are any errors.
+   */
+  @Test
+  public void testGetApplicationFiles() throws Exception {
+    PSObjectStore os = makeObjectStore();
+    os.setClientGeneratedSessionId("uniqueOne123456");
+    PSApplication app = os.getApplication("sys_cxSupport", false);
+    os.getApplicationFiles(app, null);
 
-      os.saveApplicationFile(app, newFile1, true, true);
-      os.saveApplicationFile(app, newFile2, true, true);
-      os.renameApplicationFile(app, newFile1, file1_2.getName(), true);
-      os.removeApplicationFile(app, new PSApplicationFile(file1_2), true);
+    byte[] fileContent = "test file content".getBytes();
+    File file1 = new File("testFile1");
+    File file2 = new File("testFile2");
+    File file1_2 = new File("doghouse");
+    PSApplicationFile newFile1 =
+        new PSApplicationFile(new ByteArrayInputStream(fileContent), file1);
+    PSApplicationFile newFile2 =
+        new PSApplicationFile(new ByteArrayInputStream(fileContent), file2);
 
-      // move file from one application to another
-      PSApplication app2 = os.getApplication("rxs_Support_ce", false);
-      os.moveApplicationFile(app, newFile2, app2, newFile2, true);
-      os.removeApplicationFile(app2, newFile2, true);
+    os.saveApplicationFile(app, newFile1, true, true);
+    os.saveApplicationFile(app, newFile2, true, true);
+    os.renameApplicationFile(app, newFile1, file1_2.getName(), true);
+    os.removeApplicationFile(app, new PSApplicationFile(file1_2), true);
 
-      // test load from app
-      os.loadApplicationFile(app, new PSApplicationFile(new File(
-         "VariantList.dtd")));
-   }
+    // move file from one application to another
+    PSApplication app2 = os.getApplication("rxs_Support_ce", false);
+    os.moveApplicationFile(app, newFile2, app2, newFile2, true);
+    os.removeApplicationFile(app2, newFile2, true);
 
-   /**
-    * Creates an object store with a connection having the default settings.
-    * @author   chad loder
-    *
-    * @version 1.0 1999/8/11
-    *
-    * @return   PSObjectStore
-    */
-   private PSObjectStore makeObjectStore()
-      throws PSServerException, PSAuthorizationException,
-             PSAuthenticationFailedException, PSIllegalArgumentException
-   {
-      return makeObjectStore(null);
-   }
+    // test load from app
+    os.loadApplicationFile(app, new PSApplicationFile(new File("VariantList.dtd")));
+  }
 
-   /**
-    * Creates an object store with the given designer connection. If
-    * the connection is null, creates an object store with a connection
-    * having the default settings.
-    *
-    * @author   chad loder
-    *
-    * @version 1.0 1999/8/11
-    *
-    * @param   conn
-    *
-    * @return   PSObjectStore
-    */
-   private PSObjectStore makeObjectStore(PSDesignerConnection conn)
-      throws PSServerException, PSAuthorizationException,
-             PSAuthenticationFailedException, PSIllegalArgumentException
-   {
-      if (conn == null)
-         conn = makeConnection();
+  /**
+   * Creates an object store with a connection having the default settings.
+   *
+   * @author chad loder
+   * @version 1.0 1999/8/11
+   * @return PSObjectStore
+   */
+  private PSObjectStore makeObjectStore()
+      throws PSServerException,
+          PSAuthorizationException,
+          PSAuthenticationFailedException,
+          PSIllegalArgumentException {
+    return makeObjectStore(null);
+  }
 
-      return new PSObjectStore(conn);
-   }
+  /**
+   * Creates an object store with the given designer connection. If the connection is null, creates
+   * an object store with a connection having the default settings.
+   *
+   * @author chad loder
+   * @version 1.0 1999/8/11
+   * @param conn
+   * @return PSObjectStore
+   */
+  private PSObjectStore makeObjectStore(PSDesignerConnection conn)
+      throws PSServerException,
+          PSAuthorizationException,
+          PSAuthenticationFailedException,
+          PSIllegalArgumentException {
+    if (conn == null) conn = makeConnection();
 
-   /**
-    * Creates a connection to the server using the default connection params.
-    *
-    * @author   chad loder
-    *
-    * @version 1.0 1999/8/11
-    *
-    * @return   PSDesignerConnection
-    */
-   protected PSDesignerConnection makeConnection() throws PSServerException,
-      PSAuthorizationException, PSAuthenticationFailedException,
-      PSIllegalArgumentException
-   {
-      Properties properties = null;
-      try
-      {
-         properties = getConnectionProps(
-            PSConfigHelperTestCase.CONN_TYPE_RXSERVER);
-      }
-      catch (IOException e)
-      {
-         System.out.println("Failed to load the server configuration for " +
-            "the following reason: " + e.getLocalizedMessage() + "We will " +
-            "continue with the default connection info " +
-            "(http, localhost, 9992, admin1, demo).");
-      }
+    return new PSObjectStore(conn);
+  }
 
-      // setup defaults
-      String protocol = "http";
-      String host = "localhost";
-      String port = "9992";
-      String loginId = "admin1";
-      String loginPw = "demo";
+  /**
+   * Creates a connection to the server using the default connection params.
+   *
+   * @author chad loder
+   * @version 1.0 1999/8/11
+   * @return PSDesignerConnection
+   */
+  protected PSDesignerConnection makeConnection()
+      throws PSServerException,
+          PSAuthorizationException,
+          PSAuthenticationFailedException,
+          PSIllegalArgumentException {
+    Properties properties = null;
+    try {
+      properties = getConnectionProps(PSConfigHelperTestCase.CONN_TYPE_RXSERVER);
+    } catch (IOException e) {
+      System.out.println(
+          "Failed to load the server configuration for "
+              + "the following reason: "
+              + e.getLocalizedMessage()
+              + "We will "
+              + "continue with the default connection info "
+              + "(http, localhost, 9992, admin1, demo).");
+    }
 
-      if (properties != null)
-      {
-         String useSsl = properties.getProperty(
-            IPSUnitTestConfigHelper.PROP_USESSL, "false");
-         if (useSsl.equalsIgnoreCase("true") ||
-            useSsl.equalsIgnoreCase("yes") || useSsl.equalsIgnoreCase("y"))
-            protocol = "https";
+    // setup defaults
+    String protocol = "http";
+    String host = "localhost";
+    String port = "9992";
+    String loginId = "admin1";
+    String loginPw = "demo";
 
-         String property = properties.getProperty(
-            IPSUnitTestConfigHelper.PROP_HOST_NAME);
-         if (!StringUtils.isBlank(property))
-            host = property;
+    if (properties != null) {
+      String useSsl = properties.getProperty(IPSUnitTestConfigHelper.PROP_USESSL, "false");
+      if (useSsl.equalsIgnoreCase("true")
+          || useSsl.equalsIgnoreCase("yes")
+          || useSsl.equalsIgnoreCase("y")) protocol = "https";
 
-         property = properties.getProperty(IPSUnitTestConfigHelper.PROP_PORT);
-         if (!StringUtils.isBlank(property))
-            port = property;
+      String property = properties.getProperty(IPSUnitTestConfigHelper.PROP_HOST_NAME);
+      if (!StringUtils.isBlank(property)) host = property;
 
-         property = properties.getProperty(
-            IPSUnitTestConfigHelper.PROP_LOGIN_ID);
-         if (!StringUtils.isBlank(property))
-            loginId = property;
+      property = properties.getProperty(IPSUnitTestConfigHelper.PROP_PORT);
+      if (!StringUtils.isBlank(property)) port = property;
 
-         property = properties.getProperty(
-            IPSUnitTestConfigHelper.PROP_LOGIN_PW);
-         if (!StringUtils.isBlank(property))
-            loginPw = property;
-      }
+      property = properties.getProperty(IPSUnitTestConfigHelper.PROP_LOGIN_ID);
+      if (!StringUtils.isBlank(property)) loginId = property;
 
-      return makeConnection(protocol, host, port, loginId, loginPw);
-   }
+      property = properties.getProperty(IPSUnitTestConfigHelper.PROP_LOGIN_PW);
+      if (!StringUtils.isBlank(property)) loginPw = property;
+    }
 
+    return makeConnection(protocol, host, port, loginId, loginPw);
+  }
 
-   protected PSDesignerConnection makeConnection(String protocol,
-      String hostName, String port, String userId, String password)
-      throws PSServerException, PSAuthorizationException,
-      PSAuthenticationFailedException, PSIllegalArgumentException
-   {
-        Properties info = new Properties();
-        info.put("protocol", protocol);
-        info.put("hostName", hostName);
-        info.put("port", port);
-        info.put("loginId", userId);
-        info.put("loginPw", password);
+  protected PSDesignerConnection makeConnection(
+      String protocol, String hostName, String port, String userId, String password)
+      throws PSServerException,
+          PSAuthorizationException,
+          PSAuthenticationFailedException,
+          PSIllegalArgumentException {
+    Properties info = new Properties();
+    info.put("protocol", protocol);
+    info.put("hostName", hostName);
+    info.put("port", port);
+    info.put("loginId", userId);
+    info.put("loginPw", password);
 
-      // create and connect
-      PSDesignerConnection conn = new PSDesignerConnection(info);
-      assertTrue(conn.isConnected(), "Is connection connected?");
+    // create and connect
+    PSDesignerConnection conn = new PSDesignerConnection(info);
+    assertTrue(conn.isConnected(), "Is connection connected?");
 
-      return conn;
-   }
+    return conn;
+  }
 }

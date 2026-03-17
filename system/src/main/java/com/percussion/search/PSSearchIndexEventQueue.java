@@ -564,7 +564,6 @@ public class PSSearchIndexEventQueue implements IPSEditorChangeListener, IPSHand
    * @throws PSCmsException if there is an error loading the item.
    * @throws PSException if there are any other errors.
    */
-
   private void processNextEventSet(long timeOut, PSRequest request)
       throws InterruptedException, PSException {
     List<PSSearchIndexQueueItem> eventSet = getNextEventSet(timeOut);
@@ -796,7 +795,6 @@ public class PSSearchIndexEventQueue implements IPSEditorChangeListener, IPSHand
    * @throws PSSearchException if there is an error updating the index.
    * @throws PSException if there are any other errors.
    */
-
   private void indexFullItem(PSRequest req, PSKey cTypeKey, PSLocator parentLoc, boolean commit)
       throws PSSearchException, PSCmsException, PSException {
     // load the entire item
@@ -874,7 +872,6 @@ public class PSSearchIndexEventQueue implements IPSEditorChangeListener, IPSHand
    *     <code>null</code>.
    * @return A set of binary field names, never <code>null</code>, may be empty.
    */
-
   private Set getBinFieldNames(Iterator fields) {
     Set binFields = new HashSet();
     while (fields.hasNext()) {
@@ -900,7 +897,6 @@ public class PSSearchIndexEventQueue implements IPSEditorChangeListener, IPSHand
    * @throws PSSearchException if there is an error updating the index.
    * @throws PSException if there are any other errors.
    */
-
   private void indexItemChanges(
       PSKey contentType, PSServerItem item, Map itemChanges, boolean commit)
       throws PSSearchException, PSCmsException, PSException {
@@ -1002,7 +998,6 @@ public class PSSearchIndexEventQueue implements IPSEditorChangeListener, IPSHand
    *     found.
    * @throws PSSearchException if the system field values cannot be obtained.
    */
-
   private Map loadSystemFields(PSLocator key) throws PSSearchException {
     // get system field catalog
     PSRequest req = PSRequest.getContextForRequest();
@@ -1047,7 +1042,6 @@ public class PSSearchIndexEventQueue implements IPSEditorChangeListener, IPSHand
    *     the value is the field value, also as a <code>String</code>.
    * @throws PSSearchException if the field values cannot be obtained.
    */
-
   private Map<String, String> loadFields(int contentId, Set fieldNames) throws PSSearchException {
     Map<String, String> fields = new HashMap<>();
 
@@ -1084,7 +1078,6 @@ public class PSSearchIndexEventQueue implements IPSEditorChangeListener, IPSHand
    *     the value is an object representing the value.
    * @throws PSCmsException if there is an error getting a field value.
    */
-
   private Map extractItemFragment(Iterator fields, Set binFields) throws PSCmsException {
     Map fragment = new HashMap();
     while (fields.hasNext()) {
@@ -1214,7 +1207,6 @@ public class PSSearchIndexEventQueue implements IPSEditorChangeListener, IPSHand
    * @param event The event to persist, assumed not <code>null</code>.
    * @return The id used to locate this event in the repository.
    */
-
   private int persistEvent(PSSearchEditorChangeEvent event) {
     log.debug(
         "Indexer Change Event for id={} rev={}. Event is {}",

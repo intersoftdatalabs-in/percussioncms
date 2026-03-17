@@ -46,16 +46,10 @@ public interface IPSMetadataRestService extends IPSRestService {
    * <p>The metadata query may include a list of criteria, such as "dcterms:title like '%page%'".
    * Also it can contains max results and start index values to paginate, and an ordering setting.
    *
-   * @url /perc-metadata-services/metadata/get
-   * @httpverb POST
-   * @nullipotent yes (read-only method).
-   * @secured no.
    * @param metadataQuery A PSMetadataQuery containing the query. Never <code>null</code>.
    * @return PSSearchResults object according to criteria.Which will have total entry count and list
    *     of PSMetadataRestEntry objects according the criteria. Never <code>null</code>, may be
    *     empty.
-   * @httpcodeonsuccess HTTP 200.
-   * @httpcodeonerror HTTP 500.
    */
   @POST
   @Path("/get")
@@ -67,19 +61,12 @@ public interface IPSMetadataRestService extends IPSRestService {
    * makes a list of tags of those pages, and retuns a metadata tag list ({@link
    * PSMetadataRestTagList} with tags and pages occurrences of each one).
    *
-   * @url /perc-metadata-services/metadata/tags/get
-   * @httpverb POST
-   * @nullipotent yes (read-only method).
-   * @secured no.
    * @param metadataQuery A PSMetadataQuery containing the query. Never <code>null</code>.
-   * @param sortTagsBy Indicates how tags are sorted. If it's equals to 'count' then it sorts tags
    *     by count of occurrences, in ascendant order. If this parameter is not set or different from
    *     'count', it's alphabetically sorted, in descendant order.
    * @return A metadata tag list containing a list of {@link PSMetadataRestTagList} with the tag
    *     name and tag count (number of pages containing that tag). Never <code>null</code>, may be
    *     empty.
-   * @httpcodeonsuccess HTTP 200.
-   * @httpcodeonerror HTTP 500.
    */
   @POST
   @Path("/tags/get")
@@ -94,18 +81,12 @@ public interface IPSMetadataRestService extends IPSRestService {
   /**
    * Given a metadata query ({@link PSMetadataQuery}), it gets all pages according to it, then it
    * makes a list of categories of those pages, and returns a metadata category list ({@link
-   * PSMetadataRestCategoryList} with categories and pages occurrences of each one.
+   * PSMetadataRestCategory} with categories and pages occurrences of each one.
    *
-   * @url /perc-metadata-services/metadata/categories/get
-   * @httpverb POST
-   * @nullipotent yes (read-only method).
-   * @secured no.
    * @param metadataQuery A PSMetadataQuery containing the query. Never <code>null</code>.
    * @return A metadata tag list containing a list of {@link PSMetadataRestCategory} with the
    *     category name, category count (number of pages containing that category and his children).
    *     Never <code>null</code>, may be empty.
-   * @httpcodeonsuccess HTTP 200.
-   * @httpcodeonerror HTTP 500.
    */
   @POST
   @Path("/categories/get")
@@ -119,16 +100,12 @@ public interface IPSMetadataRestService extends IPSRestService {
 
   /**
    * Given a metadata query ({@link PSMetadataQuery}), it gets all pages according to it, then it
-   * makes a list of pages, and returns a metadata event list ({@link PSMetadataDateEntries} with
+   * makes a list of pages, and returns a metadata event list ({@link PSMetadataDatedEntries} with
    * the pages that match the criteria.
    *
-   * @url /perc-metadata-services/metadata/dated/get
-   * @httpverb POST
    * @param metadataQuery A PSMetadataQuery containing the query. Never <code>null</code>.
    * @return A metadata entries containing a list of {@link PSMetadataDatedEvent} with the title,
    *     summary, start date and end date name. Never <code>null</code>, may be empty.
-   * @httpcodeonsuccess HTTP 200.
-   * @httpcodeonerror HTTP 500.
    */
   @POST
   @Path("/dated/get")
@@ -138,14 +115,8 @@ public interface IPSMetadataRestService extends IPSRestService {
   /**
    * Method to charge the call to the indexer to delete the metadatas entries.
    *
-   * @url /perc-metadata-services/metadata/delete
-   * @httpverb POST
-   * @nullipotent no.
-   * @secured yes (SSL and HTTP Basic Authentication).
    * @param pagepaths A pagepaths containing the collection of metadatas entries. Never <code>null
    *     </code>.
-   * @httpcodeonsuccess HTTP 204.
-   * @httpcodeonerror HTTP 500.
    */
   @POST
   @Path("/delete")
@@ -157,13 +128,7 @@ public interface IPSMetadataRestService extends IPSRestService {
    * The scanner gets a list of indexed directories, and if they now longer exist, they are removed
    * using cleanFolderIndexes(String) method.
    *
-   * @url /perc-metadata-services/metadata/indexedDirectories
-   * @httpverb GET
-   * @nullipotent yes.
-   * @secured no.
-   * @return Set<String>. Never <code>null</code>.
-   * @httpcodeonsuccess HTTP 200.
-   * @httpcodeonerror HTTP 500.
+   * @return Set String. Never <code>null</code>.
    */
   @GET
   @Path("/indexedDirectories")
@@ -228,8 +193,6 @@ public interface IPSMetadataRestService extends IPSRestService {
    *
    * @param csvFileName - the name of the file.
    * @return A .CSV file never <code>null</code>. May be empty.
-   * @httpcodeonsuccess HTTP 200.
-   * @httpcodeonerror HTTP 500.
    */
   @GET
   @Path("/consent/log/{csvFileName}")
@@ -243,8 +206,6 @@ public interface IPSMetadataRestService extends IPSRestService {
    *
    * @param csvFileName - the name of the file.
    * @return A .CSV file never <code>null</code>. May be empty.
-   * @httpcodeonsuccess HTTP 200.
-   * @httpcodeonerror HTTP 500.
    */
   @GET
   @Path("/consent/log/{siteName}/{csvFileName}")
@@ -283,8 +244,6 @@ public interface IPSMetadataRestService extends IPSRestService {
    * Deletes all cookie consent entries from the DB.
    *
    * @return HTTP response indicating success or failure
-   * @httpcodeonsuccess HTTP 200.
-   * @httpcodeonerror HTTP 500.
    */
   @DELETE
   @Path("/consent/log")
@@ -297,8 +256,6 @@ public interface IPSMetadataRestService extends IPSRestService {
    *
    * @param siteName - the site in which to delete the cookie consent entries for.
    * @return HTTP response indicating success or failure.
-   * @httpcodeonsuccess HTP 200.
-   * @httpcodeonerror HTTP 500.
    */
   @DELETE
   @Path("/consent/log/{siteName}")

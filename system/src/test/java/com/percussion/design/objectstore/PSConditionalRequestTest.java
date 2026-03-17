@@ -16,62 +16,47 @@
  */
 package com.percussion.design.objectstore;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 import com.percussion.util.PSCollection;
 import com.percussion.xml.PSXmlDocumentBuilder;
-
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-
-import org.junit.jupiter.api.Test;
-import static org.junit.jupiter.api.Assertions.*;
-
-
 // Test case
-public class PSConditionalRequestTest 
-{
-   
+public class PSConditionalRequestTest {
 
-   
-   
+  public void testEquals() throws Exception {}
 
-   public void testEquals() throws Exception
-   {
-   }
+  public void testXml() throws Exception {
+    Document doc = PSXmlDocumentBuilder.createXmlDocument();
+    Element root = PSXmlDocumentBuilder.createRoot(doc, "Test");
 
-   
+    // create test object
+    PSParam param1 = new PSParam("p1", new PSTextLiteral("param1"));
+    PSParam param2 = new PSParam("p2", new PSTextLiteral("param2"));
+    PSParam param3 = new PSParam("p3", new PSTextLiteral("param3"));
+    PSCollection parameters = new PSCollection(param1.getClass());
+    parameters.add(param1);
+    parameters.add(param2);
+    parameters.add(param3);
+    PSRule rule = new PSRule(new PSExtensionCallSet());
+    PSCollection ruleCol = new PSCollection(rule.getClass());
+    ruleCol.add(rule);
+    ruleCol.add(rule);
+    ruleCol.add(rule);
+    PSUrlRequest request =
+        new PSUrlRequest("newRequest", "http://38.227.11.8/Rhythmyx/1111.htm", parameters);
+    PSConditionalRequest testTo = new PSConditionalRequest(request, ruleCol);
+    Element elem = testTo.toXml(doc);
+    PSXmlDocumentBuilder.copyTree(doc, root, elem, true);
 
-   public void testXml() throws Exception
-   {
-      Document doc = PSXmlDocumentBuilder.createXmlDocument();
-      Element root = PSXmlDocumentBuilder.createRoot(doc, "Test");
-
-      // create test object
-      PSParam param1 = new PSParam("p1", new PSTextLiteral("param1"));
-      PSParam param2 = new PSParam("p2", new PSTextLiteral("param2"));
-      PSParam param3 = new PSParam("p3", new PSTextLiteral("param3"));
-      PSCollection parameters = new PSCollection(param1.getClass());
-      parameters.add(param1);
-      parameters.add(param2);
-      parameters.add(param3);
-      PSRule rule = new PSRule(new PSExtensionCallSet());
-      PSCollection ruleCol = new PSCollection(rule.getClass());
-      ruleCol.add(rule);
-      ruleCol.add(rule);
-      ruleCol.add(rule);
-      PSUrlRequest request = new PSUrlRequest("newRequest", "http://38.227.11.8/Rhythmyx/1111.htm", parameters);
-      PSConditionalRequest testTo = new PSConditionalRequest(request, ruleCol);
-      Element elem = testTo.toXml(doc);
-      PSXmlDocumentBuilder.copyTree(doc, root, elem, true);
-
-      // create a new object and populate it from our testTo element
-      PSConditionalRequest testFrom = new PSConditionalRequest(elem, null, null);
-      Document doc2 = PSXmlDocumentBuilder.createXmlDocument();
-      Element root2 = PSXmlDocumentBuilder.createRoot(doc2, "Test");
-      Element elem2 = testFrom.toXml(doc);
-      PSXmlDocumentBuilder.copyTree(doc2, root2, elem2, true);
-      assertEquals(testTo, testFrom);
-   }
-
-   
+    // create a new object and populate it from our testTo element
+    PSConditionalRequest testFrom = new PSConditionalRequest(elem, null, null);
+    Document doc2 = PSXmlDocumentBuilder.createXmlDocument();
+    Element root2 = PSXmlDocumentBuilder.createRoot(doc2, "Test");
+    Element elem2 = testFrom.toXml(doc);
+    PSXmlDocumentBuilder.copyTree(doc2, root2, elem2, true);
+    assertEquals(testTo, testFrom);
+  }
 }

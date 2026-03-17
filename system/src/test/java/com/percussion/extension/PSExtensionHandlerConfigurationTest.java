@@ -16,54 +16,42 @@
  */
 package com.percussion.extension;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 import java.io.File;
 import java.util.Iterator;
 
-import org.junit.jupiter.api.Test;
-import static org.junit.jupiter.api.Assertions.*;
+/** Unit test for class <code>PSExtensionHandlerConfiguration</code>. */
+public class PSExtensionHandlerConfigurationTest {
+  /**
+   * Loads the extenstion file and stores it to the users temp directory. The stored file is then
+   * reloaded and compared to the original.
+   *
+   * @throws Exception for any error.
+   */
+  public void testConfiguration() throws Exception {
+    // load the extensions configuration
+    PSExtensionHandlerConfiguration config =
+        new PSExtensionHandlerConfiguration(ms_extensions, null);
 
-/**
- * Unit test for class <code>PSExtensionHandlerConfiguration</code>.
- */
-public class PSExtensionHandlerConfigurationTest
-{
-   /**
-    * Loads the extenstion file and stores it to the users temp directory.
-    * The stored file is then reloaded and compared to the original.
-    *
-    * @throws Exception for any error.
-    */
+    // store it to a temp file, include the methods
+    File tempExtensions = File.createTempFile("tempExtensions", ".xml");
+    tempExtensions.deleteOnExit();
+    config.store(tempExtensions, false);
 
+    // reload the temp file
+    PSExtensionHandlerConfiguration tempConfig =
+        new PSExtensionHandlerConfiguration(tempExtensions, null);
 
-   public void testConfiguration() throws Exception
-   {
-      // load the extensions configuration
-      PSExtensionHandlerConfiguration config =
-         new PSExtensionHandlerConfiguration(ms_extensions, null);
+    Iterator<PSExtensionRef> refs = config.getExtensionNames();
+    while (refs.hasNext()) {
+      PSExtensionRef ref = refs.next();
 
-      // store it to a temp file, include the methods
-      File tempExtensions = File.createTempFile("tempExtensions", ".xml");
-      tempExtensions.deleteOnExit();
-      config.store(tempExtensions, false);
+      IPSExtensionDef tempDef = tempConfig.getExtensionDef(ref);
+      assertTrue(tempDef != null);
+    }
+  }
 
-      // reload the temp file
-      PSExtensionHandlerConfiguration tempConfig =
-         new PSExtensionHandlerConfiguration(tempExtensions, null);
-
-      Iterator<PSExtensionRef> refs = config.getExtensionNames();
-      while (refs.hasNext())
-      {
-         PSExtensionRef ref = refs.next();
-
-         IPSExtensionDef tempDef = tempConfig.getExtensionDef(ref);
-         assertTrue(tempDef != null);
-      }
-   }
-
-   /**
-    * The extensions file to use for testing.
-    */
-   private static final File ms_extensions =
-      new File("Exits/Java/Extensions.xml");
+  /** The extensions file to use for testing. */
+  private static final File ms_extensions = new File("Exits/Java/Extensions.xml");
 }
-

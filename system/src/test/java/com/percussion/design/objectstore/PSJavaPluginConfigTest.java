@@ -16,51 +16,35 @@
  */
 package com.percussion.design.objectstore;
 
-import org.junit.jupiter.api.Test;
-import static org.junit.jupiter.api.Assertions.*;
 import static com.percussion.testing.PSTestCompare.assertEqualsWithHash;
+import static org.junit.jupiter.api.Assertions.*;
 
-public class PSJavaPluginConfigTest 
-{
-   /**
-    * Tests behavior of equals() and hashCode() methods.
-    */
-   
-   public void testEqualsHashCode()
-   {
-      final PSJavaPluginConfig config1 = new PSJavaPluginConfig();
-      final PSJavaPluginConfig config2 = new PSJavaPluginConfig();
-      
-      assertFalse(config1.equals(new Object()));
-      assertEqualsWithHash(config1, config2);
-      
-      config1.addPlugin(
-            new PSJavaPlugin("Anything", VERSION, true, DOWLOAD_LOCATION));
-      assertFalse(config1.equals(config2));
+public class PSJavaPluginConfigTest {
+  /** Tests behavior of equals() and hashCode() methods. */
+  public void testEqualsHashCode() {
+    final PSJavaPluginConfig config1 = new PSJavaPluginConfig();
+    final PSJavaPluginConfig config2 = new PSJavaPluginConfig();
 
-      config2.addPlugin(
-            new PSJavaPlugin("Anything", VERSION, true, DOWLOAD_LOCATION));
-      assertEqualsWithHash(config1, config2);
-      
-      config1.addPlugin(
-            new PSJavaPlugin("Anything", VERSION, true, DOWLOAD_LOCATION));
-      config2.addPlugin(
-            new PSJavaPlugin("Anything", VERSION, true, OTHER_STR));
-      assertFalse(config1.equals(config2));
-   }
-   
-   /**
-    * Sample version.
-    */
-   private static final String VERSION = "Version";
-   
-   /**
-    * Sample download location.
-    */
-   private static final String DOWLOAD_LOCATION = "Download Location";
+    assertFalse(config1.equals(new Object()));
+    assertEqualsWithHash(config1, config2);
 
-   /**
-    * Sample string.
-    */
-   private static final String OTHER_STR = "Other String";
+    config1.addPlugin(new PSJavaPlugin("Anything", VERSION, true, DOWLOAD_LOCATION));
+    assertFalse(config1.equals(config2));
+
+    config2.addPlugin(new PSJavaPlugin("Anything", VERSION, true, DOWLOAD_LOCATION));
+    assertEqualsWithHash(config1, config2);
+
+    config1.addPlugin(new PSJavaPlugin("Anything", VERSION, true, DOWLOAD_LOCATION));
+    config2.addPlugin(new PSJavaPlugin("Anything", VERSION, true, OTHER_STR));
+    assertFalse(config1.equals(config2));
+  }
+
+  /** Sample version. */
+  private static final String VERSION = "Version";
+
+  /** Sample download location. */
+  private static final String DOWLOAD_LOCATION = "Download Location";
+
+  /** Sample string. */
+  private static final String OTHER_STR = "Other String";
 }

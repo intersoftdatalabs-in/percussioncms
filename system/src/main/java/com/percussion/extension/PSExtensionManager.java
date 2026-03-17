@@ -19,7 +19,6 @@ package com.percussion.extension;
 import com.percussion.error.PSNonUniqueException;
 import com.percussion.error.PSNotFoundException;
 import com.percussion.util.PSSortTool;
-import com.percussion.utils.collections.PSIteratorUtils;
 import com.percussion.utils.tools.PSPatternMatcher;
 import java.io.File;
 import java.util.Collection;
@@ -93,11 +92,7 @@ public class PSExtensionManager implements IPSExtensionManager {
 
     PSExtensionDef hhDef =
         new PSExtensionDef(
-            hhRef,
-            List.of(IPSExtensionHandler.class.getName()).iterator(),
-            null,
-            hhProps,
-            null);
+            hhRef, List.of(IPSExtensionHandler.class.getName()).iterator(), null, hhProps, null);
 
     m_extHandlerHandler = new PSExtensionHandlerHandler();
     m_extHandlerHandler.init(hhDef, codeRoot);

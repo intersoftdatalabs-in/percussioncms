@@ -16,102 +16,81 @@
  */
 package com.percussion.services.system.data;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 import com.percussion.content.IPSMimeContentTypes;
 import com.percussion.services.catalog.PSTypeEnum;
 import com.percussion.services.guidmgr.data.PSGuid;
 import com.percussion.util.PSCharSetsConstants;
 import com.percussion.utils.guid.IPSGuid;
 import com.percussion.utils.tools.PSTestUtils;
-import org.junit.jupiter.api.Test;
-import static org.junit.jupiter.api.Assertions.*;
-
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 
-/**
- * Unit tests for the {@link PSMimeContentAdapter} class.
- */
-public class PSMimeContentAdapterTest
-{
-   /**
-    * Tests the programming interface.
-    *
-    * @throws Exception If the test fails
-    */
+/** Unit tests for the {@link PSMimeContentAdapter} class. */
+public class PSMimeContentAdapterTest {
+  /**
+   * Tests the programming interface.
+   *
+   * @throws Exception If the test fails
+   */
+  public void testInterface() throws Exception {
+    String data = "some content...";
+    ByteArrayInputStream in = new ByteArrayInputStream(data.getBytes());
 
-   public void testInterface() throws Exception
-   {
-      String data = "some content...";
-      ByteArrayInputStream in = new ByteArrayInputStream(data.getBytes());
+    PSMimeContentAdapter content = new PSMimeContentAdapter();
+    // test defaults
+    assertEquals(content.getCharacterEncoding(), PSCharSetsConstants.rxStdEnc());
+    assertEquals(content.getMimeType(), IPSMimeContentTypes.MIME_TYPE_OCTET_STREAM);
+    assertEquals(content.getTransferEncoding(), IPSMimeContentTypes.MIME_ENC_BASE64);
+    assertNotNull(content.getContent());
+    assertTrue(content.getContentLength() == -1);
 
-      PSMimeContentAdapter content = new PSMimeContentAdapter();
-      // test defaults
-      assertEquals(content.getCharacterEncoding(),
-         PSCharSetsConstants.rxStdEnc());
-      assertEquals(content.getMimeType(),
-         IPSMimeContentTypes.MIME_TYPE_OCTET_STREAM);
-      assertEquals(content.getTransferEncoding(),
-         IPSMimeContentTypes.MIME_ENC_BASE64);
-      assertNotNull(content.getContent());
-      assertTrue(content.getContentLength() == -1);
+    try {
+      content.getGUID();
+      fail("should have thrown");
+    } catch (IllegalStateException e) {
+      // TODO: handle exception
+    }
 
-      try
-      {
-         content.getGUID();
-         fail("should have thrown");
-      }
-      catch (IllegalStateException e)
-      {
-         // TODO: handle exception
-      }
+    try {
+      content.getName();
+      fail("should have thrown");
+    } catch (IllegalStateException e) {
+      // TODO: handle exception
+    }
 
-      try
-      {
-         content.getName();
-         fail("should have thrown");
-      }
-      catch (IllegalStateException e)
-      {
-         // TODO: handle exception
-      }
+    // test setters
+    PSTestUtils.testSetter(content, "GUID", null, IPSGuid.class, true);
+    PSTestUtils.testSetter(
+        content, "GUID", new PSGuid(PSTypeEnum.INTERNAL, 0), IPSGuid.class, true);
+    PSTestUtils.testSetter(
+        content, "GUID", new PSGuid(PSTypeEnum.CONFIGURATION, 123), IPSGuid.class, false);
+    PSTestUtils.testSetter(content, "Name", null, true);
+    PSTestUtils.testSetter(content, "Name", "", true);
+    PSTestUtils.testSetter(content, "Name", "test", false);
+    PSTestUtils.testSetter(content, "Content", null, InputStream.class, true);
+    PSTestUtils.testSetter(content, "Content", in, InputStream.class, false);
+    PSTestUtils.testSetter(content, "ContentLength", new Long(-2), long.class, true);
+    PSTestUtils.testSetter(content, "ContentLength", new Long(100), long.class, false);
+    PSTestUtils.testSetter(content, "MimeType", null, true);
+    PSTestUtils.testSetter(content, "MimeType", "", true);
+    PSTestUtils.testSetter(content, "MimeType", "test", false);
 
-      // test setters
-      PSTestUtils.testSetter(content, "GUID", null, IPSGuid.class, true);
-      PSTestUtils.testSetter(content, "GUID", new PSGuid(
-         PSTypeEnum.INTERNAL, 0), IPSGuid.class, true);
-      PSTestUtils.testSetter(content, "GUID", new PSGuid(
-         PSTypeEnum.CONFIGURATION, 123), IPSGuid.class, false);
-      PSTestUtils.testSetter(content, "Name", null, true);
-      PSTestUtils.testSetter(content, "Name", "", true);
-      PSTestUtils.testSetter(content, "Name", "test", false);
-      PSTestUtils.testSetter(content, "Content", null, InputStream.class, true);
-      PSTestUtils.testSetter(content, "Content", in, InputStream.class, false);
-      PSTestUtils.testSetter(content, "ContentLength", new Long(-2), long.class, true);
-      PSTestUtils.testSetter(content, "ContentLength", new Long(100), long.class, false);
-      PSTestUtils.testSetter(content, "MimeType", null, true);
-      PSTestUtils.testSetter(content, "MimeType", "", true);
-      PSTestUtils.testSetter(content, "MimeType", "test", false);
+    try {
+      content.setGUID(new PSGuid(PSTypeEnum.CONFIGURATION, 456));
+      fail("should have thrown");
+    } catch (IllegalStateException e) {
+      // TODO: handle exception
+    }
 
-      try
-      {
-         content.setGUID(new PSGuid(PSTypeEnum.CONFIGURATION, 456));
-         fail("should have thrown");
-      }
-      catch (IllegalStateException e)
-      {
-         // TODO: handle exception
-      }
+    PSTestUtils.testSetter(content, "CharacterEncoding", null, true);
+    PSTestUtils.testSetter(content, "CharacterEncoding", "", true);
 
-      PSTestUtils.testSetter(content, "CharacterEncoding", null, true);
-      PSTestUtils.testSetter(content, "CharacterEncoding", "", true);
+    PSTestUtils.testSetter(content, "AttachmentId", new Long(1), long.class, false);
+    assertNull(content.getContent());
 
-      PSTestUtils.testSetter(content, "AttachmentId", new Long(1), long.class,
-         false);
-      assertNull(content.getContent());
-
-      content.setContent(in);
-      assertEquals(content.getAttachmentId(), -1);
-   }
+    content.setContent(in);
+    assertEquals(content.getAttachmentId(), -1);
+  }
 }
-
-

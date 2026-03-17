@@ -271,8 +271,7 @@ public class PSExtensionDefFactory implements IPSExtensionDefFactory {
       Element appEl = tree.getNextElement("requiredApplication", firstFlag);
       while (appEl != null) {
         String appName = appEl.getAttribute("name");
-        if (appName != null && appName.trim().length() > 0)
-          apps.add(appName);
+        if (appName != null && appName.trim().length() > 0) apps.add(appName);
         appEl = tree.getNextElement("requiredApplication", nextFlag);
       }
     }

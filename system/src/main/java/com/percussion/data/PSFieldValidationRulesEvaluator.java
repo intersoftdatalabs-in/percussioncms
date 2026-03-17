@@ -166,7 +166,6 @@ public class PSFieldValidationRulesEvaluator {
             if (irh instanceof IPSInternalCommandRequestHandler) {
               rh = (IPSInternalCommandRequestHandler) irh;
 
-
               Map<String, Object> htmlParams =
                   PSHtmlParameters.createStandardParams(backupHtmlParams);
               // Suppressed unchecked conversion warning for createStandardParams (CP-JAVA11)

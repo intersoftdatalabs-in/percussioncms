@@ -696,7 +696,6 @@ public class PSFolder extends PSDbComponent implements java.io.Serializable {
    *
    * @param srcAcl the to be merged ACL, may not be <code>null</code>.
    */
-
   public void mergeAclFrom(PSObjectAcl srcAcl) {
     notNull(srcAcl);
 

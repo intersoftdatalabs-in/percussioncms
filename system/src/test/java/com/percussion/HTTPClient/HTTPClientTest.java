@@ -16,110 +16,95 @@
  */
 package com.percussion.HTTPClient;
 
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import com.percussion.cms.IPSConstants;
 import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.testing.PSClientTestCase;
-
 import com.percussion.xml.PSXmlDocumentBuilder;
-
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.Disabled;
-import org.junit.jupiter.api.Tag;
-import org.w3c.dom.Document;
-import org.w3c.dom.NodeList;
-
 import java.io.IOException;
 import java.util.Properties;
-
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import org.w3c.dom.Document;
+import org.w3c.dom.NodeList;
 
 @Disabled("Temporarily disabled — failing in perc-system test run")
 @Deprecated
 
 // TODO: Remove me @SuppressFBWarnings("INFORMATION_EXPOSURE_THROUGH_AN_ERROR_MESSAGE")
-public class HTTPClientTest extends PSClientTestCase
-{
-   private static final Logger log = LogManager.getLogger(IPSConstants.TEST_LOG);
+public class HTTPClientTest extends PSClientTestCase {
+  private static final Logger log = LogManager.getLogger(IPSConstants.TEST_LOG);
 
+  public HTTPConnection getConnection() {
+    Properties props;
+    try {
+      props = getConnectionProps(CONN_TYPE_TOMCAT);
+    } catch (IOException e) {
+      e.printStackTrace();
+      throw new RuntimeException(e);
+    }
+    HTTPConnection con =
+        new HTTPConnection(
+            props.getProperty(PROP_HOST_NAME), Integer.parseInt(props.getProperty(PROP_PORT)));
 
-   public HTTPConnection getConnection()
-   {
-      Properties props;
-      try {
-         props = getConnectionProps(CONN_TYPE_TOMCAT);
-      } catch (IOException e) {
-         e.printStackTrace();
-         throw new RuntimeException(e);
-      }
-      HTTPConnection con =
-         new HTTPConnection(props.getProperty(PROP_HOST_NAME),
-             Integer.parseInt(props.getProperty(PROP_PORT)));
+    con.setAllowUserInteraction(false);
+    con.setContext(this);
 
-      con.setAllowUserInteraction(false);
-      con.setContext(this);
-
-      AuthorizationInfo authInfo = null;
-      // Using empty "Basic realm" for webservices handler, which is
-      // consistent with all other handlers in the Rhythmyx Server.
-      authInfo =
-         new AuthorizationInfo(
+    AuthorizationInfo authInfo = null;
+    // Using empty "Basic realm" for webservices handler, which is
+    // consistent with all other handlers in the Rhythmyx Server.
+    authInfo =
+        new AuthorizationInfo(
             props.getProperty(PROP_HOST_NAME),
             Integer.parseInt(props.getProperty(PROP_PORT)),
             props.getProperty(PROP_SCHEME),
             "",
             Codecs.base64Encode(
-               props.getProperty(PROP_LOGIN_ID) +
-               ":" + props.getProperty(PROP_LOGIN_PW)));
+                props.getProperty(PROP_LOGIN_ID) + ":" + props.getProperty(PROP_LOGIN_PW)));
 
-      authInfo.addPath(m_webdavPath);
-      AuthorizationInfo.addAuthorization(authInfo, this);
+    authInfo.addPath(m_webdavPath);
+    AuthorizationInfo.addAuthorization(authInfo, this);
 
-      NVPair[] defaultHeaders =
-      {
-         new NVPair("User-Agent", "Rhythmyx Remote Requestor"),
-         new NVPair("Content-Type", "text/xml")
-      };
-      con.setDefaultHeaders(defaultHeaders);
+    NVPair[] defaultHeaders = {
+      new NVPair("User-Agent", "Rhythmyx Remote Requestor"), new NVPair("Content-Type", "text/xml")
+    };
+    con.setDefaultHeaders(defaultHeaders);
 
-      return con;
-   }
+    return con;
+  }
 
-   private String m_webdavPath = "/Rhythmyx/rxwebdav/Sites/EnterpriseInvestments/Files";
+  private String m_webdavPath = "/Rhythmyx/rxwebdav/Sites/EnterpriseInvestments/Files";
 
-   @Test
-   public void testPROPFIND() throws Exception
-   {
+  @Test
+  public void testPROPFIND() throws Exception {
 
-      HTTPConnection con = getConnection();
-      byte[] data = new byte[0];
-      HTTPResponse resp = con.ExtensionMethod("PROPFIND", m_webdavPath, data, null);
-      String respData = resp.getText();
+    HTTPConnection con = getConnection();
+    byte[] data = new byte[0];
+    HTTPResponse resp = con.ExtensionMethod("PROPFIND", m_webdavPath, data, null);
+    String respData = resp.getText();
 
-      Document doc =
-         PSXmlDocumentBuilder.createXmlDocument(resp.getInputStream(), false);
+    Document doc = PSXmlDocumentBuilder.createXmlDocument(resp.getInputStream(), false);
 
-      NodeList nl = doc.getElementsByTagName("D:multistatus");
+    NodeList nl = doc.getElementsByTagName("D:multistatus");
 
-      assertTrue(nl.getLength() > 0, "Not found expected webdav 'PROPFIND' " +
-            "'/Rhythmyx/rxwebdav/Sites/CorporateInvestments/Files' response doesn't have:" +
-            " 'D:multistatus' ");
+    assertTrue(
+        nl.getLength() > 0,
+        "Not found expected webdav 'PROPFIND' "
+            + "'/Rhythmyx/rxwebdav/Sites/CorporateInvestments/Files' response doesn't have:"
+            + " 'D:multistatus' ");
 
-      log.info(respData);
+    log.info(respData);
+  }
 
-   }
-
-   public static void main(String[] args)
-   {
-      try
-      {
-         HTTPClientTest test = new HTTPClientTest();
-         test.testPROPFIND();
-      }
-      catch (Exception e)
-      {
-        log.error(PSExceptionUtils.getMessageForLog(e));
-      }
-   }
+  public static void main(String[] args) {
+    try {
+      HTTPClientTest test = new HTTPClientTest();
+      test.testPROPFIND();
+    } catch (Exception e) {
+      log.error(PSExceptionUtils.getMessageForLog(e));
+    }
+  }
 }

@@ -16,120 +16,108 @@
  */
 package com.percussion.extension;
 
-import java.util.ArrayList;
-
-
-import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
+import java.util.ArrayList;
+import org.junit.jupiter.api.Test;
 
-/**
- * Unit tests for the PSExtensionRef class
- */
-public class PSExtensionRefTest
-{
+/** Unit tests for the PSExtensionRef class */
+public class PSExtensionRefTest {
 
+  @Test
+  public void testConstruct() throws Exception {
+    for (int i = 0; i < numTests(); i++) {
+      RefTest test = getTest(i);
 
+      PSExtensionRef ref = new PSExtensionRef(test.handler, test.context, test.extension);
 
-   @Test
-   public void testConstruct()
-      throws Exception
-   {
-      for (int i = 0; i < numTests(); i++)
-      {
-         RefTest test = getTest(i);
+      assertEquals(test.full, ref.toString());
+    }
+  }
 
-         PSExtensionRef ref = new PSExtensionRef(test.handler,
-            test.context, test.extension);
+  @Test
+  public void testConstructFull() throws Exception {
+    for (int i = 0; i < numTests(); i++) {
+      RefTest test = getTest(i);
 
-         assertEquals(test.full, ref.toString());
-      }
-   }
+      PSExtensionRef ref = new PSExtensionRef(test.full);
+      assertEquals(test.handler, ref.getHandlerName());
 
+      // don't test context because the testcase's context may not
+      // be canonicalized, whereas the constructed ref's context will
+      // always be canonicalized
+      assertEquals(test.extension, ref.getExtensionName());
+    }
 
+    boolean didThrow = false;
+    try {
+      PSExtensionRef ref = new PSExtensionRef("foo//bar");
+    } catch (IllegalArgumentException e) {
+      didThrow = true;
+    }
+    assertTrue(didThrow);
 
-   @Test
-   public void testConstructFull()
-      throws Exception
-   {
-      for (int i = 0; i < numTests(); i++)
-      {
-         RefTest test = getTest(i);
+    didThrow = false;
+  }
 
-         PSExtensionRef ref = new PSExtensionRef(test.full);
-         assertEquals(test.handler, ref.getHandlerName());
+  private static void initRefTests() {
+    m_refTests = new ArrayList();
 
-         // don't test context because the testcase's context may not
-         // be canonicalized, whereas the constructed ref's context will
-         // always be canonicalized
-         assertEquals(test.extension, ref.getExtensionName());
-      }
+    m_refTests.add(
+        new RefTest(
+            "testHandler",
+            "testContext/",
+            "testExtension",
+            "testHandler/testContext/testExtension"));
 
-      boolean didThrow = false;
-      try
-      {
-         PSExtensionRef ref = new PSExtensionRef("foo//bar");
-      }
-      catch (IllegalArgumentException e)
-      {
-         didThrow = true;
-      }
-      assertTrue(didThrow);
+    m_refTests.add(
+        new RefTest(
+            "testHandler",
+            "testContext",
+            "testExtension",
+            "testHandler/testContext/testExtension"));
 
-      didThrow = false;
-   }
+    m_refTests.add(
+        new RefTest(
+            "testHandler",
+            "testContext/subContext",
+            "testExtension",
+            "testHandler/testContext/subContext/testExtension"));
 
-   private static void initRefTests()
-   {
-      m_refTests = new ArrayList();
+    m_refTests.add(
+        new RefTest(
+            "testHandler",
+            "testContext/subContext/",
+            "testExtension",
+            "testHandler/testContext/subContext/testExtension"));
+  }
 
-      m_refTests.add(new RefTest("testHandler", "testContext/", "testExtension",
-         "testHandler/testContext/testExtension"));
+  private static int numTests() {
+    return m_refTests.size();
+  }
 
-      m_refTests.add(new RefTest("testHandler", "testContext", "testExtension",
-         "testHandler/testContext/testExtension"));
+  private static RefTest getTest(int i) {
+    return (RefTest) (m_refTests.get(i));
+  }
 
-      m_refTests.add(new RefTest("testHandler", "testContext/subContext", "testExtension",
-         "testHandler/testContext/subContext/testExtension"));
+  private static ArrayList m_refTests;
 
-      m_refTests.add(new RefTest("testHandler", "testContext/subContext/", "testExtension",
-         "testHandler/testContext/subContext/testExtension"));
+  static class RefTest {
+    public RefTest(String h, String c, String e, String f) {
+      handler = h;
+      context = c;
+      extension = e;
+      full = f;
+    }
 
-   }
+    public String handler;
+    public String context;
+    public String extension;
+    public String full;
+  }
 
-   private static int numTests()
-   {
-      return m_refTests.size();
-   }
-
-   private static RefTest getTest(int i)
-   {
-      return (RefTest)(m_refTests.get(i));
-   }
-
-   private static ArrayList m_refTests;
-
-   static class RefTest
-   {
-      public RefTest(String h, String c, String e, String f)
-      {
-         handler = h;
-         context = c;
-         extension = e;
-         full = f;
-      }
-
-      public String handler;
-      public String context;
-      public String extension;
-      public String full;
-   }
-
-   /** collect all tests into a TestSuite and return it */
-
-
-   static
-   {
-      initRefTests();
-   }
+  /** collect all tests into a TestSuite and return it */
+  static {
+    initRefTests();
+  }
 }

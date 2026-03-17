@@ -32,7 +32,6 @@ public interface IPSWorkflowAppsContext {
    *
    * @author Ram
    * @version 1.0
-   * 
    * @return WorkflowAppID
    */
   public int getWorkFlowAppID() throws SQLException;
@@ -42,7 +41,6 @@ public interface IPSWorkflowAppsContext {
    *
    * @author Ram
    * @version 1.0
-   * 
    * @return Workflow app name
    */
   public String getWorkFlowAppName() throws SQLException;
@@ -52,7 +50,6 @@ public interface IPSWorkflowAppsContext {
    *
    * @author Ram
    * @version 1.0
-   * 
    * @return Workflow app description
    */
   public String getWorkFlowAppDescription() throws SQLException;
@@ -62,7 +59,6 @@ public interface IPSWorkflowAppsContext {
    *
    * @author Ram
    * @version 1.0
-   * 
    * @return name of the Workflow application's administrator
    */
   public String getWorkFlowAdministrator() throws SQLException;
@@ -72,7 +68,6 @@ public interface IPSWorkflowAppsContext {
    *
    * @author Ram
    * @version 1.0
-   * 
    * @return Workflow's initial stateID
    */
   public int getWorkFlowInitialStateID() throws SQLException;

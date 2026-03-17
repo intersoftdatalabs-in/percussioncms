@@ -17,159 +17,136 @@
 package com.percussion.services.linkmanagement;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 
 import com.percussion.services.linkmanagement.data.PSManagedLink;
-
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-
-
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;import org.junit.jupiter.api.Disabled;import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author JaySeletz
- *
  */
-
 @Disabled("Temporarily disabled — failing in perc-system test run")
-public class PSManagedLinkDaoTest
-{
-    private IPSManagedLinkDao m_dao;
-    private Set<PSManagedLink> m_savedLinks;
+public class PSManagedLinkDaoTest {
+  private IPSManagedLinkDao m_dao;
+  private Set<PSManagedLink> m_savedLinks;
 
+  @BeforeEach
+  public void setUp() throws Exception {
+    m_dao = PSManagedLinkDaoLocator.getManagedLinkDao();
+    m_savedLinks = new HashSet<PSManagedLink>();
+  }
 
-    @BeforeEach
-    public void setUp() throws Exception
-    {
-        m_dao = PSManagedLinkDaoLocator.getManagedLinkDao();
-        m_savedLinks = new HashSet<PSManagedLink>();
+  @AfterEach
+  public void tearDown() throws Exception {
+    // delete all links we created
+    for (PSManagedLink link : m_savedLinks) {
+      m_dao.deleteLink(link);
+    }
+  }
+
+  @Test
+  public void testCreateLink() throws Exception {
+    int parentId = 1;
+    int parentRev = 1;
+    int childId = 2;
+    String anchor = "TARGET";
+
+    PSManagedLink link = m_dao.createLink(parentId, parentRev, childId, anchor);
+    assertNotNull(link);
+    assertEquals(parentId, link.getParentId());
+    assertEquals(parentRev, link.getParentRevision());
+    assertEquals(childId, link.getChildId());
+    assertEquals(-1L, link.getLinkId());
+  }
+
+  @Test
+  public void testSaveLink() throws Exception {
+    int parentId = 1;
+    int parentRev = 1;
+    int childId = 2;
+
+    PSManagedLink link = createLink(parentId, parentRev, childId);
+
+    PSManagedLink found = m_dao.findLinkByLinkId(link.getLinkId()).orElseThrow();
+    assertNotNull(found);
+    assertEquals(link.getLinkId(), found.getLinkId());
+    assertEquals(link.getParentId(), found.getParentId());
+    assertEquals(link.getParentRevision(), found.getParentRevision());
+    assertEquals(link.getChildId(), found.getChildId());
+  }
+
+  private PSManagedLink createLink(int parentId, int parentRev, int childId) throws Exception {
+    PSManagedLink link = m_dao.createLink(parentId, parentRev, childId, null);
+    m_dao.saveLink(link);
+    m_savedLinks.add(link);
+    assertTrue(link.getLinkId() != -1);
+    return link;
+  }
+
+  public void testFindLinksByParent() throws Exception {
+    int parentId1 = 1;
+    int parentRev1 = 1;
+    int childId = 2;
+    List<Long> parent1LinkIds = new ArrayList<Long>();
+
+    while (childId < 10) {
+      parent1LinkIds.add(createLink(parentId1, parentRev1, childId++).getLinkId());
     }
 
-    @AfterEach
-    public void tearDown() throws Exception
-    {
-        // delete all links we created
-        for (PSManagedLink link : m_savedLinks)
-        {
-            m_dao.deleteLink(link);
-        }
+    int parentId2 = 2;
+    int parentRev2 = 2;
+    childId = 5;
+    List<Long> parent2LinkIds = new ArrayList<Long>();
+    while (childId < 15) {
+      parent2LinkIds.add(createLink(parentId2, parentRev2, childId++).getLinkId());
     }
 
-    @Test
-    public void testCreateLink() throws Exception
-    {
-        int parentId = 1;
-        int parentRev = 1;
-        int childId = 2;
-        String anchor = "TARGET";
+    List<Long> foundLinkIds = new ArrayList<Long>();
+    List<PSManagedLink> foundLinks = m_dao.findLinksByParentId(parentId1);
+    for (PSManagedLink link : foundLinks) {
+      assertEquals(parentId1, link.getParentId());
+      foundLinkIds.add(link.getLinkId());
+    }
+    assertEquals(parent1LinkIds.size(), foundLinkIds.size());
+    assertTrue(foundLinkIds.containsAll(parent1LinkIds));
 
-        PSManagedLink link = m_dao.createLink(parentId, parentRev, childId, anchor);
-        assertNotNull(link);
-        assertEquals(parentId, link.getParentId());
-        assertEquals(parentRev, link.getParentRevision());
-        assertEquals(childId, link.getChildId());
-        assertEquals(-1L, link.getLinkId());
+    foundLinkIds.clear();
+    foundLinks = m_dao.findLinksByParentId(parentId2);
+    for (PSManagedLink link : foundLinks) {
+      assertEquals(parentId2, link.getParentId());
+      foundLinkIds.add(link.getLinkId());
+    }
+    assertEquals(parent2LinkIds.size(), foundLinkIds.size());
+    assertTrue(foundLinkIds.containsAll(parent2LinkIds));
+  }
+
+  public void testDeleteLink() throws Exception {
+    int parentId = 1;
+    int parentRev = 1;
+    int childId = 11;
+    List<PSManagedLink> links = new ArrayList<PSManagedLink>();
+
+    while (parentId < 10) {
+      links.add(createLink(parentId++, parentRev, childId++));
     }
 
-    @Test
-    public void testSaveLink() throws Exception
-    {
-        int parentId = 1;
-        int parentRev = 1;
-        int childId = 2;
-
-        PSManagedLink link = createLink(parentId, parentRev, childId);
-
-        PSManagedLink found = m_dao.findLinkByLinkId(link.getLinkId()).orElseThrow();
-        assertNotNull(found);
-        assertEquals(link.getLinkId(), found.getLinkId());
-        assertEquals(link.getParentId(), found.getParentId());
-        assertEquals(link.getParentRevision(), found.getParentRevision());
-        assertEquals(link.getChildId(), found.getChildId());
+    for (PSManagedLink link : links) {
+      assertTrue(m_dao.findLinkByLinkId(link.getLinkId()).isPresent());
+      m_dao.deleteLink(link);
+      assertFalse(m_dao.findLinkByLinkId(link.getLinkId()).isPresent());
     }
+  }
 
-    private PSManagedLink createLink(int parentId, int parentRev, int childId) throws Exception
-    {
-        PSManagedLink link = m_dao.createLink(parentId, parentRev, childId, null);
-        m_dao.saveLink(link);
-        m_savedLinks.add(link);
-        assertTrue(link.getLinkId() != -1);
-        return link;
-    }
-
-    public void testFindLinksByParent() throws Exception
-    {
-        int parentId1 = 1;
-        int parentRev1 = 1;
-        int childId = 2;
-        List<Long> parent1LinkIds = new ArrayList<Long>();
-
-        while (childId < 10)
-        {
-            parent1LinkIds.add(createLink(parentId1, parentRev1, childId++).getLinkId());
-        }
-
-        int parentId2 = 2;
-        int parentRev2 = 2;
-        childId = 5;
-        List<Long> parent2LinkIds = new ArrayList<Long>();
-        while (childId < 15)
-        {
-            parent2LinkIds.add(createLink(parentId2, parentRev2, childId++).getLinkId());
-        }
-
-        List<Long> foundLinkIds = new ArrayList<Long>();
-        List<PSManagedLink> foundLinks = m_dao.findLinksByParentId(parentId1);
-        for (PSManagedLink link : foundLinks)
-        {
-            assertEquals(parentId1, link.getParentId());
-            foundLinkIds.add(link.getLinkId());
-        }
-        assertEquals(parent1LinkIds.size(), foundLinkIds.size());
-        assertTrue(foundLinkIds.containsAll(parent1LinkIds));
-
-
-        foundLinkIds.clear();
-        foundLinks = m_dao.findLinksByParentId(parentId2);
-        for (PSManagedLink link : foundLinks)
-        {
-            assertEquals(parentId2, link.getParentId());
-            foundLinkIds.add(link.getLinkId());
-        }
-        assertEquals(parent2LinkIds.size(), foundLinkIds.size());
-        assertTrue(foundLinkIds.containsAll(parent2LinkIds));
-    }
-
-    public void testDeleteLink() throws Exception
-    {
-        int parentId = 1;
-        int parentRev = 1;
-        int childId = 11;
-        List<PSManagedLink> links = new ArrayList<PSManagedLink>();
-
-        while (parentId < 10)
-        {
-            links.add(createLink(parentId++, parentRev, childId++));
-        }
-
-        for (PSManagedLink link : links)
-        {
-            assertTrue(m_dao.findLinkByLinkId(link.getLinkId()).isPresent());
-            m_dao.deleteLink(link);
-            assertFalse(m_dao.findLinkByLinkId(link.getLinkId()).isPresent());
-        }
-
-    }
-
-    public void setLinkDao(IPSManagedLinkDao dao)
-    {
-        m_dao = dao;
-    }
+  public void setLinkDao(IPSManagedLinkDao dao) {
+    m_dao = dao;
+  }
 }

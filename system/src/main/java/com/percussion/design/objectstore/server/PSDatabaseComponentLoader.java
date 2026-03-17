@@ -93,32 +93,20 @@ public class PSDatabaseComponentLoader {
   }
 
   /**
-   * Retrieve the related components from the back end based on the relation
-   * context.
+   * Retrieve the related components from the back end based on the relation context.
    *
-   * @param relationContext The relation context, containing information
-   * on keys which will form the search criteria.  Can't be <code>null</code>.
-   * If this contains no keys with ids, all database components of the
-   * specified type will be returned.
-   *
-   * @param c The database component class to return.
-   * May not be <code>null</code>, and must implment
-   * {@link IPSDatabaseComponent}.
-   *
-   * @param componentType The type of component. May not be <code>null</code> or
-   * empty.
-   *
-   * @return An array of database components of the specified class, never
-   * <code>null</code>, may be empty if none were found.
-   *
-   * @throws PSUnknownNodeTypeException if a component fails to initialize
-   * itself from an element returned by the system component app
-   *
-   * @throws PSDatabaseComponentException if a database component fails
-   *    to load for any other reason
-   *
-   * @throws IllegalArgumentException if we can not continue the great
-   * journey of life
+   * @param relationContext The relation context, containing information on keys which will form the
+   *     search criteria. Can't be <code>null</code>. If this contains no keys with ids, all
+   *     database components of the specified type will be returned.
+   * @param c The database component class to return. May not be <code>null</code>, and must
+   *     implment {@link IPSDatabaseComponent}.
+   * @param componentType The type of component. May not be <code>null</code> or empty.
+   * @return An array of database components of the specified class, never <code>null</code>, may be
+   *     empty if none were found.
+   * @throws PSUnknownNodeTypeException if a component fails to initialize itself from an element
+   *     returned by the system component app
+   * @throws PSDatabaseComponentException if a database component fails to load for any other reason
+   * @throws IllegalArgumentException if we can not continue the great journey of life
    */
   public IPSDatabaseComponent[] getRelatedDatabaseComponents(
       PSRelation relationContext, Class c, String componentType)

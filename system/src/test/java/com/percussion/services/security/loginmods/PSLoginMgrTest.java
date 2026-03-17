@@ -16,86 +16,74 @@
  */
 package com.percussion.services.security.loginmods;
 
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import com.percussion.design.objectstore.PSServerConfiguration;
 import com.percussion.security.PSSecurityProviderPool;
 import com.percussion.server.PSRequest;
 import com.percussion.utils.request.PSRequestInfo;
-
 import com.percussion.xml.PSXmlDocumentBuilder;
-
 import java.io.IOException;
 import java.util.Map;
-
 import javax.security.auth.Subject;
 import javax.security.auth.callback.Callback;
 import javax.security.auth.callback.CallbackHandler;
 import javax.security.auth.callback.UnsupportedCallbackException;
-
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Disabled;
-import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.Document;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
-/**
- * Test case for the {@link IPSLoginMgr}.
- */
-
+/** Test case for the {@link IPSLoginMgr}. */
 @Disabled("Temporarily disabled — failing in perc-system test run")
-public class PSLoginMgrTest
-{
-   /**
-    * Test login thru the backend table provider.
-    *
-    * @throws Exception if the test fails
-    */
-   @Test
-   public void testLogin() throws Exception
-   {
-      Document doc = PSXmlDocumentBuilder.createXmlDocument(
-        PSLoginMgrTest.class.getResourceAsStream("/com/percussion/security/config.xml"), false);
-      PSServerConfiguration config = new PSServerConfiguration(doc);
-      PSSecurityProviderPool.init(config);
-      CallbackHandler callbackHandler = new CallbackHandler() {
+public class PSLoginMgrTest {
+  /**
+   * Test login thru the backend table provider.
+   *
+   * @throws Exception if the test fails
+   */
+  @Test
+  public void testLogin() throws Exception {
+    Document doc =
+        PSXmlDocumentBuilder.createXmlDocument(
+            PSLoginMgrTest.class.getResourceAsStream("/com/percussion/security/config.xml"), false);
+    PSServerConfiguration config = new PSServerConfiguration(doc);
+    PSSecurityProviderPool.init(config);
+    CallbackHandler callbackHandler =
+        new CallbackHandler() {
 
-         public void handle(Callback[] callbacks) throws IOException,
-            UnsupportedCallbackException
-         {
-            if (callbacks.length > 0)
-               throw new UnsupportedCallbackException(callbacks[0]);
-         }};
+          public void handle(Callback[] callbacks)
+              throws IOException, UnsupportedCallbackException {
+            if (callbacks.length > 0) throw new UnsupportedCallbackException(callbacks[0]);
+          }
+        };
 
-      IPSLoginMgr mgr = PSLoginMgrLocator.getLoginManager();
-      Subject sub = null;
-      setRequestInfo("admin1");
+    IPSLoginMgr mgr = PSLoginMgrLocator.getLoginManager();
+    Subject sub = null;
+    setRequestInfo("admin1");
 
-      sub = mgr.login("admin1", "demo", callbackHandler);
-      assertTrue(sub != null);
-      assertTrue(!sub.getPublicCredentials().isEmpty());
-      assertTrue(sub.getPublicCredentials().contains("admin1"));
+    sub = mgr.login("admin1", "demo", callbackHandler);
+    assertTrue(sub != null);
+    assertTrue(!sub.getPublicCredentials().isEmpty());
+    assertTrue(sub.getPublicCredentials().contains("admin1"));
 
-      sub = mgr.login("admin1", "foo", callbackHandler);
-      assertTrue(sub == null);
-   }
+    sub = mgr.login("admin1", "foo", callbackHandler);
+    assertTrue(sub == null);
+  }
 
-   private void setRequestInfo(String userName) {
+  private void setRequestInfo(String userName) {
 
-	   PSRequest newRequest = null;
+    PSRequest newRequest = null;
 
-	   try {
-		   PSRequestInfo.resetRequestInfo();
-	       newRequest = PSRequest.getContextForRequest(true, false);
-	       PSRequestInfo.initRequestInfo((Map<String,Object>) null);
-	       PSRequestInfo.setRequestInfo(PSRequestInfo.KEY_PSREQUEST, newRequest);
-	       PSRequestInfo.setRequestInfo(PSRequestInfo.KEY_USER, userName);
-	   }
-	   finally {
-          if (newRequest!=null)
-             newRequest.release();
+    try {
+      PSRequestInfo.resetRequestInfo();
+      newRequest = PSRequest.getContextForRequest(true, false);
+      PSRequestInfo.initRequestInfo((Map<String, Object>) null);
+      PSRequestInfo.setRequestInfo(PSRequestInfo.KEY_PSREQUEST, newRequest);
+      PSRequestInfo.setRequestInfo(PSRequestInfo.KEY_USER, userName);
+    } finally {
+      if (newRequest != null) newRequest.release();
 
-         PSRequestInfo.resetRequestInfo();
-      }
-   }
+      PSRequestInfo.resetRequestInfo();
+    }
+  }
 }
-

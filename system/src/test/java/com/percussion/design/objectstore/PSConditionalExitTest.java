@@ -16,41 +16,35 @@
  */
 package com.percussion.design.objectstore;
 
-import com.percussion.xml.PSXmlDocumentBuilder;
-
-import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
+import com.percussion.xml.PSXmlDocumentBuilder;
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 // Test case
-public class PSConditionalExitTest
-{
-   @Test
-   public void testEquals() throws Exception
-   {
-   }
+public class PSConditionalExitTest {
+  @Test
+  public void testEquals() throws Exception {}
 
-   @Test
-   public void testXml() throws Exception
-   {
-      Document doc = PSXmlDocumentBuilder.createXmlDocument();
-      Element root = PSXmlDocumentBuilder.createRoot(doc, "Test");
+  @Test
+  public void testXml() throws Exception {
+    Document doc = PSXmlDocumentBuilder.createXmlDocument();
+    Element root = PSXmlDocumentBuilder.createRoot(doc, "Test");
 
-      // create test object
-      PSRule rule = new PSRule(new PSExtensionCallSet());
-      PSApplyWhen applyWhen = new PSApplyWhen();
-      applyWhen.add(rule);
-      applyWhen.add(rule);
-      applyWhen.add(rule);
-      PSConditionalExit testTo = new PSConditionalExit(new PSExtensionCallSet(), applyWhen);
-      Element elem = testTo.toXml(doc);
-      root.appendChild(elem);
+    // create test object
+    PSRule rule = new PSRule(new PSExtensionCallSet());
+    PSApplyWhen applyWhen = new PSApplyWhen();
+    applyWhen.add(rule);
+    applyWhen.add(rule);
+    applyWhen.add(rule);
+    PSConditionalExit testTo = new PSConditionalExit(new PSExtensionCallSet(), applyWhen);
+    Element elem = testTo.toXml(doc);
+    root.appendChild(elem);
 
-      // create a new object and populate it from our testTo element
-      PSConditionalExit testFrom = new PSConditionalExit(elem, null, null);
-      assertEquals(testTo, testFrom);
-   }
+    // create a new object and populate it from our testTo element
+    PSConditionalExit testFrom = new PSConditionalExit(elem, null, null);
+    assertEquals(testTo, testFrom);
+  }
 }
-

@@ -16,21 +16,18 @@
  */
 package com.percussion.rx.publisher.data;
 
-import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Andriy Palamarchuk
  */
-public class PSDemandWorkTest 
-{
-   
-   public void testEqualsObject()
-   {
-      final PSDemandWork w = new PSDemandWork();
-      assertEquals(w, w);
-      assertFalse(w.equals(null));
-      assertFalse(w.equals(new Object()));
-      assertFalse(w.equals(new PSDemandWork()));
-   }
+public class PSDemandWorkTest {
+
+  public void testEqualsObject() {
+    final PSDemandWork w = new PSDemandWork();
+    assertEquals(w, w);
+    assertFalse(w.equals(null));
+    assertFalse(w.equals(new Object()));
+    assertFalse(w.equals(new PSDemandWork()));
+  }
 }

@@ -70,7 +70,6 @@ public abstract class PSPageBaseTag implements Tag {
    * @return the component as text, never <code>null</code> or empty
    * @throws PSInternalRequestCallException
    */
-
   public String getUrlContent(String componentname, Map<String, String> extra)
       throws PSInternalRequestCallException {
     Map<String, String> requestparams = new HashMap<>();

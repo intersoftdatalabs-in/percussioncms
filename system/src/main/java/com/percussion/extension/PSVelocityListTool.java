@@ -33,8 +33,6 @@ import java.util.List;
  *   <li>Check if it contains a certain element.
  * </ul>
  *
-
- *
  * <pre>
  * Example uses:
  *  $primes                    -> new int[] {2, 3, 5, 7}

@@ -420,7 +420,7 @@ public class PSMembershipService implements IPSMembershipService {
   /**
    * Set the number of minutes to use for session timeout
    *
-   * @param mins The number of mins, a value < 1 means no timeout
+   * @param mins The number of mins, a value &lt; 1 means no timeout
    */
   public void setSessionTimeoutMinutes(int mins) {
     sessionTimeOut = mins;

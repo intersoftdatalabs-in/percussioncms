@@ -111,8 +111,8 @@ public class PSApplicationFlow extends PSComponent {
    * handler name. The last entry is the default redirect with a condition evaluating always to
    * <code>true</code>.
    *
-   * @param name the name of the command handler we want the redirect for. Never <code>null</code> or
-   *     empty.
+   * @param name the name of the command handler we want the redirect for. Never <code>null</code>
+   *     or empty.
    * @return a collection of PSConditionalRequest objects, <code>null</code> if not found, but never
    *     empty.
    */
@@ -162,7 +162,6 @@ public class PSApplicationFlow extends PSComponent {
    * @throws IllegalArgumentException if the provided command handler name is <code>null</code> or
    *     empty or if the redirect is <code>null</code>.
    */
-
   public void setDefaultRedirect(String name, PSUrlRequest redirect) {
     validate(name);
     if (redirect == null) throw new IllegalArgumentException("the redirect cannot be null");
@@ -208,7 +207,6 @@ public class PSApplicationFlow extends PSComponent {
    * @throws IllegalArgumentException if the provided command handler name is <code>null</code> or
    *     empty or if the redirect collection is <code>null</code>.
    */
-
   public void addRedirects(String name, PSCollection redirects) {
     validate(name);
     validate(redirects);
@@ -227,7 +225,6 @@ public class PSApplicationFlow extends PSComponent {
    *     empty or if the redirect collection is <code>null</code> or if no command handler was found
    *     for the provided name.
    */
-
   public void addConditionalRedirects(String name, PSCollection redirects) {
     validate(name);
     if (redirects == null) throw new IllegalArgumentException("the redirects cannot be null");
@@ -290,7 +287,6 @@ public class PSApplicationFlow extends PSComponent {
    *
    * @param c a valid PSApplicationFlow, not <code>null</code>.
    */
-
   public void copyFrom(PSApplicationFlow c) {
     try {
       super.copyFrom(c);

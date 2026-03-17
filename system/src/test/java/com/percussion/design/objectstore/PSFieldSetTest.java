@@ -16,99 +16,87 @@
  */
 package com.percussion.design.objectstore;
 
-import com.percussion.util.PSCollection;
-import com.percussion.xml.PSXmlDocumentBuilder;
-
-import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
+import com.percussion.util.PSCollection;
+import com.percussion.xml.PSXmlDocumentBuilder;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
 // Test case
-public class PSFieldSetTest 
-{
-   
-   public void testEquals() throws Exception
-   {
-      PSFieldSet fs1 = new PSFieldSet("aaa");
-      PSFieldSet fs2 = new PSFieldSet("aaa");
-      PSFieldSet fs3 = new PSFieldSet("bbb");
-      
-      assertEquals(fs1, fs2);
-      assertFalse(fs1.equals(fs3));
-      fs1.setUserSearchable(!fs1.isUserSearchable());
-      assertFalse(fs1.equals(fs2));
-   }
+public class PSFieldSetTest {
 
-   
+  public void testEquals() throws Exception {
+    PSFieldSet fs1 = new PSFieldSet("aaa");
+    PSFieldSet fs2 = new PSFieldSet("aaa");
+    PSFieldSet fs3 = new PSFieldSet("bbb");
 
-   public void testXml() throws Exception
-   {
-      Document doc = PSXmlDocumentBuilder.createXmlDocument();
+    assertEquals(fs1, fs2);
+    assertFalse(fs1.equals(fs3));
+    fs1.setUserSearchable(!fs1.isUserSearchable());
+    assertFalse(fs1.equals(fs2));
+  }
 
-      // create test object
-      PSBackEndCredential cred = new PSBackEndCredential("credential_1");
-      cred.setDataSource("rxdefault");
-      PSTableLocator tl = new PSTableLocator(cred);
-      PSTableRef tr = new PSTableRef("tableName_1", "tableAlias_1");
-      PSTableSet ts = new PSTableSet(tl, tr);
-      PSCollection tsCol = new PSCollection(ts.getClass());
-      tsCol.add(ts);
-      PSBackEndTable table = new PSBackEndTable("RXARTICLE");
-      PSField f1 = new PSField("field_1", new PSBackEndColumn(table, "DISPLAYTITLE"));
-      f1.setOccurrenceDimension(PSField.OCCURRENCE_DIMENSION_COUNT, null);
-      f1.setOccurrenceCount(12, null);
-      f1.setOccurrenceDimension(PSField.OCCURRENCE_DIMENSION_COUNT, Integer.valueOf(1));
-      f1.setOccurrenceCount(12, Integer.valueOf(1));
-      PSField f2 = new PSField("field_2", new PSBackEndColumn(table, "DISPLAYTITLE"));
-      PSField f3 = new PSField("field_3", new PSBackEndColumn(table, "DISPLAYTITLE"));
-      PSFieldSet fs1 = new PSFieldSet("fieldSet_1", f1);
-      PSFieldSet fs2 = new PSFieldSet("fieldSet_2", f2);
-      PSFieldSet fs3 = new PSFieldSet("fieldSet_3", f3);
-      fs1.add(f1);
-      fs1.add(f2);
-      fs1.add(fs2);
-      fs1.add(f3);
-      fs1.add(fs3);
-      PSFieldSet testTo = new PSFieldSet(fs1);
-      Element elem = testTo.toXml(doc);
-      //PSXmlDocumentBuilder.copyTree(doc, root, elem, true);
+  public void testXml() throws Exception {
+    Document doc = PSXmlDocumentBuilder.createXmlDocument();
 
-      // create a new object and populate it from our testTo element
-      PSFieldSet testFrom = new PSFieldSet(elem, null, null);
-      assertEquals(testTo, testFrom);
-      testFrom.setUserSearchable(!testFrom.isUserSearchable());
-      testFrom = new PSFieldSet(testFrom.toXml(doc), null, null);
-      assertTrue(testFrom.isUserSearchable() != testTo.isUserSearchable());
-      assertFalse(testTo.equals(testFrom));
-   }
+    // create test object
+    PSBackEndCredential cred = new PSBackEndCredential("credential_1");
+    cred.setDataSource("rxdefault");
+    PSTableLocator tl = new PSTableLocator(cred);
+    PSTableRef tr = new PSTableRef("tableName_1", "tableAlias_1");
+    PSTableSet ts = new PSTableSet(tl, tr);
+    PSCollection tsCol = new PSCollection(ts.getClass());
+    tsCol.add(ts);
+    PSBackEndTable table = new PSBackEndTable("RXARTICLE");
+    PSField f1 = new PSField("field_1", new PSBackEndColumn(table, "DISPLAYTITLE"));
+    f1.setOccurrenceDimension(PSField.OCCURRENCE_DIMENSION_COUNT, null);
+    f1.setOccurrenceCount(12, null);
+    f1.setOccurrenceDimension(PSField.OCCURRENCE_DIMENSION_COUNT, Integer.valueOf(1));
+    f1.setOccurrenceCount(12, Integer.valueOf(1));
+    PSField f2 = new PSField("field_2", new PSBackEndColumn(table, "DISPLAYTITLE"));
+    PSField f3 = new PSField("field_3", new PSBackEndColumn(table, "DISPLAYTITLE"));
+    PSFieldSet fs1 = new PSFieldSet("fieldSet_1", f1);
+    PSFieldSet fs2 = new PSFieldSet("fieldSet_2", f2);
+    PSFieldSet fs3 = new PSFieldSet("fieldSet_3", f3);
+    fs1.add(f1);
+    fs1.add(f2);
+    fs1.add(fs2);
+    fs1.add(f3);
+    fs1.add(fs3);
+    PSFieldSet testTo = new PSFieldSet(fs1);
+    Element elem = testTo.toXml(doc);
+    // PSXmlDocumentBuilder.copyTree(doc, root, elem, true);
 
-   /**
-    * Tests that the XML serialization has a predictable ordering (ascending
-    * alphabetical fieldname).
-    */
-   
-   public void testXmlOrdering()
-   {
-      PSBackEndTable table = new PSBackEndTable("RXARTICLE");
-      PSField f1 = new PSField("field_1", new PSBackEndColumn(table, "DISPLAYTITLE"));
-      PSField f2 = new PSField("field_2", new PSBackEndColumn(table, "DISPLAYTITLE"));
-      PSField f3 = new PSField("field_3", new PSBackEndColumn(table, "DISPLAYTITLE"));
-      PSFieldSet fs1 = new PSFieldSet("fieldSet_1");
-      fs1.add(f1);
-      fs1.add(f3);
-      fs1.add(f2);
+    // create a new object and populate it from our testTo element
+    PSFieldSet testFrom = new PSFieldSet(elem, null, null);
+    assertEquals(testTo, testFrom);
+    testFrom.setUserSearchable(!testFrom.isUserSearchable());
+    testFrom = new PSFieldSet(testFrom.toXml(doc), null, null);
+    assertTrue(testFrom.isUserSearchable() != testTo.isUserSearchable());
+    assertFalse(testTo.equals(testFrom));
+  }
 
-      Document doc = PSXmlDocumentBuilder.createXmlDocument();
-      Element root = fs1.toXml(doc);
-      NodeList fields = root.getElementsByTagName(PSField.XML_NODE_NAME);
-      assertEquals(3, fields.getLength());
-      assertEquals("field_1", ((Element)fields.item(0)).getAttribute("name"));
-      assertEquals("field_2", ((Element)fields.item(1)).getAttribute("name"));
-      assertEquals("field_3", ((Element)fields.item(2)).getAttribute("name"));
-    
-   }
-   
+  /**
+   * Tests that the XML serialization has a predictable ordering (ascending alphabetical fieldname).
+   */
+  public void testXmlOrdering() {
+    PSBackEndTable table = new PSBackEndTable("RXARTICLE");
+    PSField f1 = new PSField("field_1", new PSBackEndColumn(table, "DISPLAYTITLE"));
+    PSField f2 = new PSField("field_2", new PSBackEndColumn(table, "DISPLAYTITLE"));
+    PSField f3 = new PSField("field_3", new PSBackEndColumn(table, "DISPLAYTITLE"));
+    PSFieldSet fs1 = new PSFieldSet("fieldSet_1");
+    fs1.add(f1);
+    fs1.add(f3);
+    fs1.add(f2);
+
+    Document doc = PSXmlDocumentBuilder.createXmlDocument();
+    Element root = fs1.toXml(doc);
+    NodeList fields = root.getElementsByTagName(PSField.XML_NODE_NAME);
+    assertEquals(3, fields.getLength());
+    assertEquals("field_1", ((Element) fields.item(0)).getAttribute("name"));
+    assertEquals("field_2", ((Element) fields.item(1)).getAttribute("name"));
+    assertEquals("field_3", ((Element) fields.item(2)).getAttribute("name"));
+  }
 }

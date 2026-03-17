@@ -17,57 +17,51 @@
 
 package com.percussion.design.objectstore;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 import com.percussion.server.PSServer;
 import com.percussion.util.PSProperties;
 import com.percussion.xml.PSXmlDocumentBuilder;
-
 import java.io.FileInputStream;
 import java.io.InputStream;
 import java.util.Iterator;
-
-import org.junit.jupiter.api.Test;
-import static org.junit.jupiter.api.Assertions.*;
-
 import org.w3c.dom.Document;
 
+public class PSFeatureSetTest {
 
-public class PSFeatureSetTest 
-{
-	
-	//placeholder test so junit does not complain
-	
-	public void testPlaceholderTest() throws Exception{
-		assertTrue(true);
-	}
-	
-	//obsolute test
-   public void ignore_testFeatureSet() throws Exception
-   {
-      // load source xml file      
-      String fileName = PSProperties.getConfig(PSServer.ENTRY_NAME,
-      PSFeatureSet.FEATURE_SET_FILE, PSServer.getRxConfigDir()).getAbsolutePath();
-            
-      // build a doc with it
-      InputStream in = new FileInputStream(fileName);
-      Document doc = PSXmlDocumentBuilder.createXmlDocument(in, false);
+  // placeholder test so junit does not complain
 
-      // create the feature set object with the source xml
-      PSFeatureSet set = new PSFeatureSet();
-      set.fromXml(doc);
-      Iterator features = set.getFeatureSet();
-      Iterator versions;
+  public void testPlaceholderTest() throws Exception {
+    assertTrue(true);
+  }
 
-      // check that we got a list with at least one feature
-      assertTrue(features.hasNext());
-      while (features.hasNext())
-      {
-         PSFeature feature = (PSFeature)features.next();
-         versions = feature.getVersionList();
-         assertTrue(versions.hasNext());
-         PSVersion version = (PSVersion)versions.next();
-         assertTrue(version.getNumber() > 0 );
-         assertTrue(version.getDate() != null );
-      }                     
+  // obsolute test
+  public void ignore_testFeatureSet() throws Exception {
+    // load source xml file
+    String fileName =
+        PSProperties.getConfig(
+                PSServer.ENTRY_NAME, PSFeatureSet.FEATURE_SET_FILE, PSServer.getRxConfigDir())
+            .getAbsolutePath();
 
-   }
+    // build a doc with it
+    InputStream in = new FileInputStream(fileName);
+    Document doc = PSXmlDocumentBuilder.createXmlDocument(in, false);
+
+    // create the feature set object with the source xml
+    PSFeatureSet set = new PSFeatureSet();
+    set.fromXml(doc);
+    Iterator features = set.getFeatureSet();
+    Iterator versions;
+
+    // check that we got a list with at least one feature
+    assertTrue(features.hasNext());
+    while (features.hasNext()) {
+      PSFeature feature = (PSFeature) features.next();
+      versions = feature.getVersionList();
+      assertTrue(versions.hasNext());
+      PSVersion version = (PSVersion) versions.next();
+      assertTrue(version.getNumber() > 0);
+      assertTrue(version.getDate() != null);
+    }
+  }
 }

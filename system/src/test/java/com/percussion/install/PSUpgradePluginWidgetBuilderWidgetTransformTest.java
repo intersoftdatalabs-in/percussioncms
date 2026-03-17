@@ -19,21 +19,14 @@ package com.percussion.install;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
-import com.percussion.server.PSServer;
-
 import java.util.ArrayList;
 
-import org.junit.jupiter.api.Test;
+public class PSUpgradePluginWidgetBuilderWidgetTransformTest {
 
-
-public class PSUpgradePluginWidgetBuilderWidgetTransformTest
-{
-
-   public void ignoreFileList()
-   {
-      PSUpgradePluginWidgetBuilderWidgetTransform wbw = new PSUpgradePluginWidgetBuilderWidgetTransform();
-      ArrayList<String> files = wbw.getFiles();
-      assertFalse(files == null);
-   }
-   
+  public void ignoreFileList() {
+    PSUpgradePluginWidgetBuilderWidgetTransform wbw =
+        new PSUpgradePluginWidgetBuilderWidgetTransform();
+    ArrayList<String> files = wbw.getFiles();
+    assertFalse(files == null);
+  }
 }

@@ -24,49 +24,44 @@ import static org.junit.jupiter.api.Assertions.fail;
 import com.percussion.cms.PSEditorChangeEvent;
 import com.percussion.cms.PSModifyPlan;
 import com.percussion.server.PSRequest;
-
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Tag;
-
+import org.junit.jupiter.api.Test;
 
 /**
  * @author Andriy Palamarchuk
  */
 @Tag("UnitTest")
-public class PSModifyCommandHandlerTest
-{
-   @Test
-   public void testGetAction()
-   {
-      final PSRequest request = new PSRequest(null, null, null, null);
-      
-      // unknown plan
-      try
-      {
-         getAction(-10, request);
-         fail();
-      }
-      catch (IllegalStateException success) {}
-      
-      assertEquals(PSEditorChangeEvent.ACTION_INSERT, 
-            getAction(PSModifyPlan.TYPE_INSERT_PLAN, request));
+public class PSModifyCommandHandlerTest {
+  @Test
+  public void testGetAction() {
+    final PSRequest request = new PSRequest(null, null, null, null);
 
-      assertEquals(PSEditorChangeEvent.ACTION_UPDATE,
-            getAction(PSModifyPlan.TYPE_UPDATE_PLAN, request));
-      assertEquals(PSEditorChangeEvent.ACTION_UPDATE,
-            getAction(PSModifyPlan.TYPE_UPDATE_NO_BIN_PLAN, request));
+    // unknown plan
+    try {
+      getAction(-10, request);
+      fail();
+    } catch (IllegalStateException success) {
+    }
 
-      // sequence with no child id should return the undefined action
-      assertNull(request.getParameter(
-            PSContentEditorHandler.CHILD_ROW_ID_PARAM_NAME));
-      assertEquals(PSEditorChangeEvent.ACTION_UNDEFINED,
-            getAction(PSModifyPlan.TYPE_UPDATE_SEQUENCE, request));
-      request.setParameter(PSContentEditorHandler.CHILD_ROW_ID_PARAM_NAME,
-            "101");
-      assertEquals(PSEditorChangeEvent.ACTION_UPDATE,
-            getAction(PSModifyPlan.TYPE_UPDATE_SEQUENCE, request));
+    assertEquals(
+        PSEditorChangeEvent.ACTION_INSERT, getAction(PSModifyPlan.TYPE_INSERT_PLAN, request));
 
-      assertEquals(PSEditorChangeEvent.ACTION_DELETE,
-            getAction(PSModifyPlan.TYPE_DELETE_ITEM, request));
-   }
+    assertEquals(
+        PSEditorChangeEvent.ACTION_UPDATE, getAction(PSModifyPlan.TYPE_UPDATE_PLAN, request));
+    assertEquals(
+        PSEditorChangeEvent.ACTION_UPDATE,
+        getAction(PSModifyPlan.TYPE_UPDATE_NO_BIN_PLAN, request));
+
+    // sequence with no child id should return the undefined action
+    assertNull(request.getParameter(PSContentEditorHandler.CHILD_ROW_ID_PARAM_NAME));
+    assertEquals(
+        PSEditorChangeEvent.ACTION_UNDEFINED,
+        getAction(PSModifyPlan.TYPE_UPDATE_SEQUENCE, request));
+    request.setParameter(PSContentEditorHandler.CHILD_ROW_ID_PARAM_NAME, "101");
+    assertEquals(
+        PSEditorChangeEvent.ACTION_UPDATE, getAction(PSModifyPlan.TYPE_UPDATE_SEQUENCE, request));
+
+    assertEquals(
+        PSEditorChangeEvent.ACTION_DELETE, getAction(PSModifyPlan.TYPE_DELETE_ITEM, request));
+  }
 }

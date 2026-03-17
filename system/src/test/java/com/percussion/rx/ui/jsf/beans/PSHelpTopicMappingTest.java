@@ -16,16 +16,13 @@
  */
 package com.percussion.rx.ui.jsf.beans;
 
-import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
-public class PSHelpTopicMappingTest 
-{
-   
-   public void testGetFileName()
-   {
-      assertTrue(PSHelpTopicMapping.getFileName("SiteEditor") != null);
-      assertTrue(PSHelpTopicMapping.getFileName("SiteList") != null);
-      assertTrue(PSHelpTopicMapping.getFileName("EditionEditor") != null);
-   }
+public class PSHelpTopicMappingTest {
+
+  public void testGetFileName() {
+    assertTrue(PSHelpTopicMapping.getFileName("SiteEditor") != null);
+    assertTrue(PSHelpTopicMapping.getFileName("SiteList") != null);
+    assertTrue(PSHelpTopicMapping.getFileName("EditionEditor") != null);
+  }
 }

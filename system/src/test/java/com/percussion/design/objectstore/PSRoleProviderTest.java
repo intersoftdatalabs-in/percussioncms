@@ -16,171 +16,134 @@
  */
 package com.percussion.design.objectstore;
 
-import com.percussion.xml.PSXmlDocumentBuilder;
-
-
-import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
-
+import com.percussion.xml.PSXmlDocumentBuilder;
 import org.w3c.dom.Document;
 
 /**
- * Role provider object store class testing, including constructors,
- * <code>PSComponent</code> functionality, accessors and XML functionality.
+ * Role provider object store class testing, including constructors, <code>PSComponent</code>
+ * functionality, accessors and XML functionality.
  */
-public class PSRoleProviderTest 
-{
-   /**
-    * Constructor to call base class constructor.
-    *
-    * @see TestCase#TestCase(String) for more information.
-    */
-   
+public class PSRoleProviderTest {
+  /**
+   * Constructor to call base class constructor.
+   *
+   * @see TestCase#TestCase(String) for more information.
+   */
 
-   // See base class
-   public void setUp()
-   {
-   }
+  // See base class
+  public void setUp() {}
 
-   /**
-    * Test component constructors and accessors.
-    *
-    * @throws Exception if any exceptions occur or assertions fail.
-    */
-   
-   public void testComponent() throws Exception
-   {
-      PSRoleProvider prov1 = new PSRoleProvider("prov1",
-         PSRoleProvider.TYPE_DIRECTORY, "directoryRef");
+  /**
+   * Test component constructors and accessors.
+   *
+   * @throws Exception if any exceptions occur or assertions fail.
+   */
+  public void testComponent() throws Exception {
+    PSRoleProvider prov1 =
+        new PSRoleProvider("prov1", PSRoleProvider.TYPE_DIRECTORY, "directoryRef");
 
-      PSRoleProvider prov2 = new PSRoleProvider("prov2",
-         PSRoleProvider.TYPE_DIRECTORY, "directoryRef");
+    PSRoleProvider prov2 =
+        new PSRoleProvider("prov2", PSRoleProvider.TYPE_DIRECTORY, "directoryRef");
 
-      PSRoleProvider prov2_1 = new PSRoleProvider("prov2",
-         PSRoleProvider.TYPE_BACKEND, (String) null);
+    PSRoleProvider prov2_1 =
+        new PSRoleProvider("prov2", PSRoleProvider.TYPE_BACKEND, (String) null);
 
-      // testing compare/equals
-      assertTrue(prov1.compare(prov1, prov1));
-      assertFalse(prov1.compare(prov1, prov2));
-      assertFalse(prov2.compare(prov2, prov2_1));
+    // testing compare/equals
+    assertTrue(prov1.compare(prov1, prov1));
+    assertFalse(prov1.compare(prov1, prov2));
+    assertFalse(prov2.compare(prov2, prov2_1));
 
-      // testing clone/copyFrom
-      PSRoleProvider clone = (PSRoleProvider) prov1.clone();
-      assertEquals(clone, prov1);
-      prov2.copyFrom(prov1);
-      assertEquals(prov1, prov2);
+    // testing clone/copyFrom
+    PSRoleProvider clone = (PSRoleProvider) prov1.clone();
+    assertEquals(clone, prov1);
+    prov2.copyFrom(prov1);
+    assertEquals(prov1, prov2);
 
-      // testing name accessors
-      boolean didThrow = false;
-      try
-      {
-         prov1.setName(null);
-      }
-      catch (IllegalArgumentException e)
-      {
-         didThrow = true;
-      }
-      assertTrue(didThrow);
+    // testing name accessors
+    boolean didThrow = false;
+    try {
+      prov1.setName(null);
+    } catch (IllegalArgumentException e) {
+      didThrow = true;
+    }
+    assertTrue(didThrow);
 
-      didThrow = false;
-      try
-      {
-         prov1.setName(" ");
-      }
-      catch (IllegalArgumentException e)
-      {
-         didThrow = true;
-      }
-      assertTrue(didThrow);
+    didThrow = false;
+    try {
+      prov1.setName(" ");
+    } catch (IllegalArgumentException e) {
+      didThrow = true;
+    }
+    assertTrue(didThrow);
 
-      // testing type accessors
-      assertTrue(prov1.isDirectoryRoleProvider());
-      assertFalse(prov1.isBackendRoleProvider());
+    // testing type accessors
+    assertTrue(prov1.isDirectoryRoleProvider());
+    assertFalse(prov1.isBackendRoleProvider());
 
-      // testing directory reference accessors
-      didThrow = false;
-      try
-      {
-         prov1.setDirectoryRef((String) null);
-      }
-      catch (IllegalArgumentException e)
-      {
-         didThrow = true;
-      }
-      assertTrue(didThrow);
+    // testing directory reference accessors
+    didThrow = false;
+    try {
+      prov1.setDirectoryRef((String) null);
+    } catch (IllegalArgumentException e) {
+      didThrow = true;
+    }
+    assertTrue(didThrow);
 
-      didThrow = false;
-      try
-      {
-         prov1.setDirectoryRef(" ");
-      }
-      catch (IllegalArgumentException e)
-      {
-         didThrow = true;
-      }
-      assertTrue(didThrow);
+    didThrow = false;
+    try {
+      prov1.setDirectoryRef(" ");
+    } catch (IllegalArgumentException e) {
+      didThrow = true;
+    }
+    assertTrue(didThrow);
 
-      didThrow = false;
-      try
-      {
-         prov1.setDirectoryRef((PSReference) null);
-      }
-      catch (IllegalArgumentException e)
-      {
-         didThrow = true;
-      }
-      assertTrue(didThrow);
+    didThrow = false;
+    try {
+      prov1.setDirectoryRef((PSReference) null);
+    } catch (IllegalArgumentException e) {
+      didThrow = true;
+    }
+    assertTrue(didThrow);
 
-      didThrow = false;
-      try
-      {
-         PSReference ref = new PSReference("ref1", "invalid");
-         prov1.setDirectoryRef(ref);
-      }
-      catch (IllegalArgumentException e)
-      {
-         didThrow = true;
-      }
-      assertTrue(didThrow);
-   }
+    didThrow = false;
+    try {
+      PSReference ref = new PSReference("ref1", "invalid");
+      prov1.setDirectoryRef(ref);
+    } catch (IllegalArgumentException e) {
+      didThrow = true;
+    }
+    assertTrue(didThrow);
+  }
 
-   /**
-    * Test to and from xml methods of this os object.
-    *
-    * @throws Exception If any exceptions occur or assertions fail.
-    */
-   
-   public void testXml() throws Exception
-   {
-      Document doc = PSXmlDocumentBuilder.createXmlDocument();
+  /**
+   * Test to and from xml methods of this os object.
+   *
+   * @throws Exception If any exceptions occur or assertions fail.
+   */
+  public void testXml() throws Exception {
+    Document doc = PSXmlDocumentBuilder.createXmlDocument();
 
-      // test with optional elements defined
-      PSRoleProvider prov1 = new PSRoleProvider("prov1",
-         PSRoleProvider.TYPE_DIRECTORY, "directoryRef");
-      System.out.println("role provider 1:\n" +
-         PSXmlDocumentBuilder.toString(prov1.toXml(doc)));
-      PSRoleProvider prov2 = new PSRoleProvider(prov1.toXml(doc), null, null);
-      System.out.println("role provider 2:\n" +
-         PSXmlDocumentBuilder.toString(prov2.toXml(doc)));
-      assertEquals(prov1, prov2);
+    // test with optional elements defined
+    PSRoleProvider prov1 =
+        new PSRoleProvider("prov1", PSRoleProvider.TYPE_DIRECTORY, "directoryRef");
+    System.out.println("role provider 1:\n" + PSXmlDocumentBuilder.toString(prov1.toXml(doc)));
+    PSRoleProvider prov2 = new PSRoleProvider(prov1.toXml(doc), null, null);
+    System.out.println("role provider 2:\n" + PSXmlDocumentBuilder.toString(prov2.toXml(doc)));
+    assertEquals(prov1, prov2);
 
-      // test with optional elements undefined
-      PSRoleProvider prov3 = new PSRoleProvider("prov3",
-         PSRoleProvider.TYPE_BACKEND, (String) null);
-      System.out.println("role provider 3:\n" +
-         PSXmlDocumentBuilder.toString(prov3.toXml(doc)));
-      PSRoleProvider prov4 = new PSRoleProvider(prov3.toXml(doc), null, null);
-      System.out.println("role provider 4:\n" +
-         PSXmlDocumentBuilder.toString(prov4.toXml(doc)));
-      assertEquals(prov3, prov4);
-   }
+    // test with optional elements undefined
+    PSRoleProvider prov3 = new PSRoleProvider("prov3", PSRoleProvider.TYPE_BACKEND, (String) null);
+    System.out.println("role provider 3:\n" + PSXmlDocumentBuilder.toString(prov3.toXml(doc)));
+    PSRoleProvider prov4 = new PSRoleProvider(prov3.toXml(doc), null, null);
+    System.out.println("role provider 4:\n" + PSXmlDocumentBuilder.toString(prov4.toXml(doc)));
+    assertEquals(prov3, prov4);
+  }
 
-   /**
-    * Collect all tests into a TestSuite and return it.
-    *
-    * @return The suite of test methods for this class.  Not <code>null</code>.
-    */
-   
+  /**
+   * Collect all tests into a TestSuite and return it.
+   *
+   * @return The suite of test methods for this class. Not <code>null</code>.
+   */
 }
-

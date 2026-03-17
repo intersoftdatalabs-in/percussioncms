@@ -26,16 +26,14 @@ public interface IPSTraceStateListener {
   /**
    * Used to notify listeners when tracing has been enabled.
    *
-   * @param traceInfo the PSTraceInfo object that has been enabled
-   *  39F84A1A008C
+   * @param traceInfo the PSTraceInfo object that has been enabled 39F84A1A008C
    */
   public void traceStarted(PSTraceInfo traceInfo);
 
   /**
    * Used to notify listeners when tracing has been disabled.
    *
-   * @param traceInfo the PSTraceInfo object that has been disabled
-   *  39F84A86030D
+   * @param traceInfo the PSTraceInfo object that has been disabled 39F84A86030D
    */
   public void traceStopped(PSTraceInfo traceInfo);
 

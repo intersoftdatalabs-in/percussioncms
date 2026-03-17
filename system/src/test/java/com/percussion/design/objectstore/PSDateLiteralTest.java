@@ -16,43 +16,35 @@
  */
 package com.percussion.design.objectstore;
 
-
-import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
-import org.apache.commons.lang3.time.FastDateFormat;
-
 import java.util.Date;
+import org.apache.commons.lang3.time.FastDateFormat;
+import org.junit.jupiter.api.Test;
 
-/**
- * Unit tests for the <code>PSDateLiteralTest</code> class.
- */
-public class PSDateLiteralTest
-{
-/**
-    * Tests that the <code>clone()</code> method creates a separate-but-equal
-    * instance, including fields defined in the superclass, and that the copy
-    * was deep.
-    *
-    * @throws Exception if the test fails.
-    */
-   @Test
-   public void testClone() throws Exception
-   {
-      Date now = new Date();
-      FastDateFormat format = FastDateFormat.getInstance();
-      PSDateLiteral foo = new PSDateLiteral( now, format );
-      foo.setId( 99 );
-      PSDateLiteral bar = (PSDateLiteral) foo.clone();
+/** Unit tests for the <code>PSDateLiteralTest</code> class. */
+public class PSDateLiteralTest {
+  /**
+   * Tests that the <code>clone()</code> method creates a separate-but-equal instance, including
+   * fields defined in the superclass, and that the copy was deep.
+   *
+   * @throws Exception if the test fails.
+   */
+  @Test
+  public void testClone() throws Exception {
+    Date now = new Date();
+    FastDateFormat format = FastDateFormat.getInstance();
+    PSDateLiteral foo = new PSDateLiteral(now, format);
+    foo.setId(99);
+    PSDateLiteral bar = (PSDateLiteral) foo.clone();
 
-      assertEquals( foo, bar );
-      assertEquals(99, bar.getId(), "id copied");
-      assertEquals(now, bar.getDate(), "m_date copied");
+    assertEquals(foo, bar);
+    assertEquals(99, bar.getId(), "id copied");
+    assertEquals(now, bar.getDate(), "m_date copied");
 
-      now.setTime( 1 ); // mutate
-      assertEquals(1L, foo.getDate().getTime(), "foo changed");
-      assertNotEquals(1L, bar.getDate().getTime(), "bar unchanged");
-      assertFalse(foo.equals( bar ));
-   }
+    now.setTime(1); // mutate
+    assertEquals(1L, foo.getDate().getTime(), "foo changed");
+    assertNotEquals(1L, bar.getDate().getTime(), "bar unchanged");
+    assertFalse(foo.equals(bar));
+  }
 }
-

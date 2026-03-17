@@ -44,13 +44,13 @@ public interface IPSFormRestService extends IPSRestService {
    * Delete a form using the name provided if it was exported. If 'formName' is null or empty, then
    * all exported forms are deleted. Form name comparison is case-insensitive
    *
-   * @url /perc-form-processor/form/cms/{formName}
-   * @httpverb DELETE
-   * @nullipotent no.
-   * @secured yes (SSL and HTTP Basic Authentication).
+   * 
+   * 
+   * 
+   *  (SSL and HTTP Basic Authentication).
    * @param formName The name of the form to delete.
-   * @httpcodeonsuccess HTTP 204.
-   * @httpcodeonerror HTTP 500.
+   *  204.
+   *  500.
    */
   @DELETE
   @Path("/form/cms/{formName}")
@@ -62,14 +62,14 @@ public interface IPSFormRestService extends IPSRestService {
    *
    * <p>
    *
-   * @url /perc-form-processor/forms/collect
-   * @httpverb POST
-   * @nullipotent yes (read-only method).
-   * @secured no.
+   * 
+   * 
+   *  (read-only method).
+   * 
    * @throws IOException
    * @throws WebApplicationException
-   * @httpcodeonsuccess HTTP 200.
-   * @httpcodeonerror HTTP 500.
+   *  200.
+   *  500.
    */
   @POST
   @Path("/form/collect")
@@ -85,14 +85,14 @@ public interface IPSFormRestService extends IPSRestService {
   /**
    * Retrieves the form given the name.
    *
-   * @url /perc-form-processor/form/cms/{formName}
-   * @httpverb GET
-   * @nullipotent no.
-   * @secured yes (SSL and HTTP Basic Authentication).
+   * 
+   * 
+   * 
+   *  (SSL and HTTP Basic Authentication).
    * @param formName the name of the form to be found an returned.
    * @return the form if found, never <code>null</code>, may be empty.
-   * @httpcodeonsuccess HTTP 200.
-   * @httpcodeonerror HTTP 500.
+   *  200.
+   *  500.
    */
   @GET
   @Path("/form/cms/{formName}")
@@ -103,13 +103,13 @@ public interface IPSFormRestService extends IPSRestService {
    * Retrieves list of form summaries. Form summaries include the name, total forms count, and total
    * exported forms count.
    *
-   * @url /perc-form-processor/form/cms/
-   * @httpverb GET
-   * @nullipotent no.
-   * @secured yes (SSL and HTTP Basic Authentication).
+   * 
+   * 
+   * 
+   *  (SSL and HTTP Basic Authentication).
    * @return list of form summaries, never <code>null</code>, may be empty.
-   * @httpcodeonsuccess HTTP 200.
-   * @httpcodeonerror HTTP 500.
+   *  200.
+   *  500.
    */
   @GET
   @Path("/form/cms/list")
@@ -119,15 +119,15 @@ public interface IPSFormRestService extends IPSRestService {
   /**
    * Export the form given the name.
    *
-   * @url /perc-form-processor/form/cms/{formName}/{csvFile}
-   * @httpverb GET
-   * @nullipotent no.
-   * @secured yes (SSL and HTTP Basic Authentication).
+   * 
+   * 
+   * 
+   *  (SSL and HTTP Basic Authentication).
    * @param formName the name of the form to be found an returned.
    * @param csvFile the name for the CSV file.
    * @return the csv if form was found, never <code>null</code>, may be empty.
-   * @httpcodeonsuccess HTTP 200.
-   * @httpcodeonerror HTTP 500.
+   *  200.
+   *  500.
    */
   @GET
   @Path("/form/cms/{formName}/{csvFile}")

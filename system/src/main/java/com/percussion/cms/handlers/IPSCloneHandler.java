@@ -35,27 +35,20 @@ public interface IPSCloneHandler {
       throws SQLException, PSObjectException, IOException;
 
   /**
-   * Creates a clone for the supplied source object locator and returns the
-   * locator of the new object created.
+   * Creates a clone for the supplied source object locator and returns the locator of the new
+   * object created.
    *
-   * @param source the locator of the object to be cloned, not
-   *    <code>null</code>.
-   * @param relationships a list of all current relationships of the source,
-   *    not <code>null</code>, may be empty.
+   * @param source the locator of the object to be cloned, not <code>null</code>.
+   * @param relationships a list of all current relationships of the source, not <code>null</code>,
+   *     may be empty.
    * @param data the execution context to operate on, not <code>null</code>.
-   * @param ch the command handler to use to create new relationships, not
-   *    <code>null</code>.
-   * @param cb a callback to the relationship handler, may be <code>null</code>.
-   *    If provided, this will be called after the object has been cloned to
-   *    create a new relationship.
-   *
+   * @param ch the command handler to use to create new relationships, not <code>null</code>.
+   * @param cb a callback to the relationship handler, may be <code>null</code>. If provided, this
+   *     will be called after the object has been cloned to create a new relationship.
    * @return the locator of the new object created, never <code>null</code>.
-   *
-   * @throws IllegalArgumentException if any parameter but cb is
-   *    <code>null</code>.
+   * @throws IllegalArgumentException if any parameter but cb is <code>null</code>.
    * @throws SQLException for any failed sql operation.
-   * @throws PSObjectException if cloning is not allowed for the supplied
-   *    object type.
+   * @throws PSObjectException if cloning is not allowed for the supplied object type.
    * @throws IOException for any IO operation that failed.
    */
   public PSLocator clone(

@@ -119,13 +119,15 @@ public class PSConsoleCommandDumpFolderRelationshipCache extends PSConsoleComman
         rel = cache.getRelationship(id);
       } catch (PSNotFoundException e) {
         throw new PSConsoleCommandException(
-            IPSServerErrors.CANNOT_FIND_CACHED_FOLDER_RELATIONSHIP, new Object[] {Integer.valueOf(id)});
+            IPSServerErrors.CANNOT_FIND_CACHED_FOLDER_RELATIONSHIP,
+            new Object[] {Integer.valueOf(id)});
       }
       if (rel != null) {
         cacheElm = rel.toXml(doc);
       } else {
         throw new PSConsoleCommandException(
-            IPSServerErrors.CANNOT_FIND_CACHED_FOLDER_RELATIONSHIP, new Object[] {Integer.valueOf(id)});
+            IPSServerErrors.CANNOT_FIND_CACHED_FOLDER_RELATIONSHIP,
+            new Object[] {Integer.valueOf(id)});
       }
     } else {
       cacheElm = cache.getCacheStatistics(doc);

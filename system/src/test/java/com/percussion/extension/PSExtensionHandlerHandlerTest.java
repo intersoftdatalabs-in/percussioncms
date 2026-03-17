@@ -16,47 +16,37 @@
  */
 package com.percussion.extension;
 
-
-import org.junit.jupiter.api.Disabled;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.Tag;
-
-import java.io.File;
-import java.util.Date;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-/**
- * Unit tests for the PSExtensionHandlerHandler class.
- */
+import java.io.File;
+import java.util.Date;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
+
+/** Unit tests for the PSExtensionHandlerHandler class. */
 @Tag("UnitTest")
-public class PSExtensionHandlerHandlerTest
-{
-   public PSExtensionHandlerHandlerTest()
-   {
+public class PSExtensionHandlerHandlerTest {
+  public PSExtensionHandlerHandlerTest() {}
 
-   }
+  @Disabled // TODO: Tis test needs a proper setup method that generates a temp set of directories
+  // and files to test.
+  @Test
+  public void testRecursiveCopy() throws Exception {
+    File dest = new File("temp/JUnitTest/recCopy_" + String.valueOf((new Date()).getTime()));
+    File source = new File("");
+    dest.mkdirs();
+    assertTrue(dest.isDirectory());
 
-   @Disabled //TODO: Tis test needs a proper setup method that generates a temp set of directories and files to test.
-   @Test
-   public void testRecursiveCopy() throws Exception
-   {
-      File dest = new File("temp/JUnitTest/recCopy_" + String.valueOf((new Date()).getTime()));
-      File source = new File("");
-      dest.mkdirs();
-      assertTrue(dest.isDirectory());
+    int numCopied = PSExtensionHandlerHandler.recursiveCopy(source, dest, false);
 
-      int numCopied = PSExtensionHandlerHandler.recursiveCopy(source, dest, false);
-      
-      assertTrue(numCopied > 0);
+    assertTrue(numCopied > 0);
 
-      int numCopied2 = PSExtensionHandlerHandler.recursiveCopy(source, dest, false);
-      assertEquals(numCopied2, 0);
+    int numCopied2 = PSExtensionHandlerHandler.recursiveCopy(source, dest, false);
+    assertEquals(numCopied2, 0);
 
-      int numCopied3 = PSExtensionHandlerHandler.recursiveCopy(source, dest, true);
-      assertEquals(numCopied, numCopied3);
-   }
-
-
+    int numCopied3 = PSExtensionHandlerHandler.recursiveCopy(source, dest, true);
+    assertEquals(numCopied, numCopied3);
+  }
 }

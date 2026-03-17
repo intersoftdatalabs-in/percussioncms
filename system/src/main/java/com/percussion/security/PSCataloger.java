@@ -51,8 +51,7 @@ import org.apache.commons.lang3.StringUtils;
 @SuppressWarnings(value = {"unchecked"})
 public abstract class PSCataloger {
   /**
-   * Convenience constructor that calls
-   * {@link #PSCataloger(Properties, PSServerConfiguration)} with
+   * Convenience constructor that calls {@link #PSCataloger(Properties, PSServerConfiguration)} with
    * <code>null</code> for the server configuration.
    */
   public PSCataloger(Properties properties) {
@@ -62,12 +61,10 @@ public abstract class PSCataloger {
   /**
    * Constructs a new role cataloger for the supplied properties.
    *
-   * @param properties all catalogers require one property: a
-   *    reference to the <code>PSDirectorySet</code> definition used as the
-   *    catalog server, not <code>null</code> or empty.
-   * @param config the server configuration with all directory definitions,
-   *    may be <code>null</code> in which case this will get it through
-   *    <code>PSServer.getServerConfiguration()</code>.
+   * @param properties all catalogers require one property: a reference to the <code>PSDirectorySet
+   *     </code> definition used as the catalog server, not <code>null</code> or empty.
+   * @param config the server configuration with all directory definitions, may be <code>null</code>
+   *     in which case this will get it through <code>PSServer.getServerConfiguration()</code>.
    */
   public PSCataloger(Properties properties, PSServerConfiguration config) {
     if (properties == null || properties.isEmpty())
@@ -89,10 +86,9 @@ public abstract class PSCataloger {
   /**
    * Creates a new context for the supplied directory.
    *
-   * @param directory the directory for which to create the context, assumed
-   *    not <code>null</code>.
-   * @return a new directory context, never <code>null</code>. The caller is
-   *    responsible to close it.
+   * @param directory the directory for which to create the context, assumed not <code>null</code>.
+   * @return a new directory context, never <code>null</code>. The caller is responsible to close
+   *     it.
    * @throws NamingException if anything goes wrong creating the new context.
    */
   protected DirContext createContext(PSDirectoryDefinition directory) throws NamingException {
@@ -102,11 +98,10 @@ public abstract class PSCataloger {
   /**
    * Create new search controls for the supplied parameters.
    *
-   * @param directory the directory for which to create the search controls
-   *    for, assumed not <code>null</code>.
-   * @param returnAttrs an array with all attribute names that will be
-   *    returned, <code>null</code> to return all attributes, empty to return
-   *    no attributes.
+   * @param directory the directory for which to create the search controls for, assumed not <code>
+   *     null</code>.
+   * @param returnAttrs an array with all attribute names that will be returned, <code>null</code>
+   *     to return all attributes, empty to return no attributes.
    * @return a search control object, never <code>null</code>.
    */
   protected SearchControls createSearchControls(PSDirectory directory, String[] returnAttrs) {
@@ -452,8 +447,8 @@ public abstract class PSCataloger {
   }
 
   /**
-   * The directory set used for this cataloger, initialized in constructor,
-   * may be <code>null</code> but never changed after that.
+   * The directory set used for this cataloger, initialized in constructor, may be <code>null</code>
+   * but never changed after that.
    */
   protected PSDirectorySet m_directorySet = null;
 

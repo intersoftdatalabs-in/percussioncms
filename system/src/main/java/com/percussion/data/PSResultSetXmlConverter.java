@@ -498,7 +498,9 @@ public class PSResultSetXmlConverter implements IPSResultSetConverter {
       if ((m_maxRowsPerPage > 0) && dh.isTraceEnabled(traceResourceHandlerFlag)) {
         int curpage = ((curRowNumber) / m_maxRowsPerPage) + 1;
         Object[] args = {
-          Integer.valueOf(m_maxRowsPerPage), Integer.valueOf(curpage), "traceResourceHandler_pageResults"
+          Integer.valueOf(m_maxRowsPerPage),
+          Integer.valueOf(curpage),
+          "traceResourceHandler_pageResults"
         };
         dh.printTrace(traceResourceHandlerFlag, args);
 

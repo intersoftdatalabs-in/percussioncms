@@ -177,17 +177,16 @@ public abstract class PSDirectoryCataloger extends PSCataloger implements IPSDir
   }
 
   /**
-   * Get the first attribute found for the supplied attribute name and user
-   * information from the provided directory.
+   * Get the first attribute found for the supplied attribute name and user information from the
+   * provided directory.
    *
-   * @param directory the directory in which to search for the requested
-   *    attribute, assumed not <code>null</code>.
-   * @param user the name of the user for which to search the attribute,
-   *    assumed not <code>null</code>.
-   * @param userAttributeName the attribute name that holds the user name
-   *    as supplied, assumed not <code>null</code>.
-   * @param attributeName the name of the attribute to look for, assumed
-   *    not <code>null</code>.
+   * @param directory the directory in which to search for the requested attribute, assumed not
+   *     <code>null</code>.
+   * @param user the name of the user for which to search the attribute, assumed not <code>null
+   *     </code>.
+   * @param userAttributeName the attribute name that holds the user name as supplied, assumed not
+   *     <code>null</code>.
+   * @param attributeName the name of the attribute to look for, assumed not <code>null</code>.
    * @return the first attribute value if found, <code>null</code> otherwise.
    */
   protected String getAttribute(
@@ -244,20 +243,19 @@ public abstract class PSDirectoryCataloger extends PSCataloger implements IPSDir
   }
 
   /**
-   * Get the first attribute found for the supplied attribute name and user
-   * information from the provided directory.
+   * Get the first attribute found for the supplied attribute name and user information from the
+   * provided directory.
    *
-   * @param directory the directory in which to search for the requested
-   *    attributes, assumed not <code>null</code>.
-   * @param user the name of the user for which to search the attributes,
-   *    assumed not <code>null</code>.
-   * @param userAttributeName the attribute name that holds the user name
-   *    as supplied, assumed not <code>null</code>.
-   * @param returnAttrs an array with all attribute names for which to
-   *    return the values, <code>null</code> or empty to return all known
-   *    attributes.
-   * @param searchResults a map in which all search results will be collected,
-   *    assumed not <code>null</code>.
+   * @param directory the directory in which to search for the requested attributes, assumed not
+   *     <code>null</code>.
+   * @param user the name of the user for which to search the attributes, assumed not <code>null
+   *     </code>.
+   * @param userAttributeName the attribute name that holds the user name as supplied, assumed not
+   *     <code>null</code>.
+   * @param returnAttrs an array with all attribute names for which to return the values, <code>null
+   *     </code> or empty to return all known attributes.
+   * @param searchResults a map in which all search results will be collected, assumed not <code>
+   *     null</code>.
    */
   protected void getAttributes(
       PSDirectoryDefinition directory,

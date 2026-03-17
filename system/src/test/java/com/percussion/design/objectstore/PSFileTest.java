@@ -16,59 +16,44 @@
  */
 package com.percussion.design.objectstore;
 
-import org.junit.jupiter.api.Test;
+import static com.percussion.testing.PSTestCompare.assertEqualsWithHash;
 import static org.junit.jupiter.api.Assertions.*;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
 
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.List;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 
-import static com.percussion.testing.PSTestCompare.assertEqualsWithHash;
+public class PSFileTest {
+  /** Tests behavior of equals() and hashCode() methods. */
+  public void testEqualsHashCode() throws MalformedURLException {
+    assertEqualsWithHash(new PSFileImpl(), new PSFileImpl());
+    assertEqualsWithHash(new PSFileImpl(createUrl()), new PSFileImpl(createUrl()));
+  }
 
-public class PSFileTest 
-{
-   /**
-    * Tests behavior of equals() and hashCode() methods.
-    */
-   
-   public void testEqualsHashCode() throws MalformedURLException
-   {
-      assertEqualsWithHash(new PSFileImpl(), new PSFileImpl());
-      assertEqualsWithHash(new PSFileImpl(createUrl()), new PSFileImpl(createUrl()));
-      
-   }
+  private URL createUrl() throws MalformedURLException {
+    return new URL("http://www.mozilla.org/products/");
+  }
 
-   private URL createUrl() throws MalformedURLException
-   {
-      return new URL("http://www.mozilla.org/products/");
-   }
+  private static class PSFileImpl extends PSFile {
+    protected PSFileImpl() {
+      super();
+    }
 
-   private static class PSFileImpl extends PSFile
-   {
-      protected PSFileImpl()
-      {
-         super();
-      }
-      
-      protected PSFileImpl(URL fileName)
-      {
-         super(fileName);
-      }
+    protected PSFileImpl(URL fileName) {
+      super(fileName);
+    }
 
+    @Override
+    public Element toXml(Document doc) {
+      throw new AssertionError();
+    }
 
-      @Override
-      public Element toXml(Document doc)
-      {
-         throw new AssertionError();
-      }
-
-      @Override
-      public void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents) throws PSUnknownNodeTypeException
-      {
-         throw new AssertionError();
-      }
-      
-   }
+    @Override
+    public void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
+        throws PSUnknownNodeTypeException {
+      throw new AssertionError();
+    }
+  }
 }

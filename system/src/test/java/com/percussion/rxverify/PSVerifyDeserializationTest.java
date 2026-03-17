@@ -57,16 +57,14 @@ class PSVerifyDeserializationTest {
         var objectInput = new ObjectInputStream(inputStream)) {
       // Apply the deserialization filter to prevent CWE-502
       String filterSpec = SerializationValidation.buildPackageFilterSpec("com.percussion.**");
-      objectInput.setObjectInputFilter(
-          java.io.ObjectInputFilter.Config.createFilter(filterSpec));
+      objectInput.setObjectInputFilter(java.io.ObjectInputFilter.Config.createFilter(filterSpec));
       result = objectInput.readObject();
     }
 
     assertNotNull(result);
     assertInstanceOf(java.util.Map.class, result);
 
-    java.util.HashMap<String, String> deserializedBOM =
-        (java.util.HashMap<String, String>) result;
+    java.util.HashMap<String, String> deserializedBOM = (java.util.HashMap<String, String>) result;
     assertEquals("8.1.6", deserializedBOM.get("version"));
   }
 
@@ -88,8 +86,7 @@ class PSVerifyDeserializationTest {
     try (var inputStream = new FileInputStream(bomFile.toFile());
         var objectInput = new ObjectInputStream(inputStream)) {
       String filterSpec = SerializationValidation.buildPackageFilterSpec("com.percussion.**");
-      objectInput.setObjectInputFilter(
-          java.io.ObjectInputFilter.Config.createFilter(filterSpec));
+      objectInput.setObjectInputFilter(java.io.ObjectInputFilter.Config.createFilter(filterSpec));
       result = objectInput.readObject();
     }
 
@@ -125,8 +122,7 @@ class PSVerifyDeserializationTest {
     try (var inputStream = new FileInputStream(bomFile.toFile());
         var objectInput = new ObjectInputStream(inputStream)) {
       String filterSpec = SerializationValidation.buildPackageFilterSpec("com.percussion.**");
-      objectInput.setObjectInputFilter(
-          java.io.ObjectInputFilter.Config.createFilter(filterSpec));
+      objectInput.setObjectInputFilter(java.io.ObjectInputFilter.Config.createFilter(filterSpec));
       result = objectInput.readObject();
     }
 
@@ -171,8 +167,7 @@ class PSVerifyDeserializationTest {
     try (var inputStream = new FileInputStream(bomFile.toFile());
         var objectInput = new ObjectInputStream(inputStream)) {
       String filterSpec = SerializationValidation.buildPackageFilterSpec("com.percussion.**");
-      objectInput.setObjectInputFilter(
-          java.io.ObjectInputFilter.Config.createFilter(filterSpec));
+      objectInput.setObjectInputFilter(java.io.ObjectInputFilter.Config.createFilter(filterSpec));
       result = objectInput.readObject();
     }
 

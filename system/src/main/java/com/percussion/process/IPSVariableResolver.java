@@ -23,26 +23,23 @@ import java.util.Map;
  * Interface to be implemented by process parameter resolvers. The framework uses classes
  * implementing this interface in the following way:
  *
- * &lt;p&gt;While parsing the xml:
+ * <p>&lt;p&gt;While parsing the xml:
  *
- * &lt;ol&gt;
- *   &lt;li&gt;Instantiate the class defined as the resolver.&lt;/li&gt;
- *   &lt;li&gt;Set the name with the name supplied in the def.&lt;/li&gt;
- *   &lt;li&gt;Set the value with the value supplied in the def. If no value is
- *       present, "" is set.&lt;/li&gt;
- * &lt;/ol&gt;
+ * <p>&lt;ol&gt; &lt;li&gt;Instantiate the class defined as the resolver.&lt;/li&gt; &lt;li&gt;Set
+ * the name with the name supplied in the def.&lt;/li&gt; &lt;li&gt;Set the value with the value
+ * supplied in the def. If no value is present, "" is set.&lt;/li&gt; &lt;/ol&gt;
  *
- * During process instantiation, the {@link #getValue(String, Map)} method is called and its result
- * is passed to the process or process container.
+ * <p>During process instantiation, the {@link #getValue(String, Map)} method is called and its
+ * result is passed to the process or process container.
  */
 public interface IPSVariableResolver {
   /**
    * Returns the resolved value using the supplied context.
    *
    * @param value the string to resolve, may be <code>null</code> or empty
-   * @param ctx a {@link Map} that contains data for executing the process, may not be
-   *     <code>null</code>. Each entry has a <code>String</code> key and a <code>String</code> value.
-   *     The supplied parameters are dependent upon the context in which the process is executed.
+   * @param ctx a {@link Map} that contains data for executing the process, may not be <code>null
+   *     </code>. Each entry has a <code>String</code> key and a <code>String</code> value. The
+   *     supplied parameters are dependent upon the context in which the process is executed.
    * @return the resolved string, may be empty, never <code>null</code>
    * @throws PSResolveException if any error occurs resolving the specified string
    */

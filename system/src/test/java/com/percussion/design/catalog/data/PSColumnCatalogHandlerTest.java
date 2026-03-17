@@ -20,39 +20,28 @@ import com.percussion.conn.PSDesignerConnection;
 import com.percussion.design.catalog.PSCataloger;
 import com.percussion.design.objectstore.PSBackEndTable;
 import com.percussion.testing.PSClientTestCase;
-
-
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.Tag;
-
 
 @Disabled("Temporarily disabled — failing in perc-system test run")
-public class PSColumnCatalogHandlerTest extends PSClientTestCase
-{
+public class PSColumnCatalogHandlerTest extends PSClientTestCase {
 
+  @Test
+  public void testOracle() throws Exception {
+    java.util.Properties props = getConnectionProps(CONN_TYPE_RXSERVER);
 
-   @Test
-   public void testOracle() throws Exception
-   {
-      java.util.Properties props = getConnectionProps(CONN_TYPE_RXSERVER);
+    PSDesignerConnection conn = new PSDesignerConnection(props);
+    PSCataloger cataloger = new PSCataloger(conn);
 
-      PSDesignerConnection conn = new PSDesignerConnection(props);
-      PSCataloger cataloger = new PSCataloger(conn);
+    PSBackEndTable tab = new PSBackEndTable("EMPL");
+    tab.setDataSource(null);
+    tab.setTable("ALL_TAB_COLUMNS");
 
-      PSBackEndTable tab = new PSBackEndTable("EMPL");
-      tab.setDataSource(null);
-      tab.setTable("ALL_TAB_COLUMNS");
-
-
-      PSCatalogedColumn[] cols = PSColumnCatalogHandler.getCatalog(
-         cataloger, tab,
-         "SCOTT", cataloger.prepareCredentials("SCOTT", "TIGER"));
-      for (int i = 0; i < cols.length; i++)
-      {
-         System.out.println("col " + i + ": " + cols[i]);
-      }
-   }
-
+    PSCatalogedColumn[] cols =
+        PSColumnCatalogHandler.getCatalog(
+            cataloger, tab, "SCOTT", cataloger.prepareCredentials("SCOTT", "TIGER"));
+    for (int i = 0; i < cols.length; i++) {
+      System.out.println("col " + i + ": " + cols[i]);
+    }
+  }
 }
-

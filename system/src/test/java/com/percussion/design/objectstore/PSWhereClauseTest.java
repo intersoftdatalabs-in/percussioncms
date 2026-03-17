@@ -16,34 +16,27 @@
  */
 package com.percussion.design.objectstore;
 
-import com.percussion.xml.PSXmlDocumentBuilder;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import com.percussion.xml.PSXmlDocumentBuilder;
 import org.junit.jupiter.api.Test;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+/** Unit tests for the PSWhereClause class. */
+public class PSWhereClauseTest {
 
+  @Test
+  public void testXml() throws Exception {
+    PSTextLiteral foo = new PSTextLiteral("foo");
+    PSTextLiteral bar = new PSTextLiteral("bar");
 
-/**
- * Unit tests for the PSWhereClause class.
- */
-public class PSWhereClauseTest
-{
+    PSWhereClause clause = new PSWhereClause(foo, "=", bar, true);
+    PSWhereClause otherClause = new PSWhereClause();
 
-   @Test
-   public void testXml() throws Exception
-   {
-      PSTextLiteral foo = new PSTextLiteral("foo");
-      PSTextLiteral bar = new PSTextLiteral("bar");
-
-      PSWhereClause clause = new PSWhereClause(foo, "=", bar, true);
-      PSWhereClause otherClause = new PSWhereClause();
-
-      Document doc = PSXmlDocumentBuilder.createXmlDocument();
-      Element el = clause.toXml(doc);
-      otherClause.fromXml(el, null, null);
-      assertEquals(clause, otherClause);
-   }
-
+    Document doc = PSXmlDocumentBuilder.createXmlDocument();
+    Element el = clause.toXml(doc);
+    otherClause.fromXml(el, null, null);
+    assertEquals(clause, otherClause);
+  }
 }

@@ -25,10 +25,10 @@ import java.util.TimerTask;
  * This class encapsulates a file and informs the registered file observers whenever the file is
  * modified. Aimed at any situation when an action needs to be taken whenever a file is modified.
  * Polling is done at a specified time interval (the default is one second) to see if the file is
- * modified. An observer of the file must implement the interface {@link java.util.Observer} and register with
- * this object using {@link Observable#addObserver(java.util.Observer)} method of the base class.
- * Makes use of {@link Timer} object to poll to track if the file is modified at specified regular
- * interval of time.
+ * modified. An observer of the file must implement the interface {@link java.util.Observer} and
+ * register with this object using {@link Observable#addObserver(java.util.Observer)} method of the
+ * base class. Makes use of {@link Timer} object to poll to track if the file is modified at
+ * specified regular interval of time.
  */
 public class PSObservableFile extends Observable {
   /** Convenience method that calls {@link #PSObservable(String,int) this(fileName, 1000)}. */

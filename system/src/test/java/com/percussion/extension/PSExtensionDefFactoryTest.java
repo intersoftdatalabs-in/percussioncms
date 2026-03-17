@@ -16,386 +16,319 @@
  */
 package com.percussion.extension;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 import com.percussion.design.objectstore.PSExtensionParamDef;
 import com.percussion.xml.PSXmlDocumentBuilder;
-
-import org.junit.jupiter.api.Test;
-import static org.junit.jupiter.api.Assertions.*;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Properties;
+import org.junit.jupiter.api.Test;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 
 /**
- * Unit tests for the PSExtensionDefFactory class. All tests follow the same
- * basic pattern: create a def w certain properties set, serialize using the
- * factory, then pass the serialized node back into the factory to be de-
- * serialized. The original and the de-serialized versions are compared for
- * equality.
+ * Unit tests for the PSExtensionDefFactory class. All tests follow the same basic pattern: create a
+ * def w certain properties set, serialize using the factory, then pass the serialized node back
+ * into the factory to be de- serialized. The original and the de-serialized versions are compared
+ * for equality.
  */
 // TODO: Remove me @SuppressFBWarnings("INFORMATION_EXPOSURE_THROUGH_AN_ERROR_MESSAGE")
-public class PSExtensionDefFactoryTest
-{
+public class PSExtensionDefFactoryTest {
 
-   /**
-    * Does a round trip test, with all possible properties containing values.
-    */
+  /** Does a round trip test, with all possible properties containing values. */
+  @Test
+  public void testFull() throws Exception {
+    // create an extension def, then round trip it thru the factory, then
+    // compare
+    PSExtensionRef ref = new PSExtensionRef("Handler1", "context1", "ext1");
+    ArrayList ifaces = new ArrayList();
+    ifaces.add("com.percussion.extension.IPSUdfProcessor");
 
+    ArrayList urls = new ArrayList();
+    urls.add(new URL("file", "", "archive1.jar"));
+    urls.add(new URL("file", "", "archive2.zip"));
 
-   @Test
-   public void testFull() throws Exception
-   {
-      // create an extension def, then round trip it thru the factory, then
-      // compare
-      PSExtensionRef ref = new PSExtensionRef("Handler1", "context1", "ext1");
-      ArrayList ifaces = new ArrayList();
-      ifaces.add("com.percussion.extension.IPSUdfProcessor");
+    Properties javaInitParams = new Properties();
+    javaInitParams.setProperty("className", PSJavaExtensionHandler.class.getName());
+    javaInitParams.setProperty(
+        IPSExtensionHandler.INIT_PARAM_CONFIG_FILENAME,
+        IPSExtensionHandler.DEFAULT_CONFIG_FILENAME);
+    javaInitParams.setProperty(IPSExtensionDef.INIT_PARAM_REENTRANT, "yes");
 
-      ArrayList urls = new ArrayList();
-      urls.add(new URL("file", "", "archive1.jar"));
-      urls.add(new URL("file", "", "archive2.zip"));
+    ArrayList runtimeParams = new ArrayList();
+    PSExtensionParamDef pdef = new PSExtensionParamDef("param1", "java.lang.String");
+    runtimeParams.add(pdef);
+    pdef = new PSExtensionParamDef("param2", "java.util.HashMap");
+    pdef.setDescription("desc for param2");
+    runtimeParams.add(pdef);
 
-      Properties javaInitParams = new Properties();
-      javaInitParams.setProperty("className", PSJavaExtensionHandler.class
-         .getName());
-      javaInitParams.setProperty(
-         IPSExtensionHandler.INIT_PARAM_CONFIG_FILENAME,
-         IPSExtensionHandler.DEFAULT_CONFIG_FILENAME);
-      javaInitParams.setProperty(IPSExtensionDef.INIT_PARAM_REENTRANT, "yes");
+    PSExtensionDef def =
+        new PSExtensionDef(
+            ref, ifaces.iterator(), urls.iterator(), javaInitParams, runtimeParams.iterator());
 
-      ArrayList runtimeParams = new ArrayList();
-      PSExtensionParamDef pdef = new PSExtensionParamDef("param1",
-         "java.lang.String");
-      runtimeParams.add(pdef);
-      pdef = new PSExtensionParamDef("param2", "java.util.HashMap");
-      pdef.setDescription("desc for param2");
-      runtimeParams.add(pdef);
-
-      PSExtensionDef def = new PSExtensionDef(ref, ifaces.iterator(), urls
-         .iterator(), javaInitParams, runtimeParams.iterator());
-
-      int methodCount = 2;
-      int paramCount = 3;
-      for (int i=0; i<methodCount; i++)
-      {
-         PSExtensionMethod method = new PSExtensionMethod("name_" + i,
-            String.class.getName(), "description_" + i);
-         for (int j=0; j<paramCount; j++)
-         {
-            PSExtensionMethodParam param = new PSExtensionMethodParam(
-               "name_" + i + "." + j, String.class.getName(),
-               "description_" + i + "." + j);
-            method.addParameter(param);
-         }
-         def.addExtensionMethod(method);
+    int methodCount = 2;
+    int paramCount = 3;
+    for (int i = 0; i < methodCount; i++) {
+      PSExtensionMethod method =
+          new PSExtensionMethod("name_" + i, String.class.getName(), "description_" + i);
+      for (int j = 0; j < paramCount; j++) {
+        PSExtensionMethodParam param =
+            new PSExtensionMethodParam(
+                "name_" + i + "." + j, String.class.getName(), "description_" + i + "." + j);
+        method.addParameter(param);
       }
+      def.addExtensionMethod(method);
+    }
 
-      PSExtensionDefFactory factory = new PSExtensionDefFactory();
+    PSExtensionDefFactory factory = new PSExtensionDefFactory();
 
-      Document doc = PSXmlDocumentBuilder.createXmlDocument();
-      Element root = PSXmlDocumentBuilder.createRoot(doc, "root");
+    Document doc = PSXmlDocumentBuilder.createXmlDocument();
+    Element root = PSXmlDocumentBuilder.createRoot(doc, "root");
 
-      Element defElement = null;
-      try
-      {
-         defElement = factory.toXml(root, def);
-      }
-      catch (Exception e)
-      {
-         e.printStackTrace();
-         fail("Failed serialization: " + e.toString());
-         return;
-      }
+    Element defElement = null;
+    try {
+      defElement = factory.toXml(root, def);
+    } catch (Exception e) {
+      e.printStackTrace();
+      fail("Failed serialization: " + e.toString());
+      return;
+    }
 
-      IPSExtensionDef def2 = null;
-      try
-      {
-         def2 = factory.fromXml(defElement);
-      }
-      catch (Exception e)
-      {
-         PSXmlDocumentBuilder.write(doc, System.out);
-         e.printStackTrace();
-         fail("Failed de-serialization: " + e.toString());
-         return;
-      }
+    IPSExtensionDef def2 = null;
+    try {
+      def2 = factory.fromXml(defElement);
+    } catch (Exception e) {
+      PSXmlDocumentBuilder.write(doc, System.out);
+      e.printStackTrace();
+      fail("Failed de-serialization: " + e.toString());
+      return;
+    }
 
-         assertTrue(def.equals(def2), "Full def failed comparison");
-   }
+    assertTrue(def.equals(def2), "Full def failed comparison");
+  }
 
+  /** Does a round trip test, using a def that has no URLs and no runtime parameters defined.. */
+  @Test
+  public void testNoUrlsNoRuntimeParams() throws Exception {
+    // create an extension def, then round trip it thru the factory, then
+    // compare
+    PSExtensionRef ref = new PSExtensionRef("Handler1", "context1", "ext1");
+    ArrayList ifaces = new ArrayList();
+    ifaces.add("com.percussion.extension.IPSUdfProcessor");
 
-   /**
-    * Does a round trip test, using a def that has no URLs and no runtime
-    * parameters defined..
-    */
+    ArrayList urls = new ArrayList();
 
+    Properties javaInitParams = new Properties();
+    javaInitParams.setProperty("className", PSJavaExtensionHandler.class.getName());
+    javaInitParams.setProperty(
+        IPSExtensionHandler.INIT_PARAM_CONFIG_FILENAME,
+        IPSExtensionHandler.DEFAULT_CONFIG_FILENAME);
+    javaInitParams.setProperty(IPSExtensionDef.INIT_PARAM_REENTRANT, "yes");
 
-   @Test
-   public void testNoUrlsNoRuntimeParams() throws Exception
-   {
-      // create an extension def, then round trip it thru the factory, then
-      // compare
-      PSExtensionRef ref = new PSExtensionRef("Handler1", "context1", "ext1");
-      ArrayList ifaces = new ArrayList();
-      ifaces.add("com.percussion.extension.IPSUdfProcessor");
+    PSExtensionDef def =
+        new PSExtensionDef(ref, ifaces.iterator(), urls.iterator(), javaInitParams, null);
 
-      ArrayList urls = new ArrayList();
+    PSExtensionDefFactory factory = new PSExtensionDefFactory();
 
-      Properties javaInitParams = new Properties();
-      javaInitParams.setProperty("className", PSJavaExtensionHandler.class
-         .getName());
-      javaInitParams.setProperty(
-         IPSExtensionHandler.INIT_PARAM_CONFIG_FILENAME,
-         IPSExtensionHandler.DEFAULT_CONFIG_FILENAME);
-      javaInitParams.setProperty(IPSExtensionDef.INIT_PARAM_REENTRANT, "yes");
+    Document doc = PSXmlDocumentBuilder.createXmlDocument();
+    Element root = PSXmlDocumentBuilder.createRoot(doc, "root");
 
-      PSExtensionDef def = new PSExtensionDef(ref, ifaces.iterator(), urls
-         .iterator(), javaInitParams, null);
+    Element defElement = null;
+    try {
+      defElement = factory.toXml(root, def);
+    } catch (Exception e) {
+      // e.printStackTrace();
+      fail("Failed serialization: " + e.toString());
+      return;
+    }
 
-      PSExtensionDefFactory factory = new PSExtensionDefFactory();
+    IPSExtensionDef def2 = null;
+    try {
+      def2 = factory.fromXml(defElement);
+    } catch (Exception e) {
+      PSXmlDocumentBuilder.write(doc, System.out);
+      e.printStackTrace();
+      fail("Failed de-serialization: " + e.toString());
+      return;
+    }
 
-      Document doc = PSXmlDocumentBuilder.createXmlDocument();
-      Element root = PSXmlDocumentBuilder.createRoot(doc, "root");
+    assertTrue(def.equals(def2), "Full def failed comparison");
+  }
 
-      Element defElement = null;
-      try
-      {
-         defElement = factory.toXml(root, def);
-      }
-      catch (Exception e)
-      {
-         // e.printStackTrace();
-         fail("Failed serialization: " + e.toString());
-         return;
-      }
+  /** Does a round trip test, using a def that has no URLs defined. */
+  @Test
+  public void testNoUrls() throws Exception {
+    // create an extension def, then round trip it thru the factory, then
+    // compare
+    PSExtensionRef ref = new PSExtensionRef("Handler1", "context1", "ext1");
+    ArrayList ifaces = new ArrayList();
+    ifaces.add("com.percussion.extension.IPSUdfProcessor");
+    ifaces.add("com.percussion.extension.IPSRequestPreProcessor");
+    ifaces.add("com.percussion.extension.IPSResultDocumentProcessor");
 
-      IPSExtensionDef def2 = null;
-      try
-      {
-         def2 = factory.fromXml(defElement);
-      }
-      catch (Exception e)
-      {
-         PSXmlDocumentBuilder.write(doc, System.out);
-         e.printStackTrace();
-         fail("Failed de-serialization: " + e.toString());
-         return;
-      }
+    ArrayList urls = new ArrayList();
 
-      assertTrue(def.equals(def2), "Full def failed comparison");
-   }
+    Properties javaInitParams = new Properties();
+    javaInitParams.setProperty("className", PSJavaExtensionHandler.class.getName());
+    javaInitParams.setProperty(
+        IPSExtensionHandler.INIT_PARAM_CONFIG_FILENAME,
+        IPSExtensionHandler.DEFAULT_CONFIG_FILENAME);
+    javaInitParams.setProperty(IPSExtensionDef.INIT_PARAM_REENTRANT, "yes");
 
-   /**
-    * Does a round trip test, using a def that has no URLs defined.
-    */
+    ArrayList runtimeParams = new ArrayList();
+    PSExtensionParamDef pdef = new PSExtensionParamDef("param1", "java.lang.String");
+    runtimeParams.add(pdef);
+    pdef = new PSExtensionParamDef("param2", "java.util.HashMap");
+    runtimeParams.add(pdef);
 
+    PSExtensionDef def =
+        new PSExtensionDef(
+            ref, ifaces.iterator(), urls.iterator(), javaInitParams, runtimeParams.iterator());
 
-   @Test
-   public void testNoUrls() throws Exception
-   {
-      // create an extension def, then round trip it thru the factory, then
-      // compare
-      PSExtensionRef ref = new PSExtensionRef("Handler1", "context1", "ext1");
-      ArrayList ifaces = new ArrayList();
-      ifaces.add("com.percussion.extension.IPSUdfProcessor");
-      ifaces.add("com.percussion.extension.IPSRequestPreProcessor");
-      ifaces.add("com.percussion.extension.IPSResultDocumentProcessor");
+    PSExtensionDefFactory factory = new PSExtensionDefFactory();
 
-      ArrayList urls = new ArrayList();
+    Document doc = PSXmlDocumentBuilder.createXmlDocument();
+    Element root = PSXmlDocumentBuilder.createRoot(doc, "root");
 
-      Properties javaInitParams = new Properties();
-      javaInitParams.setProperty("className", PSJavaExtensionHandler.class
-         .getName());
-      javaInitParams.setProperty(
-         IPSExtensionHandler.INIT_PARAM_CONFIG_FILENAME,
-         IPSExtensionHandler.DEFAULT_CONFIG_FILENAME);
-      javaInitParams.setProperty(IPSExtensionDef.INIT_PARAM_REENTRANT, "yes");
+    Element defElement = null;
+    try {
+      defElement = factory.toXml(root, def);
+    } catch (Exception e) {
+      e.printStackTrace();
+      fail("Failed serialization: " + e.toString());
+      return;
+    }
 
-      ArrayList runtimeParams = new ArrayList();
-      PSExtensionParamDef pdef = new PSExtensionParamDef("param1",
-         "java.lang.String");
-      runtimeParams.add(pdef);
-      pdef = new PSExtensionParamDef("param2", "java.util.HashMap");
-      runtimeParams.add(pdef);
+    IPSExtensionDef def2 = null;
+    try {
+      def2 = factory.fromXml(defElement);
+    } catch (Exception e) {
+      PSXmlDocumentBuilder.write(doc, System.out);
+      e.printStackTrace();
+      fail("Failed de-serialization: " + e.toString());
+      return;
+    }
 
-      PSExtensionDef def = new PSExtensionDef(ref, ifaces.iterator(), urls
-         .iterator(), javaInitParams, runtimeParams.iterator());
+    assertTrue(def.equals(def2), "Full def failed comparison");
+  }
 
-      PSExtensionDefFactory factory = new PSExtensionDefFactory();
+  /** Does a round trip test, using a def that has no runtime params defined. */
+  @Test
+  public void testNoRuntimeParamst() throws Exception {
+    // create an extension def, then round trip it thru the factory, then
+    // compare
+    PSExtensionRef ref = new PSExtensionRef("Handler1", "context1", "ext1");
+    ArrayList ifaces = new ArrayList();
+    ifaces.add("com.percussion.extension.IPSUdfProcessor");
 
-      Document doc = PSXmlDocumentBuilder.createXmlDocument();
-      Element root = PSXmlDocumentBuilder.createRoot(doc, "root");
+    ArrayList urls = new ArrayList();
+    urls.add(new URL("file", "", "archive1.jar"));
+    urls.add(new URL("file", "", "archive2.zip"));
+    urls.add(new URL("file", "", "classes/"));
 
-      Element defElement = null;
-      try
-      {
-         defElement = factory.toXml(root, def);
-      }
-      catch (Exception e)
-      {
-         e.printStackTrace();
-         fail("Failed serialization: " + e.toString());
-         return;
-      }
+    Properties javaInitParams = new Properties();
+    javaInitParams.setProperty("className", PSJavaExtensionHandler.class.getName());
+    javaInitParams.setProperty(
+        IPSExtensionHandler.INIT_PARAM_CONFIG_FILENAME,
+        IPSExtensionHandler.DEFAULT_CONFIG_FILENAME);
+    javaInitParams.setProperty(IPSExtensionDef.INIT_PARAM_REENTRANT, "yes");
 
-      IPSExtensionDef def2 = null;
-      try
-      {
-         def2 = factory.fromXml(defElement);
-      }
-      catch (Exception e)
-      {
-         PSXmlDocumentBuilder.write(doc, System.out);
-         e.printStackTrace();
-         fail("Failed de-serialization: " + e.toString());
-         return;
-      }
+    PSExtensionDef def =
+        new PSExtensionDef(ref, ifaces.iterator(), urls.iterator(), javaInitParams, null);
 
-         assertTrue(def.equals(def2), "Full def failed comparison");
-   }
+    PSExtensionDefFactory factory = new PSExtensionDefFactory();
 
+    Document doc = PSXmlDocumentBuilder.createXmlDocument();
+    Element root = PSXmlDocumentBuilder.createRoot(doc, "root");
 
-   /**
-    * Does a round trip test, using a def that has no runtime params defined.
-    */
+    Element defElement = null;
+    try {
+      defElement = factory.toXml(root, def);
+    } catch (Exception e) {
+      e.printStackTrace();
+      fail("Failed serialization: " + e.toString());
+      return;
+    }
 
+    IPSExtensionDef def2 = null;
+    try {
+      def2 = factory.fromXml(defElement);
+    } catch (Exception e) {
+      PSXmlDocumentBuilder.write(doc, System.out);
+      e.printStackTrace();
+      fail("Failed de-serialization: " + e.toString());
+      return;
+    }
 
-   @Test
-   public void testNoRuntimeParamst() throws Exception
-   {
-      // create an extension def, then round trip it thru the factory, then
-      // compare
-      PSExtensionRef ref = new PSExtensionRef("Handler1", "context1", "ext1");
-      ArrayList ifaces = new ArrayList();
-      ifaces.add("com.percussion.extension.IPSUdfProcessor");
+    assertTrue(def.equals(def2), "Full def failed comparison");
+  }
 
-      ArrayList urls = new ArrayList();
-      urls.add(new URL("file", "", "archive1.jar"));
-      urls.add(new URL("file", "", "archive2.zip"));
-      urls.add(new URL("file", "", "classes/"));
+  /** Does a round trip test with required applications specified. */
+  @Test
+  public void testRequiredApplications() throws Exception {
+    // create an extension def with required applications
+    PSExtensionRef ref = new PSExtensionRef("Handler1", "context1", "ext1");
+    ArrayList ifaces = new ArrayList();
+    ifaces.add("com.percussion.extension.IPSUdfProcessor");
 
-      Properties javaInitParams = new Properties();
-      javaInitParams.setProperty("className", PSJavaExtensionHandler.class
-         .getName());
-      javaInitParams.setProperty(
-         IPSExtensionHandler.INIT_PARAM_CONFIG_FILENAME,
-         IPSExtensionHandler.DEFAULT_CONFIG_FILENAME);
-      javaInitParams.setProperty(IPSExtensionDef.INIT_PARAM_REENTRANT, "yes");
+    ArrayList urls = new ArrayList();
+    urls.add(new URL("file", "", "archive1.jar"));
 
-      PSExtensionDef def = new PSExtensionDef(ref, ifaces.iterator(), urls
-         .iterator(), javaInitParams, null);
+    Properties javaInitParams = new Properties();
+    javaInitParams.setProperty("className", PSJavaExtensionHandler.class.getName());
+    javaInitParams.setProperty(
+        IPSExtensionHandler.INIT_PARAM_CONFIG_FILENAME,
+        IPSExtensionHandler.DEFAULT_CONFIG_FILENAME);
 
-      PSExtensionDefFactory factory = new PSExtensionDefFactory();
+    ArrayList requiredApps = new ArrayList();
+    requiredApps.add("sys_searchSupport");
+    requiredApps.add("sys_publishingSupport");
 
-      Document doc = PSXmlDocumentBuilder.createXmlDocument();
-      Element root = PSXmlDocumentBuilder.createRoot(doc, "root");
+    PSExtensionDef def =
+        new PSExtensionDef(ref, ifaces.iterator(), urls.iterator(), javaInitParams, null);
+    def.setRequiredApplicationNames(requiredApps.iterator());
 
-      Element defElement = null;
-      try
-      {
-         defElement = factory.toXml(root, def);
-      }
-      catch (Exception e)
-      {
-         e.printStackTrace();
-         fail("Failed serialization: " + e.toString());
-         return;
-      }
+    PSExtensionDefFactory factory = new PSExtensionDefFactory();
 
-      IPSExtensionDef def2 = null;
-      try
-      {
-         def2 = factory.fromXml(defElement);
-      }
-      catch (Exception e)
-      {
-         PSXmlDocumentBuilder.write(doc, System.out);
-         e.printStackTrace();
-         fail("Failed de-serialization: " + e.toString());
-         return;
-      }
+    Document doc = PSXmlDocumentBuilder.createXmlDocument();
+    Element root = PSXmlDocumentBuilder.createRoot(doc, "root");
 
-      assertTrue(def.equals(def2), "Full def failed comparison");
-   }
+    Element defElement = null;
+    try {
+      defElement = factory.toXml(root, def);
+    } catch (Exception e) {
+      e.printStackTrace();
+      fail("Failed serialization: " + e.toString());
+      return;
+    }
 
-   /**
-    * Does a round trip test with required applications specified.
-    */
-   @Test
-   public void testRequiredApplications() throws Exception
-   {
-      // create an extension def with required applications
-      PSExtensionRef ref = new PSExtensionRef("Handler1", "context1", "ext1");
-      ArrayList ifaces = new ArrayList();
-      ifaces.add("com.percussion.extension.IPSUdfProcessor");
+    IPSExtensionDef def2 = null;
+    try {
+      def2 = factory.fromXml(defElement);
+    } catch (Exception e) {
+      PSXmlDocumentBuilder.write(doc, System.out);
+      e.printStackTrace();
+      fail("Failed de-serialization: " + e.toString());
+      return;
+    }
 
-      ArrayList urls = new ArrayList();
-      urls.add(new URL("file", "", "archive1.jar"));
+    // Verify required applications are preserved in the deserialized object
+    Iterator<PSExtensionRef> apps1 = def.getRequiredApplications();
+    Iterator<PSExtensionRef> apps2 = def2.getRequiredApplications();
 
-      Properties javaInitParams = new Properties();
-      javaInitParams.setProperty("className", PSJavaExtensionHandler.class
-         .getName());
-      javaInitParams.setProperty(
-         IPSExtensionHandler.INIT_PARAM_CONFIG_FILENAME,
-         IPSExtensionHandler.DEFAULT_CONFIG_FILENAME);
+    int count1 = 0, count2 = 0;
+    while (apps1.hasNext()) {
+      apps1.next();
+      count1++;
+    }
+    while (apps2.hasNext()) {
+      apps2.next();
+      count2++;
+    }
 
-      ArrayList requiredApps = new ArrayList();
-      requiredApps.add("sys_searchSupport");
-      requiredApps.add("sys_publishingSupport");
-
-      PSExtensionDef def = new PSExtensionDef(ref, ifaces.iterator(), urls
-         .iterator(), javaInitParams, null);
-      def.setRequiredApplicationNames(requiredApps.iterator());
-
-      PSExtensionDefFactory factory = new PSExtensionDefFactory();
-
-      Document doc = PSXmlDocumentBuilder.createXmlDocument();
-      Element root = PSXmlDocumentBuilder.createRoot(doc, "root");
-
-      Element defElement = null;
-      try
-      {
-         defElement = factory.toXml(root, def);
-      }
-      catch (Exception e)
-      {
-         e.printStackTrace();
-         fail("Failed serialization: " + e.toString());
-         return;
-      }
-
-      IPSExtensionDef def2 = null;
-      try
-      {
-         def2 = factory.fromXml(defElement);
-      }
-      catch (Exception e)
-      {
-         PSXmlDocumentBuilder.write(doc, System.out);
-         e.printStackTrace();
-         fail("Failed de-serialization: " + e.toString());
-         return;
-      }
-
-      // Verify required applications are preserved in the deserialized object
-      Iterator<PSExtensionRef> apps1 = def.getRequiredApplications();
-      Iterator<PSExtensionRef> apps2 = def2.getRequiredApplications();
-
-      int count1 = 0, count2 = 0;
-      while (apps1.hasNext()) {
-         apps1.next();
-         count1++;
-      }
-      while (apps2.hasNext()) {
-         apps2.next();
-         count2++;
-      }
-
-      assertEquals(count1, count2, "Required applications count mismatch");
-      assertEquals(count1, 2, "Expected 2 required applications");
-   }
+    assertEquals(count1, count2, "Required applications count mismatch");
+    assertEquals(count1, 2, "Expected 2 required applications");
+  }
 }
-

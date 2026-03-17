@@ -16,94 +16,77 @@
  */
 package com.percussion.design.objectstore;
 
-import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
+import com.percussion.xml.PSXmlDocumentBuilder;
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-import com.percussion.xml.PSXmlDocumentBuilder;
+/** Unit tests for the PSBackEndCredential class. */
+public class PSBackEndCredentialTest {
 
-/**
- * Unit tests for the PSBackEndCredential class.
- */
-public class PSBackEndCredentialTest
-{
+  @Test
+  public void testConstructor() throws Exception {
+    String alias = "foobarbaz";
+    PSBackEndCredential cred = new PSBackEndCredential(alias);
+    assertEquals(alias, cred.getAlias());
+    PSBackEndCredential otherCred = new PSBackEndCredential(alias);
+    assertEquals(cred, otherCred);
 
-   @Test
-   public void testConstructor() throws Exception
-   {
-      String alias = "foobarbaz";
-      PSBackEndCredential cred = new PSBackEndCredential(alias);
-      assertEquals(alias, cred.getAlias());
-      PSBackEndCredential otherCred = new PSBackEndCredential(alias);
-      assertEquals(cred, otherCred);
+    // pass invalid stuff to the constructor
+    boolean didThrow = false;
+    try {
+      new PSBackEndCredential(null);
+    } catch (IllegalArgumentException ex) {
+      didThrow = true;
+    }
+    assertTrue(didThrow, "Caught cons with null alias?");
 
-      // pass invalid stuff to the constructor
-      boolean didThrow = false;
-      try
-      {
-         new PSBackEndCredential(null);
-      }
-      catch (IllegalArgumentException ex)
-      {
-         didThrow = true;
-      }
-      assertTrue(didThrow, "Caught cons with null alias?");
+    didThrow = false;
+    try {
+      new PSBackEndCredential("");
+    } catch (IllegalArgumentException e) {
+      didThrow = true;
+    }
+    assertTrue(didThrow, "Caught cons with empty alias?");
+  }
 
-      didThrow = false;
-      try
-      {
-         new PSBackEndCredential("");
-      }
-      catch (IllegalArgumentException e)
-      {
-         didThrow = true;
-      }
-      assertTrue(didThrow, "Caught cons with empty alias?");
-   }
+  @Test
+  public void testGetSet() throws Exception {
+    String alias = "alias";
+    PSBackEndCredential cred = new PSBackEndCredential(alias);
+    assertEquals(alias, cred.getAlias());
+    cred.setAlias("foo");
+    assertEquals("foo", cred.getAlias());
 
+    assertNull(cred.getDataSource());
+    String ds = "datasource";
+    cred.setDataSource(ds);
+    assertEquals(ds, cred.getDataSource());
 
+    assertEquals("", cred.getComment());
+    String comment = "this is a comment";
+    cred.setComment(comment);
+    assertEquals(comment, cred.getComment());
+  }
 
-   @Test
-   public void testGetSet() throws Exception
-   {
-      String alias = "alias";
-      PSBackEndCredential cred = new PSBackEndCredential(alias);
-      assertEquals(alias, cred.getAlias());
-      cred.setAlias("foo");
-      assertEquals("foo", cred.getAlias());
+  @Test
+  public void testXml() throws Exception {
+    String alias = "alias", ds = "datasource", comment = "comment";
 
-      assertNull(cred.getDataSource());
-      String ds = "datasource";
-      cred.setDataSource(ds);
-      assertEquals(ds, cred.getDataSource());
+    PSBackEndCredential cred = new PSBackEndCredential(alias);
+    cred.setDataSource(ds);
+    cred.setComment(comment);
 
-      assertEquals("", cred.getComment());
-      String comment = "this is a comment";
-      cred.setComment(comment);
-      assertEquals(comment, cred.getComment());
-   }
+    Document doc = PSXmlDocumentBuilder.createXmlDocument();
+    Element el = cred.toXml(doc);
 
+    PSBackEndCredential otherCred = new PSBackEndCredential();
+    assertFalse(cred.equals(otherCred));
 
+    otherCred.fromXml(el, null, null);
 
-   @Test
-   public void testXml() throws Exception
-   {
-      String alias = "alias", ds = "datasource", comment = "comment";
-
-      PSBackEndCredential cred = new PSBackEndCredential(alias);
-        cred.setDataSource(ds);
-      cred.setComment(comment);
-
-      Document doc = PSXmlDocumentBuilder.createXmlDocument();
-      Element el = cred.toXml(doc);
-
-      PSBackEndCredential otherCred = new PSBackEndCredential();
-      assertFalse(cred.equals(otherCred));
-
-      otherCred.fromXml(el, null, null);
-
-      assertEquals(cred, otherCred);
-   }
+    assertEquals(cred, otherCred);
+  }
 }

@@ -49,8 +49,7 @@ class PSPageInfoTest {
 
   @Test
   void testConstructor_ValidParameters() {
-    pageInfo =
-        new PSPageInfo(PSPageInfo.TYPE_ROW_EDITOR, 100, queryHandlers, pageMap);
+    pageInfo = new PSPageInfo(PSPageInfo.TYPE_ROW_EDITOR, 100, queryHandlers, pageMap);
 
     assertNotNull(pageInfo);
     assertEquals(100, pageInfo.getChildId());

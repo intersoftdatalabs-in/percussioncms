@@ -323,8 +323,7 @@ public class PSAttribute extends PSDatabaseComponentCollection {
   }
 
   /**
-   * Gets the attribute values for this attribute, collected in a List of
-   * Strings.
+   * Gets the attribute values for this attribute, collected in a List of Strings.
    *
    * @return the value list never <code>null</code>, may be empty.
    */

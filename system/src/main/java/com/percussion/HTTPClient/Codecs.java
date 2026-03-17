@@ -1351,9 +1351,9 @@ public class Codecs {
   }
 
   /**
-   * Turns an array of name/value pairs into the string "name1=value1&amp;name2=value2&amp;name3=value3".
-   * The names and values are first urlencoded. This is the form in which form-data is passed to a
-   * cgi script.
+   * Turns an array of name/value pairs into the string
+   * "name1=value1&amp;name2=value2&amp;name3=value3". The names and values are first urlencoded.
+   * This is the form in which form-data is passed to a cgi script.
    *
    * @param pairs the array of name/value pairs
    * @return a string containg the encoded name/value pairs
@@ -1376,9 +1376,9 @@ public class Codecs {
   }
 
   /**
-   * Turns a string of the form "name1=value1&amp;name2=value2&amp;name3=value3" into an array of name/value
-   * pairs. The names and values are urldecoded. The query string is in the form in which form-data
-   * is received in a cgi script.
+   * Turns a string of the form "name1=value1&amp;name2=value2&amp;name3=value3" into an array of
+   * name/value pairs. The names and values are urldecoded. The query string is in the form in which
+   * form-data is received in a cgi script.
    *
    * @param query the query string containing the encoded name/value pairs
    * @return an array of NVPairs

@@ -133,6 +133,7 @@ public class PSCataloger {
    * <tr><td>RequestType</td>
    *      <td>the catalog request type within the category</td></tr>
    * </table>
+   *
    * <table summary></table>
    *
    * <em>NOTE:</em> property keys and values are case sensitive
@@ -187,6 +188,7 @@ public class PSCataloger {
    *         values.
    *      </td></tr>
    * </table>
+   *
    * <table summary></table>
    *
    * <p>The <code>{@link com.percussion.design.catalog.security security}</code> RequestCategory
@@ -206,6 +208,7 @@ public class PSCataloger {
    *      global use on the server.
    *      </td></tr>
    * </table>
+   *
    * <table summary></table>
    *
    * <p>The <code>{@link com.percussion.design.catalog.mail mail}</code> RequestCategory supports
@@ -218,6 +221,7 @@ public class PSCataloger {
    *         e-mail messages.
    *      </td></tr>
    * </table>
+   *
    * <table summary></table>
    *
    * <p>The <code>{@link com.percussion.design.catalog.xml xml}</code> RequestCategory supports the
@@ -231,6 +235,7 @@ public class PSCataloger {
    *         as those used for cataloging purposes.
    *      </td></tr>
    * </table>
+   *
    * <table summary></table>
    *
    * <p>If this object is not connected, an attempt will be made to connect to the server.

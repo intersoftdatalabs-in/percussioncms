@@ -16,87 +16,63 @@
  */
 package com.percussion.tablefactory;
 
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.io.TempDir;
-
-import java.io.File;
-
-import java.util.Properties;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.io.File;
+import java.util.Properties;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
-/**
- * Unit test for PSJdbcDbmsDef.
- */
-public class PSJdbcDbmsDefTest
-{
+/** Unit test for PSJdbcDbmsDef. */
+public class PSJdbcDbmsDefTest {
 
-   @TempDir
-   public File temporaryFolder;
+  @TempDir public File temporaryFolder;
 
-   private String rxdeploydir;
+  private String rxdeploydir;
 
-   @BeforeEach
-   public void setup(){
-      rxdeploydir = System.getProperty("rxdeploydir");
-      System.setProperty("rxdeploydir",temporaryFolder.getAbsolutePath());
-   }
+  @BeforeEach
+  public void setup() {
+    rxdeploydir = System.getProperty("rxdeploydir");
+    System.setProperty("rxdeploydir", temporaryFolder.getAbsolutePath());
+  }
 
-   @AfterEach
-   public void teardown(){
-      //Reset the deploy dir property if it was set prior to test
-      if(rxdeploydir != null)
-         System.setProperty("rxdeploydir",rxdeploydir);
-   }
+  @AfterEach
+  public void teardown() {
+    // Reset the deploy dir property if it was set prior to test
+    if (rxdeploydir != null) System.setProperty("rxdeploydir", rxdeploydir);
+  }
 
+  public PSJdbcDbmsDefTest() {}
 
-   public PSJdbcDbmsDefTest() {}
+  /** Test the def */
+  @Test
+  public void testDef() throws Exception {
+    Properties props = new Properties();
+    props.setProperty(PSJdbcDbmsDef.DB_BACKEND_PROPERTY, "MSSQL");
+    props.setProperty(PSJdbcDbmsDef.DB_DRIVER_CLASS_NAME_PROPERTY, "com.inet.tds.TdsDriver");
+    props.setProperty(PSJdbcDbmsDef.DB_DRIVER_NAME_PROPERTY, "inetdae7");
+    props.setProperty(PSJdbcDbmsDef.DB_SERVER_PROPERTY, "Fry");
+    props.setProperty(PSJdbcDbmsDef.DB_NAME_PROPERTY, "rxMaster");
+    props.setProperty(PSJdbcDbmsDef.DB_SCHEMA_PROPERTY, "dbo");
+    props.setProperty(PSJdbcDbmsDef.UID_PROPERTY, "Rhythmyx");
+    props.setProperty(PSJdbcDbmsDef.PWD_PROPERTY, "Rhythmyx");
 
-   /**
-    * Test the def
-    */
-   @Test
-   public void testDef() throws Exception
-   {
-      Properties props = new Properties();
-      props.setProperty(PSJdbcDbmsDef.DB_BACKEND_PROPERTY, "MSSQL");
-      props.setProperty(PSJdbcDbmsDef.DB_DRIVER_CLASS_NAME_PROPERTY,
-         "com.inet.tds.TdsDriver");
-      props.setProperty(PSJdbcDbmsDef.DB_DRIVER_NAME_PROPERTY, "inetdae7");
-      props.setProperty(PSJdbcDbmsDef.DB_SERVER_PROPERTY, "Fry");
-      props.setProperty(PSJdbcDbmsDef.DB_NAME_PROPERTY, "rxMaster");
-      props.setProperty(PSJdbcDbmsDef.DB_SCHEMA_PROPERTY, "dbo");
-      props.setProperty(PSJdbcDbmsDef.UID_PROPERTY, "Rhythmyx");
-      props.setProperty(PSJdbcDbmsDef.PWD_PROPERTY, "Rhythmyx");
+    PSJdbcDbmsDef def = new PSJdbcDbmsDef(props);
 
-      PSJdbcDbmsDef def = new PSJdbcDbmsDef(props);
+    assertEquals(props.getProperty(PSJdbcDbmsDef.DB_BACKEND_PROPERTY), def.getBackEndDB());
+    assertEquals(
+        props.getProperty(PSJdbcDbmsDef.DB_DRIVER_CLASS_NAME_PROPERTY), def.getDriverClassName());
+    assertEquals(props.getProperty(PSJdbcDbmsDef.DB_DRIVER_NAME_PROPERTY), def.getDriver());
+    assertEquals(props.getProperty(PSJdbcDbmsDef.DB_SERVER_PROPERTY), def.getServer());
+    assertEquals(props.getProperty(PSJdbcDbmsDef.DB_NAME_PROPERTY), def.getDataBase());
+    assertEquals(props.getProperty(PSJdbcDbmsDef.DB_SCHEMA_PROPERTY), def.getSchema());
+    assertEquals(props.getProperty(PSJdbcDbmsDef.UID_PROPERTY), def.getUserId());
+    assertEquals(props.getProperty(PSJdbcDbmsDef.PWD_PROPERTY), def.getPassword());
 
-      assertEquals(props.getProperty(PSJdbcDbmsDef.DB_BACKEND_PROPERTY),
-         def.getBackEndDB());
-      assertEquals(props.getProperty(PSJdbcDbmsDef.DB_DRIVER_CLASS_NAME_PROPERTY),
-         def.getDriverClassName());
-      assertEquals(props.getProperty(PSJdbcDbmsDef.DB_DRIVER_NAME_PROPERTY),
-         def.getDriver());
-      assertEquals(props.getProperty(PSJdbcDbmsDef.DB_SERVER_PROPERTY),
-         def.getServer());
-      assertEquals(props.getProperty(PSJdbcDbmsDef.DB_NAME_PROPERTY),
-         def.getDataBase());
-      assertEquals(props.getProperty(PSJdbcDbmsDef.DB_SCHEMA_PROPERTY),
-         def.getSchema());
-      assertEquals(props.getProperty(PSJdbcDbmsDef.UID_PROPERTY),
-         def.getUserId());
-      assertEquals(props.getProperty(PSJdbcDbmsDef.PWD_PROPERTY),
-         def.getPassword());
-
-      PSJdbcDbmsDef def2 = new PSJdbcDbmsDef(props);
-      assertTrue(def.equals(def2));
-
-   }
-
-
+    PSJdbcDbmsDef def2 = new PSJdbcDbmsDef(props);
+    assertTrue(def.equals(def2));
+  }
 }

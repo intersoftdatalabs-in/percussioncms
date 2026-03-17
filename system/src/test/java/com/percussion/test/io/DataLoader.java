@@ -16,24 +16,23 @@
  */
 package com.percussion.test.io;
 
-import java.io.OutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 
-public interface DataLoader
-{
-   public long getLong(String name);
+public interface DataLoader {
+  public long getLong(String name);
 
-   public void setLong(String name, long val);
+  public void setLong(String name, long val);
 
-   public double getDouble(String name);
+  public double getDouble(String name);
 
-   public void setDouble(String name, double val);
+  public void setDouble(String name, double val);
 
-   public String getString(String name);
+  public String getString(String name);
 
-   public void setString(String name, String val);
+  public void setString(String name, String val);
 
-   public DataLoader getChildLoader(String name, Object ob);
+  public DataLoader getChildLoader(String name, Object ob);
 
-   public void write(OutputStream stream) throws IOException;
+  public void write(OutputStream stream) throws IOException;
 }

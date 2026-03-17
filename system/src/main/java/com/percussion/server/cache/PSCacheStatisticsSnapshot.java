@@ -260,10 +260,11 @@ public class PSCacheStatisticsSnapshot {
   }
 
   /**
-   * Gets the proper unit to the supplied <code>size</code> of bytes and the
-   * returned value is converted to its unit (bytes/KB/MB).
+   * Gets the proper unit to the supplied <code>size</code> of bytes and the returned value is
+   * converted to its unit (bytes/KB/MB).
    *
-   * The following specifies the returned value:
+   * <p>The following specifies the returned value:
+   *
    * <table>
    * <tr><th>condition</th><th>return value</th></tr>
    * <tr><td> size &lt; 1 KB </td><td> size in bytes</td></tr>
@@ -274,7 +275,6 @@ public class PSCacheStatisticsSnapshot {
    * </table>
    *
    * @param size the size to get the proper unit
-   *
    * @return the converted size with proper unit appended as a <code>String
    * </code>, never <code>null</code> or empty.
    */

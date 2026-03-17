@@ -16,10 +16,9 @@
  */
 package com.percussion.services.guidmgr.data;
 
+import static org.junit.jupiter.api.Assertions.*;
 
 import com.percussion.services.catalog.PSTypeEnum;
-
-import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -27,78 +26,73 @@ import org.junit.jupiter.api.Test;
  *
  * @author dougrand
  */
-public class PSLegacyGuidTest
-{
-   @Test
-   public void testLongValueRoundtrip()
-   {
-      final PSLegacyGuid guid = new PSLegacyGuid(101, 15, 12345);
-      final long value = guid.longValue();
-      assertEquals(value, new PSLegacyGuid(value).longValue());
-   }
+public class PSLegacyGuidTest {
+  @Test
+  public void testLongValueRoundtrip() {
+    final PSLegacyGuid guid = new PSLegacyGuid(101, 15, 12345);
+    final long value = guid.longValue();
+    assertEquals(value, new PSLegacyGuid(value).longValue());
+  }
 
-   @Test
-   public void testChildId()
-   {
-      PSLegacyGuid guid = new PSLegacyGuid(101, 15, 12345);
-      assertTrue(guid.isChildGuid());
-      assertEquals(101, guid.getContentTypeId());
-      assertEquals(15, guid.getChildId());
-      assertEquals(12345, guid.getUUID());
-      assertEquals(12345, guid.getContentId());
-   }
+  @Test
+  public void testChildId() {
+    PSLegacyGuid guid = new PSLegacyGuid(101, 15, 12345);
+    assertTrue(guid.isChildGuid());
+    assertEquals(101, guid.getContentTypeId());
+    assertEquals(15, guid.getChildId());
+    assertEquals(12345, guid.getUUID());
+    assertEquals(12345, guid.getContentId());
+  }
 
-   @Test
-   public void testContentId()
-   {
-      PSLegacyGuid guid = new PSLegacyGuid(12345, 2);
-      assertEquals(12345, guid.getUUID());
-      assertEquals(12345, guid.getContentId());
-      assertEquals(2, guid.getRevision());
+  @Test
+  public void testContentId() {
+    PSLegacyGuid guid = new PSLegacyGuid(12345, 2);
+    assertEquals(12345, guid.getUUID());
+    assertEquals(12345, guid.getContentId());
+    assertEquals(2, guid.getRevision());
 
-      guid = new PSLegacyGuid(1, -1);
-      assertEquals(-1, guid.getRevision());
-      assertEquals(PSTypeEnum.LEGACY_CONTENT.getOrdinal(), guid.getType());
+    guid = new PSLegacyGuid(1, -1);
+    assertEquals(-1, guid.getRevision());
+    assertEquals(PSTypeEnum.LEGACY_CONTENT.getOrdinal(), guid.getType());
 
-      guid = new PSLegacyGuid(-1, -1);
-      assertEquals(-1, guid.getContentId());
-      assertEquals(-1, guid.getRevision());
-      assertEquals(PSTypeEnum.LEGACY_CONTENT.getOrdinal(), guid.getType());
+    guid = new PSLegacyGuid(-1, -1);
+    assertEquals(-1, guid.getContentId());
+    assertEquals(-1, guid.getRevision());
+    assertEquals(PSTypeEnum.LEGACY_CONTENT.getOrdinal(), guid.getType());
 
-      guid = new PSLegacyGuid(-0xff, -1);
-      assertEquals(-0xff, guid.getContentId());
-      assertEquals(-1, guid.getRevision());
-      assertEquals(PSTypeEnum.LEGACY_CONTENT.getOrdinal(), guid.getType());
-   }
+    guid = new PSLegacyGuid(-0xff, -1);
+    assertEquals(-0xff, guid.getContentId());
+    assertEquals(-1, guid.getRevision());
+    assertEquals(PSTypeEnum.LEGACY_CONTENT.getOrdinal(), guid.getType());
+  }
 
-   @Test
-   public void testStringVsGuid()
-   {
-      // test PSTypeEnum.LEGACY_CONTENT type
-      PSLegacyGuid guid = new PSLegacyGuid(12345, 2);
-      PSLegacyGuid guid_2 = new PSLegacyGuid(guid.toString());
+  @Test
+  public void testStringVsGuid() {
+    // test PSTypeEnum.LEGACY_CONTENT type
+    PSLegacyGuid guid = new PSLegacyGuid(12345, 2);
+    PSLegacyGuid guid_2 = new PSLegacyGuid(guid.toString());
 
-      assertEquals(guid, guid_2);
+    assertEquals(guid, guid_2);
 
-      guid = new PSLegacyGuid(12345, -1);
-      guid_2 = new PSLegacyGuid(guid.toString());
+    guid = new PSLegacyGuid(12345, -1);
+    guid_2 = new PSLegacyGuid(guid.toString());
 
-      assertEquals(guid, guid_2);
+    assertEquals(guid, guid_2);
 
-      // test PSTypeEnum.LEGACY_CHILD type
-      guid = new PSLegacyGuid(101, 15, 12345);
-      guid_2 = new PSLegacyGuid(guid.toString());
+    // test PSTypeEnum.LEGACY_CHILD type
+    guid = new PSLegacyGuid(101, 15, 12345);
+    guid_2 = new PSLegacyGuid(guid.toString());
 
-      assertEquals(guid, guid_2);
+    assertEquals(guid, guid_2);
 
-      // test from PSGuid to PSLegacyGuid
-      guid = new PSLegacyGuid(12345, 2);
-      guid_2 = new PSLegacyGuid( new PSGuid(guid.toString()));
+    // test from PSGuid to PSLegacyGuid
+    guid = new PSLegacyGuid(12345, 2);
+    guid_2 = new PSLegacyGuid(new PSGuid(guid.toString()));
 
-      assertEquals(guid, guid_2);
+    assertEquals(guid, guid_2);
 
-      guid = new PSLegacyGuid(101, 15, 12345);
-      guid_2 = new PSLegacyGuid( new PSGuid(guid.toString()));
-      assertEquals(guid, guid_2);
-   }
+    guid = new PSLegacyGuid(101, 15, 12345);
+    guid_2 = new PSLegacyGuid(new PSGuid(guid.toString()));
+    assertEquals(guid, guid_2);
+  }
 }

@@ -858,7 +858,6 @@ public class PSContentTypeHelper {
    * @return the shared group of the shared field. It may be <code>null</code> if cannot find a
    *     shared field with the name.
    */
-
   public static PSSharedFieldGroup getSharedGroup(String fieldName) {
     if (StringUtils.isBlank(fieldName)) return null;
 

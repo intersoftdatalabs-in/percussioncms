@@ -16,113 +16,87 @@
  */
 
 package com.percussion.design.objectstore;
-import org.junit.jupiter.api.Test;
+
+import static com.percussion.testing.PSTestCompare.assertEqualsWithHash;
 import static org.junit.jupiter.api.Assertions.*;
 
 import java.security.SecureRandom;
 
-import static com.percussion.testing.PSTestCompare.assertEqualsWithHash;
+/** Unit tests for the PSLogger class */
+public class PSLoggerTest {
+  /** Check that all options are off initially. */
+  public void testOptionsInitiallyOff() {
+    PSLogger logger = new PSLogger();
+    assertFalse(logger.isErrorLoggingEnabled());
+    assertFalse(logger.isServerStartStopLoggingEnabled());
+    assertFalse(logger.isAppStartStopLoggingEnabled());
+    assertFalse(logger.isAppStatisticsLoggingEnabled());
+    assertFalse(logger.isBasicUserActivityLoggingEnabled());
+    assertFalse(logger.isDetailedUserActivityLoggingEnabled());
+    assertFalse(logger.isMultipleHandlerLoggingEnabled());
+  }
 
-/**
- *   Unit tests for the PSLogger class
- */
+  /** Randomly turn arguments on and off and check that they are indeed on or off. */
+  public void testOptionsEnabling() {
+    final int ERROR_LOGGING = 1;
+    final int SERVER_STARTSTOP = 2;
+    final int APP_STARTSTOP = 4;
+    final int APP_STATS = 8;
+    final int DETAILED_USER = 16;
+    final int BASIC_USER = 32;
+    final int MULTIPLE_HANDLER = 64;
 
-public class PSLoggerTest 
-{
-   /**
-    *   Check that all options are off initially.
-    */
-   
-   public void testOptionsInitiallyOff()
-   {
-      PSLogger logger = new PSLogger();
-      assertFalse(logger.isErrorLoggingEnabled());
-      assertFalse(logger.isServerStartStopLoggingEnabled());
-      assertFalse(logger.isAppStartStopLoggingEnabled());
-      assertFalse(logger.isAppStatisticsLoggingEnabled());
-      assertFalse(logger.isBasicUserActivityLoggingEnabled());
-      assertFalse(logger.isDetailedUserActivityLoggingEnabled());
-      assertFalse(logger.isMultipleHandlerLoggingEnabled());
-   }
+    PSLogger logger = new PSLogger();
+    SecureRandom rand = new SecureRandom();
+    int options = 0;
 
-   /**
-    *   Randomly turn arguments on and off and check that they are
-    *   indeed on or off.
-    */
-   
-   public void testOptionsEnabling()
-   {
-      final int ERROR_LOGGING = 1;
-      final int SERVER_STARTSTOP = 2;
-      final int APP_STARTSTOP = 4;
-      final int APP_STATS = 8;
-      final int DETAILED_USER = 16;
-      final int BASIC_USER = 32;
-      final int MULTIPLE_HANDLER = 64;
-      
-      PSLogger logger = new PSLogger();
-      SecureRandom rand = new SecureRandom();
-      int options = 0;
+    for (int i = 0; i < 100; i++) {
+      options =
+          rand.nextInt(
+              ERROR_LOGGING
+                  | SERVER_STARTSTOP
+                  | APP_STARTSTOP
+                  | APP_STATS
+                  | DETAILED_USER
+                  | BASIC_USER
+                  | MULTIPLE_HANDLER);
 
-      for (int i = 0; i < 100; i++)
-      {
-         options = rand.nextInt(ERROR_LOGGING | SERVER_STARTSTOP | APP_STARTSTOP |
-            APP_STATS | DETAILED_USER | BASIC_USER | MULTIPLE_HANDLER);
+      logger.setErrorLoggingEnabled(0 != (options & ERROR_LOGGING));
+      logger.setServerStartStopLoggingEnabled(0 != (options & SERVER_STARTSTOP));
+      logger.setAppStartStopLoggingEnabled(0 != (options & APP_STARTSTOP));
+      logger.setAppStatisticsLoggingEnabled(0 != (options & APP_STATS));
+      logger.setBasicUserActivityLoggingEnabled(0 != (options & BASIC_USER));
+      logger.setDetailedUserActivityLoggingEnabled(0 != (options & DETAILED_USER));
+      logger.setMultipleHandlerLoggingEnabled(0 != (options & MULTIPLE_HANDLER));
 
-         logger.setErrorLoggingEnabled(0 != (options & ERROR_LOGGING));
-         logger.setServerStartStopLoggingEnabled(0 != (options & SERVER_STARTSTOP));
-         logger.setAppStartStopLoggingEnabled(0 != (options & APP_STARTSTOP));
-         logger.setAppStatisticsLoggingEnabled(0 != (options & APP_STATS));
-         logger.setBasicUserActivityLoggingEnabled(0 != (options & BASIC_USER));
-         logger.setDetailedUserActivityLoggingEnabled(0 != (options & DETAILED_USER));
-         logger.setMultipleHandlerLoggingEnabled(0 != (options & MULTIPLE_HANDLER));
+      if (0 != (options & ERROR_LOGGING)) assertTrue(logger.isErrorLoggingEnabled());
+      else assertFalse(logger.isErrorLoggingEnabled());
+      if (0 != (options & SERVER_STARTSTOP)) assertTrue(logger.isServerStartStopLoggingEnabled());
+      else assertFalse(logger.isServerStartStopLoggingEnabled());
+      if (0 != (options & APP_STARTSTOP)) assertTrue(logger.isAppStartStopLoggingEnabled());
+      else assertFalse(logger.isAppStartStopLoggingEnabled());
+      if (0 != (options & APP_STATS)) assertTrue(logger.isAppStatisticsLoggingEnabled());
+      else assertFalse(logger.isAppStatisticsLoggingEnabled());
+      if (0 != (options & BASIC_USER)) assertTrue(logger.isBasicUserActivityLoggingEnabled());
+      else assertFalse(logger.isBasicUserActivityLoggingEnabled());
+      if (0 != (options & DETAILED_USER)) assertTrue(logger.isDetailedUserActivityLoggingEnabled());
+      else assertFalse(logger.isDetailedUserActivityLoggingEnabled());
+      if (0 != (options & MULTIPLE_HANDLER)) assertTrue(logger.isMultipleHandlerLoggingEnabled());
+      else assertFalse(logger.isMultipleHandlerLoggingEnabled());
+    } // end for
+  }
 
-         if (0 != (options & ERROR_LOGGING))
-            assertTrue(logger.isErrorLoggingEnabled());
-         else
-            assertFalse(logger.isErrorLoggingEnabled());
-         if (0 != (options & SERVER_STARTSTOP))
-            assertTrue(logger.isServerStartStopLoggingEnabled());
-         else
-            assertFalse(logger.isServerStartStopLoggingEnabled());
-         if (0 != (options & APP_STARTSTOP))
-            assertTrue(logger.isAppStartStopLoggingEnabled());
-         else
-            assertFalse(logger.isAppStartStopLoggingEnabled());
-         if (0 != (options & APP_STATS))
-            assertTrue(logger.isAppStatisticsLoggingEnabled());
-         else
-            assertFalse(logger.isAppStatisticsLoggingEnabled());
-         if (0 != (options & BASIC_USER))
-            assertTrue(logger.isBasicUserActivityLoggingEnabled());
-         else
-            assertFalse(logger.isBasicUserActivityLoggingEnabled());
-         if (0 != (options & DETAILED_USER))
-            assertTrue(logger.isDetailedUserActivityLoggingEnabled());
-         else
-            assertFalse(logger.isDetailedUserActivityLoggingEnabled());
-         if (0 != (options & MULTIPLE_HANDLER))
-            assertTrue(logger.isMultipleHandlerLoggingEnabled());
-         else
-            assertFalse(logger.isMultipleHandlerLoggingEnabled());
-      } // end for
-   }
+  /** Tests behavior of equals() and hashCode() methods. */
+  public void testEqualsHashCode() {
+    final PSLogger logger1 = new PSLogger();
+    final PSLogger logger2 = new PSLogger();
 
-   /**
-    * Tests behavior of equals() and hashCode() methods.
-    */
-   
-   public void testEqualsHashCode()
-   {
-      final PSLogger logger1 = new PSLogger();
-      final PSLogger logger2 = new PSLogger();
-      
-      assertFalse(logger1.equals(new Object()));
-      assertEqualsWithHash(logger1, logger2);
-      
-      logger1.setErrorLoggingEnabled(true);
-      assertFalse(logger1.equals(logger2));
-      logger2.setErrorLoggingEnabled(true);
-      assertEqualsWithHash(logger1, logger2);
-   }
+    assertFalse(logger1.equals(new Object()));
+    assertEqualsWithHash(logger1, logger2);
+
+    logger1.setErrorLoggingEnabled(true);
+    assertFalse(logger1.equals(logger2));
+    logger2.setErrorLoggingEnabled(true);
+    assertEqualsWithHash(logger1, logger2);
+  }
 }

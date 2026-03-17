@@ -165,9 +165,9 @@ public class PSCacheManager implements IPSHandlerInitListener {
 
   /**
    * Checks if Caching has started or not. <br>
-   * <em>IMPORTANT</em> Server always starts the cache handlers but that does not mean that caching has
-   * started. It is only when cache settings are enabled and of course there are no handler start
-   * exceptions is when actual caching begins. So there is a difference in starting the cache
+   * <em>IMPORTANT</em> Server always starts the cache handlers but that does not mean that caching
+   * has started. It is only when cache settings are enabled and of course there are no handler
+   * start exceptions is when actual caching begins. So there is a difference in starting the cache
    * handlers and the actual start of caching.
    *
    * @return true if caching started or else false.

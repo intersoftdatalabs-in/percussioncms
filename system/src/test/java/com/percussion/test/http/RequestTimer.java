@@ -16,116 +16,95 @@
  */
 package com.percussion.test.http;
 
-public class RequestTimer
-{
-   public void startRequest(long time)
-   {
-      m_enterTime = time;
-   }
+public class RequestTimer {
+  public void startRequest(long time) {
+    m_enterTime = time;
+  }
 
-   public long startRequest()
-   {
-      return m_enterTime;
-   }
+  public long startRequest() {
+    return m_enterTime;
+  }
 
-   public void endRequest(long time)
-   {
-      m_exitTime = time;
-   }
+  public void endRequest(long time) {
+    m_exitTime = time;
+  }
 
-   public long endRequest()
-   {
-      return m_exitTime;
-   }
+  public long endRequest() {
+    return m_exitTime;
+  }
 
-   public void beforeConnect(long time)
-   {
-      m_beforeConnect = time;
-   }
+  public void beforeConnect(long time) {
+    m_beforeConnect = time;
+  }
 
-   public long beforeConnect()
-   {
-      return m_beforeConnect;
-   }
+  public long beforeConnect() {
+    return m_beforeConnect;
+  }
 
-   public void afterConnect(long time)
-   {
-      m_afterConnect = time;
-   }
+  public void afterConnect(long time) {
+    m_afterConnect = time;
+  }
 
-   public long afterConnect()
-   {
-      return m_afterConnect;
-   }
+  public long afterConnect() {
+    return m_afterConnect;
+  }
 
-   public void afterHeader(long time)
-   {
-      m_afterHeader = time;
-   }
+  public void afterHeader(long time) {
+    m_afterHeader = time;
+  }
 
-   public long afterHeader()
-   {
-      return m_afterHeader;
-   }
+  public long afterHeader() {
+    return m_afterHeader;
+  }
 
-   public void afterBody(long time)
-   {
-      m_afterBody = time;
-   }
+  public void afterBody(long time) {
+    m_afterBody = time;
+  }
 
-   public long afterBody()
-   {
-      return m_afterBody;
-   }
+  public long afterBody() {
+    return m_afterBody;
+  }
 
-   public void totalBytes(long bytes)
-   {
-      m_totalBytes = bytes;
-   }
+  public void totalBytes(long bytes) {
+    m_totalBytes = bytes;
+  }
 
-   public long totalBytes()
-   {
-      return m_totalBytes;
-   }
+  public long totalBytes() {
+    return m_totalBytes;
+  }
 
-   public void reportedContentLength(long bytes)
-   {
-      m_repContentLen = bytes;
-   }
+  public void reportedContentLength(long bytes) {
+    m_repContentLen = bytes;
+  }
 
-   public long reportedContentLength()
-   {
-      return m_repContentLen;
-   }
+  public long reportedContentLength() {
+    return m_repContentLen;
+  }
 
-   public void httpCode(int code)
-   {
-      m_httpCode = code;
-   }
+  public void httpCode(int code) {
+    m_httpCode = code;
+  }
 
-   public int httpCode()
-   {
-      return m_httpCode;
-   }
+  public int httpCode() {
+    return m_httpCode;
+  }
 
-   public void bodyBytes(long bytes)
-   {
-      m_bodyBytes = bytes;
-   }
+  public void bodyBytes(long bytes) {
+    m_bodyBytes = bytes;
+  }
 
-   public long bodyBytes()
-   {
-      return m_bodyBytes;
-   }
+  public long bodyBytes() {
+    return m_bodyBytes;
+  }
 
-   private int m_httpCode = 0;
-   private long m_repContentLen = 0L;
-   private long m_enterTime = 0L;
-   private long m_beforeConnect = 0L;
-   private long m_afterConnect = 0L;
-   private long m_afterHeader = 0L;
-   private long m_afterBody = 0L;
-   private long m_exitTime = 0L;
-   private long m_totalBytes = 0L;
-   private long m_bodyBytes = 0L;
+  private int m_httpCode = 0;
+  private long m_repContentLen = 0L;
+  private long m_enterTime = 0L;
+  private long m_beforeConnect = 0L;
+  private long m_afterConnect = 0L;
+  private long m_afterHeader = 0L;
+  private long m_afterBody = 0L;
+  private long m_exitTime = 0L;
+  private long m_totalBytes = 0L;
+  private long m_bodyBytes = 0L;
 }

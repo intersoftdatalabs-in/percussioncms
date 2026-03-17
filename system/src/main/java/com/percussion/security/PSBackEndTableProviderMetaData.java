@@ -30,7 +30,6 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Arrays;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Properties;
 
 /**
@@ -243,8 +242,7 @@ public class PSBackEndTableProviderMetaData extends PSSecurityProviderMetaData {
     }
   }
 
-  /**
-   */
+  /** */
   @Override
   public ResultSet getAttributes(String[] objectTypes) throws SQLException {
     PSResultSet rs = super.getEmptyAttributes();

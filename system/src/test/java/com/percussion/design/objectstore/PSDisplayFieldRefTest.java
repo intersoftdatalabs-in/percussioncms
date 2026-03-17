@@ -16,33 +16,27 @@
  */
 package com.percussion.design.objectstore;
 
-
-import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
+import org.junit.jupiter.api.Test;
 
-/**
- * Unit tests for the <code>PSDisplayFieldRef</code> class.
- */
-public class PSDisplayFieldRefTest
-{
-/**
-    * Tests that the <code>clone()</code> method creates a separate-but-equal
-    * instance, including fields defined in the superclass.
-    *
-    * @throws Exception if the test fails.
-    */
-   @Test
-   public void testClone() throws Exception
-   {
-      PSDisplayFieldRef foo = new PSDisplayFieldRef( "foo" );
-      foo.setId( 99 );
-      PSDisplayFieldRef bar = (PSDisplayFieldRef) foo.clone();
+/** Unit tests for the <code>PSDisplayFieldRef</code> class. */
+public class PSDisplayFieldRefTest {
+  /**
+   * Tests that the <code>clone()</code> method creates a separate-but-equal instance, including
+   * fields defined in the superclass.
+   *
+   * @throws Exception if the test fails.
+   */
+  @Test
+  public void testClone() throws Exception {
+    PSDisplayFieldRef foo = new PSDisplayFieldRef("foo");
+    foo.setId(99);
+    PSDisplayFieldRef bar = (PSDisplayFieldRef) foo.clone();
 
-      assertEquals( foo, bar );
-      assertEquals(99, bar.getId());
-      bar.setValueText( "bar" );
-      assertFalse( foo.equals( bar ) );
-   }
+    assertEquals(foo, bar);
+    assertEquals(99, bar.getId());
+    bar.setValueText("bar");
+    assertFalse(foo.equals(bar));
+  }
 }
-

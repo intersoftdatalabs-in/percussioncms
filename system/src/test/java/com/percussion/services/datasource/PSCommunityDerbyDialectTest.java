@@ -26,9 +26,8 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 /**
- * Tests for {@link PSCommunityDerbyDialect} to verify that the custom dialect
- * correctly fixes the FOR UPDATE locking clause duplication in the Hibernate 7.x
- * community DerbyDialect.
+ * Tests for {@link PSCommunityDerbyDialect} to verify that the custom dialect correctly fixes the
+ * FOR UPDATE locking clause duplication in the Hibernate 7.x community DerbyDialect.
  */
 @DisplayName("PSCommunityDerbyDialect")
 class PSCommunityDerbyDialectTest {
@@ -48,15 +47,9 @@ class PSCommunityDerbyDialectTest {
 
       // Then
       assertNotNull(result, "FOR UPDATE string should not be null");
-      assertTrue(
-          result.contains("for update"),
-          "Should contain 'for update'");
-      assertTrue(
-          result.contains("with rs"),
-          "Should contain 'with rs'");
-      assertFalse(
-          result.contains("with rs with rs"),
-          "Should NOT contain duplicate 'with rs'");
+      assertTrue(result.contains("for update"), "Should contain 'for update'");
+      assertTrue(result.contains("with rs"), "Should contain 'with rs'");
+      assertFalse(result.contains("with rs with rs"), "Should NOT contain duplicate 'with rs'");
     }
 
     @Test
@@ -71,9 +64,7 @@ class PSCommunityDerbyDialectTest {
       // Then
       assertNotNull(result, "Write lock string should not be null");
       assertEquals(
-          " for update with rs",
-          result,
-          "Write lock string should be ' for update with rs'");
+          " for update with rs", result, "Write lock string should be ' for update with rs'");
     }
 
     @Test
@@ -88,9 +79,7 @@ class PSCommunityDerbyDialectTest {
       // Then
       assertNotNull(result, "Read lock string should not be null");
       assertEquals(
-          " for read only with rs",
-          result,
-          "Read lock string should be ' for read only with rs'");
+          " for read only with rs", result, "Read lock string should be ' for read only with rs'");
     }
   }
 

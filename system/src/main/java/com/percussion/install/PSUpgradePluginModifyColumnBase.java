@@ -39,12 +39,11 @@ import org.w3c.dom.NodeList;
 public abstract class PSUpgradePluginModifyColumnBase implements IPSUpgradePlugin {
   /**
    * Implements process method of IPSUpgradePlugin.
-   * @param config IPSUpgradeModule object.
-   *    may not be <code>null</code>.
-   * @param elemData data element of plugin.  Includes one or more tableset
-   * elements, which can be described as follows:
-   * <br>
-   * <pre>
+   *
+   * @param config IPSUpgradeModule object. may not be <code>null</code>.
+   * @param elemData data element of plugin. Includes one or more tableset elements, which can be
+   *     described as follows: <br>
+   *     <pre>
    * <code>
    * &lt;tableset&gt;
    *    &lt;table&gt;RXSITES&lt/table&gt;
@@ -54,8 +53,7 @@ public abstract class PSUpgradePluginModifyColumnBase implements IPSUpgradePlugi
    * </code>
    * </pre>
    *
-   * @return <code>PSPluginResponse</code> object with appropriate status and
-   * message.
+   * @return <code>PSPluginResponse</code> object with appropriate status and message.
    */
   public PSPluginResponse process(IPSUpgradeModule config, Element elemData) {
     m_config = config;

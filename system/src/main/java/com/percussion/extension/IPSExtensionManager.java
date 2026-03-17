@@ -79,8 +79,8 @@ public interface IPSExtensionManager {
    * @param initProps Initialization properties. The only required property is named "configFile"
    *     and its value is the filename of the configuration file for this manager (understood to be
    *     relative to <CODE>codeRoot</CODE>).
-   * @param isServer <code>true</code> if it is called from {@link com.percussion.server.PSServer}; otherwise it may
-   *     called from a unit test (for example).
+   * @param isServer <code>true</code> if it is called from {@link com.percussion.server.PSServer};
+   *     otherwise it may called from a unit test (for example).
    * @throws PSExtensionException If an error occurred that will prevent the extension manager from
    *     working at all.
    */

@@ -21,17 +21,13 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
 /**
- * This class supports file operations for upgrades: currently supports delete (a file or directory).
+ * This class supports file operations for upgrades: currently supports delete (a file or
+ * directory).
  *
- * &lt;p&gt;Example usage:&lt;/p&gt;
- * &lt;pre&gt;
- * &amp;ltplugin name="SomePluginName"&amp;gt
- *     &amp;ltclass&amp;gtcom.percussion.install.PSUpgradePluginFileOperations&amp;lt/class&amp;gt
- *     &amp;ltdata&amp;gt
- *         &amp;ltfile path="sys_resources/ewebeditpro/Ektron-all-product-cms.pdf" action="delete"/&amp;gt
- *     &amp;lt/data&amp;gt
- * &amp;lt/plugin&amp;gt
- * &lt;/pre&gt;
+ * <p>&lt;p&gt;Example usage:&lt;/p&gt; &lt;pre&gt; &amp;ltplugin name="SomePluginName"&amp;gt
+ * &amp;ltclass&amp;gtcom.percussion.install.PSUpgradePluginFileOperations&amp;lt/class&amp;gt
+ * &amp;ltdata&amp;gt &amp;ltfile path="sys_resources/ewebeditpro/Ektron-all-product-cms.pdf"
+ * action="delete"/&amp;gt &amp;lt/data&amp;gt &amp;lt/plugin&amp;gt &lt;/pre&gt;
  */
 public class PSUpgradePluginFileOperations implements IPSUpgradePlugin {
   /**

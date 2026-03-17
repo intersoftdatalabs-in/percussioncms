@@ -18,46 +18,39 @@
 package com.percussion.services.publisher.impl;
 
 import static java.util.Arrays.asList;
+import static org.junit.jupiter.api.Assertions.*;
 
 import com.google.common.collect.Lists;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
-
-import static org.junit.jupiter.api.Assertions.*;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import org.junit.jupiter.api.BeforeEach;
+public class PSIteratorChainTest {
 
-public class PSIteratorChainTest
-{
+  private List<List<String>> values = new ArrayList<List<String>>();
 
-   private List<List<String>> values = new ArrayList<List<String>>();
-   @BeforeEach
-   public void setUp() throws Exception
-   {
-      values.add(asList("a","b"));
-      values.add(Collections.<String>emptyList());
-      values.add(asList("c"));
-   }
+  @BeforeEach
+  public void setUp() throws Exception {
+    values.add(asList("a", "b"));
+    values.add(Collections.<String>emptyList());
+    values.add(asList("c"));
+  }
 
-   @Test
-   public void testNext()
-   {
-      List<String> expected = asList("a","b","c");
-      final Iterator<List<String>> vit = values.iterator();
-      Iterator<String> it = new PSIteratorChain<String>() {
-         @Override
-         protected Iterator<String> nextIterator()
-         {
-            if (vit.hasNext())
-               return vit.next().iterator();
+  @Test
+  public void testNext() {
+    List<String> expected = asList("a", "b", "c");
+    final Iterator<List<String>> vit = values.iterator();
+    Iterator<String> it =
+        new PSIteratorChain<String>() {
+          @Override
+          protected Iterator<String> nextIterator() {
+            if (vit.hasNext()) return vit.next().iterator();
             return null;
-         }
-      };
-      assertEquals(expected,Lists.newArrayList(it));
-   }
-
+          }
+        };
+    assertEquals(expected, Lists.newArrayList(it));
+  }
 }

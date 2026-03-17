@@ -16,37 +16,30 @@
  */
 package com.percussion.design.objectstore;
 
-
-import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
+import org.junit.jupiter.api.Test;
 
-/**
- * Unit tests for the <code>PSDisplayTextLiteralTest</code> class.
- */
-public class PSDisplayTextLiteralTest
-{
-/**
-    * Tests that the <code>clone()</code> method creates a separate-but-equal
-    * instance, including fields defined in the superclass, and that the copy
-    * was deep.
-    *
-    * @throws Exception if the test fails.
-    */
-   @Test
-   public void testClone() throws Exception
-   {
-      PSDisplayTextLiteral foo = new PSDisplayTextLiteral( "foo", "FOOFOO" );
-      foo.setId( 99 );
-      PSDisplayTextLiteral bar = (PSDisplayTextLiteral) foo.clone();
+/** Unit tests for the <code>PSDisplayTextLiteralTest</code> class. */
+public class PSDisplayTextLiteralTest {
+  /**
+   * Tests that the <code>clone()</code> method creates a separate-but-equal instance, including
+   * fields defined in the superclass, and that the copy was deep.
+   *
+   * @throws Exception if the test fails.
+   */
+  @Test
+  public void testClone() throws Exception {
+    PSDisplayTextLiteral foo = new PSDisplayTextLiteral("foo", "FOOFOO");
+    foo.setId(99);
+    PSDisplayTextLiteral bar = (PSDisplayTextLiteral) foo.clone();
 
-      assertEquals( foo, bar );
-      assertEquals(99, bar.getId(), "id copied");
-      assertEquals("FOOFOO", bar.getValueText(), "m_value copied");
-      bar.setValueText( "bar" );
-      assertEquals("bar", bar.getValueText(), "bar changed");
-      assertEquals("FOOFOO", foo.getValueText(), "foo unchanged");
-      assertFalse(foo.equals( bar ));
-   }
+    assertEquals(foo, bar);
+    assertEquals(99, bar.getId(), "id copied");
+    assertEquals("FOOFOO", bar.getValueText(), "m_value copied");
+    bar.setValueText("bar");
+    assertEquals("bar", bar.getValueText(), "bar changed");
+    assertEquals("FOOFOO", foo.getValueText(), "foo unchanged");
+    assertFalse(foo.equals(bar));
+  }
 }
-

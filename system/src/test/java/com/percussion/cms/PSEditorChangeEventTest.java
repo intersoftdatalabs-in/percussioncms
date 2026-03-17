@@ -16,107 +16,88 @@
  */
 package com.percussion.cms;
 
-import com.percussion.xml.PSXmlDocumentBuilder;
-
-import java.util.ArrayList;
-import java.util.Collection;
-
-import org.w3c.dom.Document;
-
-
-import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
+import com.percussion.xml.PSXmlDocumentBuilder;
+import java.util.ArrayList;
+import java.util.Collection;
+import org.junit.jupiter.api.Test;
+import org.w3c.dom.Document;
 
-/**
- * Test the {@link PSEditorChangeEvent} class.
- */
-public class PSEditorChangeEventTest
-{
-   // legacy constructor removed; using @Test-annotated methods
+/** Test the {@link PSEditorChangeEvent} class. */
+public class PSEditorChangeEventTest {
+  // legacy constructor removed; using @Test-annotated methods
 
+  /**
+   * Tests the equals and hashCode methods of this object.
+   *
+   * @throws Exception if there are any errors.
+   */
+  @Test
+  public void testEquals() throws Exception {
+    PSEditorChangeEvent evt1 =
+        new PSEditorChangeEvent(PSEditorChangeEvent.ACTION_INSERT, 1, 2, 3, 4, 5);
 
-   /**
-    * Tests the equals and hashCode methods of this object.
-    *
-    * @throws Exception if there are any errors.
-    */
-   @Test
-   public void testEquals() throws Exception
-   {
-      PSEditorChangeEvent evt1 = new PSEditorChangeEvent(
-         PSEditorChangeEvent.ACTION_INSERT, 1, 2, 3, 4, 5);
+    PSEditorChangeEvent evt2 =
+        new PSEditorChangeEvent(PSEditorChangeEvent.ACTION_INSERT, 1, 2, 3, 4, 5);
 
-      PSEditorChangeEvent evt2 = new PSEditorChangeEvent(
-         PSEditorChangeEvent.ACTION_INSERT, 1, 2, 3, 4, 5);
+    assertEquals(evt1, evt2);
+    assertEquals(evt1.hashCode(), evt2.hashCode());
 
-      assertEquals(evt1, evt2);
-      assertEquals(evt1.hashCode(), evt2.hashCode());
+    evt1.setPriority(1);
+    assertTrue(!evt1.equals(evt2));
+    evt2.setPriority(1);
+    assertEquals(evt1, evt2);
+    assertEquals(evt1.hashCode(), evt2.hashCode());
 
-      evt1.setPriority(1);
-      assertTrue(!evt1.equals(evt2));
-      evt2.setPriority(1);
-      assertEquals(evt1, evt2);
-      assertEquals(evt1.hashCode(), evt2.hashCode());
+    Collection binFields = new ArrayList();
+    evt1.setBinaryFields(binFields);
+    assertEquals(evt1, evt2);
 
-      Collection binFields = new ArrayList();
-      evt1.setBinaryFields(binFields);
-      assertEquals(evt1, evt2);
+    binFields.add("foo");
+    binFields.add("bar");
+    evt1.setBinaryFields(binFields);
+    assertTrue(!evt1.equals(evt2));
+    evt2.setBinaryFields(binFields);
+    assertEquals(evt1, evt2);
+    assertEquals(evt1.hashCode(), evt2.hashCode());
 
-      binFields.add("foo");
-      binFields.add("bar");
-      evt1.setBinaryFields(binFields);
-      assertTrue(!evt1.equals(evt2));
-      evt2.setBinaryFields(binFields);
-      assertEquals(evt1, evt2);
-      assertEquals(evt1.hashCode(), evt2.hashCode());
+    evt1 = new PSEditorChangeEvent(PSEditorChangeEvent.ACTION_INSERT, 1, 2, 3, 4, 5);
+    evt2 = new PSEditorChangeEvent(PSEditorChangeEvent.ACTION_INSERT, 2, 2, 3, 4, 5);
+    assertTrue(!evt1.equals(evt2));
+    evt2 = new PSEditorChangeEvent(PSEditorChangeEvent.ACTION_INSERT, 1, 1, 3, 4, 5);
+    assertTrue(!evt1.equals(evt2));
+    evt2 = new PSEditorChangeEvent(PSEditorChangeEvent.ACTION_INSERT, 1, 2, 1, 4, 5);
+    assertTrue(!evt1.equals(evt2));
+    evt2 = new PSEditorChangeEvent(PSEditorChangeEvent.ACTION_INSERT, 1, 2, 3, 1, 5);
+    assertTrue(!evt1.equals(evt2));
+    evt2 = new PSEditorChangeEvent(PSEditorChangeEvent.ACTION_INSERT, 1, 2, 3, 4, 1);
+    assertTrue(!evt1.equals(evt2));
+  }
 
-      evt1 = new PSEditorChangeEvent(
-         PSEditorChangeEvent.ACTION_INSERT, 1, 2, 3, 4, 5);
-      evt2 = new PSEditorChangeEvent(
-         PSEditorChangeEvent.ACTION_INSERT, 2, 2, 3, 4, 5);
-      assertTrue(!evt1.equals(evt2));
-      evt2 = new PSEditorChangeEvent(
-         PSEditorChangeEvent.ACTION_INSERT, 1, 1, 3, 4, 5);
-      assertTrue(!evt1.equals(evt2));
-      evt2 = new PSEditorChangeEvent(
-         PSEditorChangeEvent.ACTION_INSERT, 1, 2, 1, 4, 5);
-      assertTrue(!evt1.equals(evt2));
-      evt2 = new PSEditorChangeEvent(
-         PSEditorChangeEvent.ACTION_INSERT, 1, 2, 3, 1, 5);
-      assertTrue(!evt1.equals(evt2));
-      evt2 = new PSEditorChangeEvent(
-         PSEditorChangeEvent.ACTION_INSERT, 1, 2, 3, 4, 1);
-      assertTrue(!evt1.equals(evt2));
+  /**
+   * Tests the xml serialization of this object. {@link #testEquals()} should be run before this
+   * test as this test assumes the equals method is working
+   *
+   * @throws Exception if there are any errors.
+   */
+  @Test
+  public void testXml() throws Exception {
+    Document doc = PSXmlDocumentBuilder.createXmlDocument();
 
-   }
+    PSEditorChangeEvent evt1 =
+        new PSEditorChangeEvent(PSEditorChangeEvent.ACTION_INSERT, 1, 2, 3, 4, 5);
+    evt1.setPriority(1);
 
+    assertEquals(evt1, new PSEditorChangeEvent(evt1.toXml(doc)));
 
-   /**
-    * Tests the xml serialization of this object.  {@link #testEquals()} should
-    * be run before this test as this test assumes the equals method is
-    * working
-    *
-    * @throws Exception if there are any errors.
-    */
-   @Test
-   public void testXml() throws Exception
-   {
-      Document doc = PSXmlDocumentBuilder.createXmlDocument();
+    Collection binFields = new ArrayList();
+    binFields.add("foo");
+    binFields.add("bar");
+    evt1.setBinaryFields(binFields);
+    assertEquals(evt1, new PSEditorChangeEvent(evt1.toXml(doc)));
+  }
 
-      PSEditorChangeEvent evt1 = new PSEditorChangeEvent(
-         PSEditorChangeEvent.ACTION_INSERT, 1, 2, 3, 4, 5);
-      evt1.setPriority(1);
-
-      assertEquals(evt1, new PSEditorChangeEvent(evt1.toXml(doc)));
-
-      Collection binFields = new ArrayList();
-      binFields.add("foo");
-      binFields.add("bar");
-      evt1.setBinaryFields(binFields);
-      assertEquals(evt1, new PSEditorChangeEvent(evt1.toXml(doc)));
-   }
-
-   // JUnit 3 style suite removed; using JUnit 5 @Test methods instead
+  // JUnit 3 style suite removed; using JUnit 5 @Test methods instead
 
 }

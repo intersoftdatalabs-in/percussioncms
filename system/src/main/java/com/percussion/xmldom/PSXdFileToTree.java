@@ -33,8 +33,6 @@ import org.w3c.dom.Node;
  * A Rhythmyx post-exit to load an XML document from the file system and add it to the result
  * document
  *
- * 
- *
  * <table border="1">
  * <caption>Table</caption>
  *   <tr><th>Param #</th><th>Name</th><th>Description</th><th>Default</th><tr>

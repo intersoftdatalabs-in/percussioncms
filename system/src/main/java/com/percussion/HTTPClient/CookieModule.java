@@ -16,6 +16,7 @@
  */
 package com.percussion.HTTPClient;
 
+import com.percussion.security.validation.SerializationValidation;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -25,15 +26,13 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.ObjectInputStream;
 import java.io.ObjectInputFilter.Config;
+import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.ProtocolException;
 import java.util.Enumeration;
 import java.util.Vector;
 import java.util.concurrent.ConcurrentHashMap;
-
-import com.percussion.security.validation.SerializationValidation;
 
 /**
  * This module handles Netscape cookies (also called Version 0 cookies) and Version 1 cookies.

@@ -15,13 +15,13 @@
  * limitations under the License.
  */
 package com.percussion.cms.objectstore.client;
-import java.io.Serializable;
 
 import com.percussion.error.PSException;
 
 /** Exceptions of this type will be thrown from the Remote Agent */
 public class PSRemoteException extends PSException {
   private static final long serialVersionUID = 1L;
+
   /*
    * @see {@link com.percussion.error.PSException(int, Object)}
    */

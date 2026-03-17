@@ -26,8 +26,8 @@ package com.percussion.extension;
  * field is editable.
  *
  * <p>At run-time, the extension handler that handles this extension will construct an instance of
- * this class. This occurs when Rhythmyx calls the <code>prepare</code> method of the IPSExtensionHandler
- * managing the extension.
+ * this class. This occurs when Rhythmyx calls the <code>prepare</code> method of the
+ * IPSExtensionHandler managing the extension.
  *
  * <p><em>NOTE:</em> The <code>IPSFieldEditabilityFilter</code> implementation must be safe for
  * multi-threaded use. One instance of the class will be defined for each usage in an application.

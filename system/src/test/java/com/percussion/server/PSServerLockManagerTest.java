@@ -14,110 +14,94 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
- 
+
 package com.percussion.server;
 
-
-import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
+public class PSServerLockManagerTest {
+  /**
+   * Construct this unit test
+   *
+   * @param name The name of this test.
+   */
 
-public class PSServerLockManagerTest 
-{
-   /**
-    * Construct this unit test
-    * 
-    * @param name The name of this test.
-    */
-   
-   
-   /**
-    * Tests all lock mgr functionality
-    * 
-    * @throws Exception if there are any errors.
-    */
-   
-   public void testAll() throws Exception
-   {
-      boolean didThrow = false;
-      
-      // test get before create
-      try 
-      {
-         PSServerLockManager.getInstance();
-      }
-      catch (IllegalStateException e) 
-      {
-         didThrow = true;
-      }
-      assertTrue(didThrow);
-      
-      // now create
-      PSServerLockManager lockMgr = PSServerLockManager.createInstance();
-      assertNotNull(lockMgr);
-      
-      lockMgr = PSServerLockManager.getInstance();
-      assertNotNull(lockMgr);
-      
-      // test 2nd create
-      didThrow = false;
-      try 
-      {
-         PSServerLockManager.createInstance();
-      }
-      catch (IllegalStateException e) 
-      {
-         didThrow = true;
-      }
-      assertTrue(didThrow);
-      
-      // test acquire
-      assertFalse(lockMgr.isLocked(PSServerLockManager.RESOURCE_PUBLISHER));
-      PSServerLockResult result = lockMgr.acquireLock(
-         PSServerLockManager.RESOURCE_PUBLISHER, "testLocker");
+  /**
+   * Tests all lock mgr functionality
+   *
+   * @throws Exception if there are any errors.
+   */
+  public void testAll() throws Exception {
+    boolean didThrow = false;
 
-      assertNotNull(result);
-      PSServerLock lock = result.getLock();
-      assertNotNull(lock);
-      int[] lockedResources = lock.getLockedResources();
-      for (int i = 0; i < lockedResources.length; i++) 
-      {
-         System.err.println("locked: " + lockedResources[i]);
-      }
-      
-      assertTrue(result.wasLockAcquired());
-      assertTrue(lock.getLockId() != -1);
-      assertTrue(lock.getLocker().equals("testLocker"));
-      assertFalse(result.getConflicts().hasNext());
-      assertTrue(lock.isResourceLocked(
-         PSServerLockManager.RESOURCE_PUBLISHER));
-      assertTrue(lockMgr.isLocked(PSServerLockManager.RESOURCE_PUBLISHER));
-      
-      // test failed acquire
-      PSServerLockResult result2 = lockMgr.acquireLock(
-         PSServerLockManager.RESOURCE_PUBLISHER, "testLocker2");
-      
-      assertNotNull(result2);
-      PSServerLock lock2 = result2.getLock();
-      assertNotNull(lock2);
-      assertFalse(result2.wasLockAcquired());
-      assertTrue(lock2.getLockId() == -1);
-      assertTrue(lock2.getLocker().equals("testLocker2"));
-      assertTrue(result2.getConflicts().hasNext());
-      PSServerLock conflict = 
-         (PSServerLock)result2.getConflicts().next();
-      assertTrue(conflict.getLockId() == result.getLock().getLockId());
-      assertTrue(conflict.isResourceLocked(
-         PSServerLockManager.RESOURCE_PUBLISHER));
-      
-      // test release
-      assertFalse(lockMgr.releaseLock(lock2.getLockId()));
-      assertTrue(lockMgr.releaseLock(lock.getLockId()));
-      assertTrue(lockMgr.acquireLock(PSServerLockManager.RESOURCE_PUBLISHER, 
-         "testLocker2").wasLockAcquired());
-   }
-   
-   // collect all tests into a TestSuite and return it
-   
-   
+    // test get before create
+    try {
+      PSServerLockManager.getInstance();
+    } catch (IllegalStateException e) {
+      didThrow = true;
+    }
+    assertTrue(didThrow);
+
+    // now create
+    PSServerLockManager lockMgr = PSServerLockManager.createInstance();
+    assertNotNull(lockMgr);
+
+    lockMgr = PSServerLockManager.getInstance();
+    assertNotNull(lockMgr);
+
+    // test 2nd create
+    didThrow = false;
+    try {
+      PSServerLockManager.createInstance();
+    } catch (IllegalStateException e) {
+      didThrow = true;
+    }
+    assertTrue(didThrow);
+
+    // test acquire
+    assertFalse(lockMgr.isLocked(PSServerLockManager.RESOURCE_PUBLISHER));
+    PSServerLockResult result =
+        lockMgr.acquireLock(PSServerLockManager.RESOURCE_PUBLISHER, "testLocker");
+
+    assertNotNull(result);
+    PSServerLock lock = result.getLock();
+    assertNotNull(lock);
+    int[] lockedResources = lock.getLockedResources();
+    for (int i = 0; i < lockedResources.length; i++) {
+      System.err.println("locked: " + lockedResources[i]);
+    }
+
+    assertTrue(result.wasLockAcquired());
+    assertTrue(lock.getLockId() != -1);
+    assertTrue(lock.getLocker().equals("testLocker"));
+    assertFalse(result.getConflicts().hasNext());
+    assertTrue(lock.isResourceLocked(PSServerLockManager.RESOURCE_PUBLISHER));
+    assertTrue(lockMgr.isLocked(PSServerLockManager.RESOURCE_PUBLISHER));
+
+    // test failed acquire
+    PSServerLockResult result2 =
+        lockMgr.acquireLock(PSServerLockManager.RESOURCE_PUBLISHER, "testLocker2");
+
+    assertNotNull(result2);
+    PSServerLock lock2 = result2.getLock();
+    assertNotNull(lock2);
+    assertFalse(result2.wasLockAcquired());
+    assertTrue(lock2.getLockId() == -1);
+    assertTrue(lock2.getLocker().equals("testLocker2"));
+    assertTrue(result2.getConflicts().hasNext());
+    PSServerLock conflict = (PSServerLock) result2.getConflicts().next();
+    assertTrue(conflict.getLockId() == result.getLock().getLockId());
+    assertTrue(conflict.isResourceLocked(PSServerLockManager.RESOURCE_PUBLISHER));
+
+    // test release
+    assertFalse(lockMgr.releaseLock(lock2.getLockId()));
+    assertTrue(lockMgr.releaseLock(lock.getLockId()));
+    assertTrue(
+        lockMgr
+            .acquireLock(PSServerLockManager.RESOURCE_PUBLISHER, "testLocker2")
+            .wasLockAcquired());
+  }
+
+  // collect all tests into a TestSuite and return it
+
 }

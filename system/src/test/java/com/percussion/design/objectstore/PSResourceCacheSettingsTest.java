@@ -17,88 +17,77 @@
 
 package com.percussion.design.objectstore;
 
-import com.percussion.utils.server.IPSCgiVariables;
-import com.percussion.xml.PSXmlDocumentBuilder;
-
-import java.util.ArrayList;
-import java.util.List;
-
-
-import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
-
+import com.percussion.utils.server.IPSCgiVariables;
+import com.percussion.xml.PSXmlDocumentBuilder;
+import java.util.ArrayList;
+import java.util.List;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-/**
- * Unit test for the <code>PSResourceCacheSettings</code> class.
- */
-public class PSResourceCacheSettingsTest 
-{
-   /**
-    * Construct this unit test
-    * 
-    * @param name The name of this test.
-    */
-   
-   
-   /**
-    * Test all functionality of this object.
-    * 
-    * @throws Exception if there are any errors.
-    */
-   
-   public void testAll() throws Exception
-   {
-      // ensure ctor defaults to not enabled
-      PSResourceCacheSettings settings = new PSResourceCacheSettings();
-      assertFalse(settings.isCachingEnabled());
-      PSResourceCacheSettings settings2 = new PSResourceCacheSettings();
-      assertEquals(settings, settings2);
-      
-      Document doc = PSXmlDocumentBuilder.createXmlDocument();
-      Element root = settings.toXml(doc);
-      settings2 = new PSResourceCacheSettings(root);
-      assertEquals(settings, settings2);
-      
-      // test equals on enabled, be sure it serializes
-      settings.setIsCachingEnabled(true);
-      assertFalse(settings.equals(settings2));
-      root = settings.toXml(doc);
-      settings2 = new PSResourceCacheSettings(root);
-      assertEquals(settings, settings2);
-      
-      // now add some keys and dependencies, and test equals and serialization
-      List keys = new ArrayList();
-      keys.add(new PSCookie("foo"));
-      keys.add(new PSCgiVariable(IPSCgiVariables.CGI_AUTH_TYPE));
-      keys.add(new PSUserContext("User/Name"));
-      settings.setAdditionalKeys(keys.iterator());
-      assertFalse(settings.equals(settings2));
-      root = settings.toXml(doc);
-      settings2 = new PSResourceCacheSettings(root);
-      assertEquals(settings, settings2);
-      
-      List deps = new ArrayList();
-      deps.add("app1/resource1");
-      deps.add("app2/resource2");
-      deps.add("app3/resource3");
-      
-      settings.setDependencies(deps.iterator());
-      assertFalse(settings.equals(settings2));
-      root = settings.toXml(doc);
-      settings2 = new PSResourceCacheSettings(root);
-      assertEquals(settings, settings2);
-      
-      // test hashcode
-      assertEquals(settings.hashCode(), settings2.hashCode());
-      
-      // test copy
-      settings2 = new PSResourceCacheSettings(settings);
-      assertEquals(settings, settings2);
-   }
-   
-   // collect all tests into a TestSuite and return it
-   
+/** Unit test for the <code>PSResourceCacheSettings</code> class. */
+public class PSResourceCacheSettingsTest {
+  /**
+   * Construct this unit test
+   *
+   * @param name The name of this test.
+   */
+
+  /**
+   * Test all functionality of this object.
+   *
+   * @throws Exception if there are any errors.
+   */
+  public void testAll() throws Exception {
+    // ensure ctor defaults to not enabled
+    PSResourceCacheSettings settings = new PSResourceCacheSettings();
+    assertFalse(settings.isCachingEnabled());
+    PSResourceCacheSettings settings2 = new PSResourceCacheSettings();
+    assertEquals(settings, settings2);
+
+    Document doc = PSXmlDocumentBuilder.createXmlDocument();
+    Element root = settings.toXml(doc);
+    settings2 = new PSResourceCacheSettings(root);
+    assertEquals(settings, settings2);
+
+    // test equals on enabled, be sure it serializes
+    settings.setIsCachingEnabled(true);
+    assertFalse(settings.equals(settings2));
+    root = settings.toXml(doc);
+    settings2 = new PSResourceCacheSettings(root);
+    assertEquals(settings, settings2);
+
+    // now add some keys and dependencies, and test equals and serialization
+    List keys = new ArrayList();
+    keys.add(new PSCookie("foo"));
+    keys.add(new PSCgiVariable(IPSCgiVariables.CGI_AUTH_TYPE));
+    keys.add(new PSUserContext("User/Name"));
+    settings.setAdditionalKeys(keys.iterator());
+    assertFalse(settings.equals(settings2));
+    root = settings.toXml(doc);
+    settings2 = new PSResourceCacheSettings(root);
+    assertEquals(settings, settings2);
+
+    List deps = new ArrayList();
+    deps.add("app1/resource1");
+    deps.add("app2/resource2");
+    deps.add("app3/resource3");
+
+    settings.setDependencies(deps.iterator());
+    assertFalse(settings.equals(settings2));
+    root = settings.toXml(doc);
+    settings2 = new PSResourceCacheSettings(root);
+    assertEquals(settings, settings2);
+
+    // test hashcode
+    assertEquals(settings.hashCode(), settings2.hashCode());
+
+    // test copy
+    settings2 = new PSResourceCacheSettings(settings);
+    assertEquals(settings, settings2);
+  }
+
+  // collect all tests into a TestSuite and return it
+
 }

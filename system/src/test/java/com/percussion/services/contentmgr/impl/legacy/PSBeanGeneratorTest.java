@@ -24,7 +24,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.util.List;
-
 import org.junit.jupiter.api.Test;
 
 class PSBeanGeneratorTest {

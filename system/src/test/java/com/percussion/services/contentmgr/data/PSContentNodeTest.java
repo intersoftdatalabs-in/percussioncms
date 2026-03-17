@@ -16,11 +16,11 @@
  */
 package com.percussion.services.contentmgr.data;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 import javax.jcr.Node;
 import javax.jcr.NodeIterator;
 import javax.jcr.RepositoryException;
-
-import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -28,64 +28,59 @@ import org.junit.jupiter.api.Test;
  *
  * @author dougrand
  */
-public class PSContentNodeTest
-{
-   @Test
-   public void testGetNodeMethods() throws RepositoryException
-   {
-      PSContentNode parent = new PSContentNode(null, "parent", null, null,
-            null, null);
-      parent.addNode("foo");
-      parent.addNode("foo");
-      parent.addNode("foo");
-      parent.addNode("bar");
-      parent.addNode("bar");
-      parent.addNode("bar");
-      parent.addNode("bletch");
-      parent.addNode("bletch");
-      parent.addNode("bletch");
-      parent.setChildrenLoaded(true); // Cheat so we don't try to hit the db
+public class PSContentNodeTest {
+  @Test
+  public void testGetNodeMethods() throws RepositoryException {
+    PSContentNode parent = new PSContentNode(null, "parent", null, null, null, null);
+    parent.addNode("foo");
+    parent.addNode("foo");
+    parent.addNode("foo");
+    parent.addNode("bar");
+    parent.addNode("bar");
+    parent.addNode("bar");
+    parent.addNode("bletch");
+    parent.addNode("bletch");
+    parent.addNode("bletch");
+    parent.setChildrenLoaded(true); // Cheat so we don't try to hit the db
 
-      NodeIterator ni = parent.getNodes();
-      assertEquals(0, ni.getPosition());
-      assertEquals(9, ni.getSize());
-      assertEquals(0, ni.getPosition());
-      assertTrue(ni.hasNext());
-      assertTrue(ni.next() instanceof Node);
+    NodeIterator ni = parent.getNodes();
+    assertEquals(0, ni.getPosition());
+    assertEquals(9, ni.getSize());
+    assertEquals(0, ni.getPosition());
+    assertTrue(ni.hasNext());
+    assertTrue(ni.next() instanceof Node);
 
-      ni = parent.getNodes("foo");
-      assertEquals(0, ni.getPosition());
-      assertEquals(3, ni.getSize());
-      assertEquals(0, ni.getPosition());
+    ni = parent.getNodes("foo");
+    assertEquals(0, ni.getPosition());
+    assertEquals(3, ni.getSize());
+    assertEquals(0, ni.getPosition());
 
-      int i = 0;
-      while(ni.hasNext())
-      {
-         Node n = ni.nextNode();
-         assertEquals("foo", n.getName());
-         i++;
-      }
-      assertEquals(3, i);
+    int i = 0;
+    while (ni.hasNext()) {
+      Node n = ni.nextNode();
+      assertEquals("foo", n.getName());
+      i++;
+    }
+    assertEquals(3, i);
 
-      ni = parent.getNodes("b*");
-      assertEquals(0, ni.getPosition());
-      assertEquals(6, ni.getSize());
-      assertEquals(0, ni.getPosition());
+    ni = parent.getNodes("b*");
+    assertEquals(0, ni.getPosition());
+    assertEquals(6, ni.getSize());
+    assertEquals(0, ni.getPosition());
 
-      i = 0;
-      while(ni.hasNext())
-      {
-         Node n = ni.nextNode();
-         assertTrue(n.getName().startsWith("b"));
-         i++;
-      }
-      assertEquals(6, i);
+    i = 0;
+    while (ni.hasNext()) {
+      Node n = ni.nextNode();
+      assertTrue(n.getName().startsWith("b"));
+      i++;
+    }
+    assertEquals(6, i);
 
-      Node n = parent.getNode("bar");
-      assertNotNull(n);
-      assertEquals("bar", n.getName());
-      n = parent.getNode("bar[1]");
-      assertNotNull(n);
-      assertEquals("bar", n.getName());
-   }
+    Node n = parent.getNode("bar");
+    assertNotNull(n);
+    assertEquals("bar", n.getName());
+    n = parent.getNode("bar[1]");
+    assertNotNull(n);
+    assertEquals("bar", n.getName());
+  }
 }

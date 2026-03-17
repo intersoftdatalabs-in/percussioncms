@@ -109,9 +109,7 @@ public class PSActionLinkList extends PSCollectionComponent {
     return equal;
   }
 
-  /**
-   * Generates code of the object. Overrides {@link Object#hashCode()}.
-   */
+  /** Generates code of the object. Overrides {@link Object#hashCode()}. */
   @Override
   public int hashCode() {
     // It is error-prone that equals is redefined but hasCode is not

@@ -919,17 +919,15 @@ public class PSApplication implements IPSDocument {
   }
 
   /**
-   * Get the web pages being return on error for this application.
-   * Application's can customize the errors they want to return by
-   * defining an alternative web page E2 will return when the given error
-   * is encountered. When E2 hits an error, it provdes error information
-   * in the form of an XML document. To provide diagnostic information to
-   * the requestor, it may be preferred to use style sheets which E2 can
-   * merge with the XML document to return a descriptive error page.
-   * <p>
-   * This may be null, in which case E2 will use its default error pages.
+   * Get the web pages being return on error for this application. Application's can customize the
+   * errors they want to return by defining an alternative web page E2 will return when the given
+   * error is encountered. When E2 hits an error, it provdes error information in the form of an XML
+   * document. To provide diagnostic information to the requestor, it may be preferred to use style
+   * sheets which E2 can merge with the XML document to return a descriptive error page.
    *
-   * @return     the error pages object (may be <code>null</code>)
+   * <p>This may be null, in which case E2 will use its default error pages.
+   *
+   * @return the error pages object (may be <code>null</code>)
    */
   public PSErrorWebPages getErrorWebPages() {
     return m_errorWebPages;

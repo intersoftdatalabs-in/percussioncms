@@ -40,6 +40,7 @@ class PSJndiUtilsTest {
   void rejectsNonDefaultPasswordFilterExtensionNames() {
     assertFalse(PSJndiUtils.isDefaultPasswordFilterExtension(null));
     assertFalse(PSJndiUtils.isDefaultPasswordFilterExtension(""));
-    assertFalse(PSJndiUtils.isDefaultPasswordFilterExtension("Java/global/percussion/filter/custom"));
+    assertFalse(
+        PSJndiUtils.isDefaultPasswordFilterExtension("Java/global/percussion/filter/custom"));
   }
 }

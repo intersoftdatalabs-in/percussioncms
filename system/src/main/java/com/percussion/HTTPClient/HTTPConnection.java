@@ -735,7 +735,8 @@ public class HTTPConnection implements GlobalConstants, HTTPClientModuleConstant
 
   /**
    * GETs the file with a query consisting of the specified form-data. The data is urlencoded,
-   * turned into a string of the form "name1=value1&amp;name2=value2" and then sent as a query string.
+   * turned into a string of the form "name1=value1&amp;name2=value2" and then sent as a query
+   * string.
    *
    * @param file the absolute path of the file
    * @param form_data an array of Name/Value pairs
@@ -749,7 +750,8 @@ public class HTTPConnection implements GlobalConstants, HTTPClientModuleConstant
 
   /**
    * GETs the file with a query consisting of the specified form-data. The data is urlencoded,
-   * turned into a string of the form "name1=value1&amp;name2=value2" and then sent as a query string.
+   * turned into a string of the form "name1=value1&amp;name2=value2" and then sent as a query
+   * string.
    *
    * @param file the absolute path of the file
    * @param form_data an array of Name/Value pairs
@@ -811,8 +813,8 @@ public class HTTPConnection implements GlobalConstants, HTTPClientModuleConstant
 
   /**
    * POSTs form-data to the specified file. The data is first urlencoded and then turned into a
-   * string of the form "name1=value1&amp;name2=value2". A <var>Content-type</var> header with the value
-   * <var>application/x-www-form-urlencoded</var> is added.
+   * string of the form "name1=value1&amp;name2=value2". A <var>Content-type</var> header with the
+   * value <var>application/x-www-form-urlencoded</var> is added.
    *
    * @param file the absolute path of the file
    * @param form_data an array of Name/Value pairs
@@ -1530,12 +1532,12 @@ public class HTTPConnection implements GlobalConstants, HTTPClientModuleConstant
    * @see HTTPClientModule
    * @param module the module's Class object
    * @param pos the position of this module in the list; if <var>pos</var> &gt;= 0 then this is the
-   *     absolute position in the list (0 is the first position); if <var>pos</var> &lt; 0 then this is
-   *     the position relative to the end of the list (-1 means the last element, -2 the second to
-   *     last element, etc).
+   *     absolute position in the list (0 is the first position); if <var>pos</var> &lt; 0 then this
+   *     is the position relative to the end of the list (-1 means the last element, -2 the second
+   *     to last element, etc).
    * @return true if module was successfully added; false if the module is already in the list.
-   * @exception ArrayIndexOutOfBoundsException if <var>pos</var> &gt; list-size or if <var>pos</var> &lt; 
-   *     -(list-size).
+   * @exception ArrayIndexOutOfBoundsException if <var>pos</var> &gt; list-size or if <var>pos</var>
+   *     &lt; -(list-size).
    * @exception ClassCastException if <var>module</var> does not implement the
    *     <var>HTTPClientModule</var> interface.
    * @exception RuntimeException if <var>module</var> cannot be instantiated.
@@ -1572,12 +1574,12 @@ public class HTTPConnection implements GlobalConstants, HTTPClientModuleConstant
    * @see HTTPClientModule
    * @param module the module's Class object
    * @param pos the position of this module in the list; if <var>pos</var> &gt;= 0 then this is the
-   *     absolute position in the list (0 is the first position); if <var>pos</var> &lt; 0 then this is
-   *     the position relative to the end of the list (-1 means the last element, -2 the second to
-   *     last element, etc).
+   *     absolute position in the list (0 is the first position); if <var>pos</var> &lt; 0 then this
+   *     is the position relative to the end of the list (-1 means the last element, -2 the second
+   *     to last element, etc).
    * @return true if module was successfully added; false if the module is already in the list.
-   * @exception ArrayIndexOutOfBoundsException if <var>pos</var> &gt; list-size or if <var>pos</var> &lt; 
-   *     -(list-size).
+   * @exception ArrayIndexOutOfBoundsException if <var>pos</var> &gt; list-size or if <var>pos</var>
+   *     &lt; -(list-size).
    * @exception ClassCastException if <var>module</var> does not implement the
    *     <var>HTTPClientModule</var> interface.
    * @exception RuntimeException if <var>module</var> cannot be instantiated.

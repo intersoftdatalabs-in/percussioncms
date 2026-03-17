@@ -600,7 +600,6 @@ public class PSDesignerConnection {
   }
 
   /** this method uses the Java Socket class for communication. */
-
   private Document makeSocketRequest(Document req)
       throws PSServerException,
           PSAuthorizationException,

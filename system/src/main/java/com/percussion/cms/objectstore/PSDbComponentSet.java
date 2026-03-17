@@ -77,7 +77,6 @@ public class PSDbComponentSet<T extends IPSDbComponent> extends PSDbComponent {
    * @throws ClassNotFoundException If a class by the supplied name cannot be found.
    * @throws NullPointerException if className is <code>null</code>.
    */
-
   public PSDbComponentSet(String className, String compType) throws ClassNotFoundException {
     this((Class<T>) Class.forName(className), compType);
   }

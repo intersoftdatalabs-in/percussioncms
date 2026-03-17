@@ -23,10 +23,10 @@ import java.io.UnsupportedEncodingException;
 /**
  * Deprecated: Use {@link PSCryptographyUtils} for secure cryptographic hashing.
  *
- * <p>This class previously provided MD5 hashing but has been refactored to use SHA-256 for
- * improved security (CWE-327: Weak Cryptography).
+ * <p>This class previously provided MD5 hashing but has been refactored to use SHA-256 for improved
+ * security (CWE-327: Weak Cryptography).
  *
- * Some utility methods for digesting info using SHA-256 (replaces legacy MD5).
+ * <p>Some utility methods for digesting info using SHA-256 (replaces legacy MD5).
  *
  * @version 0.3-3 06/05/2001
  * @author Ronald Tschalär

@@ -16,101 +16,85 @@
  */
 package com.percussion.design.objectstore;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 import com.percussion.util.PSCollection;
 import com.percussion.xml.PSXmlDocumentBuilder;
-
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-
-import org.junit.jupiter.api.Test;
-import static org.junit.jupiter.api.Assertions.*;
-
-
 // Test case
-public class PSUIDefinitionTest 
-{
-   
+public class PSUIDefinitionTest {
 
-   
-   
+  public void testEquals() throws Exception {}
 
-   public void testEquals() throws Exception
-   {
-   }
+  public void testXml() throws Exception {
+    Document doc = PSXmlDocumentBuilder.createXmlDocument();
+    Element root = PSXmlDocumentBuilder.createRoot(doc, "Test");
 
-   
+    // create test object
+    PSRule rule = new PSRule(new PSExtensionCallSet());
+    PSCollection ruleCol = new PSCollection(rule.getClass());
+    ruleCol.add(rule);
+    ruleCol.add(rule);
+    ruleCol.add(rule);
+    PSEntry entry1 = new PSEntry("1111", new PSDisplayText("one"));
+    PSEntry entry2 = new PSEntry("2222", new PSDisplayText("two"));
+    PSEntry entry3 = new PSEntry("3333", new PSDisplayText("three"));
+    PSCollection choiceCol = new PSCollection(entry1.getClass());
+    choiceCol.add(entry1);
+    choiceCol.add(entry2);
+    choiceCol.add(entry3);
+    PSChoices choices = new PSChoices(choiceCol);
+    PSBackEndCredential cred = new PSBackEndCredential("credential_1");
+    cred.setDataSource("rxdefault");
+    PSTableLocator tl = new PSTableLocator(cred);
+    PSTableRef tr = new PSTableRef("tableName_1", "tableAlias_1");
+    PSTableSet ts = new PSTableSet(tl, tr);
+    PSCollection tsCol = new PSCollection(ts.getClass());
+    tsCol.add(ts);
+    PSContainerLocator loc = new PSContainerLocator(tsCol);
+    PSBackEndTable table = new PSBackEndTable("RXARTICLE");
+    PSField f = new PSField("field_1", new PSBackEndColumn(table, "DISPLAYTITLE"));
+    PSFieldSet fs = new PSFieldSet("fieldSet_1", f);
+    PSDisplayMapper dispMapper = new PSDisplayMapper("fs_1");
+    PSDisplayMapper dispMapper2 = new PSDisplayMapper("fs_2");
+    PSUISet uiSet = new PSUISet();
+    uiSet.setName("set_1");
+    uiSet.setDefaultSet("default");
+    uiSet.setChoices(choices);
+    uiSet.setControl(new PSControlRef("control_1"));
+    uiSet.setLabel(new PSDisplayText("label"));
+    uiSet.setErrorLabel(new PSDisplayText("errorLabel"));
+    uiSet.setReadOnlyRules(ruleCol);
+    PSParam param = new PSParam("param_1", new PSTextLiteral("value_1"));
+    param = new PSParam("param_1", new PSTextLiteral("value_1"));
+    PSCollection parameters = new PSCollection(param.getClass());
+    parameters.add(param);
+    uiSet.setControl(new PSControlRef("sys_EditBox", parameters));
+    PSDisplayMapping mapping1 = new PSDisplayMapping("One", uiSet);
+    PSDisplayMapping mapping2 = new PSDisplayMapping("Two", uiSet);
+    mapping2.setDisplayMapper(dispMapper2);
+    PSDisplayMapping mapping3 = new PSDisplayMapping("Three", uiSet);
+    PSUISet defaultUI = new PSUISet();
+    PSCollection defaultUIs = new PSCollection(defaultUI.getClass());
+    defaultUIs.add(defaultUI);
+    defaultUI.setControl(new PSControlRef("sys_EditBox", parameters));
+    PSUIDefinition testTo = new PSUIDefinition(dispMapper, defaultUIs);
+    testTo.appendMapping(dispMapper, mapping1);
+    testTo.appendMapping(dispMapper, mapping2);
+    testTo.appendMapping(dispMapper, mapping3);
 
-   public void testXml() throws Exception
-   {
-      Document doc = PSXmlDocumentBuilder.createXmlDocument();
-      Element root = PSXmlDocumentBuilder.createRoot(doc, "Test");
+    Element elem = testTo.toXml(doc);
+    root.appendChild(elem);
 
-      // create test object
-      PSRule rule = new PSRule(new PSExtensionCallSet());
-      PSCollection ruleCol = new PSCollection(rule.getClass());
-      ruleCol.add(rule);
-      ruleCol.add(rule);
-      ruleCol.add(rule);
-      PSEntry entry1 = new PSEntry("1111", new PSDisplayText("one"));
-      PSEntry entry2 = new PSEntry("2222", new PSDisplayText("two"));
-      PSEntry entry3 = new PSEntry("3333", new PSDisplayText("three"));
-      PSCollection choiceCol = new PSCollection(entry1.getClass());
-      choiceCol.add(entry1);
-      choiceCol.add(entry2);
-      choiceCol.add(entry3);
-      PSChoices choices = new PSChoices(choiceCol);
-      PSBackEndCredential cred = new PSBackEndCredential("credential_1");
-      cred.setDataSource("rxdefault");
-      PSTableLocator tl = new PSTableLocator(cred);
-      PSTableRef tr = new PSTableRef("tableName_1", "tableAlias_1");
-      PSTableSet ts = new PSTableSet(tl, tr);
-      PSCollection tsCol = new PSCollection(ts.getClass());
-      tsCol.add(ts);
-      PSContainerLocator loc = new PSContainerLocator(tsCol);
-      PSBackEndTable table = new PSBackEndTable("RXARTICLE");
-      PSField f = new PSField("field_1", new PSBackEndColumn(table, "DISPLAYTITLE"));
-      PSFieldSet fs = new PSFieldSet("fieldSet_1", f);
-      PSDisplayMapper dispMapper = new PSDisplayMapper("fs_1");
-      PSDisplayMapper dispMapper2 = new PSDisplayMapper("fs_2");
-      PSUISet uiSet = new PSUISet();
-      uiSet.setName("set_1");
-      uiSet.setDefaultSet("default");
-      uiSet.setChoices(choices);
-      uiSet.setControl(new PSControlRef("control_1"));
-      uiSet.setLabel(new PSDisplayText("label"));
-      uiSet.setErrorLabel(new PSDisplayText("errorLabel"));
-      uiSet.setReadOnlyRules(ruleCol);
-      PSParam param = new PSParam("param_1", new PSTextLiteral("value_1"));
-      param = new PSParam("param_1", new PSTextLiteral("value_1"));
-      PSCollection parameters = new PSCollection(param.getClass());
-      parameters.add(param);
-      uiSet.setControl(new PSControlRef("sys_EditBox", parameters));
-      PSDisplayMapping mapping1 = new PSDisplayMapping("One", uiSet);
-      PSDisplayMapping mapping2 = new PSDisplayMapping("Two", uiSet);
-      mapping2.setDisplayMapper(dispMapper2);
-      PSDisplayMapping mapping3 = new PSDisplayMapping("Three", uiSet);
-      PSUISet defaultUI = new PSUISet();
-      PSCollection defaultUIs = new PSCollection(defaultUI.getClass());
-      defaultUIs.add(defaultUI);
-      defaultUI.setControl(new PSControlRef("sys_EditBox", parameters));
-      PSUIDefinition testTo = new PSUIDefinition(dispMapper, defaultUIs);
-      testTo.appendMapping(dispMapper, mapping1);
-      testTo.appendMapping(dispMapper, mapping2);
-      testTo.appendMapping(dispMapper, mapping3);
+    // create a new object and populate it from our testTo element
+    PSUIDefinition testFrom = new PSUIDefinition(elem, null, null);
 
-      Element elem = testTo.toXml(doc);
-      root.appendChild(elem);
-
-      // create a new object and populate it from our testTo element
-      PSUIDefinition testFrom = new PSUIDefinition(elem, null, null);
-      
-      Document doc2 = PSXmlDocumentBuilder.createXmlDocument();
-      Element root2 = PSXmlDocumentBuilder.createRoot(doc2, "Test");
-      Element elem2 = testFrom.toXml(doc2);
-      root2.appendChild(elem2);
-      assertEquals(testTo, testFrom);
-   }
-
-   
+    Document doc2 = PSXmlDocumentBuilder.createXmlDocument();
+    Element root2 = PSXmlDocumentBuilder.createRoot(doc2, "Test");
+    Element elem2 = testFrom.toXml(doc2);
+    root2.appendChild(elem2);
+    assertEquals(testTo, testFrom);
+  }
 }

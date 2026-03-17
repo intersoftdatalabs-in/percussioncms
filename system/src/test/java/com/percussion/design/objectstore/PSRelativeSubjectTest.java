@@ -17,314 +17,252 @@
 
 package com.percussion.design.objectstore;
 
-import com.percussion.xml.PSXmlDocumentBuilder;
-
-import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
+import com.percussion.xml.PSXmlDocumentBuilder;
+import java.util.Iterator;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-import java.util.Iterator;
-
 /**
- * Basic relative subject testing, including simple to/from Xml
- * checking w/ simple relative subject classes.  Also includes
- * testing of accessor methods
+ * Basic relative subject testing, including simple to/from Xml checking w/ simple relative subject
+ * classes. Also includes testing of accessor methods
  */
-public class PSRelativeSubjectTest 
-{
-   /**
-    * Constructor to call base class constructor.
-    *
-    * @see TestCase#TestCase(String) for more information.
-    */
-   
+public class PSRelativeSubjectTest {
+  /**
+   * Constructor to call base class constructor.
+   *
+   * @see TestCase#TestCase(String) for more information.
+   */
 
-   // See base class
-   public void setUp()
-   {
+  // See base class
+  public void setUp() {}
 
-   }
+  /**
+   * Test if the two supplied relative subjects are equal.
+   *
+   * @param role1 role to compare
+   * @param role2 role to compare
+   * @return <code>true</code> if the two subjects are equal, <code>false</code> otherwise
+   */
+  public static boolean testRelativeSubjectEquals(PSRelativeSubject sub1, PSRelativeSubject sub2) {
+    if ((sub1 == null) || (sub2 == null)) {
+      if ((sub2 != null) || (sub1 != null)) return false;
 
-   /**
-    * Test if the two supplied relative subjects are equal.
-    *
-    * @param role1 role to compare
-    *
-    * @param role2 role to compare
-    *
-    * @return <code>true</code> if the two subjects are equal,
-    * <code>false</code> otherwise
-    */
-   public static boolean testRelativeSubjectEquals(
-      PSRelativeSubject sub1, PSRelativeSubject sub2)
-   {
-      if ((sub1 == null) || (sub2 == null))
-      {
-         if ((sub2 != null) || (sub1 != null))
-            return false;
+      return true; // null == null
+    }
 
-         return true; // null == null
-      }
+    if (!sub1.isMatch(sub2)) return false;
 
-      if (!sub1.isMatch(sub2))
-         return false;
+    if (sub1.getAttributes().size() != sub2.getAttributes().size()) return false;
 
-      if (sub1.getAttributes().size() != sub2.getAttributes().size())
-         return false;
+    Iterator i1 = sub1.getAttributes().iterator();
+    while (i1.hasNext()) {
+      PSAttribute att1 = (PSAttribute) i1.next();
+      PSAttribute att2 = sub2.getAttributes().getAttribute(att1.getName());
+      if (!PSAttributeTest.testAttributeEquals(att1, att2)) return false;
+    }
 
-      Iterator i1 = sub1.getAttributes().iterator();
-      while (i1.hasNext())
-      {
-         PSAttribute att1 = (PSAttribute) i1.next();
-         PSAttribute att2 = sub2.getAttributes().getAttribute(att1.getName());
-         if (!PSAttributeTest.testAttributeEquals(att1, att2))
-            return false;
-      }
+    return true; // equal!
+  }
 
-      return true;      // equal!
-   }
+  /**
+   * Assert that the two supplied relative subjects are equal.
+   *
+   * @param sub1 subject to compare
+   * @param sub2 subject to compare
+   * @throws Exception If any exceptions occur or assertions fail.
+   */
+  public void assertRelativeSubjectEquals(PSRelativeSubject sub1, PSRelativeSubject sub2)
+      throws Exception {
+    assertTrue(testRelativeSubjectEquals(sub1, sub2));
+  }
 
-   /**
-    * Assert that the two supplied relative subjects are equal.
-    *
-    * @param sub1 subject to compare
-    *
-    * @param sub2 subject to compare
-    *
-    * @throws Exception If any exceptions occur or assertions fail.
-    */
-   public void assertRelativeSubjectEquals(
-      PSRelativeSubject sub1, PSRelativeSubject sub2) throws Exception
-   {
-      assertTrue(testRelativeSubjectEquals(sub1, sub2));
-   }
+  /**
+   * Test if two newly constructed relative subjects (empty ctor) are equal
+   *
+   * @throws Exception If any exceptions occur or assertions fail.
+   */
+  public void testEmptyEquals() throws Exception {
+    PSRelativeSubject sub = new PSRelativeSubject();
+    PSRelativeSubject otherSub = new PSRelativeSubject();
+    assertRelativeSubjectEquals(sub, otherSub);
+  }
 
-   /**
-    * Test if two newly constructed relative subjects (empty ctor) are equal
-    *
-    * @throws Exception If any exceptions occur or assertions fail.
-    */
-   
-   public void testEmptyEquals() throws Exception
-   {
-      PSRelativeSubject sub = new PSRelativeSubject();
-      PSRelativeSubject otherSub = new PSRelativeSubject();
-      assertRelativeSubjectEquals(sub, otherSub);
-   }
+  /**
+   * Test if two newly constructed relative subjects (name, type, and sp ctor) are equal, also test
+   * construction with invalid parameters
+   *
+   * @throws Exception If any exceptions occur or assertions fail.
+   */
+  public void testNameTypeConstructor() throws Exception {
+    PSRelativeSubject sub = new PSRelativeSubject("foo", PSSubject.SUBJECT_TYPE_USER, null);
 
-   /**
-    * Test if two newly constructed relative subjects
-    *  (name, type, and sp ctor) are equal, also test
-    *  construction with invalid parameters
-    *
-    * @throws Exception If any exceptions occur or assertions fail.
-    */
-   
-   public void testNameTypeConstructor() throws Exception
-   {
-      PSRelativeSubject sub =
-         new PSRelativeSubject("foo", PSSubject.SUBJECT_TYPE_USER, null);
+    assertEquals(sub.getName(), "foo");
 
-      assertEquals(sub.getName(), "foo");
+    PSRelativeSubject otherSub = new PSRelativeSubject("foo", PSSubject.SUBJECT_TYPE_USER, null);
 
-      PSRelativeSubject otherSub =
-         new PSRelativeSubject("foo", PSSubject.SUBJECT_TYPE_USER, null);
+    assertRelativeSubjectEquals(sub, otherSub);
 
-      assertRelativeSubjectEquals(sub, otherSub);
+    // Invalid name, null
+    boolean didThrow = false;
+    try {
+      sub = new PSRelativeSubject(null, PSSubject.SUBJECT_TYPE_USER, null);
+    } catch (IllegalArgumentException e) {
+      didThrow = true;
+    }
+    assertTrue(didThrow);
 
-      // Invalid name, null
-      boolean didThrow = false;
-      try
-      {
-         sub =
-            new PSRelativeSubject(null, PSSubject.SUBJECT_TYPE_USER, null);
-      }
-      catch (IllegalArgumentException e)
-      {
-         didThrow = true;
-      }
-      assertTrue(didThrow);
+    // Invalid name, empty
+    didThrow = false;
+    try {
+      sub = new PSRelativeSubject("", PSSubject.SUBJECT_TYPE_USER, null);
+    } catch (IllegalArgumentException e) {
+      didThrow = true;
+    }
+    assertTrue(didThrow);
 
-      // Invalid name, empty
-      didThrow = false;
-      try
-      {
-         sub = new PSRelativeSubject("", PSSubject.SUBJECT_TYPE_USER, null);
-      }
-      catch (IllegalArgumentException e)
-      {
-         didThrow = true;
-      }
-      assertTrue(didThrow);
-
-      // Invalid name, too long
-      didThrow = false;
-      try
-      {
-         StringBuilder name = new StringBuilder();
-         for (int i = 0; i <= PSSubject.SUBJECT_MAX_NAME_LEN; i++)
-            name.append('a');
-
-         sub = new PSRelativeSubject(name.toString(),
-            PSSubject.SUBJECT_TYPE_USER, null);
-      }
-      catch (IllegalArgumentException e)
-      {
-         didThrow = true;
-      }
-      assertTrue(didThrow);
-
-      // Invalid subject type, 0
-      didThrow = false;
-      try
-      {
-         sub = new PSRelativeSubject("validName", 0, null);
-      }
-      catch (IllegalArgumentException e)
-      {
-         didThrow = true;
-      }
-      assertTrue(didThrow);
-   }
-
-   /**
-    * Test using accessors to set illegal values
-    *    (setName/setSecurityProviderType) - ensure they throw
-    * exceptions appropriately.
-    *
-    * @throws Exception If any exceptions occur or assertions fail.
-    */
-   
-   public void testIllegalAccessorCalls() throws Exception
-   {
-      PSRelativeSubject sub = new PSRelativeSubject();
-      boolean didThrow = false;
-      try
-      {
-         sub.setName(null);
-      }
-      catch (IllegalArgumentException e)
-      {
-         didThrow = true;
-      }
-      assertTrue(didThrow);
-
-      didThrow = false;
-      try
-      {
-         sub.setName("");
-      }
-      catch (IllegalArgumentException e)
-      {
-         didThrow = true;
-      }
-      assertTrue(didThrow);
-
-      // Invalid name, too long
+    // Invalid name, too long
+    didThrow = false;
+    try {
       StringBuilder name = new StringBuilder();
-      for (int i = 0; i <= PSSubject.SUBJECT_MAX_NAME_LEN; i++)
-         name.append('a');
-      didThrow = false;
-      try
-      {
-         sub.setName(name.toString());
-      }
-      catch (IllegalArgumentException e)
-      {
-         didThrow = true;
-      }
-      assertTrue(didThrow);
+      for (int i = 0; i <= PSSubject.SUBJECT_MAX_NAME_LEN; i++) name.append('a');
 
-      sub.setName("foobar");
-      assertEquals(sub.getName(), "foobar");
-   }
+      sub = new PSRelativeSubject(name.toString(), PSSubject.SUBJECT_TYPE_USER, null);
+    } catch (IllegalArgumentException e) {
+      didThrow = true;
+    }
+    assertTrue(didThrow);
 
-   /**
-    * Test to and from xml methods of this os object.
-    *
-    * @throws Exception If any exceptions occur or assertions fail.
-    */
-   
-   public void testXml() throws Exception
-   {
-      PSRelativeSubject sub = new PSRelativeSubject();
-      PSRelativeSubject otherSub = new PSRelativeSubject();
-      assertRelativeSubjectEquals(sub, otherSub);
+    // Invalid subject type, 0
+    didThrow = false;
+    try {
+      sub = new PSRelativeSubject("validName", 0, null);
+    } catch (IllegalArgumentException e) {
+      didThrow = true;
+    }
+    assertTrue(didThrow);
+  }
 
-      // block 1
-      sub.setName("foobar");
-      assertFalse(testRelativeSubjectEquals(sub,otherSub));
+  /**
+   * Test using accessors to set illegal values (setName/setSecurityProviderType) - ensure they
+   * throw exceptions appropriately.
+   *
+   * @throws Exception If any exceptions occur or assertions fail.
+   */
+  public void testIllegalAccessorCalls() throws Exception {
+    PSRelativeSubject sub = new PSRelativeSubject();
+    boolean didThrow = false;
+    try {
+      sub.setName(null);
+    } catch (IllegalArgumentException e) {
+      didThrow = true;
+    }
+    assertTrue(didThrow);
 
-      Document doc = PSXmlDocumentBuilder.createXmlDocument();
-      Element el = sub.toXml(doc);
-      doc.appendChild(el);
+    didThrow = false;
+    try {
+      sub.setName("");
+    } catch (IllegalArgumentException e) {
+      didThrow = true;
+    }
+    assertTrue(didThrow);
 
-      otherSub.fromXml(el, null, null);
-      assertRelativeSubjectEquals(sub, otherSub);
+    // Invalid name, too long
+    StringBuilder name = new StringBuilder();
+    for (int i = 0; i <= PSSubject.SUBJECT_MAX_NAME_LEN; i++) name.append('a');
+    didThrow = false;
+    try {
+      sub.setName(name.toString());
+    } catch (IllegalArgumentException e) {
+      didThrow = true;
+    }
+    assertTrue(didThrow);
 
-      // set a name and verify to/from loop
-      sub.setName("taebo");
-      assertFalse(testRelativeSubjectEquals(sub,otherSub));
+    sub.setName("foobar");
+    assertEquals(sub.getName(), "foobar");
+  }
 
-      doc = PSXmlDocumentBuilder.createXmlDocument();
-      el = sub.toXml(doc);
-      doc.appendChild(el);
+  /**
+   * Test to and from xml methods of this os object.
+   *
+   * @throws Exception If any exceptions occur or assertions fail.
+   */
+  public void testXml() throws Exception {
+    PSRelativeSubject sub = new PSRelativeSubject();
+    PSRelativeSubject otherSub = new PSRelativeSubject();
+    assertRelativeSubjectEquals(sub, otherSub);
 
-      otherSub.fromXml(el, null, null);
-      assertRelativeSubjectEquals(sub, otherSub);
+    // block 1
+    sub.setName("foobar");
+    assertFalse(testRelativeSubjectEquals(sub, otherSub));
 
-      // Add an empty att and verify to/from loop
-      sub.getAttributes().add( new PSAttribute("att1") );
-      assertFalse(testRelativeSubjectEquals(sub,otherSub));
+    Document doc = PSXmlDocumentBuilder.createXmlDocument();
+    Element el = sub.toXml(doc);
+    doc.appendChild(el);
 
-      doc = PSXmlDocumentBuilder.createXmlDocument();
-      el = sub.toXml(doc);
-      doc.appendChild(el);
+    otherSub.fromXml(el, null, null);
+    assertRelativeSubjectEquals(sub, otherSub);
 
-      otherSub.fromXml(el, null, null);
-      assertRelativeSubjectEquals(sub, otherSub);
+    // set a name and verify to/from loop
+    sub.setName("taebo");
+    assertFalse(testRelativeSubjectEquals(sub, otherSub));
 
-      // Add a second att and verify to/from loop
-      sub.getAttributes().add( new PSAttribute("att2") );
-      assertFalse(testRelativeSubjectEquals(sub,otherSub));
+    doc = PSXmlDocumentBuilder.createXmlDocument();
+    el = sub.toXml(doc);
+    doc.appendChild(el);
 
-      doc = PSXmlDocumentBuilder.createXmlDocument();
-      el = sub.toXml(doc);
-      doc.appendChild(el);
+    otherSub.fromXml(el, null, null);
+    assertRelativeSubjectEquals(sub, otherSub);
 
-      otherSub.fromXml(el, null, null);
-      assertRelativeSubjectEquals(sub, otherSub);
+    // Add an empty att and verify to/from loop
+    sub.getAttributes().add(new PSAttribute("att1"));
+    assertFalse(testRelativeSubjectEquals(sub, otherSub));
 
-      // Remove att and verify to/from loop
-      sub.getAttributes().removeElementAt(0);
-      assertFalse(testRelativeSubjectEquals(sub,otherSub));
+    doc = PSXmlDocumentBuilder.createXmlDocument();
+    el = sub.toXml(doc);
+    doc.appendChild(el);
 
-      doc = PSXmlDocumentBuilder.createXmlDocument();
-      el = sub.toXml(doc);
-      doc.appendChild(el);
+    otherSub.fromXml(el, null, null);
+    assertRelativeSubjectEquals(sub, otherSub);
 
-      otherSub.fromXml(el, null, null);
-      assertRelativeSubjectEquals(sub, otherSub);
+    // Add a second att and verify to/from loop
+    sub.getAttributes().add(new PSAttribute("att2"));
+    assertFalse(testRelativeSubjectEquals(sub, otherSub));
 
-      // Remove last att and verify to/from loop
-      sub.getAttributes().removeElementAt(0);
-      assertFalse(testRelativeSubjectEquals(sub,otherSub));
+    doc = PSXmlDocumentBuilder.createXmlDocument();
+    el = sub.toXml(doc);
+    doc.appendChild(el);
 
-      doc = PSXmlDocumentBuilder.createXmlDocument();
-      el = sub.toXml(doc);
-      doc.appendChild(el);
+    otherSub.fromXml(el, null, null);
+    assertRelativeSubjectEquals(sub, otherSub);
 
-      otherSub.fromXml(el, null, null);
-      assertRelativeSubjectEquals(sub, otherSub);
-   }
+    // Remove att and verify to/from loop
+    sub.getAttributes().removeElementAt(0);
+    assertFalse(testRelativeSubjectEquals(sub, otherSub));
 
-   /**
-    * Collect all tests into a TestSuite and return it.
-    *
-    * @return The suite of test methods for this class.  Not <code>null</code>.
-    */
-   
+    doc = PSXmlDocumentBuilder.createXmlDocument();
+    el = sub.toXml(doc);
+    doc.appendChild(el);
+
+    otherSub.fromXml(el, null, null);
+    assertRelativeSubjectEquals(sub, otherSub);
+
+    // Remove last att and verify to/from loop
+    sub.getAttributes().removeElementAt(0);
+    assertFalse(testRelativeSubjectEquals(sub, otherSub));
+
+    doc = PSXmlDocumentBuilder.createXmlDocument();
+    el = sub.toXml(doc);
+    doc.appendChild(el);
+
+    otherSub.fromXml(el, null, null);
+    assertRelativeSubjectEquals(sub, otherSub);
+  }
+
+  /**
+   * Collect all tests into a TestSuite and return it.
+   *
+   * @return The suite of test methods for this class. Not <code>null</code>.
+   */
 }
-

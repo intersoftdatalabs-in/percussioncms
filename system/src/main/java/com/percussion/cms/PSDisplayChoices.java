@@ -23,7 +23,6 @@ import com.percussion.design.objectstore.PSChoiceFilter;
 import com.percussion.design.objectstore.PSDisplayText;
 import com.percussion.design.objectstore.PSEntry;
 import com.percussion.design.objectstore.PSUnknownNodeTypeException;
-import com.percussion.utils.collections.PSIteratorUtils;
 import com.percussion.xml.PSXmlTreeWalker;
 import java.util.ArrayList;
 import java.util.Collections;

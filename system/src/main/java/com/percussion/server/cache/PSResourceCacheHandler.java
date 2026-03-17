@@ -835,7 +835,6 @@ public class PSResourceCacheHandler extends PSCacheHandler implements IPSTableCh
      * @param value The object to remove from the list contained by the value of each entry in the
      *     supplied <code>map</code>. May be <code>null</code>.
      */
-
     private void removeFromMapEntryList(Map map, Object value) {
       List removalList = new ArrayList();
       for (Object o : map.entrySet()) {

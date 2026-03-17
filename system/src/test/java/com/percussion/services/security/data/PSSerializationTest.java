@@ -16,77 +16,63 @@
  */
 package com.percussion.services.security.data;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 import com.percussion.i18n.PSLocale;
 import com.percussion.services.catalog.PSTypeEnum;
 import com.percussion.services.guidmgr.data.PSGuid;
 import com.percussion.services.utils.xml.PSXmlSerializationHelper;
 
-import org.junit.jupiter.api.Test;
-import static org.junit.jupiter.api.Assertions.*;
-
 /**
  * Test xml helper serialization of selected objects
- * 
+ *
  * @author dougrand
- * 
  */
-public class PSSerializationTest 
-{
-   static
-   {
-      PSXmlSerializationHelper.addType(PSCommunity.class);
-      PSXmlSerializationHelper.addType(PSLocale.class);
-      PSXmlSerializationHelper.addType(PSGuid.class);
-   }
-   
-   
-   
-   public void testGuidSer() throws Exception
-   {
-      PSGuid g = new PSGuid(PSTypeEnum.ACL, 101101);
-      
-      String ser = PSXmlSerializationHelper.writeToXml(g);
-      
-      PSGuid res = (PSGuid) PSXmlSerializationHelper.readFromXML(ser);
-      
-      assertEquals(g, res);
-   }
-   
-   
-   
-   public void testCommunitySerialization() throws Exception
-   {
-      PSCommunity community = new PSCommunity();
+public class PSSerializationTest {
+  static {
+    PSXmlSerializationHelper.addType(PSCommunity.class);
+    PSXmlSerializationHelper.addType(PSLocale.class);
+    PSXmlSerializationHelper.addType(PSGuid.class);
+  }
 
-      community.setDescription("Test community");
-      community.setGUID(new PSGuid(PSTypeEnum.COMMUNITY_DEF, 100101));
-      community.setName("Test_1");
-      community.addRoleAssociation(new PSGuid(PSTypeEnum.ROLE, 10));
-      community.addRoleAssociation(new PSGuid(PSTypeEnum.ROLE, 11));
+  public void testGuidSer() throws Exception {
+    PSGuid g = new PSGuid(PSTypeEnum.ACL, 101101);
 
-      String ser = PSXmlSerializationHelper.writeToXml(community);
+    String ser = PSXmlSerializationHelper.writeToXml(g);
 
-      PSCommunity restore = (PSCommunity) PSXmlSerializationHelper
-            .readFromXML(ser);
-      assertEquals(community,restore);
-   }
-   
-   public void FIXME_testLocaleSerialization() throws Exception
-   {
-      PSLocale locale = new PSLocale();
-      
-      locale.setLocaleId(111);
-      locale.setDescription("A locale");
-      locale.setDisplayName("en_GB");
-      locale.setLanguageString("en_UK_1");
-      locale.setStatus(5);
-      
-      String ser = PSXmlSerializationHelper.writeToXml(locale);
+    PSGuid res = (PSGuid) PSXmlSerializationHelper.readFromXML(ser);
 
-      PSLocale restore = (PSLocale) PSXmlSerializationHelper
-            .readFromXML(ser);
-      
-      assertEquals(locale,restore);
-      
-   }
+    assertEquals(g, res);
+  }
+
+  public void testCommunitySerialization() throws Exception {
+    PSCommunity community = new PSCommunity();
+
+    community.setDescription("Test community");
+    community.setGUID(new PSGuid(PSTypeEnum.COMMUNITY_DEF, 100101));
+    community.setName("Test_1");
+    community.addRoleAssociation(new PSGuid(PSTypeEnum.ROLE, 10));
+    community.addRoleAssociation(new PSGuid(PSTypeEnum.ROLE, 11));
+
+    String ser = PSXmlSerializationHelper.writeToXml(community);
+
+    PSCommunity restore = (PSCommunity) PSXmlSerializationHelper.readFromXML(ser);
+    assertEquals(community, restore);
+  }
+
+  public void FIXME_testLocaleSerialization() throws Exception {
+    PSLocale locale = new PSLocale();
+
+    locale.setLocaleId(111);
+    locale.setDescription("A locale");
+    locale.setDisplayName("en_GB");
+    locale.setLanguageString("en_UK_1");
+    locale.setStatus(5);
+
+    String ser = PSXmlSerializationHelper.writeToXml(locale);
+
+    PSLocale restore = (PSLocale) PSXmlSerializationHelper.readFromXML(ser);
+
+    assertEquals(locale, restore);
+  }
 }

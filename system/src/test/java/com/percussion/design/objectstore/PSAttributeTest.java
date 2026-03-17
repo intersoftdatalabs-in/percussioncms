@@ -17,227 +17,195 @@
 
 package com.percussion.design.objectstore;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 import com.percussion.xml.PSXmlDocumentBuilder;
-
 import java.util.ArrayList;
-
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-
-import org.junit.jupiter.api.Test;
-import static org.junit.jupiter.api.Assertions.*;
-
-
 /**
- * Basic attribute testing, including simple to/from Xml
- * checking w/ simple attribute classes.  Also includes
- * testing of accessor methods
+ * Basic attribute testing, including simple to/from Xml checking w/ simple attribute classes. Also
+ * includes testing of accessor methods
  */
-public class PSAttributeTest
-{
-   /**
-    * @see TestCase#TestCase(String)
-    */
+public class PSAttributeTest {
+  /**
+   * @see TestCase#TestCase(String)
+   */
 
-   /**
-    * Test if the two supplied attributes are equal.
-    *
-    * @param att1 attribute to compare
-    *
-    * @param att2 attribute to compare
-    */
-   public static boolean testAttributeEquals(
-      PSAttribute att1, PSAttribute att2)
-   {
-      if ((att1 == null) || (att2 == null))
-      {
-         if ((att2 != null) || (att1 != null))
-            return false;
+  /**
+   * Test if the two supplied attributes are equal.
+   *
+   * @param att1 attribute to compare
+   * @param att2 attribute to compare
+   */
+  public static boolean testAttributeEquals(PSAttribute att1, PSAttribute att2) {
+    if ((att1 == null) || (att2 == null)) {
+      if ((att2 != null) || (att1 != null)) return false;
 
-         return true; // null == null
+      return true; // null == null
+    }
+
+    // Check if the names are equal
+    if (!att1.getName().equals(att2.getName())) {
+      return false;
+    }
+
+    if (att1.size() != att2.size()) {
+      return false;
+    }
+
+    for (int i = 0; i < att1.size(); i++) {
+      PSAttributeValue val1 = (PSAttributeValue) att1.get(i);
+      PSAttributeValue val2 = (PSAttributeValue) att2.get(i);
+
+      if (!val1.getValueText().equals(val2.getValueText())) {
+        return false;
       }
+    }
 
-      // Check if the names are equal
-      if (!att1.getName().equals(att2.getName()))
-      {
-         return false;
-      }
+    return true; // equal!
+  }
 
-      if (att1.size() != att2.size())
-      {
-         return false;
-      }
+  /**
+   * Assert that the two supplied atts are equal.
+   *
+   * @param att1 att to compare
+   * @param att2 att to compare
+   * @throws Exception If any exceptions occur or assertions fail.
+   */
+  public void assertAttributeEquals(PSAttribute att1, PSAttribute att2) throws Exception {
+    assertTrue(testAttributeEquals(att1, att2));
+  }
 
-      for (int i = 0; i < att1.size(); i++)
-      {
-         PSAttributeValue val1 = (PSAttributeValue) att1.get(i);
-         PSAttributeValue val2 = (PSAttributeValue) att2.get(i);
+  /**
+   * Test if two newly constructed atts (empty ctor) are equal
+   *
+   * @throws Exception If any exceptions occur or assertions fail.
+   */
+  @Test
+  public void testEmptyEquals() throws Exception {
+    PSAttribute att = new PSAttribute();
+    PSAttribute otherAtt = new PSAttribute();
+    assertAttributeEquals(att, otherAtt);
+  }
 
-         if (!val1.getValueText().equals(val2.getValueText()))
-         {
-            return false;
-         }
-      }
+  /**
+   * Test if two newly constructed atts (name ctor) are equal
+   *
+   * @throws Exception If any exceptions occur or assertions fail.
+   */
+  @Test
+  public void testNameTypeConstructor() throws Exception {
+    PSAttribute att = new PSAttribute("foo");
 
-      return true;      // equal!
-   }
+    assertEquals("foo", att.getName());
 
-   /**
-    * Assert that the two supplied atts are equal.
-    *
-    * @param att1 att to compare
-    *
-    * @param att2 att to compare
-    *
-    * @throws Exception If any exceptions occur or assertions fail.
-    */
-   public void assertAttributeEquals(
-      PSAttribute att1, PSAttribute att2) throws Exception
-   {
-      assertTrue(testAttributeEquals(att1, att2));
-   }
+    PSAttribute otherAtt = new PSAttribute("foo");
 
-   /**
-    * Test if two newly constructed atts (empty ctor) are equal
-    *
-    * @throws Exception If any exceptions occur or assertions fail.
-    */
-   @Test
-   public void testEmptyEquals() throws Exception
-   {
-      PSAttribute att = new PSAttribute();
-      PSAttribute otherAtt = new PSAttribute();
-      assertAttributeEquals(att, otherAtt);
-   }
+    assertAttributeEquals(att, otherAtt);
 
-   /**
-    * Test if two newly constructed atts (name ctor) are equal
-    *
-    * @throws Exception If any exceptions occur or assertions fail.
-    */
-   @Test
-   public void testNameTypeConstructor() throws Exception
-   {
-      PSAttribute att =
-         new PSAttribute("foo");
+    boolean didThrow = false;
+    try {
+      att = new PSAttribute(null);
+    } catch (IllegalArgumentException e) {
+      didThrow = true;
+    }
+    assertTrue(didThrow);
 
-      assertEquals("foo", att.getName());
+    didThrow = false;
+    try {
+      att = new PSAttribute("");
+    } catch (IllegalArgumentException e) {
+      didThrow = true;
+    }
+    assertTrue(didThrow);
+  }
 
-      PSAttribute otherAtt =
-         new PSAttribute("foo");
+  /**
+   * Test to and from xml methods (round trip) of this os object.
+   *
+   * @throws Exception If any exceptions occur or assertions fail.
+   */
+  @Test
+  public void testXml() throws Exception {
+    PSAttribute att = new PSAttribute("foobar");
+    PSAttribute otherAtt = new PSAttribute();
 
-      assertAttributeEquals(att, otherAtt);
+    assertFalse(testAttributeEquals(att, otherAtt));
 
-      boolean didThrow = false;
-      try
-      {
-         att = new PSAttribute(null);
-      }
-      catch (IllegalArgumentException e)
-      {
-         didThrow = true;
-      }
-      assertTrue(didThrow);
+    Document doc = PSXmlDocumentBuilder.createXmlDocument();
+    Element el = att.toXml(doc);
+    doc.appendChild(el);
 
-      didThrow = false;
-      try
-      {
-         att = new PSAttribute("");
-      }
-      catch (IllegalArgumentException e)
-      {
-         didThrow = true;
-      }
-      assertTrue(didThrow);
-   }
+    otherAtt.fromXml(el, null, null);
+    assertAttributeEquals(att, otherAtt);
 
-   /**
-    * Test to and from xml methods (round trip) of this os object.
-    *
-    * @throws Exception If any exceptions occur or assertions fail.
-    */
-   @Test
-   public void testXml() throws Exception
-   {
-      PSAttribute att = new PSAttribute("foobar");
-      PSAttribute otherAtt = new PSAttribute();
+    // use different name and verify to/from loop
+    att = new PSAttribute("taebo");
+    assertTrue(!testAttributeEquals(att, otherAtt));
 
-      assertFalse(testAttributeEquals(att, otherAtt));
+    doc = PSXmlDocumentBuilder.createXmlDocument();
+    el = att.toXml(doc);
+    doc.appendChild(el);
 
-      Document doc = PSXmlDocumentBuilder.createXmlDocument();
-      Element el = att.toXml(doc);
-      doc.appendChild(el);
+    otherAtt.fromXml(el, null, null);
+    assertAttributeEquals(att, otherAtt);
 
-      otherAtt.fromXml(el, null, null);
-      assertAttributeEquals(att, otherAtt);
+    ArrayList<String> val = new ArrayList<>();
+    val.add("one");
+    val.add("two");
+    val.add("three");
 
-      // use different name and verify to/from loop
-      att = new PSAttribute("taebo");
-      assertTrue(!testAttributeEquals(att,otherAtt));
+    // add a value and verify to/from loop
+    att.setValues(val);
+    assertFalse(testAttributeEquals(att, otherAtt));
 
-      doc = PSXmlDocumentBuilder.createXmlDocument();
-      el = att.toXml(doc);
-      doc.appendChild(el);
+    doc = PSXmlDocumentBuilder.createXmlDocument();
+    el = att.toXml(doc);
+    doc.appendChild(el);
 
-      otherAtt.fromXml(el, null, null);
-      assertAttributeEquals(att, otherAtt);
+    otherAtt.fromXml(el, null, null);
+    assertAttributeEquals(att, otherAtt);
 
-      ArrayList<String> val = new ArrayList<>();
-      val.add("one");
-      val.add("two");
-      val.add("three");
+    // add a different value (one item list) and verify to/from loop
+    ArrayList<String> l = new ArrayList<>();
+    l.add("one");
+    att.setValues(l);
 
-      // add a value and verify to/from loop
-      att.setValues(val);
-      assertFalse(testAttributeEquals(att, otherAtt));
+    assertFalse(testAttributeEquals(att, otherAtt));
 
-      doc = PSXmlDocumentBuilder.createXmlDocument();
-      el = att.toXml(doc);
-      doc.appendChild(el);
+    doc = PSXmlDocumentBuilder.createXmlDocument();
+    el = att.toXml(doc);
+    doc.appendChild(el);
+    otherAtt.fromXml(el, null, null);
+    assertAttributeEquals(att, otherAtt);
 
-      otherAtt.fromXml(el, null, null);
-      assertAttributeEquals(att, otherAtt);
+    // add a different value (including a null value) and verify to/from loop
+    l.add(null);
+    l.add("three");
+    att.setValues(l);
+    assertTrue(!testAttributeEquals(att, otherAtt));
 
-      // add a different value (one item list) and verify to/from loop
-      ArrayList<String> l = new ArrayList<>();
-      l.add("one");
-      att.setValues(l);
+    doc = PSXmlDocumentBuilder.createXmlDocument();
+    el = att.toXml(doc);
+    doc.appendChild(el);
 
-      assertFalse(testAttributeEquals(att, otherAtt));
+    otherAtt.fromXml(el, null, null);
+    assertAttributeEquals(att, otherAtt);
 
-      doc = PSXmlDocumentBuilder.createXmlDocument();
-      el = att.toXml(doc);
-      doc.appendChild(el);
-      otherAtt.fromXml(el, null, null);
-      assertAttributeEquals(att, otherAtt);
+    // Now try a null value and verify to/from loop
+    att.setValues(null);
+    assertFalse(testAttributeEquals(att, otherAtt));
 
-      // add a different value (including a null value) and verify to/from loop
-      l.add(null);
-      l.add("three");
-      att.setValues(l);
-      assertTrue(!testAttributeEquals(att,otherAtt));
+    doc = PSXmlDocumentBuilder.createXmlDocument();
+    el = att.toXml(doc);
+    doc.appendChild(el);
 
-      doc = PSXmlDocumentBuilder.createXmlDocument();
-      el = att.toXml(doc);
-      doc.appendChild(el);
+    otherAtt.fromXml(el, null, null);
+    assertAttributeEquals(att, otherAtt);
+  }
 
-      otherAtt.fromXml(el, null, null);
-      assertAttributeEquals(att, otherAtt);
-
-      // Now try a null value and verify to/from loop
-      att.setValues(null);
-      assertFalse(testAttributeEquals(att, otherAtt));
-
-      doc = PSXmlDocumentBuilder.createXmlDocument();
-      el = att.toXml(doc);
-      doc.appendChild(el);
-
-      otherAtt.fromXml(el, null, null);
-      assertAttributeEquals(att, otherAtt);
-   }
-
-   // JUnit 5 uses test discovery; no explicit suite() method is required.
+  // JUnit 5 uses test discovery; no explicit suite() method is required.
 }
-
-

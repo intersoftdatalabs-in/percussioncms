@@ -78,12 +78,12 @@ import com.percussion.relationship.PSEffectResult;
 import com.percussion.security.PSAuthorizationException;
 import com.percussion.security.PSThreadRequestUtils;
 import com.percussion.security.error.PSExceptionUtils;
+import com.percussion.security.utils.PSRedirectValidation;
 import com.percussion.server.IPSRequestContext;
 import com.percussion.server.PSInternalRequest;
 import com.percussion.server.PSRequest;
 import com.percussion.server.PSRequestContext;
 import com.percussion.server.PSServer;
-import com.percussion.security.utils.PSRedirectValidation;
 import com.percussion.server.cache.IPSFolderRelationshipCache;
 import com.percussion.server.cache.PSFolderEntry;
 import com.percussion.server.cache.PSFolderRelationshipCache;
@@ -1172,7 +1172,6 @@ public class PSServerFolderProcessor extends PSProcessorCommon
    * @param locators The to be validated locators, assume not <code>null</code>.
    * @throws PSCmsException if one of the locator is not folder.
    */
-
   private void validateFolderType(PSKey[] locators) throws PSCmsException {
     PSItemSummaryCache cache = getItemCache();
     if (cache != null) // do validation from cache
@@ -1228,7 +1227,6 @@ public class PSServerFolderProcessor extends PSProcessorCommon
    * {@link #validateKey(PSKey)} for the requirement of the locators, <code>children</code> and
    * <code>targetParent</code>.
    */
-
   public void add(String componentType, List children, PSKey targetParent) throws PSCmsException {
     validateComponentType(componentType);
     validateKeys(children.iterator());
@@ -1278,7 +1276,6 @@ public class PSServerFolderProcessor extends PSProcessorCommon
      * @param summaries The summaries object, assume not <code>null</code>.
      * @throws PSCmsException if an error occurs.
      */
-
     public ComponentGroup(PSComponentSummaries summaries) throws PSCmsException {
       PSRelationshipProcessor relation = PSRelationshipProcessor.getInstance();
 
@@ -1362,7 +1359,6 @@ public class PSServerFolderProcessor extends PSProcessorCommon
    *     otherwise it is used for move item/folder.
    * @throws PSCmsException if the test described above is successful.
    */
-
   private void validateTargetParentIsNotDescendent(
       PSLocator targetParent, List folderChildren, boolean copyItem) throws PSCmsException {
     Iterator childs = folderChildren.iterator();
@@ -1418,7 +1414,6 @@ public class PSServerFolderProcessor extends PSProcessorCommon
    *     be empty.
    * @throws PSCmsException if the validation fails.
    */
-
   private PSComponentSummaries validateChildNames(PSComponentSummaries children, PSKey target)
       throws PSCmsException {
     PSComponentSummaries existingObjectSummaries = new PSComponentSummaries();
@@ -1904,7 +1899,6 @@ public class PSServerFolderProcessor extends PSProcessorCommon
    *
    * @deprecated Use {@link PSFolderProcessorProxy#removeChildren(PSLocator, List)}.
    */
-
   public void delete(String relType, PSKey sourceParent, List children) throws PSCmsException {
     validateRelType(relType);
     validateKeys(children.iterator());
@@ -2457,7 +2451,6 @@ public class PSServerFolderProcessor extends PSProcessorCommon
    * @return The component summaries object, never <code>null</code>.
    * @throws PSCmsException if an error occurs.
    */
-
   private PSComponentSummaries getFolderChildren(
       PSLocator folderLocator,
       int doNotApplyFilters,
@@ -2519,7 +2512,6 @@ public class PSServerFolderProcessor extends PSProcessorCommon
    * @return Each entry is a PSLocator. Never <code>null</code>, may be empty.
    * @throws PSCmsException If any problems getting the relationships.
    */
-
   private static List getDependentLocators(
       PSRelationshipProcessor proc, PSKey folderId, int doNotApplyFilters, boolean recursive)
       throws PSCmsException {
@@ -2960,7 +2952,6 @@ public class PSServerFolderProcessor extends PSProcessorCommon
    *
    * @deprecated Use {@link PSFolderProcessorProxy#getParentSummaries(PSLocator)}.
    */
-
   @Deprecated
   public PSComponentSummary[] getParents(
       @SuppressWarnings("unused") String type, String relationshipType, PSKey locator)
@@ -3031,7 +3022,6 @@ public class PSServerFolderProcessor extends PSProcessorCommon
    * @throws PSCmsException if any error occurs getting the component summaries for the specified
    *     locators
    */
-
   private PSKey[] getFolderLocators(List locators) throws PSCmsException {
     PSKey[] keys = new PSKey[0];
     PSItemSummaryCache cache = getItemCache();
@@ -3578,7 +3568,6 @@ public class PSServerFolderProcessor extends PSProcessorCommon
    * @return summaries for all the owners/children of the relationships supplied.
    * @throws PSCmsException if it could not fetch the summaries for any reason.
    */
-
   private PSComponentSummaries getSummaries(Iterator relationships, boolean owner)
       throws PSCmsException {
     List locators = new ArrayList();
@@ -4417,7 +4406,6 @@ public class PSServerFolderProcessor extends PSProcessorCommon
    *
    * @param value the new value for the global error flag usd in the copy folder action.
    */
-
   private void setHadErrors(boolean value) {
     m_hadErrors.set(value ? Boolean.TRUE : Boolean.FALSE);
   }
@@ -4493,7 +4481,6 @@ public class PSServerFolderProcessor extends PSProcessorCommon
    *     empty.
    * @throws PSException for any error.
    */
-
   private void cloneSiteFolderChildren(
       PSRequest request,
       IPSRequestContext context,
@@ -4609,7 +4596,8 @@ public class PSServerFolderProcessor extends PSProcessorCommon
 
         // change the community if mapped
         Integer newCommunity =
-            (Integer) options.getCommunityMappings().get(Integer.valueOf(newFolder.getCommunityId()));
+            (Integer)
+                options.getCommunityMappings().get(Integer.valueOf(newFolder.getCommunityId()));
         if (newCommunity != null) {
           context.setSessionPrivateObject(IPSHtmlParameters.SYS_COMMUNITY, newCommunity.toString());
           newFolder.setCommunityId(newCommunity.intValue());
@@ -4717,7 +4705,6 @@ public class PSServerFolderProcessor extends PSProcessorCommon
    *     community, <code>false</code> to calculate the workflow as when creating a new item.
    * @throws PSException for any error.
    */
-
   private void cloneNavItems(
       PSRequest request,
       PSComponentSummaries children,
@@ -4777,7 +4764,6 @@ public class PSServerFolderProcessor extends PSProcessorCommon
     addChildren(childItems, target);
   }
 
-
   private void cloneItems(
       PSRequest request,
       PSComponentSummaries children,
@@ -4836,7 +4822,6 @@ public class PSServerFolderProcessor extends PSProcessorCommon
    *     </code>.
    * @throws PSException for any error.
    */
-
   private void createRelatedContent(PSRequest request, PSCloningOptions options)
       throws PSException {
     getLogger().debug("Recreating relationships and fixup inline links...");
@@ -5040,7 +5025,6 @@ public class PSServerFolderProcessor extends PSProcessorCommon
    *     the <code>parents</code>. Never <code>null</code>, may be empty.
    * @throws PSCmsException if an error occurs.
    */
-
   private List getFolderLocatorPaths(PSLocator itemLocator, List parents) throws PSCmsException {
     // get immediate parents
     PSRelationshipFilter filter = new PSRelationshipFilter();
@@ -5083,7 +5067,6 @@ public class PSServerFolderProcessor extends PSProcessorCommon
    * @param isInsert flag indicating that this is an insert action
    * @throws PSCmsException if an error occurs during the validation process.
    */
-
   public static void validateUniqueDepName(final IPSRequestContext request, final boolean isInsert)
       throws PSCmsException {
     // get the locator if exist
@@ -5121,7 +5104,8 @@ public class PSServerFolderProcessor extends PSProcessorCommon
           if (validatedRedirect != null) {
             int index = validatedRedirect.indexOf(IPSHtmlParameters.SYS_FOLDERID);
             if (index >= 0) {
-              folderId = validatedRedirect.substring(index + IPSHtmlParameters.SYS_FOLDERID.length() + 1);
+              folderId =
+                  validatedRedirect.substring(index + IPSHtmlParameters.SYS_FOLDERID.length() + 1);
               index = folderId.indexOf('&');
               if (index > -1) folderId = folderId.substring(0, index);
             }
@@ -5331,7 +5315,6 @@ public class PSServerFolderProcessor extends PSProcessorCommon
    *     contains a name (1st object) and its content id (2nd object).
    * @throws PSCmsException if an error occurs.
    */
-
   private static List<Object[]> getChildItems(PSLocator owner, IPSRequestContext request)
       throws PSCmsException {
     IPSRelationshipProcessor relProxy = PSRelationshipProcessor.getInstance();

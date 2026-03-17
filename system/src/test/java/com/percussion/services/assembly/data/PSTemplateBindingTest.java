@@ -16,76 +16,62 @@
  */
 package com.percussion.services.assembly.data;
 
-
-
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.Tag;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
+
 /**
  * @author dougrand
- *
  */
 @Tag("UnitTest")
-public class PSTemplateBindingTest
-{
-   /**
-    * 
-    */
-   @Test
-   public void testBasics()
-   {
-      final PSTemplateBinding binding = new PSTemplateBinding();
-      
-      // variable can be null or empty.
-      final String VALUE = "Value !";
-      binding.setVariable(VALUE);
-      assertEquals(VALUE, binding.getVariable());
-      binding.setVariable("");
-      assertEquals("", binding.getVariable());
-      binding.setVariable(null);
-      assertNull(binding.getVariable());
-   }
-   
-   /**
-    * 
-    */
-   public void testEqualsHash()
-   {
-      final PSTemplateBinding binding1 = new PSTemplateBinding();
-      final PSTemplateBinding binding2 = new PSTemplateBinding();
-      
-      checkEqual(binding1, binding2);
-      
-      final String expression = "Expression";
-      binding1.setExpression(expression);
-      assertFalse(binding1.equals(binding2));
-      
-      binding2.setExpression(expression);
-      checkEqual(binding1, binding2);
+public class PSTemplateBindingTest {
+  /** */
+  @Test
+  public void testBasics() {
+    final PSTemplateBinding binding = new PSTemplateBinding();
 
-      assertFalse(binding1.equals(null));
-      assertFalse(binding1.equals(new Object()));
-   }
+    // variable can be null or empty.
+    final String VALUE = "Value !";
+    binding.setVariable(VALUE);
+    assertEquals(VALUE, binding.getVariable());
+    binding.setVariable("");
+    assertEquals("", binding.getVariable());
+    binding.setVariable(null);
+    assertNull(binding.getVariable());
+  }
 
-   private void checkEqual(final Object o1, final Object o2)
-   {
-      assertEquals(o1, o2);
-      assertEquals(o2, o1);
-      assertEquals(o1.hashCode(), o2.hashCode());
-   }
-   
-   /**
-    * 
-    */
-   public void testClone()
-   {
-      PSTemplateBinding binding = new PSTemplateBinding(101, "variable 1", "expression 1");
-      assertEquals(binding, binding.clone());
-      assertEquals(binding.clone(), binding);
-      assertEquals(binding.hashCode(), binding.clone().hashCode());
-   }
+  /** */
+  public void testEqualsHash() {
+    final PSTemplateBinding binding1 = new PSTemplateBinding();
+    final PSTemplateBinding binding2 = new PSTemplateBinding();
+
+    checkEqual(binding1, binding2);
+
+    final String expression = "Expression";
+    binding1.setExpression(expression);
+    assertFalse(binding1.equals(binding2));
+
+    binding2.setExpression(expression);
+    checkEqual(binding1, binding2);
+
+    assertFalse(binding1.equals(null));
+    assertFalse(binding1.equals(new Object()));
+  }
+
+  private void checkEqual(final Object o1, final Object o2) {
+    assertEquals(o1, o2);
+    assertEquals(o2, o1);
+    assertEquals(o1.hashCode(), o2.hashCode());
+  }
+
+  /** */
+  public void testClone() {
+    PSTemplateBinding binding = new PSTemplateBinding(101, "variable 1", "expression 1");
+    assertEquals(binding, binding.clone());
+    assertEquals(binding.clone(), binding);
+    assertEquals(binding.hashCode(), binding.clone().hashCode());
+  }
 }

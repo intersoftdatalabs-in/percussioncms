@@ -49,8 +49,6 @@ import org.w3c.dom.Node;
  * The PSNavon represents a navigation section. This can be represented as either a Navon or NavTree
  * content item.
  *
-
- *
  * @author DavidBenua
  */
 public class PSNavon {
@@ -278,8 +276,8 @@ public class PSNavon {
   }
 
   /**
-   * Finds the parent summary. Will be <code>null</code> if the parent
-   * cannot be found.
+   * Finds the parent summary. Will be <code>null</code> if the parent cannot be found.
+   *
    * @param req the parent request context.
    * @return the component summary or <code>null</code>
    * @throws PSNavException

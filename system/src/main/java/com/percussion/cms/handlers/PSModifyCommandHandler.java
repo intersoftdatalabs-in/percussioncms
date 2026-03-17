@@ -529,7 +529,6 @@ public class PSModifyCommandHandler extends PSCommandHandler {
    * @throws IOException for any I/O errors.
    * @throws PSCmsException for all other errors.
    */
-
   private void preProcessInlineLinks(PSRequest request, int id) throws IOException, PSCmsException {
     PSContentEditorPipe pipe = (PSContentEditorPipe) m_ce.getPipe();
     if (pipe == null) return;
@@ -870,7 +869,6 @@ public class PSModifyCommandHandler extends PSCommandHandler {
    * @param request the request containing the parameters from where to update the provided
    *     document, may be <code>null</code>.
    */
-
   private void mergeParameters(Document doc, PSRequest request) {
     // do nothing if any of the provided parameters in null
     if (doc == null || request == null) return;
@@ -1039,7 +1037,6 @@ public class PSModifyCommandHandler extends PSCommandHandler {
    * @throws PSNotFoundException if a udf or extension cannot be located.
    * @throws PSSystemValidationException if there is a problem starting an internal application.
    */
-
   private void createDataSets(PSDisplayMapper mapper, PSFieldSet mainFieldSet)
       throws SQLException, PSSystemValidationException, PSExtensionException, PSNotFoundException {
     // create a plan set to hold all modify plans
@@ -1141,7 +1138,6 @@ public class PSModifyCommandHandler extends PSCommandHandler {
    *     SYSID as the key.
    * @throws PSSystemValidationException if there is an error creating the dataset.
    */
-
   private String createSequenceQueryDataSet(PSDisplayMapper mapper, PSFieldSet fieldSet)
       throws PSSystemValidationException {
     // get the table
@@ -1273,7 +1269,6 @@ public class PSModifyCommandHandler extends PSCommandHandler {
    *     querying the database.
    * @throws PSAuthenticationFailedException if the user cannot be authenticated.
    */
-
   private void prepareModifyPlan(int planType, PSExecutionData data)
       throws PSRequestValidationException,
           SQLException,
@@ -1543,7 +1538,6 @@ public class PSModifyCommandHandler extends PSCommandHandler {
    * @throws PSInternalRequestCallException if there is an error executing the query.
    * @throws SQLException if there is an error reading the query results.
    */
-
   private int[][] getSequenceValues(int mapperId, PSExecutionData data)
       throws PSAuthorizationException,
           PSInternalRequestCallException,
@@ -1602,7 +1596,6 @@ public class PSModifyCommandHandler extends PSCommandHandler {
    *     PSContentEditorHandler#DB_ACTION_SEQUENCE_DECREMENT}
    * @param request The request context, assumed not <code>null</code>.
    */
-
   private void setSequenceValues(
       int sysId, int[][] seqRows, String dbActionType, PSRequest request) {
 
@@ -1681,7 +1674,6 @@ public class PSModifyCommandHandler extends PSCommandHandler {
    *     and sortRank respectively, assumed not <code>null</code>.
    * @param request The request context, assumed not <code>null</code>.
    */
-
   private void setSequenceValues(Map sysIdMap, int[][] seqRows, PSRequest request) {
     HashMap newMap = new HashMap(request.getTruncatedParameters());
     request.setParameters(newMap);

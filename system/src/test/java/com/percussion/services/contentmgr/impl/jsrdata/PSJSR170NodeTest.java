@@ -16,98 +16,79 @@
  */
 package com.percussion.services.contentmgr.impl.jsrdata;
 
+import static org.junit.jupiter.api.Assertions.*;
 
 import com.percussion.services.contentmgr.data.PSContentNode;
 import com.percussion.system.utils.jsr170.PSProperty;
-
 import javax.jcr.Node;
 import javax.jcr.NodeIterator;
 import javax.jcr.Property;
 import javax.jcr.PropertyIterator;
 import javax.jcr.RepositoryException;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import static org.junit.jupiter.api.Assertions.*;
 
+public class PSJSR170NodeTest {
+  Node m_root;
 
-public class PSJSR170NodeTest
-{
-   Node m_root;
+  @BeforeEach
+  public void setUp() throws Exception {
+    PSContentNode aaa, bbb, current;
 
+    m_root = new PSContentNode(null, "root", null, null, null, null);
+    aaa = (PSContentNode) m_root.addNode("aaa");
+    aaa.addProperty(new PSProperty("rx:dog", aaa, "Fido"));
+    aaa.addProperty(new PSProperty("rx:cat", aaa, "Pippin"));
+    aaa.addProperty(new PSProperty("rx:canary", aaa, "Tweetie"));
+    current = (PSContentNode) aaa.addNode("aa_1");
+    aaa.addProperty(new PSProperty("rx:house", current, Boolean.TRUE));
+    bbb = (PSContentNode) m_root.addNode("bbb");
+    bbb.addNode("ccc");
+    bbb.addNode("ccc");
+    fixupChildStatus(m_root);
+  }
 
+  private void fixupChildStatus(Node n) throws RepositoryException {
+    PSContentNode cur = (PSContentNode) n;
+    cur.setChildrenLoaded(true);
+    NodeIterator niter = cur.getNodes();
+    while (niter.hasNext()) {
+      fixupChildStatus(niter.nextNode());
+    }
+  }
 
-   @BeforeEach
-   public void setUp() throws Exception
-   {
-      PSContentNode aaa, bbb, current;
+  @Test
+  public void testNodeAndPropertyAccess() throws Exception {
+    String prop = m_root.getProperty("aaa/dog").getString();
+    assertEquals("Fido", prop);
+    assertTrue(m_root.hasNodes());
+    assertTrue(m_root.hasNode("bbb"));
+    Node ccc = m_root.getNode("bbb/ccc[0]");
+    Node ccc2 = m_root.getNode("bbb/ccc[1]");
+    assertNotSame(ccc, ccc2);
+    assertEquals("Pippin", m_root.getProperty("aaa/cat").getString());
+    assertEquals("Tweetie", m_root.getProperty("aaa/canary").getString());
+    assertTrue(m_root.getProperty("aaa/house").getBoolean());
+  }
 
-      m_root = new PSContentNode(null, "root", null, null, null, null);
-      aaa = (PSContentNode) m_root.addNode("aaa");
-      aaa.addProperty(new PSProperty("rx:dog", aaa, "Fido"));
-      aaa.addProperty(new PSProperty("rx:cat", aaa, "Pippin"));
-      aaa.addProperty(new PSProperty("rx:canary", aaa, "Tweetie"));
-      current = (PSContentNode) aaa.addNode("aa_1");
-      aaa.addProperty(new PSProperty("rx:house", current, Boolean.TRUE));
-      bbb = (PSContentNode) m_root.addNode("bbb");
-      bbb.addNode("ccc");
-      bbb.addNode("ccc");
-      fixupChildStatus(m_root);
-   }
+  @Test
+  public void testPropIterator() throws Exception {
+    Node aaa = m_root.getNode("aaa");
+    PropertyIterator iter = aaa.getProperties();
+    assertEquals(4, iter.getSize());
+    Property val = iter.nextProperty();
+    assertEquals(PSProperty.class, val.getClass());
+    assertEquals(1, iter.getPosition());
+    iter = aaa.getProperties("rx:ca*");
+    assertEquals(2, iter.getSize());
+  }
 
-   private void fixupChildStatus(Node n) throws RepositoryException
-   {
-      PSContentNode cur = (PSContentNode) n;
-      cur.setChildrenLoaded(true);
-      NodeIterator niter = cur.getNodes();
-      while(niter.hasNext())
-      {
-         fixupChildStatus(niter.nextNode());
-      }
-
-   }
-
-
-
-   @Test
-   public void testNodeAndPropertyAccess() throws Exception
-   {
-      String prop = m_root.getProperty("aaa/dog").getString();
-      assertEquals("Fido", prop);
-      assertTrue(m_root.hasNodes());
-      assertTrue(m_root.hasNode("bbb"));
-      Node ccc = m_root.getNode("bbb/ccc[0]");
-      Node ccc2 = m_root.getNode("bbb/ccc[1]");
-      assertNotSame(ccc, ccc2);
-      assertEquals("Pippin", m_root.getProperty("aaa/cat").getString());
-      assertEquals("Tweetie", m_root.getProperty("aaa/canary").getString());
-      assertTrue(m_root.getProperty("aaa/house").getBoolean());
-   }
-
-
-
-   @Test
-   public void testPropIterator() throws Exception
-   {
-      Node aaa = m_root.getNode("aaa");
-      PropertyIterator iter = aaa.getProperties();
-      assertEquals(4, iter.getSize());
-      Property val = iter.nextProperty();
-      assertEquals(PSProperty.class, val.getClass());
-      assertEquals(1, iter.getPosition());
-      iter = aaa.getProperties("rx:ca*");
-      assertEquals(2, iter.getSize());
-   }
-
-
-
-   @Test
-   public void testNodeIterator() throws Exception
-   {
-      Node bbb = m_root.getNode("bbb");
-      NodeIterator iter = bbb.getNodes("ccc");
-      assertEquals(2, iter.getSize());
-      assertEquals("ccc", iter.nextNode().getName());
-      assertEquals(1, iter.getPosition());
-   }
+  @Test
+  public void testNodeIterator() throws Exception {
+    Node bbb = m_root.getNode("bbb");
+    NodeIterator iter = bbb.getNodes("ccc");
+    assertEquals(2, iter.getSize());
+    assertEquals("ccc", iter.nextNode().getName());
+    assertEquals(1, iter.getPosition());
+  }
 }

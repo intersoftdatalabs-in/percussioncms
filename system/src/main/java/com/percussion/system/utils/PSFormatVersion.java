@@ -408,7 +408,8 @@ public class PSFormatVersion {
     m_buildId = (Integer.valueOf(getAttribute(tree, KEY_BUILD_ID, true))).intValue();
     m_majorVersion = (Integer.valueOf(getAttribute(tree, KEY_MAJOR_VERSION, true))).intValue();
     m_minorVersion = (Integer.valueOf(getAttribute(tree, KEY_MINOR_VERSION, true))).intValue();
-    m_microVersion = (Integer.valueOf(getAttribute(tree, KEY_MICRO_VERSION, false, "0"))).intValue();
+    m_microVersion =
+        (Integer.valueOf(getAttribute(tree, KEY_MICRO_VERSION, false, "0"))).intValue();
     m_versionString = getAttribute(tree, KEY_VERSION_STRING, true);
     m_optionalId = getAttribute(tree, KEY_OPTIONAL_ID, false);
 

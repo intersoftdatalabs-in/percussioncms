@@ -250,5 +250,4 @@ public class TLSSocketFactory extends SSLSocketFactory {
     }
     return ret.toArray(new String[] {});
   }
-
 }

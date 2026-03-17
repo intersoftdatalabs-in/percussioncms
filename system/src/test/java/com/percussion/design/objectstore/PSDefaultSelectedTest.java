@@ -16,69 +16,59 @@
  */
 package com.percussion.design.objectstore;
 
-import com.percussion.xml.PSXmlDocumentBuilder;
+import static org.junit.jupiter.api.Assertions.*;
 
+import com.percussion.xml.PSXmlDocumentBuilder;
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-
-import org.junit.jupiter.api.Test;
-import static org.junit.jupiter.api.Assertions.*;
-
-
 // Test case
-public class PSDefaultSelectedTest
-{
-   @Test
-   public void testEquals() throws Exception
-   {
-   }
+public class PSDefaultSelectedTest {
+  @Test
+  public void testEquals() throws Exception {}
 
-   @Test
-   public void testXmlNullEntry() throws Exception
-   {
-      Document doc = PSXmlDocumentBuilder.createXmlDocument();
-      Element root = PSXmlDocumentBuilder.createRoot(doc, "Test");
+  @Test
+  public void testXmlNullEntry() throws Exception {
+    Document doc = PSXmlDocumentBuilder.createXmlDocument();
+    Element root = PSXmlDocumentBuilder.createRoot(doc, "Test");
 
-      // create test object
-      PSDefaultSelected testTo = new PSDefaultSelected();
-      Element elem = testTo.toXml(doc);
-      root.appendChild(elem);
+    // create test object
+    PSDefaultSelected testTo = new PSDefaultSelected();
+    Element elem = testTo.toXml(doc);
+    root.appendChild(elem);
 
-      // create a new object and populate it from our testTo element
-      PSDefaultSelected testFrom = new PSDefaultSelected(elem, null, null);
-      assertTrue(testTo.equals(testFrom));
-   }
+    // create a new object and populate it from our testTo element
+    PSDefaultSelected testFrom = new PSDefaultSelected(elem, null, null);
+    assertTrue(testTo.equals(testFrom));
+  }
 
-   public void testXmlSequence() throws Exception
-   {
-      Document doc = PSXmlDocumentBuilder.createXmlDocument();
-      Element root = PSXmlDocumentBuilder.createRoot(doc, "Test");
+  public void testXmlSequence() throws Exception {
+    Document doc = PSXmlDocumentBuilder.createXmlDocument();
+    Element root = PSXmlDocumentBuilder.createRoot(doc, "Test");
 
-      // create test object
-      PSDefaultSelected testTo = new PSDefaultSelected(12);
-      Element elem = testTo.toXml(doc);
-      root.appendChild(elem);
+    // create test object
+    PSDefaultSelected testTo = new PSDefaultSelected(12);
+    Element elem = testTo.toXml(doc);
+    root.appendChild(elem);
 
-      // create a new object and populate it from our testTo element
-      PSDefaultSelected testFrom = new PSDefaultSelected(elem, null, null);
-      assertEquals(testTo, testFrom);
-   }
+    // create a new object and populate it from our testTo element
+    PSDefaultSelected testFrom = new PSDefaultSelected(elem, null, null);
+    assertEquals(testTo, testFrom);
+  }
 
-   @Test
-   public void testXmlText() throws Exception
-   {
-      Document doc = PSXmlDocumentBuilder.createXmlDocument();
-      Element root = PSXmlDocumentBuilder.createRoot(doc, "Test");
+  @Test
+  public void testXmlText() throws Exception {
+    Document doc = PSXmlDocumentBuilder.createXmlDocument();
+    Element root = PSXmlDocumentBuilder.createRoot(doc, "Test");
 
-      // create test object
-      PSDefaultSelected testTo = new PSDefaultSelected("text");
-      Element elem = testTo.toXml(doc);
-      root.appendChild(elem);
+    // create test object
+    PSDefaultSelected testTo = new PSDefaultSelected("text");
+    Element elem = testTo.toXml(doc);
+    root.appendChild(elem);
 
-      // create a new object and populate it from our testTo element
-      PSDefaultSelected testFrom = new PSDefaultSelected(elem, null, null);
-      assertEquals(testTo, testFrom);
-   }
+    // create a new object and populate it from our testTo element
+    PSDefaultSelected testFrom = new PSDefaultSelected(elem, null, null);
+    assertEquals(testTo, testFrom);
+  }
 }
-

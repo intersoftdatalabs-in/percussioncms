@@ -16,65 +16,52 @@
  */
 package com.percussion.design.objectstore;
 
-import com.percussion.xml.PSXmlDocumentBuilder;
-
-
-import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
-
+import com.percussion.xml.PSXmlDocumentBuilder;
 import org.w3c.dom.Document;
 
 /**
- * Tests the XML serialisation functionality for 
- * <code>PSMacroDefinitionSet</code> and <code>PSMacroDefinition</code> 
- * objectstore classes.
+ * Tests the XML serialisation functionality for <code>PSMacroDefinitionSet</code> and <code>
+ * PSMacroDefinition</code> objectstore classes.
  */
-public class PSMacroDefinitionSetTest 
-{
-   /**
-    * Construct a new test for the supplied name.
-    * 
-    * @param name the test name, assumed not <code>null</code> or empty.
-    */
-   
+public class PSMacroDefinitionSetTest {
+  /**
+   * Construct a new test for the supplied name.
+   *
+   * @param name the test name, assumed not <code>null</code> or empty.
+   */
 
-   /**
-    * Test XML serialization for code>PSMacroSet</code> and 
-    * <code>PSMacro</code>.
-    * 
-    * @throws Exception for any error.
-    */
-   
-   public void testXml() throws Exception
-   {
-      PSMacroDefinition macro1 = new PSMacroDefinition("$macro1", 
-         PSMacroDefinition.class.getName());
-      macro1.setDescription("description 1");
-      
-      PSMacroDefinition macro2 = new PSMacroDefinition("$macro2", 
-         PSMacroDefinitionSet.class.getName());
-      
-      PSMacroDefinitionSet macros1 = new PSMacroDefinitionSet();
-      macros1.add(macro1);
-      macros1.add(macro2);
-      
-      Document doc = PSXmlDocumentBuilder.createXmlDocument();
-      System.out.println("macroDefinitionSet 1:\n" +
-         PSXmlDocumentBuilder.toString(macros1.toXml(doc)));
-      
-      PSMacroDefinitionSet macros2 = new PSMacroDefinitionSet(
-         macros1.toXml(doc));
-      System.out.println("macroDefinitionSet 2:\n" +
-         PSXmlDocumentBuilder.toString(macros2.toXml(doc)));
-         
-      assertEquals(macros1, macros2);
-   }
+  /**
+   * Test XML serialization for code>PSMacroSet</code> and <code>PSMacro</code>.
+   *
+   * @throws Exception for any error.
+   */
+  public void testXml() throws Exception {
+    PSMacroDefinition macro1 = new PSMacroDefinition("$macro1", PSMacroDefinition.class.getName());
+    macro1.setDescription("description 1");
 
-   /**
-    * The test suit that specifies all axecuted tests.
-    * 
-    * @return the test suit, never <code>null</code>.
-    */
-   
+    PSMacroDefinition macro2 =
+        new PSMacroDefinition("$macro2", PSMacroDefinitionSet.class.getName());
+
+    PSMacroDefinitionSet macros1 = new PSMacroDefinitionSet();
+    macros1.add(macro1);
+    macros1.add(macro2);
+
+    Document doc = PSXmlDocumentBuilder.createXmlDocument();
+    System.out.println(
+        "macroDefinitionSet 1:\n" + PSXmlDocumentBuilder.toString(macros1.toXml(doc)));
+
+    PSMacroDefinitionSet macros2 = new PSMacroDefinitionSet(macros1.toXml(doc));
+    System.out.println(
+        "macroDefinitionSet 2:\n" + PSXmlDocumentBuilder.toString(macros2.toXml(doc)));
+
+    assertEquals(macros1, macros2);
+  }
+
+  /**
+   * The test suit that specifies all axecuted tests.
+   *
+   * @return the test suit, never <code>null</code>.
+   */
 }

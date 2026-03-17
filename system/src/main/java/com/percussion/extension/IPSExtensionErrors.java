@@ -250,7 +250,8 @@ public interface IPSExtensionErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <p>Arguments: 0 - the unique extension handler name, 1 - the unique extension name, 2 - error text
+   * <p>Arguments: 0 - the unique extension handler name, 1 - the unique extension name, 2 - error
+   * text
    */
   public static final int EXT_INIT_FAILED = 7026;
 
@@ -699,8 +700,8 @@ public interface IPSExtensionErrors {
   /**
    * Attempt to check in a revision which does not match with the one checked out.
    *
-   * <p>Arguments: 0 - checkin request
-   * revision, 1 - edit revision*/
+   * <p>Arguments: 0 - checkin request revision, 1 - edit revision
+   */
   public static final int CHECKIN_REVISION_MISMATCH = 7440;
 
   /**
@@ -722,15 +723,15 @@ public interface IPSExtensionErrors {
    * Attempt to check out a revision when there is already one checked out with a different
    * revision.
    *
-   * <p>Arguments: 0 - check out request
-   * revision, 1 - edit revision*/
+   * <p>Arguments: 0 - check out request revision, 1 - edit revision
+   */
   public static final int CHECKOUT_REVISION_MISMATCH = 7443;
 
   /**
    * Attempt to check out a revision but the largest existing revision is the one specified.
    *
-   * <p>Arguments: 0 - check out request
-   * revision, 1 - tip revision*/
+   * <p>Arguments: 0 - check out request revision, 1 - tip revision
+   */
   public static final int CHECKOUT_REVISION_LIMIT = 7444;
 
   /**
@@ -799,16 +800,15 @@ public interface IPSExtensionErrors {
   /**
    * No adhoc assignment found for list of unassigned users.
    *
-   * <p>Arguments: 0 - comma delimited string of
-   * unassigned users.
+   * <p>Arguments: 0 - comma delimited string of unassigned users.
    */
   public static final int ADHOC_ASSIGNMENT_NOT_FOUND = 7454;
 
   /**
    * The requested translation for the supplied item already exists.
    *
-   * <p>Arguments: 0 - The language string
-   *, 1 - The content id*/
+   * <p>Arguments: 0 - The language string , 1 - The content id
+   */
   public static final int TRANSLATION_ALREADY_EXISTS = 7455;
 
   /**
@@ -939,7 +939,7 @@ public interface IPSExtensionErrors {
    *
    * <p>Arguments: 0 - The effect name., 1 - The desired state.
    *
-   * Two arguments are required, namely the name of the effect and the desired state.
+   * <p>Two arguments are required, namely the name of the effect and the desired state.
    */
   public static final int DEPENDENT_ITEM_CANNOT_GOTO_DESIRED_STATE = 7472;
 
@@ -967,8 +967,7 @@ public interface IPSExtensionErrors {
    *
    * <p>
    *
-   * <p>Arguments: 0 - Specifies the specific problem that occurred in
-   * initialization.
+   * <p>Arguments: 0 - Specifies the specific problem that occurred in initialization.
    */
   public static final int BAD_PUBLISH_CONTENT_INITIALIZATION_DATA = 7475;
 
@@ -984,16 +983,14 @@ public interface IPSExtensionErrors {
   /**
    * Error message to indicate that the requested authtype value is not registered with the system.
    *
-   * <p>Arguments: 0 - Authtype value
-   * requested, 1 - config file path*/
+   * <p>Arguments: 0 - Authtype value requested, 1 - config file path
+   */
   public static final int AUTHTYPE_REGISTRATION_MISSING = 7477;
 
   /**
    * Error message to indicate that the resource implementing the requested authtype is missing.
    *
-   * <p>Arguments: 0 - Authtype value
-   * requested, 1 - missing resource name 2,  config
-   * file path, 
+   * <p>Arguments: 0 - Authtype value requested, 1 - missing resource name 2, config file path,
    */
   public static final int AUTHTYPE_RESOURCE_MISSING = 7478;
 

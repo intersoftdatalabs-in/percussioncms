@@ -109,7 +109,6 @@ public class PSDisplayFormat extends PSVersionableDbComponent
    *     #COL_CONTENTTYPENAME}) and ({@link #COL_VARIANTID}or {@link #COL_VARIANTNAME}), otherwise
    *     <code>false</code>
    */
-
   public boolean isValidForRelatedContent() {
     boolean ctTypeExists = false;
     boolean variantExists = false;
@@ -170,34 +169,26 @@ public class PSDisplayFormat extends PSVersionableDbComponent
   }
 
   /**
-   * Convenience method that calls {@link #setProperty(String strName,
-   * String strValue,boolean bMulti)} with default values.
+   * Convenience method that calls {@link #setProperty(String strName, String strValue,boolean
+   * bMulti)} with default values.
    *
-   * @param strName the name of the property case-insensitive
-   *    match is performed. Never <code>null</code> or empty.
-   *
-   * @param strValue the value to set, may be <code>null</code>
-   *    to specify the empty string.
-   *
+   * @param strName the name of the property case-insensitive match is performed. Never <code>null
+   *     </code> or empty.
+   * @param strValue the value to set, may be <code>null</code> to specify the empty string.
    */
   public void setProperty(String strName, String strValue) {
     setProperty(strName, strValue, false);
   }
 
   /**
-   * Convience method to set a property's value. If the property
-   * with name <code>strName</code> does not exist, one will be added.
+   * Convience method to set a property's value. If the property with name <code>strName</code> does
+   * not exist, one will be added.
    *
-   * @param strName the name of the property case-insensitive
-   *    match is performed. Never <code>null</code> or empty.
-   *
-   * @param strValue the value to set, may be <code>null</code>
-   *    to specify the empty string.
-   *
-   * @param bMulti if <code>true</code> then if the property exists this
-   *    value will be added
+   * @param strName the name of the property case-insensitive match is performed. Never <code>null
+   *     </code> or empty.
+   * @param strValue the value to set, may be <code>null</code> to specify the empty string.
+   * @param bMulti if <code>true</code> then if the property exists this value will be added
    */
-
   public void setProperty(String strName, String strValue, boolean bMulti) {
     if (strName == null || strName.trim().length() == 0)
       throw new IllegalArgumentException("strName must not be null or empty");
@@ -263,7 +254,6 @@ public class PSDisplayFormat extends PSVersionableDbComponent
    *
    * @return <code>true</code> if the property exists, otherwise <code>false</code>.
    */
-
   public boolean hasProperty(String strName) {
     if (strName == null || strName.trim().length() == 0)
       throw new IllegalArgumentException("strName must not be null or empty");
@@ -290,15 +280,11 @@ public class PSDisplayFormat extends PSVersionableDbComponent
   /**
    * Convenience method to remove a property.
    *
-   * @param strName the name of the property case-insensitive
-   *    match is performed. Never <code>null</code> or empty.
-   *
-   * @param strValue the value to set, may be <code>null</code> if not
-   *    applicable.
-   *
+   * @param strName the name of the property case-insensitive match is performed. Never <code>null
+   *     </code> or empty.
+   * @param strValue the value to set, may be <code>null</code> if not applicable.
    * @param bMulti if <code>true</code> this represents a multivalued property.
    */
-
   public void removeProperty(String strName, String strValue, boolean bMulti) {
     if (strName == null || strName.trim().length() == 0)
       throw new IllegalArgumentException("strName must not be null or empty");
@@ -349,7 +335,6 @@ public class PSDisplayFormat extends PSVersionableDbComponent
    *
    * @return <code>true</code> if it is valid, otherwise<code>false</code>
    */
-
   public boolean isValidForFolder() {
     boolean valid = !isValidForRelatedContent();
 
@@ -386,7 +371,6 @@ public class PSDisplayFormat extends PSVersionableDbComponent
   }
 
   /** Removes all columns which are not valid to be used with folders. */
-
   public void removeInvalidFolderColums() {
     List<IPSDbComponent> deletes = new ArrayList<>();
 
@@ -420,7 +404,6 @@ public class PSDisplayFormat extends PSVersionableDbComponent
    * @return <code>true</code> if a property with <code>name</code> has value <code>value</code>,
    *     <code>false</code> otherwise.
    */
-
   public boolean doesPropertyHaveValue(String name, String value) {
     if (name == null || name.trim().length() == 0)
       throw new IllegalArgumentException("name must not be null or empty");
@@ -451,7 +434,6 @@ public class PSDisplayFormat extends PSVersionableDbComponent
    * @return The first value found for the specified property, or <code>null</code> if the property
    *     has no value or if the property is not found.
    */
-
   public String getPropertyValue(String name) {
     if (name == null || name.trim().length() == 0)
       throw new IllegalArgumentException("name may not be null or empty");
@@ -587,7 +569,6 @@ public class PSDisplayFormat extends PSVersionableDbComponent
    *
    * @return list never <code>null</code> or empty.
    */
-
   public Iterator getProperties() {
     return m_properties.iterator();
   }
@@ -618,7 +599,6 @@ public class PSDisplayFormat extends PSVersionableDbComponent
    *
    * @return list never <code>null</code> or empty.
    */
-
   public Iterator getColumns() {
     return m_columns.iterator();
   }
@@ -800,7 +780,6 @@ public class PSDisplayFormat extends PSVersionableDbComponent
    * @param columns the display format columns to test, assumed not <code>null</code>, may be empty.
    *     The supplied collection will be modified if the <code>sys_title</code> column is not found.
    */
-
   private void addSystemTitle(PSDFColumns columns) {
     boolean found = false;
     Iterator walker = columns.iterator();

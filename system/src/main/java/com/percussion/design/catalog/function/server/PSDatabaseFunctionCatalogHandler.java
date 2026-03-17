@@ -34,12 +34,11 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * This class implements cataloging of database functions installed on the
- * server.
- * <p>
- * Database functions catalog requests are sent to the server
- * using the PSXDatabaseFunctionCatalog XML document. Its definition
- * is as follows:
+ * This class implements cataloging of database functions installed on the server.
+ *
+ * <p>Database functions catalog requests are sent to the server using the
+ * PSXDatabaseFunctionCatalog XML document. Its definition is as follows:
+ *
  * <pre><code>
  *
  *  &lt;!ELEMENT PSXDatabaseFunctionCatalog (driver)&gt;
@@ -47,14 +46,14 @@ import org.w3c.dom.Element;
  *
  * </code></pre>
  *
- * The PSXDatabaseFunctionCatalogResults XML document is sent
- * as the response. Its definition is as follows:
+ * The PSXDatabaseFunctionCatalogResults XML document is sent as the response. Its definition is as
+ * follows:
+ *
  * <pre>
  *  &lt;!ELEMENT PSXDatabaseFunctionCatalogResults (PSXDatabaseFunctionDef*)&gt;
  * </pre>
  *
- * See "sys_DatabaseFunctionDefs.dtd" for the DTD of the
- * "PSXDatabaseFunctionDef" element.
+ * See "sys_DatabaseFunctionDefs.dtd" for the DTD of the "PSXDatabaseFunctionDef" element.
  */
 public class PSDatabaseFunctionCatalogHandler extends PSCatalogRequestHandler
     implements IPSCatalogRequestHandler {

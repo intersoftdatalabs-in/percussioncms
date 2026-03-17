@@ -51,9 +51,8 @@ public class PSRoleCataloger extends PSCataloger implements IPSInternalRoleCatal
   private static Logger log = LogManager.getLogger(PSRoleCataloger.class);
 
   /**
-   * Convenience constructor that calls
-   * {@link #PSRoleCataloger(Properties, PSServerConfiguration)} with
-   * <code>null</code> for the server configuration.
+   * Convenience constructor that calls {@link #PSRoleCataloger(Properties, PSServerConfiguration)}
+   * with <code>null</code> for the server configuration.
    */
   public PSRoleCataloger(Properties properties) {
     this(properties, null);
@@ -62,14 +61,11 @@ public class PSRoleCataloger extends PSCataloger implements IPSInternalRoleCatal
   /**
    * Constructs a new role cataloger for the supplied properties.
    *
-   * @param properties the role cataloger requires one property: a reference to
-   *           the <code>PSDirectorySet</code> definition used as the role
-   *           server, not <code>null</code> or empty.
-   * @param config the server configuration with all directory definitions, may
-   *           be <code>null</code> in which case this will get it from the
-   *    <code>PSServer</code>.
-   * @throws PSSecurityException if the referenced role provider was not
-   *    found.
+   * @param properties the role cataloger requires one property: a reference to the <code>
+   *     PSDirectorySet</code> definition used as the role server, not <code>null</code> or empty.
+   * @param config the server configuration with all directory definitions, may be <code>null</code>
+   *     in which case this will get it from the <code>PSServer</code>.
+   * @throws PSSecurityException if the referenced role provider was not found.
    */
   public PSRoleCataloger(Properties properties, PSServerConfiguration config)
       throws PSSecurityException {
@@ -384,8 +380,8 @@ public class PSRoleCataloger extends PSCataloger implements IPSInternalRoleCatal
   }
 
   /**
-   * The role providef used for this cataloger, initialized in constructor,
-   * never <code>null</code> or never changed after that.
+   * The role providef used for this cataloger, initialized in constructor, never <code>null</code>
+   * or never changed after that.
    */
   protected PSRoleProvider m_roleProvider = null;
 }

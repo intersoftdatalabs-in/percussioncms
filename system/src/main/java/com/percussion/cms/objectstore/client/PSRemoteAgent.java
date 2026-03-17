@@ -359,8 +359,8 @@ public class PSRemoteAgent {
   }
 
   /**
-   * Get the comment from the last transition (not check In or 0ut). If no
-   * transitions exist, an empty string is returned.
+   * Get the comment from the last transition (not check In or 0ut). If no transitions exist, an
+   * empty string is returned.
    *
    * <pre>
    *
@@ -370,14 +370,11 @@ public class PSRemoteAgent {
    *            Transitionid CDATA #IMPLIED
    *  &gt;
    * </pre>
-   *  @param contentId
-   *            for the item. Assumed valid content id.
    *
-   *  @return the transistion comment. May be <code>null</code> if there is no
-   *    transition performed for this supplied item.
-   *
-   *  @throws PSRemoteException if an error occurs.
-   *
+   * @param contentId for the item. Assumed valid content id.
+   * @return the transistion comment. May be <code>null</code> if there is no transition performed
+   *     for this supplied item.
+   * @throws PSRemoteException if an error occurs.
    */
   public String getLastTransitionComment(int contentId) throws PSRemoteException {
     try {

@@ -67,9 +67,6 @@ public class PSHostAddressProviderMetaData extends Object {
     return "Authentication through host (TCP/IP) addresses.";
   }
 
-  /**
-   * The host address provider instance, initialized in constructor, may be
-   * <code>null</code>.
-   */
+  /** The host address provider instance, initialized in constructor, may be <code>null</code>. */
   private PSHostAddressProvider m_instance = null;
 }

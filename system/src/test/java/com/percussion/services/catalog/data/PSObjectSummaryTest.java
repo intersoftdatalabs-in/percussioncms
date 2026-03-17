@@ -16,74 +16,78 @@
  */
 package com.percussion.services.catalog.data;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import com.percussion.services.catalog.PSTypeEnum;
 import com.percussion.services.guidmgr.data.PSGuid;
 import com.percussion.services.security.PSPermissions;
 import com.percussion.services.security.data.PSUserAccessLevel;
 import com.percussion.services.utils.xml.PSXmlSerializationHelper;
-import org.junit.jupiter.api.Disabled;
-import org.junit.jupiter.api.Test;
-
 import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Collection;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 /**
- * Test the object summary object, primarily test the serialization using
- * the helper
+ * Test the object summary object, primarily test the serialization using the helper
  *
  * @author dougrand
  */
 @Disabled("Temporarily disabled — failing in perc-system test run")
-public class PSObjectSummaryTest
-{
-   private static SecureRandom ms_rand = new SecureRandom();
+public class PSObjectSummaryTest {
+  private static SecureRandom ms_rand = new SecureRandom();
 
-   public PSObjectSummaryTest(){}
-   /**
-    * Round trip an incomplete summary as the first test
-    * @throws Exception
-    */
-   @Test
-   public void testSerialization() throws Exception
-   {
-      PSObjectSummary nsum = new PSObjectSummary(new PSGuid(PSTypeEnum.ACL, ms_rand.nextInt(1000)), "Test object summary", "Test object summary label", null);
-      String ser = PSXmlSerializationHelper.writeToXml(nsum);
+  public PSObjectSummaryTest() {}
 
-      PSObjectSummary restore =
-         (PSObjectSummary) PSXmlSerializationHelper.readFromXML(ser);
+  /**
+   * Round trip an incomplete summary as the first test
+   *
+   * @throws Exception
+   */
+  @Test
+  public void testSerialization() throws Exception {
+    PSObjectSummary nsum =
+        new PSObjectSummary(
+            new PSGuid(PSTypeEnum.ACL, ms_rand.nextInt(1000)),
+            "Test object summary",
+            "Test object summary label",
+            null);
+    String ser = PSXmlSerializationHelper.writeToXml(nsum);
 
-      assertEquals(nsum, restore);
-   }
+    PSObjectSummary restore = (PSObjectSummary) PSXmlSerializationHelper.readFromXML(ser);
 
-   /**
-    * Test fully populated object summary object
-    * @throws Exception
-    */
-   @Test
-   @Disabled ("TODO: Fix me.  Test fails on certain JRE versions / OS")
-   public void testCompleteSerialization() throws Exception
-   {
-      PSObjectSummary nsum = new PSObjectSummary(new PSGuid(PSTypeEnum.ACL, ms_rand.nextInt(1000)), "Test object summary", "Test object summary label", null);
-      nsum.setLockedInfo("session_1", "orange_julius", 123456789);
-      Collection<PSPermissions> permissions = new ArrayList<PSPermissions>();
+    assertEquals(nsum, restore);
+  }
 
-      permissions.add(PSPermissions.RUNTIME_VISIBLE);
-      permissions.add(PSPermissions.OWNER);
+  /**
+   * Test fully populated object summary object
+   *
+   * @throws Exception
+   */
+  @Test
+  @Disabled("TODO: Fix me.  Test fails on certain JRE versions / OS")
+  public void testCompleteSerialization() throws Exception {
+    PSObjectSummary nsum =
+        new PSObjectSummary(
+            new PSGuid(PSTypeEnum.ACL, ms_rand.nextInt(1000)),
+            "Test object summary",
+            "Test object summary label",
+            null);
+    nsum.setLockedInfo("session_1", "orange_julius", 123456789);
+    Collection<PSPermissions> permissions = new ArrayList<PSPermissions>();
 
-      nsum.setPermissions(new PSUserAccessLevel(permissions));
+    permissions.add(PSPermissions.RUNTIME_VISIBLE);
+    permissions.add(PSPermissions.OWNER);
 
-      String ser = PSXmlSerializationHelper.writeToXml(nsum);
-      System.out.println(ser);
-      System.out.println();
-      PSObjectSummary restore =
-         (PSObjectSummary) PSXmlSerializationHelper.readFromXML(ser);
-      System.out.println(restore);
+    nsum.setPermissions(new PSUserAccessLevel(permissions));
 
-      assertEquals(nsum, restore, "Expected to be equal");
-   }
+    String ser = PSXmlSerializationHelper.writeToXml(nsum);
+    System.out.println(ser);
+    System.out.println();
+    PSObjectSummary restore = (PSObjectSummary) PSXmlSerializationHelper.readFromXML(ser);
+    System.out.println(restore);
+
+    assertEquals(nsum, restore, "Expected to be equal");
+  }
 }

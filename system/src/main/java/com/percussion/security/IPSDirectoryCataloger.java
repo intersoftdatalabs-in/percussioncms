@@ -26,8 +26,9 @@ import java.util.Iterator;
  * provides a simple search mechanism for finding collections of users based on conditional logic.
  *
  * <p>Methods are provided for specific properties that are widely used. The methods are of the form
- * getget&lt;Type&gt;lt;Typeget&lt;Type&gt;gt; and getget&lt;Type&gt;lt;Typeget&lt;Type&gt;gt;AttributeName. If such an attribute is multi-valued, the first value found
- * is returned.
+ * getget&lt;Type&gt;lt;Typeget&lt;Type&gt;gt; and
+ * getget&lt;Type&gt;lt;Typeget&lt;Type&gt;gt;AttributeName. If such an attribute is multi-valued,
+ * the first value found is returned.
  *
  * <p>Most methods that require a user name take either a <code>String</code> that is the base user
  * name (e.g. johnsmith) or a <code>PSSubject</code>.
@@ -85,16 +86,13 @@ public interface IPSDirectoryCataloger {
   public String getAttribute(String userName, String attributeName);
 
   /**
-   * Convenience method that calls {@link getAttributes(PSSubject, Collection)
-   * getAttributes(user, new ArrayList().add(attributeName)}. See that method
-   * for more details.
+   * Convenience method that calls {@link getAttributes(PSSubject, Collection) getAttributes(user,
+   * new ArrayList().add(attributeName)}. See that method for more details.
    *
    * @param user the subject as known to Rhythmyx. Never <code>null</code>.
-   * @param attributeName the desired attribute, never <code>null</code> or
-   *    empty.
-   * @return the requested attribute or <code>null</code> if no attribute is
-   *    found for the specified attribute name. If the attribute holds
-   *    multiple values, the first entry will be returned.
+   * @param attributeName the desired attribute, never <code>null</code> or empty.
+   * @return the requested attribute or <code>null</code> if no attribute is found for the specified
+   *     attribute name. If the attribute holds multiple values, the first entry will be returned.
    */
   public String getAttribute(PSSubject user, String attributeName);
 
@@ -124,18 +122,16 @@ public interface IPSDirectoryCataloger {
   public PSSubject getAttributes(String userName, Collection attributeNames);
 
   /**
-   * Searches the directory catalog associated with the supplied subject.
-   * If it finds the user, it then gets the value for the specified attributes.
+   * Searches the directory catalog associated with the supplied subject. If it finds the user, it
+   * then gets the value for the specified attributes.
    *
    * @param user the subject as known to Rhythmyx. Never <code>null</code>.
-   * @param attributeNames the set of attributes for which you want the
-   *    value(s). If an attribute is not present for a user, <code>null</code>
-   *    is set for that attribute. If <code>null</code> or empty, all known
-   *    attributes are returned for the user.
-   * @return the supplied subject is returned. All requested attributes are
-   *    set on this subject as attributes. Existing attributes on the supplied
-   *    subject will be overwritten. Attributes that are not found are added
-   *    to the subject with <code>null</code> as value.
+   * @param attributeNames the set of attributes for which you want the value(s). If an attribute is
+   *     not present for a user, <code>null</code> is set for that attribute. If <code>null</code>
+   *     or empty, all known attributes are returned for the user.
+   * @return the supplied subject is returned. All requested attributes are set on this subject as
+   *     attributes. Existing attributes on the supplied subject will be overwritten. Attributes
+   *     that are not found are added to the subject with <code>null</code> as value.
    */
   public PSSubject getAttributes(PSSubject user, Collection attributeNames);
 

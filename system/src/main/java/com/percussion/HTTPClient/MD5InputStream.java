@@ -26,10 +26,10 @@ import java.io.InputStream;
 /**
  * Deprecated: Use {@link PSCryptographyUtils} for secure cryptographic hashing.
  *
- * <p>This class previously calculated a running MD5 digest but has been refactored to verify
- * using SHA-256 for improved security (CWE-327: Weak Cryptography).
+ * <p>This class previously calculated a running MD5 digest but has been refactored to verify using
+ * SHA-256 for improved security (CWE-327: Weak Cryptography).
  *
- * This class calculates a running SHA-256 digest of the data read. When the stream is closed the
+ * <p>This class calculates a running SHA-256 digest of the data read. When the stream is closed the
  * calculated digest is passed to a HashVerifier which is expected to verify this digest and to
  * throw an Exception if it fails.
  *
@@ -68,7 +68,7 @@ class MD5InputStream extends FilterInputStream {
 
   public synchronized int read(byte[] buf, int off, int len) throws IOException {
     int num = in.read(buf, off, len);
-    if (num > 0 ) {
+    if (num > 0) {
       buffer.write(buf, off, num);
     } else {
       real_close();

@@ -16,165 +16,133 @@
  */
 package com.percussion.search.objectstore;
 
-import com.percussion.xml.PSXmlDocumentBuilder;
-import org.junit.jupiter.api.Test;
-import org.w3c.dom.Element;
-
-import java.util.HashMap;
-import java.util.Map;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-/**
- * Unit test for <code>PSWSSearchRequest</code> class 
- */
-public class PSWSSearchRequestTest
-{
+import com.percussion.xml.PSXmlDocumentBuilder;
+import java.util.HashMap;
+import java.util.Map;
+import org.junit.jupiter.api.Test;
+import org.w3c.dom.Element;
 
-public PSWSSearchRequestTest(){}
+/** Unit test for <code>PSWSSearchRequest</code> class */
+public class PSWSSearchRequestTest {
 
-   /**
-    * Test constructing with invalid values
-    *
-    */
-   @Test
-   public void testCtors() {
-      // valid
-      PSWSSearchRequest req;
+  public PSWSSearchRequestTest() {}
 
-      
-      req = new PSWSSearchRequest("test", null);
+  /** Test constructing with invalid values */
+  @Test
+  public void testCtors() {
+    // valid
+    PSWSSearchRequest req;
+
+    req = new PSWSSearchRequest("test", null);
+    assertNotNull(req);
+    req = new PSWSSearchRequest("test", new HashMap<>());
+    assertNotNull(req);
+    req = new PSWSSearchRequest(new PSWSSearchParams());
+    assertNotNull(req);
+
+    // invalid
+    boolean didThrow;
+    didThrow = false;
+    try {
+      req = new PSWSSearchRequest(null, null);
       assertNotNull(req);
-      req = new PSWSSearchRequest("test", new HashMap<>());
+    } catch (Exception e) {
+      didThrow = true;
+    }
+    assertTrue(didThrow);
+
+    didThrow = false;
+    try {
+      req = new PSWSSearchRequest("", null);
       assertNotNull(req);
-      req = new PSWSSearchRequest(new PSWSSearchParams());
+    } catch (Exception e) {
+      didThrow = true;
+    }
+    assertTrue(didThrow);
+
+    didThrow = false;
+    try {
+      req = new PSWSSearchRequest((PSWSSearchParams) null);
       assertNotNull(req);
-      
-      // invalid
-      boolean didThrow;
-      didThrow = false;
-      try
-      {
-         req = new PSWSSearchRequest(null, null);
-         assertNotNull(req);
-      }
-      catch (Exception e)
-      {
-         didThrow = true;
-      }
-      assertTrue(didThrow);
+    } catch (Exception e) {
+      didThrow = true;
+    }
+    assertTrue(didThrow);
 
-      didThrow = false;
-      try
-      {
-         req = new PSWSSearchRequest("", null);
-         assertNotNull(req);
-      }
-      catch (Exception e)
-      {
-         didThrow = true;
-      }
-      assertTrue(didThrow);
-      
-      didThrow = false;
-      try
-      {  
-         req = new PSWSSearchRequest((PSWSSearchParams)null);
-         assertNotNull(req);
-      }
-      catch (Exception e)
-      {
-         didThrow = true;
-      }
-      assertTrue(didThrow);
+    didThrow = false;
+    try {
+      req = new PSWSSearchRequest((Element) null);
+      assertNotNull(req);
+    } catch (Exception e) {
+      didThrow = true;
+    }
+    assertTrue(didThrow);
+  }
 
-      didThrow = false;
-      try
-      {
-         req = new PSWSSearchRequest((Element)null);
-         assertNotNull(req);
-      }
-      catch (Exception e)
-      {
-         didThrow = true;
-      }
-      assertTrue(didThrow);
-   }   
-   
-   /**
-    * Test equals and hashcode methods
-    * 
-    * @throws Exception if there are any errors.
-    */
-   @Test
-   public void testEquals() throws Exception
-   {
-      PSWSSearchRequest req1 = new PSWSSearchRequest("test", null);
-      PSWSSearchRequest req2 = new PSWSSearchRequest("test", null);
-      assertEquals(req1, req2);
-      assertEquals(req1.hashCode(), req2.hashCode());
-      req2 = new PSWSSearchRequest("test2", null);
-      assertNotEquals(req1, req2);
-      
-      Map<String,String> params = new HashMap<>();
-      params.put("foo", "bar");
-      params.put("a", "b");
-      req1 = new PSWSSearchRequest("test", params);
-      req2 = new PSWSSearchRequest("test", params);
-      assertEquals(req1, req2);
-      assertEquals(req1.hashCode(), req2.hashCode());      
-      req2 = new PSWSSearchRequest("test", null);
-      assertNotEquals(req1, req2);
-      params.clear();
-      req2 = new PSWSSearchRequest("test", params);
-      assertNotEquals(req1, req2);
-      
-      
-      PSWSSearchParams searchParams1 = new PSWSSearchParams();
-      searchParams1.setTitle("foo", PSWSSearchField.OP_ATTR_LIKE, 
-         PSWSSearchField.CONN_ATTR_AND);
-      PSWSSearchParams searchParams2 = new PSWSSearchParams();
-      searchParams2.setTitle("bar", PSWSSearchField.OP_ATTR_LIKE, 
-         PSWSSearchField.CONN_ATTR_AND);
-      
-      req1 = new PSWSSearchRequest(searchParams1);
-      req2 = new PSWSSearchRequest(searchParams1);
-      assertEquals(req1, req2);
-      assertEquals(req1.hashCode(), req2.hashCode());      
-      req2 = new PSWSSearchRequest(searchParams2);
-      assertNotEquals(req1, req2);
-   }
-   
-   /**
-    * Test xml serialization
-    * 
-    * @throws Exception if there are any errors.
-    */
-   @Test
-   public void testXml() throws Exception
-   {
-      PSWSSearchRequest req1 = new PSWSSearchRequest("test", null);
-      assertEquals(req1, new PSWSSearchRequest(req1.toXml(
-         PSXmlDocumentBuilder.createXmlDocument())));
-      
-      Map<String,String> params = new HashMap<>();
-      params.put("foo", "bar");
-      params.put("a", "b");
-      req1 = new PSWSSearchRequest("test", params);
-      assertEquals(req1, new PSWSSearchRequest(req1.toXml(
-         PSXmlDocumentBuilder.createXmlDocument())));
-      
-      PSWSSearchParams searchParams1 = new PSWSSearchParams();
-      searchParams1.setTitle("foo", PSWSSearchField.OP_ATTR_LIKE, 
-         PSWSSearchField.CONN_ATTR_AND);      
-      req1 = new PSWSSearchRequest(searchParams1);
-      assertEquals(req1, new PSWSSearchRequest(req1.toXml(
-         PSXmlDocumentBuilder.createXmlDocument())));
+  /**
+   * Test equals and hashcode methods
+   *
+   * @throws Exception if there are any errors.
+   */
+  @Test
+  public void testEquals() throws Exception {
+    PSWSSearchRequest req1 = new PSWSSearchRequest("test", null);
+    PSWSSearchRequest req2 = new PSWSSearchRequest("test", null);
+    assertEquals(req1, req2);
+    assertEquals(req1.hashCode(), req2.hashCode());
+    req2 = new PSWSSearchRequest("test2", null);
+    assertNotEquals(req1, req2);
 
-   }
+    Map<String, String> params = new HashMap<>();
+    params.put("foo", "bar");
+    params.put("a", "b");
+    req1 = new PSWSSearchRequest("test", params);
+    req2 = new PSWSSearchRequest("test", params);
+    assertEquals(req1, req2);
+    assertEquals(req1.hashCode(), req2.hashCode());
+    req2 = new PSWSSearchRequest("test", null);
+    assertNotEquals(req1, req2);
+    params.clear();
+    req2 = new PSWSSearchRequest("test", params);
+    assertNotEquals(req1, req2);
 
+    PSWSSearchParams searchParams1 = new PSWSSearchParams();
+    searchParams1.setTitle("foo", PSWSSearchField.OP_ATTR_LIKE, PSWSSearchField.CONN_ATTR_AND);
+    PSWSSearchParams searchParams2 = new PSWSSearchParams();
+    searchParams2.setTitle("bar", PSWSSearchField.OP_ATTR_LIKE, PSWSSearchField.CONN_ATTR_AND);
 
+    req1 = new PSWSSearchRequest(searchParams1);
+    req2 = new PSWSSearchRequest(searchParams1);
+    assertEquals(req1, req2);
+    assertEquals(req1.hashCode(), req2.hashCode());
+    req2 = new PSWSSearchRequest(searchParams2);
+    assertNotEquals(req1, req2);
+  }
+
+  /**
+   * Test xml serialization
+   *
+   * @throws Exception if there are any errors.
+   */
+  @Test
+  public void testXml() throws Exception {
+    PSWSSearchRequest req1 = new PSWSSearchRequest("test", null);
+    assertEquals(req1, new PSWSSearchRequest(req1.toXml(PSXmlDocumentBuilder.createXmlDocument())));
+
+    Map<String, String> params = new HashMap<>();
+    params.put("foo", "bar");
+    params.put("a", "b");
+    req1 = new PSWSSearchRequest("test", params);
+    assertEquals(req1, new PSWSSearchRequest(req1.toXml(PSXmlDocumentBuilder.createXmlDocument())));
+
+    PSWSSearchParams searchParams1 = new PSWSSearchParams();
+    searchParams1.setTitle("foo", PSWSSearchField.OP_ATTR_LIKE, PSWSSearchField.CONN_ATTR_AND);
+    req1 = new PSWSSearchRequest(searchParams1);
+    assertEquals(req1, new PSWSSearchRequest(req1.toXml(PSXmlDocumentBuilder.createXmlDocument())));
+  }
 }

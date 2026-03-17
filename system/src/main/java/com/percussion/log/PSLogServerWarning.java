@@ -44,24 +44,16 @@ package com.percussion.log;
 public class PSLogServerWarning extends PSLogInformation {
 
   /**
-   * Construct a log message for a server warning and optionally
-   * display the message on the server console.
+   * Construct a log message for a server warning and optionally display the message on the server
+   * console.
    *
-   * @param   msgCode         the code describing the type of warning
-   *
-   * @param   msgParams      if the string associated with the message
-   *                           code specifies parameters, this is
-   *                           an array of values to use to fill the string
-   *                           appropriately. Be sure to include the
-   *                           correct arguments in their correct
-   *                           positions!
-   *
-   * @param   toConsole      <code>true</code> to display the message
-   *                         on the server console
-   *
-   * @param   origin         if <code>toConsole</code> is <code>true</code>
-   *                           the name to use in the console message.
-   *                           if <code>null</code>, "Server" is used.
+   * @param msgCode the code describing the type of warning
+   * @param msgParams if the string associated with the message code specifies parameters, this is
+   *     an array of values to use to fill the string appropriately. Be sure to include the correct
+   *     arguments in their correct positions!
+   * @param toConsole <code>true</code> to display the message on the server console
+   * @param origin if <code>toConsole</code> is <code>true</code> the name to use in the console
+   *     message. if <code>null</code>, "Server" is used.
    */
   public PSLogServerWarning(int msgCode, Object[] msgParams, boolean toConsole, String origin) {
     super(LOG_TYPE, 0);

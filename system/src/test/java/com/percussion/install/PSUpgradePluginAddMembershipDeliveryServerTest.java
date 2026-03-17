@@ -17,44 +17,40 @@
 
 package com.percussion.install;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
 import com.percussion.utils.tools.PSBaseXmlConfigTest;
-import com.percussion.xml.PSXmlDocumentBuilder;
-
 import java.io.File;
 import java.io.InputStream;
-
 import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.Test;
 
-public class PSUpgradePluginAddMembershipDeliveryServerTest
-{
+public class PSUpgradePluginAddMembershipDeliveryServerTest {
 
-   @Test
-   public void testUpgradeConfig() throws Exception
-   {
-      File noMemberhipFile = File.createTempFile("TestMembershipUpgradePlugin", ".xml");
-      File bak = File.createTempFile("TestMembershipUpgradePlugin", ".xml");
+  @Test
+  public void testUpgradeConfig() throws Exception {
+    File noMemberhipFile = File.createTempFile("TestMembershipUpgradePlugin", ".xml");
+    File bak = File.createTempFile("TestMembershipUpgradePlugin", ".xml");
 
-      // copy test resource to temp file
-      try (InputStream srcNoMembershipStream = this.getClass().getResourceAsStream("/com/percussion/rxupgrade/deliveryServicesNoMembership.xml"))
-      {
-         FileUtils.copyInputStreamToFile(srcNoMembershipStream, noMemberhipFile);
-      }
+    // copy test resource to temp file
+    try (InputStream srcNoMembershipStream =
+        this.getClass()
+            .getResourceAsStream("/com/percussion/rxupgrade/deliveryServicesNoMembership.xml")) {
+      FileUtils.copyInputStreamToFile(srcNoMembershipStream, noMemberhipFile);
+    }
 
-      // upgrade the file
-      PSUpgradePluginAddMembershipDeliveryServer plugin = new PSUpgradePluginAddMembershipDeliveryServer();
-      plugin.upgradeConfig(noMemberhipFile, bak);
+    // upgrade the file
+    PSUpgradePluginAddMembershipDeliveryServer plugin =
+        new PSUpgradePluginAddMembershipDeliveryServer();
+    plugin.upgradeConfig(noMemberhipFile, bak);
 
-      // create temporary file for expected result for comparison
-      File withMemberhipFile = File.createTempFile("TestMembershipUpgradePlugin", ".xml");
-      try (InputStream withMembershipStream = this.getClass().getResourceAsStream("/com/percussion/rxupgrade/deliveryServicesWithMembership.xml"))
-      {
-         FileUtils.copyInputStreamToFile(withMembershipStream, withMemberhipFile);
-      }
+    // create temporary file for expected result for comparison
+    File withMemberhipFile = File.createTempFile("TestMembershipUpgradePlugin", ".xml");
+    try (InputStream withMembershipStream =
+        this.getClass()
+            .getResourceAsStream("/com/percussion/rxupgrade/deliveryServicesWithMembership.xml")) {
+      FileUtils.copyInputStreamToFile(withMembershipStream, withMemberhipFile);
+    }
 
-      // compare
-      PSBaseXmlConfigTest.compareXmlDocs(withMemberhipFile, noMemberhipFile, true);
-   }
+    // compare
+    PSBaseXmlConfigTest.compareXmlDocs(withMemberhipFile, noMemberhipFile, true);
+  }
 }

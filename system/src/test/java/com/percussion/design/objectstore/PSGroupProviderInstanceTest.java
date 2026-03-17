@@ -16,80 +16,61 @@
  */
 package com.percussion.design.objectstore;
 
-import org.junit.jupiter.api.Test;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-
 import static com.percussion.security.PSSecurityProvider.SP_TYPE_BETABLE;
 import static com.percussion.security.PSSecurityProvider.SP_TYPE_DIRCONN;
 import static com.percussion.testing.PSTestCompare.assertEqualsWithHash;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
+import org.junit.jupiter.api.Test;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 
-public class PSGroupProviderInstanceTest
-{
-   /**
-    * Tests behavior of equals() and hashCode() methods.
-    */
-   @Test
-   public void testEqualsHashCode()
-   {
-      final PSGroupProviderInstance providerInstance =
-            createInstance(NAME, SP_TYPE_DIRCONN, CLASSNAME, ID);
+public class PSGroupProviderInstanceTest {
+  /** Tests behavior of equals() and hashCode() methods. */
+  @Test
+  public void testEqualsHashCode() {
+    final PSGroupProviderInstance providerInstance =
+        createInstance(NAME, SP_TYPE_DIRCONN, CLASSNAME, ID);
 
-       assertNotEquals(providerInstance, new Object());
-      assertEqualsWithHash(providerInstance,
-            createInstance(NAME, SP_TYPE_DIRCONN, CLASSNAME, ID));
+    assertNotEquals(providerInstance, new Object());
+    assertEqualsWithHash(providerInstance, createInstance(NAME, SP_TYPE_DIRCONN, CLASSNAME, ID));
 
-      PSGroupProviderInstance t2 = createInstance(OTHER_STR, SP_TYPE_DIRCONN, CLASSNAME, ID);
-       assertNotEquals(providerInstance, t2);
+    PSGroupProviderInstance t2 = createInstance(OTHER_STR, SP_TYPE_DIRCONN, CLASSNAME, ID);
+    assertNotEquals(providerInstance, t2);
 
-       assertNotEquals(providerInstance, createInstance(NAME, SP_TYPE_BETABLE, CLASSNAME, ID));
-       assertNotEquals(providerInstance, createInstance(NAME, SP_TYPE_DIRCONN, OTHER_STR, ID));
-       assertNotEquals(providerInstance, createInstance(NAME, SP_TYPE_DIRCONN, CLASSNAME, ID + 1));
-}
+    assertNotEquals(providerInstance, createInstance(NAME, SP_TYPE_BETABLE, CLASSNAME, ID));
+    assertNotEquals(providerInstance, createInstance(NAME, SP_TYPE_DIRCONN, OTHER_STR, ID));
+    assertNotEquals(providerInstance, createInstance(NAME, SP_TYPE_DIRCONN, CLASSNAME, ID + 1));
+  }
 
-   /**
-    * Creates new provider instance initialized with provided parameters.
-    */
-   private PSGroupProviderInstance createInstance( String name,
-          int type,  String className,  int id)
-   {
-       PSGroupProviderInstance providerInstance =
-         new PSGroupProviderInstance(name, type, className) {
+  /** Creates new provider instance initialized with provided parameters. */
+  private PSGroupProviderInstance createInstance(String name, int type, String className, int id) {
+    PSGroupProviderInstance providerInstance =
+        new PSGroupProviderInstance(name, type, className) {
 
-         @Override
-         protected Element toXmlEx(Document doc)
-         {
+          @Override
+          protected Element toXmlEx(Document doc) {
             throw new AssertionError();
-         }
+          }
 
-         @Override
-         protected void fromXmlEx(Element source)
-         {
+          @Override
+          protected void fromXmlEx(Element source) {
             throw new AssertionError();
-         }};
-      providerInstance.setId(id);
-      return providerInstance;
-   }
+          }
+        };
+    providerInstance.setId(id);
+    return providerInstance;
+  }
 
-   /**
-    * Sample name.
-    */
-   private static final String NAME = "Name";
-   
-   /**
-    * Sample classname.
-    */
-   private static final String CLASSNAME = "Classname";
+  /** Sample name. */
+  private static final String NAME = "Name";
 
-   /**
-    * Sample id.
-    */
-   private static final int ID = 321;
-   
-   /**
-    * Sample string.
-    */
-   private static final String OTHER_STR = "Other String";
+  /** Sample classname. */
+  private static final String CLASSNAME = "Classname";
+
+  /** Sample id. */
+  private static final int ID = 321;
+
+  /** Sample string. */
+  private static final String OTHER_STR = "Other String";
 }

@@ -436,7 +436,8 @@ public class PSTableValueBuilder extends PSDisplayFieldBuilder {
       params.add(new PSMapPair(commandParamName, PSEditCommandHandler.COMMAND_NAME));
       params.add(new PSMapPair(rowIdParamName, rowId));
       PSPageInfo info =
-          (PSPageInfo) docContext.getPageInfoMap().get(Integer.valueOf(m_parentBuilder.getPageId()));
+          (PSPageInfo)
+              docContext.getPageInfoMap().get(Integer.valueOf(m_parentBuilder.getPageId()));
       params.add(new PSMapPair(pageIdParamName, info.getPageIdList().next().toString()));
       params.add(new PSMapPair(IPSHtmlParameters.SYS_VIEW, view));
       elem = m_parentBuilder.createActionElement(doc, "Edit", params.iterator(), true);

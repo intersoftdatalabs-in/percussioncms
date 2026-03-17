@@ -66,8 +66,8 @@ public class PSActionSetResult {
   }
 
   /**
-   * Generates an XML representation of the results of the action set's
-   * execution in the following format:
+   * Generates an XML representation of the results of the action set's execution in the following
+   * format:
    *
    * <pre>
    * &lt;!--
@@ -133,7 +133,7 @@ public class PSActionSetResult {
    * &lt;!ELEMENT Callstack (#PCDATA)&gt;
    * </pre>
    *
-   * @return a new document in the specified format.  never <code>null</code>.
+   * @return a new document in the specified format. never <code>null</code>.
    */
   public Document toXml() {
     Document doc = PSXmlDocumentBuilder.createXmlDocument();

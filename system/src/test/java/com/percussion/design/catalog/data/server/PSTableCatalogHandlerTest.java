@@ -17,33 +17,30 @@
 
 package com.percussion.design.catalog.data.server;
 
-import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
-public class PSTableCatalogHandlerTest
-{
-   @Test
-   public void testIsOracleRecycleBinObject()
-   {
-      assertTrue(isOracleRecycleBinObject("BIN$KGHNSSICRgW807Nul9jzZA==$0"));
-      assertTrue(isOracleRecycleBinObject("BIN$/f2GYNKuTTadpSywb4pxaw==$0"));
+import org.junit.jupiter.api.Test;
 
-      //lesser length
-      assertFalse(isOracleRecycleBinObject("BIN$/f2GYNKuTTadpSywb4pxaw==$"));
+public class PSTableCatalogHandlerTest {
+  @Test
+  public void testIsOracleRecycleBinObject() {
+    assertTrue(isOracleRecycleBinObject("BIN$KGHNSSICRgW807Nul9jzZA==$0"));
+    assertTrue(isOracleRecycleBinObject("BIN$/f2GYNKuTTadpSywb4pxaw==$0"));
 
-      //no last $
-      assertFalse(isOracleRecycleBinObject("BIN$/f2GYNKuTTadpSywb4pxaw==00"));
+    // lesser length
+    assertFalse(isOracleRecycleBinObject("BIN$/f2GYNKuTTadpSywb4pxaw==$"));
 
-      //no first $
-      assertFalse(isOracleRecycleBinObject("BIN0/f2GYNKuTTadpSywb4pxaw==$0"));
-   }
+    // no last $
+    assertFalse(isOracleRecycleBinObject("BIN$/f2GYNKuTTadpSywb4pxaw==00"));
 
-   /**
-    * Convenience method to access
-    * {@link PSTableCatalogHandler#isOracleRecycleBinObject(String)}.
-    */
-   private boolean isOracleRecycleBinObject(String name)
-   {
-      return new PSTableCatalogHandler().isOracleRecycleBinObject(name);
-   }
+    // no first $
+    assertFalse(isOracleRecycleBinObject("BIN0/f2GYNKuTTadpSywb4pxaw==$0"));
+  }
+
+  /**
+   * Convenience method to access {@link PSTableCatalogHandler#isOracleRecycleBinObject(String)}.
+   */
+  private boolean isOracleRecycleBinObject(String name) {
+    return new PSTableCatalogHandler().isOracleRecycleBinObject(name);
+  }
 }

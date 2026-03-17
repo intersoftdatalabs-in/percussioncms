@@ -16,124 +16,118 @@
  */
 package com.percussion.cms.objectstore;
 
-import com.percussion.design.objectstore.PSLocator;
-import com.percussion.xml.PSXmlDocumentBuilder;
-
-import java.util.HashMap;
-import java.util.Map;
-
-
-import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
+import com.percussion.design.objectstore.PSLocator;
+import com.percussion.xml.PSXmlDocumentBuilder;
+import java.util.HashMap;
+import java.util.Map;
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.Document;
 
 /**
  * Test the clone site folder request according to the schema defined in schema
  * sys_FolderParameters.xsd.
  */
-public class PSCloneSiteFolderRequestTest
-{
-   // legacy constructor removed - using @Test methods
+public class PSCloneSiteFolderRequestTest {
+  // legacy constructor removed - using @Test methods
 
+  /**
+   * Test all public constuctors.
+   *
+   * @throws Exception for any error.
+   */
+  @Test
+  public void testConstructors() throws Exception {
+    PSLocator source = new PSLocator(1, 1);
+    PSLocator target = new PSLocator(1, 1);
+    PSCloningOptions options =
+        new PSCloningOptions(
+            PSCloningOptions.TYPE_SITE,
+            "siteToCopy",
+            "siteName",
+            "folderName",
+            PSCloningOptions.COPY_NO_CONTENT,
+            PSCloningOptions.COPYCONTENT_AS_LINK,
+            null);
 
-   /**
-    * Test all public constuctors.
-    *
-    * @throws Exception for any error.
-    */
-   @Test
-   public void testConstructors() throws Exception
-   {
-      PSLocator source = new PSLocator(1, 1);
-      PSLocator target = new PSLocator(1, 1);
-      PSCloningOptions options = new PSCloningOptions(
-         PSCloningOptions.TYPE_SITE, "siteToCopy", "siteName", "folderName",
-         PSCloningOptions.COPY_NO_CONTENT, PSCloningOptions.COPYCONTENT_AS_LINK,
-         null);
+    // test valid parameters
+    new PSCloneSiteFolderRequest(source, target, options);
 
-      // test valid parameters
-      new PSCloneSiteFolderRequest(source, target, options);
+    // test invalid source
+    Exception exception = null;
+    try {
+      new PSCloneSiteFolderRequest(null, target, options);
+    } catch (Exception e) {
+      exception = e;
+    }
+    assertTrue(exception instanceof IllegalArgumentException);
 
-      // test invalid source
-      Exception exception = null;
-      try
-      {
-         new PSCloneSiteFolderRequest(null, target, options);
-      }
-      catch (Exception e)
-      {
-         exception = e;
-      }
-      assertTrue(exception instanceof IllegalArgumentException);
+    // test invalid target
+    exception = null;
+    try {
+      new PSCloneSiteFolderRequest(source, null, options);
+    } catch (Exception e) {
+      exception = e;
+    }
+    assertTrue(exception instanceof IllegalArgumentException);
 
-      // test invalid target
-      exception = null;
-      try
-      {
-         new PSCloneSiteFolderRequest(source, null, options);
-      }
-      catch (Exception e)
-      {
-         exception = e;
-      }
-      assertTrue(exception instanceof IllegalArgumentException);
+    // test invalid options
+    exception = null;
+    try {
+      new PSCloneSiteFolderRequest(source, target, null);
+    } catch (Exception e) {
+      exception = e;
+    }
+    assertTrue(exception instanceof IllegalArgumentException);
+  }
 
-      // test invalid options
-      exception = null;
-      try
-      {
-         new PSCloneSiteFolderRequest(source, target, null);
-      }
-      catch (Exception e)
-      {
-         exception = e;
-      }
-      assertTrue(exception instanceof IllegalArgumentException);
-   }
+  /**
+   * Test all public methods contracts.
+   *
+   * @throws Exception for any error.
+   */
+  public void testPublicAPI() throws Exception {
+    Map communityMappings = new HashMap();
+    communityMappings.put(Integer.valueOf(1), Integer.valueOf(2));
+    communityMappings.put(Integer.valueOf(3), Integer.valueOf(4));
+    communityMappings.put(Integer.valueOf(5), Integer.valueOf(6));
 
-   /**
-    * Test all public methods contracts.
-    *
-    * @throws Exception for any error.
-    */
-   public void testPublicAPI() throws Exception
-   {
-      Map communityMappings = new HashMap();
-      communityMappings.put(Integer.valueOf(1), Integer.valueOf(2));
-      communityMappings.put(Integer.valueOf(3), Integer.valueOf(4));
-      communityMappings.put(Integer.valueOf(5), Integer.valueOf(6));
+    PSCloningOptions options =
+        new PSCloningOptions(
+            PSCloningOptions.TYPE_SITE,
+            "siteToCopy",
+            "siteName",
+            "folderName",
+            PSCloningOptions.COPY_NO_CONTENT,
+            PSCloningOptions.COPYCONTENT_AS_LINK,
+            communityMappings);
 
-      PSCloningOptions options = new PSCloningOptions(
-         PSCloningOptions.TYPE_SITE, "siteToCopy", "siteName", "folderName",
-         PSCloningOptions.COPY_NO_CONTENT, PSCloningOptions.COPYCONTENT_AS_LINK,
-         communityMappings);
+    PSLocator locator_1 = new PSLocator(1, 1);
+    PSLocator locator_2 = new PSLocator(2, 2);
 
-      PSLocator locator_1 = new PSLocator(1, 1);
-      PSLocator locator_2 = new PSLocator(2, 2);
+    PSCloneSiteFolderRequest request_1 =
+        new PSCloneSiteFolderRequest(locator_1, locator_1, options);
 
-      PSCloneSiteFolderRequest request_1 = new PSCloneSiteFolderRequest(
-         locator_1, locator_1, options);
+    PSCloneSiteFolderRequest request_2 =
+        new PSCloneSiteFolderRequest(locator_2, locator_2, options);
 
-      PSCloneSiteFolderRequest request_2 = new PSCloneSiteFolderRequest(
-         locator_2, locator_2, options);
+    assertTrue(!request_1.equals(request_2));
 
-      assertTrue(!request_1.equals(request_2));
+    // test copyFrom
+    request_2.copyFrom(request_1);
+    assertTrue(request_1.equals(request_2));
 
-      // test copyFrom
-      request_2.copyFrom(request_1);
-      assertTrue(request_1.equals(request_2));
+    // test clone
+    assertTrue(request_1.equals(request_1.clone()));
 
-      // test clone
-      assertTrue(request_1.equals(request_1.clone()));
+    // test toXml / fromXml
+    Document doc = PSXmlDocumentBuilder.createXmlDocument();
+    PSCloneSiteFolderRequest request_1_copy =
+        new PSCloneSiteFolderRequest(request_1.toXml(doc), null, null);
+    assertTrue(request_1.equals(request_1_copy));
+  }
 
-      // test toXml / fromXml
-      Document doc = PSXmlDocumentBuilder.createXmlDocument();
-      PSCloneSiteFolderRequest request_1_copy =
-         new PSCloneSiteFolderRequest(request_1.toXml(doc), null, null);
-      assertTrue(request_1.equals(request_1_copy));
-   }
-
-   // JUnit 3 style suite removed; using JUnit 5 @Test methods
+  // JUnit 3 style suite removed; using JUnit 5 @Test methods
 
 }

@@ -251,7 +251,8 @@ public class PSUpgradePluginCreateCtWfAssociations extends PSSpringUpgradePlugin
       while (rs.next()) {
         ctWfs.add(
             new CtWfAssociation(
-                Integer.valueOf(rs.getInt("CONTENTTYPEID")), Integer.valueOf(rs.getInt("WORKFLOWID"))));
+                Integer.valueOf(rs.getInt("CONTENTTYPEID")),
+                Integer.valueOf(rs.getInt("WORKFLOWID"))));
       }
     } catch (Exception e) {
       String msg = "Failed to get the workflow associations.";

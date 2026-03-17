@@ -47,8 +47,7 @@ public interface IPSMetadataQueryService {
 
   /**
    * Based on the query hibernate return type would be different Following enum is to handle the
-   * return type from the hibernate if NONE it returns List<Object> If PROPERTY it returns
-   * List<[Object[])> If METADATA it returns List<Object>
+   * Enumerates return types for Hibernate queries: NONE, PROPERTY, METADATA. See source for details.
    */
   public enum SORTTYPE {
     NONE,

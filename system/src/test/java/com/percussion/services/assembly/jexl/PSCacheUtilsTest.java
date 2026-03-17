@@ -17,185 +17,213 @@
 
 package com.percussion.services.assembly.jexl;
 
-
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.Disabled;
-import org.apache.log4j.Logger;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Tag;
 import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.concurrent.TimeUnit;
-
+import org.apache.log4j.Logger;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 @Disabled("Temporarily disabled — failing in perc-system test run")
 public class PSCacheUtilsTest {
 
-	private static Logger logger = Logger.getLogger(PSCacheUtilsTest.class.getName());
-	private static final PSCacheUtils cache_utils = new PSCacheUtils();
-	private static String cache_value;
+  private static Logger logger = Logger.getLogger(PSCacheUtilsTest.class.getName());
+  private static final PSCacheUtils cache_utils = new PSCacheUtils();
+  private static String cache_value;
 
-	@BeforeEach
-	protected void setUp() throws Exception {
+  @BeforeEach
+  protected void setUp() throws Exception {
 
-		cache_utils.put("testPrev", "I am testing prev!", PSCacheUtils.getVelocityPrevCache());
-		cache_utils.put("testPub", "I am testing pub!", PSCacheUtils.getVelocityPubCache());
+    cache_utils.put("testPrev", "I am testing prev!", PSCacheUtils.getVelocityPrevCache());
+    cache_utils.put("testPub", "I am testing pub!", PSCacheUtils.getVelocityPubCache());
 
-		// no-op; removed legacy super.setUp()
-	}
+    // no-op; removed legacy super.setUp()
+  }
 
-	@AfterEach
-	protected void tearDown() throws Exception {
+  @AfterEach
+  protected void tearDown() throws Exception {
 
-		cache_utils.flush(PSCacheUtils.getVelocityPrevCache());
-		cache_utils.flush(PSCacheUtils.getVelocityPubCache());
-		// no-op; removed legacy super.tearDown()
-	}
+    cache_utils.flush(PSCacheUtils.getVelocityPrevCache());
+    cache_utils.flush(PSCacheUtils.getVelocityPubCache());
+    // no-op; removed legacy super.tearDown()
+  }
 
-	@Test
-	public void testGet() {
+  @Test
+  public void testGet() {
 
-		// test cache object in preview cache
-		cache_value = (String)cache_utils.get("testPrev", PSCacheUtils.getVelocityPrevCache());
-		assertNotNull(cache_value);
-		assertEquals("I am testing prev!", cache_value);
-		cache_value = null;
-		assertNull(cache_value);
+    // test cache object in preview cache
+    cache_value = (String) cache_utils.get("testPrev", PSCacheUtils.getVelocityPrevCache());
+    assertNotNull(cache_value);
+    assertEquals("I am testing prev!", cache_value);
+    cache_value = null;
+    assertNull(cache_value);
 
-		// test cache object in public cache
-		cache_value = (String)cache_utils.get("testPub", PSCacheUtils.getVelocityPubCache());
-		assertNotNull(cache_value);
-		assertEquals("I am testing pub!", cache_value);
-		cache_value = null;
-		assertNull(cache_value);
+    // test cache object in public cache
+    cache_value = (String) cache_utils.get("testPub", PSCacheUtils.getVelocityPubCache());
+    assertNotNull(cache_value);
+    assertEquals("I am testing pub!", cache_value);
+    cache_value = null;
+    assertNull(cache_value);
 
-		// try to access cache object from incorrect cache
-		cache_value = (String)cache_utils.get("testPrev", PSCacheUtils.getVelocityPubCache());
-		assertNull(cache_value);
+    // try to access cache object from incorrect cache
+    cache_value = (String) cache_utils.get("testPrev", PSCacheUtils.getVelocityPubCache());
+    assertNull(cache_value);
 
-		cache_value = (String)cache_utils.get("testPub", PSCacheUtils.getVelocityPrevCache());
-		assertNull(cache_value);
-	}
+    cache_value = (String) cache_utils.get("testPub", PSCacheUtils.getVelocityPrevCache());
+    assertNull(cache_value);
+  }
 
-	@Test
-	public void testPut() {
+  @Test
+  public void testPut() {
 
-		// test putting cache object in preview cache
-		cache_utils.put("testPrev", "I am testing prev from the put test method!", PSCacheUtils.getVelocityPrevCache());
-		cache_value = (String)cache_utils.get("testPrev", PSCacheUtils.getVelocityPrevCache());
-		assertTrue(cache_value == "I am testing prev from the put test method!");
+    // test putting cache object in preview cache
+    cache_utils.put(
+        "testPrev",
+        "I am testing prev from the put test method!",
+        PSCacheUtils.getVelocityPrevCache());
+    cache_value = (String) cache_utils.get("testPrev", PSCacheUtils.getVelocityPrevCache());
+    assertTrue(cache_value == "I am testing prev from the put test method!");
 
-		// test putting cache object in public cache
-		cache_utils.put("testPub", "I am testing pub from the put test method!", PSCacheUtils.getVelocityPubCache());
-		cache_value = (String)cache_utils.get("testPub", PSCacheUtils.getVelocityPubCache());
-		assertTrue(cache_value == "I am testing pub from the put test method!");
-	}
+    // test putting cache object in public cache
+    cache_utils.put(
+        "testPub",
+        "I am testing pub from the put test method!",
+        PSCacheUtils.getVelocityPubCache());
+    cache_value = (String) cache_utils.get("testPub", PSCacheUtils.getVelocityPubCache());
+    assertTrue(cache_value == "I am testing pub from the put test method!");
+  }
 
+  @Test
+  public void testFlush() {
 
-	@Test
-	public void testFlush() {
+    cache_utils.flush(PSCacheUtils.getVelocityPrevCache());
+    cache_utils.flush(PSCacheUtils.getVelocityPubCache());
 
-		cache_utils.flush(PSCacheUtils.getVelocityPrevCache());
-		cache_utils.flush(PSCacheUtils.getVelocityPubCache());
+    cache_value = (String) cache_utils.get("testPrev", PSCacheUtils.getVelocityPrevCache());
+    assertNull(cache_value);
 
-		cache_value = (String)cache_utils.get("testPrev", PSCacheUtils.getVelocityPrevCache());
-		assertNull(cache_value);
+    cache_value = (String) cache_utils.get("testPub", PSCacheUtils.getVelocityPubCache());
+    assertNull(cache_value);
+  }
 
-		cache_value = (String)cache_utils.get("testPub", PSCacheUtils.getVelocityPubCache());
-		assertNull(cache_value);
-	}
+  @Test
+  public void testFlushString() {
 
-	@Test
-	public void testFlushString() {
+    // test with preview cache
+    cache_utils.put(
+        "testPrev",
+        "I am testing prev from the flushstring test method!",
+        PSCacheUtils.getVelocityPrevCache());
+    cache_value = (String) cache_utils.get("testPrev", PSCacheUtils.getVelocityPrevCache());
+    assertTrue(cache_value == "I am testing prev from the flushstring test method!");
 
-		// test with preview cache
-		cache_utils.put("testPrev", "I am testing prev from the flushstring test method!", PSCacheUtils.getVelocityPrevCache());
-		cache_value = (String)cache_utils.get("testPrev", PSCacheUtils.getVelocityPrevCache());
-		assertTrue(cache_value == "I am testing prev from the flushstring test method!");
+    cache_utils.flush("testPrev", PSCacheUtils.getVelocityPrevCache());
+    cache_value = (String) cache_utils.get("testPrev", PSCacheUtils.getVelocityPrevCache());
+    assertNull(cache_value);
 
-		cache_utils.flush("testPrev", PSCacheUtils.getVelocityPrevCache());
-		cache_value = (String)cache_utils.get("testPrev", PSCacheUtils.getVelocityPrevCache());
-		assertNull(cache_value);
+    // test with publish cache
+    cache_utils.put(
+        "testPub",
+        "I am testing pub from the flushstring test method!",
+        PSCacheUtils.getVelocityPubCache());
+    cache_value = (String) cache_utils.get("testPub", PSCacheUtils.getVelocityPubCache());
+    assertTrue(cache_value == "I am testing pub from the flushstring test method!");
 
-		// test with publish cache
-		cache_utils.put("testPub", "I am testing pub from the flushstring test method!", PSCacheUtils.getVelocityPubCache());
-		cache_value = (String)cache_utils.get("testPub", PSCacheUtils.getVelocityPubCache());
-		assertTrue(cache_value == "I am testing pub from the flushstring test method!");
+    cache_utils.flush("testPub", PSCacheUtils.getVelocityPubCache());
+    cache_value = (String) cache_utils.get("testPub", PSCacheUtils.getVelocityPubCache());
+    assertNull(cache_value);
+  }
 
-		cache_utils.flush("testPub", PSCacheUtils.getVelocityPubCache());
-		cache_value = (String)cache_utils.get("testPub", PSCacheUtils.getVelocityPubCache());
-		assertNull(cache_value);
-	}
+  @Test
+  public void testSetTimeToLive() {
+    // test with preview cache
+    cache_utils.put(
+        "testSetTimeToLivetestPrev",
+        "I am testing prev from the testSetTimeToLive test method!",
+        PSCacheUtils.getVelocityPrevCache());
+    cache_value =
+        (String) cache_utils.get("testSetTimeToLivetestPrev", PSCacheUtils.getVelocityPrevCache());
+    assertEquals("I am testing prev from the testSetTimeToLive test method!", cache_value);
 
-	@Test
-	public void testSetTimeToLive() {
-		// test with preview cache
-		cache_utils.put("testSetTimeToLivetestPrev", "I am testing prev from the testSetTimeToLive test method!", PSCacheUtils.getVelocityPrevCache());
-		cache_value = (String)cache_utils.get("testSetTimeToLivetestPrev", PSCacheUtils.getVelocityPrevCache());
-		assertEquals("I am testing prev from the testSetTimeToLive test method!", cache_value);
+    cache_utils.setTimeToLive("testSetTimeToLivetestPrev", PSCacheUtils.getVelocityPrevCache(), 1);
 
-		cache_utils.setTimeToLive("testSetTimeToLivetestPrev", PSCacheUtils.getVelocityPrevCache(), 1);
+    try {
+      TimeUnit.SECONDS.sleep(5);
+    } catch (InterruptedException e) {
+      logger.error("Exception occured while sleep", e);
+    }
 
-		try {
-			TimeUnit.SECONDS.sleep(5);
-		} catch (InterruptedException e) {
-			logger.error("Exception occured while sleep", e);
-		}
+    cache_value =
+        (String) cache_utils.get("testSetTimeToLivetestPrev", PSCacheUtils.getVelocityPrevCache());
+    assertNull(cache_value);
 
-		cache_value = (String)cache_utils.get("testSetTimeToLivetestPrev", PSCacheUtils.getVelocityPrevCache());
-		assertNull(cache_value);
+    // test with preview cache
+    cache_utils.put(
+        "testSetTimeToLivetestPub",
+        "I am testing pub from the testSetTimeToLive test method!",
+        PSCacheUtils.getVelocityPubCache());
+    cache_value =
+        (String) cache_utils.get("testSetTimeToLivetestPub", PSCacheUtils.getVelocityPubCache());
+    assertEquals("I am testing pub from the testSetTimeToLive test method!", cache_value);
 
-		// test with preview cache
-		cache_utils.put("testSetTimeToLivetestPub", "I am testing pub from the testSetTimeToLive test method!", PSCacheUtils.getVelocityPubCache());
-		cache_value = (String)cache_utils.get("testSetTimeToLivetestPub", PSCacheUtils.getVelocityPubCache());
-		assertEquals("I am testing pub from the testSetTimeToLive test method!", cache_value);
+    cache_utils.setTimeToLive("testSetTimeToLivetestPub", PSCacheUtils.getVelocityPubCache(), 1);
 
-		cache_utils.setTimeToLive("testSetTimeToLivetestPub", PSCacheUtils.getVelocityPubCache(), 1);
+    try {
+      TimeUnit.SECONDS.sleep(5);
+    } catch (InterruptedException e) {
+      logger.error("Exception occured while sleep", e);
+    }
 
-		try {
-			TimeUnit.SECONDS.sleep(5);
-		} catch (InterruptedException e) {
-			logger.error("Exception occured while sleep", e);
-		}
+    cache_value =
+        (String) cache_utils.get("testSetTimeToLivetestPub", PSCacheUtils.getVelocityPubCache());
+    assertNull(cache_value);
+  }
 
-		cache_value = (String)cache_utils.get("testSetTimeToLivetestPub", PSCacheUtils.getVelocityPubCache());
-		assertNull(cache_value);
-	}
+  @Test
+  public void testSetTimeToIdle() {
 
-	@Test
-	public void testSetTimeToIdle() {
+    // test with preview cache
+    cache_utils.put(
+        "testSetTimeToIdletestPrev",
+        "I am testing prev from the testSetTimeToIdle test method!",
+        PSCacheUtils.getVelocityPrevCache());
+    cache_value =
+        (String) cache_utils.get("testSetTimeToIdletestPrev", PSCacheUtils.getVelocityPrevCache());
+    assertEquals("I am testing prev from the testSetTimeToIdle test method!", cache_value);
 
-		// test with preview cache
-		cache_utils.put("testSetTimeToIdletestPrev", "I am testing prev from the testSetTimeToIdle test method!", PSCacheUtils.getVelocityPrevCache());
-		cache_value = (String)cache_utils.get("testSetTimeToIdletestPrev", PSCacheUtils.getVelocityPrevCache());
-		assertEquals("I am testing prev from the testSetTimeToIdle test method!", cache_value);
+    cache_utils.setTimeToIdle("testSetTimeToIdletestPrev", PSCacheUtils.getVelocityPrevCache(), 1);
 
-		cache_utils.setTimeToIdle("testSetTimeToIdletestPrev", PSCacheUtils.getVelocityPrevCache(), 1);
+    try {
+      TimeUnit.SECONDS.sleep(5);
+    } catch (InterruptedException e) {
+      logger.error("Exception occured while sleep", e);
+    }
 
-		try {
-			TimeUnit.SECONDS.sleep(5);
-		} catch (InterruptedException e) {
-			logger.error("Exception occured while sleep", e);
-		}
+    cache_value =
+        (String) cache_utils.get("testSetTimeToIdletestPrev", PSCacheUtils.getVelocityPrevCache());
+    assertNull(cache_value);
 
-		cache_value = (String)cache_utils.get("testSetTimeToIdletestPrev", PSCacheUtils.getVelocityPrevCache());
-		assertNull(cache_value);
+    // test with preview cache
+    cache_utils.put(
+        "testSetTimeToIdletestPub",
+        "I am testing pub from the testSetTimeToIdle test method!",
+        PSCacheUtils.getVelocityPubCache());
+    cache_value =
+        (String) cache_utils.get("testSetTimeToIdletestPub", PSCacheUtils.getVelocityPubCache());
+    assertEquals("I am testing pub from the testSetTimeToIdle test method!", cache_value);
 
-		// test with preview cache
-		cache_utils.put("testSetTimeToIdletestPub", "I am testing pub from the testSetTimeToIdle test method!", PSCacheUtils.getVelocityPubCache());
-		cache_value = (String)cache_utils.get("testSetTimeToIdletestPub", PSCacheUtils.getVelocityPubCache());
-		assertEquals("I am testing pub from the testSetTimeToIdle test method!", cache_value);
+    cache_utils.setTimeToIdle("testSetTimeToIdletestPub", PSCacheUtils.getVelocityPubCache(), 1);
 
-		cache_utils.setTimeToIdle("testSetTimeToIdletestPub", PSCacheUtils.getVelocityPubCache(), 1);
+    try {
+      TimeUnit.SECONDS.sleep(5);
+    } catch (InterruptedException e) {
+      logger.error("Exception occured while sleep", e);
+    }
 
-		try {
-			TimeUnit.SECONDS.sleep(5);
-		} catch (InterruptedException e) {
-			logger.error("Exception occured while sleep", e);
-		}
-
-		cache_value = (String)cache_utils.get("testSetTimeToIdletestPub", PSCacheUtils.getVelocityPubCache());
-		assertNull(cache_value);
-	}
+    cache_value =
+        (String) cache_utils.get("testSetTimeToIdletestPub", PSCacheUtils.getVelocityPubCache());
+    assertNull(cache_value);
+  }
 }

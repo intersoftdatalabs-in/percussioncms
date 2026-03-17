@@ -30,8 +30,9 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
 /**
- * Unit tests for PSInstallation deserialization security (CWE-502). Tests that the ObjectInputFilter
- * is properly applied in the readExternal() method when deserializing installation data.
+ * Unit tests for PSInstallation deserialization security (CWE-502). Tests that the
+ * ObjectInputFilter is properly applied in the readExternal() method when deserializing
+ * installation data.
  */
 @DisplayName("PSInstallation - Deserialization Security")
 class PSInstallationDeserializationTest {
@@ -58,8 +59,7 @@ class PSInstallationDeserializationTest {
     try (ObjectInputStream objIn = new ObjectInputStream(Files.newInputStream(serFile))) {
       // Apply filter as PSInstallation.readExternal() does
       if (objIn instanceof ObjectInputStream) {
-        String filterSpec =
-            SerializationValidation.buildPackageFilterSpec("com.percussion.**");
+        String filterSpec = SerializationValidation.buildPackageFilterSpec("com.percussion.**");
         objIn.setObjectInputFilter(java.io.ObjectInputFilter.Config.createFilter(filterSpec));
       }
       result = objIn.readObject();
@@ -143,8 +143,7 @@ class PSInstallationDeserializationTest {
       oos.writeLong(timestamp);
     }
 
-    try (java.io.ByteArrayInputStream bais =
-            new java.io.ByteArrayInputStream(baos.toByteArray());
+    try (java.io.ByteArrayInputStream bais = new java.io.ByteArrayInputStream(baos.toByteArray());
         ObjectInputStream ois = new ObjectInputStream(bais)) {
       String filterSpec = SerializationValidation.buildPackageFilterSpec("com.percussion.**");
       ois.setObjectInputFilter(java.io.ObjectInputFilter.Config.createFilter(filterSpec));

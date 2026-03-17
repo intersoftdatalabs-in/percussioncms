@@ -17,15 +17,14 @@
 package com.percussion.test.util;
 
 /**
- * Objects that want to be used in resource pools managed by {@link
- * PSResourcePool} must implement this interface.
+ * Objects that want to be used in resource pools managed by {@link PSResourcePool} must implement
+ * this interface.
  */
-public interface IPSPooledResource
-{
-   /**
-    * The pool manager will call this method when it is removing a resource
-    * from the pool or is shutting down. The implementor should free all
-    * resources and make itself ready for garbage collection.
-    */
-   public void close();
-} 
+public interface IPSPooledResource {
+  /**
+   * The pool manager will call this method when it is removing a resource from the pool or is
+   * shutting down. The implementor should free all resources and make itself ready for garbage
+   * collection.
+   */
+  public void close();
+}

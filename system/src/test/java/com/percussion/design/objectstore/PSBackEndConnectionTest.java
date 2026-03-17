@@ -16,90 +16,77 @@
  */
 package com.percussion.design.objectstore;
 
-import com.percussion.xml.PSXmlDocumentBuilder;
+import static org.junit.jupiter.api.Assertions.*;
 
+import com.percussion.xml.PSXmlDocumentBuilder;
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-import org.junit.jupiter.api.Test;
-import static org.junit.jupiter.api.Assertions.*;
+/** Unit tests for the PSBackEndConnection class. */
+public class PSBackEndConnectionTest {
 
-
-/**
- * Unit tests for the PSBackEndConnection class.
- */
-public class PSBackEndConnectionTest
-{
-
-   @Test
-   public void testConstructor() throws Exception
-   {
-      // create two valid, identical connections and test for equality
-      {
-         PSBackEndConnection conn = new PSBackEndConnection(
-            "driverName", "className", "serverName");
-         PSBackEndConnection otherConn = new PSBackEndConnection(
-            "driverName", "className", "serverName");
-         assertEquals(conn, otherConn);
-      }
-
-      // invalid - null driver name
-      assertThrows(IllegalArgumentException.class, () ->
-         new PSBackEndConnection(null, "className", "serverName")
-      );
-
-      // invalid - empty driver name
-      assertThrows(IllegalArgumentException.class, () ->
-         new PSBackEndConnection("", "className", "serverName")
-      );
-
-      // invalid - null class name
-      assertThrows(IllegalArgumentException.class, () ->
-         new PSBackEndConnection("driverName", null, "serverName")
-      );
-
-      // invalid - empty class name
-      assertThrows(IllegalArgumentException.class, () ->
-         new PSBackEndConnection("driverName", "", "serverName")
-      );
-
-      // this is valid
-      {
-         PSBackEndConnection conn = new PSBackEndConnection(
-            "driverName", "className", null);
-      }
-
-      // this is valid
-      {
-         PSBackEndConnection conn = new PSBackEndConnection(
-            "driverName", "className", "");
-      }
-   }
-
-   @Test
-   public void testXml() throws Exception
-   {
-      PSBackEndConnection conn = new PSBackEndConnection(
-         "driverName", "className", "server");
-
-      PSBackEndConnection otherConn = new PSBackEndConnection();
-
-      conn.setConnectionMax(27);
-      conn.setConnectionMin(17);
-      conn.setIdleTimeout(217);
-
-      assertNotEquals(conn, otherConn);
-
-      Document doc = PSXmlDocumentBuilder.createXmlDocument();
-      Element el = conn.toXml(doc);
-
-      otherConn.fromXml(el, null, null);
-
+  @Test
+  public void testConstructor() throws Exception {
+    // create two valid, identical connections and test for equality
+    {
+      PSBackEndConnection conn = new PSBackEndConnection("driverName", "className", "serverName");
+      PSBackEndConnection otherConn =
+          new PSBackEndConnection("driverName", "className", "serverName");
       assertEquals(conn, otherConn);
-      assertEquals(27, otherConn.getConnectionMax());
-      assertEquals(17, otherConn.getConnectionMin());
-      assertEquals(217, otherConn.getIdleTimeout());
-   }
+    }
 
+    // invalid - null driver name
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> new PSBackEndConnection(null, "className", "serverName"));
 
+    // invalid - empty driver name
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> new PSBackEndConnection("", "className", "serverName"));
+
+    // invalid - null class name
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> new PSBackEndConnection("driverName", null, "serverName"));
+
+    // invalid - empty class name
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> new PSBackEndConnection("driverName", "", "serverName"));
+
+    // this is valid
+    {
+      PSBackEndConnection conn = new PSBackEndConnection("driverName", "className", null);
+    }
+
+    // this is valid
+    {
+      PSBackEndConnection conn = new PSBackEndConnection("driverName", "className", "");
+    }
+  }
+
+  @Test
+  public void testXml() throws Exception {
+    PSBackEndConnection conn = new PSBackEndConnection("driverName", "className", "server");
+
+    PSBackEndConnection otherConn = new PSBackEndConnection();
+
+    conn.setConnectionMax(27);
+    conn.setConnectionMin(17);
+    conn.setIdleTimeout(217);
+
+    assertNotEquals(conn, otherConn);
+
+    Document doc = PSXmlDocumentBuilder.createXmlDocument();
+    Element el = conn.toXml(doc);
+
+    otherConn.fromXml(el, null, null);
+
+    assertEquals(conn, otherConn);
+    assertEquals(27, otherConn.getConnectionMax());
+    assertEquals(17, otherConn.getConnectionMin());
+    assertEquals(217, otherConn.getIdleTimeout());
+  }
 }

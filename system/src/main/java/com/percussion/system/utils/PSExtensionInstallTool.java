@@ -246,11 +246,7 @@ public class PSExtensionInstallTool {
 
       IPSExtensionDef def =
           new PSExtensionDef(
-              ref,
-              List.of(IPSExtensionHandler.class.getName()).iterator(),
-              null,
-              initParams,
-              null);
+              ref, List.of(IPSExtensionHandler.class.getName()).iterator(), null, initParams, null);
       Iterator res = PSIteratorUtils.emptyIterator();
       m_extMgr.installExtension(def, res);
     }

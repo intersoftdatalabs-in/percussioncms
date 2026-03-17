@@ -51,14 +51,8 @@ public class PSGenericKeyRestService {
    *
    * <p>
    *
-   * @url /perc-generickey-services/key/requestKey
-   * @httpverb POST
-   * @nullipotent yes (read-only method).
-   * @secured yes (SSL and HTTP Basic Authentication).
    * @return the reset key value generated.
    * @throws WebApplicationException
-   * @httpcodeonsuccess HTTP 200.
-   * @httpcodeonerror HTTP 500.
    */
   @POST
   @Path("/requestKey")
@@ -79,15 +73,9 @@ public class PSGenericKeyRestService {
    *
    * <p>
    *
-   * @url /perc-generickey-services/key/isvalid/{key}
-   * @httpverb POST
-   * @nullipotent yes (read-only method).
-   * @secured yes (SSL and HTTP Basic Authentication).
    * @param key the reset key to delete. Never <code>null</code>, or empty.
    * @return true if the key is valid, otherwise false.
    * @throws WebApplicationException
-   * @httpcodeonsuccess HTTP 200.
-   * @httpcodeonerror HTTP 500.
    */
   @POST
   @Path("/isvalid/{key}")
@@ -106,14 +94,8 @@ public class PSGenericKeyRestService {
    * Delete a reset key using the key provided. If 'key' doesn't exist, throw a web application
    * Exception.
    *
-   * @url /perc-generickey-services/key/{key}
-   * @httpverb DELETE
-   * @nullipotent no.
-   * @secured yes (SSL and HTTP Basic Authentication).
    * @param key The reset key to delete. Never <code>null</code>, or empty.
    * @throws WebApplicationException
-   * @httpcodeonsuccess HTTP 204.
-   * @httpcodeonerror HTTP 500.
    */
   @DELETE
   @Path("/{key}")

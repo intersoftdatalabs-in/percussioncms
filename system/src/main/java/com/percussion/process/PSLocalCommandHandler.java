@@ -501,7 +501,10 @@ public class PSLocalCommandHandler implements IPSCommandHandler {
     // Reject absolute paths - only relative paths within configured boundaries are allowed
     if (path.isAbsolute()) {
       throw new SecurityException(
-          "Invalid path - absolute paths not allowed (CWE-22) in " + methodName + ": " + pathString);
+          "Invalid path - absolute paths not allowed (CWE-22) in "
+              + methodName
+              + ": "
+              + pathString);
     }
 
     // Reject path traversal patterns - reject ".." sequences

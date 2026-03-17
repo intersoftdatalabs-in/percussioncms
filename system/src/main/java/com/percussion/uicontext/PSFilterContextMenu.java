@@ -20,7 +20,6 @@ import com.percussion.cms.IPSConstants;
 import com.percussion.cms.objectstore.PSActionVisibilityContext;
 import com.percussion.cms.objectstore.PSActionVisibilityContexts;
 import com.percussion.cms.objectstore.PSComponentSummary;
-import com.percussion.cx.objectstore.PSMenuAction;
 import com.percussion.error.PSException;
 import com.percussion.extension.IPSExtensionDef;
 import com.percussion.extension.IPSResultDocumentProcessor;
@@ -49,28 +48,16 @@ import org.w3c.dom.NodeList;
 
 /**
  * @author dougrand
- *
- * &lt;p&gt;This class implements a filter that checks each action in the context menu and decides,
- * based on visibility, whether the specific action should remain in the menu. One or more
- * (current one) parameters may be passed that will be used by this exit. In the absence of
- * parameters, the list will not be filtered.
- *
- * &lt;table caption="Parameters"&gt;
- * &lt;tr&gt;
- * &lt;th&gt;Parameter&lt;/th&gt;
- * &lt;th&gt;Description&lt;/th&gt;
- * &lt;/tr&gt;
- * &lt;tr&gt;
- * &lt;td&gt;sys_contentid&lt;/td&gt;
- * &lt;td&gt;The content id being filtered for.&lt;/td&gt;
- * &lt;/tr&gt;
- * &lt;tr&gt;
- * &lt;td&gt;sys_assignmenttype&lt;/td&gt;
- * &lt;td&gt;The assignment type of the user/role for this content id&lt;/td&gt;
- * &lt;/tr&gt;
- * &lt;/table&gt;
- *
- * See the <code>ActionList</code> dtd for more information.
+ *     <p>&lt;p&gt;This class implements a filter that checks each action in the context menu and
+ *     decides, based on visibility, whether the specific action should remain in the menu. One or
+ *     more (current one) parameters may be passed that will be used by this exit. In the absence of
+ *     parameters, the list will not be filtered.
+ *     <p>&lt;table caption="Parameters"&gt; &lt;tr&gt; &lt;th&gt;Parameter&lt;/th&gt;
+ *     &lt;th&gt;Description&lt;/th&gt; &lt;/tr&gt; &lt;tr&gt; &lt;td&gt;sys_contentid&lt;/td&gt;
+ *     &lt;td&gt;The content id being filtered for.&lt;/td&gt; &lt;/tr&gt; &lt;tr&gt;
+ *     &lt;td&gt;sys_assignmenttype&lt;/td&gt; &lt;td&gt;The assignment type of the user/role for
+ *     this content id&lt;/td&gt; &lt;/tr&gt; &lt;/table&gt;
+ *     <p>See the <code>ActionList</code> dtd for more information.
  */
 public class PSFilterContextMenu implements IPSResultDocumentProcessor {
 

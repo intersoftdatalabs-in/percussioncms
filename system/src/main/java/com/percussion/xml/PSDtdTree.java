@@ -19,6 +19,7 @@ package com.percussion.xml;
 
 import com.percussion.error.PSCatalogException;
 import com.percussion.security.error.PSExceptionUtils;
+import com.percussion.security.validation.SerializationValidation;
 import com.percussion.security.validation.URLValidation;
 import com.percussion.server.IPSServerErrors;
 import com.percussion.server.PSConsole;
@@ -45,8 +46,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-
-import com.percussion.security.validation.SerializationValidation;
 import java.util.Stack;
 import java.util.StringTokenizer;
 import java.util.Vector;

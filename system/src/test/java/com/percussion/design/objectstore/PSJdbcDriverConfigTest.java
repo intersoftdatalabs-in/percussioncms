@@ -16,118 +16,99 @@
  */
 package com.percussion.design.objectstore;
 
-import com.percussion.utils.tools.PSTestUtils;
-import com.percussion.xml.PSXmlDocumentBuilder;
-
-import org.apache.commons.lang3.ArrayUtils;
-import org.w3c.dom.Document;
-
-import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
-/**
- * Test case for the {@link PSJdbcDriverConfig} class.
- */
-public class PSJdbcDriverConfigTest
-{
-   /**
-    * Test the parameterized ctor
-    *
-    * @throws Exception if the test fails
-    */
+import com.percussion.utils.tools.PSTestUtils;
+import com.percussion.xml.PSXmlDocumentBuilder;
+import org.apache.commons.lang3.ArrayUtils;
+import org.junit.jupiter.api.Test;
+import org.w3c.dom.Document;
 
-   @Test
-   public void testCtor() throws Exception
-   {
-      String[] args = (String[]) ArrayUtils.clone(ARGS);
-      PSJdbcDriverConfig cfg = (PSJdbcDriverConfig) PSTestUtils.testCtor(
-         PSJdbcDriverConfig.class, PARAMS, args, false);
-      assertEquals(args[0], cfg.getDriverName());
-      assertEquals(args[1], cfg.getClassName());
-      assertEquals(args[2], cfg.getContainerTypeMapping());
+/** Test case for the {@link PSJdbcDriverConfig} class. */
+public class PSJdbcDriverConfigTest {
+  /**
+   * Test the parameterized ctor
+   *
+   * @throws Exception if the test fails
+   */
+  @Test
+  public void testCtor() throws Exception {
+    String[] args = (String[]) ArrayUtils.clone(ARGS);
+    PSJdbcDriverConfig cfg =
+        (PSJdbcDriverConfig) PSTestUtils.testCtor(PSJdbcDriverConfig.class, PARAMS, args, false);
+    assertEquals(args[0], cfg.getDriverName());
+    assertEquals(args[1], cfg.getClassName());
+    assertEquals(args[2], cfg.getContainerTypeMapping());
 
+    for (int i = 0; i < args.length; i++) {
+      String val = args[i];
+      args[i] = null;
+      PSTestUtils.testCtor(PSJdbcDriverConfig.class, PARAMS, args, true);
+      args[i] = "";
+      PSTestUtils.testCtor(PSJdbcDriverConfig.class, PARAMS, args, true);
+      args[i] = val;
+    }
+  }
 
-      for (int i = 0; i < args.length; i++)
-      {
-         String val = args[i];
-         args[i] = null;
-         PSTestUtils.testCtor(PSJdbcDriverConfig.class, PARAMS, args, true);
-         args[i] = "";
-         PSTestUtils.testCtor(PSJdbcDriverConfig.class, PARAMS, args, true);
-         args[i] = val;
-      }
-   }
+  /**
+   * Tests XML serialization methods.
+   *
+   * @throws Exception if the test fails.
+   */
+  @Test
+  public void testXml() throws Exception {
+    String[] args = (String[]) ArrayUtils.clone(ARGS);
+    PSJdbcDriverConfig cfg =
+        (PSJdbcDriverConfig) PSTestUtils.testCtor(PSJdbcDriverConfig.class, PARAMS, args, false);
+    Document doc = PSXmlDocumentBuilder.createXmlDocument();
+    assertEquals(cfg, new PSJdbcDriverConfig(cfg.toXml(doc)));
+  }
 
-   /**
-    * Tests XML serialization methods.
-    *
-    * @throws Exception if the test fails.
-    */
+  /**
+   * Tests equals and hashcode method
+   *
+   * @throws Exception if the test fails
+   */
+  @Test
+  public void testEquals() throws Exception {
+    String[] args = (String[]) ArrayUtils.clone(ARGS);
+    PSJdbcDriverConfig cfg =
+        (PSJdbcDriverConfig) PSTestUtils.testCtor(PSJdbcDriverConfig.class, PARAMS, args, false);
+    PSJdbcDriverConfig cfg2 =
+        (PSJdbcDriverConfig) PSTestUtils.testCtor(PSJdbcDriverConfig.class, PARAMS, args, false);
+    assertEquals(cfg, cfg2);
+    assertEquals(cfg.hashCode(), cfg2.hashCode());
 
-   @Test
-   public void testXml() throws Exception
-   {
-      String[] args = (String[]) ArrayUtils.clone(ARGS);
-      PSJdbcDriverConfig cfg = (PSJdbcDriverConfig) PSTestUtils.testCtor(
-         PSJdbcDriverConfig.class, PARAMS, args, false);
-      Document doc = PSXmlDocumentBuilder.createXmlDocument();
-      assertEquals(cfg, new PSJdbcDriverConfig(cfg.toXml(doc)));
-   }
+    for (int i = 0; i < args.length; i++) {
+      String val = args[i];
+      args[i] = "foo";
+      assertFalse(cfg.equals(PSTestUtils.testCtor(PSJdbcDriverConfig.class, PARAMS, args, false)));
+      args[i] = val;
+    }
+  }
 
-   /**
-    * Tests equals and hashcode method
-    *
-    * @throws Exception if the test fails
-    */
+  /**
+   * Test set and get methods.
+   *
+   * @throws Exception if the test fails
+   */
+  @Test
+  public void testSetters() throws Exception {
+    String[] args = (String[]) ArrayUtils.clone(ARGS);
+    PSJdbcDriverConfig cfg =
+        (PSJdbcDriverConfig) PSTestUtils.testCtor(PSJdbcDriverConfig.class, PARAMS, args, false);
 
-   @Test
-   public void testEquals() throws Exception
-   {
-      String[] args = (String[]) ArrayUtils.clone(ARGS);
-      PSJdbcDriverConfig cfg = (PSJdbcDriverConfig) PSTestUtils.testCtor(
-         PSJdbcDriverConfig.class, PARAMS, args, false);
-      PSJdbcDriverConfig cfg2 = (PSJdbcDriverConfig) PSTestUtils.testCtor(
-         PSJdbcDriverConfig.class, PARAMS, args, false);
-      assertEquals(cfg, cfg2);
-      assertEquals(cfg.hashCode(), cfg2.hashCode());
+    for (int i = 0; i < PROPS.length; i++) {
+      PSTestUtils.testSetter(cfg, PROPS[i], ARGS[i] + "Test", false);
+      PSTestUtils.testSetter(cfg, PROPS[i], null, true);
+      PSTestUtils.testSetter(cfg, PROPS[i], "", true);
+    }
+  }
 
-      for (int i = 0; i < args.length; i++)
-      {
-         String val = args[i];
-         args[i] = "foo";
-         assertFalse(cfg.equals(PSTestUtils.testCtor(PSJdbcDriverConfig.class,
-            PARAMS, args, false)));
-         args[i] = val;
-      }
-   }
-
-   /**
-    * Test set and get methods.
-    *
-    * @throws Exception if the test fails
-    */
-
-   @Test
-   public void testSetters() throws Exception
-   {
-      String[] args = (String[]) ArrayUtils.clone(ARGS);
-      PSJdbcDriverConfig cfg = (PSJdbcDriverConfig) PSTestUtils.testCtor(
-         PSJdbcDriverConfig.class, PARAMS, args, false);
-
-      for (int i = 0; i < PROPS.length; i++)
-      {
-         PSTestUtils.testSetter(cfg, PROPS[i], ARGS[i] + "Test", false);
-         PSTestUtils.testSetter(cfg, PROPS[i], null, true);
-         PSTestUtils.testSetter(cfg, PROPS[i], "", true);
-      }
-   }
-
-   private static final Class[] PARAMS = {String.class, String.class, String.class};
-   private static String DRIVER = "driver";
-   private static String CLASS_NAME = "className";
-   private static String CT_MAPPING = "ctMapping";
-   private static final String[] ARGS = {DRIVER, CLASS_NAME, CT_MAPPING};
-   private static final String[] PROPS = {"DriverName", "ClassName",
-      "ContainerTypeMapping"};
+  private static final Class[] PARAMS = {String.class, String.class, String.class};
+  private static String DRIVER = "driver";
+  private static String CLASS_NAME = "className";
+  private static String CT_MAPPING = "ctMapping";
+  private static final String[] ARGS = {DRIVER, CLASS_NAME, CT_MAPPING};
+  private static final String[] PROPS = {"DriverName", "ClassName", "ContainerTypeMapping"};
 }
-

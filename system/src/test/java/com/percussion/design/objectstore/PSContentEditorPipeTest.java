@@ -16,74 +16,58 @@
  */
 package com.percussion.design.objectstore;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 import com.percussion.util.PSCollection;
 import com.percussion.xml.PSXmlDocumentBuilder;
-
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
-
-import org.junit.jupiter.api.Test;
-import static org.junit.jupiter.api.Assertions.*;
-
-
 // Test case
-public class PSContentEditorPipeTest 
-{
-   
+public class PSContentEditorPipeTest {
 
-   
-   
+  public void testEquals() throws Exception {}
 
-   public void testEquals() throws Exception
-   {
-   }
+  public void testXml() throws Exception {
+    Document doc = PSXmlDocumentBuilder.createXmlDocument();
+    Element root = PSXmlDocumentBuilder.createRoot(doc, "Test");
 
-   
+    // create test object
+    PSBackEndCredential cred = new PSBackEndCredential("credential_1");
+    cred.setDataSource("rxdefault");
 
-   public void testXml() throws Exception
-   {
-      Document doc = PSXmlDocumentBuilder.createXmlDocument();
-      Element root = PSXmlDocumentBuilder.createRoot(doc, "Test");
+    PSTableLocator tl = new PSTableLocator(cred);
+    PSTableRef tr = new PSTableRef("tableName_1", "tableAlias_1");
+    PSTableSet ts = new PSTableSet(tl, tr);
+    PSCollection tsCol = new PSCollection(ts.getClass());
+    tsCol.add(ts);
+    PSContainerLocator loc = new PSContainerLocator(tsCol);
+    PSBackEndTable table = new PSBackEndTable("RXARTICLE");
+    PSField f = new PSField("field_1", new PSBackEndColumn(table, "DISPLAYTITLE"));
+    PSFieldSet fs = new PSFieldSet("fieldSet_1", f);
+    PSDisplayMapper dispMapper = new PSDisplayMapper("fs_1");
+    PSUISet uiSet = new PSUISet();
+    PSParam param = new PSParam("param_1", new PSTextLiteral("value_1"));
+    PSCollection parameters = new PSCollection(param.getClass());
+    parameters.add(param);
+    uiSet.setControl(new PSControlRef("sys_EditBox", parameters));
+    PSDisplayMapping mapping = new PSDisplayMapping("DISPLAYTITLE", uiSet);
+    PSUIDefinition uiDef = new PSUIDefinition(dispMapper);
+    uiDef.appendMapping(dispMapper, mapping);
+    PSContentEditorMapper ceMapper = new PSContentEditorMapper(null, null, fs, uiDef);
 
-      // create test object
-      PSBackEndCredential cred = new PSBackEndCredential("credential_1");
-      cred.setDataSource("rxdefault");
+    PSContentEditorPipe testTo = new PSContentEditorPipe("cePipe", loc, ceMapper);
+    Element elem = testTo.toXml(doc);
+    root.appendChild(elem);
 
-      PSTableLocator tl = new PSTableLocator(cred);
-      PSTableRef tr = new PSTableRef("tableName_1", "tableAlias_1");
-      PSTableSet ts = new PSTableSet(tl, tr);
-      PSCollection tsCol = new PSCollection(ts.getClass());
-      tsCol.add(ts);
-      PSContainerLocator loc = new PSContainerLocator(tsCol);
-      PSBackEndTable table = new PSBackEndTable("RXARTICLE");
-      PSField f = new PSField("field_1", new PSBackEndColumn(table, "DISPLAYTITLE"));
-      PSFieldSet fs = new PSFieldSet("fieldSet_1", f);
-      PSDisplayMapper dispMapper = new PSDisplayMapper("fs_1");
-      PSUISet uiSet = new PSUISet();
-      PSParam param = new PSParam("param_1", new PSTextLiteral("value_1"));
-      PSCollection parameters = new PSCollection(param.getClass());
-      parameters.add(param);
-      uiSet.setControl(new PSControlRef("sys_EditBox", parameters));
-      PSDisplayMapping mapping = new PSDisplayMapping("DISPLAYTITLE", uiSet);
-      PSUIDefinition uiDef = new PSUIDefinition(dispMapper);
-      uiDef.appendMapping(dispMapper, mapping);
-      PSContentEditorMapper ceMapper = new PSContentEditorMapper(null, null, fs, uiDef);
-
-      PSContentEditorPipe testTo = new PSContentEditorPipe("cePipe", loc, ceMapper);
-      Element elem = testTo.toXml(doc);
-      root.appendChild(elem);
-
-      // create a new object and populate it from our testTo element
-      PSContentEditorPipe testFrom = new PSContentEditorPipe(elem, null, null);
-      Document doc2 = PSXmlDocumentBuilder.createXmlDocument();
-      Element root2 = PSXmlDocumentBuilder.createRoot(doc2, "Test");
-      Element elem2 = testFrom.toXml(doc);
-      Node node = doc2.importNode(elem2,true);
-      root2.appendChild(node);
-      assertEquals(testTo, testFrom);
-   }
-
-   
+    // create a new object and populate it from our testTo element
+    PSContentEditorPipe testFrom = new PSContentEditorPipe(elem, null, null);
+    Document doc2 = PSXmlDocumentBuilder.createXmlDocument();
+    Element root2 = PSXmlDocumentBuilder.createRoot(doc2, "Test");
+    Element elem2 = testFrom.toXml(doc);
+    Node node = doc2.importNode(elem2, true);
+    root2.appendChild(node);
+    assertEquals(testTo, testFrom);
+  }
 }

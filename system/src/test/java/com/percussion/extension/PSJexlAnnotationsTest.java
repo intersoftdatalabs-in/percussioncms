@@ -16,45 +16,33 @@
  */
 package com.percussion.extension;
 
-import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
-
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.*;
+import org.junit.jupiter.api.Test;
 
-public class PSJexlAnnotationsTest
-{
+public class PSJexlAnnotationsTest {
 
+  @IPSJexlMethod(
+      description = "A test method",
+      params = {
+        @IPSJexlParam(name = "first", type = "int", description = "first parameter"),
+        @IPSJexlParam(name = "second", description = "second parameter")
+      })
+  public void tryit(int param1, int param2) {}
 
-
-   @IPSJexlMethod (
-         description = "A test method",
-         params = {
-            @IPSJexlParam(name = "first", type = "int", description = "first parameter"),
-            @IPSJexlParam(name = "second", description = "second parameter")
-            }
-         )
-   public void tryit(int param1, int param2)
-   {
-
-   }
-
-
-
-   @Test
-   public void test1() throws Exception
-   {
-      Class<?> noargs[] = new Class<?>[] { int.class, int.class } ;
-      Method m = this.getClass().getMethod("tryit", noargs);
-      Annotation a[] = m.getAnnotations();
-      assertEquals(1, a.length);
-      IPSJexlMethod method = (IPSJexlMethod) a[0];
-      System.out.println(method.description());
-      IPSJexlParam parameters[] = method.params();
-      for(IPSJexlParam p : parameters)
-      {
-         System.out.println("Param " + p);
-      }
-   }
+  @Test
+  public void test1() throws Exception {
+    Class<?> noargs[] = new Class<?>[] {int.class, int.class};
+    Method m = this.getClass().getMethod("tryit", noargs);
+    Annotation a[] = m.getAnnotations();
+    assertEquals(1, a.length);
+    IPSJexlMethod method = (IPSJexlMethod) a[0];
+    System.out.println(method.description());
+    IPSJexlParam parameters[] = method.params();
+    for (IPSJexlParam p : parameters) {
+      System.out.println("Param " + p);
+    }
+  }
 }

@@ -17,84 +17,83 @@
 
 package com.percussion.data;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
-
 import org.junit.jupiter.api.Test;
-import static org.junit.jupiter.api.Assertions.*;
-
 
 /**
  * The PSDataConverterTest class is for unit test of PSDataConverter class.
  *
- * @author   Jian Huang
- * @version   1.0
- * @since   1.0
+ * @author Jian Huang
+ * @version 1.0
+ * @since 1.0
  */
-public class PSDataConverterTest
-{
+public class PSDataConverterTest {
 
-   // this class is used to keep track of expected parse results for dates
-   private static class DateTest
-   {
-      public DateTest(String dateText,
-         int year, int month, int day, int hours, int minutes, int seconds, long milliseconds)
-      {
-         this.dateText = dateText;
-         this.month = month;
-         this.year = year;
-         this.day = day;
-         this.hours = hours;
-         this.minutes = minutes;
-         this.seconds = seconds;
-         this.milliseconds = milliseconds;
-      }
+  // this class is used to keep track of expected parse results for dates
+  private static class DateTest {
+    public DateTest(
+        String dateText,
+        int year,
+        int month,
+        int day,
+        int hours,
+        int minutes,
+        int seconds,
+        long milliseconds) {
+      this.dateText = dateText;
+      this.month = month;
+      this.year = year;
+      this.day = day;
+      this.hours = hours;
+      this.minutes = minutes;
+      this.seconds = seconds;
+      this.milliseconds = milliseconds;
+    }
 
-      public String dateText;
-      public int month; // 0-11
-      public int year; // whatever
-      public int day; // 1-31
+    public String dateText;
+    public int month; // 0-11
+    public int year; // whatever
+    public int day; // 1-31
 
-      public int hours; // 0-23
-      public int minutes; // 0-59
-      public int seconds; // 0-59
-      public long milliseconds;
-   }
+    public int hours; // 0-23
+    public int minutes; // 0-59
+    public int seconds; // 0-59
+    public long milliseconds;
+  }
 
-   // test date conversion with many popular formats
-   // TODO: For every format used in PSDataConverter.ms_datePatternArray,
-   // compose several dates using that format
-   @Test
-   public void testDateConversion() throws Exception
-   {
-      // a bunch of dates, all earlier than today
-      DateTest[] myTests = {
-         new DateTest("1999", 1999, 0, 1, 0, 0, 0, 0),
-         new DateTest("1999-08-20 AD at 02:33:45", 1999, 7, 20, 2, 33, 45, 0),
-         new DateTest("1900/03/31 02:30", 1900, 2, 31, 2, 30, 0, 0),
-         new DateTest("1999-02-23 23:23:23.123", 1999, 1, 23, 23, 23, 23, 123),
-         new DateTest("Friday, August 20, 1999", 1999, 7, 20, 0, 0, 0, 0),
-         new DateTest("May 1999", 1999, 4, 1, 0, 0, 0, 0),
-         new DateTest("1999.July.20 at 8:34 PM", 1999, 6, 20, 20, 34, 0, 0),
-         new DateTest("1999.July.20 at 8:34 AM", 1999, 6, 20, 8,  34, 0, 0)
-      };
+  // test date conversion with many popular formats
+  // TODO: For every format used in PSDataConverter.ms_datePatternArray,
+  // compose several dates using that format
+  @Test
+  public void testDateConversion() throws Exception {
+    // a bunch of dates, all earlier than today
+    DateTest[] myTests = {
+      new DateTest("1999", 1999, 0, 1, 0, 0, 0, 0),
+      new DateTest("1999-08-20 AD at 02:33:45", 1999, 7, 20, 2, 33, 45, 0),
+      new DateTest("1900/03/31 02:30", 1900, 2, 31, 2, 30, 0, 0),
+      new DateTest("1999-02-23 23:23:23.123", 1999, 1, 23, 23, 23, 23, 123),
+      new DateTest("Friday, August 20, 1999", 1999, 7, 20, 0, 0, 0, 0),
+      new DateTest("May 1999", 1999, 4, 1, 0, 0, 0, 0),
+      new DateTest("1999.July.20 at 8:34 PM", 1999, 6, 20, 20, 34, 0, 0),
+      new DateTest("1999.July.20 at 8:34 AM", 1999, 6, 20, 8, 34, 0, 0)
+    };
 
-      for (int i = 0; i < myTests.length; i++)
-      {
-         DateTest t = myTests[i];
-         Date day = com.percussion.util.PSDataTypeConverter.parseStringToDate(t.dateText);
-         Calendar cal = new GregorianCalendar();
-         cal.setTime(day);
-         assertEquals(t.year, cal.get(Calendar.YEAR), "For year in  " + t.dateText);
-         assertEquals(t.month, cal.get(Calendar.MONTH), "For month in " + t.dateText);
-         assertEquals(t.day, cal.get(Calendar.DAY_OF_MONTH), "For day in  " + t.dateText);
-         assertEquals(t.hours, cal.get(Calendar.HOUR_OF_DAY), "For hours in " + t.dateText);
-         assertEquals(t.minutes, cal.get(Calendar.MINUTE), "For minutes in  " + t.dateText);
-         assertEquals(t.seconds, cal.get(Calendar.SECOND), "For seconds in " + t.dateText);
-         // TODO: test milliseconds
-      }
-   }
-
-
+    for (int i = 0; i < myTests.length; i++) {
+      DateTest t = myTests[i];
+      Date day = com.percussion.util.PSDataTypeConverter.parseStringToDate(t.dateText);
+      Calendar cal = new GregorianCalendar();
+      cal.setTime(day);
+      assertEquals(t.year, cal.get(Calendar.YEAR), "For year in  " + t.dateText);
+      assertEquals(t.month, cal.get(Calendar.MONTH), "For month in " + t.dateText);
+      assertEquals(t.day, cal.get(Calendar.DAY_OF_MONTH), "For day in  " + t.dateText);
+      assertEquals(t.hours, cal.get(Calendar.HOUR_OF_DAY), "For hours in " + t.dateText);
+      assertEquals(t.minutes, cal.get(Calendar.MINUTE), "For minutes in  " + t.dateText);
+      assertEquals(t.seconds, cal.get(Calendar.SECOND), "For seconds in " + t.dateText);
+      // TODO: test milliseconds
+    }
+  }
 }

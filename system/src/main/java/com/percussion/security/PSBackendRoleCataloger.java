@@ -28,9 +28,8 @@ import java.util.Set;
 /** A role cataloger using the backend role/subject data as directory source. */
 public class PSBackendRoleCataloger extends PSBackendCataloger implements IPSInternalRoleCataloger {
   /**
-   * Convenience constructor that calls
-   * {@link #PSBackendRoleCataloger(Properties, PSServerConfiguration)} with
-   * <code>null</code> for the server configuration.
+   * Convenience constructor that calls {@link #PSBackendRoleCataloger(Properties,
+   * PSServerConfiguration)} with <code>null</code> for the server configuration.
    */
   public PSBackendRoleCataloger(Properties properties) {
     this(properties, null);

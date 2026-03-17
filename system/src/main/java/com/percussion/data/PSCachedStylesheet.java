@@ -17,8 +17,8 @@
 package com.percussion.data;
 
 import com.percussion.security.error.PSExceptionUtils;
-import com.percussion.security.xml.PSSecureXMLUtils;
 import com.percussion.security.xml.PSCatalogResolver;
+import com.percussion.security.xml.PSSecureXMLUtils;
 import com.percussion.server.PSServer;
 import com.percussion.xml.PSXmlDocumentBuilder;
 import java.io.File;
@@ -91,23 +91,18 @@ public class PSCachedStylesheet {
   }
 
   /**
-   * Style sheet template is created if it is <code>null</code> or the url is
-   * modified and returns style sheet template.
+   * Style sheet template is created if it is <code>null</code> or the url is modified and returns
+   * style sheet template.
    *
-   * @param encoding the character encoding that will be used for
-   * transformation output. If this parameter is not <code>null</code>
-   * then the stylesheet will have it's xsl:output element and meta tags
-   * overridden to use the specified encoding. May be <code>null</code>
-   * or empty in which case no modifications to the XSl template will be
-   * made.
-   *
+   * @param encoding the character encoding that will be used for transformation output. If this
+   *     parameter is not <code>null</code> then the stylesheet will have it's xsl:output element
+   *     and meta tags overridden to use the specified encoding. May be <code>null</code> or empty
+   *     in which case no modifications to the XSl template will be made.
    * @return style sheet template, may not be <code>null</code>.
-   *
    * @throws IOException if it can not get stream from url.
-   * @throws SAXException if there is error in building Document from style
-   * sheet url.
-   * @throws TransformerConfigurationException if templates object can not be
-   * created because of parser errors in style sheet.
+   * @throws SAXException if there is error in building Document from style sheet url.
+   * @throws TransformerConfigurationException if templates object can not be created because of
+   *     parser errors in style sheet.
    */
   public Templates getStylesheetTemplate(String encoding)
       throws IOException, SAXException, TransformerConfigurationException {

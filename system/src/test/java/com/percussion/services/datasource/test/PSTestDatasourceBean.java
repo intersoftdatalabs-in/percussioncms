@@ -16,58 +16,45 @@
  */
 package com.percussion.services.datasource.test;
 
+import java.sql.SQLException;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 
-import java.sql.SQLException;
+/** Simple bean used to test session factories. */
+public class PSTestDatasourceBean {
+  /**
+   * Session facotry to use, <code>null</code> until set by {@link
+   * #setSessionFactory(SessionFactory)}.
+   */
+  private SessionFactory m_sessionFactory;
 
-/**
- * Simple bean used to test session factories.
- */
-public class PSTestDatasourceBean
-{
-   /**
-    * Session facotry to use, <code>null</code> until set by 
-    * {@link #setSessionFactory(SessionFactory)}.
-    */
-   private SessionFactory m_sessionFactory;
-   
-   /**
-    * Setter for the session to use.
-    * 
-    * @param sessionFactory The
-    */
-   public void setSessionFactory(SessionFactory sessionFactory)
-   {
-      if (sessionFactory == null)
-         throw new IllegalArgumentException("sessionFactory may not be null");
-      
-      m_sessionFactory = sessionFactory;
-   }
-   
-   /**
-    * Opens a session, gets the jdbc connection and returns a string containing
-    * the jdbc url and catalog represented.
-    * 
-    * @return The jdbc connection info of the session's connection, never
-    * <code>null</code> or empty.
-    * 
-    * @throws SQLException if there are any errors using the connection.
-    */
-   public String testFactory() throws SQLException
-   {
-      if (m_sessionFactory == null)
-         throw new IllegalStateException("factory is null");
-      
-      Session sess = m_sessionFactory.openSession();
-      try
-      {
-         return sess.doReturningWork(conn -> conn.getMetaData().getURL() + " - " + conn.getCatalog());
-      }
-      finally
-      {
-         sess.close();
-      }
-   }
+  /**
+   * Setter for the session to use.
+   *
+   * @param sessionFactory The
+   */
+  public void setSessionFactory(SessionFactory sessionFactory) {
+    if (sessionFactory == null)
+      throw new IllegalArgumentException("sessionFactory may not be null");
+
+    m_sessionFactory = sessionFactory;
+  }
+
+  /**
+   * Opens a session, gets the jdbc connection and returns a string containing the jdbc url and
+   * catalog represented.
+   *
+   * @return The jdbc connection info of the session's connection, never <code>null</code> or empty.
+   * @throws SQLException if there are any errors using the connection.
+   */
+  public String testFactory() throws SQLException {
+    if (m_sessionFactory == null) throw new IllegalStateException("factory is null");
+
+    Session sess = m_sessionFactory.openSession();
+    try {
+      return sess.doReturningWork(conn -> conn.getMetaData().getURL() + " - " + conn.getCatalog());
+    } finally {
+      sess.close();
+    }
+  }
 }
-

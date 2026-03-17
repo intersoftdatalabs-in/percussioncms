@@ -19,8 +19,8 @@ package com.percussion.install;
 import org.w3c.dom.Element;
 
 /**
- * This class updates the tomcat connectors by loading and saving them. This process will update
- * the connector elements with any default attributes which have been added in subsequent Rhythmyx
+ * This class updates the tomcat connectors by loading and saving them. This process will update the
+ * connector elements with any default attributes which have been added in subsequent Rhythmyx
  * versions.
  */
 // REFACTORED: CP-JAVA11

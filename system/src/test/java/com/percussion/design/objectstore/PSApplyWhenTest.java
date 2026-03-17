@@ -16,38 +16,31 @@
  */
 package com.percussion.design.objectstore;
 
-import com.percussion.xml.PSXmlDocumentBuilder;
+import static org.junit.jupiter.api.Assertions.*;
 
+import com.percussion.xml.PSXmlDocumentBuilder;
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-
-import org.junit.jupiter.api.Test;
-import static org.junit.jupiter.api.Assertions.*;
-
-
 // Test case
-public class PSApplyWhenTest
-{
-   @Test
-   public void testEquals() throws Exception
-   {
-   }
+public class PSApplyWhenTest {
+  @Test
+  public void testEquals() throws Exception {}
 
-   @Test
-   public void testXml() throws Exception
-   {
-      Document doc = PSXmlDocumentBuilder.createXmlDocument();
-      Element root = PSXmlDocumentBuilder.createRoot(doc, "Test");
+  @Test
+  public void testXml() throws Exception {
+    Document doc = PSXmlDocumentBuilder.createXmlDocument();
+    Element root = PSXmlDocumentBuilder.createRoot(doc, "Test");
 
-      // create test object
-      PSApplyWhen testTo = new PSApplyWhen();
-      testTo.setIfFieldEmpty(true);
-      Element elem = testTo.toXml(doc);
-      root.appendChild(elem);
+    // create test object
+    PSApplyWhen testTo = new PSApplyWhen();
+    testTo.setIfFieldEmpty(true);
+    Element elem = testTo.toXml(doc);
+    root.appendChild(elem);
 
-      // create a new object and populate it from our testTo element
-      PSApplyWhen testFrom = new PSApplyWhen(elem, null, null);
-      assertEquals(testTo, testFrom);
-   }
+    // create a new object and populate it from our testTo element
+    PSApplyWhen testFrom = new PSApplyWhen(elem, null, null);
+    assertEquals(testTo, testFrom);
+  }
 }

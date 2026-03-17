@@ -16,48 +16,40 @@
  */
 package com.percussion.i18n.rxlt;
 
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 import com.percussion.i18n.tmxdom.IPSTmxDocument;
-
 import com.percussion.xml.PSXmlDocumentBuilder;
-
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.Tag;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-
 /**
- * Test framework for JSP scanner. This has to run against a rhythmyx
- * installation. Setup rxdeploydir before running this test.
+ * Test framework for JSP scanner. This has to run against a rhythmyx installation. Setup
+ * rxdeploydir before running this test.
  *
  * @author dougrand
  */
+public class PSJspHandlerTest {
+  /** Run test */
+  @Test
+  public void testJspHandlerTest() {
+    // Disable logging
+    PSCommandLineProcessor.setIsLogEnabled(false);
 
-public class PSJspHandlerTest
-{
-   /**
-    * Run test
-    */
-   @Test
-   public void testJspHandlerTest()
-   {
-      // Disable logging
-      PSCommandLineProcessor.setIsLogEnabled(false);
+    PSJspHandler jsph = new PSJspHandler();
 
-      PSJspHandler jsph = new PSJspHandler();
+    Document doc = PSXmlDocumentBuilder.createXmlDocument();
+    Element root = doc.createElement("rxltconfig");
+    root.setAttribute("rxroot", System.getProperty("rxdeploydir"));
+    doc.appendChild(root);
+    Element el = doc.createElement("section");
+    root.appendChild(el);
+    el.setAttribute("sectionid", "5");
+    el.setAttribute("name", "JSP Files");
+    el.setAttribute("process", "yes");
 
-      Document doc = PSXmlDocumentBuilder.createXmlDocument();
-      Element root = doc.createElement("rxltconfig");
-      root.setAttribute("rxroot", System.getProperty("rxdeploydir"));
-      doc.appendChild(root);
-      Element el = doc.createElement("section");
-      root.appendChild(el);
-      el.setAttribute("sectionid", "5");
-      el.setAttribute("name", "JSP Files");
-      el.setAttribute("process", "yes");
-
-      IPSTmxDocument result = jsph.process(el);
-      assertNotNull(result);
-   }
+    IPSTmxDocument result = jsph.process(el);
+    assertNotNull(result);
+  }
 }

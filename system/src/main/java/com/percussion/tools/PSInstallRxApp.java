@@ -119,9 +119,7 @@ public class PSInstallRxApp {
     copyData(is, file);
   }
 
-  /**
-   * Copy pre-validated input stream to already-validated target file (no path validation).
-   */
+  /** Copy pre-validated input stream to already-validated target file (no path validation). */
   private void copyInputStreamToFileWithoutValidation(InputStream is, File targetFile)
       throws IOException {
     File parent = targetFile.getParentFile();

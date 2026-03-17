@@ -55,7 +55,6 @@ public class PSControlDependencyMap {
    *     extensions will be removed, if <code>null</code> or empty the user properties will be
    *     ignored.
    */
-
   public PSControlDependencyMap(
       Map<String, String> userProps, PSExtensionCallSet inputDataExtensions) {
     if (userProps == null) throw new IllegalArgumentException("userProps may not be null");
@@ -109,7 +108,6 @@ public class PSControlDependencyMap {
    *     PSDependency#setId(int)} (see {@link #getControlDependencies(PSDisplayMapping,
    *     PSControlMeta)}).
    */
-
   public void setControlDependencies(PSDisplayMapping mapping, List<PSDependency> dependencies) {
     if (mapping == null) throw new IllegalArgumentException("mapping may not be null");
 
@@ -177,7 +175,6 @@ public class PSControlDependencyMap {
    *     dependencies with a single occurence type, the same instance is returned for any mapping
    *     referencing that dependency.
    */
-
   public List<PSDependency> getControlDependencies(PSDisplayMapping mapping, PSControlMeta meta) {
     if (mapping == null) throw new IllegalArgumentException("mapping may not be null");
 

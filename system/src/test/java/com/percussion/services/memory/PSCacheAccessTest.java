@@ -18,238 +18,240 @@
 // REFACTORED: CP-JAVA11
 package com.percussion.services.memory;
 
+import static org.junit.jupiter.api.Assertions.*;
 
 import com.percussion.services.memory.impl.PSEhCacheAccessor;
 import com.percussion.utils.timing.PSStopwatch;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.Tag;
-import org.junit.jupiter.api.DisplayName;
-
 import java.io.Serializable;
 import java.security.SecureRandom;
 import java.util.HashMap;
-import java.util.Map;
 import java.util.Objects;
-
-import static org.junit.jupiter.api.Assertions.*;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
 
 /**
  * Modern JUnit5 tests for the cache service interface.
  *
- * <p>This test suite validates the cache service functionality including basic
- * CRUD operations, performance characteristics, and TTL/TTI behavior.</p>
+ * <p>This test suite validates the cache service functionality including basic CRUD operations,
+ * performance characteristics, and TTL/TTI behavior.
  *
  * @author dougrand
  */
-
 @DisplayName("Cache Access Service Tests")
 class PSCacheAccessTest {
 
-   /**
-    * Test cache region name.
-    */
-   private static final String TEST_REGION = "object";
+  /** Test cache region name. */
+  private static final String TEST_REGION = "object";
 
-   /**
-    * Shared cache accessor instance for all tests.
-    */
-   private static IPSCacheAccess cache;
+  /** Shared cache accessor instance for all tests. */
+  private static IPSCacheAccess cache;
 
-   /**
-    * Test data class for cache operations.
-    */
-   public static final class TestClass implements Serializable {
+  /** Test data class for cache operations. */
+  public static final class TestClass implements Serializable {
 
-      private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-      private final int a, b, c, d;
-      private final long e, f, g, i;
-      private final float j, k, l, m;
-      private final String o, p, q;
+    private final int a, b, c, d;
+    private final long e, f, g, i;
+    private final float j, k, l, m;
+    private final String o, p, q;
 
-      /**
-       * Creates a new test instance with random data.
-       */
-      public TestClass() {
-         var random = new SecureRandom();
+    /** Creates a new test instance with random data. */
+    public TestClass() {
+      var random = new SecureRandom();
 
-         this.a = random.nextInt();
-         this.b = random.nextInt();
-         this.c = random.nextInt();
-         this.d = random.nextInt();
-         this.e = random.nextLong();
-         this.f = random.nextLong();
-         this.g = random.nextLong();
-         this.i = random.nextLong();
-         this.j = random.nextFloat();
-         this.k = random.nextFloat();
-         this.l = random.nextFloat();
-         this.m = random.nextFloat();
-         this.o = generateRandomString(random);
-         this.p = generateRandomString(random);
-         this.q = generateRandomString(random);
+      this.a = random.nextInt();
+      this.b = random.nextInt();
+      this.c = random.nextInt();
+      this.d = random.nextInt();
+      this.e = random.nextLong();
+      this.f = random.nextLong();
+      this.g = random.nextLong();
+      this.i = random.nextLong();
+      this.j = random.nextFloat();
+      this.k = random.nextFloat();
+      this.l = random.nextFloat();
+      this.m = random.nextFloat();
+      this.o = generateRandomString(random);
+      this.p = generateRandomString(random);
+      this.q = generateRandomString(random);
+    }
+
+    /** Generates a random string for testing. */
+    private String generateRandomString(SecureRandom random) {
+      var length = random.nextInt(400) + 100;
+      var builder = new StringBuilder(length);
+
+      for (int x = 0; x < length; x++) {
+        builder.append((char) (random.nextInt(26) + 'A'));
       }
 
-      /**
-       * Generates a random string for testing.
-       */
-      private String generateRandomString(SecureRandom random) {
-         var length = random.nextInt(400) + 100;
-         var builder = new StringBuilder(length);
+      return builder.toString();
+    }
 
-         for (int x = 0; x < length; x++) {
-            builder.append((char) (random.nextInt(26) + 'A'));
-         }
+    @Override
+    public boolean equals(Object other) {
+      if (this == other) return true;
+      if (!(other instanceof TestClass that)) return false;
 
-         return builder.toString();
-      }
+      return a == that.a
+          && b == that.b
+          && c == that.c
+          && d == that.d
+          && e == that.e
+          && f == that.f
+          && g == that.g
+          && i == that.i
+          && Float.compare(that.j, j) == 0
+          && Float.compare(that.k, k) == 0
+          && Float.compare(that.l, l) == 0
+          && Float.compare(that.m, m) == 0
+          && Objects.equals(o, that.o)
+          && Objects.equals(p, that.p)
+          && Objects.equals(q, that.q);
+    }
 
-      @Override
-      public boolean equals(Object other) {
-         if (this == other) return true;
-         if (!(other instanceof TestClass that)) return false;
+    @Override
+    public int hashCode() {
+      return Objects.hash(a, b, c, d, e, f, g, i, j, k, l, m, o, p, q);
+    }
+  }
 
-         return a == that.a && b == that.b && c == that.c && d == that.d &&
-                e == that.e && f == that.f && g == that.g && i == that.i &&
-                Float.compare(that.j, j) == 0 && Float.compare(that.k, k) == 0 &&
-                Float.compare(that.l, l) == 0 && Float.compare(that.m, m) == 0 &&
-                Objects.equals(o, that.o) && Objects.equals(p, that.p) &&
-                Objects.equals(q, that.q);
-      }
+  @BeforeAll
+  static void setupCache() {
+    cache = new PSEhCacheAccessor();
+  }
 
-      @Override
-      public int hashCode() {
-         return Objects.hash(a, b, c, d, e, f, g, i, j, k, l, m, o, p, q);
-      }
-   }
+  @AfterAll
+  static void tearDown() {
+    if (cache != null) {
+      cache.getManager().close();
+    }
+  }
 
-   @BeforeAll
-   static void setupCache() {
-      cache = new PSEhCacheAccessor();
-   }
+  @Test
+  @DisplayName("Basic cache operations: save, get, evict")
+  void testBasicCacheOperations() throws Exception {
+    // Test save and get
+    cache.save("testKey", "testValue", TEST_REGION);
+    var result = cache.get("testKey", TEST_REGION);
 
-   @AfterAll
-   static void tearDown() {
-      if (cache != null) {
-         cache.getManager().close();
-      }
-   }
+    assertTrue(result.isPresent(), "Cache should contain saved value");
+    assertEquals("testValue", result.get(), "Retrieved value should match saved value");
 
-   @Test
-   @DisplayName("Basic cache operations: save, get, evict")
-   void testBasicCacheOperations() throws Exception {
-      // Test save and get
-      cache.save("testKey", "testValue", TEST_REGION);
-      var result = cache.get("testKey", TEST_REGION);
+    // Test eviction
+    cache.evict("testKey", TEST_REGION);
+    var evictedResult = cache.get("testKey", TEST_REGION);
 
-      assertTrue(result.isPresent(), "Cache should contain saved value");
-      assertEquals("testValue", result.get(), "Retrieved value should match saved value");
+    assertTrue(evictedResult.isEmpty(), "Cache should be empty after eviction");
 
-      // Test eviction
-      cache.evict("testKey", TEST_REGION);
-      var evictedResult = cache.get("testKey", TEST_REGION);
+    // Test another save/get cycle
+    cache.save("anotherKey", "anotherValue", TEST_REGION);
+    var anotherResult = cache.get("anotherKey", TEST_REGION);
 
-      assertTrue(evictedResult.isEmpty(), "Cache should be empty after eviction");
+    assertTrue(anotherResult.isPresent(), "Cache should contain second saved value");
+    assertEquals("anotherValue", anotherResult.get(), "Second retrieved value should match");
+  }
 
-      // Test another save/get cycle
-      cache.save("anotherKey", "anotherValue", TEST_REGION);
-      var anotherResult = cache.get("anotherKey", TEST_REGION);
+  @Test
+  @DisplayName("Cache performance comparison with HashMap")
+  void testCachePerformance() throws Exception {
+    var stopwatch = new PSStopwatch();
+    var mapStore = new HashMap<String, Object>();
 
-      assertTrue(anotherResult.isPresent(), "Cache should contain second saved value");
-      assertEquals("anotherValue", anotherResult.get(), "Second retrieved value should match");
-   }
+    // Generate test data
+    var instances = new TestClass[100];
+    var keys = new String[100];
 
-   @Test
-   @DisplayName("Cache performance comparison with HashMap")
-   void testCachePerformance() throws Exception {
-      var stopwatch = new PSStopwatch();
-      var mapStore = new HashMap<String, Object>();
+    for (int i = 0; i < instances.length; i++) {
+      instances[i] = new TestClass();
+      keys[i] = "key" + i;
+    }
 
-      // Generate test data
-      var instances = new TestClass[100];
-      var keys = new String[100];
+    // Test HashMap performance - write
+    stopwatch.start();
+    for (int i = 0; i < instances.length; i++) {
+      mapStore.put(keys[i], instances[i]);
+    }
+    stopwatch.stop();
+    System.out.println("HashMap PUT (" + instances.length + " items): " + stopwatch);
 
-      for (int i = 0; i < instances.length; i++) {
-         instances[i] = new TestClass();
-         keys[i] = "key" + i;
-      }
+    // Test HashMap performance - read
+    stopwatch.start();
+    for (int i = 0; i < instances.length; i++) {
+      mapStore.get(keys[i]);
+    }
+    stopwatch.stop();
+    System.out.println("HashMap GET (" + instances.length + " items): " + stopwatch);
 
-      // Test HashMap performance - write
-      stopwatch.start();
-      for (int i = 0; i < instances.length; i++) {
-         mapStore.put(keys[i], instances[i]);
-      }
-      stopwatch.stop();
-      System.out.println("HashMap PUT (" + instances.length + " items): " + stopwatch);
+    // Test cache performance - write
+    stopwatch.start();
+    for (int i = 0; i < instances.length; i++) {
+      cache.save(keys[i], instances[i], TEST_REGION);
+    }
+    stopwatch.stop();
+    System.out.println("Cache PUT (" + instances.length + " items): " + stopwatch);
 
-      // Test HashMap performance - read
-      stopwatch.start();
-      for (int i = 0; i < instances.length; i++) {
-         mapStore.get(keys[i]);
-      }
-      stopwatch.stop();
-      System.out.println("HashMap GET (" + instances.length + " items): " + stopwatch);
+    // Test cache performance - read
+    stopwatch.start();
+    for (int i = 0; i < instances.length; i++) {
+      var result = cache.get(keys[i], TEST_REGION);
+      assertTrue(result.isPresent(), "Cache should contain saved object");
 
-      // Test cache performance - write
-      stopwatch.start();
-      for (int i = 0; i < instances.length; i++) {
-         cache.save(keys[i], instances[i], TEST_REGION);
-      }
-      stopwatch.stop();
-      System.out.println("Cache PUT (" + instances.length + " items): " + stopwatch);
+      var retrievedValue = (TestClass) result.get();
+      assertEquals(instances[i], retrievedValue, "Retrieved object should equal original");
+    }
+    stopwatch.stop();
+    System.out.println("Cache GET (" + instances.length + " items): " + stopwatch);
+  }
 
-      // Test cache performance - read
-      stopwatch.start();
-      for (int i = 0; i < instances.length; i++) {
-         var result = cache.get(keys[i], TEST_REGION);
-         assertTrue(result.isPresent(), "Cache should contain saved object");
+  @Test
+  @DisplayName("Cache statistics and region management")
+  void testCacheStatistics() throws Exception {
+    // Save some test data
+    cache.save("stat1", "value1", TEST_REGION);
+    cache.save("stat2", "value2", TEST_REGION);
+    cache.save("stat3", "value3", TEST_REGION);
 
-         var retrievedValue = (TestClass) result.get();
-         assertEquals(instances[i], retrievedValue, "Retrieved object should equal original");
-      }
-      stopwatch.stop();
-      System.out.println("Cache GET (" + instances.length + " items): " + stopwatch);
-   }
+    // Get statistics
+    var stats = cache.getStatistics();
+    assertNotNull(stats, "Statistics should not be null");
+    assertFalse(stats.isEmpty(), "Statistics should contain cache regions");
 
-   @Test
-   @DisplayName("Cache statistics and region management")
-   void testCacheStatistics() throws Exception {
-      // Save some test data
-      cache.save("stat1", "value1", TEST_REGION);
-      cache.save("stat2", "value2", TEST_REGION);
-      cache.save("stat3", "value3", TEST_REGION);
+    // Test cache clearing
+    cache.clear(TEST_REGION);
 
-      // Get statistics
-      var stats = cache.getStatistics();
-      assertNotNull(stats, "Statistics should not be null");
-      assertFalse(stats.isEmpty(), "Statistics should contain cache regions");
+    var result = cache.get("stat1", TEST_REGION);
+    assertTrue(result.isEmpty(), "Cache region should be empty after clear");
+  }
 
-      // Test cache clearing
-      cache.clear(TEST_REGION);
+  @Test
+  @DisplayName("Cache validation and error handling")
+  void testCacheValidation() {
+    // Test null key validation
+    assertThrows(
+        NullPointerException.class,
+        () -> cache.save(null, "value", TEST_REGION),
+        "Should throw on null key");
 
-      var result = cache.get("stat1", TEST_REGION);
-      assertTrue(result.isEmpty(), "Cache region should be empty after clear");
-   }
+    // Test null data validation
+    assertThrows(
+        NullPointerException.class,
+        () -> cache.save("key", null, TEST_REGION),
+        "Should throw on null data");
 
-   @Test
-   @DisplayName("Cache validation and error handling")
-   void testCacheValidation() {
-      // Test null key validation
-      assertThrows(NullPointerException.class, () ->
-         cache.save(null, "value", TEST_REGION), "Should throw on null key");
+    // Test null region validation
+    assertThrows(
+        NullPointerException.class,
+        () -> cache.save("key", "value", null),
+        "Should throw on null region");
 
-      // Test null data validation
-      assertThrows(NullPointerException.class, () ->
-         cache.save("key", null, TEST_REGION), "Should throw on null data");
-
-      // Test null region validation
-      assertThrows(NullPointerException.class, () ->
-         cache.save("key", "value", null), "Should throw on null region");
-
-      // Test empty region validation
-      assertThrows(IllegalArgumentException.class, () ->
-         cache.save("key", "value", ""), "Should throw on empty region");
-   }
+    // Test empty region validation
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> cache.save("key", "value", ""),
+        "Should throw on empty region");
+  }
 }

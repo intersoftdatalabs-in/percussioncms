@@ -16,68 +16,52 @@
  */
 package com.percussion.services.system;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import com.percussion.services.guidmgr.data.PSLegacyGuid;
 import com.percussion.services.system.data.PSContentStatusHistory;
 import com.percussion.services.system.data.PSUIComponent;
 import com.percussion.services.system.data.PSUIComponentProperty;
 import com.percussion.utils.guid.IPSGuid;
-
 import java.util.List;
-
-
-
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
-/**
- * Test case for system service calls that don't require a running server.
- */
-
+/** Test case for system service calls that don't require a running server. */
 @Disabled("Temporarily disabled — failing in perc-system test run")
-public class PSSystemServiceLocalTest
-{
-   /**
-    * Test loading content status history. Assumes database is available and
-    * has content status entries for a fixed content id (currently 471).
-    */
-   @Test
-   public void testLoadContentStatusHistory()
-   {
-      int contentId = 471;
-      IPSGuid id = new PSLegacyGuid(contentId, 1);
-      IPSSystemService svc = PSSystemServiceLocator.getSystemService();
-      List<PSContentStatusHistory> histList = svc.findContentStatusHistory(id);
-      assertFalse(histList.isEmpty());
-   }
+public class PSSystemServiceLocalTest {
+  /**
+   * Test loading content status history. Assumes database is available and has content status
+   * entries for a fixed content id (currently 471).
+   */
+  @Test
+  public void testLoadContentStatusHistory() {
+    int contentId = 471;
+    IPSGuid id = new PSLegacyGuid(contentId, 1);
+    IPSSystemService svc = PSSystemServiceLocator.getSystemService();
+    List<PSContentStatusHistory> histList = svc.findContentStatusHistory(id);
+    assertFalse(histList.isEmpty());
+  }
 
-   /**
-    * Test the read only ui component objects
-    */
-   @Test
-   public void testLoadUIComponents()
-   {
-      IPSSystemService svc = PSSystemServiceLocator.getSystemService();
-      PSUIComponent c = svc.findComponentByName("cmp_banner");
-      assertNotNull(c);
-      assertNotNull(c.getProperties());
-      assertTrue(c.getProperties().size() > 0);
+  /** Test the read only ui component objects */
+  @Test
+  public void testLoadUIComponents() {
+    IPSSystemService svc = PSSystemServiceLocator.getSystemService();
+    PSUIComponent c = svc.findComponentByName("cmp_banner");
+    assertNotNull(c);
+    assertNotNull(c.getProperties());
+    assertTrue(c.getProperties().size() > 0);
 
-      boolean found = false;
-      for(PSUIComponentProperty prop : c.getProperties())
-      {
-         if (prop.getName().equals("wfrole"))
-         {
-            found = true;
-            break;
-         }
+    boolean found = false;
+    for (PSUIComponentProperty prop : c.getProperties()) {
+      if (prop.getName().equals("wfrole")) {
+        found = true;
+        break;
       }
+    }
 
-      assertTrue(found);
-   }
+    assertTrue(found);
+  }
 }
-

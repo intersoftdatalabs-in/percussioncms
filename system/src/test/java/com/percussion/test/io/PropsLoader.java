@@ -16,68 +16,55 @@
  */
 package com.percussion.test.io;
 
-import java.util.Properties;
-import java.io.OutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
+import java.util.Properties;
 
-public class PropsLoader implements DataLoader
-{
-   public PropsLoader(Properties props, Object ob)
-   {
-      m_props = props;
-   }
+public class PropsLoader implements DataLoader {
+  public PropsLoader(Properties props, Object ob) {
+    m_props = props;
+  }
 
-   public DataLoader getChildLoader(String name, Object ob)
-   {
-      return new TypedDataLoader(this, name, ob);
-   }
+  public DataLoader getChildLoader(String name, Object ob) {
+    return new TypedDataLoader(this, name, ob);
+  }
 
-   public long getLong(String name)
-   {
-      long ret = 0L;
-      String prop = m_props.getProperty(name);
-      if (prop != null)
-         ret = Long.parseLong(prop);
-      return ret;
-   }
+  public long getLong(String name) {
+    long ret = 0L;
+    String prop = m_props.getProperty(name);
+    if (prop != null) ret = Long.parseLong(prop);
+    return ret;
+  }
 
-   public void setLong(String name, long val)
-   {
-      m_props.setProperty(name, "" + val);
-   }
+  public void setLong(String name, long val) {
+    m_props.setProperty(name, "" + val);
+  }
 
-   public double getDouble(String name)
-   {
-      double ret = 0.0;
-      String prop = m_props.getProperty(name);
-      if (prop != null)
-         ret = Double.parseDouble(prop);
-      return ret;
-   }
+  public double getDouble(String name) {
+    double ret = 0.0;
+    String prop = m_props.getProperty(name);
+    if (prop != null) ret = Double.parseDouble(prop);
+    return ret;
+  }
 
-   public void setDouble(String name, double val)
-   {
-      m_props.setProperty(name, "" + val);
-   }
+  public void setDouble(String name, double val) {
+    m_props.setProperty(name, "" + val);
+  }
 
-   public String getString(String name)
-   {
-      String ret = "";
-      String prop = m_props.getProperty(name);
-      if (prop != null)
-         ret = prop;
-      return ret;
-   }
+  public String getString(String name) {
+    String ret = "";
+    String prop = m_props.getProperty(name);
+    if (prop != null) ret = prop;
+    return ret;
+  }
 
-   public void setString(String name, String val)
-   {
-      m_props.setProperty(name, val);
-   }
+  public void setString(String name, String val) {
+    m_props.setProperty(name, val);
+  }
 
-   public void write(OutputStream stream) throws IOException
-   {
-      m_props.store(stream, null);
-   }
+  public void write(OutputStream stream) throws IOException {
+    m_props.store(stream, null);
+  }
 
-   private Properties m_props;
+  private Properties m_props;
 }

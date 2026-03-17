@@ -337,9 +337,9 @@ public class PSApplicationBuilder {
   }
 
   /**
-   * Same as {@link #createUpdateDataset(PSApplication, String, PSContentEditor, PSDisplayMapper, String,
-   * PSDataMapper, boolean) createUpdateDataset()} but allows you to specify what actions (insert,
-   * update, or delete) are allowed.
+   * Same as {@link #createUpdateDataset(PSApplication, String, PSContentEditor, PSDisplayMapper,
+   * String, PSDataMapper, boolean) createUpdateDataset()} but allows you to specify what actions
+   * (insert, update, or delete) are allowed.
    *
    * @param allowActions A flag indicating which actions to allow. May be any of the following Or'd
    *     together:
@@ -372,9 +372,10 @@ public class PSApplicationBuilder {
   }
 
   /**
-   * Same as {@link #createUpdateDataset(PSApplication, String, PSContentEditor, PSDisplayMapper, String,
-   * PSDataMapper, boolean, int) createUpdateDataset()} but allows you to specify a Dtd to use. The
-   * supplied Dtd must work with the supplied mappings - this is not validated by this method.
+   * Same as {@link #createUpdateDataset(PSApplication, String, PSContentEditor, PSDisplayMapper,
+   * String, PSDataMapper, boolean, int) createUpdateDataset()} but allows you to specify a Dtd to
+   * use. The supplied Dtd must work with the supplied mappings - this is not validated by this
+   * method.
    *
    * @param dtd If supplied, will be used instead of building one dynamically. May be <code>null
    *     </code>, in which case one is built dynamically.

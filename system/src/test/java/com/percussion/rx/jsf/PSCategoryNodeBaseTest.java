@@ -16,66 +16,61 @@
  */
 package com.percussion.rx.jsf;
 
-import com.percussion.services.error.PSNotFoundException;
-import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
+
+import com.percussion.services.error.PSNotFoundException;
 
 /**
  * @author Andriy Palamarchuk
  */
-public class PSCategoryNodeBaseTest 
-{
-   
-   public void testGetFilteredNodes() throws PSNotFoundException {
-      final String title1 = "title 1 val";
+public class PSCategoryNodeBaseTest {
 
-      final PSCategoryNodeBase category = createCategory();
-      category.addNode(new PSNodeBase(title1, "outcome1"));
-      category.addNode(new PSNodeBase("tITle 2 vAl", "outcome2"));
-      category.addNode(new PSNodeBase("title 3 val", "outcome3"));
+  public void testGetFilteredNodes() throws PSNotFoundException {
+    final String title1 = "title 1 val";
 
-      category.setFilter("z");
-      assertTrue(category.getFilteredNodes().isEmpty());
+    final PSCategoryNodeBase category = createCategory();
+    category.addNode(new PSNodeBase(title1, "outcome1"));
+    category.addNode(new PSNodeBase("tITle 2 vAl", "outcome2"));
+    category.addNode(new PSNodeBase("title 3 val", "outcome3"));
 
-      // full match
-      category.setFilter(title1);
-      assertEquals(1, category.getFilteredNodes().size());
+    category.setFilter("z");
+    assertTrue(category.getFilteredNodes().isEmpty());
 
-      // different case
-      category.setFilter(title1.toUpperCase());
-      assertEquals(1, category.getFilteredNodes().size());
+    // full match
+    category.setFilter(title1);
+    assertEquals(1, category.getFilteredNodes().size());
 
-      // beginning of the string
-      category.setFilter("title");
-      assertEquals(3, category.getFilteredNodes().size());
-      
-      // middle
-      category.setFilter("1");
-      assertEquals(1, category.getFilteredNodes().size());
+    // different case
+    category.setFilter(title1.toUpperCase());
+    assertEquals(1, category.getFilteredNodes().size());
 
-      // end
-      category.setFilter("2 val");
-      assertEquals(1, category.getFilteredNodes().size());
-      
-      // pattern
-      category.setFilter("2*val");
-      assertEquals(1, category.getFilteredNodes().size());
+    // beginning of the string
+    category.setFilter("title");
+    assertEquals(3, category.getFilteredNodes().size());
 
-      category.setFilter("2*al");
-      assertEquals(1, category.getFilteredNodes().size());
-   }
+    // middle
+    category.setFilter("1");
+    assertEquals(1, category.getFilteredNodes().size());
 
-   /**
-    * Creates a dummy category node for testing.
-    */
-   private PSCategoryNodeBase createCategory()
-   {
-      final PSCategoryNodeBase category =
-            new PSCategoryNodeBase("Category Title", "category-outcome");
-      category.setModel(
-            new PSTreeModel(
-                  new PSCategoryNodeBase("cat title2", "category-outcome2"),
-                  new PSNavigation()));
-      return category;
-   }
+    // end
+    category.setFilter("2 val");
+    assertEquals(1, category.getFilteredNodes().size());
+
+    // pattern
+    category.setFilter("2*val");
+    assertEquals(1, category.getFilteredNodes().size());
+
+    category.setFilter("2*al");
+    assertEquals(1, category.getFilteredNodes().size());
+  }
+
+  /** Creates a dummy category node for testing. */
+  private PSCategoryNodeBase createCategory() {
+    final PSCategoryNodeBase category =
+        new PSCategoryNodeBase("Category Title", "category-outcome");
+    category.setModel(
+        new PSTreeModel(
+            new PSCategoryNodeBase("cat title2", "category-outcome2"), new PSNavigation()));
+    return category;
+  }
 }

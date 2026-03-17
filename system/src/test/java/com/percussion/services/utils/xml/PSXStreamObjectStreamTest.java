@@ -16,11 +16,12 @@
  */
 package com.percussion.services.utils.xml;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 import com.google.common.collect.AbstractIterator;
 import com.google.common.collect.Iterables;
 import com.percussion.services.publisher.IPSPubItemStatus;
 import com.percussion.services.publisher.data.PSPubItem;
-
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -30,52 +31,48 @@ import java.util.concurrent.ExecutorCompletionService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
-
-import static org.junit.jupiter.api.Assertions.*;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 @Disabled("Temporarily disabled — failing in perc-system test run")
-public class PSXStreamObjectStreamTest
-{
+public class PSXStreamObjectStreamTest {
 
-   private static final int SIZE = 10 * 10 * 10 * 10 * 10;
+  private static final int SIZE = 10 * 10 * 10 * 10 * 10;
 
-   @Test
-   public void testWriteObjects() throws Exception
-   {
-      PSXStreamObjectStream<IPSPubItemStatus> pubItems = new PSXStreamObjectStream<IPSPubItemStatus>();
-      List<IPSPubItemStatus> items = new ArrayList<IPSPubItemStatus>();
-      PSPubItem a = new PSPubItem();
-      a.contentId = 10;
-      a.date = new Date();
-      a.folderId = 100;
+  @Test
+  public void testWriteObjects() throws Exception {
+    PSXStreamObjectStream<IPSPubItemStatus> pubItems =
+        new PSXStreamObjectStream<IPSPubItemStatus>();
+    List<IPSPubItemStatus> items = new ArrayList<IPSPubItemStatus>();
+    PSPubItem a = new PSPubItem();
+    a.contentId = 10;
+    a.date = new Date();
+    a.folderId = 100;
 
-      PSPubItem b = new PSPubItem();
-      b.contentId = 20;
-      b.date = new Date();
-      b.folderId = 200;
-      items.add(a);
-      items.add(b);
+    PSPubItem b = new PSPubItem();
+    b.contentId = 20;
+    b.date = new Date();
+    b.folderId = 200;
+    items.add(a);
+    items.add(b);
 
-      pubItems.writeObjects(items.iterator());
-      ArrayList<IPSPubItemStatus> actual = new ArrayList<IPSPubItemStatus>();
-      Iterables.addAll(actual, pubItems);
-      assertEquals(items, actual);
+    pubItems.writeObjects(items.iterator());
+    ArrayList<IPSPubItemStatus> actual = new ArrayList<IPSPubItemStatus>();
+    Iterables.addAll(actual, pubItems);
+    assertEquals(items, actual);
+  }
 
-   }
+  @Test
+  public void testMassiveWriteObjects() throws Exception {
+    final PSXStreamObjectStream<IPSPubItemStatus> pubItems =
+        new PSXStreamObjectStream<IPSPubItemStatus>();
 
-   @Test
-   public void testMassiveWriteObjects() throws Exception
-   {
-      final PSXStreamObjectStream<IPSPubItemStatus> pubItems = new PSXStreamObjectStream<IPSPubItemStatus>();
+    pubItems.writeObjects(
+        new AbstractIterator<IPSPubItemStatus>() {
+          int i = 0;
 
-      pubItems.writeObjects(new AbstractIterator<IPSPubItemStatus>()
-      {
-         int i = 0;
-         @Override
-         protected IPSPubItemStatus computeNext()
-         {
+          @Override
+          protected IPSPubItemStatus computeNext() {
             // 100,000 items.
             if (i == SIZE) return endOfData();
             PSPubItem a = new PSPubItem();
@@ -83,33 +80,29 @@ public class PSXStreamObjectStreamTest
             a.date = new Date();
             a.folderId = i * 10;
             return a;
-         }
+          }
+        });
 
-      });
-
-      int i = 0;
-      for (IPSPubItemStatus s : pubItems) {
-         assertEquals (++i, s.getContentId());
-      }
-      Executor e = Executors.newCachedThreadPool();
-      ExecutorCompletionService<Integer> es = new ExecutorCompletionService<Integer>(e);
-      Future<Integer> f = es.submit(new Callable<Integer>()
-      {
-         public Integer call() throws Exception
-         {
-            int i = 0;
-            for (IPSPubItemStatus s : pubItems) {
-               assertEquals (++i, s.getContentId());
-            }
-            return i;
-         }
-      });
-      TimeUnit.SECONDS.sleep(1);
-      pubItems.dispose();
-      Integer j = f.get();
-      assertTrue(SIZE >= j, "should do some calculation");
-
-
-   }
-
+    int i = 0;
+    for (IPSPubItemStatus s : pubItems) {
+      assertEquals(++i, s.getContentId());
+    }
+    Executor e = Executors.newCachedThreadPool();
+    ExecutorCompletionService<Integer> es = new ExecutorCompletionService<Integer>(e);
+    Future<Integer> f =
+        es.submit(
+            new Callable<Integer>() {
+              public Integer call() throws Exception {
+                int i = 0;
+                for (IPSPubItemStatus s : pubItems) {
+                  assertEquals(++i, s.getContentId());
+                }
+                return i;
+              }
+            });
+    TimeUnit.SECONDS.sleep(1);
+    pubItems.dispose();
+    Integer j = f.get();
+    assertTrue(SIZE >= j, "should do some calculation");
+  }
 }

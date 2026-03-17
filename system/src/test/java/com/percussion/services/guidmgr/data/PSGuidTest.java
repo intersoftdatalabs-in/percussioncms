@@ -16,202 +16,161 @@
  */
 package com.percussion.services.guidmgr.data;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 import com.percussion.services.catalog.PSTypeEnum;
 import com.percussion.utils.guid.IPSGuid;
-
-import static org.junit.jupiter.api.Assertions.*;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 /**
  * Test the guid class
+ *
  * @author dougrand
  */
 @Disabled("Temporarily disabled — failing in perc-system test run")
-public class PSGuidTest
-{
-   static IPSGuid NG = new PSGuid(PSTypeEnum.NODEDEF,0x0000010200000003L);
+public class PSGuidTest {
+  static IPSGuid NG = new PSGuid(PSTypeEnum.NODEDEF, 0x0000010200000003L);
 
-   static IPSGuid MG = new PSGuid(PSTypeEnum.INVALID,0x1248ACFF12484210L);
+  static IPSGuid MG = new PSGuid(PSTypeEnum.INVALID, 0x1248ACFF12484210L);
 
-   /**
-    *
-    */
-   @Test
-   public void testCtors()
-   {
-      long hostid = 12;
-      long uuid = 24;
-      PSTypeEnum type = PSTypeEnum.ITEM;
+  /** */
+  @Test
+  public void testCtors() {
+    long hostid = 12;
+    long uuid = 24;
+    PSTypeEnum type = PSTypeEnum.ITEM;
 
-      IPSGuid guid = new PSGuid(hostid, type, uuid);
-      assertEquals(hostid, guid.getHostId());
-      assertEquals(type.getOrdinal(), guid.getType());
-      assertEquals(uuid, guid.getUUID());
+    IPSGuid guid = new PSGuid(hostid, type, uuid);
+    assertEquals(hostid, guid.getHostId());
+    assertEquals(type.getOrdinal(), guid.getType());
+    assertEquals(uuid, guid.getUUID());
 
-      IPSGuid guid_2 = new PSGuid(guid.toString());
-      assertEquals(guid, guid_2);
+    IPSGuid guid_2 = new PSGuid(guid.toString());
+    assertEquals(guid, guid_2);
 
-      IPSGuid guid_3 = new PSDesignGuid(guid.longValue());
-      assertEquals(guid, guid_3);
+    IPSGuid guid_3 = new PSDesignGuid(guid.longValue());
+    assertEquals(guid, guid_3);
 
-      IPSGuid guid_4 = new PSGuid(type, uuid);
-      assertEquals(type.getOrdinal(), guid_4.getType());
-      assertEquals(uuid, guid_4.getUUID());
+    IPSGuid guid_4 = new PSGuid(type, uuid);
+    assertEquals(type.getOrdinal(), guid_4.getType());
+    assertEquals(uuid, guid_4.getUUID());
 
-      IPSGuid guid_5 = new PSGuid(guid_4.toString());
-      assertEquals(guid_5, guid_4);
+    IPSGuid guid_5 = new PSGuid(guid_4.toString());
+    assertEquals(guid_5, guid_4);
 
-      IPSGuid guid_6 = new PSGuid(type, guid_4.toStringUntyped());
-      assertEquals(guid_6, guid_4);
+    IPSGuid guid_6 = new PSGuid(type, guid_4.toStringUntyped());
+    assertEquals(guid_6, guid_4);
 
-      // test with negative full guid
-      IPSGuid guid_7 = new PSGuid(PSTypeEnum.ITEM_FILTER,
-            "-2878460938313269246");
-      assertTrue(guid_7 != null);
+    // test with negative full guid
+    IPSGuid guid_7 = new PSGuid(PSTypeEnum.ITEM_FILTER, "-2878460938313269246");
+    assertTrue(guid_7 != null);
 
-      try
-      {
-         new PSGuid(type, guid_4.toString());
-         fail("Should have thrown exception");
-      }
-      catch(Exception e)
-      {
-         // OK, should throw exception
-      }
+    try {
+      new PSGuid(type, guid_4.toString());
+      fail("Should have thrown exception");
+    } catch (Exception e) {
+      // OK, should throw exception
+    }
 
-      try
-      {
-         new PSGuid(type, guid_4.longValue());
-         fail("Should have thrown exception");
-      }
-      catch(Exception e)
-      {
-         // OK, should throw exception
-      }
+    try {
+      new PSGuid(type, guid_4.longValue());
+      fail("Should have thrown exception");
+    } catch (Exception e) {
+      // OK, should throw exception
+    }
 
-      try
-      {
-         new PSGuid(PSTypeEnum.INVALID, 0x0000010200000003L);
-         fail("Should have thrown exception");
-      }
-      catch(Exception e)
-      {
-         // OK, should throw exception
-      }
-   }
+    try {
+      new PSGuid(PSTypeEnum.INVALID, 0x0000010200000003L);
+      fail("Should have thrown exception");
+    } catch (Exception e) {
+      // OK, should throw exception
+    }
+  }
 
-   /**
-    *
-    */
-   @Test
-   public void testLongValue()
-   {
-      IPSGuid tv = new PSGuid(PSTypeEnum.ITEM, 1);
-      IPSGuid tv2 = new PSGuid(1, PSTypeEnum.ITEM, 1);
+  /** */
+  @Test
+  public void testLongValue() {
+    IPSGuid tv = new PSGuid(PSTypeEnum.ITEM, 1);
+    IPSGuid tv2 = new PSGuid(1, PSTypeEnum.ITEM, 1);
 
-      assertEquals(0x01L, tv.longValue());
-      assertEquals(0x0000010100000001L, tv2.longValue());
-   }
+    assertEquals(0x01L, tv.longValue());
+    assertEquals(0x0000010100000001L, tv2.longValue());
+  }
 
-   /**
-    *
-    */
-   @Test
-   public void testAccessors()
-   {
-      long siteid = NG.getHostId();
-      int type = NG.getType();
-      long uuid = NG.getUUID();
+  /** */
+  @Test
+  public void testAccessors() {
+    long siteid = NG.getHostId();
+    int type = NG.getType();
+    long uuid = NG.getUUID();
 
-      assertEquals(1, siteid);
-      assertEquals(PSTypeEnum.NODEDEF.getOrdinal(), type);
-      assertEquals(3, uuid);
+    assertEquals(1, siteid);
+    assertEquals(PSTypeEnum.NODEDEF.getOrdinal(), type);
+    assertEquals(3, uuid);
 
-      siteid = MG.getHostId();
-      type = MG.getType();
-      uuid = MG.getUUID();
+    siteid = MG.getHostId();
+    type = MG.getType();
+    uuid = MG.getUUID();
 
-      assertEquals(0x1248AC, siteid);
-      assertEquals(PSTypeEnum.INVALID.getOrdinal(), type);
-      assertEquals(0x12484210L, uuid);
-   }
+    assertEquals(0x1248AC, siteid);
+    assertEquals(PSTypeEnum.INVALID.getOrdinal(), type);
+    assertEquals(0x12484210L, uuid);
+  }
 
-   /**
-    *
-    */
-   @Test
-   public void testToString()
-   {
-      String str = NG.toString();
-      assertEquals("1-2-3", str);
-   }
+  /** */
+  @Test
+  public void testToString() {
+    String str = NG.toString();
+    assertEquals("1-2-3", str);
+  }
 
-   /**
-    *
-    */
-   @Test
-   public void testToStringNoType()
-   {
-      String str = NG.toStringUntyped();
-      assertEquals("1-3", str);
-   }
+  /** */
+  @Test
+  public void testToStringNoType() {
+    String str = NG.toStringUntyped();
+    assertEquals("1-3", str);
+  }
 
-   /**
-    *
-    */
-   @Test
-   public void testAssemble()
-   {
-      IPSGuid guid = new PSGuid(1, PSTypeEnum.NODEDEF, 3);
-      assertEquals(NG, guid);
-   }
+  /** */
+  @Test
+  public void testAssemble() {
+    IPSGuid guid = new PSGuid(1, PSTypeEnum.NODEDEF, 3);
+    assertEquals(NG, guid);
+  }
 
-   /**
-    *
-    */
-   @Test
-   public void testFromString()
-   {
-      IPSGuid guid = new PSGuid(PSTypeEnum.NODEDEF, "1-2-3");
-      assertEquals(NG, guid);
+  /** */
+  @Test
+  public void testFromString() {
+    IPSGuid guid = new PSGuid(PSTypeEnum.NODEDEF, "1-2-3");
+    assertEquals(NG, guid);
 
-      guid = new PSGuid("1-2-3");
-      assertEquals(NG, guid);
-   }
+    guid = new PSGuid("1-2-3");
+    assertEquals(NG, guid);
+  }
 
-   /**
-    *
-    */
-   @Test
-   public void testFromStringNoType()
-   {
-      IPSGuid guid = new PSGuid(PSTypeEnum.NODEDEF, "1-3");
-      assertEquals(NG, guid);
+  /** */
+  @Test
+  public void testFromStringNoType() {
+    IPSGuid guid = new PSGuid(PSTypeEnum.NODEDEF, "1-3");
+    assertEquals(NG, guid);
 
-      try
-      {
-         guid = new PSGuid("1-3");
-         fail("Expected exception");
-      }
-      catch(Exception e)
-      {
-         // OK
-      }
-   }
+    try {
+      guid = new PSGuid("1-3");
+      fail("Expected exception");
+    } catch (Exception e) {
+      // OK
+    }
+  }
 
-   /**
-    * test a valid guid: negative number, +ve number, and an actual guid type
-    *
-    */
-   @Test
-   public void testIsValid()
-   {
-      String val = "-2";
-      assertFalse(PSGuid.isValid(PSTypeEnum.TEMPLATE, val), val + " is valid");
-      val = "301";
-      assertTrue(PSGuid.isValid(PSTypeEnum.TEMPLATE, val), val + " is valid");
-      val = "39759470036779009";
-      assertTrue(PSGuid.isValid(PSTypeEnum.ITEM_FILTER, val), val + " is valid");
-   }
+  /** test a valid guid: negative number, +ve number, and an actual guid type */
+  @Test
+  public void testIsValid() {
+    String val = "-2";
+    assertFalse(PSGuid.isValid(PSTypeEnum.TEMPLATE, val), val + " is valid");
+    val = "301";
+    assertTrue(PSGuid.isValid(PSTypeEnum.TEMPLATE, val), val + " is valid");
+    val = "39759470036779009";
+    assertTrue(PSGuid.isValid(PSTypeEnum.ITEM_FILTER, val), val + " is valid");
+  }
 }

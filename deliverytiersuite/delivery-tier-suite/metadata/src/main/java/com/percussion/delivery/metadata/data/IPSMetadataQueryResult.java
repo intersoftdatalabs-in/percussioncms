@@ -40,7 +40,7 @@ public interface IPSMetadataQueryResult {
    * @param key the property key that specifies the data to be returned, Cannot be <code>null</code>
    *     or empty. The key is case insensitive.
    * @return the int representation of the data.
-   * @throws PSQueryResultException if the dataType is not a numeric type.
+   * @throws IllegalArgumentException if the dataType is not a numeric type.
    */
   public int getNumber(String key);
 
@@ -51,7 +51,7 @@ public interface IPSMetadataQueryResult {
    * @param key the property key that specifies the data to be returned, Cannot be <code>null</code>
    *     or empty. The key is case insensitive.
    * @return the date representation of the data. May be <code>null</code>.
-   * @throws PSQueryResultException if the dataType is not a date type.
+   * @throws IllegalArgumentException if the dataType is not a date type.
    */
   public Date getDate(String key);
 
@@ -63,7 +63,7 @@ public interface IPSMetadataQueryResult {
    * @param key the property key that specifies the data to be returned, Cannot be <code>null</code>
    *     or empty. The key is case insensitive.
    * @return the Double representation of the data.
-   * @throws PSQueryResultException if the dataType is not a numeric type.
+   * @throws IllegalArgumentException if the dataType is not a numeric type.
    */
   public float getDouble(String key);
 
@@ -74,7 +74,7 @@ public interface IPSMetadataQueryResult {
    * @param key the property key that specifies the data to be returned, Cannot be <code>null</code>
    *     or empty. The key is case insensitive.
    * @return the Float representation of the data.
-   * @throws PSQueryResultException if the dataType is not a numeric type.
+   * @throws IllegalArgumentException if the dataType is not a numeric type.
    */
   public float getFloat(String key);
 
@@ -86,7 +86,7 @@ public interface IPSMetadataQueryResult {
    * @param key the property key that specifies the data to be returned, Cannot be <code>null</code>
    *     or empty. The key is case insensitive.
    * @return the Long representation of the data.
-   * @throws PSQueryResultException if the dataType is not a numeric or date type.
+   * @throws IllegalArgumentException if the dataType is not a numeric or date type.
    */
   public long getLong(String key);
 

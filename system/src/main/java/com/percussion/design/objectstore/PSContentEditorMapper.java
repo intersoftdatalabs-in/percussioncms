@@ -259,7 +259,7 @@ public class PSContentEditorMapper extends PSComponent {
   /**
    * @see IPSComponent
    */
-   // $NON-NLS-1$
+  // $NON-NLS-1$
   public void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
       throws PSUnknownNodeTypeException {
     if (sourceNode == null)
@@ -595,7 +595,7 @@ public class PSContentEditorMapper extends PSComponent {
    * @return a list with all excluded field names as <code>String</code>, never <code>null</code>,
    *     may be empty.
    */
-   // $NON-NLS-1$
+  // $NON-NLS-1$
   private List getSystemFieldExcludes(PSContentEditorSystemDef sysDef) {
     if (sysDef != null) {
       PSFieldSet fieldSet = sysDef.getFieldSet();
@@ -617,7 +617,7 @@ public class PSContentEditorMapper extends PSComponent {
    *     not <code>null</code>.
    * @return the list of shared includes, never <code>null</code>, may be empty.
    */
-   // $NON-NLS-1$
+  // $NON-NLS-1$
   private List getSharedFieldIncludes(
       PSContentEditorSharedDef sharedDef, List sharedFieldExcludes) {
     if (sharedDef != null) {
@@ -665,7 +665,7 @@ public class PSContentEditorMapper extends PSComponent {
    * @param excludes the current excludes list, assumed not <code>null</code>.
    * @return the real list of excluded fields, never <code>null</code>, may be empty.
    */
-   // $NON-NLS-1$
+  // $NON-NLS-1$
   private List getRealExcludes(PSFieldSet fieldSet, List excludes) {
     List realExcludes = new ArrayList();
 
@@ -817,7 +817,7 @@ public class PSContentEditorMapper extends PSComponent {
    * @param sharedDef the content editor shared definition, may not be <code>
    * null</code>
    */
-   // $NON-NLS-1$
+  // $NON-NLS-1$
   public void updateExcludes(
       PSContentEditorSystemDef sysDef, PSContentEditorSharedDef sharedDef, boolean save) {
     if (sysDef == null) throw new IllegalArgumentException("sysDef may not be null.");
@@ -1238,7 +1238,7 @@ public class PSContentEditorMapper extends PSComponent {
    * @throws PSMinorValidationException in case if there are more then one included shared fields
    *     with a duplicate name.
    */
-   // $NON-NLS-1$
+  // $NON-NLS-1$
   public void validateSharedFieldDuplication(
       PSContentEditorSharedDef sharedDef, Iterator itSharedGroupIncludes)
       throws PSMinorValidationException {

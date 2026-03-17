@@ -18,22 +18,19 @@ package com.percussion.test.http;
 
 import java.net.URL;
 
-public class URLStats
-{
-   public URLStats(URL url)
-   {
-      m_url = url;
-      m_stats = new RequestStats();
-      m_totalReqs = 0;
-   }
+public class URLStats {
+  public URLStats(URL url) {
+    m_url = url;
+    m_stats = new RequestStats();
+    m_totalReqs = 0;
+  }
 
-   public void add(RequestTimer timer)
-   {
-      m_stats.add(new RequestStats(timer));
-      m_totalReqs++;
-   }
+  public void add(RequestTimer timer) {
+    m_stats.add(new RequestStats(timer));
+    m_totalReqs++;
+  }
 
-   private URL m_url;
-   private RequestStats m_stats;
-   private long m_totalReqs;
+  private URL m_url;
+  private RequestStats m_stats;
+  private long m_totalReqs;
 }

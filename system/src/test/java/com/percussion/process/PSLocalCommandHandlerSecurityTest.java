@@ -19,8 +19,6 @@ package com.percussion.process;
 import static org.junit.jupiter.api.Assertions.*;
 
 import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -31,10 +29,11 @@ import org.junit.jupiter.api.io.TempDir;
  * Security test suite for {@link PSLocalCommandHandler} focusing on CWE-22 (Path Traversal)
  * prevention.
  *
- * <p>Tests verify that file operations properly validate paths to prevent attackers from
- * accessing files outside the intended directory via relative path traversal attacks.
+ * <p>Tests verify that file operations properly validate paths to prevent attackers from accessing
+ * files outside the intended directory via relative path traversal attacks.
  *
  * <p><strong>Key Test Strategy:</strong>
+ *
  * <ul>
  *   <li>Tests the static validatePath() method behavior indirectly through doGetTextFile()
  *   <li>Covers both path traversal patterns (..) and absolute path attempts
@@ -245,4 +244,3 @@ class PSLocalCommandHandlerSecurityTest {
     }
   }
 }
-

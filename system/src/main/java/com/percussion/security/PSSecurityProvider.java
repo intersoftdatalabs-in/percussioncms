@@ -61,10 +61,8 @@ public abstract class PSSecurityProvider implements IPSSecurityProvider {
   /**
    * Construct an instance of this provider.
    *
-   * @param spType the security provider type of the subclass, not
-   *    <code>null</code> or empty.
-   * @param spInstance the security provider instance name, not
-   *    <code>null</code> or empty.
+   * @param spType the security provider type of the subclass, not <code>null</code> or empty.
+   * @param spInstance the security provider instance name, not <code>null</code> or empty.
    */
   protected PSSecurityProvider(String spType, String spInstance) {
     if (spType == null) throw new IllegalArgumentException("spType cannot be null");
@@ -127,14 +125,13 @@ public abstract class PSSecurityProvider implements IPSSecurityProvider {
   }
 
   /**
-   * The opposite of {@link #getSecurityProviderTypeString(int)
-   * getSecurityProviderTypeString}. This method can be used to obtain the
-   * security provider type id of any string returned by <code>
+   * The opposite of {@link #getSecurityProviderTypeString(int) getSecurityProviderTypeString}. This
+   * method can be used to obtain the security provider type id of any string returned by <code>
    * getSecurityProviderTypeString</code>.
    *
    * @param xmlFlag one of the XML_FLAG_... types, may be <code>null</code>.
-   * @return the type id that matches the supplied flag, or 0 if a match is
-   *    not found. The comparison is case sensitive.
+   * @return the type id that matches the supplied flag, or 0 if a match is not found. The
+   *     comparison is case sensitive.
    */
   public static int getSecurityProviderTypeFromXmlFlag(String xmlFlag) {
     int providerId = 0;
@@ -429,8 +426,8 @@ public abstract class PSSecurityProvider implements IPSSecurityProvider {
   public static final String INTERNAL_USER_NAME = "rxserver";
 
   /**
-   * The security provider type <code>String</code>. Initialized while
-   * constructed, never <code>null</code>, empty or changed after that.
+   * The security provider type <code>String</code>. Initialized while constructed, never <code>null
+   * </code>, empty or changed after that.
    */
   protected String m_spType = null;
 
@@ -441,9 +438,8 @@ public abstract class PSSecurityProvider implements IPSSecurityProvider {
   protected String m_spInstance = null;
 
   /**
-   * The security providers meta data. Initialized with the first call to
-   * {@link IPSSecurityProvider#getMetaData()}, never <code>null</code>
-   * or changed after that.
+   * The security providers meta data. Initialized with the first call to {@link
+   * IPSSecurityProvider#getMetaData()}, never <code>null</code> or changed after that.
    */
   protected IPSSecurityProviderMetaData m_metaData = null;
 

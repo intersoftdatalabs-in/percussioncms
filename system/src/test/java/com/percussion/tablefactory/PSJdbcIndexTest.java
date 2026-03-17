@@ -17,136 +17,110 @@
 package com.percussion.tablefactory;
 
 import static com.percussion.tablefactory.PSJdbcTableComponent.IS_EXACT_MATCH;
+import static org.junit.jupiter.api.Assertions.*;
 
 import com.percussion.xml.PSXmlDocumentBuilder;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import org.junit.jupiter.api.Test;
-import static org.junit.jupiter.api.Assertions.*;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-/**
- * Unit test for PSJdbcIndex.
- */
-public class PSJdbcIndexTest 
-{
-   /**
-    * Test the def.
-    */
-   
-   public void testDef() throws Exception
-   {
-      // build a def with a dupe name
-      List<String> cols = new ArrayList<String>();
-      cols.add("col1");
-      cols.add("col2");
-      cols.add("col1");
+/** Unit test for PSJdbcIndex. */
+public class PSJdbcIndexTest {
+  /** Test the def. */
+  public void testDef() throws Exception {
+    // build a def with a dupe name
+    List<String> cols = new ArrayList<String>();
+    cols.add("col1");
+    cols.add("col2");
+    cols.add("col1");
 
-      boolean caught = false;
-      try
-      {
-         createIndex(cols);
-      }
-      catch (PSJdbcTableFactoryException e)
-      {
-         caught = true;
-      }
-      assertTrue(caught);
+    boolean caught = false;
+    try {
+      createIndex(cols);
+    } catch (PSJdbcTableFactoryException e) {
+      caught = true;
+    }
+    assertTrue(caught);
 
-      // build def with null name
-      cols = new ArrayList<String>();
-      cols.add("col1");
-      cols.add(null);
+    // build def with null name
+    cols = new ArrayList<String>();
+    cols.add("col1");
+    cols.add(null);
 
-      caught = false;
-      try
-      {
-         createIndex(cols);
-      }
-      catch (PSJdbcTableFactoryException e)
-      {
-         caught = true;
-      }
-      assertTrue(caught);
+    caught = false;
+    try {
+      createIndex(cols);
+    } catch (PSJdbcTableFactoryException e) {
+      caught = true;
+    }
+    assertTrue(caught);
 
-      // build def with empty name
-      cols = new ArrayList<String>();
-      cols.add("col1");
-      cols.add("");
+    // build def with empty name
+    cols = new ArrayList<String>();
+    cols.add("col1");
+    cols.add("");
 
-      caught = false;
-      try
-      {
-         createIndex(cols);
-      }
-      catch (PSJdbcTableFactoryException e)
-      {
-         caught = true;
-      }
-      assertTrue(caught);
+    caught = false;
+    try {
+      createIndex(cols);
+    } catch (PSJdbcTableFactoryException e) {
+      caught = true;
+    }
+    assertTrue(caught);
 
-      // build def with empty list
-      cols = new ArrayList<String>();
+    // build def with empty list
+    cols = new ArrayList<String>();
 
-      caught = false;
-      try
-      {
-         createIndex(cols);
-      }
-      catch (IllegalArgumentException e)
-      {
-         caught = true;
-      }
-      assertTrue(caught);
+    caught = false;
+    try {
+      createIndex(cols);
+    } catch (IllegalArgumentException e) {
+      caught = true;
+    }
+    assertTrue(caught);
 
-      // build valid def
-      cols = new ArrayList<String>();
-      cols.add("col1");
-      cols.add("col2");
-      cols.add("col3");
+    // build valid def
+    cols = new ArrayList<String>();
+    cols.add("col1");
+    cols.add("col2");
+    cols.add("col3");
 
-      PSJdbcIndex index = new PSJdbcIndex("index1", cols.iterator(),
-         PSJdbcTableComponent.ACTION_DELETE);
+    PSJdbcIndex index =
+        new PSJdbcIndex("index1", cols.iterator(), PSJdbcTableComponent.ACTION_DELETE);
 
-      Document doc = PSXmlDocumentBuilder.createXmlDocument();
-      Element el = index.toXml(doc);
+    Document doc = PSXmlDocumentBuilder.createXmlDocument();
+    Element el = index.toXml(doc);
 
-      PSJdbcIndex index2 = new PSJdbcIndex(el);
-      assertEquals(index, index2);
-   }
-   
-   /**
-    * Tests the lists comparison.
-    */
-   
-   public void testCompare() throws PSJdbcTableFactoryException
-   {
-      final List<String> cols = new ArrayList<String>();
-      cols.add("col1");
-      cols.add("column2");
+    PSJdbcIndex index2 = new PSJdbcIndex(el);
+    assertEquals(index, index2);
+  }
 
-      final PSJdbcIndex index = createIndex(cols);
-      assertEquals(IS_EXACT_MATCH, index.compare(index, 0));
-      assertEquals(IS_EXACT_MATCH, index.compare(createIndex(cols), 0));
-      
-      final List<String> revCols = new ArrayList<String>(cols);
-      Collections.reverse(revCols); 
-      assertFalse(cols.equals(revCols));
-      assertFalse(index.compare(createIndex(revCols), 0) == IS_EXACT_MATCH);
-   }
+  /** Tests the lists comparison. */
+  public void testCompare() throws PSJdbcTableFactoryException {
+    final List<String> cols = new ArrayList<String>();
+    cols.add("col1");
+    cols.add("column2");
 
-   /**
-    * Creates a new index object for the provided columns.
-    * @param cols the index columns. Assumed not <code>null</code>.
-    * @return the newly created index. Not <code>null</code>.
-    * @throws PSJdbcTableFactoryException if index object creation fails.
-    */
-   private PSJdbcIndex createIndex(final List<String> cols)
-         throws PSJdbcTableFactoryException
-   {
-      return new PSJdbcIndex("index1", cols.iterator(),
-            PSJdbcTableComponent.ACTION_CREATE);
-   }
+    final PSJdbcIndex index = createIndex(cols);
+    assertEquals(IS_EXACT_MATCH, index.compare(index, 0));
+    assertEquals(IS_EXACT_MATCH, index.compare(createIndex(cols), 0));
+
+    final List<String> revCols = new ArrayList<String>(cols);
+    Collections.reverse(revCols);
+    assertFalse(cols.equals(revCols));
+    assertFalse(index.compare(createIndex(revCols), 0) == IS_EXACT_MATCH);
+  }
+
+  /**
+   * Creates a new index object for the provided columns.
+   *
+   * @param cols the index columns. Assumed not <code>null</code>.
+   * @return the newly created index. Not <code>null</code>.
+   * @throws PSJdbcTableFactoryException if index object creation fails.
+   */
+  private PSJdbcIndex createIndex(final List<String> cols) throws PSJdbcTableFactoryException {
+    return new PSJdbcIndex("index1", cols.iterator(), PSJdbcTableComponent.ACTION_CREATE);
+  }
 }

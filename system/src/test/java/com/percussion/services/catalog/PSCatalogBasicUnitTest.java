@@ -16,6 +16,9 @@
  */
 package com.percussion.services.catalog;
 
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import com.percussion.services.assembly.IPSAssemblyService;
 import com.percussion.services.assembly.PSAssemblyServiceLocator;
 import com.percussion.services.error.PSNotFoundException;
@@ -23,78 +26,60 @@ import com.percussion.services.filter.IPSFilterService;
 import com.percussion.services.filter.PSFilterServiceLocator;
 import com.percussion.services.publisher.IPSPublisherService;
 import com.percussion.services.publisher.PSPublisherServiceLocator;
-
 import java.util.List;
-
-
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Disabled;
-
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import org.junit.jupiter.api.Test;
 
 /**
- * Unit test basic methods for enumerating data in the services. Each service is
- * tested using common code for the enumeration and "saving" portion. Specific
- * code is required for each service to test the "loading" portion
+ * Unit test basic methods for enumerating data in the services. Each service is tested using common
+ * code for the enumeration and "saving" portion. Specific code is required for each service to test
+ * the "loading" portion
  *
  * @author dougrand
- *
  */
-
 @Disabled("Temporarily disabled — failing in perc-system test run")
-public class PSCatalogBasicUnitTest
-{
-   public static IPSAssemblyService asm = PSAssemblyServiceLocator
-         .getAssemblyService();
+public class PSCatalogBasicUnitTest {
+  public static IPSAssemblyService asm = PSAssemblyServiceLocator.getAssemblyService();
 
-   public static IPSFilterService fsvc = PSFilterServiceLocator
-         .getFilterService();
+  public static IPSFilterService fsvc = PSFilterServiceLocator.getFilterService();
 
-   public static IPSPublisherService psvc = PSPublisherServiceLocator
-         .getPublisherService();
+  public static IPSPublisherService psvc = PSPublisherServiceLocator.getPublisherService();
 
-   @Test
-   public void testAssemblyEnumeration() throws PSCatalogException, PSNotFoundException {
-      doEnumerationTest(asm);
-   }
+  @Test
+  public void testAssemblyEnumeration() throws PSCatalogException, PSNotFoundException {
+    doEnumerationTest(asm);
+  }
 
-   @Test
-   public void testFilterEnumeration() throws PSCatalogException, PSNotFoundException {
-      doEnumerationTest(fsvc);
-   }
+  @Test
+  public void testFilterEnumeration() throws PSCatalogException, PSNotFoundException {
+    doEnumerationTest(fsvc);
+  }
 
-   @Test
-   public void testPublisherEnumeration() throws PSCatalogException, PSNotFoundException {
-      doEnumerationTest(psvc);
-   }
+  @Test
+  public void testPublisherEnumeration() throws PSCatalogException, PSNotFoundException {
+    doEnumerationTest(psvc);
+  }
 
-   private void doEnumerationTest(IPSCataloger cat) throws PSCatalogException, PSNotFoundException {
-      // Check getTypes
-      PSTypeEnum[] types = cat.getTypes();
+  private void doEnumerationTest(IPSCataloger cat) throws PSCatalogException, PSNotFoundException {
+    // Check getTypes
+    PSTypeEnum[] types = cat.getTypes();
 
-      assertNotNull(types);
-      assertTrue(types.length >= 1);
+    assertNotNull(types);
+    assertTrue(types.length >= 1);
 
-      // Now get data for each type
-      for(PSTypeEnum t : types)
-      {
-         List<IPSCatalogSummary> sumaries = cat.getSummaries(t);
-         assertNotNull(sumaries);
-         if (sumaries.size() == 0)
-         {
-            System.err.println("Warning: no elements returned for type " + t);
-         }
-         for(IPSCatalogSummary s : sumaries)
-         {
-            String xml = cat.saveByType(s.getGUID());
-            assertNotNull(xml);
-            assertTrue(xml.length() > 0);
-            System.out.println(s);
-         }
+    // Now get data for each type
+    for (PSTypeEnum t : types) {
+      List<IPSCatalogSummary> sumaries = cat.getSummaries(t);
+      assertNotNull(sumaries);
+      if (sumaries.size() == 0) {
+        System.err.println("Warning: no elements returned for type " + t);
       }
-
-
-   }
+      for (IPSCatalogSummary s : sumaries) {
+        String xml = cat.saveByType(s.getGUID());
+        assertNotNull(xml);
+        assertTrue(xml.length() > 0);
+        System.out.println(s);
+      }
+    }
+  }
 }

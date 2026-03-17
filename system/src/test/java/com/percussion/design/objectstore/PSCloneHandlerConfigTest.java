@@ -16,79 +16,66 @@
  */
 package com.percussion.design.objectstore;
 
-import com.percussion.security.error.PSExceptionUtils;
-import com.percussion.xml.PSXmlDocumentBuilder;
-
-import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
+import com.percussion.security.error.PSExceptionUtils;
+import com.percussion.xml.PSXmlDocumentBuilder;
+import java.io.InputStream;
+import java.util.Iterator;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-import java.io.InputStream;
-import java.util.Iterator;
+/** Unit test for the {@link PSCloneHandlerConfigSet} and {@link PSCloneHandlerConfigTest} class. */
+public class PSCloneHandlerConfigTest {
 
-/**
- * Unit test for the {@link PSCloneHandlerConfigSet} and
- * {@link PSCloneHandlerConfigTest} class.
- */
-public class PSCloneHandlerConfigTest
-{
+  private static final Logger log = LogManager.getLogger(PSCloneHandlerConfigTest.class);
 
-   private static final Logger log = LogManager.getLogger(PSCloneHandlerConfigTest.class);
+  // see base class
 
-   // see base class
+  /**
+   * Test to/from XML methods.
+   *
+   * @throws Exception if any errors occur.
+   */
+  @Test
+  public void test() throws Exception {
+    PSCloneHandlerConfigSet configSet = null;
+    try {
+      InputStream is =
+          this.getClass()
+              .getResourceAsStream(
+                  "/com/percussion/design/objectstore/cloneHandlerConfigurations.xml");
+      configSet =
+          new PSCloneHandlerConfigSet(
+              PSXmlDocumentBuilder.createXmlDocument(is, false).getDocumentElement(), null, null);
+    } catch (Exception e) {
+      log.error(PSExceptionUtils.getMessageForLog(e));
+      log.debug(PSExceptionUtils.getDebugMessageForLog(e));
+      fail("PSCloneHandlerConfigSet ctor failed");
+    }
 
+    try {
+      Iterator configs = configSet.iterator();
+      while (configs.hasNext()) {
+        PSCloneHandlerConfig config = (PSCloneHandlerConfig) configs.next();
 
-   /**
-    * Test to/from XML methods.
-    *
-    * @throws Exception if any errors occur.
-    */
-   @Test
-   public void test() throws Exception
-   {
-      PSCloneHandlerConfigSet configSet = null;
-      try
-      {
-         InputStream is = this.getClass().getResourceAsStream("/com/percussion/design/objectstore/cloneHandlerConfigurations.xml");
-         configSet = new PSCloneHandlerConfigSet(PSXmlDocumentBuilder
-            .createXmlDocument(is, false).getDocumentElement(), null, null);
+        Document doc = PSXmlDocumentBuilder.createXmlDocument();
+        Element elem = config.toXml(doc);
+        doc.appendChild(elem);
+
+        System.out.println("\n\nConfiguration: " + config.getName());
+        System.out.println(PSXmlDocumentBuilder.toString(doc));
       }
-      catch (Exception e)
-      {
-         log.error(PSExceptionUtils.getMessageForLog(e));
-         log.debug(PSExceptionUtils.getDebugMessageForLog(e));
-         fail("PSCloneHandlerConfigSet ctor failed");
-      }
+    } catch (Exception e) {
+      log.error(PSExceptionUtils.getMessageForLog(e));
+      log.debug(PSExceptionUtils.getDebugMessageForLog(e));
+      fail("PSCloneHandlerConfigSet toXml failed");
+    }
+  }
 
-      try
-      {
-         Iterator configs = configSet.iterator();
-         while (configs.hasNext())
-         {
-            PSCloneHandlerConfig config = (PSCloneHandlerConfig) configs.next();
-
-            Document doc = PSXmlDocumentBuilder.createXmlDocument();
-            Element elem = config.toXml(doc);
-            doc.appendChild(elem);
-
-            System.out.println("\n\nConfiguration: " + config.getName());
-            System.out.println(PSXmlDocumentBuilder.toString(doc));
-         }
-      }
-      catch (Exception e)
-      {
-         log.error(PSExceptionUtils.getMessageForLog(e));
-         log.debug(PSExceptionUtils.getDebugMessageForLog(e));
-         fail("PSCloneHandlerConfigSet toXml failed");
-      }
-   }
-
-   // collect all tests into a TestSuite and return it - see base class
-
-
+  // collect all tests into a TestSuite and return it - see base class
 
 }

@@ -70,23 +70,18 @@ public class PSPageInfo {
    * @param queryHandlers A list of Strings which contain the names of datasets used to obtain data
    *     to fulfill a query. May be <code>null
    *    </code>.
-   * @param pageMap A list of page ids (as Integers). May be <code>null</code> or empty. If supplied,
-   *     the contents are not validated.
+   * @param pageMap A list of page ids (as Integers). May be <code>null</code> or empty. If
+   *     supplied, the contents are not validated.
    * @throws IllegalArgumentException if the type is not a supported value.
    */
-  public PSPageInfo(
-      int type,
-      int childId,
-      List<String> queryHandlers,
-      List<Integer> pageMap) {
+  public PSPageInfo(int type, int childId, List<String> queryHandlers, List<Integer> pageMap) {
     if (type < TYPE_FIRST || type > TYPE_LAST)
       throw new IllegalArgumentException("Unsupported type supplied.");
 
     m_type = type;
     m_childId = childId;
     if (null != queryHandlers) m_handlers.addAll(queryHandlers); // List<String> is parameterized
-    if (null != pageMap)
-      m_pageMap.addAll(pageMap); // List<Integer> is parameterized
+    if (null != pageMap) m_pageMap.addAll(pageMap); // List<Integer> is parameterized
   }
 
   /**
@@ -197,8 +192,6 @@ public class PSPageInfo {
    */
   private List<String> m_handlers = new ArrayList<>();
 
-  /**
-   * A list of page ids (as Integers). Never <code>null</code>, may be empty.
-   */
+  /** A list of page ids (as Integers). Never <code>null</code>, may be empty. */
   private List<Integer> m_pageMap = new ArrayList<>();
 }

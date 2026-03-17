@@ -16,37 +16,32 @@
  */
 package com.percussion.rx.admin.jsf.nodes;
 
-import com.percussion.services.schedule.data.PSNotificationTemplate;
-
-import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
+
+import com.percussion.services.schedule.data.PSNotificationTemplate;
 
 /**
  * @author Andriy Palamarchuk
  */
-public class PSTaskNotificationNodeTest 
-{
-   
-   public void testDummy()
-   {
-      //Added a dummy test remove it after fixing the actual test
-   }
-   public void ignoretestConstructor()
-   {
-      try
-      {
-         new PSTaskNotificationNode(null);
-      }
-      catch (IllegalArgumentException expected) {}
-      
-      final PSNotificationTemplate template = new PSNotificationTemplate();
-      template.setName(LABEL);
-      final PSTaskNotificationNode node =
-            new PSTaskNotificationNode(template);
-      assertEquals(template, node.getNotification());
-      assertEquals(template.getName(), node.getTitle());
-   }
+public class PSTaskNotificationNodeTest {
 
-   // test data
-   private static final String LABEL = "Label 1";
+  public void testDummy() {
+    // Added a dummy test remove it after fixing the actual test
+  }
+
+  public void ignoretestConstructor() {
+    try {
+      new PSTaskNotificationNode(null);
+    } catch (IllegalArgumentException expected) {
+    }
+
+    final PSNotificationTemplate template = new PSNotificationTemplate();
+    template.setName(LABEL);
+    final PSTaskNotificationNode node = new PSTaskNotificationNode(template);
+    assertEquals(template, node.getNotification());
+    assertEquals(template.getName(), node.getTitle());
+  }
+
+  // test data
+  private static final String LABEL = "Label 1";
 }

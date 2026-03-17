@@ -16,6 +16,11 @@
  */
 package com.percussion.services.locking.data;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+
 import com.percussion.services.locking.IPSLockErrors;
 import com.percussion.services.locking.IPSObjectLockService;
 import com.percussion.services.locking.PSLockException;
@@ -24,188 +29,147 @@ import com.percussion.services.system.IPSSystemService;
 import com.percussion.services.system.PSSystemServiceLocator;
 import com.percussion.services.system.data.PSSharedProperty;
 import com.percussion.utils.guid.IPSGuid;
-
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.Tag;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
+/** Unit tests for the {@link PSObjectLock} class. */
+public class PSObjectLockTest {
+  /** Tests the CRUD functionality for object locks using the locking services. */
+  @Test
+  public void testCRUD() throws Exception {
+    IPSGuid propertyId = m_property.getGUID();
 
-/**
- * Unit tests for the {@link PSObjectLock} class.
- */
+    IPSObjectLockService service = PSObjectLockServiceLocator.getLockingService();
 
-public class PSObjectLockTest
-{
-   /**
-    * Tests the CRUD functionality for object locks using the locking services.
-    */
-   @Test
-   public void testCRUD() throws Exception
-   {
-      IPSGuid propertyId = m_property.getGUID();
+    // create a new lock
+    String session = "session";
+    String locker = "locker";
+    List<PSObjectLock> locks = service.findLocksByUser(session, locker);
+    int count = locks.size();
+    PSObjectLock lock = service.createLock(propertyId, session, locker, 0, false);
 
-      IPSObjectLockService service =
-         PSObjectLockServiceLocator.getLockingService();
+    // test find by user info
+    locks = service.findLocksByUser(session, locker);
+    assertTrue(locks != null && locks.size() == count + 1);
+    locks = service.findLocksByUser("foo", locker);
+    assertTrue(locks != null && locks.size() == 0);
+    locks = service.findLocksByUser(session, "bar");
+    assertTrue(locks != null && locks.size() == 0);
 
-      // create a new lock
-      String session = "session";
-      String locker = "locker";
-      List<PSObjectLock> locks = service.findLocksByUser(session, locker);
-      int count = locks.size();
-      PSObjectLock lock = service.createLock(propertyId, session, locker, 0,
-         false);
+    // try to lock the same object with different session/user without override
+    try {
+      service.createLock(propertyId, "session2", "locker2", 0, false);
+      fail("Should have thrown exception");
+    } catch (PSLockException e) {
+      // expected exception
+      assertTrue(e.getErrorCode() == IPSLockErrors.LOCK_EXTENSION_LOCKED_BY_SOMEBODY_ELSE);
+    }
 
-      // test find by user info
-      locks = service.findLocksByUser(session, locker);
-      assertTrue(locks != null && locks.size() == count+1);
-      locks = service.findLocksByUser("foo", locker);
-      assertTrue(locks != null && locks.size() == 0);
-      locks = service.findLocksByUser(session, "bar");
-      assertTrue(locks != null && locks.size() == 0);
+    // try to lock the same object with different session/user with override
+    try {
+      service.createLock(propertyId, "session2", "locker2", 0, true);
+      fail("Should have thrown exception");
+    } catch (PSLockException e) {
+      // expected exception
+      assertTrue(e.getErrorCode() == IPSLockErrors.LOCK_EXTENSION_LOCKED_BY_SOMEBODY_ELSE);
+    }
 
-      // try to lock the same object with different session/user without override
-      try
-      {
-         service.createLock(propertyId, "session2", "locker2", 0, false);
-         fail("Should have thrown exception");
-      }
-      catch (PSLockException e)
-      {
-         // expected exception
-         assertTrue(e.getErrorCode() ==
-            IPSLockErrors.LOCK_EXTENSION_LOCKED_BY_SOMEBODY_ELSE);
-      }
+    // try to lock the same object with different user without override
+    try {
+      service.createLock(propertyId, session, "locker2", 0, false);
+      fail("Should have thrown exception");
+    } catch (PSLockException e) {
+      // expected exception
+      assertTrue(e.getErrorCode() == IPSLockErrors.LOCK_EXTENSION_LOCKED_BY_SOMEBODY_ELSE);
+    }
 
-      // try to lock the same object with different session/user with override
-      try
-      {
-         service.createLock(propertyId, "session2", "locker2", 0, true);
-         fail("Should have thrown exception");
-      }
-      catch (PSLockException e)
-      {
-         // expected exception
-         assertTrue(e.getErrorCode() ==
-            IPSLockErrors.LOCK_EXTENSION_LOCKED_BY_SOMEBODY_ELSE);
-      }
+    // try to lock the same object with different user with override
+    try {
+      service.createLock(propertyId, session, "locker2", 0, true);
+      fail("Should have thrown exception");
+    } catch (PSLockException e) {
+      // expected exception
+      assertTrue(e.getErrorCode() == IPSLockErrors.LOCK_EXTENSION_LOCKED_BY_SOMEBODY_ELSE);
+    }
 
-      // try to lock the same object with different user without override
-      try
-      {
-         service.createLock(propertyId, session, "locker2", 0, false);
-         fail("Should have thrown exception");
-      }
-      catch (PSLockException e)
-      {
-         // expected exception
-         assertTrue(e.getErrorCode() ==
-            IPSLockErrors.LOCK_EXTENSION_LOCKED_BY_SOMEBODY_ELSE);
-      }
+    // try to lock the same object with different session without override
+    try {
+      service.createLock(propertyId, "session2", locker, 0, false);
+      fail("Should have thrown exception");
+    } catch (PSLockException e) {
+      // expected exception
+      assertTrue(e.getErrorCode() == IPSLockErrors.LOCK_EXTENSION_INVALID_SESSION);
+    }
 
-      // try to lock the same object with different user with override
-      try
-      {
-         service.createLock(propertyId, session, "locker2", 0, true);
-         fail("Should have thrown exception");
-      }
-      catch (PSLockException e)
-      {
-         // expected exception
-         assertTrue(e.getErrorCode() ==
-            IPSLockErrors.LOCK_EXTENSION_LOCKED_BY_SOMEBODY_ELSE);
-      }
+    // lock the same object with different session with override
+    service.createLock(propertyId, "session2", locker, 0, true);
+    service.createLock(propertyId, session, locker, 0, true);
 
-      // try to lock the same object with different session without override
-      try
-      {
-         service.createLock(propertyId, "session2", locker, 0, false);
-         fail("Should have thrown exception");
-      }
-      catch (PSLockException e)
-      {
-         // expected exception
-         assertTrue(e.getErrorCode() ==
-            IPSLockErrors.LOCK_EXTENSION_INVALID_SESSION);
-      }
+    // find the created lock
+    PSObjectLock lock2 = service.findLockByObjectId(propertyId, session, locker);
+    assertEquals(lock, lock2);
 
-      // lock the same object with different session with override
-      service.createLock(propertyId, "session2", locker, 0, true);
-      service.createLock(propertyId, session, locker, 0, true);
+    List<IPSGuid> propertyIds = new ArrayList<IPSGuid>();
+    propertyIds.add(propertyId);
+    locks = service.findLocksByObjectIds(propertyIds, session, locker);
+    assertEquals(1, locks.size());
 
-      // find the created lock
-      PSObjectLock lock2 = service.findLockByObjectId(propertyId, session,
-         locker);
-      assertEquals(lock, lock2);
+    // is not in the list of expired locks
+    assertFalse(service.findExpiredLocks().contains(lock));
 
-      List<IPSGuid> propertyIds = new ArrayList<IPSGuid>();
-      propertyIds.add(propertyId);
-      locks = service.findLocksByObjectIds(propertyIds, session, locker);
-      assertEquals(1, locks.size());
+    // extend the lock for an interval of 1s
+    service.extendLock(propertyId, session, locker, 0, 1000);
 
-      // is not in the list of expired locks
-      assertFalse(service.findExpiredLocks().contains(lock));
+    // make sure the lock expires
+    Thread.sleep(3000);
 
-      // extend the lock for an interval of 1s
-      service.extendLock(propertyId, session, locker, 0, 1000);
+    // is in the list of expired locks
+    assertFalse(service.findExpiredLocks().contains(lock));
 
-      // make sure the lock expires
-      Thread.sleep(3000);
+    service.releaseLock(lock);
 
-      // is in the list of expired locks
-      assertFalse(service.findExpiredLocks().contains(lock));
+    // should ignore that the lock does not exist anymore
+    service.releaseLocks(Collections.singletonList(lock));
+  }
 
-      service.releaseLock(lock);
+  @BeforeAll
+  public static void setUp() throws Exception {
+    // Skip test when Spring application context is not initialized in this run
+    IPSSystemService systemService;
+    try {
+      systemService = PSSystemServiceLocator.getSystemService();
+    } catch (NullPointerException e) {
+      org.junit.jupiter.api.Assumptions.assumeTrue(
+          false, "Application Context not initialized - skipping PSObjectLockTest");
+      return; // unreachable but keeps static analysis happy
+    }
 
-      // should ignore that the lock does not exist anymore
-      service.releaseLocks(Collections.singletonList(lock));
-   }
+    m_property = new PSSharedProperty("name", "value");
+    systemService.saveSharedProperty(m_property);
+  }
 
-   @BeforeAll
-   public static void setUp() throws Exception
-   {
-      // Skip test when Spring application context is not initialized in this run
-      IPSSystemService systemService;
-      try {
-         systemService = PSSystemServiceLocator.getSystemService();
-      } catch (NullPointerException e) {
-         org.junit.jupiter.api.Assumptions.assumeTrue(false, "Application Context not initialized - skipping PSObjectLockTest");
-         return; // unreachable but keeps static analysis happy
-      }
+  /* (non-Javadoc)
+   * @see junit.framework.TestCase#tearDown()
+   */
+  @AfterAll
+  public static void tearDown() throws Exception {
+    if (m_property == null) return;
 
-      m_property = new PSSharedProperty("name", "value");
-      systemService.saveSharedProperty(m_property);
-   }
+    IPSSystemService systemService;
+    try {
+      systemService = PSSystemServiceLocator.getSystemService();
+    } catch (NullPointerException e) {
+      // Application context not present; nothing to clean
+      return;
+    }
 
-   /* (non-Javadoc)
-    * @see junit.framework.TestCase#tearDown()
-    */
-   @AfterAll
-   public static void tearDown() throws Exception
-   {
-      if (m_property == null)
-         return;
+    systemService.deleteSharedProperty(m_property.getGUID());
+  }
 
-      IPSSystemService systemService;
-      try {
-         systemService = PSSystemServiceLocator.getSystemService();
-      } catch (NullPointerException e) {
-         // Application context not present; nothing to clean
-         return;
-      }
-
-      systemService.deleteSharedProperty(m_property.getGUID());
-   }
-
-   // test property
-   static PSSharedProperty m_property = null;
+  // test property
+  static PSSharedProperty m_property = null;
 }
-

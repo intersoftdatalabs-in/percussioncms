@@ -16,281 +16,247 @@
  */
 package com.percussion.design.objectstore.legacy;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 import com.percussion.design.objectstore.PSDirectory;
 import com.percussion.design.objectstore.PSDirectorySet;
 import com.percussion.design.objectstore.PSProvider;
 import com.percussion.design.objectstore.PSReference;
 import com.percussion.design.objectstore.PSSecurityProviderInstance;
 import com.percussion.design.objectstore.PSServerConfiguration;
+import com.percussion.legacy.security.deprecated.PSLegacyEncrypter;
 import com.percussion.security.PSEncryptor;
 import com.percussion.security.PSSecurityProvider;
 import com.percussion.util.PSCollection;
 import com.percussion.utils.io.PathUtils;
-import com.percussion.legacy.security.deprecated.PSLegacyEncrypter;
-
 import com.percussion.xml.PSXmlDocumentBuilder;
-
 import java.io.FileInputStream;
 import java.util.Iterator;
 import java.util.Properties;
-
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.Tag;
 import org.w3c.dom.Document;
 
-import static org.junit.jupiter.api.Assertions.*;
-
-/**
- * Test case for the {@link PSSecurityProviderConverter} class.
- */
-
+/** Test case for the {@link PSSecurityProviderConverter} class. */
 @Disabled("Temporarily disabled — failing in perc-system test run")
-public class PSSecurityProviderConverterTest extends PSBaseConverterTest
-{
-   /**
-    * Test the converter with existing conversions.
-    *
-    * @throws Exception if the test fails
-    */
-   @Test
-   public void testConversion() throws Exception
-   {
-      // load legacy config to ensure it is correct
-      Document doc = PSXmlDocumentBuilder.createXmlDocument(
-            new FileInputStream(m_legacyFile), false);
-      PSLegacyServerConfig legacyConfig = new PSLegacyServerConfig(doc);
+public class PSSecurityProviderConverterTest extends PSBaseConverterTest {
+  /**
+   * Test the converter with existing conversions.
+   *
+   * @throws Exception if the test fails
+   */
+  @Test
+  public void testConversion() throws Exception {
+    // load legacy config to ensure it is correct
+    Document doc = PSXmlDocumentBuilder.createXmlDocument(new FileInputStream(m_legacyFile), false);
+    PSLegacyServerConfig legacyConfig = new PSLegacyServerConfig(doc);
 
-      // check legacy config
-      checkLegacy(legacyConfig);
+    // check legacy config
+    checkLegacy(legacyConfig);
 
-      // create the config
-      IPSConfigFileLocator locator =
-         initFileLocator(m_legacyFile, m_springFile, m_jndiDSFile, m_loginFile);
+    // create the config
+    IPSConfigFileLocator locator =
+        initFileLocator(m_legacyFile, m_springFile, m_jndiDSFile, m_loginFile);
 
-      // create the ctx
-      PSConfigurationCtx ctx = new PSConfigurationCtx(locator,
-              PSLegacyEncrypter.getInstance(PathUtils.getRxDir().getAbsolutePath().concat(PSEncryptor.SECURE_DIR)
-              ).OLD_SECURITY_KEY());
+    // create the ctx
+    PSConfigurationCtx ctx =
+        new PSConfigurationCtx(
+            locator,
+            PSLegacyEncrypter.getInstance(
+                    PathUtils.getRxDir().getAbsolutePath().concat(PSEncryptor.SECURE_DIR))
+                .OLD_SECURITY_KEY());
 
-      PSInstRepositoryInfo repInfo = new PSInstRepositoryInfo(m_resourceDir);
+    PSInstRepositoryInfo repInfo = new PSInstRepositoryInfo(m_resourceDir);
 
-      PSSecurityProviderConverter spConverter=
-         new PSSecurityProviderConverter(ctx, repInfo, true);
+    PSSecurityProviderConverter spConverter = new PSSecurityProviderConverter(ctx, repInfo, true);
 
-      // perform conversion
-      spConverter.convert();
+    // perform conversion
+    spConverter.convert();
 
-      // save config files
-      ctx.saveConfigs();
+    // save config files
+    ctx.saveConfigs();
 
-      // load converted config
-      doc = PSXmlDocumentBuilder.createXmlDocument(
-            new FileInputStream(locator.getServerConfigFile().getAbsolutePath()),
-                  false);
-      PSServerConfiguration serverConfig = new PSServerConfiguration(doc);
+    // load converted config
+    doc =
+        PSXmlDocumentBuilder.createXmlDocument(
+            new FileInputStream(locator.getServerConfigFile().getAbsolutePath()), false);
+    PSServerConfiguration serverConfig = new PSServerConfiguration(doc);
 
-      // check converted config
-      checkConverted(serverConfig);
-   }
+    // check converted config
+    checkConverted(serverConfig);
+  }
 
-   /**
-    * Checks if the supplied legacy server configuration is correct.
-    *
-    * @param legacyConfig The legacy server config, assumed not <code>null</code>.
-    */
-   private void checkLegacy(PSLegacyServerConfig legacyConfig)
-   {
-      PSCollection secProviders = legacyConfig.getSecurityProviderInstances();
+  /**
+   * Checks if the supplied legacy server configuration is correct.
+   *
+   * @param legacyConfig The legacy server config, assumed not <code>null</code>.
+   */
+  private void checkLegacy(PSLegacyServerConfig legacyConfig) {
+    PSCollection secProviders = legacyConfig.getSecurityProviderInstances();
 
-      int numSecProvs = secProviders.size();
+    int numSecProvs = secProviders.size();
 
-      assertTrue(numSecProvs == 3);
+    assertTrue(numSecProvs == 3);
 
-      int i;
-      for (i = 0; i < numSecProvs; i++)
-      {
-         PSLegacySecurityProviderInstance provider =
-            (PSLegacySecurityProviderInstance) secProviders.get(i);
-         int type = provider.getType();
-         String name = provider.getName();
+    int i;
+    for (i = 0; i < numSecProvs; i++) {
+      PSLegacySecurityProviderInstance provider =
+          (PSLegacySecurityProviderInstance) secProviders.get(i);
+      int type = provider.getType();
+      String name = provider.getName();
 
-         if (type == PSSecurityProvider.SP_TYPE_BETABLE)
-         {
-            Properties provProps = provider.getProperties();
-            assertEquals(name, "rxmaster");
-            assertNotNull(provProps.getProperty("serverName"));
-            assertNotNull(provProps.getProperty("driverName"));
-            assertNotNull(provProps.getProperty("loginPw"));
-            assertNotNull(provProps.getProperty("schemaName"));
-            assertNotNull(provProps.getProperty("loginId"));
-            assertNotNull(provProps.getProperty("databaseName"));
-            continue;
-         }
-
-         if (type == PSSecurityProvider.SP_TYPE_DIRCONN)
-         {
-            Iterator groups = provider.getGroupProviderNames();
-            PSProvider dirProv = provider.getDirectoryProvider();
-            PSReference dirSetRef = dirProv.getReference();
-            String dirSetName = dirSetRef.getName();
-
-            assertEquals(name, "myProvider");
-            assertTrue(groups.hasNext());
-
-            String groupName = (String) groups.next();
-            assertEquals(groupName, "group1");
-
-            assertEquals(dirSetName, "DirectorySet0");
-         }
+      if (type == PSSecurityProvider.SP_TYPE_BETABLE) {
+        Properties provProps = provider.getProperties();
+        assertEquals(name, "rxmaster");
+        assertNotNull(provProps.getProperty("serverName"));
+        assertNotNull(provProps.getProperty("driverName"));
+        assertNotNull(provProps.getProperty("loginPw"));
+        assertNotNull(provProps.getProperty("schemaName"));
+        assertNotNull(provProps.getProperty("loginId"));
+        assertNotNull(provProps.getProperty("databaseName"));
+        continue;
       }
 
-      assertNotNull(legacyConfig.getGroupProviderInstance("group1",
-            PSSecurityProvider.SP_TYPE_DIRCONN));
+      if (type == PSSecurityProvider.SP_TYPE_DIRCONN) {
+        Iterator groups = provider.getGroupProviderNames();
+        PSProvider dirProv = provider.getDirectoryProvider();
+        PSReference dirSetRef = dirProv.getReference();
+        String dirSetName = dirSetRef.getName();
 
-      PSDirectory dir0 = legacyConfig.getDirectory("Directory0");
-      PSDirectory dir1 = legacyConfig.getDirectory("Directory1");
-      assertNotNull(dir0);
-      assertNotNull(dir1);
+        assertEquals(name, "myProvider");
+        assertTrue(groups.hasNext());
 
-      Iterator iterDir0 = dir0.getGroupProviderNames();
-      assertFalse(iterDir0.hasNext());
+        String groupName = (String) groups.next();
+        assertEquals(groupName, "group1");
 
-      Iterator iterDir1 = dir1.getGroupProviderNames();
-      assertFalse(iterDir1.hasNext());
+        assertEquals(dirSetName, "DirectorySet0");
+      }
+    }
 
-      PSDirectorySet dirSet0 = legacyConfig.getDirectorySet("DirectorySet0");
-      assertNotNull(dirSet0);
-      assertTrue(dirSet0.size() == 2);
-      assertNotNull(dirSet0.getDirectoryRef("Directory0"));
-      assertNotNull(dirSet0.getDirectoryRef("Directory1"));
+    assertNotNull(
+        legacyConfig.getGroupProviderInstance("group1", PSSecurityProvider.SP_TYPE_DIRCONN));
 
-      String emailAttr = dirSet0.getRequiredAttributeName(
-            PSDirectorySet.EMAIL_ATTRIBUTE_KEY);
-      String roleAttr = dirSet0.getRequiredAttributeName(
-            PSDirectorySet.ROLE_ATTRIBUTE_KEY);
-      assertNotNull(emailAttr);
-      assertNotNull(roleAttr);
-      assertEquals(emailAttr, "myEmail");
-      assertEquals(roleAttr, "myRole");
-   }
+    PSDirectory dir0 = legacyConfig.getDirectory("Directory0");
+    PSDirectory dir1 = legacyConfig.getDirectory("Directory1");
+    assertNotNull(dir0);
+    assertNotNull(dir1);
 
-   /**
-    * Checks if the supplied post conversion server configuration is correct.
-    *
-    * @param serverConfig The converted server config, assumed not <code>null</code>.
-    */
-   private void checkConverted(PSServerConfiguration serverConfig)
-   {
-      PSCollection secProviders = serverConfig.getSecurityProviderInstances();
+    Iterator iterDir0 = dir0.getGroupProviderNames();
+    assertFalse(iterDir0.hasNext());
 
-      int numSecProvs = secProviders.size();
+    Iterator iterDir1 = dir1.getGroupProviderNames();
+    assertFalse(iterDir1.hasNext());
 
-      assertEquals(numSecProvs, 3);
+    PSDirectorySet dirSet0 = legacyConfig.getDirectorySet("DirectorySet0");
+    assertNotNull(dirSet0);
+    assertTrue(dirSet0.size() == 2);
+    assertNotNull(dirSet0.getDirectoryRef("Directory0"));
+    assertNotNull(dirSet0.getDirectoryRef("Directory1"));
 
-      int i;
-      for (i = 0; i < numSecProvs; i++)
-      {
-         PSSecurityProviderInstance provider =
-            (PSSecurityProviderInstance) secProviders.get(i);
-         int type = provider.getType();
-         String name = provider.getName();
+    String emailAttr = dirSet0.getRequiredAttributeName(PSDirectorySet.EMAIL_ATTRIBUTE_KEY);
+    String roleAttr = dirSet0.getRequiredAttributeName(PSDirectorySet.ROLE_ATTRIBUTE_KEY);
+    assertNotNull(emailAttr);
+    assertNotNull(roleAttr);
+    assertEquals(emailAttr, "myEmail");
+    assertEquals(roleAttr, "myRole");
+  }
 
-         if (type == PSSecurityProvider.SP_TYPE_BETABLE)
-         {
-            assertEquals(name, "rxmaster");
+  /**
+   * Checks if the supplied post conversion server configuration is correct.
+   *
+   * @param serverConfig The converted server config, assumed not <code>null</code>.
+   */
+  private void checkConverted(PSServerConfiguration serverConfig) {
+    PSCollection secProviders = serverConfig.getSecurityProviderInstances();
 
-            Properties provProps = provider.getProperties();
-            assertNotNull(provProps.getProperty("datasourceName"));
-            assertNull(provProps.getProperty("serverName"));
-            assertNull(provProps.getProperty("driverName"));
-            assertNull(provProps.getProperty("loginPw"));
-            assertNull(provProps.getProperty("schemaName"));
-            assertNull(provProps.getProperty("loginId"));
-            assertNull(provProps.getProperty("databaseName"));
-            continue;
-         }
+    int numSecProvs = secProviders.size();
 
-         if (type == PSSecurityProvider.SP_TYPE_DIRCONN)
-         {
-            PSProvider dirProv = provider.getDirectoryProvider();
-            PSReference dirSetRef = dirProv.getReference();
-            String dirSetName = dirSetRef.getName();
+    assertEquals(numSecProvs, 3);
 
-            assertEquals(name, "myProvider");
-            assertEquals(dirSetName, "DirectorySet0");
-         }
+    int i;
+    for (i = 0; i < numSecProvs; i++) {
+      PSSecurityProviderInstance provider = (PSSecurityProviderInstance) secProviders.get(i);
+      int type = provider.getType();
+      String name = provider.getName();
+
+      if (type == PSSecurityProvider.SP_TYPE_BETABLE) {
+        assertEquals(name, "rxmaster");
+
+        Properties provProps = provider.getProperties();
+        assertNotNull(provProps.getProperty("datasourceName"));
+        assertNull(provProps.getProperty("serverName"));
+        assertNull(provProps.getProperty("driverName"));
+        assertNull(provProps.getProperty("loginPw"));
+        assertNull(provProps.getProperty("schemaName"));
+        assertNull(provProps.getProperty("loginId"));
+        assertNull(provProps.getProperty("databaseName"));
+        continue;
       }
 
-      assertNotNull(serverConfig.getGroupProviderInstance("group1",
-            PSSecurityProvider.SP_TYPE_DIRCONN));
+      if (type == PSSecurityProvider.SP_TYPE_DIRCONN) {
+        PSProvider dirProv = provider.getDirectoryProvider();
+        PSReference dirSetRef = dirProv.getReference();
+        String dirSetName = dirSetRef.getName();
 
-      PSDirectory dir0 = serverConfig.getDirectory("Directory0");
-      PSDirectory dir1 = serverConfig.getDirectory("Directory1");
-      assertNotNull(dir0);
-      assertNotNull(dir1);
+        assertEquals(name, "myProvider");
+        assertEquals(dirSetName, "DirectorySet0");
+      }
+    }
 
-      Iterator iterDir0 = dir0.getGroupProviderNames();
-      assertTrue(iterDir0.hasNext());
+    assertNotNull(
+        serverConfig.getGroupProviderInstance("group1", PSSecurityProvider.SP_TYPE_DIRCONN));
 
-      String dir0Group = (String) iterDir0.next();
-      assertEquals(dir0Group, "group1");
+    PSDirectory dir0 = serverConfig.getDirectory("Directory0");
+    PSDirectory dir1 = serverConfig.getDirectory("Directory1");
+    assertNotNull(dir0);
+    assertNotNull(dir1);
 
-      Iterator iterDir1 = dir1.getGroupProviderNames();
-      assertTrue(iterDir1.hasNext());
+    Iterator iterDir0 = dir0.getGroupProviderNames();
+    assertTrue(iterDir0.hasNext());
 
-      String dir1Group = (String) iterDir1.next();
-      assertEquals(dir1Group, "group1");
+    String dir0Group = (String) iterDir0.next();
+    assertEquals(dir0Group, "group1");
 
-      PSCollection dir0Attrs = dir0.getAttributes();
-      assertTrue(dir0Attrs.contains("myEmail"));
-      assertTrue(dir0Attrs.contains("myRole"));
+    Iterator iterDir1 = dir1.getGroupProviderNames();
+    assertTrue(iterDir1.hasNext());
 
-      PSCollection dir1Attrs = dir1.getAttributes();
-      assertTrue(dir1Attrs.contains("myEmail"));
-      assertTrue(dir1Attrs.contains("myRole"));
+    String dir1Group = (String) iterDir1.next();
+    assertEquals(dir1Group, "group1");
 
-      PSDirectorySet dirSet0 = serverConfig.getDirectorySet("DirectorySet0");
-      assertNotNull(dirSet0);
-      assertTrue(dirSet0.size() == 2);
-      assertNotNull(dirSet0.getDirectoryRef("Directory0"));
-      assertNotNull(dirSet0.getDirectoryRef("Directory1"));
+    PSCollection dir0Attrs = dir0.getAttributes();
+    assertTrue(dir0Attrs.contains("myEmail"));
+    assertTrue(dir0Attrs.contains("myRole"));
 
-      String emailAttr = dirSet0.getRequiredAttributeName(
-            PSDirectorySet.EMAIL_ATTRIBUTE_KEY);
-      String roleAttr = dirSet0.getRequiredAttributeName(
-            PSDirectorySet.ROLE_ATTRIBUTE_KEY);
-      assertNotNull(emailAttr);
-      assertNotNull(roleAttr);
-      assertEquals(emailAttr, "myEmail");
-      assertEquals(roleAttr, "myRole");
-   }
+    PSCollection dir1Attrs = dir1.getAttributes();
+    assertTrue(dir1Attrs.contains("myEmail"));
+    assertTrue(dir1Attrs.contains("myRole"));
 
-   /**
-    * The unit test resource directory for this test
-    */
-   private String m_resourceDir =
-      "/com/percussion/design/objectstore/legacy/";
+    PSDirectorySet dirSet0 = serverConfig.getDirectorySet("DirectorySet0");
+    assertNotNull(dirSet0);
+    assertTrue(dirSet0.size() == 2);
+    assertNotNull(dirSet0.getDirectoryRef("Directory0"));
+    assertNotNull(dirSet0.getDirectoryRef("Directory1"));
 
-   /**
-    * Name of the jndi datasource file
-    */
-   private String m_jndiDSFile = m_resourceDir + "rx-ds.xml";
+    String emailAttr = dirSet0.getRequiredAttributeName(PSDirectorySet.EMAIL_ATTRIBUTE_KEY);
+    String roleAttr = dirSet0.getRequiredAttributeName(PSDirectorySet.ROLE_ATTRIBUTE_KEY);
+    assertNotNull(emailAttr);
+    assertNotNull(roleAttr);
+    assertEquals(emailAttr, "myEmail");
+    assertEquals(roleAttr, "myRole");
+  }
 
-   /**
-    * Name of the spring configuration file
-    */
-   private String m_springFile = m_resourceDir + "server-beans.xml";
+  /** The unit test resource directory for this test */
+  private String m_resourceDir = "/com/percussion/design/objectstore/legacy/";
 
-   /**
-    * Name of the login config file
-    */
-   private String m_loginFile = m_resourceDir + "login-config.xml";
+  /** Name of the jndi datasource file */
+  private String m_jndiDSFile = m_resourceDir + "rx-ds.xml";
 
-   /**
-    * Name of the legacy config file
-    */
-   private String m_legacyFile = m_resourceDir + "legacy-config.xml";
+  /** Name of the spring configuration file */
+  private String m_springFile = m_resourceDir + "server-beans.xml";
 
+  /** Name of the login config file */
+  private String m_loginFile = m_resourceDir + "login-config.xml";
+
+  /** Name of the legacy config file */
+  private String m_legacyFile = m_resourceDir + "legacy-config.xml";
 }
-

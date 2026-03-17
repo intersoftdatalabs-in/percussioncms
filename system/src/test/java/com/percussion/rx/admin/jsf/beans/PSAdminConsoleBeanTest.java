@@ -19,49 +19,40 @@ package com.percussion.rx.admin.jsf.beans;
 import static com.percussion.rx.admin.jsf.beans.PSAdminConsoleBean.EXIT_CMD;
 import static com.percussion.rx.admin.jsf.beans.PSAdminConsoleBean.QUIT_CMD;
 import static com.percussion.rx.admin.jsf.beans.PSAdminConsoleBean.STOP_SERVER_CMD;
-
-import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Andriy Palamarchuk
  */
-public class PSAdminConsoleBeanTest 
-{
-   
-   public void testGetCommand()
-   {
-      final PSAdminConsoleBean bean = new PSAdminConsoleBean("a", "b");
-      assertNull(bean.getCommand());
-      
-      bean.setCommand(STOP_SERVER_CMD);
-      assertEquals(STOP_SERVER_CMD, bean.getCommand());
-      
-      bean.setCommand(QUIT_CMD);
-      assertEquals(STOP_SERVER_CMD, bean.getCommand());
-      
-      bean.setCommand(EXIT_CMD);
-      assertEquals(STOP_SERVER_CMD, bean.getCommand());
+public class PSAdminConsoleBeanTest {
 
-      bean.setCommand(QUIT_CMD.toUpperCase());
-      assertEquals(STOP_SERVER_CMD, bean.getCommand());
+  public void testGetCommand() {
+    final PSAdminConsoleBean bean = new PSAdminConsoleBean("a", "b");
+    assertNull(bean.getCommand());
 
-      bean.setCommand(CMD.toUpperCase());
-      assertFalse(CMD.toLowerCase().equals(bean.getCommand()));
-   }
-   
-   
-   
-   public void testSetResult()
-   {
-      final PSAdminConsoleBean bean = new PSAdminConsoleBean("a", "b");
-      // nothing happens
-      bean.setResult(null);
-      bean.setResult("abc");
-   }
+    bean.setCommand(STOP_SERVER_CMD);
+    assertEquals(STOP_SERVER_CMD, bean.getCommand());
 
-   /**
-    * A sample command.
-    */
-   private static final String CMD = "Sample CoMMand";
+    bean.setCommand(QUIT_CMD);
+    assertEquals(STOP_SERVER_CMD, bean.getCommand());
+
+    bean.setCommand(EXIT_CMD);
+    assertEquals(STOP_SERVER_CMD, bean.getCommand());
+
+    bean.setCommand(QUIT_CMD.toUpperCase());
+    assertEquals(STOP_SERVER_CMD, bean.getCommand());
+
+    bean.setCommand(CMD.toUpperCase());
+    assertFalse(CMD.toLowerCase().equals(bean.getCommand()));
+  }
+
+  public void testSetResult() {
+    final PSAdminConsoleBean bean = new PSAdminConsoleBean("a", "b");
+    // nothing happens
+    bean.setResult(null);
+    bean.setResult("abc");
+  }
+
+  /** A sample command. */
+  private static final String CMD = "Sample CoMMand";
 }

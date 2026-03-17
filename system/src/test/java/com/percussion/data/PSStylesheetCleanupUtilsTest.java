@@ -16,76 +16,65 @@
  */
 package com.percussion.data;
 
-
-import com.percussion.xml.PSXmlDocumentBuilder;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.Tag;
-import org.w3c.dom.Document;
-
-import java.io.ByteArrayInputStream;
-import java.nio.charset.StandardCharsets;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-/**
- *  Test class used to test methods in <code>PSStylesheetCleanupUtils</code>
- */
+import com.percussion.xml.PSXmlDocumentBuilder;
+import java.io.ByteArrayInputStream;
+import java.nio.charset.StandardCharsets;
+import org.junit.jupiter.api.Test;
+import org.w3c.dom.Document;
 
-public class PSStylesheetCleanupUtilsTest
-{
-   public PSStylesheetCleanupUtilsTest() {
-   }
+/** Test class used to test methods in <code>PSStylesheetCleanupUtils</code> */
+public class PSStylesheetCleanupUtilsTest {
+  public PSStylesheetCleanupUtilsTest() {}
 
-   /**
-    * Test the namespaceCleanup routine, this method should, when successful,
-    * remove non-XHTML namspace declarations and any elements or attributes that
-    * use a namespace (i.e &lt;x:foo>&lt;/x:foo>)
-    */
-   @Test
-   public void testNamespaceCleanup() throws Exception
-   {
-      try(ByteArrayInputStream bis = new ByteArrayInputStream(FILTER_XML.getBytes(StandardCharsets.UTF_8)))
-      {
-         Document doc = PSXmlDocumentBuilder.createXmlDocument(bis, false);
-         PSStylesheetCleanupFilter filter =
-            PSStylesheetCleanupFilter.getInstance();
-         filter.fromXml(doc.getDocumentElement());
-         String actualResults =
-            PSStylesheetCleanupUtils.namespaceCleanup(SOURCE, filter);
-         assertEquals(RESULT, actualResults);
-      }
-   }
+  /**
+   * Test the namespaceCleanup routine, this method should, when successful, remove non-XHTML
+   * namspace declarations and any elements or attributes that use a namespace (i.e
+   * &lt;x:foo>&lt;/x:foo>)
+   */
+  @Test
+  public void testNamespaceCleanup() throws Exception {
+    try (ByteArrayInputStream bis =
+        new ByteArrayInputStream(FILTER_XML.getBytes(StandardCharsets.UTF_8))) {
+      Document doc = PSXmlDocumentBuilder.createXmlDocument(bis, false);
+      PSStylesheetCleanupFilter filter = PSStylesheetCleanupFilter.getInstance();
+      filter.fromXml(doc.getDocumentElement());
+      String actualResults = PSStylesheetCleanupUtils.namespaceCleanup(SOURCE, filter);
+      assertEquals(RESULT, actualResults);
+    }
+  }
 
+  // Test Data
+  private static final String SOURCE =
+      "<jsp:include page=\"abc.jsp\"/><html xmlns=\"http://www.w3.org/1999/xhtml\">"
+          + "<head><title>Test Data</title></head><body><p>"
+          + "<div xmlns=\"\"><h1 xmlns:x=\"http://www.test.com/2004/test\" x:name=\"foo\">"
+          + "</h1><br id=\"dummy\"><x:test>Hello!</x:test></div></body></html>";
 
-   // Test Data
-   private static final String SOURCE = "<jsp:include page=\"abc.jsp\"/><html xmlns=\"http://www.w3.org/1999/xhtml\">"
-            + "<head><title>Test Data</title></head><body><p>"
-            + "<div xmlns=\"\"><h1 xmlns:x=\"http://www.test.com/2004/test\" x:name=\"foo\">"
-            + "</h1><br id=\"dummy\"><x:test>Hello!</x:test></div></body></html>";
+  private static final String RESULT =
+      "<html xmlns=\"http://www.w3.org/1999/xhtml\">"
+          + "<head><title>Test Data</title></head><body><p>"
+          + "<div><h1>"
+          + "</h1><br id=\"dummy\">Hello!</div></body></html>";
 
-   private static final String RESULT = "<html xmlns=\"http://www.w3.org/1999/xhtml\">"
-            + "<head><title>Test Data</title></head><body><p>"
-            + "<div><h1>"
-            + "</h1><br id=\"dummy\">Hello!</div></body></html>";
-
-   private static final String FILTER_XML =
-      "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>" +
-      "<stylesheetCleanupFilter>" +
-         "<allowedNamespace name=\"\" declAllowed=\"true \" declValue=\"*xhtml*\">" +
-            "<allowedElement name=\"*\"/>" +
-            "<allowedAttribute name=\"*\"/>" +
-         "</allowedNamespace>" +
-         "<allowedNamespace name=\"xml\" declAllowed=\"false \">" +
-            "<allowedAttribute name=\"lang\"/>" +
-            "<allowedAttribute name=\"space\"/>" +
-         "</allowedNamespace>" +
-         "<!-- Uncomment the following to allow jsp tags -->" +
-         "<!--" +
-         "<allowedNamespace name=\"jsp\" declAllowed=\"false \">" +
-            "<allowedElement name=\"*\"/>" +
-            "<allowedAttribute name=\"*\"/>" +
-         "</allowedNamespace>" +
-         "-->" +
-      "</stylesheetCleanupFilter>";
-
+  private static final String FILTER_XML =
+      "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>"
+          + "<stylesheetCleanupFilter>"
+          + "<allowedNamespace name=\"\" declAllowed=\"true \" declValue=\"*xhtml*\">"
+          + "<allowedElement name=\"*\"/>"
+          + "<allowedAttribute name=\"*\"/>"
+          + "</allowedNamespace>"
+          + "<allowedNamespace name=\"xml\" declAllowed=\"false \">"
+          + "<allowedAttribute name=\"lang\"/>"
+          + "<allowedAttribute name=\"space\"/>"
+          + "</allowedNamespace>"
+          + "<!-- Uncomment the following to allow jsp tags -->"
+          + "<!--"
+          + "<allowedNamespace name=\"jsp\" declAllowed=\"false \">"
+          + "<allowedElement name=\"*\"/>"
+          + "<allowedAttribute name=\"*\"/>"
+          + "</allowedNamespace>"
+          + "-->"
+          + "</stylesheetCleanupFilter>";
 }

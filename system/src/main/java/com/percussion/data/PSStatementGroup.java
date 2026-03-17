@@ -23,28 +23,23 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * The PSStatementGroup class defines a grouping of PSStatementBlock objects.
- * When blocks can be omitted due to NULL values, it is possible to generate
- * an invalid statement. Two common cases are:
+ * The PSStatementGroup class defines a grouping of PSStatementBlock objects. When blocks can be
+ * omitted due to NULL values, it is possible to generate an invalid statement. Two common cases
+ * are:
+ *
  * <UL>
- *
- * <LI>WHERE is part of the static block. There is one omit when NULL block
- * which is NULL. The statement ends up as "SELECT ... WHERE" which is
- * invalid as WHERE must be followed by conditionals.</LI>
- *
- * <LI>AND is part of a dynamic block. If there are two blocks of the form
- * "col = ? AND" and either block is omitted, the generated statement is
- * "SELECT ... WHERE col = ? AND" which is invalid due to the trailing AND.
- *
+ *   <LI>WHERE is part of the static block. There is one omit when NULL block which is NULL. The
+ *       statement ends up as "SELECT ... WHERE" which is invalid as WHERE must be followed by
+ *       conditionals.
+ *   <LI>AND is part of a dynamic block. If there are two blocks of the form "col = ? AND" and
+ *       either block is omitted, the generated statement is "SELECT ... WHERE col = ? AND" which is
+ *       invalid due to the trailing AND.
  * </UL>
  *
- * <P>
- * This class attempts to deal with these problems by allowing groups to
- * be formed. Each group takes an optional prefix (eg, WHERE), a left block,
- * an optional block separator and a right block.
- * The left and right blocks can also be groups.
- * As such, we can create the following groups to accomodate
- * both of the above cases:
+ * <p>This class attempts to deal with these problems by allowing groups to be formed. Each group
+ * takes an optional prefix (eg, WHERE), a left block, an optional block separator and a right
+ * block. The left and right blocks can also be groups. As such, we can create the following groups
+ * to accomodate both of the above cases:
  *
  * <TABLE BORDER="1">
  * <caption>Group Configuration</caption>
@@ -73,14 +68,13 @@ import java.util.List;
  * </TR>
  * </TABLE>
  *
- * <P>
- * If both conditions in a block are NULL, the entire block is omitted.
- * If one condition is NULL, the prefix is used but the
- * block separator is omitted. If both conditions are valid, the entire
+ * <p>If both conditions in a block are NULL, the entire block is omitted. If one condition is NULL,
+ * the prefix is used but the block separator is omitted. If both conditions are valid, the entire
  * block is used.
- * <P>
- * Using the above example, here's a table of possible values
- * and the expected output from thie grouping:
+ *
+ * <p>Using the above example, here's a table of possible values and the expected output from thie
+ * grouping:
+ *
  * <TABLE BORDER="1">
  * <caption>Expected Output</caption>
  * <TR>
@@ -139,11 +133,10 @@ import java.util.List;
  * </TR>
  * </TABLE>
  *
- * @see         PSStatementBlock
- *
- * @author     Tas Giakouminakis
- * @version    1.0
- * @since      1.0
+ * @see PSStatementBlock
+ * @author Tas Giakouminakis
+ * @version 1.0
+ * @since 1.0
  */
 public class PSStatementGroup implements IPSStatementBlock {
   /**

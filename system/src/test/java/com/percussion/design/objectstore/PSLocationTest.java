@@ -16,49 +16,43 @@
  */
 package com.percussion.design.objectstore;
 
-import java.util.Collections;
-
-import org.junit.jupiter.api.Test;
-import static org.junit.jupiter.api.Assertions.*;
 import static com.percussion.design.objectstore.PSLocation.*;
 import static com.percussion.testing.PSTestCompare.assertEqualsWithHash;
+import static org.junit.jupiter.api.Assertions.*;
 
-public class PSLocationTest 
-{
-   /**
-    * Tests behavior of equals() and hashCode() methods.
-    */
-   
-   public void testEqualsHashCode()
-   {
-      final PSLocation location1 = new PSLocation();
-      location1.setPage(PAGE_SUMMARY_VIEW);
-      location1.setType(TYPE_FORM);
-      location1.setSequence(1);
+import java.util.Collections;
 
-      final PSLocation location2 = new PSLocation();
-      location2.setPage(PAGE_SUMMARY_VIEW);
-      location2.setType(TYPE_FORM);
-      location2.setSequence(1);
-      
-      assertFalse(location1.equals(new Object()));
-      assertEqualsWithHash(location1, location2);
-      
-      location2.setPage(PAGE_ROW_EDIT);
-      assertFalse(location1.equals(location2));
-      location2.setPage(PAGE_SUMMARY_VIEW);
+public class PSLocationTest {
+  /** Tests behavior of equals() and hashCode() methods. */
+  public void testEqualsHashCode() {
+    final PSLocation location1 = new PSLocation();
+    location1.setPage(PAGE_SUMMARY_VIEW);
+    location1.setType(TYPE_FORM);
+    location1.setSequence(1);
 
-      location2.setType(TYPE_ROW);
-      assertFalse(location1.equals(location2));
-      location2.setType(TYPE_FORM);
+    final PSLocation location2 = new PSLocation();
+    location2.setPage(PAGE_SUMMARY_VIEW);
+    location2.setType(TYPE_FORM);
+    location2.setSequence(1);
 
-      location2.setSequence(2);
-      assertFalse(location1.equals(location2));
-      location2.setSequence(1);
-      
-      location1.setFieldRefs(Collections.singleton("str1").iterator());
-      assertFalse(location1.equals(location2));
-      location2.setFieldRefs(Collections.singleton("str1").iterator());
-      assertEqualsWithHash(location1, location2);
-   }
+    assertFalse(location1.equals(new Object()));
+    assertEqualsWithHash(location1, location2);
+
+    location2.setPage(PAGE_ROW_EDIT);
+    assertFalse(location1.equals(location2));
+    location2.setPage(PAGE_SUMMARY_VIEW);
+
+    location2.setType(TYPE_ROW);
+    assertFalse(location1.equals(location2));
+    location2.setType(TYPE_FORM);
+
+    location2.setSequence(2);
+    assertFalse(location1.equals(location2));
+    location2.setSequence(1);
+
+    location1.setFieldRefs(Collections.singleton("str1").iterator());
+    assertFalse(location1.equals(location2));
+    location2.setFieldRefs(Collections.singleton("str1").iterator());
+    assertEqualsWithHash(location1, location2);
+  }
 }

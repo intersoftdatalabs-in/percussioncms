@@ -16,61 +16,52 @@
  */
 package com.percussion.services.assembly.impl;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import com.percussion.data.PSStylesheetCleanupFilter;
-
-import java.io.File;
-
 import com.percussion.services.error.PSNotFoundException;
 import com.percussion.util.PSResourceUtils;
-
+import java.io.File;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Tag;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author dougrand
  */
 @Tag("UnitTest")
-public class PSNamespaceCleanupTest
-{
-   /**
-    * Input file for configuration
-    */
-   static File ms_cfile = null;
+public class PSNamespaceCleanupTest {
+  /** Input file for configuration */
+  static File ms_cfile = null;
 
-   @BeforeAll
-   public static void setUp() throws Exception
-   {
-      ms_cfile = PSResourceUtils.getFile(PSNamespaceCleanupTest.class,
-              "/com/percussion/services/assembly/namespaceConfig.xml", null);
+  @BeforeAll
+  public static void setUp() throws Exception {
+    ms_cfile =
+        PSResourceUtils.getFile(
+            PSNamespaceCleanupTest.class,
+            "/com/percussion/services/assembly/namespaceConfig.xml",
+            null);
 
-      PSStylesheetCleanupFilter.getInstance(ms_cfile);
-   }
+    PSStylesheetCleanupFilter.getInstance(ms_cfile);
+  }
 
-   /**
-    * Input
-    */
-   static final String ms_input = "<?xml version='1.0'?>\n"
-         + "<!-- comment --><div a='1' xmlns:goofy='http://www.goofy.org'>"
-         + "<el1 b='2'><el2 c='3' xmlns:bletch='somethingelse'/></el1>"
-         + "<el1 xmlns:foobar='someotheruri'/>"
-         + "</div>";
-   
-   /**
-    * Expected result
-    */
-   static final String ms_result = "<!-- comment --><div a=\"1\"><el1 b=\"2\"><el2 c=\"3\"/>"
-         + "</el1><el1/></div>";
+  /** Input */
+  static final String ms_input =
+      "<?xml version='1.0'?>\n"
+          + "<!-- comment --><div a='1' xmlns:goofy='http://www.goofy.org'>"
+          + "<el1 b='2'><el2 c='3' xmlns:bletch='somethingelse'/></el1>"
+          + "<el1 xmlns:foobar='someotheruri'/>"
+          + "</div>";
 
-   /**
-    * Test cleanup
-    */
-   @Test
-   public void testNSCleanup() throws PSNotFoundException {
-      PSNamespaceCleanup cleanup = new PSNamespaceCleanup(null);
-      String result = (String) cleanup.translate(ms_input);
-      assertEquals(ms_result, result);
-   }
+  /** Expected result */
+  static final String ms_result =
+      "<!-- comment --><div a=\"1\"><el1 b=\"2\"><el2 c=\"3\"/>" + "</el1><el1/></div>";
+
+  /** Test cleanup */
+  @Test
+  public void testNSCleanup() throws PSNotFoundException {
+    PSNamespaceCleanup cleanup = new PSNamespaceCleanup(null);
+    String result = (String) cleanup.translate(ms_input);
+    assertEquals(ms_result, result);
+  }
 }

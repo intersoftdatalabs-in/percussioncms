@@ -16,194 +16,209 @@
  */
 package com.percussion.cms.objectstore;
 
-import com.percussion.xml.PSXmlDocumentBuilder;
-
-import java.util.HashMap;
-import java.util.Map;
-
-
-import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
+import com.percussion.xml.PSXmlDocumentBuilder;
+import java.util.HashMap;
+import java.util.Map;
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.Document;
 
-/**
- * Test the cloning options according to the schema defined in schema
- * sys_FolderParameters.xsd.
- */
-public class PSCloningOptionsTest
-{
-   // legacy constructor removed - using @Test methods
+/** Test the cloning options according to the schema defined in schema sys_FolderParameters.xsd. */
+public class PSCloningOptionsTest {
+  // legacy constructor removed - using @Test methods
 
+  /**
+   * Test all public constuctors.
+   *
+   * @throws Exception for any error.
+   */
+  @Test
+  public void testConstructors() throws Exception {
+    Map communityMappings = new HashMap();
 
-   /**
-    * Test all public constuctors.
-    *
-    * @throws Exception for any error.
-    */
-   @Test
-   public void testConstructors() throws Exception
-   {
-      Map communityMappings = new HashMap();
+    // test valid site type
+    new PSCloningOptions(
+        PSCloningOptions.TYPE_SITE,
+        "siteToCopy",
+        "siteName",
+        "folderName",
+        PSCloningOptions.COPY_NO_CONTENT,
+        PSCloningOptions.COPYCONTENT_AS_LINK,
+        communityMappings);
 
-      // test valid site type
+    // test valid subfolder type
+    new PSCloningOptions(
+        PSCloningOptions.TYPE_SITE_SUBFOLDER,
+        "folderName",
+        PSCloningOptions.COPY_NO_CONTENT,
+        PSCloningOptions.COPYCONTENT_AS_LINK,
+        null);
+
+    // test invalid type
+    Exception exception = null;
+    try {
       new PSCloningOptions(
-         PSCloningOptions.TYPE_SITE, "siteToCopy", "siteName", "folderName",
-         PSCloningOptions.COPY_NO_CONTENT, PSCloningOptions.COPYCONTENT_AS_LINK,
-         communityMappings);
+          50,
+          null,
+          "siteToCopy",
+          "folderName",
+          PSCloningOptions.COPY_NO_CONTENT,
+          PSCloningOptions.COPYCONTENT_AS_LINK,
+          communityMappings);
+    } catch (Exception e) {
+      exception = e;
+    }
+    assertTrue(exception instanceof IllegalArgumentException);
 
-      // test valid subfolder type
+    // test null folderName
+    exception = null;
+    try {
       new PSCloningOptions(
-         PSCloningOptions.TYPE_SITE_SUBFOLDER, "folderName",
-         PSCloningOptions.COPY_NO_CONTENT, PSCloningOptions.COPYCONTENT_AS_LINK,
-         null);
+          PSCloningOptions.TYPE_SITE,
+          "siteToCopy",
+          "siteName",
+          null,
+          PSCloningOptions.COPY_NO_CONTENT,
+          PSCloningOptions.COPYCONTENT_AS_LINK,
+          communityMappings);
+    } catch (Exception e) {
+      exception = e;
+    }
+    assertTrue(exception instanceof IllegalArgumentException);
 
-      // test invalid type
-      Exception exception = null;
-      try
-      {
-         new PSCloningOptions(
-            50, null, "siteToCopy", "folderName",
+    // test empty folderName
+    exception = null;
+    try {
+      new PSCloningOptions(
+          PSCloningOptions.TYPE_SITE,
+          "siteToCopy",
+          "siteName",
+          " ",
+          PSCloningOptions.COPY_NO_CONTENT,
+          PSCloningOptions.COPYCONTENT_AS_LINK,
+          communityMappings);
+    } catch (Exception e) {
+      exception = e;
+    }
+    assertTrue(exception instanceof IllegalArgumentException);
+
+    // test invalid copyOptions
+    exception = null;
+    try {
+      new PSCloningOptions(
+          PSCloningOptions.TYPE_SITE,
+          "siteToCopy",
+          "siteName",
+          "folderName",
+          -1,
+          PSCloningOptions.COPYCONTENT_AS_LINK,
+          communityMappings);
+    } catch (Exception e) {
+      exception = e;
+    }
+    assertTrue(exception instanceof IllegalArgumentException);
+
+    // test invalid copyContentOptions
+    exception = null;
+    try {
+      new PSCloningOptions(
+          PSCloningOptions.TYPE_SITE,
+          "siteToCopy",
+          "siteName",
+          "folderName",
+          PSCloningOptions.COPY_NO_CONTENT,
+          -1,
+          communityMappings);
+    } catch (Exception e) {
+      exception = e;
+    }
+    assertTrue(exception instanceof IllegalArgumentException);
+  }
+
+  /**
+   * Test all public methods contracts.
+   *
+   * @throws Exception for any error.
+   */
+  @Test
+  public void testPublicAPI() throws Exception {
+    Map communityMappings = new HashMap();
+    communityMappings.put(Integer.valueOf(1), Integer.valueOf(2));
+    communityMappings.put(Integer.valueOf(3), Integer.valueOf(4));
+    communityMappings.put(Integer.valueOf(5), Integer.valueOf(6));
+
+    PSCloningOptions options_1 =
+        new PSCloningOptions(
+            PSCloningOptions.TYPE_SITE,
+            "siteToCopy",
+            "siteName",
+            "folderName",
             PSCloningOptions.COPY_NO_CONTENT,
-            PSCloningOptions.COPYCONTENT_AS_LINK, communityMappings);
-      }
-      catch (Exception e)
-      {
-         exception = e;
-      }
-      assertTrue(exception instanceof IllegalArgumentException);
-
-      // test null folderName
-      exception = null;
-      try
-      {
-         new PSCloningOptions(
-            PSCloningOptions.TYPE_SITE, "siteToCopy", "siteName", null,
-            PSCloningOptions.COPY_NO_CONTENT,
-            PSCloningOptions.COPYCONTENT_AS_LINK, communityMappings);
-      }
-      catch (Exception e)
-      {
-         exception = e;
-      }
-      assertTrue(exception instanceof IllegalArgumentException);
-
-      // test empty folderName
-      exception = null;
-      try
-      {
-         new PSCloningOptions(
-            PSCloningOptions.TYPE_SITE, "siteToCopy", "siteName", " ",
-            PSCloningOptions.COPY_NO_CONTENT,
-            PSCloningOptions.COPYCONTENT_AS_LINK, communityMappings);
-      }
-      catch (Exception e)
-      {
-         exception = e;
-      }
-      assertTrue(exception instanceof IllegalArgumentException);
-
-      // test invalid copyOptions
-      exception = null;
-      try
-      {
-         new PSCloningOptions(
-            PSCloningOptions.TYPE_SITE, "siteToCopy", "siteName", "folderName",
-            -1, PSCloningOptions.COPYCONTENT_AS_LINK,
+            PSCloningOptions.COPYCONTENT_AS_LINK,
             communityMappings);
-      }
-      catch (Exception e)
-      {
-         exception = e;
-      }
-      assertTrue(exception instanceof IllegalArgumentException);
 
-      // test invalid copyContentOptions
-      exception = null;
-      try
-      {
-         new PSCloningOptions(
-            PSCloningOptions.TYPE_SITE, "siteToCopy", "siteName", "folderName",
-            PSCloningOptions.COPY_NO_CONTENT, -1,
+    PSCloningOptions options_2 =
+        new PSCloningOptions(
+            PSCloningOptions.TYPE_SITE_SUBFOLDER,
+            "folderName",
+            PSCloningOptions.COPY_NAVIGATION_CONTENT,
+            PSCloningOptions.COPYCONTENT_AS_LINK,
+            null);
+
+    assertTrue(!options_1.equals(options_2));
+
+    // test copyFrom
+    options_2.copyFrom(options_1);
+    assertTrue(options_1.equals(options_2));
+
+    // test clone
+    assertTrue(options_1.equals(options_1.clone()));
+
+    // test toXml / fromXml
+    Document doc = PSXmlDocumentBuilder.createXmlDocument();
+    PSCloningOptions options_1_copy = new PSCloningOptions(options_1.toXml(doc), null, null);
+    assertTrue(options_1.equals(options_1_copy));
+
+    PSCloningOptions options_3 =
+        new PSCloningOptions(
+            PSCloningOptions.TYPE_SITE_SUBFOLDER,
+            "folderName",
+            PSCloningOptions.COPY_ALL_CONTENT,
+            PSCloningOptions.COPYCONTENT_AS_NEW_COPY,
+            null);
+    PSCloningOptions options_3_copy = new PSCloningOptions(options_3.toXml(doc), null, null);
+    assertTrue(options_3.equals(options_3_copy));
+
+    PSCloningOptions options_4 =
+        new PSCloningOptions(
+            PSCloningOptions.TYPE_SITE_SUBFOLDER,
+            "folderName",
+            PSCloningOptions.COPY_NAVIGATION_CONTENT,
+            PSCloningOptions.COPYCONTENT_AS_LINK,
+            null);
+    options_4.addSiteMapping(Integer.valueOf(100), Integer.valueOf(201));
+    options_4.addSiteMapping(Integer.valueOf(101), Integer.valueOf(202));
+    options_4.addSiteMapping(Integer.valueOf(102), Integer.valueOf(203));
+    PSCloningOptions options_4_copy = new PSCloningOptions(options_4.toXml(doc), null, null);
+    assertTrue(options_4.equals(options_4_copy));
+
+    PSCloningOptions options_5 =
+        new PSCloningOptions(
+            PSCloningOptions.TYPE_SITE,
+            "siteToCopy",
+            "siteName",
+            "folderName",
+            PSCloningOptions.COPY_NO_CONTENT,
+            PSCloningOptions.COPYCONTENT_AS_LINK,
             communityMappings);
-      }
-      catch (Exception e)
-      {
-         exception = e;
-      }
-      assertTrue(exception instanceof IllegalArgumentException);
-   }
+    options_5.addSiteMapping(Integer.valueOf(100), Integer.valueOf(201));
+    options_5.addSiteMapping(Integer.valueOf(101), Integer.valueOf(202));
+    options_5.addSiteMapping(Integer.valueOf(102), Integer.valueOf(203));
+    PSCloningOptions options_5_copy = new PSCloningOptions(options_5.toXml(doc), null, null);
+    assertTrue(options_5.equals(options_5_copy));
+  }
 
-   /**
-    * Test all public methods contracts.
-    *
-    * @throws Exception for any error.
-    */
-   @Test
-   public void testPublicAPI() throws Exception
-   {
-      Map communityMappings = new HashMap();
-      communityMappings.put(Integer.valueOf(1), Integer.valueOf(2));
-      communityMappings.put(Integer.valueOf(3), Integer.valueOf(4));
-      communityMappings.put(Integer.valueOf(5), Integer.valueOf(6));
-
-      PSCloningOptions options_1 = new PSCloningOptions(
-         PSCloningOptions.TYPE_SITE, "siteToCopy", "siteName", "folderName",
-         PSCloningOptions.COPY_NO_CONTENT, PSCloningOptions.COPYCONTENT_AS_LINK,
-         communityMappings);
-
-      PSCloningOptions options_2 = new PSCloningOptions(
-         PSCloningOptions.TYPE_SITE_SUBFOLDER, "folderName",
-         PSCloningOptions.COPY_NAVIGATION_CONTENT,
-         PSCloningOptions.COPYCONTENT_AS_LINK, null);
-
-      assertTrue(!options_1.equals(options_2));
-
-      // test copyFrom
-      options_2.copyFrom(options_1);
-      assertTrue(options_1.equals(options_2));
-
-      // test clone
-      assertTrue(options_1.equals(options_1.clone()));
-
-      // test toXml / fromXml
-      Document doc = PSXmlDocumentBuilder.createXmlDocument();
-      PSCloningOptions options_1_copy =
-         new PSCloningOptions(options_1.toXml(doc), null, null);
-      assertTrue(options_1.equals(options_1_copy));
-
-      PSCloningOptions options_3 = new PSCloningOptions(
-         PSCloningOptions.TYPE_SITE_SUBFOLDER, "folderName",
-         PSCloningOptions.COPY_ALL_CONTENT,
-         PSCloningOptions.COPYCONTENT_AS_NEW_COPY,
-         null);
-      PSCloningOptions options_3_copy =
-         new PSCloningOptions(options_3.toXml(doc), null, null);
-      assertTrue(options_3.equals(options_3_copy));
-
-      PSCloningOptions options_4 = new PSCloningOptions(
-         PSCloningOptions.TYPE_SITE_SUBFOLDER, "folderName",
-         PSCloningOptions.COPY_NAVIGATION_CONTENT,
-         PSCloningOptions.COPYCONTENT_AS_LINK, null);
-      options_4.addSiteMapping(Integer.valueOf(100), Integer.valueOf(201));
-      options_4.addSiteMapping(Integer.valueOf(101), Integer.valueOf(202));
-      options_4.addSiteMapping(Integer.valueOf(102), Integer.valueOf(203));
-      PSCloningOptions options_4_copy =
-         new PSCloningOptions(options_4.toXml(doc), null, null);
-      assertTrue(options_4.equals(options_4_copy));
-
-      PSCloningOptions options_5 = new PSCloningOptions(
-         PSCloningOptions.TYPE_SITE, "siteToCopy", "siteName", "folderName",
-         PSCloningOptions.COPY_NO_CONTENT, PSCloningOptions.COPYCONTENT_AS_LINK,
-         communityMappings);
-      options_5.addSiteMapping(Integer.valueOf(100), Integer.valueOf(201));
-      options_5.addSiteMapping(Integer.valueOf(101), Integer.valueOf(202));
-      options_5.addSiteMapping(Integer.valueOf(102), Integer.valueOf(203));
-      PSCloningOptions options_5_copy =
-         new PSCloningOptions(options_5.toXml(doc), null, null);
-      assertTrue(options_5.equals(options_5_copy));
-   }
-
-   // JUnit 3 style suite removed; using JUnit 5 test methods
+  // JUnit 3 style suite removed; using JUnit 5 test methods
 
 }

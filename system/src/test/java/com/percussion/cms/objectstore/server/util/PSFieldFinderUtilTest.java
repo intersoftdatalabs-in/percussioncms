@@ -16,109 +16,96 @@
  */
 package com.percussion.cms.objectstore.server.util;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import com.percussion.cms.objectstore.PSItemDefinition;
-
 import com.percussion.xml.PSXmlDocumentBuilder;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
-
-
 import org.apache.commons.lang3.StringUtils;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.Document;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
-/**
-* Test the {@link PSFieldFinderUtil} class
-*/
+/** Test the {@link PSFieldFinderUtil} class */
 @Tag("UnitTest")
-public class PSFieldFinderUtilTest
-{
+public class PSFieldFinderUtilTest {
   /**
-   * Test the getting fields that use taxonomy id 1
-   * This includes one field from a child table
-   * 
+   * Test the getting fields that use taxonomy id 1 This includes one field from a child table
+   *
    * @throws Exception if the test fails
    */
   @Test
-  public void testGetTaxonomyFields() throws Exception
-  { 
-        PSItemDefinition srcDef = loadItemDefinition("PSFieldFinderUtilTest1.xml");
-        List<String> fieldList = PSFieldFinderUtil.getFields(srcDef, "taxonomy_id", "1");
-        
-        List<String> testFieldList = new ArrayList<String>();
-        testFieldList.add("taxonomy");
-        // field in child table
-        testFieldList.add("taxonomyfield2");
-       
-        assertEquals(testFieldList,fieldList); 
+  public void testGetTaxonomyFields() throws Exception {
+    PSItemDefinition srcDef = loadItemDefinition("PSFieldFinderUtilTest1.xml");
+    List<String> fieldList = PSFieldFinderUtil.getFields(srcDef, "taxonomy_id", "1");
+
+    List<String> testFieldList = new ArrayList<String>();
+    testFieldList.add("taxonomy");
+    // field in child table
+    testFieldList.add("taxonomyfield2");
+
+    assertEquals(testFieldList, fieldList);
   }
+
   /**
    * Test the id 1 does not match for a different parameter
-   * 
+   *
    * @throws Exception if the test fails
    */
   @Test
-  public void testNotGetOtherFields() throws Exception
-  { 
-        PSItemDefinition srcDef = loadItemDefinition("PSFieldFinderUtilTest1.xml");
-        List<String> fieldList = PSFieldFinderUtil.getFields(srcDef, "translation_id", "1");
-        
-        List<String> testFieldList = new ArrayList<String>();
-       
-        assertEquals(testFieldList,fieldList); 
+  public void testNotGetOtherFields() throws Exception {
+    PSItemDefinition srcDef = loadItemDefinition("PSFieldFinderUtilTest1.xml");
+    List<String> fieldList = PSFieldFinderUtil.getFields(srcDef, "translation_id", "1");
+
+    List<String> testFieldList = new ArrayList<String>();
+
+    assertEquals(testFieldList, fieldList);
   }
-  
+
   /**
    * Test the case of non string literal param PSXSingleHtmlParameter
-   * 
+   *
    * @throws Exception if the test fails
    */
   @Test
-  public void testSingleHtmlParam() throws Exception
-  { 
-        PSItemDefinition srcDef = loadItemDefinition("PSFieldFinderUtilTest1.xml");
-        List<String> fieldList = PSFieldFinderUtil.getFields(srcDef, "helptext", "PSXSingleHtmlParameter/testparam");
-        
-        List<String> testFieldList = new ArrayList<String>();
-        testFieldList.add("otherfield");
-        assertEquals(testFieldList,fieldList); 
+  public void testSingleHtmlParam() throws Exception {
+    PSItemDefinition srcDef = loadItemDefinition("PSFieldFinderUtilTest1.xml");
+    List<String> fieldList =
+        PSFieldFinderUtil.getFields(srcDef, "helptext", "PSXSingleHtmlParameter/testparam");
+
+    List<String> testFieldList = new ArrayList<String>();
+    testFieldList.add("otherfield");
+    assertEquals(testFieldList, fieldList);
   }
-  
+
   /**
    * Load the item definition from the specified file.
-   * 
-   * @param fileName the file name, relative to the source code location,
-   *    may be <code>null</code> or empty to use the default.
-   * @return the item definition created from the specified file, never
-   *    <code>null</code>.
+   *
+   * @param fileName the file name, relative to the source code location, may be <code>null</code>
+   *     or empty to use the default.
+   * @return the item definition created from the specified file, never <code>null</code>.
    * @throws Exception for any error loading the item definition.
    */
-  public static PSItemDefinition loadItemDefinition(String fileName) 
-     throws Exception
-  {
-     InputStream in = null;
+  public static PSItemDefinition loadItemDefinition(String fileName) throws Exception {
+    InputStream in = null;
 
-     try
-     {
-        if (StringUtils.isBlank(fileName))
-           fileName = "itemDefinition.xml";
-        
-        in = PSFieldFinderUtilTest.class.getResourceAsStream(fileName);
-        Document doc = PSXmlDocumentBuilder.createXmlDocument(in, false);
+    try {
+      if (StringUtils.isBlank(fileName)) fileName = "itemDefinition.xml";
 
-        return new PSItemDefinition(doc.getDocumentElement());
-     }
-     finally
-     {
-        if (in != null)
-           try { in.close(); } catch (IOException e) { /* ignore */ }
-     }
+      in = PSFieldFinderUtilTest.class.getResourceAsStream(fileName);
+      Document doc = PSXmlDocumentBuilder.createXmlDocument(in, false);
+
+      return new PSItemDefinition(doc.getDocumentElement());
+    } finally {
+      if (in != null)
+        try {
+          in.close();
+        } catch (IOException e) {
+          /* ignore */
+        }
+    }
   }
 }
-

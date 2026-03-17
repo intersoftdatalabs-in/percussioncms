@@ -16,87 +16,75 @@
  */
 package com.percussion.services.schedule.data;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 import com.percussion.services.catalog.PSTypeEnum;
 import com.percussion.services.guidmgr.data.PSGuid;
 import org.apache.commons.lang3.builder.EqualsBuilder;
-import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Andriy Palamarchuk
  */
-public class PSJobTest extends PSScheduleTestBase
-{
-   public void testApply()
-   {
-      try
-      {
-         new PSTestSchedule().apply(null);
-         fail();
-      }
-      catch (IllegalArgumentException expected) {}
+public class PSJobTest extends PSScheduleTestBase {
+  public void testApply() {
+    try {
+      new PSTestSchedule().apply(null);
+      fail();
+    } catch (IllegalArgumentException expected) {
+    }
 
-      final PSTestSchedule schedule = new PSTestSchedule();
-      schedule.apply(createFullSchedule());
-      assertTrue(
-            EqualsBuilder.reflectionEquals(createFullSchedule(), schedule));
-   }
+    final PSTestSchedule schedule = new PSTestSchedule();
+    schedule.apply(createFullSchedule());
+    assertTrue(EqualsBuilder.reflectionEquals(createFullSchedule(), schedule));
+  }
 
-   public void testSetNotifyWhen()
-   {
-      final PSJob schedule = new PSTestSchedule();
+  public void testSetNotifyWhen() {
+    final PSJob schedule = new PSTestSchedule();
 
-      // notification id is null
-      try {
-         schedule.setNotifyWhen(null);
-         fail();
-      } catch (IllegalArgumentException expected) {}
-   }
+    // notification id is null
+    try {
+      schedule.setNotifyWhen(null);
+      fail();
+    } catch (IllegalArgumentException expected) {
+    }
+  }
 
-   public void testSetNotificationId() {
-      final PSJob schedule = new PSTestSchedule();
-      assertNull(schedule.getNotificationTemplateId());
-      assertEquals(PSNotifyWhen.NEVER, schedule.getNotifyWhen());
+  public void testSetNotificationId() {
+    final PSJob schedule = new PSTestSchedule();
+    assertNull(schedule.getNotificationTemplateId());
+    assertEquals(PSNotifyWhen.NEVER, schedule.getNotifyWhen());
+    schedule.setNotificationTemplateId(null);
+
+    schedule.setNotifyWhen(PSNotifyWhen.ALWAYS);
+    try {
       schedule.setNotificationTemplateId(null);
+      fail();
+    } catch (IllegalArgumentException expected) {
+    }
+    schedule.setNotificationTemplateId(createTemplateGuid());
 
-      schedule.setNotifyWhen(PSNotifyWhen.ALWAYS);
-      try
-      {
-         schedule.setNotificationTemplateId(null);
-         fail();
-      }
-      catch (IllegalArgumentException expected) {}
-      schedule.setNotificationTemplateId(createTemplateGuid());
+    schedule.setNotifyWhen(PSNotifyWhen.NEVER);
+    schedule.setNotificationTemplateId(null);
 
-      schedule.setNotifyWhen(PSNotifyWhen.NEVER);
-      schedule.setNotificationTemplateId(null);
+    try {
+      schedule.setNotificationTemplateId(new PSGuid(UUID, PSTypeEnum.SCHEDULED_TASK, HOST_ID));
+      fail();
+    } catch (IllegalArgumentException expected) {
+    }
+  }
 
-      try{
-         schedule.setNotificationTemplateId(
-               new PSGuid(UUID, PSTypeEnum.SCHEDULED_TASK, HOST_ID));
-         fail();
-      }
-      catch (IllegalArgumentException expected) {}
-   }
+  @Override
+  protected PSJob createSchedule() {
+    return new PSTestSchedule();
+  }
 
-   @Override
-   protected PSJob createSchedule()
-   {
-      return new PSTestSchedule();
-   }
+  /** A test implementation of the abstract schedule class. */
+  private static final class PSTestSchedule extends PSJob {
+    public PSTestSchedule() {
+      super();
+    }
 
-   /**
-    * A test implementation of the abstract schedule class.
-    */
-   private static final class PSTestSchedule extends PSJob
-   {
-      public PSTestSchedule()
-      {
-         super();
-      }
-
-      /**
-       * Serializable class version number.
-       */
-      private static final long serialVersionUID = 1L;
-   }
+    /** Serializable class version number. */
+    private static final long serialVersionUID = 1L;
+  }
 }

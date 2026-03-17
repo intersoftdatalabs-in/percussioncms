@@ -17,54 +17,45 @@
 
 package com.percussion.design.objectstore.legacy;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 import com.percussion.design.objectstore.PSContentEditor;
 import com.percussion.design.objectstore.PSWorkflowInfo;
 import com.percussion.services.catalog.data.PSObjectSummary;
 import com.percussion.services.workflow.IPSWorkflowService;
 import com.percussion.services.workflow.PSWorkflowServiceLocator;
-
+import java.util.*;
 import org.apache.commons.collections.IteratorUtils;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.Tag;
-
-import java.util.*;
-
-import static org.junit.jupiter.api.Assertions.*;
-
 
 @Disabled("Temporarily disabled — failing in perc-system test run")
-public class PSAllowAllCtypeWorkflowsUpdaterTest
-{
+public class PSAllowAllCtypeWorkflowsUpdaterTest {
 
-   @Test
-   public void testUpdateInfo()
-   {
-      PSAllowAllCtypeWorkflowsUpdater updater = new PSAllowAllCtypeWorkflowsUpdater();
-      PSWorkflowInfo info = new PSWorkflowInfo(PSWorkflowInfo.TYPE_EXCLUSIONARY, new ArrayList());
-      updater.updateInfo(info);
+  @Test
+  public void testUpdateInfo() {
+    PSAllowAllCtypeWorkflowsUpdater updater = new PSAllowAllCtypeWorkflowsUpdater();
+    PSWorkflowInfo info = new PSWorkflowInfo(PSWorkflowInfo.TYPE_EXCLUSIONARY, new ArrayList());
+    updater.updateInfo(info);
 
-      assertTrue(PSWorkflowInfo.TYPE_INCLUSIONARY.equals(info.getType()));
-      assertFalse(info.isExclusionary());
-      Iterator values = info.getValues();
-      assertTrue(values.hasNext());
+    assertTrue(PSWorkflowInfo.TYPE_INCLUSIONARY.equals(info.getType()));
+    assertFalse(info.isExclusionary());
+    Iterator values = info.getValues();
+    assertTrue(values.hasNext());
 
-      Set<Integer> wfIdSet = new HashSet<Integer>();
-      IPSWorkflowService svc = PSWorkflowServiceLocator.getWorkflowService();
-      List<PSObjectSummary> sums = svc.findWorkflowSummariesByName(null);
-      for (PSObjectSummary sum : sums)
-      {
-         wfIdSet.add(sum.getGUID().getUUID());
-      }
+    Set<Integer> wfIdSet = new HashSet<Integer>();
+    IPSWorkflowService svc = PSWorkflowServiceLocator.getWorkflowService();
+    List<PSObjectSummary> sums = svc.findWorkflowSummariesByName(null);
+    for (PSObjectSummary sum : sums) {
+      wfIdSet.add(sum.getGUID().getUUID());
+    }
 
-      assertEquals(wfIdSet, new HashSet<Integer>(IteratorUtils.toList(values)));
-   }
+    assertEquals(wfIdSet, new HashSet<Integer>(IteratorUtils.toList(values)));
+  }
 
-   @Test
-   public void testCanUpdateComponent()
-   {
-      PSAllowAllCtypeWorkflowsUpdater updater = new PSAllowAllCtypeWorkflowsUpdater();
-      assertTrue(updater.canUpdateComponent(PSContentEditor.class));
-   }
-
+  @Test
+  public void testCanUpdateComponent() {
+    PSAllowAllCtypeWorkflowsUpdater updater = new PSAllowAllCtypeWorkflowsUpdater();
+    assertTrue(updater.canUpdateComponent(PSContentEditor.class));
+  }
 }

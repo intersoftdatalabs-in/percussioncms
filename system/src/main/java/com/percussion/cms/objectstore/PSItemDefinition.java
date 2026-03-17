@@ -698,7 +698,6 @@ public class PSItemDefinition extends PSItemDefSummary implements IPSComponent, 
    * @return the field set of the simple child. It may be <code>null</code> if cannot find a simple
    *     child with the name.
    */
-
   public PSFieldSet getSimpleChildSet(String fieldName) {
     if (fieldName == null || fieldName.trim().length() == 0)
       throw new IllegalArgumentException("fieldName may not be null or empty");
@@ -883,7 +882,7 @@ public class PSItemDefinition extends PSItemDefSummary implements IPSComponent, 
    * Removes all db specific information, leaving a dummy entry for the table ref in the container
    * locator (because it can't be left empty.)
    */
-   // PSTableSet iterator
+  // PSTableSet iterator
   public Object tuneClone(long newId) {
     // todo - remove cast when supporting full guids
     setTypeId((int) newId);

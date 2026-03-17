@@ -62,8 +62,8 @@ public class ExtractAllEditorApplicationDefs {
    *     externally defined <code>SYSTEM</code> DTD. May not be <code>null</code> or emtpy, and
    *     should be relative to the working directory of the workbench, and assumes that the
    *     workbench has been installed along with the server.
-   * @throws IllegalArgumentException if any params are invalid.
-   *     Example: applications&#92;rx_ce&lt;name&gt;&#92;rx_ce&lt;Name&gt;.xml will create
+   * @throws IllegalArgumentException if any params are invalid. Example:
+   *     applications&#92;rx_ce&lt;name&gt;&#92;rx_ce&lt;Name&gt;.xml will create
    *     applications&#92;rx_ce&lt;name&gt;&#92;src&#92;name.xml.
    */
   public static void extract(String strAppDirectory, String strDtdFile, String strDocTypeFile) {

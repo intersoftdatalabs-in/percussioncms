@@ -16,49 +16,41 @@
  */
 package com.percussion.testing;
 
+import com.percussion.utils.xml.PSEntityResolver;
 import java.io.File;
 
-import com.percussion.utils.xml.PSEntityResolver;
-
 /**
- * The utility class to provide the default connection properties for the
- * remote Rhythmyx Server. This should be used by all Junit tests that are
- * invoked as a remote client.
+ * The utility class to provide the default connection properties for the remote Rhythmyx Server.
+ * This should be used by all Junit tests that are invoked as a remote client.
  */
-public class PSClientTestCase extends PSConfigHelperTestCase implements
-      IPSClientBasedJunitTest
-{
-   /**
-    * Default constructor.
-    */
-   public PSClientTestCase()
-   {
-       // Guard against null system property / environment variable so tests
-       // that run outside a full server environment don't NPE during
-       // construction. Only set the resolution home when a valid path is
-       // present and exists on disk.
-       String rxDeploy = System.getProperty("rxdeploydir");
-       String rxHome = System.getenv("RHYTHMYX_HOME");
-       File homeDir = null;
+public class PSClientTestCase extends PSConfigHelperTestCase implements IPSClientBasedJunitTest {
+  /** Default constructor. */
+  public PSClientTestCase() {
+    // Guard against null system property / environment variable so tests
+    // that run outside a full server environment don't NPE during
+    // construction. Only set the resolution home when a valid path is
+    // present and exists on disk.
+    String rxDeploy = System.getProperty("rxdeploydir");
+    String rxHome = System.getenv("RHYTHMYX_HOME");
+    File homeDir = null;
 
-       if (rxDeploy != null && !rxDeploy.isEmpty()) {
-           homeDir = new File(rxDeploy);
-       } else if (rxHome != null && !rxHome.isEmpty()) {
-           homeDir = new File(rxHome);
-       }
+    if (rxDeploy != null && !rxDeploy.isEmpty()) {
+      homeDir = new File(rxDeploy);
+    } else if (rxHome != null && !rxHome.isEmpty()) {
+      homeDir = new File(rxHome);
+    }
 
-       if (homeDir != null && homeDir.exists()) {
-           PSEntityResolver.setResolutionHome(homeDir);
-       }
-   }
+    if (homeDir != null && homeDir.exists()) {
+      PSEntityResolver.setResolutionHome(homeDir);
+    }
+  }
 
-   /**
-    * Simply call super(String).
-    *
-    * @param arg0 the name of the TestCase.
-    */
-   public PSClientTestCase(String arg0)
-   {
-      super(arg0);
-   }
+  /**
+   * Simply call super(String).
+   *
+   * @param arg0 the name of the TestCase.
+   */
+  public PSClientTestCase(String arg0) {
+    super(arg0);
+  }
 }

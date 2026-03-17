@@ -436,7 +436,6 @@ public abstract class PSDataHandler implements IPSRequestHandler, IPSInternalReq
    * @param request the original request, never <code>null</code>.
    * @param th the throwable, never <code>null</code>.
    */
-
   protected void reportError(PSRequest request, Throwable th) {
     if (request == null) {
       throw new IllegalArgumentException("request may not be null");

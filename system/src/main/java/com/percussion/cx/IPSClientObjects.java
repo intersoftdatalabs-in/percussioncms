@@ -22,6 +22,7 @@ import org.w3c.dom.Element;
 
 /**
  * Base interface for client objects in the cx package.
+ *
  * @deprecated is there a base Iface for other objects in the cx?
  */
 public interface IPSClientObjects {

@@ -73,8 +73,8 @@ public class PSProcessRequestResult {
    * @param name See {@link #getName()} for desc. Never <code>null</code> or empty.
    * @param resultCode The numeric value returned after the process has completed, or -1 for any
    *     other error conditions.
-   * @param resultText If the process is started, the console output. Otherwise, some message
-   *     object is serialized to xml.
+   * @param resultText If the process is started, the console output. Otherwise, some message object
+   *     is serialized to xml.
    * @param status One of the STATUS_xxx values.
    * @param actionHandle See {@link #getActionHandle()} for details. If <code>status</code> is not
    *     <code>STATUS_STARTED</code>, this value is ignored (treated as -1). Any value < 1 is

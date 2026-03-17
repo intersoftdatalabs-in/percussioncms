@@ -39,7 +39,7 @@ public class PSSearchResults {
   }
 
   /**
-   * @param results the results to set
+   * @param resultEntries the results to set
    */
   public void setResults(List<PSMetadataRestEntry> resultEntries) {
     this.resultEntries = resultEntries;
@@ -53,7 +53,7 @@ public class PSSearchResults {
   }
 
   /**
-   * @param total entries to set
+   * @param totalEntries entries to set
    */
   public void setTotalEntries(Integer totalEntries) {
     this.totalEntries = totalEntries;

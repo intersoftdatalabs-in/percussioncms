@@ -16,6 +16,8 @@
  */
 package com.percussion.cms.objectstore.client;
 
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import com.percussion.cms.PSCmsException;
 import com.percussion.cms.objectstore.PSBinaryValue;
 import com.percussion.cms.objectstore.PSItemField;
@@ -30,401 +32,332 @@ import com.percussion.system.utils.PSRemoteRequester;
 import com.percussion.testing.IPSClientBasedJunitTest;
 import com.percussion.testing.PSClientTestCase;
 import com.percussion.util.IPSRemoteRequester;
-
-import com.percussion.utils.testing.SpringContextTest;
 import com.percussion.xml.PSXmlDocumentBuilder;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.IOException;
-import java.util.List;
-
-
-
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Assumptions;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.Tag;
 import java.net.InetSocketAddress;
 import java.net.Socket;
+import java.util.List;
 import java.util.Properties;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
+/** Unit test class for the <code>PSRemoteAgent</code> class. */
+public class PSRemoteAgentTest extends PSClientTestCase {
 
-/**
- * Unit test class for the <code>PSRemoteAgent</code> class.
- */
+  public PSRemoteAgentTest() {}
 
-public class PSRemoteAgentTest extends PSClientTestCase
-{
-
-   public PSRemoteAgentTest()
-   {
-   }
-
-   @BeforeAll
-   public static void checkRemoteServerAvailable()
-   {
-      try {
-         PSRemoteAgentTest tst = new PSRemoteAgentTest();
-         Properties props = tst.getConnectionProps(IPSClientBasedJunitTest.CONN_TYPE_RXSERVER);
-         String host = props.getProperty("hostName");
-         int port = Integer.parseInt(props.getProperty("port"));
-         try (Socket s = new Socket()) {
-            s.connect(new InetSocketAddress(host, port), 300);
-         }
-      } catch (Exception e) {
-         org.junit.jupiter.api.Assumptions.assumeTrue(false, "Remote Rhythmyx server not available - skipping PSRemoteAgentTest");
-      }
-   }
-
-
-   private PSRemoteAgent getRemoteAgent() throws Exception
-   {
-      PSRemoteRequester req = new PSRemoteRequester(
-            getConnectionProps(IPSClientBasedJunitTest.CONN_TYPE_RXSERVER));
-
-      return new PSRemoteAgent(req);
-   }
-
-   /**
-    * Testing copy folder child item for webservices.
-    *
-    * @throws Exception if an error occurs.
-    */
-   @Test
-   public void testCopyFolderChildrenItem() throws Exception
-   {
-      PSLocator locator = insertBrief();
-      PSWsFolderProcessorTest.testCopyFolderChildrenItem(locator);
-      getRemoteAgent().purgeItem(locator);
-   }
-
-   /**
-    * Test insert & update items
-    *
-    * @throws Exception if an error occurs.
-    */
-   @Test
-   public void testInsertUpdateItem() throws Exception
-   {
-      PSLocator locator = insertBrief();
-      udpateItem(getRemoteAgent(), locator);
-
-   }
-
-   /**
-    * Test get communities
-    *
-    * @throws Exception if an error occurs
-    */
-   @Test
-   public void testGetCommunities() throws Exception
-   {
-      PSEntry community = getRemoteAgent().getDefaultUserCommunity();
-      PSEntry defaultCommunity =
-         new PSEntry("1001", new PSDisplayText("Enterprise_Investments_Admin"));
-      // Default community is not the default stored in the roles table unless it is set by
-      // first login.  The @defaultCommunity attribute is really the current community set for the
-      // user and therefore is affected by previous tests.
-      // User/SessionObject/sys_community
-      // see login resource on sys_psxWebServices xml application
-      //assertTrue("Expected community is Enterprise_Investments_Admin (1001) is "+community.getLabel().getText()+" value="+community.getValue() +"Source type="+community.getSourceType() +" sequence="+community.getSequence(),community.equals(defaultCommunity));
-
-
-      List communities = getRemoteAgent().getCommunities();
-      assertTrue(communities.contains(defaultCommunity));
-   }
-
-   /**
-    * Test get workflows
-    *
-    * @throws Exception if an error occurs
-    */
-   @Test
-   public void testGetWorkflows() throws Exception
-   {
-      PSEntry defaultCommunity =
-         new PSEntry("1002", new PSDisplayText("Enterprise_Investments"));
-      PSEntry wfSimple = new PSEntry("4", new PSDisplayText("Simple Workflow"));
-      PSEntry wfStd = new PSEntry("5", new PSDisplayText("Standard Workflow"));
-
-      List workflows = getRemoteAgent().getWorkflows(defaultCommunity);
-      assertTrue(workflows.contains(wfSimple));
-      assertTrue(workflows.contains(wfStd));
-   }
-
-   /**
-    * Test get content types
-    *
-    * @throws Exception if an error occurs
-    */
-   @Test
-   public void testGetContentTypes() throws Exception
-   {
-      PSEntry defaultCommunity =
-         new PSEntry("1002", new PSDisplayText("Enterprise_Investments"));
-      PSEntry article = new PSEntry("302", new PSDisplayText("rffBrief"));
-
-      List contentTypes = getRemoteAgent().getContentTypes(defaultCommunity);
-      assertTrue(contentTypes.contains(article));
-   }
-
-   /**
-    * Test get context variables
-    *
-    * @throws Exception if an error occurs
-    */
-   @Test
-   public void testGetContextVariables() throws Exception
-   {
-      PSEntry rxcss =
-         new PSEntry(
-            "web_resources/enterprise_investments",
-            new PSDisplayText("rxs_navbase"));
-
-      List ctxVars = getRemoteAgent().getContextVariables();
-      assertTrue(ctxVars.contains(rxcss));
-   }
-
-   /**
-    * Test get transitions for a given workflow
-    *
-    * @throws Exception if an error occurs
-    */
-   @Test
-   public void testGetTransitions() throws Exception
-   {
-      PSEntry wfIndex = new PSEntry("4", new PSDisplayText("Simple Workflow"));
-      PSEntry toPublic = new PSEntry("DirecttoPublic", new PSDisplayText(
-            "Direct to Public"));
-      PSEntry approve = new PSEntry("Approve", new PSDisplayText("Approve"));
-
-      List transitions = getRemoteAgent().getTransitions(wfIndex);
-
-      assertTrue(transitions.contains(toPublic));
-      assertTrue(transitions.contains(approve));
-   }
-
-   /**
-    * Insert an Article
-    *
-    * @return The locator of the inserted article item, never <code>null</code>.
-    * @throws Exception
-    */
-   public static PSLocator insertBrief() throws Exception
-   {
+  @BeforeAll
+  public static void checkRemoteServerAvailable() {
+    try {
       PSRemoteAgentTest tst = new PSRemoteAgentTest();
-      PSRemoteAgent remoteAgent = tst.getRemoteAgent();
-      PSLocator locator = insertItem(remoteAgent, "rffBrief");
-
-      return locator;
-   }
-
-   /**
-    * Testing insert an item, only tested with Brief content type for now
-    *
-    * @param remoteAgent The object used to insert the item, may not
-    *    <code>null</code>
-    * @param contentType The content type for the to be inserted item, may
-    *    not be <code>null</code> or empty.
-    *
-    * @return the locator of the inserted item.
-    *
-    * @throws PSRemoteException if an error occurs.
-    */
-   public static PSLocator insertItem(
-      PSRemoteAgent remoteAgent,
-      String contentType)
-      throws PSRemoteException
-   {
-      if (remoteAgent == null)
-         throw new IllegalArgumentException("remoteAgent may not be null");
-      if (contentType == null || contentType.trim().length() == 0)
-         throw new IllegalArgumentException("contentType may not be null or empty");
-
-      PSClientItem item = remoteAgent.newItem(contentType);
-
-      PSItemField title = item.getFieldByName("sys_title");
-      PSTextValue titleVal = new PSTextValue("title-from-PSRemoteClientTest");
-      title.addValue(titleVal);
-
-      PSItemField communityid = item.getFieldByName("sys_communityid");
-      PSTextValue communityValue = new PSTextValue("1002");
-      communityid.addValue(communityValue);
-
-      PSItemField locale = item.getFieldByName("sys_lang");
-      PSTextValue localeValue = new PSTextValue("en-us");
-      locale.addValue(localeValue);
-
-      // a field exists in Brief content type
-      PSItemField callout = item.getFieldByName("callout");
-      if (callout != null)
-      {
-         PSTextValue calloutVal = new PSTextValue(
-               "This is test content from the PSRemoteClientTest!");
-         callout.addValue(calloutVal);
+      Properties props = tst.getConnectionProps(IPSClientBasedJunitTest.CONN_TYPE_RXSERVER);
+      String host = props.getProperty("hostName");
+      int port = Integer.parseInt(props.getProperty("port"));
+      try (Socket s = new Socket()) {
+        s.connect(new InetSocketAddress(host, port), 300);
       }
+    } catch (Exception e) {
+      org.junit.jupiter.api.Assumptions.assumeTrue(
+          false, "Remote Rhythmyx server not available - skipping PSRemoteAgentTest");
+    }
+  }
 
-      // a field exists in Brief content type
-      PSItemField displayTitle = item.getFieldByName("displaytitle");
-      if (displayTitle != null)
-         displayTitle.addValue(titleVal);
+  private PSRemoteAgent getRemoteAgent() throws Exception {
+    PSRemoteRequester req =
+        new PSRemoteRequester(getConnectionProps(IPSClientBasedJunitTest.CONN_TYPE_RXSERVER));
 
-      Document doc = PSXmlDocumentBuilder.createXmlDocument();
-      PSLocator locator = remoteAgent.updateItem(item.toMinXml(doc, true, true, false, true), true);
+    return new PSRemoteAgent(req);
+  }
 
-      //System.out.println("contentId: " + locator.getId() +
-      //   "  revision: " + locator.getRevision());
+  /**
+   * Testing copy folder child item for webservices.
+   *
+   * @throws Exception if an error occurs.
+   */
+  @Test
+  public void testCopyFolderChildrenItem() throws Exception {
+    PSLocator locator = insertBrief();
+    PSWsFolderProcessorTest.testCopyFolderChildrenItem(locator);
+    getRemoteAgent().purgeItem(locator);
+  }
 
-      return locator;
-   }
+  /**
+   * Test insert & update items
+   *
+   * @throws Exception if an error occurs.
+   */
+  @Test
+  public void testInsertUpdateItem() throws Exception {
+    PSLocator locator = insertBrief();
+    udpateItem(getRemoteAgent(), locator);
+  }
 
-   /**
-    * Testing update an item through an <code>PSContentData</code> object.
-    *
-    * @param remoteAgent The object used to update an item, may not betestIns
-    *    <code>null</code>
-    * @param locator The locator for the to be updated item, may not be
-    *    <code>null</code>.
-    *
-    * @throws Exception if an error occurs.
-    */
-   public static void udpateItem(PSRemoteAgent remoteAgent, PSLocator locator)
-      throws Exception
-   {
-      PSClientItem item = remoteAgent.openItem(locator, false, false);
+  /**
+   * Test get communities
+   *
+   * @throws Exception if an error occurs
+   */
+  @Test
+  public void testGetCommunities() throws Exception {
+    PSEntry community = getRemoteAgent().getDefaultUserCommunity();
+    PSEntry defaultCommunity =
+        new PSEntry("1001", new PSDisplayText("Enterprise_Investments_Admin"));
+    // Default community is not the default stored in the roles table unless it is set by
+    // first login.  The @defaultCommunity attribute is really the current community set for the
+    // user and therefore is affected by previous tests.
+    // User/SessionObject/sys_community
+    // see login resource on sys_psxWebServices xml application
+    // assertTrue("Expected community is Enterprise_Investments_Admin (1001) is
+    // "+community.getLabel().getText()+" value="+community.getValue() +"Source
+    // type="+community.getSourceType() +"
+    // sequence="+community.getSequence(),community.equals(defaultCommunity));
 
-      PSItemField title = item.getFieldByName("sys_title");
-      PSTextValue titleVal = new PSTextValue("title-from-client-AAAA-"
-            + System.currentTimeMillis());
-      title.addValue(titleVal);
+    List communities = getRemoteAgent().getCommunities();
+    assertTrue(communities.contains(defaultCommunity));
+  }
 
-      Document doc = PSXmlDocumentBuilder.createXmlDocument();
-      if (remoteAgent.checkOutItem(locator))
-      {
-         locator = remoteAgent.updateItem(item.toMinXml(doc, true, true, false, true), true);
-      }
-      else
-      {
-         throw new Exception(
-            "fail to checkout item: ("
-               + locator.getId()
-               + ", "
-               + locator.getRevision()
-               + ")");
-      }
+  /**
+   * Test get workflows
+   *
+   * @throws Exception if an error occurs
+   */
+  @Test
+  public void testGetWorkflows() throws Exception {
+    PSEntry defaultCommunity = new PSEntry("1002", new PSDisplayText("Enterprise_Investments"));
+    PSEntry wfSimple = new PSEntry("4", new PSDisplayText("Simple Workflow"));
+    PSEntry wfStd = new PSEntry("5", new PSDisplayText("Standard Workflow"));
 
-   }
+    List workflows = getRemoteAgent().getWorkflows(defaultCommunity);
+    assertTrue(workflows.contains(wfSimple));
+    assertTrue(workflows.contains(wfStd));
+  }
 
-   /**
-    * Test opening a binary item and then writing it to the local disk
-    *
-    * @throws Exception if error occurs
-    */
-   public void performOpenItem() throws Exception
-   {
-      Document doc = PSXmlDocumentBuilder.createXmlDocument();
-      PSRemoteAgent remoteAgent = getRemoteAgent();
+  /**
+   * Test get content types
+   *
+   * @throws Exception if an error occurs
+   */
+  @Test
+  public void testGetContentTypes() throws Exception {
+    PSEntry defaultCommunity = new PSEntry("1002", new PSDisplayText("Enterprise_Investments"));
+    PSEntry article = new PSEntry("302", new PSDisplayText("rffBrief"));
 
-      PSLocator locator = new PSLocator(310, 1);
-      PSClientItem item = remoteAgent.openItem(locator, true, false);
+    List contentTypes = getRemoteAgent().getContentTypes(defaultCommunity);
+    assertTrue(contentTypes.contains(article));
+  }
 
-      PSItemField field = item.getFieldByName("imgbody");
+  /**
+   * Test get context variables
+   *
+   * @throws Exception if an error occurs
+   */
+  @Test
+  public void testGetContextVariables() throws Exception {
+    PSEntry rxcss =
+        new PSEntry("web_resources/enterprise_investments", new PSDisplayText("rxs_navbase"));
 
-      Element el = item.toMinXml(doc, true, true, true, true);
-      System.out.println(PSXmlDocumentBuilder.toString(el));
+    List ctxVars = getRemoteAgent().getContextVariables();
+    assertTrue(ctxVars.contains(rxcss));
+  }
 
-      PSBinaryValue value = (PSBinaryValue) field.getValue();
+  /**
+   * Test get transitions for a given workflow
+   *
+   * @throws Exception if an error occurs
+   */
+  @Test
+  public void testGetTransitions() throws Exception {
+    PSEntry wfIndex = new PSEntry("4", new PSDisplayText("Simple Workflow"));
+    PSEntry toPublic = new PSEntry("DirecttoPublic", new PSDisplayText("Direct to Public"));
+    PSEntry approve = new PSEntry("Approve", new PSDisplayText("Approve"));
 
-      File file = new File("c:/testimage3.gif");
-      FileOutputStream fos = new FileOutputStream(file);
-      fos.write((byte[]) value.getValue());
-      fos.close();
+    List transitions = getRemoteAgent().getTransitions(wfIndex);
 
-   }
+    assertTrue(transitions.contains(toPublic));
+    assertTrue(transitions.contains(approve));
+  }
 
-   /**
-    * Test update binary with existing item
-    *
-    * @throws Exception if error occurs
-    */
-   public void performUpdateBinary() throws Exception
-   {
-      PSRemoteAgent remoteAgent = getRemoteAgent();
-      PSLocator locator = new PSLocator(302, 1);
-      PSClientItem item = remoteAgent.openItem(locator, false, false);
+  /**
+   * Insert an Article
+   *
+   * @return The locator of the inserted article item, never <code>null</code>.
+   * @throws Exception
+   */
+  public static PSLocator insertBrief() throws Exception {
+    PSRemoteAgentTest tst = new PSRemoteAgentTest();
+    PSRemoteAgent remoteAgent = tst.getRemoteAgent();
+    PSLocator locator = insertItem(remoteAgent, "rffBrief");
 
-      //Get the binary data
-      File file = new File("c:/testimage2.gif");
-      FileInputStream fis = new FileInputStream(file);
-      byte[] data = new byte[fis.available()];
-      fis.read(data);
-      fis.close();
+    return locator;
+  }
 
-      PSItemField binaryField = item.getFieldByName("imgbody");
-      binaryField.addValue(new PSBinaryValueEx(data, "testItAgain.gif", null));
+  /**
+   * Testing insert an item, only tested with Brief content type for now
+   *
+   * @param remoteAgent The object used to insert the item, may not <code>null</code>
+   * @param contentType The content type for the to be inserted item, may not be <code>null</code>
+   *     or empty.
+   * @return the locator of the inserted item.
+   * @throws PSRemoteException if an error occurs.
+   */
+  public static PSLocator insertItem(PSRemoteAgent remoteAgent, String contentType)
+      throws PSRemoteException {
+    if (remoteAgent == null) throw new IllegalArgumentException("remoteAgent may not be null");
+    if (contentType == null || contentType.trim().length() == 0)
+      throw new IllegalArgumentException("contentType may not be null or empty");
 
-      remoteAgent.updateItem(item, false);
+    PSClientItem item = remoteAgent.newItem(contentType);
 
-   }
+    PSItemField title = item.getFieldByName("sys_title");
+    PSTextValue titleVal = new PSTextValue("title-from-PSRemoteClientTest");
+    title.addValue(titleVal);
 
+    PSItemField communityid = item.getFieldByName("sys_communityid");
+    PSTextValue communityValue = new PSTextValue("1002");
+    communityid.addValue(communityValue);
 
-   /**
-    * Test update binary with new item
-    *
-    * @throws Exception if error occurs
-    */
-   public void performUpdateBinaryNew() throws Exception
-   {
-      PSRemoteAgent remoteAgent = getRemoteAgent();
+    PSItemField locale = item.getFieldByName("sys_lang");
+    PSTextValue localeValue = new PSTextValue("en-us");
+    locale.addValue(localeValue);
 
-      PSClientItem item = remoteAgent.newItem("4");
+    // a field exists in Brief content type
+    PSItemField callout = item.getFieldByName("callout");
+    if (callout != null) {
+      PSTextValue calloutVal = new PSTextValue("This is test content from the PSRemoteClientTest!");
+      callout.addValue(calloutVal);
+    }
 
-      //Set fields
-      PSItemField itemField = null;
-      itemField = item.getFieldByName("sys_title");
-      itemField.addValue(new PSTextValue("Automated Test Image (Unit Test)"));
+    // a field exists in Brief content type
+    PSItemField displayTitle = item.getFieldByName("displaytitle");
+    if (displayTitle != null) displayTitle.addValue(titleVal);
 
-      //Get the binary data
-      File file = new File("c:/testimage2.gif");
-      FileInputStream fis = new FileInputStream(file);
-      byte[] data = new byte[fis.available()];
-      fis.read(data);
-      fis.close();
+    Document doc = PSXmlDocumentBuilder.createXmlDocument();
+    PSLocator locator = remoteAgent.updateItem(item.toMinXml(doc, true, true, false, true), true);
 
-      PSItemField binaryField = item.getFieldByName("imgbody");
-      binaryField.addValue(new PSBinaryValueEx(data, "testItAgain.gif", null));
+    // System.out.println("contentId: " + locator.getId() +
+    //   "  revision: " + locator.getRevision());
 
-      remoteAgent.updateItem(item, true);
+    return locator;
+  }
 
-   }
+  /**
+   * Testing update an item through an <code>PSContentData</code> object.
+   *
+   * @param remoteAgent The object used to update an item, may not betestIns <code>null</code>
+   * @param locator The locator for the to be updated item, may not be <code>null</code>.
+   * @throws Exception if an error occurs.
+   */
+  public static void udpateItem(PSRemoteAgent remoteAgent, PSLocator locator) throws Exception {
+    PSClientItem item = remoteAgent.openItem(locator, false, false);
 
+    PSItemField title = item.getFieldByName("sys_title");
+    PSTextValue titleVal = new PSTextValue("title-from-client-AAAA-" + System.currentTimeMillis());
+    title.addValue(titleVal);
 
-   /**
-    * Get relationship processor proxy for remote processor.
-    *
-    * @param rAgent used to communicate with remote Rhythmyx server.
-    *
-    * @return The remote proxy, never <code>null</code>.
-    *
-    * @throws PSCmsException if any error occurs
-    */
-   private static PSRelationshipProcessorProxy getRemoteRelationshipProxy(
-      PSRemoteAgent rAgent)
-      throws PSCmsException
-   {
+    Document doc = PSXmlDocumentBuilder.createXmlDocument();
+    if (remoteAgent.checkOutItem(locator)) {
+      locator = remoteAgent.updateItem(item.toMinXml(doc, true, true, false, true), true);
+    } else {
+      throw new Exception(
+          "fail to checkout item: (" + locator.getId() + ", " + locator.getRevision() + ")");
+    }
+  }
 
-      IPSRemoteRequester requester = rAgent.getRemoteRequester();
+  /**
+   * Test opening a binary item and then writing it to the local disk
+   *
+   * @throws Exception if error occurs
+   */
+  public void performOpenItem() throws Exception {
+    Document doc = PSXmlDocumentBuilder.createXmlDocument();
+    PSRemoteAgent remoteAgent = getRemoteAgent();
 
-      PSRelationshipProcessorProxy proxy = new PSRelationshipProcessorProxy(
-         PSRelationshipProcessorProxy.PROCTYPE_REMOTE, requester);
+    PSLocator locator = new PSLocator(310, 1);
+    PSClientItem item = remoteAgent.openItem(locator, true, false);
 
-      return proxy;
-   }
+    PSItemField field = item.getFieldByName("imgbody");
 
+    Element el = item.toMinXml(doc, true, true, true, true);
+    System.out.println(PSXmlDocumentBuilder.toString(el));
 
+    PSBinaryValue value = (PSBinaryValue) field.getValue();
+
+    File file = new File("c:/testimage3.gif");
+    FileOutputStream fos = new FileOutputStream(file);
+    fos.write((byte[]) value.getValue());
+    fos.close();
+  }
+
+  /**
+   * Test update binary with existing item
+   *
+   * @throws Exception if error occurs
+   */
+  public void performUpdateBinary() throws Exception {
+    PSRemoteAgent remoteAgent = getRemoteAgent();
+    PSLocator locator = new PSLocator(302, 1);
+    PSClientItem item = remoteAgent.openItem(locator, false, false);
+
+    // Get the binary data
+    File file = new File("c:/testimage2.gif");
+    FileInputStream fis = new FileInputStream(file);
+    byte[] data = new byte[fis.available()];
+    fis.read(data);
+    fis.close();
+
+    PSItemField binaryField = item.getFieldByName("imgbody");
+    binaryField.addValue(new PSBinaryValueEx(data, "testItAgain.gif", null));
+
+    remoteAgent.updateItem(item, false);
+  }
+
+  /**
+   * Test update binary with new item
+   *
+   * @throws Exception if error occurs
+   */
+  public void performUpdateBinaryNew() throws Exception {
+    PSRemoteAgent remoteAgent = getRemoteAgent();
+
+    PSClientItem item = remoteAgent.newItem("4");
+
+    // Set fields
+    PSItemField itemField = null;
+    itemField = item.getFieldByName("sys_title");
+    itemField.addValue(new PSTextValue("Automated Test Image (Unit Test)"));
+
+    // Get the binary data
+    File file = new File("c:/testimage2.gif");
+    FileInputStream fis = new FileInputStream(file);
+    byte[] data = new byte[fis.available()];
+    fis.read(data);
+    fis.close();
+
+    PSItemField binaryField = item.getFieldByName("imgbody");
+    binaryField.addValue(new PSBinaryValueEx(data, "testItAgain.gif", null));
+
+    remoteAgent.updateItem(item, true);
+  }
+
+  /**
+   * Get relationship processor proxy for remote processor.
+   *
+   * @param rAgent used to communicate with remote Rhythmyx server.
+   * @return The remote proxy, never <code>null</code>.
+   * @throws PSCmsException if any error occurs
+   */
+  private static PSRelationshipProcessorProxy getRemoteRelationshipProxy(PSRemoteAgent rAgent)
+      throws PSCmsException {
+
+    IPSRemoteRequester requester = rAgent.getRemoteRequester();
+
+    PSRelationshipProcessorProxy proxy =
+        new PSRelationshipProcessorProxy(PSRelationshipProcessorProxy.PROCTYPE_REMOTE, requester);
+
+    return proxy;
+  }
 }

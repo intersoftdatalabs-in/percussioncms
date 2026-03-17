@@ -30,18 +30,13 @@ public interface IPSBlogPostVisitService {
    * Returns top visited pages within the given time period
    *
    * @param visitQuery visit query object
-   * @return List of IPSMetadataEntry objects
-   * @throws Exception on query parsing error
    */
   public List<String> getTopVisitedBlogPosts(PSVisitQuery visitQuery) throws Exception;
 
   /**
    * Returns top visited pages within the given time period
    *
-   * @param timePeriod if <code>null</code> defaults to WEEK
-   * @param limit limits the results to this number
-   * @return List of IPSMetadataEntry objects
-   * @throws Exception on query parsing error
+   * @param pagePath The page path to track.
    */
   public void trackBlogPost(String pagePath);
 

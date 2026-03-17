@@ -16,44 +16,34 @@
  */
 package com.percussion.install;
 
-
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.Tag;
-
 import static com.percussion.install.PSNameSpacesUtil.removeWhitespacesFromName;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
 
 @Tag("UnitTest")
-public class PSNameSpacesUtilTest
-{
+public class PSNameSpacesUtilTest {
 
-   @Test
-   public void testremoveWhitespacesFromName()
-   {
-      assertEquals("ab", removeWhitespacesFromName("ab", asSet("1", "2")));
-      assertEquals("_a___b__",
-            removeWhitespacesFromName(" a\t \nb \n", asSet("1", "2")));
-      assertEquals("___", removeWhitespacesFromName("\t\n ", asSet("1", "2")));
-      assertEquals("", removeWhitespacesFromName("", asSet("1", "2")));
+  @Test
+  public void testremoveWhitespacesFromName() {
+    assertEquals("ab", removeWhitespacesFromName("ab", asSet("1", "2")));
+    assertEquals("_a___b__", removeWhitespacesFromName(" a\t \nb \n", asSet("1", "2")));
+    assertEquals("___", removeWhitespacesFromName("\t\n ", asSet("1", "2")));
+    assertEquals("", removeWhitespacesFromName("", asSet("1", "2")));
 
-      assertEquals("a_b", removeWhitespacesFromName("a b", asSet("1", "2")));
-      assertEquals("a_b2", removeWhitespacesFromName("a b",
-            asSet("a_b", "a_b1")));
-      assertEquals("a_b3", removeWhitespacesFromName("a b",
-            asSet("a_b", "a_b1", "a_b2")));
-   }
-   
-   /**
-    * Convenience method to create unchangeable set of strings.
-    */
-   private Set<String> asSet(String... strs)
-   {
-      final Set<String> set = new HashSet<String>();
-      Collections.addAll(set, strs);
-      return Collections.unmodifiableSet(set); 
-   }
+    assertEquals("a_b", removeWhitespacesFromName("a b", asSet("1", "2")));
+    assertEquals("a_b2", removeWhitespacesFromName("a b", asSet("a_b", "a_b1")));
+    assertEquals("a_b3", removeWhitespacesFromName("a b", asSet("a_b", "a_b1", "a_b2")));
+  }
+
+  /** Convenience method to create unchangeable set of strings. */
+  private Set<String> asSet(String... strs) {
+    final Set<String> set = new HashSet<String>();
+    Collections.addAll(set, strs);
+    return Collections.unmodifiableSet(set);
+  }
 }

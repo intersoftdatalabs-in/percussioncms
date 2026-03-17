@@ -16,88 +16,63 @@
  */
 package com.percussion.test.io;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.IOException;
 
-/**
- * The IOTools class contains IO helper utilities.
- */
-public class IOTools
-{
-   /**
-    * Private constructor.
-    *
-    * This class doesn't need to ever be constructed.
-    * It contains only static methods.
-    */
-   private IOTools()
-   {
-   }
+/** The IOTools class contains IO helper utilities. */
+public class IOTools {
+  /**
+   * Private constructor.
+   *
+   * <p>This class doesn't need to ever be constructed. It contains only static methods.
+   */
+  private IOTools() {}
 
-   /**
-    * Convenience method.
-    * Copies all of the bytes from the InputStream to the
-    * OutputStream using a default buffer size of 8k.
-    *
-    * @see  #copyStream(InputStream, OutputStream, int)
-    */
-   public static long copyStream(InputStream in, OutputStream out)
-      throws IOException
-   {
-      return copyStream(in, out, 8192);
-   }
+  /**
+   * Convenience method. Copies all of the bytes from the InputStream to the OutputStream using a
+   * default buffer size of 8k.
+   *
+   * @see #copyStream(InputStream, OutputStream, int)
+   */
+  public static long copyStream(InputStream in, OutputStream out) throws IOException {
+    return copyStream(in, out, 8192);
+  }
 
-   /**
-    * Copies all of the bytes from the InputStream to the
-    * OutputStream.  The output buffer will be flushed, but 
-    * neither stream will be closed by this method.  It is
-    * the responsibility of the caller to close both streams.
-    *
-    * @param   in  The input stream to get bytes from.
-    *             Never <code>null</code>.
-    *
-    * @param   out The output stream to send bytes to.
-    *             Never <code>null</code>.
-    *
-    * @param   bufSize The number of bytes to transfer
-    *             at a time.
-    *
-    * @return  The number of bytes transferred.
-    * 
-    * @throws  IOException  If an I/O exception occurs during stream
-    *          processing.
-    *
-    * @throws  IllegalArgumentException If any argument is invalid.
-    */
-   public static long copyStream(InputStream in, OutputStream out, int bufSize)
-      throws IOException
-   {
-      if (bufSize <= 0)
-         bufSize = 8192;   // Default to 8k.
+  /**
+   * Copies all of the bytes from the InputStream to the OutputStream. The output buffer will be
+   * flushed, but neither stream will be closed by this method. It is the responsibility of the
+   * caller to close both streams.
+   *
+   * @param in The input stream to get bytes from. Never <code>null</code>.
+   * @param out The output stream to send bytes to. Never <code>null</code>.
+   * @param bufSize The number of bytes to transfer at a time.
+   * @return The number of bytes transferred.
+   * @throws IOException If an I/O exception occurs during stream processing.
+   * @throws IllegalArgumentException If any argument is invalid.
+   */
+  public static long copyStream(InputStream in, OutputStream out, int bufSize) throws IOException {
+    if (bufSize <= 0) bufSize = 8192; // Default to 8k.
 
-      byte[] buf = new byte[bufSize];
+    byte[] buf = new byte[bufSize];
 
-      long bytesSent = 0L;
+    long bytesSent = 0L;
 
-      if (in == null || out == null)
-         throw new IllegalArgumentException(
-            "Supplied streams must not be null.");
+    if (in == null || out == null)
+      throw new IllegalArgumentException("Supplied streams must not be null.");
 
-      while (true)
-      {
-         int read = in.read(buf);
-         
-         if (read < 0)
-            break; // end of input stream reached
+    while (true) {
+      int read = in.read(buf);
 
-         out.write(buf, 0, read);
+      if (read < 0) break; // end of input stream reached
 
-         bytesSent += read;
-      }
+      out.write(buf, 0, read);
 
-      out.flush();
+      bytesSent += read;
+    }
 
-      return bytesSent;
-   }
+    out.flush();
+
+    return bytesSent;
+  }
 }

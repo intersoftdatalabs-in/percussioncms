@@ -17,28 +17,22 @@
 
 package com.percussion.servlets;
 
-import org.springframework.mock.web.MockHttpServletRequest;
-
-import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
-public class PSLoginServletTest 
-{
+import org.springframework.mock.web.MockHttpServletRequest;
 
-   MockHttpServletRequest request = new MockHttpServletRequest();
-   
-   
-   
-   public void testIsValidRedirectUri() throws Exception
-   {
-      request.setScheme("http");
-      request.setServerPort(9992);
-      request.setServerName("perc-test");
-      request.setRequestURI("/stuff");
-      assertEquals("http://perc-test:9992/stuff", request.getRequestURL().toString());
-      assertTrue(PSLoginServlet.isValidRedirectUri(request, "http://perc-test:9992/logout"));
-      assertFalse(PSLoginServlet.isValidRedirectUri(request, "http://badsite.com/login"));
-      assertTrue(PSLoginServlet.isValidRedirectUri(request, "/login"));
-   }
+public class PSLoginServletTest {
 
+  MockHttpServletRequest request = new MockHttpServletRequest();
+
+  public void testIsValidRedirectUri() throws Exception {
+    request.setScheme("http");
+    request.setServerPort(9992);
+    request.setServerName("perc-test");
+    request.setRequestURI("/stuff");
+    assertEquals("http://perc-test:9992/stuff", request.getRequestURL().toString());
+    assertTrue(PSLoginServlet.isValidRedirectUri(request, "http://perc-test:9992/logout"));
+    assertFalse(PSLoginServlet.isValidRedirectUri(request, "http://badsite.com/login"));
+    assertTrue(PSLoginServlet.isValidRedirectUri(request, "/login"));
+  }
 }

@@ -42,8 +42,8 @@ public class PSCgiVariableExtractor extends PSDataExtractor {
   /**
    * Extract a data value using the run-time data.
    *
-   * @param data the execution data associated with this request. This includes all context
-   *     data, result sets, etc.
+   * @param data the execution data associated with this request. This includes all context data,
+   *     result sets, etc.
    * @return the associated value; <code>null</code> if a value is not found
    */
   public Object extract(PSExecutionData data) {
@@ -53,8 +53,8 @@ public class PSCgiVariableExtractor extends PSDataExtractor {
   /**
    * Extract a data value using the run-time data.
    *
-   * @param data the execution data associated with this request. This includes all context
-   *     data, result sets, etc.
+   * @param data the execution data associated with this request. This includes all context data,
+   *     result sets, etc.
    * @param defValue the default value to use if a value is not found
    * @return the associated value; <code>defValue</code> if a value is not found
    */

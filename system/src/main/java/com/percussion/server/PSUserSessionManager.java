@@ -96,7 +96,6 @@ public class PSUserSessionManager extends Thread implements IPSServerConfigurati
    * each category, deletes enough anonymous sessions, then credentialed sessions, to bring us down
    * under the session limit.
    */
-
   private void validateSessions() {
     long idledTimeMS = 0; // in milliseconds
 
@@ -232,7 +231,6 @@ public class PSUserSessionManager extends Thread implements IPSServerConfigurati
    * @param request the request object to locate the session for
    * @return the session object (which may be a temporary session object)
    */
-
   public static synchronized PSUserSession getUserSession(PSRequest request) {
     isTrue(!ms_stopped, "Cannot get user session because session manager has been stopped");
     PSUserSession sess = null;
@@ -506,7 +504,8 @@ public class PSUserSessionManager extends Thread implements IPSServerConfigurati
     manager.setAttribute("isAlive", ms_SessionManager.isAlive() ? "yes" : "no");
     manager.setAttribute("enabled", areSessionsEnabled() ? "yes" : "no");
     manager.setAttribute("sessionTimeout", ms_userTimeout + "ms");
-    manager.setAttribute("maximalOpenUserSessions", Integer.valueOf(ms_maxOpenUserSessions).toString());
+    manager.setAttribute(
+        "maximalOpenUserSessions", Integer.valueOf(ms_maxOpenUserSessions).toString());
     manager.appendChild(sessions);
 
     return manager;

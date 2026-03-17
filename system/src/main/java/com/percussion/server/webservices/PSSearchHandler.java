@@ -326,7 +326,6 @@ public class PSSearchHandler extends PSWebServicesBaseHandler implements IPSSear
    *     and should already contain the correct base element for the response.
    * @throws PSException for any error executing the search.
    */
-
   private void processExternalSearch(
       PSRequest request, PSWSSearchRequest searchReq, Document parent) throws PSException {
     HashSet<Long> contentTypeIdSet = new HashSet<>();
@@ -842,7 +841,6 @@ public class PSSearchHandler extends PSWebServicesBaseHandler implements IPSSear
    *     information
    * @param searchResponse the search response
    */
-
   private void handleAssignmentType(PSRequest request, PSWSSearchResponse searchResponse) {
     IPSSystemService ssvc = PSSystemServiceLocator.getSystemService();
     PSStopwatchStack sws = PSStopwatchStack.getStack();
@@ -939,7 +937,6 @@ public class PSSearchHandler extends PSWebServicesBaseHandler implements IPSSear
    * @param extSearchFields Assumed not <code>null</code>. May be modified by this method, the
    *     sys_contenttypeid field may be removed.
    */
-
   private void optimizeForContentType(List intSearchFields, List extSearchFields) {
     Iterator extFields = extSearchFields.iterator();
     while (extFields.hasNext()) {
@@ -1213,7 +1210,6 @@ public class PSSearchHandler extends PSWebServicesBaseHandler implements IPSSear
    * @throws PSDataExtractionException if the arguments to an extension could not be extracted for
    *     any reason.
    */
-
   private static List<IPSSearchResultRow> runResultProcessingExtensions(
       PSRequest request, List<IPSSearchResultRow> rowList)
       throws PSNotFoundException,
@@ -1269,7 +1265,6 @@ public class PSSearchHandler extends PSWebServicesBaseHandler implements IPSSear
    *     rows in the <code>searchResponse</code>, assumed not <code>null</code>, and to contain a
    *     result for any of the rows in the <code>searchResponse</code>, matching on content id.
    */
-
   private void setRelevancy(PSWSSearchResponse searchResponse, List searchResults) {
     // build map of contentid to relvancy as strings to avoid walking list
     // many times
@@ -1410,7 +1405,6 @@ public class PSSearchHandler extends PSWebServicesBaseHandler implements IPSSear
    * @throws PSException for any error.
    */
   @Override
-
   public void executeKeyFieldSearch(PSRequest request, PSServerItem updateItem) throws PSException {
     if (request == null) throw new IllegalArgumentException("request cannot be null");
 

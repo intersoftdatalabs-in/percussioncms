@@ -16,89 +16,64 @@
  */
 package com.percussion.services.datasource;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 import com.percussion.utils.jdbc.IPSDatasourceConfig;
 import com.percussion.utils.jdbc.PSDatasourceConfig;
 import com.percussion.utils.jdbc.PSDatasourceResolver;
 import com.percussion.utils.tools.PSTestUtils;
 import com.percussion.xml.PSXmlDocumentBuilder;
-
 import java.util.ArrayList;
 import java.util.List;
 
-import org.junit.jupiter.api.Test;
-import static org.junit.jupiter.api.Assertions.*;
+/** Test class for the {@link PSDatasourceResolver} */
+public class PSDatasourceResolverTest {
+  /**
+   * Tests setting and getting values
+   *
+   * @throws Exception if the test fails
+   */
+  public void testSetters() throws Exception {
+    PSDatasourceResolver dsr = new PSDatasourceResolver();
+    String dsName = "ds";
+    PSDatasourceConfig cfg = new PSDatasourceConfig("ds", "jndids", "origin", "db");
+    PSDatasourceConfig cfg2 = new PSDatasourceConfig("ds2", "jndids2", "origin2", "db2");
+    List<IPSDatasourceConfig> dsList = new ArrayList<IPSDatasourceConfig>();
 
-/**
- * Test class for the {@link PSDatasourceResolver}
- */
-public class PSDatasourceResolverTest 
-{
-   /**
-    * Tests setting and getting values
-    * 
-    * @throws Exception if the test fails
-    */
-   
-   public void testSetters() throws Exception
-   {
-      PSDatasourceResolver dsr = new PSDatasourceResolver();
-      String dsName = "ds";
-      PSDatasourceConfig cfg = new PSDatasourceConfig("ds", "jndids", "origin", 
-         "db");
-      PSDatasourceConfig cfg2 = new PSDatasourceConfig("ds2", "jndids2", 
-         "origin2", "db2");
-      List<IPSDatasourceConfig> dsList = new ArrayList<IPSDatasourceConfig>();
-      
-      PSTestUtils.testSetter(dsr, "RepositoryDatasource", dsName + "test", 
-         false);
-      PSTestUtils.testSetter(dsr, "RepositoryDatasource", null, 
-         true);
-      PSTestUtils.testSetter(dsr, "RepositoryDatasource", null, 
-         true);
+    PSTestUtils.testSetter(dsr, "RepositoryDatasource", dsName + "test", false);
+    PSTestUtils.testSetter(dsr, "RepositoryDatasource", null, true);
+    PSTestUtils.testSetter(dsr, "RepositoryDatasource", null, true);
 
-      
-      PSTestUtils.testSetter(dsr, "DatasourceConfigurations", null, 
-         List.class, true);
-      
-      PSTestUtils.testSetter(dsr, "DatasourceConfigurations", dsList, 
-         List.class, true);
-      
-      dsList.add(cfg);
-      PSTestUtils.testSetter(dsr, "DatasourceConfigurations", dsList, 
-         List.class, false);
-      
-      dsList.add(cfg2);
-      PSTestUtils.testSetter(dsr, "DatasourceConfigurations", dsList, 
-         List.class, false);
+    PSTestUtils.testSetter(dsr, "DatasourceConfigurations", null, List.class, true);
 
-   }
-   
-   /**
-    * Test instantiating and serializing from xml
-    * 
-    * @throws Exception if the test fails
-    */
-   
-   public void testXml() throws Exception
-   {
-      PSDatasourceResolver dsr = new PSDatasourceResolver();
-      PSDatasourceConfig cfg = new PSDatasourceConfig("ds", "jndids", "origin", 
-         "db");
-      PSDatasourceConfig cfg2 = new PSDatasourceConfig("ds2", "jndids2",
-         "origin2", "db2");
-      List<IPSDatasourceConfig> dsList = new ArrayList<>();
-      dsList.add(cfg);
-      dsList.add(cfg2);
-      dsr.setDatasourceConfigurations(dsList);
-      dsr.setRepositoryDatasource(cfg.getName());
-      
-      PSDatasourceResolver dsr2 = new PSDatasourceResolver();
-      dsr2.fromXml(dsr.toXml(PSXmlDocumentBuilder.createXmlDocument()));
-      
-      assertEquals(dsr.getRepositoryDatasource(), 
-         dsr2.getRepositoryDatasource());
-      assertEquals(dsr.getDatasourceConfigurations(), 
-         dsr2.getDatasourceConfigurations());
-   }
+    PSTestUtils.testSetter(dsr, "DatasourceConfigurations", dsList, List.class, true);
+
+    dsList.add(cfg);
+    PSTestUtils.testSetter(dsr, "DatasourceConfigurations", dsList, List.class, false);
+
+    dsList.add(cfg2);
+    PSTestUtils.testSetter(dsr, "DatasourceConfigurations", dsList, List.class, false);
+  }
+
+  /**
+   * Test instantiating and serializing from xml
+   *
+   * @throws Exception if the test fails
+   */
+  public void testXml() throws Exception {
+    PSDatasourceResolver dsr = new PSDatasourceResolver();
+    PSDatasourceConfig cfg = new PSDatasourceConfig("ds", "jndids", "origin", "db");
+    PSDatasourceConfig cfg2 = new PSDatasourceConfig("ds2", "jndids2", "origin2", "db2");
+    List<IPSDatasourceConfig> dsList = new ArrayList<>();
+    dsList.add(cfg);
+    dsList.add(cfg2);
+    dsr.setDatasourceConfigurations(dsList);
+    dsr.setRepositoryDatasource(cfg.getName());
+
+    PSDatasourceResolver dsr2 = new PSDatasourceResolver();
+    dsr2.fromXml(dsr.toXml(PSXmlDocumentBuilder.createXmlDocument()));
+
+    assertEquals(dsr.getRepositoryDatasource(), dsr2.getRepositoryDatasource());
+    assertEquals(dsr.getDatasourceConfigurations(), dsr2.getDatasourceConfigurations());
+  }
 }
-

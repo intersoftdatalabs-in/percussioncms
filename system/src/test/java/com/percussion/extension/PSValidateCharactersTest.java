@@ -16,632 +16,503 @@
  */
 package com.percussion.extension;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 import com.percussion.data.PSDataExtractionException;
 import com.percussion.design.objectstore.PSSubject;
 import com.percussion.error.PSRuntimeException;
 import com.percussion.security.PSSecurityToken;
 import com.percussion.server.IPSInternalRequest;
 import com.percussion.server.IPSRequestContext;
+import java.util.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.w3c.dom.Document;
 
-import java.util.*;
-
-import static org.junit.jupiter.api.Assertions.*;
-
 /**
  * Tests the field character validator.
  *
- * See {@link #setup()}
+ * <p>See {@link #setup()}
  *
  * @author adamgent
- *
  */
-public class PSValidateCharactersTest
-{
-   private PSValidateCharacters vc;
-   private MockRequest request;
-   private String fieldValue;
-   private String fieldName;
-
-   @BeforeEach
-   public void setup()
-   {
-      vc = new PSValidateCharacters();
-      vc.parameterNames = new String[] {"invalidChars", "fieldName"};
-      request = new MockRequest();
-      fieldName = PSValidateCharacters.DEFAULT_FIELD_NAME;
-   }
-
-   @Test
-   public void testInvalidCharactersWithArgs() throws Exception
-   {
-      fieldName = "blah";
-      fieldValue = "foo";
-      String invalidChars = "abo";
-      boolean result = (Boolean) vc.processUdf(new Object[] {fieldName, invalidChars} , request);
-
-      assertFalse(result, "Should be invalid since foo has an 'o'");
-   }
-
-   @Test
-   public void testValidCharactersWithDefaults() throws Exception
-   {
-      fieldValue = "foo";
-      boolean result = (Boolean) vc.processUdf(new Object[] {} , request);
+public class PSValidateCharactersTest {
+  private PSValidateCharacters vc;
+  private MockRequest request;
+  private String fieldValue;
+  private String fieldName;
 
-      assertTrue(result, "Should be valid since 'foo' has legal characters");
-   }
+  @BeforeEach
+  public void setup() {
+    vc = new PSValidateCharacters();
+    vc.parameterNames = new String[] {"invalidChars", "fieldName"};
+    request = new MockRequest();
+    fieldName = PSValidateCharacters.DEFAULT_FIELD_NAME;
+  }
 
-   @Test
-   public void testInvalidCharactersWithDefaults() throws Exception
-   {
-      fieldValue = "foo#";
-      boolean result = (Boolean) vc.processUdf(new Object[] {} , request);
+  @Test
+  public void testInvalidCharactersWithArgs() throws Exception {
+    fieldName = "blah";
+    fieldValue = "foo";
+    String invalidChars = "abo";
+    boolean result = (Boolean) vc.processUdf(new Object[] {fieldName, invalidChars}, request);
 
-      assertFalse(result, "Should be invalid since 'foo#' has '#'");
+    assertFalse(result, "Should be invalid since foo has an 'o'");
+  }
 
-   }
+  @Test
+  public void testValidCharactersWithDefaults() throws Exception {
+    fieldValue = "foo";
+    boolean result = (Boolean) vc.processUdf(new Object[] {}, request);
 
-   @Test
-   public void testValidCharactersWithBadArguments() throws Exception
-   {
-      fieldValue = "foo";
-      assertThrows(IllegalArgumentException.class, () -> vc.processUdf(new Object[] {""} , request));
-   }
+    assertTrue(result, "Should be valid since 'foo' has legal characters");
+  }
 
-   @Test
-   public void testInValidCharactersWithBadParameterNames() throws Exception
-   {
-      vc.parameterNames = new String[] {};
-      fieldValue = "foo";
-      assertThrows(IllegalArgumentException.class, () -> vc.processUdf(new Object[] {"", ""} , request));
-   }
+  @Test
+  public void testInvalidCharactersWithDefaults() throws Exception {
+    fieldValue = "foo#";
+    boolean result = (Boolean) vc.processUdf(new Object[] {}, request);
 
+    assertFalse(result, "Should be invalid since 'foo#' has '#'");
+  }
 
+  @Test
+  public void testValidCharactersWithBadArguments() throws Exception {
+    fieldValue = "foo";
+    assertThrows(IllegalArgumentException.class, () -> vc.processUdf(new Object[] {""}, request));
+  }
 
+  @Test
+  public void testInValidCharactersWithBadParameterNames() throws Exception {
+    vc.parameterNames = new String[] {};
+    fieldValue = "foo";
+    assertThrows(
+        IllegalArgumentException.class, () -> vc.processUdf(new Object[] {"", ""}, request));
+  }
 
-   private class MockRequest implements IPSRequestContext {
+  private class MockRequest implements IPSRequestContext {
 
-      public String getParameter(String name)
-      {
-         assertEquals(fieldName, name, "Bad field name");
-         return fieldValue;
-      }
+    public String getParameter(String name) {
+      assertEquals(fieldName, name, "Bad field name");
+      return fieldValue;
+    }
 
-      /*
-       * The following methods do not matter
-       */
+    /*
+     * The following methods do not matter
+     */
 
-      /*
-       * (non-Javadoc)
-       * @see com.percussion.server.IPSRequestContext#appendParameter(java.lang.String, java.lang.Object)
-       */
-      public void appendParameter(String name, Object value)
-      {
-      }
+    /*
+     * (non-Javadoc)
+     * @see com.percussion.server.IPSRequestContext#appendParameter(java.lang.String, java.lang.Object)
+     */
+    public void appendParameter(String name, Object value) {}
 
-      public void continueRequestTimer()
-      {
-      }
+    public void continueRequestTimer() {}
 
-      public Set<PSSubject> expandGroups(Set<PSSubject> subjects)
-      {
+    public Set<PSSubject> expandGroups(Set<PSSubject> subjects) {
 
-         return null;
-      }
+      return null;
+    }
 
-      public String getCgiVariable(String name)
-      {
+    public String getCgiVariable(String name) {
 
-         return null;
-      }
+      return null;
+    }
 
-      public String getContentHeaderOverride()
-      {
+    public String getContentHeaderOverride() {
 
-         return null;
-      }
+      return null;
+    }
 
-      public int getCurrentApplicationAccessLevel()
-      {
+    public int getCurrentApplicationAccessLevel() {
 
-         return 0;
-      }
+      return 0;
+    }
 
-      public String getCurrentApplicationName()
-      {
+    public String getCurrentApplicationName() {
 
-         return null;
-      }
+      return null;
+    }
 
-      public String getFileCharacterSet()
-      {
+    public String getFileCharacterSet() {
 
-         return null;
-      }
+      return null;
+    }
 
-      public Enumeration getHeaders()
-      {
+    public Enumeration getHeaders() {
 
-         return null;
-      }
+      return null;
+    }
 
-      public String getHookURL()
-      {
+    public String getHookURL() {
 
-         return null;
-      }
+      return null;
+    }
 
-      public Document getInputDocument()
-      {
+    public Document getInputDocument() {
 
-         return null;
-      }
+      return null;
+    }
 
-      public IPSInternalRequest getInternalRequest(String resource)
-      {
+    public IPSInternalRequest getInternalRequest(String resource) {
 
-         return null;
-      }
+      return null;
+    }
 
-      public IPSInternalRequest getInternalRequest(String resource,
-            Map extraParams, boolean inheritCurrentParams)
-      {
+    public IPSInternalRequest getInternalRequest(
+        String resource, Map extraParams, boolean inheritCurrentParams) {
 
-         return null;
-      }
+      return null;
+    }
 
-      public String getOriginalHost()
-      {
+    public String getOriginalHost() {
 
-         return null;
-      }
+      return null;
+    }
 
-      public int getOriginalPort()
-      {
+    public int getOriginalPort() {
 
-         return 0;
-      }
+      return 0;
+    }
 
-      public String getOriginalProtocol()
-      {
+    public String getOriginalProtocol() {
 
-         return null;
-      }
+      return null;
+    }
 
-      public PSSubject getOriginalSubject()
-      {
+    public PSSubject getOriginalSubject() {
 
-         return null;
-      }
+      return null;
+    }
 
-      public String getParameter(String name, Object defValue)
-      {
+    public String getParameter(String name, Object defValue) {
 
-         return null;
-      }
+      return null;
+    }
 
-      public Object[] getParameterList(String name)
-      {
+    public Object[] getParameterList(String name) {
 
-         return null;
-      }
+      return null;
+    }
 
-      public Object getParameterObject(String name, Object defValue)
-      {
+    public Object getParameterObject(String name, Object defValue) {
 
-         return null;
-      }
+      return null;
+    }
 
-      public Object getParameterObject(String name)
-      {
+    public Object getParameterObject(String name) {
 
-         return null;
-      }
+      return null;
+    }
 
+    public Map<String, Object> getParameters() {
 
-      public Map<String,Object> getParameters()
-      {
+      return null;
+    }
 
-         return null;
-      }
+    public Iterator getParametersIterator() {
 
-      public Iterator getParametersIterator()
-      {
+      return null;
+    }
 
-         return null;
-      }
+    public Locale getPreferredLocale() {
 
-      public Locale getPreferredLocale()
-      {
+      return null;
+    }
 
-         return null;
-      }
+    public Object getPrivateObject(Object key) throws PSRuntimeException {
 
-      public Object getPrivateObject(Object key) throws PSRuntimeException
-      {
+      return null;
+    }
 
-         return null;
-      }
+    public String getRequestCookie(String name, String defValue) {
 
-      public String getRequestCookie(String name, String defValue)
-      {
+      return null;
+    }
 
-         return null;
-      }
+    public String getRequestCookie(String name) {
 
-      public String getRequestCookie(String name)
-      {
+      return null;
+    }
 
-         return null;
-      }
+    public String getRequestFileURL() {
 
-      public String getRequestFileURL()
-      {
+      return null;
+    }
 
-         return null;
-      }
+    public String getRequestPage() {
 
-      public String getRequestPage()
-      {
+      return null;
+    }
 
-         return null;
-      }
+    public String getRequestPage(boolean includeExtension) {
 
-      public String getRequestPage(boolean includeExtension)
-      {
+      return null;
+    }
 
-         return null;
-      }
+    public String getRequestPageExtension() {
 
-      public String getRequestPageExtension()
-      {
+      return null;
+    }
 
-         return null;
-      }
+    public int getRequestPageType() {
 
-      public int getRequestPageType()
-      {
+      return 0;
+    }
 
-         return 0;
-      }
+    public String getRequestRoot() {
 
-      public String getRequestRoot()
-      {
+      return null;
+    }
 
-         return null;
-      }
+    public HashMap getResponseCookies() {
 
-      public HashMap getResponseCookies()
-      {
+      return null;
+    }
 
-         return null;
-      }
+    public List getRoleAttributes(String roleName) {
 
-      public List getRoleAttributes(String roleName)
-      {
+      return null;
+    }
 
-         return null;
-      }
+    public Set getRoleEmailAddresses(String roleName, String emailAttributeName, String community) {
 
-      public Set getRoleEmailAddresses(String roleName,
-            String emailAttributeName, String community)
-      {
+      return null;
+    }
 
-         return null;
-      }
+    public Set getRoleEmailAddresses(
+        String roleName, String emailAttributeName, String community, Set subjectsWithoutEmail) {
 
-      public Set getRoleEmailAddresses(String roleName,
-            String emailAttributeName, String community,
-            Set subjectsWithoutEmail)
-      {
+      return null;
+    }
 
-         return null;
-      }
+    public List getRoleMembers(String roleName, int flags, int memberFlags) {
 
-      public List getRoleMembers(String roleName, int flags, int memberFlags)
-      {
+      return null;
+    }
 
-         return null;
-      }
+    public List getRoleSubjects(String roleName) {
 
-      public List getRoleSubjects(String roleName)
-      {
+      return null;
+    }
 
-         return null;
-      }
+    public List getRoleSubjects(String roleName, int memberFlags, String subjectNameFilter) {
 
-      public List getRoleSubjects(String roleName, int memberFlags,
-            String subjectNameFilter)
-      {
+      return null;
+    }
 
-         return null;
-      }
+    public List getRoles() {
 
-      public List getRoles()
-      {
+      return null;
+    }
 
-         return null;
-      }
+    public PSSecurityToken getSecurityToken() {
 
-      public PSSecurityToken getSecurityToken()
-      {
+      return null;
+    }
 
-         return null;
-      }
+    public String getServerHostAddress() {
 
-      public String getServerHostAddress()
-      {
+      return null;
+    }
 
-         return null;
-      }
+    public int getServerListenerPort() {
 
-      public int getServerListenerPort()
-      {
+      return 0;
+    }
 
-         return 0;
-      }
+    public Object getSessionObject(String key) {
 
-      public Object getSessionObject(String key)
-      {
+      return null;
+    }
 
-         return null;
-      }
+    public Object getSessionPrivateObject(Object key) {
 
-      public Object getSessionPrivateObject(Object key)
-      {
+      return null;
+    }
 
-         return null;
-      }
+    public Set getSubjectEmailAddresses(
+        String subjectName, String emailAttributeName, String community) {
 
-      public Set getSubjectEmailAddresses(String subjectName,
-            String emailAttributeName, String community)
-      {
+      return null;
+    }
 
-         return null;
-      }
+    public List<PSSubject> getSubjectGlobalAttributes(
+        String subjectNameFilter,
+        int subjectType,
+        int providerType,
+        String providerInstance,
+        String roleName,
+        String attributeNameFilter,
+        boolean includeEmptySubjects) {
 
-      public List<PSSubject> getSubjectGlobalAttributes(String subjectNameFilter,
-            int subjectType, int providerType, String providerInstance,
-            String roleName, String attributeNameFilter,
-            boolean includeEmptySubjects)
-      {
+      return null;
+    }
 
-         return null;
-      }
+    public List<PSSubject> getSubjectGlobalAttributes(
+        String subjectNameFilter,
+        int subjectType,
+        String roleName,
+        String attributeNameFilter,
+        boolean includeEmptySubjects,
+        String communityId) {
 
-      public List<PSSubject> getSubjectGlobalAttributes(String subjectNameFilter,
-            int subjectType, String roleName, String attributeNameFilter,
-            boolean includeEmptySubjects, String communityId)
-      {
+      return null;
+    }
 
-         return null;
-      }
+    public List getSubjectGlobalAttributes(
+        String subjectNameFilter,
+        int subjectType,
+        String roleName,
+        String attributeNameFilter,
+        boolean includeEmptySubjects) {
 
-      public List getSubjectGlobalAttributes(String subjectNameFilter,
-            int subjectType, String roleName, String attributeNameFilter,
-            boolean includeEmptySubjects)
-      {
+      return null;
+    }
 
-         return null;
-      }
+    public List getSubjectGlobalAttributes() {
 
-      public List getSubjectGlobalAttributes()
-      {
+      return null;
+    }
 
-         return null;
-      }
+    public List getSubjectGlobalAttributes(PSSubject subject) {
 
-      public List getSubjectGlobalAttributes(PSSubject subject)
-      {
+      return null;
+    }
 
-         return null;
-      }
+    public List getSubjectRoleAttributes(
+        String subjectNameFilter,
+        int subjectType,
+        int providerType,
+        String providerInstance,
+        String roleName,
+        String attributeNameFilter) {
 
-      public List getSubjectRoleAttributes(String subjectNameFilter,
-            int subjectType, int providerType, String providerInstance,
-            String roleName, String attributeNameFilter)
-      {
+      return null;
+    }
 
-         return null;
-      }
+    public List getSubjectRoleAttributes(
+        String subjectNameFilter, int subjectType, String roleName, String attributeNameFilter) {
 
-      public List getSubjectRoleAttributes(String subjectNameFilter,
-            int subjectType, String roleName, String attributeNameFilter)
-      {
+      return null;
+    }
 
-         return null;
-      }
+    public List getSubjectRoleAttributes(String roleName) {
 
-      public List getSubjectRoleAttributes(String roleName)
-      {
+      return null;
+    }
 
-         return null;
-      }
+    public List getSubjectRoleAttributes(PSSubject subject, String roleName) {
 
-      public List getSubjectRoleAttributes(PSSubject subject, String roleName)
-      {
+      return null;
+    }
 
-         return null;
-      }
+    public List getSubjectRoles(PSSubject subject) {
 
-      public List getSubjectRoles(PSSubject subject)
-      {
+      return null;
+    }
 
-         return null;
-      }
+    public List getSubjectRoles() {
 
-      public List getSubjectRoles()
-      {
+      return null;
+    }
 
-         return null;
-      }
+    public List getSubjectRoles(String subjectName) {
 
-      public List getSubjectRoles(String subjectName)
-      {
+      return null;
+    }
 
-         return null;
-      }
+    public List getSubjects(String subjectNameFilter) {
 
-      public List getSubjects(String subjectNameFilter)
-      {
+      return null;
+    }
 
-         return null;
-      }
+    public Map getTruncatedParameters() {
 
-      public Map getTruncatedParameters()
-      {
+      return null;
+    }
 
-         return null;
-      }
+    public Object getUserContextInformation(String contextItem, Object defValue)
+        throws PSDataExtractionException {
 
-      public Object getUserContextInformation(String contextItem,
-            Object defValue) throws PSDataExtractionException
-      {
+      return null;
+    }
 
-         return null;
-      }
+    public String getUserLocale() {
 
-      public String getUserLocale()
-      {
+      return null;
+    }
 
-         return null;
-      }
+    public String getUserName() {
 
-      public String getUserName()
-      {
+      return null;
+    }
 
-         return null;
-      }
+    public List getUserRoles(String provider, String providerInstance, String name) {
 
-      public List getUserRoles(String provider, String providerInstance,
-            String name)
-      {
+      return null;
+    }
 
-         return null;
-      }
+    public String getUserSessionId() {
 
-      public String getUserSessionId()
-      {
+      return null;
+    }
 
-         return null;
-      }
+    public boolean hasMultiValuesForAnyParameter() {
 
-      public boolean hasMultiValuesForAnyParameter()
-      {
+      return false;
+    }
 
-         return false;
-      }
+    public boolean isTraceEnabled() {
 
-      public boolean isTraceEnabled()
-      {
+      return false;
+    }
 
-         return false;
-      }
+    public void pauseRequestTimer() {}
 
-      public void pauseRequestTimer()
-      {
+    public void printTraceMessage(String message) {}
 
+    public Object removeParameter(String name) {
 
-      }
+      return null;
+    }
 
-      public void printTraceMessage(String message)
-      {
+    public void setCgiVariable(String cgiVarName, String cgiVarValue) {}
 
+    public void setContentHeaderOverride(String header) {}
 
-      }
+    public boolean setEntityHeader(String name, String value) {
 
-      public Object removeParameter(String name)
-      {
+      return false;
+    }
 
-         return null;
-      }
+    public void setFileCharacterSet(String encoding) {}
 
-      public void setCgiVariable(String cgiVarName, String cgiVarValue)
-      {
+    public boolean setGeneralHeader(String name, String value) {
 
+      return false;
+    }
 
-      }
+    public void setInputDocument(Document inDoc) {}
 
-      public void setContentHeaderOverride(String header)
-      {
+    public void setParameter(String name, Object value) {}
 
+    public void setParameterList(String name, Object[] values) {}
 
-      }
+    public void setParameters(Map<String, Object> params) {}
 
-      public boolean setEntityHeader(String name, String value)
-      {
+    public void setPrivateObject(Object key, Object o) throws PSRuntimeException {}
 
-         return false;
-      }
+    public void setResponseCookie(
+        String name, String value, String path, String domain, Date expires, boolean secure) {}
 
-      public void setFileCharacterSet(String encoding)
-      {
+    public void setResponseCookies(HashMap cookies) {}
 
+    public boolean setResponseHeader(String name, String value) {
 
-      }
+      return false;
+    }
 
-      public boolean setGeneralHeader(String name, String value)
-      {
-
-         return false;
-      }
-
-      public void setInputDocument(Document inDoc)
-      {
-
-
-      }
-
-      public void setParameter(String name, Object value)
-      {
-
-
-      }
-
-      public void setParameterList(String name, Object[] values)
-      {
-
-
-      }
-
-      public void setParameters(Map<String,Object> params)
-      {
-
-
-      }
-
-      public void setPrivateObject(Object key, Object o)
-            throws PSRuntimeException
-      {
-
-
-      }
-
-      public void setResponseCookie(String name, String value, String path,
-            String domain, Date expires, boolean secure)
-      {
-
-
-      }
-
-      public void setResponseCookies(HashMap cookies)
-      {
-      }
-
-      public boolean setResponseHeader(String name, String value)
-      {
-
-         return false;
-      }
-
-      public void setSessionPrivateObject(Object key, Object o)
-      {
-
-
-      }
-
-   }
+    public void setSessionPrivateObject(Object key, Object o) {}
+  }
 }

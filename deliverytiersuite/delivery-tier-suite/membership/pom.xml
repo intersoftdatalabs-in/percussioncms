@@ -46,7 +46,6 @@
             <groupId>jakarta.annotation</groupId>
             <artifactId>jakarta.annotation-api</artifactId>
         </dependency>
-
         <!-- Spring Framework -->
         <dependency>
             <groupId>org.springframework</groupId>
@@ -73,7 +72,6 @@
             <artifactId>spring-test</artifactId>
             <scope>test</scope>
         </dependency>
-
         <!-- Jersey / JAX-RS -->
         <dependency>
             <groupId>org.glassfish.jersey.ext</groupId>
@@ -87,13 +85,11 @@
             <groupId>org.glassfish.jersey.core</groupId>
             <artifactId>jersey-server</artifactId>
         </dependency>
-
         <!-- Hibernate -->
         <dependency>
             <groupId>org.hibernate.orm</groupId>
             <artifactId>hibernate-core</artifactId>
         </dependency>
-
         <!-- Utilities -->
         <dependency>
             <groupId>org.apache.commons</groupId>
@@ -107,13 +103,11 @@
             <groupId>org.jasypt</groupId>
             <artifactId>jasypt</artifactId>
         </dependency>
-
         <!-- Logging -->
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-api</artifactId>
         </dependency>
-
         <!-- JSON Processing -->
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
@@ -123,7 +117,6 @@
             <groupId>com.fasterxml.jackson.jakarta.rs</groupId>
             <artifactId>jackson-jakarta-rs-json-provider</artifactId>
         </dependency>
-
         <!-- Test Dependencies -->
         <dependency>
             <groupId>org.junit.jupiter</groupId>

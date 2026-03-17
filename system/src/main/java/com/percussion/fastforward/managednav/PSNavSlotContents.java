@@ -61,8 +61,6 @@ import org.apache.logging.log4j.Logger;
  * effectively means that Navons and NavImages cannot be in "Staging" states, although the landing
  * pages can.
  *
-
- *
  * @author DavidBenua
  */
 public class PSNavSlotContents {
