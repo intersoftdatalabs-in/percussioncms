@@ -158,6 +158,7 @@ public class PSJBossJndiDatasource extends PSJndiDatasourceImpl
       throw new PSInvalidXmlException(IPSXmlErrors.XML_ELEMENT_MISSING, METADATA);
   }
 
+  @SuppressWarnings("this-escape")
   public PSJBossJndiDatasource(IPSJndiDatasource ds) {
     try {
       BeanUtils.copyProperties(this, ds);

@@ -52,6 +52,7 @@ public class PSJBossConnectors extends PSAbstractXmlConnectors {
     this.laxFile = rxRootDir.resolve(CM1_LEGACY_LAX_FILE);
   }
 
+  @SuppressWarnings("this-escape")
   public PSJBossConnectors(File rxDir, PSAbstractConnectors connectorInfo) {
     this(rxDir);
     setConnectors(connectorInfo.getConnectors());

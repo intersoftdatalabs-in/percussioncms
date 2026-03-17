@@ -80,8 +80,15 @@ public class PSEncryptor extends PSAbstractEncryptor {
    * @param algorithm encryption algorithm
    * @param keyLocation location of the key file
    */
-  public PSEncryptor(String algorithm, String keyLocation) {
-    init(algorithm, keyLocation);
+  public PSEncryptor(String algorithm, String keystoreLocation) {
+    // Initialize directly to avoid 'this' escape
+    this.secretKey = loadKey(algorithm, keystoreLocation);
+
+    // Make sure it has a trailing /
+    if (!keystoreLocation.trim().endsWith(File.separator)) {
+        keystoreLocation = keystoreLocation.trim() + File.separator;
+    }
+    this.secureDir = keystoreLocation;
   }
 
   /**

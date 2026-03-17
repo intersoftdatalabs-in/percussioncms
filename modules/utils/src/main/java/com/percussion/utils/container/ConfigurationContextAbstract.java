@@ -87,6 +87,7 @@ public abstract class ConfigurationContextAbstract<
    *
    * @param from the source context to copy from
    */
+  @SuppressWarnings("unchecked")
   public void copyFrom(ConfigurationContextAbstract<T, U> from) {
     try {
       this.config = (U) BeanUtils.cloneBean(from.getConfig());

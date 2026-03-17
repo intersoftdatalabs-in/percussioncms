@@ -341,6 +341,7 @@ public abstract class PSAbstractConnector implements IPSConnector, XMLEnabled {
       super();
     }
 
+    @SuppressWarnings("this-escape")
     public HttpsBuilder(Builder connectorBuilder) {
       super(connectorBuilder);
       setHttps();

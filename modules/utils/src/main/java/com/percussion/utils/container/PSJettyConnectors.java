@@ -61,6 +61,7 @@ public class PSJettyConnectors extends PSAbstractConnectors {
     rxRootDir = rxDir;
   }
 
+  @SuppressWarnings("this-escape")
   public PSJettyConnectors(Path rxDir, PSAbstractConnectors connectorInfo) {
     this(rxDir);
     mergeConnectors(connectorInfo.getConnectors());

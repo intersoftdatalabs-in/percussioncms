@@ -53,6 +53,7 @@ public class PSJettyJndiDatasource extends PSJBossJndiDatasource {
     super(source);
   }
 
+  @SuppressWarnings("this-escape")
   public PSJettyJndiDatasource(Properties props) {
     this(
         props.getProperty(DB_NAME_PROPERTY),

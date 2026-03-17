@@ -325,7 +325,7 @@ public class PSDESEncryptor implements IPSEncryptor {
   private void applySubKeys(int[] LArray, int[] RArray) {
     int[] encryptedBlock = new int[initialPermLen];
 
-    int iteLimit = m_key.IterationSetting;
+    int iteLimit = PSDESKey.IterationSetting;
     int[] ERArray = new int[eArrayLen]; // 48 elements
     int[] KArray = new int[eArrayLen];
 
@@ -598,6 +598,6 @@ public class PSDESEncryptor implements IPSEncryptor {
 
   // The key to use for encryption
   private PSDESKey m_key;
-  private ArrayList m_dataList = new ArrayList();
+  private ArrayList<Integer> m_dataList = new ArrayList<Integer>();
   private byte[] m_oneEncodedDataBlock = new byte[8];
 }

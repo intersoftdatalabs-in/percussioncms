@@ -76,6 +76,7 @@ public class PSDatasourceConfig implements IPSDatasourceConfig, IPSBeanConfig, C
    *
    * @param config The config, may not be <code>null</code>.
    */
+  @SuppressWarnings("this-escape")
   public PSDatasourceConfig(IPSDatasourceConfig config) {
     if (config == null) throw new IllegalArgumentException("config may not be null");
 

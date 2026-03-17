@@ -228,7 +228,7 @@ public class PSDESDecryptor implements IPSDecryptor {
 
     int[] decryptedBlock = new int[initialPermLen];
 
-    int iteLimit = m_key.IterationSetting;
+    int iteLimit = PSDESKey.IterationSetting;
     int[] ELArray = new int[eArrayLen]; // 48 elements
     int[] KArray = new int[eArrayLen];
 
@@ -501,6 +501,6 @@ public class PSDESDecryptor implements IPSDecryptor {
 
   // the key to use for decryption
   private PSDESKey m_key;
-  private ArrayList m_dataList = new ArrayList();
+  private ArrayList<Integer> m_dataList = new ArrayList<Integer>();
   private byte[] m_oneDecodedDataBlock = new byte[8];
 }

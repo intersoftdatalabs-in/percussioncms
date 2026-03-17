@@ -299,13 +299,12 @@ public class PSBrandCodeMapVersion {
       case IPSBrandCodeMap.PARTS_TYPE_REQUIRED:
         reqoptPartId += reqPartId;
         if (partsType == IPSBrandCodeMap.PARTS_TYPE_REQUIRED) break;
-      /* falls through */
-
+      // fall through intentionally
       case IPSBrandCodeMap.PARTS_TYPE_OPTIONAL:
       case IPSBrandCodeMap.PARTS_TYPE_OPTIONAL_SELECTED:
         reqoptPartId += selOptPartId;
         if (partsType == IPSBrandCodeMap.PARTS_TYPE_OPTIONAL_SELECTED) break;
-      /* falls through */
+      // fall through intentionally
 
       case IPSBrandCodeMap.PARTS_TYPE_OPTIONAL_UNSELECTED:
         reqoptPartId += unselOptPartId;

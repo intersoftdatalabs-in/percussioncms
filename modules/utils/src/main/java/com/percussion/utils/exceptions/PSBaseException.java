@@ -68,6 +68,7 @@ public abstract class PSBaseException extends Exception {
    * @param arrayArgs The array of arguments to use as the arguments in the error message. May be
    *     <code>null</code>, and may contain <code>null</code> elements.
    */
+  @SuppressWarnings("this-escape")
   public PSBaseException(int msgCode, Throwable cause, Object... arrayArgs) {
     this(msgCode, arrayArgs);
     fillInStackTrace();
@@ -95,6 +96,7 @@ public abstract class PSBaseException extends Exception {
    * @param message the exception message
    * @param cause the causing throwable
    */
+  @SuppressWarnings("this-escape")
   public PSBaseException(String message, Throwable cause) {
     super(message, cause);
     this.m_code = 0;
