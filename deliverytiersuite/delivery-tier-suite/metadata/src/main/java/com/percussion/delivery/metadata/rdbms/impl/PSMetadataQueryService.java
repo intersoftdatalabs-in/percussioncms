@@ -89,7 +89,6 @@ public class PSMetadataQueryService implements IPSMetadataQueryService {
    * WHERE\n" + "NAME = 'perc:category'\n" + "GROUP BY name, stringvalue ORDER BY stringvalue";
    *
    * @param query
-   * @return
    */
   public List<Object[]> executeCategoryQuery(PSMetadataQuery query)
       throws PSMalformedMetadataQueryException {
@@ -712,7 +711,6 @@ public class PSMetadataQueryService implements IPSMetadataQueryService {
    *
    * @param query
    * @param type sort type
-   * @return
    */
   private PSPair<Query, SORTTYPE> getBuildQueryInfo(Query query, SORTTYPE type) {
     PSPair<Query, SORTTYPE> queryInfo = new PSPair<Query, SORTTYPE>();
@@ -725,7 +723,6 @@ public class PSMetadataQueryService implements IPSMetadataQueryService {
    * if orderby on the query is a clob type then pagination is not allowed
    *
    * @param query
-   * @return
    */
   private boolean isPagingSupported(PSMetadataQuery query) {
     // TODO:  It is unclear that this code actually works. How can the column name ever equal the

@@ -782,7 +782,6 @@ public class PSFolderHandler extends PSWebServicesBaseHandler {
    * defaults.
    *
    * @param sourceNode
-   * @return
    * @throws PSUnknownNodeTypeException
    */
   protected static Element validateCreateFolderRequest(Element sourceNode)

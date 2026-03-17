@@ -84,7 +84,6 @@ public class PSPackageServiceTest {
    * Determine that we are only getting back unique entries by name.
    *
    * @param pkgs
-   * @return
    */
   private boolean allEntriesUnique(PSPackages pkgs) {
     List<String> entries = new ArrayList<String>();
@@ -100,7 +99,6 @@ public class PSPackageServiceTest {
    *
    * @param pkgs
    * @param name
-   * @return
    */
   private PSPackage getEntryByName(PSPackages pkgs, String name) {
     for (PSPackage pkg : pkgs.getPackages()) {

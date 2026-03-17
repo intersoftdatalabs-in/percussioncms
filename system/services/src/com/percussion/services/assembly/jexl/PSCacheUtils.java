@@ -38,7 +38,7 @@ public class PSCacheUtils extends PSJexlUtilBase {
 	 * Method to get the cache object from provided cache name. 
 	 * @param key
 	 * @param cacheName
-	 * @return
+
 	 */
 	@IPSJexlMethod(description = "get the value for a key from cache", params =
 		   {@IPSJexlParam(name = "key", description = "the key to get the value cached"),

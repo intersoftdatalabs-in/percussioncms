@@ -1604,7 +1604,6 @@ public class PSManagedLinkService implements IPSManagedLinkService {
    * @param linkContext - link context used to get correct revision.
    * @param isStaging - also used to
    * @param value
-   * @return
    */
   private Node getAssetNode(
       int childId, PSRenderLinkContext linkContext, Boolean isStaging, String value) {

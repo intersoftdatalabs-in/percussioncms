@@ -202,7 +202,6 @@ public class PSSecureXMLUtils {
    * off based on the caller.
    *
    * @param options Options for secure processing
-   * @return
    */
   public static XMLInputFactory getSecuredXMLInputFactory(PSXmlSecurityOptions options) {
 

@@ -1840,7 +1840,7 @@ public class PSAssemblyService implements IPSAssemblyService
     *
     * @param stylesheet the stylesheet file. Assumed not <code>null</code> and
     *           that it ends with {@link #XSL_EXTENSION}.
-    * @return
+
     * @throws IOException
     * @throws SAXException
     */

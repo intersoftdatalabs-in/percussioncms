@@ -88,7 +88,7 @@ public class TaxonomySecurityHelper {
   /***
    * Minimal method for sanitizing input
    * @param input
-   * @return
+   *
    */
   public static String sanitizeInputForXSS(String input) {
     return Jsoup.clean(input, Safelist.none());

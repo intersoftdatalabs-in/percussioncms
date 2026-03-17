@@ -209,7 +209,6 @@ public class PSCommentsRestService extends PSAbstractRestService implements IPSC
 
   /**
    * @param sortby
-   * @return
    */
   private SORTBY getSortBy(String sortby) {
     PSCommentSort.SORTBY[] sortvals = PSCommentSort.SORTBY.values();
@@ -225,7 +224,6 @@ public class PSCommentsRestService extends PSAbstractRestService implements IPSC
   /**
    * @param strInt
    * @param paramName
-   * @return
    */
   private int getIntValue(String strInt, String paramName) {
     try {
@@ -242,7 +240,6 @@ public class PSCommentsRestService extends PSAbstractRestService implements IPSC
 
   /**
    * @param state
-   * @return
    */
   private APPROVAL_STATE getState(String state) {
     APPROVAL_STATE[] approvalVals = APPROVAL_STATE.values();

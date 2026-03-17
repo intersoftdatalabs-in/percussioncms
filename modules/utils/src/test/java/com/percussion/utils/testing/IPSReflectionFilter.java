@@ -25,7 +25,6 @@ public interface IPSReflectionFilter {
    * Return true if the given methodname should be used as an accessor and false otherwise.
    *
    * @param methodname The given methodname, which will never be <code>null</code> or empty
-   * @return
    */
   boolean acceptMethod(String methodname);
 }

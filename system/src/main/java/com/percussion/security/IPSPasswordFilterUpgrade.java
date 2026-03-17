@@ -32,7 +32,7 @@ public interface IPSPasswordFilterUpgrade {
    * on login after a security update.
    *
    * @param password
-   * @return
+   *
    */
   String legacyEncrypt(String password);
 

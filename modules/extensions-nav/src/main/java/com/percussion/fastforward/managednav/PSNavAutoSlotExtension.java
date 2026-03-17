@@ -201,7 +201,6 @@ public class PSNavAutoSlotExtension extends PSDefaultExtension
    * alphabetically.
    *
    * @param req reqiest context object, assumed not <code>null</code>.
-   * @return
    * @throws PSNavException
    * @author DavidBenua
    */

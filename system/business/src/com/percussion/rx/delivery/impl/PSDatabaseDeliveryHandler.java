@@ -654,7 +654,7 @@ public class PSDatabaseDeliveryHandler extends PSBaseDeliveryHandler
     * @param item the item being published or unpublished, never
     *            <code>null</code>
     * @param jobId the id of the associated job
-    * @return
+
     */
    protected IPSDeliveryResult perform(Item item, long jobId)
    {

@@ -664,7 +664,6 @@ public class PSRemoteAgent {
    * anything preceding the "ApplicationName/resource" and changes the extension to xml from html.
    *
    * @param item
-   * @return
    */
   private String getAppResource(PSClientItem item) {
     String app_resource = item.getItemDefinition().getEditorUrl();

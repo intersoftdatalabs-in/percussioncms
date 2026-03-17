@@ -41,7 +41,7 @@ public interface LinkBuilderService {
    * @param folder the folder that the item is being published from
    * @param context the assembly context that is being used for the content generation
    * @param contextVar the context variable that contains the URL root for the context.
-   * @return
+   *
    */
   public String buildLinkUrl(
       IPSSite site,

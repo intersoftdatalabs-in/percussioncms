@@ -1162,7 +1162,7 @@ public class PSContentWs extends PSContentBaseWs implements IPSContentWs
     * @param enableRevisions
     * @param session
     * @param user
-    * @return
+
     * @throws PSErrorResultsException
     * @throws PSErrorException
     */
@@ -1976,7 +1976,7 @@ public class PSContentWs extends PSContentBaseWs implements IPSContentWs
     * @param checkin
     * @param folderId the id of the folder to include in the request to save
     *    the items.  May be <code>null</code> if the folder id is not
-    * @return
+
     * @throws PSErrorResultsException
     */
    @Transactional
@@ -1994,7 +1994,7 @@ public class PSContentWs extends PSContentBaseWs implements IPSContentWs
     * @param checkin
     * @param folderId
     * @param relationshipTypeName
-    * @return
+
     * @throws PSErrorResultsException
     */
    @Transactional
@@ -3943,7 +3943,7 @@ public class PSContentWs extends PSContentBaseWs implements IPSContentWs
     * @param name
     * @param path
     * @param user
-    * @return
+
     * @throws PSErrorException
     */
    @Deprecated

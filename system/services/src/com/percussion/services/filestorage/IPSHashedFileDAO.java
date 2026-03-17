@@ -35,7 +35,7 @@ public interface IPSHashedFileDAO
    /**
     * Get a binary using the sha1 hash value
     * @param hash
-    * @return
+
     */
    public PSBinary getBinary(String hash);
 
@@ -60,7 +60,7 @@ public interface IPSHashedFileDAO
    /**
     * Does a binary with the specified sha1 has exist
     * @param hash
-    * @return
+
     */
    public boolean exists(String hash);
 
@@ -74,7 +74,7 @@ public interface IPSHashedFileDAO
     * Count the number of binaries that have not been touched within specified
     * number of days.
     * @param days
-    * @return
+
     */
    public long countOlderThan(int days);
 
@@ -82,7 +82,7 @@ public interface IPSHashedFileDAO
     * Delete the number of binaries that have not been touched within specified
     * number of days.
     * @param days
-    * @return
+
     */
    public long deleteOlderThan(int days);
 
@@ -121,14 +121,14 @@ public interface IPSHashedFileDAO
     * Returning and existing or create a new metadata key
     * @param name
     * @param enabled
-    * @return
+
     */
    public PSBinaryMetaKey findOrCreateMetaKey(String name, boolean enabled);
 
    /**
     * Return a unique list of hashes in the database from the specified set of columns
     * @param columns
-    * @return
+
     */
    public List<String> getAllHashes(Set<PSHashedColumn> columns);
    
@@ -136,7 +136,7 @@ public interface IPSHashedFileDAO
     * Return a paged list of all binary items.
     * @param pageNum  zero based page number
     * @param pageSize
-    * @return
+
     */
    public List<PSBinary> findAllBinary(int pageNum, int pageSize);
 

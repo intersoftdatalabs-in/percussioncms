@@ -236,16 +236,12 @@ public class PSTableAction extends PSAction {
     return "";
   }
 
-  /**
-   * @return
-   */
+  /** */
   public String[] getTableData() {
     return m_strTableData;
   }
 
-  /**
-   * @return
-   */
+  /** */
   public String[] getTableDef() {
     return m_strTableDef;
   }

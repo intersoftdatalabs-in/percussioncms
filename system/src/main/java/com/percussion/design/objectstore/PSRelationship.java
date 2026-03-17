@@ -556,11 +556,7 @@ public class PSRelationship extends PSComponent {
     return props;
   }
 
-  /**
-   * Gets the folder id of the relationship used for Cross Site Linking.
-   *
-   * @return
-   */
+  /** Gets the folder id of the relationship used for Cross Site Linking. */
   public Integer getLegacyFolderId() {
     String folderid = this.getProperty(PSRelationshipConfig.PDU_FOLDERID);
     if (isNotBlank(folderid)) {
@@ -569,21 +565,13 @@ public class PSRelationship extends PSComponent {
     return null;
   }
 
-  /**
-   * Gets the folder id of the relationship used for Cross Site Linking.
-   *
-   * @return
-   */
+  /** Gets the folder id of the relationship used for Cross Site Linking. */
   public void setLegacyFolderId(Integer folderId) {
     if (folderId == null) this.setProperty(PSRelationshipConfig.PDU_FOLDERID, null);
     else this.setProperty(PSRelationshipConfig.PDU_FOLDERID, "" + folderId);
   }
 
-  /**
-   * Gets the site id of the relationship used for Cross Site Linking.
-   *
-   * @return
-   */
+  /** Gets the site id of the relationship used for Cross Site Linking. */
   public Integer getLegacySiteId() {
     String siteId = this.getProperty(PSRelationshipConfig.PDU_SITEID);
     if (isNotBlank(siteId)) {
@@ -592,11 +580,7 @@ public class PSRelationship extends PSComponent {
     return null;
   }
 
-  /**
-   * Gets the folder id of the relationship used for Cross Site Linking.
-   *
-   * @return
-   */
+  /** Gets the folder id of the relationship used for Cross Site Linking. */
   public void setLegacySiteId(Integer siteId) {
     if (siteId == null) this.setProperty(PSRelationshipConfig.PDU_SITEID, null);
     else this.setProperty(PSRelationshipConfig.PDU_SITEID, "" + siteId);

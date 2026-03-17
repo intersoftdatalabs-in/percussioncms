@@ -111,7 +111,6 @@ public interface IPSManagedNavService {
    * @param navTreeTitle the title of the navTree, may not be blank.
    * @param workflowid the workflow to use for the navtree, supply <code>-1</code> to leave
    *     unspecified and revert to default system behavior.
-   * @return
    */
   IPSGuid addNavTreeToFolder(String path, String navTreeName, String navTreeTitle, int workflowid);
 

@@ -414,7 +414,6 @@ public class PSSlotDefDependencyHandler extends PSDependencyHandler implements I
    *
    * @param s
    * @param ver the version of templatePSDeployException
-   * @throws
    */
   private void saveSlot(IPSTemplateSlot s, Integer ver) throws PSDeployException {
     // nullify and set it to the passed version of the template, can be null

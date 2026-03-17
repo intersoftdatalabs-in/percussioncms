@@ -370,7 +370,7 @@ public class PSContentTypeActionMenuHelper {
 
     /***
      * Gets access to the singleton.  Thread safe.
-     * @return
+
      */
     public static PSContentTypeActionMenuHelper getInstance(){
         if(instance == null){
@@ -386,7 +386,7 @@ public class PSContentTypeActionMenuHelper {
     /***
      * Returns true if content type folders structure for menus is required, false if not
      *
-     * @return
+
      */
     public boolean getStructureRequired() {
         // Get server.properties's contentTypeGroupingInCX key value
@@ -405,7 +405,7 @@ public class PSContentTypeActionMenuHelper {
 
     /***
      * Returns a list of content type id' valid for this user session
-     * @return
+
      */
     public long[] getContentTypeIds(IPSRequestContext request) {
 

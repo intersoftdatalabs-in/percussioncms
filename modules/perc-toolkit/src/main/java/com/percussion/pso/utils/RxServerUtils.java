@@ -86,7 +86,7 @@ public class RxServerUtils {
    * Get the value of the PERCUSSION_HOME environment variable or null if it is not set.
    *
    * @author natechadwick
-   * @return
+   *
    */
   public static String getRhythmyxHome() {
 

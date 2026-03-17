@@ -196,7 +196,6 @@ public class PSPubServerDaoTest {
 
   /**
    * @param testSite
-   * @return
    */
   private PSPubServer createServerForSite(IPSSite testSite, PublishType type) {
     PSPubServer pubServer = pubServerDao.createServer(m_site);
@@ -211,7 +210,6 @@ public class PSPubServerDaoTest {
 
   /**
    * @param type
-   * @return
    */
   private void generatePropertiesForPublishType(
       PSPubServer pubServer, PublishType type, IPSSite site) {
@@ -234,7 +232,6 @@ public class PSPubServerDaoTest {
 
   /**
    * @param site
-   * @return
    */
   private void generateDatabasePProperties(PSPubServer pubServer, IPSSite site) {
     generateCommonProperties(pubServer, site);
@@ -252,7 +249,6 @@ public class PSPubServerDaoTest {
 
   /**
    * @param site
-   * @return
    */
   private void generateFilesystemProperties(PSPubServer pubServer, IPSSite site) {
     generateCommonProperties(pubServer, site);
@@ -262,7 +258,6 @@ public class PSPubServerDaoTest {
 
   /**
    * @param site
-   * @return
    */
   private void generateSFTPProperties(PSPubServer pubServer, IPSSite site) {
     generateCommonProperties(pubServer, site);
@@ -282,7 +277,6 @@ public class PSPubServerDaoTest {
 
   /**
    * @param site
-   * @return
    */
   private void generateFTPProperties(PSPubServer pubServer, IPSSite site) {
     generateCommonProperties(pubServer, site);

@@ -86,11 +86,7 @@ public class Node implements Comparable<Node> {
 
   ///////////////////////////////////////////////////////////////////////////////////
 
-  /**
-   * Returns collection of Value objects
-   *
-   * @return
-   */
+  /** Returns collection of Value objects */
   public Collection<Value> getValues() {
     return (values == null ? null : new HashSet<Value>(values));
   }

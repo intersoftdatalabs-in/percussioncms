@@ -143,7 +143,7 @@ public class PSSimpleTenantCache implements IPSTenantCache {
    * Helper method to determine if a TTL date has expired.
    *
    * @param last
-   * @return
+   *
    */
   private long checkTTLAge(Date last) {
     return ((new Date().getTime() - last.getTime()) / 1000) / 60;

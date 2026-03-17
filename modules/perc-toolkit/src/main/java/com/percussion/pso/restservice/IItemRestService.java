@@ -166,7 +166,7 @@ public interface IItemRestService {
    * @param  debug
    * @param contentId
    * @param folderId
-   * @return
+   *
    */
   @GET
   @Path("/importfeed/")

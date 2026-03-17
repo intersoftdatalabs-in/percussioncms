@@ -25,7 +25,7 @@ public class PSSynFeedImage {
 
   /***
    * Returns the image link.
-   * @return
+   *
    */
   public String getLink() {
     return image.getLink();
@@ -33,7 +33,7 @@ public class PSSynFeedImage {
 
   /***
    * Returns the image title.
-   * @return
+   *
    */
   public String getTitle() {
     return image.getTitle();
@@ -41,7 +41,7 @@ public class PSSynFeedImage {
 
   /***
    *    Returns the image URL.
-   * @return
+   *
    */
   public String getUrl() {
     return image.getUrl();
@@ -49,7 +49,7 @@ public class PSSynFeedImage {
 
   /***
    * Returns the image description.
-   * @return
+   *
    */
   public String getDescription() {
     return image.getDescription();

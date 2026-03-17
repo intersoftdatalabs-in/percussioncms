@@ -74,7 +74,6 @@ public abstract class PSSiteFolderContentListBaseExit implements IPSResultDocume
    *
    * @param request
    * @param resultDoc
-   * @return
    * @throws com.percussion.extension.PSParameterMismatchException if the current request does not
    *     contain a sys_siteid parameter, if no site folder root is registered to that site, or if
    *     the filenameContext parameter is mot provided.

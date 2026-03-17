@@ -63,11 +63,7 @@ public class PSNavImageLink extends PSNavLink {
     }
   }
 
-  /**
-   * Gets the image color selector.
-   *
-   * @return
-   */
+  /** Gets the image color selector. */
   public String getImageSelector() {
     return m_imageSelector;
   }
@@ -77,7 +73,6 @@ public class PSNavImageLink extends PSNavLink {
    * document.
    *
    * @param parentElem the containing Navon element in the NavTree XML document.
-   * @return
    */
   public Element toXML(Element parentElem) {
     Document doc = parentElem.getOwnerDocument();

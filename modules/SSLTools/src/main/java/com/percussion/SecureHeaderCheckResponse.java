@@ -33,11 +33,7 @@ public class SecureHeaderCheckResponse {
     this.checks = checks;
   }
 
-  /**
-   * When true at least one check failed.
-   *
-   * @return
-   */
+  /** When true at least one check failed. */
   public boolean isFailedCheck() {
     return failedCheck;
   }

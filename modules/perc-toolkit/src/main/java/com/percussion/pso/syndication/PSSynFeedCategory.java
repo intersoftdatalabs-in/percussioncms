@@ -67,9 +67,7 @@ public class PSSynFeedCategory {
     this.category = arg;
   }
 
-  /**
-   * @return
-   */
+  /** */
   public String getScheme() {
     return category.getScheme();
   }
@@ -80,7 +78,7 @@ public class PSSynFeedCategory {
 
   /***
    * label is the human readable label that can be displayed in end user applications. It is an optional attribute.
-   * @return
+   *
    */
   public String getLabel() {
     return category.getLabel();

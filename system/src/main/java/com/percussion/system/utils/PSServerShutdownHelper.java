@@ -29,8 +29,6 @@ public abstract class PSServerShutdownHelper extends Thread
   /**
    * TODO: vamsi update the doc. Returns shutdown descriptor file path. you need to update the
    * rxservice.c to reflect where it needs creation
-   *
-   * @return
    */
   public static String getShutdownDescriptor() {
     return System.getProperty("user.dir") + "/rxservice.sd";

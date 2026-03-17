@@ -59,7 +59,6 @@ public class PSUpdateDTSCertificate extends PSAction {
    * Get KeyStore Password from Catalina.properties
    *
    * @param prodPath
-   * @return
    * @throws IOException
    */
   private String getKeyStorePasswordFromCatalinaProperties(File prodPath) throws IOException {

@@ -482,7 +482,7 @@ public abstract class PSBaseFtpDeliveryHandler extends PSBaseDeliveryHandler
     * job will be marked as failed if the login was unsuccessful, otherwise,
     * a {@link PSDeliveryException} will be thrown in the event of a failed
     * connection.
-    * @param
+
     *  
     * @return error results for the specified job.  Will be
     * <code>null</code> if the connection and login were successful.

@@ -555,7 +555,6 @@ public class PSMenuAction implements IPSComponent, Cloneable {
    * method.
    *
    * @param action the action to test, must not be <code>null</code>.
-   * @return
    */
   public PSMenuAction findChildAction(PSMenuAction action) {
     PSMenuAction child = null;

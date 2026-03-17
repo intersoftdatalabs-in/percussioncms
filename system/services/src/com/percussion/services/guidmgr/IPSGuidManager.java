@@ -247,7 +247,7 @@ public interface IPSGuidManager
     * Transactional method to update the nextn number in the db
     * @param key
     * @param blocksize
-    * @return
+
     */
    public int updateNextNumber(String key, int blocksize, long setValue );
 
@@ -261,7 +261,7 @@ public interface IPSGuidManager
 
    /** Transactional method to update the next long in the db
     * @param key
-    * @return
+
     */
    long updateNextLong(Integer key);
   

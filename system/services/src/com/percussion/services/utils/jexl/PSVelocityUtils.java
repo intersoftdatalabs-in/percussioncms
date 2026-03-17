@@ -272,7 +272,7 @@ private static void initProperties() {
     * Preprocess the template to auto-correct 1.x to 2.x incompatibilities.
     *
     * @param template
-    * @return
+
     */
    public static String preProcessTemplate(String template, String name){
 	   String ret = template;

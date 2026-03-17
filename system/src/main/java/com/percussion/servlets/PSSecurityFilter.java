@@ -730,11 +730,7 @@ public class PSSecurityFilter implements Filter {
     }
   }
 
-  /**
-   * Get sessionid from request parameter first if empty then try request attribute
-   *
-   * @return
-   */
+  /** Get sessionid from request parameter first if empty then try request attribute */
   private String getSessionIdFromRequest(HttpServletRequest request) {
     String sessionId = SecureStringUtils.srp(request.getParameter(IPSHtmlParameters.SYS_SESSIONID));
 
@@ -754,7 +750,6 @@ public class PSSecurityFilter implements Filter {
    *
    * @param request
    * @param response
-   * @return
    * @throws IOException
    */
   private boolean handleSessionCheck(HttpServletRequest request, HttpServletResponse response)

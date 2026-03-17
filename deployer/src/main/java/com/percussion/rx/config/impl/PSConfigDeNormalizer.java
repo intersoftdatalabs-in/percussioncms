@@ -225,7 +225,6 @@ public class PSConfigDeNormalizer {
    *
    * @param name
    * @param prefix
-   * @return
    */
   private String fixName(String name, String prefix) {
     if (name.startsWith(prefix)) return name.substring(prefix.length());
@@ -236,7 +235,6 @@ public class PSConfigDeNormalizer {
    * Handle Enum oddities by using the <code>name</code> method if it is an Enum.
    *
    * @param obj
-   * @return
    */
   private String toString(Object obj) {
     if (obj instanceof Enum) return ((Enum) obj).name();

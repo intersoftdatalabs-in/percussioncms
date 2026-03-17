@@ -114,7 +114,7 @@ public class PSTaskLogNode extends PSLockableNode {
         public boolean isSuccess() { return mi_log.isSuccess(); }
         /**
          * Get the detail message from the task log entry
-         * @return
+
          */
         public String getDetailMessage() { return mi_log.getProblemDesc(); }
         /**

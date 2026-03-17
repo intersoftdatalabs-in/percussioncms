@@ -233,7 +233,6 @@ public abstract class PSJdbcKey extends PSJdbcTableComponent {
    *
    * @param cols1 list containing column names. Not <code>null</code>, may be empty.
    * @param cols2 list containing column names. Not <code>null</code>, may be empty.
-   * @return
    *     <table border="1">
    * <caption>Column Match Results</caption>
    * <tr>

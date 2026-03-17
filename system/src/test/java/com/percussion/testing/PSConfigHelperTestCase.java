@@ -65,7 +65,6 @@ public class PSConfigHelperTestCase implements IPSUnitTestConfigHelper {
    * that properties are overridden using a <filename>.<propertyname> notation.
    *
    * @param fileName
-   * @return
    * @throws IOException
    */
   private static Properties getPropertiesWithSystemOverrides(String fileName) throws IOException {

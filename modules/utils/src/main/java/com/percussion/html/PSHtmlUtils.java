@@ -106,7 +106,6 @@ public class PSHtmlUtils {
    *     html-cleaner.properties in configFile parameter, or the system default.
    * @param configFile The absolute path to the html-cleaner.properties file to use for cleaning
    *     rules, if null, the system default will be used.
-   * @return
    */
   public static Document createHTMLDocument(
       File file, Charset encoding, boolean cleanse, String configFile)
@@ -362,7 +361,6 @@ public class PSHtmlUtils {
   /**
    * @param propVal
    * @param ret
-   * @return
    */
   protected static Safelist processAddProtocols(String propVal, Safelist ret) {
 

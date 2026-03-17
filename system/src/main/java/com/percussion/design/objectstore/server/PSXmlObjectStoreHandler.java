@@ -5240,7 +5240,6 @@ public class PSXmlObjectStoreHandler extends PSObjectFactory
     /**
      * Construct the info object.
      *
-     * @return
      * @throws PSServerException If there are any errors.
      */
     private void init() throws PSServerException {

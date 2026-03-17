@@ -372,7 +372,6 @@ public class PSSiteFolderContentList extends PSSiteFolderCListBase {
    * @param filenameContext
    * @param folderPath
    * @param contentTypeId
-   * @return
    */
   private PSContentListItem generateListItem(
       String contentId,

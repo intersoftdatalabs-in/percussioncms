@@ -335,7 +335,7 @@ public class PSPathUtils {
 
   /***
    * Given a path, will correct the path so that it is pointed at the Site Folder instead of the Site Name
-   * @return
+   *
    */
   public static String fixSiteFolderPath(IPSSiteDataService service, String path) {
     Validate.notEmpty(path);
@@ -450,7 +450,6 @@ public class PSPathUtils {
    * Removes the trailing slash from a folder path if it exists
    *
    * @param path
-   * @return
    */
   public static String chopTrailingSlash(String path) {
 
@@ -465,7 +464,7 @@ public class PSPathUtils {
    * Returns the folder name portion of the path
    *
    * @param path
-   * @return
+   *
    */
   public static String getFolderName(String path) {
     path = chopTrailingSlash(path);
@@ -476,7 +475,7 @@ public class PSPathUtils {
    * Given a specified path, returns only the foldername portion with no leading o trailing slash
    *
    * @param path
-   * @return
+   *
    */
   public static String stripFolderNameFromPath(String path) {
 

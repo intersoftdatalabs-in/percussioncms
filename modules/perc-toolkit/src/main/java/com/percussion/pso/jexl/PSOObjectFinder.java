@@ -308,7 +308,7 @@ public class PSOObjectFinder extends PSJexlUtilBase implements IPSJexlExpression
    *
    * @param stateId
    * @param workflowAppId
-   * @return
+   *
    */
   @IPSJexlMethod(
       description = "Get the workflow info for a given item",

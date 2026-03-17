@@ -78,7 +78,7 @@ public class PSOSetFieldOnSlottedItemEffect implements IPSEffect {
 
   /***
    * Returns a valid ContentWS instance
-   * @return
+   *
    */
   protected static IPSContentWs getContentService() {
     if (mCws == null) mCws = PSContentWsLocator.getContentWebservice();
@@ -88,7 +88,7 @@ public class PSOSetFieldOnSlottedItemEffect implements IPSEffect {
 
   /***
    * Returns a valid Guid Manager instance.
-   * @return
+   *
    */
   protected static IPSGuidManager getGuidManager() {
     if (mGmgr == null) mGmgr = PSGuidManagerLocator.getGuidMgr();

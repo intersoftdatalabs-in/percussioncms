@@ -2006,11 +2006,7 @@ public class PSRequest {
     m_cloneParentRequest.setOriginatingRelationship(relationship);
   }
 
-  /**
-   * Get originating relationship if there is one.
-   *
-   * @return
-   */
+  /** Get originating relationship if there is one. */
   public PSRelationship getOriginatingRelationship() {
     return (isOriginalRequest())
         ? m_originatingRelationship

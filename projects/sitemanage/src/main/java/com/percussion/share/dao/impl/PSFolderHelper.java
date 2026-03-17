@@ -655,7 +655,6 @@ public class PSFolderHelper implements IPSFolderHelper {
    * @param folder
    * @param userName
    * @param roles
-   * @return
    */
   private PSFolderPermission.Access getUserPermission(
       PSFolder folder, String userName, List<String> roles) {

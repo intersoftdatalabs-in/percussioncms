@@ -147,7 +147,6 @@ public class PSEncryptProperties {
    * @param key legacy encryption key, may be null
    * @param secureDir The location to where the secure key file is stored
    * @param legacyDecryptor A legacy decryptor to use in upgrade scenario
-   * @return
    */
   private static String decrypt(
       String encrypted, String key, String secureDir, PSAbstractEncryptor legacyDecryptor) {

@@ -5392,7 +5392,6 @@ public class PSServerFolderProcessor extends PSProcessorCommon
    * Fast way to determine if the item is a folder or not from a locator.
    *
    * @param locator
-   * @return
    * @throws PSCmsException
    * @throws PSException
    */

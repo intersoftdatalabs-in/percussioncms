@@ -70,11 +70,7 @@ public class PSNavRelationshipInfo {
     return m_rel;
   }
 
-  /**
-   * Produces a string suitable for logging.
-   *
-   * @return
-   */
+  /** Produces a string suitable for logging. */
   public String toString() {
     StringBuilder sb = new StringBuilder();
     sb.append("Relationship ");

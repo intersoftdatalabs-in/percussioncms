@@ -550,7 +550,7 @@ public class PSPublishingJob implements Runnable
     * ftp or filesystem
     * 
     * @param edition
-    * @return
+
     */
    private boolean checkIsFullPublish(IPSGuid edition)
    {

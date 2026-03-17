@@ -35,7 +35,7 @@ public interface IPSSqlPurgeHelper
     * effects, all relationships to and from the items will be removed.
     * 
     * @param item
-    * @return
+
     * @throws PSException
     */
    public int purge(PSLocator item) throws PSException, PSValidationException;
@@ -46,7 +46,7 @@ public interface IPSSqlPurgeHelper
     * sure navon items are not left without a parent.
     * 
     * @param item
-    * @return
+
     * @throws PSException
     */
    public int purgeNavigation(PSLocator item) throws PSException, PSValidationException;
@@ -61,7 +61,7 @@ public interface IPSSqlPurgeHelper
     * only available from search.
     * 
     * @param items
-    * @return
+
     * @throws PSException
     */
    public int purgeNavigationAndFolders(List<PSLocator> items) throws PSException, PSValidationException;
@@ -75,7 +75,7 @@ public interface IPSSqlPurgeHelper
     * effects, all relationships to and from the items will be removed.
     * 
     * @param items
-    * @return 
+
     * @throws PSException
     */
     public int purgeAll(PSLocator parent, Collection<PSLocator> items) throws PSException, PSValidationException;
@@ -89,7 +89,7 @@ public interface IPSSqlPurgeHelper
     * effects, all relationships to and from the items will be removed.
     * 
     * @param items
-    * @return
+
     * @throws PSException
     */
    public  int purgeAll(Collection<PSLocator> items) throws PSException, PSValidationException;
@@ -107,7 +107,7 @@ public interface IPSSqlPurgeHelper
     *           from this folder if they are linked elsewhere.
     * @param items
     * @param data the revision data
-    * @return
+
     * @throws PSException
     */
    public int purgeAll(PSLocator parent, Collection<PSLocator> items,

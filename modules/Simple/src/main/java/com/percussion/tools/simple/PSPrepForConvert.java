@@ -162,7 +162,7 @@ public class PSPrepForConvert {
    * @deprecated
    * @param pwd
    * @param uid
-   * @return
+   *
    */
   @Deprecated
   private String decrypt(String pwd, String uid) {

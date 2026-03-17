@@ -1284,7 +1284,6 @@ public class PSSiteSectionService implements IPSSiteSectionService {
 
   /**
    * @param guid
-   * @return
    */
   private Map<String, String> getSectionSecurityProperties(String guid) {
     List<String> temp = new ArrayList<>();
@@ -1644,7 +1643,6 @@ public class PSSiteSectionService implements IPSSiteSectionService {
 
   /**
    * @param navonId
-   * @return
    */
   private String buildDisplayTitlePath(IPSGuid navonId) {
     List<IPSGuid> ids = navSrv.findAncestorNavonIds(navonId);
@@ -1733,7 +1731,6 @@ public class PSSiteSectionService implements IPSSiteSectionService {
    * many level as it is.
    *
    * @param siteName
-   * @return
    */
   private List<PSSiteSection> loadAllSectionsForSingleSite(String siteName)
       throws PSSiteSectionException, com.percussion.services.error.PSNotFoundException {
@@ -2055,7 +2052,7 @@ public class PSSiteSectionService implements IPSSiteSectionService {
     /***
      * If a missing nav landing page is detected - see if the default exists and add it back if it does.
      * @param navonId
-     * @return
+     *
      */
     private PSLegacyGuid fixMissingLandingPage(IPSGuid navonId) {
       // TODO: Implement ME

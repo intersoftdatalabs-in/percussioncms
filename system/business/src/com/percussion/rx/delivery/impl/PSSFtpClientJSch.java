@@ -356,7 +356,7 @@ public class PSSFtpClientJSch
     * 
     * @param fullpath the path that is relative to the current directory, not
     *    <code>null</code> or empty.
-    * @return
+
     * @throws SftpException
     */
    public boolean mkdirs(String fullpath) throws SftpException

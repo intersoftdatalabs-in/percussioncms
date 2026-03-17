@@ -315,7 +315,7 @@ public interface IPSAssetService extends IPSDataService<PSAsset, PSAssetSummary,
   /***
    * Will return an Image report that lists all images.
    *
-   * @return
+   *
    * @throws PSReportFailedToRunException
    */
   List<PSImageAssetReportLine> findNonCompliantImageAssets() throws PSReportFailedToRunException;
@@ -323,7 +323,7 @@ public interface IPSAssetService extends IPSDataService<PSAsset, PSAssetSummary,
   /***
    * A listing of all Images in the content repository.
    *
-   * @return
+   *
    * @throws PSReportFailedToRunException
    */
   List<PSImageAssetReportLine> findAllImageAssets() throws PSReportFailedToRunException;
@@ -331,7 +331,7 @@ public interface IPSAssetService extends IPSDataService<PSAsset, PSAssetSummary,
   /***
    * A listing of all non compliant File assets in the content repository.
    *
-   * @return
+   *
    * @throws PSReportFailedToRunException
    */
   List<PSFileAssetReportLine> findNonCompliantFileAssets() throws PSReportFailedToRunException;
@@ -339,7 +339,7 @@ public interface IPSAssetService extends IPSDataService<PSAsset, PSAssetSummary,
   /***
    * A listing of all File assets in the Content Repository.
    *
-   * @return
+   *
    * @throws PSReportFailedToRunException
    */
   List<PSFileAssetReportLine> findAllFileAssets() throws PSReportFailedToRunException;

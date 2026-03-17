@@ -385,7 +385,6 @@ public class PSMetadataRestService extends PSAbstractRestService implements IPSM
    * but the latter is used in the REST layer to return the desired fields.
    *
    * @param entry A PSMetadataEntry instance. Never <code>null</code>.
-   * @return
    */
   private PSMetadataRestEntry toRestMetadataEntry(IPSMetadataEntry entry) {
     PSMetadataRestEntry metadataEntry = new PSMetadataRestEntry();

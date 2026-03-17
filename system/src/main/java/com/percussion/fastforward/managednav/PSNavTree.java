@@ -119,7 +119,6 @@ public class PSNavTree {
    * Serializes the tree to XML
    *
    * @param req the parent request context.
-   * @return
    */
   public Document toXml(IPSRequestContext req) {
     Document navtreeDoc = PSXmlDocumentBuilder.createXmlDocument();

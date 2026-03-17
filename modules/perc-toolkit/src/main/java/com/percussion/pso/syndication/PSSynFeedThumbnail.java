@@ -57,7 +57,7 @@ public class PSSynFeedThumbnail {
 
   /***
    * Returns the thumbHeight.
-   * @return
+   *
    */
   public Integer getHeight() {
     return thumb.getHeight();
@@ -65,7 +65,7 @@ public class PSSynFeedThumbnail {
 
   /***
    * returns the time that the thumbnail was captured from its source
-   * @return
+   *
    */
   public String getTime() {
     return thumb.getTime().toString();
@@ -73,7 +73,7 @@ public class PSSynFeedThumbnail {
 
   /***
    * Return the URL
-   * @return
+   *
    */
   public String getUrl() {
     return thumb.getUrl().toString();

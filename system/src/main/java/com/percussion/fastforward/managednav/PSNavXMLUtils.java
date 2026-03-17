@@ -377,7 +377,6 @@ public class PSNavXMLUtils {
    * Gets the next node type. Used for determining the node type for descendent nodes.
    *
    * @param pType the node type of the parent node.
-   * @return
    */
   private static String getNextType(String pType) {
     if (pType.equals(PSNavonType.TYPENAME_DESCENDENT)) {

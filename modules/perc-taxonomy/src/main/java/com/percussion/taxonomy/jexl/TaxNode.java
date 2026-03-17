@@ -96,11 +96,7 @@ public class TaxNode {
     return id;
   }
 
-  /**
-   * Get the Node Name
-   *
-   * @return
-   */
+  /** Get the Node Name */
   public String getName() {
     return name;
   }
@@ -126,20 +122,12 @@ public class TaxNode {
     return parent;
   }
 
-  /**
-   * A HashMap containing the attributes keyed by their name
-   *
-   * @return
-   */
+  /** A HashMap containing the attributes keyed by their name */
   public HashMap<String, TaxValues> getAttributes() {
     return attributes;
   }
 
-  /**
-   * Does this node have any child nodes
-   *
-   * @return
-   */
+  /** Does this node have any child nodes */
   public boolean isLeaf() {
     return isLeaf;
   }

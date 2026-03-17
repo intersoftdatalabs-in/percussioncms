@@ -76,7 +76,6 @@ public class PSNavFolder {
    * is guaranteed to be unique.
    *
    * @param o
-   * @return
    */
   public boolean equals(Object o) {
     if (o instanceof PSNavFolder) {
@@ -89,11 +88,7 @@ public class PSNavFolder {
     return false;
   }
 
-  /**
-   * this method is over-ridden here to keep the contract between hashCode() and equals().
-   *
-   * @return
-   */
+  /** this method is over-ridden here to keep the contract between hashCode() and equals(). */
   public int hashCode() {
     String hString =
         this.getName() + "||" + String.valueOf(this.m_folderSummary.getCurrentLocator().getId());

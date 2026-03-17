@@ -1024,11 +1024,7 @@ public class PSConvertLinksToManagedAction extends PSAAActionBase
     return id;
   }
 
-  /**
-   * This is protected only to allow removal of PSServer dependency for unit testing.
-   *
-   * @return
-   */
+  /** This is protected only to allow removal of PSServer dependency for unit testing. */
   protected boolean isAllowTrueInlineTemplates() {
     Properties serverProps = PSServer.getServerProps();
     String isAllowValue = serverProps.getProperty("allowTrueInlineTemplates", "false");

@@ -125,7 +125,6 @@ public class PSStaticContainerUtils {
 
   /**
    * @param propertyFile
-   * @return
    * @throws IOException
    */
   public static File getTempFile(File propertyFile) throws IOException {

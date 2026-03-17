@@ -90,9 +90,7 @@ public class PSRequestTest {
     assertTrue(!clone.getParameters().equals(request.getParameters()));
   }
 
-  /**
-   * @return
-   */
+  /** */
   private PSRequest getEmptyRequest() {
 
     MockHttpServletRequest req = new MockHttpServletRequest();

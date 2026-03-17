@@ -114,7 +114,7 @@ public class PSPackageBuildToolHelper {
    * under the root directory
    * @param zipFileWithPath cannot be <code>null<code>
    * @param rootDirectory cannot be <code>null<code>
-   * @return
+   *
    */
   public static String getDestinationDirectoryPath(String zipFileWithPath, String rootDirectory) {
     String subDirectory = getSubDirectory(zipFileWithPath);
@@ -406,7 +406,6 @@ public class PSPackageBuildToolHelper {
    * C:\src\cm1comments\system\Packages\perc.Baseline.temp1 returns perc.Baseline.temp1
    *
    * @param dirPath
-   * @return
    */
   private static String getDirectoryName(String dirPath) {
     return dirPath.substring(dirPath.lastIndexOf(File.separator) + 1, dirPath.length());

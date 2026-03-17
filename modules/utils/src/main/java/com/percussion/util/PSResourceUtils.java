@@ -38,7 +38,7 @@ public class PSResourceUtils {
    * @param clazz The class to use for loading the resource
    * @param resourcePath The resource path
    * @param dir  May be null
-   * @return
+   *
    */
   public static File getFile(Class<?> clazz, String resourcePath, File dir) throws IOException {
     File ret = File.createTempFile("test", "tmp", dir);

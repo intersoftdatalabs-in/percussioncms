@@ -112,7 +112,7 @@ public interface IPSDatabasePubServerFilesService
     /**
      * Get information about drivers availability
      * 
-     * @return
+
      */
     Map<String, Boolean> getAvailableDrivers();
     

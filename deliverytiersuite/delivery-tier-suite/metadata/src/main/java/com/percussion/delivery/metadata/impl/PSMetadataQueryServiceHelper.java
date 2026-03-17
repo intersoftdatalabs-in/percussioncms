@@ -102,7 +102,6 @@ public abstract class PSMetadataQueryServiceHelper {
    *
    * @param ce
    * @param datatypeMappings
-   * @return
    */
   public static String getValueColumnName(
       PSCriteriaElement ce, PSPropertyDatatypeMappings datatypeMappings) {
@@ -135,7 +134,6 @@ public abstract class PSMetadataQueryServiceHelper {
    *
    * @param name
    * @param datatypeMappings
-   * @return
    */
   public static String getValueColumnName(
       String name, PSPropertyDatatypeMappings datatypeMappings) {
@@ -163,7 +161,6 @@ public abstract class PSMetadataQueryServiceHelper {
    * orderby then the default would be asc
    *
    * @param orderBy
-   * @return
    */
   public static String getSortingOrder(String orderBy) {
     return orderBy.toLowerCase().endsWith(IPSMetadataQueryService.SORT_ORDER_DESCEND)
@@ -178,7 +175,6 @@ public abstract class PSMetadataQueryServiceHelper {
    * asc" and the method returns dcterms:created
    *
    * @param orderBy cannot be <code>null</code> or empty
-   * @return
    */
   public static String getSortPropertyName(String orderBy) {
     String sortProperty = orderBy;

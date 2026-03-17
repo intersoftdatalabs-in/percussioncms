@@ -43,7 +43,7 @@ public class PSVersionHelper {
    * 2.8.153-CM1DEVBuild-153_2005-08-22_23-59-59
    *
    * @param clazz
-   * @return
+   *
    */
   public static String getVersion(Class clazz) {
     String version = "";

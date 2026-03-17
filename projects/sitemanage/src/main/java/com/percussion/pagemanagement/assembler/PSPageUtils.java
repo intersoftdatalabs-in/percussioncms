@@ -938,7 +938,6 @@ public class PSPageUtils extends PSJexlUtilBase {
    *
    * @param format
    * @param defaultFormat
-   * @return
    */
   @IPSJexlMethod(
       description =
@@ -2308,7 +2307,6 @@ public class PSPageUtils extends PSJexlUtilBase {
 
   /**
    * @param jsonString
-   * @return
    */
   @IPSJexlMethod(
       description = "createJsonObject can be used to convert a JSON string into a Map.",

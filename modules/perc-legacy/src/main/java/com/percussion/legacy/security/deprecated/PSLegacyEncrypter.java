@@ -388,7 +388,6 @@ public class PSLegacyEncrypter extends PSAbstractEncryptor {
    *
    * @param encrypted The encrypted credentials
    * @param pw The password to use for decryption.
-   * @return
    * @throws PSEncryptionException
    */
   @Override

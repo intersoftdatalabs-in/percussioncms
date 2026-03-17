@@ -31,7 +31,7 @@ public class PSSynFeedEnclosure {
 
   /***
    * Returns the enclosure length.
-   * @return
+   *
    */
   public long getLength() {
     return enc.getLength();
@@ -39,7 +39,7 @@ public class PSSynFeedEnclosure {
 
   /***
    * Returns the enclosure type.
-   * @return
+   *
    */
   public String getType() {
     return enc.getType();
@@ -47,7 +47,7 @@ public class PSSynFeedEnclosure {
 
   /***
    * Returns the enclosure URL.
-   * @return
+   *
    */
   public String getUrl() {
     return enc.getUrl();

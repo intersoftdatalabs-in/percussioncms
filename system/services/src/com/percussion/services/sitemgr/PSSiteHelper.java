@@ -197,7 +197,7 @@ public class PSSiteHelper
     * Check server.properties for the autofixFolderSiteIds=true property to use
     * new fixup functionality
     *
-    * @return
+
     */
    private static boolean shouldFixIds()
    {
@@ -484,7 +484,7 @@ public class PSSiteHelper
     * @param origFolderId
     * @param currentFolderPaths
     * @param folderProc
-    * @return
+
     */
    private static String findClosestFolderPath(int folderId, int origFolderId, String[] currentFolderPaths,
                                                PSServerFolderProcessor folderProc)
@@ -638,7 +638,7 @@ public class PSSiteHelper
     * @param site
     * @param calculatedFolderPath
     * @param id
-    * @return
+
     */
    private static IPSGuid findSiteForFolder(IPSGuid originalSiteId, IPSGuid site, String calculatedFolderPath, int id)
    {
@@ -689,7 +689,7 @@ public class PSSiteHelper
     * @param calculatedFolderPath
     * @param folderSites
     * @param itemId
-    * @return
+
     */
    private static IPSGuid findSiteWhenDuplicateMappings(IPSGuid originalSiteId, IPSGuid site,
                                                         String calculatedFolderPath, List<IPSSite> folderSites, int itemId)
@@ -835,7 +835,7 @@ public class PSSiteHelper
     * @param site
     * @param filteredSitesByGroup
     * @param linkSitePath
-    * @return
+
     */
    private static IPSGuid findSiteInSiteGroup(IPSGuid site, List<IPSSite> filteredSitesByGroup, String linkSitePath)
    {

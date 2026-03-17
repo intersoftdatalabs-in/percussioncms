@@ -93,7 +93,7 @@ public interface IPSRangedPage {
 
   /***
    * Returns the total number of pages.
-   * @return
+   *
    */
   public int getPageCount();
 
@@ -105,7 +105,7 @@ public interface IPSRangedPage {
 
   /***
    * Returns the current page.
-   * @return
+   *
    */
   public int getCurrentPage();
 }

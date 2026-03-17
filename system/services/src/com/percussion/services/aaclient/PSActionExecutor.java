@@ -319,7 +319,7 @@ public class PSActionExecutor implements IPSWidgetHandler {
    }
 
    /**
-    * @return
+
     */
    private Map<String, String[]> getAssemblyParams(PSComponentSummary summary)
    {
@@ -430,7 +430,7 @@ public class PSActionExecutor implements IPSWidgetHandler {
     * @param contentId
     * @param fieldName
     * @param value
-    * @return
+
     * @throws PSErrorResultsException
     * @throws PSException
     */
@@ -496,7 +496,7 @@ public class PSActionExecutor implements IPSWidgetHandler {
    /**
     * @todo Desc
     * @param contentId
-    * @return
+
     * @throws PSErrorResultsException
     * @throws PSException
     */
@@ -559,7 +559,6 @@ public class PSActionExecutor implements IPSWidgetHandler {
     * @param contentId
     * @param fieldName
 
-    * @return
     * @throws PSErrorResultsException
     * @throws PSException
     */
@@ -648,7 +647,7 @@ public class PSActionExecutor implements IPSWidgetHandler {
 
    /**
     * @param rid
-    * @return
+
     * @throws PSCmsException
     */
    private String getContentIdFromRelId(String rid) throws PSCmsException

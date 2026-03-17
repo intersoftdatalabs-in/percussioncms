@@ -1813,7 +1813,6 @@ public class PSPubServerService implements IPSPubServerService {
    * @param currentServer
    * @param site
    * @param isDefaultServer
-   * @return
    */
   private boolean updatePreviousDefaultPubServer(
       PSPubServer previousDefaultServer,

@@ -492,7 +492,7 @@ class PSJDBCQueryHelper implements IPSQueryHelper {
     /**
      *
      * @param ids
-     * @return
+
      */
     private boolean useOwnerRevision(Set<Integer> ids) {
         // make sure the config type/names are specified

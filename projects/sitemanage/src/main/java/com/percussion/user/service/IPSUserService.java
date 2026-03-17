@@ -91,7 +91,6 @@ public interface IPSUserService {
    * Check if user has admin role.
    *
    * @param userName
-   * @return
    */
   public boolean isAdminUser(String userName);
 

@@ -86,7 +86,7 @@ public interface IPSContentRepository extends IPSPropertyMapper
 
    /**
     * Get the current sessionfactory for the content repository.
-    * @return
+
     */
     SessionFactory getSessionFactory();
 

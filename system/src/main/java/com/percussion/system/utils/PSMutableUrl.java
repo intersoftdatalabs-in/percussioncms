@@ -98,7 +98,6 @@ public class PSMutableUrl {
    * Get the value of the specified parameter.
    *
    * @param pName name of the parameter, must not be <code>null</code> or empty.
-   * @return
    */
   public String getParam(String pName) {
     if (pName == null || pName.length() < 1) {

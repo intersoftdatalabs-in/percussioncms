@@ -41,7 +41,7 @@ public class PSSynFeedEntry {
 
   /***
    * Returns the name of the first entry author in the collection of authors.
-   * @return
+   *
    */
   public String getAuthor() {
     String ret = "";
@@ -52,7 +52,7 @@ public class PSSynFeedEntry {
 
   /***
    * Returns the entry authors.
-   * @return
+   *
    */
   public List getAuthorsList() {
     return entry.getAuthors();
@@ -60,7 +60,7 @@ public class PSSynFeedEntry {
 
   /***
    * Returns a comma seperated list of the entry authors.
-   * @return
+   *
    */
   public String getAuthors() {
     String ret = "";
@@ -79,7 +79,7 @@ public class PSSynFeedEntry {
 
   /***
    * Returns the feed categories.
-   * @return
+   *
    */
   public List getCategoriesList() {
     return entry.getCategories();
@@ -87,7 +87,7 @@ public class PSSynFeedEntry {
 
   /***
    * Returns the feed categories as a comma separated string.
-   * @return
+   *
    */
   public String getCategories() {
     String ret = "";
@@ -104,7 +104,7 @@ public class PSSynFeedEntry {
 
   /***
    * the feed author.
-   * @return
+   *
    */
   public String getContributors() {
     String ret = "";
@@ -127,7 +127,7 @@ public class PSSynFeedEntry {
 
   /***
    * Returns the entry contents.
-   * @return
+   *
    */
   public String getContents() {
     String ret = "";
@@ -141,7 +141,7 @@ public class PSSynFeedEntry {
 
   /***
    * Returns the entry description.
-   * @return
+   *
    */
   public String getDescription() {
     String ret = "";
@@ -174,7 +174,7 @@ public class PSSynFeedEntry {
 
   /***
    * Returns the entry links
-   * @return
+   *
    */
   public List<SyndLink> getLinks() {
     List<SyndLink> links = entry.getLinks();
@@ -199,7 +199,7 @@ public class PSSynFeedEntry {
 
   /***
    * Returns the entry published date.
-   * @return
+   *
    */
   public Date getPublishedDate() {
     return entry.getPublishedDate();
@@ -207,7 +207,7 @@ public class PSSynFeedEntry {
 
   /***
    *  Returns the entry title.
-   * @return
+   *
    */
   public String getTitle() {
     String ret = "";
@@ -217,7 +217,7 @@ public class PSSynFeedEntry {
 
   /***
    *  Returns the entry updated date.
-   * @return
+   *
    */
   public Date getUpdatedDate() {
     if (entry.getUpdatedDate() != null) {

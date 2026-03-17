@@ -34,13 +34,13 @@ public interface IPSTenantInfo {
 
   /***
    * Returns the Tenant ID
-   * @return
+   *
    */
   public String getTenantId();
 
   /***
    * Returns a long representing the total number of API Calls made by a tenant to this service.
-   * @return
+   *
    */
   public long getAPIUsage();
 
@@ -65,13 +65,13 @@ public interface IPSTenantInfo {
    * Returns the Data and Time that usage counting was started for this
    * tenant.
    *
-   * @return
+   *
    */
   public Date getAPIUsageStart();
 
   /***
    * Returns the date and time that the License was last authorized.
-   * @return
+   *
    */
   public Date getLastAuthorizationCheckDate();
 

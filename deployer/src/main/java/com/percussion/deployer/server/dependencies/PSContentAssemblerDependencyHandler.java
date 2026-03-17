@@ -137,7 +137,6 @@ public class PSContentAssemblerDependencyHandler extends PSDependencyHandler {
    * Troll thru all the templates and return a list of application names from assembly url.
    *
    * @param tmps, the template collection never <code>null</code>
-   * @return
    */
   private Set<String> getAppNamesFromAssemblyUrl(Collection<IPSAssemblyTemplate> templates) {
     if (templates == null) {

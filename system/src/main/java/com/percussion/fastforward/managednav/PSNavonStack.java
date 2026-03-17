@@ -179,11 +179,7 @@ public class PSNavonStack {
     return (PSComponentSummary) m_navStack.get(i);
   }
 
-  /**
-   * Gets the image selector for the stack.
-   *
-   * @return
-   */
+  /** Gets the image selector for the stack. */
   public String getImageSelector() {
     log.debug("getting image selector {}", m_imageSelector);
     return m_imageSelector;

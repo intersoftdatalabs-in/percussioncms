@@ -339,8 +339,6 @@ public final class PSSecurityUtility {
    * Will return an instance of secure random. Will attempt to return a StrongSecureRandom first but
    * will return a standard SecureRandom if Strong is unavailable. May return null if secure random
    * cannot be initialized.
-   *
-   * @return
    */
   public static SecureRandom getSecureRandom() {
     SecureRandom ret = new SecureRandom();

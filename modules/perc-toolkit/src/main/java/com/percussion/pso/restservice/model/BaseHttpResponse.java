@@ -34,7 +34,7 @@ public abstract class BaseHttpResponse {
 
   /***
    * Gets the HTTP Headers collection for this response.
-   * @return
+   *
    */
   public HttpHeaders getHeaders() {
     return headers;
@@ -42,7 +42,7 @@ public abstract class BaseHttpResponse {
 
   /***
    * Will return the ETag header if it is set or the empty string.
-   * @return
+   *
    */
   public String getETag() {
     if (headers == null) {
@@ -53,7 +53,7 @@ public abstract class BaseHttpResponse {
 
   /***
    * Will return the last modified header if it is set or the empty string.
-   * @return
+   *
    */
   public String getLastModified() {
     String ret = "";

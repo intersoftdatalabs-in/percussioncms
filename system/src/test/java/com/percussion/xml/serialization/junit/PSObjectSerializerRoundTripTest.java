@@ -58,11 +58,7 @@ public class PSObjectSerializerRoundTripTest {
     assertEquals(template, restore);
   }
 
-  /**
-   * Create a template for the test
-   *
-   * @return
-   */
+  /** Create a template for the test */
   private PSAssemblyTemplate setupTemplate() throws Exception {
     PSAssemblyTemplate template = new PSAssemblyTemplate();
     template.setName("test_template_0");
