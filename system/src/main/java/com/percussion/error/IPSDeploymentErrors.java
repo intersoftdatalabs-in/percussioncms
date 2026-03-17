@@ -30,10 +30,7 @@ public interface IPSDeploymentErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
-   * <TR><TH>Arg</TH><TH>Description</TH></TR>
-   * <TR><TD>0</TD><TD>the server version</TD></TR>
-   * </TABLE>
+   * <p>Arguments: 0 - the server version
    */
   public static final int SERVER_VERSION_INVALID = 1;
 
@@ -42,11 +39,7 @@ public interface IPSDeploymentErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
-   * <TR><TH>Arg</TH><TH>Description</TH></TR>
-   * <TR><TD>0</TD><TD>The request type</TD></TR>
-   * <TR><TD>1</TD><TD>The missing element name</TD></TR>
-   * </TABLE>
+   * <p>Arguments: 0 - The request type, 1 - The missing element name
    */
   public static final int SERVER_RESPONSE_ELEMENT_MISSING = 2;
 
@@ -55,12 +48,7 @@ public interface IPSDeploymentErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
-   * <TR><TH>Arg</TH><TH>Description</TH></TR>
-   * <TR><TD>0</TD><TD>The request type</TD></TR>
-   * <TR><TD>1</TD><TD>The malformed element name</TD></TR>
-   * <TR><TD>2</TD><TD>The error text</TD></TR>
-   * </TABLE>
+   * <p>Arguments: 0 - The request type, 1 - The malformed element name, 2 - The error text
    */
   public static final int SERVER_RESPONSE_ELEMENT_INVALID = 3;
 
@@ -69,10 +57,7 @@ public interface IPSDeploymentErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
-   * <TR><TH>Arg</TH><TH>Description</TH></TR>
-   * <TR><TD>0</TD><TD>The server name</TD></TR>
-   * </TABLE>
+   * <p>Arguments: 0 - The server name
    */
   public static final int NOT_CONNECTED_ERROR = 4;
 
@@ -81,10 +66,7 @@ public interface IPSDeploymentErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
-   * <TR><TH>Arg</TH><TH>Description</TH></TR>
-   * <TR><TD>0</TD><TD>The error message</TD></TR>
-   * </TABLE>
+   * <p>Arguments: 0 - The error message
    */
   public static final int UNEXPECTED_ERROR = 5;
 
@@ -93,11 +75,7 @@ public interface IPSDeploymentErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
-   * <TR><TH>Arg</TH><TH>Description</TH></TR>
-   * <TR><TD>0</TD><TD>The status code</TD></TR>
-   * <TR><TD>1</TD><TD>The request type</TD></TR>
-   * </TABLE>
+   * <p>Arguments: 0 - The status code, 1 - The request type
    */
   public static final int SERVER_RESPONSE_EMPTY = 6;
 
@@ -106,12 +84,7 @@ public interface IPSDeploymentErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
-   * <TR><TH>Arg</TH><TH>Description</TH></TR>
-   * <TR><TD>0</TD><TD>The request type</TD></TR>
-   * <TR><TD>1</TD><TD>The status code</TD></TR>
-   * <TR><TD>2</TD><TD>The response xml</TD></TR>
-   * </TABLE>
+   * <p>Arguments: 0 - The request type, 1 - The status code, 2 - The response xml
    */
   public static final int SERVER_ERROR_RESPONSE = 7;
 
@@ -134,10 +107,7 @@ public interface IPSDeploymentErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
-   * <TR><TH>Arg</TH><TH>Description</TH></TR>
-   * <TR><TD>0</TD><TD>The request type</TD></TR>
-   * </TABLE>
+   * <p>Arguments: 0 - The request type
    */
   public static final int INVALID_REQUEST_TYPE = 10;
 
@@ -146,11 +116,7 @@ public interface IPSDeploymentErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
-   * <TR><TH>Arg</TH><TH>Description</TH></TR>
-   * <TR><TD>0</TD><TD>The archive file name</TD></TR>
-   * <TR><TD>1</TD><TD>The error</TD></TR>
-   * </TABLE>
+   * <p>Arguments: 0 - The archive file name, 1 - The error
    */
   public static final int ARCHIVE_WRITE_ERROR = 11;
 
@@ -159,11 +125,7 @@ public interface IPSDeploymentErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
-   * <TR><TH>Arg</TH><TH>Description</TH></TR>
-   * <TR><TD>0</TD><TD>The archive file name</TD></TR>
-   * <TR><TD>1</TD><TD>The error</TD></TR>
-   * </TABLE>
+   * <p>Arguments: 0 - The archive file name, 1 - The error
    */
   public static final int ARCHIVE_READ_ERROR = 12;
 
@@ -172,10 +134,7 @@ public interface IPSDeploymentErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
-   * <TR><TH>Arg</TH><TH>Description</TH></TR>
-   * <TR><TD>0</TD><TD>the name of the property</TD></TR>
-   * </TABLE>
+   * <p>Arguments: 0 - the name of the property
    */
   public static final int CATALOG_REQD_PROP_NOT_SPECIFIED = 13;
 
@@ -184,11 +143,7 @@ public interface IPSDeploymentErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
-   * <TR><TH>Arg</TH><TH>Description</TH></TR>
-   * <TR><TD>0</TD><TD>The request element</TD></TR>
-   * <TR><TD>1</TD><TD>The error mesage</TD></TR>
-   * </TABLE>
+   * <p>Arguments: 0 - The request element, 1 - The error mesage
    */
   public static final int SERVER_REQUEST_MALFORMED = 14;
 
@@ -197,11 +152,7 @@ public interface IPSDeploymentErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
-   * <TR><TH>Arg</TH><TH>Description</TH></TR>
-   * <TR><TD>0</TD><TD>The object type</TD></TR>
-   * <TR><TD>1</TD><TD>The name of the object</TD></TR>
-   * </TABLE>
+   * <p>Arguments: 0 - The object type, 1 - The name of the object
    */
   public static final int SERVER_OBJECT_NOT_FOUND = 15;
 
@@ -210,11 +161,7 @@ public interface IPSDeploymentErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
-   * <TR><TH>Arg</TH><TH>Description</TH></TR>
-   * <TR><TD>0</TD><TD>The param name</TD></TR>
-   * <TR><TD>1</TD><TD>The param value</TD></TR>
-   * </TABLE>
+   * <p>Arguments: 0 - The param name, 1 - The param value
    */
   public static final int SERVER_REQUEST_PARAM_INVALID = 16;
 
@@ -223,11 +170,7 @@ public interface IPSDeploymentErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
-   * <TR><TH>Arg</TH><TH>Description</TH></TR>
-   * <TR><TD>0</TD><TD>The handler class</TD></TR>
-   * <TR><TD>1</TD><TD>The error</TD></TR>
-   * </TABLE>
+   * <p>Arguments: 0 - The handler class, 1 - The error
    */
   public static final int DEPENDENCY_HANDLER_INIT = 17;
 
@@ -236,11 +179,7 @@ public interface IPSDeploymentErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
-   * <TR><TH>Arg</TH><TH>Description</TH></TR>
-   * <TR><TD>0</TD><TD>The child type</TD></TR>
-   * <TR><TD>1</TD><TD>The parent type</TD></TR>
-   * </TABLE>
+   * <p>Arguments: 0 - The child type, 1 - The parent type
    */
   public static final int CHILD_DEPENDENCY_TYPE_NOT_FOUND = 18;
 
@@ -249,10 +188,7 @@ public interface IPSDeploymentErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
-   * <TR><TH>Arg</TH><TH>Description</TH></TR>
-   * <TR><TD>0</TD><TD>The error</TD></TR>
-   * </TABLE>
+   * <p>Arguments: 0 - The error
    */
   public static final int DEPENDENCY_MGR_INIT = 19;
 
@@ -261,10 +197,7 @@ public interface IPSDeploymentErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
-   * <TR><TH>Arg</TH><TH>Description</TH></TR>
-   * <TR><TD>0</TD><TD>The dependency type</TD></TR>
-   * </TABLE>
+   * <p>Arguments: 0 - The dependency type
    */
   public static final int DEPENDENCY_DEF_NOT_FOUND = 20;
 
@@ -273,10 +206,7 @@ public interface IPSDeploymentErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
-   * <TR><TH>Arg</TH><TH>Description</TH></TR>
-   * <TR><TD>0</TD><TD>The error message</TD></TR>
-   * </TABLE>
+   * <p>Arguments: 0 - The error message
    */
   public static final int REPOSITORY_CONNECTION_ERROR = 21;
 
@@ -285,10 +215,7 @@ public interface IPSDeploymentErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
-   * <TR><TH>Arg</TH><TH>Description</TH></TR>
-   * <TR><TD>0</TD><TD>The error message</TD></TR>
-   * </TABLE>
+   * <p>Arguments: 0 - The error message
    */
   public static final int REPOSITORY_READ_WRITE_ERROR = 22;
 
@@ -297,12 +224,7 @@ public interface IPSDeploymentErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
-   * <TR><TH>Arg</TH><TH>Description</TH></TR>
-   * <TR><TD>0</TD><TD>The table</TD></TR>
-   * <TR><TD>1</TD><TD>The column</TD></TR>
-   * <TR><TD>2</TD><TD>The value</TD></TR>
-   * </TABLE>
+   * <p>Arguments: 0 - The table, 1 - The column, 2 - The value
    */
   public static final int INVALID_REPOSITORY_COLUMN_VALUE = 23;
 
@@ -311,12 +233,7 @@ public interface IPSDeploymentErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
-   * <TR><TH>Arg</TH><TH>Description</TH></TR>
-   * <TR><TD>0</TD><TD>The type</TD></TR>
-   * <TR><TD>1</TD><TD>The id</TD></TR>
-   * <TR><TD>2</TD><TD>The source server</TD></TR>
-   * </TABLE>
+   * <p>Arguments: 0 - The type, 1 - The id, 2 - The source server
    */
   public static final int MISSING_ID_MAPPING = 24;
 
@@ -325,13 +242,7 @@ public interface IPSDeploymentErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
-   * <TR><TH>Arg</TH><TH>Description</TH></TR>
-   * <TR><TD>0</TD><TD>The file type</TD></TR>
-   * <TR><TD>1</TD><TD>The dependency type</TD></TR>
-   * <TR><TD>2</TD><TD>The dependency id</TD></TR>
-   * <TR><TD>3</TD><TD>The dependency name</TD></TR>
-   * </TABLE>
+   * <p>Arguments: 0 - The file type, 1 - The dependency type, 2 - The dependency id, 3 - The dependency name
    */
   public static final int MISSING_DEPENDENCY_FILE = 25;
 
@@ -340,14 +251,7 @@ public interface IPSDeploymentErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
-   * <TR><TH>Arg</TH><TH>Description</TH></TR>
-   * <TR><TD>0</TD><TD>The file type</TD></TR>
-   * <TR><TD>1</TD><TD>The dependency type</TD></TR>
-   * <TR><TD>2</TD><TD>The dependency id</TD></TR>
-   * <TR><TD>3</TD><TD>The dependency name</TD></TR>
-   * <TR><TD>4</TD><TD>The error</TD></TR>
-   * </TABLE>
+   * <p>Arguments: 0 - The file type, 1 - The dependency type, 2 - The dependency id, 3 - The dependency name, 4 - The error
    */
   public static final int INVALID_DEPENDENCY_FILE = 26;
 
@@ -356,12 +260,7 @@ public interface IPSDeploymentErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
-   * <TR><TH>Arg</TH><TH>Description</TH></TR>
-   * <TR><TD>0</TD><TD>The source repository</TD></TR>
-   * <TR><TD>1</TD><TD>The source-id of a <code>PSIdMapping</code></TD></TR>
-   * <TR><TD>2</TD><TD>The source-name of a <code>PSIdMapping</code></TD></TR>
-   * </TABLE>
+   * <p>Arguments: 0 - The source repository, 1 - The source-id of a <code>PSIdMapping</code>, 2 - The source-name of a <code>PSIdMapping</code>
    */
   public static final int INVALID_SAVED_ID_MAP = 27;
 
@@ -370,11 +269,7 @@ public interface IPSDeploymentErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
-   * <TR><TH>Arg</TH><TH>Description</TH></TR>
-   * <TR><TD>0</TD><TD>source repository</TD></TR>
-   * <TR><TD>1</TD><TD>table name</TD></TR>
-   * </TABLE>
+   * <p>Arguments: 0 - source repository, 1 - table name
    */
   public static final int UNEXPECTED_EXTRA_ROW = 28;
 
@@ -383,10 +278,7 @@ public interface IPSDeploymentErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
-   * <TR><TH>Arg</TH><TH>Description</TH></TR>
-   * <TR><TD>0</TD><TD>table name</TD></TR>
-   * </TABLE>
+   * <p>Arguments: 0 - table name
    */
   public static final int UNABLE_FIND_TABLE = 29;
 
@@ -395,11 +287,7 @@ public interface IPSDeploymentErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
-   * <TR><TH>Arg</TH><TH>Description</TH></TR>
-   * <TR><TD>0</TD><TD>the dependency key</TD></TR>
-   * <TR><TD>1</TD><TD>the error</TD></TR>
-   * </TABLE>
+   * <p>Arguments: 0 - the dependency key, 1 - the error
    */
   public static final int ID_TYPE_MAP_LOAD = 30;
 
@@ -408,11 +296,7 @@ public interface IPSDeploymentErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
-   * <TR><TH>Arg</TH><TH>Description</TH></TR>
-   * <TR><TD>0</TD><TD>the archive server version</TD></TR>
-   * <TR><TD>1</TD><TD>the target server version</TD></TR>
-   * </TABLE>
+   * <p>Arguments: 0 - the archive server version, 1 - the target server version
    */
   public static final int SERVER_VERSION_MISMATCH = 31;
 
@@ -423,11 +307,7 @@ public interface IPSDeploymentErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
-   * <TR><TH>Arg</TH><TH>Description</TH></TR>
-   * <TR><TD>0</TD><TD>the archive server build</TD></TR>
-   * <TR><TD>1</TD><TD>the target server build</TD></TR>
-   * </TABLE>
+   * <p>Arguments: 0 - the archive server build, 1 - the target server build
    */
   public static final int SERVER_BUILD_MISMATCH = 32;
 
@@ -438,10 +318,7 @@ public interface IPSDeploymentErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
-   * <TR><TH>Arg</TH><TH>Description</TH></TR>
-   * <TR><TD>0</TD><TD>the archive name</TD></TR>
-   * </TABLE>
+   * <p>Arguments: 0 - the archive name
    */
   public static final int ARCHIVE_REF_FOUND = 33;
 
@@ -450,13 +327,7 @@ public interface IPSDeploymentErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
-   * <TR><TH>Arg</TH><TH>Description</TH></TR>
-   * <TR><TD>0</TD><TD>The type of map's dependency</TD></TR>
-   * <TR><TD>1</TD><TD>The id of the map's dependency</TD></TR>
-   * <TR><TD>2</TD><TD>The value of the mapping</TD></TR>
-   * <TR><TD>3</TD><TD>The mapping's context</TD></TR>
-   * </TABLE>
+   * <p>Arguments: 0 - The type of map's dependency, 1 - The id of the map's dependency, 2 - The value of the mapping, 3 - The mapping's context
    */
   public static final int INCOMPLETE_ID_TYPE_MAPPING = 34;
 
@@ -465,12 +336,7 @@ public interface IPSDeploymentErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
-   * <TR><TH>Arg</TH><TH>Description</TH></TR>
-   * <TR><TD>0</TD><TD>The table</TD></TR>
-   * <TR><TD>1</TD><TD>The key col (may be list)</TD></TR>
-   * <TR><TD>2</TD><TD>The key value (may be list)</TD></TR>
-   * </TABLE>
+   * <p>Arguments: 0 - The table, 1 - The key col (may be list), 2 - The key value (may be list)
    */
   public static final int MISSING_REPOSITORY_ROW = 35;
 
@@ -479,12 +345,7 @@ public interface IPSDeploymentErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
-   * <TR><TH>Arg</TH><TH>Description</TH></TR>
-   * <TR><TD>0</TD><TD>The type</TD></TR>
-   * <TR><TD>1</TD><TD>The id</TD></TR>
-   * <TR><TD>2</TD><TD>The source server</TD></TR>
-   * </TABLE>
+   * <p>Arguments: 0 - The type, 1 - The id, 2 - The source server
    */
   public static final int INCOMPLETE_ID_MAPPING = 36;
 
@@ -493,13 +354,7 @@ public interface IPSDeploymentErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
-   * <TR><TH>Arg</TH><TH>Description</TH></TR>
-   * <TR><TD>0</TD><TD>The type</TD></TR>
-   * <TR><TD>1</TD><TD>The id</TD></TR>
-   * <TR><TD>2</TD><TD>The source server</TD></TR>
-   * <TR><TD>3</TD><TD>The target id</TD></TR>
-   * </TABLE>
+   * <p>Arguments: 0 - The type, 1 - The id, 2 - The source server, 3 - The target id
    */
   public static final int INVALID_ID_MAPPING_TARGET = 37;
 
@@ -508,12 +363,7 @@ public interface IPSDeploymentErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
-   * <TR><TH>Arg</TH><TH>Description</TH></TR>
-   * <TR><TD>0</TD><TD>The object value</TD></TR>
-   * <TR><TD>1</TD><TD>The table name</TD></TR>
-   * <TR><TD>2</TD><TD>The column name</TD></TR>
-   * </TABLE>
+   * <p>Arguments: 0 - The object value, 1 - The table name, 2 - The column name
    */
   public static final int VALUE_NOT_FOUND_IN_TABLE = 38;
 
@@ -522,13 +372,7 @@ public interface IPSDeploymentErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
-   * <TR><TH>Arg</TH><TH>Description</TH></TR>
-   * <TR><TD>0</TD><TD>The id of the child dependency</TD></TR>
-   * <TR><TD>1</TD><TD>The object type of the child dependency </TD></TR>
-   * <TR><TD>2</TD><TD>The id of the current object</TD></TR>
-   * <TR><TD>3</TD><TD>The object type of the current object</TD></TR>
-   * </TABLE>
+   * <p>Arguments: 0 - The id of the child dependency, 1 - The object type of the child dependency, 2 - The id of the current object, 3 - The object type of the current object
    */
   public static final int CHILD_DEP_NOT_FOUND = 39;
 
@@ -540,11 +384,7 @@ public interface IPSDeploymentErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
-   * <TR><TH>Arg</TH><TH>Description</TH></TR>
-   * <TR><TD>0</TD><TD>The wrong dependency file type</TD></TR>
-   * <TR><TD>1</TD><TD>The expected dependency file type</TD></TR>
-   * </TABLE>
+   * <p>Arguments: 0 - The wrong dependency file type, 1 - The expected dependency file type
    */
   public static final int WRONG_DEPENDENCY_FILE_TYPE = 41;
 
@@ -552,11 +392,7 @@ public interface IPSDeploymentErrors {
    * Id types expected for a dependency, but not found
    * <p>
    * The arguments passed in for this message are:
-   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
-   * <TR><TH>Arg</TH><TH>Description</TH></TR>
-   * <TR><TD>0</TD><TD>The dependency type</TD></TR>
-   * <TR><TD>1</TD><TD>The dependency id</TD></TR>
-   * </TABLE>
+   * <p>Arguments: 0 - The dependency type, 1 - The dependency id
    */
   public static final int MISSING_ID_TYPES = 42;
 
@@ -564,33 +400,7 @@ public interface IPSDeploymentErrors {
    * validation result is expected in import package, but not found
    * <p>
    * The arguments passed in for this message are:
-   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
-   * <TR><TH>Arg</TH><TH>Description</TH></TR>
-   * <TR><TD>0</TD><TD>The package name</TD></TR>
-   */
-  public static final int MISSING_VALIDATION_RESULTS = 43;
-
-  /**
-   * wrong format for the id of a pair id dependency object
-   * <p>
-   * The arguments passed in for this message are:
-   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
-   * <TR><TH>Arg</TH><TH>Description</TH></TR>
-   * <TR><TD>0</TD><TD>The current id</TD></TR>
-   */
-  public static final int WRONG_FORMAT_FOR_PAIRID_DEP_ID = 44;
-
-  /**
-   * Unable to find object represented by the dependency.
-   *
-   * <p>The arguments passed in for this message are:
-   *
-   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
-   * <TR><TH>Arg</TH><TH>Description</TH></TR>
-   * <TR><TD>0</TD><TD>The id of the dependency</TD></TR>
-   * <TR><TD>1</TD><TD>The object type of the dependency </TD></TR>
-   * <TR><TD>3</TD><TD>The name of the dependency</TD></TR>
-   * </TABLE>
+   * <p>Arguments: 0 - The package name, 0 - The current id, 0 - The id of the dependency, 1 - The object type of the dependency, 3 - The name of the dependency
    */
   public static final int DEP_OBJECT_NOT_FOUND = 45;
 
@@ -599,13 +409,7 @@ public interface IPSDeploymentErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
-   * <TR><TH>Arg</TH><TH>Description</TH></TR>
-   * <TR><TD>0</TD><TD>The name of the user currently holding the lock</TD>
-   * </TR>
-   * <TR><TD>1</TD><TD>How many minutes from now the lock will expire if the
-   * user does not renew it</TD></TR>
-   * </TABLE>
+   * <p>
    */
   public static final int LOCK_ALREADY_HELD = 46;
 
@@ -614,13 +418,7 @@ public interface IPSDeploymentErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
-   * <TR><TH>Arg</TH><TH>Description</TH></TR>
-   * <TR><TD>0</TD><TD>The name of the user currently holding the lock</TD>
-   * </TR>
-   * <TR><TD>1</TD><TD>How many minutes from now the lock will expire if the
-   * user does not renew it</TD></TR>
-   * </TABLE>
+   * <p>
    */
   public static final int LOCK_NOT_EXTENSIBLE_TAKEN = 47;
 
@@ -629,11 +427,7 @@ public interface IPSDeploymentErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
-   * <TR><TH>Arg</TH><TH>Description</TH></TR>
-   * <TR><TD>0</TD><TD>The table name</TD></TR>
-   * <TR><TD>1</TD><TD>The filter that used to query the database</TD></TR>
-   * </TABLE>
+   * <p>Arguments: 0 - The table name, 1 - The filter that used to query the database
    */
   public static final int CANNOT_FIND_DATA = 49;
 
@@ -643,10 +437,7 @@ public interface IPSDeploymentErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
-   * <TR><TH>Arg</TH><TH>Description</TH></TR>
-   * <TR><TD>0</TD><TD>the supplied directory</TD></TR>
-   * </TABLE>
+   * <p>Arguments: 0 - the supplied directory
    */
   public static final int CATALOG_INVALID_DIRECTORY_SPECIFIED = 50;
 
@@ -655,10 +446,7 @@ public interface IPSDeploymentErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
-   * <TR><TH>Arg</TH><TH>Description</TH></TR>
-   * <TR><TD>0</TD><TD>The max count</TD></TR>
-   * </TABLE>
+   * <p>Arguments: 0 - The max count
    */
   public static final int MAX_DEP_COUNT_EXCEEDED = 51;
 
@@ -675,10 +463,7 @@ public interface IPSDeploymentErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
-   * <TR><TH>Arg</TH><TH>Description</TH></TR>
-   * <TR><TD>0</TD><TD>The last user to hold the lock</TD></TR>
-   * </TABLE>
+   * <p>Arguments: 0 - The last user to hold the lock
    */
   public static final int LOCK_NOT_EXTENSIBLE_TAKEN_RELEASED = 53;
 
@@ -687,11 +472,7 @@ public interface IPSDeploymentErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
-   * <TR><TH>Arg</TH><TH>Description</TH></TR>
-   * <TR><TD>0</TD><TD>The server name</TD></TR>
-   * <TR><TD>1</TD><TD>The error message</TD></TR>
-   * </TABLE>
+   * <p>Arguments: 0 - The server name, 1 - The error message
    */
   public static final int LOCK_NOT_RELEASED = 54;
 
@@ -707,12 +488,7 @@ public interface IPSDeploymentErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
-   * <TR><TH>Arg</TH><TH>Description</TH></TR>
-   * <TR><TD>0</TD><TD>The file name</TD></TR>
-   * <TR><TD>1</TD><TD>The app name</TD></TR>
-   * <TR><TD>2</TD><TD>The error message</TD></TR>
-   * </TABLE>
+   * <p>Arguments: 0 - The file name, 1 - The app name, 2 - The error message
    */
   public static final int APP_FILE_LOAD = 56;
 
@@ -721,11 +497,7 @@ public interface IPSDeploymentErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
-   * <TR><TH>Arg</TH><TH>Description</TH></TR>
-   * <TR><TD>0</TD><TD>The request type</TD></TR>
-   * <TR><TD>1</TD><TD>The error text</TD></TR>
-   * </TABLE>
+   * <p>Arguments: 0 - The request type, 1 - The error text
    */
   public static final int SERVER_RESPONSE_PARSE_ERROR = 57;
 
@@ -741,11 +513,7 @@ public interface IPSDeploymentErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
-   * <TR><TH>Arg</TH><TH>Description</TH></TR>
-   * <TR><TD>0</TD><TD>The component name</TD></TR>
-   * <TR><TD>1</TD><TD>The component type</TD></TR>
-   * </TABLE>
+   * <p>Arguments: 0 - The component name, 1 - The component type
    */
   public static final int EXTRACT_ID_FROM_KEY = 59;
 
@@ -754,12 +522,7 @@ public interface IPSDeploymentErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
-   * <TR><TH>Arg</TH><TH>Description</TH></TR>
-   * <TR><TD>0</TD><TD>The component name</TD></TR>
-   * <TR><TD>1</TD><TD>The component type</TD></TR>
-   * <TR><TD>1</TD><TD>The error message</TD></TR>
-   * </TABLE>
+   * <p>Arguments: 0 - The component name, 1 - The component type, 1 - The error message
    */
   public static final int ASSIGN_NEW_KEY = 60;
 
@@ -768,12 +531,7 @@ public interface IPSDeploymentErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
-   * <TR><TH>Arg</TH><TH>Description</TH></TR>
-   * <TR><TD>0</TD><TD>The new content id</TD></TR>
-   * <TR><TD>1</TD><TD>The column name of the missing data</TD></TR>
-   * <TR><TD>2</TD><TD>The table name of the missing data</TD></TR>
-   * </TABLE>
+   * <p>Arguments: 0 - The new content id, 1 - The column name of the missing data, 2 - The table name of the missing data
    */
   public static final int MISSING_REQUIRED_CACHE_DATA = 61;
 
@@ -782,12 +540,7 @@ public interface IPSDeploymentErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
-   * <TR><TH>Arg</TH><TH>Description</TH></TR>
-   * <TR><TD>0</TD><TD>The new content id</TD></TR>
-   * <TR><TD>1</TD><TD>The table name of the archived data</TD></TR>
-   * <TR><TD>2</TD><TD>The exception when converting string to int</TD></TR>
-   * </TABLE>
+   * <p>Arguments: 0 - The new content id, 1 - The table name of the archived data, 2 - The exception when converting string to int
    */
   public static final int FAILED_GET_NUMERIC_CACHED_DATA = 62;
 
@@ -796,10 +549,7 @@ public interface IPSDeploymentErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
-   * <TR><TH>Arg</TH><TH>Description</TH></TR>
-   * <TR><TD>0</TD><TD>The slot id</TD></TR>
-   * </TABLE>
+   * <p>Arguments: 0 - The slot id
    */
   public static final int SLOT_DEFINITION_ALREADY_EXISTS = 63;
 
@@ -808,10 +558,7 @@ public interface IPSDeploymentErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
-   * <TR><TH>Arg</TH><TH>Description</TH></TR>
-   * <TR><TD>0</TD><TD>Application Name</TD></TR>
-   * </TABLE>
+   * <p>Arguments: 0 - Application Name
    */
   public static final int APP_DEFINITION_DOESNOT_EXIST = 64;
 
@@ -820,10 +567,7 @@ public interface IPSDeploymentErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
-   * <TR><TH>Arg</TH><TH>Description</TH></TR>
-   * <TR><TD>0</TD><TD>Object type</TD></TR>
-   * </TABLE>
+   * <p>Arguments: 0 - Object type
    */
   public static final int CANNOT_FIND_DEP_DEF = 65;
 
@@ -833,10 +577,7 @@ public interface IPSDeploymentErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
-   * <TR><TH>Arg</TH><TH>Description</TH></TR>
-   * <TR><TD>0</TD><TD>Object type</TD></TR>
-   * </TABLE>
+   * <p>Arguments: 0 - Object type
    */
   public static final int DEP_DEF_NOT_DEPLOYABLE = 66;
 
@@ -845,10 +586,7 @@ public interface IPSDeploymentErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
-   * <TR><TH>Arg</TH><TH>Description</TH></TR>
-   * <TR><TD>0</TD><TD>Object type</TD></TR>
-   * </TABLE>
+   * <p>Arguments: 0 - Object type
    */
   public static final int CANNOT_FIND_PARENT_DEP_DEF = 67;
 
@@ -857,10 +595,7 @@ public interface IPSDeploymentErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
-   * <TR><TH>Arg</TH><TH>Description</TH></TR>
-   * <TR><TD>0</TD><TD>Object type</TD></TR>
-   * </TABLE>
+   * <p>Arguments: 0 - Object type
    */
   public static final int PARENT_DEP_DEF_NOT_DEPLOYABLE = 68;
 
@@ -875,11 +610,7 @@ public interface IPSDeploymentErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
-   * <TR><TH>Arg</TH><TH>Description</TH></TR>
-   * <TR><TD>0</TD><TD>Object type of the invalid parent</TD></TR>
-   * <TR><TD>1</TD><TD>Object type of the expected parent</TD></TR>
-   * </TABLE>
+   * <p>Arguments: 0 - Object type of the invalid parent, 1 - Object type of the expected parent
    */
   public static final int UNEXPECTED_PARENT_TYPE = 71;
 
@@ -888,10 +619,7 @@ public interface IPSDeploymentErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
-   * <TR><TH>Arg</TH><TH>Description</TH></TR>
-   * <TR><TD>0</TD><TD>Object type of the "Custom" element</TD></TR>
-   * </TABLE>
+   * <p>Arguments: 0 - Object type of the "Custom" element
    */
   public static final int INVALID_NUM_CHILD_DEFS = 72;
 
@@ -903,11 +631,7 @@ public interface IPSDeploymentErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
-   * <TR><TH>Arg</TH><TH>Description</TH></TR>
-   * <TR><TD>0</TD><TD>the new package version</TD></TR>
-   * <TR><TD>1</TD><TD>the installed package version</TD></TR>
-   * </TABLE>
+   * <p>Arguments: 0 - the new package version, 1 - the installed package version
    */
   public static final int VERSION_LOWER_THEN_INSTALLED = 74;
 
@@ -916,10 +640,7 @@ public interface IPSDeploymentErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
-   * <TR><TH>Arg</TH><TH>Description</TH></TR>
-   * <TR><TD>0</TD><TD>ArrayList of packages not installed</TD></TR>
-   * </TABLE>
+   * <p>Arguments: 0 - ArrayList of packages not installed
    */
   public static final int PKG_DEP_VALIDATION = 76;
 
@@ -928,10 +649,7 @@ public interface IPSDeploymentErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
-   * <TR><TH>Arg</TH><TH>Description</TH></TR>
-   * <TR><TD>0</TD><TD>ArrayList of packages and versions</TD></TR>
-   * </TABLE>
+   * <p>Arguments: 0 - ArrayList of packages and versions
    */
   public static final int PKG_DEP_VERSION_VALIDATION = 77;
 
@@ -940,10 +658,7 @@ public interface IPSDeploymentErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
-   * <TR><TH>Arg</TH><TH>Description</TH></TR>
-   * <TR><TD>0</TD><TD>configuration file path</TD></TR>
-   * </TABLE>
+   * <p>Arguments: 0 - configuration file path
    */
   public static final int CONFIG_DOES_NOT_EXIST = 78;
 
@@ -952,10 +667,7 @@ public interface IPSDeploymentErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
-   * <TR><TH>Arg</TH><TH>Description</TH></TR>
-   * <TR><TD>0</TD><TD>Package Name</TD></TR>
-   * </TABLE>
+   * <p>Arguments: 0 - Package Name
    */
   public static final int PACKAGE_CREATED_ON_SYSTEM = 79;
 
@@ -964,10 +676,7 @@ public interface IPSDeploymentErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
-   * <TR><TH>Arg</TH><TH>Description</TH></TR>
-   * <TR><TD>0</TD><TD>Control Name</TD></TR>
-   * </TABLE>
+   * <p>Arguments: 0 - Control Name
    */
   public static final int CONTROL_NOT_PACKAGEABLE = 80;
 
@@ -979,10 +688,7 @@ public interface IPSDeploymentErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
-   * <TR><TH>Arg</TH><TH>Description</TH></TR>
-   * <TR><TD>0</TD><TD>Community Name</TD></TR>
-   * </TABLE>
+   * <p>Arguments: 0 - Community Name
    */
   public static final int FAILED_TO_CREATE_COMPONENT_COMMUNITY_ASSNS = 82;
 
