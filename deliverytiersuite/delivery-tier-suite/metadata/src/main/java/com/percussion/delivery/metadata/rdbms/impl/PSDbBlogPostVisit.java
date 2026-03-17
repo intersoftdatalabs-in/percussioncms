@@ -39,8 +39,8 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
 @Entity
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE, region = "PSBlogPostVisit")
 @Table(name = "BLOG_POST_VISIT")
-  private static final long serialVersionUID = 1L;
 public class PSDbBlogPostVisit implements IPSBlogPostVisit, Serializable {
+  private static final long serialVersionUID = 1L;
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)

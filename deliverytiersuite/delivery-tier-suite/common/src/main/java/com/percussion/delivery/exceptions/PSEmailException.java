@@ -17,8 +17,8 @@
 
 package com.percussion.delivery.exceptions;
 
-  private static final long serialVersionUID = 1L;
 public class PSEmailException extends Exception {
+  private static final long serialVersionUID = 1L;
 
   public PSEmailException(Exception e) {
     super(e);

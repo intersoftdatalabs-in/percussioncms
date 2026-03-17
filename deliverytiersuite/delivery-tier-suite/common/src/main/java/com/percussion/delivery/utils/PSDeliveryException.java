@@ -6,8 +6,8 @@ package com.percussion.delivery.utils;
  *
  * @author Sunny Sal
  */
-  private static final long serialVersionUID = 1L;
 public class PSDeliveryException extends RuntimeException {
+  private static final long serialVersionUID = 1L;
 
   public PSDeliveryException(String message) {
     super(message);

@@ -17,7 +17,6 @@
 package com.percussion.delivery.exceptions;
 
 import jakarta.ws.rs.WebApplicationException;
-import jakarta.ws.rs.core.GenericEntity;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.Response.Status;
 
@@ -26,11 +25,10 @@ import jakarta.ws.rs.core.Response.Status;
  *
  * @author JaySeletz
  */
-  private static final long serialVersionUID = 1L;
 public class PSBadRequestException extends WebApplicationException {
+  private static final long serialVersionUID = 1L;
 
   public PSBadRequestException(String message) {
-    super(
-        Response.status(Status.BAD_REQUEST).entity(new GenericEntity<String>(message) {}).build());
+    super(Response.status(Status.BAD_REQUEST).entity(message).build());
   }
 }
