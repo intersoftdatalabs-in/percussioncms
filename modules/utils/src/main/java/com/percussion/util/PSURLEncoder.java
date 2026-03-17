@@ -46,7 +46,7 @@ public class PSURLEncoder {
    * URL-8 encodes the given string, which should be in the part of the URL after the server:port
    * and before the "?" that starts the query. Note that forward slashes (/) will not be escaped,
    * but other characters which are not allowed in a URI will be escaped, including colons (:),
-   * question marks (?), ampersands (&), etc.
+   * question marks (?) , ampersands (&amp;), etc.
    *
    * <p>It replaces space character (' ') to its hex representation ("%20").
    *
@@ -63,7 +63,7 @@ public class PSURLEncoder {
 
   /**
    * URL-8 encodes the given string, which should be in the part of the URL after the "?" that
-   * starts the query. Note that any ampersands (&) and questions marks (?) will be not be encoded.
+   * starts the query. Note that any ampersands (&amp;) and questions marks (?)  will be not be encoded.
    *
    * <p>It replaces space character (' ') to plus character ('+').
    *

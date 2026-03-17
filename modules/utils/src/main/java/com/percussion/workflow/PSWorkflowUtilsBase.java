@@ -594,7 +594,7 @@ public class PSWorkflowUtilsBase {
    * Convert a <CODE>java.util.Date</CODE> to aTimestamp to passing through a <CODE>null</CODE>
    * value.
    *
-   * @param date The<CODE>java.util.Date</CODE to convert to a Timestamp
+   * @param date The <code>java.util.Date</code> to convert to a Timestamp
    *              or <CODE>
    *     null</CODE> if the date is <CODE>null</CODE>
    * @return corresponding Timestamp or <CODE>null</CODE>

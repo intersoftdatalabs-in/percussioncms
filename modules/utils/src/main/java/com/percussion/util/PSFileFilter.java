@@ -52,7 +52,7 @@ public class PSFileFilter implements java.io.FileFilter, java.io.FilenameFilter 
 
   /**
    * Constructs a file filter that will return <CODE>true</CODE> when and only when the file's
-   * length (as returned by java.io.File.length()) is >= <CODE>minLength</CODE> AND <= <CODE>
+   * length (as returned by java.io.File.length()) is >= <code>minLength</code> AND <= <code>
    * maxLength</CODE>.
    */
   public PSFileFilter(long minLength, long maxLength) {
@@ -62,7 +62,7 @@ public class PSFileFilter implements java.io.FileFilter, java.io.FilenameFilter 
   /**
    * Constructs a file filter that will return <CODE>true</CODE> when and only when the file's
    * modification date (as returned by java.io.File.lastModified()) is >= <CODE>earliestModified
-   * </CODE> AND <= <CODE>latestModified</CODE>.
+   * </CODE> AND <= <code>latestModified</code>.
    */
   public PSFileFilter(Date earliestModified, Date latestModified) {
     setEarliestLatestModified(earliestModified, latestModified);
@@ -82,7 +82,7 @@ public class PSFileFilter implements java.io.FileFilter, java.io.FilenameFilter 
    *
    * <UL>
    *   <LI>file's length (as returned by java.io.File.length()) is >= <CODE>minLength</CODE> AND <=
-   *       <CODE>maxLength</CODE>
+   *       <code>maxLength</code>
    *   <LI>for each attribute (file, dir, hidden) that a file possesses, the corresponding bit in
    *       <CODE>allowableAttributes</CODE> is turned on.
    * </UL>
@@ -98,7 +98,7 @@ public class PSFileFilter implements java.io.FileFilter, java.io.FilenameFilter 
    *
    * <UL>
    *   <LI>file's length (as returned by java.io.File.length()) is >= <CODE>minLength</CODE> AND <=
-   *       <CODE>maxLength</CODE>
+   *       <code>maxLength</code>
    *   <LI>for each attribute (file, dir, hidden) that a file possesses, the corresponding bit in
    *       <CODE>allowableAttributes</CODE> is turned on.
    * </UL>
@@ -113,7 +113,7 @@ public class PSFileFilter implements java.io.FileFilter, java.io.FilenameFilter 
   /**
    * Sets the minimum and maximum length for files. For accept() to return <CODE>true</CODE>, it is
    * necessary (but not sufficient) that the file's length (as returned by java.io.File.length()) is
-   * >= <CODE>minLength</CODE> AND <= <CODE>maxLength</CODE>.
+   * >= <code>minLength</code> AND <= <code>maxLength</CODE>.
    */
   public final void setMinMaxLength(long minLength, long maxLength) {
     if (minLength >= maxLength)
@@ -129,7 +129,7 @@ public class PSFileFilter implements java.io.FileFilter, java.io.FilenameFilter 
   /**
    * Sets the earliest and latest modification date for files. For accept() to return <CODE>true
    * </CODE>, it is necessary (but not sufficient) that the file's modification date (as returned by
-   * java.io.File.lastModified()) is >= <CODE>earliestModified</CODE> AND <= <CODE>latestModified
+   * java.io.File.lastModified()) is >= <code>earliestModified</code> AND <= <code>latestModified
    * </CODE>.
    */
   public final void setEarliestLatestModified(Date earliestModified, Date latestModified) {

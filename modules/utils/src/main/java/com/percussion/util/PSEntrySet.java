@@ -88,9 +88,9 @@ public class PSEntrySet<K, V> implements java.util.Map.Entry<K, V> {
    * also a map entry and the two entries represent the same mapping. More formally, two entries e1
    * and e2 represent the same mapping if
    *
-   * <PRE><CODE>
+   * <pre><code>
    *     (e1.getKey()==null ?
-   *      e2.getKey()==null : e1.getKey().equals(e2.getKey()))  &&
+   *      e2.getKey()== null : e1.getKey().equals(e2.getKey())) &&
    *     (e1.getValue()==null ?
    *      e2.getValue()==null : e1.getValue().equals(e2.getValue()))
    * </CODE></PRE>
@@ -118,7 +118,7 @@ public class PSEntrySet<K, V> implements java.util.Map.Entry<K, V> {
   /**
    * Returns the hash code value for this map entry. The hash code of a
    * map entry e is defined to be:
-   * <PRE><CODE>
+   * <pre><code>
    *     (e.getKey()==null   ? 0 : e.getKey().hashCode()) ^
    *     (e.getValue()==null ? 0 : e.getValue().hashCode())
    *

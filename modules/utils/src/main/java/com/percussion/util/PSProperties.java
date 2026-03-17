@@ -124,7 +124,7 @@ public class PSProperties extends java.util.Properties {
    * (for example, 'rxconfig/Workbench' for the workbench)
    *
    * @return file a valid file if no exception is thrown, otherwise
-   * <CODE>null</NULL>.
+   * <CODE>null</CODE>.
    */
   public static File getConfig(String entry, String property, String dir) {
     File file = null;

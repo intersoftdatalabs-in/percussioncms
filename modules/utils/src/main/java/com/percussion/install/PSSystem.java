@@ -58,7 +58,7 @@ public class PSSystem {
   /**
    * Set console handler
    *
-   * @return void
+   * 
    */
   public static void jniSetConsoleCtrlHandler() {
     setConsoleCtrlHandler();
@@ -91,7 +91,7 @@ public class PSSystem {
   /**
    * Console handler for the java process so that it masks get logoff events
    *
-   * @return void
+   * 
    */
   private static native void setConsoleCtrlHandler();
 }

@@ -530,7 +530,7 @@ public class PSStringUtils {
    * assumes that the groups are separated by a comma character (with no spaces). If the group
    * should contain the comma, it can be scaped with the backslash character ('\').
    *
-   * <table>
+   * <table border="1">
    * <tr>
    * <td>String entered</td>
    * <td>Splitted groups</td>

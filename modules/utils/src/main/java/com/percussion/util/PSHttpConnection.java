@@ -76,7 +76,7 @@ public class PSHttpConnection {
    *    <code>null</code>.
    *
    * @param paramMap The parameter map. It contains a set of data in
-   *    <code>String<code> for both key and value. It is assumed the
+   *    <code>String</code> for both key and value. It is assumed the
    *    key is ASCII. The value of the key will be URL encoded before
    *    send to server. It may not be <code>null</code>, but may be empty.
    *

@@ -277,7 +277,7 @@ public class RxFileManager {
   /**
    * Sets the installation.properties file for the instance.
    *
-   * @param A valid property file name to use for the property file.
+   * @param propertyFileName A valid property file name to use for the property file.
    */
   public static void setSystemInstallationPropertiesFile(String arg) {
     if (arg == null || arg.trim().equals(""))
@@ -352,7 +352,7 @@ public class RxFileManager {
 
   /***
    * Determine if the specified directory is a valid DTS installation directory.  If the
-   * <Root>/Deployment/Server/bin/tomcat6.exe file exists, then it is assumed to be a valid directory.
+   * <code>Root</code>/Deployment/Server/bin/tomcat6.exe file exists, then it is assumed to be a valid directory.
    *
    * @param dir  The directory to check for a DTS installation
    * @return <code>true</code> if the specified directory is a valid DTS root. <code>false</code> if it is not.
@@ -520,7 +520,7 @@ public class RxFileManager {
    * Retrieve the DTS System file properties.  Will first attempt
    * to use dtsinstall.properties and will fail back to cm1install.properties
    *
-   * @param file The File
+   * @param fileObj The file
    * @param os The Operating System
    * @return
    * @throws IOException

@@ -36,7 +36,7 @@ public class PSFilenameFilter implements FilenameFilter {
    * extension entries should not include "." in it. If an entry is empty, files with no
    * extension(no "." in it) or files with ending "." are allowed.
    *
-   * @param fileExtensions list of file extensions to allow, if <code>null</code> or empty any
+   * @param fileExtensions, of file extensions to allow, if <code>null</code> or empty any
    *     extension is allowed.
    * @param bIncludeDir flag If <code>true</code>, directories are also included otherwise not.
    */
@@ -49,7 +49,7 @@ public class PSFilenameFilter implements FilenameFilter {
    * Convenience constructor for {@link #PSFilenameFilter(List, boolean)}. Assumes <code>false
    * </code> for including directories in filtering list.
    *
-   * @param fileExtensions list of file extensions to allow, if <code>null</code> or empty any
+   * @param fileExtensions, of file extensions to allow, if <code>null</code> or empty any
    *     extension is allowed.
    */
   public PSFilenameFilter(List<String> fileExtensions) {
@@ -80,7 +80,7 @@ public class PSFilenameFilter implements FilenameFilter {
    * Convenience constructor for {@link #PSFilenameFilter(String, boolean)}. Assumes <code>false
    * </code> for not to include directories in filtering list.
    *
-   * @param fileExtensions list of file extensions to allow, may not be <code>null</code>.
+   * @param fileExtensions, of file extensions to allow, may not be <code>null</code>.
    * @throws IllegalArgumentException if <code>fileExtension</code> is <code>null</code>.
    */
   public PSFilenameFilter(String fileExtension) {

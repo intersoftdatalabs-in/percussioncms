@@ -562,7 +562,11 @@ public class Code {
    *     does not exist and is not a valid Rhythmyx root directory.
    * /** @throws CodeException if branding fails
    */
-  public void brand(String rxDirPath) throws CodeException {
+  /**
+ * @param rxDirPath the root directory path
+ * @throws CodeException if branding fails
+ */
+public void brand(String rxDirPath) throws CodeException {
     if ((rxDirPath == null) || (rxDirPath.trim().length() < 1))
       throw new IllegalArgumentException("rxDirPath may not be null or empty");
 

@@ -36,7 +36,7 @@ import org.apache.logging.log4j.Logger;
  */
 public class PSSQLStatement implements Statement {
   /**
-   * Creates a <code>Statement<code> object from the supplied connection.
+   * Creates a <code>Statement</code> object from the supplied connection.
    *
    * @param conn the connection, may not be <code>null</code>.
    *
@@ -59,7 +59,7 @@ public class PSSQLStatement implements Statement {
   /**
    * Just like {@link #getStatement(Connection)} with additional parameters.
    *
-   * Creates a <code>Statement<code> object from the supplied connection.
+   * Creates a <code>Statement</code> object from the supplied connection.
    *
    * @param conn the connection, may not be <code>null</code>.
    * @param resultSetType a result set type; see ResultSet.TYPE_XXX
@@ -69,7 +69,7 @@ public class PSSQLStatement implements Statement {
    *    configured and debug mode is on for this class; otherwise return
    *    <code>Statement</code> object, never <code>null</code>.
    *
-   * @see Connection.createStatement(int, int)
+   * @see Connection#createStatement(int, int)
    *
    * @throws SQLException if error occurs.
    */

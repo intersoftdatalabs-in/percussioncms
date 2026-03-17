@@ -21,6 +21,9 @@ import com.percussion.utils.container.config.model.impl.BaseContainerUtils;
 import java.nio.file.Path;
 import java.util.function.Supplier;
 
+/**
+ * Default implementation of configuration context.
+ */
 public class DefaultConfigurationContextImpl
     extends ConfigurationContextAbstract<DefaultConfigurationContextImpl, BaseContainerUtils>
     implements ConfigurationCtx {

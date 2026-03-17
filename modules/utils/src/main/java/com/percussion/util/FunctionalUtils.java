@@ -22,6 +22,9 @@ import java.util.regex.Pattern;
 import java.util.stream.Stream;
 import org.apache.commons.lang3.StringUtils;
 
+/**
+ * Utility class for functional programming.
+ */
 public class FunctionalUtils {
 
   public static Pattern COMMA_SPLIT = Pattern.compile(",");

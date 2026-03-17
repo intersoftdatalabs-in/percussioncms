@@ -54,7 +54,7 @@ public class PSMapClassToObject {
   /**
    * add the given mapping to this map, replacing any existing mapping
    *
-   * @return The object that was previously associated with this class, or <NULL>null</NULL> if no
+   * @return The object that was previously associated with this class, or <code>null</code> if no
    *     mapping existed for this class. The return value will still be <CODE>null</CODE> even if a
    *     superclass of the given class has a mapping.
    */

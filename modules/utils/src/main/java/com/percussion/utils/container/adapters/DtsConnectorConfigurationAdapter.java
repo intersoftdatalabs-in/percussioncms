@@ -22,6 +22,9 @@ import com.percussion.utils.container.IPSConfigurationAdapter;
 import com.percussion.utils.container.PSDtsConfig;
 import java.nio.file.Path;
 
+/**
+ * Adapter for DTS connector configuration.
+ */
 public class DtsConnectorConfigurationAdapter
     implements IPSConfigurationAdapter<DefaultConfigurationContextImpl> {
 
