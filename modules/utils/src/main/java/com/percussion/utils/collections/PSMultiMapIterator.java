@@ -25,7 +25,7 @@ import java.util.Map;
  * Iterator for multi maps that supports result filtering. Remove is not supported by this class.
  *
  * @author dougrand
- * @param <M>
+ * @param <M> the type of elements in the map
  */
 public class PSMultiMapIterator<M> implements Iterator<M> {
   /** The current element iterator. Initialized and updated in the next method. */
@@ -53,7 +53,7 @@ public class PSMultiMapIterator<M> implements Iterator<M> {
    * Ctor
    *
    * @param map the map, never <code>null</code>
-   * @param filter filter predicate, may be <code>null</code> if no filtering is desired
+   * @param filter filter predicate to limit results, may be <code>null</code> if no filtering is desired
    */
   @SuppressWarnings("unchecked")
   public PSMultiMapIterator(Map<?, ? extends Collection<? extends M>> map, org.apache.commons.collections4.Predicate<?> filter) {

@@ -20,11 +20,7 @@ package com.percussion.utils.container;
 
 import com.percussion.utils.container.config.ContainerConfig;
 import com.percussion.utils.jdbc.IPSDatasourceResolver;
-import com.percussion.utils.xml.PSInvalidXmlException;
-import java.io.File;
-import java.io.IOException;
 import java.util.List;
-import org.xml.sax.SAXException;
 
 /**
  * Provides an interface contract for Application Container utilities that should be provided for
@@ -34,57 +30,71 @@ import org.xml.sax.SAXException;
  */
 public interface IPSContainerUtils extends ContainerConfig {
 
+  /**
+   * Gets the connector information for this container.
+   *
+   * @return the connector info, never <code>null</code>.
+   */
   PSAbstractConnectors getConnectorInfo();
 
   /**
-   * Load all JNDI datasources from the specified file. Any settings configured that are not
-   * supported by the {@link PSJndiDatasource} class are loaded and preserved when the datasource is
-   * saved (see {@link #saveRxDatasources(File, File, List, String)}.
+   * Load all JNDI datasources from the configured file. Any settings configured that are not
+   * supported by the PSJndiDatasource class are loaded and preserved when the datasource is
+   * saved (see setDatasources).
    *
-   * @param dsFile The file from which the datasources should be loaded. May not be <code>null</code>
-   *     and must be a file conforming to the JBoss "jboss-ds_1_5.dtd" DTD.
-   * @param loginCfgFile The file from which encrypted credentials are loaded. May not be
-   *     <code>null</code> and must conform to the JBoss
-   *     "security_config.dtd" DTD.
-   * @param secretKey The key to use when decrypting passwords, may not be <code>null</code> or
-   *     empty.
    * @return A list of datasources, never <code>null</code>, may be empty.
-   * @throws IOException If any errors occur reading from the files.
-   * @throws SAXException If either document is malformed.
-   * @throws PSInvalidXmlException If either document does not conform to the expected format.
-   * @throws PSMissingApplicationPolicyException If a datasource specfies a security domain name
-   *     that cannot be located in the supplied <code>logingCfgFile</code>
-     */
+   */
   List<IPSJndiDatasource> getDatasources();
 
   /**
-   * Saves the supplied JNDI datasource configurations to the supplied files, replacing any existing
-   * configurations. For existing datasources loaded by {@link #saveRxDatasources(File, File, List,
-   * String)}, any settings that were configured but not supported by the {@link PSJndiDatasource}
-   * class are saved intact. See that method for more detailed parameter information. Note that
-   * {@link PSJndiDatasource#setSecurityDomain(String)} will be called on all supplied datasources.
+   * Saves the supplied JNDI datasource configurations to the configured files, replacing any 
+   * existing configurations. Any settings that were configured but not supported by the 
+   * PSJndiDatasource class are saved intact. 
+   * Note that PSJndiDatasource.setSecurityDomain(String) will be called on all supplied datasources.
    *
-   * @param dsFile The file to which the datasources should be saved, may not be <code>null</code>.
-   * @param loginCfgFile The file to which encrypted credentials are saved, may not be <code>null
-   *     </code>.
-   * @param datasources The list of datasources to saved, may not be <code>null</code>, may be
-   *     empty.
-   * @param secretKey The key to use when decrypting passwords, may not be <code>null</code> or
-   *     empty.
-   * @throws IOException If there is an error saving to the files.
-   * @throws SAXException If there is an error reading an existing file.
-     */
+   * @param datasources The list of datasources to save, may not be <code>null</code>, may be empty.
+   */
   void setDatasources(List<IPSJndiDatasource> datasources);
 
+  /**
+   * Gets the datasource resolver for this container.
+   *
+   * @return the datasource resolver, may be <code>null</code>.
+   */
   IPSDatasourceResolver getDatasourceResolver();
 
+  /**
+   * Sets the datasource resolver for this container.
+   *
+   * @param resolver the resolver to use, may be <code>null</code>.
+   */
   void setDatasourceResolver(IPSDatasourceResolver resolver);
 
+  /**
+   * Checks if this container is enabled.
+   *
+   * @return <code>true</code> if enabled, <code>false</code> otherwise.
+   */
   boolean isEnabled();
 
+  /**
+   * Sets whether this container is enabled.
+   *
+   * @param enabled <code>true</code> to enable, <code>false</code> to disable.
+   */
   void setEnabled(boolean enabled);
 
+  /**
+   * Checks if the configuration has been loaded.
+   *
+   * @return <code>true</code> if loaded, <code>false</code> otherwise.
+   */
   boolean isLoaded();
 
+  /**
+   * Sets whether the configuration has been loaded.
+   *
+   * @param loaded <code>true</code> if loaded, <code>false</code> otherwise.
+   */
   void setLoaded(boolean loaded);
 }

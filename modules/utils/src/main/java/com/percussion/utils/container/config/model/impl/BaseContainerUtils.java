@@ -27,6 +27,9 @@ import com.percussion.utils.jdbc.PSDatasourceResolver;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Base implementation of IPSContainerUtils providing common container utility functionality.
+ */
 public class BaseContainerUtils implements IPSContainerUtils, ContainerConfig {
 
   private PSAbstractConnectors connectorInfo = new PSAbstractConnectors();
@@ -37,6 +40,12 @@ public class BaseContainerUtils implements IPSContainerUtils, ContainerConfig {
   private IPSDatasourceResolver datasourceResolver = new PSDatasourceResolver();
   private boolean enabled = false;
   private boolean isLoaded = false;
+
+  /**
+   * Default constructor.
+   */
+  public BaseContainerUtils() {
+  }
 
   @Override
   public PSAbstractConnectors getConnectorInfo() {
@@ -83,7 +92,11 @@ public class BaseContainerUtils implements IPSContainerUtils, ContainerConfig {
     this.isLoaded = isLoaded;
   }
 
-  public IPSDtsConfig getDtsConfig() {
+  /**
+ * Gets the DTS configuration.
+ * @return the DTS config
+ */
+public IPSDtsConfig getDtsConfig() {
     return dtsConfig;
   }
 
@@ -99,12 +112,14 @@ public class BaseContainerUtils implements IPSContainerUtils, ContainerConfig {
         + connectorInfo
         + ", datasources="
         + datasources
-        + ", resolver="
+        + ", datasourceResolver="
         + datasourceResolver
         + ", enabled="
         + enabled
         + ", isLoaded="
         + isLoaded
+        + ", dtsConfig="
+        + dtsConfig
         + '}';
   }
 }

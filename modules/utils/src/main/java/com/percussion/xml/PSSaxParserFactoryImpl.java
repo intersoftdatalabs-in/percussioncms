@@ -29,9 +29,10 @@ import org.xml.sax.SAXNotRecognizedException;
 import org.xml.sax.SAXNotSupportedException;
 
 /**
+ * Create a parser for use in Percussion. This parser has the entity resolver set to an instance of
+ * our entity resolver. This class is currently configured to work with Xerces.
+ *
  * @author dougrand
- *     <p>Create a parser for use in Percussion. This parser has the entity resolver set to an
- *     instance of our entity resolver. This class is currently configured to work with Xerces.
  */
 public class PSSaxParserFactoryImpl extends SAXParserFactory {
 
@@ -84,7 +85,7 @@ public class PSSaxParserFactoryImpl extends SAXParserFactory {
       return factoryThreadLocal.get().getFeature(name);
     } catch (SAXException e) {
       log.warn(PSExceptionUtils.getMessageForLog(e));
-      log.debug(PSExceptionUtils.getDebugMessageForLog(e));
+      log.debug(PSExceptionUtils.getMessageForLog(e), e);
       throw new SAXNotSupportedException(e.getMessage());
     }
   }
@@ -95,7 +96,7 @@ public class PSSaxParserFactoryImpl extends SAXParserFactory {
       factoryThreadLocal.get().setNamespaceAware(awareness);
     } catch (java.lang.UnsupportedOperationException e) {
       log.warn(PSExceptionUtils.getMessageForLog(e));
-      log.debug(PSExceptionUtils.getDebugMessageForLog(e));
+      log.debug(PSExceptionUtils.getMessageForLog(e), e);
     }
   }
 
@@ -105,7 +106,7 @@ public class PSSaxParserFactoryImpl extends SAXParserFactory {
       factoryThreadLocal.get().setValidating(validating);
     } catch (java.lang.UnsupportedOperationException e) {
       log.warn(PSExceptionUtils.getMessageForLog(e));
-      log.debug(PSExceptionUtils.getDebugMessageForLog(e));
+      log.debug(PSExceptionUtils.getMessageForLog(e), e);
     }
   }
 
@@ -115,7 +116,7 @@ public class PSSaxParserFactoryImpl extends SAXParserFactory {
       factoryThreadLocal.get().setXIncludeAware(state);
     } catch (java.lang.UnsupportedOperationException e) {
       log.warn(PSExceptionUtils.getMessageForLog(e));
-      log.debug(PSExceptionUtils.getDebugMessageForLog(e));
+      log.debug(PSExceptionUtils.getMessageForLog(e), e);
     }
   }
 }

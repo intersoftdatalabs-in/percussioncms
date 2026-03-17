@@ -35,7 +35,10 @@ public class Book {
   public Book() {}
 
   /**
-   * @throws ParseException
+   * Constructor with title and publication date.
+   * @param title the book title
+   * @param pubDate the publication date in MMddyyyy format
+   * @throws ParseException if the date format is invalid
    */
   public Book(String title, String pubDate) throws ParseException {
     this.title = title;
@@ -43,18 +46,34 @@ public class Book {
     this.pubDate = df.parse(pubDate);
   }
 
+  /**
+   * Gets the publication date.
+   * @return the publication date
+   */
   public Date getPubDate() {
     return pubDate;
   }
 
+  /**
+   * Sets the publication date.
+   * @param pubDate the publication date
+   */
   public void setPubDate(Date pubDate) {
     this.pubDate = pubDate;
   }
 
+  /**
+   * Gets the book title.
+   * @return the title
+   */
   public String getTitle() {
     return title;
   }
 
+  /**
+   * Sets the book title.
+   * @param title the title
+   */
   public void setTitle(String title) {
     this.title = title;
   }

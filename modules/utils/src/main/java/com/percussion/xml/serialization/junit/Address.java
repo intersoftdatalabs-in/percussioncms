@@ -38,12 +38,12 @@ public class Address {
   public Address() {}
 
   /**
-   * Ctro taking all the required information to build the object.
+   * Ctor taking all the required information to build the object.
    *
-   * @param street
-   * @param town
-   * @param state
-   * @param zip
+   * @param street the street address
+   * @param town the town/city
+   * @param state the state/province
+   * @param zip the postal code
    */
   public Address(String street, String town, String state, String zip) {
     this.street = street;
@@ -52,42 +52,82 @@ public class Address {
     this.zip = zip;
   }
 
+  /**
+   * Sets the street address.
+   * @param addressLine1 the street address line 1
+   */
   public void setStreet(String addressLine1) {
     this.street = addressLine1;
   }
 
+  /**
+   * Sets the second address line.
+   * @param addressLine2 the second address line
+   */
   public void setAddressLine2(String addressLine2) {
     this.addressLine2 = addressLine2;
   }
 
+  /**
+   * Gets the state/province.
+   * @return the state
+   */
   public String getState() {
     return state;
   }
 
+  /**
+   * Sets the state/province.
+   * @param state the state
+   */
   public void setState(String state) {
     this.state = state;
   }
 
+  /**
+   * Gets the town/city.
+   * @return the town
+   */
   public String getTown() {
     return town;
   }
 
+  /**
+   * Sets the town/city.
+   * @param town the town
+   */
   public void setTown(String town) {
     this.town = town;
   }
 
+  /**
+   * Gets the postal code.
+   * @return the zip code
+   */
   public String getZip() {
     return zip;
   }
 
+  /**
+   * Sets the postal code.
+   * @param zip the zip code
+   */
   public void setZip(String zip) {
     this.zip = zip;
   }
 
+  /**
+   * Gets the street address.
+   * @return the street address
+   */
   public String getStreet() {
     return street;
   }
 
+  /**
+   * Gets the second address line.
+   * @return the second address line
+   */
   public String getAddressLine2() {
     return addressLine2;
   }

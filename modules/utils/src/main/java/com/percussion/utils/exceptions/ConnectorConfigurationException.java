@@ -156,12 +156,12 @@ public class ConnectorConfigurationException extends Exception {
    *
    * <pre>
 <code>
-   * <!ELEMENT PSXDeployException (Arg*)
-   * <!ATTLIST PSXDeployException
+   * &lt;!ELEMENT PSXDeployException (Arg*)
+   * &lt;!ATTLIST PSXDeployException
    *    msgCode CDATA #REQUIRED
    *    exceptionClass CDATA #IMPLIED
    * >
-   * <!ELEMENT Arg (#PCDATA)>
+   * &lt;!ELEMENT Arg (#PCDATA)>
    * </code>
 </pre>
    *
