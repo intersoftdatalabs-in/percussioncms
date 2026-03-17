@@ -48,7 +48,7 @@ public class InstallRxApp {
 
   /**
    * This method actually installs the applications. In the first part it copies the application
-   * file 'ObjectStore/<appName.xml> to target directory. In the later part, It copies all the
+   * file 'ObjectStore/&lt;appName&gt;.xml to target directory. In the later part, It copies all the
    * application files (folder &lt;appName&gt;) to the target directory.
    *
    * @param sTargetRoot Rhythmyx root directory as String. e.g. c:/Rhythmyx.

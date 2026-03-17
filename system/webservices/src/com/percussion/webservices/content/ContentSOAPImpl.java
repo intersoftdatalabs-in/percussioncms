@@ -152,9 +152,6 @@ public class ContentSOAPImpl extends PSBaseSOAPImpl implements Content {
      *
      * @param loadContentTypesRequest the request containing optional name filter
      * @return array of content type summaries matching the criteria
-     * @throws RemoteException if a system error occurs
-     * @throws PSInvalidSessionFault if the session is invalid
-     * @throws PSNotAuthorizedFault if the user is not authorized
      */
     @Override
     public LoadContentTypesResponse loadContentTypes(LoadContentTypesRequest loadContentTypesRequest) {

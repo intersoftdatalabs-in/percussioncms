@@ -413,7 +413,7 @@ public interface IPSRequestContext {
    * corresponding hash value. When setting cookies, the permitted syntax for the value is:
    *
    * <p><code>
-   *    <value>[;path=<path>][;domain=<domain>][;expires=<expires>][;secure]
+   *    &lt;value&gt;[;path=&lt;path&gt;][;domain=&lt;domain&gt;][;expires=&lt;expires&gt;][;secure]
    *    </code>
    *
    * <p>where:
