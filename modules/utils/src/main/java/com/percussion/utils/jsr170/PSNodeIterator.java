@@ -25,6 +25,7 @@ import org.apache.commons.collections4.MultiValuedMap;
  *
  * @author dougrand
  */
+@SuppressWarnings("rawtypes")
 public class PSNodeIterator extends PSItemIterator<Node> implements NodeIterator {
   /**
    * Ctor for node iterator

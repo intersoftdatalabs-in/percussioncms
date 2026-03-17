@@ -19,6 +19,7 @@ package com.percussion.workflow;
 import com.percussion.error.PSException;
 
 public class PSXMLNodeMissingException extends PSException {
+  private static final long serialVersionUID = 1L;
   /**
    * Construct an exception for messages taking locale and msgCode arguments.
    *

@@ -15,6 +15,7 @@
  * limitations under the License.
  */
 package com.percussion.pagemanagement.data;
+import java.io.Serializable;
 
 import jakarta.xml.bind.annotation.XmlElement;
 import jakarta.xml.bind.annotation.XmlElementWrapper;
@@ -33,6 +34,7 @@ import org.apache.commons.beanutils.BeanUtils;
  */
 @XmlRootElement(name = "RegionBranches")
 public class PSRegionBranches extends PSRegionWidgetAssociations {
+  private static final long serialVersionUID = 1L;
 
   @AssertValid private List<PSRegion> regions = new ArrayList<>();
 

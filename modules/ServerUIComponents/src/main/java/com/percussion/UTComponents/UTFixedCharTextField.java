@@ -15,6 +15,7 @@
  * limitations under the License.
  */
 package com.percussion.UTComponents;
+import java.io.Serializable;
 
 import java.awt.*;
 import javax.swing.*;
@@ -23,8 +24,7 @@ import javax.swing.text.BadLocationException;
 import javax.swing.text.PlainDocument;
 
 /** Just like a standard text field except for restricting the number of characters in the field. */
-public class UTFixedCharTextField extends JTextField {
-
+public class UTFixedCharTextField extends JTextField implements Serializable {
   private static final long serialVersionUID = 1L;
 
   /**
@@ -78,6 +78,7 @@ public class UTFixedCharTextField extends JTextField {
 
   /** Inner class to limit the number of chars in this text field. */
   class LimitingDocument extends PlainDocument {
+    private static final long serialVersionUID = 1L;
     /**
      * Construct the limiting document.
      *

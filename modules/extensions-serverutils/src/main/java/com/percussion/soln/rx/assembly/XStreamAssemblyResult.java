@@ -16,6 +16,7 @@
  */
 
 package com.percussion.soln.rx.assembly;
+import java.io.Serializable;
 
 import com.percussion.services.assembly.IPSAssemblyItem;
 import com.percussion.services.assembly.IPSAssemblyResult;
@@ -23,6 +24,7 @@ import com.thoughtworks.xstream.XStream;
 import java.nio.charset.StandardCharsets;
 
 public class XStreamAssemblyResult extends MutableAssemblyResult implements IPSAssemblyResult {
+  private static final long serialVersionUID = 1L;
 
   private static XStream xstream;
   private Object data;

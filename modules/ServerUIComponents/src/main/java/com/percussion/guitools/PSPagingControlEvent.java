@@ -15,6 +15,7 @@
  * limitations under the License.
  */
 package com.percussion.guitools;
+import java.io.Serializable;
 
 import java.awt.*;
 
@@ -23,7 +24,8 @@ import java.awt.*;
  *
  * @author erikserating
  */
-public class PSPagingControlEvent extends AWTEvent {
+public class PSPagingControlEvent extends AWTEvent implements Serializable {
+  private static final long serialVersionUID = 1L;
 
   /**
    * Ctor

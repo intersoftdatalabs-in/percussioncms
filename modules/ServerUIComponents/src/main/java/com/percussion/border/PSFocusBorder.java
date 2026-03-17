@@ -15,6 +15,7 @@
  * limitations under the License.
  */
 package com.percussion.border;
+import java.io.Serializable;
 
 import com.percussion.cx.PSDisplayOptions;
 import java.awt.*;
@@ -35,7 +36,8 @@ import javax.swing.border.CompoundBorder;
  *     <p>This class also implements a {@link FocusListener} to enable the component to repaint the
  *     border on focus changes.
  */
-public class PSFocusBorder extends AbstractBorder implements FocusListener {
+public class PSFocusBorder extends AbstractBorder implements FocusListener, Serializable {
+  private static final long serialVersionUID = 1L;
   /**
    * Ctor that calls {@link #PSFocusBorder(int, PSDisplayOptions, boolean) PSFocusBorder(thickness,
    * options, false)}.

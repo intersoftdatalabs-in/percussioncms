@@ -141,6 +141,7 @@ public class PSAnalyticsProviderConfig implements Serializable {
 
   /** Holds extra parameters as a list of key-value pairs. */
   static class ExtraParamsClass implements Serializable {
+    private static final long serialVersionUID = 1L;
     private List<PSGAPairConfig> entry = new ArrayList<>();
 
     public List<PSGAPairConfig> getEntry() {
@@ -154,6 +155,7 @@ public class PSAnalyticsProviderConfig implements Serializable {
 
   /** Represents a key-value pair for extra parameters. */
   static class PSGAPairConfig implements Serializable {
+    private static final long serialVersionUID = 1L;
     private String key;
     private String value;
 

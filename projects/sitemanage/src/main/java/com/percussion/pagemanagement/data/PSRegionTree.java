@@ -15,6 +15,7 @@
  * limitations under the License.
  */
 package com.percussion.pagemanagement.data;
+import java.io.Serializable;
 
 import com.fasterxml.jackson.annotation.JsonRootName;
 import jakarta.xml.bind.annotation.XmlRootElement;
@@ -30,6 +31,7 @@ import net.sf.oval.constraint.NotNull;
 @XmlRootElement(name = "RegionTree")
 @JsonRootName("RegionTree")
 public class PSRegionTree extends PSRegionWidgetAssociations {
+  private static final long serialVersionUID = 1L;
 
   @NotNull private PSRegion rootRegion;
 

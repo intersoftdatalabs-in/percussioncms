@@ -15,6 +15,7 @@
  * limitations under the License.
  */
 package com.percussion.guitools;
+import java.io.Serializable;
 
 import java.applet.AppletContext;
 import java.awt.*;
@@ -32,7 +33,8 @@ import javax.swing.*;
  * About dialog displays the Percussion Logo, Rhythmyx version info and has a clickable link to the
  * percussion website.
  */
-public class PSAboutDialog extends JDialog {
+public class PSAboutDialog extends JDialog implements Serializable {
+  private static final long serialVersionUID = 1L;
   /**
    * Initialies the dialog with supplied parameters.
    *

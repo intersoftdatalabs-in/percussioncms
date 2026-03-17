@@ -16,6 +16,7 @@
  */
 
 package com.percussion.guitools;
+import java.io.Serializable;
 
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -39,7 +40,8 @@ import javax.swing.*;
  * ActionEvent#getActionCommand()} will return {@link #BUTTON_PRESSED_CMD} and {@link
  * #DATE_UPDATED_CMD} respectively.
  */
-public class PSCalendarButton extends JButton implements ActionListener {
+public class PSCalendarButton extends JButton implements ActionListener, Serializable {
+  private static final long serialVersionUID = 1L;
   /**
    * Ctor that implements the default behavior for this class. Uses the standard calendar icon and
    * tooltip text for the button.

@@ -15,6 +15,7 @@
  * limitations under the License.
  */
 package com.percussion.webui.tags;
+import java.io.Serializable;
 
 import jakarta.servlet.jsp.JspException;
 import jakarta.servlet.jsp.tagext.TagSupport;
@@ -43,6 +44,7 @@ import java.io.IOException;
  * @author erikserating
  */
 public class TmxMessageTag extends TagSupport {
+  private static final long serialVersionUID = 1L;
   
   /** The message key to look up in the translation cache. */
   private String key;

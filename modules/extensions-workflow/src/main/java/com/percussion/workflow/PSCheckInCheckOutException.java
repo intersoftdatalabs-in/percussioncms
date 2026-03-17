@@ -23,6 +23,7 @@ import com.percussion.error.PSException;
  * files from the repository.Reason for the failure is indicated in the exception message.
  */
 public class PSCheckInCheckOutException extends PSException {
+  private static final long serialVersionUID = 1L;
   /**
    * Construct an exception for messages taking locale and msgCode arguments.
    *

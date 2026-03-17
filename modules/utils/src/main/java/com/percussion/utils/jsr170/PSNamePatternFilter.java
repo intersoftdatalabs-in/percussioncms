@@ -29,6 +29,7 @@ import org.apache.commons.lang3.StringUtils;
  *
  * @author dougrand
  */
+@SuppressWarnings("rawtypes")
 public class PSNamePatternFilter implements Predicate {
   /** The set of patterns to try and match. Never <code>null</code> after construction. */
   private Pattern m_matchPatterns[] = null;

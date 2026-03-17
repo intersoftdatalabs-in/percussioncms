@@ -15,6 +15,7 @@
  * limitations under the License.
  */
 package com.percussion.webui.tags;
+import java.io.Serializable;
 
 import com.percussion.i18n.PSTmxResourceBundle;
 import jakarta.servlet.jsp.JspException;
@@ -51,6 +52,7 @@ import org.xml.sax.SAXException;
  * @author erikserating
  */
 public class TmxSettingsTag extends TagSupport {
+  private static final long serialVersionUID = 1L;
   
   /** Comma-separated list of key prefixes to load from the translation bundle. */
   private String prefixes;

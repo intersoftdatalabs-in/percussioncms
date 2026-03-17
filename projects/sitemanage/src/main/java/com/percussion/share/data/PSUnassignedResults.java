@@ -16,6 +16,7 @@
  * limitations under the License.
  */
 package com.percussion.share.data;
+import java.io.Serializable;
 
 import com.fasterxml.jackson.annotation.JsonRootName;
 import java.util.ArrayList;
@@ -29,6 +30,7 @@ import java.util.List;
  */
 @JsonRootName(value = "UnassignedResults")
 public class PSUnassignedResults extends PSAbstractDataObject {
+  private static final long serialVersionUID = 1L;
   private UnassignedItemList unassignedItemList;
   private ImportStatus importStatus;
 
@@ -60,6 +62,7 @@ public class PSUnassignedResults extends PSAbstractDataObject {
 
   /** Class that represents the items in the unassigned pages component. */
   public static class UnassignedItemList extends PSAbstractDataObject {
+    private static final long serialVersionUID = 1L;
     private Integer startIndex;
     private Integer childrenCount;
     private List<UnassignedItem> childrenInPage;
@@ -143,6 +146,7 @@ public class PSUnassignedResults extends PSAbstractDataObject {
 
   /** Class that represents the status of the import process, for unassigned pages. */
   public static class ImportStatus extends PSAbstractDataObject {
+    private static final long serialVersionUID = 1L;
     private Integer catalogedPageCount;
     private Integer importedPageCount;
 
@@ -193,6 +197,7 @@ public class PSUnassignedResults extends PSAbstractDataObject {
 
   /** Represents an unassigned item. */
   public static class UnassignedItem extends PSAbstractDataObject {
+    private static final long serialVersionUID = 1L;
     private String id;
     private String name;
     private String path;

@@ -15,6 +15,7 @@
  * limitations under the License.
  */
 package com.percussion.fastforward.calendar;
+import java.io.Serializable;
 
 import com.percussion.util.PSDataTypeConverter;
 import com.percussion.xml.PSXmlTreeWalker;
@@ -29,6 +30,7 @@ import org.w3c.dom.Element;
  * @author James Schultz
  */
 public class PSRecurringEvent {
+  private static final long serialVersionUID = 1L;
 
   /**
    * Constructs a <code>RecurringEvent</code> with the specified parameters.
@@ -467,6 +469,7 @@ public class PSRecurringEvent {
    * required format.
    */
   public class UnknownNodeTypeException extends Exception {
+    private static final long serialVersionUID = 1L;
     /**
      * Just calls the super class version.
      *
@@ -482,6 +485,7 @@ public class PSRecurringEvent {
    * An internal exception to indicate that the supplied XML representation contains illegal values.
    */
   public class IllegalValueException extends Exception {
+    private static final long serialVersionUID = 1L;
     /**
      * Just calls the super class version.
      *

@@ -27,6 +27,7 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
  * @author dougrand
  * @param <Type> the value type encapsulated by the subclass of this abstract class.
  */
+@SuppressWarnings("rawtypes")
 public abstract class PSBaseValue<Type> implements Value, IPSJcrCacheItem {
   /** Holds value, never <code>null</code> after ctor */
   protected Type m_value;
