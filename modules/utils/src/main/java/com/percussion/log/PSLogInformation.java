@@ -85,7 +85,8 @@ public abstract class PSLogInformation {
   /**
    * Converts the object and its sub-messages into an XML string.
    *
-   * @return A String XML representation of the form:
+   * @param buf the StringBuilder to append the XML to
+   *     <p>Example XML format:
    *     <p>&lt;PSXLogMessage type="foo"&gt;<br/>
    *     &lt;time&gt;19990204T130923000&lt;/time&gt;<br/>
    *     &lt;applicationId&gt;foobar&lt;/applicationId&gt;<br/>
@@ -106,7 +107,8 @@ public abstract class PSLogInformation {
   /**
    * Converts the object and its sub-messages into an XML string.
    *
-   * @return A String XML representation of the form:
+   * @param buf the StringBuilder to append the XML to
+   *     <p>Example XML format:
    *     <p>&lt;PSXLogMessage type="foo"&gt;<br/>
    *     &lt;time&gt;19990204T130923000&lt;/time&gt;<br/>
    *     &lt;applicationId&gt;foobar&lt;/applicationId&gt;<br/>

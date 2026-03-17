@@ -203,10 +203,10 @@ public class PSJBossJndiDatasource extends PSJndiDatasourceImpl
    * Serializes this component to the JBoss datasource XML format. During serialization, this method
    * will add a connection checker class for Oracle datasources if one is not present (see the
    * oracle-ds.xml example in <code>Jboss docs</code>\examples\jca), and will also add an exception sorter for
-   * both Oracle datasources if one is not present. Also, if {@link #getSecurityDomain()} returns
+   * both Oracle datasources if one is not present. Also, if {@link #getSecurityDomain() method} returns
    * <code>null</code>, then the userId and password elements will not be written.
    *
-   * <p>See {@link #PSJndiDatasource(Element)} for more info.
+   * <p>See 
    *
    * @param doc The document to use, may not be <code>null</code>.
    * @return The root element of the XML, never <code>null</code>.

@@ -246,7 +246,7 @@ public class PSJdbcUtils {
    * <TR><TD>jTDS</TD><TD>jdbc:jtds:sqlserver://&lt;host>:&lt;port>[/db-name];user=u;password=p</TD></TR>
    * <TR><TD>jTDS</TD><TD>jdbc:jtds:sqlserver://&lt;host>:&lt;port>;database=&lt;db-name>;user=u;password=p</TD></TR>
    * <TR><TD>SPRINTA</TD><TD>jdbc:inetdae7:&lt;host>:&lt;post>?database=&lt;db-name></TD></TR>
-   * <TR><TD>MySQL</TD><TD>jdbc:mysql://&lt;host>[,failoverhost...][:port][/database][?propertyName1][=propertyValue1][&propertyName2][=propertyValue2]...</TD></TR>
+   * <TR><TD>MySQL</TD><TD>jdbc:mysql://host[,failoverhost...][:port][/database]propertyName1=propertyValue1 and propertyName2=propertyValue2</TD></TR>
    * <TR><TD>DB2</TD><TD>jdbc:db2://&lt;host>:&lt;port>[/db-name]</TD></TR>
    * <TR><TD>Oracle</TD><TD>jdbc:oracle:thin:@&lt;host>:1521:&lt;sid></TD></TR>
    * </table>

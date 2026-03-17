@@ -47,7 +47,7 @@ public class PSJbossProperties {
   /** The path to the rxapp.war directory relative to the rx root. */
   public static final String RX_APP_DIR = RX_CONF_DIR + "/deploy/rxapp.ear/rxapp.war";
 
-  /** The name of the UIL2 service config file located in the {@link #JMS_DIR} directory. */
+  /** The name of the UIL2 service config file located in the {@link JMS_DIR} directory. */
   public static final String UIL2_SERVICE_FILE_NAME = "uil2-service.xml";
 
   /** The spring configuration file location relative to rx root. */

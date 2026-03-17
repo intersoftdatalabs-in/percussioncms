@@ -1610,9 +1610,9 @@ public class PSSqlHelper {
    *
    * @param conn the database connection, never <code>null</code>
    * @param version the database version, i.e., 9.2.0.0.0, never <code>null</code>
-   * @return 1 if conn > version, -1 if conn < version, and 0 if conn == v2
-   * @throws SQLException if a database error occurs
-   * @throws NumberFormatException if the version format is invalid
+   * @return 1 if conn is greater than version, -1 if conn is less than version, and 0 if equal
+   * @throws SQLException if a database error occurs, the SQL state is returned in the exception
+   * @throws NumberFormatException if the version format is invalid, e.g., non-numeric characters
    */
   public static int compareVersions(Connection conn, String version) throws SQLException {
     if (conn == null) {

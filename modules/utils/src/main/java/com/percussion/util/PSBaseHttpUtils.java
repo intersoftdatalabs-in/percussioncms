@@ -306,7 +306,7 @@ public class PSBaseHttpUtils {
    *
    * <p>This is a simple implementation and does not conform to the full http URL specification.
    *
-   * @param query A string of the form [path?]p1=v1&p2=v2... where [path?] is optional (searches for:
+   * @param query A string of the form [path?]p1=v1 and p2=v2... where [path?] is optional (searches for:
    *     the first occurrence of ? and only uses rest of supplied string), px is the parameter name
    *     and vx is the value (which may be missing.) Parameter names may appear more than once. May
    *     be <code>null</code> or empty.

@@ -133,7 +133,7 @@ public interface IPSJndiDatasource {
    * Set the minimum number of connections based on this datasource the pool should hold. The
    * default is 0 if not specified.
    *
-   * @param min The minimum number, must be >= 0 and <= to the value returned by {@link
+   * @param min The minimum number, must be >= 0 and less than or equal to the value returned by {@link
    *     #getMaxConnections()}.
    */
   void setMinConnections(int min);
