@@ -1129,9 +1129,9 @@ public class PSXmlTreeWalker implements Serializable {
     return writer.toString();
   }
 
-  private org.w3c.dom.Document m_doc;
-  private org.w3c.dom.Node m_root;
-  private org.w3c.dom.Node m_cur;
+  private transient org.w3c.dom.Document m_doc;
+  private transient org.w3c.dom.Node m_root;
+  private transient org.w3c.dom.Node m_cur;
 
   /**
    * Sets the boolean indicating if the special characters in the Xml Document should be transformed

@@ -29,6 +29,7 @@ import org.apache.commons.lang3.StringUtils;
  *
  * @author dougrand
  */
+@SuppressWarnings({"rawtypes", "unchecked"})
 public class PSNamingContextHelper {
   /** The actual naming context to use. This is setup to use the mock naming provider. */
   Context m_ctx = null;

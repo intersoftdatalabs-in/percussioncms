@@ -221,7 +221,7 @@ public class PSPurgableTempFile extends File implements AutoCloseable {
    * the content-type string for possible attributes. Never modified after construction. Never
    * <code>null</code> after construction. May be empty.
    */
-  private Map<String, String> m_contentProperties = null;
+  private transient Map<String, String> m_contentProperties = null;
 
   /**
    * The temp directory is calculated based on the user's configuration. This is done on class load.

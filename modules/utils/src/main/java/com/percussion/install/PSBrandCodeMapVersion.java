@@ -293,6 +293,7 @@ public class PSBrandCodeMapVersion {
             bce.getAttributeValue(IPSBrandCodeMap.ATTR_UNSELECTED_OPTIONAL_PART_ID, true), errMsg);
 
     int reqoptPartId = 0;
+    //noinspection FallThroughInSwitchStatement
     switch (partsType) {
       case IPSBrandCodeMap.PARTS_TYPE_ALL:
       case IPSBrandCodeMap.PARTS_TYPE_REQUIRED:

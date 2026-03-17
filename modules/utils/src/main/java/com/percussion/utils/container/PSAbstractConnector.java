@@ -32,8 +32,10 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import org.w3c.dom.Element;
 
+@SuppressWarnings({"rawtypes", "unchecked"})
 public abstract class PSAbstractConnector implements IPSConnector, XMLEnabled {
 
+  @SuppressWarnings("rawtypes")
   /** Scheme constant for the "http" protocol. */
   public static final String SCHEME_HTTP = "http";
 
@@ -301,6 +303,7 @@ public abstract class PSAbstractConnector implements IPSConnector, XMLEnabled {
       return this;
     }
 
+    @SuppressWarnings("rawtypes")
     public HttpsBuilder setHttps() {
       scheme = SCHEME_HTTPS;
       return (this instanceof HttpsBuilder) ? (HttpsBuilder) this : new HttpsBuilder(this);

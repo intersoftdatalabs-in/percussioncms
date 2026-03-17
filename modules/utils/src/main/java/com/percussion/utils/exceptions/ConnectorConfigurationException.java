@@ -409,7 +409,7 @@ public class ConnectorConfigurationException extends Exception {
    * The array of arguments to use to format the message with. Set during ctor, may be <code>null
    * </code>, never modified after that.
    */
-  private Object[] m_args;
+  private transient Object[] m_args;
 
   /**
    * If this exception was constructed from a <code>PSException</code> class, this will contain the

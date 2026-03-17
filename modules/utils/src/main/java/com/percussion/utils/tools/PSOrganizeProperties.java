@@ -38,6 +38,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /** Utility class used to organize a property file into ascending order */
+@SuppressWarnings("rawtypes")
 public class PSOrganizeProperties {
 
   private static final Logger log = LogManager.getLogger(PSOrganizeProperties.class);

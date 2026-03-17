@@ -708,7 +708,7 @@ public class PSSqlHelper {
 
       case Types.FLOAT:
       case Types.REAL:
-        stmt.setObject(bindStart, new Float(value.floatValue()), dataType);
+        stmt.setObject(bindStart, Float.valueOf(value.floatValue()), dataType);
         break;
 
       case Types.DATE:

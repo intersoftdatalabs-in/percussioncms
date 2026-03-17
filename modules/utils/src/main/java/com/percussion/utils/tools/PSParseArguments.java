@@ -28,6 +28,7 @@ import java.util.Set;
  * the string "true", other arguments return their value. Arguments that have no value will return
  * <code>true</code> for the method {@link #isFlag(String)}
  */
+@SuppressWarnings("rawtypes")
 public class PSParseArguments {
   /**
    * Ctor

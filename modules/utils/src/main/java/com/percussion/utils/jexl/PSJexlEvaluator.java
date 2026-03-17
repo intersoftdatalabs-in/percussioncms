@@ -34,7 +34,7 @@ import org.apache.logging.log4j.Logger;
  *
  * @author dougrand
  */
-@SuppressWarnings(value = "unchecked")
+@SuppressWarnings(value = {"unchecked", "rawtypes"})
 public class PSJexlEvaluator {
   /** Commons logger for evaluator */
   private static final Logger log = LogManager.getLogger(PSJexlEvaluator.class);

@@ -275,7 +275,7 @@ public abstract class PSBaseException extends Exception {
    * {@link #getErrorStringBundle(Locale) getErrorStringBundle}, never <code>null</code> or modified
    * after that unless an exception occurred loading the bundle.
    */
-  private ResourceBundle m_bundle = null;
+  private transient ResourceBundle m_bundle = null;
 
   /** The error code of this exception, set during ctor, never modified after that. */
   private int m_code;
@@ -284,5 +284,5 @@ public abstract class PSBaseException extends Exception {
    * The array of arguments to use to format the message with. Set during ctor, may be <code>null
    * </code>, never modified after that.
    */
-  private Object[] m_args;
+  private transient Object[] m_args = null;
 }
