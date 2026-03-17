@@ -81,7 +81,7 @@ import static org.apache.commons.lang3.Validate.notNull;
  * created, along with a registration for where the temporary file should be
  * stored in the file system. On {@link #commit(long)}, the cached information
  * is delivered, and the temporary files are purged.
- * <h3>Locations</h3>
+ * <h2>Locations</h2>
  * Locations for file based handlers are straightforward - they are simply the
  * actual path to the file for the handler to use. These are used for both
  * delivery and removal operations.

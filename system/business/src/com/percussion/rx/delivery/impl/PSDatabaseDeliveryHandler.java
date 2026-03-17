@@ -79,7 +79,7 @@ import static org.apache.commons.lang3.Validate.notNull;
  * <li>The data to be published for a single item in the
  * <code>tabledataset</code> element
  * </ul>
- * <h3>Unpublishing info extraction</h3>
+ * <h2>Unpublishing info extraction</h2>
  * When an item is delivered, the base class saves the data into the file
  * system. The unpublishing extractor uses the item to create an unpublishing
  * item. To create the unpublishing item, the schema is scanned to discover the
@@ -87,12 +87,12 @@ import static org.apache.commons.lang3.Validate.notNull;
  * that are not primary keys are removed and the action is changed to "d" so the
  * rows will be removed. The resulting document is serialized to a byte array
  * and returned.
- * <h3>Publishing</h3>
+ * <h2>Publishing</h2>
  * On commit the <code>doDelivery</code> is called and the items are
  * processed. The connections for a given job are cached so they aren't
  * repeatedly opened. This is done in the {@link #commit(long)} method, and
  * saved on a per job basis.
- * <h3>Removal</h3>
+ * <h2>Removal</h2>
  * The saved document is reconstituted and the same basic handling is performed
  * as for publishing.
  * <hr>

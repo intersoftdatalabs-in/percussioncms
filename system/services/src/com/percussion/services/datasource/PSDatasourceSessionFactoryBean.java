@@ -49,7 +49,7 @@ import java.util.Optional;
  * and cannot contain any wild card characters, as the JBoss classloaders cannot
  * load resources with wild card names from jar files.</p>
  *
- * <h3>Usage Example:</h3>
+ * <h2>Usage Example:</h2>
  * <pre>{@code
  * <bean id="mySessionFactory"
  *    class="com.percussion.services.datasource.PSDatasourceSessionFactoryBean"
