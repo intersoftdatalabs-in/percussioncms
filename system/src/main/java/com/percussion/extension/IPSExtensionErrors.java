@@ -24,10 +24,7 @@ public interface IPSExtensionErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
-   * <TR><TH>Arg</TH><TH>Description</TH></TR>
-   * <TR><TD>0</TD><TD>error text (sql exception text)</TD></TR>
-   * </TABLE>
+   * <p>Arguments: 0 - error text (sql exception text)
    */
   public static final int BACKEND_COLUMN_ERROR = 7001;
 
@@ -36,10 +33,7 @@ public interface IPSExtensionErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
-   * <TR><TH>Arg</TH><TH>Description</TH></TR>
-   * <TR><TD>0</TD><TD>list of valid types</TD></TR>
-   * </TABLE>
+   * <p>Arguments: 0 - list of valid types
    */
   public static final int UNKNOWN_PARAMETER_TYPE = 7002;
 
@@ -48,11 +42,7 @@ public interface IPSExtensionErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
-   * <TR><TH>Arg</TH><TH>Description</TH></TR>
-   * <TR><TD>0</TD><TD>the extension name</TD></TR>
-   * <TR><TD>1</TD><TD>the error</TD></TR>
-   * </TABLE>
+   * <p>Arguments: 0 - the extension name, 1 - the error
    */
   public static final int CATALOG_EXT_RESOURCE_ERROR = 7003;
 
@@ -61,11 +51,7 @@ public interface IPSExtensionErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
-   * <TR><TH>Arg</TH><TH>Description</TH></TR>
-   * <TR><TD>0</TD><TD>the name of the required parameter</TD></TR>
-   * <TR><TD>1</TD><TD>the error message</TD></TR>
-   * </TABLE>
+   * <p>Arguments: 0 - the name of the required parameter, 1 - the error message
    */
   public static final int EXT_MISSING_REQUIRED_PARAMETER_ERROR = 7004;
 
@@ -74,11 +60,7 @@ public interface IPSExtensionErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
-   * <TR><TH>Arg</TH><TH>Description</TH></TR>
-   * <TR><TD>0</TD><TD>the name of the parameter</TD></TR>
-   * <TR><TD>1</TD><TD>the error message</TD></TR>
-   * </TABLE>
+   * <p>Arguments: 0 - the name of the parameter, 1 - the error message
    */
   public static final int EXT_MISSING_HTML_PARAMETER_ERROR = 7005;
 
@@ -87,11 +69,7 @@ public interface IPSExtensionErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
-   * <TR><TH>Arg</TH><TH>Description</TH></TR>
-   * <TR><TD>0</TD><TD>expected number of parameters</TD></TR>
-   * <TR><TD>0</TD><TD>number of values specified</TD></TR>
-   * </TABLE>
+   * <p>Arguments: 0 - expected number of parameters, 0 - number of values specified
    */
   public static final int EXT_PARAM_VALUE_MISMATCH = 7006;
 
@@ -100,10 +78,7 @@ public interface IPSExtensionErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
-   * <TR><TH>Arg</TH><TH>Description</TH></TR>
-   * <TR><TD>0</TD><TD>The entire message string</TD></TR>
-   * </TABLE>
+   * <p>Arguments: 0 - The entire message string
    */
   public static final int EXT_PARAM_VALUE_INVALID = 7007;
 
@@ -113,10 +88,7 @@ public interface IPSExtensionErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
-   * <TR><TH>Arg</TH><TH>Description</TH></TR>
-   * <TR><TD>0</TD><TD>The extension definition</TD></TR>
-   * </TABLE>
+   * <p>Arguments: 0 - The extension definition
    */
   public static final int EXT_INSTALLER_DEPLOY_NAME_EXPECTED = 7008;
 
@@ -125,11 +97,7 @@ public interface IPSExtensionErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
-   * <TR><TH>Arg</TH><TH>Description</TH></TR>
-   * <TR><TD>0</TD><TD>The extension definition</TD></TR>
-   * <TR><TD>0</TD><TD>The unsupported resource</TD></TR>
-   * </TABLE>
+   * <p>Arguments: 0 - The extension definition, 0 - The unsupported resource
    */
   public static final int EXT_INSTALLER_UNSUPPORTED_RESOURCE = 7009;
 
@@ -138,10 +106,7 @@ public interface IPSExtensionErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
-   * <TR><TH>Arg</TH><TH>Description</TH></TR>
-   * <TR><TD>0</TD><TD>The resource</TD></TR>
-   * </TABLE>
+   * <p>Arguments: 0 - The resource
    */
   public static final int EXT_INSTALLER_RESOURCE_NOT_EXITING = 7010;
 
@@ -150,10 +115,7 @@ public interface IPSExtensionErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
-   * <TR><TH>Arg</TH><TH>Description</TH></TR>
-   * <TR><TD>0</TD><TD>The resource</TD></TR>
-   * </TABLE>
+   * <p>Arguments: 0 - The resource
    */
   public static final int EXT_INSTALLER_RESOURCE_NOT_READABLE = 7011;
 
@@ -162,11 +124,7 @@ public interface IPSExtensionErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
-   * <TR><TH>Arg</TH><TH>Description</TH></TR>
-   * <TR><TD>0</TD><TD>the extension name</TD></TR>
-   * <TR><TD>1</TD><TD>the exception text</TD></TR>
-   * </TABLE>
+   * <p>Arguments: 0 - the extension name, 1 - the exception text
    */
   public static final int EXT_PROCESSOR_EXCEPTION = 7012;
 
@@ -175,11 +133,7 @@ public interface IPSExtensionErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
-   * <TR><TH>Arg</TH><TH>Description</TH></TR>
-   * <TR><TD>0</TD><TD>the class detected</TD></TR>
-   * <TR><TD>1</TD><TD>the expected interface</TD></TR>
-   * </TABLE>
+   * <p>Arguments: 0 - the class detected, 1 - the expected interface
    */
   public static final int UNEXPECTED_EXT_TYPE_EXCEPTION = 7013;
 
@@ -188,11 +142,7 @@ public interface IPSExtensionErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
-   * <TR><TH>Arg</TH><TH>Description</TH></TR>
-   * <TR><TD>0</TD><TD>function name</TD></TR>
-   * <TR><TD>0</TD><TD>the message text</TD></TR>
-   * </TABLE>
+   * <p>Arguments: 0 - function name, 0 - the message text
    */
   public static final int EXT_HANDLER_LOAD_UNLOAD_ERROR = 7014;
 
@@ -201,10 +151,7 @@ public interface IPSExtensionErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
-   * <TR><TH>Arg</TH><TH>Description</TH></TR>
-   * <TR><TD>0</TD><TD>the reason of failure</TD></TR>
-   * </TABLE>
+   * <p>Arguments: 0 - the reason of failure
    */
   public static final int EXT_HANDLER_PREPARE_ERROR = 7015;
 
@@ -213,10 +160,7 @@ public interface IPSExtensionErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
-   * <TR><TH>Arg</TH><TH>Description</TH></TR>
-   * <TR><TD>0</TD><TD>the reason of failure</TD></TR>
-   * </TABLE>
+   * <p>Arguments: 0 - the reason of failure
    */
   public static final int EXT_HANDLER_DEF_STORE_ERROR = 7016;
 
@@ -225,11 +169,7 @@ public interface IPSExtensionErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
-   * <TR><TH>Arg</TH><TH>Description</TH></TR>
-   * <TR><TD>0</TD><TD>the extension name</TD></TR>
-   * <TR><TD>1</TD><TD>the reason of failure</TD></TR>
-   * </TABLE>
+   * <p>Arguments: 0 - the extension name, 1 - the reason of failure
    */
   public static final int EXT_INSTALL_UPDATE_ERROR = 7017;
 
@@ -238,12 +178,7 @@ public interface IPSExtensionErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
-   * <TR><TH>Arg</TH><TH>Description</TH></TR>
-   * <TR><TD>0</TD><TD>the extension name</TD></TR>
-   * <TR><TD>1</TD><TD>the resource name</TD></TR>
-   * <TR><TD>2</TD><TD>the description of the error</TD></TR>
-   * </TABLE>
+   * <p>Arguments: 0 - the extension name, 1 - the resource name, 2 - the description of the error
    */
   public static final int EXT_RESOURCE_STORE_ERROR = 7018;
 
@@ -252,12 +187,7 @@ public interface IPSExtensionErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
-   * <TR><TH>Arg</TH><TH>Description</TH></TR>
-   * <TR><TD>0</TD><TD>the extension name</TD></TR>
-   * <TR><TD>1</TD><TD>the resource name</TD></TR>
-   * <TR><TD>2</TD><TD>the description of the error</TD></TR>
-   * </TABLE>
+   * <p>Arguments: 0 - the extension name, 1 - the resource name, 2 - the description of the error
    */
   public static final int EXT_RESOURCE_DELETE_ERROR = 7019;
 
@@ -266,10 +196,7 @@ public interface IPSExtensionErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
-   * <TR><TH>Arg</TH><TH>Description</TH></TR>
-   * <TR><TD>0</TD><TD>the extension name</TD></TR>
-   * </TABLE>
+   * <p>Arguments: 0 - the extension name
    */
   public static final int EXT_NOT_FOUND = 7020;
 
@@ -278,10 +205,7 @@ public interface IPSExtensionErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
-   * <TR><TH>Arg</TH><TH>Description</TH></TR>
-   * <TR><TD>0</TD><TD>the extension name</TD></TR>
-   * </TABLE>
+   * <p>Arguments: 0 - the extension name
    */
   public static final int EXT_ALREADY_EXISTS = 7021;
 
@@ -290,10 +214,7 @@ public interface IPSExtensionErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
-   * <TR><TH>Arg</TH><TH>Description</TH></TR>
-   * <TR><TD>0</TD><TD>error text</TD></TR>
-   * </TABLE>
+   * <p>Arguments: 0 - error text
    */
   public static final int EXT_MANAGER_INIT_FAILED = 7022;
 
@@ -302,10 +223,7 @@ public interface IPSExtensionErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
-   * <TR><TH>Arg</TH><TH>Description</TH></TR>
-   * <TR><TD>0</TD><TD>error text</TD></TR>
-   * </TABLE>
+   * <p>Arguments: 0 - error text
    */
   public static final int EXT_MANAGER_SHUTDOWN_FAILED = 7023;
 
@@ -314,11 +232,7 @@ public interface IPSExtensionErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
-   * <TR><TH>Arg</TH><TH>Description</TH></TR>
-   * <TR><TD>0</TD><TD>the unique extension handler name</TD></TR>
-   * <TR><TD>1</TD><TD>error text</TD></TR>
-   * </TABLE>
+   * <p>Arguments: 0 - the unique extension handler name, 1 - error text
    */
   public static final int EXT_HANDLER_INIT_FAILED = 7024;
 
@@ -327,11 +241,7 @@ public interface IPSExtensionErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
-   * <TR><TH>Arg</TH><TH>Description</TH></TR>
-   * <TR><TD>0</TD><TD>the unique extension handler name</TD></TR>
-   * <TR><TD>1</TD><TD>error text</TD></TR>
-   * </TABLE>
+   * <p>Arguments: 0 - the unique extension handler name, 1 - error text
    */
   public static final int EXT_HANDLER_SHUTDOWN_FAILED = 7025;
 
@@ -340,12 +250,7 @@ public interface IPSExtensionErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
-   * <TR><TH>Arg</TH><TH>Description</TH></TR>
-   * <TR><TD>0</TD><TD>the unique extension handler name</TD></TR>
-   * <TR><TD>1</TD><TD>the unique extension name</TD></TR>
-   * <TR><TD>2</TD><TD>error text</TD></TR>
-   * </TABLE>
+   * <p>Arguments: 0 - the unique extension handler name, 1 - the unique extension name, 2 - error text
    */
   public static final int EXT_INIT_FAILED = 7026;
 
@@ -355,11 +260,7 @@ public interface IPSExtensionErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
-   * <TR><TH>Arg</TH><TH>Description</TH></TR>
-   * <TR><TD>0</TD><TD>the extension ref string</TD></TR>
-   * <TR><TD>1</TD><TD>the expected interface</TD></TR>
-   * </TABLE>
+   * <p>Arguments: 0 - the extension ref string, 1 - the expected interface
    */
   public static final int INVALID_EXT_TYPE_EXCEPTION = 7027;
 
@@ -368,10 +269,7 @@ public interface IPSExtensionErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
-   * <TR><TH>Arg</TH><TH>Description</TH></TR>
-   * <TR><TD>0</TD><TD>The exception message</TD></TR>
-   * </TABLE>
+   * <p>Arguments: 0 - The exception message
    */
   public static final int UNKNOWN_EFFECT_PROCESSING_ERROR = 7028;
 
@@ -380,11 +278,7 @@ public interface IPSExtensionErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
-   * <TR><TH>Arg</TH><TH>Description</TH></TR>
-   * <TR><TD>0</TD><TD>The received element name.</TD></TR>
-   * <TR><TD>1</TD><TD>The expected element name.</TD></TR>
-   * </TABLE>
+   * <p>Arguments: 0 - The received element name., 1 - The expected element name.
    */
   public static final int INVALID_XML_ELEMENT = 7029;
 
@@ -393,10 +287,7 @@ public interface IPSExtensionErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
-   * <TR><TH>Arg</TH><TH>Description</TH></TR>
-   * <TR><TD>0</TD><TD>The missing attribute name.</TD></TR>
-   * </TABLE>
+   * <p>Arguments: 0 - The missing attribute name.
    */
   public static final int MISSING_REQUIRED_ATTRIBUTE = 7030;
 
@@ -405,10 +296,7 @@ public interface IPSExtensionErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
-   * <TR><TH>Arg</TH><TH>Description</TH></TR>
-   * <TR><TD>0</TD><TD>The class name.</TD></TR>
-   * </TABLE>
+   * <p>Arguments: 0 - The class name.
    */
   public static final int CLASS_NOT_FOUND = 7031;
 
@@ -420,10 +308,7 @@ public interface IPSExtensionErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
-   * <TR><TH>Arg</TH><TH>Description</TH></TR>
-   * <TR><TD>0</TD><TD>The missing parameter number or name.</TD></TR>
-   * </TABLE>
+   * <p>Arguments: 0 - The missing parameter number or name.
    */
   public static final int MISSING_REQUIRED_PARAM_NO = 7033;
 
@@ -432,10 +317,7 @@ public interface IPSExtensionErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
-   * <TR><TH>Arg</TH><TH>Description</TH></TR>
-   * <TR><TD>0</TD><TD>The invalid parameter number or name.</TD></TR>
-   * </TABLE>
+   * <p>Arguments: 0 - The invalid parameter number or name.
    */
   public static final int INVALID_STRING_PARAM = 7034;
 
@@ -444,10 +326,7 @@ public interface IPSExtensionErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
-   * <TR><TH>Arg</TH><TH>Description</TH></TR>
-   * <TR><TD>0</TD><TD>The invalid parameter number or name.</TD></TR>
-   * </TABLE>
+   * <p>Arguments: 0 - The invalid parameter number or name.
    */
   public static final int INVALID_NUMBER_PARAM = 7035;
 
@@ -456,10 +335,7 @@ public interface IPSExtensionErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
-   * <TR><TH>Arg</TH><TH>Description</TH></TR>
-   * <TR><TD>0</TD><TD>The invalid parameter number or name.</TD></TR>
-   * </TABLE>
+   * <p>Arguments: 0 - The invalid parameter number or name.
    */
   public static final int INVALID_BOOLEAN_PARAM = 7036;
 
@@ -468,10 +344,7 @@ public interface IPSExtensionErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
-   * <TR><TH>Arg</TH><TH>Description</TH></TR>
-   * <TR><TD>0</TD><TD>The invalid parameter number or name.</TD></TR>
-   * </TABLE>
+   * <p>Arguments: 0 - The invalid parameter number or name.
    */
   public static final int INVALID_DATE_PARAM = 7037;
 
@@ -480,10 +353,7 @@ public interface IPSExtensionErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
-   * <TR><TH>Arg</TH><TH>Description</TH></TR>
-   * <TR><TD>0</TD><TD>The invalid index value.</TD></TR>
-   * </TABLE>
+   * <p>Arguments: 0 - The invalid index value.
    */
   public static final int INVALID_INDEX_VALUE = 7038;
 
@@ -492,10 +362,7 @@ public interface IPSExtensionErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
-   * <TR><TH>Arg</TH><TH>Description</TH></TR>
-   * <TR><TD>0</TD><TD>The invalid index value.</TD></TR>
-   * </TABLE>
+   * <p>Arguments: 0 - The invalid index value.
    */
   public static final int INVALID_NUMBER_DEFAULT = 7039;
 
@@ -504,11 +371,7 @@ public interface IPSExtensionErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
-   * <TR><TH>Arg</TH><TH>Description</TH></TR>
-   * <TR><TD>0</TD><TD>function name</TD></TR>
-   * <TR><TD>0</TD><TD>the message text</TD></TR>
-   * </TABLE>
+   * <p>Arguments: 0 - function name, 0 - the message text
    */
   public static final int JS_COMPILE_FAILED = 7301;
 
@@ -517,12 +380,7 @@ public interface IPSExtensionErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
-   * <TR><TH>Arg</TH><TH>Description</TH></TR>
-   * <TR><TD>0</TD><TD>function name</TD></TR>
-   * <TR><TD>0</TD><TD>the message text</TD></TR>
-   * <TR><TD>1</TD><TD>the source of the error</TD></TR>
-   * </TABLE>
+   * <p>Arguments: 0 - function name, 0 - the message text, 1 - the source of the error
    */
   public static final int JS_COMPILE_FAILED_SRC = 7302;
 
@@ -531,11 +389,7 @@ public interface IPSExtensionErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
-   * <TR><TH>Arg</TH><TH>Description</TH></TR>
-   * <TR><TD>0</TD><TD>function name</TD></TR>
-   * <TR><TD>0</TD><TD>the message text</TD></TR>
-   * </TABLE>
+   * <p>Arguments: 0 - function name, 0 - the message text
    */
   public static final int JS_CALL_FAILED = 7303;
 
@@ -544,12 +398,7 @@ public interface IPSExtensionErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
-   * <TR><TH>Arg</TH><TH>Description</TH></TR>
-   * <TR><TD>0</TD><TD>function name</TD></TR>
-   * <TR><TD>0</TD><TD>the message text</TD></TR>
-   * <TR><TD>1</TD><TD>the source of the error</TD></TR>
-   * </TABLE>
+   * <p>Arguments: 0 - function name, 0 - the message text, 1 - the source of the error
    */
   public static final int JS_CALL_FAILED_SRC = 7304;
 
@@ -558,10 +407,7 @@ public interface IPSExtensionErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
-   * <TR><TH>Arg</TH><TH>Description</TH></TR>
-   * <TR><TD>0</TD><TD>the extractor's source</TD></TR>
-   * </TABLE>
+   * <p>Arguments: 0 - the extractor's source
    */
   public static final int SET_EMPTYXML_STYLESHEET_NULL_SS = 7401;
 
@@ -570,11 +416,7 @@ public interface IPSExtensionErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
-   * <TR><TH>Arg</TH><TH>Description</TH></TR>
-   * <TR><TD>0</TD><TD>the extractor's source</TD></TR>
-   * <TR><TD>1</TD><TD>the error text</TD></TR>
-   * </TABLE>
+   * <p>Arguments: 0 - the extractor's source, 1 - the error text
    */
   public static final int SET_EMPTYXML_STYLESHEET_INVALID_URL = 7402;
 
@@ -583,11 +425,7 @@ public interface IPSExtensionErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
-   * <TR><TH>Arg</TH><TH>Description</TH></TR>
-   * <TR><TD>0</TD><TD>The exit name</TD></TR>
-   * <TR><TD>0</TD><TD>The parameter name</TD></TR>
-   * </TABLE>
+   * <p>Arguments: 0 - The exit name, 0 - The parameter name
    */
   public static final int MISSING_HTML_PARAMETER = 7403;
 
@@ -596,10 +434,7 @@ public interface IPSExtensionErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
-   * <TR><TH>Arg</TH><TH>Description</TH></TR>
-   * <TR><TD>0</TD><TD>Current user name</TD></TR>
-   * </TABLE>
+   * <p>Arguments: 0 - Current user name
    */
   public static final int COMMUNITIES_AUTHENTICATION_FAILED_NOCOMMUNITY = 7404;
 
@@ -608,10 +443,7 @@ public interface IPSExtensionErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
-   * <TR><TH>Arg</TH><TH>Description</TH></TR>
-   * <TR><TD>0</TD><TD>Current user name</TD></TR>
-   * </TABLE>
+   * <p>Arguments: 0 - Current user name
    */
   public static final int COMMUNITIES_AUTHENTICATION_FAILED_INVALID_COMMUNITY = 7405;
 
@@ -634,10 +466,7 @@ public interface IPSExtensionErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
-   * <TR><TH>Arg</TH><TH>Description</TH></TR>
-   * <TR><TD>0</TD><TD>authenticated user name</TD></TR>
-   * </TABLE>
+   * <p>Arguments: 0 - authenticated user name
    */
   public static final int EMPTY_ROLE_LIST = 7408;
 
@@ -646,10 +475,7 @@ public interface IPSExtensionErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
-   * <TR><TH>Arg</TH><TH>Description</TH></TR>
-   * <TR><TD>0</TD><TD>invalid workflow id</TD></TR>
-   * </TABLE>
+   * <p>Arguments: 0 - invalid workflow id
    */
   public static final int INVALID_WORKFLOWID = 7409;
 
@@ -681,12 +507,7 @@ public interface IPSExtensionErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
-   * <TR><TH>Arg</TH><TH>Description</TH></TR>
-   * <TR><TD>0</TD><TD>invalid state id</TD></TR>
-   * <TR><TD>1</TD><TD>invalid workflow id</TD></TR>
-   * <TR><TD>2</TD><TD>RoleException.toString()</TD></TR>
-   * </TABLE>
+   * <p>Arguments: 0 - invalid state id, 1 - invalid workflow id, 2 - RoleException.toString()
    */
   public static final int ROLE_ERROR_STATEID_WORKFLOWID = 7413;
 
@@ -696,12 +517,7 @@ public interface IPSExtensionErrors {
    *
    * <p>The arguments passed in for this message are:
    *
-   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
-   * <TR><TH>Arg</TH><TH>Description</TH></TR>
-   * <TR><TD>0</TD><TD>required access level</TD></TR>
-   * <TR><TD>1</TD><TD>contentstate id</TD></TR>
-   * <TR><TD>2</TD><TD>workflow id</TD></TR>
-   * </TABLE>
+   * <p>Arguments: 0 - required access level, 1 - contentstate id, 2 - workflow id
    */
   public static final int ROLES_NOT_ASSIGNED = 7414;
 
@@ -841,7 +657,7 @@ public interface IPSExtensionErrors {
   /**
    * Invalid number of parameters.
    *
-   * <p><TR><TH>Arg</TH><TH>Description</TH></TR> <TR><TD>0</TD><TD>array of parameters</TD></TR>
+   * <p>Arguments: 0 - array of parameters
    */
   public static final int INVALID_PARAM_NUM = 7434;
 
@@ -883,9 +699,8 @@ public interface IPSExtensionErrors {
   /**
    * Attempt to check in a revision which does not match with the one checked out.
    *
-   * <p><TR><TH>Arg</TH><TH>Description</TH></TR> <TR><TD>0</TD><TD>checkin request
-   * revision</TD></TR> <TR><TD>1</TD><TD>edit revision</TD></TR>
-   */
+   * <p>Arguments: 0 - checkin request
+   * revision, 1 - edit revision*/
   public static final int CHECKIN_REVISION_MISMATCH = 7440;
 
   /**
@@ -907,23 +722,21 @@ public interface IPSExtensionErrors {
    * Attempt to check out a revision when there is already one checked out with a different
    * revision.
    *
-   * <p><TR><TH>Arg</TH><TH>Description</TH></TR> <TR><TD>0</TD><TD>check out request
-   * revision</TD></TR> <TR><TD>1</TD><TD>edit revision</TD></TR>
-   */
+   * <p>Arguments: 0 - check out request
+   * revision, 1 - edit revision*/
   public static final int CHECKOUT_REVISION_MISMATCH = 7443;
 
   /**
    * Attempt to check out a revision but the largest existing revision is the one specified.
    *
-   * <p><TR><TH>Arg</TH><TH>Description</TH></TR> <TR><TD>0</TD><TD>check out request
-   * revision</TD></TR> <TR><TD>1</TD><TD>tip revision</TD></TR>
-   */
+   * <p>Arguments: 0 - check out request
+   * revision, 1 - tip revision*/
   public static final int CHECKOUT_REVISION_LIMIT = 7444;
 
   /**
    * Specified user has already tried to transition this document.
    *
-   * <p><TR><TH>Arg</TH><TH>Description</TH></TR> <TR><TD>0</TD><TD>user name</TD></TR>
+   * <p>Arguments: 0 - user name
    */
   public static final int TRANSITION_ATTEMPT = 7445;
 
@@ -986,17 +799,16 @@ public interface IPSExtensionErrors {
   /**
    * No adhoc assignment found for list of unassigned users.
    *
-   * <p><TR><TH>Arg</TH><TH>Description</TH></TR> <TR><TD>0</TD><TD>comma delimited string of
-   * unassigned users.</TD></TR>
+   * <p>Arguments: 0 - comma delimited string of
+   * unassigned users.
    */
   public static final int ADHOC_ASSIGNMENT_NOT_FOUND = 7454;
 
   /**
    * The requested translation for the supplied item already exists.
    *
-   * <p><TR><TH>Arg</TH><TH>Description</TH></TR> <TR><TD>0</TD><TD>The language string</TD></TR>
-   * <TR><TD>1</TD><TD>The content id</TD></TR>
-   */
+   * <p>Arguments: 0 - The language string
+   *, 1 - The content id*/
   public static final int TRANSLATION_ALREADY_EXISTS = 7455;
 
   /**
@@ -1125,11 +937,7 @@ public interface IPSExtensionErrors {
    *
    * <p>
    *
-   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
-   * <TR><TH>Arg</TH><TH>Description</TH></TR>
-   * <TR><TD>0</TD><TD>The effect name.</TD></TR>
-   * <TR><TD>1</TD><TD>The desired state.</TD></TR>
-   * </TABLE>
+   * <p>Arguments: 0 - The effect name., 1 - The desired state.
    *
    * Two arguments are required, namely the name of the effect and the desired state.
    */
@@ -1140,11 +948,7 @@ public interface IPSExtensionErrors {
    *
    * <p>
    *
-   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
-   * <TR><TH>Arg</TH><TH>Description</TH></TR>
-   * <TR><TD>0</TD><TD>The effect name.</TD></TR>
-   * <TR><TD>1</TD><TD>The cause of the validation failure.</TD></TR>
-   * </TABLE>
+   * <p>Arguments: 0 - The effect name., 1 - The cause of the validation failure.
    */
   public static final int EFFECT_VALIDATE_MESSAGE = 7473;
 
@@ -1154,11 +958,7 @@ public interface IPSExtensionErrors {
    *
    * <p>
    *
-   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
-   * <TR><TH>Arg</TH><TH>Description</TH></TR>
-   * <TR><TD>0</TD><TD>The error</TD></TR>
-   * <TR><TD>1</TD><TD>The content id</TD></TR>
-   * </TABLE>
+   * <p>Arguments: 0 - The error, 1 - The content id
    */
   public static final int PROMOTE_TRANSITION_FAILED = 7474;
 
@@ -1180,26 +980,22 @@ public interface IPSExtensionErrors {
    *
    * <p>
    *
-   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
-   * <TR><TH>Arg</TH><TH>Description</TH></TR>
-   * <TR><TD>0</TD><TD>Specifies the specific problem that occurred.</TD></TR>
-   * </TABLE>
+   * <p>Arguments: 0 - Specifies the specific problem that occurred.
    */
   public static final int BAD_PUBLISH_CONTENT_FILE_DATA = 7476;
 
   /**
    * Error message to indicate that the requested authtype value is not registered with the system.
    *
-   * <p><TR><TH>Arg</TH><TH>Description</TH></TR> <TR><TD>0</TD><TD>Authtype value
-   * requested</TD></TR> <TR><TD>1</TD><TD>config file path</TD></TR>
-   */
+   * <p>Arguments: 0 - Authtype value
+   * requested, 1 - config file path*/
   public static final int AUTHTYPE_REGISTRATION_MISSING = 7477;
 
   /**
    * Error message to indicate that the resource implementing the requested authtype is missing.
    *
-   * <p><TR><TH>Arg</TH><TH>Description</TH></TR> <TR><TD>0</TD><TD>Authtype value
-   * requested</TD></TR> <TR><TD>1</TD><TD>missing resource name</TD></TR> <TR><TD>2</TD><TD>config
+   * <p>Arguments: 0 - Authtype value
+   * requested, 1 - missing resource name<TR><TD>2</TD><TD>config
    * file path</TD></TR>
    */
   public static final int AUTHTYPE_RESOURCE_MISSING = 7478;

@@ -1316,7 +1316,7 @@ public interface IPSDataErrors {
    * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR>
-   * <TD>0</TD><TD>The name of the view</code></TD>
+   * <TD>0</TD><TD>The name of the view</TD>
    * </TR>
    * </TABLE>
    */

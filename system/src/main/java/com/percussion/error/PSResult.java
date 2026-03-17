@@ -32,7 +32,7 @@ public class PSResult {
   /**
    * Is the test success?
    *
-   * @return <code>true</code> if the status indicates a not a failure, </code>false</code>
+   * @return <code>true</code> if the status indicates a not a failure, <code>false</code>
    *     otherwise.
    */
   public boolean isSuccess() {
@@ -42,7 +42,7 @@ public class PSResult {
   /**
    * Did the test produced any warning?
    *
-   * @return <code>true</code> if the status indicates a warning, </code>false</code> otherwise.
+   * @return <code>true</code> if the status indicates a warning, <code>false</code> otherwise.
    */
   public boolean hasWarning() {
     return (m_status == STATUS_WARNING);
