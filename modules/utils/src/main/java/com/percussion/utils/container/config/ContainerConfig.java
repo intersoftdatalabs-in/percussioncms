@@ -17,4 +17,7 @@
 
 package com.percussion.utils.container.config;
 
+/**
+ * Marker interface for container configuration.
+ */
 public interface ContainerConfig {}

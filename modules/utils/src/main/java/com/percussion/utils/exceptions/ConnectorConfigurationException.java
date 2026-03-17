@@ -113,6 +113,7 @@ public class ConnectorConfigurationException extends Exception {
    *
    * @param source The root element of this object's XML representation. Format expected is defined
    *     by the {@link #toXml(Document) toXml} method documentation. May not be <code>null</code>.
+   * @throws IllegalArgumentException ifamp; @return The stack trace as a string.
    * @throws IllegalArgumentException if <code>source</code> is <code>null</code>.
    * @throws PSUnknownNodeTypeException if the XML element node does not represent a type supported
    *     by the class.
@@ -167,6 +168,7 @@ public class ConnectorConfigurationException extends Exception {
    *
    * @param doc The document to use to create the element, may not be <code>null</code>.
    * @return the newly created XML element node, never <code>null</code>
+   * @throws IllegalArgumentException ifamp; @return The stack trace as a string.
    * @throws IllegalArgumentException if <code>doc</code> is <code>null</code>.
    */
   public Element toXml(Document doc) {
@@ -244,6 +246,7 @@ public class ConnectorConfigurationException extends Exception {
    * Get the stack trace for the specified exception as a string.
    *
    * @param t The throwable (usually an exception), never <code>null</code>.
+   * @throws IllegalArgumentException ifamp; @return The stack trace as a string.
    * @throws IllegalArgumentException if <code>t</code> is <code>null</code>.
    */
   public static String getStackTraceAsString(Throwable t) {

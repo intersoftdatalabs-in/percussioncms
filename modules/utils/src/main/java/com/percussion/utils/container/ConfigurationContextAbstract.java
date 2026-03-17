@@ -24,6 +24,11 @@ import java.util.Objects;
 import java.util.function.Supplier;
 import org.apache.commons.beanutils.BeanUtils;
 
+/**
+ * Abstract base class for configuration contexts.
+ * @param <T> the configuration context type
+ * @param <U> the container configuration type
+ */
 public abstract class ConfigurationContextAbstract<
         T extends ConfigurationCtx, U extends ContainerConfig>
     implements ConfigurationAdaptorComposite<T, U> {
@@ -34,6 +39,10 @@ public abstract class ConfigurationContextAbstract<
 
   private List<IPSConfigurationAdapter<T>> adapters = new ArrayList<>();
 
+  /**
+   * Constructs a new configuration context with the given constructor.
+   * @param ctor the constructor for the configuration object
+   */
   public ConfigurationContextAbstract(Supplier<U> ctor) {
     this.ctor = Objects.requireNonNull(ctor);
     config = ctor.get();
@@ -69,8 +78,12 @@ public abstract class ConfigurationContextAbstract<
    @SuppressWarnings("unchecked")
    public void save() {
      save((T) this);
-   }
+  }
 
+  /**
+   * Copies configuration from another context.
+   * @param from the source context to copy from
+   */
   public void copyFrom(ConfigurationContextAbstract<T, U> from) {
     try {
       this.config = (U) BeanUtils.cloneBean(from.getConfig());

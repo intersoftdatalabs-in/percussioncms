@@ -337,10 +337,10 @@ public class InstallUtil {
    * Checks if the specified table exists for the specified database and
    * schema.
    *
-   * @param table the table to look for, may not be <code>null<code>
-   * @param conn the connection to the database, may not be <code>null<code>
-   * @param database the name of the database, may not be <code>null<code>
-   * @param schema the schema for this connection, may not be <code>null<code>
+   * @param table the table to look for, may not be <code>null</code>
+   * @param conn the connection to the database, may not be <code>null</code>
+   * @param database the name of the database, may not be <code>null</code>
+   * @param schema the schema for this connection, may not be <code>null</code>
    *
    * @return <code>true</code> if the database contains the table,
    *         <code>false</code> otherwise.

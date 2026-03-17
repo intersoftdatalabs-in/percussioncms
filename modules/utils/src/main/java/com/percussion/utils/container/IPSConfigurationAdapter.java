@@ -17,9 +17,21 @@
 
 package com.percussion.utils.container;
 
+/**
+ * Interface for configuration adapters.
+ * @param <T> the configuration context type
+ */
 public interface IPSConfigurationAdapter<T extends ConfigurationCtx> {
 
+  /**
+   * Loads configuration from the given context.
+   * @param configurationContext the context to load from
+   */
   void load(T configurationContext);
 
+  /**
+   * Saves configuration to the given context.
+   * @param configurationContext the context to save to
+   */
   void save(T configurationContext);
 }

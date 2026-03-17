@@ -20,7 +20,16 @@ package com.percussion.utils.container;
 import java.nio.file.Path;
 import java.util.Map;
 
+/**
+ * Default implementation of IConfigFile.
+ */
 public class ConfigFile implements IConfigFile {
+
+  /**
+   * Default constructor.
+   */
+  public ConfigFile() {
+  }
 
   @Override
   public Path getPath() {

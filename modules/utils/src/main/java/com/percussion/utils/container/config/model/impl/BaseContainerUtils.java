@@ -100,7 +100,11 @@ public IPSDtsConfig getDtsConfig() {
     return dtsConfig;
   }
 
-  public void setDtsConfig(IPSDtsConfig dtsConfig) {
+  /**
+ * Sets the DTS configuration.
+ * @param dtsConfig the DTS config to set
+ */
+public void setDtsConfig(IPSDtsConfig dtsConfig) {
 
     this.dtsConfig = dtsConfig;
   }

@@ -560,7 +560,7 @@ public class Code {
    *     Rhythmyx root directory
    * @throws IllegalArgumentException if directory is <code>null</code> or empty or this directory
    *     does not exist and is not a valid Rhythmyx root directory.
-   * @throws CodeException
+   * /** @throws CodeException if branding fails
    */
   public void brand(String rxDirPath) throws CodeException {
     if ((rxDirPath == null) || (rxDirPath.trim().length() < 1))
@@ -647,9 +647,12 @@ public class Code {
   /** Constants used while serializing this object's state to Xml. */
   public static final String EL_BRAND_CODE = "brandCode";
 
+  /** Server type element name. */
   public static final String EL_SERVER_TYPE = "serverType";
+  /** Install type element name. */
   public static final String EL_INSTALL_TYPE = "installType";
 
+  /** Library directory path. */
   public static final String LIBDIR =
       "/AppServer/server/rx/deploy/rxapp.ear/rxapp.war/WEB-INF/lib/";
 

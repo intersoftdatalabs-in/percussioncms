@@ -107,7 +107,7 @@ public interface IPSJndiDatasource {
 
   /**
    * Get the name of the security domain that defines the credentials for this datasource in the
-   * {@link PSJBossUtils#LOGIN_CONFIG_FILE_NAME} file. See {@link PSSecureCredentials} for more
+   * {@link PSJbossProperties#LOGIN_CONFIG_FILE_NAME} file. See {@link PSSecureCredentials} for more
    * info.
    *
    * @return The security domain, may be <code>null</code> if the credentials were not encrytped and
