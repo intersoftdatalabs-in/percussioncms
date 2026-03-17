@@ -101,25 +101,25 @@ public class PSURLEncoder {
    *   <li>Characters in the range '\u0001' to '\u007f' are encoded as a single byte:
    *       <table border=3>
    * <tr><th colspan=2>byte 0</th></tr>
-   * <tr><td><tt>0</tt></td><td>bits 0-6</td></tr>
+   * <tr><td><code>0</code></td><td>bits 0-6</td></tr>
    * </table>
    *       <p>
    *   <li>Characters in the range '\u0080' to '\u07ff' are encoded as two bytes:
    *       <table border=3>
    * <tr><th colspan=4>byte 0</th><th colspan=3>byte 1</th></tr>
-   * <tr><td><tt>1</tt></td><td><tt>1</tt></td><td><tt>0</tt></td><td>bits 6-10
+   * <tr><td><code>1</code></td><td><code>1</code></td><td><code>0</code></td><td>bits 6-10
    * </td>
-   * <td><tt>1</tt></td><td><tt>0</tt></td><td>bits 0-5</td></tr>
+   * <td><code>1</code></td><td><code>0</code></td><td>bits 0-5</td></tr>
    * </table>
    *       <p>
    *   <li>Characters in the range '\u0800' to '\uffff' are encoded as three bytes:
    *       <table border=3>
    * <tr><th colspan=5>byte 0</th><th colspan=3>byte 1</th><th colspan=3>byte 2
    * </th></tr>
-   * <tr><td><tt>1</tt></td><td><tt>1</tt></td><td><tt>1</tt></td><td><tt>0
-   * </tt></td><td>bits 12-15</td>
-   * <td><tt>1</tt></td><td><tt>0</tt></td><td>bits 6-11</td>
-   * <td><tt>1</tt></td><td><tt>0</tt></td><td>bits 0-5</td></tr>
+   * <tr><td><code>1</code></td><td><code>1</code></td><td><code>1</code></td><td><code>0
+   * </code></td><td>bits 12-15</td>
+   * <td><code>1</code></td><td><code>0</code></td><td>bits 6-11</td>
+   * <td><code>1</code></td><td><code>0</code></td><td>bits 0-5</td></tr>
    * </table>
    * </ul>
    *

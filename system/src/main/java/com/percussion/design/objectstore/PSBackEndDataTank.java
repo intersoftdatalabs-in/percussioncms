@@ -472,9 +472,9 @@ public class PSBackEndDataTank extends PSComponent {
   }
 
   /**
-   * Creates a deep copy of this <tt>PSBackEndDataTank</tt> instance
+   * Creates a deep copy of this <code>PSBackEndDataTank</code> instance
    *
-   * @return a clone of this <tt>PSBackEndDataTank</tt>
+   * @return a clone of this <code>PSBackEndDataTank</code>
    */
   public Object clone() {
     PSBackEndDataTank copy = (PSBackEndDataTank) super.clone();

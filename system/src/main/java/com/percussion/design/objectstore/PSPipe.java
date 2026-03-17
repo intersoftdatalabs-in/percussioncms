@@ -324,7 +324,7 @@ public abstract class PSPipe extends PSComponent {
   }
 
   /**
-   * Creates a deep copy of this <tt>PSPipe</tt> instance
+   * Creates a deep copy of this <code>PSPipe</code> instance
    *
    * @return a clone of this instance
    */

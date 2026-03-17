@@ -119,7 +119,7 @@ class IdempotentSequence {
    * </OL>
    *
    * <p>The major assumption here is that the side effects of any method only apply to resource
-   * specified. E.g. a <tt>"PUT /barbara.html"</tt> will only affect the resource "/barbara.html"
+   * specified. E.g. a <code>"PUT /barbara.html"</code> will only affect the resource "/barbara.html"
    * and nothing else. This assumption is violated by POST of course; however, POSTs are not
    * pipelined and will therefore never show up here.
    *
