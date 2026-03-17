@@ -967,11 +967,8 @@ public interface IPSExtensionErrors {
    *
    * <p>
    *
-   * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
-   * <TR><TH>Arg</TH><TH>Description</TH></TR>
-   * <TR><TD>0</TD><TD>Specifies the specific problem that occurred in
-   * initialization.</TD></TR>
-   * </TABLE>
+   * <p>Arguments: 0 - Specifies the specific problem that occurred in
+   * initialization.
    */
   public static final int BAD_PUBLISH_CONTENT_INITIALIZATION_DATA = 7475;
 
@@ -995,8 +992,8 @@ public interface IPSExtensionErrors {
    * Error message to indicate that the resource implementing the requested authtype is missing.
    *
    * <p>Arguments: 0 - Authtype value
-   * requested, 1 - missing resource name<TR><TD>2</TD><TD>config
-   * file path</TD></TR>
+   * requested, 1 - missing resource name 2,  config
+   * file path, 
    */
   public static final int AUTHTYPE_RESOURCE_MISSING = 7478;
 
@@ -1010,62 +1007,42 @@ public interface IPSExtensionErrors {
   /**
    * Error message to indicate that a mandatory transition failed due to a validation error.
    *
-   * <table summary="Arguments">
-   * <tr><th>Arg</th><th>Description</th></tr> <tr><td>0</td><td>The transition name</td></tr>
-   * <tr><td>1</td><td>The content id</td></tr>
-   * </table>
+   * <p>
    */
   public static final int MANDATORY_TRANSITION_VALIDATION_FAILURE = 7480;
 
   /**
    * Error message to indicate that a variant to be deleted was in use by an existing relationship.
    *
-   * <table summary="Arguments">
-   * <tr><th>Arg</th><th>Description</th></tr>
-   * <tr><td>0</td><td>The id of the variant</td></tr>
-   * <tr><td>1</td><td>The content ids that are using the variant as a string</td></tr>
-   * </table>
+   * <p>
    */
   public static final int VARIANT_HAS_RELATIONSHIPS_ERROR = 7621;
 
   /**
    * Error message to indicate the path of a folder could not be loaded.
    *
-   * <table summary="Arguments">
-   * <tr><th>Arg</th><th>Description</th></tr>
-   * <tr><td>0</td><td>The id of the folder</td></tr>
-   * </table>
+   * <p>
    */
   public static final int FOLDER_PATH_ERROR = 7622;
 
   /**
    * Error message to indicate the jexl expression did not evaluate to return a string
    *
-   * <table summary="Arguments">
-   * <tr><th>Arg</th><th>Description</th></tr>
-   * <tr><td>0</td><td>The type that was found</td></tr>
-   * <tr><td>1</td><td>The type that was expected</td></tr>
-   * </table>
+   * <p>
    */
   public static final int JEXL_WRONG_RETURN_TYPE = 7623;
 
   /**
    * Error message to indicate the jexl expression failed to evaluate
    *
-   * <table summary="Arguments">
-   * <tr><th>Arg</th><th>Description</th></tr>
-   * <tr><td>0</td><td>The failed expression</td></tr>
-   * </table>
+   * <p>
    */
   public static final int JEXL_EVALUATION_FAILED = 7634;
 
   /**
    * Error message to indicate Error occurred when attempting to retrieve folder names
    *
-   * <table summary="Arguments">
-   * <tr><th>Arg</th><th>Description</th></tr>
-   * <tr><td>0</td><td>The exception message</td></tr>
-   * </table>
+   * <p>
    */
   public static final int ERROR_GETTING_FOLDER_NAMES = 7635;
 
@@ -1073,12 +1050,7 @@ public interface IPSExtensionErrors {
    * Error message to indicate that no scheme could be found for the specified template id, content
    * id and context id
    *
-   * <table summary="Arguments">
-   * <tr><th>Arg</th><th>Description</th></tr>
-   * <tr><td>0</td><td>The template id</td></tr>
-   * <tr><td>1</td><td>The content type id</td></tr>
-   * <tr><td>2</td><td>The context id</td></tr>
-   * </table>
+   * <p>
    */
   public static final int SCHEME_CANT_BE_FOUND = 7636;
 }
