@@ -58,7 +58,6 @@ import org.xml.sax.SAXException;
  *   <li>Enhanced validation with descriptive error messages</li>
  *   <li>Thread-safe operations for concurrent access</li>
  * </ul>
- * </p>
  */
 public interface IPSRoleMgr {
 

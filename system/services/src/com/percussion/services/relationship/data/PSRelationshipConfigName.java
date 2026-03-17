@@ -45,7 +45,6 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
  *   <li>Immutable design with builder pattern support</li>
  *   <li>Comprehensive toString implementation</li>
  * </ul>
- * </p>
  */
 @Entity
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE, region = "PSRelationshipConfigName")

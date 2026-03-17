@@ -54,7 +54,6 @@ import java.util.stream.Stream;
  *   <li>Builder pattern support for object construction</li>
  *   <li>Immutable view methods for thread-safe access</li>
  * </ul>
- * </p>
  */
 @Entity
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE, region = "PSRelationshipData")

@@ -45,7 +45,6 @@ import java.util.stream.Stream;
  *   <li>Enhanced validation and error handling</li>
  *   <li>Bulk operations for improved performance</li>
  * </ul>
- * </p>
  */
 public interface IPSRelationshipService {
 
