@@ -29,8 +29,6 @@ import org.w3c.dom.Element;
  * persisted to the database, except as part of some other component.
  * Components that are persisted must implement the {@link IPSDbComponent}
  * interface.
- *
- * /** TODO */ add compareTo() at some point to supports Sets.
  */
 public interface IPSWebdavComponent extends Cloneable
 {
