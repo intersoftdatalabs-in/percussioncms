@@ -21,6 +21,7 @@
  */
 package com.percussion.membership.service.impl;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.percussion.delivery.client.IPSDeliveryClient.HttpMethodType;
 import com.percussion.delivery.client.IPSDeliveryClient.PSDeliveryActionOptions;
 import com.percussion.delivery.client.PSDeliveryClient;
@@ -34,7 +35,6 @@ import com.percussion.membership.service.IPSMembershipService;
 import com.percussion.pubserver.IPSPubServerService;
 import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.services.error.PSNotFoundException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
@@ -75,7 +75,8 @@ public class PSMembershipService implements IPSMembershipService {
       var summaries = new ArrayList<PSUserSummary>();
       var deliveryClient = new PSDeliveryClient();
 
-      List<Object> users = (List<Object>) deliveryClient.getJsonArray(new PSDeliveryActionOptions(server, url));
+      List<Object> users =
+          (List<Object>) deliveryClient.getJsonArray(new PSDeliveryActionOptions(server, url));
       for (var i = 0; i < users.size(); i++) {
 
         Map<String, Object> userSum = (Map<String, Object>) users.get(i);
@@ -180,8 +181,9 @@ public class PSMembershipService implements IPSMembershipService {
           new ObjectMapper().writeValueAsString(accountJson));
 
       return getUsers(site);
-    } catch (IPSPubServerService.PSPubServerServiceException | PSNotFoundException |
-        com.fasterxml.jackson.core.JsonProcessingException e) {
+    } catch (IPSPubServerService.PSPubServerServiceException
+        | PSNotFoundException
+        | com.fasterxml.jackson.core.JsonProcessingException e) {
       log.warn("Error updating group account.  Error: {}", e.getMessage());
       log.debug(PSExceptionUtils.getDebugMessageForLog(e));
       throw new WebApplicationException(e, Response.serverError().build());

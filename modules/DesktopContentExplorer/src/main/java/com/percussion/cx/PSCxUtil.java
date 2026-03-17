@@ -113,7 +113,8 @@ public final class PSCxUtil {
               taPane.setVisible(false);
             }
             SwingUtilities.getWindowAncestor(taPane).pack();
-          };
+          }
+          ;
         });
 
     JPanel panel = new JPanel(new BorderLayout());

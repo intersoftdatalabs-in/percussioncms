@@ -24,6 +24,7 @@ import com.percussion.error.PSException;
  */
 public class PSDuplicateApprovalException extends PSException {
   private static final long serialVersionUID = 1L;
+
   /**
    * Construct an exception for messages taking locale and msgCode arguments.
    *

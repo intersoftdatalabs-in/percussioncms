@@ -462,7 +462,9 @@ public class PSNavigationTree extends JTree implements DragGestureListener, Drop
     return m_isDirtying;
   }
 
-  /** @return Returns the isInDragUnder. */
+  /**
+   * @return Returns the isInDragUnder.
+   */
   public boolean isInDragUnder() {
     return m_isInDragUnder;
   }
@@ -694,6 +696,7 @@ public class PSNavigationTree extends JTree implements DragGestureListener, Drop
     }
     return dynNode;
   }
+
   /**
    * Gets user object that is represented by the root node of this tree.
    *
@@ -1018,7 +1021,6 @@ public class PSNavigationTree extends JTree implements DragGestureListener, Drop
      * @param uchildren the list of child leaf nodes that gets updated, assumed not to be <code>null
      *     </code>
      */
-
     private void getLeafChildren(DefaultMutableTreeNode node, List uchildren) {
       // A node is leaf if it does not have any children loaded.
       PSNode userObj = (PSNode) node.getUserObject();
@@ -1037,7 +1039,8 @@ public class PSNavigationTree extends JTree implements DragGestureListener, Drop
      *     <code>true</code>.
      */
     public void setLoadedChildren(boolean flag) {
-      if (flag) ;
+      if (flag)
+        ;
       loadedChildren = false;
     }
 

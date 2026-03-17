@@ -18,9 +18,9 @@
 package com.percussion.pagemanagement.data;
 
 import static com.percussion.share.dao.PSSerializerUtils.*;
+import static com.percussion.test.TestAssertions.*;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.nullValue;
-import static com.percussion.test.TestAssertions.*;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

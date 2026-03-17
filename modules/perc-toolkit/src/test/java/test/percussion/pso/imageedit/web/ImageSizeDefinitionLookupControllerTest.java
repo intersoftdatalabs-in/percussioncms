@@ -17,6 +17,7 @@
 package test.percussion.pso.imageedit.web;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
 import com.percussion.pso.imageedit.data.ImageSizeDefinition;
 import com.percussion.pso.imageedit.services.ImageSizeDefinitionManager;
@@ -31,7 +32,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import static org.mockito.Mockito.*;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.web.servlet.ModelAndView;
@@ -44,8 +44,7 @@ public class ImageSizeDefinitionLookupControllerTest {
 
   private ImageSizeDefinitionLookupController cut;
 
-  @Mock
-  private ImageSizeDefinitionManager defmgr;
+  @Mock private ImageSizeDefinitionManager defmgr;
 
   @BeforeEach
   public void setUp() {
@@ -55,7 +54,8 @@ public class ImageSizeDefinitionLookupControllerTest {
   }
 
   @Test
-  public final void testHandleRequestInternalHttpServletRequestHttpServletResponse() throws Exception {
+  public final void testHandleRequestInternalHttpServletRequestHttpServletResponse()
+      throws Exception {
     MockHttpServletRequest request = new MockHttpServletRequest();
     request.setMethod("GET");
     MockHttpServletResponse response = new MockHttpServletResponse();
@@ -75,23 +75,24 @@ public class ImageSizeDefinitionLookupControllerTest {
           }
         };
 
-    when(defmgr.getAllImageSizes()).thenReturn(Arrays.asList(new ImageSizeDefinition[] {sizea, sizeb}));
+    when(defmgr.getAllImageSizes())
+        .thenReturn(Arrays.asList(new ImageSizeDefinition[] {sizea, sizeb}));
 
-      ModelAndView mav = cut.handleRequest(request, response);
+    ModelAndView mav = cut.handleRequest(request, response);
 
-      Document result = (Document) mav.getModel().get("result");
-      assertNotNull(result);
-      log.info("Document is " + PSXmlDocumentBuilder.toString(result));
+    Document result = (Document) mav.getModel().get("result");
+    assertNotNull(result);
+    log.info("Document is " + PSXmlDocumentBuilder.toString(result));
 
-      PSXmlTreeWalker walker = new PSXmlTreeWalker(result.getDocumentElement());
-      walker.getNextElement("PSXEntry", PSXmlTreeWalker.GET_NEXT_ALLOW_CHILDREN);
-      log.info("current element " + walker.getCurrentNodeName());
-      walker.getNextElement("PSXDisplayText", PSXmlTreeWalker.GET_NEXT_ALLOW_CHILDREN);
-      String display = walker.getElementData();
-      assertEquals("Size A", display);
-      walker.getNextElement("Value", PSXmlTreeWalker.GET_NEXT_ALLOW_SIBLINGS);
-      String value = walker.getElementData();
-      assertEquals("a", value);
+    PSXmlTreeWalker walker = new PSXmlTreeWalker(result.getDocumentElement());
+    walker.getNextElement("PSXEntry", PSXmlTreeWalker.GET_NEXT_ALLOW_CHILDREN);
+    log.info("current element " + walker.getCurrentNodeName());
+    walker.getNextElement("PSXDisplayText", PSXmlTreeWalker.GET_NEXT_ALLOW_CHILDREN);
+    String display = walker.getElementData();
+    assertEquals("Size A", display);
+    walker.getNextElement("Value", PSXmlTreeWalker.GET_NEXT_ALLOW_SIBLINGS);
+    String value = walker.getElementData();
+    assertEquals("a", value);
 
     // no exception expected
   }

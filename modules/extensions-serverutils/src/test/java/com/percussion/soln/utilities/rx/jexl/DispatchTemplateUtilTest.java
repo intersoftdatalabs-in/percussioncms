@@ -22,8 +22,8 @@ import org.junit.jupiter.api.Test;
 
 @Disabled("legacy jmock-based test removed")
 public class DispatchTemplateUtilTest {
-    @Test
-    public void disabled() {
-        // placeholder to keep test folder intact
-    }
+  @Test
+  public void disabled() {
+    // placeholder to keep test folder intact
+  }
 }

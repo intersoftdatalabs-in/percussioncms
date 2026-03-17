@@ -98,10 +98,10 @@ public class PSThemeHelper extends PSImportHelper {
 
   @Override
   public void rollback(PSPageContent pageContent, PSSiteImportCtx context) {
-      // if we created a theme we need to delete it
-      context.getThemeSummary()
-          .ifPresent(ts -> deleteTheme(ts.getName()));
+    // if we created a theme we need to delete it
+    context.getThemeSummary().ifPresent(ts -> deleteTheme(ts.getName()));
   }
+
   /**
    * Renames the two basic files from the new theme: theme.css, theme.png into the corresponding
    * name created from site name.

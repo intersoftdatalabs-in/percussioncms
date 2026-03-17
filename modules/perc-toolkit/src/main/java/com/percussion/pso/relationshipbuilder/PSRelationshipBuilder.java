@@ -111,7 +111,6 @@ public abstract class PSRelationshipBuilder implements IPSRelationshipBuilder {
   /**
    * @param relationships
    */
-
   private Collection<PSRelationship> filterRelationships(Collection<PSRelationship> relationships)
       throws PSAssemblyException, PSException {
     Collection<PSRelationship> filteredRelationships = new ArrayList<PSRelationship>();

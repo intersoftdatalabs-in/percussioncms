@@ -25,10 +25,10 @@ import java.util.Map;
 
 /**
  * Action that catalogs the locales defined in the system and returns the count.
- * 
- * <p>This action takes no parameters and is useful for determining how many
- * localization contexts are available in the system.</p>
- * 
+ *
+ * <p>This action takes no parameters and is useful for determining how many localization contexts
+ * are available in the system.
+ *
  * @param params this action does not require any parameters (empty map)
  * @return an {@link PSActionResponse} containing the locale count as a plain text string
  * @throws PSAAClientActionException if the locale catalog cannot be retrieved

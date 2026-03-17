@@ -24,14 +24,14 @@ import java.util.Collection;
 import org.hibernate.HibernateException;
 
 /**
- * Service implementation for managing Language entities.
- * Provides CRUD operations and queries for supported languages in the taxonomy system.
+ * Service implementation for managing Language entities. Provides CRUD operations and queries for
+ * supported languages in the taxonomy system.
  *
  * @author rxengineer
  */
 /**
- * Service implementation for managing Language entities.
- * Provides CRUD operations and queries for supported languages in the taxonomy system.
+ * Service implementation for managing Language entities. Provides CRUD operations and queries for
+ * supported languages in the taxonomy system.
  *
  * @author rxengineer
  */

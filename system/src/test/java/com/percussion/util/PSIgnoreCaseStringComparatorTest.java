@@ -16,28 +16,24 @@
  */
 package com.percussion.util;
 
-import java.util.Comparator;
-
-import com.percussion.system.utils.PSIgnoreCaseStringComparator;
-
-import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
-public class PSIgnoreCaseStringComparatorTest 
-{
-   
-   public void testStringComparator()
-   {
-      final Comparator<String> cmp = new PSIgnoreCaseStringComparator();
-      assertEquals(0, cmp.compare("a", "a"));
-      assertEquals(0, cmp.compare("a", "A"));
-      assertEquals(0, cmp.compare("A", "a"));
-      assertEquals(0, cmp.compare("A", "A"));
-      
-      assertTrue(cmp.compare("a", "b") < 0);
-      assertTrue(cmp.compare("A", "b") < 0);
-      assertTrue(cmp.compare("a", "aa") < 0);
-      assertTrue(cmp.compare("aa", "a") > 0);
-      assertTrue(cmp.compare("a", "") > 0);
-   }
+import com.percussion.system.utils.PSIgnoreCaseStringComparator;
+import java.util.Comparator;
+
+public class PSIgnoreCaseStringComparatorTest {
+
+  public void testStringComparator() {
+    final Comparator<String> cmp = new PSIgnoreCaseStringComparator();
+    assertEquals(0, cmp.compare("a", "a"));
+    assertEquals(0, cmp.compare("a", "A"));
+    assertEquals(0, cmp.compare("A", "a"));
+    assertEquals(0, cmp.compare("A", "A"));
+
+    assertTrue(cmp.compare("a", "b") < 0);
+    assertTrue(cmp.compare("A", "b") < 0);
+    assertTrue(cmp.compare("a", "aa") < 0);
+    assertTrue(cmp.compare("aa", "a") > 0);
+    assertTrue(cmp.compare("a", "") > 0);
+  }
 }

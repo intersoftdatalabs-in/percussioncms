@@ -21,8 +21,8 @@ import com.percussion.taxonomy.domain.*;
 import java.util.Collection;
 
 /**
- * Service interface for managing Attribute entities.
- * Provides CRUD operations and queries for attributes within taxonomies.
+ * Service interface for managing Attribute entities. Provides CRUD operations and queries for
+ * attributes within taxonomies.
  */
 public interface AttributeServiceInf {
 
@@ -58,8 +58,8 @@ public interface AttributeServiceInf {
   public void saveAttribute(Attribute attribute);
 
   /**
-   * Retrieves all attribute names and their IDs for a specific taxonomy and language.
-   * Useful for dropdown selections and list displays.
+   * Retrieves all attribute names and their IDs for a specific taxonomy and language. Useful for
+   * dropdown selections and list displays.
    *
    * @param taxonomy_id the unique identifier of the taxonomy
    * @param language_id the unique identifier of the language

@@ -30,7 +30,7 @@ import java.util.Collection;
 @XmlSeeAlso(Role.class)
 public class RoleList extends ArrayList<Role> {
   private static final long serialVersionUID = 1L;
-  
+
   public RoleList(Collection<? extends Role> c) {
     super(c);
   }

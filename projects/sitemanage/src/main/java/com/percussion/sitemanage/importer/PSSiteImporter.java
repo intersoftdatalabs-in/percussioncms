@@ -77,8 +77,8 @@ public class PSSiteImporter {
   public static PSPageContent getPageContentFromSite(PSSiteImportCtx siteImportCtx)
       throws IOException {
     notNull(siteImportCtx);
-notNull(siteImportCtx.getSiteUrl().orElse(null));
-      notNull(siteImportCtx.getUserAgent().orElse(null));
+    notNull(siteImportCtx.getSiteUrl().orElse(null));
+    notNull(siteImportCtx.getUserAgent().orElse(null));
 
     URLConnectionProperties properties = null;
 
@@ -87,11 +87,14 @@ notNull(siteImportCtx.getSiteUrl().orElse(null));
 
       var con =
           buildJsoupConnection(
-                siteImportCtx.getSiteUrl().orElse(""), true, true, siteImportCtx.getUserAgent().orElse(""));
+              siteImportCtx.getSiteUrl().orElse(""),
+              true,
+              true,
+              siteImportCtx.getUserAgent().orElse(""));
       var doc = con.get();
 
       var pageContent = createPageContent(doc, siteImportCtx.getLogger());
-        pageContent.setPath(siteImportCtx.getSiteUrl().orElse(""));
+      pageContent.setPath(siteImportCtx.getSiteUrl().orElse(""));
       return pageContent;
     } catch (IOException e) {
       throw e;

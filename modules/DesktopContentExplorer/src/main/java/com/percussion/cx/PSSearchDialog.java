@@ -223,7 +223,6 @@ public class PSSearchDialog extends PSDialog {
    *     searchable fields cache.
    * @throws PSCmsException if an error occurs.
    */
-
   private void initFieldCatalog(
       int controlflags, PSRemoteCataloger cataloger, Map searchableFieldsCache, URL codeBase)
       throws PSCmsException {
@@ -263,7 +262,6 @@ public class PSSearchDialog extends PSDialog {
    * options are obtained from the display format catalog. The search object associated with content
    * explorer node is initialized by looking from the search catalog.
    */
-
   private void initDialog() {
     PSDisplayOptions dispOptions =
         (PSDisplayOptions) UIManager.getDefaults().get(PSContentExplorerConstants.DISPLAY_OPTIONS);

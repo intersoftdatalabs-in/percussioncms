@@ -16,120 +16,96 @@
  */
 package com.percussion.utils.spring;
 
-import com.percussion.utils.jndi.PSNamingContextHelper;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import static org.mockito.Mockito.mock;
 
+import com.percussion.utils.jndi.PSNamingContextHelper;
 import jakarta.jms.ConnectionFactory;
 import jakarta.jms.JMSException;
 import jakarta.jms.Queue;
 import jakarta.jms.Topic;
-import javax.naming.NamingException;
 import java.util.HashMap;
 import java.util.Map;
-
-import static org.mockito.Mockito.mock;
+import javax.naming.NamingException;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
- * Create the connection factory for the mock JMS system. This bean registers
- * the created factory as <em>jms/ConnectionFactory</em> using Mockito-created
- * mock objects.
+ * Create the connection factory for the mock JMS system. This bean registers the created factory as
+ * <em>jms/ConnectionFactory</em> using Mockito-created mock objects.
  *
  * @author dougrand
- *
  */
-public class PSMockJmsConnectionFactoryHelper
-{
+public class PSMockJmsConnectionFactoryHelper {
 
-   /**
-    * Logger used for publisher service
-    */
-   private static final Logger ms_log = LogManager.getLogger(PSMockJmsConnectionFactoryHelper.class);
+  /** Logger used for publisher service */
+  private static final Logger ms_log = LogManager.getLogger(PSMockJmsConnectionFactoryHelper.class);
 
-   /**
-    * Property binding for the initial JMS connection factory JNDI name.
-    * This constant must be the same as the "jndiName" property specified by
-    * "sys_jmsConnectionFactory" bean in beans.xml
-    */
-   private static final String JMS_CONNECTION_FACTORY = "java:comp/env/jms/ConnectionFactory";
+  /**
+   * Property binding for the initial JMS connection factory JNDI name. This constant must be the
+   * same as the "jndiName" property specified by "sys_jmsConnectionFactory" bean in beans.xml
+   */
+  private static final String JMS_CONNECTION_FACTORY = "java:comp/env/jms/ConnectionFactory";
 
-   /**
-    * Mock connection factory instance
-    */
-   private static final ConnectionFactory ms_jmsConnectionFactory = mock(ConnectionFactory.class);
+  /** Mock connection factory instance */
+  private static final ConnectionFactory ms_jmsConnectionFactory = mock(ConnectionFactory.class);
 
-   /**
-    * Map to store created mock destinations
-    */
-   private static final Map<String, Object> ms_destinations = new HashMap<>();
+  /** Map to store created mock destinations */
+  private static final Map<String, Object> ms_destinations = new HashMap<>();
 
-   /**
-    * Destinations to configure, set from the spring configuration.
-    */
-   private Map<String, String> m_destinations = null;
+  /** Destinations to configure, set from the spring configuration. */
+  private Map<String, String> m_destinations = null;
 
-   /**
-    * The context helper, set in the ctor
-    */
-   private PSNamingContextHelper m_helper = null;
+  /** The context helper, set in the ctor */
+  private PSNamingContextHelper m_helper = null;
 
-   /**
-    * Create the instance
-    *
-    * @param helper the jndi helper, never <code>null</code>.
-    * @throws NamingException on error binding to JNDI
-    */
-   public PSMockJmsConnectionFactoryHelper(PSNamingContextHelper helper)
-   throws NamingException {
-      if (helper == null)
-      {
-         throw new IllegalArgumentException("helper may not be null");
+  /**
+   * Create the instance
+   *
+   * @param helper the jndi helper, never <code>null</code>.
+   * @throws NamingException on error binding to JNDI
+   */
+  public PSMockJmsConnectionFactoryHelper(PSNamingContextHelper helper) throws NamingException {
+    if (helper == null) {
+      throw new IllegalArgumentException("helper may not be null");
+    }
+    m_helper = helper;
+    m_helper.addBareBinding(JMS_CONNECTION_FACTORY, ms_jmsConnectionFactory);
+  }
+
+  /**
+   * @return the destinations map
+   */
+  public Map<String, String> getDestinations() {
+    return m_destinations;
+  }
+
+  /**
+   * @param destinations the destinations to set, where key is JNDI name and value is "queue" or
+   *     "topic"
+   * @throws JMSException on error creating destination
+   * @throws NamingException on error binding to JNDI
+   */
+  public void setDestinations(Map<String, String> destinations)
+      throws JMSException, NamingException {
+    m_destinations = destinations;
+    // Add destinations to JNDI. The key of each entry is the jndi
+    // name, the value is the string "topic" or "queue"
+    for (Map.Entry<String, String> destination : m_destinations.entrySet()) {
+      String jndiname = destination.getKey();
+      String type = destination.getValue();
+      Object destinationObject;
+
+      if (type.equals("topic")) {
+        destinationObject = mock(Topic.class);
+        ms_destinations.put(jndiname, destinationObject);
+        m_helper.addBareBinding(jndiname, destinationObject);
+      } else if (type.equals("queue")) {
+        destinationObject = mock(Queue.class);
+        ms_destinations.put(jndiname, destinationObject);
+        m_helper.addBareBinding(jndiname, destinationObject);
+      } else {
+        ms_log.warn("Unknown type found " + type);
       }
-      m_helper = helper;
-      m_helper.addBareBinding(JMS_CONNECTION_FACTORY, ms_jmsConnectionFactory);
-   }
-
-   /**
-    * @return the destinations map
-    */
-   public Map<String, String> getDestinations()
-   {
-      return m_destinations;
-   }
-
-   /**
-    * @param destinations the destinations to set, where key is JNDI name and value is "queue" or "topic"
-    * @throws JMSException on error creating destination
-    * @throws NamingException on error binding to JNDI
-    */
-   public void setDestinations(Map<String, String> destinations)
-         throws JMSException, NamingException
-   {
-      m_destinations = destinations;
-      // Add destinations to JNDI. The key of each entry is the jndi
-      // name, the value is the string "topic" or "queue"
-      for (Map.Entry<String, String> destination : m_destinations.entrySet())
-      {
-         String jndiname = destination.getKey();
-         String type = destination.getValue();
-         Object destinationObject;
-
-         if (type.equals("topic"))
-         {
-            destinationObject = mock(Topic.class);
-            ms_destinations.put(jndiname, destinationObject);
-            m_helper.addBareBinding(jndiname, destinationObject);
-         }
-         else if (type.equals("queue"))
-         {
-            destinationObject = mock(Queue.class);
-            ms_destinations.put(jndiname, destinationObject);
-            m_helper.addBareBinding(jndiname, destinationObject);
-         }
-         else
-         {
-            ms_log.warn("Unknown type found " + type);
-         }
-      }
-   }
+    }
+  }
 }

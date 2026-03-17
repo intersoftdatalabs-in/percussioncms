@@ -273,7 +273,8 @@ public class PSPageImportQueue extends PSAbstractEventQueue<PSSiteQueue>
     var pageId = idMapper.getString(new PSLegacyGuid(id, -1));
     var siteImportContext = new PSSiteImportCtx();
     siteImportContext.setCanceled(this.importContext.isCanceled());
-    siteImportContext.setImportConfiguration(this.importContext.getImportConfiguration().orElse(null));
+    siteImportContext.setImportConfiguration(
+        this.importContext.getImportConfiguration().orElse(null));
     importService.importCatalogedPage(site, pageId, userAgent, siteImportContext);
   }
 

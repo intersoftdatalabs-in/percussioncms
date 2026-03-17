@@ -88,8 +88,8 @@ public class PSWidgetProperties {
       this.name = name;
     }
 
-public String getValue() {
-        return value;
+    public String getValue() {
+      return value;
     }
 
     public void setValue(String value) {

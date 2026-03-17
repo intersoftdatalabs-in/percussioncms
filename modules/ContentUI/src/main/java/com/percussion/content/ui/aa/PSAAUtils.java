@@ -18,7 +18,6 @@ package com.percussion.content.ui.aa;
 
 import com.percussion.design.objectstore.PSRelationship;
 import com.percussion.error.PSException;
-import java.util.Optional;
 import com.percussion.error.PSMissingBeanConfigurationException;
 import com.percussion.extension.IPSJexlMethod;
 import com.percussion.extension.IPSJexlParam;
@@ -27,6 +26,7 @@ import com.percussion.services.assembly.PSAssemblyException;
 import com.percussion.services.relationship.IPSRelationshipService;
 import com.percussion.services.relationship.PSRelationshipServiceLocator;
 import com.percussion.system.utils.IPSHtmlParameters;
+import java.util.Optional;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

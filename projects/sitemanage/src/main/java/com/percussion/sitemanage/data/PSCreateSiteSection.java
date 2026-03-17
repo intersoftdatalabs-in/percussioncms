@@ -17,8 +17,6 @@
  */
 package com.percussion.sitemanage.data;
 
-import java.io.Serializable;
-
 import com.fasterxml.jackson.annotation.JsonRootName;
 import com.percussion.share.data.PSAbstractDataObject;
 import com.percussion.sitemanage.data.PSSiteSection.PSSectionTargetEnum;

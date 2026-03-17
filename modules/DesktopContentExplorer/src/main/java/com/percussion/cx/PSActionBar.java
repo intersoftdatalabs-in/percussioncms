@@ -117,7 +117,6 @@ public class PSActionBar extends JPanel
    * @param relationshipSet the set of available relationships for dependency tree view, assumed not
    *     <code>null</code> or empty if the current view is <code>PSUiMode.TYPE_VIEW_DT</code>.
    */
-
   private void init(JMenuBar menu, PSRelationshipInfoSet relationshipSet) {
 
     setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
@@ -325,7 +324,6 @@ public class PSActionBar extends JPanel
    *
    * @param listener the listener to add, may not be <code>null</code>
    */
-
   public void addViewChangeListener(IPSViewChangeListener listener) {
     if (listener == null) throw new IllegalArgumentException("listener may not be null.");
 

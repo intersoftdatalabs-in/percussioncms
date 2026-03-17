@@ -569,13 +569,13 @@ public class PSManagedLinkService implements IPSManagedLinkService {
     // handle a cloned asset
     Integer copiedAssetId = assetIdMap.get(link.getChildId());
     if (copiedAssetId != null) {
-        link.setChildId(copiedAssetId);
-        try {
-            dao.saveLink(link);
-        } catch (PSDataServiceException e) {
-            throw new IPSGenericDao.SaveException("Failed to save link", e);
-        }
-        return;
+      link.setChildId(copiedAssetId);
+      try {
+        dao.saveLink(link);
+      } catch (PSDataServiceException e) {
+        throw new IPSGenericDao.SaveException("Failed to save link", e);
+      }
+      return;
     }
 
     // handle a cloned page
@@ -598,9 +598,9 @@ public class PSManagedLinkService implements IPSManagedLinkService {
     int childId = idMapper.getContentId(guid);
     link.setChildId(childId);
     try {
-        dao.saveLink(link);
+      dao.saveLink(link);
     } catch (PSDataServiceException e) {
-        throw new IPSGenericDao.SaveException("Failed to save link", e);
+      throw new IPSGenericDao.SaveException("Failed to save link", e);
     }
   }
 
@@ -1257,12 +1257,12 @@ public class PSManagedLinkService implements IPSManagedLinkService {
       rev = parentLoc.getRevision();
     }
 
-      PSManagedLink link = dao.createLink(cid, rev, dependentId, anchor);
-      try {
-          dao.saveLink(link);
-      } catch (PSDataServiceException e) {
-          throw new IPSGenericDao.SaveException("Failed to save link", e);
-      }
+    PSManagedLink link = dao.createLink(cid, rev, dependentId, anchor);
+    try {
+      dao.saveLink(link);
+    } catch (PSDataServiceException e) {
+      throw new IPSGenericDao.SaveException("Failed to save link", e);
+    }
     if (newIds != null) {
       newIds.add(link.getLinkId());
     }

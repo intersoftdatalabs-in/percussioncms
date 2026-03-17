@@ -20,7 +20,6 @@
 package com.percussion.patch.test;
 
 import static com.percussion.test.TestAssertions.*;
-import static com.percussion.test.TestAssertions.*;
 
 import com.percussion.linkmanagement.service.IPSManagedLinkService;
 import org.jsoup.Jsoup;

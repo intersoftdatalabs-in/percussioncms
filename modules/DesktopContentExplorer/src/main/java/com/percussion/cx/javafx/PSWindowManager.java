@@ -29,10 +29,9 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /**
- * Manages desktop explorer windows for the content explorer application.
- * Provides window creation, tracking, and lifecycle management for
- * multiple browser windows with various targets.
- * 
+ * Manages desktop explorer windows for the content explorer application. Provides window creation,
+ * tracking, and lifecycle management for multiple browser windows with various targets.
+ *
  * @since 8.0.0
  */
 public class PSWindowManager {
@@ -57,7 +56,7 @@ public class PSWindowManager {
 
   /**
    * Gets the singleton instance of the window manager.
-   * 
+   *
    * @return the PSWindowManager instance
    */
   public static PSWindowManager getInstance() {
@@ -66,7 +65,7 @@ public class PSWindowManager {
 
   /**
    * Adds a root window to the manager.
-   * 
+   *
    * @param baseFrame the desktop explorer window to add as root
    */
   public void addRoot(PSDesktopExplorerWindow baseFrame) {
@@ -80,7 +79,7 @@ public class PSWindowManager {
 
   /**
    * Opens a new window or returns an existing window with the specified parameters.
-   * 
+   *
    * @param parent the parent window identifier
    * @param url the URL to load in the window
    * @param target the target name (_blank, _parent, _self, _top, or custom name)
@@ -115,7 +114,8 @@ public class PSWindowManager {
           log.error("Cannot instantiate window class " + windowClass.getName(), e);
         }
       }
-      if (window != null) ;
+      if (window != null)
+        ;
       windows.put(target, window);
       last_opened = target;
       log.debug("Loading " + url + " to new window with target " + target);
@@ -149,7 +149,7 @@ public class PSWindowManager {
 
   /**
    * Closes and disposes the window with the specified name.
-   * 
+   *
    * @param name the target name of the window to close
    */
   public void close(String name) {
@@ -170,7 +170,7 @@ public class PSWindowManager {
 
   /**
    * Opens a window with an explicit parent reference.
-   * 
+   *
    * @param parent the parent window identifier
    * @param mi_actionurl the action URL to open
    * @param mi_target the target frame name
@@ -238,7 +238,7 @@ public class PSWindowManager {
 
   /**
    * Gets the window with the specified target name.
-   * 
+   *
    * @param target the target name of the window
    * @return the window, or null if not found
    */
@@ -248,7 +248,7 @@ public class PSWindowManager {
 
   /**
    * Updates the default window size based on the last opened window.
-   * 
+   *
    * @param target the target name of the resized window
    * @param height the new height
    * @param width the new width

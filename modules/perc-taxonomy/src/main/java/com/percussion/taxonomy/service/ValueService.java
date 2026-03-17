@@ -27,8 +27,8 @@ import java.util.Map;
 import org.hibernate.HibernateException;
 
 /**
- * Service implementation for managing Value entities.
- * Provides CRUD operations and parameter-based value saving for taxonomy values.
+ * Service implementation for managing Value entities. Provides CRUD operations and parameter-based
+ * value saving for taxonomy values.
  *
  * @author rxengineer
  */

@@ -71,10 +71,7 @@ public class PSImportFromUrlJob extends PSAsyncJob {
   private void importFromUrl() {
     var logger = importContext.getLogger();
     logger.appendLogMessage(
-        PSLogEntryType.STATUS,
-        "Import",
-        "Importing from " + importContext.getSiteUrl().orElse(""));
-
+        PSLogEntryType.STATUS, "Import", "Importing from " + importContext.getSiteUrl().orElse(""));
 
     // Handle case where called within a unit test
     if (!PSSearchIndexEventQueue.isInitialized()) {
@@ -91,7 +88,6 @@ public class PSImportFromUrlJob extends PSAsyncJob {
               importContext.getSiteUrl().orElse(""),
               importContext.getLogger(),
               importContext.getUserAgent().orElse("")));
-
 
       // Import page content from URL
       var importedPageContent = PSSiteImporter.getPageContentFromSite(importContext);
@@ -127,7 +123,8 @@ public class PSImportFromUrlJob extends PSAsyncJob {
       // Run optional helpers
       for (var optionalHelper : optionalHelpers) {
         executedHelpers.add(optionalHelper);
-        setStatusMessage(optionalHelper.getStatusMessage(importContext.getStatusMessagePrefix().orElse("")));
+        setStatusMessage(
+            optionalHelper.getStatusMessage(importContext.getStatusMessagePrefix().orElse("")));
 
         optionalHelper.process(importedPageContent, importContext);
         setStatus(getImportProgress());
@@ -150,20 +147,12 @@ public class PSImportFromUrlJob extends PSAsyncJob {
       // templateId is Optional, unwrap safely
       Optional<String> templateIdOpt = importContext.getTemplateId();
       if (logger != null && templateIdOpt.isPresent()) {
-          String templateId = templateIdOpt.get();
+        String templateId = templateIdOpt.get();
         // avoid dereferencing Optional by unwrapping values with defaults
-        String siteId = importContext.getSite()
-            .map(s -> s.getSiteId().toString())
-            .orElse("");
-        String folderPath = importContext.getSite()
-            .map(s -> s.getFolderPath())
-            .orElse("");
+        String siteId = importContext.getSite().map(s -> s.getSiteId().toString()).orElse("");
+        String folderPath = importContext.getSite().map(s -> s.getFolderPath()).orElse("");
         String pageName = importContext.getPageName().orElse("");
-        saveImportLog(
-            templateId,
-            logger,
-            siteId,
-            folderPath + "/" + pageName);
+        saveImportLog(templateId, logger, siteId, folderPath + "/" + pageName);
       }
     }
   }

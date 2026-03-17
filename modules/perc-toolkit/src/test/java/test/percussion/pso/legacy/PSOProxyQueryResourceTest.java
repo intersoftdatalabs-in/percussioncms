@@ -19,6 +19,7 @@ package test.percussion.pso.legacy;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.*;
 
 import com.percussion.design.objectstore.IPSReplacementValue;
 import com.percussion.extension.IPSExtensionDef;
@@ -31,10 +32,9 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
-import org.mockito.junit.jupiter.MockitoExtension;
-import static org.mockito.Mockito.*;
 import org.w3c.dom.Document;
 
 @ExtendWith(MockitoExtension.class)
@@ -52,7 +52,8 @@ public class PSOProxyQueryResourceTest {
   @Test
   public void shouldFailIfUrlIsNotProvided() throws Exception {
     IPSRequestContext request = makeRequest(makeRequestParams(null, null, null));
-    assertThrows(IllegalArgumentException.class,
+    assertThrows(
+        IllegalArgumentException.class,
         () -> proxy.processResultDocument(new Object[] {}, request, null));
   }
 
@@ -89,7 +90,8 @@ public class PSOProxyQueryResourceTest {
 
   public IPSExtensionDef makeExtensionDef(final String... names) {
     IPSExtensionDef extensionDef = mock(IPSExtensionDef.class);
-    when(extensionDef.getRuntimeParameterNames()).thenReturn(java.util.Arrays.asList(names).iterator());
+    when(extensionDef.getRuntimeParameterNames())
+        .thenReturn(java.util.Arrays.asList(names).iterator());
     return extensionDef;
   }
 
@@ -98,7 +100,8 @@ public class PSOProxyQueryResourceTest {
     for (Entry<String, String> entry : parameters.entrySet()) {
       when(request.getParameter(entry.getKey())).thenReturn(entry.getValue());
     }
-    when(request.getParametersIterator()).thenReturn((java.util.Iterator) parameters.entrySet().iterator());
+    when(request.getParametersIterator())
+        .thenReturn((java.util.Iterator) parameters.entrySet().iterator());
     return request;
   }
 

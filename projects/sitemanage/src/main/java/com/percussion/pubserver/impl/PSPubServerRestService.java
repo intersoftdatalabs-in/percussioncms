@@ -18,6 +18,7 @@
 package com.percussion.pubserver.impl;
 
 import com.amazonaws.regions.Regions;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.percussion.delivery.service.IPSDeliveryInfoService;
 import com.percussion.delivery.service.PSDeliveryInfoServiceLocator;
 import com.percussion.delivery.service.impl.PSDeliveryInfoService;
@@ -40,7 +41,6 @@ import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.MediaType;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.List;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -210,7 +210,8 @@ public class PSPubServerRestService {
   @GET
   @Path("/availablePublishingServer/{publishServerType}")
   @Produces(MediaType.TEXT_PLAIN)
-  public String getAvailablePublishingServer(@PathParam("publishServerType") String publishServer) throws com.fasterxml.jackson.core.JsonProcessingException {
+  public String getAvailablePublishingServer(@PathParam("publishServerType") String publishServer)
+      throws com.fasterxml.jackson.core.JsonProcessingException {
     var psDeliveryInfoService =
         (PSDeliveryInfoService) PSDeliveryInfoServiceLocator.getDeliveryInfoService();
     var serverList = psDeliveryInfoService.getAdminUrls(publishServer);
@@ -259,7 +260,8 @@ public class PSPubServerRestService {
   @GET
   @Path("/availableDeliveryServers")
   @Produces(MediaType.TEXT_PLAIN)
-  public String getAvailableDeliveryServers() throws com.fasterxml.jackson.core.JsonProcessingException {
+  public String getAvailableDeliveryServers()
+      throws com.fasterxml.jackson.core.JsonProcessingException {
     IPSDeliveryInfoService svc = PSDeliveryInfoServiceLocator.getDeliveryInfoService();
     return new ObjectMapper().writeValueAsString(svc.findAll());
   }

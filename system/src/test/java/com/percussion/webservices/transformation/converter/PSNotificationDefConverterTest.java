@@ -16,51 +16,42 @@
  */
 package com.percussion.webservices.transformation.converter;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 import com.percussion.services.catalog.PSTypeEnum;
 import com.percussion.services.guidmgr.data.PSGuid;
 import com.percussion.services.workflow.data.PSNotificationDef;
 import com.percussion.webservices.transformation.impl.PSTransformerFactory;
-
-import org.junit.jupiter.api.Test;
-import static org.junit.jupiter.api.Assertions.*;
-
 import org.apache.commons.beanutils.Converter;
 
-/**
- * Test the {@link PSNotificationDefConverter}
- */
-public class PSNotificationDefConverterTest 
-{
-   /**
-    * Test the converter
-    * 
-    * @throws Exception if the test fails
-    */
-   
-   public void testConverter() throws Exception
-   {
-      PSTransformerFactory factory = PSTransformerFactory.getInstance();
-      
-      // convert server to client object
-      Converter converter = factory.getConverter(PSNotificationDef.class);
-      PSNotificationDef srcDef = new PSNotificationDef();
-      srcDef.setBody("body");
-      srcDef.setDescription("desc");
-      srcDef.setGUID(new PSGuid(PSTypeEnum.WORKFLOW_NOTIFICATION, 123));
-      srcDef.setSubject("sub");
-      srcDef.setWorkflowId(456);
-      
-      com.percussion.webservices.system.PSNotificationDef tgtDef;
-      tgtDef = (com.percussion.webservices.system.PSNotificationDef) 
-         converter.convert(
-         com.percussion.webservices.system.PSNotificationDef.class, 
-         srcDef);
+/** Test the {@link PSNotificationDefConverter} */
+public class PSNotificationDefConverterTest {
+  /**
+   * Test the converter
+   *
+   * @throws Exception if the test fails
+   */
+  public void testConverter() throws Exception {
+    PSTransformerFactory factory = PSTransformerFactory.getInstance();
 
-      assertNotNull(tgtDef);
-      assertEquals(srcDef.getBody(), tgtDef.getBody());
-      assertEquals(srcDef.getDescription(), tgtDef.getDescription());
-      assertEquals(srcDef.getSubject(), tgtDef.getSubject());
-      assertEquals(srcDef.getGUID().longValue(), tgtDef.getId());
-   }
+    // convert server to client object
+    Converter converter = factory.getConverter(PSNotificationDef.class);
+    PSNotificationDef srcDef = new PSNotificationDef();
+    srcDef.setBody("body");
+    srcDef.setDescription("desc");
+    srcDef.setGUID(new PSGuid(PSTypeEnum.WORKFLOW_NOTIFICATION, 123));
+    srcDef.setSubject("sub");
+    srcDef.setWorkflowId(456);
+
+    com.percussion.webservices.system.PSNotificationDef tgtDef;
+    tgtDef =
+        (com.percussion.webservices.system.PSNotificationDef)
+            converter.convert(com.percussion.webservices.system.PSNotificationDef.class, srcDef);
+
+    assertNotNull(tgtDef);
+    assertEquals(srcDef.getBody(), tgtDef.getBody());
+    assertEquals(srcDef.getDescription(), tgtDef.getDescription());
+    assertEquals(srcDef.getSubject(), tgtDef.getSubject());
+    assertEquals(srcDef.getGUID().longValue(), tgtDef.getId());
+  }
 }
-

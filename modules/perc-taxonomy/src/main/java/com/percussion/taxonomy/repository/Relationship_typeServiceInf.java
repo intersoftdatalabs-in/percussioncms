@@ -21,8 +21,8 @@ import com.percussion.taxonomy.domain.*;
 import java.util.Collection;
 
 /**
- * Service interface for managing Relationship_type entities.
- * Provides CRUD operations for defining types of relationships between nodes.
+ * Service interface for managing Relationship_type entities. Provides CRUD operations for defining
+ * types of relationships between nodes.
  */
 public interface Relationship_typeServiceInf {
 

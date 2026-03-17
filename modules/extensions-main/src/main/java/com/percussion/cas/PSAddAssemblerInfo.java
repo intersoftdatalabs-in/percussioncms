@@ -17,7 +17,6 @@
 package com.percussion.cas;
 
 import com.percussion.cms.PSCmsException;
-import com.percussion.security.xml.PSSecureXMLUtils;
 import com.percussion.cms.PSRelationshipData;
 import com.percussion.cms.PSSingleValueBuilder;
 import com.percussion.cms.objectstore.PSSite;
@@ -33,6 +32,7 @@ import com.percussion.extension.PSParameterMismatchException;
 import com.percussion.extensions.general.PSAddPluginProperties;
 import com.percussion.i18n.PSI18nUtils;
 import com.percussion.i18n.tmxdom.IPSTmxDtdConstants;
+import com.percussion.security.xml.PSSecureXMLUtils;
 import com.percussion.server.IPSInternalRequest;
 import com.percussion.server.IPSRequestContext;
 import com.percussion.server.PSApplicationHandler;

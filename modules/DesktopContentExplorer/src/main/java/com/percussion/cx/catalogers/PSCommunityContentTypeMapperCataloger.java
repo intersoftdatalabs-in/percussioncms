@@ -143,7 +143,6 @@ public class PSCommunityContentTypeMapperCataloger {
    * @param mapping the XML representation of the mapping. Assume not <code>null</code>.
    * @throws PSUnknownNodeTypeException if the element does not conform the DTD.
    */
-
   private void addMapping(Element mapping) throws PSUnknownNodeTypeException {
     // get the community
     String name = PSXMLDomUtil.checkAttribute(mapping, XML_ATTR_COMMUNITYNAME, true);

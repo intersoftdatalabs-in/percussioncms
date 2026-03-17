@@ -16,8 +16,6 @@
  */
 package com.percussion.sitemanage.task.impl;
 
-import com.percussion.services.pubserver.data.PSPubServerProperty;
-
 import static com.percussion.share.spring.PSSpringWebApplicationContextUtils.getWebApplicationContext;
 import static com.percussion.utils.service.impl.PSSiteConfigUtils.*;
 import static org.apache.commons.lang3.StringUtils.*;
@@ -37,6 +35,7 @@ import com.percussion.services.error.PSNotFoundException;
 import com.percussion.services.publisher.IPSEdition;
 import com.percussion.services.pubserver.IPSPubServer;
 import com.percussion.services.pubserver.IPSPubServerDao;
+import com.percussion.services.pubserver.data.PSPubServerProperty;
 import com.percussion.services.sitemgr.IPSSite;
 import com.percussion.share.service.IPSDataService;
 import com.percussion.share.spring.PSSpringWebApplicationContextUtils;
@@ -155,10 +154,11 @@ public class PSAntEditionTask implements IPSEditionTask {
       var pubOpt = pubServerMgr.findPubServer(edition.getPubServerId());
       if (pubOpt.isPresent()) {
         pubServer = pubOpt.get();
-        root = pubServer
-                    .getProperty(pubServerMgr.PUBLISH_FOLDER_PROPERTY)
-                    .map(PSPubServerProperty::getValue)
-                    .orElse(EMPTY);
+        root =
+            pubServer
+                .getProperty(pubServerMgr.PUBLISH_FOLDER_PROPERTY)
+                .map(PSPubServerProperty::getValue)
+                .orElse(EMPTY);
       }
     } catch (Exception e) {
       log.error(

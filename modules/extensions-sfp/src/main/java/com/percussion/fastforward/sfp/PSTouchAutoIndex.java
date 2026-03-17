@@ -112,7 +112,6 @@ public class PSTouchAutoIndex extends PSDefaultExtension
    * @param req the parent request
    * @throws PSExtensionProcessingException
    */
-
   private void touchAutoIndex(IPSRequestContext req) throws PSExtensionProcessingException {
     String first = req.getParameter("psfirst");
     if (first != null && first.trim().length() > 0) {

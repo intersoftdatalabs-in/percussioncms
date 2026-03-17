@@ -46,6 +46,7 @@ import com.percussion.share.service.IPSIdMapper;
 import com.percussion.share.service.IPSNameGenerator;
 import com.percussion.share.service.exception.PSDataServiceException;
 import com.percussion.sitemanage.data.PSPageContent;
+import com.percussion.sitemanage.data.PSSite;
 import com.percussion.sitemanage.data.PSSiteImportCtx;
 import com.percussion.sitemanage.error.PSSiteImportException;
 import com.percussion.sitemanage.importer.IPSSiteImportLogger;
@@ -55,7 +56,6 @@ import com.percussion.system.utils.PSSiteManageBean;
 import com.percussion.utils.request.PSRequestInfo;
 import com.percussion.utils.types.PSPair;
 import java.util.*;
-import com.percussion.sitemanage.data.PSSite;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -103,7 +103,10 @@ class PageSaveRunner implements Runnable {
 
   @Override
   public void run() {
-      long siteId = context.getSite().flatMap(s -> s.getSiteId())
+    long siteId =
+        context
+            .getSite()
+            .flatMap(s -> s.getSiteId())
             .orElseThrow(() -> new IllegalStateException("Site ID required"));
     var id = ((PSLegacyGuid) idMapper.getGuid(targetPage.getId())).getContentId();
 
@@ -388,7 +391,8 @@ public class PSPageExtractorHelper extends PSGenericMetadataExtractorHelper {
 
   private PSPage getTargetPage(PSSiteImportCtx context) throws PSDataServiceException {
     if (isBlank(context.getCatalogedPageId().orElse(""))) {
-      return pageService.findPage(context.getPageName().orElse(""), context.getSite().orElseThrow().getFolderPath());
+      return pageService.findPage(
+          context.getPageName().orElse(""), context.getSite().orElseThrow().getFolderPath());
     }
     return pageService.find(context.getCatalogedPageId().orElse(null));
   }
@@ -489,14 +493,16 @@ public class PSPageExtractorHelper extends PSGenericMetadataExtractorHelper {
   @Override
   protected void addHtmlWidgetToTemplate(PSSiteImportCtx context)
       throws PSDataServiceException, PSSiteImportException {
-      var template = unassignedTemplateCache.get(context.getSite().flatMap(PSSite::getSiteId).orElse(null));
+    var template =
+        unassignedTemplateCache.get(context.getSite().flatMap(PSSite::getSiteId).orElse(null));
     if (template == null) {
       if (unassignedTemplateCache.size() > 5) {
         unassignedTemplateCache.clear();
       }
       template =
           templateService.load(
-                this.getPageCatalogService().getCatalogTemplateIdBySite(context.getSite().map(PSSite::getName).orElse("")));
+              this.getPageCatalogService()
+                  .getCatalogTemplateIdBySite(context.getSite().map(PSSite::getName).orElse("")));
       if (isBlank(template.getTheme())) {
         template.setTheme(context.getThemeSummary().map(ts -> ts.getName()).orElse(""));
       }
@@ -517,7 +523,8 @@ public class PSPageExtractorHelper extends PSGenericMetadataExtractorHelper {
                 EXTRACT_METADATA,
                 "Metadata was successfully saved to the Unassigned template.");
       }
-      unassignedTemplateCache.put(context.getSite().flatMap(s -> s.getSiteId()).orElse(null), template);
+      unassignedTemplateCache.put(
+          context.getSite().flatMap(s -> s.getSiteId()).orElse(null), template);
     }
   }
 

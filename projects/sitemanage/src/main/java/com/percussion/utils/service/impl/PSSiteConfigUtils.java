@@ -427,7 +427,6 @@ public class PSSiteConfigUtils {
    *     if the 'tch' file does not exist. <code>false</code> otherwise.
    * @throws IOException if an error occurs when reading the files.
    */
-
   public static boolean filesModifiedAfterPublished(String sitename, long serverId)
       throws IOException {
     File tchFile = getTouchedFile(sitename);
@@ -732,9 +731,9 @@ public class PSSiteConfigUtils {
     if (sectionNode.isRequiresLogin()) {
       String folderPath =
           splitByWholeSeparator(
-sectionNode.getFolderPath().orElse(""),
-            SITE_ROOT + "/" + xmlData.getSitename())[0];
-        xmlData.addSecureOrMemberSection(folderPath + "/", sectionNode.getAllowAccessTo().orElse(null));
+              sectionNode.getFolderPath().orElse(""), SITE_ROOT + "/" + xmlData.getSitename())[0];
+      xmlData.addSecureOrMemberSection(
+          folderPath + "/", sectionNode.getAllowAccessTo().orElse(null));
 
       // cut the tree as soon as we hit the first secure node
       return;

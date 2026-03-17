@@ -38,6 +38,7 @@ public class PSCopySiteNamePage extends PSWizardPanel {
     super(applet);
     initPanel(createMainPanel());
   }
+
   /** Construct a new panel. */
   public PSCopySiteNamePage() {
     initPanel(createMainPanel());

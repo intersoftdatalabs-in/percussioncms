@@ -43,8 +43,6 @@ import com.percussion.design.objectstore.PSRelationshipConfig;
 import com.percussion.design.objectstore.PSRelationshipSet;
 import com.percussion.error.PSExceptionUtils;
 import com.percussion.pso.restservice.IItemRestService;
-import com.percussion.security.validation.PSJCRQueryValidator;
-import com.percussion.security.validation.XSSValidation;
 import com.percussion.pso.restservice.exception.ItemRestException;
 import com.percussion.pso.restservice.exception.ItemRestNotModifiedException;
 import com.percussion.pso.restservice.model.AclItem;
@@ -75,6 +73,8 @@ import com.percussion.pso.restservice.support.ImportItemSystemInfoLocator;
 import com.percussion.pso.restservice.utils.ItemServiceHelper;
 import com.percussion.pso.utils.HTTPProxyClientConfig;
 import com.percussion.pso.utils.PSOEmailUtils;
+import com.percussion.security.validation.PSJCRQueryValidator;
+import com.percussion.security.validation.XSSValidation;
 import com.percussion.server.IPSRequestContext;
 import com.percussion.server.PSRequest;
 import com.percussion.server.PSRequestContext;
@@ -150,12 +150,14 @@ import java.net.URISyntaxException;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.nio.charset.StandardCharsets;
 import java.security.DigestInputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Base64;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -176,8 +178,6 @@ import javax.jcr.query.Query;
 import javax.jcr.query.QueryResult;
 import javax.jcr.query.Row;
 import javax.jcr.query.RowIterator;
-import java.util.Base64;
-import java.nio.charset.StandardCharsets;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.dom4j.Document;
@@ -862,7 +862,8 @@ public class ItemRestServiceImpl implements IItemRestService {
       log.debug("mime type is {}:", mime_prop);
       String orig = prop.getString();
       if (orig != null && orig.length() > 0) {
-        return Base64.getEncoder().encodeToString(prop.getString().getBytes(StandardCharsets.UTF_8));
+        return Base64.getEncoder()
+            .encodeToString(prop.getString().getBytes(StandardCharsets.UTF_8));
       }
     } catch (RepositoryException e) {
       log.debug(PSExceptionUtils.getDebugMessageForLog(e));
@@ -908,7 +909,6 @@ public class ItemRestServiceImpl implements IItemRestService {
    * @param itemdef PSItemDefinition
    * @return List<Child>
    */
-
   private List<Child> getFromRxChildren(Node item, PSItemDefinition itemdef) {
     List<Child> children = new ArrayList<Child>();
 
@@ -1728,25 +1728,27 @@ public class ItemRestServiceImpl implements IItemRestService {
               try {
                 HTTPProxyClientConfig proxy = new HTTPProxyClientConfig();
                 HttpClient.Builder clientBuilder =
-                  HttpClient.newBuilder().connectTimeout(Duration.ofMillis(2000));
+                    HttpClient.newBuilder().connectTimeout(Duration.ofMillis(2000));
 
                 if (proxy.getProxyServer() != null
-                  && !proxy.getProxyServer().isBlank()
-                  && proxy.getProxyPort() != null
-                  && !proxy.getProxyPort().isBlank()) {
+                    && !proxy.getProxyServer().isBlank()
+                    && proxy.getProxyPort() != null
+                    && !proxy.getProxyPort().isBlank()) {
                   log.debug(
-                    "Setting Proxy server to {}:{}", proxy.getProxyServer(), proxy.getProxyPort());
+                      "Setting Proxy server to {}:{}",
+                      proxy.getProxyServer(),
+                      proxy.getProxyPort());
                   clientBuilder.proxy(
-                    ProxySelector.of(
-                      new InetSocketAddress(
-                        proxy.getProxyServer(), Integer.parseInt(proxy.getProxyPort()))));
+                      ProxySelector.of(
+                          new InetSocketAddress(
+                              proxy.getProxyServer(), Integer.parseInt(proxy.getProxyPort()))));
                 }
 
                 HttpClient client = clientBuilder.build();
                 HttpRequest request =
-                  HttpRequest.newBuilder(ref).timeout(Duration.ofMillis(2000)).GET().build();
+                    HttpRequest.newBuilder(ref).timeout(Duration.ofMillis(2000)).GET().build();
                 HttpResponse<InputStream> response =
-                  client.send(request, HttpResponse.BodyHandlers.ofInputStream());
+                    client.send(request, HttpResponse.BodyHandlers.ofInputStream());
                 int code = response.statusCode();
 
                 if (code != 200) {
@@ -2020,8 +2022,10 @@ public class ItemRestServiceImpl implements IItemRestService {
             // CWE-79: Use generic error message instead of concatenating assembly result
             // which may contain user-controlled XML from body parameter
             items.addError(ErrorCode.ASSEMBLY_ERROR, "Error importing items from assembly", e);
-            log.error("Assembly import error. Assembly result length: {}",
-                     assemblyResult != null ? assemblyResult.length() : 0, e);
+            log.error(
+                "Assembly import error. Assembly result length: {}",
+                assemblyResult != null ? assemblyResult.length() : 0,
+                e);
           }
         }
       }
@@ -2029,8 +2033,10 @@ public class ItemRestServiceImpl implements IItemRestService {
       // CWE-79: Use generic error message instead of concatenating assembly result
       // which may contain user-controlled XML from body parameter
       items.addError(ErrorCode.ASSEMBLY_ERROR, "Assembly output processing failed", e);
-      log.error("Assembly output processing error. Result length: {}",
-               assemblyResult != null ? assemblyResult.length() : 0, e);
+      log.error(
+          "Assembly output processing error. Result length: {}",
+          assemblyResult != null ? assemblyResult.length() : 0,
+          e);
     }
     return items;
   }

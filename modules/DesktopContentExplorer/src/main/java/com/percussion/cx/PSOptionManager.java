@@ -274,13 +274,19 @@ public class PSOptionManager {
     m_defaultOptions = userOptions;
   }
 
-  /** @see #PSOptionManager(PSContentExplorerApplet) PSOptionManager(PSContentExplorerApplet) */
+  /**
+   * @see #PSOptionManager(PSContentExplorerApplet) PSOptionManager(PSContentExplorerApplet)
+   */
   private PSContentExplorerApplet m_applet = null;
 
-  /** @see #getUserOptions() getUserOptions() */
+  /**
+   * @see #getUserOptions() getUserOptions()
+   */
   private PSUserOptions m_userOptions = null;
 
-  /** @see #getDeafultOptions() getDefaultOptions() */
+  /**
+   * @see #getDeafultOptions() getDefaultOptions()
+   */
   private PSUserOptions m_defaultOptions = null;
 
   /** This value is the key whose values are the persisted options in the the session object. */

@@ -16,9 +16,6 @@
  */
 package test.percussion.pso.jexl;
 
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 import com.percussion.pso.jexl.PSOListTools;
@@ -30,7 +27,9 @@ import java.util.List;
 import java.util.Set;
 import java.util.Vector;
 import org.apache.commons.collections.ListUtils;
-
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class PSOListToolsTest {
 

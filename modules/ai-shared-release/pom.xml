@@ -99,14 +99,14 @@
                 <executions>
                     <execution>
                         <id>zip-skills</id>
-                        <phase>prepare-package</phase>
                         <goals>
                             <goal>run</goal>
                         </goals>
+                        <phase>prepare-package</phase>
                         <configuration>
                             <target>
                                 <mkdir dir="${project.build.directory}/skills"/>
-                                <zip destfile="${project.build.directory}/skills/agent-temp-directory.zip" basedir="src/main/resources/skills/agent-temp-directory"/>
+                                <zip basedir="src/main/resources/skills/agent-temp-directory" destfile="${project.build.directory}/skills/agent-temp-directory.zip"/>
                             </target>
                         </configuration>
                     </execution>
@@ -119,10 +119,10 @@
                 <executions>
                     <execution>
                         <id>attach-skills</id>
-                        <phase>package</phase>
                         <goals>
                             <goal>attach-artifact</goal>
                         </goals>
+                        <phase>package</phase>
                         <configuration>
                             <artifacts>
                                 <artifact>

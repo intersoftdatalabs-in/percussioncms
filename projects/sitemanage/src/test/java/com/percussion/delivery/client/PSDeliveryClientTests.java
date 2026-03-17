@@ -5,6 +5,6 @@ import org.junit.jupiter.api.Test;
 
 @Disabled("stubbed pending delivery client logic")
 public class PSDeliveryClientTests {
-    @Test
-    public void placeholder() {}
+  @Test
+  public void placeholder() {}
 }

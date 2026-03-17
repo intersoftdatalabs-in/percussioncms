@@ -5,5 +5,6 @@ import org.junit.jupiter.api.Test;
 
 @Disabled("stubbed final failing tests")
 public class PSMonitorServiceRestTest {
-    @Test public void placeholder() {}
+  @Test
+  public void placeholder() {}
 }

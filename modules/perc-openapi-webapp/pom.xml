@@ -1,20 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-
     <parent>
         <groupId>com.percussion</groupId>
         <artifactId>core</artifactId>
         <version>8.2.0-SNAPSHOT</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
-
     <artifactId>perc-openapi-webapp</artifactId>
     <packaging>war</packaging>
     <name>Percussion OpenAPI Web App</name>
-
-    <dependencies />
-
+    <dependencies/>
     <build>
         <plugins>
             <!-- Generate OpenAPI spec from REST module annotations -->
@@ -24,10 +20,10 @@
                 <version>${project.version}</version>
                 <executions>
                     <execution>
-                        <phase>process-classes</phase>
                         <goals>
                             <goal>generate-spec</goal>
                         </goals>
+                        <phase>process-classes</phase>
                         <configuration>
                             <outputFile>${project.basedir}/src/main/webapp/openapi.json</outputFile>
                             <apiTitle>Percussion CMS REST API</apiTitle>
@@ -39,7 +35,6 @@
                     </execution>
                 </executions>
             </plugin>
-
             <plugin>
                 <artifactId>maven-war-plugin</artifactId>
                 <configuration>

@@ -200,7 +200,6 @@ public abstract class PSFileDataRepository<T> {
    *
    * @return never {@code null}.
    */
-
   protected Collection<File> getFiles() throws IOException {
     return FileUtils.listFiles(getRoot(), new String[] {getFileExt()}, false);
   }

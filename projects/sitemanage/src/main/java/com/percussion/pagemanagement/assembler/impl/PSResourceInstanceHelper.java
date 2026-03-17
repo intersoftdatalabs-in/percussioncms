@@ -97,7 +97,6 @@ public class PSResourceInstanceHelper {
     this.assemblyService = assemblyService;
   }
 
-
   private List<PSResourceLinkAndLocation> executeResourceLinkScript(
       PSResourceInstance resourceInstance, String script)
       throws IPSAssetService.PSAssetServiceException {

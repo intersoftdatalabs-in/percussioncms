@@ -21,72 +21,58 @@ package com.percussion.xml;
  * element entries (other than the root element entry) have valid parents.
  * It walks the tree and tests all element entries for parents.
  ***************************************************************************/
-public class PSDtdTreeParentTest implements PSDtdTreeVisitor
-{
-   public PSDtdTreeParentTest(PSDtdTree tree)
-   {
-      tree.getRoot().acceptVisitor(this, null);
-   }
+public class PSDtdTreeParentTest implements PSDtdTreeVisitor {
+  public PSDtdTreeParentTest(PSDtdTree tree) {
+    tree.getRoot().acceptVisitor(this, null);
+  }
 
-   public Object visit(PSDtdNode node, Object data)
-   {
-      testParent(node);
-      node.childrenAccept(this, data);
-      return null;
-   }
+  public Object visit(PSDtdNode node, Object data) {
+    testParent(node);
+    node.childrenAccept(this, data);
+    return null;
+  }
 
-   public Object visit(PSDtdElementEntry node, Object data)
-   {
-      testParent(node);
-      node.childrenAccept(this, data);
-      return null;
-   }
+  public Object visit(PSDtdElementEntry node, Object data) {
+    testParent(node);
+    node.childrenAccept(this, data);
+    return null;
+  }
 
-   public Object visit(PSDtdNodeList node, Object data)
-   {
-      testParent(node);
-      node.childrenAccept(this, data);
-      return null;
-   }
+  public Object visit(PSDtdNodeList node, Object data) {
+    testParent(node);
+    node.childrenAccept(this, data);
+    return null;
+  }
 
-   public Object visit(PSDtdDataElement node, Object data)
-   {
-      testParent(node);
-      node.childrenAccept(this, data);
-      return null;
-   }
+  public Object visit(PSDtdDataElement node, Object data) {
+    testParent(node);
+    node.childrenAccept(this, data);
+    return null;
+  }
 
-   public void testParent(PSDtdNode node)
-   {
-      if (node instanceof PSDtdElementEntry)
-      {
-         PSDtdElementEntry entry = (PSDtdElementEntry)node;
-         if (!entry.getElement().getName().startsWith("#"))
-         {
-            PSDtdElementEntry parentEl = entry.getParentElement();
-            if (parentEl == null)
-            {
-               if (m_sawRoot)
-               {
-                  throw new RuntimeException(entry.getElement().getName() + " has a null parent.");
-               }
-               m_sawRoot = true;
+  public void testParent(PSDtdNode node) {
+    if (node instanceof PSDtdElementEntry) {
+      PSDtdElementEntry entry = (PSDtdElementEntry) node;
+      if (!entry.getElement().getName().startsWith("#")) {
+        PSDtdElementEntry parentEl = entry.getParentElement();
+        if (parentEl == null) {
+          if (m_sawRoot) {
+            throw new RuntimeException(entry.getElement().getName() + " has a null parent.");
+          }
+          m_sawRoot = true;
+        } else {
+          PSDtdElement el = parentEl.getElement();
+          if (el == null) {
+            if (m_sawRoot) {
+              throw new RuntimeException(
+                  entry.getElement().getName() + "'s parent has a null element.");
             }
-            else
-            {
-               PSDtdElement el = parentEl.getElement();
-               if (el == null)
-               {
-                  if (m_sawRoot)
-                  {
-                     throw new RuntimeException(entry.getElement().getName() + "'s parent has a null element.");
-                  }
-                  m_sawRoot = true;
-               }
-            }
-         }
+            m_sawRoot = true;
+          }
+        }
       }
-   }
+    }
+  }
 
-   boolean m_sawRoot = false;
+  boolean m_sawRoot = false;
 }

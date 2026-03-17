@@ -133,7 +133,6 @@ public class PSMetadataDao implements com.percussion.metadata.dao.IPSMetadataDao
   }
 
   @Override
-
   @Transactional
   public Collection<PSMetadata> findByPrefix(String prefix) throws IPSGenericDao.LoadException {
     var session = getSession();

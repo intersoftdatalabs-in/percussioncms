@@ -21,8 +21,8 @@ import com.percussion.taxonomy.domain.*;
 import java.util.Collection;
 
 /**
- * Service interface for managing Related_node entities.
- * Provides CRUD operations for node relationships in the taxonomy system.
+ * Service interface for managing Related_node entities. Provides CRUD operations for node
+ * relationships in the taxonomy system.
  */
 public interface Related_nodeServiceInf {
 

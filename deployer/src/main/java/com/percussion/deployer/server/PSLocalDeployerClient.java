@@ -62,9 +62,10 @@ public class PSLocalDeployerClient implements IPSPackageInstaller {
     if (dh == null) {
       throw new PSDeployException(
           new PSException(
-              "PSDeploymentHandler bean 'sys_deploymentHandler' is not available. "
-                  + "This typically indicates the Spring context is not fully initialized or the bean is not registered. "
-                  + "Verify that PSDeploymentHandler is registered with @PSBaseBean and that dependent beans have proper 'depends-on' declarations."));
+              "PSDeploymentHandler bean 'sys_deploymentHandler' is not available. This typically"
+                  + " indicates the Spring context is not fully initialized or the bean is not"
+                  + " registered. Verify that PSDeploymentHandler is registered with @PSBaseBean"
+                  + " and that dependent beans have proper 'depends-on' declarations."));
     }
     var sessionId = getDeploymentLock(dh);
 

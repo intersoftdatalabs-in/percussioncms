@@ -54,7 +54,6 @@ import org.apache.logging.log4j.Logger;
  * object created by <CODE>IPSRequestContext.setPrivateObject</CODE> with key {@link
  * #WORKFLOW_ROLE_INFO_PRIVATE_OBJECT }
  */
-
 public class PSWorkflowRoleInfoStatic {
   /* Manipulate state role information */
 
@@ -654,7 +653,6 @@ public class PSWorkflowRoleInfoStatic {
    *     context is null.
    * @throws IllegalArgumentException if any of the input parameters is not valid.
    */
-
   static List<String> getStateAdhocActorNotificationList(
       IPSContentAdhocUsersContext cauc,
       PSStateRolesContext src,

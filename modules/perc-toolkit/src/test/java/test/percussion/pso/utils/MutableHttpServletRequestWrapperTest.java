@@ -62,7 +62,6 @@ public class MutableHttpServletRequestWrapperTest {
   }
 
   @Test
-
   public final void testGetParameterNames() {
     cut.setParameter("biz", "bzzzz");
     Set<String> v = new HashSet<String>();
@@ -96,7 +95,6 @@ public class MutableHttpServletRequestWrapperTest {
   }
 
   @Test
-
   public final void testGetHeaders() {
     cut.setHeader("baz", new String[] {"bat", "ball"});
     String h1 = cut.getHeader("BAZ");
@@ -122,7 +120,6 @@ public class MutableHttpServletRequestWrapperTest {
   }
 
   @Test
-
   public final void testGetHeaderNames() {
     cut.setHeader("baz", "bat");
 

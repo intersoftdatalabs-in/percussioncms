@@ -180,7 +180,6 @@ public class PSOWFActionService implements IPSOWFActionService {
   /**
    * @see com.percussion.pso.workflow.IPSOWFActionService#getWorkflowAction(java.lang.String)
    */
-
   public IPSWorkflowAction getWorkflowAction(String workflowActionName)
       throws PSExtensionException, PSNotFoundException {
     initServices();

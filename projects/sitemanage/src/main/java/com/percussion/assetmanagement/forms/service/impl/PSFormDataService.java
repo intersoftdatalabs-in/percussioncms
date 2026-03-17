@@ -254,8 +254,7 @@ public class PSFormDataService implements IPSFormDataService {
   private void mergeFormData(Map<String, Object> obj, PSFormSummary sum) {
     var totalSubmissions = ((Number) obj.getOrDefault(TOTALFORMS_FIELD, 0)).intValue();
     var exportedForms = ((Number) obj.getOrDefault(EXPORTEDFORMS_FIELD, 0)).intValue();
-    sum.setNewSubmissions(
-        sum.getNewSubmissions() + (totalSubmissions - exportedForms));
+    sum.setNewSubmissions(sum.getNewSubmissions() + (totalSubmissions - exportedForms));
     sum.setTotalSubmissions(sum.getTotalSubmissions() + totalSubmissions);
   }
 

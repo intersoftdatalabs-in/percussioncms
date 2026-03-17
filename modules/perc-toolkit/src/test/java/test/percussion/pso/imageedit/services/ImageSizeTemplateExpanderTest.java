@@ -17,14 +17,13 @@
 package test.percussion.pso.imageedit.services;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
 import com.percussion.cms.objectstore.PSComponentSummary;
 import com.percussion.pso.imageedit.services.ImageSizeDefinitionManager;
 import com.percussion.pso.imageedit.services.ImageSizeTemplateExpander;
 import com.percussion.services.assembly.IPSAssemblyService;
-import com.percussion.services.contentmgr.IPSNode;
 import com.percussion.utils.guid.IPSGuid;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import javax.jcr.Node;
@@ -35,17 +34,14 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 public class ImageSizeTemplateExpanderTest {
   private static final Logger log = LogManager.getLogger(ImageSizeTemplateExpanderTest.class);
 
   TestableImageSizeTemplateExpander cut;
-  @Mock
-  ImageSizeDefinitionManager isdm;
-  @Mock
-  IPSAssemblyService asm;
+  @Mock ImageSizeDefinitionManager isdm;
+  @Mock IPSAssemblyService asm;
 
   @BeforeEach
   public void setUp() {

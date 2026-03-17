@@ -76,8 +76,8 @@ public class LinkBuilderBean implements LinkBuilderService {
       IPSPublishingContext context,
       String contextVar) {
 
-     PSContentListItem item =
-         new PSContentListItem(content, folder, template.getGUID(), site.getGUID(), context.getId());
+    PSContentListItem item =
+        new PSContentListItem(content, folder, template.getGUID(), site.getGUID(), context.getId());
 
     // If there is a root context variable configured pull from that variable first.
     String baseUrl = "";

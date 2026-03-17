@@ -62,8 +62,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -397,7 +397,6 @@ public class PSContentBrowser {
    * @throws PSErrorException
    * @throws JSONException
    */
-
   public static String createFolder(
       IPSRequestContext request, String parentFolderPath, String folderName)
       throws PSErrorException, JSONException {

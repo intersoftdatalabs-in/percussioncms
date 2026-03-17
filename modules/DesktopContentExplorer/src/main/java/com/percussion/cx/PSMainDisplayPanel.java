@@ -164,6 +164,7 @@ public class PSMainDisplayPanel extends JScrollPane
               @SuppressWarnings("unused") int row, @SuppressWarnings("unused") int column) {
             return m_childViewTableRenderer;
           }
+
           /* Override to set the row height based on the metrics of the font
            * to be set.
            * @see javax.swing.JComponent#setFont(java.awt.Font)
@@ -1048,6 +1049,7 @@ public class PSMainDisplayPanel extends JScrollPane
   public static synchronized void setFocusColumn(int column) {
     focusedColumn = column;
   }
+
   /*
    * This is a hack to get hold of the currently focused header column Should be
    * able to access focused column with
@@ -1380,6 +1382,7 @@ public class PSMainDisplayPanel extends JScrollPane
       m_dispatchComponent = null;
       setValueIsAdjusting(table, false);
     }
+
     // implements to do nothing
     @Override
     public void mouseEntered(@SuppressWarnings("unused") MouseEvent e) {}

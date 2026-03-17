@@ -16,10 +16,10 @@
  */
 package com.percussion.comments.service.impl;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.apache.commons.lang3.Validate.notNull;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.percussion.comments.data.PSComment;
 import com.percussion.comments.data.PSCommentIds;
 import com.percussion.comments.data.PSCommentList;
@@ -209,15 +209,16 @@ public class PSCommentsService implements IPSCommentsService {
         var deliveryClient = new PSDeliveryClient();
         deliveryClient.setLicenseOverride(licenseId);
         var mapper = new ObjectMapper();
-        var responseMapObj = deliveryClient
-            .getJsonObject(
+        var responseMapObj =
+            deliveryClient.getJsonObject(
                 new PSDeliveryActionOptions(
                     server, COMMENT_GET_COMMENTS_ON_PAGE, HttpMethodType.POST, true),
                 mapper.writeValueAsString(postJson));
 
         Map<String, Object> responseMap = (Map<String, Object>) responseMapObj;
 
-        List<Map<String, Object>> commentsOnPage = (List<Map<String, Object>>) responseMap.get("comments");
+        List<Map<String, Object>> commentsOnPage =
+            (List<Map<String, Object>>) responseMap.get("comments");
 
         for (var jsonComment : commentsOnPage) {
           var currentComment = new PSComment();
@@ -233,8 +234,10 @@ public class PSCommentsService implements IPSCommentsService {
           currentComment.setUserEmail((String) jsonComment.get("email"));
           currentComment.setUserLinkUrl((String) jsonComment.get("url"));
           currentComment.setCommentApprovalState((String) jsonComment.get("approvalState"));
-          currentComment.setCommentModerated(Boolean.parseBoolean(String.valueOf(jsonComment.get("moderated"))));
-          currentComment.setCommentViewed(Boolean.parseBoolean(String.valueOf(jsonComment.get("viewed"))));
+          currentComment.setCommentModerated(
+              Boolean.parseBoolean(String.valueOf(jsonComment.get("moderated"))));
+          currentComment.setCommentViewed(
+              Boolean.parseBoolean(String.valueOf(jsonComment.get("viewed"))));
           currentComment.setCommentId((String) jsonComment.get("id"));
           aggregatedComments.add(currentComment);
         }
@@ -472,10 +475,11 @@ public class PSCommentsService implements IPSCommentsService {
       deliveryClient.setLicenseOverride(licenseId);
       var mapper = new ObjectMapper();
 
-      Map<String, Object> responseMap = (Map<String, Object>) deliveryClient
-          .getJsonObject(
-              new PSDeliveryActionOptions(server, url, HttpMethodType.POST, true),
-              mapper.writeValueAsString(postJson));
+      Map<String, Object> responseMap =
+          (Map<String, Object>)
+              deliveryClient.getJsonObject(
+                  new PSDeliveryActionOptions(server, url, HttpMethodType.POST, true),
+                  mapper.writeValueAsString(postJson));
 
       List<Object> siteInfo = (List<Object>) responseMap.get("summaries");
       for (var i = 0; i < siteInfo.size(); i++) {

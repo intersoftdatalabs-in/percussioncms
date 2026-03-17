@@ -17,8 +17,8 @@
 
 package com.percussion.searchmanagement;
 
-import static java.util.Arrays.asList;
 import static com.percussion.test.TestAssertions.*;
+import static java.util.Arrays.asList;
 
 import com.percussion.assetmanagement.data.PSAsset;
 import com.percussion.assetmanagement.web.service.PSAssetServiceRestClient;

@@ -58,13 +58,13 @@ import jakarta.ws.rs.core.MediaType;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.List;
 import org.apache.commons.lang3.time.FastDateFormat;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import java.util.Collections;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
@@ -576,7 +576,9 @@ public class PSSitePublishStatusService implements IPSSitePublishStatusService {
     job.setSiteName(getSiteName(status.getEditionId()));
     job.setStatus(getStateDescription(status.getState()));
     job.setIsStopping(
-        job.getStatus().orElse("").equalsIgnoreCase(IPSPublisherJobStatus.State.CANCELLED.toString()));
+        job.getStatus()
+            .orElse("")
+            .equalsIgnoreCase(IPSPublisherJobStatus.State.CANCELLED.toString()));
     job.setPubServerId(getPubServerId(status.getEditionId()).longValue());
     return job;
   }

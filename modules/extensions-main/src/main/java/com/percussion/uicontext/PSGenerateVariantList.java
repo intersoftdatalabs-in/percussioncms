@@ -100,7 +100,6 @@ public class PSGenerateVariantList extends PSDefaultExtension
       if (templates != null && !templates.isEmpty()) {
         IPSSecurityWs sec = PSSecurityWsLocator.getSecurityWebservice();
 
-
         List<IPSGuid> templateGuids =
             new ArrayList<>(
                 CollectionUtils.collect(
@@ -162,7 +161,6 @@ public class PSGenerateVariantList extends PSDefaultExtension
     }
     return resultDoc;
   }
-
 
   private List<IPSGuid> filterCurrentCommunityTemplates(
       IPSRequestContext request, Collection<IPSGuid> filtered) {

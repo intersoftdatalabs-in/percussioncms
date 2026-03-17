@@ -16,72 +16,69 @@
  */
 package com.percussion.webservices.transformation.converter;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 import com.percussion.services.workflow.data.PSAgingTransition;
 import com.percussion.services.workflow.data.PSAssignedRole;
 import com.percussion.services.workflow.data.PSState;
 import com.percussion.services.workflow.data.PSTransition;
 import com.percussion.webservices.transformation.impl.PSTransformerFactory;
-
 import java.util.ArrayList;
 import java.util.List;
-
-import org.junit.jupiter.api.Test;
-import static org.junit.jupiter.api.Assertions.*;
-
 import org.apache.commons.beanutils.Converter;
 
-/**
- * Test the {@link PSStateConverter}
- */
-public class PSStateConverterTest
-{
-   /**
-    * Test the converter
-    *
-    * @throws Exception if the test fails
-    */
+/** Test the {@link PSStateConverter} */
+public class PSStateConverterTest {
+  /**
+   * Test the converter
+   *
+   * @throws Exception if the test fails
+   */
+  public void testConverter() throws Exception {
+    PSTransformerFactory factory = PSTransformerFactory.getInstance();
 
-   public void testConverter() throws Exception
-   {
-      PSTransformerFactory factory = PSTransformerFactory.getInstance();
+    // convert server to client object
+    Converter converter = factory.getConverter(PSState.class);
 
-      // convert server to client object
-      Converter converter = factory.getConverter(PSState.class);
+    PSState src = new PSState();
+    List<PSAgingTransition> agingTrans = new ArrayList<PSAgingTransition>();
+    agingTrans.add(new PSAgingTransition());
+    agingTrans.add(new PSAgingTransition());
+    src.setAgingTransitions(agingTrans);
+    List<PSAssignedRole> roleList = new ArrayList<PSAssignedRole>();
+    roleList.add(new PSAssignedRole());
+    roleList.add(new PSAssignedRole());
+    src.setAssignedRoles(roleList);
+    src.setDescription("desc");
+    src.setStateId(123);
+    src.setName("state");
+    src.setPublishable(true);
+    src.setSortOrder(3);
+    List<PSTransition> transitionList = new ArrayList<PSTransition>();
+    transitionList.add(new PSTransition());
+    transitionList.add(new PSTransition());
+    src.setTransitions(transitionList);
+    src.setWorkflowId(456);
 
-      PSState src = new PSState();
-      List<PSAgingTransition> agingTrans = new ArrayList<PSAgingTransition>();
-      agingTrans.add(new PSAgingTransition());
-      agingTrans.add(new PSAgingTransition());
-      src.setAgingTransitions(agingTrans);
-      List<PSAssignedRole> roleList = new ArrayList<PSAssignedRole>();
-      roleList.add(new PSAssignedRole());
-      roleList.add(new PSAssignedRole());
-      src.setAssignedRoles(roleList);
-      src.setDescription("desc");
-      src.setStateId(123);
-      src.setName("state");
-      src.setPublishable(true);
-      src.setSortOrder(3);
-      List<PSTransition> transitionList = new ArrayList<PSTransition>();
-      transitionList.add(new PSTransition());
-      transitionList.add(new PSTransition());
-      src.setTransitions(transitionList);
-      src.setWorkflowId(456);
+    com.percussion.webservices.system.PSState tgt =
+        (com.percussion.webservices.system.PSState)
+            converter.convert(com.percussion.webservices.system.PSState.class, src);
 
-      com.percussion.webservices.system.PSState tgt =
-         (com.percussion.webservices.system.PSState) converter.convert(
-            com.percussion.webservices.system.PSState.class, src);
-
-      assertEquals(src.getAgingTransitions().size(),
-         (tgt.getAgingTransitions() == null ? 0 : tgt.getAgingTransitions().getPSAgingTransition().size()));
-      assertEquals(src.getAssignedRoles().size(),
-         (tgt.getAssignedRoles() == null ? 0 : tgt.getAssignedRoles().getPSAssignedRole().size()));
-      assertEquals(src.getDescription(), tgt.getDescription());
-      assertEquals(src.getName(), tgt.getName());
-      Integer var1 = src.getSortOrder();
-      Integer var2 = tgt.getSortOrder();
-      assertEquals(var1,var2);
-      assertEquals(src.getTransitions().size(), (tgt.getTransitions() == null ? 0 : tgt.getTransitions().getPSTransition().size()));
-   }
+    assertEquals(
+        src.getAgingTransitions().size(),
+        (tgt.getAgingTransitions() == null
+            ? 0
+            : tgt.getAgingTransitions().getPSAgingTransition().size()));
+    assertEquals(
+        src.getAssignedRoles().size(),
+        (tgt.getAssignedRoles() == null ? 0 : tgt.getAssignedRoles().getPSAssignedRole().size()));
+    assertEquals(src.getDescription(), tgt.getDescription());
+    assertEquals(src.getName(), tgt.getName());
+    Integer var1 = src.getSortOrder();
+    Integer var2 = tgt.getSortOrder();
+    assertEquals(var1, var2);
+    assertEquals(
+        src.getTransitions().size(),
+        (tgt.getTransitions() == null ? 0 : tgt.getTransitions().getPSTransition().size()));
+  }
 }
-

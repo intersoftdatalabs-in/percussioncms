@@ -46,9 +46,9 @@ public class SimpleXmlView extends AbstractView implements View {
    * @see AbstractView#renderMergedOutputModel(Map, HttpServletRequest, HttpServletResponse)
    */
   @Override
-
-   protected void renderMergedOutputModel(
-       Map<String, Object> model, HttpServletRequest request, HttpServletResponse response) throws Exception {
+  protected void renderMergedOutputModel(
+      Map<String, Object> model, HttpServletRequest request, HttpServletResponse response)
+      throws Exception {
     Document result = findResult(model);
 
     Writer writer = response.getWriter();
@@ -65,8 +65,7 @@ public class SimpleXmlView extends AbstractView implements View {
    * @param model
    * @return the result document.
    */
-
-   protected Document findResult(Map<String, Object> model) {
+  protected Document findResult(Map<String, Object> model) {
     String emsg;
     Object result = model.get(getResultKey());
     if (result == null) {

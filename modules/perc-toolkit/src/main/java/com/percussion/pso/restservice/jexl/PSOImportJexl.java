@@ -47,9 +47,9 @@ import java.net.URISyntaxException;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
-import java.time.Duration;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.time.Duration;
 import java.util.List;
 import java.util.Map;
 import org.apache.logging.log4j.LogManager;
@@ -62,7 +62,6 @@ import org.dom4j.XPath;
 import org.dom4j.io.SAXReader;
 import org.jsoup.Jsoup;
 import org.jsoup.helper.W3CDom;
-
 
 /** */
 public class PSOImportJexl extends PSJexlUtilBase implements IPSJexlExpression {
@@ -95,8 +94,8 @@ public class PSOImportJexl extends PSJexlUtilBase implements IPSJexlExpression {
   }
 
   /**
-   * Convert an InputStream containing HTML into a dom4j Document using jsoup.
-   * This replaces the legacy TagSoup-based cleaning logic.
+   * Convert an InputStream containing HTML into a dom4j Document using jsoup. This replaces the
+   * legacy TagSoup-based cleaning logic.
    *
    * @param in html input stream (UTF-8 assumed)
    * @return a dom4j Document
@@ -121,13 +120,11 @@ public class PSOImportJexl extends PSJexlUtilBase implements IPSJexlExpression {
     Document doc = null;
     HttpClient client = createHttpClient();
     HttpRequest request =
-        HttpRequest.newBuilder(URI.create(url))
-            .GET()
-            .timeout(Duration.ofMillis(2000))
-            .build();
+        HttpRequest.newBuilder(URI.create(url)).GET().timeout(Duration.ofMillis(2000)).build();
 
     try {
-      HttpResponse<InputStream> response = client.send(request, HttpResponse.BodyHandlers.ofInputStream());
+      HttpResponse<InputStream> response =
+          client.send(request, HttpResponse.BodyHandlers.ofInputStream());
       try (InputStream responseBody = response.body()) {
         doc = parseHtmlToDom(responseBody);
       }
@@ -502,13 +499,14 @@ public class PSOImportJexl extends PSJexlUtilBase implements IPSJexlExpression {
             .connectTimeout(Duration.ofMillis(2000));
 
     if (proxy.getProxyServer() != null
-      && !proxy.getProxyServer().isBlank()
-      && proxy.getProxyPort() != null
-      && !proxy.getProxyPort().isBlank()) {
+        && !proxy.getProxyServer().isBlank()
+        && proxy.getProxyPort() != null
+        && !proxy.getProxyPort().isBlank()) {
       log.debug("Setting Proxy server to {}:{}", proxy.getProxyServer(), proxy.getProxyPort());
       builder.proxy(
           ProxySelector.of(
-              new InetSocketAddress(proxy.getProxyServer(), Integer.parseInt(proxy.getProxyPort()))));
+              new InetSocketAddress(
+                  proxy.getProxyServer(), Integer.parseInt(proxy.getProxyPort()))));
     }
 
     return builder.build();

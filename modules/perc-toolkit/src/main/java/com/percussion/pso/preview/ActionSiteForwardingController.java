@@ -66,7 +66,6 @@ public class ActionSiteForwardingController extends AbstractMenuController imple
    * @see AbstractMenuController#handleRequestInternal(HttpServletRequest, HttpServletResponse)
    */
   @Override
-
   protected ModelAndView handleRequestInternal(
       HttpServletRequest request, HttpServletResponse response) throws Exception {
     ModelAndView mav = super.handleRequestInternal(request, response);

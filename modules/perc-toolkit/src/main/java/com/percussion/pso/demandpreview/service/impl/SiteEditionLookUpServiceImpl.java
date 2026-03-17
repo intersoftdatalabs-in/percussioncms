@@ -156,14 +156,15 @@ public class SiteEditionLookUpServiceImpl implements SiteEditionLookUpService {
     IPSEdition sEdition = getEdition(editionName);
     siteEditionHolder.setEdition(sEdition);
 
-     IPSPublishingContext ctx = null;
-     try {
-       IPSGuid contextGuid = guidManager.makeGuid(siteConfig.getAssemblyContext(), PSTypeEnum.CONTEXT);
-       ctx = siteManager.loadContext(contextGuid);
-     } catch (PSNotFoundException e) {
-       log.error(PSExceptionUtils.getMessageForLog(e));
-       log.debug(PSExceptionUtils.getDebugMessageForLog(e));
-     }
+    IPSPublishingContext ctx = null;
+    try {
+      IPSGuid contextGuid =
+          guidManager.makeGuid(siteConfig.getAssemblyContext(), PSTypeEnum.CONTEXT);
+      ctx = siteManager.loadContext(contextGuid);
+    } catch (PSNotFoundException e) {
+      log.error(PSExceptionUtils.getMessageForLog(e));
+      log.debug(PSExceptionUtils.getDebugMessageForLog(e));
+    }
     if (ctx == null) {
       emsg = "Context " + siteConfig.getAssemblyContext() + " not configured for " + siteName;
       log.error(emsg);

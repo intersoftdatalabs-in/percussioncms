@@ -64,7 +64,7 @@ public class JacksonContextResolver implements ContextResolver<ObjectMapper> {
         .setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.PUBLIC_ONLY)
         .setAnnotationIntrospector(
             AnnotationIntrospector.pair(
-            new JakartaXmlBindAnnotationIntrospector(TypeFactory.defaultInstance()),
+                new JakartaXmlBindAnnotationIntrospector(TypeFactory.defaultInstance()),
                 new JacksonAnnotationIntrospector()))
         .registerModule(new ParameterNamesModule())
         .registerModule(new Jdk8Module())

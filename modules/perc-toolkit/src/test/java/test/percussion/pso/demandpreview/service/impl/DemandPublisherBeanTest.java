@@ -19,9 +19,6 @@ package test.percussion.pso.demandpreview.service.impl;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
 import static org.mockito.Mockito.*;
 
 import com.percussion.pso.demandpreview.service.impl.DemandPublisherBean;
@@ -37,13 +34,15 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
 public class DemandPublisherBeanTest {
   private static final Logger log = LogManager.getLogger(DemandPublisherBeanTest.class);
 
-  @Mock
-  IPSRxPublisherService rxPubSvc;
+  @Mock IPSRxPublisherService rxPubSvc;
   TestableDemandPublisherBean cut;
 
   @BeforeEach

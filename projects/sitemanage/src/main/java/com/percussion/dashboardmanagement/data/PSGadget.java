@@ -27,9 +27,8 @@ import org.apache.commons.io.FilenameUtils;
 
 @XmlRootElement(name = "gadget")
 @XmlAccessorType(XmlAccessType.FIELD)
-  
 public class PSGadget extends PSAbstractDataObject {
-    private static final long serialVersionUID = 1L;
+  private static final long serialVersionUID = 1L;
   private Integer instanceId;
   private String url;
   private Integer col, row;

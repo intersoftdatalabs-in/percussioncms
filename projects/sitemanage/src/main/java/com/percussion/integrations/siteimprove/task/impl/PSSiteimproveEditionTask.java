@@ -18,6 +18,7 @@
 // REFACTORED: CP-JAVA11
 package com.percussion.integrations.siteimprove.task.impl;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Iterators;
 import com.percussion.extension.IPSExtensionDef;
 import com.percussion.integrations.siteimprove.data.PSSiteImproveSiteConfigurations;
@@ -39,7 +40,6 @@ import com.percussion.services.publisher.IPSSiteItem;
 import com.percussion.services.pubserver.data.PSPubServer;
 import com.percussion.services.sitemgr.IPSSite;
 import com.percussion.share.spring.PSSpringWebApplicationContextUtils;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.File;
 import java.util.Date;
 import java.util.HashMap;
@@ -250,7 +250,8 @@ public class PSSiteimproveEditionTask implements IPSEditionTask {
     credentials.put(SITE_NAME, (String) credentialsJSON.get(SITE_NAME));
     credentials.put(TOKEN, (String) credentialsJSON.get(TOKEN));
     credentials.put("siteProtocol", (String) credentialsJSON.getOrDefault("siteProtocol", ""));
-    credentials.put("defaultDocument", (String) credentialsJSON.getOrDefault("defaultDocument", ""));
+    credentials.put(
+        "defaultDocument", (String) credentialsJSON.getOrDefault("defaultDocument", ""));
     credentials.put("canonicalDist", (String) credentialsJSON.getOrDefault("canonicalDist", ""));
     return credentials;
   }
@@ -259,7 +260,8 @@ public class PSSiteimproveEditionTask implements IPSEditionTask {
   private PSSiteImproveSiteConfigurations obtainSiteConfiguration(String siteConfigurationData)
       throws Exception {
     var mapper = new ObjectMapper();
-    var siteConfigurationJson = mapper.readValue(siteConfigurationData, java.util.LinkedHashMap.class);
+    var siteConfigurationJson =
+        mapper.readValue(siteConfigurationData, java.util.LinkedHashMap.class);
     if (!siteConfigurationJson.containsKey(DO_PRODUCTION)) {
       var message = "Siteimprove configuration details were missing the production setting";
       logger.error(message);

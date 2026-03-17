@@ -175,7 +175,7 @@ public class DefaultPageTemplateBeanTest {
       verify(t2, atLeastOnce()).getName();
       verify(t2, atLeastOnce()).getGUID();
       verify(t3).getPublishWhen();
-        // do not verify outputFormat on t3 because it's never checked when PublishWhen.Never
+      // do not verify outputFormat on t3 because it's never checked when PublishWhen.Never
       verify(t3, atLeastOnce()).getGUID();
 
     } catch (Exception e) {

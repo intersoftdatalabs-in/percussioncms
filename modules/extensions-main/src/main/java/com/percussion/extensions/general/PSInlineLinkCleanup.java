@@ -454,7 +454,9 @@ public class PSInlineLinkCleanup extends PSDefaultExtension implements IPSResult
             log.error(PSExceptionUtils.getMessageForLog(e));
             log.debug(PSExceptionUtils.getDebugMessageForLog(e));
 
-            Object[] args1 = {Integer.valueOf(locator.getId()), Integer.valueOf(locator.getRevision())};
+            Object[] args1 = {
+              Integer.valueOf(locator.getId()), Integer.valueOf(locator.getRevision())
+            };
 
             traceMessage(request, "Failed process item (id={0}, rev={1}).", args1);
           }

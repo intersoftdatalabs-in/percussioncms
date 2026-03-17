@@ -19,10 +19,10 @@ package com.percussion.pso.imageedit.services.cache.impl;
 import com.percussion.pso.imageedit.data.ImageData;
 import com.percussion.pso.imageedit.data.ImageMetaData;
 import com.percussion.pso.imageedit.services.cache.ImageCacheManager;
-import org.ehcache.Cache;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.ehcache.Cache;
 
 public class ImageCacheManagerImpl implements ImageCacheManager {
   private static final Logger log = LogManager.getLogger(ImageCacheManagerImpl.class);

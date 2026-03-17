@@ -34,7 +34,10 @@ public class PSContentExplorerHeader extends JPanel {
   private static final long serialVersionUID = 1L;
 
   private PSContentExplorerApplet m_applet;
-  /** @param applet */
+
+  /**
+   * @param applet
+   */
   public PSContentExplorerHeader(PSContentExplorerApplet applet) {
     super();
     this.setName("Top Banner");

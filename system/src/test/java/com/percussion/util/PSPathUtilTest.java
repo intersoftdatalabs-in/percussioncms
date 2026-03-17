@@ -16,32 +16,22 @@
  */
 package com.percussion.util;
 
-
-import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
+import org.junit.jupiter.api.Test;
 
-/**
- * Unit tests for the PSPathUtil class
- */
-public class PSPathUtilTest
-{
+/** Unit tests for the PSPathUtil class */
+public class PSPathUtilTest {
 
+  @Test
+  public void testIsPathUnderSiteFolderRoot() {
+    String pathA = "//Folders/test/foo";
+    String pathB = "//Sites/test/bar";
 
+    assertFalse(PSPathUtil.isPathUnderSiteFolderRoot(pathA));
+    assertTrue(PSPathUtil.isPathUnderSiteFolderRoot(pathB));
+  }
 
-
-
-   @Test
-   public void testIsPathUnderSiteFolderRoot()
-   {
-      String pathA = "//Folders/test/foo";
-      String pathB = "//Sites/test/bar";
-
-      assertFalse(PSPathUtil.isPathUnderSiteFolderRoot(pathA));
-      assertTrue(PSPathUtil.isPathUnderSiteFolderRoot(pathB));
-   }
-
-
-   // collect all tests into a TestSuite and return it
+  // collect all tests into a TestSuite and return it
 
 }

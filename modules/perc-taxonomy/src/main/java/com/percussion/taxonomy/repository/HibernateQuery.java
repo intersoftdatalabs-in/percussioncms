@@ -18,8 +18,8 @@
 package com.percussion.taxonomy.repository;
 
 import java.util.HashMap;
-import org.hibernate.query.Query;
 import org.hibernate.Session;
+import org.hibernate.query.Query;
 
 /**
  * Helper class to execute a query with optional parameter substitutions without requiring

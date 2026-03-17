@@ -479,28 +479,28 @@ public class PSDependencyUtils {
     return sharedDef;
   }
 
-/**
- * Gets the table names used by all shared groups.
- *
- * @return the table names, never <code>null</code>, may be empty.
- * @throws PSDeployException if an error occurs.
- */
-public static List<String> getSharedGroupTables() throws PSDeployException {
-  List<String> tables = new ArrayList<>();
+  /**
+   * Gets the table names used by all shared groups.
+   *
+   * @return the table names, never <code>null</code>, may be empty.
+   * @throws PSDeployException if an error occurs.
+   */
+  public static List<String> getSharedGroupTables() throws PSDeployException {
+    List<String> tables = new ArrayList<>();
 
-  List<PSSharedFieldGroup> groups = new ArrayList<>();
+    List<PSSharedFieldGroup> groups = new ArrayList<>();
 
-  Iterator fieldGroups = getSharedDef().getFieldGroups();
-  while (fieldGroups.hasNext()) {
-    Object obj = fieldGroups.next();
-    if (obj instanceof PSSharedFieldGroup) {
-      groups.add((PSSharedFieldGroup) obj);
+    Iterator fieldGroups = getSharedDef().getFieldGroups();
+    while (fieldGroups.hasNext()) {
+      Object obj = fieldGroups.next();
+      if (obj instanceof PSSharedFieldGroup) {
+        groups.add((PSSharedFieldGroup) obj);
+      }
     }
-  }
 
-  for (PSSharedFieldGroup group : groups) {
-    tables.addAll(getLocatorTables(group.getLocator()));
+    for (PSSharedFieldGroup group : groups) {
+      tables.addAll(getLocatorTables(group.getLocator()));
+    }
+    return tables;
   }
-  return tables;
-}
 }

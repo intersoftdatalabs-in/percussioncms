@@ -27,10 +27,9 @@ import org.junit.jupiter.api.Test;
 /**
  * Security-focused unit tests for {@link PSSearchPatternService}.
  *
- * <p><b>Security Focus:</b> Tests verify that regex injection attacks are prevented by
- * validating that user-provided search patterns are treated as literal strings, not as regex
- * expressions. This ensures metacharacters and regex operators cannot be used to bypass
- * search filters.
+ * <p><b>Security Focus:</b> Tests verify that regex injection attacks are prevented by validating
+ * that user-provided search patterns are treated as literal strings, not as regex expressions. This
+ * ensures metacharacters and regex operators cannot be used to bypass search filters.
  *
  * <p><b>CWE-94: Improper Control of Generation of Code</b> <br>
  * <b>OWASP A03:2021 – Injection</b>
@@ -69,8 +68,7 @@ class PSSearchPatternServiceSecurityTest {
     @Test
     @DisplayName("Should match partial substring in middle of name")
     void shouldMatchPartialSubstring() {
-      List<String> items =
-          List.of("article_main.html", "article_sidebar.html", "page_main.html");
+      List<String> items = List.of("article_main.html", "article_sidebar.html", "page_main.html");
       List<String> results = service.filterContentByNamePattern(items, "article");
 
       assertEquals(2, results.size(), "Only items containing 'article' should match");
@@ -110,36 +108,28 @@ class PSSearchPatternServiceSecurityTest {
     void shouldMatchFileExtensions() {
       // Test .pdf extension
       assertTrue(
-          service.matchesContentPattern("document.pdf", ".pdf"),
-          "Should match .pdf extension");
+          service.matchesContentPattern("document.pdf", ".pdf"), "Should match .pdf extension");
       // Test .doc extension
       assertTrue(
-          service.matchesContentPattern("report.doc", ".doc"),
-          "Should match .doc extension");
+          service.matchesContentPattern("report.doc", ".doc"), "Should match .doc extension");
       // Test .html extension
       assertTrue(
-          service.matchesContentPattern("index.html", ".html"),
-          "Should match .html extension");
+          service.matchesContentPattern("index.html", ".html"), "Should match .html extension");
       // Test .xml extension
       assertTrue(
-          service.matchesContentPattern("config.xml", ".xml"),
-          "Should match .xml extension");
+          service.matchesContentPattern("config.xml", ".xml"), "Should match .xml extension");
       // Test .json extension
       assertTrue(
-          service.matchesContentPattern("data.json", ".json"),
-          "Should match .json extension");
+          service.matchesContentPattern("data.json", ".json"), "Should match .json extension");
     }
 
     @Test
     @DisplayName("Should support case-sensitive matching by default")
     void shouldSupportCaseSensitiveMatching() {
       String itemName = "MyDocument";
-      assertTrue(
-          service.matchesContentPattern(itemName, "MyDocument"),
-          "Exact case should match");
+      assertTrue(service.matchesContentPattern(itemName, "MyDocument"), "Exact case should match");
       assertFalse(
-          service.matchesContentPattern(itemName, "mydocument"),
-          "Different case should not match");
+          service.matchesContentPattern(itemName, "mydocument"), "Different case should not match");
     }
 
     @Test
@@ -198,11 +188,9 @@ class PSSearchPatternServiceSecurityTest {
 
       // Should only match items containing literal dot
       assertFalse(
-          results.contains("txt"),
-          "Literal dot should not match 'txt' (any character pattern)");
+          results.contains("txt"), "Literal dot should not match 'txt' (any character pattern)");
       assertFalse(
-          results.contains("txT"),
-          "Literal dot should not match 'txT' (any character pattern)");
+          results.contains("txT"), "Literal dot should not match 'txT' (any character pattern)");
       assertTrue(
           results.contains("txt.backup"),
           "Literal dot should match 'txt.backup' (contains actual dot)");
@@ -254,8 +242,7 @@ class PSSearchPatternServiceSecurityTest {
 
       // Should only match items with literal "(app)" string
       assertTrue(
-          results.isEmpty(),
-          "Parentheses should be treated as literal characters, not grouping");
+          results.isEmpty(), "Parentheses should be treated as literal characters, not grouping");
     }
 
     @Test
@@ -269,9 +256,7 @@ class PSSearchPatternServiceSecurityTest {
       // Should treat \. as literal backslash followed by dot
       // Only "a.txt" and similar should potentially match (if they have literal \.)
       // Most likely empty since items don't contain backslashes
-      assertTrue(
-          results.isEmpty(),
-          "Backslash should be treated as literal character, not escape");
+      assertTrue(results.isEmpty(), "Backslash should be treated as literal character, not escape");
     }
 
     @Test
@@ -291,8 +276,7 @@ class PSSearchPatternServiceSecurityTest {
       // Should complete quickly (under 100ms) even with many 'a's
       long duration = endTime - startTime;
       assertTrue(
-          duration < 100,
-          "Pattern matching should complete quickly, not hang on ReDoS attack");
+          duration < 100, "Pattern matching should complete quickly, not hang on ReDoS attack");
       assertTrue(results.isEmpty(), "Malicious pattern should not match normal items");
     }
 
@@ -337,9 +321,7 @@ class PSSearchPatternServiceSecurityTest {
 
       // Should not match even though input files match the pattern
       // because the pattern is treated literally
-      assertTrue(
-          results.isEmpty(),
-          "Complex regex pattern should be treated as literal string");
+      assertTrue(results.isEmpty(), "Complex regex pattern should be treated as literal string");
     }
 
     @Test
@@ -347,19 +329,13 @@ class PSSearchPatternServiceSecurityTest {
     void shouldPreserveSpecialCharactersInFilenames() {
       // Some systems allow special characters in filenames
       List<String> items =
-          List.of(
-              "file[2024].txt",
-              "project(final).doc",
-              "data{backup}.xml",
-              "script+test.js");
+          List.of("file[2024].txt", "project(final).doc", "data{backup}.xml", "script+test.js");
 
       // User wants to find files with actual brackets
       List<String> results = service.filterContentByNamePattern(items, "[");
 
       // Should find the file with literal brackets
-      assertTrue(
-          results.contains("file[2024].txt"),
-          "Should find file with literal brackets");
+      assertTrue(results.contains("file[2024].txt"), "Should find file with literal brackets");
       assertFalse(
           results.contains("project(final).doc"),
           "Parentheses file should not match bracket search");
@@ -411,8 +387,7 @@ class PSSearchPatternServiceSecurityTest {
 
       assertDoesNotThrow(
           () -> {
-            service.filterContentByNamePattern(
-                List.of("xxxxxxxxxxxxxxxxxxxxxx"), userInput);
+            service.filterContentByNamePattern(List.of("xxxxxxxxxxxxxxxxxxxxxx"), userInput);
           },
           "Should not throw or hang on ReDoS pattern");
     }

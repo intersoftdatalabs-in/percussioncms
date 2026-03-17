@@ -299,10 +299,10 @@ public class PSSiteDataService extends PSAbstractDataService<PSSite, PSSiteSumma
     if (sum == null) throw new DataServiceLoadException("Could not find site for id: " + id);
     if (includePubInfo) {
       try {
-        long siteId = sum.getSiteId().orElseThrow(
-            () -> new DataServiceLoadException("Site id is missing for summary"));
-        sum.setPubInfo(
-            getPubServerService().getS3PubInfo(new PSGuid(PSTypeEnum.SITE, siteId)));
+        long siteId =
+            sum.getSiteId()
+                .orElseThrow(() -> new DataServiceLoadException("Site id is missing for summary"));
+        sum.setPubInfo(getPubServerService().getS3PubInfo(new PSGuid(PSTypeEnum.SITE, siteId)));
       } catch (Exception e) {
         throw new DataServiceLoadException(e);
       }
@@ -340,7 +340,7 @@ public class PSSiteDataService extends PSAbstractDataService<PSSite, PSSiteSumma
     updatePropsFromSite(site, props);
     // Get the site's class names using PSSiteSection object
     PSSiteSection siteSection = sectionService.loadRoot(site.getName());
-props.setCssClassNames(siteSection.getCssClassNames().orElse(""));
+    props.setCssClassNames(siteSection.getCssClassNames().orElse(""));
 
     return props;
   }
@@ -455,11 +455,12 @@ props.setCssClassNames(siteSection.getCssClassNames().orElse(""));
     section.setTitle(props.getHomePageLinkText().orElse(null));
     section.setFolderPermission(props.getFolderPermission().orElse(null));
     section.setSiteRootSection(true);
-section.setCssClassNames(props.getCssClassNames().orElse(""));
+    section.setCssClassNames(props.getCssClassNames().orElse(""));
 
     updateSiteFromProps(site, props);
 
-      boolean pubServersChanged = siteDao.updateSite(site, newSiteName, props.getDescription().orElse(""));
+    boolean pubServersChanged =
+        siteDao.updateSite(site, newSiteName, props.getDescription().orElse(""));
 
     sectionService.update(section);
 
@@ -554,10 +555,8 @@ section.setCssClassNames(props.getCssClassNames().orElse(""));
 
       for (PSAsset asset : autoListAssets) {
         /* props.getName() returns Optional<String> */
-        updateSiteListAsset(asset,
-            props.getName().orElse(site.getName()),
-            site.getName(),
-            new HashMap<>());
+        updateSiteListAsset(
+            asset, props.getName().orElse(site.getName()), site.getName(), new HashMap<>());
       }
     }
   }
@@ -654,10 +653,10 @@ section.setCssClassNames(props.getCssClassNames().orElse(""));
    */
   private void validateSiteProperties(IPSSite site, PSSiteProperties props)
       throws PSValidationException {
-notNull(props.getName().orElse(null), "Name cannot be null.");
-      notEmpty(props.getName().orElse(""), "Name cannot be empty.");
-      notNull(props.getHomePageLinkText().orElse(null), "Home page link text cannot be null.");
-      notEmpty(props.getHomePageLinkText().orElse(""), "Home page link text cannot be empty.");
+    notNull(props.getName().orElse(null), "Name cannot be null.");
+    notEmpty(props.getName().orElse(""), "Name cannot be empty.");
+    notNull(props.getHomePageLinkText().orElse(null), "Home page link text cannot be null.");
+    notEmpty(props.getHomePageLinkText().orElse(""), "Home page link text cannot be empty.");
 
     String name = props.getName().orElse("");
     String tgtFolderRoot = "//Sites/" + name;
@@ -725,7 +724,7 @@ notNull(props.getName().orElse(null), "Name cannot be null.");
 
     // Filter out sites that are currently getting copied
     var entries = getCopySiteInfo().getEntries();
-      final String newSiteName = entries.isEmpty() ? null : entries.get("Target");
+    final String newSiteName = entries.isEmpty() ? null : entries.get("Target");
     // Java 11 Streams for filtering and mapping
     sums.stream()
         .filter(site -> !StringUtils.equals(site.getName(), newSiteName))

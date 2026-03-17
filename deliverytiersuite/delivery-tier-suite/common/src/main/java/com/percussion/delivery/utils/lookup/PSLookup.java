@@ -69,7 +69,6 @@ public class PSLookup implements List<PSXEntry> {
     return list.toArray();
   }
 
-
   @Override
   public Object[] toArray(Object[] a) {
     return list.toArray(a);
@@ -85,12 +84,10 @@ public class PSLookup implements List<PSXEntry> {
     return list.containsAll(c);
   }
 
-
   @Override
   public boolean addAll(@SuppressWarnings("rawtypes") Collection c) {
     return list.addAll(c);
   }
-
 
   @Override
   public boolean addAll(int index, @SuppressWarnings("rawtypes") Collection c) {

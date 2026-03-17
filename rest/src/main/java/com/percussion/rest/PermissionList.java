@@ -29,7 +29,7 @@ import java.util.Collection;
 @ArraySchema(schema = @Schema(implementation = Permissions.class))
 public class PermissionList extends ArrayList<Permissions> {
   private static final long serialVersionUID = 1L;
-  
+
   public PermissionList(Collection<? extends Permissions> c) {
     super(c);
   }

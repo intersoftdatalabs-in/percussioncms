@@ -125,7 +125,7 @@ public class PSEffectLoggingEffect implements IPSEffect {
 
     PSRelationship current = exCtx.getCurrentRelationship();
     PSRelationship orig = exCtx.getOriginatingRelationship();
-     Set<PSRelationship> processed = exCtx.getProcessedRelationships();
+    Set<PSRelationship> processed = exCtx.getProcessedRelationships();
 
     String o = "EFFECT Context=" + context + "\n";
     o += "Current Relationship\n";

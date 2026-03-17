@@ -18,21 +18,12 @@
 package com.percussion.cx;
 
 import com.percussion.util.PSHttpConnection;
+import com.percussion.webservices.security.data.PSLogin;
 import com.percussion.webservices.securityservices.LoginRequest;
 import com.percussion.webservices.securityservices.LoginResponse;
 import com.percussion.webservices.securityservices.NotAuthenticatedFaultMessage;
 import com.percussion.webservices.securityservices.Security;
-import com.percussion.webservices.security.data.PSLogin;
 import jakarta.xml.ws.BindingProvider;
-import org.apache.commons.lang3.time.DurationFormatUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.json.JSONObject;
-
-import javax.swing.JDialog;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.SwingUtilities;
 import java.awt.Window;
 import java.net.CookieHandler;
 import java.net.CookieManager;
@@ -44,6 +35,14 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
+import javax.swing.JDialog;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.SwingUtilities;
+import org.apache.commons.lang3.time.DurationFormatUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.json.JSONObject;
 
 public class PSCESessionManager implements Runnable {
   private static final String LOGOUT_NOW = "Logout Now";
@@ -313,8 +312,7 @@ public class PSCESessionManager implements Runnable {
       Security securitySession = PSWsUtils.getSecurityService();
 
       // Set HTTP connection and receive timeouts via JAX-WS BindingProvider
-      Map<String, Object> requestContext =
-          ((BindingProvider) securitySession).getRequestContext();
+      Map<String, Object> requestContext = ((BindingProvider) securitySession).getRequestContext();
       requestContext.put("jakarta.xml.ws.client.connectionTimeout", timeoutInMs);
       requestContext.put("jakarta.xml.ws.client.receiveTimeout", timeoutInMs);
 
@@ -361,8 +359,7 @@ public class PSCESessionManager implements Runnable {
         log.debug("Failed to login. Resetting applet", e);
       } else {
         log.info(
-            "Header login failed. Session may have expired or connection lost {}",
-            e.getMessage());
+            "Header login failed. Session may have expired or connection lost {}", e.getMessage());
       }
       PSContentExplorerApplication.getBaseFrame().logout();
       isLoggedIn = false;

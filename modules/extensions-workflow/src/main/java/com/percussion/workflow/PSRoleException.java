@@ -24,6 +24,7 @@ import com.percussion.error.PSException;
  */
 public class PSRoleException extends PSException {
   private static final long serialVersionUID = 1L;
+
   /**
    * Coonstruct the exception using error message string.
    *

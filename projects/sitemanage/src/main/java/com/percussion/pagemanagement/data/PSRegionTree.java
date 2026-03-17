@@ -15,7 +15,6 @@
  * limitations under the License.
  */
 package com.percussion.pagemanagement.data;
-import java.io.Serializable;
 
 import com.fasterxml.jackson.annotation.JsonRootName;
 import jakarta.xml.bind.annotation.XmlRootElement;

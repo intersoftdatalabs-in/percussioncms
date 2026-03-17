@@ -21,8 +21,8 @@ import com.percussion.taxonomy.domain.*;
 import java.util.Collection;
 
 /**
- * Service interface for managing Language entities.
- * Provides CRUD operations and queries for supported languages in the taxonomy system.
+ * Service interface for managing Language entities. Provides CRUD operations and queries for
+ * supported languages in the taxonomy system.
  */
 public interface LanguageServiceInf {
 

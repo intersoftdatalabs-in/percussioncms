@@ -208,7 +208,9 @@ public class PSCommunityMappingsPage extends PSWizardPanel {
       return m_sourceCommunities;
     }
 
-    /** @return the community and content type mapper. */
+    /**
+     * @return the community and content type mapper.
+     */
     public PSCommunityContentTypeMapperCataloger getCommCtMapper() {
       return m_commCtMapper;
     }

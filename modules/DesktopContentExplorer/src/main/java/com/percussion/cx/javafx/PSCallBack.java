@@ -27,10 +27,9 @@ import javafx.stage.Stage;
 import javafx.util.Callback;
 
 /**
- * Callback handler for JavaFX WebView popup windows.
- * Implements the PopupFeatures callback interface to create and manage
- * popup browser windows with custom dimensions and behavior.
- * 
+ * Callback handler for JavaFX WebView popup windows. Implements the PopupFeatures callback
+ * interface to create and manage popup browser windows with custom dimensions and behavior.
+ *
  * @since 8.0.0
  */
 public final class PSCallBack implements Callback<PopupFeatures, WebEngine> {
@@ -44,7 +43,7 @@ public final class PSCallBack implements Callback<PopupFeatures, WebEngine> {
 
   /**
    * Creates a new popup callback handler.
-   * 
+   *
    * @param popupWebView the WebView to use for the popup window
    * @param width the width of the popup window
    * @param height the height of the popup window
@@ -59,7 +58,7 @@ public final class PSCallBack implements Callback<PopupFeatures, WebEngine> {
 
   /**
    * Creates a new popup WebEngine for the given popup features.
-   * 
+   *
    * @param popupFeatures the popup configuration features
    * @return the WebEngine for the popup window
    */
@@ -87,9 +86,7 @@ public final class PSCallBack implements Callback<PopupFeatures, WebEngine> {
     return getPopupWebView().getEngine();
   }
 
-  /**
-   * Sets up an event handler to close the popup stage when it becomes invisible.
-   */
+  /** Sets up an event handler to close the popup stage when it becomes invisible. */
   public void setCloseEvent() {
     engine.setOnVisibilityChanged(
         new EventHandler<WebEvent<Boolean>>() {
@@ -106,7 +103,7 @@ public final class PSCallBack implements Callback<PopupFeatures, WebEngine> {
 
   /**
    * Sets the WebView to use for the popup window.
-   * 
+   *
    * @param popupWebView the WebView to set
    */
   public void setPopupWebView(WebView popupWebView) {
@@ -115,7 +112,7 @@ public final class PSCallBack implements Callback<PopupFeatures, WebEngine> {
 
   /**
    * Gets the WebEngine associated with this callback.
-   * 
+   *
    * @return the WebEngine instance
    */
   public WebEngine getEngine() {
@@ -124,7 +121,7 @@ public final class PSCallBack implements Callback<PopupFeatures, WebEngine> {
 
   /**
    * Sets the WebEngine to use.
-   * 
+   *
    * @param engine the WebEngine to set
    */
   public void setEngine(WebEngine engine) {
@@ -133,7 +130,7 @@ public final class PSCallBack implements Callback<PopupFeatures, WebEngine> {
 
   /**
    * Gets the popup WebView.
-   * 
+   *
    * @return the popup WebView
    */
   public WebView getPopupWebView() {

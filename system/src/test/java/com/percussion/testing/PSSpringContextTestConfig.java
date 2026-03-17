@@ -17,16 +17,14 @@
 
 package com.percussion.testing;
 
-import com.percussion.utils.annotations.IgnoreInWebAppSpringContext;
 import org.junit.jupiter.api.Disabled;
 
-/** @Configuration
-@ImportResource({        "classpath:/com/percussion/testing/test-spring-context.xml",
-"file:../modules/perc-distribution-tree/target/distribution/jetty/base/webapps/Rhythmyx/WEB-INF/config/spring/" + PSServletUtils.BEANS_FILE_NAME,
-"file:../modules/perc-distribution-tree/target/distribution/jetty/base/webapps/Rhythmyx/WEB-INF/config/spring/" + PSServletUtils.DESIGN_BEANS_FILE_NAME
-})
+/**
+ * @Configuration @ImportResource({ "classpath:/com/percussion/testing/test-spring-context.xml",
+ * "file:../modules/perc-distribution-tree/target/distribution/jetty/base/webapps/Rhythmyx/WEB-INF/config/spring/"
+ * + PSServletUtils.BEANS_FILE_NAME,
+ * "file:../modules/perc-distribution-tree/target/distribution/jetty/base/webapps/Rhythmyx/WEB-INF/config/spring/"
+ * + PSServletUtils.DESIGN_BEANS_FILE_NAME })
  */
 @Disabled
-public class PSSpringContextTestConfig {
-
-}
+public class PSSpringContextTestConfig {}

@@ -24,16 +24,16 @@ import java.net.URISyntaxException;
 import java.net.URL;
 
 /**
- * Utility class for opening URLs in the system's default web browser.
- * Provides methods to launch browser pages from both URI and URL objects.
- * 
+ * Utility class for opening URLs in the system's default web browser. Provides methods to launch
+ * browser pages from both URI and URL objects.
+ *
  * @since 8.0.0
  */
 public class PSBrowserUtils {
 
   /**
    * Opens the specified URI in the system's default web browser.
-   * 
+   *
    * @param uri the URI to open; may be {@code null}
    */
   public static void openWebpage(URI uri) {
@@ -49,7 +49,7 @@ public class PSBrowserUtils {
 
   /**
    * Opens the specified URL in the system's default web browser.
-   * 
+   *
    * @param url the URL to open; may be {@code null}
    */
   public static void openWebpage(URL url) {
@@ -62,7 +62,7 @@ public class PSBrowserUtils {
 
   /**
    * Test method to verify browser opening functionality.
-   * 
+   *
    * @param args command line arguments (not used)
    * @throws MalformedURLException if the test URL is invalid
    */
@@ -76,7 +76,7 @@ public class PSBrowserUtils {
 
   /**
    * Converts a string representation to a URL string.
-   * 
+   *
    * @param str the string to convert
    * @return the external form of the URL, or {@code null} if the string is malformed
    */
@@ -90,7 +90,7 @@ public class PSBrowserUtils {
 
   /**
    * Converts a string representation to a URL object.
-   * 
+   *
    * @param str the string to convert
    * @return the URL object, or {@code null} if the string is malformed
    */

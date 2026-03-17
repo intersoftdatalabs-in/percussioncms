@@ -22,21 +22,13 @@
  */
 package test.percussion.pso.preview;
 
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
+import static org.mockito.Mockito.*;
 
 import com.percussion.pso.preview.AbstractMenuController;
 import com.percussion.pso.preview.ActionSiteForwardingController;
 import com.percussion.pso.preview.SiteFolderFinder;
-import com.percussion.pso.preview.SiteFolderLocation;
 import com.percussion.services.assembly.IPSAssemblyService;
-import com.percussion.services.sitemgr.IPSSite;
-import com.percussion.system.utils.IPSHtmlParameters;
 import com.percussion.webservices.security.IPSSecurityWs;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.BeforeEach;
@@ -45,11 +37,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import static org.mockito.Mockito.*;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
-import org.springframework.web.servlet.ModelAndView;
-import org.springframework.web.servlet.view.RedirectView;
 
 /**
  * @author DavidBenua
@@ -58,12 +47,9 @@ import org.springframework.web.servlet.view.RedirectView;
 public class ActionSiteForwardingControllerTest {
   private static final Logger log = LogManager.getLogger(ActionSiteForwardingControllerTest.class);
 
-  @Mock
-  IPSAssemblyService asm;
-  @Mock
-  IPSSecurityWs secws;
-  @Mock
-  SiteFolderFinder finder;
+  @Mock IPSAssemblyService asm;
+  @Mock IPSSecurityWs secws;
+  @Mock SiteFolderFinder finder;
 
   ActionSiteForwardingController cut;
   MockHttpServletRequest req;

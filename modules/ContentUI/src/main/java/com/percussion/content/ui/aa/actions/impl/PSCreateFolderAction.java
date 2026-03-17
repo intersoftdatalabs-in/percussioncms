@@ -22,21 +22,22 @@ import com.percussion.content.ui.browse.PSContentBrowser;
 import java.util.Map;
 
 /**
- * Action to create a new folder in the content management system.
- * Supports both folder and site folder creation.
- * 
+ * Action to create a new folder in the content management system. Supports both folder and site
+ * folder creation.
+ *
  * <p>Required parameters:
+ *
  * <ul>
- *   <li>{@link #PARAM_NAME_PARENT_FOLDER_PATH} - Parent folder path</li>
- *   <li>{@link #PARAM_NAME_CATEGORY} - Either "folders" or "sites"</li>
- *   <li>folderName - Name of the new folder</li>
+ *   <li>{@link #PARAM_NAME_PARENT_FOLDER_PATH} - Parent folder path
+ *   <li>{@link #PARAM_NAME_CATEGORY} - Either "folders" or "sites"
+ *   <li>folderName - Name of the new folder
  * </ul>
  */
 public class PSCreateFolderAction extends PSAAActionBase {
 
   /**
    * Executes the create folder action.
-   * 
+   *
    * @param params action parameters including parentFolderPath, folderName, and category
    * @return PSActionResponse with the created folder path
    * @throws PSAAClientActionException if required parameters are missing or creation fails

@@ -43,6 +43,7 @@ import javax.swing.border.EmptyBorder;
  */
 public class PSContentExplorerStatusDialog extends PSDialog {
   private static final long serialVersionUID = 1L;
+
   /**
    * Constructs this dialog with specified process monitor.
    *
@@ -187,6 +188,7 @@ public class PSContentExplorerStatusDialog extends PSDialog {
     if (selection == JOptionPane.NO_OPTION) onCancel();
     else m_monitor.setStatus(PSProcessMonitor.STATUS_RUN);
   }
+
   /**
    * Displays the supplied error message to the user and returns the users selection.
    *
@@ -228,6 +230,7 @@ public class PSContentExplorerStatusDialog extends PSDialog {
 
     return Integer.parseInt(optPane.getValue().toString());
   }
+
   /**
    * The progress bar for the currently monitored job. Never <code>null</code> after it is
    * initialized.
@@ -258,6 +261,7 @@ public class PSContentExplorerStatusDialog extends PSDialog {
 
   /** Constant for html close tag */
   public static final String HTML_CLOSE_TAG = "</html>";
+
   /** Constant for content type text/html */
   public static final String TEXT_BY_HTML = "text/html";
 

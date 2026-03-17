@@ -22,8 +22,8 @@ import java.util.Collection;
 import java.util.Map;
 
 /**
- * Service interface for managing Value entities.
- * Provides CRUD operations and batch operations for attribute values associated with nodes.
+ * Service interface for managing Value entities. Provides CRUD operations and batch operations for
+ * attribute values associated with nodes.
  */
 public interface ValueServiceInf {
 
@@ -57,8 +57,8 @@ public interface ValueServiceInf {
   public void saveValue(Value value);
 
   /**
-   * Saves multiple values from HTTP request parameters.
-   * Processes the parameters map and creates/updates values for the given node and attributes.
+   * Saves multiple values from HTTP request parameters. Processes the parameters map and
+   * creates/updates values for the given node and attributes.
    *
    * @param params the HTTP request parameters containing value data
    * @param attributes the collection of attributes to process
@@ -73,5 +73,4 @@ public interface ValueServiceInf {
       Node node,
       int langID,
       String user_name);
-
 }

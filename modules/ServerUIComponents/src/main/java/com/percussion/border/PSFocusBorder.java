@@ -15,7 +15,6 @@
  * limitations under the License.
  */
 package com.percussion.border;
-import java.io.Serializable;
 
 import com.percussion.cx.PSDisplayOptions;
 import java.awt.*;
@@ -23,6 +22,7 @@ import java.awt.event.ContainerEvent;
 import java.awt.event.ContainerListener;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
+import java.io.Serializable;
 import javax.swing.*;
 import javax.swing.border.AbstractBorder;
 import javax.swing.border.Border;
@@ -38,6 +38,7 @@ import javax.swing.border.CompoundBorder;
  */
 public class PSFocusBorder extends AbstractBorder implements FocusListener, Serializable {
   private static final long serialVersionUID = 1L;
+
   /**
    * Ctor that calls {@link #PSFocusBorder(int, PSDisplayOptions, boolean) PSFocusBorder(thickness,
    * options, false)}.

@@ -15,7 +15,6 @@
  * limitations under the License.
  */
 package com.percussion.webui.tags;
-import java.io.Serializable;
 
 import com.percussion.i18n.PSTmxResourceBundle;
 import jakarta.servlet.jsp.JspException;
@@ -27,48 +26,51 @@ import org.xml.sax.SAXException;
 
 /**
  * JSP tag handler that initializes TMX (Translation Memory eXchange) settings for the page.
- * 
- * <p>This tag sets up the language and optional key prefixes for the translation cache,
- * making localized messages available to other TMX tags on the page.</p>
- * 
- * <p>Usage example:</p>
+ *
+ * <p>This tag sets up the language and optional key prefixes for the translation cache, making
+ * localized messages available to other TMX tags on the page.
+ *
+ * <p>Usage example:
+ *
  * <pre>
  * &lt;tmx:settings lang="en-us" prefixes="myapp,common"/&gt;
  * </pre>
- * 
- * <p>Attributes:</p>
+ *
+ * <p>Attributes:
+ *
  * <ul>
- *   <li>{@code lang} - language code (default: "en-us")</li>
- *   <li>{@code prefixes} - comma-separated key prefixes to load (default: all keys)</li>
- *   <li>{@code debug} - set to "true" to display raw keys when translations are missing</li>
+ *   <li>{@code lang} - language code (default: "en-us")
+ *   <li>{@code prefixes} - comma-separated key prefixes to load (default: all keys)
+ *   <li>{@code debug} - set to "true" to display raw keys when translations are missing
  * </ul>
- * 
- * <p>After processing, this tag sets page context attributes:</p>
+ *
+ * <p>After processing, this tag sets page context attributes:
+ *
  * <ul>
- *   <li>{@code sys_lang} - the configured language code</li>
- *   <li>{@code debug} - the debug flag</li>
+ *   <li>{@code sys_lang} - the configured language code
+ *   <li>{@code debug} - the debug flag
  * </ul>
- * 
+ *
  * @author erikserating
  */
 public class TmxSettingsTag extends TagSupport {
   private static final long serialVersionUID = 1L;
-  
+
   /** Comma-separated list of key prefixes to load from the translation bundle. */
   private String prefixes;
-  
+
   /** Language code for translations (e.g., "en-us", "fr"). */
   private String lang = DEFAULT_LANG;
-  
+
   /** Debug flag - when true, displays raw keys if translation is missing. */
   private String debug = "false";
-  
+
   /** Default language code. */
   private static final String DEFAULT_LANG = "en-us";
 
   /**
    * Sets the comma-separated key prefixes to load.
-   * 
+   *
    * @param prefixes the prefixes, or null/empty for all keys
    */
   public void setPrefixes(String prefixes) {
@@ -77,7 +79,7 @@ public class TmxSettingsTag extends TagSupport {
 
   /**
    * Sets the language code for translations.
-   * 
+   *
    * @param lang the language code (e.g., "en-us", "fr")
    */
   public void setLang(String lang) {
@@ -89,7 +91,7 @@ public class TmxSettingsTag extends TagSupport {
 
   /**
    * Sets the debug flag for displaying raw keys.
-   * 
+   *
    * @param debug "true" to enable debug mode
    */
   public void setDebug(String debug) {

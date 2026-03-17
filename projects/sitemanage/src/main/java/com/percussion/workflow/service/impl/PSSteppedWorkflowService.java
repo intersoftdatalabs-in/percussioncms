@@ -87,13 +87,13 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.stream.Collectors;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -473,8 +473,10 @@ public class PSSteppedWorkflowService
       // Check whether there are any items in this workflow
       Collection<Integer> cids = null;
       try {
-        cids = cmsObjectMgr.findContentIdsByWorkflow(workflow.getGUID().getUUID())
-                  .collect(Collectors.toList());
+        cids =
+            cmsObjectMgr
+                .findContentIdsByWorkflow(workflow.getGUID().getUUID())
+                .collect(Collectors.toList());
       } catch (Exception e) {
         log.debug("Failed to find the items by workflow while deleting the workflow:", e);
         throw new PSWorkflowEditorServiceException(
@@ -808,8 +810,9 @@ public class PSSteppedWorkflowService
       Collection<Integer> cids = null;
       try {
         cids =
-            cmsObjectMgr.findContentIdsByWorkflowStatus(
-                workflow.getGUID().getUUID(), currentState.getGUID().getUUID())
+            cmsObjectMgr
+                .findContentIdsByWorkflowStatus(
+                    workflow.getGUID().getUUID(), currentState.getGUID().getUUID())
                 .collect(Collectors.toList());
       } catch (Exception e) {
         log.error(

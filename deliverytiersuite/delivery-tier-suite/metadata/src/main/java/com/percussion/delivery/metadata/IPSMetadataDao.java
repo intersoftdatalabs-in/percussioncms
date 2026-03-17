@@ -28,16 +28,16 @@ public interface IPSMetadataDao {
   /**
    * Deletes multiple metadata index entries.
    *
-   * @param entriesToDelete collection of page path strings that identifies the index entries. Cannot be
-   *     <code>null</code> may be empty.
+   * @param entriesToDelete collection of page path strings that identifies the index entries.
+   *     Cannot be <code>null</code> may be empty.
    */
   public void delete(Collection<String> entriesToDelete);
 
   /**
    * Deletes a single metadata entry.
    *
-   * @param pagepath The pagepath of the metadata entry that should be deleted. Cannot be
-   *     <code>null</code> nor empty.
+   * @param pagepath The pagepath of the metadata entry that should be deleted. Cannot be <code>null
+   *     </code> nor empty.
    * @return <code>true</code> if a delete operation actually occurred.
    */
   public boolean delete(String pagepath);
@@ -61,10 +61,9 @@ public interface IPSMetadataDao {
   public void deleteAllMetadataEntries();
 
   /**
-   * Deletes all entries for a site name.  Originally implemented
-   * to delete stale entries for a site that was renamed.  Fixing
-   * an issue with these entries not being removed on publish after
-   * the site is renamed.
+   * Deletes all entries for a site name. Originally implemented to delete stale entries for a site
+   * that was renamed. Fixing an issue with these entries not being removed on publish after the
+   * site is renamed.
    *
    * @param prevSiteName the name of the site before site rename.
    * @param newSiteName the name of the site after rename.

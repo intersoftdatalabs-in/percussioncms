@@ -5,5 +5,6 @@ import org.junit.jupiter.api.Test;
 
 @Disabled("stubbed next batch failures")
 public class PSItemWorkflowRestServiceTest {
-    @Test public void placeholder() {}
+  @Test
+  public void placeholder() {}
 }

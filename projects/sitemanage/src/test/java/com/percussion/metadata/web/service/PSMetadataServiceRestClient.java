@@ -18,6 +18,7 @@
 
 package com.percussion.metadata.web.service;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.percussion.dashboardmanagement.data.PSDashboardConfiguration;
 import com.percussion.dashboardmanagement.data.PSGadget;
 import com.percussion.metadata.data.PSMetadata;
@@ -25,9 +26,7 @@ import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.share.dao.PSSerializerUtils;
 import com.percussion.share.test.PSDataServiceRestClient;
 import jakarta.ws.rs.core.MediaType;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -43,7 +42,8 @@ public class PSMetadataServiceRestClient extends PSDataServiceRestClient<PSMetad
     super(PSMetadata.class, url, "/Rhythmyx/services/metadatamanagement/metadata/");
   }
 
-  public void save(Map<String, Object> obj) throws com.fasterxml.jackson.core.JsonProcessingException {
+  public void save(Map<String, Object> obj)
+      throws com.fasterxml.jackson.core.JsonProcessingException {
     POST(getPath(), new ObjectMapper().writeValueAsString(obj));
   }
 
@@ -84,7 +84,8 @@ public class PSMetadataServiceRestClient extends PSDataServiceRestClient<PSMetad
   }
 
   private Map<String, Object> getMetadataJsonForSpecificGadgetSettings(
-      PSDashboardConfiguration dashboardConfig) throws com.fasterxml.jackson.core.JsonProcessingException {
+      PSDashboardConfiguration dashboardConfig)
+      throws com.fasterxml.jackson.core.JsonProcessingException {
     var userConfig = new LinkedHashMap<String, Object>();
     for (var gad : dashboardConfig.getGadgets()) {
       var specificGadgetSettings = new LinkedHashMap<String, Object>();
@@ -97,18 +98,21 @@ public class PSMetadataServiceRestClient extends PSDataServiceRestClient<PSMetad
     userPrefJson.put("userprefs", userConfig);
 
     var mapper = new ObjectMapper();
-    var metadata = new PSMetadata(GADGETS_PREFS_KEY, "\"" + mapper.writeValueAsString(userPrefJson) + "\"");
+    var metadata =
+        new PSMetadata(GADGETS_PREFS_KEY, "\"" + mapper.writeValueAsString(userPrefJson) + "\"");
     var metadataJson = new LinkedHashMap<String, Object>();
     metadataJson.put("metadata", mapper.convertValue(metadata, Object.class));
     return metadataJson;
   }
 
-  private Map<String, Object> getMetadataJson(PSDashboardConfiguration dashboardConfig) throws com.fasterxml.jackson.core.JsonProcessingException {
+  private Map<String, Object> getMetadataJson(PSDashboardConfiguration dashboardConfig)
+      throws com.fasterxml.jackson.core.JsonProcessingException {
     var dashboardConfigJson = new LinkedHashMap<String, Object>();
     var mapper = new ObjectMapper();
     dashboardConfigJson.put("DashboardConfig", mapper.convertValue(dashboardConfig, Object.class));
 
-    var metadata = new PSMetadata(GADGETS_KEY, "\"" + mapper.writeValueAsString(dashboardConfigJson) + "\"");
+    var metadata =
+        new PSMetadata(GADGETS_KEY, "\"" + mapper.writeValueAsString(dashboardConfigJson) + "\"");
     var metadataJson = new LinkedHashMap<String, Object>();
     metadataJson.put("metadata", mapper.convertValue(metadata, Object.class));
     return metadataJson;

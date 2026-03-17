@@ -17,11 +17,11 @@
 package com.percussion.pso.restservice.utils;
 
 import java.io.Serializable;
-import org.ehcache.Cache;
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.ehcache.Cache;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.util.Assert;
 

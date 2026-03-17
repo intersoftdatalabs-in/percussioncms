@@ -43,7 +43,6 @@ public abstract class PSAbstractFilter<T> implements Predicate {
     return rvalue;
   }
 
-
   @Override
   public boolean evaluate(Object obj) {
     return shouldKeep((T) obj);

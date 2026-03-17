@@ -32,6 +32,7 @@ import com.percussion.server.IPSRequestContext;
 import com.percussion.server.PSServer;
 import com.percussion.utils.request.PSRequestInfo;
 import java.io.IOException;
+import java.io.StringReader;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.http.HttpClient;
@@ -40,7 +41,6 @@ import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Base64;
-import java.io.StringReader;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -161,23 +161,28 @@ public class PSProxyQueryResource extends PSDefaultExtension implements IPSResul
         try {
           URLValidation.validateURLString(url);
         } catch (SecurityException e) {
-          log.error("URL validation failed for external request: {}", PSExceptionUtils.getMessageForLog(e));
+          log.error(
+              "URL validation failed for external request: {}",
+              PSExceptionUtils.getMessageForLog(e));
           throw new PSExtensionProcessingException(0, "Invalid URL: " + e.getMessage());
         }
       }
 
-      HttpClient client = HttpClient.newBuilder().followRedirects(HttpClient.Redirect.NORMAL).build();
+      HttpClient client =
+          HttpClient.newBuilder().followRedirects(HttpClient.Redirect.NORMAL).build();
       HttpRequest.Builder requestBuilder = HttpRequest.newBuilder(requestUri).GET();
 
       if (!internalRequest && !StringUtils.isEmpty(user)) {
         String credentials = user + ":" + StringUtils.defaultString(password);
-        String encoded = Base64.getEncoder().encodeToString(credentials.getBytes(StandardCharsets.UTF_8));
+        String encoded =
+            Base64.getEncoder().encodeToString(credentials.getBytes(StandardCharsets.UTF_8));
         requestBuilder.header("Authorization", "Basic " + encoded);
       }
 
       try {
         HttpResponse<String> response =
-            client.send(requestBuilder.build(), HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
+            client.send(
+                requestBuilder.build(), HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
         int statusCode = response.statusCode();
 
         if (statusCode != 200) {

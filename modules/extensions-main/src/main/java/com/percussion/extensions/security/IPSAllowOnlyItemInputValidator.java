@@ -19,19 +19,20 @@ package com.percussion.extensions.security;
 
 /**
  * Interface for validating input values against specific constraints.
- * 
- * <p>This interface defines the contract for input validators that can be used
- * to sanitize and validate user input in Rhythmyx extensions. Implementations
- * should ensure that only valid, expected values are allowed through.</p>
- * 
- * <p>Common use cases include:</p>
+ *
+ * <p>This interface defines the contract for input validators that can be used to sanitize and
+ * validate user input in Rhythmyx extensions. Implementations should ensure that only valid,
+ * expected values are allowed through.
+ *
+ * <p>Common use cases include:
+ *
  * <ul>
- *   <li>Ensuring GUIDs follow the expected format</li>
- *   <li>Restricting numeric fields to valid integer ranges</li>
- *   <li>Validating file paths for security</li>
- *   <li>Allowing only specific characters in input</li>
+ *   <li>Ensuring GUIDs follow the expected format
+ *   <li>Restricting numeric fields to valid integer ranges
+ *   <li>Validating file paths for security
+ *   <li>Allowing only specific characters in input
  * </ul>
- * 
+ *
  * @see PSAllowOnlyGuidValues
  * @see PSAllowOnlyIntegerValues
  * @see PSAllowOnlyNumericValues
@@ -42,14 +43,13 @@ public interface IPSAllowOnlyItemInputValidator {
 
   /**
    * Validates and potentially sanitizes the provided input value.
-   * 
-   * <p>This method should return the sanitized value if valid, or an empty string
-   * or null if the value does not meet the validation criteria. The exact behavior
-   * depends on the implementation.</p>
-   * 
+   *
+   * <p>This method should return the sanitized value if valid, or an empty string or null if the
+   * value does not meet the validation criteria. The exact behavior depends on the implementation.
+   *
    * @param value the input value to validate. May be null depending on implementation.
-   * @param options optional configuration string that controls validation behavior.
-   *                The format depends on the implementation. May be null.
+   * @param options optional configuration string that controls validation behavior. The format
+   *     depends on the implementation. May be null.
    * @return the validated/sanitized value, or an empty string/null if validation fails.
    */
   public String validate(String value, String options);

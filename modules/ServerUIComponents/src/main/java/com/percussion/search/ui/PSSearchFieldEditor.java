@@ -232,7 +232,6 @@ public class PSSearchFieldEditor extends JPanel {
    * @param m The filter map, may be <code>null</code>.
    * @param cat The field catalog, assumed not <code>null</code>.
    */
-
   private void init(Iterator c, Map m, PSContentEditorFieldCataloger cat) {
     // Save the collection
     m_fields = c;

@@ -51,7 +51,7 @@ public class PSJAXBContextResolver implements ContextResolver<ObjectMapper> {
         .setAnnotationIntrospector(
             AnnotationIntrospector.pair(
                 new JacksonAnnotationIntrospector(),
-            new JakartaXmlBindAnnotationIntrospector(TypeFactory.defaultInstance())));
+                new JakartaXmlBindAnnotationIntrospector(TypeFactory.defaultInstance())));
   }
 
   @Override

@@ -260,7 +260,13 @@ public abstract class PSDesktopExplorerWindow extends JFrame {
 
         getEngine()
             .executeScript(
-                "if(typeof perfInserted == 'undefined') {onerror = function(msg,url,line) { java.log(msg +', url: '+url+', line:'+line); };console.log = function(message){ java.log(message); };window.close = function() { return java.closeWindow();};window.open = function(url, name, specs, replace) { win = java.openWindow(url, name, specs , replace); java.log('window open='+win); return win;};percInserted=true;console.log('inserted perc js overrides')}");
+                "if(typeof perfInserted == 'undefined') {onerror = function(msg,url,line) {"
+                    + " java.log(msg +', url: '+url+', line:'+line); };console.log ="
+                    + " function(message){ java.log(message); };window.close = function() { return"
+                    + " java.closeWindow();};window.open = function(url, name, specs, replace) {"
+                    + " win = java.openWindow(url, name, specs , replace); java.log('window"
+                    + " open='+win); return win;};percInserted=true;console.log('inserted perc js"
+                    + " overrides')}");
       }
       if (firebug.get()) showFirebug();
     }
@@ -274,7 +280,15 @@ public abstract class PSDesktopExplorerWindow extends JFrame {
   public void showFirebug() {
     getEngine()
         .executeScript(
-            "if (!document.getElementById('FirebugLite')){E = document['createElement' + 'NS'] && document.documentElement.namespaceURI;E = E ? document['createElement' + 'NS'](E, 'script') : document['createElement']('script');E['setAttribute']('id', 'FirebugLite');E['setAttribute']('src', 'https://getfirebug.com/' + 'firebug-lite.js' + '#startOpened');E['setAttribute']('FirebugLite', '4');(document['getElementsByTagName']('head')[0] || document['getElementsByTagName']('body')[0]).appendChild(E);E = new Image;E['setAttribute']('src', 'https://getfirebug.com/' + '#startOpened');}");
+            "if (!document.getElementById('FirebugLite')){E = document['createElement' + 'NS'] &&"
+                + " document.documentElement.namespaceURI;E = E ? document['createElement' +"
+                + " 'NS'](E, 'script') :"
+                + " document['createElement']('script');E['setAttribute']('id',"
+                + " 'FirebugLite');E['setAttribute']('src', 'https://getfirebug.com/' +"
+                + " 'firebug-lite.js' + '#startOpened');E['setAttribute']('FirebugLite',"
+                + " '4');(document['getElementsByTagName']('head')[0] ||"
+                + " document['getElementsByTagName']('body')[0]).appendChild(E);E = new"
+                + " Image;E['setAttribute']('src', 'https://getfirebug.com/' + '#startOpened');}");
   }
 
   public boolean isClosed() {

@@ -22,26 +22,13 @@
  */
 package test.percussion.pso.preview;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.fail;
+import static org.mockito.Mockito.*;
 
 import com.percussion.pso.preview.MultiSiteResolutionController;
-import com.percussion.pso.preview.PreviewLocation;
 import com.percussion.pso.preview.SiteFolderFinder;
-import com.percussion.pso.preview.SiteFolderLocation;
 import com.percussion.pso.preview.UrlBuilder;
 import com.percussion.services.assembly.IPSAssemblyService;
-import com.percussion.services.assembly.IPSAssemblyTemplate;
-import com.percussion.services.catalog.PSTypeEnum;
 import com.percussion.services.guidmgr.IPSGuidManager;
-import com.percussion.services.guidmgr.data.PSGuid;
-import com.percussion.services.sitemgr.IPSSite;
-import com.percussion.system.utils.IPSHtmlParameters;
-import com.percussion.utils.guid.IPSGuid;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.BeforeEach;
@@ -50,10 +37,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import static org.mockito.Mockito.*;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
-import org.springframework.web.servlet.ModelAndView;
 
 /**
  * @author DavidBenua
@@ -64,14 +49,10 @@ public class MultiSiteResolutionControllerTest {
   MultiSiteResolutionController cut;
   MockHttpServletRequest req;
   MockHttpServletResponse resp;
-  @Mock
-  IPSGuidManager gmgr;
-  @Mock
-  IPSAssemblyService asm;
-  @Mock
-  SiteFolderFinder finder;
-  @Mock
-  UrlBuilder builder;
+  @Mock IPSGuidManager gmgr;
+  @Mock IPSAssemblyService asm;
+  @Mock SiteFolderFinder finder;
+  @Mock UrlBuilder builder;
 
   /**
    * @throws Exception
@@ -94,7 +75,6 @@ public class MultiSiteResolutionControllerTest {
    * jakarta.servlet.http.HttpServletResponse)}.
    */
   @Test
-
   @Disabled("Test is failing") // TODO: Fix me
   public final void testHandleRequestInternalHttpServletRequestHttpServletResponse() {
     // disabled - needs rewrite with Mockito

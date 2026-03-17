@@ -35,6 +35,7 @@ import org.w3c.dom.Element;
  */
 public class PSColumnWidthsOption implements IPSClientObjects {
   static Logger log = LogManager.getLogger(PSColumnWidthsOption.class);
+
   /** Empty constructor. */
   public PSColumnWidthsOption() {}
 
@@ -52,7 +53,9 @@ public class PSColumnWidthsOption implements IPSClientObjects {
     }
   }
 
-  /** @see IPSClientObjects */
+  /**
+   * @see IPSClientObjects
+   */
   public void fromXml(Element sourceNode) throws PSContentExplorerException {
     if (sourceNode == null) throw new IllegalArgumentException("options Element must not be null");
     try {
@@ -78,7 +81,9 @@ public class PSColumnWidthsOption implements IPSClientObjects {
     }
   }
 
-  /** @see IPSClientObjects */
+  /**
+   * @see IPSClientObjects
+   */
   public Element toXml(Document doc) {
     // create root and its attributes
     Element root = doc.createElement(ELEM_COLUMN_WIDTHS_OPTION);

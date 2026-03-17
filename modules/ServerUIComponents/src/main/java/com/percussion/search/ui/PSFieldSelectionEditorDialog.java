@@ -1246,7 +1246,6 @@ public class PSFieldSelectionEditorDialog extends PSDialog {
     }
 
     /** Removes all selected rows in the <code>m_selectedTable</code> table. */
-
     private void removeSelectedRows() {
       DefaultTableModel dtm = ((DefaultTableModel) m_table.getModel());
       ListSelectionModel lsm = m_table.getSelectionModel();

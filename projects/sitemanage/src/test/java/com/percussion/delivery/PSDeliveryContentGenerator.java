@@ -21,5 +21,5 @@
 package com.percussion.delivery;
 
 public class PSDeliveryContentGenerator {
-    // placeholder class for compilation
+  // placeholder class for compilation
 }

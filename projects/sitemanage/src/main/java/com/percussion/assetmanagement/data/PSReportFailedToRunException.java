@@ -18,7 +18,6 @@
 // REFACTORED: CP-JAVA11
 
 package com.percussion.assetmanagement.data;
-import java.io.Serializable;
 
 /** Exception thrown when a report fails to run. */
 public class PSReportFailedToRunException extends Exception {

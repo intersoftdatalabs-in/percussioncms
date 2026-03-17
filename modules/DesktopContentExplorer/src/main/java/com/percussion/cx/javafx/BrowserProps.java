@@ -22,10 +22,10 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /**
- * Parses and stores browser window properties from a comma-separated string.
- * Supports toolbar, location, directories, status, menubar, scrollbars, resizable, 
- * left, width, and height properties.
- * 
+ * Parses and stores browser window properties from a comma-separated string. Supports toolbar,
+ * location, directories, status, menubar, scrollbars, resizable, left, width, and height
+ * properties.
+ *
  * @since 8.0.0
  */
 public class BrowserProps {
@@ -44,7 +44,7 @@ public class BrowserProps {
 
   /**
    * Creates a new BrowserProps instance by parsing the given properties string.
-   * 
+   *
    * @param props comma-separated window properties (e.g., "toolbar=0,location=0,status=1")
    */
   public BrowserProps(String props) {

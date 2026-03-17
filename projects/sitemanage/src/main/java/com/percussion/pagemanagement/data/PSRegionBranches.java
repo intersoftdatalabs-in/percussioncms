@@ -15,7 +15,6 @@
  * limitations under the License.
  */
 package com.percussion.pagemanagement.data;
-import java.io.Serializable;
 
 import jakarta.xml.bind.annotation.XmlElement;
 import jakarta.xml.bind.annotation.XmlElementWrapper;

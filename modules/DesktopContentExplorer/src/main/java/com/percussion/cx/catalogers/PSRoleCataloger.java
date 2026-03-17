@@ -125,7 +125,9 @@ public class PSRoleCataloger {
       m_name = PSXMLDomUtil.getElementData(el);
     }
 
-    /** @return role name, never <code>null</code> */
+    /**
+     * @return role name, never <code>null</code>
+     */
     public String getName() {
       return m_name;
     }
@@ -204,7 +206,9 @@ public class PSRoleCataloger {
     return elem;
   }
 
-  /** @return unmodifiable collection of cataloged Role instances , never <code>null</code>. */
+  /**
+   * @return unmodifiable collection of cataloged Role instances , never <code>null</code>.
+   */
   public Collection getRoles() {
     return Collections.unmodifiableCollection(m_collRoles);
   }

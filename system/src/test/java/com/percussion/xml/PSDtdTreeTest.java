@@ -16,101 +16,78 @@
  */
 package com.percussion.xml;
 
-import java.util.Arrays;
-
-
-import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
+import java.util.Arrays;
+import org.junit.jupiter.api.Test;
 
-/**
- * Unit tests for the PSDtdTree class.
- */
-public class PSDtdTreeTest
-{
+/** Unit tests for the PSDtdTree class. */
+public class PSDtdTreeTest {
 
+  /** Test the PSDtdTree.canonicalToArry method */
+  @Test
+  public void testCanonicalToArray() {
+    // make sure it throws an IllegalArgumentException on a null String
+    boolean didThrow = false;
+    try {
+      PSDtdTree.canonicalToArray(null);
+    } catch (IllegalArgumentException e) {
+      didThrow = true;
+    }
+    assertTrue(didThrow, "throws on null String?");
 
-   /**
-    * Test the PSDtdTree.canonicalToArry method
-    */
-   @Test
-   public void testCanonicalToArray()
-   {
-      // make sure it throws an IllegalArgumentException on a null String
-      boolean didThrow = false;
-      try
-      {
-         PSDtdTree.canonicalToArray(null);
-      }
-      catch (IllegalArgumentException e)
-      {
-         didThrow = true;
-      }
-      assertTrue(didThrow, "throws on null String?");
+    CanonicalTest[] canon = new CanonicalTest[20];
+    int numTests = 0;
 
-      CanonicalTest[] canon = new CanonicalTest[20];
-      int numTests = 0;
+    canon[numTests++] = new CanonicalTest("/", new String[0]);
 
-      canon[numTests++] = new CanonicalTest("/", new String[0]);
+    canon[numTests++] = new CanonicalTest("", new String[0]);
 
-      canon[numTests++] = new CanonicalTest("", new String[0]);
+    canon[numTests++] = new CanonicalTest("/ /   /   / / / //////", new String[0]);
 
-      canon[numTests++] = new CanonicalTest("/ /   /   / / / //////", new String[0]);
+    canon[numTests++] = new CanonicalTest("/foo", new String[] {"foo"});
 
-      canon[numTests++] = new CanonicalTest("/foo", new String[] { "foo" });
+    canon[numTests++] = new CanonicalTest("/foo/bar", new String[] {"foo", "bar"});
 
-      canon[numTests++] = new CanonicalTest("/foo/bar",
-         new String[] { "foo", "bar" });
+    canon[numTests++] = new CanonicalTest("/foo/bar/baz", new String[] {"foo", "bar", "baz"});
 
-      canon[numTests++] = new CanonicalTest("/foo/bar/baz",
-         new String[] { "foo", "bar", "baz" });
+    canon[numTests++] = new CanonicalTest("foo/bar/baz", new String[] {"foo", "bar", "baz"});
 
-      canon[numTests++] = new CanonicalTest("foo/bar/baz",
-         new String[] { "foo", "bar", "baz" });
+    canon[numTests++] = new CanonicalTest("/foo//bar/baz", new String[] {"foo", "bar", "baz"});
 
-      canon[numTests++] = new CanonicalTest("/foo//bar/baz",
-         new String[] { "foo", "bar", "baz" });
+    canon[numTests++] =
+        new CanonicalTest(" /  //foo /  /  //bar// / / / /baz", new String[] {"foo", "bar", "baz"});
 
-      canon[numTests++] = new CanonicalTest(" /  //foo /  /  //bar// / / / /baz",
-         new String[] { "foo", "bar", "baz" });
+    canon[numTests++] = new CanonicalTest("/foo/bar/baz", new String[] {"foo", "bar", "baz"});
 
-      canon[numTests++] = new CanonicalTest("/foo/bar/baz",
-         new String[] { "foo", "bar", "baz" });
+    canon[numTests++] =
+        new CanonicalTest("foo // /  //bar // / /baz  ", new String[] {"foo", "bar", "baz"});
 
-      canon[numTests++] = new CanonicalTest("foo // /  //bar // / /baz  ",
-         new String[] { "foo", "bar", "baz" });
+    for (int i = 0; i < numTests; i++) {
+      String[] result = PSDtdTree.canonicalToArray(canon[i].source());
+      assertTrue(canon[i].canonEquals(result));
+    }
+  }
 
-      for (int i = 0; i < numTests; i++)
-      {
-         String[] result = PSDtdTree.canonicalToArray(canon[i].source());
-         assertTrue(canon[i].canonEquals(result));
-      }
-   }
+  // represents a test case (source string and expected canonicalization)
+  private static class CanonicalTest {
+    public CanonicalTest(String source, String[] canon) {
+      m_source = source;
+      m_canon = canon;
+    }
 
-   // represents a test case (source string and expected canonicalization)
-   private static class CanonicalTest
-   {
-      public CanonicalTest(String source, String[] canon)
-      {
-         m_source = source;
-         m_canon = canon;
-      }
+    public String source() {
+      return m_source;
+    }
 
-      public String source()
-      {
-         return m_source;
-      }
+    public boolean canonEquals(String[] canon) {
+      return Arrays.equals(canon, m_canon);
+    }
 
-      public boolean canonEquals(String[] canon)
-      {
-         return Arrays.equals(canon, m_canon);
-      }
+    private String m_source;
+    private String[] m_canon;
+  }
 
-      private String m_source;
-      private String[] m_canon;
-   }
-
-   // collect all tests into a TestSuite and return it
-
+  // collect all tests into a TestSuite and return it
 
 }

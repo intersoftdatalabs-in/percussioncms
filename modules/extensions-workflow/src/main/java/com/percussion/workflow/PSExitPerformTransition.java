@@ -932,10 +932,10 @@ public class PSExitPerformTransition implements IPSRequestPreProcessor {
        * transition the item to a non-public state and then check it out.
        */
       IPSCmsObjectMgr cms = PSCmsObjectMgrLocator.getObjectManager();
-      boolean isValidState = cms
-          .loadWorkflowState(csc.getWorkflowID(), csc.getContentStateID())
-          .map(IPSStatesContext::getIsValid)
-          .orElse(false);
+      boolean isValidState =
+          cms.loadWorkflowState(csc.getWorkflowID(), csc.getContentStateID())
+              .map(IPSStatesContext::getIsValid)
+              .orElse(false);
       if (isValidState)
         throw new PSCheckInCheckOutException(lang, IPSExtensionErrors.CHECKOUT_FROM_PUBLIC_STATE);
 
@@ -1273,7 +1273,6 @@ public class PSExitPerformTransition implements IPSRequestPreProcessor {
    *     .
    * @throws SQLException if an SQL error occurs
    */
-
   private static void addRoleApproval(
       PSContentApprovalsContext cac, Map roleIdNameMap, HashSet userRoles, String userName)
       throws SQLException {

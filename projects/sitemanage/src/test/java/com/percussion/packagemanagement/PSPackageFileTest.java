@@ -18,7 +18,6 @@
 package com.percussion.packagemanagement;
 
 import static com.percussion.test.TestAssertions.*;
-import static com.percussion.test.TestAssertions.*;
 
 import com.percussion.packagemanagement.PSPackageFileEntry.PackageFileStatus;
 import java.io.IOException;

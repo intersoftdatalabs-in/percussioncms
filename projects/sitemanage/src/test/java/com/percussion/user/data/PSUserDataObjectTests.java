@@ -17,7 +17,6 @@
 package com.percussion.user.data;
 
 import static com.percussion.test.TestAssertions.*;
-import static com.percussion.test.TestAssertions.*;
 
 import com.percussion.share.dao.PSSerializerUtils;
 import com.percussion.share.data.PSDataObjectTestCase;

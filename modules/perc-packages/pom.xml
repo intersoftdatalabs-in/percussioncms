@@ -9,8 +9,8 @@
     </parent>
     <artifactId>perc-packages</artifactId>
     <properties>
-        <packages.source.dir>${basedir}/src/main/resources/Packages</packages.source.dir>
         <packages.output.dir>${basedir}/target/distribution/Packages</packages.output.dir>
+        <packages.source.dir>${basedir}/src/main/resources/Packages</packages.source.dir>
         <packages.temp.dir>${basedir}/target/temp/Packages</packages.temp.dir>
     </properties>
     <dependencies/>

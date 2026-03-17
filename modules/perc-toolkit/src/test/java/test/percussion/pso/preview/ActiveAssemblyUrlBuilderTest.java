@@ -23,6 +23,7 @@
 package test.percussion.pso.preview;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
 import com.percussion.pso.preview.ActiveAssemblyUrlBuilder;
 import com.percussion.services.assembly.IPSAssemblyTemplate;
@@ -36,7 +37,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
-import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 public class ActiveAssemblyUrlBuilderTest {

@@ -156,17 +156,23 @@ public class PSCommunityCataloger {
       m_communityDesc = PSXMLDomUtil.getElementData(el);
     }
 
-    /** @return community id */
+    /**
+     * @return community id
+     */
     public int getId() {
       return m_communityId;
     }
 
-    /** @return community name, never <code>null</code> */
+    /**
+     * @return community name, never <code>null</code>
+     */
     public String getName() {
       return m_communityName;
     }
 
-    /** @return community description, never <code>null</code> */
+    /**
+     * @return community description, never <code>null</code>
+     */
     public String getDesc() {
       return m_communityDesc;
     }
@@ -216,8 +222,10 @@ public class PSCommunityCataloger {
 
     /** */
     private String m_communityName;
+
     /** */
     private int m_communityId = -1;
+
     /** */
     private String m_communityDesc;
   }
@@ -244,7 +252,9 @@ public class PSCommunityCataloger {
     }
   }
 
-  /** @return unmodifiable collection of cataloged Community instances , never <code>null</code>. */
+  /**
+   * @return unmodifiable collection of cataloged Community instances , never <code>null</code>.
+   */
   public Collection getCommunities() {
     return Collections.unmodifiableCollection(m_collCommunities);
   }

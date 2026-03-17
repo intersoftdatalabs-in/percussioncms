@@ -16,12 +16,7 @@
  */
 package com.percussion.util;
 
-
 import static org.junit.jupiter.api.Assertions.*;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.Disabled;
-
-import org.apache.commons.lang3.StringUtils;
 
 import java.io.ByteArrayInputStream;
 import java.net.URLEncoder;
@@ -30,290 +25,266 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.apache.commons.lang3.StringUtils;
+import org.junit.jupiter.api.Test;
 
-/**
- * Unit tests for the PSBaseHttpUtils class
- */
+/** Unit tests for the PSBaseHttpUtils class */
+public class PSBaseHttpUtilsTest {
 
-public class PSBaseHttpUtilsTest
-{
+  @Test
+  public void testRemoveQueryParam() {
+    String[][] vectors = {
+      // url, expected result, param name
+      {"a", "a", "x"},
+      {"a?", "a?", "x"},
+      {"a?m=n", "a?m=n", "x"},
+      {"a?x=7", "a", "x"},
+      {"a?m=n&x=7", "a?m=n", "x"},
+      {"a?m=n&x=7&l=3", "a?m=n&l=3", "X"},
+    };
+    for (String[] vector : vectors) {
+      String result = PSBaseHttpUtils.removeQueryParam(vector[0], vector[2]);
+      String expectedPath = PSBaseHttpUtils.parseHttpPath(vector[1]);
+      String actualPath = PSBaseHttpUtils.parseHttpPath(result);
+      assertEquals(expectedPath, actualPath);
+      Map<String, Object> expectedParams = PSBaseHttpUtils.parseQueryParamsString(vector[1]);
+      Map<String, Object> actualParams = PSBaseHttpUtils.parseQueryParamsString(result);
+      assertEquals(expectedParams, actualParams);
+    }
+  }
 
-   @Test
-   public void testRemoveQueryParam()
-   {
-      String[][] vectors =
-      {
-         //url, expected result, param name
-         {"a", "a", "x" },
-         {"a?", "a?", "x" },
-         {"a?m=n", "a?m=n", "x" },
-         {"a?x=7", "a", "x" },
-         {"a?m=n&x=7", "a?m=n", "x" },
-         {"a?m=n&x=7&l=3", "a?m=n&l=3", "X" },
-      };
-      for (String[] vector : vectors)
-      {
-         String result = PSBaseHttpUtils.removeQueryParam(vector[0], vector[2]);
-         String expectedPath = PSBaseHttpUtils.parseHttpPath(vector[1]);
-         String actualPath = PSBaseHttpUtils.parseHttpPath(result);
-         assertEquals(expectedPath, actualPath);
-         Map<String, Object> expectedParams = PSBaseHttpUtils.parseQueryParamsString(vector[1]);
-         Map<String, Object> actualParams = PSBaseHttpUtils.parseQueryParamsString(result);
-         assertEquals(expectedParams, actualParams);
-      }
-   }
-
-   @Test
-   public void testAddQueryParams()
-   {
-      String[] paths =
-      {
-         "a",
-         "a?",
-         "a?b=",
-         "a?b=c",
-         "a?b=c&"
-      };
-      Map<String, Object> params = new HashMap<>();
-      params.put("z", "");
-      params.put("x", "y");
-      params.put("m", "n");
-      for (String path : paths)
-      {
-         String result = PSBaseHttpUtils.addQueryParams(path, params, false);
-         System.out.println(result);
-         assertEquals(PSBaseHttpUtils.parseHttpPath(result), "a");
-         Map<String, Object> resultParams = PSBaseHttpUtils
-               .parseQueryParamsString(result);
-         resultParams.remove("b");
-         assertEquals(params, resultParams);
-      }
-
-      params.clear();
-      params.put("?x", "y&");
-      String result = PSBaseHttpUtils.addQueryParams("a%3f", params, true);
-      //the hex digits from encoding must be upper case
-      assertEquals(result, "a%3f?%3Fx=y%26");
-
-      List<String> values = new ArrayList<>();
-      values.add("1");
-      values.add("2");
-      values.add("3");
-      params.put("l", values);
-      result = PSBaseHttpUtils.addQueryParams("a", params, true);
+  @Test
+  public void testAddQueryParams() {
+    String[] paths = {"a", "a?", "a?b=", "a?b=c", "a?b=c&"};
+    Map<String, Object> params = new HashMap<>();
+    params.put("z", "");
+    params.put("x", "y");
+    params.put("m", "n");
+    for (String path : paths) {
+      String result = PSBaseHttpUtils.addQueryParams(path, params, false);
       System.out.println(result);
-      assertEquals(params, PSBaseHttpUtils.parseQueryParamsString(result));
-   }
+      assertEquals(PSBaseHttpUtils.parseHttpPath(result), "a");
+      Map<String, Object> resultParams = PSBaseHttpUtils.parseQueryParamsString(result);
+      resultParams.remove("b");
+      assertEquals(params, resultParams);
+    }
 
-   @Test
-   public void testParseHttpPath()
-   {
-      String[][] testData =
-      {
-            //test, result
-            {"", ""},
-            {"a", "a"},
-            {"a?", "a"},
-            {"a?b", "a"},
-      };
-      for (String[] data : testData)
-      {
-         String path = PSBaseHttpUtils.parseHttpPath(data[0]);
-         assertEquals(path, data[1]);
-      }
-   }
+    params.clear();
+    params.put("?x", "y&");
+    String result = PSBaseHttpUtils.addQueryParams("a%3f", params, true);
+    // the hex digits from encoding must be upper case
+    assertEquals(result, "a%3f?%3Fx=y%26");
 
+    List<String> values = new ArrayList<>();
+    values.add("1");
+    values.add("2");
+    values.add("3");
+    params.put("l", values);
+    result = PSBaseHttpUtils.addQueryParams("a", params, true);
+    System.out.println(result);
+    assertEquals(params, PSBaseHttpUtils.parseQueryParamsString(result));
+  }
 
-   @Test
-   public void testParseQueryParams() throws Exception
-   {
-      Map<String, Object> results;
+  @Test
+  public void testParseHttpPath() {
+    String[][] testData = {
+      // test, result
+      {"", ""},
+      {"a", "a"},
+      {"a?", "a"},
+      {"a?b", "a"},
+    };
+    for (String[] data : testData) {
+      String path = PSBaseHttpUtils.parseHttpPath(data[0]);
+      assertEquals(path, data[1]);
+    }
+  }
 
-      //basic case
-      results = PSBaseHttpUtils.parseQueryParamsString("");
-      assertNotNull(results);
-      assertEquals(results.size(), 0);
+  @Test
+  public void testParseQueryParams() throws Exception {
+    Map<String, Object> results;
 
-      results = PSBaseHttpUtils.parseQueryParamsString("?");
-      assertNotNull(results);
-      assertEquals(results.size(), 0);
+    // basic case
+    results = PSBaseHttpUtils.parseQueryParamsString("");
+    assertNotNull(results);
+    assertEquals(results.size(), 0);
 
-      results = PSBaseHttpUtils.parseQueryParamsString("a%26c=");
-      assertNotNull(results);
-      assertEquals(results.size(), 1);
-      assertEquals(StringUtils.EMPTY, results.get("a&c"));
+    results = PSBaseHttpUtils.parseQueryParamsString("?");
+    assertNotNull(results);
+    assertEquals(results.size(), 0);
 
-      results = PSBaseHttpUtils.parseQueryParamsString("abc=&d%3df=");
-      assertNotNull(results);
-      assertEquals(results.size(), 2);
-      assertEquals(StringUtils.EMPTY, results.get("abc"));
-      assertEquals(StringUtils.EMPTY, results.get("d=f"));
+    results = PSBaseHttpUtils.parseQueryParamsString("a%26c=");
+    assertNotNull(results);
+    assertEquals(results.size(), 1);
+    assertEquals(StringUtils.EMPTY, results.get("a&c"));
 
-      results = PSBaseHttpUtils.parseQueryParamsString("abc=12&def=34");
-      assertNotNull(results);
-      assertEquals(results.size(), 2);
-      assertEquals("12", results.get("abc"));
-      assertEquals("34", results.get("def"));
+    results = PSBaseHttpUtils.parseQueryParamsString("abc=&d%3df=");
+    assertNotNull(results);
+    assertEquals(results.size(), 2);
+    assertEquals(StringUtils.EMPTY, results.get("abc"));
+    assertEquals(StringUtils.EMPTY, results.get("d=f"));
 
-      results = PSBaseHttpUtils.parseQueryParamsString("?abc=12&def=34");
-      assertNotNull(results);
-      assertEquals(results.size(), 2);
-      assertEquals("12", results.get("abc"));
-      assertEquals("34", results.get("def"));
+    results = PSBaseHttpUtils.parseQueryParamsString("abc=12&def=34");
+    assertNotNull(results);
+    assertEquals(results.size(), 2);
+    assertEquals("12", results.get("abc"));
+    assertEquals("34", results.get("def"));
 
-      results = PSBaseHttpUtils.parseQueryParamsString("foo?abc=12&def=34");
-      assertNotNull(results);
-      assertEquals(results.size(), 2);
-      assertEquals("12", results.get("abc"));
-      assertEquals("34", results.get("def"));
+    results = PSBaseHttpUtils.parseQueryParamsString("?abc=12&def=34");
+    assertNotNull(results);
+    assertEquals(results.size(), 2);
+    assertEquals("12", results.get("abc"));
+    assertEquals("34", results.get("def"));
 
-      results = PSBaseHttpUtils.parseQueryParamsString("abc=&def=44&abc=56");
-      assertNotNull(results);
-      assertEquals(results.size(), 2);
-      List<String> vals = (List<String>) results.get("abc");
-      assertEquals(2, vals.size());
-      assertEquals(StringUtils.EMPTY, vals.get(0));
-      assertEquals("56", vals.get(1));
-      assertEquals("44", results.get("def"));
+    results = PSBaseHttpUtils.parseQueryParamsString("foo?abc=12&def=34");
+    assertNotNull(results);
+    assertEquals(results.size(), 2);
+    assertEquals("12", results.get("abc"));
+    assertEquals("34", results.get("def"));
 
-      String p1 = "a&o=";
-      String v1 = "fo*?o b&ar";
-      String param1 = URLEncoder.encode(p1, "UTF8");
-      String value1 = URLEncoder.encode(v1, "UTF8");
-      results = PSBaseHttpUtils.parseQueryParamsString(param1 + "=" + value1 + "&"
-            + value1 + "=" + param1);
-      assertEquals(2, results.size());
-      assertEquals(v1, results.get(p1));
-      assertEquals(p1, results.get(v1));
-   }
+    results = PSBaseHttpUtils.parseQueryParamsString("abc=&def=44&abc=56");
+    assertNotNull(results);
+    assertEquals(results.size(), 2);
+    List<String> vals = (List<String>) results.get("abc");
+    assertEquals(2, vals.size());
+    assertEquals(StringUtils.EMPTY, vals.get(0));
+    assertEquals("56", vals.get(1));
+    assertEquals("44", results.get("def"));
 
-   @Test
-   public void testReadStatusLine() throws Exception
-   {
-      String[] testStrings = new String[]
-      {
-         "GET /foo/bar/baz HTTP/1.0\r\nNEXTLINE",
-         "GET \uC3BC\uC3BC\uC3BC\uC3BC HTTP1.0\r\nNEXTLINE",
-         "GET \uC3BC\uC3BC\uC3BC\uC3BC HTTP1.0\rNEXTLINE",
-         "GET \uC3BC\uC3BC\uC3BC\uC3BC HTTP1.0 \rNEXTLINE"
-      };
+    String p1 = "a&o=";
+    String v1 = "fo*?o b&ar";
+    String param1 = URLEncoder.encode(p1, "UTF8");
+    String value1 = URLEncoder.encode(v1, "UTF8");
+    results =
+        PSBaseHttpUtils.parseQueryParamsString(param1 + "=" + value1 + "&" + value1 + "=" + param1);
+    assertEquals(2, results.size());
+    assertEquals(v1, results.get(p1));
+    assertEquals(p1, results.get(v1));
+  }
 
-      String[] parseStrings = new String[]
-      {
-         "GET /foo/bar/baz HTTP/1.0",
-         "GET \uC3BC\uC3BC\uC3BC\uC3BC HTTP1.0",
-         "GET \uC3BC\uC3BC\uC3BC\uC3BC HTTP1.0",
-         "GET \uC3BC\uC3BC\uC3BC\uC3BC HTTP1.0 "
-      };
+  @Test
+  public void testReadStatusLine() throws Exception {
+    String[] testStrings =
+        new String[] {
+          "GET /foo/bar/baz HTTP/1.0\r\nNEXTLINE",
+          "GET \uC3BC\uC3BC\uC3BC\uC3BC HTTP1.0\r\nNEXTLINE",
+          "GET \uC3BC\uC3BC\uC3BC\uC3BC HTTP1.0\rNEXTLINE",
+          "GET \uC3BC\uC3BC\uC3BC\uC3BC HTTP1.0 \rNEXTLINE"
+        };
 
-      for (int i = 0; i < testStrings.length; i++)
-      {
-         ByteArrayInputStream in =
-            new ByteArrayInputStream(testStrings[i].getBytes(StandardCharsets.UTF_8));
+    String[] parseStrings =
+        new String[] {
+          "GET /foo/bar/baz HTTP/1.0",
+          "GET \uC3BC\uC3BC\uC3BC\uC3BC HTTP1.0",
+          "GET \uC3BC\uC3BC\uC3BC\uC3BC HTTP1.0",
+          "GET \uC3BC\uC3BC\uC3BC\uC3BC HTTP1.0 "
+        };
 
-         PSInputStreamReader rdr = new PSInputStreamReader(in);
+    for (int i = 0; i < testStrings.length; i++) {
+      ByteArrayInputStream in =
+          new ByteArrayInputStream(testStrings[i].getBytes(StandardCharsets.UTF_8));
 
-         String line = PSBaseHttpUtils.readStatusLine(rdr);
-         assertEquals(parseStrings[i], line);
+      PSInputStreamReader rdr = new PSInputStreamReader(in);
 
-         String nextLine = rdr.readLine("UTF-8");
-         assertEquals("NEXTLINE", nextLine);
-      }
-   }
+      String line = PSBaseHttpUtils.readStatusLine(rdr);
+      assertEquals(parseStrings[i], line);
 
+      String nextLine = rdr.readLine("UTF-8");
+      assertEquals("NEXTLINE", nextLine);
+    }
+  }
 
-   @Test
-   public void testParseContentType() throws Exception
-   {
-      HashMap params = new HashMap();
-      String contentType = "application/x-www-form-urlencoded";
+  @Test
+  public void testParseContentType() throws Exception {
+    HashMap params = new HashMap();
+    String contentType = "application/x-www-form-urlencoded";
 
-      String parseType = PSBaseHttpUtils.parseContentType(contentType, params);
-      assertEquals(contentType, parseType);
-      assertEquals(0, params.size());
+    String parseType = PSBaseHttpUtils.parseContentType(contentType, params);
+    assertEquals(contentType, parseType);
+    assertEquals(0, params.size());
 
-      params = new HashMap();
-      contentType = "text/html;foo=bar;bar=baz;baz=car";
-      parseType = PSBaseHttpUtils.parseContentType(contentType, params);
-      assertEquals("text/html", parseType);
-      assertTrue("bar".equals(params.remove("foo")));
-      assertTrue("baz".equals(params.remove("bar")));
-      assertTrue("car".equals(params.remove("baz")));
-      assertEquals(0, params.size());
+    params = new HashMap();
+    contentType = "text/html;foo=bar;bar=baz;baz=car";
+    parseType = PSBaseHttpUtils.parseContentType(contentType, params);
+    assertEquals("text/html", parseType);
+    assertTrue("bar".equals(params.remove("foo")));
+    assertTrue("baz".equals(params.remove("bar")));
+    assertTrue("car".equals(params.remove("baz")));
+    assertEquals(0, params.size());
 
-      params = new HashMap();
-      contentType = "text/html;charset=US-ASCII;bar=baz; foo = car";
-      parseType = PSBaseHttpUtils.parseContentType(contentType, params);
-      assertEquals("text/html", parseType);
-      assertTrue("US-ASCII".equals(params.remove("charset")));
-      assertTrue("baz".equals(params.remove("bar")));
-      assertTrue("car".equals(params.remove("foo")));
-      assertEquals(0, params.size());
+    params = new HashMap();
+    contentType = "text/html;charset=US-ASCII;bar=baz; foo = car";
+    parseType = PSBaseHttpUtils.parseContentType(contentType, params);
+    assertEquals("text/html", parseType);
+    assertTrue("US-ASCII".equals(params.remove("charset")));
+    assertTrue("baz".equals(params.remove("bar")));
+    assertTrue("car".equals(params.remove("foo")));
+    assertEquals(0, params.size());
 
-      params = new HashMap();
-      contentType = "text/html;";
-      parseType = PSBaseHttpUtils.parseContentType(contentType, params);
-      assertEquals("text/html", parseType);
-      assertEquals(0, params.size());
+    params = new HashMap();
+    contentType = "text/html;";
+    parseType = PSBaseHttpUtils.parseContentType(contentType, params);
+    assertEquals("text/html", parseType);
+    assertEquals(0, params.size());
 
-      params = new HashMap();
-      contentType = "text/html ;";
-      parseType = PSBaseHttpUtils.parseContentType(contentType, params);
-      assertEquals("text/html", parseType);
-      assertEquals(0, params.size());
+    params = new HashMap();
+    contentType = "text/html ;";
+    parseType = PSBaseHttpUtils.parseContentType(contentType, params);
+    assertEquals("text/html", parseType);
+    assertEquals(0, params.size());
 
-      params = new HashMap();
-      contentType = "text/html  ;  ";
-      parseType = PSBaseHttpUtils.parseContentType(contentType, params);
-      assertEquals("text/html", parseType);
-      assertEquals(0, params.size());
+    params = new HashMap();
+    contentType = "text/html  ;  ";
+    parseType = PSBaseHttpUtils.parseContentType(contentType, params);
+    assertEquals("text/html", parseType);
+    assertEquals(0, params.size());
 
-      params = new HashMap();
-      contentType = "  text/html ;   charset = US-ASCII; bar = baz; foo =   car";
-      parseType = PSBaseHttpUtils.parseContentType(contentType, params);
-      assertEquals("text/html", parseType);
-      assertTrue("US-ASCII".equals(params.remove("charset")));
-      assertTrue("baz".equals(params.remove("bar")));
-      assertTrue("car".equals(params.remove("foo")));
-      assertEquals(0, params.size());
+    params = new HashMap();
+    contentType = "  text/html ;   charset = US-ASCII; bar = baz; foo =   car";
+    parseType = PSBaseHttpUtils.parseContentType(contentType, params);
+    assertEquals("text/html", parseType);
+    assertTrue("US-ASCII".equals(params.remove("charset")));
+    assertTrue("baz".equals(params.remove("bar")));
+    assertTrue("car".equals(params.remove("foo")));
+    assertEquals(0, params.size());
 
-      params = new HashMap();
-      contentType = "  text/html ;   charset = \"US-ASCII\"; bar = baz; foo =   car";
-      parseType = PSBaseHttpUtils.parseContentType(contentType, params);
-      assertEquals("text/html", parseType);
-      assertEquals("\"US-ASCII\"", params.remove("charset"));
-      assertTrue("baz".equals(params.remove("bar")));
-      assertTrue("car".equals(params.remove("foo")));
-      assertEquals(0, params.size());
+    params = new HashMap();
+    contentType = "  text/html ;   charset = \"US-ASCII\"; bar = baz; foo =   car";
+    parseType = PSBaseHttpUtils.parseContentType(contentType, params);
+    assertEquals("text/html", parseType);
+    assertEquals("\"US-ASCII\"", params.remove("charset"));
+    assertTrue("baz".equals(params.remove("bar")));
+    assertTrue("car".equals(params.remove("foo")));
+    assertEquals(0, params.size());
 
-      params = new HashMap();
-      contentType = "  text/html ;   charset = \"US-ASCII\"; bar =  \" baz   \"; foo =   car";
-      parseType = PSBaseHttpUtils.parseContentType(contentType, params);
-      assertEquals("text/html", parseType);
-      assertTrue("\"US-ASCII\"".equals(params.remove("charset")));
-      assertEquals("\" baz   \"", params.remove("bar"));
-      assertTrue("car".equals(params.remove("foo")));
-      assertEquals(0, params.size());
+    params = new HashMap();
+    contentType = "  text/html ;   charset = \"US-ASCII\"; bar =  \" baz   \"; foo =   car";
+    parseType = PSBaseHttpUtils.parseContentType(contentType, params);
+    assertEquals("text/html", parseType);
+    assertTrue("\"US-ASCII\"".equals(params.remove("charset")));
+    assertEquals("\" baz   \"", params.remove("bar"));
+    assertTrue("car".equals(params.remove("foo")));
+    assertEquals(0, params.size());
 
-      params = new HashMap();
-      contentType = "  text/html ;   charset = \"US-;ASCII\"; bar =  \" baz   \"; foo =   car";
-      parseType = PSBaseHttpUtils.parseContentType(contentType, params);
-      assertEquals("text/html", parseType);
-      assertTrue("\"US-;ASCII\"".equals(params.remove("charset")));
-      assertEquals("\" baz   \"", params.remove("bar"));
-      assertTrue("car".equals(params.remove("foo")));
-      assertEquals(0, params.size());
+    params = new HashMap();
+    contentType = "  text/html ;   charset = \"US-;ASCII\"; bar =  \" baz   \"; foo =   car";
+    parseType = PSBaseHttpUtils.parseContentType(contentType, params);
+    assertEquals("text/html", parseType);
+    assertTrue("\"US-;ASCII\"".equals(params.remove("charset")));
+    assertEquals("\" baz   \"", params.remove("bar"));
+    assertTrue("car".equals(params.remove("foo")));
+    assertEquals(0, params.size());
 
-      params = new HashMap();
-      contentType = "  text/html ;   charset = \"US-;ASCII\"; bar =  \" ba;;z   \"; foo =   car";
-      parseType = PSBaseHttpUtils.parseContentType(contentType, params);
-      assertEquals("text/html", parseType);
-      assertTrue("\"US-;ASCII\"".equals(params.remove("charset")));
-      assertEquals("\" ba;;z   \"", params.remove("bar"));
-      assertTrue("car".equals(params.remove("foo")));
-      assertEquals(0, params.size());
-   }
+    params = new HashMap();
+    contentType = "  text/html ;   charset = \"US-;ASCII\"; bar =  \" ba;;z   \"; foo =   car";
+    parseType = PSBaseHttpUtils.parseContentType(contentType, params);
+    assertEquals("text/html", parseType);
+    assertTrue("\"US-;ASCII\"".equals(params.remove("charset")));
+    assertEquals("\" ba;;z   \"", params.remove("bar"));
+    assertTrue("car".equals(params.remove("foo")));
+    assertEquals(0, params.size());
+  }
 
-   // JUnit 5 uses test discovery; explicit suite() removed.
-   // (legacy JUnit3 `suite()` was deleted during migration)
+  // JUnit 5 uses test discovery; explicit suite() removed.
+  // (legacy JUnit3 `suite()` was deleted during migration)
 }

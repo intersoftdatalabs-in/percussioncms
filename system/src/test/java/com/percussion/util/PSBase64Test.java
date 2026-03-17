@@ -17,172 +17,144 @@
 
 package com.percussion.util;
 
-import com.percussion.error.PSRuntimeException;
-import com.percussion.tools.PSCopyStream;
-import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
+import com.percussion.error.PSRuntimeException;
+import com.percussion.tools.PSCopyStream;
 import java.io.*;
 
+/** Unit tests for <code>PSBase64Decoder</code> and <code>PSBase64Encoder</code>. */
+public class PSBase64Test {
+  /**
+   * Tests that a small string can be encoded and decoded.
+   *
+   * @throws Exception if any error occurs
+   */
+  public void testSmallString() throws Exception {
+    String original = "This is a string that needs to be encoded.";
+    String encoded;
+    String decoded;
 
-/**
- * Unit tests for <code>PSBase64Decoder</code> and <code>PSBase64Encoder</code>.
- */
-public class PSBase64Test
-{
-   /**
-    * Tests that a small string can be encoded and decoded.
-    * @throws Exception if any error occurs
-    */
+    encoded = PSBase64Encoder.encode(original);
+    assertFalse(original.equals(encoded));
+    decoded = PSBase64Decoder.decode(encoded);
+    assertEquals(original, decoded);
 
-   public void testSmallString() throws Exception
-   {
-      String original = "This is a string that needs to be encoded.";
-      String encoded;
-      String decoded;
+    // check for compatibility with existing encoded strings
+    original = "demo";
+    encoded = PSBase64Encoder.encode(original);
+    assertEquals("ZGVtbw==", encoded);
+    decoded = PSBase64Decoder.decode("ZGVtbw==");
+    assertEquals(original, decoded);
+  }
 
-      encoded = PSBase64Encoder.encode(original);
-      assertFalse(original.equals(encoded));
-      decoded = PSBase64Decoder.decode(encoded);
-      assertEquals(original, decoded);
+  public void testIllegalArgs() throws Exception {
+    // null stream throws exception
+    try {
+      PSBase64Encoder.encode((InputStream) null, null);
+      fail();
+    } catch (IllegalArgumentException success) {
+    }
 
-      // check for compatibility with existing encoded strings
-      original = "demo";
-      encoded = PSBase64Encoder.encode(original);
-      assertEquals("ZGVtbw==", encoded);
-      decoded = PSBase64Decoder.decode("ZGVtbw==");
-      assertEquals(original, decoded);
-   }
+    try {
+      PSBase64Decoder.decode((InputStream) null, null);
+      fail();
+    } catch (IllegalArgumentException success) {
+    }
 
+    try {
+      PSBase64Encoder.encode((byte[]) null);
+      fail();
+    } catch (IllegalArgumentException success) {
+    }
 
+    try {
+      PSBase64Decoder.decode((byte[]) null);
+      fail();
+    } catch (IllegalArgumentException success) {
+    }
+  }
 
-   public void testIllegalArgs() throws Exception
-   {
-      // null stream throws exception
-      try
-      {
-         PSBase64Encoder.encode((InputStream) null, null);
-         fail();
-      }
-      catch (IllegalArgumentException success) {}
+  /**
+   * Tests the stream methods for encoding and decoding.
+   *
+   * @throws Exception if any error occurs
+   */
+  public void testSmallStream() throws Exception {
+    String original = "This is a string that needs to be encoded.";
+    byte[] originalBytes = original.getBytes();
+    InputStream in = new ByteArrayInputStream(originalBytes);
+    OutputStream out = new ByteArrayOutputStream();
 
-      try
-      {
-         PSBase64Decoder.decode((InputStream) null, null);
-         fail();
-      }
-      catch (IllegalArgumentException success) {}
+    PSBase64Encoder.encode(in, out);
+    String encoded = out.toString();
+    assertFalse(original.equals(encoded));
 
-      try
-      {
-         PSBase64Encoder.encode((byte[]) null);
-         fail();
-      }
-      catch (IllegalArgumentException success) {}
+    byte[] encodedBytes = encoded.getBytes();
+    in = new ByteArrayInputStream(encodedBytes);
+    out = new ByteArrayOutputStream();
+    PSBase64Decoder.decode(in, out);
+    String decoded = out.toString();
+    assertEquals(original, decoded);
+  }
 
-      try
-      {
-         PSBase64Decoder.decode((byte[]) null);
-         fail();
-      }
-      catch (IllegalArgumentException success) {}
-   }
+  /**
+   * Tests the methods for encoding and decoding a string with a specified encoding.
+   *
+   * @throws Exception if any error occurs
+   */
+  public void testEncodingName() throws Exception {
+    String original = "This is a string that needs to be encoded.";
 
-   /**
-    * Tests the stream methods for encoding and decoding.
-    * @throws Exception if any error occurs
-    */
+    // invalid encoding names throw an exception
+    boolean threw = false;
+    try {
+      PSBase64Encoder.encode(original, "FOOBAR");
+    } catch (PSRuntimeException e) {
+      threw = true;
+    }
+    assertTrue(threw);
 
-   public void testSmallStream() throws Exception
-   {
-      String original = "This is a string that needs to be encoded.";
-      byte[] originalBytes = original.getBytes();
-      InputStream in = new ByteArrayInputStream(originalBytes);
-      OutputStream out = new ByteArrayOutputStream();
+    String encoded = PSBase64Encoder.encode(original, "ISO-8859-1");
+    assertFalse(original.equals(encoded));
+    String decoded = PSBase64Decoder.decode(encoded);
+    assertEquals(original, decoded);
 
-      PSBase64Encoder.encode(in, out);
-      String encoded = out.toString();
-      assertFalse(original.equals(encoded));
+    encoded = PSBase64Encoder.encode(original, "US-ASCII");
+    assertFalse(original.equals(encoded));
+    decoded = PSBase64Decoder.decode(encoded);
+    assertEquals(original, decoded);
 
-      byte[] encodedBytes = encoded.getBytes();
-      in = new ByteArrayInputStream(encodedBytes);
-      out = new ByteArrayOutputStream();
-      PSBase64Decoder.decode(in, out);
-      String decoded = out.toString();
-      assertEquals(original, decoded);
-   }
+    original = "\u4eca\u65e5\u306f\u4e16\u754c"; // Hello World (Japanese)
+    encoded = PSBase64Encoder.encode(original, "Shift_JIS");
+    assertFalse(original.equals(encoded));
+    decoded = PSBase64Decoder.decode(encoded, "Shift_JIS");
+    assertEquals(original, decoded);
+  }
 
-   /**
-    * Tests the methods for encoding and decoding a string with a specified
-    * encoding.
-    * @throws Exception if any error occurs
-    */
+  /**
+   * Tests that a large binary file can be encoded and decoded.
+   *
+   * @throws Exception if any error occurs
+   */
+  public void testFile() throws Exception {
+    InputStream file = new FileInputStream(RESOURCE_PATH + TEST_FILE);
+    // copy file into a byte array so we can validate the decode
+    ByteArrayOutputStream bout = new ByteArrayOutputStream(4096);
+    PSCopyStream.copyStream(file, bout);
+    byte[] originalBytes = bout.toByteArray();
 
-   public void testEncodingName() throws Exception
-   {
-      String original = "This is a string that needs to be encoded.";
+    byte[] encodedBytes = PSBase64Encoder.encode(originalBytes);
+    assertTrue(originalBytes.length < encodedBytes.length);
 
-      // invalid encoding names throw an exception
-      boolean threw = false;
-      try
-      {
-         PSBase64Encoder.encode(original, "FOOBAR");
-      }
-      catch (PSRuntimeException e)
-      {
-         threw = true;
-      }
-      assertTrue(threw);
+    byte[] decodedBytes = PSBase64Decoder.decode(encodedBytes);
+    assertEquals(originalBytes.length, decodedBytes.length);
+    assertArrayEquals(originalBytes, decodedBytes);
+  }
 
-      String encoded = PSBase64Encoder.encode(original, "ISO-8859-1");
-      assertFalse(original.equals(encoded));
-      String decoded = PSBase64Decoder.decode(encoded);
-      assertEquals(original, decoded);
+  /** Defines the path to the files used by this unit test, relative from the root. */
+  private static final String RESOURCE_PATH = "UnitTestResources/com/percussion/util/";
 
-      encoded = PSBase64Encoder.encode(original, "US-ASCII");
-      assertFalse(original.equals(encoded));
-      decoded = PSBase64Decoder.decode(encoded);
-      assertEquals(original, decoded);
-
-      original = "\u4eca\u65e5\u306f\u4e16\u754c"; // Hello World (Japanese)
-      encoded = PSBase64Encoder.encode(original, "Shift_JIS");
-      assertFalse(original.equals(encoded));
-      decoded = PSBase64Decoder.decode(encoded, "Shift_JIS");
-      assertEquals(original, decoded);
-   }
-
-   /**
-    * Tests that a large binary file can be encoded and decoded.
-    * @throws Exception if any error occurs
-    */
-
-   public void testFile() throws Exception
-   {
-      InputStream file = new FileInputStream( RESOURCE_PATH + TEST_FILE );
-      // copy file into a byte array so we can validate the decode
-      ByteArrayOutputStream bout = new ByteArrayOutputStream(4096);
-      PSCopyStream.copyStream(file, bout);
-      byte[] originalBytes = bout.toByteArray();
-
-      byte[] encodedBytes = PSBase64Encoder.encode(originalBytes);
-      assertTrue(originalBytes.length < encodedBytes.length);
-
-      byte[] decodedBytes = PSBase64Decoder.decode(encodedBytes);
-      assertEquals(originalBytes.length, decodedBytes.length);
-      assertArrayEquals(originalBytes, decodedBytes);
-   }
-
-
-   /**
-    * Defines the path to the files used by this unit test, relative from the
-    * root.
-    */
-   private static final String RESOURCE_PATH =
-      "UnitTestResources/com/percussion/util/";
-
-   /**
-    * Name of file to use for the file encoding test.
-    */
-   private static final String TEST_FILE = "base64test.pdf";
-
+  /** Name of file to use for the file encoding test. */
+  private static final String TEST_FILE = "base64test.pdf";
 }

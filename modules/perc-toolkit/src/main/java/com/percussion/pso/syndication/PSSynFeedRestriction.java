@@ -79,13 +79,13 @@ public class PSSynFeedRestriction {
     else return "deny";
   }
 
-   public String getType() {
-     if (r.getType().equals(Restriction.Type.COUNTRY)) {
-       return "country";
-     } else {
-       return Restriction.Type.URI.toString();
-     }
-   }
+  public String getType() {
+    if (r.getType().equals(Restriction.Type.COUNTRY)) {
+      return "country";
+    } else {
+      return Restriction.Type.URI.toString();
+    }
+  }
 
   public String getValue() {
     return r.getValue();

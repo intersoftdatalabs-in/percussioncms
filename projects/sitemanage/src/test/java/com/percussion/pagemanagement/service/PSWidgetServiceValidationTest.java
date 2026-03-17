@@ -5,6 +5,6 @@ import org.junit.jupiter.api.Test;
 
 @Disabled("disabled during batch migration")
 public class PSWidgetServiceValidationTest {
-    @Test
-    public void placeholder() {}
+  @Test
+  public void placeholder() {}
 }

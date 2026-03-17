@@ -19,12 +19,12 @@ package com.percussion.sitemanage.dao.impl;
 
 import com.percussion.share.service.IPSDataItemSummaryService;
 import com.percussion.share.service.IPSDataService;
+import com.percussion.share.service.exception.PSDataServiceException;
 import com.percussion.sitemanage.dao.IPSSiteArchitectureDao;
 import com.percussion.sitemanage.data.PSSiteArchitecture;
 import com.percussion.sitemanage.data.PSSiteSection;
 import com.percussion.webservices.PSErrorException;
 import com.percussion.webservices.publishing.IPSPublishingWs;
-import com.percussion.share.service.exception.PSDataServiceException;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
@@ -140,7 +140,8 @@ public class PSSiteArchitectureDao implements IPSSiteArchitectureDao {
   }
 
   @Override
-  public List<PSSiteSection> getSections(String id) throws com.percussion.share.dao.IPSGenericDao.LoadException {
+  public List<PSSiteSection> getSections(String id)
+      throws com.percussion.share.dao.IPSGenericDao.LoadException {
     // Not implemented yet
     return List.of();
   }

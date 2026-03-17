@@ -21,8 +21,8 @@ import java.util.Collection;
 import java.util.List;
 
 /**
- * Service interface for managing Taxonomy entities.
- * Provides CRUD operations and queries for taxonomies including their associated nodes, attributes, and visibility settings.
+ * Service interface for managing Taxonomy entities. Provides CRUD operations and queries for
+ * taxonomies including their associated nodes, attributes, and visibility settings.
  */
 public interface TaxonomyServiceInf {
 
@@ -42,8 +42,7 @@ public interface TaxonomyServiceInf {
   Taxonomy getTaxonomy(int id);
 
   /**
-   * Determines if a taxonomy exists for a given name.
-   * Comparison is case-insensitive.
+   * Determines if a taxonomy exists for a given name. Comparison is case-insensitive.
    *
    * @param name the name to search for; must not be empty
    * @return true if a taxonomy with the given name exists, false otherwise
@@ -51,8 +50,8 @@ public interface TaxonomyServiceInf {
   boolean doesTaxonomyExists(String name);
 
   /**
-   * Removes a taxonomy and all associated entities.
-   * This will delete all attributes, nodes, and visibilities associated with the taxonomy.
+   * Removes a taxonomy and all associated entities. This will delete all attributes, nodes, and
+   * visibilities associated with the taxonomy.
    *
    * @param taxonomy the Taxonomy entity to remove; must not be null
    */
@@ -66,8 +65,8 @@ public interface TaxonomyServiceInf {
   void saveTaxonomy(Taxonomy taxonomy);
 
   /**
-   * Retrieves nodes in an order suitable for deletion (children before parents).
-   * This ensures referential integrity when deleting nodes in bulk.
+   * Retrieves nodes in an order suitable for deletion (children before parents). This ensures
+   * referential integrity when deleting nodes in bulk.
    *
    * @param taxonomy the Taxonomy whose nodes are to be ordered
    * @return a list of Node entities in deletion order

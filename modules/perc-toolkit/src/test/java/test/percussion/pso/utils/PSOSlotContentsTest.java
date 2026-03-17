@@ -22,6 +22,9 @@
  */
 package test.percussion.pso.utils;
 
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
+
 import com.percussion.cms.objectstore.PSAaRelationship;
 import com.percussion.cms.objectstore.PSRelationshipFilter;
 import com.percussion.design.objectstore.PSLocator;
@@ -37,15 +40,13 @@ import java.util.ArrayList;
 import java.util.List;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
-import org.junit.jupiter.api.BeforeEach;
 
 /**
  * @author DavidBenua
@@ -63,18 +64,12 @@ public class PSOSlotContentsTest {
   IPSTemplateSlot otherSlot;
   IPSAssemblyTemplate template;
 
-  @Mock
-  IPSContentWs cws;
-  @Mock
-  IPSGuidManager gmgr;
-  @Mock
-  PSAaRelationship rel1;
-  @Mock
-  PSAaRelationship rel2;
-  @Mock
-  PSAaRelationship rel3;
-  @Mock
-  PSAaRelationship rel4;
+  @Mock IPSContentWs cws;
+  @Mock IPSGuidManager gmgr;
+  @Mock PSAaRelationship rel1;
+  @Mock PSAaRelationship rel2;
+  @Mock PSAaRelationship rel3;
+  @Mock PSAaRelationship rel4;
 
   /**
    * @param name
@@ -104,8 +99,7 @@ public class PSOSlotContentsTest {
     rels.add(rel4);
 
     try {
-      when(cws.loadContentRelations(any(PSRelationshipFilter.class), eq(true)))
-          .thenReturn(rels);
+      when(cws.loadContentRelations(any(PSRelationshipFilter.class), eq(true))).thenReturn(rels);
       when(gmgr.makeLocator(any(IPSGuid.class))).thenReturn(parent);
       when(rel1.getSlotId()).thenReturn(slot1);
       when(rel2.getSlotId()).thenReturn(slot2);

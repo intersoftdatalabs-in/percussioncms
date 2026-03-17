@@ -166,8 +166,8 @@ public class PSWidgetBuilderService implements IPSWidgetBuilderService {
   @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
   public PSWidgetBuilderDefinitionData loadWidgetDefinition(
       @PathParam("definitionId") final long definitionId) {
-      var daoObjectOpt = dao.find(definitionId);
-      return daoObjectOpt.map(PSWidgetBuilderDefinitionData::new).orElse(null);
+    var daoObjectOpt = dao.find(definitionId);
+    return daoObjectOpt.map(PSWidgetBuilderDefinitionData::new).orElse(null);
   }
 
   @Override
@@ -242,9 +242,9 @@ public class PSWidgetBuilderService implements IPSWidgetBuilderService {
           "Unable to create temp widget directory: " + tmpDir.getAbsoluteFile());
     }
     try {
-        var definitionOpt = this.dao.find(definitionId);
-        Validate.isTrue(definitionOpt.isPresent(), "Widget definition not found for deployment");
-        var definition = definitionOpt.get();
+      var definitionOpt = this.dao.find(definitionId);
+      Validate.isTrue(definitionOpt.isPresent(), "Widget definition not found for deployment");
+      var definition = definitionOpt.get();
       var builder = new PSWidgetPackageBuilder(srcFile, tmpDir);
       var spec =
           new PSWidgetPackageSpec(
@@ -256,7 +256,8 @@ public class PSWidgetBuilderService implements IPSWidgetBuilderService {
               PSServer.getVersion());
       spec.setResponsive(definition.isResponsive());
       if (StringUtils.isNotBlank(definition.getWidgetTrayCustomizedIconPath().orElse(""))) {
-        spec.setWidgetTrayCustomizedIconPath(definition.getWidgetTrayCustomizedIconPath().orElse(""));
+        spec.setWidgetTrayCustomizedIconPath(
+            definition.getWidgetTrayCustomizedIconPath().orElse(""));
       }
       if (StringUtils.isNotBlank(definition.getToolTipMessage().orElse(""))) {
         spec.setTooTipMessage(definition.getToolTipMessage().orElse(""));

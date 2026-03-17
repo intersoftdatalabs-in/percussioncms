@@ -27,9 +27,9 @@ import java.io.File;
 import java.util.Collection;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.hibernate.query.Query;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
+import org.hibernate.query.Query;
 
 public class TaxonomyFieldVisibility implements IPSFieldVisibilityRule {
 

@@ -29,7 +29,7 @@ import java.util.Collection;
 @ArraySchema(schema = @Schema(implementation = ObjectSummary.class))
 public class ObjectSummaryList extends ArrayList<ObjectSummary> {
   private static final long serialVersionUID = 1L;
-  
+
   public ObjectSummaryList(Collection<? extends ObjectSummary> c) {
     super(c);
   }

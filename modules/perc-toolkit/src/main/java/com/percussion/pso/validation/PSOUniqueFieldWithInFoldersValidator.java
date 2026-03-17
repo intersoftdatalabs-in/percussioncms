@@ -30,13 +30,13 @@ import com.percussion.extension.IPSFieldValidator;
 import com.percussion.extension.PSExtensionException;
 import com.percussion.pso.utils.PSOExtensionParamsHelper;
 import com.percussion.pso.utils.PSONodeCataloger;
+import com.percussion.security.utils.PSRedirectValidation;
 import com.percussion.server.IPSRequestContext;
 import com.percussion.services.contentmgr.IPSContentMgr;
 import com.percussion.services.contentmgr.PSContentMgrLocator;
 import com.percussion.services.guidmgr.IPSGuidManager;
 import com.percussion.services.guidmgr.PSGuidManagerLocator;
 import com.percussion.system.utils.IPSHtmlParameters;
-import com.percussion.security.utils.PSRedirectValidation;
 import com.percussion.utils.guid.IPSGuid;
 import com.percussion.webservices.PSErrorException;
 import com.percussion.webservices.PSErrorResultsException;
@@ -330,7 +330,8 @@ public class PSOUniqueFieldWithInFoldersValidator implements IPSFieldValidator {
       if (validatedRedirect != null) {
         int index = validatedRedirect.indexOf(IPSHtmlParameters.SYS_FOLDERID);
         if (index >= 0) {
-          folderId = validatedRedirect.substring(index + IPSHtmlParameters.SYS_FOLDERID.length() + 1);
+          folderId =
+              validatedRedirect.substring(index + IPSHtmlParameters.SYS_FOLDERID.length() + 1);
           index = folderId.indexOf('&');
           if (index > -1) folderId = folderId.substring(0, index);
         }

@@ -1038,8 +1038,7 @@ public class PSAssetService extends PSAbstractFullDataService<PSAsset, PSAssetSu
       throws PSDataServiceException, PSItemWorkflowServiceException {
     rejectIfNull("getAssetEditor", "widgetId", widgetId);
     PSWidgetSummary widget = widgetService.find(widgetId);
-    String parentFolderPath =
-        assetUploadFolderPathMap.getFolderPathForType(widget.getType());
+    String parentFolderPath = assetUploadFolderPathMap.getFolderPathForType(widget.getType());
     return getAssetEditor(parentFolderPath, widget);
   }
 

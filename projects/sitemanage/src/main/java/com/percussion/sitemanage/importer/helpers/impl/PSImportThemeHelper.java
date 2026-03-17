@@ -23,12 +23,12 @@ import static org.apache.commons.lang3.Validate.notNull;
 import com.percussion.sitemanage.data.PSPageContent;
 import com.percussion.sitemanage.data.PSSite;
 import com.percussion.sitemanage.data.PSSiteImportCtx;
-import com.percussion.theme.data.PSThemeSummary;
 import com.percussion.sitemanage.error.PSSiteImportException;
 import com.percussion.sitemanage.importer.theme.IPSFileDownloader;
 import com.percussion.sitemanage.importer.theme.PSFileDownloader;
 import com.percussion.sitemanage.importer.theme.PSHTMLHeaderImporter;
 import com.percussion.sitesummaryservice.service.IPSSiteImportSummaryService;
+import com.percussion.theme.data.PSThemeSummary;
 import com.percussion.theme.service.IPSThemeService;
 import com.percussion.utils.types.PSPair;
 import java.io.File;
@@ -93,20 +93,21 @@ public class PSImportThemeHelper extends PSImportHelper {
     try {
       var sourceDoc = pageContent.getSourceDocument();
       String baseUrl = null;
-        var statusMessagePrefix = context.getStatusMessagePrefix().orElse("");
-        if (statusMessagePrefix.contains("template")) {
-          baseUrl = getBaseUrl(context, sourceDoc);
-        } else {
-          baseUrl = site.getBaseUrl().orElse("");
-        }
-        if (baseUrl.equals("")) {
-          baseUrl = context.getSiteUrl().orElse("");
-        }
+      var statusMessagePrefix = context.getStatusMessagePrefix().orElse("");
+      if (statusMessagePrefix.contains("template")) {
+        baseUrl = getBaseUrl(context, sourceDoc);
+      } else {
+        baseUrl = site.getBaseUrl().orElse("");
+      }
+      if (baseUrl.equals("")) {
+        baseUrl = context.getSiteUrl().orElse("");
+      }
 
       var siteName = site.getName();
       String themeRootDirectory =
           themeService.getThemeRootDirectory(themeSummary != null ? themeSummary.getName() : "");
-      String themeRootUrl = themeService.getThemeRootUrl(themeSummary != null ? themeSummary.getName() : "");
+      String themeRootUrl =
+          themeService.getThemeRootUrl(themeSummary != null ? themeSummary.getName() : "");
 
       headerImporter =
           new PSHTMLHeaderImporter(
@@ -136,10 +137,7 @@ public class PSImportThemeHelper extends PSImportHelper {
             IPSSiteImportSummaryService.SiteImportSummaryTypeEnum.STYLESHEETS, linksCount);
         summaryStats.put(IPSSiteImportSummaryService.SiteImportSummaryTypeEnum.FILES, assetsCount);
         if (site.getSiteId().isPresent())
-          context
-              .getSummaryService()
-              .get()
-              .update(site.getSiteId().get().intValue(), summaryStats);
+          context.getSummaryService().get().update(site.getSiteId().get().intValue(), summaryStats);
         else context.setSummaryStats(summaryStats);
       }
     } catch (Exception e) {

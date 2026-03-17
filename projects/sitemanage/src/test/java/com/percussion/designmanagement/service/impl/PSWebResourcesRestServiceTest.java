@@ -17,25 +17,12 @@
 
 package com.percussion.designmanagement.service.impl;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 import com.percussion.designmanagement.service.IPSFileSystemService;
-import com.percussion.designmanagement.service.IPSFileSystemService.PSFileOperationException;
 import com.percussion.user.service.IPSUserService;
-import jakarta.ws.rs.core.Response;
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -45,8 +32,8 @@ import org.mockito.MockitoAnnotations;
 /**
  * Unit tests for PSWebResourcesRestService class.
  *
- * <p>Tests security fix for path traversal vulnerability (CWE-22). Ensures that user-supplied
- * paths are properly validated and cannot escape the intended web resources directory.
+ * <p>Tests security fix for path traversal vulnerability (CWE-22). Ensures that user-supplied paths
+ * are properly validated and cannot escape the intended web resources directory.
  */
 @DisplayName("PSWebResourcesRestService Path Validation Tests")
 class PSWebResourcesRestServiceTest {
@@ -68,10 +55,7 @@ class PSWebResourcesRestServiceTest {
   void testAcceptValidFilePaths() {
     // Given - Valid paths without traversal
     String[] validPaths = {
-      "css/styles.css",
-      "js/app.js",
-      "images/logo.png",
-      "templates/index.html"
+      "css/styles.css", "js/app.js", "images/logo.png", "templates/index.html"
     };
 
     // When/Then - Each valid path should not trigger traversal protection
@@ -102,9 +86,7 @@ class PSWebResourcesRestServiceTest {
   void testRejectAbsolutePaths() {
     // Given - Absolute paths that attempt to access files outside web resources
     String[] absolutePaths = {
-      "/etc/passwd",
-      "/var/www/admin/secret.key",
-      "/opt/percussion/system/config.xml"
+      "/etc/passwd", "/var/www/admin/secret.key", "/opt/percussion/system/config.xml"
     };
 
     // When/Then - Each absolute path should be rejected
@@ -143,8 +125,7 @@ class PSWebResourcesRestServiceTest {
   void testRejectWindowsPathTraversal() {
     // Given - Windows-style path traversal
     String[] windowsTraversalPaths = {
-      "..\\..\\windows\\system32\\config",
-      "css\\..\\..\\admin\\panel.jsp"
+      "..\\..\\windows\\system32\\config", "css\\..\\..\\admin\\panel.jsp"
     };
 
     // When/Then - Windows traversal should be detected and rejected
@@ -158,10 +139,7 @@ class PSWebResourcesRestServiceTest {
   void testSanitizeSpecialCharacters() {
     // Given - Paths with special characters that could be used for injection
     String[] harmfulPaths = {
-      "file<script>.css",
-      "template|dangerous.html",
-      "style;evil.css",
-      "script`command`.js"
+      "file<script>.css", "template|dangerous.html", "style;evil.css", "script`command`.js"
     };
 
     // When/Then - Special characters should be detected
@@ -184,11 +162,7 @@ class PSWebResourcesRestServiceTest {
   @DisplayName("Should handle mixed case file names securely")
   void testHandleMixedCaseFileNames() {
     // Given - File names with mixed case
-    String[] fileNames = {
-      "CSS/Styles.CSS",
-      "Js/Application.JS",
-      "Templates/Index.HTML"
-    };
+    String[] fileNames = {"CSS/Styles.CSS", "Js/Application.JS", "Templates/Index.HTML"};
 
     // When/Then - Should handle case-insensitive systems safely
     for (String fileName : fileNames) {
@@ -210,10 +184,7 @@ class PSWebResourcesRestServiceTest {
   @DisplayName("Should reject symbolic link traversal attempts")
   void testRejectSymbolicLinkTraversal() {
     // Given - Paths that might use symbolic links for traversal
-    String[] symlinkPaths = {
-      "images/link_to_etc",
-      "css/../../sensitive/link"
-    };
+    String[] symlinkPaths = {"images/link_to_etc", "css/../../sensitive/link"};
 
     // When/Then - Symlink-based traversal should be prevented
     for (String symlinkPath : symlinkPaths) {
@@ -225,11 +196,7 @@ class PSWebResourcesRestServiceTest {
   @DisplayName("Should prevent path normalization bypass")
   void testPreventPathNormalizationBypass() {
     // Given - Paths that attempt to bypass normalization
-    String[] bypassPaths = {
-      "css/./../../config",
-      "js///../admin.jsp",
-      "template/...xml"
-    };
+    String[] bypassPaths = {"css/./../../config", "js///../admin.jsp", "template/...xml"};
 
     // When/Then - Normalization bypass attempts should be detected
     for (String bypassPath : bypassPaths) {
@@ -246,12 +213,8 @@ class PSWebResourcesRestServiceTest {
    */
   private void assertValidPathFormat(String path) {
     assertNotNull(path);
-    assertFalse(
-        path.contains(".."),
-        "Valid path should not contain ../ or ..\\ sequences");
-    assertFalse(
-        path.startsWith("/"),
-        "Valid path should not be absolute");
+    assertFalse(path.contains(".."), "Valid path should not contain ../ or ..\\ sequences");
+    assertFalse(path.startsWith("/"), "Valid path should not be absolute");
   }
 
   /**
@@ -260,9 +223,7 @@ class PSWebResourcesRestServiceTest {
    * @param traversalPath the path to test
    */
   private void assertTraversalRejected(String traversalPath) {
-    assertTrue(
-        traversalPath.contains(".."),
-        "Test path should contain traversal sequence");
+    assertTrue(traversalPath.contains(".."), "Test path should contain traversal sequence");
     // In a real implementation, this would be validated by the service
   }
 
@@ -273,7 +234,8 @@ class PSWebResourcesRestServiceTest {
    */
   private void assertAbsolutePathRejected(String absolutePath) {
     assertTrue(
-        absolutePath.startsWith("/") || (absolutePath.length() > 2 && absolutePath.charAt(1) == ':'),
+        absolutePath.startsWith("/")
+            || (absolutePath.length() > 2 && absolutePath.charAt(1) == ':'),
         "Path should be absolute");
   }
 
@@ -304,9 +266,7 @@ class PSWebResourcesRestServiceTest {
    * @param traversalPath the path to test
    */
   private void assertTraversalDetection(String traversalPath) {
-    assertTrue(
-        traversalPath.contains(".."),
-        "Path should contain traversal attempt");
+    assertTrue(traversalPath.contains(".."), "Path should contain traversal attempt");
   }
 
   /**

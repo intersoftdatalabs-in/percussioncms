@@ -66,11 +66,11 @@ import com.percussion.guitools.PSAboutDialog;
 import com.percussion.guitools.UTBrowserControl;
 import com.percussion.i18n.ui.PSI18NTranslationKeyValues;
 import com.percussion.search.PSSearchFieldFilterMap;
-import com.percussion.tools.help.PSJavaHelp;
 import com.percussion.system.utils.IPSHtmlParameters;
 import com.percussion.system.utils.PSFormatVersion;
-import com.percussion.util.PSHttpConnection;
 import com.percussion.system.utils.PSHttpUtils;
+import com.percussion.tools.help.PSJavaHelp;
+import com.percussion.util.PSHttpConnection;
 import com.percussion.util.PSLineBreaker;
 import com.percussion.util.PSRemoteAppletRequester;
 import com.percussion.util.PSURLEncoder;
@@ -117,7 +117,6 @@ import javafx.scene.control.ButtonType;
 import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JComponent;
-import javax.swing.JDialog;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -311,7 +310,9 @@ public class PSActionManager implements IPSConstants, IPSSelectionListener {
         slotEl = PSXMLDomUtil.getNextElementSibling(slotEl);
       }
     } catch (Exception e) {
-      /** @todo handle error properly and I18n. */
+      /**
+       * @todo handle error properly and I18n.
+       */
       throw new PSContentExplorerException(1000, e.getMessage());
     }
   }
@@ -584,7 +585,6 @@ public class PSActionManager implements IPSConstants, IPSSelectionListener {
    * @return the specified action. Never <code>null</code>.
    * @throws PSContentExplorerException if an error occurs.
    */
-
   private PSMenuAction addChildMenuActions(PSMenuAction action, PSSelection selection)
       throws PSContentExplorerException {
     Iterator childActions = null;
@@ -1749,7 +1749,9 @@ public class PSActionManager implements IPSConstants, IPSSelectionListener {
       newAction = (PSMenuAction) newAction.clone();
       action = newAction.merge(action);
     } catch (Exception ex) {
-      /** @todo catching the right exception ?? */
+      /**
+       * @todo catching the right exception ??
+       */
       ex.printStackTrace();
     }
     return action;
@@ -2056,7 +2058,9 @@ public class PSActionManager implements IPSConstants, IPSSelectionListener {
                       MessageFormat.format(
                           m_applet.getResourceString(
                               getClass(),
-                              "An error occurred processing action {0} in batch mode. The error returned was: {1}. \n\nDo you want to continue?"),
+                              "An error occurred processing action {0} in batch mode. The error"
+                                  + " returned was: {1}. \n\n"
+                                  + "Do you want to continue?"),
                           args);
 
                   PSLineBreaker.wrapString(error, 78, 77, "\n");
@@ -2074,9 +2078,8 @@ public class PSActionManager implements IPSConstants, IPSSelectionListener {
             } catch (PSContentExplorerException e) {
               String msg =
                   "Failed to acquire initial states of items, no items were transitioned: "
-                        + e.getLocalizedMessage();
+                      + e.getLocalizedMessage();
               showJavaFXErrorDialog(msg, "Fatal Error");
-
             }
 
             // dirty processed nodes
@@ -3075,7 +3078,8 @@ public class PSActionManager implements IPSConstants, IPSSelectionListener {
 
           // LiveConnect (JSObject.getWindow) was removed in JDK 11.
           // TODO: Implement alternative mechanism to call refreshParent.
-          log.warn("LiveConnect is no longer available; cannot call refreshParent JavaScript method.");
+          log.warn(
+              "LiveConnect is no longer available; cannot call refreshParent JavaScript method.");
         }
       } else if (action.getName().endsWith(ACTION_CHANGE_VARIANT)) {
         if (m_applet.getView().equals(PSUiMode.TYPE_VIEW_IA)) {
@@ -3993,7 +3997,9 @@ public class PSActionManager implements IPSConstants, IPSSelectionListener {
     if (selection == null || selection.getNodeListSize() < 1)
       throw new IllegalArgumentException("selection must not be null or empty");
 
-    /** @todo actions to be mergded and filtered based several conditions */
+    /**
+     * @todo actions to be mergded and filtered based several conditions
+     */
     PSNode node = (PSNode) selection.getNodeList().next();
     String actionUrl =
         "../sys_cxSupport/ActionList.html?sys_action="
@@ -4695,7 +4701,9 @@ public class PSActionManager implements IPSConstants, IPSSelectionListener {
             if (!checkSlotAllowedContent(source, target)) return false;
           }
         } catch (Exception ex) {
-          /** @todo handle exception */
+          /**
+           * @todo handle exception
+           */
         }
       }
     } else
@@ -4789,7 +4797,6 @@ public class PSActionManager implements IPSConstants, IPSSelectionListener {
    *     applied.
    * @throws PSContentExplorerException
    */
-
   private Map prepareSearchFilterMap(PSNode searchNode) throws PSContentExplorerException {
 
     Map fm = new HashMap();
@@ -4877,7 +4884,6 @@ public class PSActionManager implements IPSConstants, IPSSelectionListener {
   }
 
   /** Helper function to hide or show the New Search node based whther it was initialized or not. */
-
   private void hideOrShowNewSearchNode() {
     if (m_searchResultsNode == null) return; // Should never happen
 
@@ -5102,7 +5108,8 @@ public class PSActionManager implements IPSConstants, IPSSelectionListener {
     }
 
     private boolean isRender(String url) {
-      if ((url.toLowerCase().contains("/render") && !url.toLowerCase().contains("sys_action"))) ;
+      if ((url.toLowerCase().contains("/render") && !url.toLowerCase().contains("sys_action")))
+        ;
       return false;
     }
 
@@ -5369,8 +5376,8 @@ public class PSActionManager implements IPSConstants, IPSSelectionListener {
   }
 
   /**
-   * Shows a JavaFX confirmation dialog as replacement for JOptionPane.
-   * This provides better integration with the JavaFX-based application.
+   * Shows a JavaFX confirmation dialog as replacement for JOptionPane. This provides better
+   * integration with the JavaFX-based application.
    *
    * @param message the message to display
    * @param title the dialog title
@@ -5385,8 +5392,7 @@ public class PSActionManager implements IPSConstants, IPSSelectionListener {
       var result = alert.showAndWait();
       return result.isPresent() && result.get() == ButtonType.OK;
     } else {
-      return JOptionPane.showConfirmDialog(
-              getApplet(), message, title, JOptionPane.YES_NO_OPTION)
+      return JOptionPane.showConfirmDialog(getApplet(), message, title, JOptionPane.YES_NO_OPTION)
           == JOptionPane.YES_OPTION;
     }
   }

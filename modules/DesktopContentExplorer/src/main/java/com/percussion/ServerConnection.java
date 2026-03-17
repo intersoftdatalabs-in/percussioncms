@@ -172,8 +172,10 @@ public class ServerConnection implements IConnectionSource {
   //////////////////////////////////////////////////////////////////////////////
   /** the login properties */
   private Properties m_connProps;
+
   /** the designer connection */
   private PSDesignerConnection m_connection = null;
+
   /** Resources */
   private static ResourceBundle m_res;
 }

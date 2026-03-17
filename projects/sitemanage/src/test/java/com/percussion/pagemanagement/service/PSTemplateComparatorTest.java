@@ -18,8 +18,8 @@
 
 package com.percussion.pagemanagement.service;
 
-import static java.util.Arrays.asList;
 import static com.percussion.test.TestAssertions.*;
+import static java.util.Arrays.asList;
 
 import com.percussion.pagemanagement.data.PSTemplateSummary;
 import com.percussion.pagemanagement.service.impl.PSTemplateService.PSTemplateSorter;

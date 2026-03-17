@@ -1405,7 +1405,8 @@ public class PSSiteSectionService implements IPSSiteSectionService {
    */
   private void unsecureNode(PSSectionNode sectionTree) {
     // check first if the update is needed
-    if (!sectionTree.isRequiresLogin() && StringUtils.isBlank(sectionTree.getAllowAccessTo().orElse(""))) {
+    if (!sectionTree.isRequiresLogin()
+        && StringUtils.isBlank(sectionTree.getAllowAccessTo().orElse(""))) {
       return;
     }
 
@@ -1683,11 +1684,11 @@ public class PSSiteSectionService implements IPSSiteSectionService {
     List<PSSectionNode> childNodes = new ArrayList<>();
     if (section.getSectionType() == PSSectionTypeEnum.section) {
       IPSGuid sectionGuid = idMapper.getGuid(section.getId());
-        // display title path is optional, fall back to generated path when empty
-        String displayPath = section.getDisplayTitlePath().orElse("");
-        if (StringUtils.isEmpty(displayPath)) {
-            displayPath = buildDisplayTitlePath(sectionGuid);
-        }
+      // display title path is optional, fall back to generated path when empty
+      String displayPath = section.getDisplayTitlePath().orElse("");
+      if (StringUtils.isEmpty(displayPath)) {
+        displayPath = buildDisplayTitlePath(sectionGuid);
+      }
       for (String id : section.getChildIds()) {
         try {
           PSSiteSection cSection =
@@ -1834,7 +1835,7 @@ public class PSSiteSectionService implements IPSSiteSectionService {
     page.setTemplateId(req.getTemplateId());
     page.setLinkTitle(req.getPageLinkTitle());
 
-pageDaoHelper.setWorkflowAccordingToParentFolder(page);
+    pageDaoHelper.setWorkflowAccordingToParentFolder(page);
 
     page = pageDao.save(page);
     IPSGuid pageId = idMapper.getGuid(page.getId());

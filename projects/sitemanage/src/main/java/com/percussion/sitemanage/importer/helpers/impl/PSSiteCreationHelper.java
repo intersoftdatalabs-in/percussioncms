@@ -17,7 +17,6 @@
  */
 package com.percussion.sitemanage.importer.helpers.impl;
 
-
 import com.percussion.pagemanagement.service.IPSPageService;
 import com.percussion.share.IPSSitemanageConstants;
 import com.percussion.share.service.exception.PSDataServiceException;
@@ -68,7 +67,10 @@ public class PSSiteCreationHelper extends PSImportHelper {
         .getLogger()
         .appendLogMessage(PSLogEntryType.STATUS, "Create Site", "The site creation has started.");
 
-    var newSite = context.getSite().orElseThrow(() -> new IllegalStateException("Site must be provided in context"));
+    var newSite =
+        context
+            .getSite()
+            .orElseThrow(() -> new IllegalStateException("Site must be provided in context"));
 
     // Set plain template as base template
     newSite.setBaseTemplateName(IPSSitemanageConstants.PLAIN_BASE_TEMPLATE_NAME);
@@ -108,13 +110,16 @@ public class PSSiteCreationHelper extends PSImportHelper {
 
       // Create site import summary entry
       long siteId = savedSite.getSiteId().orElseThrow();
-      context.getSummaryService().ifPresent(svc -> {
-          try {
-              svc.create((int) siteId);
-          } catch (com.percussion.share.dao.IPSGenericDao.SaveException e) {
-              throw new RuntimeException(e);
-          }
-      });
+      context
+          .getSummaryService()
+          .ifPresent(
+              svc -> {
+                try {
+                  svc.create((int) siteId);
+                } catch (com.percussion.share.dao.IPSGenericDao.SaveException e) {
+                  throw new RuntimeException(e);
+                }
+              });
 
       // Update the template and page count
       var summaryStats =
@@ -125,13 +130,16 @@ public class PSSiteCreationHelper extends PSImportHelper {
       }
       summaryStats.put(IPSSiteImportSummaryService.SiteImportSummaryTypeEnum.TEMPLATES, 1);
       summaryStats.put(IPSSiteImportSummaryService.SiteImportSummaryTypeEnum.PAGES, 1);
-      context.getSummaryService().ifPresent(svc -> {
-          try {
-              svc.update((int) siteId, summaryStats);
-          } catch (com.percussion.share.dao.IPSGenericDao.SaveException e) {
-              throw new RuntimeException(e);
-          }
-      });
+      context
+          .getSummaryService()
+          .ifPresent(
+              svc -> {
+                try {
+                  svc.update((int) siteId, summaryStats);
+                } catch (com.percussion.share.dao.IPSGenericDao.SaveException e) {
+                  throw new RuntimeException(e);
+                }
+              });
 
     } catch (RuntimeException | PSDataServiceException e) {
       // Errors in mandatory helpers are not logged in siteImportLogger,

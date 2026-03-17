@@ -92,9 +92,9 @@ public class PSTrafficService implements IPSTrafficService {
   @Override
   public PSContentTraffic getContentTraffic(PSContentTrafficRequest request)
       throws PSTrafficServiceException, PSValidationException {
-String path = request.getPath();
-      String startDate = request.getStartDate();
-      String endDate = request.getEndDate();
+    String path = request.getPath();
+    String startDate = request.getStartDate();
+    String endDate = request.getEndDate();
     String granularity = request.getGranularity().orElse("");
     List<String> dataReq = request.getTrafficRequested().orElse(Collections.emptyList());
 
@@ -182,9 +182,9 @@ String path = request.getPath();
       throws PSTrafficServiceException,
           PSDataServiceException,
           IPSPathService.PSPathServiceException {
-String path = request.getPath();
-      String startDate = request.getStartDate();
-      String endDate = request.getEndDate();
+    String path = request.getPath();
+    String startDate = request.getStartDate();
+    String endDate = request.getEndDate();
 
     PSDateRange range;
     try {

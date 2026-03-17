@@ -17,6 +17,10 @@
  */
 package com.percussion.pathmanagement.service.impl;
 
+import static org.apache.commons.lang3.Validate.notEmpty;
+import static org.springframework.util.StringUtils.trimLeadingCharacter;
+import static org.springframework.util.StringUtils.trimTrailingCharacter;
+
 import com.percussion.cms.objectstore.server.PSItemDefManager;
 import com.percussion.designmanagement.service.IPSFileSystemService;
 import com.percussion.designmanagement.service.IPSFileSystemService.PSExistingFolderException;
@@ -45,12 +49,6 @@ import java.io.IOException;
 import java.util.*;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
-
-// common validation helpers
-import static org.apache.commons.lang3.Validate.notEmpty;
-// spring utility for trimming characters
-import static org.springframework.util.StringUtils.trimLeadingCharacter;
-import static org.springframework.util.StringUtils.trimTrailingCharacter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 

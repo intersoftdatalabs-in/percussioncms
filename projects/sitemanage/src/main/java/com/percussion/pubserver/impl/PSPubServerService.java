@@ -32,6 +32,7 @@ import com.percussion.legacy.security.deprecated.PSAesCBC;
 import com.percussion.pubserver.IPSPubServerService;
 import com.percussion.pubserver.data.PSPublishServerInfo;
 import com.percussion.pubserver.data.PSPublishServerProperty;
+import com.percussion.pubserver.impl.helper.PSPubServerPropertyHelper;
 import com.percussion.rx.delivery.impl.PSBaseDeliveryHandler;
 import com.percussion.rx.publisher.IPSRxPublisherService;
 import com.percussion.security.PSEncryptionException;
@@ -51,7 +52,6 @@ import com.percussion.services.publisher.PSPublisherServiceLocator;
 import com.percussion.services.pubserver.IPSDatabasePubServerFilesService;
 import com.percussion.services.pubserver.IPSPubServer;
 import com.percussion.services.pubserver.IPSPubServerDao;
-import com.percussion.pubserver.impl.helper.PSPubServerPropertyHelper;
 import com.percussion.services.pubserver.data.PSDatabasePubServer;
 import com.percussion.services.pubserver.data.PSDatabasePubServer.DriverType;
 import com.percussion.services.pubserver.data.PSPubServer;
@@ -66,8 +66,8 @@ import com.percussion.sitemanage.dao.IPSSitePublishDao;
 import com.percussion.sitemanage.data.PSPubInfo;
 import com.percussion.sitemanage.data.PSPublisherInfo;
 import com.percussion.sitemanage.data.PSSaasSiteConfig;
-import com.percussion.sitemanage.data.PSSitePublishJob;
 import com.percussion.sitemanage.data.PSSiteConfig;
+import com.percussion.sitemanage.data.PSSitePublishJob;
 import com.percussion.sitemanage.impl.PSSitePublishDaoHelper;
 import com.percussion.sitemanage.service.IPSSiteDataService;
 import com.percussion.sitemanage.service.IPSSiteDataService.PublishType;
@@ -345,7 +345,7 @@ public class PSPubServerService implements IPSPubServerService {
       }
 
       // Create staging ondemand editions
-      if (PSPubServer.STAGING.equalsIgnoreCase(server.getServerType().orElse("" ))) {
+      if (PSPubServer.STAGING.equalsIgnoreCase(server.getServerType().orElse(""))) {
         sitePublishDao.addStagingPublishNow(site);
         sitePublishDao.addStagingUnpublishNow(site);
       }
@@ -699,9 +699,12 @@ public class PSPubServerService implements IPSPubServerService {
     }
     server.setPublishType(PublishType.amazon_s3.toString());
     // unwrap optionals safely
-    PSSiteConfig sc = siteConfig.getSiteConfig()
+    PSSiteConfig sc =
+        siteConfig
+            .getSiteConfig()
             .orElseThrow(() -> new PSPubServerServiceException("Missing site config"));
-    PSPublisherInfo pubInfo = sc.getPublisherInfo()
+    PSPublisherInfo pubInfo =
+        sc.getPublisherInfo()
             .orElseThrow(() -> new PSPubServerServiceException("Missing publisher info"));
     server.addProperty(IPSPubServerDao.PUBLISH_AS3_BUCKET_PROPERTY, pubInfo.getBucketName());
     String accessKey =
@@ -769,10 +772,12 @@ public class PSPubServerService implements IPSPubServerService {
     for (PSPubServer pubServer : pubServers) {
       if (!pubServer.isDatabaseType()
           && pubServer
-              .getPropertyValue(IPSPubServerDao.PUBLISH_OWN_SERVER_PROPERTY).orElse("")
+              .getPropertyValue(IPSPubServerDao.PUBLISH_OWN_SERVER_PROPERTY)
+              .orElse("")
               .equalsIgnoreCase(Boolean.FALSE.toString())) {
         if (pubServer.isFtpType()) {
-          String curRoot = pubServer.getPropertyValue(IPSPubServerDao.PUBLISH_FOLDER_PROPERTY).orElse("");
+          String curRoot =
+              pubServer.getPropertyValue(IPSPubServerDao.PUBLISH_FOLDER_PROPERTY).orElse("");
 
           if (oldName != null) {
             serverRoot = siteDataService.getBasePublishingRoot(curRoot, oldName);
@@ -900,7 +905,7 @@ public class PSPubServerService implements IPSPubServerService {
       throws PSPubServerServiceException {
     // Grab old password for FTP in case we need it
     PSPubServerProperty oldPasswordProperty =
-          server.getProperty(IPSPubServerDao.PUBLISH_PASSWORD_PROPERTY).orElse(null);
+        server.getProperty(IPSPubServerDao.PUBLISH_PASSWORD_PROPERTY).orElse(null);
     if (server.getProperties() != null) {
       server.getProperties().clear();
     }
@@ -1177,7 +1182,9 @@ public class PSPubServerService implements IPSPubServerService {
         || equalsIgnoreCase(pubType, PublishType.amazon_s3.toString())
         || equalsIgnoreCase(pubType, PublishType.amazon_s3_only.toString())) {
       if (PublishType.sftp_only.toString().equals(pubType)) {
-        String driver = PSPubServerPropertyHelper.findProperty(properties, IPSPubServerDao.PUBLISH_DRIVER_PROPERTY);
+        String driver =
+            PSPubServerPropertyHelper.findProperty(
+                properties, IPSPubServerDao.PUBLISH_DRIVER_PROPERTY);
         if (driver != null && driver.equals(PSPubServerService.DRIVER_FTP)) {
           PSPubServerPropertyHelper.updateProperty(
               serverInfo.getProperties(),
@@ -1220,8 +1227,8 @@ public class PSPubServerService implements IPSPubServerService {
   private void setPublishDates(
       IPSPubServer pubServer, IPSSite site, PSPublishServerInfo serverInfo) {
     IPSEdition fullEdition = sitePublishDao.findEdition(pubServer.getGUID(), PubType.FULL);
-List<IPSPubStatus> fullStats = publisherService.findPubStatusByEdition(fullEdition.getGUID());
-      IPSPubStatus fullPubStatus = fullStats.isEmpty() ? null : fullStats.get(fullStats.size() - 1);
+    List<IPSPubStatus> fullStats = publisherService.findPubStatusByEdition(fullEdition.getGUID());
+    IPSPubStatus fullPubStatus = fullStats.isEmpty() ? null : fullStats.get(fullStats.size() - 1);
 
     if (fullPubStatus != null) {
       serverInfo.setLastFullPublishDate(fullPubStatus.getStartDate());
@@ -1251,7 +1258,8 @@ List<IPSPubStatus> fullStats = publisherService.findPubStatusByEdition(fullEditi
    * @param serverInfo the server info to be handled
    */
   private void setPasswordFlags(IPSPubServer pubServer, PSPublishServerInfo serverInfo) {
-    String passwordValue = pubServer.getPropertyValue(IPSPubServerDao.PUBLISH_PASSWORD_PROPERTY).orElse("");
+    String passwordValue =
+        pubServer.getPropertyValue(IPSPubServerDao.PUBLISH_PASSWORD_PROPERTY).orElse("");
     PSPubServerProperty privateKeyProperty =
         pubServer.getProperty(IPSPubServerDao.PUBLISH_PRIVATE_KEY_PROPERTY).orElse(null);
     String privatekeyValue = EMPTY;
@@ -1333,11 +1341,17 @@ List<IPSPubStatus> fullStats = publisherService.findPubStatusByEdition(fullEditi
       IPSPubServer pubServer, IPSSite site, PSPublishServerInfo serverInfo) {
     Boolean isOwnServer =
         Boolean.parseBoolean(
-                pubServer.getProperty(IPSPubServerDao.PUBLISH_OWN_SERVER_PROPERTY).map(PSPubServerProperty::getValue).orElse("false"))
+                pubServer
+                    .getProperty(IPSPubServerDao.PUBLISH_OWN_SERVER_PROPERTY)
+                    .map(PSPubServerProperty::getValue)
+                    .orElse("false"))
             ? true
             : false;
-    String folderValue = pubServer.getProperty(IPSPubServerDao.PUBLISH_FOLDER_PROPERTY)
-                          .map(PSPubServerProperty::getValue).orElse("");
+    String folderValue =
+        pubServer
+            .getProperty(IPSPubServerDao.PUBLISH_FOLDER_PROPERTY)
+            .map(PSPubServerProperty::getValue)
+            .orElse("");
     String publishType = pubServer.getPublishType();
 
     PSPublishServerProperty defaultServerFlagProperty = new PSPublishServerProperty();
@@ -1426,8 +1440,11 @@ List<IPSPubStatus> fullStats = publisherService.findPubStatusByEdition(fullEditi
    * @param serverInfo
    */
   private void setFormatFlags(IPSPubServer pubServer, PSPublishServerInfo serverInfo) {
-    String formatValue = pubServer.getProperty(IPSPubServerDao.PUBLISH_FORMAT_PROPERTY)
-                          .map(PSPubServerProperty::getValue).orElse("");
+    String formatValue =
+        pubServer
+            .getProperty(IPSPubServerDao.PUBLISH_FORMAT_PROPERTY)
+            .map(PSPubServerProperty::getValue)
+            .orElse("");
     String htmlValue = formatValue.equalsIgnoreCase(HTML_FLAG) ? "true" : "false";
     String xmlValue = formatValue.equalsIgnoreCase(XML_FLAG) ? "true" : "false";
 
@@ -1537,7 +1554,7 @@ List<IPSPubStatus> fullStats = publisherService.findPubStatusByEdition(fullEditi
    */
   private void updatePublishTypeForStaging(IPSPubServer server) {
     String pubType = server.getPublishType();
-    if (PSPubServer.STAGING.equalsIgnoreCase(server.getServerType().orElse("" ))) {
+    if (PSPubServer.STAGING.equalsIgnoreCase(server.getServerType().orElse(""))) {
       if (pubType.endsWith("_only")) {
         server.setPublishType(pubType.replace("_only", ""));
       }
@@ -2169,7 +2186,7 @@ List<IPSPubStatus> fullStats = publisherService.findPubStatusByEdition(fullEditi
     }
 
     PSPubServerProperty accessKeyProp =
-          pubServer.getProperty(IPSPubServerDao.PUBLISH_AS3_ACCESSKEY_PROPERTY).orElse(null);
+        pubServer.getProperty(IPSPubServerDao.PUBLISH_AS3_ACCESSKEY_PROPERTY).orElse(null);
     // As will be null in case of EC2 instance
     String accessKey = null;
     if (accessKeyProp != null) {
@@ -2196,7 +2213,8 @@ List<IPSPubStatus> fullStats = publisherService.findPubStatusByEdition(fullEditi
       }
     }
     String region = null;
-    PSPubServerProperty regioProp = pubServer.getProperty(IPSPubServerDao.PUBLISH_EC2_REGION).orElse(null);
+    PSPubServerProperty regioProp =
+        pubServer.getProperty(IPSPubServerDao.PUBLISH_EC2_REGION).orElse(null);
     if (regioProp != null) {
       region = regioProp.getValue();
     }
@@ -2208,7 +2226,8 @@ List<IPSPubStatus> fullStats = publisherService.findPubStatusByEdition(fullEditi
     }
 
     String arnRole = null;
-    PSPubServerProperty arnRoleProp = pubServer.getProperty(IPSPubServerDao.PUBLISH_AS3_ARN_ROLE).orElse(null);
+    PSPubServerProperty arnRoleProp =
+        pubServer.getProperty(IPSPubServerDao.PUBLISH_AS3_ARN_ROLE).orElse(null);
     if (arnRoleProp != null) {
       arnRole = arnRoleProp.getValue();
     }

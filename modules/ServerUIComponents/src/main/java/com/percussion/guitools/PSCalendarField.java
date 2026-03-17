@@ -37,6 +37,7 @@ import javax.swing.event.DocumentListener;
  */
 public class PSCalendarField extends JPanel implements ActionListener {
   private static final long serialVersionUID = 1L;
+
   /**
    * Constructs a new <code>PSCalendarField</code>
    *

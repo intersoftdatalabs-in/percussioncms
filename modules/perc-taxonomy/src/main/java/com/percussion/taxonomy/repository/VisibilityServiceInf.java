@@ -21,8 +21,8 @@ import com.percussion.taxonomy.domain.Visibility;
 import java.util.Collection;
 
 /**
- * Service interface for managing Visibility entities.
- * Provides CRUD operations for controlling node visibility in different contexts.
+ * Service interface for managing Visibility entities. Provides CRUD operations for controlling node
+ * visibility in different contexts.
  */
 public interface VisibilityServiceInf {
 

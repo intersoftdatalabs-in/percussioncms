@@ -33,25 +33,27 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Action to get the content editor field value.
- * Loads the item using web services and gets the value of the field with the name specified in the object ID.
- * 
- * <p>Required parameters:</p>
+ * Action to get the content editor field value. Loads the item using web services and gets the
+ * value of the field with the name specified in the object ID.
+ *
+ * <p>Required parameters:
+ *
  * <ul>
- *   <li>objectId - {@link PSAAObjectId} containing contentId and fieldName</li>
+ *   <li>objectId - {@link PSAAObjectId} containing contentId and fieldName
  * </ul>
- * 
+ *
  * @param params the map of action parameters containing the object ID
  * @return an {@link PSActionResponse} containing the field value as HTML
- * @throws PSAAClientActionException if an error occurs while loading the item or retrieving the field value
+ * @throws PSAAClientActionException if an error occurs while loading the item or retrieving the
+ *     field value
  */
 public class PSGetContentEditorFieldValueAction extends PSAAActionBase {
-  
+
   /**
    * Executes the action to retrieve a field value from a content item.
    *
-   * @param params a map containing:
-   *   - objectId: the {@link PSAAObjectId} with contentId and fieldName
+   * @param params a map containing: - objectId: the {@link PSAAObjectId} with contentId and
+   *     fieldName
    * @return PSActionResponse containing the field value as an HTML string
    * @throws PSAAClientActionException if the item cannot be loaded or the field retrieved
    */

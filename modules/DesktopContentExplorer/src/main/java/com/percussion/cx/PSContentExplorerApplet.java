@@ -907,8 +907,12 @@ public class PSContentExplorerApplet extends JApplet implements IPSActionListene
    * @throws PSContentExplorerException
    */
   private void initView()
-      throws IOException, SAXException, PSUnknownNodeTypeException, ParserConfigurationException,
-          PSCmsException, PSContentExplorerException {
+      throws IOException,
+          SAXException,
+          PSUnknownNodeTypeException,
+          ParserConfigurationException,
+          PSCmsException,
+          PSContentExplorerException {
     // Add you as listener, so can listen on to refresh options and
     // action initiated process.
     m_actManager.addActionListener(this);
@@ -1292,7 +1296,9 @@ public class PSContentExplorerApplet extends JApplet implements IPSActionListene
    * @return client context
    */
   public String getClientContext() {
-    /** @todo implement me */
+    /**
+     * @todo implement me
+     */
     return "client context";
   }
 
@@ -1653,7 +1659,9 @@ public class PSContentExplorerApplet extends JApplet implements IPSActionListene
     else return null;
   }
 
-  /** @return <code>true</code> if content needs to be restricted to user community. */
+  /**
+   * @return <code>true</code> if content needs to be restricted to user community.
+   */
   public boolean isContentRestrict() {
     return ms_restrictContent;
   }
@@ -1874,7 +1882,9 @@ public class PSContentExplorerApplet extends JApplet implements IPSActionListene
         try {
           // LiveConnect (JSObject.getWindow) was removed in JDK 11.
           // TODO: Implement alternative mechanism to redirect to login.
-          log.warn("LiveConnect is no longer available; cannot redirect to login screen via JavaScript.");
+          log.warn(
+              "LiveConnect is no longer available; cannot redirect to login screen via"
+                  + " JavaScript.");
           hasErrors = true;
         } catch (Exception e) {
           hasErrors = true;
@@ -1893,7 +1903,6 @@ public class PSContentExplorerApplet extends JApplet implements IPSActionListene
    *
    * @return Never <code>null</code>.
    */
-
   public Set getFlaggedFolderSet() {
     return new HashSet(ms_flaggedFolders);
   }
@@ -1905,7 +1914,6 @@ public class PSContentExplorerApplet extends JApplet implements IPSActionListene
    *     empty and must be a numeric string.
    * @param add if set to <code>true</code> will add the folderid to the set else it will remove it
    */
-
   public void toggleFlaggedFolder(String folderid, boolean add) {
     if (folderid == null || folderid.trim().length() == 0)
       throw new IllegalArgumentException("folderid cannot be null or empty.");
@@ -1930,7 +1938,6 @@ public class PSContentExplorerApplet extends JApplet implements IPSActionListene
    * @throws SAXException
    * @throws ParserConfigurationException
    */
-
   public void loadFlaggedFoldersSet()
       throws IOException, SAXException, ParserConfigurationException {
     Set flags = new HashSet();
@@ -2403,7 +2410,8 @@ public class PSContentExplorerApplet extends JApplet implements IPSActionListene
     private void focusBannerFrame() {
       // LiveConnect (JSObject.getWindow) was removed in JDK 11.
       // TODO: Implement alternative mechanism for focusing the banner frame.
-      log.warn("LiveConnect is no longer available; cannot call focusBannerFrame JavaScript method.");
+      log.warn(
+          "LiveConnect is no longer available; cannot call focusBannerFrame JavaScript method.");
     }
 
     /** The current applet object, init by ctor, never <code>null</code> after that. */

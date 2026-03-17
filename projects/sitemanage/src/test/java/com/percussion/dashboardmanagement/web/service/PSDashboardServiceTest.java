@@ -17,7 +17,6 @@
 package com.percussion.dashboardmanagement.web.service;
 
 import static com.percussion.test.TestAssertions.*;
-import static com.percussion.test.TestAssertions.*;
 
 import com.percussion.dashboardmanagement.data.PSDashboard;
 import com.percussion.share.test.PSDataServiceRestClient;

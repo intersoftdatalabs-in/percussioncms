@@ -31,8 +31,8 @@ import com.percussion.services.legacy.PSCmsObjectMgrLocator;
 import java.io.File;
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.Optional;
 import java.util.Iterator;
+import java.util.Optional;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -139,8 +139,7 @@ public class PSExitDisallowUpdatePublished implements IPSRequestPreProcessor {
       int nWorkFlowAppID = csc.getWorkflowID();
       int nStateID = csc.getContentStateID();
       IPSCmsObjectMgr cms = PSCmsObjectMgrLocator.getObjectManager();
-      Optional<? extends IPSStatesContext> scOpt =
-          cms.loadWorkflowState(nWorkFlowAppID, nStateID);
+      Optional<? extends IPSStatesContext> scOpt = cms.loadWorkflowState(nWorkFlowAppID, nStateID);
 
       if (scOpt.isEmpty()) {
         ms_log.error("Failure loading state information");

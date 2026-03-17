@@ -15,9 +15,9 @@
  * limitations under the License.
  */
 package com.percussion.guitools;
-import java.io.Serializable;
 
 import java.awt.*;
+import java.io.Serializable;
 
 /**
  * Event fired when an action occurs on the paging control.

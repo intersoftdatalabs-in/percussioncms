@@ -50,6 +50,7 @@ import org.hibernate.annotations.OnDeleteAction;
 @Table(name = "PERC_PAGE_COMMENTS")
 public class PSComment implements IPSComment, Serializable {
   private static final long serialVersionUID = 1L;
+
   @TableGenerator(
       name = "commentId",
       table = "PERC_ID_GEN",

@@ -16,11 +16,11 @@
  */
 
 package com.percussion.guitools;
-import java.io.Serializable;
 
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
@@ -42,6 +42,7 @@ import javax.swing.*;
  */
 public class PSCalendarButton extends JButton implements ActionListener, Serializable {
   private static final long serialVersionUID = 1L;
+
   /**
    * Ctor that implements the default behavior for this class. Uses the standard calendar icon and
    * tooltip text for the button.

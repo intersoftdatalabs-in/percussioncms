@@ -158,7 +158,6 @@ public class PSObjectRestClient extends PSRestClient {
     return sw.getBuffer().toString();
   }
 
-
   protected <T> T objectFromResponseBody(String response, Class<T> type) {
     try {
       var context = JAXBContext.newInstance(type);
@@ -176,7 +175,6 @@ public class PSObjectRestClient extends PSRestClient {
       throw new DataRestClientMarshalException("Error converting to JSON", e);
     }
   }
-
 
   protected <T> List<T> objectsFromResponseBody(String response, Class<T> type) {
     // JAXB can't handle lists that well without help. CXF has the help built in.

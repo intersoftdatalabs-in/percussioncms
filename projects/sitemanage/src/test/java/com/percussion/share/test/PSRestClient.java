@@ -44,8 +44,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /**
- * A wrapper around a modern HTTP client for REST services. Most methods are protected as this
- * class should be extended to provide more specific behavior.
+ * A wrapper around a modern HTTP client for REST services. Most methods are protected as this class
+ * should be extended to provide more specific behavior.
  *
  * @author adamgent
  */

@@ -18,6 +18,7 @@ package com.percussion.sitemanage.data;
 
 import com.fasterxml.jackson.annotation.JsonRootName;
 import jakarta.xml.bind.annotation.XmlRootElement;
+
 // validation annotations removed due to missing OVAL dependency
 // import net.sf.oval.constraint.NotEmpty;
 // import net.sf.oval.constraint.NotNull;

@@ -23,6 +23,7 @@
 package test.percussion.pso.preview;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
 import com.percussion.cms.objectstore.PSComponentSummary;
 import com.percussion.cms.objectstore.PSFolder;
@@ -50,7 +51,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import static org.mockito.Mockito.*;
 
 /**
  * @author DavidBenua
@@ -62,18 +62,12 @@ public class SiteFolderFinderImplTest {
   SiteFolderFinderImpl cut;
 
   PSLocator loc;
-  @Mock
-  IPSGuidManager gmgr;
-  @Mock
-  IPSContentWs cws;
-  @Mock
-  IPSSiteManager siteMgr;
-  @Mock
-  IPSSecurityWs secws;
-  @Mock
-  SiteLoader siteLoader;
-  @Mock
-  PSOObjectFinder finder;
+  @Mock IPSGuidManager gmgr;
+  @Mock IPSContentWs cws;
+  @Mock IPSSiteManager siteMgr;
+  @Mock IPSSecurityWs secws;
+  @Mock SiteLoader siteLoader;
+  @Mock PSOObjectFinder finder;
 
   /**
    * @throws Exception
@@ -109,7 +103,8 @@ public class SiteFolderFinderImplTest {
 
     try {
       when(gmgr.makeGuid(any(PSLocator.class))).thenReturn(folderGuid);
-      when(cws.findFolderPaths(any(IPSGuid.class))).thenReturn(new String[] {"//Sites/foo/bar/baz"});
+      when(cws.findFolderPaths(any(IPSGuid.class)))
+          .thenReturn(new String[] {"//Sites/foo/bar/baz"});
       when(finder.getComponentSummaryById("2")).thenReturn(summary);
       when(summary.getName()).thenReturn("foo");
       when(siteLoader.findAllSites()).thenReturn(Arrays.asList(new IPSSite[] {mySite}));
@@ -147,12 +142,14 @@ public class SiteFolderFinderImplTest {
 
     try {
       when(gmgr.makeGuid(any(PSLocator.class))).thenReturn(folderGuid);
-      when(cws.findFolderPaths(any(IPSGuid.class))).thenReturn(new String[] {"//Sites/foo/bar/baz"});
+      when(cws.findFolderPaths(any(IPSGuid.class)))
+          .thenReturn(new String[] {"//Sites/foo/bar/baz"});
       when(siteLoader.findAllSites()).thenReturn(Arrays.asList(new IPSSite[] {mySite}));
       when(mySite.getFolderRoot()).thenReturn("//Sites/foo");
       when(mySite.getName()).thenReturn("foo");
       when(gmgr.makeLocator(folderGuid)).thenReturn(myFolderLoc);
-      when(cws.findPathIds("//Sites/foo/bar/baz")).thenReturn(Arrays.asList(new IPSGuid[] {folderGuid}));
+      when(cws.findPathIds("//Sites/foo/bar/baz"))
+          .thenReturn(Arrays.asList(new IPSGuid[] {folderGuid}));
 
       List<SiteFolderLocation> locs = cut.findSiteFolderLocations("1", null, null);
 
@@ -175,7 +172,6 @@ public class SiteFolderFinderImplTest {
   /**
    * Test method for {@link SiteFolderFinderImpl#findSiteFolderLocations(String, String, String)}.
    */
-
   @Test
   public final void testFindSiteFolderLocationsCommunityFiltering() {
     log.debug("testing site folder with community filtering");
@@ -194,7 +190,8 @@ public class SiteFolderFinderImplTest {
 
     try {
       when(gmgr.makeGuid(any(PSLocator.class))).thenReturn(folderGuid);
-      when(cws.findFolderPaths(any(IPSGuid.class))).thenReturn(new String[] {"//Sites/foo/bar/baz"});
+      when(cws.findFolderPaths(any(IPSGuid.class)))
+          .thenReturn(new String[] {"//Sites/foo/bar/baz"});
       when(finder.getComponentSummaryById("2")).thenReturn(summary);
       when(summary.getName()).thenReturn("foo");
       when(siteLoader.findAllSites()).thenReturn(Arrays.asList(new IPSSite[] {mySite}));

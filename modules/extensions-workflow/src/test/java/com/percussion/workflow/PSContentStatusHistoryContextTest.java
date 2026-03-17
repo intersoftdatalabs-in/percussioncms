@@ -89,7 +89,7 @@ public class PSContentStatusHistoryContextTest extends PSAbstractWorkflowTest {
           cms.loadWorkflowState(nWorkFlowAppID, csc.getContentStateID());
       PSStatesContext sc = scOpt.isPresent() ? (PSStatesContext) scOpt.get() : null;
       if (sc == null) {
-          throw new PSEntryNotFoundException("State context not found");
+        throw new PSEntryNotFoundException("State context not found");
       }
 
       // if it's not a checkin or checkout, get the transition context

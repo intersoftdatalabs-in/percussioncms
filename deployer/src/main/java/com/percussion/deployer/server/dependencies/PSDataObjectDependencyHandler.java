@@ -754,8 +754,10 @@ public abstract class PSDataObjectDependencyHandler extends PSDependencyHandler 
 
     Document dataDoc = null;
     // Accept both DBMS_DATA and APPLICATION_XML file types for compatibility with legacy packages.
-    // Some older packages may have been created with APPLICATION_XML format, but the data structure is identical.
-    if (file.getType() == PSDependencyFile.TYPE_DBMS_DATA || file.getType() == PSDependencyFile.TYPE_APPLICATION_XML) {
+    // Some older packages may have been created with APPLICATION_XML format, but the data structure
+    // is identical.
+    if (file.getType() == PSDependencyFile.TYPE_DBMS_DATA
+        || file.getType() == PSDependencyFile.TYPE_APPLICATION_XML) {
       dataDoc = createXmlDocument(archive.getFileData(file));
     } else {
       Object[] args = {

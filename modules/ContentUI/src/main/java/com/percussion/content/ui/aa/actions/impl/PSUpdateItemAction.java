@@ -34,17 +34,18 @@ import org.json.JSONObject;
  * returns success, If there are any validation errors, returns a JSON object with parameter
  * validationError and value as concatenated string of all validation error messages and the
  * ceCachedPageUrl parameter is added with the cached page URL.
- * 
- * <p>Required parameters:</p>
+ *
+ * <p>Required parameters:
+ *
  * <ul>
- *   <li>ceUrl - The content editor URL for the item to update</li>
+ *   <li>ceUrl - The content editor URL for the item to update
  * </ul>
  */
 public class PSUpdateItemAction extends PSAAActionBase {
 
   /**
    * Executes the item update through the content editor.
-   * 
+   *
    * @param params the action parameters containing the content editor URL
    * @return PSActionResponse with success message or JSON with validation errors
    * @throws PSAAClientActionException if update fails

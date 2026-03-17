@@ -73,7 +73,6 @@ public class HibernateNodeDAO implements NodeDAO {
   ///////////////////////////////////////////////////////////////////////////////////////////////////////////
 
   @Override
-
   public Node getNode(int nodeID, int langID) {
 
     String queryString = "select distinct n from Node n ";
@@ -93,7 +92,6 @@ public class HibernateNodeDAO implements NodeDAO {
     return ((Collection<Node>) executeQuery(queryString)).iterator().next();
   }
 
-
   public Collection<Node> getAllNodes(int taxID, int langID) {
 
     String queryString = "select distinct n from Node n ";
@@ -112,7 +110,6 @@ public class HibernateNodeDAO implements NodeDAO {
 
     return (Collection<Node>) executeQuery(queryString);
   }
-
 
   public Collection<Node> getNodesFromSearch(
       int taxID, int langID, String search_string, boolean exclude_disabled) {
@@ -237,7 +234,6 @@ public class HibernateNodeDAO implements NodeDAO {
   }
 
   /** Return nodeID, parentID, and name of all nodes for a given taxonomy */
-
   public Collection<Object[]> getAllNodeNames(int taxonomyID, int langID) {
     String queryString =
         "select n.id, n.parent.id, v.Name, n.isNodeSelectable, "
@@ -252,7 +248,6 @@ public class HibernateNodeDAO implements NodeDAO {
   }
 
   /** Return nodeID, parentID, and name of all nodes for a given taxonomy */
-
   public Collection<Object[]> getSomeNodeNames(Collection<Integer> ids, int langID) {
     String queryString =
         "select n.id, n.parent.id, v.Name, n.Not_leaf, "
@@ -267,7 +262,6 @@ public class HibernateNodeDAO implements NodeDAO {
   }
 
   /** Return nodes for ides */
-
   public Collection<Node> getSomeNodes(Collection<Integer> ids) {
     String queryString =
         "select n from Node n where n.id in(" + StringUtils.join(ids.toArray(), ',') + ")";
@@ -276,7 +270,6 @@ public class HibernateNodeDAO implements NodeDAO {
   }
 
   /** Return all values associated with a given node */
-
   public Collection<Value> getValuesForNode(int nodeID, int langID) {
     String queryString =
         "select v from Value v, Node n where v in elements(n.values) and n.id = "
@@ -287,7 +280,6 @@ public class HibernateNodeDAO implements NodeDAO {
   }
 
   /** Return all values associated with a given node and attribute combo */
-
   public Collection<Value> getSpecificValuesForNode(int nodeID, int attrID, int langID) {
     String queryString =
         "select v from Value v, Node n where v in elements(n.values) and n.id = "
@@ -301,38 +293,33 @@ public class HibernateNodeDAO implements NodeDAO {
   }
 
   /** Return all nodes 'related to' the given node */
-
   public Collection<Related_node> getRelatedNodes(int nodeID) {
     String queryString =
         "select r from Related_node r where r.node.id = :nodeId and r.relationship.id = 1";
     Session session = sessionFactory.getCurrentSession();
-    return (Collection<Related_node>) session.createQuery(queryString, Related_node.class)
-        .setParameter("nodeId", nodeID)
-        .list();
+    return (Collection<Related_node>)
+        session.createQuery(queryString, Related_node.class).setParameter("nodeId", nodeID).list();
   }
 
   /** Return all related nodes 'that reference' the given node */
-
   public Collection<Related_node> getRelatedNodeReferences(int nodeID) {
-    String queryString = "select r from Related_node r where r.related_node.id = :nodeId and r.relationship.id = 1";
+    String queryString =
+        "select r from Related_node r where r.related_node.id = :nodeId and r.relationship.id = 1";
     Session session = sessionFactory.getCurrentSession();
-    return (Collection<Related_node>) session.createQuery(queryString, Related_node.class)
-        .setParameter("nodeId", nodeID)
-        .list();
+    return (Collection<Related_node>)
+        session.createQuery(queryString, Related_node.class).setParameter("nodeId", nodeID).list();
   }
 
   /** Return all nodes 'similar to' the given node */
-
   public Collection<Related_node> getSimilarNodes(int nodeID) {
-    String queryString = "select r from Related_node r where r.node.id = :nodeId and r.relationship.id = 2";
+    String queryString =
+        "select r from Related_node r where r.node.id = :nodeId and r.relationship.id = 2";
     Session session = sessionFactory.getCurrentSession();
-    return (Collection<Related_node>) session.createQuery(queryString, Related_node.class)
-        .setParameter("nodeId", nodeID)
-        .list();
+    return (Collection<Related_node>)
+        session.createQuery(queryString, Related_node.class).setParameter("nodeId", nodeID).list();
   }
 
   /** Return all child nodes of the given node */
-
   public Collection<Node> getChildNodes(int nodeID) {
 
     String queryString =
@@ -342,7 +329,6 @@ public class HibernateNodeDAO implements NodeDAO {
   }
 
   /** Return all NodeEditors for the given node */
-
   public Collection<Node_editor> getNodeEditors(int nodeID) {
 
     String queryString = "select ne from Node_editor ne where ne.node.id = " + nodeID;
@@ -351,7 +337,6 @@ public class HibernateNodeDAO implements NodeDAO {
   }
 
   /** Return a nodeName for the given node */
-
   public Collection<String> getNodeName(int nodeID, int langID) {
 
     String queryString =
@@ -396,7 +381,6 @@ public class HibernateNodeDAO implements NodeDAO {
   }
 
   /** Return all titles for all nodes */
-
   public Collection<Object[]> getTitlesForNodes(int taxonomyID, int languageID) {
 
     String queryString =
@@ -424,10 +408,12 @@ public class HibernateNodeDAO implements NodeDAO {
     Session session = sessionFactory.getCurrentSession();
     String queryString = "select n from Node n where n.id = :nodeId or n.id = :newParentId";
 
-    Collection<Node> nodes = session.createQuery(queryString, Node.class)
-        .setParameter("nodeId", nodeID)
-        .setParameter("newParentId", newParentID)
-        .list();
+    Collection<Node> nodes =
+        session
+            .createQuery(queryString, Node.class)
+            .setParameter("nodeId", nodeID)
+            .setParameter("newParentId", newParentID)
+            .list();
 
     Node[] tmp = nodes.toArray(new Node[nodes.size()]);
 
@@ -455,7 +441,6 @@ public class HibernateNodeDAO implements NodeDAO {
   }
 
   ///////////////////////////////////////////////////////////////////////////////////////////
-
 
   public Collection<Node> findNodesByAttribute(Attribute attribute) {
     Session session = sessionFactory.getCurrentSession();

@@ -16,7 +16,6 @@
  * limitations under the License.
  */
 package com.percussion.share.data;
-import java.io.Serializable;
 
 import com.fasterxml.jackson.annotation.JsonRootName;
 import java.util.ArrayList;

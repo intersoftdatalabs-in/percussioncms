@@ -23,15 +23,16 @@
 package test.percussion.pso.preview;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
 import com.percussion.pso.preview.PreviewUrlBuilder;
 import com.percussion.pso.preview.SiteFolderLocation;
 import com.percussion.services.assembly.IPSAssemblyTemplate;
 import com.percussion.services.guidmgr.data.PSGuid;
+import com.percussion.services.guidmgr.data.PSLegacyGuid;
 import com.percussion.services.sitemgr.IPSSite;
 import com.percussion.system.utils.IPSHtmlParameters;
 import com.percussion.utils.guid.IPSGuid;
-import com.percussion.services.guidmgr.data.PSLegacyGuid;
 import java.util.HashMap;
 import java.util.Map;
 import org.apache.logging.log4j.LogManager;
@@ -43,7 +44,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
-import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = Strictness.LENIENT)
@@ -52,10 +52,8 @@ public class PreviewUrlBuilderTest {
 
   private PreviewUrlBuilder cut;
 
-  @Mock
-  private IPSAssemblyTemplate template;
-  @Mock
-  private IPSSite site;
+  @Mock private IPSAssemblyTemplate template;
+  @Mock private IPSSite site;
 
   @BeforeEach
   public void setUp() throws Exception {

@@ -16,67 +16,57 @@
  */
 package com.percussion.webservices.transformation.converter;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 import com.percussion.services.catalog.PSTypeEnum;
 import com.percussion.services.guidmgr.data.PSGuid;
 import com.percussion.services.workflow.data.PSNotification;
 import com.percussion.utils.string.PSStringUtils;
 import com.percussion.webservices.transformation.impl.PSTransformerFactory;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-
-import org.junit.jupiter.api.Test;
-import static org.junit.jupiter.api.Assertions.*;
-
 import org.apache.commons.beanutils.Converter;
 
-/**
- * Test case for {@link PSNotification}
- */
-public class PSNotificationConverterTest 
-{
-   /**
-    * Test the converter
-    * 
-    * @throws Exception if there are any errors
-    */
-   
-   public void testConverter() throws Exception
-   {
-      PSTransformerFactory factory = PSTransformerFactory.getInstance();
-      
-      // convert server to client object
-      Converter converter = factory.getConverter(PSNotification.class);
+/** Test case for {@link PSNotification} */
+public class PSNotificationConverterTest {
+  /**
+   * Test the converter
+   *
+   * @throws Exception if there are any errors
+   */
+  public void testConverter() throws Exception {
+    PSTransformerFactory factory = PSTransformerFactory.getInstance();
 
-      PSNotification src = new PSNotification();
-      src.setGUID(new PSGuid(PSTypeEnum.WORKFLOW_NOTIFICATION, 123));
-      src.setStateRoleRecipientType(
-         PSNotification.PSStateRoleRecipientTypeEnum.FROM_STATE_RECIPIENTS);
-      src.setTransitionId(123);
-      src.setWorkflowId(456);
-      
-      List<String> ccRecipientList = new ArrayList<String>();
-      ccRecipientList.add("abc@123.com");
-      ccRecipientList.add("def@456.com");
-      src.setCCRecipients(ccRecipientList);
+    // convert server to client object
+    Converter converter = factory.getConverter(PSNotification.class);
 
-      List<String> recipientList = new ArrayList<String>();
-      recipientList.add("foo@bar.com");
-      recipientList.add("bar@foo.com");
-      src.setRecipients(recipientList);
-      
-      com.percussion.webservices.system.PSNotification tgt = 
-         (com.percussion.webservices.system.PSNotification) 
-         converter.convert(
-            com.percussion.webservices.system.PSNotification.class, src);
-      
-      assertEquals(src.getCCRecipients(), Arrays.asList(tgt.getCCRecipients()));
-      assertEquals(src.getGUID().longValue(), tgt.getId());
-      assertEquals(src.getRecipients(), Arrays.asList(tgt.getRecipients()));
-      assertEquals(PSStringUtils.toCamelCase(
-         src.getStateRoleRecipientType().name()), 
-         tgt.getStateRoleRecipientType().toString());
-   }
+    PSNotification src = new PSNotification();
+    src.setGUID(new PSGuid(PSTypeEnum.WORKFLOW_NOTIFICATION, 123));
+    src.setStateRoleRecipientType(
+        PSNotification.PSStateRoleRecipientTypeEnum.FROM_STATE_RECIPIENTS);
+    src.setTransitionId(123);
+    src.setWorkflowId(456);
+
+    List<String> ccRecipientList = new ArrayList<String>();
+    ccRecipientList.add("abc@123.com");
+    ccRecipientList.add("def@456.com");
+    src.setCCRecipients(ccRecipientList);
+
+    List<String> recipientList = new ArrayList<String>();
+    recipientList.add("foo@bar.com");
+    recipientList.add("bar@foo.com");
+    src.setRecipients(recipientList);
+
+    com.percussion.webservices.system.PSNotification tgt =
+        (com.percussion.webservices.system.PSNotification)
+            converter.convert(com.percussion.webservices.system.PSNotification.class, src);
+
+    assertEquals(src.getCCRecipients(), Arrays.asList(tgt.getCCRecipients()));
+    assertEquals(src.getGUID().longValue(), tgt.getId());
+    assertEquals(src.getRecipients(), Arrays.asList(tgt.getRecipients()));
+    assertEquals(
+        PSStringUtils.toCamelCase(src.getStateRoleRecipientType().name()),
+        tgt.getStateRoleRecipientType().toString());
+  }
 }
-

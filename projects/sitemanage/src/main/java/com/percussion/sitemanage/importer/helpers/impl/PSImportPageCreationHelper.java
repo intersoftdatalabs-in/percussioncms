@@ -61,7 +61,9 @@ public class PSImportPageCreationHelper extends PSImportHelper {
         .appendLogMessage(
             PSLogEntryType.STATUS,
             STATUS_MESSAGE,
-            "Starting to move imported page " + context.getPageName().orElse("") + " to the actual location");
+            "Starting to move imported page "
+                + context.getPageName().orElse("")
+                + " to the actual location");
 
     try {
       pageCatalogService.createImportedPage(context.getCatalogedPageId().orElse(null));

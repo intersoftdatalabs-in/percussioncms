@@ -190,7 +190,6 @@ public class PSMainView extends JSplitPane
    *
    * @param selListener the listener interested in selection changes, may not be <code>null</code>
    */
-
   public void addSelectionListener(IPSSelectionListener selListener) {
     if (selListener == null) {
       throw new IllegalArgumentException("selListener may not be null.");
@@ -535,7 +534,9 @@ public class PSMainView extends JSplitPane
         }
       }
 
-      /** @todo get color from option manager */
+      /**
+       * @todo get color from option manager
+       */
       if (isSlotSearchNode) {
         setBackgroundNonSelectionColor(Color.yellow);
       } else {
@@ -545,4 +546,5 @@ public class PSMainView extends JSplitPane
       return this;
     }
   }
-};
+}
+;

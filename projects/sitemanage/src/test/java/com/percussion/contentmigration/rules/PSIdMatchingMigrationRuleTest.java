@@ -18,6 +18,7 @@
 package com.percussion.contentmigration.rules;
 
 import static com.percussion.test.TestAssertions.*;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 import java.io.File;
 import java.io.IOException;
@@ -27,7 +28,6 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 /** Unit tests for PSIdMatchingMigrationRule. */
 public class PSIdMatchingMigrationRuleTest {

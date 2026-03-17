@@ -855,8 +855,8 @@ public class PSUserService implements IPSUserService {
           if (wf == null) log.debug("Got invalid workflow id '{}", workflowId);
         }
         if (wf == null) {
-            // load default workflow by id since interface doesn't declare getDefaultWorkflow
-            wf = workflowService.loadWorkflow(workflowService.getDefaultWorkflowId());
+          // load default workflow by id since interface doesn't declare getDefaultWorkflow
+          wf = workflowService.loadWorkflow(workflowService.getDefaultWorkflowId());
         }
 
         PSState state = wf.getInitialState();
@@ -1062,7 +1062,6 @@ public class PSUserService implements IPSUserService {
    * @return not <code>null</code> may be empty.
    * @throws PSSecurityCatalogException
    */
-
   private String getSubjectEmail(String subjectName) throws PSSecurityCatalogException {
     String email = "";
     List<Subject> subjects = findExistingUsers(subjectName);

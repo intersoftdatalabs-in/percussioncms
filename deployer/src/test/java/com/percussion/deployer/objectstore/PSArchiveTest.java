@@ -149,11 +149,11 @@ public class PSArchiveTest {
   }
 
   /**
-   * Test that getArchiveInfo with includeDetail=true handles null archive detail correctly.
-   * This test verifies the fix for the NullPointerException when loading archives without a
-   * detail section (i.e., when PSArchiveDetail is not present in the archive XML).
+   * Test that getArchiveInfo with includeDetail=true handles null archive detail correctly. This
+   * test verifies the fix for the NullPointerException when loading archives without a detail
+   * section (i.e., when PSArchiveDetail is not present in the archive XML).
    *
-   * The key assertion is that we should NOT get a NullPointerException when detail is null.
+   * <p>The key assertion is that we should NOT get a NullPointerException when detail is null.
    * Other errors are acceptable (e.g., archive corruption), but NPE from updateDbmsInfoList
    * indicates the bug is still present.
    *
@@ -181,8 +181,7 @@ public class PSArchiveTest {
 
       // If we get here, the archive was read successfully
       assertNull(
-          retrievedInfo.getArchiveDetail(),
-          "Detail should remain null when not stored in archive");
+          retrievedInfo.getArchiveDetail(), "Detail should remain null when not stored in archive");
       archive.close();
     } catch (NullPointerException e) {
       // This would indicate the bug is still present
@@ -221,14 +220,16 @@ public class PSArchiveTest {
       PSArchiveInfo info = archive.getArchiveInfo(true);
 
       System.out.println("Package loaded: " + info.getArchiveRef());
-      System.out.println("Archive detail is: " + (info.getArchiveDetail() == null ? "NULL" : "PRESENT"));
+      System.out.println(
+          "Archive detail is: " + (info.getArchiveDetail() == null ? "NULL" : "PRESENT"));
 
       if (info.getArchiveDetail() != null) {
         @SuppressWarnings("unchecked")
         Iterator<PSDependency> pkgs = info.getArchiveDetail().getPackages();
-        long pkgCount = java.util.stream.StreamSupport.stream(
-            java.util.Spliterators.spliteratorUnknownSize(pkgs, 0), false)
-            .count();
+        long pkgCount =
+            java.util.stream.StreamSupport.stream(
+                    java.util.Spliterators.spliteratorUnknownSize(pkgs, 0), false)
+                .count();
         System.out.println("Detail contains " + pkgCount + " packages");
 
         // Reset iterator since we consumed it
@@ -238,17 +239,24 @@ public class PSArchiveTest {
         while (pkgs2.hasNext()) {
           PSDependency pkg = pkgs2.next();
           Iterator<PSDependency> deps = pkg.getDependencies();
-          long depCount = java.util.stream.StreamSupport.stream(
-              java.util.Spliterators.spliteratorUnknownSize(deps, 0), false)
-              .count();
+          long depCount =
+              java.util.stream.StreamSupport.stream(
+                      java.util.Spliterators.spliteratorUnknownSize(deps, 0), false)
+                  .count();
           System.out.println(
-              "  Package " + pkgIndex + " ("
-                  + pkg.getDisplayName() + ") has " + depCount + " dependencies");
+              "  Package "
+                  + pkgIndex
+                  + " ("
+                  + pkg.getDisplayName()
+                  + ") has "
+                  + depCount
+                  + " dependencies");
           pkgIndex++;
         }
       } else {
         System.out.println(
-            "WARNING: Detail is null even though package should contain it! This indicates a parsing issue.");
+            "WARNING: Detail is null even though package should contain it! This indicates a"
+                + " parsing issue.");
       }
 
       archive.close();

@@ -30,6 +30,7 @@ import com.percussion.content.ui.aa.actions.PSAAClientActionException;
 import com.percussion.content.ui.aa.actions.PSActionResponse;
 import com.percussion.design.objectstore.PSLocator;
 import com.percussion.error.PSException;
+import com.percussion.security.utils.PSCryptographyUtils;
 import com.percussion.server.PSRequest;
 import com.percussion.server.PSServer;
 import com.percussion.server.webservices.PSServerFolderProcessor;
@@ -47,7 +48,6 @@ import com.percussion.services.notification.PSNotificationEvent.EventType;
 import com.percussion.services.notification.PSNotificationServiceLocator;
 import com.percussion.services.notification.filemonitor.IPSFileMonitorService;
 import com.percussion.services.notification.filemonitor.PSFileMonitorServiceLocator;
-import com.percussion.security.utils.PSCryptographyUtils;
 import com.percussion.services.sitemgr.IPSSite;
 import com.percussion.services.sitemgr.IPSSiteManager;
 import com.percussion.services.sitemgr.PSSiteManagerLocator;
@@ -69,8 +69,6 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -973,8 +971,8 @@ public class PSConvertLinksToManagedAction extends PSAAActionBase
   }
 
   /**
-   * Creates a SHA-256 hash string of the supplied text. Previously used SHA-1 but upgraded
-   * to SHA-256 for stronger cryptographic security (CWE-327: Weak Cryptography).
+   * Creates a SHA-256 hash string of the supplied text. Previously used SHA-1 but upgraded to
+   * SHA-256 for stronger cryptographic security (CWE-327: Weak Cryptography).
    *
    * @param text Assumed not <code>null</code>.
    * @return The 64 char string representing the SHA-256 hash.

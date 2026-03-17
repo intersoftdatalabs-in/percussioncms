@@ -17,8 +17,8 @@
  */
 package com.percussion.sitemanage.data;
 
-import static java.util.Arrays.asList;
 import static com.percussion.test.TestAssertions.*;
+import static java.util.Arrays.asList;
 
 import com.percussion.share.data.PSDataObjectTestCase;
 import com.percussion.share.test.PSDataObjectTestUtils;

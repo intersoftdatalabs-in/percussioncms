@@ -21,14 +21,12 @@ import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 /**
- * Stubbed test class – original content generated build errors and relied
- * on JMock. The class has been disabled pending a proper migration to
- * Mockito or a more focused subset of tests.
+ * Stubbed test class – original content generated build errors and relied on JMock. The class has
+ * been disabled pending a proper migration to Mockito or a more focused subset of tests.
  */
-
 @Disabled("stubbed during jmock removal")
 public class PSDeliveryContentGeneratorTest {
-    @Test
-    @Disabled("placeholder")
-    void placeholder() {}
+  @Test
+  @Disabled("placeholder")
+  void placeholder() {}
 }

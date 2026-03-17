@@ -22,18 +22,18 @@ import com.percussion.content.ui.browse.PSContentBrowser;
 import java.util.Map;
 
 /**
- * Action to retrieve all available sites from the content browser.
- * Returns a JSON list of site names and their properties.
- * 
+ * Action to retrieve all available sites from the content browser. Returns a JSON list of site
+ * names and their properties.
+ *
  * <p>Parameters: None required.
- * 
+ *
  * <p>Returns: JSON response containing site information.
  */
 public class PSGetSitesAction extends PSAAActionBase {
 
   /**
    * Executes the get sites action.
-   * 
+   *
    * @param params action parameters (unused)
    * @return PSActionResponse containing JSON list of sites
    * @throws PSAAClientActionException if an error occurs retrieving sites

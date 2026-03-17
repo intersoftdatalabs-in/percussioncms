@@ -17,6 +17,7 @@
 // REFACTORED: CP-JAVA11
 package com.percussion.pagemanagement.service.impl;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.percussion.metadata.service.IPSMetadataService;
 import com.percussion.pagemanagement.dao.IPSWidgetDao;
 import com.percussion.pagemanagement.data.PSWidgetDefinition;
@@ -36,7 +37,6 @@ import com.percussion.share.service.exception.PSSpringValidationException;
 import com.percussion.share.validation.PSAbstractPropertiesValidator;
 import com.percussion.share.validation.PSValidationErrors;
 import com.percussion.xml.PSXmlDocumentBuilder;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -153,18 +153,23 @@ public class PSWidgetService implements IPSWidgetService {
 
   // TODO: A PSWidgetDefinition should be a subclass of PSWidgetSummary
   private void convertFullToSummary(PSWidgetDefinition full, PSWidgetSummary summary) {
-    full.getWidgetPrefs().ifPresentOrElse(prefs -> {
-      summary.setId(full.getId());
-      summary.setLabel(prefs.getTitle());
-      summary.setName(prefs.getContenttypeName());
-      summary.setIcon(prefs.getThumbnail());
-      summary.setHasUserPrefs(!full.getUserPref().isEmpty());
-      summary.setHasCssPrefs(!full.getCssPref().isEmpty());
-      summary.setType(getWidgetType(prefs.getTitle()));
-      summary.setCategory(prefs.getCategory());
-      summary.setDescription(prefs.getDescription());
-      summary.setResponsive(prefs.isResponsive());
-    }, () -> log.error("Widget definition does not have user prefs, definitionId: " + full.getId()));
+    full.getWidgetPrefs()
+        .ifPresentOrElse(
+            prefs -> {
+              summary.setId(full.getId());
+              summary.setLabel(prefs.getTitle());
+              summary.setName(prefs.getContenttypeName());
+              summary.setIcon(prefs.getThumbnail());
+              summary.setHasUserPrefs(!full.getUserPref().isEmpty());
+              summary.setHasCssPrefs(!full.getCssPref().isEmpty());
+              summary.setType(getWidgetType(prefs.getTitle()));
+              summary.setCategory(prefs.getCategory());
+              summary.setDescription(prefs.getDescription());
+              summary.setResponsive(prefs.isResponsive());
+            },
+            () ->
+                log.error(
+                    "Widget definition does not have user prefs, definitionId: " + full.getId()));
   }
 
   private PSWidgetSummary createWidgetSummary() {
@@ -318,12 +323,12 @@ public class PSWidgetService implements IPSWidgetService {
       else if (s2 == null) return 1;
 
       if (s1.getLabel() == null && s2.getLabel() == null) return 0;
-        if (s1.getLabel() != null && s2.getLabel() != null) {
-            String l1 = s1.getLabel();
-            String l2 = s2.getLabel();
-            return l1.compareTo(l2);
-        }
-        if (s1.getLabel() != null) return 1;
+      if (s1.getLabel() != null && s2.getLabel() != null) {
+        String l1 = s1.getLabel();
+        String l2 = s2.getLabel();
+        return l1.compareTo(l2);
+      }
+      if (s1.getLabel() != null) return 1;
       else return -1;
     }
   }

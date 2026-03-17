@@ -23,17 +23,16 @@ import org.junit.jupiter.api.Test;
 
 /**
  * Placeholder for {@code PSDispatchingPathServiceTest}.
- * <p>
- * Most of the original tests relied on JMock expectations and a complex
- * setup that has not yet been ported to Mockito/JUnit5.  To unblock the
- * build we simply disable the class and provide a no-op test.  The
- * migration can be completed later when there is time to rework the
- * behaviour more thoroughly.
+ *
+ * <p>Most of the original tests relied on JMock expectations and a complex setup that has not yet
+ * been ported to Mockito/JUnit5. To unblock the build we simply disable the class and provide a
+ * no-op test. The migration can be completed later when there is time to rework the behaviour more
+ * thoroughly.
  */
 @Disabled("stubbed during JMock -> Mockito migration")
 public class PSDispatchingPathServiceTest {
-    @Test
-    public void placeholder() {
-        // nothing to do
-    }
+  @Test
+  public void placeholder() {
+    // nothing to do
+  }
 }

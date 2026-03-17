@@ -283,13 +283,15 @@ public class PSContentExplorerFrame extends PSDesktopExplorerWindow
 
     List<com.percussion.webservices.security.data.PSRoleGen> roleGens =
         login.getRoles().getPSRole();
-    PSRole[] rolesArray = roleGens.stream()
-        .map(rg -> {
-          PSRole r = new PSRole();
-          r.setName(rg.getName());
-          return r;
-        })
-        .toArray(PSRole[]::new);
+    PSRole[] rolesArray =
+        roleGens.stream()
+            .map(
+                rg -> {
+                  PSRole r = new PSRole();
+                  r.setName(rg.getName());
+                  return r;
+                })
+            .toArray(PSRole[]::new);
 
     PSUserInfo userInfo =
         new PSUserInfo(

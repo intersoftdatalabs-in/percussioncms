@@ -274,7 +274,8 @@ public class PSORemoteContentTools extends PSJexlUtilBase implements IPSJexlExpr
   // TODO: Remove me @SuppressFBWarnings("HTTP_PARAMETER_POLLUTION") // Is an api method for getting
   // remote data by url
   @IPSJexlMethod(
-      description = "Returns parsed JSON content (object or array) from a URL with headers and basic auth.",
+      description =
+          "Returns parsed JSON content (object or array) from a URL with headers and basic auth.",
       params = {
         @IPSJexlParam(
             name = "urlString",
@@ -318,8 +319,8 @@ public class PSORemoteContentTools extends PSJexlUtilBase implements IPSJexlExpr
     if (username != null && password != null) {
       String login = username + ":" + password;
       String base64Login =
-          new String(Base64.encodeBase64(login.getBytes(StandardCharsets.UTF_8)),
-              StandardCharsets.UTF_8);
+          new String(
+              Base64.encodeBase64(login.getBytes(StandardCharsets.UTF_8)), StandardCharsets.UTF_8);
       requestBuilder.header("Authorization", "Basic " + base64Login);
     }
 

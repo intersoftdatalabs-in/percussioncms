@@ -18,10 +18,10 @@
 package com.percussion.pagemanagement.assembler;
 
 import static com.percussion.share.test.PSMatchers.validUrl;
+import static com.percussion.test.TestAssertions.*;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static com.percussion.test.TestAssertions.*;
 
 import com.percussion.assetmanagement.data.PSAsset;
 import com.percussion.pagemanagement.data.PSRenderLinkContext;

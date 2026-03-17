@@ -748,8 +748,7 @@ public class PSPageService extends PSAbstractDataService<PSPage, PSPage, String>
     int stateId = -1;
     try {
       workflowId = itemWorkflowService.getWorkflowId(request.getWorkflow());
-      stateId =
-          itemWorkflowService.getStateId(request.getWorkflow(), request.getState());
+      stateId = itemWorkflowService.getStateId(request.getWorkflow(), request.getState());
     } catch (PSItemWorkflowServiceException | PSValidationException e) {
       throw new PSPageException(e);
     }

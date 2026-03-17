@@ -33,7 +33,9 @@ public class HibernateAttributeDAO implements AttributeDAO {
 
   public Collection getAttribute(int id) {
     String queryString =
-        "from Attribute a left join fetch a.taxonomy left join fetch a.attribute_langs where a.id =" + " " + id;
+        "from Attribute a left join fetch a.taxonomy left join fetch a.attribute_langs where a.id ="
+            + " "
+            + id;
     Session session = sessionFactory.getCurrentSession();
     return (Collection) session.createQuery(queryString).list();
   }
@@ -41,11 +43,11 @@ public class HibernateAttributeDAO implements AttributeDAO {
   /** Return all Attributes */
   public Collection getAllAttributes(int taxonomy_id, int langID) {
     String queryString =
-        "from Attribute a left join fetch a.taxonomy left join fetch a.attribute_langs al join" +
-            " fetch al.language where a.taxonomy.id = " +
-            taxonomy_id +
-            " and al.language.id = " +
-            langID;
+        "from Attribute a left join fetch a.taxonomy left join fetch a.attribute_langs al join"
+            + " fetch al.language where a.taxonomy.id = "
+            + taxonomy_id
+            + " and al.language.id = "
+            + langID;
     Session session = sessionFactory.getCurrentSession();
     return (Collection) session.createQuery(queryString).list();
   }
@@ -53,12 +55,12 @@ public class HibernateAttributeDAO implements AttributeDAO {
   /** Return all Attribute names and IDs */
   public Collection getAttributeNames(int taxonomy_id, int language_id) {
     String queryString =
-        "select al.Name, a.id from Attribute a, Attribute_lang al where al.attribute.id = a.id and" +
-            " a.taxonomy.id = " +
-            taxonomy_id +
-            " and al.language.id = " +
-            language_id +
-            " order by al.id";
+        "select al.Name, a.id from Attribute a, Attribute_lang al where al.attribute.id = a.id and"
+            + " a.taxonomy.id = "
+            + taxonomy_id
+            + " and al.language.id = "
+            + language_id
+            + " order by al.id";
     Session session = sessionFactory.getCurrentSession();
     return (Collection) session.createQuery(queryString).list();
   }

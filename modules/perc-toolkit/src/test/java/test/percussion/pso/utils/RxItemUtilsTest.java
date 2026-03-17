@@ -35,7 +35,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 public class RxItemUtilsTest {
   private static final Logger log = LogManager.getLogger(RxItemUtilsTest.class);
 
-
   @Test
   public final void testIsBinaryFieldTrue() {
     IPSItemAccessor item = mock(IPSItemAccessor.class);

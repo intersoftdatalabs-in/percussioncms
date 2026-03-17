@@ -16,6 +16,7 @@
  */
 
 package com.percussion.cx;
+
 // package org.h2.util;
 
 import java.lang.ref.Reference;
@@ -42,7 +43,6 @@ public class SoftHashMap<K, V> extends AbstractMap<K, V> {
   public SoftHashMap() {
     map = new HashMap<K, SoftValue<V>>();
   }
-
 
   private void processQueue() {
     while (true) {

@@ -35,8 +35,8 @@ import java.util.Map;
 import org.hibernate.HibernateException;
 
 /**
- * Service implementation for managing Taxonomy entities.
- * Provides CRUD operations and node/attribute management for taxonomies.
+ * Service implementation for managing Taxonomy entities. Provides CRUD operations and
+ * node/attribute management for taxonomies.
  *
  * @author rxengineer
  */

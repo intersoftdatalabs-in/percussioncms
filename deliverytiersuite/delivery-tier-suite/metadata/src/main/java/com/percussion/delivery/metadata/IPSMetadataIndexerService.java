@@ -41,8 +41,8 @@ public interface IPSMetadataIndexerService {
   /**
    * Deletes multiple metadata index entries.
    *
-   * @param entriesToDelete collection of page path strings that identifies the index entries. Cannot be
-   *     <code>null</code> may be empty.
+   * @param entriesToDelete collection of page path strings that identifies the index entries.
+   *     Cannot be <code>null</code> may be empty.
    */
   public void delete(Collection<String> entriesToDelete);
 
@@ -57,7 +57,8 @@ public interface IPSMetadataIndexerService {
   /**
    * Saves multiple metadata entries.
    *
-   * @param entriesToSave collection of entries to be saved, cannot be <code>null</code>, may be empty.
+   * @param entriesToSave collection of entries to be saved, cannot be <code>null</code>, may be
+   *     empty.
    */
   public void save(Collection<IPSMetadataEntry> entriesToSave);
 

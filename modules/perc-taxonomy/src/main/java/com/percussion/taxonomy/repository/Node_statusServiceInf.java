@@ -21,8 +21,8 @@ import com.percussion.taxonomy.domain.*;
 import java.util.Collection;
 
 /**
- * Service interface for managing Node_status entities.
- * Provides CRUD operations for node status information in the taxonomy system.
+ * Service interface for managing Node_status entities. Provides CRUD operations for node status
+ * information in the taxonomy system.
  */
 public interface Node_statusServiceInf {
 

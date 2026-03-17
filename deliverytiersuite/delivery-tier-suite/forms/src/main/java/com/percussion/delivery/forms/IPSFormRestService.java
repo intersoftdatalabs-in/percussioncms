@@ -44,13 +44,9 @@ public interface IPSFormRestService extends IPSRestService {
    * Delete a form using the name provided if it was exported. If 'formName' is null or empty, then
    * all exported forms are deleted. Form name comparison is case-insensitive
    *
-   * 
-   * 
-   * 
-   *  (SSL and HTTP Basic Authentication).
-   * @param formName The name of the form to delete.
-   *  204.
-   *  500.
+   * <p>(SSL and HTTP Basic Authentication).
+   *
+   * @param formName The name of the form to delete. 204. 500.
    */
   @DELETE
   @Path("/form/cms/{formName}")
@@ -60,16 +56,10 @@ public interface IPSFormRestService extends IPSRestService {
    * Processes an entry form and adds a new form to the form service. Upon form addition the form
    * redirects back to the referer.
    *
-   * <p>
+   * <p>(read-only method).
    *
-   * 
-   * 
-   *  (read-only method).
-   * 
    * @throws IOException
-   * @throws WebApplicationException
-   *  200.
-   *  500.
+   * @throws WebApplicationException 200. 500.
    */
   @POST
   @Path("/form/collect")
@@ -85,14 +75,10 @@ public interface IPSFormRestService extends IPSRestService {
   /**
    * Retrieves the form given the name.
    *
-   * 
-   * 
-   * 
-   *  (SSL and HTTP Basic Authentication).
+   * <p>(SSL and HTTP Basic Authentication).
+   *
    * @param formName the name of the form to be found an returned.
-   * @return the form if found, never <code>null</code>, may be empty.
-   *  200.
-   *  500.
+   * @return the form if found, never <code>null</code>, may be empty. 200. 500.
    */
   @GET
   @Path("/form/cms/{formName}")
@@ -103,13 +89,9 @@ public interface IPSFormRestService extends IPSRestService {
    * Retrieves list of form summaries. Form summaries include the name, total forms count, and total
    * exported forms count.
    *
-   * 
-   * 
-   * 
-   *  (SSL and HTTP Basic Authentication).
-   * @return list of form summaries, never <code>null</code>, may be empty.
-   *  200.
-   *  500.
+   * <p>(SSL and HTTP Basic Authentication).
+   *
+   * @return list of form summaries, never <code>null</code>, may be empty. 200. 500.
    */
   @GET
   @Path("/form/cms/list")
@@ -119,15 +101,11 @@ public interface IPSFormRestService extends IPSRestService {
   /**
    * Export the form given the name.
    *
-   * 
-   * 
-   * 
-   *  (SSL and HTTP Basic Authentication).
+   * <p>(SSL and HTTP Basic Authentication).
+   *
    * @param formName the name of the form to be found an returned.
    * @param csvFile the name for the CSV file.
-   * @return the csv if form was found, never <code>null</code>, may be empty.
-   *  200.
-   *  500.
+   * @return the csv if form was found, never <code>null</code>, may be empty. 200. 500.
    */
   @GET
   @Path("/form/cms/{formName}/{csvFile}")

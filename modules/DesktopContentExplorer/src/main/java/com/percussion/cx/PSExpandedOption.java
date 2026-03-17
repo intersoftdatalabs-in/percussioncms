@@ -62,7 +62,9 @@ public class PSExpandedOption implements IPSClientObjects {
     setPaths(paths);
   }
 
-  /** @see IPSClientObjects */
+  /**
+   * @see IPSClientObjects
+   */
   public void fromXml(Element sourceNode) throws PSContentExplorerException {
     if (sourceNode == null) throw new IllegalArgumentException("options Element must not be null");
     try {
@@ -81,7 +83,9 @@ public class PSExpandedOption implements IPSClientObjects {
     }
   }
 
-  /** @see IPSClientObjects */
+  /**
+   * @see IPSClientObjects
+   */
   public Element toXml(Document doc) {
     // create root and its attributes
     Element root = doc.createElement(ELEM_EXPANDED);

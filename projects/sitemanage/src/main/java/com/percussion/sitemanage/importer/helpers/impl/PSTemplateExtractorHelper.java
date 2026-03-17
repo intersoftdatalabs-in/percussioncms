@@ -59,9 +59,9 @@ public class PSTemplateExtractorHelper extends PSGenericMetadataExtractorHelper 
   @Override
   protected void addHtmlWidgetToTemplate(PSSiteImportCtx context) throws PSDataServiceException {
     // Load site's home page template
-      var template = templateService.load(context.getTemplateId().orElse(""));
+    var template = templateService.load(context.getTemplateId().orElse(""));
     // Set Theme
-template.setTheme(context.getThemeSummary().map(ts -> ts.getName()).orElse(""));
+    template.setTheme(context.getThemeSummary().map(ts -> ts.getName()).orElse(""));
 
     // Create Raw HTML widget and add the widget to the template
     var rawHtmlWidget = PSPageManagementUtils.createRawHtmlWidgetItem("1");

@@ -20,7 +20,6 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import com.percussion.cms.objectstore.IPSFieldValue;
 import com.percussion.cms.objectstore.IPSItemAccessor;
-import com.percussion.cms.objectstore.PSBinaryValue;
 import com.percussion.cms.objectstore.PSCoreItem;
 import com.percussion.cms.objectstore.PSItemChild;
 import com.percussion.cms.objectstore.PSItemChildEntry;
@@ -35,6 +34,7 @@ import com.percussion.pso.imageedit.data.SizedImageMetaData;
 import com.percussion.pso.imageedit.services.ImageSizeDefinitionManager;
 import com.percussion.pso.imageedit.services.cache.ImageCacheManager;
 import com.percussion.pso.imageedit.web.impl.ImageItemSupport;
+import com.percussion.pso.utils.RxItemUtils;
 import com.percussion.services.guidmgr.IPSGuidManager;
 import com.percussion.webservices.content.IPSContentWs;
 import java.util.ArrayList;
@@ -48,10 +48,9 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.MockedStatic;
+import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
-import com.percussion.pso.utils.RxItemUtils;
 
 /**
  * // REFACTORED: CP-JAVA11

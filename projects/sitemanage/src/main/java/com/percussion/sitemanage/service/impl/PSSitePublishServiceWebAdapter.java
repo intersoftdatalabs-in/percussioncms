@@ -38,7 +38,6 @@ import com.percussion.services.notification.PSNotificationServiceLocator;
 import com.percussion.services.relationship.IPSRelationshipService;
 import com.percussion.services.relationship.PSRelationshipServiceLocator;
 import com.percussion.share.dao.IPSFolderHelper;
-import com.percussion.share.dao.IPSGenericDao;
 import com.percussion.share.data.PSPagedItemList;
 import com.percussion.share.service.IPSIdMapper;
 import com.percussion.share.service.exception.PSDataServiceException;
@@ -257,8 +256,10 @@ public class PSSitePublishServiceWebAdapter {
         if (item.getRelationshipId() != null) {
           PSRelationship relationship = null;
           try {
-            relationship = relsvc.loadRelationship(idMapper.getGuid(item.getRelationshipId()).getUUID()).orElse(null);
-
+            relationship =
+                relsvc
+                    .loadRelationship(idMapper.getGuid(item.getRelationshipId()).getUUID())
+                    .orElse(null);
 
             if (relationship.isInlineRelationship()) {
               var filter = new PSRelationshipFilter();

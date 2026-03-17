@@ -285,7 +285,7 @@ public class PSSitePublishDao implements com.percussion.sitemanage.dao.IPSSitePu
         (!publishProps.getPublishType().equals(PublishType.filesystem))
             ? getPublishingRoot(publishProps.getDeliveryRootPath().orElse(null), siteName)
             : getLocalPublishingRoot(siteName));
-site.setPrivateKey(publishProps.getPrivateKey().orElse(null));
+    site.setPrivateKey(publishProps.getPrivateKey().orElse(null));
 
     publishWs.saveSite(site);
   }
@@ -395,9 +395,10 @@ site.setPrivateKey(publishProps.getPrivateKey().orElse(null));
     // default to local server publishing
     String root = getLocalPublishingRoot(siteName);
     if (oldName != null && PublishType.valueOf(getSiteDeliveryType(site)).isFtpType()) {
-        // this is an existing site configured for ftp publishing
-        PSPubServer defServer = getPubServerService().getDefaultPubServer(site.getGUID());
-        String oldRoot = defServer.getPropertyValue(IPSPubServerDao.PUBLISH_FOLDER_PROPERTY).orElse("");
+      // this is an existing site configured for ftp publishing
+      PSPubServer defServer = getPubServerService().getDefaultPubServer(site.getGUID());
+      String oldRoot =
+          defServer.getPropertyValue(IPSPubServerDao.PUBLISH_FOLDER_PROPERTY).orElse("");
       String pubBase = getPublishingBase(oldRoot, oldName);
       root = getPublishingRoot(pubBase, siteName);
     }
@@ -1323,7 +1324,8 @@ site.setPrivateKey(publishProps.getPrivateKey().orElse(null));
     }
 
     if (pubServer
-        .getPropertyValue(IPSPubServerDao.PUBLISH_DRIVER_PROPERTY).orElse("")
+        .getPropertyValue(IPSPubServerDao.PUBLISH_DRIVER_PROPERTY)
+        .orElse("")
         .equalsIgnoreCase("AMAZONS3")) {
       // Add amazon post edition task here
       IPSEditionTaskDef preTask = publishWs.createEditionTask();
@@ -2036,7 +2038,7 @@ site.setPrivateKey(publishProps.getPrivateKey().orElse(null));
     notNull(pubServer, "pubServer");
 
     String suffix = PSSitePublishDaoHelper.createSiteSuffix(site);
-boolean isStaging = PSPubServer.STAGING.equalsIgnoreCase(pubServer.getServerType().orElse(""));
+    boolean isStaging = PSPubServer.STAGING.equalsIgnoreCase(pubServer.getServerType().orElse(""));
 
     if (pubServer.isDatabaseType() || pubServer.isXmlFormat()) {
       IPSContentList cList =
@@ -2141,10 +2143,10 @@ boolean isStaging = PSPubServer.STAGING.equalsIgnoreCase(pubServer.getServerType
         // updatePubLogHidden exists on implementation but not interface;
         // call via reflection for compatibility
         try {
-            var m = publisherService.getClass().getMethod("updatePubLogHidden", PSPubServer.class);
-            m.invoke(publisherService, pubServer);
+          var m = publisherService.getClass().getMethod("updatePubLogHidden", PSPubServer.class);
+          m.invoke(publisherService, pubServer);
         } catch (ReflectiveOperationException e) {
-            log.warn("Unable to update pub log hidden", e);
+          log.warn("Unable to update pub log hidden", e);
         }
         List<IPSPubStatus> pubStatusEntries = publishWs.findPubStatusByEdition(edtn.getGUID());
         for (IPSPubStatus pubStatus : pubStatusEntries) {

@@ -79,16 +79,16 @@ public class PSWidgetBuilderSummaryData extends PSAbstractPersistantObject {
     if (dao == null) {
       throw new IllegalArgumentException("dao must not be null");
     }
-      setAuthor(dao.getAuthor().orElse(null));
-      setDescription(dao.getDescription().orElse(null));
-      setLabel(dao.getLabel().orElse(null));
-      setPrefix(dao.getPrefix().orElse(null));
-      setPublisherUrl(dao.getPublisherUrl().orElse(null));
-      setVersion(dao.getVersion().orElse(null));
-      setId(Long.toString(dao.getWidgetBuilderDefinitionId()));
-      setResponsive(dao.isResponsive());
-      setWidgetTrayCustomizedIconPath(dao.getWidgetTrayCustomizedIconPath().orElse(null));
-      setToolTipMessage(dao.getToolTipMessage().orElse(null));
+    setAuthor(dao.getAuthor().orElse(null));
+    setDescription(dao.getDescription().orElse(null));
+    setLabel(dao.getLabel().orElse(null));
+    setPrefix(dao.getPrefix().orElse(null));
+    setPublisherUrl(dao.getPublisherUrl().orElse(null));
+    setVersion(dao.getVersion().orElse(null));
+    setId(Long.toString(dao.getWidgetBuilderDefinitionId()));
+    setResponsive(dao.isResponsive());
+    setWidgetTrayCustomizedIconPath(dao.getWidgetTrayCustomizedIconPath().orElse(null));
+    setToolTipMessage(dao.getToolTipMessage().orElse(null));
   }
 
   public String getToolTipMessage() {

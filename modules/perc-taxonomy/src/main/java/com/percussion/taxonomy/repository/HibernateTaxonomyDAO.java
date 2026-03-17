@@ -40,7 +40,8 @@ public class HibernateTaxonomyDAO implements TaxonomyDAO {
   public List<Taxonomy> getTaxonomy(String name) {
     Session session = sessionFactory.getCurrentSession();
     Query<Taxonomy> q =
-        session.createQuery(
+        session
+            .createQuery(
                 "select distinct t from Taxonomy t where lower(t.name) like :name", Taxonomy.class)
             .setParameter("name", name.toLowerCase());
     return q.list();
@@ -48,15 +49,16 @@ public class HibernateTaxonomyDAO implements TaxonomyDAO {
 
   public List<Integer> getTaxonomyIdForName(String name) {
     Session session = sessionFactory.getCurrentSession();
-    Query<Integer> query = session.createQuery("select id from Taxonomy where name like :name", Integer.class);
+    Query<Integer> query =
+        session.createQuery("select id from Taxonomy where name like :name", Integer.class);
     query.setParameter("name", name);
     return query.list();
   }
 
-
   public Collection getAllTaxonomys() {
     Session session = sessionFactory.getCurrentSession();
-    Query<Taxonomy> query = session.createQuery("from Taxonomy tax order by lower(name) asc", Taxonomy.class);
+    Query<Taxonomy> query =
+        session.createQuery("from Taxonomy tax order by lower(name) asc", Taxonomy.class);
     return (Collection) (Collection<?>) query.list();
   }
 

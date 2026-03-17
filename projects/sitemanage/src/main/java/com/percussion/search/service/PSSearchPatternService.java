@@ -64,8 +64,7 @@ public class PSSearchPatternService {
    * @throws IllegalArgumentException if searchPattern is null
    * @see SecureStringUtils#escapeRegexString(String)
    */
-  public List<String> filterContentByNamePattern(
-      Collection<String> items, String searchPattern) {
+  public List<String> filterContentByNamePattern(Collection<String> items, String searchPattern) {
     if (searchPattern == null) {
       throw new IllegalArgumentException("Search pattern cannot be null");
     }

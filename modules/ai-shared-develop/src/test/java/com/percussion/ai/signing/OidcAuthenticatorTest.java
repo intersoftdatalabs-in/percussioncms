@@ -21,29 +21,26 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import org.junit.jupiter.api.Test;
 
 /**
- * Unit tests for OidcAuthenticator.
- * Note: Full OIDC authentication requires network access and browser interaction
- * for OAuth flow, tested via integration tests.
+ * Unit tests for OidcAuthenticator. Note: Full OIDC authentication requires network access and
+ * browser interaction for OAuth flow, tested via integration tests.
  */
 class OidcAuthenticatorTest {
 
-    /**
-     * Tests that OidcAuthenticator can be instantiated.
-     */
-    @Test
-    void testOidcAuthenticatorConstruction() {
-        OidcAuthenticator authenticator = new OidcAuthenticator();
-        assertNotNull(authenticator);
-    }
+  /** Tests that OidcAuthenticator can be instantiated. */
+  @Test
+  void testOidcAuthenticatorConstruction() {
+    OidcAuthenticator authenticator = new OidcAuthenticator();
+    assertNotNull(authenticator);
+  }
 
-    /**
-     * Tests that main method accepts arguments without immediate failure.
-     * Note: This test verifies argument parsing, not actual authentication.
-     */
-    @Test
-    void testMainMethodAcceptsArgs() {
-        // We cannot test the actual main method without OIDC credentials
-        // This test verifies the class loads and can be instantiated
-        assertNotNull(new OidcAuthenticator());
-    }
+  /**
+   * Tests that main method accepts arguments without immediate failure. Note: This test verifies
+   * argument parsing, not actual authentication.
+   */
+  @Test
+  void testMainMethodAcceptsArgs() {
+    // We cannot test the actual main method without OIDC credentials
+    // This test verifies the class loads and can be instantiated
+    assertNotNull(new OidcAuthenticator());
+  }
 }

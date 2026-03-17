@@ -21,16 +21,14 @@ import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 /**
- * Placeholder stub to keep the old PSUserServiceMockTest class around while
- * the full migration to Mockito is in progress. All original tests have been
- * removed or disabled; this file only exists to satisfy the compiler so the
- * build can succeed without the jmock dependency.
+ * Placeholder stub to keep the old PSUserServiceMockTest class around while the full migration to
+ * Mockito is in progress. All original tests have been removed or disabled; this file only exists
+ * to satisfy the compiler so the build can succeed without the jmock dependency.
  */
-
 @Disabled("original tests migrated or removed; stub class")
 public class PSUserServiceMockTest {
 
-    @Test
-    @Disabled("no-op placeholder")
-    void placeholder() {}
+  @Test
+  @Disabled("no-op placeholder")
+  void placeholder() {}
 }

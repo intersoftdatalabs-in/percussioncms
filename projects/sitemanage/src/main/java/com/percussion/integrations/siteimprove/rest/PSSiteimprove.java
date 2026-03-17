@@ -18,6 +18,7 @@
 // REFACTORED: CP-JAVA11
 package com.percussion.integrations.siteimprove.rest;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.percussion.integrations.siteimprove.data.PSSiteImproveCredentials;
 import com.percussion.integrations.siteimprove.data.PSSiteImproveSiteConfigurations;
 import com.percussion.metadata.data.PSMetadata;
@@ -30,7 +31,6 @@ import com.percussion.services.sitemgr.IPSSiteManager;
 import com.percussion.services.sitemgr.PSSiteManagerLocator;
 import com.percussion.share.dao.IPSGenericDao;
 import com.percussion.system.utils.PSSiteManageBean;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
@@ -144,7 +144,8 @@ public class PSSiteimprove {
         var jsonMap = new LinkedHashMap<String, Object>(credentialsToValidate);
         addSiteImproveTaskToPreExistingEditions(credentials.getSiteName());
         var metadataKey = SITEIMPROVE_CREDENTIALS_BASE_KEY + credentials.getSiteName();
-        metadataService.save(new PSMetadata(metadataKey, new ObjectMapper().writeValueAsString(jsonMap)));
+        metadataService.save(
+            new PSMetadata(metadataKey, new ObjectMapper().writeValueAsString(jsonMap)));
         // CMS-8189: Upgraded jquery unable to parse if response is empty string. Advisable to
         // return "204 - No content" to avoid jquery parser error for json.
         return Response.noContent().build();
@@ -183,7 +184,9 @@ public class PSSiteimprove {
       publishSettingsJSON.put("doPreview", publishSettings.getDoPreview().orElse(false));
       publishSettingsJSON.put(
           "isSiteImproveEnabled", publishSettings.getIsSiteImproveEnabled().orElse(false));
-      metadataService.save(new PSMetadata(siteConfigKey, new ObjectMapper().writeValueAsString(publishSettingsJSON)));
+      metadataService.save(
+          new PSMetadata(
+              siteConfigKey, new ObjectMapper().writeValueAsString(publishSettingsJSON)));
       // CMS-8189: Upgraded jquery unable to parse if response is empty string. Advisable to return
       // "204 - No content" to avoid jquery parser error for json.
       return Response.noContent().build();

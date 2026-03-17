@@ -16,66 +16,51 @@
  */
 package com.percussion.util;
 
-import java.text.ParseException;
-
-import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
+import java.text.ParseException;
+
 /**
- * Unit test class for {@link PSDataTypeConverter}. 
- * 
+ * Unit test class for {@link PSDataTypeConverter}.
+ *
  * @author paulhoward
  */
-public class PSDataTypeConverterTest 
-{
-   /**
-    * Test transforming date from 1 string format to another.
-    * 
-    * @throws Exception
-    */
-   
-   public void testTransformDateString()
-      throws Exception
-   {
-      assertNull(PSDataTypeConverter.transformDateString(null, null, null,
-            false));
-      String testDate = "11.1995-30T23";
-      String inputFormat = "MM.yyyy-dd'T'HH";
-      String result = PSDataTypeConverter.transformDateString(testDate,
-            inputFormat, null, false);
-      assertEquals(result, "1995-11-30 23:00:00.000");
+public class PSDataTypeConverterTest {
+  /**
+   * Test transforming date from 1 string format to another.
+   *
+   * @throws Exception
+   */
+  public void testTransformDateString() throws Exception {
+    assertNull(PSDataTypeConverter.transformDateString(null, null, null, false));
+    String testDate = "11.1995-30T23";
+    String inputFormat = "MM.yyyy-dd'T'HH";
+    String result = PSDataTypeConverter.transformDateString(testDate, inputFormat, null, false);
+    assertEquals(result, "1995-11-30 23:00:00.000");
 
-      testDate = "11.1995-30";
-      try
-      {
-         result = PSDataTypeConverter.transformDateString(testDate,
-               inputFormat, null, true);
-         fail("Should have thrown ex.");
-      }
-      catch (ParseException success)
-      {
-      }
+    testDate = "11.1995-30";
+    try {
+      result = PSDataTypeConverter.transformDateString(testDate, inputFormat, null, true);
+      fail("Should have thrown ex.");
+    } catch (ParseException success) {
+    }
 
-      inputFormat = "MM.yyyy-dd";
-      result = PSDataTypeConverter.transformDateString(testDate, inputFormat,
-            null, false);
-      assertEquals(result, "1995-11-30");
+    inputFormat = "MM.yyyy-dd";
+    result = PSDataTypeConverter.transformDateString(testDate, inputFormat, null, false);
+    assertEquals(result, "1995-11-30");
 
-      String outputFormat = "dd-yyyy.MM";
-      result = PSDataTypeConverter.transformDateString(testDate, inputFormat,
-            outputFormat, false);
-      assertEquals(result, "30-1995.11");
+    String outputFormat = "dd-yyyy.MM";
+    result = PSDataTypeConverter.transformDateString(testDate, inputFormat, outputFormat, false);
+    assertEquals(result, "30-1995.11");
 
-      testDate = "2000/1/24 23:21";
-      outputFormat = "HH:mm yyyy-MM-dd";
-      result = PSDataTypeConverter.transformDateString(testDate, null,
-            outputFormat, false);
-      assertEquals(result, "23:21 2000-01-24");
-      
-      testDate = "19980101T131415123";
-      outputFormat = "yyyy/MM/dd HH:mm:ss.SSS";
-      result = PSDataTypeConverter.transformDateString(testDate, null,
-            outputFormat, false);
-      assertEquals(result, "1998/01/01 13:14:15.123");
-   }
+    testDate = "2000/1/24 23:21";
+    outputFormat = "HH:mm yyyy-MM-dd";
+    result = PSDataTypeConverter.transformDateString(testDate, null, outputFormat, false);
+    assertEquals(result, "23:21 2000-01-24");
+
+    testDate = "19980101T131415123";
+    outputFormat = "yyyy/MM/dd HH:mm:ss.SSS";
+    result = PSDataTypeConverter.transformDateString(testDate, null, outputFormat, false);
+    assertEquals(result, "1998/01/01 13:14:15.123");
+  }
 }

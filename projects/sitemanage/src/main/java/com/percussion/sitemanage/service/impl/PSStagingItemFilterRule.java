@@ -16,12 +16,11 @@
  */
 package com.percussion.sitemanage.service.impl;
 
-import com.percussion.services.pubserver.data.PSPubServerProperty;
-
 import com.percussion.services.contentchange.PSContentChangeServiceLocator;
 import com.percussion.services.contentchange.data.PSContentChangeType;
 import com.percussion.services.filter.IPSFilterItem;
 import com.percussion.services.filter.IPSItemFilterRule;
+import com.percussion.services.pubserver.data.PSPubServerProperty;
 import com.percussion.system.utils.IPSHtmlParameters;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -44,9 +43,10 @@ public class PSStagingItemFilterRule extends PSPublicAssetItemFilterRule
     var ignoreAssets =
         pubServer == null
             ? "false"
-              : pubServer.getProperty(PUBLISH_IGNORE_UNMODIFIED_ASSETS_PROPERTY)
-                    .map(PSPubServerProperty::getValue)
-                    .orElse("false");
+            : pubServer
+                .getProperty(PUBLISH_IGNORE_UNMODIFIED_ASSETS_PROPERTY)
+                .map(PSPubServerProperty::getValue)
+                .orElse("false");
     var ignoreUnModAssets = StringUtils.equals(ignoreAssets, "true");
     var serverId = pubServer == null ? null : pubServer.getServerId();
     var worker = getWorker(params);

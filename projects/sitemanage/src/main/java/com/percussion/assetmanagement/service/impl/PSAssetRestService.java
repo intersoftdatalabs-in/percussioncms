@@ -840,9 +840,9 @@ public class PSAssetRestService {
     }
 
     for (PSWidgetSummary widgetSummary : widgetList) {
-        var widgetName = widgetSummary.getName();
+      var widgetName = widgetSummary.getName();
       if (widgetSummary.getId().equalsIgnoreCase(type) || widgetName.equalsIgnoreCase(type)) {
-          return widgetSummary.getIcon();
+        return widgetSummary.getIcon();
       }
     }
     return null;

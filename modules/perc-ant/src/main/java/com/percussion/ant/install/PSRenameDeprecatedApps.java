@@ -77,7 +77,6 @@ public class PSRenameDeprecatedApps extends PSAction {
    * @throws IOException if an error occurs loading properties
    * @throws FileNotFoundException if properties files can not be found
    */
-
   private int renameApplications() throws FileNotFoundException, IOException {
     // Get the server properties
     PSProperties serverProps = new PSProperties(m_strServerPropsFile);

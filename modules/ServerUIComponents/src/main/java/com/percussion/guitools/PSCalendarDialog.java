@@ -15,12 +15,11 @@
  * limitations under the License.
  */
 package com.percussion.guitools;
-import java.io.Serializable;
 
-import javax.accessibility.AccessibleContext; // use javax namespace, jakarta not available
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -29,6 +28,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
+import javax.accessibility.AccessibleContext; // use javax namespace, jakarta not available
 import javax.swing.*;
 
 /**
@@ -55,6 +55,7 @@ import javax.swing.*;
  */
 public class PSCalendarDialog extends JDialog implements Serializable {
   private static final long serialVersionUID = 1L;
+
   /**
    * Creates a new modal CalendarDialog
    *
@@ -613,7 +614,8 @@ public class PSCalendarDialog extends JDialog implements Serializable {
      * @author Santiago M. Murchio
      */
     private class CalendarDayButton extends JButton {
-    private static final long serialVersionUID = 1L;
+      private static final long serialVersionUID = 1L;
+
       /** The <code>Calendar</code> object for this label. Defaults to the current date/time. */
       private Calendar m_cal = new GregorianCalendar();
 

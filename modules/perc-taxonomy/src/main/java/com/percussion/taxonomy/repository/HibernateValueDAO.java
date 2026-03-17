@@ -51,10 +51,10 @@ public class HibernateValueDAO implements ValueDAO {
     return session.get(Value.class, id);
   }
 
-
   public Collection<Value> getAllValues() {
     Session session = sessionFactory.getCurrentSession();
-    return (Collection<Value>) (Collection<?>) session.createQuery("from Value val", Value.class).list();
+    return (Collection<Value>)
+        (Collection<?>) session.createQuery("from Value val", Value.class).list();
   }
 
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -63,7 +63,6 @@ public class HibernateValueDAO implements ValueDAO {
     Session session = sessionFactory.getCurrentSession();
     session.merge(value);
   }
-
 
   public Map<String, String> saveValuesFromParams(
       Map<String, String[]> params,
@@ -405,7 +404,6 @@ public class HibernateValueDAO implements ValueDAO {
     }
 
     //////////////////////////////////////////////////////////////////////////////////////////////////////
-
 
     private Map<String, Value> getCurrentValuesFor(
         Session session, int nodeID, Attribute attribute) {

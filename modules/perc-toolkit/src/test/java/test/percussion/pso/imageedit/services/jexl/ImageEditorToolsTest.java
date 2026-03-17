@@ -17,27 +17,18 @@
 package test.percussion.pso.imageedit.services.jexl;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
-import com.percussion.pso.imageedit.services.ImageSizeDefinitionManager;
-import com.percussion.pso.imageedit.services.jexl.ImageEditorTools;
-import javax.jcr.Node;
-import javax.jcr.NodeIterator;
-import javax.jcr.Property;
-import javax.jcr.RepositoryException;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
-import static org.mockito.Mockito.*;
 
 @Disabled("Needs migration from JMock")
 @ExtendWith(MockitoExtension.class)
 public class ImageEditorToolsTest {
-    @Test
-    public void placeholder() {
-        // disabled original tests
-    }
+  @Test
+  public void placeholder() {
+    // disabled original tests
+  }
 }

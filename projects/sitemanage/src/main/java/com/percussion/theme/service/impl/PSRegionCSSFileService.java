@@ -165,7 +165,6 @@ public class PSRegionCSSFileService {
    * @param filePath the specified file path, not blank.
    * @param cssList the list of region CSS, not <code>null</code>, may be empty.
    */
-
   public void write(String filePath, List<PSRegionCSS> cssList) throws PSThemeNotFoundException {
     Collections.sort(cssList);
 

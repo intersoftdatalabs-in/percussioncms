@@ -23,9 +23,10 @@ import com.percussion.cx.guitools.UTMnemonicLabel;
 import com.percussion.error.PSExceptionUtils;
 import com.percussion.guitools.ErrorDialogs;
 import com.percussion.util.PSProperties;
+import com.percussion.webservices.security.data.PSLocale;
 import com.percussion.webservices.securityservices.ContractViolationFaultMessage;
 import com.percussion.webservices.securityservices.NotAuthenticatedFaultMessage;
-import com.percussion.webservices.security.data.PSLocale;
+import jakarta.xml.ws.WebServiceException;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
@@ -73,7 +74,6 @@ import javax.swing.SwingWorker;
 import javax.swing.border.BevelBorder;
 import javax.swing.border.EtchedBorder;
 import javax.swing.plaf.basic.BasicComboBoxRenderer;
-import jakarta.xml.ws.WebServiceException;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -374,7 +374,9 @@ public class PSContentExplorerLoginPanel extends JFrame {
     }
   }
 
-  /** @return JButton The login button for the applet to give the DefaultButton access. */
+  /**
+   * @return JButton The login button for the applet to give the DefaultButton access.
+   */
   public JButton getLoginButton() {
 
     return m_login;
@@ -744,6 +746,7 @@ public class PSContentExplorerLoginPanel extends JFrame {
       PSContentExplorerLoginPanel.this.pack();
     }
   }
+
   //////////////////////////////////////////////////////////////////////////////
   /** the parent frame */
   private PSContentExplorerFrame m_parent = null;

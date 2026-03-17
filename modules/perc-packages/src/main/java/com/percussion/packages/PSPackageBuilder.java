@@ -31,9 +31,9 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
 /**
- * Builds .ppkg package files from source directories. Replaces the Ant-based
- * foreach/antcall build with a single-pass Java builder that supports
- * incremental builds (skips packages whose sources haven't changed).
+ * Builds .ppkg package files from source directories. Replaces the Ant-based foreach/antcall build
+ * with a single-pass Java builder that supports incremental builds (skips packages whose sources
+ * haven't changed).
  *
  * <p>Usage: {@code PSPackageBuilder <packagesDir> <outputDir> <tempDir>}
  */
@@ -143,33 +143,32 @@ public final class PSPackageBuilder {
     built++;
   }
 
-  /**
-   * Check if the output .ppkg is newer than all source files.
-   */
+  /** Check if the output .ppkg is newer than all source files. */
   private boolean isUpToDate(Path sourceDir, Path outputFile) throws IOException {
     long outputTime = Files.getLastModifiedTime(outputFile).toMillis();
     var result = new boolean[] {true};
 
-    Files.walkFileTree(sourceDir, new SimpleFileVisitor<>() {
-      @Override
-      public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) {
-        if (attrs.lastModifiedTime().toMillis() > outputTime) {
-          result[0] = false;
-          return FileVisitResult.TERMINATE;
-        }
-        return FileVisitResult.CONTINUE;
-      }
-    });
+    Files.walkFileTree(
+        sourceDir,
+        new SimpleFileVisitor<>() {
+          @Override
+          public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) {
+            if (attrs.lastModifiedTime().toMillis() > outputTime) {
+              result[0] = false;
+              return FileVisitResult.TERMINATE;
+            }
+            return FileVisitResult.CONTINUE;
+          }
+        });
 
     return result[0];
   }
 
   /**
-   * Reorganize files from the copied source structure into the .ppkg directory
-   * layout, using the mapping properties file to determine target directories.
+   * Reorganize files from the copied source structure into the .ppkg directory layout, using the
+   * mapping properties file to determine target directories.
    *
-   * <p>This mirrors the logic from
-   * {@code PSPackageBuildToolHelper.moveFilesToOriginalPaths()}.
+   * <p>This mirrors the logic from {@code PSPackageBuildToolHelper.moveFilesToOriginalPaths()}.
    */
   private void reorganizeFiles(
       String packageName, Path rootDir, File currentFile, Path destDir, Properties props)
@@ -184,12 +183,13 @@ public final class PSPackageBuilder {
       }
 
       // Calculate relative path from root
-      var relativePath = rootDir.toAbsolutePath().relativize(currentFile.toPath().toAbsolutePath())
-          .toString();
+      var relativePath =
+          rootDir.toAbsolutePath().relativize(currentFile.toPath().toAbsolutePath()).toString();
       var actualFile = fileName;
-      var pathBefore = relativePath.contains(File.separator)
-          ? relativePath.substring(0, relativePath.length() - actualFile.length() - 1)
-          : "";
+      var pathBefore =
+          relativePath.contains(File.separator)
+              ? relativePath.substring(0, relativePath.length() - actualFile.length() - 1)
+              : "";
 
       // Check if file is in the mapping properties
       var propValue = props.getProperty(actualFile);
@@ -201,14 +201,8 @@ public final class PSPackageBuilder {
       } else if (pathBefore.startsWith(SYS_USER_DEPENDENCY)) {
         // sys__UserDependency files: encode path
         var subPath = pathBefore.substring(SYS_USER_DEPENDENCY.length());
-        var encodedPath = subPath
-            .replace("_", "__")
-            .replace(".", "-")
-            .replace(File.separator, "_");
-        var encodedSuffix = actualFile
-            .replace("-", "--")
-            .replace(".", "-")
-            .replace("_", "__");
+        var encodedPath = subPath.replace("_", "__").replace(".", "-").replace(File.separator, "_");
+        var encodedSuffix = actualFile.replace("-", "--").replace(".", "-").replace("_", "__");
         var fullPath = SYS_USER_DEPENDENCY + encodedPath + File.separator + encodedSuffix;
         fullPath = fullPath.replace(File.separator, "_");
         targetFile = destDir.resolve(fullPath).resolve(actualFile);
@@ -216,9 +210,10 @@ public final class PSPackageBuilder {
         // Extension, Stylesheet, SupportFile, ImageFile
         String pathSuffix;
         if (pathBefore.startsWith(EXTENSION) || pathBefore.startsWith(STYLE_SHEET)) {
-          pathSuffix = actualFile.contains(".")
-              ? actualFile.substring(0, actualFile.lastIndexOf('.'))
-              : actualFile;
+          pathSuffix =
+              actualFile.contains(".")
+                  ? actualFile.substring(0, actualFile.lastIndexOf('.'))
+                  : actualFile;
         } else {
           pathSuffix = actualFile;
         }
@@ -241,11 +236,12 @@ public final class PSPackageBuilder {
       return;
     }
 
-    var isDesignObj = (dirName.indexOf('_') == -1
-        || dirName.startsWith(SCHEMA_FILE)
-        || dirName.startsWith(APPLICATION_FILE))
-        && children.length > 0
-        && children[0].isFile();
+    var isDesignObj =
+        (dirName.indexOf('_') == -1
+                || dirName.startsWith(SCHEMA_FILE)
+                || dirName.startsWith(APPLICATION_FILE))
+            && children.length > 0
+            && children[0].isFile();
 
     if (isDesignObj) {
       // Design object directory: files get mapped via properties, handled
@@ -262,63 +258,72 @@ public final class PSPackageBuilder {
     try (OutputStream fos = Files.newOutputStream(zipFile);
         var zos = new ZipOutputStream(fos)) {
 
-      Files.walkFileTree(sourceDir, new SimpleFileVisitor<>() {
-        @Override
-        public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-          var entryName = sourceDir.relativize(file).toString().replace('\\', '/');
-          zos.putNextEntry(new ZipEntry(entryName));
-          Files.copy(file, zos);
-          zos.closeEntry();
-          return FileVisitResult.CONTINUE;
-        }
+      Files.walkFileTree(
+          sourceDir,
+          new SimpleFileVisitor<>() {
+            @Override
+            public FileVisitResult visitFile(Path file, BasicFileAttributes attrs)
+                throws IOException {
+              var entryName = sourceDir.relativize(file).toString().replace('\\', '/');
+              zos.putNextEntry(new ZipEntry(entryName));
+              Files.copy(file, zos);
+              zos.closeEntry();
+              return FileVisitResult.CONTINUE;
+            }
 
-        @Override
-        public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs)
-            throws IOException {
-          if (!dir.equals(sourceDir)) {
-            var entryName = sourceDir.relativize(dir).toString().replace('\\', '/') + "/";
-            zos.putNextEntry(new ZipEntry(entryName));
-            zos.closeEntry();
-          }
-          return FileVisitResult.CONTINUE;
-        }
-      });
+            @Override
+            public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs)
+                throws IOException {
+              if (!dir.equals(sourceDir)) {
+                var entryName = sourceDir.relativize(dir).toString().replace('\\', '/') + "/";
+                zos.putNextEntry(new ZipEntry(entryName));
+                zos.closeEntry();
+              }
+              return FileVisitResult.CONTINUE;
+            }
+          });
     }
   }
 
   private static void copyDirectory(Path source, Path target) throws IOException {
-    Files.walkFileTree(source, new SimpleFileVisitor<>() {
-      @Override
-      public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs)
-          throws IOException {
-        Files.createDirectories(target.resolve(source.relativize(dir)));
-        return FileVisitResult.CONTINUE;
-      }
+    Files.walkFileTree(
+        source,
+        new SimpleFileVisitor<>() {
+          @Override
+          public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs)
+              throws IOException {
+            Files.createDirectories(target.resolve(source.relativize(dir)));
+            return FileVisitResult.CONTINUE;
+          }
 
-      @Override
-      public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-        Files.copy(file, target.resolve(source.relativize(file)));
-        return FileVisitResult.CONTINUE;
-      }
-    });
+          @Override
+          public FileVisitResult visitFile(Path file, BasicFileAttributes attrs)
+              throws IOException {
+            Files.copy(file, target.resolve(source.relativize(file)));
+            return FileVisitResult.CONTINUE;
+          }
+        });
   }
 
   private static void deleteDirectory(Path dir) throws IOException {
     if (!Files.exists(dir)) {
       return;
     }
-    Files.walkFileTree(dir, new SimpleFileVisitor<>() {
-      @Override
-      public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-        Files.delete(file);
-        return FileVisitResult.CONTINUE;
-      }
+    Files.walkFileTree(
+        dir,
+        new SimpleFileVisitor<>() {
+          @Override
+          public FileVisitResult visitFile(Path file, BasicFileAttributes attrs)
+              throws IOException {
+            Files.delete(file);
+            return FileVisitResult.CONTINUE;
+          }
 
-      @Override
-      public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
-        Files.delete(dir);
-        return FileVisitResult.CONTINUE;
-      }
-    });
+          @Override
+          public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
+            Files.delete(dir);
+            return FileVisitResult.CONTINUE;
+          }
+        });
   }
 }

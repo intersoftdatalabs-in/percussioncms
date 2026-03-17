@@ -60,20 +60,21 @@ public class DemandPublisherBean implements DemandPublisherService {
 
   /**
    * Queues a demand work request for publishing a single content item.
-   * 
+   *
    * <p>This method adds the specified content item to the publication queue for the given edition
    * and returns immediately without waiting for the publication to complete. Use this method when
-   * you want to initiate a publish operation asynchronously.</p>
-   * 
-   * <p>Note: The edition must have at least one content list that uses the "Selected Items" 
-   * content list generator, or the publisher will timeout.</p>
-   * 
-   * @param edition the edition to publish to. Must not be null and must be a valid edition 
-   *                with at least one "Selected Items" content list.
+   * you want to initiate a publish operation asynchronously.
+   *
+   * <p>Note: The edition must have at least one content list that uses the "Selected Items" content
+   * list generator, or the publisher will timeout.
+   *
+   * @param edition the edition to publish to. Must not be null and must be a valid edition with at
+   *     least one "Selected Items" content list.
    * @param content the content item GUID to publish. Must not be null.
    * @param folder the folder GUID where the content item resides. Must not be null.
    * @return the unique request ID that can be used to track or wait for the publication to complete
-   * @throws TimeoutException if the publisher fails to queue the work within the configured timeout period
+   * @throws TimeoutException if the publisher fails to queue the work within the configured timeout
+   *     period
    */
   public long queueDemandWork(IPSEdition edition, IPSGuid content, IPSGuid folder)
       throws TimeoutException {
@@ -118,14 +119,14 @@ public class DemandPublisherBean implements DemandPublisherService {
 
   /**
    * Waits for a previously queued demand work request to complete.
-   * 
-   * <p>This method blocks until the publication job reaches a terminal state (completed, failed, 
-   * or canceled) or until the configured timeout is exceeded.</p>
-   * 
-   * @param jobId the job ID to wait for. This is the request ID returned from a previous 
-   *              call to {@link #queueDemandWork(IPSEdition, IPSGuid, IPSGuid)}
-   * @return the final state of the publishing job, which will be a terminal state 
-   *         (COMPLETED, FAILED, or CANCELED)
+   *
+   * <p>This method blocks until the publication job reaches a terminal state (completed, failed, or
+   * canceled) or until the configured timeout is exceeded.
+   *
+   * @param jobId the job ID to wait for. This is the request ID returned from a previous call to
+   *     {@link #queueDemandWork(IPSEdition, IPSGuid, IPSGuid)}
+   * @return the final state of the publishing job, which will be a terminal state (COMPLETED,
+   *     FAILED, or CANCELED)
    * @throws TimeoutException if the job does not complete within the configured timeout period
    */
   public State waitDemandWorkComplete(long jobId) throws TimeoutException {
@@ -159,19 +160,21 @@ public class DemandPublisherBean implements DemandPublisherService {
 
   /**
    * Publishes a single content item and waits for the publication to complete.
-   * 
-   * <p>This is a convenience method that combines {@link #queueDemandWork(IPSEdition, IPSGuid, IPSGuid)}
-   * and {@link #waitDemandWorkComplete(long)} into a single synchronous operation. The method
-   * blocks until the publication completes or times out.</p>
-   * 
-   * <p>Note: The edition must have at least one content list that uses the "Selected Items" 
-   * content list generator, or the publisher will timeout.</p>
-   * 
+   *
+   * <p>This is a convenience method that combines {@link #queueDemandWork(IPSEdition, IPSGuid,
+   * IPSGuid)} and {@link #waitDemandWorkComplete(long)} into a single synchronous operation. The
+   * method blocks until the publication completes or times out.
+   *
+   * <p>Note: The edition must have at least one content list that uses the "Selected Items" content
+   * list generator, or the publisher will timeout.
+   *
    * @param edition the edition to publish to. Must not be null.
    * @param content the content item GUID to publish. Must not be null.
    * @param folder the folder GUID where the content item resides. Must not be null.
-   * @throws TimeoutException if the publisher fails to complete within the configured timeout period
-   * @throws PSAssemblyException if the publication fails (e.g., if the final state is not COMPLETED)
+   * @throws TimeoutException if the publisher fails to complete within the configured timeout
+   *     period
+   * @throws PSAssemblyException if the publication fails (e.g., if the final state is not
+   *     COMPLETED)
    */
   public void publishAndWait(IPSEdition edition, IPSGuid content, IPSGuid folder)
       throws TimeoutException, PSAssemblyException {

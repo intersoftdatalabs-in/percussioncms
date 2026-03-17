@@ -138,17 +138,23 @@ public class PSSubjectCataloger {
       m_securityProviderInstance = PSXMLDomUtil.getElementData(el);
     }
 
-    /** @return subject name, never <code>null</code>, never <code>empty</code> */
+    /**
+     * @return subject name, never <code>null</code>, never <code>empty</code>
+     */
     public String getName() {
       return m_name;
     }
 
-    /** @return SecurityProvider type as. */
+    /**
+     * @return SecurityProvider type as.
+     */
     public int getSecurityProviderTypeId() {
       return m_securityProviderType;
     }
 
-    /** @return SecurityProviderInstance name, may be <code>empty</code>, never <code>null</code> */
+    /**
+     * @return SecurityProviderInstance name, may be <code>empty</code>, never <code>null</code>
+     */
     public String getSecurityProviderInstance() {
       return m_securityProviderInstance;
     }
@@ -206,8 +212,10 @@ public class PSSubjectCataloger {
 
     /** */
     private String m_name;
+
     /** */
     private int m_securityProviderType;
+
     /** */
     private String m_securityProviderInstance;
 
@@ -238,7 +246,9 @@ public class PSSubjectCataloger {
     }
   }
 
-  /** @return unmodifiable collection of cataloged Subject instances, never <code>null</code>. */
+  /**
+   * @return unmodifiable collection of cataloged Subject instances, never <code>null</code>.
+   */
   public Collection getSubjects() {
     return Collections.unmodifiableCollection(m_collSubjects);
   }

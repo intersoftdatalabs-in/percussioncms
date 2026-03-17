@@ -27,7 +27,6 @@ import org.junit.jupiter.api.Test;
 public class PathCleanupUtilsTest {
   private static final Logger log = LogManager.getLogger(PathCleanupUtilsTest.class);
 
-
   @BeforeEach
   public void setUp() {}
 

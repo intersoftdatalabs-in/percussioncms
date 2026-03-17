@@ -864,7 +864,7 @@ public class PSDispatchingPathService implements IPSPathService, IPSPathRecycleS
           Category itemCat = item.getCategory();
           // some older versions of the Category enum may not define SYSTEM; compare by name
           if (itemCat != null && "SYSTEM".equals(itemCat.name())) {
-              itemCat = Category.FOLDER;
+            itemCat = Category.FOLDER;
           }
 
           if (hasCat && (itemCat == null || !categories.contains(itemCat.name()))) continue;

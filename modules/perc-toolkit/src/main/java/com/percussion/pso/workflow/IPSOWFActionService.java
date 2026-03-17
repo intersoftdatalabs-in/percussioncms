@@ -89,7 +89,6 @@ public interface IPSOWFActionService {
    * @throws PSExtensionException
    * @throws PSNotFoundException
    */
-
   public IPSWorkflowAction getWorkflowAction(String workflowActionName)
       throws PSExtensionException, PSNotFoundException;
 }

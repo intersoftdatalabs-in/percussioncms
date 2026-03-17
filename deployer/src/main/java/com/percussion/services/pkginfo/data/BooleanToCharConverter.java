@@ -21,14 +21,12 @@ import jakarta.persistence.AttributeConverter;
 import jakarta.persistence.Converter;
 
 /**
- * Converts a Boolean Java type to/from a CHAR(1) database column. This converter maps:
- * - true -> 'Y'
- * - false -> 'N'
- * - null -> null
+ * Converts a Boolean Java type to/from a CHAR(1) database column. This converter maps: - true ->
+ * 'Y' - false -> 'N' - null -> null
  *
- * This is necessary because the PSX_PKG_DEPENDENCY.IMPLIED_DEP column is defined as CHAR(1)
- * but the JPA entity uses a Boolean field. Storing a Boolean directly would result in "true" or
- * "false" (5+ characters) which cannot fit in CHAR(1).
+ * <p>This is necessary because the PSX_PKG_DEPENDENCY.IMPLIED_DEP column is defined as CHAR(1) but
+ * the JPA entity uses a Boolean field. Storing a Boolean directly would result in "true" or "false"
+ * (5+ characters) which cannot fit in CHAR(1).
  */
 @Converter
 public class BooleanToCharConverter implements AttributeConverter<Boolean, String> {
@@ -58,6 +56,8 @@ public class BooleanToCharConverter implements AttributeConverter<Boolean, Strin
     if (dbData == null) {
       return null;
     }
-    return "Y".equalsIgnoreCase(dbData) || "1".equalsIgnoreCase(dbData) || "T".equalsIgnoreCase(dbData);
+    return "Y".equalsIgnoreCase(dbData)
+        || "1".equalsIgnoreCase(dbData)
+        || "T".equalsIgnoreCase(dbData);
   }
 }

@@ -203,7 +203,6 @@ public class PSSteppedWorkflowRestService {
   }
 
   /** Orders state names alphabetically (ascending). */
-
   private List<String> orderStateNames(List<PSState> states) {
     var names = new ArrayList<String>();
     for (var state : states) {

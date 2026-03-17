@@ -207,8 +207,8 @@ public class NodeService implements NodeServiceInf {
   /////////////////////////////////////////////////////////
 
   /**
-   * Retrieves all node names (and their IDs) for a given taxonomy and language.
-   * Useful for dropdown selections.
+   * Retrieves all node names (and their IDs) for a given taxonomy and language. Useful for dropdown
+   * selections.
    *
    * @param taxonomyID the unique identifier of the taxonomy
    * @param langID the unique identifier of the language

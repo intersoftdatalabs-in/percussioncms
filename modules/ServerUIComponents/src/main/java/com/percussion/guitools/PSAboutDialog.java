@@ -15,7 +15,6 @@
  * limitations under the License.
  */
 package com.percussion.guitools;
-import java.io.Serializable;
 
 import java.applet.AppletContext;
 import java.awt.*;
@@ -24,6 +23,7 @@ import java.awt.event.KeyListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.IOException;
+import java.io.Serializable;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.time.YearMonth;
@@ -35,6 +35,7 @@ import javax.swing.*;
  */
 public class PSAboutDialog extends JDialog implements Serializable {
   private static final long serialVersionUID = 1L;
+
   /**
    * Initialies the dialog with supplied parameters.
    *

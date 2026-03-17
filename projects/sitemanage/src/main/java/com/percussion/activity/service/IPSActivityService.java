@@ -148,9 +148,9 @@ public interface IPSActivityService {
   Collection<Long> findPublishedItems(Collection<Integer> contentIds);
 
   /** Exception thrown when an error occurs in the activity service. */
-    
   class PSActivityServiceException extends Exception {
     private static final long serialVersionUID = 1L;
+
     /**
      * Constructs a new exception with the specified detail message.
      *

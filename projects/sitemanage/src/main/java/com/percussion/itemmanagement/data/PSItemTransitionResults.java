@@ -27,9 +27,8 @@ import java.util.List;
  * "If at first you don't succeed, check the failedAssets list!"
  */
 @XmlRootElement(name = "ItemTransitionResults")
-  
 public class PSItemTransitionResults extends PSAbstractDataObject {
-    private static final long serialVersionUID = 1L;
+  private static final long serialVersionUID = 1L;
 
   private String itemId;
   private List<PSDataItemSummary> failedAssets = new ArrayList<>();

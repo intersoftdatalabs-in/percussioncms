@@ -18,6 +18,7 @@ package com.percussion.pagemanagement.service;
 
 import static com.percussion.pagemanagement.service.impl.PSResourceDefinitionUtils.sortByDependencies;
 import static com.percussion.test.TestAssertions.*;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import com.percussion.pagemanagement.data.PSResourceDefinitionGroup.PSFileResource;
 import com.percussion.pagemanagement.data.PSResourceDefinitionGroup.PSResourceDefinition;
@@ -27,7 +28,6 @@ import java.util.ArrayList;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class PSResourceDefinitionUtilsTest {
   private List<PSResourceDefinition> resources;
@@ -59,11 +59,12 @@ public class PSResourceDefinitionUtilsTest {
     assertEquals("Expected to sort", expected, actual);
   }
 
-@Test
-    public void testCycle() throws Exception {
-      resources.add(f);
-      assertThrows(PSResourceDefinitionUtils.PSResourceDefinitionDependencyCycleException.class,
-                   () -> sortByDependencies(resources));
+  @Test
+  public void testCycle() throws Exception {
+    resources.add(f);
+    assertThrows(
+        PSResourceDefinitionUtils.PSResourceDefinitionDependencyCycleException.class,
+        () -> sortByDependencies(resources));
   }
 
   public PSFileResource createResource(String id, String... depIds) {

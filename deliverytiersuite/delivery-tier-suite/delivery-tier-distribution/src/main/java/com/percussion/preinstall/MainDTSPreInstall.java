@@ -224,7 +224,7 @@ public class MainDTSPreInstall {
     }
   }
 
-    public static int execJar(
+  public static int execJar(
       Path jar,
       Path execPath,
       Path installDir,
@@ -310,10 +310,11 @@ public class MainDTSPreInstall {
 
   private static ResolvedDbConfig resolveDbConfig(Map<String, String> cliOptions) {
     Map<String, String> envFileValues = new HashMap<>();
-    String envFilePath = firstNonBlank(
-        cliOptions.get("db.config.env.file"),
-        System.getenv("DB_CONFIG_ENV_FILE"),
-        System.getenv("PERC_DB_CONFIG_ENV_FILE"));
+    String envFilePath =
+        firstNonBlank(
+            cliOptions.get("db.config.env.file"),
+            System.getenv("DB_CONFIG_ENV_FILE"),
+            System.getenv("PERC_DB_CONFIG_ENV_FILE"));
     if (envFilePath != null) {
       envFileValues.putAll(loadEnvFile(envFilePath));
     }
@@ -426,7 +427,8 @@ public class MainDTSPreInstall {
               + sslVerify;
       systemProperties.put("perc.db.dts.jdbcUrl", dtsJdbcUrl);
       systemProperties.put("perc.db.dts.jdbcDriver", "com.mysql.cj.jdbc.Driver");
-      systemProperties.put("perc.db.dts.hibernateDialect", "org.hibernate.dialect.MySQL5InnoDBDialect");
+      systemProperties.put(
+          "perc.db.dts.hibernateDialect", "org.hibernate.dialect.MySQL5InnoDBDialect");
       systemProperties.put("perc.db.dts.schema", firstNonBlank(schema, ""));
     } else if ("sqlserver".equals(dbTypeNormalized)) {
       String trustServerCertificate =
@@ -443,8 +445,11 @@ public class MainDTSPreInstall {
               + ";trustServerCertificate="
               + trustServerCertificate;
       systemProperties.put("perc.db.dts.jdbcUrl", dtsJdbcUrl);
-      systemProperties.put("perc.db.dts.jdbcDriver", "com.microsoft.sqlserver.jdbc.SQLServerDriver");
-      systemProperties.put("perc.db.dts.hibernateDialect", "com.percussion.delivery.rdbms.PSUnicodeSQLServerDialect");
+      systemProperties.put(
+          "perc.db.dts.jdbcDriver", "com.microsoft.sqlserver.jdbc.SQLServerDriver");
+      systemProperties.put(
+          "perc.db.dts.hibernateDialect",
+          "com.percussion.delivery.rdbms.PSUnicodeSQLServerDialect");
       systemProperties.put("perc.db.dts.schema", firstNonBlank(schema, "DBO"));
     }
 

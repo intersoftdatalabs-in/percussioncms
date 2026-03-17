@@ -71,7 +71,6 @@ public class PSOSlotRelations {
    * @return a List of PSAaRelations. Never <code>null</code> but may be empty.
    * @throws PSCmsException
    */
-
   public static List<PSAaRelationship> getSlotRelations(
       IPSGuid owner, IPSTemplateSlot slot, String session) throws PSCmsException {
     initServices();
@@ -182,7 +181,6 @@ public class PSOSlotRelations {
    * @return the List of relations, never <code>null</code> but may be <code>empty</code>
    * @throws PSCmsException
    */
-
   private static List<PSAaRelationship> fromRelList(PSAaRelationshipList relList)
       throws PSCmsException {
     List<PSAaRelationship> relations = new ArrayList<PSAaRelationship>();

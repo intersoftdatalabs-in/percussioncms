@@ -28,21 +28,21 @@ import com.percussion.webservices.content.FindFolderChildrenResponse;
 import com.percussion.webservices.content.FolderRef;
 import com.percussion.webservices.content.LoadItemsRequest;
 import com.percussion.webservices.content.LoadItemsResponse;
-import com.percussion.webservices.content.PrepareForEditRequest;
-import com.percussion.webservices.content.PrepareForEditResponse;
 import com.percussion.webservices.content.PSFolder;
 import com.percussion.webservices.content.PSItem;
 import com.percussion.webservices.content.PSItemStatus;
 import com.percussion.webservices.content.PSItemSummary;
+import com.percussion.webservices.content.PrepareForEditRequest;
+import com.percussion.webservices.content.PrepareForEditResponse;
 import com.percussion.webservices.content.ReleaseFromEditRequest;
 import com.percussion.webservices.content.SaveItemsRequest;
 import com.percussion.webservices.content.SaveItemsResponse;
+import com.percussion.webservices.security.data.PSLogin;
 import com.percussion.webservices.securityservices.LoginRequest;
 import com.percussion.webservices.securityservices.LoginResponse;
 import com.percussion.webservices.securityservices.LogoutRequest;
 import com.percussion.webservices.securityservices.NotAuthenticatedFaultMessage;
 import com.percussion.webservices.securityservices.Security;
-import com.percussion.webservices.security.data.PSLogin;
 import com.percussion.webservices.system.TransitionItemsRequest;
 import jakarta.xml.ws.BindingProvider;
 import jakarta.xml.ws.WebServiceException;
@@ -155,7 +155,8 @@ public class PSWsUtils {
   }
 
   /**
-   * Performs the Workflow Transition with the specified Trigger name for the specified Content Item.
+   * Performs the Workflow Transition with the specified Trigger name for the specified Content
+   * Item.
    *
    * @param binding the proxy of the system service; assumed not to be <code>null</code>.
    * @param id the ID of the Content Item to Transition.
@@ -260,8 +261,8 @@ public class PSWsUtils {
    *     to, or, if the user has never logged in before, into the first Community in alphabetical
    *     order.
    * @param locale the name of the Locale into which to log the user; may be <code>null</code> or
-   *     empty, in which case the user is logged in to the last Locale they logged in to, or, if
-   *     the user has never logged in before, into the first Locale in alphabetical order.
+   *     empty, in which case the user is logged in to the last Locale they logged in to, or, if the
+   *     user has never logged in before, into the first Locale in alphabetical order.
    * @return the Rhythmyx session, never <code>null</code> or empty.
    * @throws NotAuthenticatedFaultMessage if authentication of the passed credentials fails.
    */

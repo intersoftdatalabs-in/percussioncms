@@ -275,6 +275,7 @@ public class PSWebResourcesRestService {
    * Validates the provided file path to prevent path traversal attacks (CWE-22).
    *
    * <p>Security Checks:
+   *
    * <ul>
    *   <li>Path must not be absolute (cannot start with / or drive letter)
    *   <li>Path must not contain .. sequences (path traversal)

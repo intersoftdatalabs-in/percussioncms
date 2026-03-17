@@ -468,7 +468,8 @@ public class PSSimpleSwingBrowser extends PSDesktopExplorerWindow {
                 contextMenu.show(webView, event.getScreenX(), event.getScreenY());
               }
             } else contextMenu.hide();
-          };
+          }
+          ;
         });
 
     engine
@@ -756,7 +757,8 @@ public class PSSimpleSwingBrowser extends PSDesktopExplorerWindow {
             webView
                 .getEngine()
                 .executeScript(
-                    "if(window.jQuery){ jQuery(\".editableEditLiveSection\").map(function(){return this.id;}).get();}else{new Object();}");
+                    "if(window.jQuery){ jQuery(\".editableEditLiveSection\").map(function(){return"
+                        + " this.id;}).get();}else{new Object();}");
 
     if (editliveSections != null && !editliveSections.getSlot(0).equals("undefined")) {
 
@@ -778,11 +780,14 @@ public class PSSimpleSwingBrowser extends PSDesktopExplorerWindow {
       alert.setTitle("Warning");
       alert.setHeaderText("EditLive Field Type Not Supported in Desktop Content Explorer");
       alert.setContentText(
-          "The EditLive field type used in this editor requires Java Applet support.  \r\nThe application needs to be reconfigured to use TinyMCE Javascript control to be able to edit in Desktop Content Explorer");
+          "The EditLive field type used in this editor requires Java Applet support.  \r\n"
+              + "The application needs to be reconfigured to use TinyMCE Javascript control to be"
+              + " able to edit in Desktop Content Explorer");
 
       Label label =
           new Label(
-              "The following text has been copied to your clipboard and can be sent to you Content Managment development team");
+              "The following text has been copied to your clipboard and can be sent to you Content"
+                  + " Managment development team");
 
       TextArea textArea =
           new TextArea(
@@ -790,13 +795,16 @@ public class PSSimpleSwingBrowser extends PSDesktopExplorerWindow {
                   + user
                   + "' tried to edit item # "
                   + id
-                  + " but the content type still includes fields that use Java Applets.\r\n\r\nContent Type: "
+                  + " but the content type still includes fields that use Java Applets.\r\n\r\n"
+                  + "Content Type: "
                   + type
                   + "\r\nAffected Fields: "
                   + typeString
                   + "\r\nurl="
                   + url
-                  + "\r\n\r\nPercussion recommends that the CMS Web Developer update the fields on this content type to allow "
+                  + "\r\n\r\n"
+                  + "Percussion recommends that the CMS Web Developer update the fields on this"
+                  + " content type to allow "
                   + user
                   + " to edit the item with the Desktop Content Explorer. \r\n----");
 

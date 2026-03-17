@@ -17,6 +17,7 @@
 package test.percussion.pso.validation;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
 import com.percussion.cms.objectstore.PSFolder;
 import com.percussion.cms.objectstore.PSRelationshipFilter;
@@ -44,10 +45,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.Mockito;
-import org.mockito.InOrder;
 import org.mockito.junit.jupiter.MockitoExtension;
-import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 public class PSOUniqueFieldWithInFoldersValidatorTest {
@@ -57,8 +55,7 @@ public class PSOUniqueFieldWithInFoldersValidatorTest {
 
   TestablePSOUniqueFieldValidator validator;
 
-  @Mock
-  PSONodeCataloger nodeCataloger;
+  @Mock PSONodeCataloger nodeCataloger;
 
   @BeforeEach
   public void setUp() throws Exception {
@@ -269,7 +266,6 @@ public class PSOUniqueFieldWithInFoldersValidatorTest {
   }
 
   @Test
-
   public void testIsPromotable() {
     final IPSSystemWs systemWs = mock(IPSSystemWs.class);
     validator.setSystemWs(systemWs);

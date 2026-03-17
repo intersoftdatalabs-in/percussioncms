@@ -36,10 +36,10 @@ public class HibernateLanguageDAO implements LanguageDAO {
     return session.get(Language.class, id);
   }
 
-
   public Collection<Language> getAllLanguages() {
     Session session = sessionFactory.getCurrentSession();
-    return (Collection<Language>) (Collection<?>) session.createQuery("from Language lan", Language.class).list();
+    return (Collection<Language>)
+        (Collection<?>) session.createQuery("from Language lan", Language.class).list();
   }
 
   public void saveLanguage(Language language) {

@@ -16,6 +16,9 @@
  */
 package com.percussion.delivery.polls.service;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 import com.percussion.delivery.services.PSAbstractRestService;
 import com.percussion.delivery.utils.PSVersionHelper;
 import jakarta.ws.rs.Path;
@@ -25,9 +28,6 @@ import jakarta.ws.rs.core.Response;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.test.JerseyTest;
 import org.junit.jupiter.api.Test;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 /**
  * @author natechadwick

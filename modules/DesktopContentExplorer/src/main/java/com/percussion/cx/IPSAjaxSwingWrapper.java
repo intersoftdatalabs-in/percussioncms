@@ -25,7 +25,7 @@ import java.net.MalformedURLException;
  * Provides methods to manage AjaxSwing handlers, window creation, and refresh operations.
  */
 public interface IPSAjaxSwingWrapper {
-  
+
   /**
    * Creates AjaxSwing handlers for the given content explorer applet.
    *

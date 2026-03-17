@@ -126,7 +126,6 @@ public class PSGetActionVisibilityAction extends PSAAActionBase {
       return mi_ctx.getUserLocale();
     }
 
-
     @Override
     public Collection<String> getRoles() {
       return mi_ctx.getSubjectRoles();
@@ -144,7 +143,6 @@ public class PSGetActionVisibilityAction extends PSAAActionBase {
       mi_id = id;
       mi_ctx = ctx;
     }
-
 
     @Override
     public int getAssignmentType() {

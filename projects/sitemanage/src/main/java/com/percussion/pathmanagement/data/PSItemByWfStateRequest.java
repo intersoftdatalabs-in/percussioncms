@@ -79,11 +79,10 @@ public class PSItemByWfStateRequest {
   }
 
   /**
-   * Gets the workflow state for which the items will be requested. May be null or
-   * empty to indicate all states.
+   * Gets the workflow state for which the items will be requested. May be null or empty to indicate
+   * all states.
    *
-   * @return the workflow state, or <code>null</code> if no specific state is
-   *     requested
+   * @return the workflow state, or <code>null</code> if no specific state is requested
    */
   public String getState() {
     return (state == null || state.isEmpty()) ? null : state;

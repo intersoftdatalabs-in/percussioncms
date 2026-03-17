@@ -18,8 +18,8 @@
 package com.percussion.ant.install;
 
 import com.percussion.install.PSLogger;
-import com.percussion.security.xml.PSSecureXMLUtils;
 import com.percussion.install.RxFileManager;
+import com.percussion.security.xml.PSSecureXMLUtils;
 import com.percussion.util.IOTools;
 import com.percussion.xml.PSXmlDocumentBuilder;
 import com.percussion.xml.PSXmlTreeWalker;

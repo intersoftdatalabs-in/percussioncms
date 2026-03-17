@@ -88,13 +88,13 @@ public class PSSynFeedProxy {
     return ret;
   }
 
-   /***
-    * Returns the feed categories.
-    * @return
-    */
-   public List<?> getCategoriesList() {
-     return feed.getCategories();
-   }
+  /***
+   * Returns the feed categories.
+   * @return
+   */
+  public List<?> getCategoriesList() {
+    return feed.getCategories();
+  }
 
   /***
    * Returns the feed categories as a comma separated string.
@@ -332,7 +332,8 @@ public class PSSynFeedProxy {
       log.debug("Setting Proxy server to {}:{}", proxy.getProxyServer(), proxy.getProxyPort());
       builder.proxy(
           ProxySelector.of(
-              new InetSocketAddress(proxy.getProxyServer(), Integer.parseInt(proxy.getProxyPort()))));
+              new InetSocketAddress(
+                  proxy.getProxyServer(), Integer.parseInt(proxy.getProxyPort()))));
     }
 
     return builder.build();

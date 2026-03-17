@@ -101,7 +101,6 @@ public class AbstractTemplateExpanderAdaptorTest {
   }
 
   @Test
-
   public void testBuildNodeMap() throws Exception {
     var qr = buildQueryResultExpectations();
     var summaryMap = buildSummaryMapExpectations();

@@ -17,43 +17,37 @@
 
 package com.percussion.utils.security;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 import com.percussion.delivery.data.PSDeliveryInfo;
+import java.util.ArrayList;
+import java.util.List;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 public class PSContentSecurityPolicyUtilsTests {
 
+  @BeforeEach
+  public void setup() {}
 
-    @BeforeEach
-    public void setup(){
+  @AfterEach
+  public void teardown() {}
 
-    }
+  @Test
+  @Disabled // FIXME Test is failing
+  public void testEditCSP() {
+    List<PSDeliveryInfo> psDeliveryInfoList = new ArrayList<>();
+    String contentSecurityString = PSSecurityUtility.CONTENT_SECURITY_POLICY_DEFAULT;
 
-    @AfterEach
-    public void teardown(){
+    String edited =
+        PSContentSecurityPolicyUtils.editContentSecurityPolicy(
+            psDeliveryInfoList, contentSecurityString);
 
-    }
+    assertNotNull(edited);
 
-    @Test
-    @Disabled //FIXME Test is failing
-    public void testEditCSP(){
-        List<PSDeliveryInfo> psDeliveryInfoList = new ArrayList<>();
-        String contentSecurityString = PSSecurityUtility.CONTENT_SECURITY_POLICY_DEFAULT;
-
-        String edited = PSContentSecurityPolicyUtils.editContentSecurityPolicy(psDeliveryInfoList,contentSecurityString);
-
-        assertNotNull(edited);
-
-        assertEquals(contentSecurityString, edited);
-
-    }
+    assertEquals(contentSecurityString, edited);
+  }
 }

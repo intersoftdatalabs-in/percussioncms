@@ -58,8 +58,8 @@ import net.htmlparser.jericho.StartTag;
 import net.htmlparser.jericho.StartTagType;
 import net.htmlparser.jericho.Tag;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /** Various utility methods that are used by one or more client actions. */
 public abstract class PSActionUtil {
@@ -230,7 +230,6 @@ public abstract class PSActionUtil {
    * @return list of node definitions, never <code>null</code> may be empty. Sorted by names of the
    *     definitions.
    */
-
   public static List<IPSNodeDefinition> getAllowedNodeDefsForSlot(String slotid)
       throws PSAssemblyException, PSNotFoundException {
     List<IPSNodeDefinition> defs = new ArrayList<IPSNodeDefinition>();

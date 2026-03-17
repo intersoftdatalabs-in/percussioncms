@@ -25,24 +25,28 @@ import java.util.Map;
 
 /**
  * Implementation of the get folder children action.
- * 
- * <p>Required parameters:</p>
+ *
+ * <p>Required parameters:
+ *
  * <ul>
- *   <li>{@link PSAAActionBase#PARAM_NAME_PARENT_FOLDER_PATH} - The path to the parent folder</li>
- *   <li>{@link IPSHtmlParameters#SYS_CONTENTTYPEID} - The content type ID</li>
- *   <li>{@link PSAAActionBase#PARAM_NAME_CATEGORY} - The category: either {@link PSAAActionBase#PARAM_CATEGORY_FOLDERS} or {@link PSAAActionBase#PARAM_CATEGORY_SITES}</li>
+ *   <li>{@link PSAAActionBase#PARAM_NAME_PARENT_FOLDER_PATH} - The path to the parent folder
+ *   <li>{@link IPSHtmlParameters#SYS_CONTENTTYPEID} - The content type ID
+ *   <li>{@link PSAAActionBase#PARAM_NAME_CATEGORY} - The category: either {@link
+ *       PSAAActionBase#PARAM_CATEGORY_FOLDERS} or {@link PSAAActionBase#PARAM_CATEGORY_SITES}
  * </ul>
- * 
- * <p>Additional parameters for SITES category:</p>
+ *
+ * <p>Additional parameters for SITES category:
+ *
  * <ul>
- *   <li>{@link IPSHtmlParameters#SYS_SLOTID} - The slot ID (required when category is SITES)</li>
+ *   <li>{@link IPSHtmlParameters#SYS_SLOTID} - The slot ID (required when category is SITES)
  * </ul>
  */
 public class PSGetChildrenAction extends PSAAActionBase {
   /**
    * Retrieves children (folders or sites) for a given parent folder.
-   * 
-   * @param params the action parameters containing parent folder path, content type ID, and category
+   *
+   * @param params the action parameters containing parent folder path, content type ID, and
+   *     category
    * @return PSActionResponse containing JSON with the folder children data
    * @throws PSAAClientActionException if required parameters are missing or invalid
    */

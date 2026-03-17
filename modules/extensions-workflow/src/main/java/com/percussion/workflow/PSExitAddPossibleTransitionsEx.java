@@ -44,7 +44,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -53,7 +52,6 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.w3c.dom.Text;
-
 
 public class PSExitAddPossibleTransitionsEx implements IPSResultDocumentProcessor {
 
@@ -724,10 +722,10 @@ public class PSExitAddPossibleTransitionsEx implements IPSResultDocumentProcesso
     String buttonName = null; // the internal name of the button
 
     IPSCmsObjectMgr cms = PSCmsObjectMgrLocator.getObjectManager();
-    boolean isPublic = cms
-        .loadWorkflowState(csc.getWorkflowID(), csc.getContentStateID())
-        .map(IPSStatesContext::getIsValid)
-        .orElse(false);
+    boolean isPublic =
+        cms.loadWorkflowState(csc.getWorkflowID(), csc.getContentStateID())
+            .map(IPSStatesContext::getIsValid)
+            .orElse(false);
 
     elemParent.setAttribute("isPublic", isPublic ? "y" : "n");
 
@@ -947,7 +945,6 @@ public class PSExitAddPossibleTransitionsEx implements IPSResultDocumentProcesso
    * @return highest assignment type for the user, based on the roles in which they are acting.
    * @throws SQLException if a SQL error occurs
    */
-
   private static int getAssignmentInfo(
       int workflowID,
       int contentID,

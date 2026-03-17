@@ -9,8 +9,8 @@
     </parent>
     <artifactId>perc-web-ui</artifactId>
     <packaging>war</packaging>
-                <dependencies>
-                    <dependency>
+    <dependencies>
+        <dependency>
             <groupId>com.percussion</groupId>
             <artifactId>extensions-default-template</artifactId>
             <version>${project.parent.version}</version>
@@ -235,7 +235,6 @@
         <dependency>
             <groupId>com.fasterxml.jackson.jakarta.rs</groupId>
             <artifactId>jackson-jakarta-rs-json-provider</artifactId>
-
         </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
@@ -445,7 +444,6 @@
             <artifactId>commons-httpclient</artifactId>
             <version>3.1</version>
         </dependency>
-
         <dependency>
             <groupId>org.apache.lucene</groupId>
             <artifactId>lucene-core</artifactId>

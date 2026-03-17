@@ -93,7 +93,8 @@ public class PSPageMetadataExtractorHelper extends PSGenericMetadataExtractorHel
       // Load site's home page template
       template =
           templateService.load(
-              catalogService.getCatalogTemplateIdBySite(context.getSite().map(s -> s.getName()).orElse("")));
+              catalogService.getCatalogTemplateIdBySite(
+                  context.getSite().map(s -> s.getName()).orElse("")));
 
       // Set Theme (Only first time)
       if (isBlank(template.getTheme())) {
@@ -123,7 +124,7 @@ public class PSPageMetadataExtractorHelper extends PSGenericMetadataExtractorHel
                 EXTRACT_METADATA,
                 "Metadata was successfully saved to the Unassigned template.");
       }
-        unassignedTemplateCache.put(context.getSite().map(PSSite::getName).orElse(""), template);
+      unassignedTemplateCache.put(context.getSite().map(PSSite::getName).orElse(""), template);
     }
   }
 

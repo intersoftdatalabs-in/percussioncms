@@ -197,7 +197,6 @@
             <groupId>org.aspectj</groupId>
             <artifactId>aspectjweaver</artifactId>
         </dependency>
-
         <!-- testing libraries -->
         <dependency>
             <groupId>org.mockito</groupId>
@@ -515,7 +514,9 @@
         </dependency>
         <dependency>
             <groupId>org.ehcache</groupId>
-            <artifactId>ehcache</artifactId>            <classifier>jakarta</classifier>        </dependency>
+            <artifactId>ehcache</artifactId>
+            <classifier>jakarta</classifier>
+        </dependency>
         <dependency>
             <groupId>com.github.dfabulich</groupId>
             <artifactId>sitemapgen4j</artifactId>

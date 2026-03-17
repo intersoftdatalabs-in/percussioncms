@@ -66,7 +66,6 @@ public class SimplifyParameters {
     return outMap;
   }
 
-
   public static String simplifyValue(Object value) {
     if (value == null) {
       log.debug("null value");
@@ -95,7 +94,6 @@ public class SimplifyParameters {
     }
     return sval;
   }
-
 
   public static List<String> getValueAsList(Object value) {
     List<String> result = new ArrayList<String>();

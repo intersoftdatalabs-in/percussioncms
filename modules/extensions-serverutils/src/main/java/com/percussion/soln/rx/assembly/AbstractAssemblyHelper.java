@@ -84,7 +84,6 @@ public abstract class AbstractAssemblyHelper {
     return rvalue;
   }
 
-
   public static <T> T evalExpression(PSJexlEvaluator eval, JxltEngine.Expression exp, Class<T> k)
       throws Exception {
     PSScript script = new PSScript(exp.asString());

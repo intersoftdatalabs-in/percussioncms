@@ -150,6 +150,7 @@ public interface IPSFolderService {
   public static class PSWorkflowNotFoundException extends PSException
       implements IPSNotFoundException {
     private static final long serialVersionUID = 1L;
+
     public PSWorkflowNotFoundException(String message) {
       super(message);
     }
@@ -157,7 +158,8 @@ public interface IPSFolderService {
 
   /** Exception thrown if a requested workflow for assignment or for listing is not found. */
   public static class PSWorkflowAssignmentInProgressException extends PSException {
-  private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
+
     public PSWorkflowAssignmentInProgressException(String message) {
       super(message);
     }
@@ -169,6 +171,7 @@ public interface IPSFolderService {
   public static class PSFolderNotFoundException extends PSException
       implements IPSNotFoundException {
     private static final long serialVersionUID = 1L;
+
     public PSFolderNotFoundException(String message) {
       super(message);
     }
@@ -177,6 +180,7 @@ public interface IPSFolderService {
   /** Exception thrown if the pages from the supplied folder could not be retrieved. */
   public static class PSPagesNotFoundException extends PSException implements IPSNotFoundException {
     private static final long serialVersionUID = 1L;
+
     public PSPagesNotFoundException(String message) {
       super(message);
     }

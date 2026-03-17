@@ -9,81 +9,72 @@
  *****************************************************************************/
 package com.percussion.extensions.translations;
 
-import com.percussion.data.PSConversionException;
-
-import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
-public class PSTranslationTest
-{
-   @Test
-   public void testDateTranslations() throws Exception
-   {
-      PSFormatDate fd = new PSFormatDate();
-      PSNormalizeDate nd = new PSNormalizeDate();
+import com.percussion.data.PSConversionException;
+import org.junit.jupiter.api.Test;
 
-      doTest("2004 03 05", "yyyy MM dd", fd, nd);
-      doTest("03 2004 05 09:41.12,555", "MM yyyy dd hh:mm.ss,SSS", fd, nd);
+public class PSTranslationTest {
+  @Test
+  public void testDateTranslations() throws Exception {
+    PSFormatDate fd = new PSFormatDate();
+    PSNormalizeDate nd = new PSNormalizeDate();
 
-   }
+    doTest("2004 03 05", "yyyy MM dd", fd, nd);
+    doTest("03 2004 05 09:41.12,555", "MM yyyy dd hh:mm.ss,SSS", fd, nd);
+  }
 
-   @Test
-   public void testMapTranslations() throws Exception
-   {
-      PSMapInputValue mip = new PSMapInputValue();
-      PSMapOutputValue mop = new PSMapOutputValue();
-      String map = "dog=cat&black=white&up=down";
+  @Test
+  public void testMapTranslations() throws Exception {
+    PSMapInputValue mip = new PSMapInputValue();
+    PSMapOutputValue mop = new PSMapOutputValue();
+    String map = "dog=cat&black=white&up=down";
 
-      doTest("dog", "cat", map, mip, mop);
-      doTest("black", "white", map, mip, mop);
-      doTest("up", "down", map, mip, mop);
-   }
+    doTest("dog", "cat", map, mip, mop);
+    doTest("black", "white", map, mip, mop);
+    doTest("up", "down", map, mip, mop);
+  }
 
-   @Test
-   public void testJexlTranslation() throws Exception
-   {
-      PSJexlInputTranslation jit = new PSJexlInputTranslation();
+  @Test
+  public void testJexlTranslation() throws Exception {
+    PSJexlInputTranslation jit = new PSJexlInputTranslation();
 
-      Object result = jit.processUdf(packageArgs("32", "$value / 4.0"), null);
-      assertEquals(8.0, result);
-   }
+    Object result = jit.processUdf(packageArgs("32", "$value / 4.0"), null);
+    assertEquals(8.0, result);
+  }
 
-   @Test
-   public void testTrim() throws Exception
-   {
-      PSTrimStringValue tsv = new PSTrimStringValue();
+  @Test
+  public void testTrim() throws Exception {
+    PSTrimStringValue tsv = new PSTrimStringValue();
 
-      assertEquals("x", tsv.processUdf(packageArgs("   x   ", null), null));
-      assertEquals("x", tsv.processUdf(packageArgs("   x   ", "both"), null));
-      assertEquals("x   ", tsv.processUdf(packageArgs("   x   ", "start"), null));
-      assertEquals("   x", tsv.processUdf(packageArgs("   x", "end"), null));
-   }
+    assertEquals("x", tsv.processUdf(packageArgs("   x   ", null), null));
+    assertEquals("x", tsv.processUdf(packageArgs("   x   ", "both"), null));
+    assertEquals("x   ", tsv.processUdf(packageArgs("   x   ", "start"), null));
+    assertEquals("   x", tsv.processUdf(packageArgs("   x", "end"), null));
+  }
 
-   private void doTest(String input, String output, String map,
-         PSMapInputValue mip, PSMapOutputValue mop)
-         throws PSConversionException
-   {
-      String rval = (String) mip.processUdf(packageArgs(input, map), null);
-      assertNotNull(rval);
-      assertEquals(output, rval);
+  private void doTest(
+      String input, String output, String map, PSMapInputValue mip, PSMapOutputValue mop)
+      throws PSConversionException {
+    String rval = (String) mip.processUdf(packageArgs(input, map), null);
+    assertNotNull(rval);
+    assertEquals(output, rval);
 
-      rval = (String) mop.processUdf(packageArgs(rval, map), null);
-      assertNotNull(rval);
-      assertEquals(input, rval);
-   }
+    rval = (String) mop.processUdf(packageArgs(rval, map), null);
+    assertNotNull(rval);
+    assertEquals(input, rval);
+  }
 
-   private void doTest(String input, String fmt, PSFormatDate fd,
-         PSNormalizeDate nd) throws PSConversionException
-   {
-      String parsed = (String) nd.processUdf(packageArgs(input, fmt), null);
-      assertNotNull(parsed);
+  private void doTest(String input, String fmt, PSFormatDate fd, PSNormalizeDate nd)
+      throws PSConversionException {
+    String parsed = (String) nd.processUdf(packageArgs(input, fmt), null);
+    assertNotNull(parsed);
 
-      String output = (String) fd.processUdf(packageArgs(parsed, fmt), null);
-      assertEquals(input, output);
-   }
+    String output = (String) fd.processUdf(packageArgs(parsed, fmt), null);
+    assertEquals(input, output);
+  }
 
-   Object[] packageArgs(Object... objects)
-   {
-      return objects;
-   }
+  Object[] packageArgs(Object... objects) {
+    return objects;
+  }
 }

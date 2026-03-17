@@ -203,7 +203,7 @@ public class PSUpdateTablesEditionTask implements IPSEditionTask {
   private DbmsInfo getConnectionInfo(IPSEdition edition) {
     if (edition.getPubServerId() == null) return null;
 
-IPSPubServer pubServer = getPubServerDao().findPubServer(edition.getPubServerId()).orElse(null);
+    IPSPubServer pubServer = getPubServerDao().findPubServer(edition.getPubServerId()).orElse(null);
     if (pubServer != null) return PSDatabaseDeliveryHandler.getDbmsInfoFromPubServer(pubServer);
 
     return null;

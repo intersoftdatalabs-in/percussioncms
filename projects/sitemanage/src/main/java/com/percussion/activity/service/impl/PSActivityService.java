@@ -38,11 +38,11 @@ import com.percussion.pagemanagement.data.PSResourceDefinitionGroup.PSAssetResou
 import com.percussion.pathmanagement.service.IPSPathService.PSPathNotFoundServiceException;
 import com.percussion.pathmanagement.service.IPSPathService.PSPathServiceException;
 import com.percussion.pathmanagement.service.impl.PSPathUtils;
+import com.percussion.security.validation.PSJCRQueryValidator;
 import com.percussion.services.catalog.PSTypeEnum;
 import com.percussion.services.content.data.PSItemSummary;
 import com.percussion.services.contentmgr.IPSContentMgr;
 import com.percussion.services.contentmgr.IPSContentPropertyConstants;
-import com.percussion.security.validation.PSJCRQueryValidator;
 import com.percussion.services.guidmgr.IPSGuidManager;
 import com.percussion.services.publisher.IPSPublisherService;
 import com.percussion.services.sitemgr.IPSSite;
@@ -424,7 +424,6 @@ public class PSActivityService implements IPSActivityService {
     return new PSDateRange(startDate, endDate, PSDateRange.Granularity.valueOf(granularity));
   }
 
-
   private Collection<Integer> getContentIdsByPath(String path, Collection<String> contentTypes) {
     var result = new ArrayList<Integer>();
     var query = createJCRQuery(path, contentTypes);
@@ -445,8 +444,8 @@ public class PSActivityService implements IPSActivityService {
   }
 
   /**
-   * Creates a safe JCR query for content retrieval by path and content type.
-   * Validates inputs to prevent JCR query injection attacks (CWE-89).
+   * Creates a safe JCR query for content retrieval by path and content type. Validates inputs to
+   * prevent JCR query injection attacks (CWE-89).
    *
    * @param path the JCR path to query (will be validated and escaped)
    * @param contentTypes optional collection of content type names to filter by

@@ -61,9 +61,9 @@ public interface IPSMetadataRestService extends IPSRestService {
    * makes a list of tags of those pages, and retuns a metadata tag list ({@link
    * PSMetadataRestTagList} with tags and pages occurrences of each one).
    *
-   * @param metadataQuery A PSMetadataQuery containing the query. Never <code>null</code>.
-   *     by count of occurrences, in ascendant order. If this parameter is not set or different from
-   *     'count', it's alphabetically sorted, in descendant order.
+   * @param metadataQuery A PSMetadataQuery containing the query. Never <code>null</code>. by count
+   *     of occurrences, in ascendant order. If this parameter is not set or different from 'count',
+   *     it's alphabetically sorted, in descendant order.
    * @return A metadata tag list containing a list of {@link PSMetadataRestTagList} with the tag
    *     name and tag count (number of pages containing that tag). Never <code>null</code>, may be
    *     empty.

@@ -46,7 +46,6 @@ public class MasterImageMetaDataTest {
   }
 
   @Test
-
   public void testDescribe() {
     try {
       cut.setAlt("alt string");

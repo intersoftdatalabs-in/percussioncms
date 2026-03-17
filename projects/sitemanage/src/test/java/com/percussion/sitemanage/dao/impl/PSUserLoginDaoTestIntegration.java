@@ -19,8 +19,6 @@
 package com.percussion.sitemanage.dao.impl;
 
 import static com.percussion.test.TestAssertions.*;
-import static com.percussion.test.TestAssertions.*;
-import static com.percussion.test.TestAssertions.*;
 
 import com.percussion.share.dao.IPSGenericDao;
 import com.percussion.user.data.PSUserLogin;

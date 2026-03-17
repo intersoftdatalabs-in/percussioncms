@@ -312,8 +312,7 @@ public class PSArchiveInfo implements IPSDeployComponent {
     m_repository = new PSDbmsInfo(repositoryEl);
 
     var detailEl =
-        tree.getNextElement(
-            PSArchiveDetail.XML_NODE_NAME, PSXmlTreeWalker.GET_NEXT_ALLOW_SIBLINGS);
+        tree.getNextElement(PSArchiveDetail.XML_NODE_NAME, PSXmlTreeWalker.GET_NEXT_ALLOW_SIBLINGS);
     m_detail = detailEl != null ? new PSArchiveDetail(detailEl) : null;
   }
 

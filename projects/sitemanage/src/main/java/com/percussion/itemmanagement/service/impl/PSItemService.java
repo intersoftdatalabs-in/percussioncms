@@ -22,6 +22,7 @@ import static com.percussion.webservices.PSWebserviceUtils.getStateById;
 import static com.percussion.webservices.PSWebserviceUtils.getWorkflow;
 import static java.util.Arrays.asList;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.percussion.assetmanagement.dao.IPSAssetDao;
 import com.percussion.assetmanagement.data.PSAsset;
 import com.percussion.assetmanagement.data.PSReportFailedToRunException;
@@ -100,7 +101,6 @@ import com.percussion.webservices.PSErrorResultsException;
 import com.percussion.webservices.PSWebserviceUtils;
 import com.percussion.webservices.content.IPSContentWs;
 import com.percussion.webservices.publishing.IPSPublishingWs;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.DELETE;
 import jakarta.ws.rs.GET;
@@ -974,7 +974,6 @@ public class PSItemService implements IPSItemService {
     }
   }
 
-
   @POST
   @Path("/setitemdates")
   @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
@@ -1498,7 +1497,7 @@ public class PSItemService implements IPSItemService {
    * @see com.percussion.itemmanagement.service.IPSItemService#addUserItem(java.lang.String, int, com.percussion.itemmanagement.service.IPSItemService.PSUserItemTypeEnum)
    */
   public void addUserItem(String userName, int itemId, PSUserItemTypeEnum type)
-        throws IPSGenericDao.SaveException {
+      throws IPSGenericDao.SaveException {
     Validate.notEmpty(userName);
     PSUserItem userItem = userItemDao.find(userName, itemId);
     if (userItem == null) {
@@ -1507,9 +1506,9 @@ public class PSItemService implements IPSItemService {
       userItem.setItemId(itemId);
       userItem.setType(type.toString());
       try {
-          userItemDao.save(userItem);
+        userItemDao.save(userItem);
       } catch (PSDataServiceException e) {
-          throw new IPSGenericDao.SaveException("Failed to save user item", e);
+        throw new IPSGenericDao.SaveException("Failed to save user item", e);
       }
     }
   }

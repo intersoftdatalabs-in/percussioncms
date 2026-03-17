@@ -29,7 +29,7 @@ import java.util.Collection;
 @ArraySchema(schema = @Schema(implementation = String.class))
 public class ValueList extends ArrayList<String> {
   private static final long serialVersionUID = 1L;
-  
+
   public ValueList(Collection<? extends String> c) {
     super(c);
   }

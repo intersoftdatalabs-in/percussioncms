@@ -82,7 +82,7 @@ public class PSExitAddPossibleTransitions implements IPSResultDocumentProcessor 
 
       try {
         if (ms_correctParamCount != nParamCount) {
-          String[] exParams = { Integer.toString(ms_correctParamCount), String.valueOf(nParamCount) };
+          String[] exParams = {Integer.toString(ms_correctParamCount), String.valueOf(nParamCount)};
           throw new PSInvalidNumberOfParametersException(
               lang, IPSExtensionErrors.INVALID_PARAM_NUM, exParams);
         }
@@ -226,7 +226,7 @@ public class PSExitAddPossibleTransitions implements IPSResultDocumentProcessor 
     Optional<? extends IPSStatesContext> scOpt =
         cms.loadWorkflowState(nWorkFlowAppID, csc.getContentStateID());
     if (scOpt.isEmpty()) {
-        return; // can't determine state
+      return; // can't determine state
     }
     IPSStatesContext sc = scOpt.get();
 

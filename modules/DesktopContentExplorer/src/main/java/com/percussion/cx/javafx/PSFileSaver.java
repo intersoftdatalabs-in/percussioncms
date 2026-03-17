@@ -32,7 +32,9 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-/** @web http://java-buddy.blogspot.com/ */
+/**
+ * @web http://java-buddy.blogspot.com/
+ */
 public class PSFileSaver {
   private static final Logger log = LogManager.getLogger(PSFileSaver.class);
   private static final String LCAFILENAME = "LifecycleAnalysisTemplate.xls";

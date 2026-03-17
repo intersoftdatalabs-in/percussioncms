@@ -38,9 +38,9 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /**
- * Popup frame for launching content explorer applets in separate windows.
- * Supports dependency tree and item assembly views.
- * 
+ * Popup frame for launching content explorer applets in separate windows. Supports dependency tree
+ * and item assembly views.
+ *
  * @since 8.0.0
  */
 public class PSPopupAppletFrame extends PSDesktopExplorerWindow {
@@ -52,9 +52,7 @@ public class PSPopupAppletFrame extends PSDesktopExplorerWindow {
 
   private String view = null;
 
-  /**
-   * Creates a new popup applet frame with default settings.
-   */
+  /** Creates a new popup applet frame with default settings. */
   public PSPopupAppletFrame() {
     super();
 
@@ -76,7 +74,7 @@ public class PSPopupAppletFrame extends PSDesktopExplorerWindow {
 
   /**
    * Determines the view type based on the action URL.
-   * 
+   *
    * @param mi_actionurl the action URL to inspect
    * @return "DT" for dependency tree, "IA" for item assembly, or null if unknown
    */
@@ -90,7 +88,7 @@ public class PSPopupAppletFrame extends PSDesktopExplorerWindow {
 
   /**
    * Validates whether this frame can open the given URL.
-   * 
+   *
    * @param mi_actionurl the action URL
    * @param mi_target the target name
    * @param mi_style the window style specifications
@@ -110,7 +108,7 @@ public class PSPopupAppletFrame extends PSDesktopExplorerWindow {
 
   /**
    * Creates and returns the popup frame instance.
-   * 
+   *
    * @return the configured popup frame
    */
   @Override
@@ -164,7 +162,7 @@ public class PSPopupAppletFrame extends PSDesktopExplorerWindow {
 
   /**
    * Builds the session parameter map for the inner applet.
-   * 
+   *
    * @return map of parameter names to values
    */
   private Map<String, String> buildSessionParameterMapForInnerApplet() {
@@ -205,7 +203,7 @@ public class PSPopupAppletFrame extends PSDesktopExplorerWindow {
 
   /**
    * Reloads the popup with optional new parameters.
-   * 
+   *
    * @param parameters optional new parameters to merge
    */
   @Override

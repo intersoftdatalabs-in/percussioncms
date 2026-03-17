@@ -16,57 +16,46 @@
  */
 package com.percussion.webservices.transformation.converter;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 import com.percussion.services.catalog.PSTypeEnum;
 import com.percussion.services.guidmgr.data.PSGuid;
 import com.percussion.services.workflow.data.PSAdhocTypeEnum;
 import com.percussion.services.workflow.data.PSAssignedRole;
 import com.percussion.services.workflow.data.PSAssignmentTypeEnum;
 import com.percussion.webservices.transformation.impl.PSTransformerFactory;
-
-import org.junit.jupiter.api.Test;
-import static org.junit.jupiter.api.Assertions.*;
-
 import org.apache.commons.beanutils.Converter;
 
-/**
- * Test the {@link PSAssignedRoleConverter}
- */
-public class PSAssignedRoleConverterTest 
-{
-   /**
-    * Test the converter
-    * 
-    * @throws Exception if there are any errors.
-    */
-   
-   public void testConverter() throws Exception
-   {
-      PSTransformerFactory factory = PSTransformerFactory.getInstance();
-      
-      // convert server to client object
-      Converter converter = factory.getConverter(PSAssignedRole.class);
+/** Test the {@link PSAssignedRoleConverter} */
+public class PSAssignedRoleConverterTest {
+  /**
+   * Test the converter
+   *
+   * @throws Exception if there are any errors.
+   */
+  public void testConverter() throws Exception {
+    PSTransformerFactory factory = PSTransformerFactory.getInstance();
 
-      PSAssignedRole src = new PSAssignedRole();
-      src.setAdhocType(PSAdhocTypeEnum.ANONYMOUS);
-      src.setAssignmentType(PSAssignmentTypeEnum.READER);
-      src.setDoNotify(true);
-      src.setGUID(new PSGuid(PSTypeEnum.WORKFLOW_ROLE, 123));
-      src.setShowInInbox(true);
-      src.setStateId(234);
-      src.setWorkflowId(567);
-      
-      com.percussion.webservices.system.PSAssignedRole tgt = 
-         (com.percussion.webservices.system.PSAssignedRole) 
-         converter.convert(
-            com.percussion.webservices.system.PSAssignedRole.class, src);
-      
-      assertEquals(src.isDoNotify(), tgt.isDoNotify());
-      assertEquals(src.isShowInInbox(), tgt.isShowInInbox());
-      assertEquals(src.getAdhocType().name().toLowerCase(), 
-         tgt.getAdhocType().toString());
-      assertEquals(src.getAssignmentType().name().toLowerCase(), 
-         tgt.getAssignmentType().toString());
-      assertEquals(src.getGUID().longValue(), tgt.getId());
-   }
+    // convert server to client object
+    Converter converter = factory.getConverter(PSAssignedRole.class);
+
+    PSAssignedRole src = new PSAssignedRole();
+    src.setAdhocType(PSAdhocTypeEnum.ANONYMOUS);
+    src.setAssignmentType(PSAssignmentTypeEnum.READER);
+    src.setDoNotify(true);
+    src.setGUID(new PSGuid(PSTypeEnum.WORKFLOW_ROLE, 123));
+    src.setShowInInbox(true);
+    src.setStateId(234);
+    src.setWorkflowId(567);
+
+    com.percussion.webservices.system.PSAssignedRole tgt =
+        (com.percussion.webservices.system.PSAssignedRole)
+            converter.convert(com.percussion.webservices.system.PSAssignedRole.class, src);
+
+    assertEquals(src.isDoNotify(), tgt.isDoNotify());
+    assertEquals(src.isShowInInbox(), tgt.isShowInInbox());
+    assertEquals(src.getAdhocType().name().toLowerCase(), tgt.getAdhocType().toString());
+    assertEquals(src.getAssignmentType().name().toLowerCase(), tgt.getAssignmentType().toString());
+    assertEquals(src.getGUID().longValue(), tgt.getId());
+  }
 }
-

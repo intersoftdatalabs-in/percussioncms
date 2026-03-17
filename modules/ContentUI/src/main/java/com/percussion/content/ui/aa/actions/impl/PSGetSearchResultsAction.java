@@ -24,15 +24,15 @@ import java.util.Map;
 
 /**
  * Implementation of the get search results action.
- * 
- * <p>This action retrieves search results based on the current request context.</p>
- * 
- * <p>Required parameters: None - uses request context to determine search scope.</p>
+ *
+ * <p>This action retrieves search results based on the current request context.
+ *
+ * <p>Required parameters: None - uses request context to determine search scope.
  */
 public class PSGetSearchResultsAction extends PSAAActionBase {
   /**
    * Executes the search and returns results.
-   * 
+   *
    * @param params the action parameters (search criteria comes from request context)
    * @return PSActionResponse containing JSON with search results
    * @throws PSAAClientActionException if search fails

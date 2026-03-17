@@ -24,7 +24,6 @@ public class PSExtensionFinder {
 
   private IPSExtensionManager extensionManager;
 
-
   public <T> T findExtension(String extensionId, Class<T> klass) {
     try {
       var ref = new PSExtensionRef(extensionId);

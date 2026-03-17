@@ -5,5 +5,6 @@ import org.junit.jupiter.api.Test;
 
 @Disabled("stubbed next batch")
 public class PSSiteSectionMetaDataServiceTest {
-    @Test public void placeholder() {}
+  @Test
+  public void placeholder() {}
 }

@@ -15,7 +15,6 @@
  * limitations under the License.
  */
 package com.percussion.fastforward.calendar;
-import java.io.Serializable;
 
 import com.percussion.util.PSDataTypeConverter;
 import com.percussion.xml.PSXmlTreeWalker;
@@ -470,6 +469,7 @@ public class PSRecurringEvent {
    */
   public class UnknownNodeTypeException extends Exception {
     private static final long serialVersionUID = 1L;
+
     /**
      * Just calls the super class version.
      *
@@ -486,6 +486,7 @@ public class PSRecurringEvent {
    */
   public class IllegalValueException extends Exception {
     private static final long serialVersionUID = 1L;
+
     /**
      * Just calls the super class version.
      *

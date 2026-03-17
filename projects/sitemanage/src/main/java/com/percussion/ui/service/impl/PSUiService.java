@@ -66,7 +66,6 @@ public class PSUiService implements IPSUiService {
    * @param df assumed not <code>null</code>.
    * @return a simple display format, never <code>null</code>.
    */
-
   private PSSimpleDisplayFormat convertToSimpleDisplayFormat(PSDisplayFormat df) {
     var sdf = new PSSimpleDisplayFormat();
     sdf.setId(df.getDisplayId());

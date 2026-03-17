@@ -16,7 +16,6 @@
  */
 
 package com.percussion.soln.rx.assembly;
-import java.io.Serializable;
 
 import com.percussion.services.assembly.IPSAssemblyItem;
 import com.percussion.services.assembly.IPSAssemblyResult;

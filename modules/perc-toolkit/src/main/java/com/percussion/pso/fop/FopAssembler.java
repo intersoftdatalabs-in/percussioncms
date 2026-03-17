@@ -19,8 +19,8 @@ package com.percussion.pso.fop;
 import static org.apache.xmlgraphics.util.MimeConstants.MIME_PDF;
 
 import com.percussion.extension.IPSExtensionDef;
-import com.percussion.security.xml.PSSecureXMLUtils;
 import com.percussion.extension.PSExtensionException;
+import com.percussion.security.xml.PSSecureXMLUtils;
 import com.percussion.services.assembly.IPSAssembler;
 import com.percussion.services.assembly.IPSAssemblyItem;
 import com.percussion.services.assembly.IPSAssemblyResult;
@@ -46,7 +46,6 @@ import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.sax.SAXResult;
 import javax.xml.transform.sax.SAXSource;
-
 import org.apache.commons.io.output.ByteArrayOutputStream;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.fop.apps.*;
@@ -116,8 +115,7 @@ public class FopAssembler extends PSVelocityAssembler implements IPSAssembler {
       // currently expects an org.apache.fop.configuration.Configuration, and the
       // previous avalon-based parsing caused a type mismatch.  Using defaults keeps
       // the behaviour clean and avoids compile-time runtime coupling.
-      FopFactoryBuilder fopFactoryBuilder =
-          new FopFactoryBuilder(new File(".").toURI());
+      FopFactoryBuilder fopFactoryBuilder = new FopFactoryBuilder(new File(".").toURI());
       fopFactory = fopFactoryBuilder.build();
 
     } catch (Exception ex) {

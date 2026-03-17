@@ -28,9 +28,9 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * ID Context to represent a binding in a template This binding is usually a &lt;name, value&gt; pair, but
- * sometimes name may be null. To circumvent problems with name as a key, an index is introduced for
- * the binding. Thus bindings are referenced by both an index and a name.
+ * ID Context to represent a binding in a template This binding is usually a &lt;name, value&gt;
+ * pair, but sometimes name may be null. To circumvent problems with name as a key, an index is
+ * introduced for the binding. Thus bindings are referenced by both an index and a name.
  *
  * @author vamsinukala
  */

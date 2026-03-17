@@ -24,15 +24,16 @@ import java.util.Map;
 
 /**
  * Action that retrieves the root folders accessible to the current user.
- * 
- * <p>This action returns a JSON representation of the root folders in the 
- * content repository that the current user has access to.</p>
- * 
- * <p>Required parameters:</p>
+ *
+ * <p>This action returns a JSON representation of the root folders in the content repository that
+ * the current user has access to.
+ *
+ * <p>Required parameters:
+ *
  * <ul>
- *   <li>None - uses the request context to determine user and permissions</li>
+ *   <li>None - uses the request context to determine user and permissions
  * </ul>
- * 
+ *
  * @param params a map of action parameters (unused, user context is derived from request)
  * @return an {@link PSActionResponse} containing the root folders as JSON
  * @throws PSAAClientActionException if the root folders cannot be retrieved
@@ -42,8 +43,8 @@ public class PSGetRootFoldersAction extends PSAAActionBase {
   /**
    * Executes the action to retrieve root folders for the current user context.
    *
-   * @param params this action does not require explicit parameters;
-   *   user context is derived from the request
+   * @param params this action does not require explicit parameters; user context is derived from
+   *     the request
    * @return PSActionResponse containing the root folders as JSON
    * @throws PSAAClientActionException if the folders cannot be retrieved
    */

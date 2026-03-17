@@ -12,8 +12,8 @@
     <name>Percussion AI Shared Development</name>
     <description>Shared AI development libraries and utilities for Percussion CMS</description>
     <properties>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <exec.mainClass>com.percussion.ai.signing.ResourceSigner</exec.mainClass>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
     <dependencies>
         <dependency>
@@ -76,17 +76,17 @@
                 <executions>
                     <execution>
                         <id>zip-skills</id>
-                        <phase>prepare-package</phase>
                         <goals>
                             <goal>run</goal>
                         </goals>
+                        <phase>prepare-package</phase>
                         <configuration>
                             <target>
                                 <mkdir dir="${project.build.directory}/skills"/>
-                                <zip destfile="${project.build.directory}/skills/java-unit-testing.zip" basedir="src/main/resources/skills/java-unit-testing"/>
-                                <zip destfile="${project.build.directory}/skills/javadoc.zip" basedir="src/main/resources/skills/javadoc"/>
-                                <zip destfile="${project.build.directory}/skills/patch.zip" basedir="src/main/resources/skills/patch"/>
-                                <zip destfile="${project.build.directory}/skills/percussioncms-dev.zip" basedir="src/main/resources/skills/percussioncms-dev"/>
+                                <zip basedir="src/main/resources/skills/java-unit-testing" destfile="${project.build.directory}/skills/java-unit-testing.zip"/>
+                                <zip basedir="src/main/resources/skills/javadoc" destfile="${project.build.directory}/skills/javadoc.zip"/>
+                                <zip basedir="src/main/resources/skills/patch" destfile="${project.build.directory}/skills/patch.zip"/>
+                                <zip basedir="src/main/resources/skills/percussioncms-dev" destfile="${project.build.directory}/skills/percussioncms-dev.zip"/>
                             </target>
                         </configuration>
                     </execution>
@@ -99,10 +99,10 @@
                 <executions>
                     <execution>
                         <id>attach-skills</id>
-                        <phase>package</phase>
                         <goals>
                             <goal>attach-artifact</goal>
                         </goals>
+                        <phase>package</phase>
                         <configuration>
                             <artifacts>
                                 <artifact>

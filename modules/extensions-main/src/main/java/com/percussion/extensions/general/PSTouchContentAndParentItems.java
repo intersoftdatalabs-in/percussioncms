@@ -83,7 +83,8 @@ public class PSTouchContentAndParentItems extends PSDefaultExtension
         // try to parse a given integer
         maxRecursionSteps = Integer.valueOf(lookupRecursionSteps);
 
-        if (maxRecursionSteps.intValue() < 0) maxRecursionSteps = Integer.valueOf(Integer.MAX_VALUE);
+        if (maxRecursionSteps.intValue() < 0)
+          maxRecursionSteps = Integer.valueOf(Integer.MAX_VALUE);
       } catch (Exception ex) {
         throw new PSParameterMismatchException(
             PSTouchContentAndParentItems.class

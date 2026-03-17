@@ -21,15 +21,13 @@ import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 /**
- * Stubbed out PSSiteDataServiceTest. The original tests were extensive and
- * contained numerous compilation issues with Optional handling and other
- * deprecated APIs. They have been disabled for the time being; add back
- * individual tests as they are migrated to JUnit 5/Mockito.
+ * Stubbed out PSSiteDataServiceTest. The original tests were extensive and contained numerous
+ * compilation issues with Optional handling and other deprecated APIs. They have been disabled for
+ * the time being; add back individual tests as they are migrated to JUnit 5/Mockito.
  */
-
 @Disabled("original tests removed; migration pending")
 public class PSSiteDataServiceTest {
-    @Test
-    @Disabled("no-op placeholder")
-    void placeholder() {}
+  @Test
+  @Disabled("no-op placeholder")
+  void placeholder() {}
 }

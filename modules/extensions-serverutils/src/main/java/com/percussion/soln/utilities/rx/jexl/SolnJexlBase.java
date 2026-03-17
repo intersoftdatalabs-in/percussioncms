@@ -22,23 +22,22 @@ import java.lang.reflect.Method;
 
 /**
  * Base class for JEXL (Java Expression Language) utility functions.
- * 
- * <p>Provides common functionality for JEXL function classes including
- * method introspection and string representation of available functions.
- * 
- * <p>Subclasses should annotate methods with {@link IPSJexlMethod} to expose
- * them as callable JEXL functions.
+ *
+ * <p>Provides common functionality for JEXL function classes including method introspection and
+ * string representation of available functions.
+ *
+ * <p>Subclasses should annotate methods with {@link IPSJexlMethod} to expose them as callable JEXL
+ * functions.
  *
  * @author DavidBenua
  * @since 8.0.0
  */
-
 public class SolnJexlBase extends PSJexlUtilBase {
 
   /**
-   * Returns a string representation of all JEXL methods available in this class.
-   * Includes method names and parameter types for each annotated method.
-   * 
+   * Returns a string representation of all JEXL methods available in this class. Includes method
+   * names and parameter types for each annotated method.
+   *
    * @return comma-separated list of method signatures
    */
   @Override

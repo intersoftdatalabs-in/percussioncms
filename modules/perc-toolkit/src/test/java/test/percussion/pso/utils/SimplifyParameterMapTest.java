@@ -70,7 +70,6 @@ public class SimplifyParameterMapTest {
     assertEquals("fee", outmap.get("array"));
   }
 
-
   @Test
   void testGetValueAsList() {
     List<String> result;

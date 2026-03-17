@@ -18,23 +18,17 @@
 package test.percussion.pso.demandpreview.servlet;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
-import com.percussion.design.objectstore.PSLocator;
 import com.percussion.error.PSException;
 import com.percussion.pso.demandpreview.service.DemandPublisherService;
 import com.percussion.pso.demandpreview.service.ItemTemplateService;
 import com.percussion.pso.demandpreview.service.LinkBuilderService;
-import com.percussion.pso.demandpreview.service.SiteEditionHolder;
 import com.percussion.pso.demandpreview.service.SiteEditionLookUpService;
 import com.percussion.pso.demandpreview.servlet.DemandPreviewController;
 import com.percussion.pso.utils.IPSOItemSummaryFinder;
-import com.percussion.services.assembly.IPSAssemblyTemplate;
 import com.percussion.services.assembly.PSAssemblyException;
 import com.percussion.services.guidmgr.IPSGuidManager;
-import com.percussion.services.publisher.IPSEdition;
-import com.percussion.services.sitemgr.IPSPublishingContext;
-import com.percussion.services.sitemgr.IPSSite;
-import com.percussion.utils.guid.IPSGuid;
 import java.util.concurrent.TimeoutException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -44,25 +38,18 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 public class DemandPreviewControllerTest {
 
   private static final Logger log = LogManager.getLogger(DemandPreviewControllerTest.class);
 
-  @Mock
-  IPSGuidManager gmgr;
-  @Mock
-  DemandPublisherService demandSvc;
-  @Mock
-  LinkBuilderService linkBuilder;
-  @Mock
-  ItemTemplateService itemTemplate;
-  @Mock
-  SiteEditionLookUpService siteLookup;
-  @Mock
-  IPSOItemSummaryFinder isFinder;
+  @Mock IPSGuidManager gmgr;
+  @Mock DemandPublisherService demandSvc;
+  @Mock LinkBuilderService linkBuilder;
+  @Mock ItemTemplateService itemTemplate;
+  @Mock SiteEditionLookUpService siteLookup;
+  @Mock IPSOItemSummaryFinder isFinder;
 
   TestableDemandPreviewController cut;
 

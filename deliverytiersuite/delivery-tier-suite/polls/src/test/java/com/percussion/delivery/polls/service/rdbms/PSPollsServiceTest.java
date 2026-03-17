@@ -17,6 +17,9 @@
 
 package com.percussion.delivery.polls.service.rdbms;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 import com.percussion.delivery.polls.data.IPSPoll;
 import com.percussion.delivery.polls.data.IPSPollAnswer;
 import com.percussion.delivery.polls.services.IPSPollsService;
@@ -40,15 +43,13 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.transaction.annotation.Transactional;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-
 @Transactional
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(locations = {"classpath:test-beans.xml"})
 public class PSPollsServiceTest {
   private static final Logger log = LogManager.getLogger(PSPollsServiceTest.class);
   @Autowired private IPSPollsService pollsService;
+
   @Autowired
   @Qualifier("pollsEntityManager")
   private EntityManager entityManager;
@@ -87,7 +88,8 @@ public class PSPollsServiceTest {
     try {
       entityManager.flush();
     } catch (Exception e) {
-      log.warn("EntityManager flush failed during testSave; test may still pass if data was written", e);
+      log.warn(
+          "EntityManager flush failed during testSave; test may still pass if data was written", e);
     }
     IPSPoll poll = pollsService.findPollByQuestion("TestQuestion");
     assertNotNull(poll);

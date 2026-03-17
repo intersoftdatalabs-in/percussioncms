@@ -21,8 +21,8 @@ import com.percussion.taxonomy.domain.*;
 import java.util.Collection;
 
 /**
- * Service interface for managing Attribute_lang entities.
- * Provides CRUD operations for localized attribute metadata in the taxonomy system.
+ * Service interface for managing Attribute_lang entities. Provides CRUD operations for localized
+ * attribute metadata in the taxonomy system.
  */
 public interface Attribute_langServiceInf {
 

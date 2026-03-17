@@ -68,9 +68,7 @@ public class PSSiteImportService implements IPSSiteImportService {
       siteImportCtx.setLogger(new PSSiteImportLogger(PSLogObjectType.TEMPLATE));
       siteImportCtx.setSiteUrl(
           PSSiteImporter.getRedirectedUrl(
-              site.getBaseUrl().orElse(""),
-              siteImportCtx.getLogger(),
-              userAgent));
+              site.getBaseUrl().orElse(""), siteImportCtx.getLogger(), userAgent));
       siteImportCtx.setUserAgent(userAgent);
       siteImportCtx.setSummaryService(siteImportSummaryService);
 
@@ -90,11 +88,7 @@ public class PSSiteImportService implements IPSSiteImportService {
         String siteId = siteImportCtx.getSite().map(s -> s.getSiteId().toString()).orElse("");
         String folderPath = siteImportCtx.getSite().map(s -> s.getFolderPath()).orElse("");
         String pageName = siteImportCtx.getPageName().orElse("");
-        saveImportLog(
-            templateId,
-            logger,
-            siteId,
-            folderPath + "/" + pageName);
+        saveImportLog(templateId, logger, siteId, folderPath + "/" + pageName);
       }
     }
   }

@@ -103,7 +103,6 @@ public class PSRecentServiceFixture {
     this.response = response;
   }
 
-
   public void init() throws Exception {
     init("admin1", "demo", "Enterprise_Investments_Admin");
   }
@@ -111,7 +110,6 @@ public class PSRecentServiceFixture {
   public void setUp() throws Exception {
     setUp("admin1", "demo", "Enterprise_Investments_Admin");
   }
-
 
   public void init(String uid, String pwd, String community) throws Exception {
     PSSpringWebApplicationContextUtils.injectDependencies(this);

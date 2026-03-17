@@ -32,20 +32,20 @@ public class SimpleImageMetaData extends AbstractImageMetaData {
   /** Default constructor. */
   public SimpleImageMetaData() {}
 
-    /**
-     * Copy constructor.
-     *
-     * @param data metadata to copy from.
-     */
-    @SuppressWarnings("this-escape")
-    // Safe because setImageKey and setMetaData are final in practice (not overridden in this class)
-    // and only set superclass fields, not accessing subclass state.
-    public SimpleImageMetaData(AbstractImageMetaData data) {
-      this.setImageKey(data.getImageKey());
-      this.setMetaData(data.getMetaData());
-      this.height = data.getMetaData().getHeight();
-      this.width = data.getMetaData().getWidth();
-    }
+  /**
+   * Copy constructor.
+   *
+   * @param data metadata to copy from.
+   */
+  @SuppressWarnings("this-escape")
+  // Safe because setImageKey and setMetaData are final in practice (not overridden in this class)
+  // and only set superclass fields, not accessing subclass state.
+  public SimpleImageMetaData(AbstractImageMetaData data) {
+    this.setImageKey(data.getImageKey());
+    this.setMetaData(data.getMetaData());
+    this.height = data.getMetaData().getHeight();
+    this.width = data.getMetaData().getWidth();
+  }
 
   /**
    * Gets the width.

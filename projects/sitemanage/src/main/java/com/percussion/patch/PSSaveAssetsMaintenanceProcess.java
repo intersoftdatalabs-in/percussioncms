@@ -284,7 +284,6 @@ public class PSSaveAssetsMaintenanceProcess
     log.info("Finished Loading Assets for type {}", typeName);
   }
 
-
   public void loadFailedAssetsFromFile(File f) {
     assetListSet = new HashSet<>();
     var objectMapper = new ObjectMapper();

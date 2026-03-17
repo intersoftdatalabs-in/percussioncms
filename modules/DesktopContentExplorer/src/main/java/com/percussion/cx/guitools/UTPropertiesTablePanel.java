@@ -530,7 +530,9 @@ public class UTPropertiesTablePanel extends JPanel implements KeyListener, Focus
     return m_tableCellFocusColor;
   }
 
-  /** @return <code>true</code> if the table cells should show keyboard focus. */
+  /**
+   * @return <code>true</code> if the table cells should show keyboard focus.
+   */
   public boolean isTableUseFocusHighlight() {
     return m_tableUseFocusHighlight;
   }

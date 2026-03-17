@@ -16,48 +16,39 @@
  */
 package com.percussion.webservices.transformation.converter;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 import com.percussion.services.catalog.PSTypeEnum;
 import com.percussion.services.guidmgr.data.PSGuid;
 import com.percussion.services.workflow.data.PSWorkflowRole;
 import com.percussion.webservices.transformation.impl.PSTransformerFactory;
-
-import org.junit.jupiter.api.Test;
-import static org.junit.jupiter.api.Assertions.*;
-
 import org.apache.commons.beanutils.Converter;
 
-/**
- * Test the {@link PSWorkflowRoleConverter}
- */
-public class PSWorkflowRoleConverterTest 
-{
-   /**
-    * Test the converter
-    * 
-    * @throws Exception if the test fails
-    */
-   
-   public void testConverter() throws Exception
-   {
-      PSTransformerFactory factory = PSTransformerFactory.getInstance();
-      
-      // convert server to client object
-      Converter converter = factory.getConverter(PSWorkflowRole.class);
+/** Test the {@link PSWorkflowRoleConverter} */
+public class PSWorkflowRoleConverterTest {
+  /**
+   * Test the converter
+   *
+   * @throws Exception if the test fails
+   */
+  public void testConverter() throws Exception {
+    PSTransformerFactory factory = PSTransformerFactory.getInstance();
 
-      PSWorkflowRole src = new PSWorkflowRole();
-      src.setDescription("desc");
-      src.setGUID(new PSGuid(PSTypeEnum.WORKFLOW_ROLE, 123));
-      src.setName("role");
-      src.setWorkflowId(456);
-      
-      com.percussion.webservices.system.PSWorkflowRole tgt = 
-         (com.percussion.webservices.system.PSWorkflowRole) 
-         converter.convert(
-            com.percussion.webservices.system.PSWorkflowRole.class, src);
-      
-      assertEquals(src.getDescription(), tgt.getDescription());
-      assertEquals(src.getName(), tgt.getName());
-      assertEquals(src.getGUID().longValue(), tgt.getId());
-   }
+    // convert server to client object
+    Converter converter = factory.getConverter(PSWorkflowRole.class);
+
+    PSWorkflowRole src = new PSWorkflowRole();
+    src.setDescription("desc");
+    src.setGUID(new PSGuid(PSTypeEnum.WORKFLOW_ROLE, 123));
+    src.setName("role");
+    src.setWorkflowId(456);
+
+    com.percussion.webservices.system.PSWorkflowRole tgt =
+        (com.percussion.webservices.system.PSWorkflowRole)
+            converter.convert(com.percussion.webservices.system.PSWorkflowRole.class, src);
+
+    assertEquals(src.getDescription(), tgt.getDescription());
+    assertEquals(src.getName(), tgt.getName());
+    assertEquals(src.getGUID().longValue(), tgt.getId());
+  }
 }
-

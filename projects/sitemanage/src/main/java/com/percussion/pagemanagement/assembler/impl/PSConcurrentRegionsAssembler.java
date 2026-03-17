@@ -64,7 +64,6 @@ public class PSConcurrentRegionsAssembler implements IPSRegionsAssembler {
   }
 
   /** {@inheritDoc} */
-
   @Override
   public void assembleRegions(
       IPSRegionAssembler regionAssembler,

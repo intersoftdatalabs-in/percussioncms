@@ -39,6 +39,7 @@ public abstract class PSMouseAdapter extends MouseAdapter {
     m_lastPressedComponent = e.getComponent();
     mouseWasPressed(e);
   }
+
   /* (non-Javadoc)
    * @see java.awt.event.MouseListener#mouseReleased(java.awt.event.MouseEvent)
    */
@@ -49,6 +50,7 @@ public abstract class PSMouseAdapter extends MouseAdapter {
       m_lastPressedComponent = null;
     }
   }
+
   /* (non-Javadoc)
    * @see java.awt.event.MouseListener#mouseReleased(java.awt.event.MouseEvent)
    */

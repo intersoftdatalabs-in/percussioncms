@@ -29,6 +29,7 @@ import org.apache.logging.log4j.Logger;
 public class PSImageIconLoader extends UIManager {
   static Logger log = LogManager.getLogger(PSImageIconLoader.class);
   private static String rootPath = "../../../";
+
   /** Cannot instantiate!!! */
   private PSImageIconLoader() {}
 

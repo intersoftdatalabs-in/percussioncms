@@ -17,13 +17,13 @@
 package test.percussion.pso.imageedit.web;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
 import com.percussion.pso.imageedit.data.ImageData;
 import com.percussion.pso.imageedit.services.cache.ImageCacheManager;
 import com.percussion.pso.imageedit.web.BinaryImageController;
 import com.percussion.pso.imageedit.web.ImageUrlBuilder;
 import jakarta.servlet.http.HttpServletResponse;
-import java.io.ByteArrayInputStream;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.BeforeEach;
@@ -31,7 +31,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import static org.mockito.Mockito.*;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 
@@ -40,10 +39,8 @@ public class BinaryImageControllerTest {
   private static final Logger log = LogManager.getLogger(BinaryImageControllerTest.class);
 
   BinaryImageController cut;
-  @Mock
-  ImageUrlBuilder urlBldr;
-  @Mock
-  ImageCacheManager cacheMgr;
+  @Mock ImageUrlBuilder urlBldr;
+  @Mock ImageCacheManager cacheMgr;
 
   @BeforeEach
   public void setUp() {

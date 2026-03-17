@@ -17,13 +17,13 @@
 package com.percussion.pso.preview;
 
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequestWrapper;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.springframework.web.multipart.support.StandardServletMultipartResolver;
-import jakarta.servlet.http.HttpServletRequestWrapper;
 import org.springframework.web.multipart.MultipartException;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
+import org.springframework.web.multipart.support.StandardServletMultipartResolver;
 
 /**
  * A multipart resolver that fixes up the encoding. The Content Explorer Applet emits non-standard
@@ -37,12 +37,11 @@ public class MultipartResolverEncoding extends StandardServletMultipartResolver 
   private static final Logger log = LogManager.getLogger(MultipartResolverEncoding.class);
 
   /**
-   * Determine the cleaned character encoding for the supplied request.  The
-   * Content Explorer applet sometimes sends headers like
-   * "text/plain; charset=UTF-8; some-bogus" which confuse the standard
-   * resolver.  Our strategy is to strip off any portion after the first
-   * semicolon.  This helper is public primarily to support unit testing; the
-   * behaviour is kept in sync with {@link #resolveMultipart(HttpServletRequest)}.
+   * Determine the cleaned character encoding for the supplied request. The Content Explorer applet
+   * sometimes sends headers like "text/plain; charset=UTF-8; some-bogus" which confuse the standard
+   * resolver. Our strategy is to strip off any portion after the first semicolon. This helper is
+   * public primarily to support unit testing; the behaviour is kept in sync with {@link
+   * #resolveMultipart(HttpServletRequest)}.
    *
    * @param request the servlet request, never <code>null</code>
    * @return the sanitized encoding or <code>null</code> if none
@@ -59,10 +58,9 @@ public class MultipartResolverEncoding extends StandardServletMultipartResolver 
   }
 
   /**
-   * Override resolveMultipart so we can clean up any malformed charset values
-   * sent by the Content Explorer applet. The standard resolver does not expose
-   * determineEncoding, so we wrap the request and sanitize the values before
-   * delegating.
+   * Override resolveMultipart so we can clean up any malformed charset values sent by the Content
+   * Explorer applet. The standard resolver does not expose determineEncoding, so we wrap the
+   * request and sanitize the values before delegating.
    */
   @Override
   public MultipartHttpServletRequest resolveMultipart(HttpServletRequest request)

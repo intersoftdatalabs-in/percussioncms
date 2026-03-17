@@ -135,7 +135,6 @@ public class ApiUtils {
    * uniformly access getters which may or may not return Optionals without needing to know the
    * return type.
    */
-
   public static <T> T unwrap(Object o) {
     if (o instanceof Optional) {
       return ((Optional<T>) o).orElse(null);

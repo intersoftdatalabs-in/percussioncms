@@ -51,14 +51,14 @@ public class PSSiteImportSummaryService implements IPSSiteImportSummaryService {
 
   @Override
   public PSSiteImportSummary create(int siteId) throws IPSGenericDao.SaveException {
-      var summary = new PSSiteImportSummary();
-      summary.setSiteId(siteId);
-      try {
-          summaryDao.save(summary);
-      } catch (PSDataServiceException e) {
-          throw new IPSGenericDao.SaveException("Failed to save site import summary", e);
-      }
-      return find(siteId);
+    var summary = new PSSiteImportSummary();
+    summary.setSiteId(siteId);
+    try {
+      summaryDao.save(summary);
+    } catch (PSDataServiceException e) {
+      throw new IPSGenericDao.SaveException("Failed to save site import summary", e);
+    }
+    return find(siteId);
   }
 
   @Override

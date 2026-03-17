@@ -5,5 +5,6 @@ import org.junit.jupiter.api.Test;
 
 @Disabled("stubbed third batch failures")
 public class PSSteppedWorkflowRestServiceTest {
-    @Test public void placeholder() {}
+  @Test
+  public void placeholder() {}
 }

@@ -5,8 +5,8 @@ import org.junit.jupiter.api.Test;
 
 @Disabled("stubbed during migration")
 public class PSResourceFileTransformerTest {
-    @Test
-    public void placeholder() {
-        // stub
-    }
+  @Test
+  public void placeholder() {
+    // stub
+  }
 }

@@ -27,10 +27,8 @@ import net.sf.oval.constraint.NotNull;
 
 /** Encapsulates user information for an item. Sunny Sal says: "Know your users, know your code!" */
 @XmlRootElement(name = "ItemUserInfo")
-
-
-  public class PSItemUserInfo extends PSAbstractDataObject {
-    private static final long serialVersionUID = 1L;
+public class PSItemUserInfo extends PSAbstractDataObject {
+  private static final long serialVersionUID = 1L;
 
   @NotNull @NotEmpty private String itemName;
 

@@ -25,8 +25,8 @@ import java.util.Collection;
 import java.util.Map;
 
 /**
- * Service interface for managing Node entities.
- * Provides CRUD operations, search, and relationship management for taxonomy nodes.
+ * Service interface for managing Node entities. Provides CRUD operations, search, and relationship
+ * management for taxonomy nodes.
  */
 public interface NodeServiceInf {
 
@@ -116,8 +116,8 @@ public interface NodeServiceInf {
   public Map<String, String> deleteNodeAndFriends(int nodeID, int taxonomyID);
 
   /**
-   * Retrieves all node names (and their IDs) for a given taxonomy and language.
-   * Useful for dropdown selections.
+   * Retrieves all node names (and their IDs) for a given taxonomy and language. Useful for dropdown
+   * selections.
    *
    * @param taxonomyID the unique identifier of the taxonomy
    * @param langID the unique identifier of the language
@@ -202,5 +202,4 @@ public interface NodeServiceInf {
    * @return a collection of Object arrays containing [nodeId, title] pairs
    */
   public Collection<Object[]> getTitlesForNodes(int taxonomyID, int languageID);
-
 }

@@ -53,6 +53,7 @@ import org.apache.logging.log4j.Logger;
  */
 public class PSContentExplorerMenu implements PopupMenuListener, Callable<PSContentExplorerMenu> {
   static Logger log = LogManager.getLogger(PSContentExplorerMenu.class);
+
   /**
    * Constructs the menu from suppled action. The action represents top-level menu and its children
    * represents either menuitem or sub-menu based on their type. This constructor builds the menu on
@@ -69,6 +70,7 @@ public class PSContentExplorerMenu implements PopupMenuListener, Callable<PSCont
       PSMenuAction action, PSMenuSource menuSource, PSActionManager actionManager) {
     this(action, menuSource, actionManager, true);
   }
+
   /**
    * Constructs the menu from suppled action. The action represents top-level menu and its children
    * represents either menuitem or sub-menu based on their type. The menu may be build on

@@ -39,7 +39,6 @@ public class PSDataObjectTestUtils {
     public T actualSerialized;
   }
 
-
   public static <T> DataObjectXmlTestResults<T> doXmlSerialization(T object) {
     var s = PSSerializerUtils.marshal(object);
     var klass = (Class<T>) object.getClass();
@@ -65,7 +64,6 @@ public class PSDataObjectTestUtils {
     assertEquals("Expected serialized object to be equal", r.original, r.actualSerialized);
   }
 
-
   public static <T> void fillObject(T bean) {
     var props = getPropertiesOfType(bean, String.class);
     props.replaceAll((k, v) -> v == null ? "test" : v);
@@ -77,7 +75,6 @@ public class PSDataObjectTestUtils {
       throw new RuntimeException(e);
     }
   }
-
 
   public static <T, P> Map<String, P> getPropertiesOfType(T bean, Class<P> pt) {
     try {

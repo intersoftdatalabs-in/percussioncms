@@ -27,6 +27,7 @@ import static org.apache.commons.lang3.Validate.isTrue;
 import static org.apache.commons.lang3.Validate.notEmpty;
 import static org.apache.commons.lang3.Validate.notNull;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.percussion.analytics.service.IPSAnalyticsProviderService;
 import com.percussion.category.data.PSCategory;
 import com.percussion.category.data.PSCategoryNode;
@@ -115,7 +116,6 @@ import com.percussion.utils.jsr170.PSValueFactory;
 import com.percussion.utils.timing.PSStopwatchStack;
 import com.percussion.utils.types.PSPair;
 import com.percussion.webservices.content.IPSContentWs;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.File;
 import java.io.IOException;
 import java.net.HttpURLConnection;
@@ -147,17 +147,17 @@ import javax.xml.XMLConstants;
 import net.htmlparser.jericho.HTMLElementName;
 import net.htmlparser.jericho.OutputDocument;
 import net.htmlparser.jericho.Source;
-import org.ehcache.Cache;
-import org.ehcache.CacheManager;
-import org.ehcache.config.builders.CacheConfigurationBuilder;
-import org.ehcache.config.builders.ExpiryPolicyBuilder;
-import org.ehcache.config.builders.ResourcePoolsBuilder;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.commons.lang3.time.FastDateFormat;
 import org.apache.commons.text.StringEscapeUtils;
+import org.ehcache.Cache;
+import org.ehcache.CacheManager;
+import org.ehcache.config.builders.CacheConfigurationBuilder;
+import org.ehcache.config.builders.ExpiryPolicyBuilder;
+import org.ehcache.config.builders.ResourcePoolsBuilder;
 import org.jdom2.Document;
 import org.jdom2.Element;
 import org.jdom2.JDOMException;
@@ -260,10 +260,7 @@ public class PSPageUtils extends PSJexlUtilBase {
           return false;
         }
       } else {
-        log.debug(
-            "Returning cached link result for link: {} status: {}",
-            link,
-            cachedLink);
+        log.debug("Returning cached link result for link: {} status: {}", link, cachedLink);
         return cachedLink;
       }
     } catch (Exception e) {
@@ -2046,7 +2043,6 @@ public class PSPageUtils extends PSJexlUtilBase {
    * @param asmItem
    * @return The root AssemblyItem
    */
-
   @IPSJexlMethod(
       description = "Get the Root Assembly Item,  e.g. the page being rendered",
       params = {
@@ -2072,7 +2068,6 @@ public class PSPageUtils extends PSJexlUtilBase {
    * @return The Metadata Map. The key is a string and the value must be a String or List of
    *     Strings.
    */
-
   @IPSJexlMethod(
       description = "Get the page metadata map that a widget can add to.",
       params = {
@@ -2630,13 +2625,14 @@ public class PSPageUtils extends PSJexlUtilBase {
 
     this.linkCache = cacheMgr.getCache(LINKCHECK_CACHENAME, String.class, Boolean.class);
     if (this.linkCache == null) {
-      this.linkCache = cacheMgr.createCache(LINKCHECK_CACHENAME,
-          CacheConfigurationBuilder.newCacheConfigurationBuilder(
-                  String.class, Boolean.class,
-                  ResourcePoolsBuilder.heap(10000))
-              .withExpiry(ExpiryPolicyBuilder.timeToLiveExpiration(
-                  java.time.Duration.ofSeconds(1800)))
-              .build());
+      this.linkCache =
+          cacheMgr.createCache(
+              LINKCHECK_CACHENAME,
+              CacheConfigurationBuilder.newCacheConfigurationBuilder(
+                      String.class, Boolean.class, ResourcePoolsBuilder.heap(10000))
+                  .withExpiry(
+                      ExpiryPolicyBuilder.timeToLiveExpiration(java.time.Duration.ofSeconds(1800)))
+                  .build());
     }
   }
 

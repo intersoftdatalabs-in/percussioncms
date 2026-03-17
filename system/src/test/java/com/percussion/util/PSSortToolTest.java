@@ -16,216 +16,180 @@
  */
 package com.percussion.util;
 
-import java.security.SecureRandom;
-import java.util.Comparator;
-import java.util.Random;
-import java.util.Vector;
-
-
-import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
+import java.security.SecureRandom;
+import java.util.Comparator;
+import java.util.Vector;
 
-/**
- *   Unit tests for the PSSortTool class
- */
+/** Unit tests for the PSSortTool class */
+public class PSSortToolTest {
 
-public class PSSortToolTest
-{
+  /** Test sorting a large-ish vector of Long objects using QuickSort */
+  public void testVectorQuickSort() {
+    class LongComp implements Comparator {
+      public LongComp() {}
 
+      public int compare(Object left, Object right) {
+        Long l = (Long) left;
+        Long r = (Long) right;
 
-
-   /**
-    * Test sorting a large-ish vector of Long objects
-    * using QuickSort
-    */
-
-   public void testVectorQuickSort()
-   {
-      class LongComp implements Comparator
-      {
-         public LongComp() {}
-
-         public int compare(Object left, Object right)
-         {
-            Long l = (Long)left;
-            Long r = (Long)right;
-
-            return l.compareTo(r);
-         }
+        return l.compareTo(r);
       }
+    }
 
-      Vector cloneVec = (Vector)m_randomLongVector.clone();
-      long startTime, endTime;
-      startTime = System.currentTimeMillis();
-      PSSortTool.QuickSort(cloneVec, new LongComp());
-      endTime = System.currentTimeMillis();
-      System.err.println(
-         "QuickSort (vector) of " + cloneVec.size() + " elements took " +
-         (endTime - startTime) + " milliseconds.");
-      int compVal = 1;
-      for (int i = 0; i < (cloneVec.size() - 1); i++)
-      {
-         compVal = ((Long)cloneVec.elementAt(i)).compareTo((Long)cloneVec.elementAt(i+1));
-         assertTrue(compVal <= 0, "Element at: " + i);
+    Vector cloneVec = (Vector) m_randomLongVector.clone();
+    long startTime, endTime;
+    startTime = System.currentTimeMillis();
+    PSSortTool.QuickSort(cloneVec, new LongComp());
+    endTime = System.currentTimeMillis();
+    System.err.println(
+        "QuickSort (vector) of "
+            + cloneVec.size()
+            + " elements took "
+            + (endTime - startTime)
+            + " milliseconds.");
+    int compVal = 1;
+    for (int i = 0; i < (cloneVec.size() - 1); i++) {
+      compVal = ((Long) cloneVec.elementAt(i)).compareTo((Long) cloneVec.elementAt(i + 1));
+      assertTrue(compVal <= 0, "Element at: " + i);
+    }
+  }
+
+  /** Test sorting a large-ish array of Long objects using QuickSort */
+  public void testArrayQuickSort() {
+    class LongComp implements Comparator {
+      public LongComp() {}
+
+      public int compare(Object left, Object right) {
+        Long l = (Long) left;
+        Long r = (Long) right;
+
+        return l.compareTo(r);
       }
-   }
+    }
 
-   /**
-    * Test sorting a large-ish array of Long objects
-    * using QuickSort
-    */
+    Long cloneVec[] = new Long[m_randomLongVector.size()];
+    m_randomLongVector.copyInto(cloneVec);
+    long startTime, endTime;
+    startTime = System.currentTimeMillis();
+    PSSortTool.QuickSort(cloneVec, new LongComp());
+    endTime = System.currentTimeMillis();
+    System.err.println(
+        "QuickSort (array) of "
+            + cloneVec.length
+            + " elements took "
+            + (endTime - startTime)
+            + " milliseconds.");
+    int compVal = 1;
+    for (int i = 0; i < (cloneVec.length - 1); i++) {
+      compVal = ((Long) cloneVec[i]).compareTo((Long) cloneVec[i + 1]);
+      assertTrue(compVal <= 0, "Element at: " + i);
+    }
+  }
 
-   public void testArrayQuickSort()
-   {
-      class LongComp implements Comparator
-      {
-         public LongComp() {}
+  /** Test sorting a large-ish array of Long objects using MergeSort */
+  public void testArrayMergeSort() {
+    class LongComp implements Comparator {
+      public LongComp() {}
 
-         public int compare(Object left, Object right)
-         {
-            Long l = (Long)left;
-            Long r = (Long)right;
+      public int compare(Object left, Object right) {
+        Long l = (Long) left;
+        Long r = (Long) right;
 
-            return l.compareTo(r);
-         }
+        return l.compareTo(r);
       }
+    }
 
-      Long cloneVec[] = new Long[m_randomLongVector.size()];
-      m_randomLongVector.copyInto(cloneVec);
-      long startTime, endTime;
-      startTime = System.currentTimeMillis();
-      PSSortTool.QuickSort(cloneVec, new LongComp());
-      endTime = System.currentTimeMillis();
-      System.err.println(
-         "QuickSort (array) of " + cloneVec.length + " elements took " +
-         (endTime - startTime) + " milliseconds.");
-      int compVal = 1;
-      for (int i = 0; i < (cloneVec.length - 1); i++)
-      {
-         compVal = ((Long)cloneVec[i]).compareTo((Long)cloneVec[i+1]);
-         assertTrue(compVal <= 0, "Element at: " + i);
+    Long cloneVec[] = new Long[m_randomLongVector.size()];
+    m_randomLongVector.copyInto(cloneVec);
+    long startTime, endTime;
+    startTime = System.currentTimeMillis();
+    PSSortTool.MergeSort(cloneVec, new LongComp());
+    endTime = System.currentTimeMillis();
+    System.err.println(
+        "MergeSort (array) of "
+            + cloneVec.length
+            + " elements took "
+            + (endTime - startTime)
+            + " milliseconds.");
+    int compVal = 1;
+    for (int i = 0; i < (cloneVec.length - 1); i++) {
+      compVal = ((Long) cloneVec[i]).compareTo((Long) cloneVec[i + 1]);
+      assertTrue(compVal <= 0, "Element at: " + i);
+    }
+  }
+
+  public void testVectorJdkSort() {
+    class LongComp implements Comparator {
+      public LongComp() {}
+
+      public int compare(Object left, Object right) {
+        Long l = (Long) left;
+        Long r = (Long) right;
+
+        return l.compareTo(r);
       }
-   }
+    }
 
-   /**
-    * Test sorting a large-ish array of Long objects
-    * using MergeSort
-    */
+    Vector cloneVec = (Vector) m_randomLongVector.clone();
+    long startTime, endTime;
+    startTime = System.currentTimeMillis();
+    java.util.Collections.sort(cloneVec, new LongComp());
+    endTime = System.currentTimeMillis();
+    System.err.println(
+        "JDK sort (vector) of "
+            + cloneVec.size()
+            + " elements took "
+            + (endTime - startTime)
+            + " milliseconds.");
+    int compVal = 1;
+    for (int i = 0; i < (cloneVec.size() - 1); i++) {
+      compVal = ((Long) cloneVec.elementAt(i)).compareTo((Long) cloneVec.elementAt(i + 1));
+      assertTrue(compVal <= 0, "Element at: " + i);
+    }
+  }
 
-   public void testArrayMergeSort()
-   {
-      class LongComp implements Comparator
-      {
-         public LongComp() {}
+  public void testArrayJdkSort() {
+    class LongComp implements Comparator {
+      public LongComp() {}
 
-         public int compare(Object left, Object right)
-         {
-            Long l = (Long)left;
-            Long r = (Long)right;
+      public int compare(Object left, Object right) {
+        Long l = (Long) left;
+        Long r = (Long) right;
 
-            return l.compareTo(r);
-         }
+        return l.compareTo(r);
       }
+    }
 
-      Long cloneVec[] = new Long[m_randomLongVector.size()];
-      m_randomLongVector.copyInto(cloneVec);
-      long startTime, endTime;
-      startTime = System.currentTimeMillis();
-      PSSortTool.MergeSort(cloneVec, new LongComp());
-      endTime = System.currentTimeMillis();
-      System.err.println(
-         "MergeSort (array) of " + cloneVec.length + " elements took " +
-         (endTime - startTime) + " milliseconds.");
-      int compVal = 1;
-      for (int i = 0; i < (cloneVec.length - 1); i++)
-      {
-         compVal = ((Long)cloneVec[i]).compareTo((Long)cloneVec[i+1]);
-         assertTrue(compVal <= 0, "Element at: " + i);
-      }
-   }
+    Long cloneVecArray[] = new Long[m_randomLongVector.size()];
+    m_randomLongVector.copyInto(cloneVecArray);
+    long startTime = System.currentTimeMillis(), endTime;
+    java.util.Arrays.sort(cloneVecArray, new LongComp());
+    endTime = System.currentTimeMillis();
+    System.err.println(
+        "JDK sort (array) of "
+            + cloneVecArray.length
+            + " elements took "
+            + (endTime - startTime)
+            + " milliseconds.");
+    int compVal = 1;
+    for (int i = 0; i < (cloneVecArray.length - 1); i++) {
+      compVal = ((Long) cloneVecArray[i]).compareTo((Long) cloneVecArray[i + 1]);
+      assertTrue(compVal <= 0, "Element at: " + i);
+    }
+  }
 
+  public void setUp() {
+    m_randomLongVector = new Vector(VECTOR_SIZE);
+    SecureRandom rand = new SecureRandom();
+    for (int i = 0; i < VECTOR_SIZE; i++) {
+      m_randomLongVector.addElement(new Long(rand.nextLong()));
+    }
+  }
 
+  // collect all tests into a TestSuite and return it
 
-
-
-   public void testVectorJdkSort()
-   {
-      class LongComp implements Comparator
-      {
-         public LongComp() {}
-
-         public int compare(Object left, Object right)
-         {
-            Long l = (Long)left;
-            Long r = (Long)right;
-
-            return l.compareTo(r);
-         }
-      }
-
-      Vector cloneVec = (Vector)m_randomLongVector.clone();
-      long startTime, endTime;
-      startTime = System.currentTimeMillis();
-      java.util.Collections.sort(cloneVec, new LongComp());
-      endTime = System.currentTimeMillis();
-      System.err.println(
-         "JDK sort (vector) of " + cloneVec.size() + " elements took " +
-         (endTime - startTime) + " milliseconds.");
-      int compVal = 1;
-      for (int i = 0; i < (cloneVec.size() - 1); i++)
-      {
-         compVal = ((Long)cloneVec.elementAt(i)).compareTo((Long)cloneVec.elementAt(i+1));
-         assertTrue(compVal <= 0, "Element at: " + i);
-      }
-   }
-
-
-
-   public void testArrayJdkSort()
-   {
-      class LongComp implements Comparator
-      {
-         public LongComp() {}
-
-         public int compare(Object left, Object right)
-         {
-            Long l = (Long)left;
-            Long r = (Long)right;
-
-            return l.compareTo(r);
-         }
-      }
-
-      Long cloneVecArray[] = new Long[m_randomLongVector.size()];
-      m_randomLongVector.copyInto(cloneVecArray);
-      long startTime = System.currentTimeMillis(), endTime;
-      java.util.Arrays.sort(cloneVecArray, new LongComp());
-      endTime = System.currentTimeMillis();
-      System.err.println(
-         "JDK sort (array) of " + cloneVecArray.length + " elements took " +
-         (endTime - startTime) + " milliseconds.");
-      int compVal = 1;
-      for (int i = 0; i < (cloneVecArray.length - 1); i++)
-      {
-         compVal = ((Long)cloneVecArray[i]).compareTo((Long)cloneVecArray[i+1]);
-         assertTrue(compVal <= 0, "Element at: " + i);
-      }
-   }
-
-   public void setUp()
-   {
-      m_randomLongVector = new Vector(VECTOR_SIZE);
-      SecureRandom rand = new SecureRandom();
-      for (int i = 0; i < VECTOR_SIZE; i++)
-      {
-         m_randomLongVector.addElement(new Long(rand.nextLong()));
-      }
-   }
-
-   // collect all tests into a TestSuite and return it
-
-
-   private Vector m_randomLongVector;
-   private static final int VECTOR_SIZE = 2048;
+  private Vector m_randomLongVector;
+  private static final int VECTOR_SIZE = 2048;
 }

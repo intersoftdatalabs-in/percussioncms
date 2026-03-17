@@ -23,15 +23,16 @@ import java.util.Map;
 
 /**
  * Action that retrieves the server's maximum timeout setting in seconds.
- * 
- * <p>This action is used for keep-alive functionality to determine how long
- * the client should wait before timing out.</p>
- * 
- * <p>Required parameters:</p>
+ *
+ * <p>This action is used for keep-alive functionality to determine how long the client should wait
+ * before timing out.
+ *
+ * <p>Required parameters:
+ *
  * <ul>
- *   <li>timeout - the timeout value from {@link PSAAClientServlet#PARAM_TIMEOUT}</li>
+ *   <li>timeout - the timeout value from {@link PSAAClientServlet#PARAM_TIMEOUT}
  * </ul>
- * 
+ *
  * @param params a map containing the timeout parameter
  * @return an {@link PSActionResponse} containing the timeout value as plain text
  * @throws PSAAClientActionException if the timeout value cannot be processed
@@ -41,8 +42,7 @@ public class PSGetMaxTimeoutAction extends PSAAActionBase {
   /**
    * Executes the action to return the maximum timeout value.
    *
-   * @param params a map containing:
-   *   - PSAAClientServlet.PARAM_TIMEOUT: the timeout Integer value
+   * @param params a map containing: - PSAAClientServlet.PARAM_TIMEOUT: the timeout Integer value
    * @return PSActionResponse containing the timeout as a plain text string
    * @throws PSAAClientActionException if the timeout parameter is invalid
    */

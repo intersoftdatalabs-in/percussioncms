@@ -36,10 +36,10 @@ public class HibernateNode_statusDAO implements Node_statusDAO {
     return session.get(Node_status.class, id);
   }
 
-
   public Collection<Node_status> getAllNode_statuss() {
     Session session = sessionFactory.getCurrentSession();
-    return (Collection<Node_status>) (Collection<?>) session.createQuery("from Node_status nod", Node_status.class).list();
+    return (Collection<Node_status>)
+        (Collection<?>) session.createQuery("from Node_status nod", Node_status.class).list();
   }
 
   public void saveNode_status(Node_status node_status) {

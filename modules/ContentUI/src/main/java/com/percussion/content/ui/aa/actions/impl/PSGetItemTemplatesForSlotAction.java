@@ -148,7 +148,6 @@ public class PSGetItemTemplatesForSlotAction extends PSAAActionBase {
    * @throws PSAssemblyException if an error occurs when retriving the slot or templates from the
    *     assembly service.
    */
-
   protected static Collection<IPSAssemblyTemplate> getAssociatedTemplates(PSAAObjectId objectId)
       throws PSAssemblyException, PSNotFoundException {
     if (objectId == null) throw new IllegalArgumentException("objectId cannot be null.");
@@ -167,7 +166,6 @@ public class PSGetItemTemplatesForSlotAction extends PSAAActionBase {
    * @throws PSAssemblyException if an error occurs when retriving the slot or templates from the
    *     assembly service.
    */
-
   protected static Collection<IPSAssemblyTemplate> getAssociatedTemplates(
       String ctypeid, String slotid) throws PSAssemblyException, PSNotFoundException {
     if (StringUtils.isBlank(ctypeid))

@@ -17,11 +17,12 @@
 
 package com.percussion.taxonomy.repository;
 
-import org.hibernate.query.Query;
 import org.hibernate.Session;
+import org.hibernate.query.Query;
 
 /**
  * Helper class to execute a delete query without requiring HibernateCallback.
+ *
  * @author Steffen Gates May 6, 2011
  */
 public class HibernateDeleteQuery {

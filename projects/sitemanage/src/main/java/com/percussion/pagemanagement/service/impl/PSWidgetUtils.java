@@ -186,7 +186,6 @@ public class PSWidgetUtils {
    *     <code>null</code>.
    * @throws PSWidgetPropertyCoercionException coersion exception if the property can't be coerced.
    */
-
   public static <T> T coerceProperty(String name, Object object, Class<T> dataType)
       throws PSWidgetPropertyCoercionException {
     notEmpty(name, "name");

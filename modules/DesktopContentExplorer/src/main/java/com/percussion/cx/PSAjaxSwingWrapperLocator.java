@@ -21,9 +21,9 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /**
- * Locator class for obtaining the appropriate IPSAjaxSwingWrapper implementation.
- * Determines at runtime whether the application is running in AjaxSwing or browser context
- * and returns the corresponding wrapper implementation.
+ * Locator class for obtaining the appropriate IPSAjaxSwingWrapper implementation. Determines at
+ * runtime whether the application is running in AjaxSwing or browser context and returns the
+ * corresponding wrapper implementation.
  */
 public class PSAjaxSwingWrapperLocator {
   private static volatile IPSAjaxSwingWrapper wrapperClass;
@@ -33,9 +33,9 @@ public class PSAjaxSwingWrapperLocator {
   static Logger log = LogManager.getLogger(PSAjaxSwingWrapperLocator.class);
 
   /**
-   * Gets the singleton instance of IPSAjaxSwingWrapper for the current runtime context.
-   * Detects whether the application is running in AjaxSwing or browser context and
-   * returns the appropriate wrapper implementation.
+   * Gets the singleton instance of IPSAjaxSwingWrapper for the current runtime context. Detects
+   * whether the application is running in AjaxSwing or browser context and returns the appropriate
+   * wrapper implementation.
    *
    * @return the IPSAjaxSwingWrapper instance for the current context, never null
    */
@@ -49,17 +49,20 @@ public class PSAjaxSwingWrapperLocator {
             log.info("Running Applet in AjaxSwing context");
           } catch (ClassNotFoundException e) {
             log.error(
-                "Running with AjaxSwing but com.percussion.ajaxswing.PSAjaxSwingWrapper not compiled with rxcx.",
+                "Running with AjaxSwing but com.percussion.ajaxswing.PSAjaxSwingWrapper not"
+                    + " compiled with rxcx.",
                 e);
 
           } catch (InstantiationException e) {
             log.error(
-                "Running with AjaxSwing but Cannot instantiate com.percussion.ajaxswing.PSAjaxSwingWrapper",
+                "Running with AjaxSwing but Cannot instantiate"
+                    + " com.percussion.ajaxswing.PSAjaxSwingWrapper",
                 e);
 
           } catch (IllegalAccessException e) {
             log.error(
-                "Running with AjaxSwing but IllegalAccess creating instance com.percussion.ajaxswing.PSAjaxSwingWrapper",
+                "Running with AjaxSwing but IllegalAccess creating instance"
+                    + " com.percussion.ajaxswing.PSAjaxSwingWrapper",
                 e);
           }
           if (wrapperClass == null) {
@@ -78,8 +81,8 @@ public class PSAjaxSwingWrapperLocator {
   }
 
   /**
-   * Checks whether the application is running in an AjaxSwing applet context.
-   * Looks for the presence of AjaxSwing classes to determine the runtime environment.
+   * Checks whether the application is running in an AjaxSwing applet context. Looks for the
+   * presence of AjaxSwing classes to determine the runtime environment.
    *
    * @return true if running in AjaxSwing context, false if in browser context
    */

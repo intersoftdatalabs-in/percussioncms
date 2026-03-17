@@ -24,31 +24,31 @@ import org.w3c.dom.NamedNodeMap;
 
 /**
  * Represents a workflow state in the Rhythmyx system.
- * 
- * <p>This class encapsulates a workflow state element and provides methods for
- * accessing its properties and generating XML representations. Each state has
- * an index, dimensions, and various attributes like ID, name, and link information.</p>
- * 
- * <p>States are typically loaded from workflow configuration and used to build
- * the workflow editor UI or to process workflow transitions.</p>
+ *
+ * <p>This class encapsulates a workflow state element and provides methods for accessing its
+ * properties and generating XML representations. Each state has an index, dimensions, and various
+ * attributes like ID, name, and link information.
+ *
+ * <p>States are typically loaded from workflow configuration and used to build the workflow editor
+ * UI or to process workflow transitions.
  */
 public class State {
-  
+
   /** The index of this state in the workflow */
   int m_nIndex;
-  
+
   /** The underlying DOM element containing state attributes */
   Element m_ElemState;
-  
+
   /** The width of this state for layout purposes */
   int m_nWidth;
-  
+
   /** The height of this state for layout purposes */
   int m_nHeight;
 
   /**
    * Creates a new State instance with the specified parameters.
-   * 
+   *
    * @param nIndex the index of this state in the workflow sequence
    * @param elem the DOM element containing state attributes
    * @param width the width of this state for rendering/layout purposes
@@ -63,11 +63,12 @@ public class State {
 
   /**
    * Creates an XML element representing this state for inclusion in a workflow document.
-   * 
-   * <p>All attributes from the source state element are copied to the new element,
-   * and additional positioning attributes (xloc, yloc, width) are set.</p>
-   * 
-   * @param elemParent the parent element for the new state element; used to obtain the owner document
+   *
+   * <p>All attributes from the source state element are copied to the new element, and additional
+   * positioning attributes (xloc, yloc, width) are set.
+   *
+   * @param elemParent the parent element for the new state element; used to obtain the owner
+   *     document
    * @param yLoc the Y-axis location for the new state element
    * @return a new Element representing this state, ready for insertion into a document
    */
@@ -88,7 +89,7 @@ public class State {
 
   /**
    * Gets the unique identifier for this workflow state.
-   * 
+   *
    * @return the state ID string, or empty string if not set
    */
   public String getID() {
@@ -97,7 +98,7 @@ public class State {
 
   /**
    * Gets the URL link associated with this state.
-   * 
+   *
    * @return the link URL, or empty string if not set
    */
   public String getLink() {
@@ -106,7 +107,7 @@ public class State {
 
   /**
    * Gets the URL for creating a new transition from this state.
-   * 
+   *
    * @return the new transition link URL, or empty string if not set
    */
   public String getLinkNewTransition() {
@@ -115,7 +116,7 @@ public class State {
 
   /**
    * Gets the URL for creating a new aging transition from this state.
-   * 
+   *
    * @return the new aging transition link URL, or empty string if not set
    */
   public String getLinkNewAgingTransition() {
@@ -124,7 +125,7 @@ public class State {
 
   /**
    * Gets the index of this state in the workflow.
-   * 
+   *
    * @return the zero-based index of this state
    */
   public int getIndex() {
@@ -133,7 +134,7 @@ public class State {
 
   /**
    * Gets the display name of this workflow state.
-   * 
+   *
    * @return the state name, or empty string if not set
    */
   public String getName() {
@@ -142,7 +143,7 @@ public class State {
 
   /**
    * Gets the X coordinate of the center point of this state for layout purposes.
-   * 
+   *
    * @return the middle X coordinate (index * width + width/2)
    */
   public int getMidX() {
@@ -151,7 +152,7 @@ public class State {
 
   /**
    * Gets the width of this state.
-   * 
+   *
    * @return the width in layout units
    */
   public int getWidth() {

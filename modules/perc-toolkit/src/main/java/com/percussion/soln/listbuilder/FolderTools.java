@@ -234,7 +234,6 @@ public class FolderTools extends PSJexlUtilBase implements IPSJexlExpression {
       description = "Gets the folder properties of a folder.",
       params = {@IPSJexlParam(name = "path", description = "folder path")},
       returns = "The folder properties (Map)")
-
   public Map<String, String> getFolderProperties(String path) {
     try {
       PSFolder folder = getContentWs().loadFolders(new String[] {path}).get(0);

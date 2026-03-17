@@ -7,27 +7,21 @@
         <version>8.2.0-SNAPSHOT</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
-
     <artifactId>perc-common-ui-bundle</artifactId>
     <version>8.2.0-SNAPSHOT</version>
     <packaging>jar</packaging>
-
     <name>Percussion CMS Common UI Bundle</name>
-    <description>
-        Minified JavaScript bundle for the Percussion CMS delivery-tier widgets
+    <description>Minified JavaScript bundle for the Percussion CMS delivery-tier widgets
         (perc_common_ui.js and perc_common_ui_slim.js). Built with esbuild via
-        the frontend-maven-plugin and served as bundled web resources from this JAR.
-    </description>
-
+        the frontend-maven-plugin and served as bundled web resources from this JAR.</description>
     <properties>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <!--
             Skip the default Java compilation; this module contains no Java sources.
             Only JS assets matter here.
         -->
         <maven.compiler.skip>true</maven.compiler.skip>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
-
     <build>
         <plugins>
             <!--
@@ -48,7 +42,6 @@
                     </execution>
                 </executions>
             </plugin>
-
             <!--
                 frontend-maven-plugin: installs Node.js (shared across all modules via
                 ~/.m2/frontend), runs npm install, then runs `npm run bundle` to produce
@@ -105,7 +98,6 @@
                     </execution>
                 </executions>
             </plugin>
-
             <!--
                 Make sure the JAR includes the generated web resources from
                 target/classes/META-INF/resources/.

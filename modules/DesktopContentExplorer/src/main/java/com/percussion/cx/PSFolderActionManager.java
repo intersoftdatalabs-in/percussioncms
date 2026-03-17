@@ -46,8 +46,8 @@ import com.percussion.design.objectstore.PSUnknownNodeTypeException;
 import com.percussion.error.PSException;
 import com.percussion.services.error.PSNotFoundException;
 import com.percussion.system.utils.IPSHtmlParameters;
-import com.percussion.util.PSStringComparator;
 import com.percussion.system.utils.PSUrlUtils;
+import com.percussion.util.PSStringComparator;
 import com.percussion.util.PSXMLDomUtil;
 import com.percussion.utils.collections.PSIteratorUtils;
 import com.percussion.xml.PSXmlDocumentBuilder;
@@ -283,7 +283,6 @@ public class PSFolderActionManager {
    * @throws PSContentExplorerException if an error happens loading the folder or its children with
    *     all columns according to its display format.
    */
-
   public Iterator loadChildren(PSNode parentFolderNode) throws PSContentExplorerException {
     validateNodeAsFolder(parentFolderNode);
 
@@ -1304,7 +1303,9 @@ public class PSFolderActionManager {
     }
   }
 
-  /** @return the folder proxy, never <code>null</code>. */
+  /**
+   * @return the folder proxy, never <code>null</code>.
+   */
   public PSFolderProcessorProxy getFolderProxy() {
     return m_folderProxy;
   }

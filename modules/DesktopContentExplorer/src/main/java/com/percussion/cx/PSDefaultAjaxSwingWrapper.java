@@ -21,9 +21,9 @@ import com.percussion.util.PSHttpConnection;
 import java.net.MalformedURLException;
 
 /**
- * Default implementation of IPSAjaxSwingWrapper for browser context.
- * Provides no-op implementations for all AjaxSwing-specific operations since
- * these are not needed when running in a standard web browser.
+ * Default implementation of IPSAjaxSwingWrapper for browser context. Provides no-op implementations
+ * for all AjaxSwing-specific operations since these are not needed when running in a standard web
+ * browser.
  */
 public class PSDefaultAjaxSwingWrapper implements IPSAjaxSwingWrapper {
 

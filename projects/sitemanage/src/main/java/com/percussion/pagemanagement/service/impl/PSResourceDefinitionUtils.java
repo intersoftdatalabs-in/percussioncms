@@ -41,7 +41,6 @@ public class PSResourceDefinitionUtils {
    * @return a new list in dependency order, never <code>null</code>.
    * @throws PSResourceDefinitionDependencyCycleException if there is a cycle in the dependencies.
    */
-
   public static <T extends PSResourceDefinition> List<T> sortByDependencies(List<T> resources)
       throws PSResourceDefinitionDependencyCycleException {
     notNull(resources, "resources");

@@ -19,13 +19,10 @@ package com.percussion.pso.restservice.impl;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 import com.percussion.pso.restservice.model.Items;
 import com.percussion.security.validation.XSSValidation;
 import jakarta.ws.rs.core.Response;
-import jakarta.ws.rs.core.Response.ResponseBuilder;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -33,8 +30,8 @@ import org.junit.jupiter.api.Test;
 /**
  * Unit tests for ItemRestServiceImpl XSS (CWE-79) vulnerability fixes.
  *
- * <p>Verifies that user-provided input is properly escaped before being returned in REST
- * responses, preventing Cross-Site Scripting attacks.
+ * <p>Verifies that user-provided input is properly escaped before being returned in REST responses,
+ * preventing Cross-Site Scripting attacks.
  *
  * <p>Sunny Sal says: "These tests verify we're keeping the XSS attackers at bay!"
  */
@@ -72,8 +69,7 @@ class ItemRestServiceImplXSSTest {
 
       // Verify dangerous characters are not present in raw form
       assertFalse(
-          responseText.startsWith("<"),
-          "Response should not start with < for payload: " + payload);
+          responseText.startsWith("<"), "Response should not start with < for payload: " + payload);
       assertFalse(
           responseText.contains("<script"),
           "Response should not contain <script for payload: " + payload);
@@ -97,8 +93,7 @@ class ItemRestServiceImplXSSTest {
   void testAssemblyErrorsUseGenericMessages() {
     // Create test items and assembly result with potentially dangerous content
     Items items = new Items();
-    String maliciousAssemblyResult =
-        "<html><body><script>alert('injected')</script></body></html>";
+    String maliciousAssemblyResult = "<html><body><script>alert('injected')</script></body></html>";
 
     // Retrieve the build method to verify it doesn't concatenate assemblyResult
     // This is verified structurally in the code - error messages use generic text
@@ -112,8 +107,7 @@ class ItemRestServiceImplXSSTest {
     // Test that the error message doesn't contain dangerous content from assembly result
     String genericErrorMessage = "Error importing items from assembly";
     assertFalse(
-        genericErrorMessage.contains("<script"),
-        "Error message should not contain script tags");
+        genericErrorMessage.contains("<script"), "Error message should not contain script tags");
     assertFalse(
         genericErrorMessage.contains("alert("),
         "Error message should not contain JavaScript alert");
@@ -189,11 +183,9 @@ class ItemRestServiceImplXSSTest {
 
       // Legitimate paths don't need escaping - they should pass through cleanly
       assertTrue(
-          responseText.contains(path),
-          "Legitimate path should be present in response: " + path);
+          responseText.contains(path), "Legitimate path should be present in response: " + path);
       assertTrue(
-          responseText.contains("deleted successfully"),
-          "Success message should be present");
+          responseText.contains("deleted successfully"), "Success message should be present");
     }
   }
 

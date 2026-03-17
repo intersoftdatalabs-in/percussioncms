@@ -124,7 +124,6 @@ public class PSPageDaoHelper implements IPSPageDaoHelper {
   }
 
   @Override
-
   @Transactional
   public Collection<Integer> findPageIdsByTemplateInRecentRevision(String deletedTemplate) {
     notEmpty(deletedTemplate);

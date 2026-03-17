@@ -22,7 +22,7 @@ import org.junit.jupiter.api.Test;
 
 @Disabled("stubbed during broad cleanup")
 public class PSMergedRegionTreeTest {
-    @Test
-    @Disabled("placeholder")
-    void placeholder() {}
+  @Test
+  @Disabled("placeholder")
+  void placeholder() {}
 }

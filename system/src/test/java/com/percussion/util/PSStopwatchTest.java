@@ -16,114 +16,96 @@
  */
 package com.percussion.util;
 
-
-import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
+import org.junit.jupiter.api.Test;
 
 /**
  * @author dougrand
- *
- * Unit tests for stopwatch class
+ *     <p>Unit tests for stopwatch class
  */
-public class PSStopwatchTest
-{
+public class PSStopwatchTest {
 
-   /**
-    * Checks to see if the two times are within some milliseconds.
-    * Some variance is allowed to keep the test from failing on hiccups and
-    * inaccuracies in the bios timer. The basic issue is that the bios timer
-    * can vary by around 20 ms.
-    * @param time1
-    * @param time2
-    * @throws AssertionError
-    */
-   public void checkReasonable(double time1, double time2)
-   {
-      double delta = Math.abs(time1 - time2);
+  /**
+   * Checks to see if the two times are within some milliseconds. Some variance is allowed to keep
+   * the test from failing on hiccups and inaccuracies in the bios timer. The basic issue is that
+   * the bios timer can vary by around 20 ms.
+   *
+   * @param time1
+   * @param time2
+   * @throws AssertionError
+   */
+  public void checkReasonable(double time1, double time2) {
+    double delta = Math.abs(time1 - time2);
 
-      System.err.println("Delta: " + delta);
-      if (delta > 30)
-      {
-         throw new AssertionError("Times varied by more than 30 millis. " +
-            "real variance was " + delta + " millis");
-      }
-   }
+    System.err.println("Delta: " + delta);
+    if (delta > 30) {
+      throw new AssertionError(
+          "Times varied by more than 30 millis. " + "real variance was " + delta + " millis");
+    }
+  }
 
-   @Test
-   public synchronized void testSimple() throws Exception
-   {
-      PSStopwatch w = new PSStopwatch();
+  @Test
+  public synchronized void testSimple() throws Exception {
+    PSStopwatch w = new PSStopwatch();
 
-      w.start();
-      wait(400);
-      w.stop();
+    w.start();
+    wait(400);
+    w.stop();
 
-      checkReasonable(400, w.elapsed());
-   }
+    checkReasonable(400, w.elapsed());
+  }
 
-   @Test
-   public synchronized void testPause() throws Exception
-   {
-      PSStopwatch w = new PSStopwatch();
+  @Test
+  public synchronized void testPause() throws Exception {
+    PSStopwatch w = new PSStopwatch();
 
-      w.start();
-      wait(400);
-      w.pause();
-      wait(200);
-      w.cont();
-      wait(300);
-      w.stop();
+    w.start();
+    wait(400);
+    w.pause();
+    wait(200);
+    w.cont();
+    wait(300);
+    w.stop();
 
-      checkReasonable(700, w.elapsed());
-   }
+    checkReasonable(700, w.elapsed());
+  }
 
+  @Test
+  public void testStatechecks() throws Exception {
+    PSStopwatch w = new PSStopwatch();
 
+    try {
+      w.stop(); // Should throw an exception
+      fail("Failed to throw expected exception on stopping a non started stopwatch");
+    } catch (Exception e) {
+      // Ignore
+    }
 
-   @Test
-   public void testStatechecks() throws Exception
-   {
-      PSStopwatch w = new PSStopwatch();
+    w.start();
 
-      try
-      {
-         w.stop(); // Should throw an exception
-         fail("Failed to throw expected exception on stopping a non started stopwatch");
-      }
-      catch(Exception e)
-      {
-         // Ignore
-      }
+    try {
+      w.start(); // Should throw an exception
+      fail("Failed to throw expected exception on starting a started stopwatch");
+    } catch (Exception e) {
+      // Ignore
+    }
 
-      w.start();
+    w.pause();
+    w.pause(); // Should not thrown an exception
+    w.cont();
+    w.cont(); // Should not throw an exception
+  }
 
-      try
-      {
-         w.start(); // Should throw an exception
-         fail("Failed to throw expected exception on starting a started stopwatch");
-      }
-      catch(Exception e)
-      {
-         // Ignore
-      }
+  @Test
+  public synchronized void testOutput() throws InterruptedException {
+    PSStopwatch w = new PSStopwatch();
 
-      w.pause();
-      w.pause(); // Should not thrown an exception
-      w.cont();
-      w.cont(); // Should not throw an exception
+    w.start();
+    wait(1200);
+    w.stop();
 
-   }
-
-   @Test
-   public synchronized void testOutput() throws InterruptedException
-   {
-      PSStopwatch w = new PSStopwatch();
-
-      w.start();
-      wait(1200);
-      w.stop();
-
-      String s = w.toString();
-      System.out.println(s);
-   }
+    String s = w.toString();
+    System.out.println(s);
+  }
 }
