@@ -39,6 +39,7 @@ public interface IPSEncryptor {
    *
    * @param in the string containing the plain text representation of the data
    * @param out the stream to store the encrypted data
+   * @throws PSEncryptionException if encryption fails
    */
   void encrypt(String in, java.io.OutputStream out) throws PSEncryptionException;
 
@@ -47,6 +48,7 @@ public interface IPSEncryptor {
    *
    * @param in the string containing the plain text representation of the data
    * @return a byte array containing the encrypted data.
+   * @throws PSEncryptionException if encryption fails
    */
   byte[] encrypt(String in) throws PSEncryptionException;
 
@@ -56,6 +58,7 @@ public interface IPSEncryptor {
    * @param in the string to encrypt
    * @param password the password to use for encryption
    * @return the encrypted byte array.
+   * @throws PSEncryptionException if encryption fails
    */
   byte[] encryptWithPassword(String in, String password) throws PSEncryptionException;
 }

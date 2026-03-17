@@ -59,7 +59,7 @@ public class PSDESDecryptor implements IPSDecryptor {
    *
    * @param in the stream containing the encrypted data
    * @param out the stream to store the plain text representation of the data
-   * @exception IOException if an I/O exception occurs
+   * @throws PSEncryptionException if decryption fails
    */
   public void decrypt(InputStream in, OutputStream out) throws PSEncryptionException {
     int byteAsInt;
@@ -97,7 +97,7 @@ public class PSDESDecryptor implements IPSDecryptor {
    *
    * @param in the stream containing the encrypted data
    * @return a string containing the plain text representation of the data
-   * @throws IOException if an I/O exception occurs
+   * @throws PSEncryptionException if decryption fails
    */
   public java.lang.String decrypt(InputStream in) throws PSEncryptionException {
     String empty = "";

@@ -99,7 +99,7 @@ public class PSAesCBC {
    * @param secretText String to decyrpt. May be null.
    * @param encryptionKey String used for decryption. Not null.
    * @return The resultant String of decrypted and decoded text.
-   * @throws Exception
+   * @throws PSEncryptionException if decryption fails
    */
   public String decrypt(String secretText, String encryptionKey) throws PSEncryptionException {
     if (isBlank(secretText)) secretText = "";

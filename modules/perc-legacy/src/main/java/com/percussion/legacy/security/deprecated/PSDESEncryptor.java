@@ -158,7 +158,7 @@ public class PSDESEncryptor implements IPSEncryptor {
    *
    * @param in the stream containing the plain text representation of the data
    * @param out the stream to store the encrypted data
-   * @exception IOException if an I/O exception occurs
+   * @throws PSEncryptionException if encryption fails
    */
   public void encrypt(InputStream in, OutputStream out) throws PSEncryptionException {
     int byteAsInt;
@@ -207,7 +207,7 @@ public class PSDESEncryptor implements IPSEncryptor {
    *
    * @param in the string containing the plain text representation of the data
    * @param out the stream to store the encrypted data into
-   * @exception IOException if an I/O exception occurs
+   * @throws PSEncryptionException if encryption fails
    */
   public void encrypt(String in, OutputStream out) throws PSEncryptionException {
     if (StringUtils.isEmpty(in)) {

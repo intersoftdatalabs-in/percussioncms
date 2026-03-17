@@ -1650,8 +1650,8 @@ public class SecureStringUtils {
    *
    * @param input The string to create a pattern from, may be null
    * @return A compiled Pattern that matches the literal string, or null if input is null
-   * @throws PatternSyntaxException if the input contains an invalid pattern (unlikely since
-   *     characters are escaped)
+   * @throws java.util.regex.PatternSyntaxException if the input contains an invalid pattern
+   *     (unlikely since characters are escaped)
    */
   public static Pattern createSafeRegexPattern(final String input) {
     if (input == null) {
