@@ -40,7 +40,7 @@ import java.util.*;
 /**
  * Implementation of the interface {@link IPSAclEntry}
  * 
- * @created 08-Aug-2005 3:09:34 PM
+ * @since 08-Aug-2005 3:09:34 PM
  * @version 6.0
  */
 @Entity

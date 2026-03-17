@@ -30,8 +30,7 @@ import java.io.Serializable;
  * Implementation of the interface
  * {@link com.percussion.services.security.PSPermissions}
  * 
- * @created 08-Aug-2005 3:09:34 PM
- * @version 6.0
+ * @since 6.0
  */
 @Entity
 /*

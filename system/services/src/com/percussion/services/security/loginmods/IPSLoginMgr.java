@@ -25,7 +25,7 @@ import javax.security.auth.login.LoginException;
  * information
  * @author dougrand
  * @version 1.0
- * @updated 31-Oct-2005 8:31:52 AM
+ * @since 31-Oct-2005 8:31:52 AM
  */
 public interface IPSLoginMgr
 {

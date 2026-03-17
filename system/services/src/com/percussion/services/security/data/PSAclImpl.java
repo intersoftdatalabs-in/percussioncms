@@ -51,7 +51,7 @@ import java.util.stream.Collectors;
  * Percussion CMS, managing permissions and security access controls using
  * modern Java 11 features and best practices.
  *
- * @created 08-Aug-2005 3:09:34 PM
+ * @since 08-Aug-2005 3:09:34 PM
  * @version 6.0
  * @since Java 11 Modernization
  */
