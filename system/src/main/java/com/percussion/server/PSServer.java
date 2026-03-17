@@ -973,8 +973,7 @@ public class PSServer {
    *
    * @param request the request to analyze in the format appName/resource, never <code>null</code>
    * @return the internal request handler, <code>null</code> if no suitable handler was found
-   * @throws IllegalArgumentException if the request string is invalid <B> <I>TODO:- Update this
-   *     documentation when category support is implemented</I>
+   * @throws IllegalArgumentException if the request string is invalid
    */
   public static IPSInternalRequestHandler getInternalRequestHandler(String request) {
     IPSInternalRequestHandler irh = null;
@@ -1656,7 +1655,7 @@ public class PSServer {
    * Returns <code>true</code> if case sensitivity for the server and application root is enabled,
    * <code>false</code> otherwise.
    *
-   * @return code>true</code> if case sensitivity for the server and application root is enabled,
+   * @return <code>true</code> if case sensitivity for the server and application root is enabled,
    *     <code>false</code> otherwise.
    */
   public static boolean isCaseSensitiveURL() {
@@ -2349,7 +2348,7 @@ public class PSServer {
    * @param handlerName unique name of the handler, must not be <code>null</code> or empty. If a
    *     handler with this name already registered previously, the state events will be merged or
    *     ORed.
-   * @param events One or more state events {@link PSHandlerStateEvent# HANDLER_EVENT_STARTED
+   * @param events One or more state events {@link PSHandlerStateEvent#HANDLER_EVENT_STARTED}
    *     HANDLER_EVENT_XXX} ORed together. No validation is done on the event flags.
    * @see IPSHandlerStateListener
    * @see PSHandlerStateEvent

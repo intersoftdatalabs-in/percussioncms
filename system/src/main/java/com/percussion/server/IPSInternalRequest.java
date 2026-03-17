@@ -151,7 +151,8 @@ public interface IPSInternalRequest {
    *
    * <p>
    *
-   * <table border=1>
+   * <table border="1" summary="Resource types">
+   * <caption>Resource types</caption>
    * <tr>
    * <th>Resource type</th>
    * <th>Returned value</th>
