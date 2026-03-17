@@ -47,7 +47,7 @@ public class PSConcurrentIterator<T> implements Iterator<T> {
    * Returns the next element in the iteration.
    *
    * @return the next element in the iteration
-   * @throws NoSuchElementException if the iteration has no more elements
+   * @throws java.util.NoSuchElementException if the iteration has no more elements
    */
   @Override
   public T next() {

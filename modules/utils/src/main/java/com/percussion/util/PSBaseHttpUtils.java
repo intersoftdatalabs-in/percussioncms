@@ -112,13 +112,13 @@ public class PSBaseHttpUtils {
    * </BLOCKQUOTE>
    *
    * <PRE>
-   * CTL            = <any US-ASCII control character (octets 0 - 31) and DEL (127)>
-   * CHAR            = <any US-ASCII character (octets 0 - 127)>
-   * token          = 1*<any CHAR except CTLs or tspecials>
+   * CTL            = &lt;any US-ASCII control character (octets 0 - 31) and DEL (127)>
+   * CHAR            = &lt;any US-ASCII character (octets 0 - 127)>
+   * token          = 1*&lt;any CHAR except CTLs or tspecials>
    *
-   * TEXT            = <any OCTET except CTLs, but including LWS>
-   * quoted-string   = ( <"> *(qdtext) <"> )
-   * qdtext         = <any TEXT except <">>
+   * TEXT            = &lt;any OCTET except CTLs, but including LWS>
+   * quoted-string   = ( &gt;" *(qdtext) &gt;" )
+   * qdtext         = &lt;any TEXT except &gt;">
    *
    * media-type      = type "/" subtype *( ";" parameter )
    * type            = token

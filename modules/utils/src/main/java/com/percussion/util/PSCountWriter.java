@@ -71,7 +71,7 @@ public class PSCountWriter extends Writer {
   /**
    * Write a portion of an array of characters.
    *
-   * @param cbuf Array of characters
+   * @param cbuff Array of characters
    * @param off Offset from which to start writing characters
    * @param len Number of characters to write
    * @exception IOException If an I/O error occurs

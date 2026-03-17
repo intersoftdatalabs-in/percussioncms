@@ -37,8 +37,6 @@ public interface IPSRemoteRequester {
    * @param params A set of name/value pairs. Each key is a String, while each value is either a
    *     String or a List of Strings. If a list is supplied, then an htlm param with the name of the
    *     key will be created for each entry.
-   * @param useSSL If <code>true</code>, the request will be made using a secure channel, otherwise
-   *     std http will be used.
    * @return The document representing the returned data, or null if no data was returned.
    * @throws IOException If any problems occur while communicating with the server.
    * @throws SAXException If the returned data is not parsable as an xml document.
@@ -46,12 +44,12 @@ public interface IPSRemoteRequester {
   public Document getDocument(String resource, Map<String, ?> params)
       throws IOException, SAXException;
 
-  /** Equivalent to calling {@link #getDocument(String,Map,boolean) getDocument}. */
+  /** Equivalent to calling {@link #getDocument(String, Map) getDocument}. */
   public Document sendUpdate(String resource, Map<String, ?> params)
       throws IOException, SAXException;
 
   /**
-   * Just like {@link #getDocument(String,Map,boolean) getDocument}, except it sends a document.
+   * Just like {@link #getDocument(String, Map) getDocument}, except it sends a document.
    *
    * @param doc The to be send document, it may not be <code>null</code>.
    */

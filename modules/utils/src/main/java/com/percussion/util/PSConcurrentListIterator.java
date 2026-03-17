@@ -52,7 +52,7 @@ public class PSConcurrentListIterator<T> implements ListIterator<T> {
    * return the same element repeatedly.)
    *
    * @return the next element in the list
-   * @throws NoSuchElementException if the iteration has no next element
+   * @throws java.util.NoSuchElementException if the iteration has no next element
    */
   @Override
   public T next() {
@@ -79,7 +79,7 @@ public class PSConcurrentListIterator<T> implements ListIterator<T> {
    * previous} will return the same element repeatedly.)
    *
    * @return the previous element in the list
-   * @throws NoSuchElementException if the iteration has no previous element
+   * @throws java.util.NoSuchElementException if the iteration has no previous element
    */
   @Override
   public T previous() {
