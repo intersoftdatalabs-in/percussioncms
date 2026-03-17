@@ -579,9 +579,9 @@ public class PSJdbcColumnDef extends PSJdbcTableComponent {
    *
    * <p>For example, here is a create table statement that creates a table named "foo" with a column
    * named "bar" of type varchar using a size value of "255":<br>
-   * <code><pre>
+   * <pre>{@code
    * CREATE TABLE foo (bar VARCHAR(255) NULL)
-   * </pre></code>
+   * }</pre>
    *
    * @param size the length of the datatype. This value will be interpreted slightly differently for
    *     each datatype: number of characters for a string value, number of bytes for a LOB value, or
@@ -607,7 +607,7 @@ public class PSJdbcColumnDef extends PSJdbcTableComponent {
   /**
    * Returns this column's dataTypeMap.
    *
-   * @return The map, never <code>null<code>.
+   * @return The map, never <code>null</code>.
    */
   public PSJdbcDataTypeMap getDataTypeMap() {
     return m_dataTypeMap;

@@ -21,7 +21,8 @@ package com.percussion.security.shim.acl;
  * remove the final owner from an ACL.
  */
 public class LastOwnerException extends Exception {
-    private static final long serialVersionUID = 1L;
+  private static final long serialVersionUID = 1L;
+
   public LastOwnerException() {
     super();
   }

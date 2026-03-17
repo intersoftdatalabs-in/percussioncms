@@ -52,7 +52,6 @@ public abstract class PSItemIterator<M> implements Iterator {
    * @param things the map of things, never <code>null</code>
    * @param filterpattern the filter pattern, may be <code>null</code>
    */
-
   protected PSItemIterator(Map things, String filterpattern) {
     if (things == null) {
       throw new IllegalArgumentException("things may not be null");
@@ -70,7 +69,6 @@ public abstract class PSItemIterator<M> implements Iterator {
    *
    * @return an iterator, never <code>null</code>
    */
-
   private Iterator<M> calculateIter() {
     if (m_map instanceof Map<?, ?> && !(m_map instanceof HashMap<?, ?>)) {
       return new PSMultiMapIterator<>(m_map, m_filter);

@@ -48,16 +48,13 @@ import java.util.Calendar;
  */
 public class PSPreparedStatement extends PSSQLStatement implements PreparedStatement {
   /**
-   * Creates a <code>PreparedStatement</code> object from the supplied
-   * connection and SQL statement.
+   * Creates a <code>PreparedStatement</code> object from the supplied connection and SQL statement.
    *
    * @param conn the connection, may not be <code>null</code>.
    * @param sql the SQL statement, may not be <code>null</code> or empty.
-   *
-   * @return an created <code>PSPreparedStatement</code> object if the
-   *    log4j debug mode is on for this class; otherwise return
-   *    <code>PreparedStatement</code> object, never <code>null</code>.
-   *
+   * @return an created <code>PSPreparedStatement</code> object if the log4j debug mode is on for
+   *     this class; otherwise return <code>PreparedStatement</code> object, never <code>null</code>
+   *     .
    * @throws SQLException if error occurs.
    */
   public static PreparedStatement getPreparedStatement(Connection conn, String sql)

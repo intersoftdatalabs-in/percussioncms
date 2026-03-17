@@ -158,7 +158,7 @@ public abstract class PSSpringValidationException extends PSValidationException
     return springValidationErrors.getFieldErrors(arg0);
   }
 
-   public Class<?> getFieldType(String arg0) {
+  public Class<?> getFieldType(String arg0) {
     return springValidationErrors.getFieldType(arg0);
   }
 

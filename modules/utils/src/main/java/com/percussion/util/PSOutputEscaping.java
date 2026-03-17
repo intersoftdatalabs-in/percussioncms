@@ -24,8 +24,8 @@ import java.util.Map;
 public class PSOutputEscaping {
 
   /**
-   * This method searches for the following strings "&amp;","&lt;","&gt;","&quot;","&apos;" and replaces
-   * them with "&amp;","&lt;","&gt;","&quot;","&apos;" respectively
+   * This method searches for the following strings "&amp;","&lt;","&gt;","&quot;","&apos;" and
+   * replaces them with "&amp;","&lt;","&gt;","&quot;","&apos;" respectively
    *
    * @param escaped the string in which to perform the string substitution, may not be <code>null
    *     </code> or empty.
@@ -85,8 +85,8 @@ public class PSOutputEscaping {
   }
 
   /**
-   * This method searches for the following chars "&amp;","&lt;","&gt;","&quot;","&apos;" * and replaces them with
-   * "&amp;","&lt;","&gt;","&quot;","&apos;" respectively
+   * This method searches for the following chars "&amp;","&lt;","&gt;","&quot;","&apos;" * and
+   * replaces them with "&amp;","&lt;","&gt;","&quot;","&apos;" respectively
    *
    * @param str the string in which to perform the string substitution, may not be <code>null</code>
    *     or empty.

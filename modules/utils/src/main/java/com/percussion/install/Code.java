@@ -48,7 +48,6 @@ import org.w3c.dom.Element;
  * com.percussion classes in order to avoid circular dependencies. This is the first class to be
  * build during the build procedure.
  */
-
 @SuppressWarnings("this-escape")
 public class Code {
 
@@ -559,14 +558,14 @@ public class Code {
    * @param rxDirPath Rhythmyx root directory, may not be <code>null</code>, should be a valid
    *     Rhythmyx root directory
    * @throws IllegalArgumentException if directory is <code>null</code> or empty or this directory
-   *     does not exist and is not a valid Rhythmyx root directory.
-   * /** @throws CodeException if branding fails
+   *     does not exist and is not a valid Rhythmyx root directory. /** @throws CodeException if
+   *     branding fails
    */
   /**
- * @param rxDirPath the root directory path
- * @throws CodeException if branding fails
- */
-public void brand(String rxDirPath) throws CodeException {
+   * @param rxDirPath the root directory path
+   * @throws CodeException if branding fails
+   */
+  public void brand(String rxDirPath) throws CodeException {
     if ((rxDirPath == null) || (rxDirPath.trim().length() < 1))
       throw new IllegalArgumentException("rxDirPath may not be null or empty");
 
@@ -653,6 +652,7 @@ public void brand(String rxDirPath) throws CodeException {
 
   /** Server type element name. */
   public static final String EL_SERVER_TYPE = "serverType";
+
   /** Install type element name. */
   public static final String EL_INSTALL_TYPE = "installType";
 

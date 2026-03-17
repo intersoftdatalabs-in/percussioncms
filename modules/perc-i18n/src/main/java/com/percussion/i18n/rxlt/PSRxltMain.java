@@ -34,9 +34,9 @@ public class PSRxltMain {
   private static final Logger log = Logger.getLogger("I18N");
 
   /**
-   * Main method. Accepts three optional commandline arguments ?, -noui and -R<rxroot>. Option ?
+   * Main method. Accepts three optional commandline arguments ?, -noui and -R&lt;rxroot&gt;. Option ?
    * displays the usage syntax, -noui runs the tool without user interaction using default settings
-   * and -R<rxroot> sets the Rhythmyx root directory to the specified one.
+   * and -R&lt;rxroot&gt; sets the Rhythmyx root directory to the specified one.
    *
    * @param args
    */

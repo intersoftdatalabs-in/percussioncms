@@ -144,7 +144,8 @@ public class PSInputValidatorFilterTest {
   private void assertErrorMessage(String badParam, String goodParam) {
     String actualBody = responseWriter.toString();
     assertTrue(actualBody.contains(badParam), "Response should contain: " + badParam);
-    if (goodParam != null) assertFalse(actualBody.contains(goodParam), "Response should not contain: " + goodParam);
+    if (goodParam != null)
+      assertFalse(actualBody.contains(goodParam), "Response should not contain: " + goodParam);
   }
 
   private void assertErrorStatus() {
@@ -210,8 +211,7 @@ public class PSInputValidatorFilterTest {
     // For each parameter, setup the mock to return its value
     for (Map.Entry<String, String> entry : paramMap.entrySet()) {
       when(request.getParameter(entry.getKey())).thenReturn(entry.getValue());
-      when(request.getParameterValues(entry.getKey()))
-          .thenReturn(new String[] {entry.getValue()});
+      when(request.getParameterValues(entry.getKey())).thenReturn(new String[] {entry.getValue()});
     }
 
     return request;

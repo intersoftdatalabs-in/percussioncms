@@ -34,14 +34,10 @@ import java.util.ResourceBundle;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-/**
- * Exception thrown when a connector configuration is invalid.
- */
+/** Exception thrown when a connector configuration is invalid. */
 public class ConnectorConfigurationException extends Exception {
 
-  /**
-   * Error codes for this exception.
-   */
+  /** Error codes for this exception. */
   public static class Errors {
     /** Error code for duplicate port. */
     public static int DUPLICATE_PORT = 1;
@@ -62,8 +58,8 @@ public class ConnectorConfigurationException extends Exception {
   }
 
   /**
-   * Same as {@link #ConnectorConfigurationException(int, Object[])} but takes one additional parameter to
-   * indicate the exception that caused this exception.
+   * Same as {@link #ConnectorConfigurationException(int, Object[])} but takes one additional
+   * parameter to indicate the exception that caused this exception.
    *
    * @param msgCode The code of the error string to load.
    * @param cause The original exception that caused this exception to be thrown, may be <code>null
@@ -163,7 +159,7 @@ public class ConnectorConfigurationException extends Exception {
    * object. The format is:
    *
    * <pre>
-<code>
+   * <code>
    * &lt;!ELEMENT PSXDeployException (Arg*)
    * &lt;!ATTLIST PSXDeployException
    *    msgCode CDATA #REQUIRED
@@ -171,7 +167,7 @@ public class ConnectorConfigurationException extends Exception {
    * >
    * &lt;!ELEMENT Arg (#PCDATA)>
    * </code>
-</pre>
+   * </pre>
    *
    * @param doc The document to use to create the element, may not be <code>null</code>.
    * @return the newly created XML element node, never <code>null</code>

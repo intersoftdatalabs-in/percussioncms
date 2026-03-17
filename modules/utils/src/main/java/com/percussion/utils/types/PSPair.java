@@ -26,7 +26,6 @@ import org.apache.commons.lang3.builder.ToStringStyle;
  *
  * @param <A> the type of the first element
  * @param <B> the type of the second element
- *
  * @author dougrand
  */
 public class PSPair<A, B> {

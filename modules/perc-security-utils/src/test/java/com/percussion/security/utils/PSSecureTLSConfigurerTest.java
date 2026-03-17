@@ -111,10 +111,7 @@ class PSSecureTLSConfigurerTest {
 
       assertNotNull(context1, "First context should not be null");
       assertNotNull(context2, "Second context should not be null");
-      assertEquals(
-          context1.getProtocol(),
-          context2.getProtocol(),
-          "Should use same protocol");
+      assertEquals(context1.getProtocol(), context2.getProtocol(), "Should use same protocol");
     }
   }
 
@@ -126,8 +123,8 @@ class PSSecureTLSConfigurerTest {
     @DisplayName("Should validate with default hostname verifier")
     void testValidateWithDefaultVerifier() {
       HostnameVerifier defaultVerifier = PSSecureTLSConfigurer.getDefaultHostnameVerifier();
-      boolean result = PSSecureTLSConfigurer.validateHostnameVerification(
-          "percussion.com", defaultVerifier);
+      boolean result =
+          PSSecureTLSConfigurer.validateHostnameVerification("percussion.com", defaultVerifier);
 
       assertTrue(result, "Should validate default verifier");
     }
@@ -180,11 +177,7 @@ class PSSecureTLSConfigurerTest {
       HostnameVerifier verifier = PSSecureTLSConfigurer.getDefaultHostnameVerifier();
 
       String[] validHostnames = {
-        "percussion.com",
-        "example.org",
-        "localhost",
-        "192.168.1.1",
-        "subdomain.example.com"
+        "percussion.com", "example.org", "localhost", "192.168.1.1", "subdomain.example.com"
       };
 
       for (String hostname : validHostnames) {
@@ -205,8 +198,7 @@ class PSSecureTLSConfigurerTest {
       SSLContext context = PSSecureTLSConfigurer.getDefaultSSLContext();
 
       assertTrue(
-          PSSecureTLSConfigurer.isSecureSSLContext(context),
-          "Default context should be secure");
+          PSSecureTLSConfigurer.isSecureSSLContext(context), "Default context should be secure");
     }
 
     @Test
@@ -228,9 +220,7 @@ class PSSecureTLSConfigurerTest {
       assertTrue(
           protocol.equalsIgnoreCase("Default") || protocol.toUpperCase().contains("TLS"),
           "Should use Default or TLS protocol: " + protocol);
-      assertTrue(
-          PSSecureTLSConfigurer.isSecureSSLContext(tlsContext),
-          "Context should be secure");
+      assertTrue(PSSecureTLSConfigurer.isSecureSSLContext(tlsContext), "Context should be secure");
     }
   }
 
@@ -337,9 +327,7 @@ class PSSecureTLSConfigurerTest {
       assertTrue(
           PSSecureTLSConfigurer.validateHostnameVerification("example.com", verifier),
           "Should allow verifier for valid hostname");
-      assertTrue(
-          PSSecureTLSConfigurer.isSecureSSLContext(context),
-          "Should use secure context");
+      assertTrue(PSSecureTLSConfigurer.isSecureSSLContext(context), "Should use secure context");
     }
 
     @Test
@@ -379,10 +367,7 @@ class PSSecureTLSConfigurerTest {
           protocol.equalsIgnoreCase("Default") || protocol.toUpperCase().contains("TLS"),
           "Should negotiate secure protocol (Default or TLS)");
 
-      assertNotEquals(
-          "SSL",
-          protocol,
-          "Should not use deprecated SSL protocol");
+      assertNotEquals("SSL", protocol, "Should not use deprecated SSL protocol");
     }
   }
 }

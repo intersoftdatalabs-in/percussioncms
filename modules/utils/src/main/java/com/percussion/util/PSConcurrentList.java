@@ -37,11 +37,9 @@ public class PSConcurrentList<T> implements List<T> {
     list = new ArrayList<>();
   }
 
-
   public PSConcurrentList(Class<T> clazz) {
     list = new ArrayList<>();
   }
-
 
   public PSConcurrentList(Class<?> clazz, int capacity) {
     list = new ArrayList<>(capacity);
@@ -63,7 +61,8 @@ public class PSConcurrentList<T> implements List<T> {
   }
 
   /**
-   * Returns <code>true</code> if this list contains all of the elements of the specified collection.
+   * Returns <code>true</code> if this list contains all of the elements of the specified
+   * collection.
    *
    * @param c collection to be checked for containment in this list
    * @return <code>true</code> if this list contains all of the elements of the specified collection
@@ -97,8 +96,8 @@ public class PSConcurrentList<T> implements List<T> {
    *
    * @param c collection containing elements to be added to this list
    * @return <code>true</code> if this list changed as a result of the call
-   * @throws UnsupportedOperationException if the <code>addAll</code> operation is not supported by this
-   *     list
+   * @throws UnsupportedOperationException if the <code>addAll</code> operation is not supported by
+   *     this list
    * @throws ClassCastException if the class of an element of the specified collection prevents it
    *     from being added to this list
    * @throws NullPointerException if the specified collection contains one or more null elements and
@@ -132,15 +131,16 @@ public class PSConcurrentList<T> implements List<T> {
    * @param index index at which to insert the first element from the specified collection
    * @param c collection containing elements to be added to this list
    * @return <code>true</code> if this list changed as a result of the call
-   * @throws UnsupportedOperationException if the <code>addAll</code> operation is not supported by this
-   *     list
+   * @throws UnsupportedOperationException if the <code>addAll</code> operation is not supported by
+   *     this list
    * @throws ClassCastException if the class of an element of the specified collection prevents it
    *     from being added to this list
    * @throws NullPointerException if the specified collection contains one or more null elements and
    *     this list does not permit null elements, or if the specified collection is null
    * @throws IllegalArgumentException if some property of an element of the specified collection
    *     prevents it from being added to this list
-   * @throws IndexOutOfBoundsException if the index is out of range (<code>index &lt; 0 || index &gt;
+   * @throws IndexOutOfBoundsException if the index is out of range (<code>
+   *     index &lt; 0 || index &gt;
    *     size()</code>)
    */
   @Override
@@ -162,8 +162,8 @@ public class PSConcurrentList<T> implements List<T> {
    *
    * @param c collection containing elements to be removed from this list
    * @return <code>true</code> if this list changed as a result of the call
-   * @throws UnsupportedOperationException if the <code>removeAll</code> operation is not supported by
-   *     this list
+   * @throws UnsupportedOperationException if the <code>removeAll</code> operation is not supported
+   *     by this list
    * @throws ClassCastException if the class of an element of this list is incompatible with the
    *     specified collection (<a href="Collection.html#optional-restrictions">optional</a>)
    * @throws NullPointerException if this list contains a null element and the specified collection
@@ -193,8 +193,8 @@ public class PSConcurrentList<T> implements List<T> {
    *
    * @param c collection containing elements to be retained in this list
    * @return <code>true</code> if this list changed as a result of the call
-   * @throws UnsupportedOperationException if the <code>retainAll</code> operation is not supported by
-   *     this list
+   * @throws UnsupportedOperationException if the <code>retainAll</code> operation is not supported
+   *     by this list
    * @throws ClassCastException if the class of an element of this list is incompatible with the
    *     specified collection (<a href="Collection.html#optional-restrictions">optional</a>)
    * @throws NullPointerException if this list contains a null element and the specified collection
@@ -228,7 +228,7 @@ public class PSConcurrentList<T> implements List<T> {
    * @throws NullPointerException if the specified operator is null or if the operator result is a
    *     null value and this list does not permit null elements (<a
    *     href="Collection.html#optional-restrictions">optional</a>)
-<!-- * @implNote The default implementation is equivalent to, for this {@code list}: -->
+   *     <!-- * @implNote The default implementation is equivalent to, for this {@code list}: -->
    *     <pre>{@code
    * final ListIterator<E> li = list.listIterator();
    * while (li.hasNext()) {
@@ -320,15 +320,16 @@ public class PSConcurrentList<T> implements List<T> {
    * @param index index of the element to replace
    * @param element element to be stored at the specified position
    * @return the element previously at the specified position
-   * @throws UnsupportedOperationException if the <code>set</code> operation is not supported by this
-   *     list
+   * @throws UnsupportedOperationException if the <code>set</code> operation is not supported by
+   *     this list
    * @throws ClassCastException if the class of the specified element prevents it from being added
    *     to this list
    * @throws NullPointerException if the specified element is null and this list does not permit
    *     null elements
    * @throws IllegalArgumentException if some property of the specified element prevents it from
    *     being added to this list
-   * @throws IndexOutOfBoundsException if the index is out of range (<code>index &lt; 0 || index &gt;=
+   * @throws IndexOutOfBoundsException if the index is out of range (<code>
+   *     index &lt; 0 || index &gt;=
    *     size()</code>)
    */
   @Override
@@ -350,15 +351,16 @@ public class PSConcurrentList<T> implements List<T> {
    *
    * @param index index at which the specified element is to be inserted
    * @param element element to be inserted
-   * @throws UnsupportedOperationException if the <code>add</code> operation is not supported by this
-   *     list
+   * @throws UnsupportedOperationException if the <code>add</code> operation is not supported by
+   *     this list
    * @throws ClassCastException if the class of the specified element prevents it from being added
    *     to this list
    * @throws NullPointerException if the specified element is null and this list does not permit
    *     null elements
    * @throws IllegalArgumentException if some property of the specified element prevents it from
    *     being added to this list
-   * @throws IndexOutOfBoundsException if the index is out of range (<code>index &lt; 0 || index &gt;
+   * @throws IndexOutOfBoundsException if the index is out of range (<code>
+   *     index &lt; 0 || index &gt;
    *     size()</code>)
    */
   @Override
@@ -379,9 +381,10 @@ public class PSConcurrentList<T> implements List<T> {
    *
    * @param index the index of the element to be removed
    * @return the element previously at the specified position
-   * @throws UnsupportedOperationException if the <code>remove</code> operation is not supported by this
-   *     list
-   * @throws IndexOutOfBoundsException if the index is out of range (<code>index &lt; 0 || index &gt;=
+   * @throws UnsupportedOperationException if the <code>remove</code> operation is not supported by
+   *     this list
+   * @throws IndexOutOfBoundsException if the index is out of range (<code>
+   *     index &lt; 0 || index &gt;=
    *     size()</code>)
    */
   @Override
@@ -412,8 +415,8 @@ public class PSConcurrentList<T> implements List<T> {
   /**
    * Returns the index of the last occurrence of the specified element in this list, or -1 if this
    * list does not contain the element. More formally, returns the highest index <code>i</code> such
-   * that <code>(o==null&nbsp;?&nbsp;get(i)==null&nbsp;:&nbsp;o.equals(get(i)))</code>, or -1 if there
-   * is no such index.
+   * that <code>(o==null&nbsp;?&nbsp;get(i)==null&nbsp;:&nbsp;o.equals(get(i)))</code>, or -1 if
+   * there is no such index.
    *
    * @param o element to search for
    * @return the index of the last occurrence of the specified element in this list, or -1 if this
@@ -477,11 +480,11 @@ public class PSConcurrentList<T> implements List<T> {
   }
 
   /**
-   * Returns a view of the portion of this list between the specified <code>fromIndex</code>, inclusive,
-   * and <code>toIndex</code>, exclusive. (If <code>fromIndex</code> and <code>toIndex</code> are equal, the
-   * returned list is empty.) The returned list is backed by this list, so non-structural changes in
-   * the returned list are reflected in this list, and vice-versa. The returned list supports all of
-   * the optional list operations supported by this list.
+   * Returns a view of the portion of this list between the specified <code>fromIndex</code>,
+   * inclusive, and <code>toIndex</code>, exclusive. (If <code>fromIndex</code> and <code>toIndex
+   * </code> are equal, the returned list is empty.) The returned list is backed by this list, so
+   * non-structural changes in the returned list are reflected in this list, and vice-versa. The
+   * returned list supports all of the optional list operations supported by this list.
    *
    * <p>
    *
@@ -494,8 +497,8 @@ public class PSConcurrentList<T> implements List<T> {
    * list.subList(from, to).clear();
    * }</pre>
    *
-   * Similar idioms may be constructed for <code>indexOf</code> and <code>lastIndexOf</code>, and all of the
-   * algorithms in the <code>Collections</code> class can be applied to a subList.
+   * Similar idioms may be constructed for <code>indexOf</code> and <code>lastIndexOf</code>, and
+   * all of the algorithms in the <code>Collections</code> class can be applied to a subList.
    *
    * <p>
    *
@@ -507,7 +510,8 @@ public class PSConcurrentList<T> implements List<T> {
    * @param fromIndex low endpoint (inclusive) of the subList
    * @param toIndex high endpoint (exclusive) of the subList
    * @return a view of the specified range within this list
-   * @throws IndexOutOfBoundsException for an illegal endpoint index value (<code>fromIndex &lt; 0 ||
+   * @throws IndexOutOfBoundsException for an illegal endpoint index value (<code>
+   *     fromIndex &lt; 0 ||
    *     toIndex &gt; size || fromIndex &gt; toIndex</code>)
    */
   @Override
@@ -560,21 +564,22 @@ public class PSConcurrentList<T> implements List<T> {
    *
    * <p>If the list fits in the specified array with room to spare (i.e., the array has more
    * elements than the list), the element in the array immediately following the end of the list is
-   * set to <code>null</code>. (This is useful in determining the length of the list <i>only</i> if the
-   * caller knows that the list does not contain any null elements.)
+   * set to <code>null</code>. (This is useful in determining the length of the list <i>only</i> if
+   * the caller knows that the list does not contain any null elements.)
    *
    * <p>Like the {@link #toArray()} method, this method acts as bridge between array-based and
    * collection-based APIs. Further, this method allows precise control over the runtime type of the
    * output array, and may, under certain circumstances, be used to save allocation costs.
    *
-   * <p>Suppose <code>x</code> is a list known to contain only strings. The following code can be used
-   * to dump the list into a newly allocated array of <code>String</code>:
+   * <p>Suppose <code>x</code> is a list known to contain only strings. The following code can be
+   * used to dump the list into a newly allocated array of <code>String</code>:
    *
    * <pre>{@code
    * String[] y = x.toArray(new String[0]);
    * }</pre>
    *
-   * <p>Note that <code>toArray(new Object[0])</code> is identical in function to <code>toArray()</code>.
+   * <p>Note that <code>toArray(new Object[0])</code> is identical in function to <code>toArray()
+   * </code>.
    *
    * @param a the array into which the elements of this list are to be stored, if it is big enough;
    *     otherwise, a new array of the same runtime type is allocated for this purpose.
@@ -619,11 +624,11 @@ public class PSConcurrentList<T> implements List<T> {
    *     set} operation
    * @throws IllegalArgumentException (<a href="Collection.html#optional-restrictions">optional</a>)
    *     if the comparator is found to violate the {@link Comparator} contract
-<!-- * @implNote The default implementation obtains an array containing all elements in this list, -->
+   *     <!-- * @implNote The default implementation obtains an array containing all elements in this list, -->
    *     sorts the array, and iterates over this list resetting each element from the corresponding
    *     position in the array. (This avoids the n<sup>2</sup> log(n) performance that would result
    *     from attempting to sort a linked list in place.)
-<!-- * @implNote This implementation is a stable, adaptive, iterative mergesort that requires far -->
+   *     <!-- * @implNote This implementation is a stable, adaptive, iterative mergesort that requires far -->
    *     fewer than n lg(n) comparisons when the input array is partially sorted, while offering the
    *     performance of a traditional mergesort when the input array is randomly ordered. If the
    *     input array is nearly sorted, the implementation requires approximately n comparisons.

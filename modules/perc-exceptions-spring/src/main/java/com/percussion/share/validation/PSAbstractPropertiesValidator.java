@@ -47,7 +47,6 @@ public abstract class PSAbstractPropertiesValidator<PROPERTIES> implements Valid
 
   protected abstract void doValidation(PROPERTIES properties, PSPropertiesValidationException e);
 
-
   public void validate(Object properties, Errors errors) {
     doValidation((PROPERTIES) properties, (PSPropertiesValidationException) errors);
   }

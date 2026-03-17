@@ -94,7 +94,7 @@ public class PSCommandLineProcessor {
    * Method to set the configuration document and initializes the log file. {@link process} cannot
    * be run without the configuration document set.
    *
-   * @param cfgDoc must not be </code>null</code>
+   * @param cfgDoc must not be <code>null</code>
    * @throws IllegalArgumentException if cfgDoc is <code>null</code>
    * @throws IOException if there is any error setting the output log file
    */

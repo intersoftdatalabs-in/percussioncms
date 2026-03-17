@@ -598,7 +598,7 @@ public class PSTDToolDialog extends JPanel {
    * <p>Example - create a new filter that filerts out all files but gif and jpg image files:
    *
    * <p>JFileChooser chooser = new JFileChooser(); PSFileFilter filter = new PSFileFilter( new
-   * String{"gif", "jpg"}, "JPEG & GIF Images") chooser.addChoosableFileFilter(filter);
+   * String{"gif", "jpg"}, "JPEG &amp; GIF Images") chooser.addChoosableFileFilter(filter);
    * chooser.showOpenDialog(this);
    */
   protected class PSFileFilter extends FileFilter {

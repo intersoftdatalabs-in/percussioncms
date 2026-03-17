@@ -261,7 +261,7 @@ public class PSI18nUtils implements IPSI18nUtils {
 
   /**
    * This helper method returns the <code>java.util.Locale object</code> from the locale string
-   * supplied. The locale string must be in the syntax of <language>-<country>-<varaint>, e.g.
+   * supplied. The locale string must be in the syntax of &lt;language&gt;-&lt;country&gt;-&lt;variant&gt;, e.g.
    * "en-us" or "ja-jp". The language and country strings must follow the ISO codes.
    *
    * @param languageString e.g. "en-us"

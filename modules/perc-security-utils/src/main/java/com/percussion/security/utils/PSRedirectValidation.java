@@ -24,11 +24,11 @@ import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
 
 /**
- * Utility class for validating and securing HTTP redirects to prevent CWE-601 (URL Redirection
- * to Untrusted Site / Open Redirect) attacks.
+ * Utility class for validating and securing HTTP redirects to prevent CWE-601 (URL Redirection to
+ * Untrusted Site / Open Redirect) attacks.
  *
- * <p><strong>Security Pattern</strong>: All user-supplied redirect URLs must be validated against
- * a whitelist of allowed domains and paths before being used in HTTP responses.
+ * <p><strong>Security Pattern</strong>: All user-supplied redirect URLs must be validated against a
+ * whitelist of allowed domains and paths before being used in HTTP responses.
  *
  * <p><strong>Example Usage</strong>:
  *
@@ -88,7 +88,8 @@ public class PSRedirectValidation {
     }
 
     // Reject data URIs and JavaScript URIs
-    if (trimmedUrl.toLowerCase().startsWith("data:") || trimmedUrl.toLowerCase().startsWith("javascript:")) {
+    if (trimmedUrl.toLowerCase().startsWith("data:")
+        || trimmedUrl.toLowerCase().startsWith("javascript:")) {
       return null;
     }
 
@@ -168,8 +169,8 @@ public class PSRedirectValidation {
   }
 
   /**
-   * Checks if a domain matches the whitelist. Supports exact matches and subdomain matching
-   * (e.g., "sub.example.com" matches whitelist entry "example.com").
+   * Checks if a domain matches the whitelist. Supports exact matches and subdomain matching (e.g.,
+   * "sub.example.com" matches whitelist entry "example.com").
    *
    * @param host the host to check
    * @param allowedDomains set of allowed domains
@@ -200,8 +201,8 @@ public class PSRedirectValidation {
   }
 
   /**
-   * Creates a default whitelist containing the current application's domain. Commonly used to
-   * allow redirects to the same host.
+   * Creates a default whitelist containing the current application's domain. Commonly used to allow
+   * redirects to the same host.
    *
    * @param currentDomain the application's domain (e.g., "example.com")
    * @return a whitelist set containing the provided domain

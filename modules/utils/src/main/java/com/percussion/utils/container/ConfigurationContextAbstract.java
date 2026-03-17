@@ -26,6 +26,7 @@ import org.apache.commons.beanutils.BeanUtils;
 
 /**
  * Abstract base class for configuration contexts.
+ *
  * @param <T> the configuration context type
  * @param <U> the container configuration type
  */
@@ -41,6 +42,7 @@ public abstract class ConfigurationContextAbstract<
 
   /**
    * Constructs a new configuration context with the given constructor.
+   *
    * @param ctor the constructor for the configuration object
    */
   public ConfigurationContextAbstract(Supplier<U> ctor) {
@@ -68,20 +70,21 @@ public abstract class ConfigurationContextAbstract<
     return config;
   }
 
-   @Override
-   @SuppressWarnings("unchecked")
-   public void load() {
-     load((T) this);
-   }
+  @Override
+  @SuppressWarnings("unchecked")
+  public void load() {
+    load((T) this);
+  }
 
-   @Override
-   @SuppressWarnings("unchecked")
-   public void save() {
-     save((T) this);
+  @Override
+  @SuppressWarnings("unchecked")
+  public void save() {
+    save((T) this);
   }
 
   /**
    * Copies configuration from another context.
+   *
    * @param from the source context to copy from
    */
   public void copyFrom(ConfigurationContextAbstract<T, U> from) {

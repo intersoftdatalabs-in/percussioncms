@@ -17,7 +17,6 @@
 
 package com.percussion.error;
 
-import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import org.apache.logging.log4j.LogManager;
@@ -67,16 +66,16 @@ public class PSExceptionUtils {
     return getMessageForLog((Throwable) exception);
   }
 
-    /**
-     * Use when outputting stack trace etc to debug log.
-     *
-     * @param e A valid exception
-     * @return A safe debug string to wrote to the log.
-     */
-    public static String getDebugMessageForLog(Exception e) {
-      StringWriter sw = new StringWriter();
-      PrintWriter pw = new PrintWriter(sw);
-      e.printStackTrace(pw);
-      return sw.toString().trim();
-    }
+  /**
+   * Use when outputting stack trace etc to debug log.
+   *
+   * @param e A valid exception
+   * @return A safe debug string to wrote to the log.
+   */
+  public static String getDebugMessageForLog(Exception e) {
+    StringWriter sw = new StringWriter();
+    PrintWriter pw = new PrintWriter(sw);
+    e.printStackTrace(pw);
+    return sw.toString().trim();
+  }
 }

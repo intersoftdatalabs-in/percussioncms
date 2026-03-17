@@ -334,17 +334,13 @@ public class InstallUtil {
   }
 
   /**
-   * Checks if the specified table exists for the specified database and
-   * schema.
+   * Checks if the specified table exists for the specified database and schema.
    *
    * @param table the table to look for, may not be <code>null</code>
    * @param conn the connection to the database, may not be <code>null</code>
    * @param database the name of the database, may not be <code>null</code>
    * @param schema the schema for this connection, may not be <code>null</code>
-   *
-   * @return <code>true</code> if the database contains the table,
-   *         <code>false</code> otherwise.
-   *
+   * @return <code>true</code> if the database contains the table, <code>false</code> otherwise.
    * @throws SQLException
    */
   public static boolean checkTableExists(
@@ -751,25 +747,25 @@ public class InstallUtil {
     return isRunning;
   }
 
-   /** THis is a utility method to shutdown Derby Server. CMS-5932 */
-   public static void shutDownDerby() {
-       Connection cn = null;
-       try {
-           cn = DriverManager.getConnection("jdbc:derby:;shutdown=true");
-       } catch (SQLException e) {
-           if ("XJ015".equals(e.getSQLState())) {
-               PSLogger.logInfo("Derby shutdown succeeded. SQLState=" + e.getSQLState());
-           }
-       } finally {
-           if (cn != null) {
-               try {
-                   cn.close();
-               } catch (SQLException e) {
-                   // Ignore
-               }
-           }
-       }
-   }
+  /** THis is a utility method to shutdown Derby Server. CMS-5932 */
+  public static void shutDownDerby() {
+    Connection cn = null;
+    try {
+      cn = DriverManager.getConnection("jdbc:derby:;shutdown=true");
+    } catch (SQLException e) {
+      if ("XJ015".equals(e.getSQLState())) {
+        PSLogger.logInfo("Derby shutdown succeeded. SQLState=" + e.getSQLState());
+      }
+    } finally {
+      if (cn != null) {
+        try {
+          cn.close();
+        } catch (SQLException e) {
+          // Ignore
+        }
+      }
+    }
+  }
 
   public static boolean isDerbyRunning(String dirName) {
     boolean isRunning = false;
@@ -1110,7 +1106,9 @@ public class InstallUtil {
           return conn;
         }
       } catch (Exception ex) {
-        logInfo("Could not instantiate driver from system classpath, will continue with other methods: " + ex.getMessage());
+        logInfo(
+            "Could not instantiate driver from system classpath, will continue with other methods: "
+                + ex.getMessage());
       }
     } catch (ClassNotFoundException ex) {
       logInfo("Driver not found on system classpath, attempting other loading methods");

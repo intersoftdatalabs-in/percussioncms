@@ -21,9 +21,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 
-/**
- * Provides common exception utilities for logging and message extraction.
- */
+/** Provides common exception utilities for logging and message extraction. */
 public class PSExceptionUtils {
 
   // Logger removed as it was unused.

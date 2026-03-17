@@ -22,6 +22,7 @@ package com.percussion.error;
  */
 public class PSRelationshipException extends PSException {
   private static final long serialVersionUID = 1L;
+
   /**
    * Pass-through constructor to super class.
    *

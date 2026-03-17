@@ -18,20 +18,19 @@ package com.percussion.security.validation;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /**
- * Utility class for validating file paths against path traversal and ZipSlip attacks
- * (CWE-22: Improper Limitation of a Pathname to a Restricted Directory).
+ * Utility class for validating file paths against path traversal and ZipSlip attacks (CWE-22:
+ * Improper Limitation of a Pathname to a Restricted Directory).
  *
  * <p>Provides methods to safely construct and validate file paths, preventing attackers from using
  * path traversal patterns (e.g., `../../../etc/passwd`) or symbolic links to escape the allowed
  * directory.
  *
  * <p><strong>Threat Model:</strong>
+ *
  * <ul>
  *   <li><strong>Path Traversal:</strong> User input like `../../etc/passwd` combined with a base
  *       directory to escape that directory's bounds
@@ -42,6 +41,7 @@ import org.apache.logging.log4j.Logger;
  * </ul>
  *
  * <p><strong>Key Security Properties:</strong>
+ *
  * <ul>
  *   <li>✅ Resolves `..` and `.` components before comparison
  *   <li>✅ Prevents absolute paths in user input (e.g., `/etc/passwd`)
@@ -97,6 +97,7 @@ public class PathValidation {
    * ensuring the resulting path remains within the base directory.
    *
    * <p>This method prevents path traversal attacks (CWE-22) by:
+   *
    * <ol>
    *   <li>Rejecting absolute paths in userPath
    *   <li>Resolving `..` and `.` components
@@ -107,16 +108,16 @@ public class PathValidation {
    * @param userPath The user-supplied relative path component (e.g., filename or relative path).
    *     May contain `/` for subdirectories but cannot use `..` to escape baseDir.
    * @return A File object pointing to the safe path within baseDir
-   * @throws SecurityException if: <ul>
-   *           <li>userPath is absolute
-   *           <li>The resolved path escapes baseDir (e.g., contains `../..`)
-   *           <li>baseDir doesn't exist or is not a directory
-   *         </ul>
+   * @throws SecurityException if:
+   *     <ul>
+   *       <li>userPath is absolute
+   *       <li>The resolved path escapes baseDir (e.g., contains `../..`)
+   *       <li>baseDir doesn't exist or is not a directory
+   *     </ul>
+   *
    * @throws IllegalArgumentException if userPath is null or empty
-   *
-   * <p><strong>Example:</strong>
-   *
-   * <pre>
+   *     <p><strong>Example:</strong>
+   *     <pre>
    * File baseDir = new File("/app/uploads");
    * File safe = PathValidation.constructSafePath(baseDir, "user-data.txt");
    * // Returns /app/uploads/user-data.txt
@@ -134,8 +135,8 @@ public class PathValidation {
    *
    * @param baseDir The trusted base directory
    * @param userPath The user-supplied relative path
-   * @param checkSymlinks If true, detects symlinks that escape baseDir. Slower but more secure
-   *     for high-security environments.
+   * @param checkSymlinks If true, detects symlinks that escape baseDir. Slower but more secure for
+   *     high-security environments.
    * @return Safe File object within baseDir
    * @throws SecurityException if escape/symlink attack detected
    * @throws IllegalArgumentException if inputs invalid
@@ -206,10 +207,8 @@ public class PathValidation {
    * @return The pathToCheck if validation succeeds
    * @throws SecurityException if pathToCheck is not within allowedParentDir
    * @throws IllegalArgumentException if inputs invalid
-   *
-   * <p><strong>Example:</strong>
-   *
-   * <pre>
+   *     <p><strong>Example:</strong>
+   *     <pre>
    * File userDir = new File(System.getProperty("user.dir"), userInput);
    * File safe = PathValidation.validatePathWithinDirectory(userDir, new File("/app/data"));
    * // Throws SecurityException if userDir not under /app/data
@@ -254,17 +253,15 @@ public class PathValidation {
    *
    * <p>Each component is validated before combining, providing defense-in-depth.
    *
-   * <p>Components do not need to exist on disk. This method validates that the final composed
-   * path cannot escape baseDir, even if intermediate paths don't exist.
+   * <p>Components do not need to exist on disk. This method validates that the final composed path
+   * cannot escape baseDir, even if intermediate paths don't exist.
    *
    * @param baseDir Starting directory
    * @param pathComponents User-supplied path components (e.g., directory names, filenames)
    * @return Safe combined path
    * @throws SecurityException if any component attempts escape
-   *
-   * <p><strong>Example:</strong>
-   *
-   * <pre>
+   *     <p><strong>Example:</strong>
+   *     <pre>
    * File result = PathValidation.combineSafePaths(
    *     baseDir,
    *     "themes",            // User theme name
@@ -299,8 +296,7 @@ public class PathValidation {
 
       if (component.contains("..") || component.startsWith(".") && !component.equals(".")) {
         log.warn("Path traversal attempt: escape component: {}", component);
-        throw new SecurityException(
-            "Component attempts path escape: " + component + " (CWE-22)");
+        throw new SecurityException("Component attempts path escape: " + component + " (CWE-22)");
       }
 
       current = new File(current, component);
@@ -311,8 +307,8 @@ public class PathValidation {
       String baseDirCanonical = baseDir.getCanonicalPath();
       String finalCanonical = current.getCanonicalPath();
 
-      if (!finalCanonical.startsWith(baseDirCanonical + File.separator) &&
-          !finalCanonical.equals(baseDirCanonical)) {
+      if (!finalCanonical.startsWith(baseDirCanonical + File.separator)
+          && !finalCanonical.equals(baseDirCanonical)) {
         throw new SecurityException(
             "Combined path escapes baseDir bounds: " + finalCanonical + " (CWE-22)");
       }
@@ -327,8 +323,8 @@ public class PathValidation {
    * Validates that a filename contains only safe characters (no path separators or control
    * characters).
    *
-   * <p>Use this for simple filename validation when you only accept single-level filenames
-   * (no directory structure).
+   * <p>Use this for simple filename validation when you only accept single-level filenames (no
+   * directory structure).
    *
    * @param filename The filename to validate
    * @return true if filename is safe (no path separators, null bytes, etc.)
@@ -357,21 +353,21 @@ public class PathValidation {
     return true;
   }
 
-   /**
-    * SecurityException thrown when path validation fails.
-    *
-    * <p>Indicates a potential path traversal (CWE-22) or ZipSlip attack.
-    */
-   public static class SecurityException extends RuntimeException {
-     /** */
-     private static final long serialVersionUID = 1L;
+  /**
+   * SecurityException thrown when path validation fails.
+   *
+   * <p>Indicates a potential path traversal (CWE-22) or ZipSlip attack.
+   */
+  public static class SecurityException extends RuntimeException {
+    /** */
+    private static final long serialVersionUID = 1L;
 
-     public SecurityException(String message) {
-       super(message);
-     }
+    public SecurityException(String message) {
+      super(message);
+    }
 
-     public SecurityException(String message, Throwable cause) {
-       super(message, cause);
-     }
-   }
+    public SecurityException(String message, Throwable cause) {
+      super(message, cause);
+    }
+  }
 }

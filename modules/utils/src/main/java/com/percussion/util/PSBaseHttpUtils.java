@@ -306,10 +306,10 @@ public class PSBaseHttpUtils {
    *
    * <p>This is a simple implementation and does not conform to the full http URL specification.
    *
-   * @param query A string of the form [path?]p1=v1 and p2=v2... where [path?] is optional (searches for:
-   *     the first occurrence of ? and only uses rest of supplied string), px is the parameter name
-   *     and vx is the value (which may be missing.) Parameter names may appear more than once. May
-   *     be <code>null</code> or empty.
+   * @param query A string of the form [path?]p1=v1 and p2=v2... where [path?] is optional (searches
+   *     for: the first occurrence of ? and only uses rest of supplied string), px is the parameter
+   *     name and vx is the value (which may be missing.) Parameter names may appear more than once.
+   *     May be <code>null</code> or empty.
    * @param lowerCaseNames If <code>true</code>, the names are lower-cased before being added to the
    *     returned map.
    * @param urlDecode If <code>true</code>, the name and value will be decoded, otherwise they will
@@ -317,7 +317,6 @@ public class PSBaseHttpUtils {
    * @return Never <code>null</code>.
    * @throws RuntimeException If the query param string is malformed.
    */
-
   public static Map<String, Object> parseQueryParamsString(
       String query, boolean lowerCaseNames, boolean urlDecode) {
     Map<String, Object> results = new HashMap<>();
@@ -378,7 +377,7 @@ public class PSBaseHttpUtils {
    * name/value pair is removed from the url, otherwise, the URL is unmodified.
    *
    * @param url May be <code>null</code> or empty. A URL of the form <code>
-   *     [path[?p1=[v1][&p2=[v2]]]]</code>.
+   *     [path[?p1=[v1] and p2=[v2]]]]</code>.
    * @param paramName Anything allowed. Nothing is done to the name before comparing to the query
    *     params in the URL.
    * @return The supplied URL, without the param whose name matched the supplied one.
@@ -417,7 +416,6 @@ public class PSBaseHttpUtils {
    *     otherwise they will be added to the map as is.
    * @return The generated string. Never <code>null</code>, may be empty.
    */
-
   public static String addQueryParams(String path, Map<String, Object> params, boolean urlEncode) {
     StringBuilder result = new StringBuilder();
     if (path != null) result.append(path);
@@ -434,7 +432,8 @@ public class PSBaseHttpUtils {
       Object o = params.get(key);
       if (o instanceof Collection) {
         Collection<?> values = (Collection<?>) o;
-        for (Object value : values) appendKeyValuePair(result, key, String.valueOf(value), urlEncode);
+        for (Object value : values)
+          appendKeyValuePair(result, key, String.valueOf(value), urlEncode);
       } else appendKeyValuePair(result, key, String.valueOf(o), urlEncode);
     }
     // strip off trailing '?' or '&'

@@ -67,7 +67,8 @@ public class PSJdbcDbmsDef implements IPSJdbcDbmsDefConstants {
    *
    * @param serverProps A set of properties that provides connection and basic table information.
    *     May not be <code>null</code>. Properties expected:
-   *     <table>
+   *     <table border="1">
+   * <caption>Server Properties</caption>
    * <tr>
    * <th>Name</th>
    * <th>Description</th>

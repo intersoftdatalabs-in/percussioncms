@@ -72,7 +72,6 @@ public class PSMultiProperty extends PSPropertyWrapper implements IPSJcrCacheIte
    * @throws PSPropertyAccessException
    * @throws RepositoryException
    */
-
   public PSMultiProperty(String property, Node parent, Object rep)
       throws PSPropertyAccessException, RepositoryException {
     super(rep);

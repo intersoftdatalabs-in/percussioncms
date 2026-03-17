@@ -28,7 +28,6 @@ import java.util.List;
 import java.util.Map;
 
 /** This class stores the data for generating the brand code. */
-
 public class PSBrandCodeData {
   /**
    * Constructor

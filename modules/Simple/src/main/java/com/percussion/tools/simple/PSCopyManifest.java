@@ -40,7 +40,7 @@ import org.apache.logging.log4j.Logger;
  * workbench
  *
  * <p>It will also copy the jar files listed in the manifest to the plugin's lib directory under
- * system\eclipse\plugins\<plugin>.
+ * system\eclipse\plugins\&lt;plugin&gt;.
  */
 public class PSCopyManifest {
 

@@ -85,17 +85,17 @@ public abstract class PSLogInformation {
   /**
    * Converts the object and its sub-messages into an XML string.
    *
-   * @param buf the StringBuilder to append the XML to.
+   * @return the XML string representation of this log message.
    *     <p>Example XML format:
-   *     <p>&lt;PSXLogMessage type="foo"&gt;<br/>
-   *     &lt;time&gt;19990204T130923000&lt;/time&gt;<br/>
-   *     &lt;applicationId&gt;foobar&lt;/applicationId&gt;<br/>
-   *     &lt;data type="foobarbaz"&gt;<br/>
-   *     sub message #1 text<br/>
-   *     &lt;/data&gt;<br/>
-   *     &lt;data type="foobarbazcar"&gt;<br/>
-   *     sub message #2 text<br/>
-   *     &lt;/data&gt;<br/>
+   *     <p>&lt;PSXLogMessage type="foo"&gt;<br>
+   *     &lt;time&gt;19990204T130923000&lt;/time&gt;<br>
+   *     &lt;applicationId&gt;foobar&lt;/applicationId&gt;<br>
+   *     &lt;data type="foobarbaz"&gt;<br>
+   *     sub message #1 text<br>
+   *     &lt;/data&gt;<br>
+   *     &lt;data type="foobarbazcar"&gt;<br>
+   *     sub message #2 text<br>
+   *     &lt;/data&gt;<br>
    *     &lt;/PSXLogMessage&gt;
    */
   public String toXMLString() {
@@ -109,15 +109,15 @@ public abstract class PSLogInformation {
    *
    * @param buf the StringBuilder to append the XML to.
    *     <p>Example XML format:
-   *     <p>&lt;PSXLogMessage type="foo"&gt;<br/>
-   *     &lt;time&gt;19990204T130923000&lt;/time&gt;<br/>
-   *     &lt;applicationId&gt;foobar&lt;/applicationId&gt;<br/>
-   *     &lt;data type="foobarbaz"&gt;<br/>
-   *     sub message #1 text<br/>
-   *     &lt;/data&gt;<br/>
-   *     &lt;data type="foobarbazcar"&gt;<br/>
-   *     sub message #2 text<br/>
-   *     &lt;/data&gt;<br/>
+   *     <p>&lt;PSXLogMessage type="foo"&gt;<br>
+   *     &lt;time&gt;19990204T130923000&lt;/time&gt;<br>
+   *     &lt;applicationId&gt;foobar&lt;/applicationId&gt;<br>
+   *     &lt;data type="foobarbaz"&gt;<br>
+   *     sub message #1 text<br>
+   *     &lt;/data&gt;<br>
+   *     &lt;data type="foobarbazcar"&gt;<br>
+   *     sub message #2 text<br>
+   *     &lt;/data&gt;<br>
    *     &lt;/PSXLogMessage&gt;
    */
   public void toXMLString(StringBuilder buf) {
@@ -188,15 +188,15 @@ public abstract class PSLogInformation {
    *
    * @param doc the document to treat as the parent of this node
    * @return An XML tree of the form:
-   *     <p>&lt;PSXLogMessage type="foo"&gt;<br/>
-   *     &lt;time&gt;19990204T130923000&lt;/time&gt;<br/>
-   *     &lt;applicationId&gt;foobar&lt;/applicationId&gt;<br/>
-   *     &lt;data type="foobarbaz"&gt;<br/>
-   *     sub message #1 text<br/>
-   *     &lt;/data&gt;<br/>
-   *     &lt;data type="foobarbazcar"&gt;<br/>
-   *     sub message #2 text<br/>
-   *     &lt;/data&gt;<br/>
+   *     <p>&lt;PSXLogMessage type="foo"&gt;<br>
+   *     &lt;time&gt;19990204T130923000&lt;/time&gt;<br>
+   *     &lt;applicationId&gt;foobar&lt;/applicationId&gt;<br>
+   *     &lt;data type="foobarbaz"&gt;<br>
+   *     sub message #1 text<br>
+   *     &lt;/data&gt;<br>
+   *     &lt;data type="foobarbazcar"&gt;<br>
+   *     sub message #2 text<br>
+   *     &lt;/data&gt;<br>
    *     &lt;/PSXLogMessage&gt;
    */
   public org.w3c.dom.Element toXml(org.w3c.dom.Document doc) {

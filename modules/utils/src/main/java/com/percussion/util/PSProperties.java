@@ -112,19 +112,16 @@ public class PSProperties extends java.util.Properties {
   }
 
   /**
-   * Loads init.properties file from the system if there is one and searches
-   * for the location of the properties. If there is no such a file
-   * it loads the default properties file.
+   * Loads init.properties file from the system if there is one and searches for the location of the
+   * properties. If there is no such a file it loads the default properties file.
    *
-   * @param entry a name of the entry that reperesents module's name/value
-   * pair (for example, "designer_config_base_dir' is the name of workbench's pair)
-   * @param property a name of the file that contains module's properties
-   * (for example, 'designer.properties' for workbench, 'server.properties' for server)
-   * @param dir a constant for the directory containing module's configs.
-   * (for example, 'rxconfig/Workbench' for the workbench)
-   *
-   * @return file a valid file if no exception is thrown, otherwise
-   * <CODE>null</CODE>.
+   * @param entry a name of the entry that reperesents module's name/value pair (for example,
+   *     "designer_config_base_dir' is the name of workbench's pair)
+   * @param property a name of the file that contains module's properties (for example,
+   *     'designer.properties' for workbench, 'server.properties' for server)
+   * @param dir a constant for the directory containing module's configs. (for example,
+   *     'rxconfig/Workbench' for the workbench)
+   * @return file a valid file if no exception is thrown, otherwise <CODE>null</CODE>.
    */
   public static File getConfig(String entry, String property, String dir) {
     File file = null;

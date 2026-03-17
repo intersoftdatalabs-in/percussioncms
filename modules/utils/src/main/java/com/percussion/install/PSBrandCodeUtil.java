@@ -151,7 +151,8 @@ public class PSBrandCodeUtil {
       throws IOException, SAXException, ParserConfigurationException {
     if (null == in) throw new IllegalArgumentException("Input stream may not be null");
     // Use PSSecureXMLUtils for XXE-safe document parsing.
-    var dbf = PSSecureXMLUtils.getSecuredDocumentBuilderFactory(PSXmlSecurityOptions.secureWithDtd());
+    var dbf =
+        PSSecureXMLUtils.getSecuredDocumentBuilderFactory(PSXmlSecurityOptions.secureWithDtd());
     dbf.setNamespaceAware(true);
     dbf.setValidating(false);
     DocumentBuilder db = dbf.newDocumentBuilder();

@@ -38,12 +38,12 @@ public class PSFileFilter implements java.io.FileFilter, java.io.FilenameFilter 
    */
   public static final int IS_INCLUDE_ALL_DIRECTORIES = 8;
 
-  /** Constructs a file filter whose accept() method will always return  */
+  /** Constructs a file filter whose accept() method will always return */
   public PSFileFilter() {}
 
   /**
-   * Constructs a file filter that will return  when and only when, for each
-   * attribute (file, dir, hidden) that a file possesses, the corresponding bit in <code>
+   * Constructs a file filter that will return when and only when, for each attribute (file, dir,
+   * hidden) that a file possesses, the corresponding bit in <code>
    * allowableAttributes</code> is turned on.
    */
   public PSFileFilter(int allowableAttributes) {
@@ -51,8 +51,8 @@ public class PSFileFilter implements java.io.FileFilter, java.io.FilenameFilter 
   }
 
   /**
-   * Constructs a file filter that will return  when and only when the file's
-   * length (as returned by java.io.File.length()) is >=  AND <= <code>
+   * Constructs a file filter that will return when and only when the file's length (as returned by
+   * java.io.File.length()) is &gt;= minLength AND &lt;= maxLength<code>
    * maxLength</code>.
    */
   public PSFileFilter(long minLength, long maxLength) {
@@ -60,29 +60,28 @@ public class PSFileFilter implements java.io.FileFilter, java.io.FilenameFilter 
   }
 
   /**
-   * Constructs a file filter that will return  when and only when the file's
-   * modification date (as returned by java.io.File.lastModified()) is >= <code>earliestModified
-   * </code> AND <= .
+   * Constructs a file filter that will return when and only when the file's modification date (as
+   * returned by java.io.File.lastModified()) is >= <code>earliestModified
+   * </code> AND less than or equal to.
    */
   public PSFileFilter(Date earliestModified, Date latestModified) {
     setEarliestLatestModified(earliestModified, latestModified);
   }
 
   /**
-   * Constructs a file filter that will return  when and only when the file's name
-   * (as returned by java.io.File.getName()) matches the given pattern matcher.
+   * Constructs a file filter that will return when and only when the file's name (as returned by
+   * java.io.File.getName()) matches the given pattern matcher.
    */
   public PSFileFilter(PSPatternMatcher namePattern) {
     setNamePattern(namePattern);
   }
 
   /**
-   * Constructs a file filter that will return  when and only when all of the
-   * following conditions are met:
+   * Constructs a file filter that will return when and only when all of the following conditions
+   * are met:
    *
    * <UL>
-   *   <LI>file's length (as returned by java.io.File.length()) is >=  AND <=
-   *       
+   *   <LI>file's length (as returned by java.io.File.length()) is &gt;= minLength and &lt;= maxLength
    *   <LI>for each attribute (file, dir, hidden) that a file possesses, the corresponding bit in
    *       <code>allowableAttributes</code> is turned on.
    * </UL>
@@ -93,12 +92,11 @@ public class PSFileFilter implements java.io.FileFilter, java.io.FilenameFilter 
   }
 
   /**
-   * Constructs a file filter that will return  when and only when all of the
-   * following conditions are met:
+   * Constructs a file filter that will return when and only when all of the following conditions
+   * are met:
    *
    * <UL>
-   *   <LI>file's length (as returned by java.io.File.length()) is >=  AND <=
-   *       
+   *   <LI>file's length (as returned by java.io.File.length()) is &gt;= minLength and &lt;= maxLength
    *   <LI>for each attribute (file, dir, hidden) that a file possesses, the corresponding bit in
    *       <code>allowableAttributes</code> is turned on.
    * </UL>
@@ -111,9 +109,9 @@ public class PSFileFilter implements java.io.FileFilter, java.io.FilenameFilter 
   }
 
   /**
-   * Sets the minimum and maximum length for files. For accept() to return , it is
-   * necessary (but not sufficient) that the file's length (as returned by java.io.File.length()) is
-   * >=  AND <= .
+   * Sets the minimum and maximum length for files. For accept() to return , it is necessary (but
+   * not sufficient) that the file's length (as returned by java.io.File.length()) is &gt;=
+   * minLength AND &lt;= maxLength.
    */
   public final void setMinMaxLength(long minLength, long maxLength) {
     if (minLength >= maxLength)
@@ -129,7 +127,7 @@ public class PSFileFilter implements java.io.FileFilter, java.io.FilenameFilter 
   /**
    * Sets the earliest and latest modification date for files. For accept() to return <code>true
    * </code>, it is necessary (but not sufficient) that the file's modification date (as returned by
-   * java.io.File.lastModified()) is >=  AND <= <code>latestModified
+   * java.io.File.lastModified()) is &gt;= minLength AND &lt;= maxLength<code>latestModified
    * </code>.
    */
   public final void setEarliestLatestModified(Date earliestModified, Date latestModified) {
@@ -141,9 +139,9 @@ public class PSFileFilter implements java.io.FileFilter, java.io.FilenameFilter 
   }
 
   /**
-   * Adds an OR'ed name pattern for files. For accept() to return , it is necessary
-   * (but not sufficient) that the file's name (as returned by java.io.File.getName()) matches at
-   * least one of the added pattern matchers.
+   * Adds an OR'ed name pattern for files. For accept() to return , it is necessary (but not
+   * sufficient) that the file's name (as returned by java.io.File.getName()) matches at least one
+   * of the added pattern matchers.
    */
   public final void addNamePattern(PSPatternMatcher namePattern) {
     if (m_namePatterns == null) m_namePatterns = new java.util.ArrayList<PSPatternMatcher>();
@@ -151,9 +149,8 @@ public class PSFileFilter implements java.io.FileFilter, java.io.FilenameFilter 
   }
 
   /**
-   * Sets the name pattern for files. For accept() to return , it is necessary (but
-   * not sufficient) that the file's name (as returned by java.io.File.getName()) matches the given
-   * pattern matcher.
+   * Sets the name pattern for files. For accept() to return , it is necessary (but not sufficient)
+   * that the file's name (as returned by java.io.File.getName()) matches the given pattern matcher.
    */
   public final void setNamePattern(PSPatternMatcher namePattern) {
     m_namePatterns = new java.util.ArrayList<PSPatternMatcher>();
@@ -161,9 +158,9 @@ public class PSFileFilter implements java.io.FileFilter, java.io.FilenameFilter 
   }
 
   /**
-   * Sets the allowable attributes for files. For accept() to return , it is
-   * necessary (but not sufficient) that for each attribute that a file possesses, the corresponding
-   * bit in <code>allowableAttributes</code> is turned on.
+   * Sets the allowable attributes for files. For accept() to return , it is necessary (but not
+   * sufficient) that for each attribute that a file possesses, the corresponding bit in <code>
+   * allowableAttributes</code> is turned on.
    */
   public final void setAllowableAttributes(int allowableAttributes) {
     m_allowableAttributes = allowableAttributes;

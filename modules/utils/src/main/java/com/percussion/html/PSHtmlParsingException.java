@@ -21,6 +21,7 @@ import java.security.PrivilegedActionException;
 
 public class PSHtmlParsingException extends Exception {
   private static final long serialVersionUID = 1L;
+
   /**
    * Constructs a new exception with {@code null} as its detail message. The cause is not
    * initialized, and may subsequently be initialized by a call to {@link #initCause}.
@@ -58,10 +59,11 @@ public class PSHtmlParsingException extends Exception {
   }
 
   /**
-   * Constructs a new exception with the specified cause and a detail message of <code>(cause==null ?
+   * Constructs a new exception with the specified cause and a detail message of <code>
+   * (cause==null ?
    * null : cause.toString())</code> (which typically contains the class and detail message of
-   * <code>cause</code>). This constructor is useful for exceptions that are little more than wrappers
-   * for other throwables (for example, {@link PrivilegedActionException}).
+   * <code>cause</code>). This constructor is useful for exceptions that are little more than
+   * wrappers for other throwables (for example, {@link PrivilegedActionException}).
    *
    * @param cause the cause (which is saved for later retrieval by the {@link #getCause()} method).
    *     (A <code>null</code> value is permitted, and indicates that the cause is nonexistent or

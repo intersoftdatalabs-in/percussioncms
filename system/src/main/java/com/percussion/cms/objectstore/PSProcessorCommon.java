@@ -36,7 +36,8 @@ import org.w3c.dom.Element;
  *
  * <p>The following properties must be specified in the processor config.
  *
- * <table>
+ * <table border="1">
+ *    <caption>Processor Configuration Properties</caption>
  *    <tr>
  *       <th>Property name</th>
  *       <th>Description</th>
@@ -50,7 +51,7 @@ import org.w3c.dom.Element;
  *          for all the components to be loaded will be included as multiple
  *          html params. An html param for each key part is created for each
  *          key. For example, if you have 2 simple keys whose part is "ID",
- *          the html param "ID" will appear twice, e.g., ID=3&ID=4.<td>
+ *          the html param "ID" will appear twice, e.g., ID=3&amp;ID=4.
  *       <td>required</td>
  *       <td>standard</td>
  *    </tr>

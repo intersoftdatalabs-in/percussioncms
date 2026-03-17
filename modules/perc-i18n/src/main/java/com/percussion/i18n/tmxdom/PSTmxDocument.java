@@ -17,8 +17,8 @@
 package com.percussion.i18n.tmxdom;
 
 import com.percussion.i18n.PSI18nUtils;
-import com.percussion.security.xml.PSSecureXMLUtils;
 import com.percussion.security.error.PSExceptionUtils;
+import com.percussion.security.xml.PSSecureXMLUtils;
 import com.percussion.tools.PSCopyStream;
 import com.percussion.xml.PSXmlDocumentBuilder;
 import java.io.File;
@@ -89,7 +89,7 @@ public class PSTmxDocument extends PSTmxNode implements IPSTmxDocument {
    * for sorting.
    *
    * @param DOMDoc the input XML DOM document, must not be <code>null</code>.
-   * @param createDefault If <code>true</code>, a variant is also added for the default language to
+   * @param createDefaults If <code>true</code>, a variant is also added for the default language to
    *     each translation unit if it does not already exist. If <code>false</code>, no defaults are
    *     added.
    * @throws PSTmxDomException if initialization fails for any reason
@@ -261,12 +261,12 @@ public class PSTmxDocument extends PSTmxNode implements IPSTmxDocument {
   }
 
   /**
-   * Overriding the method from the interface {@link #IPSTmxNode}. Only two types of nodes are
-   * allowed for merging, viz. {@link #IPSTmxDocument}, {@link #IPSTmxTranslationUnit}
+   * Overriding the method from the interface {@link IPSTmxNode}. Only two types of nodes are
+   * allowed for merging, viz. {@link IPSTmxDocument}, {@link IPSTmxTranslationUnit}
    *
    * @param node must not be <code>null</code>.
    * @throws PSTmxDomException if merge cannot proceed.
-   * @throws IllegalArgumentExcpetion supplied node is <code>null</code>.
+   * @throws IllegalArgumentException supplied node is <code>null</code>.
    */
   public void merge(IPSTmxNode node) throws PSTmxDomException {
     if (node == null) {

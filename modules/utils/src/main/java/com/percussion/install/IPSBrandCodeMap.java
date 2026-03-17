@@ -22,10 +22,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-
-/**
- * Interface for brand code mapping.
- */
+/** Interface for brand code mapping. */
 public interface IPSBrandCodeMap {
 
   /**

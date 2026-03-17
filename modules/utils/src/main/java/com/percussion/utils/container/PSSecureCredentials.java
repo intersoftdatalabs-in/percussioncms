@@ -29,10 +29,10 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * Represents an "application-policy" element in the
- * {@link com.percussion.utils.container.jboss.PSJbossProperties#LOGIN_CONFIG_FILE_NAME} file, used
- * to save datasource credentials with an encrypted password. Note that this is not implemented to
- * load save application policy elements in general, only those specified by this class.
+ * Represents an "application-policy" element in the {@link
+ * com.percussion.utils.container.jboss.PSJbossProperties#LOGIN_CONFIG_FILE_NAME} file, used to save
+ * datasource credentials with an encrypted password. Note that this is not implemented to load save
+ * application policy elements in general, only those specified by this class.
  */
 public class PSSecureCredentials {
   /** Constant for the "application-policy" element name. */

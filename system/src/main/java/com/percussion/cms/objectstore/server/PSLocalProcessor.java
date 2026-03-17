@@ -54,7 +54,6 @@ import org.xml.sax.SAXException;
  * must be set on the proxy for each new request. To enforce this, this class will verify that a
  * particular context is only used for a single request.
  *
- * @todo: add check to prevent accidental use across requests
  * @author Paul Howard
  * @version 1.0
  */

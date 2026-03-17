@@ -129,8 +129,8 @@ public class PSTomcatConnector extends PSAbstractConnector implements XMLEnabled
   }
 
   /**
-   * Serialize this connector to its XML representation. See {@link #PSTomcatConnector(Path, Element, Map)}
-   * more information.
+   * Serialize this connector to its XML representation. See {@link #PSTomcatConnector(Path,
+   * Element, Map)} more information.
    *
    * @return The resulting connector element, never <code>null</code>.
    */

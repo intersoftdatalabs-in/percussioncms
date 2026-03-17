@@ -28,7 +28,6 @@ import org.apache.logging.log4j.Logger;
  * object created by <CODE>IPSRequestContext.setPrivateObject</CODE> with key {@link
  * #WORKFLOW_ROLE_INFO_PRIVATE_OBJECT }
  */
-
 public class PSWorkflowRoleInfo implements IWorkflowRoleInfo {
 
   /* Getters & setters for state variables */

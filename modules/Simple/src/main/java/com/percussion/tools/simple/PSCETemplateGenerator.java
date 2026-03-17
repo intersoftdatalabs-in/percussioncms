@@ -201,7 +201,7 @@ public class PSCETemplateGenerator {
 
   /**
    * This class may be used from the command line. This is essentially a wrapper for {@link
-   * #createTemplate()}. Arguments expected are:
+   * #createTemplate(File, File, URL, String)}. Arguments expected are:
    *
    * <ol>
    *   <li>source: The source Xml file. Must point to an existing Xml file and should have

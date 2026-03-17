@@ -18,7 +18,6 @@ package com.percussion.security.utils;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import java.util.regex.Pattern;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -53,9 +52,7 @@ class PSCryptographyUtilsTest {
 
       assertNotNull(hash, "Hash should not be null");
       assertEquals(64, hash.length(), "SHA-256 hash should be 64 hex characters");
-      assertTrue(
-          hash.matches("[0-9A-F]+"),
-          "Hash should be valid hexadecimal (uppercase)");
+      assertTrue(hash.matches("[0-9A-F]+"), "Hash should be valid hexadecimal (uppercase)");
     }
 
     @Test
@@ -157,7 +154,8 @@ class PSCryptographyUtilsTest {
       String hash256 = PSCryptographyUtils.sha256Hex(data);
       String hash512 = PSCryptographyUtils.sha512Hex(data);
 
-      assertNotEquals(hash256, hash512, "SHA-256 and SHA-512 should produce different length hashes");
+      assertNotEquals(
+          hash256, hash512, "SHA-256 and SHA-512 should produce different length hashes");
       assertEquals(64, hash256.length(), "SHA-256 should be 64 chars");
       assertEquals(128, hash512.length(), "SHA-512 should be 128 chars");
     }
@@ -239,9 +237,7 @@ class PSCryptographyUtilsTest {
     @Test
     @DisplayName("Should allow SHA-256")
     void testAllowSHA256() {
-      assertTrue(
-          PSCryptographyUtils.isAlgorithmAllowed("SHA-256"),
-          "SHA-256 should be allowed");
+      assertTrue(PSCryptographyUtils.isAlgorithmAllowed("SHA-256"), "SHA-256 should be allowed");
       assertTrue(
           PSCryptographyUtils.isAlgorithmAllowed("SHA-256/RSA"),
           "SHA-256 with other components should be allowed");
@@ -250,20 +246,15 @@ class PSCryptographyUtilsTest {
     @Test
     @DisplayName("Should allow SHA-512")
     void testAllowSHA512() {
-      assertTrue(
-          PSCryptographyUtils.isAlgorithmAllowed("SHA-512"),
-          "SHA-512 should be allowed");
+      assertTrue(PSCryptographyUtils.isAlgorithmAllowed("SHA-512"), "SHA-512 should be allowed");
     }
 
     @Test
     @DisplayName("Should allow AES")
     void testAllowAES() {
+      assertTrue(PSCryptographyUtils.isAlgorithmAllowed("AES"), "AES should be allowed");
       assertTrue(
-          PSCryptographyUtils.isAlgorithmAllowed("AES"),
-          "AES should be allowed");
-      assertTrue(
-          PSCryptographyUtils.isAlgorithmAllowed("AES/GCM/NoPadding"),
-          "AES/GCM should be allowed");
+          PSCryptographyUtils.isAlgorithmAllowed("AES/GCM/NoPadding"), "AES/GCM should be allowed");
     }
 
     @Test
@@ -413,19 +404,18 @@ class PSCryptographyUtilsTest {
     @Test
     @DisplayName("Should verify file integrity with SHA-256")
     void testFileIntegrityVerification() {
-      byte[] fileContent = "File content to verify".getBytes(java.nio.charset.StandardCharsets.UTF_8);
+      byte[] fileContent =
+          "File content to verify".getBytes(java.nio.charset.StandardCharsets.UTF_8);
       String originalHash = PSCryptographyUtils.sha256Hex(fileContent);
 
       // Verify file hasn't changed
       String currentHash = PSCryptographyUtils.sha256Hex(fileContent);
-      assertEquals(
-          originalHash, currentHash, "File should have same hash if content unchanged");
+      assertEquals(originalHash, currentHash, "File should have same hash if content unchanged");
 
       // Verify file changed is detected
       byte[] modifiedContent = "Modified content".getBytes(java.nio.charset.StandardCharsets.UTF_8);
       String modifiedHash = PSCryptographyUtils.sha256Hex(modifiedContent);
-      assertNotEquals(
-          originalHash, modifiedHash, "Modified file should have different hash");
+      assertNotEquals(originalHash, modifiedHash, "Modified file should have different hash");
     }
 
     @Test

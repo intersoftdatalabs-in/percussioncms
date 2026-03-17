@@ -20,7 +20,6 @@ import java.util.Objects;
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLContext;
-import javax.net.ssl.SSLSession;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -137,8 +136,7 @@ public final class PSSecureTLSConfigurer {
     }
 
     // Use default verifier for validation
-    return DEFAULT_HOSTNAME_VERIFIER.equals(verifier)
-        || verifier == DEFAULT_HOSTNAME_VERIFIER;
+    return DEFAULT_HOSTNAME_VERIFIER.equals(verifier) || verifier == DEFAULT_HOSTNAME_VERIFIER;
   }
 
   /**
@@ -173,8 +171,8 @@ public final class PSSecureTLSConfigurer {
   /**
    * Validates that an SSLContext is secure and not permissive.
    *
-   * <p>Note: This performs basic validation. For complete verification, use TLS certificates
-   * from trusted authorities.
+   * <p>Note: This performs basic validation. For complete verification, use TLS certificates from
+   * trusted authorities.
    *
    * @param context the SSLContext to validate
    * @return true if context uses secure defaults
@@ -210,7 +208,7 @@ public final class PSSecureTLSConfigurer {
    * @since 8.2.0
    */
   public static String getDefaultTLSProtocol() {
-    return "TLS";  // System negotiates latest secure version
+    return "TLS"; // System negotiates latest secure version
   }
 
   /**

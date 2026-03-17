@@ -17,7 +17,6 @@
 
 package com.percussion.utils.container;
 
-import org.w3c.dom.Document;
 import com.percussion.utils.container.jboss.PSJbossProperties;
 
 public interface IPSJndiDatasource {
@@ -108,8 +107,8 @@ public interface IPSJndiDatasource {
 
   /**
    * Get the name of the security domain that defines the credentials for this datasource in the
-   * {@link PSJbossProperties#LOGIN_CONFIG_FILE_NAME} file. See {@link com.percussion.utils.container.PSSecureCredentials} for more
-   * info.
+   * {@link PSJbossProperties#LOGIN_CONFIG_FILE_NAME} file. See {@link
+   * com.percussion.utils.container.PSSecureCredentials} for more info.
    *
    * @return The security domain, may be <code>null</code> if the credentials were not encrytped and
    *     originally defined as part of the datasource, never empty.
@@ -120,8 +119,8 @@ public interface IPSJndiDatasource {
   /**
    * Set the security domain, see {@link #getSecurityDomain()} for more info. Setting a security
    * domain will prevent the userid and password from being included in the datasource XML when
-   * 
-   * security domain name.
+   *
+   * <p>security domain name.
    *
    * @param name The name of the security domain, may be <code>null</code> to clear the domain,
    *     never empty.
@@ -133,8 +132,8 @@ public interface IPSJndiDatasource {
    * Set the minimum number of connections based on this datasource the pool should hold. The
    * default is 0 if not specified.
    *
-   * @param min The minimum number, must be >= 0 and less than or equal to the value returned by {@link
-   *     #getMaxConnections()}.
+   * @param min The minimum number, must be >= 0 and less than or equal to the value returned by
+   *     {@link #getMaxConnections()}.
    */
   void setMinConnections(int min);
 

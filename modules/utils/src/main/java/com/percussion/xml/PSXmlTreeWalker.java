@@ -731,7 +731,6 @@ public class PSXmlTreeWalker implements Serializable {
    * @param elements a list containing the String names of the elements to examine
    * @return the name of the node to use as the iterator (may be <code>null</code>)
    */
-
   public static String getLowestLevelElement(List<String> elements) {
     int size = elements.size();
     if (size == 0) return null;
@@ -959,6 +958,7 @@ public class PSXmlTreeWalker implements Serializable {
    * <p>The characters will be converted according to this scheme:
    *
    * <TABLE BORDER=1>
+   * <caption>Entity Reference Mapping</caption>
    * <TR>
    *   <TD>&amp;</TD>
    * <TD>&amp;amp;</TD>
@@ -979,9 +979,9 @@ public class PSXmlTreeWalker implements Serializable {
    *   <TD>&quot;</TD>
    * <TD>&amp;quot;</TD>
    * </TR>
-
+   * </TABLE>
    *
-   * @param input
+   * @param input the string to convert.
    * @throws IOException if I/O error occurs.
    */
   public static void convertToXmlEntities(String input, Writer out) throws IOException {
@@ -1097,6 +1097,7 @@ public class PSXmlTreeWalker implements Serializable {
    * <p>The characters will be converted according to this scheme:
    *
    * <TABLE BORDER=1>
+   * <caption>Entity Reference Mapping</caption>
    * <TR>
    *   <TD>&amp;</TD>
    * <TD>&amp;amp;</TD>
@@ -1117,9 +1118,9 @@ public class PSXmlTreeWalker implements Serializable {
    *   <TD>&quot;</TD>
    * <TD>&amp;quot;</TD>
    * </TR>
-
+   * </TABLE>
    *
-   * @param input
+   * @param input the string to convert.
    * @return String A new String with all special characters transformed into their entities.
    */
   public static String convertToXmlEntities(String input) {
@@ -1224,9 +1225,9 @@ public class PSXmlTreeWalker implements Serializable {
   private static TransformerFactory ms_transformerFactory = createTransformerFactory();
 
   /**
-   * Creates the secured TransformerFactory, falling back to the JDK default if
-   * the secured factory creation fails.  This prevents a static-initializer
-   * failure from permanently poisoning the class.
+   * Creates the secured TransformerFactory, falling back to the JDK default if the secured factory
+   * creation fails. This prevents a static-initializer failure from permanently poisoning the
+   * class.
    */
   private static TransformerFactory createTransformerFactory() {
     try {

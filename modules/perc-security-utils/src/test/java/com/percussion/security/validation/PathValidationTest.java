@@ -75,19 +75,16 @@ class PathValidationTest {
     void shouldAcceptCommonExtensions() {
       String[] extensions = {".txt", ".html", ".css", ".js", ".json", ".xml", ".pdf"};
       for (String ext : extensions) {
-        File result =
-            PathValidation.constructSafePath(baseDir, "document" + ext);
+        File result = PathValidation.constructSafePath(baseDir, "document" + ext);
         assertTrue(
-            result.getAbsolutePath().startsWith(baseDir.getAbsolutePath()),
-            "Should accept " + ext);
+            result.getAbsolutePath().startsWith(baseDir.getAbsolutePath()), "Should accept " + ext);
       }
     }
 
     @Test
     @DisplayName("Should combine multiple safe path components")
     void shouldCombineMultipleSafeComponents() {
-      File result =
-          PathValidation.combineSafePaths(baseDir, "themes", "dark-mode", "style.css");
+      File result = PathValidation.combineSafePaths(baseDir, "themes", "dark-mode", "style.css");
       assertTrue(result.getAbsolutePath().startsWith(baseDir.getAbsolutePath()));
       assertTrue(result.getAbsolutePath().contains("themes"));
       assertTrue(result.getAbsolutePath().contains("dark-mode"));
@@ -107,8 +104,7 @@ class PathValidationTest {
     @Test
     @DisplayName("Should accept underscore and hyphen in filenames")
     void shouldAcceptValidFilenameCharacters() {
-      File result =
-          PathValidation.constructSafePath(baseDir, "my-file_v2.0_backup.txt");
+      File result = PathValidation.constructSafePath(baseDir, "my-file_v2.0_backup.txt");
       assertTrue(result.getAbsolutePath().startsWith(baseDir.getAbsolutePath()));
     }
   }
@@ -190,8 +186,7 @@ class PathValidationTest {
     void shouldRejectTraversalInMultiComponent() {
       assertThrows(
           PathValidation.SecurityException.class,
-          () ->
-              PathValidation.combineSafePaths(baseDir, "safe1", "safe2", "../escape", "file.txt"),
+          () -> PathValidation.combineSafePaths(baseDir, "safe1", "safe2", "../escape", "file.txt"),
           "Should detect escape in middle of path components");
     }
 
@@ -212,8 +207,7 @@ class PathValidationTest {
 
         assertThrows(
             PathValidation.SecurityException.class,
-            () ->
-                PathValidation.constructSafePath(baseDir, "link", true),
+            () -> PathValidation.constructSafePath(baseDir, "link", true),
             "Should reject symlink that escapes bounds");
       }
     }
@@ -263,7 +257,8 @@ class PathValidationTest {
       assertThrows(
           PathValidation.SecurityException.class,
           () ->
-              PathValidation.constructSafePath(baseDir, "../../../../../Windows/System32/config/SAM"));
+              PathValidation.constructSafePath(
+                  baseDir, "../../../../../Windows/System32/config/SAM"));
     }
 
     @Test
@@ -294,8 +289,7 @@ class PathValidationTest {
     @DisplayName("Real scenario: Safe theme file access")
     void shouldAllowSafeThemeFileAccess() {
       // Legitimate: user uploads theme named "my-theme" with file "style.css"
-      File result =
-          PathValidation.constructSafePath(baseDir, "my-theme/css/style.css");
+      File result = PathValidation.constructSafePath(baseDir, "my-theme/css/style.css");
       assertTrue(result.getAbsolutePath().startsWith(baseDir.getAbsolutePath()));
       assertTrue(result.getPath().contains("my-theme"));
     }
@@ -326,24 +320,21 @@ class PathValidationTest {
     @DisplayName("Should reject null base directory")
     void shouldRejectNullBaseDir() {
       assertThrows(
-          IllegalArgumentException.class,
-          () -> PathValidation.constructSafePath(null, "file.txt"));
+          IllegalArgumentException.class, () -> PathValidation.constructSafePath(null, "file.txt"));
     }
 
     @Test
     @DisplayName("Should reject null user path")
     void shouldRejectNullUserPath() {
       assertThrows(
-          IllegalArgumentException.class,
-          () -> PathValidation.constructSafePath(baseDir, null));
+          IllegalArgumentException.class, () -> PathValidation.constructSafePath(baseDir, null));
     }
 
     @Test
     @DisplayName("Should reject empty user path")
     void shouldRejectEmptyUserPath() {
       assertThrows(
-          IllegalArgumentException.class,
-          () -> PathValidation.constructSafePath(baseDir, ""));
+          IllegalArgumentException.class, () -> PathValidation.constructSafePath(baseDir, ""));
     }
 
     @Test
@@ -359,8 +350,7 @@ class PathValidationTest {
     @DisplayName("Should handle whitespace-only paths")
     void shouldRejectWhitespaceOnlyPath() {
       assertThrows(
-          IllegalArgumentException.class,
-          () -> PathValidation.constructSafePath(baseDir, "   "));
+          IllegalArgumentException.class, () -> PathValidation.constructSafePath(baseDir, "   "));
     }
 
     @Test

@@ -39,18 +39,18 @@ public interface IPSContainerUtils extends ContainerConfig {
 
   /**
    * Load all JNDI datasources from the configured file. Any settings configured that are not
-   * supported by the PSJndiDatasource class are loaded and preserved when the datasource is
-   * saved (see setDatasources).
+   * supported by the PSJndiDatasource class are loaded and preserved when the datasource is saved
+   * (see setDatasources).
    *
    * @return A list of datasources, never <code>null</code>, may be empty.
    */
   List<IPSJndiDatasource> getDatasources();
 
   /**
-   * Saves the supplied JNDI datasource configurations to the configured files, replacing any 
-   * existing configurations. Any settings that were configured but not supported by the 
-   * PSJndiDatasource class are saved intact. 
-   * Note that PSJndiDatasource.setSecurityDomain(String) will be called on all supplied datasources.
+   * Saves the supplied JNDI datasource configurations to the configured files, replacing any
+   * existing configurations. Any settings that were configured but not supported by the
+   * PSJndiDatasource class are saved intact. Note that PSJndiDatasource.setSecurityDomain(String)
+   * will be called on all supplied datasources.
    *
    * @param datasources The list of datasources to save, may not be <code>null</code>, may be empty.
    */

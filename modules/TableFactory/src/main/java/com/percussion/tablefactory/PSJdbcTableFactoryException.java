@@ -33,7 +33,8 @@ import java.util.ResourceBundle;
  */
 public class PSJdbcTableFactoryException extends Exception {
 
-    private static final long serialVersionUID = 1L;
+  private static final long serialVersionUID = 1L;
+
   /**
    * Construct an exception for messages taking only a single argument.
    *

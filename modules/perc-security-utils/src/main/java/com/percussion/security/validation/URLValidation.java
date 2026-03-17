@@ -31,9 +31,9 @@ import java.util.Set;
  * connections.
  *
  * <p><strong>Default Behavior (Most Restrictive):</strong>
+ *
  * <ul>
- *   <li>✅ Always allows: localhost, 127.0.0.1, ::1 (IPv6 loopback) on <strong>any</strong>
- *       port
+ *   <li>✅ Always allows: localhost, 127.0.0.1, ::1 (IPv6 loopback) on <strong>any</strong> port
  *   <li>✅ Allows standard ports: 80 (HTTP), 443 (HTTPS) for external hosts
  *   <li>❌ Blocks: Private IP ranges (10.x, 172.16-31.x, 192.168.x) by default
  *   <li>❌ Blocks: AWS metadata, reserved addresses (0.0.0.0, etc.)
@@ -43,18 +43,21 @@ import java.util.Set;
  * <p><strong>Configuration for Different Deployments:</strong>
  *
  * <p>For <strong>CMS (Private Network Publishing)</strong>:
+ *
  * <pre>
  * -Dpercussion.url.validation.allowed.ports=9992,8080
  * -Dpercussion.url.validation.allowed.ip.ranges=10.0.0.0/8
  * </pre>
  *
  * <p>For <strong>DTS (Reverse Proxy Setup)</strong>:
+ *
  * <pre>
  * -Dpercussion.url.validation.allowed.ports=9980,8443
  * -Dpercussion.url.validation.allowed.hosts=internal-cms.local
  * </pre>
  *
  * <p>To allow all private networks (less secure):
+ *
  * <pre>
  * -Dpercussion.url.validation.allow.private.networks=true
  * </pre>
@@ -77,8 +80,7 @@ public class URLValidation {
   private static final Set<String> BLOCKED_HOSTNAMES =
       new HashSet<>(
           Arrays.asList(
-              "0.0.0.0",
-              "169.254.169.254" // AWS metadata service
+              "0.0.0.0", "169.254.169.254" // AWS metadata service
               ));
 
   // Always allow loopback addresses (localhost)
@@ -93,14 +95,15 @@ public class URLValidation {
    * Validates a URL to prevent SSRF attacks using the default configuration.
    *
    * <p>Checks:
+   *
    * <ul>
    *   <li>Protocol is in the safe list (http, https only)
    *   <li>Host is not a dangerous address or blocked by configuration
    *   <li>Port is allowed (80/443 for non-localhost, or configured allowed ports)
    * </ul>
    *
-   * <p><strong>Always allows localhost/127.0.0.1/::1 on any port</strong> (safe for
-   * inter-service communication in same tier)
+   * <p><strong>Always allows localhost/127.0.0.1/::1 on any port</strong> (safe for inter-service
+   * communication in same tier)
    *
    * @param url the URL to validate
    * @throws IllegalArgumentException if URL is null or malformed
@@ -165,8 +168,8 @@ public class URLValidation {
         if (!config.isIPRangeAllowed(normalizedHost)) {
           throw new SecurityException(
               String.format(
-                  "Cannot connect to private IP address: %s. "
-                      + "Configure percussion.url.validation.allowed.ip.ranges to allow specific ranges.",
+                  "Cannot connect to private IP address: %s. Configure"
+                      + " percussion.url.validation.allowed.ip.ranges to allow specific ranges.",
                   host));
         }
       }
@@ -175,8 +178,8 @@ public class URLValidation {
       if (isPrivateIPAddress(normalizedHost) && port > 0 && !config.isPortAllowed(port, false)) {
         throw new SecurityException(
             String.format(
-                "Port %d is not allowed for private network. "
-                    + "Configure percussion.url.validation.allowed.ports to allow additional ports.",
+                "Port %d is not allowed for private network. Configure"
+                    + " percussion.url.validation.allowed.ports to allow additional ports.",
                 port));
       }
     }
@@ -228,8 +231,7 @@ public class URLValidation {
   /**
    * Checks if a hostname is a private IP address (RFC 1918 ranges and other reserved ranges).
    *
-   * <p>Blocks: 10.0.0.0/8 | 172.16.0.0/12 | 192.168.0.0/16 | Multicast (224-239) | Reserved
-   * (240+)
+   * <p>Blocks: 10.0.0.0/8 | 172.16.0.0/12 | 192.168.0.0/16 | Multicast (224-239) | Reserved (240+)
    *
    * @param host hostname or IP address
    * @return true if the host appears to be a private IP address

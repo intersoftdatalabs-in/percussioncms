@@ -17,7 +17,5 @@
 
 package com.percussion.utils.container;
 
-/**
- * Marker interface for configuration context.
- */
+/** Marker interface for configuration context. */
 public interface ConfigurationCtx {}

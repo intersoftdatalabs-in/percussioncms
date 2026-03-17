@@ -64,7 +64,7 @@ public class PSConcurrentIterator<T> implements Iterator<T> {
    *     iterator
    * @throws IllegalStateException if the {@code next} method has not yet been called, or the {@code
    *     remove} method has already been called after the last call to the {@code next} method
-<!-- * @implSpec The default implementation throws an instance of {@link -->
+   *     <!-- * @implSpec The default implementation throws an instance of {@link -->
    *     UnsupportedOperationException} and performs no other action.
    */
   @Override
@@ -89,7 +89,7 @@ public class PSConcurrentIterator<T> implements Iterator<T> {
    *
    * @param action The action to be performed for each element
    * @throws NullPointerException if the specified action is null
-<!-- * @implSpec -->
+   *     <!-- * @implSpec -->
    *     <p>The default implementation behaves as if:
    *     <pre>{@code
    * while (hasNext())

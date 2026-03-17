@@ -29,9 +29,9 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.util.Base64;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.util.Base64;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -69,21 +69,14 @@ public class PSHttpConnection {
   }
 
   /**
-   * Post a set of data to a server. The connections that are opened by this
-   * method will be closed.
+   * Post a set of data to a server. The connections that are opened by this method will be closed.
    *
-   * @param url The destination it is going to send to. It may not
-   *    <code>null</code>.
-   *
-   * @param paramMap The parameter map. It contains a set of data in
-   *    <code>String</code> for both key and value. It is assumed the
-   *    key is ASCII. The value of the key will be URL encoded before
-   *    send to server. It may not be <code>null</code>, but may be empty.
-   *
+   * @param url The destination it is going to send to. It may not <code>null</code>.
+   * @param paramMap The parameter map. It contains a set of data in <code>String</code> for both
+   *     key and value. It is assumed the key is ASCII. The value of the key will be URL encoded
+   *     before send to server. It may not be <code>null</code>, but may be empty.
    * @return The response from the server. Never <code>null</code>.
-   *
    * @throws PSException if received error code.
-   *
    * @throws IOException if an error occurs during send/receive data
    */
   public String postData(URL url, Map<String, ?> paramMap) throws IOException, PSException {
@@ -315,11 +308,13 @@ public class PSHttpConnection {
         try (ByteArrayOutputStream os = new ByteArrayOutputStream()) {
 
           try (InputStream in = connection.getInputStream()) {
-            if (in == null) throw new IllegalArgumentException("Supplied streams must not be null.");
+            if (in == null)
+              throw new IllegalArgumentException("Supplied streams must not be null.");
             readData = in.transferTo(os);
           } catch (IOException e) {
             try (InputStream in = connection.getErrorStream()) {
-              if (in == null) throw new IllegalArgumentException("Supplied streams must not be null.");
+              if (in == null)
+                throw new IllegalArgumentException("Supplied streams must not be null.");
               readData = in.transferTo(os);
             }
           }

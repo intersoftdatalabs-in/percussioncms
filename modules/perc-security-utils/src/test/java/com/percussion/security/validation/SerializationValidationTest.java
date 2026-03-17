@@ -49,9 +49,10 @@ class SerializationValidationTest {
   @Test
   @DisplayName("Should reject gadget chain classes")
   void testRejectGadgetClasses() {
+    assertFalse(SerializationValidation.isSafeClass("org.apache.commons.beanutils.BeanComparator"));
     assertFalse(
-        SerializationValidation.isSafeClass("org.apache.commons.beanutils.BeanComparator"));
-    assertFalse(SerializationValidation.isSafeClass("com.sun.org.apache.xalan.internal.xsltc.runtime.AbstractTranslet"));
+        SerializationValidation.isSafeClass(
+            "com.sun.org.apache.xalan.internal.xsltc.runtime.AbstractTranslet"));
     assertFalse(SerializationValidation.isSafeClass("org.evil.GadgetChain"));
   }
 
@@ -65,9 +66,12 @@ class SerializationValidationTest {
   @Test
   @DisplayName("Should identify Percussion safe classes")
   void testIsPercussionSafeClass() {
-    assertTrue(SerializationValidation.isPercussionSafeClass("com.percussion.cms.objectstore.PSComponentSummary"));
     assertTrue(
-        SerializationValidation.isPercussionSafeClass("com.percussion.design.objectstore.PSLocator"));
+        SerializationValidation.isPercussionSafeClass(
+            "com.percussion.cms.objectstore.PSComponentSummary"));
+    assertTrue(
+        SerializationValidation.isPercussionSafeClass(
+            "com.percussion.design.objectstore.PSLocator"));
   }
 
   @Test

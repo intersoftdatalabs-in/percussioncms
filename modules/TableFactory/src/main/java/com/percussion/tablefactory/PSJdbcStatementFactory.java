@@ -469,7 +469,6 @@ public class PSJdbcStatementFactory {
    *     </code> or <code>PSJdbcRowData.ACTION_INSERT_IF_NOT_EXIST</code>
    * @return the step which queries the table specified by <code>tableSchema</code> in its <code>
    *     execute</code> method, never <code>null</code>
-   * @throws PSJdbcTableFactoryException if any error occurs.
    * @throws IllegalArgumentException if <code>dbmsDef</code> or <code>tableSchema</code> is <code>
    *     null</code>
    */

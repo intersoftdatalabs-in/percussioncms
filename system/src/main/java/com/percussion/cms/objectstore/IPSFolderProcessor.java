@@ -25,7 +25,7 @@ import java.util.Set;
 /**
  * The folder processor specifies methods used to execute actions specific to folders.
  *
- * <p><em>Note:<em> This interface will be expanded to include all folder functionality in a future
+ * <p><em>Note:</em> This interface will be expanded to include all folder functionality in a future
  * release. Until that time, it is not being published for implementer use.
  */
 public interface IPSFolderProcessor {

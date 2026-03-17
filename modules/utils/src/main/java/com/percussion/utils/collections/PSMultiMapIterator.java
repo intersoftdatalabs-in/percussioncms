@@ -53,10 +53,13 @@ public class PSMultiMapIterator<M> implements Iterator<M> {
    * Ctor
    *
    * @param map the map, never <code>null</code>
-   * @param filter filter predicate to limit results, may be <code>null</code> if no filtering is desired
+   * @param filter filter predicate to limit results, may be <code>null</code> if no filtering is
+   *     desired
    */
   @SuppressWarnings("unchecked")
-  public PSMultiMapIterator(Map<?, ? extends Collection<? extends M>> map, org.apache.commons.collections4.Predicate<?> filter) {
+  public PSMultiMapIterator(
+      Map<?, ? extends Collection<? extends M>> map,
+      org.apache.commons.collections4.Predicate<?> filter) {
     m_sourceMap = map;
     m_keyIter = map.keySet().iterator();
     m_filterPredicate = (org.apache.commons.collections4.Predicate<Object>) filter;
@@ -76,7 +79,6 @@ public class PSMultiMapIterator<M> implements Iterator<M> {
    *
    * @return the next element or <code>null</code> if there are no more elements
    */
-
   private M findNext() {
     while (true) {
       if (m_iter != null && m_iter.hasNext()) {

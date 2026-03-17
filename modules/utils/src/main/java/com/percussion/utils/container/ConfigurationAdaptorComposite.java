@@ -21,6 +21,7 @@ import com.percussion.utils.container.config.ContainerConfig;
 
 /**
  * Composite configuration adapter that combines multiple configuration adapters.
+ *
  * @param <T> the configuration context type
  * @param <U> the container configuration type
  */
@@ -30,23 +31,21 @@ public interface ConfigurationAdaptorComposite<
 
   /**
    * Adds a configuration adapter to the composite.
+   *
    * @param adapter the adapter to add
    */
   void addConfigurationAdapter(IPSConfigurationAdapter<T> adapter);
 
   /**
    * Gets the combined configuration.
+   *
    * @return the configuration
    */
   U getConfig();
 
-  /**
-   * Loads configuration from all adapters.
-   */
+  /** Loads configuration from all adapters. */
   void load();
 
-  /**
-   * Saves configuration to all adapters.
-   */
+  /** Saves configuration to all adapters. */
   void save();
 }

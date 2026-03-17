@@ -63,7 +63,8 @@ public class PSURLEncoder {
 
   /**
    * URL-8 encodes the given string, which should be in the part of the URL after the "?" that
-   * starts the query. Note that any ampersands (&amp;) and questions marks (?)  will be not be encoded.
+   * starts the query. Note that any ampersands (&amp;) and questions marks (?) will be not be
+   * encoded.
    *
    * <p>It replaces space character (' ') to plus character ('+').
    *

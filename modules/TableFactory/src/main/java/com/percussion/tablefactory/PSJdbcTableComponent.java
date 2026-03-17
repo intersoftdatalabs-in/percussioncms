@@ -67,7 +67,9 @@ public abstract class PSJdbcTableComponent {
 
   /**
    * This method is called to set the base component state on the supplied Element, conforming with
-   * the tabledef.dtd. The structure of the Xml assuming an element named "root" is: <b> <code><pre>
+   * the tabledef.dtd. The structure of the Xml assuming an element named "root" is:
+   *
+   * <pre>{@code
    * &lt;!--
    *     Attributes:
    *     name - the name of the object.  Optional.
@@ -81,7 +83,9 @@ public abstract class PSJdbcTableComponent {
    * name CDATA #IMPLIED
    * action (c | r | d) "c"
    * &gt;
-   * </pre></code> <b>See the tabledef.dtd for more info.
+   * }</pre>
+   *
+   * See the tabledef.dtd for more info.
    *
    * @param root The Element to set the base component state on. May not be <code>null</code>.
    * @throws IllegalArgumentException if root is <code>null</code>.

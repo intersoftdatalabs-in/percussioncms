@@ -107,24 +107,22 @@ public class PSJdbcUtils {
    */
   public static final String JTDS = "jtds";
 
-  /** Constant for sprinta db backend property, see  */
+  /** Constant for sprinta db backend property, see */
   public static final String SPRINTA_DB_BACKEND = "MSSQL";
 
-  /** Constant for db2 db backend property, see  */
+  /** Constant for db2 db backend property, see */
   public static final String DB2_DB_BACKEND = "db2";
 
-  /** Constant for jtds db backend property, see  */
+  /** Constant for jtds db backend property, see */
   public static final String JTDS_DB_BACKEND = "MSSQL";
 
-  /** Constant for oracle db backend property, see  */
+  /** Constant for oracle db backend property, see */
   public static final String ORACLE_DB_BACKEND = "ORACLE";
 
-  /**
-   * Constant for Apache Derby db backend property, see 
-   */
+  /** Constant for Apache Derby db backend property, see */
   public static final String DERBY_DB_BACKEND = "DERBY";
 
-  /** Constant for MYSQL db backend property, see  */
+  /** Constant for MYSQL db backend property, see */
   public static final String MYSQL_DB_BACKEND = "MYSQL";
 
   /** Constant for transaction isolation level read uncommitted */
@@ -242,6 +240,7 @@ public class PSJdbcUtils {
    * but for jTDS (SQLServer), SPRINTA (SQLServer), MySQL and DB2.
    *
    * <TABLE BORDER="1">
+   * <caption>JDBC URL Formats</caption>
    * <TR><TH>Driver</TH><TH>Expected URL format</TH></TR>
    * <TR><TD>jTDS</TD><TD>jdbc:jtds:sqlserver://&lt;host>:&lt;port>[/db-name];user=u;password=p</TD></TR>
    * <TR><TD>jTDS</TD><TD>jdbc:jtds:sqlserver://&lt;host>:&lt;port>;database=&lt;db-name>;user=u;password=p</TD></TR>
@@ -249,7 +248,7 @@ public class PSJdbcUtils {
    * <TR><TD>MySQL</TD><TD>jdbc:mysql://host[,failoverhost...][:port][/database]propertyName1=propertyValue1 and propertyName2=propertyValue2</TD></TR>
    * <TR><TD>DB2</TD><TD>jdbc:db2://&lt;host>:&lt;port>[/db-name]</TD></TR>
    * <TR><TD>Oracle</TD><TD>jdbc:oracle:thin:@&lt;host>:1521:&lt;sid></TD></TR>
-
+   * </TABLE>
    *
    * @param url the JDBC url in question, it may not be <code>null</code> or empty.
    * @return the database name defined in the URL. It may be <code>null</code> if the database name

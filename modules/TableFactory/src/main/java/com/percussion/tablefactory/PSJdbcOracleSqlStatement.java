@@ -66,8 +66,8 @@ public class PSJdbcOracleSqlStatement extends PSJdbcPreparedSqlStatement {
    * contain object of the correct type, or if selLobString is
    * <code>null</code> or empty, or if keyValues does not contain
    * at least one object, or does not contain object of the correct type,
-   * or if lobTypes is <code>null<code> or if lobValues is <code>null<code>
-   * or if lobValuesEncoding is <code>null<code>
+   * or if lobTypes is <code>null</code> or if lobValues is <code>null</code>
+   * or if lobValuesEncoding is <code>null</code>
    * or if the statementType is invalid or if the size of lobTypes,
    * lobValues and lobValuesEncoding are not equal.
    */

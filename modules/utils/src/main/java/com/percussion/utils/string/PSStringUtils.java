@@ -530,8 +530,6 @@ public class PSStringUtils {
    * assumes that the groups are separated by a comma character (with no spaces). If the group
    * should contain the comma, it can be scaped with the backslash character ('\').
    *
-   * 
-   *
    * @param allowAccessTo the string that the user has entered in the UI. May be blank.
    * @return a {@link String}[] object, never <code>null</code>.
    */

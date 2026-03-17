@@ -89,16 +89,16 @@ public class PSBetwixtObjectConverter extends DefaultObjectStringConverter {
     }
   }
 
-   /**
-    * Is the given type a java.util.Date but not a java.sql.Date?
-    *
-    * @param type test this class type
-    * @return true is this is a until date but not a sql one
-    */
-   private boolean isUtilDate(Class<?> type) {
-     return (java.util.Date.class.isAssignableFrom(type)
-         && !java.sql.Date.class.isAssignableFrom(type)
-         && !java.sql.Time.class.isAssignableFrom(type)
-         && !java.sql.Timestamp.class.isAssignableFrom(type));
-   }
+  /**
+   * Is the given type a java.util.Date but not a java.sql.Date?
+   *
+   * @param type test this class type
+   * @return true is this is a until date but not a sql one
+   */
+  private boolean isUtilDate(Class<?> type) {
+    return (java.util.Date.class.isAssignableFrom(type)
+        && !java.sql.Date.class.isAssignableFrom(type)
+        && !java.sql.Time.class.isAssignableFrom(type)
+        && !java.sql.Timestamp.class.isAssignableFrom(type));
+  }
 }

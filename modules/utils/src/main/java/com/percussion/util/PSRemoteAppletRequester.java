@@ -53,7 +53,8 @@ public class PSRemoteAppletRequester implements IPSRemoteRequester {
   }
 
   /** See {@link IPSRemoteRequester#getDocument(String, Map)} for detail */
-  public Document getDocument(String resource, Map<String, ?> params) throws IOException, SAXException {
+  public Document getDocument(String resource, Map<String, ?> params)
+      throws IOException, SAXException {
     if (resource == null || resource.trim().length() == 0)
       throw new IllegalArgumentException("resource may not be null or empty");
     if (params == null) throw new IllegalArgumentException("params may not be null");
@@ -62,7 +63,8 @@ public class PSRemoteAppletRequester implements IPSRemoteRequester {
   }
 
   /** See {@link IPSRemoteRequester#sendUpdate(String, Map)} for detail */
-  public Document sendUpdate(String resource, Map<String, ?> params) throws IOException, SAXException {
+  public Document sendUpdate(String resource, Map<String, ?> params)
+      throws IOException, SAXException {
     if (resource == null || resource.trim().length() == 0)
       throw new IllegalArgumentException("resource may not be null or empty");
     if (params == null) throw new IllegalArgumentException("params may not be null");
@@ -87,7 +89,8 @@ public class PSRemoteAppletRequester implements IPSRemoteRequester {
    *
    * @see {@link PSHttpConnection#postData(URL, Map)}
    */
-  private Document postData(String resource, Map<String, ?> paramsMap) throws IOException, SAXException {
+  private Document postData(String resource, Map<String, ?> paramsMap)
+      throws IOException, SAXException {
     String resp;
     Document doc = null;
     if (resource.startsWith("/")) {

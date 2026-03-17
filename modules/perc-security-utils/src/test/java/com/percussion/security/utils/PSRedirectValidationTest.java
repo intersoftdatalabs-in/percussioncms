@@ -69,8 +69,10 @@ class PSRedirectValidationTest {
     @DisplayName("Should accept relative paths with query parameters")
     void testRelativePathWithQuery() {
       String result =
-          PSRedirectValidation.validateRedirectUrl("/pages/view?id=123&tab=summary", DEFAULT_WHITELIST);
-      assertEquals("/pages/view?id=123&tab=summary", result, "Path with query params should be accepted");
+          PSRedirectValidation.validateRedirectUrl(
+              "/pages/view?id=123&tab=summary", DEFAULT_WHITELIST);
+      assertEquals(
+          "/pages/view?id=123&tab=summary", result, "Path with query params should be accepted");
     }
 
     @Test
@@ -93,7 +95,8 @@ class PSRedirectValidationTest {
     @DisplayName("Should reject paths containing .. anywhere")
     void testDirectoryTraversalVariant() {
       String result =
-          PSRedirectValidation.validateRedirectUrl("/safe/path/../../../sensitive", DEFAULT_WHITELIST);
+          PSRedirectValidation.validateRedirectUrl(
+              "/safe/path/../../../sensitive", DEFAULT_WHITELIST);
       assertNull(result, "Paths with .. should be rejected regardless of position");
     }
 
@@ -113,7 +116,8 @@ class PSRedirectValidationTest {
     @Test
     @DisplayName("Should reject protocol-relative URLs (//evil.com)")
     void testProtocolRelativeUrl() {
-      String result = PSRedirectValidation.validateRedirectUrl("//evil.com/phishing", DEFAULT_WHITELIST);
+      String result =
+          PSRedirectValidation.validateRedirectUrl("//evil.com/phishing", DEFAULT_WHITELIST);
       assertNull(result, "Protocol-relative URLs (//evil.com) should be rejected");
     }
 
@@ -121,7 +125,8 @@ class PSRedirectValidationTest {
     @DisplayName("Should reject protocol-relative URLs with www")
     void testProtocolRelativeUrlVariant() {
       String result =
-          PSRedirectValidation.validateRedirectUrl("//www.attacker.com/steal-data", DEFAULT_WHITELIST);
+          PSRedirectValidation.validateRedirectUrl(
+              "//www.attacker.com/steal-data", DEFAULT_WHITELIST);
       assertNull(result, "Protocol-relative URLs with www should be rejected");
     }
 
@@ -129,7 +134,8 @@ class PSRedirectValidationTest {
     @DisplayName("Should reject external HTTP URLs not in whitelist")
     void testUnwhitelistedExternalUrl() {
       String result =
-          PSRedirectValidation.validateRedirectUrl("http://attacker.com/phishing", DEFAULT_WHITELIST);
+          PSRedirectValidation.validateRedirectUrl(
+              "http://attacker.com/phishing", DEFAULT_WHITELIST);
       assertNull(result, "External URLs not in whitelist should be rejected");
     }
 
@@ -137,14 +143,16 @@ class PSRedirectValidationTest {
     @DisplayName("Should reject external HTTPS URLs not in whitelist")
     void testUnwhitelistedHttpsUrl() {
       String result =
-          PSRedirectValidation.validateRedirectUrl("https://malicious.org/steal", DEFAULT_WHITELIST);
+          PSRedirectValidation.validateRedirectUrl(
+              "https://malicious.org/steal", DEFAULT_WHITELIST);
       assertNull(result, "HTTPS URLs not in whitelist should be rejected");
     }
 
     @Test
     @DisplayName("Should accept whitelisted HTTP URLs")
     void testWhitelistedHttpUrl() {
-      String result = PSRedirectValidation.validateRedirectUrl("http://example.com/page", DEFAULT_WHITELIST);
+      String result =
+          PSRedirectValidation.validateRedirectUrl("http://example.com/page", DEFAULT_WHITELIST);
       assertEquals("http://example.com/page", result, "Whitelisted HTTP URLs should be accepted");
     }
 
@@ -152,29 +160,35 @@ class PSRedirectValidationTest {
     @DisplayName("Should accept whitelisted HTTPS URLs")
     void testWhitelistedHttpsUrl() {
       String result =
-          PSRedirectValidation.validateRedirectUrl("https://www.example.com/secure", DEFAULT_WHITELIST);
-      assertEquals("https://www.example.com/secure", result, "Whitelisted HTTPS URLs should be accepted");
+          PSRedirectValidation.validateRedirectUrl(
+              "https://www.example.com/secure", DEFAULT_WHITELIST);
+      assertEquals(
+          "https://www.example.com/secure", result, "Whitelisted HTTPS URLs should be accepted");
     }
 
     @Test
     @DisplayName("Should accept whitelisted subdomains")
     void testWhitelistedSubdomain() {
       String result =
-          PSRedirectValidation.validateRedirectUrl("https://api.example.com/v1/data", DEFAULT_WHITELIST);
-      assertEquals("https://api.example.com/v1/data", result, "Whitelisted subdomains should be accepted");
+          PSRedirectValidation.validateRedirectUrl(
+              "https://api.example.com/v1/data", DEFAULT_WHITELIST);
+      assertEquals(
+          "https://api.example.com/v1/data", result, "Whitelisted subdomains should be accepted");
     }
 
     @Test
     @DisplayName("Should reject FTP URLs")
     void testFtpUrl() {
-      String result = PSRedirectValidation.validateRedirectUrl("ftp://example.com/file", DEFAULT_WHITELIST);
+      String result =
+          PSRedirectValidation.validateRedirectUrl("ftp://example.com/file", DEFAULT_WHITELIST);
       assertNull(result, "FTP URLs should be rejected (only http/https allowed)");
     }
 
     @Test
     @DisplayName("Should reject file:// URLs")
     void testFileUrl() {
-      String result = PSRedirectValidation.validateRedirectUrl("file:///etc/passwd", DEFAULT_WHITELIST);
+      String result =
+          PSRedirectValidation.validateRedirectUrl("file:///etc/passwd", DEFAULT_WHITELIST);
       assertNull(result, "file:// URLs should be rejected");
     }
   }
@@ -194,15 +208,17 @@ class PSRedirectValidationTest {
     @Test
     @DisplayName("Should reject JavaScript URLs with different capitalization")
     void testJavaScriptUrlCapitalization() {
-      String result = PSRedirectValidation.validateRedirectUrl("JavaScript:alert('XSS')", DEFAULT_WHITELIST);
+      String result =
+          PSRedirectValidation.validateRedirectUrl("JavaScript:alert('XSS')", DEFAULT_WHITELIST);
       assertNull(result, "JavaScript URLs (case-insensitive) should be rejected");
     }
 
     @Test
     @DisplayName("Should reject data URIs")
     void testDataUri() {
-      String result = PSRedirectValidation.validateRedirectUrl(
-          "data:text/html,<script>alert('XSS')</script>", DEFAULT_WHITELIST);
+      String result =
+          PSRedirectValidation.validateRedirectUrl(
+              "data:text/html,<script>alert('XSS')</script>", DEFAULT_WHITELIST);
       assertNull(result, "Data URIs should be rejected");
     }
 
@@ -210,7 +226,8 @@ class PSRedirectValidationTest {
     @DisplayName("Should reject data URIs with different capitalization")
     void testDataUriCapitalization() {
       String result =
-          PSRedirectValidation.validateRedirectUrl("DATA:text/html;base64,PHNjcmlwdD4=", DEFAULT_WHITELIST);
+          PSRedirectValidation.validateRedirectUrl(
+              "DATA:text/html;base64,PHNjcmlwdD4=", DEFAULT_WHITELIST);
       assertNull(result, "Data URIs (case-insensitive) should be rejected");
     }
 
@@ -261,22 +278,28 @@ class PSRedirectValidationTest {
     @DisplayName("Should handle URLs with encoded characters")
     void testEncodedCharacters() {
       String result =
-          PSRedirectValidation.validateRedirectUrl("/search?q=hello%20world&sort=date", DEFAULT_WHITELIST);
-      assertEquals("/search?q=hello%20world&sort=date", result, "URL-encoded characters should be preserved");
+          PSRedirectValidation.validateRedirectUrl(
+              "/search?q=hello%20world&sort=date", DEFAULT_WHITELIST);
+      assertEquals(
+          "/search?q=hello%20world&sort=date",
+          result, "URL-encoded characters should be preserved");
     }
 
     @Test
     @DisplayName("Should reject empty whitelist")
     void testEmptyWhitelist() {
       Set<String> emptyWhitelist = new HashSet<>();
-      String result = PSRedirectValidation.validateRedirectUrl("http://example.com/page", emptyWhitelist);
+      String result =
+          PSRedirectValidation.validateRedirectUrl("http://example.com/page", emptyWhitelist);
       assertNull(result, "External URLs should be rejected with empty whitelist");
     }
 
     @Test
     @DisplayName("Should handle URLs with port numbers")
     void testUrlWithPort() {
-      String result = PSRedirectValidation.validateRedirectUrl("http://example.com:8080/api", DEFAULT_WHITELIST);
+      String result =
+          PSRedirectValidation.validateRedirectUrl(
+              "http://example.com:8080/api", DEFAULT_WHITELIST);
       assertEquals("http://example.com:8080/api", result, "URLs with port numbers should be valid");
     }
 
@@ -285,7 +308,8 @@ class PSRedirectValidationTest {
     void testInternationalizedDomain() {
       Set<String> whitelist = new HashSet<>();
       whitelist.add("example.com");
-      String result = PSRedirectValidation.validateRedirectUrl("http://example.com/über", whitelist);
+      String result =
+          PSRedirectValidation.validateRedirectUrl("http://example.com/über", whitelist);
       assertEquals("http://example.com/über", result, "Internationalized URLs should be valid");
     }
   }
@@ -392,8 +416,9 @@ class PSRedirectValidationTest {
     @DisplayName("Should prevent GitHub OAuth callback hijacking")
     void testGitHubOAuthHijacking() {
       // Attacker tries: http://attacker.com/steal-token?code=legitimateCode
-      String result = PSRedirectValidation.validateRedirectUrl(
-          "http://attacker.com/oauth/callback?code=abc123", DEFAULT_WHITELIST);
+      String result =
+          PSRedirectValidation.validateRedirectUrl(
+              "http://attacker.com/oauth/callback?code=abc123", DEFAULT_WHITELIST);
       assertNull(result, "GitHub OAuth hijacking attempt should be blocked");
     }
 
@@ -401,8 +426,9 @@ class PSRedirectValidationTest {
     @DisplayName("Should allow legitimate OAuth callback")
     void testLegitimateOAuthCallback() {
       Set<String> whitelist = PSRedirectValidation.createDefaultWhitelist("auth.example.com");
-      String result = PSRedirectValidation.validateRedirectUrl(
-          "https://auth.example.com/callback?code=abc123&state=xyz", whitelist);
+      String result =
+          PSRedirectValidation.validateRedirectUrl(
+              "https://auth.example.com/callback?code=abc123&state=xyz", whitelist);
       assertNotNull(result, "Legitimate OAuth callback should be allowed");
     }
 
@@ -412,7 +438,8 @@ class PSRedirectValidationTest {
       // Attacker tries: /auth/callback?next=http://evil.com (URL encoded)
       // But our validation works on decoded URLs, so this is caught at app level
       String result =
-          PSRedirectValidation.validateRedirectUrl("http://attacker.com/phishing", DEFAULT_WHITELIST);
+          PSRedirectValidation.validateRedirectUrl(
+              "http://attacker.com/phishing", DEFAULT_WHITELIST);
       assertNull(result, "Encoded open redirect attempts should be blocked");
     }
 
@@ -420,8 +447,9 @@ class PSRedirectValidationTest {
     @DisplayName("Should prevent open redirect via data exfiltration")
     void testDataExfiltration() {
       // Attacker tries: data:text/html with <img src=http://evil.com?data=
-      String result = PSRedirectValidation.validateRedirectUrl(
-          "data:text/html,<img src=http://attacker.com?cookie=", DEFAULT_WHITELIST);
+      String result =
+          PSRedirectValidation.validateRedirectUrl(
+              "data:text/html,<img src=http://attacker.com?cookie=", DEFAULT_WHITELIST);
       assertNull(result, "Data URI injection attempts should be blocked");
     }
 
@@ -431,8 +459,9 @@ class PSRedirectValidationTest {
       // Legitimate: /checkout/confirm with hidden form redirecting to attacker
       Set<String> whitelist = new HashSet<>();
       whitelist.add("paymentgateway.com");
-      String result = PSRedirectValidation.validateRedirectUrl(
-          "https://attacker.com/steal-card-data", whitelist);
+      String result =
+          PSRedirectValidation.validateRedirectUrl(
+              "https://attacker.com/steal-card-data", whitelist);
       assertNull(result, "Unwhitelisted payment gateway redirect should be blocked");
     }
 
@@ -441,7 +470,8 @@ class PSRedirectValidationTest {
     void testLegitimatePostLoginRedirect() {
       Set<String> whitelist = PSRedirectValidation.createDefaultWhitelist("example.com");
       String result =
-          PSRedirectValidation.validateRedirectUrl("https://www.example.com/dashboard?tab=profile", whitelist);
+          PSRedirectValidation.validateRedirectUrl(
+              "https://www.example.com/dashboard?tab=profile", whitelist);
       assertNotNull(result, "Legitimate post-login redirect should be allowed");
     }
   }

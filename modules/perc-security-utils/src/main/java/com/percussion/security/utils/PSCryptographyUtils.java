@@ -44,10 +44,9 @@ import org.apache.commons.lang3.StringUtils;
  *
  * <p><strong>CWE-327 (Broken/Risky Cryptographic Algorithm) Mitigation:</strong>
  *
- * <p>This utility prevents the use of weak algorithms identified in CodeQL security scans:
- * - MD5, SHA-1, DES, RC4 are explicitly rejected
- * - Only modern, NIST-approved algorithms are recommended
- * - All methods validate algorithm strength
+ * <p>This utility prevents the use of weak algorithms identified in CodeQL security scans: - MD5,
+ * SHA-1, DES, RC4 are explicitly rejected - Only modern, NIST-approved algorithms are recommended -
+ * All methods validate algorithm strength
  *
  * @see <a href="https://cwe.mitre.org/data/definitions/327.html">CWE-327</a>
  * @see <a href="https://owasp.org/www-community/attacks/Brute_force_attack">OWASP - Brute Force
@@ -73,11 +72,8 @@ public final class PSCryptographyUtils {
   /**
    * Computes a SHA-256 hash of the given data.
    *
-   * <p>Use this method for:
-   * - Integrity verification (NOT password storage)
-   * - File checksums
-   * - General message digests
-   * - Replacing MD5 or SHA-1 usage
+   * <p>Use this method for: - Integrity verification (NOT password storage) - File checksums -
+   * General message digests - Replacing MD5 or SHA-1 usage
    *
    * <p><strong>DO NOT use for password hashing:</strong> Use bcrypt or Argon2 instead.
    *
@@ -112,10 +108,8 @@ public final class PSCryptographyUtils {
   /**
    * Computes a SHA-512 hash of the given data (stronger than SHA-256).
    *
-   * <p>Use this method when you need extra security margin:
-   * - Long-term security requirements
-   * - Cryptographic proof time stamping
-   * - Performance is not critical
+   * <p>Use this method when you need extra security margin: - Long-term security requirements -
+   * Cryptographic proof time stamping - Performance is not critical
    *
    * @param data The data to hash (must not be null)
    * @return Hexadecimal representation of the SHA-512 hash
@@ -145,11 +139,9 @@ public final class PSCryptographyUtils {
   /**
    * Validates that an algorithm name is NOT a weak/deprecated algorithm.
    *
-   * <p>Throws an exception if the algorithm is known to be weak:
-   * - MD5: Broken, collisions found
-   * - SHA-1: Deprecated, SHAttered collision attack
-   * - DES: Too small key space (56-bit effective)
-   * - RC4: Biased output, not secure for encryption
+   * <p>Throws an exception if the algorithm is known to be weak: - MD5: Broken, collisions found -
+   * SHA-1: Deprecated, SHAttered collision attack - DES: Too small key space (56-bit effective) -
+   * RC4: Biased output, not secure for encryption
    *
    * @param algorithmName The name of the algorithm to validate
    * @return true if algorithm is allowed
@@ -165,7 +157,9 @@ public final class PSCryptographyUtils {
     for (String weakAlgo : WEAK_ALGORITHMS) {
       if (normalized.contains(weakAlgo)) {
         throw new IllegalArgumentException(
-            "Algorithm '" + algorithmName + "' is weak and not allowed. "
+            "Algorithm '"
+                + algorithmName
+                + "' is weak and not allowed. "
                 + "Use SHA-256 (or SHA-512) instead of "
                 + weakAlgo);
       }
@@ -177,8 +171,8 @@ public final class PSCryptographyUtils {
   /**
    * Generates a cryptographically random salt for password hashing.
    *
-   * <p><strong>Note:</strong> This is for initializing password hashing libraries like bcrypt
-   * or PBKDF2, NOT for direct use in password hashing.
+   * <p><strong>Note:</strong> This is for initializing password hashing libraries like bcrypt or
+   * PBKDF2, NOT for direct use in password hashing.
    *
    * @param length Length of the salt in bytes (typically 16)
    * @return Random bytes suitable for use as a salt

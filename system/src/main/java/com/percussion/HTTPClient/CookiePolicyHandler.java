@@ -21,7 +21,7 @@ package com.percussion.HTTPClient;
  * This is the interface that a cookie policy handler must implement. A policy handler allows you to
  * control which cookies are accepted and which are sent.
  *
- * @see HTTPClient.CookieModule#setCookiePolicyHandler(HTTPClient.CookiePolicyHandler)
+ * @see HTTPClient.CookieModule#setCookiePolicyHandler(CookiePolicyHandler)
  * @version 0.3-3 06/05/2001
  * @author Ronald Tschalär
  * @since V0.3

@@ -55,11 +55,7 @@ public class PSSystem {
     return getShortPathName(inPath);
   }
 
-  /**
-   * Set console handler
-   *
-   * 
-   */
+  /** Set console handler */
   public static void jniSetConsoleCtrlHandler() {
     setConsoleCtrlHandler();
   }
@@ -88,10 +84,6 @@ public class PSSystem {
    */
   private static native String getShortPathName(String inPath);
 
-  /**
-   * Console handler for the java process so that it masks get logoff events
-   *
-   * 
-   */
+  /** Console handler for the java process so that it masks get logoff events */
   private static native void setConsoleCtrlHandler();
 }

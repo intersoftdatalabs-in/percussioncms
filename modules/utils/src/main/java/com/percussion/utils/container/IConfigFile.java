@@ -20,24 +20,25 @@ package com.percussion.utils.container;
 import java.nio.file.Path;
 import java.util.Map;
 
-/**
- * Interface for configuration file operations.
- */
+/** Interface for configuration file operations. */
 public interface IConfigFile {
   /**
    * Gets the path to the configuration file.
+   *
    * @return the file path
    */
   Path getPath();
 
   /**
    * Loads the configuration properties from the file.
+   *
    * @return the properties map
    */
   Map<String, String> load();
 
   /**
    * Saves the configuration properties to the file.
+   *
    * @param properties the properties to save
    */
   void save(Map<String, String> properties);

@@ -208,7 +208,8 @@
 			<groupId>org.apache.myfaces.core</groupId>
 			<artifactId>myfaces-impl</artifactId>
 		</dependency>
-		<!-- Compile-time only: old JSF API for code that uses javax.faces package names -->
+		<!-- Compile-time only: old JSF API for code that uses javax.faces package
+			names -->
 		<!-- At runtime, myfaces-impl provides the actual org.apache.myfaces implementations -->
 		<dependency>
 			<groupId>com.sun.faces</groupId>
@@ -521,7 +522,7 @@
 			<artifactId>jakarta.jms-api</artifactId>
 		</dependency>
 		<!-- Swagger annotations kept for source-level OpenAPI documentation support.
-		     All runtime Swagger/OpenAPI features moved to perc-openapi-webapp. -->
+			All runtime Swagger/OpenAPI features moved to perc-openapi-webapp. -->
 		<dependency>
 			<groupId>org.mozilla</groupId>
 			<artifactId>rhino</artifactId>
@@ -768,9 +769,9 @@
 						<phase>generate-test-resources</phase>
 						<configuration>
 							<resources>
-                <resource>
-                  <directory>src/test/resources</directory>
-                </resource>
+								<resource>
+									<directory>src/test/resources</directory>
+								</resource>
 								<resource>
 									<directory>UnitTestResources</directory>
 									<excludes>

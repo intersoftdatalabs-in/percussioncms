@@ -54,6 +54,7 @@ public class Address {
 
   /**
    * Sets the street address.
+   *
    * @param addressLine1 the street address line 1
    */
   public void setStreet(String addressLine1) {
@@ -62,6 +63,7 @@ public class Address {
 
   /**
    * Sets the second address line.
+   *
    * @param addressLine2 the second address line
    */
   public void setAddressLine2(String addressLine2) {
@@ -70,6 +72,7 @@ public class Address {
 
   /**
    * Gets the state/province.
+   *
    * @return the state
    */
   public String getState() {
@@ -78,6 +81,7 @@ public class Address {
 
   /**
    * Sets the state/province.
+   *
    * @param state the state
    */
   public void setState(String state) {
@@ -86,6 +90,7 @@ public class Address {
 
   /**
    * Gets the town/city.
+   *
    * @return the town
    */
   public String getTown() {
@@ -94,6 +99,7 @@ public class Address {
 
   /**
    * Sets the town/city.
+   *
    * @param town the town
    */
   public void setTown(String town) {
@@ -102,6 +108,7 @@ public class Address {
 
   /**
    * Gets the postal code.
+   *
    * @return the zip code
    */
   public String getZip() {
@@ -110,6 +117,7 @@ public class Address {
 
   /**
    * Sets the postal code.
+   *
    * @param zip the zip code
    */
   public void setZip(String zip) {
@@ -118,6 +126,7 @@ public class Address {
 
   /**
    * Gets the street address.
+   *
    * @return the street address
    */
   public String getStreet() {
@@ -126,6 +135,7 @@ public class Address {
 
   /**
    * Gets the second address line.
+   *
    * @return the second address line
    */
   public String getAddressLine2() {

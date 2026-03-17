@@ -40,12 +40,12 @@ import org.w3c.dom.Element;
  * added to the ResourceBundle.tmx file or directly into the jsp page as part of an rxi18n comment
  * with the following format:
  *
- * <p><%-- rxi18n key="name" note="desc" tuvprops="prop=val,..." tuvseg="val" --%>
+ * <p>&lt;%-- rxi18n key="name" note="desc" tuvprops="prop=val,..." tuvseg="val" --%&gt;
  *
  * <p>i.e.,
  *
- * <p><%-- rxi18n key="jsp_login@Password" note="Password field label" tuvprops="mnemonic=P"
- * tuvseg="Password" --%>
+ * <p>&lt;%-- rxi18n key="jsp_login@Password" note="Password field label" tuvprops="mnemonic=P"
+ * tuvseg="Password" --%&gt;
  *
  * <p>Where key is the i18n key, note is the description of the key's value, tuvprops are the
  * translation unit variant properties, and tuvseg is the translation unit variant segment value for

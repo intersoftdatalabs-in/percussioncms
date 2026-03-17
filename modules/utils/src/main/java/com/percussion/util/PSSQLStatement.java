@@ -39,11 +39,9 @@ public class PSSQLStatement implements Statement {
    * Creates a <code>Statement</code> object from the supplied connection.
    *
    * @param conn the connection, may not be <code>null</code>.
-   *
-   * @return the created <code>PSSQLStatement</code> object if the log4j is
-   *    configured and debug mode is on for this class; otherwise return
-   *    <code>Statement</code> object, never <code>null</code>.
-   *
+   * @return the created <code>PSSQLStatement</code> object if the log4j is configured and debug
+   *     mode is on for this class; otherwise return <code>Statement</code> object, never <code>null
+   *     </code>.
    * @throws SQLException if error occurs.
    */
   public static Statement getStatement(Connection conn) throws SQLException {
@@ -59,18 +57,15 @@ public class PSSQLStatement implements Statement {
   /**
    * Just like {@link #getStatement(Connection)} with additional parameters.
    *
-   * Creates a <code>Statement</code> object from the supplied connection.
+   * <p>Creates a <code>Statement</code> object from the supplied connection.
    *
    * @param conn the connection, may not be <code>null</code>.
    * @param resultSetType a result set type; see ResultSet.TYPE_XXX
    * @param resultSetConcurrency a concurrency type; see ResultSet.CONCUR_XXX
-   *
-   * @return the created <code>PSSQLStatement</code> object if the log4j is
-   *    configured and debug mode is on for this class; otherwise return
-   *    <code>Statement</code> object, never <code>null</code>.
-   *
+   * @return the created <code>PSSQLStatement</code> object if the log4j is configured and debug
+   *     mode is on for this class; otherwise return <code>Statement</code> object, never <code>null
+   *     </code>.
    * @see Connection#createStatement(int, int)
-   *
    * @throws SQLException if error occurs.
    */
   public static Statement getStatement(Connection conn, int resultSetType, int resultSetConcurrency)
@@ -365,9 +360,8 @@ public class PSSQLStatement implements Statement {
   protected String m_sqlStatement;
 
   /**
-   * It contains additional log info, such as the binding values from the
-   * derived class <code>PSPreparedStatement</code>. Never <code>null</code>,
-   * may be empty.
+   * It contains additional log info, such as the binding values from the derived class <code>
+   * PSPreparedStatement</code>. Never <code>null</code>, may be empty.
    */
   protected StringBuilder m_additionalLogInfo = new StringBuilder();
 

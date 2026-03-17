@@ -439,8 +439,7 @@ public enum PSTypeEnum {
   public static PSTypeEnum valueOf(int s) throws IllegalArgumentException {
     PSTypeEnum types[] = values();
     for (int i = 0; i < types.length; i++) {
-      if (types[i].getOrdinal() == s)
-        return types[i];
+      if (types[i].getOrdinal() == s) return types[i];
     }
     return null;
   }

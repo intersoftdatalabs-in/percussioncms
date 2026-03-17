@@ -187,7 +187,6 @@ public class PSItemIteratorTest {
   }
 
   /** Test multi map iteration behavior for the item iterator. */
-
   @Test
   public void testMultiMap() {
     TestItemIterator ti = new TestItemIterator(ms_mm.asMap(), "a*");

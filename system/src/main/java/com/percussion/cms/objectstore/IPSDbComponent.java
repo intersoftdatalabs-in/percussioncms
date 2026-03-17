@@ -199,7 +199,8 @@ public interface IPSDbComponent extends IPSCmsComponent {
    * <p>The various methods that affect these 3 properties maintain the contract as defined in the
    * following table.
    *
-   * <table>
+   * <table border="1">
+   *    <caption>Component States</caption>
    *    <tr>
    *       <th>isAssigned</th>
    *       <th>isPersisted</th>

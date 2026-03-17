@@ -19,8 +19,9 @@ package com.percussion.security;
 
 /** Exception for encryption errors. */
 public class PSEncryptionException extends Exception {
-   /** */
-   private static final long serialVersionUID = 1L;
+  /** */
+  private static final long serialVersionUID = 1L;
+
   public PSEncryptionException(String s, Throwable e) {
     super(s, e);
   }

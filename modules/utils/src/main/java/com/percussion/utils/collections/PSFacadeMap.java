@@ -31,15 +31,14 @@ import java.util.Map;
  * @param <V> the value class for the map
  */
 public class PSFacadeMap<K, V> extends HashMap<K, V> {
-   /** */
-   private static final long serialVersionUID = 1L;
+  /** */
+  private static final long serialVersionUID = 1L;
 
   /**
    * Construct a new facade map
    *
    * @param mapToEncapsulate the map to encapsulate, never <code>null</code>
    */
-
   public PSFacadeMap(Map<K, ? extends V> mapToEncapsulate) {
     super(mapToEncapsulate);
   }

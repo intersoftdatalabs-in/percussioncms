@@ -17,15 +17,15 @@
 
 package com.percussion.security.validation;
 
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
 /**
- * Configuration for URL validation rules. Allows customization of allowed networks and ports
- * for different deployment scenarios (CMS, DTS, etc.).
+ * Configuration for URL validation rules. Allows customization of allowed networks and ports for
+ * different deployment scenarios (CMS, DTS, etc.).
  *
  * <p>Default behavior:
+ *
  * <ul>
  *   <li>Always allows: localhost, 127.0.0.1, ::1 on any port
  *   <li>Always blocks: private IP ranges (10.x, 172.16-31.x, 192.168.x), cloud metadata
@@ -34,13 +34,14 @@ import java.util.Set;
  * </ul>
  *
  * <p>Customization via environment variables/system properties:
+ *
  * <ul>
  *   <li>{@code percussion.url.validation.allow.private.networks=true|false}
  *   <li>{@code percussion.url.validation.allow.ports=8080,9080,9992,9980,8443} (comma-separated)
- *   <li>{@code percussion.url.validation.allowed.ip.ranges=10.0.0.0/8,172.16.0.0/12}
- *   (CIDR notation)
+ *   <li>{@code percussion.url.validation.allowed.ip.ranges=10.0.0.0/8,172.16.0.0/12} (CIDR
+ *       notation)
  *   <li>{@code percussion.url.validation.allowed.hosts=internal-api.local,cms-internal}
- *   (comma-separated)
+ *       (comma-separated)
  * </ul>
  *
  * @author Sunny Sal the Senior Java Developer
@@ -57,11 +58,9 @@ public class URLValidationConfig {
   private final boolean allowAllHosts;
 
   /**
-   * Creates default configuration that:
-   * - Allows localhost/loopback (127.0.0.1, ::1) on any port
-   * - Blocks private IP ranges (10.x, 172.16.x, 192.168.x)
-   * - Allows only standard ports 80/443 for non-localhost
-   * - Only allows http/https protocols
+   * Creates default configuration that: - Allows localhost/loopback (127.0.0.1, ::1) on any port -
+   * Blocks private IP ranges (10.x, 172.16.x, 192.168.x) - Allows only standard ports 80/443 for
+   * non-localhost - Only allows http/https protocols
    */
   public URLValidationConfig() {
     this.allowedPorts = new HashSet<>();
@@ -90,7 +89,8 @@ public class URLValidationConfig {
       boolean allowPrivateNetworks) {
     this.allowedPorts = allowedPorts != null ? new HashSet<>(allowedPorts) : new HashSet<>();
     this.allowedHosts = allowedHosts != null ? new HashSet<>(allowedHosts) : new HashSet<>();
-    this.allowedIPRanges = allowedIPRanges != null ? new HashSet<>(allowedIPRanges) : new HashSet<>();
+    this.allowedIPRanges =
+        allowedIPRanges != null ? new HashSet<>(allowedIPRanges) : new HashSet<>();
     this.allowPrivateNetworks = allowPrivateNetworks;
     this.allowAllPorts = false;
     this.allowAllHosts = false;
@@ -264,9 +264,7 @@ public class URLValidationConfig {
     return new Builder();
   }
 
-  /**
-   * Builder for creating URLValidationConfig instances.
-   */
+  /** Builder for creating URLValidationConfig instances. */
   public static class Builder {
     private final Set<Integer> ports = new HashSet<>();
     private final Set<String> hosts = new HashSet<>();

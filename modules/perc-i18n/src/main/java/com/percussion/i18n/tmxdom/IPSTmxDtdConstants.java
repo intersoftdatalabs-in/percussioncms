@@ -148,28 +148,28 @@ public interface IPSTmxDtdConstants {
   public static final String DEFAULT_VALUE_ATTR_O_TMF = "none";
 
   /**
-   * Value of the attribute {@link #ATRR_TYPE} of {@link #ELEM_PROP} element when it is a child
+   * Value of the attribute {@link #ATTR_TYPE} of {@link #ELEM_PROP} element when it is a child
    * element of {@link #ELEM_HEADER} element. This is the way to set the languages supported in the
    * product. This attribute is not from the standard DTD and is specific to our purpose.
    */
   public static final String ATTR_VAL_SUPPORTEDLANGUAGE = "supportedlanguage";
 
   /**
-   * Value of the attribute {@link #ATRR_TYPE} of {@link #ELEM_PROP} element when it is a child
+   * Value of the attribute {@link #ATTR_TYPE} of {@link #ELEM_PROP} element when it is a child
    * element of {@link #ELEM_TU} element. This is the way to set the section name for each
    * translation unit. This attribute is not from the standard DTD and is specific to our purpose.
    */
   public static final String ATTR_VAL_SECTIONNAME = "sectionname";
 
   /**
-   * Value of the attribute {@link #ATRR_TYPE} of {@link #ELEM_PROP} element when it is a child
+   * Value of the attribute {@link #ATTR_TYPE} of {@link #ELEM_PROP} element when it is a child
    * element of {@link #ELEM_TUV} element. This is the way to specify a mnemonic character for each
    * translation unit. This attribute is not from the standard DTD and is specific to our purpose.
    */
   public static final String ATTR_VAL_MNEMONIC = "mnemonic";
 
   /**
-   * Value of the attribute {@link #ATRR_TYPE} of {@link #ELEM_PROP} element when it is a child
+   * Value of the attribute {@link #ATTR_TYPE} of {@link #ELEM_PROP} element when it is a child
    * element of {@link #ELEM_TUV} element. This is the way to specify a tooltip for each translation
    * unit. This attribute is not from the standard DTD and is specific to our purpose.
    */

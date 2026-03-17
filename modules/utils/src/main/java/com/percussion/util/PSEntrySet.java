@@ -24,7 +24,6 @@ package com.percussion.util;
  *
  * @author Tas Giakouminakis
  * @version 1.0
- * 
  * @param <K> the type of key
  * @param <V> the type of value
  * @since 1.0
@@ -88,7 +87,6 @@ public class PSEntrySet<K, V> implements java.util.Map.Entry<K, V> {
    * also a map entry and the two entries represent the same mapping. More formally, two entries e1
    * and e2 represent the same mapping if
    *
-   *
    * <p>This ensures that the equals method works properly across different implementations of the
    * Map.Entry interface.
    *
@@ -100,33 +98,28 @@ public class PSEntrySet<K, V> implements java.util.Map.Entry<K, V> {
 
     if (!(o instanceof java.util.Map.Entry)) return false;
 
-
     java.util.Map.Entry<?, ?> entry = (java.util.Map.Entry<?, ?>) o;
     Object key = entry.getKey();
     Object val = entry.getValue();
 
     return ((m_key == null) ? (key == null) : m_key.equals(key))
-      && ((m_value == null) ? (val == null) : m_value.equals(val));
+        && ((m_value == null) ? (val == null) : m_value.equals(val));
   }
 
   /**
-   * Returns the hash code value for this map entry. The hash code of a
-   * map entry e is defined to be:
-
-  /**
-   * Returns the hash code value for this map entry. The hash code of a
-   * map entry e is defined to be:
-   * (e.getKey()==null ? 0 : e.getKey().hashCode()) ^
-   * (e.getValue()==null ? 0 : e.getValue().hashCode()).
-   * This ensures that e1.equals(e2) implies that
-   * e1.hashCode()==e2.hashCode() for any two Entries e1 and e2,
-   * as required by the general contract of Object.hashCode.
+   * Returns the hash code value for this map entry. The hash code of a map entry e is defined to
+   * be:
+   *
+   * <p>/** Returns the hash code value for this map entry. The hash code of a map entry e is
+   * defined to be: (e.getKey()==null ? 0 : e.getKey().hashCode()) ^ (e.getValue()==null ? 0 :
+   * e.getValue().hashCode()). This ensures that e1.equals(e2) implies that
+   * e1.hashCode()==e2.hashCode() for any two Entries e1 and e2, as required by the general contract
+   * of Object.hashCode.
    *
    * @return the hash code value for this map entry.
    */
   @Override
   public int hashCode() {
-    return (m_key == null ? 0 : m_key.hashCode()) ^
-        (m_value == null ? 0 : m_value.hashCode());
+    return (m_key == null ? 0 : m_key.hashCode()) ^ (m_value == null ? 0 : m_value.hashCode());
   }
 }

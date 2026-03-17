@@ -39,6 +39,7 @@ public class PSSqlException extends java.sql.SQLException
     implements com.percussion.error.IPSException {
 
   private static final long serialVersionUID = 1L;
+
   /**
    * Construct an exception for messages taking only a single argument.
    *

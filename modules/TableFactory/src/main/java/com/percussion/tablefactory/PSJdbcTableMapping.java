@@ -102,7 +102,7 @@ public class PSJdbcTableMapping {
    * @param srcRow a row data object from the source table,
    * may not be <code>null</code>
    *
-   * @return a list of <code>PSJdbcRowData<code> objects containing the
+   * @return a list of <code>PSJdbcRowData</code> objects containing the
    * transformed row data which can be used to insert/update data into the
    * destination table specified by the <code>destTableSchema</code>
    * parameter in the constructor.

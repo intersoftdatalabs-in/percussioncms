@@ -17,11 +17,11 @@
 package com.percussion.i18n.rxlt;
 
 import com.percussion.i18n.PSI18nUtils;
-import com.percussion.security.xml.PSSecureXMLUtils;
 import com.percussion.i18n.tmxdom.IPSTmxDocument;
 import com.percussion.i18n.tmxdom.IPSTmxDtdConstants;
 import com.percussion.i18n.tmxdom.IPSTmxTranslationUnit;
 import com.percussion.i18n.tmxdom.PSTmxDocument;
+import com.percussion.security.xml.PSSecureXMLUtils;
 import com.percussion.tablefactory.PSJdbcDataTypeMap;
 import com.percussion.tablefactory.PSJdbcDbmsDef;
 import com.percussion.tablefactory.PSJdbcTableData;
@@ -51,7 +51,7 @@ import org.w3c.dom.Text;
 import org.xml.sax.SAXException;
 
 /**
- * This class implements the interface {@link #IPSSectionHandler} and processes the CMS tables part
+ * This class implements the interface {@link IPSSectionHandler} and processes the CMS tables part
  * of the Rhythmyx Content Manager. The logic of building the resource keys is completely built into
  * the XSL Stylesheet {@link #CMSTABLEDATA_TRANSFORM_XSL}. This stylesheet has a list of all tables
  * and the XSL templates to build the keys from the input XML document. This input XML document is

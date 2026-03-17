@@ -29,6 +29,7 @@ import org.junit.jupiter.api.Test;
  * Unit tests for URLValidation - SSRF prevention (CWE-918).
  *
  * <p>Tests validate that:
+ *
  * <ul>
  *   <li>Localhost/loopback (127.0.0.1, ::1, localhost) are ALWAYS allowed on any port
  *   <li>Private IPs (10.x, 172.16.x, 192.168.x) are BLOCKED by default but CONFIGURABLE
@@ -127,15 +128,15 @@ class URLValidationTest {
           "Private IP 10.x.x.x should be blocked by default");
     }
 
-  @Test
-  @DisplayName("Should reject private IP range 10.0.0.0/8")
-  void testRejectPrivateIpRange10() throws MalformedURLException {
-    URL privateUrl = new URL("http://10.0.0.5/internal");
-    assertThrows(
-        SecurityException.class,
-        () -> URLValidation.validateURL(privateUrl),
-        "Should reject 10.x.x.x range");
-  }
+    @Test
+    @DisplayName("Should reject private IP range 10.0.0.0/8")
+    void testRejectPrivateIpRange10() throws MalformedURLException {
+      URL privateUrl = new URL("http://10.0.0.5/internal");
+      assertThrows(
+          SecurityException.class,
+          () -> URLValidation.validateURL(privateUrl),
+          "Should reject 10.x.x.x range");
+    }
 
     @Test
     @DisplayName("Should reject private IP 172.16.0.100 by default")
@@ -160,8 +161,7 @@ class URLValidationTest {
     @Test
     @DisplayName("Should allow configured private IP range (10.0.0.0/8)")
     void testAllowConfiguredPrivateIPRange() throws MalformedURLException {
-      URLValidationConfig config =
-          URLValidationConfig.builder().addIPRange("10.0.0.0/8").build();
+      URLValidationConfig config = URLValidationConfig.builder().addIPRange("10.0.0.0/8").build();
       URL privateUrl = new URL("http://10.0.0.100:80");
       URLValidation.validateURL(privateUrl, config);
     }
@@ -170,10 +170,7 @@ class URLValidationTest {
     @DisplayName("Should allow configured ports for private IPs")
     void testAllowConfiguredPortForPrivateIP() throws MalformedURLException {
       URLValidationConfig config =
-          URLValidationConfig.builder()
-              .addIPRange("192.168.0.0/16")
-              .addPort(9992)
-              .build();
+          URLValidationConfig.builder().addIPRange("192.168.0.0/16").addPort(9992).build();
       URL cmsInternalUrl = new URL("http://192.168.1.100:9992");
       URLValidation.validateURL(cmsInternalUrl, config);
     }

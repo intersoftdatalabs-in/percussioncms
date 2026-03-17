@@ -92,15 +92,14 @@ public class PSStringComparator implements Comparator<Object> {
    */
   public static final int SORT_CASE_INSENSITIVE_ASC = 0;
 
-/**
-     * Constant for constructing this class to sort without regard to case, in ascending aphabetical
-     * order.
-     *
-     * @deprecated this constant is named incorrectly, use <code>SORT_CASE_INSENSITIVE_ASC</code>
-         *     instead as that does the same thing and is correctly named.
-     */
-    @Deprecated
-    public static final int SORT_CASE_SENSITIVE_ASC = SORT_CASE_INSENSITIVE_ASC;
+  /**
+   * Constant for constructing this class to sort without regard to case, in ascending aphabetical
+   * order.
+   *
+   * @deprecated this constant is named incorrectly, use <code>SORT_CASE_INSENSITIVE_ASC</code>
+   *     instead as that does the same thing and is correctly named.
+   */
+  @Deprecated public static final int SORT_CASE_SENSITIVE_ASC = SORT_CASE_INSENSITIVE_ASC;
 
   /** The type of sorting to perform. Initialized by the ctor, never modified after that. */
   private int m_type;

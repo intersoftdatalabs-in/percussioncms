@@ -27,13 +27,12 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 /**
- * Unit tests for PSJCRQueryValidator.
- * Tests validate JCR query injection prevention with positive and negative test cases.
+ * Unit tests for PSJCRQueryValidator. Tests validate JCR query injection prevention with positive
+ * and negative test cases.
  *
- * <p>Test Coverage:
- * - Positive tests: Valid paths, content types, and queries accepted safely
- * - Negative tests: Injection attempts, malformed inputs, and null bytes rejected
- * - SQL injection attack simulations: Common injection patterns prevented
+ * <p>Test Coverage: - Positive tests: Valid paths, content types, and queries accepted safely -
+ * Negative tests: Injection attempts, malformed inputs, and null bytes rejected - SQL injection
+ * attack simulations: Common injection patterns prevented
  */
 @DisplayName("PSJCRQueryValidator - JCR Query Injection Prevention")
 class PSJCRQueryValidatorTest {
@@ -106,13 +105,15 @@ class PSJCRQueryValidatorTest {
   @Test
   @DisplayName("Should reject empty path")
   void testEmptyPath() {
-    assertThrows(IllegalArgumentException.class, () -> PSJCRQueryValidator.validateAndEscapePath(""));
+    assertThrows(
+        IllegalArgumentException.class, () -> PSJCRQueryValidator.validateAndEscapePath(""));
   }
 
   @Test
   @DisplayName("Should reject blank path (whitespace only)")
   void testBlankPath() {
-    assertThrows(IllegalArgumentException.class, () -> PSJCRQueryValidator.validateAndEscapePath("   "));
+    assertThrows(
+        IllegalArgumentException.class, () -> PSJCRQueryValidator.validateAndEscapePath("   "));
   }
 
   @Test
@@ -282,28 +283,33 @@ class PSJCRQueryValidatorTest {
   @DisplayName("Should build safe query with valid path and no content types")
   void testBuildSafeQueryNoContentTypes() {
     String query = PSJCRQueryValidator.buildSafeJCRQuery("/Sites/MySite", null);
-    assertEquals("select rx:sys_contentid from nt:base where jcr:path like '/Sites/MySite/%'", query);
+    assertEquals(
+        "select rx:sys_contentid from nt:base where jcr:path like '/Sites/MySite/%'", query);
   }
 
   @Test
   @DisplayName("Should build safe query with valid path and empty content types")
   void testBuildSafeQueryEmptyContentTypes() {
     String query = PSJCRQueryValidator.buildSafeJCRQuery("/Sites/MySite", Collections.emptyList());
-    assertEquals("select rx:sys_contentid from nt:base where jcr:path like '/Sites/MySite/%'", query);
+    assertEquals(
+        "select rx:sys_contentid from nt:base where jcr:path like '/Sites/MySite/%'", query);
   }
 
   @Test
   @DisplayName("Should build safe query with valid path and single content type")
   void testBuildSafeQuerySingleContentType() {
-    String query = PSJCRQueryValidator.buildSafeJCRQuery("/Sites/MySite", Arrays.asList("percPage"));
-    assertEquals("select rx:sys_contentid from rx:percPage where jcr:path like '/Sites/MySite/%'", query);
+    String query =
+        PSJCRQueryValidator.buildSafeJCRQuery("/Sites/MySite", Arrays.asList("percPage"));
+    assertEquals(
+        "select rx:sys_contentid from rx:percPage where jcr:path like '/Sites/MySite/%'", query);
   }
 
   @Test
   @DisplayName("Should build safe query with valid path and multiple content types")
   void testBuildSafeQueryMultipleContentTypes() {
     String query =
-        PSJCRQueryValidator.buildSafeJCRQuery("/Sites/MySite", Arrays.asList("percPage", "percAsset"));
+        PSJCRQueryValidator.buildSafeJCRQuery(
+            "/Sites/MySite", Arrays.asList("percPage", "percAsset"));
     assertTrue(query.contains("rx:percPage"));
     assertTrue(query.contains("rx:percAsset"));
     assertTrue(query.contains("where jcr:path like '/Sites/MySite/%'"));
@@ -326,7 +332,8 @@ class PSJCRQueryValidatorTest {
     assertThrows(
         IllegalArgumentException.class,
         () ->
-            PSJCRQueryValidator.buildSafeJCRQuery("/Sites/MySite", Arrays.asList("perc-invalid", "bad type")),
+            PSJCRQueryValidator.buildSafeJCRQuery(
+                "/Sites/MySite", Arrays.asList("perc-invalid", "bad type")),
         "Should reject when all content types are invalid");
   }
 
@@ -404,6 +411,7 @@ class PSJCRQueryValidatorTest {
         () -> PSJCRQueryValidator.validateAndEscapePath(maliciousPath),
         "Should prevent XPATH injection");
   }
+
   // ============================================================================
   // PROPERTY NAME VALIDATION TESTS
   // ============================================================================
@@ -505,17 +513,13 @@ class PSJCRQueryValidatorTest {
   @Test
   @DisplayName("Should reject null value")
   void testNullValue() {
-    assertThrows(
-        IllegalArgumentException.class,
-        () -> PSJCRQueryValidator.escapeQueryValue(null));
+    assertThrows(IllegalArgumentException.class, () -> PSJCRQueryValidator.escapeQueryValue(null));
   }
 
   @Test
   @DisplayName("Should reject empty value")
   void testEmptyValue() {
-    assertThrows(
-        IllegalArgumentException.class,
-        () -> PSJCRQueryValidator.escapeQueryValue(""));
+    assertThrows(IllegalArgumentException.class, () -> PSJCRQueryValidator.escapeQueryValue(""));
   }
 
   @Test
@@ -565,7 +569,7 @@ class PSJCRQueryValidatorTest {
   void testBuildSafeWhereClausePreventSQLInjection() {
     // The value will be escaped, but the property name validation will protect against
     // injection in the property name itself
-    String result =
-        PSJCRQueryValidator.buildSafeWhereClause("rx:content_id", "123' OR '1'='1");
+    String result = PSJCRQueryValidator.buildSafeWhereClause("rx:content_id", "123' OR '1'='1");
     assertEquals("rx:content_id='123'' OR ''1''=''1'", result);
-  }}
+  }
+}

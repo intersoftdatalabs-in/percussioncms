@@ -22,23 +22,22 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- * Security utility for validating Java object deserialization.
- * Provides patterns and guidance to prevent gadget chain attacks and unsafe deserialization
- * (CWE-502).
+ * Security utility for validating Java object deserialization. Provides patterns and guidance to
+ * prevent gadget chain attacks and unsafe deserialization (CWE-502).
  *
- * <p>Java serialization can be exploited through gadget chains in application dependencies.
- * This utility provides:
- * - Predefined sets of safe classes
- * - Filter specifications for use with JVM serialization filters
- * - Documentation of best practices for deserialization
+ * <p>Java serialization can be exploited through gadget chains in application dependencies. This
+ * utility provides: - Predefined sets of safe classes - Filter specifications for use with JVM
+ * serialization filters - Documentation of best practices for deserialization
  *
  * <p>Usage of JVM-level filter (recommended):
+ *
  * <pre>
  * // Set system property before running application:
  * // -Djdk.serialFilter=java.lang.String;java.util.ArrayList;com.percussion.MyClass;!*
  * </pre>
  *
  * <p>Manual validation in code:
+ *
  * <pre>
  * Class&lt;?&gt; cls = Class.forName(className, false, classLoader);
  * if (!SerializationValidation.isSafeClass(className)) {
@@ -47,6 +46,7 @@ import java.util.Set;
  * </pre>
  *
  * <p>CWE-502: Deserialization of Untrusted Data
+ *
  * <p>Reference: JEP 290 - Filter Incoming Serialization Data
  */
 public class SerializationValidation {
@@ -143,6 +143,7 @@ public class SerializationValidation {
    * Builds a serialization filter specification string for JVM-level filtering.
    *
    * <p>The resulting string can be used with the {@code jdk.serialFilter} system property:
+   *
    * <pre>
    * String filter = SerializationValidation.buildFilterSpec(
    *     "com.percussion.MyClass", "org.custom.SafeClass"
@@ -188,6 +189,7 @@ public class SerializationValidation {
    * Builds a permissive filter spec that allows specific packages.
    *
    * <p>Example:
+   *
    * <pre>
    * String filter = SerializationValidation.buildPackageFilterSpec("com.percussion.*");
    * </pre>
@@ -249,4 +251,3 @@ public class SerializationValidation {
     return new HashSet<>(PERCUSSION_SAFE_CLASSES);
   }
 }
-

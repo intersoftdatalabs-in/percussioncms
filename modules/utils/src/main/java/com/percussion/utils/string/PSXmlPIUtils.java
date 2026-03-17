@@ -31,12 +31,12 @@ import org.w3c.dom.NodeList;
  *
  * <ol>
  *   <li>The first section replaces all active tags with a comment of the form
- *   &lt;!--@psx-activetag-NNNNN--&gt; where NNNNN is a sequential number allocated for each active
- *   tag.</li>
+ *       &lt;!--@psx-activetag-NNNNN--&gt; where NNNNN is a sequential number allocated for each
+ *       active tag.
  *   <li>In the second step, run after the content has been process through html tidy, the comments
- *   are replaced with processing instructions.</li>
+ *       are replaced with processing instructions.
  *   <li>The third step is run when the content is being sent back to ephox. In the third step the
- *   processing instructions are stripped.</li>
+ *       processing instructions are stripped.
  * </ol>
  *
  * @author dougrand
@@ -220,7 +220,8 @@ public class PSXmlPIUtils {
   /**
    * Remove any pi that is followed by a value in the start sequences, and which has the
    * corresponding value in the end sequences at the other end. So a string that consists of a start
-   * pi, followed by the percent sign {@literal <%} and {@literal %>} signs will have the pi stripped if the <% and %> are in the sequences.
+   * pi, followed by the percent sign {@literal <%} and {@literal %>} signs will have the pi
+   * stripped if these sequences are present.
    *
    * @param input input data string, never <code>null</code> or empty
    * @return a filtered string, where appropriate CData are removed

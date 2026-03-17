@@ -254,12 +254,11 @@ public class RxTableInstallLogic {
    * name or is one of the user's roles.
    *
    * @param sAdminName  The name of the workflow administrator
-   * @param sUserName   The user's name, cannot be <CODE>null<\CODE>
+   * @param sUserName   The user's name, cannot be <CODE>null</CODE>
    * @param sRoleList   A comma-delimited list of the user's roles.
-   * @return            <CODE>true<\CODE> if the user is an administrator,
-   *                    <CODE>false<\CODE> if not.
-   * @throws            <CODE>IllegalArgumentException<\CODE> if the user
-   *                    name is <CODE>null<\CODE>or empty.
+   * @return            <CODE>true</CODE> if the user is an administrator,
+   *                    <CODE>false</CODE> if not.
+   * @throws            IllegalArgumentException if the user name is <CODE>null</CODE> or empty.
    */
   public static boolean isAdmin(String sAdminName, String sUserName, String sRoleList) {
     // If the admin name is null or empty, the person is not an admin

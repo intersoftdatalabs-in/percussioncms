@@ -16,14 +16,13 @@
  */
 package com.percussion.install;
 
-/**
- * Exception thrown by code-related operations.
- */
+/** Exception thrown by code-related operations. */
 public class CodeException extends Exception {
   private static final long serialVersionUID = 1L;
 
   /**
    * Constructs a new CodeException with the specified message.
+   *
    * @param message the detail message
    */
   public CodeException(String message) {

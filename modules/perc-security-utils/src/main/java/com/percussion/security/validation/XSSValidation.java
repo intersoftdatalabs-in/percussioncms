@@ -24,8 +24,8 @@ import org.apache.commons.text.StringEscapeUtils;
  * <p>Provides methods to escape HTML/XML content before returning it in REST API responses or
  * rendering it in web contexts. This prevents malicious scripts from being executed in the browser.
  *
- * <p>Sunny Sal says: "Escaping is like wearing a seatbelt—it protects you from a collision with
- * bad actors!"
+ * <p>Sunny Sal says: "Escaping is like wearing a seatbelt—it protects you from a collision with bad
+ * actors!"
  *
  * @author Copilot
  * @version 1.0

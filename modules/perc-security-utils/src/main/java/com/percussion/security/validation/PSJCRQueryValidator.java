@@ -24,15 +24,14 @@ import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 
 /**
- * Security utility for validating JCR query inputs to prevent query injection attacks.
- * JCR (Java Content Repository) queries don't support parameterized queries in the same way as
- * SQL, so this class provides validation for path and content type inputs.
+ * Security utility for validating JCR query inputs to prevent query injection attacks. JCR (Java
+ * Content Repository) queries don't support parameterized queries in the same way as SQL, so this
+ * class provides validation for path and content type inputs.
  *
- * <p>Security considerations:
- * - Paths must conform to valid JCR path format (alphanumeric, slashes, hyphens, underscores)
- * - Content types must be valid identifiers (alphanumeric, underscores)
- * - Single quotes are escaped to prevent query injection
- * - Null bytes are rejected to prevent null byte injection
+ * <p>Security considerations: - Paths must conform to valid JCR path format (alphanumeric, slashes,
+ * hyphens, underscores) - Content types must be valid identifiers (alphanumeric, underscores) -
+ * Single quotes are escaped to prevent query injection - Null bytes are rejected to prevent null
+ * byte injection
  *
  * <p>CWE-89: SQL Injection (applies to JCR query injection)
  */
@@ -64,7 +63,8 @@ public class PSJCRQueryValidator {
 
     // Detect null byte injection (CWE-158)
     if (path.contains(NULL_BYTE)) {
-      throw new IllegalArgumentException("JCR path contains null bytes (null byte injection detected)");
+      throw new IllegalArgumentException(
+          "JCR path contains null bytes (null byte injection detected)");
     }
 
     // Detect URL-encoded null bytes
@@ -75,7 +75,8 @@ public class PSJCRQueryValidator {
     // Validate path format: only allow alphanumeric, slashes, hyphens, underscores, single quotes
     if (!VALID_PATH_PATTERN.matcher(path).matches()) {
       throw new IllegalArgumentException(
-          "JCR path contains invalid characters. Only alphanumeric, '/', '-', \"'\", and '_' are allowed");
+          "JCR path contains invalid characters. Only alphanumeric, '/', '-', \"'\", and '_' are"
+              + " allowed");
     }
 
     // Escape single quotes by doubling them (JCR syntax)
@@ -103,8 +104,8 @@ public class PSJCRQueryValidator {
   }
 
   /**
-   * Filters and validates a collection of content types.
-   * Silently removes invalid types instead of throwing exceptions.
+   * Filters and validates a collection of content types. Silently removes invalid types instead of
+   * throwing exceptions.
    *
    * @param contentTypes the collection of content types to filter
    * @return a filtered collection of valid content types
@@ -145,14 +146,19 @@ public class PSJCRQueryValidator {
     }
 
     // Build the FROM clause with validated types
-    String fromClause = validTypes.stream().map(name -> "rx:" + name).collect(Collectors.joining(", "));
+    String fromClause =
+        validTypes.stream().map(name -> "rx:" + name).collect(Collectors.joining(", "));
 
-    return "select rx:sys_contentid from " + fromClause + " where jcr:path like '" + safePath + "/%'";
+    return "select rx:sys_contentid from "
+        + fromClause
+        + " where jcr:path like '"
+        + safePath
+        + "/%'";
   }
 
   /**
-   * Validates and escapes a JCR property name to prevent injection attacks.
-   * Property names must be valid identifiers (CMS property references like "rx:propertyName").
+   * Validates and escapes a JCR property name to prevent injection attacks. Property names must be
+   * valid identifiers (CMS property references like "rx:propertyName").
    *
    * @param propertyName the property name to validate (may include namespace prefix like "rx:")
    * @return the validated property name (unchanged if valid)
@@ -179,8 +185,8 @@ public class PSJCRQueryValidator {
   }
 
   /**
-   * Escapes a value for use in a JCR query WHERE clause.
-   * Handles single quote escaping to prevent injection attacks.
+   * Escapes a value for use in a JCR query WHERE clause. Handles single quote escaping to prevent
+   * injection attacks.
    *
    * @param value the value to escape
    * @return the escaped value (safe for use in WHERE clause)
@@ -201,8 +207,8 @@ public class PSJCRQueryValidator {
   }
 
   /**
-   * Builds a safe WHERE clause for JCR property matching.
-   * Validates and escapes both the property name and value to prevent injection.
+   * Builds a safe WHERE clause for JCR property matching. Validates and escapes both the property
+   * name and value to prevent injection.
    *
    * @param propertyName the JCR property name (e.g., "rx:propertyName")
    * @param value the value to match

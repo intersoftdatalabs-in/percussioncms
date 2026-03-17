@@ -47,7 +47,7 @@ public class PSJdbcExecutionStepLog {
   /**
    * Returns the database server name.
    *
-   * @return the database server name, never <code>null</null>, may be empty
+   * @return the database server name, never <code>null</code>, may be empty
    */
   public String getDBServer() {
     return m_dbServer;
@@ -65,7 +65,7 @@ public class PSJdbcExecutionStepLog {
   /**
    * Returns the database name.
    *
-   * @return the database name, never <code>null</null>, may be empty
+   * @return the database name, never <code>null</code>, may be empty
    */
   public String getDatabaseName() {
     return m_dbName;
@@ -74,7 +74,7 @@ public class PSJdbcExecutionStepLog {
   /**
    * Returns the database type.
    *
-   * @return the database type, never <code>null</null>, may be empty
+   * @return the database type, never <code>null</code>, may be empty
    */
   public String getDatabaseType() {
     return m_dbType;
@@ -95,7 +95,7 @@ public class PSJdbcExecutionStepLog {
   /**
    * Returns the table name.
    *
-   * @return the table name, never <code>null</null>, may be empty
+   * @return the table name, never <code>null</code>, may be empty
    */
   public String getTable() {
     return m_table;
@@ -114,7 +114,7 @@ public class PSJdbcExecutionStepLog {
    * Returns the row containing the primary key columns of the current step.
    *
    * @return the row containing the primary key columns of the current step,
-   * may be <code>null</null>
+   * may be <code>null</code>
    */
   public PSJdbcRowData getPrimaryKey() {
     return m_pkKeyRowData;
@@ -133,7 +133,7 @@ public class PSJdbcExecutionStepLog {
    * Returns the sql query associated with the current step.
    *
    * @return the sql query associated with the current step,
-   * never <code>null</null>, may be empty
+   * never <code>null</code>, may be empty
    */
   public String getSqlQuery() {
     return m_sqlQuery;
@@ -194,7 +194,7 @@ public class PSJdbcExecutionStepLog {
    * execution of the current step.
    *
    * @return the error message associated with the execution of
-   * the current step, never <code>null</null>, may be empty
+   * the current step, never <code>null</code>, may be empty
    */
   public String getErrorMessage() {
     return m_errorMsg;
@@ -215,7 +215,7 @@ public class PSJdbcExecutionStepLog {
    * the current step.
    *
    * @return the message associated with the execution of the current step,
-   * never <code>null</null>, may be empty
+   * never <code>null</code>, may be empty
    */
   public String getMessage() {
     return m_msg;
