@@ -46,7 +46,7 @@ import com.percussion.utils.guid.IPSGuid;
  * <p>
  * Information about jobs is held for long period of time after the jobs
  * complete. After this time has past, the next call to
- * {@link #startPublishingJob(IPSGuid)} will cause "old" jobs to be reaped.
+ * {@link #startPublishingJob(IPSGuid, IPSPublishingJobStatusCallback)} will cause "old" jobs to be reaped.
  * 
  * @author YuBingChen
  */

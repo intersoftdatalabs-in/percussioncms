@@ -649,7 +649,7 @@ public class Codecs {
    *     attribute was found, or the contents of the part.
    * @exception IOException If any file operation fails.
    * @exception ParseException If an error during parsing occurs.
-   * @see #mpFormDataDecode(byte[], java.lang.String, java.lang.String, HTTPClient.FilenameMangler)
+   * @see mpFormDataDecode(byte[], String, String)
    */
   public static final NVPair[] mpFormDataDecode(byte[] data, String cont_type, String dir)
       throws IOException, ParseException {
@@ -883,7 +883,7 @@ public class Codecs {
    *     array for the headers parameter to the Post() or Put() anyway).
    * @return an encoded byte array containing all the opts and files.
    * @exception IOException If any file operation fails.
-   * @see #mpFormDataEncode(HTTPClient.NVPair[], HTTPClient.NVPair[], HTTPClient.NVPair[],
+   * @see mpFormDataEncode(NVPair[], String, NVPair[], NVPair[])
    *     HTTPClient.FilenameMangler)
    */
   public static final byte[] mpFormDataEncode(
@@ -908,7 +908,7 @@ public class Codecs {
    *     array for the headers parameter to the Post() or Put() anyway).
    * @return an encoded byte array containing all the opts and files.
    * @exception IOException If any file operation fails.
-   * @see #mpFormDataEncode(HTTPClient.NVPair[], HTTPClient.NVPair[], HTTPClient.NVPair[],
+   * @see mpFormDataEncode(NVPair[], String, NVPair[], NVPair[])
    *     HTTPClient.FilenameMangler)
    */
   public static final byte[] mpFormDataEncode(

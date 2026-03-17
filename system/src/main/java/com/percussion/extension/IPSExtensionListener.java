@@ -52,7 +52,7 @@ public interface IPSExtensionListener extends EventListener {
    * registered as a global listener.
    *
    * @param ref The extension name and handler name. Never <CODE>null</CODE>.
-   * @param mgr The extension manager. Never <CODE>null</CODE>.
+   * @param manager The extension manager. Never <CODE>null</CODE>.
    */
   public void extensionAdded(PSExtensionRef ref, PSExtensionManager manager);
 }

@@ -247,7 +247,6 @@ public interface IPSFolderProcessor {
    * @param options the cloning options, not <code>null</code>.
    * @return the name of the log file if there were errors, <code>null</code> otherwise.
    * @throws PSCmsException for any error.
-   * @todo ph: PSCloningOptions includes navigation options which don't belong here.
    */
   public String copyFolder(
       PSLocator sourceFolderId, PSLocator targetFolderId, PSCloningOptions options)

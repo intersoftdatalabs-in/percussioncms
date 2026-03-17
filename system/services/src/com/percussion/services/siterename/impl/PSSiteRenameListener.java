@@ -42,8 +42,7 @@ import com.percussion.services.siterename.IPSSiteRenameService;
 /**
  * Iterates through all DTS micro services found in PSDeliveryServiceInfo. Calls
  * the "renameSite" method on each service. Should be implemented by each
- * service via the {@link com.percussion.delivery.services.IPSRestService}
- * interface.
+ * service via the IPSRestService interface.
  *
  * Note: It should be noted that this class is only triggered AFTER a full publish
  * has first completed after a site rename.

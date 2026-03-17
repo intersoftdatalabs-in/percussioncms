@@ -42,7 +42,8 @@ import org.apache.logging.log4j.Logger;
 
 /**
  * Java 11 refactored: Utility class for modifying properties of Content Type related
- * Design Objects, such as {@link PSItemDefinition}, {@link PSContentEditor}, etc.
+ * Design Objects, such as {@link com.percussion.cms.objectstore.PSItemDefinition},
+ * {@link com.percussion.design.objectstore.PSContentEditor}, etc.
  * <p>
  * All methods are static and thread-safe. Callers must pass cataloged data to utility methods.
  * <p>

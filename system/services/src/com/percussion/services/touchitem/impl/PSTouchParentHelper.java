@@ -48,16 +48,13 @@ import org.apache.logging.log4j.Logger;
 
 /**
  * This is touch parent code that used to be
- * in {@link PSTouchParentFolderEffect}.
+ * in PSTouchParentFolderEffect.
  * <p>
  * It will only touch the dependents who are in public or
  * quick-edit state. It "touches" the last modified date for the dependents
  * and their Active Assembly relationship parents, so that they will be picked
  * up by the next incremental publishing. For folder dependents, it touches
  * all item descendants of the folders, but not the folder themselves.
- *
- * @see IPSCmsObjectMgr#filterItemsByPublishableFlag(java.util.List, java.util.List)
- * @see IPSCmsObjectMgr#touchItems(Collection)
  */
 public final class PSTouchParentHelper
 {

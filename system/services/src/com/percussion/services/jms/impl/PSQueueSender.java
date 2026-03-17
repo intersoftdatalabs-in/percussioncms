@@ -36,8 +36,8 @@ import org.apache.logging.log4j.Logger;
 
 /**
  * The implementation of the {@link IPSQueueSender} interface.
- * The (spring bean's) properties of {@link #getJndiConnectionFactory()}
- * and {@link #getJndiQueue()} are expected to be configured (or wired) by
+ * The (spring bean's) properties of this class
+ * are expected to be configured (or wired) by
  * spring framework.
  */
 public class PSQueueSender implements IPSQueueSender
@@ -299,7 +299,7 @@ public class PSQueueSender implements IPSQueueSender
     * Gets the message Queue.
     * @return the message queue, never <code>null</code>.
     * @throws NamingException if failed to find the message queue by the
-    *    JNDI name of {@link #getJndiQueue()}.
+    *    JNDI name.
     */
    public Queue getDestination()
    {

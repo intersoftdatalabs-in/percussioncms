@@ -35,9 +35,9 @@ import java.util.Map;
  * The base slot content finder provides the common functionality needed by each
  * slot content finder implementation. The general pattern (not followed for
  * managed nav) is to implement the abstract method
- * {@link #getContentItems(IPSAssemblyItem, IPSTemplateSlot, Map)}. This method
+ * getContentItems. This method
  * provides the information to a general implementation of the
- * {@link #find(IPSAssemblyItem, IPSTemplateSlot, Map)} method.
+ * find method.
  * <p>
  * The base class <code>find</code> method filters and organizes the returned
  * slot items into a set of assembly items to be assembled.

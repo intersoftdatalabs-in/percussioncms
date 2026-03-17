@@ -18,6 +18,7 @@ package com.percussion.webdav.objectstore;
 
 import com.percussion.design.objectstore.PSUnknownNodeTypeException;
 import com.percussion.webdav.error.PSWebdavException;
+import com.percussion.cms.objectstore.IPSDbComponent;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;

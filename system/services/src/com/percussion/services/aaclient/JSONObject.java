@@ -27,7 +27,7 @@ import java.util.Optional;
  * A JSON object implementation that extends LinkedHashMap to maintain insertion order.
  * This class provides methods to convert the object to JSON string format with proper escaping.
  *
- * @author FangYidong<fangyidong@yahoo.com.cn>
+ * @author FangYidong
  */
 public class JSONObject extends LinkedHashMap<String, Object> {
 

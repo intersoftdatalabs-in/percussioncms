@@ -64,9 +64,9 @@ import static com.percussion.services.assembly.impl.finder.PSContentFinderUtils.
 /**
  * The base content finder provides the common functionality needed 
  * by each content finder implementation. The general pattern is to implement 
- * the abstract method {@link #getContentItems(IPSAssemblyItem, T, Map)}. 
+ * the abstract method getContentItems. 
  * This method provides the information to a general implementation of the
- * {@link #find(IPSAssemblyItem, Object, Map)} method.
+ * find method.
  * <p>
  * It is important to note that while this mechanism works well for most
  * cases, there may be cases where an implementer must simply write their own

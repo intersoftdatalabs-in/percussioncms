@@ -38,7 +38,7 @@ import static com.percussion.services.utils.jexl.PSServiceJexlEvaluatorBase.USER
 
 /**
  * A convenient class to get a list of predefined JEXL methods and variables
- * used by {@link PSJexlLocationGenerator}
+ * used by {@link com.percussion.services.publisher.impl.PSJexlLocationGenerator}
  */
 public class PSJexlMethodsForScheme
 {

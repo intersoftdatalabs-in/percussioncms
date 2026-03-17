@@ -95,9 +95,8 @@ import org.springframework.transaction.annotation.Transactional;
  * <p>
  * Note, due to a potential database deadlock (which we had experienced from
  * a SQL server, where sub-query select and delete IDs from the PSX_TEMPID table 
- * at the same time caused deadlock in SQL Server), {@link #executeQuery(Query)
- * and {@link #createIdSet(Session, Collection)} can be processed from more than one 
- * thread at the same time, but {@link #clearIdSet(Session, long)} can only be 
+ * at the same time caused deadlock in SQL Server), executeQuery and createIdSet can 
+ * be processed from more than one thread at the same time, but clearIdSet can only be 
  * processed from one thread at a time.
  * @author dougrand
  */

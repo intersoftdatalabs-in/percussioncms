@@ -1214,18 +1214,20 @@ public interface IPSExtensionErrors {
   /**
    * Error message to indicate that a mandatory transition failed due to a validation error.
    *
-   * <p><TR><TH>Arg</TH><TH>Description</TH></TR> <TR><TD>0</TD><TD>The transition name</TD></TR>
-   * <TR><TD>1</TD><TD>The content id</TD></TR>
+   * <table summary="Arguments">
+   * <tr><th>Arg</th><th>Description</th></tr> <tr><td>0</td><td>The transition name</td></tr>
+   * <tr><td>1</td><td>The content id</td></tr>
+   * </table>
    */
   public static final int MANDATORY_TRANSITION_VALIDATION_FAILURE = 7480;
 
   /**
    * Error message to indicate that a variant to be deleted was in use by an existing relationship.
    *
-   * <table>
-   * <TR><TH>Arg</TH><TH>Description</TH></TR>
-   * <TR><TD>0</TD><TD>The id of the variant</TD></TR>
-   * <TR><TD>1</TD><TD>The content ids that are using the variant as a string</TD></TR>
+   * <table summary="Arguments">
+   * <tr><th>Arg</th><th>Description</th></tr>
+   * <tr><td>0</td><td>The id of the variant</td></tr>
+   * <tr><td>1</td><td>The content ids that are using the variant as a string</td></tr>
    * </table>
    */
   public static final int VARIANT_HAS_RELATIONSHIPS_ERROR = 7621;
@@ -1233,9 +1235,9 @@ public interface IPSExtensionErrors {
   /**
    * Error message to indicate the path of a folder could not be loaded.
    *
-   * <table>
-   * <TR><TH>Arg</TH><TH>Description</TH></TR>
-   * <TR><TD>0</TD><TD>The id of the folder</TD></TR>
+   * <table summary="Arguments">
+   * <tr><th>Arg</th><th>Description</th></tr>
+   * <tr><td>0</td><td>The id of the folder</td></tr>
    * </table>
    */
   public static final int FOLDER_PATH_ERROR = 7622;
@@ -1243,10 +1245,10 @@ public interface IPSExtensionErrors {
   /**
    * Error message to indicate the jexl expression did not evaluate to return a string
    *
-   * <table>
-   * <TR><TH>Arg</TH><TH>Description</TH></TR>
-   * <TR><TD>0</TD><TD>The type that was found</TD></TR>
-   * <TR><TD>1</TD><TD>The type that was expected</TD></TR>
+   * <table summary="Arguments">
+   * <tr><th>Arg</th><th>Description</th></tr>
+   * <tr><td>0</td><td>The type that was found</td></tr>
+   * <tr><td>1</td><td>The type that was expected</td></tr>
    * </table>
    */
   public static final int JEXL_WRONG_RETURN_TYPE = 7623;
@@ -1254,9 +1256,9 @@ public interface IPSExtensionErrors {
   /**
    * Error message to indicate the jexl expression failed to evaluate
    *
-   * <table>
-   * <TR><TH>Arg</TH><TH>Description</TH></TR>
-   * <TR><TD>0</TD><TD>The failed expression</TD></TR>
+   * <table summary="Arguments">
+   * <tr><th>Arg</th><th>Description</th></tr>
+   * <tr><td>0</td><td>The failed expression</td></tr>
    * </table>
    */
   public static final int JEXL_EVALUATION_FAILED = 7634;
@@ -1264,9 +1266,9 @@ public interface IPSExtensionErrors {
   /**
    * Error message to indicate Error occurred when attempting to retrieve folder names
    *
-   * <table>
-   * <TR><TH>Arg</TH><TH>Description</TH></TR>
-   * <TR><TD>0</TD><TD>The exception message</TD></TR>
+   * <table summary="Arguments">
+   * <tr><th>Arg</th><th>Description</th></tr>
+   * <tr><td>0</td><td>The exception message</td></tr>
    * </table>
    */
   public static final int ERROR_GETTING_FOLDER_NAMES = 7635;
@@ -1275,11 +1277,11 @@ public interface IPSExtensionErrors {
    * Error message to indicate that no scheme could be found for the specified template id, content
    * id and context id
    *
-   * <table>
-   * <TR><TH>Arg</TH><TH>Description</TH></TR>
-   * <TR><TD>0</TD><TD>The template id</TD></TR>
-   * <TR><TD>1</TD><TD>The content type id</TD></TR>
-   * <TR><TD>2</TD><TD>The context id</TD></TR>
+   * <table summary="Arguments">
+   * <tr><th>Arg</th><th>Description</th></tr>
+   * <tr><td>0</td><td>The template id</td></tr>
+   * <tr><td>1</td><td>The content type id</td></tr>
+   * <tr><td>2</td><td>The context id</td></tr>
    * </table>
    */
   public static final int SCHEME_CANT_BE_FOUND = 7636;

@@ -23,7 +23,7 @@ import java.util.Map;
  * Each slot finder is responsible for filtering the returned list of assembly
  * items for the authtype passed into the find method. Information needed for a
  * particular use of a slot finder is passed to the
- * {@link #find(IPSAssemblyItem, IPSTemplateSlot, Map)} method
+ * find method
  * <p>
  * Slot finders are reusable across templates, they are referenced by the slots
  * associated with a template.
