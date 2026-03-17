@@ -7,7 +7,6 @@
 */
 
 (function ($, _, Backbone, Backgrid) {
-
   "use strict";
 
   /**
@@ -22,7 +21,6 @@
      @class Backgrid.Extension.Paginator
   */
   Backgrid.Extension.Paginator = Backbone.View.extend({
-
     /** @property */
     className: "backgrid-paginator",
 
@@ -37,15 +35,17 @@
       first: "《",
       prev: "〈",
       next: "〉",
-      last: "》"
+      last: "》",
     },
 
     /** @property */
-    template: _.template('<ul><% _.each(handles, function (handle) { %><li <% if (handle.className) { %>class="<%= handle.className %>"<% } %>><a href="#" <% if (handle.title) {%> title="<%= handle.title %>"<% } %>><%= handle.label %></a></li><% }); %></ul>'),
+    template: _.template(
+      '<ul><% _.each(handles, function (handle) { %><li <% if (handle.className) { %>class="<%= handle.className %>"<% } %>><a href="#" <% if (handle.title) {%> title="<%= handle.title %>"<% } %>><%= handle.label %></a></li><% }); %></ul>'
+    ),
 
     /** @property */
     events: {
-      "click a": "changePage"
+      "click a": "changePage",
     },
 
     /**
@@ -64,8 +64,7 @@
         this.listenTo(fullCollection, "add", this.render);
         this.listenTo(fullCollection, "remove", this.render);
         this.listenTo(fullCollection, "reset", this.render);
-      }
-      else {
+      } else {
         this.listenTo(collection, "add", this.render);
         this.listenTo(collection, "remove", this.render);
         this.listenTo(collection, "reset", this.render);
@@ -83,7 +82,6 @@
 
       var $li = $(e.target).parent();
       if (!$li.hasClass("active") && !$li.hasClass("disabled")) {
-
         var label = $(e.target).text();
         var ffLabels = this.fastForwardHandleLabels;
 
@@ -91,18 +89,18 @@
 
         if (ffLabels) {
           switch (label) {
-          case ffLabels.first:
-            collection.getFirstPage();
-            return;
-          case ffLabels.prev:
-            collection.getPreviousPage();
-            return;
-          case ffLabels.next:
-            collection.getNextPage();
-            return;
-          case ffLabels.last:
-            collection.getLastPage();
-            return;
+            case ffLabels.first:
+              collection.getFirstPage();
+              return;
+            case ffLabels.prev:
+              collection.getPreviousPage();
+              return;
+            case ffLabels.next:
+              collection.getNextPage();
+              return;
+            case ffLabels.last:
+              collection.getLastPage();
+              return;
           }
         }
 
@@ -119,7 +117,6 @@
        @return {Array.<Object>} an array of page handle objects hashes
      */
     makeHandles: function () {
-
       var handles = [];
       var collection = this.collection;
       var state = collection.state;
@@ -130,7 +127,8 @@
       lastPage = Math.max(0, firstPage ? lastPage - 1 : lastPage);
       var currentPage = Math.max(state.currentPage, state.firstPage);
       currentPage = firstPage ? currentPage - 1 : currentPage;
-      var windowStart = Math.floor(currentPage / this.windowSize) * this.windowSize;
+      var windowStart =
+        Math.floor(currentPage / this.windowSize) * this.windowSize;
       var windowEnd = Math.min(lastPage + 1, windowStart + this.windowSize);
 
       if (collection.mode !== "infinite") {
@@ -138,39 +136,38 @@
           handles.push({
             label: i + 1,
             title: "No. " + (i + 1),
-            className: currentPage === i ? "active" : undefined
+            className: currentPage === i ? "active" : undefined,
           });
         }
       }
 
       var ffLabels = this.fastForwardHandleLabels;
       if (ffLabels) {
-
         if (ffLabels.prev) {
           handles.unshift({
             label: ffLabels.prev,
-            className: collection.hasPrevious() ? void 0 : "disabled"
+            className: collection.hasPrevious() ? void 0 : "disabled",
           });
         }
 
         if (ffLabels.first) {
           handles.unshift({
             label: ffLabels.first,
-            className: collection.hasPrevious() ? void 0 : "disabled"
+            className: collection.hasPrevious() ? void 0 : "disabled",
           });
         }
 
         if (ffLabels.next) {
           handles.push({
             label: ffLabels.next,
-            className: collection.hasNext() ? void 0 : "disabled"
+            className: collection.hasNext() ? void 0 : "disabled",
           });
         }
 
         if (ffLabels.last) {
           handles.push({
             label: ffLabels.last,
-            className: collection.hasNext() ? void 0 : "disabled"
+            className: collection.hasNext() ? void 0 : "disabled",
           });
         }
       }
@@ -184,15 +181,15 @@
     render: function () {
       this.$el.empty();
 
-      this.$el.append(this.template({
-        handles: this.makeHandles()
-      }));
+      this.$el.append(
+        this.template({
+          handles: this.makeHandles(),
+        })
+      );
 
       this.delegateEvents();
 
       return this;
-    }
-
+    },
   });
-
-}(jQuery, _, Backbone, Backgrid));
+})(jQuery, _, Backbone, Backgrid);

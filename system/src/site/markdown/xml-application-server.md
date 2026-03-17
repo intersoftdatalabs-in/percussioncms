@@ -435,16 +435,16 @@ Content items are persisted in relational database tables:
 
 The **system module** provides critical services that XAS depends on:
 
-| Service | Package | Role |
-|---------|---------|------|
-| **PSTypeConfiguration** | `com.percussion.services.contentmgr` | Load and cache content type definitions |
-| **PSContentMgr** | `com.percussion.services.contentmgr` | CRUD operations for content items |
-| **PSWorkflowMgr** | `com.percussion.utils.workflow` | Manage workflow states and transitions |
-| **PSRelationshipMgr** | `com.percussion.services.relationship` | Manage content relationships |
-| **PSAclMgr** | `com.percussion.services.security.data` | Enforce access control |
-| **PSGuidMgr** | `com.percussion.services.guidmgr` | Generate unique identifiers |
-| **PSCatalog** | `com.percussion.services.catalog` | Catalog content objects |
-| **PSJavaScript** | `com.percussion.services.general` | JavaScript execution environment |
+|         Service         |                 Package                 |                  Role                   |
+|-------------------------|-----------------------------------------|-----------------------------------------|
+| **PSTypeConfiguration** | `com.percussion.services.contentmgr`    | Load and cache content type definitions |
+| **PSContentMgr**        | `com.percussion.services.contentmgr`    | CRUD operations for content items       |
+| **PSWorkflowMgr**       | `com.percussion.utils.workflow`         | Manage workflow states and transitions  |
+| **PSRelationshipMgr**   | `com.percussion.services.relationship`  | Manage content relationships            |
+| **PSAclMgr**            | `com.percussion.services.security.data` | Enforce access control                  |
+| **PSGuidMgr**           | `com.percussion.services.guidmgr`       | Generate unique identifiers             |
+| **PSCatalog**           | `com.percussion.services.catalog`       | Catalog content objects                 |
+| **PSJavaScript**        | `com.percussion.services.general`       | JavaScript execution environment        |
 
 ### Service Locator Pattern
 
@@ -514,17 +514,17 @@ Class<?> clazz = gen.createClass();
 
 ## Field Types
 
-| Type | Database | Use Case | Example |
-|------|----------|----------|---------|
-| **text** | VARCHAR | Short text, titles, names | Product name, article title |
-| **richtext** | LONGTEXT | Formatted HTML content | Article body, product description |
-| **numeric** | DECIMAL/INT | Numbers, quantities | Price, quantity, rating |
-| **date** | TIMESTAMP | Calendar dates | Publication date, expiry date |
-| **choice** | VARCHAR | Enumerated values | Status (draft/published), category |
-| **reference** | INT/GUID | Link to other content | Author reference, category link |
-| **image** | GUID | Binary media | Product photo, featured image |
-| **file** | GUID | Binary documents | PDF attachment, downloadable content |
-| **boolean** | TINYINT | True/false values | Featured, published flags |
+|     Type      |  Database   |         Use Case          |               Example                |
+|---------------|-------------|---------------------------|--------------------------------------|
+| **text**      | VARCHAR     | Short text, titles, names | Product name, article title          |
+| **richtext**  | LONGTEXT    | Formatted HTML content    | Article body, product description    |
+| **numeric**   | DECIMAL/INT | Numbers, quantities       | Price, quantity, rating              |
+| **date**      | TIMESTAMP   | Calendar dates            | Publication date, expiry date        |
+| **choice**    | VARCHAR     | Enumerated values         | Status (draft/published), category   |
+| **reference** | INT/GUID    | Link to other content     | Author reference, category link      |
+| **image**     | GUID        | Binary media              | Product photo, featured image        |
+| **file**      | GUID        | Binary documents          | PDF attachment, downloadable content |
+| **boolean**   | TINYINT     | True/false values         | Featured, published flags            |
 
 ## Workflow Integration
 
@@ -667,7 +667,6 @@ ArticleType {
 - **Service locator pattern** – Clean abstraction for accessing core services
 - **JDK 21 ready** – ByteBuddy-based class generation handles modern Java restrictions
 - **Legacy stability** – Backward compatible with all existing content type definitions
-
 
 ```text
 HTTP Request
@@ -866,12 +865,15 @@ This abstraction decouples logical application paths from physical file location
 ### Core Components
 
 #### 1. Content Type Definition (XML)
+
 Content types are defined in XML configuration files, typically located in:
+
 ```
 system/config/ContentTypes/*.xml
 ```
 
 A content type definition includes:
+
 ```xml
 <PSXContentType id="100" name="Article">
   <PSXDataTypeSet>
@@ -896,7 +898,7 @@ Loads, parses, and caches content type definitions at startup:
 - Reads XML configuration files
 - Builds in-memory type catalogs
 - Generates dynamic classes for
-content items (via
+  content items (via
 
 **PSBeanGenerator** using ByteBuddy)
 
@@ -917,7 +919,7 @@ XAS generates Java classes at runtime for each content type:
 - Provides type-safe access to content item data
 
 - **Migration Note:** Originally used CGLib; now uses
-**ByteBuddy** for JDK 21 compatibility
+  **ByteBuddy** for JDK 21 compatibility
 
 #### 4. Persistence Layer
 
@@ -953,7 +955,9 @@ Response
 ## Configuration
 
 ### Location
+
 Content type configurations are typically located in:
+
 ```
 system/config/ContentTypes/
 system/config/SharedFieldDefs/
@@ -963,6 +967,7 @@ system/config/Workflows/
 ### Key Configuration Elements
 
 #### Content Type Declaration
+
 - **id** – Unique numeric type identifier
 - **name** – Human-readable type name
 - **description** – Documentation
@@ -970,6 +975,7 @@ system/config/Workflows/
 - **workflow** – Associated workflow
 
 #### Field Definition
+
 - **fieldName** – Unique within type
 - **dataType** – text, numeric, richtext, reference, date, etc.
 - **required** – Boolean constraint
@@ -979,11 +985,13 @@ system/config/Workflows/
 - **searchable** – Full-text indexable
 
 #### Workflow Integration
+
 - Associates states and transitions
 - Defines permissions per state
 - Triggers actions on state changes
 
 #### Relationship Definition
+
 - **source** – Content type with reference field
 - **target** – Referenced content type
 - **cardinality** – 1:1, 1:N, N:N
@@ -1040,6 +1048,7 @@ system/config/Workflows/
 ## Content Type Lifecycle
 
 ### 1. Registration
+
 1. Administrator creates/modifies content type XML
 2. File placed in `system/config/ContentTypes/`
 3. CMS startup or hot-deploy reads configuration
@@ -1048,6 +1057,7 @@ system/config/Workflows/
 6. Type registered in service catalog
 
 ### 2. Instance Creation
+
 1. Content creator requests new item of type
 2. **PSContentMgr.createItem()** invoked
 3. Dynamic class instantiated
@@ -1056,6 +1066,7 @@ system/config/Workflows/
 6. Item submitted for workflow entry
 
 ### 3. Persistence
+
 1. **PSContentMgr.save()** called
 2. Dynamic object mapped to database by Hibernate
 3. Type-specific data inserted
@@ -1064,6 +1075,7 @@ system/config/Workflows/
 6. Change events dispatched
 
 ### 4. Retrieval & Modification
+
 1. **PSContentMgr.find()** locates item by ID or criteria
 2. Hibernate reconstructs dynamic class instance
 3. Field values loaded from database
@@ -1072,6 +1084,7 @@ system/config/Workflows/
 6. Change events triggered
 
 ### 5. Workflow Progression
+
 1. Item transitions between workflow states
 2. State-specific permissions enforced
 3. Actions triggered (notifications, approvals)
@@ -1080,20 +1093,22 @@ system/config/Workflows/
 ## Integration with System Module
 
 ### Service Dependencies
+
 The **system module** provides critical services that XAS depends on:
 
-| Service | Package | Role |
-|---------|---------|------|
-| **PSTypeConfiguration** | `com.percussion.services.contentmgr` | Load and cache content type definitions |
-| **PSContentMgr** | `com.percussion.services.contentmgr` | CRUD operations for content items |
-| **PSWorkflowMgr** | `com.percussion.utils.workflow` | Manage workflow states and transitions |
-| **PSRelationshipMgr** | `com.percussion.services.relationship` | Manage content relationships |
-| **PSAclMgr** | `com.percussion.services.security.data` | Enforce access control |
-| **PSGuidMgr** | `com.percussion.services.guidmgr` | Generate unique identifiers |
-| **PSCatalog** | `com.percussion.services.catalog` | Catalog content objects |
-| **PSJavaScript** | `com.percussion.services.general` | JavaScript execution environment |
+|         Service         |                 Package                 |                  Role                   |
+|-------------------------|-----------------------------------------|-----------------------------------------|
+| **PSTypeConfiguration** | `com.percussion.services.contentmgr`    | Load and cache content type definitions |
+| **PSContentMgr**        | `com.percussion.services.contentmgr`    | CRUD operations for content items       |
+| **PSWorkflowMgr**       | `com.percussion.utils.workflow`         | Manage workflow states and transitions  |
+| **PSRelationshipMgr**   | `com.percussion.services.relationship`  | Manage content relationships            |
+| **PSAclMgr**            | `com.percussion.services.security.data` | Enforce access control                  |
+| **PSGuidMgr**           | `com.percussion.services.guidmgr`       | Generate unique identifiers             |
+| **PSCatalog**           | `com.percussion.services.catalog`       | Catalog content objects                 |
+| **PSJavaScript**        | `com.percussion.services.general`       | JavaScript execution environment        |
 
 ### Service Locator Pattern
+
 XAS uses the **Service Locator Pattern** (implemented in system module) to access services:
 
 ```java
@@ -1108,6 +1123,7 @@ List<PSFieldDefinition> fields = contentType.getFieldDefinitions();
 ```
 
 ### Dynamic Class Integration
+
 When new content types are registered:
 1. **PSTypeConfiguration** detects configuration change
 2. **PSBeanGenerator** (ByteBuddy-based) creates dynamic class
@@ -1122,6 +1138,7 @@ When new content types are registered:
 Content types that are defined via XAS require dynamic Java class generation at runtime. The **PSBeanGenerator** class handles this:
 
 **Before (CGLib - JDK 8 compatible):**
+
 ```java
 BeanGenerator gen = new BeanGenerator();
 gen.setNamingPolicy(new TypeNamingPolicy());
@@ -1132,6 +1149,7 @@ Class<?> clazz = gen.create(); // Uses reflective ClassLoader.defineClass()
 ```
 
 **After (ByteBuddy - JDK 21 compatible):**
+
 ```java
 PSBeanGenerator gen = new PSBeanGenerator();
 gen.setSuperclass(Object.class);
@@ -1142,11 +1160,13 @@ Class<?> clazz = gen.createClass(); // Uses Unsafe.defineClass() compatible with
 ```
 
 ### JDK 21 Compatibility
+
 - CGLib's reflective approach blocked by JDK 21 module system
 - ByteBuddy's `INJECTION` strategy uses `Unsafe.defineClass()` which bypasses module restrictions
 - All class generation runs with Java's default class loading strategy
 
 ### Type Caching
+
 - Content type definitions cached in memory at startup
 - Reduces XML parsing overhead
 - Hot-reload support via service restart
@@ -1154,21 +1174,22 @@ Class<?> clazz = gen.createClass(); // Uses Unsafe.defineClass() compatible with
 
 ## Field Types
 
-| Type | Database | Use Case | Example |
-|------|----------|----------|---------|
-| **text** | VARCHAR | Short text, titles, names | Product name, article title |
-| **richtext** | LONGTEXT | Formatted HTML content | Article body, product description |
-| **numeric** | DECIMAL/INT | Numbers, quantities | Price, quantity, rating |
-| **date** | TIMESTAMP | Calendar dates | Publication date, expiry date |
-| **choice** | VARCHAR | Enumerated values | Status (draft/published), category |
-| **reference** | INT/GUID | Link to other content | Author reference, category link |
-| **image** | GUID | Binary media | Product photo, featured image |
-| **file** | GUID | Binary documents | PDF attachment, downloadable content |
-| **boolean** | TINYINT | True/false values | Featured, published flags |
+|     Type      |  Database   |         Use Case          |               Example                |
+|---------------|-------------|---------------------------|--------------------------------------|
+| **text**      | VARCHAR     | Short text, titles, names | Product name, article title          |
+| **richtext**  | LONGTEXT    | Formatted HTML content    | Article body, product description    |
+| **numeric**   | DECIMAL/INT | Numbers, quantities       | Price, quantity, rating              |
+| **date**      | TIMESTAMP   | Calendar dates            | Publication date, expiry date        |
+| **choice**    | VARCHAR     | Enumerated values         | Status (draft/published), category   |
+| **reference** | INT/GUID    | Link to other content     | Author reference, category link      |
+| **image**     | GUID        | Binary media              | Product photo, featured image        |
+| **file**      | GUID        | Binary documents          | PDF attachment, downloadable content |
+| **boolean**   | TINYINT     | True/false values         | Featured, published flags            |
 
 ## Workflow Integration
 
 ### Workflow Association
+
 Content types are associated with workflows that define:
 - **States**: draft, review, approved, published, archived
 - **Transitions**: Rules for moving between states
@@ -1176,6 +1197,7 @@ Content types are associated with workflows that define:
 - **Permissions**: Who can perform each transition
 
 ### Workflow Example
+
 ```
 draft → review → approved → published → archived
   ↓        ↓         ↓
@@ -1184,6 +1206,7 @@ approval  approval  approval
 ```
 
 ### Workflow Enforcement
+
 1. User submits content to workflow
 2. **PSWorkflowMgr** validates transition
 3. Required actions executed (notifications)
@@ -1194,12 +1217,14 @@ approval  approval  approval
 ## Security & Access Control
 
 ### ACL Integration
+
 - Content types have type-level permissions
 - Individual content items may have item-level ACLs
 - Workflow states have state-level permissions
 - Users or groups granted permissions per state
 
 ### Example
+
 ```
 ArticleType {
   Draft state: Author + Editor can view/edit
@@ -1211,18 +1236,21 @@ ArticleType {
 ## Performance Considerations
 
 ### Caching Strategy
+
 - Content type definitions cached at startup
 - Dynamic class cache maintains generated classes
 - Metadata caching reduces repeated lookups
 - Cache invalidation on configuration changes
 
 ### Query Optimization
+
 - Type-specific queries indexed
 - Relationship queries use junction table indexes
 - Full-text search indexes maintained
 - N+1 query prevention via eager loading
 
 ### Scalability
+
 - XAS supports thousands of content types
 - Each dynamic class instance is lightweight
 - Database connections pooled
@@ -1233,6 +1261,7 @@ ArticleType {
 ### Common Issues
 
 #### Content Type Not Loading
+
 **Symptom:** Type not found in catalog after startup
 **Diagnosis:**
 1. Check `/system/config/ContentTypes/` for XML file
@@ -1241,6 +1270,7 @@ ArticleType {
 4. Verify type ID uniqueness
 
 **Solution:**
+
 ```bash
 # Restart CMS to reload type configurations
 # Check logs:
@@ -1248,11 +1278,13 @@ tail -f catalina.out | grep "PSTypeConfiguration"
 ```
 
 #### Dynamic Class Generation Failures (JDK 21)
+
 **Symptom:** `NoClassDefFoundError` for dynamically generated types
 **Root Cause:** Old CGLib-based code trying to use reflective class loading
 **Solution:** Ensure PSBeanGenerator (ByteBuddy-based) is in use
 
 #### Workflow State Locked
+
 **Symptom:** Cannot transition content between states
 **Diagnosis:**
 1. Check workflow definition for transition rules
@@ -1260,6 +1292,7 @@ tail -f catalina.out | grep "PSTypeConfiguration"
 3. Check required actions (approvals) are satisfied
 
 **Solution:**
+
 ```java
 // Verify transition available
 IPSWorkflowMgr wfMgr = PSServiceLocator.getManager(IPSWorkflowMgr.class);
@@ -1272,18 +1305,21 @@ if (trans != null) {
 ## Migration & Future Direction
 
 ### Historical Evolution
+
 1. **Rhythmyx Era (1999-2010):** Original CGLib-based type engine
 2. **CM System (2010-2015):** XML-driven type definitions introduced
 3. **CM1 (2015-2020):** ORM migration to Hibernate
 4. **8.0+ (2020-present):** Modernization for cloud/containers
 
 ### JDK 21 Modernization
+
 - Replaced CGLib with ByteBuddy for class generation
 - Maintained full backward compatibility with existing type definitions
 - No changes required to existing content types
 - All dynamic class generation now JDK 21 compatible
 
 ### Future Enhancements
+
 - Potential GraphQL schema auto-generation from content types
 - Enhanced metadata vocabulary for AI/ML integration
 - Event-driven architecture for type changes

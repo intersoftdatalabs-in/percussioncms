@@ -267,7 +267,8 @@
 			</then>
 		</if>
 		<!-- Configure default datasource from rxrepository.properties -->
-		<PSConfigureDatasource rootDir="${install.dir}" name="RhythmyxData" />
+		<PSConfigureDatasource rootDir="${install.dir}"
+			name="RhythmyxData" />
 		<echo>Updating CMS Config Files ************************...</echo>
 		<if>
 			<not>

@@ -9,8 +9,8 @@
 * **Do not add this module back to the main reactor build** until a new integration testing framework is ready and these tests have been refactored to use it.
 * If you have been instructed to move an existing integration test to this module from another module.  Do so using:
 
-``` shell
- git mv
+```shell
+git mv
 ```
 
 If you have confirmation that the source file and relevent test resources were moved from the result / output of the 'git mv' command.  Your task related to that file can be considered completed. No aditional verification is needed. Good job!

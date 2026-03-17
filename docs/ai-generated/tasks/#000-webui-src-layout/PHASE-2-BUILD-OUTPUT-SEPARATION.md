@@ -32,6 +32,7 @@ Phase 2 successfully separated generated build outputs from source code. All Vit
 - Output now goes to `${project.build.directory}/generated-webui/cm/jslibMin/` and `/cssMin/`
 
 **Output Validation**:
+
 ```
 ✅ Legacy bundles built successfully!
 - Generated 16 JavaScript bundles (jslibMin/)
@@ -51,6 +52,7 @@ Phase 2 successfully separated generated build outputs from source code. All Vit
 **File**: `.gitignore` (Root)
 
 Added entries to prevent generated files from being committed:
+
 ```gitignore
 # WebUI generated frontend outputs (do not commit)
 WebUI/target/generated-webui/
@@ -82,6 +84,7 @@ Removed generated bundles that should never be in source:
 ## Build Verification
 
 ### Maven Build Status
+
 ```
 ✅ BUILD SUCCESS
 [INFO] Total time: ~30s
@@ -90,6 +93,7 @@ Removed generated bundles that should never be in source:
 ```
 
 ### Generated Output Structure
+
 ```
 target/generated-webui/cm/
 ├── modern/
@@ -119,7 +123,9 @@ target/generated-webui/cm/
 ## Runtime Impact
 
 ### Maven WAR Packaging
+
 The `maven-war-plugin` already includes configuration to overlay generated outputs:
+
 ```xml
 <webResource>
   <directory>${project.build.directory}/generated-webui</directory>
@@ -129,6 +135,7 @@ The `maven-war-plugin` already includes configuration to overlay generated outpu
 ```
 
 ### Runtime URL Paths (Unchanged)
+
 - React app: `/cm/modern/assets/**`
 - Legacy JS bundles: `/cm/jslibMin/**`
 - CSS bundles: `/cm/cssMin/**`
@@ -137,17 +144,18 @@ JSP files continue to reference these paths; the build infrastructure now ensure
 
 ## Key Benefits of Phase 2
 
-| Aspect | Before | After |
-|--------|--------|-------|
-| **Source Control** | ~80MB of generated bundles in git | Only source files tracked |
-| **Build Artifact Size** | Bloated with generated code | Clean separation |
-| **Maven Integration** | Files scattered in war/ | Organized in target/ |
-| **CI/CD Builds** | Had to ignore large generated files | Clean, reproducible builds |
-| **Caching** | Difficult to cache builds | Can cache generated outputs |
+|         Aspect          |               Before                |            After            |
+|-------------------------|-------------------------------------|-----------------------------|
+| **Source Control**      | ~80MB of generated bundles in git   | Only source files tracked   |
+| **Build Artifact Size** | Bloated with generated code         | Clean separation            |
+| **Maven Integration**   | Files scattered in war/             | Organized in target/        |
+| **CI/CD Builds**        | Had to ignore large generated files | Clean, reproducible builds  |
+| **Caching**             | Difficult to cache builds           | Can cache generated outputs |
 
 ## Next Steps
 
 ### Phase 3: Full Integration Test (30 minutes)
+
 - Run `./mvn-env.sh clean package` for WebUI module
 - Extract WAR and verify both source and generated files are present
 - Deploy to test environment
@@ -155,12 +163,14 @@ JSP files continue to reference these paths; the build infrastructure now ensure
 - Confirm CSS/JS are served at correct paths
 
 ### Phase 4: React Modernization (Future)
+
 - Implement actual React components
 - Replace JSP pages with component-based views
 - Build comprehensive component library
 - Add modern tooling (testing, storybook, etc.)
 
 ### Phase 5: CI/CD Pipeline (Future)
+
 - Configure GitHub Actions for automated builds
 - Add build caching for frontend dependencies
 - Setup automated testing
@@ -169,6 +179,7 @@ JSP files continue to reference these paths; the build infrastructure now ensure
 ## Files Modified
 
 ### Configuration
+
 - ✅ `WebUI/src/main/frontend/vite.config.ts`
 - ✅ `WebUI/src/main/frontend/vite.legacy.config.ts`
 - ✅ `WebUI/src/main/frontend/scripts/build-legacy-bundles.js`
@@ -176,14 +187,17 @@ JSP files continue to reference these paths; the build infrastructure now ensure
 - ✅ `.gitignore` (root)
 
 ### Created
+
 - ✅ `WebUI/src/main/frontend/src/main/ts/index.ts` (React placeholder)
 
 ### Verified (No Changes Needed)
+
 - `WebUI/pom.xml` - maven-war-plugin already configured correctly
 
 ## Known Issues & Workarounds
 
 ### Issue: Phase 1 Structural Migration Incomplete
+
 The Phase 1 migration created `src/main/webapp/cm/` but didn't fully reorganize files into the planned `app/js/legacy/`, `vendor/js/legacy/` subdirectories.
 
 **Status**: Noted but not blocking Phase 2. Phase 1 structure is functional; additional reorganization can be done later without impacting Phase 2.

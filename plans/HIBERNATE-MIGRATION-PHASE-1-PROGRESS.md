@@ -55,19 +55,17 @@ The following deprecated methods are still in the code and will cause **compilat
 
 **High Priority (Will Block Build):**
 - `session.saveOrUpdate()` in forEach loops:
-  - PSCmsObjectMgr.java:496 - `list.forEach(pm -> s.saveOrUpdate(pm))`
-  - PSCmsObjectMgr.java:509 - `list.forEach(pm -> s.delete(pm))` - needs .remove()
+- PSCmsObjectMgr.java:496 - `list.forEach(pm -> s.saveOrUpdate(pm))`
+- PSCmsObjectMgr.java:509 - `list.forEach(pm -> s.delete(pm))` - needs .remove()
 
 - `session.update()` calls (deprecated, use `merge()` instead):
   - PSContentService.java:209 - `session.update(existing)`
   - PSCmsObjectMgr.java:647 - `getSession().update(prop)`
   - Other locations in PSContentService.java
-
 - `session.createQuery(String)` without result type (will cause type warnings/errors):
   - PSCmsObjectMgr.java:444, 463
   - PSMetadataDao.java (deliverytiersuite):80, 247, 271, 564
   - Other metadata/query service classes
-
 - `session.get()` deprecated in favor of `find()`:
   - PSContentService.java:394
   - PSManagedLinkDao.java (reads)
@@ -76,34 +74,34 @@ The following deprecated methods are still in the code and will cause **compilat
 
 ## Summary Statistics
 
-| Category | Total | Completed | Status |
-|----------|-------|-----------|--------|
-| session.delete() → remove() | 21 | 21 | ✅ 100% |
-| session.saveOrUpdate() → merge() | 6 | 6 | ✅ 100% |
-| session.update() → merge() | 5+ | 0 | ⏳ Pending |
-| session.createQuery(String) → createQuery(String, Class) | 6+ | 0 | ⏳ Pending |
-| session.get() → find() | 3+ | 0 | ⏳ Pending |
-| **TOTAL API UPDATES** | **41+** | **27** | **~66%** |
+|                         Category                         |  Total  | Completed |  Status   |
+|----------------------------------------------------------|---------|-----------|-----------|
+| session.delete() → remove()                              | 21      | 21        | ✅ 100%    |
+| session.saveOrUpdate() → merge()                         | 6       | 6         | ✅ 100%    |
+| session.update() → merge()                               | 5+      | 0         | ⏳ Pending |
+| session.createQuery(String) → createQuery(String, Class) | 6+      | 0         | ⏳ Pending |
+| session.get() → find()                                   | 3+      | 0         | ⏳ Pending |
+| **TOTAL API UPDATES**                                    | **41+** | **27**    | **~66%**  |
 
 ---
 
 ## Next Steps
 
 ### Phase 1.5 (Critical Remaining Methods)
+
 Before attempting to build, these critical methods must be fixed:
 
 1. **session.update() → session.merge()** (5+ locations)
    - Decision: Always use merge() for safety (handles both new and detached entities)
-
 2. **Constructor forEach loops with deprecated methods** (PSCmsObjectMgr.java)
    - Replace `s.saveOrUpdate(pm)` with `s.merge(pm)`
    - Replace `s.delete(pm)` with `s.remove(pm)`
-
 3. **session.createQuery(String) without result type** (High priority for type safety)
    - Add result class parameter to all HQL queries
    - Example: `session.createQuery("from Entity", Entity.class)`
 
 ### Phase 2 (Configuration & Dependencies)
+
 - Update pom.xml versions (hibernate 6.6.42 → 7.2.6, validator 6.2.3 → 8.0.1)
 - Update all perc-datasources.xml cache region factory classes
 - Run full test suite
@@ -145,3 +143,4 @@ Before attempting to build, these critical methods must be fixed:
 - **Phase 2 (Configuration & Build):** 1-2 hours
 - **Phase 3 (Testing):** 2-4 hours
 - **Total:** 4-8 hours to complete migration
+

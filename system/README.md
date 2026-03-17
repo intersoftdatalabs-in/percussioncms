@@ -27,57 +27,57 @@ The system module provides:
 
 ### Active Development (Java Code)
 
-| Directory | Purpose | Status |
-|-----------|---------|--------|
-| `services/src` | Service interfaces and implementations (catalog, assembly, content, GUID, etc.) | **Active** ✅ |
-| `business/src` | Business logic for delivery, proxy config, authentication, metadata | **Active** ✅ |
-| `servlet/src` | Servlet implementations and HTTP handlers | **Active** ✅ |
-| `src/main/java` | Core CMS classes, utilities, object store implementations | **Active** ✅ |
-| `src/test/java` | Unit and integration tests | **Active** ✅ |
-| `beans/src` | Bean definitions and factories | **Active** ✅ |
-| `uploader/src` | File upload handling | **Active** ✅ |
-| `agenthandler/src` | Agent-related functionality | **Active** ✅ |
+|     Directory      |                                     Purpose                                     |    Status    |
+|--------------------|---------------------------------------------------------------------------------|--------------|
+| `services/src`     | Service interfaces and implementations (catalog, assembly, content, GUID, etc.) | **Active** ✅ |
+| `business/src`     | Business logic for delivery, proxy config, authentication, metadata             | **Active** ✅ |
+| `servlet/src`      | Servlet implementations and HTTP handlers                                       | **Active** ✅ |
+| `src/main/java`    | Core CMS classes, utilities, object store implementations                       | **Active** ✅ |
+| `src/test/java`    | Unit and integration tests                                                      | **Active** ✅ |
+| `beans/src`        | Bean definitions and factories                                                  | **Active** ✅ |
+| `uploader/src`     | File upload handling                                                            | **Active** ✅ |
+| `agenthandler/src` | Agent-related functionality                                                     | **Active** ✅ |
 
 ### Configuration & Resources
 
-| Directory | Contents | Status |
-|-----------|----------|--------|
-| `config/` | Server configuration, content editors, workflow, categories | **Active** |
-| `applications/` | Application XML definitions and resources | **Active** |
-| `installResources/` | Installation scripts and resource templates | **Active** |
-| `design/dtd`, `design/schemas` | DTD and XML schema definitions | **Active** |
+|           Directory            |                          Contents                           |   Status   |
+|--------------------------------|-------------------------------------------------------------|------------|
+| `config/`                      | Server configuration, content editors, workflow, categories | **Active** |
+| `applications/`                | Application XML definitions and resources                   | **Active** |
+| `installResources/`            | Installation scripts and resource templates                 | **Active** |
+| `design/dtd`, `design/schemas` | DTD and XML schema definitions                              | **Active** |
 
 ### Deployment & Packaging
 
-| Directory | Purpose | Status |
-|-----------|---------|--------|
-| `ear/` | Enterprise Archive (EAR) assembly configuration | **Active** |
-| `webservices/src` | Web service implementations | **Active** |
-| `release/` | Release packaging for Jetty, JBoss, Tomcat | **Active** |
+|     Directory     |                     Purpose                     |   Status   |
+|-------------------|-------------------------------------------------|------------|
+| `ear/`            | Enterprise Archive (EAR) assembly configuration | **Active** |
+| `webservices/src` | Web service implementations                     | **Active** |
+| `release/`        | Release packaging for Jetty, JBoss, Tomcat      | **Active** |
 
 ### Legacy & Historical (Minimal Activity)
 
-| Directory | Contents | Status |
-|-----------|----------|--------|
-| `Testing/` | Legacy test applications and test data | Legacy |
-| `Docs/` | Historical documentation (check for active content) | Legacy |
-| `FastForward/` | Legacy sample content and templates | Legacy |
-| `Designer/` | Admin UI templates and resources | Legacy |
-| `Defaults/` | Error pages and default stylesheets | Legacy |
-| `VersionControl/` | Version tracking files | Legacy |
-| `Tools/` | Legacy conversion and utility tools (HTTPClient, etc.) | Legacy |
-| `Samples/` | Sample applications and content | Legacy |
-| `lib/` | Legacy JAR libraries and binaries | Legacy |
-| `DTD/` | Legacy DTD files | Legacy |
-| `databases/` | Tutorial/sample databases | Legacy |
-| `ReleasedDocuments/` | Old documentation archives | Legacy |
+|      Directory       |                        Contents                        | Status |
+|----------------------|--------------------------------------------------------|--------|
+| `Testing/`           | Legacy test applications and test data                 | Legacy |
+| `Docs/`              | Historical documentation (check for active content)    | Legacy |
+| `FastForward/`       | Legacy sample content and templates                    | Legacy |
+| `Designer/`          | Admin UI templates and resources                       | Legacy |
+| `Defaults/`          | Error pages and default stylesheets                    | Legacy |
+| `VersionControl/`    | Version tracking files                                 | Legacy |
+| `Tools/`             | Legacy conversion and utility tools (HTTPClient, etc.) | Legacy |
+| `Samples/`           | Sample applications and content                        | Legacy |
+| `lib/`               | Legacy JAR libraries and binaries                      | Legacy |
+| `DTD/`               | Legacy DTD files                                       | Legacy |
+| `databases/`         | Tutorial/sample databases                              | Legacy |
+| `ReleasedDocuments/` | Old documentation archives                             | Legacy |
 
 ### Configuration Management
 
-| Directory | Purpose |
-|-----------|---------|
+|           Directory           |                  Purpose                  |
+|-------------------------------|-------------------------------------------|
 | `configmgr/`, `dtsconfigmgr/` | Legacy configuration management utilities |
-| `cms/content/` | Content type configurations |
+| `cms/content/`                | Content type configurations               |
 
 ## Key Components
 
@@ -164,21 +164,25 @@ See `refactored-java11-packages.txt` and `refactored-soap-packages.txt` for list
 ### Build Commands
 
 **Compile only:**
+
 ```bash
 ./mvn-env.sh -pl system compile
 ```
 
 **Run tests:**
+
 ```bash
 ./mvn-env.sh -pl system test
 ```
 
 **Full build with packaging:**
+
 ```bash
 ./mvn-env.sh -pl system clean install
 ```
 
 **Code style check & formatting:**
+
 ```bash
 ./mvn-env.sh -pl system spotless:check
 ./mvn-env.sh spotless:apply  # If formatting is needed
@@ -201,12 +205,12 @@ See `refactored-java11-packages.txt` and `refactored-soap-packages.txt` for list
 
 ### Key Migrations
 
-| Component | Migration Notes |
-|-----------|-----------------|
-| Dynamic Bean Generation | Replaced CGLib `BeanGenerator` with ByteBuddy in `PSTypeConfiguration` |
-| Data Package | See `business/refactored-soap-packages.txt` |
+|         Component          |                            Migration Notes                             |
+|----------------------------|------------------------------------------------------------------------|
+| Dynamic Bean Generation    | Replaced CGLib `BeanGenerator` with ByteBuddy in `PSTypeConfiguration` |
+| Data Package               | See `business/refactored-soap-packages.txt`                            |
 | Delivery/Metadata Services | All classes use Java 17 features; see `refactored-java11-packages.txt` |
-| Admin UI Beans | JSF compatibility maintained; Java 17 modernized |
+| Admin UI Beans             | JSF compatibility maintained; Java 17 modernized                       |
 
 ### Backward Compatibility
 
@@ -235,6 +239,7 @@ Before working on this module, agents **MUST**:
 ### Building & Testing
 
 Always test locally before pushing:
+
 ```bash
 ./mvn-env.sh -pl system clean verify
 ./mvn-env.sh spotless:apply

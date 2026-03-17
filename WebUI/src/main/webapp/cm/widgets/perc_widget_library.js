@@ -18,62 +18,60 @@
 /**
    Widget Library Widget
 **/
-(function($) {
-
-
-//Creates a button to open/close the Widget Library.
-$.perc_create_widget_library = function( btn ) {
+(function ($) {
+  //Creates a button to open/close the Widget Library.
+  $.perc_create_widget_library = function (btn) {
     btn.off();
     btn.removeClass("ui-state-disabled").perc_button();
     function close_lib() {
-	$("#perc-pageEditor-toolbar-content").empty();
-	btn.removeClass("perc-widget-library-opened");
+      $("#perc-pageEditor-toolbar-content").empty();
+      btn.removeClass("perc-widget-library-opened");
     }
 
     function mk_widget(w) {
-       var wdg;
-       wdg = $("<div/>") 
-	    .css({'position': 'relative', 'width': '200px'})
-	    .addClass("perc-widget")
-	    .append($("<span/>").append(w.label).addClass("perc-widget-label") )
-	    .append( $("<img src=\"" + w.icon + "\" alt=\"\"></img>") )
-	    .attr('id',"widget-" + w.id + "-" + $('.perc-widget').length)
-            .draggable({
-                  appendTo: 'body',
-                  helper: 'clone',
-                  start: function() { $.perc_iframe_drag.start(wdg); },
-                  stop: $.perc_iframe_drag.stop
-                  });
-       //wdg.find('span').textOverflow('...', true);
-       wdg.data( 'widget', w );
-       return wdg;
+      var wdg;
+      wdg = $("<div/>")
+        .css({ position: "relative", width: "200px" })
+        .addClass("perc-widget")
+        .append($("<span/>").append(w.label).addClass("perc-widget-label"))
+        .append($('<img src="' + w.icon + '" alt=""></img>'))
+        .attr("id", "widget-" + w.id + "-" + $(".perc-widget").length)
+        .draggable({
+          appendTo: "body",
+          helper: "clone",
+          start: function () {
+            $.perc_iframe_drag.start(wdg);
+          },
+          stop: $.perc_iframe_drag.stop,
+        });
+      //wdg.find('span').textOverflow('...', true);
+      wdg.data("widget", w);
+      return wdg;
     }
 
-    function mk_sortable_items( specs ){
-	return $.map(specs.WidgetSummary, function(spec) {
-		   var sortDiv = $("<div/>").append( mk_widget( spec ) ).css({ 'float': 'left' } );
-                   return sortDiv; });
+    function mk_sortable_items(specs) {
+      return $.map(specs.WidgetSummary, function (spec) {
+        var sortDiv = $("<div/>")
+          .append(mk_widget(spec))
+          .css({ float: "left" });
+        return sortDiv;
+      });
     }
     function open_lib() {
-	$.getJSON($.perc_paths.WIDGETS_ALL, function(js) {
-	    		region_tool='<div id="region-tool"><img src="../images/templates/perc-new-region-tool.gif"></div>';
-				  $("#perc-pageEditor-toolbar-content").append($(region_tool));
-		      $.each( mk_sortable_items(js), function() {
-				  $("#perc-pageEditor-toolbar-content").append(this);
-			      });
-		       });
-	btn.addClass( "perc-widget-library-opened" );
+      $.getJSON($.perc_paths.WIDGETS_ALL, function (js) {
+        region_tool =
+          '<div id="region-tool"><img src="../images/templates/perc-new-region-tool.gif"></div>';
+        $("#perc-pageEditor-toolbar-content").append($(region_tool));
+        $.each(mk_sortable_items(js), function () {
+          $("#perc-pageEditor-toolbar-content").append(this);
+        });
+      });
+      btn.addClass("perc-widget-library-opened");
     }
-    btn.on("click",function() {
-		   if( btn.is( '.perc-widget-library-opened' ) )
-		       close_lib();
-		   else
-		       open_lib(); 
-	       } ); 
+    btn.on("click", function () {
+      if (btn.is(".perc-widget-library-opened")) close_lib();
+      else open_lib();
+    });
     return { open: open_lib, close: close_lib };
-};
-
-
-
+  };
 })(jQuery);
-

@@ -15,39 +15,32 @@
  * limitations under the License.
  */
 
-(function($,P) {
+(function ($, P) {
+  P.cssThemeView = function (controller) {
+    var root = $("#perc-css-theme-editor");
 
-    P.cssThemeView = function(controller) {
-    
-        var root = $("#perc-css-theme-editor");    
-        
-    
-        controller.getThemeCSS(function(data) {
-            render(data);
-        });
-     
-        
-    
-        // The render function, empties the tab container, and draws an instance of the CSS Theme Viewer. 
-    
-        function render(data) {
-        
-            root.empty();
-            
-            var editorHTML = 
-            '<form id="perc-css-theme-editor-form">' +
-            '<div id="perc-css-theme-editor-alert-text" class=".ui-state-highlight"></div>' +
-            ' <div class="ui-layout-east" style="">' +           
-            ' </div>' +
-            ' <div class="ui-layout-center">' +
-            '  <pre><div style="" id="perc-css-theme-editor-area">'+data+'</div></pre><br />' +
-            ' </div>' +
-            '</form>';
-    
-            root.append(editorHTML);          
-            
-            
-       }     
-        
-    };
-})(jQuery,jQuery.Percussion);
+    controller.getThemeCSS(function (data) {
+      render(data);
+    });
+
+    // The render function, empties the tab container, and draws an instance of the CSS Theme Viewer.
+
+    function render(data) {
+      root.empty();
+
+      var editorHTML =
+        '<form id="perc-css-theme-editor-form">' +
+        '<div id="perc-css-theme-editor-alert-text" class=".ui-state-highlight"></div>' +
+        ' <div class="ui-layout-east" style="">' +
+        " </div>" +
+        ' <div class="ui-layout-center">' +
+        '  <pre><div style="" id="perc-css-theme-editor-area">' +
+        data +
+        "</div></pre><br />" +
+        " </div>" +
+        "</form>";
+
+      root.append(editorHTML);
+    }
+  };
+})(jQuery, jQuery.Percussion);

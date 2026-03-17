@@ -24,6 +24,7 @@ Phase 4a addressed CWE-209 (Information Exposure Through an Error Message) vulne
 ## Files Fixed (5 REST Services)
 
 ### 1. PSThemeRestService.java (7 fixes)
+
 **File**: [projects/sitemanage/src/main/java/com/percussion/theme/service/impl/PSThemeRestService.java](projects/sitemanage/src/main/java/com/percussion/theme/service/impl/PSThemeRestService.java)
 
 **Fixed Methods**:
@@ -36,6 +37,7 @@ Phase 4a addressed CWE-209 (Information Exposure Through an Error Message) vulne
 - `prepareForEditRegionCSS()` (Line 193): "Failed to prepare theme region for editing. Please try again later."
 
 ### 2. PSTemplateRestService.java (2 fixes)
+
 **File**: [projects/sitemanage/src/main/java/com/percussion/pagemanagement/service/impl/PSTemplateRestService.java](projects/sitemanage/src/main/java/com/percussion/pagemanagement/service/impl/PSTemplateRestService.java)
 
 **Fixed Methods**:
@@ -43,6 +45,7 @@ Phase 4a addressed CWE-209 (Information Exposure Through an Error Message) vulne
 - `validate()` (Line 243): "Failed to validate template. Please try again later."
 
 ### 3. PSSiteDataRestService.java (5 fixes)
+
 **File**: [projects/sitemanage/src/main/java/com/percussion/sitemanage/service/impl/PSSiteDataRestService.java](projects/sitemanage/src/main/java/com/percussion/sitemanage/service/impl/PSSiteDataRestService.java)
 
 **Fixed Methods**:
@@ -53,6 +56,7 @@ Phase 4a addressed CWE-209 (Information Exposure Through an Error Message) vulne
 - `validateFolders()` (Line 279): "Failed to validate folders. Please try again later."
 
 ### 4. PSFolderRestService.java (2 fixes)
+
 **File**: [projects/sitemanage/src/main/java/com/percussion/foldermanagement/service/impl/PSFolderRestService.java](projects/sitemanage/src/main/java/com/percussion/foldermanagement/service/impl/PSFolderRestService.java)
 
 **Fixed Methods**:
@@ -60,6 +64,7 @@ Phase 4a addressed CWE-209 (Information Exposure Through an Error Message) vulne
 - `getFolderPagesById()` (Line 223): "Failed to retrieve folder pages. Please try again later."
 
 ### 5. PSWebResourcesRestService.java (6 fixes)
+
 **File**: [projects/sitemanage/src/main/java/com/percussion/designmanagement/service/impl/PSWebResourcesRestService.java](projects/sitemanage/src/main/java/com/percussion/designmanagement/service/impl/PSWebResourcesRestService.java)
 
 **Fixed Methods**:
@@ -75,6 +80,7 @@ Phase 4a addressed CWE-209 (Information Exposure Through an Error Message) vulne
 ## Error Handling Pattern Applied
 
 ### Before (Vulnerable):
+
 ```java
 try {
     return themeService.load(name);
@@ -85,6 +91,7 @@ try {
 ```
 
 ### After (Secure):
+
 ```java
 try {
     return themeService.load(name);
@@ -132,21 +139,23 @@ try {
 
 **Module**: projects/sitemanage
 
-| Metric | Result |
-|--------|--------|
-| **Build Status** | ✅ SUCCESS |
-| **Build Time** | 12.827 s |
-| **New Compiler Errors** | 0 |
-| **Files Modified** | 5 REST services |
-| **Total Fixes Applied** | 22 error message replacements |
-| **Lines of Code Changed** | ~110 lines |
+|          Metric           |            Result             |
+|---------------------------|-------------------------------|
+| **Build Status**          | ✅ SUCCESS                     |
+| **Build Time**            | 12.827 s                      |
+| **New Compiler Errors**   | 0                             |
+| **Files Modified**        | 5 REST services               |
+| **Total Fixes Applied**   | 22 error message replacements |
+| **Lines of Code Changed** | ~110 lines                    |
 
 **Build Command**:
+
 ```bash
 ./mvn-env.sh -pl projects/sitemanage clean compile -DskipTests=true
 ```
 
 **Build Output**:
+
 ```
 [INFO] BUILD SUCCESS
 [INFO] Total time:  12.827 s
@@ -162,6 +171,7 @@ try {
 For each affected REST service endpoint, add tests to verify:
 
 1. **Generic Error Messages Returned**:
+
 ```java
 @Test
 void testLoadThemeErrorResponse() {
@@ -180,6 +190,7 @@ void testLoadThemeErrorResponse() {
 ```
 
 2. **Error Details Logged**:
+
 ```java
 @Test
 void testErrorDetailsLogged() {

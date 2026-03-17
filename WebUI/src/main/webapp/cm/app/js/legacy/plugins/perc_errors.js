@@ -17,11 +17,9 @@
 
 // Centralized list of all error codes returned by the server needed by the UI
 
-(function($) {
-
-    var ERRORS ={
-        NAVIGATION_SERVICE_FOLDER_ID_NOT_FOUND_FOR_PATH: "18001",
-        NAVIGATION_SERVICE_CANNOT_FIND_NAVTREE_FOR_SITE: "18009"
-    };
-
+(function ($) {
+  var ERRORS = {
+    NAVIGATION_SERVICE_FOLDER_ID_NOT_FOUND_FOR_PATH: "18001",
+    NAVIGATION_SERVICE_CANNOT_FIND_NAVTREE_FOR_SITE: "18009",
+  };
 })(jQuery);

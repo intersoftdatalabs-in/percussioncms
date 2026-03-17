@@ -4,6 +4,7 @@ description: Centralized skill to verify the integrity and authenticity of AI re
 version: 1.0
 
 ---
+
 # Agent Integrity Validator Skill
 
 **Purpose**: Ensures that all AI instructions and tools are untampered and signed by an authorized developer. This is the centralized point of failure for security.

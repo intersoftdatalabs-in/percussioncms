@@ -15,17 +15,18 @@ Use this skill when generating or updating Javadoc comments in the percussioncms
 
 ## JDK Version Detection
 
-| Version | Comment Style | HTML Allowed | Markdown Allowed |
-|---------|---------------|--------------|------------------|
-| JDK 8   | `/** ... */`  | Yes          | No               |
-| JDK 21  | `/** ... */`  | Yes          | No               |
-| JDK 25+ | `/** ... */` OR `///` | Deprecated | Yes |
+| Version |     Comment Style     | HTML Allowed | Markdown Allowed |
+|---------|-----------------------|--------------|------------------|
+| JDK 8   | `/** ... */`          | Yes          | No               |
+| JDK 21  | `/** ... */`          | Yes          | No               |
+| JDK 25+ | `/** ... */` OR `///` | Deprecated   | Yes              |
 
 **For percussioncms**: JDK 21 — use traditional `/** ... */` only.
 
 ## Key Rules
 
 ### Structure
+
 ```java
 /**
  * First sentence is the summary (concise, third person, present tense).
@@ -41,12 +42,14 @@ Use this skill when generating or updating Javadoc comments in the percussioncms
 ```
 
 ### Common Mistakes
+
 - ❌ `@returns` → ✅ `@return`
 - ❌ "This method does..." → ✅ "Returns..."
 - ❌ Implementation details → ✅ Observable behavior
 - ❌ Missing `@throws` for checked exceptions
 
 ### Inline Tags
+
 - `{@link ClassName#method}` — Cross-reference
 - `{@code expression}` — Inline code
 - `{@literal text}` — Escape HTML in JDK 25+
@@ -75,3 +78,4 @@ mvn javadoc:jar
 - [Javadoc Tool Comment Style](./reference/javadoc-tool-comments.md)
 - [Javadoc Tool Architecture](./reference/javadoc-tool-architecture.md)
 - [TechDocMonkey Checklist](./reference/javadoc-checklist.md) ← Start here!
+

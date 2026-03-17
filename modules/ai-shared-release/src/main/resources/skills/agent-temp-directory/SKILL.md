@@ -4,7 +4,9 @@ description: Creates and manages temporary directories inside the repo. Includes
 version: 1.2
 
 ---
+
 # Agent Temp Directory Skill
+
 **Purpose**: Makes a fresh, unique dir in your current repo (like `.tmp/temp-agent-abc123`). Also provides cleanup functionality for old temp directories. Silent, safe, no shell prompts.
 **How to use**:
 - Say: "Use agent-temp-directory to create a temp dir"
@@ -65,6 +67,4 @@ Example prompts:
 "Use agent-temp-directory to get a temp dir, then ls -l inside it."
 "Clean old agent temp directories."
 "Clean the temp directory for session 7f638387012a."
-
-
 

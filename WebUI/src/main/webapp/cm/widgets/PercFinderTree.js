@@ -65,7 +65,7 @@
       else if (fPath.indexOf("//Folders/$System$/Assets") !== -1)
         path = fPath.replace(
           "//Folders/$System$/Assets",
-          $.perc_paths.ASSETS_ROOT,
+          $.perc_paths.ASSETS_ROOT
         );
       return path;
     },
@@ -137,7 +137,7 @@
             self._initTree(result.data);
           }
         },
-        null,
+        null
       );
     },
 
@@ -181,14 +181,14 @@
               uls = span.parents("ul").length - 1;
               span.css(
                 "padding-left",
-                uls * FANCYTREE_UL_LI_PADDING + FANCYTREE_UL_LI_PADDING_OFFSET,
+                uls * FANCYTREE_UL_LI_PADDING + FANCYTREE_UL_LI_PADDING_OFFSET
               );
             } else {
               span = $(node.span);
               uls = span.parents("ul").length - 3;
               span.css(
                 "padding-left",
-                uls * FANCYTREE_UL_LI_PADDING + FANCYTREE_UL_LI_PADDING_OFFSET,
+                uls * FANCYTREE_UL_LI_PADDING + FANCYTREE_UL_LI_PADDING_OFFSET
               );
             }
           },
@@ -259,7 +259,7 @@
             self._addChildren(node, result.data);
           }
         },
-        null,
+        null
       );
     },
 
@@ -324,7 +324,7 @@
       ) {
         var nodeObj = self._makeMoreResultsDtNode(
           data.PagedItemList.startIndex + $.PercFinderTreeConstants.MAX_RESULTS,
-          node,
+          node
         );
         node.addChild(nodeObj);
       }
@@ -364,7 +364,7 @@
             node.remove();
           }
         },
-        null,
+        null
       );
     },
     /**
@@ -431,7 +431,7 @@
       var icon = $.perc_utils.choose_icon(
         pathItem.type,
         pathItem.icon,
-        item_path,
+        item_path
       );
       var key = this._generateKey(pathItem.path);
       var node = {

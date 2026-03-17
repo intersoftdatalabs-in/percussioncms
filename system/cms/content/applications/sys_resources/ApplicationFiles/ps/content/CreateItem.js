@@ -66,9 +66,7 @@ ps.content.CreateItem = function () {
       //Controls
       this.wgtButtonSelect = ps.widget.byId("ps.createitem.wgtButtonSelect");
       this.wgtButtonCancel = ps.widget.byId("ps.createitem.wgtButtonCancel");
-      this.wgtTemplateGallery = ps.widget.byId(
-        "ps.createitem.templateGallery"
-      );
+      this.wgtTemplateGallery = ps.widget.byId("ps.createitem.templateGallery");
       this.selectContentTypes = ps.widget.byId("ps.createitem.contentType");
       this.itemTitle = document.getElementById("ps.createitem.itemTitle");
       this.folderPath = document.getElementById("ps.createitem.folderPath");

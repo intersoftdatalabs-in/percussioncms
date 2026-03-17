@@ -26,9 +26,9 @@ Required decision before Phase 2:
 
 1. Confirm whether Swagger can run with Jackson 3 in this stack.
 2. If not, choose one path explicitly:
-    - **Path A (recommended):** Delay full Jackson 3 runtime migration until Swagger stack is replaced or upgraded.
-    - **Path B:** Run Jackson 3 for application JSON serialization, but disable Swagger runtime integration (`swagger-jaxrs2*`) and keep only annotation artifacts used for source metadata.
-    - **Path C:** Move OpenAPI generation to a separate build/runtime path isolated from the main app runtime.
+   - **Path A (recommended):** Delay full Jackson 3 runtime migration until Swagger stack is replaced or upgraded.
+   - **Path B:** Run Jackson 3 for application JSON serialization, but disable Swagger runtime integration (`swagger-jaxrs2*`) and keep only annotation artifacts used for source metadata.
+   - **Path C:** Move OpenAPI generation to a separate build/runtime path isolated from the main app runtime.
 3. Create an issue for the chosen path with acceptance criteria and rollback conditions.
 
 Exit criteria for this gate:
@@ -47,9 +47,9 @@ Recommended design:
 2. Keep Swagger runtime integration out of `Rhythmyx` (`/rest`) and out of `rest` runtime classpath.
 3. Keep `swagger-annotations` in `rest` source only (for API model/resource metadata), but move `swagger-jaxrs2*` runtime concerns to the new module or remove them entirely.
 4. Prefer build-time spec generation for Path C:
-    - Generate `openapi.json` during build from `rest` module annotations.
-    - Package generated `openapi.json` + Swagger UI static assets in `openapi-webapp`.
-    - Serve docs from `/openapi/index.html` and spec from `/openapi/openapi.json`.
+   - Generate `openapi.json` during build from `rest` module annotations.
+   - Package generated `openapi.json` + Swagger UI static assets in `openapi-webapp`.
+   - Serve docs from `/openapi/index.html` and spec from `/openapi/openapi.json`.
 5. Update CMS UI links from `/rest/api-docs?url=/rest/openapi.json...` to `/openapi/index.html?url=/openapi/openapi.json...`.
 6. Keep auth and exposure controls explicit (admin-only or internal-only) for `/openapi/*` endpoints.
 
@@ -122,9 +122,9 @@ Pending next steps:
 ## Phase 4: Class & Method Renames
 
 1. Rename custom serializer/deserializer base classes. *Depends on Phase 3*
-    - `JsonSerializer<T>` → `ValueSerializer<T>` in `PSCustomDateSerializer.java`, `LocalDateSerializer.java`
-    - `JsonDeserializer<T>` → `ValueDeserializer<T>` in `LocalDateDeserializer.java`
-    - `SerializerProvider` → `SerializationContext` in method signatures
+   - `JsonSerializer<T>` → `ValueSerializer<T>` in `PSCustomDateSerializer.java`, `LocalDateSerializer.java`
+   - `JsonDeserializer<T>` → `ValueDeserializer<T>` in `LocalDateDeserializer.java`
+   - `SerializerProvider` → `SerializationContext` in method signatures
 2. Rename exceptions: `JsonProcessingException` → `JacksonException`, `JsonMappingException` → `DatabindException`. Update `PSJsonProcessingExceptionMapper.java` and all catch blocks. *Parallel with step 1*
 3. Feature enum moves: `WRITE_DATES_AS_TIMESTAMPS` → `DateTimeFeature`, enum-related features → `EnumFeature`. *Parallel with step 1*
 4. Other renames: `JsonStreamContext` → `TokenStreamContext`, `TextNode` → `StringNode`, `JsonToken.FIELD_NAME` → `JsonToken.PROPERTY_NAME`. *Parallel with step 1*
@@ -132,11 +132,11 @@ Pending next steps:
 ## Phase 5: ObjectMapper Immutability Migration
 
 1. Convert 3 ContextResolver implementations to builder pattern. *Depends on Phase 4*
-    - **REST JacksonContextResolver** (`rest/src/main/java/com/percussion/rest/JacksonContextResolver.java`) — `new ObjectMapper()` + `.configure()` → `JsonMapper.builder().enable/disable().build()`
-    - **SiteManage JacksonContextResolver** (`projects/sitemanage/src/main/java/com/percussion/sitemanage/json/JacksonContextResolver.java`) — most complex: visibility, annotation introspectors, module registration. Remove `ParameterNamesModule`/`Jdk8Module`/`JavaTimeModule` registrations (built-in). Convert `setSerializationInclusion` → `.changeDefaultPropertyInclusion()`, `setVisibility` → `.changeDefaultVisibility()`
-    - **PSJAXBContextResolver** (`projects/sitemanage/src/main/java/com/percussion/category/marshaller/PSJAXBContextResolver.java`) — remove JavaTimeModule, convert to builder
+   - **REST JacksonContextResolver** (`rest/src/main/java/com/percussion/rest/JacksonContextResolver.java`) — `new ObjectMapper()` + `.configure()` → `JsonMapper.builder().enable/disable().build()`
+   - **SiteManage JacksonContextResolver** (`projects/sitemanage/src/main/java/com/percussion/sitemanage/json/JacksonContextResolver.java`) — most complex: visibility, annotation introspectors, module registration. Remove `ParameterNamesModule`/`Jdk8Module`/`JavaTimeModule` registrations (built-in). Convert `setSerializationInclusion` → `.changeDefaultPropertyInclusion()`, `setVisibility` → `.changeDefaultVisibility()`
+   - **PSJAXBContextResolver** (`projects/sitemanage/src/main/java/com/percussion/category/marshaller/PSJAXBContextResolver.java`) — remove JavaTimeModule, convert to builder
 2. Convert 50+ direct `new ObjectMapper()` to `JsonMapper.builder().build()` — prioritize production code, then tests. *Parallel with step 1*
-    - Key files: `PSSiteDataService.java` (4 instances), `PSSerializerUtils.java` (2 instances), `PSCloudService.java`
+   - Key files: `PSSiteDataService.java` (4 instances), `PSSerializerUtils.java` (2 instances), `PSCloudService.java`
 
 ## Phase 6: JAX-RS Provider Migration
 
@@ -146,16 +146,16 @@ Pending next steps:
 
 1. Review and decide on changed defaults. *Depends on Phase 5*
 
-    | Feature | 2.x Default | 3.x Default | Current Setting | Action |
-    | --- | --- | --- | --- | --- |
-    | `FAIL_ON_UNKNOWN_PROPERTIES` | enabled | **disabled** | REST: true, SiteManage: false | Keep explicit settings |
-    | `WRITE_DATES_AS_TIMESTAMPS` | enabled | **disabled** | Explicitly disabled | Already aligned |
-    | `FAIL_ON_TRAILING_TOKENS` | disabled | **enabled** | Not set | Accept 3.x default |
-    | `FAIL_ON_NULL_FOR_PRIMITIVES` | disabled | **enabled** | Not set | Test for breakage |
-    | `SORT_PROPERTIES_ALPHABETICALLY` | disabled | **enabled** | Not set | May break brittle tests |
-    | `READ_ENUMS_USING_TO_STRING` | disabled | **enabled** | Not set | Assess impact |
+   |             Feature              | 2.x Default | 3.x Default  |        Current Setting        |         Action          |
+   |----------------------------------|-------------|--------------|-------------------------------|-------------------------|
+   | `FAIL_ON_UNKNOWN_PROPERTIES`     | enabled     | **disabled** | REST: true, SiteManage: false | Keep explicit settings  |
+   | `WRITE_DATES_AS_TIMESTAMPS`      | enabled     | **disabled** | Explicitly disabled           | Already aligned         |
+   | `FAIL_ON_TRAILING_TOKENS`        | disabled    | **enabled**  | Not set                       | Accept 3.x default      |
+   | `FAIL_ON_NULL_FOR_PRIMITIVES`    | disabled    | **enabled**  | Not set                       | Test for breakage       |
+   | `SORT_PROPERTIES_ALPHABETICALLY` | disabled    | **enabled**  | Not set                       | May break brittle tests |
+   | `READ_ENUMS_USING_TO_STRING`     | disabled    | **enabled**  | Not set                       | Assess impact           |
 
-    Use `JsonMapper.builderWithJackson2Defaults()` as transitional tool if needed.
+   Use `JsonMapper.builderWithJackson2Defaults()` as transitional tool if needed.
 
 ## Phase 8: Exception Handling Cleanup
 
@@ -244,3 +244,4 @@ Pending next steps:
 1. **OpenRewrite recipe completeness** — May not cover all renames (e.g., `SerializerProvider` → `SerializationContext`). Plan for manual fixes after automated pass.
 2. **JAX-RS Provider 3.x availability (blocking)** — Verify `jackson-jakarta-rs-json-provider` has a 3.x release under `tools.jackson` groupId and is compatible with required Swagger flow. If not, choose and document Path A/B/C from the blocking gate before proceeding.
 3. **JAXB Annotation Module** — `jackson-module-jaxb-annotations` and `jackson-module-jakarta-xmlbind-annotations` need 3.x equivalents. Verify availability — affects annotation introspector pairing in SiteManage.
+

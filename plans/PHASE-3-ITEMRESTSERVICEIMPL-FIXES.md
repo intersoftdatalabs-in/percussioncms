@@ -14,11 +14,11 @@ Successfully remediated 3 critical XSS (Cross-Site Scripting) vulnerabilities in
 
 ### Vulnerabilities Addressed
 
-| Line | Type | Severity | Fix Applied | Status |
-|------|------|----------|-------------|--------|
-| 1943 | Path parameter concatenation | CRITICAL | HTML escape via `XSSValidation.escapeHtml()` | ✅ FIXED |
-| 2019 | Assembly result concatenation | CRITICAL | Generic error message | ✅ FIXED |
-| 2024 | Assembly result concatenation | CRITICAL | Generic error message | ✅ FIXED |
+| Line |             Type              | Severity |                 Fix Applied                  | Status  |
+|------|-------------------------------|----------|----------------------------------------------|---------|
+| 1943 | Path parameter concatenation  | CRITICAL | HTML escape via `XSSValidation.escapeHtml()` | ✅ FIXED |
+| 2019 | Assembly result concatenation | CRITICAL | Generic error message                        | ✅ FIXED |
+| 2024 | Assembly result concatenation | CRITICAL | Generic error message                        | ✅ FIXED |
 
 ---
 
@@ -27,6 +27,7 @@ Successfully remediated 3 critical XSS (Cross-Site Scripting) vulnerabilities in
 ### Fix 1: PurgeAllFolderContent Path Parameter Escaping (Line 1943)
 
 **Vulnerable Code** (BEFORE):
+
 ```java
 @DELETE
 @Path("/PurgeFolder/{target:.*}")
@@ -39,6 +40,7 @@ public Response PurgeAllFolderContent(@PathParam("target") String target) {
 ```
 
 **Fixed Code** (AFTER):
+
 ```java
 @DELETE
 @Path("/PurgeFolder/{target:.*}")
@@ -62,6 +64,7 @@ public Response PurgeAllFolderContent(@PathParam("target") String target) {
 ### Fix 2 & 3: Assembly Error Message Handling (Lines 2019, 2024)
 
 **Vulnerable Code** (BEFORE):
+
 ```java
 try {
     items = updateItems(output);
@@ -81,6 +84,7 @@ try {
 ```
 
 **Fixed Code** (AFTER):
+
 ```java
 try {
     items = updateItems(output);
@@ -118,6 +122,7 @@ try {
 ### XSSValidation Utility Integration
 
 Added import:
+
 ```java
 import com.percussion.security.validation.XSSValidation;
 ```
@@ -135,6 +140,7 @@ This prevents browser interpretation of injected scripts while preserving the or
 ### Dependency Verification
 
 ✅ **perc-toolkit pom.xml** already includes:
+
 ```xml
 <dependency>
     <groupId>com.percussion</groupId>
@@ -157,31 +163,24 @@ Created comprehensive unit test suite: [ItemRestServiceImplXSSTest.java](modules
 1. **testPurgeAllFolderContentEscapesPathParameter** ✅
    - Verifies 5 different XSS payloads are escaped in response
    - Confirms `<`, `>`, script tags, and event handlers are neutralized
-
 2. **testAssemblyErrorsUseGenericMessages** ✅
    - Verifies no dangerous content is concatenated into error messages
    - Confirms generic error text is used instead
-
 3. **testEscapeCommonXSSPayloads** ✅
    - Tests common XSS payload escaping: quotes, javascript:, data:, svg, SQL injection attempts
    - Verifies all HTML special characters are encoded
-
 4. **testHandleNullAndEmptyPathParameters** ✅
    - Edge case handling for null and empty strings
    - Ensures no exceptions or unsafe behavior
-
 5. **testLegitimatePaths** ✅
    - Verifies legitimate folder names pass through correctly
    - Ensures functionality isn't broken for safe input
-
 6. **testPreventHTMLEntityXSS** ✅
    - Tests entity encoding attacks (&#60;, &#x3c;, etc.)
    - Verifies double-encoding is safe
-
 7. **testResponseBuilderCorrectType** ✅
    - Validates response structure and status code
    - Ensures REST contract is maintained
-
 8. **testLegitimatePaths** ✅
    - Confirms safe paths remain in response unchanged
 
@@ -230,6 +229,7 @@ $ ./mvn-env.sh -pl modules/perc-security-utils install -DskipTests=true
 ## Configuration Changes
 
 ### Files Modified:
+
 1. `modules/perc-toolkit/src/main/java/com/percussion/pso/restservice/impl/ItemRestServiceImpl.java`
    - Added 1 import statement
    - Added 3 code fixes (lines 1944, 2019, 2031)
@@ -237,6 +237,7 @@ $ ./mvn-env.sh -pl modules/perc-security-utils install -DskipTests=true
    - Total: ~25 lines changed
 
 ### Files Created:
+
 1. `modules/perc-toolkit/src/test/java/com/percussion/pso/restservice/impl/ItemRestServiceImplXSSTest.java`
    - New test class: 180+ lines
    - 8 comprehensive unit tests

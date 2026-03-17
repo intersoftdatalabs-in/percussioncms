@@ -9,13 +9,10 @@ Before writing any code in this module, **you must** read the following document
 1. **[README.md](./README.md)** — Overview of the module, its structure, and the Extension Manager architecture.
    - Key sections: "Module structure", "Extension categories", "Extension point interfaces", "Architecture notes", "Runtime lifecycle"
    - **Critical to understand:** The FQN (Fully Qualified Name) vs. category distinction and why category is correctly part of `PSExtensionRef.equals()` but map keys use FQN strings.
-
 2. **[Extension Point Interfaces (site doc)](./src/site/markdown/extension-interfaces.md)** — All 24+ interfaces with counts, packages, and purposes.
    - Use this when choosing which interface a new extension should implement.
-
 3. **[Extension Lookup Fix (worklog doc)](./src/site/markdown/worklog/extension-lookup-fix.md)** — Root cause analysis of the `6a1fbb402` regression.
    - **Why this matters:** Understand why the inner map in `PSExtensionHandlerConfiguration` must use FQN strings, not `PSExtensionRef` objects, as keys.
-
 4. **[Planned Refactoring (site doc)](./src/site/markdown/planned-refactoring.md)** — The roadmap for moving Extension Manager implementation into this module.
    - Shapes all architectural decisions going forward.
 
@@ -96,15 +93,15 @@ All changes must **preserve backward compatibility** with:
 
 ## Key documents
 
-| Document | Location | Audience | Key content |
-|---|---|---|---|
-| README | [./README.md](./README.md) | All developers, agents | Architecture, categories, interfaces, how to add extensions, building |
-| Extension Categories | [./src/site/markdown/extension-categories.md](./src/site/markdown/extension-categories.md) | Extension developers | All 28+ categories, context conventions, counts |
-| Extension Interfaces | [./src/site/markdown/extension-interfaces.md](./src/site/markdown/extension-interfaces.md) | Extension developers | All 24+ interfaces, base classes, init parameters |
-| Adding Extensions | [./src/site/markdown/adding-extensions.md](./src/site/markdown/adding-extensions.md) | Extension developers | Step-by-step guide with code examples |
-| Runtime Lifecycle | [./src/site/markdown/runtime-lifecycle.md](./src/site/markdown/runtime-lifecycle.md) | Core developers, refactoring team | Startup sequence, caching, FQN identity, hot-deploy |
-| Planned Refactoring | [./src/site/markdown/planned-refactoring.md](./src/site/markdown/planned-refactoring.md) | Architecture team | Phases, constraints, backward compatibility |
-| Extension Lookup Fix | [./src/site/markdown/worklog/extension-lookup-fix.md](./src/site/markdown/worklog/extension-lookup-fix.md) | Maintainers debugging issues | Root cause of `6a1fbb402` regression, FQN vs. category |
+|       Document       |                                                  Location                                                  |             Audience              |                              Key content                              |
+|----------------------|------------------------------------------------------------------------------------------------------------|-----------------------------------|-----------------------------------------------------------------------|
+| README               | [./README.md](./README.md)                                                                                 | All developers, agents            | Architecture, categories, interfaces, how to add extensions, building |
+| Extension Categories | [./src/site/markdown/extension-categories.md](./src/site/markdown/extension-categories.md)                 | Extension developers              | All 28+ categories, context conventions, counts                       |
+| Extension Interfaces | [./src/site/markdown/extension-interfaces.md](./src/site/markdown/extension-interfaces.md)                 | Extension developers              | All 24+ interfaces, base classes, init parameters                     |
+| Adding Extensions    | [./src/site/markdown/adding-extensions.md](./src/site/markdown/adding-extensions.md)                       | Extension developers              | Step-by-step guide with code examples                                 |
+| Runtime Lifecycle    | [./src/site/markdown/runtime-lifecycle.md](./src/site/markdown/runtime-lifecycle.md)                       | Core developers, refactoring team | Startup sequence, caching, FQN identity, hot-deploy                   |
+| Planned Refactoring  | [./src/site/markdown/planned-refactoring.md](./src/site/markdown/planned-refactoring.md)                   | Architecture team                 | Phases, constraints, backward compatibility                           |
+| Extension Lookup Fix | [./src/site/markdown/worklog/extension-lookup-fix.md](./src/site/markdown/worklog/extension-lookup-fix.md) | Maintainers debugging issues      | Root cause of `6a1fbb402` regression, FQN vs. category                |
 
 ## Questions?
 

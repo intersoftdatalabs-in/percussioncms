@@ -19,63 +19,55 @@
  *  PercPageDataTable.js
  *  @author Jose Annunziato
  */
-(function($) {
-    $.fn.PercPageDataTable = function(config, excludeActionMenu) {
-    
-        // this is the data that will be rendered in the table cells
-        var rows = config.percData;
-        $.each(rows, function(index, row){
-            
-            if (typeof(row.rowContent[0][0].callback) === "undefined")
-            {
-                // add a callback to the page link to preview the page
-                row.rowContent[0][0].callback = $.PercPreviewPage;
-            }
-        });
-        
-        //config.percHeaders[0] = "Title";
-        
-        if(typeof(config.percRowDblclickCallback) === "undefined")
-        {
-            config.percRowDblclickCallback = function(event){
-                var jQuery = window.parent.jQuery;
-                jQuery.PercNavigationManager.openPage(event.data.pagePath);
-            };
-        }
-       
-        if(!config.percMenus){ 
-            config.percMenus = $.PercPageActions;
-            
-            }
-        
-        // configure a callback when the table is redrawn
-        var fancyTooltips = function(){
-            $(dataTable).find(".perc-index-0 > .perc-index-0 > span").each(function(){
-                $(this).PercTooltip();
-            });
-        };
-        if (typeof(config.percTableRedrawCallback) !== "object")
-        {
-            if (typeof(config.percTableRedrawCallback) === "function")
-            {
-                config.percTableRedrawCallback = [config.percTableRedrawCallback];
-            }
-            else
-            {
-                config.percTableRedrawCallback = [];
-            }
-        }
-        config.percTableRedrawCallback.push(fancyTooltips);
-        
-        if(excludeActionMenu) {
-            var dataTable = $(this).PercDataTable(config);
-        }
-        else {
-            var dataTable = $(this).PercActionDataTable(config);
-        }    
-        
-        fancyTooltips();
-        
-        return dataTable;
+(function ($) {
+  $.fn.PercPageDataTable = function (config, excludeActionMenu) {
+    // this is the data that will be rendered in the table cells
+    var rows = config.percData;
+    $.each(rows, function (index, row) {
+      if (typeof row.rowContent[0][0].callback === "undefined") {
+        // add a callback to the page link to preview the page
+        row.rowContent[0][0].callback = $.PercPreviewPage;
+      }
+    });
+
+    //config.percHeaders[0] = "Title";
+
+    if (typeof config.percRowDblclickCallback === "undefined") {
+      config.percRowDblclickCallback = function (event) {
+        var jQuery = window.parent.jQuery;
+        jQuery.PercNavigationManager.openPage(event.data.pagePath);
+      };
     }
-})(jQuery); 
+
+    if (!config.percMenus) {
+      config.percMenus = $.PercPageActions;
+    }
+
+    // configure a callback when the table is redrawn
+    var fancyTooltips = function () {
+      $(dataTable)
+        .find(".perc-index-0 > .perc-index-0 > span")
+        .each(function () {
+          $(this).PercTooltip();
+        });
+    };
+    if (typeof config.percTableRedrawCallback !== "object") {
+      if (typeof config.percTableRedrawCallback === "function") {
+        config.percTableRedrawCallback = [config.percTableRedrawCallback];
+      } else {
+        config.percTableRedrawCallback = [];
+      }
+    }
+    config.percTableRedrawCallback.push(fancyTooltips);
+
+    if (excludeActionMenu) {
+      var dataTable = $(this).PercDataTable(config);
+    } else {
+      var dataTable = $(this).PercActionDataTable(config);
+    }
+
+    fancyTooltips();
+
+    return dataTable;
+  };
+})(jQuery);

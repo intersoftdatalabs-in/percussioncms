@@ -9,6 +9,7 @@
 ### Phase 4a Summary - CWE-209 Information Exposure
 
 #### Files Fixed
+
 1. **PSThemeRestService.java** - 7 error message fixes
 2. **PSTemplateRestService.java** - 2 error message fixes
 3. **PSSiteDataRestService.java** - 5 error message fixes
@@ -16,6 +17,7 @@
 5. **PSWebResourcesRestService.java** - 6 error message fixes
 
 #### Remediation Pattern Applied
+
 ```java
 // Before: Exposes sensitive details
 throw new WebApplicationException(e.getMessage());
@@ -26,6 +28,7 @@ throw new WebApplicationException("Failed to...retry."); // Generic message
 ```
 
 #### What Was Fixed
+
 - ❌ Raw exception messages to clients
 - ❌ Database error details exposed
 - ❌ File path exposure
@@ -43,6 +46,7 @@ throw new WebApplicationException("Failed to...retry."); // Generic message
 **Priority**: HIGH
 
 ### What to Look For
+
 Open redirects occur when user input is used directly in redirect URLs without validation:
 
 ```java
@@ -61,6 +65,7 @@ if (isAllowedDomain(nextPage)) {
 ```
 
 ### Recommended Approach for Phase 4b
+
 1. Search for redirect patterns: `sendRedirect`, `Location` header, `return "redirect:`
 2. Identify where user input (query parameters, form POST) is used in URLs
 3. Create whitelist of allowed domains or paths
@@ -78,13 +83,14 @@ if (isAllowedDomain(nextPage)) {
 
 ### Algorithm Replacements
 
-| Old (Weak) | New (Strong) |
-|-----------|------------|
-| MD5 | SHA-256 or bcrypt |
-| SHA-1 | SHA-256 or bcrypt |
-| DES | AES-256 |
+| Old (Weak) |   New (Strong)    |
+|------------|-------------------|
+| MD5        | SHA-256 or bcrypt |
+| SHA-1      | SHA-256 or bcrypt |
+| DES        | AES-256           |
 
 ### Command to Find Vulnerable Code
+
 ```bash
 grep -r "MessageDigest.getInstance(\"MD5\|SHA-1\|DES" --include="*.java"
 grep -r "Cipher.getInstance(\"DES" --include="*.java"
@@ -100,12 +106,14 @@ grep -r "Cipher.getInstance(\"DES" --include="*.java"
 **Priority**: HIGH
 
 ### Common TLS/SSL Vulnerabilities
+
 - Custom TrustManager that trusts all certificates
 - Disabled hostname verification
 - Outdated SSL protocols
 - Weak cipher suites
 
 ### Secure SSLContext Pattern
+
 ```java
 // SECURE - Use default SSL context
 SSLContext sslContext = SSLContext.getInstance("TLSv1.2");
@@ -120,30 +128,33 @@ conn.setHostnameVerifier(HttpsURLConnection.getDefaultHostnameVerifier());
 
 ## Overall Phase 4 Status
 
-| Sub-Phase | Category | Vulnerabilities | Status | Effort |
-|-----------|----------|-----------------|--------|--------|
-| **4a** | Error Exposure (CWE-209) | 22 | ✅ DONE | 45 min |
-| **4b** | Open Redirects (CWE-601) | 6 | ⏳ PENDING | 1-2h |
-| **4c** | Weak Cryptography (CWE-327) | 5 | ⏳ PENDING | 1-2h |
-| **4d** | TLS/SSL Issues (CWE-295/298) | 3 | ⏳ PENDING | 1h |
-| **Total** | ALL | 36 | 61% Complete | ~3.5-5h |
+| Sub-Phase |           Category           | Vulnerabilities |    Status    | Effort  |
+|-----------|------------------------------|-----------------|--------------|---------|
+| **4a**    | Error Exposure (CWE-209)     | 22              | ✅ DONE       | 45 min  |
+| **4b**    | Open Redirects (CWE-601)     | 6               | ⏳ PENDING    | 1-2h    |
+| **4c**    | Weak Cryptography (CWE-327)  | 5               | ⏳ PENDING    | 1-2h    |
+| **4d**    | TLS/SSL Issues (CWE-295/298) | 3               | ⏳ PENDING    | 1h      |
+| **Total** | ALL                          | 36              | 61% Complete | ~3.5-5h |
 
 ---
 
 ## Progress Tracking
 
 ### Completed (59 of 80 = 73.75%)
+
 - ✅ Phase 1: 22/22 (SSRF, SQL, Deserialization, Error Exposure)
 - ✅ Phase 2: 14/14 (ZipSlip/Path Traversal)
 - ✅ Phase 3: 23/23 (XSS/CWE-79)
 - ✅ Phase 4a: 22/22 (Error Message Exposure)
 
 ### In Progress
+
 - ⏳ Phase 4b: 0/6 (Open Redirects)
 - ⏳ Phase 4c: 0/5 (Weak Cryptography)
 - ⏳ Phase 4d: 0/3 (TLS/SSL Issues)
 
 ### Remaining
+
 - ⏳ Phase 5: Testing, Documentation, Validation
 
 ---
@@ -151,6 +162,7 @@ conn.setHostnameVerifier(HttpsURLConnection.getDefaultHostnameVerifier());
 ## Next Steps
 
 ### Immediate (Phase 4b)
+
 1. Search codebase for redirect patterns
 2. Identify all methods that perform HTTP redirects
 3. Extract redirect URLs to whitelist configuration
@@ -159,6 +171,7 @@ conn.setHostnameVerifier(HttpsURLConnection.getDefaultHostnameVerifier());
 6. Build and test, verify no breaking changes
 
 ### Medium-term (Phase 4c)
+
 1. Audit all cryptographic operations
 2. Identify weak algorithms (MD5, SHA-1, DES)
 3. Replace with modern equivalents (SHA-256, AES)
@@ -166,6 +179,7 @@ conn.setHostnameVerifier(HttpsURLConnection.getDefaultHostnameVerifier());
 5. Verify backward compatibility where needed
 
 ### Long-term (Phase 4d)
+
 1. Audit all HTTPS connections
 2. Check for custom TrustManagers
 3. Verify hostname verification is enabled
@@ -177,16 +191,19 @@ conn.setHostnameVerifier(HttpsURLConnection.getDefaultHostnameVerifier());
 ## Dependencies & Tools
 
 ### For Phase 4b (Open Redirects)
+
 - `RequestDispatcher` for internal redirects (safer than external)
 - URL validation library or custom logic
 - Whitelist configuration pattern
 
 ### For Phase 4c (Weak Cryptography)
+
 - Java `javax.crypto` package (or `org.bouncycastle` for enhanced features)
 - `java.security.MessageDigest` with SHA-256
 - `javax.crypto.Cipher` with AES
 
 ### For Phase 4d (TLS/SSL)
+
 - `javax.net.ssl.SSLContext`
 - `javax.net.ssl.HttpsURLConnection`
 - System truststore (not custom)
@@ -219,12 +236,12 @@ conn.setHostnameVerifier(HttpsURLConnection.getDefaultHostnameVerifier());
 
 ## Session Timeline (This Session)
 
-| Time | Phase | Status | Result |
-|------|-------|--------|--------|
-| Early | Phase 3 | COMPLETE | 23/23 XSS fixes, BUILD SUCCESS |
-| Mid | Phase 2 | COMPLETE | 14/14 ZipSlip fixes, 4 modules BUILD SUCCESS |
-| Late | Phase 4a | COMPLETE | 22/22 Error exposure fixes, BUILD SUCCESS |
-| Current | Phase 4b+ | Planning | Ready to implement on next session |
+|  Time   |   Phase   |  Status  |                    Result                    |
+|---------|-----------|----------|----------------------------------------------|
+| Early   | Phase 3   | COMPLETE | 23/23 XSS fixes, BUILD SUCCESS               |
+| Mid     | Phase 2   | COMPLETE | 14/14 ZipSlip fixes, 4 modules BUILD SUCCESS |
+| Late    | Phase 4a  | COMPLETE | 22/22 Error exposure fixes, BUILD SUCCESS    |
+| Current | Phase 4b+ | Planning | Ready to implement on next session           |
 
 ---
 

@@ -20,33 +20,33 @@
 // Date: 1/20/2010
 // Data models related to path management.
 // Paths of folders, sites, assets, etc., in the finder
-(function($)
-{
-    // JGA
-    // holds data for path item details
-    // currently populated by PercAssetController.js
-    // controller retrieves path item from service: PercPathService.js
-    // used by the controller to retrieve a finder's path's id
-    // the path's id is then used to invoke an asset's form editor
-    // which needs the path's id to put the asset in the folder once it creates it
-    $.PercPathItemModel = function( id,
-					                folderPaths,
-					                icon,
-					                name,
-					                type,
-					                folderPath,
-					                leaf,
-					                path)
-    {
-        this.id = id;
-        this.folderPaths = folderPaths;
-        this.icon = icon;
-        this.name = name;
-        this.type = type;
-        this.folderPath = folderPath;
-        this.leaf = leaf;
-        this.path = path;
-/*        
+(function ($) {
+  // JGA
+  // holds data for path item details
+  // currently populated by PercAssetController.js
+  // controller retrieves path item from service: PercPathService.js
+  // used by the controller to retrieve a finder's path's id
+  // the path's id is then used to invoke an asset's form editor
+  // which needs the path's id to put the asset in the folder once it creates it
+  $.PercPathItemModel = function (
+    id,
+    folderPaths,
+    icon,
+    name,
+    type,
+    folderPath,
+    leaf,
+    path
+  ) {
+    this.id = id;
+    this.folderPaths = folderPaths;
+    this.icon = icon;
+    this.name = name;
+    this.type = type;
+    this.folderPath = folderPath;
+    this.leaf = leaf;
+    this.path = path;
+    /*        
         this.log   = function()
         {
             console.log("id          = " + this.id);
@@ -59,5 +59,5 @@
             console.log("path        = " + this.path);
         };
         */
-    };
+  };
 })(jQuery);

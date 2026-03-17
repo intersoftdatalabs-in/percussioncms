@@ -68,12 +68,8 @@ ps.content.SnippetPicker = function () {
    */
   this.parseControls = function () {
     var _this = this;
-    this.wgtButtonSelect = ps.widget.byId(
-      "ps.snippet.picker.wgtButtonSelect"
-    );
-    this.wgtButtonCancel = ps.widget.byId(
-      "ps.snippet.picker.wgtButtonCancel"
-    );
+    this.wgtButtonSelect = ps.widget.byId("ps.snippet.picker.wgtButtonSelect");
+    this.wgtButtonCancel = ps.widget.byId("ps.snippet.picker.wgtButtonCancel");
     this.wgtButtonShowtitles = ps.widget.byId(
       "ps.snippet.picker.wgtButtonShowTitles"
     );
@@ -135,22 +131,13 @@ ps.content.SnippetPicker = function () {
       };
       this.tblCreateSnippetBtns.style.display = "none";
       $(this.tblRemoveSnippetBtns.parentNode).css("valign", "top");
-      $(this.tblRemoveSnippetBtns.parentNode).css(
-        "vertical-align",
-        "top"
-      );
+      $(this.tblRemoveSnippetBtns.parentNode).css("vertical-align", "top");
       this.wgtButtonSelect.setCaption("Remove");
       this.wgtButtonSelect.setDisabled(true);
     } else {
       this.tblRemoveSnippetBtns.style.display = "none";
-      $(this.tblCreateSnippetBtns.parentNode).css(
-        "valign",
-        "middle"
-      );
-      $(this.tblCreateSnippetBtns.parentNode).css(
-        "vertical-valign",
-        "middle"
-      );
+      $(this.tblCreateSnippetBtns.parentNode).css("valign", "middle");
+      $(this.tblCreateSnippetBtns.parentNode).css("vertical-valign", "middle");
       this.wgtButtonSelect.setCaption("Next");
     }
 
@@ -162,7 +149,9 @@ ps.content.SnippetPicker = function () {
     this.snippetDisplayType = this.SNIPPETS;
     this.snippetNodes = Array.from(
       this.wgtSnippetDisplayDiv.domNode.getElementsByTagName("div")
-    ).filter(function (el) { return el.className === "PSAASnippetPickerItem"; });
+    ).filter(function (el) {
+      return el.className === "PSAASnippetPickerItem";
+    });
     //Connect onclick event to snippets
     for (var i = 0; (node = this.snippetNodes[i]); i++) {
       ps.event.connect(node, "onclick", _this, "toggleSingleSelection");
@@ -172,8 +161,7 @@ ps.content.SnippetPicker = function () {
       var defnode = this.snippetNodes[0];
       if (this.refRelId) {
         for (var i = 0; (node = this.snippetNodes[i]); i++) {
-          if (this.refRelId == node.getAttribute("rid"))
-            defnode = node;
+          if (this.refRelId == node.getAttribute("rid")) defnode = node;
         }
       }
       $(defnode).css("background-color", this.SELECTED_BGCOLOR);
@@ -249,7 +237,9 @@ ps.content.SnippetPicker = function () {
       }
       this.titleNodes = Array.from(
         this.wgtSnippetDisplayDiv.domNode.getElementsByTagName("div")
-      ).filter(function (el) { return el.className === "PSAASnippetPickerTitle"; });
+      ).filter(function (el) {
+        return el.className === "PSAASnippetPickerTitle";
+      });
       nodes = this.titleNodes;
       this.transferSelection(this.snippetNodes, nodes);
     } else {
@@ -265,7 +255,9 @@ ps.content.SnippetPicker = function () {
       }
       this.snippetNodes = Array.from(
         this.wgtSnippetDisplayDiv.domNode.getElementsByTagName("div")
-      ).filter(function (el) { return el.className === "PSAASnippetPickerItem"; });
+      ).filter(function (el) {
+        return el.className === "PSAASnippetPickerItem";
+      });
       nodes = this.snippetNodes;
       this.transferSelection(this.titleNodes, nodes);
     }

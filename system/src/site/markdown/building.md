@@ -9,10 +9,8 @@ This guide covers building the system module, running tests, and development wor
 - **Java Development Kit (JDK) 21** – Required for `spotless` code formatting
   - Download from [Amazon Corretto](https://aws.amazon.com/corretto/) or [Eclipse Adoptium](https://adoptopenjdk.net/)
   - Set environment variable: `export JAVA_HOME=/path/to/jdk21`
-
 - **Maven 3.8+** – For project building
   - Download from [Apache Maven](https://maven.apache.org/)
-
 - **Git** – For version control
   - Already available in most development environments
 

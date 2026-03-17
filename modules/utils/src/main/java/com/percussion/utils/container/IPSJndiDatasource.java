@@ -120,7 +120,7 @@ public interface IPSJndiDatasource {
   /**
    * Set the security domain, see {@link #getSecurityDomain()} for more info. Setting a security
    * domain will prevent the userid and password from being included in the datasource XML when
-   * {@link PSJndiDatasourceImpl#toXml(Document)} is called, and will instead include a reference to the supplied
+   * 
    * security domain name.
    *
    * @param name The name of the security domain, may be <code>null</code> to clear the domain,

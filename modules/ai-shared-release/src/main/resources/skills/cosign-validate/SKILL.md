@@ -4,6 +4,7 @@ description: Validates an AI resource using SHA-256 integrity and Sigstore authe
 version: 1.0
 
 ---
+
 # Cosign Validate Skill
 
 **Purpose**: Verify the status of an AI resource.
@@ -17,3 +18,4 @@ REPO_ROOT=$(git rev-parse --show-toplevel)
     -Dexec.mainClass="com.percussion.ai.signing.ResourceVerifier" \
     -Dexec.args="$1"
 ```
+

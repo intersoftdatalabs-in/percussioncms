@@ -18,11 +18,10 @@
 /**
  * Widget display model.
  */
-(function($)
-{
-    WidgetBuilderApp.WidgetHtmlModel = Backbone.Model.extend({
-        defaults: {
-            "widgetHtml": ""
-        }
-    });
+(function ($) {
+  WidgetBuilderApp.WidgetHtmlModel = Backbone.Model.extend({
+    defaults: {
+      widgetHtml: "",
+    },
+  });
 })(jQuery);

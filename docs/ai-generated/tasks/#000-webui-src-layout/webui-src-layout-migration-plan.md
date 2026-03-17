@@ -174,7 +174,6 @@ Why this is safe:
 
 #### 1. frontend-maven-plugin Configuration (Phase 1)
 
-
 ```xml
 <plugin>
   <groupId>com.github.eirslett</groupId>
@@ -212,11 +211,9 @@ Why this is safe:
 </plugin>
 ```
 
-
 #### 2. Vite Configuration Changes (Phase 1)
 
 **vite.config.ts:**
-
 
 ```typescript
 export default defineConfig({
@@ -231,9 +228,7 @@ export default defineConfig({
 });
 ```
 
-
 **vite.legacy.config.ts:**
-
 
 ```typescript
 export default defineConfig({
@@ -247,7 +242,6 @@ export default defineConfig({
   // ...
 });
 ```
-
 
 #### 3. maven-war-plugin Configuration (Phase 2)
 
@@ -277,27 +271,21 @@ export default defineConfig({
 </plugin>
 ```
 
-
 ### build-legacy-bundles.js Configuration (Phase 2)
 
 Update `scripts/build-legacy-bundles.js` to output to `target/generated-webui/cm/` instead of `war/`:
-
 
 ```javascript
 const OUTPUT_DIR = path.join(WEBUI_DIR, "target", "generated-webui", "cm");
 ```
 
-
 Alternatively, reference `${project.build.directory}` from pom.xml via environment variable.
-
 
 ### .gitignore Additions (Phase 1)
 
 See Git Ignore Configuration section above.
 
-
 ## 4-Phase Migration Breakdown
-
 
 ### Phase 1: Structural Move + JSP Updates + Config Changes
 
@@ -310,7 +298,6 @@ See Git Ignore Configuration section above.
    - `app/{js/legacy, css/legacy, images, widgetbuilder}`
    - `pages/{app, includes, popups, cui, mock, testing}`
    - `widgets`, `api`, `themes`, `WEB-INF`, `META-INF`
-
 2. **Move source files:**
    - `war/jslib/**` → `src/main/webapp/cm/vendor/js/legacy/**`
    - `war/css/**` → `src/main/webapp/cm/app/css/legacy/**`
@@ -324,14 +311,12 @@ See Git Ignore Configuration section above.
    - `war/cui/**` → `src/main/webapp/cm/pages/cui/**` (separate SPA)
    - `war/widgets/**`, `war/widgetbuilder/**`, `war/themes/**`, `war/skin-win8/**` → `src/main/webapp/cm/{widgets,app/widgetbuilder,vendor/css/legacy/themes,vendor/css/legacy/skin-win8}/`
    - All other static files (images, API docs, mock data) → `src/main/webapp/cm/pages/` or `app/` as appropriate
-
 3. **Update all JSP file references** (70+ files):
    - Replace `src="/cm/jslib/` with `src="/cm/app/js/legacy/` (or `/cm/vendor/js/legacy/` for third-party)
    - Replace `href="/cm/css/` with `href="/cm/app/css/legacy/`
    - Replace `href="/cm/themes/` with `href="/cm/vendor/css/legacy/themes/`
    - Replace `src="/cm/controllers/` with `src="/cm/app/js/legacy/controllers/`
    - Update all relative requires in legacy JS (if any)
-
 4. **Move build configuration files:**
    - Move `WebUI/package.json` → `WebUI/src/main/frontend/package.json`
    - Move `WebUI/package-lock.json` → `WebUI/src/main/frontend/package-lock.json`
@@ -339,13 +324,12 @@ See Git Ignore Configuration section above.
    - Move `WebUI/vite.config.ts` → `WebUI/src/main/frontend/vite.config.ts`
    - Move `WebUI/vite.legacy.config.ts` → `WebUI/src/main/frontend/vite.legacy.config.ts`
    - Move `WebUI/scripts/` → `WebUI/src/main/frontend/scripts/`
-
 5. **Update WebUI/pom.xml:**
    - Update `frontend-maven-plugin` `<workingDirectory>` to `${project.basedir}/src/main/frontend`
    - Update `maven-war-plugin` to use `src/main/webapp` as source (instead of `war/`)
    - Add .gitignore entry for generated folders
-
 6. **Validation:**
+
    ```bash
    ./mvn-env.sh -f WebUI/pom.xml clean compile
    # Check: no compilation errors
@@ -355,9 +339,7 @@ See Git Ignore Configuration section above.
    # (Even though some files are still building, old paths should work)
    ```
 
-
 ---
-
 
 ### Phase 2: Build Output Separation
 
@@ -369,15 +351,12 @@ See Git Ignore Configuration section above.
    - Change `outDir: "war/modern"` → `outDir: "../../../../../target/generated-webui/cm/modern"`
    - Change `outDir: "war"` → `outDir: "../../../../../target/generated-webui/cm"`
    - (Or use environment variable injected from Maven)
-
 2. **Update legacy bundle script** (`src/main/frontend/scripts/build-legacy-bundles.js`):
    - Change `OUTPUT_DIR = path.join(WEBUI_DIR, "war")` → `OUTPUT_DIR = path.join(WEBUI_DIR, "../../../../../target/generated-webui/cm")`
    - This ensures `jslibMin/` and `cssMin/` go to target, not source
-
 3. **Update maven-war-plugin** in `WebUI/pom.xml`:
 
    Add webResource overlay for `target/generated-webui/cm`:
-
 
    ```xml
    <resource>
@@ -385,10 +364,7 @@ See Git Ignore Configuration section above.
      <targetPath>.</targetPath>
    </resource>
    ```
-
-
 4. **Update .gitignore** to ensure generated folders are never committed:
-
 
    ```plaintext
    WebUI/target/generated-webui/
@@ -396,15 +372,11 @@ See Git Ignore Configuration section above.
    WebUI/war/jslibMin/
    WebUI/war/cssMin/
    ```
-
-
 5. **Clean up old output folders** from source:
    - Delete `WebUI/war/modern/` (will be regenerated in target/)
    - Delete `WebUI/war/jslibMin/` (will be regenerated in target/)
    - Delete `WebUI/war/cssMin/` (will be regenerated in target/)
-
 6. **Validation:**
-
 
    ```bash
    ./mvn-env.sh -f WebUI/pom.xml clean package
@@ -414,9 +386,7 @@ See Git Ignore Configuration section above.
    # Check: No generated files in src/main/webapp/
    ```
 
-
 ---
-
 
 ### Phase 3: Full Integration Test
 
@@ -424,31 +394,23 @@ See Git Ignore Configuration section above.
 
 1. Run full integration test:
 
-
    ```bash
    ./mvn-env.sh clean install
    ```
-
-
 2. Extract and inspect WAR:
-
 
    ```bash
    unzip -l target/WebUI-*.war | grep -E "cm/(app|vendor|pages)/"
    # Verify: source files in app/, vendor/, pages/ are present
    # Verify: generated files from target/generated-webui/ are present
    ```
-
-
 3. Deploy to test container and verify:
    - All JSPs load without 404s
    - CSS/JS are found at new paths
    - React bundle loads at `/cm/modern/`
    - Legacy bundles load at `/cm/jslibMin/`
 
-
 ---
-
 
 ### Phase 4: (Optional) Further Optimization
 
@@ -459,19 +421,15 @@ See Git Ignore Configuration section above.
 3. Remove unused vendor libraries (cleanup)
 4. Standardize on Vite for all builds (optional)
 
-
 ---
 
-
 ## Validation Checklist by Phase
-
 
 ### Before Phase 1
 
 - [ ] Backup current `war/` folder
 - [ ] Create feature branch: `git checkout -b feature/webui-src-layout-refactor`
 - [ ] Update .gitignore in repo root and commit
-
 
 ### After Phase 1
 
@@ -481,14 +439,12 @@ See Git Ignore Configuration section above.
 - [ ] At least one JSP page loads in browser
 - [ ] Git diff shows only file moves + path updates (no logic changes)
 
-
 ### After Phase 2
 
 - [ ] `mvn clean package` succeeds
 - [ ] `target/generated-webui/cm/` populated with modern/, jslibMin/, cssMin/
 - [ ] `target/*.war` contains files from both src/main/webapp/ and target/generated-webui/
 - [ ] `src/main/webapp/` contains NO modern/, jslibMin/, or cssMin/ folders
-
 
 ### After Phase 3
 
@@ -497,3 +453,4 @@ See Git Ignore Configuration section above.
 - [ ] All pages load with correct CSS/JS
 - [ ] React bundle functional if accessed
 - [ ] Console shows no 404 errors
+

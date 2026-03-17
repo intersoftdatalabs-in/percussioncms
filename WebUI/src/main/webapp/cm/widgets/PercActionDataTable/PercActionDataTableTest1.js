@@ -20,16 +20,29 @@
  *  @author Jose Annunziato
  */
 
-$(document).ready(function(){
-        var data = [
-            {rowContent : [["Comment 1","/Site/Site2"],"12/22/33"], rowData : {pageId : 1123, pagePath : 4123, commentId : 7123}},
-            {rowContent : [["Comment 2","/Site/Site3"],"13/22/33"], rowData : {pageId : 2123, pagePath : 5123, commentId : 8123}},
-            {rowContent : [["Comment 3","/Site/Site4"],"14/22/33"], rowData : {pageId : 3123, pagePath : 6123, commentId : 9123}}
-        ];
-            
-        console.log($.PercPageActions);
-            
-        var headers = ["Page 1","Heading 22"];
-        config = {percData : data, percHeaders : headers, percMenus : $.PercPageActions};
-        $("#myTable").PercActionDataTable(config);
+$(document).ready(function () {
+  var data = [
+    {
+      rowContent: [["Comment 1", "/Site/Site2"], "12/22/33"],
+      rowData: { pageId: 1123, pagePath: 4123, commentId: 7123 },
+    },
+    {
+      rowContent: [["Comment 2", "/Site/Site3"], "13/22/33"],
+      rowData: { pageId: 2123, pagePath: 5123, commentId: 8123 },
+    },
+    {
+      rowContent: [["Comment 3", "/Site/Site4"], "14/22/33"],
+      rowData: { pageId: 3123, pagePath: 6123, commentId: 9123 },
+    },
+  ];
+
+  console.log($.PercPageActions);
+
+  var headers = ["Page 1", "Heading 22"];
+  config = {
+    percData: data,
+    percHeaders: headers,
+    percMenus: $.PercPageActions,
+  };
+  $("#myTable").PercActionDataTable(config);
 });

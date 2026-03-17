@@ -327,12 +327,7 @@ ps.declare(
       }
 
       if (this.ftquery) {
-        ps.event.connect(
-          this.ftquery,
-          "onkeyup",
-          this,
-          "_enableDisableSearch"
-        );
+        ps.event.connect(this.ftquery, "onkeyup", this, "_enableDisableSearch");
       }
       this._enableDisableSearch();
     },

@@ -21,10 +21,12 @@ This module is an isolated web application for hosting OpenAPI documentation.
 ## OpenAPI Spec Generation
 
 ### Current Implementation
+
 - Using static `openapi.json` placeholder during initial rollout
 - Spec is deployed as-is from `src/main/webapp/openapi.json`
 
 ### Future Enhancement
+
 Build-time spec generation from REST annotations recommended using:
 - **CXF OpenAPI Maven plugin** (native CXF support for OpenAPI)
 - **Custom Java annotation processor** (scans `@Path`, `@Get`, etc.)
@@ -43,6 +45,7 @@ The module is configured in:
 - **perc-distribution-tree/src/main/resources/installDistributionFiles.xml** - Deploy to `${assembly-directory}/jetty/base/webapps/openapi`
 
 Deployed structure:
+
 ```
 ${assembly-directory}/jetty/base/webapps/openapi/
   ├── index.html
@@ -66,3 +69,4 @@ After deployment, access API documentation at:
 2. Test Swagger UI loads from `/openapi` context
 3. Verify REST APIs remain functional without Swagger runtime
 4. Confirm Rhythmyx `WEB-INF/lib` has no Swagger artifacts leaked
+

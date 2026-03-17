@@ -48,13 +48,16 @@ public static boolean containsSuspiciousPatterns(String input)
 **Severity**: HIGH
 
 #### Vulnerable Code (line 418)
+
 ```java
 // Before: readExternalFeed returns unescaped feeds
 return feeds;
 ```
 
 #### Fix Pattern
+
 Use `XSSValidation.escapeHtml()` when returning user-influenced data:
+
 ```java
 return feeds.stream()
     .map(feed -> {
@@ -66,6 +69,7 @@ return feeds.stream()
 ```
 
 #### Test Case
+
 Create test for ensuring feed titles/descriptions are HTML-safe.
 
 ---
@@ -77,10 +81,13 @@ Create test for ensuring feed titles/descriptions are HTML-safe.
 **Severity**: HIGH
 
 #### Vulnerable Code (line 480)
+
 REST response returning unescaped metadata.
 
 #### Fix Pattern
+
 Wrap metadata values with `XSSValidation.escapeHtml()`:
+
 ```java
 metadata.put("value", XSSValidation.escapeHtml(rawValue));
 ```
@@ -96,6 +103,7 @@ metadata.put("value", XSSValidation.escapeHtml(rawValue));
 #### Vulnerable Patterns
 
 **Line 776-800**: updateItems() method serializes item data
+
 ```java
 // Item fields returned in REST response without escaping
 item.setName(itemData.getName());        // Should escape
@@ -103,6 +111,7 @@ item.setDescription(itemData.getDesc()); // Should escape
 ```
 
 **Line 1859, 1861**: createItem() - same pattern
+
 ```java
 newItem.setTitle(itemData.getTitle()); // Should escape
 ```
@@ -111,7 +120,9 @@ newItem.setTitle(itemData.getTitle()); // Should escape
 **Line 2024**: Another field update in create/update flow
 
 #### Fix Pattern
+
 For all item field assignments from REST input:
+
 ```java
 item.setName(XSSValidation.escapeHtml(itemData.getName()));
 item.setDescription(XSSValidation.escapeHtml(itemData.getDescription()));
@@ -119,6 +130,7 @@ item.setTitle(XSSValidation.escapeHtml(itemData.getTitle()));
 ```
 
 #### Implementation Strategy
+
 1. Identify all REST input fields in ItemRestServiceImpl
 2. Wrap names, titles, descriptions, labels, and text-based fields
 3. Use `XSSValidation.escapeHtml()` for HTML contexts
@@ -139,6 +151,7 @@ item.setTitle(XSSValidation.escapeHtml(itemData.getTitle()));
 **Line 531**: Asset property assignment
 
 #### Fix Pattern
+
 ```java
 asset.setFileName(XSSValidation.escapeHtml(fileName));
 asset.setDescription(XSSValidation.escapeHtml(description));
@@ -154,13 +167,16 @@ response.put("metadata", XSSValidation.escapeHtml(metadata));
 **Severity**: MEDIUM (Error message exposure - partial overlap with Phase 1d)
 
 #### Vulnerable Code (line 80)
+
 ```java
 // Error thrown with user-influenced message
 throw new WebApplicationException("Dashboard error: " + userInput);
 ```
 
 #### Fix Pattern
+
 This overlaps with Phase 1d (Error Exposure). Implementation:
+
 ```java
 // Option 1: Generic error message (preferred)
 throw new WebApplicationException("Dashboard processing failed");
@@ -179,9 +195,11 @@ throw new WebApplicationException("Dashboard error: " + safeInput);
 **Severity**: HIGH
 
 #### Vulnerable Code (line 49)
+
 User profile field returned in REST response without escaping.
 
 #### Fix Pattern
+
 ```java
 profile.setBio(XSSValidation.escapeHtml(userInput.getBio()));
 profile.setDisplayName(XSSValidation.escapeHtml(userInput.getDisplayName()));
@@ -196,6 +214,7 @@ profile.setDisplayName(XSSValidation.escapeHtml(userInput.getDisplayName()));
 **Severity**: HIGH
 
 #### Fix Pattern
+
 Escape site improvement metric/status values before returning.
 
 ---
@@ -207,6 +226,7 @@ Escape site improvement metric/status values before returning.
 **Severity**: HIGH
 
 #### Fix Pattern
+
 ```java
 page.setTitle(XSSValidation.escapeHtml(pageData.getTitle()));
 page.setMetaDescription(XSSValidation.escapeHtml(pageData.getMetaDescription()));
@@ -221,6 +241,7 @@ page.setMetaDescription(XSSValidation.escapeHtml(pageData.getMetaDescription()))
 **Severity**: MEDIUM
 
 #### Fix Pattern
+
 ```java
 role.setDescription(XSSValidation.escapeHtml(roleData.getDescription()));
 role.setName(XSSValidation.escapeHtml(roleData.getName()));
@@ -237,12 +258,14 @@ role.setName(XSSValidation.escapeHtml(roleData.getName()));
 #### Vulnerable Patterns
 
 **Lines 110, 127**: Site metadata/properties
+
 ```java
 siteData.setName(XSSValidation.escapeHtml(input.getName()));
 siteData.setUrl(XSSValidation.escapeHtml(input.getUrl()));
 ```
 
 **Lines 186, 209**: Additional site property updates
+
 ```java
 siteData.setDomain(XSSValidation.escapeHtml(domain));
 siteData.setLabel(XSSValidation.escapeHtml(label));
@@ -259,12 +282,14 @@ siteData.setLabel(XSSValidation.escapeHtml(label));
 #### Vulnerable Patterns
 
 **Line 493**: User creation
+
 ```java
 user.setDisplayName(XSSValidation.escapeHtml(userData.getDisplayName()));
 user.setEmail(XSSValidation.escapeHtml(userData.getEmail()));
 ```
 
 **Lines 743, 806**: User update operations
+
 ```java
 user.setFirstName(XSSValidation.escapeHtml(userData.getFirstName()));
 user.setLastName(XSSValidation.escapeHtml(userData.getLastName()));
@@ -278,25 +303,22 @@ user.setTitle(XSSValidation.escapeHtml(userData.getTitle()));
 ### Approach: Progressive Escaping
 
 1. **Import XSSValidation** at the top of each affected file:
+
    ```java
    import com.percussion.security.validation.XSSValidation;
    ```
-
 2. **Identify REST Input Sources**:
    - Method parameters from @RequestBody/@RequestParam
    - User-provided fields in form submissions
    - Query parameters passed to API endpoints
-
 3. **Apply Escaping at Assignment**:
    - Wrap user input immediately when assigning to business objects
    - Example: `item.setName(XSSValidation.escapeHtml(inputName))`
-
 4. **Context Selection**:
    - **HTML responses**: Use `escapeHtml()` (default)
    - **JSON responses**: Use `escapeJavaScript()` for embedded JS contexts
    - **XML output**: Use `escapeXml()`
    - **CSV export**: Use `escapeCsv()`
-
 5. **Testing**:
    - Create unit test for each file
    - Test with XSS payloads: `<script>alert(1)</script>`, `onerror=`, `javascript:`, etc.
@@ -343,17 +365,14 @@ void testCreateItemWithXSSPayload() {
    - Verify all 23 vulnerabilities have escaping applied
    - Check that user input is escaped at assignment point
    - Confirm no double-escaping occurs
-
 2. **Testing**:
    - All 11 affected files have new unit tests
    - Tests cover XSS payload injection scenarios
    - All tests pass (expected: ~15-20 new tests)
-
 3. **CodeQL Re-scan**:
    - Run: `/mvn-env.sh codeql database create --language=java --source-root=/home/nate/projects/percussioncms database`
    - Verify CWE-79 (XSS) alerts reduced from 23 to 0
    - Check for any new alerts introduced
-
 4. **Build Verification**:
    - `./mvn-env.sh clean test -DskipITs=true`
    - All tests pass
@@ -363,15 +382,15 @@ void testCreateItemWithXSSPayload() {
 
 ## Progress Summary
 
-| Phase | Vulnerability | Files | Status | Tests |
-|-------|---|---|---|---|
-| 1a | SSRF (CWE-918) | 4 | ✅ Complete | 22/22 ✓ |
-| 1b | SQL Injection (CWE-89) | 1 | ✅ Complete | - |
-| 1c | Unsafe Deserialization (CWE-502) | 3 | ✅ Complete | 10/10 ✓ |
-| 1d | Error Exposure (CWE-209) | 3 | ✅ Complete | - |
-| 2 | ZipSlip/Path Injection (CWE-22/23) | 1 | ✅ Complete | 4/4 ✓ |
-| 3 | XSS (CWE-79) | 11 | 🔄 In Progress | 13/13 ✓* |
-| **TOTAL** | **6 CWE types** | **23** | **45% Complete** | **49/49** |
+|   Phase   |           Vulnerability            | Files  |      Status      |   Tests   |
+|-----------|------------------------------------|--------|------------------|-----------|
+| 1a        | SSRF (CWE-918)                     | 4      | ✅ Complete       | 22/22 ✓   |
+| 1b        | SQL Injection (CWE-89)             | 1      | ✅ Complete       | -         |
+| 1c        | Unsafe Deserialization (CWE-502)   | 3      | ✅ Complete       | 10/10 ✓   |
+| 1d        | Error Exposure (CWE-209)           | 3      | ✅ Complete       | -         |
+| 2         | ZipSlip/Path Injection (CWE-22/23) | 1      | ✅ Complete       | 4/4 ✓     |
+| 3         | XSS (CWE-79)                       | 11     | 🔄 In Progress   | 13/13 ✓*  |
+| **TOTAL** | **6 CWE types**                    | **23** | **45% Complete** | **49/49** |
 
 *XSSValidation utility tests passing; Phase 3 implementation tests pending
 
@@ -389,3 +408,4 @@ void testCreateItemWithXSSPayload() {
 - **OWASP CWE-79**: https://owasp.org/www-community/attacks/xss/
 - **Apache Commons Text StringEscapeUtils**: https://commons.apache.org/proper/commons-text/javadocs/api-release/org/apache/commons/text/StringEscapeUtils.html
 - **Secure Coding Standards**: Follow OWASP Top 10 A03:2021 Injection
+

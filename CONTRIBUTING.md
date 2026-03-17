@@ -176,7 +176,9 @@ Key store password properties can be encrypted in your setting.xml by following 
 To ensure the integrity and authenticity of artifacts and AI resources, Percussion CMS uses Sigstore (keyless signing) and PGP.
 
 #### Global Signing
+
 Global signing of artifacts is disabled by default for developer convenience. To enable it (required for releases), use the `sign` profile:
+
 ```bash
 # Option 1: If you've already authenticated this session, just run:
 ./mvn-env.sh clean install -Psign
@@ -187,38 +189,49 @@ Global signing of artifacts is disabled by default for developer convenience. To
 # Then run your build:
 ./mvn-env.sh clean install -Psign
 ```
-*   **PGP:** Requires a GPG key to be present on your machine.
-*   **Sigstore:** Uses OIDC authentication. The token is valid for approximately 15 minutes.
-    *   **One-time authentication:** In multimodule builds, authenticate once at the start of your session:
-        ```bash
-        ./scripts/authenticate-sigstore.sh
-        ```
-        This caches your OIDC token to `~/.sigstore-token`.
-    *   **Token reuse:** `mvn-env.sh` automatically reads the cached token, so you won't be prompted again during the same session.
-    *   **Long builds:** If your build takes more than 15 minutes, re-run `./scripts/authenticate-sigstore.sh` to get a fresh token.
+
+* **PGP:** Requires a GPG key to be present on your machine.
+* **Sigstore:** Uses OIDC authentication. The token is valid for approximately 15 minutes.
+  * **One-time authentication:** In multimodule builds, authenticate once at the start of your session:
+
+    ```bash
+    ./scripts/authenticate-sigstore.sh
+    ```
+
+    This caches your OIDC token to `~/.sigstore-token`.
+
+  * **Token reuse:** `mvn-env.sh` automatically reads the cached token, so you won't be prompted again during the same session.
+
+  * **Long builds:** If your build takes more than 15 minutes, re-run `./scripts/authenticate-sigstore.sh` to get a fresh token.
 
 #### AI Resource Signing
+
 Instructions, prompts, and skills must be signed to be executed by AI agents.
 
-1.  **Sign Resources:** After modifying AI resources, run the signing script:
-    ```bash
-    modules/ai-shared-develop/scripts/sign-ai-resources.sh
-    ```
-    This script will sign all tracked resources and local `AGENTS.local.md` overrides.
-2.  **Pre-commit Hook:** To ensure signatures are always up to date, install the pre-commit hook:
-    
-    **Option A - Using git config (recommended):**
-    ```bash
-    git config core.hooksPath .githooks
-    ```
-    
-    **Option B - Manual copy:**
-    ```bash
-    cp .githooks/pre-commit.template .git/hooks/pre-commit
-    chmod +x .git/hooks/pre-commit
-    ```
-    
-    The hook will block commits if AI resource signatures are missing or outdated.
+1. **Sign Resources:** After modifying AI resources, run the signing script:
+
+   ```bash
+   modules/ai-shared-develop/scripts/sign-ai-resources.sh
+   ```
+
+   This script will sign all tracked resources and local `AGENTS.local.md` overrides.
+
+2. **Pre-commit Hook:** To ensure signatures are always up to date, install the pre-commit hook:
+
+   **Option A - Using git config (recommended):**
+
+   ```bash
+   git config core.hooksPath .githooks
+   ```
+
+   **Option B - Manual copy:**
+
+   ```bash
+   cp .githooks/pre-commit.template .git/hooks/pre-commit
+   chmod +x .git/hooks/pre-commit
+   ```
+
+   The hook will block commits if AI resource signatures are missing or outdated.
 
 ---
 
@@ -241,13 +254,11 @@ If CodeQL CLI is installed locally and available in `PATH`, you can run scans fr
   ```bash
   ./mvn-env.sh -N -Pcodeql-local exec:exec@codeql-create-db
   ```
-
 * Analyze existing databases only (faster for re-runs):
 
   ```bash
   ./mvn-env.sh -N -Pcodeql-local exec:exec@codeql-analyze
   ```
-
 * Full create + analyze scan:
 
   ```bash
@@ -656,5 +667,4 @@ ready for review.
 ### Git Hints and Tricks
 
 * git config --global core.autocrlf true
-
 

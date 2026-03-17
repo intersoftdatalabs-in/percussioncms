@@ -1,9 +1,9 @@
 paths-ignore:
-  - '**/target/**'
-  - '**/build/**'
-  - '**/dist/**'
-  - '**/node_modules/**'
-  - '**/.codeql-db/**'
-  - '**/.codeql-results/**'
-  - '**/docker/dev-data/**'
-  - '**/docker/logs/**'
+  - "**/target/**"
+  - "**/build/**"
+  - "**/dist/**"
+  - "**/node_modules/**"
+  - "**/.codeql-db/**"
+  - "**/.codeql-results/**"
+  - "**/docker/dev-data/**"
+  - "**/docker/logs/**"

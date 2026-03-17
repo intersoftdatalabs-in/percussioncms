@@ -20,63 +20,87 @@
    Jason Priestley
 **/
 
-(function($) {
-var Collapsible = {
-    _init : function() {
-	var toggle = $("<span class='perc_collapsible_toggle'/>");
-	var self=this;
-	var toggle_on = function () { 
-	    return $("<span/>")
-		.append( $("<span class=\"ui-icon ui-icon-plus ui-state-disabled ui-state-default\">+</span>") )
-		.append( $("<span class=\"ui-icon ui-icon-minus ui-state-default\">-</span>")
-			 .on("mouseenter", function() { $(this).addClass("ui-state-hover"); })
-			 .on("mouseleave",function() { $(this).removeClass("ui-state-hover");} )
-			 .on("click", function() {
-				     self.collapse(); 
-				     toggle.empty().append( toggle_off() ); } ) );
-	};
+(function ($) {
+  var Collapsible = {
+    _init: function () {
+      var toggle = $("<span class='perc_collapsible_toggle'/>");
+      var self = this;
+      var toggle_on = function () {
+        return $("<span/>")
+          .append(
+            $(
+              '<span class="ui-icon ui-icon-plus ui-state-disabled ui-state-default">+</span>'
+            )
+          )
+          .append(
+            $('<span class="ui-icon ui-icon-minus ui-state-default">-</span>')
+              .on("mouseenter", function () {
+                $(this).addClass("ui-state-hover");
+              })
+              .on("mouseleave", function () {
+                $(this).removeClass("ui-state-hover");
+              })
+              .on("click", function () {
+                self.collapse();
+                toggle.empty().append(toggle_off());
+              })
+          );
+      };
 
-	var toggle_off = function () { 
-	    return $("<span/>")
-		.append( $("<span class=\"ui-icon ui-icon-plus ui-state-default\">+</span>")
-			 .on("mouseenter", function() { $(this).addClass("ui-state-hover"); })
-			 .on("mouseleave", function() { $(this).removeClass("ui-state-hover");} )
-			 .on("click", function() {
-				     self.uncollapse(); 
-				     toggle.empty().append( toggle_on() ); } ) )
-		.append( $("<span class=\"ui-icon ui-icon-minus ui-state-default ui-state-disabled\">-</span>") );
-	};
+      var toggle_off = function () {
+        return $("<span/>")
+          .append(
+            $('<span class="ui-icon ui-icon-plus ui-state-default">+</span>')
+              .on("mouseenter", function () {
+                $(this).addClass("ui-state-hover");
+              })
+              .on("mouseleave", function () {
+                $(this).removeClass("ui-state-hover");
+              })
+              .on("click", function () {
+                self.uncollapse();
+                toggle.empty().append(toggle_on());
+              })
+          )
+          .append(
+            $(
+              '<span class="ui-icon ui-icon-minus ui-state-default ui-state-disabled">-</span>'
+            )
+          );
+      };
 
-	this.element.wrap( $("<div/>") );
-	this.element
-	    .addClass("perc_collapsible_header ui-widget ui-widget-header")
-	    .prepend(toggle.append(toggle_on())).addClass("ui-helper-clearfix");
-	this.element.parent()
-	    .append( $("<div/>").addClass("perc_collapsible_body ui-widget ui-widget-content")
-		     .append(this._getData('bodyContent')) );
-	return this.element;
+      this.element.wrap($("<div/>"));
+      this.element
+        .addClass("perc_collapsible_header ui-widget ui-widget-header")
+        .prepend(toggle.append(toggle_on()))
+        .addClass("ui-helper-clearfix");
+      this.element
+        .parent()
+        .append(
+          $("<div/>")
+            .addClass("perc_collapsible_body ui-widget ui-widget-content")
+            .append(this._getData("bodyContent"))
+        );
+      return this.element;
     },
 
-    header : function() {
-	return this.element;
+    header: function () {
+      return this.element;
     },
-    body : function() {
-	return this.element.next();
-    },
-
-    collapse : function () {
-	this.body().hide();
+    body: function () {
+      return this.element.next();
     },
 
-    uncollapse : function () {
-	this.body().show();
-    }
-};
+    collapse: function () {
+      this.body().hide();
+    },
 
-$.widget( "ui.perc_collapsible", Collapsible );
+    uncollapse: function () {
+      this.body().show();
+    },
+  };
 
-$.ui.perc_collapsible.getters = "header body";
+  $.widget("ui.perc_collapsible", Collapsible);
 
+  $.ui.perc_collapsible.getters = "header body";
 })(jQuery);
-
-

@@ -61,9 +61,7 @@ ps.aa.ObjectId = function (idString) {
       idString.length
     );
     this.widget = ps.aa.ObjectId.IMG_PREFIX;
-  } else if (
-    idString.startsWith(ps.aa.ObjectId.TREE_NODE_WIDGET)
-  ) {
+  } else if (idString.startsWith(ps.aa.ObjectId.TREE_NODE_WIDGET)) {
     this.idString = idString.substring(
       ps.aa.ObjectId.TREE_NODE_WIDGET.length,
       idString.length
@@ -122,10 +120,7 @@ ps.aa.ObjectId = function (idString) {
    */
   this.belongsToTheSameItem = function (otherId) {
     ps.assertType(otherId, ps.aa.ObjectId);
-    ps.assert(
-      otherId.isSlotNode(),
-      "Expected slot node, but got " + otherId
-    );
+    ps.assert(otherId.isSlotNode(), "Expected slot node, but got " + otherId);
     ps.assert(
       this.isSlotNode(),
       "Can be called only on a slot node, not on " + this

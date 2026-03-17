@@ -22,12 +22,14 @@ This migration follows Maven conventions by placing all module resources under `
 ## Changes Applied
 
 ### 1. Module Name Update
+
 **File:** [system/Tools/jetty/defaults/modules/perc.mod](../../system/Tools/jetty/defaults/modules/perc.mod#L22)
 **Change:** Renamed `stats` module dependency to `statistics`
 **Reason:** Jetty 12 renamed the `stats` module to `statistics`
 **Impact:** Low risk - direct module name mapping
 
 ### 2. WebAppContext Class Package Updates
+
 **Files:**
 - [system/Tools/jetty/base/webapps/Rhythmyx.xml](../../system/Tools/jetty/base/webapps/Rhythmyx.xml#L2)
 - [system/Tools/jetty/base/webapps/CI_Home.xml](../../system/Tools/jetty/base/webapps/CI_Home.xml#L2)
@@ -38,9 +40,11 @@ This migration follows Maven conventions by placing all module resources under `
 **Impact:** Low risk - direct API mapping, backward compatible
 
 ### 3. ResourceCollection API Replacement
+
 **File:** [system/Tools/jetty/base/webapps/Rhythmyx.xml](../../system/Tools/jetty/base/webapps/Rhythmyx.xml#L9-L21)
 **Change:** Replaced `ResourceCollection` class with `setBaseResourceAsString()` method using comma-separated paths
 **Old API:**
+
 ```xml
 <Set name="baseResource">
     <New class="org.eclipse.jetty.util.resource.ResourceCollection">
@@ -55,6 +59,7 @@ This migration follows Maven conventions by placing all module resources under `
 ```
 
 **New API:**
+
 ```xml
 <Call name="setBaseResourceAsString">
     <Arg>
@@ -75,12 +80,14 @@ This migration follows Maven conventions by placing all module resources under `
 **Impact:** Medium risk - Requires smoke testing that multi-path resource loading works correctly
 
 ### 4. Removed Deprecated Classloader Cleanup Listeners
+
 **File:** [system/Tools/jetty/defaults/etc/perc-webdefault.xml](../../system/Tools/jetty/defaults/etc/perc-webdefault.xml#L34-L47)
 **Change:** Removed `ELContextCleaner` and `IntrospectorCleaner` listener declarations
 **Reason:** Jetty 12 handles classloader cleanup internally; these listeners no longer exist
 **Impact:** Low risk - Jetty 12's modern classloader management makes these obsolete
 
 ### 5. Removed Non-Existent Config File Reference
+
 **File:** [system/Tools/jetty/service/install-jetty-service.sh](../../system/Tools/jetty/service/install-jetty-service.sh#L195)
 **Change:** Removed `jetty-started.xml` from `JETTY_ARGS`
 **Old:** `JETTY_ARGS="--include-jetty-dir=${JETTY_DEFAULTS} jetty-started.xml"`
@@ -89,6 +96,7 @@ This migration follows Maven conventions by placing all module resources under `
 **Impact:** Low risk - File doesn't exist in Jetty 12 upstream
 
 ### 6. Fixed Startup Script Option Checks
+
 **File:** [system/Tools/jetty/StartJetty.sh](../../system/Tools/jetty/StartJetty.sh#L104-L110)
 **Changes:**
 - Fixed typo: `--upadate-ini` → `--update-ini`
@@ -100,12 +108,14 @@ This migration follows Maven conventions by placing all module resources under `
 **Impact:** Low risk - Improves compatibility detection for Jetty CLI operations
 
 ### 7. Removed Legacy Jetty 9 Jar Injection
+
 **File:** [modules/perc-jetty/pom.xml](../../modules/perc-jetty/pom.xml#L261-L265)
 **Change:** Commented out copy task that injected Jetty 9.4.26 jar for CMS-6724 workaround
 **Reason:** Jetty 12 doesn't need the CMS-6724 workaround; injecting old jar causes conflicts
 **Impact:** Low risk - Removes unnecessary legacy dependency
 
 ### 8. Excluded Upstream Directory from Assembly
+
 **File:** [modules/perc-jetty/pom.xml](../../modules/perc-jetty/pom.xml#L270)
 **Change:** Added `<exclude name="upstream/**"/>` to prevent copying source `system/Tools/jetty/upstream/` directory
 **Reason:** The upstream directory in source contains legacy Jetty 9 artifacts (Git LFS pointers); assembly should only use unpacked Jetty 12 home
@@ -170,3 +180,4 @@ If smoke testing reveals issues:
 1. **User Action Required:** Smoke test the assembled Jetty distribution
 2. **If Successful:** Commit changes to development branch
 3. **If Issues Found:** Review this document and apply targeted fixes
+

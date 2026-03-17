@@ -19,22 +19,23 @@
  * Service to handle the site impact of items
  */
 
-(function($)
-{
-    //Public API
-    $.PercSiteImpactService = 
-    {
-            getSiteImpactDetails : getSiteImpactDetails
-    };
-    
-    /**
-     * Makes a call to the server and calls the supplied callback with status and result. See $.PercServiceUtils.makeJsonRequest
-     * for more details.
-     */
-    function getSiteImpactDetails(itemId, callback)
-    {
-        var url = $.perc_paths.ASSET_SITE_IMPACT + "/" + itemId;
-        $.PercServiceUtils.makeJsonRequest(url,$.PercServiceUtils.TYPE_GET,false,callback);
-    }
+(function ($) {
+  //Public API
+  $.PercSiteImpactService = {
+    getSiteImpactDetails: getSiteImpactDetails,
+  };
+
+  /**
+   * Makes a call to the server and calls the supplied callback with status and result. See $.PercServiceUtils.makeJsonRequest
+   * for more details.
+   */
+  function getSiteImpactDetails(itemId, callback) {
+    var url = $.perc_paths.ASSET_SITE_IMPACT + "/" + itemId;
+    $.PercServiceUtils.makeJsonRequest(
+      url,
+      $.PercServiceUtils.TYPE_GET,
+      false,
+      callback
+    );
+  }
 })(jQuery);
-    

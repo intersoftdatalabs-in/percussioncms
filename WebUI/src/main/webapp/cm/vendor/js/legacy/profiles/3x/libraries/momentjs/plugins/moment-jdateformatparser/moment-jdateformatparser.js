@@ -1,16 +1,16 @@
 // this loading routine is shamelessly copied from the "moment-duration-format" plugin
 // @see https://github.com/jsmreese/moment-duration-format
-(function loadMomentJS (root, factory) {
-  if (typeof define === 'function' && define.amd) {
+(function loadMomentJS(root, factory) {
+  if (typeof define === "function" && define.amd) {
     // Detected AMD;
     // will register as an anonymous module
-    define(['moment'], factory);
-  } else if (typeof exports === 'object') {
+    define(["moment"], factory);
+  } else if (typeof exports === "object") {
     // Detected node.js;
     // this does not work with strict CommonJS, but only CommonJS-like environments
     // whicht support `module.exports`, like node.js does
     try {
-      module.exports = factory(require('moment'));
+      module.exports = factory(require("moment"));
     } catch (ignore) {
       // if `moment.js` is not available, leave the setup to the user;
       // this is necessary if the user works with other plugins which will
@@ -22,9 +22,11 @@
 
   if (root) {
     //working with globals;
-    root.momentJDateFormatParserSetup = root.moment ? factory(root.moment) : factory;
+    root.momentJDateFormatParserSetup = root.moment
+      ? factory(root.moment)
+      : factory;
   }
-})(this, function loadPlugin (moment) {
+})(this, function loadPlugin(moment) {
   /**
    * The internal **Java** date formats cache.
    *
@@ -48,45 +50,45 @@
    * @type {Object}
    */
   var javaFormatMapping = {
-    d: 'D',
-    dd: 'DD',
-    y: 'YYYY',
-    yy: 'YY',
-    yyy: 'YYYY',
-    yyyy: 'YYYY',
-    a: 'a',
-    A: 'A',
-    M: 'M',
-    MM: 'MM',
-    MMM: 'MMM',
-    MMMM: 'MMMM',
-    h: 'h',
-    hh: 'hh',
-    H: 'H',
-    HH: 'HH',
-    m: 'm',
-    mm: 'mm',
-    s: 's',
-    ss: 'ss',
-    S: 'SSS',
-    SS: 'SSS',
-    SSS: 'SSS',
-    E: 'ddd',
-    EE: 'ddd',
-    EEE: 'ddd',
-    EEEE: 'dddd',
-    EEEEE: 'dddd',
-    EEEEEE: 'dddd',
-    D: 'DDD',
-    w: 'W',
-    ww: 'WW',
-    z: 'ZZ',
-    zzzz: 'Z',
-    Z: 'ZZ',
-    X: 'ZZ',
-    XX: 'ZZ',
-    XXX: 'Z',
-    u: 'E'
+    d: "D",
+    dd: "DD",
+    y: "YYYY",
+    yy: "YY",
+    yyy: "YYYY",
+    yyyy: "YYYY",
+    a: "a",
+    A: "A",
+    M: "M",
+    MM: "MM",
+    MMM: "MMM",
+    MMMM: "MMMM",
+    h: "h",
+    hh: "hh",
+    H: "H",
+    HH: "HH",
+    m: "m",
+    mm: "mm",
+    s: "s",
+    ss: "ss",
+    S: "SSS",
+    SS: "SSS",
+    SSS: "SSS",
+    E: "ddd",
+    EE: "ddd",
+    EEE: "ddd",
+    EEEE: "dddd",
+    EEEEE: "dddd",
+    EEEEEE: "dddd",
+    D: "DDD",
+    w: "W",
+    ww: "WW",
+    z: "ZZ",
+    zzzz: "Z",
+    Z: "ZZ",
+    X: "ZZ",
+    XX: "ZZ",
+    XXX: "Z",
+    u: "E",
   };
 
   /**
@@ -96,38 +98,37 @@
    * @type {Object}
    */
   var momentFormatMapping = {
-    D: 'd',
-    DD: 'dd',
-    YY: 'yy',
-    YYY: 'yyyy',
-    YYYY: 'yyyy',
-    a: 'a',
-    A: 'a',
-    M: 'M',
-    MM: 'MM',
-    MMM: 'MMM',
-    MMMM: 'MMMM',
-    h: 'h',
-    hh: 'hh',
-    H: 'H',
-    HH: 'HH',
-    m: 'm',
-    mm: 'mm',
-    s: 's',
-    ss: 'ss',
-    S: 'S',
-    SS: 'S',
-    SSS: 'S',
-    ddd: 'E',
-    dddd: 'EEEE',
-    DDD: 'D',
-    W: 'w',
-    WW: 'ww',
-    ZZ: 'z',
-    Z: 'XXX',
-    E: 'u'
+    D: "d",
+    DD: "dd",
+    YY: "yy",
+    YYY: "yyyy",
+    YYYY: "yyyy",
+    a: "a",
+    A: "a",
+    M: "M",
+    MM: "MM",
+    MMM: "MMM",
+    MMMM: "MMMM",
+    h: "h",
+    hh: "hh",
+    H: "H",
+    HH: "HH",
+    m: "m",
+    mm: "mm",
+    s: "s",
+    ss: "ss",
+    S: "S",
+    SS: "S",
+    SSS: "S",
+    ddd: "E",
+    dddd: "EEEE",
+    DDD: "D",
+    W: "w",
+    WW: "ww",
+    ZZ: "z",
+    Z: "XXX",
+    E: "u",
   };
-
 
   /**
    * Translates the java date format String to a momentjs format String.
@@ -150,7 +151,13 @@
 
       if (lastChar === null || lastChar !== currentChar) {
         // change detected
-        resultString = _appendMappedString(formatString, mapping, startIndex, i, resultString);
+        resultString = _appendMappedString(
+          formatString,
+          mapping,
+          startIndex,
+          i,
+          resultString
+        );
 
         startIndex = i;
       }
@@ -158,7 +165,13 @@
       lastChar = currentChar;
     }
 
-    return _appendMappedString(formatString, mapping, startIndex, i, resultString);
+    return _appendMappedString(
+      formatString,
+      mapping,
+      startIndex,
+      i,
+      resultString
+    );
   };
 
   /**
@@ -173,7 +186,13 @@
    * @returns {String}
    * @private
    */
-  var _appendMappedString = function (formatString, mapping, startIndex, currentIndex, resultString) {
+  var _appendMappedString = function (
+    formatString,
+    mapping,
+    startIndex,
+    currentIndex,
+    resultString
+  ) {
     if (startIndex !== -1) {
       var tempString = formatString.substring(startIndex, currentIndex);
 
@@ -188,10 +207,12 @@
     return resultString;
   };
 
-// init
-  function init (momentJS) {
+  // init
+  function init(momentJS) {
     if (!momentJS) {
-      throw new Error("Moment JDateFormatParser Plugin - Cannot find moment.js instance.");
+      throw new Error(
+        "Moment JDateFormatParser Plugin - Cannot find moment.js instance."
+      );
     }
 
     // register as private function (good for testing purposes)
@@ -208,7 +229,7 @@
       if (!javaDateFormats[formatString]) {
         var mapped = "";
         var regexp = /[^']+|('[^']*')/g;
-        var part = '';
+        var part = "";
 
         while ((part = regexp.exec(formatString))) {
           part = part[0];
@@ -246,7 +267,10 @@
      */
     momentJS.fn.toJDFString = function (formatString) {
       if (!momentDateFormats[formatString]) {
-        momentDateFormats[formatString] = translateFormat(formatString, momentFormatMapping);
+        momentDateFormats[formatString] = translateFormat(
+          formatString,
+          momentFormatMapping
+        );
       }
 
       return momentDateFormats[formatString];

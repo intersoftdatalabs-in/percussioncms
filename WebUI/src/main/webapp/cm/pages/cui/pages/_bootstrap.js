@@ -22,7 +22,8 @@ var requireJsConfig = {
     components: "/cm/cui/components",
     text: "/cm/cui/components/requirejs-text/text",
     jquery: "/cm/app/js/legacy/profiles/3x/jquery/jquery-3.6.0",
-    "jquery-migrate": "/cm/app/js/legacy/profiles/3x/jquery/jquery-migrate-3.3.2",
+    "jquery-migrate":
+      "/cm/app/js/legacy/profiles/3x/jquery/jquery-migrate-3.3.2",
     "jquery-ui": "/cm/cui/components/jquery-ui/jquery-ui",
     knockout: "/cm/cui/components/knockoutjs/dist/knockout",
     pubsub: "/cm/cui/components/pubsub-js/src/pubsub",

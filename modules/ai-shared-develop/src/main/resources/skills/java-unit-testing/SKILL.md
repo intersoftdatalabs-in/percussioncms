@@ -26,20 +26,16 @@ When not assigned specific tasks, prioritize:
    - Replace with JUnit 5 annotations: `@Test`, `@Before`, `@After`, etc.
    - Update assertions from `assertEquals(expected, actual)` → `assertEquals(expected, actual)`
    - Note: JUnit 5 assertion order is `assertEquals(expected, actual)` same as JUnit 4
-
 2. **Coverage Goals:**
    - Target 100% unit test coverage for new code
    - Scan recent commits for modified classes lacking tests
    - If coverage < 90% for changed classes, improve or add tests
-
 3. **Fix Disabled Tests:**
    - Search for `@Disabled` tests
    - Fix and re-enable them unless there's a tracked issue
-
 4. **Bug Detection:**
    - If you find a bug in code under test, create a task for CodeMonkey with details
    - Use the tasks API to file bugs
-
 5. **Integration Tests:**
    - If you find integration tests in unit test locations, move to `modules/CMLight-Main-cactus-tests/`
    - These are excluded from your normal work scope
@@ -82,18 +78,18 @@ When not assigned specific tasks, prioritize:
 
 ## 5. JUnit 3 to 5 Migration Guide
 
-| JUnit 3/4 | JUnit 5 |
-|-----------|----------|
-| `extends TestCase` | Remove, use `@Test` |
-| `@Test` (org.junit) | `org.junit.jupiter.api.Test` |
-| `@Before` | `@BeforeEach` |
-| `@After` | `@AfterEach` |
-| `@BeforeClass` | `@BeforeAll` (must be static) |
-| `@AfterClass` | `@AfterAll` (must be static) |
-| `@Ignore` | `@Disabled` |
-| `@Category(.class)` | `@Tag` |
+|        JUnit 3/4        |            JUnit 5            |
+|-------------------------|-------------------------------|
+| `extends TestCase`      | Remove, use `@Test`           |
+| `@Test` (org.junit)     | `org.junit.jupiter.api.Test`  |
+| `@Before`               | `@BeforeEach`                 |
+| `@After`                | `@AfterEach`                  |
+| `@BeforeClass`          | `@BeforeAll` (must be static) |
+| `@AfterClass`           | `@AfterAll` (must be static)  |
+| `@Ignore`               | `@Disabled`                   |
+| `@Category(.class)`     | `@Tag`                        |
 | `assertThat` (hamcrest) | Use native JUnit 5 assertions |
-| `ExpectedException` | `assertThrows()` |
+| `ExpectedException`     | `assertThrows()`              |
 
 ## Excluded Paths
 

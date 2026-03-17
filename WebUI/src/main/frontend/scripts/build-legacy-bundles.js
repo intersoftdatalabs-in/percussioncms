@@ -12,7 +12,7 @@ const path = require("path");
 // Paths are relative to the WebUI directory (4 levels up from scripts/)
 // scripts/ -> src/main/frontend/ -> src/main/ -> src/ -> WebUI/
 const WEBUI_DIR = path.dirname(
-  path.dirname(path.dirname(path.dirname(__dirname))),
+  path.dirname(path.dirname(path.dirname(__dirname)))
 );
 const WAR_DIR = path.join(WEBUI_DIR, "src/main/webapp");
 const BUNDLE_CONFIG_DIR = path.join(WEBUI_DIR, "src/main/resources/minify");
@@ -76,7 +76,7 @@ function resolvePath(filePath, baseDir = WAR_DIR) {
     }
     // Fall back to jslib/ if npm module not found (shouldn't happen if npm install worked)
     console.warn(
-      `  ⚠️  npm module not found for ${filePath}, falling back to jslib/`,
+      `  ⚠️  npm module not found for ${filePath}, falling back to jslib/`
     );
   }
 
@@ -233,7 +233,7 @@ function main() {
           console.log(`  ✓ ${nonMinFile} (alias for ${minFile})`);
         } catch (err) {
           console.error(
-            `  ❌ Error creating alias ${nonMinFile}: ${err.message}`,
+            `  ❌ Error creating alias ${nonMinFile}: ${err.message}`
           );
         }
       }
@@ -250,7 +250,7 @@ function main() {
           console.log(`  ✓ ${nonMinFile} (alias for ${minFile})`);
         } catch (err) {
           console.error(
-            `  ❌ Error creating alias ${nonMinFile}: ${err.message}`,
+            `  ❌ Error creating alias ${nonMinFile}: ${err.message}`
           );
         }
       }

@@ -93,6 +93,7 @@ export const store = configureStore({
 **Purpose**: Manage user authentication, permissions, and session state
 
 **State Structure**:
+
 ```typescript
 interface AuthState {
   user: User | null;
@@ -114,6 +115,7 @@ interface AuthState {
 - `clearError()` - Clear error
 
 **Usage Example**:
+
 ```typescript
 const { user, isAuthenticated, isLoading } = useAppSelector((state) => state.auth);
 const dispatch = useAppDispatch();
@@ -130,6 +132,7 @@ dispatch(logout());
 **Purpose**: Manage global UI state (theme, notifications, modals, loading)
 
 **State Structure**:
+
 ```typescript
 interface UIState {
   isLoading: boolean;
@@ -170,6 +173,7 @@ interface Modal {
 - `clearGlobalError()` - Clear global error
 
 **Usage Example**:
+
 ```typescript
 const { notifications, theme, isSidebarOpen } = useAppSelector((state) => state.ui);
 const { notify, setTheme, toggleSidebar } = useUI();
@@ -190,6 +194,7 @@ setTheme(theme === 'light' ? 'dark' : 'light');
 **Purpose**: Manage current page, menu state, and breadcrumbs
 
 **State Structure**:
+
 ```typescript
 interface NavigationState {
   currentPath: string;
@@ -214,6 +219,7 @@ interface NavigationState {
 - `goBack()` - Navigate to previous page
 
 **Usage Example**:
+
 ```typescript
 const { currentPage, menuItems, breadcrumbs } = useAppSelector((state) => state.navigation);
 const { navigate } = useNavigation();
@@ -230,6 +236,7 @@ dispatch(toggleMenuItem('admin'));
 **Purpose**: Manage dashboard data, statistics, and activity logs
 
 **State Structure**:
+
 ```typescript
 interface DashboardState {
   stats: DashboardStats | null;
@@ -252,6 +259,7 @@ interface DashboardState {
 - `reset()` - Reset dashboard state
 
 **Usage Example**:
+
 ```typescript
 const { stats, activityLog, isLoadingStats } = useAppSelector((state) => state.dashboard);
 const { loadStats } = useDashboard();
@@ -464,3 +472,4 @@ describe('Auth Slice', () => {
 - [Redux Style Guide](https://redux.js.org/style-guide/style-guide)
 - [Redux DevTools](https://github.com/reduxjs/redux-devtools)
 - [React-Redux Hooks API](https://react-redux.js.org/api/hooks)
+

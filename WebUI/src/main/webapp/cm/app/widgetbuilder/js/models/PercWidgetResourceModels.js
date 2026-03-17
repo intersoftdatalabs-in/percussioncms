@@ -18,18 +18,16 @@
 /**
  * Widget display model.
  */
-(function($)
-{
-    WidgetBuilderApp.WidgetResourceModel = Backbone.Model.extend({
-        defaults: {
-            "name": ""
-        }
-    });
-    WidgetBuilderApp.WidgetResourceCollection = Backbone.Collection.extend({
-        model:WidgetBuilderApp.WidgetResourceModel,
-        comparator: function(model) {
-            return model.get('ordinal');
-        }
-    });
-	
+(function ($) {
+  WidgetBuilderApp.WidgetResourceModel = Backbone.Model.extend({
+    defaults: {
+      name: "",
+    },
+  });
+  WidgetBuilderApp.WidgetResourceCollection = Backbone.Collection.extend({
+    model: WidgetBuilderApp.WidgetResourceModel,
+    comparator: function (model) {
+      return model.get("ordinal");
+    },
+  });
 })(jQuery);

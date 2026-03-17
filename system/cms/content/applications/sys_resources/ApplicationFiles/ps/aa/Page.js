@@ -75,7 +75,8 @@ ps.aa.Page = new (function () {
 
         if (
           node.className === ps.aa.SLOT_CLASS &&
-          node.tagName && node.tagName.toLowerCase() === "div"
+          node.tagName &&
+          node.tagName.toLowerCase() === "div"
         )
           parentNode = node;
 
@@ -125,10 +126,7 @@ ps.aa.Page = new (function () {
     (this.getElement = function (objectId) {
       ps.assertType(objectId, ps.aa.ObjectId);
       var element = document.getElementById(objectId.toString());
-      ps.assert(
-        element,
-        "No element found for id " + objectId.toString()
-      );
+      ps.assert(element, "No element found for id " + objectId.toString());
       return element;
     });
 })();

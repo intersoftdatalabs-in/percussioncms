@@ -4,21 +4,18 @@ Percussion CMS is a de-coupled Java-based content management system. It has a lo
 
 This repository is a large mono-repo with many submodules.  This code base has a lot of history and legacy, and is currently in the process of being modernized and refactored, do not assume that all code is up to date with current best practices.  When making code changes, follow these guidelines:
 
-
-
 ## Rule Discovery Protocol
 
 **For any task, question, or code modification related to a specific module, you MUST first apply this protocol to the module's path:**
 
 1. **Identify the module path:** Determine the specific directory context (e.g., `modules/perc-tinymce/` or `system/services/`).
 2. **Check for local override files:** Scan the identified directory for the following files in this specific order of priority:
-    * `AGENTS.local.md` (Personal or task-specific overrides)
-    * `AGENTS.md` (Module-specific permanent rules)
-
+   * `AGENTS.local.md` (Personal or task-specific overrides)
+   * `AGENTS.md` (Module-specific permanent rules)
 3. **Apply Hierarchy:**
-    * If local files exist, their instructions **supersede** global rules for that module's logic.
-    * `AGENTS.local.md` takes precedence over `AGENTS.md`.
-    * If no local files are found, default strictly to the root-level instructions.
+   * If local files exist, their instructions **supersede** global rules for that module's logic.
+   * `AGENTS.local.md` takes precedence over `AGENTS.md`.
+   * If no local files are found, default strictly to the root-level instructions.
 
 ## AI Agent Optimization Protocol (Signed Skills)
 
@@ -130,8 +127,11 @@ Agents MUST use the `agent-temp-directory` skill for ALL temporary files. This c
 * Use current project target JDK language features and APIs where appropriate
 
 * Avoid reflection and dynamic class loading unless absolutely necessary and explicitly approved by the team.
+
 * Resolve Java compiler warnings and errors before submitting code for review.
+
 * Use appropriate logging levels (e.g. debug, info, warn, error) for logging statements, and avoid excessive logging in production code.
+
 * Locate and read the `./modules/ai-shared-develop/src/main/resources/skills/javadoc/SKILL.md` file for best practices on generating Javadoc comments for your Java code changes. Follow the instructions in that file to ensure your Javadoc comments are accurate, concise, and compatible with the target JDK version.
 
 ## Primary Directive for Unit Testing
@@ -167,13 +167,13 @@ The following tools are used in this project:
 
 Help Example:
 
-``` bash
+```bash
 ./scripts/hot-deploy-local.sh --help
 ```
 
 Example: Build only system,rest, sitemanage, webui and hot deploy them to a local installation, starting jetty.
 
-``` bash
+```bash
 ./scripts/hot-deploy-local.sh --install-dir /home/nate/installs/cms-8.2-dev --modules system,rest,sitemanage,webui --restart
 ```
 

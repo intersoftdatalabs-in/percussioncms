@@ -86,37 +86,37 @@ extensions-main/
 Each entry in `Java/Extensions.xml` carries a `categorystring` attribute that
 groups extensions by functional area. The built-in categories are:
 
-| Category | Count | Description |
-|---|---|---|
-| `generic` | 72 | General-purpose UDFs (string, date, link, parameter manipulation) |
-| `contentassembler` | 25 | Assembly location and content assembler exits |
-| `jexl` | 20 | JEXL-expression extensions used in Velocity templates |
-| `translation` | 18 | Field-value translators (date formatting, form encode/decode) |
-| `psxsystem` | 15 | Internal system exits |
-| `xmldom` | 14 | XML DOM manipulation exits |
-| `relationship` | 13 | Relationship effects and constraints |
-| `editiontask` | 11 | Edition task exits (pre/post-publish events) |
-| `contenteditor` | 11 | Content-editor validators and transformers |
-| `cx` | 9 | Content-explorer (CX) exits |
-| `assembly` | 8 | Assembler and slot content-finder exits |
-| `encoding` | 7 | HTML, JS, CSS, XML, URI encoding transformers |
-| `contentlist` | 7 | Content-list generator and template expander exits |
-| `workflow` | 6 | Workflow action exits |
-| `validation` | 6 | Field-value validators |
-| `uicontext` | 6 | UI context menus |
-| `security` | 6 | Input-validation security extensions |
-| `search` | 6 | Search results processors |
-| `itemfilter` | 6 | Item filter rule exits |
-| `cms` | 6 | Additional CMS exits |
-| `SlotContentFinder` | 5 | Slot content-finder exits |
-| `scheduledTask` | 5 | Scheduled task exits |
-| `i18n` | 5 | Internationalization date/text exits |
-| `publisher` | 4 | Publishing exits |
-| `communities` | 4 | Community management exits |
-| `clone` | 3 | Content-clone exits |
-| `components` | 2 | Component management exits |
-| `filter` | 1 | Password filter (`sys_DefaultPasswordFilter`) |
-| Others | 8 | `usersearch`, `rule`, `report`, `filetracker`, `fastforward`, `exit`, `ca` |
+|      Category       | Count |                                Description                                 |
+|---------------------|-------|----------------------------------------------------------------------------|
+| `generic`           | 72    | General-purpose UDFs (string, date, link, parameter manipulation)          |
+| `contentassembler`  | 25    | Assembly location and content assembler exits                              |
+| `jexl`              | 20    | JEXL-expression extensions used in Velocity templates                      |
+| `translation`       | 18    | Field-value translators (date formatting, form encode/decode)              |
+| `psxsystem`         | 15    | Internal system exits                                                      |
+| `xmldom`            | 14    | XML DOM manipulation exits                                                 |
+| `relationship`      | 13    | Relationship effects and constraints                                       |
+| `editiontask`       | 11    | Edition task exits (pre/post-publish events)                               |
+| `contenteditor`     | 11    | Content-editor validators and transformers                                 |
+| `cx`                | 9     | Content-explorer (CX) exits                                                |
+| `assembly`          | 8     | Assembler and slot content-finder exits                                    |
+| `encoding`          | 7     | HTML, JS, CSS, XML, URI encoding transformers                              |
+| `contentlist`       | 7     | Content-list generator and template expander exits                         |
+| `workflow`          | 6     | Workflow action exits                                                      |
+| `validation`        | 6     | Field-value validators                                                     |
+| `uicontext`         | 6     | UI context menus                                                           |
+| `security`          | 6     | Input-validation security extensions                                       |
+| `search`            | 6     | Search results processors                                                  |
+| `itemfilter`        | 6     | Item filter rule exits                                                     |
+| `cms`               | 6     | Additional CMS exits                                                       |
+| `SlotContentFinder` | 5     | Slot content-finder exits                                                  |
+| `scheduledTask`     | 5     | Scheduled task exits                                                       |
+| `i18n`              | 5     | Internationalization date/text exits                                       |
+| `publisher`         | 4     | Publishing exits                                                           |
+| `communities`       | 4     | Community management exits                                                 |
+| `clone`             | 3     | Content-clone exits                                                        |
+| `components`        | 2     | Component management exits                                                 |
+| `filter`            | 1     | Password filter (`sys_DefaultPasswordFilter`)                              |
+| Others              | 8     | `usersearch`, `rule`, `report`, `filetracker`, `fastforward`, `exit`, `ca` |
 
 ---
 
@@ -125,29 +125,29 @@ groups extensions by functional area. The built-in categories are:
 Extensions implement one or more of the following interfaces defined in
 `perc-system`:
 
-| Interface | Count | Purpose |
-|---|---|---|
-| `IPSResultDocumentProcessor` | 92 | Post-processes the XML result document returned to a client |
-| `IPSUdfProcessor` | 77 | User-defined function: called from XSL or Velocity templates |
-| `IPSRequestPreProcessor` | 55 | Pre-processes an incoming request before it hits a resource |
-| `IPSJexlExpression` | 20 | JEXL-callable expression used in Velocity assembly |
-| `IPSFieldInputTransformer` | 20 | Transforms a content-editor field value on input |
-| `IPSEditionTask` | 11 | Runs before/after a publish edition |
-| `IPSItemInputTransformer` | 11 | Transforms item-level data on input |
-| `IPSEffect` | 10 | Relationship effect (fires on relationship create/modify/delete) |
-| `IPSWorkflowAction` | 9 | Fires on a workflow transition |
-| `IPSAssembler` | 8 | Content assembler |
-| `IPSFieldValidator` | 8 | Validates a single content-editor field |
-| `IPSItemFilterRule` | 7 | Item filter rule for visibility/publish eligibility |
-| `IPSItemValidator` | 6 | Validates an entire content item |
-| `IPSFieldOutputTransformer` | 6 | Transforms a field value on output |
-| `IPSAssemblyLocation` | 6 | Computes the assembly (publication) URL for an item |
-| `IPSTask` | 5 | Scheduled task |
-| `IPSSlotContentFinder` | 5 | Finds related items for a slot |
-| `IPSContentListGenerator` | 4 | Generates the list of items for a publish edition |
-| `IPSTemplateExpander` | 3 | Expands a content list into individual publishing items |
-| `IPSSearchResultsProcessor` | 3 | Post-processes full-text search results |
-| `IPSPasswordFilter` | 1 | Hashes/validates passwords (`sys_DefaultPasswordFilter`) |
+|          Interface           | Count |                             Purpose                              |
+|------------------------------|-------|------------------------------------------------------------------|
+| `IPSResultDocumentProcessor` | 92    | Post-processes the XML result document returned to a client      |
+| `IPSUdfProcessor`            | 77    | User-defined function: called from XSL or Velocity templates     |
+| `IPSRequestPreProcessor`     | 55    | Pre-processes an incoming request before it hits a resource      |
+| `IPSJexlExpression`          | 20    | JEXL-callable expression used in Velocity assembly               |
+| `IPSFieldInputTransformer`   | 20    | Transforms a content-editor field value on input                 |
+| `IPSEditionTask`             | 11    | Runs before/after a publish edition                              |
+| `IPSItemInputTransformer`    | 11    | Transforms item-level data on input                              |
+| `IPSEffect`                  | 10    | Relationship effect (fires on relationship create/modify/delete) |
+| `IPSWorkflowAction`          | 9     | Fires on a workflow transition                                   |
+| `IPSAssembler`               | 8     | Content assembler                                                |
+| `IPSFieldValidator`          | 8     | Validates a single content-editor field                          |
+| `IPSItemFilterRule`          | 7     | Item filter rule for visibility/publish eligibility              |
+| `IPSItemValidator`           | 6     | Validates an entire content item                                 |
+| `IPSFieldOutputTransformer`  | 6     | Transforms a field value on output                               |
+| `IPSAssemblyLocation`        | 6     | Computes the assembly (publication) URL for an item              |
+| `IPSTask`                    | 5     | Scheduled task                                                   |
+| `IPSSlotContentFinder`       | 5     | Finds related items for a slot                                   |
+| `IPSContentListGenerator`    | 4     | Generates the list of items for a publish edition                |
+| `IPSTemplateExpander`        | 3     | Expands a content list into individual publishing items          |
+| `IPSSearchResultsProcessor`  | 3     | Post-processes full-text search results                          |
+| `IPSPasswordFilter`          | 1     | Hashes/validates passwords (`sys_DefaultPasswordFilter`)         |
 
 ---
 
@@ -302,14 +302,14 @@ header comments at the top of that file:
 
 **Context conventions:**
 
-| Interface | Context |
-|---|---|
-| `IPSUdfProcessor` | `global/percussion/generic/` |
-| `IPSResultDocumentProcessor` | `global/percussion/exit/` |
-| `IPSRequestPreProcessor` | `global/percussion/exit/` |
-| `IPSPasswordFilter` | `global/percussion/filter/` |
-| `IPSFieldInputTransformer` | `global/percussion/content/` |
-| `IPSWorkflowAction` | `global/percussion/workflow/` |
+|          Interface           |            Context            |
+|------------------------------|-------------------------------|
+| `IPSUdfProcessor`            | `global/percussion/generic/`  |
+| `IPSResultDocumentProcessor` | `global/percussion/exit/`     |
+| `IPSRequestPreProcessor`     | `global/percussion/exit/`     |
+| `IPSPasswordFilter`          | `global/percussion/filter/`   |
+| `IPSFieldInputTransformer`   | `global/percussion/content/`  |
+| `IPSWorkflowAction`          | `global/percussion/workflow/` |
 
 ### 3. Write a unit test
 
@@ -383,3 +383,4 @@ build from the workspace root:
 - Run `../../mvn-env.sh spotless:check` before committing; apply fixes with
   `spotless:apply` if needed.
 - Follow the [Google Java Style Guide](https://google.github.io/styleguide/javaguide.html).
+

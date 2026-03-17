@@ -18,27 +18,28 @@ PSServer.init()
 
 ## Key classes
 
-| Class | Module | Role |
-| --- | --- | --- |
-| `PSExtensionManager` | `perc-system` | Singleton registry facade; entry point for all extension lookups |
-| `PSExtensionHandlerHandler` | `perc-system` | Manages the lifecycle of a single extension handler |
-| `PSExtensionHandlerConfiguration` | `perc-system` | Parses `Extensions.xml`; stores defs in a two-level `ConcurrentHashMap` |
-| `PSJavaExtensionHandler` | `perc-system` | Java handler; instantiates extensions via `PSExtensionClassLoader` |
-| `PSExtensionRef` | `perc-system` | Immutable identity: `handler`, `context`, `name`, `category` |
-| `IPSExtensionDef` / `PSExtensionDef` | `perc-system` | The parsed definition (init params, interfaces, param defs) |
+|                Class                 |    Module     |                                  Role                                   |
+|--------------------------------------|---------------|-------------------------------------------------------------------------|
+| `PSExtensionManager`                 | `perc-system` | Singleton registry facade; entry point for all extension lookups        |
+| `PSExtensionHandlerHandler`          | `perc-system` | Manages the lifecycle of a single extension handler                     |
+| `PSExtensionHandlerConfiguration`    | `perc-system` | Parses `Extensions.xml`; stores defs in a two-level `ConcurrentHashMap` |
+| `PSJavaExtensionHandler`             | `perc-system` | Java handler; instantiates extensions via `PSExtensionClassLoader`      |
+| `PSExtensionRef`                     | `perc-system` | Immutable identity: `handler`, `context`, `name`, `category`            |
+| `IPSExtensionDef` / `PSExtensionDef` | `perc-system` | The parsed definition (init params, interfaces, param defs)             |
 
 ## Extension identity: FQN vs. category
 
 A `PSExtensionRef` carries four fields:
 
-| Field | Example | Source |
-| --- | --- | --- |
-| `handlerName` | `Java` | Handler element in `Extensions.xml` |
-| `context` | `global/percussion/filter/` | `context` attribute (always ends with `/`) |
-| `extName` | `sys_DefaultPasswordFilter` | `name` attribute |
-| `category` | `filter` | `categorystring` attribute |
+|     Field     |           Example           |                   Source                   |
+|---------------|-----------------------------|--------------------------------------------|
+| `handlerName` | `Java`                      | Handler element in `Extensions.xml`        |
+| `context`     | `global/percussion/filter/` | `context` attribute (always ends with `/`) |
+| `extName`     | `sys_DefaultPasswordFilter` | `name` attribute                           |
+| `category`    | `filter`                    | `categorystring` attribute                 |
 
 The **FQN** (Fully Qualified Name) is `handler/context/name`:
+
 ```
 Java/global/percussion/filter/sys_DefaultPasswordFilter
 ```

@@ -15,38 +15,35 @@
  * limitations under the License.
  */
 
-$(function()
-{
-    $.fn.PercFixedHeaderTable = function()
-    {
-        var table = $(this);
-        var header = $(table.find("thead tr td"));
-        console.log(header);
-        console.log(header.length);
-        
- //       for(header.
-        
-        var fixedHeaderDiv = $("<div>")
-            .css("background","red")
-            .css("position","absolute")
-            .append("hello");
-        $("body").append(fixedHeaderDiv);
-        
-        function update()
-        {
-            var tablePosition = table.offset();
-            var tableWidth    = table.width();
-            var tableHeight   = table.height();
-            console.log(tablePosition);
-            console.log(tableWidth);
-            fixedHeaderDiv
-                .css("background", "blue")
-                .width(tableWidth)
-                .css("left", tablePosition.left+"px")
-                .css("top", tablePosition.top+"px");
-        }
-        
-        update();
-        return update;
+$(function () {
+  $.fn.PercFixedHeaderTable = function () {
+    var table = $(this);
+    var header = $(table.find("thead tr td"));
+    console.log(header);
+    console.log(header.length);
+
+    //       for(header.
+
+    var fixedHeaderDiv = $("<div>")
+      .css("background", "red")
+      .css("position", "absolute")
+      .append("hello");
+    $("body").append(fixedHeaderDiv);
+
+    function update() {
+      var tablePosition = table.offset();
+      var tableWidth = table.width();
+      var tableHeight = table.height();
+      console.log(tablePosition);
+      console.log(tableWidth);
+      fixedHeaderDiv
+        .css("background", "blue")
+        .width(tableWidth)
+        .css("left", tablePosition.left + "px")
+        .css("top", tablePosition.top + "px");
     }
+
+    update();
+    return update;
+  };
 });

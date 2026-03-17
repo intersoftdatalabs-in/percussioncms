@@ -14,11 +14,13 @@ This document provides detailed technical information about each class of vulner
 **Impact**: Complete cryptographic failure, data breaches, unauthorized access
 
 ### Vulnerability #1: MD5 Hash Function
+
 **Files Affected**:
 - `MD5.java` (2 instances)
 - `MD5InputStream.java` (full class)
 
 **Problem**:
+
 ```java
 // VULNERABLE: MD5 is cryptographically broken
 MessageDigest md = MessageDigest.getInstance("MD5");
@@ -32,6 +34,7 @@ computed = md.digest();
 - Considered deprecated since 2006
 
 **Fix Applied**:
+
 ```java
 // SECURE: Using SHA-256 instead
 MessageDigest md = MessageDigest.getInstance("SHA-256");
@@ -44,12 +47,14 @@ computed = md.digest();
 ---
 
 ### Vulnerability #2: SHA-1 Digest Usage
+
 **Files Affected**:
 - `PSConvertLinksToManagedAction.java`
 - `PSDefaultPasswordEncryptionBean.java`
 - `DefaultPasswordFilter.java`
 
 **Problem**:
+
 ```java
 // VULNERABLE: SHA-1 is deprecated and has collision attacks
 MessageDigest digest = MessageDigest.getInstance("SHA1");
@@ -62,6 +67,7 @@ String hash = hex(digest.digest(input.getBytes()));
 - Insufficient entropy for cryptographic use
 
 **Fix Applied**:
+
 ```java
 // SECURE: Migrated to SHA-256
 MessageDigest digest = MessageDigest.getInstance("SHA-256");
@@ -107,6 +113,7 @@ String hash = hex(digest.digest(input.getBytes()));
 5. Remove hardcoded passwords
 
 **Example Code**:
+
 ```java
 // VULNERABLE
 String password = "admin"; // Stored in plaintext
@@ -145,6 +152,7 @@ secureRandom.nextBytes(key);  // Cryptographically secure
 ```
 
 **Implementation**:
+
 ```java
 public static byte[] generateSecureRandomBytes(int length) {
   SecureRandom secureRandom = new SecureRandom();
@@ -166,6 +174,7 @@ String hash = SHA256(salt + password);  // Salted
 ```
 
 **Implementation**:
+
 ```java
 public static String hashSHA256(String input) {
   byte[] salt = generateSecureRandomBytes(16);
@@ -187,6 +196,7 @@ Cipher cipher = Cipher.getInstance("AES/GCM/NoPadding");
 ```
 
 **Implementation**:
+
 ```java
 public static String encryptAES256(String plaintext, String key) {
   SecretKey secretKey = deriveKey(key, 256);
@@ -228,6 +238,7 @@ public static String encryptAES256(String plaintext, String key) {
 **Location**: `projects/sitemanage/src/main/java/com/percussion/sitemanage/importer/PSSiteImporter.java` (Lines 307-335)
 
 **Vulnerable Code**:
+
 ```java
 public static URLConnectionProperties overrideConnectionProperties() {
   // VULNERABLE: Creates trust-all certificate manager
@@ -263,6 +274,7 @@ public static URLConnectionProperties overrideConnectionProperties() {
 5. **Implicit Trust**: Developers may not realize connections are insecure
 
 **Attack Scenario**:
+
 ```
 Attacker performs network interception:
 1. Attacker intercepts HTTPS connection
@@ -280,6 +292,7 @@ Attacker performs network interception:
 **Implementation**:
 
 #### 1. Default Hostname Verifier
+
 ```java
 public static HostnameVerifier getDefaultHostnameVerifier() {
   // Returns system default - never permissive
@@ -292,6 +305,7 @@ public static HostnameVerifier getDefaultHostnameVerifier() {
 ```
 
 #### 2. Secure SSL Context
+
 ```java
 public static SSLContext getDefaultSSLContext() {
   try {
@@ -307,6 +321,7 @@ public static SSLContext getDefaultSSLContext() {
 ```
 
 #### 3. Hostname Verification Validation
+
 ```java
 public static boolean validateHostnameVerification(String hostname, HostnameVerifier verifier) {
   Objects.requireNonNull(hostname);
@@ -328,6 +343,7 @@ public static boolean validateHostnameVerification(String hostname, HostnameVeri
 - Always-true hostname verifier
 
 **Secure Code Added**:
+
 ```java
 public static URLConnectionProperties overrideConnectionProperties() {
   try {
@@ -380,18 +396,19 @@ public static URLConnectionProperties overrideConnectionProperties() {
 
 ### Vulnerabilities Fixed in Dependencies
 
-| Dependency | Version | Vulnerability | Status |
-|-----------|---------|---|---|
-| commons-lang3 | 3.14.0 | Deprecated Validate API | ✅ Noted for upgrade |
-| log4j2 | 2.23.1 | No known vulnerabilities | ✅ Secure |
-| junit5 | 5.10.2 | No known vulnerabilities | ✅ Secure |
-| mockito | 5.8.1 | No known vulnerabilities | ✅ Secure |
+|  Dependency   | Version |      Vulnerability       |       Status        |
+|---------------|---------|--------------------------|---------------------|
+| commons-lang3 | 3.14.0  | Deprecated Validate API  | ✅ Noted for upgrade |
+| log4j2        | 2.23.1  | No known vulnerabilities | ✅ Secure            |
+| junit5        | 5.10.2  | No known vulnerabilities | ✅ Secure            |
+| mockito       | 5.8.1   | No known vulnerabilities | ✅ Secure            |
 
 ---
 
 ## Verification Evidence
 
 ### Build Logs
+
 ```
 [INFO] BUILD SUCCESS
 [INFO] Total time: 8.059 s
@@ -399,6 +416,7 @@ public static URLConnectionProperties overrideConnectionProperties() {
 ```
 
 ### Test Execution
+
 ```
 [INFO] PSCryptographyUtilsTest.java ...................... 37 PASSING
 [INFO] PSSecureTLSConfigurerTest.java .................... 26 PASSING

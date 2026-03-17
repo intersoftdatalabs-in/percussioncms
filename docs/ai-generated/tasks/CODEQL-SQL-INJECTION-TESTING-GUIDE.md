@@ -15,6 +15,7 @@ The fundamental principle of SQL injection prevention via parameterized queries 
 ## Integration Test Pattern for SQL Fixes
 
 ### Test Setup
+
 ```java
 // Location: projects/sitemanage/src/test/java/.../PSPageDaoHelperTest.java
 
@@ -34,6 +35,7 @@ class PSPageDaoHelperSecurityIntegrationTest {
 ```
 
 ### Positive Test Example
+
 ```java
 @Test
 @DisplayName("SQL Injection Fix: findPageIdsByTemplate handles legitimate template ID")
@@ -53,6 +55,7 @@ void testFindPageIdsByTemplateWithValidData() {
 ```
 
 ### Negative Test Example
+
 ```java
 @Test
 @DisplayName("SQL Injection Fix: SQL injection payload treated as literal parameter")
@@ -114,12 +117,10 @@ void testFindPageIdsByTemplateUsesParameterization() {
    - Template lookup returns expected pages
    - Multiple page IDs in IN list process correctly
    - Search criteria filters work as intended
-
 2. **Injection patterns are safe**
    - Query returns empty/no results (attempted injection matches no data)
    - No SQL errors thrown during query parsing
    - No unintended data accessed
-
 3. **Edge cases handled**
    - Null template ID
    - Empty page list
@@ -244,12 +245,10 @@ If the project already has test infrastructure for PSPageDaoHelper:
    - Locate: `projects/sitemanage/src/test/java/.../PSPageDaoHelperTest.java`
    - Add: `@Nested` test classes for each fixed method
    - Result: Organized tests grouped by method
-
 2. **Create security-focused test class**:
    - Create: `PSPageDaoHelperSecurityTest.java`
    - Focus: Purely on SQL injection prevention validation
    - Result: Clear separation of concerns, easy to find security tests
-
 3. **Use existing test fixtures**:
    - Leverage: Existing test data builders, database state setup
    - Pattern: Follow existing test naming and structure

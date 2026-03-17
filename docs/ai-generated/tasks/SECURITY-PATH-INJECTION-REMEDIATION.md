@@ -13,6 +13,7 @@ This document summarizes the systematic remediation of 159 Java CodeQL security 
 ### ✅ Completed Tasks (23 Alerts Resolved)
 
 #### 1. **PathValidation.java Security Validator** (Core Library)
+
 - **Location**: `modules/perc-security-utils/src/main/java/com/percussion/security/validation/PathValidation.java`
 - **Lines**: 300+ lines of production-ready code
 - **Features**:
@@ -23,18 +24,21 @@ This document summarizes the systematic remediation of 159 Java CodeQL security 
 - **Tests**: `PathValidationTest.java` with 34 comprehensive test cases - **ALL PASSING ✓**
 
 #### 2. **PSThemeService.java Refactoring** (9 Alerts)
+
 - **Location**: `projects/sitemanage/src/main/java/com/percussion/designmanagement/service/impl/PSThemeService.java`
 - **Refactored Methods**: 7 total using `PathValidation.constructSafePath()` and `combineSafePaths()`
 - **Status**: ✅ **Compiles Successfully**
 - **Vulnerability Type**: Path traversal in theme file operations
 
 #### 3. **PSRegionCSSFileService.java Refactoring** (8 Alerts)
+
 - **Location**: `projects/sitemanage/src/main/java/com/percussion/designmanagement/service/impl/PSRegionCSSFileService.java`
 - **Refactored Methods**: 4 total with path validation checks
 - **Status**: ✅ **Compiles Successfully**
 - **Vulnerability Type**: Path traversal in CSS file operations
 
 #### 4. **PSFileSystemService.java Refactoring** (6 Alerts)
+
 - **Location**: `projects/sitemanage/src/main/java/com/percussion/designmanagement/service/impl/PSFileSystemService.java`
 - **Refactored Methods**: 4 critical methods
   - `getFile(String path)`: Validates against `..`, absolute paths (except `/`)
@@ -42,6 +46,7 @@ This document summarizes the systematic remediation of 159 Java CodeQL security 
   - `addFolder(String newFolderPath)`: Folder name validation
   - `renameFolder(String oldFolderPath, String newFolderName)`: Rename validation
 - **Validation Pattern**:
+
   ```java
   String normalizedPath = path.startsWith("/") ? path.substring(1) : path;
   if (normalizedPath.contains("..") || (new File(path).isAbsolute() && !"/".equals(path))) {
@@ -62,12 +67,14 @@ This document summarizes the systematic remediation of 159 Java CodeQL security 
   - Full canonical PathValidation needed for existing path verification
 
 #### 5. **PSFileSystemPathItemService.java Analysis** (6 Alerts Likely Resolved)
+
 - **Location**: `projects/sitemanage/src/main/java/com/percussion/pathmanagement/service/impl/PSFileSystemPathItemService.java`
 - **Finding**: No direct `new File()` constructor calls
 - **Delegation**: All path operations routed through `fileSystemService.getFile()` (now secured)
 - **Status**: ✅ **Alerts should auto-resolve after CodeQL re-run**
 
 #### 6. **PSLocalCommandHandler.java Refactoring** (9 Alerts)
+
 - **Location**: `system/src/main/java/com/percussion/process/PSLocalCommandHandler.java`
 - **Refactored Methods**: 6 total (public + static methods)
   - `saveTextFile(File path, String content)`: Added path validation
@@ -107,6 +114,7 @@ This document summarizes the systematic remediation of 159 Java CodeQL security 
   - **Build Result**: BUILD SUCCESS
 
 #### 7. **PSAssetService.java Refactoring** (2 Alerts)
+
 - **Location**: `projects/sitemanage/src/main/java/com/percussion/assetmanagement/service/impl/PSAssetService.java`
 - **Refactored Methods**: 2 total
   - `createBinaryAsset(PSBinaryAssetRequest request)`: Added filename validation before `PSPurgableTempFile` usage
@@ -123,7 +131,6 @@ This document summarizes the systematic remediation of 159 Java CodeQL security 
       - Accept filenames with multiple dots: file.backup.tar.gz
       - Accept null/empty filenames (graceful)
       - Accept special chars without path elements: file (1) [backup].zip
-
     - **Forward Slash Tests (6 tests)**:
       - Reject forward slash patterns: evil/path.txt
       - Prevent /etc/passwd access
@@ -131,11 +138,9 @@ This document summarizes the systematic remediation of 159 Java CodeQL security 
       - Prevent .env exposure
       - Prevent database config access
       - Prevent application.properties access
-
     - **Backslash Tests (2 tests)**:
       - Reject Windows path separators
       - Prevent Windows registry escapes
-
     - **Double-Dot Traversal Tests (4 tests)**:
       - Reject .. patterns
       - Prevent complex traversal patterns
@@ -148,6 +153,7 @@ This document summarizes the systematic remediation of 159 Java CodeQL security 
 ### 🔄 In Progress / Pending (23+ Alerts Remaining)
 
 #### Other Remaining Paths
+
 - Various smaller files with path traversal vulnerabilities
 - Estimated 26+ additional files with 1-4 alerts each
 - **Status**: ⏳ **Not yet started**
@@ -161,18 +167,15 @@ This document summarizes the systematic remediation of 159 Java CodeQL security 
 1. **Create PathValidation Checks**
    - Add validation logic rejecting `..` and absolute paths
    - Special cases for legitimate uses (e.g., root `/` path)
-
 2. **Create Comprehensive Security Test Suite**
    - Positive cases: Valid paths that should pass
    - Negative cases: Attack patterns that must be rejected
    - Real-world attack scenarios: /etc/passwd, ZipSlip, Windows registry, etc.
    - Edge cases: Paths with slashes, special characters, deeply nested
-
 3. **Run Tests to Validate**
    - Confirm all security tests pass
    - Iterate if tests reveal issues (e.g., validation too strict)
    - Fix implementation based on test failures
-
 4. **Verify Compilation**
    - Ensure refactored code compiles without errors
    - Run Maven build to catch any issues
@@ -182,16 +185,13 @@ This document summarizes the systematic remediation of 159 Java CodeQL security 
 1. **Balance Security with Functionality**: Overly strict validation can prevent legitimate operations
    - Example: Root path `/` was initially rejected but must be allowed for filesystem operations
    - Solution: Special case checks like `!"/".equals(path)` in absolute path validation
-
 2. **Tests Catch Edge Cases**: Comprehensive test suites reveal validation issues validators missed
    - Tests revealed that `/` needs special handling
    - Tests showed that character validation happens before security validation
-
 3. **Validation Placement Matters**:
    - **For existing files**: Use canonical path validation (PathValidation.constructSafePath)
    - **For non-existent paths**: Use simple string checks (contains(".."), isAbsolute())
    - **At call sites**: Validate parameters before passing to underlying methods
-
 4. **Service Delegation Improves Security**:
    - PSFileSystemService delegates to PSFileSystemService.getFile() → alerts likely auto-resolve
    - Centralizing validation in service methods provides defense in depth
@@ -201,6 +201,7 @@ This document summarizes the systematic remediation of 159 Java CodeQL security 
 ## Validation Patterns Implemented
 
 ### Pattern 1: String-Based Path Validation (Non-Existent Paths)
+
 ```java
 String normalizedPath = path.startsWith("/") ? path.substring(1) : path;
 if (normalizedPath.contains("..") || (new File(path).isAbsolute() && !"/".equals(path))) {
@@ -211,6 +212,7 @@ if (normalizedPath.contains("..") || (new File(path).isAbsolute() && !"/".equals
 **Used in**: PSFileSystemService (paths being created, not verified to exist)
 
 ### Pattern 2: Canonical Path Validation (Existing Paths)
+
 ```html
 File validatedPath = PathValidation.constructSafePath(rootDir, userSuppliedPath);
 if (!validatedPath.exists()) {
@@ -221,6 +223,7 @@ if (!validatedPath.exists()) {
 **Used in**: PSThemeService, PSRegionCSSFileService (paths to existing resources)
 
 ### Pattern 3: Path Combination Validation
+
 ```java
 String safePath = PathValidation.combineSafePaths(baseFolder, relativePath);
 ```
@@ -232,18 +235,22 @@ String safePath = PathValidation.combineSafePaths(baseFolder, relativePath);
 ## Alert Closure Evidence
 
 ### Code Changes
+
 - ✅ 4 vulnerable methods refactored in PSFileSystemService
 - ✅ 7 vulnerable methods refactored in PSThemeService
 - ✅ 4 vulnerable methods refactored in PSRegionCSSFileService
 - ✅ Central security validator created (PathValidation.java)
 
 ### Test Coverage
+
 - ✅ PathValidation: 34 tests, all passing
 - ✅ PSFileSystemService Security: 18 tests, all passing
 - ✅ Real-world attack scenarios covered in tests
 
 ### Next Validation Step
+
 - Run CodeQL with command:
+
   ```bash
   ./mvn-env.sh clean compile -Pcodeql-local
   ```
@@ -254,20 +261,20 @@ String safePath = PathValidation.combineSafePaths(baseFolder, relativePath);
 ## Remaining Work
 
 ### Phase 2: Complete PSLocalCommandHandler and Others
+
 1. **Analyze PSLocalCommandHandler.java** (9 alerts)
    - Identify all methods that construct File objects with untrusted paths
    - Create validation layer
    - Add security tests
-
 2. **Address Remaining 26+ Files**
    - Follow same test-driven approach
    - Priority: Files with most alerts first
-
 3. **Final CodeQL Run**
    - Verify all path injection alerts resolved
    - Address any remaining cascading alerts
 
 ### Estimated Timeline
+
 - **PSLocalCommandHandler**: 2-3 hours (complex command processing)
 - **Remaining files**: 4-6 hours (simpler patterns)
 - **Final validation**: 1 hour
@@ -277,6 +284,7 @@ String safePath = PathValidation.combineSafePaths(baseFolder, relativePath);
 ## Security Configuration
 
 ### Files Modified
+
 - `modules/perc-security-utils/src/main/java/com/percussion/security/validation/PathValidation.java` (NEW)
 - `modules/perc-security-utils/src/test/java/com/percussion/security/validation/PathValidationTest.java` (NEW)
 - `projects/sitemanage/src/main/java/com/percussion/designmanagement/service/impl/PSThemeService.java` (REFACTORED)
@@ -287,6 +295,7 @@ String safePath = PathValidation.combineSafePaths(baseFolder, relativePath);
 - `system/src/test/java/com/percussion/process/PSLocalCommandHandlerSecurityTest.java` (NEW) - **17 tests PASSING**
 
 ### Vulnerable Pattern Addressed
+
 ```
 CWE-22: Improper Limitation of a Pathname to a Restricted Directory ('Path Traversal')
 CAPEC-126: Path Traversal
@@ -294,6 +303,7 @@ OWASP: A01_2021 - Broken Access Control
 ```
 
 ### Mitigation Strategy
+
 - Input validation: Reject `..`, absolute paths, ZipSlip patterns
 - Whitelist-based: Allow only relative paths within configured root directories
 - Test-driven: Comprehensive security test suites validate mitigations

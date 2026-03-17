@@ -15,16 +15,16 @@
 
 ### Test Suite: PSRedirectValidationTest
 
-| Test Category | Test Count | Coverage | Status |
-|---|---|---|---|
-| Relative URL Validation | 6 | Internal redirects, path traversal | ✅ PASS |
-| Open Redirect Attack Prevention | 9 | External URLs, protocol-relative, unwhitelisted | ✅ PASS |
-| JavaScript & Data URI Prevention | 5 | JavaScript URLs, data URIs, vbscript | ✅ PASS |
-| Edge Cases & Special Characters | 8 | Null/empty URLs, encoding, ports, IDN | ✅ PASS |
-| Internal Redirect Validation | 7 | Strict internal redirect mode | ✅ PASS |
-| Default Whitelist Creation | 5 | Whitelist management | ✅ PASS |
-| Real-World Attack Scenarios | 6 | OAuth hijacking, data exfiltration | ✅ PASS |
-| **TOTAL** | **46** | **Comprehensive** | **✅ PASS** |
+|          Test Category           | Test Count |                    Coverage                     |   Status   |
+|----------------------------------|------------|-------------------------------------------------|------------|
+| Relative URL Validation          | 6          | Internal redirects, path traversal              | ✅ PASS     |
+| Open Redirect Attack Prevention  | 9          | External URLs, protocol-relative, unwhitelisted | ✅ PASS     |
+| JavaScript & Data URI Prevention | 5          | JavaScript URLs, data URIs, vbscript            | ✅ PASS     |
+| Edge Cases & Special Characters  | 8          | Null/empty URLs, encoding, ports, IDN           | ✅ PASS     |
+| Internal Redirect Validation     | 7          | Strict internal redirect mode                   | ✅ PASS     |
+| Default Whitelist Creation       | 5          | Whitelist management                            | ✅ PASS     |
+| Real-World Attack Scenarios      | 6          | OAuth hijacking, data exfiltration              | ✅ PASS     |
+| **TOTAL**                        | **46**     | **Comprehensive**                               | **✅ PASS** |
 
 ---
 
@@ -225,20 +225,21 @@
 
 ## Vulnerable Files to Fix (6 Total)
 
-| File | Location | Issue | Priority |
-|---|---|---|---|
-| PSServerFolderProcessor.java | system/src/main | Gets psredirect without validation | HIGH |
-| PSUpdateHandler.java | system/src/main | Gets psredirect without validation | HIGH |
-| PSCommandHandler.java | system/src/main | Uses psredirect directly in URL | HIGH |
-| PSModifyCommandHandler.java | system/src/main | Gets psredirect without validation | HIGH |
-| PSOUniqueFieldWithInFoldersValidator.java | perc-toolkit/src | Gets psredirect without validation | HIGH |
-| PSInsertAsRelatedItem.java | extensions-main/src | Gets psredirect without validation | HIGH |
+|                   File                    |      Location       |               Issue                | Priority |
+|-------------------------------------------|---------------------|------------------------------------|----------|
+| PSServerFolderProcessor.java              | system/src/main     | Gets psredirect without validation | HIGH     |
+| PSUpdateHandler.java                      | system/src/main     | Gets psredirect without validation | HIGH     |
+| PSCommandHandler.java                     | system/src/main     | Uses psredirect directly in URL    | HIGH     |
+| PSModifyCommandHandler.java               | system/src/main     | Gets psredirect without validation | HIGH     |
+| PSOUniqueFieldWithInFoldersValidator.java | perc-toolkit/src    | Gets psredirect without validation | HIGH     |
+| PSInsertAsRelatedItem.java                | extensions-main/src | Gets psredirect without validation | HIGH     |
 
 ---
 
 ## Integration Pattern for Fixes
 
 ### Before (Vulnerable):
+
 ```java
 String psredirect = request.getParameter(IPSHtmlParameters.DYNAMIC_REDIRECT_URL);
 if (psredirect != null && psredirect.trim().length() > 0) {
@@ -248,6 +249,7 @@ if (psredirect != null && psredirect.trim().length() > 0) {
 ```
 
 ### After (Secure):
+
 ```java
 import com.percussion.security.utils.PSRedirectValidation;
 
@@ -305,16 +307,16 @@ if (psredirect != null && psredirect.trim().length() > 0) {
 
 ### Attacks Prevented
 
-| Attack Type | CWE | Test Coverage | Status |
-|---|---|---|---|
-| Protocol-relative URL | CWE-601 | ✅ 3 tests | BLOCKED |
-| Unwhitelisted external redirect | CWE-601 | ✅ 3 tests | BLOCKED |
-| JavaScript URI | CWE-601 | ✅ 2 tests | BLOCKED |
-| Data URI | CWE-601 | ✅ 2 tests | BLOCKED |
-| Directory traversal in path | CWE-22 | ✅ 2 tests | BLOCKED |
-| OAuth callback hijacking | CWE-601 | ✅ 1 test | BLOCKED |
-| Data exfiltration via redirect | CWE-601 | ✅ 1 test | BLOCKED |
-| FTP/File protocol abuse | CWE-601 | ✅ 2 tests | BLOCKED |
+|           Attack Type           |   CWE   | Test Coverage | Status  |
+|---------------------------------|---------|---------------|---------|
+| Protocol-relative URL           | CWE-601 | ✅ 3 tests     | BLOCKED |
+| Unwhitelisted external redirect | CWE-601 | ✅ 3 tests     | BLOCKED |
+| JavaScript URI                  | CWE-601 | ✅ 2 tests     | BLOCKED |
+| Data URI                        | CWE-601 | ✅ 2 tests     | BLOCKED |
+| Directory traversal in path     | CWE-22  | ✅ 2 tests     | BLOCKED |
+| OAuth callback hijacking        | CWE-601 | ✅ 1 test      | BLOCKED |
+| Data exfiltration via redirect  | CWE-601 | ✅ 1 test      | BLOCKED |
+| FTP/File protocol abuse         | CWE-601 | ✅ 2 tests     | BLOCKED |
 
 **Total Attack Vectors Tested**: 16+
 **Detection Rate**: 100%
@@ -369,15 +371,15 @@ The following files will use the secure pattern:
 
 ## Test Metrics
 
-| Metric | Value |
-|--------|-------|
-| Total Test Cases | 46 |
-| Total Test Methods | 46 |
-| Nested Test Classes | 7 |
-| Pass Rate | 100% |
-| Coverage Lines | 150+ |
-| Attack Vectors Tested | 16+ |
-| Real-World Scenarios | 6 |
+|        Metric         | Value |
+|-----------------------|-------|
+| Total Test Cases      | 46    |
+| Total Test Methods    | 46    |
+| Nested Test Classes   | 7     |
+| Pass Rate             | 100%  |
+| Coverage Lines        | 150+  |
+| Attack Vectors Tested | 16+   |
+| Real-World Scenarios  | 6     |
 
 ---
 

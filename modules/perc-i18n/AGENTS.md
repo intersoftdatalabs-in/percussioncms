@@ -30,6 +30,7 @@ When modifying i18n resources:
 4. Final location in installation: `rxconfig/i18n/`
 
 **Important**: Always rebuild both perc-i18n AND perc-distribution-tree when changing TMX files:
+
 ```bash
 ./mvn-env.sh -pl modules/perc-i18n clean install
 ./mvn-env.sh -pl modules/perc-distribution-tree clean install
@@ -38,6 +39,7 @@ When modifying i18n resources:
 ### 3. TMX File Format
 
 All TMX files must follow this structure:
+
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
 <tmx version="1.4">
@@ -59,6 +61,7 @@ All TMX files must follow this structure:
 ### 4. Naming Conventions for Keys
 
 **CmsUi.tmx**:
+
 ```
 perc.ui.(IDENTIFIER).(TYPE)@(MESSAGE/KEY)
 Examples:
@@ -67,6 +70,7 @@ Examples:
 ```
 
 **SystemResources.tmx**:
+
 ```
 psx.ce.(TYPE)@(MESSAGE/KEY)
 Examples:
@@ -81,7 +85,6 @@ Examples:
   - `PSTmxResourceBundle` - Loads and caches TMX resources
   - `PSTmxDocument` - Parses TMX documents
   - `PSI18nUtils` - Utility methods for localization
-
 - **No changes to resource loading logic without architecture review**
 - Use existing extension points (`Java/i18n/sys_LocalizedTextLookup`, `Java/i18n/sys_LocalizedTextLookupUser`)
 - Follow Google Java Style Guide per root AGENTS.md
@@ -89,6 +92,7 @@ Examples:
 ### 6. Testing
 
 Run i18n tests before committing:
+
 ```bash
 ./mvn-env.sh -pl modules/perc-i18n test
 ```
@@ -153,11 +157,11 @@ If seeing `PSTmxResourceBundle` errors:
 
 ## Quick Reference
 
-| File | Purpose | Languages | Location |
-|------|---------|-----------|----------|
-| ResourceBundle.tmx | Master bundle | en-us | `src/main/resources/i18n/` |
-| CmsUi.tmx | UI labels/strings | en-us, es, hi | `src/main/resources/i18n/` |
-| SystemResources.tmx | System/editor resources | en-us, es | `src/main/resources/i18n/` |
+|        File         |         Purpose         |   Languages   |          Location          |
+|---------------------|-------------------------|---------------|----------------------------|
+| ResourceBundle.tmx  | Master bundle           | en-us         | `src/main/resources/i18n/` |
+| CmsUi.tmx           | UI labels/strings       | en-us, es, hi | `src/main/resources/i18n/` |
+| SystemResources.tmx | System/editor resources | en-us, es     | `src/main/resources/i18n/` |
 
 ## Questions or Issues?
 
@@ -165,3 +169,4 @@ If seeing `PSTmxResourceBundle` errors:
 - Review `/memories/repo/i18n-consolidation-2026-03-10.md` for consolidation history
 - Examine existing TMX files for formatting examples
 - Run tests to catch issues early
+

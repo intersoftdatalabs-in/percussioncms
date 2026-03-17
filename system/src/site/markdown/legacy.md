@@ -13,13 +13,13 @@ In the context of the system module, legacy code refers to:
 
 ### Legacy vs. Active Code
 
-| Aspect | Active Code | Legacy Code |
-| --- | --- | --- |
-| Location | services/, business/, src/main/java | Testing/, Tools/, Docs/, Samples/ or unmarked classes |
-| Maintenance | Regular updates, modern patterns | Minimal changes, backward-compatible fixes |
-| Java Version | 17+ features | Pre-Java 17 (often Java 8/11 patterns) |
-| Status | Actively developed | Maintained for compatibility |
-| Testing | JUnit 5 preferred | May use JUnit 4 |
+|    Aspect    |             Active Code             |                      Legacy Code                      |
+|--------------|-------------------------------------|-------------------------------------------------------|
+| Location     | services/, business/, src/main/java | Testing/, Tools/, Docs/, Samples/ or unmarked classes |
+| Maintenance  | Regular updates, modern patterns    | Minimal changes, backward-compatible fixes            |
+| Java Version | 17+ features                        | Pre-Java 17 (often Java 8/11 patterns)                |
+| Status       | Actively developed                  | Maintained for compatibility                          |
+| Testing      | JUnit 5 preferred                   | May use JUnit 4                                       |
 
 ## Legacy Directories
 
@@ -181,28 +181,23 @@ If you decide to refactor legacy code:
 1. **Create test case first**
    - Write test to verify current behavior
    - Ensure test passes before refactoring
-
 2. **Refactor gradually**
    - Use IDE's safe refactoring tools (Rename, Extract Method, etc.)
    - Run tests frequently
    - Make small, focused changes
-
 3. **Modernize patterns**
    - Replace raw types with generics
    - Add Optional for null safety
    - Use Streams and modern language features
    - Apply Google Java Style formatting
-
 4. **Maintain backward compatibility**
    - Don't change public method signatures
    - Preserve exception behavior
    - Keep return types compatible
-
 5. **Update documentation**
    - Add `// REFACTORED: CP-JAVA11` marker
    - Update `refactored-java11-packages.txt`
    - Update README and site docs if appropriate
-
 6. **Test thoroughly**
    - Run all tests: `./mvn-env.sh clean verify`
    - Write new test cases for edge cases
@@ -426,8 +421,8 @@ public void oldMethod() {
    - Include in release notes
    - Mention in module README
    - Add deprecation warnings first (if possible)
-
 2. **Provide migration path**
+
    ```java
    /**
     * @deprecated Changed in 8.3.0 to return Optional instead of null.
@@ -444,7 +439,6 @@ public void oldMethod() {
     * </pre>
     */
    ```
-
 3. **Plan removal timeline**
    - Announce deprecation at least one major version before removal
    - Example: Deprecate in 8.2, remove in 9.0

@@ -324,10 +324,7 @@ ps.widget.defineWidget("ps.widget.Tree", ps.widget.TreeV3, {
     // console.debug("Tree - Removing node: " + node.modelId.toString());
 
     ps.assert(node, "Can't remove null node.");
-    ps.assert(
-      !node.children.length,
-      "Can't remove a node with children."
-    );
+    ps.assert(!node.children.length, "Can't remove a node with children.");
 
     this._unBindContextMenu(node);
     node.destroy();
@@ -466,10 +463,7 @@ ps.widget.defineWidget("ps.widget.Tree", ps.widget.TreeV3, {
     // dontUpdatePage)
 
     ps.assert(child.modelId, "Node being moved does not have a model");
-    ps.assert(
-      newParent.modelId,
-      "Node being moved does not have a model"
-    );
+    ps.assert(newParent.modelId, "Node being moved does not have a model");
     var pid = newParent.modelId;
     var cid = child.modelId;
     ps.assert(cid.isSnippetNode(), "child is not a snippet.");
@@ -477,10 +471,7 @@ ps.widget.defineWidget("ps.widget.Tree", ps.widget.TreeV3, {
     var parentModelNode = childModelNode.parentNode;
     ps.assert(parentModelNode, "Unable to get the parent model node.");
     var sid = parentModelNode.objId;
-    ps.assert(
-      sid.isSlotNode(),
-      "Original parent of child is not a slot."
-    );
+    ps.assert(sid.isSlotNode(), "Original parent of child is not a slot.");
     ps.assert(pid.isSlotNode(), "New parent is not a slot.");
     var targetSlotId = pid;
     var snippetId = cid;

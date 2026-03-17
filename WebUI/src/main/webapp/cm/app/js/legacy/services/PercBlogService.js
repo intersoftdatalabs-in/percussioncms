@@ -18,59 +18,61 @@
 /**
  *  Blog related services
  */
-(function($) {
-    $.PercBlogService = {
-        getBlogsForSite : getBlogsForSite,
-        getPostsForBlog : getPostsForBlog
-    };
-    
-    /**
-     *  Returns a list of all blogs for a given siteName
-     */
-    function getBlogsForSite(siteName, callback) {
-		var requestUrl = $.perc_paths.BLOG_LOAD;
-		if(siteName !== "@all") {
-			requestUrl += "/" + siteName;
-		}
-	    else {
-			requestUrl = requestUrl.replace("blogs", "allBlogs");
-		}
-	    
-        $.PercServiceUtils.makeJsonRequest(
-            requestUrl,
-            $.PercServiceUtils.TYPE_GET,
-            false,
-            function(status, result) {
-                if(status === $.PercServiceUtils.STATUS_SUCCESS) {
-                    callback($.PercServiceUtils.STATUS_SUCCESS, result.data);
-                } else {
-                    var defaultMsg = $.PercServiceUtils.extractDefaultErrorMessage(result.request);
-                    callback($.PercServiceUtils.STATUS_ERROR, defaultMsg);
-                }
-            }
-        );
+(function ($) {
+  $.PercBlogService = {
+    getBlogsForSite: getBlogsForSite,
+    getPostsForBlog: getPostsForBlog,
+  };
+
+  /**
+   *  Returns a list of all blogs for a given siteName
+   */
+  function getBlogsForSite(siteName, callback) {
+    var requestUrl = $.perc_paths.BLOG_LOAD;
+    if (siteName !== "@all") {
+      requestUrl += "/" + siteName;
+    } else {
+      requestUrl = requestUrl.replace("blogs", "allBlogs");
     }
-    
-    /**
-     *  Returns a list of all posts for a given Blog
-     */
-    function getPostsForBlog(selectedBlogId, callback) {
-		var requestUrl = $.perc_paths.POST_LOAD;
-		requestUrl += "/" + selectedBlogId;
-        
-        $.PercServiceUtils.makeJsonRequest(
-            requestUrl,
-            $.PercServiceUtils.TYPE_GET,
-            false,
-            function(status, result) {
-                if(status === $.PercServiceUtils.STATUS_SUCCESS) {
-                    callback($.PercServiceUtils.STATUS_SUCCESS, result.data);
-                } else {
-                    var defaultMsg = $.PercServiceUtils.extractDefaultErrorMessage(result.request);
-                    callback($.PercServiceUtils.STATUS_ERROR, defaultMsg);
-                }
-            }
-        );
-    }
-    
+
+    $.PercServiceUtils.makeJsonRequest(
+      requestUrl,
+      $.PercServiceUtils.TYPE_GET,
+      false,
+      function (status, result) {
+        if (status === $.PercServiceUtils.STATUS_SUCCESS) {
+          callback($.PercServiceUtils.STATUS_SUCCESS, result.data);
+        } else {
+          var defaultMsg = $.PercServiceUtils.extractDefaultErrorMessage(
+            result.request
+          );
+          callback($.PercServiceUtils.STATUS_ERROR, defaultMsg);
+        }
+      }
+    );
+  }
+
+  /**
+   *  Returns a list of all posts for a given Blog
+   */
+  function getPostsForBlog(selectedBlogId, callback) {
+    var requestUrl = $.perc_paths.POST_LOAD;
+    requestUrl += "/" + selectedBlogId;
+
+    $.PercServiceUtils.makeJsonRequest(
+      requestUrl,
+      $.PercServiceUtils.TYPE_GET,
+      false,
+      function (status, result) {
+        if (status === $.PercServiceUtils.STATUS_SUCCESS) {
+          callback($.PercServiceUtils.STATUS_SUCCESS, result.data);
+        } else {
+          var defaultMsg = $.PercServiceUtils.extractDefaultErrorMessage(
+            result.request
+          );
+          callback($.PercServiceUtils.STATUS_ERROR, defaultMsg);
+        }
+      }
+    );
+  }
 })(jQuery);

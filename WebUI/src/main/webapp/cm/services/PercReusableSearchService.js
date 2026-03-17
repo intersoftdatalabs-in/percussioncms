@@ -15,112 +15,100 @@
  * limitations under the License.
  */
 
-(function($) {
-    $.PercReusableSearchService =  {
-        getSites: getSites,
-        getWorkflows: getWorkflows,
-        getStates: getStates,
-        getUsers: getUsers
-    };
+(function ($) {
+  $.PercReusableSearchService = {
+    getSites: getSites,
+    getWorkflows: getWorkflows,
+    getStates: getStates,
+    getUsers: getUsers,
+  };
 
-    function getUsers(searchQuery, callback)
-    {
-        var url = $.perc_paths.USER_USERS_NAMES + "/" + searchQuery;
+  function getUsers(searchQuery, callback) {
+    var url = $.perc_paths.USER_USERS_NAMES + "/" + searchQuery;
 
-        $.PercServiceUtils.makeJsonRequest(
-            url,
-            $.PercServiceUtils.TYPE_GET,
-            false,
-            function(status, result)
-            {
-                if(status === $.PercServiceUtils.STATUS_SUCCESS)
-                {
-                    var data = $.perc_utils.convertCXFArray(result.data.UserList.users);
+    $.PercServiceUtils.makeJsonRequest(
+      url,
+      $.PercServiceUtils.TYPE_GET,
+      false,
+      function (status, result) {
+        if (status === $.PercServiceUtils.STATUS_SUCCESS) {
+          var data = $.perc_utils.convertCXFArray(result.data.UserList.users);
 
-                    callback($.PercServiceUtils.STATUS_SUCCESS, data);
-                }
-                else
-                {
-                    var defaultMsg = $.PercServiceUtils.extractDefaultErrorMessage(result.request);
-                    callback(status, defaultMsg);
-                }
-            }
-        );
-    }
+          callback($.PercServiceUtils.STATUS_SUCCESS, data);
+        } else {
+          var defaultMsg = $.PercServiceUtils.extractDefaultErrorMessage(
+            result.request
+          );
+          callback(status, defaultMsg);
+        }
+      }
+    );
+  }
 
-    /**
-     * Retrieves the license information status.
-     * @param function
-     */
-    function getSites(callback)
-    {
-        var url = $.perc_paths.SITES_ALL_CHOICES;
+  /**
+   * Retrieves the license information status.
+   * @param function
+   */
+  function getSites(callback) {
+    var url = $.perc_paths.SITES_ALL_CHOICES;
 
-        $.PercServiceUtils.makeJsonRequest(
-            url,
-            $.PercServiceUtils.TYPE_GET,
-            false,
-            function(status, result)
-            {
-                var data = $.perc_utils.convertCXFArray(result.data.EnumVals.entries);
-                if(status === $.PercServiceUtils.STATUS_SUCCESS)
-                {
-                    callback($.PercServiceUtils.STATUS_SUCCESS, data);
-                }
-                else
-                {
-                    var defaultMsg = $.PercServiceUtils.extractDefaultErrorMessage(result.request);
-                    callback(status, defaultMsg);
-                }
-            }
-        );
-    }
+    $.PercServiceUtils.makeJsonRequest(
+      url,
+      $.PercServiceUtils.TYPE_GET,
+      false,
+      function (status, result) {
+        var data = $.perc_utils.convertCXFArray(result.data.EnumVals.entries);
+        if (status === $.PercServiceUtils.STATUS_SUCCESS) {
+          callback($.PercServiceUtils.STATUS_SUCCESS, data);
+        } else {
+          var defaultMsg = $.PercServiceUtils.extractDefaultErrorMessage(
+            result.request
+          );
+          callback(status, defaultMsg);
+        }
+      }
+    );
+  }
 
-    function getWorkflows(callback)
-    {
-        var url = $.perc_paths.WORKFLOW_STEPPED;
+  function getWorkflows(callback) {
+    var url = $.perc_paths.WORKFLOW_STEPPED;
 
-        $.PercServiceUtils.makeJsonRequest(
-            url,
-            $.PercServiceUtils.TYPE_GET,
-            false,
-            function(status, result)
-            {
-                var data = $.perc_utils.convertCXFArray(result.data.EnumVals.entries);
-                if(status === $.PercServiceUtils.STATUS_SUCCESS)
-                {
-                    callback($.PercServiceUtils.STATUS_SUCCESS, data);
-                }
-                else
-                {
-                    var defaultMsg = $.PercServiceUtils.extractDefaultErrorMessage(result.request);
-                    callback(status, defaultMsg);
-                }
-            }
-        );
-    }
+    $.PercServiceUtils.makeJsonRequest(
+      url,
+      $.PercServiceUtils.TYPE_GET,
+      false,
+      function (status, result) {
+        var data = $.perc_utils.convertCXFArray(result.data.EnumVals.entries);
+        if (status === $.PercServiceUtils.STATUS_SUCCESS) {
+          callback($.PercServiceUtils.STATUS_SUCCESS, data);
+        } else {
+          var defaultMsg = $.PercServiceUtils.extractDefaultErrorMessage(
+            result.request
+          );
+          callback(status, defaultMsg);
+        }
+      }
+    );
+  }
 
-    function getStates(workflow, callback)
-    {
-        var url = $.perc_paths.WORKFLOW_STEPPED + workflow + "/states/choices";
+  function getStates(workflow, callback) {
+    var url = $.perc_paths.WORKFLOW_STEPPED + workflow + "/states/choices";
 
-        $.PercServiceUtils.makeJsonRequest(
-            url,
-            $.PercServiceUtils.TYPE_GET,
-            false,
-            function(status, result)
-            {
-                var data = $.perc_utils.convertCXFArray(result.data.EnumVals.entries);
-                if(status === $.PercServiceUtils.STATUS_SUCCESS)
-                {
-                    callback($.PercServiceUtils.STATUS_SUCCESS, data);
-                }
-                else
-                {
-                    var defaultMsg = $.PercServiceUtils.extractDefaultErrorMessage(result.request);
-                    callback(status, defaultMsg);
-                }
-            }
-        );
-    }
+    $.PercServiceUtils.makeJsonRequest(
+      url,
+      $.PercServiceUtils.TYPE_GET,
+      false,
+      function (status, result) {
+        var data = $.perc_utils.convertCXFArray(result.data.EnumVals.entries);
+        if (status === $.PercServiceUtils.STATUS_SUCCESS) {
+          callback($.PercServiceUtils.STATUS_SUCCESS, data);
+        } else {
+          var defaultMsg = $.PercServiceUtils.extractDefaultErrorMessage(
+            result.request
+          );
+          callback(status, defaultMsg);
+        }
+      }
+    );
+  }
 })(jQuery);

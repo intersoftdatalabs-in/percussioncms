@@ -17,6 +17,7 @@ Successfully replaced **40+ deprecated Hibernate Session API method calls** acro
 ### Phase 1: Deprecated Session API Replacements (100% Complete)
 
 #### Session.delete() → Session.remove()
+
 - **Total replacements:** 27 locations across 18 files
 - **Files modified:**
   - deliverytiersuite/delivery-tier-suite/feeds/src/main/java/com/percussion/delivery/feeds/services/rdbms/PSFeedDao.java (L179)
@@ -41,6 +42,7 @@ Successfully replaced **40+ deprecated Hibernate Session API method calls** acro
   - system/services/src/com/percussion/services/widgetbuilder/PSWidgetBuilderDefinitionDao.java (L140)
 
 #### Session.update() → Session.merge()
+
 - **Total replacements:** 8 locations
 - **Files modified:**
   - system/services/src/com/percussion/services/legacy/impl/PSCmsObjectMgr.java (L1865, L2204)
@@ -49,6 +51,7 @@ Successfully replaced **40+ deprecated Hibernate Session API method calls** acro
   - system/services/src/com/percussion/services/relationship/impl/PSRelationshipService.java (L952)
 
 #### Session.saveOrUpdate() → Session.merge() or Session.persist()
+
 - **Total replacements:** 18 locations
 - **Files modified:**
   - deliverytiersuite/delivery-tier-suite/comments/src/main/java/com/percussion/delivery/comments/service/rdbms/PSCommentsDao.java (L273)
@@ -72,6 +75,7 @@ Successfully replaced **40+ deprecated Hibernate Session API method calls** acro
   - system/services/src/com/percussion/services/useritems/impl/PSUserItemsDao.java (L99)
 
 #### Session.save() → Session.persist()
+
 - **Total replacements:** 3 locations
 - **Files modified:**
   - projects/sitemanage/src/main/java/com/percussion/metadata/dao/impl/PSMetadataDao.java (L53)
@@ -81,11 +85,13 @@ Successfully replaced **40+ deprecated Hibernate Session API method calls** acro
 ### Phase 2: Configuration Updates (100% Complete)
 
 #### Dependency Versions Updated
+
 **File:** pom.xml
 - `hibernate.version`: 6.6.42.Final → **7.2.6.Final** ✅
 - `hibernate.validator.version`: 6.2.3.Final → **8.0.1.Final** ✅
 
 #### Cache Configuration Updated (14 files)
+
 **Production files (6):**
 - deliverytiersuite/delivery-tier-suite/metadata/src/main/java/webapp/WEB-INF/perc-datasources.xml ✅
 - deliverytiersuite/delivery-tier-suite/membership/src/main/java/webapp/WEB-INF/perc-datasources.xml ✅
@@ -117,29 +123,32 @@ Successfully replaced **40+ deprecated Hibernate Session API method calls** acro
 ### Identified Issues (Compile Errors)
 
 #### 1. Annotation Changes (CRITICAL)
+
 The following Hibernate annotations changed or were removed in 7.x:
 - `@LazyCollection` and `LazyCollectionOption` - REMOVED
-  - Location: system/services/src/com/percussion/services/filestorage/data/PSBinary.java (L29, L30, L105)
-  - Solution: Use `@Lazy(write = false)` annotation instead or `FetchType.LAZY`
+- Location: system/services/src/com/percussion/services/filestorage/data/PSBinary.java (L29, L30, L105)
+- Solution: Use `@Lazy(write = false)` annotation instead or `FetchType.LAZY`
 
 - `@DynamicInsert` and `@DynamicUpdate` annotation changes
   - Location: system/src/main/java/com/percussion/cms/objectstore/PSComponentSummary.java (L76, L77)
   - Solution: Check if methods with `.value()` need alternative patterns
 
 #### 2. Missing Import Classes (CRITICAL)
+
 - `org.hibernate.metadata` package removed
   - Location: system/services/src/com/percussion/services/legacy/impl/PSCmsObjectMgr.java (L100)
   - Solution: Use JPA metadata API or refactor to not use metadata
-
 - `EmptyInterceptor` moved or removed
   - Location: system/services/src/com/percussion/services/utils/hibernate/PSHibernateInterceptor.java (L34, L49)
   - Solution: Check org.hibernate.Interceptor or implement proper lifecycle interfaces
 
 #### 3. Additional Deprecated Methods (HIGH)
+
 Still using deprecated methods:
 - `session.save()` - 3+ locations  in PSDesignObjectAuditService.java (L97, L140)  - `session.delete()` - 3+ locations in PSContentService.java (L238, L263, L266)- `session.saveOrUpdate()` - 2+ locations in PSContentService.java (L337, L389)
 
 #### 4. Query Type Safety (MEDIUM)
+
 - Raw `Query` types without type parameters need to be parameterized
 - Missing result type specifications in createQuery calls
 
@@ -147,21 +156,22 @@ Still using deprecated methods:
 
 ## Statistics
 
-| Category | Count |  Status |
-|----------|-------|---------|
-| Total deprecated method replacements | 40+ | ✅ COMPLETE |
-| Files modified | 25+ | ✅ COMPLETE |
-| Dependency versions updated | 2 | ✅ COMPLETE  |
-| Cache configuration files updated | 12 | ✅ COMPLETE |
-| Remaining annotation issues | 5+ | ⏳ TODO |
-| Remaining missing class issues | 3+ | ⏳ TODO |
-| Estimated remaining work hours | 4-8 | ⏳ TODO |
+|               Category               | Count |   Status   |
+|--------------------------------------|-------|------------|
+| Total deprecated method replacements | 40+   | ✅ COMPLETE |
+| Files modified                       | 25+   | ✅ COMPLETE |
+| Dependency versions updated          | 2     | ✅ COMPLETE |
+| Cache configuration files updated    | 12    | ✅ COMPLETE |
+| Remaining annotation issues          | 5+    | ⏳ TODO     |
+| Remaining missing class issues       | 3+    | ⏳ TODO     |
+| Estimated remaining work hours       | 4-8   | ⏳ TODO     |
 
 ---
 
 ## Next Steps (Phase 3)
 
 ### Priority 1 (BLOCKING)
+
 1. Fix `@LazyCollection` → `@Lazy` annotation changes in PSBinary.java
 2. Fix `org.hibernate.metadata` import - refactor or use JPA API
 3. Fix `EmptyInterceptor` - find replacement or implement interface
@@ -170,10 +180,12 @@ Still using deprecated methods:
 6. Search for and replace 2+ remaining `session.saveOrUpdate()` calls
 
 ### Priority 2 (TYPE SAFETY)
+
 1. Add proper type parameters to all Query instances
 2. Fix raw type warnings for Query<>
 
 ### Priority 3 (BUILD & TEST)
+
 1. Run full `mvn clean compile` without errors
 2. Run unit tests to verify behavior
 3. Run integration tests with actual database
@@ -193,6 +205,7 @@ Still using deprecated methods:
 ## Rollback Instructions
 
 If critical issues arise:
+
 ```bash
 git checkout HEAD -- pom.xml
 git checkout HEAD -- **/*perc-datasources.xml

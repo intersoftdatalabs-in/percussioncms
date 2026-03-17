@@ -979,7 +979,7 @@ public class PSXmlTreeWalker implements Serializable {
    *   <TD>&quot;</TD>
    * <TD>&amp;quot;</TD>
    * </TR>
-   * </table>
+
    *
    * @param input
    * @throws IOException if I/O error occurs.
@@ -1117,7 +1117,7 @@ public class PSXmlTreeWalker implements Serializable {
    *   <TD>&quot;</TD>
    * <TD>&amp;quot;</TD>
    * </TR>
-   * </table>
+
    *
    * @param input
    * @return String A new String with all special characters transformed into their entities.

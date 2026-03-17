@@ -19,7 +19,7 @@ define(["knockout", "pubsub", "utils", "fancytree"], function (
   ko,
   PubSub,
   utils,
-  fancytree,
+  fancytree
 ) {
   return function AssetWizardViewModel(options) {
     var self = this;
@@ -150,7 +150,7 @@ define(["knockout", "pubsub", "utils", "fancytree"], function (
       self.selectedAssetTypeFilter("Recent");
       self.selectedAssetFolderFilter("Recent");
       $(self.constants.SECONDARY_BUTTON_SELECTOR).text(
-        self.constants.SECONDARY_BUTTON_NAME,
+        self.constants.SECONDARY_BUTTON_NAME
       );
       self.invalidAssetTypeSelected(false);
       self.invalidAssetFolderSelected(false);

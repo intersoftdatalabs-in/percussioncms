@@ -19,7 +19,7 @@ define(["knockout", "pubsub", "utils", "fancytree"], function (
   ko,
   PubSub,
   utils,
-  fancytree,
+  fancytree
 ) {
   return function PageWizardViewModel(options) {
     var self = this;
@@ -103,7 +103,7 @@ define(["knockout", "pubsub", "utils", "fancytree"], function (
             .replace(/[ _]/g, "-")
             .replace(/[^a-zA-Z0-9\-_.]/g, "")
             .replace(/[-]+/g, "-")
-            .toLowerCase(),
+            .toLowerCase()
         );
       }
     });
@@ -112,7 +112,7 @@ define(["knockout", "pubsub", "utils", "fancytree"], function (
         self
           .pageFile()
           .replace(/[ ]/g, "-")
-          .replace(/[\\\/:*?"<>|#;%']/g, ""),
+          .replace(/[\\\/:*?"<>|#;%']/g, "")
       ); //.replace( /\.*$/g, '' )
       if (self.fileHasFocus()) self.autfillFocusLost(true);
     });
@@ -363,7 +363,7 @@ define(["knockout", "pubsub", "utils", "fancytree"], function (
       self.initialTemplatesLoad = true;
       self.initialFoldersLoad = true;
       $(self.constants.SECONDARY_BUTTON_SELECTOR).text(
-        self.constants.SECONDARY_BUTTON_NAME,
+        self.constants.SECONDARY_BUTTON_NAME
       );
       self.options.cm1Adaptor
         .getSites()
@@ -431,7 +431,7 @@ define(["knockout", "pubsub", "utils", "fancytree"], function (
                   self.pageFile(),
                   self.pageTitle(),
                   self.pageTemplate(),
-                  self.pageFolder(),
+                  self.pageFolder()
                 )
                 .fail(function (message) {
                   if (message === self.constants.NOT_AUTHORIZED_ERROR_MSG) {
@@ -444,7 +444,7 @@ define(["knockout", "pubsub", "utils", "fancytree"], function (
                 .always(function () {
                   self.isLoading(false);
                 });
-            },
+            }
           );
         }
       }

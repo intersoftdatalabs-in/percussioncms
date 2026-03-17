@@ -56,198 +56,208 @@
  *  body.append(menuContainer);
  *
  */
-(function($) {
+(function ($) {
+  var defaultConfig = {
+    menuTitle: "Menu!!!",
+    menuTitleExpanded: "[-]",
+    menuTitleCollapsed: "[+]",
+    optionClasses: [],
+    menuWidth: 65, // IE has issues with width, supply an explicit value here to force it.
+  };
 
-    var defaultConfig = {
-        menuTitle : "Menu!!!",
-        menuTitleExpanded : "[-]",
-        menuTitleCollapsed : "[+]",
-        optionClasses : [],
-		menuWidth : 65 // IE has issues with width, supply an explicit value here to force it.
-    };
- 
-    /**
-     *  percSimpleMenu()
-     *  plugin implementation
-     */
-    $.fn.percSimpleMenu = function(config) {
-        config = $.extend({}, defaultConfig, config);
+  /**
+   *  percSimpleMenu()
+   *  plugin implementation
+   */
+  $.fn.percSimpleMenu = function (config) {
+    config = $.extend({}, defaultConfig, config);
 
-        var callbacks = config.callbacks;
-        var callbackData = config.callbackData;
-        var menuTitle = config.menuTitle;
-        var menuTitleExpanded  = config.menuTitleExpanded;
-        var menuTitleCollapsed = config.menuTitleCollapsed;
-        var menuLabels = config.menuLabels;
-		var optionClasses = config.optionClasses?config.optionClasses:[];
-        
-        // create menu dynamically
-        // create menu container, add title
-        var $menu      = $("<div class='perc-simplemenu-menu'>");
-        var $menuTitle = $("<div class='perc-simplemenu-title'>");
-        $menuTitle.append(menuTitleCollapsed);
+    var callbacks = config.callbacks;
+    var callbackData = config.callbackData;
+    var menuTitle = config.menuTitle;
+    var menuTitleExpanded = config.menuTitleExpanded;
+    var menuTitleCollapsed = config.menuTitleCollapsed;
+    var menuLabels = config.menuLabels;
+    var optionClasses = config.optionClasses ? config.optionClasses : [];
 
-        // add menu items
-        var $menuItems = $("<div class='perc-simplemenu-menuitems'>");
-        for(ml=0; ml<menuLabels.length; ml++) {
-            var $menuItem = $("<div class='perc-simplemenu-menuitem'>");
-			var $menuLabel = $(menuLabels[ml]);
-            
-			if ($menuLabel.is("a")) {
-				$menuItem.css("padding", "0");
-				
-				if (callbackData[ml].formSummary.totalSubmissions > 0) {
-					$menuLabel.attr("href", escape(percJQuery.perc_paths.ASSET_FORMS_EXPORT + "/" +
-						callbackData[ml].formSummary.name + ".csv"));
-					$menuLabel.attr("target", "_blank");
-				}
-				
-				$menuLabel.attr("style", "text-decoration: none; padding: 0; " +
-					"font-family: Verdana; font-size: 11px; " +
-					"color: white; display: block; width: 100%; padding: 5px");
-			}
-			else {
-				$menuLabel = menuLabels[ml];
-			}
-			// add the new class, use with identifier unique
-            $menuItem.addClass(optionClasses[ml]);
-            // configure each menu item
-            $menuItem
-                .data("callbackData", callbackData[ml])
-                .data("callback", callbacks[ml])
-                .append($menuLabel)
-                // on click event
-                .on("click",function(evt) {
-                    let menuItem = $(this);
-                    var data = menuItem.data("callbackData");
-                    var callback = menuItem.data("callback");
-                    var menuItems = menuItem.parent();
-                    menuItems.hide();
-                    callback(data);
-                })
-                .on("mouseenter",function(e) {
-                    let menuItem = $(this);
-                    menuItem.addClass("perc-simplemenu-menuitem-hover");
-                }).on("mouseleave",function(e) {
-                    let menuItem = $(this);
-                    menuItem.removeClass("perc-simplemenu-menuitem-hover");
-                });
-            $menuItems.append($menuItem);
+    // create menu dynamically
+    // create menu container, add title
+    var $menu = $("<div class='perc-simplemenu-menu'>");
+    var $menuTitle = $("<div class='perc-simplemenu-title'>");
+    $menuTitle.append(menuTitleCollapsed);
+
+    // add menu items
+    var $menuItems = $("<div class='perc-simplemenu-menuitems'>");
+    for (ml = 0; ml < menuLabels.length; ml++) {
+      var $menuItem = $("<div class='perc-simplemenu-menuitem'>");
+      var $menuLabel = $(menuLabels[ml]);
+
+      if ($menuLabel.is("a")) {
+        $menuItem.css("padding", "0");
+
+        if (callbackData[ml].formSummary.totalSubmissions > 0) {
+          $menuLabel.attr(
+            "href",
+            escape(
+              percJQuery.perc_paths.ASSET_FORMS_EXPORT +
+                "/" +
+                callbackData[ml].formSummary.name +
+                ".csv"
+            )
+          );
+          $menuLabel.attr("target", "_blank");
         }
-        $menu.append($menuTitle)
-             .append($menuItems);
-        this.append($menu);
-        
-        // event handling
-        $menu.data("config", config);
-        $menuItems.hide();
-        
-        $menuTitle.find("*").on("click",
-            function(e){
-                menuTitleClick(e);
-            });
-        
-        $menuTitle.on("click",
-            function(e){
-                menuTitleClick(e);
-            });
 
-        $menuTitle.on("mouseenter",(
-                function() {
-                    var menuItem = $(this);
-                    menuItem.addClass("perc-simplemenu-title-hover");
-                }));
-
-        $menuTitle.on("mouseleave", (function() {
-                    var menuItem = $(this);
-                    menuItem.removeClass("perc-simplemenu-title-hover");
-                }));
-
-        // hide all menus if you exit the containing document
-        // useful if used inside an iframe like a gadget
-        $(document).on("mouseenter",null).on("mouseleave",
-            function() {
-                hideAllMenus();
-            }
+        $menuLabel.attr(
+          "style",
+          "text-decoration: none; padding: 0; " +
+            "font-family: Verdana; font-size: 11px; " +
+            "color: white; display: block; width: 100%; padding: 5px"
         );
-        
-        // hide all menus when clicking on body
-        $("body").on("click",function(event){
-            var target = $(event.target);
-            var noParents = target.parents().length === 0;
-            var menuParent = target.parent().hasClass("perc-simplemenu-menu");
-            if(!noParents && !menuParent)
-                hideAllMenus();
+      } else {
+        $menuLabel = menuLabels[ml];
+      }
+      // add the new class, use with identifier unique
+      $menuItem.addClass(optionClasses[ml]);
+      // configure each menu item
+      $menuItem
+        .data("callbackData", callbackData[ml])
+        .data("callback", callbacks[ml])
+        .append($menuLabel)
+        // on click event
+        .on("click", function (evt) {
+          let menuItem = $(this);
+          var data = menuItem.data("callbackData");
+          var callback = menuItem.data("callback");
+          var menuItems = menuItem.parent();
+          menuItems.hide();
+          callback(data);
+        })
+        .on("mouseenter", function (e) {
+          let menuItem = $(this);
+          menuItem.addClass("perc-simplemenu-menuitem-hover");
+        })
+        .on("mouseleave", function (e) {
+          let menuItem = $(this);
+          menuItem.removeClass("perc-simplemenu-menuitem-hover");
         });
-    };
-    
-    function hideAllMenus() {
-        var allMenus = $(".perc-simplemenu-menu");
-        
-        $.each(allMenus, function() {
-            var menu = $(this);
-            collapseMenu(menu);
-        });
+      $menuItems.append($menuItem);
     }
-    
-    // show the menu when you click on the title
-    function menuTitleClick(event) {
-        var menu = $($(event.target).parents(".perc-simplemenu-menu")[0]);
-        var config = menu.data("config");
-        if(config === undefined)
-            return;
-        var menuItems = menu.find(".perc-simplemenu-menuitems");
-        var menuTitleExpanded  = config.menuTitleExpanded;
-        var menuTitleCollapsed = config.menuTitleCollapsed;
-        var menuTitle = menu.find(".perc-simplemenu-title");
-        
-        var visible = menuItems.css("display") === "block";
-        
+    $menu.append($menuTitle).append($menuItems);
+    this.append($menu);
+
+    // event handling
+    $menu.data("config", config);
+    $menuItems.hide();
+
+    $menuTitle.find("*").on("click", function (e) {
+      menuTitleClick(e);
+    });
+
+    $menuTitle.on("click", function (e) {
+      menuTitleClick(e);
+    });
+
+    $menuTitle.on("mouseenter", function () {
+      var menuItem = $(this);
+      menuItem.addClass("perc-simplemenu-title-hover");
+    });
+
+    $menuTitle.on("mouseleave", function () {
+      var menuItem = $(this);
+      menuItem.removeClass("perc-simplemenu-title-hover");
+    });
+
+    // hide all menus if you exit the containing document
+    // useful if used inside an iframe like a gadget
+    $(document)
+      .on("mouseenter", null)
+      .on("mouseleave", function () {
         hideAllMenus();
-        
-        if(visible) {
-            collapseMenu(menu);
-        } else {
-            expandMenu(menu);
-        }
+      });
+
+    // hide all menus when clicking on body
+    $("body").on("click", function (event) {
+      var target = $(event.target);
+      var noParents = target.parents().length === 0;
+      var menuParent = target.parent().hasClass("perc-simplemenu-menu");
+      if (!noParents && !menuParent) hideAllMenus();
+    });
+  };
+
+  function hideAllMenus() {
+    var allMenus = $(".perc-simplemenu-menu");
+
+    $.each(allMenus, function () {
+      var menu = $(this);
+      collapseMenu(menu);
+    });
+  }
+
+  // show the menu when you click on the title
+  function menuTitleClick(event) {
+    var menu = $($(event.target).parents(".perc-simplemenu-menu")[0]);
+    var config = menu.data("config");
+    if (config === undefined) return;
+    var menuItems = menu.find(".perc-simplemenu-menuitems");
+    var menuTitleExpanded = config.menuTitleExpanded;
+    var menuTitleCollapsed = config.menuTitleCollapsed;
+    var menuTitle = menu.find(".perc-simplemenu-title");
+
+    var visible = menuItems.css("display") === "block";
+
+    hideAllMenus();
+
+    if (visible) {
+      collapseMenu(menu);
+    } else {
+      expandMenu(menu);
     }
-    
-    function expandMenu(menu) {
-        var config = menu.data("config");
-        var menuItems = menu.find(".perc-simplemenu-menuitems");
-        var menuTitleExpanded  = config.menuTitleExpanded;
-        var menuTitleCollapsed = config.menuTitleCollapsed;
-        var menuTitle = menu.find(".perc-simplemenu-title");
-        
-        menuTitle.html(menuTitleExpanded);
-        menuItems.css("position","absolute");
-		// Get pagination control as a reference to calculate menu's position (upwards or downwards)
-		var oPaginate = $('#' + menu.parents('table').attr('id') + '_paginate');
-		if (oPaginate){
-			// Recalculate the position of Action menu when this appears behind the paging controls 
-			// fix: 5 pixel of diference between IE and FF
-			if (menu.position()['top'] + menu.outerHeight() + menuItems.outerHeight() + 5 > oPaginate.position()['top'] ){
-				menuItems.css("margin-top",(menu.outerHeight() + menuItems.outerHeight()) * -1);
-			}else
-			{
-				menuItems.css("margin-top", 0);
-			}
-		}
-        menuItems.show();
-        
-        // TODO: make this a configuration. for some reason in IE it loses the width of the menu and it shrinks.
-        if($.browser.msie)
-            menuItems.width(config.menuWidth);
+  }
+
+  function expandMenu(menu) {
+    var config = menu.data("config");
+    var menuItems = menu.find(".perc-simplemenu-menuitems");
+    var menuTitleExpanded = config.menuTitleExpanded;
+    var menuTitleCollapsed = config.menuTitleCollapsed;
+    var menuTitle = menu.find(".perc-simplemenu-title");
+
+    menuTitle.html(menuTitleExpanded);
+    menuItems.css("position", "absolute");
+    // Get pagination control as a reference to calculate menu's position (upwards or downwards)
+    var oPaginate = $("#" + menu.parents("table").attr("id") + "_paginate");
+    if (oPaginate) {
+      // Recalculate the position of Action menu when this appears behind the paging controls
+      // fix: 5 pixel of diference between IE and FF
+      if (
+        menu.position()["top"] +
+          menu.outerHeight() +
+          menuItems.outerHeight() +
+          5 >
+        oPaginate.position()["top"]
+      ) {
+        menuItems.css(
+          "margin-top",
+          (menu.outerHeight() + menuItems.outerHeight()) * -1
+        );
+      } else {
+        menuItems.css("margin-top", 0);
+      }
     }
-    
-    function collapseMenu(menu) {
-        var config = menu.data("config");
-        var menuItems = menu.find(".perc-simplemenu-menuitems");
-        var menuTitleExpanded  = config.menuTitleExpanded;
-        var menuTitleCollapsed = config.menuTitleCollapsed;
-        var menuTitle = menu.find(".perc-simplemenu-title");
-        
-        menuTitle.html(menuTitleCollapsed);
-        menuItems.hide();
-    }
+    menuItems.show();
+
+    // TODO: make this a configuration. for some reason in IE it loses the width of the menu and it shrinks.
+    if ($.browser.msie) menuItems.width(config.menuWidth);
+  }
+
+  function collapseMenu(menu) {
+    var config = menu.data("config");
+    var menuItems = menu.find(".perc-simplemenu-menuitems");
+    var menuTitleExpanded = config.menuTitleExpanded;
+    var menuTitleCollapsed = config.menuTitleCollapsed;
+    var menuTitle = menu.find(".perc-simplemenu-title");
+
+    menuTitle.html(menuTitleCollapsed);
+    menuItems.hide();
+  }
 })(jQuery);

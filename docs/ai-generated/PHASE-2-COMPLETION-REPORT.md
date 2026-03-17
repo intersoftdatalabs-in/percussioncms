@@ -23,12 +23,14 @@ Phase 2 of the security remediation project addressed **14 ZipSlip (CWE-22/23) v
 ### Category 1: Direct ZipSlip Extraction (High Risk) - FIXED
 
 #### ✅ File 1: Main.java
+
 - **Module**: `modules/perc-distribution-tree`
 - **Path**: `src/main/java/com/percussion/preinstall/Main.java`
 - **Method**: `extractArchive()` (lines 254-276)
 - **Vulnerability**: Unvalidated zip entry extraction using `Files.copy()` without path validation
 - **Attack Vector**: Malicious ZIP with entries like `../../shell.jsp` escapes extraction directory
 - **Fix Applied**:
+
   ```java
   // Added import
   import com.percussion.security.validation.PathValidation;
@@ -45,6 +47,7 @@ Phase 2 of the security remediation project addressed **14 ZipSlip (CWE-22/23) v
 - **Risk Level**: **CRITICAL → RESOLVED**
 
 #### ✅ File 2: PSArchiveFiles.java
+
 - **Module**: `system`
 - **Path**: `src/main/java/com/percussion/system/utils/PSArchiveFiles.java`
 - **Method**: `extractFilesFromArchive()` (lines 365-380)
@@ -54,6 +57,7 @@ Phase 2 of the security remediation project addressed **14 ZipSlip (CWE-22/23) v
 - **Risk Level**: **HIGH → RESOLVED**
 
 #### ✅ File 3: PSRxBuildInput.java
+
 - **Module**: `modules/perc-ant`
 - **Path**: `src/main/java/com/percussion/ant/gui/PSRxBuildInput.java`
 - **Methods**:
@@ -65,12 +69,14 @@ Phase 2 of the security remediation project addressed **14 ZipSlip (CWE-22/23) v
 - **Risk Level**: **HIGH → RESOLVED**
 
 #### ✅ File 4: MainDTSPreInstall.java
+
 - **Module**: `deliverytiersuite/delivery-tier-suite/delivery-tier-distribution`
 - **Path**: `src/main/java/com/percussion/preinstall/MainDTSPreInstall.java`
 - **Method**: `extractArchive()` (lines 187-233)
 - **Vulnerability**: Direct path resolution without ZipSlip validation in DTS pre-installation
 - **Original Code**: `var entryDest = destPath.resolve(name);` ← vulnerable to path traversal
 - **Fix Applied**:
+
   ```java
   // Added dependency to pom.xml
   <dependency>
@@ -88,6 +94,7 @@ Phase 2 of the security remediation project addressed **14 ZipSlip (CWE-22/23) v
 - **Risk Level**: **HIGH → RESOLVED**
 
 #### ✅ File 5: InstallRxApp.java
+
 - **Module**: `system`
 - **Path**: `src/main/java/com/percussion/tools/InstallRxApp.java`
 - **Method**: `install()` (lines 82-104)
@@ -97,6 +104,7 @@ Phase 2 of the security remediation project addressed **14 ZipSlip (CWE-22/23) v
 - **Risk Level**: **HIGH → RESOLVED**
 
 #### ✅ File 6: PSInstallRxApp.java
+
 - **Module**: `system`
 - **Path**: `src/main/java/com/percussion/tools/PSInstallRxApp.java`
 - **Method**: `install()` (lines 74-98)
@@ -110,27 +118,32 @@ Phase 2 of the security remediation project addressed **14 ZipSlip (CWE-22/23) v
 ### Category 2: Delegated/Safe Operations (Medium Risk) - VERIFIED SAFE
 
 #### ✅ File 7: PSArchive.java
+
 - **Module**: `deployer`
 - **Assessment**: Delegates extraction to PSArchiveFiles (FIXED in File 2)
 - **Risk Level**: **MEDIUM → RESOLVED (delegated)**
 
 #### ✅ File 8: PSPackageLockManager.java
+
 - **Module**: `deployer`
 - **Assessment**: Uses PSArchiveFiles methods and reads pre-extracted manifest entries
 - **Risk Level**: **MEDIUM → RESOLVED (delegated)**
 
 #### ✅ File 9: PSUnZipPackage.java
+
 - **Module**: `modules/perc-ant`
 - **Assessment**: Extends Ant's `Expand` task which has built-in ZipSlip protections
 - **Risk Level**: **MEDIUM → RESOLVED (framework protection)**
 
 #### ✅ File 10: PSDirectoryAnalyzer.java
+
 - **Module**: `modules/Simple`
 - **Assessment**: Only reads `META-INF/MANIFEST.MF` (hardcoded constant), no user-controlled paths
 - **Code Review**: `MANIFEST_NAME = "META-INF/MANIFEST.MF"` - safe, read-only operation
 - **Risk Level**: **LOW → NOT VULNERABLE**
 
 #### ✅ File 11: Utils.java
+
 - **Module**: `system`
 - **Assessment**: Only reads JAR entries, no extraction, reads `Version.properties` from known location
 - **Risk Level**: **LOW → NOT VULNERABLE**
@@ -140,17 +153,20 @@ Phase 2 of the security remediation project addressed **14 ZipSlip (CWE-22/23) v
 ### Category 3: Low-Risk Components (Low Risk) - ASSESSED
 
 #### ✅ File 12: PSZipPackage.java
+
 - **Module**: `modules/perc-ant`
 - **Purpose**: ZIP CREATION (not extraction) - inherently safe from ZipSlip
 - **Risk Level**: **LOW → NOT VULNERABLE (creates, doesn't extract)**
 
 #### ✅ File 13: PSPackageBuildToolHelper.java
+
 - **Module**: `modules/perc-ant`
 - **Purpose**: Post-extraction file organization helper
 - **Assessment**: No path construction from untrusted input
 - **Risk Level**: **LOW → NOT VULNERABLE (helper only)**
 
 #### ? File 14: Additional Ant Installer
+
 - **Status**: Identified as low-priority Ant framework wrapper
 - **Assessment**: Delegates to Ant's framework with built-in protections
 - **Risk Level**: **LOW → NOT VULNERABLE (framework protection)**
@@ -160,6 +176,7 @@ Phase 2 of the security remediation project addressed **14 ZipSlip (CWE-22/23) v
 ## Security Validation
 
 ### PathValidation.constructSafePath() Properties
+
 ✅ **Prevents absolute path escapes**: Rejects `/etc/passwd`, `C:\Windows\System32`
 ✅ **Prevents relative path escapes**: Rejects `../../../`, detects parent directory references
 ✅ **Canonical path comparison**: Compares real filesystem paths, not string patterns
@@ -167,6 +184,7 @@ Phase 2 of the security remediation project addressed **14 ZipSlip (CWE-22/23) v
 ✅ **Throws SecurityException**: Clear error signaling for malicious entries
 
 ### Attack Scenarios Blocked
+
 1. **Dot-dot traversal**: `../../etc/passwd` → SecurityException
 2. **Absolute paths**: `/opt/tomcat/webapps/shell.jsp` → SecurityException
 3. **Mixed encodings**: `..%5C..%5Cwindows` (after URL decode) → blocked
@@ -178,12 +196,13 @@ Phase 2 of the security remediation project addressed **14 ZipSlip (CWE-22/23) v
 ## Build Verification Results
 
 ### Modules Tested
-| Module | Build Time | Error Count | Warning Count | Status |
-|--------|-----------|------------|--------------|--------|
-| perc-ant | 5.7s | **0** | 26 (pre-existing) | ✅ SUCCESS |
-| perc-distribution-tree | 25.1s | **0** | 0 | ✅ SUCCESS |
-| delivery-tier-distribution | 5.6s | **0** | 0 | ✅ SUCCESS |
-| deployer | 8.8s | **0** | 4 (pre-existing) | ✅ SUCCESS |
+
+|           Module           | Build Time | Error Count |   Warning Count   |  Status   |
+|----------------------------|------------|-------------|-------------------|-----------|
+| perc-ant                   | 5.7s       | **0**       | 26 (pre-existing) | ✅ SUCCESS |
+| perc-distribution-tree     | 25.1s      | **0**       | 0                 | ✅ SUCCESS |
+| delivery-tier-distribution | 5.6s       | **0**       | 0                 | ✅ SUCCESS |
+| deployer                   | 8.8s       | **0**       | 4 (pre-existing)  | ✅ SUCCESS |
 
 **New Compilation Errors Introduced**: **ZERO** ✅
 **New Compiler Warnings**: **ZERO** ✅
@@ -193,6 +212,7 @@ Phase 2 of the security remediation project addressed **14 ZipSlip (CWE-22/23) v
 ## Code Quality Metrics
 
 ### Lines of Code Changed
+
 - Import statements added: 6
 - Try-catch blocks added: 6
 - Path validation calls: 12
@@ -200,6 +220,7 @@ Phase 2 of the security remediation project addressed **14 ZipSlip (CWE-22/23) v
 - Refactored helper methods: 2
 
 ### Test Coverage Additions Required
+
 - ZipSlip negative test cases: 5 per file
 - Valid extraction tests: 3 per file
 - Edge cases (symlinks, encoding): 2 per file
@@ -210,12 +231,14 @@ Phase 2 of the security remediation project addressed **14 ZipSlip (CWE-22/23) v
 ## OWASP/CWE Compliance
 
 ### CWE-22: Improper Limitation of a Pathname to a Restricted Directory
+
 - ✅ Root cause addressed: All archive extraction now validates paths
 - ✅ Input validation applied: PathValidation enforces base directory confinement
 - ✅ Canonical path comparison: Uses real filesystem paths, not string patterns
 - ✅ Secure default: All ZipEntry names validated before extraction
 
 ### OWASP A01:2021 - Broken Access Control
+
 - ✅ Path validation enforces intended directory boundaries
 - ✅ Malicious entries are rejected rather than extracted to unintended locations
 
@@ -224,11 +247,13 @@ Phase 2 of the security remediation project addressed **14 ZipSlip (CWE-22/23) v
 ## Known Limitations & Future Work
 
 ### Pre-existing Issues (Out of Scope)
+
 1. **system module StringUtils** - Unrelated to ZipSlip (commons-lang import error)
 2. **Maven enforcer convergence** - Dependency version conflicts (commons-lang 2.3 vs 2.4)
 3. **Raw type warnings** - Pre-existing Java 21 compatibility issues
 
 ### Recommended Enhancements (Future Sprints)
+
 1. Create comprehensive ZipSlip unit test suite (50+ tests)
 2. Add path validation to all archive operations (PropertiesFile loaders, etc.)
 3. Extend PathValidation utility with additional options (follow symlinks, custom messages)
@@ -238,31 +263,34 @@ Phase 2 of the security remediation project addressed **14 ZipSlip (CWE-22/23) v
 
 ## Completion Statistics
 
-| Metric | Value | Status |
-|--------|-------|--------|
-| Total Vulnerabilities | 14 | Assessed |
-| Fixed directly | 6 | ✅ Resolved |
-| Safe (delegated) | 5 | ✅ Verified |
-| Low-risk (assessed) | 3 | ✅ Approved |
-| New errors introduced | 0 | ✅ Zero impact |
-| Modules built | 4 | ✅ All pass |
-| Overall completion | 100% | **✅ COMPLETE** |
+|        Metric         | Value |     Status     |
+|-----------------------|-------|----------------|
+| Total Vulnerabilities | 14    | Assessed       |
+| Fixed directly        | 6     | ✅ Resolved     |
+| Safe (delegated)      | 5     | ✅ Verified     |
+| Low-risk (assessed)   | 3     | ✅ Approved     |
+| New errors introduced | 0     | ✅ Zero impact  |
+| Modules built         | 4     | ✅ All pass     |
+| Overall completion    | 100%  | **✅ COMPLETE** |
 
 ---
 
 ## Next Steps
 
 ### Immediate (This Sprint)
+
 - ✅ All Phase 2 vulnerabilities addressed
 - ✅ Build verification complete
 - 📋 Create unit test suite for Phase 2
 
 ### Short-term (Next Sprint)
+
 - Test coverage for all Phase 2 fixes (~20 tests minimum)
 - Security review of fix implementations
 - Documentation update in security guidelines
 
 ### Medium-term
+
 - Establish ZipSlip testing as part of CI/CD
 - Security training on path traversal prevention
 - Expand PathValidation utility reuse to other modules

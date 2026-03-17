@@ -15,118 +15,144 @@
  * limitations under the License.
  */
 
-(function($)
-{
-    $.PercActivityService = {
-        getContentActivity: getContentActivity,
-        getContentTraffic : getContentTraffic,
-        getContentEffectiveness: getContentEffectiveness,
-        getActivityForDateRange : getActivityForDateRange
-    };
-    
-    function getContentActivity(path, durationType, duration, callback)
-    {
-        var obj = {ContentActivityRequest: {
-           path: path,
-           durationType: durationType,
-           duration: duration
-        }};
-        $.PercServiceUtils.makeJsonRequest(
-                $.perc_paths.ACTIVITY_CONTENT,
-           $.PercServiceUtils.TYPE_POST,
-           false,
-           function(status, result)
-           {
-              if(status === $.PercServiceUtils.STATUS_SUCCESS)
-              {
-                 callback($.PercServiceUtils.STATUS_SUCCESS, result.data);
-              }
-              else
-              {
-                 var defaultMsg = $.PercServiceUtils.extractDefaultErrorMessage(result.request);
-                 callback($.PercServiceUtils.STATUS_ERROR, defaultMsg);
-              }
-           },
-           obj
-        );
-    }
-    
-    function getActivityForDateRange(path, startDateDrill, endDateDrill, usage, callback) {
-        var request = {TrafficDetailsRequest:{path:path,startDate:startDateDrill,endDate:endDateDrill, usage:usage}};
-        
-        $.PercServiceUtils.makeJsonRequest(
-            $.perc_paths.ACTIVITY_TRAFFIC_DETAILS,
-            $.PercServiceUtils.TYPE_POST,
-            false,
-            function(status, result) {
-                if(status === $.PercServiceUtils.STATUS_SUCCESS) {
-                    callback($.PercServiceUtils.STATUS_SUCCESS, result.data);
-                } else {
-                    var defaultMsg = $.PercServiceUtils.extractDefaultErrorMessage(result.request);
-                    callback($.PercServiceUtils.STATUS_ERROR, defaultMsg);
-                }
-            },
-            request
-        );
-    }
-    
-    function getContentTraffic(path, startDate, endDate, granularity, trafficRequested, usage, callback)
-    {
-        var obj = {ContentTrafficRequest: {
-            path : path,
-            startDate: startDate,
-            endDate: endDate,
-            granularity : granularity,
-            usage : usage,
-            trafficRequested: trafficRequested
-        }};
+(function ($) {
+  $.PercActivityService = {
+    getContentActivity: getContentActivity,
+    getContentTraffic: getContentTraffic,
+    getContentEffectiveness: getContentEffectiveness,
+    getActivityForDateRange: getActivityForDateRange,
+  };
 
-        $.PercServiceUtils.makeJsonRequest(
-            $.perc_paths.ACTIVITY_TRAFFIC,
-            $.PercServiceUtils.TYPE_POST,
-            false,
-            function(status, result)
-            {
-                if(status === $.PercServiceUtils.STATUS_SUCCESS)
-                {
-                    callback($.PercServiceUtils.STATUS_SUCCESS, result.data);
-                }
-                else
-                {
-                    var defaultMsg = $.PercServiceUtils.extractDefaultErrorMessage(result.request);
-                    callback($.PercServiceUtils.STATUS_ERROR, defaultMsg);
-                }
-            },
-            obj
-        );
-    }
-	
-	function getContentEffectiveness(path, durationType, duration, usage, threshold, callback)
-    {
-        var obj = {EffectivenessRequest: {
-           path: path,
-           durationType: durationType,
-           duration: duration,
-		   usage: usage,
-		   threshold: threshold
-        }};
-        $.PercServiceUtils.makeJsonRequest(
-                $.perc_paths.ACTIVITY_EFFECTIVENESS,
-           $.PercServiceUtils.TYPE_POST,
-           false,
-           function(status, result)
-           {
-              if(status === $.PercServiceUtils.STATUS_SUCCESS)
-              {
-                 callback($.PercServiceUtils.STATUS_SUCCESS, result.data);
-              }
-              else
-              {
-                 var defaultMsg = $.PercServiceUtils.extractDefaultErrorMessage(result.request);
-                 callback($.PercServiceUtils.STATUS_ERROR, defaultMsg);
-              }
-           },
-           obj
-        );
-    }
+  function getContentActivity(path, durationType, duration, callback) {
+    var obj = {
+      ContentActivityRequest: {
+        path: path,
+        durationType: durationType,
+        duration: duration,
+      },
+    };
+    $.PercServiceUtils.makeJsonRequest(
+      $.perc_paths.ACTIVITY_CONTENT,
+      $.PercServiceUtils.TYPE_POST,
+      false,
+      function (status, result) {
+        if (status === $.PercServiceUtils.STATUS_SUCCESS) {
+          callback($.PercServiceUtils.STATUS_SUCCESS, result.data);
+        } else {
+          var defaultMsg = $.PercServiceUtils.extractDefaultErrorMessage(
+            result.request
+          );
+          callback($.PercServiceUtils.STATUS_ERROR, defaultMsg);
+        }
+      },
+      obj
+    );
+  }
+
+  function getActivityForDateRange(
+    path,
+    startDateDrill,
+    endDateDrill,
+    usage,
+    callback
+  ) {
+    var request = {
+      TrafficDetailsRequest: {
+        path: path,
+        startDate: startDateDrill,
+        endDate: endDateDrill,
+        usage: usage,
+      },
+    };
+
+    $.PercServiceUtils.makeJsonRequest(
+      $.perc_paths.ACTIVITY_TRAFFIC_DETAILS,
+      $.PercServiceUtils.TYPE_POST,
+      false,
+      function (status, result) {
+        if (status === $.PercServiceUtils.STATUS_SUCCESS) {
+          callback($.PercServiceUtils.STATUS_SUCCESS, result.data);
+        } else {
+          var defaultMsg = $.PercServiceUtils.extractDefaultErrorMessage(
+            result.request
+          );
+          callback($.PercServiceUtils.STATUS_ERROR, defaultMsg);
+        }
+      },
+      request
+    );
+  }
+
+  function getContentTraffic(
+    path,
+    startDate,
+    endDate,
+    granularity,
+    trafficRequested,
+    usage,
+    callback
+  ) {
+    var obj = {
+      ContentTrafficRequest: {
+        path: path,
+        startDate: startDate,
+        endDate: endDate,
+        granularity: granularity,
+        usage: usage,
+        trafficRequested: trafficRequested,
+      },
+    };
+
+    $.PercServiceUtils.makeJsonRequest(
+      $.perc_paths.ACTIVITY_TRAFFIC,
+      $.PercServiceUtils.TYPE_POST,
+      false,
+      function (status, result) {
+        if (status === $.PercServiceUtils.STATUS_SUCCESS) {
+          callback($.PercServiceUtils.STATUS_SUCCESS, result.data);
+        } else {
+          var defaultMsg = $.PercServiceUtils.extractDefaultErrorMessage(
+            result.request
+          );
+          callback($.PercServiceUtils.STATUS_ERROR, defaultMsg);
+        }
+      },
+      obj
+    );
+  }
+
+  function getContentEffectiveness(
+    path,
+    durationType,
+    duration,
+    usage,
+    threshold,
+    callback
+  ) {
+    var obj = {
+      EffectivenessRequest: {
+        path: path,
+        durationType: durationType,
+        duration: duration,
+        usage: usage,
+        threshold: threshold,
+      },
+    };
+    $.PercServiceUtils.makeJsonRequest(
+      $.perc_paths.ACTIVITY_EFFECTIVENESS,
+      $.PercServiceUtils.TYPE_POST,
+      false,
+      function (status, result) {
+        if (status === $.PercServiceUtils.STATUS_SUCCESS) {
+          callback($.PercServiceUtils.STATUS_SUCCESS, result.data);
+        } else {
+          var defaultMsg = $.PercServiceUtils.extractDefaultErrorMessage(
+            result.request
+          );
+          callback($.PercServiceUtils.STATUS_ERROR, defaultMsg);
+        }
+      },
+      obj
+    );
+  }
 })(jQuery);

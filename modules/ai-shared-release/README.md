@@ -17,9 +17,11 @@ This module is intended for production, release, instructions, skills, prompts, 
 The `SkillVerificationService` provides runtime verification of AI resource signatures.
 
 To verify a resource:
+
 ```java
 SkillVerificationService verificationService = new SkillVerificationService();
 boolean isValid = verificationService.verify(resourcePath, signaturePath);
 ```
+
 Signature files are typically named `<filename>.sigstore.json`.
 

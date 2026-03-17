@@ -17,15 +17,15 @@ Consolidate all `system/ear` files that are currently copied into the WebUI WAR 
 
 ### Files Currently Being Copied
 
-| Source (system/ear) | Target (WAR) | Size | Notes |
-|---|---|---|---|
-| `config/` | `WEB-INF/config` | ~40 files | Spring configs, security configs, user configs, velocity |
-| `config/hibernate/` | `WEB-INF/classes` | 1 file | ehcache.xml needed at runtime |
-| `config/trinidad/` | `WEB-INF/trinidad` | 1 file | rx.css CSS theme |
-| `metadata/` | `META-INF` | 3 files | Spring handlers, schemas, application.xml |
-| `WEB-INF/` | `WEB-INF` | ~20 files | JSF configs, TLD files, jetty-env.xml, web.xml, tags, images |
-| `jsps/` (filtered) | `/ (root)` | See below | JSP files and JNLP descriptors with property filtering enabled |
-| `jsps/` (unfiltered) | `/ (root)` | See below | Static assets (images, etc.) without filtering |
+| Source (system/ear)  |    Target (WAR)    |   Size    |                             Notes                              |
+|----------------------|--------------------|-----------|----------------------------------------------------------------|
+| `config/`            | `WEB-INF/config`   | ~40 files | Spring configs, security configs, user configs, velocity       |
+| `config/hibernate/`  | `WEB-INF/classes`  | 1 file    | ehcache.xml needed at runtime                                  |
+| `config/trinidad/`   | `WEB-INF/trinidad` | 1 file    | rx.css CSS theme                                               |
+| `metadata/`          | `META-INF`         | 3 files   | Spring handlers, schemas, application.xml                      |
+| `WEB-INF/`           | `WEB-INF`          | ~20 files | JSF configs, TLD files, jetty-env.xml, web.xml, tags, images   |
+| `jsps/` (filtered)   | `/ (root)`         | See below | JSP files and JNLP descriptors with property filtering enabled |
+| `jsps/` (unfiltered) | `/ (root)`         | See below | Static assets (images, etc.) without filtering                 |
 
 ### POM Copy Operations (WebUI/pom.xml lines 579-640)
 
@@ -128,17 +128,14 @@ WebUI/src/main/
    - ⚠️ `jboss-4.0/` - Legacy JBoss config (DEPRECATED - should be removed in separate task)
    - ⚠️ `webdav/` - WebDAV config (check if used elsewhere)
    - ⚠️ `test/` - Test data (not copied; keep in system/ear for reference)
-
 2. **Verify no other modules reference system/ear**
    - Status: ✅ Only WebUI/pom.xml references system/ear
-
 3. **Check for conflicts between system/ear and existing WebUI sources**
    - Issue: `WEB-INF/web.xml` exists in both places!
    - Decision: Keep WebUI version (its content takes precedence)
    - Files to merge/review:
      - web.xml - Need to compare versions
      - Any other duplicate files?
-
 4. **Document all files that need filtering vs. non-filtered**
    - Filtering: metadata/ (pom properties), jsps/ (JSP files only)
    - Non-filtered: Everything else
@@ -152,22 +149,23 @@ WebUI/src/main/
 **Tasks**:
 
 1. Create new directories in WebUI/src/main/webapp:
+
    ```bash
    mkdir -p src/main/webapp/WEB-INF/config/{spring,security,user,velocity}
    mkdir -p src/main/webapp/WEB-INF/config/hibernate
    mkdir -p src/main/webapp/WEB-INF/config/trinidad
    mkdir -p src/main/webapp/WEB-INF/tags/{banner,layout,nav}
    ```
-
 2. Create new directories in WebUI/src/main/webapp:
+
    ```bash
    mkdir -p src/main/webapp/dce
    mkdir -p src/main/webapp/reports
    mkdir -p src/main/webapp/test/{jsx,tmx,ui}
    mkdir -p src/main/webapp/jslib  (might already exist)
    ```
-
 3. Create resource directory for hibernate configs:
+
    ```bash
    mkdir -p src/main/resources/config
    ```
@@ -200,6 +198,7 @@ Files:
 - `ehcache.xml` → `src/main/resources/config/ehcache.xml`
 
 **POM Update**: Add resource filter:
+
 ```xml
 <resource>
   <directory>src/main/resources/config</directory>
@@ -256,6 +255,7 @@ Files:
 - `spring.schemas` → `META-INF/spring.schemas`
 
 **POM Update**: Add filtering to webapp resource:
+
 ```xml
 <resource>
   <directory>src/main/webapp</directory>
@@ -265,6 +265,7 @@ Files:
 ```
 
 Or more specifically:
+
 ```xml
 <resource>
   <directory>src/main/webapp/META-INF</directory>
@@ -279,6 +280,7 @@ Or more specifically:
 **Target**: `WebUI/src/main/webapp/`
 
 Simply copy the entire tree as-is:
+
 ```
 jsps/ → webapp/
 ├── dce/
@@ -304,11 +306,8 @@ Skip:
 
 1. **Remove system/ear copy operations** (Lines 579-640 in WebUI/pom.xml)
    - Remove 7 obsolete resource elements
-
 2. **Add new resource elements for META-INF filtered content** (if filtering needed)
-
 3. **Ensure webapp resources are properly defined** for build process
-
 4. **Verify build-helper-maven-plugin configuration** if used for resource filtering
 
 ### Phase 5: Build Verification
@@ -319,12 +318,12 @@ Skip:
 1. Run: `mvn clean package` on WebUI
 2. Compare WAR structure with previous builds
 3. Extract and verify:
-   - `WEB-INF/config/*` exists and has all files
-   - `WEB-INF/trinity/*` exists
-   - `META-INF/` has spring metadata
-   - JavaServer Faces configs loaded
-   - JSPs compiled
-   - Static assets present
+- `WEB-INF/config/*` exists and has all files
+- `WEB-INF/trinity/*` exists
+- `META-INF/` has spring metadata
+- JavaServer Faces configs loaded
+- JSPs compiled
+- Static assets present
 
 ### Phase 6: Integration Testing
 
@@ -334,15 +333,15 @@ Skip:
 1. Deploy updated WAR to Jetty 12
 2. Start server: `./StartJetty.sh`
 3. Verify:
-   - Rhythmyx webapp deploys successfully
-   - No missing config file errors
-   - JSFs render properly
-   - Database connections work
-   - Static assets load (images, CSS, etc.)
+- Rhythmyx webapp deploys successfully
+- No missing config file errors
+- JSFs render properly
+- Database connections work
+- Static assets load (images, CSS, etc.)
 4. Run smoke tests to verify:
-   - Login page loads
-   - Configuration loads correctly
-   - No resource not found errors in logs
+- Login page loads
+- Configuration loads correctly
+- No resource not found errors in logs
 
 ---
 
@@ -365,7 +364,6 @@ Skip:
    - [ ] Remove system/ear/config copy from pom.xml
    - [ ] Run mvn clean package
    - [ ] Verify WAR structure
-
 2. **Move WEB-INF/ files** (watch for web.xml conflict)
    - [ ] Merge/verify web.xml versions
    - [ ] Copy system/ear/WEB-INF → WebUI/src/main/webapp/WEB-INF (skip web.xml)
@@ -373,13 +371,11 @@ Skip:
    - [ ] Remove system/ear/WEB-INF copy from pom.xml
    - [ ] Run mvn clean package
    - [ ] Verify WAR structure
-
 3. **Move metadata/** (requires filtering setup)
    - [ ] Copy system/ear/metadata → WebUI/src/main/webapp/META-INF
    - [ ] Add filtering configuration to pom.xml
    - [ ] Run mvn clean package
    - [ ] Verify properties substituted correctly
-
 4. **Move JSPs** (tricky with filtering)
    - [ ] Copy system/ear/jsps → WebUI/src/main/webapp
    - [ ] Handle filtering for JSP files
@@ -387,12 +383,10 @@ Skip:
    - [ ] Remove system/ear/jsps copy from pom.xml
    - [ ] Run mvn clean package
    - [ ] Verify JSP compilation works
-
 5. **Move config/hibernate/** (classpath resources)
    - [ ] Copy system/ear/config/hibernate → WebUI/src/main/resources
    - [ ] Update pom.xml resource configuration (if needed)
    - [ ] Run mvn clean package
-
 6. **Move config/trinidad/**
    - [ ] Clarify correct target location
    - [ ] Copy files
@@ -420,14 +414,14 @@ Skip:
 
 ## Risk Assessment
 
-| Risk | Likelihood | Impact | Mitigation |
-|---|---|---|---|
-| WAR structure mismatch | Low | High | Automate WAR comparison script, test thoroughly |
-| Property filtering breaks | Medium | Medium | Test with known properties, verify substitution |
-| File permissions/encoding issues | Low | Low | Use git mv, preserve attributes |
-| Merge conflicts in version control | Low | Medium | Do synchronously,good commit messages |
-| JSP compilation changes | Low | High | Compare JSP bytecode before/after |
-| Application breaks on deploy | Low | Critical | Full integration test on Jetty |
+|                Risk                | Likelihood |  Impact  |                   Mitigation                    |
+|------------------------------------|------------|----------|-------------------------------------------------|
+| WAR structure mismatch             | Low        | High     | Automate WAR comparison script, test thoroughly |
+| Property filtering breaks          | Medium     | Medium   | Test with known properties, verify substitution |
+| File permissions/encoding issues   | Low        | Low      | Use git mv, preserve attributes                 |
+| Merge conflicts in version control | Low        | Medium   | Do synchronously,good commit messages           |
+| JSP compilation changes            | Low        | High     | Compare JSP bytecode before/after               |
+| Application breaks on deploy       | Low        | Critical | Full integration test on Jetty                  |
 
 ---
 
@@ -444,13 +438,13 @@ Skip:
 
 ## Files Modified
 
-| File | Changes | Priority |
-|---|---|---|
-| `WebUI/pom.xml` | Remove 7 resource copy entries (lines 579-640) | High |
-| `WebUI/src/main/webapp/WEB-INF/` | Add directories from system/ear/config, system/ear/WEB-INF | High |
-| `WebUI/src/main/webapp/META-INF/` | Add files from system/ear/metadata | High |
-| `WebUI/src/main/resources/` | Add config/hibernate files | Medium |
-| `WebUI/src/main/webapp/` | Add JSP tree from system/ear/jsps | High |
+|               File                |                          Changes                           | Priority |
+|-----------------------------------|------------------------------------------------------------|----------|
+| `WebUI/pom.xml`                   | Remove 7 resource copy entries (lines 579-640)             | High     |
+| `WebUI/src/main/webapp/WEB-INF/`  | Add directories from system/ear/config, system/ear/WEB-INF | High     |
+| `WebUI/src/main/webapp/META-INF/` | Add files from system/ear/metadata                         | High     |
+| `WebUI/src/main/resources/`       | Add config/hibernate files                                 | Medium   |
+| `WebUI/src/main/webapp/`          | Add JSP tree from system/ear/jsps                          | High     |
 
 ---
 
@@ -459,20 +453,20 @@ Skip:
 If issues occur:
 
 1. **Before starting**: Create git branch for this work
+
    ```bash
    git checkout -b refactor/webui-build-structure
    ```
-
 2. **At any point**: Revert changes
+
    ```bash
    git reset --hard HEAD
    ```
-
 3. **To test before/after**: Compare WAR contents
+
    ```bash
    unzip -l target/WebUI-8.2-dev.war | grep -E "config|metadata|jsps" | sort
    ```
-
 4. **If partial completion**: Tag current state, move one operation at a time
 
 ---
@@ -501,7 +495,7 @@ If issues occur:
 
 ## Document Change Log
 
-| Date | Version | Changes |
-|---|---|---|
-| 2025-03-08 | 1.0 | Initial plan created based on WebUI/pom.xml analysis |
+|    Date    | Version |                       Changes                        |
+|------------|---------|------------------------------------------------------|
+| 2025-03-08 | 1.0     | Initial plan created based on WebUI/pom.xml analysis |
 

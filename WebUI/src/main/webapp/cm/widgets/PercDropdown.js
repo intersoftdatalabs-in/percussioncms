@@ -94,204 +94,230 @@
  *  (*) Unit Testing/Example: /widgets/PercDropdownTest.html
  *
  */
-(function($) {
+(function ($) {
+  var defaultConfig = {
+    percDropdownRootClass: "perc-view",
+    percDropdownOptionLabels: ["Title", "Option1", "Option2"],
+    percDropdownOptionElements: null,
+    percDropdownCallbacks: [
+      function (param) {
+        alert(param);
+      },
+      function (param) {
+        alert(param);
+      },
+      function (param) {
+        alert(param);
+      },
+    ],
+    percDropdownCallbackData: ["Title", "Option1", "Option2"],
+    percDropdownDisabledFlag: [true, true, true, true, true],
+    percDropdownItemImage: null,
+    percDropdownTitleImage: null,
+    percDropdownTitleImageOver: null,
+    percDropdownShowExpandIcon: true,
+    percDropdownResizeToElement: null,
+    percDropdownDisabledItemImage: null,
+    delay: 50,
+    dropShadows: true,
+  };
 
-    var defaultConfig = {
-        percDropdownRootClass      : "perc-view",
-        percDropdownOptionLabels   : ["Title","Option1","Option2"],
-        percDropdownOptionElements : null,
-        percDropdownCallbacks      : [function(param){alert(param);},function(param){alert(param);},function(param){alert(param);}],
-        percDropdownCallbackData   : ["Title","Option1","Option2"],
-        percDropdownDisabledFlag   : [true,true,true,true,true],
-        percDropdownItemImage      : null,
-        percDropdownTitleImage     : null,
-        percDropdownTitleImageOver : null,
-        percDropdownShowExpandIcon : true,
-        percDropdownResizeToElement: null,
-        percDropdownDisabledItemImage: null,
-        delay:         50,
-        dropShadows:   true
-    };
+  var dropdownHtml =
+    "" +
+    "<ul class='sf-menu perc-dropdown'>" +
+    "<li class='current'>" +
+    "<a tabindex='0' role='button' class='perc-dropdown-title'>_TITLE_</a>" +
+    "<ul class='perc-dropdown-option-list'>" +
+    "<li class='perc-dropdown-option-item-template '>" +
+    "<a href='#' class='perc-dropdown-option'>" +
+    I18N.message("perc.ui.edit.workflow.step.dialog@" + "_OPTION_") +
+    "</a>" +
+    "</li>" +
+    "</ul>" +
+    "</li>" +
+    "</ul>";
+  var dropdown;
+  var SPLIT_BUTTON_BORDER = 4;
 
-    var dropdownHtml = "" +
-        "<ul class='sf-menu perc-dropdown'>" +
-        "<li class='current'>" +
-        "<a tabindex='0' role='button' class='perc-dropdown-title'>_TITLE_</a>" +
-        "<ul class='perc-dropdown-option-list'>" +
-        "<li class='perc-dropdown-option-item-template '>" +
-        "<a href='#' class='perc-dropdown-option'>" + I18N.message("perc.ui.edit.workflow.step.dialog@" + "_OPTION_") + "</a>" +
-        "</li>" +
-        "</ul>" +
-        "</li>" +
-        "</ul>";
-    var dropdown;
-    var SPLIT_BUTTON_BORDER = 4;
+  /**
+   *  Implement plugin and add it to the element the plugin is applied to
+   */
+  $.fn.PercDropdown = function (config) {
+    // merge default and custom config
+    config = $.extend({}, defaultConfig, config);
 
-    /**
-     *  Implement plugin and add it to the element the plugin is applied to
-     */
-    $.fn.PercDropdown = function(config) {
-        // merge default and custom config
-        config = $.extend({}, defaultConfig, config);
+    dropdown = $(dropdownHtml);
+    dropdown.addClass(config.percDropdownRootClass).data("config", config);
 
-        dropdown = $(dropdownHtml);
-        dropdown
-            .addClass(config.percDropdownRootClass)
-            .data("config", config);
+    if (config.percDropdownResizeToElement) {
+      config.onBeforeShow = resizeDropdown;
+    }
+    var callbacks = config.percDropdownCallbacks;
+    var callbackData = config.percDropdownCallbackData;
+    var labels = config.percDropdownOptionLabels;
+    var disabledFlags = config.percDropdownDisabledFlag;
+    var listImage = config.percDropdownItemImage;
+    var disabledListImage = config.percDropdownDisabledItemImage;
+    var title = dropdown.find(".perc-dropdown-title");
 
-        if(config.percDropdownResizeToElement) {
-            config.onBeforeShow = resizeDropdown;
-        }
-        var callbacks = config.percDropdownCallbacks;
-        var callbackData = config.percDropdownCallbackData;
-        var labels = config.percDropdownOptionLabels;
-        var disabledFlags = config.percDropdownDisabledFlag;
-        var listImage = config.percDropdownItemImage;
-        var disabledListImage = config.percDropdownDisabledItemImage;
-        var title = dropdown.find(".perc-dropdown-title");
+    if (config.percDropdownTitleImage == null) {
+      title.css("cursor", "default").html(labels[0]);
+    } else {
+      var arrowClass = config.percDropdownRootClass
+        ? config.percDropdownRootClass + "-split-button-arrow"
+        : "perc-split-button-arrow";
+      title
+        .html("&nbsp;")
+        .css("cursor", "pointer")
+        .addClass(arrowClass)
+        .addClass("btn btn-primary perc-workflow-split-button-right")
+        .on(
+          "hover",
+          function () {
+            $(this).css("overflow", "visible");
+          },
+          function () {
+            $(this).css("overflow", "visible");
+          }
+        );
 
-
-        if(config.percDropdownTitleImage == null) {
-            title
-                .css("cursor","default")
-                .html(labels[0]);
-        } else {
-            var arrowClass = config.percDropdownRootClass ? config.percDropdownRootClass + "-split-button-arrow" : "perc-split-button-arrow"
-            title
-                .html("&nbsp;")
-                .css("cursor","pointer")
-                .addClass(arrowClass)
-                .addClass('btn btn-primary perc-workflow-split-button-right')
-                .on("hover",
-                    function(){
-                        $(this)
-                            .css("overflow","visible");
-                    }, function(){
-                        $(this)
-                            .css("overflow","visible");
-                    });
-
-            // TODO: should this styling be on a CSS? the margin should be based on the size of the image.
-            var optionsList = dropdown.find(".perc-dropdown-option-list");
-            optionsList.css("margin", "4px 0 0 0");
-        }
-
-        if(typeof config.percAppendDropdownButton !== 'undefined' && config.percAppendDropdownButton === true) {
-
-            title.append($("<span class='sf-sub-indicator' />"));
-        }
-
-        title
-            .addClass("perc-dropdown-title-"+labels[0])
-            .data("callback", callbacks[0])
-			.attr("title",labels[0])
-            .data("callbackData", callbackData[0])
-            .on("click",function(evt){
-                clickDropdown(evt);
-            });
-
-        var dropdownOptionList = dropdown.find(".perc-dropdown-option-list");
-        var dropdownOptionItemTemplate = dropdown.find(".perc-dropdown-option-item-template");
-        let k = 0;
-        for(let l=1; l<labels.length; l++){
-            k = l;
-            var dropdownOptionLabel = labels[l];
-            var dropdownOptionItem = dropdownOptionItemTemplate.clone();
-            dropdownOptionItem.removeClass("perc-dropdown-option-item-template");
-
-            // If percDropdownOptionElements is not defined use the labels
-            var optionAElem;
-            if (config.percDropdownOptionElements != null)
-            {
-                // Note that the element will have a class with the corresponding label
-                dropdownOptionItem.find("a").replaceWith(config.percDropdownOptionElements[l]);
-                optionAElem = config.percDropdownOptionElements[l].addClass("perc-dropdown-option-"+$.perc_textFilters.IDNAMECDATA(dropdownOptionLabel));
-            }
-            else
-            {
-                optionAElem = dropdownOptionItem.find("a")
-                    .html(I18N.message("perc.ui.edit.workflow.step.dialog@" + dropdownOptionLabel))
-					.attr("title",dropdownOptionLabel)
-                    .addClass("perc-dropdown-option-"+$.perc_textFilters.IDNAMECDATA(dropdownOptionLabel));
-            }
-
-            if(listImage != null)
-            {
-                optionAElem.css('background-image', 'url(' + listImage[l] + ')')
-                    .css('background-repeat', 'no-repeat')
-                    .css('background-position', '10px 8px')
-                    .css('padding-left', 28);
-            }
-
-            if(!(disabledFlags[l])){
-                k = 0;
-                optionAElem.addClass('perc-drop-disabled').css('color', '#9FA3AA');
-				optionAElem.attr('aria-disabled',"true");
-                if(disabledListImage != null) {
-                    optionAElem.css('background-image', 'url(' + disabledListImage[l] + ')')
-                        .css('background-repeat', 'no-repeat')
-                        .css('background-position', '10px 8px')
-                        .css('padding-left', 28);
-                }
-            }else{
-				optionAElem.attr('aria-disabled',"false");
-			}
-
-            dropdownOptionList.append(dropdownOptionItem);
-
-            dropdownOptionItem.on("click",null,callbackData[k], callbacks[k]);
-
-			dropdownOptionItem.on("keydown", function(event){
-                if(event.code == "Enter" || event.code == "Space"){
-						document.activeElement.click();
-				}
-            });
-
-        }
-        dropdownOptionItemTemplate.remove();
-        dropdown.superfish(config);
-
-        if(config.percDropdownShowExpandIcon === false) {
-            title.find(".sf-sub-indicator").hide();
-        } else {
-
-        }
-
-        this.append(dropdown);
-
-        if(config.percDropdownRootClass === "perc-dropdown-template-pages-items-dropdown"){
-            $('ul.perc-dropdown-template-pages-items-dropdown > li > ul.perc-dropdown-option-list').css('max-height', '66px');
-            $('ul.perc-dropdown-template-pages-items-dropdown > li > ul.perc-dropdown-option-list').css('overflow-y', 'auto');
-        }
-    };
-
-
-    /**
-     *  Handle callbacks when clicking on dropdown options or title
-     */
-    function clickDropdown(event) {
-        var callback = $(this).data("callback");
-        var callbackData = $(this).data("callbackData");
-
-        if(typeof callback === "function") {
-            callback(callbackData);
-        }
-
+      // TODO: should this styling be on a CSS? the margin should be based on the size of the image.
+      var optionsList = dropdown.find(".perc-dropdown-option-list");
+      optionsList.css("margin", "4px 0 0 0");
     }
 
-    /**
-     *  Resizes the dropdown to the same width as the parent div of a split button
-     */
-    function resizeDropdown() {
-        var menu = $(this);
-        var percDropdown = $(menu.parents(".perc-dropdown")[0]);
-        var config = percDropdown.data("config");
-        if(typeof(config) != "undefined")
-        {
-            var resizeToElement = $(config.percDropdownResizeToElement);
-            var dropdownWidth = resizeToElement.width();
-            menu.width(dropdownWidth - SPLIT_BUTTON_BORDER);
-        }
+    if (
+      typeof config.percAppendDropdownButton !== "undefined" &&
+      config.percAppendDropdownButton === true
+    ) {
+      title.append($("<span class='sf-sub-indicator' />"));
     }
 
+    title
+      .addClass("perc-dropdown-title-" + labels[0])
+      .data("callback", callbacks[0])
+      .attr("title", labels[0])
+      .data("callbackData", callbackData[0])
+      .on("click", function (evt) {
+        clickDropdown(evt);
+      });
+
+    var dropdownOptionList = dropdown.find(".perc-dropdown-option-list");
+    var dropdownOptionItemTemplate = dropdown.find(
+      ".perc-dropdown-option-item-template"
+    );
+    let k = 0;
+    for (let l = 1; l < labels.length; l++) {
+      k = l;
+      var dropdownOptionLabel = labels[l];
+      var dropdownOptionItem = dropdownOptionItemTemplate.clone();
+      dropdownOptionItem.removeClass("perc-dropdown-option-item-template");
+
+      // If percDropdownOptionElements is not defined use the labels
+      var optionAElem;
+      if (config.percDropdownOptionElements != null) {
+        // Note that the element will have a class with the corresponding label
+        dropdownOptionItem
+          .find("a")
+          .replaceWith(config.percDropdownOptionElements[l]);
+        optionAElem = config.percDropdownOptionElements[l].addClass(
+          "perc-dropdown-option-" +
+            $.perc_textFilters.IDNAMECDATA(dropdownOptionLabel)
+        );
+      } else {
+        optionAElem = dropdownOptionItem
+          .find("a")
+          .html(
+            I18N.message(
+              "perc.ui.edit.workflow.step.dialog@" + dropdownOptionLabel
+            )
+          )
+          .attr("title", dropdownOptionLabel)
+          .addClass(
+            "perc-dropdown-option-" +
+              $.perc_textFilters.IDNAMECDATA(dropdownOptionLabel)
+          );
+      }
+
+      if (listImage != null) {
+        optionAElem
+          .css("background-image", "url(" + listImage[l] + ")")
+          .css("background-repeat", "no-repeat")
+          .css("background-position", "10px 8px")
+          .css("padding-left", 28);
+      }
+
+      if (!disabledFlags[l]) {
+        k = 0;
+        optionAElem.addClass("perc-drop-disabled").css("color", "#9FA3AA");
+        optionAElem.attr("aria-disabled", "true");
+        if (disabledListImage != null) {
+          optionAElem
+            .css("background-image", "url(" + disabledListImage[l] + ")")
+            .css("background-repeat", "no-repeat")
+            .css("background-position", "10px 8px")
+            .css("padding-left", 28);
+        }
+      } else {
+        optionAElem.attr("aria-disabled", "false");
+      }
+
+      dropdownOptionList.append(dropdownOptionItem);
+
+      dropdownOptionItem.on("click", null, callbackData[k], callbacks[k]);
+
+      dropdownOptionItem.on("keydown", function (event) {
+        if (event.code == "Enter" || event.code == "Space") {
+          document.activeElement.click();
+        }
+      });
+    }
+    dropdownOptionItemTemplate.remove();
+    dropdown.superfish(config);
+
+    if (config.percDropdownShowExpandIcon === false) {
+      title.find(".sf-sub-indicator").hide();
+    } else {
+    }
+
+    this.append(dropdown);
+
+    if (
+      config.percDropdownRootClass ===
+      "perc-dropdown-template-pages-items-dropdown"
+    ) {
+      $(
+        "ul.perc-dropdown-template-pages-items-dropdown > li > ul.perc-dropdown-option-list"
+      ).css("max-height", "66px");
+      $(
+        "ul.perc-dropdown-template-pages-items-dropdown > li > ul.perc-dropdown-option-list"
+      ).css("overflow-y", "auto");
+    }
+  };
+
+  /**
+   *  Handle callbacks when clicking on dropdown options or title
+   */
+  function clickDropdown(event) {
+    var callback = $(this).data("callback");
+    var callbackData = $(this).data("callbackData");
+
+    if (typeof callback === "function") {
+      callback(callbackData);
+    }
+  }
+
+  /**
+   *  Resizes the dropdown to the same width as the parent div of a split button
+   */
+  function resizeDropdown() {
+    var menu = $(this);
+    var percDropdown = $(menu.parents(".perc-dropdown")[0]);
+    var config = percDropdown.data("config");
+    if (typeof config != "undefined") {
+      var resizeToElement = $(config.percDropdownResizeToElement);
+      var dropdownWidth = resizeToElement.width();
+      menu.width(dropdownWidth - SPLIT_BUTTON_BORDER);
+    }
+  }
 })(jQuery);

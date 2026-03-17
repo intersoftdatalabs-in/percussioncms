@@ -262,13 +262,13 @@ for (var item : items) {
 
 ## Modernization Timeline
 
-| Phase | Status | Target Completion |
-| --- | --- | --- |
-| Services | ✅ Complete | March 2026 |
-| Business Logic | ✅ Complete | March 2026 |
-| Core CMS | ⏳ In Progress | June 2026 |
-| Legacy Packages | ⏳ Not Started | Q3 2026 |
-| Testing | ⚠ JUnit 5 only | Q4 2026 |
+|      Phase      |     Status     | Target Completion |
+|-----------------|----------------|-------------------|
+| Services        | ✅ Complete     | March 2026        |
+| Business Logic  | ✅ Complete     | March 2026        |
+| Core CMS        | ⏳ In Progress  | June 2026         |
+| Legacy Packages | ⏳ Not Started  | Q3 2026           |
+| Testing         | ⚠ JUnit 5 only | Q4 2026           |
 
 ## Future Improvements
 

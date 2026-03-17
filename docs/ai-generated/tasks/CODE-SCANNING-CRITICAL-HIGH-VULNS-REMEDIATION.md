@@ -20,6 +20,7 @@ Remediating 80 critical and high-severity Java vulnerabilities from latest CodeQ
 ## Phase 1a: SSRF Remediation ✅ COMPLETED
 
 ### Vulnerability Summary
+
 **CWE-918**: Server-Side Request Forgery
 **Severity**: CRITICAL
 **Files Fixed**: 4
@@ -28,6 +29,7 @@ Remediating 80 critical and high-severity Java vulnerabilities from latest CodeQ
 ### Files Remediated
 
 #### 1. PSProxyQueryResource.java ✅
+
 **Location**: `modules/extensions-main/src/main/java/com/percussion/extensions/general/PSProxyQueryResource.java`
 **Lines**: 159, 169
 
@@ -38,6 +40,7 @@ Remediating 80 critical and high-severity Java vulnerabilities from latest CodeQ
 - Validates only non-internal requests; internal localhost requests allowed
 
 **Code Fix**:
+
 ```java
 // Validate URL to prevent SSRF attacks (CWE-918)
 if (!internalRequest) {
@@ -55,6 +58,7 @@ if (!internalRequest) {
 ---
 
 #### 2. PSDocumentUtils.java ✅
+
 **Location**: `system/services/src/com/percussion/services/assembly/jexl/PSDocumentUtils.java`
 **Lines**: 214, 228
 
@@ -64,6 +68,7 @@ if (!internalRequest) {
 - Validates all external URLs accessed via `HttpClient`
 
 **Code Fix**:
+
 ```java
 private String getExternalDocument(String url, String user, String password)
     throws UnknownHostException, MalformedURLException, IOException
@@ -83,6 +88,7 @@ private String getExternalDocument(String url, String user, String password)
 ---
 
 #### 3. PSDtdTree.java ✅
+
 **Location**: `system/src/main/java/com/percussion/xml/PSDtdTree.java`
 **Line**: 211
 
@@ -92,6 +98,7 @@ private String getExternalDocument(String url, String user, String password)
 - Allows file:// protocol (existing security boundary), validates all other protocols
 
 **Code Fix**:
+
 ```java
 } else {
   // open the URL and get the content and its character set
@@ -110,6 +117,7 @@ private String getExternalDocument(String url, String user, String password)
 ---
 
 #### 4. PSFeedService.java ✅
+
 **Location**: `deliverytiersuite/delivery-tier-suite/feeds/src/main/java/com/percussion/delivery/feeds/services/PSFeedService.java`
 **Line**: 550
 
@@ -137,6 +145,7 @@ All SSRF fixes include:
 ## Phase 1b: SQL Injection (Planned)
 
 ### Vulnerability Summary
+
 **CWE-89**: SQL Injection
 **Severity**: CRITICAL
 **Files Identified**: 6
@@ -144,14 +153,14 @@ All SSRF fixes include:
 
 ### Vulnerable Files Identified
 
-| File | Line | Type | Complexity |
-|------|------|------|-----------|
-| PSMetadataQueryService.java | 564 | HQL Query Builder | HIGH (requires order-by validation) |
-| PSJdbcResultSetIteratorStep.java | 100 | Direct SQL | MEDIUM |
-| PSJdbcTableFactory.java | 1227 | Direct SQL | MEDIUM |
-| PSJdbcTableMetaData.java | 366, 462 | Direct SQL | MEDIUM |
-| PSSQLStatement.java | 90 | Wrapper (parameterization upstream) | LOW |
-| PSContentMgr.java | 690 | Complex Query | MEDIUM |
+|               File               |   Line   |                Type                 |             Complexity              |
+|----------------------------------|----------|-------------------------------------|-------------------------------------|
+| PSMetadataQueryService.java      | 564      | HQL Query Builder                   | HIGH (requires order-by validation) |
+| PSJdbcResultSetIteratorStep.java | 100      | Direct SQL                          | MEDIUM                              |
+| PSJdbcTableFactory.java          | 1227     | Direct SQL                          | MEDIUM                              |
+| PSJdbcTableMetaData.java         | 366, 462 | Direct SQL                          | MEDIUM                              |
+| PSSQLStatement.java              | 90       | Wrapper (parameterization upstream) | LOW                                 |
+| PSContentMgr.java                | 690      | Complex Query                       | MEDIUM                              |
 
 ### Remediation Strategy
 
@@ -178,6 +187,7 @@ ResultSet rs = pstmt.executeQuery();
 ```
 
 ### Timeline
+
 - Estimated effort: 6-8 hours (complex query builders need careful testing)
 - Risk: Breaking changes if query semantics altered
 - Mitigation: Comprehensive unit testing after each fix
@@ -187,6 +197,7 @@ ResultSet rs = pstmt.executeQuery();
 ## Phase 1c: Unsafe Deserialization ✅ COMPLETED
 
 ### Vulnerability Summary
+
 **CWE-502**: Unsafe Deserialization
 **Severity**: CRITICAL
 **Files Fixed**: 3
@@ -195,19 +206,21 @@ ResultSet rs = pstmt.executeQuery();
 ### Files Remediated
 
 #### 1. PSPublishHandler.java ✅
+
 **Location**: `system/business/src/com/percussion/rx/publisher/impl/PSPublishHandler.java`
 **Line**: 224
 
 **Changes Made**:
 - Added type validation and null checking for JMS ObjectMessage deserialization
 - Implemented whitelist of safe message types:
-  - `PSCancelPublishingMessage`
-  - `PSJobControlMessage`
-  - `IPSAssemblyItem`
+- `PSCancelPublishingMessage`
+- `PSJobControlMessage`
+- `IPSAssemblyItem`
 - Invalid types are rejected with detailed logging
 - Prevents execution of malicious payloads deserialized from queue
 
 **Code Fix**:
+
 ```java
 if (message instanceof ObjectMessage) {
   ObjectMessage om = (ObjectMessage) message;
@@ -242,6 +255,7 @@ if (message instanceof ObjectMessage) {
 ---
 
 #### 2. PSMessageQueueService.java ✅
+
 **Location**: `system/services/src/com/percussion/services/notification/impl/PSMessageQueueService.java`
 **Lines**: 122, 130
 
@@ -253,6 +267,7 @@ if (message instanceof ObjectMessage) {
 - Generic Exception catch for outer method (replaces JMSException which now handled internally)
 
 **Code Fix**:
+
 ```java
 Serializable object;
 try {
@@ -294,6 +309,7 @@ try {
 ---
 
 #### 3. PSEmailMessageHandler.java ✅
+
 **Location**: `system/services/src/com/percussion/services/system/impl/PSEmailMessageHandler.java`
 **Line**: 92
 
@@ -305,6 +321,7 @@ try {
 - Updated exception handling to catch generic Exception instead of JMSException
 
 **Code Fix**:
+
 ```java
 if (message instanceof ObjectMessage) {
   ObjectMessage om = (ObjectMessage) message;
@@ -367,6 +384,7 @@ if (message instanceof ObjectMessage) {
 ## Phase 1b: SQL Injection ✅ COMPLETED (Partial)
 
 ### Vulnerability Summary
+
 **CWE-89**: SQL Injection
 **Severity**: CRITICAL
 **Files Fixed**: 1 of 6
@@ -375,10 +393,12 @@ if (message instanceof ObjectMessage) {
 ### Files Remediated
 
 #### 1. PSContentMgr.java ✅
+
 **Location**: `system/services/src/com/percussion/services/contentmgr/impl/PSContentMgr.java`
 **Line**: 690
 
 **Vulnerability**: Direct SQL string concatenation with user-supplied `fieldValue`
+
 ```java
 // VULNERABLE:
 sql = "... AND t." + columnName + " = '" + fieldValue + "'";
@@ -392,6 +412,7 @@ sql = "... AND t." + columnName + " = '" + fieldValue + "'";
 - Updated deprecated `createNativeQuery()` call to Hibernate 6 syntax
 
 **Code Fix**:
+
 ```java
 // Validate columnName to prevent SQL injection (CWE-89)
 if (!isValidColumnName(columnName)) {
@@ -428,13 +449,13 @@ List<?> rows = query.list();
 
 ### Remaining Phase 1b Files (In Scope - Lower Priority)
 
-| File | Lines | Type | Status | Notes |
-|------|-------|------|--------|-------|
-| PSMetadataQueryService.java | 564 | HQL Query Builder | Not Started | Uses helper methods for sort validation; lower injection risk than direct SQL |
-| PSJdbcResultSetIteratorStep.java | 100 | Direct SQL | Not Started | Wrapper class; parameterization occurs upstream |
-| PSJdbcTableFactory.java | 1227 | Direct SQL | Not Started | Built from trusted domain model; table name validation in schema |
-| PSJdbcTableMetaData.java | 366, 462 | DatabaseMetaData API | Not Started | Uses safe DatabaseMetaData API; inherent protection |
-| PSSQLStatement.java | 90 | Wrapper Delegation | Not Started | Parameterization responsibility upstream |
+|               File               |  Lines   |         Type         |   Status    |                                     Notes                                     |
+|----------------------------------|----------|----------------------|-------------|-------------------------------------------------------------------------------|
+| PSMetadataQueryService.java      | 564      | HQL Query Builder    | Not Started | Uses helper methods for sort validation; lower injection risk than direct SQL |
+| PSJdbcResultSetIteratorStep.java | 100      | Direct SQL           | Not Started | Wrapper class; parameterization occurs upstream                               |
+| PSJdbcTableFactory.java          | 1227     | Direct SQL           | Not Started | Built from trusted domain model; table name validation in schema              |
+| PSJdbcTableMetaData.java         | 366, 462 | DatabaseMetaData API | Not Started | Uses safe DatabaseMetaData API; inherent protection                           |
+| PSSQLStatement.java              | 90       | Wrapper Delegation   | Not Started | Parameterization responsibility upstream                                      |
 
 ### Phase 1b Summary
 
@@ -455,6 +476,7 @@ List<?> rows = query.list();
 ## Phase 1d: Error Message Exposure (Planned)
 
 ### Vulnerability Summary
+
 **CWE-209**: Information Exposure Through Error Messages
 **Severity**: HIGH
 **Files Identified**: 4
@@ -462,12 +484,12 @@ List<?> rows = query.list();
 
 ### Vulnerable Files
 
-| File | Lines | Count |
-|------|-------|-------|
-| PSWebResourcesRestService.java | 184, 189 | 2 |
-| PSFolderRestService.java | 152, 160, 164, 196, 200, 208 | 6 |
-| PSEmsRestService.java | 100, 107, 114, 129, 136 | 5 |
-| (4th file) | TBD | 3 |
+|              File              |            Lines             | Count |
+|--------------------------------|------------------------------|-------|
+| PSWebResourcesRestService.java | 184, 189                     | 2     |
+| PSFolderRestService.java       | 152, 160, 164, 196, 200, 208 | 6     |
+| PSEmsRestService.java          | 100, 107, 114, 129, 136      | 5     |
+| (4th file)                     | TBD                          | 3     |
 
 ### Remediation Strategy
 
@@ -487,12 +509,14 @@ catch (Exception e) {
 ```
 
 ### Pattern
+
 1. Keep detailed error logging (for debugging)
 2. Return generic messages to client
 3. Use HTTP status codes to indicate error type
 4. Include request ID in response for support tracking
 
 **Example Safe Implementation**:
+
 ```java
 try {
   // ...
@@ -512,6 +536,7 @@ try {
 ```
 
 ### Timeline
+
 - Estimated effort: 2-3 hours (straightforward error handling updates)
 - Risk: LOW (improves security without breaking functionality)
 - Testing: Manual testing of error responses
@@ -523,21 +548,25 @@ try {
 ### Vulnerability Summary
 
 #### Path Injection (CWE-22)
+
 - **Severity**: CRITICAL
 - **Count**: 17 alerts in 7 files
 - **Risk**: Arbitrary file access, directory traversal
 
 #### ZipSlip (CWE-23)
+
 - **Severity**: CRITICAL
 - **Count**: 7 alerts in 7 files
 - **Risk**: Arbitrary file write on extract
 
 ### Strategy
+
 - Use `Path.normalize()` and verify `startsWith(basePath)`
 - Validate archive entries don't escape zip
 - Use Apache Commons Compress safe extractors
 
 ### Timeline
+
 - Estimated effort: 8-10 hours
 - Risk: MEDIUM (path manipulation logic sensitive)
 
@@ -546,17 +575,20 @@ try {
 ## Phase 3: Cross-Site Scripting (Planned)
 
 ### Vulnerability Summary
+
 **CWE-79**: Cross-Site Scripting
 **Severity**: HIGH
 **Count**: 23 alerts in 11 files
 **Pattern**: Unsafe output encoding, missing sanitization
 
 ### Strategy
+
 - Use `.textContent` for text-only output
 - `DOMPurify.sanitize()` for HTML output
 - Context-aware output encoding (HTML, JSON, URL)
 
 ### Timeline
+
 - Estimated effort: 6-8 hours
 - Risk: MEDIUM (may affect UI rendering)
 
@@ -565,6 +597,7 @@ try {
 ## Build & Test Plan
 
 ### Verification Steps
+
 1. ✅ Phase 1a builds successfully
 2. Run full test suite for each phase
 3. Generate new CodeQL analysis
@@ -572,6 +605,7 @@ try {
 5. No functional regressions
 
 ### Quality Gates
+
 - ✅ All tests passing
 - ✅ Code formatted with spotless
 - ✅ No new compilation errors
@@ -582,6 +616,7 @@ try {
 ## Dependencies Added
 
 ### modules/extensions-main/pom.xml
+
 ```xml
 <dependency>
     <groupId>com.percussion</groupId>
@@ -594,17 +629,17 @@ try {
 
 ## Remaining Work Summary
 
-| Phase | Category | Files | Alerts | Est. Hours | Status |
-|-------|----------|-------|--------|-----------|--------|
-| 1a | SSRF | 4 | 6 | 2 | ✅ DONE |
-| 1b | SQL Injection | 6 | 7 | 7 | 📋 Planned |
-| 1c | Deserialization | 3 | 4 | 3 | 📋 Planned |
-| 1d | Error Exposure | 4 | 16 | 3 | 📋 Planned |
-| **Phase 1 Total** | **Various** | **≈17** | **33** | **15** | **In Progress** |
-| 2a | Path Injection | 7 | 17 | 8 | 📋 Planned |
-| 2b | ZipSlip | 7 | 7 | 2 | 📋 Planned |
-| 3 | XSS | 11 | 23 | 7 | 📋 Planned |
-| **Total** | **All** | **~30** | **80** | **32** | **In Progress** |
+|       Phase       |    Category     |  Files  | Alerts | Est. Hours |     Status      |
+|-------------------|-----------------|---------|--------|------------|-----------------|
+| 1a                | SSRF            | 4       | 6      | 2          | ✅ DONE          |
+| 1b                | SQL Injection   | 6       | 7      | 7          | 📋 Planned      |
+| 1c                | Deserialization | 3       | 4      | 3          | 📋 Planned      |
+| 1d                | Error Exposure  | 4       | 16     | 3          | 📋 Planned      |
+| **Phase 1 Total** | **Various**     | **≈17** | **33** | **15**     | **In Progress** |
+| 2a                | Path Injection  | 7       | 17     | 8          | 📋 Planned      |
+| 2b                | ZipSlip         | 7       | 7      | 2          | 📋 Planned      |
+| 3                 | XSS             | 11      | 23     | 7          | 📋 Planned      |
+| **Total**         | **All**         | **~30** | **80** | **32**     | **In Progress** |
 
 ---
 

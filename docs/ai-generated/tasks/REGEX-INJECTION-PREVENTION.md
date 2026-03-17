@@ -16,6 +16,7 @@ Successfully implemented comprehensive regex injection prevention (CWE-94: Code 
 ## Vulnerability Details
 
 ### CWE-94: Improper Control of Generation of Code ('Code Injection')
+
 **Severity**: High
 **OWASP Classification**: A03:2021 – Injection
 
@@ -33,6 +34,7 @@ Successfully implemented comprehensive regex injection prevention (CWE-94: Code 
 Three new public static methods added to provide centralized, reusable regex safety utilities:
 
 #### 1. `escapeRegexString(String input)`
+
 ```java
 /**
  * Escapes regex metacharacters: . ^ $ | ? * + ( ) [ ] { } \
@@ -46,6 +48,7 @@ public static String escapeRegexString(final String input)
 **Returns**: String safe to embed in regex patterns, or null if input is null
 
 #### 2. `createSafeRegexPattern(String input)`
+
 ```java
 /**
  * Safely creates a regex Pattern from user-supplied input.
@@ -59,6 +62,7 @@ public static Pattern createSafeRegexPattern(final String input)
 **Returns**: Compiled Pattern or null if input is null
 
 #### 3. `createSafeRegexPattern(String input, int flags)`
+
 ```java
 /**
  * Safely creates a Pattern with regex compilation flags.
@@ -93,6 +97,7 @@ A reference implementation demonstrating correct usage of regex security utiliti
 - Maintains security while supporting case-insensitive matching
 
 #### Security Implementation Example:
+
 ```java
 try {
   // Step 1: Escape user input to treat as literal string
@@ -148,18 +153,18 @@ try {
 
 ### Attack Patterns Tested and Prevented:
 
-| Attack Pattern | What It Tries | How It's Defeated | Test Status |
-|---|---|---|---|
-| `.*` | Match any string | Treated as literal `.` and `*` | ✅ PASS |
-| `[a-z]` | Match character range | Brackets treated as literal characters | ✅ PASS |
-| `.` | Match any single character | Dot treated as literal | ✅ PASS |
-| `\|` (pipe) | OR operator for alternatives | Pipe treated as literal | ✅ PASS |
-| `+`, `*`, `?` | Quantifiers for repetition | Escapes prevent quantifier effect | ✅ PASS |
-| `^`, `$` | Anchors for line start/end | Anchors treated as literal | ✅ PASS |
-| `()` | Capture groups | Parentheses treated as literal | ✅ PASS |
-| `\\` | Escape sequences | Backslash treated as literal | ✅ PASS |
-| `(a+)+` | ReDoS via catastrophic backtracking | Pattern completes in <100ms | ✅ PASS |
-| `(admin\|user)[0-9]{3}` | Complex multi-part injection | Entire pattern treated as literal | ✅ PASS |
+|     Attack Pattern      |            What It Tries            |           How It's Defeated            | Test Status |
+|-------------------------|-------------------------------------|----------------------------------------|-------------|
+| `.*`                    | Match any string                    | Treated as literal `.` and `*`         | ✅ PASS      |
+| `[a-z]`                 | Match character range               | Brackets treated as literal characters | ✅ PASS      |
+| `.`                     | Match any single character          | Dot treated as literal                 | ✅ PASS      |
+| `\|` (pipe)             | OR operator for alternatives        | Pipe treated as literal                | ✅ PASS      |
+| `+`, `*`, `?`           | Quantifiers for repetition          | Escapes prevent quantifier effect      | ✅ PASS      |
+| `^`, `$`                | Anchors for line start/end          | Anchors treated as literal             | ✅ PASS      |
+| `()`                    | Capture groups                      | Parentheses treated as literal         | ✅ PASS      |
+| `\\`                    | Escape sequences                    | Backslash treated as literal           | ✅ PASS      |
+| `(a+)+`                 | ReDoS via catastrophic backtracking | Pattern completes in <100ms            | ✅ PASS      |
+| `(admin\|user)[0-9]{3}` | Complex multi-part injection        | Entire pattern treated as literal      | ✅ PASS      |
 
 ### ReDoS (Regular Expression Denial of Service) Protection
 
@@ -210,15 +215,16 @@ Pattern pattern = Pattern.compile(userInput);
 
 **When to use each method**:
 
-| Method | Use Case | Example |
-|--------|----------|---------|
-| `escapeRegexString()` | Only need the escaped string | Building complex patterns manually |
-| `createSafeRegexPattern()` | Standard case-sensitive matching | File name filtering |
-| `createSafeRegexPattern(flags)` | Need case-insensitive or other flags | Fuzzy search, multiline matching |
+|             Method              |               Use Case               |              Example               |
+|---------------------------------|--------------------------------------|------------------------------------|
+| `escapeRegexString()`           | Only need the escaped string         | Building complex patterns manually |
+| `createSafeRegexPattern()`      | Standard case-sensitive matching     | File name filtering                |
+| `createSafeRegexPattern(flags)` | Need case-insensitive or other flags | Fuzzy search, multiline matching   |
 
 ### Example: Converting Vulnerable Code
 
 **BEFORE (Vulnerable)**:
+
 ```java
 public List<String> findMatches(List<String> items, String userPattern) {
   Pattern p = Pattern.compile(userPattern);  // ❌ VULNERABLE
@@ -229,6 +235,7 @@ public List<String> findMatches(List<String> items, String userPattern) {
 ```
 
 **AFTER (Secure)**:
+
 ```java
 public List<String> findMatches(List<String> items, String userPattern) {
   Pattern p = SecureStringUtils.createSafeRegexPattern(userPattern);  // ✅ SECURE
@@ -242,6 +249,7 @@ public List<String> findMatches(List<String> items, String userPattern) {
 ## Build & Test Results
 
 ### Compilation
+
 ```
 [INFO] --- compiler:3.14.1:compile (default-compile) @ sitemanage ---
 [INFO] Building sitemanage 8.2.0-SNAPSHOT
@@ -250,6 +258,7 @@ public List<String> findMatches(List<String> items, String userPattern) {
 ```
 
 ### Test Execution
+
 ```
 [INFO] --- surefire:3.5.4:test (default-test) @ sitemanage ---
 [INFO] Running com.percussion.search.service.PSSearchPatternServiceSecurityTest
@@ -260,18 +269,21 @@ public List<String> findMatches(List<String> items, String userPattern) {
 ## Dependency Management
 
 ### perc-security-utils JAR
+
 - Installed to local Maven repository via `mvn install -DskipTests`
 - Available to all dependent modules (sitemanage, etc.)
 - No new external dependencies added
 - Uses only Java standard library (`java.util.regex.Pattern`)
 
 ### External Libraries Used
+
 - **java.util.regex.Pattern** - Java standard, no CVE concerns
 - **Apache Commons Lang3** - Already in dependencies (v3.14.0)
 
 ## Documentation Updates
 
 ### Javadoc Added
+
 - All three new methods include comprehensive Javadoc
 - CWE reference: CWE-94
 - OWASP reference: A03:2021 – Injection
@@ -279,6 +291,7 @@ public List<String> findMatches(List<String> items, String userPattern) {
 - Security considerations documented
 
 ### Test Documentation
+
 - Test class includes security focus documentation
 - Each test has `@DisplayName` explaining what's being tested
 - Categorized test sections: Positive, Negative, Integration

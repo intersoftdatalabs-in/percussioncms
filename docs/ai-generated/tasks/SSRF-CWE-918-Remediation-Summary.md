@@ -59,12 +59,14 @@ URLValidation.validateURL(url, dtsConfig);
 ### Configuration via System Properties
 
 For CMS (private network publishing):
+
 ```bash
 -Dpercussion.url.validation.allowed.ip.ranges=10.0.0.0/8
 -Dpercussion.url.validation.allowed.ports=9992,8080,8888
 ```
 
 For DTS (reverse proxy setup):
+
 ```bash
 -Dpercussion.url.validation.allowed.hosts=internal-cms.local,cms-api
 -Dpercussion.url.validation.allowed.ports=9980,8443
@@ -145,6 +147,7 @@ Blocked by Default, Configurable:
 **Vulnerability**: Line 40 - `target.openConnection()` without validation
 
 **Fix Applied** (Line 41-42):
+
 ```java
 // Validate URL to prevent SSRF attacks (CWE-918)
 URLValidation.validateURL(target);
@@ -158,6 +161,7 @@ HttpURLConnection conn = (HttpURLConnection) target.openConnection();
 **Vulnerability**: Line 44 - `url.openStream()` without validation
 
 **Fix Applied** (Line 44-46):
+
 ```java
 URL url = new URL(urlBase, RESOURCE);
 // Validate URL to prevent SSRF attacks (CWE-918)
@@ -172,6 +176,7 @@ Document doc = PSXmlDocumentBuilder.createXmlDocument(url.openStream(), false);
 **Vulnerability**: Line 243 - JEXL method `isLinkGood()` passes user-provided `link` to `new URL(link).openConnection()`
 
 **Fix Applied** (Line 243-246):
+
 ```java
 var url = new URL(link);
 // Validate URL to prevent SSRF attacks (CWE-918)
@@ -186,6 +191,7 @@ var connection = (HttpURLConnection) url.openConnection();
 **Vulnerability**: Line 145 - `fileUrl.openConnection()` in `copyToFile()` without validation
 
 **Fix Applied** (Line 147-149):
+
 ```java
 // Validate URL to prevent SSRF attacks (CWE-918)
 URLValidation.validateURL(fileUrl);
@@ -199,6 +205,7 @@ connection = (HttpsURLConnection) fileUrl.openConnection();
 **Vulnerability**: Line 392 - `url.openConnection()` in `readExternalFeed()` without validation
 
 **Fix Applied** (Line 393-395):
+
 ```java
 // Validate URL to prevent SSRF attacks (CWE-918)
 URLValidation.validateURL(url);
@@ -334,11 +341,11 @@ JAVA_OPTS="$JAVA_OPTS -Dpercussion.url.validation.allowed.ports=80,443,8080,9980
 
 ## Related CWE Remediations
 
-| CWE | Vulnerability | Status |
-| --- | --- | --- |
+|   CWE   |     Vulnerability      |                            Status                             |
+|---------|------------------------|---------------------------------------------------------------|
 | CWE-502 | Unsafe Deserialization | ✅ Completed (5 of 7 files, plus 1 excluded, 1 not vulnerable) |
-| CWE-611 | XPath Injection / XXE | ✅ Already Protected (PSSecureXMLUtils in use) |
-| CWE-918 | SSRF | ✅ **Completed - This Task** |
+| CWE-611 | XPath Injection / XXE  | ✅ Already Protected (PSSecureXMLUtils in use)                 |
+| CWE-918 | SSRF                   | ✅ **Completed - This Task**                                   |
 
 ## Technical Notes
 

@@ -23,16 +23,16 @@ Systematic security remediation of Percussion CMS identifying and fixing 80 CRIT
 
 ## Vulnerabilities by Type
 
-| CWE | Type | Alerts | Phase | Status |
-|-----|------|--------|-------|--------|
-| CWE-918 | Server-Side Request Forgery (SSRF) | 6 | 1a | ✅ COMPLETE |
-| CWE-89 | SQL Injection | 1 | 1b | ✅ COMPLETE |
-| CWE-502 | Unsafe Deserialization | 4 | 1c | ✅ COMPLETE |
-| CWE-209 | Information Exposure Through Error Messages | 11 | 1d | ✅ COMPLETE |
-| CWE-22/23 | Path Traversal / Zip Slip | 14 | 2 | ✅ COMPLETE (1 file + tests) |
-| CWE-79 | Cross-Site Scripting (XSS) | 23 | 3 | 🔄 IN PROGRESS |
-| *Future* | *Additional vulnerabilities* | 21 | 4+ | ⏭️ PLANNED |
-| **TOTAL** | | **80** | | **45%** |
+|    CWE    |                    Type                     | Alerts | Phase |           Status            |
+|-----------|---------------------------------------------|--------|-------|-----------------------------|
+| CWE-918   | Server-Side Request Forgery (SSRF)          | 6      | 1a    | ✅ COMPLETE                  |
+| CWE-89    | SQL Injection                               | 1      | 1b    | ✅ COMPLETE                  |
+| CWE-502   | Unsafe Deserialization                      | 4      | 1c    | ✅ COMPLETE                  |
+| CWE-209   | Information Exposure Through Error Messages | 11     | 1d    | ✅ COMPLETE                  |
+| CWE-22/23 | Path Traversal / Zip Slip                   | 14     | 2     | ✅ COMPLETE (1 file + tests) |
+| CWE-79    | Cross-Site Scripting (XSS)                  | 23     | 3     | 🔄 IN PROGRESS              |
+| *Future*  | *Additional vulnerabilities*                | 21     | 4+    | ⏭️ PLANNED                  |
+| **TOTAL** |                                             | **80** |       | **45%**                     |
 
 ---
 
@@ -54,11 +54,12 @@ Systematic security remediation of Percussion CMS identifying and fixing 80 CRIT
 - **File**: `modules/perc-security-utils/src/main/java/com/percussion/security/validation/URLValidation.java`
 - **Test Suite**: URLValidationTest.java - **22 tests, all passing** ✅
 - **Methods**:
-  - `validateUrl(String url)` - Validates URLs against allowlist
-  - `isAllowedHost(String host)` - Checks if host is whitelisted
-  - `validatePort(int port)` - Ensures port is allowed
+- `validateUrl(String url)` - Validates URLs against allowlist
+- `isAllowedHost(String host)` - Checks if host is whitelisted
+- `validatePort(int port)` - Ensures port is allowed
 
 **Implementation Pattern**:
+
 ```java
 // Before: No validation
 URL url = new URL(userProvidedUrl);
@@ -100,11 +101,12 @@ if (!URLValidation.isAllowedHost(parsedUrl.getHost())) {
 - **File**: `modules/perc-security-utils/src/main/java/com/percussion/security/validation/SerializationValidation.java`
 - **Test Suite**: SerializationValidationTest.java - **10 tests, all passing** ✅
 - **Methods**:
-  - `validateDeserializedObject(Object obj, Class<?>... allowedTypes)` - Type whitelist
-  - `isSafeType(Class<?> type, Class<?>... allowedTypes)` - Checks class is whitelisted
-  - `validateSerializableClass(Class<?> cls)` - Validates class safety
+- `validateDeserializedObject(Object obj, Class<?>... allowedTypes)` - Type whitelist
+- `isSafeType(Class<?> type, Class<?>... allowedTypes)` - Checks class is whitelisted
+- `validateSerializableClass(Class<?> cls)` - Validates class safety
 
 **Implementation Pattern**:
+
 ```java
 // Before: Dangerous deserialization
 Object obj = ois.readObject();
@@ -127,6 +129,7 @@ SerializationValidation.validateDeserializedObject(obj,
 3. [PSEmsRestService.java](rest/modules/rest-services/src/main/java/com/percussion/rest/PSEmsRestService.java)
 
 **Implementation Pattern**:
+
 ```java
 // Before: Exposes sensitive exception details
 catch (Exception e) {
@@ -152,13 +155,14 @@ catch (DatabaseException e) {
 **Test Suite Created**:
 - **File**: `modules/extensions-main/src/test/java/com/percussion/extensions/PSWidgetPackageBuilderZipSlipTest.java`
 - **Tests**: 4 unit tests
-  - `testRejectPathTraversalWithDotDotSlash` ✅
-  - `testRejectAbsolutePath` ✅
-  - `testAllowLegitimateNestedPath` ✅
-  - `testRejectSymlinkEscape` ✅
+- `testRejectPathTraversalWithDotDotSlash` ✅
+- `testRejectAbsolutePath` ✅
+- `testAllowLegitimateNestedPath` ✅
+- `testRejectSymlinkEscape` ✅
 - **Result**: **4/4 tests passing** ✅
 
 **Implementation**:
+
 ```java
 private void validateZipEntryPath(ZipEntry entry) throws SecurityException {
     String normalizedPath = new File(entry.getName()).getCanonicalPath();
@@ -182,12 +186,12 @@ private void validateZipEntryPath(ZipEntry entry) throws SecurityException {
 - **File**: `modules/perc-security-utils/src/main/java/com/percussion/security/validation/XSSValidation.java`
 - **Test Suite**: XSSValidationTest.java - **13 tests, all passing** ✅
 - **Methods**:
-  - `escapeHtml(String input)` - HTML entity encoding
-  - `escapeXml(String input)` - XML entity encoding
-  - `escapeJavaScript(String input)` - JavaScript escape
-  - `escapeCsv(String input)` - CSV injection prevention
-  - `stripHtmlTags(String input)` - HTML tag removal
-  - `containsSuspiciousPatterns(String input)` - Payload pattern detection
+- `escapeHtml(String input)` - HTML entity encoding
+- `escapeXml(String input)` - XML entity encoding
+- `escapeJavaScript(String input)` - JavaScript escape
+- `escapeCsv(String input)` - CSV injection prevention
+- `stripHtmlTags(String input)` - HTML tag removal
+- `containsSuspiciousPatterns(String input)` - Payload pattern detection
 
 **Vulnerable Files Identified** (11 files, 23 total vulnerabilities):
 1. PSFeedService.java (1)
@@ -234,11 +238,13 @@ import com.percussion.security.validation.XSSValidation;
 ### Test Execution
 
 Run all security utility tests:
+
 ```bash
 ./mvn-env.sh -pl modules/perc-security-utils test
 ```
 
 Expected output:
+
 ```
 Tests run: 49, Failures: 0, Errors: 0, Skipped: 0
 ```
@@ -282,6 +288,7 @@ Tests run: 49, Failures: 0, Errors: 0, Skipped: 0
 ## Remaining Work
 
 ### Phase 3 (23 alerts) - Will fix 11 files with XSSValidation utility
+
 ### Phase 4+ (21 alerts) - Additional vulnerabilities requiring analysis
 
 **Estimated Effort**:
@@ -292,13 +299,13 @@ Tests run: 49, Failures: 0, Errors: 0, Skipped: 0
 
 ## Testing Summary
 
-| Utility | Test Suite | Tests | Status |
-|---------|-----------|-------|--------|
-| URLValidation | URLValidationTest | 22 | ✅ PASS |
-| SerializationValidation | SerializationValidationTest | 10 | ✅ PASS |
-| XSSValidation | XSSValidationTest | 13 | ✅ PASS |
-| PSWidgetPackageBuilder | PSWidgetPackageBuilderZipSlipTest | 4 | ✅ PASS |
-| **TOTAL** | | **49** | **✅ PASS** |
+|         Utility         |            Test Suite             | Tests  |   Status   |
+|-------------------------|-----------------------------------|--------|------------|
+| URLValidation           | URLValidationTest                 | 22     | ✅ PASS     |
+| SerializationValidation | SerializationValidationTest       | 10     | ✅ PASS     |
+| XSSValidation           | XSSValidationTest                 | 13     | ✅ PASS     |
+| PSWidgetPackageBuilder  | PSWidgetPackageBuilderZipSlipTest | 4      | ✅ PASS     |
+| **TOTAL**               |                                   | **49** | **✅ PASS** |
 
 All tests passing with zero regressions.
 

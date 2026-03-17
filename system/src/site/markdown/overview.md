@@ -226,28 +226,28 @@ var result = service.someOperation(params);
 
 ### Core Service Packages
 
-| Package | Purpose | Status |
-| --- | --- | --- |
-| `com.percussion.services.assembly` | Template-based content assembly | Modernized |
-| `com.percussion.services.catalog` | Object discovery and enumeration | Modernized |
-| `com.percussion.services.content` | Content metadata (keywords, folders) | Modernized |
-| `com.percussion.services.contentchange` | Change event notification | Modernized |
-| `com.percussion.services.contentmgr` | Content read/write/delete operations | Modernized (with CGLib→ByteBuddy) |
-| `com.percussion.services.data` | Data access (legacy pattern) | Modernized |
-| `com.percussion.services.error` | Error handling and logging | Modernized |
-| `com.percussion.services.general` | System info and general utilities | Modernized |
-| `com.percussion.services.guidmgr` | GUID generation and validation | Modernized |
-| `com.percussion.services.security` | Security and ACL utilities | Modernized |
+|                 Package                 |               Purpose                |              Status               |
+|-----------------------------------------|--------------------------------------|-----------------------------------|
+| `com.percussion.services.assembly`      | Template-based content assembly      | Modernized                        |
+| `com.percussion.services.catalog`       | Object discovery and enumeration     | Modernized                        |
+| `com.percussion.services.content`       | Content metadata (keywords, folders) | Modernized                        |
+| `com.percussion.services.contentchange` | Change event notification            | Modernized                        |
+| `com.percussion.services.contentmgr`    | Content read/write/delete operations | Modernized (with CGLib→ByteBuddy) |
+| `com.percussion.services.data`          | Data access (legacy pattern)         | Modernized                        |
+| `com.percussion.services.error`         | Error handling and logging           | Modernized                        |
+| `com.percussion.services.general`       | System info and general utilities    | Modernized                        |
+| `com.percussion.services.guidmgr`       | GUID generation and validation       | Modernized                        |
+| `com.percussion.services.security`      | Security and ACL utilities           | Modernized                        |
 
 ### Business Logic Packages
 
-| Package | Purpose | Status |
-| --- | --- | --- |
-| `com.percussion.delivery.service` | Content delivery services | Modernized |
-| `com.percussion.delivery.metadata` | Metadata extraction and processing | Modernized |
-| `com.percussion.proxyconfig` | Proxy configuration | Modernized |
-| `com.percussion.rx.admin.jsf.beans` | Admin UI JSF beans | Modernized |
-| `com.percussion.rx.design.impl` | Design services | Modernized |
+|               Package               |              Purpose               |   Status   |
+|-------------------------------------|------------------------------------|------------|
+| `com.percussion.delivery.service`   | Content delivery services          | Modernized |
+| `com.percussion.delivery.metadata`  | Metadata extraction and processing | Modernized |
+| `com.percussion.proxyconfig`        | Proxy configuration                | Modernized |
+| `com.percussion.rx.admin.jsf.beans` | Admin UI JSF beans                 | Modernized |
+| `com.percussion.rx.design.impl`     | Design services                    | Modernized |
 
 ### Legacy Internal Packages
 

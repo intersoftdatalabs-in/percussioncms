@@ -11,22 +11,23 @@ This document tracks the implementation of security fixes for CodeQL-identified 
 
 ### Completion Status
 
-| Alert Category | Count | Status | Details |
-|---|---|---|---|
-| **SQL Injection** | 8 | ✅ FIXED | Parameterized queries implemented across 4 methods |
-| **XSS (Cross-Site Scripting)** | 30 | ✅ FIXED | HTML encoding added to error responses |
-| **Regex Injection** | 7 | ⏳ Pending | Requires regex pattern validation |
-| **SSRF** | 6 | ⏳ Pending | Requires URL allow-list validation |
-| **Unsafe Deserialization** | 4 | ⏳ Pending | Requires object instantiation refactoring |
-| **XXE (XML External Entity)** | 1 | ⏳ Pending | Requires XML parser hardening |
-| **LDAP Injection** | 1 | ⏳ Pending | Requires parameter binding |
-| **Polynomial ReDoS** | 2 | ⏳ Pending | Requires regex backtracking analysis |
-| **Other** | 100 | 📋 TBD | Lower priority issues |
-| **TOTAL** | **159** | | |
+|         Alert Category         |  Count  |  Status   |                      Details                       |
+|--------------------------------|---------|-----------|----------------------------------------------------|
+| **SQL Injection**              | 8       | ✅ FIXED   | Parameterized queries implemented across 4 methods |
+| **XSS (Cross-Site Scripting)** | 30      | ✅ FIXED   | HTML encoding added to error responses             |
+| **Regex Injection**            | 7       | ⏳ Pending | Requires regex pattern validation                  |
+| **SSRF**                       | 6       | ⏳ Pending | Requires URL allow-list validation                 |
+| **Unsafe Deserialization**     | 4       | ⏳ Pending | Requires object instantiation refactoring          |
+| **XXE (XML External Entity)**  | 1       | ⏳ Pending | Requires XML parser hardening                      |
+| **LDAP Injection**             | 1       | ⏳ Pending | Requires parameter binding                         |
+| **Polynomial ReDoS**           | 2       | ⏳ Pending | Requires regex backtracking analysis               |
+| **Other**                      | 100     | 📋 TBD    | Lower priority issues                              |
+| **TOTAL**                      | **159** |           |                                                    |
 
 ## Phase 1: SQL Injection Fixes ✅ COMPLETED
 
 ### Overview
+
 SQL injection vulnerabilities eliminated through conversion from string concatenation to parameterized queries (prepared statements) across the PSPageDaoHelper data access layer.
 
 ### Vulnerability Details
@@ -38,17 +39,21 @@ SQL injection vulnerabilities eliminated through conversion from string concaten
 ### Files Modified
 
 #### 1. **PSPageDaoHelper.java** (projects/sitemanage/)
+
 **Location**: `projects/sitemanage/src/main/java/com/percussion/pagemanagement/dao/impl/PSPageDaoHelper.java`
 
 **Methods Fixed**:
 
 ##### Method 1: `findPageIdsByTemplate(String templateId)`
+
 - **Vulnerability**: String concatenation in SQL WHERE clause
 - **Before**:
+
   ```java
   String sql = "... WHERE TEMPLATEID = '" + templateId + "'";
   ```
 - **After**:
+
   ```java
   String sql = "... WHERE TEMPLATEID = :template";
   query.setParameter("template", templateId);
@@ -56,12 +61,15 @@ SQL injection vulnerabilities eliminated through conversion from string concaten
 - **Protection**: Parameters are treated as literal values, not executable SQL code
 
 ##### Method 2: `findPageIdsByTemplateAndImportedPageIds(String templateId, List<Integer> pages)`
+
 - **Vulnerability**: String concatenation in both template ID clause and IN list
 - **Before**:
+
   ```java
   String sql = "... WHERE TEMPLATEID = '" + templateId + "' AND CONTENTID IN (" + join(pages, ",") + ")";
   ```
 - **After**:
+
   ```java
   String sql = "... WHERE TEMPLATEID = :template AND CONTENTID IN (:pageIds)";
   query.setParameter("template", templateId);
@@ -70,9 +78,11 @@ SQL injection vulnerabilities eliminated through conversion from string concaten
 - **Protection**: Both parameters use safe binding; collection parameters handled without string concatenation
 
 ##### Method 3: `getContentIdsForFetchingByStatus(PSSearchCriteria criteria, List<Integer> contentIDs)`
+
 - **Vulnerability**: Dynamic WHERE clause construction with concatenated parameters
 - **Before**: Multiple criteria concatenated directly into SQL string
 - **After**: All criteria fields bound as parameters:
+
   ```java
   // templateid parameter
   query.setParameter("templateid", criteria.getTemplateId());
@@ -84,6 +94,7 @@ SQL injection vulnerabilities eliminated through conversion from string concaten
 - **Protection**: Dynamic WHERE clause uses CASE statements for conditional logic without string concatenation
 
 ##### Method 4: `formGetByStatusSQLQuery(PSSearchCriteria criteria, String sql)`
+
 - **Vulnerability**: Helper method that constructed parameterized queries; validation added
 - **Change**: Ensured all output uses parameterized placeholders (`:paramName`) format
 - **Protection**: Systematic approach ensures no parameter escapes parameterization
@@ -123,6 +134,7 @@ SQL injection vulnerabilities eliminated through conversion from string concaten
 ## Phase 2: XSS Prevention Fixes ✅ COMPLETED
 
 ### Overview
+
 Cross-site scripting (XSS) vulnerabilities eliminated through context-aware HTML encoding in error response messages.
 
 ### Vulnerability Details
@@ -134,19 +146,23 @@ Cross-site scripting (XSS) vulnerabilities eliminated through context-aware HTML
 ### Files Modified
 
 #### 1. **PSFolderRestService.java** (projects/sitemanage/)
+
 **Location**: `projects/sitemanage/src/main/java/com/percussion/foldermanagement/service/impl/PSFolderRestService.java`
 
 **Methods Fixed**:
 
 ##### Method 1: `getAssociatedFolders(String workflowName, String path)`
+
 - **Vulnerability**: User input (workflowName, path) included directly in Response entity body
 - **Before**:
+
   ```java
   return Response.status(Status.NOT_FOUND)
       .entity(new ErrorMessage("Workflow " + workflowName + " not found"))
       .build();
   ```
 - **After**:
+
   ```java
   var encodedWorkflow = StringEscapeUtils.escapeHtml4(workflowName);
   var encodedPath = StringEscapeUtils.escapeHtml4(path);
@@ -157,14 +173,17 @@ Cross-site scripting (XSS) vulnerabilities eliminated through context-aware HTML
 - **Protection**: HTML special characters (`<`, `>`, `&`, `"`, `'`) converted to HTML entities (`&lt;`, `&gt;`, etc.)
 
 ##### Method 2: `assignFoldersToWorkflow(String workflowName, List<String> folderList)`
+
 - **Vulnerability**: Workflow name and folder list included directly in error messages
 - **Before**:
+
   ```java
   return Response.status(Status.ERROR)
       .entity(new ErrorMessage("Failed to assign folders " + folderList + " to workflow " + workflowName))
       .build();
   ```
 - **After**:
+
   ```java
   var encodedWorkflow = StringEscapeUtils.escapeHtml4(workflowName);
   var encodedFolders = StringEscapeUtils.escapeHtml4(folderList.toString());
@@ -249,7 +268,6 @@ Rather than standalone test files, integration tests leverage existing test infr
    - Location: `projects/sitemanage/src/test/java/com/percussion/pagemanagement/dao/impl/`
    - Class: Create test class extending base DAO test class
    - Focus: Parameter binding verification, injection pattern blocking
-
 2. **XSS Prevention Tests**:
    - Location: `projects/sitemanage/src/test/java/com/percussion/foldermanagement/service/impl/`
    - Class: REST service integration tests
@@ -262,12 +280,14 @@ Rather than standalone test files, integration tests leverage existing test infr
 ### Build Verification
 
 ✅ **Compilation**: Both fixed modules compile successfully
+
 ```
 [INFO] BUILD SUCCESS
 [INFO] Total time: 12.257 s
 ```
 
 ✅ **Code Style**: Spotless compliance verified (Google Java Format)
+
 ```
 ./mvn-env.sh spotless:check
 ```

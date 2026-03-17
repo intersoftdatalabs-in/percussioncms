@@ -36,11 +36,10 @@ ps.widget.defineWidget(
      * target onDragOver call.
      */
     makeDropTarget: function (node) {
-      var target =
-        ps.widget.TreeDndControllerV3.prototype.makeDropTarget.apply(
-          this,
-          arguments
-        );
+      var target = ps.widget.TreeDndControllerV3.prototype.makeDropTarget.apply(
+        this,
+        arguments
+      );
       ps.event.connectAround(target, "onDragOver", this, "_onDragOver");
       return target;
     },

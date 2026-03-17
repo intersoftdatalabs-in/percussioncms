@@ -4,6 +4,7 @@ description: Manually invalidates a signature by renaming sidecar files.
 version: 1.0
 
 ---
+
 # Cosign Invalidate Skill
 
 **Purpose**: Force immediate verification failure for a resource.
@@ -21,3 +22,4 @@ if [ -f "$1.sha256.sig" ]; then
     echo "Invalidated authenticity sidecar for $1"
 fi
 ```
+

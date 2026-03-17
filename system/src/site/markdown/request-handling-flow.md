@@ -1,6 +1,5 @@
 # XML Application Server - Request Handling Architecture
 
-
 ## Overview
 
 The XML Application Server (E2) is the core request processing engine of Percussion CMS. It implements a sophisticated routing and handling system that converts HTTP requests into XML-based processing pipelines for content management operations.
@@ -22,13 +21,13 @@ The XML Application Server (E2) is the core request processing engine of Percuss
 
 **Key Methods:**
 - `service(HttpServletRequest, HttpServletResponse)` – Request entry point
-  - Gets `PSRequest` from `PSRequestInfo.KEY_PSREQUEST` (thread-local storage)
-  - Checks for include requests (supports nested/internal requests)
-  - Parses request body
-  - Retrieves handler via `PSServer.getRequestHandler(psreq)`
-  - Processes request through handler
-  - Outputs response headers and content
-  - Manages error handling and client abort detection
+- Gets `PSRequest` from `PSRequestInfo.KEY_PSREQUEST` (thread-local storage)
+- Checks for include requests (supports nested/internal requests)
+- Parses request body
+- Retrieves handler via `PSServer.getRequestHandler(psreq)`
+- Processes request through handler
+- Outputs response headers and content
+- Manages error handling and client abort detection
 
 ```java
 // Simplified flow from PSAppServlet
@@ -99,6 +98,7 @@ PSResponse psresp = psreq.getResponse();
 **Key Methods:**
 
 #### `public static IPSRequestHandler getRequestHandler(PSRequest req)`
+
 Routes request to the appropriate handler based on request path.
 
 **Routing Logic:**
@@ -119,9 +119,11 @@ IPSRequestHandler rh =
 ```
 
 #### `public static PSApplicationHandler getApplicationHandler(String appName)`
+
 Looks up the application handler for a given application name. Returns `null` if not found.
 
 #### Application Handler Registry
+
 - `private static Map<String, PSApplicationHandler> ms_handlers`
 - Populated during `initRequestHandlers(PSApplication[] apps)`
 - One handler per application
@@ -153,6 +155,7 @@ Looks up the application handler for a given application name. Returns `null` if
 **Key Methods:**
 
 #### `public void processRequest(PSRequest request)`
+
 Main entry point for processing application requests.
 
 **Processing Steps:**
@@ -172,6 +175,7 @@ Main entry point for processing application requests.
 - `REQUEST_TYPE_DELETE` – DELETE operations
 
 #### `IPSRequestHandler getRequestHandler(PSRequest request, boolean respondWithError)`
+
 Locates the appropriate handler for a request within this application.
 
 **Search Logic:**
@@ -182,6 +186,7 @@ Locates the appropriate handler for a request within this application.
 5. If not found, optionally report error
 
 #### Data Set Handler Hierarchy
+
 ```
 IPSInternalRequestHandler (interface)
     ├─ PSQueryHandler (SELECT queries)
@@ -191,6 +196,7 @@ IPSInternalRequestHandler (interface)
 ```
 
 **Handler Initialization:**
+
 ```java
 PSApplicationHandler(PSApplication app, IPSObjectStoreHandler osHandler, IPSExtensionManager extMgr)
     // For each data set in application:
@@ -296,6 +302,7 @@ HTTP Response
 - Provides file-based query capabilities
 
 **Virtual Directory Management:**
+
 ```java
 public static void addVirtualDirectory(IPSVirtualDirectory vdir)
 public static IPSVirtualDirectory removeVirtualDirectory(String vdir)
@@ -306,6 +313,7 @@ private static final Map<String, IPSVirtualDirectory> m_vdirs =
 ```
 
 **Connection Creation:**
+
 ```java
 public Connection connect(String url, Properties info) throws SQLException
     // URL format: jdbc:psfilesystem:
@@ -423,6 +431,7 @@ During request processing, extension/logic needs data from another dataset:
 ## Key Architectural Principles
 
 ### 1. Separation of Concerns
+
 - **Servlet Layer:** HTTP protocol handling
 - **Request Object:** Context and metadata
 - **Server:** Routing and registry
@@ -430,24 +439,28 @@ During request processing, extension/logic needs data from another dataset:
 - **Data Handlers:** Query/update execution
 
 ### 2. Multi-threaded Access
+
 - `PSRequest` and `PSResponse` are thread-local
 - `PSApplicationHandler` enforces queue limits
 - Concurrent hash maps for thread-safe lookup
 - Request statistics for monitoring
 
 ### 3. Security Integration
+
 - Request created by security filter (pre-authentication)
 - `PSRequest` contains security token
 - `PSApplicationHandler` enforces ACL checks
 - Virtual directory permissions validated at file system layer
 
 ### 4. Extensibility
+
 - Interface-based handler design (`IPSRequestHandler`)
 - Data set definitions allow no-code application changes
 - Extension points for pre/post-processing
 - Custom handler implementation possible
 
 ### 5. Resource Management
+
 - Request context lifetime tracking
 - Queue depth monitoring
 - Request timeout enforcement
@@ -456,6 +469,7 @@ During request processing, extension/logic needs data from another dataset:
 ## Performance Considerations
 
 ### Request Queuing
+
 ```java
 public void processRequest(PSRequest request) {
     synchronized (this) {
@@ -470,12 +484,14 @@ public void processRequest(PSRequest request) {
 ```
 
 ### Caching
+
 - Data set definitions cached in application handler
 - Virtual directory mappings cached in static map
 - Handler instances reused across requests
 - Stylesheet caching for XSLT transformations
 
 ### Statistics Tracking
+
 ```java
 PSRequestStatistics stats = request.getStatistics();
 // Tracks:
@@ -489,9 +505,11 @@ PSRequestStatistics stats = request.getStatistics();
 ## Configuration and Loading
 
 ### Application Initialization
+
 1. `PSServer.init()` calls `initObjectStore()`
 2. `PSXmlObjectStoreHandler` loads `PSApplication` definitions
 3. `PSServer.initRequestHandlers()` creates handlers:
+
    ```java
    PSApplicationHandler handler = new PSApplicationHandler(
        app,
@@ -503,6 +521,7 @@ PSRequestStatistics stats = request.getStatistics();
 5. Application ready for requests
 
 ### Data Set Handler Creation
+
 ```java
 For each PSDataSet in PSApplication:
     1. Get requestor (request page definition)
@@ -517,18 +536,21 @@ For each PSDataSet in PSApplication:
 ## Error Handling
 
 ### Request Validation Errors
+
 - Validation rules checked before handler invocation
 - Errors reported through `PSApplicationHandler.reportError()`
 - Application-specific error pages displayed
 - Custom error handling possible
 
 ### Handler Exceptions
+
 - Caught in `PSAppServlet.service()`
 - Client abort exceptions detected and suppressed
 - Other exceptions wrapped in `ServletException`
 - Server error page displayed
 
 ### Access Control Failures
+
 - `PSAuthorizationException` thrown if ACL check fails
 - Request rejected before handler execution
 - Error logged and reported to client
@@ -544,18 +566,22 @@ For each PSDataSet in PSApplication:
 ## Related Components
 
 ### Request Content Parsing
+
 - `PSContentParser` – Base parser interface
 - `PSXmlContentParser` – XML request body parsing
 - `PSFormContentParser` – URL-encoded and form parsing
 - `PSRequestParsingException` – Parse error handling
 
 ### Response Handling
+
 - `PSResponse` – Contains response data (status, headers, body)
 - `PSBaseResponse` – Base response class
 - `PSResponseSendError` – Response output failures
 
 ### Extensions and Pre-processing
+
 - `IPSRequestPreProcessor` – Pre-request processing
 - `IPSResultDocumentProcessor` – Post-query XML processing
 - `IPSUdfProcessor` – User-defined function execution
 - `IPSExtensionManager` – Extension registry and lifecycle
+

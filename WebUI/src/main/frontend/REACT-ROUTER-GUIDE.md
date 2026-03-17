@@ -41,6 +41,7 @@ This creates separate chunks for each page:
 - `index-*.js` - Main app + Redux + Router (shared)
 
 **Bundle sizes in WAR**:
+
 ```
 index-BO2YfwYL.js          256 KB  (main bundle with React, Redux, Router)
 Dashboard-CnGr7VGW.js      1.3 KB  (lazy chunk)
@@ -144,6 +145,7 @@ const RootLayout = () => (
 Main dashboard with statistics, activity log, and quick actions.
 
 **Updates Redux on mount**:
+
 ```typescript
 useEffect(() => {
   dispatch(navigateToPage({
@@ -185,6 +187,7 @@ System settings and preferences page with theme toggle demo.
 **Lazy-loaded** - Only downloaded when user navigates to `/settings`
 
 **Theme toggle demo**:
+
 ```typescript
 const { theme, setTheme } = useUI();
 
@@ -391,3 +394,4 @@ Monitor Network tab to see lazy chunks loading on navigation.
 - [Lazy Loading Components](https://react.dev/reference/react/lazy)
 - [Code Splitting Best Practices](https://webpack.js.org/guides/code-splitting/)
 - [Route-Based Code Splitting](https://reactrouter.com/en/main/start/concepts#route-lazy)
+

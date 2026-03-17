@@ -25,16 +25,16 @@ Read the root [@AGENTS.md](../AGENTS.md) for general guidelines. This file conta
 
 The WebUI shares the Percussion CMS application with 7 other UI layers:
 
-| Layer | Technology | Screens | Protocol | Track |
-|-------|-----------|---------|----------|-------|
-| Desktop Explorer | Java Swing + JavaFX WebView | ~10 | JAX-WS SOAP | Legacy |
-| Rhythmyx Admin | MyFaces JSF + Trinidad | 12 | JSF managed beans | Legacy |
-| Rhythmyx Publishing | MyFaces JSF + Trinidad | 28 | JSF managed beans | Legacy |
-| Package Manager | GWT + SmartGWT | 3+ | GWT-RPC | Legacy |
-| **WebUI Legacy** | **jQuery 3.6 + jQuery UI + Backbone** | **~20** | **REST/JSON** | **Maintaining** |
-| Contributor UI (CUI) | RequireJS + Knockout.js | ~8 | REST/JSON | Maintaining |
-| Dojo Screens (AA/CB) | **Dojo 0.4.3** | **5** | **REST/JSON** | **→Track A (jQuery)** |
-| **React Modern** | **React 19 + TypeScript + Vite** | **Growing** | **REST/JSON (Fetch)** | **→Track B (Strategic)** |
+|        Layer         |              Technology               |   Screens   |       Protocol        |          Track           |
+|----------------------|---------------------------------------|-------------|-----------------------|--------------------------|
+| Desktop Explorer     | Java Swing + JavaFX WebView           | ~10         | JAX-WS SOAP           | Legacy                   |
+| Rhythmyx Admin       | MyFaces JSF + Trinidad                | 12          | JSF managed beans     | Legacy                   |
+| Rhythmyx Publishing  | MyFaces JSF + Trinidad                | 28          | JSF managed beans     | Legacy                   |
+| Package Manager      | GWT + SmartGWT                        | 3+          | GWT-RPC               | Legacy                   |
+| **WebUI Legacy**     | **jQuery 3.6 + jQuery UI + Backbone** | **~20**     | **REST/JSON**         | **Maintaining**          |
+| Contributor UI (CUI) | RequireJS + Knockout.js               | ~8          | REST/JSON             | Maintaining              |
+| Dojo Screens (AA/CB) | **Dojo 0.4.3**                        | **5**       | **REST/JSON**         | **→Track A (jQuery)**    |
+| **React Modern**     | **React 19 + TypeScript + Vite**      | **Growing** | **REST/JSON (Fetch)** | **→Track B (Strategic)** |
 
 **Reference:** [UI Layer Inventory & Technical Research](../docs/ai-generated/tasks/#000-unified-ui-plan/ui-layer-inventory.md)
 
@@ -151,15 +151,15 @@ WebUI/
 
 **What happens:**
 1. Maven invokes `frontend-maven-plugin` to:
-   - Install Node.js if needed
-   - Run `npm install`
-   - Run `npm run build` (TypeScript compilation via Vite)
+- Install Node.js if needed
+- Run `npm install`
+- Run `npm run build` (TypeScript compilation via Vite)
 2. Legacy bundle builder generates minified JS/CSS bundles
 3. Maven packages single WAR containing:
-   - Compiled Java classes (src/main/java)
-   - JSP pages and assets (src/main/webapp)
-   - Generated React bundles (target/generated-webui/cm/modern)
-   - Generated legacy bundles (target/generated-webui/cm/jslibMin, cssMin)
+- Compiled Java classes (src/main/java)
+- JSP pages and assets (src/main/webapp)
+- Generated React bundles (target/generated-webui/cm/modern)
+- Generated legacy bundles (target/generated-webui/cm/jslibMin, cssMin)
 
 ### Node.js/npm Commands (Frontend Development)
 
@@ -212,12 +212,14 @@ Follow root [@AGENTS.md](../AGENTS.md) Java standards:
 - Be aware of global CSS conflicts from jQuery/legacy
 
 **Testing (Vitest):**
+
 ```bash
 npm run test             # Run once
 npm run test:watch     # Development watch mode
 ```
 
 **Example Component:**
+
 ```typescript
 // src/main/ts/components/MyWidget.tsx
 import styles from './MyWidget.module.css';
@@ -268,6 +270,7 @@ export function MyWidget({ title, count }: MyWidgetProps) {
 - Target >80% coverage for new components
 
 **Example:**
+
 ```typescript
 import { describe, it, expect } from 'vitest';
 import { render, screen } from '@testing-library/react';
@@ -335,6 +338,7 @@ export async function fetchItem(id: string): Promise<ItemDTO> {
 ### Shared Data Between Frameworks
 
 Instead of coupling jQuery + React directly:
+
 ```
 jQuery code → /api/shared-data ← React code
 ```
@@ -384,11 +388,13 @@ Both frameworks call the same REST endpoint, get consistent JSON.
 ### Bridge Pattern Example
 
 **Legacy jQuery notifying React:**
+
 ```javascript
 document.dispatchEvent(new CustomEvent('itemUpdated', { detail: itemData }));
 ```
 
 **React component listening:**
+
 ```typescript
 useEffect(() => {
   const handleUpdate = (e: Event) => {
@@ -416,6 +422,7 @@ useEffect(() => {
 - `target/generated-webui/cm/cssMin/` — Minified legacy CSS
 
 **.gitignore includes:**
+
 ```gitignore
 WebUI/target/generated-webui/
 WebUI/war/modern/
@@ -426,6 +433,7 @@ WebUI/war/cssMin/
 ### WAR Contents
 
 **Final `target/perc-web-ui-8.2.0-SNAPSHOT.war`:**
+
 ```
 cm/
 ├── app/                 # JSP pages (from source)
@@ -447,10 +455,10 @@ WEB-INF/
 
 ## Version Requirements
 
-| Branch | Node | JDK |
-|--------|---------|-----|
-| `development` | 22 | 21 |
-| `development-8.1.x` | 18 | 8 |
+|       Branch        | Node | JDK |
+|---------------------|------|-----|
+| `development`       | 22   | 21  |
+| `development-8.1.x` | 18   | 8   |
 
 ```bash
 # development branch
@@ -481,17 +489,17 @@ Rebuilds WebUI and redeploys to local installation.
 
 ## Common Tasks Cheatsheet
 
-| Task | Command |
-|------|---------|
-| Full build | `./mvn-env.sh -pl WebUI clean install` |
-| Build (skip tests) | `./mvn-env.sh -pl WebUI clean install -DskipTests` |
-| React dev server | `cd WebUI/src/main/frontend && npm run dev` |
-| Build React only | `cd WebUI/src/main/frontend && npm run build` |
-| Run tests | `cd WebUI/src/main/frontend && npm run test:watch` |
-| Check types | `cd WebUI/src/main/frontend && npx tsc --noEmit` |
-| Lint check | `cd WebUI/src/main/frontend && npm run lint` |
-| Format code | `./mvn-env.sh spotless:apply` |
-| Hot deploy | `./scripts/hot-deploy-local.sh --install-dir /path --modules webui --restart` |
+|        Task        |                                    Command                                    |
+|--------------------|-------------------------------------------------------------------------------|
+| Full build         | `./mvn-env.sh -pl WebUI clean install`                                        |
+| Build (skip tests) | `./mvn-env.sh -pl WebUI clean install -DskipTests`                            |
+| React dev server   | `cd WebUI/src/main/frontend && npm run dev`                                   |
+| Build React only   | `cd WebUI/src/main/frontend && npm run build`                                 |
+| Run tests          | `cd WebUI/src/main/frontend && npm run test:watch`                            |
+| Check types        | `cd WebUI/src/main/frontend && npx tsc --noEmit`                              |
+| Lint check         | `cd WebUI/src/main/frontend && npm run lint`                                  |
+| Format code        | `./mvn-env.sh spotless:apply`                                                 |
+| Hot deploy         | `./scripts/hot-deploy-local.sh --install-dir /path --modules webui --restart` |
 
 ---
 
@@ -502,3 +510,4 @@ Rebuilds WebUI and redeploys to local installation.
 - [WebUI Source Layout Migration](../docs/ai-generated/tasks/#000-webui-src-layout/webui-src-layout-migration-plan.md) — Build structure design
 - [Phase 2: Build Output Separation](../docs/ai-generated/tasks/#000-webui-src-layout/PHASE-2-BUILD-OUTPUT-SEPARATION.md) — Current setup details
 - [Phase 3: Full Integration Test](../docs/ai-generated/tasks/#000-webui-src-layout/PHASE-3-FULL-INTEGRATION-TEST.md) — Maven integration validation
+

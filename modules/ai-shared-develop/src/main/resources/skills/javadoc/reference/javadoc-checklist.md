@@ -10,6 +10,7 @@ Use this checklist when adding or updating Javadoc comments in percussioncms.
 ## Per-File Checklist
 
 ### Class/Interface
+
 - [ ] First sentence describes what the class/interface *does* (not what it *is*)
 - [ ] Include `@since` tag if public API
 - [ ] Include `@author` if required by project standards
@@ -17,6 +18,7 @@ Use this checklist when adding or updating Javadoc comments in percussioncms.
 - [ ] Note thread-safety if applicable
 
 ### Methods
+
 - [ ] First sentence is a concise summary (no more than ~2 lines)
 - [ ] Describe the contract:
   - `@param` - all parameters with constraints (null, empty, range)
@@ -28,25 +30,27 @@ Use this checklist when adding or updating Javadoc comments in percussioncms.
 - [ ] Note nullability (use `@Nullable`, `@NonNull` if annotations exist)
 
 ### Fields/Constants
+
 - [ ] Describe what the value represents
 - [ ] Include units if applicable (ms, bytes, etc.)
 - [ ] Note valid ranges
 
 ## Common Mistakes to Avoid
 
-| Mistake | Correction |
-|---------|------------|
-| `@returns` | Use `@return` (singular) |
-| "This method returns..." | Start with verb: "Returns the user..." |
-| Implementation details | Describe behavior, not how |
-| Missing `@param` | Always document all params |
-| Empty `@return` for void | Omit `@return` for void methods |
-| HTML in JDK 25+ Markdown | Use Markdown syntax instead |
-| Missing throws for checked exceptions | Document all checked exceptions |
+|                Mistake                |               Correction               |
+|---------------------------------------|----------------------------------------|
+| `@returns`                            | Use `@return` (singular)               |
+| "This method returns..."              | Start with verb: "Returns the user..." |
+| Implementation details                | Describe behavior, not how             |
+| Missing `@param`                      | Always document all params             |
+| Empty `@return` for void              | Omit `@return` for void methods        |
+| HTML in JDK 25+ Markdown              | Use Markdown syntax instead            |
+| Missing throws for checked exceptions | Document all checked exceptions        |
 
 ## percussioncms-Specific Patterns
 
 ### Service Interfaces (e.g., `*ServiceInf.java`)
+
 ```java
 /**
  * Service for managing [entity type] operations.
@@ -66,6 +70,7 @@ List<SomeEntity> getEntities(String id, SomeFilter filter) throws ...;
 ```
 
 ### Action Classes (e.g., `PSGet*Action.java`)
+
 ```java
 /**
  * Retrieves [specific value] for use in the content editor.
@@ -102,3 +107,4 @@ mvn javadoc:check
 - **JDK 25+**: `/** ... */` OR `/// ...` (Markdown)
 - **Inline tags**: `{@link}`, `{@code}`, `{@literal}`, `{@value}`
 - **Block tags**: `@param`, `@return`, `@throws`, `@see`, `@since`, `@version`, `@deprecated`
+

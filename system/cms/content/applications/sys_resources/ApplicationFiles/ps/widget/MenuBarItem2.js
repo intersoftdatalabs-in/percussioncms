@@ -16,8 +16,4 @@
  * items the order is messed up. However, if we use all cutome menubar items it
  * works fine.
  */
-ps.widget.defineWidget(
-  "ps.widget.MenuBarItem2",
-  dojo.widget.MenuBarItem2,
-  {}
-);
+ps.widget.defineWidget("ps.widget.MenuBarItem2", dojo.widget.MenuBarItem2, {});

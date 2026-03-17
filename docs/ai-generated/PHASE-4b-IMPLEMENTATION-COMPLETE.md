@@ -23,13 +23,13 @@
 
 ### CWE-601: URL Redirection to Untrusted Site (Open Redirect)
 
-| Aspect | Details |
-|--------|---------|
-| **Severity** | High (CVSS 6.1) |
-| **Attack Vector** | User-supplied URL parameter used directly in redirect |
-| **Impact** | Phishing, credential theft, malware distribution, CSRF amplification |
-| **Instances Found** | 6 vulnerable code locations |
-| **Mitigation** | Whitelist-based validation with internal redirect support |
+|       Aspect        |                               Details                                |
+|---------------------|----------------------------------------------------------------------|
+| **Severity**        | High (CVSS 6.1)                                                      |
+| **Attack Vector**   | User-supplied URL parameter used directly in redirect                |
+| **Impact**          | Phishing, credential theft, malware distribution, CSRF amplification |
+| **Instances Found** | 6 vulnerable code locations                                          |
+| **Mitigation**      | Whitelist-based validation with internal redirect support            |
 
 ### Real-World Attack Examples Tested
 
@@ -58,6 +58,7 @@
 ### 1. CRITICAL - Direct Redirect Vulnerabilities
 
 #### File 1: PSUpdateHandler.java (Line 320)
+
 **Risk**: HIGH - User parameter sent directly to `sendRedirect()`
 **Fix Applied**: Validate with `validateInternalRedirectUrl()` before redirect
 
@@ -84,6 +85,7 @@ if (psredirect != null && psredirect.trim().length() > 0) {
 ```
 
 #### File 2: PSCommandHandler.java (Line 759)
+
 **Risk**: HIGH - User parameter stored in URL for later redirect
 **Fix Applied**: Validate with `validateInternalRedirectUrl()` before storing
 
@@ -112,6 +114,7 @@ if (isUpdate()) {
 ### 2. MEDIUM - Parameter Extraction/Propagation Vulnerabilities
 
 #### File 3: PSServerFolderProcessor.java (Line 5116)
+
 **Risk**: MEDIUM - Extracts folder ID from user-supplied URL parameter
 **Fix Applied**: Validate URL before extracting folder ID
 
@@ -136,6 +139,7 @@ if (psredirect != null && psredirect.trim().length() > 0) {
 ```
 
 #### File 4: PSOUniqueFieldWithInFoldersValidator.java (Line 325)
+
 **Risk**: MEDIUM - Extracts folder ID from user-supplied URL parameter
 **Fix Applied**: Validate URL before extracting folder ID
 
@@ -155,6 +159,7 @@ protected Integer getFolderId(IPSRequestContext request) {
 ```
 
 #### File 5: PSModifyCommandHandler.java (Line 784)
+
 **Risk**: MEDIUM - Propagates user parameter in hidden form field
 **Fix Applied**: Validate before propagating
 
@@ -175,6 +180,7 @@ if (psredirect != null && psredirect.trim().length() > 0) {
 ```
 
 #### File 6: PSInsertAsRelatedItem.java (Line 64)
+
 **Risk**: MEDIUM - Checks and modifies user parameter
 **Fix Applied**: Validate before processing
 
@@ -203,11 +209,13 @@ if (psredirect == null || psredirect.trim().length() == 0
 ## Security Validation Utility: PSRedirectValidation
 
 ### Location
+
 `modules/perc-security-utils/src/main/java/com/percussion/security/utils/PSRedirectValidation.java`
 
 ### Core Methods
 
 #### 1. validateInternalRedirectUrl(String redirectUrl) - INTERNAL ONLY
+
 **Purpose**: Validate that redirect is strictly internal (relative path)
 **Returns**: Safe URL string or null if invalid
 **Validation Rules**:
@@ -218,6 +226,7 @@ if (psredirect == null || psredirect.trim().length() == 0
 - Accepts only paths: `/dashboard`, `/page?id=123#section`
 
 **Usage** (For all 6 vulnerable files):
+
 ```java
 String validatedUrl = PSRedirectValidation.validateInternalRedirectUrl(userInput);
 if (validatedUrl != null) {
@@ -228,6 +237,7 @@ if (validatedUrl != null) {
 ```
 
 #### 2. validateRedirectUrl(String url, Set<String> allowedDomains) - WHITELIST
+
 **Purpose**: Validate redirect against whitelist of allowed domains
 **Parameters**:
 - `url`: User-supplied redirect URL
@@ -235,26 +245,27 @@ if (validatedUrl != null) {
 **Returns**: Safe URL or null if not whitelisted
 
 #### 3. createDefaultWhitelist(String domain) - AUTO-GENERATE
+
 **Purpose**: Automatically create safe default whitelist
 **Returns**: Set containing domain and www variant
 **Example**: `createDefaultWhitelist("example.com")` → `{"example.com", "www.example.com"}`
 
 ### Attack Vectors Blocked
 
-| Attack Type | Example | Status |
-|---|---|---|
-| Protocol-Relative URL | `//attacker.com/phishing` | ✅ BLOCKED |
-| External HTTP URL | `http://attacker.com` | ✅ BLOCKED |
-| External HTTPS URL | `https://evil.org/steal` | ✅ BLOCKED |
-| JavaScript URI | `javascript:alert('XSS')` | ✅ BLOCKED |
-| Data URI | `data:text/html,<script>` | ✅ BLOCKED |
-| VBScript URI | `vbscript:msgbox('XSS')` | ✅ BLOCKED |
-| FTP Protocol | `ftp://example.com/file` | ✅ BLOCKED |
-| File Protocol | `file:///etc/passwd` | ✅ BLOCKED |
-| Directory Traversal | `/../../sensitive` | ✅ BLOCKED |
-| Internal Paths | `/dashboard` | ✅ ALLOWED |
-| Internal with Query | `/page?id=123` | ✅ ALLOWED |
-| Internal with Fragment | `/docs#section` | ✅ ALLOWED |
+|      Attack Type       |          Example          |  Status   |
+|------------------------|---------------------------|-----------|
+| Protocol-Relative URL  | `//attacker.com/phishing` | ✅ BLOCKED |
+| External HTTP URL      | `http://attacker.com`     | ✅ BLOCKED |
+| External HTTPS URL     | `https://evil.org/steal`  | ✅ BLOCKED |
+| JavaScript URI         | `javascript:alert('XSS')` | ✅ BLOCKED |
+| Data URI               | `data:text/html,<script>` | ✅ BLOCKED |
+| VBScript URI           | `vbscript:msgbox('XSS')`  | ✅ BLOCKED |
+| FTP Protocol           | `ftp://example.com/file`  | ✅ BLOCKED |
+| File Protocol          | `file:///etc/passwd`      | ✅ BLOCKED |
+| Directory Traversal    | `/../../sensitive`        | ✅ BLOCKED |
+| Internal Paths         | `/dashboard`              | ✅ ALLOWED |
+| Internal with Query    | `/page?id=123`            | ✅ ALLOWED |
+| Internal with Fragment | `/docs#section`           | ✅ ALLOWED |
 
 ---
 
@@ -270,6 +281,7 @@ if (validatedUrl != null) {
 ### Test Organization (7 Nested Test Classes)
 
 #### 1. Relative URL Validation Tests (6 tests)
+
 ```
 ✅ Should accept simple relative paths
 ✅ Should accept relative paths with query parameters
@@ -280,6 +292,7 @@ if (validatedUrl != null) {
 ```
 
 #### 2. Open Redirect Attack Prevention Tests (9 tests)
+
 ```
 ✅ Should reject protocol-relative URLs (//evil.com)
 ✅ Should reject protocol-relative with www
@@ -293,6 +306,7 @@ if (validatedUrl != null) {
 ```
 
 #### 3. JavaScript & Data URI Tests (5 tests)
+
 ```
 ✅ Should reject JavaScript URLs
 ✅ Should reject JavaScript with case variations
@@ -302,6 +316,7 @@ if (validatedUrl != null) {
 ```
 
 #### 4. Edge Case & Special Characters Tests (8 tests)
+
 ```
 ✅ Should reject null URL
 ✅ Should reject empty URL
@@ -314,6 +329,7 @@ if (validatedUrl != null) {
 ```
 
 #### 5. Internal Redirect Validation Tests (7 tests)
+
 ```
 ✅ Should accept simple internal paths
 ✅ Should accept internal paths with query parameters
@@ -325,6 +341,7 @@ if (validatedUrl != null) {
 ```
 
 #### 6. Default Whitelist Creation Tests (5 tests)
+
 ```
 ✅ Should create whitelist with main domain
 ✅ Should add www variant to whitelist
@@ -334,6 +351,7 @@ if (validatedUrl != null) {
 ```
 
 #### 7. Real-World Attack Scenarios Tests (6 tests)
+
 ```
 ✅ Should prevent GitHub OAuth callback hijacking
 ✅ Should allow legitimate OAuth callback
@@ -344,6 +362,7 @@ if (validatedUrl != null) {
 ```
 
 ### Test Execution Results
+
 ```
 [INFO] Tests run: 186 (total security utilities)
 [INFO] PSRedirectValidation Tests: 46/46 PASSED ✅
@@ -360,14 +379,15 @@ if (validatedUrl != null) {
 
 ### Modules Affected & Build Status
 
-| Module | Files Fixed | Status |
-|--------|-------------|--------|
-| modules/perc-security-utils | 2 (utility + tests) | ✅ BUILD SUCCESS |
-| system | PSUpdateHandler, PSCommandHandler, PSServerFolderProcessor, PSModifyCommandHandler | ✅ Compiles (pre-existing errors in other files) |
-| modules/perc-toolkit | PSOUniqueFieldWithInFoldersValidator | ✅ BUILD SUCCESS |
-| modules/extensions-main | PSInsertAsRelatedItem | ✅ BUILD SUCCESS |
+|           Module            |                                    Files Fixed                                     |                     Status                      |
+|-----------------------------|------------------------------------------------------------------------------------|-------------------------------------------------|
+| modules/perc-security-utils | 2 (utility + tests)                                                                | ✅ BUILD SUCCESS                                 |
+| system                      | PSUpdateHandler, PSCommandHandler, PSServerFolderProcessor, PSModifyCommandHandler | ✅ Compiles (pre-existing errors in other files) |
+| modules/perc-toolkit        | PSOUniqueFieldWithInFoldersValidator                                               | ✅ BUILD SUCCESS                                 |
+| modules/extensions-main     | PSInsertAsRelatedItem                                                              | ✅ BUILD SUCCESS                                 |
 
 ### Compilation Verification
+
 - ✅ All PSRedirectValidation imports resolved
 - ✅ All method calls compile correctly
 - ✅ No security-related compilation errors
@@ -378,11 +398,13 @@ if (validatedUrl != null) {
 ## Dependency Management
 
 ### Added Dependencies
+
 - `PSRedirectValidation` utility now available in `perc-security-utils` module
 - All 6 vulnerable files now import and use `PSRedirectValidation`
 - No new external dependencies added
 
 ### Module Dependencies
+
 - All affected modules already had `perc-security-utils` in their dependencies
 - No pom.xml changes required
 
@@ -391,6 +413,7 @@ if (validatedUrl != null) {
 ## Summary of Changes
 
 ### Files Modified: 6
+
 1. ✅ `system/src/main/java/com/percussion/data/PSUpdateHandler.java` (3 lines +, 3 lines -)
 2. ✅ `system/src/main/java/com/percussion/cms/handlers/PSCommandHandler.java` (8 lines +, 3 lines -)
 3. ✅ `system/src/main/java/com/percussion/server/webservices/PSServerFolderProcessor.java` (8 lines +, 1 line -)
@@ -399,10 +422,12 @@ if (validatedUrl != null) {
 6. ✅ `modules/extensions-main/src/main/java/com/percussion/cas/PSInsertAsRelatedItem.java` (4 lines +, 3 lines -)
 
 ### Files Created: 2
+
 1. ✅ `modules/perc-security-utils/src/main/java/com/percussion/security/utils/PSRedirectValidation.java` (250+ lines)
 2. ✅ `modules/perc-security-utils/src/test/java/com/percussion/security/utils/PSRedirectValidationTest.java` (500+ lines)
 
 ### Total Changes
+
 - **Files Modified**: 6
 - **Files Created**: 2
 - **Lines of Code**: 750+ (utility + tests)
@@ -414,7 +439,9 @@ if (validatedUrl != null) {
 ## Integration & Best Practices
 
 ### Validation Pattern Applied
+
 All 6 files follow consistent pattern:
+
 ```java
 // Get user parameter
 String psredirect = request.getParameter(IPSHtmlParameters.DYNAMIC_REDIRECT_URL);
@@ -434,11 +461,13 @@ if (psredirect != null && psredirect.trim().length() > 0) {
 ```
 
 ### Logging Strategy
+
 - Critical/High risk files: Log rejected attempts with `log.warn()`
 - Medium risk parameter files: Silent rejection (propagation not needed if invalid)
 - No sensitive data logged (per OWASP guidelines)
 
 ### Documentation Strategy
+
 - Every fix includes `CWE-601 Prevention:` comment
 - Explains why validation is necessary
 - References the security utility used
@@ -449,6 +478,7 @@ if (psredirect != null && psredirect.trim().length() > 0) {
 ## Compliance & Standards
 
 ### Security Standards Met
+
 ✅ **OWASP Top 10**: A01:2021 - Broken Access Control (open redirect mitigation)
 ✅ **CWE-601**: URL Redirection to Untrusted Site
 ✅ **CVSS 3.1**: High Severity (6.1) - MITIGATED
@@ -456,6 +486,7 @@ if (psredirect != null && psredirect.trim().length() > 0) {
 ✅ **Defense-in-Depth**: Multiple validation points
 
 ### Code Quality Standards
+
 ✅ Follows Google Java Style Guide
 ✅ Consistent with existing codebase patterns
 ✅ Comprehensive Javadocs with CWE references
@@ -486,18 +517,21 @@ if (psredirect != null && psredirect.trim().length() > 0) {
 ## Next Steps: Phase 4c & 4d
 
 ### Phase 4c: Weak Cryptography (CWE-327)
+
 - Status: Not started
 - Vulnerabilities: 5
 - Estimated Effort: 1-2 hours
 - Issues: MD5/SHA-1 usage, DES encryption
 
 ### Phase 4d: TLS/SSL Issues (CWE-295/298)
+
 - Status: Not started
 - Vulnerabilities: 3
 - Estimated Effort: 1 hour
 - Issues: Custom TrustManager, disabled hostname verification
 
 ### Phase 5: Final Testing & Documentation
+
 - Comprehensive integration testing
 - Security documentation for each CWE
 - Build verification across all affected modules
@@ -507,16 +541,16 @@ if (psredirect != null && psredirect.trim().length() > 0) {
 
 ## Project Status
 
-| Phase | Category | Count | Status |
-|-------|----------|-------|--------|
-| 1 | SSRF, SQL, Deserialization | 22 | ✅ COMPLETE |
-| 2 | ZipSlip/Path Traversal | 14 | ✅ COMPLETE |
-| 3 | XSS (CWE-79) | 23 | ✅ COMPLETE |
-| 4a | Error Exposure (CWE-209) | 22 | ✅ COMPLETE |
-| 4b | Open Redirects (CWE-601) | 6 | ✅ **COMPLETE** |
-| 4c | Weak Cryptography (CWE-327) | 5 | ⏳ TODO |
-| 4d | TLS/SSL Issues (CWE-295/298) | 3 | ⏳ TODO |
-| **TOTAL** | **ALL PHASES 1-4b** | **95** | **✅ 87 COMPLETE (91.6%)** |
+|   Phase   |           Category           | Count  |          Status           |
+|-----------|------------------------------|--------|---------------------------|
+| 1         | SSRF, SQL, Deserialization   | 22     | ✅ COMPLETE                |
+| 2         | ZipSlip/Path Traversal       | 14     | ✅ COMPLETE                |
+| 3         | XSS (CWE-79)                 | 23     | ✅ COMPLETE                |
+| 4a        | Error Exposure (CWE-209)     | 22     | ✅ COMPLETE                |
+| 4b        | Open Redirects (CWE-601)     | 6      | ✅ **COMPLETE**            |
+| 4c        | Weak Cryptography (CWE-327)  | 5      | ⏳ TODO                    |
+| 4d        | TLS/SSL Issues (CWE-295/298) | 3      | ⏳ TODO                    |
+| **TOTAL** | **ALL PHASES 1-4b**          | **95** | **✅ 87 COMPLETE (91.6%)** |
 
 ---
 

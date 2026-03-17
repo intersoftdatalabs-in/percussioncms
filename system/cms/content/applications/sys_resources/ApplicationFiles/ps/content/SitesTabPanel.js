@@ -25,11 +25,9 @@ ps.declare(
       var id = "ps.select.templates.includeSitesCheckbox";
       if (this._mustById(id).checked) {
         var parts = this.getFolder().split("/");
-        parts = parts.filter(
-          function (part) {
-            return part.length > 0;
-          }
-        );
+        parts = parts.filter(function (part) {
+          return part.length > 0;
+        });
         return parts[0];
       } else {
         return null;

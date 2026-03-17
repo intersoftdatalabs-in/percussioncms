@@ -18,62 +18,61 @@
 /**
  * Widget definition model.
  */
-(function($)
-{
-    WidgetBuilderApp.WidgetDefinitionModel = Backbone.Model.extend({
-        defaults:{
-            "widgetId":"",
-            "widgetname":"",
-            "description":"",
-            "author":"",
-            "publisherUrl":"",
-            "version":"",
-            "prefix":"",
-            "responsive":false,
-            "widgetTrayCustomizedIconPath":"",
-            "toolTipMessage":"",
-            "fieldsList": {
-                "fields": []
-            },
-            "widgetHtml":"",
-            "jsFileList":{
-                "resourceList":[]
-            },
-            "cssFileList":{
-                "resourceList":[]
-            }
-        },
-        convertToServerObject:function(){
-            var dataObj = {};
-            if(this.get("widgetId"))
-                dataObj.widgetId = this.get("widgetId");
-            dataObj.prefix = this.get("prefix");
-            dataObj.author = this.get("author");
-            dataObj.label = this.get("widgetname");
-            dataObj.publisherUrl = this.get("publisherUrl");
-            dataObj.description = this.get("description");
-            dataObj.version = this.get("version");
-            dataObj.responsive = this.get("responsive");
-            dataObj.widgetTrayCustomizedIconPath = this.get("widgetTrayCustomizedIconPath");
-            dataObj.toolTipMessage = this.get("toolTipMessage");
-            dataObj = {"WidgetBuilderDefinitionData":dataObj};
-            return dataObj;
-        },
-        convertFromServerObject:function(serverObject){
-            var newObj = {
-                "widgetId":serverObject.widgetId,
-                "widgetname":serverObject.label,
-                "description":serverObject.description,
-                "author":serverObject.author,
-                "publisherUrl":serverObject.publisherUrl,
-                "version":serverObject.version,
-                "prefix":serverObject.prefix,
-                "widgetTrayCustomizedIconPath":serverObject.widgetTrayCustomizedIconPath,
-                "toolTipMessage":serverObject.toolTipMessage,
-                "responsive":serverObject.responsive
-            };
-            return newObj;
-        }
-        
-    });
+(function ($) {
+  WidgetBuilderApp.WidgetDefinitionModel = Backbone.Model.extend({
+    defaults: {
+      widgetId: "",
+      widgetname: "",
+      description: "",
+      author: "",
+      publisherUrl: "",
+      version: "",
+      prefix: "",
+      responsive: false,
+      widgetTrayCustomizedIconPath: "",
+      toolTipMessage: "",
+      fieldsList: {
+        fields: [],
+      },
+      widgetHtml: "",
+      jsFileList: {
+        resourceList: [],
+      },
+      cssFileList: {
+        resourceList: [],
+      },
+    },
+    convertToServerObject: function () {
+      var dataObj = {};
+      if (this.get("widgetId")) dataObj.widgetId = this.get("widgetId");
+      dataObj.prefix = this.get("prefix");
+      dataObj.author = this.get("author");
+      dataObj.label = this.get("widgetname");
+      dataObj.publisherUrl = this.get("publisherUrl");
+      dataObj.description = this.get("description");
+      dataObj.version = this.get("version");
+      dataObj.responsive = this.get("responsive");
+      dataObj.widgetTrayCustomizedIconPath = this.get(
+        "widgetTrayCustomizedIconPath"
+      );
+      dataObj.toolTipMessage = this.get("toolTipMessage");
+      dataObj = { WidgetBuilderDefinitionData: dataObj };
+      return dataObj;
+    },
+    convertFromServerObject: function (serverObject) {
+      var newObj = {
+        widgetId: serverObject.widgetId,
+        widgetname: serverObject.label,
+        description: serverObject.description,
+        author: serverObject.author,
+        publisherUrl: serverObject.publisherUrl,
+        version: serverObject.version,
+        prefix: serverObject.prefix,
+        widgetTrayCustomizedIconPath: serverObject.widgetTrayCustomizedIconPath,
+        toolTipMessage: serverObject.toolTipMessage,
+        responsive: serverObject.responsive,
+      };
+      return newObj;
+    },
+  });
 })(jQuery);

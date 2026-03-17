@@ -94,14 +94,14 @@ ps.workflow.WorkflowActions = function () {
     //Form elements
     this.wfActionPane = document.getElementById("ps.workflow.actionPane");
     if (this._isUserAuthorized()) {
-      this.wfActionSelector = document.getElementById("ps.workflow.workflowActionSelect");
+      this.wfActionSelector = document.getElementById(
+        "ps.workflow.workflowActionSelect"
+      );
       this.wfCommentText = document.getElementById("ps.workflow.commentText");
       this.wfAdhocUsers = document.getElementById("ps.workflow.adhocUsers");
 
       //Buttons
-      this.wgtAdhocSearch = ps.widget.byId(
-        "ps.workflow.wgtButtonAdhocSearch"
-      );
+      this.wgtAdhocSearch = ps.widget.byId("ps.workflow.wgtButtonAdhocSearch");
       var submit = ps.widget.byId("ps.workflow.wgtButtonSubmit");
       var cancel = ps.widget.byId("ps.workflow.wgtButtonCancel");
 
@@ -170,7 +170,9 @@ ps.workflow.WorkflowActions = function () {
     // update comment UI
     if (this.wfCommentText) {
       if (!this.wfCommentRequiredStar) {
-        this.wfCommentRequiredStar = document.getElementById("ps.workflow.commentStar");
+        this.wfCommentRequiredStar = document.getElementById(
+          "ps.workflow.commentStar"
+        );
       }
 
       if (this.actionId.isCommentBoxNeeded()) {
@@ -453,7 +455,9 @@ ps.workflow.WorkflowActions = function () {
       var count = document.getElementById("ps.workflow.adhocusercount").value;
       mm.adhocUsersChk = new Array();
       for (var i = 0; i < count; i++) {
-        mm.adhocUsersChk[i] = document.getElementById("ps.workflow.adhocusercheckbox_" + i);
+        mm.adhocUsersChk[i] = document.getElementById(
+          "ps.workflow.adhocusercheckbox_" + i
+        );
       }
     });
     this.adhocResultsPane.cacheContent = false;

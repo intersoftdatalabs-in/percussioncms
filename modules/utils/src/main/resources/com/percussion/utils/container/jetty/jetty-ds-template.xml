@@ -39,7 +39,9 @@
 							</Call>
 						</Set>
 						<Set name="jdbcUrl">
-							<Call class="com.percussion.utils.container.PSStaticContainerUtils" name="buildConnectionUrl">
+							<Call
+								class="com.percussion.utils.container.PSStaticContainerUtils"
+								name="buildConnectionUrl">
 								<Arg>
 									<Property name="perc.ds.{0}.driver.name" />
 								</Arg>

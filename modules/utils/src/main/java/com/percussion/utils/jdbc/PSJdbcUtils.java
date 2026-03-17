@@ -249,7 +249,7 @@ public class PSJdbcUtils {
    * <TR><TD>MySQL</TD><TD>jdbc:mysql://host[,failoverhost...][:port][/database]propertyName1=propertyValue1 and propertyName2=propertyValue2</TD></TR>
    * <TR><TD>DB2</TD><TD>jdbc:db2://&lt;host>:&lt;port>[/db-name]</TD></TR>
    * <TR><TD>Oracle</TD><TD>jdbc:oracle:thin:@&lt;host>:1521:&lt;sid></TD></TR>
-   * </table>
+
    *
    * @param url the JDBC url in question, it may not be <code>null</code> or empty.
    * @return the database name defined in the URL. It may be <code>null</code> if the database name

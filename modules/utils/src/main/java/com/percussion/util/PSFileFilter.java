@@ -38,11 +38,11 @@ public class PSFileFilter implements java.io.FileFilter, java.io.FilenameFilter 
    */
   public static final int IS_INCLUDE_ALL_DIRECTORIES = 8;
 
-  /** Constructs a file filter whose accept() method will always return <code>true</code> */
+  /** Constructs a file filter whose accept() method will always return  */
   public PSFileFilter() {}
 
   /**
-   * Constructs a file filter that will return <code>true</code> when and only when, for each
+   * Constructs a file filter that will return  when and only when, for each
    * attribute (file, dir, hidden) that a file possesses, the corresponding bit in <code>
    * allowableAttributes</code> is turned on.
    */
@@ -51,8 +51,8 @@ public class PSFileFilter implements java.io.FileFilter, java.io.FilenameFilter 
   }
 
   /**
-   * Constructs a file filter that will return <code>true</code> when and only when the file's
-   * length (as returned by java.io.File.length()) is >= <code>minLength</code> AND <= <code>
+   * Constructs a file filter that will return  when and only when the file's
+   * length (as returned by java.io.File.length()) is >=  AND <= <code>
    * maxLength</code>.
    */
   public PSFileFilter(long minLength, long maxLength) {
@@ -60,16 +60,16 @@ public class PSFileFilter implements java.io.FileFilter, java.io.FilenameFilter 
   }
 
   /**
-   * Constructs a file filter that will return <code>true</code> when and only when the file's
+   * Constructs a file filter that will return  when and only when the file's
    * modification date (as returned by java.io.File.lastModified()) is >= <code>earliestModified
-   * </code> AND <= <code>latestModified</code>.
+   * </code> AND <= .
    */
   public PSFileFilter(Date earliestModified, Date latestModified) {
     setEarliestLatestModified(earliestModified, latestModified);
   }
 
   /**
-   * Constructs a file filter that will return <code>true</code> when and only when the file's name
+   * Constructs a file filter that will return  when and only when the file's name
    * (as returned by java.io.File.getName()) matches the given pattern matcher.
    */
   public PSFileFilter(PSPatternMatcher namePattern) {
@@ -77,12 +77,12 @@ public class PSFileFilter implements java.io.FileFilter, java.io.FilenameFilter 
   }
 
   /**
-   * Constructs a file filter that will return <code>true</code> when and only when all of the
+   * Constructs a file filter that will return  when and only when all of the
    * following conditions are met:
    *
    * <UL>
-   *   <LI>file's length (as returned by java.io.File.length()) is >= <code>minLength</code> AND <=
-   *       <code>maxLength</code>
+   *   <LI>file's length (as returned by java.io.File.length()) is >=  AND <=
+   *       
    *   <LI>for each attribute (file, dir, hidden) that a file possesses, the corresponding bit in
    *       <code>allowableAttributes</code> is turned on.
    * </UL>
@@ -93,12 +93,12 @@ public class PSFileFilter implements java.io.FileFilter, java.io.FilenameFilter 
   }
 
   /**
-   * Constructs a file filter that will return <code>true</code> when and only when all of the
+   * Constructs a file filter that will return  when and only when all of the
    * following conditions are met:
    *
    * <UL>
-   *   <LI>file's length (as returned by java.io.File.length()) is >= <code>minLength</code> AND <=
-   *       <code>maxLength</code>
+   *   <LI>file's length (as returned by java.io.File.length()) is >=  AND <=
+   *       
    *   <LI>for each attribute (file, dir, hidden) that a file possesses, the corresponding bit in
    *       <code>allowableAttributes</code> is turned on.
    * </UL>
@@ -111,9 +111,9 @@ public class PSFileFilter implements java.io.FileFilter, java.io.FilenameFilter 
   }
 
   /**
-   * Sets the minimum and maximum length for files. For accept() to return <code>true</code>, it is
+   * Sets the minimum and maximum length for files. For accept() to return , it is
    * necessary (but not sufficient) that the file's length (as returned by java.io.File.length()) is
-   * >= <code>minLength</code> AND <= <code>maxLength</code>.
+   * >=  AND <= .
    */
   public final void setMinMaxLength(long minLength, long maxLength) {
     if (minLength >= maxLength)
@@ -129,7 +129,7 @@ public class PSFileFilter implements java.io.FileFilter, java.io.FilenameFilter 
   /**
    * Sets the earliest and latest modification date for files. For accept() to return <code>true
    * </code>, it is necessary (but not sufficient) that the file's modification date (as returned by
-   * java.io.File.lastModified()) is >= <code>earliestModified</code> AND <= <code>latestModified
+   * java.io.File.lastModified()) is >=  AND <= <code>latestModified
    * </code>.
    */
   public final void setEarliestLatestModified(Date earliestModified, Date latestModified) {
@@ -141,7 +141,7 @@ public class PSFileFilter implements java.io.FileFilter, java.io.FilenameFilter 
   }
 
   /**
-   * Adds an OR'ed name pattern for files. For accept() to return <code>true</code>, it is necessary
+   * Adds an OR'ed name pattern for files. For accept() to return , it is necessary
    * (but not sufficient) that the file's name (as returned by java.io.File.getName()) matches at
    * least one of the added pattern matchers.
    */
@@ -151,7 +151,7 @@ public class PSFileFilter implements java.io.FileFilter, java.io.FilenameFilter 
   }
 
   /**
-   * Sets the name pattern for files. For accept() to return <code>true</code>, it is necessary (but
+   * Sets the name pattern for files. For accept() to return , it is necessary (but
    * not sufficient) that the file's name (as returned by java.io.File.getName()) matches the given
    * pattern matcher.
    */
@@ -161,7 +161,7 @@ public class PSFileFilter implements java.io.FileFilter, java.io.FilenameFilter 
   }
 
   /**
-   * Sets the allowable attributes for files. For accept() to return <code>true</code>, it is
+   * Sets the allowable attributes for files. For accept() to return , it is
    * necessary (but not sufficient) that for each attribute that a file possesses, the corresponding
    * bit in <code>allowableAttributes</code> is turned on.
    */

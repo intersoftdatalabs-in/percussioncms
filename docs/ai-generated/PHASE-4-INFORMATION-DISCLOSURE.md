@@ -28,6 +28,7 @@ Phase 4 addresses **21 remaining security vulnerabilities** across several categ
 **Risk Level**: **HIGH**
 
 **Vulnerability Pattern**:
+
 ```java
 // BAD: Exposes implementation details to users
 catch (Exception e) {
@@ -61,6 +62,7 @@ catch (DatabaseException e) {
 **Risk Level**: **MEDIUM-HIGH**
 
 **Vulnerability Pattern**:
+
 ```java
 // BAD: User input directly used in redirect
 @RequestMapping("/redirect")
@@ -96,6 +98,7 @@ public String redirect(@RequestParam String url) {
 **Risk Level**: **MEDIUM**
 
 **Vulnerability Pattern**:
+
 ```java
 // BAD: Using weak algorithm
 MessageDigest md = MessageDigest.getInstance("MD5");
@@ -133,6 +136,7 @@ String hashedPassword = encoder.encode(password);
 **Risk Level**: **HIGH**
 
 **Vulnerability Pattern**:
+
 ```java
 // BAD: Trusts all certificates
 SSLContext ctx = SSLContext.getInstance("TLS");
@@ -164,6 +168,7 @@ conn.setHostnameVerifier(HttpsURLConnection.getDefaultHostnameVerifier());
 ## Implementation Roadmap
 
 ### Phase 4a: Error Message Exposure (Priority 1)
+
 **Estimated Time**: 2-3 hours
 **Files to Audit**: ~15 services/handlers
 
@@ -175,6 +180,7 @@ conn.setHostnameVerifier(HttpsURLConnection.getDefaultHostnameVerifier());
 6. Test with various error scenarios
 
 ### Phase 4b: Open Redirects (Priority 2)
+
 **Estimated Time**: 1-2 hours
 **Files to Audit**: ~6 redirect handlers
 
@@ -186,6 +192,7 @@ conn.setHostnameVerifier(HttpsURLConnection.getDefaultHostnameVerifier());
 6. Test with malicious URLs
 
 ### Phase 4c: Weak Cryptography (Priority 3)
+
 **Estimated Time**: 1-2 hours
 **Search Pattern**: MessageDigest.getInstance("MD5|SHA-1|DES")
 
@@ -197,6 +204,7 @@ conn.setHostnameVerifier(HttpsURLConnection.getDefaultHostnameVerifier());
 6. Document changes
 
 ### Phase 4d: TLS/SSL Issues (Priority 4)
+
 **Estimated Time**: 1 hour
 **Files to Audit**: ~3 HTTPS connection handlers
 
@@ -336,21 +344,25 @@ grep -r "MD5\|SHA-1\|DES" --include="*.java" src/
 ## Progress Tracking
 
 ### Phase 4a: Error Message Exposure
+
 - Status: ⏳ NOT STARTED
 - Files affected: ~15
 - Estimated completion: 2-3 hours
 
 ### Phase 4b: Open Redirects
+
 - Status: ⏳ NOT STARTED
 - Files affected: ~6
 - Estimated completion: 1-2 hours
 
 ### Phase 4c: Weak Cryptography
+
 - Status: ⏳ NOT STARTED
 - Files affected: ~5
 - Estimated completion: 1-2 hours
 
 ### Phase 4d: TLS/SSL Issues
+
 - Status: ⏳ NOT STARTED
 - Files affected: ~3
 - Estimated completion: 1 hour

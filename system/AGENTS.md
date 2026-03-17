@@ -10,18 +10,15 @@ Before starting ANY task on the system module, you MUST:
    - Understand the module structure and organization
    - Identify where your changes belong
    - Review the directory structure tables
-
 2. ✅ **Review Module Documentation** at `src/site/markdown/`:
    - [index.md](src/site/markdown/index.md) – Overview and quick links
    - [overview.md](src/site/markdown/overview.md) – Complete structural details (IMPORTANT)
    - [services.md](src/site/markdown/services.md) – Service architecture (if working on services)
    - [building.md](src/site/markdown/building.md) – Build and development workflow
-
 3. ✅ **Check Refactoring Status**
    - Review `refactored-java11-packages.txt` – Lists modernized packages
    - Review `refactored-soap-packages.txt` – SOAP/web service packages
    - Avoid duplicating refactoring work
-
 4. ✅ **Understand Java Version Requirements**
    - Module requires JDK 21 minimum
    - Spotless (code formatting) requires JDK 21
@@ -34,9 +31,7 @@ Before starting ANY task on the system module, you MUST:
 1. Check for local override files in the module directory:
    - `system/AGENTS.local.md` (not currently present)
    - `system/AGENTS.md` (this file)
-
 2. If no local overrides found, apply the rules below
-
 3. Use the parent repository's [AGENTS.md](../../AGENTS.md) as the foundation
 
 ## Core Rules for System Module
@@ -355,13 +350,13 @@ public NewDataType newMethod() {
 
 ## Quick Reference
 
-| Task | Command |
-| --- | --- |
-| Build module | `./mvn-env.sh -pl system compile` |
-| Run tests | `./mvn-env.sh -pl system test` |
-| Format code | `./mvn-env.sh spotless:apply` |
-| Check formatting | `./mvn-env.sh spotless:check` |
-| Full build | `./mvn-env.sh -pl system clean verify` |
+|       Task        |                  Command                  |
+|-------------------|-------------------------------------------|
+| Build module      | `./mvn-env.sh -pl system compile`         |
+| Run tests         | `./mvn-env.sh -pl system test`            |
+| Format code       | `./mvn-env.sh spotless:apply`             |
+| Check formatting  | `./mvn-env.sh spotless:check`             |
+| Full build        | `./mvn-env.sh -pl system clean verify`    |
 | View dependencies | `./mvn-env.sh -pl system dependency:tree` |
 
 ## Checklist Before Submitting Work

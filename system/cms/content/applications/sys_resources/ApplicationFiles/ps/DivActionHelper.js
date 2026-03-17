@@ -222,7 +222,7 @@ ps.DivActionHelper._initFloatingActionBar = function () {
       top: offset.top,
       left: offset.left,
       width: $node.outerWidth(),
-      height: $node.outerHeight()
+      height: $node.outerHeight(),
     };
     objId = new ps.aa.ObjectId(node.id);
 

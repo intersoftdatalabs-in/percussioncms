@@ -7,6 +7,7 @@ This plan addresses fixing all Java compiler warnings in the Percussion CMS code
 ## Current State Analysis
 
 ### Compiler Configuration (Root pom.xml)
+
 - Uses `maven-compiler-plugin` version 3.14.1
 - Java target: 21
 - Enabled lint flags: `-Xlint` (all warnings)
@@ -14,23 +15,23 @@ This plan addresses fixing all Java compiler warnings in the Percussion CMS code
 
 ### Warning Categories Found
 
-| Category | Count | Example Source |
-|----------|-------|----------------|
-| Deprecation (3rd party) | ~90+ | StringEscapeUtils, StringUtils.equals(CharSequence) |
-| Deprecation (internal com.percussion) | 35+ | Various legacy classes |
-| unchecked | 102+ | Raw type usage in collections |
-| rawtypes | 27+ | Generic type omissions |
-| serial | ~20+ | Missing serialVersionUID |
-| this-escape | ~10+ | Object construction issues |
-| Path warnings | ~50+ | Missing JAR files in classpath |
+|               Category                | Count |                   Example Source                    |
+|---------------------------------------|-------|-----------------------------------------------------|
+| Deprecation (3rd party)               | ~90+  | StringEscapeUtils, StringUtils.equals(CharSequence) |
+| Deprecation (internal com.percussion) | 35+   | Various legacy classes                              |
+| unchecked                             | 102+  | Raw type usage in collections                       |
+| rawtypes                              | 27+   | Generic type omissions                              |
+| serial                                | ~20+  | Missing serialVersionUID                            |
+| this-escape                           | ~10+  | Object construction issues                          |
+| Path warnings                         | ~50+  | Missing JAR files in classpath                      |
 
 ### Logging Analysis
 
-| Framework | File Count | Status |
-|----------|-------------|--------|
-| Log4j2 (org.apache.logging.log4j) | ~250 | Modern - needs parameterized conversion |
-| Apache Commons Logging | ~59 | Legacy - needs migration to Log4j2 |
-| Non-parameterized logging (string concat) | ~90+ | Needs update to `logger.debug("msg {}", var)` |
+|                 Framework                 | File Count |                    Status                     |
+|-------------------------------------------|------------|-----------------------------------------------|
+| Log4j2 (org.apache.logging.log4j)         | ~250       | Modern - needs parameterized conversion       |
+| Apache Commons Logging                    | ~59        | Legacy - needs migration to Log4j2            |
+| Non-parameterized logging (string concat) | ~90+       | Needs update to `logger.debug("msg {}", var)` |
 
 ---
 
@@ -42,13 +43,14 @@ This plan addresses fixing all Java compiler warnings in the Percussion CMS code
 
 **Implementation:**
 - Update root `pom.xml` compiler plugin configuration:
-  ```xml
-  <compilerArgs>
-    <arg>-proc:none</arg>
-    <arg>-Xlint</arg>
-    <arg>-Xlint:-dep</arg>  <!-- Disable all deprecation warnings -->
-  </compilerArgs>
-  ```
+
+```xml
+<compilerArgs>
+  <arg>-proc:none</arg>
+  <arg>-Xlint</arg>
+  <arg>-Xlint:-dep</arg>  <!-- Disable all deprecation warnings -->
+</compilerArgs>
+```
 
 - Add `@SuppressWarnings("deprecation")` at class-level for internal deprecation usage where needed (existing 35+ annotations already in place)
 
@@ -57,6 +59,7 @@ This plan addresses fixing all Java compiler warnings in the Percussion CMS code
 ### 1.2 Enable Specific Warning Categories
 
 Add these compiler arguments to address other warnings:
+
 ```xml
 <compilerArgs>
   <arg>-Xlint:serial</arg>   // Warn about missing serialVersionUID
@@ -78,6 +81,7 @@ Add these compiler arguments to address other warnings:
 - Or implement inline escaping methods for HTML/XML
 
 **Dependency needed:** Add to parent pom.xml if not present:
+
 ```xml
 <dependency>
   <groupId>org.apache.commons</groupId>
@@ -133,6 +137,7 @@ These files already have appropriate suppressions - verify they're sufficient:
 - `PSItemProperties`, `PSDataItemSummary`
 
 **Action:** Add to each affected class:
+
 ```java
 private static final long serialVersionUID = 1L;
 ```
@@ -165,6 +170,7 @@ private static final long serialVersionUID = 1L;
 **Files affected:** ~59 files using `org.apache.commons.logging.Log`
 
 **Migration Pattern:**
+
 ```java
 // Before
 import org.apache.commons.logging.Log;
@@ -216,6 +222,7 @@ logger.error("Failed to process", exception);
 ### 6.1 Verification Steps
 
 After each phase, run:
+
 ```bash
 ./mvn-env.sh clean compile 2>&1 | grep -E "(WARNING|ERROR)" | head -50
 ```
@@ -231,26 +238,31 @@ After each phase, run:
 ## Execution Order for Agents
 
 ### Agent Task 1: Compiler Configuration
+
 1. Update root pom.xml compiler args
 2. Add commons-text dependency
 3. Test build
 
 ### Agent Task 2: Fix 3rd Party Deprecations
+
 1. Find all 3rd party deprecation warnings
 2. Replace StringEscapeUtils usage
 3. Replace deprecated StringUtils methods
 4. Verify clean build for deprecation warnings
 
 ### Agent Task 3: Logging Migration (Commons Logging → Log4j2)
+
 1. Migrate each affected module
 2. Convert to parameterized style
 3. Verify logging works
 
 ### Agent Task 4: Parameterized Logging Updates
+
 1. Update remaining Log4j2 files with string concatenation
 2. Focus on ERROR/WARN first
 
 ### Agent Task 5: Serial/This-Escape Fixes
+
 1. Add serialVersionUID to serializable classes
 2. Fix this-escape constructors
 
@@ -270,3 +282,4 @@ After each phase, run:
 - [Log4j2 Parameterized Logging](https://logging.apache.org/log4j/2.x/manual/messages.html)
 - [Apache Commons Text Migration](https://commons.apache.org/proper/commons-text/)
 - Parent POM: `pom.xml` lines 2083-2097 for compiler configuration
+

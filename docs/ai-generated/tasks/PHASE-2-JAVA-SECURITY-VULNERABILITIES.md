@@ -19,14 +19,15 @@
 **File**: `modules/perc-taxonomy/src/main/java/com/percussion/taxonomy/repository/HibernateNodeDAO.java`
 - **Lines**: 307, 325, 422
 - **Vulnerabilities**:
-  - `getRelatedNodes()`: String concatenation with `nodeID`
-  - `getRelatedNodeReferences()`: Multi-line string concatenation with `nodeID`
-  - `getSimilarNodes()`: Direct string concatenation with `nodeID`
-  - `changeParent()`: Two parameters concatenated into query
+- `getRelatedNodes()`: String concatenation with `nodeID`
+- `getRelatedNodeReferences()`: Multi-line string concatenation with `nodeID`
+- `getSimilarNodes()`: Direct string concatenation with `nodeID`
+- `changeParent()`: Two parameters concatenated into query
 - **Fix Applied**: Converted all methods to use parameterized queries with `.setParameter()`
 - **Status**: ✅ FIXED
 
 **Test Results**:
+
 ```
 Module: perc-taxonomy
 Build: ✅ Compile successful
@@ -41,6 +42,7 @@ Migration: From executeQuery() helper to direct parameterized queries
 ### Phase 2.1: JCR Query Injection (HIGH PRIORITY)
 
 #### 1. PSActivityService.java - Line 448-451
+
 **File**: `projects/sitemanage/src/main/java/com/percussion/activity/service/impl/PSActivityService.java`
 **Method**: `createJCRQuery(String path, Collection<String> contentTypes)`
 
@@ -57,6 +59,7 @@ return "select rx:sys_contentid from " + joined + " where jcr:path like '" + pat
 - Path could contain single quotes or JCR metacharacters
 
 **Remediation**:
+
 ```java
 private String createJCRQuery(String path, Collection<String> contentTypes) {
   // Validate path - no single quotes, proper JCR path format
@@ -94,6 +97,7 @@ private String createJCRQuery(String path, Collection<String> contentTypes) {
 ### Phase 2.2: Unsafe Deserialization (CRITICAL - RCE RISK)
 
 #### 1. PSCacheItem.java - Line 368-369
+
 **File**: `system/src/main/java/com/percussion/server/cache/PSCacheItem.java`
 
 ```java
@@ -108,6 +112,7 @@ try (ObjectInputStream in = new ObjectInputStream(new FileInputStream(file))) {
 - Can load gadget chain classes for RCE
 
 **Remediation**:
+
 ```java
 private static final Set<String> ALLOWED_CLASSES = Set.of(
   "com.percussion.server.cache.PSCacheItem",
@@ -135,6 +140,7 @@ try (ObjectInputStream in = new ObjectInputStream(new FileInputStream(file))) {
 **CWE**: CWE-502 (Deserialization of Untrusted Data)
 
 #### 2. PSDtdTree.java - Line 162-163
+
 **File**: `system/src/main/java/com/percussion/xml/PSDtdTree.java`
 
 ```java
@@ -146,6 +152,7 @@ clone = objInStream.readObject();
 **Remediation**: Apply same class whitelist filtering as PSCacheItem
 
 #### 3. CookieModule.java - Line 108-110
+
 **File**: `system/src/main/java/com/percussion/HTTPClient/CookieModule.java`
 
 ```java
@@ -162,6 +169,7 @@ try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(cookie_ja
 ### Phase 2.3: Server-Side Request Forgery (CRITICAL)
 
 #### 1. PSFileDownLoadJobRunner.java - Line 145
+
 **File**: `projects/sitemanage/src/main/java/com/percussion/sitemanage/importer/utils/PSFileDownLoadJobRunner.java`
 
 ```java
@@ -176,6 +184,7 @@ connection = (HttpsURLConnection) fileUrl.openConnection();  // No validation
 - No host/protocol validation
 
 **Remediation**:
+
 ```java
 private static final Set<String> ALLOWED_HOSTS = Set.of(
   "example.com",
@@ -220,6 +229,7 @@ private boolean isPrivateIP(String host) {
 **CWE**: CWE-918 (SSRF)
 
 #### 2. PSDTSStatusProvider.java - Line 131-141
+
 **File**: `projects/sitemanage/src/main/java/com/percussion/utils/PSDTSStatusProvider.java`
 
 ```java
@@ -231,6 +241,7 @@ var conn = (HttpsURLConnection) url.openConnection();
 **Remediation**: Apply same URL validation as PSFileDownLoadJobRunner
 
 #### 3. PSHttpConnection.java - Line 289, 383
+
 **File**: `modules/utils/src/main/java/com/percussion/util/PSHttpConnection.java`
 
 **Remediation**: Centralize URL validation in utility class
@@ -240,6 +251,7 @@ var conn = (HttpsURLConnection) url.openConnection();
 ### Phase 2.4: XXE (XML External Entity) Issues
 
 #### PSDtdTree.java - Line 204
+
 **File**: `system/src/main/java/com/percussion/xml/PSDtdTree.java`
 
 ```java
@@ -250,6 +262,7 @@ URLConnection conn = dtdURL.openConnection();
 **Note**: This also has SSRF vulnerability for DTD URL
 
 **Remediation**: Use `PSSecureXMLUtils` which is already in codebase:
+
 ```java
 XMLInputFactory xif = XMLInputFactory.newFactory();
 xif.setProperty(XMLInputFactory.IS_REPLACING_ENTITY_REFERENCES, false);
@@ -257,6 +270,7 @@ xif.setProperty(XMLInputFactory.IS_SUPPORTING_EXTERNAL_ENTITIES, false);
 ```
 
 Or use existing security class:
+
 ```java
 DocumentBuilderFactory dbf = PSSecureXMLUtils.getSecuredDocumentBuilderFactory(...);
 ```
@@ -266,23 +280,27 @@ DocumentBuilderFactory dbf = PSSecureXMLUtils.getSecuredDocumentBuilderFactory(.
 ## 🔗 Implementation Roadmap
 
 ### Week 1: JCR & SQL Injection
+
 - [ ] Fix PSActivityService JCR injection
 - [ ] Fix ItemRestServiceImpl JCR concatenation
 - [ ] Fix PSSaveAssetsMaintenanceProcess
 - [ ] Create input validation utility class
 
 ### Week 2: Deserialization
+
 - [ ] Create ClassWhitelistFilter utility
 - [ ] Apply to PSCacheItem, PSDtdTree, CookieModule, PSDataMapping
 - [ ] Audit other ObjectInputStream usage
 
 ### Week 3: SSRF
+
 - [ ] Create URLValidator utility
 - [ ] Fix PSFileDownLoadJobRunner
 - [ ] Fix PSDTSStatusProvider
 - [ ] Fix PSHttpConnection, PSPageUtils
 
 ### Week 4: XXE & Testing
+
 - [ ] Review XML parser usage
 - [ ] Ensure PSSecureXMLUtils applied
 - [ ] Create comprehensive unit tests
@@ -292,14 +310,14 @@ DocumentBuilderFactory dbf = PSSecureXMLUtils.getSecuredDocumentBuilderFactory(.
 
 ## 📊 Vulnerability Summary
 
-| Type | Count | Status | Risk |
-|------|-------|--------|------|
-| SQL Injection (HQL) | 2 | ✅ FIXED | Critical |
-| SQL Injection (JCR) | 2 | 📋 TODO | Critical |
-| Deserialization | 4 | 📋 TODO | Critical (RCE) |
-| SSRF | 5 | 📋 TODO | Critical |
-| XXE | 1 | 📋 REVIEW | High |
-| **TOTAL JAVA** | **14** | Partial | Mostly Critical |
+|        Type         | Count  |  Status   |      Risk       |
+|---------------------|--------|-----------|-----------------|
+| SQL Injection (HQL) | 2      | ✅ FIXED   | Critical        |
+| SQL Injection (JCR) | 2      | 📋 TODO   | Critical        |
+| Deserialization     | 4      | 📋 TODO   | Critical (RCE)  |
+| SSRF                | 5      | 📋 TODO   | Critical        |
+| XXE                 | 1      | 📋 REVIEW | High            |
+| **TOTAL JAVA**      | **14** | Partial   | Mostly Critical |
 
 ---
 
@@ -317,11 +335,13 @@ Each fix should include:
 ## 📝 Key Files Modified
 
 ### Completed
+
 - ✅ `HibernateValueDAO.java` (2 injections fixed)
 - ✅ `HibernateNodeDAO.java` (4 injections fixed)
 - ✅ `PSWebResourcesRestService.java` (path validation added in Phase 1)
 
 ### Pending
+
 - 📋 `PSActivityService.java` (JCR query validation)
 - 📋 `ItemRestServiceImpl.java` (JCR string concatenation)
 - 📋 `PSCacheItem.java` (Class whitelist validation)
@@ -341,3 +361,4 @@ Each fix should include:
 - [CWE-89: SQL Injection](https://cwe.mitre.org/data/definitions/89.html)
 - [CWE-502: Deserialization RCE](https://cwe.mitre.org/data/definitions/502.html)
 - [CWE-918: SSRF](https://cwe.mitre.org/data/definitions/918.html)
+

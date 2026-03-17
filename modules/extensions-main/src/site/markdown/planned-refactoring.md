@@ -73,6 +73,7 @@ implementation from the server core.
 ### Phase 3: Introduce a SPI for third-party extensions
 
 5. Define an `ExtensionBundle` interface discoverable via `ServiceLoader`:
+
    ```java
    public interface ExtensionBundle {
        /** Returns the handler name this bundle targets (e.g., "Java"). */

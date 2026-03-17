@@ -15,56 +15,65 @@
  * limitations under the License.
  */
 
-(function($){
+(function ($) {
+  var region_schema, code_schema, template_schema;
 
-var region_schema, code_schema, template_schema;
+  code_schema = { templateCode: "$" };
 
+  region_schema = {
+    regionId: "$",
+    attributes: [{ name: "$", value: "$" }],
+    startTag: "$",
+    children: [
+      function (tag) {
+        if (tag === "region") return region_schema;
+        if (tag === "code") return code_schema;
+        alert("Unhandled case");
+        return "$";
+      },
+    ],
+    endTag: "$",
+    cssClass: "$",
+  };
 
-code_schema = {templateCode: '$'};
+  template_schema = {
+    Template: {
+      id: "$",
+      description: "$",
+      imageThumbPath: "$",
+      label: "$",
+      name: "$",
+      readOnly: "$",
+      sourceTemplateName: "$",
+      bodyMarkup: "$",
+      cssOverride: "$",
+      cssRegion: "$",
+      type: "$",
+      theme: "$",
+      htmlHeader: "$",
+      regionTree: {
+        rootRegion: region_schema,
+        regionWidgetAssociations: [
+          {
+            regionId: "$",
+            widgetItems: [
+              {
+                id: "$",
+                definitionId: "$",
+                name: "$",
+                description: "$",
+                properties: [{ name: "$", value: "$" }],
+                cssProperties: [{ name: "$", value: "$" }],
+              },
+            ],
+          },
+        ],
+      },
+    },
+  };
 
-region_schema  = {
-   'regionId': '$',
-   'attributes':  [{'name':'$','value':'$'}],
-   'startTag': '$',
-   'children': [function(tag){
-                if(tag === 'region')
-                   return region_schema;
-                if(tag === 'code')
-                   return code_schema;
-                alert("Unhandled case");
-                return '$';}],
-   'endTag': '$',
-   'cssClass':'$'};
-
-
-template_schema = {'Template': {
-                  'id':'$',
-                  'description':'$',
-                  'imageThumbPath':'$',
-                  'label':'$',
-                  'name':'$',
-                  'readOnly':'$',
-                  'sourceTemplateName': '$',
-                  'bodyMarkup': '$',
-                  'cssOverride': '$',
-                  'cssRegion': '$',
-                  'type': '$',
-		  'theme' : '$',
-                  'htmlHeader': '$',
-                  'regionTree': {
-                     'rootRegion': region_schema,
-                     'regionWidgetAssociations': [{
-                           'regionId' : '$',
-                           'widgetItems' : [{
-                                 'id': '$',
-                                 'definitionId': '$',
-                                 'name': '$',
-                                 'description': '$',
-                                 'properties': [{'name':'$','value':'$'}],
-                                 'cssProperties': [{'name':'$','value':'$'}]}]}]}}};
-
-
-var test_xml = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>" +
+  var test_xml =
+    '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' +
     "<Template>" +
     "<id>16777215-101-710</id>" +
     "<description></description>" +
@@ -155,8 +164,10 @@ var test_xml = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>" +
     "<theme></theme>" +
     "</Template>";
 
-$.perc_schemata = $.perc_schemata || {};
+  $.perc_schemata = $.perc_schemata || {};
 
-$.extend( $.perc_schemata, {template : template_schema, template_test_data: test_xml } );
-
+  $.extend($.perc_schemata, {
+    template: template_schema,
+    template_test_data: test_xml,
+  });
 })(jQuery);

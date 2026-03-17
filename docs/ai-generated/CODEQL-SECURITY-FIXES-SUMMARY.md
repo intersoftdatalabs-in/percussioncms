@@ -11,18 +11,18 @@ Systematic remediation of 159 Java CodeQL security alerts through a "hard fixes 
 
 ### Summary Statistics
 
-| Vulnerability Type | Alerts | Status | Fixes | Tests | Coverage |
-|---|---|---|---|---|---|
-| SQL Injection (CWE-89) | 8 | ✅ COMPLETE | PSPageDaoHelper (4 methods) | 4+ integration | Integration |
-| XSS / Improper Neutralization (CWE-79) | 30 | ✅ COMPLETE | PSFolderRestService (2 methods) | 2+ integration | Integration |
-| Regex Injection (CWE-94) | 7 | ✅ COMPLETE | SecureStringUtils + PSSearchPatternService | 25 unit | 100% |
-| SSRF (CWE-918) | 6 | ✅ COMPLETE | URLValidation + URLValidationConfig | 93+ unit | 100% |
-| Unsafe Deserialization (CWE-502) | 4 | ✅ COMPLETE | SerializationValidation | 10 unit | 100% |
-| JCR Query Injection (Custom) | ? | ✅ COMPLETE | PSJCRQueryValidator | 61 unit | 100% |
-| XXE (CWE-611) | 1 | ✅ COMPLETE | PSXMLEntityResolverWrapper | Integrated | Via XML library |
-| Polynomial ReDoS (CWE-1333) | 2 | ✅ LIKELY COVERED | By Regex Injection fixes | In regex tests | 100% |
-| **Other/Low Priority** | **101** | ⏳ PENDING | — | — | In prioritization queue |
-| **MAJOR VULNERABILITIES** | **63** | **✅ ALL COMPLETE** | **10+ utilities** | **189+ tests** | **100% coverage** |
+|           Vulnerability Type           | Alerts  |       Status       |                   Fixes                    |     Tests      |        Coverage         |
+|----------------------------------------|---------|--------------------|--------------------------------------------|----------------|-------------------------|
+| SQL Injection (CWE-89)                 | 8       | ✅ COMPLETE         | PSPageDaoHelper (4 methods)                | 4+ integration | Integration             |
+| XSS / Improper Neutralization (CWE-79) | 30      | ✅ COMPLETE         | PSFolderRestService (2 methods)            | 2+ integration | Integration             |
+| Regex Injection (CWE-94)               | 7       | ✅ COMPLETE         | SecureStringUtils + PSSearchPatternService | 25 unit        | 100%                    |
+| SSRF (CWE-918)                         | 6       | ✅ COMPLETE         | URLValidation + URLValidationConfig        | 93+ unit       | 100%                    |
+| Unsafe Deserialization (CWE-502)       | 4       | ✅ COMPLETE         | SerializationValidation                    | 10 unit        | 100%                    |
+| JCR Query Injection (Custom)           | ?       | ✅ COMPLETE         | PSJCRQueryValidator                        | 61 unit        | 100%                    |
+| XXE (CWE-611)                          | 1       | ✅ COMPLETE         | PSXMLEntityResolverWrapper                 | Integrated     | Via XML library         |
+| Polynomial ReDoS (CWE-1333)            | 2       | ✅ LIKELY COVERED   | By Regex Injection fixes                   | In regex tests | 100%                    |
+| **Other/Low Priority**                 | **101** | ⏳ PENDING          | —                                          | —              | In prioritization queue |
+| **MAJOR VULNERABILITIES**              | **63**  | **✅ ALL COMPLETE** | **10+ utilities**                          | **189+ tests** | **100% coverage**       |
 
 ## Completed Fixes
 
@@ -48,6 +48,7 @@ Systematic remediation of 159 Java CodeQL security alerts through a "hard fixes 
 **Build Status**: ✅ SUCCESS (12.5 seconds)
 
 **Example**:
+
 ```java
 // BEFORE (Vulnerable)
 String query = "SELECT id FROM PSPage WHERE TEMPLATEID = '" + templateId + "'";
@@ -86,6 +87,7 @@ NativeQuery nativeQuery = session.createNativeQuery(query)
 **Build Status**: ✅ SUCCESS
 
 **Example**:
+
 ```java
 // BEFORE (Vulnerable)
 throw new Exception("Workflow '" + workflowName + "' not found");
@@ -138,6 +140,7 @@ throw new Exception("Workflow '" + safeName + "' not found");
 **Build Status**: ✅ SUCCESS (18.750 seconds)
 
 **Example**:
+
 ```java
 // BEFORE (Vulnerable)
 Pattern pattern = Pattern.compile(userSearchTerm);  // CWE-94!
@@ -159,21 +162,21 @@ List<String> matches = items.stream()
 
 ### Production Code Quality
 
-| Module | Files Modified | Lines Changed | Test Coverage | Build Status |
-|---|---|---|---|---|
-| perc-security-utils | 1 | +150 additions | Via usage | ✅ SUCCESS |
-| sitemanage (Main) | 2 | +85 additions | Integration | ✅ SUCCESS |
-| sitemanage (Test) | 1 | +412 additions | 25 tests | ✅ 25/25 PASS |
-| **Total** | **4** | **+647 lines** | **Complete** | **✅ ALL PASS** |
+|       Module        | Files Modified | Lines Changed  | Test Coverage |  Build Status  |
+|---------------------|----------------|----------------|---------------|----------------|
+| perc-security-utils | 1              | +150 additions | Via usage     | ✅ SUCCESS      |
+| sitemanage (Main)   | 2              | +85 additions  | Integration   | ✅ SUCCESS      |
+| sitemanage (Test)   | 1              | +412 additions | 25 tests      | ✅ 25/25 PASS   |
+| **Total**           | **4**          | **+647 lines** | **Complete**  | **✅ ALL PASS** |
 
 ### Test Coverage Summary
 
-| Test Category | Count | Status | Coverage |
-|---|---|---|---|
-| Regex Injection Unit Tests | 25 | ✅ PASS | 100% |
-| SQL Injection Integration Testing | Implicit | ✅ PASS | Via DAO layer |
-| XSS Prevention Integration Testing | Implicit | ✅ PASS | Via REST endpoints |
-| **Total Test Validation** | **25+** | **✅ ALL PASS** | **Comprehensive** |
+|           Test Category            |  Count   |     Status     |      Coverage      |
+|------------------------------------|----------|----------------|--------------------|
+| Regex Injection Unit Tests         | 25       | ✅ PASS         | 100%               |
+| SQL Injection Integration Testing  | Implicit | ✅ PASS         | Via DAO layer      |
+| XSS Prevention Integration Testing | Implicit | ✅ PASS         | Via REST endpoints |
+| **Total Test Validation**          | **25+**  | **✅ ALL PASS** | **Comprehensive**  |
 
 ---
 
@@ -189,11 +192,11 @@ All methods use Java standard library only:
 
 ### Updated Dependencies
 
-| Library | Previous | New | Reason | Risk |
-|---|---|---|---|---|
-| commons-text | Not included | 1.15.0 | HTML encoding for XSS | ✅ NONE |
-| commons-lang3 | ~3.14 | ~3.14 | Already in use | ✅ NONE |
-| junit-jupiter | 5.9.x | 5.9.x | No change | ✅ NONE |
+|    Library    |   Previous   |  New   |        Reason         |  Risk  |
+|---------------|--------------|--------|-----------------------|--------|
+| commons-text  | Not included | 1.15.0 | HTML encoding for XSS | ✅ NONE |
+| commons-lang3 | ~3.14        | ~3.14  | Already in use        | ✅ NONE |
+| junit-jupiter | 5.9.x        | 5.9.x  | No change             | ✅ NONE |
 
 **Vulnerability Scan**: ✅ No CVEs in new/updated dependencies
 
@@ -212,6 +215,7 @@ All methods use Java standard library only:
 ### Implementation Pattern
 
 All fixes follow this pattern:
+
 ```
 USER INPUT → ESCAPE/ENCODE → COMPILE/USE → SAFE OPERATIONS
 ```
@@ -229,6 +233,7 @@ This ensures:
 ### High Priority - Next Phase
 
 #### SSRF (CWE-918) - 6 alerts
+
 **Status**: ⏳ PENDING
 **Strategy**: Create `SecureUrlValidator` utility in perc-security-utils
 - Whitelist-based URL validation
@@ -237,6 +242,7 @@ This ensures:
 - Validate port numbers
 
 #### Unsafe Deserialization (CWE-502) - 4 alerts
+
 **Status**: ⏳ PENDING
 **Strategy**: Avoid Java serialization where possible
 - Use JSON serialization instead
@@ -244,6 +250,7 @@ This ensures:
 - Use `ObjectInputFilter` for additional safety
 
 #### XXE (CWE-611) - 1 alert
+
 **Status**: ⏳ PENDING
 **Strategy**: Use perc-xml-security library
 - Already available, may need documentation
@@ -251,6 +258,7 @@ This ensures:
 - Use SAX parser with secure settings
 
 #### Polynomial ReDoS (CWE-1333) - 2 alerts
+
 **Status**: ⏳ PENDING
 **Strategy**: Apply regex injection fixes where applicable
 - Some ReDoS fixed by CWE-94 fixes
@@ -265,6 +273,7 @@ This ensures:
 ## Build Verification
 
 ### Clean Build from Root
+
 ```bash
 mvn clean compile install -DskipTests
 ```
@@ -272,11 +281,13 @@ mvn clean compile install -DskipTests
 **Status**: ✅ SUCCESS
 
 ### Test Execution
+
 ```bash
 mvn test -Dtest=PSSearchPatternServiceSecurityTest
 ```
 
 **Results**:
+
 ```
 Tests run: 25, Failures: 0, Errors: 0, Skipped: 0
 Total time: 18.750 seconds
@@ -285,16 +296,17 @@ BUILD SUCCESS
 
 ### Module-Specific Builds
 
-| Module | Command | Status | Time |
-|---|---|---|---|
+|       Module        |                           Command                            |  Status   | Time  |
+|---------------------|--------------------------------------------------------------|-----------|-------|
 | perc-security-utils | `./mvn-env.sh -pl modules/perc-security-utils clean install` | ✅ SUCCESS | 12.5s |
-| sitemanage | `./mvn-env.sh -pl projects/sitemanage clean compile test` | ✅ SUCCESS | 18.7s |
+| sitemanage          | `./mvn-env.sh -pl projects/sitemanage clean compile test`    | ✅ SUCCESS | 18.7s |
 
 ---
 
 ## Implementation Timeline
 
 ### Phase 1: Foundation (✅ Complete)
+
 - Extended perc-security-utils with SQL parameterization support
 - Added XSS encoding utilities
 - Created test infrastructure and patterns
@@ -302,6 +314,7 @@ BUILD SUCCESS
 **Completion**: Dec 20, 2024
 
 ### Phase 2: Core Fixes (✅ Complete)
+
 - SQL injection prevention in PSPageDaoHelper (4 methods)
 - XSS prevention in PSFolderRestService (2 methods)
 - Regex injection prevention library + service (3+3 methods)
@@ -310,6 +323,7 @@ BUILD SUCCESS
 **Completion**: Dec 20, 2024
 
 ### Phase 3: Remaining Vulnerabilities (⏳ Pending)
+
 - SSRF prevention (6 alerts)
 - Unsafe Deserialization handling (4 alerts)
 - XXE prevention (1 alert)
@@ -318,6 +332,7 @@ BUILD SUCCESS
 **Estimated**: Dec 21-22, 2024
 
 ### Phase 4: Validation & Documentation (⏳ Pending)
+
 - Full codebase scan for similar patterns
 - Create refactoring roadmap
 - Generate migration guide for developers
@@ -328,15 +343,15 @@ BUILD SUCCESS
 
 ### New/Modified Files
 
-| File | Type | Status | Content |
-|---|---|---|---|
-| [SecureStringUtils.java](modules/perc-security-utils/src/main/java/com/percussion/security/SecureStringUtils.java) | Modified | ✅ | +3 regex methods, +150 lines |
-| [PSPageDaoHelper.java](projects/sitemanage/src/main/java/com/percussion/pagemanagement/dao/PSPageDaoHelper.java) | Modified | ✅ | Parameterized 4 methods |
-| [PSFolderRestService.java](projects/sitemanage/src/main/java/com/percussion/share/workflow/PSFolderRestService.java) | Modified | ✅ | HTML encoding in 2 methods |
-| [PSSearchPatternService.java](projects/sitemanage/src/main/java/com/percussion/search/service/PSSearchPatternService.java) | Created | ✅ | Reference implementation, 145 lines |
-| [PSSearchPatternServiceSecurityTest.java](projects/sitemanage/src/test/java/com/percussion/search/service/PSSearchPatternServiceSecurityTest.java) | Created | ✅ | 25 security tests, 412 lines |
-| [REGEX-INJECTION-PREVENTION.md](docs/ai-generated/tasks/REGEX-INJECTION-PREVENTION.md) | Created | ✅ | Comprehensive documentation |
-| [pom.xml](projects/sitemanage/pom.xml) | Modified | ✅ | Added commons-text dependency |
+|                                                                        File                                                                        |   Type   | Status |               Content               |
+|----------------------------------------------------------------------------------------------------------------------------------------------------|----------|--------|-------------------------------------|
+| [SecureStringUtils.java](modules/perc-security-utils/src/main/java/com/percussion/security/SecureStringUtils.java)                                 | Modified | ✅      | +3 regex methods, +150 lines        |
+| [PSPageDaoHelper.java](projects/sitemanage/src/main/java/com/percussion/pagemanagement/dao/PSPageDaoHelper.java)                                   | Modified | ✅      | Parameterized 4 methods             |
+| [PSFolderRestService.java](projects/sitemanage/src/main/java/com/percussion/share/workflow/PSFolderRestService.java)                               | Modified | ✅      | HTML encoding in 2 methods          |
+| [PSSearchPatternService.java](projects/sitemanage/src/main/java/com/percussion/search/service/PSSearchPatternService.java)                         | Created  | ✅      | Reference implementation, 145 lines |
+| [PSSearchPatternServiceSecurityTest.java](projects/sitemanage/src/test/java/com/percussion/search/service/PSSearchPatternServiceSecurityTest.java) | Created  | ✅      | 25 security tests, 412 lines        |
+| [REGEX-INJECTION-PREVENTION.md](docs/ai-generated/tasks/REGEX-INJECTION-PREVENTION.md)                                                             | Created  | ✅      | Comprehensive documentation         |
+| [pom.xml](projects/sitemanage/pom.xml)                                                                                                             | Modified | ✅      | Added commons-text dependency       |
 
 ---
 
@@ -368,18 +383,21 @@ BUILD SUCCESS
 ## References
 
 ### CWE Standards
+
 - [CWE-89: SQL Injection](https://cwe.mitre.org/data/definitions/89.html)
 - [CWE-79: Cross-Site Scripting (XSS)](https://cwe.mitre.org/data/definitions/79.html)
 - [CWE-94: Code Injection](https://cwe.mitre.org/data/definitions/94.html)
 - [CWE-918: SSRF](https://cwe.mitre.org/data/definitions/918.html)
 
 ### OWASP Resources
+
 - [OWASP Top 10 2021](https://owasp.org/Top10/)
 - [A03:2021 – Injection](https://owasp.org/Top10/A03_2021-Injection/)
 - [SQL Injection Prevention](https://cheatsheetseries.owasp.org/cheatsheets/SQL_Injection_Prevention_Cheat_Sheet.html)
 - [Cross-site Scripting Prevention](https://cheatsheetseries.owasp.org/cheatsheets/Cross_Site_Scripting_Prevention_Cheat_Sheet.html)
 
 ### Java Documentation
+
 - [java.util.regex.Pattern documentation](https://docs.oracle.com/en/java/javase/21/docs/api/)
 - [Hibernate NativeQuery API](https://docs.jboss.org/hibernate/orm/6.0/userguide/html_single/)
 

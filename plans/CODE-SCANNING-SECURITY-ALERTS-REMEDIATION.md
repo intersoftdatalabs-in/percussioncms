@@ -21,54 +21,55 @@ This plan provides a structured approach to remediate these security issues with
 
 ### JavaScript/TypeScript Alerts (240+ total)
 
-| Rule | Severity | Count | Category |
-|------|----------|-------|----------|
-| js/incomplete-sanitization | warning | 107 | DOM/XSS |
-| js/xss-through-dom | warning | 90 | DOM/XSS |
-| js/functionality-from-untrusted-source | warning | 47 | Untrusted Sources |
-| js/html-constructed-from-input | error | 34 | DOM/XSS |
-| js/unsafe-jquery-plugin | warning | 21 | jQuery |
-| js/prototype-pollution-utility | warning | 11 | Prototype Pollution |
-| js/incomplete-multi-character-sanitization | warning | 7 | Sanitization |
-| js/bad-tag-filter | warning | 7 | Filtering |
-| js/useless-regexp-character-escape | error | 6 | Regex |
-| js/unsafe-html-expansion | warning | 4 | DOM/XSS |
-| js/code-injection | error | 4 | Code Injection |
-| js/redos | error | 3 | ReDoS |
-| js/overly-large-range | warning | 3 | Regex |
-| js/xss-through-exception | warning | 2 | XSS |
-| js/unvalidated-dynamic-method-call | warning | 2 | Validation |
-| js/polynomial-redos | warning | 2 | ReDoS |
+|                    Rule                    | Severity | Count |      Category       |
+|--------------------------------------------|----------|-------|---------------------|
+| js/incomplete-sanitization                 | warning  | 107   | DOM/XSS             |
+| js/xss-through-dom                         | warning  | 90    | DOM/XSS             |
+| js/functionality-from-untrusted-source     | warning  | 47    | Untrusted Sources   |
+| js/html-constructed-from-input             | error    | 34    | DOM/XSS             |
+| js/unsafe-jquery-plugin                    | warning  | 21    | jQuery              |
+| js/prototype-pollution-utility             | warning  | 11    | Prototype Pollution |
+| js/incomplete-multi-character-sanitization | warning  | 7     | Sanitization        |
+| js/bad-tag-filter                          | warning  | 7     | Filtering           |
+| js/useless-regexp-character-escape         | error    | 6     | Regex               |
+| js/unsafe-html-expansion                   | warning  | 4     | DOM/XSS             |
+| js/code-injection                          | error    | 4     | Code Injection      |
+| js/redos                                   | error    | 3     | ReDoS               |
+| js/overly-large-range                      | warning  | 3     | Regex               |
+| js/xss-through-exception                   | warning  | 2     | XSS                 |
+| js/unvalidated-dynamic-method-call         | warning  | 2     | Validation          |
+| js/polynomial-redos                        | warning  | 2     | ReDoS               |
 
 ### Java Alerts (200+ total)
 
-| Rule | Severity | Count | Category |
-|------|----------|-------|----------|
-| java/path-injection | error | 58 | Path Traversal |
-| java/xss | error | 30 | XSS |
-| java/error-message-exposure | error | 15 | Information Disclosure |
-| java/sql-injection | error | 8 | SQL Injection |
-| java/zipslip | error | 7 | Path Traversal |
-| java/ssrf | error | 6 | SSRF |
-| java/regex-injection | error | 6 | Regex Injection |
-| java/unvalidated-url-forward | error | 4 | Open Redirect |
-| java/unsafe-deserialization | error | 4 | Deserialization |
-| java/weak-cryptographic-algorithm | warning | 3 | Cryptography |
-| java/implicit-cast-in-compound-assignment | warning | 3 | Type Safety |
-| java/polynomial-redos | warning | 2 | ReDoS |
-| java/unvalidated-url-redirection | error | 2 | Open Redirect |
-| java/static-initialization-vector | warning | 2 | Cryptography |
-| java/insecure-trustmanager | error | 2 | TLS/SSL |
-| java/xxe | error | 1 | XML Injection |
-| java/unsafe-hostname-verification | error | 1 | TLS/SSL |
-| java/redos | error | 1 | ReDoS |
-| java/ldap-injection | error | 1 | LDAP Injection |
+|                   Rule                    | Severity | Count |        Category        |
+|-------------------------------------------|----------|-------|------------------------|
+| java/path-injection                       | error    | 58    | Path Traversal         |
+| java/xss                                  | error    | 30    | XSS                    |
+| java/error-message-exposure               | error    | 15    | Information Disclosure |
+| java/sql-injection                        | error    | 8     | SQL Injection          |
+| java/zipslip                              | error    | 7     | Path Traversal         |
+| java/ssrf                                 | error    | 6     | SSRF                   |
+| java/regex-injection                      | error    | 6     | Regex Injection        |
+| java/unvalidated-url-forward              | error    | 4     | Open Redirect          |
+| java/unsafe-deserialization               | error    | 4     | Deserialization        |
+| java/weak-cryptographic-algorithm         | warning  | 3     | Cryptography           |
+| java/implicit-cast-in-compound-assignment | warning  | 3     | Type Safety            |
+| java/polynomial-redos                     | warning  | 2     | ReDoS                  |
+| java/unvalidated-url-redirection          | error    | 2     | Open Redirect          |
+| java/static-initialization-vector         | warning  | 2     | Cryptography           |
+| java/insecure-trustmanager                | error    | 2     | TLS/SSL                |
+| java/xxe                                  | error    | 1     | XML Injection          |
+| java/unsafe-hostname-verification         | error    | 1     | TLS/SSL                |
+| java/redos                                | error    | 1     | ReDoS                  |
+| java/ldap-injection                       | error    | 1     | LDAP Injection         |
 
 ---
 
 ## Remediation Strategy
 
 ### Phase 1: Critical Security Issues (Weeks 1-2)
+
 **Focus**: High-impact vulnerabilities that could lead to code execution or data exposure
 
 **Java Priorities** (Risk: CRITICAL):
@@ -94,6 +95,7 @@ This plan provides a structured approach to remediate these security issues with
 - [ ] Run security tests to validate fixes
 
 ### Phase 2: XSS and Sanitization Issues (Weeks 3-4)
+
 **Focus**: Cross-site scripting vulnerabilities and incomplete sanitization
 
 **JavaScript Priorities** (197 alerts):
@@ -112,6 +114,7 @@ This plan provides a structured approach to remediate these security issues with
 - [ ] Add sanitization validation tests
 
 ### Phase 3: Information Disclosure & Open Redirects (Week 5)
+
 **Focus**: Information leakage and security configuration issues
 
 **Priorities**:
@@ -129,6 +132,7 @@ This plan provides a structured approach to remediate these security issues with
 - [ ] Add security configuration audit
 
 ### Phase 4: Regular Expression and Utility Issues (Week 6)
+
 **Focus**: ReDoS vulnerabilities and regex/utility function improvements
 
 **Priorities**:
@@ -145,6 +149,7 @@ This plan provides a structured approach to remediate these security issues with
 - [ ] Review other miscellaneous alerts
 
 ### Phase 5: Testing, Documentation & Validation (Week 7)
+
 **Focus**: Ensure all fixes are tested and properly documented
 
 **Actions**:
@@ -162,6 +167,7 @@ This plan provides a structured approach to remediate these security issues with
 ### Java Fixes
 
 #### SQL Injection Prevention
+
 ```java
 // BAD:
 String query = "SELECT * FROM users WHERE id = " + userId;
@@ -173,6 +179,7 @@ stmt.setInt(1, userId);
 ```
 
 #### Path Injection Prevention
+
 ```java
 // BAD:
 String filePath = userInputPath;
@@ -187,6 +194,7 @@ if (!requestedPath.startsWith(basePath)) {
 ```
 
 #### XSS Prevention in Templates
+
 - Use context-aware escaping in all template engines
 - Enable auto-escaping by default
 - Use security libraries like ESAPI for encoding
@@ -194,6 +202,7 @@ if (!requestedPath.startsWith(basePath)) {
 ### JavaScript Fixes
 
 #### XSS Prevention - DOM Manipulation
+
 ```javascript
 // BAD:
 element.innerHTML = userInput;
@@ -207,6 +216,7 @@ element.innerHTML = DOMPurify.sanitize(userInput);
 ```
 
 #### Sanitization
+
 ```javascript
 // Use proper sanitization library
 const sanitizeHtml = require('sanitize-html');
@@ -217,6 +227,7 @@ const clean = sanitizeHtml(dirtyHtml, {
 ```
 
 #### Integrity Checking for External Resources
+
 ```html
 <!-- Unencrypted (BAD) -->
 <script src="http://external.com/lib.js"></script>
@@ -249,25 +260,25 @@ const clean = sanitizeHtml(dirtyHtml, {
 
 ## Risk Assessment
 
-| Phase | Risk | Mitigation |
-|-------|------|-----------|
-| 1 | Breaking changes in fix | Comprehensive testing, backward compatibility check |
-| 2 | Performance impact from sanitization | Benchmark before/after, optimize if needed |
-| 3 | Production error handling | Use environment-aware error messages |
-| 4 | ReDoS patterns difficult to identify | Use regex analysis tools, expert review |
-| 5 | False positives remain | Manual review, whitelist if appropriate |
+| Phase |                 Risk                 |                     Mitigation                      |
+|-------|--------------------------------------|-----------------------------------------------------|
+| 1     | Breaking changes in fix              | Comprehensive testing, backward compatibility check |
+| 2     | Performance impact from sanitization | Benchmark before/after, optimize if needed          |
+| 3     | Production error handling            | Use environment-aware error messages                |
+| 4     | ReDoS patterns difficult to identify | Use regex analysis tools, expert review             |
+| 5     | False positives remain               | Manual review, whitelist if appropriate             |
 
 ---
 
 ## Timeline & Deliverables
 
-| Week | Phase | Deliverables |
-|------|-------|--------------|
-| 1-2 | Phase 1 (Critical) | 1 PR, ~140 fixes |
-| 3-4 | Phase 2 (XSS) | 1 PR, ~230 fixes |
-| 5 | Phase 3 (Disclosure) | 1 PR, ~60 fixes |
-| 6 | Phase 4 (Utilities) | 1 PR, ~60 fixes |
-| 7 | Phase 5 (Validation) | Final testing, documentation, summary |
+| Week |        Phase         |             Deliverables              |
+|------|----------------------|---------------------------------------|
+| 1-2  | Phase 1 (Critical)   | 1 PR, ~140 fixes                      |
+| 3-4  | Phase 2 (XSS)        | 1 PR, ~230 fixes                      |
+| 5    | Phase 3 (Disclosure) | 1 PR, ~60 fixes                       |
+| 6    | Phase 4 (Utilities)  | 1 PR, ~60 fixes                       |
+| 7    | Phase 5 (Validation) | Final testing, documentation, summary |
 
 **Total Duration**: 7 weeks
 **Estimated Coverage**: 490+ alerts (95%)
@@ -310,3 +321,4 @@ const clean = sanitizeHtml(dirtyHtml, {
 - Some alerts may be false positives or in test code that could be dismissed after review
 - Consider configuring CodeQL to ignore test code for some rules if appropriate
 - Each phase should include code review and testing before merge
+

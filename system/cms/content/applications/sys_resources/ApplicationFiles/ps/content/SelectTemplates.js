@@ -108,9 +108,7 @@ ps.content.SelectTemplates = function () {
     this.wgtTemplates = document.getElementById(
       "ps.select.templates.wgtTemplates"
     );
-    this.wgtPreviewPane = ps.widget.byId(
-      "ps.select.templates.wgtPreviewPane"
-    );
+    this.wgtPreviewPane = ps.widget.byId("ps.select.templates.wgtPreviewPane");
     this.wgtTemplates.onchange = function () {
       _this.onTemplateChoice();
     };

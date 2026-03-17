@@ -27,17 +27,20 @@ src/main/resources/i18n/                     # Translation resources
 All translation memory exchange (TMX) files are maintained in this module:
 
 ### ResourceBundle.tmx
+
 - **Purpose**: Master i18n resource bundle for system initialization
 - **Scope**: Server-wide resources and core system strings
 - **Format**: TMX 1.4 with supported language declarations
 
 ### CmsUi.tmx
+
 - **Purpose**: UI-specific translations for the CMS interface
 - **Scope**: Content Manager UI components, dialogs, and labels
 - **Supported Languages**: en-us, es, hi
 - **Naming Convention**: Keys follow pattern `perc.ui.(IDENTIFIER).(TYPE)@(MESSAGE/KEY)`
 
 ### SystemResources.tmx
+
 - **Purpose**: System and content editor resources
 - **Scope**: Content editor actions, system messages, and resource definitions
 - **Key Examples**: `psx.ce.action@Check-in`, `psx.ce.action@Update`
@@ -59,17 +62,20 @@ The perc-i18n module is consumed by `perc-distribution-tree` during the build pr
 The following consolidation was performed to align i18n resources with proper Maven structure:
 
 ### Files Moved to perc-i18n
+
 - `ResourceBundle.tmx` (from `/system/config/I18n/`)
 - `CmsUi.tmx` (from `/system/cms/content/applications/sys_resources/ApplicationFiles/i18n/`)
 - `SystemResources.tmx` (from `/system/cms/content/applications/sys_resources/ApplicationFiles/i18n/`)
 
 ### Rationale
+
 1. **Single Source of Truth**: All i18n resources now reside in one module, eliminating duplication
 2. **Maven Compliance**: Resources follow Maven standard directory structure (`src/main/resources/`)
 3. **Cleaner Distribution**: perc-distribution-tree pulls resources from perc-i18n rather than scattering across multiple locations
 4. **Maintainability**: Framework code and translation resources are colocated
 
 ### Legacy Location Cleanup
+
 - Removed TMX files from `/system/config/I18n/` (keeping only `sys_createTranslations.properties`)
 - Removed TMX files from `/system/cms/content/applications/sys_resources/ApplicationFiles/i18n/`
 - These legacy locations are no longer part of the Maven build
@@ -91,11 +97,13 @@ The module will:
 ## Using i18n Resources
 
 ### At Runtime
+
 - The `PSTmxResourceBundle` class loads TMX files from `rxconfig/i18n/ResourceBundle.tmx`
 - Language selection happens during server initialization via `PSI18nStartupManager`
 - Additional TMX files (CmsUi.tmx, SystemResources.tmx) are loaded by applications that reference them
 
 ### In Applications
+
 Applications reference i18n extensions and resources through content editor definitions:
 - Extension: `Java/i18n/sys_LocalizedTextLookup`
 - Extension: `Java/i18n/sys_LocalizedTextLookupUser`
@@ -117,6 +125,7 @@ The module includes unit tests for:
 - Language-specific resource handling
 
 Run tests with:
+
 ```bash
 ../../mvn-env.sh -pl modules/perc-i18n test
 ```
@@ -134,3 +143,4 @@ Run tests with:
 - Enhance language tool integration for new language support
 - Implement more sophisticated resource merging strategies
 - Add support for runtime language switching without server restart
+

@@ -10,7 +10,6 @@
 
 // ps.aa.dnd — dojo.provide/require removed (jQuery + ps/compat.js)
 
-
 /**
  * The Drag and Drop (view) controller.
  * Provides DnD functionality to Assembly Page.
@@ -145,10 +144,7 @@ ps.aa.dnd = new (function () {
   this._resetDropTargetVertical = function (invocation) {
     var dropTarget = invocation.object;
     var slotId = this._getDropTargetId(dropTarget);
-    ps.assert(
-      slotId,
-      "Object id should be specified on the drop target"
-    );
+    ps.assert(slotId, "Object id should be specified on the drop target");
     dropTarget.vertical = this._isDropIndicatorVertical(dropTarget);
     return invocation.proceed();
   };
@@ -173,11 +169,9 @@ ps.aa.dnd = new (function () {
     var targetSlotId = this._getDropTargetId(dropTarget);
 
     // exclude snippets inside of snippets
-    var snippetIds = this._getSnippetIds(targetSlotId).filter(
-      function (id) {
-        return id.getSlotId() === targetSlotId.getSlotId();
-      }
-    );
+    var snippetIds = this._getSnippetIds(targetSlotId).filter(function (id) {
+      return id.getSlotId() === targetSlotId.getSlotId();
+    });
     var snippetIdStrings = snippetIds.map(function (id) {
       return id.serialize();
     });
@@ -383,10 +377,7 @@ ps.aa.dnd = new (function () {
     }
 
     console.debug(refNode);
-    ps.assert(
-      false,
-      "Could not find reference node in the list of nodes"
-    );
+    ps.assert(false, "Could not find reference node in the list of nodes");
   };
 
   /**

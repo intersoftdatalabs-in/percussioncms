@@ -6,7 +6,6 @@
   Licensed under the MIT @license.
 */
 (function ($, _, Backbone, Backgrid, moment) {
-
   /**
      MomentFormatter converts bi-directionally any datetime values in any format
      supported by [moment()](http://momentjs.com/docs/#/parsing/) to any
@@ -18,12 +17,13 @@
      @extends Backgrid.CellFormatter
      @constructor
    */
-  var MomentFormatter = Backgrid.Extension.MomentFormatter = function (options) {
+  var MomentFormatter = (Backgrid.Extension.MomentFormatter = function (
+    options
+  ) {
     _.extend(this, this.defaults, options);
-  };
-  MomentFormatter.prototype = new Backgrid.CellFormatter;
+  });
+  MomentFormatter.prototype = new Backgrid.CellFormatter();
   _.extend(MomentFormatter.prototype, {
-
     /**
        @cfg {Object} options
 
@@ -69,7 +69,7 @@
       displayInUnixTimestamp: false,
       displayInUTC: true,
       displayLang: moment.lang(),
-      displayFormat: moment.defaultFormat
+      displayFormat: moment.defaultFormat,
     },
 
     /**
@@ -80,13 +80,15 @@
        @return {string}
      */
     fromRaw: function (rawData) {
-      if (rawData == null) return '';
+      if (rawData == null) return "";
 
-      var m = this.modelInUnixOffset ? moment(rawData) :
-        this.modelInUnixTimestamp ? moment.unix(rawData) :
-        this.modelInUTC ?
-        moment.utc(rawData, this.modelFormat, this.modelLang) :
-        moment(rawData, this.modelFormat, this.modelLang);
+      var m = this.modelInUnixOffset
+        ? moment(rawData)
+        : this.modelInUnixTimestamp
+        ? moment.unix(rawData)
+        : this.modelInUTC
+        ? moment.utc(rawData, this.modelFormat, this.modelLang)
+        : moment(rawData, this.modelFormat, this.modelLang);
 
       if (this.displayInUnixOffset) return +m;
 
@@ -94,7 +96,8 @@
 
       if (this.displayLang) m.lang(this.displayLang);
 
-      if (this.displayInUTC) m.utc(); else m.local();
+      if (this.displayInUTC) m.utc();
+      else m.local();
 
       return m.format(this.displayFormat);
     },
@@ -107,12 +110,13 @@
        @return {string}
      */
     toRaw: function (formattedData) {
-
-      var m = this.displayInUnixOffset ? moment(+formattedData) :
-        this.displayInUnixTimestamp ? moment.unix(+formattedData) :
-        this.displayInUTC ?
-        moment.utc(formattedData, this.displayFormat, this.displayLang) :
-        moment(formattedData, this.displayFormat, this.displayLang);
+      var m = this.displayInUnixOffset
+        ? moment(+formattedData)
+        : this.displayInUnixTimestamp
+        ? moment.unix(+formattedData)
+        : this.displayInUTC
+        ? moment.utc(formattedData, this.displayFormat, this.displayLang)
+        : moment(formattedData, this.displayFormat, this.displayLang);
 
       if (!m || !m.isValid()) return;
 
@@ -122,11 +126,11 @@
 
       if (this.modelLang) m.lang(this.modelLang);
 
-      if (this.modelInUTC) m.utc(); else m.local();
+      if (this.modelInUTC) m.utc();
+      else m.local();
 
       return m.format(this.modelFormat);
-    }
-
+    },
   });
 
   /**
@@ -136,8 +140,7 @@
      @class Backgrid.Extension.MomentCell
      @extends Backgrid.Cell
    */
-  var MomentCell = Backgrid.Extension.MomentCell = Backgrid.Cell.extend({
-
+  var MomentCell = (Backgrid.Extension.MomentCell = Backgrid.Cell.extend({
     editor: Backgrid.InputCellEditor,
 
     /** @property */
@@ -151,7 +154,6 @@
        Backgrid.Cell.initialize required parameters.
      */
     initialize: function (options) {
-
       Backgrid.Cell.prototype.initialize.apply(this, arguments);
 
       var formatterDefaults = MomentFormatter.prototype.defaults;
@@ -159,17 +161,21 @@
       var classAttrs = _.pick(this, formatterDefaultKeys);
       var formatterOptions = _.pick(options, formatterDefaultKeys);
 
-      this.formatter = new this.formatter(_.extend({}, formatterDefaults, classAttrs, formatterOptions));
+      this.formatter = new this.formatter(
+        _.extend({}, formatterDefaults, classAttrs, formatterOptions)
+      );
 
       this.editor = this.editor.extend({
-        attributes: _.extend({}, this.editor.prototype.attributes || this.editor.attributes || {}, {
-          placeholder: this.formatter.displayFormat
-        })
+        attributes: _.extend(
+          {},
+          this.editor.prototype.attributes || this.editor.attributes || {},
+          {
+            placeholder: this.formatter.displayFormat,
+          }
+        ),
       });
-    }
-
-  });
+    },
+  }));
 
   _.extend(MomentCell.prototype, MomentFormatter.prototype.defaults);
-
-}(jQuery, _, Backbone, Backgrid, moment));
+})(jQuery, _, Backbone, Backgrid, moment);

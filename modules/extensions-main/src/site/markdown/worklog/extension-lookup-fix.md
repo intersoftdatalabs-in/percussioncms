@@ -129,7 +129,8 @@ with no extension-not-found errors.
 
 ## Files changed
 
-| File | Change |
-| --- | --- |
-| `system/src/main/java/com/percussion/extension/PSExtensionHandlerConfiguration.java` | Inner map key changed from `PSExtensionRef` to `String` (FQN); `load()` catch block now logs `ERROR` |
-| `system/src/main/java/com/percussion/extension/PSExtensionRef.java` | No net change — category restored to `equals()`/`hashCode()` after an intermediate incorrect workaround was reverted |
+|                                         File                                         |                                                        Change                                                        |
+|--------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------------|
+| `system/src/main/java/com/percussion/extension/PSExtensionHandlerConfiguration.java` | Inner map key changed from `PSExtensionRef` to `String` (FQN); `load()` catch block now logs `ERROR`                 |
+| `system/src/main/java/com/percussion/extension/PSExtensionRef.java`                  | No net change — category restored to `equals()`/`hashCode()` after an intermediate incorrect workaround was reverted |
+

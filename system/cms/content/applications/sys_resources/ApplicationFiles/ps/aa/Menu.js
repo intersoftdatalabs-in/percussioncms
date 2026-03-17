@@ -10,7 +10,6 @@
 
 // ps.aa.Menu — dojo.provide/require removed (jQuery + ps/compat.js)
 
-
 /**
  * This is used to manage the menubar and context menu for the current
  * selected object, which could be the page, a snippet or a slot.
@@ -813,10 +812,10 @@ ps.aa.Menu = new (function () {
       _this._resetLastMenubar();
     }
 
-    this.contentElem = ps.widget.createWidget(
-      ps.aa.Menu.MENUBARITEMDROPDOWN,
-      { caption: "Content", submenuId: "ps.aa.ContentSubMenu" }
-    );
+    this.contentElem = ps.widget.createWidget(ps.aa.Menu.MENUBARITEMDROPDOWN, {
+      caption: "Content",
+      submenuId: "ps.aa.ContentSubMenu",
+    });
     this.contentElem.createSubmenu = createSubmenu;
     menubar.addChild(this.contentElem);
   };
@@ -832,15 +831,12 @@ ps.aa.Menu = new (function () {
         id: "ps.aa.AccountSubMenu",
       });
 
-      _this.accountUserInfoElem = ps.widget.createWidget(
-        ps.aa.Menu.MENUITEM,
-        {
-          caption: "User Info",
-          onClick: function () {
-            ps.UserInfo.showInfo();
-          },
-        }
-      );
+      _this.accountUserInfoElem = ps.widget.createWidget(ps.aa.Menu.MENUITEM, {
+        caption: "User Info",
+        onClick: function () {
+          ps.UserInfo.showInfo();
+        },
+      });
       popmenu.addChild(_this.accountUserInfoElem);
 
       _this.accountLogoutElem = ps.widget.createWidget(ps.aa.Menu.MENUITEM, {
@@ -852,10 +848,10 @@ ps.aa.Menu = new (function () {
       popmenu.addChild(_this.accountLogoutElem);
     }
 
-    this.accountElem = ps.widget.createWidget(
-      ps.aa.Menu.MENUBARITEMDROPDOWN,
-      { caption: "Account", submenuId: "ps.aa.AccountSubMenu" }
-    );
+    this.accountElem = ps.widget.createWidget(ps.aa.Menu.MENUBARITEMDROPDOWN, {
+      caption: "Account",
+      submenuId: "ps.aa.AccountSubMenu",
+    });
     this.accountElem.createSubmenu = createSubmenu;
     menubar.addChild(this.accountElem);
   };
@@ -1079,15 +1075,12 @@ ps.aa.Menu = new (function () {
       });
       itemMenu.addChild(_this.ctxNewFromSnippet);
 
-      _this.ctxInsertFromSnippet = ps.widget.createWidget(
-        ps.aa.Menu.MENUITEM,
-        {
-          caption: "Insert...",
-          onClick: function () {
-            ps.aa.controller.addSnippet(ps.aa.Menu.INSERT_FROM_SNIPPET);
-          },
-        }
-      );
+      _this.ctxInsertFromSnippet = ps.widget.createWidget(ps.aa.Menu.MENUITEM, {
+        caption: "Insert...",
+        onClick: function () {
+          ps.aa.controller.addSnippet(ps.aa.Menu.INSERT_FROM_SNIPPET);
+        },
+      });
       itemMenu.addChild(_this.ctxInsertFromSnippet);
 
       _this.ctxReplaceFromSnippet = ps.widget.createWidget(

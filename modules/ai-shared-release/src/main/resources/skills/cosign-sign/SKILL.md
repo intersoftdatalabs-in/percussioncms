@@ -4,6 +4,7 @@ description: Signs an AI resource by generating a SHA-256 hash and a detached Si
 version: 1.0
 
 ---
+
 # Cosign Sign Skill
 
 **Purpose**: Authenticate an AI resource.
@@ -17,3 +18,4 @@ REPO_ROOT=$(git rev-parse --show-toplevel)
     -Dexec.mainClass="com.percussion.ai.signing.ResourceSigner" \
     -Dexec.args="$1"
 ```
+

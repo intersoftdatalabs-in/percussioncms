@@ -106,17 +106,17 @@ Add an `<Extension>` element to
 
 ### Context path conventions
 
-| Interface | Context |
-| --- | --- |
-| `IPSUdfProcessor` | `global/percussion/generic/` |
-| `IPSResultDocumentProcessor` | `global/percussion/exit/` |
-| `IPSRequestPreProcessor` | `global/percussion/exit/` |
-| `IPSPasswordFilter` | `global/percussion/filter/` |
-| `IPSFieldInputTransformer` | `global/percussion/content/` |
-| `IPSWorkflowAction` | `global/percussion/workflow/` |
-| `IPSEffect` | `global/percussion/relationship/` |
-| `IPSEditionTask` | `global/percussion/task/` |
-| `IPSAssembler` | `global/percussion/assembly/` |
+|          Interface           |              Context              |
+|------------------------------|-----------------------------------|
+| `IPSUdfProcessor`            | `global/percussion/generic/`      |
+| `IPSResultDocumentProcessor` | `global/percussion/exit/`         |
+| `IPSRequestPreProcessor`     | `global/percussion/exit/`         |
+| `IPSPasswordFilter`          | `global/percussion/filter/`       |
+| `IPSFieldInputTransformer`   | `global/percussion/content/`      |
+| `IPSWorkflowAction`          | `global/percussion/workflow/`     |
+| `IPSEffect`                  | `global/percussion/relationship/` |
+| `IPSEditionTask`             | `global/percussion/task/`         |
+| `IPSAssembler`               | `global/percussion/assembly/`     |
 
 ## Step 4: Write a unit test
 
@@ -163,6 +163,7 @@ cd /path/to/percussioncms
 ```
 
 After restart, check `server.log` for:
+
 ```
 INFO  [com.percussion.extension.PSExtensionManager] Initialization successful.
 ```
@@ -174,3 +175,4 @@ If the extension is not found at runtime, verify that:
 2. The class is in the JAR and the fully qualified `className` is correct.
 3. The interface declared in `Extensions.xml` matches what the class actually
    implements.
+

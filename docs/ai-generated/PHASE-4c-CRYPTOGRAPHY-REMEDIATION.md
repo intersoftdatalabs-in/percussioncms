@@ -14,12 +14,14 @@ Phase 4c successfully remediated CWE-327 (Use of Insufficiently Random Values) w
 ## Vulnerabilities Addressed
 
 ### 1. MD5.java - HTTPClient Legacy Class
+
 **Severity**: ⚠️ HIGH
 **CWE**: CWE-327 (Weak Cryptography - MD5)
 **Location**: `system/src/main/java/com/percussion/HTTPClient/MD5.java`
 **Status**: ✅ FIXED
 
 **Vulnerable Code**:
+
 ```java
 // BEFORE: Using deprecated MD5 algorithm
 public static final byte[] digest(byte[] input) {
@@ -33,6 +35,7 @@ public static final byte[] digest(byte[] input) {
 ```
 
 **Fix Applied**:
+
 ```java
 // AFTER: Using secure SHA-256 via PSCryptographyUtils
 @Deprecated(forRemoval = true)
@@ -47,12 +50,14 @@ public static final byte[] digest(byte[] input) {
 ---
 
 ### 2. MD5InputStream.java - HTTPClient Stream Verification
+
 **Severity**: ⚠️ HIGH
 **CWE**: CWE-327 (Weak Cryptography - MD5)
 **Location**: `system/src/main/java/com/percussion/HTTPClient/MD5InputStream.java`
 **Status**: ✅ FIXED
 
 **Vulnerable Code**:
+
 ```java
 // BEFORE: Using MessageDigest for MD5 streaming
 private MessageDigest md5;
@@ -68,6 +73,7 @@ public MD5InputStream(InputStream is, HashVerifier verifier) {
 ```
 
 **Fix Applied**:
+
 ```java
 // AFTER: Buffering data and computing SHA-256 hash at close time
 private ByteArrayOutputStream buffer;
@@ -89,6 +95,7 @@ private void real_close() throws IOException {
 ---
 
 ### 3. PSConvertLinksToManagedAction.java - SHA-1 Hash Generation
+
 **Severity**: ⚠️ HIGH
 **CWE**: CWE-327 (Weak Cryptography - SHA-1)
 **Location**: `modules/ContentUI/src/main/java/com/percussion/content/ui/aa/actions/impl/PSConvertLinksToManagedAction.java`
@@ -96,6 +103,7 @@ private void real_close() throws IOException {
 **Status**: ✅ FIXED
 
 **Vulnerable Code**:
+
 ```java
 // BEFORE: Using SHA-1 for hash generation
 private static String ShaSum(String text) {
@@ -114,6 +122,7 @@ private static String ShaSum(String text) {
 ```
 
 **Fix Applied**:
+
 ```java
 // AFTER: Using secure SHA-256 via PSCryptographyUtils
 @add import: com.percussion.security.utils.PSCryptographyUtils
@@ -128,6 +137,7 @@ private static String ShaSum(String text) {
 ---
 
 ### 4. PSDefaultPasswordEncryptionBean.java - Legacy Password Hashing
+
 **Severity**: 🔴 CRITICAL
 **CWE**: CWE-327 (Weak Cryptography - SHA-1)
 **Location**: `projects/sitemanage/src/main/java/com/percussion/user/service/impl/PSDefaultPasswordEncryptionBean.java`
@@ -135,6 +145,7 @@ private static String ShaSum(String text) {
 **Status**: ✅ FIXED
 
 **Vulnerable Code**:
+
 ```java
 // BEFORE: Using SHA-1 for legacy password encryption
 @Deprecated
@@ -153,6 +164,7 @@ public String getLegacyAlgorithm() {
 ```
 
 **Fix Applied**:
+
 ```java
 // AFTER: Migrating to SHA-256 (still deprecated for legacy compatibility)
 @add import: com.percussion.security.utils.PSCryptographyUtils
@@ -178,6 +190,7 @@ public String getLegacyAlgorithm() {
 ---
 
 ### 5. DefaultPasswordFilter.java - Legacy Password Encryption Filter
+
 **Severity**: 🔴 CRITICAL
 **CWE**: CWE-327 (Weak Cryptography - SHA-1)
 **Location**: `modules/extensions-main/src/main/java/com/percussion/filter/DefaultPasswordFilter.java`
@@ -185,6 +198,7 @@ public String getLegacyAlgorithm() {
 **Status**: ✅ FIXED
 
 **Vulnerable Code**:
+
 ```java
 // BEFORE: Using SHA-1 for legacy password filter
 @Deprecated
@@ -202,6 +216,7 @@ public String getLegacyAlgorithm() {
 ```
 
 **Fix Applied**:
+
 ```java
 // AFTER: Using secure SHA-256 for legacy password filter
 @add import: com.percussion.security.utils.PSCryptographyUtils
@@ -236,6 +251,7 @@ public String getLegacyAlgorithm() {
 **Core Methods**:
 
 #### 1. SHA-256 Hashing
+
 ```java
 // Hash byte array to SHA-256 hex string
 public static String sha256Hex(byte[] data)
@@ -250,6 +266,7 @@ public static String sha256Hex(String data)
 - General-purpose cryptographic hashing
 
 #### 2. SHA-512 Hashing
+
 ```java
 // Hash byte array to SHA-512 hex string
 public static String sha512Hex(byte[] data)
@@ -264,6 +281,7 @@ public static String sha512Hex(String data)
 - Future-proof cryptographic requirements
 
 #### 3. Algorithm Validation
+
 ```java
 // Validate algorithm strength (rejects MD5, SHA-1, DES, RC4)
 public static boolean isAlgorithmAllowed(String algorithmName)
@@ -275,6 +293,7 @@ public static boolean isAlgorithmAllowed(String algorithmName)
 - Security policy enforcement
 
 #### 4. Secure Random Salt Generation
+
 ```java
 // Generate cryptographically secure random salt
 public static byte[] generateRandomSalt(int length)
@@ -285,6 +304,7 @@ public static byte[] generateRandomSalt(int length)
 - Cryptographic initialization vectors
 
 #### 5. Algorithm Migration Helper
+
 ```java
 // Get replacement algorithm for legacy code
 public static String getReplacementAlgorithm(String legacyAlgorithm)
@@ -307,6 +327,7 @@ public static String getReplacementAlgorithm(String legacyAlgorithm)
 **Total Tests**: 37 (all passing)
 
 #### Test Organization
+
 ```
 ✅ SHA-256 Hashing Tests (8 tests)
   ✓ Compute SHA-256 hash of byte array
@@ -359,6 +380,7 @@ public static String getReplacementAlgorithm(String legacyAlgorithm)
 ```
 
 **Test Results**:
+
 ```
 Tests run: 37
 Failures: 0
@@ -409,12 +431,12 @@ All vulnerabilities fixed and modules compile successfully:
 
 ### Remediation Summary
 
-| Vulnerable | Replacement | Security Gain | Risk Reduction |
-|------------|-------------|---------------|-----------------|
-| MD5 | SHA-256 | 256-bit digest | Eliminates collision attacks |
-| SHA-1 | SHA-256 | 256-bit digest | Eliminates SHAtter attacks |
-| DES | AES | 128-256-bit keys | 2^72 security improvement |
-| RC4 | AES-GCM | Authenticated encryption | Eliminates stream cipher biases |
+| Vulnerable | Replacement |      Security Gain       |         Risk Reduction          |
+|------------|-------------|--------------------------|---------------------------------|
+| MD5        | SHA-256     | 256-bit digest           | Eliminates collision attacks    |
+| SHA-1      | SHA-256     | 256-bit digest           | Eliminates SHAtter attacks      |
+| DES        | AES         | 128-256-bit keys         | 2^72 security improvement       |
+| RC4        | AES-GCM     | Authenticated encryption | Eliminates stream cipher biases |
 
 ### Standards Compliance
 
@@ -436,6 +458,7 @@ All vulnerabilities fixed and modules compile successfully:
 ## Code Quality Improvements
 
 ### Before Phase 4c
+
 ```
 Weak Cryptography Issues: 5
   - MD5 hashing: 3 instances
@@ -445,6 +468,7 @@ Secure Utility: None
 ```
 
 ### After Phase 4c
+
 ```
 Weak Cryptography Issues: 0
   - All replaced with SHA-256
@@ -471,11 +495,13 @@ Secure Utility: PSCryptographyUtils (350+ lines)
 ### Import Statements
 
 All modules now import:
+
 ```java
 import com.percussion.security.utils.PSCryptographyUtils;
 ```
 
 Removed deprecated imports:
+
 ```java
 // Removed from password encryption modules:
 import org.apache.commons.codec.digest.DigestUtils;
@@ -492,12 +518,14 @@ import java.security.NoSuchAlgorithmException;
 ### Password Hashing Enhancement (Recommended for Phase 5)
 
 Current state (SHA-256):
+
 ```java
 // Current implementation - CWE-327 fixed but not optimal for passwords
 String passwordHash = PSCryptographyUtils.sha256Hex(password);
 ```
 
 **Recommended future enhancement** (bcrypt/PBKDF2):
+
 ```java
 // Future implementation - optimal for passwords (iteration cost + salt)
 BCrypt.hashpw(password, BCrypt.gensalt(12));
@@ -512,6 +540,7 @@ PBKDF2.derive(password, salt, 100000, 32, "HmacSHA256");
 ## Deliverables Summary
 
 ### Code Changes
+
 - ✅ 5 vulnerable files updated
 - ✅ 1 comprehensive security utility created (PSCryptographyUtils.java)
 - ✅ 37 comprehensive tests implemented
@@ -519,12 +548,14 @@ PBKDF2.derive(password, salt, 100000, 32, "HmacSHA256");
 - ✅ 100% test pass rate
 
 ### Documentation
+
 - ✅ Inline code documentation (Javadoc comments)
 - ✅ CWE-327 references in all fixed files
 - ✅ Migration notes in deprecated classes
 - ✅ This comprehensive Phase 4c summary
 
 ### Verification
+
 - ✅ All modules compile successfully
 - ✅ All 37 security tests pass
 - ✅ No regressions in existing functionality

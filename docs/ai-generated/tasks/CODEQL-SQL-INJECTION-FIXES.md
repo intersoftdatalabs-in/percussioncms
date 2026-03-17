@@ -23,31 +23,36 @@ Fixed **SQL injection vulnerabilities** in the Percussion CMS codebase by conver
 **Issue Type**: SQL Injection (CWE-89: Improper Neutralization of Special Elements used in an SQL Command)
 
 #### Vulnerability 1: Direct Template ID String Concatenation
+
 - **Method**: `findTemplateUsedByCurrentRevision(List<Integer> pages)`
 - **Line**: ~259
 - **Before**:
+
   ```java
   var sql = "... WHERE P.CONTENTID IN (" + join(pages, ",") + ") "
   ```
 - **Issue**: The IN clause values were joined as a string, allowing SQL injection
 - **Fix**: Use parameterized query with `:pageIds` placeholder
+
   ```java
   var sql = "... WHERE P.CONTENTID IN (:pageIds) ";
   query.setParameter("pageIds", pages);
   ```
 
 #### Vulnerability 2: Template ID with Quotes
+
 - **Method**: `findPageIdsByTemplateAndImportedPageIds(String templateId, List<Integer> pages)`
 - **Line**: ~275-289
 - **Before**:
+
   ```java
   var sql = "... where TEMPLATEID ='" + templateId + "' AND CONTENTID in (" + join(pages, ",") + ") ";
   ```
 - **Issues**:
   - Template ID concatenated with quotes: `'` + user input + `'`
   - Page IDs concatenated without parametersinternal
-
 - **Fix**:
+
   ```java
   var sql = "... where TEMPLATEID = :template AND CONTENTID in (:pageIds) ";
   query.setParameter("template", templateId);
@@ -55,15 +60,18 @@ Fixed **SQL injection vulnerabilities** in the Percussion CMS codebase by conver
   ```
 
 #### Vulnerability 3: Dynamic WHERE Clause Building
+
 - **Method**: `formGetByStatusSQLQuery(PSSearchCriteria criteria, String sql)`
 - **Lines**: ~407-422
 - **Before**:
+
   ```java
   sql = sql + " AND P.TEMPLATEID='" + criteria.getSearchFields().get("templateid") + "'";
   sql = sql + " AND CS.CONTENTLASTMODIFIER LIKE '%" + criteria.getSearchFields().get("sys_contentlastmodifier") + "%'";
   ```
 - **Issues**: Multiple direct string concatenations with user input
 - **Fix**: Use parameterized placeholders
+
   ```java
   sql = sql + " AND P.TEMPLATEID = :templateid";
   sql = sql + " AND CS.CONTENTLASTMODIFIER LIKE :sys_contentlastmodifier";
@@ -73,15 +81,18 @@ Fixed **SQL injection vulnerabilities** in the Percussion CMS codebase by conver
   ```
 
 #### Vulnerability 4: Content ID IN Clause
+
 - **Method**: `getContentIdsForFetchingByStatus(PSSearchCriteria criteria, List<Integer> contentIDs)`
 - **Lines**: ~355-390
 - **Before**:
+
   ```java
   sql = "... WHERE CS.CONTENTID IN (" + join(contentIDs, ",") + ") ...";
   sql = "... WHERE P.CONTENTID IN (" + join(contentIDs, ",") + ") ...";
   ```
 - **Issue**: Content IDs joined as string allowing injection
 - **Fix**:
+
   ```java
   sql = "... WHERE CS.CONTENTID IN (:contentIDs) ...";
   sql = "... WHERE P.CONTENTID IN (:contentIDs) ...";
@@ -96,11 +107,13 @@ Created comprehensive unit tests with **positive and negative test cases** in:
 [projects/sitemanage/src/test/java/com/percussion/pagemanagement/dao/impl/PSPageDaoHelperTest.java](projects/sitemanage/src/test/java/com/percussion/pagemanagement/dao/impl/PSPageDaoHelperTest.java)
 
 ### Positive Tests (Legitimate Use Cases)
+
 ✅ `testFindPageIdsByTemplateWithValidId()` - Verifies normal template lookups work
 ✅ `testFindPageIdsByTemplateAndImportedWithValidData()` - Verifies imported page lookups work
 ✅ `testGetContentIdsWithValidSearchCriteria()` - Verifies search criteria work normally
 
 ### Negative Tests (SQL Injection Prevention)
+
 🛡️ `testFindPageIdsByTemplateWithSqlInjectionAttempt_QuotesAndOr()` - Prevents `' OR '1'='1`
 🛡️ `testFindPageIdsByTemplateWithSqlInjectionAttempt_DropTable()` - Prevents `DROP TABLE` injection
 🛡️ `testFindPageIdsByTemplateWithSqlInjectionAttempt_Union()` - Prevents `UNION SELECT` injection
@@ -116,6 +129,7 @@ Created comprehensive unit tests with **positive and negative test cases** in:
 ## How Parameterized Queries Work
 
 ### Before (Vulnerable)
+
 ```java
 String userInput = "'; DROP TABLE PAGES; --";
 String sql = "SELECT * FROM PAGES WHERE ID = '" + userInput + "'";
@@ -124,6 +138,7 @@ String sql = "SELECT * FROM PAGES WHERE ID = '" + userInput + "'";
 ```
 
 ### After (Secure)
+
 ```java
 String userInput = "'; DROP TABLE PAGES; --";
 String sql = "SELECT * FROM PAGES WHERE ID = ?";
@@ -134,6 +149,7 @@ stmt.setString(1, userInput);
 ```
 
 ### Hibernate Native Query Pattern
+
 ```java
 // Build SQL with placeholders
 var sql = "SELECT * FROM PAGES WHERE ID = :id";
@@ -152,26 +168,29 @@ query.list();
 
 ## Files Modified
 
-| File | Changes |
-|------|---------|
-| [PSPageDaoHelper.java](projects/sitemanage/src/main/java/com/percussion/pagemanagement/dao/impl/PSPageDaoHelper.java) | 4 methods refactored to use parameterized queries |
-| [PSPageDaoHelperTest.java](projects/sitemanage/src/test/java/com/percussion/pagemanagement/dao/impl/PSPageDaoHelperTest.java) | 10 new unit tests (positive + negative) |
+|                                                             File                                                              |                      Changes                      |
+|-------------------------------------------------------------------------------------------------------------------------------|---------------------------------------------------|
+| [PSPageDaoHelper.java](projects/sitemanage/src/main/java/com/percussion/pagemanagement/dao/impl/PSPageDaoHelper.java)         | 4 methods refactored to use parameterized queries |
+| [PSPageDaoHelperTest.java](projects/sitemanage/src/test/java/com/percussion/pagemanagement/dao/impl/PSPageDaoHelperTest.java) | 10 new unit tests (positive + negative)           |
 
 ---
 
 ## Verification Steps
 
 ### 1. Compile the Code
+
 ```bash
 ./mvn-env.sh -f projects/sitemanage/pom.xml clean compile
 ```
 
 ### 2. Run Unit Tests
+
 ```bash
 ./mvn-env.sh -f projects/sitemanage/pom.xml clean test -Dtest=PSPageDaoHelperTest
 ```
 
 ### 3. Verify CodeQL Alerts Resolved
+
 ```bash
 # Re-run CodeQL analysis
 codeql analysis run
@@ -179,6 +198,7 @@ codeql analysis run
 ```
 
 ### 4. Manual Security Review
+
 - Review parameterized query usage in the fixed methods
 - Verify all user input is passed as parameters, not concatenated
 - Confirm no new vulnerabilities were introduced
@@ -188,21 +208,23 @@ codeql analysis run
 ## Impact Assessment
 
 ### Security
+
 - **Before**: 3+ SQL injection vulnerabilities that could lead to:
   - Data theft
   - Data modification/deletion
   - Privilege escalation
   - Denial of service
-
 - **After**: All input is parameterized and safe from SQL injection
 
 ### Functionality
+
 - ✅ No changes to business logic
 - ✅ All existing queries work identically
 - ✅ Performance impact: Negligible (parameterized queries are optimized)
 - ✅ Backward compatible: No API changes
 
 ### Performance
+
 - Parameterized queries are **more efficient** than string concatenation
 - Database query plans are cached and reused
 - No measurable performance degradation expected
@@ -216,13 +238,11 @@ codeql analysis run
    - PSJdbcTableMetaData.java (lines 366, 462) - Metadata query injection
    - PSJdbcResultSetIteratorStep.java (line 100)
    - Other modules in TableFactory, utils, etc.
-
 2. **Code Review Guidance**:
    - All SQL should use parameterized queries
    - Never concatenate user input directly into SQL strings
    - Use `query.setParameter(name, value)` for all dynamic values
    - Use `IN (:paramList)` for list parameters
-
 3. **Testing Standards**:
    - Every SQL-related method should have positive + negative tests
    - Negative tests must include common injection patterns:
@@ -231,7 +251,6 @@ codeql analysis run
      - `' UNION SELECT`
      - Semicolon injection
      - Comment injection (`--`)
-
 4. **CodeQL Configuration**:
    - Continue running CodeQL scans to catch new SQL injection issues
    - Fix issues immediately when detected
