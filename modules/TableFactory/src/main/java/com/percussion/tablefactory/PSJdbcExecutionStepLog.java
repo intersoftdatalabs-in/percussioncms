@@ -113,8 +113,8 @@ public class PSJdbcExecutionStepLog {
   /**
    * Returns the row containing the primary key columns of the current step.
    *
-   * @return the row containing the primary key columns of the current step,
-   * may be <code>null</code>
+   * @return the row containing the primary key columns of the current step, may be <code>null
+   *     </code>
    */
   public PSJdbcRowData getPrimaryKey() {
     return m_pkKeyRowData;
@@ -132,8 +132,7 @@ public class PSJdbcExecutionStepLog {
   /**
    * Returns the sql query associated with the current step.
    *
-   * @return the sql query associated with the current step,
-   * never <code>null</code>, may be empty
+   * @return the sql query associated with the current step, never <code>null</code>, may be empty
    */
   public String getSqlQuery() {
     return m_sqlQuery;
@@ -190,11 +189,10 @@ public class PSJdbcExecutionStepLog {
   }
 
   /**
-   * Returns the tablefactory error message associated with the
-   * execution of the current step.
+   * Returns the tablefactory error message associated with the execution of the current step.
    *
-   * @return the error message associated with the execution of
-   * the current step, never <code>null</code>, may be empty
+   * @return the error message associated with the execution of the current step, never <code>null
+   *     </code>, may be empty
    */
   public String getErrorMessage() {
     return m_errorMsg;
@@ -211,11 +209,10 @@ public class PSJdbcExecutionStepLog {
   }
 
   /**
-   * Returns the tablefactory message associated with the execution of
-   * the current step.
+   * Returns the tablefactory message associated with the execution of the current step.
    *
-   * @return the message associated with the execution of the current step,
-   * never <code>null</code>, may be empty
+   * @return the message associated with the execution of the current step, never <code>null</code>,
+   *     may be empty
    */
   public String getMessage() {
     return m_msg;

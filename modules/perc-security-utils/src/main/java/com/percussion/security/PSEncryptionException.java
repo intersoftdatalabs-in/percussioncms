@@ -22,18 +22,35 @@ public class PSEncryptionException extends Exception {
   /** */
   private static final long serialVersionUID = 1L;
 
+  /**
+   * Constructs an exception with a message and cause.
+   *
+   * @param s the detail message
+   * @param e the cause
+   */
   public PSEncryptionException(String s, Throwable e) {
     super(s, e);
   }
 
+  /**
+   * Constructs an exception with a message.
+   *
+   * @param s the detail message
+   */
   public PSEncryptionException(String s) {
     super(s);
   }
 
+  /** Default constructor */
   public PSEncryptionException() {
     super();
   }
 
+  /**
+   * Constructs an exception with a cause.
+   *
+   * @param t the cause
+   */
   public PSEncryptionException(Throwable t) {
     super(t);
   }

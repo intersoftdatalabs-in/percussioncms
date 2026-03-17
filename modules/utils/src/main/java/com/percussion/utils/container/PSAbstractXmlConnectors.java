@@ -133,7 +133,8 @@ public abstract class PSAbstractXmlConnectors extends PSAbstractConnectors imple
         PSXmlDocumentBuilder.addEmptyElement(newDoc, newServerEl, SERVICE_NODE_NAME);
 
     // find the old service element, copy attributes to new one
-    Element serviceEl = tree.getNextElement(SERVICE_NODE_NAME, PSXmlTreeWalker.GET_NEXT_ALLOW_CHILDREN);
+    Element serviceEl =
+        tree.getNextElement(SERVICE_NODE_NAME, PSXmlTreeWalker.GET_NEXT_ALLOW_CHILDREN);
     if (serviceEl == null)
       throw new PSInvalidXmlException(IPSXmlErrors.XML_ELEMENT_MISSING, SERVICE_NODE_NAME);
     copyAttributes(serviceEl, newServiceEl);
@@ -182,7 +183,8 @@ public abstract class PSAbstractXmlConnectors extends PSAbstractConnectors imple
     if (root == null || !root.getNodeName().equals(SERVER_NODE_NAME))
       throw new PSInvalidXmlException(IPSXmlErrors.XML_ELEMENT_MISSING, SERVER_NODE_NAME);
 
-    Element serviceEl = tree.getNextElement(SERVICE_NODE_NAME, PSXmlTreeWalker.GET_NEXT_ALLOW_CHILDREN);
+    Element serviceEl =
+        tree.getNextElement(SERVICE_NODE_NAME, PSXmlTreeWalker.GET_NEXT_ALLOW_CHILDREN);
     if (serviceEl == null)
       throw new PSInvalidXmlException(IPSXmlErrors.XML_ELEMENT_MISSING, SERVICE_NODE_NAME);
 

@@ -34,17 +34,30 @@ import org.apache.logging.log4j.Logger;
  * use this for hashing the password. The password hash is not reversible currently using NIST
  * approved
  */
+/**
+ * Class responsible for handling password related functions, all password handling functions should
+ * use this for hashing the password. The password hash is not reversible currently using NIST
+ * approved algorithms.
+ */
 public class PSPasswordHandler {
 
   private static final Logger log = LogManager.getLogger(PSPasswordHandler.class);
   private static final int DEFAULT_SALT_SIZE = 128;
   private static final int DEFAULT_ITERATIONS = 10000;
+
+  /** The password hashing algorithm used. */
   public static final String ALGORITHM = "PBKDF2WithHmacSHA512";
 
   private PSPasswordHandler() {
     // Do nothing
   }
 
+  /**
+   * Generates a random salt of the specified size.
+   *
+   * @param size the size of the salt in bytes
+   * @return a random byte array of the specified size
+   */
   protected static byte[] getSalt(int size) {
     SecureRandom random = new SecureRandom();
     byte[] salt = new byte[size];
@@ -52,6 +65,14 @@ public class PSPasswordHandler {
     return salt;
   }
 
+  /**
+   * Hashes a password with the given salt.
+   *
+   * @param password the password to hash
+   * @param salt the salt to use (if null, a new salt will be generated)
+   * @return the hashed password with salt appended
+   * @throws PSEncryptionException if hashing fails
+   */
   protected static byte[] getHashedPasswordBytes(String password, byte[] salt)
       throws PSEncryptionException {
     if (salt == null || salt.length == 0) {
@@ -86,6 +107,13 @@ public class PSPasswordHandler {
    * @param password Clear test password to be hashed.
    * @return Base64 encoded byte array holding the hashed password.
    */
+  /**
+   * Returns a slated hashed password suitable for storage in a database or a configuration file.
+   *
+   * @param password Clear test password to be hashed.
+   * @return Base64 encoded byte array holding the hashed password.
+   * @throws PSEncryptionException if hashing fails
+   */
   public static String getHashedPassword(String password) throws PSEncryptionException {
     return Base64.getEncoder()
         .encodeToString(getHashedPasswordBytes(password, getSalt(DEFAULT_SALT_SIZE)));
@@ -97,6 +125,14 @@ public class PSPasswordHandler {
    * @param password An un-hashed clear text password.
    * @param encodedPw A hashed and salted password.
    * @return true if the passwords match, false if they do not.
+   */
+  /**
+   * Checks to see if the password matches the hashed password.
+   *
+   * @param password An un-hashed clear text password.
+   * @param encodedPw A hashed and salted password.
+   * @return true if the passwords match, false if they do not.
+   * @throws PSEncryptionException if hashing operation fails
    */
   public static boolean checkHashedPassword(String password, String encodedPw)
       throws PSEncryptionException {

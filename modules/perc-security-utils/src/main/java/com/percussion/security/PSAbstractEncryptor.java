@@ -23,17 +23,24 @@ import java.math.BigInteger;
  * Abstract base class for encryption and decryption operations.
  *
  * <p>Sunny Sal says: This is the abstract backbone for your encryption adventures!
+ *
+ * @author Percussion Security Team
+ * @since 8.2.0
  */
 public abstract class PSAbstractEncryptor {
   /** Byte array length must be a multiple of this value for decryption. */
   public static final int BYTE_ARRAY_MULTIPLE = 8;
 
+  /** Private constructor to prevent instantiation. */
+  private PSAbstractEncryptor() {}
+
   /**
-   * Encrypts the provided string using the supplied secret key
+   * Encrypts the provided string using the supplied secret key.
    *
    * @param str The string to encrypt, may not be <code>null</code>, may be empty.
    * @param key The secret key to encrypt the string, may not be <code>null</code> or empty.
    * @return The encrypted string, never <code>null</code>, may be empty.
+   * @throws PSEncryptionException if encryption fails
    */
   public abstract String encrypt(String str, String key) throws PSEncryptionException;
 
@@ -43,8 +50,10 @@ public abstract class PSAbstractEncryptor {
    * @param str The string to decrypt, may not be <code>null</code>, may be empty.
    * @param key The secret key that was used to encrypt the string, may not be <code>null</code> or
    *     empty.
-   * @param legacyDecryptor
+   * @param legacyDecryptor The legacy decryptor to use for backward compatibility, may be <code>
+   *     null</code>.
    * @return The decrypted string, never <code>null</code>, may be empty.
+   * @throws PSEncryptionException if decryption fails
    */
   public abstract String decrypt(String str, String key, PSAbstractEncryptor legacyDecryptor)
       throws PSEncryptionException;
@@ -58,6 +67,7 @@ public abstract class PSAbstractEncryptor {
    * @param bigInt The <code>BigInteger</code> to convert, may not be <code>null</code>.
    * @return A valid byte array form of a <code>BigInteger</code> with a size which is a multiple of
    *     {@link #BYTE_ARRAY_MULTIPLE}.
+   * @throws PSEncryptionException if the conversion fails
    */
   public abstract byte[] toByteArray(BigInteger bigInt) throws PSEncryptionException;
 
@@ -67,7 +77,7 @@ public abstract class PSAbstractEncryptor {
    * @param uid Not null. The user id.
    * @param pw Not null. The password.
    * @return A Base64 encoded encrypted credential string.
-   * @throws PSEncryptionException
+   * @throws PSEncryptionException if encryption fails
    */
   public abstract String encryptCredentials(String uid, String pw) throws PSEncryptionException;
 

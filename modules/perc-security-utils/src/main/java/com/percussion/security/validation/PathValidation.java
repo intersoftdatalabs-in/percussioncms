@@ -88,7 +88,17 @@ import org.apache.logging.log4j.Logger;
  * @author Percussion Security Team
  * @since Java 21
  */
+/**
+ * Validates file paths to prevent path traversal and other security vulnerabilities. Provides
+ * utilities for safely handling file paths and preventing attacks like directory traversal and
+ * ZipSlip.
+ *
+ * @author Percussion Security Team
+ */
 public class PathValidation {
+
+  /** Private constructor to prevent instantiation. */
+  private PathValidation() {}
 
   private static final Logger log = LogManager.getLogger(PathValidation.class);
 
@@ -358,14 +368,25 @@ public class PathValidation {
    *
    * <p>Indicates a potential path traversal (CWE-22) or ZipSlip attack.
    */
+  /** Security exception for path validation failures. */
   public static class SecurityException extends RuntimeException {
-    /** */
     private static final long serialVersionUID = 1L;
 
+    /**
+     * Creates a new security exception.
+     *
+     * @param message the exception message
+     */
     public SecurityException(String message) {
       super(message);
     }
 
+    /**
+     * Creates a new security exception with a cause.
+     *
+     * @param message the exception message
+     * @param cause the underlying cause
+     */
     public SecurityException(String message, Throwable cause) {
       super(message, cause);
     }

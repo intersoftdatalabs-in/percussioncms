@@ -29,10 +29,10 @@ package com.percussion.util;
  * @since 1.0
  */
 public class PSEntrySet<K, V> implements java.util.Map.Entry<K, V> {
-  
+
   private final K m_key;
   private V m_value;
-  
+
   /**
    * Create an entry set for the specified key and value.
    *

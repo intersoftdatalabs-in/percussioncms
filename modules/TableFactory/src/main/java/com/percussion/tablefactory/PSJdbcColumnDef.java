@@ -579,6 +579,7 @@ public class PSJdbcColumnDef extends PSJdbcTableComponent {
    *
    * <p>For example, here is a create table statement that creates a table named "foo" with a column
    * named "bar" of type varchar using a size value of "255":<br>
+   *
    * <pre>{@code
    * CREATE TABLE foo (bar VARCHAR(255) NULL)
    * }</pre>

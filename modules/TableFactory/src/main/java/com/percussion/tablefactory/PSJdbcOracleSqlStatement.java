@@ -46,30 +46,26 @@ public class PSJdbcOracleSqlStatement extends PSJdbcPreparedSqlStatement {
    * Constructs Sql statement to execute, including the parameter values.
    *
    * @param statementType the type of statement that this object represents
-   * @param statement The statement to execute, may have bound parameter
-   * tokens ("?").  May not be <code>null</code> or empty.
-   * @param values A list of {@link PSJdbcStatementColumn} objects, may be
-   * <code>null</code> but not empty.
-   * @param selLobString the select statement for getting a lock on clob/lob,
-   * contains "FOR UPDATE" clause, never <code>null</code> or empty
-   * @param keyValues A list of {@link PSJdbcStatementColumn} objects, may be
-   * <code>null</code> but not empty, contains the values of key columns for
-   * selLobString.
-   * @param lobTypes an array of Integer objects indicating the type of
-   * lob object, may not be <code>null</code>
+   * @param statement The statement to execute, may have bound parameter tokens ("?"). May not be
+   *     <code>null</code> or empty.
+   * @param values A list of {@link PSJdbcStatementColumn} objects, may be <code>null</code> but not
+   *     empty.
+   * @param selLobString the select statement for getting a lock on clob/lob, contains "FOR UPDATE"
+   *     clause, never <code>null</code> or empty
+   * @param keyValues A list of {@link PSJdbcStatementColumn} objects, may be <code>null</code> but
+   *     not empty, contains the values of key columns for selLobString.
+   * @param lobTypes an array of Integer objects indicating the type of lob object, may not be
+   *     <code>null</code>
    * @param lobValues an array of LOB objects, may not be <code>null</code>
-   * @param lobValuesEncoding an array of encoding types corresponding to
-   * each LOB data contained in lobValues, may not be <code>null</code>
-   *
-   * @throws IllegalArgumentException if statement is <code>null</code> or
-   * empty, or if values does not contain at least one object, or does not
-   * contain object of the correct type, or if selLobString is
-   * <code>null</code> or empty, or if keyValues does not contain
-   * at least one object, or does not contain object of the correct type,
-   * or if lobTypes is <code>null</code> or if lobValues is <code>null</code>
-   * or if lobValuesEncoding is <code>null</code>
-   * or if the statementType is invalid or if the size of lobTypes,
-   * lobValues and lobValuesEncoding are not equal.
+   * @param lobValuesEncoding an array of encoding types corresponding to each LOB data contained in
+   *     lobValues, may not be <code>null</code>
+   * @throws IllegalArgumentException if statement is <code>null</code> or empty, or if values does
+   *     not contain at least one object, or does not contain object of the correct type, or if
+   *     selLobString is <code>null</code> or empty, or if keyValues does not contain at least one
+   *     object, or does not contain object of the correct type, or if lobTypes is <code>null</code>
+   *     or if lobValues is <code>null</code> or if lobValuesEncoding is <code>null</code> or if the
+   *     statementType is invalid or if the size of lobTypes, lobValues and lobValuesEncoding are
+   *     not equal.
    */
   public PSJdbcOracleSqlStatement(
       int statementType,

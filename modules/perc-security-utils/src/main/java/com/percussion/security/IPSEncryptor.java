@@ -31,6 +31,7 @@ public interface IPSEncryptor {
    *
    * @param in the stream containing the plain text representation of the data
    * @param out the stream to store the encrypted data
+   * @throws PSEncryptionException if encryption fails
    */
   void encrypt(java.io.InputStream in, java.io.OutputStream out) throws PSEncryptionException;
 

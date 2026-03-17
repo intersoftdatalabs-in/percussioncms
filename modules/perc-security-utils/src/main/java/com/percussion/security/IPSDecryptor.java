@@ -31,6 +31,7 @@ public interface IPSDecryptor {
    *
    * @param in the stream containing the encrypted data
    * @param out the stream to store the plain text representation of the data
+   * @throws PSEncryptionException if the decryption fails
    */
   void decrypt(java.io.InputStream in, java.io.OutputStream out) throws PSEncryptionException;
 
@@ -39,6 +40,7 @@ public interface IPSDecryptor {
    *
    * @param in the stream containing the encrypted data
    * @return a string containing the plain text representation of the data.
+   * @throws PSEncryptionException if the decryption fails
    */
   String decrypt(java.io.InputStream in) throws PSEncryptionException;
 
@@ -47,6 +49,7 @@ public interface IPSDecryptor {
    *
    * @param in the byte array containing the encrypted data
    * @return a string containing the plain text representation of the data.
+   * @throws PSEncryptionException if the decryption fails
    */
   String decrypt(byte[] in) throws PSEncryptionException;
 
@@ -56,6 +59,7 @@ public interface IPSDecryptor {
    * @param in the encrypted string
    * @param password the password to use for decryption
    * @return the decrypted plain text string.
+   * @throws PSEncryptionException if the decryption fails
    */
   String decryptWithPassword(String in, String password) throws PSEncryptionException;
 }

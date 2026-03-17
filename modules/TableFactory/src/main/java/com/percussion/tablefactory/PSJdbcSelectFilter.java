@@ -303,8 +303,8 @@ public class PSJdbcSelectFilter {
    *
    * @param args the arguments for testing this class, not used currently. Running this class will
    *     produce the following output.
-   *     <p>Where clause : WHERE Name NOT LIKE 'a%' Where clause : WHERE ((ID &gt; 10) AND (Name LIKE
-   *     'a%')) OR ((AGE &lt; 50) AND (Name IS NOT NULL ))
+   *     <p>Where clause : WHERE Name NOT LIKE 'a%' Where clause : WHERE ((ID &gt; 10) AND (Name
+   *     LIKE 'a%')) OR ((AGE &lt; 50) AND (Name IS NOT NULL ))
    */
   public static void main(String[] args) {
     PSJdbcSelectFilter filter =

@@ -22,18 +22,29 @@ public class PSSecurityCatalogException extends Exception {
   private static final long serialVersionUID = 1L;
 
   /**
-   * Calls {@link Exception#Exception(java.lang.String, java.lang.Throwable) super(message, cause}.
+   * Constructs an exception with a message and cause.
+   *
+   * @param message the detail message
+   * @param cause the cause
    */
   public PSSecurityCatalogException(String message, Throwable cause) {
     super(message, cause);
   }
 
-  /** Calls {@link Exception#Exception(java.lang.String) super(message}. */
+  /**
+   * Constructs an exception with a message.
+   *
+   * @param message the detail message
+   */
   public PSSecurityCatalogException(String message) {
     super(message);
   }
 
-  /** Calls {@link Exception#Exception(java.lang.Throwable) super(cause}. */
+  /**
+   * Constructs an exception with a cause.
+   *
+   * @param cause the cause
+   */
   public PSSecurityCatalogException(Throwable cause) {
     super(cause);
   }

@@ -22,11 +22,25 @@ import java.io.StringWriter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-/** * A class for common exception utilities. */
+/**
+ * A class for common exception utilities.
+ *
+ * @author Percussion Software
+ * @since 8.2.0
+ */
 public class PSExceptionUtils {
+
+  /** Private constructor to prevent instantiation. */
+  private PSExceptionUtils() {}
 
   private static final Logger log = LogManager.getLogger(PSExceptionUtils.class);
 
+  /**
+   * Gets a message suitable for logging from an exception.
+   *
+   * @param exception the exception to get message from
+   * @return the exception message, or the class name if no message is available
+   */
   public static String getMessageForLog(Throwable exception) {
 
     // Try localized message first and if there isn't one - just do default.

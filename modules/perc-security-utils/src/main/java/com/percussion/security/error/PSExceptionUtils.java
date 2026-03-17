@@ -21,10 +21,26 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 
-/** Provides common exception utilities for logging and message extraction. */
+/**
+ * Provides common exception utilities for logging and message extraction.
+ *
+ * @author Percussion Security Team
+ * @since 8.2.0
+ */
 public class PSExceptionUtils {
 
+  /** Private constructor to prevent instantiation. */
+  private PSExceptionUtils() {}
+
   // Logger removed as it was unused.
+  /**
+   * Returns a formatted message for logging purposes, including class and line number.
+   *
+   * <p>If a cause exists, its message and location are appended.
+   *
+   * @param exception the exception to extract details from
+   * @return a formatted string for logging
+   */
   /**
    * Returns a formatted message for logging purposes, including class and line number.
    *

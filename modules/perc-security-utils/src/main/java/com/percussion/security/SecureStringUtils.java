@@ -113,6 +113,12 @@ public class SecureStringUtils {
     return ret;
   }
 
+  /**
+   * Gets typical allowed hosts from request.
+   *
+   * @param request the HTTP request
+   * @return list of allowed hosts
+   */
   public static List<String> getTypicalAllowedHosts(HttpServletRequest request) {
     List<String> ret = new ArrayList<>();
     ret.add(request.getLocalName());
@@ -129,7 +135,7 @@ public class SecureStringUtils {
    * @param request the request that provided the url.
    * @param url A url to to validate
    * @param allowedHosts Never null. A list of allowed hostnames.
-   * @return
+   * @return true if the host matches, false otherwise
    */
   public static boolean hostMatchesRequest(
       HttpServletRequest request, URI url, List<String> allowedHosts) {
@@ -143,6 +149,7 @@ public class SecureStringUtils {
    * To be used when sending queries to LDAP.
    *
    * @param query An LDAP query
+   * @param encodeWildcards true to encode wildcards, false to leave them
    * @return A string encoded for LDAP, wild cards are not encoded.
    */
   public static String sanitizeStringForLDAP(String query, boolean encodeWildcards) {
@@ -159,7 +166,10 @@ public class SecureStringUtils {
     return DefaultEncoder.getInstance().encodeForJavaScript(s);
   }
 
+  /** Maximum allowed filename length. */
   public static final int MAX_FILENAME_LEN = 255;
+
+  /** Pattern for valid filename characters. */
   public static final Pattern filenamePattern =
       Pattern.compile("[^\\w.\\w]", Pattern.UNICODE_CHARACTER_CLASS);
 
@@ -181,11 +191,17 @@ public class SecureStringUtils {
     return fileName;
   }
 
+  /** Enum representing supported database types. */
   public enum DatabaseType {
+    /** MySQL database */
     MYSQL,
+    /** Oracle database */
     ORACLE,
+    /** IBM DB2 database */
     DB2,
+    /** Microsoft SQL Server database */
     MSSQL,
+    /** Apache Derby database */
     DERBY
   }
 
@@ -263,7 +279,7 @@ public class SecureStringUtils {
    * will return a standard SecureRandom if Strong is unavailable. May return null if secure random
    * cannot be initialized.
    *
-   * @return
+   * @return true if the host matches, false otherwise
    */
   public static SecureRandom getSecureRandom() {
     return new SecureRandom();
@@ -1138,6 +1154,11 @@ public class SecureStringUtils {
             "COLLATION_SCHEMA"));
   }
 
+  /**
+   * Gets SQL reserved keywords.
+   *
+   * @return array of SQL reserved keywords
+   */
   public static String[] getSqlReservedKeywords() {
     return (String[]) Arrays.copyOf(SQLKEYWORDS.toArray(), SQLKEYWORDS.size());
   }
@@ -1145,8 +1166,8 @@ public class SecureStringUtils {
   /**
    * Validates a table or column name.
    *
-   * @param name
-   * @return
+   * @param name the identifier to validate
+   * @return true if valid, false otherwise
    */
   public static boolean isValidTableOrColumnName(String name) {
     boolean isValid = StringUtils.isAlphanumeric(name);
@@ -1168,8 +1189,8 @@ public class SecureStringUtils {
   /**
    * Validates against a list of known reserved SQL keywords.
    *
-   * @param name
-   * @return
+   * @param name the identifier to validate
+   * @return true if valid, false otherwise
    */
   public static boolean isSQLReservedKeyWord(String name) {
     return SQLKEYWORDS.contains(name.toUpperCase());
@@ -1202,6 +1223,13 @@ public class SecureStringUtils {
     return ret;
   }
 
+  /**
+   * Normalizes a string.
+   *
+   * @param s the string to normalize
+   * @param toUpper whether to convert to uppercase
+   * @return normalized string
+   */
   public static String normalize(String s, boolean toUpper) {
     if (toUpper) return Normalizer2.getNFKDInstance().normalize(s).toUpperCase();
     else return Normalizer2.getNFKDInstance().normalize(s);
@@ -1210,8 +1238,8 @@ public class SecureStringUtils {
   /**
    * Utility to remove parameters from header.
    *
-   * @param str
-   * @return
+   * @param str the string to validate
+   * @return true if valid, false otherwise
    */
   public static String stripAllLineBreaks(String str) {
     String ret = str;
@@ -1247,6 +1275,12 @@ public class SecureStringUtils {
     return stripAllLineBreaks(rp);
   }
 
+  /**
+   * URL encodes a string.
+   *
+   * @param s the string to encode
+   * @return URL encoded string
+   */
   public static String urlEncode(String s) {
     String ret = "";
 
@@ -1259,6 +1293,12 @@ public class SecureStringUtils {
     return ret;
   }
 
+  /**
+   * Strips URL parameters from a string.
+   *
+   * @param s the URL string
+   * @return string without parameters
+   */
   public static String stripUrlParams(String s) {
     String ret = s;
     if (s.contains("?")) {
@@ -1270,6 +1310,12 @@ public class SecureStringUtils {
     return ret;
   }
 
+  /**
+   * Checks if a string is URL encoded.
+   *
+   * @param s the string to check
+   * @return true if URL encoded
+   */
   public static boolean isURLEncoded(String s) {
     boolean ret = false;
     try {
@@ -1286,7 +1332,8 @@ public class SecureStringUtils {
   /**
    * Utility to sanitize a string for use in a file system path under a specified path.
    *
-   * @param str
+   * @param containingPath the path that should contain the string
+   * @param str the string to sanitize
    * @return The sanitized string
    */
   public static String sanitizeStringForFileUnderPath(String containingPath, String str) {
@@ -1295,9 +1342,9 @@ public class SecureStringUtils {
   }
 
   /**
-   * Utility to sanitize a string for use in a file system path
+   * Utility to sanitize a string for use in a file system path.
    *
-   * @param str
+   * @param str the string to sanitize
    * @return The sanitized string
    */
   public static String sanitizeStringForFileSystem(String str) {
@@ -1305,6 +1352,12 @@ public class SecureStringUtils {
     throw new RuntimeException("Not Implemented!");
   }
 
+  /**
+   * Sanitizes a string for SQL statements.
+   *
+   * @param str the string to sanitize
+   * @return sanitized string
+   */
   public static String sanitizeStringForSQLStatement(String str) {
     if (str == null || StringUtils.isEmpty(str)) return "";
 
@@ -1338,7 +1391,9 @@ public class SecureStringUtils {
    * <p>1. URI Decoded 2. Normalized for /'s 3. Pointed at a resource under the web application root
    * of / (/Rhythmyx/../../../../ would fail)
    *
-   * @param path
+   * @param resourcePaths the allowed resource paths
+   * @param path the path to clean
+   * @param remoteIP the remote IP address
    * @return the decoded and checked "safe" path or null if the path is invalid
    */
   public static String cleanWildPath(String[] resourcePaths, String path, String remoteIP) {
@@ -1398,6 +1453,11 @@ public class SecureStringUtils {
     return Encode.forHtml(str);
   }
 
+  /**
+   * Generates a random password.
+   *
+   * @return random password string
+   */
   public static String generateRandomPassword() {
     Faker f = Faker.instance(getSecureRandom());
 
@@ -1423,6 +1483,13 @@ public class SecureStringUtils {
     }
   }
 
+  /**
+   * Checks if child is a child of parent path.
+   *
+   * @param parent the parent path
+   * @param child the child path
+   * @return true if child is under parent
+   */
   public static boolean isChildOfFilePath(final Path parent, final Path child) {
     final Path absoluteParent = parent.toAbsolutePath().normalize();
     final Path absoluteChild = child.toAbsolutePath().normalize();
@@ -1440,6 +1507,13 @@ public class SecureStringUtils {
         || isChildOfFilePath(absoluteParent, immediateParent);
   }
 
+  /**
+   * Checks if two paths refer to the same file.
+   *
+   * @param path first path
+   * @param path2 second path
+   * @return true if same file
+   */
   public static boolean isSameFileAs(final Path path, final Path path2) {
     try {
       return Files.isSameFile(path, path2);
@@ -1483,8 +1557,8 @@ public class SecureStringUtils {
   /**
    * Utility to remove parameters from header.
    *
-   * @param str
-   * @return
+   * @param str the string to sanitize
+   * @return the sanitized string
    */
   public static String removeSpecialCharactersFromHeader(String str) {
     return str.replaceAll("[^a-zA-Z ]", "");
@@ -1493,10 +1567,10 @@ public class SecureStringUtils {
   /**
    * Validates an un-encoded CMS path for valid characters based on the operation context.
    *
-   * @param path
+   * @param path the path to validate
    * @param context The operation context. There are some legacy path characters that must be
    *     allowed, like [ or ]
-   * @return
+   * @return true if valid, false otherwise
    */
   public static boolean isValidCMSPathString(String path, PSOperationContext context) {
     switch (context) {
@@ -1516,8 +1590,8 @@ public class SecureStringUtils {
    * To support legacy filenames post upgrade, use the method below instead.
    *
    * @see #isValidCMSPathString(String, PSOperationContext)
-   * @param path
-   * @return
+   * @param path the path to validate
+   * @return the normalized path
    */
   public static boolean isValidCMSPathString(String path) {
     // API seems coded such that an empty path is root.
@@ -1527,11 +1601,11 @@ public class SecureStringUtils {
     else return true;
   }
 
-  /***
-   * Removes any characters from a given string that are not a valid SQL Object Name.
-   * Supports unicode strings.
+  /**
+   * Removes any characters from a given string that are not a valid SQL Object Name. Supports
+   * unicode strings.
    *
-   * @param str
+   * @param str the string to sanitize
    * @return A version of the string with any special characters removed.
    */
   public static String removeInvalidSQLObjectNameCharacters(String str) {
@@ -1540,14 +1614,32 @@ public class SecureStringUtils {
     return str.replaceAll("[\\W]+", "");
   }
 
+  /**
+   * Validates if string is a valid GUID/ID.
+   *
+   * @param id the ID to validate
+   * @return true if valid GUID format
+   */
   public static boolean isValidGuidId(String id) {
     return id.matches("^[0-9-]*$");
   }
 
+  /**
+   * Validates if string is a valid numeric ID.
+   *
+   * @param id the ID to validate
+   * @return true if valid numeric format
+   */
   public static boolean isValidNumericId(String id) {
     return StringUtils.isNumeric(id);
   }
 
+  /**
+   * Escapes a string for LDAP queries.
+   *
+   * @param in the string to escape
+   * @return escaped string
+   */
   public static String escapeLDAPQueryString(final String in) {
     StringBuilder s = new StringBuilder();
 
@@ -1586,6 +1678,12 @@ public class SecureStringUtils {
     return s.toString();
   }
 
+  /**
+   * Escapes a string for LDAP connection strings.
+   *
+   * @param str the string to escape
+   * @return escaped string
+   */
   public static String escapeLDAPConnectionString(String str) {
     return str;
   }

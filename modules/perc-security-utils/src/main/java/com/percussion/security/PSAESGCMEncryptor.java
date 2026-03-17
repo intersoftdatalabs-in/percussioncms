@@ -38,12 +38,24 @@ import javax.crypto.spec.SecretKeySpec;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+/**
+ * AES-GCM encryptor implementation.
+ *
+ * <p>Provides AES-GCM encryption capabilities with support for key-based and password-based
+ * encryption.
+ */
 public class PSAESGCMEncryptor implements IPSEncryptor {
 
   private static final Logger log = LogManager.getLogger(PSAESGCMEncryptor.class);
 
   private PSAESGCMKey key;
 
+  /**
+   * Generates a random initialization vector (IV) of the specified size.
+   *
+   * @param size the size of the IV in bytes
+   * @return a random byte array of the specified size
+   */
   public byte[] getIV(int size) {
     byte[] nonce = new byte[size];
     SecureStringUtils.getSecureRandom().nextBytes(nonce);
@@ -93,6 +105,7 @@ public class PSAESGCMEncryptor implements IPSEncryptor {
    *
    * @param in the string containing the plain text representation of the data
    * @return a byte array containing the encrypted data
+   * @throws PSEncryptionException if encryption fails
    */
   @Override
   public byte[] encrypt(String in) throws PSEncryptionException {
@@ -120,6 +133,14 @@ public class PSAESGCMEncryptor implements IPSEncryptor {
     }
   }
 
+  /**
+   * Encrypts the given string using the provided password.
+   *
+   * @param in the string to encrypt
+   * @param password the password to use for encryption
+   * @return the encrypted byte array
+   * @throws PSEncryptionException if encryption fails
+   */
   @Override
   public byte[] encryptWithPassword(String in, String password) throws PSEncryptionException {
 

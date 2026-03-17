@@ -266,16 +266,31 @@ public class URLValidationConfig {
 
   /** Builder for creating URLValidationConfig instances. */
   public static class Builder {
+    /** Private constructor for builder. */
+    private Builder() {}
+
     private final Set<Integer> ports = new HashSet<>();
     private final Set<String> hosts = new HashSet<>();
     private final Set<String> ipRanges = new HashSet<>();
     private boolean allowPrivateNetworks = false;
 
+    /**
+     * Adds a port to the allowed ports list.
+     *
+     * @param port the port to add
+     * @return this builder for chaining
+     */
     public Builder addPort(int port) {
       ports.add(port);
       return this;
     }
 
+    /**
+     * Adds multiple ports to the allowed ports list.
+     *
+     * @param ports the ports to add
+     * @return this builder for chaining
+     */
     public Builder addPorts(int... ports) {
       for (int port : ports) {
         this.ports.add(port);
@@ -283,21 +298,44 @@ public class URLValidationConfig {
       return this;
     }
 
+    /**
+     * Adds a host to the allowed hosts list.
+     *
+     * @param host the host to add
+     * @return this builder for chaining
+     */
     public Builder addHost(String host) {
       hosts.add(host.toLowerCase());
       return this;
     }
 
+    /**
+     * Adds an IP range (CIDR notation) to the allowed IP ranges list.
+     *
+     * @param cidrRange the CIDR range to add (e.g., "192.168.0.0/16")
+     * @return this builder for chaining
+     */
     public Builder addIPRange(String cidrRange) {
       ipRanges.add(cidrRange);
       return this;
     }
 
+    /**
+     * Sets whether private networks are allowed.
+     *
+     * @param allow true to allow private networks, false otherwise
+     * @return this builder for chaining
+     */
     public Builder allowPrivateNetworks(boolean allow) {
       this.allowPrivateNetworks = allow;
       return this;
     }
 
+    /**
+     * Builds the URLValidationConfig with the configured settings.
+     *
+     * @return a new URLValidationConfig instance
+     */
     public URLValidationConfig build() {
       return new URLValidationConfig(ports, hosts, ipRanges, allowPrivateNetworks);
     }

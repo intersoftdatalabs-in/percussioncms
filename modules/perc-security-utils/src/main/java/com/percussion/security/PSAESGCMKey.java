@@ -24,12 +24,20 @@ import javax.crypto.spec.SecretKeySpec;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-/** AES-GCM key implementation for IPSSecretKey. */
+/**
+ * AES-GCM key implementation for IPSSecretKey.
+ *
+ * @author Percussion Security Team
+ * @since 8.2.0
+ */
 public class PSAESGCMKey implements IPSSecretKey {
 
   private static final Logger log = LogManager.getLogger(PSAESGCMKey.class);
   private static final int DEFAULT_KEY_SIZE = 256;
   private SecretKey key;
+
+  /** Private constructor to prevent instantiation. */
+  private PSAESGCMKey() {}
 
   /**
    * Returns an encryptor for this key.
@@ -64,15 +72,20 @@ public class PSAESGCMKey implements IPSSecretKey {
   }
 
   /**
-   * Returns a byte array containing the secret key
+   * Returns a byte array containing the secret key.
    *
-   * @return
+   * @return the secret key as a byte array
    */
   @Override
   public byte[] getSecret() {
     return key.getEncoded();
   }
 
+  /**
+   * Returns the secret key as a SecretKey object.
+   *
+   * @return the SecretKey object
+   */
   public SecretKey getSecretKey() {
     return key;
   }
@@ -100,7 +113,7 @@ public class PSAESGCMKey implements IPSSecretKey {
   }
 
   /**
-   * Generates a new key
+   * Generates a new key.
    *
    * @return a new SecretKey or null
    */

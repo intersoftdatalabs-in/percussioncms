@@ -49,8 +49,12 @@ import org.apache.commons.lang3.StringUtils;
  * @see <a href="https://cwe.mitre.org/data/definitions/601.html">CWE-601: URL Redirection to
  *     Untrusted Site</a>
  * @author Sunny Sal (GitHub Copilot)
+ * @since 8.2.0
  */
 public class PSRedirectValidation {
+
+  /** Private constructor to prevent instantiation. */
+  private PSRedirectValidation() {}
 
   /**
    * Validates a redirect URL against a whitelist of allowed domains. Only relative URLs or URLs

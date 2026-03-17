@@ -20,8 +20,12 @@ package com.percussion.security;
 /** Factory for encryption key generation. */
 public abstract class PSEncryptionKeyFactory {
 
+  /**
+   * @deprecated DES is no longer considered secure
+   */
   @Deprecated public static final String DES_ALGORITHM = "DES";
 
+  /** The AES-GCM algorithm identifier */
   public static final String AES_GCM_ALGORIYTHM = "AES";
 
   private PSEncryptionKeyFactory() {
@@ -32,6 +36,15 @@ public abstract class PSEncryptionKeyFactory {
    * Get an instance of the key generator which can be used for the default encryption/decryption
    * algorithm. From the key type returned, the caller can determine what to use to generate the
    * key. The updated key can then be passed in to the encryptor/decryptor.
+   */
+  /**
+   * Get an instance of the key generator which can be used for the specified encryption/decryption
+   * algorithm. From the key type returned, the caller can determine what to use to generate the
+   * key. The updated key can then be passed in to the encryptor/decryptor.
+   *
+   * @param algorithm the encryption algorithm to use (e.g., AES_GCM_ALGORIYTHM)
+   * @return an IPSKey instance for the specified algorithm
+   * @throws IllegalArgumentException if algorithm is null or not supported
    */
   public static IPSKey getKeyGenerator(String algorithm) {
     IPSKey key = null;

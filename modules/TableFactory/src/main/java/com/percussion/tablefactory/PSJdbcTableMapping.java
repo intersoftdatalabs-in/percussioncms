@@ -92,25 +92,20 @@ public class PSJdbcTableMapping {
   }
 
   /**
-   * Processes the row obtained from the source table, applies all the
-   * mappings added through the <code>addRowMapping</code> method and returns
-   * a list of <code>PSJdbcRowData</code> objects which can be used to
-   * insert/update data into the destination table specified by the
-   * <code>destTableSchema</code> parameter in the constructor.
+   * Processes the row obtained from the source table, applies all the mappings added through the
+   * <code>addRowMapping</code> method and returns a list of <code>PSJdbcRowData</code> objects
+   * which can be used to insert/update data into the destination table specified by the <code>
+   * destTableSchema</code> parameter in the constructor.
    *
    * @param conn the database connection to use, may not be <code>null</code>
-   * @param srcRow a row data object from the source table,
-   * may not be <code>null</code>
-   *
-   * @return a list of <code>PSJdbcRowData</code> objects containing the
-   * transformed row data which can be used to insert/update data into the
-   * destination table specified by the <code>destTableSchema</code>
-   * parameter in the constructor.
-   *
-   * @throws IllegalArgumentException if <code>conn</code> or
-   * <code>srcRow</code> is <code>null</code>
-   * @throws PSJdbcTableFactoryException if any column specified in row mapping
-   * is not found in srcRow.
+   * @param srcRow a row data object from the source table, may not be <code>null</code>
+   * @return a list of <code>PSJdbcRowData</code> objects containing the transformed row data which
+   *     can be used to insert/update data into the destination table specified by the <code>
+   *     destTableSchema</code> parameter in the constructor.
+   * @throws IllegalArgumentException if <code>conn</code> or <code>srcRow</code> is <code>null
+   *     </code>
+   * @throws PSJdbcTableFactoryException if any column specified in row mapping is not found in
+   *     srcRow.
    */
   public List<PSJdbcRowData> processRow(Connection conn, PSJdbcRowData srcRow)
       throws PSJdbcTableFactoryException {

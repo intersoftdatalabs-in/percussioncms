@@ -81,7 +81,8 @@ public class PSFileFilter implements java.io.FileFilter, java.io.FilenameFilter 
    * are met:
    *
    * <UL>
-   *   <LI>file's length (as returned by java.io.File.length()) is &gt;= minLength and &lt;= maxLength
+   *   <LI>file's length (as returned by java.io.File.length()) is &gt;= minLength and &lt;=
+   *       maxLength
    *   <LI>for each attribute (file, dir, hidden) that a file possesses, the corresponding bit in
    *       <code>allowableAttributes</code> is turned on.
    * </UL>
@@ -96,7 +97,8 @@ public class PSFileFilter implements java.io.FileFilter, java.io.FilenameFilter 
    * are met:
    *
    * <UL>
-   *   <LI>file's length (as returned by java.io.File.length()) is &gt;= minLength and &lt;= maxLength
+   *   <LI>file's length (as returned by java.io.File.length()) is &gt;= minLength and &lt;=
+   *       maxLength
    *   <LI>for each attribute (file, dir, hidden) that a file possesses, the corresponding bit in
    *       <code>allowableAttributes</code> is turned on.
    * </UL>

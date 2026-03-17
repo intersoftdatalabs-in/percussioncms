@@ -55,14 +55,22 @@ public class PSEncryptor extends PSAbstractEncryptor {
 
   private String secureDir;
   private static final Logger log = LogManager.getLogger(PSEncryptor.class);
+
+  /** Default secure directory path */
   public static final String SECURE_DIR =
       File.separator + "rxconfig" + File.separator + "secure" + File.separator;
+
   private static final String SECURE_KEY_FILE = ".key";
   private static final String OLD_SECURE_KEY_FILE = ".keyold";
+
+  /** File name used to signal key rotation */
   public static final String ROTATE_FLAG_FILE = "rotate";
+
   private IPSKey secretKey;
   private IPSKey oldSecretKey;
   private final PropertyChangeSupport pcs = new PropertyChangeSupport(this);
+
+  /** Property name for secret key */
   public static final String SECRETKEY_PROPNAME = "secretKey";
 
   private static Map<String, List<String>> propertyFilesWithPassword =
@@ -86,7 +94,7 @@ public class PSEncryptor extends PSAbstractEncryptor {
 
     // Make sure it has a trailing /
     if (!keystoreLocation.trim().endsWith(File.separator)) {
-        keystoreLocation = keystoreLocation.trim() + File.separator;
+      keystoreLocation = keystoreLocation.trim() + File.separator;
     }
     this.secureDir = keystoreLocation;
   }
@@ -230,6 +238,12 @@ public class PSEncryptor extends PSAbstractEncryptor {
     return key;
   }
 
+  /**
+   * Checks if the secure key file exists in the specified directory.
+   *
+   * @param secureDir the directory to check for the secure key file
+   * @return true if the key file exists, false otherwise
+   */
   public static boolean checkSecureKeyPresent(String secureDir) {
     if (secureDir == null) {
       String rxPath = getRxDir(null).getAbsolutePath();
@@ -260,10 +274,10 @@ public class PSEncryptor extends PSAbstractEncryptor {
    * If using this API, then Pwd will not be reencrypted on rotation of key Either add listener to
    * rotation or use encryptProperty(...) API
    *
-   * @param secureDir
-   * @param value
-   * @return
-   * @throws PSEncryptionException
+   * @param secureDir the directory containing the secure key file
+   * @param value the value to encrypt
+   * @return the encrypted string
+   * @throws PSEncryptionException if encryption fails
    */
   public static String encryptString(String secureDir, String value) throws PSEncryptionException {
     PSEncryptor encryptor = PSEncryptor.getInstance("AES", secureDir);
@@ -271,6 +285,14 @@ public class PSEncryptor extends PSAbstractEncryptor {
     return decryptStr;
   }
 
+  /**
+   * Decrypts a string using the secure key in the specified directory.
+   *
+   * @param secureDir the directory containing the secure key
+   * @param value the encrypted value to decrypt
+   * @return the decrypted string
+   * @throws PSEncryptionException if decryption fails
+   */
   public static String decryptString(String secureDir, String value) throws PSEncryptionException {
     PSEncryptor encryptor = PSEncryptor.getInstance("AES", secureDir);
     try {
@@ -280,6 +302,16 @@ public class PSEncryptor extends PSAbstractEncryptor {
     }
   }
 
+  /**
+   * Encrypts a property value and stores it in a vault.
+   *
+   * @param secureDir the directory containing the secure key
+   * @param propertyFilePath the path to the property file
+   * @param keyName the property key name
+   * @param value the value to encrypt
+   * @return the encrypted value
+   * @throws PSEncryptionException if encryption fails
+   */
   public static String encryptProperty(
       String secureDir, String propertyFilePath, String keyName, String value)
       throws PSEncryptionException {
@@ -291,12 +323,30 @@ public class PSEncryptor extends PSAbstractEncryptor {
     return encryptStr;
   }
 
+  /**
+   * Decrypts using the old key (for key rotation scenarios).
+   *
+   * @param secureDir the directory containing the secure key
+   * @param value the encrypted value
+   * @return the decrypted value
+   * @throws PSEncryptionException if decryption fails
+   */
   public static String decryptWithOldKey(String secureDir, String value)
       throws PSEncryptionException {
     PSEncryptor encryptor = PSEncryptor.getInstance("AES", secureDir);
     return encryptor.decryptWithOld(value);
   }
 
+  /**
+   * Decrypts a property value from the vault.
+   *
+   * @param secureDir the directory containing the secure key
+   * @param propertyFilePath the path to the property file
+   * @param keyName the property key name
+   * @param value the encrypted value
+   * @return the decrypted value
+   * @throws PSEncryptionException if decryption fails
+   */
   public static String decryptProperty(
       String secureDir, String propertyFilePath, String keyName, String value)
       throws PSEncryptionException {
@@ -429,6 +479,12 @@ public class PSEncryptor extends PSAbstractEncryptor {
     }
   }
 
+  /**
+   * Initiates key rotation by creating a flag file.
+   *
+   * @param algorithm the encryption algorithm
+   * @param keyLocation the location of the key file
+   */
   public static void rotateKey(String algorithm, String keyLocation) {
     Path rotateFlag = Paths.get(keyLocation + ROTATE_FLAG_FILE);
     try {
@@ -469,6 +525,7 @@ public class PSEncryptor extends PSAbstractEncryptor {
    *
    * @param str The string to encrypt
    * @return base64 encoded encrypted string.
+   * @throws PSEncryptionException if encryption fails
    */
   public String encrypt(String str) throws PSEncryptionException {
 
@@ -499,6 +556,13 @@ public class PSEncryptor extends PSAbstractEncryptor {
    * @param encrypted base64 encoded encrypted string
    * @return decrypted string or null if the string fails to decrypt
    */
+  /**
+   * Decrypts the specified bytearray.
+   *
+   * @param encrypted base64 encoded encrypted string
+   * @return decrypted string or null if the string fails to decrypt
+   * @throws PSEncryptionException if decryption fails
+   */
   public String decrypt(String encrypted) throws PSEncryptionException {
 
     if (encrypted == null) throw new IllegalArgumentException();
@@ -511,6 +575,13 @@ public class PSEncryptor extends PSAbstractEncryptor {
     }
   }
 
+  /**
+   * Decrypts using the old key (for key rotation scenarios).
+   *
+   * @param encrypted the encrypted value
+   * @return the decrypted value
+   * @throws PSEncryptionException if decryption fails
+   */
   public String decryptWithOld(String encrypted) throws PSEncryptionException {
 
     if (encrypted == null) throw new IllegalArgumentException();
@@ -613,9 +684,9 @@ public class PSEncryptor extends PSAbstractEncryptor {
   /**
    * Decrypts legacy encryption keys.
    *
-   * @param encrypted
-   * @return
-   * @throws PSEncryptionException
+   * @param encrypted the encrypted key to decrypt
+   * @return the decrypted key as a string
+   * @throws PSEncryptionException if encryption fails
    */
   public String decryptLegacyKey(String encrypted) throws PSEncryptionException {
     try {
