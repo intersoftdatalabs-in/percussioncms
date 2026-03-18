@@ -557,6 +557,10 @@
 
         <echo>Fixing Line Feeds for sh files...</echo>
         <fixcrlf includes="**/*.sh" eol="unix" eof="remove" srcdir="${assembly-directory}"  preservelastmodified="true" />
+        <!-- Copy caja jar from shindig-uber to fix missing jar post installation -->
+        <copy todir="${assembly-directory}/jetty/base/webapps/Rhythmyx/WEB-INF/lib" overwrite="true">
+            <fileset dir="${basedir}/../shindig-uber/lib" includes="caja-r3828.jar"/>
+        </copy>
 
     </target>
 
