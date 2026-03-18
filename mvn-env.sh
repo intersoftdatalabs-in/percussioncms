@@ -25,5 +25,11 @@ export JAVA_HOME="${JAVA_HOME_8}"
 
 echo "Using JDK 8 at ${JAVA_HOME}"
 
+# Get the absolute path of the script directory
+SCRIPT_DIR=$(cd "$(dirname "$0")" && pwd)
+TMP_DIR="$SCRIPT_DIR/tmp"
+
+mkdir -p "$TMP_DIR"
+
 # Run Maven wrapper with all arguments
 exec ./mvnw "$@"
