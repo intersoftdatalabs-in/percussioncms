@@ -30,4 +30,5 @@ set TMP_DIR=%SCRIPT_DIR%tmp
 mkdir "%TMP_DIR%" 2>nul
 
 REM Run Maven wrapper with all arguments
-call mvnw.cmd %*
+call "%SCRIPT_DIR%mvnw.cmd" -Djava.io.tmpdir="%TMP_DIR%" %*
+
