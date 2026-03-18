@@ -32,4 +32,5 @@ TMP_DIR="$SCRIPT_DIR/tmp"
 mkdir -p "$TMP_DIR"
 
 # Run Maven wrapper with all arguments
-exec ./mvnw "$@"
+exec "$SCRIPT_DIR/mvnw" -Djava.io.tmpdir="$TMP_DIR" "$@"
+
