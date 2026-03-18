@@ -86,6 +86,10 @@ public class PSGoogleAnalyticsProviderHelper {
    */
   public Analytics getAnalyticsService(String email, String key)
       throws PSAnalyticsProviderException, PSValidationException {
+    if (StringUtils.isBlank(key)) {
+      PSValidationErrorsBuilder builder = validateParameters("json file");
+      builder.reject("Google Auth error", "Key file content is null or empty").throwIfInvalid();
+    }
     JacksonFactory JSON_FACTORY = JacksonFactory.getDefaultInstance();
     com.google.api.services.analytics.Analytics service = null;
     // Construct a GoogleCredential object with the service account email
@@ -135,6 +139,10 @@ public class PSGoogleAnalyticsProviderHelper {
    */
   public AnalyticsReporting initializeAnalyticsReporting(String email, String key)
       throws PSAnalyticsProviderException, PSValidationException {
+    if (StringUtils.isBlank(key)) {
+      PSValidationErrorsBuilder builder = validateParameters("json file");
+      builder.reject("Google Auth error", "Key file content is null or empty").throwIfInvalid();
+    }
     // Construct a GoogleCredential object with the service account email
     JacksonFactory JSON_FACTORY = JacksonFactory.getDefaultInstance();
     AnalyticsReporting analyticsReporting = null;

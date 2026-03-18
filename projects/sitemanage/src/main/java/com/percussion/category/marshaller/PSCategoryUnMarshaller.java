@@ -122,6 +122,9 @@ public class PSCategoryUnMarshaller {
   }
 
   public static PSCategory unMarshalFromString(String categoryJson) {
+    if (StringUtils.isBlank(categoryJson)) {
+      return null;
+    }
     Reader reader = new StringReader(categoryJson);
     PSCategory category = null;
     try {

@@ -16,6 +16,7 @@
  */
 package com.percussion.share.web.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.percussion.cms.IPSConstants;
 import com.percussion.error.PSExceptionUtils;
 import com.percussion.share.service.exception.IPSValidationException;
@@ -76,6 +77,9 @@ public class PSRuntimeExceptionMapper extends PSAbstractExceptionMapper<RuntimeE
   @Produces(MediaType.APPLICATION_JSON)
   protected Status getStatus(RuntimeException exception) {
     if (exception instanceof IPSValidationException) return Status.BAD_REQUEST;
+    if (exception instanceof NullPointerException) return Status.BAD_REQUEST;
+    if (exception instanceof IllegalArgumentException) return Status.BAD_REQUEST;
+    if (exception.getCause() instanceof JsonProcessingException) return Status.BAD_REQUEST;
     return super.getStatus(exception);
   }
 

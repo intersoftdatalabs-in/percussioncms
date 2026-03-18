@@ -211,6 +211,10 @@ public class PSLicenseService implements IPSLicenseService {
    * @return PSModuleLicenses corresponding to the supplied string.
    */
   private PSModuleLicenses mapToModuleLicenses(String jsonStr) {
+    if (StringUtils.isBlank(jsonStr)) {
+      log.warn("Module license string is null or empty, returning null.");
+      return null;
+    }
     PSModuleLicenses mls = null;
     ObjectMapper mapper = new ObjectMapper();
     try {
