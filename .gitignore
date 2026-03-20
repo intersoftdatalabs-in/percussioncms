@@ -133,3 +133,8 @@ fabric.properties
 /modules/redirect-tool/redirects.json
 _remote.repositories
 **/spotless-index-file
+
+# Local Env
+.envrc
+.env
+
