@@ -3,6 +3,8 @@ tmp/*
 .tmp/*
 temp/*
 
+node_modules/
+
 .idea/*
 .idea/encodings.xml
 .idea/sonarIssues.xml
