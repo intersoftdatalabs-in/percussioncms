@@ -66,6 +66,7 @@ import org.w3c.dom.Node;
  * parameters:
  *
  * <table>
+ * <caption style="display:none">Parameters</caption>
  * <tr>
  * <td>sys_contentid</td>
  * <td>The content id of the item</td>

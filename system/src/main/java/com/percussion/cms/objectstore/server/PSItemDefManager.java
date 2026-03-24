@@ -1015,18 +1015,19 @@ public class PSItemDefManager {
    * <ol>
    *   <li>Makes sure the supplied content type (via content type id) is part of the available
    *       content types.
-   *   <li>Checks to see if the object type is content item. Returns <code>true</code> if it is not
-   *       an item assuming the other object types need no filtering by community. Check succeeds if
-   *       the supplied community is {@link #COMMUNITY_ANY}, which means no filtering is required
-   *       Finally it makes sure the community id supplied is configurd to be visible to the
-   *       supplied community by making an internal request to a Rhythmyx resource
+   *   <li>Checks to see if the object type is content item. Returns true if it is not an item
+   *       assuming the other object types need no filtering by community. Check succeeds if the
+   *       supplied community is COMMUNITY_ANY, which means no filtering is required Finally it
+   *       makes sure the community id supplied is configurd to be visible to the supplied community
+   *       by making an internal request to a Rhythmyx resource
+   * </ol>
    *
    * @param contentTypeId The id of the desired content type. A valid id matches one of the ids of
    *     the running content editors.
    * @param communityId community id to filter the content types by. -1 to not to filter by
    *     community.
-   * @return <code>true</code> if the content type asked is available and visible to the supplied
-   *     community based on the checks described in the method description.
+   * @return true if the content type asked is available and visible to the supplied community based
+   *     on the checks described in the method description.
    * @throws PSInvalidContentTypeException If the content type id supplied is not listed in the
    *     avaialble content types.
    */
@@ -1168,11 +1169,10 @@ public class PSItemDefManager {
   }
 
   /**
-   * This method is used to remove a content type definition from the registry.
-   * It should be called whenever the handler for this content type shuts down.
+   * This method is used to remove a content type definition from the registry. It should be called
+   * whenever the handler for this content type shuts down.
    *
-   * @param editorDef Must be the same def that was passed in to the <code>
-   *    registerDef<code> method. Never <code>null</code>.
+   * @param editorDef Must be the same def that was passed in to the registerDef method. Never null.
    * @throws Exception if the called listener throws an exception.
    */
   public void unRegisterDef(PSContentEditor editorDef) throws Exception {

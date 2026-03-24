@@ -129,7 +129,7 @@ public class PSXMLElementCondition extends PSAction implements Condition {
    *
    * @param relativeFilePath the relative path of the xml file from the installation directory,
    *     never <code>null</code> or empty
-   * @throw IllegalArgumentException if relativeFilePath is <code>null</code> or empty
+   * @throws IllegalArgumentException if relativeFilePath is <code>null</code> or empty
    */
   public void setRelativeFilePath(String relativeFilePath) {
     if ((relativeFilePath == null) || (relativeFilePath.trim().length() == 0))
@@ -151,7 +151,7 @@ public class PSXMLElementCondition extends PSAction implements Condition {
    *
    * @param xmlElementName the xml element whose value is to be matched, never <code>null</code> or
    *     empty
-   * @throw IllegalArgumentException if xmlElementName is <code>null</code> or empty
+   * @throws IllegalArgumentException if xmlElementName is <code>null</code> or empty
    */
   public void setXmlElementName(String xmlElementName) {
     if ((xmlElementName == null) || (xmlElementName.trim().length() == 0))
@@ -172,7 +172,7 @@ public class PSXMLElementCondition extends PSAction implements Condition {
    * Sets the value of the xml element to match.
    *
    * @param xmlElementValue the value of the xml element to match, never <code>null</code> or empty
-   * @throw IllegalArgumentException if xmlElementValue is <code>null</code> or empty
+   * @throws IllegalArgumentException if xmlElementValue is <code>null</code> or empty
    */
   public void setXmlElementValue(String xmlElementValue) {
     if ((xmlElementValue == null) || (xmlElementValue.trim().length() == 0))

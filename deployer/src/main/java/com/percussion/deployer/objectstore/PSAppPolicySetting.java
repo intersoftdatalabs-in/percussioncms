@@ -48,20 +48,19 @@ public abstract class PSAppPolicySetting implements IPSDeployComponent {
   }
 
   /**
-   * Serializes this object's state to its XML representation.  Format is:
+   * Serializes this object's state to its XML representation. Format is:
    *
    * <pre><code>
    *    &lt;!ELEMENT xmlNodeName EMPTY)>
    *    &lt;!ATTLIST xmlNodeName
    *       useSetting (Yes | No) #REQUIRED
    *    >
-   * </code>/<pre>
+   * </code></pre>
    *
-   * Where, <code>xmlNodeName</code> is one of the
-   * <code>PSXxxxPolicySetting.XML_NODE_NAME</code> values of the policy
-   * setting subclasses.
+   * Where, <code>xmlNodeName</code> is one of the <code>PSXxxxPolicySetting.XML_NODE_NAME</code>
+   * values of the policy setting subclasses.
    *
-   * See {@link IPSDeployComponent#toXml(Document)} for more info.
+   * <p>See {@link IPSDeployComponent#toXml(Document)} for more info.
    */
   protected Element toXml(Document doc, String xmlNodeName) {
     if (doc == null) {

@@ -55,7 +55,6 @@ public class PSConsoleCommandTrace extends PSConsoleCommand {
    * The constructor for this class
    *
    * @param cmdArgs the arguments passed into the "Trace" console command.
-   * @roseuid 39F4A1F502BF
    */
   public PSConsoleCommandTrace(String cmdArgs) throws PSIllegalArgumentException {
     super(cmdArgs);
@@ -165,7 +164,6 @@ public class PSConsoleCommandTrace extends PSConsoleCommand {
    *
    * @param request the requestor object
    * @return the result document
-   * @roseuid 39FF04590119
    */
   public Document execute(PSRequest request) throws PSConsoleCommandException {
     // Construct the result doc

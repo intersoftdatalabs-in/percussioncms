@@ -647,13 +647,10 @@ public abstract class PSEditorDocumentBuilder {
   /**
    * Appends a display field element to a content editor document.
    *
-   * @param doc The document, must contain a valid <code>ContentEditor<code>
-   * element, not <code>null</code>.  The element is appended to the end, and
-   * its control name is added to the <code>ControlNameSet</code> element if it
-   * is not already listed.
-   *
-   * @param dispNode A DisplayField element to add, must not be
-   * <code>null</code>.
+   * @param doc The document, must contain a valid <code>ContentEditor</code> element, not <code>
+   *     null</code>. The element is appended to the end, and its control name is added to the
+   *     <code>ControlNameSet</code> element if it is not already listed.
+   * @param dispNode A DisplayField element to add, must not be <code>null</code>.
    */
   public static void appendDisplayNode(Document doc, Element dispNode) {
     if (doc == null) throw new IllegalArgumentException("doc may not be null");
@@ -1070,7 +1067,7 @@ public abstract class PSEditorDocumentBuilder {
   }
 
   /**
-   * Creates an <ActionLink> element according to the ContenetEditor dtd.
+   * Creates an ActionLink element according to the ContentEditor dtd.
    *
    * @param doc The document to which the element will eventually be added. Never <code>null</code>.
    * @param label The text displayed to the user to indicate the action of the widget. Non-empty.

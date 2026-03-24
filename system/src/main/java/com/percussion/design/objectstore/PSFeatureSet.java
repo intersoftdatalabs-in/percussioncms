@@ -34,7 +34,6 @@ public class PSFeatureSet {
    * Constructor for this class. <code>fromXml</code> must be called before this object can be used.
    *
    * @see #fromXml(Document)
-   * @roseuid 39F9D704000F
    */
   public PSFeatureSet() {
     // noop;
@@ -59,7 +58,6 @@ public class PSFeatureSet {
    * @throws com.percussion.design.objectstore.PSUnknownNodeTypeException if the expected elements
    *     are not found in the PSXFeatureSet node
    * @see #FEATURE_SET_FILE
-   * @roseuid 39F9DC3E01C5
    */
   public void fromXml(Document sourceDoc)
       throws PSUnknownDocTypeException, PSUnknownNodeTypeException {
@@ -104,7 +102,6 @@ public class PSFeatureSet {
    * @return a List of PSFeatureObjects. May be not be <code>null</code>.
    * @throws IllegalStateException if fromXml has not yet been called.
    * @see PSFeature
-   * @roseuid 39F9E9080186
    */
   public Iterator getFeatureSet() {
     if (m_featureList == null) throw new IllegalStateException("fromXml must have been called");

@@ -84,8 +84,9 @@ public class PSOdbcDriverMetaData implements IPSDriverMetaData {
   /**
    * Create a server (DSNs).
    *
+   * @param instDriver The driver instance.
    * @param description The description of the server (DSN) being created.
-   * @param serverAttrivutes The ini settings needed in the registry for this server (DSN) to work.
+   * @param serverAttributes The ini settings needed in the registry for this server (DSN) to work.
    * @return true if successful
    */
   public int createServer(String instDriver, String description, Properties serverAttributes) {
@@ -118,8 +119,9 @@ public class PSOdbcDriverMetaData implements IPSDriverMetaData {
   /**
    * Remove a user server (DSNs).
    *
+   * @param instDriver The driver instance.
    * @param description The description of the server (DSN) being created.
-   * @param serverAttrivutes The ini settings needed in the registry for this server (DSN) to work.
+   * @param serverAttributes The ini settings needed in the registry for this server (DSN) to work.
    * @return true if successful
    */
   public int removeUserServer(String instDriver, String description, Properties serverAttributes) {
@@ -152,8 +154,9 @@ public class PSOdbcDriverMetaData implements IPSDriverMetaData {
   /**
    * Remove a system server (DSNs).
    *
+   * @param instDriver The driver instance.
    * @param description The description of the server (DSN) being created.
-   * @param serverAttrivutes The ini settings needed in the registry for this server (DSN) to work.
+   * @param serverAttributes The ini settings needed in the registry for this server (DSN) to work.
    * @return true if successful
    */
   public int removeServer(String instDriver, String description, Properties serverAttributes) {

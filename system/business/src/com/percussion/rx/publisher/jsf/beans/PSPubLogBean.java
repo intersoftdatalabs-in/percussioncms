@@ -255,12 +255,12 @@ public class PSPubLogBean extends CollectionModel {
         }
     }
    
-   /**
-    * Set the current paginated range.
-    * @param startRow the starting (0 based) row of the new range.
-    * @param endRow the ending (0 based) row of the new range.
-    */
-    public void setCurrRange(int start, int end) {
+    /**
+     * Set the current paginated range.
+     * @param start the starting (0 based) row of the new range.
+     * @param end the ending (0 based) row of the new range.
+     */
+     public void setCurrRange(int start, int end) {
         m_currRange = new PageRange();
         m_currRange.mi_startRow = start;
         m_currRange.mi_endRow = Math.min(end, m_count - 1);

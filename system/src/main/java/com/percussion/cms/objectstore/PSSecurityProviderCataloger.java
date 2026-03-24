@@ -58,7 +58,8 @@ public class PSSecurityProviderCataloger {
    * instances and adds them to the provider list.
    *
    * @param src the element representing the list of provider summaries. May be <code>null</code>.
-   *     <p>Expects Xml document based on the following DTD: <code><pre>
+   *     <p>Expects Xml document based on the following DTD:
+   *     <pre>
    *
    *  &lt;!ELEMENT SecurityProviders (PSXSecurityProviderInstanceSummary*)&gt;
    *  &lt;!ELEMENT PSXSecurityProviderInstanceSummary (name)&gt;
@@ -69,7 +70,7 @@ public class PSSecurityProviderCataloger {
    *
    *  &lt;!ELEMENT name       (#PCDATA)&gt;
    *
-   * </pre></code>
+   * </pre>
    */
   public void fromXml(Element src) throws PSUnknownNodeTypeException {
     if (null == src) return;

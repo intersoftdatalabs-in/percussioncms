@@ -50,7 +50,7 @@ public class PSConditionalRequest extends PSUrlRequest {
    *     <code>null</code>.
    * @param conditions a collection of PSRule objects, never <code>null</code> or be empty.
    * @throws IllegalArgumentException if the href is <code>null</code> or empty or if parameters is
-   *     <coed>null</code> or if the provided conditions are <code>null</code>, empty or are of a
+   *     <code>null</code> or if the provided conditions are <code>null</code>, empty or are of a
    *     wrong object type.
    */
   public PSConditionalRequest(
@@ -143,9 +143,7 @@ public class PSConditionalRequest extends PSUrlRequest {
     return equal;
   }
 
-  /**
-   * Generates code of the object. Overrides {@link Object#hashCode().
-   */
+  /** Generates code of the object. Overrides {@link Object#hashCode()}. */
   @Override
   public int hashCode() {
     return super.hashCode();

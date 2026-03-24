@@ -118,8 +118,9 @@ public abstract class PSConsoleCommandShowStatusHandler extends PSConsoleCommand
    *      &lt;ELEMENT EventMaximum               (days, hours, minutes, seconds, milliseconds)&gt;
    * </CODE></PRE>
    *
-   * @param request the requestor object
-   * @return the result document
+   * @param stats the handler statistics
+   * @param doc the XML document
+   * @param root the XML root element
    */
   public void createStatistics(PSHandlerStatistics stats, Document doc, Element root) {
     if (stats != null) {

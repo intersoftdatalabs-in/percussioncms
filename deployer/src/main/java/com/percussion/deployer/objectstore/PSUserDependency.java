@@ -145,7 +145,7 @@ public class PSUserDependency extends PSDeployableObject {
    *    parentId CDATA #REQUIRED
    *    parentKey CDATA #REQUIRED
    * >
-   * </pre></code>
+   * </code></pre>
    *
    * @param doc The document to use to create the element, may not be <code>null</code>.
    * @return the newly created XML element node, never <code>null</code>.

@@ -35,7 +35,7 @@ public class PSIdMap implements IPSDeployComponent {
    * Construcuting the object for a source server name, <code>sourceServer</code>.
    *
    * @param sourceServer Identifies the source repository using the form
-   *     <driver>:<server>:<database>:<origin>, it may not be <code>null</code> or empty.
+   *     [driver]:[server]:[database]:[origin], it may not be <code>null</code> or empty.
    * @throws IllegalArgumentException if <code>sourceServer</code> is <code>null</code> or empty.
    */
   public PSIdMap(String sourceServer) {
@@ -415,13 +415,13 @@ public class PSIdMap implements IPSDeployComponent {
   }
 
   /**
-   * Serializes this object's state to its XML representation.  Format is:
+   * Serializes this object's state to its XML representation. Format is:
    *
    * <pre><code>
    *    &lt;!ELEMENT PSXIdMap (PSXIdMapping*)
    *    &lt;!ATTLIST PSXIdMap
    *       sourceServer CDATA #REQUIRED
-   * </code>/<pre>
+   * </code></pre>
    *
    * See {@link IPSDeployComponent#toXml(Document)} for more info.
    */
@@ -457,7 +457,9 @@ public class PSIdMap implements IPSDeployComponent {
     }
   }
 
-  /** See {@link IPSDeployComponent#copyFrom()} for more info on method signature. */
+  /**
+   * See {@link IPSDeployComponent#copyFrom(IPSDeployComponent)} for more info on method signature.
+   */
   public void copyFrom(IPSDeployComponent obj) {
     if (obj == null) throw new IllegalArgumentException("obj parameter should not be null");
 

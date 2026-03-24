@@ -29,14 +29,13 @@ import com.percussion.server.IPSRequestContext;
 public class PSSimpleJavaUdf_overrideLiteral extends PSSimpleJavaUdfExtension
     implements IPSFieldInputTransformer {
   /**
-   * Returns the supplied literal (<code>params[0]</code>) as <code>String</code> or the override
-   * value if an override parameter (<code>params[1]</code>) is specified and was found on the
-   * supplied request. If found, the override parameter is removed from the request.
+   * Returns the supplied literal (params[0]) as String or the override value if an override
+   * parameter (params[1]) is specified and was found on the supplied request. If found, the
+   * override parameter is removed from the request.
    *
-   * @param[0] the object which will be returned as <code>String</code>, required, may be <code>
-   *     null</code> or empty.
-   * @param[1] the request parameter name used to allow overrides through the HTML request,
-   *     optional, may be <code>null</code> or empty.
+   * @param params the parameters array. params[0] is the object which will be returned as String,
+   *     required, may be null or empty. params[1] is the request parameter name used to allow
+   *     overrides through the HTML request, optional, may be null or empty.
    * @see com.percussion.extension.IPSUdfProcessor#processUdf(Object[], IPSRequestContext) for
    *     additional documentation.
    */

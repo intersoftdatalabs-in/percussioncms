@@ -361,7 +361,7 @@ public class PSResultSetColumnMetaData {
   /**
    * What's a column's table name?
    *
-   * @return table name or "" if not applicable
+   * @param table table name or "" if not applicable
    */
   public void setTableName(String table) {
     m_tableName = table;
@@ -431,9 +431,9 @@ public class PSResultSetColumnMetaData {
    * method ResultSet.getObject is called to retrieve a value from the column. ResultSet.getObject
    * may return a subclass of the class returned by this method.
    *
-   * @return the fully-qualified name of the class in the Java programming language that would be
-   *     used by the method ResultSet.getObject to retrieve the value in the specified column. This
-   *     is the class name used for custom mapping.
+   * @param className the fully-qualified name of the class in the Java programming language that
+   *     would be used by the method ResultSet.getObject to retrieve the value in the specified
+   *     column. This is the class name used for custom mapping.
    */
   public void setColumnClassName(String className) {
     m_className = className;

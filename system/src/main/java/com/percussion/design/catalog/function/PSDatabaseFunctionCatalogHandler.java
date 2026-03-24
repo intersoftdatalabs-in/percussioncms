@@ -60,35 +60,16 @@ public class PSDatabaseFunctionCatalogHandler implements IPSCatalogHandler {
    * Format the catalog request based upon the specified request information. The request
    * information for this request type is:
    *
-   * <table border="1">
-   * <tr>
-   *      <th>Key</th>
-   *      <th>Value</th>
-   *      <th>Required</th>
-   * </tr>
-   * <tr>
-   *      <td>RequestCategory</td>
-   *      <td>function</td>
-   *      <td>yes</td>
-   * </tr>
-   * <tr>
-   *      <td>RequestType</td>
-   *      <td>DatabaseFunction</td>
-   *      <td>yes</td>
-   * </tr>
+   * <ul>
+   *   <li>RequestCategory - function (required)
+   *   <li>RequestType - DatabaseFunction (required)
+   *   <li>datasource - The name of the datasource (optional)
+   * </ul>
    *
-   * <tr>
-   *      <td>datasource</td>
-   *      <td>The name of the datasource, may be ommited to use the
-   *      repository datasource</td>
-   *      <td>no</td>
-   * </tr>
-   * </table>
-   *
-   * @param req contains request information, may not be <code>null</code>, should contain the value
-   *     of the following keys: "RequestCategory", "RequestType" and "Datasource"
+   * @param req contains request information, may not be null, should contain the value of the
+   *     following keys: "RequestCategory", "RequestType" and "Datasource"
    * @return an XML document containing the appropriate the database functions serialized in XML
-   *     format, never <code>null</code>
+   *     format, never null
    */
   public Document formatRequest(Properties req) {
     String sTemp = (String) req.get(REQ_CATEGORY_KEY);

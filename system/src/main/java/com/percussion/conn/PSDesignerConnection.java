@@ -169,6 +169,7 @@ public class PSDesignerConnection {
    * Construct a connection to an E2 server with the specified properties. Supported properties are:
    *
    * <table border="1">
+   * <caption>Connection Properties</caption>
    * <tr><th>Key</th><th>Value</th></tr>
    * <tr><td>protocol</td>
    *   <td>for SSL supply 'https', defaults to 'http' conn type.</td>
@@ -1069,22 +1070,24 @@ public class PSDesignerConnection {
   }
 
   /**
-   * To support authenticated access with designer connections thru a proxy,
-   * we needed to add an authorization header to the HTTP headers. Whether that
-   * header is added is controlled by the system property
-   * <code>rhythmyx.sendHttpAuthorization<code>. If present, then the
-   * header value is calculated and returned, otherwise, no value is
-   * calculated or no header is added to the request. The format is
-   * 'Basic uid:pw', where the uid:pw fragment is base 64 encoded.
-   * <p>This is being made public so users of this class can take advantage of
-   * this information and behave in a manner consistent with this class.
-   * <p>To use with a {@link java.net.URL}, add the following line of code:
-   * <p>url.setRequestProperty(PSDesignerConnection.HTTP_AUTHORIZATION_HEADER,
-   *    conn.getAuthorizationValue())<p>
+   * To support authenticated access with designer connections thru a proxy, we needed to add an
+   * authorization header to the HTTP headers. Whether that header is added is controlled by the
+   * system property <code>rhythmyx.sendHttpAuthorization</code>. If present, then the header value
+   * is calculated and returned, otherwise, no value is calculated or no header is added to the
+   * request. The format is 'Basic uid:pw', where the uid:pw fragment is base 64 encoded.
    *
-   * @return A properly formatted value for the {@link
-   *    #HTTP_AUTHORIZATION_HEADER} or <code>null</code> if the flag is
-   *    disabled.
+   * <p>This is being made public so users of this class can take advantage of this information and
+   * behave in a manner consistent with this class.
+   *
+   * <p>To use with a {@link java.net.URL}, add the following line of code:
+   *
+   * <pre>
+   * url.setRequestProperty(PSDesignerConnection.HTTP_AUTHORIZATION_HEADER,
+   *    conn.getAuthorizationValue())
+   * </pre>
+   *
+   * @return A properly formatted value for the {@link #HTTP_AUTHORIZATION_HEADER} or <code>null
+   *     </code> if the flag is disabled.
    */
   public String getAuthorizationValue() {
     return m_httpAuthorization;
@@ -1126,10 +1129,10 @@ public class PSDesignerConnection {
   /**
    * Compares the client and server versions to determine if they are compatible. Currently the
    * rules are that the Client will be compatible with any server that is major version 6 or greater
-   * and has an InterfaceVersion that is <= to the client's. This allows for backward compatibility
-   * with older servers (this is controlled by the client using the major version), but will allow
-   * the server to control if older clients are able to connect to newer servers using the interface
-   * version.
+   * and has an InterfaceVersion that is &lt;= to the client's. This allows for backward
+   * compatibility with older servers (this is controlled by the client using the major version),
+   * but will allow the server to control if older clients are able to connect to newer servers
+   * using the interface version.
    *
    * @param client the client's PSFormatVersion object, may not be <code>null</code>.
    * @return <code>true</code> if the versions are compatible, <code>false</code> if not.

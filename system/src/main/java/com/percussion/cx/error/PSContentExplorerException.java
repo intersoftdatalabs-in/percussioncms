@@ -59,9 +59,7 @@ public class PSContentExplorerException extends PSStandaloneException {
     super(msgCode, arrayArgs);
   }
 
-  /**
-   * @see #com.percussion.error.PSStandaloneException PSStandaloneException
-   */
+  /** See PSStandaloneException for details. */
   public String getResourceBundleBaseName() {
     return STRING_BUNDLE_NAME;
   }

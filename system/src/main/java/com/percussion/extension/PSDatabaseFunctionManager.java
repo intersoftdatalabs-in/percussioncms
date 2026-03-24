@@ -193,12 +193,10 @@ public class PSDatabaseFunctionManager {
    *     (with key <code>SYS_DB_FUNCTIONS_FILE</code> and <code>USER_DB_FUNCTIONS_FILE</code>). May
    *     not be <code>null</code> and should contain a non-<code>null</code> and non-empty value for
    *     the key <code>SYS_DB_FUNCTIONS_FILE</code> and <code>USER_DB_FUNCTIONS_FILE</code>.
-   * @return the handle to the single instance of this class, never <code>null</code>
-   * @throws IOException if the system configuration file (See {@link #SYS_DB_FUNCTIONS_FILE})
-   *     required by this class does not exist
+   * @return the handle to the single instance of this class, never null
+   * @throws IOException if the system configuration file (See SYS_DB_FUNCTIONS_FILE) required by
+   *     this class does not exist
    * @throws SAXException if any error occurs parsing the configuration files
-   * @throws PSExtensionException if the configuration file is not valid, see the
-   *     "sys_DatabaseFunctionDefs.dtd" file for the DTD of this XML file.
    * @see getInstance()
    */
   public static PSDatabaseFunctionManager createInstance(Properties props)
@@ -221,13 +219,13 @@ public class PSDatabaseFunctionManager {
    * specified database function for various drivers. The database function name is
    * case-insensitive.
    *
-   * @param type should be one of <code>FUNCTION_TYPE_XXX</code> values or mulitple <code>
-   *     FUNCTION_TYPE_XXX</code> values OR'ed together
-   * @param the name of the database function, may not be <code>null</code> or empty
+   * @param type should be one of FUNCTION_TYPE_XXX values or mulitple FUNCTION_TYPE_XXX values
+   *     OR'ed together
+   * @param dbFuncName the name of the database function, may not be null or empty
    * @return the object containing the implementation of the specified database function for
-   *     different databases, may be <code>null</code> if the specified collection type does not
-   *     contain the specified function
-   * @throws IllegalArgumentException if <code>dbFuncName</code> is <code>null</code> or empty
+   *     different databases, may be null if the specified collection type does not contain the
+   *     specified function
+   * @throws IllegalArgumentException if dbFuncName is null or empty
    */
   public PSDatabaseFunction getDatabaseFunction(int type, String dbFuncName) {
     if ((dbFuncName == null) || (dbFuncName.trim().length() < 1))
@@ -299,15 +297,14 @@ public class PSDatabaseFunctionManager {
    * Convenience method for getting the database function definition for the specified function name
    * (case-insensitive) and driver (case-insensitive).
    *
-   * @param type should be one of <code>FUNCTION_TYPE_XXX</code> values or mulitple <code>
-   *     FUNCTION_TYPE_XXX</code> values OR'ed together
-   * @param the name of the database function, may not be <code>null</code> or empty
+   * @param type should be one of FUNCTION_TYPE_XXX values or mulitple FUNCTION_TYPE_XXX values
+   *     OR'ed together
+   * @param dbFuncName the name of the database function, may not be null or empty
    * @param driver type of driver for which the database function definition is to be obtained, may
-   *     not be <code>null</code> or empty
-   * @return the database function definition, may be <code>null</code> if the database function
-   *     definition does not exist
-   * @throws IllegalArgumentException if <code>dbFuncName</code> or <code>driver</code> is <code>
-   *     null</code> or empty
+   *     not be null or empty
+   * @return the database function definition, may be null if the database function definition does
+   *     not exist
+   * @throws IllegalArgumentException if dbFuncName or driver is null or empty
    */
   public PSDatabaseFunctionDef getDatabaseFunctionDef(int type, String dbFuncName, String driver) {
     if ((dbFuncName == null) || (dbFuncName.trim().length() < 1))

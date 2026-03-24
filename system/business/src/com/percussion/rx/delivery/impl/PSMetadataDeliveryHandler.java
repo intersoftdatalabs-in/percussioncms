@@ -426,20 +426,20 @@ public class PSMetadataDeliveryHandler extends PSBaseDeliveryHandler
         return location;
     }
 
-    /**
-     * Creates a full path from the base URL of the site and a path that is
-     * relative to the base URL.
-     *
-     * @param baseUrl the base URL, not <code>null</code>. The format of it can
-     *            be "http://<host>[:port]/...".
-     * @param location the path that is relative to the base URL, not
-     *            <code>null</code>. The expected format is
-     *            "/vfolder1/vfolder2/..."/
-     *
-     * @return the full path in the format or /<host>/vfolder1/vfolder2/.... It
-     *         can never <code>null</code>.
-     */
-    public String createFullPath(String baseUrl, String location)
+   /**
+    * Creates a full path from the base URL of the site and a path that is
+    * relative to the base URL.
+    *
+    * @param baseUrl the base URL, not null. The format of it can
+    *            be "http://host[:port]/...".
+    * @param location the path that is relative to the base URL, not
+    *            null. The expected format is
+    *            "/vfolder1/vfolder2/..."/
+    *
+    * @return the full path in the format or /host/vfolder1/vfolder2/.... It
+    *         can never be null.
+    */
+   public String createFullPath(String baseUrl, String location)
     {
         notNull(baseUrl);
         notNull(location);

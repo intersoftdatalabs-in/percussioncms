@@ -36,7 +36,7 @@ public interface IPSTraceMessage {
    * @param source the source of the information to be used in generating the trace message. May not
    *     be <code>null</code>.
    * @param target The writer to which the formatted message written. May not be <code>null</code>.
-   * @throws IOException if there is a problem writing to the writer.
+   * @throws java.io.IOException if there is a problem writing to the writer.
    */
   public void printTrace(PSTraceInfo traceInfo, Object source, PSTraceWriter target)
       throws java.io.IOException;

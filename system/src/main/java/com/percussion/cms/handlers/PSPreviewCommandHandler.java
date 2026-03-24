@@ -113,7 +113,7 @@ public class PSPreviewCommandHandler extends PSQueryCommandHandler {
    * does any real work, but allow any exceptions to be handled by the processRequest's try/catch
    * block.
    *
-   * @param request the request to be preprocessed. Must not be <code>null</code>
+   * @param req the request to be preprocessed. Must not be null
    */
   public void preProcessRequest(PSRequest req) {
     // The variant lookup resource requires this parameter

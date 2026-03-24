@@ -308,20 +308,20 @@ public class PSFormatVersion {
    *                     digits) Where NN is a counter.
    *
    *       majorVersion  -is the current major version portion of the version where
-   *       the format is <majorVersion.minorVersion>
+   *       the format is &lt;majorVersion.minorVersion&gt;
    *
    *       minorVersion - is the current minor version portion of the version where
-   *       the format is <majorVersion.minorVersion>
+   *       the format is &lt;majorVersion.minorVersion&gt;
    *
    *       microVersion - is the current micro version portion of the version where
-   *       the format is <majorVersion.minorVersion>
+   *       the format is &lt;majorVersion.minorVersion&gt;
    *
    *       versionString - the prefix descriptor used to build the full version string
    *
    *       optionalId - id used to identify a patch or test build
    *
    *       displayVersion - is the version number where the format is
-   *       <majorVersion.minorVersion.microVersion>
+   *       &lt;majorVersion.minorVersion.microVersion&gt;
    *
    *      --&gt;
    *

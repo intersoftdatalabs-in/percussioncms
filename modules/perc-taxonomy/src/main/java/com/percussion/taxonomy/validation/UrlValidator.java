@@ -25,17 +25,20 @@ import org.apache.oro.text.perl.Perl5Util;
 
 /**
  * Validates URLs. Behavour of validation is modified by passing in options:
- * <li>ALLOW_2_SLASHES - [FALSE] Allows double '/' characters in the path component.
- * <li>NO_FRAGMENT- [FALSE] By default fragments are allowed, if this option is included then
- *     fragments are flagged as illegal.
- * <li>ALLOW_ALL_SCHEMES - [FALSE] By default only http, https, and ftp are considered valid
- *     schemes. Enabling this option will let any scheme pass validation.
  *
- *     <p>Originally based in on php script by Debbie Dyer, validation.php v1.2b, Date: 03/07/02,
- *     http://javascript.internet.com. However, this validation now bears little resemblance to the
- *     php original.
+ * <ul>
+ *   <li>ALLOW_2_SLASHES - [FALSE] Allows double '/' characters in the path component.
+ *   <li>NO_FRAGMENT- [FALSE] By default fragments are allowed, if this option is included then
+ *       fragments are flagged as illegal.
+ *   <li>ALLOW_ALL_SCHEMES - [FALSE] By default only http, https, and ftp are considered valid
+ *       schemes. Enabling this option will let any scheme pass validation.
+ * </ul>
  *
- *     <pre>
+ * <p>Originally based in on php script by Debbie Dyer, validation.php v1.2b, Date: 03/07/02,
+ * http://javascript.internet.com. However, this validation now bears little resemblance to the php
+ * original.
+ *
+ * <pre>
  *   Example of usage:
  *   Construct a UrlValidator with valid schemes of "http", and "https".
  *

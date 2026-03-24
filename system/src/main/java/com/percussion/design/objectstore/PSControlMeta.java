@@ -212,11 +212,11 @@ public class PSControlMeta extends PSComponent {
   }
 
   /**
-   * Returns <code> if the controls is deprecated, otherwise returns <code>
-   * false</code>.
-   * <p />
-   * @return <code>true</code> if the control is deprecated otherwise <code>
-   * false</code>
+   * Returns true if the controls is deprecated, otherwise returns false.
+   *
+   * <p>
+   *
+   * @return true if the control is deprecated otherwise false
    */
   public boolean isDeprecated() {
     if (m_deprecated.equals("yes")) return true;

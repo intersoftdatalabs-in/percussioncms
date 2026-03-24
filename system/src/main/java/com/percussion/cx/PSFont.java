@@ -40,8 +40,6 @@ public class PSFont implements IPSClientObjects {
    * calling this constructor in order to create a valid object.
    *
    * @param sourceNode the XML element node from which to populate. Must not be <code>null</code>.
-   * @throws PSContentExplorerException if the XML element node does not represent a type supported
-   *     by this class.
    */
   public PSFont(Element sourceNode) {
     try {
@@ -126,7 +124,7 @@ public class PSFont implements IPSClientObjects {
 
   /**
    * Indicates whether some other object is "equal to" this one. Overrides the method in {@link
-   * Object.equals(Object) Object} and adheres to that contract.
+   * Object#equals(Object)} and adheres to that contract.
    *
    * @param obj the reference object with which to compare.
    * @return <code>true</code> if this object is the same as the <code>obj</code> argument; <code>
@@ -163,8 +161,7 @@ public class PSFont implements IPSClientObjects {
   /**
    * The face used by this font.
    *
-   * @return may be empty if {@link #fromXml(Document) fromXml(Document)} hasn't been called, never
-   *     <code>null</code>
+   * @return may be empty if {@link #fromXml(Element)} hasn't been called, never <code>null</code>
    */
   public String getFace() {
     return m_face;
@@ -186,9 +183,8 @@ public class PSFont implements IPSClientObjects {
   }
 
   /**
-   * Returns the style used with this class. The return values corresponds to the styles listed
-   * {@link java.awt.Font#PLAIN, plain}, {@link java.awt.Font#BOLD, bold}, {@link
-   * java.awt.Font#ITALIC, italic} or ITALIC|BOLD
+   * Returns the style used with this class. The return values corresponds to the styles listed in
+   * {@link java.awt.Font} (PLAIN, BOLD, ITALIC or BOLD|ITALIC).
    *
    * @return the style of this class.
    */
@@ -268,7 +264,7 @@ public class PSFont implements IPSClientObjects {
   /**
    * Populates the face, style and size from a <code>java.awt.Font</code> object.
    *
-   * @param the font from which to populate this object, must not be <code>null</code>.
+   * @param font the font from which to populate this object, must not be <code>null</code>.
    */
   public void setFont(Font font) {
     if (font == null) throw new IllegalArgumentException("font must not be null");

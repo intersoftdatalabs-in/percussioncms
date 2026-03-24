@@ -278,10 +278,9 @@ public class PSDatabaseFunctionDef implements Cloneable {
    * </code> method can return meaningful result.
    *
    * @param obj the object with which to compare this object, may not be <code>null</code>
-   * @return <false> if the specified object is not an instance of this class. <code>true</code> if
-   *     the name and driver of this object matches that of the specified object, <code>false</code>
-   *     otherwise.
-   * @throws IllegalArgumentException if <code>obj</code> is <code>null</code>
+   * @return false if the specified object is not an instance of this class. true if the name and
+   *     driver of this object matches that of the specified object, false otherwise.
+   * @throws IllegalArgumentException if obj is null
    * @see equalsFull(Object)
    */
   public boolean equals(Object obj) {
@@ -307,10 +306,9 @@ public class PSDatabaseFunctionDef implements Cloneable {
    * comparison
    *
    * @param obj the object with which to compare this object, may not be <code>null</code>
-   * @return <false> if the specified object is not an instance of this class. <code>true</code> if
-   *     the parameters listed above match that of the specified object, <code>false</code>
-   *     otherwise.
-   * @throws IllegalArgumentException if <code>obj</code> is <code>null</code>
+   * @return false if the specified object is not an instance of this class. true if the parameters
+   *     listed above match that of the specified object, false otherwise.
+   * @throws IllegalArgumentException if obj is null
    * @see equals(Object)
    */
   public boolean equalsFull(Object obj) {

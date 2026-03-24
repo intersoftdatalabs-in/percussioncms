@@ -53,7 +53,7 @@ public interface IPSEditionTask extends IPSExtension
    /**
     * Perform the task, either before or after the edition is run, depending on
     * the registration. 
-    * <h3>Implementation notes</h3>
+    * <strong>Implementation notes</strong>
     * Note for each parameter whether the parameter is
     * available given a usage. 
     * <p>

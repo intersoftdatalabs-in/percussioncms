@@ -535,7 +535,7 @@ public class PSDtdRelationalMapper implements PSDtdTreeVisitor {
      * @version 1.0 1999/6/10
      *     <p>Returns true if this table depends on the given table in some way. A table never
      *     depends on itself.
-     * @param d
+     * @param possDep the table to check dependency on
      * @return boolean
      */
     public boolean dependsOn(TableDef possDep) {

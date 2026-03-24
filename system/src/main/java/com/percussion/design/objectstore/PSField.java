@@ -115,8 +115,7 @@ public class PSField extends PSComponent {
 
   /**
    * One of the identifiers for the allowed Data types. Indicates that the field contains a value
-   * that should be interpreted as either <code>true
-   * </code> or Ccode>false</code>.
+   * that should be interpreted as either <code>true</code> or <code>false</code>.
    */
   public static final String DT_BOOLEAN = "bool";
 

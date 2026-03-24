@@ -57,9 +57,9 @@ import org.apache.logging.log4j.Logger;
  *
  * <h3>sqlparams</h3>
  *
- * A <code>List<Object></code> of parameters to substitute in the SQL Query. These parameters must
- * be of the appropriate type for the query, and the number of elements in the list of must match
- * the number of parameters.
+ * A <code>List{@literal <Object>}</code> of parameters to substitute in the SQL Query. These
+ * parameters must be of the appropriate type for the query, and the number of elements in the list
+ * of must match the number of parameters.
  *
  * <h3>template</h3>
  *

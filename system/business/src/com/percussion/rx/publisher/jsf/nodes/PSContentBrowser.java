@@ -248,7 +248,7 @@ public abstract class PSContentBrowser {
     * a sub folder. However, the inherited class must override this if it need
     * to perform or select an item.
     *  
-    * @param sum the child item or folder, may not be <code>null</code>.
+    * @param item the child item or folder, may not be <code>null</code>.
     * 
     * @return the outcome of the targeted page, never <code>null</code> or empty.
     */

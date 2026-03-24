@@ -32,7 +32,6 @@ public class PSTraceFlag {
    *
    * @param flag a flag providing all of the bits to be set
    * @param group Indicates which group this flag belongs to
-   * @roseuid 39F6CE6F031C
    */
   public void setFlag(int flag, int group) {
     try {
@@ -49,7 +48,6 @@ public class PSTraceFlag {
    *
    * @param group Indicates which group this flag belongs to
    * @return this objects flag as an integer
-   * @roseuid 39F6CF4701E4
    */
   public int getFlag(int group) {
     int i = 0;
@@ -70,7 +68,6 @@ public class PSTraceFlag {
    * @param flag a flag providing the option and group bits to be checked
    * @return <code>true</code> if the all of the bits of the incoming flag are also on in the
    *     internal flag for that group
-   * @roseuid 39F6CF910177
    */
   public boolean checkBit(int flag) {
 
@@ -86,7 +83,6 @@ public class PSTraceFlag {
    * turn on bits, will not clear any bits.
    *
    * @param flag a flag providing the bit to be set
-   * @roseuid 39F6D60F02FD
    */
   public void setBit(int flag) {
 
@@ -103,7 +99,6 @@ public class PSTraceFlag {
    *
    * @param group Indicates which group this flag belongs to
    * @return a string representation of this object
-   * @roseuid 39F6D6A6001F
    */
   public String toString(int group) {
     try {
@@ -115,11 +110,7 @@ public class PSTraceFlag {
     }
   }
 
-  /**
-   * Constructor with no arguments. Initializes all groups to <code>zero</code>.
-   *
-   * @roseuid 39F701CB03A9
-   */
+  /** Constructor with no arguments. Initializes all groups to <code>zero</code>. */
   public PSTraceFlag() {
     this(0, 0, 0, 0);
   }
@@ -129,7 +120,6 @@ public class PSTraceFlag {
    * zero</code>.
    *
    * @param flag1 The flag for the first group.
-   * @roseuid 39F702130232
    */
   public PSTraceFlag(int flag1) {
     this(flag1, 0, 0, 0);
@@ -141,7 +131,6 @@ public class PSTraceFlag {
    *
    * @param flag1 The flag for the first group.
    * @param flag2 The flag for the second group.
-   * @roseuid 39F702A302EE
    */
   public PSTraceFlag(int flag1, int flag2) {
     this(flag1, flag2, 0, 0);
@@ -154,7 +143,6 @@ public class PSTraceFlag {
    * @param flag1 The flag for the first group.
    * @param flag2 The flag for the second group.
    * @param flag3 The flag for the third group.
-   * @roseuid 39F7035C00DA
    */
   public PSTraceFlag(int flag1, int flag2, int flag3) {
     this(flag1, flag2, flag3, 0);
@@ -167,7 +155,6 @@ public class PSTraceFlag {
    * @param flag2 The flag for the second group.
    * @param flag3 The flag for the third group.
    * @param flag4 The flag for the fourth group.
-   * @roseuid 39F7038100BB
    */
   public PSTraceFlag(int flag1, int flag2, int flag3, int flag4) {
     m_traceFlags[0] = flag1;
@@ -180,7 +167,6 @@ public class PSTraceFlag {
    * Clears the bit in the group specified by the flag
    *
    * @param flag flag which specifies option bit and group bit.
-   * @roseuid 3A02E5CF02BF
    */
   public void clearBit(int flag) {
     // get group by unsigned shifting group bits all the way over to the right

@@ -23,7 +23,7 @@ import java.util.List;
 /***
  * Provides a Velocity friendly wrapper for Media content.
  *
- *   <media:content
+ *   &lt;media:content
  * url="http://www.foo.com/movie.mov"
  * fileSize="12216320"
  * type="video/quicktime"
@@ -37,13 +37,13 @@ import java.util.List;
  * duration="185"
  * height="200"
  * width="300"
- * lang="en" />
+ * lang="en" /&gt;
  *
  * @author natechadwick
  *
- * <p><media:content url="http://www.foo.com/movie.mov" fileSize="12216320" type="video/quicktime"
+ * <p>&lt;media:content url="http://www.foo.com/movie.mov" fileSize="12216320" type="video/quicktime"
  * medium="video" isDefault="true" expression="full" bitrate="128" framerate="25"
- * samplingrate="44.1" channels="2" duration="185" height="200" width="300" lang="en" />
+ * samplingrate="44.1" channels="2" duration="185" height="200" width="300" lang="en" /&gt;
  *
  * @author natechadwick
  */
@@ -149,7 +149,7 @@ public class PSSynFeedMediaContent {
 
   /***
    * The player or URL reference for the item
-   * <media:player>
+   * &lt;media:player&gt;
    *
    */
   public String getPlayerUrl() {
@@ -219,7 +219,7 @@ public class PSSynFeedMediaContent {
 
   // Meta Data
   /***
-   * <media:category>
+   * &lt;media:category&gt;
    */
   public List<PSSynFeedCategory> getCategoriesList() {
     ArrayList<PSSynFeedCategory> ret = new ArrayList<PSSynFeedCategory>();
@@ -248,7 +248,7 @@ public class PSSynFeedMediaContent {
   }
 
   /***
-   * <media:copyright>
+   * &lt;media:copyright&gt;
    *
    */
   public String getCopyright() {
@@ -263,7 +263,7 @@ public class PSSynFeedMediaContent {
   }
 
   /***
-   * <media:credit>
+   * &lt;media:credit&gt;
    *
    */
   public List<PSSynFeedCredit> getCreditList() {
@@ -291,7 +291,7 @@ public class PSSynFeedMediaContent {
   }
 
   /***
-   * <media:copyright>
+   * &lt;media:copyright&gt;
    *
    */
   public String getCopyrightUrl() {
@@ -305,7 +305,7 @@ public class PSSynFeedMediaContent {
   }
 
   /***
-   * <media:description>
+   * &lt;media:description&gt;
    *
    */
   public String getDescription() {
@@ -334,7 +334,7 @@ public class PSSynFeedMediaContent {
   }
 
   /***
-   *    <media:hash>
+   *    &lt;media:hash&gt;
    *
    */
   public String getHash() {
@@ -365,7 +365,7 @@ public class PSSynFeedMediaContent {
   }
 
   /***
-   *  <media:keywords>
+   *  &lt;media:keywords&gt;
    *
    */
   public List<String> getKeywordsList() {
@@ -397,7 +397,7 @@ public class PSSynFeedMediaContent {
   }
 
   /***
-   * <media:rating>
+   * &lt;media:rating&gt;
    *
    */
   public List<PSSynFeedRating> getRatingsList() {
@@ -415,7 +415,7 @@ public class PSSynFeedMediaContent {
   }
 
   /***
-   *  <media:restriction>
+   *  &lt;media:restriction&gt;
    *
    */
   public List<PSSynFeedRestriction> getRestrictionsList() {
@@ -432,23 +432,23 @@ public class PSSynFeedMediaContent {
   }
 
   /***
-   * <media:text>
+   * &lt;media:text&gt;
    *
    * Allows the inclusion of a text transcript, closed captioning, or lyrics of the media content. Many of these elements are permitted to provide a time series of text. In such cases, it is encouraged, but not required, that the elements be grouped by language and appear in time sequence order based on the start time. Elements can have overlapping start and end times. It has 4 optional attributes.
    *
-   * <media:text type="plain" lang="en" start="00:00:03.000"
-   * end="00:00:10.000"> Oh, say, can you see</media:text>
+   * &lt;media:text type="plain" lang="en" start="00:00:03.000"
+   * end="00:00:10.000"&gt; Oh, say, can you see&lt;/media:text&gt;
    *
-   * <media:text type="plain" lang="en" start="00:00:10.000"
-   * end="00:00:17.000">By the dawn's early light</media:text>
+   * &lt;media:text type="plain" lang="en" start="00:00:10.000"
+   * end="00:00:17.000"&gt;By the dawn's early light&lt;/media:text&gt;
    *
    * type specifies the type of text embedded. Possible values are either 'plain' or 'html'. Default value is 'plain'. All html must be entity-encoded. It is an optional attribute.
    *
    * lang is the primary language encapsulated in the media object. Language codes possible are detailed in RFC 3066. This attribute is used similar to the xml:lang attribute detailed in the XML 1.0 Specification (Third Edition). It is an optional attribute.
    *
-   * start specifies the start time offset that the text starts being relevant to the media object. An example of this would be for closed captioning. It uses the NTP time code format (see: the time attribute used in <media:thumbnail>). It is an optional attribute.
+   * start specifies the start time offset that the text starts being relevant to the media object. An example of this would be for closed captioning. It uses the NTP time code format (see: the time attribute used in &lt;media:thumbnail&gt;). It is an optional attribute.
    *
-   * end specifies the end time that the text is relevant. If this attribute is not provided, and a start time is used, it is expected that the end time is either the end of the clip or the start of the next <media:text> element.
+   * end specifies the end time that the text is relevant. If this attribute is not provided, and a start time is used, it is expected that the end time is either the end of the clip or the start of the next &lt;media:text&gt; element.
    *
    */
   public String getTranscript() {
@@ -469,7 +469,7 @@ public class PSSynFeedMediaContent {
   }
 
   /***
-   * <media:thumbnail>
+   * &lt;media:thumbnail&gt;
    *
    */
   public String getThumbnailUrl() {
@@ -564,7 +564,7 @@ public class PSSynFeedMediaContent {
   }
 
   /***
-   * <media:title>
+   * &lt;media:title&gt;
    *
    */
   public String getTitleType() {

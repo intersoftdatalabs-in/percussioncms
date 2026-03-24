@@ -52,7 +52,7 @@ import org.w3c.dom.Element;
 public class PSSearch extends PSVersionableDbComponent implements IPSCatalogSummary, IPSCloneTuner {
   /**
    * When a custom view is created, this value is set as the URL. This allows the object to be saved
-   * w/o error. A custom view can be created w/ the following {@link #PSSearch(String, boolean)
+   * w/o error. A custom view can be created w/ the following {@link #PSSearch(String, boolean)}
    * ctor} or by calling {@link #setCustom(boolean)}.
    */
   public static final String URL_PLACEHOLDER = "<enter url>";
@@ -561,7 +561,8 @@ public class PSSearch extends PSVersionableDbComponent implements IPSCatalogSumm
   /**
    * Set the maximum number of entries to be returned.
    *
-   * @param nMax int > 0, if < 0 the maximum will default to <code>DEFAULT_MAX</code>
+   * @param nMax int greater than 0, if less than 0 the maximum will default to <code>DEFAULT_MAX
+   *     </code>
    */
   public void setMaximumNumber(int nMax) {
     // Threshold if less than zero we default
@@ -591,8 +592,8 @@ public class PSSearch extends PSVersionableDbComponent implements IPSCatalogSumm
   /**
    * See {@link #getType()} for details.
    *
-   * @param type Must be one of the TYPE_xxx values. This can be checked
-   * ahead of time by calling the <code>isValidType(String)<code> method.
+   * @param type Must be one of the TYPE_xxx values. This can be checked ahead of time by calling
+   *     the <code>isValidType(String)</code> method.
    */
   public void setType(String type) {
     if (!isValidType(type)) throw new IllegalArgumentException("Invalid type supplied.");
@@ -674,8 +675,7 @@ public class PSSearch extends PSVersionableDbComponent implements IPSCatalogSumm
   /**
    * Convenience method.
    *
-   * @return <code>true</code> if its a search <code>
-   *    otherwise <code>false</code>
+   * @return <code>true</code> if its a search, otherwise <code>false</code>
    */
   public boolean isUserSearch() {
     return m_strType.equalsIgnoreCase(TYPE_USERSEARCH);
@@ -689,8 +689,7 @@ public class PSSearch extends PSVersionableDbComponent implements IPSCatalogSumm
   /**
    * Convenience method.
    *
-   * @return <code>true</code> if its a standard view <code>
-   *    otherwise <code>false</code>
+   * @return <code>true</code> if its a standard view, otherwise <code>false</code>
    */
   public boolean isStandardView() {
     if (m_strType.equalsIgnoreCase(TYPE_VIEW) && !isCustomApp()) return true;
@@ -701,8 +700,7 @@ public class PSSearch extends PSVersionableDbComponent implements IPSCatalogSumm
   /**
    * Convenience method.
    *
-   * @return <code>true</code> if its a custom view <code>
-   *    otherwise <code>false</code>
+   * @return <code>true</code> if its a custom view, otherwise <code>false</code>
    */
   public boolean isCustomView() {
     if (m_strType.equalsIgnoreCase(TYPE_VIEW) && isCustomApp()) return true;
@@ -713,8 +711,7 @@ public class PSSearch extends PSVersionableDbComponent implements IPSCatalogSumm
   /**
    * Convenience method.
    *
-   * @return <code>true</code> if its a view <code>
-   *    otherwise <code>false</code>
+   * @return <code>true</code> if its a view, otherwise <code>false</code>
    */
   public boolean isView() {
     return m_strType.equalsIgnoreCase(TYPE_VIEW);
@@ -723,8 +720,7 @@ public class PSSearch extends PSVersionableDbComponent implements IPSCatalogSumm
   /**
    * Convenience method.
    *
-   * @return <code>true</code> if its a Custom Search <code>
-   *    otherwise <code>false</code>
+   * @return <code>true</code> if its a Custom Search, otherwise <code>false</code>
    */
   public boolean isCustomSearch() {
     return m_strType.equalsIgnoreCase(TYPE_CUSTOMSEARCH);
@@ -733,8 +729,7 @@ public class PSSearch extends PSVersionableDbComponent implements IPSCatalogSumm
   /**
    * Convenience method.
    *
-   * @return <code>true</code> if its a Standard Search <code>
-   *    otherwise <code>false</code>
+   * @return <code>true</code> if its a Standard Search, otherwise <code>false</code>
    */
   public boolean isStandardSearch() {
     return m_strType.equalsIgnoreCase(TYPE_STANDARDSEARCH);
@@ -824,7 +819,7 @@ public class PSSearch extends PSVersionableDbComponent implements IPSCatalogSumm
    *       <li>Must not be <code>null</code>or empty if showTo parameter is {@link #SHOW_TO_USER}.
    *           In this case it is interpreted as user name.
    *       <li>If showTo flag is {@link #SHOW_TO_COMMUNITY}, this value is interpreted as
-   *           communityid. Also in this case, if this parameter is code>null</code> or empty it is
+   *           communityid. Also in this case, if this parameter is <code>null</code> or empty it is
    *           assumed to be {@link #PROP_COMMUNITY_ALL}.
    *       <li>If showTo flag is {@link #SHOW_TO_ALL_COMMUNITIES}, this values is be ignored and
    *           communityId is assumed to be {@link #PROP_COMMUNITY_ALL}.

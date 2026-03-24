@@ -70,9 +70,10 @@ public class PSRecurringEvent {
   }
 
   /**
-   * Constructs a <code>RecurringEvent</code> from its XML representation: <code><pre>
+   * Constructs a RecurringEvent from its XML representation:
    *
-   *  &lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
+   * <pre>
+   *  &lt;?xml version="1.0" encoding="UTF-8"?&gt;
    *  &lt;!ELEMENT event (interval, dayOfWeek?, dayOfMonth?)&gt;
    *  &lt;!ATTLIST event
    *     sys_contentid CDATA #REQUIRED
@@ -89,7 +90,7 @@ public class PSRecurringEvent {
    *     occurrence CDATA #REQUIRED
    *  &gt;
    *
-   * </pre></code>
+   * </pre>
    *
    * @param root an XML tree that must conform to the specified representation
    * @throws UnknownNodeTypeException if the XML tree does not conform to the specified

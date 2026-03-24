@@ -57,7 +57,7 @@ public class PSModifySiteDefs extends PSDefaultExtension implements IPSResultDoc
   /**
    * See class description for details.
    *
-   * @param None expected.
+   * @param params the parameters array (not used).
    * @param request Never <code>null</code>.
    * @param resultDoc Discarded and replaced with document generated in this exit.
    */

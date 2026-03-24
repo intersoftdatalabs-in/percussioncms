@@ -136,9 +136,7 @@ public class PSDisplayMapper extends PSCollectionComponent {
     return equal;
   }
 
-  /**
-   * Generates code of the object. Overrides {@link Object#hashCode().
-   */
+  /** Generates code of the object. Overrides {@link Object#hashCode()}. */
   @Override
   public int hashCode() {
     // AP: does not feel right - equals is completely redefined, but

@@ -19,7 +19,6 @@ package com.percussion.data;
 
 import com.percussion.design.objectstore.PSDataSet;
 import com.percussion.design.objectstore.PSRequestor;
-import com.percussion.error.PSNotFoundException;
 import com.percussion.server.PSApplicationHandler;
 import com.percussion.server.PSRequest;
 import com.percussion.server.PSServer;
@@ -46,7 +45,6 @@ public class PSPagedRequestLinkGenerator {
    * @param app the application containing the data set we will be linking to
    * @param ds the data set information
    * @param pageLinkType the type of page link (next, prev, index)
-   * @exception PSNotFoundException if the target data set does not exist
    */
   public PSPagedRequestLinkGenerator(PSApplicationHandler app, PSDataSet ds, int pageLinkType) {
     PSRequestor requestor = ds.getRequestor();

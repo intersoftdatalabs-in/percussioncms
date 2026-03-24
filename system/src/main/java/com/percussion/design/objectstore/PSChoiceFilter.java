@@ -368,9 +368,7 @@ public class PSChoiceFilter extends PSComponent {
       return equal;
     }
 
-    /**
-     * Generates code of the object. Overrides {@link Object#hashCode().
-     */
+    /** Generates code of the object. Overrides {@link Object#hashCode()}. */
     @Override
     public int hashCode() {
       return m_fieldRef.hashCode() + m_dependencyType.hashCode();

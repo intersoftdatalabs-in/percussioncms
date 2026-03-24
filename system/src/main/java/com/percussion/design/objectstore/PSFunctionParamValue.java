@@ -75,9 +75,7 @@ public class PSFunctionParamValue extends PSAbstractParamValue implements IPSPar
     return equals;
   }
 
-  /**
-   * Generates code of the object. Overrides {@link Object#hashCode().
-   */
+  /** Generates code of the object. Overrides {@link Object#hashCode()}. */
   @Override
   public int hashCode() {
     return super.hashCode();
@@ -129,8 +127,8 @@ public class PSFunctionParamValue extends PSAbstractParamValue implements IPSPar
    *
    * See the "sys_BasicObjects.dtd" file for the DTD of the elements contained by the value element.
    *
-   * @see {@link PSAbstractParamValue#toXml(Document) toXml()} method for the description of the
-   *     parameters and returned value.
+   * @see PSAbstractParamValue#toXml(Document) for the description of the parameters and returned
+   *     value.
    */
   public Element toXml(Document doc) {
     return super.toXml(doc);

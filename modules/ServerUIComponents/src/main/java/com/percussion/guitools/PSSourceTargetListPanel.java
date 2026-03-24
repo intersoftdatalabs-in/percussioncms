@@ -44,11 +44,11 @@ public class PSSourceTargetListPanel extends JPanel {
   /**
    * Constructs the panel.
    *
-   * @param srcLabel, label for the source list, cannot be <code>null</code> or empty.
-   * @param targetLabel, label for the target list, cannot be <code>null</code> or empty.
-   * @param topBtnName, top button name, cannot be <code>null</code> or empty.
-   * @param btmBtnName, bottom button name, cannot be <code>null</code> or empty.
-   * @throw IllegalArgumentException if any of the arguments are invalid.
+   * @param srcLabel label for the source list, cannot be null or empty.
+   * @param targetLabel label for the target list, cannot be null or empty.
+   * @param topBtnName top button name, cannot be null or empty.
+   * @param btmBtnName bottom button name, cannot be null or empty.
+   * @throws IllegalArgumentException if any of the arguments are invalid.
    */
   public PSSourceTargetListPanel(
       String srcLabel, String targetLabel, String topBtnName, String btmBtnName) {
@@ -58,13 +58,13 @@ public class PSSourceTargetListPanel extends JPanel {
   /**
    * Constructs the panel.
    *
-   * @param srcLabel, label for the source list, cannot be <code>null</code> or empty.
-   * @param targetLabel, label for the target list, cannot be <code>null</code> or empty.
-   * @param topBtnName, top button name, cannot be <code>null</code> or empty.
-   * @param btmBtnName, bottom button name, cannot be <code>null</code> or empty.
-   * @param topBtnMnem, bottom button mnemonic, may be <code>null</code>
-   * @param btmBtnMnem, bottom button mnemonic, may be <code>null</code>
-   * @throw IllegalArgumentException if any of the arguments are invalid.
+   * @param srcLabel label for the source list, cannot be null or empty.
+   * @param targetLabel label for the target list, cannot be null or empty.
+   * @param topBtnName top button name, cannot be null or empty.
+   * @param btmBtnName bottom button name, cannot be null or empty.
+   * @param topBtnMnem bottom button mnemonic, may be null
+   * @param btmBtnMnem bottom button mnemonic, may be null
+   * @throws IllegalArgumentException if any of the arguments are invalid.
    */
   public PSSourceTargetListPanel(
       String srcLabel,
@@ -432,21 +432,20 @@ public class PSSourceTargetListPanel extends JPanel {
   // end
 
   /**
-   * The list on the left side of the panel, initialized in {@link# createListPanel(boolean)}, never
-   * <code>null</code> or modified after that.
+   * The list on the left side of the panel, initialized in {@link #createListPanel(boolean)}, never
+   * null or modified after that.
    */
   private JList m_srcList;
 
   /**
-   * The list on the right side of the panel, initialized in {@link# createListPanel(boolean)},
-   * never <code>null</code> or modified after that.
+   * The list on the right side of the panel, initialized in {@link #createListPanel(boolean)},
+   * never null or modified after that.
    */
   private JList m_targetList;
 
   /**
-   * The top button for removing selected items from <code>m_srcList</code> to <code>m_targetList
-   * </code>. Initialized in {@link#init()}, never <code>null
-   * </code> or modified after that.
+   * The top button for removing selected items from m_srcList to m_targetList . Initialized in
+   * {@link #init()}, never null or modified after that.
    */
   private UTFixedButton m_addBtn;
 

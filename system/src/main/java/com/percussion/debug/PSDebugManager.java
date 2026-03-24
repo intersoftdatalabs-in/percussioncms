@@ -40,8 +40,6 @@ public class PSDebugManager {
   /**
    * Used to obtain the singleton instance of the DebugManager. If an instance has not yet been
    * created, it will be done so in a lazy fashion.
-   *
-   * @roseuid 39F492DC033C
    */
   public static synchronized PSDebugManager getDebugManager() {
     if (ms_debugManager == null) ms_debugManager = new PSDebugManager();
@@ -53,8 +51,7 @@ public class PSDebugManager {
    * Puts the DebugLogHandler passed in in the hash table of log handlers used by each application.
    *
    * @param handler The debug log handler for the application. May not be <code>null</code>.
-   * @param appId The id of the application. May not be <code>null</code>.
-   * @roseuid 39F49332033C
+   * @param appName The name of the application. May not be <code>null</code>.
    */
   public void registerLogHandler(PSDebugLogHandler handler, String appName) {
     m_logHandlers.put(appName, handler);
@@ -67,7 +64,6 @@ public class PSDebugManager {
    *     not be <code>null</code>.
    * @return The DebugLogHandler of the application whose name was supplied.
    * @throws PSNotFoundException if the log handler has not been registered for the specified app.
-   * @roseuid 39F49473032C
    */
   public PSDebugLogHandler getLogHandler(String appName) throws PSNotFoundException {
     PSDebugLogHandler dh = (PSDebugLogHandler) m_logHandlers.get(appName);
@@ -79,9 +75,8 @@ public class PSDebugManager {
   /**
    * Removes the specified logHandler from the list of current log handlers for each application.
    *
-   * @param appId Specifies the app whose log handler should be unregistered. May not be <code>null
-   *     </code>.
-   * @roseuid 39F4953D02BF
+   * @param appName The name of the application whose log handler should be unregistered. May not be
+   *     <code>null</code>.
    */
   public void unregisterLogHandler(String appName) {
     m_logHandlers.remove(appName);
@@ -144,7 +139,6 @@ public class PSDebugManager {
    * @param appName The Name of the application whose flags are to be returned.
    * @return the composite flag
    * @throws PSNotFoundException if no handler has been registered with the specified appName.
-   * @roseuid 39F5D5950213
    */
   public PSTraceFlag getTraceOptionsFlag(String appName) throws PSNotFoundException {
     PSDebugLogHandler dh = getLogHandler(appName);
@@ -157,10 +151,9 @@ public class PSDebugManager {
    * Set's the composite trace flag for the specified application. All options specified by the flag
    * will be enabled. All that are not enabled by the flag will be disabled.
    *
-   * @param appId The id of the application whose trace options are being set.
+   * @param appName The name of the application whose trace options are being set.
    * @param traceFlags an object containing the composite flags for each group of trace options
    * @throws PSNotFoundException if no handler has been registered with the specified appName.
-   * @roseuid 39F5D6850177
    */
   public void setTraceOptionsFlag(String appName, PSTraceFlag traceFlags)
       throws PSNotFoundException {
@@ -209,8 +202,6 @@ public class PSDebugManager {
   /**
    * Private constructor for this class. Instance of this class may only be obtained by calling
    * getDebugManager
-   *
-   * @roseuid 39F9CE1B037A
    */
   private PSDebugManager() {
     m_logHandlers = new ConcurrentHashMap();

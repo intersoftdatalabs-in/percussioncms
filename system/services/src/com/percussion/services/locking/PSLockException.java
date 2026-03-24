@@ -131,10 +131,10 @@ public class PSLockException extends PSBaseException {
     * Creates a lock exception for object already locked scenarios.
     *
     * @param objectId the ID of the locked object
-    * @param currentLocker the user who currently holds the lock, not {@code null}
+    * @param currentLocker the user who currently holds the lock, not null
     * @param remainingTime the remaining lock time in milliseconds
     * @return a new PSLockException instance
-    * @throws IllegalArgumentException if currentLocker is null or empty, or remainingTime <= 0
+    * @throws IllegalArgumentException if currentLocker is null or empty, or remainingTime is less than or equal to 0
     */
    public static PSLockException objectAlreadyLocked(long objectId, String currentLocker, long remainingTime) {
       Objects.requireNonNull(currentLocker, "currentLocker cannot be null");

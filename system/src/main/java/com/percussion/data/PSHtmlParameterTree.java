@@ -45,9 +45,10 @@ import org.w3c.dom.Element;
  */
 public class PSHtmlParameterTree {
   /**
-   * Construct an XML input document from the HTML parameters associated
-   * with the specified request. The structure created by this is:
-   * <PRE><CODE>
+   * Construct an XML input document from the HTML parameters associated with the specified request.
+   * The structure created by this is:
+   *
+   * <pre>
    *    &lt;PSXParams&gt;
    *       &lt;PSXParam&gt;
    *          &lt;param1&gt;
@@ -64,8 +65,9 @@ public class PSHtmlParameterTree {
    *          &lt;/paramX&gt;
    *       &lt;/PSXParam&gt;
    *    &lt;/PSXParams&gt;
+   * </pre>
    *
-   * @param   request      the request context
+   * @param request the request context
    */
   public static Document generateHtmlParameterTree(PSRequest request) {
     Document doc = PSXmlDocumentBuilder.createXmlDocument();

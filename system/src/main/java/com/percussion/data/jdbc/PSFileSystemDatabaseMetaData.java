@@ -1682,7 +1682,8 @@ public class PSFileSystemDatabaseMetaData implements DatabaseMetaData {
    * Get a description of table columns available in a catalog. The file system driver always
    * returns the same set of columns:
    *
-   * <table border="2">
+   * <table border="1">
+   * <caption>Table column descriptions</caption>
    * <tr><th>Name</th><th>Data Type</th><th>Description</th></tr>
    * <tr><td>path</td>
    *     <td>java.lang.String</td>
@@ -2054,7 +2055,7 @@ public class PSFileSystemDatabaseMetaData implements DatabaseMetaData {
    *   <li><b>GRANTEE</b> String => grantee of access
    *   <li><b>PRIVILEGE</b> String => name of access (SELECT, INSERT, UPDATE, REFRENCES, ...)
    *   <li><b>IS_GRANTABLE</b> String => "YES" if grantee is permitted to grant to others; "NO" if
-   *       not; null if unknown</lu>
+   *       not; null if unknown
    * </ol>
    *
    * @param catalog the directory to be searched
@@ -2657,7 +2658,6 @@ public class PSFileSystemDatabaseMetaData implements DatabaseMetaData {
   /**
    * JDBC 2.0 Indicates whether the driver supports batch updates.
    *
-   * @param type set type, i.e. ResultSet.TYPE_XXX
    * @return <code>true</code> if the driver supports batch updates; <code>false</code> otherwise
    * @throws SQLException if a database access error occurs
    */

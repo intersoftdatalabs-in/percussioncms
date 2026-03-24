@@ -883,8 +883,8 @@ public class PSDtdTree implements Serializable, PSDtdTreeVisitor, Cloneable {
    * element's content.
    *
    * <p>When a recursive state is detected, the name of the first element detected to be recursive
-   * will be added to the catalog with the value <#RECURSION> appended to it. No further catalog of
-   * this leg of the tree will be attempted.
+   * will be added to the catalog with the value &lt;#RECURSION&gt; appended to it. No further
+   * catalog of this leg of the tree will be attempted.
    *
    * <p>The catalog functionality of the DTD classes contains an upper limit of <code>
    * MAX_CATALOG_SIZE</code> as defined in this class and when this limit is reached the value
@@ -932,8 +932,8 @@ public class PSDtdTree implements Serializable, PSDtdTreeVisitor, Cloneable {
    * @return int The occurrence type of element with the given name in the parent element with the
    *     given parent name. If the element does not occur within the parent, returns <CODE>
    *     PSDtdNode.OCCURS_UNKNOWN</CODE>.
-   * @todo: (ph) This method may not work correctly if the parentName appears as a child of more
-   *     than 1 element.
+   * @deprecated (ph) This method may not work correctly if the parentName appears as a child of
+   *     more than 1 element.
    */
   public int getOccurrenceSetting(String elementName, String parentName) {
     PSDtdElement parent;

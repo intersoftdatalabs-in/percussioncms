@@ -19,11 +19,11 @@ package com.percussion.pso.syndication;
 import com.rometools.modules.mediarss.types.Thumbnail;
 
 /***
- * <media:thumbnail>
+ * &lt;media:thumbnail&gt;
  *
  * Allows particular images to be used as representative images for the media object. If multiple thumbnails are included, and time coding is not at play, it is assumed that the images are in order of importance. It has 1 required attribute and 3 optional attributes.
  *
- * <media:thumbnail url="http://www.foo.com/keyframe.jpg" width="75" height="50" time="12:05:01.123" />
+ * &lt;media:thumbnail url="http://www.foo.com/keyframe.jpg" width="75" height="50" time="12:05:01.123" /&gt;
  * url specifies the url of the thumbnail. It is a required attribute.
  *
  * height specifies the height of the thumbnail. It is an optional attribute.
@@ -37,8 +37,8 @@ import com.rometools.modules.mediarss.types.Thumbnail;
  * thumbnails are included, and time coding is not at play, it is assumed that the images are in
  * order of importance. It has 1 required attribute and 3 optional attributes.
  *
- * <p><media:thumbnail url="http://www.foo.com/keyframe.jpg" width="75" height="50"
- * time="12:05:01.123" /> url specifies the url of the thumbnail. It is a required attribute.
+ * <p>&lt;media:thumbnail url="http://www.foo.com/keyframe.jpg" width="75" height="50"
+ * time="12:05:01.123" /&gt; url specifies the url of the thumbnail. It is a required attribute.
  *
  * <p>height specifies the height of the thumbnail. It is an optional attribute.
  *

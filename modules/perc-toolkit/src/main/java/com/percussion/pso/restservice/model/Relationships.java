@@ -34,7 +34,7 @@ public class Relationships {
   /**
    * Method getTranslations.
    *
-   * @return List<Translation>
+   * @return List of Translation
    */
   @XmlElementWrapper(name = "Translations")
   @XmlElement(name = "Translation")
@@ -45,7 +45,7 @@ public class Relationships {
   /**
    * Method setTranslations.
    *
-   * @param translations List<Translation>
+   * @param translations List of Translation
    */
   public void setTranslations(List<Translation> translations) {
     this.translations = translations;
@@ -54,7 +54,7 @@ public class Relationships {
   /**
    * Method getSlots.
    *
-   * @return List<Slot>
+   * @return List of Slot
    */
   @XmlElementWrapper(name = "Slots")
   @XmlElement(name = "Slot")
@@ -65,7 +65,7 @@ public class Relationships {
   /**
    * Method setSlots.
    *
-   * @param slots List<Slot>
+   * @param slots List of Slot
    */
   public void setSlots(List<Slot> slots) {
     this.slots = slots;
@@ -74,7 +74,7 @@ public class Relationships {
   /**
    * Method getCopies.
    *
-   * @return List<Copy>
+   * @return List of Copy
    */
   @XmlElementWrapper(name = "Copies")
   @XmlElement(name = "Copy")
@@ -85,7 +85,7 @@ public class Relationships {
   /**
    * Method setCopies.
    *
-   * @param copies List<Copy>
+   * @param copies List of Copy
    */
   public void setCopies(List<Copy> copies) {
     this.copies = copies;

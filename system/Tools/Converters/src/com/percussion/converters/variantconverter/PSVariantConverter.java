@@ -315,7 +315,6 @@ public class PSVariantConverter
     * Main method for this converter application.
     * 
     * @param args - This converter does not need any arguments.
-    * @see usage
     */
    @SuppressWarnings({"unchecked"})
    public static void main(String[] args)

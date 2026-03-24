@@ -61,7 +61,8 @@ public class PSOListTools extends PSJexlUtilBase implements IPSJexlExpression {
    * @param start start index (inclusive) for the slice
    * @param end end index (exclusive)
    * @return a subsection of the collection as a list.
-   * @throws IllegalArgumentException, IndexOutOfBoundsException
+   * @throws IllegalArgumentException if arguments are invalid
+   * @throws IndexOutOfBoundsException if indices are out of bounds
    */
   public List<Object> subListUnSafe(Collection<?> c, int start, int end)
       throws IllegalArgumentException, IndexOutOfBoundsException {
@@ -276,10 +277,11 @@ public class PSOListTools extends PSJexlUtilBase implements IPSJexlExpression {
    * Creates a PSPair Object this simply has two properties First and Second. This can be used with
    * $tools.sorter.sort to sort items
    *
-   * @param <A,B>
+   * @param <A> the type of first object
+   * @param <B> the type of second object
    * @param first the first object.
    * @param second the second object.
-   * @return a PSPair Object, Never <code>null</code>.
+   * @return a PSPair Object, Never null.
    */
   @IPSJexlMethod(
       description = "Creates a PSPair has properties First and Second ",

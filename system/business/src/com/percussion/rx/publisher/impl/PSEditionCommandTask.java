@@ -133,10 +133,10 @@ public class PSEditionCommandTask implements IPSEditionTask
     * Waits for the command to finish, then check the exit code to see if there
     * was a non zero return code or if there was another error.
     * 
-    * @param cmdString - The command that was executed. assume not
-    * <code>null</null>
-    * @param action - the results from the command that was executed. may be
-    * <code>null</null> or blank
+     * @param cmdString - The command that was executed. assume not
+     * <code>null</code>
+     * @param action - the results from the command that was executed. may be
+     * <code>null</code> or blank
     * @param timeOut - time to wait for command to finish, assumed >= 0, wait
     * Indefinitely if it is 0
     */
@@ -183,12 +183,12 @@ public class PSEditionCommandTask implements IPSEditionTask
    /**
     * Throws a runtime exception withthe apropriate error message
     * 
-    * @param cmdstr - The command that was executed. assume not
-    * <null>null</null>
-    * @param errorText - Error text is added to message if not
-    * <code>null</null> or blank
-    * @param addMessage - Additional error info is added to message if not
-    * <code>null</null> or blank
+     * @param cmdstr - The command that was executed. assume not
+     * <code>null</code>
+     * @param errorText - Error text is added to message if not
+     * <code>null</code> or blank
+     * @param addMessage - Additional error info is added to message if not
+     * <code>null</code> or blank
     */
    private void throwRuntimeException(String cmdstr, String errorText,
          String addMessage)

@@ -43,7 +43,7 @@ public class PSSecurityProviderInstanceSummary implements IPSCmsComponent {
   /**
    * Constructs a new <code>PSSecurityProvider</code> object.
    *
-   * @param src the provider element node to create this object from. May not be <code>null</code>.
+   * @param instance the provider instance to create this object from. May not be <code>null</code>.
    */
   public PSSecurityProviderInstanceSummary(PSSecurityProviderInstance instance) {
     m_type = instance.getType();
@@ -66,7 +66,9 @@ public class PSSecurityProviderInstanceSummary implements IPSCmsComponent {
   }
 
   /**
-   * Returns this object as xml <code><pre>
+   * Returns this object as xml
+   *
+   * <pre>
    *
    *   &lt;!ELEMENT PSXSecurityProviderInstanceSummary (name)&gt;
    *   &lt;!ATTLIST
@@ -76,7 +78,7 @@ public class PSSecurityProviderInstanceSummary implements IPSCmsComponent {
    *
    *  &lt;!ELEMENT name       (#PCDATA)&gt;
    *
-   * </pre></code>
+   * </pre>
    */
   public Element toXml(Document doc) {
     if (doc == null) throw new IllegalArgumentException("doc may not be null");
@@ -94,7 +96,8 @@ public class PSSecurityProviderInstanceSummary implements IPSCmsComponent {
   /**
    * Sets this objects values from xml
    *
-   * @param src xml element node from the following DTD. <code><pre>
+   * @param src xml element node from the following DTD.
+   *     <pre>
    *
    *   &lt;!ELEMENT PSXSecurityProviderInstanceSummary (name)&gt;
    *   &lt;!ATTLIST
@@ -104,7 +107,8 @@ public class PSSecurityProviderInstanceSummary implements IPSCmsComponent {
    *
    *  &lt;!ELEMENT name       (#PCDATA)&gt;
    *
-   * </pre></code>
+   * </pre>
+   *
    * @throws PSUnknownNodeTypeException
    */
   public void fromXml(Element src) throws PSUnknownNodeTypeException {

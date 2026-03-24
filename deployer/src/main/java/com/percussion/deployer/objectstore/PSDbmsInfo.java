@@ -283,7 +283,7 @@ public class PSDbmsInfo implements IPSDeployComponent {
    * Sets the driver name.
    *
    * @param driver driver name, may not be <code>null</code> or empty.
-   * @throws IllegalArgumentException, if the input parameter is invalid.
+   * @throws IllegalArgumentException if the input parameter is invalid.
    */
   public void setDriver(String driver) {
     if (driver == null || driver.length() == 0)
@@ -304,7 +304,7 @@ public class PSDbmsInfo implements IPSDeployComponent {
    * Sets the server name.
    *
    * @param server server name, may not be <code>null</code> or empty.
-   * @throws IllegalArgumentException, if the input parameter is invalid.
+   * @throws IllegalArgumentException if the input parameter is invalid.
    */
   public void setServer(String server) {
     if (server == null || server.length() == 0)
@@ -350,11 +350,9 @@ public class PSDbmsInfo implements IPSDeployComponent {
    *     %lt;!ELEMENT origin (#PCDATA)&gt;
    *     %lt;!ELEMENT userid (#PCDATA)&gt;
    *     %lt;!ELEMENT password (#PCDATA)&gt;
-   * </code>
-   * /&lt;pre&gt;
+   * </code></pre>
    *
-   *  See {@link IPSDeployComponent#toXml(Document)} for more info.
-   *
+   * See {@link IPSDeployComponent#toXml(Document)} for more info.
    */
   public Element toXml(Document doc) {
     if (doc == null) throw new IllegalArgumentException("doc may not be null");

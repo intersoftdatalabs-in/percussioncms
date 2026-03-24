@@ -104,7 +104,7 @@ public class PSDtdTreeMergeManager {
    * @param master The tree to compare element entries against for occurrence settings variations.
    * @param slave The source of the occurrence settings.
    * @return A cloned master tree with the occurrence settings of the slave tree.
-   * @todo This could be optimized quite a bit.
+   * @deprecated This could be optimized quite a bit.
    */
   public PSDtdTree updateTreeForUserMod(PSDtdTree master, PSDtdTree slave) {
     List paths = slave.getCatalog(null, null);
@@ -292,7 +292,7 @@ public class PSDtdTreeMergeManager {
    * @param key The String key that is the name of the Element that we are currently merging. This
    *     key is used by both the master tree and the slave tree and retrieved by calling <tree
    *     instance>.getElement() method (essentially a HashMap.get() call).
-   * @todo Merging of inner NodeLists ALWAYS removes all nested parenthesis. Must add code to
+   * @deprecated Merging of inner NodeLists ALWAYS removes all nested parenthesis. Must add code to
    *     accurately preserve the nested NodeLists.
    */
   private PSDtdElement mergeElement(String key) {

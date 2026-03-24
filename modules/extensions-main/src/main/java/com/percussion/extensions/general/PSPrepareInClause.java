@@ -70,7 +70,7 @@ public class PSPrepareInClause implements IPSRequestPreProcessor {
    * @throws PSRequestValidationException If the request is <code>null</code>.
    * @throws PSParameterMismatchException If params is <code>null</code>, or if the paramters do not
    *     match the above specifications.
-   * @throws PSExtensionProcessorException If any other exception occurs which prevents the proper
+   * @throws PSExtensionProcessingException If any other exception occurs which prevents the proper
    *     handling of this request
    * @see IPSRequestPreProcessor#preProcessRequest(Object[], IPSRequestContext)
    */

@@ -245,10 +245,10 @@ public class PSPublisherJobStatus implements IPSPublisherJobStatus
       return m_rerunAfter;
    }
    
-   /** 
-    *  @param should this edition be immediately rerun
-    */
-   public void setRerunAfter(boolean rerunAfter)
+    /**
+     * @param rerunAfter should this edition be immediately rerun
+     */
+    public void setRerunAfter(boolean rerunAfter)
    {
       m_rerunAfter = rerunAfter;
    }
@@ -259,10 +259,10 @@ public class PSPublisherJobStatus implements IPSPublisherJobStatus
    {
       return m_message;
    }
-   /** 
-    *  @param general publishing message to user
-    */
-   public void setMessage(String message) {
+    /**
+     * @param message general publishing message to user
+     */
+    public void setMessage(String message) {
       m_message = message;
    }
 

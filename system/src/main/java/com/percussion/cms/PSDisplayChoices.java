@@ -135,8 +135,8 @@ public class PSDisplayChoices implements Cloneable {
    *     <p>&lt;!ELEMENT DisplayChoices (DisplayEntry*, PSXChoiceFilter?)> &lt;!ATTLIST
    *     DisplayChoices areChoicesLoaded (yes | no ) "yes" > &lt;!ELEMENT DisplayEntry (Value,
    *     DisplayLabel)> &lt;!ELEMENT Value (#PCDATA)> &lt;!ELEMENT DisplayLabel (#PCDATA)>
-   * @todo Bring this into compliance with the DisplayChoice element in the sys_ContentEditor.dtd if
-   *     the <code>PSChoiceBuilder</code> is refactored to use this class.
+   * @deprecated Bring this into compliance with the DisplayChoice element in the
+   *     sys_ContentEditor.dtd if the <code>PSChoiceBuilder</code> is refactored to use this class.
    */
   public Element toXml(Document doc) {
     if (doc == null) throw new IllegalArgumentException("doc may not be null");

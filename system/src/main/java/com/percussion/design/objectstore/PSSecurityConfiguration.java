@@ -31,10 +31,10 @@ import org.w3c.dom.Element;
  */
 public class PSSecurityConfiguration implements IPSDocument {
   /**
-   * Construct a Java object from its XML representation. See the {@link #toXml(Document) toXml}
-   * method for a description of the XML object.
+   * Construct a Java object from its XML representation. See the {@link #toXml() toXml} method for
+   * a description of the XML object.
    *
-   * @param sourceNode the XML element node to construct this object from
+   * @param sourceDoc the XML document to construct this object from
    * @exception PSUnknownDocTypeException if the XML document is not of type PSSecurityConfiguration
    * @exception PSUnknownNodeTypeException if the XML element node is not of the appropriate type
    */
@@ -85,10 +85,11 @@ public class PSSecurityConfiguration implements IPSDocument {
   // **************   IPSComponent Interface Implementation **************
 
   /**
-   * This method is called to create a PSXSecurityConfiguration XML element
-   * node containing the data described in this object.
-   * <p>
-   * The structure of the XML document is:
+   * This method is called to create a PSXSecurityConfiguration XML element node containing the data
+   * described in this object.
+   *
+   * <p>The structure of the XML document is:
+   *
    * <pre><code>
    *  &lt;!--
    *     The PSSecurityConfiguration class defines an entry in the user-security-conf.xml
@@ -110,8 +111,9 @@ public class PSSecurityConfiguration implements IPSDocument {
    *  --&gt;
    *  &lt;!ELEMENT path                   (#PCDATA)&gt;
    *  &lt;!ATTLIST authType (form | basic | anonymous) "form"&gt;
+   * </code></pre>
    *
-   * @return   the newly created securityConfiguration XML element node
+   * @return the newly created securityConfiguration XML element node
    */
   public Document toXml() {
     // create PSSecurityConfiguration element
@@ -139,8 +141,8 @@ public class PSSecurityConfiguration implements IPSDocument {
 
   /**
    * This method is called to populate a PSSecurityConfiguration Java object from a
-   * PSSecurityConfiguration XML document. See the {@link #toXml(Document) toXml} method for a
-   * description of the XML object.
+   * PSSecurityConfiguration XML document. See the {@link #toXml() toXml} method for a description
+   * of the XML object.
    *
    * @exception PSUnknownDocTypeException if the XML document is not of type PSSecurityConfiguration
    */

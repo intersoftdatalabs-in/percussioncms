@@ -133,7 +133,8 @@ public class PSValidationResult implements IPSDeployComponent {
   }
 
   /**
-   * Serializes this object's state to its XML representation.  The format is:
+   * Serializes this object's state to its XML representation. The format is:
+   *
    * <pre><code>
    * &lt;!ELEMENT PSXValidationResult
    *    (PSXDeployableElement | PSXDeployableObject | PSXUserDependency)
@@ -143,7 +144,7 @@ public class PSValidationResult implements IPSDeployComponent {
    *    isAllowSkip (Yes | No) #REQUIRED
    *    skipInstall (Yes | No) #REQUIRED
    * >
-   * </code>/<pre>
+   * </code></pre>
    *
    * See {@link IPSDeployComponent#toXml(Document)} for more info.
    */

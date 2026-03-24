@@ -41,7 +41,7 @@ public class PSMacroExtractor extends PSDataExtractor {
       m_macroDefinition = PSServer.getMacros().getMacroDefinition(m_source.getName());
   }
 
-  /** Convenience method signature that calls {@link extract(PSExecution Data, Object)}. */
+  /** Convenience method signature that calls extract with default value. */
   public Object extract(PSExecutionData data) throws PSDataExtractionException {
     return extract(data, null);
   }
@@ -49,10 +49,10 @@ public class PSMacroExtractor extends PSDataExtractor {
   /**
    * Extract a data value using the run-time data.
    *
-   * @param execData the execution data associated with this request. This includes all context
-   *     data, result sets, etc.
-   * @param defValue the default value to use if a value is not found, may be <code>null</code>.
-   * @return the associated value as <code>String</code>, <code>null</code> if a value is not found.
+   * @param data the execution data associated with this request. This includes all context data,
+   *     result sets, etc.
+   * @param defaultValue the default value to use if a value is not found, may be null.
+   * @return the associated value as String, null if a value is not found.
    * @throws PSDataExtractionException if an error condition causes the extraction to fail. This is
    *     not thrown if the requested data does not exist.
    */

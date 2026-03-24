@@ -50,28 +50,12 @@ public class PSFormatFileTree extends PSDefaultExtension implements IPSResultDoc
   private static final Logger log = LogManager.getLogger(PSFormatFileTree.class);
 
   /**
-   * This function reformats a file list. The file list has the basic format <code>
-   *   <filelist>
-   *     <file fullpath="c:\dir1\dir2\file.htm">
-   *         <status>published</status>...
-   *     </file>
-   *   </filelist>
-   * </code>
-   *
-   * <p>This creates a directory tree <code>
-   * <filetree>
-   *    <path name="dir1" level="1">
-   *       <path name="dir2" level="2">
-   *         <file fullpath="c:\dir1\dir2\file.htm" filename="file.htm">
-   *              <status>....</status>
-   *         </file>
-   *       </path>
-   *    <path>
-   * </filetree>
-   * </code>
+   * This function reformats a file list. The file list has the basic format as shown in the
+   * documentation. See the description in the class Javadoc.
    *
    * @param params the parameters specified in the calling resource
    *     <table border="1">
+   *       <caption style="display:none">Parameters</caption>
    *   <tr><th>Param #</th><th>Description</th><th>Required?</th><th>default value</th><tr>
    *   <tr>
    *     <td>1</td>
@@ -89,7 +73,7 @@ public class PSFormatFileTree extends PSDefaultExtension implements IPSResultDoc
    *     <td>3</td>
    *     <td>name of the XML element for each file</td>
    *     <td>no</td>
-   *     <td>&lt;file&lt</td>
+   *     <td>&lt;file&gt;</td>
    *   </tr>
    *   <tr>
    *     <td>4</td>

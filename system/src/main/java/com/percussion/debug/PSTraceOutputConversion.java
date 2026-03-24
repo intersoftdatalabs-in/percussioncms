@@ -31,7 +31,6 @@ public class PSTraceOutputConversion extends PSTraceMessage {
    * Constructor for this class.
    *
    * @param typeFlag the type of trace message this object will generate
-   * @roseuid 39FDE02D02DE
    */
   public PSTraceOutputConversion(int typeFlag) {
     super(typeFlag);
@@ -49,7 +48,6 @@ public class PSTraceOutputConversion extends PSTraceMessage {
    * @param source an array of objects containing the information required for the trace message: -
    *     String type (i.e. "html") - String stylesheet name
    * @return the message body
-   * @roseuid 39FEE2F402FD
    */
   protected String getMessageBody(java.lang.Object source) {
     Object[] args = (Object[]) source;

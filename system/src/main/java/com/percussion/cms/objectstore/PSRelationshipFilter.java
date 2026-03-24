@@ -900,7 +900,8 @@ public class PSRelationshipFilter {
   }
 
   /**
-   * Serializes this object into XML form as specified in the following DTD: <code>
+   * Serializes this object into XML form as specified in the following DTD:
+   *
    * <pre>
    * &lt;!ELEMENT PSXRelationshipFilter (Owner?, Dependents?, Properties?, TypeSet?)&gt;
    * &lt;!ATTLIST PSXRelationshipFilter
@@ -934,7 +935,6 @@ public class PSRelationshipFilter {
    * &nbsp;&nbsp;&nbsp; name CDATA #REQUIRED
    * &gt;
    * </pre>
-   * </code>
    *
    * @param doc the XML document to be appended to, cannot be <code>null</code>
    * @return the XML element that represents a <code>

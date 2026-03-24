@@ -56,8 +56,8 @@ public class PSDatasourceConverter {
    *     <ul>
    *       <li>-appsOnly - will convert only applications, will not convert the system or shared
    *           defs
-   *       <li>-appsOnly:<appName> - will convert only the specified application. No other files are
-   *           modified.
+   *       <li>-appsOnly:&lt;appName&gt; - will convert only the specified application. No other
+   *           files are modified.
    *       <li>-h[elp] - will display the commandline help (arg is case-insenstive)
    *     </ul>
    */

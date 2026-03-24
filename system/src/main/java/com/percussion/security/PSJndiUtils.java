@@ -172,13 +172,12 @@ public class PSJndiUtils {
   /**
    * Builds an AND filter for all entries in the supplied map.
    *
-   * @param values the filter values, where the key is the attribute name as <code>String</code> and
-   *     the value is the attribute value as <code>String</code>, or a list of <code>String</code>
-   *     snot <code>null</code> or empty. <code>null</code> or empty attribute values will be
-   *     replace with a wildcard value '*'. <code>null</code> or empty attribute keys are not
+   * @param values the filter values, where the key is the attribute name and the value is the
+   *     attribute value, or a list of Strings. Must not be null or empty. Null or empty attribute
+   *     values will be replace with a wildcard value '*'. Null or empty attribute keys are not
    *     allowed.
-   * @return the filter string in the form of (&(key1=value1)...(keyN=valueN)) for all map entries,
-   *     never <code>null</code>.
+   * @return the filter string in the form of (&amp;(key1=value1)...(keyN=valueN)) for all map
+   *     entries, never null.
    */
   public static String buildFilter(Map<String, Object> values) {
     if (values == null) throw new IllegalArgumentException("values cannot be null");
@@ -655,15 +654,15 @@ public class PSJndiUtils {
    * Converts the array of String into a filter, applying the principle attribute and converting
    * wildcards.
    *
-   * @param filterPattern An array of patterns, not <code>null</code>. If any pattern is <code>null
-   *     </code> or empty, it is ignored.
+   * @param filterPattern An array of patterns, not null. If any pattern is null or empty, it is
+   *     ignored.
    * @param attr The principle attribute to use when constructing the filter. For example, if "cn"
-   *     is supplied, each filter is used to constuct "cn=<filter>". All patterns are combined using
-   *     the <code>OR</code> condtional.
-   * @param baseFilter A base filter to append onto. The filter resulting from the supplied <code>
-   *     filterPattern</code> is appended onto this using the <code>AND</code> conditional. If
-   *     <code>null</code> or empty, it is ignored.
-   * @return The filter, never <code>null</code>, may be empty.
+   *     is supplied, each filter is used to construct "cn=pattern". All patterns are combined using
+   *     the OR conditional.
+   * @param baseFilter A base filter to append onto. The filter resulting from the supplied
+   *     filterPattern is appended onto this using the AND conditional. If null or empty, it is
+   *     ignored.
+   * @return The filter, never null, may be empty.
    * @throws PSSecurityException if the filter contains invalid wildcards.
    */
   public static String getFilterString(String[] filterPattern, String attr, String baseFilter)

@@ -32,6 +32,7 @@ import java.net.URLDecoder;
  * and the matching value returned.
  *
  * <table>
+ * <caption style="display:none">Parameters</caption>
  * <tr>
  * <th>Param</th>
  * <th>Type</th>

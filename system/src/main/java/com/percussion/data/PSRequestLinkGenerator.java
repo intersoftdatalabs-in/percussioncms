@@ -236,8 +236,8 @@ public class PSRequestLinkGenerator extends PSDataExtractor {
   /**
    * Extract a data value using the run-time data.
    *
-   * @param execData the execution data associated with this request. This includes all context
-   *     data, result sets, etc.
+   * @param data the execution data associated with this request. This includes all context data,
+   *     result sets, etc.
    * @return the associated value; <code>null</code> if a value is not found
    */
   public Object extract(PSExecutionData data) throws com.percussion.data.PSDataExtractionException {
@@ -247,8 +247,8 @@ public class PSRequestLinkGenerator extends PSDataExtractor {
   /**
    * Extract a data value using the run-time data.
    *
-   * @param execData the execution data associated with this request. This includes all context
-   *     data, result sets, etc.
+   * @param data the execution data associated with this request. This includes all context data,
+   *     result sets, etc.
    * @param defValue the default value to use if a value is not found
    * @return the associated value; <code>defValue</code> if a value is not found
    */
@@ -264,8 +264,8 @@ public class PSRequestLinkGenerator extends PSDataExtractor {
   /**
    * Extract a data value using the run-time data.
    *
-   * @param execData the execution data associated with this request. This includes all context
-   *     data, result sets, etc.
+   * @param data the execution data associated with this request. This includes all context data,
+   *     result sets, etc.
    * @param moreParams additional Html Parameters to be added. These must URL encoded if necessary.
    *     May be <CODE>null</CODE> if no params are required.
    * @return the associated value (URL string);

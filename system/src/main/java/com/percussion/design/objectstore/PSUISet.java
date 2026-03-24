@@ -375,9 +375,7 @@ public class PSUISet extends PSComponent {
     return equal;
   }
 
-  /**
-   * Generates code of the object. Overrides {@link Object#hashCode().
-   */
+  /** Generates code of the object. Overrides {@link Object#hashCode()}. */
   @Override
   public int hashCode() {
     return new HashCodeBuilder()

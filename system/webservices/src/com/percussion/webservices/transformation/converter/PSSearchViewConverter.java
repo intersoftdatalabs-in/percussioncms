@@ -627,10 +627,7 @@ private static final String STANDARD_VIEW = "list";
     * from the webservice search definition.
     *
     * @param target the target search object, assumed not <code>null</code>.
-    * @param visibleUser the visible user, may be <code>null</code> or empty.
-    * @param properties the user properties, may be <code>null</code> or empty.
-    * @param communities the visible communities, not <code>null</code>, may
-    *    be empty.
+    * @param properties the properties, may be <code>null</code> or empty.
     */
    protected void setProperties(PSSearch target, com.percussion.webservices.ui.data.SearchView.Properties properties)
    {

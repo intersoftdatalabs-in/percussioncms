@@ -834,10 +834,10 @@ public class PSLogHandler {
    * Updates a package status for both archive package and log summary tables from the given
    * parameters.
    *
-   * @param archiveId The id for archive log summary table, may not < 0.
-   * @param logId The id of log summary table, may not < 0.
-   * @param pkgType The package type, may not <code>null</code> or empty.
-   * @param pkgId The package id, may not <code>null</code> or empty.
+   * @param archiveId The id for archive log summary table, may not be {@literal <} 0.
+   * @param logId The id of log summary table, may not be {@literal <} 0.
+   * @param pkgType The package type, may not be <code>null</code> or empty.
+   * @param pkgId The package id, may not be <code>null</code> or empty.
    * @param status The to be updated status for the package. It must be one of the <code>
    *     PSArchivePackage.STATUS_XXX</code> values.
    * @throws PSDeployException if an error occurs.

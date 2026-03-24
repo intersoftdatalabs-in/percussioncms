@@ -57,7 +57,7 @@ public class PSContentItemDataExtractor extends PSDataExtractor {
    *
    * @param data the execution data to extract the status from, may be <code>null</code> in which
    *     case the default value is returned.
-   * @param defaultVal the default value to be returned if the source could not be extracted, may be
+   * @param defValue the default value to be returned if the source could not be extracted, may be
    *     <code>null</code>.
    * @return the extracted content item data as <code>String</code> or the supplied default value if
    *     the data cannot be found, may be <code>null</code>.

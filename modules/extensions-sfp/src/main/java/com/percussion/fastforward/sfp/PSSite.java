@@ -107,9 +107,8 @@ public class PSSite {
    * {@link PSFolder#PROPERTY_PUB_FILE_NAME} is present, its value will be used as the file name for
    * this folder. If this property is not defined, the folder name is returned.
    *
-   * @param helper relationship helper class object, must not be <code>null</code>.
-   * @param locator the locator for the folder, must not be <code>null</code>.
-   * @return the file name for this folder as described above, never <code>null</code> or empty.
+   * @param locator the locator for the folder, must not be null.
+   * @return the file name for this folder as described above, never null or empty.
    * @throws PSCmsException if an error occurs.
    */
   public static String getFolderFileName(PSLocator locator) throws PSCmsException {
@@ -122,20 +121,17 @@ public class PSSite {
 
   /**
    * Builds the folder path walking backwards from the selected site folder to the site root. An
-   * empty list is returned if the <code>locator</code> is not a descendent of the <code>rootLoc
-   * </code>
+   * empty list is returned if the locator is not a descendent of the rootLoc.
    *
-   * @param relHelper relationship helper class object, must not be <code>null</code>.
-   * @param rootLoc the locator of the root folder for a site. Must not be <code>null</code>.
+   * @param rootId the root folder id
    * @param locator the locator of an item or folder under the site folder to build path list. Must
-   *     not be <code>null</code>.
-   * @param addLocator <code>true</code> if add the <code>locator</code> to the returned path;
-   *     <code>false</code> don't add the <code>locator</code> to the returned path. This is because
-   *     the <code>locator</code> may not be a locator of a folder.
-   * @return a list of {@link PSLocator}that represent the path. The 2nd element is the sub-folder
-   *     of the 1st element, the 3nd element is the sub-folder of the 2nd element, and so on and so
-   *     forth, the last element is the <code>locator</code>. It may be empty if the <code>locator
-   *     </code> is not a descendent of <code>rootLoc</code>. It never <code>null</code>.
+   *     not be null.
+   * @param addLocator true if add the locator to the returned path; false don't add the locator to
+   *     the returned path. This is because the locator may not be a locator of a folder.
+   * @return a list of PSLocator that represent the path. The 2nd element is the sub-folder of the
+   *     1st element, the 3nd element is the sub-folder of the 2nd element, and so on and so forth,
+   *     the last element is the locator. It may be empty if the locator is not a descendent of
+   *     rootLoc. It never null.
    * @throws PSCmsException if an error occurs.
    */
   public static List buildFolderPathList(int rootId, PSLocator locator, boolean addLocator)
@@ -171,18 +167,15 @@ public class PSSite {
   }
 
   /**
-   * Renders the site folder path as a String. The path will always begin and
-   * end with a {@link #SITE_PATH_SEPARATOR Separator}. If the list of folders
-   * is empty, the returned path will consist of a single Separator.
+   * Renders the site folder path as a String. The path will always begin and end with a {@link
+   * #SITE_PATH_SEPARATOR Separator}. If the list of folders is empty, the returned path will
+   * consist of a single Separator.
    *
-   * @param helper relationship helper class object, must not be
-   *           <code>null</code>.
-   * @param siteFolderList a list of PSFolders that represent the path, must
-   * not be <code>null</code>, may be empty.
-   * @return the site folder path. Never <code>null</code>.
-   * @throws PSCmsException
-   *
-   * @deprecated use {@link #renderSiteFolderPathLocators(List) instead.
+   * @param siteFolderList a list of PSFolders that represent the path, must not be null, may be
+   *     empty.
+   * @return the site folder path. Never null.
+   * @throws PSCmsException if an error occurs.
+   * @deprecated use {@link #renderSiteFolderPathLocators(List)} instead.
    */
   public static String renderSiteFolderPath(List siteFolderList) throws PSCmsException {
     StringBuilder path = new StringBuilder();
@@ -202,11 +195,10 @@ public class PSSite {
    * #SITE_PATH_SEPARATOR Separator}. If the list of folders is empty, the returned path will
    * consist of a single Separator.
    *
-   * @param helper relationship helper class object, must not be <code>null</code>.
-   * @param siteFolderList a list of {@link PSLocator}that represent the path, must not be <code>
-   *     null</code>, may be empty. The 2nd element is the sub-folder of the 1st element, the 3nd
-   *     element is the sub-folder of the 2nd element, and so on and so forth.
-   * @return the site folder path. Never <code>null</code>.
+   * @param siteFolderList a list of PSLocator that represent the path, must not be null , may be
+   *     empty. The 2nd element is the sub-folder of the 1st element, the 3nd element is the
+   *     sub-folder of the 2nd element, and so on and so forth.
+   * @return the site folder path. Never null.
    * @throws PSCmsException if an error occurs.
    */
   public static String renderSiteFolderPathLocators(List siteFolderList) throws PSCmsException {

@@ -67,7 +67,6 @@ public class PSXmlDomUtils {
    * @param incomingFile The file which contains the XML/HTML document.
    * @return the parsed Document as an XML tree; may be <code>null</code> or empty.
    * @throws IOException
-   * @throws Exception
    */
   public static Document loadXmlDocument(PSXmlDomContext cx, File incomingFile)
       throws IOException, PSExtensionProcessingException, SAXException {

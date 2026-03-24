@@ -71,12 +71,9 @@ public class PSFixAssemblyUrlForRevision extends PSDefaultExtension
   }
 
   /**
-   * Implementation of the interface method. See class description and {@link
-   * #fixRelatedContentUrl(IPSRequestContext, String, boolean)} for more details.
+   * Implementation of the interface method. See class description.
    *
-   * @see com.percussion.extension.IPSResultDocumentProcessor#
-   *     processResultDocument(java.lang.Object[], com.percussion.server.IPSRequestContext,
-   *     org.w3c.dom.Document)
+   * @see IPSResultDocumentProcessor
    */
   public Document processResultDocument(
       Object[] params, IPSRequestContext request, Document resultDoc)

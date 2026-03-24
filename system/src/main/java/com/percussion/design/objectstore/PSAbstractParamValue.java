@@ -276,9 +276,7 @@ public abstract class PSAbstractParamValue extends PSComponent implements IPSPar
     return compare(m_value, other.m_value);
   }
 
-  /**
-   * Generates code of the object. Overrides {@link Object#hashCode().
-   */
+  /** Generates code of the object. Overrides {@link Object#hashCode()}. */
   @Override
   public int hashCode() {
     return m_value != null ? m_value.hashCode() : 0;

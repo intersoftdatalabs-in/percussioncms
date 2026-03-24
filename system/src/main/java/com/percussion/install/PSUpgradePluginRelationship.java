@@ -139,7 +139,8 @@ public class PSUpgradePluginRelationship implements IPSUpgradePlugin {
     /**
      * Construct an object from its XML representation.
      *
-     * @param src the XML representation of the to be constructed object, may not be <code>null
+     * @param sourceNode the XML representation of the to be constructed object, may not be <code>
+     *     null
      *     </code>.
      * @throws PSUnknownNodeTypeException if malformed XML in 'src'.
      */

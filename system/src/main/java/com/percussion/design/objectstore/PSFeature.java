@@ -36,7 +36,6 @@ public class PSFeature {
    * Returns the name of the feature
    *
    * @return the version name
-   * @roseuid 39FD887A004E
    */
   public String getName() {
     return m_featureName;
@@ -46,7 +45,6 @@ public class PSFeature {
    * Returns a list of versions that have been supported by the server
    *
    * @return the list of versions.
-   * @roseuid 39FD88AC00EA
    */
   public Iterator getVersionList() {
     return m_versionList.iterator();
@@ -58,7 +56,6 @@ public class PSFeature {
    * @param name The name of the version
    * @param versionList A list of supported versions of this feature, all objects of type PSVersion.
    *     There must be at least one PSVersion object in this list, the initial version.
-   * @roseuid 39FD89820242
    */
   public PSFeature(String name, ArrayList versionList) {
     m_featureName = name;

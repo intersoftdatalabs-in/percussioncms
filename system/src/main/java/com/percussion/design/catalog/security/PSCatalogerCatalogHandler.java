@@ -87,7 +87,8 @@ public class PSCatalogerCatalogHandler implements IPSCatalogHandler {
    * Format the catalog request based upon the specified request information. The request
    * information for this request type is:
    *
-   * <table>
+   * <table border="1">
+   * <caption>Request Properties</caption>
    * <tr><th>Key</th>
    *     <th>Value</th>
    *     <th>Required</th></tr>
@@ -97,7 +98,7 @@ public class PSCatalogerCatalogHandler implements IPSCatalogHandler {
    * <tr><td>RequestType</td>
    *     <td>Cataloger</td>
    *     <td>yes</td></tr>
-   * </TABLE>
+   * </table>
    *
    * See base class for more info.
    */

@@ -36,7 +36,7 @@ import org.apache.logging.log4j.Logger;
 /**
  * This pre-exit recursively looks up 0 or more (active assembly) parent items of a given content.
  * The content itself and 0 or more of its parents are then touched so that the LastModifyDate
- * contains the current date & time.
+ * contains the current date and time.
  *
  * @author Vitaly
  * @version 1.0

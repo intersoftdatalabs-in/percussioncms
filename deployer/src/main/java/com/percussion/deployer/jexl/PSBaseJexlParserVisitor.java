@@ -795,8 +795,8 @@ public abstract class PSBaseJexlParserVisitor extends ParserVisitor {
    * This must be implemented by the subclass. This helper method visits the child nodes of a simple
    * node
    *
-   * @param arg0 the simple node that has child nodes to be visited
-   * @param arg1 the original expression node or script node
+   * @param node the simple node that has child nodes to be visited
+   * @param parent the original expression node or script node
    * @return the original expression node
    */
   protected abstract Object doVisit(SimpleNode node, Object parent);

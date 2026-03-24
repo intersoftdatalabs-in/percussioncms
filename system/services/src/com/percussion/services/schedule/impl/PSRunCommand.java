@@ -50,9 +50,10 @@ public class PSRunCommand implements IPSTask
    
    /**
     * Invokes the native command. The returned task result will contain the
-    * following variables, which can be used in notification template: <TABLE
-    * BORDER="1">
-    * <TR>
+   * following variables, which can be used in notification template: <TABLE
+   * BORDER="1">
+   * <caption>Notification Variables</caption>
+   * <TR>
     * <TH>Variable Name</TH>
     * <TH>Description</TH>
     * </TR>
@@ -70,9 +71,10 @@ public class PSRunCommand implements IPSTask
     * </TR>
     * </TABLE>
     * <p>
-    * The following context variables will be added by the framework: <TABLE
-    * BORDER="1">
-    * <TR>
+   * The following context variables will be added by the framework: <TABLE
+   * BORDER="1">
+   * <caption>Context Variables</caption>
+   * <TR>
     * <TH>Variable Name</TH>
     * <TH>Description</TH>
     * </TR>

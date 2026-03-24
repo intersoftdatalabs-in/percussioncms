@@ -31,6 +31,7 @@ import java.text.ParseException;
  * java.text.SimpleDateFormat} for the supported format patterns.
  *
  * <table>
+ * <caption style="display:none">Parameters</caption>
  * <tr>
  * <th>Param</th>
  * <th>Type</th>

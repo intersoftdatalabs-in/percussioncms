@@ -66,22 +66,13 @@ public class PSNavTreeSlotMarker extends PSDefaultExtension implements IPSResult
 
   /**
    * @param params the parameters passed in:
-   *     <table border="1" cellpadding="3"
-   *           cellspacing="0">
-   *           <tr>
-   *           <td>markerName</td>
-   *           <td>java.lang.String</td>
-   *           <td>Name of the attribute to create on appropriate navon
-   *           elements</td>
-   *           </tr>
-   *           <tr>
-   *           <td>slotName</td>
-   *           <td>java.lang.String</td>
-   *           <td>Name of the slot for which the exit should check for
-   *           content</td>
-   *           </tr>
-   *           </table>
-   *     <p>
+   *     <ul>
+   *       <li>markerName - java.lang.String - Name of the attribute to create on appropriate navon
+   *           elements
+   *       <li>slotName - java.lang.String - Name of the slot for which the exit should check for
+   *           content
+   *     </ul>
+   *
    * @param request the request context object
    * @param doc the result XML document
    * @throws PSExtensionProcessingException upon any error

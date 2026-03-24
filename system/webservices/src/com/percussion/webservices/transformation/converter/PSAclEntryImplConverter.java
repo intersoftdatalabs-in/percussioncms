@@ -29,7 +29,7 @@ import org.apache.commons.beanutils.BeanUtilsBean;
 
 /**
  * Converts between {@link com.percussion.services.security.data.PSAclEntryImpl}
- * and {@link com.percussion.webservices.system.data.PSAclEntryImpl}
+ * and the system web service ACL entry implementation.
  */
 public class PSAclEntryImplConverter extends PSConverter
 {

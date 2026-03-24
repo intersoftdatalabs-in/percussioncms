@@ -207,7 +207,6 @@ public class PSXmlContentParser extends PSContentParser {
    *
    * @param buf a buffer to store the output into
    * @param e the SAX exception
-   * @return a string containing the SAX exception info, line number, and column number
    */
   public static void getSaxExceptionContextMessage(StringBuilder buf, SAXParseException e) {
     buf.append(e.getMessage());
@@ -237,7 +236,6 @@ public class PSXmlContentParser extends PSContentParser {
    * @param buf a buffer to store the output into
    * @param e the SAX exception
    * @param source a reader with the source XML data
-   * @return a string containing any contextual text which can be found
    */
   public static void getSaxExceptionContextData(
       StringBuilder buf, SAXParseException e, BufferedReader source) {

@@ -29,6 +29,7 @@ import java.util.Date;
  * inclusive test. The parameters to this udf consist of the following:
  *
  * <table>
+ * <caption style="display:none">Parameters</caption>
  * <tr>
  * <th>Param</th>
  * <th>Type</th>

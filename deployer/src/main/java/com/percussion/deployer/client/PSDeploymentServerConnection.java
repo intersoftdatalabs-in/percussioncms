@@ -130,8 +130,9 @@ public class PSDeploymentServerConnection {
   /**
    * Creates a connection to the server. Use {@link #disconnect()} to disconnect from the server.
    * This connection may not be used again after it has been disconnected. A daemon locker thread is
-   * started which renews the lock 2 minutes before the lock expiration {@link IPSDeployConstants#
-   * LOCK_EXPIRATION_DURATION}. If the lock cannot be extended locker thread dies.
+   * started which renews the lock 2 minutes before the lock expiration {@link
+   * IPSDeployConstants#LOCK_EXPIRATION_DURATION}. If the lock cannot be extended locker thread
+   * dies.
    *
    * @param protocol The protocol to use, may not be <code>null</code> or empty. Currently only
    *     'http' and 'https' are supported.

@@ -257,8 +257,7 @@ public class PSFileSystemConnection implements Connection {
   /**
    * Enables or disables read-only access to the file.
    *
-   * @param autoCommit <code>true</code> to enable read-only access, <code>false</code> to disable
-   *     it
+   * @param readOnly <code>true</code> to enable read-only access, <code>false</code> to disable it
    * @exception SQLException if an error occurs
    * @deprecated Not supported
    */

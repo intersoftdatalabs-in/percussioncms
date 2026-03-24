@@ -33,13 +33,13 @@ import org.w3c.dom.Element;
  */
 public class PSProcessRequest {
   /**
-   * Creates an object whose <code>toXml</code> can be used to generate a request document for the
-   * remote process daemon.
+   * Creates an object whose toXml can be used to generate a request document for the remote process
+   * daemon.
    *
-   * @param name See {@link #setName(String)} for details.
-   * @param wait See {@link #setWait()} for details.
-   * @param terminate See {@link #setTerminate()} for details.
-   * @param processEnv See {@link #setParams(Map)} for details.
+   * @param name The name of the request.
+   * @param wait Wait time in milliseconds.
+   * @param terminate Whether to terminate.
+   * @param processEnv The process environment variables.
    */
   public PSProcessRequest(String name, int wait, boolean terminate, Map processEnv) {
     if (null == name || name.trim().length() == 0) {
@@ -53,11 +53,9 @@ public class PSProcessRequest {
   }
 
   /**
-   * See {@link #PSProcessRequest(String, int,Map) other ctor} for description.
+   * Alternate constructor for description.
    *
-   * @param src Never <code>null</code>.
-   * @throws Exception If the supplied element doesn't conform the the dtd found in
-   *     PSXProcessRequest.dtd.
+   * @param src Never null.
    */
   public PSProcessRequest(Element src) throws Exception {
     if (null == src) {

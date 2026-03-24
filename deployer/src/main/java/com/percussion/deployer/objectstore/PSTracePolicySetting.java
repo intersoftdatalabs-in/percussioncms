@@ -62,14 +62,14 @@ public class PSTracePolicySetting extends PSAppPolicySetting {
   }
 
   /**
-   * Serializes this object's state to its XML representation.  Format is:
+   * Serializes this object's state to its XML representation. Format is:
    *
    * <pre><code>
    *    &lt;!ELEMENT PSXTracePolicySetting EMPTY)>
    *    &lt;!ATTLIST PSXTracePolicySetting
    *       useSetting (Yes | No) #REQUIRED
    *    >
-   * </code>/<pre>
+   * </code></pre>
    *
    * See {@link IPSDeployComponent#toXml(Document)} for more info.
    */

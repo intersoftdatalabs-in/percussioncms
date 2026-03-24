@@ -226,11 +226,7 @@ public class UTStandardCommandPanel extends JPanel implements ActionListener {
     this.add(box);
   }
 
-  /**
-   * Create the dialogs command panel (OK, Cancel and Help).
-   *
-   * @return JPanel, a grid panel containing the dialogs command panel
-   */
+  /** Create the dialogs command panel (OK, Cancel and Help). */
   //////////////////////////////////////////////////////////////////////////////
   public void actionPerformed(ActionEvent e) {
     if (e.getActionCommand().equals(m_res.getString("ok"))) {

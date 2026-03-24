@@ -36,7 +36,6 @@ public class PSTraceSessionInfo extends PSTraceMessage {
    * Constructor for this class.
    *
    * @param typeFlag the type of trace message this object will generate
-   * @roseuid 39FDD65F0186
    */
   public PSTraceSessionInfo(int typeFlag) {
     super(typeFlag);
@@ -55,7 +54,6 @@ public class PSTraceSessionInfo extends PSTraceMessage {
    *     different cases handled: Trace if enabled/exists - Boolean traceSession = false, request
    *     Trace session info - Boolean traceSession = true, request
    * @return the message body
-   * @roseuid 39FEE2F302FD
    */
   protected String getMessageBody(Object source) {
     // validate inputs

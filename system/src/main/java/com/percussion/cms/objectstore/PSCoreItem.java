@@ -894,7 +894,7 @@ public class PSCoreItem extends PSItemComponent implements IPSItemAccessor {
    * returned for editing.
    *
    * @see #getEditRevision()
-   * @param editRevision may be < 0
+   * @param editRevision may be less than 0
    */
   public void setEditRevision(int editRevision) {
     m_editrevision = editRevision;

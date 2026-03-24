@@ -125,7 +125,7 @@ public class PSContentTypeConverter extends PSConverter
    /**
     * Returns the item definition, this method will be overridden in
     * the workbench so it can return a <code>PSUiItemDefinition</code>.
-    * @param appName cannot be <code>null<code> or empty.
+    * @param appName cannot be <code>null</code> or empty.
     * @param typeDef cannot be <code>null</code>.
     * @param ce cannot be <code>null</code>.
     * @return the item def object, never <code>null</code>

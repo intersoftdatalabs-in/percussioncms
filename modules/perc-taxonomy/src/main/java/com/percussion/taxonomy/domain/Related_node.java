@@ -76,7 +76,7 @@ public class Related_node {
   /**
    * Set related node object
    *
-   * @param node
+   * @param related_node the related node
    */
   public void setRelated_node(Node related_node) {
     this.related_node = related_node;

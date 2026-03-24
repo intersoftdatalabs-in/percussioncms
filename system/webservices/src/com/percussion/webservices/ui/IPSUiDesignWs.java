@@ -699,18 +699,18 @@ public interface IPSUiDesignWs
     * searches for read and write purposes.
     * <p>
     * Note, the returned objects is not designed to be filtered by the AOP
-    * security (see {@link PSSecurityStrategy}), which may modify the filtered
-    * objects. Added annotation to skip the AOP security process.
+    * security strategy, which may modify the filtered objects. 
+    * Added annotation to skip the AOP security process.
     * 
     * @return All the search objects from cache, never <code>null</code> may
     *         be empty.
-    * @throws PSErrorResultsException
+    * @throws PSErrorException
     */
    @IPSWsMethod(ignore=true)
    public List<PSSearch> findAllSearches() throws PSErrorResultsException,
          PSErrorException;
-   
-   
+    
+    
    /**
     * Get the path for supplied guid.
     * 
@@ -720,7 +720,7 @@ public interface IPSUiDesignWs
     * @return a String which is the path of a content item or template
     *    not <code>null</code>.
     *    
-    * @throws PSErrorResultsException for any error building path 
+    * @throws PSErrorException for any error building path 
     *    for given guid.
     */
    public String objectIdToPath(IPSGuid guid) throws PSErrorsException;

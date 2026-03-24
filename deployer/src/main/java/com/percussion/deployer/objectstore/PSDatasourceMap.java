@@ -101,7 +101,7 @@ public class PSDatasourceMap implements IPSDeployComponent {
   /**
    * Restores this object's state from its XML representation. See {@link
    * IPSDeployComponent#fromXml(Element)} for more info on method signature, like this: Get the
-   * <PSXDataSourceMap source="" target="" />
+   * {@literal <PSXDataSourceMap source="" target="" />}
    */
   public void fromXml(Element sourceNode) throws PSUnknownNodeTypeException {
     if (sourceNode == null) throw new IllegalArgumentException("sourceNode should not be null");

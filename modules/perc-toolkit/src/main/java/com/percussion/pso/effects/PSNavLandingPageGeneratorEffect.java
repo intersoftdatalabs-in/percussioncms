@@ -69,24 +69,12 @@ import org.apache.logging.log4j.Logger;
 /***
  * A relationship effect for handling the generation and association of Landing Pages for
  * newly created Navons designed for the <code>FolderContent</code> relationship.
- * <p>
- * There is currently one event that that this effect must handle:
- * <ul>
- * <li>A new NavOn is added to a folder.</li>
- * </ul>
- * </p>
- * <p>
- * A new landing page of the configured content type
- * </p>
- * @author natechadwick
  *
- * <p>There is currently one event that that this effect must handle:
+ * <p>There is currently one event that this effect must handle:
  *
  * <ul>
  *   <li>A new NavOn is added to a folder.
  * </ul>
- *
- * <p>A new landing page of the configured content type
  *
  * @author natechadwick
  */

@@ -394,7 +394,7 @@ public class PSSearchField extends PSDbComponent implements IPSSequencedComponen
   /**
    * See {@link #getPosition()} for details.
    *
-   * @param pos Any value is allowed. If a value < 0 is supplied, 0 is used.
+   * @param pos Any value is allowed. If a value less than 0 is supplied, 0 is used.
    */
   public void setPosition(int pos) {
     if (pos < 0) pos = 0;
@@ -415,8 +415,9 @@ public class PSSearchField extends PSDbComponent implements IPSSequencedComponen
   /**
    * Set the field's value.
    *
-   * @param must be one of the following values.
+   * @param str must be one of the following values.
    *     <table>
+   * <caption>Valid Field Type Values</caption>
    *    <tr>
    *       <th>Name</th>
    *       <th>Description</th>
@@ -428,10 +429,6 @@ public class PSSearchField extends PSDbComponent implements IPSSequencedComponen
    *    <tr>
    *       <td>NUMBER</td>
    *       <td>positive integer</td>
-   *    </tr>
-   *    <tr>
-   *       <td>Date</td>
-   *       <td>Date value</td>
    *    </tr>
    * </table>
    */
@@ -607,8 +604,8 @@ public class PSSearchField extends PSDbComponent implements IPSSequencedComponen
   /**
    * Set a new mnemonic character.
    *
-   * @param mnemonic the new mnemonic character, may be <code>null</code> or empty, it's size must
-   *     be <= 1.
+   * @param mnemonic the new mnemonic character, may be <code>null</code> or empty, its size must be
+   *     at most 1.
    */
   public void setMnemonic(String mnemonic) {
     if (mnemonic == null) mnemonic = "";
@@ -621,7 +618,8 @@ public class PSSearchField extends PSDbComponent implements IPSSequencedComponen
   /**
    * Get the mnemonic.
    *
-   * @return the mnemonic string, never <code>null</code> may be empty, it's size is always <= 1.
+   * @return the mnemonic string, never <code>null</code> may be empty, its size is always at most
+   *     1.
    */
   public String getMnemonic() {
     return m_mnemonic;

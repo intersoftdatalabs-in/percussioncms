@@ -53,9 +53,9 @@ public class PSConfigMapper {
    *     Never <code>null</code>, may be empty.
    * @param preProps the previous applied properties, the combined default and local configure
    *     properties that were applied in the last configuration. Never <code>null</code>, may be
-   *     empty. Note, this is actually the combined of previous local & default with current
-   *     default. It is because the previous (local & default) properties may not have all entries
-   *     defined in the new configure definition file (<code>configDefFile</code>).
+   *     empty. Note, this is actually the combined of previous local &amp; default with current
+   *     default. It is because the previous (local &amp; default) properties may not have all
+   *     entries defined in the new configure definition file (<code>configDefFile</code>).
    * @return a list of handlers defined in configuration file and they contain some of the
    *     properties in the <code>changedProps</code>. Never <code>null</code>, but may be empty.
    */

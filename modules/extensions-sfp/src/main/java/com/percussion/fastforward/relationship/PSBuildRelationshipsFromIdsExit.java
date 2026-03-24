@@ -61,21 +61,14 @@ public class PSBuildRelationshipsFromIdsExit extends PSDefaultExtension
    *
    * @param params three expected parameters, all required:
    *     <ul>
-   *       <li>
-   *       <dt>fieldname
-   *       <dd>name of content editor field that contains desired parent ids
-   *       <li>
-   *       <dt>slotname
-   *       <dd>name of slot whose parents will be synchronized to match field value
-   *       <li>
-   *       <dt>templatename
-   *       <dd>name of template that will be assigned to created relationships
+   *       <li>fieldname - name of content editor field that contains desired parent ids
+   *       <li>slotname - name of slot whose parents will be synchronized to match field value
+   *       <li>templatename - name of template that will be assigned to created relationships
    *     </ul>
    *
-   * @param request the current request context, not <code>null</code>.
-   * @param resultDoc the request's result XML document. not modified by this exit. may be <code>
-   *     null</code>.
-   * @return the supplied <code>resultDoc</code>, without modification
+   * @param request the current request context, not null.
+   * @param resultDoc the request's result XML document. not modified by this exit. may be null.
+   * @return the supplied resultDoc, without modification
    * @throws PSParameterMismatchException if any required parameter is blank.
    * @throws PSExtensionProcessingException if the assembly or relationship APIs report an error.
    */

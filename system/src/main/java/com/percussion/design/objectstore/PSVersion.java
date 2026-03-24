@@ -33,7 +33,6 @@ public class PSVersion {
    * @param versionNumber The version number this object represents
    * @param dateIntroduced The date this version was introduced. Format is YYYYMMDD
    * @throws IllegalArgumentException If the date string passed in cannot be parsed into a date.
-   * @roseuid 39FD8CBC038A
    */
   public PSVersion(int versionNumber, String dateIntroduced) {
     try {
@@ -87,11 +86,7 @@ public class PSVersion {
     }
   }
 
-  /**
-   * Returns the version number of this version
-   *
-   * @roseuid 39FD8D360157
-   */
+  /** Returns the version number of this version */
   public int getNumber() {
     return m_versionNumber;
   }
@@ -100,7 +95,6 @@ public class PSVersion {
    * Returns the date this version was introduced
    *
    * @return The date introduced as a string, format is YYYYMMDD
-   * @roseuid 39FD8D520399
    */
   public String getDateString() {
     return m_formatter.format(m_dateIntroduced);
@@ -110,7 +104,6 @@ public class PSVersion {
    * Returns the date this version was introduced
    *
    * @return The date introduced.
-   * @roseuid 39FD8D7B007D
    */
   public Date getDate() {
     return m_dateIntroduced;

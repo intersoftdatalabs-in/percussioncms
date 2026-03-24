@@ -740,7 +740,7 @@ public class RxUpgrade {
    * file, then reading the objectstore directory property in the properties file.
    *
    * @return The file representing the objectstore directory, never <code>null</code>. If any errors
-   *     are encountered, <RxRoot>/ObjectStore will be returned.
+   *     are encountered, &lt;RxRoot&gt;/ObjectStore will be returned.
    */
   public static File getObjectStoreDir() {
     String rxRoot = getRxRoot();

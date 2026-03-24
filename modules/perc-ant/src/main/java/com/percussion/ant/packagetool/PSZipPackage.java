@@ -93,7 +93,7 @@ public class PSZipPackage extends Zip {
   }
 
   /**
-   * @param tempDestPath the tempDestPath to set
+   * @param tempPath1 the tempDestPath to set
    */
   public void setTempPath1(String tempPath1) {
     this.tempPath1 = tempPath1;

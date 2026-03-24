@@ -36,6 +36,7 @@ public class PSExitFlushAssemblerCache extends PSDefaultExtension
    * @param params An array of parameters expected by this exit. May not be <code>null</code>. The
    *     parameters required for flushing the assembler cache are as follows:
    *     <table border="1">
+   *   <caption>Parameters</caption>
    *   <tr><th>Key</th><th>Value</th><th>Required?</th><tr>
    *   <tr>
    *     <td>appname</td>

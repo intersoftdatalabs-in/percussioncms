@@ -52,7 +52,8 @@ public class PSGetSecurityProvidersExit extends PSDefaultExtension
    * server configuration object. Then for each security provider creates an element
    * ("PSXSecurityProviderInstanceSummary"). Adds the provider type as attribute and instance name
    * as child element of this element. The returned Xml document is based on the following DTD:
-   * <code><pre>
+   *
+   * <pre>
    *
    *  &lt;!ELEMENT SecurityProviders (PSXSecurityProviderInstanceSummary*)&gt;
    *  &lt;!ELEMENT PSXSecurityProviderInstanceSummary (name)&gt;
@@ -63,7 +64,7 @@ public class PSGetSecurityProvidersExit extends PSDefaultExtension
    *
    *  &lt;!ELEMENT name       (#PCDATA)&gt;
    *
-   * </pre></code>
+   * </pre>
    *
    * <p>This exit expects no html parameter.
    *

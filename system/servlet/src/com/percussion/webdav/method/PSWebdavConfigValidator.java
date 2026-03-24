@@ -361,7 +361,7 @@ public class PSWebdavConfigValidator
    }
 
    /**
-    * For each of the valid Content Types, validate the mimeTypes & fields
+    * For each of the valid Content Types, validate the mimeTypes &amp; fields
     * Adds errors encountered to the exception list.
     * 
     * @param validTypes

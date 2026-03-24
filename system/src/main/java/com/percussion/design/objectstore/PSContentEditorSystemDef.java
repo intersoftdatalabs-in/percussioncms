@@ -270,26 +270,7 @@ public class PSContentEditorSystemDef implements IPSDocument {
 
   /**
    * Produces an XML representation of this object that conforms to the DTD defined by
-   * "E2/design/dtd/sys_ContentEditorSystemDef.dtd", which is excerpted here: <code><pre>
-   * &lt;!ELEMENT ContentEditorSystemDef (SystemLocator,
-   * PSXCommandHandlerStylesheets, PSXApplicationFlow, SectionLinkList?,
-   * CommandHandlerExits*, SystemParamNames?, InitParams*,
-   * (PSXContainerLocator, PSXFieldSet, PSXUIDefinition, PSXValidationRules?,
-   *  PSXInputTranslations?, PSXOutputTranslations?)?)>
-   * &lt;!ATTLIST ContentEditorSystemDef
-   *    cacheTimeout CDATA "15"
-   * >
-   *
-   * &lt;!ELEMENT SystemLocator (PSXContainerLocator)>
-   * &lt;!ELEMENT CommandHandlerExits (InputDataExits, ResultDataExits)>
-   * &lt;!ATTLIST CommandHandlerExits
-   *    commandName CDATA #REQUIRED
-   * >
-   * &lt;!ELEMENT InputDataExits (PSXExtensionCallSet?)>
-   * &lt;!ELEMENT ResultDataExits (PSXExtensionCallSet?)>
-   * &lt;!ELEMENT SystemParamNames (PSXParam+)>
-   * &lt;!ELEMENT InitParams (CommandName+, PSXParam+)>
-   * </pre></code>
+   * "E2/design/dtd/sys_ContentEditorSystemDef.dtd".
    *
    * @return the newly created XML document (never <code>null</code> or empty)
    * @throws IllegalStateException if the internal state of this object violates the DTD

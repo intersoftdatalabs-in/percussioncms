@@ -91,18 +91,17 @@ public class PSProcessAction implements Runnable {
    * and an array of strings <code>envp</code>, representing "environment" variable settings, this
    * method creates a new process in which to execute the specified command.
    *
-   * <p>If <code>envp</code> is <code>null</code>, the subprocess inherits the environment settings
-   * of the current process.
+   * <p>If envp is null, the subprocess inherits the environment settings of the current process.
    *
-   * <p>The working directory of the new subprocess is specified by <code>dir</code>. If <code>null
-   * </code>, the subprocess inherits the current working directory of the current process.
+   * <p>The working directory of the new subprocess is specified by dir. If null, the subprocess
+   * inherits the current working directory of the current process.
    *
-   * @param cmdarray array containing the command to call and its arguments, may not be <code>null
-   *     </code> or empty
+   * @param cmdArray array containing the command to call and its arguments, may not be null or
+   *     empty
    * @param envp array of strings, each element of which has environment variable settings in format
-   *     name=value, may be <code>null</code> or empty
-   * @param dir the working directory of the process, or <code>null</code> if the process should
-   *     inherit the working directory of the current process
+   *     name=value, may be null or empty
+   * @param dir the working directory of the process, or null if the process should inherit the
+   *     working directory of the current process
    * @throws PSProcessException if any error occurs starting the process
    */
   public PSProcessAction(String[] cmdArray, String[] envp, File dir) throws PSProcessException {
@@ -253,11 +252,11 @@ public class PSProcessAction implements Runnable {
    * Returns the exit value for the process. This method waits for the process thread to complete,
    * and then obtains the return value.
    *
-   * @param wait Waits at most this many milliseconds for the thread to finish. A value of 0 means
+   * @param millis Waits at most this many milliseconds for the thread to finish. A value of 0 means
    *     wait forever.
-   * @return the exit value of the process. By convention, the value <code>0</code> indicates normal
-   *     termination. If this method returns before the process has completed, the value returned is
-   *     <code>RC_NOT_FINISHED</code>.
+   * @return the exit value of the process. By convention, the value 0 indicates normal termination.
+   *     If this method returns before the process has completed, the value returned is
+   *     RC_NOT_FINISHED.
    */
   public int waitFor(int millis) {
     try {

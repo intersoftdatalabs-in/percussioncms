@@ -39,26 +39,13 @@ import org.json.JSONException;
  *
  * <p>Expects the following parameters:
  *
- * <table border="1" cellspacing="0" cellpadding="5">
- * <thead>
- * <th>Name</th><th>Allowed Values</th><th>Details</th>
- * </thead>
- * <tbody>
- * <tr>
- * <td>objectId</td><td>The object id string</td><td>Required</td>
- * </tr>
- * <tr>
- * <td>newslotid</td><td>Slot id of the target slot</td><td>Required</td>
- * </tr>
- * <tr>
- * <td>newtemplate</td><td>Template to use</td><td>Required</td>
- * </tr>
- * <tr>
- * <td>index</td><td>The desired position to move to</td>
- * <td>Optional, if not set then will be put in the last position</td>
- * </tr>
- * </tbody>
- * </table>
+ * <ul>
+ *   <li>objectId - The object id string (Required)
+ *   <li>newslotid - Slot id of the target slot (Required)
+ *   <li>newtemplate - Template to use (Required)
+ *   <li>index - The desired position to move to (Optional, if not set then will be put in the last
+ *       position)
+ * </ul>
  */
 public class PSMoveToSlotAction extends PSAAActionBase {
 

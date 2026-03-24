@@ -64,10 +64,6 @@ public class SecuritySOAPImpl extends PSBaseSOAPImpl implements com.percussion.w
      *
      * @param loadCommunitiesRequest the request containing community search criteria
      * @return array of communities matching the criteria
-     * @throws RemoteException if a system error occurs
-     * @throws PSInvalidSessionFault if the session is invalid
-     * @throws PSContractViolationFault if the request contract is violated
-     * @throws PSNotAuthorizedFault if the user is not authorized
      */
     @Override
     public com.percussion.webservices.securityservices.LoadCommunitiesResponse loadCommunities(
@@ -104,10 +100,6 @@ public class SecuritySOAPImpl extends PSBaseSOAPImpl implements com.percussion.w
      *
      * @param loadRolesRequest the request containing role search criteria
      * @return array of roles matching the criteria
-     * @throws RemoteException if a system error occurs
-     * @throws PSInvalidSessionFault if the session is invalid
-     * @throws PSContractViolationFault if the request contract is violated
-     * @throws PSNotAuthorizedFault if the user is not authorized
      */
     @Override
     public com.percussion.webservices.securityservices.LoadRolesResponse loadRoles(LoadRolesRequest loadRolesRequest)
@@ -139,9 +131,6 @@ public class SecuritySOAPImpl extends PSBaseSOAPImpl implements com.percussion.w
      *
      * @param loginRequest the login request containing credentials and client info
      * @return login response with session information
-     * @throws RemoteException if a system error occurs
-     * @throws PSNotAuthenticatedFault if authentication fails
-     * @throws PSContractViolationFault if the request contract is violated
      */
     @Override
     public LoginResponse login(LoginRequest loginRequest) throws com.percussion.webservices.securityservices.ContractViolationFaultMessage, com.percussion.webservices.securityservices.NotAuthenticatedFaultMessage {
@@ -195,9 +184,6 @@ public class SecuritySOAPImpl extends PSBaseSOAPImpl implements com.percussion.w
      * Logout a user and invalidate their session.
      *
      * @param logoutRequest the logout request containing session information
-     * @throws RemoteException if a system error occurs
-     * @throws PSInvalidSessionFault if the session is invalid
-     * @throws PSContractViolationFault if the request contract is violated
      */
     @Override
     public void logout(LogoutRequest logoutRequest)
@@ -227,9 +213,6 @@ public class SecuritySOAPImpl extends PSBaseSOAPImpl implements com.percussion.w
      * Refresh an existing user session to extend its validity.
      *
      * @param refreshSessionRequest the refresh request containing session information
-     * @throws RemoteException if a system error occurs
-     * @throws PSInvalidSessionFault if the session is invalid
-     * @throws PSContractViolationFault if the request contract is violated
      */
     @Override
     public void refreshSession(RefreshSessionRequest refreshSessionRequest)
@@ -261,11 +244,8 @@ public class SecuritySOAPImpl extends PSBaseSOAPImpl implements com.percussion.w
     /**
      * Filter content IDs by runtime visibility permissions.
      *
-     * @param ids array of content IDs to filter
+     * @param filterByRuntimeVisibilityRequest the request containing content IDs to filter
      * @return response containing filtered IDs that are visible to the current user
-     * @throws RemoteException if a system error occurs
-     * @throws PSInvalidSessionFault if the session is invalid
-     * @throws PSContractViolationFault if the request contract is violated
      */
     @Override
     public FilterByRuntimeVisibilityResponse filterByRuntimeVisibility(FilterByRuntimeVisibilityRequest filterByRuntimeVisibilityRequest)

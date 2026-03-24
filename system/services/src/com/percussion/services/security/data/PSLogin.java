@@ -197,7 +197,7 @@ public class PSLogin implements Serializable
     * Set a new default locale codde for the logged in user.
     * 
     * @param defaultLocaleCode the new default locale code, may be
-    *    <code>null</code, not empty.
+    *    null, not empty.
     */
    public void setDefaultLocaleCode(String defaultLocaleCode)
    {

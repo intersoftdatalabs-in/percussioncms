@@ -80,7 +80,8 @@ public class PSConditionalEvaluator {
    *
    * <p>
    *
-   * <TABLE>
+   * <TABLE border="1">
+   *     <caption>Conditional Evaluation Example</caption>
    *     <TR>
    *        <TH>Name</TH>
    *        <TH>Operator</TH>
@@ -105,7 +106,7 @@ public class PSConditionalEvaluator {
    *        <TD>Engineering</TD>
    *        <TD></TD>
    *     </TR>
-   * </TABLE>
+   * </table>
    *
    * <p>Any product with a status of 'P' will be returned. In addition, any user who logged in
    * through LDAP and is part of the Engineering organizational unit will get back all rows -- that
@@ -282,8 +283,8 @@ public class PSConditionalEvaluator {
    * @param data The execution data, which contains the request. The row, if needed, will be
    *     obtained by calling getCurrentResultRowData() on the execution data object.
    * @return <code>true</code> to keep the row (including any changes which may have been made);
-   *     </code>false</code> to remove the row from the result set which will be used to generate
-   *     the resulting XML document
+   *     <code>false</code> to remove the row from the result set which will be used to generate the
+   *     resulting XML document
    */
   public boolean processRow(PSExecutionData data) throws PSParameterMismatchException {
     return isMatch(data);

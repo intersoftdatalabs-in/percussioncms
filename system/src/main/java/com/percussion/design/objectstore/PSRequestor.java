@@ -78,6 +78,7 @@ public class PSRequestor extends PSComponent {
    * requests will be handled as follows:
    *
    * <table border="1">
+   * <caption>Request Page Extensions</caption>
    * <tr><td>Extension</td><td>Output</td></tr>
    * <tr><td>-none-</td><td>XML data (MIME type text/xml)</td></tr>
    * <tr><td>.xml</td><td>XML data (MIME type text/xml)</td></tr>
@@ -112,6 +113,7 @@ public class PSRequestor extends PSComponent {
    * requests will be handled as follows:
    *
    * <table border="1">
+   * <caption>Request Page Extensions</caption>
    * <tr><td>Extension</td><td>Output</td></tr>
    * <tr><td>-none-</td><td>XML data (MIME type text/xml)</td></tr>
    * <tr><td>.xml</td><td>XML data (MIME type text/xml)</td></tr>
@@ -686,7 +688,7 @@ public class PSRequestor extends PSComponent {
    * Set the MIME properties. The properties will be a map containing the request extension as the
    * key and the MIME type as the value.
    *
-   * <p><B>Note:<B> The keys in the mime properties map must be lower case!
+   * <p><B>Note:</B> The keys in the mime properties map must be lower case!
    *
    * @param props The map of extension/mime-type pairs. Can be <code>null</code>
    */

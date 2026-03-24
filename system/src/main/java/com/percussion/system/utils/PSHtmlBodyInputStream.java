@@ -80,8 +80,7 @@ public class PSHtmlBodyInputStream extends FilterInputStream {
   }
 
   /**
-   * Reads one byte at a time, <body>only bytes that are between 'body' tags </body> are actually
-   * read.
+   * Reads one byte at a time, only bytes that are between 'body' tags are actually read.
    *
    * @return byte read.
    * @throws IOException if any network error happens during the read.

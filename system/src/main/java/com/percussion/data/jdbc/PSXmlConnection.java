@@ -168,9 +168,8 @@ public class PSXmlConnection extends PSFileSystemConnection {
   /**
    * Enable or disable read-only access to the XML file.
    *
-   * @param autoCommit <code>true</code> to enable read-only access, <code>false</code> to disable
-   *     it
-   * @exception SQLException if an error occurs
+   * @param readOnly <code>true</code> to enable read-only access, <code>false</code> to disable it
+   * @throws SQLException if an error occurs
    */
   public void setReadOnly(boolean readOnly) throws SQLException {
     checkClosed();
@@ -180,7 +179,7 @@ public class PSXmlConnection extends PSFileSystemConnection {
    * Is the XML file open in read-only mode?
    *
    * @return <code>true</code> if read-only is set, <code>false</code> otherwise
-   * @exception SQLException if an error occurs
+   * @throws SQLException if an error occurs
    */
   public boolean isReadOnly() throws SQLException {
     checkClosed();
@@ -191,7 +190,7 @@ public class PSXmlConnection extends PSFileSystemConnection {
    * This is not currently supported.
    *
    * @param level the TRANSACTION_xxx isolation level
-   * @exception SQLException always thrown as this is not supported
+   * @throws SQLException always thrown as this is not supported
    */
   public void setTransactionIsolation(int level) throws SQLException {
     if (true) throw new SQLException("unsupported");
@@ -203,7 +202,7 @@ public class PSXmlConnection extends PSFileSystemConnection {
    *
    * @return Connection.TRANSACTION_NONE is always returned as this drier does not support
    *     transaction isolation
-   * @exception SQLException if an error occurs
+   * @throws SQLException if an error occurs
    */
   public int getTransactionIsolation() throws SQLException {
     checkClosed();
@@ -215,7 +214,7 @@ public class PSXmlConnection extends PSFileSystemConnection {
    * warning to iterate the warnings.
    *
    * @return the first warning, or <code>null</code> of none exist
-   * @exception SQLException if an error occurs
+   * @throws SQLException if an error occurs
    */
   public SQLWarning getWarnings() throws SQLException {
     checkClosed();
@@ -225,7 +224,7 @@ public class PSXmlConnection extends PSFileSystemConnection {
   /**
    * Remove all warnings associated with this connection.
    *
-   * @exception SQLException if an error occurs
+   * @throws SQLException if an error occurs
    */
   public void clearWarnings() throws SQLException {
     checkClosed();

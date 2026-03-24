@@ -674,7 +674,7 @@ public class PSDbmsHelper {
   /**
    * Sets the update key from a given columns and schema.
    *
-   * @param columns A list of column names in <coce>String</code>, it may not be <code>null</code>
+   * @param columns A list of column names in <code>String</code>, it may not be <code>null</code>
    *     or empty.
    * @param schema The schema object, may not be <code>null</code>.
    * @throws IllegalArgumentException if a parameter is invalid.

@@ -561,7 +561,7 @@ public abstract class PSBaseFtpDeliveryHandler extends PSBaseDeliveryHandler
     * retries or if the stream does not support resetting back to the beginning.
     * @param retryItem - item we tried to publish.
     * @param location - location of the published item assumed never
-    * <code>null</null>
+    * <code>null</code>
     * @param failureMessage - the reason the item did not publish may be <code> null</code>
     */
    private void logError(RetryItem retryItem, String location,
@@ -667,9 +667,9 @@ public abstract class PSBaseFtpDeliveryHandler extends PSBaseDeliveryHandler
       logoff();
    }
    
-   /**
-    * Logs in to the ftp server using {@link #doLogin(long, boolean)}.
-    * Multiple attempts are made in an effort to establish a connection.
+    /**
+     * Logs in to the ftp server using the doLogin method.
+     * Multiple attempts are made in an effort to establish a connection.
     * @param jobId the publishing job ID.
     * @param failAll if <code>true</code>, then all items for the current job will be
     * marked as failed if the login was unsuccessful, otherwise, a

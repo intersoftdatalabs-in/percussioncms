@@ -265,8 +265,8 @@ public class PSORelationshipTools extends PSJexlUtilBase implements IPSJexlExpre
    * #isLandingPage(String)}
    *
    * @param guid the guid
-   * @return code>true</code> if this page has a public navon parent in the landing page slot.
-   * @throws Exception
+   * @return true if this page has a public navon parent in the landing page slot.
+   * @throws Exception if an error occurs
    */
   @IPSJexlMethod(
       description = "is this page referenced in the landing page slot",
@@ -282,8 +282,8 @@ public class PSORelationshipTools extends PSJexlUtilBase implements IPSJexlExpre
    *
    * @param contentGuid the Item guid
    * @param folderGuid the Folder guid
-   * @return code>true</code> if this page has a public navon parent in the landing page slot.
-   * @throws Exception
+   * @return true if this page has a public navon parent in the landing page slot.
+   * @throws Exception if an error occurs
    */
   @IPSJexlMethod(
       description = "is this page referenced in the landing page slot",

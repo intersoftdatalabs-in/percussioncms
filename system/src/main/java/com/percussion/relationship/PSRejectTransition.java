@@ -46,8 +46,6 @@ public class PSRejectTransition extends PSException {
    * Construct an exception for messages taking 2 specific arguments.
    *
    * @param msgCode - the error string to load. There is no validation on this value.
-   * @param contentTypeName Displayed in the error message. If the name is not available, the id
-   *     should be used. Never <code>null</code> or empty.
    * @param contentId - the contentid on which the error occurred. May be 0.
    * @param revisionId - the revisionid on which the error occurred. May be 0.
    */

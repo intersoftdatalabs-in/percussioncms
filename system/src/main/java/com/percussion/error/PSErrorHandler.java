@@ -116,7 +116,7 @@ public class PSErrorHandler {
    * </ol>
    *
    * @param response the response object to use to report the error to the user
-   * @param error the error to be reported
+   * @param err the error to be reported
    */
   public void reportError(PSResponse response, PSLogError err) {
     // Log the message first (in case we hit more errors below)

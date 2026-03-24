@@ -709,7 +709,6 @@ public class Util {
    * @param protocol the protocol
    * @return the port number, or 0 if unknown
    * @deprecated use URI.defaultPort() instead
-   * @see HTTPClient.URI#defaultPort(java.lang.String)
    */
   public static final int defaultPort(String protocol) {
     return URI.defaultPort(protocol);

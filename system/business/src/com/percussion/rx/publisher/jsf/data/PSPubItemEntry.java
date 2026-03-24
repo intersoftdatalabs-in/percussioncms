@@ -115,9 +115,6 @@ public class PSPubItemEntry {
 
    /**
     * Initialize this object from the passed data
-    * 
-    * @param columns the columns to extract, assumed never <code>null</code>.
-    * @param results the result data, assumed never <code>null</code>.
     */
    protected void initProperties() {
       // operation

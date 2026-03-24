@@ -33,10 +33,10 @@ public class PSErrorHttpCodes {
    * code, then get the error code for its most immediate superclass. A valid HTTP code is
    * guaranteed to be returned.
    *
-   * @param A PSLogError whose HTTP code code you want to get, or <CODE>null</CODE> to get the
+   * @param err a PSLogError whose HTTP code you want to get, or <code>null</code> to get the
    *     default HTTP code.
-   * @param err
-   * @return A valid HTTP error code (e.g, <CODE>404</CODE> for not found)
+   * @param loc the locale to use
+   * @return A valid HTTP error code (e.g, <code>404</code> for not found)
    */
   public static synchronized int getHttpCode(PSLogInformation err, Locale loc) {
     if (!ms_areCodesLoaded) initErrorHttpCodeMaps(loc);

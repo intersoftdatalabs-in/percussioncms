@@ -95,6 +95,7 @@ public class PSSetCookieExtension implements IPSResultDocumentProcessor {
    * @param params the parameters needed for this extension are shown in the table below
    *     <p>
    *     <table border="1">
+   * <caption>Extension Parameters</caption>
    * <tr><th>Parameter</th><th>Description</th></tr>
    * <tr><td>PSXName</td>
    *     <td>(required) the name of the cookie</td></tr>

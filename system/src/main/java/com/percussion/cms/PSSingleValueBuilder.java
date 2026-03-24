@@ -81,8 +81,8 @@ import org.jsoup.helper.W3CDom;
 import org.w3c.dom.*;
 
 /**
- * Creates the DisplayField element according to the 'ContentEditor.dtd', when
- * the data source is a single value (as opposed to an array or table).
+ * Creates the DisplayField element according to the 'ContentEditor.dtd', when the data source is a
+ * single value (as opposed to an array or table).
  */
 public class PSSingleValueBuilder extends PSDisplayFieldBuilder
 // REFACTORED: CP-JAVA11
@@ -90,9 +90,7 @@ public class PSSingleValueBuilder extends PSDisplayFieldBuilder
 
   private static final Logger log = LogManager.getLogger(PSSingleValueBuilder.class);
 
-  /**
-   * Constant strings
-   */
+  /** Constant strings */
   public static final String ATTR_INLINESLOT = "rxinlineslot";
 
   public static final String DATA_DESCRIPTION_OVERRIDE = "data-description-override";
@@ -112,9 +110,7 @@ public class PSSingleValueBuilder extends PSDisplayFieldBuilder
   public static final String HREF = "href";
   public static final String DATA_PATHITEM = "data-pathitem";
 
-  /**
-   * A set of attributes that should be ignored, statically initialized.
-   */
+  /** A set of attributes that should be ignored, statically initialized. */
   public static final List<String> IGNORED_ATTRIBUTES =
       Arrays.asList(
           ATTR_INLINESLOT,
@@ -154,11 +150,10 @@ public class PSSingleValueBuilder extends PSDisplayFieldBuilder
   private static final String NULL_REQUEST = "request must not be null";
 
   /**
-   * Creates a DisplayField builder that contains a single data value for non-binary fields.
-   * Use the {@link PSDisplayFieldBuilder base class} directly
-   * for binary fields.
-   * <p>See the {@link
-   * PSDisplayFieldBuilder#PSDisplayFieldBuilder(PSField,PSUISet,
+   * Creates a DisplayField builder that contains a single data value for non-binary fields. Use the
+   * {@link PSDisplayFieldBuilder base class} directly for binary fields.
+   *
+   * <p>See the {@link PSDisplayFieldBuilder#PSDisplayFieldBuilder(PSField,PSUISet,
    * PSEditorDocumentBuilder) base class} for description of params.
    *
    * @param value The definition of where to find the data. May be <code>
@@ -174,9 +169,8 @@ public class PSSingleValueBuilder extends PSDisplayFieldBuilder
 
   /**
    * Same as {@link #PSSingleValueBuilder(PSField,PSUISet,IPSReplacementValue,
-   * PSEditorDocumentBuilder) PSSingleValueBuilder} except the data source is
-   * typically from a backend. See the referenced method for description of
-   * similar parameters.
+   * PSEditorDocumentBuilder) PSSingleValueBuilder} except the data source is typically from a
+   * backend. See the referenced method for description of similar parameters.
    *
    * @param locator The definition of where to find the data. May be <code>
    *    null</code>. Must implement the IPSReplacementValue interface.
@@ -190,15 +184,13 @@ public class PSSingleValueBuilder extends PSDisplayFieldBuilder
   }
 
   /**
-   * A convenience constructor for creating hidden fields. The supplied
-   * control name must be able to handle a hidden field. No label will be
-   * supplied. See {@link PSDisplayFieldBuilder#PSDisplayFieldBuilder(
-   * String, String, PSEditorDocumentBuilder) base} class for a  description
-   * of params and their requirements.
+   * A convenience constructor for creating hidden fields. The supplied control name must be able to
+   * handle a hidden field. No label will be supplied. See {@link
+   * PSDisplayFieldBuilder#PSDisplayFieldBuilder( String, String, PSEditorDocumentBuilder) base}
+   * class for a description of params and their requirements.
    *
-   * @param value The definition of how to find the value for this field.
-   *    May be <code>null</code>, in which case no Value element will be
-   *    added.
+   * @param value The definition of how to find the value for this field. May be <code>null</code>,
+   *     in which case no Value element will be added.
    */
   public PSSingleValueBuilder(
       String controlName,
@@ -210,18 +202,14 @@ public class PSSingleValueBuilder extends PSDisplayFieldBuilder
   }
 
   /**
-   * Creates a hidden display field element using a hidden control using
-   * the supplied name and value.  No label will be supplied.
+   * Creates a hidden display field element using a hidden control using the supplied name and
+   * value. No label will be supplied.
    *
-   * @param doc The document to which the control is to be added.  May not be
-   * <code>null</code>.
-   * @param submitName The name of the control, never <code>null</code> or
-   * empty.
-   * @param value The value to set on the control, may be not be
-   * <code>null</code> or empty.
-   * @param isReadOnly If <code>true</code>, the control will be created as
-   * read only, if <code>false</code> it will not be created as read only.
-   *
+   * @param doc The document to which the control is to be added. May not be <code>null</code>.
+   * @param submitName The name of the control, never <code>null</code> or empty.
+   * @param value The value to set on the control, may be not be <code>null</code> or empty.
+   * @param isReadOnly If <code>true</code>, the control will be created as read only, if <code>
+   *     false</code> it will not be created as read only.
    * @return The display field element, never <code>null</code> or empty.
    */
   public static Element createHiddenField(
@@ -249,14 +237,12 @@ public class PSSingleValueBuilder extends PSDisplayFieldBuilder
   }
 
   /**
-   * Builds a data extractor from the supplied replacement value. The
-   * extractor is used to get data from the execution data object at run
-   * time.
+   * Builds a data extractor from the supplied replacement value. The extractor is used to get data
+   * from the execution data object at run time.
    *
    * @param value The definition of the value. Maybe <code>null</code>.
-   *
-   * @return If value is <code>null</code>, <code>null</code> is returned,
-   *    otherwise a valid extractor is returned.
+   * @return If value is <code>null</code>, <code>null</code> is returned, otherwise a valid
+   *     extractor is returned.
    */
   private IPSDataExtractor createExtractor(IPSReplacementValue value) {
     IPSDataExtractor extractor = null;
@@ -271,10 +257,10 @@ public class PSSingleValueBuilder extends PSDisplayFieldBuilder
   }
 
   /**
-   * Creates the Value element for the DisplayField parent element. Calls
-   * <code>getDataValue</code> to obtain the actual data for the content.
-   * If this is a new document, if a default value is specified, it is
-   * added.
+   * Creates the Value element for the DisplayField parent element. Calls <code>getDataValue</code>
+   * to obtain the actual data for the content. If this is a new document, if a default value is
+   * specified, it is added.
+   *
    * <p>See the base class for a description of the params and return.
    */
   @Override
@@ -343,9 +329,9 @@ public class PSSingleValueBuilder extends PSDisplayFieldBuilder
   }
 
   /**
-   * Convenience method to call
-   * {@link #processVariant(Element, IPSRequestContext, PSRelationshipData, String)} as
-   * processVariant(Element, IPSRequestContext, PSRelationshipData, null)
+   * Convenience method to call {@link #processVariant(Element, IPSRequestContext,
+   * PSRelationshipData, String)} as processVariant(Element, IPSRequestContext, PSRelationshipData,
+   * null)
    */
   public static void processVariant(
       Element elem, IPSRequestContext request, PSRelationshipData inlineLinkRelData)
@@ -354,31 +340,31 @@ public class PSSingleValueBuilder extends PSDisplayFieldBuilder
   }
 
   /**
-   * Method to recurse through all the elements and child elements and
-   * replace inline links of all types including images and snippets. It does
-   * the following:
+   * Method to recurse through all the elements and child elements and replace inline links of all
+   * types including images and snippets. It does the following:
+   *
    * <p>
+   *
    * <ol>
-   * <li>Walks through every element in the element tree to see of if there are
-   * any inline links of any type</li>
-   * <li>If there is an inlone link, it regenerates the link to point to right
-   * version contentid and right revision</li>
-   * <li>The version may need to be changed when an inline item has a
-   * promotable version which replaces the original one when it goes to public
-   * state. Note that the versions have different contentids</li>
-   * <li>The revision is of inline item will be changed to always to point to
-   * the current revision </li>
+   *   <li>Walks through every element in the element tree to see of if there are any inline links
+   *       of any type
+   *   <li>If there is an inlone link, it regenerates the link to point to right version contentid
+   *       and right revision
+   *   <li>The version may need to be changed when an inline item has a promotable version which
+   *       replaces the original one when it goes to public state. Note that the versions have
+   *       different contentids
+   *   <li>The revision is of inline item will be changed to always to point to the current revision
    * </ol>
-   * @param elem root element of the document which has inline variants, if
-   * <code>null</code> it will not be processed.
-   * @param request IPSRequestContext must not be <code>null</code.null.
-   * @param inlineLinkRelData inline link relationship data for the parent
-   * item. This can be built using the static method
-   * {@link PSSingleValueBuilder#buildRelationshipData(IPSRequestContext,
-   * PSLocator)}. Must not be <code>null</code>.
+   *
+   * @param elem root element of the document which has inline variants, if <code>null</code> it
+   *     will not be processed.
+   * @param request IPSRequestContext must not be <code>null</code>.
+   * @param inlineLinkRelData inline link relationship data for the parent item. This can be built
+   *     using the static method {@link
+   *     PSSingleValueBuilder#buildRelationshipData(IPSRequestContext, PSLocator)}. Must not be
+   *     <code>null</code>.
    * @param controlName the name of the field control name, may be <code>null</code>.
    * @throws PSCmsException If any error occurs during processing the variant.
-   *
    */
   public static void processVariant(
       Element elem,
@@ -422,8 +408,9 @@ public class PSSingleValueBuilder extends PSDisplayFieldBuilder
   }
 
   /**
-   * Fix up inline variants generated by eWebEditPro to follow the new
-   * form used by our EditLive implementation.
+   * Fix up inline variants generated by eWebEditPro to follow the new form used by our EditLive
+   * implementation.
+   *
    * @param elem the variant element, assumed not <code>null</code>.
    */
   private static void updateLegacyVariant(Element elem) {
@@ -475,8 +462,8 @@ public class PSSingleValueBuilder extends PSDisplayFieldBuilder
   }
 
   /**
-   * Helper methods to move the special inline variant attributes
-   * from one element to another.
+   * Helper methods to move the special inline variant attributes from one element to another.
+   *
    * @param source the source element, assumed not <code>null</code>.
    * @param target the target element, assumed not <code>null</code>.
    */
@@ -503,17 +490,15 @@ public class PSSingleValueBuilder extends PSDisplayFieldBuilder
   }
 
   /**
-   * Builds active assembly relationship data to be useful to find out correct
-   * contentid which is required when promotable versions go to public state.
-   * This data is required while processing inline links and is per one parent
-   * item basis.
+   * Builds active assembly relationship data to be useful to find out correct contentid which is
+   * required when promotable versions go to public state. This data is required while processing
+   * inline links and is per one parent item basis.
    *
    * @param request request context must not be <code>null</code>.
-   * @param parent locator for the parent item which is being processed for
-   *           inline links. May be <code>null</code> in which case the
-   *           locator is built from the parameters
-   *           {@link IPSHtmlParameters#SYS_CONTENTID} and
-   *           {@link IPSHtmlParameters#SYS_REVISION} in the request context.
+   * @param parent locator for the parent item which is being processed for inline links. May be
+   *     <code>null</code> in which case the locator is built from the parameters {@link
+   *     IPSHtmlParameters#SYS_CONTENTID} and {@link IPSHtmlParameters#SYS_REVISION} in the request
+   *     context.
    */
   public static PSRelationshipData buildRelationshipData(
       IPSRequestContext request, PSLocator parent) throws PSCmsException {
@@ -582,17 +567,18 @@ public class PSSingleValueBuilder extends PSDisplayFieldBuilder
 
   /**
    * Modify normal links and images to point to correct versions and revisions.
-   * @param elem anchor or image element to replace the contentid with the
-   * correct one. Assumed not <code>null</code>
+   *
+   * @param elem anchor or image element to replace the contentid with the correct one. Assumed not
+   *     <code>null</code>
    * @param request request context, assumed not <code>null</code>.
-   * @param isImage <code>true</code> if the tag (first parameter) is for
-   * an image, <code>false</code> for a link.
-   * @param inlineLinkRelData inline link relationship data for the parent
-   * item. This can be built using the static method
-   * {@link PSSingleValueBuilder#buildRelationshipData(IPSRequestContext,
-   * PSLocator)}. Assumed not <code>null</code>.
-   * @throws PSCmsException if it is not able to fix last public revision
-   *    in the url that the <code>elem</code> holds.
+   * @param isImage <code>true</code> if the tag (first parameter) is for an image, <code>false
+   *     </code> for a link.
+   * @param inlineLinkRelData inline link relationship data for the parent item. This can be built
+   *     using the static method {@link
+   *     PSSingleValueBuilder#buildRelationshipData(IPSRequestContext, PSLocator)}. Assumed not
+   *     <code>null</code>.
+   * @throws PSCmsException if it is not able to fix last public revision in the url that the <code>
+   *     elem</code> holds.
    */
   private static void modifyLink(
       Element elem,
@@ -775,13 +761,11 @@ public class PSSingleValueBuilder extends PSDisplayFieldBuilder
    * Gets the property value of the specified AA relationship.
    *
    * @param aaRel the AA relationship; assumed not <code>null</code>.
-   * @param propertyName the name of the property; assumed not
-   *    <code>null</code> or empty.
-   * @param defaultValue the returned (default) value if the property
-   *    is not specified (empty) or <code>-1</code>.
-   *
-   * @return the property value of the AA relationship or the defaultValue
-   *    as described above. Never <code>null</code> or empty.
+   * @param propertyName the name of the property; assumed not <code>null</code> or empty.
+   * @param defaultValue the returned (default) value if the property is not specified (empty) or
+   *     <code>-1</code>.
+   * @return the property value of the AA relationship or the defaultValue as described above. Never
+   *     <code>null</code> or empty.
    */
   private static String getAaProperty(
       PSRelationship aaRel, String propertyName, String defaultValue) {
@@ -791,42 +775,36 @@ public class PSSingleValueBuilder extends PSDisplayFieldBuilder
   }
 
   /**
-   * Utility method to replace the variant by requesting the latest output from
-   * the given parameters.
+   * Utility method to replace the variant by requesting the latest output from the given
+   * parameters.
    *
-   * @param pssessionid The session id, it may not be <code>null</code> or
-   *    empty.
-   * @param sys_dependentid The content id, it may be the attribute
-   *    of <code>IPSHtmlParameters.SYS_DEPENDENTID</code> of an element.
-   *    Assume not <code>null</code> or empty.
-   * @param sys_dependentvariantid The variant id, it may be the attribute
-   *    of <code>IPSHtmlParameters.SYS_DEPENDENTVARIANTID</code> of an element.
-   *    Assume not <code>null</code> or empty.
-   * @param rx_selectedtext The selected text, it may be the attribute
-   *    of <code>PSInlineLinkField.RX_INLINESLOT</code> of an element.
-   *    It may be <code>null</code> or empty.
-   * @param rx_inlinetype The inline type, it may be the attribute of
-   *    <code>PSInlineLinkField.RX_INLINETYPE</code> of an element.
-   *    Assume not <code>null</code> or empty.
-   * @param sys_relationshipid The relationship id, it may be the attribute of
-   *    <code>IPSHtmlParameters.SYS_RELATIONSHIPID</code> of an element.
-   *    Assume not <code>null</code> or empty.
-   * @param sys_authtype The authtype, it may be the attribute of
-   *    <code>IPSHtmlParameters.SYS_AUTHTYPE</code> of an element.
-   *    Assume not <code>null</code> or empty.
-   * @param sys_context The authtype, it may be the attribute of
-   *    <code>IPSHtmlParameters.SYS_CONTEXT</code> of an element.
-   *    Assume not <code>null</code> or empty.
-   * @param sys_siteid The site id, it may be the attribute of
-   *    <code>IPSHtmlParameters.SYS_SITEID</code> of an element.
-   *    It may be <code>null</code> or empty if not defined.
-   * @return The element which contains the latest output of the specified
-   *    variant. It may be <code>null</code> if an error occurs.
-   * @throws PSCmsException if it is not able to fix last public revision
-   *    in the url that the elem holds.
-   * @deprecated This method was written to access it from sys_InlineLinks.xsl
-   *    to replace the variants, but the logic has been moved to
-   *    sys_AddAssemblerInfo exit.
+   * @param pssessionid The session id, it may not be <code>null</code> or empty.
+   * @param sys_dependentid The content id, it may be the attribute of <code>
+   *     IPSHtmlParameters.SYS_DEPENDENTID</code> of an element. Assume not <code>null</code> or
+   *     empty.
+   * @param sys_dependentvariantid The variant id, it may be the attribute of <code>
+   *     IPSHtmlParameters.SYS_DEPENDENTVARIANTID</code> of an element. Assume not <code>null</code>
+   *     or empty.
+   * @param rx_selectedtext The selected text, it may be the attribute of <code>
+   *     PSInlineLinkField.RX_INLINESLOT</code> of an element. It may be <code>null</code> or empty.
+   * @param rx_inlinetype The inline type, it may be the attribute of <code>
+   *     PSInlineLinkField.RX_INLINETYPE</code> of an element. Assume not <code>null</code> or
+   *     empty.
+   * @param sys_relationshipid The relationship id, it may be the attribute of <code>
+   *     IPSHtmlParameters.SYS_RELATIONSHIPID</code> of an element. Assume not <code>null</code> or
+   *     empty.
+   * @param sys_authtype The authtype, it may be the attribute of <code>
+   *     IPSHtmlParameters.SYS_AUTHTYPE</code> of an element. Assume not <code>null</code> or empty.
+   * @param sys_context The authtype, it may be the attribute of <code>IPSHtmlParameters.SYS_CONTEXT
+   *     </code> of an element. Assume not <code>null</code> or empty.
+   * @param sys_siteid The site id, it may be the attribute of <code>IPSHtmlParameters.SYS_SITEID
+   *     </code> of an element. It may be <code>null</code> or empty if not defined.
+   * @return The element which contains the latest output of the specified variant. It may be <code>
+   *     null</code> if an error occurs.
+   * @throws PSCmsException if it is not able to fix last public revision in the url that the elem
+   *     holds.
+   * @deprecated This method was written to access it from sys_InlineLinks.xsl to replace the
+   *     variants, but the logic has been moved to sys_AddAssemblerInfo exit.
    */
   @Deprecated
   public static String replaceVariant(
@@ -895,21 +873,19 @@ public class PSSingleValueBuilder extends PSDisplayFieldBuilder
   }
 
   /**
-   * Method to replace the current inline variant with correct one. This is
-   * required only if a dependent item's promotable version replaces the
-   * dependent.
-   * @param elem Variant output element which may have to be replaced. Must
-   * not be <code>null</code>
-   * @param request request context, must not be <code>null</code>.
-   * @param inlineLinkRelData inline link relationship data for the parent
-   * item. This can be built using the static method
-   * {@link PSSingleValueBuilder#buildRelationshipData(IPSRequestContext,
-   * PSLocator)}. Must not be <code>null</code>.
-   * @return element which contains the latest output of the specified
-   *    variant. It may be <code>null</code> if an error occurs.
-   * @throws PSCmsException if it is not able to fix last public revision
-   *    in the url that the elem holds.
+   * Method to replace the current inline variant with correct one. This is required only if a
+   * dependent item's promotable version replaces the dependent.
    *
+   * @param elem Variant output element which may have to be replaced. Must not be <code>null</code>
+   * @param request request context, must not be <code>null</code>.
+   * @param inlineLinkRelData inline link relationship data for the parent item. This can be built
+   *     using the static method {@link
+   *     PSSingleValueBuilder#buildRelationshipData(IPSRequestContext, PSLocator)}. Must not be
+   *     <code>null</code>.
+   * @return element which contains the latest output of the specified variant. It may be <code>null
+   *     </code> if an error occurs.
+   * @throws PSCmsException if it is not able to fix last public revision in the url that the elem
+   *     holds.
    */
   public static Element replaceVariant(
       Element elem, IPSRequestContext request, PSRelationshipData inlineLinkRelData)
@@ -974,15 +950,16 @@ public class PSSingleValueBuilder extends PSDisplayFieldBuilder
   }
 
   /**
-   * Returns a map consistsing of sys_siteid,sys_folderid as keys and their
-   * values from supplied relationship as values. The values will be empty if
-   * failed to get the relationship properties are property is -1.
+   * Returns a map consistsing of sys_siteid,sys_folderid as keys and their values from supplied
+   * relationship as values. The values will be empty if failed to get the relationship properties
+   * are property is -1.
+   *
    * @param rid relationship id, if blank returns empty map.
-   * @param contentid the content id of the item for which the request is made.
-   * This is used for logging purpose only.
+   * @param contentid the content id of the item for which the request is made. This is used for
+   *     logging purpose only.
    * @param request The request must not be null.
-   * @return map consisting of sys_siteid and sys_folderid properties. Never
-   * <code>null</code> may be empty.
+   * @return map consisting of sys_siteid and sys_folderid properties. Never <code>null</code> may
+   *     be empty.
    */
   public static Map<String, String> getSiteAndFolderFromRelationship(
       String rid, String contentid, IPSRequestContext request) {
@@ -1024,14 +1001,10 @@ public class PSSingleValueBuilder extends PSDisplayFieldBuilder
   /**
    * Load the relationship object for a given value of relationship id.
    *
-   * @param request request context used to talk to server, assume dnot
-   *           <code>null</code>.
-   * @param relationshipid relationship id string, assumed to be parsed to a
-   *           positive integer value.
-   * @return relationship object for the relationship id supplied, never
-   *         <code>null</code>.
-   * @throws PSCmsException if it cannot find or load the object for any
-   *            reason.
+   * @param request request context used to talk to server, assume dnot <code>null</code>.
+   * @param relationshipid relationship id string, assumed to be parsed to a positive integer value.
+   * @return relationship object for the relationship id supplied, never <code>null</code>.
+   * @throws PSCmsException if it cannot find or load the object for any reason.
    */
   private static PSRelationship loadRelationship(IPSRequestContext request, String relationshipid)
       throws PSCmsException {
@@ -1050,42 +1023,39 @@ public class PSSingleValueBuilder extends PSDisplayFieldBuilder
   }
 
   /**
-   * Given the contentid and relationshipid, this method finds the correct
-   * contentid based on the following algorithm.
+   * Given the contentid and relationshipid, this method finds the correct contentid based on the
+   * following algorithm.
+   *
    * <ol>
-   * <li>It assumes that the contentid supplied could be wrong because a
-   * promotable version of the item with this contentid could have been
-   * promoted to replace the current item</li>
-   * <li>Checks to see if the inline item's contentid is present in the
-   * dependent items of all outgoing AA relationshps for the parent item.</li>
-   * <li>If present, the dependent item is NOT replaced by its promotable
-   * version and hence contentid does not change. This is the most probable
-   * case.</li>
-   * <li>If not present, continue with following steps.</li>
-   * <li>Check to see if the inline link's relationshipid is present in AA
-   * relationships</li>
-   * <li>If present, replace the contentid of the inline item with the dependent item
-   * contentid of the matching relationship.</li>
-   * <li>If not present, continue withe following steps</li>
-   * <li>For the dependent item of the each AA relationship for the parent item
-   * find the tree of promotable versions</li>
-   * <li>If the inline item's contentid is present anywhere in the tree, the
-   * dependent item of the relationship is assumed to be the correct one.
+   *   <li>It assumes that the contentid supplied could be wrong because a promotable version of the
+   *       item with this contentid could have been promoted to replace the current item
+   *   <li>Checks to see if the inline item's contentid is present in the dependent items of all
+   *       outgoing AA relationshps for the parent item.
+   *   <li>If present, the dependent item is NOT replaced by its promotable version and hence
+   *       contentid does not change. This is the most probable case.
+   *   <li>If not present, continue with following steps.
+   *   <li>Check to see if the inline link's relationshipid is present in AA relationships
+   *   <li>If present, replace the contentid of the inline item with the dependent item contentid of
+   *       the matching relationship.
+   *   <li>If not present, continue withe following steps
+   *   <li>For the dependent item of the each AA relationship for the parent item find the tree of
+   *       promotable versions
+   *   <li>If the inline item's contentid is present anywhere in the tree, the dependent item of the
+   *       relationship is assumed to be the correct one.
+   * </ol>
+   *
    * @param request request context, must not be <code>null</code>.
-   * @param contentid contentid (as string) of the inline link item, must
-   * not be <code>null</code> or empty.
-   * @param relationshipid relationshipid (as string) of the inline link
-   * item, may be <code>null</code> or empty, in which case it is assumed that
-   * it is not available and the method looks up the promotable versions
-   * without using relationship id.
-   * @param inlineLinkRelData  inline link relationship data for the parent
-   * item. This can be built using the static method
-   * {@link PSSingleValueBuilder#buildRelationshipData(IPSRequestContext,
-   * PSLocator)}. Must not be <code>null</code>.
-   * @return the correct contentid as string. <code>null</code> if not found
-   * one.
-   * @throws PSCmsException if error occurs during finding the correct version
-   * of the inline item.
+   * @param contentid contentid (as string) of the inline link item, must not be <code>null</code>
+   *     or empty.
+   * @param relationshipid relationshipid (as string) of the inline link item, may be <code>null
+   *     </code> or empty, in which case it is assumed that it is not available and the method looks
+   *     up the promotable versions without using relationship id.
+   * @param inlineLinkRelData inline link relationship data for the parent item. This can be built
+   *     using the static method {@link
+   *     PSSingleValueBuilder#buildRelationshipData(IPSRequestContext, PSLocator)}. Must not be
+   *     <code>null</code>.
+   * @return the correct contentid as string. <code>null</code> if not found one.
+   * @throws PSCmsException if error occurs during finding the correct version of the inline item.
    */
   public static String getCorrectedContentId(
       IPSRequestContext request,
@@ -1161,15 +1131,14 @@ public class PSSingleValueBuilder extends PSDisplayFieldBuilder
   }
 
   /**
-   * Helper method to build a list of locator of promotable versions for an
-   * item with specified contentid. Walks throw all promotable version
-   * category relationships to generate the list. Only relationships with the NewCopy
-   * relationship type will be included.
+   * Helper method to build a list of locator of promotable versions for an item with specified
+   * contentid. Walks throw all promotable version category relationships to generate the list. Only
+   * relationships with the NewCopy relationship type will be included.
+   *
    * @param contentid contentid of the item to get the versions' locator list.
-   * @param request request context to making internal request to get
-   * promotable versions of an item.
-   * @return List of locators all promotable versions of the item with
-   * contentid supplied.
+   * @param request request context to making internal request to get promotable versions of an
+   *     item.
+   * @return List of locators all promotable versions of the item with contentid supplied.
    */
   private static List<PSLocator> getPromotedIdList(Integer contentid, IPSRequestContext request)
       throws PSCmsException {
@@ -1188,43 +1157,36 @@ public class PSSingleValueBuilder extends PSDisplayFieldBuilder
   }
 
   /**
-   * Utility method to replace the variant by requesting the latest output from
-   * the given parameters.
+   * Utility method to replace the variant by requesting the latest output from the given
+   * parameters.
    *
-   * @param pssessionid The session id, assume not <code>null</code> or
-   *    empty.
+   * @param pssessionid The session id, assume not <code>null</code> or empty.
    * @param contentid The content id, assume not <code>null</code> or empty.
    * @param variantid The variant id, assume not <code>null</code> or empty.
-   * @param rxselectedtext The selected text, it may be the attribute
-   *    of <code>PSInlineLinkField.RX_INLINESLOT</code> of an element.
-   *    It may be <code>null</code> or empty.
-   * @param inlinetype The inline type, it may be the attribute of
-   *    <code>PSInlineLinkField.RX_INLINETYPE</code> of an element.
-   *    Assume not <code>null</code> or empty.
-   * @param relationshipid The relationship id, it may be the attribute of
-   *    <code>IPSHtmlParameters.SYS_RELATIONSHIPID</code> of an element.
-   *    Assume not <code>null</code> or empty.
-   * @param authtype The authtype, it may be the attribute of
-   *    <code>IPSHtmlParameters.SYS_AUTHTYPE</code> of an element.
-   *    Assume not <code>null</code> or empty.
-   * @param context The authtype, it may be the attribute of
-   *    <code>IPSHtmlParameters.SYS_CONTEXT</code> of an element.
-   *    Assume not <code>null</code> or empty.
-   * @param siteid The site id, it may be the attribute of
-   *    <code>IPSHtmlParameters.SYS_SITEID</code> of an element.
-   *    It may be <code>null</code> or empty if not defined.
-   * @param folderid item's parent folderid, may be <code>null</code> in which
-   *    case the request to the variant will not have the folderid.
-   * @param originalsiteid original siteid, may be <code>null</code> in which
-   *    case the request to the variant will not have the original siteid.
-   * @param elem Variant output element which needs to be replaced if it is
-   *    not <code>null</code>.
+   * @param rxselectedtext The selected text, it may be the attribute of <code>
+   *     PSInlineLinkField.RX_INLINESLOT</code> of an element. It may be <code>null</code> or empty.
+   * @param inlinetype The inline type, it may be the attribute of <code>
+   *     PSInlineLinkField.RX_INLINETYPE</code> of an element. Assume not <code>null</code> or
+   *     empty.
+   * @param relationshipid The relationship id, it may be the attribute of <code>
+   *     IPSHtmlParameters.SYS_RELATIONSHIPID</code> of an element. Assume not <code>null</code> or
+   *     empty.
+   * @param authtype The authtype, it may be the attribute of <code>IPSHtmlParameters.SYS_AUTHTYPE
+   *     </code> of an element. Assume not <code>null</code> or empty.
+   * @param context The authtype, it may be the attribute of <code>IPSHtmlParameters.SYS_CONTEXT
+   *     </code> of an element. Assume not <code>null</code> or empty.
+   * @param siteid The site id, it may be the attribute of <code>IPSHtmlParameters.SYS_SITEID</code>
+   *     of an element. It may be <code>null</code> or empty if not defined.
+   * @param folderid item's parent folderid, may be <code>null</code> in which case the request to
+   *     the variant will not have the folderid.
+   * @param originalsiteid original siteid, may be <code>null</code> in which case the request to
+   *     the variant will not have the original siteid.
+   * @param elem Variant output element which needs to be replaced if it is not <code>null</code>.
    * @param request IPSRequestContext Object assumed not null.
-   * @return The element which contains the latest output of the specified
-   *    variant. It may be <code>null</code> if an error occurs.
-   * @throws PSCmsException if it is not able to fix last public revision
-   *    in the URL that the elem holds.
-   *
+   * @return The element which contains the latest output of the specified variant. It may be <code>
+   *     null</code> if an error occurs.
+   * @throws PSCmsException if it is not able to fix last public revision in the URL that the elem
+   *     holds.
    */
   private static Element replaceVariant(
       String pssessionid,
@@ -1434,23 +1396,18 @@ public class PSSingleValueBuilder extends PSDisplayFieldBuilder
   }
 
   /**
-   * Decodes the supplied selectedText using
-   * <code>Codecs.URLDecode(text)</code>. Extracted this code into a
-   * separate method so that both editor and assembly uses the same code to
-   * decode the selected text.
-   * The selected text needs to be decoded as the
-   * original text has been "escaped()" by the Java-Script on the client
-   * (browser).
-   * <br/>
-   * However, Codecs.URLDecode() only works with single byte characters it
-   * doesn't work with multibyte characters. This is fine in this specific
-   * situation, because we are expecting the (client) Java-Script will convert
-   * multibyte characters to numeric character reference (in the format of
-   * "&#D;", "&#XH" or "&#xH"), where "D" is decimal numeric, "H" is hex numeric
-   * value.
+   * Decodes the supplied selectedText using <code>Codecs.URLDecode(text)</code>. Extracted this
+   * code into a separate method so that both editor and assembly uses the same code to decode the
+   * selected text. The selected text needs to be decoded as the original text has been "escaped()"
+   * by the Java-Script on the client (browser). <br>
+   * However, Codecs.URLDecode() only works with single byte characters it doesn't work with
+   * multibyte characters. This is fine in this specific situation, because we are expecting the
+   * (client) Java-Script will convert multibyte characters to numeric character reference (in the
+   * format of "&amp;#D;", "&amp;#XH" or "&amp;#xH"), where "D" is decimal numeric, "H" is hex
+   * numeric value.
    *
-   * @param selectedText The text that needs to be decoded, if
-   *           <code>null</code> or empty returns empty String.
+   * @param selectedText The text that needs to be decoded, if <code>null</code> or empty returns
+   *     empty String.
    * @return String Decoded string or empty String. Never <code>null</code>.
    */
   public static String decodeSelectedText(String selectedText) {
@@ -1465,11 +1422,10 @@ public class PSSingleValueBuilder extends PSDisplayFieldBuilder
   }
 
   /**
-   * Utility method to add the non-selectable and non-editable attributes all
-   * the element nodes in a document recursively.
+   * Utility method to add the non-selectable and non-editable attributes all the element nodes in a
+   * document recursively.
    *
-   * @param elem root Element of the document. If <code>null</code> no
-   * attributes will be added.
+   * @param elem root Element of the document. If <code>null</code> no attributes will be added.
    */
   private static void addReadOnlyAttributes(Element elem) {
     if (elem != null) {
@@ -1491,26 +1447,16 @@ public class PSSingleValueBuilder extends PSDisplayFieldBuilder
     }
   }
 
-  /**
-   * The runtime representation of the DefaultValue, if there is one. May be
-   * <code>null</code>.
-   */
+  /** The runtime representation of the DefaultValue, if there is one. May be <code>null</code>. */
   private IPSDataExtractor m_defExtractor;
 
-  /**
-   * The runtime representation of the data value. May be <code>null</code>.
-   */
+  /** The runtime representation of the data value. May be <code>null</code>. */
   private IPSDataExtractor m_extractor;
 
-  /**
-   * The resource to get the variant url, never
-   * <code>null</code>.
-   */
+  /** The resource to get the variant url, never <code>null</code>. */
   private static final String VARIANTURL = "sys_ceInlineSearch/varianturl";
 
-  /**
-   * The values of inline link types.
-   */
+  /** The values of inline link types. */
   private static final String RX_INLINETYPE_HYPERLINK = "hyperlink";
 
   private static final String RX_INLINETYPE_IMAGE = "image";
@@ -1518,50 +1464,33 @@ public class PSSingleValueBuilder extends PSDisplayFieldBuilder
   private static final String RX_INLINETYPE_RXHYPERLINK = "rxhyperlink";
   private static final String RX_INLINETYPE_RXIMAGE = "rximage";
 
-  /**
-   * Attribute name to represent the selected text.
-   */
+  /** Attribute name to represent the selected text. */
   public static final String INLINE_TEXT = "inlinetext";
 
-  /**
-   * Html element name body.
-   */
+  /** Html element name body. */
   private static final String ELEM_BODY = "body";
 
-  /**
-   * Attribute name to represent the anchor text.
-   * Does not include the leading hash.
-   */
+  /** Attribute name to represent the anchor text. Does not include the leading hash. */
   public static String ANCHOR_TEXT = "anchortext";
 
-  /**
-   * Attribute name that holds preview url
-   */
+  /** Attribute name that holds preview url */
   private static String ATTR_PREVEWURL = "previewurl";
 
-  /**
-   * Attribute name to make html elements non editable
-   */
+  /** Attribute name to make html elements non editable */
   private static String CONTENT_EDITABLE = "contenteditable";
 
-  /**
-   * Value of content editable attribute to make it non editable
-   */
+  /** Value of content editable attribute to make it non editable */
   private static final String CONTENT_EDITABLE_FALSE = "false";
 
-  /**
-   * Attribute name to make html elements non-selectable
-   */
+  /** Attribute name to make html elements non-selectable */
   private static final String UN_SELECTABLE = "unselectable";
 
-  /**
-   * Value of unselectable attribute to make it non-selectable
-   */
+  /** Value of unselectable attribute to make it non-selectable */
   private static final String UN_SELECTABLE_ON = "on";
 
   /**
-   * List of tags that cannot contain "contenteditable" or "unselectable"
-   * attributes, i.e. the read only attributes.
+   * List of tags that cannot contain "contenteditable" or "unselectable" attributes, i.e. the read
+   * only attributes.
    */
   private static List<String> ms_noReadOnlyAttribs = new ArrayList<>();
 
@@ -1572,8 +1501,8 @@ public class PSSingleValueBuilder extends PSDisplayFieldBuilder
   }
 
   /**
-   * Constant that defines the one of the possible values for sys_authtype
-   * HTML parameter. It means all content.
+   * Constant that defines the one of the possible values for sys_authtype HTML parameter. It means
+   * all content.
    */
   private static final String AUTHTYPE_ALL = "0";
 }

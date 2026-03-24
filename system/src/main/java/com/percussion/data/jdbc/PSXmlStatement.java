@@ -271,7 +271,7 @@ public class PSXmlStatement extends PSFileSystemStatement {
    * getMoreResults moves to a Statement's next result. It returns <code>true</code> if this result
    * is a ResultSet. getMoreResults also implicitly closes any current ResultSet obtained with
    * getResultSet. There are no more results when <code>
-   * (!getMoreResults() && (getUpdateCount() == -1)</code>
+   * (!getMoreResults() &amp;&amp; (getUpdateCount() == -1))</code>
    *
    * @return <code>true</code> if the next result is a ResultSet; false if it is an update count or
    *     there are no more results more results
@@ -316,7 +316,7 @@ public class PSXmlStatement extends PSFileSystemStatement {
    * default value is zero.
    *
    * @param rows the number of rows to fetch
-   * @exception SQLException if a database access error occurs, or the condition 0 <= rows <=
+   * @throws SQLException if a database access error occurs, or the condition 0 &lt;= rows &lt;=
    *     this.getMaxRows() is not satisfied.
    */
   public void setFetchSize(int rows) throws SQLException {}

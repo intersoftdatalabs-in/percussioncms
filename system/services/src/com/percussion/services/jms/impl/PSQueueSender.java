@@ -295,23 +295,21 @@ public class PSQueueSender implements IPSQueueSender
       m_connectionFactory = factory;
    }
 
-   /**
-    * Gets the message Queue.
-    * @return the message queue, never <code>null</code>.
-    * @throws NamingException if failed to find the message queue by the
-    *    JNDI name.
-    */
-   public Queue getDestination()
+    /**
+     * Gets the message Queue.
+     * @return the message queue, never <code>null</code>.
+     */
+    public Queue getDestination()
    {
       return m_queue;
    }
 
-   /**
-    * Sets the property of JNDI name that references to a point to point queue.
-    * @param jndiName the new JNDI name of the queue, must not be
-    *    <code>null</code> or empty.
-    */
-   public void setDestination(Queue q)
+    /**
+     * Sets the property of JNDI name that references to a point to point queue.
+     * @param q the new queue, must not be
+     *    <code>null</code>.
+     */
+    public void setDestination(Queue q)
    {
       if (q == null)
          throw new IllegalArgumentException("q must not be null.");

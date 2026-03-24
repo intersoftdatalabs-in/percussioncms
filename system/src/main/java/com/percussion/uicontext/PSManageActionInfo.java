@@ -161,14 +161,13 @@ public class PSManageActionInfo {
   /**
    * Loads the specified actions from the repository.
    *
-   * @param proc The processor to use, may not be <code>null</code>.
-   * @param ids An array of action ids, may not be <code>null</code> or empty. Additionally, no
-   *     element may be empty.
-   * @return The actions, may be empty, but never null. Specific elements may be <code>null</code>
-   *     if the corresponding action isn't found or the action does not meet the leaf state passed.
+   * @param proc The processor to use, may not be null.
+   * @param ids An array of action ids, may not be null or empty. Additionally, no element may be
+   *     empty.
+   * @return The actions, may be empty, but never null. Specific elements may be null if the
+   *     corresponding action isn't found or the action does not meet the leaf state passed.
    * @throws PSException if there is a problem with loading the action elements.
    * @throws IllegalArgumentException if any param is invalid.
-   * @throws PSDeployException if there are any errors.
    */
   protected PSAction[] loadActions(PSComponentProcessorProxy proc, String ids[])
       throws PSException {

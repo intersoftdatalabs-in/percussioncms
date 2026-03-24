@@ -32,7 +32,6 @@ public class PSTraceBasicRequest extends PSTraceMessage {
    * This is the constructor for this class
    *
    * @param typeFlag the type of trace message this object will generate
-   * @roseuid 39FDD07503B9
    */
   public PSTraceBasicRequest(int typeFlag) {
     super(typeFlag);
@@ -49,7 +48,6 @@ public class PSTraceBasicRequest extends PSTraceMessage {
    *
    * @param source a PSRequest object containing the information required for the trace message
    * @return the message body
-   * @roseuid 39FEE2F20167
    */
   protected String getMessageBody(Object source) {
     StringBuilder buf = new StringBuilder();

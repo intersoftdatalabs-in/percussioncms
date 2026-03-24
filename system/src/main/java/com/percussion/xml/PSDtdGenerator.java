@@ -175,7 +175,6 @@ public class PSDtdGenerator {
    * </ul>
    *
    * @param exemplar A representative document.
-   * @return PSDtdTree a DTD to which the given document will confirm.
    */
   public void generateDtd(Document exemplar) {
     generateDtd(new Document[] {exemplar});
@@ -186,8 +185,7 @@ public class PSDtdGenerator {
    * restrictive as possible. All documents in the array must have a root element with the same
    * name.
    *
-   * @param exemplar An array of representative documents.
-   * @return PSDtdTree a DTD to which the given document will confirm.
+   * @param exemplars An array of representative documents.
    * @see #generateDtd(Document)
    */
   public void generateDtd(Document[] exemplars) {

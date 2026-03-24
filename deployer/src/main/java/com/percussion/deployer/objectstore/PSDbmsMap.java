@@ -91,7 +91,7 @@ public class PSDbmsMap implements IPSDeployComponent {
 
   /**
    * Removes the supplied <code>PSDbmsMapping</code> object if it exists in the map. Uses {@link
-   * #getMapping(PSDbmsInfo) getMapping(sourceInfo)} for checking existance of mapping.
+   * #getMapping(String) getMapping(sourceInfo)} for checking existance of mapping.
    *
    * @param mapping The <code>PSDbmsMapping</code> object to be removed, may not be <code>null
    *     </code>

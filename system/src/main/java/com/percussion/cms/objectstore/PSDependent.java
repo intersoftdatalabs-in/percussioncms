@@ -57,11 +57,10 @@ public class PSDependent extends PSCmsComponent {
    * Creates an instance from a previously serialized (using <code>toXml
    * </code>) one.
    *
-   * @param source a valid element that meets the dtd defined in the
-   *    description of {@link #toXml(Document)}. Never <code>null</code>.
-   *
-   * @throws PSUnknownNodeTypeException if the supplied source element does
-   *    not conform to the DTD defined in the <code>fromXml<code> method.
+   * @param source a valid element that meets the dtd defined in the description of {@link
+   *     #toXml(Document)}. Never <code>null</code>.
+   * @throws PSUnknownNodeTypeException if the supplied source element does not conform to the DTD
+   *     defined in the <code>fromXml</code> method.
    */
   public PSDependent(Element source) throws PSUnknownNodeTypeException {
     fromXml(source, null, null);
@@ -156,8 +155,8 @@ public class PSDependent extends PSCmsComponent {
    * will conform to the following DTD:
    *
    * <pre>
-   * <!ELEMENT PSXDependent (PSXLocator, PSXPropertySet?)>
-   * <ATTRIBUTE PSXDependent relationshipId>
+   * {@code <!ELEMENT PSXDependent (PSXLocator, PSXPropertySet?)>}
+   * {@code <ATTRIBUTE PSXDependent relationshipId>}
    * </pre>
    *
    * @see IPSComponent for additional information.
@@ -178,8 +177,8 @@ public class PSDependent extends PSCmsComponent {
    * Constructs a new object from its XML representation. The DTD expected is:
    *
    * <pre>
-   * <!ELEMENT PSXDependent (PSXLocator, PSXPropertySet?)>
-   * <ATTRIBUTE PSXDependent relationshipId>
+   * {@code <!ELEMENT PSXDependent (PSXLocator, PSXPropertySet?)>}
+   * {@code <ATTRIBUTE PSXDependent relationshipId>}
    * </pre>
    *
    * @see IPSComponent for additional information.

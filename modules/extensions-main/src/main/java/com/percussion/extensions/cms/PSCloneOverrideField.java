@@ -37,7 +37,7 @@ import org.w3c.dom.Text;
  *
  * <ul>
  *   <li>First parameter is the name of the Rhythmyx resource that generates the field value to be
- *       overridden. This has a syntax of ../<rxApp>/ <resource>.cml
+ *       overridden. This has a syntax of ../<code>rxApp</code>/ <code>resource</code>.cml
  *   <li>Second parameter is the exact name of the element that contains the child node as the value
  *       of the field to oevrride. If there are more than one sch elements, only the first one is
  *       considered

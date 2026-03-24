@@ -155,10 +155,10 @@ public class PSDatabaseFunctionDefParam implements Cloneable {
    * specified object. This method excludes the type and description from the comparison.
    *
    * @param obj the object with which to compare this object, may not be <code>null</code>
-   * @return <false> if the specified object is not an instance of this class. <code>true</code> if
-   *     the name and staticBind property value of this object matches that of the specified object,
-   *     <code>false</code> otherwise
-   * @throws IllegalArgumentException if <code>obj</code> is <code>null</code>
+   * @return false if the specified object is not an instance of this class. true if the name and
+   *     staticBind property value of this object matches that of the specified object, false
+   *     otherwise
+   * @throws IllegalArgumentException if obj is null
    * @see equalsFull(Object)
    */
   public boolean equals(Object obj) {
@@ -180,10 +180,10 @@ public class PSDatabaseFunctionDefParam implements Cloneable {
    * (case-sensitive) of this object with the specified object.
    *
    * @param obj the object with which to compare this object, may not be <code>null</code>
-   * @return <false> if the specified object is not an instance of this class. <code>true</code> if
-   *     the name, type, description and staticBind property value of this object matches that of
-   *     the specified object, <code>false</code> otherwise.
-   * @throws IllegalArgumentException if <code>obj</code> is <code>null</code>
+   * @return false if the specified object is not an instance of this class. true if the name, type,
+   *     description and staticBind property value of this object matches that of the specified
+   *     object, false otherwise.
+   * @throws IllegalArgumentException if obj is null
    * @see equals(Object)
    */
   public boolean equalsFull(Object obj) {

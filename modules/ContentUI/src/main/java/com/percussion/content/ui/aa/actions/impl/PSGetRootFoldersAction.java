@@ -33,10 +33,6 @@ import java.util.Map;
  * <ul>
  *   <li>None - uses the request context to determine user and permissions
  * </ul>
- *
- * @param params a map of action parameters (unused, user context is derived from request)
- * @return an {@link PSActionResponse} containing the root folders as JSON
- * @throws PSAAClientActionException if the root folders cannot be retrieved
  */
 public class PSGetRootFoldersAction extends PSAAActionBase {
 

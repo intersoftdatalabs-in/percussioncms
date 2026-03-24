@@ -73,11 +73,11 @@ public interface ImagePersistenceManager {
 
   /**
    * Validates that the sysTitle will be valid in the given folder.
+   *
    * @param sysTitle the proposed new title
    * @param folderId the folder id.
-   * @return <code>true</code> if the title will be valid,
-   * <code>false</code otherwise.
-   * @throws Exception
+   * @return true if the title will be valid, false otherwise.
+   * @throws Exception if an error occurs
    */
   public boolean validateSystemTitleUnique(String sysTitle, String folderId) throws Exception;
 }

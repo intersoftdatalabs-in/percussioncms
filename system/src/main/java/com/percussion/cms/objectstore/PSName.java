@@ -134,9 +134,7 @@ public class PSName extends PSDbComponent {
     return true;
   }
 
-  /**
-   * Generates code of the object. Overrides {@link Object#hashCode().
-   */
+  /** Generates code of the object. */
   @Override
   public int hashCode() {
     return super.hashCode();

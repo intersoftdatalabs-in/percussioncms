@@ -133,10 +133,10 @@ public class PSDatabaseFunctionsColl {
    * com.percussion.extension.PSDatabaseFunction#equals(Object)}
    *
    * @param obj the object with which to compare this object, may not be <code>null</code>
-   * @return <false> if the specified object is not an instance of this class. <code>true</code> if
-   *     this object and the contained <code>PSDatabaseFunction</code> objects match that of the
-   *     specified object, <code>false</code> otherwise.
-   * @throws IllegalArgumentException if <code>obj</code> is <code>null</code>
+   * @return false if the specified object is not an instance of this class. true if this object and
+   *     the contained PSDatabaseFunction objects match that of the specified object, false
+   *     otherwise.
+   * @throws IllegalArgumentException if obj is null
    * @see equalsFull(Object)
    */
   public boolean equals(Object obj) {
@@ -158,10 +158,10 @@ public class PSDatabaseFunctionsColl {
    * com.percussion.extension.PSDatabaseFunction#equalsFull(Object)}
    *
    * @param obj the object with which to compare this object, may not be <code>null</code>
-   * @return <false> if the specified object is not an instance of this class. <code>true</code> if
-   *     this object and the contained <code>PSDatabaseFunction</code> objects match that of the
-   *     specified object, <code>false</code> otherwise.
-   * @throws IllegalArgumentException if <code>obj</code> is <code>null</code>
+   * @return false if the specified object is not an instance of this class. true if this object and
+   *     the contained PSDatabaseFunction objects match that of the specified object, false
+   *     otherwise.
+   * @throws IllegalArgumentException if obj is null
    * @see equals(Object)
    */
   public boolean equalsFull(Object obj) {
@@ -274,11 +274,10 @@ public class PSDatabaseFunctionsColl {
    * specified database function for various drivers. The database function name is
    * case-insensitive.
    *
-   * @param the name of the database function, may not be <code>null</code> or empty
+   * @param dbFuncName the name of the database function, may not be null or empty
    * @return the object containing the implementation of the specified database function for
-   *     different databases, may be <code>null</code> if this collection does not contain the
-   *     specified function
-   * @throws IllegalArgumentException if <code>dbFuncName</code> is <code>null</code> or empty
+   *     different databases, may be null if this collection does not contain the specified function
+   * @throws IllegalArgumentException if dbFuncName is null or empty
    */
   public PSDatabaseFunction getDatabaseFunction(String dbFuncName) {
     if ((dbFuncName == null) || (dbFuncName.trim().length() < 1))
@@ -290,13 +289,12 @@ public class PSDatabaseFunctionsColl {
    * Convenience method for getting the database function definition for the specified function name
    * (case-insensitive) and driver (case-insensitive).
    *
-   * @param the name of the database function, may not be <code>null</code> or empty
+   * @param dbFuncName the name of the database function, may not be null or empty
    * @param driver type of driver for which the database function definition is to be obtained, may
-   *     not be <code>null</code> or empty
-   * @return the database function definition, may be <code>null</code> if the database function
-   *     definition does not exist
-   * @throws IllegalArgumentException if <code>dbFuncName</code> or <code>driver</code> is <code>
-   *     null</code> or empty
+   *     not be null or empty
+   * @return the database function definition, may be null if the database function definition does
+   *     not exist
+   * @throws IllegalArgumentException if dbFuncName or driver is null or empty
    */
   public PSDatabaseFunctionDef getDatabaseFunctionDef(String dbFuncName, String driver) {
     if ((dbFuncName == null) || (dbFuncName.trim().length() < 1))

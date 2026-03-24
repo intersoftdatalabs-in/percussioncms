@@ -32,7 +32,7 @@ import com.percussion.server.IPSRequestContext;
  * {%sysworkflowid%}_{%syscontentid%} -> use this extension to combine fields
  * </pre>
  *
- * @extends PSSimpleJavaUdfExtension
+ * @see PSSimpleJavaUdfExtension
  */
 public class PSSuperConcat extends PSSimpleJavaUdfExtension {
 

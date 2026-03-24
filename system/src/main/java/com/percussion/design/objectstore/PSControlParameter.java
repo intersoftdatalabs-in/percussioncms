@@ -114,7 +114,6 @@ public class PSControlParameter extends PSComponent {
    * </code></pre>
    *
    * @return the newly created XML element node
-   * @todo write choicelists back
    */
   public Element toXml(Document doc) {
     Element root = doc.createElement(XML_NODE_NAME);

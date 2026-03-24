@@ -413,11 +413,10 @@ public class PSUserSessionManager extends Thread implements IPSServerConfigurati
   }
 
   /**
-   * This initializes/resets all settings from the provided server
-   * configuration to its local settings. If <code>null</code> is provided
-   * the defaults are set.
+   * This initializes/resets all settings from the provided server configuration to its local
+   * settings. If <code>null</code> is provided the defaults are set.
    *
-   * @param config the server configuration, may be <code>null</null>
+   * @param config the server configuration, may be <code>null</code>
    */
   private static void fromServerConfiguration(PSServerConfiguration config) {
     if (config == null) {

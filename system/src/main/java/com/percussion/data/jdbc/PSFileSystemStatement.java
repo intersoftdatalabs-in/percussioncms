@@ -95,9 +95,9 @@ public class PSFileSystemStatement implements Statement {
    *     SearchCondition</code> to check that at least one of the conditions is met. Supported
    *       search operators are:
    *       <ul>
-   *         <li>=, >, >=, <, <= - standard operators to test equality, etc. such as length <= 1024
-   *             to check for files which are no larger than 1K. These operations are supported
-   *             against character, time/date and integer fields.
+   *         <li>=, &gt;, &gt;=, &lt;, &lt;= - standard operators to test equality, etc. such as
+   *             length &lt;= 1024 to check for files which are no larger than 1K. These operations
+   *             are supported against character, time/date and integer fields.
    *         <li>LIKE - perform character string pattern matching, following SQL string rules.
    *             Namely, it must be surrounded by single quotes, % is the wildcard character and the
    *             string comparison is case sensitive. This option is only supported against the
@@ -322,7 +322,7 @@ public class PSFileSystemStatement implements Statement {
    * getMoreResults moves to a Statement's next result. It returns <code>true</code> if this result
    * is a ResultSet. getMoreResults also implicitly closes any current ResultSet obtained with
    * getResultSet. There are no more results when <code>
-   * (!getMoreResults() && (getUpdateCount() == -1)</code>
+   * (!getMoreResults() &amp;&amp; (getUpdateCount() == -1)</code>
    *
    * @return <code>true</code> if the next result is a ResultSet; false if it is an update count or
    *     there are no more results
@@ -367,7 +367,7 @@ public class PSFileSystemStatement implements Statement {
    * default value is zero.
    *
    * @param rows the number of rows to fetch
-   * @exception SQLException if a database access error occurs, or the condition 0 <= rows <=
+   * @exception SQLException if a database access error occurs, or the condition 0 &lt;= rows &lt;=
    *     this.getMaxRows() is not satisfied.
    */
   public void setFetchSize(int rows) throws SQLException {}

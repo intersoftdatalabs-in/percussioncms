@@ -450,7 +450,7 @@ public class PSWebdavConfigDef extends PSWebdavComponent
     * A field name
     * --&gt;
     * &lt;!ELEMENT FieldName (#PCDATA)&gt;
-    *</pre></p>
+    * </pre>
     * @param src xml source element, cannot be <code>null</code>.
     */
    public void fromXml(Element src) throws PSWebdavException,

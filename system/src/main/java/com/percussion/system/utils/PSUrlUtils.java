@@ -37,7 +37,7 @@ public class PSUrlUtils {
   /**
    * Builds a URL from its parts. The parts are combined in this way:
    *
-   * <p>base?p1=v1&p2=v2#anchor
+   * <p>base?p1=v1&amp;p2=v2#anchor
    *
    * <p>where pN is the Nth parameter and vN is the Nth value
    *
@@ -241,6 +241,7 @@ public class PSUrlUtils {
    *     <p>The table below shows the resulting protocol from various combinations of parameter
    *     values.
    *     <table border="1">
+   * <caption>Protocol Selection Table</caption>
    * <tr>
    * <th><code>allowHttps</code></th><th>Original Request Protocol</th><th>
    *    <code>partialUrl</code> protocol</th><th>Resulting protocol</th>

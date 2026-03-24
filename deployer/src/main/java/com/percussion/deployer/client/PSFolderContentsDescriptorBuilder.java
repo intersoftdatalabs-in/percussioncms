@@ -144,11 +144,10 @@ public class PSFolderContentsDescriptorBuilder {
   }
 
   /**
-   * Gets the set of dependencies that have been excluded during the folder
-   * tree traversal.
+   * Gets the set of dependencies that have been excluded during the folder tree traversal.
    *
-   * @return set of <code>String</code>, each representing the key of a
-   *         <code>PSDependency<code>; never <code>null</code>, may be empty.
+   * @return set of <code>String</code>, each representing the key of a <code>PSDependency</code>;
+   *     never <code>null</code>, may be empty.
    */
   public Set getExcludedDependencies() {
     return m_excludedDependencies;

@@ -100,9 +100,6 @@ public class PSRuleListEvaluator {
    * @param data the execution data the evaluator will be applied to. The row data will be obtained
    *     by calling getCurrentResultRowData() on this parameter.
    * @return <code>true</code> if the conditional criteria is met, <code>false</code> otherwise.
-   * @throws PSEvaluationException if a data extraction or conversion exception occurs (for
-   *     extension-based rules) or if a evaluation exception occurs in the underlying base class
-   *     (for conditional-based rules).
    */
   public boolean isMatch(PSExecutionData data) {
     // no evaluators evaluate to true

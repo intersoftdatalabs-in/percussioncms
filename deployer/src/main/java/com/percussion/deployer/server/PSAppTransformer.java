@@ -2252,13 +2252,17 @@ public class PSAppTransformer {
   }
 
   /**
-   * Problem: You can have a binding<name,expression> pair like this: SAMPLE BINDING: name="",
-   * expression=$myfuncs.foo.bar("301", "301","301") bindings from the template is a <code>
-   * <b>List</b></code> of PSJexlBinding based with the following attrs:
-   * <LI><code><b>index</b></code> of the binding
-   * <LI><code><b>name</b></code> of the binding
-   * <LI><code><b>expression</b></code> for the binding The problem is replacing the nth occurence
-   *     of id "301". Solution:
+   * Problem: You can have a binding&lt;name,expression&gt; pair like this: SAMPLE BINDING: name="",
+   * expression=$myfuncs.foo.bar("301", "301","301") bindings from the template is a <code>List
+   * </code> of PSJexlBinding based with the following attrs:
+   *
+   * <ul>
+   *   <li><code>index</code> of the binding
+   *   <li><code>name</code> of the binding
+   *   <li><code>expression</code> for the binding
+   * </ul>
+   *
+   * The problem is replacing the nth occurence of id "301". Solution:
    *
    * @param mapping The mapping to use for the transformation, may not be <code>null</code>, must
    *     contain a context appropriate for this method.
@@ -2300,10 +2304,13 @@ public class PSAppTransformer {
 
   /**
    * updates the binding for the correct parameter based on :
-   * <li>index
-   * <li>occurence of the parameter in the original exp. If more than one time, then figure out the
-   *     earlier occurence of this id. This id has already been replaced with a new value. Get this
-   *     new value and iterate until you find the <code>occurence</code> value.
+   *
+   * <ul>
+   *   <li>index
+   *   <li>occurence of the parameter in the original exp. If more than one time, then figure out
+   *       the earlier occurence of this id. This id has already been replaced with a new value. Get
+   *       this new value and iterate until you find the <code>occurence</code> value.
+   * </ul>
    *
    * @param binding the jexl binding never <code>null</code>
    * @param mapping The mapping to use for the transformation, may not be <code>null</code>, must

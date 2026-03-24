@@ -42,10 +42,10 @@ public class PSConditionalSet extends PSCollection {
   }
 
   /**
-   * Set the maximum <code>toString()</code> display length.
-   * The {@link #m_maxLength) member is modified.
-   * @param length the maximum display length
-   * for toString
+   * Set the maximum <code>toString()</code> display length. The {@link #m_maxLength} member is
+   * modified.
+   *
+   * @param length the maximum display length for toString
    */
   public void setMaxDisplayLength(int length) {
     m_maxLength = length;
@@ -55,7 +55,6 @@ public class PSConditionalSet extends PSCollection {
    * Takes the collection of PSConditional objects and merges them together as a string for display
    * adding parens if needed. The string will be truncated to m_maxLength which defaults to 42.
    *
-   * @param coll the PSCollection of PSConditional objects. Can be <code>null</code>. *
    * @return a String representing the collection of conditionals for display. May be empty.
    */
   public String toString() {

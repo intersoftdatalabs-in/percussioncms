@@ -99,11 +99,10 @@ public class PSItemDefSummary extends PSCmsComponent implements IPSCatalogSummar
    * Creates an instance from a previously serialized (using <code>toXml
    * </code>) one.
    *
-   * @param source A valid element that meets the dtd defined in the
-   *    description of {@link #toXml(Document)}. Never <code>null</code>.
-   *
-   * @throws PSUnknownNodeTypeException If the supplied source element does
-   *    not conform to the dtd defined in the <code>fromXml<code> method.
+   * @param source A valid element that meets the dtd defined in the description of {@link
+   *     #toXml(Document)}. Never <code>null</code>.
+   * @throws PSUnknownNodeTypeException If the supplied source element does not conform to the dtd
+   *     defined in the <code>fromXml</code> method.
    */
   public PSItemDefSummary(Element source) throws PSUnknownNodeTypeException {
     fromXml(source, null, null);
@@ -219,13 +218,13 @@ public class PSItemDefSummary extends PSCmsComponent implements IPSCatalogSummar
    * will conform to the following dtd:
    *
    * <pre>
-   * <ELEMENT PSXItemDefSummary (Description?)>
-   * <ATTLIST PSXItemDefSummary
+   * &lt;ELEMENT PSXItemDefSummary (Description?)&gt;
+   * &lt;ATTLIST PSXItemDefSummary
    *    id       CDATA #REQUIRED
    *    name     CDATA #REQUIRED
    *    typeId   CDATA #REQUIRED
-   *    >
-   * <ELEMENT Description (#PCDATA)>
+   *    &gt;
+   * &lt;ELEMENT Description (#PCDATA)&gt;
    * </pre>
    *
    * @param doc Used to generate the element. Never <code>null</code>.

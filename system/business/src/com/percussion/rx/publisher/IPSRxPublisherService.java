@@ -106,8 +106,8 @@ public interface IPSRxPublisherService
     * If the edition is already running, the items are queued and will be
     * published the next time the edition runs. The queue operation returns
     * an opaque identifier that can be used to query the status of the job. 
-    * The status is retained for a long period of time, {@link #REAP_TIME}, 
-    * and is then discarded.
+    * The status is retained for a long period of time, as defined by the REAP_TIME constant, 
+    * and then discarded.
     * <p>
     * The edition is checked to make sure it contains a single demand generator.
     * <p>
@@ -134,7 +134,7 @@ public interface IPSRxPublisherService
     * If the edition is already running, the items are queued and will be
     * published the next time the edition runs. The queue operation returns an
     * opaque identifier that can be used to query the status of the job. The
-    * status is retained for a long period of time, {@link #REAP_TIME}, and is
+    * status is retained for a long period of time, as defined by the REAP_TIME constant, and is
     * then discarded.
     * <p>
     * The edition is checked to make sure it contains the default demand
@@ -193,7 +193,7 @@ public interface IPSRxPublisherService
     * should be called by the publishing system implementation only. This method
     * also updates the publishing log data stored in the database. Data stored
     * for the log is held in memory and updated in clumps to provide adequate
-    * performance. It is important to call {@link #flushStatusToDatabase()} to
+    * performance. It is important to call the flushStatusToDatabase method to
     * complete the storage of log data.
     * 
     * @param status the status update, never <code>null</code>

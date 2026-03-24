@@ -145,10 +145,10 @@ public abstract class PSConsoleCommandSearchIndex extends PSConsoleCommand {
   }
 
   /**
-   * Called after the {@link #doExecute(PSRequest, int[])} method has finished.
+   * Called after the doExecute method has finished.
    *
-   * @return The error code to use in the response document. If not overridden, <code>
-   *     IPSServerErrors.RCONSOLE_SUCCESS</code> is returned.
+   * @return The error code to use in the response document. If not overridden,
+   *     IPSServerErrors.RCONSOLE_SUCCESS is returned.
    */
   protected int getResultCode() {
     return IPSServerErrors.RCONSOLE_CONTENT_TYPES_PROCESSED;
@@ -192,13 +192,13 @@ public abstract class PSConsoleCommandSearchIndex extends PSConsoleCommand {
   protected abstract String getCommandName();
 
   /**
-   * The {@link #execute(PSRequest)} method calls this method to do the work.
+   * The execute method calls this method to do the work.
    *
    * @param request The request passed into the <code>execute</code> method. May be <code>null
    *     </code>.
    * @param ids A set of ids as interpreted by the derived class.
-   * @return The ids that were actually processed. These values are then passed to the {@link
-   *     #getResultArgs()} method.
+   * @return The ids that were actually processed. These values are then passed to the getResultArgs
+   *     method.
    * @throws PSSearchException If the command cannot complete successfully.
    */
   protected abstract PSKey[] doExecute(PSRequest request, PSKey[] ids) throws PSSearchException;

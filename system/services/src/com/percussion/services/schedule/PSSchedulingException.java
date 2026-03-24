@@ -165,75 +165,82 @@ public class PSSchedulingException extends PSBaseException {
        * A scheduler error.
        * <p>
        * <TABLE BORDER="1">
+       * <caption>Error Arguments</caption>
        * <TR><TH>Argument</TH><TH>Description</TH></TR>
        * <TR><TD>0</TD><TD>The original exception message.</TD></TR>
        * </TABLE>
        */
-      SCHEDULER(1, "General scheduler error"),
+       SCHEDULER(1, "General scheduler error"),
 
-      /**
-       * A cron expression parsing error.
-       * <p>
-       * <TABLE BORDER="1">
-       * <TR><TH>Argument</TH><TH>Description</TH></TR>
-       * <TR><TD>0</TD><TD>The cron expression.</TD></TR>
-       * <TR><TD>1</TD><TD>The original exception message.</TD></TR>
-       * </TABLE>
-       */
-      CRON_FORMAT(2, "Invalid cron expression format"),
+       /**
+        * A cron expression parsing error.
+        * <p>
+        * <TABLE BORDER="1">
+        * <caption>Error Arguments</caption>
+        * <TR><TH>Argument</TH><TH>Description</TH></TR>
+        * <TR><TD>0</TD><TD>The cron expression.</TD></TR>
+        * <TR><TD>1</TD><TD>The original exception message.</TD></TR>
+        * </TABLE>
+        */
+       CRON_FORMAT(2, "Invalid cron expression format"),
 
-      /**
-       * Found a job object, but this object does not contain a job schedule.
-       * <p>
-       * <TABLE BORDER="1">
-       * <TR><TH>Argument</TH><TH>Description</TH></TR>
-       * <TR><TD>0</TD><TD>Schedule id.</TD></TR>
-       * </TABLE>
-       */
-      JOB_WITHOUT_SCHEDULE(3, "Job found without associated schedule"),
+       /**
+        * Found a job object, but this object does not contain a job schedule.
+        * <p>
+        * <TABLE BORDER="1">
+        * <caption>Error Arguments</caption>
+        * <TR><TH>Argument</TH><TH>Description</TH></TR>
+        * <TR><TD>0</TD><TD>Schedule id.</TD></TR>
+        * </TABLE>
+        */
+       JOB_WITHOUT_SCHEDULE(3, "Job found without associated schedule"),
 
       /**
        * Failed to run an Edition due to an exception.
        */
-      FAILED_RUN_EDITION(4, "Failed to run edition"),
+       FAILED_RUN_EDITION(4, "Failed to run edition"),
 
-      /**
-       * Failed to run a specified Edition due to an exception.
-       * <p>
-       * <TABLE BORDER="1">
-       * <TR><TH>Argument</TH><TH>Description</TH></TR>
-       * <TR><TD>0</TD><TD>Edition ID</TD></TR>
-       * <TR><TD>1</TD><TD>Edition name</TD></TR>
-       * <TR><TD>2</TD><TD>Underlying error message</TD></TR>
-       * </TABLE>
-       */
-      FAILED_RUN_SPECIFIED_EDITION(5, "Failed to run specified edition"),
+       /**
+        * Failed to run a specified Edition due to an exception.
+        * <p>
+        * <TABLE BORDER="1">
+        * <caption>Error Arguments</caption>
+        * <TR><TH>Argument</TH><TH>Description</TH></TR>
+        * <TR><TD>0</TD><TD>Edition ID</TD></TR>
+        * <TR><TD>1</TD><TD>Edition name</TD></TR>
+        * <TR><TD>2</TD><TD>Underlying error message</TD></TR>
+        * </TABLE>
+        */
+       FAILED_RUN_SPECIFIED_EDITION(5, "Failed to run specified edition"),
 
-      /**
-       * Failed to run a specified command.
-       * <p>
-       * <TABLE BORDER="1">
-       * <TR><TH>Argument</TH><TH>Description</TH></TR>
-       * <TR><TD>0</TD><TD>Command</TD></TR>
-       * </TABLE>
-       */
-      FAILED_RUN_COMMAND(6, "Failed to run command"),
+       /**
+        * Failed to run a specified command.
+        * <p>
+        * <TABLE BORDER="1">
+        * <caption>Error Arguments</caption>
+        * <TR><TH>Argument</TH><TH>Description</TH></TR>
+        * <TR><TD>0</TD><TD>Command</TD></TR>
+        * </TABLE>
+        */
+       FAILED_RUN_COMMAND(6, "Failed to run command"),
 
-      /**
-       * Failed to run a specified command with standard error text.
-       * <p>
-       * <TABLE BORDER="1">
-       * <TR><TH>Argument</TH><TH>Description</TH></TR>
-       * <TR><TD>0</TD><TD>Command</TD></TR>
-       * <TR><TD>1</TD><TD>Standard error text</TD></TR>
-       * </TABLE>
-       */
-      FAILED_RUN_COMMAND_WITH_STDERROR(7, "Failed to run command with stderr"),
+       /**
+        * Failed to run a specified command with standard error text.
+        * <p>
+        * <TABLE BORDER="1">
+        * <caption>Error Arguments</caption>
+        * <TR><TH>Argument</TH><TH>Description</TH></TR>
+        * <TR><TD>0</TD><TD>Command</TD></TR>
+        * <TR><TD>1</TD><TD>Standard error text</TD></TR>
+        * </TABLE>
+        */
+       FAILED_RUN_COMMAND_WITH_STDERROR(7, "Failed to run command with stderr"),
 
       /**
        * Edition canceled by user.
        * <p>
        * <TABLE BORDER="1">
+       * <caption>Error Arguments</caption>
        * <TR><TH>Argument</TH><TH>Description</TH></TR>
        * <TR><TD>0</TD><TD>Edition ID</TD></TR>
        * <TR><TD>1</TD><TD>Edition name</TD></TR>

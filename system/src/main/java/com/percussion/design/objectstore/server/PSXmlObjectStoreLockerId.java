@@ -38,7 +38,7 @@ public class PSXmlObjectStoreLockerId implements IPSLockerId {
    * @param userName The name of the user.
    * @param overrideSameUser A flag to indicate whether this user can acquire an existing lock if it
    *     is locked by the same user in a different session.
-   * @param The unique identifier for the session.
+   * @param sessionId The unique identifier for the session.
    */
   public PSXmlObjectStoreLockerId(String userName, boolean overrideSameUser, String sessionId) {
     m_userName = userName;

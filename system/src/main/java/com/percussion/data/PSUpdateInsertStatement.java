@@ -83,7 +83,7 @@ public class PSUpdateInsertStatement extends PSUpdateStatement {
    * set will be added to the execution data.
    *
    * @param data the execution data associated with this plan
-   * @exception SQLException if a SQL error occurs
+   * @throws java.sql.SQLException if a SQL error occurs
    */
   public void execute(PSExecutionData data)
       throws java.sql.SQLException,

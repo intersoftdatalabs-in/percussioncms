@@ -261,9 +261,9 @@ public class PSConditionalEffect extends PSComponent {
   /**
    * Set the Execution Contexts.
    *
-   * @param exeContexts a list of Execution Contexts. Each element must be between {@link
-   *     IPSExcecutionContext#VALIDATION_MIN} and {@link IPSExcecutionContext#VALIDATION_MAX}. It
-   *     may be EMPTY if unknown, never <code>null</code>.
+   * @param exeContexts a list of Execution Contexts. Each element must be between
+   *     IPSExecutionContext.VALIDATION_MIN and IPSExecutionContext.VALIDATION_MAX. It may be EMPTY
+   *     if unknown, never <code>null</code>.
    */
   public void setExecutionContexts(Collection<Integer> exeContexts) {
     if (exeContexts == null) throw new IllegalArgumentException("exeContexts must not be null");
@@ -278,9 +278,9 @@ public class PSConditionalEffect extends PSComponent {
   /**
    * Get a list of Execution Contexts that is relevent for this effect.
    *
-   * @return the Execution Context list. Each element is between {@link
-   *     IPSExcecutionContext#VALIDATION_MIN} and {@link IPSExcecutionContext#VALIDATION_MAX}. It
-   *     may be EMPTY if unknown, never <code>null</code>.
+   * @return the Execution Context list. Each element is between IPSExecutionContext.VALIDATION_MIN
+   *     and IPSExecutionContext.VALIDATION_MAX. It may be EMPTY if unknown, never <code>null</code>
+   *     .
    */
   public Collection<Integer> getExecutionContexts() {
     return m_exeContexts;

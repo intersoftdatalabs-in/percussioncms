@@ -150,12 +150,9 @@ public class PSRuleEvaluator extends PSConditionalEvaluator {
    * result set(s) for processing.
    *
    * <p>Conditionals within the rule are executed according to {@link
-   * PSConditionalEvaluator#isMatch(PSExecutionData) isMatch} in the super class. <B> Extension
-   * calls within a rule are executed as if they were a list of AND-ed conditions, that is, the
-   * first to return <code>false</code> will cause this method to return <code>false</code>
-   * immediately.
-   *
-   * <p>
+   * PSConditionalEvaluator#isMatch(PSExecutionData) isMatch} in the super class. Extension calls
+   * within a rule are executed as if they were a list of AND-ed conditions, that is, the first to
+   * return <code>false</code> will cause this method to return <code>false</code> immediately.
    *
    * @param data The execution data the evaluator will be applied to.
    * @return <code>true</code> if the conditional criteria are met or no criteria are defined for

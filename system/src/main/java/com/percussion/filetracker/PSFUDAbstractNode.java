@@ -31,7 +31,7 @@ public abstract class PSFUDAbstractNode implements IPSFUDNode {
    * Constructor.
    *
    * @param parent node as IPSFUDNode, can be <code>null</code>
-   * @param content item element in the XML document as DOM Element, cannot be <code>null</code>
+   * @param elem item element in the XML document as DOM Element, cannot be <code>null</code>
    * @throws PSFUDNullElementException if element is <code>null</code>.
    */
   public PSFUDAbstractNode(IPSFUDNode parent, Element elem) throws PSFUDNullElementException {
@@ -58,7 +58,7 @@ public abstract class PSFUDAbstractNode implements IPSFUDNode {
   /**
    * returns status code
    *
-   * @status code as int
+   * @return code as int
    * @see IPSFUDNode for status code values
    */
   public int getStatusCode() {

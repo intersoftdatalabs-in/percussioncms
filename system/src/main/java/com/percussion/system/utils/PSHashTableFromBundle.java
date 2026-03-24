@@ -57,8 +57,8 @@ public class PSHashTableFromBundle extends Hashtable {
    * Convenience method that calls constructor with the default locale.
    *
    * @param bundleBaseName The name of the bundle
-   * @throw MissingResourceException if a bundle cannot be found for the default locale
-   * @throw NumberFormatException if any of the keys cannot be represented as an integer
+   * @throws MissingResourceException if a bundle cannot be found for the default locale
+   * @throws NumberFormatException if any of the keys cannot be represented as an integer
    */
   public PSHashTableFromBundle(String bundleBaseName)
       throws MissingResourceException, NumberFormatException {
@@ -71,9 +71,8 @@ public class PSHashTableFromBundle extends Hashtable {
    *
    * @param bundleBaseName The name of the bundle
    * @param loc The locale to use
-   * @return A hashtable containing all of the values from the resource bundle.
-   * @throw MissingResourceException if a bundle cannot be found for the given locale
-   * @throw NumberFormatException if any of the keys cannot be represented as an integer
+   * @throws MissingResourceException if a bundle cannot be found for the given locale
+   * @throws NumberFormatException if any of the keys cannot be represented as an integer
    */
   public PSHashTableFromBundle(String bundleBaseName, Locale loc)
       throws MissingResourceException, NumberFormatException {

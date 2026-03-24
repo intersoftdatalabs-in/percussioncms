@@ -226,38 +226,30 @@ public class PSJobHandler implements IPSLoadableRequestHandler, IPSJobListener {
   }
 
   /**
-   * Checks the status of the specified job. Used by the server when
-   * polled for the status of a currently running job.  The result contains
-   * a value between <code>1-100</code> to indicate the % done and a message.
-   * <code>100</code> indicates that the job has completed successfully.  If
-   * the job has terminated abnormally, <code>-1</code> is returned and
-   * errortext will be included in the response document.
+   * Checks the status of the specified job. Used by the server when polled for the status of a
+   * currently running job. The result contains a value between <code>1-100</code> to indicate the %
+   * done and a message. <code>100</code> indicates that the job has completed successfully. If the
+   * job has terminated abnormally, <code>-1</code> is returned and errortext will be included in
+   * the response document.
    *
-   * @param doc the XML document containing the request data (the Job Id).
-   * May not be <code>null</code>.
-   *
-   * Format is:
-   * <pre><code>
-   * &lt;!--
+   * @param doc the XML document containing the request data (the Job Id). May not be <code>null
+   *     </code>.
+   *     <p>Format is:
+   *     <pre>{@code
+   * <!--
    * PSXJobGetStatus contains the job id.
-   * >
-   * &lt;!ELEMENT PSXJobGetStatus EMPTY>
-   * &lt;!ATTLIST PSXJobGetStatus
+   * -->
+   * <!ELEMENT PSXJobGetStatus EMPTY>
+   * <!ATTLIST PSXJobGetStatus
    *    id CDATA #REQUIRED
    * >
+   * }</pre>
    *
    * @param req the request context, may not be <code>null</code>.
-   *
-   * @return the XML response document containing a PSXJobGetStatusResponse
-   * node that contains the status.  Format is:
-   *
-   * &lt;!ELEMENT PSXJobGetStatusResponse EMPTY>
-   * &lt;!ATTLIST PSXJobGetStatusResponse
-   *    status CDATA #REQUIRED
-   *    message CDATA #REQUIRED
-   * >
-   * </code></pre>
-   *
+   * @return the XML response document containing a PSXJobGetStatusResponse node that contains the
+   *     status. Format is:
+   *     <p>{@code <!ELEMENT PSXJobGetStatusResponse EMPTY> <!ATTLIST PSXJobGetStatusResponse status
+   *     CDATA #REQUIRED message CDATA #REQUIRED > }
    * @throws IllegalArgumentException if either param is invalid.
    * @throws PSJobException if there are any errors.
    */

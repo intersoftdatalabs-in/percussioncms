@@ -226,7 +226,7 @@ public class PSSimplePropertySetter implements IPSPropertySetter {
    * @param obj the object that contains the specified property, it may not be <code>null</code>.
    * @param propName the property name of the given object, may not be <code>null</code> or empty.
    * @return the value of the property, it may be <code>null</code>.
-   * @throws Exception if failed to get the property value.
+   * @throws PSNotFoundException if the property is not found.
    */
   protected Object getPropertyValue(Object obj, String propName) throws PSNotFoundException {
     if (obj == null) throw new IllegalArgumentException("obj may not be null.");

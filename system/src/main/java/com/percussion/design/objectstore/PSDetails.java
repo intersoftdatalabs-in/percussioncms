@@ -72,7 +72,7 @@ public class PSDetails {
   /**
    * Gets the list of PSFieldError objects never <code>null</code> may be empty.
    *
-   * @return List<PSFieldError> objects.
+   * @return {@code List<PSFieldError>} objects.
    */
   public List<PSFieldError> getFieldErrors() {
     return m_fieldErrors;

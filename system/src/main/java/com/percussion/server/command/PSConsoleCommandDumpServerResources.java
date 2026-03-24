@@ -42,7 +42,7 @@ public class PSConsoleCommandDumpServerResources extends PSConsoleCommand {
    *
    * <p>The execution of this command results in the following XML document structure:
    *
-   * @see IPSConsolCommand
+   * <p>See IPSConsoleCommand for more details.
    */
   public Document execute(PSRequest request) throws PSConsoleCommandException {
     Document doc = PSXmlDocumentBuilder.createXmlDocument();

@@ -84,7 +84,7 @@ public abstract class PSOptimizer {
   /**
    * Determine if an index exists for efficient querying of the specified columns.
    *
-   * @param builder the builder object containing the WHERE clauses to check
+   * @param colList the column list to check
    * @param meta the database meta data to use for the check
    */
   public static boolean isQueryIndexAvailable(java.util.ArrayList colList, PSTableMetaData meta)
@@ -156,13 +156,13 @@ public abstract class PSOptimizer {
    * <p>Each separate database found while traversing the list of tables will necessitate a separate
    * login step.
    *
-   * @param ah The application handler, must never be <code>null</code>
-   * @param beTables The list of tables, must never be <code>null</code>
-   * @param logins A list of logins. The list must not be <code>null</code> and may contain logins
-   *     from an earlier call. New logins will be added to the list.
-   * @param connKeys A {@link java.util.ConcurrentHashMap} of connection keys, which must not be
-   *     <code>null</code> and which will be filled with the server keys and identifying integers.
-   * @param joins A collection of joins, may be <code>null</code>
+   * @param ah The application handler, must never be null
+   * @param beTables The list of tables, must never be null
+   * @param logins A list of logins. The list must not be null and may contain logins from an
+   *     earlier call. New logins will be added to the list.
+   * @param connKeys A map of connection keys, which must not be null and which will be filled with
+   *     the server keys and identifying integers.
+   * @param joins A collection of joins, may be null
    * @return the count of login elements
    * @throws java.sql.SQLException
    */

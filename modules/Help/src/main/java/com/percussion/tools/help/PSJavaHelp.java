@@ -45,18 +45,20 @@ import javax.swing.*;
  * identified by the application) to the help topic id(target which is mapped to the html file) in
  * helpset map file. Entries of the following form are expected:
  *
- * <p><DEFAULT_HELP_KEY>=<default help topic to display if no help id is supplied>
+ * <p><code>DEFAULT_HELP_KEY</code>=<code>default help topic to display if no help id is supplied
+ * </code>
  *
- * <p><helpID>=<The topic id in the help set file to display for a specific id>
+ * <p><code>helpID</code>=<code>The topic id in the help set file to display for a specific id
+ * </code>
  *
- * <p>Typically, there will be a <helpID> for every dialog and tab and the help ids used for the
- * dialogs are class name of that dialog.
+ * <p>Typically, there will be a <code>helpID</code> for every dialog and tab and the help ids used
+ * for the dialogs are class name of that dialog.
  *
- * @todo The 'helptopicmapping.properties' is required because it is not allowed to change the help
- *     topic id in the helpset map file with the current help authoring tool. Once we find the way
- *     to change the topic id, then the help id identified by the application should be used as
- *     topic id in helpset map file and the code to load and read helptopicmapping.properties file
- *     should be removed.
+ * <p><b>Note:</b> The 'helptopicmapping.properties' is required because it is not allowed to change
+ * the help topic id in the helpset map file with the current help authoring tool. Once we find the
+ * way to change the topic id, then the help id identified by the application should be used as
+ * topic id in helpset map file and the code to load and read helptopicmapping.properties file
+ * should be removed.
  */
 public class PSJavaHelp {
   /**
@@ -260,13 +262,13 @@ public class PSJavaHelp {
 
   /**
    * Sets the parent window to the help viewer window. Makes the help viewer visible only if <code>
-   * show</code> is </code>true</code>, otherwise makes it invisible. This method is useful to call
+   * show</code> is <code>true</code>, otherwise makes it invisible. This method is useful to call
    * while activating/deactivating the modal dialogs to prevent blocking the helpviewer access and
    * closing the help viewer. Call <code>setParent(null, true)</code> to prevent the help viewer
    * getting closed when the modal dialog which is parent of this viewer gets closed.
    *
    * @param modal the dialog to be set as parent to help viewer, may be <code>null</code>. This
-   * @param show if </code>true</code>, makes the help viewer visible otherwise invisible.
+   * @param show if <code>true</code>, makes the help viewer visible otherwise invisible.
    */
   public void setParent(JDialog modal, boolean show) {
     if (null == ms_theInstance) ms_theInstance = new PSJavaHelp();

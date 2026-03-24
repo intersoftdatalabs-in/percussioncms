@@ -615,17 +615,21 @@ public abstract class PSSearchEngine {
   /**
    * Gets an implementation dependent snapshot of the engine's state.
    *
-   * <p>The returned element conforms to the following DTD: <code><pre>
-   * <!ELEMENT SearchStatus (Message+)>
-   * <!ATTLIST SearchStatus
+   * <p>The returned element conforms to the following DTD:
+   *
+   * <pre>
+   * &lt;!ELEMENT SearchStatus (Message+)&gt;
+   * &lt;!ATTLIST SearchStatus
    *    runningStatus  CDATA #REQUIRED
    *    queueLength    CDATA #REQUIRED
-   * >
-   * <!ELEMENT Message (#PCDATA)>
-   * <!ATTLIST Message
+   * &gt;
+   * &lt;!ELEMENT Message (#PCDATA)&gt;
+   * &lt;!ATTLIST Message
    *    type CDATA #IMPLIED
-   *    >
-   * </pre></code> The runningStatus attribute must be one of the {@link #STATUS_STRINGS} values.
+   *    &gt;
+   * </pre>
+   *
+   * The runningStatus attribute must be one of the {@link #STATUS_STRINGS} values.
    *
    * <p>The following format is suggested for displaying the text to the recipient:
    *

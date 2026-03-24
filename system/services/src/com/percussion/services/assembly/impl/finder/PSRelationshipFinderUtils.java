@@ -158,7 +158,7 @@ public abstract class PSRelationshipFinderUtils<T extends Object> extends PSCont
    /**
     * Determines if the specified relationship matches the given slot.
     * @param rel the relationship in question, not <code>null</code>.
-    * @param slotId the ID of the slot.
+    * @param slot the slot to match against.
     * @return <code>true</code> if the relationship matches the given slot.
     */
    abstract protected boolean isTargetRelationship(PSRelationship rel, T slot, Map<String, Object> params);
@@ -229,7 +229,7 @@ public abstract class PSRelationshipFinderUtils<T extends Object> extends PSCont
     *
     * @param sourceItem the source assembly item,never <code>null</code>. for
     * the default method, it is the owner of the related (returned) items.
-    * @param slotId the ID of the container. It is the value of the "sys_slotid"
+    * @param slot the slot container. It is the value of the "sys_slotid"
     * property of the active assembly relationships.
     * @param params the parameters passed to the finder. There is only one
     * optional parameter, {@link PSContentFinderBase#ORDER_BY}. The returned
@@ -261,7 +261,7 @@ public abstract class PSRelationshipFinderUtils<T extends Object> extends PSCont
    /**
     * Find the active assembly relationships for the related content finder.
     *
-    * @param sourceItem the assembly item, which contains current context,
+    * @param id the assembly item id, which contains current context,
     * never <code>null</code>.
     *
     * @return a set of matching relationships, never <code>null</code>
@@ -309,7 +309,7 @@ public abstract class PSRelationshipFinderUtils<T extends Object> extends PSCont
    /**
     * Retrieves the active assembly relationships from the repository, where
     * the owner is the given item. This is called by
-    * {@link #getRelationships(IPSAssemblyItem)}.
+    * {@link #getRelationships(IPSGuid)}.
     *
     * @param sourceItem the assembly item, which contains current context,
     * assumed not <code>null</code>.

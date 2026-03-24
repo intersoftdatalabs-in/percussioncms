@@ -151,8 +151,8 @@ public class TaxonomyService implements TaxonomyServiceInf {
    * Iterates over the node list and gets the nodes ordered from root parent to the leaf level
    * nodes. First node is the root, then all its children, and so on.
    *
-   * @param taxonomy the {@link Taxonomy} object, must not be <code>null</code>
-   * @return {@link List}<{@link Node}> never <code>null</code> but may be empty.
+   * @param taxonomy the Taxonomy object, must not be null
+   * @return List of Node, never null but may be empty.
    */
   public List<Node> getNodesInDeletionOrder(Taxonomy taxonomy) {
     notNull(taxonomy);
