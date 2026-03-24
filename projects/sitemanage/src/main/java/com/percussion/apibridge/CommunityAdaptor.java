@@ -43,7 +43,7 @@ public class CommunityAdaptor implements ICommunityAdaptor {
   /***
    * Create one or more communities by name and return the results
    * @param names
-   * @return
+   *
    */
   @Override
   public CommunityList createCommunities(List<String> names) {

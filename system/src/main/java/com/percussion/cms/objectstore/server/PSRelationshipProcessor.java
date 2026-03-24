@@ -221,7 +221,6 @@ public class PSRelationshipProcessor implements IPSRelationshipProcessor {
    * RelationshipConfig, and same revisions already exists, then don't create a new Relationship.
    *
    * @param rel
-   * @return
    */
   public PSRelationship checkIfRelationshipAlreadyExists(PSRelationship rel) {
     PSRelationshipProcessor processor = PSRelationshipProcessor.getInstance();

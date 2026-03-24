@@ -192,7 +192,6 @@ public interface IPSTransitionsContext {
    * Gets a list of the names of the workflow action extensions to be run for this transition.
    *
    * @author Aaron Brandes
-   * @return
    *     <ul>
    *       <li>list of full names of workflow action extension to be run for this transition
    *       <li><CODE>null</CODE> if there are no workflow actions for this transition
@@ -204,7 +203,6 @@ public interface IPSTransitionsContext {
    * Gets a list of the roles that allowed to perform this transition.
    *
    * @author Aaron Brandes
-   * @return
    *     <ul>
    *       <li>list of the roles that allowed to perform this transition
    *       <li><CODE>null</CODE> there are no additional role restrictions

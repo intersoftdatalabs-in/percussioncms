@@ -31,8 +31,8 @@ public abstract class PSAbstractEncryptor {
   /** Byte array length must be a multiple of this value for decryption. */
   public static final int BYTE_ARRAY_MULTIPLE = 8;
 
-  /** Private constructor to prevent instantiation. */
-  private PSAbstractEncryptor() {}
+  /** Protected constructor for subclass instantiation. */
+  protected PSAbstractEncryptor() {}
 
   /**
    * Encrypts the provided string using the supplied secret key.

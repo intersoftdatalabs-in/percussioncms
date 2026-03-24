@@ -38,7 +38,7 @@ public class HttpDOMResponse extends BaseHttpResponse {
 
   /***
    * Gets the DOM document for this response.
-   * @return
+   *
    */
   public Document getDocument() {
     return document;

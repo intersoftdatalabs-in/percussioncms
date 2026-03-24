@@ -162,7 +162,7 @@ public class PSMeta
 
    
    /**  Convert this object to a Tika metadata object
-    * @return
+
     */
    public Metadata getTikaMetadata()
    {
@@ -194,7 +194,7 @@ public class PSMeta
    /**
     * Does this object contain the specified key.
     * @param arg0
-    * @return
+
     */
    public boolean containsKey(String arg0)
    {
@@ -417,7 +417,7 @@ public class PSMeta
 
    /**
     * Get the hash stored in the metadata.
-    * @return
+
     */
    public String getHash()
    {

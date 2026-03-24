@@ -35,7 +35,6 @@ public class SecureHeaderChecker {
    * Checks the connection for the presence of secure headers and
    *
    * @param conn
-   * @return
    */
   public static SecureHeaderCheckResponse check(HttpsURLConnection conn) {
 

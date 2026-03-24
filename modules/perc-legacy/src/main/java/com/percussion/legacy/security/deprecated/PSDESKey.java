@@ -171,11 +171,7 @@ public class PSDESKey implements IPSSecretKey {
     }
   }
 
-  /**
-   * Returns a byte aray containing the secret key
-   *
-   * @return
-   */
+  /** Returns a byte aray containing the secret key */
   @Override
   public byte[] getSecret() {
     return new byte[0];

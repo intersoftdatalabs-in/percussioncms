@@ -937,7 +937,7 @@ public class PSPublisherService
     * Sort Pages to end. 
     * @param rval
     * @param cidToSum
-    * @return
+
     */
    private List<PSContentListItem> sortPagesToEnd(List<PSContentListItem> rval, Map<Integer, PSComponentSummary> cidToSum)
    {
@@ -1579,7 +1579,7 @@ public class PSPublisherService
     * @param siteId
     * @param deliveryContext
     * @param contentIds
-    * @return
+
     */
    public Collection<IPSSiteItem> findSiteItemsByIds_Common(IPSGuid siteId,
          int deliveryContext, Collection<Integer> contentIds)

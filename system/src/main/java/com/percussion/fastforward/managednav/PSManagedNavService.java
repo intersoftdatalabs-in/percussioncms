@@ -331,7 +331,6 @@ public class PSManagedNavService implements IPSManagedNavService {
    * and needs to be looked at
    *
    * @param childId
-   * @return
    * @throws PSCmsException
    */
   private PSLocator getRelationshipParentFolder(int childId) throws PSCmsException {

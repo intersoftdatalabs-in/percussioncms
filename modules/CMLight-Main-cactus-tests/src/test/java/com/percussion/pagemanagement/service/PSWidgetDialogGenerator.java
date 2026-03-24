@@ -252,7 +252,7 @@ public class PSWidgetDialogGenerator extends PSServletTestCase {
    * @param paramName
    * @param prefs Must be an array of AbstractUserPref instances. For example, UserPref or CssPref
    *     objects.
-   * @return
+
    */
   private String generateDialogTests(
       String comment,

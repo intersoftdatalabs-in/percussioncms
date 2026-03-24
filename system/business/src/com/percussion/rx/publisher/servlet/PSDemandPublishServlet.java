@@ -159,7 +159,7 @@ public class PSDemandPublishServlet extends HttpServlet
     * 
     * @param value the value, never <code>null</code> or empty
     * @param typename the typename, never <code>null</code> or empty
-    * @return
+
     */
    private int convertInteger(String value, String typename)
    {

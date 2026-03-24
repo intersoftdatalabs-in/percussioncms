@@ -132,7 +132,6 @@ public class PSConfigDefGenerator {
   /**
    * Retrieve the fragment file.
    *
-   * @return
    * @throws IOException
    */
   public String getFragementFileContents() throws IOException {

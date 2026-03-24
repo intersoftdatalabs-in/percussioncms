@@ -396,7 +396,7 @@ public class PSTemplateActionMenuHelper {
 
     /***
      * Gets access to the singleton.  Thread safe.
-     * @return
+
      */
     public static PSTemplateActionMenuHelper getInstance(){
         if(instance == null){

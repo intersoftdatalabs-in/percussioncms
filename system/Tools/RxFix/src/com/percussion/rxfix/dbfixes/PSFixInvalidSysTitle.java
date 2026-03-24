@@ -512,7 +512,7 @@ public class PSFixInvalidSysTitle extends PSFixDBBase implements IPSFix
    /**
     * @param items
     * @param proc
-    * @return
+
     * @throws PSCmsException
     */
    private HashMap<Integer, Set<Integer>> getChangeItemFolderGroups(Set<Integer> items, PSServerFolderProcessor proc)
@@ -556,7 +556,7 @@ public class PSFixInvalidSysTitle extends PSFixDBBase implements IPSFix
     * Do a direct sql check to find any items that have invalid characters and return the ids
     * If nothing returned here we do not need to do anything else.
     *
-    * @return
+
     * @throws NamingException
     * @throws SQLException
     * @throws PSStringTemplateException
@@ -625,7 +625,7 @@ public class PSFixInvalidSysTitle extends PSFixDBBase implements IPSFix
    /**
     * @param folderItem
     * @param names
-    * @return
+
     */
    private ChangeItem calculateNewName(PSComponentSummary folderItem, Set<String> names)
    {

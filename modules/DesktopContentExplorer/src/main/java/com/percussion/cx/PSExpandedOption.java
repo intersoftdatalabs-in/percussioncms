@@ -156,11 +156,7 @@ public class PSExpandedOption implements IPSClientObjects {
     }
   }
 
-  /**
-   * Returns the current list of paths.
-   *
-   * @return
-   */
+  /** Returns the current list of paths. */
   public Set getPaths() {
     return m_paths;
   }

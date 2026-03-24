@@ -370,7 +370,7 @@ public class PSDbStorageService implements IPSFileStorageService, InitializingBe
     * encoding as well as the original file name.
     *
     * @param file
-    * @return
+
     */
    private PSMeta populateTempFileMeta(File file)
    {
@@ -560,7 +560,7 @@ public class PSDbStorageService implements IPSFileStorageService, InitializingBe
     * @param contentType
     * @param filename
     * @param encType
-    * @return
+
     * @throws IOException
     * @throws FileNotFoundException
     */
@@ -1213,7 +1213,7 @@ public class PSDbStorageService implements IPSFileStorageService, InitializingBe
       /**
        * Loads in a file containing an sha1 hash and return the hash value
        * @param testfile
-       * @return
+
        * @throws IOException
        */
       private String loadSha1File(File testfile) throws IOException
@@ -1236,7 +1236,7 @@ public class PSDbStorageService implements IPSFileStorageService, InitializingBe
        * Create a path based upon a hash value.  This ensures a balanced set of folders
        * with no folder containing too many entries.
        * @param hash
-       * @return
+
        * @throws IOException
        */
       private File getPathfromHash(String hash) throws IOException
@@ -1410,7 +1410,7 @@ public class PSDbStorageService implements IPSFileStorageService, InitializingBe
    /**
     * Get the binary entity for the hash
     * @param hash
-    * @return
+
     */
    @Transactional
    public PSBinary getBinary(String hash)
@@ -1500,7 +1500,7 @@ public class PSDbStorageService implements IPSFileStorageService, InitializingBe
     * original filename, type and encoding to help in extraction
     *
     * @param binary
-    * @return
+
     */
    @Transactional
    private boolean reparseMeta(PSBinary binary)

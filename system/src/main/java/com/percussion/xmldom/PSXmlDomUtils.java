@@ -684,7 +684,6 @@ public class PSXmlDomUtils {
    * @param htmlTagName tag name to which the namespaces will be added, never <code>null</code> or
    *     <code>empty</code>.
    * @param contxt current XmlDomContext, never <code>null</code>.
-   * @return
    */
   private static String addNameSpaces(
       String htmlString, String htmlTagName, PSXmlDomContext contxt) {

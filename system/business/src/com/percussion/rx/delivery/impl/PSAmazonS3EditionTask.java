@@ -230,7 +230,7 @@ public class PSAmazonS3EditionTask implements IPSEditionTask
      * Helper method that returns amazon s3 file keys along with checksum.
      * @param client
      * @param bucketName
-     * @return
+
      */
     private Map<String, String> getAmazonS3FilesMap(AmazonS3 client, String bucketName) {
         ObjectListing listing;

@@ -298,7 +298,6 @@ public class Item {
 
   /**
    * @param key
-   * @return
    * @see java.util.HashMap#containsKey(Object)
    */
   public boolean containsField(String key) {
@@ -312,7 +311,6 @@ public class Item {
 
   /**
    * @param newField
-   * @return
    * @see java.util.HashMap#put(Object, Object)
    */
   @XmlTransient
@@ -331,7 +329,6 @@ public class Item {
 
   /**
    * @param name
-   * @return
    * @see java.util.HashMap#get(Object)
    */
   public Field getField(String name) {

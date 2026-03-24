@@ -309,7 +309,6 @@ public class PSJdbcStatementFactory {
    * @param dbmsDef
    * @param tableSchema
    * @param index
-   * @return
    */
   private static String getDropUniqueContraint(
       PSJdbcDbmsDef dbmsDef, PSJdbcTableSchema tableSchema, PSJdbcIndex index) {

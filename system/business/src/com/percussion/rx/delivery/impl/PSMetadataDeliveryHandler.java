@@ -219,7 +219,7 @@ public class PSMetadataDeliveryHandler extends PSBaseDeliveryHandler
 
     /**
      * Used to inject DeliveryService for testing only.
-     * @return
+
      */
     public PSSolrDeliveryHandler getSolrDeliveryService()
     {

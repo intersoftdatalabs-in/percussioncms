@@ -885,7 +885,6 @@ public class PSItemService implements IPSItemService {
    * wise throws the error.
    *
    * @param req
-   * @throws
    */
   private PSNoContent dateValidation(PSItemDates req) {
     PSNoContent validationResponse = new PSNoContent("Success");

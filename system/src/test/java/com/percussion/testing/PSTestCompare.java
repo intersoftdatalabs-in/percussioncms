@@ -79,7 +79,6 @@ public class PSTestCompare {
    * Process a URL query into a parameter map
    *
    * @param query
-   * @return
    */
   private static Map processQuery(String query) {
     Map rval = new HashMap();

@@ -623,7 +623,6 @@ public class PSGlobalTemplate extends PSLoggable {
    * "http://www.w3.org/TR/xhtml1/DTD/HTMLspecialx.ent"
    *
    * @param serverRoot
-   * @return
    */
   public static String getDefaultEntities(String serverRoot) {
     String root = serverRoot;

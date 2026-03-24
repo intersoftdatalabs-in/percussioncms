@@ -43,7 +43,7 @@ public class PSLicenseStatus {
   /***
    * Returns the status code for a given license status.
    *
-   * @return
+   *
    */
   public Status getStatusCode() {
 

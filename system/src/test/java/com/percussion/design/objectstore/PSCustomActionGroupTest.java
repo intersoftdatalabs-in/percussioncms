@@ -75,9 +75,5 @@ public class PSCustomActionGroupTest {
     assertEquals(testTo, testFrom);
   }
 
-  /**
-   * Collect all tests into a TestSuite and return it
-   *
-   * @return
-   */
+  /** Collect all tests into a TestSuite and return it */
 }

@@ -69,7 +69,7 @@ public class PSOItemFolderUtilities {
    * Returns the Path of the containing folder.
    *
    * @param id The Content ID of the item
-   * @return
+   *
    * @throws PSCmsException
    */
   public static String getItemFolderPath(int id) throws PSCmsException, PSNotFoundException {

@@ -1599,7 +1599,6 @@ public class PSExitPerformTransition implements IPSRequestPreProcessor {
    * Gets the revision for checkout or checkin from the HTML Parameter hash map.
    *
    * @param htmlParams hash map containing the HTML parameters for this request
-   * @return
    *     <li>for transitions, or if value is not set - 0
    *     <li>for checkin - revision being checked in (optional) -
    *     <li>checkout - revision requested for check out

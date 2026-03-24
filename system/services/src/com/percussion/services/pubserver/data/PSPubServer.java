@@ -420,7 +420,7 @@ public class PSPubServer extends PSAbstractDataObject implements Serializable, I
    }
 
    /**
-    * @return
+
     */
    public boolean isFtpType()
    {

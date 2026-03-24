@@ -40,7 +40,7 @@ public class ContentListAdaptor implements IContentListsAdaptor {
 
   /***
    * Get a list of available TemplateExpanders on the system.
-   * @return
+   *
    */
   @Override
   public List<Extension> getTemplateExpanders() {
@@ -50,7 +50,7 @@ public class ContentListAdaptor implements IContentListsAdaptor {
   /***
    * Get  a list of content lists for the specified edition.
    * @param editionId
-   * @return
+   *
    */
   @Override
   public List<ContentList> getContentListsByEditionId(long editionId) {
@@ -59,7 +59,7 @@ public class ContentListAdaptor implements IContentListsAdaptor {
 
   /***
    * Get a list of content lists that are currently unused.
-   * @return
+   *
    * @param siteId
    */
   @Override

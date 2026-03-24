@@ -721,7 +721,7 @@ public class PSSqlPurgeHelper implements IPSSqlPurgeHelper
     *
     * @param items
     * @param typeFilter
-    * @return
+
     * @throws PSCmsException
     */
    private Map<Integer, Set<Integer>> processItems(PSLocator parent, Set<Integer> items, List<Integer> typeFilter)
@@ -868,7 +868,7 @@ public class PSSqlPurgeHelper implements IPSSqlPurgeHelper
     *
     * @param ids
     * @param typeFilter
-    * @return
+
     */
    private Map<Integer, Set<Integer>> createContentTypeMap(Set<Integer> ids, List<Integer> typeFilter)
    {

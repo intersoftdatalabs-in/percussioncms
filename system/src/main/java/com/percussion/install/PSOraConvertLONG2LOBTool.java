@@ -918,7 +918,6 @@ public class PSOraConvertLONG2LOBTool {
      * @param new_table_name backup table name, never <code>null</code>
      * @param convertLong2Lob <code>true</code> makes it to substitute LONG type by an approriate
      *     LOB type.
-     * @return
      */
     String formatForCreate(String owner, String new_table_name, boolean convertLong2Lob) {
       if (owner == null || new_table_name == null)
@@ -1133,7 +1132,6 @@ public class PSOraConvertLONG2LOBTool {
     /**
      * @param convertLongsToLobs if <code>true</code> then wraps a LONG column into the TO_LOB ORA
      *     statement that does the conversion on the insert
-     * @return
      */
     String formatForInsertIntoBackup(boolean convertLongsToLobs) {
       String str = " ";
@@ -1160,7 +1158,6 @@ public class PSOraConvertLONG2LOBTool {
    * performs database udate and does logging
    *
    * @param sql SQL to pass to the DBMS, never <code>null</code>
-   * @return
    * @throws SQLException
    */
   private int performUpdate(String sql) throws SQLException {
@@ -1192,7 +1189,6 @@ public class PSOraConvertLONG2LOBTool {
    * performs database query and does logging
    *
    * @param sql SQL to pass to the DBMS, never <code>null</code>
-   * @return
    * @throws SQLException
    */
   private ResultSet performQuery(String sql) throws SQLException {

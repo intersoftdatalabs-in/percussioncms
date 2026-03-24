@@ -108,7 +108,6 @@ public class PSRelationshipTracker {
    * Get the target id for the supplied source.
    *
    * @param sourceId the id of the source for which we want the target, not <code>null</code>.
-   * @return
    */
   public Integer getItemTargetId(Integer sourceId) {
     if (sourceId == null) throw new IllegalArgumentException("sourceId cannot be null");

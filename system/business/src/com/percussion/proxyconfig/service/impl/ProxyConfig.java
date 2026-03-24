@@ -62,7 +62,7 @@ public class ProxyConfig extends PSAbstractDataObject {
     /**
      * Gets the value of the host property.
      * 
-     * @return
+
      *     possible object is
      *     {@link String }
      *     
@@ -85,7 +85,7 @@ public class ProxyConfig extends PSAbstractDataObject {
     /**
      * Gets the value of the port property.
      * 
-     * @return
+
      *     possible object is
      *     {@link Integer }
      *     
@@ -109,7 +109,7 @@ public class ProxyConfig extends PSAbstractDataObject {
     /**
      * Gets the value of the user property.
      * 
-     * @return
+
      *     possible object is
      *     {@link String }
      *     
@@ -133,7 +133,7 @@ public class ProxyConfig extends PSAbstractDataObject {
     /**
      * Gets the value of the password property.
      * 
-     * @return
+
      *     possible object is
      *     {@link ProxyConfig.Password }
      *     
@@ -248,7 +248,7 @@ public class ProxyConfig extends PSAbstractDataObject {
         /**
          * Gets the value of the value property.
          * 
-         * @return
+
          *     possible object is
          *     {@link String }
          *     
@@ -272,7 +272,7 @@ public class ProxyConfig extends PSAbstractDataObject {
         /**
          * Gets the value of the encrypted property.
          * 
-         * @return
+
          *     possible object is
          *     {@link Boolean }
          *     

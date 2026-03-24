@@ -146,7 +146,7 @@ public class PSInlineLinkContentHandler
     * Process Inline Links or Images in the document
     * @param htmlDoc
     * @param inlineLinkProcessor
-    * @return
+
     * @throws PSHtmlParsingException
     */
 

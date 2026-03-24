@@ -231,7 +231,6 @@ public class PSServerUserSearch implements IPSResultDocumentProcessor {
    * COMMUNITY_ROLE_LOOKUP_URL app, it gets the document back then returns the list of roles.
    *
    * @param contentid
-   * @return
    */
   private List retrieveRoleList(IPSRequestContext request, int communityid)
       throws PSInternalRequestCallException {

@@ -27,7 +27,6 @@ public class Base64 {
   /**
    * @deprecated Use java.util.Base64
    * @param raw
-   * @return
    */
   @Deprecated
   public static String encode(byte[] raw) {
@@ -42,7 +41,6 @@ public class Base64 {
    * @deprecated Use java.util.Base64
    * @param raw
    * @param offset
-   * @return
    */
   @Deprecated
   protected static char[] encodeBlock(byte[] raw, int offset) {

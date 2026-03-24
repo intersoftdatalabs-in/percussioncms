@@ -87,7 +87,7 @@ public class PSOSwitchCommunityWorkflowAction implements IPSWorkflowAction {
   /***
    * OverrideVisibility determines if the community switch will ignore
    * visbility problems with the Workflow and State
-   * @return
+   *
    */
   public boolean getOverrideVisibility() {
     return overrideVisibility;
@@ -284,7 +284,7 @@ public class PSOSwitchCommunityWorkflowAction implements IPSWorkflowAction {
   /***
    * Locate the given community by name.
    * @param name
-   * @return
+   *
    */
   private PSCommunity findCommunityByName(String name) {
 

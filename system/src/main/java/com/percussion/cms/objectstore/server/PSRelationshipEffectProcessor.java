@@ -320,7 +320,6 @@ public class PSRelationshipEffectProcessor {
    * @param activationEndPoint must be a valid activation end point from the relationship
    *     configuration, i.e. one of teh {link PSRelationshipConfig} ACTIVATION_ENDPOINT_XXXX
    *     strings. Assumed not <code>null</code>.
-   * @return
    */
   private boolean isProcessThisEffect(boolean isOwner, String activationEndPoint) {
     boolean result = false;

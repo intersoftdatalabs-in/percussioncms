@@ -531,7 +531,6 @@ public class PSSitePublishService implements IPSSitePublishService {
    *
    * @param notAllowedServers sites that are not allowed for publishing resources (sites with
    *     database or XML default server)
-   * @return
    */
   private String getNotAllowedWarningMessage(List<String> notAllowedServers) {
     String warningMessage = "";

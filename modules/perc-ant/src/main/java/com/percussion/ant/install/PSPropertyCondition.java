@@ -186,7 +186,6 @@ public class PSPropertyCondition extends PSAction implements Condition {
 
   /**
    * @param b
-   * @return
    */
   public void setIsCaseSensitive(boolean b) {
     m_caseSensitive = b;
@@ -233,20 +232,12 @@ public class PSPropertyCondition extends PSAction implements Condition {
    */
   private boolean m_caseSensitive;
 
-  /**
-   * Getter for the allowed ops.
-   *
-   * @return
-   */
+  /** Getter for the allowed ops. */
   public String[] getSupportedOperators() {
     return m_compareOperators;
   }
 
-  /**
-   * Getter for the ip.
-   *
-   * @return
-   */
+  /** Getter for the ip. */
   public String getCompareOperator() {
     return m_compareOp;
   }
@@ -275,7 +266,6 @@ public class PSPropertyCondition extends PSAction implements Condition {
    * Is Match?.
    *
    * @param equalsResult
-   * @return
    */
   private boolean isMatch(int equalsResult) {
 

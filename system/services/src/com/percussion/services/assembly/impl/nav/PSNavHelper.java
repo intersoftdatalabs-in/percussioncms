@@ -1507,7 +1507,7 @@ public class PSNavHelper
    /***
     * Method to filter out any items that may be in the recycler, awaiting recovery or deletion
     * @param guid
-    * @return
+
     */
    public boolean isInRecycler(String guid){
       boolean ret = false;

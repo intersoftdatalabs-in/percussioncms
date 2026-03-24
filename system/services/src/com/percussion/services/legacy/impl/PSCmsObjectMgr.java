@@ -486,7 +486,7 @@ public class PSCmsObjectMgr
      * Save a list of PersistentPropertyMeta
      *
      * @param list
-     * @return
+
      */
     @Override
     public Stream<PSPersistentPropertyMeta> saveAllPersistentMeta(List<PSPersistentPropertyMeta> list) {
@@ -512,7 +512,7 @@ public class PSCmsObjectMgr
      * Save one PersistentPropertyMeta
      *
      * @param meta
-     * @return
+
      */
     public PSPersistentPropertyMeta savePersistentPropertyMeta(PSPersistentPropertyMeta meta) {
 

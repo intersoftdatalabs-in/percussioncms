@@ -2150,8 +2150,6 @@ public class PSWorkFlowUtils {
   /**
    * Determine if notifications are in test run mode. In test run mode notifications are logged to a
    * file and no email notifications are actually sent. Defaults to off/ no / false
-   *
-   * @return
    */
   public static boolean isTestRunModeEnabled() {
     String val = properties.getProperty(ENABLE_TEST_RUN_MODE, "no").trim();

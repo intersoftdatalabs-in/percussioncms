@@ -81,7 +81,7 @@ public class Service extends jakarta.xml.ws.Service {
 
     /**
      *
-     * @return
+
      *     returns ServiceSoap
      */
     @WebEndpoint(name = "ServiceSoap")
@@ -93,7 +93,7 @@ public class Service extends jakarta.xml.ws.Service {
      *
      * @param features
      *     A list of {@link jakarta.xml.ws.WebServiceFeature} to configure on the proxy.  Supported features not in the <code>features</code> parameter will have their default values.
-     * @return
+
      *     returns ServiceSoap
      */
     @WebEndpoint(name = "ServiceSoap")
@@ -104,7 +104,7 @@ public class Service extends jakarta.xml.ws.Service {
 
     /**
      *
-     * @return
+
      *     returns ServiceSoap
      */
     @WebEndpoint(name = "ServiceSoap12")
@@ -116,7 +116,7 @@ public class Service extends jakarta.xml.ws.Service {
      *
      * @param features
      *     A list of {@link jakarta.xml.ws.WebServiceFeature} to configure on the proxy.  Supported features not in the <code>features</code> parameter will have their default values.
-     * @return
+
      *     returns ServiceSoap
      */
     @WebEndpoint(name = "ServiceSoap12")

@@ -401,7 +401,6 @@ public class PSUpgradePluginCreateServerAndServerProperties implements IPSUpgrad
    * server id.
    *
    * @param serverId
-   * @return
    * @throws SQLException
    */
   private List<Integer> getEditions(int serverId) throws SQLException {

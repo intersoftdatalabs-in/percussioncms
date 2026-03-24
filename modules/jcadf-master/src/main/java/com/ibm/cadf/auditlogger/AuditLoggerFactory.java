@@ -27,7 +27,6 @@ public class AuditLoggerFactory {
    * The default file format is csv
    *
    * @param auditorType
-   * @return
    */
   public static AuditLogger getAuditLogger(String auditorType) {
 

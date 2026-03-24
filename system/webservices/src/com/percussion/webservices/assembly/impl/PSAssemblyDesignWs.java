@@ -1036,7 +1036,7 @@ public class PSAssemblyDesignWs extends PSAssemblyBaseWs implements
 
    /**
     * Gets the image file mapping, which
-    * @return
+
     */
 
    private Map<String, String> getImgFileMap()

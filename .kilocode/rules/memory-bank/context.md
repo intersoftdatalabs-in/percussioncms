@@ -12,6 +12,9 @@ This document captures the current work focus, recent changes, and next steps fo
 
 ## Recent Changes
 
+- Javadoc structural cleanup: Removed 173 files with empty @param, @return, @throws tags using automated script.
+- Ran spotless:apply to format code per Google Java Style.
+- Verified compilation succeeds on modified modules (deployer, perc-toolkit, system).
 - Axis resolution fixed in modules/webservices by aligning Axis properties to 1.4 and avoiding non-existent 1.4.1/1.4.2 artifacts.
 - ojdbc updates: moved modules from ojdbc6 to com.oracle.database.jdbc:ojdbc8, version managed in parent with appropriate scope.
 - Root POM cleanup: removed JaCoCo remnants, ensured CycloneDX and SpotBugs plugins are not active, consolidated versions for JAXB and JUnit.

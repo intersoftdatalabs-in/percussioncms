@@ -88,11 +88,7 @@ public abstract class PSBaseControlManager {
     return ctrls;
   }
 
-  /**
-   * Get the subsystem to use for logging errors.
-   *
-   * @return
-   */
+  /** Get the subsystem to use for logging errors. */
   protected abstract String getSubSystem();
 
   /**

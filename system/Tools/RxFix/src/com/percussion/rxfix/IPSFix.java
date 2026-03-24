@@ -49,7 +49,7 @@ public interface IPSFix
    /**
     * If the fix needs to be run only once and if successful, we don't want to rerun this fix
     * then return true at the end of the successfull process complete.
-    * @return
+
     */
    boolean removeStartupOnSuccess();
 }

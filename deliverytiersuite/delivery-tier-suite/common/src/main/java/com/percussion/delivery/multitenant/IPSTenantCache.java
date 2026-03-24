@@ -36,7 +36,7 @@ public interface IPSTenantCache {
   /***
    * Returns the number of minutes before and entry in cach must be re-authorized.
    *
-   * @return
+   *
    */
   public long getMaxTTL();
 
@@ -45,8 +45,6 @@ public interface IPSTenantCache {
    *
    * <p>When false, the cache will simply return null for missing tenants and remove tenants from
    * cache when their TTL expires.
-   *
-   * @return
    */
   public boolean getAuthorizeExpiredTTL();
 
@@ -60,7 +58,7 @@ public interface IPSTenantCache {
 
   /***
    * Returns the Authorization Provider to use when authorizing expired tenants;
-   * @return
+   *
    */
   public IPSTenantAuthorization getAuthorizationProvider();
 
@@ -75,7 +73,7 @@ public interface IPSTenantCache {
    * Returns the specified tenant from the cache.
    *
    * @param id
-   * @return
+   *
    */
   public IPSTenantInfo get(String id, ServletRequest req);
 

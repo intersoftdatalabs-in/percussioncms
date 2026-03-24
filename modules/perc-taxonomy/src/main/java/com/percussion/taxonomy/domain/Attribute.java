@@ -171,11 +171,7 @@ public class Attribute {
     this.is_percussion_item = is_percussion_item;
   }
 
-  /**
-   * Returns created by id
-   *
-   * @return
-   */
+  /** Returns created by id */
   public String getCreated_by_id() {
     return created_by_id;
   }

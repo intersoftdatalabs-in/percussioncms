@@ -342,8 +342,6 @@ public class PSUserSessionManager extends Thread implements IPSServerConfigurati
   /**
    * This API checks against the maximum number of users allowed in the system if logged in users
    * already reached the maximum allowed, then returns false
-   *
-   * @return
    */
   public static synchronized boolean checkIfNewUserAllowed() {
     String maxUserStr = PSServer.getProperty(MAX_USERS_ALLOWED, "0");

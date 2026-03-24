@@ -1201,7 +1201,6 @@ public class PSWorkflowRoleInfoStatic {
    * @param princes
    * @param contentid
    * @param revisionid
-   * @return
    * @throws Exception
    */
   protected static Set<IPSTypedPrincipal> filterPrincipalsByCommunityAndFolderSecurity(

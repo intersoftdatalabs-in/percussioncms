@@ -55,7 +55,7 @@ public class PSSynFeedProxy {
   /***
    * Returns the name of the first feed author in the collection of authors.
    *
-   * @return
+   *
    */
   public String getAuthor() {
     return feed.getAuthor();
@@ -63,7 +63,7 @@ public class PSSynFeedProxy {
 
   /***
    *  Returns the feed authors.
-   * @return
+   *
    */
   public List<SyndPerson> getAuthorList() {
     return feed.getAuthors();
@@ -71,7 +71,7 @@ public class PSSynFeedProxy {
 
   /***
    * Convenience method that returns the list of Authors as a comma separated string.
-   * @return
+   *
    */
   public String getAuthors() {
     String ret = "";
@@ -90,7 +90,7 @@ public class PSSynFeedProxy {
 
   /***
    * Returns the feed categories.
-   * @return
+   *
    */
   public List<?> getCategoriesList() {
     return feed.getCategories();
@@ -98,7 +98,7 @@ public class PSSynFeedProxy {
 
   /***
    * Returns the feed categories as a comma separated string.
-   * @return
+   *
    */
   public String getCategories() {
     String ret = "";
@@ -115,7 +115,7 @@ public class PSSynFeedProxy {
 
   /***
    * the feed author.
-   * @return
+   *
    */
   public String getContributors() {
     String ret = "";
@@ -138,7 +138,7 @@ public class PSSynFeedProxy {
 
   /***
    * Returns the feed copyright.
-   * @return
+   *
    */
   public String getCopyright() {
     return feed.getCopyright();
@@ -146,7 +146,7 @@ public class PSSynFeedProxy {
 
   /***
    * Returns the feed description.
-   * @return
+   *
    */
   public String getDescription() {
     // @TODO: Add Ext Description support.
@@ -155,7 +155,7 @@ public class PSSynFeedProxy {
 
   /***
    * Returns the charset encoding of a the feed.
-   * @return
+   *
    */
   public String getEncoding() {
     return feed.getEncoding();
@@ -163,7 +163,7 @@ public class PSSynFeedProxy {
 
   /***
    * Returns the feed entries.
-   * @return
+   *
    */
   public List<PSSynFeedEntry> getEntries() {
 
@@ -177,7 +177,7 @@ public class PSSynFeedProxy {
 
   /***
    * Returns the wire feed type the feed had/will-have when coverted from/to a WireFeed.
-   * @return
+   *
    */
   public String getFeedType() {
     return feed.getFeedType();
@@ -185,7 +185,7 @@ public class PSSynFeedProxy {
 
   /***
    * Returns the feed image.
-   * @return
+   *
    */
   public PSSynFeedImage getImage() {
     return new PSSynFeedImage(feed.getImage());
@@ -201,7 +201,7 @@ public class PSSynFeedProxy {
 
   /***
    * Returns the feed link.
-   * @return
+   *
    */
   public String getLink() {
     return feed.getLink();
@@ -209,7 +209,7 @@ public class PSSynFeedProxy {
 
   /***
    * Returns the entry links
-   * @return
+   *
    */
   public List<String> getLinks() {
     ArrayList<String> ret = new ArrayList<String>();
@@ -222,7 +222,7 @@ public class PSSynFeedProxy {
 
   /***
    * Returns the feed published date.
-   * @return
+   *
    */
   public Date getPublishedDate() {
     return feed.getPublishedDate();
@@ -230,7 +230,7 @@ public class PSSynFeedProxy {
 
   /***
    * Returns the feed title.
-   * @return
+   *
    */
   public String getTitle() {
     // @TODO: Add support for title EX.
@@ -239,7 +239,7 @@ public class PSSynFeedProxy {
 
   /***
    * Returns the feed URI.
-   * @return
+   *
    */
   public String getUri() {
     return feed.getUri();

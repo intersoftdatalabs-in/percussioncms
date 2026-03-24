@@ -314,11 +314,7 @@ public class PSUpdateWarFiles extends PSAction {
     m_isRemoveFiles = b;
   }
 
-  /**
-   * Is RemoveFiles?.
-   *
-   * @return
-   */
+  /** Is RemoveFiles?. */
   public boolean isRemoveFiles() {
     return m_isRemoveFiles;
   }

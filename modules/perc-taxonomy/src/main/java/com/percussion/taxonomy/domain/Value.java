@@ -67,11 +67,7 @@ public class Value {
     this.name = name;
   }
 
-  /**
-   * Returns node as Node object
-   *
-   * @return
-   */
+  /** Returns node as Node object */
   public Node getNode() {
     return node;
   }

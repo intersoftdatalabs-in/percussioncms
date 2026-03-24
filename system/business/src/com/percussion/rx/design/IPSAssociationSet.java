@@ -28,7 +28,7 @@ public interface IPSAssociationSet
 {
    /**
     * Returns the list of associations. May be <code>null</code>.
-    * @return
+
     */
    public List getAssociations();
 

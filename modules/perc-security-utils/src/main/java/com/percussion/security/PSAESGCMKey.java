@@ -36,8 +36,8 @@ public class PSAESGCMKey implements IPSSecretKey {
   private static final int DEFAULT_KEY_SIZE = 256;
   private SecretKey key;
 
-  /** Private constructor to prevent instantiation. */
-  private PSAESGCMKey() {}
+  /** Package-private constructor for factory instantiation. */
+  PSAESGCMKey() {}
 
   /**
    * Returns an encryptor for this key.

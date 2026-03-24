@@ -132,7 +132,6 @@ public class PSDependencyManagerTest {
    * Creates the given deployment element.
    *
    * @param type
-   * @return
    */
   private PSDeployableElement createElement(String type) {
     if (type.equals(SLOT_TYPE)) {

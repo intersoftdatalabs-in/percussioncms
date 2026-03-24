@@ -258,7 +258,7 @@ public class PSPaginateUtils extends PSJexlUtilBase
     * @param item
     * @param slotName
     * @param itemsPerPage
-    * @return
+
     * @throws RepositoryException
     * @throws PSFilterException
     * @throws PSAssemblyException

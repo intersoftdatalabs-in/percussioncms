@@ -144,7 +144,6 @@ public class PublishEditionService implements InitializingBean {
    *
    * @param editionId
    * @param sessionId
-   * @return
    * @deprecated
    */
   @SuppressWarnings("deprecation")

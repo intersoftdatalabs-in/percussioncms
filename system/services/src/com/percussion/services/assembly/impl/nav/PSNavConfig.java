@@ -698,7 +698,7 @@ public class PSNavConfig
 
    /**
     * Get the configured title template for the navon.
-    * @return
+
     */
    public String getNavonTitleTemplate(){
        return m_props.getProperty(
@@ -912,7 +912,7 @@ public class PSNavConfig
     * Gets the name of the Nav Theme parameter from the configuration
     * properties. This name can be overridden in Navigation.properties.
     *
-    * @return
+
     */
    public String getNavThemeParamName()
    {

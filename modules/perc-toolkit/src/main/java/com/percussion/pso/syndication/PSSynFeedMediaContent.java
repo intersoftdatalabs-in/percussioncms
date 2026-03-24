@@ -53,7 +53,7 @@ public class PSSynFeedMediaContent {
 
   /***
    * channels is number of audio channels in the media object.
-   * @return
+   *
    */
   public Integer getAudioChannels() {
     Integer ret = 0;
@@ -65,7 +65,7 @@ public class PSSynFeedMediaContent {
 
   /***
    * bitrate is the kilobits per second rate of media.
-   * @return
+   *
    */
   public Float getBitrate() {
     Float ret = (float) 0;
@@ -77,7 +77,7 @@ public class PSSynFeedMediaContent {
 
   /***
    * duration is the number of seconds the media object plays.
-   * @return
+   *
    */
   public Long getDuration() {
     Long ret = (long) 0;
@@ -89,7 +89,7 @@ public class PSSynFeedMediaContent {
 
   /***
    * expression determines if the object is a sample or the full version of the object, or even if it is a continuous stream (sample | full | nonstop).
-   * @return
+   *
    */
   public String getExpression() {
     String ret = "";
@@ -102,7 +102,7 @@ public class PSSynFeedMediaContent {
 
   /***
    * fileSize is the number of bytes of the media object.
-   * @return
+   *
    */
   public Long getFileSize() {
     Long ret = (long) 0;
@@ -114,7 +114,7 @@ public class PSSynFeedMediaContent {
 
   /***
    * framerate is the number of frames per second for the media object.
-   * @return
+   *
    */
   public Float getFramerate() {
     Float ret = (float) 0;
@@ -126,7 +126,7 @@ public class PSSynFeedMediaContent {
 
   /***
    * height is the height of the media object.
-   * @return
+   *
    */
   public Integer getHeight() {
     Integer ret = 0;
@@ -138,7 +138,7 @@ public class PSSynFeedMediaContent {
 
   /***
    * lang is the primary language encapsulated in the media object.
-   * @return
+   *
    */
   public String getLanguage() {
     String ret = "";
@@ -150,7 +150,7 @@ public class PSSynFeedMediaContent {
   /***
    * The player or URL reference for the item
    * <media:player>
-   * @return
+   *
    */
   public String getPlayerUrl() {
     String ret = "";
@@ -171,7 +171,7 @@ public class PSSynFeedMediaContent {
 
   /***
    * samplingrate is the number of samples per second taken to create the media object.
-   * @return
+   *
    */
   public Float getSamplingrate() {
     Float ret = (float) 0;
@@ -183,7 +183,7 @@ public class PSSynFeedMediaContent {
 
   /***
    * type is the standard MIME type of the object.
-   * @return
+   *
    */
   public String getType() {
     String ret = "";
@@ -195,7 +195,7 @@ public class PSSynFeedMediaContent {
 
   /***
    * Width is the width of the media object.
-   * @return
+   *
    */
   public Integer getWidth() {
     Integer ret = 0;
@@ -207,7 +207,7 @@ public class PSSynFeedMediaContent {
 
   /***
    * isDefault determines if this is the default object that should be used
-   * @return
+   *
    */
   public boolean isDefaultContent() {
     boolean ret = false;
@@ -249,7 +249,7 @@ public class PSSynFeedMediaContent {
 
   /***
    * <media:copyright>
-   * @return
+   *
    */
   public String getCopyright() {
     String ret = "";
@@ -264,7 +264,7 @@ public class PSSynFeedMediaContent {
 
   /***
    * <media:credit>
-   * @return
+   *
    */
   public List<PSSynFeedCredit> getCreditList() {
     ArrayList<PSSynFeedCredit> ret = new ArrayList<PSSynFeedCredit>();
@@ -292,7 +292,7 @@ public class PSSynFeedMediaContent {
 
   /***
    * <media:copyright>
-   * @return
+   *
    */
   public String getCopyrightUrl() {
     String ret = "";
@@ -306,7 +306,7 @@ public class PSSynFeedMediaContent {
 
   /***
    * <media:description>
-   * @return
+   *
    */
   public String getDescription() {
     String ret = "";
@@ -321,7 +321,7 @@ public class PSSynFeedMediaContent {
 
   /***
    *
-   * @return
+   *
    */
   public String getDescriptionType() {
     String ret = "";
@@ -335,7 +335,7 @@ public class PSSynFeedMediaContent {
 
   /***
    *    <media:hash>
-   * @return
+   *
    */
   public String getHash() {
     String ret = "";
@@ -351,7 +351,7 @@ public class PSSynFeedMediaContent {
 
   /***
    * Returns the Algorith used to creat the hash.
-   * @return
+   *
    */
   public String getHashAlgorithm() {
     String ret = "";
@@ -366,7 +366,7 @@ public class PSSynFeedMediaContent {
 
   /***
    *  <media:keywords>
-   * @return
+   *
    */
   public List<String> getKeywordsList() {
     ArrayList<String> ret = new ArrayList<String>();
@@ -398,7 +398,7 @@ public class PSSynFeedMediaContent {
 
   /***
    * <media:rating>
-   * @return
+   *
    */
   public List<PSSynFeedRating> getRatingsList() {
     ArrayList<PSSynFeedRating> ret = new ArrayList<PSSynFeedRating>();
@@ -416,7 +416,7 @@ public class PSSynFeedMediaContent {
 
   /***
    *  <media:restriction>
-   * @return
+   *
    */
   public List<PSSynFeedRestriction> getRestrictionsList() {
     ArrayList<PSSynFeedRestriction> ret = new ArrayList<PSSynFeedRestriction>();
@@ -449,7 +449,7 @@ public class PSSynFeedMediaContent {
    * start specifies the start time offset that the text starts being relevant to the media object. An example of this would be for closed captioning. It uses the NTP time code format (see: the time attribute used in <media:thumbnail>). It is an optional attribute.
    *
    * end specifies the end time that the text is relevant. If this attribute is not provided, and a start time is used, it is expected that the end time is either the end of the clip or the start of the next <media:text> element.
-   * @return
+   *
    */
   public String getTranscript() {
     // @TODO: Implement me.
@@ -470,7 +470,7 @@ public class PSSynFeedMediaContent {
 
   /***
    * <media:thumbnail>
-   * @return
+   *
    */
   public String getThumbnailUrl() {
 
@@ -565,7 +565,7 @@ public class PSSynFeedMediaContent {
 
   /***
    * <media:title>
-   * @return
+   *
    */
   public String getTitleType() {
     return content.getMetadata().getTitleType();

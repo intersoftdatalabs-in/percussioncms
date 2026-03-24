@@ -89,7 +89,6 @@ public class PSUtils {
    *
    * @param params
    * @param index
-   * @return
    */
   public static String getParameter(Object[] params, int index) {
     return getParameter(params, index, null);
@@ -118,7 +117,6 @@ public class PSUtils {
    *
    * @param params
    * @param index
-   * @return
    */
   public static Object getParameterObject(Object[] params, int index) {
     return getParameterObject(params, index, null);
@@ -154,7 +152,6 @@ public class PSUtils {
    * @param pubOperation
    * @param pubDate
    * @param location
-   * @return
    */
   public static boolean isValid(
       IPSRequestContext request,

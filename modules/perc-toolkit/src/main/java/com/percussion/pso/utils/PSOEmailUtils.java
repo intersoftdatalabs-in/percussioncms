@@ -42,7 +42,7 @@ public class PSOEmailUtils {
    * Takes a comma seperated list of email addresses and returns a list of
    * Address instances.
    * @param list
-   * @return
+   *
    * @throws AddressException
    */
   private static List<InternetAddress> splitEmailAddresses(final String list)

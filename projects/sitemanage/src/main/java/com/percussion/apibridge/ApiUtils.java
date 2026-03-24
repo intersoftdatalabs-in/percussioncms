@@ -97,7 +97,7 @@ public class ApiUtils {
   /***
    * Converts a system IPSGuid to a rest compatible Guid.
    * @param guid
-   * @return
+   *
    */
   public static Guid convertGuid(IPSGuid guid) {
     var ret = new Guid();
@@ -172,7 +172,7 @@ public class ApiUtils {
   /***
    * Takes a list of Guids and returns a list of IPSGuids
    * @param ids
-   * @return
+   *
    */
   public static List<IPSGuid> convertGuids(GuidList ids) {
     var ret = new ArrayList<IPSGuid>();
@@ -189,7 +189,7 @@ public class ApiUtils {
   /***
    * Takes a list of PSCommunity instances and returns a CommunityList
    * @param ps_communities
-   * @return
+   *
    */
   public static CommunityList convertPSCommunities(List<PSCommunity> ps_communities) {
 
@@ -203,7 +203,7 @@ public class ApiUtils {
   /***
    * Takes a CommunityList and returns a list of PSCommunity objects
    * @param communities
-   * @return
+   *
    */
   public static List<PSCommunity> convertCommunityList(CommunityList communities) {
 
@@ -218,7 +218,7 @@ public class ApiUtils {
   /***
    * Takes a Community and returns a PSCommunity
    * @param c
-   * @return
+   *
    */
   public static PSCommunity convertCommunity(Community c) {
     PSCommunity p = new PSCommunity();
@@ -237,7 +237,7 @@ public class ApiUtils {
   /***
    * Takes a community role list and returns a List of IPSGuids
    * @param roleList
-   * @return
+   *
    */
   public static Collection<PSCommunityRoleAssociation> convertCommunityRoleList(
       CommunityRoleList roleList) {
@@ -262,7 +262,7 @@ public class ApiUtils {
   /***
    * Takes a list of PSCommunityVisibilities and returns a CommunityVisibilityList
    * @param ps_visibilities
-   * @return
+   *
    */
   public static Collection<? extends CommunityVisibility> convertPSCommunityVisibilities(
       List<PSCommunityVisibility> ps_visibilities) {
@@ -306,7 +306,7 @@ public class ApiUtils {
   /***
    * Takes a PSUserAccessLevel and returns a UserAccessLevel
    * @param permissions
-   * @return
+   *
    */
   public static UserAccessLevel convertPSUserAccessLevel(PSUserAccessLevel permissions) {
     UserAccessLevel ret = new UserAccessLevel();
@@ -322,7 +322,7 @@ public class ApiUtils {
   /***
    * Takes a PSPermissions and returns a Permissions
    * @param p
-   * @return
+   *
    */
   public static Permissions convertPSPermissions(PSPermissions p) {
 
@@ -332,7 +332,7 @@ public class ApiUtils {
   /***
    * Takes a PSObjectLockSummary and returns an ObjectLockSummary
    * @param locked
-   * @return
+   *
    */
   public static ObjectLockSummary convertPSObjectLockSummary(PSObjectLockSummary locked) {
 
@@ -364,7 +364,7 @@ public class ApiUtils {
   /****
    * Takes a location scheme and returns a parameter list
    * @param scheme
-   * @return
+   *
    */
   public static LocationSchemeParameterList convertLocationSchemeParameters(
       IPSLocationScheme scheme) {
@@ -390,7 +390,7 @@ public class ApiUtils {
   /***
    * Takes a PSRole and returns a Role.
    * @param p_role
-   * @return
+   *
    */
   public static Role convertRole(PSRole p_role) {
 
@@ -412,7 +412,7 @@ public class ApiUtils {
   /***
    * Takes a Role and Converts it to a PSRole
    * @param role
-   * @return
+   *
    */
   public static PSRole convertRole(Role role) {
     PSRole ret = new PSRole();
@@ -428,7 +428,7 @@ public class ApiUtils {
   /***
    * Given an ACL returns an IPSAcl
    * @param acl
-   * @return
+   *
    */
   public static PSAclImpl convertAcl(Acl acl) {
 
@@ -448,7 +448,7 @@ public class ApiUtils {
   /***
    * Takes an AclEntry List and returns a collection of PSAclEntryImpls
    * @param aclEntries
-   * @return
+   *
    */
   public static Collection<PSAclEntryImpl> convertAclEntries(AclEntryList aclEntries) {
     HashSet<PSAclEntryImpl> ret = new HashSet<>();
@@ -488,7 +488,7 @@ public class ApiUtils {
   /***
    * Given a rest Principal returns an rx Principal
    * @param principal
-   * @return
+   *
    */
   public static Principal convertPrincipal(com.percussion.rest.acls.Principal principal) {
 
@@ -525,7 +525,7 @@ public class ApiUtils {
   /***
    * Takes a lost of IPSAclEntry and returns a list of ACLEntries
    * @param p_entries
-   * @return
+   *
    */
   public static AclEntryList convertAclEntries(Collection<IPSAclEntry> p_entries) {
     var entries = new ArrayList<AclEntry>();

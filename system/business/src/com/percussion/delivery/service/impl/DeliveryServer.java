@@ -108,7 +108,7 @@ public class DeliveryServer
     /**
      * Gets the value of the connectionUrl property.
      * 
-     * @return
+
      *     possible object is
      *     {@link String }
      *     
@@ -137,7 +137,7 @@ public class DeliveryServer
 
     /**
      * 
-     * @return 
+
           possible object is
      *     {@link String }
      */
@@ -160,7 +160,7 @@ public class DeliveryServer
     /**
      * Gets the value of the user property.
      * 
-     * @return
+
      *     possible object is
      *     {@link String }
      *     
@@ -184,7 +184,7 @@ public class DeliveryServer
     /**
      * Gets the value of the password property.
      * 
-     * @return
+
      *     possible object is
      *     {@link DeliveryServer.Password }
      *     
@@ -208,7 +208,7 @@ public class DeliveryServer
     /**
      * Gets the value of the adminConnectionUrl property.
      * 
-     * @return
+
      *     possible object is
      *     {@link String }
      *     
@@ -371,7 +371,7 @@ public class DeliveryServer
         /**
          * Gets the value of the value property.
          * 
-         * @return
+
          *     possible object is
          *     {@link String }
          *     
@@ -395,7 +395,7 @@ public class DeliveryServer
         /**
          * Gets the value of the encrypted property.
          * 
-         * @return
+
          *     possible object is
          *     {@link Boolean }
          *     

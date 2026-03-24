@@ -108,7 +108,6 @@ public class PSJdbcImportExportHelper {
    *
    * @param file
    * @param search
-   * @return
    */
   public static File findFile(File file, String search) {
     if (file.isDirectory()) {

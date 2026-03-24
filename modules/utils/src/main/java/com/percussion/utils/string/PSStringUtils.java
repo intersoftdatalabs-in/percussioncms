@@ -564,7 +564,6 @@ public class PSStringUtils {
    * Converts a null Long object to 0
    *
    * @param arg 0 or the value
-   * @return
    */
   public static long NullToZero(Long arg) {
     if (null == arg) return 0;

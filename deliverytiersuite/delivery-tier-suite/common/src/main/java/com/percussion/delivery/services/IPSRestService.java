@@ -38,7 +38,7 @@ public interface IPSRestService {
   /***
    * Returns the currently deployed version of the service.
    *
-   * @return
+   *
    */
   @GET
   @Path("/version")

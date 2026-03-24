@@ -58,7 +58,7 @@ public class HtmlLinkHelper {
   /***
    * Returns the base link
    * @param link
-   * @return
+   *
    * @throws URISyntaxException
    * @throws MalformedURLException
    */
@@ -110,7 +110,7 @@ public class HtmlLinkHelper {
    * Converts all links in the specified string to absolute.
    * @param link
    * @param text
-   * @return
+   *
    * @throws MalformedURLException
    * @throws URISyntaxException
    */

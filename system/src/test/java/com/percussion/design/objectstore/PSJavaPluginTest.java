@@ -52,11 +52,7 @@ public class PSJavaPluginTest {
     assertEqualsWithHash(plugin1, plugin2);
   }
 
-  /**
-   * Creates and initializes java plugin.
-   *
-   * @return
-   */
+  /** Creates and initializes java plugin. */
   private PSJavaPlugin createPlugin() {
     return new PSJavaPlugin(OS_KEY, BROWSER_KEY, VERSION, true, DOWLOAD_LOCATION);
   }

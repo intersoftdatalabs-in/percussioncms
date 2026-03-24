@@ -308,7 +308,7 @@ public class PSPageTree implements IPSWidgetHandler {
 
    /**
     * @param objectId
-    * @return
+
     * @throws PSAssemblyException
     */
    private IPSAssemblyItem loadAssemblyItem(JSONObject objectId)

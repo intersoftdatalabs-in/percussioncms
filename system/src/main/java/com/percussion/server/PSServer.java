@@ -2899,7 +2899,7 @@ public class PSServer {
    * Returns the SSL listener port but takes into account
    * requests made by a reverse proxy server.
    * @param request The servlet request
-   * @return
+   *
    */
   public static int getSslListenerPort(HttpServletRequest request) {
 
@@ -2956,7 +2956,6 @@ public class PSServer {
    * Returns the servername but takes into account the scenario when behind a reverse proxy.
    *
    * @param request A valid http request
-   * @return
    */
   public static String getServerName(HttpServletRequest request) {
     String ret = ms_serverName;

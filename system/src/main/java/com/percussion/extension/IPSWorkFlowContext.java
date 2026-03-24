@@ -64,12 +64,11 @@ public interface IPSWorkFlowContext {
   /**
    * Gets the transition database ID.
    *
-   * @return
-   *     <ul>
-   *       <li>database ID of transition
-   *       <li>0 for checkin or checkout
-   *       <li>IPSConstants.TRANSITIONID_NO_ACTION_TAKEN if no action was taken
-   *     </ul>
+   * <ul>
+   *   <li>database ID of transition
+   *   <li>0 for checkin or checkout
+   *   <li>IPSConstants.TRANSITIONID_NO_ACTION_TAKEN if no action was taken
+   * </ul>
    */
   public int getTransitionID();
 
