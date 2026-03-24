@@ -62,11 +62,9 @@ public class TestPSHtmlCleanerProperties {
 
     Document doc = PSHtmlUtils.createHTMLDocument(text, StandardCharsets.UTF_8, false, null);
     assertNotNull(doc);
-    System.out.println(doc.html());
     doc = PSHtmlUtils.createHTMLDocument(text, StandardCharsets.UTF_8, true, null);
     assertNotNull(doc);
     String out = doc.html();
-    System.out.println(doc.html());
     assertTrue(out.contains("<aside>"));
     assertTrue(out.contains("</aside>"));
     assertTrue(out.contains("<footer>"));
