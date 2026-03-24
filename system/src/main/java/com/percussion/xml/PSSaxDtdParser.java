@@ -35,7 +35,7 @@ public class PSSaxDtdParser extends SAXParser {
    *
    * @param strDtd the DTD in string format, may not be <code>null</code> or empty
    * @return the root of the DTD, or <code>null</code> if it fails to find the root of the DTD
-   * @throw IllegalArgumentException if strDtd is <code>null</code> or empty
+   * @throws IllegalArgumentException if strDtd is <code>null</code> or empty
    */
   protected String getRootElement(String strDtd) {
     if ((strDtd == null) || (strDtd.trim().length() == 0))

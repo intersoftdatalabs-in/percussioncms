@@ -52,11 +52,10 @@ public abstract class PSJobRunner extends Thread {
    * Any validation required before the job is started should be performed here. Called by the
    * PSJobHandler before trying to start the job. Derived classes must implement this method to
    * validates that the user has the authorization to perform the actions specified by the
-   * descriptor and aquires any required resources (i.e. locks). Derived classes must call {@link
-   * #setId(int)} to set the job id.
+   * descriptor and aquires any required resources (i.e. locks). Derived classes must set the job id
+   * by assigning to the m_id field.
    *
-   * @param id The id used to identify this job. Must be used to then call {@link #setId(int)} to
-   *     set the job id.
+   * @param id The id used to identify this job.
    * @param descriptor The document containing the descriptor used to execute this job. May not be
    *     <code>null</code>.
    * @param req The request used to determine the current user's security permissions. May not be

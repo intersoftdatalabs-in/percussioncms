@@ -1350,7 +1350,7 @@ public interface IPSContentWs
     * relationship names of the filter are specified, then the category of the
     * relationship type for the relationship names must be
     * {@link PSRelationshipConfig#CATEGORY_ACTIVE_ASSEMBLY}.
-    * @param isLoadOperation indicates whether to load the allowed operations
+    * @param isLoadOperations indicates whether to load the allowed operations
     * for the returned item summaries or not, <code>true</code> the allowed
     * operations will be loaded; otherwise the allowed operations of the
     * returned item summaries will be empty.
@@ -1390,7 +1390,7 @@ public interface IPSContentWs
     * relationship names of the filter are specified, then the category of the
     * relationship type for the relationship names must be
     * {@link PSRelationshipConfig#CATEGORY_ACTIVE_ASSEMBLY}.
-    * @param isLoadOperation indicates whether to load the allowed operations
+    * @param isLoadOperations indicates whether to load the allowed operations
     * for the returned item summaries or not, <code>true</code> the allowed
     * operations will be loaded; otherwise the allowed operations of the
     * returned item summaries will be empty.
@@ -1711,7 +1711,7 @@ public interface IPSContentWs
     * folder guid obtained from one of the IPS*Ws interfaces or from the
     * {@link com.percussion.services.guidmgr.IPSGuidManager IPSGuidManager}.
     * 
-    * @param isLoadOperation indicates whether to load the allowed operations
+    * @param isLoadOperations indicates whether to load the allowed operations
     * for the returned item summaries or not, <code>true</code> the allowed
     * operations will be loaded; otherwise the allowed operations of the
     * returned item summaries will be empty.
@@ -1764,7 +1764,7 @@ public interface IPSContentWs
     *    children, not <code>null</code> or empty, must be the path of an 
     *    existing folder. Provide '/' to get all root folders such as 
     *    <code>Folders</code> and <code>Sites</code>.
-    * @param isLoadOperation indicates whether to load the allowed operations 
+    * @param isLoadOperations indicates whether to load the allowed operations 
     *    for the returned item summaries or not, <code>true</code> the 
     *    allowed operations will be loaded; otherwise the allowed operations of 
     *    the returned item summaries will be empty.

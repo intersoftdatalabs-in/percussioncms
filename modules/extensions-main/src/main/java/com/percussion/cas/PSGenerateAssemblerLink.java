@@ -47,13 +47,14 @@ public class PSGenerateAssemblerLink extends PSSimpleJavaUdfExtension {
    *     content for which the location url is generated. Optional, but required if contentid is
    *     passed. params [3] the sys_authtype parameter to be added to the assembler url. Optional.
    *     If not supplied, the value will be obtained from the request context.
-   *     <li>sys_context (optional)
-   *     <li>sys_siteid (optional)
-   *     <li>relatedItemId (optional) This parameter is included when building linkurls for an auto
-   *         index while active assembly is enabled, to ensure the correct operation the Rhythmyx
-   *         cache. If this parameter is not supplied, the <code>sys_command</code> parameter will
-   *         not be included in the link.
-   *     </ol>
+   *     <ul>
+   *       <li>sys_context (optional)
+   *       <li>sys_siteid (optional)
+   *       <li>relatedItemId (optional) This parameter is included when building linkurls for an
+   *           auto index while active assembly is enabled, to ensure the correct operation the
+   *           Rhythmyx cache. If this parameter is not supplied, the <code>sys_command</code>
+   *           parameter will not be included in the link.
+   *     </ul>
    *     Any optional values not supplied as parameters will be taken from the request context
    *     parameters.
    * @param request The current request context, not <code>null</code>.

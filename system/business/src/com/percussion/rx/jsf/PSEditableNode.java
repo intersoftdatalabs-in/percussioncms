@@ -121,11 +121,11 @@ public abstract class PSEditableNode extends PSLockableNode
    }
 
    /**
-    * This simply call {@link super#getGUID()}. However, the returned value
+    * This simply calls the parent getGUID method. However, the returned value
     * can never be <code>null</code>.
     * 
     * @return the GUID for this item, never <code>null</code>.
-    */
+   */
    @Override
    public IPSGuid getGUID()
    {
@@ -136,11 +136,8 @@ public abstract class PSEditableNode extends PSLockableNode
     * Combines the title of the node and the numeric id of the associated design
     * object into a string suitable for presentation to the implementer.
     * 
-    * @param name the object name, never <code>null</code> or empty.
-    * @param uuid the UUID (not the GUID) of the object.
-    * 
     * @return the display name, never <code>null</code> or empty.
-    */
+   */
    public String getNameWithId()
    {
       return getNameWithId(getTitle(), getGUID().getUUID());

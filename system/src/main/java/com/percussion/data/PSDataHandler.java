@@ -239,8 +239,8 @@ public abstract class PSDataHandler implements IPSRequestHandler, IPSInternalReq
    * @param doc The document to run the extensions against. May be <code>null</code>.
    * @return The processed document. If no changes are made, returns the resultDoc which was passed
    *     in.
-   * @throws PSExtractionException if an error occurs extracting the required information from the
-   *     supplied execution data.
+   * @throws PSDataExtractionException if an error occurs extracting the required information from
+   *     the supplied execution data.
    * @throws PSParameterMismatchException the runtime parameters specified in a call are incorrect
    *     for the usage of that extension.
    * @throws PSExtensionProcessingException if any other errors occur.
@@ -263,8 +263,8 @@ public abstract class PSDataHandler implements IPSRequestHandler, IPSInternalReq
    *     extensions. May not be <code>null</code>.
    * @return The processed document. If no changes are made, returns the resultDoc which was passed
    *     in.
-   * @throws PSExtractionException if an error occurs extracting the required information from the
-   *     supplied execution data.
+   * @throws PSDataExtractionException if an error occurs extracting the required information from
+   *     the supplied execution data.
    * @throws PSParameterMismatchException the runtime parameters specified in a call are incorrect
    *     for the usage of that extension.
    * @throws PSExtensionProcessingException if any other errors occur.
@@ -367,12 +367,13 @@ public abstract class PSDataHandler implements IPSRequestHandler, IPSInternalReq
    * Prepares extension instances for each of the given extension calls whose extension implements
    * the given class or interface, storing each prepared extension in the given collection.
    *
+   * @param appHandler The application handler to use for preparing extensions.
    * @param extCalls A collection of extension calls. Will not be modified. Can be <CODE>null</CODE>
    *     , in which case this method will do nothing.
    * @param interfaceName The fully qualified classname of the interface that determines which of
    *     the referenced extensions will be prepared. If <CODE>null</CODE>, all referenced extensions
    *     will be prepared.
-   * @param map The Map into which prepared extensions will be put, using the corresponding
+   * @param instances The List into which prepared extensions will be put, using the corresponding
    *     PSExtensionRef as a key.
    */
   public static void loadExtensions(

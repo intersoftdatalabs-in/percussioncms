@@ -32,9 +32,7 @@ public class PSFolderPermissions extends PSObjectPermissions {
    * This constructor will typically be used on the server side.
    *
    * @param folderAcl acl of the folder being accessed by the user, may not be <code>null</code>
-   * @param request request context information, may not be <code>null</code>.
-   * @throws IllegalArgumentException if <code>request</code> or <code>folderAcl</code> is <code>
-   *     null</code>
+   * @throws IllegalArgumentException if <code>folderAcl</code> is <code>null</code>
    * @throws PSCmsException if request to server to get the user info fails for any reason
    * @throws PSAuthorizationException if any error occurs getting the user's server access level
    */

@@ -43,11 +43,10 @@ public class PSCmsObject implements IPSCmsComponent {
    * Creates an instance from a previously serialized (using <code>toXml
    * </code>) system object.
    *
-   * @param source A valid element that meets the dtd defined in the
-   *    description of {@link #toXml(Document)}. Never <code>null</code>.
-   *
-   * @throws PSUnknownNodeTypeException If the supplied source element does
-   *    not conform to the dtd defined in the <code>fromXml<code> method.
+   * @param source A valid element that meets the dtd defined in the description of {@link
+   *     #toXml(Document)}. Never <code>null</code>.
+   * @throws PSUnknownNodeTypeException If the supplied source element does not conform to the dtd
+   *     defined in the <code>fromXml</code> method.
    */
   public PSCmsObject(Element source) throws PSUnknownNodeTypeException {
     fromXml(source);

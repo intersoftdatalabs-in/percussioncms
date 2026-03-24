@@ -53,7 +53,7 @@ import org.w3c.dom.Element;
  * </ol>
  *
  * <p>The query resource name must be a name suitable for internal requests. Usually this is just
- * &lt;application name&gt;/&ltquery name&gt;
+ * &lt;application name&gt;/&lt;query name&gt;
  *
  * <p>The column index starts at 1. If this column contains a value, it will be converted to text
  * and added to the &lt;Navon&gt; elements. If the value is <code>null</code> no attribute will be

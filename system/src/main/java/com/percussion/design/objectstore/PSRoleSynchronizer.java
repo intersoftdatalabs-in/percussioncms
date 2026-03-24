@@ -36,6 +36,7 @@ public class PSRoleSynchronizer {
    * in the connection information are:
    *
    * <table border="1">
+   * <caption>Connection Information Properties</caption>
    *    <tr>
    *       <th>Key</th>
    *       <th>Value</th>

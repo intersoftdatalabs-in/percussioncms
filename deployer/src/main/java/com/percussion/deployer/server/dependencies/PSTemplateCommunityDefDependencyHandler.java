@@ -49,7 +49,6 @@ public class PSTemplateCommunityDefDependencyHandler extends PSDataObjectDepende
    *     must be of the type supported by this class. See {@link #getType()} for more info.
    * @param dependencyMap The full dependency map. May not be <code>null</code>.
    * @throws IllegalArgumentException if any param is invalid.
-   * @throws PSDeployException if any other error occurs.
    */
   public PSTemplateCommunityDefDependencyHandler(
       PSDependencyDef def, PSDependencyMap dependencyMap) {

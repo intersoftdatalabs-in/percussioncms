@@ -23,8 +23,6 @@ public class PSNativeException extends PSException {
   /**
    * Creates a new exception.
    *
-   * @param errorCode a code appropriate for the current exception. Codes in the range 1601-1650
-   *     have been reserved for this purpose.
    * @param detail Specialized message for the error.
    */
   public PSNativeException(String detail) {

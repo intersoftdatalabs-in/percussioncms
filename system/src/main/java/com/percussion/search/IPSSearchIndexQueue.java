@@ -36,8 +36,8 @@ public interface IPSSearchIndexQueue {
   /**
    * Retrieves a list full of Search Queue Items limiting the length of the list by count. Events
    * are loaded sorted by QueueId in ascending order. Subsequent loads start with the next Queue
-   * Event after the last one loaded previously ensuring a event is only read once unless {@link
-   * com.percussion.search.impl.PSSearchIndexQueue#resetQueueLoadPosition() } is called.
+   * Event after the last one loaded previously ensuring a event is only read once unless the
+   * resetQueueLoadPosition method is called.
    *
    * @param count - Maximum number of items 0 means no limit
    * @return Collection of Queue Items found in repository never <code>null</code> but could be

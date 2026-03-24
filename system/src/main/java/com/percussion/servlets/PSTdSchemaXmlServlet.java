@@ -235,11 +235,10 @@ public class PSTdSchemaXmlServlet extends HttpServlet {
   }
 
   /**
-   * Transforms XML file based on the "TableDefBuilder.xsl" XSL file
-   * using saxon's TransformerFactory and Transformer classes.
+   * Transforms XML file based on the "TableDefBuilder.xsl" XSL file using saxon's
+   * TransformerFactory and Transformer classes.
    *
-   * @param doc the XML document to be transformed, assumed never
-   * <code>null</null> or empty
+   * @param doc the XML document to be transformed, assumed never <code>null</code> or empty
    * @return the document transformed and returned as a string.
    */
   @SuppressWarnings("unused")

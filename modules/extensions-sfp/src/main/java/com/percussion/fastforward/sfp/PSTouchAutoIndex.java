@@ -71,12 +71,12 @@ public class PSTouchAutoIndex extends PSDefaultExtension
    * @param params see the parameter table in the class header.
    * @param req the parent request context.
    * @param resultDoc the xml result document for the resource.
-   * @see com.percussion.extension.IPSResultDocumentProcessor#
-   *     processResultDocument(java.lang.Object[], com.percussion.server. IPSRequestContext,
-   *     org.w3c.dom.Document)
+   * @see
+   *     com.percussion.extension.IPSResultDocumentProcessor#processResultDocument(java.lang.Object[],
+   *     com.percussion.server.IPSRequestContext, org.w3c.dom.Document)
    */
   public Document processResultDocument(Object[] params, IPSRequestContext req, Document resultDoc)
-      throws PSParameterMismatchException, PSExtensionProcessingException {
+      throws PSExtensionProcessingException {
     touchAutoIndex(req);
     return resultDoc;
   }
@@ -84,13 +84,13 @@ public class PSTouchAutoIndex extends PSDefaultExtension
   /**
    * Process the request. This method is call when this extension is a pre-exit.
    *
-   * <p>If the parent request contains the <code>psfirst</code> HTML parameter then this method will
-   * return without performing any actions. This allows this exit to be used on content list
-   * generators whioh contain the Result Pager.
+   * <p>If the parent request contains the psfirst HTML parameter then this method will return
+   * without performing any actions. This allows this exit to be used on content list generators
+   * whioh contain the Result Pager.
    *
    * @param params see the parameter table in the class header.
    * @param req the parent request context.
-   * @see com.percussion.extension.IPSRequestPreProcessor# preProcessRequest(java.lang.Object[],
+   * @see com.percussion.extension.IPSRequestPreProcessor#preProcessRequest(java.lang.Object[],
    *     com.percussion.server.IPSRequestContext)
    */
   public void preProcessRequest(Object[] params, IPSRequestContext req)

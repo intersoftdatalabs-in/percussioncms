@@ -44,15 +44,25 @@ public class PSFileConverterExit extends PSDefaultExtension implements IPSItemIn
   /**
    * Converts the data specified by the params to either text or html.
    *
-   * @param The parameters, never <code>null</code>. The following params are expected. <code>
+   * @param params The parameters, never <code>null</code>. The following params are expected.
+   *     <code>
    *     toString</code> is called on all parameters to obtain their values unless otherwise
    *     specified. If a parameter value is <code>null</code> or empty, it is considered to have
    *     been ommitted (required parameters must be supplied):
    *     <table>
+   * <caption>Parameter descriptions</caption>
    * <tr>
    * <th>Param #</th>
    * <th>Description</th>
    * <th>Required</th>
+   * </tr>
+   * <tr>
+   * <td>0</td>
+   * <td>Contains a reference to the file containing the data to convert. If
+   * the value of this parameter is a File object, it is used directly,
+   * otherwise toString() is called on the value of this parameter and the
+   * result is assumed to be the data to convert as base64 encoded text. </td>
+   * <td>yes</td>
    * </tr>
    * <tr>
    * <td>0</td>

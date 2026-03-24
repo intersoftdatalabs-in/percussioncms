@@ -49,15 +49,13 @@ public class PSComponentSummaries extends PSDbComponentSet {
   }
 
   /**
-   * Creates an instance from a an array of Elements that was created
-   * by a sequence of calls to PSComponentSummary.toXML();
+   * Creates an instance from a an array of Elements that was created by a sequence of calls to
+   * PSComponentSummary.toXML();
    *
-   * @param source A valid array of elements that meet the dtd defined in the
-   * PSComponentSummary of {@link PSComponentSummary#toXml(Document)},
-   * never <code>null</code>.
-   *
-   * @throws PSUnknownNodeTypeException If the supplied source element does
-   *    not conform to the dtd defined in the <code>fromXml<code> method.
+   * @param source A valid array of elements that meet the dtd defined in the PSComponentSummary of
+   *     {@link PSComponentSummary#toXml(Document)}, never <code>null</code>.
+   * @throws PSUnknownNodeTypeException If the supplied source element does not conform to the dtd
+   *     defined in the <code>fromXml</code> method.
    */
   public PSComponentSummaries(Element[] source) throws PSUnknownNodeTypeException {
     super(PSComponentSummary.class);
@@ -66,15 +64,13 @@ public class PSComponentSummaries extends PSDbComponentSet {
   }
 
   /**
-   * Creates an instance from a list of Elements that was created
-   * by a sequence of calls to PSComponentSummary.toXML();
+   * Creates an instance from a list of Elements that was created by a sequence of calls to
+   * PSComponentSummary.toXML();
    *
-   * @param source A valid list of {@link Element} objects that meet the dtd
-   *    defined in the PSComponentSummary of
-   *    {@link PSComponentSummary#toXml(Document)}, never <code>null</code>.
-   *
-   * @throws PSUnknownNodeTypeException If the supplied source element does
-   *    not conform to the dtd defined in the <code>fromXml<code> method.
+   * @param source A valid list of {@link Element} objects that meet the dtd defined in the
+   *     PSComponentSummary of {@link PSComponentSummary#toXml(Document)}, never <code>null</code>.
+   * @throws PSUnknownNodeTypeException If the supplied source element does not conform to the dtd
+   *     defined in the <code>fromXml</code> method.
    */
   public PSComponentSummaries(List source) throws PSUnknownNodeTypeException {
     super(PSComponentSummary.class);
@@ -97,11 +93,10 @@ public class PSComponentSummaries extends PSDbComponentSet {
    * Creates an instance from a previously serialized (using <code>toXml
    * </code>) one.
    *
-   * @param source A valid element that meets the dtd defined in the
-   *    description of {@link #toXml(Document)}. Never <code>null</code>.
-   *
-   * @throws PSUnknownNodeTypeException If the supplied source element does
-   *    not conform to the dtd defined in the <code>fromXml<code> method.
+   * @param source A valid element that meets the dtd defined in the description of {@link
+   *     #toXml(Document)}. Never <code>null</code>.
+   * @throws PSUnknownNodeTypeException If the supplied source element does not conform to the dtd
+   *     defined in the <code>fromXml</code> method.
    */
   public PSComponentSummaries(Element source) throws PSUnknownNodeTypeException {
     super(source);

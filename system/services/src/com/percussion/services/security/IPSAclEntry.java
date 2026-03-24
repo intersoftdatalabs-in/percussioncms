@@ -23,9 +23,8 @@ import com.percussion.security.shim.acl.AclEntry;
 import com.percussion.security.shim.acl.Permission;
 
 /**
- * This interface extends {@link com.percussion.security.shim.acl.impl.AclEntryImpl} to suport the type of the ACL entry.
+ * This interface extends the ACL entry implementation to support the type of the ACL entry.
  * 
- * @see java.security.acl.AclEntry
  * @version 6.0
  */
 public interface IPSAclEntry extends AclEntry

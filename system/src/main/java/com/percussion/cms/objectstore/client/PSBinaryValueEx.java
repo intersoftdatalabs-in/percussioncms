@@ -46,7 +46,7 @@ public class PSBinaryValueEx extends PSBinaryValue {
    * @param content - the InputStream to be used as the value. Must not be <code>null</code>. This
    *     method assumes ownership of the stream and is
    *     <p>responsible for closing it.
-   * @param string the filename for this binary. May be <code>null</code>.
+   * @param filename the filename for this binary. May be <code>null</code>.
    * @param contentType the content type for this binary. May be <code>null</code>.
    * @throws IOException if there is a problem with the stream.
    */

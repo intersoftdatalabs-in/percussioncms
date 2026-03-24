@@ -241,8 +241,8 @@ public class PSResultSetHtmlConverter extends PSResultSetXmlConverter {
   /**
    * Generate the results for this request.
    *
-   * @param execData the execution data associated with this request. This includes all context
-   *     data, result sets, etc.
+   * @param data the execution data associated with this request. This includes all context data,
+   *     result sets, etc.
    * @exception PSConversionException if the conversion fails
    * @exception PSUnsupportedConversionException if conversion to the format required by the
    *     specified request URL is not supported
@@ -259,7 +259,7 @@ public class PSResultSetHtmlConverter extends PSResultSetXmlConverter {
    * Is the request URL supported by this converter? The request URL may contain an extension. When
    * it does, this is used in defining the output which will be returned.
    *
-   * @param reqUrl the URL which was specified when making this request
+   * @param reqPageURL the URL which was specified when making this request
    * @return <code>true</code> if conversion is supported, <code>false</code> otherwise
    */
   protected boolean isSupported(String reqPageURL) {

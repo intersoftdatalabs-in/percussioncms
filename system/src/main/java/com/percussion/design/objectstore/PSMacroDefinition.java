@@ -41,9 +41,9 @@ public class PSMacroDefinition extends PSComponent {
   /**
    * Constructs a macro definition.
    *
-   * @param name the name of the macro, not <code>null</code> or empty.
-   * @param class the fully qualified class name used to extract the macro value, not <code>null
-   *     </code> or empty.
+   * @param name the name of the macro, not null or empty.
+   * @param className the fully qualified class name used to extract the macro value, not null or
+   *     empty.
    */
   public PSMacroDefinition(String name, String className) {
     setName(name);

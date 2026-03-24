@@ -131,9 +131,7 @@ public class PSDisplayError {
   }
 
   /**
-   * @return the list of
-   *         {@link com.percussion.design.objectstore.PSDetails#PSDetails(Element)
-   *         never <code>null</code> may be empty.
+   * @return the list of details, never <code>null</code> may be empty.
    */
   public List<PSDetails> getDetails() {
     return m_details;

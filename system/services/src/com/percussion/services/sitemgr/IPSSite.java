@@ -170,7 +170,7 @@ public interface IPSSite extends IPSCatalogSummary
    /**
     * The name of the file where the private key for sFtp publishing will be
     * stored. This is used for SFTP login only, not for FTP. The file will be
-    * stored under the <installRoot>/rxconfig/ssh-keys folder. This field only
+    * stored under the [installRoot]/rxconfig/ssh-keys folder. This field only
     * represents the name of the file, not the complete path.
     * 
     * @return returns the private key file name, may be <code>null</code> or

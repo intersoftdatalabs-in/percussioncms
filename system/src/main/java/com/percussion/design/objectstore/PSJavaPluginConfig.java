@@ -57,7 +57,7 @@ public class PSJavaPluginConfig implements IPSJavaPluginConfig {
    * Existence is checked based on the OS and browser keys.
    *
    * @param plugin new plugin object to add, must not be <code>null</code>.
-   * @thorws IllegalArgumentException if the plugin supplied is <code>null</code>.
+   * @throws IllegalArgumentException if the plugin supplied is <code>null</code>.
    */
   public void addPlugin(IPSJavaPlugin plugin) {
     if (plugin == null) throw new IllegalArgumentException("plugin must not be null");
@@ -72,7 +72,7 @@ public class PSJavaPluginConfig implements IPSJavaPluginConfig {
    *
    * @param plugin new plugin object to add, must not be <code>null</code>.
    * @return removed plugin object, can be <code>null</code> only if supplied one does not exist.
-   * @thorws IllegalArgumentException if the plugin supplied is <code>null</code>.
+   * @throws IllegalArgumentException if the plugin supplied is <code>null</code>.
    */
   public PSJavaPlugin removePlugin(PSJavaPlugin plugin) {
     if (plugin == null) throw new IllegalArgumentException("plugin must not be null");

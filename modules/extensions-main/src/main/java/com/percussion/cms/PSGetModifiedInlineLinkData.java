@@ -56,19 +56,16 @@ public class PSGetModifiedInlineLinkData extends PSDefaultExtension
   }
 
   /**
-   * Replaces the rusult document with the docoument like this. <Parent sys_contentid="301"
-   * sys_revision="1"> <Child oldContentId="312" newContentId="333" newRevision="1"/> <Child
-   * oldContentId="323" newContentId="323" newRevision="2"/> <Child oldContentId="345"
-   * newContentId="345" newRevision="2"/> </Parent> As the name indicates Parent represents the
-   * parent item and Child element represents the inline child of the parent item. oldContentId is
-   * the current content id of the inline item stored in the content. newContentId is the active
-   * promotable version of the old item. This will be the same as the old one if the item is not
-   * replaced by its promotable version. The newRevision always represents the current revision of
-   * the item with newContentId.
+   * Replaces the result document with the document containing Parent and Child elements. The Parent
+   * element has attributes sys_contentid and sys_revision. The Child element has attributes
+   * oldContentId, newContentId, and newRevision. As the name indicates Parent represents the parent
+   * item and Child element represents the inline child of the parent item. oldContentId is the
+   * current content id of the inline item stored in the content. newContentId is the promotable
+   * version of the old item. This will be the same as the old one if the item is not replaced by
+   * its promotable version. The newRevision always represents the current revision of the item with
+   * newContentId.
    *
-   * @see com.percussion.extension.IPSResultDocumentProcessor#
-   *     processResultDocument(java.lang.Object[], com.percussion.server. IPSRequestContext,
-   *     org.w3c.dom.Document)
+   * @see IPSResultDocumentProcessor processResultDocument
    */
   public Document processResultDocument(
       Object[] params, IPSRequestContext request, Document resultDoc)

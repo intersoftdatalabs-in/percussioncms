@@ -24,7 +24,7 @@ import com.percussion.extension.IPSWorkflowAction;
  * parents of those items, etc. The relationships are in the 'active assembly' category only.
  *
  * <p>The content items which are found are then updated so that the LastModifyDate column contains
- * the current date & time.
+ * the current date and time.
  *
  * @see PSTouchItemsWorkflowAction
  */

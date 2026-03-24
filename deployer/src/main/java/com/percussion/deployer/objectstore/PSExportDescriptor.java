@@ -210,8 +210,8 @@ public class PSExportDescriptor extends PSDescriptor {
    * Sets the names of the packages whose dependencies have changed since this descriptor was last
    * saved. Replaces any previous list.
    *
-   * @names Iterator over zero or more package names as <code>String</code> objects. May not be
-   *     <code>null</code>.
+   * @param names Iterator over zero or more package names as <code>String</code> objects. May not
+   *     be <code>null</code>.
    * @throws IllegalArgumentException if <code>names</code> is <code>null</code>.
    */
   public void setModifiedPackages(Iterator<String> names) {
@@ -235,8 +235,8 @@ public class PSExportDescriptor extends PSDescriptor {
    * Sets the names of the packages whose dependencies cannot be located. Replaces any previous
    * list.
    *
-   * @names Iterator over zero or more package names as <code>String</code> objects. May not be
-   *     <code>null</code>.
+   * @param names Iterator over zero or more package names as <code>String</code> objects. May not
+   *     be <code>null</code>.
    * @throws IllegalArgumentException if <code>names</code> is <code>null</code>.
    */
   public void setMissingPackages(Iterator names) {
@@ -250,8 +250,8 @@ public class PSExportDescriptor extends PSDescriptor {
    * Adds the names of the packages whose dependencies cannot be located. Appends to any previous
    * list.
    *
-   * @names Iterator over zero or more package names as <code>String</code> objects. May not be
-   *     <code>null</code>.
+   * @param names Iterator over zero or more package names as <code>String</code> objects. May not
+   *     be <code>null</code>.
    * @throws IllegalArgumentException if <code>names</code> is <code>null</code>.
    */
   public void addMissingPackages(Iterator<String> names) {

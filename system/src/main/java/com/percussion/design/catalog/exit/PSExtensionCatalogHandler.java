@@ -60,6 +60,7 @@ public class PSExtensionCatalogHandler implements IPSCatalogHandler {
    * information for this request type is:
    *
    * <table border="1">
+   * <caption>Request Information</caption>
    * <tr>
    *      <th>Key</th>
    *      <th>Value</th>
@@ -142,12 +143,6 @@ public class PSExtensionCatalogHandler implements IPSCatalogHandler {
    * @param interfacePattern A filter to limit the types of extensions returned. Pass in <code>null
    *     </code> to get all interfaces. Use SQL search syntax for any patterns.
    * @return an array containing the extension handlers installed on the server.
-   * @exception PSServerException if the server is not responding.
-   * @exception PSAuthenticationFailedException if the credentials specified for the server
-   *     connection are invalid.
-   * @exception PSAuthorizationException if the user does not have designer or administrator access
-   *     to the server.
-   * @exception IOException if a communication error occurs while processing the request
    */
   public static IPSExtensionDef[] getCatalog(
       PSCataloger cataloger, String handlerName, String context, String interfacePattern)

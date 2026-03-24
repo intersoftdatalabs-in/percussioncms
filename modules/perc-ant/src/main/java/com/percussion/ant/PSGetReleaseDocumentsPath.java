@@ -23,14 +23,11 @@ import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.Task;
 
 /**
- * Determines the path to the release documents directory from the specified
- * major, minor, micro version and root directory passed in. Sets a property
- * if documentation exists for the specified version else the property does
- * not get set.
+ * Determines the path to the release documents directory from the specified major, minor, micro
+ * version and root directory passed in. Sets a property if documentation exists for the specified
+ * version else the property does not get set. <br>
+ * Example Usage: <br>
  *
- * <br>
- * Example Usage:
- * <br>
  * <pre>
  *
  * First set the taskdef:
@@ -54,6 +51,7 @@ import org.apache.tools.ant.Task;
  *    The 'property' attribute is optional and defaults to "RELEASE.DOCS.PATH"
  *    if not supplied.
  *
+ * </pre>
  */
 public class PSGetReleaseDocumentsPath extends Task {
 

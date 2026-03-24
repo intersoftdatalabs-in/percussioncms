@@ -353,16 +353,16 @@ public class PSCalendarField extends JPanel implements ActionListener {
     frame.setVisible(true);
   }
 
-  /** The output format string. Set in ctor, never <code>null</code> after that. */
+  /** The output format string. Set in ctor, never null after that. */
   private String m_outputFormat;
 
   /**
-   * The button to invoke the calendar dialog. Initialized in {@link #init()} Never <code>null
-   * </code> after that.
+   * The button to invoke the calendar dialog. Initialized in {@link #init(Date)} Never null after
+   * that.
    */
   private PSCalendarButton m_calendarButton;
 
-  /** The date text field. Initialized in {@link #init()} Never <code>null</code> after that. */
+  /** The date text field. Initialized in {@link #init(Date)} Never null after that. */
   private JTextField m_dateTextField;
 
   /** Flag indicating that the height should remain fixed. */

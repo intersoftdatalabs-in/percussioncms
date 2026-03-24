@@ -32,7 +32,6 @@ public class PSTraceAppSecurity extends PSTraceMessage {
    * The constructor for this class.
    *
    * @param typeFlag the type of trace message this object will generate
-   * @roseuid 39FDD14701F4
    */
   public PSTraceAppSecurity(int typeFlag) {
     super(typeFlag);
@@ -51,7 +50,6 @@ public class PSTraceAppSecurity extends PSTraceMessage {
    *     be <code>null</code>. Object is an Object array with the following objects: - Integer: the
    *     access level required - Integer: the User access level
    * @return the message body as a String
-   * @roseuid 39FEE2F300BB
    */
   protected String getMessageBody(java.lang.Object source) {
     // validate and retrive args

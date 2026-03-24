@@ -44,7 +44,7 @@ public class PSAcceptElements {
   }
 
   /**
-   * Specifies the inclusion of binary values in {@link PSFieldItem#toXml(Document)} calls.
+   * Specifies the inclusion of binary values in toXml calls.
    *
    * @return {@code true} if they are to be included, otherwise {@code false}.
    */

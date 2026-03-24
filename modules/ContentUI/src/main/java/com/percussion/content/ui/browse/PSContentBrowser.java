@@ -76,11 +76,10 @@ public class PSContentBrowser {
   /**
    * Get all registered sites from the system that are visible to the user based on folder security.
    *
-   * @return site objects as JSON string that resolves to a JSON array. Never <code>null</code> or
-   *     empty. May return a string that resolves to empty JSON array.
-   * @throws PSSiteManagerException
-   * @throws JSONException
-   * @throws PSErrorException
+   * @return site objects as JSON string that resolves to a JSON array. Never null or empty. May
+   *     return a string that resolves to empty JSON array.
+   * @throws JSONException if JSON parsing fails
+   * @throws PSErrorException if an error occurs
    */
   public static String getSites() throws JSONException, PSErrorException {
     IPSSiteManager sm = PSSiteManagerLocator.getSiteManager();
@@ -276,18 +275,15 @@ public class PSContentBrowser {
   /**
    * Get the children of the supplied folder path filtered for the supplied content type.
    *
-   * @param request request context to instantiate the server folder processor, must not be <code>
-   *     null</code>.
+   * @param request request context to instantiate the server folder processor, must not be null.
    * @param folderPath folder path, if starts with "//Sites" or "//Folders" it is unmodified.
    *     Otherwise, it will be prefixed with "//Folders" to make it an absolute path like
-   *     "//Folders/<folderPath>". Must not be <code>null</code> or empty.
-   * @param contentTypeId content typeid to filter the items by, <code>null</code> if no filtering
-   *     is needed.
+   *     "//Folders/&lt;folderPath&gt;". Must not be null or empty.
+   * @param contentTypeId content typeid to filter the items by, null if no filtering is needed.
    * @return child folders and items of the supplied folder as JSON string that resolves to a JSON
-   *     array. Never <code>null</code> or empty. May return a string that resolves to empty JSON
-   *     array.
-   * @throws PSErrorException
-   * @throws JSONException
+   *     array. Never null or empty. May return a string that resolves to empty JSON array.
+   * @throws PSErrorException if an error occurs
+   * @throws JSONException if JSON parsing fails
    */
   public static String getFolderChildren(
       IPSRequestContext request, String folderPath, String contentTypeId)
@@ -324,14 +320,14 @@ public class PSContentBrowser {
    * <p>
    *
    * <ul>
-   *   <li>Throws {@link IllegalArgumentException} if th supplied path is <code>null</code> or empty
+   *   <li>Throws {@link IllegalArgumentException} if th supplied path is null or empty
    *   <li>if the supplied path starts with "//Sites" or "//Folders" it is unmodified. Otherwise, it
    *       will be prefixed with "//Folders" to make it an absolute path like
-   *       "//Folders/<folderPath>"
+   *       "//Folders/&lt;folderPath&gt;"
    * </ul>
    *
-   * @param folderPath folder path, Must not be <code>null</code> or empty.
-   * @return path modified as above, never <code>null</code> or empty.
+   * @param folderPath folder path, Must not be null or empty.
+   * @return path modified as above, never null or empty.
    */
   private static String validateFolderPath(String folderPath) throws IllegalArgumentException {
     if (folderPath == null || folderPath.length() == 0) {
@@ -387,15 +383,15 @@ public class PSContentBrowser {
    * security/permissions and other properties og the new folder will be inherited from the parent
    * folder.
    *
-   * @param request request context to get the user name, must not be <code>null</code>.
+   * @param request request context to get the user name, must not be null.
    * @param parentFolderPath folder path, if starts with "//Sites" or "//Folders" it is unmodified.
    *     Otherwise, it will be prefixed with "//Folders" to make it an absolute path like
-   *     "//Folders/<folderPath>". Must not be <code>null</code> or empty.
-   * @param folderName name of the new folder to create, must not be <code>null</code> or empty.
+   *     "//Folders/&lt;folderPath&gt;". Must not be null or empty.
+   * @param folderName name of the new folder to create, must not be null or empty.
    * @return JSON string that resolves to a JSON object representing the newly created folder, never
-   *     <code>null</code> or empty.
-   * @throws PSErrorException
-   * @throws JSONException
+   *     null or empty.
+   * @throws PSErrorException if an error occurs
+   * @throws JSONException if JSON parsing fails
    */
   public static String createFolder(
       IPSRequestContext request, String parentFolderPath, String folderName)
@@ -470,10 +466,11 @@ public class PSContentBrowser {
    *           not present then the folder path is an empty string.
    *       <li>The absolute folder path is computed by appenidng the path in the second step and the
    *           folder root of the site object.
-   * @param absFolderPath String buffer to store the parsed absolute folder path, must not be <code>
-   *     null</code> and must be empty. Emptied if not empty.
-   * @return {@link IPSSite site} object corresponding to the site name parsed, never <code>null
-   *     </code>.
+   *     </ul>
+   *
+   * @param absFolderPath String buffer to store the parsed absolute folder path, must not be null
+   *     and must be empty. Emptied if not empty.
+   * @return IPSSite site object corresponding to the site name parsed, never null.
    */
   public static IPSSite computeAbsoluteFolderPath(
       String absSiteFolderPath, StringBuffer absFolderPath) throws PSNotFoundException {
@@ -637,12 +634,12 @@ public class PSContentBrowser {
    *
    * @param parentPath folder path, if starts with "//Sites" or "//Folders" it is unmodified.
    *     Otherwise, it will be prefixed with "//Folders" to make it an absolute path like
-   *     "//Folders/<parentPath>". Must not be <code>null</code> or empty.
-   * @param ctypeid content typeid string, must not be <code>null</code> or empty and must be a know
-   *     content typeid.
+   *     "//Folders/&lt;parentPath&gt;". Must not be null or empty.
+   * @param ctypeid content typeid string, must not be null or empty and must be a known content
+   *     typeid.
    * @return New item url as registered with the system for the given content type. All the required
-   *     parameters are added including the parent folderid. Never <code>null</code> or empty.
-   * @throws PSErrorException
+   *     parameters are added including the parent folderid. Never null or empty.
+   * @throws PSErrorException if an error occurs
    */
   public static String getNewItemUrlByFolderPath(String parentPath, String ctypeid)
       throws PSErrorException {

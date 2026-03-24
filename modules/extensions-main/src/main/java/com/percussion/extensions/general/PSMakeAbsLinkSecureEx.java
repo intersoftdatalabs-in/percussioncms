@@ -86,7 +86,7 @@ public class PSMakeAbsLinkSecureEx extends PSSimpleJavaUdfExtension implements I
    * then the following URL would be generated (assuming the request was targeted directly at the
    * Rhythmyx server):
    *
-   * <p>http://rxserver:9992/Rhythmyx/MyApp/query1.html?city=Boston&state=MA
+   * <p>http://rxserver:9992/Rhythmyx/MyApp/query1.html?city=Boston&amp;state=MA
    *
    * <p>Note: The resource may contain parameters defined on it, in which case the supplied
    * parameters will be appended after the last parameter defined therein.
@@ -95,6 +95,7 @@ public class PSMakeAbsLinkSecureEx extends PSSimpleJavaUdfExtension implements I
    *     end. As soon as the first <code>null</code> parameter is encountered (<code>null</code>
    *     values allowed), processing of the parameters will stop.
    *     <table border="1">
+   *       <caption style="display:none">Parameters</caption>
    *   <tr><th>Param #</th><th>Description</th><th>Required?</th><th>default
    *    value</th><tr>
    *   <tr>
@@ -147,6 +148,7 @@ public class PSMakeAbsLinkSecureEx extends PSSimpleJavaUdfExtension implements I
    *     resulting protocol and port used:
    *     <p>
    *     <table border="1">
+   *       <caption style="display:none">Protocol and port combinations</caption>
    * <tr>
    * <th><code>useSecure</code></th><th>Original Request Protocol</th><th>
    *    Supplied URL protocol</th><th>Resulting protocol</th>

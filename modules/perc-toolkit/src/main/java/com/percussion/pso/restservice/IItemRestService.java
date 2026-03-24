@@ -17,7 +17,6 @@
 package com.percussion.pso.restservice;
 
 // REFACTORED: CP-JAVA11
-import com.percussion.pso.restservice.exception.ItemRestException;
 import com.percussion.pso.restservice.model.Item;
 import com.percussion.pso.restservice.model.Items;
 import com.percussion.pso.restservice.model.results.PagedResult;
@@ -178,7 +177,6 @@ public interface IItemRestService {
   /***
    * Finds an item by a key field.
    * @return null or the Item.
-   * @throws ItemRestException
    */
   @GET
   @Path("/find/v/{value}/k/{keyfield}/p/{contextRoot}/")

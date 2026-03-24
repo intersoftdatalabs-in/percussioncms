@@ -58,12 +58,10 @@ public class PSDisplayFieldBuilder implements IPSBuildStep {
    * Creates the basic display node with no data, using the supplied properties to set attributes
    * and elements. Anything containing an IPSReplacementValue will be processed at run time (when
    * execute is called). See the ContentEditor.dtd file for a def of the DisplayField element. See
-   * {@link #initField(PSField, PSUISet, String, PSEditorDocumentBuilder) initField} for a
-   * description of the declared exceptions.
+   * the initField method for a description of the declared exceptions.
    *
-   * @param field The def for the field used as the basis for this element. Never </code>null</code>
-   *     .
-   * @param ui The interface definition for this row. Never </code>null</code>.
+   * @param field The def for the field used as the basis for this element. Never <code>null</code>.
+   * @param ui The interface definition for this row. Never <code>null</code>.
    * @param parentBuilder This builder is always a single row in a larger document. The larger
    *     document is managed by this parentBuilder. Never <code>null</code>.
    */
@@ -79,12 +77,11 @@ public class PSDisplayFieldBuilder implements IPSBuildStep {
    * Creates the basic display node with no data, using the supplied properties to set attributes
    * and elements. Anything containing an IPSReplacementValue will be processed at run time (when
    * execute is called). See the ContentEditor.dtd file for a def of the DisplayField element. See
-   * {@link #initField(PSField, PSUISet, String, PSEditorDocumentBuilder) initField} for a
-   * description of the declared exceptions.
+   * the initField method for a description of the declared exceptions.
    *
-   * @param fieldSet The def for the fieldset used as the basis for this element. Never </code>null
+   * @param fieldSet The def for the fieldset used as the basis for this element. Never <code>null
    *     </code>.
-   * @param ui The interface definition for this row. Never </code>null</code>.
+   * @param ui The interface definition for this row. Never <code>null</code>.
    * @param parentBuilder This builder is always a single row in a larger document. The larger
    *     document is managed by this parentBuilder. Never <code>null</code>.
    */

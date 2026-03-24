@@ -59,7 +59,8 @@ public class PSValidationRulesEvaluator {
    *     <code>null</code>.
    * @return <code>true</code> if the validation succeeded, <code>false</code> otherwise.
    * @throws IllegalArgumentException if any of the provided parameters is <code>null</code>.
-   * @throws @link IPSResultDocumentProcessor#processResultDocument for exception description.
+   * @throws PSExtensionProcessingException See {@link
+   *     IPSResultDocumentProcessor#processResultDocument} for exception description.
    */
   public boolean isValid(PSExecutionData data, Document item, PSErrorCollector errorCollector)
       throws PSExtensionProcessingException,

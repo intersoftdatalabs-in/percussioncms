@@ -304,7 +304,7 @@ public class PSOObjectFinder extends PSJexlUtilBase implements IPSJexlExpression
    * $summary = $user.psoObjectFinder.getComponentSummary($sys.assemblyItem.getId())
    * $state = $user.psoObjectFinder.getWorkflowState($summary.getContentStateId(),$summary.getWorkflowAppId())
    *
-   * <h1>STATE CURRENT VALUE=${state.getContentValidValue()}</h1>
+   * &lt;h1&gt;STATE CURRENT VALUE=${state.getContentValidValue()}&lt;/h1&gt;
    *
    * @param stateId
    * @param workflowAppId

@@ -28,7 +28,7 @@ public class ChildRow {
   /**
    * Method setFields.
    *
-   * @param fields List<Field>
+   * @param fields List of Field
    */
   public void setFields(List<Field> fields) {
     this.fields = fields;
@@ -37,7 +37,7 @@ public class ChildRow {
   /**
    * Method getFields.
    *
-   * @return List<Field>
+   * @return List of Field
    */
   @XmlElement(name = "Field")
   @XmlElementWrapper(name = "Fields")

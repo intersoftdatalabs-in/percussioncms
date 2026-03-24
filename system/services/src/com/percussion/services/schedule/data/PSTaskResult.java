@@ -31,9 +31,10 @@ import org.apache.commons.lang3.StringUtils;
 public class PSTaskResult implements IPSTaskResult
 {
    /**
-    * Constructor with all necessary info of a finished job. Note, the following
-    * will be added to the context variables: <TABLE BORDER="1">
-    * <TR>
+   * Constructor with all necessary info of a finished job. Note, the following
+   * will be added to the context variables: <TABLE BORDER="1">
+   * <caption>Context Variables</caption>
+   * <TR>
     * <TH>Variable Name</TH>
     * <TH>Description</TH>
     * </TR>

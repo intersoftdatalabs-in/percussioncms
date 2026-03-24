@@ -45,8 +45,8 @@ public class Utils {
    * @param path - the path of the file Version.properties in the JAR file, e.g.
    *     com/percussion/publisher.
    * @return Java Properties file - never null.
-   * @throws - FileNotFoundException
-   * @throws - IOException
+   * @throws FileNotFoundException
+   * @throws IOException
    */
   public static Properties getVersionPropsFromJAR(String root, String sJarFile, String path)
       throws FileNotFoundException, IOException {

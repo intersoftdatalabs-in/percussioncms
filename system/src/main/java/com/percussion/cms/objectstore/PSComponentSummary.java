@@ -1270,24 +1270,24 @@ public class PSComponentSummary extends PSDbComponent implements Serializable {
   /**
    * Current locator,
    *
-   * @see {@link #getTipLocator()} for descrption. It is (lazy) initialized by getCurrentLocator(),
-   *     never <code>null</code> after that.
+   * @see #getTipLocator() for descrption. It is (lazy) initialized by getCurrentLocator(), never
+   *     <code>null</code> after that.
    */
   @Transient private PSLocator m_currentLocator = null;
 
   /**
    * Edit locator,
    *
-   * @see {@link #getEditLocator()} for descrption. It is (lazy) initialized by getEditLocator(),
-   *     never <code>null</code> after that.
+   * @see #getEditLocator() for descrption. It is (lazy) initialized by getEditLocator(), never
+   *     <code>null</code> after that.
    */
   @Transient private PSLocator m_editLocator = null;
 
   /**
    * Tip locator,
    *
-   * @see {@link #getTipLocator()} for descrption. It is (lazy) initialized by getTipLocator(),
-   *     never <code>null</code> after that.
+   * @see #getTipLocator() for descrption. It is (lazy) initialized by getTipLocator(), never <code>
+   *     null</code> after that.
    */
   @Transient private PSLocator m_tipLocator = null;
 

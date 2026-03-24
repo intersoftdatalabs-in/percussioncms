@@ -67,6 +67,7 @@ public class PSRevisionHistory extends PSComponent {
    *       <li>rev's Major Version > latest Major Version
    *       <li>or rev's Major Version = latest Major Version and Minor Version >= latest Minor
    *           Version
+   *     </ul>
    */
   public void setRevision(PSRevisionEntry rev) {
     // The first revision added is always the latest

@@ -273,8 +273,7 @@ public class PSContentListSelect
 
    /**
     * @return Returns the entries.
-    * @throws PSPublisherException
-    */
+   */
    public List<Entry> getEntries()
    {
       List<Entry> rval = new ArrayList<>();
@@ -839,8 +838,7 @@ public class PSContentListSelect
     * Action that is fired if a list should be saved
     *
     * @return the name of the outcome
-    * @throws PSPublisherException
-    */
+   */
    public String save()
    {
       IPSPublisherService pub = PSPublisherServiceLocator.getPublisherService();
@@ -862,8 +860,7 @@ public class PSContentListSelect
    /**
     * Copy the selected content list
     * @return the name of the outcome
-    * @throws PSPublisherException
-    */
+   */
    public String copy() throws PSNotFoundException {
       IPSPublisherService pub = PSPublisherServiceLocator.getPublisherService();
 

@@ -118,8 +118,8 @@ import javax.naming.NamingException;
 public abstract class PSAbstractWorkflowContext {
   /**
    * This is the executive method for moving data from the data base to context member variables
-   * without reinitializing the context data members. It delegates the work to {@link
-   * #getBackEndData(boolean}
+   * without reinitializing the context data members. It delegates the work to the getBackEndData
+   * method.
    *
    * @throws SQLException if an SQL error occurs
    * @throws NamingException if a datasource cannot be found

@@ -146,7 +146,7 @@ public abstract class PSUpgradePluginDeliveryServersBase implements IPSUpgradePl
   /**
    * Get the path to the delivery servers file.
    *
-   * @return The path, never <code>null<code/> or empty.
+   * @return The path, never <code>null</code> or empty.
    */
   protected abstract String getDeliveryServersFilePath();
 

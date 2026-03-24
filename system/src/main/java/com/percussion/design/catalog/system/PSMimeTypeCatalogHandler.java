@@ -70,6 +70,7 @@ public class PSMimeTypeCatalogHandler implements IPSCatalogHandler {
    * information for this request type is:
    *
    * <table border="1">
+   * <caption>Request Information</caption>
    * <tr>
    *      <th>Key</th>
    *      <th>Value</th>

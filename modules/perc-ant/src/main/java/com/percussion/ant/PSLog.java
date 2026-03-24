@@ -23,13 +23,11 @@ import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.Task;
 
 /**
- * This task writes the specified message to the given log file.  The file will
- * be created if it doesn't exist.  The message will be appended to an existing
- * file depending on the value of the append attibute.
+ * This task writes the specified message to the given log file. The file will be created if it
+ * doesn't exist. The message will be appended to an existing file depending on the value of the
+ * append attibute. <br>
+ * Example Usage: <br>
  *
- * <br>
- * Example Usage:
- * <br>
  * <pre>
  *
  * First set the taskdef:
@@ -43,6 +41,7 @@ import org.apache.tools.ant.Task;
  *  <code>
  *  &lt;PSLog file="c:/install.log" message="Installing" append="true"/&gt;
  *  </code>
+ * </pre>
  */
 public class PSLog extends Task {
   @Override

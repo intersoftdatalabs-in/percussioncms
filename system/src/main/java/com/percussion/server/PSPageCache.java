@@ -104,8 +104,8 @@ public class PSPageCache extends Thread {
   /**
    * Get the page for the provided cacheid. The timestamp will be reset to the current time.
    *
-   * @param the cacheid of the page we are looking for, might be <code>null</code>.
-   * @return the page document or <code>null</code> if not found.
+   * @param id the cacheid of the page we are looking for, might be null.
+   * @return the page document or null if not found.
    */
   public static Document getPage(Integer id) {
     if (id != null) {

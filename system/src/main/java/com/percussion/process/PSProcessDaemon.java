@@ -309,9 +309,11 @@ public class PSProcessDaemon extends Thread {
   }
 
   /**
-   * Validates the properties and starts the thread running. The
-   * following props are allowed/required (names are case-sensitive):
+   * Validates the properties and starts the thread running. The following props are
+   * allowed/required (names are case-sensitive):
+   *
    * <table>
+   * <caption>Process Properties</caption>
    *    <tr>
    *       <th>Name</th><th>Required?</th><th>Desc</th>
    *    </tr>
@@ -338,14 +340,12 @@ public class PSProcessDaemon extends Thread {
    *          passed to the log4j logger. By default, INFO priority
    *          messages are displayed on the console.</td>
    *    </tr>
+   * </table>
    *
-   * @param props The properties needed by the daemon, log4j and process
-   * environment. Never <code>null</code>.
-   *
-   * @throws Exception If any of the props are not valid. Also throws several
-   * other more specific exceptions if the process file specified in the
-   * props can't be read, is not valid xml, or doesn't conform to the proper
-   * dtd.
+   * @param props The properties needed by the daemon, log4j and process environment. Never null.
+   * @throws Exception If any of the props are not valid. Also throws several other more specific
+   *     exceptions if the process file specified in the props can't be read, is not valid xml, or
+   *     doesn't conform to the proper dtd.
    */
   public PSProcessDaemon(Properties props) throws Exception {
     if (null == props) {
@@ -419,12 +419,10 @@ public class PSProcessDaemon extends Thread {
    *     data is read from it, otherwise, a <code>toString</code> is performed on the entry. 0 or
    *     more entries as appropriate for the specified command.
    * @param result The text returned from the daemon is set on this object. It is not cleared before
-   *     appending. The interpretation of the data is dependentant upon the command. Never <code>
-   *     null</code>.
-   * @return A value of 0 indicates success, a value &lt; 0 indicates a bad command or other
-   *     framework problem. A value &gt; 0 indicates the associated command handler failed. If a
-   *     non-zero value is returned, <code>result</code> will contain the error text.
-   * @throws Exception If any problems during communication.
+   *     appending. The interpretation of the data is dependentant upon the command. Never null.
+   * @return A value of 0 indicates success, a value less than 0 indicates a bad command or other
+   *     framework problem. A value greater than 0 indicates the associated command handler failed.
+   *     If a non-zero value is returned, result will contain the error text.
    */
   public static int sendCommand(
       String server, int port, String cmdName, List params, StringBuilder result)

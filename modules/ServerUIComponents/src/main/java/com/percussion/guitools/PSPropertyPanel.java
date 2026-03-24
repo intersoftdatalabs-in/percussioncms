@@ -293,7 +293,7 @@ public class PSPropertyPanel extends JPanel implements IPSPropertyPanel {
   /**
    * Sets label alignment. Defaults to RIGHT_ALIGNMENT
    *
-   * @param the alignment LEFT_ALIGNMENT, RIGHT_ALIGNMENT or CENTER_ALIGNMENT
+   * @param alignment the alignment LEFT_ALIGNMENT, RIGHT_ALIGNMENT or CENTER_ALIGNMENT
    */
   public void setLabelAlignment(float alignment) {
     m_labelAlignment = alignment;

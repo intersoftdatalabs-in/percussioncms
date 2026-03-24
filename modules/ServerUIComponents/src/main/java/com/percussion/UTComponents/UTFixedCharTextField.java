@@ -125,19 +125,19 @@ public class UTFixedCharTextField extends JTextField implements Serializable {
 
   /**
    * The titel for the error message dialog shown if to many characters are entered. Initialized or
-   * updated through {@link setError(String, String)}, may be <code>null</code> but not empty.
+   * updated through {@link #setError(String, String, Component)}.
    */
   private String m_errorTitle = null;
 
   /**
    * The error message shown if to many characters are entered. Initialized or updated through
-   * {@link setError(String, String)}, may be <code>null</code> but not empty.
+   * {@link #setError(String, String, Component)}.
    */
   private String m_errorMessage = null;
 
   /**
    * The parent component for the error message dialog. Initialized or updated through {@link
-   * setError(String, String, Component)}, may be <code>null</code>.
+   * #setError(String, String, Component)}.
    */
   private Component m_parent = null;
 }

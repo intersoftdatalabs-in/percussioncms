@@ -32,15 +32,13 @@ public class RxApplicationManager {
   /**
    * Apply repository and port information to the application files.
    *
-   * @param rootDir - The absolute path name of the root directory. Must not be <CODE>null</CODE>
+   * @param strRootDir - The absolute path name of the root directory. Must not be <CODE>null</CODE>
    * @param strAppFileRoot - The location of the appFileName. Must not be <CODE>null</CODE>
-   * @param appFileName - The name of the application file. Must not be <CODE>null</CODE>
-   * @param bUpdateNativeStatemnet - <code>true</code> if the native statement should be updated.
+   * @param strAppFileName - The name of the application file. Must not be <CODE>null</CODE>
+   * @param bUpdateNativeStatement - <code>true</code> if the native statement should be updated.
    * @throws IOException - if file is invalid or inaccessible
    * @throws SAXException - if the application file is not parseable XML document
-   * @throws IllegalArgumentException if strRootDir or strAppName are <CODE>
-   * null</CODE>.
-   * @return <CODE>true</CODE> for success, <CODE>false</CODE> for failure.
+   * @throws IllegalArgumentException if strRootDir or strAppName are <CODE>null</CODE>.
    */
   public static void applyLocalSettings(
       String strRootDir,

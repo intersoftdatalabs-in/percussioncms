@@ -20,11 +20,11 @@ import com.rometools.modules.mediarss.types.Credit;
 
 /***
  *
- * <media:credit>
+ * &lt;media:credit&gt;
  *
- * Notable entity and the contribution to the creation of the media object. Current entities can include people, companies, locations, etc. Specific entities can have multiple roles, and several entities can have the same role. These should appear as distinct <media:credit> elements. It has 2 optional attributes.
+ * Notable entity and the contribution to the creation of the media object. Current entities can include people, companies, locations, etc. Specific entities can have multiple roles, and several entities can have the same role. These should appear as distinct &lt;media:credit&gt; elements. It has 2 optional attributes.
  *
- * <media:credit role="producer" scheme="urn:ebu">entity name</media:credit>
+ * &lt;media:credit role="producer" scheme="urn:ebu"&gt;entity name&lt;/media:credit&gt;
  *
  * role specifies the role the entity played. Must be lowercase. It is an optional attribute.
  *
@@ -56,14 +56,14 @@ import com.rometools.modules.mediarss.types.Credit;
  *
  * @author natechadwick
  *
- * <p><media:credit>
+ * <p>&lt;media:credit&gt;
  *
  * <p>Notable entity and the contribution to the creation of the media object. Current entities can
  * include people, companies, locations, etc. Specific entities can have multiple roles, and several
- * entities can have the same role. These should appear as distinct <media:credit> elements. It has
+ * entities can have the same role. These should appear as distinct &lt;media:credit&gt; elements. It has
  * 2 optional attributes.
  *
- * <p><media:credit role="producer" scheme="urn:ebu">entity name</media:credit>
+ * <p>&lt;media:credit role="producer" scheme="urn:ebu"&gt;entity name&lt;/media:credit&gt;
  *
  * <p>role specifies the role the entity played. Must be lowercase. It is an optional attribute.
  *
@@ -100,7 +100,7 @@ public class PSSynFeedCredit {
   }
 
   /***
-   * Returns in <Role>: <Name> format.
+   * Returns in &lt;Role&gt;: &lt;Name&gt; format.
    */
   @Override
   public String toString() {

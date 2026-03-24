@@ -46,7 +46,7 @@ public abstract class PSUpgradePluginModifyColumnBase implements IPSUpgradePlugi
    *     <pre>
    * <code>
    * &lt;tableset&gt;
-   *    &lt;table&gt;RXSITES&lt/table&gt;
+   *    &lt;table&gt;RXSITES&lt;/table&gt;
    *    &lt;column&gt;SITENAME&lt;/column&gt;
    *    &lt;id-column&gt;SITEID&lt;/id-column&gt;
    * &lt;/tableset&gt;
@@ -158,7 +158,6 @@ public abstract class PSUpgradePluginModifyColumnBase implements IPSUpgradePlugi
   /**
    * Creates a query to load all the values of the column.
    *
-   * @param conn the database connection object, cannot be <code>null</code>.
    * @param dbmsDef the database definition, cannot be <code>null</code>.
    * @param table the name of the table to check
    * @param column the name of the column to check

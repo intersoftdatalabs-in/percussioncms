@@ -105,8 +105,8 @@ public interface IPSSqlPurgeHelper
     * 
     * @param parent - the parent folder if available. items will not be purged
     *           from this folder if they are linked elsewhere.
-    * @param items
-    * @param data the revision data
+    * @param items the items to purge
+    * @param typeFilter the content type filter
 
     * @throws PSException
     */

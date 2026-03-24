@@ -48,7 +48,7 @@ public class PSBackEndUpdateProcessingError extends PSBackEndError {
    * @param sessionId the session id of the user making the request
    * @param errorCode the error code reported by the back-end (database)
    * @param errorString the error text reported by the back-end (database)
-   * @param source the UPDATE statement which caused the error
+   * @param updateString the UPDATE statement which caused the error
    */
   public PSBackEndUpdateProcessingError(
       int applId,

@@ -45,8 +45,8 @@ import java.sql.SQLException;
  */
 public class PSIdGenerator {
   /**
-   * Convenience version of {@link #getNextIdBlock(String, int)} that calls
-   * <code>getNextIdBlock(keyId, 1).
+   * Convenience version of {@link #getNextIdBlock(String, int)} that calls <code>
+   * getNextIdBlock(keyId, 1)</code>.
    */
   public static synchronized int getNextId(String keyId) throws SQLException {
     return mgr.createId(keyId);

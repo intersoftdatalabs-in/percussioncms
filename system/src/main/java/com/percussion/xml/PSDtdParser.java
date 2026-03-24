@@ -155,7 +155,7 @@ public class PSDtdParser extends XMLDTDLoader
    *
    * @param insm the stream representing the XML file to parse for DTD, may not be <code>null</code>
    *     . This method does not close the stream.
-   * @throw IllegalArgumentException if ins is <code>null</code>
+   * @throws IllegalArgumentException if ins is <code>null</code>
    */
   public void parseXmlForDtd(InputStream insm, boolean generate)
       throws IOException, PSCatalogException, SAXException {
@@ -170,7 +170,7 @@ public class PSDtdParser extends XMLDTDLoader
    *
    * @param uri the absolute path of the XML file to parse for DTD, may not be <code>null</code> or
    *     empty. If URI is invalid then getDtd() method will return <code>null</code>.
-   * @throw IllegalArgumentException if uri is <code>null</code> or empty
+   * @throws IllegalArgumentException if uri is <code>null</code> or empty
    */
   public void parseXmlForDtd(String uri, boolean generate)
       throws IOException, PSCatalogException, SAXException {
@@ -205,7 +205,7 @@ public class PSDtdParser extends XMLDTDLoader
    *
    * @param ins the input source representing the XML file to parse for DTD, may not be <code>null
    *     </code>
-   * @throw IllegalArgumentException if ins is <code>null</code>
+   * @throws IllegalArgumentException if ins is <code>null</code>
    */
   public void parseXmlForDtd(InputSource ins, boolean generate)
       throws IOException, PSCatalogException, SAXException {
@@ -261,7 +261,7 @@ public class PSDtdParser extends XMLDTDLoader
    *     null</code>
    * @param generate if <code>true</code> and XML file does not contain DocType then uses
    *     DTDGenerator to generate a DTD for the XML file
-   * @throw IllegalArgumentException if doc is <code>null</code>
+   * @throws IllegalArgumentException if doc is <code>null</code>
    * @throws IOException if any error occurs parsing the DTD from external subset
    * @throws PSCatalogException if any error occurs parsing the DTD
    * @throws SAXException if any error occurs parsing the DTD
@@ -304,7 +304,7 @@ public class PSDtdParser extends XMLDTDLoader
    * Generates a DTD for the input Document object
    *
    * @param doc the Document object for which DTD is to be generated, may not be <code>null</code>
-   * @throw IllegalArgumentException if doc is <code>null</code>
+   * @throws IllegalArgumentException if doc is <code>null</code>
    */
   public void generateDtd(Document doc) throws IOException, PSCatalogException {
     fDTDGrammar = null;
@@ -329,7 +329,7 @@ public class PSDtdParser extends XMLDTDLoader
    * parses the DTD represented the input dtdFile parameter.
    *
    * @param dtdFile the File object representing the DTD file to parse, may not be <code>null</code>
-   * @throw IllegalArgumentException if dtdFile is <code>null</code> or does not exist
+   * @throws IllegalArgumentException if dtdFile is <code>null</code> or does not exist
    */
   public void parseDtd(File dtdFile) throws IOException, PSCatalogException {
     if ((dtdFile == null) || (!dtdFile.exists()))
@@ -354,7 +354,7 @@ public class PSDtdParser extends XMLDTDLoader
    *     does not close this stream.
    * @param encoding the encoding of the input stream, may be <code>null</code> or empty in which
    *     case "UTF-8" encoding is used.
-   * @throw IllegalArgumentException if insm is <code>null</code>
+   * @throws IllegalArgumentException if insm is <code>null</code>
    */
   public void parseDtd(InputStream insm, String encoding) throws IOException, PSCatalogException {
     if (insm == null) throw new IllegalArgumentException("insm may not be null");
@@ -367,7 +367,7 @@ public class PSDtdParser extends XMLDTDLoader
    *
    * @param uri the Absolute or Relative path or URL to the DTD to parse, may not be <code>null
    *     </code> or empty
-   * @throw IllegalArgumentException if uri is <code>null</code> or empty
+   * @throws IllegalArgumentException if uri is <code>null</code> or empty
    */
   public void parseDtd(String uri) throws IOException, PSCatalogException {
     if ((uri == null) || (uri.trim().length() == 0))
@@ -399,7 +399,7 @@ public class PSDtdParser extends XMLDTDLoader
    * parses the DTD represented the input xis parameter.
    *
    * @param xis the input source representing the DTD to parse, may not be <code>null</code>
-   * @throw IllegalArgumentException if xis is <code>null</code>
+   * @throws IllegalArgumentException if xis is <code>null</code>
    */
   public void parseDtd(XMLInputSource xis) throws IOException, PSCatalogException {
     fDTDGrammar = null;

@@ -31,7 +31,7 @@ public class UTFixedButton extends JButton {
   /**
    * Construct a new fixed button with the standard size.
    *
-   * @param string the button name
+   * @param name the button name
    */
   //////////////////////////////////////////////////////////////////////////////
   public UTFixedButton(String name) {
@@ -42,7 +42,7 @@ public class UTFixedButton extends JButton {
   /**
    * Construct a new fixed button of passed size.
    *
-   * @param string the button name
+   * @param name the button name
    * @param size the button size
    */
   //////////////////////////////////////////////////////////////////////////////
@@ -54,7 +54,7 @@ public class UTFixedButton extends JButton {
   /**
    * Construct a new fixed button of passed width/height
    *
-   * @param string the button name
+   * @param name the button name
    * @param width the button width
    * @param height the button height
    */

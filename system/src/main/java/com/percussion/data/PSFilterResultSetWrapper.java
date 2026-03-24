@@ -933,7 +933,7 @@ public class PSFilterResultSetWrapper implements ResultSet {
    * <p>Moves the cursor to the previous row in the result set.
    *
    * <p>Note: <code>previous()</code> is not the same as <code>relative(-1)</code> because it makes
-   * sense to call</code>previous()</code> when there is no current row.
+   * sense to call previous() when there is no current row.
    *
    * @return true if the cursor is on a valid row; false if it is off the result set
    * @exception SQLException if a database access error occurs or the result set type is
@@ -979,7 +979,7 @@ public class PSFilterResultSetWrapper implements ResultSet {
    * fetch size may be changed at any time.
    *
    * @param rows the number of rows to fetch
-   * @exception SQLException if a database access error occurs or the condition 0 <= rows <=
+   * @exception SQLException if a database access error occurs or the condition 0 &lt;= rows &lt;=
    *     this.getMaxRows() is not satisfied.
    */
   public void setFetchSize(int rows) throws SQLException {

@@ -197,9 +197,9 @@ public class PSItemChild extends PSItemComponent {
    * 0 is considered the 'top' of the list. To move an item towards the top, supply a negative
    * number.
    *
-   * @param childEntry - the childEntry object to move.
-   * @param upDown -1 is up and 1 is down etc. The result of this + <code>childEntryCount()</code>,
-   *     must be > 0 and < <code>childEntryCount()</code>
+   * @param childEntry the childEntry object to move.
+   * @param upDown -1 is up and 1 is down etc. The result of this + childEntryCount(), must be &gt;
+   *     0 and &lt; childEntryCount()
    */
   public void move(PSItemChildEntry childEntry, int upDown) {
     int currentPos = m_entryList.indexOf(childEntry);
@@ -220,10 +220,10 @@ public class PSItemChild extends PSItemComponent {
 
   /**
    * Moves the supplied child entry from its current position to the specified position. {@link
-   * #isSequenced()} must return <code>true</code>.
+   * #isSequenced()} must return true.
    *
    * @param childEntry The entry to move, must be found in the current list.
-   * @param position The new position, must be > 0 and < {@link #childEntryCount()}.
+   * @param position The new position, must be &gt; 0 and &lt; childEntryCount.
    */
   public void moveToPosition(PSItemChildEntry childEntry, int position) {
     if (!isSequenced()) throw new IllegalStateException("sequencing not enabled");

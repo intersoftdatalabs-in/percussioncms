@@ -139,6 +139,7 @@ public class PSXmlObjectStoreHandler extends PSObjectFactory
    * <p>The following connection information should be provided:
    *
    * <table border="1">
+   * <caption>Connection Information</caption>
    * <tr><th>Key</th><th>Value</th></tr>
    * <tr><td>objectDirectory</td>
    *      <td>the directory containing the XML files</td>
@@ -146,7 +147,6 @@ public class PSXmlObjectStoreHandler extends PSObjectFactory
    * </table>
    *
    * @param connInfo the object store definition
-   * @todo: make all request root string public and reuse them.
    */
   public PSXmlObjectStoreHandler(java.util.Properties connInfo) {
     super();
@@ -805,6 +805,7 @@ public class PSXmlObjectStoreHandler extends PSObjectFactory
    * <p>The application properties which can be retrieved are:
    *
    * <table border="1">
+   * <caption>Application Properties</caption>
    * <tr><th>Key</th><th>Value</th></tr>
    * <tr><td>name</td>
    *      <td>the application name</td>
@@ -1176,10 +1177,12 @@ public class PSXmlObjectStoreHandler extends PSObjectFactory
    * Gets the content editor system definition document. Delegates to <code>
    * PSServerXmlObjectStore</code>
    *
-   * <p>Format of the request: <code><pre>
+   * <p>Format of the request:
+   *
+   * <pre>
    * &lt;PSXContentEditorSystemDefinitionLoad>
    * &lt;/PSXContentEditorSystemDefinitionLoad>
-   * </pre></code>
+   * </pre>
    *
    * @author James Schultz
    * @param inDoc XML document containing the request data; cannot be <code>null</code>.
@@ -1219,9 +1222,11 @@ public class PSXmlObjectStoreHandler extends PSObjectFactory
    * Gets the content editor shared definition document. Delegates to <code>
    * PSServerXmlObjectStore</code>
    *
-   * <p>Format of the request: <code><pre>
+   * <p>Format of the request:
+   *
+   * <pre>
    * &lt;PSXContentEditorSharedDefinitionLoad />
-   * </pre></code>
+   * </pre>
    *
    * @author James Schultz
    * @param inDoc XML document containing the request data; cannot be <code>null</code>.
@@ -1298,19 +1303,27 @@ public class PSXmlObjectStoreHandler extends PSObjectFactory
    * PSTableDefintion objects included in the request. It is an error to try to create a table with
    * existing table name unlike the table factory.
    *
-   * <p>Format of the request: <code><pre>
+   * <p>Format of the request:
+   *
+   * <pre>
    * &lt;PSXDesignTableDefinitionsSave>
    *    &lt;PSXTableLocator>...&lt;/PSXTableLocator>
    *    &lt;tables>
    *       &lt;table>...&lt;/table>
    *    &lt;/tables>
    * &lt;/PSXDesignTableDefinitionsSave>
-   * </pre></code> Format of the result document: <br>
-   * In case of exception during authorization or connecting to database <code><pre>
+   * </pre>
+   *
+   * Format of the result document: <br>
+   * In case of exception during authorization or connecting to database
+   *
+   * <pre>
    * &lt;PSXDesignTableDefinitionsSaveResults>
    *    &lt;error>error message&lt;/error>
    * &lt;/PSXDesignTableDefinitionsSaveResults>
-   * </pre></code> If we didn't get any exception the dtd of result document is: <br>
+   * </pre>
+   *
+   * If we didn't get any exception the dtd of result document is: <br>
    *
    * <pre><code>
    *  &lt;!--
@@ -1978,9 +1991,10 @@ public class PSXmlObjectStoreHandler extends PSObjectFactory
    * @param req the request context for security, may not be <code>null</code>.
    * @return the success document if the request is succeeded, otherwise an error document, never
    *     <code>null</code>. The xml format of the success document is:
-   *     <pre><code>
-   * &lt;ELEMENT PSXDesignRxConfigSaveResults>
-   * </pre></code> The error document represents the exception in xml format.
+   *     <pre>
+   * &lt;ELEMENT PSXDesignRxConfigSaveResults&gt;
+   * </pre>
+   *     The error document represents the exception in xml format.
    * @throws PSUnknownDocTypeException if the document is not a recognised document for the request.
    */
   public Document saveRxConfiguration(Document inDoc, PSRequest req)
@@ -4125,7 +4139,6 @@ public class PSXmlObjectStoreHandler extends PSObjectFactory
    * @param request the request context
    * @return the XML response document
    * @throws PSServerException if there is a problem loading the feature set file
-   * @roseuid 39FD9995034B
    */
   public Document getSupportedFeatureSet(Document doc, PSRequest request) throws PSServerException {
     // build the response doc

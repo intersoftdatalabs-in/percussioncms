@@ -55,6 +55,7 @@ public class PSSimpleJavaUdf_dateAdjust extends PSSimpleJavaUdfExtension {
    *     will be used directly, otherwise the object is converted to a string and an attempt is made
    *     to parse the resulting string as a date.
    *     <table border="1">
+   *       <caption style="display:none">Parameters</caption>
    *    <tr>
    *       <th>Param#</th><th>Required?</th><th>Description</th><th>Default value</th>
    *    </tr>

@@ -491,7 +491,6 @@ public abstract class PSWebServicesBaseHandler implements IPSPortActionHandler {
    * @param path The application and resource location of the action to be executed by the system
    *     assumed not <code>null</code>.
    * @param parent The parent document to insert the result into, assumed not <code>nul</code>.
-   * @return Returns the result document from the internal request, never <code>null</code>.
    * @throws PSException if the internal request is not created
    */
   protected void processInternalRequest(PSRequest request, String path, Document parent)

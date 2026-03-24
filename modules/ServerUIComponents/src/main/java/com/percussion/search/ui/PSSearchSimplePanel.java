@@ -38,21 +38,23 @@ import javax.swing.*;
  * search ui: simple controls, advanced controls and the content editor fields. These are available
  * in 3 classes, respectively:
  *
- * <ol>
+ * <ul>
  *   <li>PSSearchSimplePanel (this class)
  *   <li>PSSearchAdvancedPanel
  *   <li>PSSearchFieldEditor
- *       <ol>
- *         The simple panel contains those controls that are considered minimal to use the search
- *         interface. The advanced panel contains those controls that are useful, but needed less
- *         frequently. The search field editor is generally considered advanced, but the caller can
- *         place that as they wish.
- *         <p>The controls on this panel include the following:
- *         <ol>
- *           <li>Full text query editor
- *           <li>Display format selector
- *           <li>Max results
- *               <ol>
+ * </ul>
+ *
+ * The simple panel contains those controls that are considered minimal to use the search interface.
+ * The advanced panel contains those controls that are useful, but needed less frequently. The
+ * search field editor is generally considered advanced, but the caller can place that as they wish.
+ *
+ * <p>The controls on this panel include the following:
+ *
+ * <ul>
+ *   <li>Full text query editor
+ *   <li>Display format selector
+ *   <li>Max results
+ * </ul>
  */
 public class PSSearchSimplePanel extends PSPropertyPanel implements ActionListener {
   /**

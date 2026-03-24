@@ -1068,7 +1068,7 @@ public abstract class PSDependency
    * &lt;!ELEMENT Dependencies (PSXDeployableElement | PSXDeployableObject |
    *    PSXUserDependency)*>
    * &lt;!ELEMENT Ancestors (PSPSXDeployableElement | PSXDeployableObject)*>
-   * </pre></code>
+   * </code></pre>
    *
    * @param doc The document to use to create the element, may not be <code>null</code>.
    * @return the newly created XML element node, never <code>null</code>.

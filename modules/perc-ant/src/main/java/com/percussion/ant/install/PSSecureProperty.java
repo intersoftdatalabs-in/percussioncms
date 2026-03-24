@@ -230,7 +230,7 @@ public class PSSecureProperty {
    * Retrieves the encrypted value of the passed in string.
    *
    * @param s A clear text string to encrypted.
-   * @return A clouded & encrypted string
+   * @return A clouded and encrypted string
    */
   public static String getClouded(String s) {
     if (s == null) throw new IllegalArgumentException();

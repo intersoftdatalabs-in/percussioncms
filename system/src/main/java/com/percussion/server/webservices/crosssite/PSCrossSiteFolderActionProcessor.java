@@ -476,8 +476,7 @@ public abstract class PSCrossSiteFolderActionProcessor {
    * Get all registered sites from the server. The list is cached locally. Sites are sorted by their
    * root folder path length.
    *
-   * @return list of registered sites, never <code>null</code> may be empty.
-   * @throws PSCmsException if query fails for any reason.
+   * @return list of registered sites, never null may be empty.
    */
   public List<IPSSite> getAllSites() {
     if (m_allSites == null) {

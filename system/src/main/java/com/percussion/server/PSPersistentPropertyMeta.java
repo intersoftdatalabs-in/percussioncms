@@ -46,13 +46,16 @@ public class PSPersistentPropertyMeta {
    * Represents property's meta data.
    *
    * @param userName user name associated with the property/session.
-   * @param propertyName name of the property.Cannot be <code>null</code>.
-   * @param category type of the property.Cannot be <code>null</code>.
-   * @param propertySaveType specifies values 0,1,2 0r 3. <ui>
-   *     <li>0 - default
-   *     <li>1 - persist always.
-   *     <li>2 - persist the first time only.
-   *     <li>3 - never persist.
+   * @param propertyName name of the property.Cannot be null.
+   * @param category type of the property.Cannot be null.
+   * @param propertySaveType specifies values 0,1,2 or 3. See below:
+   *     <ul>
+   *       <li>0 - default
+   *       <li>1 - persist always.
+   *       <li>2 - persist the first time only.
+   *       <li>3 - never persist.
+   *     </ul>
+   *
    * @param overridable specifies whether default attributes can be overriden by the user.
    * @param enabled specifies if persistence is enabled or not.
    * @param className specifies the class name used to serialize/deserialize the value object.

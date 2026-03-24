@@ -134,7 +134,7 @@ public class Field {
   /**
    * Method setValues.
    *
-   * @param values List<Value>
+   * @param values List of Value
    */
   public void setValues(List<Value> values) {
     this.valueAtt = null;
@@ -145,7 +145,7 @@ public class Field {
   /**
    * Method getValues.
    *
-   * @return List<Value>
+   * @return List of Value
    */
   @XmlElementWrapper(name = "Values")
   @XmlAnyElement

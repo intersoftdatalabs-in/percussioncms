@@ -118,8 +118,8 @@ public class PSDatabasePubServer extends PSAbstractDataObject
     /**
      * The name of the database publish server. 
      * This is the connection name and the spring bean ID in server-beans.xml.
-     * The data-source name should be in the format of "jdbc/<name>__####" 
-     * or "jdbc/<name>" if this does not relate to a site.
+     * The data-source name should be in the format of "jdbc/&lt;name&gt;__####"
+     * or "jdbc/&lt;name&gt;" if this does not relate to a site.
      * 
      * @return the name. It is not empty for a valid or registered database publish server.
      */

@@ -38,8 +38,8 @@ public class PSFUDDocMerger {
    * Constructor taking snapshot and remote documents. Just makes sure none of these is null and
    * stores references to these as local varaibles.
    *
-   * @param snapshot document as DPM Document
-   * @param remot document as DOM Document.
+   * @param snapshotDoc document as DPM Document
+   * @param remoteDoc document as DOM Document.
    * @throws PSFUDNullDocumentsException if any of the documents is null.
    */
   public PSFUDDocMerger(Document snapshotDoc, Document remoteDoc)
@@ -340,7 +340,8 @@ public class PSFUDDocMerger {
   /**
    * A generic method to get the status child element of an element
    *
-   * @param the parent node as Element
+   * @param parent the parent node as Element
+   * @param elemName the name of the child element to find
    * @return the status element if exists, null otherwise.
    */
   public static Element getChildElement(Element parent, String elemName) {

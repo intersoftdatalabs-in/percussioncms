@@ -31,7 +31,6 @@ public class PSTraceExitProc extends PSTraceMessage {
    * The constructor for this class
    *
    * @param typeFlag the type of trace message this object will generate
-   * @roseuid 39FDDA100271
    */
   public PSTraceExitProc(int typeFlag) {
     super(typeFlag);
@@ -49,7 +48,6 @@ public class PSTraceExitProc extends PSTraceMessage {
    * @param source an array of objects containing the information required for the trace message: -
    *     String exit type - String classname of exit - object[] args for the exit
    * @return the message body
-   * @roseuid 39FEE2F4009C
    */
   protected String getMessageBody(java.lang.Object source) {
     StringBuilder buf = new StringBuilder();

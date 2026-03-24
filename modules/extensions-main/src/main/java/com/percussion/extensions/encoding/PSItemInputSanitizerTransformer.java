@@ -36,6 +36,7 @@ import org.jsoup.safety.Safelist;
  * Sanitizes the specified fields on the content type.
  *
  * <table>
+ * <caption style="display:none">Parameters</caption>
  * <tr>
  * <th>Parameter</th>
  * <th>Description</th>
@@ -48,6 +49,7 @@ import org.jsoup.safety.Safelist;
  * A comma separated list of field names or HTML parameters. Example:  name,description,label
  * </td>
  * </tr>
+ * <tr>
  * <td>
  * White List (optional)
  * </td>
@@ -60,7 +62,6 @@ import org.jsoup.safety.Safelist;
  * <li>basicWithImages - basic+ img tags, with appropriate attributes, with src pointing to http or https.</li>
  * <li>relaxed - a, b, blockquote, br, caption, cite, code, col, colgroup, dd, div, dl, dt, em, h1, h2, h3, h4, h5, h6, i, img, li, ol, p, pre, q, small, span, strike, strong, sub, sup, table, tbody, td, tfoot, th, thead, tr, u, ul
  * Links do not have an enforced rel=nofollow attribute</li>
- *
  * </ul>
  * </td>
  * </tr>

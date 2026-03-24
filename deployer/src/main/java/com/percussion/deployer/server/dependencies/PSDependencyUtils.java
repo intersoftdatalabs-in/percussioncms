@@ -396,10 +396,7 @@ public class PSDependencyUtils {
    *
    * @param tok the security token, may not be <code>null</code>.
    * @param node the Content Type, may not be <code>null</code>.
-   *
-   * @return the list of table names of the Content Type, may not empty,
-   * never <code>null</code..
-   *
+   * @return the list of table names of the Content Type, may not empty, never <code>null</code>.
    * @throws PSDeployException if an error occurs.
    */
   public static List<String> getContentTypeTables(PSSecurityToken tok, IPSNodeDefinition node)

@@ -39,8 +39,8 @@ public class PSDeliveryException extends PSBaseException
 
    /**
     * Ctor
-    * @param msgCode
-    * @param arrayArgs
+    * @param msgCode the message code
+    * @param args the arguments
     */
    public PSDeliveryException(int msgCode, Object... args) 
    {

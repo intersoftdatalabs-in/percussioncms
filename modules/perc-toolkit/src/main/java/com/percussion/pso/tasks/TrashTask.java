@@ -127,8 +127,7 @@ import org.apache.logging.log4j.Logger;
  * used to bypass regular process steps and validation code to force adding of items to folders, and
  * transitions that may have failed through regular mechanisms.
  *
- * @deprecated
- * @see com.percussion.recycle.service.IPSRecycleService
+ * @deprecated Use IPSRecycleService instead.
  * @since 8.0.0
  * @author stephenbolton
  * @version $Revision: 1.0 $
@@ -243,9 +242,9 @@ public class TrashTask implements IPSTask {
   /**
    * Method perform.
    *
-   * @param parameters Map<String,String>
-   * @return IPSTaskResult * @see
-   *     com.percussion.services.schedule.IPSTask#perform(Map<String,String>)
+   * @param parameters Map of String to String
+   * @return the task result
+   * @see com.percussion.services.schedule.IPSTask#perform(Map)
    */
   public IPSTaskResult perform(Map<String, String> parameters) {
     initServices();

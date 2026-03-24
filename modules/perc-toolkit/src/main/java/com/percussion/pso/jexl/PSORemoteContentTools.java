@@ -518,15 +518,15 @@ public class PSORemoteContentTools extends PSJexlUtilBase implements IPSJexlExpr
   }
 
   /**
-   * This is an aliased method for getRemoteXMLContent, with headers & basic authorization
+   * This is an aliased method for getRemoteXMLContent, with headers and basic authorization
    *
-   * @param urlString
-   * @param headers
-   * @param username
-   * @param password
+   * @param urlString the URL string
+   * @param headers the headers map
+   * @param username the username
+   * @param password the password
    * @return org.jsoup.nodes.Document
-   * @throws IllegalArgumentException
-   * @throws IOException
+   * @throws IllegalArgumentException if arguments are invalid
+   * @throws IOException if I/O error occurs
    */
   @IPSJexlMethod(
       description = "Returns JSOUP document with xml content, returns a JSoup Document element.",

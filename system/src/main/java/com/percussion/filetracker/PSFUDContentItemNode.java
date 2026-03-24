@@ -34,7 +34,7 @@ public class PSFUDContentItemNode extends PSFUDAbstractNode {
    * Validation of these parameters is handled by the base class.
    *
    * @param parent node as IPSFUDNode
-   * @param content item element in the XML document as DOM Element
+   * @param elem item element in the XML document as DOM Element
    * @throws PSFUDNullElementException that is thrown by the base class
    */
   public PSFUDContentItemNode(IPSFUDNode parent, Element elem) throws PSFUDNullElementException {

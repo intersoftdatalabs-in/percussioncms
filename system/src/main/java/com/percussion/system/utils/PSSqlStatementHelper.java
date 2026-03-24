@@ -43,7 +43,7 @@ public abstract class PSSqlStatementHelper {
 
   /**
    * Parse the result set that is returned from executing the statement of {@link
-   * #prepareStatement()}.
+   * #prepareStatement(Connection)}.
    *
    * @param rs the result set, never <code>null</code>.
    * @throws SQLException if failed to create the statement.

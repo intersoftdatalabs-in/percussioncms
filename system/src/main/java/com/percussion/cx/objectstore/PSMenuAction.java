@@ -246,8 +246,8 @@ public class PSMenuAction implements IPSComponent, Cloneable {
   /**
    * Gets the action type.
    *
-   * @return the action, one of the action types defined in this class
-   * including SPECIAL_ACTION_PASTE, never <code>null</code>, or <code>empty
+   * @return the action, one of the action types defined in this class including
+   *     SPECIAL_ACTION_PASTE, never null, or empty.
    */
   public String getType() {
     return m_type;

@@ -3659,6 +3659,7 @@ public class PSServerFolderProcessor extends PSProcessorCommon
    *   <li>The relationship type name accepted is only {@link #FOLDER_RELATE_TYPE Folder Content}
    *   <li>Each path in the result generated is modified to start with "//" instead of "/Root". This
    *       is to be compataible with the path generation scheme used everywhere.
+   * </ol>
    *
    * @see com.percussion.cms.objectstore.IPSRelationshipProcessor
    *     #getRelationshipOwnerPaths(java.lang.String, com.percussion.design. objectstore.PSLocator,
@@ -4028,7 +4029,6 @@ public class PSServerFolderProcessor extends PSProcessorCommon
    * @param options the cloning options, not <code>null</code>.
    * @return the name of the log file if there were errors, <code>null</code> otherwise.
    * @throws PSCmsException for any error.
-   * @todo ph: PSCloningOptions includes navigation options which don't belong here.
    */
   public String copyFolderAuthorUser(
       PSLocator sourceFolderId, PSLocator targetFolderId, PSCloningOptions options)
@@ -5391,9 +5391,9 @@ public class PSServerFolderProcessor extends PSProcessorCommon
   /**
    * Fast way to determine if the item is a folder or not from a locator.
    *
-   * @param locator
-   * @throws PSCmsException
-   * @throws PSException
+   * @param locator the locator for the item
+   * @return true if the item is a folder, false otherwise
+   * @throws PSCmsException if there is an error
    */
   public boolean isItemFolder(PSLocator locator) throws PSCmsException {
     Object[] o = getItem(locator);
@@ -5406,8 +5406,7 @@ public class PSServerFolderProcessor extends PSProcessorCommon
    * @param locator The locator, never <code>null</code>.
    * @return The summary info with object type as an array, never <code>null</code>, Indice info: 0
    *     = name, 1 = id, 2 = object type (folder or item), 3 = content type id (<code>Long</code>).
-   * @throws PSCmsException
-   * @throws PSException if an error occurs while retrieving the item.
+   * @throws PSCmsException if there is an error
    */
   public static Object[] getItem(PSLocator locator) throws PSCmsException {
     notNull(locator);

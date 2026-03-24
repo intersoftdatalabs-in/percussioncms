@@ -40,19 +40,10 @@ import org.json.JSONException;
  *
  * <p>Expects the following parameters:
  *
- * <table border="1" cellspacing="0" cellpadding="5">
- * <thead>
- * <th>Name</th><th>Allowed Values</th><th>Details</th>
- * </thead>
- * <tbody>
- * <tr>
- * <td>{@link #MANAGED_IDS}</td><td>The ids of the managed objects</td><td>Required</td>
- * </tr>
- * <tr>
- * <td>{@link #DEPENDENT_ID}</td><td>The dependent id</td><td>Required</td>
- * </tr>
- * </tbody>
- * </table>
+ * <ul>
+ *   <li>MANAGED_IDS - The ids of the managed objects (Required)
+ *   <li>DEPENDENT_ID - The dependent id (Required)
+ * </ul>
  */
 public class PSGetInlinelinkParentsAction extends PSAAActionBase {
   /*

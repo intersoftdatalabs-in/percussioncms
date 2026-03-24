@@ -227,9 +227,6 @@ public interface IPSDTDPublisherEdition {
    * tranmitting data, not receiving it.
    *
    * <p>Defaults to 60 seconds. 0 means no timeout is set.
-   *
-   * @see net.oroinc.ftp.FtpClient#setDataTimeout
-   * @see net.oroinc.net.SocketClient#setSoTimeout
    */
   public static final String PARAM_FTP_RCV_TIMEOUT = "ftprcvtimeout";
 }

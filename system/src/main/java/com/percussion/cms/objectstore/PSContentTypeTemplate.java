@@ -44,11 +44,10 @@ public class PSContentTypeTemplate extends PSDbComponent {
    * Creates an instance from a previously serialized (using <code>toXml
    * </code>) object.
    *
-   * @param source A valid element that meets the dtd defined in the
-   *    description of {@link #toXml(Document)}. Never <code>null</code>.
-   *
-   * @throws PSUnknownNodeTypeException If the supplied source element does
-   *    not conform to the dtd defined in the <code>fromXml<code> method.
+   * @param source A valid element that meets the dtd defined in the description of {@link
+   *     #toXml(Document)}. Never <code>null</code>.
+   * @throws PSUnknownNodeTypeException If the supplied source element does not conform to the dtd
+   *     defined in the <code>fromXml</code> method.
    */
   public PSContentTypeTemplate(Element source) throws PSUnknownNodeTypeException {
     super(source);
@@ -199,26 +198,7 @@ public class PSContentTypeTemplate extends PSDbComponent {
   }
 
   /**
-   * Serializes this object into an xml element that can be attached to the supplied document. It
-   * will conform to the following dtd:
-   *
-   * <pre>
-   * <!ELEMENT PSXContentTypeVariant (PSXKey, VariantDescription, LocationPrefix?, PublishWhen?, StyleSheetName, AssembyUrl, Description?, PSXVariantSlotTypeSet )>
-   * <!ELEMENT PSXVariantSlotTypeSet (#PCDATA)>
-   * <!ELEMENT Description (#PCDATA)>
-   * <!ELEMENT AssembyUrl (#PCDATA)>
-   * <!ELEMENT StyleSheetName (#PCDATA)>
-   * <!ELEMENT VariantDescription (#PCDATA)>
-   * <!ELEMENT LocationPrefix (#PCDATA)>
-   * <!ELEMENT PublishWhen (#PCDATA)>
-   * <!ELEMENT PSXKey (CONTENTTYPEID, VARIANTID )>
-   * <!ELEMENT VARIANTID (#PCDATA)>
-   * <!ELEMENT CONTENTTYPEID (#PCDATA)>
-   * <!ATTLIST PSXKey needGenerateId (yes | no ) "no">
-   * <!ATTLIST PSXKey isPersisted (yes | no ) "yes">
-   * <!ATTLIST  PSXContentTypeVariant aaType CDATA #REQUIRED>
-   * <!ATTLIST  PSXContentTypeVariant outputFormat CDATA #REQUIRED>
-   * </pre>
+   * Serializes this object into an xml element that can be attached to the supplied document.
    *
    * @param doc Used to generate the element. Never <code>null</code>.
    * @return the generated element, never <code>null</code>.

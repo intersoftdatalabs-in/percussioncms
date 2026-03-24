@@ -108,7 +108,8 @@ public class PSGeneratePubLocation extends PSSimpleJavaUdfExtension {
    * <p>See {@link IPSUdfProcessor#processUdf(Object[], IPSRequestContext) processUdf} for details.
    *
    * @param params the parameters for this extension, never <code>null</code>
-   *     <table>
+   *     <table border="1">
+   *           <caption style="display:none">Parameters for this extension</caption>
    *           <tr>
    *           <th>0</th>
    *           <td>the variantid for which the location url will be created.
@@ -158,7 +159,8 @@ public class PSGeneratePubLocation extends PSSimpleJavaUdfExtension {
    *           <td>authtype value (that can override the default one) for
    *           which the location url will be created. Optional, may be
    *           <code>null</code> or empty in which case the default value
-   *           specified by {@link IPSHtmlParameters#SYS_AUTHTYPE}is used.
+   *           specified by {@link IPSHtmlParameters#SYS_AUTHTYPE}is used.</td>
+   *           </tr>
    *           <tr>
    *           <th>7</th>
    *           <td>filter name, if provided this will be passed to any preview

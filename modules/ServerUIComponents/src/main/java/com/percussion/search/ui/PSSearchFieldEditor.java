@@ -145,13 +145,13 @@ public class PSSearchFieldEditor extends JPanel {
    *
    * @param fields Iterator over zero or more <code>PSSearchField</code> objects, never <code>null
    *     </code>, may be empty although not useful.
-   * @param filterMap can be <code>null</code>. Key is the field name as a <code>String</code>, and
-   *     the value is a <code>PSSearchFieldFilter</code> object.
-   * @param remoteRequester reference to the remote requester, never <code>null</code>.
-   * @param props Unused, may be <code>null</code>.
-   * @param fieldCatalog The catalog of content editor fields from the server, may not be <code>null
-   *     </code>.
-   * @param Flag indicating that this dialog was launched from within the Eclipse based workbench
+   * @param filterMap can be null. Key is the field name as a String, and the value is a
+   *     PSSearchFieldFilter object.
+   * @param remoteRequester reference to the remote requester, never null.
+   * @param props Unused, may be null.
+   * @param fieldCatalog The catalog of content editor fields from the server, may not be null.
+   * @param inWorkbench Flag indicating that this dialog was launched from within the Eclipse based
+   *     workbench
    */
   public PSSearchFieldEditor(
       Iterator fields,

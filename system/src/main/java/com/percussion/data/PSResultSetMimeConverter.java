@@ -388,7 +388,7 @@ public class PSResultSetMimeConverter implements IPSResultSetConverter {
    * Is the request URL supported by this converter? The request URL may contain an extension. When
    * it does, this is used in defining the output which will be returned.
    *
-   * @param reqUrl the URL which was specified when making this request
+   * @param reqPageURL the URL which was specified when making this request
    * @return <code>true</code> if conversion is supported, <code>false</code> otherwise
    */
   protected boolean isSupported(String reqPageURL) {

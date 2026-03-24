@@ -51,8 +51,8 @@ public class PSArchivePackage implements IPSDeployComponent {
    * Validating a given status.
    *
    * @param status The to be checked status value.
-   * @return <code>true</code> if the <code>status</code> is one of the <code>STATUS_XXX<</code>
-   *     values; <code>false</code>otherwise.
+   * @return <code>true</code> if the <code>status</code> is one of the <code>STATUS_XXX</code>
+   *     values; <code>false</code> otherwise.
    */
   public static boolean validateStatus(int status) {
     return (status == STATUS_COMPLETED || status == STATUS_ABORTED || status == STATUS_IN_PROGRESS);
@@ -141,16 +141,17 @@ public class PSArchivePackage implements IPSDeployComponent {
   }
 
   /**
-   * Serializes this object's state to its XML representation.  The format is:
+   * Serializes this object's state to its XML representation. The format is:
+   *
    * <pre><code>
-   * &lt;!ELEMENT PSXArchivePackage EMPTY >
+   * &lt;!ELEMENT PSXArchivePackage EMPTY &gt;
    * &lt;!ATTLIST PSXArchivePackage
    *    name CDATA #REQUIRED
    *    type CDATA #REQUIRED
    *    status CDATA #REQUIRED
    *    logId CDATA #REQUIRED
-   * >
-   * </code>/<pre>
+   * &gt;
+   * </code></pre>
    *
    * See {@link IPSDeployComponent#toXml(Document)} for more info.
    */

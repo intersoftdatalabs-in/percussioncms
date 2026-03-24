@@ -65,9 +65,8 @@ public class PSDatabaseMetaData implements IPSConnectionInfo {
   }
 
   /**
-   * @author chadloder
-   *     <p>Gets a list of the names of all the tables in all catalogs of this database.
-   * @param tableNamePattern
+   * Gets a list of the names of all the tables in all catalogs of this database.
+   *
    * @return String[]
    * @since 1.1 1999/4/29
    */

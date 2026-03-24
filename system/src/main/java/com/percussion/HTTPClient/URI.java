@@ -708,7 +708,7 @@ public class URI {
 
   /**
    * @return true if the scheme should be parsed according to a semi-generic-URI syntax
-   *     &lt;scheme&tgt;://&lt;hostport&gt;/&lt;opaque&gt;
+   *     &lt;scheme&gt;://&lt;hostport&gt;/&lt;opaque&gt;
    */
   public static boolean usesSemiGenericSyntax(String scheme) {
     return usesSemiGenericSyntax.containsKey(scheme.trim().toLowerCase());

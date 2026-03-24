@@ -60,11 +60,11 @@ public class PSGetAndSetCxOptions implements IPSResultDocumentProcessor, IPSRequ
 
   /**
    * This will store the {@link PSOptionManagerConstants#SESSIONOBJECT_CXOPTIONS
-   * PSOptionManager.SESSIONOBJECT_CXOPTIONS} as the value in the user session if the {@link
-   * PSOptionManager#LOAD_SAVE_COMMAND_KEY PSOptionManager.LOAD_SAVE_COMMAND_KEY} has as its value:
-   * {@link PSOptionManagerConstants#SAVE_COMMAND PSOptionManager.SAVE_COMMAND}.
+   * PSOptionManager.SESSIONOBJECT_CXOPTIONS} as the value in the user session if the
+   * PSOptionManager.LOAD_SAVE_COMMAND_KEY has as its value: {@link
+   * PSOptionManagerConstants#SAVE_COMMAND PSOptionManager.SAVE_COMMAND}.
    *
-   * @see IPSRequestPreProcessor.preProcessRequest(Object, IPSRequestContext)
+   * @see IPSRequestPreProcessor
    */
   public void preProcessRequest(Object[] params, IPSRequestContext request)
       throws PSExtensionProcessingException {
@@ -104,11 +104,11 @@ public class PSGetAndSetCxOptions implements IPSResultDocumentProcessor, IPSRequ
   }
 
   /**
-   * This will return the options document from the session if the {@link
-   * PSOptionManager#LOAD_SAVE_COMMAND_KEY PSOptionManager.LOAD_SAVE_COMMAND_KEY} has as its value:
-   * {@link PSOptionManagerConstants#LOAD_COMMAND PSOptionManager.LOAD_COMMAND} if there is one
-   * otherwise if those same conditions are matched this will return the default options document
-   * from the system.
+   * This will return the options document from the session if the
+   * PSOptionManager.LOAD_SAVE_COMMAND_KEY has as its value: {@link
+   * PSOptionManagerConstants#LOAD_COMMAND PSOptionManager.LOAD_COMMAND} if there is one otherwise
+   * if those same conditions are matched this will return the default options document from the
+   * system.
    *
    * @return will not be <code>null</code>.
    * @see IPSResultDocumentProcessor

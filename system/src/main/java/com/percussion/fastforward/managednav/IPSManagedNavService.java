@@ -307,8 +307,7 @@ public interface IPSManagedNavService {
    *
    * @param navId the ID of the navigation node, never <code>null</code>.
    * @param propertyNames names of the navon fields for which the value is required.
-   * @return Map<String, String> the map of name and value pairs, corresponding to the supplied list
-   *     of names.
+   * @return the map of name and value pairs, corresponding to the supplied list of names.
    */
   public Map<String, String> getNavonProperties(IPSGuid navId, List<String> propertyNames);
 

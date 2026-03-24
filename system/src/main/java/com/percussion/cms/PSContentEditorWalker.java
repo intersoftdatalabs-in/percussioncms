@@ -99,7 +99,7 @@ public class PSContentEditorWalker {
   /**
    * Get the text data of all 'Value' elements found in the provided element.
    *
-   * @elem the element to get the 'Value' element data from, not <code>null</code>.
+   * @param elem the element to get the 'Value' element data from, not <code>null</code>.
    * @return a list of String objects, might be empty but not <code>null</code>.
    */
   public static List getValues(Element elem) {

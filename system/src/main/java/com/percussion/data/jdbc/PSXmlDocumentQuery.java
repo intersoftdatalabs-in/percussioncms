@@ -290,28 +290,17 @@ public class PSXmlDocumentQuery implements SQLParserVisitor {
   /**
    * From the SQL standard, Sec 5.4, Syntax Rule 12:
    *
-   * <P/>
-   * <OL start="12" type="1">
-   * <LI> An <identifier> that is a <correlation name> is associated with
-   *      a table within a particular scope. The scope of a <correlation
-   *      name> is either a <select statement: single row>, <subquery>, or
-   *      <query specification> (see Subclause 6.3, "<table reference>").
-   *      Scopes may be nested. In different scopes, the same <correlation
-   *      name> may be associated with different tables or with the same
-   *      table.
-   * </LI>
-   * </OL>
-   * <P/>
-   * From the SQL standard, Sec 6.3:
-   * <OL start="3" type="1">
-   * <LI> A <table name> that is exposed by a <table reference> TR shall
-   *      not be the same as any other <table name> that is exposed by a
-   *      <table reference> with the same scope clause as TR.
-   * </LI>
-   * </OL>
-   * <P/>
-   * We create a query context at the ASTQuerySpecification level (above
-   * us) and pass it in as the data argument.
+   * <p>&lt;P/&gt; &lt;OL start="12" type="1"&gt; &lt;LI&gt; An &lt;identifier&gt; that is a
+   * &lt;correlation name&gt; is associated with a table within a particular scope. The scope of a
+   * &lt;correlation name&gt; is either a &lt;select statement: single row&gt;, &lt;subquery&gt;, or
+   * &lt;query specification&gt; (see Subclause 6.3, "&lt;table reference&gt;"). Scopes may be
+   * nested. In different scopes, the same &lt;correlation name&gt; may be associated with different
+   * tables or with the same table. &lt;/LI&gt; &lt;/OL&gt; &lt;P/&gt; From the SQL standard, Sec
+   * 6.3: &lt;OL start="3" type="1"&gt; &lt;LI&gt; A &lt;table name&gt; that is exposed by a
+   * &lt;table reference&gt; TR shall not be the same as any other &lt;table name&gt; that is
+   * exposed by a &lt;table reference&gt; with the same scope clause as TR. &lt;/LI&gt; &lt;/OL&gt;
+   * &lt;P/&gt; We create a query context at the ASTQuerySpecification level (above us) and pass it
+   * in as the data argument.
    */
   public Object visit(ASTTableReference node, Object data) {
     // --+trace("Visit table reference (" + data + ")");
@@ -564,7 +553,7 @@ public class PSXmlDocumentQuery implements SQLParserVisitor {
   }
 
   /**
-   * BooleanTerm ( <OR> BooleanTerm )*
+   * BooleanTerm ( &lt;OR&gt; BooleanTerm )*
    *
    * @param node
    * @param data A query context
@@ -576,7 +565,7 @@ public class PSXmlDocumentQuery implements SQLParserVisitor {
     return null;
   }
 
-  /** BooleanFactor ( <AND> BooleanFactor )* */
+  /** BooleanFactor ( &lt;AND&gt; BooleanFactor )* */
   public Object visit(ASTBooleanFactor node, Object data) {
     // --+trace("Visit boolean factor (" + data + ")");
 

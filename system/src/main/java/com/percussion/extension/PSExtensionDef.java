@@ -218,7 +218,7 @@ public class PSExtensionDef implements IPSExtensionDef, Serializable, IPSCloneTu
    *
    * @param name The param name. Must not be <CODE>null</CODE>.
    * @param value The param value. If <CODE>null</CODE>, the param will be erased.
-   * @throw IllegalArgumentException If any param is invalid.
+   * @throws IllegalArgumentException If any param is invalid.
    */
   public void setInitParameter(String name, String value) {
     if (name == null) throw new IllegalArgumentException("name cannot be null");
@@ -299,7 +299,7 @@ public class PSExtensionDef implements IPSExtensionDef, Serializable, IPSCloneTu
   }
 
   /**
-   * @see IPSExtensionDef#setDeprecated(boolean)
+   * @see IPSExtensionDef
    */
   public void setDeprecated(boolean isDeprecated) {
     this.isDeprecated = isDeprecated;

@@ -43,7 +43,7 @@ public class PSMakeLink extends PSSimpleJavaUdfExtension implements IPSUdfProces
    *
    * then the following URL would be generated:
    *
-   * <p>query1f.html?city=Boston&state=MA
+   * <p>query1f.html?city=Boston&amp;state=MA
    *
    * <p>Note: The base may contain parameters defined on it, in which case the supplied parameters
    * will be appended right after the last parameter defined therein.
@@ -52,6 +52,7 @@ public class PSMakeLink extends PSSimpleJavaUdfExtension implements IPSUdfProces
    *     beginning to end. As soon as the first <code>null</code> parameter is encountered (<code>
    *     null</code> values allowed), processing of the parameters will stop.
    *     <table border="1">
+   *       <caption style="display:none">Parameters</caption>
    *   <tr><th>Param #</th><th>Description</th><th>Required?</th><tr>
    *   <tr>
    *     <td>1</td>

@@ -98,30 +98,10 @@ public class PSItemField extends PSItemComponent {
    * </code> returns <code>false</code> any previous value will be over ridden by the value <code>
    * content</code>.
    *
-   * @param content value that will be added. Must not be <code>null</code>. Must be IPSFieldValue
-   *     type supported by this field at run time. This is determined by this fields corresponding
-   *     {@link PSItemFieldMeta#getBackendDataType()}.
-   *     <TABLE BORDER="1">
-   * <TR><TH>PSItemFieldMeta.getBackendDataType() returns</TH>
-   * <TH>IPSFieldValue supported</TH></TR>
-   *
-   * <TD>{@link PSItemFieldMeta#DATATYPE_BINARY}</TD>
-   * <TR><TD>PSBinaryValue</TD>
-   * <TD>Binary data type only accepts binary field value.</TD></TR>
-   *
-   * <TD>{@link PSItemFieldMeta#DATATYPE_DATE}</TD>
-   * <TR><TD>PSDateValue</TD>
-   * <TD>Date data type accepts PSDateValue</TD></TR>
-   *
-   * <TD>{@link PSItemFieldMeta#DATATYPE_NUMERIC}</TD>
-   * <TD>Numeric data type accepts PSTextValue.</TD>
-   * </TR>
-   *
-   * <TD>{@link PSItemFieldMeta#DATATYPE_TEXT}</TD>
-   * <TR><TD>Text data type Accepts PSTextValue and PSXmlValue</TD></TR>
-   * </TABLE>
-   *     When the field is loaded with data on an open. The backend types will determine which
-   *     IPSFieldValue will be used to hold the data.
+   * @param content value that will be added. Must not be null. Must be IPSFieldValue type supported
+   *     by this field at run time. This is determined by this fields corresponding
+   *     PSItemFieldMeta.getBackendDataType(). When the field is loaded with data on an open. The
+   *     backend types will determine which IPSFieldValue will be used to hold the data.
    */
   public void addValue(IPSFieldValue content) {
     if (content == null) throw new IllegalArgumentException("cannot add null to field");

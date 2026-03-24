@@ -28,17 +28,15 @@ public class PSRequestHandlerDef {
    * Constructor for this class.
    *
    * @param handlerName The name used to identify the request handler.
-   * @param className The name of the class used to instantiate the request
-   * handler.  This class must not be obfuscated.
-   * @param configFile File object pointing to an existing config file for this
-   * handler.  May be <code>null</code> if the handler does not have one. File
-   * is not checked to see if it exists.
-   * @param requestRoots Iterator over one or more String objects each
-   * representing a requestRoot.  Root does not contain the server root.  Must
-   * contain at least one root.
-   * @throws IllegalArgumentException if handlerName, className or requestRoots
-   * is <code>null</null>, or if reqeustRoots does not contain at least one
-   * item.
+   * @param className The name of the class used to instantiate the request handler. This class must
+   *     not be obfuscated.
+   * @param configFile File object pointing to an existing config file for this handler. May be
+   *     <code>null</code> if the handler does not have one. File is not checked to see if it
+   *     exists.
+   * @param requestRoots Iterator over one or more String objects each representing a requestRoot.
+   *     Root does not contain the server root. Must contain at least one root.
+   * @throws IllegalArgumentException if handlerName, className or requestRoots is <code>null</code>
+   *     , or if reqeustRoots does not contain at least one item.
    */
   public PSRequestHandlerDef(
       String handlerName, String className, File configFile, Iterator<String> requestRoots) {

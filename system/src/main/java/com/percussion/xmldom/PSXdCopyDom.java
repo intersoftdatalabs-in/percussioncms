@@ -72,7 +72,7 @@ public class PSXdCopyDom extends PSDefaultExtension implements IPSResultDocument
    * @param request the com.percussion.server.IPSRequestContext object for this particular request.
    * @param resultDoc the org.w3c.dom.Document that results from the resource execution.
    * @return the XML document to pass on to server for further processing.
-   * @throws PSExtensionProcessorException When an unexpected error condition occurs.
+   * @throws PSExtensionProcessingException When an unexpected error condition occurs.
    * @throws PSParameterMismatchException This class will never throw this exception.
    */
   public org.w3c.dom.Document processResultDocument(

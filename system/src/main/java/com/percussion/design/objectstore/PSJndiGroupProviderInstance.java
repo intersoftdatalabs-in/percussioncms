@@ -425,8 +425,6 @@ public class PSJndiGroupProviderInstance extends PSGroupProviderInstance {
    * PSJndiObjectClass as the value. Never <code>null</code> or empty. Maintained in addition to the
    * List so as to provide case insensitive named access to an object class, and to maintain an
    * ordered list as well.
-   *
-   * @todo write a PSListMap class.
    */
   private Map m_objectClassMap = new HashMap();
 

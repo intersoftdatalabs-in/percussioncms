@@ -36,26 +36,23 @@ import org.w3c.dom.Element;
 
 public class PSConsoleCommandFlushDbmd extends PSConsoleCommand {
   /**
-   * The constructor for this class.  Parses the command so that it is ready
-   * to execute.  Format of the command is:
-   * <p>
-   * flush dbmd -d <datasource> -t <table> -o <origin>
-   * <p>
-   * or <p>
-   * flush dbmd [-h]
-   * <p>
-   * The switches are not case sensitive, and the space between the switch and
-   * its value is optional.  Switches may be specified in any order.
-   * Datasource may be ommited or empty to use the default, and an origin may
-   * only be supplied if a table has been specified as well.  If the "-h"
-   * switch or no switches are passed, then the help for this command is
-   * displayed.
+   * The constructor for this class. Parses the command so that it is ready to execute. Format of
+   * the command is:
    *
-   * @param cmdArgs the arguments passed into the "flush dbmd" console command.
-   * This is everything after the "flush dbmd" portion of the command.
+   * <p>flush dbmd -d [datasource] -t [table] -o [origin]
    *
-   * @throws PSIllegalArgumentException if cmdArgs does not meet the
-   * requirements specified above.
+   * <p>or
+   *
+   * <p>flush dbmd [-h]
+   *
+   * <p>The switches are not case sensitive, and the space between the switch and its value is
+   * optional. Switches may be specified in any order. Datasource may be ommited or empty to use the
+   * default, and an origin may only be supplied if a table has been specified as well. If the "-h"
+   * switch or no switches are passed, then the help for this command is displayed.
+   *
+   * @param cmdArgs the arguments passed into the "flush dbmd" console command. This is everything
+   *     after the "flush dbmd" portion of the command.
+   * @throws PSIllegalArgumentException if cmdArgs does not meet the requirements specified above.
    */
   public PSConsoleCommandFlushDbmd(String cmdArgs) throws PSIllegalArgumentException {
     super(cmdArgs);

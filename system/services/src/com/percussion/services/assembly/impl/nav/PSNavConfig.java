@@ -927,8 +927,7 @@ public class PSNavConfig
    /**
     * Gets the relationsip config for the Active Assembly relationship. This
     * config is used when creating new relationships in Effects. Will be
-    * <code>null</code
-    * if the configuration has not been initialzied.
+    * <code>null</code> if the configuration has not been initialzied.
     * @return the relationship config.
     */
    public PSRelationshipConfig getAaRelConfig()
@@ -955,7 +954,7 @@ public class PSNavConfig
    private List<PSSlotType> menuSlotTypes = new ArrayList<>();
    /**
     * Gets the slot used for submenus. Will be
-    * <code>null<code> if the config is not initialized.
+    * <code>null</code> if the config is not initialized.
     * @return the menu slot object.
     */
    public List<PSSlotType> getNavSubMenuSlotTypes()
@@ -986,7 +985,7 @@ public class PSNavConfig
 
    /**
     * Gets the slot used for menu images. Will be
-    * <code>null<code> if the config is not initialized.
+    * <code>null</code> if the config is not initialized.
     * @return the image slot object.
     */
    public List<PSSlotType> getNavImageSlotTypes()

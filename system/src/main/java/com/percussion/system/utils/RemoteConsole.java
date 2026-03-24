@@ -52,6 +52,7 @@ public class RemoteConsole {
    * <p>The parameters are:
    *
    * <table border="1">
+   * <caption>Command Parameters</caption>
    * <tr>
    * <th>Name</th><th>Description</th><th>Required?</th>
    * </tr>

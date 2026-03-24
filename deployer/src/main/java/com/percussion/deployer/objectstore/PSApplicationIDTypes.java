@@ -48,7 +48,7 @@ public class PSApplicationIDTypes implements IPSDeployComponent {
    * Construct this object supplying the dependency for which it will map id types.
    *
    * @param dep The dependency, may not be <code>null</code> and for which {@link
-   *     PSDependency#supportIdTypes()} returns <code>true</code>.
+   *     PSDependency#supportsIdTypes()} returns <code>true</code>.
    * @throws IllegalArgumentException if <code>dep</code> is invalid.
    */
   public PSApplicationIDTypes(PSDependency dep) {

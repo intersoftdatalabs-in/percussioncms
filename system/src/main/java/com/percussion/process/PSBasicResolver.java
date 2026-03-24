@@ -54,9 +54,9 @@ public class PSBasicResolver implements IPSVariableResolver {
   }
 
   /**
-   * This is the main resolver method. This method is called by the {@link #getValue(Map) getValue}
-   * method to do the actual work. It uses the {@link PSStringTemplate} class to do the work. See
-   * that class for details. The default delimiters are used.
+   * This is the main resolver method. This method is called by the getValue method to do the actual
+   * work. It uses the {@link PSStringTemplate} class to do the work. See that class for details.
+   * The default delimiters are used.
    *
    * @param template the actual string which needs resolution, may be <code>null</code> or empty
    * @param ctx a {@link Map map}, contains data for executing the process, may not be <code>null

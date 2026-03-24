@@ -716,7 +716,7 @@ public class PSContentEditorHandler
    *
    * <p>be notified of any modify or workflow requests.
    *
-   * @param contentId The content id to notify for</code>.
+   * @param contentId The content id to notify for.
    */
   public void notifyPurge(int contentId) throws PSSystemValidationException, PSValidationException {
     for (IPSEditorChangeListener listener : m_changeListeners) {

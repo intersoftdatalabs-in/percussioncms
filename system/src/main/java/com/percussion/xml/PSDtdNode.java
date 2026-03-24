@@ -174,8 +174,9 @@ public class PSDtdNode implements Serializable {
    * the following tables.
    *
    * <TABLE BORDER="1">
-   * <TR><TH></TH><TH COLSPAN="5" ALIGN="CENTER">Sequence List</TH></TR>
-   * <TR><TH ROWSPAN="5" VALIGN="CENTER">Node</TH>
+   * <caption>Sequence List</caption>
+   * <TR><TH></TH><TH COLSPAN="5">Sequence List</TH></TR>
+   * <TR><TH ROWSPAN="5">Node</TH>
    *     <TH>    </TH><TH>OPT</TH><TH>REQ</TH><TH>ANY</TH><TH>1+ </TH></TR>
    * <TR><TH>OPT </TH><TH>OPT</TH><TH>OPT</TH><TH>ANY</TH><TH>ANY</TH></TR>
    * <TR><TH>REQ </TH><TH>OPT</TH><TH>REQ</TH><TH>ANY</TH><TH>1+ </TH></TR>
@@ -186,8 +187,9 @@ public class PSDtdNode implements Serializable {
    * <p>
    *
    * <TABLE BORDER="1">
-   * <TR><TH></TH><TH COLSPAN="5" ALIGN="CENTER">Option List</TH></TR>
-   * <TR><TH ROWSPAN="5" VALIGN="CENTER">Node</TH>
+   * <caption>Option List</caption>
+   * <TR><TH></TH><TH COLSPAN="5">Option List</TH></TR>
+   * <TR><TH ROWSPAN="5">Node</TH>
    *     <TH>    </TH><TH>OPT</TH><TH>REQ</TH><TH>ANY</TH><TH>1+ </TH></TR>
    * <TR><TH>OPT </TH><TH>OPT</TH><TH>OPT</TH><TH>ANY</TH><TH>ANY</TH></TR>
    * <TR><TH>REQ </TH><TH>OPT</TH><TH>OPT</TH><TH>ANY</TH><TH>ANY</TH></TR>

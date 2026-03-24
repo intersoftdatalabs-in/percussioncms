@@ -196,8 +196,7 @@ public class PSPersistentProperty {
   /**
    * Sets the action to be performed on the property: delete, update or insert
    *
-   * @param action May be <code>null</code>, in which case an empty string is set.
-   * @todo rename setExtraParam to setActionType() ?
+   * @param action May be null, in which case an empty string is set.
    */
   // dbreslau: synchronized this to avoid toXML() being invoked concurrently
   public synchronized void setExtraParam(String action) {
@@ -207,8 +206,7 @@ public class PSPersistentProperty {
   /**
    * Gets the action type
    *
-   * @return Never <code>null</code>; may be an empty string.
-   * @todo rename getExtraParam to getActionType() ?
+   * @return Never null; may be an empty string.
    */
   public synchronized String getExtraParam() {
     return m_action;
@@ -313,10 +311,6 @@ public class PSPersistentProperty {
 
   public static final String DBACTION = "DBActionType";
 
-  /**
-   * Not currently used (?)
-   *
-   * @todo remove ROOTVALUE_ELEM
-   */
+  /** Not currently used. */
   public static final String ROOTVALUE_ELEM = "PERSISTEDPROPERTYVALUESSET";
 }

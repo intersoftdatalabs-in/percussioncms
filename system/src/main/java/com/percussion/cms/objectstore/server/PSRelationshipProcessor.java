@@ -48,11 +48,7 @@ import org.apache.logging.log4j.Logger;
 public class PSRelationshipProcessor implements IPSRelationshipProcessor {
   private static final Logger log = LogManager.getLogger(PSRelationshipProcessor.class);
 
-  /**
-   * Create the backend processor for the supplied request.
-   *
-   * @see {@link PSRelationshipProcessor(IPSRequestContext)}.
-   */
+  /** Create the backend processor for the supplied request. */
   public PSRelationshipProcessor() {
     m_dbProcessor = PSRelationshipDbProcessor.getInstance();
   }

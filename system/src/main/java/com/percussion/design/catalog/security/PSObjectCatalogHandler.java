@@ -38,7 +38,8 @@ public class PSObjectCatalogHandler implements IPSCatalogHandler {
    * Format the catalog request based upon the specified request information. The request
    * information for this request type is:
    *
-   * <TABLE border="2">
+   * <TABLE border="1">
+   * <caption>Request Information</caption>
    * <tr><th>Key</th>
    *     <th>Value</th>
    *     <th>Required</th></tr>

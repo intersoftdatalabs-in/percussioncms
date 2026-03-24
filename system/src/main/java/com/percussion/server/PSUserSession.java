@@ -185,7 +185,7 @@ public class PSUserSession {
   }
 
   /**
-   * Create a new session Id. We will use <host address>, current system time, the user agent and a
+   * Create a new session Id. We will use host address, current system time, the user agent and a
    * unique number incremented in each call run through a hash algorithm to generate the session id
    * at this time. In the future we may also want to use the authenticated user name.
    *
@@ -376,13 +376,9 @@ public class PSUserSession {
    * Looks up the community id for the specified community name
    *
    * @param request The current request, assumed not <code>null</code>.
-   * @param name Community name, assumed not <code>null</null> or empty.
-   *
-   * @return The Community id, or <code>null</code> if the specified community
-   * does not exist.
-   *
-   * @throws PSInternalRequestCallException if there is an error retrieving
-   * the community id
+   * @param name Community name, assumed not <code>null</code> or empty.
+   * @return The Community id, or <code>null</code> if the specified community does not exist.
+   * @throws PSInternalRequestCallException if there is an error retrieving the community id
    */
   public String getCommunityId(PSRequest request, String name)
       throws PSInternalRequestCallException {
@@ -411,10 +407,10 @@ public class PSUserSession {
    *
    * <p>Note: All authenticated entries will have the same name.
    *
-   * @return A valid, authenticated user name or <code>null</code> if there isn't one.
-   * @todo The Host provider should be removed from the list of authenticated user entries and this
-   *     method should be removed. The host provider entries should be used as a filter on incoming
-   *     request rather than as authenticated entries.
+   * @return A valid, authenticated user name or <code>null</code> if there isn't one. TODO: The
+   *     Host provider should be removed from the list of authenticated user entries and this method
+   *     should be removed. The host provider entries should be used as a filter on incoming request
+   *     rather than as authenticated entries.
    */
   public String getRealAuthenticatedUserEntry() {
     String userName = null;
@@ -583,9 +579,8 @@ public class PSUserSession {
    * authenticationIdIterator() is invoked) before invoking this method and while the Iterator is in
    * use.
    *
-   * @return keyset iterator for authentications
-   * @todo Consider changing this to return an iterator to a copied set of keys. That would prevent
-   *     the need for the caller to nize.
+   * @return keyset iterator for authentications TODO: Consider changing this to return an iterator
+   *     to a copied set of keys. That would prevent the need for the caller to nize.
    *     <p>However, it's not clear at this time if an iterator is guaranteed to provide a reference
    *     to the container object itself, and thus prevent GC of the copied container. (It's
    *     <em>very</em> likely, but I saw no guarantee in the spec) (dbreslau 12/12/02)
@@ -610,14 +605,12 @@ public class PSUserSession {
   }
 
   /**
-   *    Get a back end credential identifier which we know works
-   *    for this driver/server.
+   * Get a back end credential identifier which we know works for this driver/server.
    *
-   * @param      driver   the driver to look up
-   * @param      server   the server to look up
-   *
-   * @return     the id for the credential which was used successfully
-   *             for this driver/server, <code>null<code/> if none available
+   * @param driver the driver to look up
+   * @param server the server to look up
+   * @return the id for the credential which was used successfully for this driver/server, <code>
+   *     null</code> if none available
    */
   public Object getBeWorkingCredential(String driver, String server) {
     if (driver == null) driver = "";
@@ -742,7 +735,7 @@ public class PSUserSession {
   }
 
   /**
-   * @param name whoes value is being sought.
+   * @param name whose value is being sought.
    * @return <code>null</code> if mapping doesn't exist.
    * @throws IllegalArgumentException if property name is <code>null</code>.
    */
@@ -918,7 +911,7 @@ public class PSUserSession {
 
   /**
    * @param name key for which the property value is being fetched.
-   * @param defaultValue
+   * @param defaultValue the default value to use if the key doesn't exist.
    * @return the default value if the mapping for the key doesn not exist.
    * @throws IllegalArgumentException if property name is <code>null</code>
    */

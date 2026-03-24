@@ -107,9 +107,7 @@ public class PSValidationRules extends PSCollectionComponent {
     return equal;
   }
 
-  /**
-   * Generates code of the object. Overrides {@link Object#hashCode().
-   */
+  /** Generates code of the object. Overrides {@link Object#hashCode()}. */
   @Override
   public int hashCode() {
     // AP: does not feel right - equals() is overwritten, hashCode is not

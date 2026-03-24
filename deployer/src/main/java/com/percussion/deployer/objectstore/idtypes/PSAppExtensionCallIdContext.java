@@ -34,7 +34,7 @@ public class PSAppExtensionCallIdContext extends PSApplicationIdContext {
    * Construct this context from an extension call. This version does not set an index, assuming the
    * call's parent context is not a list of extension calls.
    *
-   * @param The extension call, may not be <code>null</code>.
+   * @param call the extension call, may not be <code>null</code>.
    * @throws IllegalArgumentException if <code>call</code> is <code>null</code>.
    */
   public PSAppExtensionCallIdContext(PSExtensionCall call) {
@@ -47,8 +47,8 @@ public class PSAppExtensionCallIdContext extends PSApplicationIdContext {
    * Construct this context from an extension call, specifying its ordinal position in its parent
    * context.
    *
-   * @param The extension call, may not be <code>null</code>.
-   * @param index The ordinal position of this call in its parent's list. Must be greater than or
+   * @param call the extension call, may not be <code>null</code>.
+   * @param index the ordinal position of this call in its parent's list. Must be greater than or
    *     equal to 0.
    * @throws IllegalArgumentException if either param is invalid.
    */

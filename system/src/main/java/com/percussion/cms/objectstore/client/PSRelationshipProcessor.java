@@ -128,7 +128,7 @@ public class PSRelationshipProcessor implements IPSRelationshipProcessor {
   }
 
   /**
-   * See {@link IPSRelationshipProcessor#getChildren(String, PSKey) interface}
+   * See IPSRelationshipProcessor interface for details.
    *
    * @throws UnsupportedOperationException Always.
    */
@@ -137,7 +137,7 @@ public class PSRelationshipProcessor implements IPSRelationshipProcessor {
   }
 
   /**
-   * See {@link IPSRelationshipProcessor#move(String, PSKey, PSKey [], PSKey) interface}
+   * See IPSRelationshipProcessor interface for details.
    *
    * @throws UnsupportedOperationException Always.
    */
@@ -147,7 +147,7 @@ public class PSRelationshipProcessor implements IPSRelationshipProcessor {
   }
 
   /**
-   * See {@link IPSRelationshipProcessor#copy(String, PSKey, PSKey []) interface}
+   * See IPSRelationshipProcessor interface for details.
    *
    * @throws UnsupportedOperationException Always.
    */

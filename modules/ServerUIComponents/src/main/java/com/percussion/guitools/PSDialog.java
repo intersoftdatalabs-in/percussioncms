@@ -224,7 +224,7 @@ public class PSDialog extends JDialog {
    * implements the actual functionality. Dialog closing action must be handled here as well for
    * anything more than calling dispose().
    *
-   * <p><B>NOTE</B>: The method name <BIG>DOES NOT</BIG> mean it is only for the &quot;Cancel&quot;
+   * <p><strong>NOTE</strong>: The method name DOES NOT mean it is only for the &quot;Cancel&quot;
    * button. It can be called and used to handle &quot;Close&quot; actions as well. It is up to the
    * discretion of the programmer. Simply keep the idea, that this is for cancel/closing operation,
    * consistent.
@@ -407,12 +407,12 @@ public class PSDialog extends JDialog {
   /**
    * Recursively adds the default key listener to the component passed in and all child components.
    * The default listener listens for the escape and f1 keys which should have the same behaviour in
-   * all dialogs i.e. escape calls <code>onCancel()</code> and f1 call onHelp()</code>.
+   * all dialogs i.e. escape calls onCancel() and f1 call onHelp().
    *
    * <p>This method is called by {@link #setVisible(boolean)} or {@link #pack()} and can also be
    * explicitly called by a subclass.
    *
-   * @param comp component to add the listeners to. Cannot be <code>null</code>.
+   * @param comp component to add the listeners to. Cannot be null.
    */
   protected void addDefaultKeyListeners(Component comp) {
     if (null == comp) throw new IllegalArgumentException("Component cannot be null.");

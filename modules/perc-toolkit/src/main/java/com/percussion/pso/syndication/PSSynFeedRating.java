@@ -19,15 +19,15 @@ package com.percussion.pso.syndication;
 import com.rometools.modules.mediarss.types.Rating;
 
 /***
- * <media:rating>
+ * &lt;media:rating&gt;
  *
  * This allows the permissible audience to be declared. If this element is not included, it assumes that no restrictions are necessary. It has one optional attribute.
  *
- * <media:rating scheme="urn:simple">adult</media:rating>
- * <media:rating scheme="urn:icra">r (cz 1 lz 1 nz 1 oz 1 vz 1)</media:rating>
- * <media:rating scheme="urn:mpaa">pg</media:rating>
+ * &lt;media:rating scheme="urn:simple"&gt;adult&lt;/media:rating&gt;
+ * &lt;media:rating scheme="urn:icra"&gt;r (cz 1 lz 1 nz 1 oz 1 vz 1)&lt;/media:rating&gt;
+ * &lt;media:rating scheme="urn:mpaa"&gt;pg&lt;/media:rating&gt;
  *
- * <media:rating scheme="urn:v-chip">tv-y7-fv</media:rating>
+ * &lt;media:rating scheme="urn:v-chip"&gt;tv-y7-fv&lt;/media:rating&gt;
  * scheme is the URI that identifies the rating scheme. It is an optional attribute. If this attribute is not included, the default scheme is urn:simple (adult | nonadult).
  *
  * For compatibility, a medai:adult tag will appear in the ratings as a urn:simple equiv.
@@ -37,10 +37,10 @@ import com.rometools.modules.mediarss.types.Rating;
  * <p>This allows the permissible audience to be declared. If this element is not included, it
  * assumes that no restrictions are necessary. It has one optional attribute.
  *
- * <p><media:rating scheme="urn:simple">adult</media:rating> <media:rating scheme="urn:icra">r (cz 1
- * lz 1 nz 1 oz 1 vz 1)</media:rating> <media:rating scheme="urn:mpaa">pg</media:rating>
+ * <p>&lt;media:rating scheme="urn:simple"&gt;adult&lt;/media:rating&gt; &lt;media:rating scheme="urn:icra"&gt;r (cz 1
+ * lz 1 nz 1 oz 1 vz 1)&lt;/media:rating&gt; &lt;media:rating scheme="urn:mpaa"&gt;pg&lt;/media:rating&gt;
  *
- * <p><media:rating scheme="urn:v-chip">tv-y7-fv</media:rating> scheme is the URI that identifies
+ * <p>&lt;media:rating scheme="urn:v-chip"&gt;tv-y7-fv&lt;/media:rating&gt; scheme is the URI that identifies
  * the rating scheme. It is an optional attribute. If this attribute is not included, the default
  * scheme is urn:simple (adult | nonadult).
  *

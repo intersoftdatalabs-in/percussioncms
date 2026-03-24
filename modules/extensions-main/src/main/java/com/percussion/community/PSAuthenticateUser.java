@@ -54,8 +54,6 @@ import org.w3c.dom.NodeList;
  *   <LI>If authentication is successful, the user community is stored as session object to make
  *       sure it is available to all Rhythmyx applications for further use
  * </UL>
- *
- * </P
  */
 public class PSAuthenticateUser implements IPSRequestPreProcessor {
   /*
@@ -79,11 +77,12 @@ public class PSAuthenticateUser implements IPSRequestPreProcessor {
   }
 
   /**
-   * This mehod retrieves the community id from
-   * "sys_commSupport/communityidlookup" by their community name.
-   * @param request <code>IPSRequestContext</code> object that is available in
-   * the extension's process request method, assumed never <code>null</code>.
-   * @param name Community name, can not be <code>null</null>
+   * This mehod retrieves the community id from "sys_commSupport/communityidlookup" by their
+   * community name.
+   *
+   * @param request <code>IPSRequestContext</code> object that is available in the extension's
+   *     process request method, assumed never <code>null</code>.
+   * @param name Community name, can not be null
    * @return Community id.
    * @throws Exception
    */
@@ -147,8 +146,8 @@ public class PSAuthenticateUser implements IPSRequestPreProcessor {
    *
    * @param request <code>IPSRequestContext</code> object that is available in the extension's
    *     process request method, assumed never <code>null</code>.
-   * @return community id of the
-   * @throws Exception, if it cannot retrieve tha role attribute for any reason.
+   * @return community id of the default community.
+   * @throws Exception if it cannot retrieve the role attribute for any reason.
    */
   public static String getUserDefaultCommunity(IPSRequestContext request) throws Exception {
     return getCommunityId(request, getUserRoleAttribute(request, SYS_DEFAULTCOMMUNITY));
@@ -160,10 +159,10 @@ public class PSAuthenticateUser implements IPSRequestPreProcessor {
    *
    * @param request <code>IPSRequestContext</code> object that is available in the extension's
    *     process request method, assumed never <code>null</code>.
-   * @param srcAttrName, Name of the role attribute to retrieve, cannot be <code>null</code>, if
-   *     <code>null</code> the result will be <code>null</code>.
-   * @return value of the given attribute, may be <code>null</code>
-   * @throws Exception, if it cannot retrieve tha role attribute for any reason.
+   * @param srcAttrName Name of the role attribute to retrieve, cannot be null, if null the result
+   *     will be null.
+   * @return value of the given attribute, may be null
+   * @throws Exception if it cannot retrieve the role attribute for any reason.
    */
   public static String getUserRoleAttribute(IPSRequestContext request, String srcAttrName)
       throws Exception {

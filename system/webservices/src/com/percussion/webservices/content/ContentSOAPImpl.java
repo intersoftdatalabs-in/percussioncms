@@ -257,11 +257,9 @@ public class ContentSOAPImpl extends PSBaseSOAPImpl implements Content {
      *
      * @param req the request containing relationship details
      * @return array of created relationships
-     * @throws java.rmi.RemoteException if a system error occurs
      * @throws com.percussion.webservices.content.InvalidSessionFaultMessage if the session is invalid
      * @throws com.percussion.webservices.content.ContractViolationFaultMessage if the request contract is violated
      * @throws com.percussion.webservices.content.NotAuthorizedFaultMessage if the user is not authorized
-     * @throws com.percussion.webservices.content.ErrorResultsFaultMessage if there are validation errors
      */
     @Override
     public AddContentRelationsResponse addContentRelations(AddContentRelationsRequest req)

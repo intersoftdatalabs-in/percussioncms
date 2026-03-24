@@ -36,8 +36,6 @@ import org.apache.tools.ant.types.selectors.SelectorUtils;
 
 /**
  * Custom Ant selector, used to select junit test cases based on a set of include/exclude filters.
- * See {@link com.percussion.testing.PSCustomFileFilter} for a description of the custom selector
- * definition supported.
  */
 public class PSJunitFileSelector extends BaseExtendSelector {
 
@@ -276,8 +274,7 @@ public class PSJunitFileSelector extends BaseExtendSelector {
    * <code>XXX_ATTR</code> values, a type of either 'include' or 'exclude', defaults to 'include' if
    * no value is supplied, and the value is the filter pattern, which may not be empty.
    *
-   * @see org.apache.tools.ant.types.Parameterizable#setParameters(Parameter[]
-   *     Paraeterizable.setParameters()) for more info.
+   * @see org.apache.tools.ant.types.Parameterizable#setParameters(Parameter[])
    */
   public void setParameters(Parameter parameters[]) {
     super.setParameters(parameters);

@@ -52,10 +52,10 @@ public class PSRoleConfiguration implements IPSDocument {
    *
    * <p>
    *
-   * <pre><code>
+   * <pre>
    * &lt;!ELEMENT PSXRoleConfiguration(PSXDatabaseComponentCollection*,
    *  PSXDatabaseComponentCollection*)&gt;
-   * </pre></code>
+   * </pre>
    *
    * @param xmlDef The document containing the RoleConfiguration definition. May not be <code>null
    *     </code>.

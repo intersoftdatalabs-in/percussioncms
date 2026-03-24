@@ -46,9 +46,9 @@ public class PSRequestPageMap {
   /**
    * Construct a request page mapping for the specified requestor object.
    *
-   * @param requestor the requestor object definined the map info
+   * @param dataSet the data set defined the map info
    * @param rh the request handler to use
-   * @exception PSIllegalArgumentException if <code>requestor</code> is <code>null</code>
+   * @exception PSIllegalArgumentException if <code>dataSet</code> is <code>null</code>
    */
   public PSRequestPageMap(PSDataSet dataSet, IPSRequestHandler rh)
       throws PSIllegalArgumentException {

@@ -229,10 +229,10 @@ public class PSDatabaseFunction {
    * </code> method. See {@link com.percussion.extension.PSDatabaseFunctionDef#equals(Object)}
    *
    * @param obj the object with which to compare this object, may not be <code>null</code>
-   * @return <false> if the specified object is not an instance of this class. <code>true</code> if
-   *     this object and the contained <code>PSDatabaseFunctionDef</code> objects match that of the
-   *     specified object, <code>false</code> otherwise.
-   * @throws IllegalArgumentException if <code>obj</code> is <code>null</code>
+   * @return false if the specified object is not an instance of this class. true if this object and
+   *     the contained PSDatabaseFunctionDef objects match that of the specified object, false
+   *     otherwise.
+   * @throws IllegalArgumentException if obj is null
    * @see equalsFull(Object)
    */
   public boolean equals(Object obj) {
@@ -256,10 +256,10 @@ public class PSDatabaseFunction {
    * </code> method. See {@link com.percussion.extension.PSDatabaseFunctionDef#equalsFull(Object)}
    *
    * @param obj the object with which to compare this object, may not be <code>null</code>
-   * @return <false> if the specified object is not an instance of this class. <code>true</code> if
-   *     this object and the contained <code>PSDatabaseFunctionDef</code> objects match that of the
-   *     specified object, <code>false</code> otherwise.
-   * @throws IllegalArgumentException if <code>obj</code> is <code>null</code>
+   * @return false if the specified object is not an instance of this class. true if this object and
+   *     the contained PSDatabaseFunctionDef objects match that of the specified object, false
+   *     otherwise.
+   * @throws IllegalArgumentException if obj is null
    * @see equals(Object)
    */
   public boolean equalsFull(Object obj) {

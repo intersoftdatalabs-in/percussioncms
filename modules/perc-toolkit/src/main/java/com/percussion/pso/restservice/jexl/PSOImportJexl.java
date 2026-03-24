@@ -76,12 +76,8 @@ public class PSOImportJexl extends PSJexlUtilBase implements IPSJexlExpression {
   /**
    * Method getPostBodyAsDom.
    *
-   * @return Document
-   * @throws SAXNotRecognizedException
-   * @throws SAXNotSupportedException
-   * @throws TransformerFactoryConfigurationError
-   * @throws TransformerException
-   * @throws IOException
+   * @return the document
+   * @throws IOException if an I/O error occurs
    */
   @IPSJexlMethod(
       description =
@@ -316,10 +312,10 @@ public class PSOImportJexl extends PSJexlUtilBase implements IPSJexlExpression {
   /**
    * Method xpathSelectSingleNode.
    *
-   * @param doc Object
-   * @param xpathString String
-   * @param namespaces Map<String,String>
-   * @return Node
+   * @param doc the document object
+   * @param xpathString the xpath string
+   * @param namespaces map of namespace prefixes
+   * @return the selected node
    */
   @IPSJexlMethod(
       description = "Uses xpath to search a document containing namespaces",
@@ -341,10 +337,10 @@ public class PSOImportJexl extends PSJexlUtilBase implements IPSJexlExpression {
   /**
    * Method xpathSelectNodes.
    *
-   * @param doc Object
-   * @param xpathString String
-   * @param namespaces Map<String,String>
-   * @return List<?>
+   * @param doc the document object
+   * @param xpathString the xpath string
+   * @param namespaces map of namespace prefixes
+   * @return list of nodes
    */
   @IPSJexlMethod(
       description = "Uses xpath to search a document containing namespaces",

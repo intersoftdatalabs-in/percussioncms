@@ -86,7 +86,7 @@ public class PSGetBase64Encoded extends PSSimpleJavaUdfExtension {
    * and the session identifier was <code>sessionid</code>, then the following URL would be
    * generated (the params do not necessarily appear in the order presented):
    *
-   * <p>http://127.0.0.1:9992/Rhythmyx/MyApp/query1.html? pssessionid=sessionid&city=Boston&state=MA
+   * <p>http://127.0.0.1:9992/Rhythmyx/MyApp/query1.html?pssessionid=sessionid&amp;city=Boston&amp;state=MA
    *
    * <p>Note: The resource may contain parameters defined on it, in which case the session id will
    * be appended after the last parameter defined therein.
@@ -95,6 +95,7 @@ public class PSGetBase64Encoded extends PSSimpleJavaUdfExtension {
    *     end. As soon as the first <code>null</code> parameter is encountered (<code>null</code>
    *     values allowed), processing of the parameters will stop.
    *     <table border="1">
+   *       <caption style="display:none">Parameters</caption>
    *       <tr><th>Param #</th><th>Description</th><th>Required?</th><th>default
    *          value</th><tr>
    *       <tr>
@@ -159,9 +160,9 @@ public class PSGetBase64Encoded extends PSSimpleJavaUdfExtension {
   }
 
   /**
-   * Gets an input stream from which the data in the response may be read. Internally calls {@link
-   * HttpURLConnection.getInputStream()}. The derived classes can override this method to for
-   * example do some custom response data filtering.
+   * Gets an input stream from which the data in the response may be read. Internally calls
+   * HttpURLConnection.getInputStream. The derived classes can override this method to for example
+   * do some custom response data filtering.
    *
    * @param conn HTTP connection, never <code>null</code>.
    * @return input stream with the response data, never <code>null</code>.

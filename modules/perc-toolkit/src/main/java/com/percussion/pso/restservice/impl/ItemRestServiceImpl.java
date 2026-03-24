@@ -2578,9 +2578,6 @@ public class ItemRestServiceImpl implements IItemRestService {
    *
    * @param esubject subject
    * @param ebody body
-   * @throws IOException
-   * @throws ItemRestException
-   * @throws ItemRestNotModifiedException
    */
   public void sendEmailNotification(String esubject, String ebody) {
 

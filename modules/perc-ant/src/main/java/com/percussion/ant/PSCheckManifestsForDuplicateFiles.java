@@ -44,8 +44,8 @@ public class PSCheckManifestsForDuplicateFiles extends Task {
 
   /**
    * Support for nested {@link Exclude} element.
-   * @return newly created <code>Exclude</exclude> object,
-   * never <code>null</code>.
+   *
+   * @return newly created <code>Exclude</code> object, never <code>null</code>.
    */
   public Exclude createExclude() {
     final Exclude exclude = new Exclude();

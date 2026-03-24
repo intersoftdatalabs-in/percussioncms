@@ -31,7 +31,7 @@ import org.w3c.dom.Element;
 /** Encapsulates the information about an action performed by a content editor on a content item. */
 public class PSEditorChangeEvent {
   /**
-   * Convenience ctor for parent item change that calls {@link ##PSEditorChangeEvent(int, int, int,
+   * Convenience ctor for parent item change that calls {@link #PSEditorChangeEvent(int, int, int,
    * int, int, long)} this(actionType, contentId, revisionId, -1, -1, contentTypeId}.
    */
   public PSEditorChangeEvent(int actionType, int contentId, int revisionId, long contentTypeId) {
@@ -203,9 +203,9 @@ public class PSEditorChangeEvent {
   /**
    * Serializes this object to its XML represetation. The DTD is:
    *
-   * <pre><code>
-   * <!ELEMENT PSXEditorChangeEvent (BinaryFields?)>
-   * <!ATTLIST PSXEditorChangeEvent
+   * <pre>
+   * &lt;!ELEMENT PSXEditorChangeEvent (BinaryFields?)&gt;
+   * &lt;!ATTLIST PSXEditorChangeEvent
    *    action CDATA #REQUIRED
    *    contentId CDATA #REQUIRED
    *    revisionId CDATA #REQUIRED
@@ -213,10 +213,10 @@ public class PSEditorChangeEvent {
    *    childId CDATA #REQUIRED
    *    childRowId CDATA #REQUIRED
    *    priority CDATA #IMPLIED
-   * >
-   * <!ELEMENT BinaryFields (BinaryField+)>
-   * <!ELEMENT BinaryField (#PCDATA)>
-   * </code></pre>
+   * &gt;
+   * &lt;!ELEMENT BinaryFields (BinaryField+)&gt;
+   * &lt;!ELEMENT BinaryField (#PCDATA)&gt;
+   * </pre>
    *
    * @param doc The document to use when creating elements, may not be <code>null</code>.
    * @return The root element of the serialized XML, never <code>null</code>.

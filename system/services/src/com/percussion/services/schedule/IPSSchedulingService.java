@@ -358,7 +358,7 @@ public interface IPSSchedulingService {
     * Gets all task log entries with enhanced documentation.
     * Note: the problemDesc property will not be loaded for performance reasons.
     *
-    * @param maxResult the max number of log entries to retrieve, no limit if <= 0
+    * @param maxResult the max number of log entries to retrieve, no limit if &lt;= 0
     * @return unmodifiable list of log entries sorted by end time (descending), never null
     */
    List<PSScheduledTaskLog> findAllTaskLogs(int maxResult);
@@ -366,7 +366,7 @@ public interface IPSSchedulingService {
    /**
     * Gets all task log entries as a stream for efficient processing.
     *
-    * @param maxResult the max number of log entries to retrieve, no limit if <= 0
+    * @param maxResult the max number of log entries to retrieve, no limit if &lt;= 0
     * @return stream of task log entries, never null
     */
    default Stream<PSScheduledTaskLog> findAllTaskLogsAsStream(int maxResult) {
@@ -420,7 +420,7 @@ public interface IPSSchedulingService {
    /**
     * Gets the count of all task logs.
     *
-    * @param maxResult the max number to count, no limit if <= 0
+    * @param maxResult the max number to count, no limit if &lt;= 0
     * @return the number of task log entries
     */
    default long getTaskLogCount(int maxResult) {

@@ -104,7 +104,7 @@ public class PSCopy extends Copy {
   /**
    * Sets the type of replace option for this copy operation.
    *
-   * @return see {@link #m_replaceType}.
+   * @param replaceType the replace type to set
    */
   public void setReplaceType(String replaceType) {
     if (!replaceType.equalsIgnoreCase(ALWAYS)

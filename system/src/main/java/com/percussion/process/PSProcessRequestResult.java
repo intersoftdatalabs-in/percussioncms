@@ -77,7 +77,7 @@ public class PSProcessRequestResult {
    *     is serialized to xml.
    * @param status One of the STATUS_xxx values.
    * @param actionHandle See {@link #getActionHandle()} for details. If <code>status</code> is not
-   *     <code>STATUS_STARTED</code>, this value is ignored (treated as -1). Any value < 1 is
+   *     <code>STATUS_STARTED</code>, this value is ignored (treated as -1). Any value &lt; 1 is
    *     treated as -1;
    */
   public PSProcessRequestResult(

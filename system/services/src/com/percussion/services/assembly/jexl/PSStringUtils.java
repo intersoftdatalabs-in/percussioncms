@@ -57,7 +57,7 @@ public class PSStringUtils extends PSJexlUtilBase
 
    /**
     * Process a string which contains parameters and values in the standard URL
-    * format, i.e. param=value&param2=value2. It returns a String to String map
+    * format, i.e. param=value&amp;param2=value2. It returns a String to String map
     * of the names and values
     * 
     * @param paramstring parameter string, if null then an empty map is returned

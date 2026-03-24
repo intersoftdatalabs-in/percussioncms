@@ -48,11 +48,15 @@ public class PSIdGeneratorExit extends PSDefaultExtension implements IPSResultDo
 
   /**
    * Makes a call to the id generator using a supplied lookup key. The allocated ids are returned in
-   * a document that replaces the supplied one w a new one of the form: <code><pre>
+   * a document that replaces the supplied one w a new one of the form:
+   *
+   * <pre>
    * &lt;rootelement key="lookup" firstId="100", count="count or less"&gt;
-   * </pre></code> Where 'lookup' is the lookup key used to find the next available ids, firstId is
-   * the first of a series of 1 or more ids allocated for the caller's use and count is the actual
-   * number of allocated ids.
+   * </pre>
+   *
+   * Where 'lookup' is the lookup key used to find the next available ids, firstId is the first of a
+   * series of 1 or more ids allocated for the caller's use and count is the actual number of
+   * allocated ids.
    *
    * <p>This exit expects 1 html parameter to be present and 1 to optionally be present. A parameter
    * called sys_lookupkey is required. It is passed to the id generator. An optional parameter

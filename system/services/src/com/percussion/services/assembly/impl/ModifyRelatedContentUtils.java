@@ -613,14 +613,12 @@ public class ModifyRelatedContentUtils {
             }
         }
     }
-    /**
-     * Get the relationship processor.
-     *
-     * @param request the request for which to get the processor, assumed not
-     *    <code>null</code>.
-     * @return the relationship processor proxy, never <code>null</code>.
-     * @throws PSCmsException for any errors creating the processor.
-     */
+   /**
+    * Get the relationship processor.
+    *
+    * @return the relationship processor proxy, never <code>null</code>.
+    * @throws PSCmsException for any errors creating the processor.
+    */
     public static PSRelationshipProcessor getRsProcessor() throws PSCmsException
     {
         return PSRelationshipProcessor.getInstance();

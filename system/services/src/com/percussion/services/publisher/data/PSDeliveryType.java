@@ -78,7 +78,7 @@ public class PSDeliveryType implements IPSDeliveryType
    }
 
    /**
-    * @param id the id to set, never <code>null</code>
+    * @param guid the guid to set, never <code>null</code>
     */
    public void setGUID(IPSGuid guid)
    {

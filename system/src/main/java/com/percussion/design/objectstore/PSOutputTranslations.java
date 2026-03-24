@@ -81,9 +81,7 @@ public class PSOutputTranslations extends PSCollectionComponent {
     return equal;
   }
 
-  /**
-   * Generates code of the object. Overrides {@link Object#hashCode().
-   */
+  /** Generates code of the object. */
   @Override
   public int hashCode() {
     // AP: does not feel right - equals redefined, but hashCode is not

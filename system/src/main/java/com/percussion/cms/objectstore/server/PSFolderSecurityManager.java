@@ -178,13 +178,12 @@ public class PSFolderSecurityManager {
    * Returns a <code>PSObjectPermissions</code> object which encapsulates an access mask. This mask
    * determines the level of access for the user accessing the folder.
    *
-   * @param i
-   * @param ipsRequestContext
+   * @param contentId content id for the folder
    * @return the permissions set on the folder for the user accessing the folder, never <code>null
    *     </code>
    * @throws PSCmsException
    */
-  public static PSObjectPermissions getPermissions(int i) throws PSCmsException {
+  public static PSObjectPermissions getPermissions(int contentId) throws PSCmsException {
     PSFolderPermissions m_permissions = null;
     Object contextVal =
         PSThreadRequestUtils.getPSRequest().getPrivateObject(CHECK_USER_FOLDER_PERMISSION);
@@ -209,7 +208,7 @@ public class PSFolderSecurityManager {
       try {
         // obtain the folder permissions for the user
         PSServerFolderProcessor processor = PSServerFolderProcessor.getInstance();
-        int[] ids = new int[] {i};
+        int[] ids = new int[] {contentId};
         PSFolderAcl[] acls = processor.getFolderAcls(ids);
         if (acls.length == 0) {
           // no acl, so they get full permissions
@@ -233,13 +232,10 @@ public class PSFolderSecurityManager {
    * id equals <code>contentId</code>.
    *
    * @param contentId content id for the folder, should be non-negative
-   * @param request request context information, may not be <code>null</code>.
    * @param permission the permission which the user should have on the folder for this method to
    *     return <code>true</code>
    * @return <code>true</code> if the user making the request has the specified permission on the
    *     folder specified by <code>contentId</code>, <code>false</code> otherwise
-   * @throws IllegalArgumentException if <code>contentId</code> is negative or <code>request</code>
-   *     is <code>null</code>
    * @throws PSCmsException if any error occurs
    */
   public static boolean verifyFolderPermissions(int contentId, int permission)
@@ -256,11 +252,8 @@ public class PSFolderSecurityManager {
    * will perform the necessary folder permission checking. This provides a workaround to the folder
    * being loaded twice for the same request and the authorization being done twice.
    *
-   * @param request the request object on which to tun on or off the folder permission checking, may
-   *     not be <code>null</code>
    * @param checkPermission <code>true</code> if the folder permission checking should be done on
    *     the specified request, <code>false</code> otherwise
-   * @throws IllegalArgumentException if <code>request</code> is <code>null</code>
    */
   public static void setCheckFolderPermissions(boolean checkPermission) {
     PSRequest request = PSThreadRequestUtils.getPSRequest();

@@ -104,7 +104,7 @@ public class PSMimeContentAdapter implements Serializable, IPSCatalogSummary,
    /**
     * Get the id that references the content as attachment.
     * 
-    * @return the attachment id, < 0 if the content is contained in this object.
+    * @return the attachment id, &lt; 0 if the content is contained in this object.
     */
    public long getAttachmentId()
    {
@@ -114,7 +114,7 @@ public class PSMimeContentAdapter implements Serializable, IPSCatalogSummary,
    /**
     * Set the new attchment id.
     * 
-    * @param href the new attachment id, < 0 to indicate that the
+    * @param href the new attachment id, &lt; 0 to indicate that the
     *    content is transferred with this object and not as attachment, 
     *    otherwise any content already set on this object is cleared
     */
@@ -204,7 +204,7 @@ public class PSMimeContentAdapter implements Serializable, IPSCatalogSummary,
    /**
     * Set the content length.
     * 
-    * @param length The length, may not be < -1
+    * @param length The length, may not be &lt; -1
     */
    public void setContentLength(long length)
    {

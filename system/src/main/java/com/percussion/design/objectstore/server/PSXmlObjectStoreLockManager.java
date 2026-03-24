@@ -134,8 +134,8 @@ public class PSXmlObjectStoreLockManager extends PSObjectFactory
    * @param waitTimeoutMs If the lock cannot be acquired immediately, this call will block for
    *     approximately the specified number of milliseconds, retrying the acquire at periodic
    *     intervals. If this parameter is 0, then this method will return false immediately if the
-   *     lock cannot be obtained. A value of < 0 means that this call will block until the lock is
-   *     acquired.
+   *     lock cannot be obtained. A value of &lt; 0 means that this call will block until the lock
+   *     is acquired.
    * @param lockedResults The manager will fill out this results object with detailed information
    *     about the lock acquisition attempt if <CODE>lockResults</CODE> is not <CODE>null</CODE>. If
    *     it is <CODE>null</CODE>, no detailed information will be filled out.

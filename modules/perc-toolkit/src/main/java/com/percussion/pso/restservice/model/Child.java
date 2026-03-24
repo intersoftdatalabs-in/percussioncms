@@ -52,7 +52,7 @@ public class Child {
   /**
    * Method setRows.
    *
-   * @param rows List<ChildRow>
+   * @param rows List of ChildRow
    */
   public void setRows(List<ChildRow> rows) {
     this.rows = rows;
@@ -61,7 +61,7 @@ public class Child {
   /**
    * Method getRows.
    *
-   * @return List<ChildRow>
+   * @return List of ChildRow
    */
   @XmlElement(name = "Row")
   public List<ChildRow> getRows() {

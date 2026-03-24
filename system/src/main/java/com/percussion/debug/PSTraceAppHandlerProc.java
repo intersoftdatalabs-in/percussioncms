@@ -29,7 +29,6 @@ public class PSTraceAppHandlerProc extends PSTraceMessage {
    * The constructor for this class
    *
    * @param typeFlag the type of trace message this object will generate
-   * @roseuid 39FDD0B9008C
    */
   public PSTraceAppHandlerProc(int typeFlag) {
     super(typeFlag);
@@ -48,7 +47,6 @@ public class PSTraceAppHandlerProc extends PSTraceMessage {
    *     Message for request page name - Message for each before dataset checked, and after if it
    *     was selected or not. - Message if a file or a static page
    * @return the message body as a String
-   * @roseuid 39FEE2F203C8
    */
   protected String getMessageBody(java.lang.Object source) {
     // just use message format in args

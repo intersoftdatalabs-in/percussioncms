@@ -57,7 +57,6 @@ public class PSDebugLogHandler extends PSLogHandler implements IPSTraceStateList
    *     application. May not be <code>null</code>.
    * @param app the name of the app this is logging for.
    * @throws IllegalArgumentException if traceInfo is <code>null</code>.
-   * @roseuid 39F4699A007D
    */
   public PSDebugLogHandler(PSLogger logger, PSTraceInfo traceInfo, PSApplication app) {
     super(logger);
@@ -78,7 +77,6 @@ public class PSDebugLogHandler extends PSLogHandler implements IPSTraceStateList
    * @param type the flag specifying the type of info to trace
    * @param object An object which will contain the info required for the specified type of trace.
    * @throws java.lang.IllegalArgumentException if the specified trace flag is not supported
-   * @roseuid 39F49AE60242
    */
   public void printTrace(int type, Object object) {
     // return right away if trace is not enabled
@@ -107,7 +105,6 @@ public class PSDebugLogHandler extends PSLogHandler implements IPSTraceStateList
    *
    * @return boolean indicating <code>true</code> if tracing is enabled for the application. If
    *     tracing is not enabled for the application, <code>false</code> is returned.
-   * @roseuid 39F49BC50203
    */
   public boolean isTraceEnabled() {
     return m_traceEnabled;
@@ -120,7 +117,6 @@ public class PSDebugLogHandler extends PSLogHandler implements IPSTraceStateList
    * @return boolean indicating <code>true</code> if tracing is enabled for the application as well
    *     as for the specified type. If tracing is not enabled for the application, or if tracing is
    *     not enabled for that option, <code>false</code> is returned.
-   * @roseuid 39F49BC50203
    */
   public boolean isTraceEnabled(int typeFlag) {
     return (m_traceEnabled && m_traceInfo.isTraceEnabled(typeFlag));
@@ -132,7 +128,6 @@ public class PSDebugLogHandler extends PSLogHandler implements IPSTraceStateList
    * @return an object containing all trace options for the application. This is a reference to the
    *     actual object stored in the PSApplication object. Changes to this object are reflected in
    *     the PSApplication object.
-   * @roseuid 39F49DCF036B
    */
   public PSTraceInfo getTraceInfo() {
     return m_traceInfo;
@@ -186,7 +181,6 @@ public class PSDebugLogHandler extends PSLogHandler implements IPSTraceStateList
    *
    * @param typeFlag A flag indicating the type of info that will be traced
    * @return the type of trace info object as specified by the supplied flag
-   * @roseuid 39F5A2CF0280
    */
   private IPSTraceMessage getTraceMessage(int typeFlag) {
     /*
@@ -207,7 +201,6 @@ public class PSDebugLogHandler extends PSLogHandler implements IPSTraceStateList
    * to disabled and log messages
    *
    * @param traceInfo the PSTraceInfo object that has been disabled
-   * @roseuid 3A0084E8031C
    */
   public void traceStopped(PSTraceInfo traceInfo) {
     try {
@@ -246,7 +239,6 @@ public class PSDebugLogHandler extends PSLogHandler implements IPSTraceStateList
    * to enabled and log messages
    *
    * @param traceInfo the PSTraceInfo object that has been enabled
-   * @roseuid 3A0084F2004E
    */
   public void traceStarted(PSTraceInfo traceInfo) {
     try {
@@ -300,7 +292,6 @@ public class PSDebugLogHandler extends PSLogHandler implements IPSTraceStateList
    * internal flag to enabled - just log message
    *
    * @param traceInfo the PSTraceInfo object that has been enabled
-   * @roseuid 3A0084F2004E
    */
   public void traceRestarted(PSTraceInfo traceInfo) {
     traceStarted(traceInfo);

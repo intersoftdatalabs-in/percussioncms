@@ -43,7 +43,7 @@ public class PSPropagateFile extends Task {
   /**
    * Allow the adding of directory sets
    *
-   * @param ds the directory set , may be <ocd>null</code>.
+   * @param ds the directory set, may be <code>null</code>.
    */
   public void addDirset(DirSet ds) {
     if (ds != null) m_fileSets.add(ds);

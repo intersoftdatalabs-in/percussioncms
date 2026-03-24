@@ -71,13 +71,13 @@ public class PSAppPolicySettings implements IPSDeployComponent {
   }
 
   /**
-   * Serializes this object's state to its XML representation.  Format is:
+   * Serializes this object's state to its XML representation. Format is:
    *
    * <pre><code>
    *    &lt;!ELEMENT PSXAppPolicySettings (PSXAppEnabledPolicySetting,
    *    PSXTracePolicySetting, PSXLogPolicySetting)
    *    >
-   * </code>/<pre>
+   * </code></pre>
    *
    * See {@link IPSDeployComponent#toXml(Document)} for more info.
    */

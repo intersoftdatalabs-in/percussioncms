@@ -42,7 +42,7 @@ public class PSUpdateTomcatPortInTables extends PSExecSQLStmt {
   }
 
   /**
-   * @param tokens The tomcatPort to set.
+   * @param token The tomcatPort to set.
    */
   public void setTomcatPort(String token) {
     this.tomcatPort = token;

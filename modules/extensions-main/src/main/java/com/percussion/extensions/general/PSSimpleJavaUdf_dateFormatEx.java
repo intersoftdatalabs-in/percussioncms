@@ -40,7 +40,7 @@ import org.apache.commons.lang3.StringUtils;
  * ------   -------                 ------------        -------
  * G        era designator          (Text)              AD
  * y        year                    (Number)            1996
- * M        month in year           (Text & Number)     July & 07
+ * M        month in year           (Text and Number)   July and 07
  * d        day in month            (Number)            10
  * h        hour in am/pm (1~12)    (Number)            12
  * H        hour in day (0~23)      (Number)            0
@@ -71,7 +71,7 @@ import org.apache.commons.lang3.StringUtils;
  * this amount. Year is handled specially; that is, if the count of 'y' is 2, the Year will be
  * truncated to 2 digits.
  *
- * <p><strong>(Text & Number)</strong>: 3 or over, use text, otherwise use number.
+ * <p><strong>Text and Number</strong>: 3 or over, use text, otherwise use number.
  *
  * <p>Any characters in the pattern that are not in the ranges of ['a'..'z'] and ['A'..'Z'] will be
  * treated as quoted text. For instance, characters like ':', '.', ' ', '#' and '@' will appear in
@@ -115,6 +115,7 @@ public class PSSimpleJavaUdf_dateFormatEx extends PSSimpleJavaUdfExtension {
    *     in this class&apos; description. If omitted the defaults are used. If <code>null</code> is
    *     supplied for a param, the default value shown in the following table will be used.
    *     <table border="1">
+   *       <caption style="display:none">Parameters</caption>
    *    <tr>
    *       <th>Param#</th><th>Required?</th><th>Description</th><th>Default value</th>
    *    </tr>

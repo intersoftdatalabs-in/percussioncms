@@ -50,7 +50,7 @@ public class PSRequestRedirector implements IPSResultGenerator {
    * data, then fires the chained request. This is most commonly used by the update handler to
    * return an update query result set upon successful updating.
    *
-   * @param app the application containing the data set we will be linking to
+   * @param ah the application containing the data set we will be linking to
    * @param link the link definition
    */
   public PSRequestRedirector(PSApplicationHandler ah, PSRequestLink link)
@@ -103,8 +103,8 @@ public class PSRequestRedirector implements IPSResultGenerator {
   /**
    * Generate the results for this request.
    *
-   * @param execData the execution data associated with this request. This includes all context
-   *     data, result sets, etc.
+   * @param data the execution data associated with this request. This includes all context data,
+   *     result sets, etc.
    */
   public void generateResults(PSExecutionData data) {
     PSRequest request = data.getRequest();

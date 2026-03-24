@@ -99,19 +99,19 @@ public interface IPSTableModel extends TableModel {
    * Moves the rows specified from start to end (inclusive) to the destination.
    *
    * <pre>
-   *  Examples of moves:<p>
-   *  1. moveRow(1,3,5);<p>
+   *  Examples of moves:
+   *  1. moveRow(1,3,5);
    *          a|B|C|D|e|f|g|h|i|j|k   - before
-   *          a|e|B|C|D|f|g|h|i|j|k   - after<p>
-   *  2. moveRow(6,7,1);<p>
+   *          a|e|B|C|D|f|g|h|i|j|k   - after
+   *  2. moveRow(6,7,1);
    *          a|b|c|d|e|f|G|H|i|j|k   - before
    *          a|G|H|b|c|d|e|f|i|j|k   - after
    * </pre>
    *
    * @param start the start index, must be >= 0 and less than row count of this model and end index.
    * @param end the end index, must be >= 0 and start index and less than row count of this model.
-   * @param dest the destination index, must be >= 0 and <= the row count of this model and it
-   *     should not in between start and end (inclusive).
+   * @param dest the destination index, must be >= 0 and less than or equal to the row count of this
+   *     model and it should not in between start and end (inclusive).
    * @throws IndexOutOfBoundsException for illegal row indices.
    * @throws UnsupportedOperationException if it does not allow moving of rows.
    */

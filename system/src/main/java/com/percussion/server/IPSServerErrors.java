@@ -106,9 +106,9 @@ public interface IPSServerErrors {
 
   /**
    * at least one argument passed into a method is out of the range. This is used by
-   * com.percussion.error.PSIllegalArgumentException Example: Expect myMethod(int a) and a < 5, but
-   * use myMethod(6). Example: Expect myMethod(String name) and name is either John or Doe, but use
-   * myMethod(JohnDoe).
+   * com.percussion.error.PSIllegalArgumentException Example: Expect myMethod(int a) and a &lt; 5,
+   * but use myMethod(6). Example: Expect myMethod(String name) and name is either John or Doe, but
+   * use myMethod(JohnDoe).
    *
    * <p>The arguments passed in for this message are:
    *
@@ -557,6 +557,7 @@ public interface IPSServerErrors {
    * <p>The arguments passed in for this message are:
    *
    * <table border="1">
+   * <caption>Error Arguments</caption>
    * <tr><th>Argument</th><th>Description</th></tr>
    * <tr><td>0</td><td>content id label</td></tr>
    * <tr><td>1</td><td>contenttype id label</td></tr>
@@ -570,6 +571,7 @@ public interface IPSServerErrors {
    * <p>The arguments passed in for this message are:
    *
    * <table border="1">
+   * <caption>Error Arguments</caption>
    * <tr><th>Argument</th><th>Description</th></tr>
    * <tr><td>0</td><td>content id label</td></tr>
    * <tr><td>1</td><td>Supplied content id</td></tr>
@@ -585,6 +587,7 @@ public interface IPSServerErrors {
    * <p>The arguments passed in for this message are:
    *
    * <table border="1">
+   * <caption>Error Arguments</caption>
    * <tr><th>Argument</th><th>Description</th></tr>
    * <tr><td>0</td><td>the name of the action that failed</td></tr>
    * <tr><td>1</td><td>the URL that failed</td></tr>
@@ -598,6 +601,7 @@ public interface IPSServerErrors {
    * <p>The arguments passed in for this message are:
    *
    * <table border="1">
+   * <caption>Error Arguments</caption>
    * <tr><th>Argument</th><th>Description</th></tr>
    * <tr><td>0</td><td>the stylesheet object that caused the failure</td></tr>
    * </table>
@@ -610,6 +614,7 @@ public interface IPSServerErrors {
    * <p>The arguments passed in for this message are:
    *
    * <table border="1">
+   * <caption>Error Arguments</caption>
    * <tr><th>Argument</th><th>Description</th></tr>
    * <tr><td>0</td><td>reference of the extension that caused the failure</td>
    * </tr>
@@ -626,6 +631,7 @@ public interface IPSServerErrors {
    * <p>The arguments passed in for this message are:
    *
    * <table border="1">
+   * <caption>Error Arguments</caption>
    * <tr><th>Argument</th><th>Description</th></tr>
    * <tr><td>0</td><td>name of the duplicated action set</td></tr>
    * </table>
@@ -638,6 +644,7 @@ public interface IPSServerErrors {
    * <p>The arguments passed in for this message are:
    *
    * <table border="1">
+   * <caption>Error Arguments</caption>
    * <tr><th>Argument</th><th>Description</th></tr>
    * <tr><td>0</td><td>name of the cataloging application</td></tr>
    * </table>
@@ -651,6 +658,7 @@ public interface IPSServerErrors {
    * <p>The arguments passed in for this message are:
    *
    * <table border="1">
+   * <caption>Error Arguments</caption>
    * <tr><th>Argument</th><th>Description</th></tr>
    * <tr><td>0</td><td>name of the duplicated action</td></tr>
    * <tr><td>0</td><td>name of the action set</td></tr>
@@ -664,6 +672,7 @@ public interface IPSServerErrors {
    * <p>The arguments passed in for this message are:
    *
    * <table border="1">
+   * <caption>Error Arguments</caption>
    * <tr><th>Argument</th><th>Description</th></tr>
    * <tr><td>0</td><td>name of handler</td></tr>
    * </table>
@@ -676,6 +685,7 @@ public interface IPSServerErrors {
    * <p>The arguments passed in for this message are:
    *
    * <table border="1">
+   * <caption>Error Arguments</caption>
    * <tr><th>Argument</th><th>Description</th></tr>
    * <tr><td>0</td><td>name of handler</td></tr>
    * <tr><td>1</td><td>message</td></tr>
@@ -689,6 +699,7 @@ public interface IPSServerErrors {
    * <p>The arguments passed in for this message are:
    *
    * <table border="1">
+   * <caption>Error Arguments</caption>
    * <tr><th>Argument</th><th>Description</th></tr>
    * <tr><td>0</td><td>name of handler</td></tr>
    * <tr><td>1</td><td>message</td></tr>
@@ -3223,6 +3234,7 @@ public interface IPSServerErrors {
    * <p>The arguments passed in for this message are:
    *
    * <table border="1">
+   * <caption>Error Arguments</caption>
    * <tr><th>Argument</th><th>Description</th></tr>
    * <tr><td>0</td><td>name of application</td></tr>
    * </table>

@@ -86,16 +86,16 @@ public class PSHolidays {
   /**
    * Makes an internal request to {@link #HOLIDAY_CATALOGER}to retrieve and XML document that
    * contains the name and date of all holidays. The XML document will conform to the following
-   * structure: <code><pre>
+   * structure:
    *
-   *  &lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
+   * <pre>
+   *  &lt;?xml version="1.0" encoding="UTF-8"?&gt;
    *  &lt;!ELEMENT holidays (holiday*)&gt;
    *  &lt;!ELEMENT holiday (#PCDATA)&gt;
    *  &lt;!ATTLIST holiday
    *     day CDATA #REQUIRED
    *  &gt;
-   *
-   * </pre></code>
+   * </pre>
    *
    * <p>This method is protected so it can be overridden by the test framework, to allow testing the
    * rest of the class without a running Rhythmyx server.

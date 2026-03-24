@@ -461,7 +461,7 @@ public class EditableListBox extends JPanel implements ActionListener
 /** Get the value of cell, multi-column version.
   *
   * @param row The row index.
-  * @param index The row index.
+  * @param column The column index.
   *
   * @return Object The Object at the specified indices.
 */

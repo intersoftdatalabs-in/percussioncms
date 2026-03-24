@@ -37,11 +37,10 @@ public class PSTextToXml extends PSSimpleJavaUdfExtension {
   /**
    * Parses the text and returns the document.
    *
-   * @param params May not be <code>null</code>. The following parameters are
-   * expected:
-   * <table border="1">
-   *   <tr><th>Param #</th><th>Name</th><th>Description</th><th>Required?</th>
-   *   <tr>
+   * @param params May not be <code>null</code>. The following parameters are expected:
+   *     <table border="1">
+   *       <caption style="display:none">Parameters</caption>
+   *       <tr><th>Param #</th><th>Name</th><th>Description</th><th>Required?</th></tr>
    *   <tr>
    *     <td>1</td>
    *     <td>RootName</td>
@@ -57,6 +56,7 @@ public class PSTextToXml extends PSSimpleJavaUdfExtension {
    *       created and returned with no children.</td>
    *     <td>yes</td>
    *   </tr>
+   * </table>
    *
    * @param request The request context, not <code>null</code>.
    */

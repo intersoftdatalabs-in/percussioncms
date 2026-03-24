@@ -54,17 +54,13 @@ public class PSNodePrinter {
   }
 
   /**
-   * This method works in conjunction with {@link #printElement(Element,
-   * String) printElement}.
-   * For the passed in node and all of its children, either the node is
-   * written to the writer associated with this object during construction,
-   * or <code>printElement<code> is called to handle this writing. No
-   * indentation is done. This method calls itself recursively, so only the
-   * root-most element that needs to be printed is passed in.
+   * This method works in conjunction with the printElement method. For the passed in node and all
+   * of its children, either the node is written to the writer associated with this object during
+   * construction, or printElement is called to handle this writing. No indentation is done. This
+   * method calls itself recursively, so only the root-most element that needs to be printed is
+   * passed in.
    *
-   * @param node The node to print. If <code>null</code>, the method returns
-   * immediately.
-   *
+   * @param node The node to print. If null, the method returns immediately.
    * @throws IOException when it fails to print a node
    */
   public void printNode(Node node) throws IOException {

@@ -32,7 +32,6 @@ public class PSTraceMapper extends PSTraceMessage {
    * The constructor for this class.
    *
    * @param typeFlag the type of trace message this object will generate
-   * @roseuid 39FDD58F0157
    */
   public PSTraceMapper(int typeFlag) {
     super(typeFlag);
@@ -52,7 +51,6 @@ public class PSTraceMapper extends PSTraceMessage {
    *     before and after params for a UDF: - String udfName, object[] args, object result For
    *     mapping itself: - columnname, nodename
    * @return the message body
-   * @roseuid 39FEE2F30242
    */
   protected String getMessageBody(Object source) {
     StringBuilder buf = new StringBuilder();

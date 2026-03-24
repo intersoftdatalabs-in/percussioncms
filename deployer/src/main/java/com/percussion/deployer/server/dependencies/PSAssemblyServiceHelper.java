@@ -225,9 +225,9 @@ public class PSAssemblyServiceHelper {
   }
 
   /**
-   * Utility method to return all <templateName, ListOfSlots> Map
+   * Utility method to return all &lt;templateName, ListOfSlots&gt; Map
    *
-   * @return <templateName, ListOfSlots>
+   * @return &lt;templateName, ListOfSlots&gt;
    */
   public HashMap<String, Set<IPSTemplateSlot>> getTemplateSlotsMap() {
     m_templateSlotMap.clear();
@@ -236,18 +236,18 @@ public class PSAssemblyServiceHelper {
   }
 
   /**
-   * Utility method to return all <slotGUID, ListOfTemplates> Map
+   * Utility method to return all &lt;slotGUID, ListOfTemplates&gt; Map
    *
-   * @return <slotGUID, ListOfTemplates>
+   * @return &lt;slotGUID, ListOfTemplates&gt;
    */
   public HashMap<IPSGuid, Set<IPSAssemblyTemplate>> getSlotTemplatesMap() {
     return m_slotTemplatesMap;
   }
 
   /**
-   * Utility method to return all <slotGUID, ListOfContentTypeDefs> Map
+   * Utility method to return all &lt;slotGUID, ListOfContentTypeDefs&gt; Map
    *
-   * @return <slotGUID, ListOfContentTypeDefs> Map
+   * @return &lt;slotGUID, ListOfContentTypeDefs&gt; Map
    */
   public HashMap<IPSGuid, Set<IPSNodeDefinition>> getSlotContentTypesMap() {
     return m_slotContentTypeMap;
@@ -274,9 +274,9 @@ public class PSAssemblyServiceHelper {
   }
 
   /**
-   * Utility method to get the template <==> ContentType map
+   * Utility method to get the template &lt;==&gt; ContentType map
    *
-   * @return this association template <==> ContentType map
+   * @return this association template &lt;==&gt; ContentType map
    */
   public HashMap<String, List<IPSNodeDefinition>> getTemplateCTMap() {
     return m_templateCTMap;
@@ -285,7 +285,7 @@ public class PSAssemblyServiceHelper {
   /**
    * Convenience method to return all VARIANTS to be known as Legacry Templates
    *
-   * @return a map of <template name, Template>
+   * @return a map of &lt;template name, Template&gt;
    * @throws PSDeployException
    */
   public HashMap<String, IPSAssemblyTemplate> getLegacyTemplatesMap() throws PSDeployException {

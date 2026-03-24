@@ -90,11 +90,11 @@ public class PSJexlMethodsForScheme
    
    /**
     * Apply a supplied filter to a list of predefined JEXL methods and 
-    * variables that can be used by {@link PSJexlLocationGenerator}
+    * variables that can be used by the JEXL location generator.
     *  
-    * @param filter the filter, never <code>null</code>, may be empty.
+    * @param filter the filter, never null, may be empty.
     * 
-    * @return the filtered JEXL methods and variables, never <code>null</code>
+    * @return the filtered JEXL methods and variables, never null
     *    may be empty.
     */
    public static List<JexlMethod> getFilteredJexlMethods(String filter)

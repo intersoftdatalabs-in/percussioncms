@@ -38,8 +38,8 @@ public class PSJavaPlugin implements IPSJavaPlugin {
    *     otherwise.
    * @param downloadLocation location URL of the plugin executable/cab file to download to the
    *     client's machine in case required, must not be <code>null</code> and must be a HTTP URL for
-   *     remote download or a URL inapplet syntax, for example,<e>
-   *     ../rx_resources/AppletJars/plugin.exe</e>.
+   *     remote download or a URL inapplet syntax, for example,<code>
+   *     ../rx_resources/AppletJars/plugin.exe</code>.
    * @throws IllegalArgumentException if any of the required parameters is invalid.
    */
   public PSJavaPlugin(
@@ -77,8 +77,8 @@ public class PSJavaPlugin implements IPSJavaPlugin {
    *     otherwise.
    * @param downloadLocation location URL of the plugin executable/cab file to download to the
    *     client's machine in case required, must not be <code>null</code> and must be a HTTP URL for
-   *     remote download or a URL inapplet syntax, for example,<e>
-   *     ../rx_resources/AppletJars/plugin.exe</e>.
+   *     remote download or a URL inapplet syntax, for example,<code>
+   *     ../rx_resources/AppletJars/plugin.exe</code>.
    * @throws IllegalArgumentException if any of the required parameters is invalid.
    */
   public PSJavaPlugin(

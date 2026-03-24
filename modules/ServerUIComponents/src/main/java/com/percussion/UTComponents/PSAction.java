@@ -45,7 +45,7 @@ public abstract class PSAction extends AbstractAction {
    * @param strMenuText text displayed with the item, if null or empty, no text is displayed
    * @param cMnemonic the character that is set to access menu items by using ALT key combos, if 0,
    *     it is ignored
-   * @param Icon the image for the UI, ignored if null
+   * @param Img the image for the UI, ignored if null
    */
   public PSAction(String strMenuText, char cMnemonic, Icon Img) {
     this(strMenuText, cMnemonic, (KeyStroke) null, Img);
@@ -56,7 +56,7 @@ public abstract class PSAction extends AbstractAction {
    * @param cMnemonic the character that is set to access menu items by using ALT key combos, if 0,
    *     it is ignored
    * @param AccelKey keystroke describing the accelerator key for this action, ignored if null
-   * @param Icon the image for the UI, ignored if null
+   * @param Img the image for the UI, ignored if null
    */
   public PSAction(String strMenuText, char cMnemonic, KeyStroke AccelKey, Icon Img) {
     super(null == strMenuText ? "" : strMenuText, null == Img ? new ImageIcon() : Img);

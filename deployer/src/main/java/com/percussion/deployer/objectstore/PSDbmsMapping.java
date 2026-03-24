@@ -116,15 +116,14 @@ public class PSDbmsMapping implements IPSDeployComponent {
   }
 
   /**
-   * Serializes this object's state to its XML representation.  Format is:
+   * Serializes this object's state to its XML representation. Format is:
    *
    * <pre><code>
    *    %lt;!ELEMENT PSXDbmsMapping (PSXDatasourceMap)
-   * </code>/<pre>
+   * </code></pre>
    *
-   * See {@link IPSDeployComponent#toXml(Document)} for more info.
-   * See {@link PSXDatasourceMap#toXml(Document)} for info regarding
-   * <code>PSXDatasourceMap</code> format.
+   * See {@link IPSDeployComponent#toXml(Document)} for more info. See {@link
+   * PSDatasourceMap#toXml(Document)} for info regarding <code>PSXDatasourceMap</code> format.
    */
   public Element toXml(Document doc) {
     if (doc == null) {

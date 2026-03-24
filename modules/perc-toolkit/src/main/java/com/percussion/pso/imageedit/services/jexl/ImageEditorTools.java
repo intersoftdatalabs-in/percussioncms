@@ -111,13 +111,13 @@ public class ImageEditorTools extends PSJexlUtilBase implements IPSJexlExpressio
   }
 
   /**
-   * Tests the existence of a child node based on the size code.
-   * The child node name and size code property name are found
-   * from the <code>ImageSizeDefinitionManager</code>
-   * @param itemNode the item Node. Must not be <code>null</code>.
-   * @param sizeCode the desired size code.  Must not be <code>null</code>.
-   * @return <code>true> if the image child node of the desired size exists.
-   * @throws RepositoryException
+   * Tests the existence of a child node based on the size code. The child node name and size code
+   * property name are found from the ImageSizeDefinitionManager
+   *
+   * @param itemNode the item Node. Must not be null.
+   * @param sizeCode the desired size code. Must not be null.
+   * @return true if the image child node of the desired size exists.
+   * @throws RepositoryException if repository error occurs
    */
   @IPSJexlMethod(
       description = "tests the existence of a child node of the appropriate size",

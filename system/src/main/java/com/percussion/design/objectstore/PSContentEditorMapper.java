@@ -1233,8 +1233,7 @@ public class PSContentEditorMapper extends PSComponent {
    * determine which shared group contains a definition of a given shared field.
    *
    * @param sharedDef all server CE shared groups with all shared fields defined
-   * @param itSharedGroupIncludes a list of shared group names that a given CE includes as the
-   *     <SharedFieldIncludes><SharedFieldGroupName>... nodes.
+   * @param itSharedGroupIncludes a list of shared group names that a given CE includes.
    * @throws PSMinorValidationException in case if there are more then one included shared fields
    *     with a duplicate name.
    */

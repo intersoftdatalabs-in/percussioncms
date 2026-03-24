@@ -62,28 +62,11 @@ public class PSContentExplorerConstants {
    *
    * <p>The possible values are:
    *
-   * <TABLE BORDER="1">
-   * <TR>
-   * <TH>Property Value</TH>
-   * <TH>Description</TH>
-   * </TR>
-   * <TR>
-   * <TD>CachePerJVM</TD>
-   * <TD>The catalogged searchable fields will be cached per JVM. All applet
-   * instances will share the same cache, hence the cache will not be reloaded
-   * when the applets that are started from within "Content tab" and Active
-   * Assembly page. This is the default behavior if the property does not exist
-   * in the server.properties.</TD>
-   * </TR>
-   * <TR>
-   * <TD>CachePerApplet</TD>
-   * <TD>The catalogged searchable fields will be cached per applet instance.</TD>
-   * </TR>
-   * <TR>
-   * <TD>None</TD>
-   * <TD>Do not cache the searchable fields.</TD>
-   * </TR>
-   * </TABLE>
+   * <ul>
+   *   <li>CachePerJVM - The catalogged searchable fields will be cached per JVM.
+   *   <li>CachePerApplet - The catalogged searchable fields will be cached per applet instance.
+   *   <li>None - Do not cache the searchable fields.
+   * </ul>
    */
   public static final String PARAM_CACHE_SEARCHABLE_FIELDS = "CacheSearchableFieldsInApplet";
 

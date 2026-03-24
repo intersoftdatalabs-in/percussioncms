@@ -73,7 +73,7 @@ public class PSErrorCollector {
   /**
    * Is the maximal allowed number of errors exceeded?
    *
-   * @param <code>true</code> if the maximal number of errors is exceeded, <code>false</code>
+   * @return <code>true</code> if the maximal number of errors is exceeded, <code>false</code>
    *     otherwise.
    */
   public boolean maxErrorsExceeded() {
@@ -175,8 +175,8 @@ public class PSErrorCollector {
   /**
    * Add a new item validation error document.
    *
-   * @param an item validation error document conforming to the sys_ItemValidation.dtd, not <code>
-   *     null</code>.
+   * @param doc an item validation error document conforming to the sys_ItemValidation.dtd, not
+   *     <code>null</code>.
    * @throws IllegalArgumentException if the provided document is <code>null</code>.
    */
   public void add(Document doc) {
@@ -223,8 +223,6 @@ public class PSErrorCollector {
    * Get the error document with all errors created during item validation.
    *
    * @param request the request to create the error document for, not <code>null</code>.
-   * @param pageMap a map of all pages in this item. The map key is the pageid as Integer, the value
-   *     is the page Document. Not <code>null</code>.
    * @return the error document, might be <code>null</code>.
    * @throws IllegalArgumentException if any parameter is <code>null</code>.
    */

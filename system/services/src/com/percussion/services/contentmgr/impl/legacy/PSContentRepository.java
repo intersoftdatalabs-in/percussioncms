@@ -2199,14 +2199,14 @@ public class PSContentRepository
      * complete results before doing a max results limit on the finished set.
      * <p>
      * The tree is first expanded, replacing references to <em>jcr:path</em> with
-     * folder id references. This uses the {@link FolderExpander} to process
+     * folder id references. This uses the FolderExpander to process
      * the paths supplied to the jcr:path <em>like</em> or <em>=</em> operators.
      * <p>
      * This results in an internal where tree which is used as a start for
      * each per content type iteration. Each iteration runs this tree first
      * through a property limiter that removes any properties that are not
      * available for a given content type. This is evaluated effectively as
-     * a <em>false</em> value and replaced by a comparison like 1 <> 1.
+     * a false value and replaced by a comparison like 1 not equal 1.
      * <p>
      * Lastly, the where clause is built. This is then used to create the HQL
      * query that is passed into Hibernate.
@@ -2223,8 +2223,6 @@ public class PSContentRepository
      * @param locale the locale to use when sorting results, may be
      *           <code>null</code> or empty.
      * @return a list of result guids, never <code>null</code>
-     * @throws InvalidQueryException if the query is invalid
-     * @throws RepositoryException if the query fails
      *
      * @see IPSQueryNode and its concrete class implementations to understand
      * the query tree

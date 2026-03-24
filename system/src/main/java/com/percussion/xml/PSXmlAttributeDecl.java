@@ -34,7 +34,7 @@ public class PSXmlAttributeDecl extends XMLAttributeDecl {
    *
    * @param xmlAttrDecl the Attribute Declaration object to encapsulate, may not be <code>null
    *     </code>
-   * @throw IllegalArgumentException if xmlAttrDecl is <code>null</code>
+   * @throws IllegalArgumentException if xmlAttrDecl is <code>null</code>
    */
   public PSXmlAttributeDecl(XMLAttributeDecl xmlAttrDecl) {
     super();

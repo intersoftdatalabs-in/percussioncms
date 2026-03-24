@@ -12,6 +12,18 @@ This document captures the current work focus, recent changes, and next steps fo
 
 ## Recent Changes
 
+- AI Build Integrity Maven Plugin extracted to standalone repo (https://github.com/intersoftdatalabs-in/ai-build-integrity-maven-plugin):
+  - Coordinates: com.intsof:ai-build-integrity-maven-plugin:1.0.0-SNAPSHOT
+  - Package: com.intsof.ai.build.integrity
+  - Added as git submodule at modules/ai-build-integrity-maven-plugin
+  - Root pom.xml references submodule as reactor module and uses com.intsof groupId for plugin
+  - Performance: Files.walkFileTree with SKIP_SUBTREE, 64 KiB hash buffer, lookup-table hex encoder
+  - Configurable hash sizes: SHA-256 (default), SHA-384, SHA-512 with auto output extension
+  - Configurable skip directories (default: target,.git,node_modules,.tmp)
+  - Fixed glob matching bug where **/*.md didn't match root-level files
+  - Fixed verify mojo bug where .sha256 files were excluded by the excludes pattern
+  - 44 unit tests passing (HashUtilsTest, HashGeneratorMojoTest, HashVerifyMojoTest)
+  - Copyright: 2026 Intersoft Data Labs, LLC (Apache 2.0)
 - Javadoc structural cleanup: Removed 173 files with empty @param, @return, @throws tags using automated script.
 - Ran spotless:apply to format code per Google Java Style.
 - Verified compilation succeeds on modified modules (deployer, perc-toolkit, system).

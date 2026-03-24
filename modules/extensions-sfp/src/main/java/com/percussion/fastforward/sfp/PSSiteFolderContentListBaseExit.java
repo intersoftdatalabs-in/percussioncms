@@ -67,10 +67,10 @@ public abstract class PSSiteFolderContentListBaseExit implements IPSResultDocume
    *           pagination mode; unlimited number of items)
    *       <li>contentResourceName: Content items and its variants lookup resource name, default
    *           resource will be provided by the derived classes
-   *     </ol>
+   *     </ul>
    *     <li>NonStandardParamsToPass: Comma separated list of all non standard HTML parameters to
    *         pass on from request to the content URL for each item in the content list
-   *     </ol>
+   *     </ul>
    *
    * @param request
    * @param resultDoc

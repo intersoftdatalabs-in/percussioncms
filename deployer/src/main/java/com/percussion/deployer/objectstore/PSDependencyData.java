@@ -72,16 +72,16 @@ public class PSDependencyData implements IPSDeployComponent {
   }
 
   /**
-   * Serializes this object's state to its XML representation.  Format is:
+   * Serializes this object's state to its XML representation. Format is:
    *
    * <pre><code>
    *    &lt;!ELEMENT PSXDependencyData (table, table)>
-   * </code>/<pre>
+   * </code></pre>
    *
-   * Where the first <code>table</code> is the schema element,
-   * the second <code>table</code> is the table data element.
+   * Where the first <code>table</code> is the schema element, the second <code>table</code> is the
+   * table data element.
    *
-   * See {@link IPSDeployComponent#toXml(Document)} for more info.
+   * <p>See {@link IPSDeployComponent#toXml(Document)} for more info.
    */
   public Element toXml(Document doc) {
     if (doc == null) throw new IllegalArgumentException("doc should not be null");

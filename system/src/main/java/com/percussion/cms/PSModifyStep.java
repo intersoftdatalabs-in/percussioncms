@@ -36,8 +36,10 @@ public abstract class PSModifyStep implements IPSModifyStep {
    * Constructs a step. The request handler must be set on the step after construction by a call to
    * {@link #setHandler(IPSInternalRequestHandler) setHandler}.
    *
-   * @param requestMame The request name that is used to retrieve the resource handler. May not be
+   * @param requestName The request name that is used to retrieve the resource handler. May not be
    *     <code>null</code>.
+   * @param dbActionTypeParam The dbaction type that must be set in the request params before making
+   *     a request against this handler. May not be <code>null</code>.
    * @param dbActionType The dbaction type that must be set in the request params before making a
    *     request against this handler. May not be <code>null</code>.
    * @throws IllegalArgumentException if requestName, dbActionTypeParam, or dbActionType is <code>

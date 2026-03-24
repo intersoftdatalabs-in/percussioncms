@@ -27,11 +27,11 @@ import org.w3c.dom.Element;
 /** The class that is used to represent menu actions as defined by 'sys_Action.dtd'. */
 public class PSMenuBar implements IPSComponent {
   /**
-   * Constructs the menu bar with supplied actions and no properties. Use {@link
-   * #setProperties(PSProperties)} to set properties.
+   * Constructs the menu bar with supplied actions and no properties. Use setProperties to set
+   * properties.
    *
-   * @param actions the list of menu actions, may not be <code>null</code> or empty and each action
-   *     should represent a menu. See {@link PSAction#isMenu() } for more info.
+   * @param actions the list of menu actions, may not be null or empty and each action should
+   *     represent a menu.
    * @throws IllegalArgumentException if any actions is invalid.
    */
   public PSMenuBar(Iterator actions) {

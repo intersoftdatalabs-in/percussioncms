@@ -33,6 +33,7 @@ import java.text.ParseException;
  * <code>yyyy-MM-dd.</code>.
  *
  * <table>
+ * <caption style="display:none">Parameters</caption>
  * <tr>
  * <th>Param</th>
  * <th>Type</th>

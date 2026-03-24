@@ -28,10 +28,10 @@ public class PSLastPublicRevisionExtractor implements IPSMacroExtractor {
   /**
    * This macro extractor extracts the last public revision or the current item supplied with the
    * execution data as HTML parameter or backend column. The last public revision is determined
-   * through the item history and returned as a <code>String</code>. -1 will be returned if no
-   * public revision was found.
+   * through the item history and returned as a String. -1 will be returned if no public revision
+   * was found.
    *
-   * @see {@link IPSMacroExtractor.extract(PSExecutionData)} for parameter details.
+   * @see IPSMacroExtractor
    */
   public Object extract(PSExecutionData data) throws PSDataExtractionException {
     try {

@@ -28,11 +28,11 @@ public class PSLightWeightField implements Comparable<PSLightWeightField> {
   /**
    * Constructs the object.
    *
-   * @param internalName internal name of the field, never <code>null</code> or empty.
-   * @param dataType data type of the field, never <code>null</code> or empty.
-   * @param displayName display name of the field, never <code>null</code>, may be empty.
-   * @param mnemonic The mnemonic of the field, may be <code>null</code> or empty, its lenght must
-   *     be <= 1.
+   * @param internalName internal name of the field, never null or empty.
+   * @param dataType data type of the field, never null or empty.
+   * @param displayName display name of the field, never null, may be empty.
+   * @param mnemonic The mnemonic of the field, may be null or empty, its length must be less than
+   *     or equal to 1.
    * @throws IllegalArgumentException if the arguments are invalid.
    */
   public PSLightWeightField(
@@ -84,7 +84,7 @@ public class PSLightWeightField implements Comparable<PSLightWeightField> {
   /**
    * Gets the mnemonic for the display name.
    *
-   * @return the mnemonic character, never <code>null</code> may be empty, it's size is always <= 1.
+   * @return the mnemonic character, never null may be empty, it is always less than or equal to 1.
    */
   public String getMnemonic() {
     return m_mnemonic;

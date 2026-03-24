@@ -36,33 +36,14 @@ import java.util.StringTokenizer;
  *
  * <p>Expects the following parameters:
  *
- * <table border="1" cellspacing="0" cellpadding="5">
- * <thead>
- * <th>Name</th><th>Allowed Values</th><th>Details</th>
- * </thead>
- * <tbody>
- * <tr>
- * <td>{@link #OPERATION}</td>
- * <td>It must be one of the following: {@link  #CHECK_IN},
- * {@link  #CHECK_OUT} and {@link  #TRANSITION}</td><td>Required</td>
- * </tr>
- * <tr>
- * <td>{@link #CONTENT_ID}</td><td>The content id</td><td>Required</td>
- * </tr>
- * <tr>
- * <td>{@link #COMMENT}</td><td>The comment for this operation</td><td>Optional</td>
- * </tr>
- * <tr>
- * <td>{@link #TRIGGER_NAME}</td><td>The trigger name of the transition</td>
- * <td>It is required if the operation is {@link  #TRANSITION}</td>
- * </tr>
- * <tr>
- * <td>{@link #ADHOC_USERS}</td><td>A list of adhoc users for a transition.
- * It is a string with ';' delimiter between the user names.</td>
- * <td>Optional parameter if the operation is {@link  #TRANSITION}</td>
- * </tr>
- * </tbody>
- * </table>
+ * <ul>
+ *   <li>OPERATION - It must be one of: CHECK_IN, CHECK_OUT and TRANSITION (Required)
+ *   <li>CONTENT_ID - The content id (Required)
+ *   <li>COMMENT - The comment for this operation (Optional)
+ *   <li>TRIGGER_NAME - The trigger name of the transition (Required if operation is TRANSITION)
+ *   <li>ADHOC_USERS - A list of adhoc users for a transition. It is a string with ';' delimiter
+ *       between the user names. (Optional if operation is TRANSITION)
+ * </ul>
  */
 public class PSWorkflowAction extends PSAAActionBase {
 

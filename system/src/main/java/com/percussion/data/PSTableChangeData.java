@@ -44,9 +44,9 @@ public class PSTableChangeData {
 
   /**
    * Set the action type that should be used to create table change events to notify the listeners.
-   * Must be called before {@link #expectsColumn} or {
+   * Must be called before {@link #expectsColumn} or {@link #addColumnValue} methods are called to
+   * set column data.
    *
-   * @link #addColumnValue} methods are called to set column data.
    * @param actionType One of the <code>PSTableChangeEvent.ACTION_xxx</code> types.
    * @throws IllegalArgumentException if actionType is not valid.
    */

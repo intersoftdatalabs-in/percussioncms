@@ -31,11 +31,10 @@ public class PSSlotTypeContentTypeVariant extends PSDbComponent {
    * Creates an instance from a previously serialized (using <code>toXml
    * </code>) object.
    *
-   * @param source A valid element that meets the dtd defined in the
-   *    description of {@link #toXml(Document)}. Never <code>null</code>.
-   *
-   * @throws PSUnknownNodeTypeException If the supplied source element does
-   *    not conform to the dtd defined in the <code>fromXml<code> method.
+   * @param source A valid element that meets the dtd defined in the description of {@link
+   *     #toXml(Document)}. Never <code>null</code>.
+   * @throws PSUnknownNodeTypeException If the supplied source element does not conform to the dtd
+   *     defined in the <code>fromXml</code> method.
    */
   public PSSlotTypeContentTypeVariant(Element source) throws PSUnknownNodeTypeException {
     super(source);
@@ -77,14 +76,14 @@ public class PSSlotTypeContentTypeVariant extends PSDbComponent {
    * will conform to the following dtd:
    *
    * <pre>
-   * <!ELEMENT PSXKey (SLOTID, CONTENTTYPEID, VARIANTID )>
-   * <!ELEMENT VARIANTID (#PCDATA)>
-   * <!ELEMENT CONTENTTYPEID (#PCDATA)>
-   * <!ELEMENT SLOTID (#PCDATA)>
-   * <!ATTLIST PSXKey needGenerateId (yes | no ) "no">
-   * <!ATTLIST PSXKey isPersisted (yes | no ) "yes">
-   * <!ELEMENT PSXSlotTypeContentTypeVariant (PSXKey )>
-   * <!ATTLIST  PSXSlotTypeContentTypeVariant state CDATA #REQUIRED>
+   * &lt;!ELEMENT PSXKey (SLOTID, CONTENTTYPEID, VARIANTID )&gt;
+   * &lt;!ELEMENT VARIANTID (#PCDATA)&gt;
+   * &lt;!ELEMENT CONTENTTYPEID (#PCDATA)&gt;
+   * &lt;!ELEMENT SLOTID (#PCDATA)&gt;
+   * &lt;!ATTLIST PSXKey needGenerateId (yes | no ) "no"&gt;
+   * &lt;!ATTLIST PSXKey isPersisted (yes | no ) "yes"&gt;
+   * &lt;!ELEMENT PSXSlotTypeContentTypeVariant (PSXKey )&gt;
+   * &lt;!ATTLIST  PSXSlotTypeContentTypeVariant state CDATA #REQUIRED&gt;
    * </pre>
    *
    * @param doc Used to generate the element. Never <code>null</code>.

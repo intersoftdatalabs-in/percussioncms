@@ -79,7 +79,7 @@ public class PSSetStyleSheetEvaluator extends PSConditionalEvaluator {
    * Determine whether the result page associated with this evaluator has specific extensions to
    * which it refers.
    *
-   * @retun <code>true</code> if it does, or <code>false</code> if this style sheet will accept any
+   * @return <code>true</code> if it does, or <code>false</code> if this style sheet will accept any
    *     extensions (from the requestor)
    */
   public boolean hasExplicitExtensionList() {

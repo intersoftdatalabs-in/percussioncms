@@ -152,7 +152,7 @@ public class PSInstallation implements Externalizable
    /**
     * Add a table to the set of known tables
     *
-    * @param tablename the table information, must never be <code>null</code>
+    * @param table the table information, must never be <code>null</code>
     */
    public void addTable(PSTableInfo table)
    {

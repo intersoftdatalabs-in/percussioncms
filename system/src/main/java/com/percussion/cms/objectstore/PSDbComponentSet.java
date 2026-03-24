@@ -128,52 +128,38 @@ public class PSDbComponentSet<T extends IPSDbComponent> extends PSDbComponent {
   }
 
   /**
-   * Creates a instance from the supplied array of Elements each
-   * of which represents one Item of this Set.
-   * This is a convenience method which is helpful because processor
-   * proxies are normally returning an array of items rather than
-   * a root element.
+   * Creates a instance from the supplied array of Elements each of which represents one Item of
+   * this Set. This is a convenience method which is helpful because processor proxies are normally
+   * returning an array of items rather than a root element.
    *
-   * @param items A valid array of elements that meet the dtd defined
-   *    by the supplied compClass, never <code>null</code>.
-   *
-   * @param compClass The component class, if <code>null</code>, the name
-   *    is calculated by taking the base class name and replacing the
-   *    leading PS with PSX. If there is no leading PS, the base class name
-   *    is used. Each component added to this collection must match this
-   *    name.
-   *
-   * @throws PSUnknownNodeTypeException If the supplied source element does
-   *    not conform to the dtd defined in the <code>fromXml<code> method.
+   * @param items A valid array of elements that meet the dtd defined by the supplied compClass,
+   *     never <code>null</code>.
+   * @param compClass The component class, if <code>null</code>, the name is calculated by taking
+   *     the base class name and replacing the leading PS with PSX. If there is no leading PS, the
+   *     base class name is used. Each component added to this collection must match this name.
+   * @throws PSUnknownNodeTypeException If the supplied source element does not conform to the dtd
+   *     defined in the <code>fromXml</code> method.
    */
   public PSDbComponentSet(Element[] items, Class<T> compClass) throws PSUnknownNodeTypeException {
     this(items, compClass, null);
   }
 
   /**
-   * Creates a instance from the supplied array of Elements each
-   * of which represents one Item of this Set.
-   * This is a convenience method which is helpful because processor
-   * proxies are normally returning an array of items rather than
-   * a root element.
+   * Creates a instance from the supplied array of Elements each of which represents one Item of
+   * this Set. This is a convenience method which is helpful because processor proxies are normally
+   * returning an array of items rather than a root element.
    *
-   * @param items A valid array of elements that meet the dtd defined
-   *    by the supplied compClass, never <code>null</code>.
-   *
-   * @param compClass The component class, if <code>null</code>, the name
-   *    is calculated by taking the base class name and replacing the
-   *    leading PS with PSX. If there is no leading PS, the base class name
-   *    is used. Each component added to this collection must match this
-   *    name.
-   *
-   * @param compType The value returned by the {@link
-   * IPSDbComponent#getComponentType() getComponentType} method of the
-   * components being stored in this collection. If the default is being
-   * used, you can use the 1 param ctor instead of this one. Never
-   * <code>null</code> or empty.
-   *
-   * @throws PSUnknownNodeTypeException If the supplied source element does
-   *    not conform to the dtd defined in the <code>fromXml<code> method.
+   * @param items A valid array of elements that meet the dtd defined by the supplied compClass,
+   *     never <code>null</code>.
+   * @param compClass The component class, if <code>null</code>, the name is calculated by taking
+   *     the base class name and replacing the leading PS with PSX. If there is no leading PS, the
+   *     base class name is used. Each component added to this collection must match this name.
+   * @param compType The value returned by the {@link IPSDbComponent#getComponentType()
+   *     getComponentType} method of the components being stored in this collection. If the default
+   *     is being used, you can use the 1 param ctor instead of this one. Never <code>null</code> or
+   *     empty.
+   * @throws PSUnknownNodeTypeException If the supplied source element does not conform to the dtd
+   *     defined in the <code>fromXml</code> method.
    */
   public PSDbComponentSet(Element[] items, Class<T> compClass, String compType)
       throws PSUnknownNodeTypeException {

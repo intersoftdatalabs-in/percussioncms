@@ -84,34 +84,17 @@ public class PSDependencyValidator {
    * Validates all dependencies in the package against the target server and returns the results.
    * The rules are as follows:
    *
-   * <p>
-   *
-   * <TABLE BORDER="1">
-   * <TR><TH>Result</TH><TH>Description</TH></TR>
-   * <TR><TD><b>error</b></TD>
-   *    <TD>
-   *       <li>a dependency / object is included in the package and already
-   *           exists on the (target) server, but it was installed with a
-   *           different package (name) </li>
-   *       <li>a dependency / object is not included in the package and not
-   *           no exists on (target) server. This can only happen on a
-   *           mis-configured system or caused by a bug</li>
-   *    </TD></TR>
-   * <TR><TD><b>warning</b></TD>
-   *    <TD>
-   *       a dependency / object is included in the package and already
-   *       exists on the (target) server, but it was not installed with any
-   *       packages.</li>
-   *    </TD></TR>
-   * <TR><TD>valid</TD>
-   *    <TD>
-   *       <li>a dependency / object is included in the package and already
-   *           exists on the (target) server, but it was installed with the
-   *           same package (name) </li>
-   *       <li>a dependency / object is included in the package, but not
-   *           exists on the (target) server.</li>
-   *    </TD></TR>
-   * </TABLE>
+   * <p>{@literal <TABLE BORDER="1"> <TR><TH>Result</TH><TH>Description</TH></TR>
+   * <TR><TD><b>error</b></TD> <TD> <li>a dependency / object is included in the package and already
+   * exists on the (target) server, but it was installed with a different package (name) </li> <li>a
+   * dependency / object is not included in the package and not no exists on (target) server. This
+   * can only happen on a mis-configured system or caused by a bug</li> </TD></TR>
+   * <TR><TD><b>warning</b></TD> <TD> a dependency / object is included in the package and already
+   * exists on the (target) server, but it was not installed with any packages.</li> </TD></TR>
+   * <TR><TD>valid</TD> <TD> <li>a dependency / object is included in the package and already exists
+   * on the (target) server, but it was installed with the same package (name) </li> <li>a
+   * dependency / object is included in the package, but not exists on the (target) server.</li>
+   * </TD></TR> </TABLE> }
    *
    * @return The results, never <code>null</code>, but may be empty if there is no error or warning.
    * @throws PSDeployException if there are any errors.

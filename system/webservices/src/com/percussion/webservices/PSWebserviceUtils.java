@@ -1254,7 +1254,7 @@ public class PSWebserviceUtils
    /**
     * Deletes the specified relationships.
     *
-    * @param ids the ids of deleted relationship, never <code> or empty.
+    * @param ids the ids of deleted relationship, never <code>null</code> or empty.
     * @param validateCheckedOut <code>true</code> to validate the owner of the
     * relationship is checked out by the current user, <code>false</code>
     * otherwise.

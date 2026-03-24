@@ -39,23 +39,17 @@ public class PSInstConfigFileLocator implements IPSConfigFileLocator {
     return new File(m_rxRoot + File.separator + m_serverConfigFile);
   }
 
-  /**
-   * @see IPSConfigFileLocator#getSpringConfigFile
-   */
+  /** Gets the Spring configuration file location. */
   public File getSpringConfigFile() {
     return new File(m_rxRoot + File.separator + m_springConfigFile);
   }
 
-  /**
-   * @see IPSConfigFileLocator#getJndiDsFile
-   */
+  /** Gets the JNDI datasource file location. */
   public File getJndiDsFile() {
     return new File(m_rxRoot + File.separator + m_jndiDsFile);
   }
 
-  /**
-   * @see IPSConfigFileLocator#getLoginCfgFile
-   */
+  /** Gets the login configuration file location. */
   public File getLoginCfgFile() {
     return new File(m_rxRoot + File.separator + m_loginCfgFile);
   }

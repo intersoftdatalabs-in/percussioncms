@@ -75,6 +75,7 @@ public class PSSearchConfig extends PSComponent {
    * Default constructor. The following defaults are set:
    *
    * <table>
+   * <caption>Default Property Values</caption>
    *    <tr>
    *       <th>Property</th>
    *       <th>Default value</th>

@@ -346,11 +346,10 @@ public class PSNavLink {
    *
    * @param req the parent request context.
    * @param relation the relationhip to link to
-   * @param useVariant the variant to use. If this parameter is <code>null</code> the variant from
-   *     the relationship is used. This variant must be a page variant if <code>followLink</code> is
-   *     <code>false</code>.
+   * @param useVariant the variant to use. If this parameter is null the variant from the
+   *     relationship is used. This variant must be a page variant if followLink is false.
    * @param followLink determines if this link contains the URL of the linked item or the URL of the
-   *     first <code><a></code> tag. If this value is true, the link snippet will be assembled.
+   *     first anchor tag. If this value is true, the link snippet will be assembled.
    * @throws PSNavException
    */
   public void buildLinkFromRelationship(

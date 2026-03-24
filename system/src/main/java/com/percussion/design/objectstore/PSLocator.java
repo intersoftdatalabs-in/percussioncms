@@ -134,7 +134,7 @@ public class PSLocator extends PSKey implements Serializable {
   /**
    * Get the locator revision.
    *
-   * @return the locator revision, <= -1 means undefined.
+   * @return the locator revision, &lt;= -1 means undefined.
    */
   public int getRevision() {
     String rev = getPart(KEY_REVISION);
@@ -145,7 +145,7 @@ public class PSLocator extends PSKey implements Serializable {
   /**
    * Set the new locator revision.
    *
-   * @param revision the new revision, <= -1 means undefined.
+   * @param revision the new revision, &lt;= -1 means undefined.
    */
   public void setRevision(int revision) {
     if (revision < -1) revision = -1;

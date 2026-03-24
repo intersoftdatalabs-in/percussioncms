@@ -107,10 +107,11 @@ public class PSDtd extends DTDGrammar {
   }
 
   /**
-   * This method is used for debugging. It prints debug information, such as
-   * elements and their attributes contained in the DTD, to the console.
+   * This method is used for debugging. It prints debug information, such as elements and their
+   * attributes contained in the DTD, to the console.
+   *
    * @param psdtd the parsed DTD object, may not be <code>null</code>
-   * @throw IllegalArgumentException if <code>psdtd<code>null</code>
+   * @throws IllegalArgumentException if psdtd is null
    */
   public static void printDtd(PSDtd psdtd) {
     if (psdtd == null) throw new IllegalArgumentException("psdtd may not be null");
@@ -284,7 +285,7 @@ public class PSDtd extends DTDGrammar {
    * @param elementName the Element name to match in the internal and external DTD subsets, may not
    *     be <code>null</code> or empty
    * @return an enumeration of all attribute list declarations.
-   * @throw IllegalArgumentException if elementName is <code>null</code> or empty
+   * @throws IllegalArgumentException if elementName is null or empty
    */
   public Enumeration getAttributeDeclarations(String elementName) {
     if ((elementName == null) || (elementName.trim().length() == 0))
@@ -438,7 +439,7 @@ public class PSDtd extends DTDGrammar {
    * @param elementName the Element name to match in the internal and external DTD subsets, may not
    *     be <code>null</code> or empty
    * @return The matching element definition, or <code>null</code> if no match.
-   * @throw IllegalArgumentException if elementName is <code>null</code> or empty
+   * @throws IllegalArgumentException if elementName is null or empty
    */
   public PSXmlElementDecl getElementDeclaration(String elementName) {
     if ((elementName == null) || (elementName.trim().length() == 0))
@@ -455,7 +456,7 @@ public class PSDtd extends DTDGrammar {
    *     subset, may not be <code>null</code> or empty
    * @return the element definition's content model, or <code>null</code> if the element definition
    *     does not exist.
-   * @throw IllegalArgumentException if elementName is <code>null</code> or empty
+   * @throws IllegalArgumentException if elementName is null or empty
    */
   public CMNode getContentModelNode(String elementName) {
     if ((elementName == null) || (elementName.trim().length() == 0))
@@ -479,7 +480,7 @@ public class PSDtd extends DTDGrammar {
    *     </code> or empty
    * @return the content model as a string, may be<code>null</code> if the element declaration does
    *     not exist in the DTD. Never empty, if not <code>null</code>.
-   * @throw IllegalArgumentException if elementName is <code>null</code> or empty.
+   * @throws IllegalArgumentException if elementName is null or empty.
    */
   public String getContentModelAsString(String elementName) {
     if ((elementName == null) || (elementName.trim().length() == 0))
@@ -504,11 +505,11 @@ public class PSDtd extends DTDGrammar {
   }
 
   /**
-   * Returns the Content Model node for the <code>Element<code> at the
-   * specified index. The index can be obtained from
-   * <code>m_contentSpecIndexList</code> member variable.
-   * @param contentSpecIndex The index of the element in the <code>Map</code>
-   * represented by the <code>m_contentSpecIndexList</code> member variable.
+   * Returns the Content Model node for the <code>Element</code> at the specified index. The index
+   * can be obtained from <code>m_contentSpecIndexList</code> member variable.
+   *
+   * @param contentSpecIndex The index of the element in the <code>Map</code> represented by the
+   *     <code>m_contentSpecIndexList</code> member variable.
    * @return the content model for the <code>Element</code>
    */
   protected CMNode buildSyntaxTree(int contentSpecIndex, XMLContentSpec contentSpec) {

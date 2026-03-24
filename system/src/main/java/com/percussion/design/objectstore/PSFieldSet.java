@@ -298,7 +298,7 @@ public class PSFieldSet extends PSComponent {
   /**
    * Remove the field or field set for the provided name.
    *
-   * @name the field/field set name to remove, may be <code>null</code> or empty.
+   * @param name the field/field set name to remove, may be <code>null</code> or empty.
    * @return the object removed (PSField or PSFieldSet) or <code>null</code> if not found.
    */
   public Object remove(String name) {
@@ -1173,8 +1173,8 @@ public class PSFieldSet extends PSComponent {
    *     specified. The Map is treated read-only.
    * @throws PSSystemValidationException if there is a table ref in the fieldset that doesn't exist
    *     in the supplied map.
-   * @todo PSApplicationBuilder and PSCopyHandler need to be cleaned up to take advantage of this
-   *     method.
+   * @deprecated PSApplicationBuilder and PSCopyHandler need to be cleaned up to take advantage of
+   *     this method.
    */
   public void fixupBackEndColumns(Map tables) throws PSSystemValidationException {
     try {
