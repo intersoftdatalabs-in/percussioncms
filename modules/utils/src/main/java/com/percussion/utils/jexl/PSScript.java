@@ -30,6 +30,7 @@ import org.apache.commons.jexl3.JexlException;
 import org.apache.commons.jexl3.JexlFeatures;
 import org.apache.commons.jexl3.JexlScript;
 import org.apache.commons.jexl3.MapContext;
+import org.apache.commons.jexl3.introspection.JexlPermissions;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -219,7 +220,9 @@ public class PSScript implements IPSScript {
     private static JexlEngine DEFAULT_ENGINE =
         new JexlBuilder()
             .strict(jexlUseStrict)
+            .safe(!jexlUseStrict)
             .silent(jexlUseSilent)
+            .permissions(JexlPermissions.UNRESTRICTED) // 2.x compatibility
             .debug(jexlUseDebug)
             .logger(LOG)
             .cache(CACHE_SIZE)
@@ -277,7 +280,9 @@ public class PSScript implements IPSScript {
       DEFAULT_ENGINE =
           new JexlBuilder()
               .strict(jexlUseStrict)
+              .safe(!jexlUseStrict)
               .silent(jexlUseSilent)
+              .permissions(JexlPermissions.UNRESTRICTED)
               .debug(jexlUseDebug)
               .logger(LOG)
               .cache(CACHE_SIZE)

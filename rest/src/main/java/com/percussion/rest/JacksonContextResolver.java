@@ -37,7 +37,7 @@ public class JacksonContextResolver implements ContextResolver<ObjectMapper> {
 
   static {
     objectMapper
-        .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, true)
+        .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
         // Indent may help with testing but can slow performance and can
         // fail unit tests.
         // .configure(SerializationConfig.Feature.INDENT_OUTPUT, true)

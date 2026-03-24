@@ -1,0 +1,13 @@
+{
+  "name": "perc-qa-automation",
+  "version": "8.1.7-SNAPSHOT",
+  "description": "Percussion CMS QA Automation tests using Playwright",
+  "scripts": {
+    "test": "playwright test"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.58.0",
+    "dotenv": "^16.6.1",
+    "playwright": "^1.58.0"
+  }
+}

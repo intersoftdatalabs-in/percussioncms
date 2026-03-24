@@ -30,7 +30,6 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -156,7 +155,6 @@ public class TestAllHTML5Tags {
   @Test
   public void testParse() {
 
-    System.out.println(parsedHTML);
     assertNotNull(parsedHTML);
     assertTrue(parsedHTML.length() > 1);
   }
@@ -166,9 +164,6 @@ public class TestAllHTML5Tags {
     for (Map.Entry attr : attrList.entrySet()) {
       String attrValue = tag.attr((String) attr.getKey());
       assertTrue(attrValue != null);
-      System.out.println("Attribute Value: " + attrValue);
-      System.out.println("Attribute Name: " + attr.getKey());
-      System.out.println("Attribute Stored Value: " + attr.getValue());
       assertTrue(attrValue.equals(attr.getValue()));
     }
   }
@@ -1253,19 +1248,6 @@ public class TestAllHTML5Tags {
 
     Elements tags = parsedDoc.select("noframes");
     assertTrue(tags.size() > 0);
-  }
-
-  @Test
-  @Ignore("noscript tag is no longer supported in jsoup Safelists as of jsoup 1.21.2")
-  public void testNoScriptTag() {
-
-    Elements tags = parsedDoc.select("noscript[class=unit-test]");
-    assertTrue(tags.size() > 0);
-    for (Element tag : tags) {
-      Attributes attrs = tag.attributes();
-      verifyAttributes(attrs, globalAttributes);
-      verifyAttributes(attrs, eventAttribute);
-    }
   }
 
   @Test

@@ -8,8 +8,8 @@
                  thumbnail="/rx_resources/widgets/title/images/widgetTitle.png"
                  preferred_editor_width="780"
                  preferred_editor_height="302"
-                 create_shared_asset="false"
-                 is_editable_on_template="false"
+                 create_shared_asset="true"
+                 is_editable_on_template="true"
                  is_responsive="true"
     />
     <UserPref name="wrapper"
@@ -32,21 +32,19 @@
 
     <Code type="jexl">
         <![CDATA[
-    $wrapper = $perc.widget.item.properties.get('wrapper');
     $rootclass= $perc.widget.item.cssProperties.get('rootclass');
     $assets = $rx.pageutils.widgetContents($sys.assemblyItem, $perc.widget, null, null);
     if (!empty($rootclass))
         $classAttribute = ' class="' + $rootclass + '"';
-
-	$dsUrl = $rx.pageutils.getDeliveryServer($sys.assemblyItem.PubServerId);
-    if ($dsUrl.indexOf("http://localhost") != -1 )
-	    $dsUrl = "";
-    $dynamicListData = $tools.esc.html("{ deliveryurl : '" + $dsUrl + "'}");
     ]]>
     </Code>
     <Content type="velocity">
         <![CDATA[
 <div>
+#set($wrapper = $perc.widget.item.properties.get('wrapper'))##
+#if("$!{wrapper}" == "")##
+   #set($wrapper = "h1")##
+#end##
 #loadRelatedWidgetContents()##
 #if( ! $perc.widgetContents.isEmpty() )##
 #set($node = $perc.widgetContents.get(0).node)##
@@ -56,7 +54,14 @@
 #elseif ($assets.isEmpty())##
 <$!{wrapper}$!{classAttribute}>$tools.esc.html($!{perc.page.linkTitle})</$!{wrapper}>
 #else##
-<$!{wrapper}$!{classAttribute}>$rx.pageutils.html($node,'rx:text')</$!{wrapper}>
+#set($titleOverride = $node.getProperty('rx:text').getValue())##
+#if("$!{titleOverride}" == "")##
+#set($titleOverride = $tools.esc.html($!{perc.page.linkTitle}))##
+#else##
+#set($titleOverride = $rx.pageutils.html($node,'rx:text'))##
+#end##
+##
+<$!{wrapper}$!{classAttribute}>$titleOverride</$!{wrapper}>
 #end##
 </div>
     ]]>
