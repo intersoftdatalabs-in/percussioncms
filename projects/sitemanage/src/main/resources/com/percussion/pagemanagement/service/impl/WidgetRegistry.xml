@@ -3,7 +3,7 @@
 
 <!--Widget grouping XML-->
 <widgets>
-    <group name="Percussion">
+    <group name="percussion">
         <widget name="Archives"/>
         <widget name="Auto List"/>
         <widget name="Blog List"/>
@@ -50,11 +50,9 @@
         <widget name="Most Read Blog Posts"/>
         <widget name="Redirect"/>
     </group>
-    <group name="Community">
+    <group name="deprecated">
         <widget name="Evergage Beacon"/>
         <widget name="EMS Event List"/>
-    </group>
-    <group name="Deprecated">
         <widget name="Share This"/>
         <widget name="Calendar"/>
         <widget name="Flash"/>

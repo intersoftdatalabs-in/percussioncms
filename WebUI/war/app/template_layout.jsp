@@ -79,8 +79,8 @@
         <select role="listbox" class="perc-widget-type" style="width:150px; margin-right: 35px;">
             <option role="listitem" value="all"><i18n:message key = "perc.ui.template.layout@View all"/></option>
             <option role="listitem" selected="true" value="percussion">Percussion</option>
-            <option role="listitem" value="community"><i18n:message key = "perc.ui.template.layout@Community"/></option>
             <option role="listitem" value="custom"><i18n:message key = "perc.ui.template.layout@Custom"/></option>
+            <option role="listitem" value="deprecated"><i18n:message key = "perc.ui.template.layout@Deprecated"/></option>
         </select>
         <label><i18n:message key = "perc.ui.dashboard@Category"/></label>
         <select class="perc-widget-category" role="listbox" style="width:150px">
