@@ -8,7 +8,7 @@ This is the main project for Percussion CMS - the next version of Percussion CM1
 
 ## What is Percussion CMS?
 
-Percussion CMS is the next generation of Percussion Software's proprietary Rhythmyx and CM1 content management products.  The original headless CMS (1999), Percussion CMS has a long history of de-coupled deployments wth easily extensible integration points for delivering content in different formats to different channels.
+Percussion CMS is the next generation of Percussion Software's proprietary Rhythmyx and CM1 content management products.  The original headless CMS (1999), Percussion CMS has a long history of de-coupled deployments with easily extensible integration points for delivering content in different formats to different channels.
 
 Our goal is to empower the developer and the marketer. Smart architecture, smart API's, smart UI.
 
@@ -31,7 +31,7 @@ Download links are available on the project [Releases page](https://github.com/i
 
 ## I was a Percussion customer, is this where I download updates?
 
-Yes.  The latest release will be featured in the [Releases page](https://github.com/intersoftdatalabs-in/percussioncms/releases) on this GitHub project.  For Technical Support please see the [Intersoft support portal](https://percussionsupport.intsof.com). The documentation can be found on https://percussioncmshelp.intsof.com and the old Percussion community has beene re-homed to https://percussioncmshelp.intsof.com.
+Yes.  The latest release will be featured in the [Releases page](https://github.com/intersoftdatalabs-in/percussioncms/releases) on this GitHub project.  For Technical Support please see the [Intersoft support portal](https://percussionsupport.intsof.com). The documentation can be found on https://percussioncmshelp.intsof.com and the old Percussion community has been re-homed to https://percussioncmshelp.intsof.com.
 
 ## Development Setup
 
