@@ -1194,16 +1194,17 @@ public class PSItemService implements IPSItemService {
 
       List<PSManagedLink> ownerLinks = linkService.findLinksByChildId(contentId);
       for (PSManagedLink link : ownerLinks) {
-        
-        // if parentId is -1 then it means the link is orphaned 
+
+        // if parentId is -1 then it means the link is orphaned
         // and should be ignored, but log a warning just in case
         if (link.getParentId() <= 0) {
           log.warn(
               "Managed Link with an invalid parentId of {} detected for Link Id: {}. Skipping link in findPagesLinkedToItem.",
-              link.getParentId(), link.getLinkId());
+              link.getParentId(),
+              link.getLinkId());
           continue;
         }
-        
+
         final String s = idMapper.getGuidFromContentId(link.getParentId()).toString();
         PSLocator depLocator = new PSLocator(link.getParentId(), -1);
         try {
