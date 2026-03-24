@@ -1,0 +1,18 @@
+# Environment variables
+.env
+
+# Build outputs
+target/
+
+# Temporary files
+.tmp/
+
+# Node dependencies (installed by maven frontend plugin)
+node_modules/
+
+# Playwright test results
+test-results/
+playwright-report/
+
+# Screenshots
+screenshots/

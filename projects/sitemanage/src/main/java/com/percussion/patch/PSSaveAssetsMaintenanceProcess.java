@@ -561,12 +561,12 @@ public class PSSaveAssetsMaintenanceProcess
                 + IPSManagedLinkService.PERC_LINKID_ATTR
                 + "])");
 
-    // get all anchor links with an href attr but that does not have a perc-linkid attr
+    // get all anchor links with an href attr and target="_blank" but without the rel attr
     Elements targetAnchors =
         doc.select(
             IPSManagedLinkService.A_HREF
-                + "a[target=\"_blank\"]"
-                + ":not(a[rel=\"noopener noreferrer\"])");
+                + "[target=\"_blank\"]"
+                + ":not([rel=\"noopener noreferrer\"])");
 
     if (anchors.isEmpty() && imgs.isEmpty() && targetAnchors.isEmpty()) {
       hasUnmanagedLinks = false;
