@@ -12839,6 +12839,16 @@ Documentación' href='https://percussioncmshelp.intsof.com/'&gt;percussioncmshel
 	        <seg>Personalizado</seg>
 	    </tuv>
 	 </tu>
+     <tu tuid="perc.ui.template.layout@Deprecated">
+        <prop type="sectionname" xml:lang="en-us">General</prop>
+        <note xml:lang="en-us"></note>
+        <tuv xml:lang="en-us">
+            <seg>Deprecated (Pending Removal)</seg>
+        </tuv>
+         <tuv xml:lang="es">
+            <seg>Obsoleto (Pendiente de eliminación)</seg>
+        </tuv>
+     </tu>
 	 <tu tuid="perc.ui.template.layout@Rich Media">
 	    <prop type="sectionname" xml:lang="en-us">General</prop>
 	    <note xml:lang="en-us"></note>
