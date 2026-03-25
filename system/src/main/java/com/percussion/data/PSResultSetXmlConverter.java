@@ -399,7 +399,7 @@ public class PSResultSetXmlConverter implements IPSResultSetConverter {
    * Determine whether the request URL is supported by this converter. The request URL may contain
    * an extension. When it does, this is used in defining the output which will be returned.
    *
-   * @param reqUrl the URL which was specified when making this request
+   * @param reqPageURL the URL which was specified when making this request
    * @return <code>true</code> if conversion is supported, <code>false</code> otherwise
    */
   protected boolean isSupported(String reqPageURL) {
@@ -1112,7 +1112,7 @@ public class PSResultSetXmlConverter implements IPSResultSetConverter {
   /**
    * Get the encoding for the specified request page.
    *
-   * @arg index the offset of the request page in the page set
+   * @param index the offset of the request page in the page set
    * @return the character encoding desired or <code>null</code> if no encoding has been set for
    *     this resource, or if no request page resource for the data exists.
    */
@@ -1126,7 +1126,7 @@ public class PSResultSetXmlConverter implements IPSResultSetConverter {
   /**
    * Get the MIME type for the specified request page.
    *
-   * @arg index the offset of the request page in the page set
+   * @param index the offset of the request page in the page set
    * @return the mime type desired or <code>null</code> if no encoding has been set for this
    *     resource, or if no request page resource for the data exists.
    */

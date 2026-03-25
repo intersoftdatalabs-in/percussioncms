@@ -22,10 +22,9 @@ import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.taskdefs.Expand;
 
 /**
- * Unzip the .ppkg to given source folder to given destiantion folder
- * <br>
- * Example Usage:
- * <br>
+ * Unzip the .ppkg to given source folder to given destiantion folder <br>
+ * Example Usage: <br>
+ *
  * <pre>
  *
  * First set the taskdef:
@@ -36,10 +35,6 @@ import org.apache.tools.ant.taskdefs.Expand;
  *             classpath="c:\lib"/&gt;
  *  </code>
  *
- *
- *  <code>
- *  &lt;PSP4PackageAdd rootdirpath="system/packages"
- *                     zipfilepath="C:\directoryname\perc.gadget.activity.ppkg"
  *
  *
  * Example perforce properties file:
@@ -90,7 +85,7 @@ public class PSUnZipPackage extends Expand {
   }
 
   /**
-   * @param destinationDir the destinationDir to set
+   * @param rootDir the rootDir to set
    */
   public void setRootDirPath(String rootDir) {
     this.m_rootDirPath = rootDir;

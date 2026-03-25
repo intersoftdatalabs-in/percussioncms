@@ -343,7 +343,6 @@ public class PSHttpRequest implements IPSHTTPConstants {
    *
    * @author chad loder
    * @version 1.0 1999/8/20
-   * @throws Exception;
    */
   public void disconnect() throws IOException {
     if (respIn != null || sock != null) {

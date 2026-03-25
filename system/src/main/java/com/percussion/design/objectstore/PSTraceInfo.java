@@ -41,7 +41,6 @@ public class PSTraceInfo extends PSComponent {
    * @param parentDoc the Java object which is the parent of this Object
    * @param parentComponents the parent objects of this object
    * @throws PSUnknownNodeTypeException if the XML element node is not of the appropriate type
-   * @roseuid 39F46A7B02BF
    */
   public PSTraceInfo(Element sourceNode, IPSDocument parentDoc, List parentComponents)
       throws PSUnknownNodeTypeException {
@@ -54,7 +53,6 @@ public class PSTraceInfo extends PSComponent {
    *
    * @return a flag object representing all currently enabled trace options. Will never be <code>
    *     null</code>.
-   * @roseuid 39F46AE60261
    */
   public PSTraceFlag getTraceOptionsFlag() {
     return m_traceFlag;
@@ -109,7 +107,6 @@ public class PSTraceInfo extends PSComponent {
    *
    * @param optionsFlag a composite flag representing the trace options to enable for the
    *     application. May not be <code>null</code>.
-   * @roseuid 39F46B2F003E
    */
   public void setTraceOptionsFlag(PSTraceFlag optionsFlag) {
     setTraceOptionsFlag(optionsFlag, true);
@@ -143,7 +140,6 @@ public class PSTraceInfo extends PSComponent {
    * Used to determine if a tracing is enabled for the application.
    *
    * @return <code>true</code> if tracing is enabled, <code>false</code> if not
-   * @roseuid 39F5BD5E038A
    */
   public boolean isTraceEnabled() {
     return m_enabled;
@@ -153,7 +149,6 @@ public class PSTraceInfo extends PSComponent {
    * Accessor for trace message output column width
    *
    * @return the width of the trace message output in number of chars
-   * @roseuid 39F5BE07032C
    */
   public int getColumnWidth() {
     return m_columnWidth;
@@ -165,7 +160,6 @@ public class PSTraceInfo extends PSComponent {
    * @param traceFlag describes which trace option's description to return. May not be <code>null
    *     </code>.
    * @return the description of the specified option
-   * @roseuid 39F5BE4A01A5
    */
   public String getOptionDescription(int traceFlag) {
     String desc = null;
@@ -190,7 +184,6 @@ public class PSTraceInfo extends PSComponent {
    *
    * @param traceFlag Flag specifiying the option. May not be <code>null</code>.
    * @return the name of this option. Never <code>null</code>.
-   * @roseuid 39F5CB680000
    */
   public String getOptionName(int traceFlag) {
     String name = null;
@@ -215,7 +208,6 @@ public class PSTraceInfo extends PSComponent {
    *
    * @param traceFlag flag indicating the option to check. May not be <code>null</code>.
    * @return <code>true</code> if that option is enabled, <code>false</code> if not
-   * @roseuid 39F6FE950177
    */
   public boolean isTraceEnabled(int traceFlag) {
     if (!isValidOption(traceFlag))
@@ -262,7 +254,6 @@ public class PSTraceInfo extends PSComponent {
    *
    * @param doc the document from which to create the returned element
    * @return the newly created XML element node
-   * @roseuid 39F72D340251
    */
   public Element toXml(Document doc) {
     Element root = doc.createElement(ms_NodeType);
@@ -375,8 +366,6 @@ public class PSTraceInfo extends PSComponent {
    * values for column width, sets trace disabled, and gets a trace flag object from the factory
    * with the default trace messages enabled. The default locale will be used for the names and
    * descriptions of trace messages
-   *
-   * @roseuid 39F7473401E4
    */
   public PSTraceInfo() {
     this(Locale.getDefault());
@@ -387,7 +376,6 @@ public class PSTraceInfo extends PSComponent {
    * trace events. If tracing is enabled, notify a start.
    *
    * @param traceStateListener the listener to add. May not be <code>null</code>.
-   * @roseuid 39F84B9E0167
    */
   public void addTraceStateListener(IPSTraceStateListener traceStateListener) {
     m_traceStateListeners.add(traceStateListener);
@@ -399,7 +387,6 @@ public class PSTraceInfo extends PSComponent {
    * events.
    *
    * @param listener the listener to remove. May not be <code>null</code>.
-   * @roseuid 39F84C130213
    */
   public void removeTraceStateListener(IPSTraceStateListener listener) {
     m_traceStateListeners.remove(listener);
@@ -451,21 +438,13 @@ public class PSTraceInfo extends PSComponent {
     m_traceFlag = flag;
   }
 
-  /**
-   * Notify all TraceStateListeners if enabled flag is changing from disabled to enabled.
-   *
-   * @roseuid 39F86E8900CB
-   */
+  /** Notify all TraceStateListeners if enabled flag is changing from disabled to enabled. */
   private void notifyStart() {
     Iterator list = m_traceStateListeners.iterator();
     while (list.hasNext()) ((IPSTraceStateListener) list.next()).traceStarted(this);
   }
 
-  /**
-   * Notitfy all listeners when enabled flag changed from enabled to disabled.
-   *
-   * @roseuid 39F86F6202FD
-   */
+  /** Notitfy all listeners when enabled flag changed from enabled to disabled. */
   private void notifyStop() {
     Iterator list = m_traceStateListeners.iterator();
     while (list.hasNext()) {
@@ -489,7 +468,6 @@ public class PSTraceInfo extends PSComponent {
    *
    * @param isEnabled if <code>true</code>, tracing is enabled, if <code>false</code>, tracing is
    *     disabled.
-   * @roseuid 3A01DA06002E
    */
   public void setTraceEnabled(boolean isEnabled) {
 
@@ -505,7 +483,6 @@ public class PSTraceInfo extends PSComponent {
    * get list of allowable trace options
    *
    * @return returns list of PSTraceOption objects. Never <code>null</code>
-   * @roseuid 3A01DAE5037A
    */
   public Iterator getTraceOptions() {
     return ms_options.iterator();
@@ -515,7 +492,6 @@ public class PSTraceInfo extends PSComponent {
    * Sets the trace output column width
    *
    * @param width the number of chars
-   * @roseuid 3A02D63100AB
    */
   public void setColumnWidth(int width) {
     m_columnWidth = width;
@@ -525,7 +501,6 @@ public class PSTraceInfo extends PSComponent {
    * Determine if Timestamp Only tracing is enabled.
    *
    * @return <code>true</code> if enabled, <code>false</code> if not enabled.
-   * @roseuid 3A02DAFB009C
    */
   public boolean IsTimeStampOnlyTrace() {
     return m_timeStampOnly;
@@ -536,7 +511,6 @@ public class PSTraceInfo extends PSComponent {
    *
    * @param isTimestampOnly If <code>true</code> then option is enabled, if <code>false</code>, it
    *     is disabled.
-   * @roseuid 3A02DB8E03B9
    */
   public void setTimeStampOnlyTrace(boolean isTimestampOnly) {
     m_timeStampOnly = isTimestampOnly;
@@ -548,7 +522,6 @@ public class PSTraceInfo extends PSComponent {
    * @param traceFlag flag specifying the particular trace option
    * @param isEnabled if <code>true</code>, tracing is enabled. if <code>false</code>, it is
    *     disabled.
-   * @roseuid 3A02E43B037A
    */
   public void setTraceEnabled(int traceFlag, boolean isEnabled) {
     if (!isValidOption(traceFlag))
@@ -567,7 +540,6 @@ public class PSTraceInfo extends PSComponent {
    * @param parentComponents the parent objects of this object
    * @param locale the locale to use for the names and descriptions of trace messages.
    * @throws PSUnknownNodeTypeException if the XML element node is not of the appropriate type
-   * @roseuid 3A06C9CE000F
    */
   public PSTraceInfo(
       Element sourceNode, IPSDocument parentDoc, List parentComponents, Locale locale)
@@ -582,7 +554,6 @@ public class PSTraceInfo extends PSComponent {
    * with the default trace messages enabled. Saves a copy as the initial options.
    *
    * @param locale The Locale to use for the names and descriptions of the trace messages.
-   * @roseuid 3A06C9F90399
    */
   public PSTraceInfo(Locale locale) {
     m_columnWidth = 80;

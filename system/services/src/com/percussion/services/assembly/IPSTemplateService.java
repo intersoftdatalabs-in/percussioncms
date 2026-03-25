@@ -386,24 +386,23 @@ public interface IPSTemplateService
    public IPSAssemblyTemplate loadUnmodifiableTemplate(String tid)
          throws PSAssemblyException;
    
-   /**
-    * Creates a list of template binding objects from the given LinkedHashMapLinkedHashMap<String,lt;String,
-    * String&gt;. Creates the template binding with variable as the first parameter
-    * and expression as the second parameter, the linked hash maps order is used
-    * as order by adding the starting order value. Throws assembly exception if
-    * the variable parameter is null or empty. If the expression parameter is
-    * null then it is set to empty string. The bindings are not persisted
-    * bindings and should be used for in memory objects only.
-    * 
-    * @param bindings must not be <code>null</code>. may be empty.
-    * @param startingOrder the starting order for the bindings. If it is less than 1 then uses
-    *            1 as the starting order.
-    * @return List of bindings never <code>null</code>, may be empty.
-    * 
-    * @throws IllegalArgumentException if the bindings is <code>null</code> or
-    *             if the key of the bindings which is set as variable on the
-    *             binding is blank.
-    */
-   public List<PSTemplateBinding> createBindings(
+    /**
+     * Creates a list of template binding objects from the given LinkedHashMap. Creates the 
+     * template binding with variable as the first parameter and expression as the second 
+     * parameter, the linked hash maps order is used as order by adding the starting order 
+     * value. Throws assembly exception if the variable parameter is null or empty. If the 
+     * expression parameter is null then it is set to empty string. The bindings are not 
+     * persisted bindings and should be used for in memory objects only.
+     * 
+     * @param bindings must not be <code>null</code>. may be empty.
+     * @param startingOrder the starting order for the bindings. If it is less than 1 then uses
+     *            1 as the starting order.
+     * @return List of bindings never <code>null</code>, may be empty.
+     * 
+     * @throws IllegalArgumentException if the bindings is <code>null</code> or
+     *             if the key of the bindings which is set as variable on the
+     *             binding is blank.
+     */
+    public List<PSTemplateBinding> createBindings(
          LinkedHashMap<String, String> bindings, int startingOrder);
 }

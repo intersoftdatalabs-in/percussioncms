@@ -102,7 +102,8 @@ public class PSColumnCatalogHandler implements IPSCatalogHandler {
    * Format the catalog request based upon the specified request information. The request
    * information for this request type is:
    *
-   * <table border="2">
+   * <table border="1">
+   *   <caption>Request Properties</caption>
    *   <tr><th>Key</th>
    *       <th>Value</th>
    *       <th>Required</th></tr>

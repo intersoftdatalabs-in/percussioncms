@@ -48,7 +48,7 @@ public class PSSlotModel extends PSDesignModel
     * Saves the supplied slot object and if present the associations also. If
     * the associationSets are <code>null</code> or the associations on each
     * set are <code>null</code> then the slot template associations are not
-    * touched. Expects the associations to be the list of PSPair<String,String>
+    * touched. Expects the associations to be the list of PSPair&amp;lt;String,String&amp;gt;
     * objects and the first one is expected to be the content type name and the
     * second one is expected to be the template name. Any association that is
     * not in the expected form or either content type or template does not exist

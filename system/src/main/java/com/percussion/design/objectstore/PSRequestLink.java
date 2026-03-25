@@ -192,7 +192,7 @@ public class PSRequestLink extends PSComponent implements IPSResults {
    * link. XML field names are separated with the forward slash character. For instance, the id
    * element of the following XML data is "Product/lookupUrl":
    *
-   * <p><code><Product lookupUrl="http://myserver/myurl"/></code>
+   * <p><code>&lt;Product lookupUrl="http://myserver/myurl"/&gt;</code>
    *
    * @return the fully qualified XML field name (may be null)
    */
@@ -205,7 +205,7 @@ public class PSRequestLink extends PSComponent implements IPSResults {
    * link. XML field names are separated with the forward slash character. For instance, the id
    * element of the following XML data is "Product/lookupUrl":
    *
-   * <p><code><Product lookupUrl="http://myserver/myurl"/></code>
+   * <p><code>&lt;Product lookupUrl="http://myserver/myurl"/&gt;</code>
    *
    * <p>This is limited to 255 characters.
    *

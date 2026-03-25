@@ -52,7 +52,7 @@ public class PSConsoleCommandSearchIndexRecreate extends PSConsoleCommandSearchI
   /**
    * Ctor required by framework.
    *
-   * @param args See class description for reqs.
+   * @param cmdArgs See class description for reqs.
    * @throws PSIllegalArgumentException Never. The optional arg is not validated until the command
    *     is executed.
    *     <p>Note: we use PSIllegal... here because that's what the framework uses.

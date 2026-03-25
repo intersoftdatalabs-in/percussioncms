@@ -95,8 +95,6 @@ public class PSGlobalTemplate extends PSLoggable {
    *     be ceated.
    * @throws IOException in case of any error accessing and reading the source file.
    * @throws SAXException in case of any error parsing tidied document.
-   * @throws SplitterException in case of any error during the splitting the prepared HTML document
-   *     to generate the outer template XSL.
    */
   public PSGlobalTemplate(String rxRootDir, String appDir, String srcHtmlFile, Logger logger)
       throws IOException, SAXException {
@@ -615,9 +613,9 @@ public class PSGlobalTemplate extends PSLoggable {
   private static final String ATTR_PSXEDITSLOT = "psxeditslot";
 
   /**
-   * Get the default entities for the provided server root. An entry like <!ENTITY % HTMLlat1 SYSTEM
-   * "<serverRoot>/DTD/HTMLlat1x.ent">%HTMLlat1; will be created for all entities. Include all of
-   * the entities defined for HTML, the originals are available at:
+   * Get the default entities for the provided server root. An entry like &lt;!ENTITY % HTMLlat1
+   * SYSTEM "&lt;serverRoot&gt;/DTD/HTMLlat1x.ent"&gt;%HTMLlat1; will be created for all entities.
+   * Include all of the entities defined for HTML, the originals are available at:
    * "http://www.w3.org/TR/xhtml1/DTD/HTMLlat1x.ent"
    * "http://www.w3.org/TR/xhtml1/DTD/HTMLsymbolx.ent"
    * "http://www.w3.org/TR/xhtml1/DTD/HTMLspecialx.ent"

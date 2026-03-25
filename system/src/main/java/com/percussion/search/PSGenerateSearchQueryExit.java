@@ -883,7 +883,6 @@ public class PSGenerateSearchQueryExit extends PSDefaultExtension
    * @param request The request to use, may not be <code>null</code>.
    * @param slotId The slot id, may not be <code>null</code> or empty.
    * @return The map, never <code>null</code>.
-   * @throws IOException if the map cannot be loaded.
    */
   @SuppressWarnings("unused")
   public PSSearchFieldFilterMap getSearchFieldFilterMap(

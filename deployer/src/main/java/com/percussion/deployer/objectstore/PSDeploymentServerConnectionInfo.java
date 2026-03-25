@@ -33,9 +33,9 @@ public class PSDeploymentServerConnectionInfo implements IPSDeployComponent {
    * @param userid The user id to connect using, may not be <code>null</code> or empty.
    * @param password The password, may be <code>null</code> or empty. If <code>null</code>, and
    *     empty <code>String</code> is stored.
-   * @param isPwdEncrypted If <code>true</code>, the password will be treated as encrypted.
-   *     Otherwise, it is assumed to be clear text and will be encryted for storage or serialization
-   *     to the server.
+   * @param encrypted If <code>true</code>, the password will be treated as encrypted. Otherwise, it
+   *     is assumed to be clear text and will be encryted for storage or serialization to the
+   *     server.
    */
   public PSDeploymentServerConnectionInfo(
       String server, int port, String userid, String password, boolean encrypted) {

@@ -60,7 +60,7 @@ public class PSMutableUrl {
   }
 
   /**
-   * @param m_base The URL base to set, must not be <code>null</code> or empty.
+   * @param base The URL base to set, must not be <code>null</code> or empty.
    */
   public void setBase(String base) {
     if (base == null || base.length() < 1) {
@@ -131,9 +131,9 @@ public class PSMutableUrl {
   }
 
   /**
-   * Create the URL string from the base, and the parameter map in the syntax of <base>?
-   * <paramName1=paramValue1>& <paramName2=paramValue2>... where ? is the query separator and & is
-   * the parameter separator.
+   * Create the URL string from the base, and the parameter map in the syntax of [base]?
+   * [paramName1=paramValue1]&amp; [paramName2=paramValue2]... where ? is the query separator and
+   * &amp; is the parameter separator.
    *
    * @return new URL string described above.
    */

@@ -50,7 +50,7 @@ public class PSContentType extends PSDbComponent {
    * @param description An optional message that describes what this type is used for. May be <code>
    *     null</code> or empty.
    * @param editorUrl A partial Url to access the html editor associated with this type. Of the form
-   *     "../<appname>/<resource>". Back-slashes are normalized to /. Never <code>null</code> or
+   *     "../appName/resourceName". Back-slashes are normalized to /. Never <code>null</code> or
    *     empty.
    * @param hideFromMenu A flag that indicates whether this type should be shown in the CA
    *     interface. (The presence of this property needs to be reviewed.)
@@ -180,25 +180,7 @@ public class PSContentType extends PSDbComponent {
     return m_queryRequest;
   }
 
-  /**
-   *
-   *
-   * <pre>
-   * <!ELEMENT PSXContentType (PSXKey, NewRequest?, QueryRequest?, UpdateRequest?, Description? )>
-   * <!ELEMENT Description (#PCDATA)>
-   * <!ELEMENT UpdateRequest (#PCDATA)>
-   * <!ELEMENT QueryRequest (#PCDATA)>
-   * <!ELEMENT NewRequest (#PCDATA)>
-   * <!ELEMENT CONTENTTYPEID (#PCDATA)>
-   * <!ELEMENT PSXKey (CONTENTTYPEID )>
-   * <!ATTLIST PSXKey needGenerateId (yes | no ) "no">
-   * <!ATTLIST PSXKey isPersisted (yes | no ) "yes">
-   * <!ATTLIST PSXContentType hideFromMenu (true | false ) "false">
-   * <!ATTLIST  PSXContentType objectType CDATA #REQUIRED>
-   * <!ATTLIST  PSXContentType name CDATA #REQUIRED>
-   * <!ATTLIST  PSXContentType label CDATA #IMPLIED>
-   * </pre>
-   */
+  /** Produces an XML representation of this object. */
   @Override
   public Element toXml(Document doc) {
     if (null == doc) throw new IllegalArgumentException("doc must be supplied");
@@ -389,7 +371,7 @@ public class PSContentType extends PSDbComponent {
    * Get the name of the app from the request url
    *
    * @param requestUrl The ce request url, assumed not <code>null</code> or empty and in the format
-   *     "../<appName>/<resourceName>.html"
+   *     "../appName/resourceName.html"
    * @return The app name, never <code>null</code> or empty.
    */
   public static String getAppName(String requestUrl) {

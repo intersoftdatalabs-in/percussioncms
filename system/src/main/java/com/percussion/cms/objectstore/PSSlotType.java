@@ -38,11 +38,10 @@ public class PSSlotType extends PSDbComponent {
    * Creates an instance from a previously serialized (using <code>toXml
    * </code>) object.
    *
-   * @param source A valid element that meets the dtd defined in the
-   *    description of {@link #toXml(Document)}. Never <code>null</code>.
-   *
-   * @throws PSUnknownNodeTypeException If the supplied source element does
-   *    not conform to the dtd defined in the <code>fromXml<code> method.
+   * @param source A valid element that meets the dtd defined in the description of {@link
+   *     #toXml(Document)}. Never <code>null</code>.
+   * @throws PSUnknownNodeTypeException If the supplied source element does not conform to the dtd
+   *     defined in the <code>fromXml</code> method.
    */
   public PSSlotType(Element source) throws PSUnknownNodeTypeException {
     super(source);
@@ -133,17 +132,17 @@ public class PSSlotType extends PSDbComponent {
    * will conform to the following dtd:
    *
    * <pre>
-   * <!ELEMENT PSXSlotType (PSXKey, SlotName?, SlotDesc?, PSXSlotTypeContentTypeVariantSet)>
-   * <!ELEMENT PSXSlotTypeContentTypeVariantSet (#PCDATA)>
-   * <!ELEMENT SLOTID (#PCDATA)>
-   * <!ELEMENT PSXKey (SLOTID )>
-   * <!ELEMENT SlotName (#PCDATA)>
-   * <!ELEMENT SlotDesc (#PCDATA)>
-   * <!ATTLIST PSXKey needGenerateId (yes | no ) "no">
-   * <!ATTLIST PSXKey isPersisted (yes | no ) "yes">
-   * <!ATTLIST  PSXSlotType slotType CDATA #REQUIRED>
-   * <!ATTLIST  PSXSlotType systemSlot CDATA #REQUIRED>
-   * <!ATTLIST  PSXSlotType slotId CDATA #IMPLIED>
+   * &lt;!ELEMENT PSXSlotType (PSXKey, SlotName?, SlotDesc?, PSXSlotTypeContentTypeVariantSet)&gt;
+   * &lt;!ELEMENT PSXSlotTypeContentTypeVariantSet (#PCDATA)&gt;
+   * &lt;!ELEMENT SLOTID (#PCDATA)&gt;
+   * &lt;!ELEMENT PSXKey (SLOTID )&gt;
+   * &lt;!ELEMENT SlotName (#PCDATA)&gt;
+   * &lt;!ELEMENT SlotDesc (#PCDATA)&gt;
+   * &lt;!ATTLIST PSXKey needGenerateId (yes | no ) "no"&gt;
+   * &lt;!ATTLIST PSXKey isPersisted (yes | no ) "yes"&gt;
+   * &lt;!ATTLIST  PSXSlotType slotType CDATA #REQUIRED&gt;
+   * &lt;!ATTLIST  PSXSlotType systemSlot CDATA #REQUIRED&gt;
+   * &lt;!ATTLIST  PSXSlotType slotId CDATA #IMPLIED&gt;
    * </pre>
    *
    * @param doc Used to generate the element. Never <code>null</code>.

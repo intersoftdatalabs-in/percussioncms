@@ -168,7 +168,6 @@ public class PSManageActionInfo {
    *     if the corresponding action isn't found or the action does not meet the leaf state passed.
    * @throws PSException if there is a problem with loading the action elements.
    * @throws IllegalArgumentException if any param is invalid.
-   * @throws PSDeployException if there are any errors.
    */
   protected PSAction[] loadActions(PSComponentProcessorProxy proc, String ids[])
       throws PSException {

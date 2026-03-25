@@ -30,9 +30,9 @@ import org.springframework.beans.factory.InitializingBean;
  * A site loader implementation that caches the list of sites. The caching behavior is controlled by
  * the the siteReloadDelay property.
  *
- * <p>If siteReloadDelay < 0 then the site information is not cached, it is reloaded each time it is
- * requested. This setting may be best for small development servers without large numbers of sites
- * or templates.
+ * <p>If siteReloadDelay &lt; 0 then the site information is not cached, it is reloaded each time it
+ * is requested. This setting may be best for small development servers without large numbers of
+ * sites or templates.
  *
  * <p>If siteReloadDelay == 0 then the sites will be reloaded only on server startup. This setting
  * may be best for production servers where the templates are never modified.

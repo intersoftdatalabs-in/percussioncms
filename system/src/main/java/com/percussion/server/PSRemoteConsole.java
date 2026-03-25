@@ -92,6 +92,7 @@ public class PSRemoteConsole {
    * are:
    *
    * <TABLE BORDER="1">
+   * <CAPTION>Remote Console Commands</CAPTION>
    *      <TR>
    *         <TH>Command</TH>
    *         <TH>Parameters</TH>

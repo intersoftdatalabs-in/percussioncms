@@ -359,7 +359,7 @@ public class PSInternalRequest extends HttpServletRequestWrapper
     *
     * @param hName the header name, it may not be <code>null</code> or empty.
     *
-    * @param hValue the header values, it may not be <code>null</code> or empty.
+    * @param hValues the header values, it may not be <code>null</code> or empty.
     */
    public void setHeader(String hName, String[] hValues)
    {

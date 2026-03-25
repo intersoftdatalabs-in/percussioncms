@@ -82,6 +82,7 @@ public class PSRemoteRequester implements IPSRemoteRequesterEx {
    *     as those of the {@link com.percussion.conn.PSDesignerConnection PSDesignerConnection}
    *     class.
    *     <table border="1">
+   *       <caption>Connection Parameters</caption>
    *       <tr>
    *         <th>Key</th>
    *         <th>Value</th>
@@ -228,9 +229,10 @@ public class PSRemoteRequester implements IPSRemoteRequesterEx {
   }
 
   /**
-   * Sets the password to be used for the HTTP Request.
+   * Sets the credentials to be used for the HTTP Request.
    *
-   * @param password can be <code>null</code> or <code>empty</code>.
+   * @param uid the user id, can be <code>null</code> or <code>empty</code>.
+   * @param pw the password, can be <code>null</code> or <code>empty</code>.
    */
   public void setCredentials(String uid, String pw) {
     if (null == uid) uid = "";
@@ -293,7 +295,7 @@ public class PSRemoteRequester implements IPSRemoteRequesterEx {
     return opts;
   }
 
-  /** See {@link IPSRemoteRequester#getDocument(String, Map)} for detail */
+  /** See IPSRemoteRequester interface for detail */
   public Document getDocument(String resource, Map params) throws IOException, SAXException {
     final String urlResource = getFullResourcePath(resource);
 
@@ -311,12 +313,12 @@ public class PSRemoteRequester implements IPSRemoteRequesterEx {
     return sendRequest(p);
   }
 
-  /** See {@link IPSRemoteRequester#sendUpdate(String, Map)} for detail */
+  /** See IPSRemoteRequester interface for detail */
   public Document sendUpdate(String resource, Map params) throws IOException, SAXException {
     return getDocument(resource, params);
   }
 
-  /** See {@link IPSRemoteRequester#sendUpdate(String, doc)} for detail */
+  /** See IPSRemoteRequester interface for detail */
   public Document sendUpdate(String resource, Document doc) throws IOException, SAXException {
     resource = getFullResourcePath(resource);
 
@@ -524,7 +526,7 @@ public class PSRemoteRequester implements IPSRemoteRequesterEx {
     return createUrl(m_URLString, m_Server, m_Port, useSSL ? m_sslPort : -1);
   }
 
-  /** See {@link IPSRemoteRequester#shutdown()} for detail */
+  /** See IPSRemoteRequester interface for detail */
   public void shutdown() {
     // this is no need for shutdown connections, because it has already
     // been closed after send and receive data in the other methods
@@ -552,10 +554,10 @@ public class PSRemoteRequester implements IPSRemoteRequesterEx {
    *     <ol>
    *       <li>Fully qualified URL's e.g.:
    *           http://localhost:9992/Rhythmyx/rx_ceArticle/article.html?sys_command=
-   *           preview&sys_contentid=317&sys_revision=1
+   *           preview&amp;sys_contentid=317&amp;sys_revision=1
    *       <li>The full file URL including server root and query parameters, e.g.:
    *           /Rhythmyx/rx_ceArticle/article.html?sys_command=
-   *           preview&sys_contentid=317&sys_revision=1
+   *           preview&amp;sys_contentid=317&amp;sys_revision=1
    *     </ol>
    *
    * @param host the host-string to be used, not <code>null</code> or empty.
@@ -623,6 +625,7 @@ public class PSRemoteRequester implements IPSRemoteRequesterEx {
    * @param resource the resource, not <code>null</code>.
    * @param params the posted parameters, may be <code>null</code>.
    * @param pdata the posted data, may be <code>null</code>.
+   * @param headers the HTTP headers, may be <code>null</code>.
    * @throws IOException if I/O error occurs.
    */
   protected byte[] postRequest(String resource, Map params, byte[] pdata, NVPair[] headers)

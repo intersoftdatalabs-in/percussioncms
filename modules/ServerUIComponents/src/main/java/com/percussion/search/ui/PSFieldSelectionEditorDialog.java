@@ -1689,21 +1689,21 @@ public class PSFieldSelectionEditorDialog extends PSDialog {
 
   /**
    * the secondary field filter filters the list that made it through the primary field filter. This
-   * is regular expression filter. Initialized in {@ link #init()}, never <code>null</code> or
-   * modified after that.
+   * is regular expression filter. Initialized in {@link #init()}, never null or modified after
+   * that.
    */
   private JTextField m_filterText;
 
   /**
-   * The button that is used to apply the filter. Initialized in {@link #init()}, never <code>null
-   * </code> or modified after that.
+   * The button that is used to apply the filter. Initialized in {@link #init()}, never null or
+   * modified after that.
    */
   private JButton m_applyFilterBtn;
 
   /**
    * Represents the primary field filter is based on the field type. The user can choose from
-   * 'System', 'Shared', 'Local' or 'All'. Initialized in {@ link #init()}, never <code>null</code>
-   * or modified after that.
+   * 'System', 'Shared', 'Local' or 'All'. Initialized in {@link #init()}, never null or modified
+   * after that.
    */
   private JComboBox m_availSelectorComboBox;
 

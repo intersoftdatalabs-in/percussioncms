@@ -219,7 +219,7 @@ public class PSSFtpClientJSch
    /**
     * Puts a file to the remote location. A wrapper of
     * {@link ChannelSftp#put(InputStream, String)}. Must call
-    * {@link # login(String, int, String, String, int)} first.
+    * {@link #login(String, int, String, String, Integer, Integer)} first.
     * 
     * @param in the file data. Must not be <code>null</code>.
     * @param fileName the remote file name. Must not be <code>null</code> or

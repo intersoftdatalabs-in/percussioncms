@@ -34,7 +34,6 @@ public class PSTracePostExitXml extends PSTraceMessage {
    * The constructor for this class.
    *
    * @param typeFlag the type of trace message this object will generate
-   * @roseuid 39FDDACF0399
    */
   public PSTracePostExitXml(int typeFlag) {
     super(typeFlag);
@@ -53,7 +52,6 @@ public class PSTracePostExitXml extends PSTraceMessage {
    *     are handled: initial doc: - Document the doc after each exit: - Document the doc - String
    *     Exitname
    * @return the message body
-   * @roseuid 39FEE2F40232
    */
   protected String getMessageBody(Object source) {
     Object[] args = (Object[]) source;

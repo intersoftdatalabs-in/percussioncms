@@ -30,7 +30,7 @@ public class PSXmlElementDecl extends XMLElementDecl {
    * constructor
    *
    * @param xmlElemDecl the Element Declaration object to encapsulate, may not be <code>null</code>
-   * @throw IllegalArgumentException if xmlElemDecl is <code>null</code>
+   * @throws IllegalArgumentException if xmlElemDecl is <code>null</code>
    */
   public PSXmlElementDecl(XMLElementDecl xmlElemDecl) {
     super();

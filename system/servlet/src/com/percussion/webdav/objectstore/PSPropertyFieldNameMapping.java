@@ -125,8 +125,8 @@ public class PSPropertyFieldNameMapping extends PSWebdavComponent
     * A field name
     * --&gt;
     * &lt;!ELEMENT FieldName (#PCDATA)&gt;
-    * </pre></p>
-    * @param src xml source element, cannot be <code>null</code>.
+    * </pre>
+    * @param src xml source element, cannot be null.
     */
    public void fromXml(Element src)
       throws PSWebdavException, PSUnknownNodeTypeException

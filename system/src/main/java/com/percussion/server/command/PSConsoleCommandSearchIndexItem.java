@@ -52,7 +52,7 @@ public class PSConsoleCommandSearchIndexItem extends PSConsoleCommand {
   /**
    * Ctor required by framework.
    *
-   * @param args See class description for reqs.
+   * @param cmdArgs See class description for reqs.
    * @throws PSIllegalArgumentException If a numeric arg is not supplied.
    *     <p>Note: we use PSIllegal... here because that's what the framework uses.
    */

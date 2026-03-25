@@ -87,6 +87,7 @@ public class PSCataloger {
    * requires properties. The validation for required properties is done by server.
    *
    * <table border=1>
+   * <caption>Request Types and Properties</caption>
    * <tr>
    * <th>Request Type</th><th>Require Properties?</th><th>Property Names</th>
    * </tr>
@@ -108,10 +109,11 @@ public class PSCataloger {
    * The following table represents the result structure for each request.
    *
    * <table border=1>
+   * <caption>Result Structure</caption>
    * <tr>
    * <th>Request Type</th><th>ID</th><th>DisplayText</th><th>hasColumns?</th>
    * </tr>
-   * <tr><td>Archives</td><td>archiveLogID</td><td>archive Name</td>Yes</tr>
+   * <tr><td>Archives</td><td>archiveLogID</td><td>archive Name</td><td>Yes</td></tr>
    * <tr><td>DBMSDrivers</td><td>driver name</td><td>driver name</td><td>No
    * </td></tr>
    * <tr><td>CustomElementTypes</td><td>element type</td><td>element type name

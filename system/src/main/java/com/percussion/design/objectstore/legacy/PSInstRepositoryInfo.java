@@ -29,7 +29,8 @@ public class PSInstRepositoryInfo implements IPSRepositoryInfo {
    * Construct the repository information
    *
    * @param rxRoot the rhythmyx root installation directory, never <code>null</code>
-   * @throws IOException, FileNotFoundException if an error occurs loading properties
+   * @throws IOException if an error occurs loading properties
+   * @throws FileNotFoundException if the properties file cannot be found
    */
   public PSInstRepositoryInfo(String rxRoot) throws IOException, FileNotFoundException {
     if (rxRoot == null) throw new IllegalArgumentException("rxRoot may not be null");

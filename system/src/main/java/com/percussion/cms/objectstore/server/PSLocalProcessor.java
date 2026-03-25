@@ -61,12 +61,9 @@ public class PSLocalProcessor extends PSProcessorCommon {
   /**
    * Creates a processor that can fulfill database operation requests locally on the Rhythmyx server
    * for the duration of a single request. Implementors should not instantiate this class directly
-   * but should use the {@link com.percussion.cms.objectstore.PSProcessorProxy PSProcessorProxy}
-   * class.
+   * but should use the PSProcessorProxy class.
    *
-   * <p>See {@link PSServerProcessor#PSServerProcessor(Map) base class} for further details.
-   *
-   * @param req Never <code>null</code>. All work is performed as the user authenticated in req.
+   * @param req Never null. All work is performed as the user authenticated in req.
    */
   public PSLocalProcessor(PSRequest req, Map procConfig) {
     super(procConfig);
@@ -78,12 +75,9 @@ public class PSLocalProcessor extends PSProcessorCommon {
   /**
    * Creates a processor that can fulfill database operation requests locally on the Rhythmyx server
    * for the duration of a single request. Implementors should not instantiate this class directly
-   * but should use the {@link com.percussion.cms.objectstore.PSProcessorProxy PSProcessorProxy}
-   * class.
+   * but should use the PSProcessorProxy class.
    *
-   * <p>See {@link PSServerProcessor#PSServerProcessor(Map) base class} for further details.
-   *
-   * @param ctx Never <code>null</code>. All work is performed as the user authenticated in ctx.
+   * @param ctx Never null. All work is performed as the user authenticated in ctx.
    */
   public PSLocalProcessor(IPSRequestContext ctx, Map procConfig) {
     super(procConfig);
@@ -96,10 +90,13 @@ public class PSLocalProcessor extends PSProcessorCommon {
 
   /**
    * See base class for details.
-   * <li>For each entry in ids, create N html parameters whose name is the name of the entry key.
-   *     The value of each instance should be the value of one of the entries in the associated
-   *     collection.
-   * <li>Generate an internal request to the resource specified in loadResource.
+   *
+   * <ul>
+   *   <li>For each entry in ids, create N html parameters whose name is the name of the entry key.
+   *       The value of each instance should be the value of one of the entries in the associated
+   *       collection.
+   *   <li>Generate an internal request to the resource specified in loadResource.
+   * </ul>
    */
   protected Document doLoad(String resourceName, Map ids) throws PSCmsException {
     if (resourceName == null || resourceName.trim().length() < 1)

@@ -54,6 +54,7 @@ public class PSSmtpMailProvider extends PSMailProvider {
    * <p>The following properties must be specified:
    *
    * <TABLE BORDER="1">
+   * <caption>Required Properties</caption>
    *      <TR><TH>Key</TH><TH>Description</TH></TR>
    *      <TR>
    *         <TD>PSSmtpMailProvider.PROPERTY_HOST</TD>
@@ -88,6 +89,7 @@ public class PSSmtpMailProvider extends PSMailProvider {
    * <p>The following properties must be specified:
    *
    * <TABLE BORDER="1">
+   * <caption>Required Properties</caption>
    *      <TR><TH>Key</TH><TH>Description</TH></TR>
    *      <TR>
    *         <TD>PSSmtpMailProvider.PROPERTY_HOST</TD>

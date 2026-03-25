@@ -36,31 +36,14 @@ import java.util.Map;
  *
  * <p>Expects the following parameters:
  *
- * <table border="1" cellspacing="0" cellpadding="5">
- * <thead>
- * <th>Name</th><th>Allowed Values</th><th>Details</th>
- * </thead>
- * <tbody>
- * <tr>
- * <td>{@link #OWNER_ID}</td><td>The owner id</td><td>Required</td>
- * </tr>
- * <tr>
- * <td>{@link #DEPENDENT_ID}</td><td>The dependent id</td><td>Required</td>
- * </tr>
- * <tr>
- * <td>{@link #SLOT_ID}</td><td>The slot id</td><td>Required</td>
- * </tr>
- * <tr>
- * <td>{@link #TEMPLATE_ID}</td><td>The template id</td><td>Required</td>
- * </tr>
- * <tr>
- * <td>{@link #FOLDER_ID}</td><td>The folder id</td><td>Optional</td>
- * </tr>
- * <tr>
- * <td>{@link #SITE_ID}</td><td>The site id</td><td>Optional</td>
- * </tr>
- * </tbody>
- * </table>
+ * <ul>
+ *   <li>OWNER_ID - The owner id (Required)
+ *   <li>DEPENDENT_ID - The dependent id (Required)
+ *   <li>SLOT_ID - The slot id (Required)
+ *   <li>TEMPLATE_ID - The template id (Required)
+ *   <li>FOLDER_ID - The folder id (Optional)
+ *   <li>SITE_ID - The site id (Optional)
+ * </ul>
  */
 public class PSAddSnippetAction extends PSAAActionBase {
 

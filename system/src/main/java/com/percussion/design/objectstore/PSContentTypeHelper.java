@@ -495,7 +495,7 @@ public class PSContentTypeHelper {
    *
    * @param nodeDef The node def for which the workflows need to be merged. Must not be <code>null
    *     </code>.
-   * @param newWs set of string workflow ids never <code>null</code>, may be empty
+   * @param newWfs set of string workflow ids never <code>null</code>, may be empty
    */
   public static void mergeWorkflowIds(PSNodeDefinition nodeDef, Set<IPSGuid> newWfs) {
     if (nodeDef == null) throw new IllegalArgumentException("nodeDef must not be null");

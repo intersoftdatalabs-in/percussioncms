@@ -60,7 +60,7 @@ public abstract class PSModifyPlanBuilder {
    *     not be <code>null</code>.
    * @param ce The content editor dataset. May not be <code>null</code>.
    * @param app The application that all dataset created are added to. May not be <code>null</code>.
-   * @throws IllegalArgumentExcpetion if ceh or app are <code>null</code>.
+   * @throws IllegalArgumentException if ceh, ce, or app are <code>null</code>.
    */
   public PSModifyPlanBuilder(PSContentEditorHandler ceh, PSContentEditor ce, PSApplication app) {
     if (ceh == null || ce == null || app == null)

@@ -130,7 +130,7 @@ public class PSPkgConfigFileEmptyCondition extends PSAction implements Condition
    *
    * @param relativeFilePath the relative path of the xml file from the installation directory,
    *     never <code>null</code> or empty
-   * @throw IllegalArgumentException if relativeFilePath is <code>null</code> or empty
+   * @throws IllegalArgumentException if relativeFilePath is <code>null</code> or empty
    */
   public void setRelativeFilePath(String relativeFilePath) {
     if ((relativeFilePath == null) || (relativeFilePath.trim().length() == 0))

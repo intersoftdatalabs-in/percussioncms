@@ -108,7 +108,7 @@ public class PSContentEditorDefinitionConverter extends PSConverter
    /**
     * Returns the shared definition, this method will be overridden in
     * the workbench so it can return a <code>PSUiContentEditorSharedDef</code>. 
-    * @param doc cannot be <code>null<code>.
+    * @param doc cannot be <code>null</code>.
     * @return the CE shared def object, never <code>null</code>
     * @throws PSUnknownNodeTypeException 
     * @throws PSUnknownDocTypeException 

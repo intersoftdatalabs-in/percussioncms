@@ -190,10 +190,10 @@ public class PSSearchIndexQueue implements IPSSearchIndexQueue {
   }
 
   /**
-   * This method is used by the public method to delete items in checks. This
-   * is because oracle cannot handle more then 1000 items at a time
+   * This method is used by the public method to delete items in checks. This is because oracle
+   * cannot handle more then 1000 items at a time
    *
-   * @param queueIds - Ids of items to delete Assumed not <code>null</null>
+   * @param queueIds - Ids of items to delete Assumed not <code>null</code>
    * @throws DataAccessResourceFailureException
    * @throws IllegalStateException
    * @throws HibernateException

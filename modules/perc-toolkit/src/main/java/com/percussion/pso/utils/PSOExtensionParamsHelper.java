@@ -21,7 +21,6 @@ import static org.apache.commons.lang3.StringUtils.isBlank;
 import com.percussion.design.objectstore.IPSReplacementValue;
 import com.percussion.extension.IPSExtensionDef;
 import com.percussion.server.IPSRequestContext;
-import com.percussion.services.assembly.IPSSlotContentFinder;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -96,11 +95,9 @@ public class PSOExtensionParamsHelper {
   /**
    * Use this constructor to help with slot finders.
    *
-   * @see IPSSlotContentFinder#find(com.percussion.services.assembly.IPSAssemblyItem,
-   *     com.percussion.services.assembly.IPSTemplateSlot, Map)
    * @param args slot finders args from slotfinder.getFinderArguments()
    * @param selectors The selectors that are passed with the find method.
-   * @param log
+   * @param log the logger
    */
   public PSOExtensionParamsHelper(Map<String, ?> args, Map<String, Object> selectors, Logger log) {
 

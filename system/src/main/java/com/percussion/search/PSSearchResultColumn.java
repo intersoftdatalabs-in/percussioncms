@@ -17,12 +17,10 @@
 
 package com.percussion.search;
 
-import com.percussion.design.objectstore.IPSDocument;
 import com.percussion.design.objectstore.IPSObjectStoreErrors;
 import com.percussion.design.objectstore.PSUnknownNodeTypeException;
 import com.percussion.util.PSXMLDomUtil;
 import com.percussion.xml.PSXmlTreeWalker;
-import java.util.ArrayList;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -57,7 +55,7 @@ public class PSSearchResultColumn {
    *
    * @param sourceNode source node for the search result column, must not be <code>null</code>.
    * @throws PSUnknownNodeTypeException if the DTD source element does not match with the expected.
-   * @see #fromXml(Element, IPSDocument, ArrayList)
+   * @see #fromXml(Element)
    */
   public PSSearchResultColumn(Element sourceNode) throws PSUnknownNodeTypeException {
     fromXml(sourceNode);

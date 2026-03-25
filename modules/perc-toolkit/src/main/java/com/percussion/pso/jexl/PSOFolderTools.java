@@ -93,10 +93,9 @@ public class PSOFolderTools extends PSJexlUtilBase implements IPSJexlExpression 
    *
    * @param itemId the GUID for the item
    * @return the parent folder path. If there are multiple paths, the first one will be returned.
-   *     Will be <code>null</code> if the item is not in any folders.
-   * @throws PSErrorException
-   * @throws PSExtensionProcessingException
-   * @throws PSCmsException
+   *     Will be null if the item is not in any folders.
+   * @throws PSErrorException if an error occurs
+   * @throws PSCmsException if a CMS error occurs
    */
   @IPSJexlMethod(
       description = "get the folder path for this item",

@@ -49,7 +49,7 @@ public class PSStandAloneFlag extends PSAction {
   /**
    * The standalone property setter.
    *
-   * @param <code>true</code> if this is a standalone install, <code>false</code> otherwise.
+   * @param flag <code>true</code> if this is a standalone install, <code>false</code> otherwise.
    */
   public void setStandalone(boolean flag) {
     m_bStandalone = flag;
@@ -74,8 +74,8 @@ public class PSStandAloneFlag extends PSAction {
   /**
    * Sets the type of Rx installation to standalone install.
    *
-   * @param type of installation, if <code>true</code> then the install is not a multi suite, but
-   *     rather a standalone such as DevToolsSetup.exe
+   * @param isStandalone of installation, if <code>true</code> then the install is not a multi
+   *     suite, but rather a standalone such as DevToolsSetup.exe
    */
   public static void updateStandalone(boolean isStandalone) {
     m_bStandalone = isStandalone;

@@ -32,7 +32,7 @@ import org.w3c.dom.Element;
 public class PSServletException extends PSStandaloneException
 {
    /**
-    * @see {@link com.percussion.error.PSStandaloneException(int, Object)
+    * @see com.percussion.error.PSStandaloneException#PSStandaloneException(int, Object)
     */
    public PSServletException(int msgCode, Object singleArg)
    {
@@ -40,7 +40,7 @@ public class PSServletException extends PSStandaloneException
    }
 
    /**
-    * @see {@link com.percussion.error.PSStandaloneException(int, Object[])
+    * @see com.percussion.error.PSStandaloneException#PSStandaloneException(int, Object[])
     */
    public PSServletException(int msgCode, Object[] arrayArgs)
    {
@@ -48,7 +48,7 @@ public class PSServletException extends PSStandaloneException
    }
 
    /**
-    * @see {@link com.percussion.error.PSStandaloneException(int)
+    * @see com.percussion.error.PSStandaloneException#PSStandaloneException(int)
     */
    public PSServletException(int msgCode)
    {
@@ -56,7 +56,7 @@ public class PSServletException extends PSStandaloneException
    }
 
    /**
-    * @see {@link com.percussion.error.PSStandaloneException(PSException)
+    * @see com.percussion.error.PSStandaloneException#PSStandaloneException(PSException)
     */
    public PSServletException(PSException ex)
    {
@@ -64,8 +64,7 @@ public class PSServletException extends PSStandaloneException
    }
 
    /**
-    * @see
-    * {@link com.percussion.error.PSStandaloneException(PSStandaloneException)
+    * @see com.percussion.error.PSStandaloneException#PSStandaloneException(PSStandaloneException)
     */
    public PSServletException(PSStandaloneException ex)
    {
@@ -73,7 +72,7 @@ public class PSServletException extends PSStandaloneException
    }
 
    /**
-    * @see {@link com.percussion.error.PSStandaloneException(Element)
+    * @see com.percussion.error.PSStandaloneException#PSStandaloneException(Element)
     */
    public PSServletException(Element source) throws PSUnknownNodeTypeException
    {
@@ -81,7 +80,7 @@ public class PSServletException extends PSStandaloneException
    }
 
    /**
-    * @see {@link com.percussion.error.getResourceBundleBaseName()
+    * @see com.percussion.error.PSStandaloneException#getResourceBundleBaseName()
     */
    protected String getResourceBundleBaseName()
    {
@@ -89,7 +88,7 @@ public class PSServletException extends PSStandaloneException
    }
 
    /**
-    * @see {@link com.percussion.error.getXmlNodeName()
+    * @see com.percussion.error.PSStandaloneException#getXmlNodeName()
     */
    protected String getXmlNodeName()
    {

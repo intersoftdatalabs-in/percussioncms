@@ -999,7 +999,7 @@ public class PSResultSet implements ResultSet {
    * fetch size may be changed at any time.
    *
    * @param rows the number of rows to fetch
-   * @exception SQLException if a database access error occurs or the condition 0 <= rows <=
+   * @exception SQLException if a database access error occurs or the condition 0 &lt;= rows &lt;=
    *     this.getMaxRows() is not satisfied.
    */
   public void setFetchSize(int rows) throws SQLException {
@@ -1054,7 +1054,7 @@ public class PSResultSet implements ResultSet {
    * JDBC 2.0 Indicates whether the current row has had an insertion. The value returned depends on
    * whether or not the result set can detect visible inserts.
    *
-   * @retrn <code>true</code> if a row has had an insertion and insertions are detected
+   * @return <code>true</code> if a row has had an insertion and insertions are detected
    * @exception SQLException if a database-access error occurs
    */
   public boolean rowInserted() throws SQLException {
@@ -1743,7 +1743,7 @@ public class PSResultSet implements ResultSet {
   }
 
   /**
-   * JDBC 2.0 Gets a REF(<structured-type>) column value from the current row.
+   * JDBC 2.0 Gets a REF(&lt;structured-type&gt;) column value from the current row.
    *
    * @param i the first column is 1, the second is 2, ...
    * @return a Ref object representing an SQL REF value
@@ -1804,7 +1804,7 @@ public class PSResultSet implements ResultSet {
   }
 
   /**
-   * JDBC 2.0 Gets a REF(<structured-type>) column value from the current row.
+   * JDBC 2.0 Gets a REF(&lt;structured-type&gt;) column value from the current row.
    *
    * @param colName the column name
    * @return a Ref object representing the SQL REF value in the specified column

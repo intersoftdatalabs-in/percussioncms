@@ -125,7 +125,6 @@ public abstract class PSContentFactory {
    * @param in The stream to be buffered. Must not be <CODE>null</CODE>.
    * @return A buffered stream, possibly the original stream that was passed in. Never <CODE>null
    *     </CODE>.
-   * @throws IOException If an error occurred related to the content stream.
    */
   @SuppressWarnings("deprecation")
   public static InputStream bufferStream(InputStream in) {
@@ -308,7 +307,6 @@ public abstract class PSContentFactory {
    *     </CODE>.
    * @throws IOException If the content transfer encoding specified in the MIME content is not
    *     supported.
-   * @todo Implement at least base64 decoding using filter streams
    */
   public static InputStream getDecodedInput(IPSMimeContent mime) throws IOException {
     if (mime == null) throw new IllegalArgumentException("mime cannot be null");
@@ -685,7 +683,7 @@ public abstract class PSContentFactory {
    * @param in The input stream from which all bytes will be read. Must not be <CODE>null</CODE>.
    * @param out The output stream to which all bytes will be written. Must not be <CODE>null</CODE>.
    * @param bufSize The read/write increment buffer size to use. Must be greater than 0.
-   * @return long The number of bytes written. Never < 0.
+   * @return The number of bytes written. Never less than 0.
    * @throws IOException If an IO error occurred.
    */
   public static long copyStream(InputStream in, OutputStream out, int bufSize) throws IOException {

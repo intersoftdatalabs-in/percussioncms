@@ -80,8 +80,8 @@ public class PSRelationshipSlotFinder extends PSSlotContentFinderBase
    }
 
    /**
-    * @see PSRelationshipFinderUtils#getContentItems(IPSAssemblyItem, long, Map)
-    */   
+    * @see PSRelationshipFinderUtils
+    */
    @Override
    protected Set<ContentItem> getContentItems(IPSAssemblyItem sourceItem,
          IPSTemplateSlot slot, Map<String, Object> params)

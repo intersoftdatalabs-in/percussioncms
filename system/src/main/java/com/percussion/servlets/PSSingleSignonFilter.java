@@ -46,9 +46,9 @@ import org.apache.logging.log4j.Logger;
  */
 public class PSSingleSignonFilter implements Filter {
   /**
-   * Finds the pssessionid cookie from the cookies and calls the {@link
-   * #validateSession(String)}method to validate the session, if not validated redirects to
-   * percussion cm server login page by passing in the requested url as sys_redirect parameter.
+   * Finds the pssessionid cookie from the cookies and calls the {@link #validateSession(String,
+   * String)} method to validate the session, if not validated redirects to percussion cm server
+   * login page by passing in the requested url as sys_redirect parameter.
    */
   public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
       throws IOException, ServletException {

@@ -123,23 +123,17 @@ public class PSDbComponentList extends PSDbComponent {
   }
 
   /**
-   * Creates a instance from the supplied array of Elements each
-   * of which represents one Item of this List.
-   * This is a convenience method which is helpful because processor
-   * proxies are normally returning an array of items rather than
-   * a root element.
+   * Creates a instance from the supplied array of Elements each of which represents one Item of
+   * this List. This is a convenience method which is helpful because processor proxies are normally
+   * returning an array of items rather than a root element.
    *
-   * @param items A valid array of elements that meet the dtd defined
-   *    by the supplied compClass, never <code>null</code>.
-   *
-   * @param compClass The component class, if <code>null</code>, the name
-   *    is calculated by taking the base class name and replacing the
-   *    leading PS with PSX. If there is no leading PS, the base class name
-   *    is used. Each component added to this collection must match this
-   *    name.
-   *
-   * @throws PSUnknownNodeTypeException If the supplied source element does
-   *    not conform to the dtd defined in the <code>fromXml<code> method.
+   * @param items A valid array of elements that meet the dtd defined by the supplied compClass,
+   *     never <code>null</code>.
+   * @param compClass The component class, if <code>null</code>, the name is calculated by taking
+   *     the base class name and replacing the leading PS with PSX. If there is no leading PS, the
+   *     base class name is used. Each component added to this collection must match this name.
+   * @throws PSUnknownNodeTypeException If the supplied source element does not conform to the dtd
+   *     defined in the <code>fromXml</code> method.
    */
   public PSDbComponentList(Element[] items, Class<? extends IPSDbComponent> compClass)
       throws PSUnknownNodeTypeException {
@@ -147,29 +141,21 @@ public class PSDbComponentList extends PSDbComponent {
   }
 
   /**
-   * Creates a instance from the supplied array of Elements each
-   * of which represents one Item of this List.
-   * This is a convenience method which is helpful because processor
-   * proxies are normally returning an array of items rather than
-   * a root element.
+   * Creates a instance from the supplied array of Elements each of which represents one Item of
+   * this List. This is a convenience method which is helpful because processor proxies are normally
+   * returning an array of items rather than a root element.
    *
-   * @param items A valid array of elements that meet the dtd defined
-   *    by the supplied compClass, never <code>null</code>.
-   *
-   * @param compClass The component class, if <code>null</code>, the name
-   *    is calculated by taking the base class name and replacing the
-   *    leading PS with PSX. If there is no leading PS, the base class name
-   *    is used. Each component added to this collection must match this
-   *    name.
-   *
-   * @param compType The value returned by the {@link
-   * IPSDbComponent#getComponentType() getComponentType} method of the
-   * components being stored in this collection. If the default is being
-   * used, you can use the 1 param ctor instead of this one. Never
-   * <code>null</code> or empty.
-   *
-   * @throws PSUnknownNodeTypeException If the supplied source element does
-   *    not conform to the dtd defined in the <code>fromXml<code> method.
+   * @param items A valid array of elements that meet the dtd defined by the supplied compClass,
+   *     never <code>null</code>.
+   * @param compClass The component class, if <code>null</code>, the name is calculated by taking
+   *     the base class name and replacing the leading PS with PSX. If there is no leading PS, the
+   *     base class name is used. Each component added to this collection must match this name.
+   * @param compType The value returned by the {@link IPSDbComponent#getComponentType()
+   *     getComponentType} method of the components being stored in this collection. If the default
+   *     is being used, you can use the 1 param ctor instead of this one. Never <code>null</code> or
+   *     empty.
+   * @throws PSUnknownNodeTypeException If the supplied source element does not conform to the dtd
+   *     defined in the <code>fromXml</code> method.
    */
   public PSDbComponentList(
       Element[] items, Class<? extends IPSDbComponent> compClass, String compType)
@@ -594,7 +580,7 @@ public class PSDbComponentList extends PSDbComponent {
    * Replaces the component at the specified index w/ the supplied one. The component being replaced
    * is added to the delete list.
    *
-   * @param index A value >= 0 and < size().
+   * @param index A value &gt;= 0 and &lt; size().
    * @param comp Never <code>null</code>. Must be of the type for which this list was created.
    */
   public void set(int index, IPSDbComponent comp) {
@@ -627,8 +613,8 @@ public class PSDbComponentList extends PSDbComponent {
    * be removed from this list when the setPersisted method is called. This is equivalent to adding
    * an unmarked component, then removing it.
    *
-   * @param index A value >= 0, <= size(). If size() is supplied, the component is appended to the
-   *     list.
+   * @param index A value &gt;= 0, &lt;= size(). If size() is supplied, the component is appended to
+   *     the list.
    * @param comp The datatype must be the same as the type of this list and it must implement
    *     IPSSequencedComponent or a ClassCastException will be thrown.
    * @throws ClassCastException if the supplied component doesn't have the same type as the type
@@ -656,9 +642,9 @@ public class PSDbComponentList extends PSDbComponent {
   /**
    * Moves an item in the list from an index position to an index position.
    *
-   * @param fromIndex A value >= 0, < size().
-   * @param toIndex A value >= 0, <= size(). If size() is supplied, the component is moved to the
-   *     list.
+   * @param fromIndex A value &gt;= 0, &lt; size().
+   * @param toIndex A value &gt;= 0, &lt;= size(). If size() is supplied, the component is moved to
+   *     the list.
    * @throws IndexOutOfBoundsException If the index is not in the proper range.
    */
   public void move(int fromIndex, int toIndex) {

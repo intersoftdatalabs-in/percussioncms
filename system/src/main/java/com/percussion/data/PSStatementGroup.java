@@ -167,7 +167,7 @@ public class PSStatementGroup implements IPSStatementBlock {
    * @param stmt the prepared statement
    * @param bindStart the starting position (1-based) to bind columns to
    * @return the next bind position (1-based)
-   * @exception SQLException if a SQL error occurs
+   * @throws java.sql.SQLException if a SQL error occurs
    */
   public int setColumnData(PSExecutionData data, PreparedStatement stmt, int bindStart)
       throws java.sql.SQLException, com.percussion.data.PSDataExtractionException {

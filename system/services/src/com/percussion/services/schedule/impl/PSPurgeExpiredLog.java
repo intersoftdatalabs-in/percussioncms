@@ -46,56 +46,59 @@ public abstract class PSPurgeExpiredLog implements IPSTask
     * Invokes the process of purging expired log entries. The returned task
     * result will contain the following variables, which can be used in
     * notification template. Note, the derived class may have additional 
-    * parameters: <TABLEBORDER="1">
-    * <TR>
-    * <TH>Variable Name</TH>
-    * <TH>Description</TH>
-    * </TR>
-    * <TR>
-    * <TD>$numberOfDays</TD>
-    * <TD>The number of days of the expired (or to be purged) log entries.
-    * Default to 30 days if not specified.</TD>
-    * </TR>
-    * <TR>
-    * <TD>$sys.executionDatetime</TD>
-    * <TD>The starting date and time of the execution.</TD>
-    * </TR>
-    * <TR>
-    * <TD>$sys.executionElapsedTime</TD>
-    * <TD>The duration of the execution.</TD>
-    * </TR>
-    * </TABLE>
-    * <p>
-    * The following context variables will be added by the framework: <TABLE
-    * BORDER="1">
-    * <TR>
-    * <TH>Variable Name</TH>
-    * <TH>Description</TH>
-    * </TR>
-    * <TR>
-    * <TD>$sys.taskName</TD>
-    * <TD>The name of the scheduled task.</TD>
-    * </TR>
-    * <TR>
-    * <TD>$sys.completed</TD>
-    * <TD>It is true if the command executed successfully; otherwise false.</TD>
-    * </TR>
-    * <TR>
-    * <TD>$sys.problemDesc</TD>
-    * <TD>The problem description in case of execution failure.</TD>
-    * </TR>
-    * <TR>
-    * <TD>$tools.*</TD>
-    * <TD>The problem description in case of execution failure.</TD>
-    * </TR>
-    * </TABLE>
+    * parameters:
+    * <table border="1">
+    * <caption>Task Parameters</caption>
+    * <tr>
+    * <th>Variable Name</th>
+    * <th>Description</th>
+    * </tr>
+    * <tr>
+    * <td>$numberOfDays</td>
+    * <td>The number of days of the expired (or to be purged) log entries.
+    * Default to 30 days if not specified.</td>
+    * </tr>
+    * <tr>
+    * <td>$sys.executionDatetime</td>
+    * <td>The starting date and time of the execution.</td>
+    * </tr>
+    * <tr>
+    * <td>$sys.executionElapsedTime</td>
+    * <td>The duration of the execution.</td>
+    * </tr>
+    * </table>
+    *
+    * The following context variables will be added by the framework:
+    * <table border="1">
+    * <caption>Context Variables</caption>
+    * <tr>
+    * <th>Variable Name</th>
+    * <th>Description</th>
+    * </tr>
+    * <tr>
+    * <td>$sys.taskName</td>
+    * <td>The name of the scheduled task.</td>
+    * </tr>
+    * <tr>
+    * <td>$sys.completed</td>
+    * <td>It is true if the command executed successfully; otherwise false.</td>
+    * </tr>
+    * <tr>
+    * <td>$sys.problemDesc</td>
+    * <td>The problem description in case of execution failure.</td>
+    * </tr>
+    * <tr>
+    * <td>$tools.*</td>
+    * <td>The problem description in case of execution failure.</td>
+    * </tr>
+    * </table>
     * 
-    * @param parameters It must contains a <code>command</code> parameter with
-    * the native command and its associated arguments, never <code>null</code>
+    * @param parameters It must contains a command parameter with
+    * the native command and its associated arguments, never null
     * or empty.
     * 
-    * @return the {@link IPSTaskResult#getNotificationVariables()} contains all
-    * input parameters, never <code>null</code>.
+    * @return the getNotificationVariables returns all
+    * input parameters, never null.
     */
    public IPSTaskResult perform(Map<String,String> parameters)
    {

@@ -109,20 +109,21 @@ public class PSWSExecutableSearch extends PSBaseExecutableSearch {
     super.init(columnNames, search, contentIdList);
   }
 
-  /**
-   * Executes the search based on the criteria specified in this object.
-   *
-   * @param extraParams Params to add to the search request, may be
-   *           <code>null</code>. Key is the param name as a
-   *           <code>String</code>, value is the value of the param also as
-   *           a <code>String</code>.
-   *
-   * @return the search document conforming to the sys_SearchParameters.xsd,
-   *         never <code>null</code>
-   *
-   * @throws PSCmsException if an error happens executing search.
-   */
-  protected Document getSearchResults(Document searchDoc, Map params)
+   /**
+    * Executes the search based on the criteria specified in this object.
+    *
+    * @param params Params to add to the search request, may be
+    *           <code>null</code>. Key is the param name as a
+    *           <code>String</code>, value is the value of the param also as
+    *           a <code>String</code>.
+    *
+    * @return the search document conforming to the sys_SearchParameters.xsd,
+    *         never <code>null</code>
+    *
+    * @throws IOException if an I/O error occurs
+    * @throws SAXException if parsing fails
+    */
+   protected Document getSearchResults(Document searchDoc, Map params)
       throws IOException, SAXException {
     Document doc;
     params.put("inputDocument", PSXmlDocumentBuilder.toString(searchDoc));

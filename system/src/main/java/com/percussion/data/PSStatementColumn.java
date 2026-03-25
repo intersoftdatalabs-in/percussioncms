@@ -63,7 +63,7 @@ public class PSStatementColumn {
    * position for its column. This allows the setData method to be called with the data for this
    * column, without regard for where it is going.
    *
-   * @param xmlField the XML field containing the data for this column
+   * @param value the XML field containing the data for this column
    * @param type the java.sql.Type data type to use when setting column data
    * @param col the backend column object
    */
@@ -76,7 +76,7 @@ public class PSStatementColumn {
    * position for its column. This allows the setData method to be called with the data for this
    * column, without regard for where it is going.
    *
-   * @param xmlField the XML field containing the data for this column
+   * @param value the XML field containing the data for this column
    * @param type the java.sql.Type data type to use when setting column data
    * @param col the backend column object
    * @param lci The lob column initializer to use when supplying placeholders for lob columns, can

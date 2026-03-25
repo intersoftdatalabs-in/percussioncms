@@ -231,8 +231,6 @@ public class PSRelationshipConfigModel extends PSDesignModel
     *  
     * @param configSet the to be saved relationship config set, may not be 
     *    <code>null</code>.
-    * @param errorCode the error code should an error occurs while saving
-    *    the relationship configs.
     * 
     * @throws PSErrorException
     * @throws PSException 

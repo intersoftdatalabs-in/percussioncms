@@ -42,7 +42,6 @@ import java.util.Date;
  *
  * <p>The return value is the formatted date string. Never <code>null</code>.
  *
- * @throws PSSimpleJavaUdfExtension
  * @see com.percussion.i18n.PSI18nUtils#formatDate
  * @see com.percussion.i18n.PSI18nUtils#getLocaleFromString
  * @see java.util.Date

@@ -92,36 +92,28 @@ public class PSCacheUtils extends PSJexlUtilBase {
 	}
 	
 	/**
-	 * The maximum number of seconds an element can exist in the cache regardless of use. 
-	 * The element expires at this limit and will no longer be returned from the cache. 
-	 * The default value is 0, which means no TTL eviction takes place (infinite lifetime).
-	 * 
-	 * @param key
-	 * @param region the cache region name
-	 * @param timeToLiveSeconds
-	 */
-	@IPSJexlMethod(description = "set the time for expiration by setting the time to live for the cache entry", params =
-		   {@IPSJexlParam(name = "key", description = "the key for which the value should be flushed"),
-			@IPSJexlParam(name = "cacheName", description = "the name of the cache from where the cache object needs to be cleared"),
-			@IPSJexlParam(name = "timeToLiveSeconds", description = "the maximum number of seconds an element can exist in the cache regardless of use")})
-	public void setTimeToLive(String key, String cacheName, int timeToLiveSeconds) {
-		getCache().setTimeToLive(key, cacheName, timeToLiveSeconds);
-	}
-	
-	/**
-	 * The maximum number of seconds an element can exist in the cache without being accessed. 
-	 * The element expires at this limit and will no longer be returned from the cache. 
-	 * The default value is 0, which means no TTI eviction takes place (infinite lifetime).
-	 * 
-	 * @param key
-	 * @param region the cache region name
-	 * @param timeToIdleSeconds
-	 */
-	@IPSJexlMethod(description = "set the time for expiration by setting the time to live for the cache entry", params =
-		   {@IPSJexlParam(name = "key", description = "the key for which the value should be flushed"),
-			@IPSJexlParam(name = "cacheName", description = "the name of the cache from where the cache object needs to be cleared"),
-			@IPSJexlParam(name = "timeToIdleSeconds", description = "maximum number of seconds an element can exist in the cache without being accessed")})
-	public void setTimeToIdle(String key, String cacheName, int timeToIdleSeconds) {
+ 	 * The maximum number of seconds an element can exist in the cache regardless of use. 
+ 	 * The element expires at this limit and will no longer be returned from the cache. 
+ 	 * The default value is 0, which means no TTL eviction takes place (infinite lifetime).
+ 	 */
+ 	@IPSJexlMethod(description = "set the time for expiration by setting the time to live for the cache entry", params =
+ 		   {@IPSJexlParam(name = "key", description = "the key for which the value should be flushed"),
+ 			@IPSJexlParam(name = "cacheName", description = "the name of the cache from where the cache object needs to be cleared"),
+ 			@IPSJexlParam(name = "timeToLiveSeconds", description = "the maximum number of seconds an element can exist in the cache regardless of use")})
+ 	public void setTimeToLive(String key, String cacheName, int timeToLiveSeconds) {
+ 		getCache().setTimeToLive(key, cacheName, timeToLiveSeconds);
+ 	}
+ 	
+ 	/**
+ 	 * The maximum number of seconds an element can exist in the cache without being accessed. 
+ 	 * The element expires at this limit and will no longer be returned from the cache. 
+ 	 * The default value is 0, which means no TTI eviction takes place (infinite lifetime).
+ 	 */
+ 	@IPSJexlMethod(description = "set the time for expiration by setting the time to live for the cache entry", params =
+ 		   {@IPSJexlParam(name = "key", description = "the key for which the value should be flushed"),
+ 			@IPSJexlParam(name = "cacheName", description = "the name of the cache from where the cache object needs to be cleared"),
+ 			@IPSJexlParam(name = "timeToIdleSeconds", description = "maximum number of seconds an element can exist in the cache without being accessed")})
+ 	public void setTimeToIdle(String key, String cacheName, int timeToIdleSeconds) {
 		getCache().setTimeToIdle(key, cacheName, timeToIdleSeconds);
 	}
 	

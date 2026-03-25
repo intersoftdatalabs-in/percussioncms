@@ -54,76 +54,77 @@ public class PSConsoleCommandParser {
    *
    * <p>Currently supported commands are:
    *
-   * <TABLE BORDER="1">
-   *      <TR>
-   *         <TH>Command</TH>
-   *         <TH>Parameters</TH>
-   *         <TH>Description</TH>
-   *      </TR>
-   *      <TR>
-   *         <TD>application appName</TD>
-   *         <TD>this will start the specified application if it is not
+   * <table border="1">
+   * <caption>Supported Commands</caption>
+   *      <tr>
+   *         <th>Command</th>
+   *         <th>Parameters</th>
+   *         <th>Description</th>
+   *      </tr>
+   *      <tr>
+   *         <td>application appName</td>
+   *         <td>this will start the specified application if it is not
    *            currently running. If the application is set as disabled, it
-   *            will be enabled.</TD>
-   *      </TR>
-   *      <TR>
-   *         <TD rowspan="2">restart</TD>
-   *         <TD>server</TD>
-   *         <TD>this will shut down the E2 server and restart it</TD>
-   *      </TR>
-   *      <TR>
-   *         <TD>restart application appName</TD>
-   *         <TD>this will stop the specified application if it is
+   *            will be enabled.</td>
+   *      </tr>
+   *      <tr>
+   *         <td rowspan="2">restart</td>
+   *         <td>server</td>
+   *         <td>this will shut down the E2 server and restart it</td>
+   *      </tr>
+   *      <tr>
+   *         <td>restart application appName</td>
+   *         <td>this will stop the specified application if it is
    *            currently running and restart it. If it is not running,
-   *            it will be started</TD>
-   *      </TR>
-   *      <TR>
-   *         <TD rowspan="2">stop</TD>
-   *         <TD>server</TD>
-   *         <TD>this will shut down the E2 server</TD>
-   *      </TR>
-   *      <TR>
-   *         <TD>stop application appName</TD>
-   *         <TD>this will stop the specified application if it is
-   *            currently running.</TD>
-   *      </TR>
-   *      <TR>
-   *         <TD rowspan="6">show</TD>
-   *         <TD>status server</TD>
-   *         <TD>general server statistics such as time running,
-   *            performance metrics, etc.</TD>
-   *      </TR>
-   *      <TR>
-   *         <TD>status application appName</TD>
-   *         <TD>application statistics such as time running,
-   *            performance metrics, etc.</TD>
-   *      </TR>
-   *      <TR>
-   *         <TD>status objectstore</TD>
-   *         <TD>object store statistics such as performance metrics, etc.</TD>
-   *      </TR>
-   *      <TR>
-   *         <TD>applications active</TD>
-   *         <TD>return the list of active applications</TD>
-   *      </TR>
-   *      <TR>
-   *         <TD>applications all</TD>
-   *         <TD>return the list of all applications defined on the server</TD>
-   *      </TR>
-   *      <TR>
-   *         <TD>applications disabled</TD>
-   *         <TD>return the list of disabled applications</TD>
-   *      </TR>
-   *      <TR>
-   *         <TD rowspan="2">log</TD>
-   *         <TD>flush</TD>
-   *         <TD>flush any queued log entries to the log</TD>
-   *      </TR>
-   *      <TR>
-   *         <TD>dump</TD>
-   *         <TD>dump the log, locating entries by date, type and/or app</TD>
-   *      </TR>
-   * </TABLE>
+   *            it will be started</td>
+   *      </tr>
+   *      <tr>
+   *         <td rowspan="2">stop</td>
+   *         <td>server</td>
+   *         <td>this will shut down the E2 server</td>
+   *      </tr>
+   *      <tr>
+   *         <td>stop application appName</td>
+   *         <td>this will stop the specified application if it is
+   *            currently running.</td>
+   *      </tr>
+   *      <tr>
+   *         <td rowspan="6">show</td>
+   *         <td>status server</td>
+   *         <td>general server statistics such as time running,
+   *            performance metrics, etc.</td>
+   *      </tr>
+   *      <tr>
+   *         <td>status application appName</td>
+   *         <td>application statistics such as time running,
+   *            performance metrics, etc.</td>
+   *      </tr>
+   *      <tr>
+   *         <td>status objectstore</td>
+   *         <td>object store statistics such as performance metrics, etc.</td>
+   *      </tr>
+   *      <tr>
+   *         <td>applications active</td>
+   *         <td>return the list of active applications</td>
+   *      </tr>
+   *      <tr>
+   *         <td>applications all</td>
+   *         <td>return the list of all applications defined on the server</td>
+   *      </tr>
+   *      <tr>
+   *         <td>applications disabled</td>
+   *         <td>return the list of disabled applications</td>
+   *      </tr>
+   *      <tr>
+   *         <td rowspan="2">log</td>
+   *         <td>flush</td>
+   *         <td>flush any queued log entries to the log</td>
+   *      </tr>
+   *      <tr>
+   *         <td>dump</td>
+   *         <td>dump the log, locating entries by date, type and/or app</td>
+   *      </tr>
+   * </table>
    *
    * @param command the command string to parse
    * @exception PSIllegalArgumentException if command is <code>null</code>, empty or specifies an

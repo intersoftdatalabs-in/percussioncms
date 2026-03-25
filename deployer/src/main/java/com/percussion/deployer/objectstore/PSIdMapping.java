@@ -88,16 +88,16 @@ public class PSIdMapping implements IPSDeployComponent {
   }
 
   /**
-   * Convenience ctor calls {@link #PSIdMapping(String, String, String, String, String, boolean)
-   * PSIdMapping(sourceId, sourceName, objectType, null, null, null, false)}
+   * Convenience ctor calls {@link #PSIdMapping(String, String, String, String, String, String,
+   * boolean) PSIdMapping(sourceId, sourceName, objectType, null, null, null, false)}
    */
   public PSIdMapping(String sourceId, String sourceName, String objectType) {
     this(sourceId, sourceName, objectType, null, null, null, false);
   }
 
   /**
-   * Convenience ctor calls {@link #PSIdMapping(String, String, String, String, String, boolean)
-   * PSIdMapping(sourceId, sourceName, objectType, null, null, null, isNewMapping)}
+   * Convenience ctor calls {@link #PSIdMapping(String, String, String, String, String, String,
+   * boolean) PSIdMapping(sourceId, sourceName, objectType, null, null, null, isNewMapping)}
    */
   public PSIdMapping(String sourceId, String sourceName, String objectType, boolean isNewMapping) {
     this(sourceId, sourceName, objectType, null, null, null, isNewMapping);
@@ -311,7 +311,7 @@ public class PSIdMapping implements IPSDeployComponent {
   }
 
   /**
-   * Serializes this object's state to its XML representation.  Format is:
+   * Serializes this object's state to its XML representation. Format is:
    *
    * <pre><code>
    *    &lt;!ELEMENT PSXIdMapping (PSXIdMappingTarget?)
@@ -329,12 +329,10 @@ public class PSIdMapping implements IPSDeployComponent {
    *       targetName CDATA #REQUIRED
    *       targetParentId CDATA #IMPLIED
    *       targetParentName CDATA #IMPLIED
-   * </code>/<pre>
+   * </code></pre>
    *
-   * NOTE: the PSXIdMappingTarget element will be ignored if
-   * <code>isNewObject</code> attribute is <code>true</code>
-   *
-   * See {@link IPSDeployComponent#toXml(Document)} for more info.
+   * NOTE: the PSXIdMappingTarget element will be ignored if <code>isNewObject</code> attribute is
+   * <code>true</code> See {@link IPSDeployComponent#toXml(Document)} for more info.
    */
   public Element toXml(Document doc) {
     if (doc == null) {
@@ -369,7 +367,7 @@ public class PSIdMapping implements IPSDeployComponent {
    * element will be ignored if <code>isNewObject</code> attribute is <code>true</code>.
    *
    * <p>See {@link #toXml(Document)} for format of XML. See {@link
-   * #IPSDeployComponent#fromXml(Element)} for more info on method signature.
+   * IPSDeployComponent#fromXml(Element)} for more info on method signature.
    */
   public void fromXml(Element sourceNode) throws PSUnknownNodeTypeException {
     if (sourceNode == null) throw new IllegalArgumentException("sourceNode may not be null");

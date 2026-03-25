@@ -41,7 +41,6 @@ public class PSTraceFileInfo extends PSTraceMessage {
    * Constructor for this class
    *
    * @param typeFlag the type of trace message this object will generate
-   * @roseuid 39FDD08D0138
    */
   public PSTraceFileInfo(int typeFlag) {
     super(typeFlag);
@@ -62,7 +61,6 @@ public class PSTraceFileInfo extends PSTraceMessage {
    *     File. Also, if getInputDocument does not return a <code>null</code>, then its a file
    *     treated as XML.
    * @return the message body
-   * @roseuid 39FEE2F2030D
    */
   protected String getMessageBody(java.lang.Object source) {
 

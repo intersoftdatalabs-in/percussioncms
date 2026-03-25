@@ -53,10 +53,6 @@ public class RxAppConverter {
    * @param props - JAVA Properties file that has all the new field values.
    * @param root - The Rhythmyx root directory name. e.g. c:/Rhythmyx
    * @param appName - The Rhythmyx application name. e.g. WFEditor in (ObjectStore/WFEditor.xml).
-   * @param bModifyCredential <code>true</code> if credentials need to be modified false otherwise.
-   * @param sPort new port number for existing workflow applications, can be <code>null</code>
-   * @throws IOException - if file is invalid or inaccessible
-   * @throws SAXException - if the application file is not parseable XML document
    */
   public static void updateRxApp(
       Properties props, String root, String appName, boolean bModifyCredential, String sPort)
@@ -105,7 +101,7 @@ public class RxAppConverter {
    *
    * @param props - JAVA Properties file that has all the new field values.
    * @param root - The Rhythmyx root directory name. e.g. c:/Rhythmyx
-   * @param appName - The Rhythmyx application name. e.g. WFEditor in (ObjectStore/WFEditor.xml).
+   * @param fileName - The Rhythmyx application name. e.g. WFEditor in (ObjectStore/WFEditor.xml).
    * @param bModifyCredential <code>true</code> if credentials need to be modified false otherwise.
    * @param sPort new port number for existing workflow applications, can be <code>null</code>
    * @param bEnable <code>true</code> if the app should be activated.

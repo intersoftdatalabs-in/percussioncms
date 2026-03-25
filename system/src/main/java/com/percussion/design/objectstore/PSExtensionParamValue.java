@@ -49,7 +49,6 @@ public class PSExtensionParamValue extends PSAbstractParamValue implements IPSPa
    * Construct a parameter value for use in a call to a UDF exit.
    *
    * @param value the value to use at run-time for the parameter, may not be <code>null</code>
-   * @see PSAbstractParamValue#setValue()
    */
   public PSExtensionParamValue(IPSReplacementValue value) {
     super(value);
@@ -77,9 +76,7 @@ public class PSExtensionParamValue extends PSAbstractParamValue implements IPSPa
     return equals;
   }
 
-  /**
-   * Generates code of the object. Overrides {@link Object#hashCode().
-   */
+  /** Generates code of the object. Overrides {@link Object#hashCode()}. */
   @Override
   public int hashCode() {
     return super.hashCode();
@@ -113,8 +110,7 @@ public class PSExtensionParamValue extends PSAbstractParamValue implements IPSPa
    *
    * See the "sys_BasicObjects.dtd" file for the DTD of the elements contained by the value element.
    *
-   * @see {@link PSAbstractParamValue#toXml(Document) toXml()} method for the description of the
-   *     parameters and returned value.
+   * @see PSAbstractParamValue#toXml(Document)
    */
   public Element toXml(Document doc) {
     return super.toXml(doc);

@@ -59,13 +59,12 @@ public class PSOracleUpdateBuilder extends PSSqlUpdateBuilder {
    *
    * @param context the builder context
    * @param table the table the statement is being built for
-   * @param datatypes the data type hash map containing the table.column to data type mapping
+   * @param dataTypes the data type hash map containing the table.column to data type mapping
    * @param columnList the columns to build into the statement
    * @param delimiter the delimiter to use, such as ", " for SET clauses or " AND " for WHERE
    *     clauses
-   * @param ignoreAutoIncrements <code>true</code> to omit columns which are auto-incremented by the
-   *     server
-   * @return <code>true</code> if at least one column was used; <code>false</code> otherwise
+   * @param ignoreAutoIncrements true to omit columns which are auto-incremented by the server
+   * @return true if at least one column was used; false otherwise
    */
   protected boolean buildColumnAndPlaceholderList(
       PSSqlBuilderContext context,
@@ -91,12 +90,12 @@ public class PSOracleUpdateBuilder extends PSSqlUpdateBuilder {
    * MS SQL identity columns) are not included in the list. This overrides PSSqlUpdateBuilder
    * functionality to allow for IPSLobColumnInitializers when Lob columns are present.
    *
-   * @param context The builder context for the specified statement, never <code>null</code>.
-   * @param table The back end table for the specified statement, never <code>null</code>.
-   * @param dataTypes The map of data types. Never <code>null</code>.
-   * @param usePlaceHolder <code>true</code> indicates this is a placeholder pass for the statement,
-   *     <code>false</code> indicates this is a column name pass.
-   * @param columns The column list to add to the specified context. Never <code>null</code>.
+   * @param context The builder context for the specified statement, never null.
+   * @param table The back end table for the specified statement, never null.
+   * @param datatypes The map of data types. Never null.
+   * @param usePlaceHolder true indicates this is a placeholder pass for the statement, false
+   *     indicates this is a column name pass.
+   * @param columns The column list to add to the specified context. Never null.
    * @throws PSIllegalArgumentException If a udf is found in the column list, a specified column is
    *     not mapped, or no columns were found.
    */
@@ -118,11 +117,11 @@ public class PSOracleUpdateBuilder extends PSSqlUpdateBuilder {
    *
    * @param context the builder context
    * @param table the table the statement is being built for
-   * @param datatypes the data type hash map containing the table.column to data type mapping
+   * @param dataTypes the data type hash map containing the table.column to data type mapping
    * @param columnList the columns to build into the statement
    * @param delimiter the delimiter to use, such as ", " for SET clauses or " AND " for WHERE
    *     clauses
-   * @return <code>true</code> if at least one column was used; <code>false</code> otherwise
+   * @return true if at least one column was used; false otherwise
    * @throws PSIllegalArgumentException If a back-end mapping is found which is not a
    *     PSBackEndColumn.
    */

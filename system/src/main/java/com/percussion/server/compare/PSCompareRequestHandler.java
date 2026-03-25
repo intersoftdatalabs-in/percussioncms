@@ -156,8 +156,6 @@ public class PSCompareRequestHandler implements IPSLoadableRequestHandler {
    * @param lang user's login locale
    * @return Comparision results as <code>String</code>. May return <code>
    *    empty</code> string but not <code>null</code>.
-   * @throws PSCompareException if error occurs in docuRun at the time of Initialization or at the
-   *     time of comparision
    */
   protected static String getComparisionResult(String newStr, String oldStr, String lang) {
     String java, classpath, libpath, configUri;

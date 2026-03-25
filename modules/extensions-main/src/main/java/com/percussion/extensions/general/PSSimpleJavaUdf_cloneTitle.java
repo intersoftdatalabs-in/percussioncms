@@ -42,35 +42,17 @@ import java.util.Iterator;
  * original item / owner, then, given java MessageFormat string with or without insertion items and
  * one or more dynamic parameters, formats the final title for a new cloned item.
  *
- * <pre>
- * <p>
- * Param1: (required) MessageFormat string, ie: [{0}]Copy $clone_count of {1}
- *    where:
- *    <p>
- *    {0} will be replaced by a replacement value supplied to this UDF
- *    in a Param2, which for example could be a sys_lang html param.
- *    <p>
- *    $clone_count is a special keyword, if present then this UDF will
- *    replace it with a number that represents a number of clones,
- *    or with an empty string if there are no clones yet (creating a first clone).
- *    <p>
- *    {1} will be replaced by a replacement value supplied to this UDF
- *    in a Param3, which for example could be a sys_title html param.
- *    <p>
- *    Finally the result for the above example could look like this:
- *    [fr-fr]Copy of myContent
- * <p>
- * Param2: (required if {0} is used) any replacement value that will be
- *    inserted into insert item {0}.
- * <p>
- * Param3: (required if {1} is used) any replacement value that will be
- *    inserted into insert item {1}.
- * <p>
- * etc.
+ * <p>pre. Param1: (required) MessageFormat string, ie: [{0}]Copy $clone_count of {1} where: {0}
+ * will be replaced by a replacement value supplied to this UDF in a Param2, which for example could
+ * be a sys_lang html param. $clone_count is a special keyword, if present then this UDF will
+ * replace it with a number that represents a number of clones, or with an empty string if there are
+ * no clones yet (creating a first clone). {1} will be replaced by a replacement value supplied to
+ * this UDF in a Param3, which for example could be a sys_title html param. Finally the result for
+ * the above example could look like this: [fr-fr]Copy of myContent Param2: (required if {0} is
+ * used) any replacement value that will be inserted into insert item {0}. Param3: (required if {1}
+ * is used) any replacement value that will be inserted into insert item {1}. etc.
  *
- * </pre>
- *
- * Note: if the number of {inserts} in the MessageFormat string does not match the number of
+ * <p>Note: if the number of {inserts} in the MessageFormat string does not match the number of
  * paremeters (after format) given to this UDF, then it will throw the PSConversionException.
  *
  * @author Vitaly.

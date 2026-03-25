@@ -291,7 +291,7 @@ public class PSState implements Serializable, IPSCatalogSummary, IPSCatalogItem
    /**
     * Set the content valid value
     *
-    * @param contentValidValue The content valid value
+    * @param contentValid The content valid value
     */
    public void setContentValidValue(String  contentValid)
    {

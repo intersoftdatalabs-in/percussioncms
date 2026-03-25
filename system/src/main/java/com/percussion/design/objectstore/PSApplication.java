@@ -682,6 +682,7 @@ public class PSApplication implements IPSDocument {
    * default values for the various actions are:
    *
    * <table border="1">
+   * <caption>Action Values</caption>
    * <tr><th>Action</th><th>Value</th></tr>
    * <tr><td>Query</td> <td>QUERY</td> </tr>
    * <tr><td>Insert</td><td>INSERT</td></tr>
@@ -693,7 +694,7 @@ public class PSApplication implements IPSDocument {
    * being used. If we have an order entry system, we may want to add, update or delete an item from
    * the order. To add a new item, the HTML request parameter string may look as follows:
    *
-   * <p><center><code>?action_type=INSERT&order_no=1&item_no=...</code></center>
+   * <p><code>?action_type=INSERT&amp;order_no=1&amp;item_no=...</code>
    *
    * @param param the name of the HTML request type parameter
    *     <p>if param exceeds 50 characters

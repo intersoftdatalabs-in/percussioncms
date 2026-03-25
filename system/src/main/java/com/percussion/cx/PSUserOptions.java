@@ -34,14 +34,14 @@ public class PSUserOptions implements IPSClientObjects {
    *
    * @param optionsElement - must not be <code>null</code>, must be defined as specified in the dtd
    *     list in the class description.
-   * @throws PSOptionException - if optionsElement has an invalid definition.
+   * @throws PSContentExplorerException - if optionsElement has an invalid definition.
    */
   public PSUserOptions(Element optionsElement) throws PSContentExplorerException {
     fromXml(optionsElement);
   }
 
   /**
-   * @see IPSClientObject *
+   * @see IPSClientObjects
    */
   public void fromXml(Element sourceNode) throws PSContentExplorerException {
     try {
@@ -100,7 +100,7 @@ public class PSUserOptions implements IPSClientObjects {
 
   /**
    * Indicates whether some other object is "equal to" this one. Overrides the method in {@link
-   * Object.equals(Object) Object} and adheres to that contract.
+   * Object#equals(Object)} and adheres to that contract.
    *
    * @param obj the reference object with which to compare.
    * @return <code>true</code> if this object is the same as the <code>obj</code> argument; <code>

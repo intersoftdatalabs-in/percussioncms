@@ -1182,7 +1182,7 @@ ps.declare(
 
     /**
      * Finds DOM element by id.
-     * Returns <code>null</null> if the element can't be found.
+     * Returns <code>null</code> if the element can't be found.
      * @param {String} id the part of id, unqualified by the tab prefix,
      * to search for. The method fully qualifies it.
      * Not <code>null</code>.
@@ -1194,7 +1194,7 @@ ps.declare(
 
     /**
      * Finds DOJO widget by id.
-     * Returns <code>null</null> if the widget can't be found.
+     * Returns <code>null</code> if the widget can't be found.
      * @param {String} id the part of id, unqualified by the tab prefix,
      * to search for. The method fully qualifies it.
      * Not <code>null</code>.

@@ -37,7 +37,7 @@ public class Slot implements Comparable<Slot> {
   /**
    * Method getItems.
    *
-   * @return List<SlotItem>
+   * @return List of SlotItem
    */
   @XmlElement(name = "Item")
   public List<SlotItem> getItems() {
@@ -47,7 +47,7 @@ public class Slot implements Comparable<Slot> {
   /**
    * Method setItems.
    *
-   * @param items List<SlotItem>
+   * @param items List of SlotItem
    */
   public void setItems(List<SlotItem> items) {
     this.items = items;

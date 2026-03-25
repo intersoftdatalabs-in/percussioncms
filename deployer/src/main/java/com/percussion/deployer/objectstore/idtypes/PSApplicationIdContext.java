@@ -373,7 +373,6 @@ public abstract class PSApplicationIdContext implements IPSDeployComponent {
    * This method is used to get the string resources used for display text.
    *
    * @return the bundle, never <code>null</code>.
-   * @throws MissingResourceException if the bundle cannot be loaded.
    */
   protected static ResourceBundle getBundle() {
     if (ms_bundle == null) {

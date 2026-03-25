@@ -125,11 +125,10 @@ public class PSRelationshipEffectProcessor {
    * @throws PSExtensionProcessingException
    * @throws PSParameterMismatchException
    * @throws PSCmsException
-   *     <p>
-   * @todo If there is an error running the test() methods of the effects then we need to generate a
-   *     detailed error report consisting of all errors with details of the relationship, owner,
-   *     dependent and effect being processed and present somehow to teh end user requested the
-   *     operation.
+   *     <p>TODO: If there is an error running the test() methods of the effects then we need to
+   *     generate a detailed error report consisting of all errors with details of the relationship,
+   *     owner, dependent and effect being processed and present somehow to teh end user requested
+   *     the operation.
    */
   public void process()
       throws PSNotFoundException,

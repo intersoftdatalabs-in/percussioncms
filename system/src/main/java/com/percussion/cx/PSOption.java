@@ -183,10 +183,7 @@ public class PSOption implements IPSClientObjects {
   /**
    * Sets the value of this option.
    *
-   * @todo the responsibility of this class has changed a bit..maybe, it seems that this class is
-   *     really for loading and persisting and that noone will be accessing this except for handlers
-   *     that know what they're looking for, if that's the case this should just take a string.
-   * @param theOptionValue must not <code>null</code>.
+   * @param theOptionValue must not be null.
    */
   public void setOptionValue(Object theOptionValue) {
     if (theOptionValue == null)
@@ -196,13 +193,11 @@ public class PSOption implements IPSClientObjects {
   }
 
   /**
-   * Indicates whether some other object is "equal to" this one. Overrides the method in {@link
-   * Object.equals(Object) Object} and adheres to that contract.
+   * Indicates whether some other object is equal to this one.
    *
    * @param obj the reference object with which to compare.
-   * @return <code>true</code> if this object is the same as the <code>obj</code> argument; <code>
-   *     false</code> otherwise. If <code>null</code> supplied or obj is not an instance of this
-   *     class, <code>false</code> is returned.
+   * @return true if this object is the same as the obj argument; false otherwise. If null is
+   *     supplied or obj is not an instance of this class, false is returned.
    */
   public boolean equals(Object obj) {
     if (obj == null || !(getClass().isInstance(obj))) return false;

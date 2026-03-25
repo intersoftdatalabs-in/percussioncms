@@ -220,7 +220,7 @@ public class PSFilterDefDependencyHandler extends PSDependencyHandler implements
   /**
    * Creates a dependency file from a given dependency data object.
    *
-   * @param f the actual filter never <code>null</code>
+   * @param filter the actual filter never <code>null</code>
    * @return The dependency file object, it will never be <code>null</code>.
    * @throws IllegalArgumentException if any param is invalid.
    * @throws PSDeployException if any other error occurs.

@@ -97,7 +97,7 @@ public interface IPSWebdavComponent extends Cloneable
     *    is incorrect or any of its attributes or children are required but
     *    missing or incorrect.
     *
-    * @throws PDWebdavException if any other errors occur.
+    * @throws PSWebdavException if any other errors occur.
     *
     */
    public void fromXml(Element src)

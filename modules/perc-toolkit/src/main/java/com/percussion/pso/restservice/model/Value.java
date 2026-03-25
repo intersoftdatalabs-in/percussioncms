@@ -18,19 +18,20 @@ package com.percussion.pso.restservice.model;
 
 /** */
 public interface Value {
-  /**
-   * Method getStringValue.
-   *
-   * @return String
-   */
+  /** Type constant. */
   public static final int TYPE = -1;
 
+  /**
+   * Gets the string value.
+   *
+   * @return the string value
+   */
   public String getStringValue();
 
   /**
-   * Method setStringValue.
+   * Sets the string value.
    *
-   * @param value String
+   * @param value the string value
    */
   public void setStringValue(String value);
 }

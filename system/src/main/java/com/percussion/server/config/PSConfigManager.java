@@ -403,7 +403,7 @@ public class PSConfigManager {
    * @param name the configuration to be saved, not <code>null</code> or empty.
    * @param config the configuration to be saved, not <code>null</code>.
    * @throws IllegalArgumentException if the supplied name is <code>null</code> or empty.
-   * @throws PSServerConfigExcception if no configuration exists for the provided name or the
+   * @throws PSServerConfigException if no configuration exists for the provided name or the
    *     supplied configuration is not the expected type.
    */
   public void saveConfig(String name, Document config) throws PSServerConfigException {
@@ -417,7 +417,7 @@ public class PSConfigManager {
    * @param name the configuration to be saved, not <code>null</code> or empty.
    * @param config the configuration to be saved, not <code>null</code>.
    * @throws IllegalArgumentException if the supplied name is <code>null</code> or empty.
-   * @throws PSServerConfigExcception if no configuration exists for the provided name or the
+   * @throws PSServerConfigException if no configuration exists for the provided name or the
    *     supplied configuration is not the expected type.
    */
   public void saveConfig(String name, Properties config) throws PSServerConfigException {
@@ -430,7 +430,7 @@ public class PSConfigManager {
    *
    * @param name the configuration to be saved, not <code>null</code> or empty.
    * @throws IllegalArgumentException if the supplied name is <code>null</code> or empty.
-   * @throws PSServerConfigExcception if no configuration exists for the provided name.
+   * @throws PSServerConfigException if no configuration exists for the provided name.
    */
   public void saveConfig(String name) throws PSServerConfigException {
     try {

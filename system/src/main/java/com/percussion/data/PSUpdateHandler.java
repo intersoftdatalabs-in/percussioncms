@@ -465,8 +465,8 @@ public class PSUpdateHandler extends PSDataHandler {
   /**
    * Registers the supplied listener for table change events. Any listeners added will be notified
    * of changes to any tables performed by this handler as long as a call to {@link
-   * IPSTableChangeListener#getColumns(String) IPSTableChangeListener.getColumns(tableName)} for the
-   * changed table does not return <code>null</code>.
+   * IPSTableChangeListener#getColumns(String, int)} for the changed table does not return <code>
+   * null</code>.
    *
    * @param listener The listener to notify, may not be <code>null</code>.
    * @throws IllegalArgumentException if <code>listener</code> is <code>null</code>.

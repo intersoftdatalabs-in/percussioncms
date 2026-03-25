@@ -64,8 +64,8 @@ public class PSServletRequester implements IPSRemoteRequesterEx
     *
     * @param response The response object, it may not be <code>null</code>.
     *
-    * @param rxContext The servlet context of the RhythmyxServlet. It is
-    *    from <code>getServletContext.getContext("/Rhythmyx"), assume the
+   * @param rxContext The servlet context of the RhythmyxServlet. It is
+   *    from <code>getServletContext.getContext("/Rhythmyx")</code>, assume the
     *    "/Rhythmyx" is the context path of the RhythmyxServlet. it may not
     *    be <code>null</code>.
     *
@@ -99,7 +99,7 @@ public class PSServletRequester implements IPSRemoteRequesterEx
    /**
     * Convenient constructor, calls
     * {@link #PSServletRequester(HttpServletRequest,HttpServletResponse,
-    * ServletContext, null)}
+    * ServletContext, String)}
     */
    public PSServletRequester(
       HttpServletRequest request,
@@ -162,7 +162,7 @@ public class PSServletRequester implements IPSRemoteRequesterEx
    /**
     * This is not supported for now.
     *
-    * @see IPSRemoteRequester#sendUpdate(String, Document)}
+     * @see com.percussion.util.IPSRemoteRequester#sendUpdate(String, Document)
     */
    public Document sendUpdate(String resource, Document doc)
       throws IOException, SAXException

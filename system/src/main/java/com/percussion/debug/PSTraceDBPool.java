@@ -31,7 +31,6 @@ public class PSTraceDBPool extends PSTraceMessage {
    * Constructor for this class
    *
    * @param typeFlag the type of trace message this object will generate
-   * @roseuid 39FDD70103A9
    */
   public PSTraceDBPool(int typeFlag) {
     super(typeFlag);
@@ -52,7 +51,6 @@ public class PSTraceDBPool extends PSTraceMessage {
    *     <p>If IsNewConnection = <code>false</code>, the the others will not be included in the
    *     trace message.
    * @return the message body
-   * @roseuid 39FEE2F303B9
    */
   protected String getMessageBody(java.lang.Object source) {
     Object[] args = (Object[]) source;

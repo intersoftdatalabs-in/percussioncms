@@ -30,6 +30,7 @@ import java.io.File;
  * Evaluate a JEXL expression for input. The arguments are:
  *
  * <table>
+ * <caption style="display:none">Parameters</caption>
  * <tr>
  * <th>Param</th>
  * <th>Type</th>

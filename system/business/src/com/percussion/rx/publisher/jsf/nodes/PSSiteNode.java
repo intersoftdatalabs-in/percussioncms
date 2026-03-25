@@ -1094,7 +1094,6 @@ public class PSSiteNode extends PSDesignNode
     * Save the site and navigate back to the list view.
     * 
     * @return the outcome
-    * @throws PSSiteManagerException
     */
    public String save()
    {

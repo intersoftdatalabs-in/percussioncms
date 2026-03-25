@@ -75,13 +75,13 @@ public class PSDisplayColumn extends PSDbComponent implements IPSSequencedCompon
   /**
    * Convience ctor.
    *
-   * @param strName. The fieldName. Never <code>null</code> or empty.
-   * @param strLabel. The field label. May be <code>null</code> or empty, if so, this defaults to
+   * @param strSource The fieldName. Never <code>null</code> or empty.
+   * @param strLabel The field label. May be <code>null</code> or empty, if so, this defaults to
    *     <code>strName</code>.
-   * @param groupingType. One of the GROUPING_xxx constants.
-   * @param strRenderType. The render type. May be <code>null</code> or empty. if so, will default
-   *     to type text. See description <code>m_strRenderType</code> for allowable values.
-   * @param strDesc. The description. May be <code>null</code> or empty.
+   * @param groupingType One of the GROUPING_xxx constants.
+   * @param strRenderType The render type. May be <code>null</code> or empty. if so, will default to
+   *     type text. See description <code>m_strRenderType</code> for allowable values.
+   * @param strDesc The description. May be <code>null</code> or empty.
    * @param isAscendingSort The sort order.
    */
   public PSDisplayColumn(
@@ -257,8 +257,8 @@ public class PSDisplayColumn extends PSDbComponent implements IPSSequencedCompon
   /**
    * See {@link #getRenderType()} for details.
    *
-   * @param One of the DATATYPE_xxx values. If <code>null</code> or empty supplied, DATATYPE_TEXT is
-   *     used.
+   * @param str One of the DATATYPE_xxx values. If <code>null</code> or empty supplied,
+   *     DATATYPE_TEXT is used.
    */
   public void setRenderType(String str) {
     // threshold - if null or empty default to text value
@@ -395,7 +395,7 @@ public class PSDisplayColumn extends PSDbComponent implements IPSSequencedCompon
   /**
    * See {@link #getPosition()} for details.
    *
-   * @param pos Any value is allowed. If a value < 0 is supplied, 0 is used.
+   * @param pos Any value is allowed. If a value &lt; 0 is supplied, 0 is used.
    */
   public void setPosition(int pos) {
     if (pos < 0) pos = 0;
@@ -442,8 +442,8 @@ public class PSDisplayColumn extends PSDbComponent implements IPSSequencedCompon
   /**
    * See {@link #isAscendingSort()} for details.
    *
-   * @param <code>true</code> if you wish the default sorting to be ascending, <code>false</code>
-   *     will set the default to descending.
+   * @param isAscending <code>true</code> if you wish the default sorting to be ascending, <code>
+   *     false</code> will set the default to descending.
    */
   public void setSortOrder(boolean isAscending) {
     // Threshold

@@ -313,7 +313,7 @@ public class PSTouchParentItemsHandler
 
    /**
     * Performs update operation to the given content id list. It sets the
-    * CONTENTLASTMODIFIEDDATE column contain the current date & time.
+    * CONTENTLASTMODIFIEDDATE column contain the current date &amp; time.
     *
     * Note, caller must call {@link #addSpecificIds(Collection)}
     * and/or {@link #addParents(Collection)} before call this method; otherwise

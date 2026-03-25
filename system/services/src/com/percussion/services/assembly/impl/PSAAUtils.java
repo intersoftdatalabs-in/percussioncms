@@ -45,7 +45,7 @@ public class PSAAUtils
    /**
     * Gets the page active assembly object id
     *
-    * @see com.percussion.content.ui.aa.PSAAObjectId for further details.
+    * See com.percussion.content.ui.aa.PSAAObjectId for further details.
     * @param item The current working item, must not be <code>null</code>.
     * @return String representaion of JSONArray object id.
     * @throws PSAssemblyException
@@ -67,7 +67,7 @@ public class PSAAUtils
    /**
     * Gets the slot active assembly object id
     *
-    * @see com.percussion.content.ui.aa.PSAAObjectId for further details.
+    * See com.percussion.content.ui.aa.PSAAObjectId for further details.
     * @param item The current working item, must not be <code>null</code>.
     * @param slotname The name of the slot must not be <code>null</code>.
     * @return objectid as a string, never <code>null</code> or empty.
@@ -94,7 +94,7 @@ public class PSAAUtils
    /**
     * Gets the snippet active assembly object id.
     *
-    * @see com.percussion.content.ui.aa.PSAAObjectId for further details.
+    * See com.percussion.content.ui.aa.PSAAObjectId for further details.
     * @param item The current working item, must not be <code>null</code>.
     * @param slotname The name of the slot must not be <code>null</code>.
     * @return objectid as a string, never <code>null</code> or empty.
@@ -179,7 +179,7 @@ public class PSAAUtils
    /**
     * Gets the page active assembly object id
     *
-    * @see com.percussion.content.ui.aa.PSAAObjectId for further details.
+    * See com.percussion.content.ui.aa.PSAAObjectId for further details.
     * @param item The current working item, must not be <code>null</code>.
     * @return String representaion of JSONArray object id.
     * @throws PSAssemblyException

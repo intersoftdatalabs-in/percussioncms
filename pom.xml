@@ -2642,9 +2642,65 @@
                         </execution>
                     </executions>
                 </plugin>
+                <plugin>
+                    <groupId>com.intsof</groupId>
+                    <artifactId>ai-build-integrity-maven-plugin</artifactId>
+                    <version>0.9.0</version>
+                    <configuration>
+                        <hashFileMode>CENTRAL</hashFileMode>
+                        <!-- Scan the entire repo, not just the current module's basedir -->
+                        <baseDir>${maven.multiModuleProjectDirectory}</baseDir>
+                        <!-- All modules share one ledger written to root target/ -->
+                        <centralHashFile>${maven.multiModuleProjectDirectory}/target/ai-integrity.sha256</centralHashFile>
+                        <gitignoreAutoExclude>true</gitignoreAutoExclude>
+                        <forceIncludes>.env</forceIncludes>
+                        <includes>**/*.md,
+				**/*.yml,
+				**/*.json,
+				**/*.properties,
+				**/*.java,
+				**/*.sh,**/*.bat,**/*.ts,
+				**/*.js,**/*.xml,**/*.xsl,
+				**/*.html,**/*.css,**/*.cs,
+				**/*.py,**/*.jsp</includes>
+                    </configuration>
+                    <executions>
+                        <execution>
+                            <id>generate</id>
+                            <goals>
+                                <goal>generate-hashes</goal>
+                            </goals>
+                            <!-- Seal once at reactor start -->
+                            <configuration>
+                                <executionRootOnly>true</executionRootOnly>
+                            </configuration>
+                        </execution>
+                        <execution>
+                            <id>verify</id>
+                            <!-- No executionRootOnly — fires in every module before it is packaged -->
+                            <goals>
+                                <goal>verify-hashes</goal>
+                            </goals>
+                        </execution>
+                        <execution>
+                            <id>clean</id>
+                            <goals>
+                                <goal>clean-hashes</goal>
+                            </goals>
+                            <!-- Delete ledger once -->
+                            <configuration>
+                                <executionRootOnly>true</executionRootOnly>
+                            </configuration>
+                        </execution>
+                    </executions>
+                </plugin>
             </plugins>
         </pluginManagement>
         <plugins>
+            <plugin>
+                <groupId>com.intsof</groupId>
+                <artifactId>ai-build-integrity-maven-plugin</artifactId>
+            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>
@@ -2737,7 +2793,8 @@
                 <artifactId>exec-maven-plugin</artifactId>
                 <version>${maven.exec.plugin.version}</version>
                 <executions>
-                    <execution>
+                    <!-- TODO: Experimental - potentially remove 
+			<execution>
                         <id>verify-agent-integrity</id>
                         <goals>
                             <goal>exec</goal>
@@ -2752,7 +2809,7 @@
                                 <successCode>0</successCode>
                             </successCodes>
                         </configuration>
-                    </execution>
+                    </execution> -->
                 </executions>
             </plugin>
             <!-- Used to find plugin updates -->

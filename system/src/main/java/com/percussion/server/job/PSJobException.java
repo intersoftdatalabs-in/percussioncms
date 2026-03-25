@@ -136,14 +136,8 @@ public class PSJobException extends Exception {
    * This method is called to create an XML element node with the appropriate format for this
    * object. The format is:
    *
-   * <pre><code>
-   * <!ELEMENT PSXJobException (Arg*)
-   * <!ATTLIST PSXJobException
-   *    msgCode CDATA #REQUIRED
-   *    exceptionClass CDATA #IMPLIED
-   * >
-   * <!ELEMENT Arg (#PCDATA)>
-   * </code></pre>
+   * <p>{@code <!ELEMENT PSXJobException (Arg*) <!ATTLIST PSXJobException msgCode CDATA #REQUIRED
+   * exceptionClass CDATA #IMPLIED > <!ELEMENT Arg (#PCDATA)> }
    *
    * @param doc The document to use to create the element, may not be <code>null</code>.
    * @return the newly created XML element node, never <code>null</code>

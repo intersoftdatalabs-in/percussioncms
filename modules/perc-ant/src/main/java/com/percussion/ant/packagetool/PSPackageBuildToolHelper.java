@@ -110,11 +110,11 @@ public class PSPackageBuildToolHelper {
   }
 
   /**
-   * Given zip file path and the root directory(...\system\packages) returns the destination directory
-   * under the root directory
-   * @param zipFileWithPath cannot be <code>null<code>
-   * @param rootDirectory cannot be <code>null<code>
+   * Given zip file path and the root directory(...\system\packages) returns the destination
+   * directory under the root directory
    *
+   * @param zipFileWithPath cannot be <code>null</code>
+   * @param rootDirectory cannot be <code>null</code>
    */
   public static String getDestinationDirectoryPath(String zipFileWithPath, String rootDirectory) {
     String subDirectory = getSubDirectory(zipFileWithPath);

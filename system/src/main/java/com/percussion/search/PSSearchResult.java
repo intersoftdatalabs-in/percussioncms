@@ -32,7 +32,7 @@ public class PSSearchResult {
    * Ctor.
    *
    * @param itemKey Never <code>null</code>. Any revision is allowed.
-   * @param relavancy A value between -1 and 100, inclusive. -1 means there is no relevancy ranking
+   * @param relevancy A value between -1 and 100, inclusive. -1 means there is no relevancy ranking
    *     for this result.
    */
   public PSSearchResult(PSLocator itemKey, int relevancy) {

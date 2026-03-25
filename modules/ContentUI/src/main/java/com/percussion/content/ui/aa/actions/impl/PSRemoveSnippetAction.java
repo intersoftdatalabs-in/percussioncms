@@ -32,22 +32,14 @@ import java.util.Map;
 
 /**
  * This action is used to remove snippet/s. It removes active assembly relationships corresponding
- * to the comma separated list of relationship ids specified in the (required) <code>relationshipIds
- * </code> parameter.
+ * to the comma separated list of relationship ids specified in the (required) relationshipIds
+ * parameter.
  *
  * <p>Expects the following parameters:
  *
- * <table border="1" cellspacing="0" cellpadding="5"> <thead>
- * <th>Name</th>
- * <th>Allowed Values</th>
- * <th>Details</th>
- * </thead> <tbody>
- * <tr>
- * <td>relationshipIds</td>
- * <td>comma separated list of relationship ids</td>
- * <td>Required</td>
- * </tr>
- * </tbody> </table>
+ * <ul>
+ *   <li>relationshipIds - comma separated list of relationship ids (Required)
+ * </ul>
  */
 public class PSRemoveSnippetAction extends PSAAActionBase {
 

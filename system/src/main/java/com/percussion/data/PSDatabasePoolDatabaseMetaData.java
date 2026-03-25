@@ -237,7 +237,7 @@ public class PSDatabasePoolDatabaseMetaData implements DatabaseMetaData {
    * Does the database treat mixed case unquoted SQL identifiers as case sensitive and as a result
    * store them in mixed case?
    *
-   * <p>A JDBC Compliant<sup><font size=-2>TM</font></sup> driver will always return false.
+   * <p>A JDBC Compliant<sup><small>TM</small></sup> driver will always return false.
    *
    * @return <code>true</code> if so; <code>false</code> otherwise
    * @exception SQLException if a database access error occurs
@@ -283,7 +283,7 @@ public class PSDatabasePoolDatabaseMetaData implements DatabaseMetaData {
    * Does the database treat mixed case quoted SQL identifiers as case sensitive and as a result
    * store them in mixed case?
    *
-   * <p>A JDBC Compliant<sup><font size=-2>TM</font></sup> driver will always return true.
+   * <p>A JDBC Compliant<sup><small>TM</small></sup> driver will always return true.
    *
    * @return <code>true</code> if so; <code>false</code> otherwise
    * @exception SQLException if a database access error occurs
@@ -329,8 +329,7 @@ public class PSDatabasePoolDatabaseMetaData implements DatabaseMetaData {
    * What's the string used to quote SQL identifiers? This returns a space " " if identifier quoting
    * isn't supported.
    *
-   * <p>A JDBC Compliant<sup><font size=-2>TM</font></sup> driver always uses a double quote
-   * character.
+   * <p>A JDBC Compliant<sup><small>TM</small></sup> driver always uses a double quote character.
    *
    * @return the quoting string
    * @exception SQLException if a database access error occurs
@@ -447,7 +446,7 @@ public class PSDatabasePoolDatabaseMetaData implements DatabaseMetaData {
    * <p>If so, the SQL AS clause can be used to provide names for computed columns or to provide
    * alias names for columns as required.
    *
-   * <p>A JDBC Compliant<sup><font size=-2>TM</font></sup> driver always returns true.
+   * <p>A JDBC Compliant<sup><small>TM</small></sup> driver always returns true.
    *
    * @return <code>true</code> if so; <code>false</code> otherwise
    * @exception SQLException if a database access error occurs
@@ -459,7 +458,7 @@ public class PSDatabasePoolDatabaseMetaData implements DatabaseMetaData {
   /**
    * Are concatenations between NULL and non-NULL values NULL?
    *
-   * <p>A JDBC Compliant<sup><font size=-2>TM</font></sup> driver always returns true.
+   * <p>A JDBC Compliant<sup><small>TM</small></sup> driver always returns true.
    *
    * @return <code>true</code> if so; <code>false</code> otherwise
    * @exception SQLException if a database access error occurs
@@ -493,7 +492,7 @@ public class PSDatabasePoolDatabaseMetaData implements DatabaseMetaData {
   /**
    * Are table correlation names supported?
    *
-   * <p>A JDBC Compliant<sup><font size=-2>TM</font></sup> driver always returns true.
+   * <p>A JDBC Compliant<sup><small>TM</small></sup> driver always returns true.
    *
    * @return <code>true</code> if so; <code>false</code> otherwise
    * @exception SQLException if a database access error occurs
@@ -567,7 +566,7 @@ public class PSDatabasePoolDatabaseMetaData implements DatabaseMetaData {
   /**
    * Is the escape character in "LIKE" clauses supported?
    *
-   * <p>A JDBC Compliant<sup><font size=-2>TM</font></sup> driver always returns true.
+   * <p>A JDBC Compliant<sup><small>TM</small></sup> driver always returns true.
    *
    * @return <code>true</code> if so; <code>false</code> otherwise
    * @exception SQLException if a database access error occurs
@@ -599,7 +598,7 @@ public class PSDatabasePoolDatabaseMetaData implements DatabaseMetaData {
   /**
    * Can columns be defined as non-nullable?
    *
-   * <p>A JDBC Compliant<sup><font size=-2>TM</font></sup> driver always returns true.
+   * <p>A JDBC Compliant<sup><small>TM</small></sup> driver always returns true.
    *
    * @return <code>true</code> if so; <code>false</code> otherwise
    * @exception SQLException if a database access error occurs
@@ -611,7 +610,7 @@ public class PSDatabasePoolDatabaseMetaData implements DatabaseMetaData {
   /**
    * Is the ODBC Minimum SQL grammar supported?
    *
-   * <p>All JDBC Compliant<sup><font size=-2>TM</font></sup> drivers must return true.
+   * <p>All JDBC Compliant<sup><small>TM</small></sup> drivers must return true.
    *
    * @return <code>true</code> if so; <code>false</code> otherwise
    * @exception SQLException if a database access error occurs
@@ -643,7 +642,7 @@ public class PSDatabasePoolDatabaseMetaData implements DatabaseMetaData {
   /**
    * Is the ANSI92 entry level SQL grammar supported?
    *
-   * <p>All JDBC Compliant<sup><font size=-2>TM</font></sup> drivers must return true.
+   * <p>All JDBC Compliant<sup><small>TM</small></sup> drivers must return true.
    *
    * @return <code>true</code> if so; <code>false</code> otherwise
    * @exception SQLException if a database access error occurs
@@ -905,7 +904,7 @@ public class PSDatabasePoolDatabaseMetaData implements DatabaseMetaData {
   /**
    * Are subqueries in comparison expressions supported?
    *
-   * <p>A JDBC Compliant<sup><font size=-2>TM</font></sup> driver always returns true.
+   * <p>A JDBC Compliant<sup><small>TM</small></sup> driver always returns true.
    *
    * @return <code>true</code> if so; <code>false</code> otherwise
    * @exception SQLException if a database access error occurs
@@ -917,7 +916,7 @@ public class PSDatabasePoolDatabaseMetaData implements DatabaseMetaData {
   /**
    * Are subqueries in 'exists' expressions supported?
    *
-   * <p>A JDBC Compliant<sup><font size=-2>TM</font></sup> driver always returns true.
+   * <p>A JDBC Compliant<sup><small>TM</small></sup> driver always returns true.
    *
    * @return <code>true</code> if so; <code>false</code> otherwise
    * @exception SQLException if a database access error occurs
@@ -929,7 +928,7 @@ public class PSDatabasePoolDatabaseMetaData implements DatabaseMetaData {
   /**
    * Are subqueries in 'in' statements supported?
    *
-   * <p>A JDBC Compliant<sup><font size=-2>TM</font></sup> driver always returns true.
+   * <p>A JDBC Compliant<sup><small>TM</small></sup> driver always returns true.
    *
    * @return <code>true</code> if so; <code>false</code> otherwise
    * @exception SQLException if a database access error occurs
@@ -941,7 +940,7 @@ public class PSDatabasePoolDatabaseMetaData implements DatabaseMetaData {
   /**
    * Are subqueries in quantified expressions supported?
    *
-   * <p>A JDBC Compliant<sup><font size=-2>TM</font></sup> driver always returns true.
+   * <p>A JDBC Compliant<sup><small>TM</small></sup> driver always returns true.
    *
    * @return <code>true</code> if so; <code>false</code> otherwise
    * @exception SQLException if a database access error occurs
@@ -953,7 +952,7 @@ public class PSDatabasePoolDatabaseMetaData implements DatabaseMetaData {
   /**
    * Are correlated subqueries supported?
    *
-   * <p>A JDBC Compliant<sup><font size=-2>TM</font></sup> driver always returns true.
+   * <p>A JDBC Compliant<sup><small>TM</small></sup> driver always returns true.
    *
    * @return <code>true</code> if so; <code>false</code> otherwise
    * @exception SQLException if a database access error occurs
@@ -2134,7 +2133,7 @@ public class PSDatabasePoolDatabaseMetaData implements DatabaseMetaData {
    *
    * <p>Indicates whether a result set's own updates are visible.
    *
-   * @param result set type, i.e. ResultSet.TYPE_XXX
+   * @param type the result set type, i.e. ResultSet.TYPE_XXX
    * @return <code>true</code> if updates are visible for the result set type; <code>false</code>
    *     otherwise
    * @exception SQLException if a database access error occurs
@@ -2148,7 +2147,7 @@ public class PSDatabasePoolDatabaseMetaData implements DatabaseMetaData {
    *
    * <p>Indicates whether a result set's own deletes are visible.
    *
-   * @param result set type, i.e. ResultSet.TYPE_XXX
+   * @param type the result set type, i.e. ResultSet.TYPE_XXX
    * @return <code>true</code> if deletes are visible for the result set type; <code>false</code>
    *     otherwise
    * @exception SQLException if a database access error occurs
@@ -2162,7 +2161,7 @@ public class PSDatabasePoolDatabaseMetaData implements DatabaseMetaData {
    *
    * <p>Indicates whether a result set's own inserts are visible.
    *
-   * @param result set type, i.e. ResultSet.TYPE_XXX
+   * @param type the result set type, i.e. ResultSet.TYPE_XXX
    * @return <code>true</code> if inserts are visible for the result set type; <code>false</code>
    *     otherwise
    * @exception SQLException if a database access error occurs
@@ -2176,7 +2175,7 @@ public class PSDatabasePoolDatabaseMetaData implements DatabaseMetaData {
    *
    * <p>Indicates whether updates made by others are visible.
    *
-   * @param result set type, i.e. ResultSet.TYPE_XXX
+   * @param type the result set type, i.e. ResultSet.TYPE_XXX
    * @return <code>true</code> if updates made by others are visible for the result set type; <code>
    *     false</code> otherwise
    * @exception SQLException if a database access error occurs
@@ -2190,7 +2189,7 @@ public class PSDatabasePoolDatabaseMetaData implements DatabaseMetaData {
    *
    * <p>Indicates whether deletes made by others are visible.
    *
-   * @param result set type, i.e. ResultSet.TYPE_XXX
+   * @param type the result set type, i.e. ResultSet.TYPE_XXX
    * @return <code>true</code> if deletes made by others are visible for the result set type; <code>
    *     false</code> otherwise
    * @exception SQLException if a database access error occurs
@@ -2204,7 +2203,7 @@ public class PSDatabasePoolDatabaseMetaData implements DatabaseMetaData {
    *
    * <p>Indicates whether inserts made by others are visible.
    *
-   * @param result set type, i.e. ResultSet.TYPE_XXX
+   * @param type the result set type, i.e. ResultSet.TYPE_XXX
    * @return true if updates are visible for the result set type
    * @return <code>true</code> if inserts made by others are visible for the result set type; <code>
    *     false</code> otherwise
@@ -2220,7 +2219,7 @@ public class PSDatabasePoolDatabaseMetaData implements DatabaseMetaData {
    * <p>Indicates whether or not a visible row update can be detected by calling the method <code>
    * ResultSet.rowUpdated</code>.
    *
-   * @param result set type, i.e. ResultSet.TYPE_XXX
+   * @param type the result set type, i.e. ResultSet.TYPE_XXX
    * @return <code>true</code> if changes are detected by the result set type; <code>false</code>
    *     otherwise
    * @exception SQLException if a database access error occurs
@@ -2236,7 +2235,7 @@ public class PSDatabasePoolDatabaseMetaData implements DatabaseMetaData {
    * ResultSet.rowDeleted(). If deletesAreDetected() returns false, then deleted rows are removed
    * from the result set.
    *
-   * @param result set type, i.e. ResultSet.TYPE_XXX
+   * @param type the result set type, i.e. ResultSet.TYPE_XXX
    * @return true if changes are detected by the resultset type
    * @exception SQLException if a database access error occurs
    */
@@ -2250,7 +2249,7 @@ public class PSDatabasePoolDatabaseMetaData implements DatabaseMetaData {
    * <p>Indicates whether or not a visible row insert can be detected by calling
    * ResultSet.rowInserted().
    *
-   * @param result set type, i.e. ResultSet.TYPE_XXX
+   * @param type the result set type, i.e. ResultSet.TYPE_XXX
    * @return true if changes are detected by the resultset type
    * @exception SQLException if a database access error occurs
    */

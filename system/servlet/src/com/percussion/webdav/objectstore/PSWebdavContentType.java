@@ -75,12 +75,6 @@ public class PSWebdavContentType
     * @param src xml element that represents a webdav content
     * type, cannot be <code>null</code>.
     *
-    * @param capture flag indicating that validation exception should not
-    * be thrown but instead be collected in a list for later use.
-    * 
-    * @param captureList the list to be used to store the captured validation
-    * exceptions, if <code>null</code>, a default list will be used.
-    * 
     * @throws PSWebdavException if an error occurs while creating this object
     * from xml.
     */
@@ -245,9 +239,9 @@ public class PSWebdavContentType
 
    /**
     * Implements fromXml method for
-    * {@link com.percussion.cms.objectstore.IPSWebdavComponent}.
+     * {@link com.percussion.webdav.objectstore.IPSWebdavComponent}.
     * Expects the following xml format:
-    * <p><code><pre>
+    * <pre>
     * &lt;!ELEMENT PSXWebdavContentType (Mimetypes?, Properties)&gt;
     * &lt;!ATTLIST PSXWebdavContentType
     *   name CDATA #REQUIRED
@@ -270,7 +264,7 @@ public class PSWebdavContentType
     *   properties and its related fields in Rhythmyx.
     * --&gt;
     * &lt;!ELEMENT Properties (PSXWebdavProperty+)&gt;
-    *</pre></code></p>
+    * </pre>
     * @param src xml source element, cannot be <code>null</code>.
     */
    public void fromXml(Element src)

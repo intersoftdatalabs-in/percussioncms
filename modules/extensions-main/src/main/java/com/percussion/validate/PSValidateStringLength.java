@@ -28,6 +28,7 @@ import java.io.File;
  * matches the passed pattern. Note that the range check is an inclusive test.
  *
  * <table>
+ * <caption style="display:none">Parameters</caption>
  * <tr>
  * <th>Param</th>
  * <th>Type</th>

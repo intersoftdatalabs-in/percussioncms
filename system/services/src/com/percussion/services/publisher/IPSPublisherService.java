@@ -441,7 +441,7 @@ public interface IPSPublisherService extends IPSCataloger {
     PSContentListResults runContentList(IPSContentList list, Map<String, String> overrides, boolean publish, IPSGuid deliveryContextId, IPSGuid siteId) throws PSPublisherException;
 
     /**
-     * Convenience execution method that wraps {@link #runContentList(...)} and
+     * Convenience execution method that wraps the runContentList method and
      * returns a simple list of {@link PSContentListItem} for callers that do not
      * wish to deal with an iterator-based result.
      */

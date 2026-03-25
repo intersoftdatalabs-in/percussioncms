@@ -222,6 +222,7 @@ public class PSCatalogResultSet implements IPSDeployComponent {
    *       column data.
    *   <li>If both support columns, the column data in the result must be supported by the
    *       corresponding column metadata definition in the resultset testing in the order.
+   * </ol>
    *
    * @param result the result to add, may not be <code>null</code>
    * @return <code>true</code> if it can be added, otherwise <code>false</code>

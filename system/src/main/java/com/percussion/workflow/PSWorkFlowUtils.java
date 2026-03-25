@@ -441,8 +441,8 @@ public class PSWorkFlowUtils {
    *     boolean)} . The message will be added to the trace file only if tracing is enabled for the
    *     application and for the exit tracing option.
    * @param message message to output
+   *     <p>Output is sent to:
    *     <ul>
-   *       Output is sent to:
    *       <li>trace file if request is non <CODE>null</CODE> and application and exit tracing is
    *           enabled
    *       <li>{@link System#out} if workflow property "SYSTEMOUTTRACEMESSAGES" is "true"
@@ -486,8 +486,8 @@ public class PSWorkFlowUtils {
    *     boolean)}. The message will be added to the trace file only if tracing is enabled for the
    *     application and for the exit tracing option.
    * @param throwable exception for which stack trace should be output.
+   *     <p>Output is sent to:
    *     <ul>
-   *       Output is sent to:
    *       <li>trace file if request is non <CODE>null</CODE> and application and exit tracing is
    *           enabled
    *       <li>{@link System#out} if workflow property "SYSTEMOUTSTACKTRACE" is "true"
@@ -1123,8 +1123,7 @@ public class PSWorkFlowUtils {
    * Convert a <CODE>java.util.Date</CODE> to aTimestamp to passing through a <CODE>null</CODE>
    * value.
    *
-   * @param date The<CODE>java.util.Date</CODE to convert to a Timestamp
-   *              or <CODE>
+   * @param date The <CODE>java.util.Date</CODE> to convert to a Timestamp or <CODE>
    *     null</CODE> if the date is <CODE>null</CODE>
    * @return corresponding Timestamp or <CODE>null</CODE>
    */

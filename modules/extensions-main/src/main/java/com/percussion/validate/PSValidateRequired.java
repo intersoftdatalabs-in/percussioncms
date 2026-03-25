@@ -28,6 +28,7 @@ import org.apache.commons.lang3.StringUtils;
  * Check that the value argument exists
  *
  * <table>
+ * <caption style="display:none">Parameters</caption>
  * <tr>
  * <th>Param</th>
  * <th>Type</th>

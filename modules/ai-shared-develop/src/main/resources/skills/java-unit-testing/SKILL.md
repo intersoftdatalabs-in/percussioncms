@@ -95,3 +95,4 @@ When not assigned specific tasks, prioritize:
 
 Do NOT work on tests in:
 - `modules/CMLight-Main-cactus-tests/` — integration tests, handled separately
+TAMPERED

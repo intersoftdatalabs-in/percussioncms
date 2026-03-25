@@ -52,16 +52,17 @@ import java.util.StringTokenizer;
  * parameter that contains the attached file.
  *
  * <table>
+ * <caption>Parameter suffixes added to file parameters</caption>
  * <tr><th>Suffix</th><th>Meaning</th></tr>
  * <tr>
- *   <td valign="top">_fullFilepath</td>
- *   <td valign="top">the original file path and name of the uploaded file</td>
+ *   <td style="vertical-align: top;">_fullFilepath</td>
+ *   <td style="vertical-align: top;">the original file path and name of the uploaded file</td>
  * </tr>
  * <tr>
  *   <td>_filename</td><td>the original file name of the uploaded file</td>
  * </tr>
  * <tr>
- *   <td valign="top">_ext</td>
+ *   <td style="vertical-align: top;">_ext</td>
  *   <td>the file extension, defined as all characters in the filename after
  *       the last dot ("<code>.</code>")</td>
  * </tr>

@@ -18,6 +18,7 @@
 package com.percussion.rx.publisher.jsf.utils;
 
 import com.percussion.extension.PSExtensionRef;
+import com.percussion.rx.publisher.IPSEditionTask;
 import com.percussion.rx.publisher.jsf.data.PSParameter;
 import com.percussion.server.PSServer;
 

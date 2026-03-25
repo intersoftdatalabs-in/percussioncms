@@ -30,10 +30,8 @@ import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.Task;
 
 /**
- * This task gets the currently installed version in upgrade scenarios and
- * sets the ant property perc.previous.version
- *
- * <br>
+ * This task gets the currently installed version in upgrade scenarios and sets the ant property
+ * perc.previous.version <br>
  * Example Usage: <br>
  *
  * <pre>
@@ -52,6 +50,7 @@ import org.apache.tools.ant.Task;
  *        jarFile="c:/lib/rxserver.jar"
  *        operation="install"/&gt;
  *  </code>
+ * </pre>
  */
 public class PSCheckVersion extends Task {
 

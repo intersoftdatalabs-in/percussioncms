@@ -265,12 +265,13 @@ public class PSCacheStatisticsSnapshot {
    *
    * <p>The following specifies the returned value:
    *
-   * <table>
+   * <table border="1">
+   * <caption>Return Value Conditions</caption>
    * <tr><th>condition</th><th>return value</th></tr>
-   * <tr><td> size &lt; 1 KB </td><td> size in bytes</td></tr>
-   * <tr><td> 1 KB <= size &lt; 1 MB </td><td> converted size to KB rounded with
+   * <tr><td> size &amp;lt; 1 KB </td><td> size in bytes</td></tr>
+   * <tr><td> 1 KB &amp;lt;= size &amp;lt; 1 MB </td><td> converted size to KB rounded with
    * scale '1' </td></tr>
-   * <tr><td> 1 MB <= size </td><td> converted size to MB rounded with scale
+   * <tr><td> 1 MB &amp;lt;= size </td><td> converted size to MB rounded with scale
    * '1'</td></tr>
    * </table>
    *

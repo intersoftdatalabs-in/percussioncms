@@ -31,23 +31,11 @@ import org.apache.commons.lang3.StringUtils;
  *
  * <p>Expects the following parameters:
  *
- * <table border="1" cellspacing="0" cellpadding="5">
- * <thead>
- * <th>Name</th><th>Allowed Values</th><th>Details</th>
- * </thead>
- * <tbody>
- * <tr>
- * <td>objectId</td><td>The object id string</td><td>Required</td>
- * </tr>
- * <tr>
- * <td>mode</td><td>up, down, reorder</td><td>Required</td>
- * </tr>
- * <tr>
- * <td>index</td><td>The desired position to move to</td>
- * <td>Only required if in reorder mode</td>
- * </tr>
- * </tbody>
- * </table>
+ * <ul>
+ *   <li>objectId - The object id string (Required)
+ *   <li>mode - up, down, reorder (Required)
+ *   <li>index - The desired position to move to (Only required if in reorder mode)
+ * </ul>
  */
 public class PSMoveAction extends PSAAActionBase {
 

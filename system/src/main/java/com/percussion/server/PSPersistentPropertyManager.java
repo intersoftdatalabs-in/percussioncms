@@ -356,9 +356,9 @@ public class PSPersistentPropertyManager {
    * @param category
    * @param request
    * @param propertyName
-   * @param meta The new attribute settings. If <code>null</code>, the entry is removed.
-   * @return <code>true</code> if this is replacing an existing entry, <code>false</code> otherwise.
-   * @throw UnsupportedOperationException.
+   * @param meta The new attribute settings. If null, the entry is removed.
+   * @return true if this is replacing an existing entry, false otherwise.
+   * @throws UnsupportedOperationException always thrown.
    */
   public boolean setPersistedPropertyMeta(
       String category, PSRequest request, String propertyName, PSPersistentPropertyMeta meta) {

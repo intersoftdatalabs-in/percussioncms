@@ -95,7 +95,8 @@ public class PSAaRelationshipList extends PSCollectionComponent {
    *
    * @param index index of the object (relationship) to access.
    * @return Relationship object for the specified index, may be {@code null}
-   * @throws ArrayIndexOutOfBoundsException index is out of range (index < 0 || index >= size()).
+   * @throws ArrayIndexOutOfBoundsException index is out of range (index &lt; 0 || index &gt;=
+   *     size()).
    * @see java.util.List#get(int) for more details.
    */
   @Override

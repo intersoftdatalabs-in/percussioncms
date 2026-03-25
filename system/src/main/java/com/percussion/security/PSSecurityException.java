@@ -28,8 +28,7 @@ public class PSSecurityException extends PSRuntimeException {
   /**
    * Constructs a new exception based on an existing exception. Used to pass through exceptions.
    *
-   * @param errorCode The error code from the original exception.
-   * @param args The message arguments from the original exception.
+   * @param e The original exception.
    */
   public PSSecurityException(IPSException e) {
     super(e.getErrorCode(), e.getErrorArguments());

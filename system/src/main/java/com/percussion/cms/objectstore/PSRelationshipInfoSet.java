@@ -34,11 +34,10 @@ public class PSRelationshipInfoSet implements IPSCmsComponent {
    * Creates an instance from a previously serialized (using <code>toXml
    * </code>) one.
    *
-   * @param source A valid element that meets the dtd defined in the
-   *    description of {@link #toXml(Document)}. Never <code>null</code>.
-   *
-   * @throws PSUnknownNodeTypeException If the supplied source element does
-   *    not conform to the dtd defined in the <code>fromXml<code> method.
+   * @param source A valid element that meets the dtd defined in the description of {@link
+   *     #toXml(Document)}. Never <code>null</code>.
+   * @throws PSUnknownNodeTypeException If the supplied source element does not conform to the dtd
+   *     defined in the <code>fromXml</code> method.
    */
   public PSRelationshipInfoSet(Element source) throws PSUnknownNodeTypeException {
     fromXml(source);
@@ -92,7 +91,7 @@ public class PSRelationshipInfoSet implements IPSCmsComponent {
    * will conform to the following dtd:
    *
    * <pre>
-   * <!ELEMENT PSXRelationshipInfoSet (PSXRelationshipInfo*)>
+   * &lt;!ELEMENT PSXRelationshipInfoSet (PSXRelationshipInfo*)&gt;
    * </pre>
    *
    * @param doc Used to generate the element. Never <code>null</code>.
@@ -144,8 +143,8 @@ public class PSRelationshipInfoSet implements IPSCmsComponent {
   public static final String XML_NODE_NAME = "PSXRelationshipInfoSet";
 
   /**
-   * It contains a list of <code>PSXRelationshipInfo<code> objects.
-   * It never <code>null</code>, but may be empty.
+   * It contains a list of <code>PSXRelationshipInfo</code> objects. It never <code>null</code>, but
+   * may be empty.
    */
   private List m_compList = new ArrayList();
 }

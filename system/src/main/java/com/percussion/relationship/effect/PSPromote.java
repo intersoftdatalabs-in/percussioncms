@@ -34,7 +34,6 @@ import com.percussion.extension.PSExtensionProcessingException;
 import com.percussion.extension.PSParameterMismatchException;
 import com.percussion.log.PSLogManager;
 import com.percussion.log.PSLogServerWarning;
-import com.percussion.relationship.IPSEffect;
 import com.percussion.relationship.IPSExecutionContext;
 import com.percussion.relationship.PSEffect;
 import com.percussion.relationship.PSEffectResult;
@@ -162,19 +161,14 @@ public class PSPromote extends PSEffect {
   }
 
   /**
-   * Implements {@link IPSEffect.attempt(Object[], IPSRequestContext, IPSExecutionContext,
-   * PSEffectResult)}.
+   * Implements IPSEffect.attempt.
    *
-   * <pre>
-   * See class descr. for more details.
-   * </pre>
+   * <p>See class description for more details.
    *
-   * The result is communicated back to the engine by setting success or error on the supplied
+   * <p>The result is communicated back to the engine by setting success or error on the supplied
    * result object.
    *
-   * @exception PSExtensionProcessingException if anything goes wrong executing the attempt and the
-   *     implementer chooses so. For this case the default implementation calls the recovery method.
-   * @throws PSParameterMismatchException never.
+   * @throws PSExtensionProcessingException if anything goes wrong executing the attempt.
    */
   public void attempt(
       Object[] params,
@@ -218,9 +212,8 @@ public class PSPromote extends PSEffect {
   }
 
   /**
-   * Always returns success. For more info see {@link IPSEffect}.
+   * Always returns success.
    *
-   * @return always returns success, never <code>null</code>.
    * @throws PSExtensionProcessingException never.
    */
   public void recover(

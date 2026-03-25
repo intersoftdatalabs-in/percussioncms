@@ -358,28 +358,30 @@ public class Utils
     * </ul>
     * <p>The end result is that the OS will expand all wildcards and the incoming
     * array will contain entries for options, option params and all files at
-    * the end.<p/>
+    * the end.<p>Examples:</p>
     * Examples:
     *   <p>PublishHtml -c foo -bd</p>
-    *   <p>Will result in:</p>
-    *   <table>
-    *     <tr>
-    *       <th>Option</th><th>Value</th>
-    *       <td>c</td><td>foo</td>
-    *       <td>b</td><td></td>
-    *       <td>d</td><td></td>
-    *     </tr>
-    *   </table>
-    *   <p>PublishHtml foo -b /d</p>
-    *   <p>Will result in:</p>
-    *   <table>
-    *     <tr>
-    *       <th>Option</th><th>Value</th>
-    *       <td></td><td>foo</td>
-    *       <td>b</td><td></td>
-    *       <td>d</td><td></td>
-    *     </tr>
-    *   </table>
+   *   <p>Will result in:</p>
+   *   <table>
+   *     <caption>Command Result</caption>
+   *     <tr>
+   *       <th>Option</th><th>Value</th>
+   *       <td>c</td><td>foo</td>
+   *       <td>b</td><td></td>
+   *       <td>d</td><td></td>
+   *     </tr>
+   *   </table>
+   *   <p>PublishHtml foo -b /d</p>
+   *   <p>Will result in:</p>
+   *   <table>
+   *     <caption>Command Result</caption>
+   *     <tr>
+   *       <th>Option</th><th>Value</th>
+   *       <td></td><td>foo</td>
+   *       <td>b</td><td></td>
+   *       <td>d</td><td></td>
+   *     </tr>
+   *   </table>
     *
     * @param params An array containing options/flags, option parameters and
     * filenames, as defined above.

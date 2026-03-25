@@ -30,8 +30,8 @@ public class PSContentConverter {
   /**
    * Construct a converter with the specified options.
    *
-   * @param outputFormat The output format used to return the converted data, either {@link
-   *     #FORMAT_TEXT} or {@link #FORMAT_HTML}.
+   * @param outputFormat The output format used to return the converted data, either FORMAT_TEXT or
+   *     FORMAT_HTML.
    * @param useLinefeed <code>true</code> to convert carriage returns to linefeeds, <code>false
    *     </code> to use carriage returns for line endings. Ignored if <code>outputFormat</code> is
    *     <code>TYPE_HTML</code>.

@@ -42,6 +42,7 @@ public class PSCalculateCompareRevision implements IPSRequestPreProcessor {
    * second revision is not determined. The arguments to this extension are:
    *
    * <table>
+   * <caption style="display:none">Parameters</caption>
    * <tr>
    * <th>Index</th>
    * <th>Description</th>

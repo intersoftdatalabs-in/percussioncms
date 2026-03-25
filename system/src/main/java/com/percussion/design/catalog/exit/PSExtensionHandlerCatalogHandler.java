@@ -58,6 +58,7 @@ public class PSExtensionHandlerCatalogHandler implements IPSCatalogHandler {
    * information for this request type is:
    *
    * <table border="1">
+   * <caption>Request Information</caption>
    * <tr>
    *      <th>Key</th>
    *      <th>Value</th>
@@ -104,12 +105,6 @@ public class PSExtensionHandlerCatalogHandler implements IPSCatalogHandler {
    * @param cataloger a cataloger containing a connection to the Rhythmyx server we will catalog
    *     through
    * @return an array containing the extension handlers installed on the server.
-   * @exception PSServerException if the server is not responding.
-   * @exception PSAuthenticationFailedException if the credentials specified for the server
-   *     connection are invalid.
-   * @exception PSAuthorizationException if the user does not have designer or administrator access
-   *     to the server.
-   * @exception IOException if a communication error occurs while processing the request
    */
   public static IPSExtensionDef[] getCatalog(PSCataloger cataloger)
       throws com.percussion.conn.PSServerException,

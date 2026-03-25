@@ -137,10 +137,10 @@ public class PSContentTypeUtils {
     * @param rules The rules for which the required rule needs to be added. May
     *           be <code>null</code>.
     * @param fieldName The name of the must not be <code>null</code> or empty.
-    * @param fvExits a list of extensions that implemented
-    * {@link IPSFieldValidator}. Never <code>null</code>, may be empty.
-    *
-    */
+   * @param fvExits a list of extensions that implemented
+   * IPSFieldValidator. Never <code>null</code>, may be empty.
+   *
+   */
    public static void addRequiredRule(List<PSRule> rules, String fieldName,
          List<PSExtensionRef> fvExits)
    {
@@ -199,9 +199,9 @@ public class PSContentTypeUtils {
     * @param field the field in question, never <code>null</code>.
     * @param isRequired <code>true</code> if need to add the required rule to
     * the field; otherwise remove the required rule from the field.
-    * @param fvExits a list of extensions that implemented
-    * {@link IPSFieldValidator}. Never <code>null</code>, may be empty.
-    */
+   * @param fvExits a list of extensions that implemented
+   * IPSFieldValidator. Never <code>null</code>, may be empty.
+   */
    public static void setFieldRequiredRule(PSField field, boolean isRequired,
          List<PSExtensionRef> fvExits)
    {

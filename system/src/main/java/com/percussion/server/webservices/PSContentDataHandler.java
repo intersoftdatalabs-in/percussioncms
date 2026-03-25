@@ -286,8 +286,6 @@ public class PSContentDataHandler extends PSSearchHandler implements IPSContentD
    * @param request The request object. It may not be <code>null</code>. Its parameters contain the
    *     locator of the item for which to create a 'New Copy', <code>IPSHtmlParameters.SYS_CONTENTID
    *     </code> and <code>IPSHtmlParameters.SYS_REVISION</code>.
-   * @return the original request which contains the locator of the 'New Copy' item, never <code>
-   *     null</code>.
    * @throws PSException
    */
   @Override

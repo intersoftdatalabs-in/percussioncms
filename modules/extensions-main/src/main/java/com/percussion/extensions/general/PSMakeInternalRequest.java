@@ -47,24 +47,24 @@ public class PSMakeInternalRequest extends PSSimpleJavaUdfExtension {
   /**
    * Makes an internal request to the specified Rhythmyx resource and returns the result document.
    *
-   * @param[0] the Rhythmyx resource to which to make an interal request. Specifies the application
-   *     and page of the dataset to which the internal request is to be made. May be as little as
-   *     <code>appName/pageName</code> or as much as <code>
+   * @param params the parameters array. params[0] is the Rhythmyx resource to which to make an
+   *     internal request. Specifies the application and page of the dataset to which the internal
+   *     request is to be made. May be as little as <code>appName/pageName</code> or as much as
+   *     <code>
    *     http://127.0.0.1:9992/Rhythmyx/AppTest/nov.xml?
-   * alpha=bravo&amp;test=5</code>, not <code>null</code> or empty.
-   * @param[1] the name of the stylesheet to be applied to the request result document, may be
-   *     <code>null</code> or empty in which case this parameter is ignored. The stylesheet must be
-   *     stored in a rhythmyx application. If stored in the current application, just the file name
-   *     is needed (e.g. transform.xsl). For other applications use relative path (e.g.
-   *     ../sys_resources/stylesheets/transform.xsl).
-   * @param[2] a flag as <code>String</code> to specify whether or not the parameters of the
-   *     supplied request will be inherited. If 'yes' (case insensitive) is supplied, the flag
-   *     evaluates to <code>true</code>, otherwise it will be <code>false</code>. This is optional
-   *     and defaults to <code>true</code> if not supplied.
-   * @param[3+n] the names of additional request parameters, optional. Parsing request parameters
-   *     will be stopped if the first <code>null</code> or empty parameter name is found.
-   * @param[3+n+1] the values of additional request parameters, optional. If <code>null</code>, an
-   *     empty <code>String</code> is used.
+   *     alpha=bravo&amp;test=5</code>, not <code>null</code> or empty. params[1] is the name of the
+   *     stylesheet to be applied to the request result document, may be <code>null</code> or empty
+   *     in which case this parameter is ignored. The stylesheet must be stored in a rhythmyx
+   *     application. If stored in the current application, just the file name is needed (e.g.
+   *     transform.xsl). For other applications use relative path (e.g.
+   *     ../sys_resources/stylesheets/transform.xsl). params[2] is a flag as <code>String</code> to
+   *     specify whether or not the parameters of the supplied request will be inherited. If 'yes'
+   *     (case insensitive) is supplied, the flag evaluates to <code>true</code>, otherwise it will
+   *     be <code>false</code>. This is optional and defaults to <code>true</code> if not supplied.
+   *     params[3+n] are the names of additional request parameters, optional. Parsing request
+   *     parameters will be stopped if the first <code>null</code> or empty parameter name is found.
+   *     params[3+n+1] are the values of additional request parameters, optional. If <code>null
+   *     </code>, an empty <code>String</code> is used.
    * @return the requested document or <code>null</code> if no request handler was found for the
    *     supplied resource.
    * @throws PSConversionException for any invalid parameter and all errors from the internal

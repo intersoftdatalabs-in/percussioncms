@@ -1549,26 +1549,25 @@ public class PSRelationshipDbProcessor {
   }
 
   /**
-   * Get object path built for the object parents by the supplied
-   * relationship type name. If the object happens to have multiple immediate
-   * parents, the method returns all paths. The path is build as described below:
-   * <p>
-   * "/sys_title_root/.../sys_title_second/sys_title_first"
-   * <p>
-   * If the object has no parents it returns an empty array NOT its title alone.
+   * Get object path built for the object parents by the supplied relationship type name. If the
+   * object happens to have multiple immediate parents, the method returns all paths. The path is
+   * build as described below:
+   *
+   * <p>"/sys_title_root/.../sys_title_second/sys_title_first"
+   *
+   * <p>If the object has no parents it returns an empty array NOT its title alone.
+   *
    * <p>
    *
-   * @param object Locator of the object (item or folder) for which the
-   * owner path needs to be built. Must not be <code>null</code>.
-   * @param relationshipTypeName Name of the relationship type to base the
-   * path on and it must be {@link PSRelationshipConfig#TYPE_FOLDER_CONTENT).
-   *
-   * @return String array of relationship owner paths as explained above,
-   * never <code>null</code> but may be empty.
-   *
+   * @param object Locator of the object (item or folder) for which the owner path needs to be
+   *     built. Must not be <code>null</code>.
+   * @param relationshipTypeName Name of the relationship type to base the path on and it must be
+   *     {@link PSRelationshipConfig#TYPE_FOLDER_CONTENT}.
+   * @return String array of relationship owner paths as explained above, never <code>null</code>
+   *     but may be empty.
    * @throws PSCmsException if the pah cannot be built for an reason.
-   * @throws PSInternalRequestCallException if call to the internal request
-   * to get the paths' document fails for any reason.
+   * @throws PSInternalRequestCallException if call to the internal request to get the paths'
+   *     document fails for any reason.
    */
   public String[] getOwnerPaths(PSLocator object, String relationshipTypeName)
       throws PSCmsException, PSInternalRequestCallException {

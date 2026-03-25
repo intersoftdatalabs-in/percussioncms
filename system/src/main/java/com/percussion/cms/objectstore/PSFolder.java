@@ -179,11 +179,10 @@ public class PSFolder extends PSDbComponent implements java.io.Serializable {
    * Creates an instance from a previously serialized (using <code>toXml
    * </code>) folder object.
    *
-   * @param source A valid element that meets the dtd defined in the
-   *    description of {@link #toXml(Document)}. Never <code>null</code>.
-   *
-   * @throws PSUnknownNodeTypeException If the supplied source element does
-   *    not conform to the dtd defined in the <code>fromXml<code> method.
+   * @param source A valid element that meets the dtd defined in the description of {@link
+   *     #toXml(Document)}. Never <code>null</code>.
+   * @throws PSUnknownNodeTypeException If the supplied source element does not conform to the dtd
+   *     defined in the <code>fromXml</code> method.
    */
   public PSFolder(Element source) throws PSUnknownNodeTypeException {
     super(new PSLocator());

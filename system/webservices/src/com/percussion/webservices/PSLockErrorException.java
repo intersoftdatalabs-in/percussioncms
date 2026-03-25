@@ -52,15 +52,13 @@ public class PSLockErrorException extends PSErrorException
    
    /**
     * See {@link #getResults()} for details. <code>null</code> unless this
-    * object was created using {@link #PSLockErrorException(List, Map)this ctor},
-    * in which case it is never <code>null</code>.
+    * object was created using {@link #PSLockErrorException(List, Map)}, in which case it is never <code>null</code>.
     */
    private List<PSObjectLock> m_results = null;
 
    /**
     * See {@link #getErrors()} for details. <code>null</code> unless this
-    * object was created using {@link #PSLockErrorException(List, Map)this ctor},
-    * in which case it is never <code>null</code>.
+    * object was created using {@link #PSLockErrorException(List, Map)}, in which case it is never <code>null</code>.
     */
    private Map<IPSGuid, PSLockException> m_errors = null;
    

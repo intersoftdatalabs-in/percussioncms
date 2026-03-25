@@ -213,7 +213,7 @@ public class PSUpgradeServerPageTags extends PSAction {
    *
    * @param serverPageTagsXmlRxFilePath the path of the server page tags xml file relative to the
    *     installation directory, may not be <code>null</code> or empty
-   * @throw IllegalArgumentException if serverPageTagsXmlRxFilePath is <code>null</code> or empty
+   * @throws IllegalArgumentException if serverPageTagsXmlRxFilePath is <code>null</code> or empty
    */
   public void setServerPageTagsXmlRxFilePath(String serverPageTagsXmlRxFilePath) {
     if ((serverPageTagsXmlRxFilePath == null) || (serverPageTagsXmlRxFilePath.trim().length() == 0))
@@ -236,7 +236,7 @@ public class PSUpgradeServerPageTags extends PSAction {
    *
    * @param serverPageTagsXmlE2FilePath the path of the server page tags xml file on the build
    *     machine, may not be <code>null</code> or empty
-   * @throw IllegalArgumentException if serverPageTagsXmlE2FilePath is <code>null</code> or empty
+   * @throws IllegalArgumentException if serverPageTagsXmlE2FilePath is <code>null</code> or empty
    */
   public void setServerPageTagsXmlE2FilePath(String serverPageTagsXmlE2FilePath) {
     if ((serverPageTagsXmlE2FilePath == null) || (serverPageTagsXmlE2FilePath.trim().length() == 0))

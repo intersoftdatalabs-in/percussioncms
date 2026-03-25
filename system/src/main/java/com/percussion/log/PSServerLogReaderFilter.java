@@ -55,8 +55,6 @@ public class PSServerLogReaderFilter implements IPSLogReaderFilter {
    * Construct a server log filter to retrieve log entries within the specified time range for the
    * server.
    *
-   * @param out the output stream to write the log entries to
-   * @param rawText <code>true</code> to dump raw text; <code>false</code> to use an XML format
    * @param startTime the earliest log entry to read; use <code>null</code> to ignore start time
    * @param endTime the latest log entry to read; use <code>null</code> to ignore end time
    */

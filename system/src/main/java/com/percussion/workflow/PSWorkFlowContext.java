@@ -25,8 +25,7 @@ import com.percussion.extension.IPSWorkFlowContext;
  */
 public class PSWorkFlowContext implements IPSWorkFlowContext {
   /**
-   * Constructor specifying workflowID, contentID, revisionNum, transitionID, stateID, and
-   * historyID.
+   * Constructor specifying workflowID, contentID, revisionNum, transitionID, and stateID.
    *
    * @param workflowID database ID of workflow (must be > 0)
    * @param contentID database ID of content item (must be > 0)
@@ -36,9 +35,6 @@ public class PSWorkFlowContext implements IPSWorkFlowContext {
    *     IPSConstants.TRANSITIONID_CHECKINOUT or = IPSConstants.TRANSITIONID_NO_ACTION_TAKEN
    * @param stateID database ID of current content state (new state if a transition was performed)
    *     (must be > 0)
-   * @param historyID database ID of content status history entry (must be > 0) or
-   *     IPSWorkFlowContext.WORKFLOW_CONTEXT_INITIAL_INTEGER_VALUE if the content status history
-   *     entry has not yet been created.
    * @throws IllegalArgumentException if any of the input parameters is not valid.
    */
   public PSWorkFlowContext(

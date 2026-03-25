@@ -70,7 +70,7 @@ public class PSResponse extends PSBaseResponse {
 
   /**
    * Set the status code and text to use as the body of the message. The body can contain plain text
-   * or HTML, which will be wrapped with the <HTML> and </HTML> tags.
+   * or HTML, which will be wrapped with &lt;HTML&gt; and &lt;/HTML&gt; tags.
    *
    * @param statusCode the HTTP status code to return
    * @param statusMessage the status message to provide
@@ -201,7 +201,7 @@ public class PSResponse extends PSBaseResponse {
    * Set a cookie. Cookies are actually response header fields, however, there may be multiple
    * cookies in the header. To avoid overwriting other cookies, use of this method is recommended.
    *
-   * @param cookie the name of the cookie
+   * @param name the name of the cookie
    * @param value the cookie's value (including any optional data)
    */
   public void setCookie(String name, String value) {

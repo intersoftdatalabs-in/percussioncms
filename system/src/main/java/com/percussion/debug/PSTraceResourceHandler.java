@@ -34,7 +34,6 @@ public class PSTraceResourceHandler extends PSTraceMessage {
    * Constructor for this class.
    *
    * @param typeFlag the type of trace message this object will generate
-   * @roseuid 39FDD4DF031C
    */
   public PSTraceResourceHandler(int typeFlag) {
     super(typeFlag);
@@ -55,7 +54,6 @@ public class PSTraceResourceHandler extends PSTraceMessage {
    *     message (so that the array can simply be passed to MessageFormat). If the array contains a
    *     single String, then that is a message format with no parameters.
    * @return the message body
-   * @roseuid 39FEE2F30177
    */
   protected String getMessageBody(Object source) {
     String msg = null;

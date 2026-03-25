@@ -31,7 +31,6 @@ public class PSTraceConditionalEval extends PSTraceMessage {
    * Constructor for this class.
    *
    * @param typeFlag the type of trace message this object will generate
-   * @roseuid 3A0323670232
    */
   public PSTraceConditionalEval(int typeFlag) {
     super(typeFlag);
@@ -44,7 +43,6 @@ public class PSTraceConditionalEval extends PSTraceMessage {
    * @param source an array of objects containing the information required for the trace message.
    *     One of two cases: - Op1, OpCode, Op2, Result - Op1, OpCode, Result (unary operator)
    * @return the message body
-   * @roseuid 3A03237F008C
    */
   protected String getMessageBody(java.lang.Object source) {
     Object[] args = (Object[]) source;

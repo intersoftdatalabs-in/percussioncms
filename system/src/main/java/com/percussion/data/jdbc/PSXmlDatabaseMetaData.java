@@ -1711,7 +1711,8 @@ public class PSXmlDatabaseMetaData extends PSFileSystemDatabaseMetaData {
    * Get a description of table columns available in a catalog. The file system driver always
    * returns the same set of columns:
    *
-   * <table border="2">
+   * <table border="1">
+   * <caption>Column Description</caption>
    * <tr><th>Name</th><th>Data Type</th><th>Description</th></tr>
    * <tr><td>path</td>
    *   <td>String</td>
@@ -1743,30 +1744,28 @@ public class PSXmlDatabaseMetaData extends PSFileSystemDatabaseMetaData {
    * <p>Each column description has the following columns:
    *
    * <ol>
-   *   <li><b>TABLE_CAT<b> String => table catalog (may be null)
-   *   <li><b>TABLE_SCHEM<b> String => table schema (may be null)
-   *   <li><b>TABLE_NAME<b> String => table name
-   *   <li><b>COLUMN_NAME<b> String => column name
-   *   <li><b>DATA_TYPE<b> short => SQL type from java.sql.Types
-   *   <li><b>TYPE_NAME<b> String => Data source dependent type name
-   *   <li><b>COLUMN_SIZE<b> int => column size. For char or date types this is the maximum number
-   *       of characters, for numeric or decimal types this is precision.
-   *   <li><b>BUFFER_LENGTH<b> is not used.
-   *   <li><b>DECIMAL_DIGITS<b> int => the number of fractional digits
-   *   <li><b>NUM_PREC_RADIX<b> int => Radix (typically either 10 or 2)
-   *   <li><b>NULLABLE<b> int => is NULL allowed?
-   *       <ul>
-   *         <li><b>columnNoNulls<b> - might not allow NULL values
-   *         <li><b>columnNullable<b> - definitely allows NULL values
-   *         <li><b>columnNullableUnknown<b> - nullability unknown
-   *       </ul>
-   *   <li><b>REMARKS<b> String => comment describing column (may be null)
-   *   <li><b>COLUMN_DEF<b> String => default value (may be null)
-   *   <li><b>SQL_DATA_TYPE<b> int => unused
-   *   <li><b>SQL_DATETIME_SUB<b> int => unused
-   *   <li><b>CHAR_OCTET_LENGTH<b> int => for char types the maximum number of bytes in the column
-   *   <li><b>ORDINAL_POSITION<b> int => index of column in table (starting at 1)
-   *   <li><b>IS_NULLABLE</b> String => "NO" means column definitely does not allow NULL values;
+   *   <li><b>TABLE_CAT</b> String =&gt; table catalog (may be null)
+   *   <li><b>TABLE_SCHEM</b> String =&gt; table schema (may be null)
+   *   <li><b>TABLE_NAME</b> String =&gt; table name
+   *   <li><b>COLUMN_NAME</b> String =&gt; column name
+   *   <li><b>DATA_TYPE</b> short =&gt; SQL type from java.sql.Types
+   *   <li><b>TYPE_NAME</b> String =&gt; Data source dependent type name
+   *   <li><b>COLUMN_SIZE</b> int =&gt; column size. For char or date types this is the maximum
+   *       number of characters, for numeric or decimal types this is precision.
+   *   <li><b>BUFFER_LENGTH</b> is not used.
+   *   <li><b>DECIMAL_DIGITS</b> int =&gt; the number of fractional digits
+   *   <li><b>NUM_PREC_RADIX</b> int =&gt; Radix (typically either 10 or 2)
+   *   <li><b>NULLABLE</b> int =&gt; is NULL allowed? &lt;ul&gt; &lt;li&gt;<b>columnNoNulls</b> -
+   *       might not allow NULL values &lt;li&gt;<b>columnNullable</b> - definitely allows NULL
+   *       values &lt;li&gt;<b>columnNullableUnknown</b> - nullability unknown &lt;/ul&gt;
+   *   <li><b>REMARKS</b> String =&gt; comment describing column (may be null)
+   *   <li><b>COLUMN_DEF</b> String =&gt; default value (may be null)
+   *   <li><b>SQL_DATA_TYPE</b> int =&gt; unused
+   *   <li><b>SQL_DATETIME_SUB</b> int =&gt; unused
+   *   <li><b>CHAR_OCTET_LENGTH</b> int =&gt; for char types the maximum number of bytes in the
+   *       column
+   *   <li><b>ORDINAL_POSITION</b> int =&gt; index of column in table (starting at 1)
+   *   <li><b>IS_NULLABLE</b> String =&gt; "NO" means column definitely does not allow NULL values;
    *       "YES" means the column might allow NULL values. An empty string means nobody knows.
    * </ol>
    *
@@ -2002,7 +2001,7 @@ public class PSXmlDatabaseMetaData extends PSFileSystemDatabaseMetaData {
    *   <li><b>GRANTEE</b> String => grantee of access
    *   <li><b>PRIVILEGE</b> String => name of access (SELECT, INSERT, UPDATE, REFRENCES, ...)
    *   <li><b>IS_GRANTABLE</b> String => "YES" if grantee is permitted to grant to others; "NO" if
-   *       not; null if unknown</lu>
+   *       not; null if unknown
    * </ol>
    *
    * @param catalog the directory to be searched
@@ -2566,9 +2565,8 @@ public class PSXmlDatabaseMetaData extends PSFileSystemDatabaseMetaData {
   /**
    * JDBC 2.0 Indicates whether the driver supports batch updates.
    *
-   * @param type set type, i.e. ResultSet.TYPE_XXX
    * @return <code>true</code> if the driver supports batch updates; <code>false</code> otherwise
-   * @exception SQLException if a database access error occurs
+   * @throws SQLException if a database access error occurs
    */
   public boolean supportsBatchUpdates() throws SQLException {
     return false;

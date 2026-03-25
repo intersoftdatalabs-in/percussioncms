@@ -191,7 +191,8 @@ public class PSDependencyTreeContext {
   /**
    * Get the context for the supplied dependency key.
    *
-   * @param dep The dependency key for which the context is to be retrieved, may not be <code>null
+   * @param depKey The dependency key for which the context is to be retrieved, may not be <code>
+   *     null
    *     </code> or empty.
    * @return The context, <code>null</code> if a matching context is not found.
    */

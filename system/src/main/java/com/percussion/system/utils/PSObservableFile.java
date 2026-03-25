@@ -25,25 +25,24 @@ import java.util.TimerTask;
  * This class encapsulates a file and informs the registered file observers whenever the file is
  * modified. Aimed at any situation when an action needs to be taken whenever a file is modified.
  * Polling is done at a specified time interval (the default is one second) to see if the file is
- * modified. An observer of the file must implement the interface {@link java.util.Observer} and
- * register with this object using {@link Observable#addObserver(java.util.Observer)} method of the
- * base class. Makes use of {@link Timer} object to poll to track if the file is modified at
- * specified regular interval of time.
+ * modified. An observer of the file must implement the interface java.util.Observer and register
+ * with this object using the addObserver method of the base class. Makes use of Timer object to
+ * poll to track if the file is modified at specified regular interval of time.
  */
 public class PSObservableFile extends Observable {
-  /** Convenience method that calls {@link #PSObservable(String,int) this(fileName, 1000)}. */
+  /** Convenience constructor that calls the main constructor with a default interval of 1000ms. */
   public PSObservableFile(String s) {
     // check every second by default
     this(s, 1000);
   }
 
-  /** Convenience method that calls {@link #PSObservable(File,int) this(file, 1000)}. */
+  /** Convenience constructor that calls the main constructor with a default interval of 1000ms. */
   public PSObservableFile(File file) {
     // check every second by default
     this(file, 1000);
   }
 
-  /** Convenience method that calls {@link #PSObservable(File,int) this(file, observeInterval)}. */
+  /** Convenience constructor that calls the main constructor. */
   public PSObservableFile(String fileName, int observeInterval) {
     this(new File(fileName), observeInterval);
   }
@@ -51,7 +50,7 @@ public class PSObservableFile extends Observable {
   /**
    * Ctor taking the file to observed as Java File object and observe interval in milliseconds.
    *
-   * @param file file object to be observed, must not be <code>null</code> or empty.
+   * @param file file object to be observed, must not be null or empty.
    * @param observeInterval observe interval in milliseconds, must be a positive value.
    */
   public PSObservableFile(File file, int observeInterval) {

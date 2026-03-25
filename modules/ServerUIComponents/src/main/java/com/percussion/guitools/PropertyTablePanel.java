@@ -75,10 +75,10 @@ public class PropertyTablePanel extends JPanel implements KeyListener, FocusList
   /**
    * Constructs a panel containing a 2 column table wrapped in a scroll pane.
    *
-   * @param colNames, a string array of column names, may not be <code>null
-   * </code> or empty and should have only two entries spcifying the two column names. Each header
-   *     must be a non-<code>null</code>, non-empty string.
-   * @param rows, number of rows in the table to start, if < 1, 1 is used
+   * @param colNames a string array of column names, may not be null or empty and should have only
+   *     two entries specifying the two column names. Each header must be a non-null, non-empty
+   *     string.
+   * @param rows number of rows in the table to start, if less than 1, 1 is used
    * @param isEditable flag to indicate whether the end-user should be allowed to change the
    *     properties. Note that this does not affect the {@link #getData()} or {@link #setData(Map)}
    *     methods.
@@ -294,14 +294,12 @@ public class PropertyTablePanel extends JPanel implements KeyListener, FocusList
    */
 
   /**
-   * Get the properties from the table. {@link #validateData()} should be
-   * called before this method to make sure all property names are valid
-   * (see that method for details of what valid means).
+   * Get the properties from the table. {@link #validateData()} should be called before this method
+   * to make sure all property names are valid (see that method for details of what valid means).
    *
-   * @return the table data as name/value pairs, never <code>null</code>,
-   * may be empty. Each entry has a <code>String<code> key and a <code>
-   * String</code> value. The key is never <code>null</code> or empty.
-   * The caller takes ownership of the returned map.
+   * @return the table data as name/value pairs, never null, may be empty. Each entry has a String
+   *     key and a String value. The key is never null or empty. The caller takes ownership of the
+   *     returned map.
    */
   public Map getData() {
     Map data = new HashMap();

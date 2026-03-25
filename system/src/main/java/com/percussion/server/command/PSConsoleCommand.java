@@ -18,7 +18,6 @@ package com.percussion.server.command;
 
 import com.percussion.error.PSErrorManager;
 import com.percussion.server.IPSConsoleCommand;
-import com.percussion.server.IPSServerErrors;
 import com.percussion.server.PSRemoteConsoleHandler;
 import com.percussion.server.PSRequest;
 import com.percussion.xml.PSXmlDocumentBuilder;
@@ -68,13 +67,15 @@ public abstract class PSConsoleCommand implements IPSConsoleCommand {
    *    &lt;ELEMENT resultText                 (#PCDATA)&gt;
    * </code></pre>
    *
-   * @param The request supplied to the <code>execute</code> method. May be <code>null</code>.
+   * @param request The request supplied to the <code>execute</code> method. May be <code>null
+   *     </code>.
    * @param command The full command, w/o args, never <code>null</code> or empty.
    * @param resultCode The numeric code representing the outcome of the command. Typically, one of
-   *     the {@link IPSServerErrors}.RCONSOLE_xxx codes. The numeric value of this code will be used
-   *     as the resultCode and its associated message will be used as the resultText.
-   *     <p>Supply {@link IPSServerErrors.RCONSOLE_SUCCESS} if the command is successful and does
-   *     not have any specific result message.
+   *     the IPSServerErrors.RCONSOLE_xxx codes. The numeric value of this code will be used as the
+   *     resultCode and its associated message will be used as the resultText.
+   *     <p>Supply IPSServerErrors.RCONSOLE_SUCCESS if the command is successful and does not have
+   *     any specific result message.
+   * @param args the arguments for the result message
    * @return the result document, never <code>null</code>
    */
   protected Document getResultsDocument(

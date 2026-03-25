@@ -30,13 +30,14 @@ import javax.swing.*;
  * <p>This class groups the useful but less frequently used controls together. Generally, these are
  * the search-engine specific properties. The controls that may be included in this panel are:
  *
- * <ol>
+ * <ul>
  *   <li>Lucene 'Expand query with synonyms' property
  *   <li>Use DB case sensitivity flag, if appropriate (full text not enabled and the underlying db
  *       is case sensitive)
- *       <ol>
- *         The presence of the these controls can be controlled by the caller. Either the full-text
- *         controls or the db flag is present, but never both.
+ * </ul>
+ *
+ * The presence of the these controls can be controlled by the caller. Either the full-text controls
+ * or the db flag is present, but never both.
  */
 public class PSSearchAdvancedPanel extends PSPropertyPanel implements ActionListener {
   /**

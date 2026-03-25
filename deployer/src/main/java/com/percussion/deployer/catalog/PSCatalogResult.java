@@ -54,7 +54,7 @@ public class PSCatalogResult implements IPSDeployComponent, Comparable<PSCatalog
    * Adds the object to the list of column objects.
    *
    * @param obj the column data object to add, must be one of the supported objects for catalog
-   *     result column types. Please see {@link #PSCatalogResultColumn.validateObject(Object)
+   *     result column types. Please see {@link PSCatalogResultColumn#validateObject(Object)
    *     validateObject} for more information on the supported types.
    * @throws IllegalArgumentException if obj is not a supported type.
    */
@@ -64,7 +64,7 @@ public class PSCatalogResult implements IPSDeployComponent, Comparable<PSCatalog
   }
 
   /**
-   * Adds a column data with a {@link #PSCatalogResultColumn.TYPE_TEXT text} type.
+   * Adds a column data with a {@link PSCatalogResultColumn#TYPE_TEXT text} type.
    *
    * @param data the data to add, may not be <code>null</code>
    * @throws IllegalArgumentException if data is <code>null</code>
@@ -76,7 +76,7 @@ public class PSCatalogResult implements IPSDeployComponent, Comparable<PSCatalog
   }
 
   /**
-   * Adds a column data with a {@link #PSCatalogResultColumn.TYPE_NUMERIC numeric} type.
+   * Adds a column data with a {@link PSCatalogResultColumn#TYPE_NUMERIC numeric} type.
    *
    * @param data the data to add.
    */
@@ -85,7 +85,7 @@ public class PSCatalogResult implements IPSDeployComponent, Comparable<PSCatalog
   }
 
   /**
-   * Adds a column data with a {@link #PSCatalogResultColumn.TYPE_DATE date} type.
+   * Adds a column data with a {@link PSCatalogResultColumn#TYPE_DATE date} type.
    *
    * @param data the data to add.
    */
@@ -94,7 +94,7 @@ public class PSCatalogResult implements IPSDeployComponent, Comparable<PSCatalog
   }
 
   /**
-   * Adds a column data with a {@link #PSCatalogResultColumn.TYPE_BOOL boolean} type.
+   * Adds a column data with a {@link PSCatalogResultColumn#TYPE_BOOL boolean} type.
    *
    * @param data the data to add.
    */

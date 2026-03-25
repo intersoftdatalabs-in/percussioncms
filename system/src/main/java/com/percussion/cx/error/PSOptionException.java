@@ -53,9 +53,7 @@ public class PSOptionException extends PSStandaloneException {
     super(msgCode, arrayArgs);
   }
 
-  /**
-   * @see #com.percussion.error.PSStandaloneException PSStandaloneException
-   */
+  /** Gets the resource bundle base name. */
   protected String getResourceBundleBaseName() {
     return getClass().getPackage().getName() + "." + STRING_BUNDLE_NAME;
   }

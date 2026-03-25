@@ -159,7 +159,7 @@ public class PSPublisherServiceHelper {
   /**
    * Util method to return a named ContentList
    *
-   * @return a map of <contentlist_name, IPSContentList>
+   * @return a map of {@literal <contentlist_name, IPSContentList>}
    * @throws PSDeployException
    */
   public Map<String, IPSContentList> getNamedContentListMap() throws PSDeployException {
@@ -220,7 +220,7 @@ public class PSPublisherServiceHelper {
   /**
    * Util method to get content lists by GUIDs
    *
-   * @return a Map<IPSGuid, IPSContentList>
+   * @return a {@literal Map<IPSGuid, IPSContentList>}
    * @throws PSDeployException
    */
   public Map<IPSGuid, IPSContentList> getGuidContentListMap() throws PSDeployException {

@@ -63,10 +63,6 @@ public abstract class PSEntry implements Comparable<PSEntry> {
    * the entries is a filter, it will use the information defined in the other entry to test for
    * equality.
    *
-   * <p>This implementation merely checks that the providers are the same (see the {@link
-   * #isSameProvider isSameProvider} method for details) and that the entry names are the same.
-   * Sub-classes should override this class to verify types, etc.
-   *
    * @param entry the entry to check
    * @return <code>true</code> if the entry matches; <code>false</code> otherwise
    */
@@ -105,9 +101,7 @@ public abstract class PSEntry implements Comparable<PSEntry> {
     return false;
   }
 
-  /**
-   * Generates code of the object. Overrides {@link Object#hashCode().
-   */
+  /** Generates code of the object. Overrides {@link Object#hashCode()}. */
   @Override
   public int hashCode() {
     return m_name == null ? 0 : m_name.hashCode() + m_accessLevel;

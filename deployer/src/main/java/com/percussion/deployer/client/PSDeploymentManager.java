@@ -263,22 +263,14 @@ public class PSDeploymentManager {
   }
 
   /**
-   * Retrieve index of dependencies and elements to there owner packages. <code>
-   * <pre>
-   * The returned map contains the following properties:
-   * <table border="1">
-   * <tr>
-   * <th>Name</th><th>Description</th>
-   * </tr>
-   * <tr><td>dependencyId</td><td>The dependency id</td></tr>
-   * <tr><td>objectType</td><td>Object type of the dependency</td></tr>
-   * <tr><td>project</td><td>The parent project name</td></tr>
-   * <tr><td>version</td><td>The parent project version</td></tr>
-   * </table>
-   * </pre>
-   * </code>
+   * Retrieve index of dependencies and elements to there owner packages. The returned map contains
+   * the following properties: {@literal <table border="1"> <tr> <th>Name</th><th>Description</th>
+   * </tr> <tr><td>dependencyId</td><td>The dependency id</td></tr>
+   * <tr><td>objectType</td><td>Object type of the dependency</td></tr> <tr><td>project</td><td>The
+   * parent project name</td></tr> <tr><td>version</td><td>The parent project version</td></tr>
+   * </table> }
    *
-   * @return an Iterator over zero or more Map<String, String> objects.
+   * @return an Iterator over zero or more {@literal Map<String, String>} objects.
    * @throws PSDeployException
    */
   public Iterator<Map<String, String>> getDependencyToPackageNameIndex() throws PSDeployException {
@@ -385,7 +377,7 @@ public class PSDeploymentManager {
    * Gets the id map from the server for the specified source repository.
    *
    * @param source Identifies the source repository using the form
-   *     <driver>:<server>:<database>:<origin>. May not be <code>null</code> or empty.
+   *     [driver]:[server]:[database]:[origin]. May not be <code>null</code> or empty.
    * @return The map, never <code>null</code>.
    * @throws IllegalArgumentException If <code>source</code> is <code>null</code> or empty.
    * @throws PSDeployException if there are any errors.

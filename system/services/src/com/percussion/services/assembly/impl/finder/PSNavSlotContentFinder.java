@@ -58,9 +58,6 @@ import javax.jcr.RepositoryException;
  */
 public class PSNavSlotContentFinder extends PSSlotContentFinderBase
 {
-   /** (non-Javadoc)
-    * @see com.percussion.services.assembly.IPSSlotContentFinder#find(com.percussion.services.assembly.IPSAssemblyItem, com.percussion.services.assembly.IPSTemplateSlot, java.util.Map)
-    */
    @Override
    public List<IPSAssemblyItem> find(IPSAssemblyItem sourceItem,
          IPSTemplateSlot slot, Map<String, Object> selectors)
@@ -77,9 +74,6 @@ public class PSNavSlotContentFinder extends PSSlotContentFinderBase
          return Collections.singletonList(item);
    }
 
-   /** (non-Javadoc)
-    * @see com.percussion.services.assembly.IPSSlotContentFinder#getType()
-    */
    public Type getType()
    {
       return Type.COMPUTED;

@@ -36,7 +36,6 @@ public abstract class PSTraceMessage implements IPSTraceMessage {
    * Constructor for this class. Sets the type of trace flag for this object
    *
    * @param typeFlag the type of trace message this object will generate
-   * @roseuid 39FECDCC034B
    */
   public PSTraceMessage(int typeFlag) {
     m_typeFlag = typeFlag;
@@ -50,7 +49,6 @@ public abstract class PSTraceMessage implements IPSTraceMessage {
    * @param source the source of the information to be used in generating the trace message. May not
    *     be <code>null</code>.
    * @return the message body as a String
-   * @roseuid 39F5AB4A03B9
    */
   protected abstract String getMessageBody(Object source);
 
@@ -58,7 +56,6 @@ public abstract class PSTraceMessage implements IPSTraceMessage {
    * Retrieve the text of the message header. Always begins with a newline character.
    *
    * @return the text of the message header
-   * @roseuid 39F5B21E0251
    */
   protected abstract String getMessageHeader();
 
@@ -134,7 +131,6 @@ public abstract class PSTraceMessage implements IPSTraceMessage {
    * Used to identify the type of information this object is used to trace.
    *
    * @return The type flag of the object implementing this interface.
-   * @roseuid 39FECDA702CE
    */
   public int getTypeFlag() {
     return m_typeFlag;

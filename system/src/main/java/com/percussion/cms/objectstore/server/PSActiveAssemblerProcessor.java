@@ -49,15 +49,7 @@ import org.w3c.dom.NodeList;
  * relationships of category <code>PSRelationshipConfig.CATEGORY_ATIVE_ASSEMBLY</code>.
  */
 public class PSActiveAssemblerProcessor extends PSRelationshipProcessor {
-  /**
-   * Create the backend processor for the supplied request.
-   *
-   * @param type the relationship type on which to operate, must be of category <code>
-   *     PSRelationshipConfig.CATEGORY_ACTIVE_ASSEMBLY</code>. If <code>null</code> is supplied, the
-   *     default <code>PSRelationshipConfig.TYPE_RELATED_CONTENT</code> is used.
-   * @throws PSCmsException if no configuration was found for the requested type or if the requested
-   *     type is not of category <code>PSRelationshipConfig.CATEGORY_ACTIVE_ASSEMBLY</code>.
-   */
+  /** Create the backend processor for the supplied request. */
   public PSActiveAssemblerProcessor() {
     super();
   }
@@ -67,11 +59,6 @@ public class PSActiveAssemblerProcessor extends PSRelationshipProcessor {
    *
    * @param context the request context to use, if <code>null</code> is provided, the internal
    *     rhythmyx user will be used to perform the requests.
-   * @param type the relationship type on which to operate, must be of category <code>
-   *     PSRelationshipConfig.CATEGORY_ACTIVE_ASSEMBLY</code>. If <code>null</code> is supplied, the
-   *     default <code>PSRelationshipConfig.TYPE_RELATED_CONTENT</code> is used.
-   * @throws PSCmsException if no configuration was found for the requested type or if the requested
-   *     type is not of category <code>PSRelationshipConfig.CATEGORY_ACTIVE_ASSEMBLY</code>.
    */
   public PSActiveAssemblerProcessor(IPSRequestContext context) throws PSCmsException {
     super();
@@ -149,7 +136,7 @@ public class PSActiveAssemblerProcessor extends PSRelationshipProcessor {
    *     <code>null</code> ro empty.
    * @return relationship configuration based on the allowed relationship type for the slot. May be
    *     <code>null</code> if matching relationship config is not found (Which is a very rare case).
-   * @throws PSNotFoundException if the resource for internal request is not found.
+   * @throws PSCmsException if an error occurs.
    * @throws IllegalArgumentException if the request context supplied is <code>null</code> and
    *     slotid supplied is <code>null</code> or empty.
    */

@@ -33,11 +33,10 @@ public class PSContextDependentRevisionExtractor implements IPSMacroExtractor {
    * revision. For all other authtypes this will return the current revision if the item is in a
    * public state. Otherwise the last public revision as determined from the item history or -1 if
    * the item has never been public. This macro requires the content id provided either as HTML
-   * parameter or in the execution data with column name <code>IPSConstants.ITEM_PKEY_CONTENTID
-   * </code>. An <code>IllegalArgumentException</code> will be thrown if a required parameter is
-   * missing.
+   * parameter or in the execution data with column name IPSConstants.ITEM_PKEY_CONTENTID . An
+   * IllegalArgumentException will be thrown if a required parameter is missing.
    *
-   * @see {@link IPSMacroExtractor.extract(PSExecutionData)} for parameter details.
+   * <p>See IPSMacroExtractor.extract for parameter details.
    */
   public Object extract(PSExecutionData data) throws PSDataExtractionException {
     try {

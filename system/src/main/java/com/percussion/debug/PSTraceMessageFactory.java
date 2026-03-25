@@ -35,7 +35,6 @@ public class PSTraceMessageFactory {
    *
    * @param typeFlag Flag representing the type of info that will be traced.
    * @return the type of trace info object as specified by the supplied flag
-   * @roseuid 39F49E9C000F
    */
   public static IPSTraceMessage getTraceMessage(int typeFlag) {
     IPSTraceMessage message = null;
@@ -106,7 +105,6 @@ public class PSTraceMessageFactory {
    * new list is created and stored in the map before it is returned.
    *
    * @return the possible flags as a list of PSTraceOption objects.
-   * @roseuid 39F46BEC0280
    */
   public static ArrayList<PSTraceOption> getPossibleOptions() {
     return getPossibleOptions(Locale.getDefault());
@@ -117,7 +115,6 @@ public class PSTraceMessageFactory {
    * Basic Request Info App Handler Processing App Security Resource Handler
    *
    * @return the flag with the default options set
-   * @roseuid 39F82C6B0177
    */
   public static PSTraceFlag getDefaultOptionsFlag() {
     PSTraceFlag flag = new PSTraceFlag();
@@ -140,7 +137,6 @@ public class PSTraceMessageFactory {
    * @param locale the locale to use to retrieve display names and descriptions when constructing
    *     the list
    * @return the possible flags as a list of PSTraceOption objects.
-   * @roseuid 3A11462E0119
    */
   public static ArrayList<PSTraceOption> getPossibleOptions(Locale locale) {
     ArrayList<PSTraceOption> optionList;

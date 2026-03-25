@@ -97,7 +97,7 @@ public class PSFileRequestHandler implements IPSRequestHandler, IPSInternalReque
    * contents of the file are omitted.
    *
    * @param request the request object containing all context data associated with the request
-   * @todo Currently we validate security above this level, but we may want to do some kind of
+   * @deprecated Currently we validate security above this level, but we may want to do some kind of
    *     lower-level (file level) security in addition
    */
   public void processRequest(PSRequest request) {

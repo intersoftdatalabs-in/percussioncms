@@ -104,7 +104,9 @@ public class MasterImageMetaData extends AbstractImageMetaData {
   }
 
   /**
-   * @param sizedImages the sizedImages to set
+   * Adds a sized image to the collection.
+   *
+   * @param sizedImage the sized image to add
    */
   public void addSizedImage(SizedImageMetaData sizedImage) {
     String key = sizedImage.getSizeDefinition().getCode();

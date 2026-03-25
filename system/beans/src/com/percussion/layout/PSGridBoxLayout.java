@@ -230,7 +230,7 @@ public class PSGridBoxLayout extends GridLayout implements LayoutManager2
     * Sets the number of columns in this layout with the specified value and
     * invalidates the layout.
     *
-    * @param columns the number of columns
+    * @param cols the number of columns
     *
     * @throws IllegalArgumentException if number of rows is <code>zero</code>
     * and supplied <code>cols</code> is <code>zero</code>

@@ -33,7 +33,6 @@ public class PSTraceResultSet extends PSTraceMessage {
    * Constructor for this class.
    *
    * @param typeFlag the type of trace message this object will generate
-   * @roseuid 3A032351007D
    */
   public PSTraceResultSet(int typeFlag) {
     super(typeFlag);
@@ -46,7 +45,6 @@ public class PSTraceResultSet extends PSTraceMessage {
    * @param source an array of objects containing the information required for the trace message: -
    *     PSResultSet the merged resultset after the join
    * @return the message body
-   * @roseuid 3A03237C0148
    */
   protected String getMessageBody(Object source) {
     String msg = null;

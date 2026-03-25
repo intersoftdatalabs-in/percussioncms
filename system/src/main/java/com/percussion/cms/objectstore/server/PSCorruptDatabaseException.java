@@ -29,15 +29,15 @@ public class PSCorruptDatabaseException extends PSRuntimeException {
   /**
    * Creates an exception with text describing the problem.
    *
-   * @param keyType If the key param is also supplied, this should be the cms type of the key
+   * @param objectType If the key param is also supplied, this should be the cms type of the key
    *     (example, content type or slot). If key is not provided, it should be the cms object which
-   *     seems to have the problem. It could also be the table name if that is known. Never <code>
-   *     null</code> or empty.
+   *     seems to have the problem. It could also be the table name if that is known. Never null or
+   *     empty.
    * @param key The update or primary key value (concatenate multiple column keys into this string,
    *     seperated with semicolons) which was being used when the problem was found. If unknown,
-   *     empty or <code>null</code> may be supplied. For example "Article" or "13".
+   *     empty or null may be supplied. For example "Article" or "13".
    * @param message Optional descriptive text that would aid in tracking the problem down. For
-   *     example: "Multiple content types found with same id.". May be <code>null</code> or empty.
+   *     example: "Multiple content types found with same id.". May be null or empty.
    */
   public PSCorruptDatabaseException(String objectType, String key, String message) {
     super(IPSCmsErrors.CORRUPT_DATABASE_ENTRY);

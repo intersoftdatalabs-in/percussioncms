@@ -39,8 +39,6 @@ public class PSMakefileReader {
    * Reads a logical line from the makefile. A logical line may extend over several physical lines
    * when the continuation character (backslash) is used at the end of all but the last line.
    *
-   * @param rdr The reader
-   * @param buf The buffer to which the logical line will be appendend.
    * @return The logical line. If <CODE>null</CODE>, it means the end of the file has been reached.
    */
   public String readLine() throws IOException {
@@ -55,7 +53,6 @@ public class PSMakefileReader {
    * Reads a logical line from the makefile. A logical line may extend over several physical lines
    * when the continuation character (backslash) is used at the end of all but the last line.
    *
-   * @param rdr The reader
    * @param buf The buffer to which the logical line will be appendend.
    * @return int The number of physical lines read. If less than 0, it means that the end of file
    *     was reached.

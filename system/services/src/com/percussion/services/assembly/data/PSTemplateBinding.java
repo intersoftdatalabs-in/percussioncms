@@ -167,7 +167,7 @@ public class PSTemplateBinding implements IPSTemplateBinding, Cloneable, Seriali
     * Set the execution order with enhanced validation.
     *
     * @param executionOrder the execution order, must be >= 1
-    * @throws IllegalArgumentException if executionOrder is < 1
+    * @throws IllegalArgumentException if executionOrder is &lt; 1
     */
    public void setExecutionOrder(Integer executionOrder) {
       if (executionOrder != null && executionOrder < 1) {

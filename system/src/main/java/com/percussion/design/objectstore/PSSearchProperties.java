@@ -69,11 +69,8 @@ public class PSSearchProperties extends PSComponent {
   /**
    * Most generic ctor. Enables search.
    *
-   * @param defaultSearchLabel See {@link #setDefaultSearchLabel(String)} for
-   * allowed values.
-   *
-   * @param enableTransformation See {@link #setEnableTransformation(boolean)
-   * for details.
+   * @param defaultSearchLabel See {@link #setDefaultSearchLabel(String)} for allowed values.
+   * @param enableTransformation See {@link #setEnableTransformation(boolean)} for details.
    */
   public PSSearchProperties(String defaultSearchLabel, boolean enableTransformation) {
     setDefaultSearchLabel(defaultSearchLabel);
@@ -197,25 +194,21 @@ public class PSSearchProperties extends PSComponent {
   }
 
   /**
-   * The search engine has the concept of the main data and meta data. The
-   * global query searches the main data always, plus any 'meta data' fields
-   * that are visible to the global query. 'Meta data' is used loosely here
-   * to mean all the fields that aren't considered the main content of the
+   * The search engine has the concept of the main data and meta data. The global query searches the
+   * main data always, plus any 'meta data' fields that are visible to the global query. 'Meta data'
+   * is used loosely here to mean all the fields that aren't considered the main content of the
    * item. Defaults to <code>true</code>.
-   * <p>If the field is not {@link #isUserSearchable() user searchable},
-   * this flag is ignored.
+   *
+   * <p>If the field is not {@link #isUserSearchable() user searchable}, this flag is ignored.
+   *
    * <p>Originally added for external search engine use.
    *
-   * @param isVisible If this is <code>true</code>, when a full text global
-   * query is performed, this field will be visible. If <code>false</code>,
-   * the contents of this field will only match queries executed against
-   * this specific field. Must be <code>true</code> if <code>
-   * isEnableTransformation()</code> returns <code>true</code> or an
-   * exception will be thrown.
-   *
-   * @throws IllegalStateException If {@link #isEnableTransformation()
-   * returns <code>true</code> and <code>isVisible</code> is <code>false
-   * </code>.
+   * @param isVisible If this is <code>true</code>, when a full text global query is performed, this
+   *     field will be visible. If <code>false</code>, the contents of this field will only match
+   *     queries executed against this specific field. Must be <code>true</code> if <code>
+   * isEnableTransformation()</code> returns <code>true</code> or an exception will be thrown.
+   * @throws IllegalStateException If {@link #isEnableTransformation()} returns <code>true</code>
+   *     and <code>isVisible</code> is <code>false</code>.
    */
   public void setVisibleToGlobalQuery(boolean isVisible) {
     m_visibleToGlobalQuery = isVisible;

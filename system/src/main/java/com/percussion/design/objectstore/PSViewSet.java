@@ -47,13 +47,11 @@ public class PSViewSet {
   }
 
   /**
-   * Adds the conditional view to this view set.  Conditional views are
-   * evaluated in the order in which they are added, and if one is not
-   * selected, then the non-conditional <code>PSView</code> is used. See
-   * {@link {#addView(PSView)} for information on adding non-conditional views.
+   * Adds the conditional view to this view set. Conditional views are evaluated in the order in
+   * which they are added, and if one is not selected, then the non-conditional <code>PSView</code>
+   * is used. See {@link #addView(PSView)} for information on adding non-conditional views.
    *
    * @param view The view to add, may not be <code>null</code>.
-   *
    * @throws IllegalArgumentException if view is <code>null</code>.
    */
   public void addConditionalView(PSConditionalView view) {

@@ -65,8 +65,7 @@ public class PSConsoleCommandShowStatusSearch extends PSConsoleCommand {
    *       resultText, SearchStatus)&gt;
    * </code></pre>
    *
-   * See {@link PSSearchEngine#getStatus()} for more details on the <code>SearchStatus</code>
-   * element.
+   * See the PSSearchEngine class for more details on the SearchStatus element.
    *
    * @return A document conforming to and extending the format recommended in the interface.
    */

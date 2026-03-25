@@ -137,7 +137,7 @@ public class PSFieldSetValidationRulesEvaluator {
    * Get the fields UI set this evaluator is validating. This should be treated as a read only
    * object.
    *
-   * @param the UI set of the field beeing evaluated, never <code>null</code>.
+   * @return the UI set being evaluated, never <code>null</code>.
    */
   public PSUISet getUISet() {
     return m_uiSet;

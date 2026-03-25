@@ -133,7 +133,7 @@ public class PSServerInstallEndPanel extends PSAction {
    * Sets the Rhythmyx Service Name
    *
    * @param serviceName the Rhythmyx Service Name, may not be <code>null</code> or empty
-   * @throw IllegalArgumentException if serviceName is <code>null</code> or empty
+   * @throws IllegalArgumentException if serviceName is <code>null</code> or empty
    */
   public void setServiceName(String serviceName) {
     if ((serviceName == null) || (serviceName.trim().length() == 0))
@@ -154,7 +154,7 @@ public class PSServerInstallEndPanel extends PSAction {
    * Sets the Rhythmyx Service Description
    *
    * @param serviceDesc the Rhythmyx Service Description, may not be <code>null</code> or empty
-   * @throw IllegalArgumentException if serviceDesc is <code>null</code> or empty
+   * @throws IllegalArgumentException if serviceDesc is <code>null</code> or empty
    */
   public void setServiceDesc(String serviceDesc) {
     if ((serviceDesc == null) || (serviceDesc.trim().length() == 0))

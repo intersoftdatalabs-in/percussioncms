@@ -45,6 +45,7 @@ public class PSConvertCustomSearchOperator extends PSDefaultExtension
    * @param params The request parameters, not <code>null</code>.
    *     <p>The following params are expected:
    *     <table border="1">
+   *       <caption style="display:none">Parameters</caption>
    *   <tr><th>Param #</th><th>Description</th><th>Required?</th><th>default
    *     value</th><tr>
    *   <tr>

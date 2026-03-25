@@ -160,12 +160,12 @@ public class PSDeployException extends Exception {
    * object. The format is:
    *
    * <pre><code>
-   * <!ELEMENT PSXDeployException (Arg*)
-   * <!ATTLIST PSXDeployException
+   * {@code <!ELEMENT PSXDeployException (Arg*)>}
+   * {@code <!ATTLIST PSXDeployException}
    *    msgCode CDATA #REQUIRED
    *    exceptionClass CDATA #IMPLIED
-   * >
-   * <!ELEMENT Arg (#PCDATA)>
+   * >}
+   * {@code <!ELEMENT Arg (#PCDATA)>}
    * </code></pre>
    *
    * @param doc The document to use to create the element, may not be <code>null</code>.

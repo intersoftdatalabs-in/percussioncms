@@ -47,7 +47,7 @@ public class PSUrlRequest extends PSComponent implements IPSReplacementValue {
    *
    * @param name an optional name, must be unique within the document in which it is used. May be
    *     <code>null</code>, not empty.
-   * @param converter a UDF which returns a URL. Never <coe>null</code>.
+   * @param converter a UDF which returns a URL. Never <code>null</code>.
    */
   public PSUrlRequest(String name, PSExtensionCall converter) {
     setName(name);

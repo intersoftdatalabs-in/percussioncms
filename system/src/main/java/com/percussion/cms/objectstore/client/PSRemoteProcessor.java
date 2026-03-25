@@ -50,11 +50,11 @@ public class PSRemoteProcessor extends PSProcessorCommon {
    * server. Implementors should not instantiate this class directly but should use the {@link
    * com.percussion.cms.objectstore.PSProcessorProxy PSProcessorProxy} class.
    *
-   * <p>See {@link PSServerProcessor#PSServerProcessor(Map) base class} for further details. (Note,
-   * parameters (except ssl) are the same as those of the {@link
-   * com.percussion.conn.PSDesignerConnection PSDesignerConnection} class.
+   * <p>See base class for further details. (Note, parameters (except ssl) are the same as those of
+   * the {@link com.percussion.conn.PSDesignerConnection PSDesignerConnection} class.
    *
    * <table border="1">
+   * <CAPTION>Connection Parameters</CAPTION>
    *    <tr>
    *       <th>Key</th>
    *       <th>Value</th>
@@ -93,13 +93,8 @@ public class PSRemoteProcessor extends PSProcessorCommon {
    *    </tr>
    * </table>
    *
-   * <p>See {@link PSServerProcessor#PSServerProcessor(Map) base class} for further details.
-   *
-   * @param connInfo Never <code>null</code>. All work is performed as the user identified with
-   *     these connection parameters. See description for required and optional parameters. All
-   *     property names are case-sensitive. The needed props are read and stored locally. If any
-   *     required props are missing or empty or any integral props can't be parsed, an IAE is
-   *     thrown.
+   * @param conn Never <code>null</code>. All work is performed as the user identified with these
+   *     connection parameters.
    */
   public PSRemoteProcessor(IPSRemoteRequester conn, Map procConfig) {
     super(procConfig);
@@ -112,10 +107,13 @@ public class PSRemoteProcessor extends PSProcessorCommon {
 
   /**
    * See base class for details.
-   * <li>For each entry in ids, create N html parameters whose name is the name of the entry key.
-   *     The value of each instance should be the value of one of the entries in the associated
-   *     collection.
-   * <li>Generate an http/s request to the resource specified in loadResource.
+   *
+   * <ul>
+   *   <li>For each entry in ids, create N html parameters whose name is the name of the entry key.
+   *       The value of each instance should be the value of one of the entries in the associated
+   *       collection.
+   *   <li>Generate an http/s request to the resource specified in loadResource.
+   * </ul>
    */
   protected Document doLoad(String resourceName, Map ids) throws PSCmsException {
     String path = "";

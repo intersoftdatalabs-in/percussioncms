@@ -30,11 +30,11 @@ import javax.swing.*;
  * <p>To use this class, resources must use the following key naming convention:
  *
  * <ul>
- *   <li>mn_<base_resource_key> for mnemonics
- *   <li>ks_<base_resource_key> for accel keys
- *   <li>gif_<base_resource_key> for icon file names
- *   <li>tt_<base_resource_key> for tooltip text
- *   <li>pt_<base_resource_key> for Points (can be used for cursor hotspot)
+ *   <li>mn_&lt;base_resource_key&gt; for mnemonics
+ *   <li>ks_&lt;base_resource_key&gt; for accel keys
+ *   <li>gif_&lt;base_resource_key&gt; for icon file names
+ *   <li>tt_&lt;base_resource_key&gt; for tooltip text
+ *   <li>pt_&lt;base_resource_key&gt; for Points (can be used for cursor hotspot)
  * </ul>
  *
  * This allows all resources associated with the same UI object to be accessed with the 'same' key
@@ -79,12 +79,11 @@ public class ResourceHelper {
   }
 
   /**
-   * Checks the supplied resource bundle for an icon filename whose key is gif_<strBaseKeyName>. If
-   * a non-empty one is found, the icon is loaded and it is returned, otherwise <code>null</code> is
-   * returned. Uses the <code>
-   * Class</code> instance of <code>rb</code> to load the image file.
+   * Checks the supplied resource bundle for an icon filename whose key is gif_strBaseKeyName. If a
+   * non-empty one is found, the icon is loaded and it is returned, otherwise null is returned. Uses
+   * the Class instance of rb to load the image file.
    *
-   * @para rb the resource bundle to search for the filename, using strBaseKeyName as the key
+   * @param rb the resource bundle to search for the filename, using strBaseKeyName as the key
    * @param strBaseKeyName must be a valid string
    * @throws MissingResourceException If the icon filename is present in the resource bundle, but
    *     the file cannot be found or loaded.

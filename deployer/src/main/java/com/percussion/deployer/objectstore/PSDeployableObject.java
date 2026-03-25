@@ -127,7 +127,7 @@ public class PSDeployableObject extends PSDependency {
    * &lt;!ELEMENT PSXDeployableObject (PSXDependency, RequiredClasses)>
    * &lt;!ELEMENT RequiredClasses (className*)>
    * &lt;!ELEMENT className (#PCDATA)>
-   * </pre></code>
+   * </code></pre>
    *
    * @param doc The document to use to create the element, may not be <code>null</code>.
    * @return the newly created XML element node, never <code>null</code>.

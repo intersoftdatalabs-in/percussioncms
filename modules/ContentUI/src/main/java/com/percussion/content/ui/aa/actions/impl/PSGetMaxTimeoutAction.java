@@ -30,12 +30,8 @@ import java.util.Map;
  * <p>Required parameters:
  *
  * <ul>
- *   <li>timeout - the timeout value from {@link PSAAClientServlet#PARAM_TIMEOUT}
+ *   <li>timeout - the timeout value from PSAAClientServlet.PARAM_TIMEOUT
  * </ul>
- *
- * @param params a map containing the timeout parameter
- * @return an {@link PSActionResponse} containing the timeout value as plain text
- * @throws PSAAClientActionException if the timeout value cannot be processed
  */
 public class PSGetMaxTimeoutAction extends PSAAActionBase {
 

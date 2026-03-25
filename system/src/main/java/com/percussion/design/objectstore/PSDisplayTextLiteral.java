@@ -99,7 +99,7 @@ public class PSDisplayTextLiteral extends PSLiteral implements IPSMutatableRepla
    *
    * @param doc The XML document being constructed, needed to create new elements. May not be <code>
    *     null</code>.
-   * @return a <&lt;PSXDisplayTextLiteral> Element; never <code>null</code>
+   * @return a &lt;PSXDisplayTextLiteral&gt; Element; never <code>null</code>
    * @throws IllegalArgumentException if doc is <code>null</code>
    */
   public Element toXml(Document doc) {

@@ -183,7 +183,7 @@ public class PSJobHandlerConfiguration {
   /**
    * Returns the name of the class to instantiate for this job type.
    *
-   * @param cat The category of this job. May not be <code>null</code> or empty, and must be an
+   * @param category The category of this job. May not be <code>null</code> or empty, and must be an
    *     existing category.
    * @param jobType A string which identifies a single job type within a category. May not be <code>
    *     null</code> or empty, and must be am existing job type within the specified category.

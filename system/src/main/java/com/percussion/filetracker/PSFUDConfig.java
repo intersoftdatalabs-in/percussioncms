@@ -109,7 +109,7 @@ public class PSFUDConfig {
    * Get method for user's unencrypted password. This will never be saved part of the configuration
    * document
    *
-   * @return password as Stirng, can be empty or ,code>null</code>.
+   * @return password as String, can be empty or <code>null</code>.
    */
   public String getPassword() {
     return m_password;
@@ -209,14 +209,10 @@ public class PSFUDConfig {
   /**
    * Set method for current server alias.
    *
-   * @param server alias as String, can not be <code>null>/code> or empty.
-   *
-   * @throws PSFUDEmptyServerAliasException if specified server alias
-   *         is <code>null</code> or empty.
-   *
-   * @throws PSFUDInvalidConfigFileException if specified server alias
-   *         is not found in the list of aliases.
-   *
+   * @param serverAlias the server alias as String, can not be <code>null</code> or empty.
+   * @throws PSFUDEmptyServerAliasException if specified server alias is <code>null</code> or empty.
+   * @throws PSFUDInvalidConfigFileException if specified server alias is not found in the list of
+   *     aliases.
    */
   public void setServerAlias(String serverAlias)
       throws PSFUDEmptyServerAliasException, PSFUDInvalidConfigFileException {
@@ -443,8 +439,8 @@ public class PSFUDConfig {
   /**
    * Method to set if authentication is required for Rx app.
    *
-   * @param <code>true</code> if authentication was required to access the Rx app, else <code>false
-   *     </code>.
+   * @param bAuthenticate <code>true</code> if authentication was required to access the Rx app,
+   *     else <code>false</code>.
    */
   public void setIsAuthenticationRequired(boolean bAuthenticate) {
     m_bAuthenticationRequired = bAuthenticate;

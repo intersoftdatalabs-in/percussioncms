@@ -497,29 +497,21 @@ public abstract class PSSiteFolderCListBase {
   }
 
   /**
-   * Retrieves the content list from backend repository and appends into
-   * {@link #m_contentList}. This has to be implemented by the derived class.
-   * Assumes the {@link #m_contentList}has been initialized.
+   * Retrieves the content list from backend repository and appends into {@link #m_contentList}.
+   * This has to be implemented by the derived class. Assumes the {@link #m_contentList}has been
+   * initialized.
    *
-   * @param parentFolderPath
-   *           the parent folder path, assumed not <code>null</code> or empty.
-   *           This path is relative to the <code>siteFolderPath</code>. It is
-   *           <code>/</code> if the <code>folderId</code> is the id of the
-   *           site folder itself or it is an immediate sub-folder of the site.
-   *           It is <code>/Files/<code> if <code>folderId</code> is a folder
-   *           under <code>siteFolderPath/Files</code>. This path is actual
-   *           published path not the content explorer folder path.
-   * @param folderId
-   *           the to be published folder id of the site.
-   * @param siteFolderPath
-   *           the site folder path, may not be <code>null</code>.
-   * @param filenameContext
-   *           the value of <code>sys_content</code> HTML parameter.
-   * @param appendFolderName
-   *           determines if the folder name will be appended to the path used
-   *           in location schemes: true to add the name, false to ignore the
-   *           name. Generally, only false on the first call to this method.
-   *
+   * @param parentFolderPath the parent folder path, assumed not null or empty. This path is
+   *     relative to the siteFolderPath. It is / if the folderId is the id of the site folder itself
+   *     or it is an immediate sub-folder of the site. It is /Files/ if folderId is a folder under
+   *     siteFolderPath/Files. This path is actual published path not the content explorer folder
+   *     path.
+   * @param folderId the to be published folder id of the site.
+   * @param siteFolderPath the site folder path, may not be null.
+   * @param filenameContext the value of <code>sys_content</code> HTML parameter.
+   * @param appendFolderName determines if the folder name will be appended to the path used in
+   *     location schemes: true to add the name, false to ignore the name. Generally, only false on
+   *     the first call to this method.
    * @throws PSUnknownNodeTypeException
    * @throws PSCmsException
    * @throws PSExtensionProcessingException

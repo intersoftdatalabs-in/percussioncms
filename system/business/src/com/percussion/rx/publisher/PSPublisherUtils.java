@@ -64,20 +64,18 @@ public class PSPublisherUtils
    private static final Logger ms_log = LogManager.getLogger(PSPublisherUtils.class);
    
    
-   /**
-    * Get the URL for a specified Content List, which can be used to get 
-    * the XML representation of the Content List.
-    * 
-    * @param siteId the ID of the site to be published, never <code>null</code>.
-    * @param ecList the edition content list, never <code>null</code>.
-    * @param cList the content list of the URL, never <code>null</code>.
-    * 
-    * @return the created URL, never <code>null</code> or empty. It contains
-    *    URL base path and parameters, but does not contain host, port and 
-    *    protocol. 
-    *    
-    * @throws PSPublisherException if failed to load Content List. 
-    */
+    /**
+     * Get the URL for a specified Content List, which can be used to get 
+     * the XML representation of the Content List.
+     * 
+     * @param siteId the ID of the site to be published, never <code>null</code>.
+     * @param ecList the edition content list, never <code>null</code>.
+     * @param cList the content list of the URL, never <code>null</code>.
+     * 
+     * @return the created URL, never <code>null</code> or empty. It contains
+     *    URL base path and parameters, but does not contain host, port and 
+     *    protocol. 
+     */
    public static String getCListDocumentURL(IPSGuid siteId,
          IPSEditionContentList ecList, IPSContentList cList) 
    {

@@ -40,11 +40,10 @@ public class PSLocalExecutableSearch extends PSBaseExecutableSearch {
    * Construct an executable search with a search object and a list of result column names.
    *
    * @param request the request used to execute the search request against the Rhythmyx server, it
-   *     may not be <code>null</code>.
+   *     may not be null.
    * @param search the search object that defines the criteria and maximum results to obtain, may
-   *     not be <code>null</code>
-   * @param contentIdList the list of content ids to search on, may not be <code>null</code> or
-   *     empty.
+   *     not be null
+   * @param columnNames the list of column names to search on, may not be null or empty.
    */
   public PSLocalExecutableSearch(PSRequest request, List columnNames, PSSearch search) {
     if (request == null) throw new IllegalArgumentException("request must not be null");

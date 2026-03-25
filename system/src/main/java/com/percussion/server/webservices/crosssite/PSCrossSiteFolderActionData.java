@@ -111,9 +111,6 @@ public class PSCrossSiteFolderActionData implements Serializable {
    */
   protected List<PSLocator> m_children = null;
 
-  /**
-   * @see #hasCrossSiteLinks()
-   */
   private boolean m_hasCrossSiteLinks;
 
   /**

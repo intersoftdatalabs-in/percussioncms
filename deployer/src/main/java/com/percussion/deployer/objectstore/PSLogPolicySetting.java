@@ -62,14 +62,14 @@ public class PSLogPolicySetting extends PSAppPolicySetting {
   }
 
   /**
-   * Serializes this object's state to its XML representation.  Format is:
+   * Serializes this object's state to its XML representation. Format is:
    *
    * <pre><code>
    *    &lt;!ELEMENT PSXLogPolicySetting EMPTY)>
    *    &lt;!ATTLIST PSXLogPolicySetting
    *       useSetting (Yes | No) #REQUIRED
    *    >
-   * </code>/<pre>
+   * </code></pre>
    *
    * See {@link IPSDeployComponent#toXml(Document)} for more info.
    */

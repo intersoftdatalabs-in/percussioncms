@@ -179,7 +179,7 @@ public class PSFolderProperty implements Serializable {
     * Set the content ID with enhanced validation.
     *
     * @param contentID the content ID, must be > 0
-    * @throws IllegalArgumentException if contentID is <= 0
+    * @throws IllegalArgumentException if contentID is &lt;= 0
     */
    public void setContentID(long contentID) {
       if (contentID <= 0) {
@@ -210,7 +210,7 @@ public class PSFolderProperty implements Serializable {
     * Set the revision ID with enhanced validation.
     *
     * @param revisionID the revision ID, must be > 0
-    * @throws IllegalArgumentException if revisionID is <= 0
+     * @throws IllegalArgumentException if revisionID is &lt;= 0
     */
    public void setRevisionID(long revisionID) {
       if (revisionID <= 0) {
@@ -241,7 +241,7 @@ public class PSFolderProperty implements Serializable {
     * Set the system ID with enhanced validation.
     *
     * @param sysID the system ID, must be > 0
-    * @throws IllegalArgumentException if sysID is <= 0
+     * @throws IllegalArgumentException if sysID is &lt;= 0
     */
    public void setSysID(long sysID) {
       if (sysID <= 0) {

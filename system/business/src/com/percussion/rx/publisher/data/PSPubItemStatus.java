@@ -389,11 +389,11 @@ public class PSPubItemStatus implements Serializable, IPSPublisherItemStatus
       return m_deliveryContext;
    }
 
-   /**
-    * Set the delivery context.
-    * 
-    * @param context
-    */
+    /**
+     * Set the delivery context.
+     * 
+     * @param deliveryContext
+     */
    public void setDeliveryContext(int deliveryContext)
    {
       m_deliveryContext = deliveryContext;

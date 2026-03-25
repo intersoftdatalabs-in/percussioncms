@@ -92,11 +92,10 @@ public class PSSlot extends PSCmsComponent {
    * Creates an instance from a previously serialized (using <code>toXml
    * </code>) one.
    *
-   * @param source A valid element that meets the dtd defined in the
-   *    description of {@link #toXml(Document)}. Never <code>null</code>.
-   *
-   * @throws PSUnknownNodeTypeException If the supplied source element does
-   *    not conform to the dtd defined in the <code>fromXml<code> method.
+   * @param source A valid element that meets the dtd defined in the description of {@link
+   *     #toXml(Document)}. Never <code>null</code>.
+   * @throws PSUnknownNodeTypeException If the supplied source element does not conform to the dtd
+   *     defined in the <code>fromXml</code> method.
    */
   public PSSlot(Element source) throws PSUnknownNodeTypeException {
     fromXml(source, null, null);
@@ -179,18 +178,18 @@ public class PSSlot extends PSCmsComponent {
    * will conform to the following dtd:
    *
    * <pre>
-   * <ELEMENT PSXItemSlot (Description, AllowedVariants?)>
-   * <ATTLIST PSXItemSlot
+   * &lt;ELEMENT PSXItemSlot (Description, AllowedVariants?)&gt;
+   * &lt;ATTLIST PSXItemSlot
    *    id       CDATA #REQUIRED
    *    name     CDATA #REQUIRED
-   *    >
-   * <ELEMENT Description (#PCDATA)>
-   * <ELEMENT AllowedVariants (Variant+)>
-   * <ELEMENT Variant EMPTY>
-   * <ATTLIST Variant
+   *    &gt;
+   * &lt;ELEMENT Description (#PCDATA)&gt;
+   * &lt;ELEMENT AllowedVariants (Variant+)&gt;
+   * &lt;ELEMENT Variant EMPTY&gt;
+   * &lt;ATTLIST Variant
    *    contentTypeId  CDATA    #REQUIRED
    *    variantId      CDATA    #REQUIRED
-   *    >
+   *    &gt;
    * </pre>
    *
    * @param doc Used to generate the element. Never <code>null</code>.

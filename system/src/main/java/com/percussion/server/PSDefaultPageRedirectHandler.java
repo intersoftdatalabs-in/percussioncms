@@ -34,7 +34,7 @@ public class PSDefaultPageRedirectHandler implements IPSRequestHandler {
    *     same format as the output from <code>PSServer.makeRequestRoot</code>)
    * @param defaultPage the resource (page) within an application to use; must not be <code>null
    *     </code> or empty; for example,
-   *     "camain.html?sys_componentname=ca_inbox&sys_pagename=ca_inbox"
+   *     "camain.html?sys_componentname=ca_inbox&amp;sys_pagename=ca_inbox"
    */
   public PSDefaultPageRedirectHandler(String fullRequestRoot, String defaultPage) {
     if (null == fullRequestRoot
