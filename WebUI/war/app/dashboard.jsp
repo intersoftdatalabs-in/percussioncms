@@ -249,6 +249,7 @@
                     <option value="all"><i18n:message key = "perc.ui.dashboard@View All"/></option>
                     <option selected="true" value="percussion">Percussion</option>
                     <option value="custom"><i18n:message key = "perc.ui.dashboard@Custom"/></option>
+                    <option value="deprecated"><i18n:message key = "perc.ui.dashboard@Deprecated" /></option>
                 </select>
                 <label><i18n:message key = "perc.ui.dashboard@Category"/></label>
                 <select class="perc-gadget-category" tabindex="0">
