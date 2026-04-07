@@ -40,66 +40,66 @@
 .perc-folder-selected-item{
     background-color:#CAF589 !important;
 }
-.dynatree-folder{
+.fancytree-folder{
     padding-left:8px;
     display:block;
 }
 
-div.dynatree-container{
+div.fancytree-container{
     background-color:#E6E6E9;
 }
 
-.dynatree-exp-el span.dynatree-expander, .dynatree-exp-edl span.dynatree-expander {
+.fancytree-exp-el span.fancytree-expander, .fancytree-exp-edl span.fancytree-expander {
     background-image:url("../images/collapsable.gif");
     background-position: 3px 2px;
 }
 
-.dynatree-exp-cl span.dynatree-expander, span.dynatree-expander {
+.fancytree-exp-cl span.fancytree-expander, span.fancytree-expander {
     background-image:url("../images/expandable.gif");
     background-position: 3px 2px;
 }
 
-div.dynatree-container a:focus, span.uidyantree-focused a:link{
+div.fancytree-container a:focus, span.fancytree-focused a:link{
 }
 
-span.dynatree-active, span.dynatree-active a {
+span.fancytree-active, span.fancytree-active a {
     background-color:#CAF589 !important;
     color:#0099CC !important;
 }
 
 
-.dynatree-exp-e span.dynatree-expander, .dynatree-exp-ed span.dynatree-expander{
+.fancytree-exp-e span.fancytree-expander, .fancytree-exp-ed span.fancytree-expander{
     background-image:url("../images/collapsable.gif");
     background-position: 3px 2px;
 }
 
-.dynatree-exp-cdl span.dynatree-expander {
+.fancytree-exp-cdl span.fancytree-expander {
     background-image:url("../images/expandable.gif");
     background-position: 3px 2px;
 }
 
-.dynatree-exp-cd span.dynatree-expander {
+.fancytree-exp-cd span.fancytree-expander {
     background-image:url("../images/expandable.gif");
     background-position: 3px 2px;
 }
 
-span.dynatree-expanded a, span.dynatree-active a , span.dynatree-folder a, span.dynatree-has-children a,span.dynatree-has-children a {
+span.fancytree-expanded a, span.fancytree-active a , span.fancytree-folder a, span.fancytree-has-children a,span.fancytree-has-children a {
     color:#0099CC;
     text-decoration:none;
 }
-span.dynatree-vline  {
+span.fancytree-vline  {
     background-image:none;
 }
 
 #perc-pageautolist-detail td{
     vertical-align:top;
 }
-.dynatree-folder img {
+.fancytree-folder img {
     display:none;
 }
 
 /*
-span.dynatree-empty, span.dynatree-vline, span.dynatree-connector, span.dynatree-icon, span.dynatree-checkbox, span.dynatree-radio {
+span.fancytree-empty, span.fancytree-vline, span.fancytree-connector, span.fancytree-icon, span.fancytree-checkbox, span.fancytree-radio {
 background-position:left center;
 background-repeat:no-repeat;
 display:inline-block;
@@ -108,7 +108,7 @@ vertical-align:middle;
 width:13px;
 }
 */
-span.dynatree-expander
+span.fancytree-expander
 {
     background-repeat:no-repeat;
     display:inline-block;
@@ -117,7 +117,7 @@ span.dynatree-expander
     width:13px;
 }
 
-span.dynatree-document a, span.dynatree-folder a{
+span.fancytree-document a, span.fancytree-folder a{
 }
 
 .perc-pagetemplates-entry{

@@ -21,6 +21,10 @@
  * Generate the HTML and handle the events for a tree of sites's (and assets) folders
  * that have a workflow assigned.
  * 
+ * MIGRATED: Dynatree to Fancytree
+ * - Updated from dynatree API to fancytree API
+ * - CSS class selectors changed from .fancytree-* to .fancytree-*
+ * 
  * TODO:
  * - Expose ASSETS_TITLE_KEY in some way.
  * - Make the principal roots Sites/Assets optional.
@@ -48,8 +52,8 @@
         showCheckboxes      : false,
         addHeader           : true,
         showRoots           : true,
-        cookieId            : "dynatree-checkbox",
-        idPrefix            : "dynatree-checkbox-",
+        cookieId            : "fancytree-checkbox",
+        idPrefix            : "fancytree-checkbox-",
         customOnRender      : function(){},
         customOnExpand      : function(){},
 		keyboard            : true
@@ -73,8 +77,8 @@
     var ASSETS_TITLE_KEY                = 'Assets';
 
     // Values needed when identing labels inside the tree
-    var DYNATREE_UL_LI_PADDING          = 13;
-    var DYNATREE_UL_LI_PADDING_OFFSET   = 5;
+    var FANCYTREE_UL_LI_PADDING          = 13;
+    var FANCYTREE_UL_LI_PADDING_OFFSET   = 5;
     
     var selectedWorkflow = "";
 
@@ -173,26 +177,27 @@
         }
         
         var tree_width = $('#' + options.instanceId).width();
-        // Apply the dynatree plugin
-        $('#' + options.instanceId).dynatree({
+        // Apply the fancytree plugin (migrated from dynatree)
+        $('#' + options.instanceId).fancytree({
             children        : (options.showRoots ? mainRoots : []),
             noLink          : true,
             clickFolderMode : 3,
             checkbox        : options.showCheckboxes,
-            cookieId        : "dynatree-" + options.instanceId,
-            idPrefix        : "dynatree-" + options.instanceId + "-",
-            onRender        : function(dtnode, nodeSpan) {
+            cookieId        : "fancytree-" + options.instanceId,
+            idPrefix        : "fancytree-" + options.instanceId + "-",
+            renderNode      : function(event, data) {
                 // Correct identation of elements that does not have expander
-                span = $(nodeSpan);
+                var node = data.node;
+                var span = $(data.node.span);
                 var uls  = span.parents("ul").length - 1;
-                span.attr("for",dtnode.data.title).css("padding-left", uls * DYNATREE_UL_LI_PADDING + DYNATREE_UL_LI_PADDING_OFFSET).find('.dynatree-title').addClass("perc-ellipsis");
-                var titleSpan = span.find('.dynatree-title');
-				var checkSpan = span.find('.dynatree-checkbox');
+                span.attr("for",node.title).css("padding-left", uls * FANCYTREE_UL_LI_PADDING + FANCYTREE_UL_LI_PADDING_OFFSET).find('.fancytree-title').addClass("perc-ellipsis");
+                var titleSpan = span.find('.fancytree-title');
+				var checkSpan = span.find('.fancytree-checkbox');
 				if(typeof titleSpan !== 'undefined'){
 
 				}
 				if(typeof checkSpan !== 'undefined'){
-					checkSpan.attr("title",dtnode.data.title);
+					checkSpan.attr("title",node.title);
 					checkSpan.attr("role","button");
 					checkSpan.attr("tabindex","0");
 					checkSpan.on("keydown",function(eventHandler){
@@ -203,15 +208,15 @@
 				}
 
 				// If the element has no children, correct the align
-                if (! $(span[0]).hasClass('dynatree-has-children')) {
-                    span.find('.dynatree-title').css('padding-left', '13px');
+                if (! $(span[0]).hasClass('fancytree-has-children')) {
+                    span.find('.fancytree-title').css('padding-left', '13px');
                 }
             },
-            onExpand        : function(flag, dtnode) {
-                options.customOnExpand(dtnode);
+            expand        : function(event, data) {
+                options.customOnExpand(data.node);
             },
-            onSelect        : options.onSelect,
-            onQuerySelect   : options.onQuerySelect
+            select        : options.onSelect,
+            querySelect   : options.onQuerySelect
         });
 
         // Once the tree is ready, update its contents with an empty collection,
@@ -236,7 +241,7 @@
         }   
 
         // CLEAR THE CHILDREN of Sites and Assets subtrees
-        var tree = $(container).find('#' + options.instanceId).dynatree('getTree');
+        var tree = $(container).find('#' + options.instanceId).fancytree('getTree');
         var level = 1;
         if (options.showRoots)
         {
@@ -265,13 +270,13 @@
             options.customOnRender(dtnode);
         }, false);
     }
-
+    
         /**
-         * Function that recursively constructs the tree data structure needed by dynatree plugin.
-         * @param dynetree_node DynaTreeNode (check: http://wwwendt.de/tech/dynatree/doc/dynatree-doc.html)
+         * Function that recursively constructs the tree data structure needed by fancytree plugin.
+         * @param fancytree_node FancytreeNode
          * @param dataSubtree [] object that holds the workflow assignment for a specific node.
          */
-        function addSubtreeContents(dynatree_node, dataSubtrees, levelLimit, level)
+        function addSubtreeContents(fancytree_node, dataSubtrees, levelLimit, level)
         {
             if (typeof levelLimit !== 'undefined' && level > levelLimit)
             {
@@ -331,13 +336,13 @@
                     child_template.workflowName = this.workflowName;
                     child_template.allChildrenAssociatedWithWorkflow = this.allChildrenAssociatedWithWorkflow;
                     // Create a node using the template
-                    dynatree_node.addChild(child_template);
+                    fancytree_node.addChild(child_template);
 
-                    // Call recursively addSubtreeContents with dynatree_node.chldren
+                    // Call recursively addSubtreeContents with fancytree_node.children
                     // we must also convert the 'children' property to an array (CXF problem)
 
                     if(typeof this.children !== 'undefined') {
-                        this.children !== "" && addSubtreeContents(dynatree_node.getChildren()[i], this.children.child, levelLimit, level + 1);
+                        this.children !== "" && addSubtreeContents(fancytree_node.getChildren()[i], this.children.child, levelLimit, level + 1);
                     }
                 });
 

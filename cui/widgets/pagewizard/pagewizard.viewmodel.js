@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-define(['knockout', 'pubsub', 'utils', 'dynatree'], function(ko,PubSub,utils,dynatree) {
+define(['knockout', 'pubsub', 'utils', 'fancytree'], function(ko,PubSub,utils,fancytree) {
     return function PageWizardViewModel(options) {
     
         var self = this;
@@ -29,7 +29,7 @@ define(['knockout', 'pubsub', 'utils', 'dynatree'], function(ko,PubSub,utils,dyn
 			"PAGE_FILE_INPUT_ID": "#page-file-input",
 			"NOT_AUTHORIZED_ERROR_MSG": "NotAuthorized",
 			"NOT_AUTHORIZED_ERROR_MSG_RESPONSE": "You are not authorized to create a page in folder: ",
-			"DYNATREE_ID":"#page-folder-tree"
+			"FANCYTREE_ID":"#page-folder-tree"
         };
         
         self.isLoading = ko.observable(false);
@@ -60,7 +60,7 @@ define(['knockout', 'pubsub', 'utils', 'dynatree'], function(ko,PubSub,utils,dyn
         self.multipleSites = ko.computed(function() {
             return (self.sites().length > 1);
         }, self);
-		self.dynatreeExists = ko.observable(false);
+		self.fancytreeExists = ko.observable(false);
 		self.initialTemplatesLoad = true;
 		self.initialFoldersLoad = true;
 		
@@ -130,7 +130,7 @@ define(['knockout', 'pubsub', 'utils', 'dynatree'], function(ko,PubSub,utils,dyn
 					getRecentFolders();
 				}
 				else if (self.selectedFolderFilter() === "All") {
-					self.initDynatree();      
+					self.initFancytree();      
 				}
                 else if(self.multipleSites()){
                     self.selectedFolderFilter("Recent");
@@ -165,7 +165,7 @@ define(['knockout', 'pubsub', 'utils', 'dynatree'], function(ko,PubSub,utils,dyn
 					getRecentFolders();
 				}
 				else if (self.selectedFolderFilter() === "All") {
-					self.initDynatree();      
+					self.initFancytree();      
 				}
 			}
         });
@@ -229,38 +229,36 @@ define(['knockout', 'pubsub', 'utils', 'dynatree'], function(ko,PubSub,utils,dyn
             });
         }
       
-        self.initDynatree = function(){
+        self.initFancytree = function(){
 		       // --- Initialize sample trees
 			if (self.allFoldersSelected()) {
-				self.dynatreeExists(true);
-				$(self.constants.DYNATREE_ID).dynatree({
+				self.fancytreeExists(true);
+				$(self.constants.FANCYTREE_ID).fancytree({
 					children: [{
 						title: self.selectedSite().name,
-						"isFolder": true,
-						"isLazy": true,
-						"noLink": true,
+						"folder": true,
+						"lazy": true,
 						"key": "/Sites/" + self.selectedSite().name
 					}],
 					clickFolderMode: 1,
-					onLazyRead: function(node){
+					lazyLoad: function(event, data){
+						var node = data.node;
 						self.options.cm1Adaptor.getFolders(node.data.key).done(function(folders){
 							var childNodes=[];
 							ko.utils.arrayForEach(folders.PathItem, function(folder) {
                                 if(!folder.leaf)
-                                    childNodes.push({title: folder.name, "isLazy": true, "noLink": true, "isFolder": true, key: folder.path});
+                                    childNodes.push({title: folder.name, "lazy": true, "folder": true, key: folder.path});
                             });
-							node.addChild(childNodes);
-							node.setLazyNodeStatus(DTNodeStatus_Ok);
+							node.addChildren(childNodes);
+							node.setLazyNodeStatus($.ui.fancytree.NodeStatus_Ok);
 						}).fail(function(){
-							
+							node.setLazyNodeStatus($.ui.fancytree.NodeStatus_Error);
 						});
 					},
-                    onActivate:function(node){
+                    activate: function(event, data){
+                        var node = data.node;
                         self.pageFolder(node.data.key);
-                    },
-					classNames: {
-						expander:"dynatree-expander fa"
-					}
+                    }
 				});
 			}
         };
@@ -309,11 +307,11 @@ define(['knockout', 'pubsub', 'utils', 'dynatree'], function(ko,PubSub,utils,dyn
             self.selectedFolderFilter("");
 			self.initialTemplatesLoad = true;
 			self.initialFoldersLoad = true;
-			if(self.dynatreeExists()){
-				$(self.constants.DYNATREE_ID).dynatree("destroy");
-				$(self.constants.DYNATREE_ID).empty();
+			if(self.fancytreeExists()){
+				$(self.constants.FANCYTREE_ID).fancytree("destroy");
+				$(self.constants.FANCYTREE_ID).empty();
 			}
-			self.dynatreeExists(false);
+			self.fancytreeExists(false);
 			self.fileNameTooLong(false);
         };
         

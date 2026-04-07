@@ -409,7 +409,7 @@ input.perc-rss-disabled, textarea.perc-rss-disabled {
     color: black;
 }
 
-.perc-hide-node-expander .dynatree-expander
+.perc-hide-node-expander .fancytree-expander
 {
     visibility:hidden !important;
 }

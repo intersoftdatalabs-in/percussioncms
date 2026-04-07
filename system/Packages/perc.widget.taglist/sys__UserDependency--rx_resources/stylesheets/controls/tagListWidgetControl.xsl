@@ -49,8 +49,8 @@
 				<psxctl:FileLocation>/cm/themes/smoothness/ui.datepicker.css</psxctl:FileLocation>
 				<psxctl:Timestamp/>
 			</psxctl:FileDescriptor>
-			<psxctl:FileDescriptor name="ui.dynatree.css" type="css" mimetype="text/css">
-				<psxctl:FileLocation>/cm/css/dynatree/skin/ui.dynatree.css</psxctl:FileLocation>
+			<psxctl:FileDescriptor name="ui.fancytree.css" type="css" mimetype="text/css">
+				<psxctl:FileLocation>/cm/jslib/profiles/3x/jquery/plugins/jquery-fancytree/skin-xp/skin.min.css</psxctl:FileLocation>
 				<psxctl:Timestamp/>
 			</psxctl:FileDescriptor>
 			<psxctl:FileDescriptor name="jquery.tagList.css" type="css" mimetype="text/css">
@@ -109,8 +109,8 @@
 				<psxctl:FileLocation>/cm/plugins/perc_path_manager.js</psxctl:FileLocation>
 				<psxctl:Timestamp/>
 			</psxctl:FileDescriptor>
-			<psxctl:FileDescriptor name="jquery.dynatree.js" type="script" mimetype="text/javascript">
-				<psxctl:FileLocation>/cm/jslib/profiles/3x/jquery/plugins/jquery-dynatree/jquery.dynatree.js</psxctl:FileLocation>
+			<psxctl:FileDescriptor name="jquery.fancytree.js" type="script" mimetype="text/javascript">
+				<psxctl:FileLocation>/cm/jslib/profiles/3x/jquery/plugins/jquery-fancytree/jquery.fancytree-all.min.js</psxctl:FileLocation>
 				<psxctl:Timestamp/>
 			</psxctl:FileDescriptor>
 			<psxctl:FileDescriptor name="jquery.text-overflow.js" type="script" mimetype="text/javascript">

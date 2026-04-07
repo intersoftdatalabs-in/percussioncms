@@ -116,15 +116,15 @@
     padding-right: 10px;
     color: #808484;
 }
-.ui-dynatree-title{
+.ui-fancytree-title{
     color: #0099cc;
     background-color: #ffffff !important;
 }
-.ui-dynatree-title[title="Assets"]{
+.ui-fancytree-title[title="Assets"]{
     background-color: #ffffff !important;
     color: #0099cc !important;
 }
-#ui-dynatree-id--Assets{
+#ui-fancytree-id--Assets{
     background-color:#ffffff !important;
 }
 .perc-folder-selector-container{
@@ -147,53 +147,53 @@
 .perc-folder-selected-item{
     background-color:#CAF589 !important;
 }
-.ui-dynatree-folder{
+.ui-fancytree-folder{
     background-color:#ffffff;
     padding:2px;
     padding-left:8px;
     display:block;
     border-bottom:2px solid #E6E6E9;
 }
-div.ui-dynatree-container{
+div.ui-fancytree-container{
     background-color:#E6E6E9;
 }
-.ui-dynatree-exp-el span.ui-dynatree-expander, .ui-dynatree-exp-edl span.ui-dynatree-expander {
+.ui-fancytree-exp-el span.ui-fancytree-expander, .ui-fancytree-exp-edl span.ui-fancytree-expander {
     background-image:url("/cm/gadgets/repository/perc_bulk_file_upload_gadget/images/collapsable.gif") !important;
 }
-.ui-dynatree-exp-cl span.ui-dynatree-expander, span.ui-dynatree-expander {
+.ui-fancytree-exp-cl span.ui-fancytree-expander, span.ui-fancytree-expander {
     background-image:url("/cm/gadgets/repository/perc_bulk_file_upload_gadget/images/expandable.gif") !important;
 }
-div.ui-dynatree-container a:focus, span.uidyantree-focused a:link{
+div.ui-fancytree-container a:focus, span.uidyantree-focused a:link{
     background-color:#F5F5F6;
 }
-span.ui-dynatree-active, span.ui-dynatree-active a {
+span.ui-fancytree-active, span.ui-fancytree-active a {
     background-color:#CAF589 !important;
     color:#0099CC !important;
 }
-.ui-dynatree-exp-e span.ui-dynatree-expander, .ui-dynatree-exp-ed span.ui-dynatree-expander{
+.ui-fancytree-exp-e span.ui-fancytree-expander, .ui-fancytree-exp-ed span.ui-fancytree-expander{
     background-image:url("/cm/gadgets/repository/perc_bulk_file_upload_gadget/images/collapsable.gif") !important;
 }
-.ui-dynatree-exp-cdl span.ui-dynatree-expander {
+.ui-fancytree-exp-cdl span.ui-fancytree-expander {
     background-image:url("/cm/gadgets/repository/perc_bulk_file_upload_gadget/images/expandable.gif") !important;
 }
-.ui-dynatree-exp-cd span.ui-dynatree-expander {
+.ui-fancytree-exp-cd span.ui-fancytree-expander {
     background-image:url("/cm/gadgets/repository/perc_bulk_file_upload_gadget/images/expandable.gif") !important;
 }
-span.ui-dynatree-expanded a, span.ui-dynatree-active a , span.ui-dynatree-folder a, span.ui-dynatree-has-children a,span.ui-dynatree-has-children a {
+span.ui-fancytree-expanded a, span.ui-fancytree-active a , span.ui-fancytree-folder a, span.ui-fancytree-has-children a,span.ui-fancytree-has-children a {
     color:#0099CC;
     background-color:#F5F5F6;
     text-decoration:none;
 }
-span.ui-dynatree-vline {
+span.ui-fancytree-vline {
     background-image:none !important;
 }
 #perc-imageautolist-detail td{
     vertical-align:top;
 }
-.ui-dynatree-folder img {
+.ui-fancytree-folder img {
     display:none;
 }
-span.ui-dynatree-empty, span.ui-dynatree-vline, span.ui-dynatree-connector, span.ui-dynatree-expander, span.ui-dynatree-icon, span.ui-dynatree-checkbox, span.ui-dynatree-radio {
+span.ui-fancytree-empty, span.ui-fancytree-vline, span.ui-fancytree-connector, span.ui-fancytree-expander, span.ui-fancytree-icon, span.ui-fancytree-checkbox, span.ui-fancytree-radio {
     background-position:left center;
     background-repeat:no-repeat;
     display:inline-block;
@@ -201,7 +201,7 @@ span.ui-dynatree-empty, span.ui-dynatree-vline, span.ui-dynatree-connector, span
     vertical-align:middle;
     width:13px;
 }
-span.ui-dynatree-document a, span.ui-dynatree-folder a{
+span.ui-fancytree-document a, span.ui-fancytree-folder a{
     padding-left:0px;
 }
 #perc-need-flash {
@@ -237,29 +237,29 @@ span.ui-dynatree-document a, span.ui-dynatree-folder a{
     line-height: 22px;
     list-style-type: none;
 }
-.dynatree-folder img {
+.fancytree-folder img {
     display: none;
 }
 #perc-finder-tree * {
     font-weight: normal;
     white-space: nowrap;
 }
-span.dynatree-expanded a, span.dynatree-active a, span.dynatree-folder a, span.dynatree-has-children a, span.dynatree-has-children a {
+span.fancytree-expanded a, span.fancytree-active a, span.fancytree-folder a, span.fancytree-has-children a, span.fancytree-has-children a {
     color: #0099CC;
     text-decoration: none;
 }
-span.perc-hide-node-expander span.dynatree-expander {
+span.perc-hide-node-expander span.fancytree-expander {
     visibility:hidden;
 }
-span.dynatree-node a {
+span.fancytree-node a {
     display: inline-block;
     padding-left: 3px;
     padding-right: 3px;
 }
-.dynatree-exp-el span.dynatree-expander, .dynatree-exp-edl span.dynatree-expander {
+.fancytree-exp-el span.fancytree-expander, .fancytree-exp-edl span.fancytree-expander {
     background-position: 3px 9px;
 }
-span.dynatree-empty, span.dynatree-vline, span.dynatree-connector, span.dynatree-expander, span.dynatree-icon, span.dynatree-checkbox, span.dynatree-radio, span.dynatree-drag-helper-img, #dynatree-drop-marker {
+span.fancytree-empty, span.fancytree-vline, span.fancytree-connector, span.fancytree-expander, span.fancytree-icon, span.fancytree-checkbox, span.fancytree-radio, span.fancytree-drag-helper-img, #fancytree-drop-marker {
     /*background-image: url("/cm/gadgets/repository/perc_bulk_file_upload_gadget/images/expandable.gif");
     */
     background-repeat: no-repeat;
@@ -269,20 +269,20 @@ span.dynatree-empty, span.dynatree-vline, span.dynatree-connector, span.dynatree
     width: 16px;
     background-position: 3px 9px;
 }
-.dynatree-exp-el span.dynatree-expander, .dynatree-exp-edl span.dynatree-expander, .dynatree-exp-e span.dynatree-expander, .dynatree-exp-ed span.dynatree-expander {
+.fancytree-exp-el span.fancytree-expander, .fancytree-exp-edl span.fancytree-expander, .fancytree-exp-e span.fancytree-expander, .fancytree-exp-ed span.fancytree-expander {
     background-image: url("/cm/gadgets/repository/perc_bulk_file_upload_gadget/images/collapsable.gif");
     background-position: 3px 9px;
 }
-.dynatree-exp-cl span.dynatree-expander, .dynatree-exp-c span.dynatree-expander, .dynatree-exp-cd span.dynatree-expander, .dynatree-exp-cdl span.dynatree-expander{
+.fancytree-exp-cl span.fancytree-expander, .fancytree-exp-c span.fancytree-expander, .fancytree-exp-cd span.fancytree-expander, .fancytree-exp-cdl span.fancytree-expander{
     background-image: url("/cm/gadgets/repository/perc_bulk_file_upload_gadget/images/expandable.gif");
     background-position: 3px 9px;
 }
-span.dynatree-active, span.dynatree-active a {
+span.fancytree-active, span.fancytree-active a {
     background-color: #CAF589 !important;
     border:none;
     color: #0099CC !important;
 }
-#perc-finder-tree .dynatree-node {
+#perc-finder-tree .fancytree-node {
     display:block;
     height:23px;
 }

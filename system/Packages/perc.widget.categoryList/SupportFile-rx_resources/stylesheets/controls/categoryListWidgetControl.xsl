@@ -39,7 +39,7 @@
 				<psxctl:Timestamp/>
 			</psxctl:FileDescriptor>
 			<psxctl:FileDescriptor name="perc_webmgt.packed.css" type="css" mimetype="text/css">
-				<psxctl:FileLocation>/cm/css/dynatree/skin/ui.dynatree.css</psxctl:FileLocation>
+				<psxctl:FileLocation>/cm/jslib/profiles/3x/jquery/plugins/jquery-fancytree/skin-xp/skin.min.css</psxctl:FileLocation>
 				<psxctl:Timestamp/>
 			</psxctl:FileDescriptor>
 			<psxctl:FileDescriptor name="perc_webmgt.packed.css" type="css" mimetype="text/css">
@@ -93,7 +93,7 @@
 				<psxctl:Timestamp/>
 			</psxctl:FileDescriptor>
 			<psxctl:FileDescriptor name="PercContentBrowserWidget.js" type="script" mimetype="text/javascript">
-				<psxctl:FileLocation>/cm/jslib/profiles/3x/jquery/plugins/jquery-dynatree/jquery.dynatree.js</psxctl:FileLocation>
+				<psxctl:FileLocation>/cm/jslib/profiles/3x/jquery/plugins/jquery-fancytree/jquery.fancytree-all.min.js</psxctl:FileLocation>
 				<psxctl:Timestamp/>
 			</psxctl:FileDescriptor>
 			<psxctl:FileDescriptor name="PercContentBrowserWidget.js" type="script" mimetype="text/javascript">
