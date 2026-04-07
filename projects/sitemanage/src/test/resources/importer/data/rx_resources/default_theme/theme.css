@@ -968,16 +968,16 @@ ol.perc-blog-list {
 
 /* Category List Widget */
 
-span.dynatree-expander {
+span.fancytree-expander {
     margin: -1px;
 }
 
-ul.dynatree-container {
+ul.fancytree-container {
     background-color: transparent;
 /*    overflow : hidden;*/
 }
 
-ul.dynatree-container li {
+ul.fancytree-container li {
     background-color: transparent;
     list-style: none outside none;
     margin: 0;
@@ -987,54 +987,54 @@ ul.dynatree-container li {
     padding: 1px 0 0;
 */
 }
-ul.dynatree-container ul {
+ul.fancytree-container ul {
     margin: 0;
     padding: 0 0 0 0;
     overflow: hidden;
 }
 
-ul.dynatree-container li li {
+ul.fancytree-container li li {
     padding: 0 0 0 13px;
 }
 
-ul.dynatree-container li {
+ul.fancytree-container li {
     padding : 0px;
 }
 
-ul.dynatree-container a {
+ul.fancytree-container a {
     color: #0099CC;
     margin: 0 0 0 0px;
     text-decoration: none;
     vertical-align: top;
 }
-span.dynatree-node a {
+span.fancytree-node a {
     display: inline-block;
     padding-left: 0px;
     padding-right: 0px;
 }
 
-span.dynatree-icon {
+span.fancytree-icon {
      display:none
 }
 
-span.dynatree-connector {
+span.fancytree-connector {
     background-image: none;
 }
 
-.dynatree-exp-cl span.dynatree-expander, span.dynatree-expander {
+.fancytree-exp-cl span.fancytree-expander, span.fancytree-expander {
    background-image: url('images/buttonBlueSmallPlus.gif');
    background-position: center center;
 }
 
-.dynatree-exp-el span.dynatree-expander, .dynatree-exp-edl span.dynatree-expander,
-.dynatree-exp-e span.dynatree-expander, .dynatree-exp-ed span.dynatree-expander
+.fancytree-exp-el span.fancytree-expander, .fancytree-exp-edl span.fancytree-expander,
+.fancytree-exp-e span.fancytree-expander, .fancytree-exp-ed span.fancytree-expander
 {
     background-image: url('images/buttonBlueSmallMinus.gif');
     background-position: center center;
 }
 
-.perc-category-list-expanded span.dynatree-active a,
-.perc-category-list-collapsible span.dynatree-active a {
+.perc-category-list-expanded span.fancytree-active a,
+.perc-category-list-collapsible span.fancytree-active a {
     background-color:none;
     color:#0099CC;
 }

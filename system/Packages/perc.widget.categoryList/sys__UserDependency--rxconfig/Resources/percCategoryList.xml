@@ -9,8 +9,8 @@
     <file path="/web_resources/widgets/category/js/category.min.js" type="javascript" id="category_js">
         <dependency refid="percSystem.jquery"/>
     </file>
-    <file path="/web_resources/cm/css/dynatree/skin/ui.dynatree.css" type="css" id="jquery-dynatree_css"/>
-    <file id="jquery-dynatree_js" path="/web_resources/cm/jslib/jquery.dynatree.js" type="javascript">
+    <file path="/web_resources/cm/jslib/profiles/3x/jquery/plugins/jquery-fancytree/skin-win8/ui.fancytree.min.css" type="css" id="jquery-fancytree_css"/>
+    <file id="jquery-fancytree_js" path="/web_resources/cm/jslib/profiles/3x/jquery/plugins/jquery-fancytree/jquery.fancytree-all.min.js" type="javascript">
         <dependency refid="percSystem.jquery" />
         <dependency refid="percSystem.jquery-ui" />
     </file>

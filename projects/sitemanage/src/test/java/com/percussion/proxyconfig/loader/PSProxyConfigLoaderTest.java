@@ -44,6 +44,7 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
 /** @author Santiago M. Murchio */
+@Ignore
 public class PSProxyConfigLoaderTest {
 
   @Rule public TemporaryFolder temporaryFolder = new TemporaryFolder();

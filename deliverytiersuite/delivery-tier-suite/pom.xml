@@ -374,21 +374,6 @@
                     </execution>
                 </executions>
             </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-toolchains-plugin</artifactId>
-                <version>${maven.toolchains.plugin.version}</version>
-                <configuration>
-                    <toolchains/>
-                </configuration>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>toolchain</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
             <!-- <plugin> <groupId>org.owasp</groupId> <artifactId>dependency-check-maven</artifactId>
             <version>3.1.2</version> <executions> <execution> <goals> <goal>check</goal>
             </goals> </execution> </executions> </plugin> -->

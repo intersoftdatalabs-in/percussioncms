@@ -61,7 +61,7 @@ $(function () {
             return true;
         },
         onRenderComplete: function(initialPath, initialNode){
-            $("perc-bulk-target-tree").show();
+            $('#perc-bulk-target-tree').show();
         }
     });
 

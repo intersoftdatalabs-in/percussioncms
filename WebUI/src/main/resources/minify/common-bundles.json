@@ -60,7 +60,6 @@
       "name": "shared-finder.js",
       "files": [
         "jslib/profiles/3x/jquery/plugins/jquery-fancytree/jquery.fancytree-all.min.js",
-        "jslib/profiles/3x/jquery/plugins/jquery-dynatree/jquery.dynatree.js",
         "widgets/perc_imageselect.js",
         "widgets/perc_wizard.js",
         "services/PercSiteService.js",

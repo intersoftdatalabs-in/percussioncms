@@ -57,8 +57,8 @@
             'Save' : {
                 'id' : "perc-assign-workflow-sites-folder-dialog-save",
                 'click' : function() {
-                    var selectedSites = jQuery("#datatree" + "-workflow-sites").dynatree('getTree').getSelectedNodes();
-                    var selectedAssets = jQuery("#datatree" + "-workflow-assets").dynatree('getTree').getSelectedNodes();
+                    var selectedSites = jQuery("#datatree" + "-workflow-sites").fancytree('getTree').getSelectedNodes();
+                    var selectedAssets = jQuery("#datatree" + "-workflow-assets").fancytree('getTree').getSelectedNodes();
                     var selected = selectedSites;
                     $.merge(selected, selectedAssets);
                     var selectedSitesPaths = [];
@@ -139,7 +139,7 @@
             .css("background-color", "white")
             .css("padding-top", "0px");
 
-        dialog.append('<div class="perc-loading-warning-message" style="margin-left:20px;margin-bottom:5px;"><img src="../css/dynatree/skin/loading.gif" style="vertical-align:bottom"/>' + I18N.message("perc.ui.assign.workflow@Workflow Loading") + ' </div>');
+        dialog.append('<div class="perc-loading-warning-message" style="margin-left:20px;margin-bottom:5px;"><img src="../css/ui.fancytree/skin-themeroller/loading.gif" style="vertical-align:bottom"/>' + I18N.message("perc.ui.assign.workflow@Workflow Loading") + ' </div>');
 
         // Create Sites collapsible panel
         dialog.append($('<div id="perc-assign-workflow-sites-title-wrapper"></div>')
@@ -341,7 +341,7 @@
             var tree_container_assets = $("#perc-assign-workflow-assets-tree");
             if(originalSitesJson.folderItem){
                 $.PercDataTree.updateTree(tree_container_sites, [originalSitesJson]);
-                $.each($("#datatree-workflow-sites").dynatree("getRoot").children, function(){
+                $.each($("#datatree-workflow-sites").fancytree("getRoot").children, function(){
                     customOnExpand(this);
                 });
                 if (originalSitesJson.folderItem.length > 0)
@@ -349,7 +349,7 @@
             }
             if(originalAssetsJson.folderItem){
                 $.PercDataTree.updateTree(tree_container_assets, [originalAssetsJson]);
-                $.each($("#datatree-workflow-assets").dynatree("getRoot").children, function(){
+                $.each($("#datatree-workflow-assets").fancytree("getRoot").children, function(){
                     customOnExpand(this);
                 });
                 if (originalAssetsJson.folderItem.length > 0)
@@ -387,10 +387,10 @@
     function customOnRender(dtnode)
     {
         span                = $(dtnode.span);
-        if (span.find(".dynatree-custom-checkbox").length === 0)
+        if (span.find(".fancytree-custom-checkbox").length === 0)
         {
             var newSpan = $('<span />')
-                .addClass("dynatree-custom-checkbox")
+                .addClass("fancytree-custom-checkbox")
 				.attr("role","button")
 				.attr("title","Apply")
 				.attr("tabindex","0")
@@ -400,10 +400,10 @@
 					}
 				})
                 .on("click",function(eventHandler){
-                    if (!$(eventHandler.currentTarget).hasClass("dynatree-custom-checkbox-disabled"))
+                    if (!$(eventHandler.currentTarget).hasClass("fancytree-custom-checkbox-disabled"))
                     {
-                        $(eventHandler.currentTarget).toggleClass("dynatree-custom-checkbox-selected");
-                        if ($(eventHandler.currentTarget).hasClass("dynatree-custom-checkbox-selected"))
+                        $(eventHandler.currentTarget).toggleClass("fancytree-custom-checkbox-selected");
+                        if ($(eventHandler.currentTarget).hasClass("fancytree-custom-checkbox-selected"))
                         {
                             if ($.inArray(dtnode.data.key, selectedCustomCheckboxes) === -1)
                             {
@@ -422,15 +422,15 @@
 
             if (span.hasClass("perc-item-disabled"))
             {
-                newSpan.addClass("dynatree-custom-checkbox-disabled");
+                newSpan.addClass("fancytree-custom-checkbox-disabled");
             }
             else if ($.inArray(dtnode.data.key, selectedCustomCheckboxes) !== -1)
             {
-                newSpan.addClass("dynatree-custom-checkbox-selected");
+                newSpan.addClass("fancytree-custom-checkbox-selected");
             }
             // This span is needed to apply the grey left border to the design
             var newSpanContainer = $('<span />')
-                .addClass("dynatree-custom-checkbox-container")
+                .addClass("fancytree-custom-checkbox-container")
                 .append(newSpan);
 
             span.append(newSpanContainer);
@@ -449,11 +449,11 @@
             var other_selected = hasDescendantSelected(dtnode);
             if (other_selected)
             {
-                $(dtnode.span).addClass("dynatree-partsel");
+                $(dtnode.span).addClass("fancytree-partsel");
             }
             else
             {
-                $(dtnode.span).removeClass("dynatree-partsel");
+                $(dtnode.span).removeClass("fancytree-partsel");
             }
         }
         customOnRender(dtnode);
@@ -463,11 +463,11 @@
                 var other_selected = hasDescendantSelected(node);
                 if (other_selected)
                 {
-                    $(node.span).addClass("dynatree-partsel");
+                    $(node.span).addClass("fancytree-partsel");
                 }
                 else
                 {
-                    $(node.span).removeClass("dynatree-partsel");
+                    $(node.span).removeClass("fancytree-partsel");
                 }
             }
             customOnRender(node);
@@ -482,7 +482,7 @@
      */
     function selectCustomCheckbox(dtnode)
     {
-        $(dtnode.span).find(".dynatree-custom-checkbox").addClass("dynatree-custom-checkbox-selected");
+        $(dtnode.span).find(".fancytree-custom-checkbox").addClass("fancytree-custom-checkbox-selected");
         if ($.inArray(dtnode.data.key, selectedCustomCheckboxes) === -1)
         {
             selectedCustomCheckboxes.push(dtnode.data.key);
@@ -497,7 +497,7 @@
      */
     function deselectCustomCheckbox(dtnode)
     {
-        $(dtnode.span).find(".dynatree-custom-checkbox").removeClass("dynatree-custom-checkbox-selected");
+        $(dtnode.span).find(".fancytree-custom-checkbox").removeClass("fancytree-custom-checkbox-selected");
         selectedCustomCheckboxes.splice( $.inArray(dtnode.data.key, selectedCustomCheckboxes), 1 );
     }
 
@@ -586,9 +586,9 @@
     {
         span                = $(dtnode.span);
         parentSpan          = $(dtnode.getParent().span);
-        allMyChildren       = span.next().find(".dynatree-checkbox");
-        selectedMyChildren  = span.next().find(".dynatree-selected");
-        selectedChildren    = parentSpan.next().find(".dynatree-selected");
+        allMyChildren       = span.next().find(".fancytree-checkbox");
+        selectedMyChildren  = span.next().find(".fancytree-selected");
+        selectedChildren    = parentSpan.next().find(".fancytree-selected");
 
         // If current node is checked and all of its children are checked too, turn it bold
         if (dtnode.isSelected() && allMyChildren.length === selectedMyChildren.length)
@@ -606,11 +606,11 @@
         {
             if (selectedChildren.length > 0)
             {
-                parentSpan.addClass("dynatree-partsel");
+                parentSpan.addClass("fancytree-partsel");
             }
             else
             {
-                parentSpan.removeClass("dynatree-partsel");
+                parentSpan.removeClass("fancytree-partsel");
             }
         }
 

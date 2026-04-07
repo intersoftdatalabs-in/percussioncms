@@ -35,7 +35,7 @@ define (
        // $.widGEL.baseWidget.injectCssFile('jquery', requirejs.toUrl('css/jquery-ui-1.10.4.custom.css')); since this file does not exist
         $.widGEL.baseWidget.injectCssFile('font.awesome', requirejs.toUrl('fontawesome-css'));
 		$.widGEL.baseWidget.injectCssFile('perc.css', requirejs.toUrl('perc-css'));
-		$.widGEL.baseWidget.injectCssFile('dynatree.css', requirejs.toUrl('dynatree-css'));
+		$.widGEL.baseWidget.injectCssFile('fancytree.css', requirejs.toUrl('fancytree-css'));
         
         $.widget(widgetName, $.widGEL.baseWidget, {
             options: {

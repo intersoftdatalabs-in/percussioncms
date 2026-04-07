@@ -157,7 +157,7 @@
                 }
                 sitename = $('#perc-category-site-dropdown').find(":selected").val();
 
-                container.dynatree("destroy");
+                container.fancytree("destroy");
                 controller.getCategories(this.value);
             });
             
@@ -227,7 +227,7 @@
                         return;
                 }
 
-                var tree = container.dynatree("getTree");
+                var tree = container.fancytree("getTree");
                 if(tree.count() === 1)
                     alertDialog(I18N.message("perc.ui.category.view@Delete Category"), I18N.message("perc.ui.category.view@Cannot Delete Node"));
                 else {
@@ -257,7 +257,7 @@
                         return;
                 }
 
-                var node = container.dynatree("getActiveNode");
+                var node = container.fancytree("getTree").getActiveNode();
                 displayCategoryDetails(node);
                 showSelectedCategoryEditor(node);
                     
@@ -277,13 +277,13 @@
                 }
 
 
-                var node = container.dynatree("getActiveNode");
+                var node = container.fancytree("getTree").getActiveNode();
 
                 var targetNode = findUpTargetNode(node);
                 if(targetNode != null)
                     moveNodeUp(node, targetNode);
                 
-                displayCategoryDetails(container.dynatree("getActiveNode"));
+                displayCategoryDetails(container.fancytree("getTree").getActiveNode());
             });
             
 			$("#perc-categories-movedown-button").off("keydown").on("keydown",function(event) {
@@ -300,18 +300,18 @@
                 }
 
 
-                var node = container.dynatree("getActiveNode");
+                var node = container.fancytree("getTree").getActiveNode();
                 var targetNode = findDownTargetNode(node);
                 
                 if(targetNode != null)
                     moveNodeDown(node, targetNode);
                 
-                displayCategoryDetails(container.dynatree("getActiveNode"));
+                displayCategoryDetails(container.fancytree("getTree").getActiveNode());
             });
             
             //Bind Save event
             $("#perc-category-save").off("click").on("click", function(){
-                var node = container.dynatree("getActiveNode");
+                var node = container.fancytree("getTree").getActiveNode();
                 if (node != null && node.data.title === "New Category")
                 {
                     alertDialog("Error", "You must change the category name.");
@@ -321,7 +321,7 @@
             });
             //Bind Cancel event
             $("#perc-category-cancel").off("click").on("click", function(){
-                var node = container.dynatree("getActiveNode");
+                var node = container.fancytree("getTree").getActiveNode();
                 editing = false;
                 if (!node.data.saved)
                 {
@@ -356,7 +356,7 @@
                         return;
                 }
 
-                var node = container.dynatree("getActiveNode");
+                var node = container.fancytree("getTree").getActiveNode();
                 publishToDTS(node, "Staging");
             });
 
@@ -373,7 +373,7 @@
                         return;
                 }
 
-                var node = container.dynatree("getActiveNode");
+                var node = container.fancytree("getTree").getActiveNode();
                 publishToDTS(node, "Production");
             });
             
@@ -390,7 +390,7 @@
                         return;
                 }
 
-                var node = container.dynatree("getActiveNode");
+                var node = container.fancytree("getTree").getActiveNode();
                 publishToDTS(node, "Both");
             });
             
@@ -419,39 +419,39 @@
                                 }
                 ];
             }
-            container.dynatree({
+            container.fancytree({
                 selectMode: 3,
-				keyboard: true,
+                keyboard: true,
                 autoCollapse: true,
-                children: categorytree,
-                onPostInit: function(isReloading, isError) {
+                source: categorytree,
+                init: function(event, data) {
                     visitTreeForBaseProperties();
-                    this.activateKey("_2");
-					$("a.dynatree-title").each(function(){
-						this.title=this.innerHTML;
-						this.tabIndex="0";
-						this.setAttribute("role", "button");
-
-					});
+                    data.tree.activateKey("_2");
+                    $("span.fancytree-title").each(function(){
+                        this.title=this.innerHTML;
+                        this.tabIndex="0";
+                        this.setAttribute("role", "button");
+                    });
                 },
-                onQueryActivate: function(flag,node) {
-    
+                beforeActivate: function(event, data) {
                     if (editing)
                     {
-                            currentlyEditing();
-                            return false;
+                        currentlyEditing();
+                        return false;
                     }
-                
                 },
-                onActivate: function(node) {
+                activate: function(event, data) {
+                    var node = data.node;
                     displayCategoryDetails(node);
                 },
-                dnd: {
+                extensions: ["dnd5"],
+                dnd5: {
                     preventVoidMoves: true, // Prevent dropping nodes 'before self', etc.
-                    onDragStart: function(node) {
+                    dragStart: function(node, data) {
                       return true;
                     },
-                    onDragEnter: function(node, sourceNode) {
+                    dragEnter: function(node, data) {
+                      var sourceNode = data.otherNode;
                       // Prevent dropping a parent below another parent (only sort
                       // nodes under the same parent)
                       if(node.parent !== sourceNode.parent){
@@ -460,11 +460,13 @@
                       // Don't allow dropping *over* a node (would create a child)
                       return ["before", "after"];
                     },
-                    onDrop: function(node, sourceNode, hitMode, ui, draggable) {
+                    drop: function(node, data) {
                       /** This function MUST be defined to enable dropping of items on
                        *  the tree.
                        */
-                      sourceNode.move(node, hitMode);
+                      var sourceNode = data.otherNode;
+                      var hitMode = data.hitMode;
+                      sourceNode.moveTo(node, hitMode);
                       isMoved = true;
                       save();
                     }
@@ -475,7 +477,7 @@
         
         function visitTreeForBaseProperties() {
 
-            var treeRoot = container.dynatree("getRoot");
+            var treeRoot = container.fancytree("getTree").getRootNode();
             
             treeRoot.visit(function(node){
                 node.data.saved=true;
@@ -540,7 +542,7 @@
 			$("#perc-category-name-field").attr("aria-disabled","false");
 
             $("#perc-category-name-field").on('keyup', function() {
-                 var node = container.dynatree("getActiveNode");
+                 var node = container.fancytree("getTree").getActiveNode();
                  var text =  $( this ).val();
                  if (text==="") text="[empty]";
                  node.data.title = $( this ).val();
@@ -658,7 +660,7 @@
         function handleDelete() {
 
             isDelete = false;
-            var node = container.dynatree("getActiveNode");
+            var node = container.fancytree("getTree").getActiveNode();
             parentNode = node.getParent();
             var upTarget = findUpTargetNode(node);
                 
@@ -683,7 +685,7 @@
             {
                 switchtoNode = parentNode;
             }
-            container.dynatree("getTree").activateKey(switchtoNode.data.key);
+            container.fancytree("getTree").activateKey(switchtoNode.data.key);
             displayCategoryDetails(switchtoNode);
             controller.getCategories();
         }
@@ -691,7 +693,7 @@
         function newNode(child)
         {
             
-            var root = container.dynatree("getRoot");
+            var root = container.fancytree("getTree").getRootNode();
             
             var destinationNode = null;
             var children =  root.childList;
@@ -703,7 +705,7 @@
             {
                 return children[0];
             } else {
-                var destinationNode = container.dynatree("getActiveNode");
+                var destinationNode = container.fancytree("getTree").getActiveNode();
                 if (destinationNode == null || typeof destinationNode == "undefined" || !destinationNode.hasOwnProperty('parent'))
                 {
                     destinationNode = root;
@@ -802,7 +804,7 @@
         
         function deleteCategory() {
             
-            var node = container.dynatree("getActiveNode");
+            var node = container.fancytree("getTree").getActiveNode();
             
             if(node.hasChildren() === false) {
                 confirmDialog(I18N.message("perc.ui.category.view@Delete Category"), I18N.message("perc.ui.category.view@Are You Sure"));
@@ -813,7 +815,7 @@
         
         function manageDynaProps() {
             
-            var treeRoot = container.dynatree("getRoot");
+            var treeRoot = container.fancytree("getTree").getRootNode();
             var children = [];
             treeRoot.visit(function(node){
                 var parent = node.getParent();
@@ -855,7 +857,7 @@
             var catArray = manageDynaProps();
             controller.editCategories(catArray, sitename,
             function(){
-                var node = container.dynatree("getActiveNode");
+                var node = container.fancytree("getTree").getActiveNode();
                 displayCategoryDetails(node);
                 node.data.saved = true;
                 editing = false;
@@ -868,7 +870,7 @@
         
         function save() {
         
-            var node = container.dynatree("getActiveNode");
+            var node = container.fancytree("getTree").getActiveNode();
             
             
             if(!isMoved) {
@@ -890,7 +892,7 @@
             // if the souceNode is a top level parent node, 
             // traverse the tree for only top level parent nodes.
             if(parentNode.data.title == null) {
-                var treeRoot = container.dynatree("getRoot");
+                var treeRoot = container.fancytree("getTree").getRootNode();
                 
                 treeRoot.visit(function(node){
                     var parent = node.getParent();
@@ -948,7 +950,7 @@
             // if the souceNode is a top level parent node, 
             // traverse the tree for only top level parent nodes.
             if(parentNode.data.title == null) {
-                var treeRoot = container.dynatree("getRoot");
+                var treeRoot = container.fancytree("getTree").getRootNode();
                 
                 treeRoot.visit(function(node){
                     var parent = node.getParent();

@@ -20,9 +20,11 @@ import com.percussion.assetmanagement.service.IPSAssetService;
 import com.percussion.assetmanagement.service.IPSWidgetAssetRelationshipService;
 import com.percussion.itemmanagement.service.IPSItemWorkflowService;
 import com.percussion.pagemanagement.service.IPSPageService;
+import com.percussion.pathmanagement.data.PSPathItem;
 import com.percussion.services.contentmgr.IPSContentMgr;
 import com.percussion.services.workflow.IPSWorkflowService;
 import com.percussion.share.dao.IPSFolderHelper;
+import com.percussion.share.data.IPSItemSummary;
 import com.percussion.share.service.IPSIdMapper;
 import com.percussion.ui.service.IPSListViewHelper;
 import com.percussion.user.service.IPSUserService;
@@ -104,4 +106,15 @@ public class PSAssetPathItemService extends PSPathItemService {
 
   /** Constant for the response given when a folder contains assets that are in use by templates. */
   public static final String ASSETS_IN_USE_TEMPLATES = "AssetsInUseTemplates";
+
+  @Override
+  protected void convert(IPSItemSummary itemSummary, PSPathItem item) {
+    super.convert(itemSummary, item);
+
+    // Special handling for the uploads folder - it should always be expandable
+    // since it can have subfolders created dynamically for different asset types
+    if ("uploads".equals(item.getName()) && item.getPath().startsWith("/Assets/")) {
+      item.setHasFolderChildren(true);
+    }
+  }
 }

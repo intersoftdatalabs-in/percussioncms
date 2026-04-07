@@ -173,11 +173,11 @@
                     onClick:function(path){
                         selectedTreePath = path;
                         clearCopySiteErrorMessage();
-                        $(".dynatree-active").removeClass("dynatree-active");
+                        $(".fancytree-active").removeClass("fancytree-active");
                     },
                     onRenderComplete: function(initialPath, initialNode)
                     {
-                        $(initialNode.span).addClass("dynatree-active");
+                        $(initialNode.span).addClass("fancytree-active");
                         selectedTreePath = initialPath;
                     }
                 });

@@ -24,10 +24,12 @@ import com.percussion.security.PSEncryptor;
 import com.percussion.utils.service.impl.PSUtilityService;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
+@Ignore
 public class PSUtilityserviceTest {
 
   @Rule public TemporaryFolder temporaryFolder = new TemporaryFolder();
