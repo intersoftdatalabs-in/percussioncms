@@ -1,13 +1,13 @@
-span.dynatree-expander {
+span.fancytree-expander {
     margin: -1px;
 }
 
-ul.dynatree-container {
+ul.fancytree-container {
     background-color: transparent;
 /*    overflow : hidden;*/
 }
 
-ul.dynatree-container li {
+ul.fancytree-container li {
     background-color: transparent;
     list-style: none outside none;
     margin: 0;
@@ -18,68 +18,68 @@ ul.dynatree-container li {
 */
 }
 
-ul.dynatree-container li li {
+ul.fancytree-container li li {
     padding: 0 0 0 13px;
 }
 
-ul.dynatree-container li {
+ul.fancytree-container li {
     padding : 0;
 }
 
-ul.dynatree-container a {
+ul.fancytree-container a {
     color: #0099CC;
     margin: 0 0 0 0;
     text-decoration: none;
     vertical-align: top;
 }
-span.dynatree-node a {
+span.fancytree-node a {
     display: inline-block;
     padding-left: 0;
     padding-right: 0;
 }
 
-span.dynatree-icon {
+span.fancytree-icon {
      display:none
 }
 
-span.dynatree-connector {
+span.fancytree-connector {
     background-image: none;
     margin: -1px;
 }
 
-.dynatree-exp-cl span.dynatree-expander, span.dynatree-expander {
+.fancytree-exp-cl span.fancytree-expander, span.fancytree-expander {
    background-image: url('buttonBlueSmallPlus.gif');
    background-position: center bottom;
 }
 
-.dynatree-exp-el span.dynatree-expander, .dynatree-exp-edl span.dynatree-expander,
-.dynatree-exp-e span.dynatree-expander, .dynatree-exp-ed span.dynatree-expander
+.fancytree-exp-el span.fancytree-expander, .fancytree-exp-edl span.fancytree-expander,
+.fancytree-exp-e span.fancytree-expander, .fancytree-exp-ed span.fancytree-expander
 {
     background-image: url('buttonBlueSmallMinus.gif');
     background-position: center bottom;
 }
 
-.perc-category-list-structure span.dynatree-active a,
-.perc-category-list-static span.dynatree-active a {
+.perc-category-list-structure span.fancytree-active a,
+.perc-category-list-static span.fancytree-active a {
     background-color:none;
     color:#0099CC;
 }
-ul.dynatree-container a:hover {
+ul.fancytree-container a:hover {
 
    background: none;
     border-color: none;
 }
-span.dynatree-active a {
+span.fancytree-active a {
     background-color: none;
     color: #0099CC;
 }
 
-span.dynatree-selected a {
+span.fancytree-selected a {
 
     font-style:normal;
 } 
 
-span.dynatree-checkbox {
+span.fancytree-checkbox {
 
     margin-right:5px;
 }
@@ -91,12 +91,12 @@ ul li {
     font-size: 11px;
 }
 
-ul.dynatree-container li {
+ul.fancytree-container li {
    /* background-color: #F5F5F5;
     border-bottom: 1px solid #E6E6E9;*/
 
 }
-span.dynatree-folder a {
+span.fancytree-folder a {
     font-weight:normal;
 }
 
@@ -126,7 +126,7 @@ a, a:visited {
 }
 
 
-ul.dynatree-container {
+ul.fancytree-container {
 
     border:none;
     padding:0 5px;;
@@ -136,36 +136,36 @@ ul.dynatree-container {
 
 }
 
-ul.dynatree-container a {
+ul.fancytree-container a {
     color: #0099CC;
     margin: 0 0 0 0;
     text-decoration: none;
     vertical-align: top;
 
 }
-span.dynatree-node {
+span.fancytree-node {
     display: block;
     height: 23px;
 }
 
-span.dynatree-checkbox {
+span.fancytree-checkbox {
     background-position: 0 -32px;
     margin-left: 3px;
     margin-top: -3px;
     vertical-align: middle;
 }
 
-ul.dynatree-container a:hover {
+ul.fancytree-container a:hover {
     background: none repeat scroll 0 0 transparent;
     border-color: transparent;
     border:none;
 }
 
-ul.dynatree-container a:focus, span.dynatree-focused a:link {
+ul.fancytree-container a:focus, span.fancytree-focused a:link {
     background-color: transparent;
 }
 
-ul.dynatree-container span.dynatree-active a {
+ul.fancytree-container span.fancytree-active a {
     background-color: transparent !important;
     color: #0099CC !important;
 }

@@ -25,7 +25,7 @@
     <script  src="/cm/plugins/perc_utils.js"></script>
     <script  src="/cm/services/PercServiceUtils.js"></script>
     <script  src="/cm/widgets/PercFinderTree.js"></script>
-    <script  src="/cm/jslib/profiles/3x/jquery/plugins/jquery-dynatree/jquery.dynatree.js"></script>
+    <script src="/cm/jslib/profiles/3x/jquery/plugins/jquery-fancytree/jquery.fancytree-all.js"></script>
     <script src="/cm/gadgets/repository/perc_bulk_file_upload_gadget/js/jquery.fileupload.js"></script>
     <script  src="/cm/services/PercWorkflowService.js"></script>
     <script src="/cm/gadgets/repository/perc_bulk_file_upload_gadget/js/perc_bulk_file_upload_finder_tree.js"></script>

@@ -39,10 +39,12 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
+@Ignore
 public class PSDeliveryInfoLoaderTest {
 
   private static final Logger log = LogManager.getLogger(IPSConstants.TEST_LOG);

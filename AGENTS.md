@@ -4,6 +4,7 @@ This file provides guidance for AI agents operating in the Percussion CMS codeba
 
 ## Branch Information
 
+- **Repo Root**: `./`
 - **Branch**: development-8.1.x
 - **Java Version**: JDK 1.8.0 (all code must be compatible)
 - Set `JAVA_HOME` before builds: `export JAVA_HOME=/usr/lib/jvm/java-1.8.0-amazon-corretto`

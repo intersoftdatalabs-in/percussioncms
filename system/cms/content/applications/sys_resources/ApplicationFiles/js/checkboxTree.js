@@ -11,8 +11,10 @@
  * @readonly Read only mode.
  * @debug turns debugging on if true.
  *  Usage:
-    var opts = {url : treeSrcUrl, selected : selectedValues, paramName : paramName, readonly=false};
-    $('#my-tree').perc_checkboxTree(opts);
+     var opts = {url : treeSrcUrl, selected : selectedValues, paramName : paramName, readonly=false};
+     $('#my-tree').perc_checkboxTree(opts);
+ * 
+ * Migration: Converted from dynatree to fancytree (2024)
  */
 (function($) {
 $.fn.perc_checkboxTree = function(opts){
@@ -74,108 +76,107 @@ return this.each(function() {
     
    function  updateNodeAria(node) {
 	   		/*
-    	  // Assign the checkbox role "on the fly"
-    	  $(node.span).children('a')
-    	    .attr('role', 'checkbox');
+     	  // Assign the checkbox role "on the fly"
+     	  $(node.span).children('a')
+     	    .attr('role', 'checkbox');
 
-    	  // Show the user that it the checkbox is controlling the matching
-    	  // packages list
-    	  $(node.span).children('a');
+     	  // Show the user that it the checkbox is controlling the matching
+     	  // packages list
+     	  $(node.span).children('a');
 
-    	  // Update the checkbox state
-    	  var bSelected = node.bSelected;
-    	  $(node.span).children('a')
-    	    .attr('aria-checked', bSelected);
+     	  // Update the checkbox state
+     	  var bSelected = node.isSelected();
+     	  $(node.span).children('a')
+     	    .attr('aria-checked', bSelected);
 
-    	  // Call the whole li the tree-item, noting that each li has:
-    	  //   a <span> for the connector
-    	  //   a span for the connector
-    	  //   an <a> for the text label
-    	  $(node.span).parent('li')
-    	    .attr('role', 'treeitem');
+     	  // Call the whole li the tree-item, noting that each li has:
+     	  //   a <span> for the connector
+     	  //   a span for the connector
+     	  //   an <a> for the text label
+     	  $(node.span).parent('li')
+     	    .attr('role', 'treeitem');
 
-    	  // Update the expanded state
-    	  // If it has no children, then no need to set the aria-expanded attribute
-    	  var bExpanded = node.bExpanded;
-    	  if (_.isNull(node.childList)) {
-    	    $(node.span).parent('li').removeAttr('aria-expanded');
-    	  } else {
-    	    $(node.span).parent('li')
-    	      .attr('aria-expanded', bExpanded);
-    	  }
+     	  // Update the expanded state
+     	  // If it has no children, then no need to set the aria-expanded attribute
+     	  var bExpanded = node.isExpanded();
+     	  if (node.hasChildren() === false) {
+     	    $(node.span).parent('li').removeAttr('aria-expanded');
+     	  } else {
+     	    $(node.span).parent('li')
+     	      .attr('aria-expanded', bExpanded);
+     	  }
 
-    	  // Set the id of the label "on the fly"
-    	  var idHandle = _.str.slugify(node.data.title);
-    	  $(node.span).children('a')
-    	    .attr('id', idHandle);
+     	  // Set the id of the label "on the fly"
+     	  var idHandle = _.str.slugify(node.title);
+     	  $(node.span).children('a')
+     	    .attr('id', idHandle);
 
-    	  // Now we can point to it as the label
-    	  $(node.span).parent('li')
-    	    .attr('aria-labelledby', idHandle);
+     	  // Now we can point to it as the label
+     	  $(node.span).parent('li')
+     	    .attr('aria-labelledby', idHandle);
 		*/
-    	}
+     	}
     	
     function displayTree(data) {
-        if($this.dynatree.initialized){
-            $this.dynatree("destroy");
+        if($this.fancytree("getTree")){
+            $this.fancytree("destroy");
         }
-        $this.dynatree({
-          imagePath: '../web_resources/cm/css/dynatree/skin',
+        $this.fancytree({
           checkbox: true,
           selectMode: 2,
-          children: data,
-          onSelect: function(select, dtnode) {
+          source: data,
+          select: function(event, data) {
             // Display list of selected nodes
-            var selNodes = dtnode.tree.getSelectedNodes();
+            var selNodes = data.tree.getSelectedNodes();
             // convert to title/key array
             var selKeys = $.map(selNodes, function(node){
-                 return node.data.key;
+                 return node.key;
             });
             $('#' + inputId)[0].value = selKeys.join(separator);
-            updateNodeAria(dtnode);
+            updateNodeAria(data.node);
           },
-          onClick: function(dtnode, event) {
+          click: function(event, data) {
             // We should not toggle, if target was "checkbox", because this
             // would result in double-toggle (i.e. no toggle)
-            if( dtnode.getEventTargetType(event) === "id" )
-              dtnode.toggleSelect();
-            updateNodeAria(dtnode);
+            if(event.target.classList.contains("fancytree-title"))
+              data.node.toggleSelect();
+            updateNodeAria(data.node);
           },
-          onFocus : function (dtnode) {
-              updateNodeAria(dtnode);
+          focus: function(event, data) {
+              updateNodeAria(data.node);
           },
-          onKeydown: function(dtnode, event) {
+          keydown: function(event, data) {
         	  // Use arrows to navigate within tree, rather than tabs
               // 2012-11-07 on expand/collapse, need to reset tabindexes
               // Performance TODO: scope selection to items that have changed
-              $('.dynatree-title').attr('tabindex', -1);
+              $('.fancytree-title').attr('tabindex', -1);
 
               // Only first item in tree should have a tab stop
               // so we can quickly navigate out of it
-              $('.dynatree-title:first').attr('tabindex', 0);
+              $('.fancytree-title:first').attr('tabindex', 0);
               
               // Focus should return the last tree node visited
               event.target.setAttribute('tabindex', '0');
               
         	  // 13 is enter, 32 is spacebar
               if (event.keyCode === 32) {
-              dtnode.toggleSelect();
-              updateNodeAria(dtnode);
+              data.node.toggleSelect();
+              updateNodeAria(data.node);
               return false;
             }
           },
           // The following options are only required, if we have more than one tree on one page:
-          cookieId: "ui-dynatree-Cb2" + paramName,
-          idPrefix: "ui-dynatree-Cb2-" + paramName
+          cookie: { key: "ui-fancytree-Cb2-" + paramName },
+          idPrefix: "ui-fancytree-Cb2-" + paramName + "-"
         });
         resizeTreeWidthToFitContent();
     }
 
     function resizeTreeWidthToFitContent() {
-        var container = $(".dynatree-container");
+        var container = $(".fancytree-container");
         var parentWidth = container.parent().width();
         var biggestWidth = parentWidth;
-        $(".dynatree-title").each(function(index,title){
+        $(".fancytree-title").each(function(index,title){
             var width = $(title).width();
             var leftOffset = $(title).offset().left;
             width += leftOffset;

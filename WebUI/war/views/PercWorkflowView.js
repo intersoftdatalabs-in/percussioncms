@@ -663,7 +663,7 @@
                 'selectedWorkflow' : selectedWorkflow
             };
             $.PercDataTree.init(assign_container, dataTreeConfig);
-            assign_container.append('<div role="status" class="perc-sa-loading-warning-message"><img src="../css/dynatree/skin/loading.gif" alt="perc.ui.assign.workflow@LoadingGifAlt" style="vertical-align:bottom"/>' +I18N.message("perc.ui.assign.workflow@Workflow Loading") + '</div>');
+            assign_container.append('<div role="status" class="perc-sa-loading-warning-message"><img src="../images/images/loading.gif" alt="perc.ui.assign.workflow@LoadingGifAlt" style="vertical-align:bottom"/>' +I18N.message("perc.ui.assign.workflow@Workflow Loading") + '</div>');
 
         }
 
@@ -789,14 +789,14 @@
 			var siteFound = false;
 			$("#perc-workflows-assigned-sites-folders").find('*').each(function() {
 				var classNameVal = this.className;
-				if(classNameVal == "dynatree-expander"){
+				if(classNameVal == "fancytree-expander"){
 					$(this).attr('tabindex',tabCounterAdminWF++);
 					siteFound = true;
 				}
 			});
 
 			if(siteFound){
-				$(".dynatree-expander").bind("keydown", function(eventHandler){
+				$(".fancytree-expander").bind("keydown", function(eventHandler){
 					if(eventHandler.code == "Enter" || eventHandler.code == "Space"){
 						document.activeElement.click();
 					}

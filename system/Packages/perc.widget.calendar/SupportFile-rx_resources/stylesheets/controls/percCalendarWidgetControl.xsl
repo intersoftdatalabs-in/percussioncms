@@ -21,8 +21,8 @@
         </psxctl:ParamList>
         <psxctl:AssociatedFileList>
             <!-- CSS-->
-            <psxctl:FileDescriptor name="ui.dynatree.css" type="css" mimetype="text/css">
-                <psxctl:FileLocation>/cm/css/dynatree/skin/ui.dynatree.css</psxctl:FileLocation>
+            <psxctl:FileDescriptor name="ui.fancytree.css" type="css" mimetype="text/css">
+                <psxctl:FileLocation>/cm/css/ui.fancytree.css</psxctl:FileLocation>
                 <psxctl:Timestamp/>
             </psxctl:FileDescriptor>
             <psxctl:FileDescriptor name="percQueryControl.css" type="css" mimetype="text/css">

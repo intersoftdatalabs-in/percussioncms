@@ -360,7 +360,7 @@ public class PSHtmlUtils {
                 tag -> {
                   // jsoup 1.21.2 removed support for noscript tag in Safelists
                   if ("noscript".equalsIgnoreCase(tag)) {
-                    log.warn(
+                    log.debug(
                         "Skipping 'noscript' tag as it is no longer supported in jsoup Safelists (jsoup 1.21.2+)");
                     return false;
                   }

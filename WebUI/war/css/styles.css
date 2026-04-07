@@ -2225,7 +2225,7 @@ div.perc-scrollable-templates div.perc-items div.perc-template-item:hover
     border-width:1px;
 }
 
-#perc-saveas-shared-asset-dialog-path-tree .dynatree-node img
+#perc-saveas-shared-asset-dialog-path-tree .fancytree-node img
 {
     display:inline;
     height:16px;
@@ -2234,7 +2234,7 @@ div.perc-scrollable-templates div.perc-items div.perc-template-item:hover
     width:19px;
 }
 
-#perc-saveas-shared-asset-dialog-path-tree .dynatree-node a
+#perc-saveas-shared-asset-dialog-path-tree .fancytree-node a
 {
     padding-left:5px;
 }
@@ -2317,7 +2317,7 @@ div.perc-scrollable-templates div.perc-items div.perc-template-item:hover
     padding:5px 5px 5px 8px;
 }
 
-.perc-hide-node-expander .dynatree-expander
+.perc-hide-node-expander .fancytree-expander
 {
     visibility:hidden !important;
 }
@@ -2466,7 +2466,7 @@ div.perc-scrollable-templates div.perc-items div.perc-template-item:hover
     padding-right:7px;
 }
 
-.perc-dialog .ui-dialog-titlebar .ui-dialog-titlebar-close,.perc-import-error,#perc-saveas-shared-asset .perc-saveas-shared-asset-dialog-error,#perc-saveas-shared-asset-dialog-path-tree .perc-path-selector-container > li > .dynatree-folder img
+.perc-dialog .ui-dialog-titlebar .ui-dialog-titlebar-close,.perc-import-error,#perc-saveas-shared-asset .perc-saveas-shared-asset-dialog-error,#perc-saveas-shared-asset-dialog-path-tree .perc-path-selector-container > li > .fancytree-folder img
 {
     display:none;
 }
@@ -2681,7 +2681,7 @@ li.ui-tabs-active #perc-tab-style,#perc-tab-style:hover,#ui-state-active
     background-color:white;
 }
 
-#perc-saveas-shared-asset-dialog-path-tree .dynatree-folder,#perc-saveas-shared-asset-dialog-path-tree .dynatree-node
+#perc-saveas-shared-asset-dialog-path-tree .fancytree-folder,#perc-saveas-shared-asset-dialog-path-tree .fancytree-node
 {
     display:block;
     padding:2px 2px 2px 8px;

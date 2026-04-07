@@ -16,7 +16,7 @@
  */
 
 /**
- * A widget on top of tree plugin called dynatree for creating the finder tree.
+ * A widget on top of tree plugin called Fancytree for creating the finder tree.
  * Loads the tree lazily by making AJAX calls to $.perc_paths.PATH_FOLDER.
  * USAGE:
  * var finderTree = $("Selector").PercFinderTree({rootPath:$.PercFinderTreeConstants.ROOT_PATH_ALL,showFoldersOnly:true});
@@ -27,14 +27,14 @@
  * width(String) - width of the tree container default is 300px
  * showFoldersOnly(boolean) - true will display just folders, false will display folders and pages/assets, default is false.
  * onClick(function) - the callback function to be called on clicking a node.
- * classNames(object) - dynatree classes can be overridden with this option. see http://wwwendt.de/tech/dynatree/doc/dynatree-doc.html
- *                      for available class name of dynatree. Example: {container:"my-container-class-name",...}
+ * classNames(object) - fancytree classes can be overridden with this option.
+ *                      for available class name of fancytree. Example: {container:"my-container-class-name",...}
  * onRenderComplete(function) -- Call back function that gets called after rendering is complete.
  *
  * Apart from the onClick call back function, exposes the following methods.
- * getDynaTree(), returns the underlying dynatree object, use it for readonly and styling purposes.<b> 
+ * getDynaTree(), returns the underlying fancytree object, use it for readonly and styling purposes.<b>
  * getSelectedNodes() returns the array of selected nodes in the form of PathItem objects, See PSPathItem for more details.
- * 
+ *
  */
 (function($){
 
@@ -94,6 +94,7 @@
         },
         _init: function()
         {
+            
             var self = this;
             $.extend(this.settings, this.options);
             var rp = this.settings.rootPath;
@@ -109,7 +110,7 @@
             this.intialPathExpanded = true;
             this.initialRenderCompleted = false;
             this.intialPathKey = null;
-            if(this.settings.initialPath && this.settings.initialPath.trim().length > 0)
+            if(this.settings.initialPath && this.settings.initialPath.trim().length > 0 && this.settings.initialPath.trim().charAt(0) === '/')
             {
                 this.intialPathExpanded = false;
                 this.intialPathKey = this._generateKey(this.settings.initialPath);
@@ -121,10 +122,9 @@
                 function(status, result)
                 {
                     if(status === $.PercServiceUtils.STATUS_ERROR)
-                    { 
-                        var defaultMsg = $.PercServiceUtils.extractDefaultErrorMessage(request);
+                    {
+                        var defaultMsg = $.PercServiceUtils.extractDefaultErrorMessage(result.request);
                         $.perc_utils.alert_dialog({title: 'Error', content: defaultMsg});
-                        dtnode.setLazyNodeStatus(DTNodeStatus_Error);
                     }
                     else
                     {
@@ -142,7 +142,7 @@
             var self = this;
             var rootChildren = [];
             var inPath = self._normalizedPath(self.settings.initialPath);
-            $.each(data.PathItem, function(){
+            $.each(data.PathItemList, function(){
                 var include = self.settings.rootPath === $.PercFinderTreeConstants.ROOT_PATH_ALL || self.settings.rootPath === this.name;
                 if(this.name === "Design" || this.name === "Search")
                     include = false;
@@ -153,42 +153,98 @@
                     var currentPath = self._normalizedPath(this.path);
                     if(inPath === currentPath)
                     {
-                        $.extend(dtobj,{activate:true});
+                        $.extend(dtobj,{active:true});
                         self.intialPathExpanded = true;
+                    }
+                    // Auto-expand root nodes when initialPath is a child of that root
+                    // This handles cases like initialPath="/Assets/uploads" with rootPath="Assets"
+                    if(!self.intialPathExpanded && inPath.indexOf(currentPath) === 0 && currentPath !== "/")
+                    {
+                        $.extend(dtobj,{active:true});
+                        // Set a flag to indicate we need to expand this root node after tree init
+                        self.rootToExpand = dtobj;
                     }
                     rootChildren.push(dtobj);
                 }
             });
-            var dynaTree = $(this.element).find("#perc-finder-tree").dynatree({
-                selectMode:1,
+            var fancyTree = $(this.element).find("#perc-finder-tree").fancytree({
+                selectMode: 1,
                 autoFocus: false,
-                imagePath: " ",
-                children: rootChildren,
+                source: rootChildren,
                 clickFolderMode: self.settings.clickFolderMode,
-                onQuerySelect: self.settings.onQuerySelect,
-                onQueryActivate: self.settings.onQueryActivate,
-                classNames: self.settings.classNames,
-                onRender : function(dtnode) {
+                beforeSelect: function(event, data) {
+                    return self.settings.onQuerySelect(data.node);
+                },
+                beforeActivate: function(event, data) {
+                    return self.settings.onQueryActivate(true, data.node);
+                },
+                classes: self.settings.classNames,
+                dblclick: function(event, data) {
+                    var node = data.node;
+                    if(node.isFolder() && !node.isExpanded()){
+                        node.setExpanded(true);
+                    }
+                    return true;
+                },
+                init: function(event, data) {
+                    if(!self.initialRenderCompleted){
+                        self.settings.onRenderComplete(null, null);
+                        self.initialRenderCompleted = true;
+                    }
+                    if(self.rootToExpand && !self.intialPathExpanded){
+                        var rootNode = data.tree.getNodeByKey(self.rootToExpand.key);
+                        if(rootNode){
+                            rootNode.setExpanded(true);
+                        }
+                    }
+                },
+                renderNode: function(event, data) {
+                    var dtnode = data.node;
                     var span;
-                    var uls;
-                    if(dtnode.data.type !== "SHOW_MORE"){
+                    var level = dtnode.getLevel();
+                    if(dtnode.data.nodeType !== "SHOW_MORE"){
                         span = $(dtnode.span);
-                        uls  = span.parents("ul").length - 1;
-                        span.css("padding-left", uls * DYNATREE_UL_LI_PADDING + DYNATREE_UL_LI_PADDING_OFFSET);
+                        span.css("padding-left", (level * 18) + "px");
+                    }
+                },
+                lazyLoad: function(event, data){
+                    var node = data.node;
+                    var dtdata = node.data;
+                    var url;
+                    if(self.settings.showFoldersOnly){
+                        url = $.perc_paths.PATH_FOLDER + dtdata.pathItem.path;
                     }
                     else{
-                        span = $(dtnode.span);
-                        uls  = span.parents("ul").length - 3;
-                        span.css("padding-left", uls * DYNATREE_UL_LI_PADDING + DYNATREE_UL_LI_PADDING_OFFSET);
+                        url = $.perc_paths.PATH_PAGINATED_FOLDER + dtdata.pathItem.path + "?startIndex=1&maxResults=" + $.PercFinderTreeConstants.MAX_RESULTS;
+                        if(self.settings.acceptableTypes){
+                            url += "&type=" + self.settings.acceptableTypes;
+                        }
+                        if(self.settings.acceptableCategories){
+                            url += "&category=" + self.settings.acceptableCategories;
+                        }
                     }
+                    var deferred = $.Deferred();
+                    data.result = deferred.promise();
+                    
+                    $.ajax({
+                        url: url,
+                        type: "GET",
+                        dataType: "json",
+                        headers: {"perc-version": "1.0"}
+                    }).done(function(response){
+                        var children = self._buildChildren(node, response);
+                        deferred.resolve(children);
+                    }).fail(function(xhr, status, error){
+                        $.perc_utils.alert_dialog({title: I18N.message("perc.ui.publish.title@Error"), content: error});
+                        node.setStatus("error");
+                        deferred.resolve([]);
+                    });
                 },
-                onLazyRead: function(dtnode){
-                    self._loadChildren(dtnode);
-                },
-                onClick: function(dtnode){
-                    if(dtnode.data.type === "SHOW_MORE" && !dtnode.data.isShowing){
+                click: function(event, data){
+                    var dtnode = data.node;
+                    if(dtnode.data.nodeType === "SHOW_MORE" && !dtnode.data.isShowing){
                         dtnode.data.isShowing = true;
-                        dtnode.data.icon = "/cm/css/dynatree/skin/loading.gif";
+                        dtnode.data.icon = "../images/images/loading.gif";
                         dtnode.render();
                         self._loadMoreChildren(dtnode);
                         return;
@@ -196,14 +252,12 @@
                     self._onClick(dtnode);
                     self.getFolderID(dtnode);
                 },
-                onExpand: function(flag, dtnode){
-                    if(dtnode.type === "SHOW_MORE")
+                expand: function(event, data){
+                    var dtnode = data.node;
+                    if(dtnode.data.nodeType === "SHOW_MORE")
                         return;
-                    self._onExpand(flag, dtnode);
+                    self._onExpand(data.expand, dtnode);
                 }
-            });
-            dynaTree.dynatree("getRoot").visit(function(dtnode){
-                dtnode.expand(true);
             });
         },
         
@@ -228,24 +282,54 @@
                 }
             }
             $.PercServiceUtils.makeJsonRequest(
-                url, 
+                url,
                 $.PercServiceUtils.TYPE_GET,
-                false, 
+                false,
                 function(status, result){
                     if(status === $.PercServiceUtils.STATUS_ERROR)
-                    { 
-                        var defaultMsg = $.PercServiceUtils.extractDefaultErrorMessage(request);
+                    {
+                        var defaultMsg = $.PercServiceUtils.extractDefaultErrorMessage(result.request);
                         $.perc_utils.alert_dialog({title: I18N.message("perc.ui.publish.title@Error"), content: defaultMsg});
-                        dtnode.setLazyNodeStatus(DTNodeStatus_Error);
+                        dtnode.setStatus("error");
                     }
                     else
                     {
-                        self._addChildren(dtnode, result.data); 
-                    }   
-                }, 
+                        self._addChildren(dtnode, result.data);
+                    }
+                },
                 null);
         },
-        
+
+        /**
+         * Helper function that builds an array of child node data objects
+         * @param {Object} dtnode assumed to be a fancytree node object.
+         * @param {Object} data assumed to be a PathItem or PagedItemList object
+         * @returns {Array} array of child node data objects
+         */
+        _buildChildren:function(dtnode, data){
+            var self = this;
+            var result = [];
+            var temp = self.settings.showFoldersOnly?data.PathItemList:data.PagedItemList.childrenInPage;
+            if(!temp){
+                return result;
+            }
+            if(!Array.isArray(temp)){
+                temp = [temp];
+            }
+            $.each(temp, function(){
+                var exclude = self.settings.showFoldersOnly && this.leaf;
+                if(typeof this.category !== "undefined" && self.settings.filter !== null ) {
+                    exclude = exclude || (self.settings.filter === $.PercFinderTreeConstants.FOLDERS_ONLY && this.category !== "FOLDER" && this.category !== "SYSTEM");
+                    exclude = exclude || (self.settings.filter === $.PercFinderTreeConstants.SECTIONS_ONLY && this.category !== "SECTION_FOLDER");
+                }
+                if(!exclude){
+                    var dtobj = self._makeDtNode(this);
+                    result.push(dtobj);
+                }
+            });
+            return result;
+        },
+
         /**
          * Helper function that loops through the data and adds the children
          * @param {Object} dtnode assumed to be a dynatree node object.
@@ -253,9 +337,9 @@
          */
         _addChildren:function(dtnode, data){
             var expNode = null,self=this;
-            var temp = self.settings.showFoldersOnly?data.PathItem:data.PagedItemList.childrenInPage;
+            var temp = self.settings.showFoldersOnly?data.PathItemList:data.PagedItemList.childrenInPage;
             if(!temp){
-                dtnode.setLazyNodeStatus(DTNodeStatus_Ok);                
+                dtnode.setStatus("ok");
                 return;
             }
             if(!Array.isArray(temp)){
@@ -271,12 +355,15 @@
                 }
                 if(!exclude){
                     dtobj = self._makeDtNode(this);
-                    var chNode = dtnode.addChild(dtobj);
+                    var chNode = dtnode.addChildren(dtobj);
                     if(!self.intialPathExpanded){
                         var currentPath = self._normalizedPath(this.path);
                         var inPath = self._normalizedPath(self.settings.initialPath);
                         if(inPath === currentPath){
-                            chNode.activateSilently();
+                            // Use setActive instead of activateSilently (Fancytree API)
+                            if(chNode.setActive){
+                                chNode.setActive(true, {noEvents: true});
+                            }
                             self.settings.getInitialPathItem(chNode.data.pathItem);                                                
                             self.intialPathExpanded = true;
                         }
@@ -289,14 +376,11 @@
             
             if(!self.settings.showFoldersOnly && data.PagedItemList.startIndex + $.PercFinderTreeConstants.MAX_RESULTS - 1 < data.PagedItemList.childrenCount){
                 var dtobj = self._makeMoreResultsDtNode(data.PagedItemList.startIndex + $.PercFinderTreeConstants.MAX_RESULTS, dtnode);
-                dtnode.addChild(dtobj);
+                dtnode.addChildren(dtobj);
             }
             self._adjustScrollWidths();
-            dtnode.setLazyNodeStatus(DTNodeStatus_Ok);
-            if(expNode){
-                expNode.expand(true);
-            }
-            else if(!self.initialRenderCompleted){
+            dtnode.setStatus("ok");
+            if(!self.initialRenderCompleted){
                 self.settings.onRenderComplete(dtnode.data.pathItem, dtnode);
                 self.initialRenderCompleted = true;
             }
@@ -310,10 +394,10 @@
                 false, 
                 function(status, result){
                     if(status === $.PercServiceUtils.STATUS_ERROR)
-                    { 
-                        var defaultMsg = $.PercServiceUtils.extractDefaultErrorMessage(request);
+                    {
+                        var defaultMsg = $.PercServiceUtils.extractDefaultErrorMessage(result.request);
                         $.perc_utils.alert_dialog({title: I18N.message("perc.ui.publish.title@Error"), content: defaultMsg});
-                        dtnode.setLazyNodeStatus(DTNodeStatus_Error);
+                        dtnode.setStatus("error");
                     }
                     else
                     {
@@ -352,7 +436,7 @@
         getSelectedItems: function()
         {
             var pathItems = [];
-            var selNodes = $("#perc-finder-tree").dynatree("getSelectedNodes");
+            var selNodes = $("#perc-finder-tree").fancytree("getSelectedNodes");
             $.each(selNodes, function(){
                 pathItems.push(this.data.pathItem);
             });
@@ -382,7 +466,7 @@
          */
         getDynaTree: function()
         {
-            return $("#perc-finder-tree").dynatree("getTree");
+            return $("#perc-finder-tree").fancytree("getTree");
         },
         
         /**
@@ -395,9 +479,18 @@
             var item_path = $.perc_utils.extract_path( pathItem.path );
             var icon = $.perc_utils.choose_icon( pathItem.type, pathItem.icon, item_path );
             var key = this._generateKey(pathItem.path);
-            var dtn = {title: pathItem.name,isFolder:!pathItem.leaf,isLazy:true,icon:icon.src,tooltip:pathItem.name,pathItem:pathItem,key:key};
+            // Convert leaf to boolean - API might return "false" string instead of boolean false
+            var isLeaf = pathItem.leaf === true || pathItem.leaf === "true";
+            var folder = !isLeaf;
+            // Only set lazy for folders that have children (not leaf nodes)
+            // A folder is lazy if it has children (hasFolderChildren or hasItemChildren or hasSectionChildren)
+            var lazy = folder && (pathItem.hasFolderChildren || pathItem.hasItemChildren || pathItem.hasSectionChildren);
+            // Create node using Fancytree property names (folder, lazy)
+            var dtn = {title: pathItem.name, folder: folder, lazy: lazy, tooltip: pathItem.name, pathItem: pathItem, key: key};
+            // Add icon separately if needed (Fancytree may render icons differently)
+            dtn.icon = icon.src;
             if(pathItem.leaf){
-                $.extend(dtn,{"addClass":"perc-hide-node-expander"});
+                dtn.extraClasses = "perc-hide-node-expander";
             }
             return dtn;
         },
@@ -408,7 +501,7 @@
          */
         _makeMoreResultsDtNode: function(startIndex, parentNode){
             var label = I18N.message("perc.ui.finder.tree@Show More");
-            return {title: label,isLazy:true,tooltip:label,addClass:"perc-hide-node-expander", startIndex:startIndex,type:"SHOW_MORE", isShowing:false, parentNode:parentNode};
+            return {title: label, lazy: true, tooltip: label, extraClasses: "perc-hide-node-expander", startIndex: startIndex, nodeType: "SHOW_MORE", isShowing: false, parentNode: parentNode};
         },
         
         /**

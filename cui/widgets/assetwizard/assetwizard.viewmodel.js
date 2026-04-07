@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-define(['knockout', 'pubsub', 'utils', 'dynatree'], function(ko,PubSub,utils,dynatree) {
+define(['knockout', 'pubsub', 'utils', 'fancytree'], function(ko,PubSub,utils,fancytree) {
     return function AssetWizardViewModel(options) {
 	
 		var self = this;
@@ -49,7 +49,7 @@ define(['knockout', 'pubsub', 'utils', 'dynatree'], function(ko,PubSub,utils,dyn
 		self.allFoldersSelected = ko.computed(function(){
 			return self.selectedAssetFolderFilter() === "All";
 		}, this);
-        self.dynatreeExists = ko.observable(false);
+        self.fancytreeExists = ko.observable(false);
 		self.emptyRecentAssetFolders = ko.computed(function(){
             return self.selectedAssetFolderFilter() === "Recent" && self.assetFolders().length === 0;
         },self);
@@ -83,7 +83,7 @@ define(['knockout', 'pubsub', 'utils', 'dynatree'], function(ko,PubSub,utils,dyn
             "MY_RECENT_EMPTY_MSG": "This section will list recent asset types",
             "NOT_AUTHORIZED_ERROR_MSG": "NotAuthorized",
             "NOT_AUTHORIZED_ERROR_MSG_RESPONSE": "You are not authorized to create a page in folder: ",
-            "DYNATREE_ID":"#asset-folder-tree"
+            "FANCYTREE_ID":"#asset-folder-tree"
         };
         
         //sets invalid field observables and returns true if all fields are valid
@@ -110,7 +110,7 @@ define(['knockout', 'pubsub', 'utils', 'dynatree'], function(ko,PubSub,utils,dyn
 				getRecentFolders();
 			}
 			else if (self.selectedAssetFolderFilter() === "All") {
-                self.initDynatree();      
+                self.initFancytree();      
 			}
         }); 
 
@@ -227,37 +227,35 @@ define(['knockout', 'pubsub', 'utils', 'dynatree'], function(ko,PubSub,utils,dyn
             });
         }
         
-        self.initDynatree = function(){
+        self.initFancytree = function(){
                // --- Initialize sample trees
             if (self.allFoldersSelected()) {
-                self.dynatreeExists(true);
-                $(self.constants.DYNATREE_ID).dynatree({
+                self.fancytreeExists(true);
+                $(self.constants.FANCYTREE_ID).fancytree({
                     children: [{
                         title: "Assets",
-                        "isFolder": true,
-                        "isLazy": true,
-						"noLink": true,
+                        "folder": true,
+                        "lazy": true,
                         "key": "/Assets"
                     }],
                     clickFolderMode: 1,
-                    onLazyRead: function(node){
+                    lazyLoad: function(event, data){
+                        var node = data.node;
                         self.options.cm1Adaptor.getFolders(node.data.key).done(function(folders){
                             var childNodes=[];
                             ko.utils.arrayForEach(folders.PathItem, function(folder) {
                                 if(!folder.leaf)
-                                    childNodes.push({title: folder.name, "isLazy": true, "noLink": true, "isFolder": true, key: folder.path});
+                                    childNodes.push({title: folder.name, "lazy": true, "folder": true, key: folder.path});
                             });
-                            node.addChild(childNodes);
-                            node.setLazyNodeStatus(DTNodeStatus_Ok);
+                            node.addChildren(childNodes);
+                            node.setLazyNodeStatus($.ui.fancytree.NodeStatus_Ok);
                         }).fail(function(){
-                            
+                            node.setLazyNodeStatus($.ui.fancytree.NodeStatus_Error);
                         });
                     },
-                    onActivate:function(node){
+                    activate: function(event, data){
+                        var node = data.node;
                         self.assetFolder(node.data.key);
-                    },
-                    classNames: {
-                        expander:"dynatree-expander fa"
                     }
                 });
             }

@@ -3027,16 +3027,16 @@ onchange    %Script;       #IMPLIED
          </psxctl:Param>
       </psxctl:ParamList>
       <psxctl:AssociatedFileList>
-         <psxctl:FileDescriptor name="ui.dynatree.css" type="css" mimetype="text/css">
-            <psxctl:FileLocation>/web_resources/cm/css/dynatree/skin/ui.dynatree.css</psxctl:FileLocation>
+         <psxctl:FileDescriptor name="ui.fancytree.css" type="css" mimetype="text/css">
+            <psxctl:FileLocation>/cm/jslib/profiles/3x/jquery/plugins/jquery-fancytree/skin-win8/ui.fancytree.min.css</psxctl:FileLocation>
             <psxctl:Timestamp/>
          </psxctl:FileDescriptor>
          <psxctl:FileDescriptor name="tree.css" type="css" mimetype="text/css">
             <psxctl:FileLocation>/sys_resources/css/checkboxTree/tree.css</psxctl:FileLocation>
             <psxctl:Timestamp/>
          </psxctl:FileDescriptor>
-         <psxctl:FileDescriptor name="ui.core.js" type="script" mimetype="text/javascript">
-            <psxctl:FileLocation>/cm/jslib/profiles/3x/jquery/plugins/jquery-dynatree/jquery.dynatree.js</psxctl:FileLocation>
+         <psxctl:FileDescriptor name="jquery.fancytree-all.min.js" type="script" mimetype="text/javascript">
+            <psxctl:FileLocation>/cm/jslib/profiles/3x/jquery/plugins/jquery-fancytree/jquery.fancytree-all.min.js</psxctl:FileLocation>
             <psxctl:Timestamp/>
          </psxctl:FileDescriptor>
          <psxctl:FileDescriptor name="checkboxTree.js" type="script" mimetype="text/javascript">
