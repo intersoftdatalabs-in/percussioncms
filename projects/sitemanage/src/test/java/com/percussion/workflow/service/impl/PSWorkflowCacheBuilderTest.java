@@ -62,6 +62,13 @@ public class PSWorkflowCacheBuilderTest {
       }
     }
 
+    // Allow time for maintenance process to complete
+    try {
+      Thread.sleep(100);
+    } catch (InterruptedException e) {
+      // ignore
+    }
+
     assertTrue("Maint proc not started", maintMgr.didStartWork);
     assertTrue("Maint proc not stopped", maintMgr.didStopWork);
   }

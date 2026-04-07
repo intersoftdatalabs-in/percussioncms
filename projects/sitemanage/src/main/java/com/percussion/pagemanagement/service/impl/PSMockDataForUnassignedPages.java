@@ -51,7 +51,7 @@ public class PSMockDataForUnassignedPages {
   }
 
   public PSUnassignedResults getUnassignedResults(int startIndex, int maxResults) {
-    log.info("startIndex: " + startIndex + ", maxResults: " + maxResults);
+    log.debug("startIndex: " + startIndex + ", maxResults: " + maxResults);
 
     PSUnassignedResults results = new PSUnassignedResults();
 
@@ -60,7 +60,7 @@ public class PSMockDataForUnassignedPages {
     results.setImportStatus(status);
     results.setUnassignedItemList(getUnassignedItemList(startIndex, maxResults));
 
-    log.info("Results: " + results.toString());
+    log.debug("Results: " + results.toString());
 
     return results;
   }
