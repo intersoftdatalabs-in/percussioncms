@@ -352,6 +352,23 @@ public class PSPathService extends PSDispatchingPathService
   }
 
   @GET
+  @Path("/folder")
+  @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+  public List<PSPathItem> findRootChildren() throws PSPathServiceException {
+    try {
+      PSPathOptions.setShouldCheckChildTypes(true);
+      List<PSPathItem> children = super.findRootChildren();
+      return folderHelper.setFolderAccessLevel(children);
+    } catch (PSDataServiceException e) {
+      log.error(PSExceptionUtils.getMessageForLog(e));
+      log.debug(PSExceptionUtils.getDebugMessageForLog(e));
+      throw new PSPathServiceException(e);
+    } finally {
+      PSPathOptions.setShouldCheckChildTypes(false);
+    }
+  }
+
+  @GET
   @Path("/folder/{path:.*}")
   @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
   public List<PSPathItem> findChildren(@PathParam("path") String path)

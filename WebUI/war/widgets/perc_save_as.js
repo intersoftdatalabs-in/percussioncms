@@ -275,7 +275,8 @@
 
             function addChildren(folder_spec)
             {
-                $.each( folder_spec['PathItem'], function()
+                var pathItems = folder_spec['PathItemList'] || folder_spec['PathItem'] || [];
+                $.each( pathItems, function()
                 {
                     if( type_filter( this['type'] )
                         && this['path'] != $.perc_paths.SEARCH_ROOT + "/"

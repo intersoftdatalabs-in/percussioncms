@@ -26,7 +26,7 @@ var requireJsConfig = {
         'jquery-ui': '/cm/cui/components/jquery-ui/jquery-ui',
         'knockout': '/cm/cui/components/knockoutjs/dist/knockout',
         'pubsub': '/cm/cui/components/pubsub-js/src/pubsub',
-        'fancytree': '/cm/jslib/profiles/3x/jquery/plugins/jquery-fancytree/jquery.fancytree-all.min',
+        'fancytree': '/cm/jslib/profiles/3x/jquery/plugins/jquery-fancytree/jquery.fancytree.min',
         'widgel-base': '/cm/cui/components/widgel/dist/widgel-base',
         'perc-utils': '/cm/cui/components/perc-utils/dist',
         'perc-css': '/cm/cui/components/perc-css/perc.css',
@@ -41,6 +41,28 @@ var requireJsConfig = {
         'fontawesome-css': '/cm/jslib/profiles/3x/libraries/fontawesome/css/all.css',
         'bootstrap':'/cm/jslib/profiles/3x/libraries/bootstrap/css/bootstrap.min.css',
         'bootstrap-theme':'/cm/cui/components/twitter-bootstrap-3.0.0/dist/css/bootstrap-theme.min.css'
+    },
+    // Map all fancytree's individual jquery-ui sub-module dependencies to the
+    // bundled jquery-ui module. The bundled jquery-ui.js includes all required
+    // sub-modules (widget, position, draggable, droppable, mouse, etc.).
+    // Also map fancytree's internal ui-deps shim to the bundled jquery-ui.
+    map: {
+        '*': {
+            'jquery.fancytree.ui-deps':         'jquery-ui',
+            'jquery-ui/ui/widget':              'jquery-ui',
+            'jquery-ui/ui/data':                'jquery-ui',
+            'jquery-ui/ui/scroll-parent':       'jquery-ui',
+            'jquery-ui/ui/focusable':           'jquery-ui',
+            'jquery-ui/ui/keycode':             'jquery-ui',
+            'jquery-ui/ui/position':            'jquery-ui',
+            'jquery-ui/ui/tabbable':            'jquery-ui',
+            'jquery-ui/ui/unique-id':           'jquery-ui',
+            'jquery-ui/ui/effect':              'jquery-ui',
+            'jquery-ui/ui/effects/effect-blind':'jquery-ui',
+            'jquery-ui/ui/widgets/mouse':       'jquery-ui',
+            'jquery-ui/ui/widgets/draggable':   'jquery-ui',
+            'jquery-ui/ui/widgets/droppable':   'jquery-ui'
+        }
     },
     shim: {
         'knockout': {

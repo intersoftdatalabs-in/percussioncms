@@ -47,6 +47,7 @@
 <script src="/cm/services/PercRecentListService.js"></script>
 <script src="/cm/plugins/PercRedirectHandler.js"></script>
 <script src="/cm/plugins/PercExtendUiDialog.js"></script>
+<script src="/cm/jslib/profiles/3x/jquery/plugins/jquery-fancytree/jquery.fancytree-all.min.js"></script>
 <script src="/cm/plugins/PercPathSelectionDialog.js"></script>
 <script src="/cm/views/PercCreateNewAssetDialog.js"></script>
 <script src="/cm/plugins/PercFolderPropertiesDialog.js"></script>

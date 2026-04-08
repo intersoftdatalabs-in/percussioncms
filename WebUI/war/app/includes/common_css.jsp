@@ -21,4 +21,5 @@
 <link rel="stylesheet" type="text/css" href="../widgets/PercDataTable/PercDataTable.css"/>
 <link rel="stylesheet" type="text/css" href="../widgets/PercFinderListView/PercFinderListView.css"/>
 <link rel="stylesheet" type="text/css" href="../widgets/PercFinderTree/PercFinderTree.css" />
+<link rel="stylesheet" type="text/css" href="../jslib/profiles/3x/jquery/plugins/jquery-fancytree/skin-win8/ui.fancytree.css" />
 <!-- End Common CSS -->

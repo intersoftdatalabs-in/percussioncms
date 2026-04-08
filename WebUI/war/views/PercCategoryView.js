@@ -312,7 +312,7 @@
             //Bind Save event
             $("#perc-category-save").off("click").on("click", function(){
                 var node = container.fancytree("getTree").getActiveNode();
-                if (node != null && node.data.title === "New Category")
+                if (node != null && node.title === "New Category")
                 {
                     alertDialog("Error", "You must change the category name.");
                     return;
@@ -334,8 +334,8 @@
                 }
                 else
                 {
-                    node.data.title = originalTitle;
-                    node.render();
+                    node.title = originalTitle;
+                    node.renderTitle();
                 
                 }
                 displayCategoryDetails(node);
@@ -490,14 +490,14 @@
         function displayCategoryDetails(node) {
             if (node == null)
                 return;
-            originalTitle = node.data.title;
+            originalTitle = node.title;
             $("#perc-category-save-cancel-block").hide();
             
             $("#perc-category-name-field").prop("disabled", true);
             $("#perc-category-name-field").addClass("perc-category-field-readonly");
 			$("#perc-category-name-field").attr("aria-disabled","true");
 
-            $("#perc-category-name-field").val(node.data.title);
+            $("#perc-category-name-field").val(node.title);
             
             $("#perc-category-selectable-field").prop("disabled", true);
             $("#perc-category-selectable-field").addClass("perc-category-field-readonly");
@@ -536,17 +536,14 @@
         
         function showSelectedCategoryEditor(node) {
             editing = true;
-            originalTitle = node.data.title;
+            originalTitle = node.title;
 
             $("#perc-category-name-field").prop("disabled", false);
 			$("#perc-category-name-field").attr("aria-disabled","false");
 
             $("#perc-category-name-field").on('keyup', function() {
                  var node = container.fancytree("getTree").getActiveNode();
-                 var text =  $( this ).val();
-                 if (text==="") text="[empty]";
-                 node.data.title = $( this ).val();
-                 node.render();
+                 node.setTitle($( this ).val() === "" ? "[empty]" : $( this ).val());
             });
 
             $("#perc-category-name-field").removeClass("perc-category-field-readonly");
@@ -685,7 +682,7 @@
             {
                 switchtoNode = parentNode;
             }
-            container.fancytree("getTree").activateKey(switchtoNode.data.key);
+            container.fancytree("getTree").activateKey(switchtoNode.key);
             displayCategoryDetails(switchtoNode);
             controller.getCategories();
         }
@@ -701,7 +698,7 @@
             {
                 destinationNode = root;
                 child=true;
-            } else if (children.length===1 && children[0].data.title === "New Category")
+            } else if (children.length===1 && children[0].title === "New Category")
             {
                 return children[0];
             } else {
@@ -720,7 +717,7 @@
             else
                 addTo = destinationNode.getParent();
                 
-            var child = addTo.addChild({
+            var child = addTo.addChildren({
                                     id : generateUid(),
                                     title : "New Category",
                                     selectable : true,
@@ -743,7 +740,7 @@
 
         function editCategories(node) {
             
-            var nodeKey = node.data.key;
+            var nodeKey = node.key;
             var childNode;
             
             if ($('#perc-allowedsites-field option:not(:checked)').length === 0)
@@ -770,7 +767,7 @@
             }
             
 
-            node.data.title = categoryname;
+            node.setTitle(categoryname);
 
             var selectable = $("#perc-category-selectable-field").prop("checked");
 
@@ -820,7 +817,7 @@
             treeRoot.visit(function(node){
                 var parent = node.getParent();
 
-                if(parent.data.title == null) {
+                if(parent.isRootNode()) {
                     children.push(node.toDict(true, function(dict) {
                         delete dict.activate;
                         delete dict.addClass;
@@ -891,13 +888,13 @@
             var i = 0;
             // if the souceNode is a top level parent node, 
             // traverse the tree for only top level parent nodes.
-            if(parentNode.data.title == null) {
+            if(parentNode.isRootNode()) {
                 var treeRoot = container.fancytree("getTree").getRootNode();
                 
                 treeRoot.visit(function(node){
                     var parent = node.getParent();
                     
-                    if(parent.data.title == null) {
+                    if(parent.isRootNode()) {
                         i++;
                         if(sourceNode.data.id !== node.data.id)
                             tempNode = node;
@@ -949,13 +946,13 @@
             var i = 0;
             // if the souceNode is a top level parent node, 
             // traverse the tree for only top level parent nodes.
-            if(parentNode.data.title == null) {
+            if(parentNode.isRootNode()) {
                 var treeRoot = container.fancytree("getTree").getRootNode();
                 
                 treeRoot.visit(function(node){
                     var parent = node.getParent();
                     
-                    if(parent.data.title == null) {
+                    if(parent.isRootNode()) {
                         if(sourceNode.data.id !== node.data.id) {
                             if(i > 0) {
                                 targetNode = node;

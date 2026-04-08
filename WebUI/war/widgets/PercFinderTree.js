@@ -142,7 +142,7 @@
             var self = this;
             var rootChildren = [];
             var inPath = self._normalizedPath(self.settings.initialPath);
-            $.each(data.PathItemList, function(){
+            $.each(self._getPathItems(data), function(){
                 var include = self.settings.rootPath === $.PercFinderTreeConstants.ROOT_PATH_ALL || self.settings.rootPath === this.name;
                 if(this.name === "Design" || this.name === "Search")
                     include = false;
@@ -309,7 +309,7 @@
         _buildChildren:function(dtnode, data){
             var self = this;
             var result = [];
-            var temp = self.settings.showFoldersOnly?data.PathItemList:data.PagedItemList.childrenInPage;
+            var temp = self.settings.showFoldersOnly ? self._getPathItems(data) : self._getPagedChildren(data);
             if(!temp){
                 return result;
             }
@@ -337,7 +337,7 @@
          */
         _addChildren:function(dtnode, data){
             var expNode = null,self=this;
-            var temp = self.settings.showFoldersOnly?data.PathItemList:data.PagedItemList.childrenInPage;
+            var temp = self.settings.showFoldersOnly ? self._getPathItems(data) : self._getPagedChildren(data);
             if(!temp){
                 dtnode.setStatus("ok");
                 return;
@@ -374,8 +374,9 @@
                 }
             });
             
-            if(!self.settings.showFoldersOnly && data.PagedItemList.startIndex + $.PercFinderTreeConstants.MAX_RESULTS - 1 < data.PagedItemList.childrenCount){
-                var dtobj = self._makeMoreResultsDtNode(data.PagedItemList.startIndex + $.PercFinderTreeConstants.MAX_RESULTS, dtnode);
+            var pagedList = self._getPagedList(data);
+            if(!self.settings.showFoldersOnly && pagedList && pagedList.startIndex + $.PercFinderTreeConstants.MAX_RESULTS - 1 < pagedList.childrenCount){
+                var dtobj = self._makeMoreResultsDtNode(pagedList.startIndex + $.PercFinderTreeConstants.MAX_RESULTS, dtnode);
                 dtnode.addChildren(dtobj);
             }
             self._adjustScrollWidths();
@@ -384,6 +385,36 @@
                 self.settings.onRenderComplete(dtnode.data.pathItem, dtnode);
                 self.initialRenderCompleted = true;
             }
+        },
+
+        /**
+         * Returns path items for payloads that may use PathItemList or PathItem.
+         */
+        _getPathItems:function(data){
+            if(!data){
+                return [];
+            }
+
+            var items = data.PathItemList || data.PathItem || [];
+            if(!Array.isArray(items)){
+                items = [items];
+            }
+            return items;
+        },
+
+        _getPagedList:function(data){
+            if(!data){
+                return null;
+            }
+            return data.PagedItemList || data.pagedItemList || null;
+        },
+
+        _getPagedChildren:function(data){
+            var paged = this._getPagedList(data);
+            if(!paged || !paged.childrenInPage){
+                return [];
+            }
+            return Array.isArray(paged.childrenInPage) ? paged.childrenInPage : [paged.childrenInPage];
         },
         _loadMoreChildren:function(dtnode){
             var self = this, url, dtdata = dtnode.data;
@@ -482,11 +513,16 @@
             // Convert leaf to boolean - API might return "false" string instead of boolean false
             var isLeaf = pathItem.leaf === true || pathItem.leaf === "true";
             var folder = !isLeaf;
-            // Only set lazy for folders that have children (not leaf nodes)
-            // A folder is lazy if it has children (hasFolderChildren or hasItemChildren or hasSectionChildren)
-            var lazy = folder && (pathItem.hasFolderChildren || pathItem.hasItemChildren || pathItem.hasSectionChildren);
+            // For fancytree: make all non-leaf folders lazy so they can be expanded on-demand
+            // The lazyLoad event handler will fetch children when user clicks expand
+            var lazy = folder; // All folders are expandable/lazy-loadable
+            
             // Create node using Fancytree property names (folder, lazy)
             var dtn = {title: pathItem.name, folder: folder, lazy: lazy, tooltip: pathItem.name, pathItem: pathItem, key: key};
+            // For lazy nodes, explicitly set children to null so Fancytree knows they haven't been loaded yet
+            if (lazy) {
+                dtn.children = null;
+            }
             // Add icon separately if needed (Fancytree may render icons differently)
             dtn.icon = icon.src;
             if(pathItem.leaf){

@@ -46,6 +46,7 @@
         $.Perc_SectionServiceClient.getTree(siteName, function(status, result){
             if(status === $.PercServiceUtils.STATUS_SUCCESS)
             {
+                var rootNode = normalizeSectionNode(result);
                 $dialog =   $("<div/>")
                     .append(
                         $("<div style='float:left;'/>").html(treeLabel)
@@ -53,7 +54,7 @@
                                 $("<div id='perc-movesection-tree' />")
                                     .append(
                                         $("<ul/>")
-                                            .append(buildSectionTreeList(result.SectionNode))
+                                            .append(buildSectionTreeList(rootNode))
                                     )
                             )
                     )
@@ -145,12 +146,16 @@
          * @type String
          */
         function buildSectionTreeList(sectionNode){
+            sectionNode = normalizeSectionNode(sectionNode);
+            if(!sectionNode || typeof sectionNode === "undefined")
+                return "";
+
             var results;
             if(sectionNode.sectionType && sectionNode.sectionType !== $.Perc_SectionServiceClient.PERC_SECTION_TYPE.SECTION)
                 return "";
             if(sectionNode.id === excludeId)
                 return "";
-            menuTitle = sectionNode.title + "";
+            var menuTitle = getSectionDisplayName(sectionNode);
             results = $("<li/>")
                 .attr("id", "perc_section_tree|" + sectionNode.id)
                 .attr("class","folder expanded")
@@ -160,27 +165,59 @@
                     .attr("data", "icon:'section.png',sectionName:'" + menuTitle.replace(/'/g, "\\'").replace(/"/g, "\\\"") + "'")
                 );
 
-            if(sectionNode.childNodes !== "")
+            var childNodes = sectionNode.childNodes;
+            if(childNodes && childNodes !== "")
             {
-                var children = sectionNode.childNodes.SectionNode;
-                if (children === undefined) {
-                    children = sectionNode.childNodes;
-                }
+                var children = childNodes.SectionNode || childNodes.sectionNode || childNodes;
+                if(!children)
+                    return results;
+
                 var ulItem = $("<ul/>");
-                if(Array.isArray(children))
+                var childList = Array.isArray(children) ? children : [children];
+                for(var i = 0; i < childList.length; i++)
                 {
-                    var len = children.length;
-                    for(var i = 0; i < len; i++)
-                    {
-                        results.append(ulItem.append(buildSectionTreeList(children[i])));
-                    }
+                    var childNode = buildSectionTreeList(normalizeSectionNode(childList[i]));
+                    if(childNode !== "")
+                        ulItem.append(childNode);
                 }
-                else
-                {
-                    results.append(ulItem.append(buildSectionTreeList(children)));
-                }
+                if(ulItem.children().length > 0)
+                    results.append(ulItem);
             }
             return results;
+        }
+
+        /**
+         * Some responses wrap nodes as {SectionNode:{...}} at varying levels.
+         * Normalize to the actual section node shape.
+         */
+        function normalizeSectionNode(node)
+        {
+            if(!node)
+                return node;
+
+            if(node.SectionNode)
+                return node.SectionNode;
+
+            if(node.sectionNode)
+                return node.sectionNode;
+
+            return node;
+        }
+
+        /**
+         * Resolve the section display name from the payload.
+         * We use the section title/name (not folder path) to populate tree labels and returned path.
+         */
+        function getSectionDisplayName(sectionNode)
+        {
+            if(!sectionNode)
+                return "";
+
+            var displayName = sectionNode.title || sectionNode.name || sectionNode.sectionName;
+            if(displayName == null || displayName === "")
+                displayName = I18N.message("perc.ui.section.tree.dialog@Untitled Section");
+
+            return displayName + "";
         }
 
         /**
@@ -193,9 +230,17 @@
          */
         function getSelectedNodePath(selectedNode, nodePath)
         {
-            if(selectedNode == null || typeof selectedNode == 'undefined' || selectedNode.title == null)
+            if(selectedNode == null || typeof selectedNode == 'undefined')
                 return nodePath;
-            nodePath = "/" + selectedNode.title + nodePath;
+
+            var nodeName = selectedNode.data && selectedNode.data.sectionName
+                ? selectedNode.data.sectionName
+                : selectedNode.title;
+
+            if(nodeName == null || nodeName === "")
+                return nodePath;
+
+            nodePath = "/" + nodeName + nodePath;
             nodePath = getSelectedNodePath(selectedNode.parent, nodePath);
             return nodePath;
         }

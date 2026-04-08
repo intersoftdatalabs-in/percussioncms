@@ -234,30 +234,28 @@ define(['knockout', 'pubsub', 'utils', 'fancytree'], function(ko,PubSub,utils,fa
 			if (self.allFoldersSelected()) {
 				self.fancytreeExists(true);
 				$(self.constants.FANCYTREE_ID).fancytree({
-					children: [{
+					source: [{
 						title: self.selectedSite().name,
 						"folder": true,
 						"lazy": true,
 						"key": "/Sites/" + self.selectedSite().name
 					}],
-					clickFolderMode: 1,
+					clickFolderMode: 4,
+					activeVisible: true,
 					lazyLoad: function(event, data){
 						var node = data.node;
-						self.options.cm1Adaptor.getFolders(node.data.key).done(function(folders){
-							var childNodes=[];
-							ko.utils.arrayForEach(folders.PathItem, function(folder) {
+					data.result = self.options.cm1Adaptor.getFolders(node.key).then(function(folders){
+						var childNodes=[];
+						ko.utils.arrayForEach(folders.PathItemList, function(folder) {
                                 if(!folder.leaf)
                                     childNodes.push({title: folder.name, "lazy": true, "folder": true, key: folder.path});
                             });
-							node.addChildren(childNodes);
-							node.setLazyNodeStatus($.ui.fancytree.NodeStatus_Ok);
-						}).fail(function(){
-							node.setLazyNodeStatus($.ui.fancytree.NodeStatus_Error);
+						return childNodes;
 						});
 					},
                     activate: function(event, data){
                         var node = data.node;
-                        self.pageFolder(node.data.key);
+                        self.pageFolder(node.key);
                     }
 				});
 			}

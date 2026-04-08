@@ -333,14 +333,16 @@
        */
       function onSave(path, name, k, err) {
          $.perc_pathmanager.open_containing_folder(path, function (folder_spec) {
-            var sames = $.grep(folder_spec.PathItem, function (x) {
+                var pathItems = folder_spec.PathItemList || folder_spec.PathItem || [];
+                var sames = $.grep(pathItems, function (x) {
                return x.name == name;
             });
             if (sames.length) {
                err(I18N.message("perc.ui.saveasdialog.error@Duplicate asset"));
             } else {
                $.perc_pathmanager.open_path(ut.acop(path), false, function (fs) {
-                  saveAssetContent(name, fs.PathItem.folderPath);
+                        var selectedPathItem = fs.PathItem || fs.PathItemList;
+                        saveAssetContent(name, selectedPathItem.folderPath);
                   k();
                }, err);
             }
