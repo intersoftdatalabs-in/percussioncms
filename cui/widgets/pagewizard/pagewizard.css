@@ -276,6 +276,18 @@ label.folder-labelradio {
 	font-weight: 600;
 }
 
+#page-folder-tree .fancytree-node.fancytree-active {
+	background-color: rgba(255, 164, 72, 0.73) !important;
+	border: 1px solid #BDC6D7 !important;
+}
+
+#page-folder-tree .fancytree-node.fancytree-active .fancytree-title {
+	font-weight: 600 !important;
+	color: #262626 !important;
+	background: transparent !important;
+	border: none !important;
+}
+
 .folder {
 	padding-left:7px;
 }

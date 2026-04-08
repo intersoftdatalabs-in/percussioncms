@@ -36,10 +36,10 @@ import org.apache.commons.lang.StringUtils;
 public class PSPathItem extends PSDataItemSummary implements IPSItemSummary, IPSFolderPath {
 
   @XmlElement private boolean leaf = true;
-  private boolean hasItemChildren = false;
-  private boolean hasFolderChildren = false;
-  private boolean hasSectionChildren = false;
-  private boolean mobilePreviewEnabled = false;
+  @XmlElement private boolean hasItemChildren = false;
+  @XmlElement private boolean hasFolderChildren = false;
+  @XmlElement private boolean hasSectionChildren = false;
+  @XmlElement private boolean mobilePreviewEnabled = false;
 
   @XmlElement private String path;
   private PSFolderPermission.Access accessLevel;

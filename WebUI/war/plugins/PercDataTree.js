@@ -157,18 +157,18 @@
             var sitesRoot = {
                 title        : SITES_TITLE_KEY,
                 key          : SITES_TITLE_KEY,
-                isFolder     : true,
-                isLazy       : false,
-                expand       : true,
+                folder       : true,
+                lazy         : false,
+                expanded     : true,
                 children     : [],
                 icon         : false
             };
             var assetsRoot = {
                 title        : ASSETS_TITLE_KEY,
                 key          : ASSETS_TITLE_KEY,
-                isFolder     : true,
-                isLazy       : false,
-                expand       : true,
+                folder       : true,
+                lazy         : false,
+                expanded     : true,
                 children     : [],
                 icon         : false
             };
@@ -179,7 +179,7 @@
         var tree_width = $('#' + options.instanceId).width();
         // Apply the fancytree plugin (migrated from dynatree)
         $('#' + options.instanceId).fancytree({
-            children        : (options.showRoots ? mainRoots : []),
+            source          : (options.showRoots ? mainRoots : []),
             noLink          : true,
             clickFolderMode : 3,
             checkbox        : options.showCheckboxes,
@@ -216,7 +216,7 @@
                 options.customOnExpand(data.node);
             },
             select        : options.onSelect,
-            querySelect   : options.onQuerySelect
+            beforeSelect  : options.onQuerySelect
         });
 
         // Once the tree is ready, update its contents with an empty collection,
@@ -248,6 +248,35 @@
             // CLEAR THE CHILDREN of Sites and Assets subtrees
             var sitesRoot = tree.getNodeByKey(SITES_TITLE_KEY);
             var assetsRoot = tree.getNodeByKey(ASSETS_TITLE_KEY);
+
+            // Guard against missing roots after dynamic tree updates.
+            if (!sitesRoot || !assetsRoot) {
+                var rootNode = tree.getRootNode();
+                rootNode.removeChildren();
+                rootNode.addChildren([
+                    {
+                        title: SITES_TITLE_KEY,
+                        key: SITES_TITLE_KEY,
+                        folder: true,
+                        lazy: false,
+                        expanded: true,
+                        children: [],
+                        icon: false
+                    },
+                    {
+                        title: ASSETS_TITLE_KEY,
+                        key: ASSETS_TITLE_KEY,
+                        folder: true,
+                        lazy: false,
+                        expanded: true,
+                        children: [],
+                        icon: false
+                    }
+                ]);
+                sitesRoot = tree.getNodeByKey(SITES_TITLE_KEY);
+                assetsRoot = tree.getNodeByKey(ASSETS_TITLE_KEY);
+            }
+
             assetsRoot.removeChildren();
             sitesRoot.removeChildren();
             
@@ -259,7 +288,7 @@
         }
         else
         {
-            var rootNode = tree.getRoot();
+            var rootNode = tree.getRootNode();
             rootNode.removeChildren();
             
             // Populate sitesRoot if the corresponding 'folders' property is defined (same for 
@@ -291,14 +320,14 @@
                 $.each(dataSubtrees, function(i) {
                     // For each element in dataSubtrees, add a child in dyn_children_array and...
                     var child_template = {
-                        title     : this.name,
-                        key       : this.id,
-                        tooltip   : this.path,
-                        isFolder  : true,
-                        isLazy    : false,
-                        children  : [],
-                        addClass  : '',
-                        icon      : false
+                        title        : this.name,
+                        key          : this.id,
+                        tooltip      : this.path,
+                        folder       : true,
+                        lazy         : false,
+                        children     : [],
+                        extraClasses : '',
+                        icon         : false
                     };
 
                     // If the dataSubtree's workflow is not equal to the selected one, disable the checkbox,
@@ -308,27 +337,27 @@
                     {
                         child_template.unselectable = true;
                         child_template.title = child_template.title + ' (' + this.workflowName + ')';
-                        child_template.addClass = child_template.addClass + ' ' + DISABLED_ITEM_CLASS;
+                        child_template.extraClasses = child_template.extraClasses + ' ' + DISABLED_ITEM_CLASS;
                     }
 
                     // If mark the checkbox only if the node is assigned to the current workflow
                     if (options.showCheckboxes && has_workflow && this.workflowName === selectedWorkflow)
                     {
-                        child_template.select = true;
+                        child_template.selected = true;
                     }
 
                     // If the node has at least one descendant that belongs to other class, assing a special class
                     if (! this.allChildrenAssociatedWithWorkflow || this.workflowName !== selectedWorkflow)
                     {
-                        child_template.addClass = child_template.addClass + ' ' + CHILDREN_OTHER_WORKFLOW_CLASS;
+                        child_template.extraClasses = child_template.extraClasses + ' ' + CHILDREN_OTHER_WORKFLOW_CLASS;
                     }
                     else
                     {
                         // If the node has all of its descendant assigned to the selected workflow and the
                         // current node is checked, add a special class (bold)
-                        if (options.showCheckboxes && child_template.select === true)
+                        if (options.showCheckboxes && child_template.selected === true)
                         {
-                            child_template.addClass = child_template.addClass + ' ' + ALL_SAME_WORKFLOW_CLASS;
+                            child_template.extraClasses = child_template.extraClasses + ' ' + ALL_SAME_WORKFLOW_CLASS;
                         }
                     }
 
@@ -336,7 +365,7 @@
                     child_template.workflowName = this.workflowName;
                     child_template.allChildrenAssociatedWithWorkflow = this.allChildrenAssociatedWithWorkflow;
                     // Create a node using the template
-                    fancytree_node.addChild(child_template);
+                    fancytree_node.addChildren(child_template);
 
                     // Call recursively addSubtreeContents with fancytree_node.children
                     // we must also convert the 'children' property to an array (CXF problem)

@@ -137,6 +137,8 @@ define(['knockout', 'pubsub', 'utils', 'fancytree'], function(ko,PubSub,utils,fa
 			self.initialAssetFoldersLoad = true;
 			self.selectedAssetTypeFilter("Recent");
         	self.selectedAssetFolderFilter("Recent");
+            getRecentAssetTypes();
+            getRecentFolders();
             $(self.constants.SECONDARY_BUTTON_SELECTOR).text(self.constants.SECONDARY_BUTTON_NAME);
             self.invalidAssetTypeSelected(false);
             self.invalidAssetFolderSelected(false);
@@ -192,10 +194,14 @@ define(['knockout', 'pubsub', 'utils', 'fancytree'], function(ko,PubSub,utils,fa
             self.isLoading(true);
             self.options.cm1Adaptor.getRecentAssetTypes().done(function(types){
                 self.assetTypes([]);
-                ko.utils.arrayForEach(types, function(type) {
+                var typeList = types;
+                if (types && types.ArrayList) {
+                    typeList = types.ArrayList;
+                }
+                ko.utils.arrayForEach(typeList, function(type) {
                     self.assetTypes.push(type);
                 });
-                if(types.length === 0){
+                if(typeList.length === 0){
                     self.emptyContentMessage(self.constants.MY_RECENT_EMPTY_MSG);
 					if(self.initialAssetTypesLoad) {
 						self.initialAssetTypesLoad = false;
@@ -214,10 +220,14 @@ define(['knockout', 'pubsub', 'utils', 'fancytree'], function(ko,PubSub,utils,fa
             self.isLoading(true);
             self.options.cm1Adaptor.getAssetTypes("yes").done(function(types){
                 self.assetTypes([]);
-                ko.utils.arrayForEach(types, function(type) {
+                var typeList = types;
+                if (types.ArrayList) {
+                    typeList = types.ArrayList;
+                }
+                ko.utils.arrayForEach(typeList, function(type) {
                     self.assetTypes.push(type);
                 });
-				if(types.length === 0){
+				if(typeList.length === 0){
                     self.emptyContentMessage(self.constants.MY_RECENT_EMPTY_MSG);
                 }
             }).fail(function(message){
@@ -232,30 +242,28 @@ define(['knockout', 'pubsub', 'utils', 'fancytree'], function(ko,PubSub,utils,fa
             if (self.allFoldersSelected()) {
                 self.fancytreeExists(true);
                 $(self.constants.FANCYTREE_ID).fancytree({
-                    children: [{
+                    source: [{
                         title: "Assets",
                         "folder": true,
                         "lazy": true,
                         "key": "/Assets"
                     }],
-                    clickFolderMode: 1,
+                    clickFolderMode: 4,
+                    activeVisible: true,
                     lazyLoad: function(event, data){
                         var node = data.node;
-                        self.options.cm1Adaptor.getFolders(node.data.key).done(function(folders){
+                        data.result = self.options.cm1Adaptor.getFolders(node.key).then(function(folders){
                             var childNodes=[];
-                            ko.utils.arrayForEach(folders.PathItem, function(folder) {
+                            ko.utils.arrayForEach(folders.PathItemList, function(folder) {
                                 if(!folder.leaf)
                                     childNodes.push({title: folder.name, "lazy": true, "folder": true, key: folder.path});
                             });
-                            node.addChildren(childNodes);
-                            node.setLazyNodeStatus($.ui.fancytree.NodeStatus_Ok);
-                        }).fail(function(){
-                            node.setLazyNodeStatus($.ui.fancytree.NodeStatus_Error);
+                            return childNodes;
                         });
                     },
                     activate: function(event, data){
                         var node = data.node;
-                        self.assetFolder(node.data.key);
+                        self.assetFolder(node.key);
                     }
                 });
             }

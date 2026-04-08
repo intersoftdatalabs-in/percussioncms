@@ -552,7 +552,28 @@
             {
                 if(status === $.PercServiceUtils.STATUS_SUCCESS)
                 {
-                    callback($.PercServiceUtils.STATUS_SUCCESS, $.perc_utils.convertCXFArray(result.data.WidgetContentType));
+                    var widgetContentTypes = [];
+                    if(result && result.data)
+                    {
+                        // Support legacy and newer CXF/Jackson shapes.
+                        if(result.data.WidgetContentType !== undefined)
+                        {
+                            widgetContentTypes = result.data.WidgetContentType;
+                        }
+                        else if(result.data.ArrayList !== undefined)
+                        {
+                            widgetContentTypes = result.data.ArrayList;
+                        }
+                        else
+                        {
+                            widgetContentTypes = result.data;
+                        }
+                    }
+                    if(widgetContentTypes && widgetContentTypes.ArrayList !== undefined)
+                    {
+                        widgetContentTypes = widgetContentTypes.ArrayList;
+                    }
+                    callback($.PercServiceUtils.STATUS_SUCCESS, $.perc_utils.convertCXFArray(widgetContentTypes));
                 }
                 else
                 {

@@ -89,9 +89,10 @@ var isPreviewMode;
                         currentCategoryList.find(".perc-category-list-collapsible").html(ul);
                         currentCategoryList.find(".perc-category-list-collapsible").fancytree({
                             minExpandLevel: 2,
-                            onActivate : function(node){
-                                var href = $(node.data.title).attr("href");
-                                var count = $(node.data.title).attr("data-count");
+                            activate : function(event, data){
+                                var node = data.node;
+                                var href = $(node.title).attr("href");
+                                var count = $(node.title).attr("data-count");
                                 if(0 < count && isEditMode !== "true") {
                                     window.location.href = href;
                                 }
@@ -110,8 +111,9 @@ var isPreviewMode;
                 {
                     /*
                     $(".perc-category-list-static ul")
-                        .fancytree({onActivate : function(node){
-                            var href = $(node.data.title).attr("href");
+                        .fancytree({activate : function(event, data){
+                            var node = data.node;
+                            var href = $(node.title).attr("href");
                             window.location.href = href;
                         }});
                     */

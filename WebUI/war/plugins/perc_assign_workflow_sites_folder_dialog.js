@@ -64,7 +64,7 @@
                     var selectedSitesPaths = [];
                     for (i = 0; i < selected.length; i++)
                     {
-                        selectedSitesPaths.push(selected[i].data.key);
+                        selectedSitesPaths.push(selected[i].key);
                     }
 
                     // Get unassigned folders
@@ -341,7 +341,7 @@
             var tree_container_assets = $("#perc-assign-workflow-assets-tree");
             if(originalSitesJson.folderItem){
                 $.PercDataTree.updateTree(tree_container_sites, [originalSitesJson]);
-                $.each($("#datatree-workflow-sites").fancytree("getRoot").children, function(){
+                $.each($("#datatree-workflow-sites").fancytree("getRootNode").children, function(){
                     customOnExpand(this);
                 });
                 if (originalSitesJson.folderItem.length > 0)
@@ -349,7 +349,7 @@
             }
             if(originalAssetsJson.folderItem){
                 $.PercDataTree.updateTree(tree_container_assets, [originalAssetsJson]);
-                $.each($("#datatree-workflow-assets").fancytree("getRoot").children, function(){
+                $.each($("#datatree-workflow-assets").fancytree("getRootNode").children, function(){
                     customOnExpand(this);
                 });
                 if (originalAssetsJson.folderItem.length > 0)
@@ -405,15 +405,15 @@
                         $(eventHandler.currentTarget).toggleClass("fancytree-custom-checkbox-selected");
                         if ($(eventHandler.currentTarget).hasClass("fancytree-custom-checkbox-selected"))
                         {
-                            if ($.inArray(dtnode.data.key, selectedCustomCheckboxes) === -1)
+                            if ($.inArray(dtnode.key, selectedCustomCheckboxes) === -1)
                             {
-                                selectedCustomCheckboxes.push(dtnode.data.key);
+                                selectedCustomCheckboxes.push(dtnode.key);
                             }
                             selectCustomCheckboxRecursive(true, dtnode);
                         }
                         else
                         {
-                            selectedCustomCheckboxes.splice( $.inArray(dtnode.data.key, selectedCustomCheckboxes), 1 );
+                            selectedCustomCheckboxes.splice( $.inArray(dtnode.key, selectedCustomCheckboxes), 1 );
                             selectCustomCheckboxRecursive(false, dtnode);
                         }
                     }
@@ -424,7 +424,7 @@
             {
                 newSpan.addClass("fancytree-custom-checkbox-disabled");
             }
-            else if ($.inArray(dtnode.data.key, selectedCustomCheckboxes) !== -1)
+            else if ($.inArray(dtnode.key, selectedCustomCheckboxes) !== -1)
             {
                 newSpan.addClass("fancytree-custom-checkbox-selected");
             }
@@ -483,9 +483,9 @@
     function selectCustomCheckbox(dtnode)
     {
         $(dtnode.span).find(".fancytree-custom-checkbox").addClass("fancytree-custom-checkbox-selected");
-        if ($.inArray(dtnode.data.key, selectedCustomCheckboxes) === -1)
+        if ($.inArray(dtnode.key, selectedCustomCheckboxes) === -1)
         {
-            selectedCustomCheckboxes.push(dtnode.data.key);
+            selectedCustomCheckboxes.push(dtnode.key);
         }
     }
 
@@ -498,7 +498,7 @@
     function deselectCustomCheckbox(dtnode)
     {
         $(dtnode.span).find(".fancytree-custom-checkbox").removeClass("fancytree-custom-checkbox-selected");
-        selectedCustomCheckboxes.splice( $.inArray(dtnode.data.key, selectedCustomCheckboxes), 1 );
+        selectedCustomCheckboxes.splice( $.inArray(dtnode.key, selectedCustomCheckboxes), 1 );
     }
 
     /**
@@ -536,8 +536,10 @@
      * @param selected true(false) if the checkbox was checked(unchecked)
      * @param dtnode DynatreeNode
      */
-    function customOnSelect(selected, dtnode)
+    function customOnSelect(event, data)
     {
+        var dtnode = data.node;
+        var selected = dtnode.isSelected();
         // Apply grey style to checkboxes and bold to labels
         checkParentNode(dtnode);
         selectCustomCheckbox(dtnode);

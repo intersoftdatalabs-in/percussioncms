@@ -76,6 +76,12 @@ http://cxf.apache.org/schemas/jaxrs.xsd">
         <property name="supportSwaggerUi" value="true"/>
         <property name="swaggerUiVersion" value="${swagger.ui.version}"/>
         <property name="swaggerUiMavenGroupAndArtifact" value="org.webjars.swagger-ui"/>
+        <property name="swaggerUiConfig">
+            <bean class="org.apache.cxf.jaxrs.swagger.ui.SwaggerUiConfig">
+                <property name="url" value="/rest/openapi.json"/>
+                <property name="queryConfigEnabled" value="false"/>
+            </bean>
+        </property>
         <property name="scan" value="true" />
         <property name="readAllResources" value="true" />
         <property name="resourcePackages" value="com.percussion.rest" />

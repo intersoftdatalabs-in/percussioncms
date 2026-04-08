@@ -1,5 +1,11 @@
 # Dynatree to Fancytree Migration Implementation Plan
 
+## API Specs
+
+* https://wwwendt.de/tech/fancytree/doc/jsdoc/global.html
+
+* https://github.com/mar10/fancytree/wiki/WhatsNew
+
 ## Overview
 
 This document outlines the implementation plan to complete the migration from the deprecated dynatree jQuery plugin to its modern successor, fancytree. The migration is currently **partially complete** with approximately 300+ files still referencing dynatree.

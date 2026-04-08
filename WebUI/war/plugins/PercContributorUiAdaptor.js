@@ -328,7 +328,7 @@
             api.getRecentItems("site-folder", siteName).done(function(result){
                 var sitefolders = [];
                 if (result.data) {
-                    $.each(result.data.PathItem, function(){
+                    $.each($.perc_utils.convertCXFArray(result.data.PathItem), function(){
                         var sitefolder = {
                             "id": this.id,
                             "name": this.name,
@@ -349,7 +349,7 @@
             api.getRecentItems("asset-folder").done(function(result){
                 var sitefolders = [];
                 if (result.data) {
-                    $.each(result.data.PathItem, function(){
+                    $.each($.perc_utils.convertCXFArray(result.data.PathItem), function(){
                         var sitefolder = {
                             "id": this.id,
                             "name": this.name,
@@ -392,7 +392,7 @@
             var deferred = $.Deferred();
             api.getRecentItems("asset-type").done(function(result){
                 var widgetTypes = [];
-                $.each(result.data.WidgetContentType, function(){
+                $.each($.perc_utils.convertCXFArray(result.data.WidgetContentType), function(){
                     var widgetType = {
                         "id": this.widgetId,
                         "name": this.widgetLabel,
