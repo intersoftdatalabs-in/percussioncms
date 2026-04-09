@@ -13,6 +13,11 @@
           <link href="/cm/gadgets/repository/perc_reports_gadget/perc_reports_gadget.css" rel="stylesheet" type="text/css" />
           <script src="/cm/gadgets/repository/perc_reports_gadget/perc_reports_gadget.js"></script>
           <script src="/Rhythmyx/tmx/tmx.jsp?mode=js&amp;prefix=perc.ui.&amp;"></script>
+          <div id="percReportHelpTextContainer">
+                <span class="note-icon">📝</span>
+                <div class="perc-report-help-text">
+                </div>
+          </div>
           <div id="percReportGadgetTarget"></div>
           <div id="percReportAlertTarget"></div>
         ]]>
