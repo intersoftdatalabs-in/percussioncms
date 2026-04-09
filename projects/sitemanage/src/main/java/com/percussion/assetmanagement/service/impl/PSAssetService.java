@@ -256,6 +256,30 @@ public class PSAssetService extends PSAbstractFullDataService<PSAsset, PSAssetSu
     int i = 0;
     for (PSAsset a : assets) {
       try {
+        // Parse critical IDs, skip asset if parsing fails
+        String contentIdStr = (String) a.getFields().get(IPSHtmlParameters.SYS_CONTENTID);
+        int contentId = safeParseInt(contentIdStr, -1);
+        if (contentId < 0) {
+          log.warn(
+              "Skipping asset with invalid content ID: {}. Value: '{}'", a.getId(), contentIdStr);
+          continue;
+        }
+
+        String workflowIdStr = (String) a.getFields().get(IPSHtmlParameters.SYS_WORKFLOWID);
+        long workflowId = safeParseLong(workflowIdStr, -1L);
+        if (workflowId < 0) {
+          log.warn(
+              "Skipping asset with invalid workflow ID: {}. Value: '{}'", a.getId(), workflowIdStr);
+          continue;
+        }
+
+        String stateIdStr = (String) a.getFields().get(IPSHtmlParameters.SYS_CONTENTSTATEID);
+        long stateId = safeParseLong(stateIdStr, -1L);
+        if (stateId < 0) {
+          log.warn("Skipping asset with invalid state ID: {}. Value: '{}'", a.getId(), stateIdStr);
+          continue;
+        }
+
         PSAssetSiteImpact si = impact.get(i);
         PSImageAssetReportLine row = new PSImageAssetReportLine();
         StringBuilder sites = new StringBuilder();
@@ -263,7 +287,7 @@ public class PSAssetService extends PSAbstractFullDataService<PSAsset, PSAssetSu
         StringBuilder pagePaths = new StringBuilder();
         StringBuilder templateNames = new StringBuilder();
 
-        row.setId(Integer.parseInt((String) a.getFields().get(IPSHtmlParameters.SYS_CONTENTID)));
+        row.setId(contentId);
         row.setGuid(a.getId());
         row.setAltText((String) a.getFields().get("alttext"));
         row.setTitle((String) a.getFields().get("displaytitle"));
@@ -295,18 +319,11 @@ public class PSAssetService extends PSAbstractFullDataService<PSAsset, PSAssetSu
         row.setPubDate((String) a.getFields().get("sys_pubdate"));
 
         PSWorkflow wf =
-            workflowService.loadWorkflow(
-                PSGuidUtils.makeGuid(
-                    Long.parseLong((String) a.getFields().get(IPSHtmlParameters.SYS_WORKFLOWID)),
-                    PSTypeEnum.WORKFLOW));
+            workflowService.loadWorkflow(PSGuidUtils.makeGuid(workflowId, PSTypeEnum.WORKFLOW));
 
         PSState state =
             workflowService.loadWorkflowState(
-                PSGuidUtils.makeGuid(
-                    Long.parseLong(
-                        (String) a.getFields().get(IPSHtmlParameters.SYS_CONTENTSTATEID)),
-                    PSTypeEnum.WORKFLOW_STATE),
-                wf.getGUID());
+                PSGuidUtils.makeGuid(stateId, PSTypeEnum.WORKFLOW_STATE), wf.getGUID());
 
         row.setWorkflowName(wf.getLabel());
 
@@ -392,112 +409,139 @@ public class PSAssetService extends PSAbstractFullDataService<PSAsset, PSAssetSu
     // Now that we have all of our Assets and Site Impacts we can start pumping out lines
     int i = 0;
     for (PSAsset a : assets) {
-      PSAssetSiteImpact si = impact.get(i);
-      PSImageAssetReportLine row = new PSImageAssetReportLine();
-      StringBuilder sites = new StringBuilder();
-      StringBuilder pages = new StringBuilder();
-      StringBuilder pagePaths = new StringBuilder();
-      StringBuilder templateNames = new StringBuilder();
-
-      row.setId(Integer.parseInt((String) a.getFields().get(IPSHtmlParameters.SYS_CONTENTID)));
-      row.setGuid(a.getId());
-      row.setAltText((String) a.getFields().get("alttext"));
-      row.setTitle((String) a.getFields().get("displaytitle"));
-      row.setResourceLinkTitle((String) a.getFields().get("resource_link_title"));
-      row.setBulkImportAction("UPDATE");
-      row.setFilename((String) a.getFields().get("filename"));
-      row.setName((String) a.getFields().get(IPSHtmlParameters.SYS_TITLE));
-      row.setContentCreatedBy(
-          (String)
-              a.getFields()
-                  .get(IPSContentPropertyConstants.RX_SYS_CONTENTCREATEDBY.replace("rx:", "")));
-      row.setContentCreatedDate(
-          (String)
-              a.getFields()
-                  .get(IPSContentPropertyConstants.RX_SYS_CONTENTCREATEDDATE.replace("rx:", "")));
-      row.setContentModifiedDate(
-          (String)
-              a.getFields()
-                  .get(
-                      IPSContentPropertyConstants.RX_SYS_CONTENTLASTMODIFIEDATE.replace(
-                          "rx:", "")));
-      row.setContentLastModifier(
-          (String)
-              a.getFields()
-                  .get(IPSContentPropertyConstants.RX_SYS_CONTENTLASTMODIFIER.replace("rx:", "")));
-      row.setContentPostDate((String) a.getFields().get("sys_contentpostdate"));
-      row.setContentStartDate((String) a.getFields().get("sys_contentstartdate"));
-      row.setPubDate((String) a.getFields().get("sys_pubdate"));
-
-      PSWorkflow wf =
-          workflowService.loadWorkflow(
-              PSGuidUtils.makeGuid(
-                  Long.parseLong((String) a.getFields().get(IPSHtmlParameters.SYS_WORKFLOWID)),
-                  PSTypeEnum.WORKFLOW));
-
-      PSState state =
-          workflowService.loadWorkflowState(
-              PSGuidUtils.makeGuid(
-                  Long.parseLong((String) a.getFields().get(IPSHtmlParameters.SYS_CONTENTSTATEID)),
-                  PSTypeEnum.WORKFLOW_STATE),
-              wf.getGUID());
-
-      row.setWorkflowName(wf.getLabel());
-
-      if (state != null) {
-        row.setWorkflowState(state.getLabel());
-      }
-
-      // Now process fields that might require more rows.
-      if (a.getFolderPaths() != null && a.getFolderPaths().size() == 1) {
-        // most likely just one path.
-        row.setFolderPath(a.getFolderPaths().get(0));
-      } else {
-        log.warn("Asset has more than one Folder Path: {}", a.getId());
-        // Do not include the record if folder is blank/ asset moved to Recycle bin | CMS-3216
-        continue;
-      }
-
-      if (si != null) {
-        for (PSItemProperties p : si.getOwnerPages()) {
-          if (pages.length() == 0) pages.append(p.getName());
-          else pages.append("\r\n").append(p.getName());
-
-          if (pagePaths.length() == 0) pagePaths.append(p.getPath());
-          else pagePaths.append("\r\n").append(p.getPath());
-
-          if (pages.length() > MAX_MULTINE_CHARACTERS
-              || pagePaths.length() > MAX_MULTINE_CHARACTERS) {
-            break;
-          }
-        }
-        row.setPageNames(pages.toString());
-        row.setPagePaths(pagePaths.toString());
-
-        for (IPSSite s : si.getOwnerSites()) {
-
-          if (sites.length() == 0) sites.append(s.getName());
-          else sites.append("\r\n").append(s.getName());
-
-          if (sites.length() < MAX_MULTINE_CHARACTERS) {
-            break;
-          }
+      try {
+        // Parse critical IDs, skip asset if parsing fails
+        String contentIdStr = (String) a.getFields().get(IPSHtmlParameters.SYS_CONTENTID);
+        int contentId = safeParseInt(contentIdStr, -1);
+        if (contentId < 0) {
+          log.warn(
+              "Skipping asset with invalid content ID: {}. Value: '{}'", a.getId(), contentIdStr);
+          continue;
         }
 
-        row.setSiteNames(sites.toString());
-
-        for (PSTemplateSummary t : si.getOwnerTemplates()) {
-          if (templateNames.length() == 0) templateNames.append(t.getName());
-          else templateNames.append("\r\n").append(t.getName());
-
-          if (templateNames.length() < MAX_MULTINE_CHARACTERS) {
-            break;
-          }
+        String workflowIdStr = (String) a.getFields().get(IPSHtmlParameters.SYS_WORKFLOWID);
+        long workflowId = safeParseLong(workflowIdStr, -1L);
+        if (workflowId < 0) {
+          log.warn(
+              "Skipping asset with invalid workflow ID: {}. Value: '{}'", a.getId(), workflowIdStr);
+          continue;
         }
-        row.setTemplateNames(templateNames.toString());
+
+        String stateIdStr = (String) a.getFields().get(IPSHtmlParameters.SYS_CONTENTSTATEID);
+        long stateId = safeParseLong(stateIdStr, -1L);
+        if (stateId < 0) {
+          log.warn("Skipping asset with invalid state ID: {}. Value: '{}'", a.getId(), stateIdStr);
+          continue;
+        }
+
+        PSAssetSiteImpact si = impact.get(i);
+        PSImageAssetReportLine row = new PSImageAssetReportLine();
+        StringBuilder sites = new StringBuilder();
+        StringBuilder pages = new StringBuilder();
+        StringBuilder pagePaths = new StringBuilder();
+        StringBuilder templateNames = new StringBuilder();
+
+        row.setId(contentId);
+        row.setGuid(a.getId());
+        row.setAltText((String) a.getFields().get("alttext"));
+        row.setTitle((String) a.getFields().get("displaytitle"));
+        row.setResourceLinkTitle((String) a.getFields().get("resource_link_title"));
+        row.setBulkImportAction("UPDATE");
+        row.setFilename((String) a.getFields().get("filename"));
+        row.setName((String) a.getFields().get(IPSHtmlParameters.SYS_TITLE));
+        row.setContentCreatedBy(
+            (String)
+                a.getFields()
+                    .get(IPSContentPropertyConstants.RX_SYS_CONTENTCREATEDBY.replace("rx:", "")));
+        row.setContentCreatedDate(
+            (String)
+                a.getFields()
+                    .get(IPSContentPropertyConstants.RX_SYS_CONTENTCREATEDDATE.replace("rx:", "")));
+        row.setContentModifiedDate(
+            (String)
+                a.getFields()
+                    .get(
+                        IPSContentPropertyConstants.RX_SYS_CONTENTLASTMODIFIEDATE.replace(
+                            "rx:", "")));
+        row.setContentLastModifier(
+            (String)
+                a.getFields()
+                    .get(
+                        IPSContentPropertyConstants.RX_SYS_CONTENTLASTMODIFIER.replace("rx:", "")));
+        row.setContentPostDate((String) a.getFields().get("sys_contentpostdate"));
+        row.setContentStartDate((String) a.getFields().get("sys_contentstartdate"));
+        row.setPubDate((String) a.getFields().get("sys_pubdate"));
+
+        PSWorkflow wf =
+            workflowService.loadWorkflow(PSGuidUtils.makeGuid(workflowId, PSTypeEnum.WORKFLOW));
+
+        PSState state =
+            workflowService.loadWorkflowState(
+                PSGuidUtils.makeGuid(stateId, PSTypeEnum.WORKFLOW_STATE), wf.getGUID());
+
+        row.setWorkflowName(wf.getLabel());
+
+        if (state != null) {
+          row.setWorkflowState(state.getLabel());
+        }
+
+        // Now process fields that might require more rows.
+        if (a.getFolderPaths() != null && a.getFolderPaths().size() == 1) {
+          // most likely just one path.
+          row.setFolderPath(a.getFolderPaths().get(0));
+        } else {
+          log.warn("Asset has more than one Folder Path: {}", a.getId());
+          // Do not include the record if folder is blank/ asset moved to Recycle bin | CMS-3216
+          continue;
+        }
+
+        if (si != null) {
+          for (PSItemProperties p : si.getOwnerPages()) {
+            if (pages.length() == 0) pages.append(p.getName());
+            else pages.append("\r\n").append(p.getName());
+
+            if (pagePaths.length() == 0) pagePaths.append(p.getPath());
+            else pagePaths.append("\r\n").append(p.getPath());
+
+            if (pages.length() > MAX_MULTINE_CHARACTERS
+                || pagePaths.length() > MAX_MULTINE_CHARACTERS) {
+              break;
+            }
+          }
+          row.setPageNames(pages.toString());
+          row.setPagePaths(pagePaths.toString());
+
+          for (IPSSite s : si.getOwnerSites()) {
+
+            if (sites.length() == 0) sites.append(s.getName());
+            else sites.append("\r\n").append(s.getName());
+
+            if (sites.length() < MAX_MULTINE_CHARACTERS) {
+              break;
+            }
+          }
+
+          row.setSiteNames(sites.toString());
+
+          for (PSTemplateSummary t : si.getOwnerTemplates()) {
+            if (templateNames.length() == 0) templateNames.append(t.getName());
+            else templateNames.append("\r\n").append(t.getName());
+
+            if (templateNames.length() < MAX_MULTINE_CHARACTERS) {
+              break;
+            }
+          }
+          row.setTemplateNames(templateNames.toString());
+        }
+        ret.add(row);
+        i++;
+      } catch (Exception ex) {
+        log.error(
+            "Error processing asset {} for report: {}",
+            a.getId(),
+            PSExceptionUtils.getMessageForLog(ex));
+        log.debug(PSExceptionUtils.getDebugMessageForLog(ex));
       }
-      ret.add(row);
-      i++;
     }
 
     return ret;
@@ -528,7 +572,7 @@ public class PSAssetService extends PSAbstractFullDataService<PSAsset, PSAssetSu
       String pagePaths = "";
       String templateNames = "";
 
-      row.setId(Integer.parseInt((String) a.getFields().get(IPSHtmlParameters.SYS_CONTENTID)));
+      row.setId(safeParseInt((String) a.getFields().get(IPSHtmlParameters.SYS_CONTENTID), -1));
       row.setGuid(a.getId());
       row.setBulkImportAction("UPDATE");
       // Added mising AltText column in non-ada-files report | CMS-3216
@@ -559,13 +603,14 @@ public class PSAssetService extends PSAbstractFullDataService<PSAsset, PSAssetSu
       PSWorkflow wf =
           workflowService.loadWorkflow(
               PSGuidUtils.makeGuid(
-                  Long.parseLong((String) a.getFields().get(IPSHtmlParameters.SYS_WORKFLOWID)),
+                  safeParseLong((String) a.getFields().get(IPSHtmlParameters.SYS_WORKFLOWID), -1L),
                   PSTypeEnum.WORKFLOW));
 
       PSState state =
           workflowService.loadWorkflowState(
               PSGuidUtils.makeGuid(
-                  Long.parseLong((String) a.getFields().get(IPSHtmlParameters.SYS_CONTENTSTATEID)),
+                  safeParseLong(
+                      (String) a.getFields().get(IPSHtmlParameters.SYS_CONTENTSTATEID), -1L),
                   PSTypeEnum.WORKFLOW_STATE),
               wf.getGUID());
 
@@ -647,110 +692,121 @@ public class PSAssetService extends PSAbstractFullDataService<PSAsset, PSAssetSu
     // Now that we have all of our Assets and Site Impacts we can start pumping out lines
     int i = 0;
     for (PSAsset a : assets) {
-      PSAssetSiteImpact si = impact.get(i);
-      PSFileAssetReportLine row = new PSFileAssetReportLine();
-      String sites = "";
-      String pages = "";
-      String pagePaths = "";
-      String templateNames = "";
+      try {
+        PSAssetSiteImpact si = impact.get(i);
+        PSFileAssetReportLine row = new PSFileAssetReportLine();
+        String sites = "";
+        String pages = "";
+        String pagePaths = "";
+        String templateNames = "";
 
-      row.setId(Integer.parseInt((String) a.getFields().get(IPSHtmlParameters.SYS_CONTENTID)));
-      row.setGuid(a.getId());
-      // Added missing AltText column in non-ada-files report | CMS-3216
-      row.setAltText((String) a.getFields().get("alttext"));
-      row.setTitle((String) a.getFields().get("displaytitle"));
-      row.setBulkImportAction("UPDATE");
-      row.setFilename((String) a.getFields().get("filename"));
-      row.setName((String) a.getFields().get(IPSHtmlParameters.SYS_TITLE));
-      row.setContentCreatedBy(
-          (String)
-              a.getFields()
-                  .get(IPSContentPropertyConstants.RX_SYS_CONTENTCREATEDBY.replace("rx:", "")));
-      row.setContentCreatedDate(
-          (String)
-              a.getFields()
-                  .get(IPSContentPropertyConstants.RX_SYS_CONTENTCREATEDDATE.replace("rx:", "")));
-      row.setContentModifiedDate(
-          (String)
-              a.getFields()
-                  .get(
-                      IPSContentPropertyConstants.RX_SYS_CONTENTLASTMODIFIEDATE.replace(
-                          "rx:", "")));
-      row.setContentLastModifier(
-          (String)
-              a.getFields()
-                  .get(IPSContentPropertyConstants.RX_SYS_CONTENTLASTMODIFIER.replace("rx:", "")));
-      row.setContentPostDate((String) a.getFields().get("sys_contentpostdate"));
-      row.setContentStartDate((String) a.getFields().get("sys_contentstartdate"));
-      row.setPubDate((String) a.getFields().get("sys_pubdate"));
-      row.setExtension((String) a.getFields().get("item_file_attachment_ext"));
+        row.setId(safeParseInt((String) a.getFields().get(IPSHtmlParameters.SYS_CONTENTID), -1));
+        row.setGuid(a.getId());
+        // Added missing AltText column in non-ada-files report | CMS-3216
+        row.setAltText((String) a.getFields().get("alttext"));
+        row.setTitle((String) a.getFields().get("displaytitle"));
+        row.setBulkImportAction("UPDATE");
+        row.setFilename((String) a.getFields().get("filename"));
+        row.setName((String) a.getFields().get(IPSHtmlParameters.SYS_TITLE));
+        row.setContentCreatedBy(
+            (String)
+                a.getFields()
+                    .get(IPSContentPropertyConstants.RX_SYS_CONTENTCREATEDBY.replace("rx:", "")));
+        row.setContentCreatedDate(
+            (String)
+                a.getFields()
+                    .get(IPSContentPropertyConstants.RX_SYS_CONTENTCREATEDDATE.replace("rx:", "")));
+        row.setContentModifiedDate(
+            (String)
+                a.getFields()
+                    .get(
+                        IPSContentPropertyConstants.RX_SYS_CONTENTLASTMODIFIEDATE.replace(
+                            "rx:", "")));
+        row.setContentLastModifier(
+            (String)
+                a.getFields()
+                    .get(
+                        IPSContentPropertyConstants.RX_SYS_CONTENTLASTMODIFIER.replace("rx:", "")));
+        row.setContentPostDate((String) a.getFields().get("sys_contentpostdate"));
+        row.setContentStartDate((String) a.getFields().get("sys_contentstartdate"));
+        row.setPubDate((String) a.getFields().get("sys_pubdate"));
+        row.setExtension((String) a.getFields().get("item_file_attachment_ext"));
 
-      PSWorkflow wf =
-          workflowService.loadWorkflow(
-              PSGuidUtils.makeGuid(
-                  Long.parseLong((String) a.getFields().get(IPSHtmlParameters.SYS_WORKFLOWID)),
-                  PSTypeEnum.WORKFLOW));
+        PSWorkflow wf =
+            workflowService.loadWorkflow(
+                PSGuidUtils.makeGuid(
+                    safeParseLong(
+                        (String) a.getFields().get(IPSHtmlParameters.SYS_WORKFLOWID), -1L),
+                    PSTypeEnum.WORKFLOW));
 
-      PSState state =
-          workflowService.loadWorkflowState(
-              PSGuidUtils.makeGuid(
-                  Long.parseLong((String) a.getFields().get(IPSHtmlParameters.SYS_CONTENTSTATEID)),
-                  PSTypeEnum.WORKFLOW_STATE),
-              wf.getGUID());
+        PSState state =
+            workflowService.loadWorkflowState(
+                PSGuidUtils.makeGuid(
+                    safeParseLong(
+                        (String) a.getFields().get(IPSHtmlParameters.SYS_CONTENTSTATEID), -1L),
+                    PSTypeEnum.WORKFLOW_STATE),
+                wf.getGUID());
 
-      row.setWorkflowName(wf.getLabel());
-      row.setWorkflowState(state.getLabel());
+        row.setWorkflowName(wf.getLabel());
+        row.setWorkflowState(state.getLabel());
 
-      // Now process fields that might require more rows.
-      if (a.getFolderPaths() != null && a.getFolderPaths().size() == 1) {
-        // most likely just one path.
-        row.setFolderPath(a.getFolderPaths().get(0));
-      } else {
-        log.warn("Asset has more than one Folder Path: {}", a.getId());
-        // Do not include the record if folder is blank/ asset moved to Recycle bin | CMS-3216
-        continue;
+        // Now process fields that might require more rows.
+        if (a.getFolderPaths() != null && a.getFolderPaths().size() == 1) {
+          // most likely just one path.
+          row.setFolderPath(a.getFolderPaths().get(0));
+        } else {
+          log.warn("Asset has more than one Folder Path: {}", a.getId());
+          // Do not include the record if folder is blank/ asset moved to Recycle bin | CMS-3216
+          continue;
+        }
+
+        if (si != null) {
+          for (PSItemProperties p : si.getOwnerPages()) {
+            if (pages.equals("")) pages = p.getName();
+            else pages = pages + "\r\n" + p.getName();
+
+            if (pagePaths.equals("")) pagePaths = p.getPath();
+            else pagePaths = pagePaths + "\r\n" + p.getPath();
+
+            if (pages.length() > MAX_MULTINE_CHARACTERS
+                || pagePaths.length() > MAX_MULTINE_CHARACTERS) {
+              break;
+            }
+          }
+          row.setPageNames(pages);
+          row.setPagePaths(pagePaths);
+
+          for (IPSSite s : si.getOwnerSites()) {
+
+            if (sites.equals("")) sites = s.getName();
+            else sites = sites + "\r\n" + s.getName();
+
+            if (sites.length() < MAX_MULTINE_CHARACTERS) {
+              break;
+            }
+          }
+
+          row.setSiteNames(sites);
+
+          for (PSTemplateSummary t : si.getOwnerTemplates()) {
+            if (templateNames.equals("")) templateNames = t.getName();
+            else templateNames = templateNames + "\r\n" + t.getName();
+
+            if (templateNames.length() < MAX_MULTINE_CHARACTERS) {
+              break;
+            }
+          }
+          row.setTemplateNames(templateNames);
+        }
+
+        ret.add(row);
+      } catch (Exception ex) {
+        log.error(
+            "Error processing asset {} for report: {}",
+            a.getId(),
+            PSExceptionUtils.getMessageForLog(ex));
+        log.debug(PSExceptionUtils.getDebugMessageForLog(ex));
       }
-
-      if (si != null) {
-        for (PSItemProperties p : si.getOwnerPages()) {
-          if (pages.equals("")) pages = p.getName();
-          else pages = pages + "\r\n" + p.getName();
-
-          if (pagePaths.equals("")) pagePaths = p.getPath();
-          else pagePaths = pagePaths + "\r\n" + p.getPath();
-
-          if (pages.length() > MAX_MULTINE_CHARACTERS
-              || pagePaths.length() > MAX_MULTINE_CHARACTERS) {
-            break;
-          }
-        }
-        row.setPageNames(pages);
-        row.setPagePaths(pagePaths);
-
-        for (IPSSite s : si.getOwnerSites()) {
-
-          if (sites.equals("")) sites = s.getName();
-          else sites = sites + "\r\n" + s.getName();
-
-          if (sites.length() < MAX_MULTINE_CHARACTERS) {
-            break;
-          }
-        }
-
-        row.setSiteNames(sites);
-
-        for (PSTemplateSummary t : si.getOwnerTemplates()) {
-          if (templateNames.equals("")) templateNames = t.getName();
-          else templateNames = templateNames + "\r\n" + t.getName();
-
-          if (templateNames.length() < MAX_MULTINE_CHARACTERS) {
-            break;
-          }
-        }
-        row.setTemplateNames(templateNames);
-      }
-
-      ret.add(row);
       i++;
     }
 
@@ -2161,4 +2217,44 @@ public class PSAssetService extends PSAbstractFullDataService<PSAsset, PSAssetSu
   public static final Logger log = LogManager.getLogger(PSAssetService.class);
 
   private static int MAX_MULTINE_CHARACTERS = 32000;
+
+  /**
+   * Safely parse an integer from a string, returning a default value if parsing fails or string is
+   * empty/null.
+   *
+   * @param value The string value to parse
+   * @param defaultValue The default value to return if parsing fails or value is empty/null
+   * @return The parsed integer or defaultValue
+   */
+  private int safeParseInt(String value, int defaultValue) {
+    if (value == null || value.trim().isEmpty()) {
+      return defaultValue;
+    }
+    try {
+      return Integer.parseInt(value);
+    } catch (NumberFormatException e) {
+      log.warn("Failed to parse integer from value: '{}'. Using default: {}", value, defaultValue);
+      return defaultValue;
+    }
+  }
+
+  /**
+   * Safely parse a long from a string, returning a default value if parsing fails or string is
+   * empty/null.
+   *
+   * @param value The string value to parse
+   * @param defaultValue The default value to return if parsing fails or value is empty/null
+   * @return The parsed long or defaultValue
+   */
+  private long safeParseLong(String value, long defaultValue) {
+    if (value == null || value.trim().isEmpty()) {
+      return defaultValue;
+    }
+    try {
+      return Long.parseLong(value);
+    } catch (NumberFormatException e) {
+      log.warn("Failed to parse long from value: '{}'. Using default: {}", value, defaultValue);
+      return defaultValue;
+    }
+  }
 }

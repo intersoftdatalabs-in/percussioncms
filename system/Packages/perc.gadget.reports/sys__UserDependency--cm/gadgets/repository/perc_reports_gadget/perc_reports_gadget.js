@@ -26,6 +26,11 @@ $(document).ready(function() {
 });
 
 function displayAvailableReports() {
+
+    const percReportHelp = I18N.message("perc.ui.reports.gadget@Report Help");
+    
+    $('.perc-report-help-text').text(percReportHelp);
+
     const percReportsList = [
         {type: I18N.message("perc.ui.reports.gadget@All Files"), endpoint: 'all-files'},
         {type: I18N.message("perc.ui.reports.gadget@All Images"), endpoint: 'all-images'},
