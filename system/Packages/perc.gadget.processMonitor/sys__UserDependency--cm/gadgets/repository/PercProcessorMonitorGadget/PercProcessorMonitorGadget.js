@@ -93,8 +93,37 @@
                     "<td scope=\"row\" for=\"@@NAME@@\">@@NAME@@</td>" +
                     "<td>@@STATUS@@</td>" +
                     "</tr>";
-                $.each(results.data.psMonitorList.monitor, function(){
-                    var entries = this.stats.entries.entry;
+                var monitors = [];
+                // Accept both legacy payload ({ psMonitorList: { monitor: [...] } })
+                // and current payload ({ monitor: [...] }).
+                if(results.data.psMonitorList && results.data.psMonitorList.monitor){
+                    monitors = results.data.psMonitorList.monitor;
+                }
+                else if(results.data.monitor){
+                    monitors = results.data.monitor;
+                }
+                if(!Array.isArray(monitors)){
+                    monitors = [monitors];
+                }
+                $.each(monitors, function(){
+                    var entries = [];
+                    if(this.stats && this.stats.entries){
+                        if(this.stats.entries.entry !== undefined){
+                            entries = this.stats.entries.entry;
+                        }
+                        else{
+                            // Convert map-style entries to key/value pairs for consistent processing.
+                            $.each(this.stats.entries, function(key, value){
+                                entries.push({
+                                    key: key,
+                                    value: value
+                                });
+                            });
+                        }
+                    }
+                    if(!Array.isArray(entries)){
+                        entries = [entries];
+                    }
                     var name = "";
                     var message = "";
                     $.each(entries, function(){
