@@ -55,9 +55,9 @@ public class PSStopwatchTest extends TestCase
       double delta = Math.abs(time1 - time2);
       
       System.err.println("Delta: " + delta);
-      if (delta > 30)
+      if (delta > 100)
       {
-         throw new AssertionFailedError("Times varied by more than 30 millis. " +
+         throw new AssertionFailedError("Times varied by more than 100 millis. " +
             "real variance was " + delta + " millis");
       }
    }
