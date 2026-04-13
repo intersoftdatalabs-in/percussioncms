@@ -169,6 +169,8 @@ deploy_jar_module() {
 deploy_webui() {
   local module_path="WebUI"
   local target_dir="$PROJECT_ROOT/$module_path/target"
+  local jetty_dir="$INSTALL_DIR/jetty"
+  local jetty_webapp="$jetty_dir/base/webapps/Rhythmyx"
 
   if [[ $SKIP_BUILD -eq 0 ]]; then
     run_maven_build "$module_path"
@@ -186,6 +188,9 @@ deploy_webui() {
     exit 1
   fi
 
+  echo "Deleting existing war at: $jetty_webapp"
+  rm -rf "$jetty_webapp"
+
   echo "Unzipping $(basename "$war_path") -> $WEBAPP_DIR"
   unzip -oq "$war_path" -d "$WEBAPP_DIR"
 
@@ -201,6 +206,7 @@ restart_jetty() {
   local stop_script="$jetty_dir/StopJetty.sh"
   local start_script="$jetty_dir/StartJetty.sh"
   local server_log="$JETTY_BASE_DIR/logs/server.log"
+  local jetty_work="$jetty_dir/base/work"
 
   if [[ ! -x "$start_script" ]]; then
     chmod +x "$start_script" 2>/dev/null || true
@@ -218,6 +224,11 @@ restart_jetty() {
   if [[ -f "$server_log" ]]; then
     rm -f "$server_log"
     echo "Removed log file: $server_log"
+  fi
+
+  if [[ -d "$jetty_work" ]]; then
+     rm -rf "$jetty_work/*"
+     echo "Removed jetty work files from: $jetty_work"
   fi
 
   echo "Starting Jetty..."
