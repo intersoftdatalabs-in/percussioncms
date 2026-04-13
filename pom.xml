@@ -719,6 +719,14 @@
                 <artifactId>myfaces-impl</artifactId>
                 <version>${myfaces.version}</version>
             </dependency>
+            <!-- Explicitly manage woodstox-core 6.5.1 for MyFaces StAX compatibility -->
+            <!-- Jackson 2.21.1 brings in 7.1.1 which breaks JSF XML processing, so we -->
+            <!-- exclude it from jackson-dataformat-xml and manage 6.5.1 here -->
+            <dependency>
+                <groupId>com.fasterxml.woodstox</groupId>
+                <artifactId>woodstox-core</artifactId>
+                <version>6.5.1</version>
+            </dependency>
             <dependency>
                 <groupId>saxon</groupId>
                 <artifactId>saxon</artifactId>
@@ -949,10 +957,10 @@
                 <artifactId>trinidad-impl</artifactId>
                 <version>${trinidad.version}</version>
             </dependency>
-            <!-- https://mvnrepository.com/artifact/org.apache.myfaces.tomahawk/tomahawk -->
+            <!-- https://mvnrepository.com/artifact/org.apache.myfaces.tomahawk/tomahawk20 -->
             <dependency>
                 <groupId>org.apache.myfaces.tomahawk</groupId>
-                <artifactId>tomahawk</artifactId>
+                <artifactId>tomahawk20</artifactId>
                 <version>1.1.14</version>
             </dependency>
             <!-- https://mvnrepository.com/artifact/com.thoughtworks.xstream/xstream -->
@@ -1763,6 +1771,16 @@
                 <groupId>com.fasterxml.jackson.dataformat</groupId>
                 <artifactId>jackson-dataformat-xml</artifactId>
                 <version>${jackson.version}</version>
+                <!-- Exclude woodstox-core 7.x brought in by Jackson 2.21.1 to maintain compatibility -->
+                <!-- with MyFaces 2.3.11 which expects woodstox-core 6.5.1 for StAX XML processing. -->
+                <!-- Jackson 2.21.1 pulled in woodstox 7.1.1 which broke JSF taglib parsing and -->
+                <!-- faces-config XML processing. See: JIRA issue for details. -->
+                <exclusions>
+                    <exclusion>
+                        <groupId>com.fasterxml.woodstox</groupId>
+                        <artifactId>woodstox-core</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
             <dependency>
                 <groupId>com.fasterxml.jackson.datatype</groupId>

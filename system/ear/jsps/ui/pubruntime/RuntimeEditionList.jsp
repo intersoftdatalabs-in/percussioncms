@@ -24,7 +24,7 @@
 		
 		<tr:panelHeader styleClass="rxPanelHeader" text="Editions">
 			<tr:table var="entry" width="100%" rowBandingInterval="1" rows="25" 
-			   partialTriggers="pollJobProgress"
+			   partialTriggers=":pubruntime:pollJobProgress"
 				value="#{sys_runtime_navigation.list}">
 				<tr:column width="23px">
 				   <tr:commandLink immediate="true" rendered="#{! entry.running}"

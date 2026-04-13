@@ -42,7 +42,7 @@
    </tr:panelHorizontalLayout>
    <tr:table var="row" value="#{sys_design_navigation.list}" 
    		rows="#{sys_design_navigation.collectionNode.pageRows}"
-   		binding="#{sys_design_navigation.collectionNode.table}"
+      	rangeChangeListener="#{sys_design_navigation.collectionNode.rowRangeChanged}"
          width="100%" rowBandingInterval="1">
       <tr:column width="23px">
          <tr:selectBooleanRadio group="selectedrow" value="#{row.selectedRow}" />

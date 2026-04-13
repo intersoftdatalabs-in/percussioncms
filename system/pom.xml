@@ -154,8 +154,7 @@
         </dependency>
         <dependency>
             <groupId>org.glassfish</groupId>
-            <artifactId>jakarta.el</artifactId>
-            <version>4.0.2</version>
+            <artifactId>javax.el</artifactId>
         </dependency>
         <dependency>
             <groupId>org.hibernate</groupId>
