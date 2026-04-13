@@ -40,7 +40,7 @@
             message="('#{empty sys_design_navigation.filter ? '' : sys_design_navigation.filter}' filter applied)" />
    </tr:panelHorizontalLayout>
 	<tr:table var="row" value="#{sys_design_navigation.list}" 
-		   binding="#{sys_design_navigation.collectionNode.table}" 
+		   rangeChangeListener="#{sys_design_navigation.collectionNode.rowRangeChanged}" 
 			rows="#{sys_design_navigation.collectionNode.pageRows}"
          width="100%" rowBandingInterval="1">
 		<tr:column width="23px">

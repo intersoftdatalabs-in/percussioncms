@@ -23,7 +23,7 @@
       <tr:poll interval="6000" id="pollJobProgress" />
 		<tr:panelHeader styleClass="rxPanelHeader" text="Running Editions">
          <tr:table var="entry" width="100%" rowBandingInterval="1" rows="25"
-            partialTriggers="pollJobProgress" 
+            partialTriggers=":pubruntime:pollJobProgress" 
             value="#{sys_runtime_navigation.startingNode.activeJobStatus}">
             <tr:column sortable="true" sortProperty="editionNameWithId" headerText="Edition">
                <tr:commandLink text="#{entry.editionNameWithId}"

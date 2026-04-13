@@ -63,6 +63,17 @@ public abstract class PSEditableNodeContainer extends PSCategoryNodeBase
          }
       }
    }
+
+   /**
+    * JSF callback for table range changes. This avoids component binding
+    * reuse issues while keeping the same selection-reset behavior.
+    *
+    * @param event never <code>null</code> under normal JSF flow.
+    */
+   public void rowRangeChanged(RangeChangeEvent event)
+   {
+      m_rangeChangelistener.processRangeChange(event);
+   }
    
    /**
     * The listener of the child table for range change event. 
