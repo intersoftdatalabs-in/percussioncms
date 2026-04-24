@@ -18,9 +18,7 @@ package com.percussion.rx.publisher.jsf.beans;
 
 
 import com.percussion.rx.jsf.PSCategoryNodeBase;
-import com.percussion.rx.jsf.PSEditableNode;
 import com.percussion.rx.jsf.PSLockableNavigation;
-import com.percussion.rx.jsf.PSNodeBase;
 import com.percussion.rx.jsf.PSTreeModel;
 import com.percussion.rx.publisher.jsf.nodes.PSContentListViewNode;
 import com.percussion.rx.publisher.jsf.nodes.PSContextContainerNode;
@@ -86,6 +84,8 @@ public class PSDesignNavigation extends PSLockableNavigation
       root.addNode(m_unsedCListNodes);
       root.addNode(m_contextNodes);
       root.addNode(m_typeNodes);
+
+      setCurrentCategoryKey((String) m_siteNodes.getKey());
       
       setStartingNode(m_siteNodes);
    }

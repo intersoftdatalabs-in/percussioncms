@@ -251,6 +251,8 @@ public class PSRuntimeNavigation extends PSNavigation
       root.addNode(status);
       root.addNode(logs);
 
+      setCurrentCategoryKey((String) m_sites.getKey());
+
       setStartingNode(status);
       Object saved = m_tree.getRowKey();
       for(int i = 0; i < m_tree.getRowCount(); i++)

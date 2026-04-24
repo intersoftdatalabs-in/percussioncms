@@ -184,6 +184,7 @@
            var _sites = [];
            var _storedConfig = null;
            var _hasStoredPwd = false;
+           var _hasSelectedFile = false;
            var _validCreds = false;
            var _profileList = [];
            var _metakey = "perc.ga.profile.list.persisted";
@@ -198,10 +199,13 @@
               $.PercPathService.getFolderPathItem("/Sites", function(status, result){
                  if(status == $.PercServiceUtils.STATUS_SUCCESS)
                  {
-                    var sList = result.PathItem;
-                    for(i = 0; i < sList.length; i++)
+                    var sListRaw = result && result.PathItem ? result.PathItem : [];
+                    var sList = $.isArray(sListRaw) ? sListRaw : [sListRaw];
+                    _sites = [];
+                    for(var i = 0; i < sList.length; i++)
                     {
-                       _sites[i] = sList[i].name;
+                       if(sList[i] && sList[i].name)
+                          _sites[i] = sList[i].name;
                     }
                     if(typeof(callback) == 'function')
                        callback();
@@ -338,6 +342,7 @@
                _originalValues = {};
                _originalValues['config'] = $.extend(true, {}, _storedConfig);
                _originalValues['hasStoredPwd'] = _hasStoredPwd;
+               _originalValues['hasSelectedFile'] = _hasSelectedFile;
                _originalValues['profileList'] = $.extend(true, [], _profileList);
                _originalValues['sites'] = $.extend(true, [], _sites);
                _originalValues['validCreds'] = _validCreds;
@@ -386,6 +391,69 @@
             * @param callback {function} callback function to be executed when testConnection returns.It will
             * be passed the single argument status.
             */
+              function _getFriendlyGoogleAuthErrorMessage(request){
+                 var fallback = "Connection to Google failed. Verify the service account email and JSON key file.";
+                 var response = null;
+                 var rawMsg = "";
+                 var defaultMsg = "";
+                 try
+                 {
+                    response = request && request.responseJSON ? request.responseJSON : null;
+                    if(!response && request && request.responseText)
+                    {
+                       response = JSON.parse(request.responseText);
+                    }
+
+                    if(response && response.ValidationErrors)
+                    {
+                       if(response.ValidationErrors.globalError && response.ValidationErrors.globalError.defaultMessage)
+                       {
+                          rawMsg = response.ValidationErrors.globalError.defaultMessage;
+                       }
+                       else if(response.ValidationErrors.globalErrors && response.ValidationErrors.globalErrors.length > 0
+                               && response.ValidationErrors.globalErrors[0].defaultMessage)
+                       {
+                          rawMsg = response.ValidationErrors.globalErrors[0].defaultMessage;
+                       }
+                    }
+                 }
+                 catch(ignore){
+                 }
+
+                 if(rawMsg)
+                 {
+                    rawMsg = $('<div/>').html(rawMsg).text();
+                    if(rawMsg.indexOf('Google Auth error') !== -1)
+                    {
+                       return fallback;
+                    }
+                    return rawMsg.split('\n')[0].replace('{}', '').trim();
+                 }
+
+                 defaultMsg = $.PercServiceUtils.extractDefaultErrorMessage(request) || fallback;
+                 defaultMsg = $('<div/>').html(defaultMsg).text();
+
+                 var lowerMsg = defaultMsg.toLowerCase();
+
+                 if(defaultMsg.indexOf('Captcha') !== -1)
+                    return "Invalid credentials";
+
+                 if(lowerMsg.indexOf('<html') !== -1 ||
+                    lowerMsg.indexOf('<!doctype') !== -1 ||
+                    lowerMsg.indexOf('percussion error page') !== -1 ||
+                    lowerMsg.indexOf('this page cannot be found') !== -1 ||
+                    lowerMsg.indexOf('main page percussion help support') !== -1)
+                    return fallback;
+
+                 if(defaultMsg.indexOf('ValidationErrors') !== -1 || defaultMsg.indexOf('{') === 0)
+                    return fallback;
+
+                 if(defaultMsg.length > 220)
+                    return fallback;
+
+                 return defaultMsg;
+              }
+
            function _testConnection(userid, password, callback){
 
 
@@ -416,10 +484,7 @@
                      percJQuery.unblockUI();
 	},
         error: function(request,status, error){
-	 var defaultMsg = $.PercServiceUtils.extractDefaultErrorMessage(request);
-
-                        if(defaultMsg.indexOf('Captcha') != -1) // Replace needs captcha error which users will not understand
-                           defaultMsg = "Invalid credentials";
+	 var defaultMsg = _getFriendlyGoogleAuthErrorMessage(request);
 
                         perc_utils.alert_dialog({title: 'Error', content:defaultMsg, "id": "perc-ga-test-connect-error"});
 
@@ -719,6 +784,7 @@
                 }).on('change',
                  function(){
                     _hasStoredPwd = false;
+                    _hasSelectedFile = (this.files && this.files.length > 0);
                     _validCreds = false;
                     _handleButtonState();
                  });
@@ -770,6 +836,7 @@
            function _onCancel(event,inst){
               _storedConfig = _originalValues['config'];
               _hasStoredPwd = _originalValues['hasStoredPwd'];
+              _hasSelectedFile = _originalValues['hasSelectedFile'];
               _profileList = _originalValues['profileList'];
               _sites = _originalValues['sites'];
               $("#perc-ga-confirm-pwd").val("").attr('disabled', "disabled").addClass('perc-ga-disabled');
@@ -826,8 +893,10 @@
            function _handleButtonState(event){
               var $user = $("#perc-ga-user");
               var $pwd = $("#perc-ga-pwd");
-              var hasUser = $user.val().length > 0;
-              var hasPass = $pwd.val().length > 0 || _hasStoredPwd;
+              var userVal = $user.val() || "";
+              var pwdVal = $pwd.val() || "";
+              var hasUser = userVal.length > 0;
+              var hasPass = _hasSelectedFile || pwdVal.length > 0 || _hasStoredPwd;
               if(hasUser && hasPass)
               {
                  $("#perc-ga-connect").removeClass("perc-inactive");

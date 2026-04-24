@@ -17,6 +17,9 @@
 
 package com.percussion.analytics.service.impl.google;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class GoogleCreds {
   private String private_key_id;
   private String private_key;

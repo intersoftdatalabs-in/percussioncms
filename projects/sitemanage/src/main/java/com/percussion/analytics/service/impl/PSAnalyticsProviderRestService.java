@@ -24,6 +24,7 @@ import com.percussion.error.PSExceptionUtils;
 import com.percussion.share.dao.IPSGenericDao;
 import com.percussion.share.data.PSGAEntries;
 import com.percussion.share.service.exception.PSValidationException;
+import com.percussion.share.validation.PSValidationErrorsBuilder;
 import java.io.IOException;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -106,6 +107,16 @@ public class PSAnalyticsProviderRestService {
       log.error(PSExceptionUtils.getMessageForLog(e));
       log.debug(PSExceptionUtils.getDebugMessageForLog(e));
       throw e;
+    } catch (PSAnalyticsProviderException e) {
+      log.error(PSExceptionUtils.getMessageForLog(e));
+      log.debug(PSExceptionUtils.getDebugMessageForLog(e));
+      PSValidationErrorsBuilder builder =
+          new PSValidationErrorsBuilder(this.getClass().getCanonicalName());
+      builder
+          .reject(
+              "Google Auth error",
+              "Google authentication failed. Verify the service account email and JSON key file.")
+          .throwIfInvalid();
     } catch (IPSGenericDao.SaveException | IPSGenericDao.LoadException e) {
       log.error(PSExceptionUtils.getMessageForLog(e));
       log.debug(PSExceptionUtils.getDebugMessageForLog(e));
