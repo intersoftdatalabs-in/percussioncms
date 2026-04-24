@@ -126,7 +126,8 @@ public class PSGoogleAnalyticsProviderHelper {
       log.error("Google Auth error: {}", PSExceptionUtils.getMessageForLog(e));
       log.debug(PSExceptionUtils.getDebugMessageForLog(e), e);
       PSValidationErrorsBuilder builder = validateParameters("json file");
-      String msg = "Google Auth error: {}" + PSExceptionUtils.getMessageForLog(e);
+      String msg =
+          "Google authentication failed. Verify the service account email and JSON key file.";
       builder.reject("Google Auth error", msg).throwIfInvalid();
     }
     return service;
@@ -175,7 +176,8 @@ public class PSGoogleAnalyticsProviderHelper {
       log.error("Google Auth error: {}", PSExceptionUtils.getMessageForLog(e));
       log.debug(PSExceptionUtils.getDebugMessageForLog(e), e);
       PSValidationErrorsBuilder builder = validateParameters("json file");
-      String msg = "Google Auth error: {}" + PSExceptionUtils.getMessageForLog(e);
+      String msg =
+          "Google authentication failed. Verify the service account email and JSON key file.";
       builder.reject("Google Auth error", msg).throwIfInvalid();
     }
     return analyticsReporting;

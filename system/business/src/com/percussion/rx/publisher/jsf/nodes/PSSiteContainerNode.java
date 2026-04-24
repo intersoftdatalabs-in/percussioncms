@@ -48,6 +48,11 @@ public class PSSiteContainerNode extends PSEditableNodeContainer
     * Outcome for the list page.
     */
    public static final String PUB_DESIGN_SITE_VIEWS = "pub-design-site-views";
+
+   /**
+    * Unique row key for the runtime Sites category node.
+    */
+   public static final String PUB_RUNTIME_SITE_VIEWS = "pub-runtime-site-views";
    
    /**
     * Is this container in the design or runtime trees.
@@ -69,6 +74,12 @@ public class PSSiteContainerNode extends PSEditableNodeContainer
     */
    public PSSiteContainerNode(String title, boolean design) {
       super(title, design ? PUB_DESIGN_SITE_VIEWS : PSRuntimeStatusNode.STATUS_VIEW);
+      if (!design)
+      {
+         // Runtime "Sites" shares the same outcome as status, but must use
+         // a different key so tree node lookups do not collide.
+         setKey(PUB_RUNTIME_SITE_VIEWS);
+      }
       m_design = design;
    }
 
