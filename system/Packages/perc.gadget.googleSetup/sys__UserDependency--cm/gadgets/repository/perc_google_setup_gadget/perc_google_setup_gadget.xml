@@ -199,13 +199,33 @@
               $.PercPathService.getFolderPathItem("/Sites", function(status, result){
                  if(status == $.PercServiceUtils.STATUS_SUCCESS)
                  {
-                    var sListRaw = result && result.PathItem ? result.PathItem : [];
-                    var sList = $.isArray(sListRaw) ? sListRaw : [sListRaw];
+                    var sListRaw = [];
+                    if($.isArray(result))
+                    {
+                       sListRaw = result;
+                    }
+                    else if(result && typeof(result) === 'object')
+                    {
+                       if(typeof(result.PathItem) !== 'undefined')
+                       {
+                          sListRaw = $.perc_utils.convertCXFArray(result.PathItem);
+                       }
+                       else if(result.PathItemList && typeof(result.PathItemList.PathItem) !== 'undefined')
+                       {
+                          sListRaw = $.perc_utils.convertCXFArray(result.PathItemList.PathItem);
+                       }
+                       else if(typeof(result.PathItemList) !== 'undefined')
+                       {
+                          sListRaw = $.perc_utils.convertCXFArray(result.PathItemList);
+                       }
+                    }
+
+                    var sList = $.isArray(sListRaw) ? sListRaw : [];
                     _sites = [];
                     for(var i = 0; i < sList.length; i++)
                     {
                        if(sList[i] && sList[i].name)
-                          _sites[i] = sList[i].name;
+                          _sites.push(sList[i].name);
                     }
                     if(typeof(callback) == 'function')
                        callback();
