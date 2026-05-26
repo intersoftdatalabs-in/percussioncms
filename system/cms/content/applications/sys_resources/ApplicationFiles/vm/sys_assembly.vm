@@ -672,9 +672,9 @@ display:none;
 #set($jqueryUIwidget = $rx.pageutils.findWidgetInstances($sys.assemblyItem, $NULL, "percJQueryUIWidget"))##
 #foreach($js_link in $rx.pageutils.javascriptLinks($perc.linkContext, $sys.assemblyItem))##
 #if($js_link.getUrl().endsWith("/jquery-ui.js"))##
-#if($perc.isEditMode() && ($includeOnPublishedPage != "no"))##
+#if($perc.isEditMode())##
 <script src='/cm/jslib/profiles/3x/jquery/libraries/jquery-ui/jquery-ui.js'></script>
-#elseif ($perc.isPreviewMode() && ($includeOnPublishedPage != "no") && ($perc.linkContext.site.overrideSystemJQueryUI==false) && ($jqueryUIwidget.size()==0) )##
+#elseif ($perc.isPreviewMode() && ($perc.linkContext.site.overrideSystemJQueryUI==false) && ($jqueryUIwidget.size()==0) )##
 <script src='/cm/jslib/profiles/3x/jquery/libraries/jquery-ui/jquery-ui.js'></script>
 #else##
 #print_jqueryUI("additionalHeadContent")##
@@ -683,7 +683,7 @@ display:none;
 #end##
 #perc_addDeliveryJSFunctions()##
 #foreach($js_link in $rx.pageutils.javascriptLinks($perc.linkContext, $sys.assemblyItem))##
-#if(! $js_link.getUrl().endsWith("/jquery.js") && !($js_link.getUrl().endsWith("/jquery-ui.js")) && ($includeOnPublishedPage != "no"))##
+#if(! $js_link.getUrl().endsWith("/jquery.js") && !($js_link.getUrl().endsWith("/jquery-ui.js")))##
 <script src="$js_link"></script>
 #end##
 #end##
@@ -745,13 +745,13 @@ ga('send', 'pageview');
 #if ($perc.isPreviewMode())##
 #if($perc.isEditMode())##
 #else##
-#if($includeOnPublishedPage != "no")
 <script>
 document.addEventListener("DOMContentLoaded", function(event) {
-(function($){$(document).ready(function(){$('a[href*="/.system/PageCatalog"]').attr('cataloged', 'true' );$('a[href*="/.system/PageCatalog"]').on("click",function(e) {alert('This page has not yet been imported. It will be available for preview after import is complete.');e.preventDefault();});})    })(jQuery);
+    if (typeof jQuery !== 'undefined') {
+        (function($){$(document).ready(function(){$('a[href*="/.system/PageCatalog"]').attr('cataloged', 'true' );$('a[href*="/.system/PageCatalog"]').on("click",function(e) {alert('This page has not yet been imported. It will be available for preview after import is complete.');e.preventDefault();});})    })(jQuery);
+    }
 });
 </script>
-#end##
 #end##
 #end##
 #end##
@@ -761,9 +761,7 @@ document.addEventListener("DOMContentLoaded", function(event) {
 #if ($perc.isPreviewMode())##
 #if($perc.isEditMode())##
 #else##
-#if($includeOnPublishedPage != "no")
 <script src="/Rhythmyx/sys_resources/mobilepreview/js/PercMobilePreview.js" defer></script>
-#end##
 #end##
 #end##
 #end##
@@ -792,9 +790,7 @@ document.addEventListener("DOMContentLoaded", function(event) {
 #if(! $cm1Version )##
 #set($cm1Version = "")##
 #end##
-#if($includeOnPublishedPage != "no")
-<script>(function() { jQuery.getDeliveryServiceBase = function(){ return '$dServiceBase';};jQuery.getCMSVersion = function(){ return '$!{cm1Version}';};})();</script>
-#end##
+<script>(function() { if (typeof jQuery !== 'undefined') { jQuery.getDeliveryServiceBase = function(){ return '$dServiceBase';};jQuery.getCMSVersion = function(){ return '$!{cm1Version}';}; } })();</script>
 #end##
 ##
 ##
@@ -1041,7 +1037,6 @@ crossorigin="$!{jQueryMigrateCrossOrigin}"
 ## $location_name is a reference to additionalHeadContent, beforeBodyClose,
 ## or afterBodyStart, etc.
 #macro(print_jqueryUI $location_name)##
-#if($includeOnPublishedPage != "no")
 #set($instances = $rx.pageutils.findWidgetInstances($sys.assemblyItem, $NULL, "percJQueryUIWidget"))##
 #if($instances.size() > 0)##
 #set($instance = $instances.get(0))##
@@ -1104,7 +1099,6 @@ crossorigin="$!{jQueryCrossOrigin}"
 #end##
 #else##
 <script src="$js_link"></script>
-#end##
 #end##
 #end##
 #end##
