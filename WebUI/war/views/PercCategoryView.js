@@ -734,6 +734,8 @@
                     childnode.expand(true);
                 }, true); 
 
+                child.setActive(true);
+
                 return child;
     
         }
@@ -819,6 +821,10 @@
 
                 if(parent.isRootNode()) {
                     children.push(node.toDict(true, function(dict) {
+                        if (dict.data) {
+                            $.extend(dict, dict.data);
+                            delete dict.data;
+                        }
                         delete dict.activate;
                         delete dict.addClass;
                         delete dict.expand;
