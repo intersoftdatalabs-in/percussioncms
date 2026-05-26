@@ -19,18 +19,18 @@ package com.percussion.analytics.service.impl.google;
 import static org.apache.commons.lang.Validate.notEmpty;
 import static org.apache.commons.lang.Validate.notNull;
 
-import com.google.api.services.analyticsreporting.v4.AnalyticsReporting;
-import com.google.api.services.analyticsreporting.v4.model.ColumnHeader;
-import com.google.api.services.analyticsreporting.v4.model.DateRangeValues;
-import com.google.api.services.analyticsreporting.v4.model.Dimension;
-import com.google.api.services.analyticsreporting.v4.model.GetReportsRequest;
-import com.google.api.services.analyticsreporting.v4.model.GetReportsResponse;
-import com.google.api.services.analyticsreporting.v4.model.Metric;
-import com.google.api.services.analyticsreporting.v4.model.MetricHeaderEntry;
-import com.google.api.services.analyticsreporting.v4.model.OrderBy;
-import com.google.api.services.analyticsreporting.v4.model.Report;
-import com.google.api.services.analyticsreporting.v4.model.ReportRequest;
-import com.google.api.services.analyticsreporting.v4.model.ReportRow;
+import com.google.analytics.data.v1beta.BetaAnalyticsDataClient;
+import com.google.analytics.data.v1beta.DateRange;
+import com.google.analytics.data.v1beta.Dimension;
+import com.google.analytics.data.v1beta.Filter;
+import com.google.analytics.data.v1beta.Filter.StringFilter;
+import com.google.analytics.data.v1beta.Filter.StringFilter.MatchType;
+import com.google.analytics.data.v1beta.FilterExpression;
+import com.google.analytics.data.v1beta.Metric;
+import com.google.analytics.data.v1beta.OrderBy;
+import com.google.analytics.data.v1beta.Row;
+import com.google.analytics.data.v1beta.RunReportRequest;
+import com.google.analytics.data.v1beta.RunReportResponse;
 import com.percussion.analytics.data.IPSAnalyticsQueryResult;
 import com.percussion.analytics.data.PSAnalyticsProviderConfig;
 import com.percussion.analytics.data.impl.PSAnalyticsQueryResult;
@@ -43,8 +43,6 @@ import com.percussion.share.service.exception.PSValidationException;
 import com.percussion.share.validation.PSValidationErrorsBuilder;
 import com.percussion.utils.date.PSDateRange;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.LogManager;
@@ -52,6 +50,7 @@ import org.apache.logging.log4j.Logger;
 
 /**
  * Handler that does the actual query building and execution to the Google Analytics service.
+ * Refactored to support GA4 Data API v1beta.
  *
  * @author erikserating
  */
@@ -77,11 +76,12 @@ public class PSGoogleAnalyticsProviderQueryHandler implements IPSAnalyticsProvid
 
     range = PSGoogleAnalyticsProviderHelper.getInstance().createValidPSDateRange(range);
 
-    ReportRequest requestQuery = createQueryForPageViewsByPathPrefix(sitename, pathPrefix, range);
+    RunReportRequest requestQuery =
+        createQueryForPageViewsByPathPrefix(sitename, pathPrefix, range);
 
-    Report entries = executeQuery(sitename, requestQuery);
+    RunReportResponse response = executeQuery(sitename, requestQuery);
 
-    return getResultsForPageViewsByPathPrefix(sitename, entries);
+    return getResultsForPageViewsByPathPrefix(sitename, response);
   }
 
   private void logPageViewsParameters(String sitename, String pathPrefix, PSDateRange range) {
@@ -105,63 +105,27 @@ public class PSGoogleAnalyticsProviderQueryHandler implements IPSAnalyticsProvid
   }
 
   private List<IPSAnalyticsQueryResult> getResultsForPageViewsByPathPrefix(
-      String sitename, Report report) throws PSAnalyticsProviderException {
+      String sitename, RunReportResponse report) throws PSAnalyticsProviderException {
     List<IPSAnalyticsQueryResult> results = new ArrayList<>();
-    ColumnHeader header = report.getColumnHeader();
-    List<String> dimensionHeaders = header.getDimensions();
-    List<MetricHeaderEntry> metricHeaders = header.getMetricHeader().getMetricHeaderEntries();
-    List<ReportRow> rows = report.getData().getRows();
+    if (report == null) return results;
 
-    if (rows != null) {
-      for (ReportRow row : rows) {
-        List<String> dimensions = row.getDimensions();
-        List<DateRangeValues> metrics = row.getMetrics();
-        PSAnalyticsQueryResult result = new PSAnalyticsQueryResult();
-        boolean validSite = true; // Skip if this is not the right site
+    for (Row row : report.getRowsList()) {
+      PSAnalyticsQueryResult result = new PSAnalyticsQueryResult();
 
-        for (int i = 0; i < dimensionHeaders.size() && i < dimensions.size(); i++) {
-          log.debug("{}:{}", dimensionHeaders.get(i), dimensions.get(i));
+      // Dimensions: 0: date, 1: pagePath
+      String dateStr = row.getDimensionValues(0).getValue();
+      String path = row.getDimensionValues(1).getValue();
 
-          if (dimensionHeaders.get(i).equalsIgnoreCase("ga:date")) {
-            result.put(
-                FIELD_DATE,
-                PSGoogleAnalyticsProviderHelper.getInstance()
-                    .parseDate(String.valueOf(dimensions.get(i))));
-          }
-          if (dimensionHeaders.get(i).equalsIgnoreCase("ga:pagePath")) {
-            result.put(FIELD_PAGE_PATH, dimensions.get(i) != null ? dimensions.get(i) : "");
-          }
-        }
-        if (!validSite) {
-          log.debug("Skipping for unwanted sites ");
-          continue; // Skip if this is not the right site
-        }
+      // Metrics: 0: screenPageViews, 1: sessions (approx for unique pageviews)
+      String pageViewsStr = row.getMetricValues(0).getValue();
+      String sessionsStr = row.getMetricValues(1).getValue();
 
-        for (DateRangeValues values : metrics) {
+      result.put(FIELD_DATE, PSGoogleAnalyticsProviderHelper.getInstance().parseDate(dateStr));
+      result.put(FIELD_PAGE_PATH, path != null ? path : "");
+      result.put(FIELD_PAGEVIEWS, Integer.parseInt(pageViewsStr));
+      result.put(FIELD_UNIQUE_PAGEVIEWS, Integer.parseInt(sessionsStr));
 
-          for (int k = 0; k < values.getValues().size() && k < metricHeaders.size(); k++) {
-            log.debug("{}: {}", metricHeaders.get(k).getName(), values.getValues().get(k));
-            if (metricHeaders.get(k).getName().equalsIgnoreCase("ga:pageviews")) {
-              result.put(
-                  FIELD_PAGEVIEWS, Integer.parseInt(String.valueOf(values.getValues().get(k))));
-            } else if (metricHeaders.get(k).getName().equalsIgnoreCase("ga:uniquePageviews")) {
-              result.put(
-                  FIELD_UNIQUE_PAGEVIEWS,
-                  Integer.parseInt(String.valueOf(values.getValues().get(k))));
-            } else if (metricHeaders.get(k).getName().equalsIgnoreCase("ga:date")) {
-              result.put(
-                  FIELD_DATE,
-                  PSGoogleAnalyticsProviderHelper.getInstance()
-                      .parseDate(String.valueOf(values.getValues().get(k))));
-            } else if (metricHeaders.get(k).getName().equalsIgnoreCase("ga:pagePath")) {
-              result.put(
-                  FIELD_PAGE_PATH,
-                  values.getValues().get(k) != null ? values.getValues().get(k) : "");
-            }
-          }
-        } // metrics for loop
-        results.add(result);
-      } // for loop
+      results.add(result);
     }
 
     logResultsForPageViewsByPathPrefix(results);
@@ -182,76 +146,38 @@ public class PSGoogleAnalyticsProviderQueryHandler implements IPSAnalyticsProvid
     notNull(range);
 
     logPageViewsParameters(sitename, null, range);
-    ReportRequest requestQuery = createQueryForVisitsViews(range);
-    Report entries = executeQuery(sitename, requestQuery);
+    range = PSGoogleAnalyticsProviderHelper.getInstance().createValidPSDateRange(range);
+    RunReportRequest requestQuery = createQueryForVisitsViews(range);
+    RunReportResponse response = executeQuery(sitename, requestQuery);
 
-    return getResultsForVisitsViewsySite(sitename, entries);
+    return getResultsForVisitsViewsBySite(sitename, response);
   }
 
-  private List<IPSAnalyticsQueryResult> getResultsForVisitsViewsySite(
-      String sitename, Report report) throws PSAnalyticsProviderException {
+  private List<IPSAnalyticsQueryResult> getResultsForVisitsViewsBySite(
+      String sitename, RunReportResponse report) throws PSAnalyticsProviderException {
     List<IPSAnalyticsQueryResult> results = new ArrayList<>();
-    ColumnHeader header = report.getColumnHeader();
-    List<String> dimensionHeaders = header.getDimensions();
-    List<MetricHeaderEntry> metricHeaders = header.getMetricHeader().getMetricHeaderEntries();
-    List<ReportRow> rows = report.getData().getRows();
+    if (report == null) return results;
 
-    if (rows != null) {
-      for (ReportRow row : rows) {
-        List<String> dimensions = row.getDimensions();
-        List<DateRangeValues> metrics = row.getMetrics();
-        PSAnalyticsQueryResult result = new PSAnalyticsQueryResult();
-        boolean validSite = true; // Skip if this is not the right site
+    for (Row row : report.getRowsList()) {
+      PSAnalyticsQueryResult result = new PSAnalyticsQueryResult();
 
-        for (int i = 0; i < dimensionHeaders.size() && i < dimensions.size(); i++) {
-          log.debug("{}:{}", dimensionHeaders.get(i), dimensions.get(i));
+      // Dimensions: 0: date
+      String dateStr = row.getDimensionValues(0).getValue();
 
-          if (dimensionHeaders.get(i).equalsIgnoreCase("ga:date")) {
-            result.put(
-                FIELD_DATE,
-                PSGoogleAnalyticsProviderHelper.getInstance()
-                    .parseDate(String.valueOf(dimensions.get(i))));
-          }
-          if (dimensionHeaders.get(i).equalsIgnoreCase("ga:pagePath")) {
-            result.put(FIELD_PAGE_PATH, dimensions.get(i) != null ? dimensions.get(i) : "");
-          }
-        }
+      // Metrics: 0: screenPageViews, 1: sessions, 2: newUsers
+      String pageViewsStr = row.getMetricValues(0).getValue();
+      String sessionsStr = row.getMetricValues(1).getValue();
+      String newUsersStr = row.getMetricValues(2).getValue();
 
-        if (!validSite) {
-          log.debug("Skipping for unwanted sites");
-          continue; // Skip if this is not the right site
-        }
+      result.put(FIELD_DATE, PSGoogleAnalyticsProviderHelper.getInstance().parseDate(dateStr));
+      result.put(FIELD_PAGEVIEWS, Integer.parseInt(pageViewsStr));
+      result.put(FIELD_UNIQUE_PAGEVIEWS, Integer.parseInt(sessionsStr));
+      result.put(FIELD_VISITS, sessionsStr);
+      result.put(FIELD_NEW_VISITS, newUsersStr);
 
-        for (DateRangeValues values : metrics) {
-
-          for (int k = 0; k < values.getValues().size() && k < metricHeaders.size(); k++) {
-            log.debug("{}:{}", metricHeaders.get(k).getName(), values.getValues().get(k));
-            if (metricHeaders.get(k).getName().equalsIgnoreCase("ga:newVisits")) {
-              result.put(FIELD_NEW_VISITS, values.getValues().get(k));
-            } else if (metricHeaders.get(k).getName().equalsIgnoreCase("ga:visits")) {
-              result.put(FIELD_VISITS, values.getValues().get(k));
-            } else if (metricHeaders.get(k).getName().equalsIgnoreCase("ga:pageviews")) {
-              result.put(
-                  FIELD_PAGEVIEWS, Integer.parseInt(String.valueOf(values.getValues().get(k))));
-            } else if (metricHeaders.get(k).getName().equalsIgnoreCase("ga:uniquePageviews")) {
-              result.put(
-                  FIELD_UNIQUE_PAGEVIEWS,
-                  Integer.parseInt(String.valueOf(values.getValues().get(k))));
-            } else if (metricHeaders.get(k).getName().equalsIgnoreCase("ga:date")) {
-              result.put(
-                  FIELD_DATE,
-                  PSGoogleAnalyticsProviderHelper.getInstance()
-                      .parseDate(String.valueOf(values.getValues().get(k))));
-            } else if (metricHeaders.get(k).getName().equalsIgnoreCase("ga:pagePath")) {
-              result.put(
-                  FIELD_PAGE_PATH,
-                  values.getValues().get(k) != null ? values.getValues().get(k) : "");
-            }
-          }
-        } // metrics for loop
-        results.add(result);
-      } // for loop
+      results.add(result);
     }
+
     logVisitsViewsBySiteResults(results);
     return results;
   }
@@ -269,93 +195,58 @@ public class PSGoogleAnalyticsProviderQueryHandler implements IPSAnalyticsProvid
     log.debug("VisitsViewsBySite result size: {}", results.size());
   }
 
-  private ReportRequest createQueryForPageViewsByPathPrefix(
+  private RunReportRequest createQueryForPageViewsByPathPrefix(
       String siteName, String pathPrefix, PSDateRange range) throws PSAnalyticsProviderException {
-    ReportRequest request = PSGoogleAnalyticsProviderHelper.getInstance().createNewDataQuery(range);
-    /*  -- removed these parameters
-    new Dimension().setName("ga:customVarValue1")
-     new OrderBy().setFieldName("ga:customVarValue1")
-     */
-    request.setDimensions(
-        Arrays.asList(new Dimension().setName("ga:date"), new Dimension().setName("ga:pagePath")));
-    request.setMetrics(
-        Arrays.asList(
-            new Metric().setExpression("ga:pageviews"),
-            new Metric().setExpression("ga:uniquePageviews")));
-    request.setOrderBys(Collections.singletonList(new OrderBy().setFieldName("ga:date")));
 
-    String pagePathFilter = getPagePathFilter(siteName, pathPrefix);
+    String startDate =
+        PSGoogleAnalyticsProviderHelper.getInstance().getDateFormat().format(range.getStart());
+    String endDate =
+        PSGoogleAnalyticsProviderHelper.getInstance().getDateFormat().format(range.getEnd());
+
+    DateRange dateRange =
+        DateRange.newBuilder().setStartDate(startDate).setEndDate(endDate).build();
+
+    RunReportRequest.Builder requestBuilder =
+        RunReportRequest.newBuilder()
+            .addDateRanges(dateRange)
+            .addDimensions(Dimension.newBuilder().setName("date"))
+            .addDimensions(Dimension.newBuilder().setName("pagePath"))
+            .addMetrics(Metric.newBuilder().setName("screenPageViews"))
+            .addMetrics(Metric.newBuilder().setName("sessions"))
+            .addOrderBys(
+                OrderBy.newBuilder()
+                    .setDimension(OrderBy.DimensionOrderBy.newBuilder().setDimensionName("date")));
+
+    FilterExpression pagePathFilter = getPagePathFilter(siteName, pathPrefix);
     if (pagePathFilter != null) {
-      // TODO: verify this filter work or not as compare to previous one
-      request.setFiltersExpression(pagePathFilter);
+      requestBuilder.setDimensionFilter(pagePathFilter);
     }
-    return request;
+    return requestBuilder.build();
   }
 
-  /*private ReportRequest createQueryForPageViewsByPathPrefixTest(String siteName, String pathPrefix, PSDateRange range)
-          throws PSAnalyticsProviderException
-  {
-      ReportRequest request = PSGoogleAnalyticsProviderHelper.createNewDataQuery(range);
-      request.setDimensions(Arrays.asList(new Dimension().setName("ga:date"),  new Dimension().setName("ga:pagePath")));
-      request.setMetrics(Arrays.asList(
-              new Metric().setExpression("ga:pageviews"),
-              new Metric().setExpression("ga:uniquePageviews")));
-      request.setOrderBys(Arrays.asList( new OrderBy().setFieldName("ga:date")));
-      //new OrderBy().setFieldName("ga:customVarValue1")
-      String pagePathFilter = getPagePathFilter(siteName, pathPrefix);
-      if (pagePathFilter != null)
-      {
-          // query.setFilters(pagePathFilter);
-          log.debug("TODO verify this filter work or not as compare to previous one");
-          request.setFiltersExpression(pagePathFilter);
-      }
-      return request;
-  }*/
-
-  private ReportRequest createQueryForVisitsViews(PSDateRange range)
+  private RunReportRequest createQueryForVisitsViews(PSDateRange range)
       throws PSAnalyticsProviderException {
-    range = PSGoogleAnalyticsProviderHelper.getInstance().createValidPSDateRange(range);
-    ReportRequest request = PSGoogleAnalyticsProviderHelper.getInstance().createNewDataQuery(range);
+    String startDate =
+        PSGoogleAnalyticsProviderHelper.getInstance().getDateFormat().format(range.getStart());
+    String endDate =
+        PSGoogleAnalyticsProviderHelper.getInstance().getDateFormat().format(range.getEnd());
 
-    // Metric sessions = new Metric().setExpression("ga:pageviews").setAlias("sessions");
-    // Dimension browser = new Dimension().setName("ga:browser");
-    // OrderBy ordering = new OrderBy().setFieldName("ga:customVarValue1");
-    // , new Dimension().setName("ga:customVarValue1")
-    OrderBy ordering = new OrderBy().setFieldName("ga:date");
+    DateRange dateRange =
+        DateRange.newBuilder().setStartDate(startDate).setEndDate(endDate).build();
 
-    request.setDimensions(Collections.singletonList(new Dimension().setName("ga:date")));
-
-    // Set the cohort metrics
-    request.setMetrics(
-        Arrays.asList(
-            new Metric().setExpression("ga:pageviews"),
-            new Metric().setExpression("ga:uniquePageviews"),
-            new Metric().setExpression("ga:visits"),
-            new Metric().setExpression("ga:newVisits")));
-    request.setOrderBys(Collections.singletonList(ordering));
-    return request;
+    return RunReportRequest.newBuilder()
+        .addDateRanges(dateRange)
+        .addDimensions(Dimension.newBuilder().setName("date"))
+        .addMetrics(Metric.newBuilder().setName("screenPageViews"))
+        .addMetrics(Metric.newBuilder().setName("sessions"))
+        .addMetrics(Metric.newBuilder().setName("newUsers"))
+        .addOrderBys(
+            OrderBy.newBuilder()
+                .setDimension(OrderBy.DimensionOrderBy.newBuilder().setDimensionName("date")))
+        .build();
   }
-  /*private ReportRequest createQueryForVisitsViewsTest(PSDateRange range) throws PSAnalyticsProviderException
-  {
-      range = createValidPSDateRange(range);
-      ReportRequest request = createNewDataQuery(range);
-      //Metric sessions = new Metric().setExpression("ga:pageviews").setAlias("sessions");
-      //Dimension browser = new Dimension().setName("ga:browser");
-      //OrderBy ordering = new OrderBy().setFieldName("ga:customVarValue1");
-      OrderBy ordering2 = new OrderBy().setFieldName("ga:date");
 
-      request.setDimensions(Arrays.asList(new Dimension().setName("ga:date"), new Dimension().setName("ga:browser")));
-      // Set the cohort metrics
-      request.setMetrics(Arrays.asList(
-              new Metric().setExpression("ga:pageviews"),
-              new Metric().setExpression("ga:uniquePageviews"),
-              new Metric().setExpression("ga:visits"),
-              new Metric().setExpression("ga:newVisits")));
-      request.setOrderBys(Arrays.asList( ordering2));
-      return request;
-  }*/
-
-  private String getPagePathFilter(String siteName, String pathPrefix) {
+  private FilterExpression getPagePathFilter(String siteName, String pathPrefix) {
     if (StringUtils.isBlank(pathPrefix)) return null;
 
     /*
@@ -373,37 +264,27 @@ public class PSGoogleAnalyticsProviderQueryHandler implements IPSAnalyticsProvid
 
     pagePath = pagePath.replace("//Sites/" + siteName, "");
 
-    String pagePathFilter = "ga:pagePath=~";
-    // Google analytics doesn't support more than 128 characters for
-    // ga:pagePath filters with regular expressions.
-    if (pagePath.length() >= 126) {
-      // If the path has more than 126 chars, trim it to use only the
-      // last 126 (Two more chars are added later to the regex).
-      pagePath = pagePath.substring(pagePath.length() - 126, pagePath.length());
-    } else {
-      // We know the path full path is being used so we specify ^ to
-      // the regex to indicate that the matching paths should start
-      // with the specified value.
-      pagePathFilter += "^";
-    }
-    pagePathFilter += pagePath + "/*";
-
-    return pagePathFilter;
+    return FilterExpression.newBuilder()
+        .setFilter(
+            Filter.newBuilder()
+                .setFieldName("pagePath")
+                .setStringFilter(
+                    StringFilter.newBuilder()
+                        .setMatchType(MatchType.BEGINS_WITH)
+                        .setValue(pagePath)))
+        .build();
   }
 
   /**
-   * Execute the passed in query against Google Analytics service. This method will set the values
-   * for Max Results and Start index. Multiple queries will be made to Google until all results are
-   * collected.
+   * Execute the passed in query against GA4 Data API.
    *
-   * @param sitename the site name is required so we can retrieve the proper profile to use. Cannot
+   * @param sitename the site name is required so we can retrieve the proper property to use. Cannot
    *     be <code>null</code> or empty.
-   * @param requestQuery the Google DataQuery, the setMaxResults and setStartIndex values will be
-   *     overwritten by this method. Cannot be <code>null</code>.
-   * @return list of data entries, never <code>null</code>, may be empty.
+   * @param requestQuery the Google DataQuery. Cannot be <code>null</code>.
+   * @return response data, never <code>null</code>, may be empty.
    * @throws PSAnalyticsProviderException on any error that occurs while executing the query.
    */
-  private Report executeQuery(String sitename, ReportRequest requestQuery)
+  private RunReportResponse executeQuery(String sitename, RunReportRequest requestQuery)
       throws PSAnalyticsProviderException, IPSGenericDao.LoadException, PSValidationException {
     // Get user ID and password
     PSAnalyticsProviderConfig config = providerService.loadConfig(false);
@@ -424,46 +305,31 @@ public class PSGoogleAnalyticsProviderQueryHandler implements IPSAnalyticsProvid
     if (profileId == null) {
       PSValidationErrorsBuilder builder =
           new PSValidationErrorsBuilder(this.getClass().getCanonicalName());
-      String msg = "No profile set for site <" + sitename + ">.";
+      String msg = "No property set for site <" + sitename + ">.";
       builder.reject(CAUSETYPE.NO_PROFILE.toString(), msg).throwIfInvalid();
     }
 
     return profileId;
   }
 
-  private synchronized Report executeGoogleQuery(
-      ReportRequest requestQuery, String pid, String uid, String pwd)
+  private synchronized RunReportResponse executeGoogleQuery(
+      RunReportRequest requestQuery, String pid, String uid, String pwd)
       throws PSAnalyticsProviderException {
 
-    Report resultReport = null;
-    try {
-      AnalyticsReporting analyticsReporting =
-          PSGoogleAnalyticsProviderHelper.getInstance().initializeAnalyticsReporting(uid, pwd);
-      requestQuery.setViewId(pid); // set pid mandatory
-      ArrayList<ReportRequest> requests = new ArrayList<>();
-      requests.add(requestQuery);
-      GetReportsRequest getReport = new GetReportsRequest().setReportRequests(requests);
-      // Call the batchGet method.
-      GetReportsResponse response = analyticsReporting.reports().batchGet(getReport).execute();
-      for (Report report : response.getReports()) {
-        resultReport = report;
+    try (BetaAnalyticsDataClient analyticsDataClient =
+        PSGoogleAnalyticsProviderHelper.getInstance().getGa4DataClient(uid, pwd)) {
+      if (analyticsDataClient == null) {
+        throw new PSAnalyticsProviderException("Failed to initialize GA4 Data API client.");
       }
+
+      RunReportRequest finalRequest = requestQuery.toBuilder().setProperty(pid).build();
+
+      return analyticsDataClient.runReport(finalRequest);
     } catch (Exception e) {
       log.error(e);
       throw new PSAnalyticsProviderException(e.getMessage(), e);
     }
-
-    return resultReport;
   }
-
-  /** Maximum data results to be returned from Google. */
-  private static final int MAX_RESULTS = 10000;
-
-  /**
-   * Request sleep interval to prevent us from exceeding the Google request quota of 10 queries per
-   * one second period.
-   */
-  private static final int REQUEST_SLEEP_INTERVAL = 115;
 
   /** Analytics provider service, initialized in ctor, never <code>null</code> after that. */
   private final IPSAnalyticsProviderService providerService;

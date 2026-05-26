@@ -16,8 +16,10 @@
  */
 package com.percussion.analytics.service.impl.google;
 
-import com.google.api.services.analytics.Analytics;
-import com.google.api.services.analytics.model.*;
+import com.google.analytics.admin.v1alpha.AccountSummary;
+import com.google.analytics.admin.v1alpha.AnalyticsAdminServiceClient;
+import com.google.analytics.admin.v1alpha.ListAccountSummariesRequest;
+import com.google.analytics.admin.v1alpha.PropertySummary;
 import com.percussion.analytics.error.PSAnalyticsProviderException;
 import com.percussion.analytics.error.PSAnalyticsProviderException.CAUSETYPE;
 import com.percussion.analytics.service.IPSAnalyticsProviderService;
@@ -25,7 +27,6 @@ import com.percussion.analytics.service.impl.IPSAnalyticsProviderHandler;
 import com.percussion.share.service.exception.PSValidationException;
 import com.percussion.share.validation.PSValidationErrorsBuilder;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 import org.apache.logging.log4j.LogManager;
@@ -46,56 +47,40 @@ public class PSGoogleAnalyticsProviderHandler implements IPSAnalyticsProviderHan
       throws PSAnalyticsProviderException, PSValidationException {
     Map<String, String> profiles = new LinkedHashMap<>();
     Map<String, String[]> temp = new TreeMap<>();
-    try {
-      Analytics analytics =
-          PSGoogleAnalyticsProviderHelper.getInstance().getAnalyticsService(uid, password);
+    try (AnalyticsAdminServiceClient adminClient =
+        PSGoogleAnalyticsProviderHelper.getInstance().getGa4AdminClient(uid, password)) {
 
-      Accounts accounts = analytics.management().accounts().list().execute();
-      if (accounts.getItems().isEmpty()) {
-        log.error("No accounts found");
-      } else {
-        List<Account> accountList = accounts.getItems();
-        for (Account localAccountObj : accountList) {
-          Webproperties webproperties =
-              analytics.management().webproperties().list(localAccountObj.getId()).execute();
-          if (!webproperties.getItems().isEmpty()) {
-            List<Webproperty> webPropertyList = webproperties.getItems();
-            for (Webproperty localWebProperty : webPropertyList) {
-              // Query profiles collection.
-              Profiles profilesObjects =
-                  analytics
-                      .management()
-                      .profiles()
-                      .list(localWebProperty.getAccountId(), localWebProperty.getId())
-                      .execute();
-              if (!profilesObjects.getItems().isEmpty()) {
-                List<Profile> profileList = profilesObjects.getItems();
-                for (Profile localProfileObj : profileList) {
-                  log.debug("Account ID: " + localProfileObj.getAccountId());
-                  log.debug("Web Property ID: " + localProfileObj.getWebPropertyId());
-                  log.debug(
-                      "Web Property Internal ID: " + localProfileObj.getInternalWebPropertyId());
-                  log.debug("Profile ID: " + localProfileObj.getId());
-                  log.debug("Profile Name: " + localProfileObj.getName());
+      if (adminClient == null) {
+        throw new PSAnalyticsProviderException(
+            "Failed to initialize Google Analytics Admin Client.");
+      }
 
-                  String pId = localProfileObj.getId();
-                  String title = localProfileObj.getName();
-                  String wpId = localProfileObj.getWebPropertyId();
-                  String displayVal = title + " (" + wpId + ")";
+      boolean accountsFound = false;
+      for (AccountSummary account :
+          adminClient
+              .listAccountSummaries(ListAccountSummariesRequest.newBuilder().build())
+              .iterateAll()) {
+        accountsFound = true;
+        for (PropertySummary property : account.getPropertySummariesList()) {
+          log.debug("Account ID: " + account.getAccount());
+          log.debug("Property ID: " + property.getProperty());
+          log.debug("Property Name: " + property.getDisplayName());
 
-                  String[] val = {pId + "|" + wpId, displayVal};
-                  // First we put in treemap with a special key to get the
-                  // entries to sort by webpropertyId then by display value.
-                  temp.put(wpId + "_" + displayVal.toLowerCase(), val);
-                }
-              }
-            }
-          }
+          String pId = property.getProperty(); // Format: properties/123456789
+          String title = property.getDisplayName();
+          String displayVal = title + " (" + pId + ")";
+
+          String[] val = {pId, displayVal};
+          // Sort by display value
+          temp.put(displayVal.toLowerCase(), val);
         }
       }
-      // Now we add to the linked hash map to get the key/value we want
-      // and we maintain
-      // the desired sorting from the tree map.
+
+      if (!accountsFound) {
+        log.error("No accounts found");
+      }
+
+      // Add to linked hash map to maintain sorting
       for (String key : temp.keySet()) {
         String[] v = temp.get(key);
         profiles.put(v[0], v[1]);
@@ -116,7 +101,13 @@ public class PSGoogleAnalyticsProviderHandler implements IPSAnalyticsProviderHan
   public void testConnection(String uid, String password)
       throws PSValidationException, PSAnalyticsProviderException {
     try {
-      PSGoogleAnalyticsProviderHelper.getInstance().getAnalyticsService(uid, password);
+      try (AnalyticsAdminServiceClient client =
+          PSGoogleAnalyticsProviderHelper.getInstance().getGa4AdminClient(uid, password)) {
+        if (client == null) {
+          throw new PSAnalyticsProviderException(
+              "Failed to initialize Google Analytics Admin Client.", CAUSETYPE.INVALID_CREDS);
+        }
+      }
       getProfiles(uid, password);
     } catch (PSAnalyticsProviderException e) {
       if (e.getCauseType() == CAUSETYPE.NO_ANALYTICS_ACCOUNT) {
@@ -128,6 +119,9 @@ public class PSGoogleAnalyticsProviderHandler implements IPSAnalyticsProviderHan
             .throwIfInvalid();
       }
       throw e;
+    } catch (Exception e) {
+      throw new PSAnalyticsProviderException(
+          "Error occurred while testing connection: " + e.getLocalizedMessage(), e);
     }
   }
 
