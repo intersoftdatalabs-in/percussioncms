@@ -613,6 +613,16 @@
             <artifactId>extensions-main</artifactId>
             <version>8.1.7-SNAPSHOT</version>
         </dependency>
+        <!-- Google Analytics Data API v1beta for GA4 -->
+        <dependency>
+            <groupId>com.google.analytics</groupId>
+            <artifactId>google-analytics-data</artifactId>
+        </dependency>
+        <!-- Google Analytics Admin API for GA4 -->
+        <dependency>
+            <groupId>com.google.analytics</groupId>
+            <artifactId>google-analytics-admin</artifactId>
+        </dependency>
     </dependencies>
     <build>
         <resources>
