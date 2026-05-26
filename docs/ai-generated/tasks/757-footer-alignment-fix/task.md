@@ -53,8 +53,8 @@ The editor loads **both** `perc_decoration.css` (unchanged; still uses `height: 
 
 ## Files Changed
 
-| File | Change |
-|------|--------|
+|                                          File                                           |                                         Change                                          |
+|-----------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------|
 | `system/cms/content/applications/rx_resources/ApplicationFiles/default_theme/theme.css` | Changed all 4 occurrences of `vspan_X { height: Xpx }` to `vspan_X { min-height: Xpx }` |
 
 ## Testing
@@ -66,3 +66,4 @@ The editor loads **both** `perc_decoration.css` (unchanged; still uses `height: 
 5. Save, approve, and publish the page.
 6. **Expected:** Footer text appears at the bottom of the page, below all sidebar widget content.
 7. **Previously:** Footer text appeared overlapping with sidebar widget content.
+
