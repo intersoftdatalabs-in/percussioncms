@@ -52,10 +52,10 @@ body {
 /* Region CSS
 ----------------------------------*/
 
-.vspan_2 { height : 120px }
-.vspan_4 { height : 240px }
-.vspan_6 { height : 360px }
-.vspan_8 { height : 480px }
+.vspan_2 { min-height : 120px }
+.vspan_4 { min-height : 240px }
+.vspan_6 { min-height : 360px }
+.vspan_8 { min-height : 480px }
 
 .hspan_2  { width : 160px }
 .hspan_8  { width : 640px }
@@ -1375,10 +1375,10 @@ font-weight: normal;
     }
     
     /* old perc_decoration.css entries */
-    .vspan_2 { height : 120px }
-.vspan_4 { height : 240px }
-.vspan_6 { height : 360px }
-.vspan_8 { height : 480px }
+    .vspan_2 { min-height : 120px }
+.vspan_4 { min-height : 240px }
+.vspan_6 { min-height : 360px }
+.vspan_8 { min-height : 480px }
 .hspan_2  { width : 160px }
 .hspan_8  { width : 640px }
 .hspan_10 { width : 800px }
@@ -1436,10 +1436,10 @@ body {
 /* Region CSS
 ----------------------------------*/
 
-.vspan_2 { height : 120px }
-.vspan_4 { height : 240px }
-.vspan_6 { height : 360px }
-.vspan_8 { height : 480px }
+.vspan_2 { min-height : 120px }
+.vspan_4 { min-height : 240px }
+.vspan_6 { min-height : 360px }
+.vspan_8 { min-height : 480px }
 
 .hspan_2  { width : 160px }
 .hspan_8  { width : 640px }
@@ -2759,10 +2759,10 @@ font-weight: normal;
     }
     
     /* old perc_decoration.css entries */
-    .vspan_2 { height : 120px }
-.vspan_4 { height : 240px }
-.vspan_6 { height : 360px }
-.vspan_8 { height : 480px }
+    .vspan_2 { min-height : 120px }
+.vspan_4 { min-height : 240px }
+.vspan_6 { min-height : 360px }
+.vspan_8 { min-height : 480px }
 .hspan_2  { width : 160px }
 .hspan_8  { width : 640px }
 .hspan_10 { width : 800px }
