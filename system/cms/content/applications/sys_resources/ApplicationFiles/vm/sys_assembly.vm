@@ -790,7 +790,16 @@ document.addEventListener("DOMContentLoaded", function(event) {
 #if(! $cm1Version )##
 #set($cm1Version = "")##
 #end##
-<script>(function() { if (typeof jQuery !== 'undefined') { jQuery.getDeliveryServiceBase = function(){ return '$dServiceBase';};jQuery.getCMSVersion = function(){ return '$!{cm1Version}';}; } })();</script>
+<script>
+window.percDeliveryServiceBase = '$dServiceBase';
+window.percCMSVersion = '$!{cm1Version}';
+(function() {
+    if (typeof jQuery !== 'undefined') {
+        jQuery.getDeliveryServiceBase = function(){ return '$dServiceBase';};
+        jQuery.getCMSVersion = function(){ return '$!{cm1Version}';};
+    }
+})();
+</script>
 #end##
 ##
 ##
