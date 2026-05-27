@@ -3,10 +3,10 @@
 /* Region CSS
 ----------------------------------*/
 
-.vspan_2 { height : 120px }
-.vspan_4 { height : 240px }
-.vspan_6 { height : 360px }
-.vspan_8 { height : 480px }
+.vspan_2 { height : 120px !important; min-height: 0 !important; }
+.vspan_4 { height : 240px !important; min-height: 0 !important; }
+.vspan_6 { height : 360px !important; min-height: 0 !important; }
+.vspan_8 { height : 480px !important; min-height: 0 !important; }
 
 .hspan_2  { width : 160px }
 .hspan_8  { width : 640px }
