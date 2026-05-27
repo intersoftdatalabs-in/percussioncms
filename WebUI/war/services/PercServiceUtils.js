@@ -768,13 +768,15 @@
 
         if (error !== null && error.ValidationErrors !== undefined) {
             var verrors = error.ValidationErrors;
-            if (verrors.fieldErrors !== undefined ) {
+            if (verrors.fieldErrors !== undefined && (!Array.isArray(verrors.fieldErrors) || verrors.fieldErrors.length > 0)) {
                 buff += objectErrorToString(verrors.fieldErrors);
             }
-            else if (verrors.globalErrors !== undefined) {
+            if (verrors.globalErrors !== undefined && (!Array.isArray(verrors.globalErrors) || verrors.globalErrors.length > 0)) {
+                if (buff !== "") buff += "<br/>";
                 buff += objectErrorToString(verrors.globalErrors);
             }
-            else if (verrors.globalError !== undefined) {
+            if (verrors.globalError !== undefined && verrors.globalError !== null) {
+                if (buff !== "") buff += "<br/>";
                 buff += objectErrorToString(verrors.globalError);
             }
         }
