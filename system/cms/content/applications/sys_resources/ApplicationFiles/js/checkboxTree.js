@@ -118,7 +118,7 @@ return this.each(function() {
      	}
     	
     function displayTree(data) {
-        if($this.fancytree("getTree")){
+        if($this.data("ui-fancytree")){
             $this.fancytree("destroy");
         }
         $this.fancytree({
