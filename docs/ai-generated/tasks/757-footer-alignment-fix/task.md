@@ -46,19 +46,16 @@ The `clear-float` div inside the `perc-horizontal` wrapper then correctly comput
 
 ## CSS Cascade Impact on the Editor
 
-In CSS, `min-height` overrides `height` regardless of declaration order. With `theme.css` specifying `min-height: Xpx` for `vspan_X` classes, those regions would expand past their editor-defined fixed heights when extra editor decorators/puffs were added, breaking the editor's visual alignment.
-
-To fix this:
-- We updated `WebUI/war/css/perc_decoration.css` to add `min-height: 0 !important` alongside the existing fixed `height: Xpx !important`.
-- This correctly overrides the published-page `min-height` rules, forcing the editor regions to preserve their exact design heights.
-- On published pages, where `perc_decoration.css` is not loaded, the regions can still grow dynamically to accommodate long content and keep the footer properly positioned.
+The editor loads **both** `perc_decoration.css` (unchanged; still uses `height: Xpx`) and `theme.css`. Because CSS `height` and `min-height` are separate properties:
+- When `height` is explicitly set (not `auto`), it overrides `min-height`.
+- In edit mode: `height: Xpx` from `perc_decoration.css` still governs the region size for placeholder display. ✓
+- On published pages: only `theme.css` is loaded, so `min-height: Xpx` allows natural growth. ✓
 
 ## Files Changed
 
-| File | Change |
-|---|---|
+|                                          File                                           |                                         Change                                          |
+|-----------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------|
 | `system/cms/content/applications/rx_resources/ApplicationFiles/default_theme/theme.css` | Changed all 4 occurrences of `vspan_X { height: Xpx }` to `vspan_X { min-height: Xpx }` |
-| `WebUI/war/css/perc_decoration.css` | Added `min-height: 0 !important` and `!important` to the fixed `height` in `vspan_X` classes to restore editor styling |
 
 ## Testing
 
@@ -69,3 +66,4 @@ To fix this:
 5. Save, approve, and publish the page.
 6. **Expected:** Footer text appears at the bottom of the page, below all sidebar widget content.
 7. **Previously:** Footer text appeared overlapping with sidebar widget content.
+
