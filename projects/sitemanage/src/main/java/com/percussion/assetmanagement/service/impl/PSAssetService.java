@@ -2104,11 +2104,16 @@ public class PSAssetService extends PSAbstractFullDataService<PSAsset, PSAssetSu
 
     String selector = request.getSelector();
     String extractedContent =
-        PSHtmlUtils.extractHtml(selector, content, fileName, request.shouldIncludeOuterHtml());
+        PSHtmlUtils.extractHtml(
+            selector, content, fileName, request.shouldIncludeOuterHtml());
 
     if (isBlank(extractedContent)) {
       String warning =
-          "CSS Selector \"" + selector + "\" does not exist in file '" + fileName + ".'";
+          "CSS Selector \""
+              + selector
+              + "\" does not exist in file '"
+              + fileName
+              + ".'";
       throw new PSExtractHTMLException(warning);
     }
 

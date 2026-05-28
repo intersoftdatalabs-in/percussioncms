@@ -384,26 +384,14 @@ getUploadErrorMessage = function(data) {
         }
     }
 
-    // 3. Fall back to HTTP status text if we have nothing better.
-    // Guard against the -1 / 0 status values that the jQuery File Upload transport
-    // (and some servlet error paths) can report for unhelpful server failures.
-    // This was the source of the cryptic "-1" messages visible in the original bug report.
-    if (msg === 'Upload failed' && data.jqXHR) {
-        var status = data.jqXHR.status;
+    // 3. Fall back to HTTP status text if we have nothing better
+    if (msg === 'Upload failed' && data.jqXHR && data.jqXHR.statusText) {
         var st = data.jqXHR.statusText;
-
         if (st && st.toLowerCase() !== 'error') {
             msg = st;
         }
-
-        // Only append a numeric status if it is a positive, meaningful HTTP code.
-        if (status && typeof status === 'number' && status > 0) {
-            msg += ' (HTTP ' + status + ')';
-        } else if (status === 0 || status === -1 || status === '-1') {
-            // Replace the unhelpful transport-level failure indicator with a clear message.
-            if (msg === 'Upload failed' || msg === st) {
-                msg = 'Upload failed (no response from server)';
-            }
+        if (data.jqXHR.status) {
+            msg += ' (HTTP ' + data.jqXHR.status + ')';
         }
     }
 
