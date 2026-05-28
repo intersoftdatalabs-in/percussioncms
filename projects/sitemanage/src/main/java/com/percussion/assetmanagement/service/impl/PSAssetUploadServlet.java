@@ -32,6 +32,7 @@ import javax.servlet.http.Part;
 import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONObject;
 
 /**
@@ -98,7 +99,6 @@ public class PSAssetUploadServlet extends HttpServlet {
       if (newAsset != null) {
         JSONObject jsonObject = new JSONObject();
         jsonObject.put("result", newAsset.getName());
-        out = response.getWriter();
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
         out.print(jsonObject.toString());
