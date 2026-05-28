@@ -51,6 +51,27 @@ $(function () {
 
             var buttonHtml = generateButtonHTML(data);
             data.context = buttonHtml;
+
+            // Client-side early rejection for zero-byte files (addresses the reported bulk upload bug)
+            var file = (data.files && data.files.length > 0) ? data.files[0] : null;
+            if (file && file.size === 0) {
+                DID_UPLOAD_FAIL = true;
+                var $row = $(data.context);
+                $row.addClass('alert alert-danger');
+                var $typeCell = $row.find('td').eq(2);
+                var $err = $('<div class="perc-upload-error"></div>')
+                    .css({ 'color': '#a94442', 'font-size': '10px', 'margin-top': '2px' })
+                    .text('Cannot upload empty (0 byte) files.');
+                $typeCell.append($err);
+
+                NUM_FAILED++; // count it toward the final failure tally
+                TOTAL_IN_QUEUE--; // don't count it as pending
+                $('#perc-bulk-status').text(TOTAL_IN_QUEUE + MSG_QUEUED_FOR_UPLOAD);
+                // Prevent this item from being submitted
+                data.files = [];
+                return;
+            }
+
             $('#perc-upload-trigger').on("click",function() {
                 $('#perc-upload-clear').prop('disabled', true);
                 $(this).off();
@@ -104,7 +125,28 @@ $(function () {
             TOTAL_IN_QUEUE--;
             NUM_FAILED++;
             DID_UPLOAD_FAIL = true;
-            $(data.context).addClass('alert alert-danger');
+
+            var $row = $(data.context);
+            $row.addClass('alert alert-danger');
+
+            var errorMsg = getUploadErrorMessage(data);
+            // Display the error message in the row (in the Type column area)
+            var $typeCell = $row.find('td').eq(2);
+            if ($typeCell.length) {
+                var $err = $('<div class="perc-upload-error"></div>')
+                    .css({
+                        'color': '#a94442',
+                        'font-size': '10px',
+                        'margin-top': '2px',
+                        'word-break': 'break-word'
+                    })
+                    .text(errorMsg);
+                $typeCell.append($err);
+            } else {
+                // Fallback: set title so user can hover to see details
+                $row.attr('title', errorMsg);
+            }
+
             $('#perc-bulk-status').text(TOTAL_IN_QUEUE + MSG_QUEUED_FOR_UPLOAD);
             var numActive = $(this).fileupload('active');
             if (numActive === 1) {
@@ -298,4 +340,60 @@ cancelAllRequests = function() {
         XHR_REQUESTS[i].abort();
     }
     XHR_REQUESTS = [];
+};
+
+/**
+ * Extracts a human-readable error message from a fileupload 'fail' data object.
+ * Handles the JSON error responses now returned by PSAssetUploadServlet.
+ */
+getUploadErrorMessage = function(data) {
+    var msg = 'Upload failed';
+
+    // 1. Check explicit errorThrown from the transport
+    if (data.errorThrown && typeof data.errorThrown === 'string' && data.errorThrown.trim() !== '') {
+        msg = data.errorThrown.trim();
+    }
+
+    // 2. Try to read the response body (preferred path after our servlet changes)
+    var respText = null;
+    if (data.jqXHR && data.jqXHR.responseText) {
+        respText = data.jqXHR.responseText;
+    } else if (data._response && data._response.jqXHR && data._response.jqXHR.responseText) {
+        respText = data._response.jqXHR.responseText;
+    }
+
+    if (respText) {
+        try {
+            var parsed = JSON.parse(respText);
+            if (parsed) {
+                if (typeof parsed.error === 'string' && parsed.error.trim() !== '') {
+                    msg = parsed.error.trim();
+                } else if (parsed.files && Array.isArray(parsed.files) && parsed.files.length > 0) {
+                    var f0 = parsed.files[0];
+                    if (f0 && typeof f0.error === 'string' && f0.error.trim() !== '') {
+                        msg = f0.error.trim();
+                    }
+                }
+            }
+        } catch (ignore) {
+            // Not JSON — use a truncated version of the raw text if it's short and useful
+            var trimmed = respText.trim();
+            if (trimmed.length > 0 && trimmed.length < 300) {
+                msg = trimmed;
+            }
+        }
+    }
+
+    // 3. Fall back to HTTP status text if we have nothing better
+    if (msg === 'Upload failed' && data.jqXHR && data.jqXHR.statusText) {
+        var st = data.jqXHR.statusText;
+        if (st && st.toLowerCase() !== 'error') {
+            msg = st;
+        }
+        if (data.jqXHR.status) {
+            msg += ' (HTTP ' + data.jqXHR.status + ')';
+        }
+    }
+
+    return msg;
 };
