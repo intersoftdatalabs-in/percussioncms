@@ -32,6 +32,7 @@ import javax.servlet.http.Part;
 import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONObject;
 
 /**
@@ -71,7 +72,6 @@ public class PSAssetUploadServlet extends HttpServlet {
     String approve = request.getParameter("approveOnUpload");
     boolean approveOnUpload = approve != null && approve.equalsIgnoreCase("true");
 
-    PrintWriter out = null;
     String fileName = null;
     try {
       PSAsset newAsset = null;
@@ -98,11 +98,12 @@ public class PSAssetUploadServlet extends HttpServlet {
       if (newAsset != null) {
         JSONObject jsonObject = new JSONObject();
         jsonObject.put("result", newAsset.getName());
-        out = response.getWriter();
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
-        out.print(jsonObject.toString());
-        out.flush();
+        try (PrintWriter w = response.getWriter()) {
+          w.print(jsonObject.toString());
+          w.flush();
+        }
       } else {
         // No asset created (e.g. empty part or no file) - return explicit error
         writeErrorResponse(response, fileName, "No valid file was provided for upload.", 400);
@@ -119,9 +120,7 @@ public class PSAssetUploadServlet extends HttpServlet {
     }
   }
 
-  /**
-   * Writes a JSON error response for upload failures.
-   */
+  /** Writes a JSON error response for upload failures. */
   private void writeErrorResponse(
       HttpServletResponse response, String fileName, String message, int statusCode)
       throws IOException {
@@ -129,12 +128,19 @@ public class PSAssetUploadServlet extends HttpServlet {
     response.setContentType("application/json");
     response.setCharacterEncoding("UTF-8");
     try (PrintWriter w = response.getWriter()) {
-      JSONObject err = new JSONObject();
-      err.put("error", message != null ? message : "Upload failed.");
-      if (fileName != null && !fileName.isEmpty()) {
-        err.put("name", fileName);
+      try {
+        JSONObject err = new JSONObject();
+        err.put("error", message != null ? message : "Upload failed.");
+        if (fileName != null && !fileName.isEmpty()) {
+          err.put("name", fileName);
+        }
+        w.print(err.toString());
+      } catch (JSONException je) {
+        // Extremely unlikely (only if message contains illegal JSON chars that Jettison rejects);
+        // fall back to a safe minimal error payload so the client still gets structured feedback.
+        logger.warn("Failed to build JSON error response for upload failure", je);
+        w.print("{\"error\":\"Upload failed. See server logs for details.\"}");
       }
-      w.print(err.toString());
       w.flush();
     }
   }
