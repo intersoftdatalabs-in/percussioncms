@@ -494,13 +494,11 @@
             $("#perc-category-save-cancel-block").hide();
             
             $("#perc-category-name-field").prop("disabled", true);
-            $("#perc-category-name-field").addClass("perc-category-field-readonly");
 			$("#perc-category-name-field").attr("aria-disabled","true");
 
             $("#perc-category-name-field").val(node.title);
             
             $("#perc-category-selectable-field").prop("disabled", true);
-            $("#perc-category-selectable-field").addClass("perc-category-field-readonly");
 			$("#perc-category-selectable-field").attr("aria-disabled","true");
             var selectable = node.data.selectable;
             if(selectable === true || selectable === "true") {
@@ -511,7 +509,6 @@
             }
             
             $("#perc-category-show-in-page-field").prop("disabled", true);
-            $("#perc-category-show-in-page-field").addClass("perc-category-field-readonly");
 			$("#perc-category-show-in-page-field").attr("aria-disabled","true");
             var sinpmd = node.data.showInPgMetaData;
             if(sinpmd === "true" || sinpmd === true) {
@@ -521,7 +518,6 @@
                 $("#perc-category-show-in-page-field").prop("checked", false);
             }
      
-            $("#perc-allowedsites-field").addClass("perc-category-field-readonly");
             $("#perc-allowedsites-field").prop("disabled", true);
 			$("#perc-allowedsites-field").attr("aria-disabled","true");
 
@@ -546,14 +542,10 @@
                  node.setTitle($( this ).val() === "" ? "[empty]" : $( this ).val());
             });
 
-            $("#perc-category-name-field").removeClass("perc-category-field-readonly");
-            
-            $("#perc-allowedsites-field").removeClass("perc-category-field-readonly");
             $("#perc-allowedsites-field").prop("disabled", false);
 			$("#perc-allowedsites-field").attr("aria-disabled","false");
 
             $("#perc-category-selectable-field").prop("disabled", false);
-            $("#perc-category-selectable-field").removeClass("perc-category-field-readonly");
 			$("#perc-category-selectable-field").attr("aria-disabled","false");
 
             $('#perc-category-selectable-field option[value="'+sitename+'"]').prop('disabled', true);
@@ -562,8 +554,7 @@
                 $('#perc-category-selectable-field option[value="'+sitename+'"]').prop('selected',true);
             });
 
-            $("#perc-category-show-in-page-field").prop("disabled", false)
-                .removeClass("perc-category-field-readonly");
+            $("#perc-category-show-in-page-field").prop("disabled", false);
 			$("#perc-category-show-in-page-field").attr("aria-disabled","false");
 
             $("#perc-category-save-cancel-block").show();
