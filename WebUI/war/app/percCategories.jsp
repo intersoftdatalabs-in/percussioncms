@@ -82,8 +82,13 @@
                         <h3 class="panel-title" id="perc-category-details-label" style="display:inline-block; margin-top:6px;">
                             <i18n:message key="perc.ui.perc.categories@Details"/>
                         </h3>
+                        <!-- Save/Cancel now at top of the form per UX request -->
                         <div class="pull-right">
                             <button id="perc-categories-edit-category-button" type="button" class="btn btn-primary btn-sm" title="<i18n:message key='perc.ui.categories@Edit Category Details'/>"><i class="fas fa-edit"></i> <i18n:message key="perc.ui.categories@Edit Category Details"/></button>
+                        </div>
+                        <div id="perc-category-save-cancel-block" class="pull-right" style="display: none; margin-right: 8px;">
+                            <button id="perc-category-cancel" tabindex="0" title='<i18n:message key="perc.ui.common.label@Cancel"/>' class="btn btn-default btn-sm" type="button" name="perc_wizard_cancel"><i18n:message key="perc.ui.common.label@Cancel"/></button>
+                            <button id="perc-category-save" tabindex="0" title='<i18n:message key="perc.ui.button@Save"/>' class="btn btn-primary btn-sm" type="button" name="perc_wizard_save"><i18n:message key="perc.ui.button@Save"/></button>
                         </div>
                         <div class="clearfix"></div>
                     </div>
@@ -160,10 +165,7 @@
                             
                         </form>
                     </div>
-                    <div class="panel-footer" id="perc-category-save-cancel-block" style="text-align: right;">
-                        <button id="perc-category-cancel" tabindex="0" title='<i18n:message key="perc.ui.common.label@Cancel"/>' class="btn btn-default" type="button" name="perc_wizard_cancel"><i18n:message key="perc.ui.common.label@Cancel"/></button>
-                        <button id="perc-category-save" tabindex="0" title='<i18n:message key="perc.ui.button@Save"/>' class="btn btn-primary" type="button" name="perc_wizard_save"><i18n:message key="perc.ui.button@Save"/></button>
-                    </div>
+                    <!-- Save/Cancel moved to panel-heading (top of form) -->
                 </div>
             </div>
         </div>

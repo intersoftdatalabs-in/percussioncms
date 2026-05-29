@@ -241,7 +241,7 @@
         }   
 
         // CLEAR THE CHILDREN of Sites and Assets subtrees
-        var tree = $(container).find('#' + options.instanceId).fancytree('getTree');
+        var tree = $.ui.fancytree.getTree( $(container).find('#' + options.instanceId) );
         var level = 1;
         if (options.showRoots)
         {

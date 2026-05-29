@@ -62,7 +62,7 @@ return this.each(function() {
         var hideCheckbox = node.attr('selectable') == 'no' ? true : false;
         var select = $.inArray(key,selected) != -1;
         var children = node.children();
-        var resultItem = { id : id, title: title, select: select, hideCheckbox: hideCheckbox, expand:true, key: key};
+        var resultItem = { id : id, title: title, select: select, checkbox: !hideCheckbox, expand:true, key: key};
         if (readonly)
             resultItem.unselectable = true;
         if (children.length) {
@@ -193,7 +193,7 @@ return this.each(function() {
         var selected = selectedValues.split(separator);
         var rootNode = $(xml).children('tree');
         rootItem.title = rootNode.attr('label');
-        rootItem.hideCheckbox = true;
+        rootItem.checkbox = false;
         rootItem.select = false;
         rootItem.expand = true;
                 rootItem.key = "/" + rootItem.title;
@@ -252,7 +252,7 @@ var _treeData = [
         {title: "Sub-item 4.2.2", key: "id4.2.2" }
       ]
     },
-    {title: "Sub-item 4.3 (hideCheckbox)", hideCheckbox: true },
+    {title: "Sub-item 4.3 (checkbox: false)", checkbox: false },
     {title: "Sub-item 4.4 (unselectable)", unselectable: true }
   ]
 }

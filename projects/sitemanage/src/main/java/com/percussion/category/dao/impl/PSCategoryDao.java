@@ -57,7 +57,7 @@ public class PSCategoryDao implements IPSCategoryDao {
   /** {@inheritDoc} */
   @Override
   public void delete(Set<String> ids, List<IPSGuid> pageIds) {
-    log.info("Ids to delete are: {}", ids);
+    log.debug("Ids to delete are: {}", ids);
     Session session = getSession();
     String query = null;
     Query q = null;
@@ -67,7 +67,7 @@ public class PSCategoryDao implements IPSCategoryDao {
         q = session.createQuery(query);
         q.setParameter("id", "%" + id + "%");
         int result = q.executeUpdate();
-        log.info("The result is: {}", result);
+        log.debug("The result is: {}", result);
       }
     } catch (HibernateException e) {
       log.error("There was an error deleting page categories from the database.", e);
@@ -79,7 +79,7 @@ public class PSCategoryDao implements IPSCategoryDao {
   /** {@inheritDoc} */
   @Override
   public List<Integer> getPageIdsFromCategoryIds(Set<String> ids) {
-    log.info("IDs to grab are: {}", ids);
+    log.debug("IDs to grab are: {}", ids);
     List<IPSGuid> guids = new ArrayList<>();
     List<Integer> pageIds = new ArrayList<>();
     Session session = getSession();
@@ -95,7 +95,7 @@ public class PSCategoryDao implements IPSCategoryDao {
         log.error("Error executing category query to get page IDs.", e);
       }
     }
-    log.info("The page IDs returned from the category IDs were: {}", pageIds);
+    log.debug("The page IDs returned from the category IDs were: {}", pageIds);
     return pageIds;
   }
 }

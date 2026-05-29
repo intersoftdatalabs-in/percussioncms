@@ -738,7 +738,12 @@ input:-moz-placeholder { color:#BCBCBC; }
     color: #BCBCBC;
 }
 
-#perc-categories-movedown-button, #perc-categories-moveup-button {
+/* Legacy positioning for old (pre-Bootstrap) Categories admin layout.
+   New markup in percCategories.jsp uses Bootstrap panels/grid + btn-group so
+   these are neutralized by more specific rules in percWorkflow.css.
+   Kept for backwards compatibility with any other legacy includes of this layout. */
+#perc-categories-movedown-button:not(#perc-category-wrapper #perc-categories-movedown-button),
+#perc-categories-moveup-button:not(#perc-category-wrapper #perc-categories-moveup-button) {
     position: relative;
     display: inline-block;
     width: auto;
@@ -746,7 +751,7 @@ input:-moz-placeholder { color:#BCBCBC; }
     left: 26px;
 }
 
-#perc-category-details {
+#perc-category-details:not(#perc-category-wrapper #perc-category-details) {
     position: relative;
     top: 20px;
 }
