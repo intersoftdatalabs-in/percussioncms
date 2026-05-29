@@ -20,6 +20,16 @@
  	<Logger name="com.percussion.delivery.metadata" level="info" additivity="false">
       <AppenderRef ref="RollingRandomAccessFile"/>
      </Logger>
+
+    <!-- Silence known-noisy warnings from Log4j JUL bridge during startup.
+         The "Ignoring call to `j.u.l.Logger.setUseParentHandlers(true)`" messages come from the
+         log4j-jul bridge when libraries touch java.util.logging. A companion
+         log4j2.component.properties (with log4j2.statusLoggerLevel=ERROR) is also deployed
+         with the webapp to suppress StatusLogger noise as early as possible. -->
+    <Logger name="org.apache.logging.log4j.jul" level="error" additivity="false">
+      <AppenderRef ref="RollingRandomAccessFile"/>
+    </Logger>
+
     <!-- Uncomment for MSSQL Driver Debugging
     <Logger name="com.microsoft.sqlserver.jdbc" level="SEVERE" additivity="true">
       <AppenderRef ref="RollingRandomAccessFile"/>

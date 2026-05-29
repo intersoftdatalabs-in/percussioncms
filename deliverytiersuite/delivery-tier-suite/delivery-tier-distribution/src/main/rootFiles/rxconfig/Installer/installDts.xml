@@ -767,9 +767,64 @@
             <echo>Registering current TLS ciphers...</echo>
             <echo>NOTE: Ciphers supported will depend on the JRE version and make (OpenJRE-8 vs OracleJRE-8) for the JRE registered in ${install.dir}/JRE...</echo>
             <propertyfile file="${install.dir}${staging.dir}/Deployment/Server/conf/perc/perc-catalina.properties">
-                <entry key="https.ciphers" value="TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384,TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,TLS_RSA_WITH_AES_128_GCM_SHA256,TLS_RSA_WITH_AES_256_GCM_SHA384"/>
+                <entry key="https.ciphers" value="TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384,TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384"/>
                 <entry key="https.keystoreType" default="JKS"/>
             </propertyfile>
+
+            <!-- 
+                 Always sanitize https.ciphers on both fresh install and upgrade.
+                 Customers (or previous security hardening) may have added ChaCha20-Poly1305 or TLS 1.3-only ciphers
+                 (TLS_CHACHA20_POLY1305_SHA256, TLS_ECDHE_*_WITH_CHACHA20_POLY1305_SHA256, TLS_AES_* etc.).
+                 These cause JSSEUtil warnings and are not supported on Java 8 + the JSSE connector used by DTS.
+                 We force a known-good list + strip any remaining bad entries.
+            -->
+            <echo>Removing any unsupported ciphers from configuration (Java 8 + JSSE compatibility)...</echo>
+            <!-- Strip all known bad ChaCha20-Poly1305 and TLS 1.3-only ciphers (TLS_AES_*, any ChaCha20 variant) -->
+            <replaceregexp file="${install.dir}${staging.dir}/Deployment/Server/conf/perc/perc-catalina.properties"
+                           match="(,|^)[^,]*CHACHA20[^,]*(,|$)" replace="" byline="true" flags="g"/>
+            <replaceregexp file="${install.dir}${staging.dir}/Deployment/Server/conf/perc/perc-catalina.properties"
+                           match="(,|^)TLS_AES_[^,]*(,|$)" replace="" byline="true" flags="g"/>
+            <replaceregexp file="${install.dir}/Deployment/Server/conf/perc/perc-catalina.properties"
+                           match="(,|^)[^,]*CHACHA20[^,]*(,|$)" replace="" byline="true" flags="g"/>
+            <replaceregexp file="${install.dir}/Deployment/Server/conf/perc/perc-catalina.properties"
+                           match="(,|^)TLS_AES_[^,]*(,|$)" replace="" byline="true" flags="g"/>
+            <!-- Clean up any resulting double commas or leading/trailing commas in the ciphers value -->
+            <replaceregexp file="${install.dir}${staging.dir}/Deployment/Server/conf/perc/perc-catalina.properties"
+                           match=",," replace="," byline="true"/>
+            <replaceregexp file="${install.dir}/Deployment/Server/conf/perc/perc-catalina.properties"
+                           match=",," replace="," byline="true"/>
+            <replaceregexp file="${install.dir}${staging.dir}/Deployment/Server/conf/perc/perc-catalina.properties"
+                           match="=," replace="=" byline="true"/>
+            <replaceregexp file="${install.dir}/Deployment/Server/conf/perc/perc-catalina.properties"
+                           match="=," replace="=" byline="true"/>
+
+            <!-- 
+                 Upgrade-only handling for TLS 1.3 protocol settings (sslEnabledProtocols / protocols).
+                 These are less likely to be in fresh templates but customers may have added them during hardening.
+            -->
+            <if>
+                <istrue value="@{upgrade}"/>
+                <then>
+                    <echo>Scanning for TLS 1.3 protocol configuration from previous hardening (not supported on Java 8)...</echo>
+                    <if>
+                        <or>
+                            <resourcecontains resource="${install.dir}${staging.dir}/Deployment/Server/conf/perc/perc-catalina.properties" substring="TLSv1.3"/>
+                            <resourcecontains resource="${install.dir}/Deployment/Server/conf/perc/perc-catalina.properties" substring="TLSv1.3"/>
+                        </or>
+                        <then>
+                            <echo>WARNING: TLS 1.3 protocols detected in perc-catalina.properties. These are not supported on Java 8 with JSSE and have been removed.</echo>
+                            <replaceregexp file="${install.dir}${staging.dir}/Deployment/Server/conf/perc/perc-catalina.properties"
+                                           match="^https\.sslEnabledProtocols=.*$" replace="https.sslEnabledProtocols=TLSv1.2" byline="true"/>
+                            <replaceregexp file="${install.dir}${staging.dir}/Deployment/Server/conf/perc/perc-catalina.properties"
+                                           match="^https\.protocols=.*$" replace="https.protocols=TLSv1.2" byline="true"/>
+                            <replaceregexp file="${install.dir}/Deployment/Server/conf/perc/perc-catalina.properties"
+                                           match="^https\.sslEnabledProtocols=.*$" replace="https.sslEnabledProtocols=TLSv1.2" byline="true"/>
+                            <replaceregexp file="${install.dir}/Deployment/Server/conf/perc/perc-catalina.properties"
+                                           match="^https\.protocols=.*$" replace="https.protocols=TLSv1.2" byline="true"/>
+                        </then>
+                    </if>
+                </then>
+            </if>
             <if>
                 <and>
                     <equals arg1="@{type}" arg2="Production"/>
@@ -818,6 +873,35 @@
                     </chmod>
                     <chmod failonerror="false" verbose="true" perm="ugo+rx">
                         <fileset dir="${install.dir}/Staging">
+                            <include name="TomcatStartup.sh"/>
+                            <include name="TomcatShutdown.sh"/>
+                        </fileset>
+                    </chmod>
+                </then>
+            </if>
+
+            <!-- 
+                Robust executable permission restoration for all .sh scripts (including Tomcat's catalina.sh, 
+                setenv.sh, etc.) and the top-level TomcatStartup/TomcatShutdown.sh.
+                
+                This is necessary because:
+                - Distribution packages are often zip-based (which don't reliably store Unix mode bits).
+                - Ant <copy> and unzip during install/upgrade frequently result in 644 permissions on .sh files.
+                - The earlier chmod blocks are conditional and can be skipped in certain upgrade flows.
+                
+                Running this unconditionally (on Linux) at the very end of every install-dts invocation
+                guarantees the scripts are executable, preventing "Permission denied" when calling catalina.sh.
+            -->
+            <if>
+                <isset property="isLinux"/>
+                <then>
+                    <echo>Ensuring all shell scripts have executable permissions (Linux)...</echo>
+                    <chmod perm="ugo+rx" failonerror="false" failifexecutionfails="false" verbose="true">
+                        <fileset dir="${install.dir}${staging.dir}/Deployment" includes="**/*.sh"/>
+                        <fileset dir="${install.dir}${staging.dir}/Deployment" includes="**/*.bin"/>
+                    </chmod>
+                    <chmod perm="ugo+rx" failonerror="false" failifexecutionfails="false" verbose="true">
+                        <fileset dir="${install.dir}${staging.dir}">
                             <include name="TomcatStartup.sh"/>
                             <include name="TomcatShutdown.sh"/>
                         </fileset>
