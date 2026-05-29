@@ -20,5 +20,12 @@
  	<Logger name="com.percussion.delivery.metadata" level="info" additivity="false">
       <AppenderRef ref="RollingRandomAccessFile"/>
      </Logger>
+    <!-- Silence known-noisy warnings from Log4j JUL bridge.
+         Note: many of the "Ignoring call to setUseParentHandlers" messages are emitted via
+         StatusLogger (not normal Loggers), so they are also controlled by log4j2.component.properties
+         (log4j2.statusLoggerLevel=ERROR) and the status="error" attribute on <Configuration>. -->
+    <Logger name="org.apache.logging.log4j.jul" level="error" additivity="false">
+      <AppenderRef ref="RollingRandomAccessFile"/>
+    </Logger>
   </Loggers>
 </Configuration>
