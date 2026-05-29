@@ -76,6 +76,10 @@
 
             return (S4() + S4() + delim + S4() + delim + S4() + delim + S4() + delim + S4() + S4() + S4());
         };
+
+        function getTree() {
+            return $.ui.fancytree.getTree(container);
+        }
         
         controller.init(viewApi);
         
@@ -227,7 +231,7 @@
                         return;
                 }
 
-                var tree = container.fancytree("getTree");
+                var tree = getTree();
                 if(tree.count() === 1)
                     alertDialog(I18N.message("perc.ui.category.view@Delete Category"), I18N.message("perc.ui.category.view@Cannot Delete Node"));
                 else {
@@ -257,7 +261,7 @@
                         return;
                 }
 
-                var node = container.fancytree("getTree").getActiveNode();
+                var node = getTree().getActiveNode();
                 displayCategoryDetails(node);
                 showSelectedCategoryEditor(node);
                     
@@ -277,13 +281,13 @@
                 }
 
 
-                var node = container.fancytree("getTree").getActiveNode();
+                var node = getTree().getActiveNode();
 
                 var targetNode = findUpTargetNode(node);
                 if(targetNode != null)
                     moveNodeUp(node, targetNode);
                 
-                displayCategoryDetails(container.fancytree("getTree").getActiveNode());
+                displayCategoryDetails(getTree().getActiveNode());
             });
             
 			$("#perc-categories-movedown-button").off("keydown").on("keydown",function(event) {
@@ -300,18 +304,18 @@
                 }
 
 
-                var node = container.fancytree("getTree").getActiveNode();
+                var node = getTree().getActiveNode();
                 var targetNode = findDownTargetNode(node);
                 
                 if(targetNode != null)
                     moveNodeDown(node, targetNode);
                 
-                displayCategoryDetails(container.fancytree("getTree").getActiveNode());
+                displayCategoryDetails(getTree().getActiveNode());
             });
             
             //Bind Save event
             $("#perc-category-save").off("click").on("click", function(){
-                var node = container.fancytree("getTree").getActiveNode();
+                var node = getTree().getActiveNode();
                 if (node != null && node.title === "New Category")
                 {
                     alertDialog("Error", "You must change the category name.");
@@ -321,13 +325,13 @@
             });
             //Bind Cancel event
             $("#perc-category-cancel").off("click").on("click", function(){
-                var node = container.fancytree("getTree").getActiveNode();
+                var node = getTree().getActiveNode();
                 editing = false;
                 if (!node.data.saved)
                 {
                     parent = node.parent;
                     parent.activate();
-                    if (node.parent.childList.length !== 0)
+                    if (node.parent.children && node.parent.children.length !== 0)
                         node.remove();
                     
                     node = parent;
@@ -340,7 +344,9 @@
                 }
                 displayCategoryDetails(node);
                 try {
-                    node.childList[0].activate();
+                    if (node.children && node.children.length > 0) {
+                        node.children[0].activate();
+                    }
                 }catch(err) {}
             });
             
@@ -356,7 +362,7 @@
                         return;
                 }
 
-                var node = container.fancytree("getTree").getActiveNode();
+                var node = getTree().getActiveNode();
                 publishToDTS(node, "Staging");
             });
 
@@ -373,7 +379,7 @@
                         return;
                 }
 
-                var node = container.fancytree("getTree").getActiveNode();
+                var node = getTree().getActiveNode();
                 publishToDTS(node, "Production");
             });
             
@@ -390,7 +396,7 @@
                         return;
                 }
 
-                var node = container.fancytree("getTree").getActiveNode();
+                var node = getTree().getActiveNode();
                 publishToDTS(node, "Both");
             });
             
@@ -404,9 +410,11 @@
             
             if (categorytree == null || typeof categorytree == "undefined" || categorytree.length === 0)
             {
+                var uid = generateUid();
                 categorytree = [ // Pass an array of nodes.
                 {
-                                    id : generateUid(),
+                                    id : uid,
+                                    key : uid,
                                     title : "New Category",
                                     selectable : true,
                                     showInPgMetaData : true,
@@ -419,6 +427,16 @@
                                 }
                 ];
             }
+            // Always destroy any existing tree before re-initializing.
+            // This is critical for the post-save reload path (getCategories after edit/add).
+            // Without destroy, re-calling .fancytree() on the same element can leave
+            // stale tree instances, causing new/updated categories (especially children)
+            // to not appear until a full browser refresh.
+            var existingTree = $.ui.fancytree.getTree(container);
+            if (existingTree) {
+                existingTree.destroy();
+            }
+
             container.fancytree({
                 selectMode: 3,
                 keyboard: true,
@@ -426,12 +444,28 @@
                 source: categorytree,
                 init: function(event, data) {
                     visitTreeForBaseProperties();
-                    data.tree.activateKey("_2");
+
+                    // Extra pass: ensure every node that has children is expanded.
+                    // This makes newly added child categories visible immediately after
+                    // the server round-trip + tree rebuild, without needing a browser refresh.
+                    data.tree.visit(function(node) {
+                        if (node.children && node.children.length > 0) {
+                            node.setExpanded(true);
+                        }
+                    });
+
+                    // Ensure something is active on initial load/rebuild so move buttons get correct initial state
+                    if (!data.tree.getActiveNode() && data.tree.rootNode.children && data.tree.rootNode.children.length > 0) {
+                        data.tree.rootNode.children[0].setActive();
+                    }
+
                     $("span.fancytree-title").each(function(){
                         this.title=this.innerHTML;
                         this.tabIndex="0";
                         this.setAttribute("role", "button");
                     });
+
+                    updateMoveButtonsState();
                 },
                 beforeActivate: function(event, data) {
                     if (editing)
@@ -469,6 +503,8 @@
                       sourceNode.moveTo(node, hitMode);
                       isMoved = true;
                       save();
+                      // Update button states after drag-and-drop reorder
+                      setTimeout(updateMoveButtonsState, 50);
                     }
                   }
             });
@@ -477,16 +513,63 @@
         
         function visitTreeForBaseProperties() {
 
-            var treeRoot = container.fancytree("getTree").getRootNode();
+            var treeRoot = getTree().getRootNode();
             
             treeRoot.visit(function(node){
                 node.data.saved=true;
-                if(node.data.initialViewCollapsed === "false") {
-                    node.expand(true);
+                // Expand nodes that were explicitly marked as not collapsed,
+                // or any node that has children. This ensures that after saving a new
+                // child category, its parent is expanded so the new child is visible
+                // without requiring a full browser refresh.
+                var hasChildren = node.children && node.children.length > 0;
+                if (node.data.initialViewCollapsed === "false" || hasChildren) {
+                    node.setExpanded(true);
                 }
             });
         }
         
+        function updateMoveButtonsState() {
+            var $up = $("#perc-categories-moveup-button");
+            var $down = $("#perc-categories-movedown-button");
+
+            if (editing) {
+                $up.prop("disabled", true);
+                $down.prop("disabled", true);
+                return;
+            }
+
+            var tree = getTree();
+            if (!tree) {
+                $up.prop("disabled", true);
+                $down.prop("disabled", true);
+                return;
+            }
+
+            var node = tree.getActiveNode();
+            if (!node || !node.parent || !node.parent.children) {
+                $up.prop("disabled", true);
+                $down.prop("disabled", true);
+                return;
+            }
+
+            var siblings = node.parent.children;
+            if (siblings.length <= 1) {
+                $up.prop("disabled", true);
+                $down.prop("disabled", true);
+                return;
+            }
+
+            var index = siblings.indexOf(node);
+            if (index === -1) {
+                $up.prop("disabled", true);
+                $down.prop("disabled", true);
+                return;
+            }
+
+            $up.prop("disabled", index === 0);
+            $down.prop("disabled", index === siblings.length - 1);
+        }
+
         function displayCategoryDetails(node) {
             if (node == null)
                 return;
@@ -528,6 +611,8 @@
             $("#perc-category-creationdt-field").val(node.data.creationDate);
             $("#perc-category-lstmodifiedby-field").val(node.data.lastModifiedBy);
             $("#perc-category-lstmodifieddt-field").val(node.data.lastModifiedDate);
+
+            updateMoveButtonsState();
         }
         
         function showSelectedCategoryEditor(node) {
@@ -538,7 +623,7 @@
 			$("#perc-category-name-field").attr("aria-disabled","false");
 
             $("#perc-category-name-field").on('keyup', function() {
-                 var node = container.fancytree("getTree").getActiveNode();
+                 var node = getTree().getActiveNode();
                  node.setTitle($( this ).val() === "" ? "[empty]" : $( this ).val());
             });
 
@@ -558,7 +643,28 @@
 			$("#perc-category-show-in-page-field").attr("aria-disabled","false");
 
             $("#perc-category-save-cancel-block").show();
-            $("#perc-category-name-field").trigger("focus");
+
+            // Disable move buttons while editing
+            $("#perc-categories-moveup-button").prop("disabled", true);
+            $("#perc-categories-movedown-button").prop("disabled", true);
+
+            var $nameField = $("#perc-category-name-field");
+            $nameField.trigger("focus");
+
+            // UX improvement for new categories: if the field still contains the
+            // default placeholder "New Category", select the text so the user can
+            // immediately start typing to overwrite it.
+            if (!node.data.saved && $nameField.val() === "New Category") {
+                $nameField.select();
+            }
+
+            // Hitting Enter in the category name field should trigger Save (issue request)
+            $nameField.off("keydown.enterSave").on("keydown.enterSave", function(e) {
+                if (e.which === 13) { // Enter key
+                    e.preventDefault();
+                    $("#perc-category-save").trigger("click");
+                }
+            });
         }
         
        
@@ -648,7 +754,7 @@
         function handleDelete() {
 
             isDelete = false;
-            var node = container.fancytree("getTree").getActiveNode();
+            var node = getTree().getActiveNode();
             parentNode = node.getParent();
             var upTarget = findUpTargetNode(node);
                 
@@ -673,7 +779,7 @@
             {
                 switchtoNode = parentNode;
             }
-            container.fancytree("getTree").activateKey(switchtoNode.key);
+            getTree().activateKey(switchtoNode.key);
             displayCategoryDetails(switchtoNode);
             controller.getCategories();
         }
@@ -681,10 +787,10 @@
         function newNode(child)
         {
             
-            var root = container.fancytree("getTree").getRootNode();
+            var root = getTree().getRootNode();
             
             var destinationNode = null;
-            var children =  root.childList;
+            var children =  root.children;
             if ( children == null || typeof children == "undefined" || children.length===0)
             {
                 destinationNode = root;
@@ -693,7 +799,7 @@
             {
                 return children[0];
             } else {
-                var destinationNode = container.fancytree("getTree").getActiveNode();
+                destinationNode = getTree().getActiveNode();
                 if (destinationNode == null || typeof destinationNode == "undefined" || !destinationNode.hasOwnProperty('parent'))
                 {
                     destinationNode = root;
@@ -708,8 +814,10 @@
             else
                 addTo = destinationNode.getParent();
                 
-            var child = addTo.addChildren({
-                                    id : generateUid(),
+            var uid = generateUid();
+            var newChild = addTo.addChildren({
+                                    id : uid,
+                                    key : uid,   // Explicit key helps fancytree track the node across rebuilds
                                     title : "New Category",
                                     selectable : true,
                                     showInPgMetaData : true,
@@ -721,13 +829,13 @@
                                     initialViewCollapsed : true
                                 });
 
-                child.visitParents(function (childnode) {
-                    childnode.expand(true);
+                newChild.visitParents(function (childnode) {
+                    childnode.setExpanded(true);
                 }, true); 
 
-                child.setActive(true);
+                newChild.setActive(true);
 
-                return child;
+                return newChild;
     
         }
 
@@ -794,7 +902,7 @@
         
         function deleteCategory() {
             
-            var node = container.fancytree("getTree").getActiveNode();
+            var node = getTree().getActiveNode();
             
             if(node.hasChildren() === false) {
                 confirmDialog(I18N.message("perc.ui.category.view@Delete Category"), I18N.message("perc.ui.category.view@Are You Sure"));
@@ -805,7 +913,7 @@
         
         function manageDynaProps() {
             
-            var treeRoot = container.fancytree("getTree").getRootNode();
+            var treeRoot = getTree().getRootNode();
             var children = [];
             treeRoot.visit(function(node){
                 var parent = node.getParent();
@@ -824,7 +932,8 @@
                         delete dict.icon;
                         delete dict.isFolder;
                         delete dict.isLazy;
-                        delete dict.key;
+                        // Intentionally NOT deleting dict.key so that client-generated UIDs
+                        // can potentially be used for stable identification after server roundtrip.
                         delete dict.noLink;
                         delete dict.select;
                         delete dict.tooltip;
@@ -851,9 +960,14 @@
             var catArray = manageDynaProps();
             controller.editCategories(catArray, sitename,
             function(){
-                var node = container.fancytree("getTree").getActiveNode();
-                displayCategoryDetails(node);
-                node.data.saved = true;
+                // Defensive: after save the tree may have been fully rebuilt by the
+                // controller's getCategories call. getActiveNode() may be null or a
+                // different node reference, so guard it.
+                var node = getTree().getActiveNode();
+                if (node) {
+                    displayCategoryDetails(node);
+                    node.data.saved = true;
+                }
                 editing = false;
             },
             function(){
@@ -864,7 +978,7 @@
         
         function save() {
         
-            var node = container.fancytree("getTree").getActiveNode();
+            var node = getTree().getActiveNode();
             
             
             if(!isMoved) {
@@ -886,7 +1000,7 @@
             // if the souceNode is a top level parent node, 
             // traverse the tree for only top level parent nodes.
             if(parentNode.isRootNode()) {
-                var treeRoot = container.fancytree("getTree").getRootNode();
+                var treeRoot = getTree().getRootNode();
                 
                 treeRoot.visit(function(node){
                     var parent = node.getParent();
@@ -929,7 +1043,7 @@
         }
         
         function moveNodeUp(node, targetNode) {
-            node.move(targetNode, "before");
+            node.moveTo(targetNode, "before");
             
             isMoved = true;
             save();
@@ -944,7 +1058,7 @@
             // if the souceNode is a top level parent node, 
             // traverse the tree for only top level parent nodes.
             if(parentNode.isRootNode()) {
-                var treeRoot = container.fancytree("getTree").getRootNode();
+                var treeRoot = getTree().getRootNode();
                 
                 treeRoot.visit(function(node){
                     var parent = node.getParent();
@@ -986,7 +1100,7 @@
         }
         
         function moveNodeDown(node, targetNode) {
-            node.move(targetNode, "after");
+            node.moveTo(targetNode, "after");
             
             isMoved = true;
             save();

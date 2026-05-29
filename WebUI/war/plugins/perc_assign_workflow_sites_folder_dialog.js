@@ -57,8 +57,8 @@
             'Save' : {
                 'id' : "perc-assign-workflow-sites-folder-dialog-save",
                 'click' : function() {
-                    var selectedSites = jQuery("#datatree" + "-workflow-sites").fancytree('getTree').getSelectedNodes();
-                    var selectedAssets = jQuery("#datatree" + "-workflow-assets").fancytree('getTree').getSelectedNodes();
+                    var selectedSites = $.ui.fancytree.getTree("#datatree" + "-workflow-sites").getSelectedNodes();
+                    var selectedAssets = $.ui.fancytree.getTree("#datatree" + "-workflow-assets").getSelectedNodes();
                     var selected = selectedSites;
                     $.merge(selected, selectedAssets);
                     var selectedSitesPaths = [];
@@ -341,7 +341,7 @@
             var tree_container_assets = $("#perc-assign-workflow-assets-tree");
             if(originalSitesJson.folderItem){
                 $.PercDataTree.updateTree(tree_container_sites, [originalSitesJson]);
-                $.each($("#datatree-workflow-sites").fancytree("getRootNode").children, function(){
+                $.each($.ui.fancytree.getTree("#datatree-workflow-sites").getRootNode().children, function(){
                     customOnExpand(this);
                 });
                 if (originalSitesJson.folderItem.length > 0)
@@ -349,7 +349,7 @@
             }
             if(originalAssetsJson.folderItem){
                 $.PercDataTree.updateTree(tree_container_assets, [originalAssetsJson]);
-                $.each($("#datatree-workflow-assets").fancytree("getRootNode").children, function(){
+                $.each($.ui.fancytree.getTree("#datatree-workflow-assets").getRootNode().children, function(){
                     customOnExpand(this);
                 });
                 if (originalAssetsJson.folderItem.length > 0)

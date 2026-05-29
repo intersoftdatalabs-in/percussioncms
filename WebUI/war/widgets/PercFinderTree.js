@@ -497,7 +497,7 @@
          */
         getDynaTree: function()
         {
-            return $("#perc-finder-tree").fancytree("getTree");
+            return $.ui.fancytree.getTree("#perc-finder-tree");
         },
         
         /**
