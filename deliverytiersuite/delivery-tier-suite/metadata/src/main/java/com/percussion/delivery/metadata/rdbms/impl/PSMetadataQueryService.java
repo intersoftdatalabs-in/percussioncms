@@ -138,6 +138,28 @@ public class PSMetadataQueryService implements IPSMetadataQueryService {
       }
     }
 
+    // Fast path: no criteria at all (common case for global category trees).
+    // Use the simple efficient aggregation documented in the method Javadoc.
+    // The complex Q1/Q2/Q3/Q4 builder below assumes at least one filter and produces
+    // invalid HQL ("... in(  ) ...") when both entryCrit and propsCrit are empty.
+    if (entryCrit.isEmpty() && propsCrit.isEmpty()) {
+      String hql =
+          "SELECT distinct count(p.entry.id), p.name, p.stringvalue "
+              + "FROM PSDbMetadataProperty p "
+              + "WHERE p.name = 'perc:category' "
+              + "GROUP BY p.name, p.stringvalue "
+              + "ORDER BY p.stringvalue";
+      log.debug("{}", hql);
+      try (Session session = getSession()) {
+        Query hq = session.createQuery(hql);
+        cats = hq.getResultList();
+      } catch (Exception e) {
+        log.error("Simple category query failed: {}", e.getMessage());
+        log.debug(PSExceptionUtils.getDebugMessageForLog(e));
+      }
+      return cats;
+    }
+
     StringBuilder Q4WhereClause = null;
     String clauseTemplate = " e.{0} {1} :{2}";
     int paramIndex = 0;
@@ -223,13 +245,23 @@ public class PSMetadataQueryService implements IPSMetadataQueryService {
       }
     }
 
-    StringBuilder Q2 =
-        new StringBuilder(
-            "select distinct p2.entry.id from PSDbMetadataProperty p2 where p2.entry.id in( ");
+    StringBuilder Q2;
     if (Q3 != null) {
-      Q2.append(Q3).append(" )");
+      Q2 =
+          new StringBuilder(
+                  "select distinct p2.entry.id from PSDbMetadataProperty p2 where p2.entry.id in( ")
+              .append(Q3)
+              .append(" )");
     } else if (Q4 != null) {
-      Q2.append(Q4).append(" )");
+      Q2 =
+          new StringBuilder(
+                  "select distinct p2.entry.id from PSDbMetadataProperty p2 where p2.entry.id in( ")
+              .append(Q4)
+              .append(" )");
+    } else {
+      // Defense-in-depth: no filters reached here (should have taken fast path).
+      // Return all property rows that have the category name later; use a non-IN form.
+      Q2 = new StringBuilder("select distinct p2.entry.id from PSDbMetadataProperty p2");
     }
 
     StringBuilder Q1 =

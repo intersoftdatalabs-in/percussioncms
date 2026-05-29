@@ -33,6 +33,7 @@
         <dependency>
             <groupId>com.opencsv</groupId>
             <artifactId>opencsv</artifactId>
+            <scope>runtime</scope>
         </dependency>
         <dependency>
             <groupId>com.percussion.deliverytier</groupId>
