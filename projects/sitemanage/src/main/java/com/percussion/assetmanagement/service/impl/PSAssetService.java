@@ -2093,20 +2093,22 @@ public class PSAssetService extends PSAbstractFullDataService<PSAsset, PSAssetSu
    */
   private String extractContent(PSExtractedAssetRequest request) throws IOException {
     String content = IOUtils.toString(request.getFileContents(), StandardCharsets.UTF_8);
-    String selector = request.getSelector();
-    String extractedContent = null;
+    String fileName = request.getFileName();
 
-    extractedContent =
-        PSHtmlUtils.extractHtml(
-            selector, content, request.getFileName(), request.shouldIncludeOuterHtml());
+    if (isBlank(content)) {
+      throw new PSExtractHTMLException(
+          "The uploaded file '"
+              + (fileName != null ? fileName : "")
+              + "' is empty (0 bytes). Cannot create a text-based asset from an empty file.");
+    }
+
+    String selector = request.getSelector();
+    String extractedContent =
+        PSHtmlUtils.extractHtml(selector, content, fileName, request.shouldIncludeOuterHtml());
 
     if (isBlank(extractedContent)) {
       String warning =
-          "CSS Selector \""
-              + selector
-              + "\" does not exist in file '"
-              + request.getFileName()
-              + ".'";
+          "CSS Selector \"" + selector + "\" does not exist in file '" + fileName + ".'";
       throw new PSExtractHTMLException(warning);
     }
 

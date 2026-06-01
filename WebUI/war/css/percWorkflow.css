@@ -1627,3 +1627,82 @@ label {
     font-family: 'Open Sans', sans-serif;
     vertical-align: middle !important;
 }
+
+/*
+ * Admin Categories tab fixes (Bootstrap + FA migration).
+ * Legacy ID-based sprite button styles + global content-box + negative margin
+ * positioning rules were causing overlapping icons, smashed buttons, and
+ * broken details panel + tree layout.
+ * Scoped to #perc-category-wrapper so Roles/Users/Workflow tabs are unaffected.
+ */
+#perc-category-wrapper #perc-category-details {
+    position: static !important;
+    top: auto !important;
+}
+
+#perc-category-wrapper #perc-categories-moveup-button,
+#perc-category-wrapper #perc-categories-movedown-button {
+    position: static !important;
+    top: auto !important;
+    left: auto !important;
+    display: inline-block !important;
+}
+
+/* Neutralize all legacy button sprite/pos/size rules for the 6 action buttons */
+#perc-category-wrapper #perc-categories-add-category-button,
+#perc-category-wrapper #perc-categories-add-child-category-button,
+#perc-category-wrapper #perc-categories-delete-category-button,
+#perc-category-wrapper #perc-categories-moveup-button,
+#perc-category-wrapper #perc-categories-movedown-button,
+#perc-category-wrapper #perc-categories-edit-category-button {
+    background-image: none !important;
+    background-position: initial !important;
+    background-repeat: initial !important;
+    width: auto !important;
+    height: auto !important;
+    min-width: 0 !important;
+    min-height: 0 !important;
+    float: none !important;
+    margin: 0 !important;
+    margin-top: 0 !important;
+    margin-right: 0 !important;
+    margin-bottom: 0 !important;
+    margin-left: 0 !important;
+    position: static !important;
+    top: auto !important;
+    left: auto !important;
+    cursor: pointer !important;
+    overflow: visible !important;
+}
+
+/* Restore border-box for all Bootstrap components in the modern Categories UI.
+   The global content-box rule above was breaking .col-md-*, .panel, .btn-group,
+   .form-control, etc. widths/padding/alignment. */
+#perc-category-wrapper,
+#perc-category-wrapper *,
+#perc-category-wrapper *:before,
+#perc-category-wrapper *:after {
+    -webkit-box-sizing: border-box !important;
+    -moz-box-sizing: border-box !important;
+    box-sizing: border-box !important;
+}
+
+/* Improve checkbox alignment in the details form (counter the global label rule) */
+#perc-category-wrapper .checkbox,
+#perc-category-wrapper .checkbox label {
+    display: block !important;
+}
+#perc-category-wrapper .checkbox label {
+    font-weight: normal;
+    margin-bottom: 0;
+}
+
+/* Make the category tree area clean for fancytree */
+#perc-category-wrapper #perc-category-tree {
+    background: #fff;
+    font-size: 12px;
+}
+#perc-category-wrapper .panel-body {
+    padding: 4px 6px;
+    background: #fff;
+}

@@ -62,7 +62,7 @@ return this.each(function() {
         var hideCheckbox = node.attr('selectable') == 'no' ? true : false;
         var select = $.inArray(key,selected) != -1;
         var children = node.children();
-        var resultItem = { id : id, title: title, select: select, hideCheckbox: hideCheckbox, expand:true, key: key};
+        var resultItem = { id : id, title: title, select: select, checkbox: !hideCheckbox, expand:true, key: key};
         if (readonly)
             resultItem.unselectable = true;
         if (children.length) {
@@ -118,7 +118,7 @@ return this.each(function() {
      	}
     	
     function displayTree(data) {
-        if($this.fancytree("getTree")){
+        if($this.data("ui-fancytree")){
             $this.fancytree("destroy");
         }
         $this.fancytree({
@@ -170,6 +170,47 @@ return this.each(function() {
           idPrefix: "ui-fancytree-Cb2-" + paramName + "-"
         });
         resizeTreeWidthToFitContent();
+
+        // When this control lives inside the metadata dialog (or other
+        // containers that may start hidden or with tiny size), fancytree
+        // often does not fully render/expand selections at init time.
+        // Schedule a "wake up" that forces expansion and re-applies the
+        // initial selections from the source data.
+        setTimeout(function() {
+            try {
+                var tree = $this.fancytree("getTree");
+                if (tree) {
+                    // Force everything visible
+                    tree.expandAll();
+
+                    // Re-apply selections that were present in the original source
+                    // (the doNode pass already marked select:true on the right nodes)
+                    function forceInitialSelections(nodes) {
+                        if (!nodes) return;
+                        nodes.forEach(function(n) {
+                            if (n.select) {
+                                var node = tree.getNodeByKey(n.key);
+                                if (node) {
+                                    node.setSelected(true);
+                                }
+                            }
+                            if (n.children && n.children.length) {
+                                forceInitialSelections(n.children);
+                            }
+                        });
+                    }
+                    // The 'data' variable here is the root array we passed to fancytree
+                    if (typeof data !== 'undefined') {
+                        forceInitialSelections(data);
+                    }
+                }
+            } catch (e) {
+                // best effort
+            }
+        }, 350);
+
+        // Extra resize after the wake-up
+        setTimeout(resizeTreeWidthToFitContent, 400);
     }
 
     function resizeTreeWidthToFitContent() {
@@ -193,7 +234,7 @@ return this.each(function() {
         var selected = selectedValues.split(separator);
         var rootNode = $(xml).children('tree');
         rootItem.title = rootNode.attr('label');
-        rootItem.hideCheckbox = true;
+        rootItem.checkbox = false;
         rootItem.select = false;
         rootItem.expand = true;
                 rootItem.key = "/" + rootItem.title;
@@ -204,6 +245,37 @@ return this.each(function() {
             rootItem.children = children;
         var tree = [rootItem];
         _testTree = tree;
+
+        if (readonly) {
+            // View / read-only mode (e.g. View Metadata dialog): render selected
+            // category labels as plain text. This is more reliable than relying on
+            // fancytree's visual selection state when the control is used inside
+            // the metadata iframe, and matches the behavior of other readonly fields
+            // (and the fixed Tags control).
+            var selectedTitles = [];
+            function collectSelectedTitles(nodes) {
+                if (!nodes) return;
+                nodes.forEach(function(n) {
+                    if (n.select) {
+                        selectedTitles.push(n.title);
+                    }
+                    if (n.children && n.children.length) {
+                        collectSelectedTitles(n.children);
+                    }
+                });
+            }
+            collectSelectedTitles(tree);
+
+            $this.empty();
+            if (selectedTitles.length > 0) {
+                $('<div class="datadisplay"></div>').text(selectedTitles.join(', ')).appendTo($this);
+            } else {
+                $('<div class="datadisplay">(none selected)</div>').appendTo($this);
+            }
+            return; // skip interactive fancytree in pure view mode
+        }
+
+        // Editable mode - full interactive tree
         if(tree[0].children.length > 0){
             displayTree(tree);
         }else{
@@ -252,7 +324,7 @@ var _treeData = [
         {title: "Sub-item 4.2.2", key: "id4.2.2" }
       ]
     },
-    {title: "Sub-item 4.3 (hideCheckbox)", hideCheckbox: true },
+    {title: "Sub-item 4.3 (checkbox: false)", checkbox: false },
     {title: "Sub-item 4.4 (unselectable)", unselectable: true }
   ]
 }

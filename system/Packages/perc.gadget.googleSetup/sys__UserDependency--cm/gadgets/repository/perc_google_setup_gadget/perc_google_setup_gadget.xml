@@ -545,7 +545,7 @@
                  {
                      if(status == $.PercServiceUtils.STATUS_SUCCESS)
                      {
-                            if(typeof (result.data.psmap.entries)!=='undefined'){
+                            if(typeof (result.data.psmap.entries)!=='undefined' && result.data.psmap.entries != null){
                                 _profileList = $.perc_utils.convertCXFArray(result.data.psmap.entries.entry);
                             }
                      }
@@ -677,7 +677,7 @@
            function _updateProfiles(){
              var opt = "";
              var eParams = [];
-             if(_storedConfig != null && typeof(_storedConfig.extraParams) != 'undefined')
+             if(_storedConfig != null && typeof(_storedConfig.extraParams) != 'undefined' && _storedConfig.extraParams != null)
              {
 
                 eParams = $.perc_utils.convertCXFArray(_storedConfig.extraParams.entry);

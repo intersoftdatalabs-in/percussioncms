@@ -483,7 +483,12 @@ public class PSMetadataQueryServiceTest extends TestCase {
     q.setTotalMaxResults(10);
     try {
       List<Object[]> cats = service.executeCategoryQuery(q);
-
+      assertNotNull("category results should not be null (even if empty)", cats);
+      // With the current test data (addTestEntries adds multiple perc:category props per entry),
+      // we expect at least one aggregated category row when no filters are supplied.
+      assertFalse(
+          "expected at least one category row for unfiltered query with seeded test data",
+          cats.isEmpty());
     } catch (PSMalformedMetadataQueryException e) {
       fail(e.getMessage());
     }

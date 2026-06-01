@@ -20,6 +20,15 @@
  */
 (function ($) {
 
+    if (typeof jQuery !== 'undefined') {
+        if (typeof jQuery.getDeliveryServiceBase !== 'function' && typeof window.percDeliveryServiceBase !== 'undefined') {
+            jQuery.getDeliveryServiceBase = function() { return window.percDeliveryServiceBase; };
+        }
+        if (typeof jQuery.getCMSVersion !== 'function' && typeof window.percCMSVersion !== 'undefined') {
+            jQuery.getCMSVersion = function() { return window.percCMSVersion; };
+        }
+    }
+
     /**
      * Constant indicating a successful request.
      */
@@ -140,13 +149,9 @@
                 if (typeof response !== 'undefined' && response != null) {
                     var tokenHeader = response.getResponseHeader("X-CSRF-HEADER");
                     if (typeof tokenHeader === "undefined" || tokenHeader === null) {
-                        if (typeof callback.callcount !== 'undefined' && callback.callcount === 1) {
-                            callback.callcount = 2;
-                        }else{
-                            callback.callcount = 1;
-                        }
-                        csrfGetToken(url,callback);
-                        return;
+                        // The header might be missing due to CORS Access-Control-Expose-Headers.
+                        // Instead of retrying and silently dropping the request, proceed with the callback.
+                        callback(response);
                     }else{
                         callback(response);
                     }
@@ -763,13 +768,15 @@
 
         if (error !== null && error.ValidationErrors !== undefined) {
             var verrors = error.ValidationErrors;
-            if (verrors.fieldErrors !== undefined ) {
+            if (verrors.fieldErrors !== undefined && (!Array.isArray(verrors.fieldErrors) || verrors.fieldErrors.length > 0)) {
                 buff += objectErrorToString(verrors.fieldErrors);
             }
-            else if (verrors.globalErrors !== undefined) {
+            if (verrors.globalErrors !== undefined && (!Array.isArray(verrors.globalErrors) || verrors.globalErrors.length > 0)) {
+                if (buff !== "") buff += "<br/>";
                 buff += objectErrorToString(verrors.globalErrors);
             }
-            else if (verrors.globalError !== undefined) {
+            if (verrors.globalError !== undefined && verrors.globalError !== null) {
+                if (buff !== "") buff += "<br/>";
                 buff += objectErrorToString(verrors.globalError);
             }
         }

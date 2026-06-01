@@ -38,60 +38,136 @@
 
 </div>
 <div id="perc-pageEditor-toolbar-content" class="ui-helper-clearfix"> </div> 
-<div class='perc-whitebg' style="overflow : auto">
-    <div id = "perc-category-wrapper" style="width:1024px">
-        <div id = "perc-category-title">
-            <h1><i18n:message key = "perc.ui.admin.workflow@Categories"/></h1>
+<div class='perc-whitebg' style="overflow : auto; padding: 20px;">
+    <div id="perc-category-wrapper" class="container-fluid" style="width: auto; max-width: 1200px;">
+        <!-- Title and Dropdowns -->
+        <div class="row" style="margin-bottom: 20px;">
+            <div class="col-md-6">
+                <div id="perc-category-title">
+                    <h1 style="margin-top: 0;"><i18n:message key="perc.ui.admin.workflow@Categories"/></h1>
+                </div>
+            </div>
+            <div class="col-md-6 text-right">
+                <div id="perc-site-selection" style="display:inline-block; margin-right: 15px;">
+                   <select id="perc-category-site-dropdown" class="form-control" style="display:inline-block; width: auto;">
+                       <option value=""><i18n:message key="perc.ui.perc.categories@No Sites"/></option>
+                   </select>
+                </div>
+            </div>
         </div>
-        <div id = "perc-site-selection">
-               <select id = "perc-category-site-dropdown">
-                   <option value=""><i18n:message key = "perc.ui.perc.categories@No Sites"/></option>
-               </select>
+
+        <div class="row">
+            <!-- Left Column: Tree and Actions -->
+            <div class="col-md-5">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <div class="btn-group" role="group" aria-label="Category Actions">
+                            <button id="perc-categories-add-category-button" type="button" class="btn btn-default" title="<i18n:message key='perc.ui.categories@Add New Category'/>"><i class="fas fa-plus"></i></button>
+                            <button id="perc-categories-add-child-category-button" type="button" class="btn btn-default" title="<i18n:message key='perc.ui.categories@Add New Child Category'/>"><i class="fas fa-level-down-alt"></i></button>
+                            <button id="perc-categories-delete-category-button" type="button" class="btn btn-default" title="<i18n:message key='perc.ui.categories@Remove Category'/>"><i class="fas fa-trash"></i></button>
+                            <button id="perc-categories-moveup-button" type="button" class="btn btn-default" title="<i18n:message key='perc.ui.categories@Move Up'/>"><i class="fas fa-arrow-up"></i></button>
+                            <button id="perc-categories-movedown-button" type="button" class="btn btn-default" title="<i18n:message key='perc.ui.categories@Move Down'/>"><i class="fas fa-arrow-down"></i></button>
+                        </div>
+                    </div>
+                    <div class="panel-body" style="max-height: 600px; overflow-y: auto;">
+                        <div id="perc-category-tree" style="width: 100%; float: none;"></div>
+                    </div>
+                </div>
             </div>
             
-            <div id = "perc-category-tree">
-            </div>
-        <div id="perc-category-details">
-            <div id="perc-categories-add-category-button" role="button" tabindex="0"  title="<i18n:message key = "perc.ui.categories@Add New Category"/>"></div>
-            <div id="perc-categories-add-child-category-button" role="button"  tabindex="0" title="<i18n:message key = "perc.ui.categories@Add New Child Category"/>"></div>
-            <div id="perc-categories-delete-category-button" role="button" tabindex="0" title="<i18n:message key = "perc.ui.categories@Remove Category"/>"></div>
-            <div id="perc-categories-edit-category-button" role="button" tabindex="0" title="<i18n:message key = "perc.ui.categories@Edit Category Details"/>"></div>
-            <div id="perc-categories-moveup-button" role="button" tabindex="0" title="<i18n:message key = "perc.ui.categories@Move Up"/>"><i class="perc-font-icon icon-arrow-up fas fa-arrow-up"></i></div>
-            <div id="perc-categories-movedown-button" role="button" tabindex="0" title="<i18n:message key = "perc.ui.categories@Move Down"/>"><i class="perc-font-icon icon-arrow-down fas fa-arrow-down"></i></div>
-            <div id="perc-category-info">
-                <span class="perc-required-label" style="display:none;"><label><i18n:message key = "perc.ui.general@Denotes Required Field"/></label></span> 
-                <div id="perc-category-name-label"><i18n:message key = "perc.ui.perc.categories@Category Name"/>
-					<input id="perc-category-name-field" maxlength="255" title='<i18n:message key = "perc.ui.perc.categories@Category Name"/>'/>
-                </div><br />
-                <div id="perc-category-selectable-label"><i18n:message key = "perc.ui.perc.categories@Is It Selectable"/>
-					<input type="checkbox" id="perc-category-selectable-field" title='<i18n:message key = "perc.ui.perc.categories@Is It Selectable"/>'/>
-                </div><br />
-                <div id="perc-category-show-in-page-label"><i18n:message key = "perc.ui.perc.categories@Show in Page Metadata"/>
-					<input type="checkbox" id="perc-category-show-in-page-field" title='<i18n:message key = "perc.ui.perc.categories@Show in Page Metadata"/>'/>
-                </div><br />
-                <div id="perc-allowedsites-label"><i18n:message key = "perc.ui.perc.categories@Allowed Sites"/> 
-					<select id="perc-allowedsites-field" multiple title='<i18n:message key = "perc.ui.perc.categories@Allowed Sites"/>'>
-                    </select>
-                </div><br />
-                <div id="perc-category-save-cancel-block" style="width:100%; height:50px;"> 
-                    <button id="perc-category-save" tabindex="0" title='<i18n:message key ="perc.ui.button@Save"/>'  class="btn btn-primary" type="button"  name="perc_wizard_save"   style="float: right; margin:0 27px 27px 0px;"><i18n:message key ="perc.ui.button@Save"/> </button>
-                    <button id="perc-category-cancel" tabindex="0" title='<i18n:message key ="perc.ui.common.label@Cancel"/>' class="btn btn-primary" type="button"  name="perc_wizard_cancel" style="float: right; margin: 0 8px 27px 0"><i18n:message key ="perc.ui.common.label@Cancel"/>  </button>
+            <!-- Right Column: Details Form -->
+            <div class="col-md-7">
+                <div id="perc-category-details" class="panel panel-default" style="width: 100%; float: none; margin-left: 0; margin-top: 0;">
+                    <div class="panel-heading">
+                        <h3 class="panel-title" id="perc-category-details-label" style="display:inline-block; margin-top:6px;">
+                            <i18n:message key="perc.ui.perc.categories@Details"/>
+                        </h3>
+                        <!-- Save/Cancel now at top of the form per UX request -->
+                        <div class="pull-right">
+                            <button id="perc-categories-edit-category-button" type="button" class="btn btn-primary btn-sm" title="<i18n:message key='perc.ui.categories@Edit Category Details'/>"><i class="fas fa-edit"></i> <i18n:message key="perc.ui.categories@Edit Category Details"/></button>
+                        </div>
+                        <div id="perc-category-save-cancel-block" class="pull-right" style="display: none; margin-right: 8px;">
+                            <button id="perc-category-cancel" tabindex="0" title='<i18n:message key="perc.ui.common.label@Cancel"/>' class="btn btn-default btn-sm" type="button" name="perc_wizard_cancel"><i18n:message key="perc.ui.common.label@Cancel"/></button>
+                            <button id="perc-category-save" tabindex="0" title='<i18n:message key="perc.ui.button@Save"/>' class="btn btn-primary btn-sm" type="button" name="perc_wizard_save"><i18n:message key="perc.ui.button@Save"/></button>
+                        </div>
+                        <div class="clearfix"></div>
+                    </div>
+                    <div class="panel-body" id="perc-category-info" style="background-color: transparent;">
+                        <span class="perc-required-label text-danger" style="display:none; margin-bottom: 10px;"><label><i18n:message key="perc.ui.general@Denotes Required Field"/></label></span> 
+                        
+                        <form class="form-horizontal">
+                            <div class="form-group" id="perc-category-name-label">
+                                <label class="col-sm-4 control-label"><i18n:message key="perc.ui.perc.categories@Category Name"/></label>
+                                <div class="col-sm-8">
+                                    <input type="text" class="form-control" id="perc-category-name-field" maxlength="255" title='<i18n:message key="perc.ui.perc.categories@Category Name"/>'/>
+                                </div>
+                            </div>
+                            
+                            <div class="form-group" id="perc-category-selectable-label">
+                                <div class="col-sm-offset-4 col-sm-8">
+                                    <div class="checkbox">
+                                        <label>
+                                            <input type="checkbox" id="perc-category-selectable-field" title='<i18n:message key="perc.ui.perc.categories@Is It Selectable"/>'/>
+                                            <i18n:message key="perc.ui.perc.categories@Is It Selectable"/>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-group" id="perc-category-show-in-page-label">
+                                <div class="col-sm-offset-4 col-sm-8">
+                                    <div class="checkbox">
+                                        <label>
+                                            <input type="checkbox" id="perc-category-show-in-page-field" title='<i18n:message key="perc.ui.perc.categories@Show in Page Metadata"/>'/>
+                                            <i18n:message key="perc.ui.perc.categories@Show in Page Metadata"/>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="form-group" id="perc-allowedsites-label">
+                                <label class="col-sm-4 control-label"><i18n:message key="perc.ui.perc.categories@Allowed Sites"/></label>
+                                <div class="col-sm-8">
+                                    <select class="form-control" id="perc-allowedsites-field" multiple title='<i18n:message key="perc.ui.perc.categories@Allowed Sites"/>'>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <hr/>
+
+                            <div class="form-group" id="perc-category-created-by-label">
+                                <label class="col-sm-4 control-label"><i18n:message key="perc.ui.perc.categories@Created By"/></label>
+                                <div class="col-sm-8">
+                                    <input type="text" class="form-control perc-category-field-readonly" id="perc-category-createdby-field" aria-disabled="true" disabled title='<i18n:message key="perc.ui.perc.categories@Created By"/>'/>
+                                </div>
+                            </div>
+                            
+                            <div class="form-group" id="perc-category-creation-date-label">
+                                <label class="col-sm-4 control-label"><i18n:message key="perc.ui.perc.categories@Creation Date"/></label>
+                                <div class="col-sm-8">
+                                    <input type="text" class="form-control perc-category-field-readonly" id="perc-category-creationdt-field" aria-disabled="true" disabled title='<i18n:message key="perc.ui.perc.categories@Creation Date"/>'/>
+                                </div>
+                            </div>
+                            
+                            <div class="form-group" id="perc-category-last-modified-by-label">
+                                <label class="col-sm-4 control-label"><i18n:message key="perc.ui.perc.categories@Last Modified By"/></label>
+                                <div class="col-sm-8">
+                                    <input type="text" class="form-control perc-category-field-readonly" id="perc-category-lstmodifiedby-field" aria-disabled="true" disabled title='<i18n:message key="perc.ui.perc.categories@Last Modified By"/>'/>
+                                </div>
+                            </div>
+                            
+                            <div class="form-group" id="perc-category-last-modified-date-label">
+                                <label class="col-sm-4 control-label"><i18n:message key="perc.ui.perc.categories@Last Modified Date"/></label>
+                                <div class="col-sm-8">
+                                    <input type="text" class="form-control perc-category-field-readonly" id="perc-category-lstmodifieddt-field" aria-disabled="true" disabled title='<i18n:message key="perc.ui.perc.categories@Last Modified Date"/>'/>
+                                </div>
+                            </div>
+                            
+                        </form>
+                    </div>
+                    <!-- Save/Cancel moved to panel-heading (top of form) -->
                 </div>
-                <div id="perc-category-details-label"><i18n:message key = "perc.ui.perc.categories@Details"/></div><br />
-                <div id="perc-category-created-by-label"><i18n:message key = "perc.ui.perc.categories@Created By"/> 
-					<input id="perc-category-createdby-field" aria-disabled="true" class="perc-category-field-readonly" disabled title='<i18n:message key = "perc.ui.perc.categories@Created By"/>'/>
-                </div><br />
-                <div id="perc-category-creation-date-label"><i18n:message key = "perc.ui.perc.categories@Creation Date"/> 
-					<input id="perc-category-creationdt-field" aria-disabled="true"  class="perc-category-field-readonly" disabled title='<i18n:message key = "perc.ui.perc.categories@Creation Date"/>'/>
-                </div><br />
-                <div id="perc-category-last-modified-by-label"><i18n:message key = "perc.ui.perc.categories@Last Modified By"/> 
-					<input id="perc-category-lstmodifiedby-field" aria-disabled="true"  class="perc-category-field-readonly" disabled title='<i18n:message key = "perc.ui.perc.categories@Last Modified By"/>'/>
-                </div><br />
-                <div id="perc-category-last-modified-date-label"><i18n:message key = "perc.ui.perc.categories@Last Modified Date"/>
-					<input id="perc-category-lstmodifieddt-field" aria-disabled="true" class="perc-category-field-readonly" disabled title='<i18n:message key = "perc.ui.perc.categories@Last Modified Date"/>'/>
-                </div><br />
-              
             </div>
         </div>
-    </div>    
+    </div>
 </div>
