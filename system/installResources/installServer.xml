@@ -1070,7 +1070,6 @@
 				<include name="JavaHelp/jh.jar" />
 				<include name="jai/lib/*.jar" />
 				<include name="Solr/*.jar" />
-				<include name="Any23/*.jar" />
 				<include name="Jericho-html/jericho-html-1.2.jar" />
 				<include name="HTMLparser/lib/htmlparser.jar" />
 				<include name="regex/jakarta-oro-2.0.8.jar" />

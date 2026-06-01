@@ -188,6 +188,68 @@
                 $(this).find(".perc-min-max").toggleClass('perc-items-minimizer').toggleClass('perc-items-maximizer');
                 var groupName = $(this).attr("group");
                 iframeContainer.find("div[groupName='" + groupName + "']").toggle();
+
+                // Special handling for Tags & Categories: the fancytree control is
+                // often initialized while its container is hidden (by the grouping
+                // logic), which causes it to render collapsed and without visual
+                // pre-selections. When the user expands the section, we force a
+                // full refresh + re-application of the selected state from the
+                // hidden input.
+                if (groupName === "perc-tagCat-container") {
+                    var $catTree = iframeContainer.find("#page_categories_tree-tree");
+                    var hidden = iframeContainer.find("#page_categories_tree");
+
+                    function tryApplyCategoryTreeRefresh(attempt) {
+                        attempt = attempt || 1;
+                        var maxAttempts = 120; // up to ~12 seconds of waiting
+
+                        var treeEl = iframeContainer.find("#page_categories_tree-tree");
+                        if (!treeEl.length) {
+                            if (attempt < maxAttempts) {
+                                setTimeout(function() { tryApplyCategoryTreeRefresh(attempt + 1); }, 100);
+                            }
+                            return;
+                        }
+
+                        var ft = null;
+                        try {
+                            if (treeEl.data("ui-fancytree")) {
+                                ft = treeEl.fancytree("getTree");
+                            }
+                        } catch (e) {}
+
+                        if (ft) {
+                            try {
+                                ft.expandAll();
+
+                                var val = hidden.length ? (hidden.val() || "") : "";
+                                if (val) {
+                                    var keys = val.split(";");
+                                    keys.forEach(function(k) {
+                                        if (k) ft.selectKey(k, true);
+                                    });
+                                }
+
+                                // final size fix
+                                var container = treeEl.find(".fancytree-container");
+                                if (container.length) {
+                                    var parentWidth = container.parent().width() || 400;
+                                    container.width(parentWidth + 50);
+                                }
+                            } catch (e) {
+                                // best effort
+                            }
+                        } else {
+                            if (attempt < maxAttempts) {
+                                setTimeout(function() { tryApplyCategoryTreeRefresh(attempt + 1); }, 100);
+                            }
+                        }
+                    }
+
+                    setTimeout(function() {
+                        tryApplyCategoryTreeRefresh(1);
+                    }, 80);
+                }
             });
             //Find all error
             $.each(iframeContainer.find('div[type="sys_error"]'), function(){
