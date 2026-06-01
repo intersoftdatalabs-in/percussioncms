@@ -177,7 +177,6 @@
         <opencsv.version>5.12.0</opencsv.version>
         <oracle.version>12.1.0.1</oracle.version>
         <owasp.csrfguard.version>4.5.0</owasp.csrfguard.version>
-        <owl.version>5.5.1</owl.version>
         <pdfbox.version>3.0.6</pdfbox.version>
         <plexus.component.metadata.version>2.2.0</plexus.component.metadata.version>
         <poi.version>5.2.2</poi.version>
@@ -731,11 +730,6 @@
                 <groupId>saxon</groupId>
                 <artifactId>saxon</artifactId>
                 <version>${saxon.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>net.sourceforge.owlapi</groupId>
-                <artifactId>owlapi-distribution</artifactId>
-                <version>${owl.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.solr</groupId>
