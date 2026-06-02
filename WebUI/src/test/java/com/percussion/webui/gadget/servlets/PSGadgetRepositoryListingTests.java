@@ -34,5 +34,8 @@ public class PSGadgetRepositoryListingTests {
 
     assertNotNull(typeMap);
     assertTrue(typeMap.size() > 0);
+    assertTrue(
+        "Redirect Management should be registered as Deprecated",
+        "Deprecated".equals(typeMap.get("Redirect Management")));
   }
 }
