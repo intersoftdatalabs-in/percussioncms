@@ -915,7 +915,7 @@
 
         }
 
-        if('percFileAsset' === type || 'percFlashAsset' === type){
+        if('percFileAsset' === type){
             // Last resort if file icon url not provided
             returnIcon.src =  '../images/images/genericFile.png';
             returnIcon.alt=I18N.message("perc.ui.images@FileAssetIconAlt");

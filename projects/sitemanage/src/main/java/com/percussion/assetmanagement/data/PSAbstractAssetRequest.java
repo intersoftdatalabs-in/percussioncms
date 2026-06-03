@@ -32,7 +32,6 @@ public abstract class PSAbstractAssetRequest {
     /** Binary assets */
     FILE,
     IMAGE,
-    FLASH,
     /** Extracted assets */
     HTML,
     RICH_TEXT,

@@ -1577,7 +1577,6 @@ http://cxf.apache.org/schemas/jaxrs.xsd">
                 <!-- Relative Folder Paths from Assets-->
                 <entry key="percImageAsset" value="/uploads/images"/>
                 <entry key="percFileAsset" value="/uploads/files"/>
-                <entry key="percFlashAsset" value="/uploads/files"/>
                 <entry key="percFormAsset" value="/forms"/>
                 <entry key="percCalendarAsset" value="/calendars"/>
                 <entry key="percPollAsset" value="/polls"/>

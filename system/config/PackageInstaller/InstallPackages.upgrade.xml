@@ -42,10 +42,6 @@
 		<status>PENDING</status>
 	</PackageFileEntry>
 	<PackageFileEntry>
-		<packageName>perc.flashWidget</packageName>
-		<status>PENDING</status>
-	</PackageFileEntry>
-	<PackageFileEntry>
 		<packageName>perc.widget.iframe</packageName>
 		<status>PENDING</status>
 	</PackageFileEntry>
