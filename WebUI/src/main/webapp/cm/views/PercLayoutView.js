@@ -2032,7 +2032,7 @@ var layoutModel;
 
     /**
      * Actually performs the drop action by adding the widget to a region or above a widget.
-     * @param widgetType one of various types of widgets from the widget tray, e.g., percEvent, percFile, percFlash, percForm, percRawHtml
+     * @param widgetType one of various types of widgets from the widget tray, e.g., percEvent, percFile, percForm, percRawHtml
      * @param region parent region of the new widget
      * @param widget (optional) if provided, the new widget will go on top of this widget
      */

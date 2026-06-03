@@ -51,7 +51,6 @@ public interface IPSAssetService extends IPSDataService<PSAsset, PSAssetSummary,
   String CREATE_ASSET_ERROR_MESSAGE = "Unable to convert HTML asset to Rich Text asset";
   String ASSET_TYPE_IMAGE = "percImageAsset";
   String ASSET_TYPE_FILE = "percFileAsset";
-  String ASSET_TYPE_FLASH = "percFlashAsset";
   String HTML_FIELD = "html";
   String TEXT_FIELD = "text";
   String RICH_TEXT_ASSET_TYPE = "percRichTextAsset";

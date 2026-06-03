@@ -74,7 +74,7 @@ public class PSFixInvalidSysTitle extends PSFixDBBase implements IPSFix
    private static final String ASSET_ROOT = "/Root/Folders/$System$";
 
    private static final Set<String> publishableTypeNames = new HashSet<>(Arrays.asList(new String[]
-   {"percFileAsset", "percImageAsset", "percFlashAsset", "percPage"}));
+   {"percFileAsset", "percImageAsset", "percPage"}));
 
    /**
     * The log4j logger used for this class.

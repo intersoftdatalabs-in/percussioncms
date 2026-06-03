@@ -133,7 +133,7 @@ public class AssetsResource {
       description =
           "Useful to run before running an import of Assets to determine the impact of the import."
               + " The report will also indicate the Asset type that files would be imported to,"
-              + " currently Image, File, or Flash assets are supported.",
+              + " currently Image or File assets are supported.",
       responses = {
         @ApiResponse(
             responseCode = "200",
@@ -256,8 +256,6 @@ public class AssetsResource {
       type = asset.getFile().flatMap(BinaryFile::getType).orElse(type);
     else if (asset.getImage().isPresent())
       type = asset.getImage().flatMap(ImageInfo::getType).orElse(type);
-    else if (asset.getFlash().isPresent())
-      type = asset.getFlash().flatMap(Flash::getType).orElse(type);
 
     var r =
         Response.ok(out)

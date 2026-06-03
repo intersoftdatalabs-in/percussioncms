@@ -1811,7 +1811,7 @@ public class PSAssetService extends PSAbstractFullDataService<PSAsset, PSAssetSu
   }
 
   /**
-   * Creates a binary asset (file, flash, image) for the specified request.
+   * Creates a binary asset (file, image) for the specified request.
    *
    * @param request the asset request, assumed not <code>null</code>.
    * @return the created asset, never <code>null</code>.
@@ -1827,7 +1827,7 @@ public class PSAssetService extends PSAbstractFullDataService<PSAsset, PSAssetSu
       type = "percImageAsset";
       fieldBase = "img";
     } else {
-      type = (aType == AssetType.FLASH) ? "percFlashAsset" : "percFileAsset";
+      type = "percFileAsset";
       fieldBase = "item_file_attachment";
     }
     asset.setType(type);
@@ -1871,7 +1871,7 @@ public class PSAssetService extends PSAbstractFullDataService<PSAsset, PSAssetSu
       type = "percImageAsset";
       fieldBase = "img";
     } else {
-      type = (aType == AssetType.FLASH) ? "percFlashAsset" : "percFileAsset";
+      type = "percFileAsset";
       fieldBase = "item_file_attachment";
     }
     asset.setType(type);
