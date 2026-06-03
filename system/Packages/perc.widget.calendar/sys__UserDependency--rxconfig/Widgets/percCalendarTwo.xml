@@ -404,15 +404,6 @@
 
       </style>
 
-	  <script>
-      window.addEventListener('DOMContentLoaded', function() {
-		  function hideCalendarSource(calendarClass) {
-			$('#'+calendarClass+'-button').toggleClass("perc-disabled-calendar-button");
-			$('.'+calendarClass).toggleClass("perc-hide-calendar");
-		  };
-      });
-      </script>
-
       #if($perc_calendar_view == "full")##
       <div class ="perc-full-calendar" id="calendar-${calendarContentId}-${widgetId}"></div>
 
@@ -420,11 +411,11 @@
       <form>
       <div id="perc-button-container-${calendarContentId}-${widgetId}" class="perc-button-container">
       #foreach($googleSource in $googleCalendarArray)
-      <div id="perc-${googleSource.getString('className')}-button" class="perc-calendar-button perc-$googleSource.getString('className')" onClick="hideCalendarSource('perc-${googleSource.getString('className')}')">$googleSource.getString('calendarName')</div>
+      <div id="perc-${googleSource.getString('className')}-button" class="perc-calendar-button perc-$googleSource.getString('className')">$googleSource.getString('calendarName')</div>
       #end
 
       #if($perc_show_perc_events_button == 'Y' && $perc_event_button_label != '')
-      <div id="perc-calendar-other-button" class="perc-calendar-button perc-calendar-other" onClick="hideCalendarSource('perc-calendar-other')">$perc_event_button_label</div>
+      <div id="perc-calendar-other-button" class="perc-calendar-button perc-calendar-other">$perc_event_button_label</div>
       #end
       </div>
       </form>
@@ -490,6 +481,18 @@
         if( layoutType == 'calendar' ) {
           $('#perc-button-container-${calendarContentId}-${widgetId}').fadeIn();
         }
+
+        // Bind click handlers for the calendar source toggle buttons (Google Calendar sources and Percussion events button).
+        // These replace the previous inline onClick handlers which referenced a function that was not in global scope.
+        $('#perc-button-container-${calendarContentId}-${widgetId} .perc-calendar-button').on('click', function() {
+            var $btn = $(this);
+            var btnId = $btn.attr('id');
+            var calendarClass = btnId ? btnId.replace(/-button$/, '') : null;
+            if (calendarClass) {
+                $('#' + calendarClass + '-button').toggleClass("perc-disabled-calendar-button");
+                $('.' + calendarClass).toggleClass("perc-hide-calendar");
+            }
+        });
 
         function initializeCalendar() {
 
