@@ -58,7 +58,6 @@ public class Asset {
   private ImageInfo image;
   private ImageInfo thumbnail;
   private BinaryFile file;
-  private Flash flash;
   private Boolean remove;
 
   public Asset() {}
@@ -161,14 +160,6 @@ public class Asset {
     this.file = file;
   }
 
-  public Optional<Flash> getFlash() {
-    return Optional.ofNullable(flash);
-  }
-
-  public void setFlash(Flash flash) {
-    this.flash = flash;
-  }
-
   public Optional<Boolean> getRemove() {
     return Optional.ofNullable(remove);
   }
@@ -196,7 +187,6 @@ public class Asset {
         && Objects.equals(image, asset.image)
         && Objects.equals(thumbnail, asset.thumbnail)
         && Objects.equals(file, asset.file)
-        && Objects.equals(flash, asset.flash)
         && Objects.equals(remove, asset.remove);
   }
 
@@ -215,7 +205,6 @@ public class Asset {
         image,
         thumbnail,
         file,
-        flash,
         remove);
   }
 
@@ -250,8 +239,6 @@ public class Asset {
         + thumbnail
         + ", file="
         + file
-        + ", flash="
-        + flash
         + ", remove="
         + remove
         + '}';

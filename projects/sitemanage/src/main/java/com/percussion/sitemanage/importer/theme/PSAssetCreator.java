@@ -94,7 +94,7 @@ public class PSAssetCreator {
           PSValidationException {
     try {
       PSAbstractAssetRequest ar;
-      if (type == AssetType.FILE || type == AssetType.FLASH || type == AssetType.IMAGE) {
+      if (type == AssetType.FILE || type == AssetType.IMAGE) {
         ar =
             new PSBinaryAssetRequest(
                 folderpath, type, fileName, determineMIMEType(fileName), fileInput);
@@ -195,15 +195,11 @@ public class PSAssetCreator {
     if (StringUtils.containsIgnoreCase(mimeType, "image")) {
       assetType = "image";
     }
-    if (StringUtils.containsIgnoreCase(mimeType, "flash")) {
-      assetType = "flash";
-    }
     return assetType;
   }
 
   static {
     ms_assetTypeMap.put("file", AssetType.FILE);
-    ms_assetTypeMap.put("flash", AssetType.FLASH);
     ms_assetTypeMap.put("image", AssetType.IMAGE);
     ms_assetTypeMap.put("html", AssetType.HTML);
     ms_assetTypeMap.put("richtext", AssetType.RICH_TEXT);

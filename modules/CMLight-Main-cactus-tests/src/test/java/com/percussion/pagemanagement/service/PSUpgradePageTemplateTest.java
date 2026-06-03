@@ -57,7 +57,6 @@ class PSUpgradePageTemplateTest extends PSServletTestCase {
 
     widgetMap.put("event", "percEvent");
     widgetMap.put("file", "percFile");
-    widgetMap.put("flash", "percFlash");
     widgetMap.put("image", "percImage");
     widgetMap.put("navBar", "percNavBar");
     widgetMap.put("navBreadcrumb", "percNavBreadcrumb");
