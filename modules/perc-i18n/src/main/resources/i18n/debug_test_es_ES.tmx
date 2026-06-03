@@ -1,0 +1,20 @@
+<?xml version="1.0" ?>
+<tmx version="1.4">
+    <header>
+        <prop type="supportedlanguage">ES</prop>
+    </header>
+    <body>
+        <tu tuid="1000">
+            <tuv xml:lang="ES">
+                <seg>{0}</seg>
+            </tuv>
+        </tu>
+        <tu tuid="1008">
+            <tuv xml:lang="ES">
+                <seg>bug_test_es_ES</seg>
+            </tuv>
+        </tu>
+        <tu tuid="10201">
+            <tuv xml:lang="ES">
+                <seg>bug_test_es_ES</seg>
+            </tuv>

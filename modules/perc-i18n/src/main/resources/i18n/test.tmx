@@ -1,0 +1,50 @@
+<?xml version="1.0" ?>
+<tmx version="1.4">
+    <header>
+        <prop type="supportedlanguage">en-us</prop>
+    </header>
+    <body>
+        <tu tuid="1000">
+            <tuv xml:lang="en-us">
+                <seg>{0}</seg>
+            </tuv>
+        </tu>
+        <tu tuid="1008">
+            <tuv xml:lang="en-us">
+                <seg>An unknown error occurred while processing the request submitted by session id {0}.</seg>
+            </tuv>
+        </tu>
+        <tu tuid="10201">
+            <tuv xml:lang="en-us">
+                <seg>Server returned error code {0}. Message: {1}</seg>
+            </tuv>
+        </tu>
+        <tu tuid="13009">
+            <tuv xml:lang="en-us">
+                <seg>The lookup resource {0} returned no entry for the site with siteid = {1}. A site must be registered with the system for a cross site link to be generated.</seg>
+            </tuv>
+        </tu>
+        <tu tuid="13207">
+            <tuv xml:lang="en-us">
+                <seg>The relationship with relationshipid:{0} is invalid since the category: {1} for active assembly relationship is invalid. Expected category name is: {2}</seg>
+            </tuv>
+        </tu>
+        <tu tuid="13221">
+            <tuv xml:lang="en-us">
+                <seg>Failed to modify item: contentid={0}, revision={1}. An item named "{2}" already exists in the folder "{3}".</seg>
+            </tuv>
+        </tu>
+        <tu tuid="13222">
+            <tuv xml:lang="en-us">
+                <seg>Failed to add the item name "{0}" to the folder "{1}" because the name "{0}" already exists in the folder "{1}". Locate the item, modify the item name, and then manually add the item to the folder. The locator of the failed item is: contentid={2}, revision={3}.</seg>
+            </tuv>
+        </tu>
+        <tu tuid="13225">
+            <tuv xml:lang="en-us">
+                <seg>Error attempting to check for existence of relationships executing the internal request {0}: The actual error message is : {1}</seg>
+            </tuv>
+        </tu>
+        <tu tuid="13226">
+            <tuv xml:lang="en-us">
+                <seg>Cannot create a relationship from a non-existing owner item. The owner item id was: {0}</seg>
+            </tuv>

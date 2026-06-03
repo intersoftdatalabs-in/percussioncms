@@ -1,0 +1,30 @@
+<?xml version="1.0" ?>
+<tmx version="1.4">
+    <header>
+        <prop type="supportedlanguage">en-us</prop>
+    </header>
+    <body>
+        <tu tuid="1000">
+            <tuv xml:lang="en-us">
+                <seg>{0}</seg>
+            </tuv>
+        </tu>
+        <tu tuid="1008">
+            <tuv xml:lang="en-us">
+                <seg>An unknown error occurred while processing the request submitted by session id {0}.</seg>
+            </tuv>
+        </tu>
+        <tu tuid="10201">
+            <tuv xml:lang="en-us">
+                <seg>Server returned error code {0}. Message: {1}</seg>
+            </tuv>
+        </tu>
+        <tu tuid="13009">
+            <tuv xml:lang="en-us">
+                <seg>The lookup resource {0} returned no entry for the site with siteid = {1}. A site must be registered with the system for a cross site link to be generated.</seg>
+            </tuv>
+        </tu>
+        <tu tuid="13207">
+            <tuv xml:lang="en-us">
+                <seg>The relationship with relationshipid:{0} is invalid since the category: {1} for active assembly relationship is invalid. Expected category name is: {2}</seg>
+            </tuv>

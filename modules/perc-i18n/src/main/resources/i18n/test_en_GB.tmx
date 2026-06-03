@@ -1,0 +1,50 @@
+<?xml version="1.0" ?>
+<tmx version="1.4">
+    <header>
+        <prop type="supportedlanguage">en-us</prop>
+    </header>
+    <body>
+        <tu tuid="1000">
+            <tuv xml:lang="en_GB">
+                <seg>{0}</seg>
+            </tuv>
+        </tu>
+        <tu tuid="1008">
+            <tuv xml:lang="en_GB">
+
+            </tuv>
+        </tu>
+        <tu tuid="10201">
+            <tuv xml:lang="en_GB">
+
+            </tuv>
+        </tu>
+        <tu tuid="13009">
+            <tuv xml:lang="en_GB">
+
+            </tuv>
+        </tu>
+        <tu tuid="13207">
+            <tuv xml:lang="en_GB">
+
+            </tuv>
+        </tu>
+        <tu tuid="13221">
+            <tuv xml:lang="en_GB">
+
+            </tuv>
+        </tu>
+        <tu tuid="13222">
+            <tuv xml:lang="en_GB">
+
+            </tuv>
+        </tu>
+        <tu tuid="13225">
+            <tuv xml:lang="en_GB">
+
+            </tuv>
+        </tu>
+        <tu tuid="13226">
+            <tuv xml:lang="en_GB">
+
+            </tuv>

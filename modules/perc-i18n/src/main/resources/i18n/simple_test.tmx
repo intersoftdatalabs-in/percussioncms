@@ -1,0 +1,15 @@
+<?xml version="1.0" ?>
+<tmx version="1.4">
+    <header>
+        <prop type="supportedlanguage">en-us</prop>
+    </header>
+    <body>
+        <tu tuid="1000">
+            <tuv xml:lang="en-us">
+                <seg>{0}</seg>
+            </tuv>
+        </tu>
+        <tu tuid="1008">
+            <tuv xml:lang="en-us">
+                <seg>An unknown error occurred while processing the request submitted by session id {0}.</seg>
+            </tuv>
