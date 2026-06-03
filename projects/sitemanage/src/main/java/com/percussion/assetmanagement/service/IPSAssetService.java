@@ -274,8 +274,8 @@ public interface IPSAssetService extends IPSDataService<PSAsset, PSAssetSummary,
    * specified by the relationship will be copied and the new shared copy will be related to the widget specified by
    * the relationship.
    *
-   * @param name The name to use for the new asset, may not be <code>null<code/> or empty.
-   * @param path The path that specifies the folder in which to create the asset, not <code>null<code/> or empty, must be
+   * @param name The name to use for the new asset, may not be <code>null</code> or empty.
+   * @param path The path that specifies the folder in which to create the asset, not <code>null</code> or empty, must be
    *             a valid path.
    * @param awRel The source asset-widget relationship, must specify local content, not <code>null</code>.
    * @return The new shared asset's item id. Eg: -1-101-709

@@ -195,7 +195,7 @@ public class PSPageRestService {
   }
 
   /**
-   * @{inheritDoc}
+   * {@inheritDoc}
    */
   @GET
   @Path(LOAD_PATH)
@@ -242,7 +242,7 @@ public class PSPageRestService {
   }
 
   /**
-   * @{inheritDoc}
+   * {@inheritDoc}
    */
   @GET
   @Path("/pagesByTemplate/{templateId}")

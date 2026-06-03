@@ -58,11 +58,11 @@ public interface IPSFileSystemService {
   /**
    * Given a folder path, it gets the children and returns a List of File objects.
    *
-   * @param path The path of the folder. Assumed not <code>null</code>.
-   * @return A list of children of the folder path represented by 'path'.
-   * @throws IOException
-   */
-  List<File> getChildren(String path) throws FileNotFoundException;
+* @param path The path of the folder. Assumed not <code>null</code>.
+    * @return A list of children of the folder path represented by 'path'.
+    * @throws FileNotFoundException
+    */
+   List<File> getChildren(String path) throws FileNotFoundException;
 
   /**
    * Adds a new folder with a fixed name specified by the implementation class (for example,
@@ -75,7 +75,7 @@ public interface IPSFileSystemService {
    * a folder with the name "New Folder 1". The number is incremented in subsequent calls.
    *
    * @param parentPath Parent folder path. Cannot be <code>null</code>.
-   * @return A File object pointing to the newly created folder. Never <code>null<code>.
+   * @return A File object pointing to the newly created folder. Never <code>null</code>.
    * @throws IOException
    */
   File addFolder(String parentPath) throws IOException;
@@ -169,15 +169,14 @@ public interface IPSFileSystemService {
    * there is a folder with the same name, it returns an error.
    *
    * @param path the path to the new file. It includes its name.
-   * @param pageContent the file to save
-   * @return the response gotten from the logic.
-   */
+* @param pageContent the file to save
+    */
   void fileUpload(String path, InputStream pageContent) throws PSFileOperationException;
 
   /**
    * Checks if the name contains an invalid character.
    *
-   * @param newFolderName the name to check. Assumed not <code>null</code>
+   * @param name the name to check. Assumed not <code>null</code>
    * @return <code>true</code> if the name contains an invalid character. <code>false</code>
    *     otherwise.
    */

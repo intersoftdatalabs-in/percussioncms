@@ -99,7 +99,7 @@ public interface IPSUserService {
    *
    * @param userName The name of the user
    *
-   * @return <code>true</code> if a design user, <code>false</code> if not or if username is  <code>null<code/> or empty.
+   * @return <code>true</code> if a design user, <code>false</code> if not or if username is  <code>null</code> or empty.
    */
   public boolean isDesignUser(String userName);
 

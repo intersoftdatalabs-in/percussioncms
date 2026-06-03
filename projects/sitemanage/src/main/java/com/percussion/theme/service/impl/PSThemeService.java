@@ -177,10 +177,10 @@ public class PSThemeService implements IPSThemeService {
   }
 
   /**
-   * Calculates the newThemeName if the folder already exists in <INSTALL_DIR>/web_resources/themes.
+   * Calculates the newThemeName if the folder already exists in {@code <INSTALL_DIR>}/web_resources/themes.
    *
    * <p>The new name is the first available folder (non existing one) using the following pattern:
-   * <themeName>-# (where # starts with 1)
+   * {@code <themeName>-#} (where # starts with 1)
    *
    * @author federicoromanelli
    * @param themeName the original name of the theme, not blank.

@@ -120,7 +120,7 @@ public interface IPSActivityService {
    * @param stateName the workflow state name the items transition to, not {@code null} or empty.
    * @param transitionName the transition name that is used to transition the items to the above
    *     state, not {@code null} or empty.
-   * @return a list of content activities in the specified date ranges. If beginDate is not <=
+   * @return a list of content activities in the specified date ranges. If beginDate is not {@code <=}
    *     endDate, no data will be returned.
    */
   List<String> findPageIdsContentActivities(

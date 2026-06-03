@@ -78,7 +78,7 @@ public class PSJcrNodeFinder {
   /**
    * @param folderPath Checks the folder path and descendents, never <code>null</code>.
    * @param id never <code>null</code>.
-   * @return our extended jcr {@link Node}
+   * @return our extended jcr {@link javax.jcr.Node}
    * @throws PSJcrNodeFinderException If more than one node is found or the query is bad.
    */
   public IPSNode find(String folderPath, String id) throws PSJcrNodeFinderException {
@@ -95,7 +95,7 @@ public class PSJcrNodeFinder {
     return nodes.get(0);
   }
 
-  /** Calls {@link #find(null, Map)}. */
+  /** Calls {@link #find(String, Map)}. */
   public List<IPSNode> find(Map<String, String> whereFields) {
     notNull(whereFields);
     return find(null, whereFields);

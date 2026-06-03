@@ -107,7 +107,7 @@ public interface IPSSiteDataService extends IPSDataService<PSSite, PSSiteSummary
    *
    * @param includePubInfo if <code>true</code> adds the publishing info, the value may be <code>
    *     null</code> if the site's default server is not amazon s3 server.
-   * @return List<PSSiteSummary> of all sites.
+   * @return {@code List<PSSiteSummary>} of all sites.
    */
   List<PSSiteSummary> findAll(boolean includePubInfo);
 
@@ -142,12 +142,11 @@ public interface IPSSiteDataService extends IPSDataService<PSSite, PSSiteSummary
    * are also created.
    *
    * @param request the {@link HttpServletRequest} object that represents that request.
-   * @param config the import configuration for the new site with only name and baseUrl set. Not
-   *     <code>null</code> and the name of the site cannot be one of the existing site.
-   * @return the job id of the running job that is importing the site, never <code>null</code>.
-   * @throws PSSiteImportException if an unexpected error occurred during site import.
-   */
-  Long createSiteFromUrlAsync(@Context HttpServletRequest request, PSSiteImportConfiguration config)
+* @param config the import configuration for the new site with only name and baseUrl set. Not
+    *     <code>null</code> and the name of the site cannot be one of the existing site.
+    * @return the job id of the running job that is importing the site, never <code>null</code>.
+    */
+   Long createSiteFromUrlAsync(@Context HttpServletRequest request, PSSiteImportConfiguration config)
       throws PSValidationException, IPSFolderService.PSWorkflowNotFoundException;
 
   /**
@@ -194,11 +193,10 @@ public interface IPSSiteDataService extends IPSDataService<PSSite, PSSiteSummary
   /**
    * Updates the specified site with publish properties, the specified site is in publishprops
    *
-   * @param publishProps publish properties of the site. never <code>null</code>
-   * @return the updated publish properties never <code>null</code>.
-   * @throws IOException if an error takes place when handling the secure configuration files.
-   */
-  PSSitePublishProperties updateSitePublishProperties(PSSitePublishProperties publishProps)
+* @param publishProps publish properties of the site. never <code>null</code>
+    * @return the updated publish properties never <code>null</code>.
+    */
+   PSSitePublishProperties updateSitePublishProperties(PSSitePublishProperties publishProps)
       throws DataServiceSaveException, PSNotFoundException;
 
   /**

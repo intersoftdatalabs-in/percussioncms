@@ -165,7 +165,7 @@ public class PSRegionTreeUtils {
    * that does not contain other regions.
    *
    * @param regionTree {@link PSRegionTree} object, cannot be {@code null}.
-   * @return {@link Set}<{@link PSRegion}> never {@code null}.
+   * @return {@link Set}&lt;{@link PSRegion}&gt; never {@code null}.
    */
   public static Set<PSRegion> getWidgetRegions(PSRegionTree regionTree) {
     notNull(regionTree);
@@ -207,7 +207,7 @@ public class PSRegionTreeUtils {
    * Gets the leaf regions of the template and returns those that don't have widgets in them.
    *
    * @param regionTree the region tree
-   * @return {@link Set}<{@link PSRegion}> never {@code null}.
+   * @return {@link Set}&lt;{@link PSRegion}&gt; never {@code null}.
    */
   public static Set<PSRegion> getEmptyWidgetRegions(PSRegionTree regionTree) {
     notNull(regionTree);

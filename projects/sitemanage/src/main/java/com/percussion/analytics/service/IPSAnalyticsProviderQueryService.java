@@ -35,23 +35,20 @@ public interface IPSAnalyticsProviderQueryService {
    * date range. The results will be filtered by siteName.
    *
    * @param siteName the unique site name to filter the results by, not null.
-   * @param range the date range, not null. The start and end date values in the date range are
-   *     inclusive. Granularity is ignored.
-   * @return the list of results, never null, may be empty.
-   *     <pre>
-   * The result set contains the following fields:
-   * <table border="1">
-   *    <tr><th>Field name</th><th>Data type</th><th>Description</th></tr>
-   *    <tr><td>date</td><td>Date</td><td>The date the data was captured</td></tr>
-   *    <tr><td>newvisits</td><td>Integer</td><td>The number of visits from first-time visitors for this date</td></tr>
-   *    <tr><td>visits</td><td>Integer</td><td>The total number of visitors for this date</td></tr>
-   *    <tr><td>uniquepageviews</td><td>Integer</td><td>The number of unique page views for the page for this date</td></tr>
-   *    <tr><td>pageviews</td><td>Integer</td><td>The total number of page views for the page for this date</td></tr>
-   * </table>
-   * </pre>
-   *     The data is sorted by ascending site and then by ascending date.
-   * @throws PSAnalyticsProviderException if any connection or data processing error occurs.
-   */
+* @param range the date range, not null. The start and end date values in the date range are
+    *     inclusive. Granularity is ignored.
+* @return the list of results, never null, may be empty.
+     * The result set contains the following fields:
+     * <ul>
+     * <li><b>date</b> (Date) - The date the data was captured</li>
+     * <li><b>newvisits</b> (Integer) - The number of visits from first-time visitors for this date</li>
+     * <li><b>visits</b> (Integer) - The total number of visitors for this date</li>
+     * <li><b>uniquepageviews</b> (Integer) - The number of unique page views for the page for this date</li>
+     * <li><b>pageviews</b> (Integer) - The total number of page views for the page for this date</li>
+     * </ul>
+     * The data is sorted by ascending site and then by ascending date.
+    * @throws PSAnalyticsProviderException if any connection or data processing error occurs.
+    */
   List<IPSAnalyticsQueryResult> getVisitsViewsBySite(String siteName, PSDateRange range)
       throws PSAnalyticsProviderException, IPSGenericDao.LoadException, PSValidationException;
 
@@ -62,22 +59,19 @@ public interface IPSAnalyticsProviderQueryService {
    * @param siteName the unique site name to filter the results by, not null.
    * @param pathPrefix the path prefix used to filter the results. May be null, in which case no
    *     filtering will be done by path prefix.
-   * @param range the date range, not null. The start and end date values in the date range are
-   *     inclusive. Granularity is ignored.
-   * @return the list of results, never null, may be empty.
-   *     <pre>
-   * The result set contains the following fields:
-   * <table border="1">
-   *    <tr><th>Field name</th><th>Data type</th><th>Description</th></tr>
-   *    <tr><td>pagepath</td><td>String</td><td>The full page path</td></tr>
-   *    <tr><td>date</td><td>Date</td><td>The date the data was captured</td></tr>
-   *    <tr><td>uniquepageviews</td><td>Integer</td><td>The number of unique page views for the page for this date</td></tr>
-   *    <tr><td>pageviews</td><td>Integer</td><td>The total number of page views for the page for this date</td></tr>
-   * </table>
-   * </pre>
-   *     The data is sorted by ascending site, ascending pagePath, and then by ascending date.
-   * @throws PSAnalyticsProviderException if any connection or data processing error occurs.
-   */
+* @param range the date range, not null. The start and end date values in the date range are
+    *     inclusive. Granularity is ignored.
+* @return the list of results, never null, may be empty.
+     * The result set contains the following fields:
+     * <ul>
+     * <li><b>pagepath</b> (String) - The full page path</li>
+     * <li><b>date</b> (Date) - The date the data was captured</li>
+     * <li><b>uniquepageviews</b> (Integer) - The number of unique page views for the page for this date</li>
+     * <li><b>pageviews</b> (Integer) - The total number of page views for the page for this date</li>
+     * </ul>
+     * The data is sorted by ascending site, ascending pagePath, and then by ascending date.
+    * @throws PSAnalyticsProviderException if any connection or data processing error occurs.
+    */
   List<IPSAnalyticsQueryResult> getPageViewsByPathPrefix(
       String siteName, String pathPrefix, PSDateRange range)
       throws PSAnalyticsProviderException, IPSGenericDao.LoadException, PSValidationException;

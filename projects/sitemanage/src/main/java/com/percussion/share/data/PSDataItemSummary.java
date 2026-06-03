@@ -195,7 +195,7 @@ public class PSDataItemSummary extends PSAbstractPersistantObject implements IPS
     return tags == null ? Collections.emptyList() : tags;
   }
 
-  /** Helper used by JAXB & legacy code that previously relied on folderPaths. */
+  /** Helper used by JAXB &amp; legacy code that previously relied on folderPaths. */
   public void setTags(List<String> tags) {
     this.tags = tags;
   }

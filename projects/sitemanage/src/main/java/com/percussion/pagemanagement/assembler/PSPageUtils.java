@@ -1305,7 +1305,7 @@ public class PSPageUtils extends PSJexlUtilBase {
    * A utility method that collects the categories from the supplied list of assembled pages and
    * returns a hierarchical structure of unique categories and the number of occurrence of each
    * category. The returned object is a PSCategoryTree object. The first element is the string
-   * category, the second is a PSPair<Integer, Integer> which count the occurrence of the category
+   * category, the second is a {@code PSPair<Integer, Integer>} which count the occurrence of the category
    * of the current node and his children and the third is a list of PSCategoryTree.
    */
   @IPSJexlMethod(
@@ -1868,7 +1868,7 @@ public class PSPageUtils extends PSJexlUtilBase {
   /**
    * Gets the dependent content id of the specified link
    *
-   * @param linkId the id of the link, may be <code>null<code/> or empty.
+   * @param linkId the id of the link, may be <code>null</code> or empty.
    *
    * @return The item content id, or an empty string if the supplied linkId is
    *         not valid

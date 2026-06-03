@@ -837,8 +837,8 @@ public abstract class PSPathItemService implements IPSPathService {
    * {@link #findItems(String)}.
    *
    * @param item the summary that will be checked for filtering.
-   * @return <code>true</code> if the item should be filtered,
-   *         <code>false<code> otherwise.
+* @return <code>true</code> if the item should be filtered,
+    *         <code>false</code> otherwise.
    */
   protected boolean shouldFilterItem(IPSItemSummary item) {
     return false;

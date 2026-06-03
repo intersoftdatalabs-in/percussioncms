@@ -175,7 +175,7 @@ public interface IPSExtensionService {
   /**
    * Permanently disables and removes the extension with the given name.
    *
-   * @param ext The name of the extension to be removed. Must not be <CODE>null</CODE>.
+   * @param ref The name of the extension to be removed. Must not be <CODE>null</CODE>.
    * @throws PSExtensionException If the extension handler could not be started. The defined
    *     extension will not be installed.
    * @throws PSNotFoundException If the appropriate extension handler does not exist. The defined

@@ -242,7 +242,7 @@ public class PSRenderService implements IPSRenderService {
   }
 
   /**
-   * @{inheritDoc}
+   * {@inheritDoc}
    */
   @GET
   @Path("/page/{id}")
@@ -270,7 +270,7 @@ public class PSRenderService implements IPSRenderService {
   }
 
   /**
-   * @{inheritDoc}
+   * {@inheritDoc}
    */
   @GET
   @Path("/page/editmode/{id}")
@@ -308,7 +308,7 @@ public class PSRenderService implements IPSRenderService {
   }
 
   /**
-   * @{inheritDoc}
+   * {@inheritDoc}
    */
   @GET
   @Path("/page/editmode/scriptsoff/{id}")

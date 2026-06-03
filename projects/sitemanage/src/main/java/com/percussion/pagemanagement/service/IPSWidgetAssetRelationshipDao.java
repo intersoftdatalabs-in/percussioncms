@@ -19,7 +19,7 @@
 package com.percussion.pagemanagement.service;
 
 /**
- * Service used to update Page & Asset relationships.
+ * Service used to update Page &amp; Asset relationships.
  *
  * @author YuBingChen
  */

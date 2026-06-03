@@ -60,12 +60,10 @@ public class PSSiteMapGeneratorTask implements IPSEditionTask {
 
   @Autowired IPSPubServerService pubServerService;
 
-  /**
-   * Perform the task, either before or after the edition is run, depending on the registration.
-   *
-   * <h3>Implementation notes</h3>
-   *
-   * Note for each parameter whether the parameter is available given a usage.
+/**
+ * Perform the task, either before or after the edition is run, depending on the registration.
+ *
+ * <p><b>Implementation notes:</b> Note for each parameter whether the parameter is available given a usage.
    *
    * <p>Post edition tasks may also wish to retrieve status information from the service and change
    * behavior according to whether a particular item published successfully or not.

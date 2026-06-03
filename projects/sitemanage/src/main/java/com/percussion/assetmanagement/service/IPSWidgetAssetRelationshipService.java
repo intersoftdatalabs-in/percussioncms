@@ -244,7 +244,6 @@ public interface IPSWidgetAssetRelationshipService {
    * @param ownerId never blank.
    * @param depId the original dependent id, never blank.
    * @param newDepId the new dependent id, never blank.
-   * @throws PSCmsException
    */
   void updateSharedRelationshipDependent(String ownerId, String depId, String newDepId)
       throws PSValidationException;
@@ -255,7 +254,6 @@ public interface IPSWidgetAssetRelationshipService {
    * @param ownerId never blank.
    * @param depId the original dependent id, never blank.
    * @param newDepId the new dependent id, never blank.
-   * @throws PSCmsException
    */
   void updateSharedRelationshipDependent(
       String ownerId, String depId, String newDepId, boolean checkInOut)
@@ -302,9 +300,7 @@ public interface IPSWidgetAssetRelationshipService {
    * corresponding relationships for the template and all the pages using it.
    *
    * @param templateId the id of the template, must not be blank.
-   * @param changedWidgets {@link Map}<{@link String}, {@link PSPair}< {@link String}, {@link
-   *     String}>> maps the widgetId (slot id) to the new name of the widget. Assumed not <code>null
-   *     </code>.
+* @param changedWidgets the widget id (slot id) to new name mapping. Assumed not {@code null}.
    */
   void updateWidgetsNames(String templateId, Map<String, PSPair<String, String>> changedWidgets)
       throws PSValidationException;

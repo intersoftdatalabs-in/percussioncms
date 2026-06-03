@@ -43,11 +43,11 @@ import org.springframework.transaction.annotation.Transactional;
  */
 @Transactional
 public class PSFolderPermissionUtils {
-  /** The equivalent of ADMIN permission in legacy access term, ADMIN, WRITE & READ access */
+  /** The equivalent of ADMIN permission in legacy access term, ADMIN, WRITE &amp; READ access */
   public static int ADMIN_ACCESS =
       PSObjectAclEntry.ACCESS_ADMIN | PSObjectAclEntry.ACCESS_WRITE | PSObjectAclEntry.ACCESS_READ;
 
-  /** The equivalent of WRITE permission in legacy access term, WRITE & READ access */
+  /** The equivalent of WRITE permission in legacy access term, WRITE &amp; READ access */
   public static int WRITE_ACCESS = PSObjectAclEntry.ACCESS_WRITE | PSObjectAclEntry.ACCESS_READ;
 
   /** The equivalent of READ permission in legacy access term, READ access only */

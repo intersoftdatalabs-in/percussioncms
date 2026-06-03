@@ -571,9 +571,10 @@ public class PSSiteConfigUtils {
    *         <li>if unsecured: remove config folder and remove touched file.
    *       </ul>
    *       If another property of the site was changed (besides the sitename or the security
-   *       enabling), the touched file for the site is deleted, to force publishing.
-   *
-   * @param site the modifiable site object representing the original site (without applying the
+* enabling), the touched file for the site is deleted, to force publishing.
+    * </ul>
+    *
+    * @param site the modifiable site object representing the original site (without applying the
    *     update yet). Assumed not <code>null</code>
    * @param props a {@link PSSiteProperties} object, representing the data coming from the screen.
    *     Assumed not <code>null</code>
@@ -633,8 +634,8 @@ public class PSSiteConfigUtils {
    *
    * @param sitename the name of the site. Assumed not blank.
    * @param loginPage the login page set for the site. May be blank.
-   * @param sectionNode the root node of the section tree. Assumed not
-   *            <code>null</null>
+* @param sectionNode the root node of the section tree. Assumed not
+    *            <code>null</code>
    * @throws TransformerException if an error occurs when writing the file.
    * @throws SAXException
    * @throws IOException
