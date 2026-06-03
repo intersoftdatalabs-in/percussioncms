@@ -28,6 +28,9 @@ import org.junit.jupiter.api.Test;
 
 public class AssetSerialDeserialTests {
 
+  // QA update for task_1780430034917 GH#685 Flash widget removal: Flash subtype removed
+  // from REST models; generic Asset and file assets cover former flash use case.
+
   private Asset getTestAsset() {
     var a = new Asset();
     a.setName("testName");

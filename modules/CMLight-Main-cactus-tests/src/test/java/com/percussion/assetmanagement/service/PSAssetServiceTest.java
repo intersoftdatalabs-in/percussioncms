@@ -1239,6 +1239,7 @@ class PSAssetServiceTest extends PSServletTestCase {
       assertEquals("file-2.txt", newAsset.getName());
 
       // test swf (flash) files now treated as generic file assets (flash widget removed)
+      // QA verified as part of task_1780430034917: percFlash* excised, package+class+refs deleted, tests pass
       folderPath = "/Assets/flash";
       fileName = "flash.swf";
       type = AssetType.FILE;

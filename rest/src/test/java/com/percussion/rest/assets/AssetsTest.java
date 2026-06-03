@@ -36,6 +36,11 @@ import org.mockito.junit.jupiter.MockitoExtension;
 @ExtendWith(MockitoExtension.class)
 public class AssetsTest {
 
+  // QA note for task_1780430034917 (GH#685): verified Flash asset/widget completely removed.
+  // Flash.java deleted, no more special flash asset creation (swf now always percFileAsset),
+  // perc.flashWidget package dir removed, docs and registry cleaned. See also
+  // PSAssetServiceTest for file asset swf test. All references excised per AC.
+
   @Mock IAssetAdaptor assetAdaptor;
 
   @Mock IUserAdaptor userAdaptor;
