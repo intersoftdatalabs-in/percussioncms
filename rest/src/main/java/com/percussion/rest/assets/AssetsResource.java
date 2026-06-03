@@ -176,9 +176,9 @@ public class AssetsResource {
       summary = "Creates a binary asset by uploading the binary",
       description =
           "Create a new asset by uploading a binary file. Asset type will be based upon the file"
-              + " type.  Images will create image assets, flash files will create flash assets and"
-              + " everything else will create file assets.  Optional assetType query parameter can"
-              + " be passed to override this default (Options are file, flash, or image).",
+              + " type.  Images will create image assets and everything else will create file"
+              + " assets.  Optional assetType query parameter can be passed to override this"
+              + " default (Options are file or image).",
       responses = {
         @ApiResponse(
             responseCode = "500",
@@ -221,7 +221,7 @@ public class AssetsResource {
   @Operation(
       summary = "Retrieve a binary file.",
       description =
-          "Get the binary for an image, flash or file asset. Returns a jakarta.ws.rs.core.Response"
+          "Get the binary for an image or file asset. Returns a jakarta.ws.rs.core.Response"
               + " object.",
       responses = {
         @ApiResponse(responseCode = "404", description = "Asset not found"),

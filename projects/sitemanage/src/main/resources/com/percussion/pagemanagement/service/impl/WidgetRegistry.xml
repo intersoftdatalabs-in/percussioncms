@@ -57,6 +57,5 @@
 	<group name="Deprecated">
 		<widget name="Share This" />
 		<widget name="Calendar" />
-		<widget name="Flash" />
 	</group>
 </widgets>
