@@ -1,3 +1,7 @@
+.specify
+.kilocode
+.kilo
+.grok
 docker/dev-data
 qdrant_storage
 .vscode/*
