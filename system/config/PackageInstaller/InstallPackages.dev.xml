@@ -156,10 +156,6 @@
 		<status>PENDING</status>
 	</PackageFileEntry>
 	<PackageFileEntry>
-		<packageName>perc.evergageBeacon</packageName>
-		<status>PENDING</status>
-	</PackageFileEntry>
-	<PackageFileEntry>
 		<packageName>perc.defaultLanguage</packageName>
 		<status>PENDING</status>
 	</PackageFileEntry>
