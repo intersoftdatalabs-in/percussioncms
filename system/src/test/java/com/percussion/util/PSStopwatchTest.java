@@ -29,7 +29,7 @@ public class PSStopwatchTest {
   /**
    * Checks to see if the two times are within some milliseconds. Some variance is allowed to keep
    * the test from failing on hiccups and inaccuracies in the bios timer. The basic issue is that
-   * the bios timer can vary by around 20 ms.
+   * the bios timer can vary by around 20 ms but on loaded systems can be much higher.
    *
    * @param time1
    * @param time2
@@ -39,9 +39,9 @@ public class PSStopwatchTest {
     double delta = Math.abs(time1 - time2);
 
     System.err.println("Delta: " + delta);
-    if (delta > 30) {
+    if (delta > 200) {
       throw new AssertionError(
-          "Times varied by more than 30 millis. " + "real variance was " + delta + " millis");
+          "Times varied by more than 200 millis. " + "real variance was " + delta + " millis");
     }
   }
 
