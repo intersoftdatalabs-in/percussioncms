@@ -51,7 +51,6 @@
 		<widget name="Redirect" />
 	</group>
 	<group name="Community">
-		<widget name="Evergage Beacon" />
 		<widget name="EMS Event List" />
 	</group>
 	<group name="Deprecated">
