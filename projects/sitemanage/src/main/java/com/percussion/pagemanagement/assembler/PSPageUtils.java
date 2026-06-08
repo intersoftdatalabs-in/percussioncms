@@ -243,13 +243,33 @@ public class PSPageUtils extends PSJexlUtilBase {
       // If we didn't get a result - it's the first time through or link has expired
       if (cachedLink == null) {
         try {
-          HttpURLConnection connection = (HttpURLConnection) new URL(link).openConnection();
+          String testLink = link;
+          if (link != null
+              && !link.startsWith("http://")
+              && !link.startsWith("https://")
+              && !link.startsWith("//")) {
+            int port = PSServer.getListenerPort();
+            if (port <= 0) {
+              port = 9992;
+            }
+            String contextPath = "/Rhythmyx";
+            if (link.startsWith("/")) {
+              if (link.startsWith(contextPath + "/")) {
+                testLink = "http://localhost:" + port + link;
+              } else {
+                testLink = "http://localhost:" + port + contextPath + link;
+              }
+            } else {
+              testLink = "http://localhost:" + port + contextPath + "/" + link;
+            }
+          }
+          HttpURLConnection connection = (HttpURLConnection) new URL(testLink).openConnection();
           connection.setConnectTimeout(LINKCHECK_TIMEOUT);
           connection.setReadTimeout(LINKCHECK_TIMEOUT);
           connection.setRequestMethod("HEAD");
           int responseCode = connection.getResponseCode();
 
-          log.debug("Got response code of {}  for {}", responseCode, link);
+          log.debug("Got response code of {}  for {}", responseCode, testLink);
 
           boolean result = (200 <= responseCode && responseCode <= 399);
 
