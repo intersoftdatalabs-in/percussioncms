@@ -4,7 +4,7 @@
     <hide-from-menu>true</hide-from-menu>
     <id>638</id>
     <internal-name>percTwitterCards</internal-name>
-    <label>Twitter Cards</label>
+    <label>X (Twitter) Cards</label>
     <mandatory>false</mandatory>
     <name>rx:percTwitterCards</name>
     <new-request>../psx_cepercTwitterCards/percTwitterCards.html</new-request>
