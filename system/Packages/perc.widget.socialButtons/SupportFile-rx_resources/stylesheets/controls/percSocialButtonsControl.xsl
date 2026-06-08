@@ -148,7 +148,7 @@
 								<input name="platform" class="datadisplay perc-social-button-input perc-social-platform" style="height: 15px;padding-top: 3px;padding-bottom: 5px;" value="twitter" type="hidden"></input>
 							</td>
 							<td class="perc-social-button-td perc-platform-name">
-								<div class="perc-social-button-ui"><i class="fab fa-fw fa-twitter" aria-hidden="true" aria-label="Twitter"></i></div>
+								<div class="perc-social-button-ui"><i class="fab fa-fw fa-twitter" aria-hidden="true" aria-label="X (Twitter)"></i></div>
 							</td>
 							<td class="perc-input-td perc-social-button-td">
 								<input type="checkbox" name="enableButton" class="datadisplay perc-social-button-input perc-social-platform-enabled" style="height: 15px;padding-top: 3px;padding-bottom: 5px;"></input>
@@ -157,7 +157,7 @@
 								<input type="checkbox" name="enableDataPush" class="datadisplay perc-social-button-input perc-social-data-push-enabled" style="height: 15px;padding-top: 3px;padding-bottom: 5px;"></input>
 							</td>
 							<td class="perc-input-td perc-social-button-td perc-social-media-link">
-								<input name="socialLink" class="datadisplay perc-social-button-input perc-social-page-link" style="height: 15px;padding-top: 3px;padding-bottom: 5px;" placeholder="http://www.twitter.com/percussion"></input>
+								<input name="socialLink" class="datadisplay perc-social-button-input perc-social-page-link" style="height: 15px;padding-top: 3px;padding-bottom: 5px;" placeholder="https://x.com/percussion"></input>
 							</td>
 							<td class="perc-move-button-container"><div role="button" tabindex="0" id="move-up" class="perc-move-button perc-move-button-up"><i class="fa fa-caret-up" aria-hidden="true"></i></div><div role="button" tabindex="0" id="move-down" class="perc-move-button perc-move-button-down"><i class="fa fa-caret-down" aria-hidden="true"></i></div></td>
 						</tr>
