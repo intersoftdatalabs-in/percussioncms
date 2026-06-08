@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Widget>
-    <WidgetPrefs title="Twitter Summary Cards"
+    <WidgetPrefs title="X (Twitter) Summary Cards"
                  contenttype_name="percTwitterCards"
                  category="social"
-                 description="Adds support for Twitter cards to the Page or Template."
+                 description="Adds support for X (formerly Twitter) cards to the Page or Template."
                  author="Nate Chadwick"
                  thumbnail="/rx_resources/widgets/percTwitterSummaryCards/images/twitter-card-icon.png"
                  preferred_editor_width="800"
@@ -181,6 +181,11 @@
 		$perc.page.setAdditionalHeadContent($addlHead + $meta_type);
 	}
 
+	if(!empty($use_twitter_site)){
+		$addlHead = $perc.page.getAdditionalHeadContent();
+		$perc.page.setAdditionalHeadContent($nl.format("%s%n%s", $addlHead, $meta_sitename));
+	}
+
 	if(!empty($use_title)){
 		$addlHead = $perc.page.getAdditionalHeadContent();
 		$perc.page.setAdditionalHeadContent($nl.format("%s%n%s", $addlHead,$meta_title));
@@ -205,7 +210,7 @@
     <Content type="velocity">
         <![CDATA[
 #if($perc.isEditMode())##
-<img src="/Rhythmyx/rx_resources/widgets/percTwitterSummaryCards/images/twitter-card-placeholder-small.png" alt="Twitter Summary Cards Widget Placeholder" title="Twitter Summary Cards Widget" />
+<img src="/Rhythmyx/rx_resources/widgets/percTwitterSummaryCards/images/twitter-card-placeholder-small.png" alt="X (Twitter) Summary Cards Widget Placeholder" title="X (Twitter) Summary Cards Widget" />
 #end##
     ]]>
     </Content>
