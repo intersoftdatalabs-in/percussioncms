@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ItemDefData appName="psx_cepercTwitterCards" isHidden="true" objectType="1">
-   <PSXItemDefSummary editorUrl="../psx_cepercTwitterCards/percTwitterCards.html" id="638" label="Twitter Cards" name="percTwitterCards" typeId="638"/>
+   <PSXItemDefSummary editorUrl="../psx_cepercTwitterCards/percTwitterCards.html" id="638" label="X (Twitter) Cards" name="percTwitterCards" typeId="638"/>
    <PSXContentEditor contentType="638" enableRelatedContent="yes" iconSource="0" iconValue="" objectType="1" producesResource="no" workflowId="6">
       <PSXDataSet id="768">
          <name>percTwitterCards</name>
@@ -262,7 +262,7 @@
                         <FieldRef>twitter_site_override</FieldRef>
                         <PSXUISet>
                            <Label>
-                              <PSXDisplayText>Override @Twitter Name</PSXDisplayText>
+                              <PSXDisplayText>Override @X (Twitter) Name</PSXDisplayText>
                            </Label>
                            <PSXControlRef id="10013" name="sys_EditBox">
                               <PSXParam name="maxlength">
@@ -274,7 +274,7 @@
                               </PSXParam>
                            </PSXControlRef>
                            <ErrorLabel>
-                              <PSXDisplayText>Override @Twitter Name</PSXDisplayText>
+                              <PSXDisplayText>Override @X (Twitter) Name</PSXDisplayText>
                            </ErrorLabel>
                         </PSXUISet>
                      </PSXDisplayMapping>
