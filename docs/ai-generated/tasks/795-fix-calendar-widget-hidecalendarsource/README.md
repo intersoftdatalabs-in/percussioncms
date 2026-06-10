@@ -81,3 +81,4 @@ This:
 - Issue: https://github.com/intersoftdatalabs-in/percussioncms/issues/795
 - Branch: `bugfix/795-calendar-widget-hidecalendarsource`
 - Commit: `9e5d5b01c`
+
