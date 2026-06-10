@@ -209,6 +209,11 @@
 		}
 	}
 
+	if(!empty($use_twitter_site)){
+		$addlHead = $perc.page.getAdditionalHeadContent();
+		$perc.page.setAdditionalHeadContent($nl.format("%s%n%s", $addlHead, $meta_sitename));
+	}
+
 	if(!empty($use_title)){
 		$addlHead = $perc.page.getAdditionalHeadContent();
 		if (! $addlHead.contains("twitter:title")) {

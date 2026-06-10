@@ -62,22 +62,3 @@ $meta_sitename='<meta property="twitter:site" content="' + $use_twitter_site + '
 1. Ran `./mvn-env.sh spotless:check` to ensure there are no formatting violations.
 2. Verified that the XML files are valid and well-formed.
 
----
-
-## Re-open Fix Details (Phase 2)
-
-### Root Cause of Re-opening
-
-1. **JCR PathNotFoundException on Optional Overrides**: When a page has the Twitter Summary Cards widget placed and saved, JCR nodes are created for it. If any of the optional override fields (e.g., `title_override`, `description_override`, `image_override`, etc.) are left blank (NULL in database), calling `.getProperty('override_field')` directly in JEXL throws a JCR `PathNotFoundException`. Since JEXL execution was not guarded, this threw an exception and aborted the widget's JEXL script execution entirely, preventing *any* metadata (including the configured site name/username) from being generated or appended to the page head.
-2. **Incorrect Meta Attribute (`property` vs `name`)**: Twitter's metadata tags (`twitter:site`, `twitter:card`, `twitter:title`, etc.) are specified by Twitter to use the standard HTML `name` attribute (e.g. `<meta name="twitter:site" content="..." />`). The widget was outputting them using `property` attribute (which is for Open Graph tags, e.g. `og:title`), causing parsers and validator tools to ignore them.
-
-### Fix Action
-
-1. **Guarded JCR Property Access**: Wrapped all `$assetItem.getNode().getProperty('...')` accesses in `$node.hasProperty('...')` checks inside `percTwitterSummaryCards.xml`. This prevents `PathNotFoundException` from throwing when optional override properties are empty, allowing execution to proceed safely.
-2. **Corrected Meta Attributes**: Replaced `property="..."` with `name="..."` for all Twitter Card meta tags to comply strictly with the Twitter metadata specifications.
-
-### Validation
-
-1. Ran `./mvn-env.sh spotless:apply` and `./mvn-env.sh spotless:check` to ensure code is format-compliant.
-2. Checked XML well-formedness.
-

@@ -376,33 +376,42 @@
         // This function loops through each slider row and checks the image path
         // and links to ensure they are valid
 
-        $(".perc-image-slider-row").each(function() {
+        var rows = $(".perc-image-slider-row");
+        var activeRowsCount = 0;
+        var completedCount = 0;
+
+        rows.each(function() {
+            if(!$(this).hasClass("hide")){
+                activeRowsCount++;
+            }
+        });
+
+        if (activeRowsCount === 0) {
+            processWarningsAndErrors();
+            return;
+        }
+
+        rows.each(function() {
 
             // skip the template div
-            if(!  $(this).hasClass("hide") ){
-                currentElement = this;
-                currentImagePath = $(currentElement).find(".perc-slider-image-path").val();
-                currentInternalPagePath = $(currentElement).find(".perc-slider-image-link").val();
-                currentLinkSetting = $(currentElement).find("#perc-slider-image-link-setting :selected").val();
+            if(!$(this).hasClass("hide")){
+                var currentElement = this;
+                var currentImagePath = $(currentElement).find(".perc-slider-image-path").val();
+                var currentInternalPagePath = $(currentElement).find(".perc-slider-image-link").val();
+                var currentLinkSetting = $(currentElement).find("#perc-slider-image-link-setting :selected").val();
 
-                imageTargetClass = '.perc-slider-image-path';
-                internalPageTargetClass = '.perc-slider-image-link';
+                var imageTargetClass = '.perc-slider-image-path';
+                var internalPageTargetClass = '.perc-slider-image-link';
+
+                var needsImageCheck = false;
+                var needsPageCheck = false;
 
                 // Image asset needs to be validated, and then the internal page link
 
                 // Check if the image path is defined
                 if(currentImagePath != '#' && currentImagePath != '') {
-
-                    itemType = 'Asset';
-
-                    // Constructed image asset api request url
-                    url = window.location.origin + '/Rhythmyx/rest/assets/by-path' + currentImagePath;
-
-                    // We need to check the workflow status of the image to make sure it is not set to Archive
-                    checkItemStatus(url, currentElement, imageTargetClass, itemType);
-
-                } // end if current image path is not '#'
-
+                    needsImageCheck = true;
+                }
                 // If the image path is not valid, apply the error class
                 else {
                     $(currentElement).find(imageTargetClass).removeClass('perc-input-slider-warning');
@@ -414,15 +423,7 @@
                 if(currentLinkSetting == 'internal') {
 
                     if(currentInternalPagePath != '#' && currentInternalPagePath != '') {
-
-                        itemType = 'Page';
-
-                        // We need to drop off the '/Sites/' folder at the beginning of the path
-                        // for the page api to work
-                        url = window.location.protocol + '//' + window.location.host + '/Rhythmyx/rest/pages/by-path' + currentInternalPagePath.replace('/Sites/', '/');
-
-                        checkItemStatus(url, currentElement, internalPageTargetClass, itemType);
-
+                        needsPageCheck = true;
                     }
                     else {
                         $(currentElement).find(internalPageTargetClass).removeClass('perc-input-slider-warning');
@@ -439,43 +440,86 @@
                     $(currentElement).find(internalPageTargetClass).removeClass('perc-input-slider-error');
                 }
 
+                var checksToRun = 0;
+                if (needsImageCheck) checksToRun++;
+                if (needsPageCheck) checksToRun++;
+
+                if (checksToRun === 0) {
+                    completedCount++;
+                    if (completedCount === activeRowsCount) {
+                        processWarningsAndErrors();
+                    }
+                    return;
+                }
+
+                var checksCompleted = 0;
+                function onCheckDone() {
+                    checksCompleted++;
+                    if (checksCompleted === checksToRun) {
+                        completedCount++;
+                        if (completedCount === activeRowsCount) {
+                            processWarningsAndErrors();
+                        }
+                    }
+                }
+
+                if (needsImageCheck) {
+                    var imageUrl = window.location.origin + '/Rhythmyx/rest/assets/by-path' + currentImagePath;
+                    checkItemStatus(imageUrl, currentElement, imageTargetClass, 'Asset', onCheckDone);
+                }
+
+                if (needsPageCheck) {
+                    var pageUrl = window.location.origin + '/Rhythmyx/rest/pages/by-path' + currentInternalPagePath.replace('/Sites/', '/');
+                    checkItemStatus(pageUrl, currentElement, internalPageTargetClass, 'Page', onCheckDone);
+                }
+
             } // end if not template object
 
         }); // end each slider row
 
-        processWarningsAndErrors();
-
     } // end function validateAssetItems
 
-    function checkItemStatus(url, currentElement, targetClass, itemType) {
+    function checkItemStatus(url, currentElement, targetClass, itemType, callback) {
 
         // This function checks the input assets and adds/removes classes as needed
-        // This is set to run synchronously so that the warnings can be incremented
+        // This is set to run asynchronously so that the warnings can be incremented
         // and tallied once at the end of the validateAssetItems function
 
         $.ajax({
             contentType: 'application/json',
-            async: false,
+            async: true,
             url: url,
             dataType: 'json',
             success: function(json) {
-                if(itemType=="Asset"){
-                    item=json.asset;
-                }else{
-                    item = json[itemType];
+                var item;
+                if (json) {
+                    if (itemType === "Asset") {
+                        item = json.Asset || json.asset || json;
+                    } else {
+                        item = json[itemType] || json[itemType.toLowerCase()] || json;
+                    }
                 }
-                if( item.workflow.state != 'Live' && item.workflow.state != 'Pending') {
-                    $(currentElement).find(targetClass).addClass('perc-input-slider-warning');
-                    $(currentElement).find(targetClass).removeClass('perc-input-slider-error');
-                    sliderWarningCount++;
+
+                if (item && item.workflow && item.workflow.state) {
+                    if (item.workflow.state != 'Live' && item.workflow.state != 'Pending') {
+                        $(currentElement).find(targetClass).addClass('perc-input-slider-warning');
+                        $(currentElement).find(targetClass).removeClass('perc-input-slider-error');
+                        sliderWarningCount++;
+                    }
+                    else {
+                        $(currentElement).find(targetClass).removeClass('perc-input-slider-warning');
+                        $(currentElement).find(targetClass).removeClass('perc-input-slider-error');
+                    }
                 }
-                else {
-                    $(currentElement).find(targetClass).removeClass('perc-input-slider-warning');
-                    $(currentElement).find(targetClass).removeClass('perc-input-slider-error');
+                if (typeof callback === 'function') {
+                    callback();
                 }
             }, // end success
             error: function() {
                 console.log('Percussion Slider Widget Error: Could not connect to REST API to retrieve asset content status');
+                if (typeof callback === 'function') {
+                    callback();
+                }
             } // end error
         }); // end ajax
 
