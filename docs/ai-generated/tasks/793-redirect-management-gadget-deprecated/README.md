@@ -46,3 +46,4 @@ The Redirect Management gadget (defined in `perc_website_config_gadget.xml` with
 - GadgetRegistry.xml
 - PSGadgetRepositoryListingTests.java
 - docs/ai-generated/tasks/793-redirect-management-gadget-deprecated/README.md (this)
+
