@@ -18,11 +18,12 @@
 Modified the template assembly script loading logic in [sys_assembly.vm](file:///home/nate/projects/java8/percussioncms/system/cms/content/applications/sys_resources/ApplicationFiles/vm/sys_assembly.vm) to:
 1. **Unconditional head JQuery Output:** If the jQuery Widget is present on the page/template, we load jQuery in the head based on the widget's config (or default), bypassing the head loop entirely. The loop in the head only processes `/jquery.js` if the jQuery Widget is *not* present.
 2. **Synchronize Deferral:** Introduced a `$deferDependents` flag. If the jQuery Widget is present and configured with `isDeferred="yes"` (and the page is not in edit mode), we automatically propagate the `defer` attribute to all dependent scripts:
-   - `jquery-ui.js` (including inside `print_jqueryUI` fallback and when loaded in preview mode)
-   - All other Javascript scripts collected from `$rx.pageutils.javascriptLinks(...)` printed in the footer.
+- `jquery-ui.js` (including inside `print_jqueryUI` fallback and when loaded in preview mode)
+- All other Javascript scripts collected from `$rx.pageutils.javascriptLinks(...)` printed in the footer.
 This ensures correct script execution order under all script location and deferral settings.
 
 ## Validation
 
 - Ran spotless check (`./mvn-env.sh spotless:check`) and verified no formatting violations.
 - Built the `system` module via `./mvn-env.sh clean install -pl system -DskipTests` to ensure changes integrate successfully.
+
