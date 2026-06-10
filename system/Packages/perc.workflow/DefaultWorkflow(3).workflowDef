@@ -283,7 +283,7 @@
          <column encoding="text" name="TRANSITIONAPPROVALSREQUIRED">1</column>
          <column encoding="text" name="TRANSITIONDESC">Send it back to pending for republishing.</column>
          <column encoding="text" name="WORKFLOWAPPID">6</column>
-         <column encoding="text" name="TRANSITIONACTIONS"/>
+         <column encoding="text" name="TRANSITIONACTIONS">Java/global/percussion/extensions/general/sys_DirectoryIndexTouchWorkflowAction</column>
          <column encoding="text" name="TRANSITIONROLES">*Specified*</column>
          <column encoding="text" name="TRANSITIONCOMMENTREQUIRED">n</column>
          <column encoding="text" name="AGINGTYPE"/>
@@ -321,7 +321,7 @@
          <column encoding="text" name="TRANSITIONAPPROVALSREQUIRED">1</column>
          <column encoding="text" name="TRANSITIONDESC">Move to pending state for publishing.</column>
          <column encoding="text" name="WORKFLOWAPPID">6</column>
-         <column encoding="text" name="TRANSITIONACTIONS">Java/global/percussion/extensions/general/perc_LockLocalContent</column>
+         <column encoding="text" name="TRANSITIONACTIONS">Java/global/percussion/extensions/general/perc_LockLocalContent,Java/global/percussion/extensions/general/sys_DirectoryIndexTouchWorkflowAction</column>
          <column encoding="text" name="TRANSITIONROLES">*Specified*</column>
          <column encoding="text" name="TRANSITIONCOMMENTREQUIRED">n</column>
          <column encoding="text" name="AGINGTYPE"/>
@@ -416,7 +416,7 @@
          <column encoding="text" name="TRANSITIONAPPROVALSREQUIRED">1</column>
          <column encoding="text" name="TRANSITIONDESC">returns item to pending state</column>
          <column encoding="text" name="WORKFLOWAPPID">6</column>
-         <column encoding="text" name="TRANSITIONACTIONS">Java/global/percussion/extensions/general/sys_TouchParentItems</column>
+         <column encoding="text" name="TRANSITIONACTIONS">Java/global/percussion/extensions/general/sys_TouchParentItems,Java/global/percussion/extensions/general/sys_DirectoryIndexTouchWorkflowAction</column>
          <column encoding="text" name="TRANSITIONROLES">*Specified*</column>
          <column encoding="text" name="TRANSITIONCOMMENTREQUIRED">n</column>
          <column encoding="text" name="AGINGTYPE"/>
@@ -454,7 +454,7 @@
          <column encoding="text" name="TRANSITIONAPPROVALSREQUIRED">1</column>
          <column encoding="text" name="TRANSITIONDESC">approve content to pending</column>
          <column encoding="text" name="WORKFLOWAPPID">6</column>
-         <column encoding="text" name="TRANSITIONACTIONS">Java/global/percussion/extensions/general/perc_LockLocalContent</column>
+         <column encoding="text" name="TRANSITIONACTIONS">Java/global/percussion/extensions/general/perc_LockLocalContent,Java/global/percussion/extensions/general/sys_DirectoryIndexTouchWorkflowAction</column>
          <column encoding="text" name="TRANSITIONROLES">*Specified*</column>
          <column encoding="text" name="TRANSITIONCOMMENTREQUIRED">n</column>
          <column encoding="text" name="AGINGTYPE"/>
