@@ -57,6 +57,10 @@
               display_name="Skip link tabindex value"
               default_value="-1"
               datatype="number" />
+    <UserPref name="navLabel"
+              display_name="Navigation Label"
+              default_value="Main Navigation"
+              datatype="string" />
     <CssPref name="rootclass"
              display_name="CSS Root Class"
              datatype="string" />
@@ -134,7 +138,7 @@ $(this).removeAttr('tabindex');
 </script>
 <a href="#$!{skipLinkRegionId}" class="perc-navigation-skiplink" tabindex="$!{tabindexValue}">$!{skipLinkText}</a>
 #end##
-<nav>
+<nav aria-label="$!{navLabel}">
 <ul class="$!{layout}">
 #if($!{nav})##
 #perc_processNavigationNode($nav.getRoot(), 1, 1, $addTitleAttrs, $titleNavigateToText, $maxRootItems, $maxSubItems)##
