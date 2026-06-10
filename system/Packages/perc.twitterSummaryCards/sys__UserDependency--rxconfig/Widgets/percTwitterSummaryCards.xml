@@ -60,32 +60,51 @@
    $description = $perc.page.description;
    $summary_text = "";
 
-	  if ( ! $assetItems.isEmpty() ) {
+    $twitter_site_override = null;
+    $title_override = null;
+    $description_override = null;
+    $image_override = null;
+    $image_override_linkId = null;
+    $twitter_image_alt_override = null;
+
+    if ( ! $assetItems.isEmpty() ) {
         $assetItem = $assetItems.get(0);
-		if(!empty($assetItem)){
-			$twitter_site_override = $assetItem.getNode().getProperty('twitter_site_override').String;
-			$title_override = $assetItem.getNode().getProperty('title_override').String;
-			$description_override = $assetItem.getNode().getProperty('description_override').String;
-			$image_override = $assetItem.getNode().getProperty('image_override').String;
-			$image_override_linkId = $assetItem.getNode().getProperty('image_override_linkId').String;
-			$twitter_image_alt_override = $assetItem.getNode().getProperty('image_alt_override').String;
+        if(!empty($assetItem)){
+            $node = $assetItem.getNode();
+            if ($node.hasProperty('twitter_site_override')) {
+                $twitter_site_override = $node.getProperty('twitter_site_override').String;
+            }
+            if ($node.hasProperty('title_override')) {
+                $title_override = $node.getProperty('title_override').String;
+            }
+            if ($node.hasProperty('description_override')) {
+                $description_override = $node.getProperty('description_override').String;
+            }
+            if ($node.hasProperty('image_override')) {
+                $image_override = $node.getProperty('image_override').String;
+            }
+            if ($node.hasProperty('image_override_linkId')) {
+                $image_override_linkId = $node.getProperty('image_override_linkId').String;
+            }
+            if ($node.hasProperty('image_alt_override')) {
+                $twitter_image_alt_override = $node.getProperty('image_alt_override').String;
+            }
+        }
+    }
 
-		}
-	}
-
-	if(! empty($twitter_site_override)){
-			$use_twitter_site = $tools.esc.html($twitter_site_override);
-	}else{
-		$use_twitter_site= $tools.esc.html($twitter_site);
-	}
-    $meta_sitename='<meta property="twitter:site" content="' + $use_twitter_site + '" />';
+    if(! empty($twitter_site_override)){
+        $use_twitter_site = $tools.esc.html($twitter_site_override);
+    }else{
+        $use_twitter_site= $tools.esc.html($twitter_site);
+    }
+    $meta_sitename='<meta name="twitter:site" content="' + $use_twitter_site + '" />';
 
 	if(! empty($title_override)){
 		$use_title = $tools.esc.html($title_override);
 	}else{
 		$use_title = $tools.esc.html($perc.page.title);
 	}
-	$meta_title = '<meta property="twitter:title" content="' + $use_title + '" />';
+	$meta_title = '<meta name="twitter:title" content="' + $use_title + '" />';
 
 	if(! empty($type_override)){
 		$use_type = $tools.esc.html($type_override);
@@ -119,7 +138,7 @@
 			}
 		}
 	}
-	$meta_description='<meta property="twitter:description" content="' + $use_description + '" />';
+	$meta_description='<meta name="twitter:description" content="' + $use_description + '" />';
 
 	if(! empty($image_override) && ! empty($image_override_linkId )){
 
@@ -136,7 +155,7 @@
 	if(empty($use_image))
 		$use_type="summary";
 
-	$meta_type='<meta property="twitter:card" content="' + $use_type + '" />';
+	$meta_type='<meta name="twitter:card" content="' + $use_type + '" />';
 
 	$baseURL = $perc.linkContext.getSite().getSiteProtocol() + "://";
 	$pubSiteName = $perc.linkContext.getSite().getName();
@@ -153,7 +172,7 @@
 		}
 	}
 	if(!empty($use_image)){
-	$meta_image='<meta property="twitter:image" content="' + $use_image + '" />';
+	$meta_image='<meta name="twitter:image" content="' + $use_image + '" />';
 	}else{
 		$meta_image="";
 	}
@@ -167,7 +186,7 @@
 			$use_twitter_image_alt = $tools.esc.html($twitter_image_alt);
 		}
 	}
-    $meta_imagealt='<meta property="twitter:image:alt" content="' + $use_twitter_image_alt + '" />';
+    $meta_imagealt='<meta name="twitter:image:alt" content="' + $use_twitter_image_alt + '" />';
 
 
 	if( empty($perc.page.getAdditionalHeadContent())){
@@ -178,7 +197,16 @@
 	}
 	$nl="";
 	if(!empty($use_type)){
-		$perc.page.setAdditionalHeadContent($addlHead + $meta_type);
+		if (! $addlHead.contains("twitter:card")) {
+			$perc.page.setAdditionalHeadContent($addlHead + $meta_type);
+		}
+	}
+
+	if(!empty($use_twitter_site)){
+		$addlHead = $perc.page.getAdditionalHeadContent();
+		if (! $addlHead.contains("twitter:site")) {
+			$perc.page.setAdditionalHeadContent($nl.format("%s%n%s", $addlHead, $meta_sitename));
+		}
 	}
 
 	if(!empty($use_twitter_site)){
@@ -188,21 +216,29 @@
 
 	if(!empty($use_title)){
 		$addlHead = $perc.page.getAdditionalHeadContent();
-		$perc.page.setAdditionalHeadContent($nl.format("%s%n%s", $addlHead,$meta_title));
+		if (! $addlHead.contains("twitter:title")) {
+			$perc.page.setAdditionalHeadContent($nl.format("%s%n%s", $addlHead,$meta_title));
+		}
 	}
 
 	if(!empty($use_description)){
 		$addlHead = $perc.page.getAdditionalHeadContent();
-		$perc.page.setAdditionalHeadContent($nl.format("%s%n%s", $addlHead,$meta_description));
+		if (! $addlHead.contains("twitter:description")) {
+			$perc.page.setAdditionalHeadContent($nl.format("%s%n%s", $addlHead,$meta_description));
+		}
 	}
 
 	if(!empty($use_image)){
 		$addlHead = $perc.page.getAdditionalHeadContent();
-		$perc.page.setAdditionalHeadContent($nl.format("%s%n%s", $addlHead,$meta_image));
+		if (! $addlHead.contains("twitter:image\"")) {
+			$perc.page.setAdditionalHeadContent($nl.format("%s%n%s", $addlHead,$meta_image));
+		}
 	}
 	if(!empty($use_twitter_image_alt)){
 		$addlHead = $perc.page.getAdditionalHeadContent();
-		$perc.page.setAdditionalHeadContent($nl.format("%s%n%s", $addlHead, $meta_imagealt));
+		if (! $addlHead.contains("twitter:image:alt")) {
+			$perc.page.setAdditionalHeadContent($nl.format("%s%n%s", $addlHead, $meta_imagealt));
+		}
 	}
 
 	]]>
