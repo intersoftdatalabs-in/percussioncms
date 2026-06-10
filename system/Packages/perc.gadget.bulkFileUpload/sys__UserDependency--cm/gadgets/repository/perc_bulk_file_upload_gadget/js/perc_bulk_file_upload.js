@@ -207,10 +207,13 @@ generateButtonHTML = function(data) {
     var buttonHtml = $('<button class="btn perc-button" aria-label="remove item from queue">' +
          '<span><i class="fa fa-times" aria-hidden="true"></i></span></button>')
         .on("click",function () {
+            var isFailedOrRejected = $(data.context).hasClass('alert-danger');
             $(data.context).fadeOut('slow', function() {
                 data.context.remove();
-                TOTAL_IN_QUEUE--;
-                $('#perc-bulk-status').text(TOTAL_IN_QUEUE + MSG_QUEUED_FOR_UPLOAD);
+                if (!isFailedOrRejected) {
+                    TOTAL_IN_QUEUE--;
+                    $('#perc-bulk-status').text(TOTAL_IN_QUEUE + MSG_QUEUED_FOR_UPLOAD);
+                }
             });
             data.files.pop();
         });

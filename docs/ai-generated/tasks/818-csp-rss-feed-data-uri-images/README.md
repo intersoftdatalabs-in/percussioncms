@@ -15,7 +15,7 @@
 ## Solution
 
 1. **Updated Distribution Config**: Updated [perc-security.properties](file:///home/nate/projects/java8/percussioncms/deliverytiersuite/delivery-tier-suite/delivery-tier-distribution/src/main/conf/perc/perc-security.properties) and the installer file [installDts.xml](file:///home/nate/projects/java8/percussioncms/deliverytiersuite/delivery-tier-suite/delivery-tier-distribution/src/main/rootFiles/rxconfig/Installer/installDts.xml) to add `data: blob:` to the default `img-src` directive.
-2. **Updated Individual Module Properties & Beans**: 
+2. **Updated Individual Module Properties & Beans**:
    - Found all other default fallback configuration files (properties and Spring XML beans files) for comments, feeds, forms, integrations, membership, metadata, and polls delivery services.
    - For configs containing `default-src 'self' *;` as a default, appended `img-src * 'self' data: blob:;` to explicitly allow data/blob images without exposing other resources (like scripts) to the data URI scheme.
    - For configs containing `default-src 'self';` as a default, appended `img-src 'self' data: blob:;`.
@@ -24,3 +24,4 @@
 
 - Ran spotless check (`./mvn-env.sh spotless:check`) and spotless formatting (`./mvn-env.sh spotless:apply`) successfully.
 - Re-built the `feeds` module and its dependencies via `./mvn-env.sh clean install -pl deliverytiersuite/delivery-tier-suite/feeds -am -DskipTests` successfully.
+
