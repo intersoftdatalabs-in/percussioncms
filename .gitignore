@@ -1,3 +1,7 @@
+# ai dirs
+.kilo
+.antigravitycli
+
 # temp directories
 tmp/*
 .tmp/*
