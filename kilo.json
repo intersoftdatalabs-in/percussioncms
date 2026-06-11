@@ -1,0 +1,4 @@
+{
+  "$schema": "https://app.kilo.ai/config.json",
+  "model": "kilo/minimax/minimax-m2.7"
+}
