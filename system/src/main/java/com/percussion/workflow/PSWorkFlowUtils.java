@@ -964,7 +964,7 @@ public class PSWorkFlowUtils {
       String portProp = PSWorkFlowUtils.properties.getProperty("SMTP_PORT", "");
       commonsMultiPartEmail.setHostName(hostProp);
 
-      if (StringUtils.isNumeric(portProp)) {
+      if (StringUtils.isNotBlank(portProp) && StringUtils.isNumeric(portProp)) {
         commonsMultiPartEmail.setSmtpPort(Integer.parseInt(portProp));
       } else {
         log.warn("SMTP_PORT property is not a number. Default port will be used.");
