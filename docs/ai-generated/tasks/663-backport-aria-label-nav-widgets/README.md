@@ -1,9 +1,11 @@
 # Task: Backport aria-label Navigation Widgets (Issue #663)
 
 ## Objective
+
 Backport WCAG 2.1 AA accessibility fixes for the Navigation and Breadcrumb widgets from the 8.2 development branch to the 8.1.x branch.
 
 ## Changes Made
+
 1. **Breadcrumb Widget (`system/Packages/perc.widgets.nav/sys__UserDependency--rxconfig/Widgets/percNavBreadcrumb.xml`)**:
    - Added the `navLabel` UserPref with a default value of `"Breadcrumb Navigation"`.
    - Updated nested `<nav>` elements (both normal and edit-mode) to include `aria-label="$!{navLabel}"`.
@@ -14,5 +16,7 @@ Backport WCAG 2.1 AA accessibility fixes for the Navigation and Breadcrumb widge
    - Incremented the package version from `1.3.2` to `1.3.3` to ensure correct upgrade application by the CMS Package Manager.
 
 ## Verification
+
 - Ran `./mvn-env.sh spotless:apply` successfully.
 - Re-built `perc-packages` module via `./mvn-env.sh clean install -pl modules/perc-packages -DskipTests` to ensure widget package `perc.widgets.nav.ppkg` builds and archives correctly.
+
