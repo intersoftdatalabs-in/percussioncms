@@ -1,6 +1,7 @@
-# ai dirs
+# ai
 .kilo
 .antigravitycli
+.grok
 
 # temp directories
 tmp/*
