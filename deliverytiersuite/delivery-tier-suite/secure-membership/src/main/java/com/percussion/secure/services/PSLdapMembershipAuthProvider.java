@@ -56,7 +56,9 @@ import org.springframework.util.StringUtils;
  * Works to provide authentication for Active Directory users using Spring Security
  *
  * @author Shweta Patel
+ * @deprecated This class is part of the deprecated secure-membership module.
  */
+@Deprecated
 public class PSLdapMembershipAuthProvider extends AbstractLdapAuthenticationProvider {
   private static final Pattern SUB_ERROR_CODE = Pattern.compile(".*data\\s([0-9a-f]{3,4}).*");
 

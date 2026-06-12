@@ -18,6 +18,8 @@ package com.percussion.secure.data;
 
 import org.apache.commons.lang.Validate;
 
+/** @deprecated This class is part of the deprecated secure-membership module. */
+@Deprecated
 public class PSMembershipConfiguration {
   // set by spring beans config
   private String membershipServiceHost;
