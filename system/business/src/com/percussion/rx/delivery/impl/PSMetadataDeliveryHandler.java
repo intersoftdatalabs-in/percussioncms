@@ -113,7 +113,7 @@ public class PSMetadataDeliveryHandler extends PSBaseDeliveryHandler
         super.init(jobid, site, pubServer);
 
         //If there is no DTS configured then this delivery service is not enabled.
-        this.enabled = !pubServer.getProperty("publishServer").getValue().equalsIgnoreCase("none");
+        this.enabled = !pubServer.getPublishServer().equalsIgnoreCase("none");
 
         //  Be careful with object fields.  This instance is shared between jobs.  m_jobData and workers are
         //  used to create job specific data.

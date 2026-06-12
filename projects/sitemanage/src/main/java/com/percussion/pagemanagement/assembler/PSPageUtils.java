@@ -87,7 +87,6 @@ import com.percussion.services.linkmanagement.data.PSManagedLink;
 import com.percussion.services.memory.IPSCacheAccess;
 import com.percussion.services.memory.PSCacheAccessLocator;
 import com.percussion.services.pubserver.data.PSPubServer;
-import com.percussion.services.pubserver.data.PSPubServerProperty;
 import com.percussion.services.relationship.IPSRelationshipService;
 import com.percussion.services.relationship.data.PSRelationshipData;
 import com.percussion.services.sitemgr.IPSSite;
@@ -2944,8 +2943,8 @@ public class PSPageUtils extends PSJexlUtilBase {
       serverBase = deliveryInfoService.findBaseByServerType(PSPubServer.STAGING);
     } else {
       if (serverId != null && pubServer != null) {
-        PSPubServerProperty p = pubServer.getProperty("publishServer");
-        serverBase = deliveryInfoService.findBaseByServerName(p.getValue());
+        String publishServer = pubServer.getPublishServer();
+        serverBase = deliveryInfoService.findBaseByServerName(publishServer);
       } else {
         serverBase = deliveryInfoService.findBaseByServerType(PSPubServer.PRODUCTION);
       }
