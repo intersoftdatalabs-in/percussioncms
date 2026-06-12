@@ -40,6 +40,8 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
+/** @deprecated This class is part of the deprecated secure-membership module. */
+@Deprecated
 public class PSMembershipAuthUtils {
 
   private static final Logger log = LogManager.getLogger(PSMembershipAuthUtils.class);

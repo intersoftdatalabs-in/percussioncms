@@ -47,7 +47,10 @@ import org.springframework.security.core.userdetails.UserDetails;
 /**
  * Works to provide authentication for Active Directory users and CM1 registered members using
  * Spring Security
+ *
+ * @deprecated This class is part of the deprecated secure-membership module.
  */
+@Deprecated
 public class PSMembershipAuthProvider extends AbstractUserDetailsAuthenticationProvider {
   /**
    * Stores the current thread session id so that it can be obtained elsewhere to set the membership
