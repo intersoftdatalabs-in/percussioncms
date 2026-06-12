@@ -26,6 +26,8 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletResponse;
 
+/** @deprecated This class is part of the deprecated secure-membership module. */
+@Deprecated
 public class PSCacheControlFilter implements Filter {
 
   public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)

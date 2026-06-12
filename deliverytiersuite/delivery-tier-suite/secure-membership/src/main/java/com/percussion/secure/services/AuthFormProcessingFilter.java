@@ -27,6 +27,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter;
 
+/** @deprecated This class is part of the deprecated secure-membership module. */
+@Deprecated
 public class AuthFormProcessingFilter extends AbstractAuthenticationProcessingFilter {
   public static final String SPRING_SECURITY_FORM_USERNAME_KEY = "j_username";
   public static final String SPRING_SECURITY_FORM_PASSWORD_KEY = "j_password";

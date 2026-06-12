@@ -4,7 +4,7 @@
     <hide-from-menu>true</hide-from-menu>
     <id>369</id>
     <internal-name>percSecureLogin</internal-name>
-    <label>Secure Login</label>
+    <label>Secure Login (Deprecated)</label>
     <mandatory>false</mandatory>
     <name>rx:percSecureLogin</name>
     <new-request>../psx_cepercSecureLogin/percSecureLogin.html</new-request>
