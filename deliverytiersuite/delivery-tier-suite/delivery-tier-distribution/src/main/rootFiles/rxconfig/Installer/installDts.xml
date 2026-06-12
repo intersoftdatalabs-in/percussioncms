@@ -672,7 +672,18 @@
 						</fileset>
 					</copy>
 
-					<echo>Restore Server.xml... if perc_catalina is already created</echo>
+					                    <!-- Update CSP policy in restored perc-security.properties for issue 818 -->
+                    <if>
+                        <available file="${install.dir}${staging.dir}/Deployment/Server/conf/perc/perc-security.properties" type="file"/>
+                        <then>
+                            <echo>Updating Content Security Policy (CSP) in restored perc-security.properties for issue 818...</echo>
+                            <replaceregexp file="${install.dir}${staging.dir}/Deployment/Server/conf/perc/perc-security.properties"
+                                           match="img-src\s+\*\s+'self'(\s+data:)?(\s+blob:)?\s+'unsafe-inline'\s+'unsafe-eval'"
+                                           replace="img-src * 'self' data: blob: 'unsafe-inline' 'unsafe-eval'"
+                                           byline="true"/>
+                        </then>
+                    </if>
+                    <echo>Restore Server.xml... if perc_catalina is already created</echo>
 					<if>
 						<available
 							file="${new.backup.dir}${staging.dir}/Server/conf/perc/perc-catalina.properties" />
