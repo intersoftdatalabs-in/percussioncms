@@ -39,6 +39,7 @@
     $showHome = $perc.widget.item.properties.get('showHome');
     $showCurrentPage = $perc.widget.item.properties.get('showCurrentPage');
     $ariaLabel = $perc.widget.item.properties.get('ariaLabel');
+    $navLabel = $perc.widget.item.properties.get('navLabel');
     $rootclass = $perc.widget.item.cssProperties.get('rootclass');
     if (!empty($rootclass))
         $rootclass = $rootclass + " ";
