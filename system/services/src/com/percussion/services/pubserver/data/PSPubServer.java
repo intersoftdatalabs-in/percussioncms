@@ -28,6 +28,8 @@ import com.percussion.share.data.PSAbstractDataObject;
 import com.percussion.utils.guid.IPSGuid;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.Validate;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.Fetch;
@@ -69,6 +71,8 @@ public class PSPubServer extends PSAbstractDataObject implements Serializable, I
     * 
     */
    private static final long serialVersionUID = 1L;
+
+   private static final Logger log = LogManager.getLogger(PSPubServer.class);
 
    @Id
    @Column(name = "PUBSERVERID")
@@ -465,16 +469,21 @@ public class PSPubServer extends PSAbstractDataObject implements Serializable, I
        return true;
    }
 
-   public String getPublishServer(){
-      PSDeliveryInfoService psDeliveryInfoService = (PSDeliveryInfoService) PSDeliveryInfoServiceLocator.getDeliveryInfoService();
-      List psDeliveryInfoServiceList = psDeliveryInfoService.getAdminUrls(this.serverType);
-      String server = this.getPropertyValue(IPSPubServerDao.PUBLISH_SERVER_PROPERTY,null);
-      if(psDeliveryInfoServiceList.contains(server)){
-         return server;
-      }else{
-         addProperty(IPSPubServerDao.PUBLISH_SERVER_PROPERTY,DEFAULT_DTS);
-         return DEFAULT_DTS;
-      }
-   }
+    public String getPublishServer(){
+       PSDeliveryInfoService psDeliveryInfoService = (PSDeliveryInfoService) PSDeliveryInfoServiceLocator.getDeliveryInfoService();
+       List psDeliveryInfoServiceList = psDeliveryInfoService.getAdminUrls(this.serverType);
+       String server = this.getPropertyValue(IPSPubServerDao.PUBLISH_SERVER_PROPERTY,null);
+       if(psDeliveryInfoServiceList.contains(server)){
+          return server;
+       }else{
+          if (server == null) {
+             log.warn("No DTS server is currently configured for the site's default publishing server: '{}'. Defaulting to 'NONE'.", this.name);
+          } else if (!server.equalsIgnoreCase(DEFAULT_DTS)) {
+             log.warn("Configured DTS server '{}' for publishing server '{}' is not valid or not found in delivery-servers.xml. Defaulting to 'NONE'.", server, this.name);
+          }
+          addProperty(IPSPubServerDao.PUBLISH_SERVER_PROPERTY,DEFAULT_DTS);
+          return DEFAULT_DTS;
+       }
+    }
 
 }
