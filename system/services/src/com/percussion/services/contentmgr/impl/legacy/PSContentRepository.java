@@ -2019,7 +2019,7 @@ public class PSContentRepository
         PSTypeConfiguration type = ms_configuration.get(key);
         if (type == null)
         {
-            ms_log.warn("Query problem: type not found for type id: {}", typeid);
+            ms_log.debug("Query problem: type not found for type id: {}", typeid);
             return null;
         }
 
