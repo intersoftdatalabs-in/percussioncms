@@ -110,22 +110,21 @@ function getAllPublishingServer(serverType,serverObj) {
     publishingServerListDeferred.done(function(pslLst) {
         publishingServerList = pslLst;
         $("#publishServer").empty();
+        $('#publishServer').append(new Option("NONE", "NONE"));
         for(var i in publishingServerList) {
-            $('#publishServer').append(new Option(publishingServerList[i],publishingServerList[i]));
+            if (publishingServerList[i] !== "NONE") {
+                $('#publishServer').append(new Option(publishingServerList[i], publishingServerList[i]));
+            }
         }
-        var selectedserver;
-        if(publishingServerList.length > 1){
-            selectedserver = publishingServerList[0];
-        }
+        var selectedserver = "NONE";
 
         if(typeof serverObj !== 'undefined' && typeof serverObj.serverInfo !== 'undefined'){
             var selectedserverProp = getArrayProperty(serverObj.serverInfo.properties, "key", "publishServer");
-            //Selecting Second Record as default because first one is us gov.
-            if( typeof selectedserverProp !== 'undefined' && selectedserverProp !== null && typeof selectedserverProp.value !== 'undefined'){
+            if( typeof selectedserverProp !== 'undefined' && selectedserverProp !== null && typeof selectedserverProp.value !== 'undefined' && selectedserverProp.value !== ""){
                 selectedserver = selectedserverProp.value;
             }
         }
-        var isExist = publishingServerList.includes(selectedserver);
+        var isExist = publishingServerList.includes(selectedserver) || selectedserver === "NONE";
         if(isExist){
             $('#publishServer').val(selectedserver);
         }else{
