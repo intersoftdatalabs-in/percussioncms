@@ -354,7 +354,17 @@ public abstract class PSAbstractWorkflowExtension implements IPSExtension {
     }
 
     protected void handleError(WorkflowItem wfItem, String action, Exception e) {
-      log.error("Failed to " + action + " item: " + wfItem, e);
+      if (isConcurrencyException(e)) {
+        log.info(
+            "Concurrent modification detected while attempting to {} item: {}. This item was likely updated by another concurrent publish job.",
+            action,
+            wfItem);
+        if (log.isDebugEnabled()) {
+          log.debug("Concurrent modification exception details:", e);
+        }
+      } else {
+        log.error("Failed to " + action + " item: " + wfItem, e);
+      }
       wfItem.error = e;
       wfItem.status = ItemStatus.FAILED;
     }
@@ -754,6 +764,20 @@ public abstract class PSAbstractWorkflowExtension implements IPSExtension {
 
   public void setPubServerService(IPSPubServerService pubServerService) {
     this.pubServerService = pubServerService;
+  }
+
+  public static boolean isConcurrencyException(Throwable t) {
+    while (t != null) {
+      String name = t.getClass().getName();
+      if (name.contains("LockAcquisitionException")
+          || name.contains("OptimisticLockException")
+          || name.contains("ConcurrencyFailureException")
+          || name.contains("PessimisticLockException")) {
+        return true;
+      }
+      t = t.getCause();
+    }
+    return false;
   }
 
   /** The log instance to use for this class, never <code>null</code>. */

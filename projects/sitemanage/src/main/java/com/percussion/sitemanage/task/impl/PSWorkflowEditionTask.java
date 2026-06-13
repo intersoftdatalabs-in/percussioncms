@@ -99,20 +99,33 @@ public class PSWorkflowEditionTask extends PSAbstractWorkflowExtension implement
     }
     log.debug("Finished workflowing items for jobId: {}", jobId);
 
-    if (!pubIds.isEmpty()) {
-      log.debug("Started updating post date for items for jobId: {}", jobId);
-      getCmsObjectManager().setPostDate(pubIds);
-      log.debug("Finished updating post date for items for jobId: {}", jobId);
+    try {
+      if (!pubIds.isEmpty()) {
+        log.debug("Started updating post date for items for jobId: {}", jobId);
+        getCmsObjectManager().setPostDate(pubIds);
+        log.debug("Finished updating post date for items for jobId: {}", jobId);
 
-      log.debug("Started clearing start date for items for jobId: {}", jobId);
-      getCmsObjectManager().clearStartDate(pubIds);
-      log.debug("Finished clearing start date for items for jobId: {}", jobId);
-    }
+        log.debug("Started clearing start date for items for jobId: {}", jobId);
+        getCmsObjectManager().clearStartDate(pubIds);
+        log.debug("Finished clearing start date for items for jobId: {}", jobId);
+      }
 
-    if (!unpubIds.isEmpty()) {
-      log.debug("Started clearing expiry date for items for jobId: {}", jobId);
-      getCmsObjectManager().clearExpiryDate(unpubIds);
-      log.debug("Finished clearing expiry date for items for jobId: {}", jobId);
+      if (!unpubIds.isEmpty()) {
+        log.debug("Started clearing expiry date for items for jobId: {}", jobId);
+        getCmsObjectManager().clearExpiryDate(unpubIds);
+        log.debug("Finished clearing expiry date for items for jobId: {}", jobId);
+      }
+    } catch (Exception e) {
+      if (isConcurrencyException(e)) {
+        log.info(
+            "Concurrent modification detected while updating content dates for jobId: {}. The dates will be/were updated by another concurrent publish job.",
+            jobId);
+        if (log.isDebugEnabled()) {
+          log.debug("Concurrent modification details:", e);
+        }
+      } else {
+        throw e;
+      }
     }
   }
 }
