@@ -23,4 +23,3 @@ Backport WCAG 2.1 AA accessibility fixes for the Navigation and Breadcrumb widge
 - Re-built `perc-packages` module via `./mvn-env.sh clean install -pl modules/perc-packages -DskipTests` to ensure widget package `perc.widgets.nav.ppkg` builds and archives correctly.
 - Verified that `perc.widgets.nav` package passes the package reference structure tests.
 
-
