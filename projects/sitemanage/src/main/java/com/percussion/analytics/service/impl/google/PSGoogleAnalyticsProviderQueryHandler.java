@@ -199,9 +199,9 @@ public class PSGoogleAnalyticsProviderQueryHandler implements IPSAnalyticsProvid
       String siteName, String pathPrefix, PSDateRange range) throws PSAnalyticsProviderException {
 
     String startDate =
-        PSGoogleAnalyticsProviderHelper.getInstance().getDateFormat().format(range.getStart());
+        PSGoogleAnalyticsProviderHelper.getInstance().getQueryDateFormat().format(range.getStart());
     String endDate =
-        PSGoogleAnalyticsProviderHelper.getInstance().getDateFormat().format(range.getEnd());
+        PSGoogleAnalyticsProviderHelper.getInstance().getQueryDateFormat().format(range.getEnd());
 
     DateRange dateRange =
         DateRange.newBuilder().setStartDate(startDate).setEndDate(endDate).build();
@@ -227,9 +227,9 @@ public class PSGoogleAnalyticsProviderQueryHandler implements IPSAnalyticsProvid
   private RunReportRequest createQueryForVisitsViews(PSDateRange range)
       throws PSAnalyticsProviderException {
     String startDate =
-        PSGoogleAnalyticsProviderHelper.getInstance().getDateFormat().format(range.getStart());
+        PSGoogleAnalyticsProviderHelper.getInstance().getQueryDateFormat().format(range.getStart());
     String endDate =
-        PSGoogleAnalyticsProviderHelper.getInstance().getDateFormat().format(range.getEnd());
+        PSGoogleAnalyticsProviderHelper.getInstance().getQueryDateFormat().format(range.getEnd());
 
     DateRange dateRange =
         DateRange.newBuilder().setStartDate(startDate).setEndDate(endDate).build();
