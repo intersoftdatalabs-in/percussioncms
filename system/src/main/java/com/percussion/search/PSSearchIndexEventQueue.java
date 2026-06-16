@@ -61,6 +61,7 @@ import com.percussion.services.contentmgr.data.PSNodeDefinition;
 import com.percussion.services.contentmgr.impl.legacy.PSContentRepository;
 import com.percussion.services.guidmgr.IPSGuidManager;
 import com.percussion.services.guidmgr.PSGuidManagerLocator;
+import com.percussion.services.guidmgr.data.PSGuid;
 import com.percussion.services.guidmgr.data.PSLegacyGuid;
 import com.percussion.services.legacy.IPSCmsObjectMgr;
 import com.percussion.services.legacy.PSCmsObjectMgrLocator;
@@ -68,6 +69,8 @@ import com.percussion.services.notification.IPSNotificationService;
 import com.percussion.services.notification.PSNotificationEvent;
 import com.percussion.services.notification.PSNotificationEvent.EventType;
 import com.percussion.services.notification.PSNotificationServiceLocator;
+import com.percussion.services.publisher.IPSPublisherService;
+import com.percussion.services.publisher.PSPublisherServiceLocator;
 import com.percussion.utils.collections.PSIteratorUtils;
 import com.percussion.utils.guid.IPSGuid;
 import com.percussion.xml.PSXmlDocumentBuilder;
@@ -770,8 +773,12 @@ public class PSSearchIndexEventQueue implements IPSEditorChangeListener, IPSHand
         deleteAll = true;
       }
       // now delete these events from the repository
-      if (deleteAll) deletePersistedEventsForId(contentid);
-      else deletePersistedEvents(queueIdList);
+      if (deleteAll) {
+        deletePersistedEventsForId(contentid);
+      } else {
+        deletePersistedEvents(queueIdList);
+      }
+      checkAndTouchDirectoryIndex(contentTypeId);
     } else {
 
       // If we have checked no items still in queue after timeout then do an
@@ -1230,6 +1237,50 @@ public class PSSearchIndexEventQueue implements IPSEditorChangeListener, IPSHand
       return (ret);
     } catch (Exception e) {
       throw new RuntimeException("Unable to persist queue event.", e);
+    }
+  }
+
+  /**
+   * Helper method to check if the given content type corresponds to directory assets (Person,
+   * Department, or Organization) and touches all Directory Index pages (containing the {@code
+   * percDirectory} widget) to ensure they are updated post-indexing.
+   *
+   * @param contentTypeId the content type ID of the indexed item.
+   */
+  private void checkAndTouchDirectoryIndex(long contentTypeId) {
+    try {
+      PSItemDefManager mgr = PSItemDefManager.getInstance();
+      long personTypeId = mgr.contentTypeNameToId("percPerson");
+      long deptTypeId = mgr.contentTypeNameToId("percDepartment");
+      long orgTypeId = mgr.contentTypeNameToId("percOrganization");
+
+      if (contentTypeId == personTypeId
+          || contentTypeId == deptTypeId
+          || contentTypeId == orgTypeId) {
+        log.info(
+            "PSSearchIndexEventQueue: content type id {} (Person/Department/Organization) "
+                + "indexed successfully. Touching Directory Index pages.",
+            contentTypeId);
+
+        long directoryTypeId = mgr.contentTypeNameToId("percDirectory");
+        if (directoryTypeId >= 0) {
+          IPSGuid directoryTypeGuid = new PSGuid(PSTypeEnum.NODEDEF, directoryTypeId);
+          Collection<IPSGuid> typeIds = new ArrayList<>();
+          typeIds.add(directoryTypeGuid);
+
+          IPSPublisherService pub = PSPublisherServiceLocator.getPublisherService();
+          Collection<Integer> touchedIds = pub.touchContentTypeItems(typeIds);
+
+          log.info(
+              "PSSearchIndexEventQueue: touched {} Directory Index pages/assets post-indexing.",
+              touchedIds.size());
+        } else {
+          log.warn("PSSearchIndexEventQueue: could not resolve content type 'percDirectory'.");
+        }
+      }
+    } catch (Exception e) {
+      log.error(
+          "PSSearchIndexEventQueue: failed to touch Directory Index pages after indexing.", e);
     }
   }
 
