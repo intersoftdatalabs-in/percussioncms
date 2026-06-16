@@ -2,140 +2,72 @@
 
 ## Summary
 
-Directory Index pages (pages using the `percDirectory` widget) are not re-published when
-`percPerson`, `percDepartment`, or `percOrganization` assets are approved/published.
+Directory Index pages (pages using the `percDirectory` widget) are not consistently re-published with updated information when `percPerson`, `percDepartment`, or `percOrganization` assets are approved/published. Editors were forced to save/approve the assets multiple times to see updates.
 
 ## Root Cause
 
-The `percDirectory` widget assembles its list of people via **JCR queries** at assembly time
-(e.g. `select rx:sys_contentid from rx:percPerson where rx:personOrganization = :orgSearchId`).
-There are **no** Active Assembly (AA) relationships between the Directory Index page and the
-individual `percPerson`/`percDepartment`/`percOrganization` items it displays.
-
-When a `percPerson` item is approved, the standard workflow action
-`sys_TouchItemsWorkflowAction` calls `touchActiveAssemblyParents()`. However, since there is
-no AA parent chain from the person item to the Directory Index page, the page's
-`LASTMODIFIEDDATE` is never updated. The incremental publishing filter therefore does not
-detect the page as modified, and does not re-publish it.
+1. **Query-Based Widget**: The `percDirectory` widget compiles its list of people/departments using **JCR queries** at assembly time (e.g. `select rx:sys_contentid from rx:percPerson ...`). There are no Active Assembly (AA) relationships between the Directory Index page and the dynamic asset items it displays.
+2. **Workflow Action Timing**: The original fix introduced `sys_DirectoryIndexTouchWorkflowAction` (`PSDirectoryIndexTouchWorkflowAction.java`) which touches the pages *during the workflow transition transaction* (pre-commit).
+3. **Asynchronous Indexing Race Condition**: JCR indexing (Apache Jackrabbit / Lucene) runs asynchronously via a background thread with a delay (minimum 20 seconds).
+4. **Stale Publishing**: If a publish job runs immediately after approval, the JCR query executed during page assembly runs against a Lucene index that hasn't yet indexed the new person/department asset's changes.
+5. **Modified Date Reset**: Once published, the page's modified date is reset, and subsequent incremental publishes ignore it until it is touched again.
 
 ## Fix
 
-### Code Change: New Workflow Action Class
+We resolve the race condition by adding a **post-indexing touch mechanism** that runs immediately after the search indexer completes indexing the changed assets.
 
-**File**: [`modules/extensions-main/src/main/java/com/percussion/extensions/general/PSDirectoryIndexTouchWorkflowAction.java`](../../../modules/extensions-main/src/main/java/com/percussion/extensions/general/PSDirectoryIndexTouchWorkflowAction.java)
-
-A new workflow action class `PSDirectoryIndexTouchWorkflowAction` was created. When
-triggered, it:
-
-1. Resolves the `percDirectory` content type ID via `PSItemDefManager`
-2. Calls `IPSPublisherService.touchContentTypeItems(percDirectoryTypeId)` which:
-   - Finds **all** `percDirectory` content items in the repository
-   - Touches them (updates `LASTMODIFIEDDATE`)
-   - Touches their Active Assembly parent pages (the Directory Index pages that contain the
-     `percDirectory` widget)
-3. The touched Directory Index pages are then picked up by the incremental publishing filter
-   and re-published on the next publish run
-
-**File**: [`modules/extensions-main/src/main/resources/Java/Extensions.xml`](../../../modules/extensions-main/src/main/resources/Java/Extensions.xml)
-
-The new extension is registered with the name `sys_DirectoryIndexTouchWorkflowAction` in the
-`global/percussion/extensions/general/` context.
-
-### Configuration: Add Workflow Action to Approve Transitions
-
-The new workflow action must be added to the **"Approve"** and **"Quick Approve"** transitions
-of the **Default Workflow** (and any other workflows used by `percPerson`, `percDepartment`,
-or `percOrganization` content types — typically workflows 4, 5, 6, and 7).
-
-This can be done via:
-
-**Option A: Percussion Workbench UI**
-
-1. Open Percussion Workbench → Workflow → Default Workflow
-2. Select the **"Approve"** transition
-3. In the **Actions** tab, add:
-
-   ```
-   Java/global/percussion/extensions/general/sys_DirectoryIndexTouchWorkflowAction
-   ```
-4. Repeat for the **"Quick Approve"** transition
-5. Repeat for any other workflows used by the directory content types
-
-**Option B: Direct Database Update (MS SQL Server)**
-
-Run the following SQL to append the new workflow action to the Approve and Quick Approve
-transitions of the Default Workflow. Adjust `WORKFLOWAPPID` values as needed for your
-installation.
-
-```sql
--- Preview current transition actions
-SELECT TRANSITIONID, TRANSITIONLABEL, TRANSITIONACTIONS, WORKFLOWAPPID
-FROM TRANSITIONS
-WHERE WORKFLOWAPPID IN (4, 5, 6, 7)
-  AND TRANSITIONLABEL IN ('Approve', 'Quick Approve', 'Publish')
-ORDER BY WORKFLOWAPPID, TRANSITIONID;
-
--- Update: append new action to existing ones (separator is \n)
-UPDATE TRANSITIONS
-SET TRANSITIONACTIONS =
-    CASE
-        WHEN TRANSITIONACTIONS IS NULL OR TRANSITIONACTIONS = ''
-            THEN 'Java/global/percussion/extensions/general/sys_DirectoryIndexTouchWorkflowAction'
-        ELSE TRANSITIONACTIONS + CHAR(10) +
-             'Java/global/percussion/extensions/general/sys_DirectoryIndexTouchWorkflowAction'
-    END
-WHERE WORKFLOWAPPID IN (4, 5, 6, 7)
-  AND TRANSITIONLABEL IN ('Approve', 'Quick Approve', 'Publish');
-```
-
-> **Important**: Back up your database before running SQL updates. Verify the
-> `WORKFLOWAPPID` values match your environment by running the SELECT query first.
+1. **Pre-commit Workflow Action (Existing)**: The `sys_DirectoryIndexTouchWorkflowAction` still runs during workflow transition to mark the pages as modified.
+2. **Post-indexing Event Handler (New)**: In `PSSearchIndexEventQueue.java`, we catch when the background thread successfully indexes a `percPerson`, `percDepartment`, or `percOrganization` asset.
+3. **Post-indexing Touch**: Once indexing is completed and committed to Lucene, we call `IPSPublisherService.touchContentTypeItems([percDirectory])` to touch all directory pages again.
+   - This ensures that if the page was assembled with stale data during an immediate publish run, it is marked as modified *again* after the index is updated.
+   - Eventual consistency is guaranteed: the next publish run (scheduled, manual, or subsequent incremental run) will republish the directory index page with the correct, up-to-date query results.
 
 ## How the Mechanism Works
 
 ```
-percPerson approved
-    │
-    ▼
-Workflow fires sys_DirectoryIndexTouchWorkflowAction
-    │
-    ▼
-PSDirectoryIndexTouchWorkflowAction.performAction()
-    │
-    ▼
-IPSPublisherService.touchContentTypeItems([percDirectory])
-    │   (finds all percDirectory items)
-    ├── touches each percDirectory item (LASTMODIFIEDDATE = NOW)
-    │
-    ├── touchActiveAssemblyParents([percDirectory item IDs])
-    │       (follows AA relationship: Page → percDirectory widget)
-    │
-    └── touches Directory Index pages (LASTMODIFIEDDATE = NOW)
-            │
-            ▼
-    Incremental publisher detects changed pages
-            │
-            ▼
-    Directory Index pages re-published with fresh data
+     percPerson approved (Workflow Transition)
+                  │
+                  ├─────────────────────────────────────────┐
+                  ▼                                         ▼
+sys_DirectoryIndexTouchWorkflowAction            Item queued for search index
+                  │                                         │
+                  ▼                                         ▼
+Touches Directory Index pages (pre-commit)       Background thread processes queue (20s delay)
+                  │                                         │
+                  ▼                                         ▼
+  [Optional Immediate Publish Run]                Lucene index updated & committed
+                  │                                         │
+  Processes Directory Index page                            ▼
+(Assembled with stale JCR index results)         checkAndTouchDirectoryIndex() fires
+                  │                                         │
+                  ▼                                         ▼
+       Published with stale data                  Touches Directory Index pages (post-indexing)
+                  │                                         │
+                  └────────────────────────┬────────────────┘
+                                           │
+                                           ▼
+                           Directory Index pages modified
+                                           │
+                                           ▼
+                          [Next Incremental Publish Run]
+                                           │
+                                           ▼
+                           Re-published with fresh data
 ```
-
-## Testing
-
-1. In Percussion UI, create a `percPerson` asset assigned to an Organization
-2. Create a Directory Index page with the `percDirectory` widget configured to display that
-   Organization
-3. Publish both items
-4. Edit the `percPerson` and change their title or name
-5. Approve the `percPerson` change
-6. **Before fix**: The Directory Index page keeps the old data until manually re-published
-7. **After fix**: The next publish run automatically re-publishes the Directory Index page
-   with the updated person data
 
 ## Files Changed
 
-|                                                        File                                                        |                                Change                                |
-|--------------------------------------------------------------------------------------------------------------------|----------------------------------------------------------------------|
-| `modules/extensions-main/src/main/java/com/percussion/extensions/general/PSDirectoryIndexTouchWorkflowAction.java` | **NEW** — workflow action implementation                             |
-| `modules/extensions-main/src/main/resources/Java/Extensions.xml`                                                   | Added `sys_DirectoryIndexTouchWorkflowAction` extension registration |
-| `docs/ai-generated/tasks/829-directory-index-touch-on-asset-update/README.md`                                      | This documentation                                                   |
+|                                     File                                      |                                          Change                                          |
+|-------------------------------------------------------------------------------|------------------------------------------------------------------------------------------|
+| `system/src/main/java/com/percussion/search/PSSearchIndexEventQueue.java`     | Modified `processNextEventSet` to trigger `checkAndTouchDirectoryIndex()` post-indexing. |
+| `docs/ai-generated/tasks/829-directory-index-touch-on-asset-update/README.md` | Updated documentation to explain JCR indexing race condition and post-indexing touch.    |
+
+## Verification and Testing
+
+1. Edit a `percPerson` or `percDepartment` asset and transition to approved.
+2. The asset is placed in the FTS queue (`PSX_SEARCHINDEXQUEUE`).
+3. Check the server logs to verify `PSSearchIndexEventQueue` log output:
+   - `PSSearchIndexEventQueue: content type id ... indexed successfully. Touching Directory Index pages.`
+   - `PSSearchIndexEventQueue: touched ... Directory Index pages/assets post-indexing.`
+4. Verify that the `LASTMODIFIEDDATE` of the pages containing `percDirectory` is updated after the search indexer completes.
 
