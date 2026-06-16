@@ -201,12 +201,19 @@ public class PSGoogleAnalyticsProviderHelper {
   /** Date format to use to parse date from a google query. Never <code>null</code>. */
   private final FastDateFormat DATE_FORMAT = FastDateFormat.getInstance("yyyyMMdd");
 
+  /** Date format to use for query date ranges (GA4 Data API requires YYYY-MM-DD). */
+  private final FastDateFormat QUERY_DATE_FORMAT = FastDateFormat.getInstance("yyyy-MM-dd");
+
   public static final String ANALYTICS_LAUNCH_DATE = "11/14/2005";
 
   public static final String APPLICATION_NAME = "Percussion CMS";
 
   public synchronized FastDateFormat getDateFormat() {
     return DATE_FORMAT;
+  }
+
+  public synchronized FastDateFormat getQueryDateFormat() {
+    return QUERY_DATE_FORMAT;
   }
 
   /** Mappings of Google exceptions to our own cause enums. */
