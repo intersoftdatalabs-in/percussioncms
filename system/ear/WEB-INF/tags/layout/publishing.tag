@@ -5,7 +5,7 @@
 	xmlns:tr="http://myfaces.apache.org/trinidad"
 	xmlns:trh="http://myfaces.apache.org/trinidad/html"
 	xmlns:rxb="urn:jsptagdir:/WEB-INF/tags/banner"
-	version="1.2">
+	version="2.1">
 	<f:view>
 		<tr:document styleClass="backgroundcolor" title="#{page_title}">
 			<f:facet name="metaContainer">
