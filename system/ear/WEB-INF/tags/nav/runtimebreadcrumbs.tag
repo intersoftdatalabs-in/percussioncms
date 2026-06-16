@@ -3,7 +3,7 @@
 	xmlns:f="http://java.sun.com/jsf/core"
 	xmlns:h="http://java.sun.com/jsf/html"
 	xmlns:tr="http://myfaces.apache.org/trinidad"
-	version="1.2">
+	version="2.1">
 	<tr:breadCrumbs value="#{sys_runtime_navigation.tree}" var="node">
 		<f:facet name="nodeStamp">
 		  <h:panelGroup>

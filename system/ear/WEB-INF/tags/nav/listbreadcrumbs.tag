@@ -2,7 +2,7 @@
 <jsp:root xmlns:jsp="http://java.sun.com/JSP/Page"
 	xmlns:f="http://java.sun.com/jsf/core"
 	xmlns:tr="http://myfaces.apache.org/trinidad"
-	version="1.2">
+	version="2.1">
 	<tr:breadCrumbs value="#{sys_design_navigation.tree}" var="node">
 		<f:facet name="nodeStamp">
 			<tr:commandNavigationItem styleClass="pub-breadcrumb-label"
