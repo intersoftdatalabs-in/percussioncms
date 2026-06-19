@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-define(['knockout', 'pubsub', 'utils', 'jquery-ui'], function(ko,PubSub, utils) {
+define(['knockout', 'pubsub', 'utils'], function(ko,PubSub, utils) {
     return function ContentListViewModel(options) {
         var self = this;
         self.options = options;
@@ -371,14 +371,6 @@ define(['knockout', 'pubsub', 'utils', 'jquery-ui'], function(ko,PubSub, utils) 
                 });
             };
         };
-
-        $(function() {
-            $( document ).tooltip({
-                show: {
-                    delay: 1000
-                }
-            });
-        });
 
         //Custom binding for jquery fadeout/fadein as well as inverting the menu if not visible
         ko.bindingHandlers.fadeVisible = {
