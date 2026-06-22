@@ -79,6 +79,21 @@ $(document).ready(function() {
         }, this);
     }
 
+    function updateAlphaFilters() {
+        if (!DirectoryList) return;
+        var matching = DirectoryList.matchingItems;
+        var letters = getFilterLetters(matching, "perc-person-last-name");
+        $('#perc-directory-alphabet-sort #perc-alpha-sort-letters').empty();
+        populateAlphaFilters(letters);
+    }
+
+    function resetAlphaFilters() {
+        if (!DirectoryList) return;
+        var letters = getFilterLetters(DirectoryList.items, "perc-person-last-name");
+        $('#perc-directory-alphabet-sort #perc-alpha-sort-letters').empty();
+        populateAlphaFilters(letters);
+    }
+
     function configureDptFilterbyOrg(orgName) {
         var dptList = [];
         $('.perc-person').each(function() {
@@ -134,12 +149,14 @@ $(document).ready(function() {
 
             if (orgName == "all"){
                 DirectoryList.filter();
+                updateAlphaFilters();
                 return false;
             } else {
                 DirectoryList.filter(function(item) {
                     return (_.includes( item.values()['perc-person-org'], orgName) || !orgName);
                 });
                 configureDptFilterbyOrg(orgName);
+                updateAlphaFilters();
             }
        }
     });
@@ -166,13 +183,13 @@ $(document).ready(function() {
                         (_.includes(item.values()['perc-person-dpt'], dptName) || !dptName);
                 });
             }
+            updateAlphaFilters();
         }
     });
 
     // alphabet sort function on 'click'
     $('#perc-directory-alphabet-sort').on('click', '.perc-alpha-sort', function(event) {
-        $('.perc-alpha-sort.active').removeClass('active');
-        $(this).addClass("active");
+        var letter = $(this).text().toLowerCase();
         if (DirectoryList) {
             $('#search-directory').val("");
             DirectoryList.search();
@@ -180,7 +197,8 @@ $(document).ready(function() {
                 this.selectedIndex = 0;
             });
             $('#perc-dpt-filter').hide();
-            var letter = $(this).text().toLowerCase();
+            resetAlphaFilters();
+            $('#perc-alpha-sort-' + letter).addClass("active");
             DirectoryList.filter(function (item) {
                 return (_.includes(item.values()['perc-person-last-name'].charAt(0).toLowerCase(), letter) || !letter);
             });
@@ -191,8 +209,7 @@ $(document).ready(function() {
     // alpha sort on keypress "enter"
     $('#perc-directory-alphabet-sort').on('keypress', '.perc-alpha-sort', function(event) {
         if (event.keyCode == 13) {
-            $('.perc-alpha-sort.active').removeClass('active');
-            $(this).addClass("active");
+            var letter = $(this).text().toLowerCase();
             if (DirectoryList) {
                 $('#search-directory').val("");
                 DirectoryList.search();
@@ -200,7 +217,8 @@ $(document).ready(function() {
                     this.selectedIndex = 0;
                 });
                 $('#perc-dpt-filter').hide();
-                var letter = $(this).text().toLowerCase();
+                resetAlphaFilters();
+                $('#perc-alpha-sort-' + letter).addClass("active");
                 DirectoryList.filter(function (item) {
                     return (_.includes(item.values()['perc-person-last-name'].charAt(0).toLowerCase(), letter) || !letter);
                 });
@@ -220,6 +238,7 @@ $(document).ready(function() {
                 $('#perc-dpt-filter').hide();
             }
             $('#perc-clear-alpha-filter').hide();
+            resetAlphaFilters();
         }
     });
 
