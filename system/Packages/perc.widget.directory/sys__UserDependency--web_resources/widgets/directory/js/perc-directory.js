@@ -230,13 +230,18 @@ $(document).ready(function() {
     $('#perc-clear-alpha-filter').on('click', function() {
         $('.perc-alpha-sort.active').removeClass('active');
         if (DirectoryList) {
-            DirectoryList.filter();
+            $('#search-directory').val("");
+            DirectoryList.search();
+            $('#perc-org-filter').each(function () {
+                this.selectedIndex = 0;
+            });
             if (!percDirectorySearchAllOrgs) {
-                $('#perc-dpt-filter').show();
+                $('#perc-dpt-filter').val("all").show();
             }
             else {
-                $('#perc-dpt-filter').hide();
+                $('#perc-dpt-filter').val("all").hide();
             }
+            DirectoryList.filter();
             $('#perc-clear-alpha-filter').hide();
             resetAlphaFilters();
         }
