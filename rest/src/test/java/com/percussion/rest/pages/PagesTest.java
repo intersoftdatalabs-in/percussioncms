@@ -204,4 +204,25 @@ public class PagesTest extends MainTest {
     assertTrue("Should Never be Null", p.getBookmarkedUsers() != null);
     assertTrue("Should Never be Null", p.getRecentUsers() != null);
   }
+
+  @Test
+  public void testPageWithLeadingSitesPath() {
+    String responseMsg =
+        target("pages/by-path/Sites/sitea/path1/pathsub%20/pathsub2/pathsub3/page1.html")
+            .request(MediaType.APPLICATION_JSON)
+            .get(String.class);
+    assertTrue("Name should match", responseMsg.contains("page1.html"));
+
+    String responseMsgLeadingSlash =
+        target("pages/by-path//Sites/sitea/path1/pathsub%20/pathsub2/pathsub3/page1.html")
+            .request(MediaType.APPLICATION_JSON)
+            .get(String.class);
+    assertTrue("Name should match", responseMsgLeadingSlash.contains("page1.html"));
+
+    Response deleteResponse =
+        target("pages/by-path/Sites/sitea/path1/pathsub%20/pathsub2/pathsub3/page1.html")
+            .request()
+            .delete();
+    assertEquals(Response.Status.OK.getStatusCode(), deleteResponse.getStatus());
+  }
 }
