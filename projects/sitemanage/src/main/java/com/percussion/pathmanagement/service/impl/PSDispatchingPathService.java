@@ -443,17 +443,28 @@ public class PSDispatchingPathService implements IPSPathService, IPSPathRecycleS
         "The path that you entered is invalid. Please check and re-enter the path.";
     String strReturn = path;
     try {
-      if (path.toLowerCase().startsWith("sites")) {
-        // Call the method to replace sites for Sites because other methods need this prefix
-        path = replaceIgnoreCase(path, "sites", "Sites");
+      path = path.trim();
+      if (!path.startsWith("/")) {
+        path = "/" + path;
       }
-      if (path.toLowerCase().startsWith("assets")) {
-        // Call the method to replace assets for Assets because other methods need this prefix
-        path = replaceIgnoreCase(path, "assets", "Assets");
+      String remaining = path.substring(1);
+      String firstSegment = remaining;
+      if (remaining.contains("/")) {
+        firstSegment = remaining.substring(0, remaining.indexOf("/"));
       }
-      if (path.toLowerCase().startsWith("design")) {
-        // Call the method to replace assets for Assets because other methods need this prefix
-        path = replaceIgnoreCase(path, "design", "Design");
+      String firstSegmentLower = firstSegment.toLowerCase();
+      if (firstSegmentLower.equals("sites")) {
+        path = "/Sites" + path.substring(1 + firstSegment.length());
+      } else if (firstSegmentLower.equals("assets")) {
+        path = "/Assets" + path.substring(1 + firstSegment.length());
+      } else if (firstSegmentLower.equals("design")) {
+        path = "/Design" + path.substring(1 + firstSegment.length());
+      } else if (firstSegmentLower.equals("search")) {
+        path = "/Search" + path.substring(1 + firstSegment.length());
+      } else if (firstSegmentLower.equals("recycling")) {
+        path = "/Recycling" + path.substring(1 + firstSegment.length());
+      } else if (!firstSegmentLower.isEmpty()) {
+        path = "/Sites" + path;
       }
       PathMatch pm = match(path);
       PSPathItem pathItem = find(pm);
