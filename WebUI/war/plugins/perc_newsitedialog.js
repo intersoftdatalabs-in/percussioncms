@@ -284,15 +284,19 @@ var $perc_newSiteDialogLayout;
 
             var pathItem;
 
-            for (var i = 0; i < foldersData.PathItem.length; i++) {
-                if (foldersData.PathItem[i].category === 'LANDING_PAGE')
-                {
-                    pathItem = foldersData.PathItem[i];
-                    i = foldersData.PathItem.length;
+            if (foldersData && Array.isArray(foldersData.PathItem)) {
+                for (var i = 0; i < foldersData.PathItem.length; i++) {
+                    if (foldersData.PathItem[i].category === 'LANDING_PAGE')
+                    {
+                        pathItem = foldersData.PathItem[i];
+                        break;
+                    }
                 }
             }
 
-            memento.pageId = pathItem.id;
+            if (pathItem) {
+                memento.pageId = pathItem.id;
+            }
 
             // Finally we have all the things we want in the memento, retrieve the path (URL param)
             // and invoke the navigation manager
@@ -303,7 +307,7 @@ var $perc_newSiteDialogLayout;
                 null,
                 null,
                 null,
-                pathItem.path,
+                pathItem ? pathItem.path : null,
                 null,
                 memento
             );
