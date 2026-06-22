@@ -30,3 +30,18 @@ Upgrading the tag file declarations to JSP version `2.1` forces the container to
 - Built the `system` module and its dependencies via `./mvn-env.sh clean install -pl system -am -DskipTests` successfully.
 - Verified compilation and layout tag validation success.
 
+## Re-opening & Additional Fix
+
+### Cause of Re-opening
+
+Even though the layout tag files were updated with `version="2.1"`, the JSP container by default treats implicit tag libraries (loaded via `tagdir` directive) as JSP version 2.0. Consequently, the container ignores the `version="2.1"` inside the `<jsp:root>` element and compiles the tags as JSP 2.0. As a result, deferred EL expressions (`#{}`) are treated as literal String values instead of JSF `ValueExpression` objects, which led to the same `ClassCastException` on `disclosedRowKeys`.
+
+### Resolution
+
+To force the JSP container to treat the implicit tag libraries as JSP version 2.1, we created `implicit.tld` files in the directories containing the tag files. These explicit implicit TLDs declare the tag library version as `2.1`, ensuring the container evaluates the deferred expressions correctly.
+
+The following files were created:
+1. **[system/ear/WEB-INF/tags/layout/implicit.tld](file:///home/nate/projects/java8/percussioncms/system/ear/WEB-INF/tags/layout/implicit.tld)**: Declares version `2.1` for layout tag library.
+2. **[system/ear/WEB-INF/tags/nav/implicit.tld](file:///home/nate/projects/java8/percussioncms/system/ear/WEB-INF/tags/nav/implicit.tld)**: Declares version `2.1` for navigation tag library.
+3. **[system/ear/WEB-INF/tags/banner/implicit.tld](file:///home/nate/projects/java8/percussioncms/system/ear/WEB-INF/tags/banner/implicit.tld)**: Declares version `2.1` for banner tag library.
+
