@@ -43,7 +43,7 @@ import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.apache.lucene.queryparser.flexible.standard.QueryParserUtil;
+import org.apache.lucene.queryparser.classic.QueryParser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -79,7 +79,7 @@ public class PSSearchRestService {
 
       if (q != null) {
         q = SecureStringUtils.sanitizeStringForHTML(q);
-        q = QueryParserUtil.escape(q);
+        q = QueryParser.escape(q);
 
         criteria.setQuery(q);
       }
