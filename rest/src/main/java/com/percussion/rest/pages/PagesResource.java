@@ -109,7 +109,7 @@ public class PagesResource {
       // UTF-8 always supported
     }
 
-    Matcher m = p.matcher(path);
+    Matcher m = p.matcher(normalizePath(path));
     String siteName = "";
     String pageName = "";
     String apiPath = "";
@@ -164,7 +164,7 @@ public class PagesResource {
       // UTF-8 always supported
     }
 
-    Matcher m = p.matcher(path);
+    Matcher m = p.matcher(normalizePath(path));
     String siteName = "";
     String pageName = "";
     String apiPath = "";
@@ -238,7 +238,7 @@ public class PagesResource {
       // UTF-8 always supported
     }
 
-    Matcher m = p.matcher(path);
+    Matcher m = p.matcher(normalizePath(path));
     String siteName = "";
     String pageName = "";
     String apiPath = "";
@@ -283,7 +283,7 @@ public class PagesResource {
       // UTF-8 always supported
     }
 
-    Matcher m = p.matcher(path);
+    Matcher m = p.matcher(normalizePath(path));
     String siteName = "";
     String pageName = "";
     String apiPath = "";
@@ -447,5 +447,19 @@ public class PagesResource {
         "attachment; filename=" + APIUtilities.getReportFileName("all-pages", "csv"));
 
     return r.build();
+  }
+
+  private String normalizePath(String path) {
+    if (path == null) {
+      return "";
+    }
+    String temp = path;
+    if (temp.startsWith("/")) {
+      temp = temp.substring(1);
+    }
+    if (temp.startsWith("Sites/")) {
+      temp = temp.substring(6);
+    }
+    return temp;
   }
 }
