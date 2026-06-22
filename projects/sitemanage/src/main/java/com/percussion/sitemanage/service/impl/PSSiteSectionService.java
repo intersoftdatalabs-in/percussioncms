@@ -2253,6 +2253,7 @@ public class PSSiteSectionService implements IPSSiteSectionService {
                 + "because a folder with that path cannot be found.");
         return;
       }
+      boolean parentValid = true;
       try {
         IPSItemSummary itemSum = folderHelper.findFolder(req.getParentFolderPath());
         if (!itemSum.getCategory().equals(Category.SECTION_FOLDER)) {
@@ -2261,6 +2262,7 @@ public class PSSiteSectionService implements IPSSiteSectionService {
               new Object[] {req.getSourceFolderPath(), req.getParentFolderPath()},
               "Cannot create a section from the folder with path \"{0}\" "
                   + "because the parent path \"{1}\" is not a section.");
+          parentValid = false;
         }
       } catch (Exception ex) {
         e.reject(
@@ -2268,6 +2270,10 @@ public class PSSiteSectionService implements IPSSiteSectionService {
             new Object[] {req.getSourceFolderPath(), req.getParentFolderPath()},
             "Cannot create a section from the folder with path \"{0}\" "
                 + "because a section with parent path \"{1}\" cannot be found.");
+        parentValid = false;
+      }
+      if (!parentValid) {
+        return;
       }
       IPSGuid pageId = contentSrv.getIdByPath(sourcePath + "/" + req.getPageName());
       if (StringUtils.isNotBlank(req.getPageName()) && pageId == null) {
