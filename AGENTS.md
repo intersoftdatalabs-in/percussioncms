@@ -19,6 +19,9 @@ This file provides guidance for AI agents operating in the Percussion CMS codeba
   2. Use existing GitHub issue or create new one first
   3. Include issue number in branch name (e.g., `bugfix/123-fix-logging`)
 - All changes must be tested locally before pushing
+- On every pull request:
+  1. The `buildNumber` in `Version.properties` files (e.g., in `system/VersionControl/Version.properties`) must be incremented.
+  2. A corresponding changelog entry must be written to the repository `CHANGELOG.md` file.
 
 ## Build Commands
 
