@@ -22,6 +22,9 @@ This file provides guidance for AI agents operating in the Percussion CMS codeba
 - On every pull request:
   1. The `buildNumber` in `Version.properties` files (e.g., in `system/VersionControl/Version.properties`) must be incremented.
   2. A corresponding changelog entry must be written to the repository `CHANGELOG.md` file.
+     - The changelog entry header must include both the version and the new build number/id (e.g., `## [8.1.7 Build 916] - 2026-06-24`).
+     - The changelog must follow the [Common Changelog](https://common-changelog.org/) format.
+     - In the event of a merge conflict on the changelog and build number due to parallel PRs, the agent must update their feature branch with the latest base branch, resolve the conflict, increment the build number based on the latest value, and re-push.
 
 ## Build Commands
 
