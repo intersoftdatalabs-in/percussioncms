@@ -19,6 +19,12 @@ This file provides guidance for AI agents operating in the Percussion CMS codeba
   2. Use existing GitHub issue or create new one first
   3. Include issue number in branch name (e.g., `bugfix/123-fix-logging`)
 - All changes must be tested locally before pushing
+- On every pull request:
+  1. Do NOT manually increment the `buildNumber` in `Version.properties` files (e.g., in `system/VersionControl/Version.properties`). This is automatically handled by a GitHub Actions workflow upon merge.
+  2. A corresponding changelog entry must be written to the repository `CHANGELOG.md` file.
+     - The changelog entry header must use the placeholder `GH_POST_PR_COMMIT_RUN_ID` for the build number (e.g., `## [8.1.7 Build GH_POST_PR_COMMIT_RUN_ID] - YYYY-MM-DD`).
+     - The changelog must follow the [Common Changelog](https://common-changelog.org/) format.
+     - When the PR is merged into `development-8.1.x`, the workflow will automatically replace the `GH_POST_PR_COMMIT_RUN_ID` placeholder with the correct sequential build number.
 
 ## Build Commands
 
