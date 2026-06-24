@@ -486,6 +486,9 @@ public class PSSearchService implements IPSSearchService {
    * @return returns the escaped query
    */
   private String escapeLuceneQuery(String query) {
+    if (StringUtils.isBlank(query)) {
+      return query;
+    }
     String escapedQuery = query;
 
     for (String specialCharacter : luceneSpecialCharacters) {
@@ -495,6 +498,7 @@ public class PSSearchService implements IPSSearchService {
         break;
       }
     }
+    escapedQuery = escapedQuery.replaceAll("(?<!\\\\)/", "\\\\/");
     return escapedQuery;
   }
 
