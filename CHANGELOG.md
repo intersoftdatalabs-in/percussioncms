@@ -4,7 +4,7 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Common Changelog](https://common-changelog.org/).
 
-## [8.1.7 Build GH_POST_PR_COMMIT_RUN_ID] - 2026-06-24
+## [8.1.7 Build 917] - 2026-06-24
 
 ### Added
 
@@ -12,7 +12,7 @@ The format is based on [Common Changelog](https://common-changelog.org/).
 
 ### Changed
 
-- Updated `Version.properties` buildNumber to use `GH_POST_PR_COMMIT_RUN_ID` placeholder and updated `AGENTS.md` guidelines to use the automated workflow instead of manual increments.
+- Updated `Version.properties` buildNumber to use `917` placeholder and updated `AGENTS.md` guidelines to use the automated workflow instead of manual increments.
 
 ### Fixed
 
