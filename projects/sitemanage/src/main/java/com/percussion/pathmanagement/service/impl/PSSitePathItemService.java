@@ -22,6 +22,7 @@ import static org.apache.commons.lang.Validate.notNull;
 import com.percussion.assetmanagement.service.IPSAssetService;
 import com.percussion.assetmanagement.service.IPSWidgetAssetRelationshipService;
 import com.percussion.fastforward.managednav.IPSManagedNavService;
+import com.percussion.i18n.ui.PSI18NTranslationKeyValues;
 import com.percussion.itemmanagement.service.IPSItemWorkflowService;
 import com.percussion.pagemanagement.service.IPSPageService;
 import com.percussion.pathmanagement.data.PSDeleteFolderCriteria;
@@ -110,10 +111,15 @@ public class PSSitePathItemService extends PSPathItemService {
         // Site not found, if we have assume we have a valid path and the path item is orphaned
         String msg =
             sfp.isOnlySiteId()
-                ? "Oops.  We can't find the site "
+                ? PSI18NTranslationKeyValues.getInstance()
+                        .getTranslationValue(
+                            "perc.ui.pathmanagement@Oops.  We can't find the site ")
                     + sfp.getSiteId()
-                    + ".  It may have been deleted."
-                : "Oops. We're sorry. The requested page is no longer available.";
+                    + PSI18NTranslationKeyValues.getInstance()
+                        .getTranslationValue("perc.ui.pathmanagement@.  It may have been deleted.")
+                : PSI18NTranslationKeyValues.getInstance()
+                    .getTranslationValue(
+                        "perc.ui.pathmanagement@Oops. We're sorry. The requested page is no longer available.");
         throw new PSPathNotFoundServiceException(msg);
       }
     }
