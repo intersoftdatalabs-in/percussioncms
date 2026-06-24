@@ -14,3 +14,7 @@ The format is based on [Common Changelog](https://common-changelog.org/).
 
 - Updated `Version.properties` buildNumber to use `GH_POST_PR_COMMIT_RUN_ID` placeholder and updated `AGENTS.md` guidelines to use the automated workflow instead of manual increments.
 
+### Fixed
+
+- Fixed a JavaScript TypeError ("Cannot read properties of null (reading 'scrollHeight')") on the Admin Console page by ensuring DOM elements exist before referencing them (#906).
+
