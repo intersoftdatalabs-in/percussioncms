@@ -1,17 +1,21 @@
 
 
-/* Region CSS
-----------------------------------*/
+/* These vspan_X rules use !important on height to override any min-height applied by the site
+ * theme.css (which legitimately uses min-height for published pages so sidebar regions grow with
+ * content). In the CMS editor the regions must stay at their fixed design-time sizes so empty
+ * placeholder regions are visible and the footer region renders in its correct visual location.
+ * min-height: 0 !important suppresses the theme.css min-height inside the editor iframe. */
+.vspan_2 { height : 120px !important; min-height: 0 !important; }
+.vspan_4 { height : 240px !important; min-height: 0 !important; }
+.vspan_6 { height : 360px !important; min-height: 0 !important; }
+.vspan_8 { height : 480px !important; min-height: 0 !important; }
 
-.vspan_2 { height : 120px }
-.vspan_4 { height : 240px }
-.vspan_6 { height : 360px }
-.vspan_8 { height : 480px }
-
-.hspan_2  { width : 160px }
-.hspan_8  { width : 640px }
-.hspan_10 { width : 800px }
-.hspan_12 { width : 960px }
+/* hspan_X rules also use !important defensively to prevent any future theme.css min-width
+ * rules from overriding fixed column widths in the editor iframe. */
+.hspan_2  { width : 160px !important; }
+.hspan_8  { width : 640px !important; }
+.hspan_10 { width : 800px !important; }
+.hspan_12 { width : 960px !important; }
 
 
 #perc-content { margin : 0 auto }
