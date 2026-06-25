@@ -15911,11 +15911,11 @@ Documentación' href='https://percussioncmshelp.intsof.com/'&gt;percussioncmshel
 		<seg>Su navegador no soporta iframes.</seg>
 	</tuv>
 </tu>
-<tu tuid="perc.ui.pathmanagement@Oops.  We can't find the site ">
+<tu tuid="perc.ui.pathmanagement@Oops.  We can&#8217;t find the site ">
 	<prop type="sectionname" xml:lang="en-us">Error</prop>
 	<note xml:lang="en-us"></note>
 	<tuv xml:lang="en-us">
-		<seg>Oops.  We can't find the site </seg>
+		<seg>Oops.  We can&#8217;t find the site </seg>
 	</tuv>
 	<tuv xml:lang="es">
 		<seg>Oops. No podemos encontrar el sitio </seg>
@@ -15931,11 +15931,11 @@ Documentación' href='https://percussioncmshelp.intsof.com/'&gt;percussioncmshel
 		<seg>. Es posible que haya sido eliminado.</seg>
 	</tuv>
 </tu>
-<tu tuid="perc.ui.pathmanagement@Oops. We're sorry. The requested page is no longer available.">
+<tu tuid="perc.ui.pathmanagement@Oops. We&#8217;re sorry. The requested page is no longer available.">
 	<prop type="sectionname" xml:lang="en-us">Error</prop>
 	<note xml:lang="en-us"></note>
 	<tuv xml:lang="en-us">
-		<seg>Oops. We're sorry. The requested page is no longer available.</seg>
+		<seg>Oops. We&#8217;re sorry. The requested page is no longer available.</seg>
 	</tuv>
 	<tuv xml:lang="es">
 		<seg>Oops. Lo sentimos. La página solicitada ya no está disponible.</seg>

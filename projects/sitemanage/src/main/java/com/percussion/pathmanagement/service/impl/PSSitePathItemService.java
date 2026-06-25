@@ -113,13 +113,13 @@ public class PSSitePathItemService extends PSPathItemService {
             sfp.isOnlySiteId()
                 ? PSI18NTranslationKeyValues.getInstance()
                         .getTranslationValue(
-                            "perc.ui.pathmanagement@Oops.  We can't find the site ")
+                            "perc.ui.pathmanagement@Oops.  We can\u2019t find the site ")
                     + sfp.getSiteId()
                     + PSI18NTranslationKeyValues.getInstance()
                         .getTranslationValue("perc.ui.pathmanagement@.  It may have been deleted.")
                 : PSI18NTranslationKeyValues.getInstance()
                     .getTranslationValue(
-                        "perc.ui.pathmanagement@Oops. We're sorry. The requested page is no longer available.");
+                        "perc.ui.pathmanagement@Oops. We\u2019re sorry. The requested page is no longer available.");
         throw new PSPathNotFoundServiceException(msg);
       }
     }

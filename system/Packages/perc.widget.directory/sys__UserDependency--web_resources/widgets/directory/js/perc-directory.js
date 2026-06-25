@@ -250,6 +250,7 @@ $(document).ready(function() {
             $('#search-directory').val("");
             DirectoryList.search();
             applyDirectoryFilters();
+            configureDptDropDown();
             $('#perc-clear-alpha-filter').hide();
         }
     });
