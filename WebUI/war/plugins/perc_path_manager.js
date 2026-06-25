@@ -182,12 +182,13 @@
                         type: 'GET',
                         success: callback,
                         error: function(xhr, status, error) {
-                            if (retryCount < maxRetries) {
+                            // Only retry on server errors (500), not on client errors (404, 403, etc.)
+                            if (xhr.status === 500 && retryCount < maxRetries) {
                                 retryCount++;
                                 console.log("open_path retry " + retryCount + " of " + maxRetries + " for path: " + path_str);
                                 setTimeout(doOpen, retryDelay);
                             } else {
-                                err(error);
+                                err(xhr, status, error);
                             }
                         },
                         url: serviceUrl,
@@ -200,12 +201,13 @@
                         type: 'GET',
                         success: callback,
                         error: function(xhr, status, error) {
-                            if (retryCount < maxRetries) {
+                            // Only retry on server errors (500), not on client errors (404, 403, etc.)
+                            if (xhr.status === 500 && retryCount < maxRetries) {
                                 retryCount++;
                                 console.log("open_path retry " + retryCount + " of " + maxRetries + " for path: " + path_str);
                                 setTimeout(doOpen, retryDelay);
                             } else {
-                                err(error);
+                                err(xhr, status, error);
                             }
                         },
                         url: $.perc_paths.PATH_ITEM + path_str,
