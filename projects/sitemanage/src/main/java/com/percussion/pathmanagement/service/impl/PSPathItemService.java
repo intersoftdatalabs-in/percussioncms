@@ -329,7 +329,6 @@ public abstract class PSPathItemService implements IPSPathService {
     if (lastException != null) {
       throw lastException;
     }
-    return find(path);
   }
 
   public PSPathItem addNewFolder(String path)
