@@ -503,7 +503,6 @@ http://cxf.apache.org/schemas/jaxrs.xsd">
             <ref bean="runtimeExceptionMapper"/>
             <ref bean="jacksonProvider"/>
             <ref bean="jacksonContextResolver"/>
-            <ref bean="pathServiceExceptionMapper"/>
         </jaxrs:providers>
         <jaxrs:features>
             <!--  <bean class="org.apache.cxf.jaxrs.swagger.Swagger2Feature">
