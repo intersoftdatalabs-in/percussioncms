@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Common Changelog](https://common-changelog.org/).
 
+## [8.1.7 Build GH_POST_PR_COMMIT_RUN_ID] - 2026-06-24
+
+### Fixed
+
+- Fixed footer widget appearing in wrong location in the CMS page editor (#757). The `vspan_X` region height rules in `perc_decoration.css` now use `!important` to assert fixed heights in the editor iframe, preventing `theme.css` `min-height` values from allowing sidebar regions to overflow and displace the footer region.
+
 ## [8.1.7 Build 919] - 2026-06-24
 
 ### Fixed
