@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Common Changelog](https://common-changelog.org/).
 
+## [8.1.7 Build GH_POST_PR_COMMIT_RUN_ID] - 2026-06-25
+
+### Fixed
+
+- Fixed PSPackageBuilderTest#testAllPackagesMatchReferenceStructure test failure by syncing reference .ppkg files with source content type labels (#1153). Updated perc.widget.registration and perc.widget.secureLogin reference packages to mark content types as "(Deprecated)".
+
 ## [8.1.7 Build 922] - 2026-06-25
 
 ### Fixed
