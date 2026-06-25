@@ -172,26 +172,50 @@
         }
 
         if (!$.perc_fakes.path_service) {
-            if (folder) {
-                $.ajax({
-                    type: 'GET',
-                    success: callback,
-                    error: err,
-                    url: serviceUrl,
-                    dataType: 'json',
-                    cache: false
-                });
+            var maxRetries = 3;
+            var retryDelay = 200;
+            var retryCount = 0;
+
+            function doOpen() {
+                if (folder) {
+                    $.ajax({
+                        type: 'GET',
+                        success: callback,
+                        error: function(xhr, status, error) {
+                            if (retryCount < maxRetries) {
+                                retryCount++;
+                                console.log("open_path retry " + retryCount + " of " + maxRetries + " for path: " + path_str);
+                                setTimeout(doOpen, retryDelay);
+                            } else {
+                                err(error);
+                            }
+                        },
+                        url: serviceUrl,
+                        dataType: 'json',
+                        cache: false
+                    });
+                }
+                else {
+                    $.ajax({
+                        type: 'GET',
+                        success: callback,
+                        error: function(xhr, status, error) {
+                            if (retryCount < maxRetries) {
+                                retryCount++;
+                                console.log("open_path retry " + retryCount + " of " + maxRetries + " for path: " + path_str);
+                                setTimeout(doOpen, retryDelay);
+                            } else {
+                                err(error);
+                            }
+                        },
+                        url: $.perc_paths.PATH_ITEM + path_str,
+                        dataType: 'json',
+                        cache: false
+                    });
+                }
             }
-            else {
-                $.ajax({
-                    type: 'GET',
-                    success: callback,
-                    error: err,
-                    url: $.perc_paths.PATH_ITEM + path_str,
-                    dataType: 'json',
-                    cache: false
-                });
-            }
+
+            doOpen();
         }
         else {
             var fakes = {
