@@ -4,7 +4,7 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Common Changelog](https://common-changelog.org/).
 
-## [8.1.7 Build GH_POST_PR_COMMIT_RUN_ID] - 2026-06-24
+## [8.1.7 Build 919] - 2026-06-24
 
 ### Fixed
 
