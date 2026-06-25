@@ -329,6 +329,9 @@ public abstract class PSPathItemService implements IPSPathService {
     if (lastException != null) {
       throw lastException;
     }
+    // This should never be reached as either return or throw should occur above,
+    // but added for compiler safety
+    return find(path);
   }
 
   public PSPathItem addNewFolder(String path)
