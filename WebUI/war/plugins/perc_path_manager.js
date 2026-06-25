@@ -182,8 +182,8 @@
                         type: 'GET',
                         success: callback,
                         error: function(xhr, status, error) {
-                            // Only retry on server errors (500), not on client errors (404, 403, etc.)
-                            if (xhr.status === 500 && retryCount < maxRetries) {
+                            // Retry on server errors (500) AND path-not-found (404) since folder may not be indexed yet
+                            if ((xhr.status === 500 || xhr.status === 404) && retryCount < maxRetries) {
                                 retryCount++;
                                 console.log("open_path retry " + retryCount + " of " + maxRetries + " for path: " + path_str);
                                 setTimeout(doOpen, retryDelay);
@@ -201,8 +201,8 @@
                         type: 'GET',
                         success: callback,
                         error: function(xhr, status, error) {
-                            // Only retry on server errors (500), not on client errors (404, 403, etc.)
-                            if (xhr.status === 500 && retryCount < maxRetries) {
+                            // Retry on server errors (500) AND path-not-found (404) since folder may not be indexed yet
+                            if ((xhr.status === 500 || xhr.status === 404) && retryCount < maxRetries) {
                                 retryCount++;
                                 console.log("open_path retry " + retryCount + " of " + maxRetries + " for path: " + path_str);
                                 setTimeout(doOpen, retryDelay);
