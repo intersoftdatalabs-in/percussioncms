@@ -307,7 +307,8 @@ public abstract class PSPathItemService implements IPSPathService {
       throw new PSPathServiceException("Failed to add folder: " + path, e);
     }
 
-    int retryCount = 3;
+    int retryCount = 5;
+    int retryDelayMs = 200;
     PSPathNotFoundServiceException lastException = null;
     for (int i = 0; i < retryCount; i++) {
       try {
@@ -319,7 +320,7 @@ public abstract class PSPathItemService implements IPSPathService {
             i + 1,
             retryCount);
         try {
-          Thread.sleep(100);
+          Thread.sleep(retryDelayMs);
         } catch (InterruptedException ie) {
           Thread.currentThread().interrupt();
           break;
