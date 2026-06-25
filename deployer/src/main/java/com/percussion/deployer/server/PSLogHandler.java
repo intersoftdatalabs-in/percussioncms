@@ -835,9 +835,10 @@ public class PSLogHandler {
 
     String sqlDatePattern = "yyyy-mm-dd hh:mm:ss"; // JDBC Date format.
     FastDateFormat dateFormat = FastDateFormat.getInstance(sqlDatePattern);
+    Date buildDate = archiveInfo.getServerBuildDate();
     col =
         new PSJdbcColumnData(
-            ALS_SRC_SERVER_BUILD_DATE, dateFormat.format(archiveInfo.getServerBuildDate()));
+            ALS_SRC_SERVER_BUILD_DATE, buildDate != null ? dateFormat.format(buildDate) : "");
     cols.add(col);
 
     Document doc = PSXmlDocumentBuilder.createXmlDocument();
