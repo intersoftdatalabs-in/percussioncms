@@ -19,6 +19,7 @@ package com.percussion.share.web.service;
 
 import com.percussion.cms.IPSConstants;
 import com.percussion.pathmanagement.service.IPSPathService;
+import com.percussion.share.service.exception.IPSNotFoundException;
 import com.percussion.share.validation.PSErrors;
 import com.percussion.util.PSSiteManageBean;
 import javax.inject.Singleton;
@@ -66,6 +67,10 @@ public class PSPathServiceExceptionMapper
   @Override
   @Produces(MediaType.APPLICATION_JSON)
   protected Response.Status getStatus(IPSPathService.PSPathServiceException exception) {
+    if (exception instanceof IPSPathService.PSPathNotFoundServiceException
+        || exception.getCause() instanceof IPSNotFoundException) {
+      return Response.Status.NOT_FOUND;
+    }
     return super.getStatus(exception);
   }
 }

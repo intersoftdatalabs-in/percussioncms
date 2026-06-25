@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Common Changelog](https://common-changelog.org/).
 
+## [8.1.7 Build GH_POST_PR_COMMIT_RUN_ID] - 2026-06-25
+
+### Fixed
+
+- Fixed a folder creation race condition and exception mapping issue where folder creation would display a "Path not found" error popup even though folder creation succeeded in the database (#867). Registered `PSPathServiceExceptionMapper` as a provider under CXF, mapped path service exceptions implementing `IPSNotFoundException` to a `404 NOT_FOUND` status code, and added a short retry loop with a 100ms sleep when lookup of the newly created folder path fails.
+
 ## [8.1.7 Build 920] - 2026-06-24
 
 ### Fixed
