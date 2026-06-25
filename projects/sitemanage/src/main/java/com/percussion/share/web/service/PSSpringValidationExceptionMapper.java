@@ -51,4 +51,10 @@ public class PSSpringValidationExceptionMapper
     log.debug(ERROR_MESSAGE, exception);
     return exception.getValidationErrors();
   }
+
+  @Override
+  @Produces(MediaType.APPLICATION_JSON)
+  protected javax.ws.rs.core.Response.Status getStatus(PSSpringValidationException exception) {
+    return javax.ws.rs.core.Response.Status.BAD_REQUEST;
+  }
 }
