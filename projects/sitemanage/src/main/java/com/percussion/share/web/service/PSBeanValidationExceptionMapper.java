@@ -51,6 +51,6 @@ public class PSBeanValidationExceptionMapper
   @Override
   @Produces(MediaType.APPLICATION_JSON)
   protected Response.Status getStatus(PSBeanValidationException exception) {
-    return super.getStatus(exception);
+    return Response.Status.BAD_REQUEST;
   }
 }

@@ -775,7 +775,7 @@
                 if (buff !== "") buff += "<br/>";
                 buff += objectErrorToString(verrors.globalErrors);
             }
-            if (verrors.globalError !== undefined && verrors.globalError !== null) {
+            else if (verrors.globalError !== undefined && verrors.globalError !== null) {
                 if (buff !== "") buff += "<br/>";
                 buff += objectErrorToString(verrors.globalError);
             }

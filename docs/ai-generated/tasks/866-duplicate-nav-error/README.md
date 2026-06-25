@@ -11,9 +11,17 @@ Fix a bug where attempting to create/convert a Section from a folder that does n
      - The source path category is not a `Category.FOLDER`
      - An exception occurs while looking up the source folder path (folder does not exist)
    - This prevents execution of subsequent validation steps (parent folder existence and landing page existence checks) when the primary folder itself is invalid or missing, thereby avoiding duplicate/dependent validation messages.
+2. **Server-side Validation Exception Mappers (`projects/sitemanage/src/main/java/com/percussion/share/web/service/`)**:
+   - Updated `PSValidationExceptionMapper`, `PSBeanValidationExceptionMapper`, and `PSSpringValidationExceptionMapper` to return `Response.Status.BAD_REQUEST` (400) status codes instead of `500 INTERNAL_SERVER_ERROR`.
+3. **Client-side Error Handling (`WebUI/war/services/PercServiceUtils.js`)**:
+   - Modified `extractDefaultErrorMessage` to use `else if` for `globalError` checking. Since `globalError` is just an alias for the first element in `globalErrors` list, this prevents extracting and showing the same global error twice in the UI error dialog.
+4. **Unit Tests (`projects/sitemanage/src/test/java/com/percussion/share/web/service/PSValidationExceptionMapperTest.java`)**:
+   - Added new test cases to verify status mappings for all three validation exception mappers.
 
 ## Verification
 
 - Formatted the codebase using `./mvn-env.sh spotless:apply`.
-- Built the `sitemanage` module along with its dependencies via `./mvn-env.sh clean install -pl projects/sitemanage -am -DskipTests` successfully.
+- Built the `sitemanage` module successfully.
+- Ran new `PSValidationExceptionMapperTest` suite successfully.
+- Ran all unit tests in the `projects/sitemanage` module successfully.
 
