@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Common Changelog](https://common-changelog.org/).
 
+## [8.1.7 Build GH_POST_PR_COMMIT_RUN_ID] - 2026-06-24
+
+### Fixed
+
+- Fixed server startup crash (StringIndexOutOfBoundsException) by restoring date format to `buildNumber` and mapping the sequential run number to `buildId`. Retained defensive robustness checks in `PSFormatVersion` and `PSLogHandler` to prevent future build version format crashes.
+
 ## [8.1.7 Build 917] - 2026-06-24
 
 ### Added

@@ -27,10 +27,17 @@ jobs:
           BUILD_NUM=$((915 + GITHUB_RUN_NUMBER))
           echo "Calculated Build Number: $BUILD_NUM"
 
-          # 1. Update Version.properties files and CHANGELOG.md using the placeholder
+          # Calculate build date in YYYYMMDD format (e.g. 20260624)
+          BUILD_DATE=$(date -u +%Y%m%d)
+          echo "Calculated Build Date: $BUILD_DATE"
+
+          # 1. Update Version.properties files and CHANGELOG.md using the placeholders
           sed -i "s/GH_POST_PR_COMMIT_RUN_ID/$BUILD_NUM/g" system/VersionControl/Version.properties
           sed -i "s/GH_POST_PR_COMMIT_RUN_ID/$BUILD_NUM/g" modules/DesktopContentExplorer/src/main/resources/com/percussion/cx/Version.properties
           sed -i "s/GH_POST_PR_COMMIT_RUN_ID/$BUILD_NUM/g" CHANGELOG.md
+
+          sed -i "s/GH_POST_PR_COMMIT_DATE/$BUILD_DATE/g" system/VersionControl/Version.properties
+          sed -i "s/GH_POST_PR_COMMIT_DATE/$BUILD_DATE/g" modules/DesktopContentExplorer/src/main/resources/com/percussion/cx/Version.properties
 
           # 3. Commit and push back
           git config --global user.name "github-actions[bot]"
