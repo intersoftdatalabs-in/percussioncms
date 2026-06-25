@@ -10,10 +10,12 @@
 .vspan_6 { height : 360px !important; min-height: 0 !important; }
 .vspan_8 { height : 480px !important; min-height: 0 !important; }
 
-.hspan_2  { width : 160px }
-.hspan_8  { width : 640px }
-.hspan_10 { width : 800px }
-.hspan_12 { width : 960px }
+/* hspan_X rules also use !important defensively to prevent any future theme.css min-width
+ * rules from overriding fixed column widths in the editor iframe. */
+.hspan_2  { width : 160px !important; }
+.hspan_8  { width : 640px !important; }
+.hspan_10 { width : 800px !important; }
+.hspan_12 { width : 960px !important; }
 
 
 #perc-content { margin : 0 auto }
