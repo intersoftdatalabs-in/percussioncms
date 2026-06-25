@@ -23,3 +23,4 @@ Fix a bug where creating a new folder in the CMS UI displays a "Path not found" 
 - Ran spotless check successfully using `./mvn-env.sh spotless:check -pl projects/sitemanage`.
 - Ran unit tests successfully using `./mvn-env.sh test -pl projects/sitemanage` (298 passing tests).
 - Ran the new `PSPathServiceExceptionMapperTest` suite successfully.
+

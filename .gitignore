@@ -19,6 +19,7 @@ node_modules/
 .vscode/*
 bin/*
 derby.log
+.obsidian/
 
 # random output file
 **/test-output.jar
