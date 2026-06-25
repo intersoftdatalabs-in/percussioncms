@@ -43,15 +43,13 @@ $(document).ready(function() {
         populateAlphaFilters(alphaFilterLetters);
 
         var firstLetterFilter = $('#perc-directory-alphabet-sort .perc-alpha-sort:first');
-        var letter = firstLetterFilter.text().toLowerCase();
         firstLetterFilter.addClass("active");
-        DirectoryList.filter(function(item) {
-            return (_.includes( item.values()['perc-person-last-name'].charAt(0).toLowerCase(), letter) || !letter);
-        });
         $('#perc-clear-alpha-filter').show();
 
         // populate dpt-filter dropdown
         configureDptDropDown();
+
+        applyDirectoryFilters();
     }
     
     //
@@ -77,6 +75,75 @@ $(document).ready(function() {
                 $('#perc-directory-alphabet-sort #perc-alpha-sort-letters').append('<a id="perc-alpha-sort-' + letter + '" class="perc-alpha-sort" aria-label="Filter by letter ' + letter.toUpperCase() + '" tabindex="0">' + letter.toUpperCase() + '</a>');
             }
         }, this);
+    }
+
+    function applyDirectoryFilters() {
+        if (!DirectoryList) return;
+
+        var orgName = null;
+        if (percDirectorySearchAllOrgs) {
+            orgName = $('#perc-org-filter').val();
+            if (orgName === "all") orgName = null;
+        } else {
+            orgName = $('#percDirectoryList').data("directory-org-name");
+        }
+
+        var dptName = $('#perc-dpt-filter').val();
+        if (dptName === "all") dptName = null;
+
+        var activeLetterElement = $('#perc-directory-alphabet-sort .perc-alpha-sort.active');
+        var letter = activeLetterElement.length ? activeLetterElement.text().toLowerCase() : null;
+
+        DirectoryList.filter(function(item) {
+            var matchOrg = !orgName || _.includes(item.values()['perc-person-org'], orgName);
+            var matchDpt = !dptName || _.includes(item.values()['perc-person-dpt'], dptName);
+            var matchLetter = !letter || _.includes(item.values()['perc-person-last-name'].charAt(0).toLowerCase(), letter);
+            return matchOrg && matchDpt && matchLetter;
+        });
+
+        updateAlphaFilters();
+    }
+
+    function updateAlphaFilters() {
+        if (!DirectoryList) return;
+
+        var orgName = null;
+        if (percDirectorySearchAllOrgs) {
+            orgName = $('#perc-org-filter').val();
+            if (orgName === "all") orgName = null;
+        } else {
+            orgName = $('#percDirectoryList').data("directory-org-name");
+        }
+
+        var dptName = $('#perc-dpt-filter').val();
+        if (dptName === "all") dptName = null;
+
+        var filteredItems = DirectoryList.items.filter(function(item) {
+            var matchOrg = !orgName || _.includes(item.values()['perc-person-org'], orgName);
+            var matchDpt = !dptName || _.includes(item.values()['perc-person-dpt'], dptName);
+            return matchOrg && matchDpt;
+        });
+
+        var letters = getFilterLetters(filteredItems, "perc-person-last-name");
+        var activeLetterElement = $('#perc-directory-alphabet-sort .perc-alpha-sort.active');
+        var activeLetter = activeLetterElement.length ? activeLetterElement.text().toLowerCase() : null;
+
+        $('#perc-directory-alphabet-sort #perc-alpha-sort-letters').empty();
+        populateAlphaFilters(letters);
+
+        if (activeLetter && $.inArray(activeLetter, letters) !== -1) {
+            $('#perc-alpha-sort-' + activeLetter).addClass("active");
+        } else if (activeLetter) {
+            $('#perc-clear-alpha-filter').hide();
+            applyDirectoryFilters();
+        }
+    }
+
+    function resetAlphaFilters() {
+        if (!DirectoryList) return;
+        var letters = getFilterLetters(DirectoryList.items, "perc-person-last-name");
+        $('#perc-directory-alphabet-sort #perc-alpha-sort-letters').empty();
+        populateAlphaFilters(letters);
     }
 
     function configureDptFilterbyOrg(orgName) {
@@ -133,57 +200,31 @@ $(document).ready(function() {
             var orgName = $(this).val();
 
             if (orgName == "all"){
-                DirectoryList.filter();
-                return false;
+                $('#perc-dpt-filter').val("all");
+                applyDirectoryFilters();
             } else {
-                DirectoryList.filter(function(item) {
-                    return (_.includes( item.values()['perc-person-org'], orgName) || !orgName);
-                });
                 configureDptFilterbyOrg(orgName);
+                $('#perc-dpt-filter').val("all");
+                applyDirectoryFilters();
             }
        }
     });
 
     $('#perc-dpt-filter').on("change", function() {
-        var orgName;
         if (DirectoryList) {
-            if (percDirectorySearchAllOrgs) {
-                //widget set to search all orgs
-                 orgName = $('#perc-org-filter').val();
-            } else {
-                //widget set to search one org
-                 orgName = $('#percDirectoryList').data("directory-org-name");
-            }
-            var dptName = $(this).val();
-
-            if (dptName === "all") {
-                DirectoryList.filter(function (item) {
-                    return (_.includes(item.values()['perc-person-org'], orgName) || !orgName);
-                });
-            } else {
-                DirectoryList.filter(function (item) {
-                    return (_.includes(item.values()['perc-person-org'], orgName) || !orgName)  &&
-                        (_.includes(item.values()['perc-person-dpt'], dptName) || !dptName);
-                });
-            }
+            applyDirectoryFilters();
         }
     });
 
     // alphabet sort function on 'click'
     $('#perc-directory-alphabet-sort').on('click', '.perc-alpha-sort', function(event) {
-        $('.perc-alpha-sort.active').removeClass('active');
-        $(this).addClass("active");
+        var letter = $(this).text().toLowerCase();
         if (DirectoryList) {
             $('#search-directory').val("");
             DirectoryList.search();
-            $('#perc-org-filter').each(function () {
-                this.selectedIndex = 0;
-            });
-            $('#perc-dpt-filter').hide();
-            var letter = $(this).text().toLowerCase();
-            DirectoryList.filter(function (item) {
-                return (_.includes(item.values()['perc-person-last-name'].charAt(0).toLowerCase(), letter) || !letter);
-            });
+            $('#perc-directory-alphabet-sort .perc-alpha-sort.active').removeClass('active');
+            $(this).addClass("active");
+            applyDirectoryFilters();
             $('#perc-clear-alpha-filter').show();
         }
     });
@@ -191,34 +232,24 @@ $(document).ready(function() {
     // alpha sort on keypress "enter"
     $('#perc-directory-alphabet-sort').on('keypress', '.perc-alpha-sort', function(event) {
         if (event.keyCode == 13) {
-            $('.perc-alpha-sort.active').removeClass('active');
-            $(this).addClass("active");
+            var letter = $(this).text().toLowerCase();
             if (DirectoryList) {
                 $('#search-directory').val("");
                 DirectoryList.search();
-                $('#perc-org-filter').each(function () {
-                    this.selectedIndex = 0;
-                });
-                $('#perc-dpt-filter').hide();
-                var letter = $(this).text().toLowerCase();
-                DirectoryList.filter(function (item) {
-                    return (_.includes(item.values()['perc-person-last-name'].charAt(0).toLowerCase(), letter) || !letter);
-                });
+                $('#perc-directory-alphabet-sort .perc-alpha-sort.active').removeClass('active');
+                $(this).addClass("active");
+                applyDirectoryFilters();
                 $('#perc-clear-alpha-filter').show();
             }
         }
     });
 
     $('#perc-clear-alpha-filter').on('click', function() {
-        $('.perc-alpha-sort.active').removeClass('active');
+        $('#perc-directory-alphabet-sort .perc-alpha-sort.active').removeClass('active');
         if (DirectoryList) {
-            DirectoryList.filter();
-            if (!percDirectorySearchAllOrgs) {
-                $('#perc-dpt-filter').show();
-            }
-            else {
-                $('#perc-dpt-filter').hide();
-            }
+            $('#search-directory').val("");
+            DirectoryList.search();
+            applyDirectoryFilters();
             $('#perc-clear-alpha-filter').hide();
         }
     });

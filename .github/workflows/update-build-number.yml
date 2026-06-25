@@ -1,0 +1,53 @@
+name: Update Build Number and Changelog
+
+on:
+  push:
+    branches:
+      - development-8.1.x
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  update-build-number:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Calculate and Update Build Number
+        env:
+          GITHUB_RUN_NUMBER: ${{ github.run_number }}
+        run: |
+          # Use run number with offset to match the manual build sequence starting at 916
+          # (e.g., if this is run 1, build number will be 916)
+          BUILD_NUM=$((915 + GITHUB_RUN_NUMBER))
+          echo "Calculated Build Number: $BUILD_NUM"
+
+          # Calculate build date in YYYYMMDD format (e.g. 20260624)
+          BUILD_DATE=$(date -u +%Y%m%d)
+          echo "Calculated Build Date: $BUILD_DATE"
+
+          # 1. Update Version.properties files and CHANGELOG.md using the placeholders
+          sed -i "s/GH_POST_PR_COMMIT_RUN_ID/$BUILD_NUM/g" system/VersionControl/Version.properties
+          sed -i "s/GH_POST_PR_COMMIT_RUN_ID/$BUILD_NUM/g" modules/DesktopContentExplorer/src/main/resources/com/percussion/cx/Version.properties
+          sed -i "s/GH_POST_PR_COMMIT_RUN_ID/$BUILD_NUM/g" CHANGELOG.md
+
+          sed -i "s/GH_POST_PR_COMMIT_DATE/$BUILD_DATE/g" system/VersionControl/Version.properties
+          sed -i "s/GH_POST_PR_COMMIT_DATE/$BUILD_DATE/g" modules/DesktopContentExplorer/src/main/resources/com/percussion/cx/Version.properties
+
+          # 3. Commit and push back
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add system/VersionControl/Version.properties modules/DesktopContentExplorer/src/main/resources/com/percussion/cx/Version.properties CHANGELOG.md
+          
+          # Only commit and push if changes were made
+          if ! git diff --cached --quiet; then
+            git commit -m "chore: update build number to $BUILD_NUM [skip ci]"
+            git push origin development-8.1.x
+          else
+            echo "No changes to commit."
+          fi

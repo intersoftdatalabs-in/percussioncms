@@ -14,6 +14,7 @@ permissions:
 jobs:
   dependency-submission:  
     runs-on: ubuntu-latest
+    if: github.event_name != 'push' || (!contains(github.event.head_commit.message, 'Dependency Submission') && !contains(github.event.head_commit.message, '[skip ci]') && !contains(github.event.head_commit.message, 'chore: update build number'))
     
     steps: 
     - uses: actions/checkout@v4

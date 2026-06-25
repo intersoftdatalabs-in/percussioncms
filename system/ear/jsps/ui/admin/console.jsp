@@ -14,12 +14,16 @@
 <c:set var="page_script" scope="request">
    <script>
          function setCaretToEnd() {
-           input = document.getElementById("dispResults");
-           input.scrollTop = input.scrollHeight;
+           var input = document.getElementById("dispResults");
+           if (input) {
+             input.scrollTop = input.scrollHeight;
+           }
            
            // leave focus in command field  
-           cmd = document.getElementById("command");
-           cmd.focus();
+           var cmd = document.getElementById("command");
+           if (cmd) {
+             cmd.focus();
+           }
          }
    </script>
 </c:set>

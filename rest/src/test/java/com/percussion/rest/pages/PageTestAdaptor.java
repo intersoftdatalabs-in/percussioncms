@@ -43,6 +43,10 @@ public class PageTestAdaptor implements IPageAdaptor {
   @Override
   public Page getPage(URI baseUri, String siteName, String path, String pageName) {
 
+    if ("Sites".equals(siteName)) {
+      throw new IllegalArgumentException("siteName cannot be Sites");
+    }
+
     Page page = Examples.SAMPLE_PAGE;
 
     page.setName(pageName);
@@ -65,11 +69,17 @@ public class PageTestAdaptor implements IPageAdaptor {
 
   @Override
   public void deletePage(URI baseUri, String siteName, String path, String pageName) {
+    if ("Sites".equals(siteName)) {
+      throw new IllegalArgumentException("siteName cannot be Sites");
+    }
     if (pageName.equals("testNotFound")) throw new PageNotFoundException();
   }
 
   @Override
   public Page renamePage(URI baseURI, String siteName, String path, String pageName, String name) {
+    if ("Sites".equals(siteName)) {
+      throw new IllegalArgumentException("siteName cannot be Sites");
+    }
     // Not really sure how useful these tests are
     Page p = new Page();
     p.setName(name);

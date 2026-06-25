@@ -52,6 +52,7 @@
     <link href="/cm/widgets/PercDataTable/PercDataTable.css" rel="stylesheet" type="text/css" />
     <link href="/cm/widgets/PercPageDataTable/PercPageDataTable.css" rel="stylesheet" type="text/css" />
     <link href="/cm/widgets/PercSimpleMenu/PercSimpleMenu.css" rel="stylesheet" type="text/css" />
+    <script  src="/Rhythmyx/tmx/tmx.jsp?mode=js&amp;prefix=perc.ui.&amp;"></script>
      <script src="/cm/jslib/profiles/3x/libraries/bowser/es5.js"</script>
     <script src="/cm/jslib/profiles/3x/jquery/plugins/jquery-jeditable/jquery.jeditable.js"></script>
     <script src="/cm/jslib/profiles/3x/jquery/plugins/jquery-percutils/jquery.percutils.js"</script>
@@ -64,7 +65,6 @@
     
     <script src="/cm/jslib/profiles/3x/jquery/plugins/jquery-perc-retiredjs/jquery.text-overflow.js" ></script>
     <script src="/cm/gadgets/repository/perc_activity_gadget/perc_activity_gadget.js" ></script>
-    <script  src="/Rhythmyx/tmx/tmx.jsp?mode=js&amp;prefix=perc.ui.&amp;"></script>
 
     
     <script >
