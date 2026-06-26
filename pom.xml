@@ -144,7 +144,7 @@
         <maven.build.timestamp.format>yyyyMMdd</maven.build.timestamp.format>
         <maven.bundle.plugin.version>5.1.9</maven.bundle.plugin.version>
         <maven.checkstyle.plugin.version>3.6.0</maven.checkstyle.plugin.version>
-        <maven.checksum.plugin.version>1.4</maven.checksum.plugin.version>
+        <maven.checksum.plugin.version>1.11</maven.checksum.plugin.version>
         <maven.clean.plugin.version>3.5.0</maven.clean.plugin.version>
         <maven.compiler.plugin.version>3.15.0</maven.compiler.plugin.version>
         <maven.compiler.source>1.8</maven.compiler.source>
@@ -2072,7 +2072,7 @@
         <pluginManagement>
             <plugins>
                 <plugin>
-                    <groupId>net.ju-gmbh</groupId>
+                    <groupId>net.nicoulaj.maven.plugins</groupId>
                     <artifactId>checksum-maven-plugin</artifactId>
                     <version>${maven.checksum.plugin.version}</version>
                 </plugin>
