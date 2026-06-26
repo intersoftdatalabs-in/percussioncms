@@ -1,7 +1,8 @@
 # ai
-.kilo
-.antigravitycli
-.grok
+.kilo/
+.antigravitycli/
+.grok/
+.kilocode/
 
 # temp directories
 tmp/*
@@ -19,6 +20,8 @@ node_modules/
 .vscode/*
 bin/*
 derby.log
+
+# Obsidian markdown
 .obsidian/
 
 # random output file
