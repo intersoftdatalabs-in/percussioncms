@@ -172,8 +172,8 @@
         }
 
         if (!$.perc_fakes.path_service) {
-            var maxRetries = 3;
-            var retryDelay = 200;
+            var maxRetries = 6;
+            var retryDelay = 300;
             var retryCount = 0;
 
             function doOpen() {
