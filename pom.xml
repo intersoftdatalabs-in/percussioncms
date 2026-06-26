@@ -64,10 +64,10 @@
         <module>modules/perc-distribution-tree</module>
     </modules>
     <scm>
-        <connection>scm:git:https://github.com/percussion/percussioncms</connection>
-        <developerConnection>scm:git:https://github.com/percussion/percussioncms</developerConnection>
+        <connection>scm:git:https://github.com/intersoftdatalabs-in/percussioncms</connection>
+        <developerConnection>scm:git:https://github.com/intersoftdatalabs-in/percussioncms</developerConnection>
         <tag>HEAD</tag>
-        <url>https://github.com/percussion/percussioncms</url>
+        <url>https://github.com/intersoftdatalabs-in/percussioncms</url>
     </scm>
     <properties>
         <activemq.version>5.16.8</activemq.version>
@@ -144,12 +144,14 @@
         <maven.build.timestamp.format>yyyyMMdd</maven.build.timestamp.format>
         <maven.bundle.plugin.version>5.1.9</maven.bundle.plugin.version>
         <maven.checkstyle.plugin.version>3.6.0</maven.checkstyle.plugin.version>
+        <maven.checksum.plugin.version>1.4</maven.checksum.plugin.version>
         <maven.clean.plugin.version>3.5.0</maven.clean.plugin.version>
         <maven.compiler.plugin.version>3.15.0</maven.compiler.plugin.version>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
         <maven.dependency.plugin.version>3.10.0</maven.dependency.plugin.version>
         <maven.deploy.plugin.version>3.0.0-M1</maven.deploy.plugin.version>
+        <maven.deploy.skip>true</maven.deploy.skip>
         <maven.enforcer.plugin.version>3.6.2</maven.enforcer.plugin.version>
         <maven.execmaven.plugin.version>3.6.3</maven.execmaven.plugin.version>
         <maven.failsafe.plugin.version>3.5.4</maven.failsafe.plugin.version>
@@ -2069,6 +2071,11 @@
     <build>
         <pluginManagement>
             <plugins>
+                <plugin>
+                    <groupId>net.ju-gmbh</groupId>
+                    <artifactId>checksum-maven-plugin</artifactId>
+                    <version>${maven.checksum.plugin.version}</version>
+                </plugin>
                 <plugin>
                     <groupId>com.diffplug.spotless</groupId>
                     <artifactId>spotless-maven-plugin</artifactId>
