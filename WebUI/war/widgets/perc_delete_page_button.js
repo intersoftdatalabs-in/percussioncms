@@ -572,8 +572,12 @@
                     }
                 },
                 function (request) {
-                    var msg = $.PercServiceUtils.extractDefaultErrorMessage(request);
-                    $.perc_utils.alert_dialog({ title: I18N.message("perc.ui.publish.title@Error"), content: msg });
+                    // The path was just navigated to in the finder (e.g. immediately
+                    // after folder create/rename), so it must exist. The lookup can
+                    // transiently fail with a 404/500 while the JCR finishes indexing
+                    // the new/renamed path - silently disable the delete button
+                    // rather than showing a misleading "Path not found" error dialog.
+                    $(".perc-finder-menu #perc-finder-delete").removeClass('ui-enabled').addClass('ui-disabled').off('click');
                 }
             );
 

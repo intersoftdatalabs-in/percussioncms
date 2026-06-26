@@ -10,6 +10,12 @@ The format is based on [Common Changelog](https://common-changelog.org/).
 
 - Fixed PSPackageBuilderTest#testAllPackagesMatchReferenceStructure test failure by syncing reference .ppkg files with source content type labels (#1153). Updated perc.widget.registration and perc.widget.secureLogin reference packages to mark content types as "(Deprecated)".
 
+## [8.1.7 Build GH_POST_PR_COMMIT_RUN_ID] - 2026-06-26
+
+### Fixed
+
+- Fixed misleading "Path not found" error dialog that appeared immediately after a folder create or rename (#867). After rename, `update_btn` in `perc_delete_page_button.js` would call `open_path` on the new path while the JCR was still indexing it; the existing 3x200ms client retry was insufficient and the error handler showed a false-positive alert. Increased the client retry to 6x300ms in `perc_path_manager.js` and made `update_btn` silently disable the delete button on lookup failure (the path was just navigated to, so it must exist) instead of showing the error dialog.
+
 ## [8.1.7 Build 922] - 2026-06-25
 
 ### Fixed
