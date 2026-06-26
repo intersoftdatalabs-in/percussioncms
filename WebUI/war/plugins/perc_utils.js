@@ -35,6 +35,7 @@
     $.ajaxSetup( { cache: false } );
     $.Percussion = $.Percussion || {};
 
+    var isRenamingFolder = false;
 
     $.perc_fakes = {
         path_service: false,
@@ -1518,6 +1519,10 @@
                     return oldName;
                 if(value.toLowerCase() !== oldName.toLowerCase())
                 {
+                    if(isRenamingFolder){
+                        return oldName;
+                    }
+                    isRenamingFolder = true;
                     $.PercBlockUI($.PercBlockUIMode.CURSORONLY);
                     $.PercPathService.renameFolder(
                         pathItem.path,
@@ -1532,11 +1537,13 @@
                                 $.perc_finder().lastClickPath = null;
                                 $.perc_finder().open(pth);
                                 $.unblockUI();
+                                isRenamingFolder = false;
                             }
                             else
                             {
                                 $nameEl.text(oldName); // Reset back to old name
                                 $.unblockUI();
+                                isRenamingFolder = false;
                                 var errorMsg = "";
                                 if (code === "renameFolderItem.reservedName" || code === "renameFolderItem.longName" ||
                                     code === "renameFolderItem.invalidCharInName")
