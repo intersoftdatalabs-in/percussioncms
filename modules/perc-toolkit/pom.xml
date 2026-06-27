@@ -12,9 +12,9 @@
     <packaging>jar</packaging>
     <name>perc-toolkit</name>
     <properties>
-        <property name="packages.dir" value="${project.basedir}/packages" />
-        <property name="outputdir" value="${project.basedir}/target" />
-        <property name="pkg.tmp.dir" value="${outputdir}/distribution/Packages" />
+        <property name="packages.dir" value="${project.basedir}/packages"/>
+        <property name="outputdir" value="${project.basedir}/target"/>
+        <property name="pkg.tmp.dir" value="${outputdir}/distribution/Packages"/>
     </properties>
     <dependencies>
         <dependency>

@@ -914,29 +914,29 @@
                             <target>
                                 <!-- TODO Add additional deployment files here -->
                                 <copy todir="${assembly-directory}">
-                                    <fileset dir="${basedir}/src/main/rootFiles" />
+                                    <fileset dir="${basedir}/src/main/rootFiles"/>
                                 </copy>
                                 <!-- Perc-Ant -->
                                 <copy todir="${ant-installer}">
                                     <fileset dir="{basedir}/../../../../modules/perc-ant/target/">
-                                        <include name="perc-ant*.jar" />
+                                        <include name="perc-ant*.jar"/>
                                     </fileset>
                                 </copy>
                                 <!-- Version.properties -->
                                 <copy todir="${assembly-directory}">
                                     <fileset dir="{basedir}/../../../../modules/utils/target/classes/com/percussion/util/">
-                                        <include name="Version.properties" />
+                                        <include name="Version.properties"/>
                                     </fileset>
                                 </copy>
-                                <mkdir dir="${assembly-directory}/rxconfig/secure" />
+                                <mkdir dir="${assembly-directory}/rxconfig/secure"/>
                                 <copy todir="${assembly-directory}/rxconfig/secure">
                                     <fileset dir="{basedir}/../../../../modules/utils/src/main/resources/com/percussion/security/encryption">
-                                        <include name=".legacy-key" />
+                                        <include name=".legacy-key"/>
                                     </fileset>
                                 </copy>
-                                <delete dir="${assembly-directory}/Deployment/Server/webapps/manager" />
-                                <delete dir="${assembly-directory}/Deployment/Server/webapps/host-manager" />
-                                <delete file="${assembly-directory}/Deployment/Server/conf/logging.properties" />
+                                <delete dir="${assembly-directory}/Deployment/Server/webapps/manager"/>
+                                <delete dir="${assembly-directory}/Deployment/Server/webapps/host-manager"/>
+                                <delete file="${assembly-directory}/Deployment/Server/conf/logging.properties"/>
                             </target>
                         </configuration>
                     </execution>
