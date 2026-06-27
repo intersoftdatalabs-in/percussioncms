@@ -4,7 +4,7 @@
     <parent>
         <groupId>com.percussion</groupId>
         <artifactId>core</artifactId>
-        <version>8.1.8-SNAPSHOT</version>
+        <version>8.1.7</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
     <artifactId>perc-distribution-tree</artifactId>
@@ -16,7 +16,7 @@
         <db.backend>DERBY</db.backend>
         <db.class>org.apache.derby.jdbc.EmbeddedDriver</db.class>
         <db.driver>derby</db.driver>
-        <db.name />
+        <db.name/>
         <db.pass.enc>7cf3be70d83a6948</db.pass.enc>
         <db.schema>CMDB</db.schema>
         <db.server>CMDB;create=true</db.server>
@@ -435,15 +435,15 @@
                         <phase>process-resources</phase>
                         <configuration>
                             <target>
-                                <property location="${rxapps.source}/RxFastForward/SiteFolderPublishing/Exits" name="sfp.exits.source" />
-                                <property location="${rxapps.source}/RxFastForward/ManagedNav/Exits" name="nav.exits.source" />
-                                <property location="${rxapps.source}/RxFastForward/DefaultTemplate/Exits" name="default_template.exits.source" />
-                                <property location="${assembly-directory}" name="install.src" />
-                                <property name="install.dir" value="${basedir}/target/classes/distribution" />
-                                <property name="install.type" value="new" />
-                                <property name="clean.install" value="true" />
-                                <property name="do.install" value="true" />
-                                <ant antfile="${basedir}/src/main/resources/installDistributionFiles.xml" inheritAll="true" inheritRefs="true" />
+                                <property location="${rxapps.source}/RxFastForward/SiteFolderPublishing/Exits" name="sfp.exits.source"/>
+                                <property location="${rxapps.source}/RxFastForward/ManagedNav/Exits" name="nav.exits.source"/>
+                                <property location="${rxapps.source}/RxFastForward/DefaultTemplate/Exits" name="default_template.exits.source"/>
+                                <property location="${assembly-directory}" name="install.src"/>
+                                <property name="install.dir" value="${basedir}/target/classes/distribution"/>
+                                <property name="install.type" value="new"/>
+                                <property name="clean.install" value="true"/>
+                                <property name="do.install" value="true"/>
+                                <ant antfile="${basedir}/src/main/resources/installDistributionFiles.xml" inheritAll="true" inheritRefs="true"/>
                             </target>
                         </configuration>
                     </execution>

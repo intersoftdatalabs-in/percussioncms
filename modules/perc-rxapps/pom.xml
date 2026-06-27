@@ -4,11 +4,11 @@
     <parent>
         <groupId>com.percussion</groupId>
         <artifactId>core</artifactId>
-        <version>8.1.8-SNAPSHOT</version>
+        <version>8.1.7</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
     <artifactId>perc-rxapps</artifactId>
-    <version>8.1.8-SNAPSHOT</version>
+    <version>8.1.7</version>
     <properties>
         <assembly-directory>${basedir}/target/distribution</assembly-directory>
         <jetty-directory>${basedir}/target/jetty</jetty-directory>
@@ -27,11 +27,11 @@
                         <phase>process-resources</phase>
                         <configuration>
                             <target>
-                                <property name="BUILDVERSION" value="${project.parent.version}" />
-                                <property location="${assembly-directory}/RxApp" name="APPS_DIR" />
-                                <property location="${assembly-directory}/RxFastForward" name="FF_DIST_APPS_DIR" />
-                                <property location="true" name="WITHFF" />
-                                <ant antfile="rxAppsCopy.xml" dir="${basedir}/../../system" inheritRefs="true" />
+                                <property name="BUILDVERSION" value="${project.parent.version}"/>
+                                <property location="${assembly-directory}/RxApp" name="APPS_DIR"/>
+                                <property location="${assembly-directory}/RxFastForward" name="FF_DIST_APPS_DIR"/>
+                                <property location="true" name="WITHFF"/>
+                                <ant antfile="rxAppsCopy.xml" dir="${basedir}/../../system" inheritRefs="true"/>
                             </target>
                         </configuration>
                     </execution>
