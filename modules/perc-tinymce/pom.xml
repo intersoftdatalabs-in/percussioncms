@@ -4,11 +4,11 @@
     <parent>
         <groupId>com.percussion</groupId>
         <artifactId>core</artifactId>
-        <version>8.1.7</version>
+        <version>8.1.8-SNAPSHOT</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
     <artifactId>perc-tinymce</artifactId>
-    <version>8.1.7</version>
+    <version>8.1.8-SNAPSHOT</version>
     <licenses>
         <license>
             <name>LGPL-2.1</name>
@@ -29,7 +29,7 @@
         <dependency>
             <groupId>com.percussion</groupId>
             <artifactId>rxutils</artifactId>
-            <version>8.1.7</version>
+            <version>8.1.8-SNAPSHOT</version>
             <type>test-jar</type>
             <scope>test</scope>
         </dependency>
@@ -48,17 +48,17 @@
                         <phase>process-resources</phase>
                         <configuration>
                             <target>
-                                <mkdir dir="${download-folder}"/>
-                                <echo message="Downloading TinyMCE ${tinymce.version} from CDN..."/>
-                                <get dest="${download-folder}/${download-file}" src="${tinymce.url}"/>
-                                <echo message="Extracting TinyMCE archive..."/>
-                                <unzip dest="${project.build.directory}" src="${download-folder}/${download-file}"/>
-                                <echo message="Moving TinyMCE resources to package..."/>
+                                <mkdir dir="${download-folder}" />
+                                <echo message="Downloading TinyMCE ${tinymce.version} from CDN..." />
+                                <get dest="${download-folder}/${download-file}" src="${tinymce.url}" />
+                                <echo message="Extracting TinyMCE archive..." />
+                                <unzip dest="${project.build.directory}" src="${download-folder}/${download-file}" />
+                                <echo message="Moving TinyMCE resources to package..." />
                                 <move todir="${destDir}">
-                                    <fileset dir="${project.build.directory}/tinymce/js/tinymce"/>
+                                    <fileset dir="${project.build.directory}/tinymce/js/tinymce" />
                                 </move>
                                 <move todir="${destDir}/skins/lightgray">
-                                    <fileset dir="${destDir}/../../css"/>
+                                    <fileset dir="${destDir}/../../css" />
                                 </move>
                             </target>
                         </configuration>
@@ -109,9 +109,9 @@
                                 <phase>process-resources</phase>
                                 <configuration>
                                     <target>
-                                        <mkdir dir="${download-folder}"/>
-                                        <echo message="download archive"/>
-                                        <get dest="${download-folder}" src="${tinymce.url}"/>
+                                        <mkdir dir="${download-folder}" />
+                                        <echo message="download archive" />
+                                        <get dest="${download-folder}" src="${tinymce.url}" />
                                     </target>
                                 </configuration>
                             </execution>
