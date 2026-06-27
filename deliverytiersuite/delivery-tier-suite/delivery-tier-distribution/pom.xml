@@ -455,7 +455,7 @@
                     <execution>
                         <id>generate-checksum</id>
                         <goals>
-                            <goal>run</goal>
+                            <goal>files</goal>
                         </goals>
                         <phase>package</phase>
                     </execution>
