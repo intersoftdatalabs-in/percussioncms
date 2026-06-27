@@ -234,13 +234,6 @@
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-surefire-plugin</artifactId>
-                <configuration>
-                    <skipTests>${skipTests}</skipTests>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-antrun-plugin</artifactId>
                 <executions>
                     <execution>
@@ -252,7 +245,7 @@
                         <configuration>
                             <target>
                                 <delete>
-                                    <fileset dir="${project.build.directory}/generated-sources/axistools/wsdl2java" includes="**/*SOAPImpl.java" />
+                                    <fileset dir="${project.build.directory}/generated-sources/axistools/wsdl2java" includes="**/*SOAPImpl.java"/>
                                 </delete>
                             </target>
                         </configuration>

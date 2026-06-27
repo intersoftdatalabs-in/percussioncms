@@ -27,11 +27,11 @@
                         <phase>process-resources</phase>
                         <configuration>
                             <target>
-                                <property name="BUILDVERSION" value="${project.parent.version}" />
-                                <property location="${assembly-directory}/RxApp" name="APPS_DIR" />
-                                <property location="${assembly-directory}/RxFastForward" name="FF_DIST_APPS_DIR" />
-                                <property location="true" name="WITHFF" />
-                                <ant antfile="rxAppsCopy.xml" dir="${basedir}/../../system" inheritRefs="true" />
+                                <property name="BUILDVERSION" value="${project.parent.version}"/>
+                                <property location="${assembly-directory}/RxApp" name="APPS_DIR"/>
+                                <property location="${assembly-directory}/RxFastForward" name="FF_DIST_APPS_DIR"/>
+                                <property location="true" name="WITHFF"/>
+                                <ant antfile="rxAppsCopy.xml" dir="${basedir}/../../system" inheritRefs="true"/>
                             </target>
                         </configuration>
                     </execution>

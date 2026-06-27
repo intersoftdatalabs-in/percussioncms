@@ -166,7 +166,7 @@
             <url>https://repo.maven.apache.org/maven2</url>
         </repository>
     </repositories>
-    <build />
+    <build/>
     <profiles>
         <profile>
             <id>populate-nexus</id>
@@ -196,11 +196,11 @@
                                 <phase>process-resources</phase>
                                 <configuration>
                                     <target>
-                                        <mkdir dir="${download-folder}" />
-                                        <echo message="download windows archive" />
-                                        <get dest="${download-folder}" src="${windows.url}" />
-                                        <echo message="download linux archive" />
-                                        <get dest="${download-folder}" src="${linux.url}" />
+                                        <mkdir dir="${download-folder}"/>
+                                        <echo message="download windows archive"/>
+                                        <get dest="${download-folder}" src="${windows.url}"/>
+                                        <echo message="download linux archive"/>
+                                        <get dest="${download-folder}" src="${linux.url}"/>
                                     </target>
                                 </configuration>
                             </execution>
