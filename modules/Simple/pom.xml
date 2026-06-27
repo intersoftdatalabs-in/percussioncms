@@ -4,22 +4,22 @@
     <parent>
         <groupId>com.percussion</groupId>
         <artifactId>core</artifactId>
-        <version>8.1.7-SNAPSHOT</version>
+        <version>8.1.7</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
     <artifactId>perc-simple</artifactId>
-    <version>8.1.7-SNAPSHOT</version>
+    <version>8.1.7</version>
     <dependencies>
         <dependency>
             <groupId>com.percussion</groupId>
             <artifactId>rxutils</artifactId>
-            <version>8.1.7-SNAPSHOT</version>
+            <version>8.1.7</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>com.percussion</groupId>
             <artifactId>rxutils</artifactId>
-            <version>8.1.7-SNAPSHOT</version>
+            <version>8.1.7</version>
             <type>test-jar</type>
             <scope>test</scope>
         </dependency>

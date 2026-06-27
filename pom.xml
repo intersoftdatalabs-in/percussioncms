@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.percussion</groupId>
     <artifactId>core</artifactId>
-    <version>8.1.7-SNAPSHOT</version>
+    <version>8.1.7</version>
     <packaging>pom</packaging>
     <url>https://www.github.com/percussion/percussioncms</url>
     <licenses>
@@ -66,7 +66,7 @@
     <scm>
         <connection>scm:git:https://github.com/intersoftdatalabs-in/percussioncms</connection>
         <developerConnection>scm:git:https://github.com/intersoftdatalabs-in/percussioncms</developerConnection>
-        <tag>HEAD</tag>
+        <tag>v8.1.7</tag>
         <url>https://github.com/intersoftdatalabs-in/percussioncms</url>
     </scm>
     <properties>
@@ -2339,7 +2339,7 @@
                         <dependency>
                             <groupId>com.percussion</groupId>
                             <artifactId>rxutils</artifactId>
-                            <version>8.1.7-SNAPSHOT</version>
+                            <version>8.1.7</version>
                         </dependency>
                         <dependency>
                             <groupId>xerces</groupId>
@@ -2435,7 +2435,7 @@
                         <dependency>
                             <groupId>com.percussion</groupId>
                             <artifactId>build-tools</artifactId>
-                            <version>8.1.7-SNAPSHOT</version>
+                            <version>8.1.7</version>
                         </dependency>
                     </dependencies>
                     <executions>
@@ -2465,7 +2465,7 @@
                         <dependency>
                             <groupId>com.percussion</groupId>
                             <artifactId>build-tools</artifactId>
-                            <version>8.1.7-SNAPSHOT</version>
+                            <version>8.1.7</version>
                         </dependency>
                     </dependencies>
                 </plugin>
