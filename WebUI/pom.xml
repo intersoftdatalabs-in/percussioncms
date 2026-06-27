@@ -4,7 +4,7 @@
     <parent>
         <groupId>com.percussion</groupId>
         <artifactId>core</artifactId>
-        <version>8.1.7</version>
+        <version>8.1.8-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
     <artifactId>perc-web-ui</artifactId>
@@ -126,7 +126,7 @@
             <groupId>com.percussion</groupId>
             <artifactId>rest</artifactId>
             <version>${project.parent.version}</version>
-            <exclusions/>
+            <exclusions />
         </dependency>
         <dependency>
             <groupId>com.percussion</groupId>
@@ -695,7 +695,7 @@
         <dependency>
             <groupId>com.percussion</groupId>
             <artifactId>perc-server-ui-cmp</artifactId>
-            <version>8.1.7</version>
+            <version>8.1.8-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>com.twelvemonkeys.servlet</groupId>
@@ -819,7 +819,7 @@
                                         </goals>
                                     </pluginExecutionFilter>
                                     <action>
-                                        <ignore/>
+                                        <ignore />
                                     </action>
                                 </pluginExecution>
                             </pluginExecutions>
@@ -878,7 +878,7 @@
                             <directory>../projects/sitemanage/src/main/resources/Rhythmyx/AppServer/server/rx/deploy/rxapp.ear/rxapp.war/WEB-INF/config/spring/projects</directory>
                             <filtering>true</filtering>
                             <targetPath>WEB-INF/config/spring/projects</targetPath>
-                            <excludes/>
+                            <excludes />
                         </resource>
                         <resource>
                             <directory>../system/ear/config</directory>
@@ -919,7 +919,7 @@
                             <targetPath>META-INF</targetPath>
                             <!-- enable filtering -->
                             <filtering>true</filtering>
-                            <excludes/>
+                            <excludes />
                         </resource>
                         <resource>
                             <directory>../system/ear/WEB-INF</directory>
@@ -927,7 +927,7 @@
                             <targetPath>WEB-INF</targetPath>
                             <!-- enable filtering -->
                             <filtering>false</filtering>
-                            <excludes/>
+                            <excludes />
                         </resource>
                         <!-- Include system-scoped dependencies from system/lib - FLATTEN ALL JARS TO WEB-INF/lib -->
                         <!-- Note: Unfortunately maven-war-plugin webResources don't support flattening -->
@@ -976,7 +976,7 @@
                             <!--We need to pass in build property for version of ContentExplorer jar -->
                             <directory>../system/ear/jsps</directory>
                             <!-- override the destination directory for this resource -->
-                            <targetPath/>
+                            <targetPath />
                             <!-- enable filtering -->
                             <filtering>true</filtering>
                             <excludes>
@@ -986,7 +986,7 @@
                         <resource>
                             <directory>../system/ear/jsps</directory>
                             <!-- override the destination directory for this resource -->
-                            <targetPath/>
+                            <targetPath />
                             <!-- disable filtering -->
                             <filtering>false</filtering>
                             <excludes>
@@ -1097,15 +1097,15 @@
                         <phase>process-resources</phase>
                         <configuration>
                             <target>
-                                <taskdef classpathref="maven.plugin.classpath" resource="net/sf/antcontrib/antlib.xml"/>
+                                <taskdef classpathref="maven.plugin.classpath" resource="net/sf/antcontrib/antlib.xml" />
                                 <echo>changing to read write ${project.build.directory}/${project.artifactId}-${project.version}</echo>
                                 <trycatch>
                                     <try>
                                         <!-- On nix based systems run chmod - will do nothing on Windows -->
-                                        <chmod dir="${project.build.directory}" includes="**/*" perm="ugo+rw"/>
+                                        <chmod dir="${project.build.directory}" includes="**/*" perm="ugo+rw" />
                                         <!-- On Windows based systems run attrib - will do nothing on unix -->
                                         <attrib readonly="false" verbose="true">
-                                            <fileset dir="${project.build.directory}" includes="**/*"/>
+                                            <fileset dir="${project.build.directory}" includes="**/*" />
                                         </attrib>
                                     </try>
                                     <catch>
@@ -1307,10 +1307,10 @@
                                         <echo>Refreshing dev install with updated JS...</echo>
                                         <echo>Installing to ${install.dir}</echo>
                                         <echo>Unzipping war....</echo>
-                                        <unzip dest="${install.dir}/jetty/base/webapps/Rhythmyx" src="${project.basedir}/target/perc-web-ui-${project.parent.version}.war"/>
+                                        <unzip dest="${install.dir}/jetty/base/webapps/Rhythmyx" src="${project.basedir}/target/perc-web-ui-${project.parent.version}.war" />
                                         <echo>Copying common-ui files to web_resources...</echo>
                                         <copy force="true" overwrite="true" todir="${install.dir}/web_resources/cm/common/js">
-                                            <fileset dir="${install.dir}/jetty/base/webapps/Rhythmyx/cm/common/js/" includes="**/*.js"/>
+                                            <fileset dir="${install.dir}/jetty/base/webapps/Rhythmyx/cm/common/js/" includes="**/*.js" />
                                         </copy>
                                     </target>
                                 </configuration>
