@@ -3,6 +3,8 @@
 <%@ page import="com.percussion.services.utils.jspel.PSRoleUtilities" %>
 <%@ page import="com.percussion.utils.container.IPSConnector" %>
 <%@ page import="com.percussion.server.PSServer" %>
+<%@ page import="org.apache.log4j.Logger" %>
+<%@ page import="org.apache.log4j.Level" %>
 <%@ taglib uri="/WEB-INF/tmxtags.tld" prefix="i18n" %>
 <%@ taglib uri="http://www.owasp.org/index.php/Category:OWASP_CSRFGuard_Project/Owasp.CsrfGuard.tld" prefix="csrf" %>
 
@@ -29,10 +31,29 @@
     String hostScheme = request.getScheme();
     String debug = request.getParameter("debug");
 
+    Logger dashboardLogger = Logger.getLogger("com.percussion.dashboard");
+
     if(PSServer.isRequestBehindProxy(request)) {
-        nonSslPort  = Integer.valueOf(PSServer.getProperty("proxyPort",""+nonSslPort));
-        hostScheme  = PSServer.getProperty("proxyScheme", "http");
-        hostAddress = PSServer.getProperty("publicCmsHostname", "localhost");
+        int resolvedPort = Integer.valueOf(PSServer.getProperty("proxyPort",""+nonSslPort));
+        String resolvedScheme = PSServer.getProperty("proxyScheme", hostScheme);
+        String resolvedHost = PSServer.getProperty("publicCmsHostname", "localhost");
+
+        dashboardLogger.log(Level.WARN, "Dashboard proxy configuration detected: requestScheme=" + hostScheme
+            + ", proxyScheme=" + resolvedScheme
+            + ", requestPort=" + nonSslPort
+            + ", proxyPort=" + resolvedPort
+            + ", requestHost=" + hostAddress
+            + ", publicHost=" + resolvedHost);
+
+        if (!hostScheme.equalsIgnoreCase(resolvedScheme)) {
+            dashboardLogger.log(Level.ERROR, "Dashboard scheme mismatch: request came in as " + hostScheme
+                + " but proxyScheme resolves to " + resolvedScheme
+                + ". Gadget specs will fail to load due to mixed-content blocking. Set proxyScheme=" + hostScheme + " in server.properties.");
+        }
+
+        nonSslPort = resolvedPort;
+        hostScheme = resolvedScheme;
+        hostAddress = resolvedHost;
         if(nonSslPort == 80 || nonSslPort == 443){
             nonSslPort = -1;
         }
