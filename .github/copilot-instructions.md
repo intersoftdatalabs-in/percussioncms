@@ -24,8 +24,8 @@
 * Upgrade dependencies to their latest versions that are compatible with JDK 1.8.0
 * Dependency versions are managed in the parent pom.xml file
 * axis
-** axis:axis dependencies are manaaged in static lib folder and not an external repository
-* Cactus test framework is retired, remove any cactus dependencies and relocate any cactus tests to the CMLight-Main-cactus-tests module wich is currently excluded from the build.
+** axis:axis dependencies are managed in static lib folder and not an external repository
+* Cactus test framework is retired, remove any cactus dependencies and relocate any cactus tests to the CMLight-Main-cactus-tests module which is currently excluded from the build.
 * Any23 is retired. Remove any Any23 dependencies. Refactor code that uses Any23 to not use it.
 * Add missing perc-i18n dependency where needed.
 * prefer the javax namespace, do not migrate to the jakarta namespace on this branch.
