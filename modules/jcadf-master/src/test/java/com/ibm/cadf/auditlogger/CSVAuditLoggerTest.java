@@ -49,12 +49,13 @@ public class CSVAuditLoggerTest {
   @Test
   public void testCSVAuditing() throws CADFException, IOException, CsvException {
 
-    File file = new File(Constants.CSV_AUDIT_FILES_NAME);
+    File file = new File("target/" + Constants.CSV_AUDIT_FILES_NAME);
     if (file.exists()) {
       file.delete();
     }
 
     AuditLogger auditLogger = AuditLoggerFactory.getAuditLogger(Constants.AUDIT_FORMAT_TYPE_CSV);
+    auditLogger.setOutputFilePath("target/" + Constants.CSV_AUDIT_FILES_NAME);
 
     String initiatorId = Identifier.generateUniqueId();
     Resource initiator = new Resource(initiatorId);
@@ -97,13 +98,13 @@ public class CSVAuditLoggerTest {
 
     Assert.assertTrue(true);
 
-    file = new File(Constants.CSV_AUDIT_FILES_NAME);
+    file = new File("target/" + Constants.CSV_AUDIT_FILES_NAME);
 
     if (file.exists()) {
 
       // create CSVReader object
       CSVReader reader =
-          new CSVReaderBuilder(new FileReader(Constants.CSV_AUDIT_FILES_NAME))
+          new CSVReaderBuilder(new FileReader("target/" + Constants.CSV_AUDIT_FILES_NAME))
               .withCSVParser(new CSVParserBuilder().withSeparator(',').build())
               .build();
 
