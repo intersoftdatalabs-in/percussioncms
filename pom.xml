@@ -82,6 +82,7 @@
         <bc.version>1.83</bc.version>
         <build.helper.maven.plugin.version>3.6.1</build.helper.maven.plugin.version>
         <build.profile.id>dev</build.profile.id>
+        <buildId>0</buildId>
         <buildNumber>${maven.build.timestamp}</buildNumber>
         <commons-cli.version>1.11.0</commons-cli.version>
         <commons-email.version>1.6.0</commons-email.version>
