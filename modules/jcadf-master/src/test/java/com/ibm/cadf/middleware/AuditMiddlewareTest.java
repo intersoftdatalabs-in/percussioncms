@@ -37,6 +37,7 @@ public class AuditMiddlewareTest {
   public void audit() {
     try {
       AuditMiddleware middleware = new AuditMiddleware(Constants.AUDIT_FORMAT_TYPE_JSON);
+      middleware.setOutputFilePath("target/" + Constants.JSON_AUDIT_FILES_NAME);
       AuditContext ctx = new AuditContext();
       ctx.setIniatorName("root");
       ctx.setTargetName("swift");
@@ -61,7 +62,7 @@ public class AuditMiddlewareTest {
 
   @AfterClass
   public static void clean() {
-    File auditFile = new File(Constants.JSON_AUDIT_FILES_NAME);
-    // auditFile.delete();
+    File auditFile = new File("target/" + Constants.JSON_AUDIT_FILES_NAME);
+    auditFile.delete();
   }
 }
