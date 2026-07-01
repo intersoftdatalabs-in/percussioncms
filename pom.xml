@@ -71,7 +71,7 @@
     </scm>
     <properties>
         <activemq.version>5.16.8</activemq.version>
-        <ai-build-integrity.plugin.version>0.10.0-SNAPSHOT</ai-build-integrity.plugin.version>
+        <ai-build-integrity.plugin.version>0.11.1-SNAPSHOT</ai-build-integrity.plugin.version>
         <ant.contrib.version>1.0b3</ant.contrib.version>
         <ant.version>1.10.14</ant.version>
         <avalon.version>4.1.5</avalon.version>
