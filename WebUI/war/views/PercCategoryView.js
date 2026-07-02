@@ -534,7 +534,13 @@ container.fancytree({
                      // Do not expand purely because a node has children - that would
                      // undo the user's manual collapse state on every save/reload.
                      if (node.data.initialViewCollapsed === "false" && !node.expanded) {
-                         node.setExpanded(true, {animation: false});
+                         // Fancytree's setExpanded() option to skip the expand/collapse
+                         // animation is `noAnimation`, not `animation: false` (which
+                         // Fancytree does not recognize and silently ignores, leaving
+                         // the node in an animating state). Using the correct option
+                         // avoids spurious "while animating: ignored" warnings from
+                         // any setExpanded()/makeVisible() calls that follow.
+                         node.setExpanded(true, {noAnimation: true});
                      }
                  });
              } finally {
@@ -844,7 +850,13 @@ var uid = generateUid();
                              });
 
                  newChild.visitParents(function (childnode) {
-                     childnode.setExpanded(true, {animation: false});
+                     // Use `noAnimation` (the option Fancytree actually recognizes),
+                     // not `animation: false`. With the wrong key Fancytree still
+                     // animates the expand, and the node stays in an "animating"
+                     // state, so the setActive()/makeVisible() call right below
+                     // (which also tries to expand this node) gets ignored with
+                     // "setExpanded(true) while animating: ignored." in the console.
+                     childnode.setExpanded(true, {noAnimation: true});
                  }, true); 
 
                  newChild.setActive(true);
