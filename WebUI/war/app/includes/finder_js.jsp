@@ -1,5 +1,12 @@
+<!--
+     jquery.fancytree-all.min.js is already loaded unconditionally by
+     includes/common_js.jsp (which every page that includes this file also
+     includes), so it is intentionally NOT re-included here to avoid Fancytree
+     logging "ignored duplicate include" warnings on page load.
+     The CSS skin below is kept since common_css.jsp only includes the
+     unminified ui.fancytree.css and this page relies on the minified skin.
+-->
 <link href="../jslib/profiles/3x/jquery/plugins/jquery-fancytree/skin-win8/ui.fancytree.min.css" rel="stylesheet">
-<script src="../jslib/profiles/3x/jquery/plugins/jquery-fancytree/jquery.fancytree-all.min.js"></script>
 <script src="../widgets/perc_imageselect.js"></script>
 <script src="../widgets/perc_wizard.js"></script>
 <script src="../services/PercSiteService.js"></script>
