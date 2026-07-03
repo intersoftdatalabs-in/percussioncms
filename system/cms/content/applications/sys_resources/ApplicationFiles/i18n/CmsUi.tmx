@@ -12418,6 +12418,16 @@ Documentación' href='https://percussioncmshelp.intsof.com/'&gt;percussioncmshel
 	        <seg>Nombre de la Categoría:</seg>
 	    </tuv>
 	 </tu>
+	 <tu tuid="perc.ui.perc.categories@New Category">
+	    <prop type="sectionname" xml:lang="en-us">Label</prop>
+	    <note xml:lang="en-us"></note>
+	    <tuv xml:lang="en-us">
+	        <seg>New Category</seg>
+	    </tuv>
+	      <tuv xml:lang="es">
+	        <seg>Nueva Categoría</seg>
+	    </tuv>
+	 </tu>
 	 <tu tuid="perc.ui.perc.categories@Is It Selectable">
 	    <prop type="sectionname" xml:lang="en-us">Question</prop>
 	    <note xml:lang="en-us"></note>

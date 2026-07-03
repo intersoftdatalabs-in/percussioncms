@@ -318,7 +318,29 @@
                 var node = getTree().getActiveNode();
                 if (node != null && node.title === "New Category")
                 {
-                    alertDialog("Error", "You must change the category name.");
+                    // Use a plain alert here (not alertDialog()) - alertDialog()'s
+                    // okCallBack unconditionally calls controller.getCategories(),
+                    // which destroys and rebuilds the fancytree. Since the user is
+                    // still mid-edit on this unsaved node, that rebuild orphans the
+                    // active node while `editing` stays true (so beforeActivate blocks
+                    // re-activation), leaving the still-enabled name field's keyup
+                    // handler pointed at a null active node and throwing on next
+                    // keystroke. This is only a client-side validation message, so
+                    // nothing needs to be reloaded - just let the user keep editing.
+                    validationAlert("Error", "You must change the category name.");
+                    return;
+                }
+                // Covers both brand-new categories whose name was typed into and then
+                // fully cleared again (node.title becomes the literal "[empty]" marker
+                // via the keyup handler below, not "New Category", so the check above
+                // doesn't catch it) and existing categories whose name was cleared
+                // during edit. Without this, editCategories() reads the real (empty)
+                // field value, saves it as the title/name, and the server persists it
+                // as null instead of the validation being surfaced to the user.
+                var categoryname = $("#perc-category-name-field").val().trim();
+                if (categoryname === "")
+                {
+                    validationAlert("Error", "You must enter a category name.");
                     return;
                 }
                 save();
@@ -599,7 +621,15 @@ container.fancytree({
             $("#perc-category-name-field").prop("disabled", true);
 			$("#perc-category-name-field").attr("aria-disabled","true");
 
-            $("#perc-category-name-field").val(node.title);
+            // For a brand new, unsaved category, leave the input truly empty so the
+            // native HTML placeholder (see percCategories.jsp) is displayed instead of
+            // pre-filling the literal default title text into the field's real value.
+            // A real placeholder automatically hides itself as soon as the user types,
+            // and reappears if the field is cleared again - unlike stuffing the default
+            // text into .val(), which the browser treats as actual content that must be
+            // manually selected/deleted before typing.
+            var isUnsavedDefaultTitle = !node.data.saved && node.title === "New Category";
+            $("#perc-category-name-field").val(isUnsavedDefaultTitle ? "" : node.title);
             
             $("#perc-category-selectable-field").prop("disabled", true);
 			$("#perc-category-selectable-field").attr("aria-disabled","true");
@@ -671,12 +701,10 @@ container.fancytree({
             var $nameField = $("#perc-category-name-field");
             $nameField.trigger("focus");
 
-            // UX improvement for new categories: if the field still contains the
-            // default placeholder "New Category", select the text so the user can
-            // immediately start typing to overwrite it.
-            if (!node.data.saved && $nameField.val() === "New Category") {
-                $nameField.select();
-            }
+            // The name field is left empty for brand new, unsaved categories (see
+            // displayCategoryDetails()), so the native HTML placeholder attribute on
+            // #perc-category-name-field handles showing "New Category" and automatically
+            // hiding it as soon as the user types - no manual select()/clear needed.
 
             // Hitting Enter in the category name field should trigger Save (issue request)
             $nameField.off("keydown.enterSave").on("keydown.enterSave", function(e) {
@@ -732,6 +760,21 @@ container.fancytree({
                 {
                     
                 }
+            });
+        }
+
+        function validationAlert(title, message, w) {
+            if(w == null || w === undefined || w === "" || w < 1)
+                w = 400;
+            // Intentionally does NOT reload the category tree (unlike alertDialog()):
+            // this is a client-side validation message shown while the user is still
+            // mid-edit on an unsaved node, and reloading would discard that in-progress
+            // edit/active node while leaving the enabled name field's handlers pointed
+            // at a stale/null node.
+            $.perc_utils.alert_dialog({
+                title: title,
+                content: message,
+                width: w
             });
         }
 
