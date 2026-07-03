@@ -437,98 +437,118 @@
                 existingTree.destroy();
             }
 
-            container.fancytree({
-                selectMode: 3,
-                keyboard: true,
-                autoCollapse: true,
-                source: categorytree,
-                init: function(event, data) {
-                    visitTreeForBaseProperties();
+container.fancytree({
+                 selectMode: 3,
+                 keyboard: true,
+                 autoCollapse: true,
+                 source: categorytree,
+                 init: function(event, data) {
+                     visitTreeForBaseProperties();
 
-                    // Extra pass: ensure every node that has children is expanded.
-                    // This makes newly added child categories visible immediately after
-                    // the server round-trip + tree rebuild, without needing a browser refresh.
-                    data.tree.visit(function(node) {
-                        if (node.children && node.children.length > 0) {
-                            node.setExpanded(true);
-                        }
-                    });
+                     // Ensure something is active on initial load/rebuild so move buttons get correct initial state
+                     if (!data.tree.getActiveNode() && data.tree.rootNode.children && data.tree.rootNode.children.length > 0) {
+                         data.tree.rootNode.children[0].setActive();
+                     }
 
-                    // Ensure something is active on initial load/rebuild so move buttons get correct initial state
-                    if (!data.tree.getActiveNode() && data.tree.rootNode.children && data.tree.rootNode.children.length > 0) {
-                        data.tree.rootNode.children[0].setActive();
-                    }
+                     $("span.fancytree-title").each(function(){
+                         this.title=this.innerHTML;
+                         this.tabIndex="0";
+                         this.setAttribute("role", "button");
+                     });
 
-                    $("span.fancytree-title").each(function(){
-                        this.title=this.innerHTML;
-                        this.tabIndex="0";
-                        this.setAttribute("role", "button");
-                    });
-
-                    updateMoveButtonsState();
-                },
-                beforeActivate: function(event, data) {
-                    if (editing)
-                    {
-                        currentlyEditing();
-                        return false;
-                    }
-                },
-                activate: function(event, data) {
-                    var node = data.node;
-                    displayCategoryDetails(node);
-                },
-                extensions: ["dnd5"],
-                dnd5: {
-                    preventVoidMoves: true, // Prevent dropping nodes 'before self', etc.
-                    dragStart: function(node, data) {
-                      return true;
-                    },
-                    dragEnter: function(node, data) {
-                      var sourceNode = data.otherNode;
-                      // Prevent dropping a parent below another parent (only sort
-                      // nodes under the same parent)
-                      if(node.parent !== sourceNode.parent){
-                        return false;
-                      }
-                      // Don't allow dropping *over* a node (would create a child)
-                      return ["before", "after"];
-                    },
-                    drop: function(node, data) {
-                      /** This function MUST be defined to enable dropping of items on
-                       *  the tree.
-                       */
-                      var sourceNode = data.otherNode;
-                      var hitMode = data.hitMode;
-                      sourceNode.moveTo(node, hitMode);
-                      isMoved = true;
-                      save();
-                      // Update button states after drag-and-drop reorder
-                      setTimeout(updateMoveButtonsState, 50);
-                    }
-                  }
-            });
-            
-        }
+                     updateMoveButtonsState();
+                 },
+                 beforeActivate: function(event, data) {
+                     if (editing)
+                     {
+                         currentlyEditing();
+                         return false;
+                     }
+                 },
+                 activate: function(event, data) {
+                     var node = data.node;
+                     displayCategoryDetails(node);
+                 },
+                 extensions: ["dnd5"],
+                 dnd5: {
+                     preventVoidMoves: true, // Prevent dropping nodes 'before self', etc.
+                     dragStart: function(node, data) {
+                       return true;
+                     },
+                     dragEnter: function(node, data) {
+                       var sourceNode = data.otherNode;
+                       // Prevent dropping a parent below another parent (only sort
+                       // nodes under the same parent)
+                       if(node.parent !== sourceNode.parent){
+                         return false;
+                       }
+                       // Don't allow dropping *over* a node (would create a child)
+                       return ["before", "after"];
+                     },
+                     drop: function(node, data) {
+                       /** This function MUST be defined to enable dropping of items on
+                        *  the tree.
+                        */
+                       var sourceNode = data.otherNode;
+                       var hitMode = data.hitMode;
+                       sourceNode.moveTo(node, hitMode);
+                       isMoved = true;
+                       save();
+                       // Update button states after drag-and-drop reorder
+                       setTimeout(updateMoveButtonsState, 50);
+                     }
+                   }
+               });
+            }
         
-        function visitTreeForBaseProperties() {
+         function visitTreeForBaseProperties() {
 
-            var treeRoot = getTree().getRootNode();
-            
-            treeRoot.visit(function(node){
-                node.data.saved=true;
-                // Expand nodes that were explicitly marked as not collapsed,
-                // or any node that has children. This ensures that after saving a new
-                // child category, its parent is expanded so the new child is visible
-                // without requiring a full browser refresh.
-                var hasChildren = node.children && node.children.length > 0;
-                if (node.data.initialViewCollapsed === "false" || hasChildren) {
-                    node.setExpanded(true);
-                }
-            });
-        }
-        
-        function updateMoveButtonsState() {
+             var tree = getTree();
+             var treeRoot = tree.getRootNode();
+
+             // NOTE: node.expanded is a native Fancytree source property. It is
+             // preserved by manageDynaProps()'s toDict() call on save (dict.expanded
+             // is never deleted) and is round-tripped back from the server, so
+             // Fancytree already restores each node's correct expanded/collapsed
+             // state when the tree is rebuilt from source here. We must NOT force
+             // every node with children back open on each rebuild (previously done
+             // via a `hasChildren` check below) - doing so overrides/undoes any
+             // manual collapsing the user did before saving, making child nodes
+             // pop open again on every save. New child categories are made visible
+             // at creation time instead, via newNode()'s visitParents() expand.
+             //
+             // autoCollapse causes each setExpanded(true) call below to try to
+             // collapse sibling nodes. Since this bulk restore can expand several
+             // siblings in the same pass, that sibling-collapse can be attempted
+             // while a prior (still-settling) expand/collapse animation is in
+             // progress, which Fancytree logs as "setExpanded(false) while
+             // animating: ignored." Temporarily disable autoCollapse for this
+             // programmatic restore so we don't fight our own expand calls.
+             var autoCollapse = tree.options.autoCollapse;
+             tree.options.autoCollapse = false;
+
+             try {
+                 treeRoot.visit(function(node){
+                     node.data.saved=true;
+                     // Only force-expand nodes explicitly marked as not collapsed.
+                     // Do not expand purely because a node has children - that would
+                     // undo the user's manual collapse state on every save/reload.
+                     if (node.data.initialViewCollapsed === "false" && !node.expanded) {
+                         // Fancytree's setExpanded() option to skip the expand/collapse
+                         // animation is `noAnimation`, not `animation: false` (which
+                         // Fancytree does not recognize and silently ignores, leaving
+                         // the node in an animating state). Using the correct option
+                         // avoids spurious "while animating: ignored" warnings from
+                         // any setExpanded()/makeVisible() calls that follow.
+                         node.setExpanded(true, {noAnimation: true});
+                     }
+                 });
+             } finally {
+                 tree.options.autoCollapse = autoCollapse;
+             }
+         }
+         
+         function updateMoveButtonsState() {
             var $up = $("#perc-categories-moveup-button");
             var $down = $("#perc-categories-movedown-button");
 
@@ -814,32 +834,38 @@
             else
                 addTo = destinationNode.getParent();
                 
-            var uid = generateUid();
-            var newChild = addTo.addChildren({
-                                    id : uid,
-                                    key : uid,   // Explicit key helps fancytree track the node across rebuilds
-                                    title : "New Category",
-                                    selectable : true,
-                                    showInPgMetaData : true,
-                                    createdBy : $.PercNavigationManager.getUserName(),
-                                    creationDate : getCurrentDate(),
-                                    deleted : false,
-                                    activate: true,
-                                    saved: false,
-                                    initialViewCollapsed : true
-                                });
+var uid = generateUid();
+             var newChild = addTo.addChildren({
+                                 id : uid,
+                                 key : uid,   // Explicit key helps fancytree track the node across rebuilds
+                                 title : "New Category",
+                                 selectable : true,
+                                 showInPgMetaData : true,
+                                 createdBy : $.PercNavigationManager.getUserName(),
+                                 creationDate : getCurrentDate(),
+                                 deleted : false,
+                                 activate: true,
+                                 saved: false,
+                                 initialViewCollapsed : true
+                             });
 
-                newChild.visitParents(function (childnode) {
-                    childnode.setExpanded(true);
-                }, true); 
+                 newChild.visitParents(function (childnode) {
+                     // Use `noAnimation` (the option Fancytree actually recognizes),
+                     // not `animation: false`. With the wrong key Fancytree still
+                     // animates the expand, and the node stays in an "animating"
+                     // state, so the setActive()/makeVisible() call right below
+                     // (which also tries to expand this node) gets ignored with
+                     // "setExpanded(true) while animating: ignored." in the console.
+                     childnode.setExpanded(true, {noAnimation: true});
+                 }, true); 
 
-                newChild.setActive(true);
+                 newChild.setActive(true);
 
-                return newChild;
-    
-        }
-
-        function editCategories(node) {
+                 return newChild;
+     
+         }
+         
+         function editCategories(node) {
             
             var nodeKey = node.key;
             var childNode;

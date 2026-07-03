@@ -16,7 +16,6 @@ This file provides guidance for AI agents operating in the Percussion CMS codeba
 
 - This repo uses Git LFS. Run `git lfs pull` before building modules that use LFS files.
 - Known modules using LFS: webservices, system, shindig-uber, webui.
-
 - **NEVER commit directly** to development-8.1.x branch
 - **NEVER commit without explicit permission**
 - **NEVER push to remote** without explicit permission
