@@ -18,6 +18,7 @@
 package com.percussion.category.data;
 
 import com.percussion.server.PSRequest;
+import com.percussion.server.PSUserSessionManager;
 import com.percussion.share.service.exception.PSDataServiceException;
 import com.percussion.user.service.IPSUserService;
 import java.io.File;
@@ -26,6 +27,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.codehaus.jettison.json.JSONException;
@@ -92,6 +94,11 @@ public class PSCategoryLockInfo {
         }
 
         jsonObject = new JSONObject(new String(lockInfo, "UTF-8"));
+
+        if (isLockStale(jsonObject)) {
+          removeLockInfo();
+          return null;
+        }
       } catch (FileNotFoundException e) {
         log.error("File not found with FileReader - PSCategoryService.getLockInfo()", e);
       } catch (IOException e) {
@@ -115,19 +122,38 @@ public class PSCategoryLockInfo {
     return jsonObject;
   }
 
+  private static boolean isLockStale(JSONObject jsonObject) {
+    if (jsonObject == null) {
+      return false;
+    }
+
+    try {
+      String sessionId = jsonObject.getString("sessionId");
+      if (StringUtils.isNotBlank(sessionId)) {
+        if (PSUserSessionManager.getUserSession(sessionId) == null) {
+          log.debug(
+              "Removing stale category tab lock for sessionId: {} - session no longer exists",
+              sessionId);
+          return true;
+        }
+      }
+    } catch (JSONException e) {
+      log.error(
+          "JSON Exception occurred while validating lock - PSCategoryLockInfo.isLockStale()", e);
+    }
+
+    return false;
+  }
+
   public static void removeLockInfo() {
 
-    JSONObject jsonObject = getLockInfo();
+    File file = new File(LOCKINFOFILE);
 
-    if (jsonObject != null) {
-      File file = new File(LOCKINFOFILE);
-
-      if (file.exists()) {
-        file.setWritable(true);
-        if (file.delete()) {
-          log.debug(
-              "File containing the user information who locked the Categories Tab has been deleted successfully.");
-        }
+    if (file.exists()) {
+      file.setWritable(true);
+      if (file.delete()) {
+        log.debug(
+            "File containing the user information who locked the Categories Tab has been deleted successfully.");
       }
     }
   }
