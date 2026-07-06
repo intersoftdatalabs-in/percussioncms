@@ -99,7 +99,7 @@
                             <div class="form-group" id="perc-category-name-label">
                                 <label class="col-sm-4 control-label"><i18n:message key="perc.ui.perc.categories@Category Name"/></label>
                                 <div class="col-sm-8">
-                                    <input type="text" class="form-control" id="perc-category-name-field" maxlength="255" title='<i18n:message key="perc.ui.perc.categories@Category Name"/>'/>
+                                    <input type="text" class="form-control" id="perc-category-name-field" maxlength="255" title='<i18n:message key="perc.ui.perc.categories@Category Name"/>' placeholder='<i18n:message key="perc.ui.perc.categories@New Category"/>'/>
                                 </div>
                             </div>
                             
