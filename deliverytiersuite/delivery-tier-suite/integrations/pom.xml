@@ -212,9 +212,7 @@
 				</configuration>
 			</plugin>
 
-			<plugin>
-				<artifactId>maven-compiler-plugin</artifactId>
-			</plugin>
+			
 		</plugins>
 		<resources>
 			<resource>

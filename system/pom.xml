@@ -823,17 +823,7 @@
 					</lintSuppressions>
 				</configuration>
 			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-compiler-plugin</artifactId>
-				<version>3.14.1</version>
-				<configuration>
-					<release>${java.version}</release>
-					<fork>true</fork>
-					<meminitial>1024m</meminitial>
-					<maxmem>2024m</maxmem>
-				</configuration>
-			</plugin>
+			
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-dependency-plugin</artifactId>

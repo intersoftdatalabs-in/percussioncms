@@ -19,12 +19,7 @@
 			</resource>
 		</resources>
 		<plugins>
-			<plugin>
-				<artifactId>maven-compiler-plugin</artifactId>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-site-plugin</artifactId>
-			</plugin>
+			
 				<version>${maven.compiler.plugin.version}</version>
 				<configuration>
 					<release>${java.version}</release>
@@ -33,11 +28,7 @@
 				</configuration>
 
 			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-surefire-plugin</artifactId>
-				<version>${maven.surefire.plugin.version}</version>
-			</plugin>
+			
 		</plugins>
 	</build>
 	<dependencies>
