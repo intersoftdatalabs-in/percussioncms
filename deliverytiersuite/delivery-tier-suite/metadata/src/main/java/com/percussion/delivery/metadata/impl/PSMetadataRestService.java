@@ -440,6 +440,7 @@ public class PSMetadataRestService extends PSAbstractRestService implements IPSM
   @POST
   @Path("/categories/update/{sitename}/{deliveryserver}")
   @Consumes(MediaType.APPLICATION_JSON)
+  @RolesAllowed("deliverymanager")
   public String updateCategoryInDTS(
       String category,
       @PathParam("sitename") String sitename,
@@ -448,6 +449,8 @@ public class PSMetadataRestService extends PSAbstractRestService implements IPSM
     JSONObject categoryJson = null;
     JSONObject returnJson = new JSONObject();
     JSONArray categoryArray = null;
+    int succeeded = 0;
+    int failed = 0;
 
     try {
 
@@ -459,9 +462,79 @@ public class PSMetadataRestService extends PSAbstractRestService implements IPSM
         for (int i = 0; i < categoryArray.length(); i++) {
           categoryJson = categoryArray.getJSONObject(i);
 
-          dao.updateByCategoryProperty(
-              categoryJson.get("previousCategoryName").toString(),
-              categoryJson.get("title").toString());
+          try {
+            if (categoryJson.has("deleted") && categoryJson.getBoolean("deleted")) {
+              // Category was deleted on the authoring server - remove any metadata already
+              // indexed under that path so it stops appearing on the delivery server without
+              // requiring the referencing pages to be republished.
+              String categoryPath = categoryJson.get("previousCategoryName").toString();
+              if (StringUtils.isBlank(categoryPath) || !categoryPath.contains("/")) {
+                // Refuse to act on a suspiciously short/blank path - this would otherwise
+                // translate into an overly broad LIKE match and delete unrelated categories.
+                log.error(
+                    "Refusing to delete category metadata for suspiciously short or blank path: '{}'",
+                    categoryPath);
+                failed++;
+                continue;
+              }
+              int removed = dao.deleteByCategoryProperty(categoryPath);
+              if (removed < 0) {
+                log.error(
+                    "Failed to remove indexed page metadata row(s) for deleted category {}",
+                    categoryPath);
+                failed++;
+              } else {
+                log.info(
+                    "Removed {} indexed page metadata row(s) for deleted category {}",
+                    removed,
+                    categoryPath);
+                succeeded++;
+              }
+            } else {
+              // Category was renamed or moved on the authoring server - patch the matching
+              // indexed metadata rows to the new path.
+              String oldPath = categoryJson.get("previousCategoryName").toString();
+              String newPath = categoryJson.get("title").toString();
+              if (StringUtils.isBlank(oldPath)
+                  || !oldPath.contains("/")
+                  || StringUtils.isBlank(newPath)
+                  || !newPath.contains("/")) {
+                // Refuse to act on a suspiciously short/blank path - this would otherwise
+                // translate into an overly broad match and corrupt unrelated categories.
+                log.error(
+                    "Refusing to update category metadata for suspiciously short or blank"
+                        + " path(s): '{}' -> '{}'",
+                    oldPath,
+                    newPath);
+                failed++;
+                continue;
+              }
+              int updated = dao.updateByCategoryProperty(oldPath, newPath);
+              if (updated < 0) {
+                log.error(
+                    "Failed to update indexed page metadata row(s) for renamed/moved category"
+                        + " {} -> {}",
+                    oldPath,
+                    newPath);
+                failed++;
+              } else {
+                log.info(
+                    "Updated {} indexed page metadata row(s) for renamed/moved category {} ->"
+                        + " {}",
+                    updated,
+                    oldPath,
+                    newPath);
+                succeeded++;
+              }
+            }
+          } catch (RuntimeException e) {
+            // Don't let one malformed/rejected entry abort processing of the remaining
+            // categories in this publish batch.
+            log.error(
+                "Error processing category publish entry {}: {}", categoryJson, e.getMessage());
+            log.debug(PSExceptionUtils.getDebugMessageForLog(e));
+            failed++;
+          }
         }
       } else {
         returnJson = new JSONObject();
@@ -475,6 +548,13 @@ public class PSMetadataRestService extends PSAbstractRestService implements IPSM
       log.error("JSON Exception during updating the categories : {}", e.getMessage());
       log.debug(PSExceptionUtils.getDebugMessageForLog(e));
     }
+
+    // Surface a per-batch success/failure summary in the response so the caller (CM1's
+    // PSCategoryServiceUtil.publishToDTS) can distinguish a partial failure from a genuine
+    // full success, since this endpoint always answers with HTTP 200 regardless of whether
+    // any individual entry actually failed to apply.
+    returnJson.put("succeeded", succeeded);
+    returnJson.put("failed", failed);
 
     return returnJson.toString();
   }

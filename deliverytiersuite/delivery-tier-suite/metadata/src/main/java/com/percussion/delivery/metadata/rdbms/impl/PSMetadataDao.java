@@ -383,12 +383,30 @@ public class PSMetadataDao implements IPSMetadataDao {
   @Override
   public int updateByCategoryProperty(String oldCategoryName, String newCategoryName) {
 
-    int updatedRows = 0;
-
     if (oldCategoryName == null || newCategoryName == null)
       throw new IllegalArgumentException("Old and New Category Names are required");
 
-    ;
+    String trimmedOldName = oldCategoryName.trim();
+    String trimmedNewName = newCategoryName.trim();
+    // Refuse blank or suspiciously shallow paths - matching/replacing against these would
+    // silently corrupt unrelated indexed category values instead of just the intended one.
+    if (trimmedOldName.isEmpty()
+        || !trimmedOldName.contains("/")
+        || trimmedNewName.isEmpty()
+        || !trimmedNewName.contains("/")) {
+      throw new IllegalArgumentException(
+          "Old and New Category Names must be non-blank category paths, got: '"
+              + oldCategoryName
+              + "' -> '"
+              + newCategoryName
+              + "'");
+    }
+
+    // -1 signals a failure distinct from "0 rows matched", so callers can tell an update
+    // attempt actually failed rather than legitimately matching nothing (e.g. a category with
+    // no pages published under it yet).
+    int updatedRows = -1;
+
     Transaction tx = null;
     try (Session session = getSession()) {
       tx = session.beginTransaction();
@@ -398,10 +416,10 @@ public class PSMetadataDao implements IPSMetadataDao {
           criteriaBuilder.createCriteriaUpdate(PSDbMetadataProperty.class);
       Root<PSDbMetadataProperty> employeeRoot = criteriaUpdate.from(PSDbMetadataProperty.class);
       criteriaUpdate
-          .set(employeeRoot.get("stringvalue"), newCategoryName)
+          .set(employeeRoot.get("stringvalue"), trimmedNewName)
           .where(
               criteriaBuilder.and(
-                  criteriaBuilder.equal(employeeRoot.get("stringvalue"), oldCategoryName),
+                  criteriaBuilder.equal(employeeRoot.get("stringvalue"), trimmedOldName),
                   criteriaBuilder.equal(employeeRoot.get("name"), "perc:category")));
       updatedRows = session.createQuery(criteriaUpdate).executeUpdate();
       tx.commit();
@@ -409,10 +427,81 @@ public class PSMetadataDao implements IPSMetadataDao {
       if (tx != null && tx.isActive()) {
         tx.rollback();
       }
+      updatedRows = -1;
       log.error(PSExceptionUtils.getMessageForLog(e));
       log.debug(PSExceptionUtils.getDebugMessageForLog(e));
     }
     return updatedRows;
+  }
+
+  /**
+   * Escape character used for the LIKE pattern built in {@link #deleteByCategoryProperty(String)}.
+   */
+  private static final char CATEGORY_LIKE_ESCAPE_CHAR = '\\';
+
+  /**
+   * Escapes SQL LIKE metacharacters ({@code %}, {@code _}) and the escape character itself so that
+   * a category path containing those characters cannot be (mis)interpreted as a wildcard.
+   */
+  private static String escapeLikePattern(String value) {
+    StringBuilder escaped = new StringBuilder(value.length());
+    for (int i = 0; i < value.length(); i++) {
+      char c = value.charAt(i);
+      if (c == CATEGORY_LIKE_ESCAPE_CHAR || c == '%' || c == '_') {
+        escaped.append(CATEGORY_LIKE_ESCAPE_CHAR);
+      }
+      escaped.append(c);
+    }
+    return escaped.toString();
+  }
+
+  @Override
+  public int deleteByCategoryProperty(String categoryName) {
+
+    if (categoryName == null) throw new IllegalArgumentException("Category Name is required");
+
+    String trimmedName = categoryName.trim();
+    // Refuse blank or suspiciously shallow paths (e.g. a bare "/" or "/Categories") - matching
+    // against these via a prefix LIKE would delete far more than the intended category subtree.
+    if (trimmedName.isEmpty() || !trimmedName.contains("/") || trimmedName.equals("/")) {
+      throw new IllegalArgumentException(
+          "Category Name must be a non-blank category path, got: '" + categoryName + "'");
+    }
+
+    // -1 signals a failure distinct from "0 rows matched", so callers can tell a delete
+    // attempt actually failed rather than legitimately matching nothing.
+    int deletedRows = -1;
+
+    Transaction tx = null;
+    try (Session session = getSession()) {
+      tx = session.beginTransaction();
+      CriteriaBuilder criteriaBuilder = session.getCriteriaBuilder();
+
+      String escapedName = escapeLikePattern(trimmedName);
+
+      CriteriaDelete<PSDbMetadataProperty> criteriaDelete =
+          criteriaBuilder.createCriteriaDelete(PSDbMetadataProperty.class);
+      Root<PSDbMetadataProperty> categoryRoot = criteriaDelete.from(PSDbMetadataProperty.class);
+      criteriaDelete.where(
+          criteriaBuilder.and(
+              criteriaBuilder.equal(categoryRoot.get("name"), "perc:category"),
+              criteriaBuilder.or(
+                  criteriaBuilder.equal(categoryRoot.get("stringvalue"), trimmedName),
+                  criteriaBuilder.like(
+                      categoryRoot.get("stringvalue"),
+                      escapedName + "/%",
+                      CATEGORY_LIKE_ESCAPE_CHAR))));
+      deletedRows = session.createQuery(criteriaDelete).executeUpdate();
+      tx.commit();
+    } catch (Exception e) {
+      if (tx != null && tx.isActive()) {
+        tx.rollback();
+      }
+      deletedRows = -1;
+      log.error(PSExceptionUtils.getMessageForLog(e));
+      log.debug(PSExceptionUtils.getDebugMessageForLog(e));
+    }
+    return deletedRows;
   }
 
   private Session getSession() {

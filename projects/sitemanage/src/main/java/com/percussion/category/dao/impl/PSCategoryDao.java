@@ -22,6 +22,7 @@ import com.percussion.services.contentmgr.impl.IPSContentRepository;
 import com.percussion.share.service.IPSIdMapper;
 import com.percussion.utils.guid.IPSGuid;
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 import javax.persistence.EntityManager;
@@ -80,8 +81,10 @@ public class PSCategoryDao implements IPSCategoryDao {
   @Override
   public List<Integer> getPageIdsFromCategoryIds(Set<String> ids) {
     log.debug("IDs to grab are: {}", ids);
-    List<IPSGuid> guids = new ArrayList<>();
-    List<Integer> pageIds = new ArrayList<>();
+    // Accumulate results across all ids (a Set dedupes pages that reference more than one of
+    // the given category ids) - a previous version of this method reassigned the result list
+    // on every loop iteration, silently discarding matches for every id but the last one.
+    Set<Integer> pageIdSet = new LinkedHashSet<>();
     Session session = getSession();
     String query = null;
     Query q = null;
@@ -90,11 +93,13 @@ public class PSCategoryDao implements IPSCategoryDao {
       q = session.createQuery(query);
       q.setParameter("id", "%" + id + "%");
       try {
-        pageIds = q.list();
+        List<Integer> result = q.list();
+        pageIdSet.addAll(result);
       } catch (HibernateException e) {
         log.error("Error executing category query to get page IDs.", e);
       }
     }
+    List<Integer> pageIds = new ArrayList<>(pageIdSet);
     log.debug("The page IDs returned from the category IDs were: {}", pageIds);
     return pageIds;
   }

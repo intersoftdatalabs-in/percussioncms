@@ -256,27 +256,120 @@ public class PSCategoryServiceUtil {
 
     PSDeliveryClient deliveryClient = new PSDeliveryClient();
 
-    // Get a json array out from the category object for all the categories that were changed for
-    // the title but were not published.
+    // Get a json array out from the category object for all the categories that were changed
+    // (renamed, moved, or deleted) but were not yet published.
     String categories = getCategoriesForPublish(category);
 
-    if (categories != null && !categories.equals("[]"))
-      deliveryClient
-          .getJsonObject(
-              new PSDeliveryActionOptions(
-                  server,
-                  CATEGORIES_UPDATE + sitename + "/" + deliveryServer,
-                  HttpMethodType.POST,
-                  true),
-              categories)
-          .toString();
-    else {
+    if (categories != null && !categories.equals("[]")) {
+      log.debug(
+          "Publishing category changes to {} for site {}: {}",
+          deliveryServer,
+          sitename,
+          categories);
+      try {
+        net.sf.json.JSONObject response =
+            deliveryClient.getJsonObject(
+                new PSDeliveryActionOptions(
+                    server,
+                    CATEGORIES_UPDATE + sitename + "/" + deliveryServer,
+                    HttpMethodType.POST,
+                    true),
+                categories);
+
+        // The DTS always answers with HTTP 200 for this endpoint (a bad entry doesn't abort
+        // the rest of the batch), but it does report per-entry success/failure counts in the
+        // response body. Inspect those counts so a partial failure on the delivery server is
+        // not misreported here as a full success.
+        int failedCount = 0;
+        try {
+          if (response != null && response.has("failed")) {
+            failedCount = response.getInt("failed");
+          }
+        } catch (RuntimeException e) {
+          log.debug(
+              "Could not parse success/failure counts from DTS category publish response: {}",
+              e.getMessage());
+        }
+
+        if (failedCount > 0) {
+          log.error(
+              "Published category changes to {} server for site {}, but {} of the entries"
+                  + " failed to apply on the delivery server. Check the delivery server log"
+                  + " for details.",
+              deliveryServer,
+              sitename,
+              failedCount);
+        } else {
+          log.info(
+              "Successfully published category changes to {} server for site {}",
+              deliveryServer,
+              sitename);
+        }
+      } catch (RuntimeException e) {
+        log.error(
+            "Failed to publish category changes to {} server for site {}. Error: {}",
+            deliveryServer,
+            sitename,
+            e.getMessage());
+        log.debug(e.getMessage(), e);
+        throw e;
+      }
+    } else {
+      log.info(
+          "No category changes to publish to {} for site {}.  Note that categories with no"
+              + " pages assigned to them yet will not appear on the delivery server until a page"
+              + " using them is published.",
+          deliveryServer,
+          sitename);
       PSValidationErrorsBuilder builder = validateParameters("publishToDTS");
       builder
           .reject(
               "no.categories.to.publish",
               "There are no recently edited categories to publish.  A category should be edited before publishing.")
           .throwIfInvalid();
+    }
+  }
+
+  /**
+   * Collects the ids of every category node that was renamed, moved or deleted in the given
+   * category tree, plus the ids of any of that node's descendants - a descendant's own resolved
+   * label path also changes whenever an ancestor's title changes or an ancestor is removed, even
+   * though the descendant's own title and id are unchanged. Used to determine which
+   * already-published pages must be queued for republish so their baked-in category label reflects
+   * the change, since publishing category changes to a delivery server only updates the delivery
+   * tier's category index/browse widget - it does not regenerate any previously published page
+   * HTML.
+   *
+   * @param category the just-published category tree, may be <code>null</code>.
+   * @return a (possibly empty) set of affected category ids, never <code>null</code>.
+   */
+  public static Set<String> getAffectedCategoryIds(PSCategory category) {
+    Set<String> affectedIds = new HashSet<>();
+    if (category == null || category.getTopLevelNodes() == null) {
+      return affectedIds;
+    }
+    collectAffectedCategoryIds(category.getTopLevelNodes(), affectedIds, false);
+    return affectedIds;
+  }
+
+  private static void collectAffectedCategoryIds(
+      List<PSCategoryNode> nodes, Set<String> affectedIds, boolean ancestorChanged) {
+    if (nodes == null) {
+      return;
+    }
+
+    for (PSCategoryNode node : nodes) {
+      boolean renamedOrMoved =
+          StringUtils.isNotBlank(node.getPreviousCategoryName())
+              && StringUtils.isNotBlank(node.getTitle())
+              && !node.getPreviousCategoryName().equals(node.getTitle());
+      boolean changed = ancestorChanged || renamedOrMoved || node.isDeleted();
+
+      if (changed && StringUtils.isNotBlank(node.getId())) {
+        affectedIds.add(node.getId());
+      }
+
+      collectAffectedCategoryIds(node.getChildNodes(), affectedIds, changed);
     }
   }
 
@@ -292,11 +385,83 @@ public class PSCategoryServiceUtil {
 
     if (topCategories != null && !topCategories.isEmpty()) {
 
-      forPublish =
-          findModifiedCategories(topCategories, "/" + category.getTitle(), null, false).toString();
+      JSONArray combined =
+          findModifiedCategories(topCategories, "/" + category.getTitle(), null, false);
+
+      // Renamed/moved categories are captured above (via previousCategoryName vs title).
+      // Deleted categories are never captured by findModifiedCategories, since it never
+      // inspects the "deleted" flag. Collect those separately so a category deletion is
+      // actually propagated to the DTS instead of silently being dropped.
+      JSONArray deleted = collectDeletedCategoryPaths(topCategories, "/" + category.getTitle());
+
+      for (int i = 0; i < deleted.length(); i++) {
+        try {
+          combined.put(deleted.get(i));
+        } catch (JSONException e) {
+          log.error(
+              "Error occurred while merging deleted categories into publish payload - PSCategoryServiceUtil.getCategoriesForPublish()",
+              e);
+        }
+      }
+
+      forPublish = combined.toString();
     }
 
     return forPublish;
+  }
+
+  /**
+   * Recursively walks the category tree collecting the full path of every node currently marked as
+   * {@code deleted}, regardless of whether it was renamed. Each entry is emitted as {@code
+   * {"previousCategoryName": "<fullPath>", "deleted": true}} so the DTS can remove any metadata
+   * already indexed under that category path, without requiring the pages that reference it to be
+   * republished.
+   *
+   * @param categories the nodes to inspect, not <code>null</code>.
+   * @param pathPrefix the resolved path of the parent of {@code categories}, not <code>null</code>
+   *     .
+   * @return a (possibly empty) {@link JSONArray} of delete instructions, never <code>null</code>.
+   */
+  private static JSONArray collectDeletedCategoryPaths(
+      List<PSCategoryNode> categories, String pathPrefix) {
+
+    JSONArray jsonArray = new JSONArray();
+
+    if (categories == null || categories.isEmpty()) {
+      return jsonArray;
+    }
+
+    for (PSCategoryNode node : categories) {
+      String fullPath = pathPrefix + "/" + node.getTitle();
+
+      if (node.isDeleted()) {
+        try {
+          JSONObject obj = new JSONObject();
+          obj.put("previousCategoryName", fullPath);
+          obj.put("deleted", true);
+          jsonArray.put(obj);
+        } catch (JSONException e) {
+          log.error(
+              "Error occurred while creating json object for deleted category to be published. - PSCategoryServiceUtil.collectDeletedCategoryPaths()",
+              e);
+        }
+      }
+
+      if (node.getChildNodes() != null && !node.getChildNodes().isEmpty()) {
+        JSONArray childDeletes = collectDeletedCategoryPaths(node.getChildNodes(), fullPath);
+        for (int i = 0; i < childDeletes.length(); i++) {
+          try {
+            jsonArray.put(childDeletes.get(i));
+          } catch (JSONException e) {
+            log.error(
+                "Error occurred while merging child deleted categories - PSCategoryServiceUtil.collectDeletedCategoryPaths()",
+                e);
+          }
+        }
+      }
+    }
+
+    return jsonArray;
   }
 
   private static JSONArray findModifiedCategories(

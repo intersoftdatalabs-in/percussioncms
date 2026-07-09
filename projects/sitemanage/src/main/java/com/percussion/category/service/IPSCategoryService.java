@@ -77,8 +77,10 @@ public interface IPSCategoryService {
    *
    * @param sitename - Site in which the category is modified
    * @param deliveryserver - Staging or Production
+   * @throws PSValidationException if there are no recently edited categories to publish.
    */
-  public void updateCategoryInDTS(String sitename, String deliveryserver);
+  public void updateCategoryInDTS(String sitename, String deliveryserver)
+      throws PSValidationException;
 
   public PSCategoryNode findCategoryNode(
       String siteName, String rootPath, boolean includeDeleted, boolean includeNotSelectable);

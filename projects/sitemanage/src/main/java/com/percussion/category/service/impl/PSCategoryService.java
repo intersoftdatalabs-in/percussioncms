@@ -27,8 +27,16 @@ import com.percussion.category.marshaller.PSCategoryMarshaller;
 import com.percussion.category.marshaller.PSCategoryUnMarshaller;
 import com.percussion.category.service.IPSCategoryService;
 import com.percussion.delivery.service.IPSDeliveryInfoService;
+import com.percussion.itemmanagement.service.IPSItemService;
+import com.percussion.itemmanagement.service.IPSItemWorkflowService;
+import com.percussion.pubserver.IPSPubServerService;
+import com.percussion.services.contentchange.IPSContentChangeService;
+import com.percussion.services.contentchange.data.PSContentChangeEvent;
+import com.percussion.services.contentchange.data.PSContentChangeType;
+import com.percussion.services.error.PSNotFoundException;
 import com.percussion.services.guidmgr.IPSGuidManager;
 import com.percussion.services.guidmgr.data.PSLegacyGuid;
+import com.percussion.share.service.IPSIdMapper;
 import com.percussion.share.service.exception.PSBeanValidationException;
 import com.percussion.share.service.exception.PSDataServiceException;
 import com.percussion.share.service.exception.PSParameterValidationUtils;
@@ -36,6 +44,8 @@ import com.percussion.share.service.exception.PSValidationException;
 import com.percussion.share.validation.PSAbstractBeanValidator;
 import com.percussion.sitemanage.data.PSSiteSummary;
 import com.percussion.sitemanage.service.IPSSiteDataService;
+import com.percussion.sitemanage.service.IPSSitePublishService;
+import com.percussion.sitemanage.service.IPSSitePublishService.PubType;
 import com.percussion.user.service.IPSUserService;
 import com.percussion.utils.guid.IPSGuid;
 import java.nio.channels.OverlappingFileLockException;
@@ -77,6 +87,12 @@ public class PSCategoryService implements IPSCategoryService {
   @Autowired private IPSCategoryDao categoryDao;
 
   @Autowired private IPSGuidManager guidMgr;
+
+  @Autowired private IPSContentChangeService contentChangeService;
+
+  @Autowired private IPSSitePublishService sitePublishService;
+
+  @Autowired private IPSIdMapper idMapper;
 
   public PSCategoryService() {
     // empty for jax-rs
@@ -399,18 +415,166 @@ public class PSCategoryService implements IPSCategoryService {
   @Produces({MediaType.APPLICATION_JSON, MediaType.TEXT_PLAIN, MediaType.APPLICATION_XML})
   @Consumes({MediaType.APPLICATION_JSON, MediaType.TEXT_PLAIN, MediaType.APPLICATION_XML})
   public void updateCategoryInDTS(
-      @PathParam("sitename") String sitename, @PathParam("deliveryserver") String deliveryserver) {
+      @PathParam("sitename") String sitename, @PathParam("deliveryserver") String deliveryserver)
+      throws PSValidationException {
 
     try {
-      String category = PSCategoryServiceUtil.prepareCategoryJson(getCategoryList(sitename));
+      PSCategory categoryTree = getCategoryList(sitename);
+      String category = PSCategoryServiceUtil.prepareCategoryJson(categoryTree);
 
       if (deliveryserver.equalsIgnoreCase("Both")) {
         PSCategoryServiceUtil.publishToDTS(category, sitename, "Production", deliveryService);
+        queuePagesForRepublish(categoryTree, sitename, "Production");
         PSCategoryServiceUtil.publishToDTS(category, sitename, "Staging", deliveryService);
-      } else
+        queuePagesForRepublish(categoryTree, sitename, "Staging");
+      } else {
         PSCategoryServiceUtil.publishToDTS(category, sitename, deliveryserver, deliveryService);
+        queuePagesForRepublish(categoryTree, sitename, deliveryserver);
+      }
+    } catch (PSValidationException e) {
+      // Propagate as-is so it is handled by the registered validationExceptionMapper, which
+      // returns a proper 400 with the structured validation error instead of a generic 500.
+      log.warn(
+          "Category publish to {} for site {} did not send any changes: {}",
+          deliveryserver,
+          sitename,
+          e.getMessage());
+      throw e;
     } catch (PSDataServiceException e) {
+      log.error(
+          "Error publishing categories to {} for site {}. Error: {}",
+          deliveryserver,
+          sitename,
+          e.getMessage());
+      log.debug(e.getMessage(), e);
       throw new WebApplicationException(e.getMessage());
+    }
+  }
+
+  /**
+   * After category rename/move/delete changes have been published to a delivery server, immediately
+   * publishes any already-published pages that use one of the affected categories - the same
+   * "Publish Now"/"Publish to Staging Now" on-demand action a user would get by publishing an
+   * individual page. This is necessary because publishing category changes only updates the
+   * delivery tier's category index used by the live Category Browser widget - it does not
+   * regenerate any previously published page's HTML. Each page's own category label/breadcrumb text
+   * is resolved once and baked into its markup at that page's own last publish time (see
+   * PSPageUtils#getCategoryLabel and sys_assembly.vm), so without this, a renamed/moved/deleted
+   * category would silently remain stale on already-published pages.
+   *
+   * <p>If the immediate on-demand publish fails for a given page (e.g. no matching on-demand
+   * edition configured, or the page isn't currently in a workflow state from which it can be
+   * auto-approved), that page is instead queued for the site's next scheduled incremental publish
+   * run, so the update is not silently lost.
+   *
+   * <p>This is a best-effort step: any failure here is logged and swallowed rather than propagated,
+   * since the category publish action itself already completed successfully by the time this runs.
+   *
+   * @param categoryTree the just-published category tree for the site, not <code>null</code>.
+   * @param sitename the site the categories were published for.
+   * @param deliveryserver "Production" or "Staging" - determines whether affected pages are
+   *     published now to the live site or the staging server.
+   */
+  private void queuePagesForRepublish(
+      PSCategory categoryTree, String sitename, String deliveryserver) {
+    try {
+      Set<String> affectedCategoryIds = PSCategoryServiceUtil.getAffectedCategoryIds(categoryTree);
+      if (affectedCategoryIds.isEmpty()) {
+        return;
+      }
+
+      List<Integer> pageIds = categoryDao.getPageIdsFromCategoryIds(affectedCategoryIds);
+      if (pageIds == null || pageIds.isEmpty()) {
+        return;
+      }
+
+      PubType pubType =
+          "Staging".equalsIgnoreCase(deliveryserver) ? PubType.STAGE_NOW : PubType.PUBLISH_NOW;
+
+      int publishedNow = 0;
+      int queuedForLater = 0;
+      for (Integer pageId : pageIds) {
+        String itemId = idMapper.getString(new PSLegacyGuid(pageId, -1));
+        try {
+          sitePublishService.publish(null, pubType, itemId, false, null);
+          publishedNow++;
+        } catch (PSDataServiceException
+            | IPSPubServerService.PSPubServerServiceException
+            | IPSItemWorkflowService.PSItemWorkflowServiceException
+            | IPSItemService.PSItemServiceException
+            | PSNotFoundException
+            | RuntimeException e) {
+          // Immediate on-demand publish failed for this page (e.g. no PUBLISH_NOW/STAGE_NOW
+          // edition configured for the site, or the page isn't in a workflow state that can be
+          // auto-approved). Fall back to queueing it for the next scheduled incremental publish
+          // rather than silently dropping the update.
+          log.warn(
+              "Could not immediately publish page {} after category publish to {} for site {}."
+                  + " It will be queued for the next incremental publish instead. Error: {}",
+              pageId,
+              deliveryserver,
+              sitename,
+              e.getMessage());
+          log.debug(e.getMessage(), e);
+          if (queuePageForIncrementalPublish(pageId, sitename, deliveryserver)) {
+            queuedForLater++;
+          }
+        }
+      }
+      log.info(
+          "Category publish to {} for site {}: published {} page(s) immediately, queued {}"
+              + " page(s) for the next incremental publish.",
+          deliveryserver,
+          sitename,
+          publishedNow,
+          queuedForLater);
+    } catch (RuntimeException e) {
+      // Never let republish failures block the category publish action itself - the DTS index
+      // update already succeeded; log and move on. Affected pages can still be republished
+      // manually if this best-effort step doesn't succeed.
+      log.error(
+          "Error republishing pages after category publish to {} for site {}. Error: {}",
+          deliveryserver,
+          sitename,
+          e.getMessage());
+      log.debug(e.getMessage(), e);
+    }
+  }
+
+  /**
+   * Fallback used when an immediate on-demand publish attempt fails for a page - marks the page
+   * dirty so the site's next scheduled incremental publish run still picks it up, instead of the
+   * category change being silently lost.
+   *
+   * @return <code>true</code> if the page was successfully queued.
+   */
+  private boolean queuePageForIncrementalPublish(
+      int pageId, String sitename, String deliveryserver) {
+    try {
+      PSSiteSummary site = siteDataService.findByName(sitename);
+      if (site == null || site.getSiteId() == null) {
+        log.warn(
+            "Could not resolve site id for site {}. Unable to queue page {} for incremental"
+                + " publish either.",
+            sitename,
+            pageId);
+        return false;
+      }
+
+      PSContentChangeType changeType =
+          "Staging".equalsIgnoreCase(deliveryserver)
+              ? PSContentChangeType.PENDING_STAGED
+              : PSContentChangeType.PENDING_LIVE;
+
+      PSContentChangeEvent changeEvent = new PSContentChangeEvent();
+      changeEvent.setContentId(pageId);
+      changeEvent.setSiteId(site.getSiteId());
+      changeEvent.setChangeType(changeType);
+      contentChangeService.contentChanged(changeEvent);
+      return true;
+    } catch (PSDataServiceException | RuntimeException e) {
+      log.error("Failed to queue page {} for incremental publish: {}", pageId, e.getMessage());
+      return false;
     }
   }
 

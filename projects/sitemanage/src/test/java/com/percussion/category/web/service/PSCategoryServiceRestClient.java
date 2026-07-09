@@ -62,7 +62,8 @@ public class PSCategoryServiceRestClient extends PSJerseyRestClient implements I
   public void removeCategoryTabLock() {}
 
   @Override
-  public void updateCategoryInDTS(String sitename, String deliveryserver) {}
+  public void updateCategoryInDTS(String sitename, String deliveryserver)
+      throws com.percussion.share.service.exception.PSValidationException {}
   /*
   public static void main(String[] args) {
 

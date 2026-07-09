@@ -151,6 +151,18 @@
    </security-constraint>
    <security-constraint>
       <web-resource-collection>
+         <web-resource-name>Metadata categories update method</web-resource-name>
+         <url-pattern>/metadata/categories/update/*</url-pattern>
+      </web-resource-collection>
+      <auth-constraint>
+         <role-name>deliverymanager</role-name>
+      </auth-constraint>
+      <user-data-constraint>
+         <transport-guarantee>CONFIDENTIAL</transport-guarantee>
+      </user-data-constraint>
+   </security-constraint>
+   <security-constraint>
+      <web-resource-collection>
          <web-resource-name>Metadata extractor</web-resource-name>
          <url-pattern>/indexer/*</url-pattern>
       </web-resource-collection>

@@ -315,7 +315,22 @@ public class PSDeliveryClient extends HttpClient implements IPSDeliveryClient
      */
     private JSON getJson()
     {
-        return net.sf.json.JSONSerializer.toJSON(pushOrGet(MediaType.APPLICATION_JSON));
+        String response = pushOrGet(MediaType.APPLICATION_JSON);
+        try
+        {
+            return net.sf.json.JSONSerializer.toJSON(response);
+        }
+        catch (Exception ex)
+        {
+            // The exception thrown by JSONSerializer (e.g. "Invalid JSON String") does not
+            // include the actual response body, which makes diagnosing bad/unexpected
+            // responses from a delivery server (proxy pages, empty bodies, HTML error
+            // pages, etc.) very difficult after the fact. Log it here so the raw response
+            // is available in the logs alongside the error.
+            log.error("Delivery server returned a response that could not be parsed as JSON. "
+                    + "URL: {}, HTTP response body was: {}", this.requestUrl, response);
+            throw ex;
+        }
     }
 
     /**

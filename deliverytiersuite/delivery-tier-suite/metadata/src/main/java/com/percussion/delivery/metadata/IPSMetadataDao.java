@@ -99,5 +99,30 @@ public interface IPSMetadataDao {
 
   public boolean hasDirtyEntries(Collection<IPSMetadataEntry> entries);
 
+  /**
+   * Updates all indexed {@code perc:category} metadata property rows matching the given old
+   * category path to the given new path. Used when a category is renamed or moved on the authoring
+   * server, so that the live Category Browser widget reflects the change without requiring the
+   * pages referencing it to be republished.
+   *
+   * @param oldCategoryName the previous full category path to match, e.g. {@code
+   *     /Categories/Color/Blue}. Not <code>null</code> or blank, must contain a path separator.
+   * @param newCategoryName the new full category path to set. Not <code>null</code> or blank, must
+   *     contain a path separator.
+   * @return the number of rows updated, or {@code -1} if the update failed (distinct from
+   *     legitimately matching zero rows, e.g. a category with no pages published under it yet).
+   */
   public int updateByCategoryProperty(String oldCategoryName, String newCategoryName);
+
+  /**
+   * Removes all indexed {@code perc:category} metadata property rows matching the given category
+   * path, as well as any rows nested under that path (i.e. former sub-categories). Used when a
+   * category is deleted on the authoring server, so that already-published pages stop reporting the
+   * deleted category without requiring those pages to be republished.
+   *
+   * @param categoryName the full category path to remove, e.g. {@code /Categories/Color/Blue}. Not
+   *     <code>null</code>.
+   * @return the number of rows deleted.
+   */
+  public int deleteByCategoryProperty(String categoryName);
 }
