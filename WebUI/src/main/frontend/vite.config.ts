@@ -3,7 +3,23 @@ import react from "@vitejs/plugin-react";
 import { resolve } from "path";
 
 export default defineConfig({
-  plugins: [react()],
+  plugins: [
+    react(),
+    {
+      name: "node-modules-resolver",
+      async resolveId(id, importer, options) {
+        if (!id.startsWith(".") && !id.startsWith("/") && !id.startsWith("@/")) {
+          const frontendImporter = resolve(__dirname, "dummy.ts");
+          const resolved = await this.resolve(id, frontendImporter, {
+            skipSelf: true,
+            ...options,
+          });
+          return resolved;
+        }
+        return null;
+      },
+    },
+  ],
   root: ".",
   base: "/cm/modern/",
   build: {
