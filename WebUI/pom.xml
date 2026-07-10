@@ -802,13 +802,29 @@
                         </configuration>
                     </execution>
                     <execution>
-                        <id>npm-build</id>
+                        <!-- Run as two discrete npm invocations instead of the compound
+                             "npm run build" (build:modern && build:legacy) script. The
+                             script does not reliably execute its nested
+                             commands when invoked by frontend-maven-plugin on Windows;
+                             it returns success without producing target/generated-webui,
+                             causing a downstream maven-war-plugin failure. -->
+                        <id>npm-build-modern</id>
                         <goals>
                             <goal>npm</goal>
                         </goals>
                         <phase>generate-resources</phase>
                         <configuration>
-                            <arguments>run build</arguments>
+                            <arguments>run build:modern</arguments>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>npm-build-legacy</id>
+                        <goals>
+                            <goal>npm</goal>
+                        </goals>
+                        <phase>generate-resources</phase>
+                        <configuration>
+                            <arguments>run build:legacy</arguments>
                         </configuration>
                     </execution>
                 </executions>
