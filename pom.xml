@@ -1967,9 +1967,17 @@
                     </configuration>
                 </plugin>
                 <plugin>
+                    <!-- Use the Maven-3-only plugin directly instead of the retired
+                         cargo-maven2-plugin (which silently relocates to this artifact via a
+                         relocation POM). Pinning 1.9.0 here previously caused the "packager"
+                         configuration parameter to be silently ignored/unknown for the
+                         "package" goal (a descriptor defect specific to that first transitional
+                         1.9.0 release), which broke the Deployment/Server assembly used by
+                         delivery-tier-distribution. Bumped to a later release where "packager"
+                         works correctly on both "configure" and "package" goals. -->
                     <groupId>org.codehaus.cargo</groupId>
-                    <artifactId>cargo-maven2-plugin</artifactId>
-                    <version>1.9.0</version>
+                    <artifactId>cargo-maven3-plugin</artifactId>
+                    <version>1.10.28</version>
                 </plugin>
                 <plugin>
                     <groupId>com.github.eirslett</groupId>
@@ -2059,6 +2067,10 @@
                                 <rules>
                                     <requirePluginVersions>
                                         <message>Best Practice is to always define plugin versions!</message>
+                                        <!-- com.intsof:ai-build-integrity-maven-plugin is an actively developed
+                                             internal submodule intentionally pinned to a SNAPSHOT version until
+                                             it has a first stable release (see modules/ai-build-integrity-maven-plugin). -->
+                                        <unCheckedPluginList>com.intsof:ai-build-integrity-maven-plugin</unCheckedPluginList>
                                     </requirePluginVersions>
                                     <requireJavaVersion>
                                         <version>${java.version}</version>

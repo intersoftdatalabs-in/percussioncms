@@ -538,8 +538,7 @@
             </plugin>
             <plugin>
                 <groupId>org.codehaus.cargo</groupId>
-                <artifactId>cargo-maven2-plugin</artifactId>
-                <version>1.9.0</version>
+                <artifactId>cargo-maven3-plugin</artifactId>
                 <configuration>
                     <container>
                         <containerId>tomcat10x</containerId>
@@ -812,11 +811,19 @@
                 <artifactId>maven-dependency-plugin</artifactId>
                 <executions>
                     <execution>
+                        <!-- Must run before the "package"-phase default-jar execution (maven-jar-plugin),
+                             otherwise perc-ant-*.jar/perc-service-wrapper.jar land in
+                             target/classes/distribution too late to be picked up when
+                             delivery-tier-distribution.jar is archived, causing a runtime
+                             "perc-ant-*.jar not found" failure in MainDTSPreInstall. Binding to
+                             "package" (same phase as the default-bound jar:jar) is unreliable
+                             because default lifecycle-bound mojos execute before additional
+                             executions declared for the same phase. -->
                         <id>copy</id>
                         <goals>
                             <goal>copy</goal>
                         </goals>
-                        <phase>package</phase>
+                        <phase>prepare-package</phase>
                         <configuration>
                             <artifactItems>
                                 <artifactItem>
@@ -842,6 +849,24 @@
                             <overWriteSnapshots>true</overWriteSnapshots>
                         </configuration>
                     </execution>
+                    <execution>
+                        <!-- Copies all compile/runtime-scope dependencies (e.g. perc-security-utils,
+                             utils, servlet-utils, spring, log4j2, etc.) into target/lib so that
+                             the thin delivery-tier-distribution.jar can locate them at runtime via
+                             the Class-Path manifest entry configured below on maven-jar-plugin. -->
+                        <id>copy-runtime-dependencies</id>
+                        <goals>
+                            <goal>copy-dependencies</goal>
+                        </goals>
+                        <phase>prepare-package</phase>
+                        <configuration>
+                            <outputDirectory>${project.build.directory}/lib</outputDirectory>
+                            <includeScope>runtime</includeScope>
+                            <excludeTypes>war,test-jar</excludeTypes>
+                            <overWriteReleases>false</overWriteReleases>
+                            <overWriteSnapshots>true</overWriteSnapshots>
+                        </configuration>
+                    </execution>
                 </executions>
             </plugin>
             <plugin>
@@ -851,6 +876,8 @@
                     <archive>
                         <manifest>
                             <mainClass>com.percussion.preinstall.MainDTSPreInstall</mainClass>
+                            <addClasspath>true</addClasspath>
+                            <classpathPrefix>lib/</classpathPrefix>
                         </manifest>
                     </archive>
                 </configuration>
@@ -871,12 +898,15 @@
                                 <copy todir="${assembly-directory}">
                                     <fileset dir="${basedir}/src/main/rootFiles"/>
                                 </copy>
-                                <!-- Perc-Ant -->
-                                <copy todir="${ant-installer}">
-                                    <fileset dir="${basedir}/../../../../modules/perc-ant/target/" erroronmissingdir="false">
-                                        <include name="perc-ant*.jar"/>
-                                    </fileset>
-                                </copy>
+                                <!-- perc-ant-*.jar is placed into ${ant-installer} by the
+                                     maven-dependency-plugin "copy" execution (prepare-package
+                                     phase, resolved via the Maven artifact/local repo) instead of
+                                     copying it here from a sibling module's target/ directory.
+                                     That fileset-based copy was order-dependent on
+                                     modules/perc-ant having just been built and used Ant's
+                                     default (non-forced) copy semantics, which could silently
+                                     keep a stale or missing jar and break MainDTSPreInstall at
+                                     runtime with "perc-ant-*.jar not found". -->
                                 <!-- Version.properties -->
                                 <copy todir="${assembly-directory}">
                                     <fileset dir="${basedir}/../../../../modules/utils/target/classes/com/percussion/util/" erroronmissingdir="false">
@@ -906,8 +936,7 @@
                 <plugins>
                     <plugin>
                         <groupId>org.codehaus.cargo</groupId>
-                        <artifactId>cargo-maven2-plugin</artifactId>
-                        <version>1.9.0</version>
+                        <artifactId>cargo-maven3-plugin</artifactId>
                         <configuration>
                             <container>
                                 <containerId>jetty9x</containerId>
