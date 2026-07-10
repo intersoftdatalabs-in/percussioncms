@@ -651,9 +651,24 @@
                         <phase>process-classes</phase>
                         <configuration>
                             <mainClass>org.eclipse.jetty.start.Main</mainClass>
+                            <!-- jetty.home and jetty.base MUST be set as JVM system properties
+                                 (not command-line arguments) so that BaseHome is initialised
+                                 before any module file is parsed. Without this, Jetty 12 falls
+                                 back to the JVM working directory and then chokes on the
+                                 `basehome:` URI prefix in [files] sections (e.g. login.conf,
+                                 installation.properties) with
+                                 java.nio.file.InvalidPathException: Illegal char <:>. -->
+                            <systemProperties>
+                                <systemProperty>
+                                    <key>jetty.home</key>
+                                    <value>${assembly-directory}/jetty/upstream</value>
+                                </systemProperty>
+                                <systemProperty>
+                                    <key>jetty.base</key>
+                                    <value>${assembly-directory}/jetty/base</value>
+                                </systemProperty>
+                            </systemProperties>
                             <arguments>
-                                <argument>jetty.home=${assembly-directory}/jetty/upstream</argument>
-                                <argument>jetty.base=${assembly-directory}/jetty/base</argument>
                                 <argument>--include-jetty-dir=${assembly-directory}/jetty/defaults</argument>
                                 <argument>--create-start-d</argument>
                                 <argument>--create-files</argument>
