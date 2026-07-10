@@ -804,7 +804,7 @@
                     <execution>
                         <!-- Run as two discrete npm invocations instead of the compound
                              "npm run build" (build:modern && build:legacy) script. The
-                             chained "&&" script does not reliably execute its nested
+                             script does not reliably execute its nested
                              commands when invoked by frontend-maven-plugin on Windows;
                              it returns success without producing target/generated-webui,
                              causing a downstream maven-war-plugin failure. -->
