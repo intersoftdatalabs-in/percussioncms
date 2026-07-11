@@ -79,6 +79,17 @@ JARs are placed in the install with their Maven-resolved filenames (e.g. `mariad
 
 Integrators who need a driver that is not bundled (for example an enterprise Oracle driver) can simply drop a JDBC driver JAR into `jetty/base/lib/jdbc/` of the unpacked distribution. The install scripts (`rxconfig/Installer/install.xml`, `installServer.xml`, `installRepository.xml`) do not purge this folder.
 
+The install/upgrade script's `<delete>` block in `install.xml` is pinned to the exact bundled-driver filenames shipped in this release (sourced from the parent POM's version properties: `${mariadb.version}`, `${derby.version}`, `${mssql.version}`, `${jtds.version}`, `${ojdbc17.version}`). When a driver version is bumped, THREE places MUST be updated in lockstep in the same commit:
+
+1. **Parent POM** — bump the relevant version property (`${mariadb.version}`, `${derby.version}`, `${mssql.version}`, `${jtds.version}`, or `${ojdbc17.version}`).
+2. **`BundledJdbcDrivers` (test source of truth)** — `modules/perc-distribution-tree/src/test/java/com/percussion/distribution/jdbc/BundledJdbcDrivers.java` exposes two sets:
+   - `EXACT_FILENAMES` — the CURRENT bundled filenames for this release.
+   - `PRIOR_FILENAMES` — the bundled filenames from the immediately preceding release.
+   Move the old filename from `EXACT_FILENAMES` to `PRIOR_FILENAMES` (or add a new `PRIOR_FILENAMES` entry if it isn't already there).
+3. **`install.xml`** — `modules/perc-distribution-tree/src/main/resources/distribution/rxconfig/Installer/install.xml`. The `<delete>` block in the `install_jdbc_drivers` target has a CURRENT `<include>` list and a PRIOR `<include>` list. Update both to mirror `BundledJdbcDrivers` exactly.
+
+The PRIOR set exists so an upgrade from N-1 to N does not leave the prior-version JAR on the Jetty classpath (which can cause `LinkageError` / wrong-version-loaded issues). Old PRIOR entries can be removed by the release manager once they are confident no field upgrade from that era is still in flight. The pin list is enforced as exact filenames — no globs — by `scripts/check-no-glob-deletes.sh` (wired into the Maven `verify` phase), and `InstallXmlDeleteSetTest.deleteSetContainsAllBundledFilenames` asserts that `install.xml`'s delete set equals the union of the two Java constants, so any drift between the three places fails the build with a clear JUnit error rather than silently corrupting the installer.
+
 The bundled driver set is verified by `scripts/verify-jdbc-drivers.sh`, which is wired into the Maven `verify` phase. CI fails the build if any expected driver is missing or is a stub.
 
 ## Related Documentation

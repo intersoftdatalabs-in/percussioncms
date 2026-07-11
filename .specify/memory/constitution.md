@@ -20,6 +20,28 @@
 - Rationale: Prior constitution was Speckit boilerplate (library-first CLI product). Percussion CMS
   is a long-lived multi-module CMS mono-repo under active modernization; governance must match
   AGENTS.md, module AGENTS files, and operational reality.
+
+- Version change: 2.0.0 → 2.1.0 (MINOR — new principle added)
+- List of modified principles:
+  - (new) IX. PR Review Comment Resolution (NON-NEGOTIABLE)
+- Added sections: none
+- Removed sections: none
+- Templates requiring updates:
+  ✅ Updated: .specify/templates/plan-template.md (Constitution Check now lists principle IX)
+  ✅ Updated: .specify/templates/tasks-template.md (no change — principle is enforced by the
+     post-implementation PR babysit step, not by the task list itself)
+  ✅ Verified: .specify/templates/spec-template.md (no change — principle is operational, not spec-shape)
+  ✅ Verified: .specify/templates/constitution-template.md (upstream scaffold; leave intact)
+- AGENTS files requiring updates:
+  ✅ Updated: ./AGENTS.md (added "PR Review Comment Resolution" section with concrete
+     GraphQL/REST command templates so any agent can follow the procedure)
+- Follow-up TODOs: None
+- Rationale: PR review comments are part of the merge-gate surface. A code-only fix that does
+  not also resolve the corresponding review thread leaves the PR in a state that the CI/merge
+  gate blocks. Treating comment resolution as part of "fixing the review" — rather than as a
+  separate, optional post-step — prevents the false-complete state we hit on PR #1185 (the
+  002-jdbc-drivers-cleanup work). See root AGENTS.md "PR Review Comment Resolution" for the
+  executable procedure.
 -->
 
 # Percussion CMS Constitution
@@ -180,6 +202,35 @@ not re-implement danger.
 **Rationale**: A CMS is operated by people who were not in the PR; docs and logs are part of
 the feature.
 
+### IX. PR Review Comment Resolution (NON-NEGOTIABLE)
+
+A PR review comment is "addressed" only when **both** of the following are true:
+
+1. An inline reply has been posted on the comment citing the commit hash that fixes it, a
+   short description of what changed, and a pointer to tests/docs that back the fix.
+2. The corresponding review thread has been resolved via the GitHub `resolveReviewThread`
+   GraphQL mutation.
+
+A code-only fix that does not also resolve the corresponding thread is incomplete from the
+merge-readiness perspective — the CI/merge gate blocks a PR with unresolved threads, and a
+bare resolve is not a substitute for a documented fix.
+
+This applies to **all** review comments on a PR the agent owns, including comments that
+arrive after the initial submission (late feedback). Outdated threads (where the diff no longer
+contains the offending line) still need an inline reply AND a `resolveReviewThread` call; the
+`isOutdated: true` flag does not auto-resolve.
+
+The executable procedure (GraphQL query to list threads, REST endpoint for inline reply,
+GraphQL mutation to resolve) is documented in root `AGENTS.md` under "PR Review Comment
+Resolution".
+
+**Rationale**: A false-complete state — code changed but the PR is still unmergeable — is
+exactly the trap we hit on the 002-jdbc-drivers-cleanup review cycle. The fix to a review
+comment and the resolution of the review thread are the same deliverable from the PR
+author's perspective.
+
+## Complexity Budget
+
 ## Domain Constraints
 
 These product facts constrain every Speckit plan:
@@ -240,4 +291,4 @@ Base branch for new work is `development` (JDK 21) unless the task explicitly ta
   `CONTRIBUTING.md`, and `SECURITY.md`. Skills index:
   `modules/ai-shared-develop/src/main/resources/skills/SKILLS.md`.
 
-**Version**: 2.0.0 | **Ratified**: 2026-03-25 | **Last Amended**: 2026-07-10
+**Version**: 2.1.0 | **Ratified**: 2026-03-25 | **Last Amended**: 2026-07-11
