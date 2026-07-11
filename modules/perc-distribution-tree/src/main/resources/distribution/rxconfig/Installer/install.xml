@@ -165,6 +165,27 @@
 			</fileset>
 		</copy>
 		<echo>Copying JDBC Jars...</echo>
+		<!-- Purge any prior-version JDBC driver JARs from the install dir before
+		     copying the current bundled set. Bundled driver filenames include
+		     version suffixes (e.g. mariadb-java-client-3.5.7.jar), so globbing
+		     them out ensures stale copies from a previous install do not linger
+		     on the Jetty classpath. Customer-supplied drivers that do not match
+		     the bundled-name globs are preserved. -->
+		<delete failonerror="false" verbose="true">
+			<fileset dir="${install.dir}/jetty/base/lib/jdbc">
+				<include name="mariadb-java-client-*.jar" />
+				<include name="derby-*.jar" />
+				<include name="derbyclient-*.jar" />
+				<include name="derbynet-*.jar" />
+				<include name="derbyshared-*.jar" />
+				<include name="derbytools-*.jar" />
+				<include name="mssql-jdbc-*.jar" />
+				<include name="jtds-*.jar" />
+				<include name="ojdbc17-*.jar" />
+				<include name="mysql-connector-java-*.jar" />
+				<include name="mysql-connector.jar" />
+			</fileset>
+		</delete>
 		<copy todir="${install.dir}/jetty/base/lib/jdbc" overwrite="true"
 			force="true">
 			<fileset dir="${install.src}/jetty/base/lib/jdbc">
@@ -624,6 +645,8 @@
 			inheritrefs="true" />
 		<antcall target="deleteOldLog4jJars" inheritall="true"
 			inheritrefs="true" />
+		<antcall target="deleteOldJdbcDrivers" inheritall="true"
+			inheritrefs="true" />
 		<antcall target="upgrade_server" inheritall="true"
 			inheritrefs="true" />
 		<antcall target="setupDB" inheritall="true" inheritrefs="true" />
@@ -678,6 +701,24 @@
 				<exclude name="**/Deployment/**" />
 				<exclude name="**/Staging/**" />
 				<exclude name="**/devtools/**" />
+			</fileset>
+		</delete>
+	</target>
+	<target name="deleteOldJdbcDrivers"
+		description="Remove stale, version-suffixed JDBC driver JARs from a previous install before the current bundled set is copied in. Globs cover all known driver families; customer-supplied drivers with names outside these globs are preserved.">
+		<delete failonerror="false" verbose="true">
+			<fileset dir="${install.dir}/jetty/base/lib/jdbc">
+				<include name="mariadb-java-client-*.jar" />
+				<include name="derby-*.jar" />
+				<include name="derbyclient-*.jar" />
+				<include name="derbynet-*.jar" />
+				<include name="derbyshared-*.jar" />
+				<include name="derbytools-*.jar" />
+				<include name="mssql-jdbc-*.jar" />
+				<include name="jtds-*.jar" />
+				<include name="ojdbc17-*.jar" />
+				<include name="mysql-connector-java-*.jar" />
+				<include name="mysql-connector.jar" />
 			</fileset>
 		</delete>
 	</target>
