@@ -745,6 +745,21 @@
                             </arguments>
                         </configuration>
                     </execution>
+                    <!-- FR-003 / FR-008.b / SC-006: assert the install/upgrade script's
+                         <delete> block uses exact bundled-driver filenames, not globs.
+                         A future change that re-introduces a glob (e.g. mysql-connector-java-*.jar)
+                         will silently purge integrator-supplied drivers on upgrade; this
+                         check fails the build before such a change can land. -->
+                    <execution>
+                        <id>check-no-glob-deletes</id>
+                        <goals>
+                            <goal>exec</goal>
+                        </goals>
+                        <phase>verify</phase>
+                        <configuration>
+                            <executable>${basedir}/scripts/check-no-glob-deletes.sh</executable>
+                        </configuration>
+                    </execution>
                 </executions>
             </plugin>
             <plugin>
