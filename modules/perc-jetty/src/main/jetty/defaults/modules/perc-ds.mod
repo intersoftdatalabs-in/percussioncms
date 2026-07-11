@@ -6,7 +6,7 @@
 perc-config
 
 [lib]
-lib/jdbc/*.jar
+basehome:lib/jdbc/*.jar
 
 [xml]
 etc/perc-ds.properties
