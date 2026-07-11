@@ -6,7 +6,7 @@
 perc-config
 
 [lib]
-basehome:lib/jdbc/*.jar
+${jetty.base}/lib/jdbc/*.jar
 
 [xml]
 etc/perc-ds.properties

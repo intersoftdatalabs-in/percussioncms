@@ -161,7 +161,7 @@
         <jdk.version>21</jdk.version>
         <jenkins.buildNumber>2024</jenkins.buildNumber>
         <jetty.maven.plugin.version>11.0.26</jetty.maven.plugin.version>
-        <jetty.version>12.1.7</jetty.version>
+        <jetty.version>12.1.11</jetty.version>
         <jfx.version>11.0.2</jfx.version>
         <json.version>20251224</json.version>
         <jsoup.version>1.22.1</jsoup.version>
@@ -186,7 +186,7 @@
         <maven.dependency.plugin.version>3.9.0</maven.dependency.plugin.version>
         <maven.deploy.plugin.version>3.1.4</maven.deploy.plugin.version>
         <maven.enforcer.plugin.version>3.6.2</maven.enforcer.plugin.version>
-        <maven.exec.plugin.version>3.5.0</maven.exec.plugin.version>
+        <maven.exec.plugin.version>3.6.3</maven.exec.plugin.version>
         <maven.execmaven.plugin.version>3.6.3</maven.execmaven.plugin.version>
         <maven.failsafe.plugin.version>3.5.4</maven.failsafe.plugin.version>
         <maven.gpg.plugin.version>3.2.8</maven.gpg.plugin.version>
@@ -2647,7 +2647,7 @@
                 <plugin>
                     <groupId>com.intsof</groupId>
                     <artifactId>ai-build-integrity-maven-plugin</artifactId>
-                    <version>0.11.1-SNAPSHOT</version>
+                    <version>0.12.0-SNAPSHOT</version>
                     <configuration>
                         <hashFileMode>CENTRAL</hashFileMode>
                         <!-- Scan the entire repo, not just the current module's basedir -->

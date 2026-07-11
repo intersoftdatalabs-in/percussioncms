@@ -649,11 +649,20 @@
                             <goal>java</goal>
                         </goals>
                         <phase>process-classes</phase>
+						
                         <configuration>
                             <mainClass>org.eclipse.jetty.start.Main</mainClass>
+							<systemProperties>
+        <systemProperty>
+<key>jetty.base</key>
+<value>${assembly-directory}/jetty/base</value>
+</systemProperty>              <systemProperty>
+<key>jetty.home</key>
+<value>${assembly-directory}/jetty/upstream</value>
+</systemProperty>
+    </systemProperties>
+	<workingDirectory>${assembly-directory}/jetty/base</workingDirectory>
                             <arguments>
-                                <argument>jetty.home=${assembly-directory}/jetty/upstream</argument>
-                                <argument>jetty.base=${assembly-directory}/jetty/base</argument>
                                 <argument>--include-jetty-dir=${assembly-directory}/jetty/defaults</argument>
                                 <argument>--create-start-d</argument>
                                 <argument>--create-files</argument>
@@ -661,6 +670,7 @@
                                 <argument>--add-modules=perc</argument>
                                 <argument>--approve-all-licenses</argument>
                             </arguments>
+							
                         </configuration>
                     </execution>
                 </executions>
