@@ -1,7 +1,17 @@
-.specify
-.kilocode
+# --- Speckit (.specify): track project config; ignore regenerable cache only ---
+.specify/extensions/.cache/
+
+# --- Kilo Code (.kilocode): track Speckit workflows + package manifests ---
+# Keep memory-bank local (high-churn / stale-risk vs AGENTS.md + constitution)
+.kilocode/node_modules/
+.kilocode/bun.lock
+.kilocode/rules/memory-bank/
+.kilocode/rules/memory-bank-instructions.md
+
+# Personal agent state (always local)
 .kilo
 .grok
+
 docker/dev-data
 qdrant_storage
 .vscode/*
