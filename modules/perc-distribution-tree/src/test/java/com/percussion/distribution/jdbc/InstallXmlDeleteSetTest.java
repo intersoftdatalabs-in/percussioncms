@@ -9,7 +9,7 @@
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF any kind.
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *
  * See the License for the specific language governing permissions and
  * limitations under the License.
@@ -59,15 +59,24 @@ class InstallXmlDeleteSetTest {
     private static final String INSTALL_JDBC_TARGET = "install_jdbc_drivers";
 
     @Test
-    @DisplayName("FR-003: delete set contains all bundled driver filenames")
+    @DisplayName("FR-003: delete set contains all bundled driver filenames (current + prior release)")
     void deleteSetContainsAllBundledFilenames() throws Exception {
         Document doc = loadInstallXml();
         Element deleteEl = findInstallJdbcDriversDelete(doc);
         assertNotNull(deleteEl, "Expected <delete> inside <target name=\"install_jdbc_drivers\">");
 
+        // The delete set is the union of the CURRENT bundled filenames and
+        // the immediately-prior release's bundled filenames. The prior set
+        // exists so an upgrade from N-1 to N purges the prior-version JARs
+        // from jetty/base/lib/jdbc/ (preventing duplicate-driver-version
+        // classpath issues). See BundledJdbcDrivers.PRIOR_FILENAMES.
+        Set<String> expected = new LinkedHashSet<>();
+        expected.addAll(BundledJdbcDrivers.EXACT_FILENAMES);
+        expected.addAll(BundledJdbcDrivers.PRIOR_FILENAMES);
+
         Set<String> actual = extractIncludeNames(deleteEl);
-        assertEquals(BundledJdbcDrivers.EXACT_FILENAMES, actual,
-                "Delete <include> set must equal the curated driver filenames");
+        assertEquals(expected, actual,
+                "Delete <include> set must equal the union of CURRENT and PRIOR bundled driver filenames");
     }
 
     @Test
@@ -99,7 +108,14 @@ class InstallXmlDeleteSetTest {
                 "mysql-connector-java-9.0.0.jar",
                 "ojdbc17-99.99.99.99.jar",
                 "derbyshared-9.0.0.jar",
-                "derbytools-9.0.0.jar"}) {
+                "derbytools-9.0.0.jar",
+                // Hypothetical newer-version drops that share a curated
+                // artifactId prefix but differ from any current or prior
+                // bundled filename. None of these should be in the delete
+                // set because they are not exact matches.
+                "mariadb-java-client-9.0.0.jar",
+                "derby-9.9.9.9.jar",
+                "mssql-jdbc-99.0.0.jar"}) {
             assertFalse(actual.contains(integratorSample),
                     "Integrator-supplied filename must not be in the install script's delete set: "
                             + integratorSample);

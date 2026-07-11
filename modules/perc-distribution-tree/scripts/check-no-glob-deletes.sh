@@ -123,7 +123,12 @@ GLOBS=$(printf '%s\n' "$DELETE_BLOCK" \
 
 if [ -n "$GLOBS" ]; then
     echo "ERROR: glob-based <delete> patterns found in install_jdbc_drivers target of install.xml:" >&2
-    printf '  %s\n' $GLOBS >&2
+    # Print GLOBS line-by-line, preserving every byte. We do NOT use
+    # 'printf '  %s\n' $GLOBS' here: unquoted $GLOBS undergoes word-splitting
+    # AND pathname expansion, which would corrupt values containing '*' or '?'
+    # (the very characters that triggered this failure) by matching files in
+    # the current working directory.
+    printf '%s\n' "$GLOBS" | while IFS= read -r g; do printf '  %s\n' "$g"; done >&2
     echo "Fix: replace each glob with the exact bundled-driver filename (see BundledJdbcDrivers constant in the test sources)." >&2
     exit 7
 fi

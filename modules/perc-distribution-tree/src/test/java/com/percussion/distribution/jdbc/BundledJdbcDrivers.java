@@ -9,7 +9,7 @@
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY CONDITIONS OF any kind.
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *
  * See the License for the specific language governing permissions and
  * limitations under the License.
@@ -47,6 +47,22 @@ final class BundledJdbcDrivers {
 
     /** Curated driver filename set (matches data-model.md E2). */
     static final Set<String> EXACT_FILENAMES;
+
+    /**
+     * Filenames from the immediately-preceding release of this codebase.
+     * The install script's delete set is the union of
+     * {@link #EXACT_FILENAMES} and this set, so an upgrade from N-1 to N
+     * purges the prior version's JARs from {@code jetty/base/lib/jdbc/}
+     * (preventing duplicate-driver-version classpath issues) while still
+     * preserving any integrator-supplied drivers whose names do not match
+     * this union.
+     *
+     * <p>When a driver version is bumped in the parent {@code pom.xml}, the
+     * old filename MUST be moved from {@link #EXACT_FILENAMES} to this set
+     * in the same commit, and the install script's delete block must be
+     * updated in lockstep.
+     */
+    static final Set<String> PRIOR_FILENAMES;
 
     /**
      * Staging {@code <fileset>} {@code <include>} globs used by
@@ -90,6 +106,19 @@ final class BundledJdbcDrivers {
         filenames.add("jtds-1.3.1.jar");
         filenames.add("ojdbc17-23.26.0.0.0.jar");
         EXACT_FILENAMES = Collections.unmodifiableSet(filenames);
+
+        // Prior release of this codebase: the versions immediately preceding
+        // the current ones in the development branch's recent history.
+        // (derby.version bumped 10.16.1.1 -> 10.17.1.0; mssql.version bumped
+        // 13.3.0.jre11-preview -> 13.3.1.jre11-preview; mariadb / ojdbc17 /
+        // jtds are unchanged across the recent history of the development
+        // branch and so have no prior entry.)
+        Set<String> prior = new LinkedHashSet<>();
+        prior.add("derby-10.16.1.1.jar");
+        prior.add("derbyclient-10.16.1.1.jar");
+        prior.add("derbynet-10.16.1.1.jar");
+        prior.add("mssql-jdbc-13.3.0.jre11-preview.jar");
+        PRIOR_FILENAMES = Collections.unmodifiableSet(prior);
     }
 
     private BundledJdbcDrivers() {
