@@ -61,6 +61,26 @@ cd modules/perc-distribution-tree
 - **`src/main/assembly/perc-assembly.xml`**: Maven Assembly plugin descriptor for distribution packaging
 - **`pom.xml`**: Maven configuration with `maven-antrun-plugin` and `maven-assembly-plugin`
 
+## Bundled JDBC Drivers
+
+Every production build of this module ships a curated JDBC driver set into `jetty/base/lib/jdbc/` of the assembled distribution. The drivers are sourced from parent-POM-managed Maven coordinates and staged into `target/classes/distribution/_jdbc-stage/` by the `stage-jdbc-drivers` execution of `maven-dependency-plugin`, then copied into `jetty/base/lib/jdbc/` by the ANT script.
+
+| Database | Driver coordinate | Source of truth |
+|----------|------------------|-----------------|
+| MariaDB / MySQL (default repository) | `org.mariadb.jdbc:mariadb-java-client` | root `pom.xml` `${mariadb.version}` |
+| Derby (embedded/dev) | `org.apache.derby:derby`, `derbyclient`, `derbynet` | root `pom.xml` `${derby.version}` |
+| MS SQL Server (modern) | `com.microsoft.sqlserver:mssql-jdbc` | root `pom.xml` `${mssql.version}` |
+| MS SQL Server (legacy jTDS) | `net.sourceforge.jtds:jtds` | root `pom.xml` `${jtds.version}` |
+| Oracle | `com.oracle.database.jdbc:ojdbc17` | root `pom.xml` `${ojdbc17.version}` |
+
+JARs are placed in the install with their Maven-resolved filenames (e.g. `mariadb-java-client-3.5.7.jar`) so the bundled version is visible to integrators and any version drift is explicit.
+
+### Extending the driver set
+
+Integrators who need a driver that is not bundled (for example an enterprise Oracle driver) can simply drop a JDBC driver JAR into `jetty/base/lib/jdbc/` of the unpacked distribution. The install scripts (`rxconfig/Installer/install.xml`, `installServer.xml`, `installRepository.xml`) do not purge this folder.
+
+The bundled driver set is verified by `scripts/verify-jdbc-drivers.sh`, which is wired into the Maven `verify` phase. CI fails the build if any expected driver is missing or is a stub.
+
 ## Related Documentation
 
 For information about logging configuration and how the centralized logging works, refer to:
@@ -68,4 +88,5 @@ For information about logging configuration and how the centralized logging work
 - `modules/perc-jetty/src/main/jetty/defaults/modules/perc-logging/resources/log4j2.xml` - Log4j2 configuration
 - `modules/perc-jetty-logging/README.md` - Jetty logging module artifacts
 - Main project documentation on logging and Jetty configuration
+- `scripts/README.md` — verification utilities used by this module
 

@@ -64,6 +64,14 @@ cd modules/perc-distribution-tree
 ../../mvn-env.sh clean install
 ```
 
+### Verifying the JDBC driver set
+
+After `mvn verify`, the `scripts/verify-jdbc-drivers.sh` script runs against the built
+distribution artifact and asserts that `jetty/base/lib/jdbc/` is populated with the
+expected JDBC drivers (sourced from parent-POM-managed Maven coordinates; see
+`pom.xml` execution `stage-jdbc-drivers`). See `scripts/README.md` for invocation
+details and exit-code table.
+
 ### Modifying Distribution Assembly
 
 Changes to `installDistributionFiles.xml` affect how all distributions are built. Always:
