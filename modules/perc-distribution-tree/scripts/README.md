@@ -13,9 +13,17 @@ Asserts that the assembled distribution artifact contains a valid, non-empty `je
 ```sh
 ./scripts/verify-jdbc-drivers.sh
 ./scripts/verify-jdbc-drivers.sh --artifact path/to/perc-distribution-tree.jar
-./scripts/verify-jdbc-drivers.sh --artifact .../perc-distribution-tree.jar \
-    --expected-driver-set mariadb-connector.jar,derby.jar,mssql-connector.jar,jtds.jar,ojdbc17.jar
+./scripts/verify-jdbc-drivers.sh --artifact path/to/perc-distribution-tree.jar \
+    --expected-driver-glob 'mariadb-java-client-*.jar,derby-*.jar,derbyclient-*.jar,derbynet-*.jar,mssql-jdbc-*.jar,jtds-*.jar,ojdbc17-*.jar'
 ```
+
+The `--expected-driver-glob` option is what the Maven `verify` phase uses
+(see `modules/perc-distribution-tree/pom.xml` execution `verify-jdbc-drivers`),
+so the example above exits 0 against a freshly built artifact. Single-quote
+the glob string so the shell does not expand `*` in your interactive shell.
+Use `--expected-driver-set` (not recommended) only when you need to pin
+specific filenames; that option requires re-editing on every driver version
+bump and is not wired into the CI build.
 
 **Exit codes**:
 
@@ -27,7 +35,7 @@ Asserts that the assembled distribution artifact contains a valid, non-empty `je
 | 3 | One or more JARs are zero-byte |
 | 4 | One or more JARs are not valid Java archives |
 | 5 | Artifact could not be unpacked |
-| 6 | Expected driver set does not match what's shipped |
+| 6 | `--expected-driver-set` or `--expected-driver-glob` does not match what's shipped |
 
 ## Adding a script here
 
