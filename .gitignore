@@ -1,5 +1,8 @@
 # --- Speckit (.specify): track project config; ignore regenerable cache only ---
 .specify/extensions/.cache/
+.specify/feature.json
+.specify/auth.json
+.specify/memory/context_cache/
 
 # --- Kilo Code (.kilocode): track Speckit workflows + package manifests ---
 # Keep memory-bank local (high-churn / stale-risk vs AGENTS.md + constitution)
