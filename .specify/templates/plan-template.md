@@ -41,6 +41,7 @@
 - [ ] **VI. Security by Default**: AuthZ, XML, upload, crypto, redirect, and logging surfaces reviewed; shared security modules preferred
 - [ ] **VII. Build, Platform & Dependency Hygiene**: Correct branch JDK; Maven/npm deps via existing management; Spotless if module requires
 - [ ] **VIII. Documentation & Operability**: README/site/Javadoc/i18n updates planned; diagnosable failures
+- [ ] **IX. PR Review Comment Resolution**: Plan accounts for replying inline AND resolving review threads (see root `AGENTS.md` "PR Review Comment Resolution" for the executable procedure)
 - [ ] **Complexity Budget**: Any principle violations listed in Complexity Tracking with justification
 - [ ] **Governance**: Plan will re-check this list after Phase 1; AGENTS.md remains runtime guide
 
