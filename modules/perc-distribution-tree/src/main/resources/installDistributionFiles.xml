@@ -66,14 +66,6 @@
 				dir="${jetty-directory}/perc-jetty-${project.version}/" />
 		</copy>
 
-		<echo>Updating patch Jetty jars...</echo>
-		<copy todir="${assembly-directory}/jetty/upstream/lib/"
-			failonerror="false" overwrite="true">
-			<fileset
-				dir="{basedir}/../../../system/Tools/jetty/upstream/lib/"
-				followsymlinks="false" includes="*.jar" />
-		</copy>
-
 		<!-- Unpack perc-web-ui WAR to Rhythmyx -->
 		<echo>Unpacking perc-web-ui WAR...</echo>
 		<mkdir dir="${assembly-directory}/jetty/base/webapps/Rhythmyx" />
