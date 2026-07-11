@@ -27,6 +27,11 @@ import java.net.MalformedURLException;
  */
 public class PSDefaultAjaxSwingWrapper implements IPSAjaxSwingWrapper {
 
+  /** Default constructor. */
+  public PSDefaultAjaxSwingWrapper() {
+    // no-op
+  }
+
   /**
    * No-op implementation - browser context does not need AjaxSwing handlers.
    *

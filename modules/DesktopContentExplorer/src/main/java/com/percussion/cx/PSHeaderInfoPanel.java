@@ -53,26 +53,42 @@ import org.apache.logging.log4j.Logger;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
+/**
+ * The header info panel displayed next to the banner in the desktop content explorer, showing the
+ * current user, community, role and locale selectors and allowing them to be changed.
+ */
 public class PSHeaderInfoPanel extends JPanel {
 
   private static final long serialVersionUID = 5452851707296139396L;
 
   private static final Logger log = LogManager.getLogger(PSHeaderInfoPanel.class);
 
+  /** The icon used for the "update" button. */
   private Icon updateIcon = null;
 
+  /** Maps community display name to community id. */
   private final Map<String, Integer> communityNameMap = new HashMap<>();
 
+  /** Maps locale display name to locale code. */
   private final Map<String, String> localeNameToCodeMap = new HashMap<>();
 
+  /** Maps locale code to locale display name. */
   private final Map<String, String> localeCodeToNameMap = new HashMap<>();
 
+  /** The session manager used to refresh the session on user-driven actions. */
   private PSCESessionManager sessionManager;
 
+  /** The content explorer applet this panel is associated with. */
   private PSContentExplorerApplet m_applet;
 
+  /** The resource bundle used for localized labels. */
   private ResourceBundle m_res;
 
+  /**
+   * Constructs the header info panel.
+   *
+   * @param applet the content explorer applet, may not be <code>null</code>.
+   */
   public PSHeaderInfoPanel(PSContentExplorerApplet applet) {
 
     m_res = applet.getResources();

@@ -43,6 +43,7 @@ public class PSWizardDialog extends PSDialog implements IPSWizardDialog {
    *     second element is the page panel input data as <code>Object</code> and the third element is
    *     the page instruction as <code>String</code>.
    * @param title the dialog title, may be <code>null</code> or empty.
+   * @param applet the content explorer applet, may not be <code>null</code>.
    */
   public PSWizardDialog(
       Frame parent, Object[][] pages, String title, PSContentExplorerApplet applet) {
@@ -300,7 +301,7 @@ public class PSWizardDialog extends PSDialog implements IPSWizardDialog {
   /**
    * A map of wizard pages. The map key is an <code>Integer</code> with the page index (starting at
    * 0) while the map value is the page as <code>IPSWizardPanel</code>. Initialized in {@link
-   * #createMainPanel(String[], String[])}, never changed after that.
+   * #createMainPanel(Object[][])}, never changed after that.
    */
   private Map m_pages = new TreeMap();
 

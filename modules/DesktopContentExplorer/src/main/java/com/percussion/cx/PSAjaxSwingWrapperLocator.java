@@ -26,6 +26,12 @@ import org.apache.logging.log4j.Logger;
  * corresponding wrapper implementation.
  */
 public class PSAjaxSwingWrapperLocator {
+  /**
+   * Creates a new locator instance. Exposed explicitly only so that its Javadoc can be provided;
+   * this constructor performs no initialization.
+   */
+  public PSAjaxSwingWrapperLocator() {}
+
   private static volatile IPSAjaxSwingWrapper wrapperClass;
 
   private static final Object lock = new Object();

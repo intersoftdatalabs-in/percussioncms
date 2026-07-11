@@ -61,6 +61,17 @@ public class PSItemRelationshipsManager {
    *     be <code>null</code>
    * @param docBase applet base Url to make any server requests, may not be <code>null</code>
    */
+  /**
+   * Constructs the manager with supplied parameters.
+   *
+   * @param proxy the remote proxy to use to execute a relationship request to the server, may not
+   *     be <code>null</code>.
+   * @param folderMgr Never <code>null</code>.
+   * @param remCataloger the remote cataloger to use to get list of available relationships, may not
+   *     be <code>null</code>.
+   * @param docBase applet base Url to make any server requests, may not be <code>null</code>.
+   * @param applet the content explorer applet, may not be <code>null</code>.
+   */
   public PSItemRelationshipsManager(
       PSRelationshipProcessorProxy proxy,
       PSFolderActionManager folderMgr,

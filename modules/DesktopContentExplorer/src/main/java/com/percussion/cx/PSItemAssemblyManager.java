@@ -124,7 +124,7 @@ public class PSItemAssemblyManager {
    * Reorder the supplied seleciton node list up or down, using the direction specified.
    *
    * @param selection the current selection within the list of nodes, must not be <code>null</code>
-   * @param direction the direction to move the specified nodes, < 0 is move up, > 0 is move down
+   * @param direction the direction to move the specified nodes, &lt; 0 is move up, &gt; 0 is move down
    */
   public void reorder(PSSelection selection, int direction) {
     if (selection == null) throw new IllegalArgumentException("selection must not be null");

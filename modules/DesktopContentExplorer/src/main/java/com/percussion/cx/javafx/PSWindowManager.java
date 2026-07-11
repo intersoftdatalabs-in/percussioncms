@@ -35,11 +35,19 @@ import org.apache.logging.log4j.Logger;
  * @since 8.0.0
  */
 public class PSWindowManager {
+
+  /** Default constructor. */
+  public PSWindowManager() {
+    // no-op
+  }
+
   private static PSWindowManager instance = new PSWindowManager();
 
   private Map<String, PSDesktopExplorerWindow> windows =
       new HashMap<String, PSDesktopExplorerWindow>();
   private Map<String, String> parents = new HashMap<String, String>();
+
+  /** Default browser style string used when no override is supplied. */
   protected String mi_style =
       "toolbar=0,location=0,directories=0,status=0,menubar=0,scrollbars=0,resizable=1";
 

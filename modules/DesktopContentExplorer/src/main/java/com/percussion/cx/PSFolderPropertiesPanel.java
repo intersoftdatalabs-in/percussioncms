@@ -45,6 +45,13 @@ public class PSFolderPropertiesPanel extends UTPropertiesTablePanel {
    * @param folder shared instance of the PSFolder, never <code>null</code>.
    * @param editable <code>true</code> if any data can be entered, <code>false</code> otherwise.
    */
+  /**
+   * The only constructor.
+   *
+   * @param folder shared instance of the PSFolder, never <code>null</code>.
+   * @param editable <code>true</code> if any data can be entered, <code>false</code> otherwise.
+   * @param applet the content explorer applet, may not be <code>null</code>.
+   */
   public PSFolderPropertiesPanel(
       PSFolder folder, boolean editable, PSContentExplorerApplet applet) {
     if (folder == null) throw new IllegalArgumentException("folder may not be null");

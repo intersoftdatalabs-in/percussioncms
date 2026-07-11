@@ -29,7 +29,11 @@ import javax.swing.JTextField;
 
 /** The wizard page to request the new site folder name from the user. */
 public class PSCopySiteSubfolderNamePage extends PSWizardPanel {
-  /** Instantiate with applet to make config options from applet available to panel */
+  /**
+   * Instantiate with applet to make config options from applet available to panel.
+   *
+   * @param applet the content explorer applet, never <code>null</code>.
+   */
   public PSCopySiteSubfolderNamePage(PSContentExplorerApplet applet) {
     super(applet);
     initPanel(createMainPanel());
