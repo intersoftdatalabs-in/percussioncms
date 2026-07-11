@@ -130,7 +130,7 @@
         <httpcomponents.core.version>4.4.16</httpcomponents.core.version>
         <httpcomponents.version>4.5.14</httpcomponents.version>
         <install.jre.version>8.222.10.1</install.jre.version>
-        <jackson.annotation.api.version>2.21</jackson.annotation.api.version>
+        <jackson.annotation.api.version>2.22</jackson.annotation.api.version>
         <jackson.version>2.22.0</jackson.version>
         <jakarta.activation.version>2.1.4</jakarta.activation.version>
         <jakarta.annotation.api.version>3.0.0</jakarta.annotation.api.version>
@@ -1747,6 +1747,12 @@
                 <groupId>org.apache.commons</groupId>
                 <artifactId>commons-email</artifactId>
                 <version>${commons-email.version}</version>
+		<exclusions>
+			<exclusion>
+				<groupId>com.sun.mail</groupId>
+				<artifactId>jakarta.mail</artifactId>
+			</exclusion>
+		</exclusions>
             </dependency>
             <dependency>
                 <groupId>com.github.dfabulich</groupId>
@@ -2647,7 +2653,7 @@
                 <plugin>
                     <groupId>com.intsof</groupId>
                     <artifactId>ai-build-integrity-maven-plugin</artifactId>
-                    <version>0.11.1-SNAPSHOT</version>
+                    <version>0.11.1</version>
                     <configuration>
                         <hashFileMode>CENTRAL</hashFileMode>
                         <!-- Scan the entire repo, not just the current module's basedir -->
@@ -2702,7 +2708,7 @@
             <plugin>
                 <groupId>com.intsof</groupId>
                 <artifactId>ai-build-integrity-maven-plugin</artifactId>
-                <version>0.11.1-SNAPSHOT</version>
+                <version>0.11.1</version>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
