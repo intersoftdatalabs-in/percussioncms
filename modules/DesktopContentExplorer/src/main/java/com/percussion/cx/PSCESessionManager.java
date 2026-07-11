@@ -44,6 +44,11 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.json.JSONObject;
 
+/**
+ * Manages the Content Explorer user session, including login, periodic server-side session state
+ * checks, idle/timeout warnings, and logout. Runs as a scheduled task that polls the server and
+ * prompts the user to extend or end an expiring session.
+ */
 public class PSCESessionManager implements Runnable {
   private static final String LOGOUT_NOW = "Logout Now";
 
@@ -83,10 +88,20 @@ public class PSCESessionManager implements Runnable {
 
   private String userName = "unknown";
 
+  /** Default constructor that initializes the time-remaining label name. */
   public PSCESessionManager() {
     timeLabel.setName("timeRemaining");
   }
 
+  /**
+   * Starts the session manager and schedules the first session state check.
+   *
+   * @param protocol the server protocol (e.g. <code>http</code> or <code>https</code>), assumed not
+   *     <code>null</code> or empty.
+   * @param server the server host name, assumed not <code>null</code> or empty.
+   * @param port the server port, assumed not <code>null</code> or empty.
+   * @param loginInfo the login information for the session, assumed not <code>null</code>.
+   */
   public void start(String protocol, String server, String port, PSLogin loginInfo) {
     this.protocol = protocol;
     this.server = server;
@@ -238,6 +253,9 @@ public class PSCESessionManager implements Runnable {
     }
   }
 
+  /**
+   * Shuts down the session manager, disposing any open warning dialog and stopping the scheduler.
+   */
   public void shutdown() {
     SwingUtilities.invokeLater(
         () -> {
@@ -293,10 +311,26 @@ public class PSCESessionManager implements Runnable {
     }
   }
 
+  /**
+   * Stops the session manager scheduler without disposing any open dialog.
+   */
   public void stop() {
     ex.shutdown();
   }
 
+  /**
+   * Logs the user in to the server, establishes the session, and starts the session state monitor.
+   *
+   * @param protocol the server protocol (e.g. <code>http</code> or <code>https</code>), assumed not
+   *     <code>null</code> or empty.
+   * @param server the server host name, assumed not <code>null</code> or empty.
+   * @param port the server port, assumed not <code>null</code> or empty.
+   * @param uid the user identifier, assumed not <code>null</code> or empty.
+   * @param password the user password, assumed not <code>null</code> or empty.
+   * @param locale the locale code to use for the session, assumed not <code>null</code> or empty.
+   * @throws Exception if authentication fails, the server cannot be reached, or the connection
+   *     times out.
+   */
   public void login(
       String protocol, String server, String port, String uid, String password, String locale)
       throws Exception {
@@ -368,6 +402,11 @@ public class PSCESessionManager implements Runnable {
     }
   }
 
+  /**
+   * Gets the singleton session manager instance, creating it on first access.
+   *
+   * @return the singleton {@link PSCESessionManager} instance, never <code>null</code>.
+   */
   public static PSCESessionManager getInstance() {
     if (instance == null) {
       instance = new PSCESessionManager();
@@ -375,22 +414,48 @@ public class PSCESessionManager implements Runnable {
     return instance;
   }
 
+  /**
+   * Gets the login information for the current session.
+   *
+   * @return the session login information, may be <code>null</code> if not yet logged in.
+   */
   public PSLogin getLoginInfo() {
     return loginInfo;
   }
 
+  /**
+   * Determines whether the user is currently logged in.
+   *
+   * @return <code>true</code> if the user is logged in, <code>false</code> otherwise.
+   */
   public boolean isLoggedIn() {
     return isLoggedIn;
   }
 
+  /**
+   * Sets the logged-in state of the session.
+   *
+   * @param isLoggedIn <code>true</code> to mark the session as logged in, <code>false</code>
+   *     otherwise.
+   */
   public void setLoggedIn(boolean isLoggedIn) {
     this.isLoggedIn = isLoggedIn;
   }
 
+  /**
+   * Gets the name of the currently logged-in user.
+   *
+   * @return the user name, never <code>null</code> (defaults to <code>"unknown"</code>).
+   */
   public String getUserName() {
     return userName;
   }
 
+  /**
+   * Sets the name of the currently logged-in user.
+   *
+   * @param userName the user name, assumed not <code>null</code>.
+   */
   public void setUserName(String userName) {
     this.userName = userName;
   }

@@ -780,6 +780,8 @@ public class PSFolderAclEditorDialog extends PSDialog implements ActionListener 
   }
 
   /**
+   * Gets the ACL entries selected by the user in the dialog.
+   *
    * @return collection of user selected ACL Entries, of type PSObjectAclEntry, never <code>null
    *     </code>, may be <code>empty</code>.
    */

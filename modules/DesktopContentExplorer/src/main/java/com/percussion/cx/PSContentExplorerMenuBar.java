@@ -98,9 +98,16 @@ public class PSContentExplorerMenuBar extends JMenuBar implements IPSSelectionLi
     return popup;
   }
 
+  /** The underlying PS menu bar, may be <code>null</code>. */
   private PSMenuBar m_menuBar;
+
+  /** The source used to populate the menu bar dynamically. */
   private PSMenuSource m_menuSource;
+
+  /** The action manager used to look up menu actions. */
   private PSActionManager m_actManager;
+
+  /** The list of menus in the menu bar, may be <code>null</code>. */
   private List<PSContentExplorerMenu> m_menus;
 
   /**

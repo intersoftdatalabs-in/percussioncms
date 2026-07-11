@@ -102,30 +102,53 @@ public class PSContentExplorerApplet extends JApplet implements IPSActionListene
 
   private static final long serialVersionUID = 1L;
 
+  /**
+   * Shared map of relationship name to relationship info used to populate the dependency tree view.
+   * Populated during applet initialization for the DT view and read by the navigation tree.
+   */
   public static ConcurrentMap<String, PSRelationshipInfo> REL_MAP =
       new ConcurrentHashMap<String, PSRelationshipInfo>();
+
+  /** Logger for the applet. */
   static Logger log = LogManager.getLogger(PSContentExplorerApplet.class);
 
+  /** The HTTP connection used to communicate with the Rhythmyx server. */
   private PSHttpConnection m_httpConnection;
 
+  /** Set to <code>true</code> once the applet has completed initialization. */
   private boolean m_initialized = false;
 
+  /** Resource path for the collapsed tree node icon. */
   private final String collapsed_icon = "images/collapsedIcon.gif";
 
+  /** Resource path for the expanded tree node icon. */
   private final String expanded_icon = "images/expandedIcon.gif";
 
+  /** <code>true</code> if the applet is running as a standalone application. */
   private boolean isApplication = false;
 
+  /** Session manager used to monitor the user session. */
   private PSCESessionManager check = null;
 
+  /** The header panel rendered at the top of the CX view, may be <code>null</code>. */
   private PSContentExplorerHeader dceHeader = null;
 
+  /** The JavaFX web engine associated with the applet, may be <code>null</code>. */
   private WebEngine webEngine = null;
+
+  /** <code>true</code> if this applet was created from a hosting frame rather than as an applet. */
   private boolean m_createdFromFrame = false;
 
   /** The Server Admin resources */
   private ResourceBundle m_res = null;
 
+  /**
+   * Gets the resource bundle used by the applet for localized strings, lazily loading it from the
+   * default locale if it has not been loaded yet. Also outputs JAXP implementation info as a
+   * side-effect.
+   *
+   * @return the resource bundle, never <code>null</code>.
+   */
   public ResourceBundle getResources() {
     PSContentExplorerUtils.OutputJaxpImplementationInfo();
 
@@ -133,10 +156,18 @@ public class PSContentExplorerApplet extends JApplet implements IPSActionListene
     return m_res;
   }
 
+  /** Default constructor. */
   public PSContentExplorerApplet() {
     super();
   }
 
+  /**
+   * Constructs an applet instance and marks whether it is being created from a hosting frame
+   * rather than launched as a browser applet.
+   *
+   * @param createdFromFrame <code>true</code> if the applet is being created from the desktop
+   *     content explorer frame, <code>false</code> otherwise.
+   */
   public PSContentExplorerApplet(boolean createdFromFrame) {
     super();
     m_createdFromFrame = createdFromFrame;
@@ -174,10 +205,18 @@ public class PSContentExplorerApplet extends JApplet implements IPSActionListene
     }
   }
 
+  /**
+   * Convenience overload of {@link #setupApplet(PSUserInfo)} that does not pass any pre-existing
+   * user info. The applet will load user info on its own.
+   */
   public synchronized void setupApplet() {
     setupApplet(null);
   }
 
+  /**
+   * Loads the user information for the current user from the server. On failure an error dialog
+   * is shown and the error is logged.
+   */
   public synchronized void setUserInfo() {
     // test logged in
     URL rxCodeBase = getRhythmyxCodeBase();
@@ -199,6 +238,14 @@ public class PSContentExplorerApplet extends JApplet implements IPSActionListene
     }
   }
 
+  /**
+   * Sets up the applet using the supplied user info, or loads it from the server if none is
+   * supplied. Performs the full initialization including splash, look and feel, action manager,
+   * i18n, help, view and option manager.
+   *
+   * @param userInfo the user info to use for the session, may be <code>null</code> in which case
+   *     the user info is loaded via {@link #setUserInfo()}.
+   */
   public synchronized void setupApplet(PSUserInfo userInfo) {
     if (userInfo == null) {
       setUserInfo();
@@ -408,6 +455,7 @@ public class PSContentExplorerApplet extends JApplet implements IPSActionListene
    *       defined by the 'sys_cxinternalpath', 'sys_cxdisplaypath', <code>PARAM_PATH_DEFAULT</code>
    *       . Checks in the above mentioned order and selects the first one that is provided.
    *   <li>In RC View, executes search action that displays search dialog to start with
+   * </ol>
    */
   @Override
   public void start() {
@@ -543,7 +591,10 @@ public class PSContentExplorerApplet extends JApplet implements IPSActionListene
     }
   }
 
-  /** */
+  /**
+   * Logs the current user out by sending a logout request to the server. Any error encountered while
+   * sending the request is logged at debug level and ignored, as the session may already be closed.
+   */
   public void logout() {
     try {
       if (m_httpConnection != null) {
@@ -1071,6 +1122,7 @@ public class PSContentExplorerApplet extends JApplet implements IPSActionListene
     ms_optChangeUpdater.addApplet(this);
   }
 
+  /** Sets the default focus of the applet to the content explorer header if one exists. */
   public void setDefaultFocus() {
     if (dceHeader != null) dceHeader.requestFocus();
   }
@@ -1333,10 +1385,8 @@ public class PSContentExplorerApplet extends JApplet implements IPSActionListene
    * Gets the resource string identified by the specified key. If the resource cannot be found, the
    * key itself is returned.
    *
-   * @param key identifies the resource to be fetched; may not be <code>null
-   * </code> or empty.
-   * @return String value of the resource identified by <code>key</code>, or <code>key</code>
-   *     itself.
+   * @param key identifies the resource to be fetched; may not be <code>null</code> or empty.
+   * @return the resource identified by the key, or the key itself if no translation is found.
    * @throws IllegalArgumentException if key is <code>null</code> or empty.
    */
   public String getResourceString(String key) {
@@ -1351,6 +1401,7 @@ public class PSContentExplorerApplet extends JApplet implements IPSActionListene
     return resourceValue;
   }
 
+  /** Cached resource lookups populated as resource strings are fetched. */
   private final Properties props = new Properties();
 
   /**
@@ -1389,7 +1440,13 @@ public class PSContentExplorerApplet extends JApplet implements IPSActionListene
 
   /**
    * Convenience method that calls {@link #getResourceMnemonic(String, String, char)
-   * getResourceMnemonic(resClass.getName(), label, mnemonic)}
+   * getResourceMnemonic(resClass.getName(), label, mnemonic)}.
+   *
+   * @param resClass the class whose name is used as the resource category, must not be <code>
+   *     null</code>.
+   * @param label the label of the specific item, must not be <code>null</code> or empty.
+   * @param mnemonic the value to return if no mnemonic is found.
+   * @return The mnemonic or the mnemonic parameter if no mnemonic is found
    */
   public static char getResourceMnemonic(Class resClass, String label, char mnemonic) {
     if (resClass == null) throw new IllegalArgumentException("resClass may not be null.");
@@ -1660,6 +1717,8 @@ public class PSContentExplorerApplet extends JApplet implements IPSActionListene
   }
 
   /**
+   * Determines whether content is restricted to the user's community.
+   *
    * @return <code>true</code> if content needs to be restricted to user community.
    */
   public boolean isContentRestrict() {
@@ -1691,6 +1750,8 @@ public class PSContentExplorerApplet extends JApplet implements IPSActionListene
   }
 
   /**
+   * Determines whether the ManagedNav feature is enabled on the current Rhythmyx server.
+   *
    * @return <code>true</code> if the ManagedNav (feature) is used by the current Rhythmyx server
    *     instance; otherwise return <code>false</code>.
    */
@@ -1731,8 +1792,15 @@ public class PSContentExplorerApplet extends JApplet implements IPSActionListene
   }
 
   /**
-   * Convenience method that calls {@link #getXMLDocument(String, Map) getXMLDocument(strUrl,
-   * <code>null</code>)}.
+   * Convenience method that calls {@link #getXMLDocument(String, Map) getXMLDocument(strUrl, null)}.
+   *
+   * @param strUrl a url relative to {@link #getRhythmyxCodeBase()}, must not be <code>null</code>,
+   *     or empty.
+   * @return the document from the processed url, if the builder factory, or the builder was not
+   *     initialized, returns <code>null</code>
+   * @throws IOException if an I/O error occurs while retrieving or parsing the document.
+   * @throws SAXException if the document contains invalid XML.
+   * @throws ParserConfigurationException if the parser cannot be configured.
    */
   public Document getXMLDocument(String strUrl)
       throws IOException, SAXException, ParserConfigurationException {
@@ -1751,9 +1819,9 @@ public class PSContentExplorerApplet extends JApplet implements IPSActionListene
    *     Neither the keys or values should be URL encoded.
    * @return the document from the processed url, if the builder factory, or the builder was not
    *     initialized, returns <code>null</code>
-   * @throws IOException
-   * @throws SAXException
-   * @throws ParserConfigurationException
+   * @throws IOException if an I/O error occurs while retrieving or parsing the document.
+   * @throws SAXException if the document contains invalid XML.
+   * @throws ParserConfigurationException if the parser cannot be configured.
    */
   @SuppressWarnings("unused")
   public Document getXMLDocument(String strUrl, Map<String, ? extends Object> params)
@@ -1803,7 +1871,8 @@ public class PSContentExplorerApplet extends JApplet implements IPSActionListene
    * @param strUrl a relative url, must not be <code>null</code>, or empty
    * @return the icon from the processed url, returns <code>null</code> if the icon could not be
    *     loaded
-   * @throws MalformedURLException
+   * @throws MalformedURLException if the supplied relative url cannot be resolved against the
+   *     Rhythmyx code base.
    */
   public Icon getIcon(String strUrl) throws MalformedURLException {
     URL url = new URL(getRhythmyxCodeBase(), strUrl);
@@ -1934,9 +2003,9 @@ public class PSContentExplorerApplet extends JApplet implements IPSActionListene
   /**
    * Loads the set of folders flagged for publishing
    *
-   * @throws IOException
-   * @throws SAXException
-   * @throws ParserConfigurationException
+   * @throws IOException if an I/O error occurs while retrieving or parsing the document.
+   * @throws SAXException if the document contains invalid XML.
+   * @throws ParserConfigurationException if the parser cannot be configured.
    */
   public void loadFlaggedFoldersSet()
       throws IOException, SAXException, ParserConfigurationException {
@@ -1956,6 +2025,12 @@ public class PSContentExplorerApplet extends JApplet implements IPSActionListene
     ms_flaggedFolders = flags;
   }
 
+  /**
+   * Gets the HTTP connection used by the applet to communicate with the Rhythmyx server, lazily
+   * creating one if it does not exist yet.
+   *
+   * @return the HTTP connection, never <code>null</code>.
+   */
   public PSHttpConnection getHttpConnection() {
     if (m_httpConnection == null) {
       m_httpConnection = new PSHttpConnection(getRhythmyxCodeBase(), " ");
@@ -1963,6 +2038,11 @@ public class PSContentExplorerApplet extends JApplet implements IPSActionListene
     return m_httpConnection;
   }
 
+  /**
+   * Indicates whether the applet has completed its initialization.
+   *
+   * @return <code>true</code> if the applet is initialized, <code>false</code> otherwise.
+   */
   public boolean isInitialized() {
     return m_initialized;
   }
@@ -2317,18 +2397,40 @@ public class PSContentExplorerApplet extends JApplet implements IPSActionListene
     }
   }
 
+  /**
+   * Indicates whether this applet is running as a standalone JavaFX application rather than as a
+   * browser applet.
+   *
+   * @return <code>true</code> if running as an application, <code>false</code> otherwise.
+   */
   public boolean isApplication() {
     return isApplication;
   }
 
+  /**
+   * Sets the flag indicating whether the applet is running as a standalone JavaFX application.
+   *
+   * @param isApplication <code>true</code> if running as an application, <code>false</code>
+   *     otherwise.
+   */
   public void setIsApplication(boolean isApplication) {
     this.isApplication = isApplication;
   }
 
+  /**
+   * Gets the shared map of relationship name to relationship info used by the dependency tree view.
+   *
+   * @return the relationship map, never <code>null</code>.
+   */
   public static ConcurrentMap<String, PSRelationshipInfo> getRelMap() {
     return REL_MAP;
   }
 
+  /**
+   * Replaces the shared relationship map with the supplied instance.
+   *
+   * @param relMap the new relationship map, may be <code>null</code>.
+   */
   public static void setRelMap(ConcurrentMap<String, PSRelationshipInfo> relMap) {
     PSContentExplorerApplet.REL_MAP = relMap;
   }
@@ -2424,10 +2526,20 @@ public class PSContentExplorerApplet extends JApplet implements IPSActionListene
     private boolean m_isCXView = false;
   }
 
+  /**
+   * Gets the JavaFX web engine associated with the applet, if any.
+   *
+   * @return the web engine, may be <code>null</code> if the applet does not use a web view.
+   */
   public WebEngine getEngine() {
     return webEngine;
   }
 
+  /**
+   * Sets the JavaFX web engine associated with the applet.
+   *
+   * @param webEngine the new web engine, may be <code>null</code>.
+   */
   public void setEngine(WebEngine webEngine) {
     this.webEngine = webEngine;
   }

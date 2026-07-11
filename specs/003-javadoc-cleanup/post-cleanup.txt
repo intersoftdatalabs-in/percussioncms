@@ -1,0 +1,29 @@
+﻿[INFO] Scanning for projects...
+[INFO] 
+[INFO] ----------------< com.percussion:perc-content-explorer >----------------
+[INFO] Building perc-content-explorer 8.2.0-SNAPSHOT
+[INFO]   from pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] >>> javadoc:3.12.0:javadoc (default-cli) > generate-sources @ perc-content-explorer >>>
+[INFO] 
+[INFO] --- ai-build-integrity:0.12.0:generate-hashes (generate) @ perc-content-explorer ---
+[INFO] Skipping HashGeneratorMojo execution in non-root project.
+[INFO] 
+[INFO] --- toolchains:3.2.0:toolchain (default) @ perc-content-explorer ---
+[INFO] 
+[INFO] <<< javadoc:3.12.0:javadoc (default-cli) < generate-sources @ perc-content-explorer <<<
+[INFO] 
+[WARNING] 6 problems were encountered while building the effective model for org.openjfx:javafx-controls:jar:17 during dependency collection step for project (use -X to see details)
+[INFO] 
+[INFO] --- javadoc:3.12.0:javadoc (default-cli) @ perc-content-explorer ---
+[WARNING] Javadoc Warnings
+[WARNING] warning: unknown enum constant CacheConcurrencyStrategy.READ_WRITE
+[WARNING] reason: class file for org.hibernate.annotations.CacheConcurrencyStrategy not found
+[WARNING] 1 warning
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD SUCCESS
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  23.024 s
+[INFO] Finished at: 2026-07-11T21:21:33+05:30
+[INFO] ------------------------------------------------------------------------
