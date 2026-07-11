@@ -1,0 +1,910 @@
+Using JDK 21 at /usr/lib/jvm/java-1.21.0-openjdk-amd64
+[ERROR] Error while creating javadoc report: 
+Exit code: 1
+warning: unknown enum constant CacheConcurrencyStrategy.READ_WRITE
+  reason: class file for org.hibernate.annotations.CacheConcurrencyStrategy not found
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/PSContentExplorerMenu.java:51: error: reference not found
+ * {@link com.percussion.cx.objectstore#PSAction}. This class implements the Callable interface so
+          ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/javafx/PSFileSaver.java:36: warning: no main description
+ * @web http://java-buddy.blogspot.com/
+   ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/javafx/PSFileSaver.java:36: error: unknown tag: web
+ * @web http://java-buddy.blogspot.com/
+   ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/javafx/BrowserProps.java:109: warning: no main description
+   * @return true if toolbar is enabled
+     ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/javafx/BrowserProps.java:116: warning: no main description
+   * @return true if location bar is enabled
+     ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/javafx/BrowserProps.java:123: warning: no main description
+   * @return true if directories are enabled
+     ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/javafx/BrowserProps.java:130: warning: no main description
+   * @return true if status bar is enabled
+     ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/javafx/BrowserProps.java:137: warning: no main description
+   * @return true if menu bar is enabled
+     ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/javafx/BrowserProps.java:144: warning: no main description
+   * @return true if scrollbars are enabled
+     ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/javafx/BrowserProps.java:151: warning: no main description
+   * @return true if window is resizable
+     ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/javafx/BrowserProps.java:158: warning: no main description
+   * @return the left position of the window
+     ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/javafx/BrowserProps.java:165: warning: no main description
+   * @return the height of the window
+     ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/javafx/BrowserProps.java:172: warning: no main description
+   * @return the width of the window
+     ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/JSClipDataBridge.java:42: warning: no comment
+  public JSClipDataItem[] items = new JSClipDataItem[0];
+                          ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/JSClipDataBridge.java:41: warning: no comment
+  public String[] types = new String[0];
+                  ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/JSClipDataBridge.java:45: warning: no comment
+  public JSClipDataBridge() {
+         ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/JSClipDataBridge.java:100: warning: no comment
+  public void clearData() {
+              ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/JSClipDataBridge.java:69: warning: no comment
+  public String getData(String type) {
+                ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/JSClipDataBridge.java:65: warning: no comment
+  public String[] getTypes() {
+                  ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/JSClipDataBridge.java:77: warning: no comment
+  public void setData(String type, String value) {
+              ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/JSClipEventBridge.java:20: warning: no comment
+public class JSClipEventBridge {
+       ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/JSClipEventBridge.java:26: warning: no comment
+  public JSClipDataBridge clipboardData;
+                          ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/JSClipEventBridge.java:28: warning: no comment
+  public JSClipEventBridge() {
+         ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/JSClipEventBridge.java:32: warning: no comment
+  public boolean isDefaultPrevented() {
+                 ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/JSClipEventBridge.java:40: warning: no comment
+  public boolean isImmediatePropagationStopped() {
+                 ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/JSClipEventBridge.java:36: warning: no comment
+  public void preventDefault() {
+              ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/PSACLNewUserDialog.java:50: warning: no @param for applet
+  public PSACLNewUserDialog(Dialog dialog, Iterator providers, PSContentExplorerApplet applet) {
+         ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/PSACLNewUserDialog.java:66: warning: no @param for applet
+  public PSACLNewUserDialog(Frame frame, Iterator providers, PSContentExplorerApplet applet) {
+         ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/PSActionManager.java:153: warning: no @throws for com.percussion.cx.error.PSContentExplorerException
+  public PSActionManager(PSContentExplorerApplet applet)
+         ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/PSActionManager.java:153: warning: no @throws for com.percussion.cms.PSCmsException
+  public PSActionManager(PSContentExplorerApplet applet)
+         ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/PSActionManager.java:1883: error: invalid HTML
+   * <p><!ELEMENT root(TableMeta?, Node*)> See the {@link com.percussion.cx.objectstore.PSNode} for
+         ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/PSActionManager.java:4316: warning: no description for @throws
+   * @throws PSContentExplorerException
+     ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/PSActionManager.java:4366: warning: no description for @throws
+   * @throws MalformedURLException
+     ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/PSActionManager.java:4367: warning: no description for @throws
+   * @throws IOException
+     ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/PSActionManager.java:4368: warning: no description for @throws
+   * @throws ProtocolException
+     ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/PSActionManager.java:4370: warning: no @throws for com.percussion.error.PSException
+  public String postData(String strUrl, Map paramMap)
+                ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/PSActionManager.java:4392: warning: no description for @throws
+   * @throws MalformedURLException
+     ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/PSActionManager.java:4393: warning: no description for @throws
+   * @throws IOException
+     ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/PSActionManager.java:4394: warning: no description for @throws
+   * @throws ProtocolException
+     ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/PSActionManager.java:4395: warning: no description for @throws
+   * @throws IllegalArgumentException
+     ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/PSActionManager.java:4397: warning: no @throws for com.percussion.error.PSException
+  public String postXmlData(String strUrl, String XmlString)
+                ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/PSActionManager.java:4420: warning: no @param for nodeList
+  public static List nodesToLocators(Iterator nodeList) {
+                     ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/PSActionManager.java:4420: warning: no @return
+  public static List nodesToLocators(Iterator nodeList) {
+                     ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/PSActionManager.java:4464: warning: no @param for url
+  public Document getXMLDocument(String url)
+                  ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/PSActionManager.java:4464: warning: no @return
+  public Document getXMLDocument(String url)
+                  ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/PSActionManager.java:4464: warning: no @throws for java.io.IOException
+  public Document getXMLDocument(String url)
+                  ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/PSActionManager.java:4464: warning: no @throws for org.xml.sax.SAXException
+  public Document getXMLDocument(String url)
+                  ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/PSActionManager.java:4464: warning: no @throws for javax.xml.parsers.ParserConfigurationException
+  public Document getXMLDocument(String url)
+                  ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/PSActionManager.java:4482: warning: no @param for url
+  public Icon getIcon(String url) throws MalformedURLException {
+              ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/PSActionManager.java:4482: warning: no @return
+  public Icon getIcon(String url) throws MalformedURLException {
+              ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/PSActionManager.java:4482: warning: no @throws for java.net.MalformedURLException
+  public Icon getIcon(String url) throws MalformedURLException {
+              ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/PSActionManager.java:4496: warning: no @param for target
+  public boolean canCopyOrMove(PSNode target) {
+                 ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/PSActionManager.java:4626: error: unknown tag: target
+   * @target the target node where the paste is to be applied, may be <code>
+     ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/PSActionManager.java:4628: error: unknown tag: clipType
+   * @clipType the type of paste we are trying to accomplish, one of <code>
+     ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/PSActionManager.java:4632: warning: no @param for target
+  public boolean canAcceptPaste(String view, PSNode target, int clipType) {
+                 ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/PSActionManager.java:4632: warning: no @param for clipType
+  public boolean canAcceptPaste(String view, PSNode target, int clipType) {
+                 ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/PSActionManager.java:4939: warning: no main description
+   * @return Current content selection path, that is supplied by the MainView; never <code>null
+     ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/PSContentExplorerApplet.java:406: error: element not closed: ol
+   * <ol>
+     ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/PSContentExplorerApplet.java:547: warning: empty comment
+  public void logout() {
+              ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/PSContentExplorerApplet.java:1394: warning: no @param for resClass
+  public static char getResourceMnemonic(Class resClass, String label, char mnemonic) {
+                     ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/PSContentExplorerApplet.java:1394: warning: no @param for label
+  public static char getResourceMnemonic(Class resClass, String label, char mnemonic) {
+                     ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/PSContentExplorerApplet.java:1394: warning: no @param for mnemonic
+  public static char getResourceMnemonic(Class resClass, String label, char mnemonic) {
+                     ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/PSContentExplorerApplet.java:1394: warning: no @return
+  public static char getResourceMnemonic(Class resClass, String label, char mnemonic) {
+                     ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/PSContentExplorerApplet.java:1663: warning: no main description
+   * @return <code>true</code> if content needs to be restricted to user community.
+     ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/PSContentExplorerApplet.java:1694: warning: no main description
+   * @return <code>true</code> if the ManagedNav (feature) is used by the current Rhythmyx server
+     ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/PSContentExplorerApplet.java:1735: warning: nested tag not allowed: <code>
+   * <code>null</code>)}.
+     ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/PSContentExplorerApplet.java:1737: warning: no @param for strUrl
+  public Document getXMLDocument(String strUrl)
+                  ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/PSContentExplorerApplet.java:1737: warning: no @return
+  public Document getXMLDocument(String strUrl)
+                  ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/PSContentExplorerApplet.java:1737: warning: no @throws for java.io.IOException
+  public Document getXMLDocument(String strUrl)
+                  ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/PSContentExplorerApplet.java:1737: warning: no @throws for org.xml.sax.SAXException
+  public Document getXMLDocument(String strUrl)
+                  ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/PSContentExplorerApplet.java:1737: warning: no @throws for javax.xml.parsers.ParserConfigurationException
+  public Document getXMLDocument(String strUrl)
+                  ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/PSContentExplorerApplet.java:1754: warning: no description for @throws
+   * @throws IOException
+     ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/PSContentExplorerApplet.java:1755: warning: no description for @throws
+   * @throws SAXException
+     ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/PSContentExplorerApplet.java:1756: warning: no description for @throws
+   * @throws ParserConfigurationException
+     ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/PSContentExplorerApplet.java:1806: warning: no description for @throws
+   * @throws MalformedURLException
+     ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/PSContentExplorerApplet.java:1937: warning: no description for @throws
+   * @throws IOException
+     ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/PSContentExplorerApplet.java:1938: warning: no description for @throws
+   * @throws SAXException
+     ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/PSContentExplorerApplet.java:1939: warning: no description for @throws
+   * @throws ParserConfigurationException
+     ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/PSActionManager.java:5374: warning: no comment
+  public PSSearchConfig getSearchConfig() {
+                        ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/PSSearchViewActionManager.java:72: warning: no @param for remCataloger
+  public PSSearchViewActionManager(
+         ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/PSSearchViewActionManager.java:72: warning: no @param for applet
+  public PSSearchViewActionManager(
+         ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/PSSearchViewActionManager.java:72: warning: no @throws for com.percussion.cx.error.PSContentExplorerException
+  public PSSearchViewActionManager(
+         ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/PSSearchViewActionManager.java:149: warning: no @param for showTo
+  public PSSearch saveNewSearch(PSNode searchNode, String name, int showTo)
+                  ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/PSSearchViewActionManager.java:149: warning: no @return
+  public PSSearch saveNewSearch(PSNode searchNode, String name, int showTo)
+                  ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/PSSearchViewActionManager.java:149: warning: no @throws for com.percussion.cx.error.PSContentExplorerException
+  public PSSearch saveNewSearch(PSNode searchNode, String name, int showTo)
+                  ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/PSSearchViewActionManager.java:323: warning: no @throws for com.percussion.cms.PSCmsException
+  public Iterator loadChildren(PSNode searchNode)
+                  ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/PSSearchViewActionManager.java:507: warning: no @return
+  public static boolean isNodeInitializable(PSNode node) {
+                        ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/PSAjaxSwingWrapperLocator.java:28: warning: use of default constructor, which does not provide a comment
+public class PSAjaxSwingWrapperLocator {
+       ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/javafx/PSBrowserUtils.java:32: warning: use of default constructor, which does not provide a comment
+public class PSBrowserUtils {
+       ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/javafx/PSCallBack.java:49: error: @param name not found
+   * @param height the height of the popup window
+            ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/javafx/PSCallBack.java:51: warning: no @param for heigth
+  public PSCallBack(WebView popupWebView, double width, double heigth) {
+         ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/PSCESessionManager.java:47: warning: no comment
+public class PSCESessionManager implements Runnable {
+       ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/PSCESessionManager.java:86: warning: no comment
+  public PSCESessionManager() {
+         ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/PSCESessionManager.java:371: warning: no comment
+  public static PSCESessionManager getInstance() {
+                                   ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/PSCESessionManager.java:378: warning: no comment
+  public PSLogin getLoginInfo() {
+                 ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/PSCESessionManager.java:390: warning: no comment
+  public String getUserName() {
+                ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/PSCESessionManager.java:382: warning: no comment
+  public boolean isLoggedIn() {
+                 ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/PSCESessionManager.java:300: warning: no comment
+  public void login(
+              ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/PSCESessionManager.java:386: warning: no comment
+  public void setLoggedIn(boolean isLoggedIn) {
+              ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/PSCESessionManager.java:394: warning: no comment
+  public void setUserName(String userName) {
+              ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/PSCESessionManager.java:241: warning: no comment
+  public void shutdown() {
+              ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/PSCESessionManager.java:90: warning: no comment
+  public void start(String protocol, String server, String port, PSLogin loginInfo) {
+              ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/PSCESessionManager.java:296: warning: no comment
+  public void stop() {
+              ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/PSColumnWidthsOption.java:114: error: unexpected text
+   * Object.equals(Object) Object} and adheres to that contract.
+           ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/catalogers/PSCommunityCataloger.java:256: warning: no main description
+   * @return unmodifiable collection of cataloged Community instances , never <code>null</code>.
+     ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/catalogers/PSCommunityCataloger.java:283: warning: no comment
+  public static final String XML_ELEM_COMMUNITYDESC = "communitydesc";
+                             ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/catalogers/PSCommunityCataloger.java:282: warning: no comment
+  public static final String XML_ELEM_COMMUNITYID = "communityid";
+                             ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/wizard/PSWizardPanel.java:178: error: reference not found
+   * The main wizard page panel, initialized in {@link #createPanel(JPanel)}, may be <code>null
+                                                       ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/PSContentExplorerStatusDialog.java:51: error: @param name not found
+   * @param processMonitor the process monitor to use to monitor the process executing, may not be
+            ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/PSContentExplorerStatusDialog.java:127: error: reference not found
+   * {@link PSDeploymentStatusMonitor#stopMonitor()} for more description on cancelling a job.
+            ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/PSContentExplorerStatusDialog.java:196: error: @param name not found
+   * @param component the parent component that shows the error dialog, may be <code>null</code>.
+            ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/PSContentExplorerUtils.java:80: error: unknown tag: server
+   *     <p>http://<server>:port/Rhythmyx/appName/resource.html?param1= value1&param2=value2....
+                   ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/PSContentExplorerUtils.java:80: error: semicolon missing
+   *     <p>http://<server>:port/Rhythmyx/appName/resource.html?param1= value1&param2=value2....
+                                                                                    ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/PSContentExplorerUtils.java:82: error: unknown tag: server
+   *     <p>http://<server>:port/Rhythmyx/appName/resource.html and the params object which is
+                   ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/wizards/PSCopySiteNamePage.java:233: error: @param name not found
+     * @param folderRoot the folder root for which we want all site names, not <code>null</code> or
+              ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/PSDisplayFormatOption.java:46: error: exception not thrown: com.percussion.cx.error.PSContentExplorerException
+   * @throws PSContentExplorerException if the XML element node does not represent a type supported
+             ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/PSDisplayFormatOption.java:108: error: unexpected text
+   * Object.equals(Object) Object} and adheres to that contract.
+           ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/PSDisplayFormatTableModel.java:264: error: bad HTML entity
+   * @param row the row index, must be >= 0 && < rowcount of the model.
+                                            ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/PSDisplayFormatTableModel.java:264: error: bad HTML entity
+   * @param row the row index, must be >= 0 && < rowcount of the model.
+                                             ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/PSDisplayFormatTableModel.java:264: error: malformed HTML
+   * @param row the row index, must be >= 0 && < rowcount of the model.
+                                               ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/PSExecutableSearch.java:97: error: reference not found
+   * {@link #PSExecutableSearch(URL, PSDisplayFormat, List, Collection, PSSearch)
+            ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/PSExpandedOption.java:45: error: exception not thrown: com.percussion.cx.error.PSContentExplorerException
+   * @throws PSContentExplorerException if the XML element node does not represent a type supported
+             ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/PSExpandedOption.java:113: error: unexpected text
+   * Object.equals(Object) Object} and adheres to that contract.
+           ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/PSFolderGeneralPanel.java:62: error: @param name not found
+   * @param navSelectionPath current content navigation path, such as //Folder/ Folder1/Folder2,
+            ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/PSImageIconLoader.java:107: error: element not closed: code
+   * <code>null<code> is returned.
+               ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/PSImageIconLoader.java:107: error: element not closed: code
+   * <code>null<code> is returned.
+     ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/PSItemAssemblyManager.java:127: error: malformed HTML
+   * @param direction the direction to move the specified nodes, < 0 is move up, > 0 is move down
+                                                                 ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/PSMenuManager.java:39: error: reference not found
+   * {@link #PSNavigationalSelection}, otherwise only context selection.
+            ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/PSOptionManager.java:297: error: unexpected text
+   * #IPSHTMLParameter.SYS_COMMAND } key.
+                      ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/PSOptionManager.java:303: error: unexpected text
+   * a {@link #IPSHTMLParameter.SYS_COMMAND } key.
+                               ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/PSOptionManager.java:309: error: unexpected text
+   * #IPSHTMLParameter.SYS_COMMAND } key.
+                      ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/PSOptionManager.java:47: error: @param name not found
+   * @param defApplet - the applet which contains data needed to perform the request that will be
+            ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/PSProcessMonitor.java:32: error: malformed HTML
+   * @param total the total number of nodes to process, may not be <= 0.
+                                                                   ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/PSProcessMonitor.java:59: error: malformed HTML
+   * @param current the current node processing, must be >= 0 and <= total number of nodes
+                                                                  ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/PSProcessMonitor.java:119: error: @param name not found
+   * @param component the parent component that shows the error dialog, may be <code>null</code>.
+            ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/PSSearchDialog.java:831: error: element not closed: code
+   * @return <code>true</code> or <code>false> based on the search type and
+                                  ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/ServerConnection.java:165: error: unknown tag: todo
+   * @todo Properly implement this according to the interface. Just a quickie for now. Then delete
+     ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/guitools/UTMnemonicLabel.java:45: error: unknown tag: resId
+   * <resId>Mnemonic.
+     ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/PSContentExplorerStatusDialog.java:243: error: malformed HTML
+   * </code). Never <code>null</code> after it is initialized.
+     ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/PSContentExplorerStatusDialog.java:242: error: element not closed: code
+   * gets updated by status monitor of the current job in <code>updateStatus(String, int)
+                                                          ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/PSMainDisplayPanel.java:902: error: reference not found
+   * according to their sort order. See {@link com.percussion.guitools#PSTableSorter} for more info.
+                                               ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/PSWizardDialog.java:307: error: reference not found
+   * #createMainPanel(String[], String[])}, never changed after that.
+     ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/wizard/PSWizardDialog.java:303: error: reference not found
+   * #createMainPanel(String[], String[])}, never changed after that.
+     ^
+44 errors
+100 warnings
+Command line was: /usr/lib/jvm/java-21-openjdk-amd64/bin/javadoc -J-Duser.language= -J-Duser.country= @options @packages
+
+Refer to the generated Javadoc files in '/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/target/reports/apidocs' dir.
+
+org.apache.maven.reporting.MavenReportException: 
+Exit code: 1
+warning: unknown enum constant CacheConcurrencyStrategy.READ_WRITE
+  reason: class file for org.hibernate.annotations.CacheConcurrencyStrategy not found
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/PSContentExplorerMenu.java:51: error: reference not found
+ * {@link com.percussion.cx.objectstore#PSAction}. This class implements the Callable interface so
+          ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/javafx/PSFileSaver.java:36: warning: no main description
+ * @web http://java-buddy.blogspot.com/
+   ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/javafx/PSFileSaver.java:36: error: unknown tag: web
+ * @web http://java-buddy.blogspot.com/
+   ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/javafx/BrowserProps.java:109: warning: no main description
+   * @return true if toolbar is enabled
+     ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/javafx/BrowserProps.java:116: warning: no main description
+   * @return true if location bar is enabled
+     ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/javafx/BrowserProps.java:123: warning: no main description
+   * @return true if directories are enabled
+     ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/javafx/BrowserProps.java:130: warning: no main description
+   * @return true if status bar is enabled
+     ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/javafx/BrowserProps.java:137: warning: no main description
+   * @return true if menu bar is enabled
+     ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/javafx/BrowserProps.java:144: warning: no main description
+   * @return true if scrollbars are enabled
+     ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/javafx/BrowserProps.java:151: warning: no main description
+   * @return true if window is resizable
+     ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/javafx/BrowserProps.java:158: warning: no main description
+   * @return the left position of the window
+     ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/javafx/BrowserProps.java:165: warning: no main description
+   * @return the height of the window
+     ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/javafx/BrowserProps.java:172: warning: no main description
+   * @return the width of the window
+     ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/JSClipDataBridge.java:42: warning: no comment
+  public JSClipDataItem[] items = new JSClipDataItem[0];
+                          ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/JSClipDataBridge.java:41: warning: no comment
+  public String[] types = new String[0];
+                  ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/JSClipDataBridge.java:45: warning: no comment
+  public JSClipDataBridge() {
+         ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/JSClipDataBridge.java:100: warning: no comment
+  public void clearData() {
+              ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/JSClipDataBridge.java:69: warning: no comment
+  public String getData(String type) {
+                ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/JSClipDataBridge.java:65: warning: no comment
+  public String[] getTypes() {
+                  ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/JSClipDataBridge.java:77: warning: no comment
+  public void setData(String type, String value) {
+              ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/JSClipEventBridge.java:20: warning: no comment
+public class JSClipEventBridge {
+       ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/JSClipEventBridge.java:26: warning: no comment
+  public JSClipDataBridge clipboardData;
+                          ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/JSClipEventBridge.java:28: warning: no comment
+  public JSClipEventBridge() {
+         ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/JSClipEventBridge.java:32: warning: no comment
+  public boolean isDefaultPrevented() {
+                 ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/JSClipEventBridge.java:40: warning: no comment
+  public boolean isImmediatePropagationStopped() {
+                 ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/JSClipEventBridge.java:36: warning: no comment
+  public void preventDefault() {
+              ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/PSACLNewUserDialog.java:50: warning: no @param for applet
+  public PSACLNewUserDialog(Dialog dialog, Iterator providers, PSContentExplorerApplet applet) {
+         ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/PSACLNewUserDialog.java:66: warning: no @param for applet
+  public PSACLNewUserDialog(Frame frame, Iterator providers, PSContentExplorerApplet applet) {
+         ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/PSActionManager.java:153: warning: no @throws for com.percussion.cx.error.PSContentExplorerException
+  public PSActionManager(PSContentExplorerApplet applet)
+         ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/PSActionManager.java:153: warning: no @throws for com.percussion.cms.PSCmsException
+  public PSActionManager(PSContentExplorerApplet applet)
+         ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/PSActionManager.java:1883: error: invalid HTML
+   * <p><!ELEMENT root(TableMeta?, Node*)> See the {@link com.percussion.cx.objectstore.PSNode} for
+         ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/PSActionManager.java:4316: warning: no description for @throws
+   * @throws PSContentExplorerException
+     ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/PSActionManager.java:4366: warning: no description for @throws
+   * @throws MalformedURLException
+     ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/PSActionManager.java:4367: warning: no description for @throws
+   * @throws IOException
+     ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/PSActionManager.java:4368: warning: no description for @throws
+   * @throws ProtocolException
+     ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/PSActionManager.java:4370: warning: no @throws for com.percussion.error.PSException
+  public String postData(String strUrl, Map paramMap)
+                ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/PSActionManager.java:4392: warning: no description for @throws
+   * @throws MalformedURLException
+     ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/PSActionManager.java:4393: warning: no description for @throws
+   * @throws IOException
+     ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/PSActionManager.java:4394: warning: no description for @throws
+   * @throws ProtocolException
+     ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/PSActionManager.java:4395: warning: no description for @throws
+   * @throws IllegalArgumentException
+     ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/PSActionManager.java:4397: warning: no @throws for com.percussion.error.PSException
+  public String postXmlData(String strUrl, String XmlString)
+                ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/PSActionManager.java:4420: warning: no @param for nodeList
+  public static List nodesToLocators(Iterator nodeList) {
+                     ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/PSActionManager.java:4420: warning: no @return
+  public static List nodesToLocators(Iterator nodeList) {
+                     ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/PSActionManager.java:4464: warning: no @param for url
+  public Document getXMLDocument(String url)
+                  ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/PSActionManager.java:4464: warning: no @return
+  public Document getXMLDocument(String url)
+                  ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/PSActionManager.java:4464: warning: no @throws for java.io.IOException
+  public Document getXMLDocument(String url)
+                  ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/PSActionManager.java:4464: warning: no @throws for org.xml.sax.SAXException
+  public Document getXMLDocument(String url)
+                  ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/PSActionManager.java:4464: warning: no @throws for javax.xml.parsers.ParserConfigurationException
+  public Document getXMLDocument(String url)
+                  ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/PSActionManager.java:4482: warning: no @param for url
+  public Icon getIcon(String url) throws MalformedURLException {
+              ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/PSActionManager.java:4482: warning: no @return
+  public Icon getIcon(String url) throws MalformedURLException {
+              ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/PSActionManager.java:4482: warning: no @throws for java.net.MalformedURLException
+  public Icon getIcon(String url) throws MalformedURLException {
+              ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/PSActionManager.java:4496: warning: no @param for target
+  public boolean canCopyOrMove(PSNode target) {
+                 ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/PSActionManager.java:4626: error: unknown tag: target
+   * @target the target node where the paste is to be applied, may be <code>
+     ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/PSActionManager.java:4628: error: unknown tag: clipType
+   * @clipType the type of paste we are trying to accomplish, one of <code>
+     ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/PSActionManager.java:4632: warning: no @param for target
+  public boolean canAcceptPaste(String view, PSNode target, int clipType) {
+                 ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/PSActionManager.java:4632: warning: no @param for clipType
+  public boolean canAcceptPaste(String view, PSNode target, int clipType) {
+                 ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/PSActionManager.java:4939: warning: no main description
+   * @return Current content selection path, that is supplied by the MainView; never <code>null
+     ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/PSContentExplorerApplet.java:406: error: element not closed: ol
+   * <ol>
+     ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/PSContentExplorerApplet.java:547: warning: empty comment
+  public void logout() {
+              ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/PSContentExplorerApplet.java:1394: warning: no @param for resClass
+  public static char getResourceMnemonic(Class resClass, String label, char mnemonic) {
+                     ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/PSContentExplorerApplet.java:1394: warning: no @param for label
+  public static char getResourceMnemonic(Class resClass, String label, char mnemonic) {
+                     ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/PSContentExplorerApplet.java:1394: warning: no @param for mnemonic
+  public static char getResourceMnemonic(Class resClass, String label, char mnemonic) {
+                     ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/PSContentExplorerApplet.java:1394: warning: no @return
+  public static char getResourceMnemonic(Class resClass, String label, char mnemonic) {
+                     ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/PSContentExplorerApplet.java:1663: warning: no main description
+   * @return <code>true</code> if content needs to be restricted to user community.
+     ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/PSContentExplorerApplet.java:1694: warning: no main description
+   * @return <code>true</code> if the ManagedNav (feature) is used by the current Rhythmyx server
+     ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/PSContentExplorerApplet.java:1735: warning: nested tag not allowed: <code>
+   * <code>null</code>)}.
+     ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/PSContentExplorerApplet.java:1737: warning: no @param for strUrl
+  public Document getXMLDocument(String strUrl)
+                  ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/PSContentExplorerApplet.java:1737: warning: no @return
+  public Document getXMLDocument(String strUrl)
+                  ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/PSContentExplorerApplet.java:1737: warning: no @throws for java.io.IOException
+  public Document getXMLDocument(String strUrl)
+                  ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/PSContentExplorerApplet.java:1737: warning: no @throws for org.xml.sax.SAXException
+  public Document getXMLDocument(String strUrl)
+                  ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/PSContentExplorerApplet.java:1737: warning: no @throws for javax.xml.parsers.ParserConfigurationException
+  public Document getXMLDocument(String strUrl)
+                  ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/PSContentExplorerApplet.java:1754: warning: no description for @throws
+   * @throws IOException
+     ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/PSContentExplorerApplet.java:1755: warning: no description for @throws
+   * @throws SAXException
+     ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/PSContentExplorerApplet.java:1756: warning: no description for @throws
+   * @throws ParserConfigurationException
+     ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/PSContentExplorerApplet.java:1806: warning: no description for @throws
+   * @throws MalformedURLException
+     ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/PSContentExplorerApplet.java:1937: warning: no description for @throws
+   * @throws IOException
+     ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/PSContentExplorerApplet.java:1938: warning: no description for @throws
+   * @throws SAXException
+     ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/PSContentExplorerApplet.java:1939: warning: no description for @throws
+   * @throws ParserConfigurationException
+     ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/PSActionManager.java:5374: warning: no comment
+  public PSSearchConfig getSearchConfig() {
+                        ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/PSSearchViewActionManager.java:72: warning: no @param for remCataloger
+  public PSSearchViewActionManager(
+         ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/PSSearchViewActionManager.java:72: warning: no @param for applet
+  public PSSearchViewActionManager(
+         ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/PSSearchViewActionManager.java:72: warning: no @throws for com.percussion.cx.error.PSContentExplorerException
+  public PSSearchViewActionManager(
+         ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/PSSearchViewActionManager.java:149: warning: no @param for showTo
+  public PSSearch saveNewSearch(PSNode searchNode, String name, int showTo)
+                  ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/PSSearchViewActionManager.java:149: warning: no @return
+  public PSSearch saveNewSearch(PSNode searchNode, String name, int showTo)
+                  ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/PSSearchViewActionManager.java:149: warning: no @throws for com.percussion.cx.error.PSContentExplorerException
+  public PSSearch saveNewSearch(PSNode searchNode, String name, int showTo)
+                  ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/PSSearchViewActionManager.java:323: warning: no @throws for com.percussion.cms.PSCmsException
+  public Iterator loadChildren(PSNode searchNode)
+                  ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/PSSearchViewActionManager.java:507: warning: no @return
+  public static boolean isNodeInitializable(PSNode node) {
+                        ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/PSAjaxSwingWrapperLocator.java:28: warning: use of default constructor, which does not provide a comment
+public class PSAjaxSwingWrapperLocator {
+       ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/javafx/PSBrowserUtils.java:32: warning: use of default constructor, which does not provide a comment
+public class PSBrowserUtils {
+       ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/javafx/PSCallBack.java:49: error: @param name not found
+   * @param height the height of the popup window
+            ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/javafx/PSCallBack.java:51: warning: no @param for heigth
+  public PSCallBack(WebView popupWebView, double width, double heigth) {
+         ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/PSCESessionManager.java:47: warning: no comment
+public class PSCESessionManager implements Runnable {
+       ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/PSCESessionManager.java:86: warning: no comment
+  public PSCESessionManager() {
+         ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/PSCESessionManager.java:371: warning: no comment
+  public static PSCESessionManager getInstance() {
+                                   ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/PSCESessionManager.java:378: warning: no comment
+  public PSLogin getLoginInfo() {
+                 ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/PSCESessionManager.java:390: warning: no comment
+  public String getUserName() {
+                ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/PSCESessionManager.java:382: warning: no comment
+  public boolean isLoggedIn() {
+                 ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/PSCESessionManager.java:300: warning: no comment
+  public void login(
+              ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/PSCESessionManager.java:386: warning: no comment
+  public void setLoggedIn(boolean isLoggedIn) {
+              ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/PSCESessionManager.java:394: warning: no comment
+  public void setUserName(String userName) {
+              ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/PSCESessionManager.java:241: warning: no comment
+  public void shutdown() {
+              ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/PSCESessionManager.java:90: warning: no comment
+  public void start(String protocol, String server, String port, PSLogin loginInfo) {
+              ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/PSCESessionManager.java:296: warning: no comment
+  public void stop() {
+              ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/PSColumnWidthsOption.java:114: error: unexpected text
+   * Object.equals(Object) Object} and adheres to that contract.
+           ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/catalogers/PSCommunityCataloger.java:256: warning: no main description
+   * @return unmodifiable collection of cataloged Community instances , never <code>null</code>.
+     ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/catalogers/PSCommunityCataloger.java:283: warning: no comment
+  public static final String XML_ELEM_COMMUNITYDESC = "communitydesc";
+                             ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/catalogers/PSCommunityCataloger.java:282: warning: no comment
+  public static final String XML_ELEM_COMMUNITYID = "communityid";
+                             ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/wizard/PSWizardPanel.java:178: error: reference not found
+   * The main wizard page panel, initialized in {@link #createPanel(JPanel)}, may be <code>null
+                                                       ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/PSContentExplorerStatusDialog.java:51: error: @param name not found
+   * @param processMonitor the process monitor to use to monitor the process executing, may not be
+            ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/PSContentExplorerStatusDialog.java:127: error: reference not found
+   * {@link PSDeploymentStatusMonitor#stopMonitor()} for more description on cancelling a job.
+            ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/PSContentExplorerStatusDialog.java:196: error: @param name not found
+   * @param component the parent component that shows the error dialog, may be <code>null</code>.
+            ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/PSContentExplorerUtils.java:80: error: unknown tag: server
+   *     <p>http://<server>:port/Rhythmyx/appName/resource.html?param1= value1&param2=value2....
+                   ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/PSContentExplorerUtils.java:80: error: semicolon missing
+   *     <p>http://<server>:port/Rhythmyx/appName/resource.html?param1= value1&param2=value2....
+                                                                                    ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/PSContentExplorerUtils.java:82: error: unknown tag: server
+   *     <p>http://<server>:port/Rhythmyx/appName/resource.html and the params object which is
+                   ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/wizards/PSCopySiteNamePage.java:233: error: @param name not found
+     * @param folderRoot the folder root for which we want all site names, not <code>null</code> or
+              ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/PSDisplayFormatOption.java:46: error: exception not thrown: com.percussion.cx.error.PSContentExplorerException
+   * @throws PSContentExplorerException if the XML element node does not represent a type supported
+             ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/PSDisplayFormatOption.java:108: error: unexpected text
+   * Object.equals(Object) Object} and adheres to that contract.
+           ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/PSDisplayFormatTableModel.java:264: error: bad HTML entity
+   * @param row the row index, must be >= 0 && < rowcount of the model.
+                                            ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/PSDisplayFormatTableModel.java:264: error: bad HTML entity
+   * @param row the row index, must be >= 0 && < rowcount of the model.
+                                             ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/PSDisplayFormatTableModel.java:264: error: malformed HTML
+   * @param row the row index, must be >= 0 && < rowcount of the model.
+                                               ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/PSExecutableSearch.java:97: error: reference not found
+   * {@link #PSExecutableSearch(URL, PSDisplayFormat, List, Collection, PSSearch)
+            ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/PSExpandedOption.java:45: error: exception not thrown: com.percussion.cx.error.PSContentExplorerException
+   * @throws PSContentExplorerException if the XML element node does not represent a type supported
+             ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/PSExpandedOption.java:113: error: unexpected text
+   * Object.equals(Object) Object} and adheres to that contract.
+           ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/PSFolderGeneralPanel.java:62: error: @param name not found
+   * @param navSelectionPath current content navigation path, such as //Folder/ Folder1/Folder2,
+            ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/PSImageIconLoader.java:107: error: element not closed: code
+   * <code>null<code> is returned.
+               ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/PSImageIconLoader.java:107: error: element not closed: code
+   * <code>null<code> is returned.
+     ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/PSItemAssemblyManager.java:127: error: malformed HTML
+   * @param direction the direction to move the specified nodes, < 0 is move up, > 0 is move down
+                                                                 ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/PSMenuManager.java:39: error: reference not found
+   * {@link #PSNavigationalSelection}, otherwise only context selection.
+            ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/PSOptionManager.java:297: error: unexpected text
+   * #IPSHTMLParameter.SYS_COMMAND } key.
+                      ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/PSOptionManager.java:303: error: unexpected text
+   * a {@link #IPSHTMLParameter.SYS_COMMAND } key.
+                               ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/PSOptionManager.java:309: error: unexpected text
+   * #IPSHTMLParameter.SYS_COMMAND } key.
+                      ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/PSOptionManager.java:47: error: @param name not found
+   * @param defApplet - the applet which contains data needed to perform the request that will be
+            ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/PSProcessMonitor.java:32: error: malformed HTML
+   * @param total the total number of nodes to process, may not be <= 0.
+                                                                   ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/PSProcessMonitor.java:59: error: malformed HTML
+   * @param current the current node processing, must be >= 0 and <= total number of nodes
+                                                                  ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/PSProcessMonitor.java:119: error: @param name not found
+   * @param component the parent component that shows the error dialog, may be <code>null</code>.
+            ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/PSSearchDialog.java:831: error: element not closed: code
+   * @return <code>true</code> or <code>false> based on the search type and
+                                  ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/ServerConnection.java:165: error: unknown tag: todo
+   * @todo Properly implement this according to the interface. Just a quickie for now. Then delete
+     ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/guitools/UTMnemonicLabel.java:45: error: unknown tag: resId
+   * <resId>Mnemonic.
+     ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/PSContentExplorerStatusDialog.java:243: error: malformed HTML
+   * </code). Never <code>null</code> after it is initialized.
+     ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/PSContentExplorerStatusDialog.java:242: error: element not closed: code
+   * gets updated by status monitor of the current job in <code>updateStatus(String, int)
+                                                          ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/PSMainDisplayPanel.java:902: error: reference not found
+   * according to their sort order. See {@link com.percussion.guitools#PSTableSorter} for more info.
+                                               ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/cx/PSWizardDialog.java:307: error: reference not found
+   * #createMainPanel(String[], String[])}, never changed after that.
+     ^
+/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/src/main/java/com/percussion/wizard/PSWizardDialog.java:303: error: reference not found
+   * #createMainPanel(String[], String[])}, never changed after that.
+     ^
+44 errors
+100 warnings
+Command line was: /usr/lib/jvm/java-21-openjdk-amd64/bin/javadoc -J-Duser.language= -J-Duser.country= @options @packages
+
+Refer to the generated Javadoc files in '/home/nate/workspaces/intersoft-workspace/percussioncms/modules/DesktopContentExplorer/target/reports/apidocs' dir.
+
+    at org.apache.maven.plugins.javadoc.AbstractJavadocMojo.doExecuteJavadocCommandLine (AbstractJavadocMojo.java:5114)
+    at org.apache.maven.plugins.javadoc.AbstractJavadocMojo.executeJavadocCommandLine (AbstractJavadocMojo.java:4987)
+    at org.apache.maven.plugins.javadoc.AbstractJavadocMojo.executeReport (AbstractJavadocMojo.java:2059)
+    at org.apache.maven.plugins.javadoc.JavadocReport.generate (JavadocReport.java:142)
+    at org.apache.maven.plugins.javadoc.JavadocReport.doExecute (JavadocReport.java:307)
+    at org.apache.maven.plugins.javadoc.AbstractJavadocMojo.execute (AbstractJavadocMojo.java:1851)
+    at org.apache.maven.plugin.DefaultBuildPluginManager.executeMojo (DefaultBuildPluginManager.java:126)
+    at org.apache.maven.lifecycle.internal.MojoExecutor.doExecute2 (MojoExecutor.java:328)
+    at org.apache.maven.lifecycle.internal.MojoExecutor.doExecute (MojoExecutor.java:316)
+    at org.apache.maven.lifecycle.internal.MojoExecutor.execute (MojoExecutor.java:212)
+    at org.apache.maven.lifecycle.internal.MojoExecutor.execute (MojoExecutor.java:174)
+    at org.apache.maven.lifecycle.internal.MojoExecutor.access$000 (MojoExecutor.java:75)
+    at org.apache.maven.lifecycle.internal.MojoExecutor$1.run (MojoExecutor.java:162)
+    at org.apache.maven.plugin.DefaultMojosExecutionStrategy.execute (DefaultMojosExecutionStrategy.java:39)
+    at org.apache.maven.lifecycle.internal.MojoExecutor.execute (MojoExecutor.java:159)
+    at org.apache.maven.lifecycle.internal.LifecycleModuleBuilder.buildProject (LifecycleModuleBuilder.java:105)
+    at org.apache.maven.lifecycle.internal.LifecycleModuleBuilder.buildProject (LifecycleModuleBuilder.java:73)
+    at org.apache.maven.lifecycle.internal.builder.singlethreaded.SingleThreadedBuilder.build (SingleThreadedBuilder.java:53)
+    at org.apache.maven.lifecycle.internal.LifecycleStarter.execute (LifecycleStarter.java:118)
+    at org.apache.maven.DefaultMaven.doExecute (DefaultMaven.java:261)
+    at org.apache.maven.DefaultMaven.doExecute (DefaultMaven.java:173)
+    at org.apache.maven.DefaultMaven.execute (DefaultMaven.java:101)
+    at org.apache.maven.cli.MavenCli.execute (MavenCli.java:906)
+    at org.apache.maven.cli.MavenCli.doMain (MavenCli.java:283)
+    at org.apache.maven.cli.MavenCli.main (MavenCli.java:206)
+    at jdk.internal.reflect.DirectMethodHandleAccessor.invoke (DirectMethodHandleAccessor.java:103)
+    at java.lang.reflect.Method.invoke (Method.java:580)
+    at org.codehaus.plexus.classworlds.launcher.Launcher.launchEnhanced (Launcher.java:255)
+    at org.codehaus.plexus.classworlds.launcher.Launcher.launch (Launcher.java:201)
+    at org.codehaus.plexus.classworlds.launcher.Launcher.mainWithExitCode (Launcher.java:361)
+    at org.codehaus.plexus.classworlds.launcher.Launcher.main (Launcher.java:314)
