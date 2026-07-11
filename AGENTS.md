@@ -56,6 +56,52 @@ This repository is a large mono-repo with many modules.  This code base has a lo
 * **IMPORTANT** you must ALWAYS update or create unit tests for any code change that you make, new or edited. And the tests must pass. No exceptions.
 * Always use the #codebase or root `./` context when resolving missing interfaces or classes.
 
+## PR Review Comment Resolution
+
+When a PR review comment is addressed, the fix is **not** complete until the comment is also explicitly resolved in the PR's review threads. The CI/merge gate will block a PR that has unresolved review threads, so a code-only fix that does not also resolve the corresponding thread is incomplete from the merge-readiness perspective.
+
+For each review comment on a PR you are working on (whether the comment is from a human reviewer, a `kilo-code-bot[bot]`, `github-actions[bot]`, or any other source):
+
+1. **Locate the review threads** for the PR:
+   ```bash
+   gh api graphql -H "X-GitHub-Api-Version: 2022-11-28" -f query='
+     query($owner: String!, $repo: String!, $pr: Int!) {
+       repository(owner: $owner, name: $repo) {
+         pullRequest(number: $pr) {
+           reviewThreads(first: 50) {
+             nodes { id isResolved isOutdated
+                     comments(first: 1) { nodes { databaseId path line body } } }
+           }
+         }
+       }
+     }' -f owner='<owner>' -f repo='<repo>' -F pr=<pr-number>
+   ```
+2. **Reply inline to each comment** with a concrete mitigation statement that cites:
+   - The commit hash that contains the fix (e.g. `f1908b961e`).
+   - A short description of what changed, in enough detail that a reviewer can confirm correctness without re-reading the full diff.
+   - A pointer to any new tests, scripts, or documentation that back the fix.
+   Use the REST endpoint, replying to the specific `databaseId` of the comment:
+   ```bash
+   gh api -X POST repos/<owner>/<repo>/pulls/<pr>/comments/<comment-id>/replies \
+     -f body='**Mitigation (commit `<hash>`):** ...'
+   ```
+3. **Resolve the review thread** via the GraphQL `resolveReviewThread` mutation, using the `id` from step 1 (NOT the `databaseId`):
+   ```bash
+   gh api graphql -H "X-GitHub-Api-Version: 2022-11-28" -f query='
+     mutation($threadId: ID!) {
+       resolveReviewThread(input: { threadId: $threadId }) {
+         thread { id isResolved }
+       }
+     }' -f threadId="<thread-id-from-step-1>"
+   ```
+4. **Re-verify** by re-running the GraphQL query from step 1 and confirming `isResolved: true` for every thread whose underlying finding you have addressed. Do not rely on the inline reply alone — a reply leaves the thread in `isResolved: false` until the mutation is run.
+
+**Outdated threads** (where the diff no longer contains the offending line) still need an inline reply explaining the mitigation AND a `resolveReviewThread` call. The `isOutdated: true` flag is informational; it does not auto-resolve.
+
+**Do not** mark a thread as resolved without first replying inline with the mitigation statement. A bare resolve is not a substitute for a documented fix.
+
+This rule applies to ALL review comments on a PR you own, including comments that arrive after the initial submission (late feedback, as in the 002-jdbc-drivers-cleanup / PR #1185 → #1185 review cycle).
+
 ## Git Branch & Maven Wrapper Information
 
 * Base Branch Name: development
