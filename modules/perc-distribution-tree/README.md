@@ -79,6 +79,8 @@ JARs are placed in the install with their Maven-resolved filenames (e.g. `mariad
 
 Integrators who need a driver that is not bundled (for example an enterprise Oracle driver) can simply drop a JDBC driver JAR into `jetty/base/lib/jdbc/` of the unpacked distribution. The install scripts (`rxconfig/Installer/install.xml`, `installServer.xml`, `installRepository.xml`) do not purge this folder.
 
+The install/upgrade script's `<delete>` block in `install.xml` is pinned to the exact bundled-driver filenames shipped in this release (sourced from the parent POM's version properties: `${mariadb.version}`, `${derby.version}`, `${mssql.version}`, `${jtds.version}`, `${ojdbc17.version}`). When those versions bump, the pin list is updated in lockstep; `scripts/check-no-glob-deletes.sh` (wired into the Maven `verify` phase) fails the build if a glob is ever reintroduced.
+
 The bundled driver set is verified by `scripts/verify-jdbc-drivers.sh`, which is wired into the Maven `verify` phase. CI fails the build if any expected driver is missing or is a stub.
 
 ## Related Documentation

@@ -37,6 +37,27 @@ bump and is not wired into the CI build.
 | 5 | Artifact could not be unpacked |
 | 6 | `--expected-driver-set` or `--expected-driver-glob` does not match what's shipped |
 
+## check-no-glob-deletes.sh
+
+Static assertion that the install/upgrade ANT script's `<delete>` block inside `<target name="install_jdbc_drivers">` does not use glob patterns. A glob like `mysql-connector-java-*.jar` would silently purge integrator-supplied drivers whose filenames happen to match a bundled-name pattern; this script guards against that regression.
+
+**When to run**: automatically by the Maven `verify` phase (see `modules/perc-distribution-tree/pom.xml` execution `check-no-glob-deletes`). Also runnable manually.
+
+**Invocation**:
+
+```sh
+./scripts/check-no-glob-deletes.sh
+./scripts/check-no-glob-deletes.sh --install-xml path/to/install.xml
+```
+
+**Exit codes**:
+
+| Code | Meaning |
+|------|---------|
+| 0 | install_jdbc_drivers `<delete>` uses exact filenames only |
+| 1 | Invocation error (bad args, install.xml not found) |
+| 7 | One or more `<include>` entries are glob patterns (contains `*` or `?`) — the failure this script exists to catch |
+
 ## Adding a script here
 
 Per `AGENTS.md`, scripts in this module live under `scripts/`. Add a new `.sh` (POSIX shell preferred) or `.bat` (Windows) entry, and document it above.
