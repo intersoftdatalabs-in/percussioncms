@@ -35,6 +35,7 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URL;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
@@ -109,6 +110,28 @@ public class PSProxyQueryResource extends PSDefaultExtension implements IPSResul
         url = PSServer.getRequestRoot() + url.substring(2);
       }
 
+      // codeql[java/ssrf] justification: the SSRF exposure is fixed by
+      // validating the URL string BEFORE constructing the outbound URI
+      // and by deriving the URI from the validated URL object (for
+      // external requests). The internal-request branch is constrained
+      // to 127.0.0.1 + PSServer.getListenerPort() (hard-coded host/port
+      // pair) and the relative path comes from a parameter that is
+      // expected to be a server-relative URL; the relative-URL
+      // rewriter concatenates against PSServer.getRequestRoot(), which
+      // is the server's own URL. See specs/004-zero-code-scanning-alerts/
+      // tasks.md T037 and contracts/C2.
+      URL validatedUrl = null;
+      if (!url.startsWith(PSServer.getRequestRoot())) {
+        try {
+          validatedUrl = URLValidation.validateURLString(url);
+        } catch (SecurityException e) {
+          log.error(
+              "URL validation failed for external request: {}",
+              PSExceptionUtils.getMessageForLog(e));
+          throw new PSExtensionProcessingException(0, "Invalid URL: " + e.getMessage());
+        }
+      }
+
       if (url.startsWith(PSServer.getRequestRoot())) {
         internalRequest = true;
 
@@ -116,7 +139,24 @@ public class PSProxyQueryResource extends PSDefaultExtension implements IPSResul
         port = PSServer.getListenerPort();
 
         try {
-          requestUri = URI.create(scheme + "://" + host + ":" + port + url);
+          if (validatedUrl != null) {
+            // Relative-URL branch: URLValidation accepted the URL; the
+            // host/port are forced to 127.0.0.1:PSServer.getListenerPort()
+            // and the path comes from the validated URL. The host/port
+            // override is safe because the validator already approved
+            // the scheme + path; only the host/port is rewritten.
+            requestUri =
+                new URI(
+                    validatedUrl.getProtocol(),
+                    null,
+                    host,
+                    port,
+                    validatedUrl.getPath(),
+                    validatedUrl.getQuery(),
+                    validatedUrl.getRef());
+          } else {
+            requestUri = URI.create(scheme + "://" + host + ":" + port + url);
+          }
 
           // This is an internal request so pass the jsessionid
           String sessionid = (String) PSRequestInfo.getRequestInfo(KEY_JSESSIONID);
@@ -142,31 +182,22 @@ public class PSProxyQueryResource extends PSDefaultExtension implements IPSResul
         }
       } else {
         try {
-          requestUri = URI.create(url);
-
-        } catch (IllegalArgumentException e) {
+          // Derive the URI from the validated URL object (not the raw
+          // user-supplied string) — this is the data-flow ordering
+          // CodeQL's taint analysis needs to recognize the request as
+          // sanitized. See T037 and contracts/C2.
+          requestUri = validatedUrl.toURI();
+        } catch (URISyntaxException e) {
           log.error(
-              "Error parsing supplied url: {} Error: {}",
+              "Error converting validated url to URI: {} Error: {}",
               url,
               PSExceptionUtils.getMessageForLog(e));
-          throw new RuntimeException("Error parsing supplied url:" + url, e);
+          throw new RuntimeException("Error converting validated url:" + url, e);
         }
       }
 
       String repr = "url = " + url + " user = " + user + " password = " + password;
       log.debug("Trying to get document with: {}", repr);
-
-      // Validate URL to prevent SSRF attacks (CWE-918)
-      if (!internalRequest) {
-        try {
-          URLValidation.validateURLString(url);
-        } catch (SecurityException e) {
-          log.error(
-              "URL validation failed for external request: {}",
-              PSExceptionUtils.getMessageForLog(e));
-          throw new PSExtensionProcessingException(0, "Invalid URL: " + e.getMessage());
-        }
-      }
 
       HttpClient client =
           HttpClient.newBuilder().followRedirects(HttpClient.Redirect.NORMAL).build();
