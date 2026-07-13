@@ -235,7 +235,11 @@ public class PSNavigationTree extends JTree implements DragGestureListener, Drop
 
   /**
    * Convenience constructor for {@link #PSNavigationTree(PSNode, String, PSActionManager, boolean)
-   * PSNavigationTree(root, view, manager, true) }. See the link for more information.
+   * PSNavigationTree(root, view, manager, true)}. See the link for more information.
+   *
+   * @param root the root node of the tree, may not be <code>null</code>.
+   * @param view the view name, may not be <code>null</code>.
+   * @param manager the action manager, may not be <code>null</code>.
    */
   public PSNavigationTree(PSNode root, String view, PSActionManager manager) {
     this(root, view, manager, true);
@@ -463,7 +467,9 @@ public class PSNavigationTree extends JTree implements DragGestureListener, Drop
   }
 
   /**
-   * @return Returns the isInDragUnder.
+   * Indicates whether the tree is currently being used as a drop target.
+   *
+   * @return <code>true</code> if a drag is currently over the tree, <code>false</code> otherwise.
    */
   public boolean isInDragUnder() {
     return m_isInDragUnder;

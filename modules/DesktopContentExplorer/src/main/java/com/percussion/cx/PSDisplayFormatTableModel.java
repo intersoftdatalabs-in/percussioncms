@@ -36,7 +36,12 @@ import java.util.Vector;
  * allow editing of the data.
  */
 public class PSDisplayFormatTableModel extends PSTableModel {
-  /** Default constructor with no columns and rows. */
+  /**
+   * Default constructor with no columns and rows.
+   *
+   * @param applet the content explorer applet used to resolve the default column name, may not be
+   *     <code>null</code>.
+   */
   public PSDisplayFormatTableModel(PSContentExplorerApplet applet) {
     if (applet == null) throw new IllegalArgumentException("applet must not be null");
     m_applet = applet;
@@ -209,6 +214,16 @@ public class PSDisplayFormatTableModel extends PSTableModel {
    *     be returned.
    * @return the index of sys_title, <code>-1</code> if not found.
    */
+  /**
+   * Checks supplied <code>PSNode</code> to see if the sys_title field is present in its associated
+   * <code>PSDisplayFormat</code>.
+   *
+   * @param node the node in which the check will be made, may be <code>null</code> in which case
+   *     <code>-1</code> will be returned.
+   * @param actionManager the action manager used to look up the display format, assumed not
+   *     <code>null</code>.
+   * @return the index of sys_title, <code>-1</code> if not found.
+   */
   public static int getSysTitleIndex(PSNode node, PSActionManager actionManager) {
     int hasTitle = -1;
 
@@ -261,7 +276,7 @@ public class PSDisplayFormatTableModel extends PSTableModel {
   /**
    * Gets the node represented by this row.
    *
-   * @param row the row index, must be >= 0 && < rowcount of the model.
+   * @param row the row index, must be >= 0 &amp;&amp; &lt; rowcount of the model.
    * @return the data node (<code>PSNode</code>), never <code>null</code>
    * @throws IllegalArgumentException if row index is invalid.
    */

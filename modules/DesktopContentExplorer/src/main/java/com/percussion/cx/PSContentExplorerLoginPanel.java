@@ -96,12 +96,25 @@ public class PSContentExplorerLoginPanel extends JFrame {
    */
   public static final String PROPERTIES_FILENAME = "admin.properties";
 
+  /** The property key for the last successfully logged in user name. */
   public static final String LAST_USER = "last_user_name";
 
+  /** The content explorer applet this panel is associated with. */
   public PSContentExplorerApplet applet;
+
+  /** The bold font used by labels in the panel. */
   Font boldTextFont = new Font("Arial", Font.BOLD, 18);
+
+  /** The plain font used by input fields in the panel. */
   Font plainTextFont = new Font("Arial", Font.PLAIN, 18);
 
+  /**
+   * Constructs the login panel for the given parent frame and applet. Initializes the GUI,
+   * restores remembered values such as the last user name, and prepares the panel for display.
+   *
+   * @param parent the parent frame that will host this login panel, assumed not <code>null</code>.
+   * @param applet the content explorer applet, may not be <code>null</code>.
+   */
   public PSContentExplorerLoginPanel(
       PSContentExplorerFrame parent, PSContentExplorerApplet applet) {
     // blank constructor in case you already have a session
@@ -375,6 +388,8 @@ public class PSContentExplorerLoginPanel extends JFrame {
   }
 
   /**
+   * Gets the login button so that the hosting applet can give the default-button access to it.
+   *
    * @return JButton The login button for the applet to give the DefaultButton access.
    */
   public JButton getLoginButton() {
@@ -611,10 +626,20 @@ public class PSContentExplorerLoginPanel extends JFrame {
     }
   }
 
+  /**
+   * Gets the content explorer applet associated with this panel.
+   *
+   * @return the applet, may be <code>null</code> if none has been set.
+   */
   public PSContentExplorerApplet getApplet() {
     return applet;
   }
 
+  /**
+   * Sets the content explorer applet for this panel and re-enables the login button.
+   *
+   * @param applet the applet, may be <code>null</code>.
+   */
   public void setApplet(PSContentExplorerApplet applet) {
     this.applet = applet;
     m_login.setEnabled(true);
