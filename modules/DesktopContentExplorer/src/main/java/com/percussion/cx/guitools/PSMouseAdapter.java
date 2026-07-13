@@ -32,6 +32,11 @@ import java.awt.event.MouseEvent;
  */
 public abstract class PSMouseAdapter extends MouseAdapter {
 
+  /** Default constructor. */
+  public PSMouseAdapter() {
+    // no-op
+  }
+
   /* (non-Javadoc)
    * @see java.awt.event.MouseListener#mousePressed(java.awt.event.MouseEvent)
    */

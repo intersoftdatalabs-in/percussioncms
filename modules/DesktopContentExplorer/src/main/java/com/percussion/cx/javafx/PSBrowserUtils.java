@@ -32,6 +32,11 @@ import java.net.URL;
 public class PSBrowserUtils {
 
   /**
+   * Default constructor. This class is not intended to be instantiated; all methods are static.
+   */
+  public PSBrowserUtils() {}
+
+  /**
    * Opens the specified URI in the system's default web browser.
    *
    * @param uri the URI to open; may be {@code null}

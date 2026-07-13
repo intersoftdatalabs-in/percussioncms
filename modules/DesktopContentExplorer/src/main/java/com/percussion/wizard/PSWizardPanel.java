@@ -30,11 +30,16 @@ import javax.swing.JTextArea;
  * layout and provides the controls to display the user instuctions.
  */
 public abstract class PSWizardPanel extends JPanel implements IPSWizardPanel {
-  /** Instantiate with applet to make config options from applet available to panel */
+  /**
+   * Instantiate with applet to make config options from applet available to panel.
+   *
+   * @param applet the content explorer applet, never <code>null</code>.
+   */
   public PSWizardPanel(PSContentExplorerApplet applet) {
     m_applet = applet;
   }
 
+  /** Default constructor for subclass use. */
   public PSWizardPanel() {}
 
   /**
@@ -175,7 +180,7 @@ public abstract class PSWizardPanel extends JPanel implements IPSWizardPanel {
   protected JTextArea m_instructions = new JTextArea();
 
   /**
-   * The main wizard page panel, initialized in {@link #createPanel(JPanel)}, may be <code>null
+   * The main wizard page panel, initialized in {@link #initPanel(JPanel)}, may be <code>null
    * </code> for start and finish wizard pages.
    */
   protected JPanel m_mainPanel = null;

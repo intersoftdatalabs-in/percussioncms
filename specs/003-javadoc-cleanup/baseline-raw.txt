@@ -1,0 +1,326 @@
+﻿[INFO] Scanning for projects...
+[INFO] 
+[INFO] ----------------< com.percussion:perc-content-explorer >----------------
+[INFO] Building perc-content-explorer 8.2.0-SNAPSHOT
+[INFO]   from pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] >>> javadoc:3.12.0:javadoc (default-cli) > generate-sources @ perc-content-explorer >>>
+[INFO] 
+[INFO] --- ai-build-integrity:0.12.0:generate-hashes (generate) @ perc-content-explorer ---
+[INFO] Skipping HashGeneratorMojo execution in non-root project.
+[INFO] 
+[INFO] --- toolchains:3.2.0:toolchain (default) @ perc-content-explorer ---
+[INFO] 
+[INFO] <<< javadoc:3.12.0:javadoc (default-cli) < generate-sources @ perc-content-explorer <<<
+[INFO] 
+[WARNING] 6 problems were encountered while building the effective model for org.openjfx:javafx-controls:jar:17 during dependency collection step for project (use -X to see details)
+[INFO] 
+[INFO] --- javadoc:3.12.0:javadoc (default-cli) @ perc-content-explorer ---
+[WARNING] Javadoc Warnings
+[WARNING] warning: unknown enum constant CacheConcurrencyStrategy.READ_WRITE
+[WARNING] reason: class file for org.hibernate.annotations.CacheConcurrencyStrategy not found
+[WARNING] D:\Projects\development-8.2\percussioncms\modules\DesktopContentExplorer\src\main\java\com\percussion\cx\PSCESessionManager.java:91: warning: no comment
+[WARNING] public PSCESessionManager() {
+[WARNING] ^
+[WARNING] D:\Projects\development-8.2\percussioncms\modules\DesktopContentExplorer\src\main\java\com\percussion\cx\PSContentExplorerApplet.java:105: warning: no comment
+[WARNING] public static ConcurrentMap<String, PSRelationshipInfo> REL_MAP =
+[WARNING] ^
+[WARNING] D:\Projects\development-8.2\percussioncms\modules\DesktopContentExplorer\src\main\java\com\percussion\cx\PSContentExplorerApplet.java:136: warning: no comment
+[WARNING] public PSContentExplorerApplet() {
+[WARNING] ^
+[WARNING] D:\Projects\development-8.2\percussioncms\modules\DesktopContentExplorer\src\main\java\com\percussion\cx\PSContentExplorerApplet.java:140: warning: no comment
+[WARNING] public PSContentExplorerApplet(boolean createdFromFrame) {
+[WARNING] ^
+[WARNING] D:\Projects\development-8.2\percussioncms\modules\DesktopContentExplorer\src\main\java\com\percussion\cx\PSContentExplorerApplet.java:2449: warning: no comment
+[WARNING] public WebEngine getEngine() {
+[WARNING] ^
+[WARNING] D:\Projects\development-8.2\percussioncms\modules\DesktopContentExplorer\src\main\java\com\percussion\cx\PSContentExplorerApplet.java:1981: warning: no comment
+[WARNING] public PSHttpConnection getHttpConnection() {
+[WARNING] ^
+[WARNING] D:\Projects\development-8.2\percussioncms\modules\DesktopContentExplorer\src\main\java\com\percussion\cx\PSContentExplorerApplet.java:2350: warning: no comment
+[WARNING] public static ConcurrentMap<String, PSRelationshipInfo> getRelMap() {
+[WARNING] ^
+[WARNING] D:\Projects\development-8.2\percussioncms\modules\DesktopContentExplorer\src\main\java\com\percussion\cx\PSContentExplorerApplet.java:129: warning: no comment
+[WARNING] public ResourceBundle getResources() {
+[WARNING] ^
+[WARNING] D:\Projects\development-8.2\percussioncms\modules\DesktopContentExplorer\src\main\java\com\percussion\cx\PSContentExplorerApplet.java:2342: warning: no comment
+[WARNING] public boolean isApplication() {
+[WARNING] ^
+[WARNING] D:\Projects\development-8.2\percussioncms\modules\DesktopContentExplorer\src\main\java\com\percussion\cx\PSContentExplorerApplet.java:1988: warning: no comment
+[WARNING] public boolean isInitialized() {
+[WARNING] ^
+[WARNING] D:\Projects\development-8.2\percussioncms\modules\DesktopContentExplorer\src\main\java\com\percussion\cx\PSContentExplorerApplet.java:1078: warning: no comment
+[WARNING] public void setDefaultFocus() {
+[WARNING] ^
+[WARNING] D:\Projects\development-8.2\percussioncms\modules\DesktopContentExplorer\src\main\java\com\percussion\cx\PSContentExplorerApplet.java:2453: warning: no comment
+[WARNING] public void setEngine(WebEngine webEngine) {
+[WARNING] ^
+[WARNING] D:\Projects\development-8.2\percussioncms\modules\DesktopContentExplorer\src\main\java\com\percussion\cx\PSContentExplorerApplet.java:2346: warning: no comment
+[WARNING] public void setIsApplication(boolean isApplication) {
+[WARNING] ^
+[WARNING] D:\Projects\development-8.2\percussioncms\modules\DesktopContentExplorer\src\main\java\com\percussion\cx\PSContentExplorerApplet.java:2354: warning: no comment
+[WARNING] public static void setRelMap(ConcurrentMap<String, PSRelationshipInfo> relMap) {
+[WARNING] ^
+[WARNING] D:\Projects\development-8.2\percussioncms\modules\DesktopContentExplorer\src\main\java\com\percussion\cx\PSContentExplorerApplet.java:177: warning: no comment
+[WARNING] public synchronized void setupApplet() {
+[WARNING] ^
+[WARNING] D:\Projects\development-8.2\percussioncms\modules\DesktopContentExplorer\src\main\java\com\percussion\cx\PSContentExplorerApplet.java:202: warning: no comment
+[WARNING] public synchronized void setupApplet(PSUserInfo userInfo) {
+[WARNING] ^
+[WARNING] D:\Projects\development-8.2\percussioncms\modules\DesktopContentExplorer\src\main\java\com\percussion\cx\PSContentExplorerApplet.java:181: warning: no comment
+[WARNING] public synchronized void setUserInfo() {
+[WARNING] ^
+[WARNING] D:\Projects\development-8.2\percussioncms\modules\DesktopContentExplorer\src\main\java\com\percussion\cx\PSContentExplorerApplication.java:241: warning: no comment
+[WARNING] public static PSContentExplorerApplet getApplet() {
+[WARNING] ^
+[WARNING] D:\Projects\development-8.2\percussioncms\modules\DesktopContentExplorer\src\main\java\com\percussion\cx\PSContentExplorerApplication.java:89: warning: no comment
+[WARNING] public static PSContentExplorerFrame getBaseFrame() {
+[WARNING] ^
+[WARNING] D:\Projects\development-8.2\percussioncms\modules\DesktopContentExplorer\src\main\java\com\percussion\cx\PSContentExplorerApplication.java:245: warning: no comment
+[WARNING] public static File getConfigDir() {
+[WARNING] ^
+[WARNING] D:\Projects\development-8.2\percussioncms\modules\DesktopContentExplorer\src\main\java\com\percussion\cx\PSContentExplorerApplication.java:277: warning: no comment
+[WARNING] public static Dimension getDimension() {
+[WARNING] ^
+[WARNING] D:\Projects\development-8.2\percussioncms\modules\DesktopContentExplorer\src\main\java\com\percussion\cx\PSContentExplorerApplication.java:272: warning: no comment
+[WARNING] public static Dimension getMainFrameSize() {
+[WARNING] ^
+[WARNING] D:\Projects\development-8.2\percussioncms\modules\DesktopContentExplorer\src\main\java\com\percussion\cx\PSContentExplorerApplication.java:253: warning: no comment
+[WARNING] public static void logout() {
+[WARNING] ^
+[WARNING] D:\Projects\development-8.2\percussioncms\modules\DesktopContentExplorer\src\main\java\com\percussion\cx\PSContentExplorerApplication.java:93: warning: no comment
+[WARNING] public static void setBaseFrame(PSContentExplorerFrame baseFrame) {
+[WARNING] ^
+[WARNING] D:\Projects\development-8.2\percussioncms\modules\DesktopContentExplorer\src\main\java\com\percussion\cx\PSContentExplorerApplication.java:249: warning: no comment
+[WARNING] public static void setConfigDir(File configDir) {
+[WARNING] ^
+[WARNING] D:\Projects\development-8.2\percussioncms\modules\DesktopContentExplorer\src\main\java\com\percussion\cx\PSContentExplorerApplication.java:281: warning: no comment
+[WARNING] public static void setDimension(Dimension dimension) {
+[WARNING] ^
+[WARNING] D:\Projects\development-8.2\percussioncms\modules\DesktopContentExplorer\src\main\java\com\percussion\cx\PSContentExplorerFrame.java:86: warning: no description for @param
+[WARNING] * @param uri
+[WARNING] ^
+[WARNING] D:\Projects\development-8.2\percussioncms\modules\DesktopContentExplorer\src\main\java\com\percussion\cx\PSContentExplorerFrame.java:63: warning: no comment
+[WARNING] public class PSContentExplorerFrame extends PSDesktopExplorerWindow
+[WARNING] ^
+[WARNING] D:\Projects\development-8.2\percussioncms\modules\DesktopContentExplorer\src\main\java\com\percussion\cx\PSContentExplorerFrame.java:415: warning: no comment
+[WARNING] public void cleanup() {
+[WARNING] ^
+[WARNING] D:\Projects\development-8.2\percussioncms\modules\DesktopContentExplorer\src\main\java\com\percussion\cx\javafx\PSDesktopExplorerWindow.java:197: warning: no comment
+[WARNING] public PSContentExplorerApplet getApplet() {
+[WARNING] ^
+[WARNING] D:\Projects\development-8.2\percussioncms\modules\DesktopContentExplorer\src\main\java\com\percussion\cx\javafx\PSDesktopExplorerWindow.java:230: warning: no comment
+[WARNING] public WebEngine getEngine() {
+[WARNING] ^
+[WARNING] D:\Projects\development-8.2\percussioncms\modules\DesktopContentExplorer\src\main\java\com\percussion\cx\PSContentExplorerFrame.java:343: warning: no comment
+[WARNING] public Map<String, String> getParameters() {
+[WARNING] ^
+[WARNING] D:\Projects\development-8.2\percussioncms\modules\DesktopContentExplorer\src\main\java\com\percussion\cx\PSContentExplorerFrame.java:233: warning: no comment
+[WARNING] public void initCESession() throws PSCmsException {
+[WARNING] ^
+[WARNING] D:\Projects\development-8.2\percussioncms\modules\DesktopContentExplorer\src\main\java\com\percussion\cx\javafx\PSDesktopExplorerWindow.java:167: warning: no comment
+[WARNING] public abstract JFrame instanceOpen();
+[WARNING] ^
+[WARNING] D:\Projects\development-8.2\percussioncms\modules\DesktopContentExplorer\src\main\java\com\percussion\cx\PSContentExplorerFrame.java:426: warning: no comment
+[WARNING] public void logout() {
+[WARNING] ^
+[WARNING] D:\Projects\development-8.2\percussioncms\modules\DesktopContentExplorer\src\main\java\com\percussion\cx\PSContentExplorerFrame.java:198: warning: no comment
+[WARNING] public void mergeParams(Map<String, String> params) {
+[WARNING] ^
+[WARNING] D:\Projects\development-8.2\percussioncms\modules\DesktopContentExplorer\src\main\java\com\percussion\cx\javafx\PSDesktopExplorerWindow.java:201: warning: no comment
+[WARNING] public void reload() {
+[WARNING] ^
+[WARNING] D:\Projects\development-8.2\percussioncms\modules\DesktopContentExplorer\src\main\java\com\percussion\cx\javafx\PSDesktopExplorerWindow.java:205: warning: no comment
+[WARNING] public void reload(Map<String, String> params) {
+[WARNING] ^
+[WARNING] D:\Projects\development-8.2\percussioncms\modules\DesktopContentExplorer\src\main\java\com\percussion\cx\PSContentExplorerFrame.java:339: warning: no comment
+[WARNING] public void setParameter(String paremeter, String value) {
+[WARNING] ^
+[WARNING] D:\Projects\development-8.2\percussioncms\modules\DesktopContentExplorer\src\main\java\com\percussion\cx\PSContentExplorerFrame.java:347: warning: no comment
+[WARNING] public void setParameters(Map<String, String> paremeters) {
+[WARNING] ^
+[WARNING] D:\Projects\development-8.2\percussioncms\modules\DesktopContentExplorer\src\main\java\com\percussion\cx\PSContentExplorerFrame.java:208: warning: no comment
+[WARNING] public void showLogin() {
+[WARNING] ^
+[WARNING] D:\Projects\development-8.2\percussioncms\modules\DesktopContentExplorer\src\main\java\com\percussion\cx\javafx\PSDesktopExplorerWindow.java:160: warning: no comment
+[WARNING] public abstract boolean validateOpen(
+[WARNING] ^
+[WARNING] D:\Projects\development-8.2\percussioncms\modules\DesktopContentExplorer\src\main\java\com\percussion\cx\PSContentExplorerHeader.java:39: warning: no main description
+[WARNING] * @param applet
+[WARNING] ^
+[WARNING] D:\Projects\development-8.2\percussioncms\modules\DesktopContentExplorer\src\main\java\com\percussion\cx\PSContentExplorerHeader.java:39: warning: no description for @param
+[WARNING] * @param applet
+[WARNING] ^
+[WARNING] D:\Projects\development-8.2\percussioncms\modules\DesktopContentExplorer\src\main\java\com\percussion\cx\PSContentExplorerHeader.java:31: warning: no comment
+[WARNING] public class PSContentExplorerHeader extends JPanel {
+[WARNING] ^
+[WARNING] D:\Projects\development-8.2\percussioncms\modules\DesktopContentExplorer\src\main\java\com\percussion\cx\PSContentExplorerHeader.java:50: warning: no comment
+[WARNING] protected void init() {
+[WARNING] ^
+[WARNING] D:\Projects\development-8.2\percussioncms\modules\DesktopContentExplorer\src\main\java\com\percussion\cx\PSContentExplorerHelper.java:178: warning: no comment
+[WARNING] public static Map<String, String> initializeIAParameters(
+[WARNING] ^
+[WARNING] D:\Projects\development-8.2\percussioncms\modules\DesktopContentExplorer\src\main\java\com\percussion\cx\PSContentExplorerLoginPanel.java:378: warning: no main description
+[WARNING] * @return JButton The login button for the applet to give the DefaultButton access.
+[WARNING] ^
+[WARNING] D:\Projects\development-8.2\percussioncms\modules\DesktopContentExplorer\src\main\java\com\percussion\cx\PSContentExplorerLoginPanel.java:101: warning: no comment
+[WARNING] public PSContentExplorerApplet applet;
+[WARNING] ^
+[WARNING] D:\Projects\development-8.2\percussioncms\modules\DesktopContentExplorer\src\main\java\com\percussion\cx\PSContentExplorerLoginPanel.java:99: warning: no comment
+[WARNING] public static final String LAST_USER = "last_user_name";
+[WARNING] ^
+[WARNING] D:\Projects\development-8.2\percussioncms\modules\DesktopContentExplorer\src\main\java\com\percussion\cx\PSContentExplorerLoginPanel.java:105: warning: no comment
+[WARNING] public PSContentExplorerLoginPanel(
+[WARNING] ^
+[WARNING] D:\Projects\development-8.2\percussioncms\modules\DesktopContentExplorer\src\main\java\com\percussion\cx\PSContentExplorerLoginPanel.java:614: warning: no comment
+[WARNING] public PSContentExplorerApplet getApplet() {
+[WARNING] ^
+[WARNING] D:\Projects\development-8.2\percussioncms\modules\DesktopContentExplorer\src\main\java\com\percussion\cx\PSContentExplorerLoginPanel.java:618: warning: no comment
+[WARNING] public void setApplet(PSContentExplorerApplet applet) {
+[WARNING] ^
+[WARNING] D:\Projects\development-8.2\percussioncms\modules\DesktopContentExplorer\src\main\java\com\percussion\cx\PSContentExplorerUtils.java:41: warning: no comment
+[WARNING] public class PSContentExplorerUtils {
+[WARNING] ^
+[WARNING] D:\Projects\development-8.2\percussioncms\modules\DesktopContentExplorer\src\main\java\com\percussion\cx\PSContentExplorerUtils.java:41: warning: use of default constructor, which does not provide a comment
+[WARNING] public class PSContentExplorerUtils {
+[WARNING] ^
+[WARNING] D:\Projects\development-8.2\percussioncms\modules\DesktopContentExplorer\src\main\java\com\percussion\cx\PSContentExplorerUtils.java:61: warning: no comment
+[WARNING] public static Path download(String sourceUrl, String targetDirectory)
+[WARNING] ^
+[WARNING] D:\Projects\development-8.2\percussioncms\modules\DesktopContentExplorer\src\main\java\com\percussion\cx\PSContentExplorerUtils.java:44: warning: no comment
+[WARNING] public static Map<String, String> getQueryMap(String url) {
+[WARNING] ^
+[WARNING] D:\Projects\development-8.2\percussioncms\modules\DesktopContentExplorer\src\main\java\com\percussion\cx\PSContentExplorerUtils.java:126: warning: no comment
+[WARNING] public static void outputUserInfo(PSContentExplorerApplet applet) {
+[WARNING] ^
+[WARNING] D:\Projects\development-8.2\percussioncms\modules\DesktopContentExplorer\src\main\java\com\percussion\cx\PSCxUtil.java:237: warning: no @param for applet
+[WARNING] public static boolean isMouseMenuGesture(MouseEvent event, PSContentExplorerApplet applet) {
+[WARNING] ^
+[WARNING] D:\Projects\development-8.2\percussioncms\modules\DesktopContentExplorer\src\main\java\com\percussion\cx\PSCxUtil.java:252: warning: no @param for applet
+[WARNING] public static Color getWindowBkgColor(PSContentExplorerApplet applet) {
+[WARNING] ^
+[WARNING] D:\Projects\development-8.2\percussioncms\modules\DesktopContentExplorer\src\main\java\com\percussion\cx\PSCxUtil.java:268: warning: no @param for applet
+[WARNING] public static boolean shouldFolderBeMarked(
+[WARNING] ^
+[WARNING] D:\Projects\development-8.2\percussioncms\modules\DesktopContentExplorer\src\main\java\com\percussion\cx\PSCxUtil.java:306: warning: no @param for applet
+[WARNING] public static Map<String, String> getItemIcons(
+[WARNING] ^
+[WARNING] D:\Projects\development-8.2\percussioncms\modules\DesktopContentExplorer\src\main\java\com\percussion\cx\PSCxUtil.java:335: warning: no comment
+[WARNING] public static ResourceBundle getResources() {
+[WARNING] ^
+[WARNING] D:\Projects\development-8.2\percussioncms\modules\DesktopContentExplorer\src\main\java\com\percussion\cx\PSCxUtil.java:137: warning: no comment
+[WARNING] public static void setLocationRelativeTo(Component c1, Component c2) {
+[WARNING] ^
+[WARNING] D:\Projects\development-8.2\percussioncms\modules\DesktopContentExplorer\src\main\java\com\percussion\cx\PSCxUtil.java:80: warning: no comment
+[WARNING] public static void showStackTraceDialog(
+[WARNING] ^
+[WARNING] D:\Projects\development-8.2\percussioncms\modules\DesktopContentExplorer\src\main\java\com\percussion\cx\PSCxUtil.java:69: warning: no comment
+[WARNING] public static void showStackTraceDialog(Throwable throwable, String title) {
+[WARNING] ^
+[WARNING] D:\Projects\development-8.2\percussioncms\modules\DesktopContentExplorer\src\main\java\com\percussion\cx\PSCxUtil.java:75: warning: no comment
+[WARNING] public static void showStackTraceDialog(Throwable throwable, String title, String message) {
+[WARNING] ^
+[WARNING] D:\Projects\development-8.2\percussioncms\modules\DesktopContentExplorer\src\main\java\com\percussion\cx\PSDefaultAjaxSwingWrapper.java:28: warning: use of default constructor, which does not provide a comment
+[WARNING] public class PSDefaultAjaxSwingWrapper implements IPSAjaxSwingWrapper {
+[WARNING] ^
+[WARNING] D:\Projects\development-8.2\percussioncms\modules\DesktopContentExplorer\src\main\java\com\percussion\cx\javafx\PSDesktopExplorerWindow.java:47: warning: no comment
+[WARNING] public abstract class PSDesktopExplorerWindow extends JFrame {
+[WARNING] ^
+[WARNING] D:\Projects\development-8.2\percussioncms\modules\DesktopContentExplorer\src\main\java\com\percussion\cx\javafx\PSDesktopExplorerWindow.java:48: warning: no comment
+[WARNING] public class PSDesktopExplorerStateProvider implements JfxScriptStateProvider {
+[WARNING] ^
+[WARNING] D:\Projects\development-8.2\percussioncms\modules\DesktopContentExplorer\src\main\java\com\percussion\cx\javafx\PSDesktopExplorerWindow.java:78: warning: no comment
+[WARNING] protected PSMenuAction action;
+[WARNING] ^
+[WARNING] D:\Projects\development-8.2\percussioncms\modules\DesktopContentExplorer\src\main\java\com\percussion\cx\javafx\PSDesktopExplorerWindow.java:72: warning: no comment
+[WARNING] protected PSContentExplorerApplet applet = null;
+[WARNING] ^
+[WARNING] D:\Projects\development-8.2\percussioncms\modules\DesktopContentExplorer\src\main\java\com\percussion\cx\javafx\PSDesktopExplorerWindow.java:66: warning: no comment
+[WARNING] protected PSJavaBridge bridge = new PSJavaBridge(this);
+[WARNING] ^
+[WARNING] D:\Projects\development-8.2\percussioncms\modules\DesktopContentExplorer\src\main\java\com\percussion\cx\javafx\PSDesktopExplorerWindow.java:79: warning: no comment
+[WARNING] protected BrowserProps browserProps;
+[WARNING] ^
+[WARNING] D:\Projects\development-8.2\percussioncms\modules\DesktopContentExplorer\src\main\java\com\percussion\cx\javafx\PSDesktopExplorerWindow.java:83: warning: no comment
+[WARNING] protected WebEngine engine;
+[WARNING] ^
+[WARNING] D:\Projects\development-8.2\percussioncms\modules\DesktopContentExplorer\src\main\java\com\percussion\cx\javafx\PSDesktopExplorerWindow.java:92: warning: no comment
+[WARNING] protected static AtomicBoolean firebug = new AtomicBoolean(false);
+[WARNING] ^
+[WARNING] D:\Projects\development-8.2\percussioncms\modules\DesktopContentExplorer\src\main\java\com\percussion\cx\javafx\PSDesktopExplorerWindow.java:74: warning: no comment
+[WARNING] protected volatile String mi_actionurl;
+[WARNING] ^
+[WARNING] D:\Projects\development-8.2\percussioncms\modules\DesktopContentExplorer\src\main\java\com\percussion\cx\javafx\PSDesktopExplorerWindow.java:75: warning: no comment
+[WARNING] protected String mi_style =
+[WARNING] ^
+[WARNING] D:\Projects\development-8.2\percussioncms\modules\DesktopContentExplorer\src\main\java\com\percussion\cx\javafx\PSDesktopExplorerWindow.java:62: warning: no comment
+[WARNING] protected PSDesktopExplorerStateProvider myStateProvider = new PSDesktopExplorerStateProvider();
+[WARNING] ^
+[WARNING] D:\Projects\development-8.2\percussioncms\modules\DesktopContentExplorer\src\main\java\com\percussion\cx\javafx\PSDesktopExplorerWindow.java:88: warning: no comment
+[WARNING] protected PSDesktopExplorerWindow opener = null;
+[WARNING] ^
+[WARNING] D:\Projects\development-8.2\percussioncms\modules\DesktopContentExplorer\src\main\java\com\percussion\cx\javafx\PSDesktopExplorerWindow.java:70: warning: no comment
+[WARNING] protected String parentTarget;
+[WARNING] ^
+[WARNING] D:\Projects\development-8.2\percussioncms\modules\DesktopContentExplorer\src\main\java\com\percussion\cx\javafx\PSDesktopExplorerWindow.java:77: warning: no comment
+[WARNING] protected PSSelection selection;
+[WARNING] ^
+[WARNING] D:\Projects\development-8.2\percussioncms\modules\DesktopContentExplorer\src\main\java\com\percussion\cx\javafx\PSDesktopExplorerWindow.java:68: warning: no comment
+[WARNING] protected String target;
+[WARNING] ^
+[WARNING] D:\Projects\development-8.2\percussioncms\modules\DesktopContentExplorer\src\main\java\com\percussion\cx\javafx\PSDesktopExplorerWindow.java:81: warning: no comment
+[WARNING] protected volatile WebView webView;
+[WARNING] ^
+[WARNING] D:\Projects\development-8.2\percussioncms\modules\DesktopContentExplorer\src\main\java\com\percussion\cx\javafx\PSDesktopExplorerWindow.java:87: warning: no comment
+[WARNING] protected JSObject window = null;
+[WARNING] ^
+[WARNING] D:\Projects\development-8.2\percussioncms\modules\DesktopContentExplorer\src\main\java\com\percussion\cx\javafx\PSDesktopExplorerWindow.java:85: warning: no comment
+[WARNING] protected boolean windowLoaded = false;
+[WARNING] ^
+[WARNING] D:\Projects\development-8.2\percussioncms\modules\DesktopContentExplorer\src\main\java\com\percussion\cx\javafx\PSDesktopExplorerWindow.java:96: warning: no comment
+[WARNING] public PSDesktopExplorerWindow() {
+[WARNING] ^
+[WARNING] D:\Projects\development-8.2\percussioncms\modules\DesktopContentExplorer\src\main\java\com\percussion\cx\javafx\PSDesktopExplorerWindow.java:100: warning: no comment
+[WARNING] public PSDesktopExplorerWindow(String string) {
+[WARNING] ^
+[WARNING] D:\Projects\development-8.2\percussioncms\modules\DesktopContentExplorer\src\main\java\com\percussion\cx\javafx\PSDesktopExplorerWindow.java:217: warning: no comment
+[WARNING] public void closeDceWindow() {
+[WARNING] ^
+[WARNING] D:\Projects\development-8.2\percussioncms\modules\DesktopContentExplorer\src\main\java\com\percussion\cx\javafx\PSDesktopExplorerWindow.java:189: warning: no comment
+[WARNING] public JSObject getJSWindow() {
+[WARNING] ^
+[WARNING] D:\Projects\development-8.2\percussioncms\modules\DesktopContentExplorer\src\main\java\com\percussion\cx\javafx\PSDesktopExplorerWindow.java:185: warning: no comment
+[WARNING] public PSDesktopExplorerWindow getParentDceWindow() {
+[WARNING] ^
+[WARNING] D:\Projects\development-8.2\percussioncms\modules\DesktopContentExplorer\src\main\java\com\percussion\cx\javafx\PSDesktopExplorerWindow.java:193: warning: no comment
+[WARNING] public String getParentTarget() {
+[WARNING] ^
+[WARNING] D:\Projects\development-8.2\percussioncms\modules\DesktopContentExplorer\src\main\java\com\percussion\cx\javafx\PSDesktopExplorerWindow.java:173: warning: no comment
+[WARNING] public String getTarget() {
+[WARNING] ^
+[WARNING] D:\Projects\development-8.2\percussioncms\modules\DesktopContentExplorer\src\main\java\com\percussion\cx\javafx\PSDesktopExplorerWindow.java:181: warning: no comment
+[WARNING] public String getUrl() {
+[WARNING] ^
+[WARNING] D:\Projects\development-8.2\percussioncms\modules\DesktopContentExplorer\src\main\java\com\percussion\cx\javafx\PSDesktopExplorerWindow.java:294: warning: no comment
+[WARNING] public boolean isClosed() {
+[WARNING] ^
+[WARNING] D:\Projects\development-8.2\percussioncms\modules\DesktopContentExplorer\src\main\java\com\percussion\cx\javafx\PSDesktopExplorerWindow.java:169: warning: no comment
+[WARNING] public void managerClose() {
+[WARNING] ^
+[WARNING] D:\Projects\development-8.2\percussioncms\modules\DesktopContentExplorer\src\main\java\com\percussion\cx\javafx\PSDesktopExplorerWindow.java:104: warning: no comment
+[WARNING] public JFrame open(
+[WARNING] ^
+[WARNING] D:\Projects\development-8.2\percussioncms\modules\DesktopContentExplorer\src\main\java\com\percussion\cx\javafx\PSDesktopExplorerWindow.java:221: warning: no comment
+[WARNING] public PSDesktopExplorerWindow openChildWindow(
+[WARNING] ^
+[WARNING] D:\Projects\development-8.2\percussioncms\modules\DesktopContentExplorer\src\main\java\com\percussion\cx\javafx\PSDesktopExplorerWindow.java:209: warning: no comment
+[WARNING] public void reloadParent(HashMap<String, String> newParams) {
+[WARNING] ^
+[WARNING] 100 warnings
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD SUCCESS
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  27.822 s
+[INFO] Finished at: 2026-07-11T20:26:50+05:30
+[INFO] ------------------------------------------------------------------------

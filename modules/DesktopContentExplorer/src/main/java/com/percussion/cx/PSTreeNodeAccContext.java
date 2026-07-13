@@ -47,9 +47,10 @@ public class PSTreeNodeAccContext extends AccessibleContext implements Accessibl
   private PSNavigationTree.PSTreeNode m_node = null;
 
   /**
-   * Ctor
+   * Constructs the accessible context for the given tree and node.
    *
-   * @param node node to create accessiblecontext for, assumed to be not <code>null</code>.
+   * @param tree the navigation tree that owns the node, may not be <code>null</code>.
+   * @param node node to create accessible context for, assumed to be not <code>null</code>.
    */
   public PSTreeNodeAccContext(PSNavigationTree tree, PSNavigationTree.PSTreeNode node) {
     m_node = node;

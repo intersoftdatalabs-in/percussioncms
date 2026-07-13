@@ -31,12 +31,24 @@ import javafx.scene.web.WebView;
 import javax.swing.JPanel;
 import javax.swing.OverlayLayout;
 
+/**
+ * The banner panel that hosts the embedded JavaFX web view used to render the Rhythmyx header
+ * image and any interactive content at the top of the content explorer window.
+ */
 public class PSHeaderBanner extends JPanel {
 
+  /** The JavaFX web view embedded in the banner, may be <code>null</code>. */
   private WebView webView = null;
 
+  /** The content explorer applet this banner belongs to. */
   PSContentExplorerApplet applet = null;
 
+  /**
+   * Constructs the banner for the supplied applet.
+   *
+   * @param applet the content explorer applet this banner belongs to, may not be <code>null
+   *     </code>.
+   */
   public PSHeaderBanner(PSContentExplorerApplet applet) {
     super();
     this.applet = applet;
@@ -65,8 +77,14 @@ public class PSHeaderBanner extends JPanel {
     this.add(glass);
   }
 
+  /** JavaFX panel used to render the header content via an embedded web view. */
   class BannerJFXPanel extends JFXPanel {
 
+    /**
+     * Constructs the banner JavaFX panel.
+     *
+     * @param applet the content explorer applet, may not be <code>null</code>.
+     */
     public BannerJFXPanel(PSContentExplorerApplet applet) {
       this.setPreferredSize(new Dimension(1000, 70));
 

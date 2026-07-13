@@ -149,6 +149,10 @@ public class PSActionManager implements IPSConstants, IPSSelectionListener {
    * Constructs the action manager with supplied parameters, a reference back to the parent applet.
    *
    * @param applet the applet for which actions are to be done, may not be <code>null</code>
+   * @throws PSContentExplorerException if an error occurs while initializing the action
+   *     managers or loading the display format / action visibility contexts.
+   * @throws PSCmsException if an error occurs while communicating with the Rhythmyx server
+   *     during initialization.
    */
   public PSActionManager(PSContentExplorerApplet applet)
       throws PSContentExplorerException, PSCmsException {
@@ -1880,13 +1884,14 @@ public class PSActionManager implements IPSConstants, IPSSelectionListener {
    * format for the children on the parent node, otherwise clears the current display format. If the
    * document is empty or does not have any child nodes, sets empty child list on the parent.
    *
-   * <p><!ELEMENT root(TableMeta?, Node*)> See the {@link com.percussion.cx.objectstore.PSNode} for
+   * <p>The document must conform to the following DTD fragment:
+   * &lt;!ELEMENT root(TableMeta?, Node*)&gt; See the
+   * {@link com.percussion.cx.objectstore.PSNode} for
    * the expected format of the sub-elements.
    *
-   * @param parent the parent that need to set with children, may not be <code>
-   * null</code>
-   * @param doc the document containing child nodes, may not be <code>null
-   * </code>, must conform to the above specified format.
+   * @param parent the parent that need to set with children, may not be <code>null</code>.
+   * @param doc the document containing child nodes, may not be <code>null</code>, must conform to
+   *     the above specified format.
    * @throws PSUnknownNodeTypeException if the document is not of expected format.
    */
   public static void loadChildrenFromDocument(PSNode parent, Document doc)
@@ -4313,7 +4318,8 @@ public class PSActionManager implements IPSConstants, IPSSelectionListener {
    *
    * @param strUrl must not be <code>null</code> or <code>empty</code>
    * @return HTTP Response code.
-   * @throws PSContentExplorerException
+   * @throws PSContentExplorerException if the URL cannot be built, or the server returns a
+   *     response code of 400 or greater.
    */
   public int executeUrl(String strUrl) throws PSContentExplorerException {
     if (strUrl == null || strUrl.trim().length() == 0)
@@ -4363,9 +4369,11 @@ public class PSActionManager implements IPSConstants, IPSSelectionListener {
    *     </code> or empty
    * @return the string result of the post call, may be empty, or a result code number if the post
    *     response code > 400
-   * @throws MalformedURLException
-   * @throws IOException
-   * @throws ProtocolException
+   * @throws MalformedURLException if {@code strUrl} cannot be resolved against the Rhythmyx code
+   *     base.
+   * @throws IOException if an I/O error occurs while performing the POST request.
+   * @throws ProtocolException if the POST request violates the HTTP protocol.
+   * @throws PSException if an error occurs while posting the data to the server.
    */
   public String postData(String strUrl, Map paramMap)
       throws MalformedURLException, IOException, ProtocolException, PSException {
@@ -4389,10 +4397,11 @@ public class PSActionManager implements IPSConstants, IPSSelectionListener {
    *     Must not be <code>null</code> or empty.
    * @return the string result of the post call, may be empty, or an error page if the post HTTP
    *     response code >= 400
-   * @throws MalformedURLException
-   * @throws IOException
-   * @throws ProtocolException
-   * @throws IllegalArgumentException
+   * @throws MalformedURLException if {@code strUrl} cannot be resolved against the Rhythmyx code
+   *     base.
+   * @throws IOException if an I/O error occurs while performing the POST request.
+   * @throws ProtocolException if the POST request violates the HTTP protocol.
+   * @throws PSException if an error occurs while posting the XML data to the server.
    */
   public String postXmlData(String strUrl, String XmlString)
       throws MalformedURLException, IOException, ProtocolException, PSException {
@@ -4416,7 +4425,14 @@ public class PSActionManager implements IPSConstants, IPSSelectionListener {
     return m_applet;
   }
 
-  /** Helper method to convert from PSNode list object to PSLocator list object. */
+  /**
+   * Helper method to convert from PSNode list object to PSLocator list object.
+   *
+   * @param nodeList the iterator over the {@link PSNode} objects to convert; must not be
+   *     <code>null</code>.
+   * @return a list of {@link PSLocator} objects corresponding to the supplied nodes; never
+   *     <code>null</code>.
+   */
   public static List nodesToLocators(Iterator nodeList) {
     if (nodeList == null) throw new IllegalArgumentException("nodeList must not be null");
 
@@ -4460,6 +4476,13 @@ public class PSActionManager implements IPSConstants, IPSSelectionListener {
   /**
    * Easy access method for {@link PSContentExplorerApplet#getXMLDocument(String)}. See the link for
    * more information.
+   *
+   * @param url the URL (relative to the Rhythmyx code base) of the document to retrieve; must not
+   *     be <code>null</code>.
+   * @return the XML document retrieved from the supplied URL.
+   * @throws IOException if an I/O error occurs while retrieving the document.
+   * @throws SAXException if the retrieved content is not well-formed XML.
+   * @throws ParserConfigurationException if the parser cannot be configured.
    */
   public Document getXMLDocument(String url)
       throws IOException, SAXException, ParserConfigurationException {
@@ -4478,6 +4501,12 @@ public class PSActionManager implements IPSConstants, IPSSelectionListener {
   /**
    * Easy access method for {@link PSContentExplorerApplet#getIcon(String)}. See the link for more
    * information.
+   *
+   * @param url the URL (relative to the Rhythmyx code base) of the icon to retrieve; must not be
+   *     <code>null</code>.
+   * @return the icon loaded from the supplied URL.
+   * @throws MalformedURLException if the supplied URL cannot be resolved against the Rhythmyx code
+   *     base.
    */
   public Icon getIcon(String url) throws MalformedURLException {
     return m_applet.getIcon(url);
@@ -4490,6 +4519,8 @@ public class PSActionManager implements IPSConstants, IPSSelectionListener {
    * TYPE_SYS_FOLDERS</code>, <code>TYPE_SYS_VIEW</code>, <code>TYPE_CATEGORY
    * </code> and <code>TYPE_SLOT</code> can not be copied or moved.
    *
+   * @param target the node that is being checked for copy/move support; must not be
+   *     <code>null</code>.
    * @return <code>true</code> if it can be copied or moved, otherwise <code>
    * false</code>
    */
@@ -4623,10 +4654,9 @@ public class PSActionManager implements IPSConstants, IPSSelectionListener {
    *
    * @param view the view where the paste is going to be happening, armed with this specification,
    *     we decide if we can paste
-   * @target the target node where the paste is to be applied, may be <code>
-   * null</code>
-   * @clipType the type of paste we are trying to accomplish, one of <code>
-   * PSClipBoard.TYPE_DRAG</code> or <code>PSClipBoard.TYPE_COPY</code>
+   * @param target the target node where the paste is to be applied, may be <code>null</code>
+   * @param clipType the type of paste we are trying to accomplish, one of
+   *     <code>PSClipBoard.TYPE_DRAG</code> or <code>PSClipBoard.TYPE_COPY</code>
    * @return <code>true</code> if it can accept, otherwise <code>false</code>
    */
   public boolean canAcceptPaste(String view, PSNode target, int clipType) {
@@ -4936,6 +4966,8 @@ public class PSActionManager implements IPSConstants, IPSSelectionListener {
   }
 
   /**
+   * Returns the current content selection (navigation) path.
+   *
    * @return Current content selection path, that is supplied by the MainView; never <code>null
    *     </code>, may be <code>empty</code> before the first tree selection is made.
    */
@@ -5371,6 +5403,11 @@ public class PSActionManager implements IPSConstants, IPSSelectionListener {
       Collections.unmodifiableSet(
           new HashSet<String>(Arrays.asList("targetStyle", "target", "launchesWindow")));
 
+  /**
+   * Returns the search configuration used by the search view action manager.
+   *
+   * @return the current {@link PSSearchConfig}; never <code>null</code>.
+   */
   public PSSearchConfig getSearchConfig() {
     return m_searchViewMgr.getSearchConfig();
   }

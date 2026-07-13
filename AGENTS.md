@@ -55,6 +55,8 @@ This repository is a large mono-repo with many modules.  This code base has a lo
 * ALWAYS document your work in comments, README, or maven site documentation.
 * **IMPORTANT** you must ALWAYS update or create unit tests for any code change that you make, new or edited. And the tests must pass. No exceptions.
 * Always use the #codebase or root `./` context when resolving missing interfaces or classes.
+* You MUST respect rate limits when calling 3rd party API's. All 3rd party API integrations must be implemented with rate limit detection and exponential backoff logic.
+* You MUST NOT share or leak secrets, tokens, or keys over the wire, in logs, or in LLM sessions.  If you see MKD-REDACTED in a session, that means you leaked a secret.
 
 ## PR Review Comment Resolution
 

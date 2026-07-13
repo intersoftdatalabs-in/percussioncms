@@ -828,7 +828,7 @@ public class PSSearchDialog extends PSDialog {
    * related content search or a new search. Otherwise returns
    * <code>false</code>.
    *
-   * @return <code>true</code> or <code>false> based on the search type and
+    * @return <code>true</code> or <code>false</code> based on the search type and
    * RestrictSearchFieldsToUserCommunity flag.
    */
   public boolean isRestrictToUserCommunity() {
