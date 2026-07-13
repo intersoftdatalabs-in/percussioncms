@@ -22,7 +22,6 @@ import static com.percussion.share.web.service.PSRestServicePathConstants.*;
 import com.percussion.foldermanagement.service.IPSFolderService;
 import com.percussion.itemmanagement.service.IPSItemService;
 import com.percussion.security.error.PSExceptionUtils;
-import com.percussion.security.validation.XSSValidation;
 import com.percussion.services.error.PSNotFoundException;
 import com.percussion.share.dao.IPSGenericDao;
 import com.percussion.share.data.PSEnumVals;
@@ -53,16 +52,16 @@ public class PSSiteDataRestService {
 
   // Allow-list pattern for site-id / site-name path parameters. Matches
   // alphanumeric, dot, dash, underscore, and colon (CMS site-name
-  // namespace separator); length 1 to 128. Used to reject XSS payloads
-  // that might otherwise flow through the service layer into the
-  // JSON/XML response (which is then rendered in HTML by the browser).
+  // namespace separator); length 1 to 100 (aligned with DB VARCHAR(100)
+  // limit for SITENAME). Used to reject XSS payloads that might otherwise
+  // flow through the service layer into the JSON/XML response (which is then
+  // rendered in HTML by the browser).
   //
-  // The XSSValidation utility in modules/perc-security-utils/ is the
-  // canonical escape utility for this codebase; see XSSValidation.escapeHtml,
-  // escapeXml, escapeJavaScript, and containsSuspiciousPatterns. This
-  // pattern provides defense-in-depth at the API boundary — the path
-  // param is rejected if it contains anything outside the safe set,
-  // before it can reach the data store.
+  // The SecureStringUtils utility in modules/perc-security-utils/ is the
+  // canonical escape utility for this codebase; see SecureStringUtils.sanitizeStringForHTML
+  // and other sanitization methods. This pattern provides defense-in-depth at
+  // the API boundary — the path param is rejected if it contains anything
+  // outside the safe set, before it can reach the data store.
   //
   // See specs/004-zero-code-scanning-alerts/tasks.md T044 and contracts/C2.
   private static final Pattern SAFE_ID_PATTERN = Pattern.compile("[A-Za-z0-9._:\\-]{1,100}");
