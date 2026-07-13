@@ -89,12 +89,20 @@ public class PSSerializerUtils
             var unmarshaller = Objects.requireNonNull(PSJaxbContext.createUnmarshaller(type));
 
             // codeql[java/xxe] justification: the SAXSource is built from
-            // a secured SAXParserFactory (see PSSecureXMLUtils), which has
-            // disallow-doctype-decl=true and external-entity features
-            // disabled. External entity references in the input are
-            // rejected at the parser level before they reach the
-            // unmarshaller. See specs/004-zero-code-scanning-alerts/tasks.md
-            // T039 and contracts/C2.
+            // a secured SAXParserFactory AND a secured XMLReader (see
+            // PSSecureXMLUtils.getSecuredSaxSource, which sets both
+            // the factory features and explicitly re-sets the same
+            // features on the XMLReader for defense-in-depth). Both
+            // disallow-doctype-decl=true and all external-entity
+            // features are disabled. External entity references in the
+            // input are rejected at the parser level before they reach
+            // the unmarshaller. The CodeQL flag on this line was a
+            // data-flow false positive that did not recognize the
+            // factory-to-reader feature propagation; the explicit
+            // per-feature setFeature calls on the reader make the
+            // security guarantees visible on the very object JAXB uses.
+            // See specs/004-zero-code-scanning-alerts/tasks.md T039
+            // and contracts/C2; GitHub code-scanning advisory #1709.
             Source source = PSSecureXMLUtils.getSecuredSaxSource(inputStream);
             @SuppressWarnings("unchecked")
             T object = (T) unmarshaller.unmarshal(source);
@@ -137,10 +145,11 @@ public class PSSerializerUtils
         var unmarshaller = PSJaxbContext.createUnmarshaller(type);
         unmarshaller.setSchema(schema);
 
-        // codeql[java/xxe] justification: the SAXSource is built from
-        // a secured SAXParserFactory (see PSSecureXMLUtils), which has
-        // disallow-doctype-decl=true and external-entity features
-        // disabled. See T039.
+        // codeql[java/xxe] justification: see the comment in unmarshal()
+        // above and the GitHub code-scanning advisory #1709. The
+        // SAXSource is built from a secured SAXParserFactory AND a
+        // secured XMLReader with disallow-doctype-decl=true and all
+        // external-entity features disabled. See T039.
         Source secureSource = PSSecureXMLUtils.getSecuredSaxSource(stream);
         @SuppressWarnings("unchecked")
         T result = (T) unmarshaller.unmarshal(secureSource);

@@ -456,8 +456,37 @@ public class PSSecureXMLUtils {
       throws Exception {
     SAXParserFactory spf = getSecuredSaxParserFactory(options);
     XMLReader xmlReader = spf.newSAXParser().getXMLReader();
+
+    // Defense-in-depth: explicitly set the XXE-prevention features on the
+    // XMLReader itself, in addition to the SAXParserFactory. CodeQL's
+    // taint analysis does not always recognize the feature propagation
+    // from SAXParserFactory -> SAXParser -> XMLReader; setting the
+    // features directly on the reader makes the security guarantees
+    // visible on the very object that JAXB will use. Each feature is
+    // wrapped in try/catch for the same "unsupported feature is logged
+    // at DEBUG" semantics as the factory.
+    setFeatureSafe(xmlReader, DISALLOW_DOCTYPES_FEATURE, true /* always disallow */);
+    setFeatureSafe(xmlReader, SAX_GENERAL_EXTERNAL_ENTITIES_FEATURE, false);
+    setFeatureSafe(xmlReader, X1_GENERAL_EXTERNAL_ENTITIES_FEATURE, false);
+    setFeatureSafe(xmlReader, X1_EXTERNAL_PARAMETER_ENTITIES_FEATURE, false);
+    setFeatureSafe(xmlReader, X2_EXTERNAL_PARAMETER_ENTITIES_FEATURE, false);
+    setFeatureSafe(xmlReader, SAX_EXTERNAL_PARAMETER_ENTITIES_FEATURE, false);
+    setFeatureSafe(xmlReader, LOAD_EXTERNAL_DTD, options.isEnableExternalDtdReferences());
+
     InputSource inputSource = new InputSource(inputStream);
     return new SAXSource(xmlReader, inputSource);
+  }
+
+  /**
+   * Safely set a SAX feature on an {@link XMLReader}, logging (but otherwise ignoring) any
+   * unrecognized/unsupported feature per the existing factory-style handling.
+   */
+  private static void setFeatureSafe(XMLReader xmlReader, String feature, boolean value) {
+    try {
+      xmlReader.setFeature(feature, value);
+    } catch (SAXNotRecognizedException | SAXNotSupportedException e) {
+      log.debug(UNSUPPORTED_FEATURE_WARN, feature);
+    }
   }
 
   /**
