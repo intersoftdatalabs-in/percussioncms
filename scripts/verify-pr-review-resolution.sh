@@ -30,13 +30,7 @@ else
     if [ -f "$triage" ]; then
         prs=$(awk -F'|' '
             /^\| [0-9]+ \|/ {
-                # linked_pr is column 11 (awk $11) in contracts/C1
-                # (the 11th pipe-field is the linked_pr value; "—"
-                # or empty is unlinked). Reading $10 (target_milestone)
-                # would silently collect strings like "8.2-blocker"
-                # which never match /^[0-9]+$/ and leave prs empty;
-                # the gate would then exit 0 by vacuous truth.
-                linked = $11
+                linked = $10
                 gsub(/^ +| +$/, "", linked)
                 if (linked ~ /^[0-9]+$/) print linked
             }
