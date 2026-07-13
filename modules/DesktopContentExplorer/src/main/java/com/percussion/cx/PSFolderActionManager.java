@@ -379,7 +379,15 @@ public class PSFolderActionManager {
     }
   }
 
-  /** See {@link PSFolderProcessorProxy#getDescendentFolderLocatorsWithoutFilter(PSLocator)}. */
+  /**
+   * Delegates to the underlying folder processor proxy to fetch all descendant folder locators of
+   * the supplied folder without applying any additional filter.
+   *
+   * @param folderId the locator of the folder whose descendants are to be returned, may not be
+   *     <code>null</code>.
+   * @return an array of locators for all descendant folders, never <code>null</code>, may be empty.
+   * @throws PSCmsException if an error occurs while retrieving the descendant folders.
+   */
   public PSLocator[] getDescendantFoldersWithoutFilter(PSLocator folderId) throws PSCmsException {
     return m_folderProxy.getDescendentFolderLocatorsWithoutFilter(folderId);
   }
@@ -597,7 +605,16 @@ public class PSFolderActionManager {
     return results;
   }
 
-  /** See {@link PSFolderProcessorProxy#copyFolderSecurity(PSLocator, PSLocator)}. */
+  /**
+   * Delegates to the underlying folder processor proxy to copy the security (ACL) settings from
+   * the source folder to the target folder.
+   *
+   * @param source the locator of the source folder whose security settings are to be copied, may
+   *     not be <code>null</code>.
+   * @param target the locator of the target folder to receive the security settings, may not be
+   *     <code>null</code>.
+   * @throws PSCmsException if an error occurs while copying the folder security.
+   */
   public void copyFolderSecurity(PSLocator source, PSLocator target) throws PSCmsException {
     m_folderProxy.copyFolderSecurity(source, target);
   }
@@ -762,8 +779,8 @@ public class PSFolderActionManager {
   /**
    * Purge all Navon and Navtree items below the passed in folder.
    *
-   * @param folder PSNode for the folder
-   * @throws PSCmsException
+   * @param folder PSNode for the folder, may not be <code>null</code>.
+   * @throws PSCmsException if an error occurs while purging the navigation items.
    */
   public void purgeAllNav(PSNode folder) throws PSCmsException {
     validateNodeAsFolder(folder);
@@ -964,6 +981,12 @@ public class PSFolderActionManager {
     return false;
   }
 
+  /**
+   * Convenience accessor that returns the content explorer applet that owns the action manager
+   * backing this folder action manager.
+   *
+   * @return the content explorer applet, never <code>null</code>.
+   */
   public PSContentExplorerApplet getApplet() {
     return m_actionManager.getApplet();
   }
@@ -980,6 +1003,8 @@ public class PSFolderActionManager {
   }
 
   /**
+   * Gets the cached community cataloger from the action manager.
+   *
    * @return cached Community cataloger, never <code>null</code> or empty.
    * @throws PSCmsException if an error happens while processing the request.
    */
@@ -988,6 +1013,8 @@ public class PSFolderActionManager {
   }
 
   /**
+   * Gets the cached locale cataloger from the action manager.
+   *
    * @return cached Locale cataloger, never <code>null</code> or empty.
    * @throws PSCmsException if an error happens while processing the request.
    */
@@ -996,6 +1023,8 @@ public class PSFolderActionManager {
   }
 
   /**
+   * Gets the cached role cataloger from the action manager.
+   *
    * @return cached Role cataloger, never <code>null</code>.
    * @throws PSCmsException if an error happens while processing the request.
    */
@@ -1004,6 +1033,8 @@ public class PSFolderActionManager {
   }
 
   /**
+   * Gets the cached subject / user cataloger from the action manager.
+   *
    * @return cached Subject / user cataloger, never <code>null</code>.
    * @throws PSCmsException if an error happens while processing the request.
    */
@@ -1012,6 +1043,8 @@ public class PSFolderActionManager {
   }
 
   /**
+   * Gets the cached security provider cataloger from the action manager.
+   *
    * @return cached security provider cataloger, never <code>null</code>.
    * @throws PSCmsException if an error happens while processing the request.
    */
@@ -1304,6 +1337,8 @@ public class PSFolderActionManager {
   }
 
   /**
+   * Gets the folder processor proxy used by this manager.
+   *
    * @return the folder proxy, never <code>null</code>.
    */
   public PSFolderProcessorProxy getFolderProxy() {
@@ -1349,6 +1384,13 @@ public class PSFolderActionManager {
 
   private static List<String> cm1SiteRootFolder = new ArrayList<>();
 
+  /**
+   * Adds a CM1 site root folder path to the list of folders that should be hidden from the Sites
+   * tree. The leading "//Sites/" prefix, if present, is stripped before adding.
+   *
+   * @param folder the folder path to add, may be <code>null</code> in which case no action is
+   *     taken. If the path is already registered it is not added again.
+   */
   public static void addCM1SiteRootFolder(String folder) {
     if (folder != null && folder.startsWith("//Sites/")) {
       folder = folder.replace("//Sites/", "");
@@ -1358,6 +1400,13 @@ public class PSFolderActionManager {
     }
   }
 
+  /**
+   * Filters the supplied list of children nodes, removing any whose name matches one of the CM1
+   * site root folders previously registered via {@link #addCM1SiteRootFolder(String)}.
+   *
+   * @param childrenNodes the list of child nodes to filter, may be <code>null</code>.
+   * @return a new list containing the filtered children, never <code>null</code>.
+   */
   public static List<PSNode> removeCM1SiteFolders(List<PSNode> childrenNodes) {
     List newChildrenList = new ArrayList();
     for (PSNode child : childrenNodes) {

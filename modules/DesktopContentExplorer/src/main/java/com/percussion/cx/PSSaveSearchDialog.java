@@ -43,6 +43,12 @@ public class PSSaveSearchDialog extends PSDialog {
    *
    * @param parent the parent frame of this dialog, may be <code>null</code>
    */
+  /**
+   * Constructs the dialog with supplied parent.
+   *
+   * @param parent the parent frame of this dialog, may be <code>null</code>.
+   * @param applet the content explorer applet, may not be <code>null</code>.
+   */
   public PSSaveSearchDialog(Frame parent, PSContentExplorerApplet applet) {
     super(parent, applet.getResourceString(PSSaveSearchDialog.class, "Save Search"));
 

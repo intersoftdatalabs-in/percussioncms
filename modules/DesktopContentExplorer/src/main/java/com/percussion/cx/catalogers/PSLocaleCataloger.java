@@ -61,8 +61,11 @@ public class PSLocaleCataloger {
     }
   }
 
-  /*
-   * Implementation of the interface method
+  /**
+   * Loads the cataloged locales from the supplied XML element.
+   *
+   * @param elemSrc the element representing the catalog response, may not be <code>null</code>.
+   * @throws PSUnknownNodeTypeException if the element does not have the expected structure.
    */
   public void fromXml(Element elemSrc) throws PSUnknownNodeTypeException {
     m_locales.clear();

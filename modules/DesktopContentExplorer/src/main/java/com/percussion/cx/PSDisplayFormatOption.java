@@ -43,8 +43,6 @@ public class PSDisplayFormatOption implements IPSClientObjects {
    * calling this constructor in order to create a valid object.
    *
    * @param sourceNode the XML element node from which to populate. Must not be <code>null</code>.
-   * @throws PSContentExplorerException if the XML element node does not represent a type supported
-   *     by this class.
    */
   public PSDisplayFormatOption(Element sourceNode) {
     try {
@@ -105,7 +103,7 @@ public class PSDisplayFormatOption implements IPSClientObjects {
 
   /**
    * Indicates whether some other object is "equal to" this one. Overrides the method in {@link
-   * Object.equals(Object) Object} and adheres to that contract.
+   * Object#equals(Object) Object} and adheres to that contract.
    *
    * @param obj the reference object with which to compare.
    * @return <code>true</code> if this object is the same as the <code>obj</code> argument; <code>

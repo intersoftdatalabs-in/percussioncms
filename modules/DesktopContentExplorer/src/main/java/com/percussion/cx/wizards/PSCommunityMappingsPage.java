@@ -45,7 +45,11 @@ import javax.swing.table.TableModel;
  */
 public class PSCommunityMappingsPage extends PSWizardPanel {
 
-  /** Instantiate with applet to make config options from applet available to panel */
+  /**
+   * Instantiate with applet to make config options from applet available to panel.
+   *
+   * @param applet the content explorer applet, never <code>null</code>.
+   */
   public PSCommunityMappingsPage(PSContentExplorerApplet applet) {
     super(applet);
     initPanel(createMainPanel());
@@ -209,6 +213,9 @@ public class PSCommunityMappingsPage extends PSWizardPanel {
     }
 
     /**
+     * Get the community and content type mapper used to find communities compatible with a source
+     * community.
+     *
      * @return the community and content type mapper.
      */
     public PSCommunityContentTypeMapperCataloger getCommCtMapper() {
