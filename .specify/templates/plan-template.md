@@ -24,6 +24,8 @@
 - [ ] **VII. Build & Dependency Hygiene** (branch JDK, maven/npm deps)
 - [ ] **VIII. Documentation & Operability** (README/i18n updates planned)
 - [ ] **IX. PR Review Comment Resolution** (inline replies & resolving threads)
+- [ ] **Complexity Budget** (any constitution violations listed in Complexity Tracking with justification)
+
 
 ## Project Structure
 ### Documentation (this feature)

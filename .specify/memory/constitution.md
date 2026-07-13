@@ -61,4 +61,5 @@ Conflicts are resolved in favor of this constitution and applicable `AGENTS.md` 
 - This constitution supersedes informal practices. Plans must complete the Constitution Check before research and after design.
 - Amendments: Bump version (MAJOR = rewrite; MINOR = new principle; PATCH = clarification), sync template checklist.
 
-**Version**: 2.1.1 | **Last Amended**: 2026-07-13
+**Version**: 2.2.0 | **Ratified**: 2026-03-25 | **Last Amended**: 2026-07-13
+
