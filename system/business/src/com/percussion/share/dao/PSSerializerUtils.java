@@ -88,23 +88,32 @@ public class PSSerializerUtils
             var inputStream = new ByteArrayInputStream(dataField.getBytes(StandardCharsets.UTF_8));
             var unmarshaller = Objects.requireNonNull(PSJaxbContext.createUnmarshaller(type));
 
-            // codeql[java/xxe] justification: the SAXSource is built from
-            // a secured SAXParserFactory AND a secured XMLReader (see
-            // PSSecureXMLUtils.getSecuredSaxSource, which sets both
-            // the factory features and explicitly re-sets the same
-            // features on the XMLReader for defense-in-depth). Both
-            // disallow-doctype-decl=true and all external-entity
-            // features are disabled. External entity references in the
-            // input are rejected at the parser level before they reach
-            // the unmarshaller. The CodeQL flag on this line was a
-            // data-flow false positive that did not recognize the
-            // factory-to-reader feature propagation; the explicit
-            // per-feature setFeature calls on the reader make the
-            // security guarantees visible on the very object JAXB uses.
+            // The SAXSource is built from a secured SAXParserFactory AND a
+            // secured XMLReader (see PSSecureXMLUtils.getSecuredSaxSource,
+            // which sets both the factory features AND explicitly re-sets
+            // the same features on the XMLReader via setFeatureSafe for
+            // defense-in-depth). Both disallow-doctype-decl=true and all
+            // external-entity features are disabled. External entity
+            // references in the input are rejected at the parser level
+            // before they reach the unmarshaller.
+            //
+            // The inline // codeql[java/xxe] suppression below is
+            // required because CodeQL's data-flow analysis still flags
+            // the unmarshaller.unmarshal line as a taint sink even
+            // though the source IS sanitized (the defense-in-depth
+            // setFeatureSafe calls in PSSecureXMLUtils prove this).
+            // This is a documented CodeQL false positive per
+            // contracts/C2. The matching row in suppressions.md
+            // (alert_id=2) tracks this exception.
             // See specs/004-zero-code-scanning-alerts/tasks.md T039
-            // and contracts/C2; GitHub code-scanning advisory #1709.
+            // and GitHub code-scanning advisory #1709.
+            // codeql[java/xxe] reason: see justification above and
+            //   contracts/C2; XMLReader has disallow-doctype-decl=true
+            //   and all external-entity features disabled via
+            //   PSSecureXMLUtils.setFeatureSafe.
             Source source = PSSecureXMLUtils.getSecuredSaxSource(inputStream);
             @SuppressWarnings("unchecked")
+            // codeql[java/xxe] reason: same as above
             T object = (T) unmarshaller.unmarshal(source);
             return object;
         } catch (JAXBException e) {
@@ -145,13 +154,16 @@ public class PSSerializerUtils
         var unmarshaller = PSJaxbContext.createUnmarshaller(type);
         unmarshaller.setSchema(schema);
 
-        // codeql[java/xxe] justification: see the comment in unmarshal()
-        // above and the GitHub code-scanning advisory #1709. The
-        // SAXSource is built from a secured SAXParserFactory AND a
-        // secured XMLReader with disallow-doctype-decl=true and all
-        // external-entity features disabled. See T039.
+        // See the long justification in unmarshal() above. The inline
+        // // codeql[java/xxe] suppression is required because CodeQL's
+        // data-flow analysis still flags the unmarshaller.unmarshal line
+        // as a taint sink even though the source IS sanitized. The
+        // matching row in suppressions.md (alert_id=2) tracks this
+        // exception. See contracts/C2; GitHub code-scanning advisory
+        // #1709.
         Source secureSource = PSSecureXMLUtils.getSecuredSaxSource(stream);
         @SuppressWarnings("unchecked")
+        // codeql[java/xxe] reason: same as the unmarshal() suppression
         T result = (T) unmarshaller.unmarshal(secureSource);
         return result;
     }
