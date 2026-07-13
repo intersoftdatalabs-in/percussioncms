@@ -76,13 +76,24 @@ ready_to_close=$(awk -F'|' '
 expected=$((effective_open + ready_to_close))
 delta=$((triage_rows - expected))
 abs_delta=${delta#-}
-# Allow a small slack (±20 rows) for seed data vs spec mismatches AND
-# for staged-but-unmarked T021-T026 WebUI/ clusters that have deleted
-# files but no `linked_pr` placeholder yet. The slack catches drift from
-# these legitimate sources; hard-fail only on larger drift.
+# The row-count check tolerates a small slack for two legitimate
+# sources of drift:
+#   1. Seed data vs spec mismatches (the seed has fewer rows per
+#      cluster than the spec mentions for some alerts).
+#   2. Staged-but-unmarked obsolete clusters: when a cluster's files
+#      are deleted in the working tree but the matching linked_pr
+#      placeholders have not yet been set in triage.md, the deleted
+#      files appear in alerts-stale-cache.md but the matching triage
+#      rows are not in `ready_to_close`.
+#
+# Default slack is 0 (strict). For active remediation work, set
+# TRIAGE_SLACK to a positive integer (e.g. 20) to allow the two
+# sources of drift above. CI releases should run with TRIAGE_SLACK=0
+# to catch any inventory drift before declaring 0-active-alerts.
+TRIAGE_SLACK="${TRIAGE_SLACK:-0}"
 if [ "$triage_rows" -ne "$expected" ]; then
-    if [ "$abs_delta" -le 20 ]; then
-        echo "WARN: row-count off by $delta (within slack): $triage_rows vs $expected (= $effective_open open + $ready_to_close ready-to-close)"
+    if [ "$abs_delta" -le "$TRIAGE_SLACK" ]; then
+        echo "WARN: row-count off by $delta (within slack=$TRIAGE_SLACK): $triage_rows vs $expected (= $effective_open open + $ready_to_close ready-to-close)"
     else
         echo "FAIL: row-count check"
         echo "  triage.md rows:           $triage_rows"
@@ -92,6 +103,7 @@ if [ "$triage_rows" -ne "$expected" ]; then
         echo "  ready-to-close rows:      $ready_to_close"
         echo "  expected total:           $expected (= open + ready-to-close)"
         echo "  delta:                    $delta"
+        echo "  slack (TRIAGE_SLACK):     $TRIAGE_SLACK"
         fail=1
     fi
 else

@@ -125,7 +125,15 @@ case "$mode" in
             esac
             match_awk='
             BEGIN {
-                n = split(matchers, arr, "|")
+                # Use a non-regex separator. awk split treats its third
+                # arg as a regex, so a literal "|" would match the
+                # empty string between every character and split the
+                # matcher into single-character substrings (gawk
+                # behavior). The newline is a safe literal here because
+                # each case in the parent shell sets `matchers` to a
+                # single path substring (no newlines). mawk/bwk also
+                # treat "\n" as a literal field separator in split.
+                n = split(matchers, arr, "\n")
                 for (i = 1; i <= n; i++) {
                     pn = arr[i]
                     gsub(/^ +| +$/, "", pn)

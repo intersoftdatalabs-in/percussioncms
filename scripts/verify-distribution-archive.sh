@@ -27,13 +27,17 @@ if [ ! -f "$removed_list" ]; then
     exit 1
 fi
 
-# Build the distribution tree and assemble the .ppkg.
+# Build the distribution tree and assemble the .ppkg. The repo's
+# AGENTS.md mandates JDK 21 for the build; we honor the JAVA_HOME_21
+# env var (the same override the manual ./mvn-env.sh wrapper uses)
+# and fall back to whatever JDK is on PATH. We invoke `mvn` directly
+# rather than ./mvn-env.sh because the wrapper has known issues on
+# some Windows shells (mv: cannot move across filesystems).
 mvn_cmd() {
     if [ -n "${JAVA_HOME_21:-}" ] && [ -d "${JAVA_HOME_21}" ]; then
-        JAVA_HOME="${JAVA_HOME_21}" ./mvnw -Djava.io.tmpdir=tmp "$@"
+        JAVA_HOME="${JAVA_HOME_21}" "${MAVEN:-mvn}" -Djava.io.tmpdir=tmp "$@"
     else
-        # Fall back to whatever JDK is on PATH (should still be 21 in CI).
-        ./mvnw -Djava.io.tmpdir=tmp "$@"
+        "${MAVEN:-mvn}" -Djava.io.tmpdir=tmp "$@"
     fi
 }
 

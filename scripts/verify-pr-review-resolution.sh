@@ -30,7 +30,10 @@ else
     if [ -f "$triage" ]; then
         prs=$(awk -F'|' '
             /^\| [0-9]+ \|/ {
-                linked = $10
+                # linked_pr is column 11 (awk $11) in contracts/C1
+                # (the 11th pipe-field is the linked_pr value; "—"
+                # or empty is unlinked).
+                linked = $11
                 gsub(/^ +| +$/, "", linked)
                 if (linked ~ /^[0-9]+$/) print linked
             }
