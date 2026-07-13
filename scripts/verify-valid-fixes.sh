@@ -21,7 +21,7 @@ if [ ! -f "$triage" ]; then
     exit 1
 fi
 
-# linked_pr is column 10 in contracts/C1; "—" or empty is unlinked.
+# linked_pr is column 11 (awk $11) in contracts/C1; "—" or empty is unlinked.
 missing=$(awk -F'|' '
     /^\| [0-9]+ \|/ {
         disposition = $8

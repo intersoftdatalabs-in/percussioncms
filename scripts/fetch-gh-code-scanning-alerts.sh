@@ -20,6 +20,17 @@ output_file="docs/ai-generated/tasks/gh-codeql-alerts/alerts.md"
 command -v gh >/dev/null 2>&1 || { echo "gh CLI not found. Install and authenticate (gh auth login)." >&2; exit 2; }
 command -v jq >/dev/null 2>&1 || { echo "jq not found. Please install jq." >&2; exit 2; }
 
+# Validate state_arg against the GitHub REST API's allowed values for
+# the /code-scanning/alerts endpoint. An invalid value is otherwise
+# passed straight into the gh api URL and produces an opaque API error
+# under set -euo pipefail.
+case "$state_arg" in
+    open|dismissed|fixed|all) ;;
+    *) echo "usage: $0 [owner/repo] [state]" >&2
+       echo "  state: one of open, dismissed, fixed, all (default: open)" >&2
+       exit 2 ;;
+esac
+
 mkdir -p "$(dirname "$output_file")"
 
 echo "# Code Scanning Alerts for ${repo}" > "$output_file"
