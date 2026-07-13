@@ -862,6 +862,8 @@ public class PSNode implements IPSComponent, Cloneable, PSNavigationTree.IPSTree
   /**
    * Determins if this node is of type folder, calls {@link #isFolderType(String)
    * isFolderType(getType())}.
+   *
+   * @return <code>true</code> if this node's type is one of the folder types.
    */
   public boolean isFolderType() {
     return isFolderType(getType());
@@ -1337,6 +1339,12 @@ public class PSNode implements IPSComponent, Cloneable, PSNavigationTree.IPSTree
     return m_props;
   }
 
+  /**
+   * Sets the value of the named property, creating the underlying properties container if needed.
+   *
+   * @param key the property name, may not be <code>null</code> or empty.
+   * @param value the value to set, may be <code>null</code>.
+   */
   public void setProperty(String key, String value) {
     if (key == null || key.trim().length() == 0)
       throw new IllegalArgumentException("key may not be null or empty.");
@@ -1346,6 +1354,12 @@ public class PSNode implements IPSComponent, Cloneable, PSNavigationTree.IPSTree
     m_props.setProperty(key, value);
   }
 
+  /**
+   * Sets an object-valued property, creating the underlying properties container if needed.
+   *
+   * @param key the property name, may not be <code>null</code>.
+   * @param obj the value to set, may be <code>null</code>.
+   */
   public void setPropertyObj(String key, Object obj) {
     if (m_props == null) m_props = new PSProperties();
 

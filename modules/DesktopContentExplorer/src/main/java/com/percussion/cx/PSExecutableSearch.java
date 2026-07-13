@@ -73,6 +73,8 @@ public class PSExecutableSearch extends PSWSExecutableSearch {
    *     <code>null</code>
    * @param search the search object that defines the criteria and maximum results to obtain, may
    *     not be <code>null</code>
+   * @param applet the content explorer applet used to resolve dynamic values, may not be
+   *     <code>null</code>.
    */
   public PSExecutableSearch(
       URL documentBaseURL,
@@ -94,8 +96,17 @@ public class PSExecutableSearch extends PSWSExecutableSearch {
 
   /**
    * Construct an executable search with supplied list of content ids as search criteria. Calls
-   * {@link #PSExecutableSearch(URL, PSDisplayFormat, List, Collection, PSSearch)
+   * {@link #PSExecutableSearch(URL, PSDisplayFormat, List, PSContentExplorerApplet)
    * PSExecutableSearch(documentBaseURL, displayFormat, contentIdList, null, null)}.
+   *
+   * @param documentBaseURL the URL of the location to post the data to make a search request, may
+   *     not be <code>null</code>.
+   * @param displayFormat the display format that need to be applied to search results, may not be
+   *     <code>null</code>.
+   * @param contentIdList the list of content ids to search on, may not be <code>null</code> or
+   *     empty.
+   * @param applet the content explorer applet used to resolve dynamic values, may not be
+   *     <code>null</code>.
    */
   public PSExecutableSearch(
       URL documentBaseURL,
@@ -118,6 +129,8 @@ public class PSExecutableSearch extends PSWSExecutableSearch {
    *     or empty.
    * @param search the search object that defines the criteria and maximum results to obtain, may be
    *     <code>null</code>
+   * @param applet the content explorer applet used to resolve dynamic values, may not be
+   *     <code>null</code>.
    */
   public PSExecutableSearch(
       URL documentBaseURL,
@@ -150,6 +163,8 @@ public class PSExecutableSearch extends PSWSExecutableSearch {
    *     </code> objects, may not be <code>null</code>.
    * @param contentIdList the list of content ids to search on, may not be <code>null</code> or
    *     empty.
+   * @param applet the content explorer applet used to resolve dynamic values, may not be
+   *     <code>null</code>.
    */
   public PSExecutableSearch(
       URL documentBaseURL, List columnNames, List contentIdList, PSContentExplorerApplet applet) {
@@ -261,7 +276,11 @@ public class PSExecutableSearch extends PSWSExecutableSearch {
 
   /**
    * Convenience method that calls {@link #executeSearch(PSNode, boolean, boolean)
-   * executeSearch(<code>node</code>, false, true)}.
+   * executeSearch(node, false, true)}.
+   *
+   * @param node the node that represents the search results, may not be <code>null</code>.
+   * @return a list of search results, never <code>null</code>, may be empty.
+   * @throws PSContentExplorerException if an error happens executing search.
    */
   public List executeSearch(PSNode node) throws PSContentExplorerException {
     return executeSearch(node, false, true);
