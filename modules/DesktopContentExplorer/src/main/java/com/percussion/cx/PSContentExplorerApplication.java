@@ -45,31 +45,62 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.core.config.Configurator;
 
+/**
+ * The JavaFX {@link javafx.application.Application} entry point for the Percussion Desktop Content
+ * Explorer (DCE). It bootstraps the runtime environment, configures logging and the look and feel,
+ * and launches the {@link PSContentExplorerFrame} which hosts the {@link PSContentExplorerApplet}.
+ */
 public class PSContentExplorerApplication extends Application {
+
+  /**
+   * Constructs the application. The real initialization happens in {@link #start(Stage)} once the
+   * JavaFX toolkit is ready.
+   */
+  public PSContentExplorerApplication() {
+    super();
+  }
 
   static Logger log = LogManager.getLogger(PSContentExplorerApplication.class);
 
   private static File configDir;
   private static Dimension dimension = new Dimension(1180, 750);
 
+  /** Flag indicating the number of times a session-expired condition has been detected. */
   public static int sessionExpired = 0;
 
   private static File logConfig;
 
   private static final String DEFAULT_CONFIG_FOLDER_NAME = ".perc_config";
 
+  /**
+   * The JavaFX application entry point. Launches the JavaFX application with the supplied command
+   * line arguments.
+   *
+   * @param args the command line arguments passed to the application.
+   */
   @SuppressWarnings("java:S106")
   public static void main(String[] args) {
     System.out.println(Arrays.toString(args));
     launch(args);
   }
 
+  /** The base desktop content explorer frame hosted by this application, may be <code>null</code>. */
   private static PSContentExplorerFrame baseFrame = null;
 
+  /**
+   * Gets the base desktop content explorer frame hosted by this application.
+   *
+   * @return the base frame, may be <code>null</code> if the application has not yet started.
+   */
   public static PSContentExplorerFrame getBaseFrame() {
     return baseFrame;
   }
 
+  /**
+   * Sets the base desktop content explorer frame hosted by this application.
+   *
+   * @param baseFrame the new base frame, may be <code>null</code>.
+   */
   public static void setBaseFrame(PSContentExplorerFrame baseFrame) {
     PSContentExplorerApplication.baseFrame = baseFrame;
   }
@@ -218,18 +249,37 @@ public class PSContentExplorerApplication extends Application {
     log.info("Launching desktop content explorer");
   }
 
+  /**
+   * Gets the content explorer applet hosted by the base frame, if any.
+   *
+   * @return the applet instance, may be <code>null</code> if the base frame has no applet.
+   */
   public static PSContentExplorerApplet getApplet() {
     return baseFrame.getApplet();
   }
 
+  /**
+   * Gets the configuration directory used by the desktop content explorer.
+   *
+   * @return the configuration directory, may be <code>null</code> if not yet initialized.
+   */
   public static File getConfigDir() {
     return configDir;
   }
 
+  /**
+   * Sets the configuration directory used by the desktop content explorer.
+   *
+   * @param configDir the new configuration directory, may be <code>null</code>.
+   */
   public static void setConfigDir(File configDir) {
     PSContentExplorerApplication.configDir = configDir;
   }
 
+  /**
+   * Logs the current user out of the desktop content explorer. Triggers cleanup of the base frame
+   * and shows the login panel again.
+   */
   public static void logout() {
     SwingUtilities.invokeLater(
         () -> {
@@ -249,15 +299,31 @@ public class PSContentExplorerApplication extends Application {
     }
   }
 
+  /**
+   * Gets the preferred main frame size used by the desktop content explorer. Equivalent to
+   * {@link #getDimension()}.
+   *
+   * @return the main frame size, never <code>null</code>.
+   */
   public static Dimension getMainFrameSize() {
 
     return getDimension();
   }
 
+  /**
+   * Gets the current main frame size used by the desktop content explorer.
+   *
+   * @return the main frame size, never <code>null</code>.
+   */
   public static Dimension getDimension() {
     return dimension;
   }
 
+  /**
+   * Sets the main frame size used by the desktop content explorer.
+   *
+   * @param dimension the new main frame size, may be <code>null</code>.
+   */
   public static void setDimension(Dimension dimension) {
     PSContentExplorerApplication.dimension = dimension;
   }

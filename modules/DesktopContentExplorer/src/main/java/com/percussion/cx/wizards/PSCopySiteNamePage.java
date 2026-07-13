@@ -34,6 +34,11 @@ import javax.swing.JTextField;
 
 /** The wizard page to request the new site name and site folder name from the user. */
 public class PSCopySiteNamePage extends PSWizardPanel {
+  /**
+   * Instantiate with applet to make config options from applet available to panel.
+   *
+   * @param applet the content explorer applet, never <code>null</code>.
+   */
   public PSCopySiteNamePage(PSContentExplorerApplet applet) {
     super(applet);
     initPanel(createMainPanel());
@@ -230,9 +235,7 @@ public class PSCopySiteNamePage extends PSWizardPanel {
      * Get the names of all sites that have the supplied folderRoot as their folder root. A
      * case-insensitive compare is done.
      *
-     * @param folderRoot the folder root for which we want all site names, not <code>null</code> or
-     *     empty.
-     * @return a list will all site names which have the supplied folder root, never <code>null
+   * @return a list will all site names which have the supplied folder root, never <code>null
      *     </code>, may be empty.
      */
     public Collection getSitesToCopy() {

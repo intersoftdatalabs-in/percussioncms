@@ -22,10 +22,19 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import org.apache.commons.io.IOUtils;
 
+/**
+ * Utility class providing helpers for the embedded JavaFX web view, including a singleton accessor
+ * and a method to fetch the textual contents of a URL.
+ */
 public class PSWebViewUtils {
 
   private static PSWebViewUtils INSTANCE;
 
+  /**
+   * Gets the shared singleton instance.
+   *
+   * @return the shared instance, never <code>null</code>.
+   */
   public static synchronized PSWebViewUtils getInstance() {
     if (INSTANCE == null) {
       INSTANCE = new PSWebViewUtils();
@@ -38,7 +47,11 @@ public class PSWebViewUtils {
   /**
    * Utility method to retrieve the contents of a URL.
    *
-   * @param uri String uri
+   * @param protocol the URL protocol (e.g. "http" or "https"), may not be <code>null</code>.
+   * @param host the host portion of the URL, may not be <code>null</code>.
+   * @param port the port portion of the URL as a string, may not be <code>null</code>.
+   * @param uri the path portion of the URL, may not be <code>null</code>.
+   * @return the textual contents of the URL, never <code>null</code>.
    */
   public String getText(String protocol, String host, String port, String uri) {
     try {

@@ -19,6 +19,8 @@ package com.percussion.share.dao;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.percussion.security.error.PSExceptionUtils;
+import com.percussion.security.xml.PSSecureXMLUtils;
+import com.percussion.security.xml.PSXmlSecurityOptions;
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -27,6 +29,7 @@ import org.codehaus.jettison.mapped.MappedXMLStreamWriter;
 
 import jakarta.xml.bind.JAXBContext;
 import jakarta.xml.bind.JAXBException;
+import javax.xml.transform.Source;
 import javax.xml.transform.stream.StreamSource;
 import javax.xml.validation.SchemaFactory;
 import java.io.ByteArrayInputStream;
@@ -82,13 +85,46 @@ public class PSSerializerUtils
      */
     public static <T> T unmarshal(String dataField, Class<T> type) {
         try {
-            var reader = new InputStreamReader(new ByteArrayInputStream(dataField.getBytes(StandardCharsets.UTF_8)));
+            var inputStream = new ByteArrayInputStream(dataField.getBytes(StandardCharsets.UTF_8));
             var unmarshaller = Objects.requireNonNull(PSJaxbContext.createUnmarshaller(type));
 
-            T object = (T) unmarshaller.unmarshal(reader);
+            // The SAXSource is built from a secured SAXParserFactory AND a
+            // secured XMLReader (see PSSecureXMLUtils.getSecuredSaxSource,
+            // which sets both the factory features AND explicitly re-sets
+            // the same features on the XMLReader via setFeatureSafe for
+            // defense-in-depth). Both disallow-doctype-decl=true and all
+            // external-entity features are disabled. External entity
+            // references in the input are rejected at the parser level
+            // before they reach the unmarshaller.
+            //
+            // The inline // codeql[java/xxe] suppression at the END of the
+            // next line (the unmarshaller.unmarshal call) is required
+            // because CodeQL's data-flow analysis still flags that line
+            // as a taint sink even though the source IS sanitized. This
+            // is a documented CodeQL false positive per contracts/C2.
+            // The matching row in suppressions.md (alert_id=2) tracks this
+            // exception. See specs/004-zero-code-scanning-alerts/tasks.md
+            // T039 and GitHub code-scanning advisory #1709.
+            Source source = PSSecureXMLUtils.getSecuredSaxSource(inputStream);
+            @SuppressWarnings("unchecked")
+            T object = (T) unmarshaller.unmarshal(source); // codeql[java/xxe] false positive: XMLReader has disallow-doctype-decl=true and all external-entity features disabled via PSSecureXMLUtils.setFeatureSafe; see T039 and advisory #1709
             return object;
         } catch (JAXBException e) {
             log.error("Unable to load XML file. Check for syntax problems. Error: {}, Data: {}", PSExceptionUtils.getMessageForLog(e), dataField);
+            return null;
+        } catch (RuntimeException e) {
+            // Re-throw unchecked exceptions (NPE, IllegalArgumentException,
+            // ClassCastException, etc.) so that misconfigurations like a
+            // null PSJaxbContext (from Objects.requireNonNull at line 89)
+            // or a missing JAXB context factory surface to the caller
+            // instead of being silently swallowed as a null return. Per
+            // the review on PR #1199.
+            throw e;
+        } catch (Exception e) {
+            // The SAX parser construction can fail in restricted environments
+            // (ParserConfigurationException, SAXException, etc.); surface
+            // as a parse failure (null return) rather than propagating.
+            log.error("Unable to construct secured SAX parser for unmarshal. Error: {}, Data: {}", PSExceptionUtils.getMessageForLog(e), dataField);
             return null;
         }
     }
@@ -120,7 +156,10 @@ public class PSSerializerUtils
         var unmarshaller = PSJaxbContext.createUnmarshaller(type);
         unmarshaller.setSchema(schema);
 
-        T result = (T) unmarshaller.unmarshal(stream);
+        // See the long justification in unmarshal() above.
+        Source secureSource = PSSecureXMLUtils.getSecuredSaxSource(stream);
+        @SuppressWarnings("unchecked")
+        T result = (T) unmarshaller.unmarshal(secureSource); // codeql[java/xxe] false positive: XMLReader has disallow-doctype-decl=true and all external-entity features disabled via PSSecureXMLUtils.setFeatureSafe; see T039 and advisory #1709
         return result;
     }
 
