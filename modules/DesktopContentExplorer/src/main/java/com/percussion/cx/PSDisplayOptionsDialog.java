@@ -57,6 +57,16 @@ public class PSDisplayOptionsDialog extends PSDialog {
    * </code>
    * @throws IllegalArgumentException if any parameter is invalid.
    */
+  /**
+   * Constructs the dialog with supplied options. Not checking for <code>null</code> applet because
+   * of the super.
+   *
+   * @param parent the parent frame of the dialog, may be <code>null</code>.
+   * @param userOptions the user display options, may not be <code>null</code>.
+   * @param defaultOptions the default display options, may not be <code>null</code>.
+   * @param applet the content explorer applet, may not be <code>null</code>.
+   * @throws IllegalArgumentException if any parameter is invalid.
+   */
   public PSDisplayOptionsDialog(
       Frame parent,
       PSDisplayOptions userOptions,

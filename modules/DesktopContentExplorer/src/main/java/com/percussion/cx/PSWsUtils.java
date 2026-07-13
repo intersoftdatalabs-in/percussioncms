@@ -60,6 +60,11 @@ import java.util.Map;
  */
 public class PSWsUtils {
 
+  /** Default constructor. */
+  public PSWsUtils() {
+    // no-op
+  }
+
   /**
    * Creates a Content Item of the specified content type.
    *

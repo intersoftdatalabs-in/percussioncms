@@ -48,8 +48,9 @@ public class PSContentExplorerStatusDialog extends PSDialog {
    * Constructs this dialog with specified process monitor.
    *
    * @param parent the parent frame of this dialog, may be <code>null</code>
-   * @param processMonitor the process monitor to use to monitor the process executing, may not be
+   * @param monitor the process monitor to use to monitor the process executing, may not be
    *     <code>null</code>
+   * @param applet the applet that initiated this dialog, may not be <code>null</code>
    * @throws IllegalArgumentException if any param is invalid.
    */
   public PSContentExplorerStatusDialog(
@@ -124,7 +125,8 @@ public class PSContentExplorerStatusDialog extends PSDialog {
   /**
    * Action method for 'Cancel' button. Confirms with the user to cancel the job and cancels the job
    * if the button represents 'Cancel' action, otherwise simply closes the dialog by hiding it. See
-   * {@link PSDeploymentStatusMonitor#stopMonitor()} for more description on cancelling a job.
+   * the associated process monitor's status mechanism for more description on cancelling a job.
+   * <!-- TODO: re-link after consolidating docs in SPEC-003 -->
    */
   public void onCancel() {
     m_monitor.setStatus(PSProcessMonitor.STATUS_PAUSE);
@@ -193,7 +195,9 @@ public class PSContentExplorerStatusDialog extends PSDialog {
    * Displays the supplied error message to the user and returns the users selection.
    *
    * @param message the error message to be displayed, may be <code>null</code> or empty.
-   * @param component the parent component that shows the error dialog, may be <code>null</code>.
+   * @param parent the parent component that shows the error dialog, may be <code>null</code>.
+   * @param title the title of the error dialog, may be <code>null</code> or empty.
+   * @param label the label of the error dialog, may be <code>null</code> or empty.
    * @return int user's selection on error dialog.
    */
   public static int displayErrorDialog(
@@ -239,8 +243,8 @@ public class PSContentExplorerStatusDialog extends PSDialog {
 
   /**
    * The label that represents the current job status message, initialized to an empty label, and
-   * gets updated by status monitor of the current job in <code>updateStatus(String, int)
-   * </code). Never <code>null</code> after it is initialized.
+   * gets updated by status monitor of the current job in <code>updateStatus(String, int)</code>.
+   * Never <code>null</code> after it is initialized.
    */
   private JLabel m_msgLabel = new JLabel();
 
