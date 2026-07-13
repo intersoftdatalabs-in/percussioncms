@@ -5,6 +5,11 @@ set -euo pipefail
 # Usage: scripts/fetch-gh-code-scanning-alerts.sh [owner/repo] [state]
 #   state: open | dismissed | fixed | all (default: open)
 # If no repo is passed, the script will attempt to use $GITHUB_REPOSITORY or default to percussion/percussioncms.
+#
+# Companion: scripts/filter-stale-alerts.sh (invoked at the end) writes
+# docs/ai-generated/tasks/gh-codeql-alerts/alerts-stale-cache.md for any
+# alert whose most_recent_instance.location.path is no longer in
+# `git ls-files` on the current branch (per feature 004 T007b).
 
 repo_arg="${1:-}"
 repo="${repo_arg:-${GITHUB_REPOSITORY:-percussion/percussioncms}}"
@@ -49,8 +54,20 @@ gh api -H "Accept: application/vnd.github+json" "/repos/${repo}/code-scanning/al
   ] | @tsv' \
   | awk -F"\t" '{printf "- **Alert #%s** — `%s` (%s, %s)\n  - **Tool:** %s\n  - **State:** %s\n  - **Created:** %s\n  - **URL:** %s\n  - **Location:** %s:%s\n  - **Message:** %s\n\n", $1, $2, $3, "CodeQL", $4, $5, $6, $7, $9, $10, $8}' >> "$output_file"
 
+# Stale-cache filter (T007b). Filtered alerts go to
+# docs/ai-generated/tasks/gh-codeql-alerts/alerts-stale-cache.md; the
+# release-readiness report excludes those rows from the open-alert count.
+stale_file="docs/ai-generated/tasks/gh-codeql-alerts/alerts-stale-cache.md"
+if [[ -x "scripts/filter-stale-alerts.sh" ]]; then
+    scripts/filter-stale-alerts.sh "$output_file" "$stale_file" || \
+        echo "warning: stale-alert filter failed; continuing" >&2
+else
+    echo "note: scripts/filter-stale-alerts.sh not present or not executable; skipping stale-cache filter" >&2
+fi
+
 cat <<EOF
 Done. Alerts written to: $output_file
+Stale-cache filter: $stale_file
 EOF
 
 exit 0
