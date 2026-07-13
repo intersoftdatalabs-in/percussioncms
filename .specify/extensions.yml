@@ -1,0 +1,8 @@
+version: "1"
+hooks:
+  before_specify:
+    - extension: git
+      command: speckit.git.feature
+      enabled: true
+      optional: false
+      description: "Create dynamic feature branch before specification"
