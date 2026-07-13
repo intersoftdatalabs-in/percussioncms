@@ -112,9 +112,18 @@ public class PSSerializerUtils
         } catch (JAXBException e) {
             log.error("Unable to load XML file. Check for syntax problems. Error: {}, Data: {}", PSExceptionUtils.getMessageForLog(e), dataField);
             return null;
+        } catch (RuntimeException e) {
+            // Re-throw unchecked exceptions (NPE, IllegalArgumentException,
+            // ClassCastException, etc.) so that misconfigurations like a
+            // null PSJaxbContext (from Objects.requireNonNull at line 89)
+            // or a missing JAXB context factory surface to the caller
+            // instead of being silently swallowed as a null return. Per
+            // the review on PR #1199.
+            throw e;
         } catch (Exception e) {
-            // The SAX parser construction can fail in restricted environments;
-            // surface as a parse failure rather than propagating.
+            // The SAX parser construction can fail in restricted environments
+            // (ParserConfigurationException, SAXException, etc.); surface
+            // as a parse failure (null return) rather than propagating.
             log.error("Unable to construct secured SAX parser for unmarshal. Error: {}, Data: {}", PSExceptionUtils.getMessageForLog(e), dataField);
             return null;
         }
