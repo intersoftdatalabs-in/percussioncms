@@ -466,29 +466,22 @@ public class PSPageDaoHelper implements IPSPageDaoHelper {
   }
 
   /**
-   * Parses a user-supplied search-field value as a {@code long}, or returns
-   * {@code null} if the value is absent or unparseable. The caller
-   * (formGetByStatusSQLQuery) skips the corresponding WHERE clause when
-   * this returns {@code null}, so an absent or malformed ID value results
-   * in an unfiltered search rather than a coerced-to-zero match (per the
-   * review on PR #1202). Throws {@link NumberFormatException} is
-   * intentionally NOT thrown here — the caller catches it via the
-   * surrounding try-catch in getContentIdsForFetchingByStatus and
-   * returns an empty result. This defense-in-depth check ensures the ID
-   * fields cannot carry SQL metacharacters even if a future code change
-   * moves the binding site.
+   * Parses a user-supplied search-field value as a {@code Long}, or returns
+   * {@code null} if the value is null.
+   *
+   * @param value The value to parse, which may be a {@link Number} or a string representation of a long.
+   * @return The parsed {@code Long} value, or {@code null} if the input is null.
+   * @throws NumberFormatException if the value is non-numeric and cannot be parsed. The caller
+   *         (getContentIdsForFetchingByStatus) catches this exception to return an empty result,
+   *         preventing invalid numeric IDs from matching or throwing uncaught errors.
    */
   private static Long parseLongIdOrNull(Object value) {
-    if (value == null) return null;
-    if (value instanceof Number) return ((Number) value).longValue();
-    try {
-      return Long.parseLong(value.toString().trim());
-    } catch (NumberFormatException e) {
-      // Defer to the caller's catch block (getContentIdsForFetchingByStatus
-      // catches NumberFormatException). Returning null here would silently
-      // drop the filter clause; throwing surfaces the malformed input to
-      // the user via the empty-result path.
-      throw e;
+    if (value == null) {
+      return null;
     }
+    if (value instanceof Number) {
+      return ((Number) value).longValue();
+    }
+    return Long.parseLong(value.toString().trim());
   }
 }
