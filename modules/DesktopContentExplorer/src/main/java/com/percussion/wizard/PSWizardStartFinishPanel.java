@@ -21,7 +21,11 @@ import com.percussion.cx.PSContentExplorerApplet;
 /** A standard wizard start or finish panel which does only show user instructions. */
 public class PSWizardStartFinishPanel extends PSWizardPanel {
 
-  /** Instantiate with applet to make config options from applet available to panel */
+  /**
+   * Instantiates with applet to make config options from applet available to the panel.
+   *
+   * @param applet the content explorer applet, may not be <code>null</code>.
+   */
   public PSWizardStartFinishPanel(PSContentExplorerApplet applet) {
     super(applet);
     initPanel(null);

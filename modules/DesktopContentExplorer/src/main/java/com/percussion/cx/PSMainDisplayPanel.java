@@ -899,7 +899,7 @@ public class PSMainDisplayPanel extends JScrollPane
   /**
    * The table sorter to use with the table in the panel to sort the rows according to the node type
    * group. This means the rows are sorted with in the groups of node types). The groups are sorted
-   * according to their sort order. See {@link com.percussion.guitools#PSTableSorter} for more info.
+   * according to their sort order. See {@link com.percussion.guitools.PSTableSorter} for more info.
    * about sorting.
    */
   private class PSNodeTableSorter extends PSTableSorter {
@@ -1046,6 +1046,12 @@ public class PSMainDisplayPanel extends JScrollPane
    * being rendered.
    * @param the currently focused column
    */
+  /**
+   * Sets the currently focused column index for the main display table. See {@link
+   * #getFocusColumn()} for the rationale.
+   *
+   * @param column the currently focused column index.
+   */
   public static synchronized void setFocusColumn(int column) {
     focusedColumn = column;
   }
@@ -1061,6 +1067,11 @@ public class PSMainDisplayPanel extends JScrollPane
    * has access to the column and a hasFocus() method while the header cell is
    * being rendered.
    * @return the currently focused column
+   */
+  /**
+   * Returns the currently focused column index for the main display table.
+   *
+   * @return the currently focused column index.
    */
   public static synchronized int getFocusColumn() {
     return focusedColumn;
@@ -1519,6 +1530,7 @@ public class PSMainDisplayPanel extends JScrollPane
    */
   public static final String ms_mode = PSUiMode.TYPE_MODE_MAIN;
 
+  /** Keyboard handler used to dispatch keyboard events on the table. */
   private TableKeyBoardHandler keyboardHandler;
 
   /** Minimum value used to specified the preferred width of a table column. */
@@ -1536,6 +1548,9 @@ public class PSMainDisplayPanel extends JScrollPane
         com.percussion.cms.IPSConstants.CHECKOUT_STATUS_MYSELF, "CheckedOutByMe");
   }
 
+  /** Background executor used to build menus off the EDT. */
   private final ExecutorService backgroundService = Executors.newFixedThreadPool(1);
+
+  /** Future task representing the current background menu build. */
   private FutureTask<PSContentExplorerMenu> backgroundMenu;
 }

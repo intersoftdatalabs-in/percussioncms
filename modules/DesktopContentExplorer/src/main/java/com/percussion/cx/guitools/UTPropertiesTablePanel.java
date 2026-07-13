@@ -314,10 +314,20 @@ public class UTPropertiesTablePanel extends JPanel implements KeyListener, Focus
     stopExtTableEditing();
   }
 
+  /**
+   * Gets the table model backing the panel.
+   *
+   * @return the table model, may be <code>null</code>.
+   */
   public TableModel getTableModel() {
     return m_table.getModel();
   }
 
+  /**
+   * Sets the table model backing the panel and refreshes the table.
+   *
+   * @param model the new table model, may be <code>null</code>.
+   */
   public void setTableModel(TableModel model) {
     if (model != null) {
       m_table.setModel(model);
@@ -368,6 +378,7 @@ public class UTPropertiesTablePanel extends JPanel implements KeyListener, Focus
     }
   }
 
+  /** Removes the currently selected rows from the table, adding an empty row if none remain. */
   public void removeRows() {
     DefaultTableModel dtm = ((DefaultTableModel) m_table.getModel());
     ListSelectionModel lsm = m_table.getSelectionModel();
@@ -385,14 +396,21 @@ public class UTPropertiesTablePanel extends JPanel implements KeyListener, Focus
     dtm.fireTableDataChanged();
   }
 
+  /**
+   * Sets the preferred size of the scroll pane wrapping the table.
+   *
+   * @param d the new preferred size, may not be <code>null</code>.
+   */
   public void setScrollPaneSize(Dimension d) {
     m_jsp.setPreferredSize(d);
   }
 
+  /** Clears all rows from the table. */
   public void clearAllRows() {
     ((DefaultTableModel) m_table.getModel()).setNumRows(0);
   }
 
+  /** Appends a new empty row to the table. */
   public void addRow() {
     int cols = m_table.getModel().getColumnCount();
     ((DefaultTableModel) m_table.getModel()).addRow(new Object[cols]);
@@ -531,6 +549,8 @@ public class UTPropertiesTablePanel extends JPanel implements KeyListener, Focus
   }
 
   /**
+   * Indicates whether the table cells should show keyboard focus.
+   *
    * @return <code>true</code> if the table cells should show keyboard focus.
    */
   public boolean isTableUseFocusHighlight() {
@@ -558,6 +578,11 @@ public class UTPropertiesTablePanel extends JPanel implements KeyListener, Focus
     m_tableUseFocusHighlight = b;
   }
 
+  /**
+   * Test entry point that displays a simple property editor dialog.
+   *
+   * @param args command line arguments, ignored.
+   */
   public static void main(String[] args) {
     PSDialog dlg = new PSDialog("test");
 
@@ -574,8 +599,13 @@ public class UTPropertiesTablePanel extends JPanel implements KeyListener, Focus
     dlg.dispose();
   }
 
+  /** The scroll pane wrapping the table. */
   private JScrollPane m_jsp;
+
+  /** The table itself. */
   private JTable m_table;
+
+  /** Whether the table is editable. */
   protected boolean m_isEditable;
 
   /** header column names, initialized in ctor, never <code>null</code> after that. */
@@ -609,7 +639,9 @@ public class UTPropertiesTablePanel extends JPanel implements KeyListener, Focus
    */
   public static final int NAME_COLUMN = 0;
 
+  /** Index of the Property Value column. */
   public static final int VALUE_COLUMN = 1;
 
+  /** Whether the panel has completed its initialization. */
   private boolean m_bIsInited = false;
 }

@@ -56,6 +56,19 @@ public class ServerConnection implements IConnectionSource {
    *     connection.
    * @throws PSAuthenticationFailedException if the user is not authorized to administer the server
    */
+  /**
+   * Creates a PSDesignerConnection and logs in to the server. The connection will be kept open
+   * until the user logs out.
+   *
+   * @param server servers name, never <code>null</code>.
+   * @param userId user name, never <code>null</code>.
+   * @param password user password, never <code>null</code>.
+   * @param protocol <code>https</code> indicates SSL connection request, any other value including
+   *     <code>null</code> will default it to the regular <code>http</code> - non SSL based
+   *     connection.
+   * @return <code>true</code> if login was successful, <code>false</code> otherwise.
+   * @throws PSAuthenticationFailedException if the user is not authorized to administer the server.
+   */
   public boolean login(String server, String userId, String password, String protocol)
       throws PSAuthenticationFailedException {
     m_connProps.put(PSDesignerConnection.PROPERTY_PROTOCOL, protocol);
@@ -70,6 +83,7 @@ public class ServerConnection implements IConnectionSource {
    * @param server servers name, never <code>null</code>.
    * @param userId user name, never <code>null</code>.
    * @param password user password, never <code>null</code>.
+   * @return <code>true</code> if login was successful.
    * @throws PSAuthenticationFailedException if the user is not authorized to administer the server
    */
   //////////////////////////////////////////////////////////////////////////////
@@ -138,13 +152,21 @@ public class ServerConnection implements IConnectionSource {
     m_connection = null;
   }
 
-  /** Get the PSDesignerConnection. */
+  /**
+   * Gets the PSDesignerConnection.
+   *
+   * @return the designer connection, may be <code>null</code>.
+   */
   //////////////////////////////////////////////////////////////////////////////
   public PSDesignerConnection getConnection() {
     return m_connection;
   }
 
-  /** Get the servers name. */
+  /**
+   * Gets the server name.
+   *
+   * @return the server name, may be <code>null</code>.
+   */
   //////////////////////////////////////////////////////////////////////////////
   public String getServerName() {
     return m_connProps.getProperty(PSDesignerConnection.PROPERTY_HOST);
@@ -162,8 +184,8 @@ public class ServerConnection implements IConnectionSource {
   /* ################### IConnectionSource Implementation ############### */
 
   /**
-   * @todo Properly implement this according to the interface. Just a quickie for now. Then delete
-   *     getConnection().
+   * Properly implement this according to the interface. Just a quickie for now. Then delete
+   * getConnection().
    */
   public PSDesignerConnection getDesignerConnection(boolean validate) {
     return m_connection;

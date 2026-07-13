@@ -33,6 +33,11 @@ import javax.swing.tree.DefaultTreeCellRenderer;
  */
 public class PSNavTreeNodeRenderer extends DefaultTreeCellRenderer {
 
+  /**
+   * Constructs the renderer.
+   *
+   * @param applet the content explorer applet, may not be <code>null</code>.
+   */
   public PSNavTreeNodeRenderer(PSContentExplorerApplet applet) {
     if (applet == null) throw new IllegalArgumentException("applet must not be null");
 
