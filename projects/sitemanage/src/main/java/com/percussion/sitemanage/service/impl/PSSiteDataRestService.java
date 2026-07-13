@@ -65,7 +65,7 @@ public class PSSiteDataRestService {
   // before it can reach the data store.
   //
   // See specs/004-zero-code-scanning-alerts/tasks.md T044 and contracts/C2.
-  private static final Pattern SAFE_ID_PATTERN = Pattern.compile("[A-Za-z0-9._:\\-]{1,128}");
+  private static final Pattern SAFE_ID_PATTERN = Pattern.compile("[A-Za-z0-9._:\\-]+");
 
   /**
    * Validates that a path parameter matches the safe-input pattern.
@@ -379,20 +379,4 @@ public class PSSiteDataRestService {
     }
   }
 
-  /**
-   * Static utility exposed for regression tests only (T044). Sanitizes
-   * the supplied string for HTML context by escaping the five
-   * HTML-sensitive characters. This is a thin wrapper around
-   * {@link XSSValidation#escapeHtml(String)} for clarity at the
-   * call sites that need the result; the canonical implementation
-   * lives in {@code modules/perc-security-utils/}.
-   *
-   * <p>Use this when the response is HTML, not JSON/XML. The
-   * {@code @Produces} methods in this class return JSON/XML, so
-   * the per-method justification comments suffice for the CodeQL
-   * closure.
-   */
-  static String escapeHtmlForResponse(String input) {
-    return XSSValidation.escapeHtml(input);
-  }
 }

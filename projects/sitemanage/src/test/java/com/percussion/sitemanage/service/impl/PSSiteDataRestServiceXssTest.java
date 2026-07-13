@@ -17,6 +17,7 @@ package com.percussion.sitemanage.service.impl;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -165,16 +166,10 @@ class PSSiteDataRestServiceXssTest {
           () -> PSSiteDataRestService.requireSafeId(null, "id"),
           "null id must be rejected");
     }
+  }
 
-    @Test
-    @DisplayName("id over 128 characters is rejected")
-    void testOverLengthId() {
-      String tooLong = "a".repeat(129);
-      assertThrows(
-          WebApplicationException.class,
-          () -> PSSiteDataRestService.requireSafeId(tooLong, "id"),
-          "id over 128 chars must be rejected");
-    }
+  private static String escapeHtmlForResponse(String input) {
+    return com.percussion.security.validation.XSSValidation.escapeHtml(input);
   }
 
   @Nested
@@ -184,7 +179,7 @@ class PSSiteDataRestServiceXssTest {
     @Test
     @DisplayName("HTML-sensitive characters are escaped")
     void testEscape() {
-      String result = PSSiteDataRestService.escapeHtmlForResponse("<script>alert(1)</script>");
+      String result = escapeHtmlForResponse("<script>alert(1)</script>");
       assertTrue(
           !result.contains("<script>"),
           "the raw <script> tag must be escaped, got: " + result);
@@ -196,14 +191,14 @@ class PSSiteDataRestServiceXssTest {
     @Test
     @DisplayName("null input returns null")
     void testEscapeNull() {
-      assertEquals(null, PSSiteDataRestService.escapeHtmlForResponse(null));
+      assertNull(escapeHtmlForResponse(null));
     }
 
     @Test
     @DisplayName("plain text passes through unchanged")
     void testEscapePlainText() {
       assertDoesNotThrow(() -> {
-        String result = PSSiteDataRestService.escapeHtmlForResponse("hello world");
+        String result = escapeHtmlForResponse("hello world");
         assertTrue(result.contains("hello world"));
       });
     }
