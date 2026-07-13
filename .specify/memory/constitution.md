@@ -56,10 +56,12 @@ Conflicts are resolved in favor of this constitution and applicable `AGENTS.md` 
 
 ## Development Workflow
 - Sequence: 1. Specify -> 2. Plan -> 3. Task -> 4. Implement -> 5. Verify -> 6. Review.
+- Story Checkpoint: Implement, commit, and submit a PR for each story individually. Monitor Kilo Code checks, resolve review comments, and verify the PR is merged to the base branch before starting the next story.
 
 ## Governance
 - This constitution supersedes informal practices. Plans must complete the Constitution Check before research and after design.
 - Amendments: Bump version (MAJOR = rewrite; MINOR = new principle; PATCH = clarification), sync template checklist.
 
-**Version**: 2.2.0 | **Ratified**: 2026-03-25 | **Last Amended**: 2026-07-13
+**Version**: 2.3.0 | **Ratified**: 2026-03-25 | **Last Amended**: 2026-07-13
+
 

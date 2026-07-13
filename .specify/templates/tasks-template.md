@@ -20,22 +20,29 @@
 ### Implementation
 - [ ] T006 [P] [US1] Implement/adjust domain or service code in `<module>/src/main/java/...`
 - [ ] T007 [US1] Wire resource/adaptor/UI as needed
+- [ ] T008 [US1] Commit changes and submit PR for review, pausing downstream tasks
+- [ ] T009 [US1] Monitor Kilo Code check, address feedback, and resolve comments (pause on check failure)
+- [ ] T010 [US1] Verify human approval and merge of PR before starting next story
 
 ## Phase 4: User Story 2 - [Title] (Priority: P2)
 **Goal**: [Brief description]
 **Independent Test**: [How to verify]
 
 ### Tests
-- [ ] T008 [P] [US2] Unit test in `<module>/src/test/java/...`
+- [ ] T011 [P] [US2] Unit test in `<module>/src/test/java/...`
 
 ### Implementation
-- [ ] T009 [P] [US2] Implement/adjust code in `<module>/src/main/java/...`
-- [ ] T010 [US2] Wire resource/adaptor/UI as needed
+- [ ] T012 [P] [US2] Implement/adjust code in `<module>/src/main/java/...`
+- [ ] T013 [US2] Wire resource/adaptor/UI as needed
+- [ ] T014 [US2] Commit changes and submit PR for review, pausing downstream tasks
+- [ ] T015 [US2] Monitor Kilo Code check, address feedback, and resolve comments (pause on check failure)
+- [ ] T016 [US2] Verify human approval and merge of PR before proceeding
 
 ## Phase N: Polish & Cross-Cutting Concerns
-- [ ] T011 [P] Module README / Maven site / package notes updates
-- [ ] T012 Security review of authZ, XML, upload, redirect, and logging changes
-- [ ] T013 Spotless check on touched modules
+- [ ] T017 [P] Module README / Maven site / package notes updates
+- [ ] T018 Security review of authZ, XML, upload, redirect, and logging changes
+- [ ] T019 Spotless check on touched modules
+
 
 ## Dependencies & Execution Order
 - **Setup (Phase 1)**: No dependencies
