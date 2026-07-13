@@ -48,11 +48,11 @@ Conflicts are resolved in favor of this constitution and applicable `AGENTS.md` 
 - **Core CMS**: `system/` (Spring, Hibernate, Artemis, XML/XSL).
 - **UI**: `WebUI/` + backend `projects/sitemanage/`.
 - **Public API**: `rest/` (JAX-RS / CXF, adaptor pattern).
-- **Delivery**: `deliverytiersuite/` microservices.
+- **Delivery**: `deliverytiersuite/delivery-tier-suite/` microservices.
 - **Packaging/Installer**: `.ppkg` via `deployer` / `modules/perc-packages`.
 
 ## Complexity Budget
-- Exceptions (e.g., new top-level modules, breaking contract changes) must be justified in the plan's Complexity Tracking.
+- Exceptions (e.g., new top-level modules, breaking contract changes) must be justified in the plan's Complexity Tracking section.
 
 ## Development Workflow
 - Sequence: 1. Specify -> 2. Plan -> 3. Task -> 4. Implement -> 5. Verify -> 6. Review.
