@@ -21,7 +21,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.percussion.security.validation.PathValidation;
-import com.percussion.security.validation.SecurityException;
+import com.percussion.security.validation.PathValidation.SecurityException;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -126,7 +126,7 @@ class PSArchiveFilesZipSlipTest {
   @Test
   @DisplayName("PathValidation.constructSafePath rejects absolute paths in user input")
   void testConstructSafePathRejectsAbsolutePath() {
-    File base = new File(extractDir, "base");
+    File base = extractDir;
     assertThrows(SecurityException.class,
         () -> PathValidation.constructSafePath(base, "/etc/passwd"),
         "constructSafePath must throw SecurityException for an absolute userPath");
