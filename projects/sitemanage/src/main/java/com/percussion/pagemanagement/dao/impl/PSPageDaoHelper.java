@@ -368,7 +368,6 @@ public class PSPageDaoHelper implements IPSPageDaoHelper {
                 + join(contentIDs, ",")
                 + ") AND CS.CONTENTTYPEID != "
                 + PSFolder.FOLDER_CONTENT_TYPE_ID;
-        sql = formGetByStatusSQLQuery(criteria, sql);
       } else {
         sql =
             "SELECT DISTINCT P.CONTENTID "
@@ -380,11 +379,19 @@ public class PSPageDaoHelper implements IPSPageDaoHelper {
                 + " WHERE P.CONTENTID IN ("
                 + join(contentIDs, ",")
                 + ") ";
-        sql = formGetByStatusSQLQuery(criteria, sql);
       }
+      // formGetByStatusSQLQuery now returns the SQL with named-parameter
+      // placeholders and a parameter name -> value map that the caller
+      // binds via setParameter. The user-supplied search-field values
+      // never reach the SQL string as concatenated text.
+      var params = new HashMap<String, Object>();
+      sql = formGetByStatusSQLQuery(criteria, sql, params);
       org.hibernate.query.NativeQuery<Integer> query =
           sess.createNativeQuery(sql)
               .addScalar("CONTENTID", org.hibernate.type.StandardBasicTypes.INTEGER);
+      for (var e : params.entrySet()) {
+        query.setParameter(e.getKey(), e.getValue());
+      }
       return query.list();
     } catch (SQLException e) {
       var error = "Failed to get the fully qualified table name for 'CT_PAGE'";
@@ -393,26 +400,65 @@ public class PSPageDaoHelper implements IPSPageDaoHelper {
     }
   }
 
-  private String formGetByStatusSQLQuery(PSSearchCriteria criteria, String sql) {
+  /**
+   * Appends the search-field WHERE clauses for the supplied criteria, using
+   * named-parameter placeholders. Each user-supplied value is recorded in
+   * {@code params} and bound by the caller via {@code setParameter}. The
+   * values are NEVER concatenated into the SQL string.
+   *
+   * <p>Field types:
+   * <ul>
+   *   <li>{@code templateid} — varchar (template name)
+   *   <li>{@code sys_contenttypeid}, {@code sys_contentstateid},
+   *       {@code sys_workflowid} — integer IDs
+   *   <li>{@code sys_contentlastmodifier} — varchar (partial match via LIKE)
+   * </ul>
+   *
+   * <p>CodeQL {@code java/sql-injection} closure: the user-supplied values
+   * are bound as parameters, not concatenated. See
+   * {@code specs/004-zero-code-scanning-alerts/tasks.md} T042 and
+   * {@code contracts/C2}.
+   */
+  String formGetByStatusSQLQuery(
+      PSSearchCriteria criteria, String sql, Map<String, Object> params) {
     if (criteria.getSearchFields().containsKey("templateid")) {
-      sql = sql + " AND P.TEMPLATEID='" + criteria.getSearchFields().get("templateid") + "'";
+      sql = sql + " AND P.TEMPLATEID = :templateid";
+      params.put("templateid", criteria.getSearchFields().get("templateid"));
     }
     if (criteria.getSearchFields().containsKey("sys_contenttypeid")) {
-      sql = sql + " AND CS.CONTENTTYPEID=" + criteria.getSearchFields().get("sys_contenttypeid");
+      sql = sql + " AND CS.CONTENTTYPEID = :contenttypeid";
+      params.put("contenttypeid", parseLongId(criteria.getSearchFields().get("sys_contenttypeid")));
     }
     if (criteria.getSearchFields().containsKey("sys_contentstateid")) {
-      sql = sql + " AND CS.CONTENTSTATEID=" + criteria.getSearchFields().get("sys_contentstateid");
+      sql = sql + " AND CS.CONTENTSTATEID = :contentstateid";
+      params.put("contentstateid", parseLongId(criteria.getSearchFields().get("sys_contentstateid")));
     }
     if (criteria.getSearchFields().containsKey("sys_workflowid")) {
-      sql = sql + " AND CS.WORKFLOWAPPID=" + criteria.getSearchFields().get("sys_workflowid");
+      sql = sql + " AND CS.WORKFLOWAPPID = :workflowappid";
+      params.put("workflowappid", parseLongId(criteria.getSearchFields().get("sys_workflowid")));
     }
     if (criteria.getSearchFields().containsKey("sys_contentlastmodifier")) {
-      sql =
-          sql
-              + " AND CS.CONTENTLASTMODIFIER LIKE '%"
-              + criteria.getSearchFields().get("sys_contentlastmodifier")
-              + "%'";
+      sql = sql + " AND CS.CONTENTLASTMODIFIER LIKE :contentlastmodifier";
+      // Wrap with %...% so the LIKE pattern is parameterized, not the full
+      // pattern. The user-supplied value cannot break out of the pattern
+      // because it's bound as a parameter.
+      params.put(
+          "contentlastmodifier",
+          "%" + criteria.getSearchFields().get("sys_contentlastmodifier") + "%");
     }
     return sql;
+  }
+
+  /**
+   * Parses a user-supplied search-field value as a {@code long}. Throws
+   * {@link NumberFormatException} on invalid input — the caller catches and
+   * logs; an empty result is returned. This defense-in-depth check ensures
+   * the ID fields cannot carry SQL metacharacters even if a future code
+   * change moves the binding site.
+   */
+  private static long parseLongId(Object value) {
+    if (value == null) return 0L;
+    if (value instanceof Number) return ((Number) value).longValue();
+    return Long.parseLong(value.toString().trim());
   }
 }
