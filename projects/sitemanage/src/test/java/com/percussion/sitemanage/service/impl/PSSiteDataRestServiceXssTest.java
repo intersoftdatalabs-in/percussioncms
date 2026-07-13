@@ -21,6 +21,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import com.percussion.security.SecureStringUtils;
 import jakarta.ws.rs.WebApplicationException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -80,9 +81,9 @@ class PSSiteDataRestServiceXssTest {
     }
 
     @Test
-    @DisplayName("id at the 128-character boundary is accepted")
+    @DisplayName("id at the 100-character boundary is accepted")
     void testMaxLengthId() {
-      String maxId = "a".repeat(128);
+      String maxId = "a".repeat(100);
       assertEquals(maxId, PSSiteDataRestService.requireSafeId(maxId, "id"));
     }
   }
@@ -166,20 +167,26 @@ class PSSiteDataRestServiceXssTest {
           () -> PSSiteDataRestService.requireSafeId(null, "id"),
           "null id must be rejected");
     }
-  }
 
-  private static String escapeHtmlForResponse(String input) {
-    return com.percussion.security.validation.XSSValidation.escapeHtml(input);
+    @Test
+    @DisplayName("id over 100 characters is rejected")
+    void testOverLengthId() {
+      String tooLong = "a".repeat(101);
+      assertThrows(
+          WebApplicationException.class,
+          () -> PSSiteDataRestService.requireSafeId(tooLong, "id"),
+          "id over 100 chars must be rejected");
+    }
   }
 
   @Nested
-  @DisplayName("escapeHtmlForResponse helper")
+  @DisplayName("SecureStringUtils HTML sanitization")
   class EscapeHelper {
 
     @Test
     @DisplayName("HTML-sensitive characters are escaped")
     void testEscape() {
-      String result = escapeHtmlForResponse("<script>alert(1)</script>");
+      String result = SecureStringUtils.sanitizeStringForHTML("<script>alert(1)</script>");
       assertTrue(
           !result.contains("<script>"),
           "the raw <script> tag must be escaped, got: " + result);
@@ -191,14 +198,14 @@ class PSSiteDataRestServiceXssTest {
     @Test
     @DisplayName("null input returns null")
     void testEscapeNull() {
-      assertNull(escapeHtmlForResponse(null));
+      assertNull(SecureStringUtils.sanitizeStringForHTML(null));
     }
 
     @Test
     @DisplayName("plain text passes through unchanged")
     void testEscapePlainText() {
       assertDoesNotThrow(() -> {
-        String result = escapeHtmlForResponse("hello world");
+        String result = SecureStringUtils.sanitizeStringForHTML("hello world");
         assertTrue(result.contains("hello world"));
       });
     }

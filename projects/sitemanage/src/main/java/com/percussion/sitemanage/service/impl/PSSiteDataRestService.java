@@ -65,7 +65,7 @@ public class PSSiteDataRestService {
   // before it can reach the data store.
   //
   // See specs/004-zero-code-scanning-alerts/tasks.md T044 and contracts/C2.
-  private static final Pattern SAFE_ID_PATTERN = Pattern.compile("[A-Za-z0-9._:\\-]+");
+  private static final Pattern SAFE_ID_PATTERN = Pattern.compile("[A-Za-z0-9._:\\-]{1,100}");
 
   /**
    * Validates that a path parameter matches the safe-input pattern.
