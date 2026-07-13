@@ -19,18 +19,22 @@ package com.percussion.security.xml;
 
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.io.xml.DomDriver;
+import java.io.InputStream;
 import java.io.StringReader;
 import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParserFactory;
 import javax.xml.stream.XMLInputFactory;
+import javax.xml.transform.Source;
 import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.sax.SAXSource;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXNotRecognizedException;
 import org.xml.sax.SAXNotSupportedException;
+import org.xml.sax.XMLReader;
 
 /** Utility class for securing XML parses. */
 public class PSSecureXMLUtils {
@@ -416,6 +420,44 @@ public class PSSecureXMLUtils {
    */
   public static InputSource getNoOpSource() {
     return new InputSource(new StringReader(""));
+  }
+
+  /**
+   * Returns a {@link Source} backed by a secured SAX parser for use with
+   * JAXB {@code Unmarshaller.unmarshal(Source)}. External entity
+   * declarations are rejected and external DTDs are disabled at the
+   * parser level, preventing XXE (CWE-611) regardless of the JAXB
+   * default configuration.
+   *
+   * <p>Default security options (from {@link PSXmlSecurityOptions#secure()}):
+   * DTDs disabled, external entities disabled, external DTD references
+   * disabled, secure processing on. Callers that need DTDs (e.g., legacy
+   * XSD imports) can pass a custom {@link PSXmlSecurityOptions} to the
+   * overload below.
+   *
+   * @param inputStream the XML input stream; assumed not {@code null}
+   * @return a SAXSource backed by a secured XMLReader
+   * @throws Exception if the secured SAX parser cannot be constructed
+   */
+  public static Source getSecuredSaxSource(InputStream inputStream) throws Exception {
+    return getSecuredSaxSource(inputStream, PSXmlSecurityOptions.secure());
+  }
+
+  /**
+   * Returns a {@link Source} backed by a secured SAX parser for use with
+   * JAXB {@code Unmarshaller.unmarshal(Source)}.
+   *
+   * @param inputStream the XML input stream; assumed not {@code null}
+   * @param options the security options to apply
+   * @return a SAXSource backed by a secured XMLReader
+   * @throws Exception if the secured SAX parser cannot be constructed
+   */
+  public static Source getSecuredSaxSource(InputStream inputStream, PSXmlSecurityOptions options)
+      throws Exception {
+    SAXParserFactory spf = getSecuredSaxParserFactory(options);
+    XMLReader xmlReader = spf.newSAXParser().getXMLReader();
+    InputSource inputSource = new InputSource(inputStream);
+    return new SAXSource(xmlReader, inputSource);
   }
 
   /**

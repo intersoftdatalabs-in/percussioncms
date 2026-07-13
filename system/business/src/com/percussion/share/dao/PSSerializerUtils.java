@@ -19,6 +19,8 @@ package com.percussion.share.dao;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.percussion.security.error.PSExceptionUtils;
+import com.percussion.security.xml.PSSecureXMLUtils;
+import com.percussion.security.xml.PSXmlSecurityOptions;
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -27,6 +29,7 @@ import org.codehaus.jettison.mapped.MappedXMLStreamWriter;
 
 import jakarta.xml.bind.JAXBContext;
 import jakarta.xml.bind.JAXBException;
+import javax.xml.transform.Source;
 import javax.xml.transform.stream.StreamSource;
 import javax.xml.validation.SchemaFactory;
 import java.io.ByteArrayInputStream;
@@ -82,13 +85,27 @@ public class PSSerializerUtils
      */
     public static <T> T unmarshal(String dataField, Class<T> type) {
         try {
-            var reader = new InputStreamReader(new ByteArrayInputStream(dataField.getBytes(StandardCharsets.UTF_8)));
+            var inputStream = new ByteArrayInputStream(dataField.getBytes(StandardCharsets.UTF_8));
             var unmarshaller = Objects.requireNonNull(PSJaxbContext.createUnmarshaller(type));
 
-            T object = (T) unmarshaller.unmarshal(reader);
+            // codeql[java/xxe] justification: the SAXSource is built from
+            // a secured SAXParserFactory (see PSSecureXMLUtils), which has
+            // disallow-doctype-decl=true and external-entity features
+            // disabled. External entity references in the input are
+            // rejected at the parser level before they reach the
+            // unmarshaller. See specs/004-zero-code-scanning-alerts/tasks.md
+            // T039 and contracts/C2.
+            Source source = PSSecureXMLUtils.getSecuredSaxSource(inputStream);
+            @SuppressWarnings("unchecked")
+            T object = (T) unmarshaller.unmarshal(source);
             return object;
         } catch (JAXBException e) {
             log.error("Unable to load XML file. Check for syntax problems. Error: {}, Data: {}", PSExceptionUtils.getMessageForLog(e), dataField);
+            return null;
+        } catch (Exception e) {
+            // The SAX parser construction can fail in restricted environments;
+            // surface as a parse failure rather than propagating.
+            log.error("Unable to construct secured SAX parser for unmarshal. Error: {}, Data: {}", PSExceptionUtils.getMessageForLog(e), dataField);
             return null;
         }
     }
@@ -120,7 +137,13 @@ public class PSSerializerUtils
         var unmarshaller = PSJaxbContext.createUnmarshaller(type);
         unmarshaller.setSchema(schema);
 
-        T result = (T) unmarshaller.unmarshal(stream);
+        // codeql[java/xxe] justification: the SAXSource is built from
+        // a secured SAXParserFactory (see PSSecureXMLUtils), which has
+        // disallow-doctype-decl=true and external-entity features
+        // disabled. See T039.
+        Source secureSource = PSSecureXMLUtils.getSecuredSaxSource(stream);
+        @SuppressWarnings("unchecked")
+        T result = (T) unmarshaller.unmarshal(secureSource);
         return result;
     }
 
