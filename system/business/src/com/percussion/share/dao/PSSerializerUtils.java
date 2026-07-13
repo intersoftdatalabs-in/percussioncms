@@ -97,17 +97,16 @@ public class PSSerializerUtils
             // references in the input are rejected at the parser level
             // before they reach the unmarshaller.
             //
-            // The inline // codeql[java/xxe] suppression on the next-but-one
-            // line (the unmarshaller.unmarshal call) is required because
-            // CodeQL's data-flow analysis still flags that line as a taint
-            // sink even though the source IS sanitized. This is a documented
-            // CodeQL false positive per contracts/C2. The matching row in
-            // suppressions.md (alert_id=2) tracks this exception. See
-            // specs/004-zero-code-scanning-alerts/tasks.md T039 and GitHub
-            // code-scanning advisory #1709.
+            // The inline // codeql[java/xxe] suppression at the END of the
+            // next line (the unmarshaller.unmarshal call) is required
+            // because CodeQL's data-flow analysis still flags that line
+            // as a taint sink even though the source IS sanitized. This
+            // is a documented CodeQL false positive per contracts/C2.
+            // The matching row in suppressions.md (alert_id=2) tracks this
+            // exception. See specs/004-zero-code-scanning-alerts/tasks.md
+            // T039 and GitHub code-scanning advisory #1709.
             Source source = PSSecureXMLUtils.getSecuredSaxSource(inputStream);
             @SuppressWarnings("unchecked")
-            // codeql[java/xxe] false positive: the XMLReader has disallow-doctype-decl=true and all external-entity features disabled via PSSecureXMLUtils.setFeatureSafe
             T object = (T) unmarshaller.unmarshal(source); // codeql[java/xxe] false positive: XMLReader has disallow-doctype-decl=true and all external-entity features disabled via PSSecureXMLUtils.setFeatureSafe; see T039 and advisory #1709
             return object;
         } catch (JAXBException e) {
@@ -151,7 +150,6 @@ public class PSSerializerUtils
         // See the long justification in unmarshal() above.
         Source secureSource = PSSecureXMLUtils.getSecuredSaxSource(stream);
         @SuppressWarnings("unchecked")
-        // codeql[java/xxe] false positive: the XMLReader has disallow-doctype-decl=true and all external-entity features disabled via PSSecureXMLUtils.setFeatureSafe
         T result = (T) unmarshaller.unmarshal(secureSource); // codeql[java/xxe] false positive: XMLReader has disallow-doctype-decl=true and all external-entity features disabled via PSSecureXMLUtils.setFeatureSafe; see T039 and advisory #1709
         return result;
     }
