@@ -46,10 +46,13 @@ import org.apache.logging.log4j.Logger;
 public class PSPopupAppletFrame extends PSDesktopExplorerWindow {
   static Logger log = LogManager.getLogger(PSPopupAppletFrame.class);
 
+  /** The applet stub used to provide parameter values to the embedded applet. */
   PSContentExplorerAppletStub stub = new PSContentExplorerAppletStub();
 
+  /** Whether the embedded web view has completed loading. */
   private boolean windowLoaded;
 
+  /** The active view ("DT" or "IA"), may be <code>null</code>. */
   private String view = null;
 
   /** Creates a new popup applet frame with default settings. */
