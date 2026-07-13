@@ -105,58 +105,52 @@ public class PSProxyQueryResource extends PSDefaultExtension implements IPSResul
       }
 
       url = url + prepend + queryString;
+      // Cache getRequestRoot() so the validation branch and the
+      // internal/external dispatch below both see the same value
+      // (single-call semantics; per the review on this PR at line 124).
+      String requestRoot = PSServer.getRequestRoot();
       if (url.startsWith("../")) {
         // Rewrite as absolute to the server
-        url = PSServer.getRequestRoot() + url.substring(2);
+        url = requestRoot + url.substring(2);
       }
 
-      // codeql[java/ssrf] justification: the SSRF exposure is fixed by
-      // validating the URL string BEFORE constructing the outbound URI
-      // and by deriving the URI from the validated URL object (for
-      // external requests). The internal-request branch is constrained
-      // to 127.0.0.1 + PSServer.getListenerPort() (hard-coded host/port
-      // pair) and the relative path comes from a parameter that is
-      // expected to be a server-relative URL; the relative-URL
-      // rewriter concatenates against PSServer.getRequestRoot(), which
-      // is the server's own URL. See specs/004-zero-code-scanning-alerts/
-      // tasks.md T037 and contracts/C2.
-      URL validatedUrl = null;
-      if (!url.startsWith(PSServer.getRequestRoot())) {
-        try {
-          validatedUrl = URLValidation.validateURLString(url);
-        } catch (SecurityException e) {
-          log.error(
-              "URL validation failed for external request: {}",
-              PSExceptionUtils.getMessageForLog(e));
-          throw new PSExtensionProcessingException(0, "Invalid URL: " + e.getMessage());
-        }
+      // Validate the URL string BEFORE constructing the outbound URI,
+      // for BOTH internal and external requests. This is the data-flow
+      // ordering CodeQL's taint analysis needs to recognize the
+      // request as sanitized per specs/004-zero-code-scanning-alerts/
+      // tasks.md T037 and contracts/C2. The validator accepts the
+      // scheme, host, and port per URLValidationConfig; the relative
+      // path that flows into the URI is the same one that the
+      // validator accepted.
+      URL validatedUrl;
+      try {
+        validatedUrl = URLValidation.validateURLString(url);
+      } catch (SecurityException e) {
+        log.error(
+            "URL validation failed for request: {}",
+            PSExceptionUtils.getMessageForLog(e));
+        throw new PSExtensionProcessingException(0, "Invalid URL: " + e.getMessage());
       }
 
-      if (url.startsWith(PSServer.getRequestRoot())) {
+      if (url.startsWith(requestRoot)) {
         internalRequest = true;
 
         host = "127.0.0.1";
         port = PSServer.getListenerPort();
 
         try {
-          if (validatedUrl != null) {
-            // Relative-URL branch: URLValidation accepted the URL; the
-            // host/port are forced to 127.0.0.1:PSServer.getListenerPort()
-            // and the path comes from the validated URL. The host/port
-            // override is safe because the validator already approved
-            // the scheme + path; only the host/port is rewritten.
-            requestUri =
-                new URI(
-                    validatedUrl.getProtocol(),
-                    null,
-                    host,
-                    port,
-                    validatedUrl.getPath(),
-                    validatedUrl.getQuery(),
-                    validatedUrl.getRef());
-          } else {
-            requestUri = URI.create(scheme + "://" + host + ":" + port + url);
-          }
+          // Use the validated URL's protocol/path/query/ref; force the
+          // host/port to 127.0.0.1:PSServer.getListenerPort() since the
+          // relative-URL branch concatenates against requestRoot.
+          requestUri =
+              new URI(
+                  validatedUrl.getProtocol(),
+                  null,
+                  host,
+                  port,
+                  validatedUrl.getPath(),
+                  validatedUrl.getQuery(),
+                  validatedUrl.getRef());
 
           // This is an internal request so pass the jsessionid
           String sessionid = (String) PSRequestInfo.getRequestInfo(KEY_JSESSIONID);
