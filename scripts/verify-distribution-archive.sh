@@ -14,11 +14,7 @@
 # Returns 0 if the build succeeds AND none of the removed file basenames
 # appear in the rebuilt archives. Returns 1 on any failure.
 #
-# Requires: JDK 21 (the repo mandates JDK 21 for the build per
-# AGENTS.md), mvn on PATH, unzip. The script honors the same
-# environment overrides as the manual ./mvn-env.sh wrapper:
-#   JAVA_HOME_21 — path to a JDK 21 install; overrides the JDK on PATH
-#   MAVEN        — path to the mvn executable; defaults to "mvn"
+# Requires: JDK 21 (via mvn-env), mvn, unzip.
 set -eu
 
 repo_root="$(CDPATH='' cd -- "$(dirname -- "$0")/.." && pwd)"

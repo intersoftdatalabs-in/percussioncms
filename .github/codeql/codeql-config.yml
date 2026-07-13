@@ -7,3 +7,36 @@ paths-ignore:
   - "**/.codeql-results/**"
   - "**/docker/dev-data/**"
   - "**/docker/logs/**"
+
+# Per-query exclusion for documented false positives.
+# See contracts/C3: every `query-filters exclude` entry MUST have a
+# matching row in `docs/ai-generated/tasks/gh-codeql-alerts/suppressions.md`
+# with a `file_path` set to `.github/codeql/codeql-config.yml`.
+query-filters:
+  - exclude:
+      id: java/xxe
+      paths:
+        - "system/business/src/com/percussion/share/dao/PSSerializerUtils.java"
+      reason: >-
+        Documented CodeQL false positive per contracts/C2 (FR-007).
+        The XMLReader returned by PSSecureXMLUtils.getSecuredSaxSource
+        has disallow-doctype-decl=true and all external-entity
+        features disabled via PSSecureXMLUtils.setFeatureSafe
+        (defense-in-depth on top of the SAXParserFactory feature
+        configuration). The structural fix is verified by
+        PSSerializerUtilsTest.SaxSource.testSecuredSaxSourceRejectsDoctype
+        which asserts the disallow-doctype-decl feature on the
+        returned XMLReader. The pre-fix code (without setFeature
+        calls) was vulnerable; the post-fix code is protected at
+        the parser level where JAXB reads the input. CodeQL's
+        data-flow analysis does not always recognize the
+        SAXParserFactory -> SAXParser -> XMLReader feature
+        propagation as a sanitizer; the inline // codeql[java/xxe]
+        suppression on the alert line was not honored by CodeQL
+        for this pattern. See specs/004-zero-code-scanning-alerts/
+        tasks.md T039 and GitHub code-scanning advisory #1710.
+        The corresponding inline suppression in
+        system/business/src/com/percussion/share/dao/PSSerializerUtils.java
+        and the matching row in
+        docs/ai-generated/tasks/gh-codeql-alerts/suppressions.md
+        (alert_id=2) document this exception per contracts/C2 and C3.
