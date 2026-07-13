@@ -499,8 +499,9 @@ public class PSJndiUtils {
    * <p>Behavior matches the OWASP LDAP Injection Prevention Cheat Sheet
    * (https://cheatsheetseries.owasp.org/cheatsheets/LDAP_Injection_Prevention_Cheat_Sheet.html).
    *
-   * @param value the assertion value to escape, may be {@code null} or empty (returned as-is)
-   * @return the escaped value, never {@code null}
+   * @param value the assertion value to escape. {@code null} returns an empty string;
+   *             empty string returns as-is
+   * @return the escaped value, never {@code null} (always at least "")
    * @see #escapeDnComponent(String) for escaping DN component values per RFC 4514
    *      (different syntax; do not confuse the two)
    */
