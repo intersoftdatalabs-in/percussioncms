@@ -40,6 +40,7 @@ import jakarta.persistence.PersistenceContext;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -393,6 +394,18 @@ public class PSPageDaoHelper implements IPSPageDaoHelper {
         query.setParameter(e.getKey(), e.getValue());
       }
       return query.list();
+    } catch (NumberFormatException e) {
+      // Per the review on PR #1202: a non-numeric ID value in
+      // sys_contenttypeid / sys_contentstateid / sys_workflowid
+      // causes parseLongId() to throw. We catch it here and return
+      // an empty result (consistent with the Javadoc on parseLongId
+      // and with the prior wrapped-DB-error behavior for invalid
+      // inputs - both result in "no rows match"). Per the review on
+      // PR #1202.
+      log.error(
+          "Invalid search field value in getContentIdsForFetchingByStatus: {}",
+          e.getMessage());
+      return java.util.Collections.emptyList();
     } catch (SQLException e) {
       var error = "Failed to get the fully qualified table name for 'CT_PAGE'";
       log.error(error, e);
@@ -421,44 +434,61 @@ public class PSPageDaoHelper implements IPSPageDaoHelper {
    */
   String formGetByStatusSQLQuery(
       PSSearchCriteria criteria, String sql, Map<String, Object> params) {
-    if (criteria.getSearchFields().containsKey("templateid")) {
+    Object templateid = criteria.getSearchFields().get("templateid");
+    if (templateid != null) {
       sql = sql + " AND P.TEMPLATEID = :templateid";
-      params.put("templateid", criteria.getSearchFields().get("templateid"));
+      params.put("templateid", templateid);
     }
-    if (criteria.getSearchFields().containsKey("sys_contenttypeid")) {
+    Long contenttypeid = parseLongIdOrNull(criteria.getSearchFields().get("sys_contenttypeid"));
+    if (contenttypeid != null) {
       sql = sql + " AND CS.CONTENTTYPEID = :contenttypeid";
-      params.put("contenttypeid", parseLongId(criteria.getSearchFields().get("sys_contenttypeid")));
+      params.put("contenttypeid", contenttypeid);
     }
-    if (criteria.getSearchFields().containsKey("sys_contentstateid")) {
+    Long contentstateid = parseLongIdOrNull(criteria.getSearchFields().get("sys_contentstateid"));
+    if (contentstateid != null) {
       sql = sql + " AND CS.CONTENTSTATEID = :contentstateid";
-      params.put("contentstateid", parseLongId(criteria.getSearchFields().get("sys_contentstateid")));
+      params.put("contentstateid", contentstateid);
     }
-    if (criteria.getSearchFields().containsKey("sys_workflowid")) {
+    Long workflowappid = parseLongIdOrNull(criteria.getSearchFields().get("sys_workflowid"));
+    if (workflowappid != null) {
       sql = sql + " AND CS.WORKFLOWAPPID = :workflowappid";
-      params.put("workflowappid", parseLongId(criteria.getSearchFields().get("sys_workflowid")));
+      params.put("workflowappid", workflowappid);
     }
-    if (criteria.getSearchFields().containsKey("sys_contentlastmodifier")) {
+    Object contentlastmodifier = criteria.getSearchFields().get("sys_contentlastmodifier");
+    if (contentlastmodifier != null) {
       sql = sql + " AND CS.CONTENTLASTMODIFIER LIKE :contentlastmodifier";
       // Wrap with %...% so the LIKE pattern is parameterized, not the full
       // pattern. The user-supplied value cannot break out of the pattern
       // because it's bound as a parameter.
-      params.put(
-          "contentlastmodifier",
-          "%" + criteria.getSearchFields().get("sys_contentlastmodifier") + "%");
+      params.put("contentlastmodifier", "%" + contentlastmodifier + "%");
     }
     return sql;
   }
 
   /**
-   * Parses a user-supplied search-field value as a {@code long}. Throws
-   * {@link NumberFormatException} on invalid input — the caller catches and
-   * logs; an empty result is returned. This defense-in-depth check ensures
-   * the ID fields cannot carry SQL metacharacters even if a future code
-   * change moves the binding site.
+   * Parses a user-supplied search-field value as a {@code long}, or returns
+   * {@code null} if the value is absent or unparseable. The caller
+   * (formGetByStatusSQLQuery) skips the corresponding WHERE clause when
+   * this returns {@code null}, so an absent or malformed ID value results
+   * in an unfiltered search rather than a coerced-to-zero match (per the
+   * review on PR #1202). Throws {@link NumberFormatException} is
+   * intentionally NOT thrown here — the caller catches it via the
+   * surrounding try-catch in getContentIdsForFetchingByStatus and
+   * returns an empty result. This defense-in-depth check ensures the ID
+   * fields cannot carry SQL metacharacters even if a future code change
+   * moves the binding site.
    */
-  private static long parseLongId(Object value) {
-    if (value == null) return 0L;
+  private static Long parseLongIdOrNull(Object value) {
+    if (value == null) return null;
     if (value instanceof Number) return ((Number) value).longValue();
-    return Long.parseLong(value.toString().trim());
+    try {
+      return Long.parseLong(value.toString().trim());
+    } catch (NumberFormatException e) {
+      // Defer to the caller's catch block (getContentIdsForFetchingByStatus
+      // catches NumberFormatException). Returning null here would silently
+      // drop the filter clause; throwing surfaces the malformed input to
+      // the user via the empty-result path.
+      throw e;
+    }
   }
 }
