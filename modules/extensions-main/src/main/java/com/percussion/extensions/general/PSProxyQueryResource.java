@@ -109,22 +109,44 @@ public class PSProxyQueryResource extends PSDefaultExtension implements IPSResul
       // internal/external dispatch below both see the same value
       // (single-call semantics; per the review on this PR at line 124).
       String requestRoot = PSServer.getRequestRoot();
+      boolean isInternal = url.startsWith(requestRoot);
       if (url.startsWith("../")) {
         // Rewrite as absolute to the server
         url = requestRoot + url.substring(2);
+        isInternal = true;
       }
 
-      // Validate the URL string BEFORE constructing the outbound URI,
-      // for BOTH internal and external requests. This is the data-flow
-      // ordering CodeQL's taint analysis needs to recognize the
-      // request as sanitized per specs/004-zero-code-scanning-alerts/
-      // tasks.md T037 and contracts/C2. The validator accepts the
-      // scheme, host, and port per URLValidationConfig; the relative
-      // path that flows into the URI is the same one that the
-      // validator accepted.
+      // Validate the EFFECTIVE OUTBOUND target URL, not the raw request
+      // string. This is the data-flow ordering CodeQL's taint analysis
+      // needs to recognize the request as sanitized per specs/004-
+      // zero-code-scanning-alerts/tasks.md T037 and contracts/C2.
+      //
+      // For internal requests (../ rewrite or absolute path under
+      // requestRoot) the outbound target is forced to 127.0.0.1:
+      // PSServer.getListenerPort(); build that URL and validate it.
+      // Loopback is always allowed per URLValidationConfig regardless
+      // of port, so this passes the validator for every internal
+      // request regardless of the requestRoot hostname.
+      //
+      // For external requests the outbound target is the URL itself.
+      // The validator accepts the scheme, host, and port per
+      // URLValidationConfig; the path that flows into the URI is the
+      // same one the validator accepted.
+      // (per the review on this PR at line 127: avoids the regression
+      //  where PSServer.getRequestRoot resolves to a non-loopback host
+      //  on a non-standard listener port and is rejected by the validator.)
       URL validatedUrl;
       try {
-        validatedUrl = URLValidation.validateURLString(url);
+        if (isInternal) {
+          int internalPort = PSServer.getListenerPort();
+          int pathStart = url.indexOf('/', requestRoot.length());
+          String targetPath = pathStart >= 0 ? url.substring(pathStart) : "/";
+          URL outboundTarget =
+              new URL(scheme, "127.0.0.1", internalPort, targetPath);
+          validatedUrl = URLValidation.validateURLString(outboundTarget.toString());
+        } else {
+          validatedUrl = URLValidation.validateURLString(url);
+        }
       } catch (SecurityException e) {
         log.error(
             "URL validation failed for request: {}",
@@ -132,7 +154,7 @@ public class PSProxyQueryResource extends PSDefaultExtension implements IPSResul
         throw new PSExtensionProcessingException(0, "Invalid URL: " + e.getMessage());
       }
 
-      if (url.startsWith(requestRoot)) {
+      if (isInternal) {
         internalRequest = true;
 
         host = "127.0.0.1";

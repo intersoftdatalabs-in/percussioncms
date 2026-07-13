@@ -225,29 +225,38 @@ class PSProxyQueryResourceTest {
     }
 
     @Test
-    @DisplayName("Malformed URL is rejected by URLValidation (MalformedURLException wrapped)")
+    @DisplayName("Malformed URL is rejected by URLValidation")
     void testMalformedUrlRejected() {
-      // URLValidation.validateURLString catches MalformedURLException
-      // and rethrows as SecurityException per its Javadoc; here we
-      // accept either, since URL constructor semantics vary by JDK.
+      // URLValidation.validateURLString delegates to the JDK
+      // java.net.URL constructor which throws MalformedURLException for
+      // syntactically invalid inputs (no protocol, etc.). URLValidation
+      // does NOT wrap this exception — the MalformedURLException
+      // propagates raw from the constructor. Asserting the specific
+      // MalformedURLException (per the review at PR #1198 line 234)
+      // proves the URL is rejected at the URL-construction layer
+      // rather than passing through to URI.create().
       assertThrows(
-          Exception.class,
+          java.net.MalformedURLException.class,
           () -> URLValidation.validateURLString("not a valid url"),
-          "URLValidation MUST reject syntactically-invalid URLs");
+          "URLValidation MUST propagate the URL constructor's"
+              + " MalformedURLException");
     }
 
     @Test
     @DisplayName("gopher:// scheme is rejected by URLValidation")
     void testGopherProtocolRejected() {
-      // URLValidation rejects unknown protocols. Some protocols
-      // (gopher, jar, etc.) throw MalformedURLException at the
-      // underlying URL constructor before SAFE_PROTOCOLS check; others
-      // throw SecurityException. Either is a valid rejection — both
-      // prevent the URL from being used to construct an outbound URI.
+      // gopher:// fails at the URL constructor layer (unknown protocol)
+      // with a MalformedURLException BEFORE the SAFE_PROTOCOLS check
+      // can run. Asserting MalformedURLException specifically (rather
+      // than the broader Exception class) proves the rejection happens
+      // for the documented reason — gopher is not a URL scheme that
+      // the JVM recognises — rather than being a coincidental NPE or
+      // other unrelated exception (per the review at PR #1198 line 248).
       assertThrows(
-          Exception.class,
+          java.net.MalformedURLException.class,
           () -> URLValidation.validateURLString("gopher://example.com/"),
-          "URLValidation MUST reject gopher://");
+          "URLValidation MUST reject gopher:// via MalformedURLException"
+              + " (unknown URL protocol per java.net.URL)");
     }
   }
 
@@ -270,12 +279,13 @@ class PSProxyQueryResourceTest {
       // URL. This smoke test asserts the exception class is on the
       // classpath so future refactors cannot silently remove the
       // typed-throws contract from the method signature.
+      //
+      // (The previous `assertTrue(SecurityException.class.isAssignableFrom(SecurityException.class))`
+      //  was removed per the review at PR #1198 line 277 — it was a
+      //  tautological self-check and provided no coverage.)
       assertNotNull(
           PSExtensionProcessingException.class,
           "PSExtensionProcessingException must be on the test classpath");
-      assertTrue(
-          SecurityException.class.isAssignableFrom(SecurityException.class),
-          "URLValidation's SecurityException hierarchy check");
     }
   }
 }
