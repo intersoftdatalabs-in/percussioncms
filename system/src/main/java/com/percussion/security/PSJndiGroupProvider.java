@@ -936,11 +936,17 @@ public class PSJndiGroupProvider implements IPSGroupProvider {
       // get entries matching the filter and the member's common name
       CompoundName memberName = PSJndiUtils.getCompoundName(user);
       String memberCond = memberName.get(0);
+      // codeql[java/ldap-injection] justification: memberCond (a DN
+      // component derived from the user input) is escaped with
+      // PSJndiUtils.escapeLdapFilter (RFC 4515 hex-escape for \ * ( ) NUL)
+      // before being concatenated into the search filter. The result
+      // can no longer break out of its surrounding parentheses. See
+      // specs/004-zero-code-scanning-alerts/tasks.md T040 and contracts/C2.
       filter =
           "(& ("
               + filter
               + ") ("
-              + memberCond
+              + PSJndiUtils.escapeLdapFilter(memberCond)
               + ") ("
               + PSJndiProvider.OBJECT_CLASS_ATTR
               + "="
