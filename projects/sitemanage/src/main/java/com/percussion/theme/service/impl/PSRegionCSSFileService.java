@@ -196,6 +196,7 @@ public class PSRegionCSSFileService {
     notEmpty(srcPath);
     notEmpty(targetPath);
     requireSafeFilePath(srcPath);
+    requireSafeFilePath(targetPath);
 
     List<PSRegionCSS> regions = getRegionCssFromTreeAndSource(tree, srcPath);
     if (regions == null || regions.isEmpty()) return;
@@ -318,7 +319,7 @@ public class PSRegionCSSFileService {
     }
   }
 
-  private File getTargetFile(String targetPath) {
+  File getTargetFile(String targetPath) {
     requireSafeFilePath(targetPath);
     File target = new File(targetPath);
     File parent = target.getParentFile();
@@ -441,7 +442,7 @@ public class PSRegionCSSFileService {
             + "' is not under any allowed region CSS root (path-traversal attempt blocked)");
   }
 
-  private File getSourceFile(String srcPath) throws PSThemeNotFoundException {
+  File getSourceFile(String srcPath) throws PSThemeNotFoundException {
     requireSafeFilePath(srcPath);
     File srcFile = null;
 
@@ -455,7 +456,7 @@ public class PSRegionCSSFileService {
     return srcFile;
   }
 
-  private void writeContent(String filePath, String content) throws PSThemeNotFoundException {
+  void writeContent(String filePath, String content) throws PSThemeNotFoundException {
     requireSafeFilePath(filePath);
 
     try (OutputStream out = new FileOutputStream(filePath)) {
@@ -467,7 +468,7 @@ public class PSRegionCSSFileService {
     }
   }
 
-  private String getContentFromFile(String filePath) throws PSThemeNotFoundException {
+  String getContentFromFile(String filePath) throws PSThemeNotFoundException {
     requireSafeFilePath(filePath);
 
     try {
