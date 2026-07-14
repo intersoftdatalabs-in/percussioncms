@@ -16,6 +16,8 @@
  */
 package com.percussion.foldermanagement.service.impl;
 
+import org.owasp.encoder.Encode;
+
 import com.percussion.foldermanagement.data.PSFolderItem;
 import com.percussion.foldermanagement.data.PSGetAssignedFoldersJobStatus;
 import com.percussion.foldermanagement.data.PSWorkflowAssignment;
@@ -86,7 +88,11 @@ public class PSFolderRestService {
       return folderService.startGetAssignedFoldersJob(
           workflowName, path, includeFoldersWithDifferentWorkflow);
     } catch (PSWorkflowNotFoundException e) {
-      throw new WebApplicationException(e.getMessage());
+      log.error("Workflow not found: {}", PSExceptionUtils.getMessageForLog(e));
+      throw new WebApplicationException(
+          Response.status(Status.NOT_FOUND)
+              .entity(Encode.forHtml("Workflow not found: " + workflowName))
+              .build());
     }
   }
 
@@ -145,19 +151,19 @@ public class PSFolderRestService {
     } catch (PSWorkflowNotFoundException e) {
       log.error("{}, Error: {}", message, PSExceptionUtils.getMessageForLog(e));
       log.debug(PSExceptionUtils.getDebugMessageForLog(e));
-      return Response.status(Status.NOT_FOUND).entity(message + e.getMessage()).build();
+      return Response.status(Status.NOT_FOUND).entity(Encode.forHtml(message)).build();
     } catch (IllegalArgumentException e) {
       log.error("{}, Error: {}", message, PSExceptionUtils.getMessageForLog(e));
       log.debug(PSExceptionUtils.getDebugMessageForLog(e));
-      return Response.status(Status.BAD_REQUEST).entity(message + e.getLocalizedMessage()).build();
+      return Response.status(Status.BAD_REQUEST).entity(Encode.forHtml(message)).build();
     } catch (PSPathNotFoundServiceException | LoadException e) {
       log.error("{}, Error: {}", message, PSExceptionUtils.getMessageForLog(e));
       log.debug(PSExceptionUtils.getDebugMessageForLog(e));
-      return Response.status(Status.NOT_FOUND).entity(message + e.getLocalizedMessage()).build();
+      return Response.status(Status.NOT_FOUND).entity(Encode.forHtml(message)).build();
     } catch (Exception e) {
       log.error("{}, Error: {}", message, PSExceptionUtils.getMessageForLog(e));
       log.debug(PSExceptionUtils.getDebugMessageForLog(e));
-      return Response.serverError().entity(message + e.getLocalizedMessage()).build();
+      return Response.serverError().entity(Encode.forHtml(message)).build();
     }
   }
 
@@ -184,19 +190,19 @@ public class PSFolderRestService {
     } catch (PSWorkflowNotFoundException e) {
       log.error("{}, Error: {}", message, PSExceptionUtils.getMessageForLog(e));
       log.debug(PSExceptionUtils.getDebugMessageForLog(e));
-      return Response.status(Status.NOT_FOUND).entity(message + e.getMessage()).build();
+      return Response.status(Status.NOT_FOUND).entity(Encode.forHtml(message)).build();
     } catch (PSWorkflowAssignmentInProgressException e) {
       log.error("{}, Error: {}", message, PSExceptionUtils.getMessageForLog(e));
       log.debug(PSExceptionUtils.getDebugMessageForLog(e));
-      return Response.status(Status.CONFLICT).entity(e.getLocalizedMessage()).build();
+      return Response.status(Status.CONFLICT).entity(Encode.forHtml("Workflow assignment is already in progress.")).build();
     } catch (IllegalArgumentException e) {
       log.error("{}, Error: {}", message, PSExceptionUtils.getMessageForLog(e));
       log.debug(PSExceptionUtils.getDebugMessageForLog(e));
-      return Response.status(Status.BAD_REQUEST).entity(message + e.getLocalizedMessage()).build();
+      return Response.status(Status.BAD_REQUEST).entity(Encode.forHtml(message)).build();
     } catch (Exception e) {
       log.error("{}, Error: {}", message, PSExceptionUtils.getMessageForLog(e));
       log.debug(PSExceptionUtils.getDebugMessageForLog(e));
-      return Response.serverError().entity(message + e.getLocalizedMessage()).build();
+      return Response.serverError().entity(Encode.forHtml(message)).build();
     }
   }
 
@@ -211,7 +217,10 @@ public class PSFolderRestService {
         | PSValidationException e) {
       log.error(PSExceptionUtils.getMessageForLog(e));
       log.debug(PSExceptionUtils.getDebugMessageForLog(e));
-      throw new WebApplicationException(e.getMessage());
+      throw new WebApplicationException(
+          Response.status(Status.BAD_REQUEST)
+              .entity(Encode.forHtml("Error retrieving pages for folder: " + id))
+              .build());
     }
   }
 }
