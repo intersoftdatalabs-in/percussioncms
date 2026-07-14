@@ -17,7 +17,6 @@
 package com.percussion.process;
 
 import com.percussion.util.IOTools;
-import com.percussion.security.io.PSPathInjectionGuard;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -62,13 +61,13 @@ public class PSLocalCommandHandler implements IPSCommandHandler {
    * @throws PSProcessException If the content of the config file doesn't conform to dtd as
    *     specified in {@link PSProcessManager} description.
    */
-   public PSLocalCommandHandler(Map env, File config)
-       throws IOException, SAXException, PSProcessException {
-     setEnvironment(env);
-     validatePath(config, "PSLocalCommandHandler");
-     InputStream pcStream = new FileInputStream(config);
-     m_processManager = new PSProcessManager(pcStream);
-   }
+  public PSLocalCommandHandler(Map env, File config)
+      throws IOException, SAXException, PSProcessException {
+    setEnvironment(env);
+    validatePath(config, "PSLocalCommandHandler");
+    InputStream pcStream = new FileInputStream(config);
+    m_processManager = new PSProcessManager(pcStream);
+  }
 
   /**
    * Sets the variable context for commands accessed through {@link #executeProcess(String, Map,
