@@ -108,8 +108,8 @@ Candidate disposition heuristics applied (final disposition assigned by module o
 | 87 | 1622 | `js/xss-through-dom` | high | `WebUI/src/main/webapp/cm/widgets/PercInlineEditDataTable.js` | `WebUI/` | `valid` | fix per rule guidance | `8.2-must-fix` | — | — |
 | 88 | 1621 | `js/xss-through-dom` | high | `WebUI/src/main/webapp/cm/widgetbuilder/js/views/PercWidgetFieldsViews.js` | `WebUI/` | `valid` | fix per rule guidance | `8.2-must-fix` | — | — |
 | 89 | 1620 | `js/xss-through-dom` | high | `WebUI/src/main/webapp/cm/widgetbuilder/js/views/PercWidgetBuilderDefinitionView.js` | `WebUI/` | `valid` | fix per rule guidance | `8.2-must-fix` | — | — |
-| 90 | 1619 | `js/xss-through-dom` | high | `WebUI/src/main/webapp/cm/views/PercUserView.js` | `WebUI/` | `valid` | fix per rule guidance | `8.2-must-fix` | — | — |
-| 91 | 1618 | `js/xss-through-dom` | high | `WebUI/src/main/webapp/cm/views/PercUserView.js` | `WebUI/` | `valid` | fix per rule guidance | `8.2-must-fix` | — | — |
+| 90 | 1619 | `js/xss-through-dom` | high | `WebUI/src/main/webapp/cm/views/PercUserView.js` | `WebUI/` | `valid` | fix per rule guidance | `8.2-must-fix` | #1220 | Secure option tag building using .text instead of .html |
+| 91 | 1618 | `js/xss-through-dom` | high | `WebUI/src/main/webapp/cm/views/PercUserView.js` | `WebUI/` | `valid` | fix per rule guidance | `8.2-must-fix` | #1220 | Secure option tag building using .text instead of .html |
 | 92 | 1617 | `js/xss-through-dom` | high | `WebUI/src/main/webapp/cm/views/PercChangeTemplateDialog.js` | `WebUI/` | `valid` | fix per rule guidance | `8.2-must-fix` | — | — |
 | 93 | 1616 | `js/xss-through-dom` | high | `WebUI/src/main/webapp/cm/views/PercCSSGalleryView.js` | `WebUI/` | `valid` | fix per rule guidance | `8.2-must-fix` | — | — |
 | 94 | 1615 | `js/xss-through-dom` | high | `WebUI/src/main/webapp/cm/shared-common-minuet.js` | `WebUI/` | `obsolete` | remove vendored 3rd-party file (verify not referenced by build/runtime) | `8.2-must-fix` | — | — |
