@@ -319,6 +319,7 @@ public class PSRegionCSSFileService {
   }
 
   private File getTargetFile(String targetPath) {
+    requireSafeFilePath(targetPath);
     File target = new File(targetPath);
     File parent = target.getParentFile();
     if (!parent.exists()) {
@@ -441,6 +442,7 @@ public class PSRegionCSSFileService {
   }
 
   private File getSourceFile(String srcPath) throws PSThemeNotFoundException {
+    requireSafeFilePath(srcPath);
     File srcFile = null;
 
     if (srcPath != null) {
@@ -454,6 +456,7 @@ public class PSRegionCSSFileService {
   }
 
   private void writeContent(String filePath, String content) throws PSThemeNotFoundException {
+    requireSafeFilePath(filePath);
 
     try (OutputStream out = new FileOutputStream(filePath)) {
       IOUtils.write(content, out, StandardCharsets.UTF_8);
@@ -465,6 +468,7 @@ public class PSRegionCSSFileService {
   }
 
   private String getContentFromFile(String filePath) throws PSThemeNotFoundException {
+    requireSafeFilePath(filePath);
 
     try {
       File file = new File(filePath);
