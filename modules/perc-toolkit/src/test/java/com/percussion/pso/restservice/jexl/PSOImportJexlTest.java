@@ -19,6 +19,7 @@ package com.percussion.pso.restservice.jexl;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import org.dom4j.Document;
 import org.junit.jupiter.api.DisplayName;
@@ -43,15 +44,11 @@ class PSOImportJexlTest {
     PSOImportJexl importJexl = new PSOImportJexl();
     String xxeXml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
             "<!DOCTYPE root [\n" +
-            "  <!ENTITY xxe SYSTEM \"http://invalid-nonexistent-host-xxe-test.com/test.dtd\">\n" +
+            "  <!ENTITY xxe SYSTEM \"file:///etc/passwd\">\n" +
             "]>\n" +
             "<root>&xxe;</root>";
     
-    try {
-      importJexl.getDomFromString(xxeXml);
-    } catch (Exception e) {
-      // Exception is expected when DOCTYPE decl is disallowed
-      assertTrue(e.getMessage().contains("disallow-doctype-decl") || e.getMessage().contains("DOCTYPE"));
-    }
+    Document doc = importJexl.getDomFromString(xxeXml);
+    org.junit.jupiter.api.Assertions.assertNull(doc, "Expected getDomFromString to return null due to XXE block");
   }
 }

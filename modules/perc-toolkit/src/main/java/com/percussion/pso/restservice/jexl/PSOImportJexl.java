@@ -260,10 +260,10 @@ public class PSOImportJexl extends PSJexlUtilBase implements IPSJexlExpression {
   }
 
   /**
-   * Method getPostDom.
+   * Creates a secured SAXReader instance with XXE defenses enabled.
    *
-   * @return Document
-   * @throws IOException
+   * @return a secured SAXReader instance
+   * @throws RuntimeException if the secure features cannot be configured
    */
   private SAXReader createSecureSAXReader() {
     SAXReader reader = new SAXReader();
@@ -272,9 +272,14 @@ public class PSOImportJexl extends PSJexlUtilBase implements IPSJexlExpression {
       reader.setFeature("http://xml.org/sax/features/external-general-entities", false);
       reader.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
       reader.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
+      reader.setFeature(javax.xml.XMLConstants.FEATURE_SECURE_PROCESSING, true);
     } catch (Exception e) {
-      log.warn("Failed to set secure features on SAXReader: {}", e.getMessage());
+      log.error("Critical: Failed to set secure features on SAXReader", e);
+      throw new RuntimeException("Failed to initialize secure XML parser", e);
     }
+    reader.setEntityResolver((publicId, systemId) -> {
+      throw new org.xml.sax.SAXException("Resolution of external entity is blocked: " + systemId);
+    });
     return reader;
   }
 
