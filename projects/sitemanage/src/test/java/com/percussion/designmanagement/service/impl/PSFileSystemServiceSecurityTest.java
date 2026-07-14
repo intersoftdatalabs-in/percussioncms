@@ -1,5 +1,6 @@
 package com.percussion.designmanagement.service.impl;
 
+import com.percussion.designmanagement.service.IPSFileSystemService.PSFolderOperationException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import java.io.File;
@@ -77,13 +78,16 @@ public class PSFileSystemServiceSecurityTest {
   }
 
   @Test
-  public void renameFolderRejectsDotDotNewName(@TempDir java.nio.file.Path root) {
+  public void renameFolderRejectsBadNewName(@TempDir java.nio.file.Path root) {
     PSFileSystemService svc = new PSFileSystemService(root.toString());
-    // renameFolder validates oldFolderPath via validatePath (multi-segment)
-    // and newFolderName via requireSafeFileName (single-segment). A new
-    // name of ".." must be rejected by the single-segment check.
-    assertThrows(IllegalArgumentException.class, () -> svc.renameFolder("themes/site", ".."));
-    assertThrows(IllegalArgumentException.class, () -> svc.renameFolder("themes/site", "."));
-    assertThrows(IllegalArgumentException.class, () -> svc.renameFolder("themes/site", "a/b"));
+    // renameFolder rejects bad newFolderName values via the existing
+    // domain-specific checks: isReservedFilename for `.`/`..` (throws
+    // PSInvalidFolderNameException) and containsInvalidChars for path
+    // separators and reserved characters (throws
+    // PSInvalidCharacterInFolderNameException). Both extend
+    // PSFolderOperationException, which is what callers declare.
+    assertThrows(PSFolderOperationException.class, () -> svc.renameFolder("themes/site", ".."));
+    assertThrows(PSFolderOperationException.class, () -> svc.renameFolder("themes/site", "."));
+    assertThrows(PSFolderOperationException.class, () -> svc.renameFolder("themes/site", "a/b"));
   }
 }

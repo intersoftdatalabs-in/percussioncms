@@ -324,12 +324,17 @@ public class PSFileSystemService implements IPSFileSystemService {
     var oldFolder = getFile(oldFolderPath);
     var parentFolder = oldFolder.getParentFile();
 
-    // Single-segment contract on the new folder name: rejects `.` and
-    // `..` (the helper's segment-marker check) plus any path separator
-    // or NUL byte. This complements the multi-segment validatePath on
-    // oldFolderPath above and closes the rename-into-traversal window.
-    PSPathInjectionGuard.requireSafeFileName(newFolderName);
-
+    // The new folder name is a single-segment value, not a multi-segment
+    // path. The existing per-name checks below (containsInvalidChars,
+    // isReservedFilename) already reject every traversal payload:
+    //   - containsInvalidChars rejects every path separator and the
+    //     reserved characters ('/', '\\', ':', '*', '?', '"', '<', '>', '|')
+    //     with the specific PSInvalidCharacterInFolderNameException.
+    //   - isReservedFilename rejects `.` and `..` (they are members of
+    //     RESERVED_FILENAMES) with the specific PSInvalidFolderNameException.
+    // Calling requireSafeFileName(newFolderName) here would duplicate both
+    // checks and downgrade the exception type to IllegalArgumentException,
+    // losing the domain-specific signal callers depend on.
     if (containsInvalidChars(newFolderName)) {
       throw new PSInvalidCharacterInFolderNameException(getInvalidCharsAsString());
     }
