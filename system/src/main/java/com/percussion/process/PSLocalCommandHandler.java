@@ -17,6 +17,7 @@
 package com.percussion.process;
 
 import com.percussion.util.IOTools;
+import com.percussion.utils.io.PSPathInjectionGuard;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -61,12 +62,13 @@ public class PSLocalCommandHandler implements IPSCommandHandler {
    * @throws PSProcessException If the content of the config file doesn't conform to dtd as
    *     specified in {@link PSProcessManager} description.
    */
-  public PSLocalCommandHandler(Map env, File config)
-      throws IOException, SAXException, PSProcessException {
-    setEnvironment(env);
-    InputStream pcStream = new FileInputStream(config);
-    m_processManager = new PSProcessManager(pcStream);
-  }
+   public PSLocalCommandHandler(Map env, File config)
+       throws IOException, SAXException, PSProcessException {
+     setEnvironment(env);
+     validatePath(config, "PSLocalCommandHandler");
+     InputStream pcStream = new FileInputStream(config);
+     m_processManager = new PSProcessManager(pcStream);
+   }
 
   /**
    * Sets the variable context for commands accessed through {@link #executeProcess(String, Map,
@@ -507,8 +509,13 @@ public class PSLocalCommandHandler implements IPSCommandHandler {
               + pathString);
     }
 
-    // Reject path traversal patterns - reject ".." sequences
-    if (pathString.contains("..") || pathString.contains("./..") || pathString.contains("../")) {
+    // Reject path traversal patterns - reject ".." sequences.
+    // Delegates to the central PSPathInjectionGuard helper (modules/utils/)
+    // which centralizes the CWE-22 defense across all 58 path-injection
+    // alerts in the projects/sitemanage/ and system/ modules.
+    try {
+      PSPathInjectionGuard.requireSafeFileName(pathString);
+    } catch (IllegalArgumentException e) {
       throw new SecurityException(
           "Invalid path - path traversal pattern detected (CWE-22) in "
               + methodName
