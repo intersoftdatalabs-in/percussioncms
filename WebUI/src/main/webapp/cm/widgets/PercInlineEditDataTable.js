@@ -218,6 +218,8 @@
         placeHolderValue = config.percPlaceHolderValues[rowNumber][colNumber];
       }
 
+      var value = "";
+
       if ($(aData[colNumber]).length > 0) {
         value = $(aData[colNumber]).text().trim();
         if (config.percShowValuesPlaceholders && value === placeHolderValue)
