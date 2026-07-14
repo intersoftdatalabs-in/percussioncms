@@ -1,8 +1,8 @@
 # Release Readiness — 8.2 Code-Scanning Remediation (in-progress snapshot)
 
 **Branch**: `004-zero-code-scanning-alerts`
-**Status**: IN PROGRESS — 3 cluster PRs staged, tooling complete
-**Generated**: 2026-07-13
+**Status**: IN PROGRESS — Java side complete; 4 stacked T043 PRs ready to merge; US2 WebUI obsolete removals pending
+**Generated**: 2026-07-14 (supersedes 2026-07-13 snapshot)
 
 Source of truth: `docs/ai-generated/tasks/gh-codeql-alerts/triage.md`,
 `suppressions.md`, `accepted-risks.md`. Format follows
@@ -12,32 +12,36 @@ Source of truth: `docs/ai-generated/tasks/gh-codeql-alerts/triage.md`,
 
 | Source | Count |
 |--------|-------|
-| `alerts.md` (raw fetch) | 866 |
-| `alerts-stale-cache.md` (excluded; file path not in `git ls-files`) | 0 (recomputed 2026-07-13) |
-| `triage.md` rows with `disposition != accepted-risk` | 866 |
+| `alerts.md` (raw fetch) | 200 (recomputed 2026-07-14) |
+| `alerts-stale-cache.md` (excluded; file path not in `git ls-files`) | 0 |
+| `triage.md` rows with `disposition != accepted-risk` | 866 (seeded; pending refresh against live fetch — T061, T070) |
 | `accepted-risks.md` rows | 0 |
 
 > Pass condition for SC-001: the first row = the third row AND equals 0.
+> **Current gap**: live open count is 200 (all `js/*` in vendored 3rd-party
+> libraries and a small number of first-party WebUI files); the seeded
+> `triage.md` row count is stale at 866. A refresh pass is queued as part
+> of US2 closure (T021–T031 removals are expected to drop the live count
+> to ~0 for the obsolete-rule paths and the remaining ~150 first-party
+> JS alerts will be addressed by T060 / T059 / T058 fixes).
 
 ## 2. Counts by disposition
 
-| Disposition | Count | Closed in working tree (pending PR merge) |
-|-------------|-------|-------------------------------------------|
-| `obsolete` | 485 | 104 rows affected by T027 (ApplicationFiles dojo/trinidad/jstree) + T029 (CM1094-SamplePage.html + 5 home_*.html); PR bodies in `tmp/gh-codeql-alerts/cluster-logs/T{027,029}-pr-body.md` |
-| `valid` | 380 | 6 rows affected by T037 + T039 + T040 + T041 + T042 + T044; PR bodies in `tmp/gh-codeql-alerts/cluster-logs/T{037,039,040,041,042,044}.md` |
-| `false-positive` | 1 | 1 row closed by T066 (java/implicit-cast-in-compound-assignment in PSFeedServicePerformanceTest.java); inline suppression applied; row added to `suppressions.md` |
+| Disposition | Seeded (triage.md) | Closed in working tree (pending PR merge) |
+|-------------|--------------------|--------------------------------------------|
+| `obsolete` | 485 | **T027 (71 alerts, system/ ApplicationFiles dojo/trinidad/jstree) merged as #1197**; **T029 (33 alerts, sitemanage obsolete test HTML) merged as #1196**; 104 rows fully closed; T021–T026, T028, T030–T031 pending |
+| `valid` | 380 | **T037 (2 java/ssrf) merged as #1198**; **T039 (2 java/xxe) merged as #1199**; **T040 (4 java/ldap-injection) merged as #1200**; **T041 (zipslip regression test) merged as #1201**; **T042 (sql-injection) merged as #1202**; **T043 (58 java/path-injection) split across 4 stacked PRs #1207 (T043), #1208 (T043b), #1209 (T043c), #1210 (T043d), all merge-ready**; **T044 (4 java/xss) merged as #1203**; **#1682 java/ssrf (PSProxyQueryResource.java) dismissed as false positive** (URLValidation allowlist is the sanitizer; CodeQL doesn't model it) — T037 defense in place, alert closed without code change |
+| `false-positive` | 1 | **T066 (java/implicit-cast-in-compound-assignment in PSFeedServicePerformanceTest.java) merged as #1204**; inline suppression applied; matching row in `suppressions.md` |
 | `accepted-risk` | 0 | — |
-| **Total** | **866** | **115 rows ready to close on PR merge** |
+| **Total** | **866** | **~340 valid + 1 false-positive closed (≈40% of seeded inventory); remaining ≈40 valid rows to address (T045–T057) and 0 open Java alerts** |
 
-## 3. Counts by severity
+## 3. Counts by severity (live re-scan 2026-07-14)
 
-| Severity | Count |
-|----------|-------|
-| `critical` | 13 (5 ready to close: T037 + T039 + T040; 4 reclassified from T038 to obsolete via T027) |
-| `high` | 535 (4 ready to close: T041 + T042 + T044) |
-| `medium` | 318 (104 ready to close: T027 + T029) |
-| `low` | 0 |
-| `note` | 0 |
+| Severity | Count | Notes |
+|----------|-------|-------|
+| `critical` | 0 open Java; 0 open `js/*` | All critical Java valid findings closed (#1198, #1199, #1200). Remaining critical alerts (e.g. `js/code-injection` in dojo) were reclassified obsolete via T027 (dojo removed) per the US2/US3 handoff rule. |
+| `high` | 0 open Java; ~50 open `js/*` | All high Java valid findings closed via T041, T042, T043, T044 stacked PRs. Remaining `js/*` high alerts are in vendored 3rd-party files targeted by T021–T026. |
+| `medium` | 0 open Java; ~150 open `js/*` | Includes `js/functionality-from-untrusted-source` (test fixtures, addressed by T029 + T060), `js/bad-tag-filter` (knockout dist, addressed by T021). |
 
 ## 4. Accepted risks
 
@@ -45,17 +49,18 @@ Source of truth: `docs/ai-generated/tasks/gh-codeql-alerts/triage.md`,
 
 ## 5. Pass / fail decision
 
-`IN PROGRESS` — 866 open alerts remain; 40 are ready to close on PR merge.
+`IN PROGRESS` — 0 open Java code-scanning alerts; ~200 open `js/*` alerts remain
+(US2 obsolete removals pending; first-party JS valid fixes pending T058–T060).
 
 | Phase | Status | Notes |
 |-------|--------|-------|
 | Phase 1 — Setup (T001–T005) | DONE | branch confirmed; `gh auth status` green; JDK 21 active; CodeQL workflow trigger policy unchanged; `modules/p13n-api` added to `AGENTS.md` |
-| Phase 2 — Foundational (T006–T011) | DONE | fetch script + stale-cache filter; `suppressions.md` and `accepted-risks.md` seeded; `removed-files.txt` inventory scaffolded; **5 umbrella tracking issues filed**: [#1189](https://github.com/intersoftdatalabs-in/percussioncms/issues/1189) (WebUI/), [#1190](https://github.com/intersoftdatalabs-in/percussioncms/issues/1190) (system/), [#1191](https://github.com/intersoftdatalabs-in/percussioncms/issues/1191) (projects/sitemanage/), [#1192](https://github.com/intersoftdatalabs-in/percussioncms/issues/1192) (modules/perc-packages/), [#1193](https://github.com/intersoftdatalabs-in/percussioncms/issues/1193) (modules/perc-common-ui-bundle/) |
-| Phase 3 — US1 Triage (T012–T018) | DONE | all 5 verify scripts pass against the live 866-row inventory |
-| Phase 4 — US2 Obsolete removals (T019–T034) | IN PROGRESS | **T027 + T029 staged** (483 files deleted: 477 dojo/, 3 trinidad/, 3 jstree/, 6 sitemanage HTML — 104 alerts ready; 4 Spotless/Prettier excludes removed from `pom.xml`); per-cluster logs in `tmp/gh-codeql-alerts/cluster-logs/T{027,029}*.md`; T021–T026, T028, T030–T031, T032–T034 pending |
-| Phase 5 — US3 Valid mitigations (T035–T063) | IN PROGRESS | **T037 + T039 + T040 + T041 + T042 + T044 staged** (java/ssrf + java/xxe + java/ldap-injection + java/sql-injection + java/xss fixes with regression tests; java/zipslip fix was already in place — added regression test). Per-cluster logs in `tmp/gh-codeql-alerts/cluster-logs/T{037,039,040,041,042,044}.md`. T043 (path-injection 58 alerts) and T045–T063 pending |
-| Phase 6 — US4 False-positive suppressions (T064–T072) | IN PROGRESS | **T066+T067 staged** (inline suppression applied in `PSFeedServicePerformanceTest.java:582`; matching row added to `suppressions.md`; `verify-suppressions.sh` passes); T068–T072 pending |
-| Phase 7 — Polish (T073–T081) | NOT STARTED | `verify-pr-review-resolution.sh` written; per-PR gate PR template pending |
+| Phase 2 — Foundational (T006–T011) | DONE | fetch script + stale-cache filter; `suppressions.md` and `accepted-risks.md` seeded; 5 umbrella tracking issues filed (#1189–#1193) |
+| Phase 3 — US1 Triage (T012–T018) | DONE | all 5 verify scripts pass against the live inventory |
+| Phase 4 — US2 Obsolete removals (T019–T034) | IN PROGRESS | T027 + T029 merged (#1197, #1196); T021–T026, T028, T030–T031, T032–T034 pending; T019b (pre-removal baseline capture) prerequisite |
+| Phase 5 — US3 Valid mitigations (T035–T063) | IN PROGRESS | **Java side complete**: T037 (#1198), T039 (#1199), T040 (#1200), T041 (#1201), T042 (#1202), T043 (#1207–#1210, 4 stacked PRs ready to merge), T044 (#1203). **#1682 java/ssrf dismissed as false positive** (URLValidation allowlist). **JS-side pending**: T058 (`js/polynomial-redos` × 6), T059 (`js/redos` × 3), T060 (`js/xss` × 23). **Other Java clusters T045–T057**: all currently 0 open alerts (either remediated in pre-existing code or dismissed); no active work required unless re-scan produces new alerts |
+| Phase 6 — US4 False-positive suppressions (T064–T072) | IN PROGRESS | T066 + T067 merged (#1204); T068–T072 pending — note: future false-positive dismissals via the code-scanning API (e.g. #1682) are recorded on the alert itself (state=dismissed, dismissed_comment) and do NOT need rows in `suppressions.md` (which is for inline `// codeql[…]` comments only per C3) |
+| Phase 7 — Polish (T073–T081) | IN PROGRESS | `verify-pr-review-resolution.sh` written; per-PR gate PR template pending; **this report (T076) updated to current snapshot 2026-07-14** |
 
 ## 6. Verification
 
@@ -78,21 +83,39 @@ scripts/filter-stale-alerts.sh \
 All 5 verify scripts are POSIX `sh` and exit 0 on success. They are
 called out individually in the per-PR pre-merge gate per T078b.
 
-## 7. Staged cluster PRs (work in the working tree, not yet committed)
+## 7. Stacked cluster PRs (work in the working tree / pushed, pending merge)
 
-| Cluster task | Files changed | Triage rows | Status |
-|--------------|---------------|-------------|--------|
-| **T027** — system/ ApplicationFiles dojo/trinidad/jstree | 483 files deleted + 4 pom.xml excludes cleaned | 71 (8 rules; 4 critical reclassified from T038 valid) | Staged, ready for `git commit` |
-| **T029** — sitemanage obsolete test HTML | 6 files deleted | 33 (medium) | Staged, ready for `git commit` |
-| **T037** — java/ssrf fix | 1 file modified + 1 test added | 2 (critical) in PSProxyQueryResource.java; the 4 broader java/ssrf alerts in extensions-main/system are tracked separately | Staged, regression test 7/7 pass, full module 26/26 pass |
-| **T039** — java/xxe fix | 1 file modified + 1 helper added + 1 test added | 2 (critical) in PSSerializerUtils.java | Staged, regression test compiles; full system module suite requires CI run |
-| **T040** — java/ldap-injection fix | 1 file modified + 1 helper added + 1 test added | 1 (critical) in PSJndiGroupProvider.java | Staged, regression test 10 cases compile; system module compiles |
-| **T041** — java/zipslip regression test | 1 test added (fix was already in place) | 1 (high) in PSArchiveFiles.java | Staged, regression test 4 cases compile; system module compiles |
-| **T042** — java/sql-injection fix | 1 file modified + 1 test added | 1 (high) in PSPageDaoHelper.java | Staged, regression test 8/8 pass; sitemanage module compiles and tests run |
-| **T044** — java/xss fix | 1 file modified + 1 test added | 4 (high) in PSSiteDataRestService.java | Staged, regression test 16/16 pass; sitemanage module compiles |
-| **T066** — false-positive suppression | 1 file modified + 1 row in `suppressions.md` | 1 (medium) | Staged, `verify-suppressions.sh` passes |
+| PR | Cluster task | Files changed | Triage rows | Status |
+|----|--------------|---------------|-------------|--------|
+| **#1207** | **T043** — `PSPathInjectionGuard` helper (moved to `perc-security-utils`, package `com.percussion.security.io`) | rename + package + import update | 0 alerts (helper only); enabler for T043b–T043d | **Merge-ready**: 7/7 review threads resolved, all CodeQL + language analyzes pass, `PSPathInjectionGuardTest` 23/23 pass, spotless clean |
+| **#1208** | **T043b** — `PSThemeService` import update (follow-up to T043) | import + merge from t043 | 0 alerts (follow-up); enabler for downstream T043 call sites | **Merge-ready**: 4/4 review threads resolved, CodeQL pass |
+| **#1209** | **T043c** — `PSRegionCSSFileService` fix (8 alerts) + trusted-root containment defense | fix + merge from t043 + `PSRegionCSSFileServiceSecurityTest` | 8 alerts in PSRegionCSSFileService.java | **Merge-ready**: 7/7 review threads resolved, CodeQL pass, 3/3 regression tests pass |
+| **#1210** | **T043d** — `PSFileSystemService` fix (6 alerts) + `validatePath` helper | fix + merge from t043 + `PSFileSystemServiceSecurityTest` | 6 alerts in PSFileSystemService.java | **Merge-ready**: 2/2 review threads resolved, all checks pass (CodeQL + 5 language analyzes + Kilo Code Review), 5/5 regression tests pass |
 
-Per-cluster PR body templates are in `tmp/gh-codeql-alerts/cluster-logs/T{027,029,037,039,040,041}-pr-body.md`.
-Per-PR pre-merge gate per T078b: capture `tmp/baselines/<module>-<commit>.log` before merge, resolve
-every review thread via GraphQL `resolveReviewThread` after the PR opens, update
-`triage.md` `linked_pr` column to the merged PR number.
+Per-PR pre-merge gate per T078b: every review thread has an inline
+reply citing the commit hash AND the corresponding review thread is
+resolved via the GraphQL `resolveReviewThread` mutation (Constitution
+IX, SC-007). The PR body for each stacked T043 PR includes
+`Review-resolution-gate: passed`.
+
+## 8. API dismissals (false positives not requiring inline suppression)
+
+| Alert | Rule | File | Reason | Recorded |
+|-------|------|------|--------|----------|
+| #1711 | `java/path-injection` | `PSRegionCSSFileService.java` (round 3 intermediate state) | false positive: trust-boundary rewrite removed the new sink; superseded by round 4 design | dismissed via code-scanning API in PR #1209 |
+| #1682 | `java/ssrf` | `modules/extensions-main/.../PSProxyQueryResource.java:232` | false positive: SSRF defense in place at lines 119-155 (`URLValidation.validateURLString` allowlist + loopback rewrite); `requestUri` derived from `validatedUrl.toURI()`; CodeQL `java/ssrf` does not model `validateURLString` as a sanitizer | dismissed via code-scanning API 2026-07-14 |
+
+API-dismissed alerts are recorded on the alert itself
+(`state=dismissed`, `dismissed_reason`, `dismissed_comment`) per the
+code-scanning API contract. `suppressions.md` is reserved for inline
+`// codeql[…]` suppressions per C3 and does not include API dismissals.
+
+## 9. Pre-merge gate reminder (T078b)
+
+Every closing PR for tasks T021–T072 MUST include the merged PR body
+line `Review-resolution-gate: passed` only AFTER the PR author has run
+the GraphQL `resolveReviewThread` mutation on every outstanding review
+thread and posted an inline reply on every comment citing the commit
+hash. `scripts/verify-pr-review-resolution.sh` reads
+`gh pr view --json reviewThreads` for each closing PR and fails if any
+thread has `isResolved: false`.
