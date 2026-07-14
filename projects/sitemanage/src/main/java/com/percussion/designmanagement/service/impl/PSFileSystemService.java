@@ -132,12 +132,101 @@ public class PSFileSystemService implements IPSFileSystemService {
     return rootDirectory;
   }
 
+  /**
+   * Validates a user-supplied path against the CWE-22 path-traversal defense.
+   * The defense has two parts:
+   * <ol>
+   *   <li>Every path segment (delimited by {@code /} or {@code \}) is checked
+   *       against the traversal-marker contract: segments equal to {@code .}
+   *       or {@code ..} are rejected. This closes the leaf-only bypass
+   *       flagged by the CRITICAL review thread on PR #1210: a payload
+   *       like {@code themes/../../etc/passwd} yields a leaf of
+   *       {@code passwd} that passes a name-only check, yet the
+   *       intermediate {@code ..} segments resolve the file outside the
+   *       intended root. Checking every segment rejects this payload
+   *       before the canonical-containment step even runs.</li>
+   *   <li>The resolved canonical path is verified to be contained within
+   *       the server-controlled {@link #getRootDirectory() rootDirectory}
+   *       (the configured web_resources root). Containment is checked
+   *       against the trusted root, NOT against an input-derived parent:
+   *       the latter would be a tautology that still permits traversal
+   *       (a payload whose {@code ..} segments live in the parent
+   *       portion canonicalizes outside the parent and the check would
+   *       pass against the traversed parent). The trusted-root check
+   *       closes this bypass as well.</li>
+   * </ol>
+   * This method is the single sanitizer boundary for the file-system
+   * service CWE-22 defense (per T043d / PR #1210). It is called from
+   * every public entry point that accepts a user-supplied path
+   * ({@link #getChildren}, {@link #getFile}, {@link #addFolder},
+   * {@link #renameFolder}, {@link #deleteFolder}, {@link #deleteFile},
+   * {@link #validateFileUpload}); the downstream {@code new File(root, path)}
+   * constructions in those entry points are protected by this call.
+   *
+   * @param path a user-supplied path (relative or absolute), never {@code null}
+   * @throws IllegalArgumentException if any segment is {@code .} or {@code ..},
+   *     if the path contains a NUL byte, or if the resolved canonical path
+   *     escapes the configured root directory
+   */
+  private void validatePath(String path) {
+    if (path == null) {
+      throw new IllegalArgumentException("path must not be null");
+    }
+    if (path.indexOf('\0') >= 0) {
+      throw new IllegalArgumentException("path must not contain a NUL byte");
+    }
+    String[] segments = path.split("[/\\\\]");
+    for (String segment : segments) {
+      if ("..".equals(segment) || ".".equals(segment)) {
+        throw new IllegalArgumentException(
+            "path segment '"
+                + segment
+                + "' is not allowed in path '"
+                + path
+                + "' (path-traversal attempt blocked)");
+      }
+    }
+    // codeql[java/path-injection] reason: path is a user-supplied string.
+    // This method is the single sanitizer boundary for the file-system
+    // service CWE-22 defense (T043d / PR #1210). The segment-marker
+    // check above rejects every `.`/`..` segment in the input, and
+    // the canonical-path containment check below verifies the resolved
+    // path is contained within the server-controlled rootDirectory.
+    // Containment is checked against the trusted root, not against an
+    // input-derived parent, so traversal payloads like
+    // "themes/../../etc/passwd" (which canonicalize outside the root)
+    // are rejected. The downstream new File(root, path) constructions
+    // in the public entry points are all preceded by a validatePath
+    // call and inherit this sanitizer.
+    File resolved = new File(getRootDirectory(), path);
+    String canonical;
+    String rootCanonical;
+    try {
+      canonical = resolved.getCanonicalPath();
+      rootCanonical = getRootDirectory().getCanonicalPath();
+    } catch (IOException e) {
+      throw new IllegalArgumentException(
+          "Failed to resolve canonical path for input: " + path, e);
+    }
+    String rootWithSep =
+        rootCanonical.endsWith(File.separator) ? rootCanonical : rootCanonical + File.separator;
+    if (!canonical.equals(rootCanonical) && !canonical.startsWith(rootWithSep)) {
+      throw new IllegalArgumentException(
+          "Resolved path '"
+              + canonical
+              + "' is not under root '"
+              + rootCanonical
+              + "' (path-traversal attempt blocked)");
+    }
+  }
+
   /*
    * (non-Javadoc)
    * @see com.percussion.designmanagement.service.IPSFileSystemService#getChildren(java.lang.String)
    */
   @Override
   public List<File> getChildren(String path) throws FileNotFoundException {
+    validatePath(path);
     var root = getRootDirectory();
     var pathFile = new File(root, path);
 
@@ -170,6 +259,7 @@ public class PSFileSystemService implements IPSFileSystemService {
   @Override
   public File getFile(String path) {
     Validate.notNull(path, "path must not be null");
+    validatePath(path);
     return new File(getRootDirectory(), path);
   }
 
@@ -179,6 +269,7 @@ public class PSFileSystemService implements IPSFileSystemService {
   @Override
   public File addFolder(String newFolderPath) throws IOException {
     Validate.notNull(newFolderPath, "newFolderPath cannot be null");
+    validatePath(newFolderPath);
     var folderPath = getFile(newFolderPath);
 
     if (folderPath.isFile()) {
@@ -228,9 +319,16 @@ public class PSFileSystemService implements IPSFileSystemService {
       throws PSFolderOperationException {
     Validate.notNull(oldFolderPath, "oldFolderPath cannot be null");
     Validate.notNull(newFolderName, "newFolderName cannot be null");
+    validatePath(oldFolderPath);
 
     var oldFolder = getFile(oldFolderPath);
     var parentFolder = oldFolder.getParentFile();
+
+    // Single-segment contract on the new folder name: rejects `.` and
+    // `..` (the helper's segment-marker check) plus any path separator
+    // or NUL byte. This complements the multi-segment validatePath on
+    // oldFolderPath above and closes the rename-into-traversal window.
+    PSPathInjectionGuard.requireSafeFileName(newFolderName);
 
     if (containsInvalidChars(newFolderName)) {
       throw new PSInvalidCharacterInFolderNameException(getInvalidCharsAsString());
@@ -281,6 +379,7 @@ public class PSFileSystemService implements IPSFileSystemService {
   @Override
   public void deleteFolder(String folderPath) throws IOException {
     Validate.notNull(folderPath, "path cannot be null");
+    validatePath(folderPath);
     var fileToDelete = getFile(folderPath);
     FileUtils.deleteDirectory(fileToDelete);
   }
@@ -295,6 +394,7 @@ public class PSFileSystemService implements IPSFileSystemService {
   @Override
   public void deleteFile(String filePath) throws PSFileOperationException {
     Validate.notNull(filePath, "path cannot be null");
+    validatePath(filePath);
     var fileToDelete = getFile(filePath);
     if (fileToDelete.exists()) {
       try {
@@ -337,19 +437,9 @@ public class PSFileSystemService implements IPSFileSystemService {
    */
   @Override
   public void validateFileUpload(String path) throws PSFileOperationException {
+    validatePath(path);
     var file = getFile(path);
     var parentFolder = file.getParentFile();
-
-    // codeql[java/path-injection] reason: path is a user-supplied
-    // string. The central PSPathInjectionGuard helper enforces the
-    // segment-marker contract (rejects "."/".." and any path
-    // separator) on the file's NAME (not the full path), then
-    // verifies the resolved canonical path is under the file's own
-    // parent directory via canonical-path containment. The
-    // pre-existing isUnderThemes check below enforces the
-    // themes-folder constraint. Together these close the 6
-    // java/path-injection alerts on this file per T043d.
-    PSPathInjectionGuard.requireSafeFileName(file.getName());
 
     if (!isUnderThemes(path)) {
       throw new PSFileOperationException(
