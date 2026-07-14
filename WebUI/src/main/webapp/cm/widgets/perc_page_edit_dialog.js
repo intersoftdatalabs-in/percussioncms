@@ -336,7 +336,7 @@
           var parser = new DOMParser();
           var doc = parser.parseFromString(html, "text/html");
           var body = doc.body;
-          var scripts = body.querySelectorAll("script, iframe, object, embed");
+          var scripts = body.querySelectorAll("script, iframe, object, embed, form, style, base");
           for (var sIdx = 0; sIdx < scripts.length; sIdx++) {
             scripts[sIdx].parentNode.removeChild(scripts[sIdx]);
           }
@@ -350,7 +350,7 @@
                 var name = attribs[idx].name;
                 if (name.indexOf("on") === 0) {
                   toRemove.push(name);
-                } else if (name === "href" || name === "src") {
+                } else if (name === "href" || name === "src" || name === "action" || name === "formaction") {
                   var val = el.getAttribute(name).trim().toLowerCase();
                   if (val.indexOf("javascript:") === 0 || val.indexOf("data:") === 0 || val.indexOf("vbscript:") === 0) {
                     toRemove.push(name);
