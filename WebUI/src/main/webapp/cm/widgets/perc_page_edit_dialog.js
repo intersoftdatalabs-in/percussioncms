@@ -333,12 +333,30 @@
           .val();
         var sanitizeHtml = function(html) {
           if (!html) return '';
-          return html
-            .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, "")
-            .replace(/<iframe\b[^<]*(?:(?!<\/iframe>)<[^<]*)*<\/iframe>/gi, "")
-            .replace(/on\w+\s*=\s*(['"])[^'"]*\1/gi, "")
-            .replace(/on\w+\s*=\s*\S+/gi, "")
-            .replace(/href\s*=\s*(['"])javascript:[^'"]*\1/gi, "");
+          var $temp = $("<div/>").html(html);
+          $temp.find("script, iframe, object, embed").remove();
+          $temp.find("*").each(function() {
+            var el = this;
+            var attribs = el.attributes;
+            if (attribs) {
+              var toRemove = [];
+              for (var idx = 0; idx < attribs.length; idx++) {
+                var name = attribs[idx].name;
+                if (name.indexOf("on") === 0) {
+                  toRemove.push(name);
+                } else if (name === "href" || name === "src") {
+                  var val = el.getAttribute(name).trim().toLowerCase();
+                  if (val.indexOf("javascript:") === 0 || val.indexOf("data:") === 0) {
+                    toRemove.push(name);
+                  }
+                }
+              }
+              for (var rIdx = 0; rIdx < toRemove.length; rIdx++) {
+                el.removeAttribute(toRemove[rIdx]);
+              }
+            }
+          });
+          return $temp.html();
         };
         containerArea.append(
           $("<div/>")
