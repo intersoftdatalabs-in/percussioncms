@@ -265,6 +265,25 @@ public class PSOImportJexl extends PSJexlUtilBase implements IPSJexlExpression {
    * @return Document
    * @throws IOException
    */
+  private SAXReader createSecureSAXReader() {
+    SAXReader reader = new SAXReader();
+    try {
+      reader.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
+      reader.setFeature("http://xml.org/sax/features/external-general-entities", false);
+      reader.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
+      reader.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
+    } catch (Exception e) {
+      log.warn("Failed to set secure features on SAXReader: {}", e.getMessage());
+    }
+    return reader;
+  }
+
+  /**
+   * Method getPostDom.
+   *
+   * @return Document
+   * @throws IOException
+   */
   @IPSJexlMethod(
       description = "Gets posted body as DOM",
       params = {})
@@ -273,7 +292,7 @@ public class PSOImportJexl extends PSJexlUtilBase implements IPSJexlExpression {
     HttpServletRequest sreq = req.getServletRequest();
 
     Document document = null;
-    SAXReader reader = new SAXReader();
+    SAXReader reader = createSecureSAXReader();
     try {
       document = reader.read(sreq.getInputStream());
     } catch (DocumentException e) {
@@ -297,7 +316,7 @@ public class PSOImportJexl extends PSJexlUtilBase implements IPSJexlExpression {
   public Document getDomFromString(String string) throws IOException {
 
     Document document = null;
-    SAXReader reader = new SAXReader();
+    SAXReader reader = createSecureSAXReader();
 
     try {
       document = reader.read(new StringReader(string));
