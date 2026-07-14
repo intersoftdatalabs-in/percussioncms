@@ -43,7 +43,7 @@ run_report_phase() {
             securityFlag: ($v.securityFlag // false),
             priority: (
               if $v.securityFlag then "P0"
-              elif (($pr.modulePaths // []) | any(. == "rest" or . == "projects/sitemanage")) then "P1"
+              elif (($pr.modulePaths // []) | any(. == "rest" or (. | startswith("projects/sitemanage")) or (. | startswith("deliverytiersuite/delivery-tier-suite")))) then "P1"
               elif (($pr.modulePaths // []) | any(. | startswith("WebUI"))) then "P2"
               else "P3"
               end

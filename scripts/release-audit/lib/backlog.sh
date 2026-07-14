@@ -123,7 +123,7 @@ run_backlog_phase() {
           pr: .,
           prio: (
             if .securityFlag then "P0"
-            elif ((.modulePaths // []) | any(. == "rest" or . == "projects/sitemanage" or . == "deliverytiersuite/delivery-tier-suite")) then "P1"
+            elif ((.modulePaths // []) | any(. == "rest" or (. | startswith("projects/sitemanage")) or (. | startswith("deliverytiersuite/delivery-tier-suite")))) then "P1"
             elif ((.modulePaths // []) | any(. | startswith("WebUI"))) then "P2"
             else "P3"
             end
