@@ -333,10 +333,16 @@
           .val();
         var sanitizeHtml = function(html) {
           if (!html) return '';
-          var $temp = $("<div/>").html(html);
-          $temp.find("script, iframe, object, embed").remove();
-          $temp.find("*").each(function() {
-            var el = this;
+          var parser = new DOMParser();
+          var doc = parser.parseFromString(html, "text/html");
+          var body = doc.body;
+          var scripts = body.querySelectorAll("script, iframe, object, embed");
+          for (var sIdx = 0; sIdx < scripts.length; sIdx++) {
+            scripts[sIdx].parentNode.removeChild(scripts[sIdx]);
+          }
+          var allElements = body.querySelectorAll("*");
+          for (var eIdx = 0; eIdx < allElements.length; eIdx++) {
+            var el = allElements[eIdx];
             var attribs = el.attributes;
             if (attribs) {
               var toRemove = [];
@@ -346,7 +352,7 @@
                   toRemove.push(name);
                 } else if (name === "href" || name === "src") {
                   var val = el.getAttribute(name).trim().toLowerCase();
-                  if (val.indexOf("javascript:") === 0 || val.indexOf("data:") === 0) {
+                  if (val.indexOf("javascript:") === 0 || val.indexOf("data:") === 0 || val.indexOf("vbscript:") === 0) {
                     toRemove.push(name);
                   }
                 }
@@ -355,8 +361,8 @@
                 el.removeAttribute(toRemove[rIdx]);
               }
             }
-          });
-          return $temp.html();
+          }
+          return body.innerHTML;
         };
         containerArea.append(
           $("<div/>")
