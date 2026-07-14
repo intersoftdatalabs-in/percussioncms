@@ -243,4 +243,36 @@ class PSLocalCommandHandlerSecurityTest {
           "Should reject symlink-style traversal attempts");
     }
   }
+
+  @Nested
+  @DisplayName("Additional Entry Points Security Tests")
+  class AdditionalEntryPointsSecurityTests {
+    @Test
+    @DisplayName("Should reject path traversal pattern in doRemoveFileSystemObject")
+    void shouldRejectPathTraversalInRemove() {
+      File path = new File("../../etc/passwd");
+      assertThrows(SecurityException.class, () -> PSLocalCommandHandler.doRemoveFileSystemObject(path));
+    }
+
+    @Test
+    @DisplayName("Should reject path traversal pattern in doMakeDirectories")
+    void shouldRejectPathTraversalInMakeDirs() {
+      File path = new File("../../etc/passwd");
+      assertThrows(SecurityException.class, () -> PSLocalCommandHandler.doMakeDirectories(path));
+    }
+
+    @Test
+    @DisplayName("Should reject path traversal pattern in doSaveTextFile")
+    void shouldRejectPathTraversalInSaveText() {
+      File path = new File("../../etc/passwd");
+      assertThrows(SecurityException.class, () -> PSLocalCommandHandler.doSaveTextFile(path, "test"));
+    }
+
+    @Test
+    @DisplayName("Should reject path traversal pattern in doSaveBinaryFile")
+    void shouldRejectPathTraversalInSaveBinary() {
+      File path = new File("../../etc/passwd");
+      assertThrows(SecurityException.class, () -> PSLocalCommandHandler.doSaveBinaryFile(path, null));
+    }
+  }
 }
