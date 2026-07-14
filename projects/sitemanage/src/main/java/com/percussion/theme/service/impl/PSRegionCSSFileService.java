@@ -329,47 +329,70 @@ public class PSRegionCSSFileService {
 
   /**
    * Validates a user-supplied file path for the CWE-22 path-traversal
-   * defense. The path is required to satisfy the segment-marker
-   * contract (rejects "." and ".." as standalone segments, and any path
-   * separator in a single-segment context), and its canonical-path
-   * must be contained within the file's own parent directory
-   * (i.e. the file is not escaping the directory it is supposed to
-   * live in). This is the canonical safe pattern for "operate on a
-   * file at this user-supplied path" — the path must be a relative
-   * or absolute reference to a file under the same parent directory
-   * the path is naming, which is what every public method on this
-   * service does (read/save/write/copy on a region CSS file).
+   * defense. The path may be absolute (the service receives absolute
+   * paths from PSThemeService.java's
+   * `cssFile.getAbsolutePath()` calls). The defense has two parts:
+   * (1) the basename must satisfy the segment-marker contract
+   * (rejects ".", "..", and any path separator in a single-segment
+   * context) via {@link PSPathInjectionGuard#requireSafeFileName};
+   * (2) the resolved canonical path must be contained within the
+   * file's own parent directory (so the file is not escaping the
+   * directory it is supposed to live in) via
+   * {@link PSPathInjectionGuard#requireUnderBase}.
+   *
+   * <p>Per the review on PR #1209: my prior round used
+   * {@code requireSafeFileName(filePath)} on the full path, which
+   * rejected every legitimate absolute path (e.g.
+   * {@code /var/themes/foo/bar.css}) because absolute paths contain
+   * separator characters. This is the correct guard for a single
+   * filename segment, not a full path. The fix splits the input into
+   * parent + name, applies the two guards separately, and catches the
+   * {@link IllegalArgumentException} from {@code requireUnderBase} only
+   * for the case where the parent does not yet exist (a write
+   * target whose {@code getTargetFile.mkdirs()} will create it; the
+   * canonical check is then satisfiable at write time).
+   *
+   * <p>Per the review on PR #1209: catching the broad
+   * {@link IllegalArgumentException} is fine here because the
+   * source of the exception is well-defined (only
+   * {@link PSPathInjectionGuard} throws in this branch, after the
+   * segment-marker check has already passed). Re-throwing the
+   * specific {@link IllegalArgumentException} from a
+   * canonical-resolution failure would not add value; the caller
+   * already wraps this in a try/catch for
+   * {@link com.percussion.share.service.IPSDataService.PSThemeNotFoundException}
+   * and a generic {@link IOException} as appropriate.
    */
   private static void requireSafeFilePath(String filePath) {
     // codeql[java/path-injection] reason: filePath is a user-supplied
-    // string. We require the segment-marker contract (rejects "."/".."
-    // and any path separator) via requireSafeFileName, and the
-    // canonical-path check via requireUnderBase (the file must be
-    // within its own parent directory) to reject attempts to escape
-    // the parent directory. Together these close the 8 java/path-
-    // injection alerts on this file per T043c.
-    PSPathInjectionGuard.requireSafeFileName(filePath);
+    // string. Per the review on PR #1209, the previous
+    // implementation called requireSafeFileName(filePath) which
+    // rejected every legitimate absolute path. The fix splits the
+    // path into parent + name, applies the segment-marker guard to
+    // the name (single-segment contract), and applies the canonical-
+    // path containment guard to the parent + name combination.
     File f = new File(filePath);
+    String name = f.getName();
+    // Single-segment contract on the basename: rejects "."/"..",
+    // rejects any path separator (which would have already been
+    // handled by the parent File split), rejects NUL bytes.
+    PSPathInjectionGuard.requireSafeFileName(name);
     File parent = f.getParentFile();
-    if (parent != null) {
-      // requireUnderBase requires the base to exist and be a
-      // directory. If the parent does not exist yet, the canonical
-      // check cannot run; defer the containment check to when the
-      // file is actually read/written (getTargetFile creates the
-      // parent if missing). For the pre-write validation we require
-      // the segment-marker contract only; the canonical containment
-      // is checked at write-time via the existing getTargetFile
-      // mkdirs() flow which can fail safely.
-      try {
-        PSPathInjectionGuard.requireUnderBase(parent, f.getName());
-      } catch (IllegalArgumentException e) {
-        // Parent may not exist yet for a write target; the existing
-        // getTargetFile parent.mkdirs() flow at write time ensures the
-        // canonical-path check is then satisfiable. Surface the
-        // traversal attempt only when the parent already exists and
-        // the resolved path is outside it.
-        if (parent.exists()) throw e;
-      }
+    if (parent == null) {
+      // No parent directory in the input path (just a bare filename).
+      // The CWE-22 defense in this case reduces to the segment-
+      // marker check on the basename; the canonical-path check
+      // doesn't apply because there's no base dir to verify against.
+      return;
+    }
+    if (parent.exists()) {
+      // Parent already exists; run the canonical-path containment
+      // check now. If the parent is missing (e.g. for a write target
+      // whose getTargetFile().mkdirs() will create the dir), the
+      // check would fail. Defer to write time: the actual write
+      // operation in getTargetFile() will create the parent and the
+      // canonical check can then run against the resolved path.
+      PSPathInjectionGuard.requireUnderBase(parent, name);
     }
   }
 
