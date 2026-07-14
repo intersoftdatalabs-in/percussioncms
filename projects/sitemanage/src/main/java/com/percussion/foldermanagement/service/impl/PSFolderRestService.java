@@ -91,6 +91,7 @@ public class PSFolderRestService {
       log.error("Workflow not found: {}", PSExceptionUtils.getMessageForLog(e));
       throw new WebApplicationException(
           Response.status(Status.NOT_FOUND)
+              .type(MediaType.TEXT_PLAIN)
               .entity(Encode.forHtml("Workflow not found: " + workflowName))
               .build());
     }
@@ -151,19 +152,19 @@ public class PSFolderRestService {
     } catch (PSWorkflowNotFoundException e) {
       log.error("{}, Error: {}", message, PSExceptionUtils.getMessageForLog(e));
       log.debug(PSExceptionUtils.getDebugMessageForLog(e));
-      return Response.status(Status.NOT_FOUND).entity(Encode.forHtml(message)).build();
+      return Response.status(Status.NOT_FOUND).type(MediaType.TEXT_PLAIN).entity(Encode.forHtml(message)).build();
     } catch (IllegalArgumentException e) {
       log.error("{}, Error: {}", message, PSExceptionUtils.getMessageForLog(e));
       log.debug(PSExceptionUtils.getDebugMessageForLog(e));
-      return Response.status(Status.BAD_REQUEST).entity(Encode.forHtml(message)).build();
+      return Response.status(Status.BAD_REQUEST).type(MediaType.TEXT_PLAIN).entity(Encode.forHtml(message)).build();
     } catch (PSPathNotFoundServiceException | LoadException e) {
       log.error("{}, Error: {}", message, PSExceptionUtils.getMessageForLog(e));
       log.debug(PSExceptionUtils.getDebugMessageForLog(e));
-      return Response.status(Status.NOT_FOUND).entity(Encode.forHtml(message)).build();
+      return Response.status(Status.NOT_FOUND).type(MediaType.TEXT_PLAIN).entity(Encode.forHtml(message)).build();
     } catch (Exception e) {
       log.error("{}, Error: {}", message, PSExceptionUtils.getMessageForLog(e));
       log.debug(PSExceptionUtils.getDebugMessageForLog(e));
-      return Response.serverError().entity(Encode.forHtml(message)).build();
+      return Response.serverError().type(MediaType.TEXT_PLAIN).entity(Encode.forHtml(message)).build();
     }
   }
 
@@ -190,19 +191,19 @@ public class PSFolderRestService {
     } catch (PSWorkflowNotFoundException e) {
       log.error("{}, Error: {}", message, PSExceptionUtils.getMessageForLog(e));
       log.debug(PSExceptionUtils.getDebugMessageForLog(e));
-      return Response.status(Status.NOT_FOUND).entity(Encode.forHtml(message)).build();
+      return Response.status(Status.NOT_FOUND).type(MediaType.TEXT_PLAIN).entity(Encode.forHtml(message)).build();
     } catch (PSWorkflowAssignmentInProgressException e) {
       log.error("{}, Error: {}", message, PSExceptionUtils.getMessageForLog(e));
       log.debug(PSExceptionUtils.getDebugMessageForLog(e));
-      return Response.status(Status.CONFLICT).entity(Encode.forHtml("Workflow assignment is already in progress.")).build();
+      return Response.status(Status.CONFLICT).type(MediaType.TEXT_PLAIN).entity(Encode.forHtml("Workflow assignment is already in progress.")).build();
     } catch (IllegalArgumentException e) {
       log.error("{}, Error: {}", message, PSExceptionUtils.getMessageForLog(e));
       log.debug(PSExceptionUtils.getDebugMessageForLog(e));
-      return Response.status(Status.BAD_REQUEST).entity(Encode.forHtml(message)).build();
+      return Response.status(Status.BAD_REQUEST).type(MediaType.TEXT_PLAIN).entity(Encode.forHtml(message)).build();
     } catch (Exception e) {
       log.error("{}, Error: {}", message, PSExceptionUtils.getMessageForLog(e));
       log.debug(PSExceptionUtils.getDebugMessageForLog(e));
-      return Response.serverError().entity(Encode.forHtml(message)).build();
+      return Response.serverError().type(MediaType.TEXT_PLAIN).entity(Encode.forHtml(message)).build();
     }
   }
 
@@ -218,7 +219,8 @@ public class PSFolderRestService {
       log.error(PSExceptionUtils.getMessageForLog(e));
       log.debug(PSExceptionUtils.getDebugMessageForLog(e));
       throw new WebApplicationException(
-          Response.status(Status.BAD_REQUEST)
+          Response.status(Status.INTERNAL_SERVER_ERROR)
+              .type(MediaType.TEXT_PLAIN)
               .entity(Encode.forHtml("Error retrieving pages for folder: " + id))
               .build());
     }

@@ -48,34 +48,40 @@ class PSFolderRestServiceErrorExposureTest {
   }
 
   @Test
-  @DisplayName("Should not expose PSWorkflowNotFoundException details in startGetAssociatedFoldersJob")
+  @DisplayName("Should not expose PSWorkflowNotFoundException details and should HTML-encode user input in startGetAssociatedFoldersJob")
   void testStartGetAssociatedFoldersJobWorkflowNotFound() throws Exception {
-    when(mockFolderService.startGetAssignedFoldersJob("wf", "path", false))
+    String badWorkflow = "<script>alert(1)</script>";
+    when(mockFolderService.startGetAssignedFoldersJob(badWorkflow, "path", false))
         .thenThrow(new PSWorkflowNotFoundException("Internal DB Error details"));
 
     try {
-      folderRestService.startGetAssociatedFoldersJob("wf", "path", false);
+      folderRestService.startGetAssociatedFoldersJob(badWorkflow, "path", false);
       fail("Expected WebApplicationException");
     } catch (WebApplicationException e) {
       Response response = e.getResponse();
       assertEquals(404, response.getStatus());
+      assertEquals("text/plain", response.getMediaType().toString());
       String entity = (String) response.getEntity();
-      assertTrue(entity.contains("wf"));
+      assertTrue(entity.contains("&lt;script&gt;"));
+      assertFalse(entity.contains("<script>"));
       assertFalse(entity.contains("Internal DB Error details"));
     }
   }
 
   @Test
-  @DisplayName("Should not expose PSWorkflowNotFoundException details to client in getAssociatedFolders")
+  @DisplayName("Should not expose PSWorkflowNotFoundException details and should HTML-encode user input in getAssociatedFolders")
   void testWorkflowNotFoundExceptionMessageHidden() throws Exception {
-    when(mockFolderService.getAssignedFolders("wf", "/path", false))
+    String badWorkflow = "<img src=x onerror=alert(1)>";
+    when(mockFolderService.getAssignedFolders(badWorkflow, "/path", false))
         .thenThrow(new PSWorkflowNotFoundException("Secret SQL Exception details"));
 
-    Response response = folderRestService.getAssociatedFolders("wf", "path", false);
+    Response response = folderRestService.getAssociatedFolders(badWorkflow, "path", false);
     assertEquals(404, response.getStatus());
+    assertEquals("text/plain", response.getMediaType().toString());
     String entity = (String) response.getEntity();
     assertFalse(entity.contains("Secret SQL Exception details"));
-    assertTrue(entity.contains("error getting the associated folders"));
+    assertTrue(entity.contains("&lt;img"));
+    assertFalse(entity.contains("<img"));
   }
 
   @Test
@@ -86,6 +92,7 @@ class PSFolderRestServiceErrorExposureTest {
 
     Response response = folderRestService.getAssociatedFolders("wf", "path", false);
     assertEquals(400, response.getStatus());
+    assertEquals("text/plain", response.getMediaType().toString());
     String entity = (String) response.getEntity();
     assertFalse(entity.contains("Null arguments rejected"));
   }
@@ -98,6 +105,7 @@ class PSFolderRestServiceErrorExposureTest {
 
     Response response = folderRestService.getAssociatedFolders("wf", "path", false);
     assertEquals(404, response.getStatus());
+    assertEquals("text/plain", response.getMediaType().toString());
     String entity = (String) response.getEntity();
     assertFalse(entity.contains("Secret Path Details"));
   }
@@ -110,6 +118,7 @@ class PSFolderRestServiceErrorExposureTest {
 
     Response response = folderRestService.getAssociatedFolders("wf", "path", false);
     assertEquals(500, response.getStatus());
+    assertEquals("text/plain", response.getMediaType().toString());
     String entity = (String) response.getEntity();
     assertFalse(entity.contains("Critical Null Pointer"));
   }
@@ -126,6 +135,7 @@ class PSFolderRestServiceErrorExposureTest {
 
     Response response = folderRestService.assignFoldersToWorkflow(assignment);
     assertEquals(409, response.getStatus());
+    assertEquals("text/plain", response.getMediaType().toString());
     String entity = (String) response.getEntity();
     assertFalse(entity.contains("Job 123 in progress"));
     assertEquals("Workflow assignment is already in progress.", entity);
