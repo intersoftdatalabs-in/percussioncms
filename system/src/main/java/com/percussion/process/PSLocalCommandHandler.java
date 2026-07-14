@@ -17,6 +17,7 @@
 package com.percussion.process;
 
 import com.percussion.util.IOTools;
+import com.percussion.security.io.PSPathInjectionGuard;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -61,12 +62,13 @@ public class PSLocalCommandHandler implements IPSCommandHandler {
    * @throws PSProcessException If the content of the config file doesn't conform to dtd as
    *     specified in {@link PSProcessManager} description.
    */
-  public PSLocalCommandHandler(Map env, File config)
-      throws IOException, SAXException, PSProcessException {
-    setEnvironment(env);
-    InputStream pcStream = new FileInputStream(config);
-    m_processManager = new PSProcessManager(pcStream);
-  }
+   public PSLocalCommandHandler(Map env, File config)
+       throws IOException, SAXException, PSProcessException {
+     setEnvironment(env);
+     validatePath(config, "PSLocalCommandHandler");
+     InputStream pcStream = new FileInputStream(config);
+     m_processManager = new PSProcessManager(pcStream);
+   }
 
   /**
    * Sets the variable context for commands accessed through {@link #executeProcess(String, Map,
@@ -507,13 +509,24 @@ public class PSLocalCommandHandler implements IPSCommandHandler {
               + pathString);
     }
 
-    // Reject path traversal patterns - reject ".." sequences
-    if (pathString.contains("..") || pathString.contains("./..") || pathString.contains("../")) {
-      throw new SecurityException(
-          "Invalid path - path traversal pattern detected (CWE-22) in "
-              + methodName
-              + ": "
-              + pathString);
+    // Reject path-traversal patterns at the segment level (a ".."
+    // appearing as a complete path segment between separators, NOT
+    // a literal ".." substring inside a legitimate filename like
+    // "file..txt"). Per the review on PR #1207 (round 3): the prior
+    // use of requireSafeFileName was too restrictive — it rejected
+    // ANY "/" which broke multi-segment relative paths like
+    // "subdir/file.txt" that the doXxxFile helpers legitimately
+    // accept. This split-based check is the segment-aware variant
+    // that the reviewer recommended.
+    String[] segments = pathString.replace('\\', '/').split("/");
+    for (String s : segments) {
+      if ("..".equals(s) || ".".equals(s)) {
+        throw new SecurityException(
+            "Invalid path - path traversal pattern detected (CWE-22) in "
+                + methodName
+                + ": "
+                + pathString);
+      }
     }
   }
 
