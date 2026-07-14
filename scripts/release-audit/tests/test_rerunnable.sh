@@ -33,9 +33,9 @@ fail() { printf 'FAIL: %s\n' "$*"; exit 1; }
 [[ -f "${TEST_DIR}/migration-backlog.md" ]]     || fail "migration-backlog.md missing"
 [[ -f "${TEST_DIR}/v8.1.7-to-8.2-migration-report.md" ]] || fail "report missing"
 
-# Inventory has at least 1 entry for v8.1.5..v8.1.6
+# Inventory has at least 1 entry for v8.1.6..v8.1.7
 COUNT="$(jq 'length' "${TEST_DIR}/inventory.json")"
-[[ "${COUNT}" -gt 0 ]] || fail "inventory.json has 0 entries for v8.1.5..v8.1.6"
+[[ "${COUNT}" -gt 0 ]] || fail "inventory.json has 0 entries for v8.1.6..v8.1.7"
 
 # Verify script sources unchanged after run
 SCRIPT_HASH_AFTER="$(md5sum "${ROOT_DIR}/scripts/release-audit/release-audit.sh" \
@@ -44,4 +44,4 @@ SCRIPT_HASH_AFTER="$(md5sum "${ROOT_DIR}/scripts/release-audit/release-audit.sh"
 
 [[ "${SCRIPT_HASH}" == "${SCRIPT_HASH_AFTER}" ]] || fail "script sources changed during run (re-runnability broken)"
 
-echo "PASS: test_rerunnable.sh — v8.1.5..v8.1.6 produced ${COUNT} inventory entries; script sources unchanged"
+echo "PASS: test_rerunnable.sh — v8.1.6..v8.1.7 produced ${COUNT} inventory entries; script sources unchanged"
