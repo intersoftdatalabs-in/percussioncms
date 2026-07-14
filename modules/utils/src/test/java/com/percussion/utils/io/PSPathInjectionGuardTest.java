@@ -90,12 +90,12 @@ class PSPathInjectionGuardTest {
     }
 
     @Test
-    @DisplayName("'../etc/passwd' is rejected")
+    @DisplayName("'.\\etc\\passwd' is rejected (backslash)")
     void testParentTraversal() {
       assertThrows(
           IllegalArgumentException.class,
-          () -> PSPathInjectionGuard.requireSafeFileName("../etc/passwd"),
-          "'../etc/passwd' must be rejected");
+          () -> PSPathInjectionGuard.requireSafeFileName("..\\etc\\passwd"),
+          "'..\\etc\\passwd' must be rejected");
     }
 
     @Test
@@ -108,12 +108,28 @@ class PSPathInjectionGuardTest {
     }
 
     @Test
-    @DisplayName("backslash in name is rejected")
-    void testBackslash() {
+    @DisplayName("'a/b/c' multi-segment is rejected (requireSafeFileName is single-segment)")
+    void testMultiSegment() {
       assertThrows(
           IllegalArgumentException.class,
-          () -> PSPathInjectionGuard.requireSafeFileName("..\\windows\\system32"),
-          "backslashes must be rejected");
+          () -> PSPathInjectionGuard.requireSafeFileName("a/b/c"),
+          "multi-segment paths must be rejected (callers wanting "
+              + "multi-segment need requireUnderBase instead)");
+    }
+
+    @Test
+    @DisplayName("'file..txt' is rejected (literal '..' substring is forbidden by contract)")
+    void testLiteralDoubleDotInFilename() {
+      // Per the round-3 review fix: requireSafeFileName explicitly
+      // rejects ".." and "." (the only reserved path-segment names). A
+      // filename like "file..txt" is rejected because the literal ".."
+      // is treated as a traversal marker by contract (callers wanting
+      // a literal ".." in a filename should use requireUnderBase with
+      // an explicit base directory).
+      assertThrows(
+          IllegalArgumentException.class,
+          () -> PSPathInjectionGuard.requireSafeFileName("file..txt"),
+          "literal '..' substring in filename must be rejected per contract");
     }
 
     @Test
@@ -172,17 +188,17 @@ class PSPathInjectionGuardTest {
     }
 
     @Test
-    @DisplayName("a simple relative filename resolves under the base")
-    void testSimpleFilename() throws IOException {
-      File result = PSPathInjectionGuard.requireUnderBase(m_tmpRoot, "subdir/file.txt");
+    @DisplayName("a multi-segment relative path resolves under the base")
+    void testMultiSegmentPath() throws IOException {
+      // The canonical-path check is the authoritative test, so any
+      // subdir/file.txt that resolves under the base is allowed. The
+      // previous round used requireSafeFileName here which rejected
+      // the "/" separator; this test verifies the more permissive
+      // contract: requireUnderBase accepts multi-segment paths and
+      // relies on the canonical-path check to reject traversal.
+      File result =
+          PSPathInjectionGuard.requireUnderBase(m_tmpRoot, "subdir/inner/file.txt");
       assertNotNull(result);
-      // Compare via canonical paths (the helper uses getCanonicalPath()
-      // for the security check; we mirror that here so the test
-      // assertion matches what the helper actually verified). On
-      // Windows the temp dir's getAbsolutePath() can return the DOS
-      // short-name form (C:\Users\VIJAYA~1.BOD\...) while
-      // getCanonicalPath() returns the long form; the comparison
-      // must use the canonical form on both sides.
       String resolvedCanonical = result.getCanonicalPath();
       String baseCanonical = m_tmpRoot.getCanonicalPath();
       String baseWithSep =
@@ -194,6 +210,21 @@ class PSPathInjectionGuardTest {
               || resolvedCanonical.startsWith(baseWithSep),
           "resolved canonical path '" + resolvedCanonical
               + "' must be under baseDir '" + baseCanonical + "'");
+    }
+
+    @Test
+    @DisplayName("'subdir/../../../escape' is rejected (canonical-path check catches it)")
+    void testSubdirEscape() {
+      // 'subdir/../escape.txt' is actually under the baseDir (the ..
+      // cancels subdir) so the canonical-path check accepts it. The
+      // path-traversal intent is to escape the base, which requires
+      // enough .. segments to go ABOVE the base. Three .. segments
+      // are needed: subdir/../../../escape.txt resolves to
+      // ../../escape.txt which is above the base.
+      assertThrows(
+          IllegalArgumentException.class,
+          () -> PSPathInjectionGuard.requireUnderBase(m_tmpRoot, "subdir/../../../escape.txt"),
+          "subdir/../../../escape.txt must be rejected (resolves outside baseDir)");
     }
 
     @Test
@@ -260,12 +291,18 @@ class PSPathInjectionGuardTest {
       assertFalse(PSPathInjectionGuard.containsForbiddenCharacters(""));
       assertFalse(PSPathInjectionGuard.containsForbiddenCharacters(null));
       assertFalse(PSPathInjectionGuard.containsForbiddenCharacters("a.b.c"));
+      // Literal ".." in a filename (e.g. "file..txt") is no longer
+      // flagged by the boolean helper per the round-3 review. Only
+      // separator and NUL-byte checks are done at the boolean level;
+      // the segment-aware check is in requireSafeFileName.
+      assertFalse(PSPathInjectionGuard.containsForbiddenCharacters("file..txt"));
+      assertFalse(PSPathInjectionGuard.containsForbiddenCharacters("archive..tar.gz"));
     }
 
     @Test
     @DisplayName("traversal payloads return true")
     void testForbiddenInputs() {
-      assertTrue(PSPathInjectionGuard.containsForbiddenCharacters(".."));
+      assertTrue(PSPathInjectionGuard.containsForbiddenCharacters("/etc/passwd"));
       assertTrue(PSPathInjectionGuard.containsForbiddenCharacters("../etc/passwd"));
       assertTrue(PSPathInjectionGuard.containsForbiddenCharacters("a\\b"));
       assertTrue(PSPathInjectionGuard.containsForbiddenCharacters("a/b"));

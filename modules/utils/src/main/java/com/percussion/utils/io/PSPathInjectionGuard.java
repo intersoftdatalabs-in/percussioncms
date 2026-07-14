@@ -42,9 +42,7 @@ public final class PSPathInjectionGuard {
    * Returns the input unchanged if it is a safe single-segment file or
    * directory name. Throws {@link IllegalArgumentException} if the
    * value is null, contains a path separator, contains a {@code ..}
-   * parent-traversal segment, contains a NUL byte, or contains
-   * non-printable control characters that could affect downstream file
-   * APIs.
+   * parent-traversal segment, or contains a NUL byte.
    *
    * <p>This method does NOT verify the file's existence or that the
    * resolved path is within a specific base directory. It only
@@ -53,10 +51,19 @@ public final class PSPathInjectionGuard {
    * use {@link java.nio.file.Path#normalize} and
    * {@link Path#startsWith} on the result.
    *
-   * @param name a user-supplied file or directory name (relative or
-   *             absolute; if absolute, the leading separator is
-   *             allowed but the rest must still be a safe single path
-   *             segment with no traversal)
+   * <p><strong>Single-segment contract:</strong> The input must be a
+   * single path segment (no {@code /}, no {@code \}); the only
+   * characters checked beyond the NUL byte are the traversal
+   * markers {@code ..} and {@code .}. Filenames like {@code file..txt}
+   * are rejected because they contain the literal substring {@code ..}
+   * which the contract treats as a traversal marker. Callers that
+   * need to accept multi-segment paths or filenames with literal
+   * {@code ..} substrings (unusual) should use
+   * {@link #requireUnderBase} (with an explicit base directory) or
+   * pre-process the input to remove the {@code ..} substring.
+   *
+   * @param name a user-supplied file or directory name (single
+   *             segment, no separators)
    * @return the input unchanged (after validation)
    * @throws IllegalArgumentException if the input fails any of the
    *         checks above
@@ -86,15 +93,20 @@ public final class PSPathInjectionGuard {
           "path must not contain a forward slash (use a base directory + segment): "
               + describeForError(name));
     }
-    // Disallow ".." segments (with or without surrounding separators).
-    // We reject any name that, when split on either separator, contains
-    // a segment equal to "..".
-    String[] segments = name.split("[/\\\\]");
-    for (String s : segments) {
-      if ("..".equals(s) || ".".equals(s)) {
-        throw new IllegalArgumentException(
-            "path must not contain '.' or '..' segments: " + describeForError(name));
-      }
+    // Reject path-segment ".." and "." entries. The ".." substring
+    // check rejects things like "file..txt" and "a/../b". The
+    // "name equals" check rejects the single-segment "." and ".."
+    // entries (the current-dir and parent-dir markers, which
+    // would resolve to the base directory itself or above it).
+    // The check uses equals() rather than contains() for the "."
+    // case because a single "." is a valid character in legitimate
+    // filenames like "file.txt" or "archive.tar.gz"; only a
+    // segment that IS just "." or ".." is forbidden.
+    if (name.contains("..")
+        || ".".equals(name)
+        || "..".equals(name)) {
+      throw new IllegalArgumentException(
+          "path must not be '.' or '..' segment: " + describeForError(name));
     }
     return name;
   }
@@ -140,15 +152,17 @@ public final class PSPathInjectionGuard {
       throw new IllegalArgumentException(
           "baseDir must exist and be a directory: " + baseDir);
     }
-    // Reject traversal patterns early as a fast-path; the canonical
-    // check below is the authoritative test. The traversal check uses
-    // forward-slash normalization so the same payload is rejected on
-    // both Unix ("..") and Windows ("..\..") platforms.
-    String normalized = userInput.replace('\\', '/');
-    if (normalized.contains("..") || normalized.contains("\0")) {
+    // Reject NUL bytes early as a fast-path (NUL is the only
+    // byte-level special character that can affect downstream file
+    // APIs regardless of platform). The canonical-path check below
+    // is the authoritative test for traversal attempts (e.g. "..",
+    // absolute paths, symlinks). We do NOT do a substring ".."
+    // check here because it would reject legitimate filenames like
+    // "file..txt" or "archive..tar.gz" that contain a literal ".."
+    // substring but resolve within the base directory.
+    if (userInput.indexOf('\0') >= 0) {
       throw new IllegalArgumentException(
-          "userInput contains a forbidden pattern (../ or NUL): "
-              + describeForError(userInput));
+          "userInput contains a NUL byte: " + describeForError(userInput));
     }
     File resolved = new File(baseDir, userInput);
     String resolvedCanonical;
@@ -216,9 +230,18 @@ public final class PSPathInjectionGuard {
   /**
    * True if {@code value} contains any character that file APIs
    * treat specially and that has no business in a user-supplied
-   * filename (NUL byte only, conservatively). Exposed for callers
-   * that need a quick boolean check without the exception-throwing
-   * API of {@link #requireSafeFileName}.
+   * filename (NUL byte and path separators only, conservatively).
+   * Exposed for callers that need a quick boolean check without the
+   * exception-throwing API of {@link #requireSafeFileName}.
+   *
+   * <p>Note: this does NOT check for the literal ".." substring.
+   * Filenames like "file..txt" or "archive..tar.gz" contain ".."
+   * but are legitimate; only ".." as a path SEGMENT (delimited by
+   * path separators) is a traversal marker. Callers that need
+   * segment-aware traversal detection should use
+   * {@link #requireSafeFileName} (single-segment) or
+   * {@link #requireUnderBase} (multi-segment with canonical-path
+   * containment check).
    */
   public static boolean containsForbiddenCharacters(String value) {
     if (StringUtils.isEmpty(value)) {
@@ -226,7 +249,6 @@ public final class PSPathInjectionGuard {
     }
     return value.indexOf('\0') >= 0
         || value.indexOf('\\') >= 0
-        || value.indexOf('/') >= 0
-        || value.contains("..");
+        || value.indexOf('/') >= 0;
   }
 }

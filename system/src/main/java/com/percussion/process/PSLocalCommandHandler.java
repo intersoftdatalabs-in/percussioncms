@@ -509,18 +509,24 @@ public class PSLocalCommandHandler implements IPSCommandHandler {
               + pathString);
     }
 
-    // Reject path traversal patterns - reject ".." sequences.
-    // Delegates to the central PSPathInjectionGuard helper (modules/utils/)
-    // which centralizes the CWE-22 defense across all 58 path-injection
-    // alerts in the projects/sitemanage/ and system/ modules.
-    try {
-      PSPathInjectionGuard.requireSafeFileName(pathString);
-    } catch (IllegalArgumentException e) {
-      throw new SecurityException(
-          "Invalid path - path traversal pattern detected (CWE-22) in "
-              + methodName
-              + ": "
-              + pathString);
+    // Reject path-traversal patterns at the segment level (a ".."
+    // appearing as a complete path segment between separators, NOT
+    // a literal ".." substring inside a legitimate filename like
+    // "file..txt"). Per the review on PR #1207 (round 3): the prior
+    // use of requireSafeFileName was too restrictive — it rejected
+    // ANY "/" which broke multi-segment relative paths like
+    // "subdir/file.txt" that the doXxxFile helpers legitimately
+    // accept. This split-based check is the segment-aware variant
+    // that the reviewer recommended.
+    String[] segments = pathString.replace('\\', '/').split("/");
+    for (String s : segments) {
+      if ("..".equals(s) || ".".equals(s)) {
+        throw new SecurityException(
+            "Invalid path - path traversal pattern detected (CWE-22) in "
+                + methodName
+                + ": "
+                + pathString);
+      }
     }
   }
 
