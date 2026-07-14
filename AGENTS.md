@@ -165,6 +165,7 @@ A list of child modules in this repository. Each bullet contains: Module name �
 - **extensions-sfp** — `./modules/extensions-sfp` — Contains all extensions for Site, Relationships and legacy calendar.
 - **extensions-workflow** — `./modules/extensions-workflow` — CMS Java extensions module containing the core Workflow extensions
 - **extensions-linkback** — `./modules/extensions-linkback` — CMS java extension module that installs the CMS extensions needed for the linkback to editor feature from previewed or published CMS content.
+- **p13n-api** — `./modules/p13n-api` — Personalisation API shared by the DTS p13n-ds service and the legacy client tracking integration.
 - soln-serverutils — modules/extensions-serverutils — No description in pom.xml
 - **perc-package-manager** — `./PCM-PkgMgtUI` — Provides the legacy gwt Package Managent UI implementation for managing components packaged and installed by the `deployer` module.
 - **Percussion CMS Common UI Bundle** — `./modules/perc-common-ui-bundle` — Minified JavaScript bundle for the Percussion CMS delivery-tier widgets (perc_common_ui.js and perc_common_ui_slim.js); built with esbuild and served as bundled web resources from this JAR.

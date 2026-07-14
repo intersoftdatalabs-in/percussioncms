@@ -8,7 +8,7 @@
     <url>https://www.github.com/intersoftdatalabs-in/percussioncms</url>
     <licenses>
         <license>
-            <name>The Apache Software License, Version 2.0</name>
+           <name>The Apache Software License, Version 2.0</name>
             <url>https://www.apache.org/licenses/LICENSE-2.0.txt</url>
             <distribution>repo</distribution>
         </license>
@@ -130,7 +130,7 @@
         <httpcomponents.core.version>4.4.16</httpcomponents.core.version>
         <httpcomponents.version>4.5.14</httpcomponents.version>
         <install.jre.version>8.222.10.1</install.jre.version>
-        <jackson.annotation.api.version>2.21</jackson.annotation.api.version>
+        <jackson.annotation.api.version>2.22</jackson.annotation.api.version>
         <jackson.version>2.22.0</jackson.version>
         <jakarta.activation.version>2.1.4</jakarta.activation.version>
         <jakarta.annotation.api.version>3.0.0</jakarta.annotation.api.version>
@@ -1754,6 +1754,12 @@
                 <groupId>org.apache.commons</groupId>
                 <artifactId>commons-email</artifactId>
                 <version>${commons-email.version}</version>
+		<exclusions>
+			<exclusion>
+				<groupId>com.sun.mail</groupId>
+				<artifactId>jakarta.mail</artifactId>
+			</exclusion>
+		</exclusions>
             </dependency>
             <dependency>
                 <groupId>com.github.dfabulich</groupId>
@@ -2402,7 +2408,6 @@
                                 <exclude>**/cui/components/twitter-bootstrap-3.0.0/assets/js/raw-files.js</exclude>
                                 <exclude>**/system/Docs/Rhythmyx_Publishing_Design_Help/dhtml_search.js</exclude>
                                 <exclude>**/*.min.js</exclude>
-                                <exclude>**/system/cms/content/applications/sys_resources/ApplicationFiles/dojo/**</exclude>
                             </excludes>
                             <prettier>
                                 <prettierVersion>2.8.8</prettierVersion>
@@ -2479,8 +2484,6 @@
                                     <!-- Exclude docs with legacy encodings to avoid UTF-8 checks -->
                                     <exclude>**/system/Docs/**</exclude>
                                     <exclude>**/Docs/**</exclude>
-                                    <!-- Exclude legacy Dojo vendor files that Prettier/Spotless can't parse -->
-                                    <exclude>**/system/cms/content/applications/sys_resources/ApplicationFiles/dojo/**</exclude>
                                     <!-- Exclude vendor-provided component templates (may include templating tags) -->
                                     <exclude>**/cui/components/**</exclude>
                                     <!-- Exclude HTML files under test resources to avoid formatting issues in test fixtures -->
@@ -2503,7 +2506,6 @@
                                     <exclude>**/system/**</exclude>
                                     <!-- Exclude system release documentation and legacy release materials -->
                                     <exclude>**/system/release/**</exclude>
-                                    <exclude>**/system/ApplicationFiles/dojo/**</exclude>
                                     <!-- Exclude docker development data which contains unparseable HTML snippets and is not part of source -->
                                     <exclude>**/docker/dev-data/**</exclude>
                                 </excludes>
@@ -2531,7 +2533,6 @@
                                     <exclude>**/src/test/resources/**/*.css</exclude>
                                     <exclude>**/src/test/resources/**/*.scss</exclude>
                                     <exclude>**/src/test/java/**/*.css</exclude>
-                                    <exclude>**/system/ApplicationFiles/dojo/**</exclude>
                                     <exclude>**/docker/dev-data/**</exclude>
                                 </excludes>
                                 <prettier>
