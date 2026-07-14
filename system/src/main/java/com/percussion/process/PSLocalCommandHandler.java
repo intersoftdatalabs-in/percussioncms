@@ -334,7 +334,7 @@ public class PSLocalCommandHandler implements IPSCommandHandler {
     }
     try {
       validatePath(path, "doRemoveFileSystemObject");
-    } catch (IOException e) {
+    } catch (SecurityException | IOException e) {
       throw new PSProcessException("Invalid path: " + e.getMessage(), e);
     }
     if (path.exists()) {
@@ -381,7 +381,7 @@ public class PSLocalCommandHandler implements IPSCommandHandler {
     }
     try {
       validatePath(path, "doMakeDirectories");
-    } catch (IOException e) {
+    } catch (SecurityException | IOException e) {
       throw new PSProcessException("Invalid path: " + e.getMessage(), e);
     }
     boolean result = true;
@@ -432,7 +432,6 @@ public class PSLocalCommandHandler implements IPSCommandHandler {
     if (null == path) {
       throw new IllegalArgumentException("path cannot be null");
     }
-    validatePath(path, "saveFile");
 
     FileOutputStream fos = null;
     try {
