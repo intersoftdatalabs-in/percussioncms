@@ -38,6 +38,7 @@ import com.percussion.theme.data.PSRichTextCustomStyle;
 import com.percussion.theme.data.PSTheme;
 import com.percussion.theme.data.PSThemeSummary;
 import com.percussion.theme.service.IPSThemeService;
+import com.percussion.utils.io.PSPathInjectionGuard;
 import com.percussion.utils.request.PSRequestInfo;
 import jakarta.annotation.PostConstruct;
 import java.io.File;
@@ -82,8 +83,18 @@ public class PSThemeService implements IPSThemeService {
 
     for (File thFile : Objects.requireNonNull(root.listFiles())) {
       if (thFile.isDirectory()) {
+        // codeql[java/path-injection] reason: thFile.getName() is a
+        // directory name under the controlled themes root, used here as a
+        // file-system lookup key (not concatenated into a path). The
+        // theme-name is validated against the segment-marker contract
+        // (rejects ".", "..", and any path separator) at the API entry
+        // points in this class (see getThemeFolder etc.) which is the
+        // authoritative check; the listFiles() call here is a read-only
+        // directory scan that does not escape the themes root.
         try {
-          themes.add(find(thFile.getName()));
+          String themeName = thFile.getName();
+          PSPathInjectionGuard.requireSafeFileName(themeName);
+          themes.add(find(themeName));
         } catch (DataServiceLoadException
             | DataServiceNotFoundException
             | PSValidationException e) {
@@ -188,11 +199,19 @@ public class PSThemeService implements IPSThemeService {
    */
   protected File getNewThemeFolder(String themeName) {
     File root = getThemesRoot();
-    File themeFolder = new File(root, themeName);
+    // codeql[java/path-injection] reason: themeName is a user-supplied
+    // string that is validated against the segment-marker contract
+    // (rejects ".", "..", and any path separator) by
+    // PSPathInjectionGuard.requireSafeFileName below, then used as
+    // a file-system lookup key under the controlled themes root.
+    PSPathInjectionGuard.requireSafeFileName(themeName);
+    File themeFolder = PSPathInjectionGuard.requireUnderBase(
+        root, themeName);
     int i = 0;
     while (themeFolder.exists()) {
       i++;
-      themeFolder = new File(root, themeName + "-" + i);
+      themeFolder = PSPathInjectionGuard.requireUnderBase(
+          root, themeName + "-" + i);
     }
 
     return themeFolder;
@@ -200,7 +219,14 @@ public class PSThemeService implements IPSThemeService {
 
   protected File getThemeFolder(String themeName) throws PSThemeNotFoundException {
     File root = getThemesRoot();
-    File themeFolder = new File(root, themeName);
+    // codeql[java/path-injection] reason: themeName is validated
+    // against the segment-marker contract before being used to build
+    // a File under the controlled themes root. The resolved path is
+    // verified to be under the base via the canonical-path check
+    // inside requireUnderBase.
+    PSPathInjectionGuard.requireSafeFileName(themeName);
+    File themeFolder = PSPathInjectionGuard.requireUnderBase(
+        root, themeName);
     if (!themeFolder.isDirectory())
       throw new PSThemeNotFoundException(
           "Cannot find theme folder for theme: \"" + themeName + "\".");
@@ -220,6 +246,8 @@ public class PSThemeService implements IPSThemeService {
    * @throws PSThemeNotFoundException If the css file cannot be found
    */
   private File getCssFile(String themeName) throws PSThemeNotFoundException {
+    // themeName is validated transitively via getThemeFolder which calls
+    // requireSafeFileName; no need to re-validate here.
     File themeFolder = getThemeFolder(themeName);
     ThemeFileFilter filter = new ThemeFileFilter(new String[] {THEME_CSS_EXTENSION});
     File[] cssFiles = themeFolder.listFiles(filter);
@@ -227,6 +255,10 @@ public class PSThemeService implements IPSThemeService {
       return cssFiles[0];
     }
 
+    // codeql[java/path-injection] reason: themeName was validated by
+    // getThemeFolder (line 124) against the segment-marker contract.
+    // The CSS filename is built from themeName + THEME_CSS_EXTENSION,
+    // both validated components.
     File namedCssFile = new File(themeFolder, themeName + THEME_CSS_EXTENSION);
     if (namedCssFile.exists()) {
       return namedCssFile;
@@ -309,6 +341,13 @@ public class PSThemeService implements IPSThemeService {
    *     for the specified theme.
    */
   private String getThumbUrl(File themesRoot, String themeName) {
+    // codeql[java/path-injection] reason: themeName is a
+    // user-supplied segment under the controlled themesRoot. The
+    // resulting imgDir is under themesRoot by construction; the
+    // segment-marker contract (PSPathInjectionGuard.requireSafeFileName)
+    // is enforced at the getThemeFolder entry points and the
+    // underlying file.listFiles() is a read-only directory scan.
+    PSPathInjectionGuard.requireSafeFileName(themeName);
     String imgDirPath = File.separator + themeName;
     File imgDir = new File(themesRoot, imgDirPath);
     if (!imgDir.exists()) return null;
