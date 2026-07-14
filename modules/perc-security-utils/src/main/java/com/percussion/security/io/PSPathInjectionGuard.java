@@ -7,7 +7,7 @@
  *
  *     http://www.apache.org/licenses/LICENSE-2.0
  */
-package com.percussion.utils.io;
+package com.percussion.security.io;
 
 import java.io.File;
 import java.io.IOException;

@@ -17,7 +17,7 @@
 package com.percussion.process;
 
 import com.percussion.util.IOTools;
-import com.percussion.utils.io.PSPathInjectionGuard;
+import com.percussion.security.io.PSPathInjectionGuard;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
