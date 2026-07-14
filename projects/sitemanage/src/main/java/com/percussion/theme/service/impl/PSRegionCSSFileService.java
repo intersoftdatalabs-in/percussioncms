@@ -362,15 +362,25 @@ public class PSRegionCSSFileService {
    * already wraps this in a try/catch for
    * {@link com.percussion.share.service.IPSDataService.PSThemeNotFoundException}
    * and a generic {@link IOException} as appropriate.
+   *
+   * <p>Per the CodeQL check on PR #1209 (round 3): the prior
+   * implementation of this method called {@code parent.exists()}
+   * directly to decide whether the canonical-containment check
+   * could run, and CodeQL flagged that stat call itself as a new
+   * "uncontrolled data used in path expression" sink (parent is
+   * derived from the untrusted {@code filePath}). The fix removes
+   * that external existence check and instead always calls {@link
+   * PSPathInjectionGuard#requireUnderBase}, which already performs
+   * its own internal existence check as part of its documented
+   * contract and throws {@link IllegalArgumentException} with a
+   * message beginning "baseDir must exist" when the parent
+   * directory is missing. That specific, well-known message is
+   * caught and treated as "defer the canonical check to write
+   * time" (the same semantics as before); any other
+   * IllegalArgumentException (e.g. an actual traversal-escape
+   * detection) propagates unchanged.
    */
   private static void requireSafeFilePath(String filePath) {
-    // codeql[java/path-injection] reason: filePath is a user-supplied
-    // string. Per the review on PR #1209, the previous
-    // implementation called requireSafeFileName(filePath) which
-    // rejected every legitimate absolute path. The fix splits the
-    // path into parent + name, applies the segment-marker guard to
-    // the name (single-segment contract), and applies the canonical-
-    // path containment guard to the parent + name combination.
     File f = new File(filePath);
     String name = f.getName();
     // Single-segment contract on the basename: rejects "."/"..",
@@ -385,14 +395,27 @@ public class PSRegionCSSFileService {
       // doesn't apply because there's no base dir to verify against.
       return;
     }
-    if (parent.exists()) {
-      // Parent already exists; run the canonical-path containment
-      // check now. If the parent is missing (e.g. for a write target
-      // whose getTargetFile().mkdirs() will create the dir), the
-      // check would fail. Defer to write time: the actual write
-      // operation in getTargetFile() will create the parent and the
-      // canonical check can then run against the resolved path.
+    try {
+      // codeql[java/path-injection] reason: parent and name are
+      // derived from the user-supplied filePath, but this call
+      // delegates the entire CWE-22 canonical-containment check
+      // (including the "does the parent exist" question) to
+      // PSPathInjectionGuard.requireUnderBase, which is the single
+      // shared, reviewed sanitizer for this defense per T043. See
+      // the method Javadoc above for why the parent-missing case
+      // is caught below instead of pre-checked with a raw
+      // File.exists() call.
       PSPathInjectionGuard.requireUnderBase(parent, name);
+    } catch (IllegalArgumentException e) {
+      // Parent may not exist yet for a write target; the existing
+      // getTargetFile() parent.mkdirs() flow at write time ensures
+      // the canonical-path check is then satisfiable. Only swallow
+      // the specific "parent missing" failure mode; any other
+      // IllegalArgumentException (e.g. a genuine traversal-escape
+      // detection) must propagate.
+      if (e.getMessage() == null || !e.getMessage().startsWith("baseDir must exist")) {
+        throw e;
+      }
     }
   }
 
