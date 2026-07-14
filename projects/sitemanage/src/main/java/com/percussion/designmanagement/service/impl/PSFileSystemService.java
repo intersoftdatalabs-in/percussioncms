@@ -21,7 +21,7 @@ import static org.springframework.util.StringUtils.trimTrailingCharacter;
 
 import com.percussion.designmanagement.service.IPSFileSystemService;
 import com.percussion.pathmanagement.service.IPSPathService;
-import com.percussion.utils.io.PSPathInjectionGuard;
+import com.percussion.security.io.PSPathInjectionGuard;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
