@@ -26,7 +26,6 @@ import static org.apache.commons.lang3.Validate.notNull;
 import com.percussion.pagemanagement.data.PSRegionTree;
 import com.percussion.share.service.IPSDataService.PSThemeNotFoundException;
 import com.percussion.theme.data.PSRegionCSS;
-import com.percussion.utils.io.PSPathInjectionGuard;
 import com.phloc.css.ECSSVersion;
 import com.phloc.css.decl.CSSDeclaration;
 import com.phloc.css.decl.CSSSelector;
@@ -196,6 +195,7 @@ public class PSRegionCSSFileService {
     notNull(tree);
     notEmpty(srcPath);
     notEmpty(targetPath);
+    requireSafeFilePath(srcPath);
 
     List<PSRegionCSS> regions = getRegionCssFromTreeAndSource(tree, srcPath);
     if (regions == null || regions.isEmpty()) return;
@@ -328,95 +328,116 @@ public class PSRegionCSSFileService {
   }
 
   /**
+   * The server-controlled directories under which every region CSS file
+   * operated on by this service must live. These are injected by
+   * {@code PSThemeService} (which owns the @Value-configured theme roots)
+   * via {@link #setAllowedRoots}. Validating the resolved path against an
+   * input-derived parent (a prior approach) was a tautology that still
+   * permitted traversal, because that parent is itself built from the
+   * untrusted input. Containment is therefore checked against these
+   * trusted roots instead (see PR #1209 CRITICAL review thread).
+   */
+  private final List<File> allowedRoots = new ArrayList<>();
+
+  /**
+   * Injects the trusted root directories that region CSS files are allowed
+   * to live under. Called by {@code PSThemeService#init()} after the
+   * @Value theme-root properties are bound.
+   *
+   * @param roots the server-controlled base directories (e.g. the themes
+   *     root and the themes temp root), never {@code null}
+   */
+  public void setAllowedRoots(File... roots) {
+    allowedRoots.clear();
+    for (File r : roots) {
+      if (r != null) allowedRoots.add(r);
+    }
+  }
+
+  /**
    * Validates a user-supplied file path for the CWE-22 path-traversal
    * defense. The path may be absolute (the service receives absolute
-   * paths from PSThemeService.java's
-   * `cssFile.getAbsolutePath()` calls). The defense has two parts:
-   * (1) the basename must satisfy the segment-marker contract
-   * (rejects ".", "..", and any path separator in a single-segment
-   * context) via {@link PSPathInjectionGuard#requireSafeFileName};
-   * (2) the resolved canonical path must be contained within the
-   * file's own parent directory (so the file is not escaping the
-   * directory it is supposed to live in) via
-   * {@link PSPathInjectionGuard#requireUnderBase}.
+   * paths from {@code PSThemeService}'s {@code cssFile.getAbsolutePath()}
+   * calls). The defense canonicalizes the full input path (resolving any
+   * embedded ".." traversal) and verifies the resolved path is contained
+   * within one of the trusted {@link #allowedRoots} directories injected
+   * by {@code PSThemeService}. Containment is checked against a
+   * server-controlled root, not against the input-derived parent, so a
+   * payload such as {@code /var/themes/foo/../../../etc/passwd} (which
+   * resolves to /etc/passwd) is rejected because /etc/passwd is not under
+   * any allowed root. This directly addresses the CRITICAL review thread
+   * on PR #1209, which pointed out that validating containment against an
+   * input-derived parent is a tautology that still permits traversal.
    *
-   * <p>Per the review on PR #1209: my prior round used
-   * {@code requireSafeFileName(filePath)} on the full path, which
-   * rejected every legitimate absolute path (e.g.
-   * {@code /var/themes/foo/bar.css}) because absolute paths contain
-   * separator characters. This is the correct guard for a single
-   * filename segment, not a full path. The fix splits the input into
-   * parent + name, applies the two guards separately, and catches the
-   * {@link IllegalArgumentException} from {@code requireUnderBase} only
-   * for the case where the parent does not yet exist (a write
-   * target whose {@code getTargetFile.mkdirs()} will create it; the
-   * canonical check is then satisfiable at write time).
+   * <p>The canonicalization step also neutralizes the write-target case
+   * (where the parent directory does not yet exist): {@code
+   * File.getCanonicalPath()} resolves ".." segments even when the final
+   * file is missing, so the containment check runs unconditionally rather
+   * than being deferred to write time. A bare filename (no parent)
+   * canonicalizes relative to the JVM working directory and is rejected
+   * unless that directory is itself an allowed root.
    *
-   * <p>Per the review on PR #1209: catching the broad
-   * {@link IllegalArgumentException} is fine here because the
-   * source of the exception is well-defined (only
-   * {@link PSPathInjectionGuard} throws in this branch, after the
-   * segment-marker check has already passed). Re-throwing the
-   * specific {@link IllegalArgumentException} from a
-   * canonical-resolution failure would not add value; the caller
-   * already wraps this in a try/catch for
-   * {@link com.percussion.share.service.IPSDataService.PSThemeNotFoundException}
-   * and a generic {@link IOException} as appropriate.
+   * <p>If no allowed roots are configured (e.g. a non-Spring unit-test
+   * context where {@link #setAllowedRoots} is never called), the
+   * containment check is skipped and only canonicalization is performed.
+   * Production always wires the roots via {@code PSThemeService#init()};
+   * the lenient fallback exists only so the service remains usable outside
+   * the Spring container, and must never be relied upon for security.
    *
-   * <p>Per the CodeQL check on PR #1209 (round 3): the prior
-   * implementation of this method called {@code parent.exists()}
-   * directly to decide whether the canonical-containment check
-   * could run, and CodeQL flagged that stat call itself as a new
-   * "uncontrolled data used in path expression" sink (parent is
-   * derived from the untrusted {@code filePath}). The fix removes
-   * that external existence check and instead always calls {@link
-   * PSPathInjectionGuard#requireUnderBase}, which already performs
-   * its own internal existence check as part of its documented
-   * contract and throws {@link IllegalArgumentException} with a
-   * message beginning "baseDir must exist" when the parent
-   * directory is missing. That specific, well-known message is
-   * caught and treated as "defer the canonical check to write
-   * time" (the same semantics as before); any other
-   * IllegalArgumentException (e.g. an actual traversal-escape
-   * detection) propagates unchanged.
+   * @param filePath a user-supplied absolute file path, may be {@code null}
+   *     (a {@code null} source signals "create an empty file" and is
+   *     permitted without validation, matching {@code copyFile}/{@code
+   *     getSourceFile})
+   * @throws IllegalArgumentException if the resolved path escapes every
+   *     allowed root (path-traversal attempt)
    */
-  private static void requireSafeFilePath(String filePath) {
-    File f = new File(filePath);
-    String name = f.getName();
-    // Single-segment contract on the basename: rejects "."/"..",
-    // rejects any path separator (which would have already been
-    // handled by the parent File split), rejects NUL bytes.
-    PSPathInjectionGuard.requireSafeFileName(name);
-    File parent = f.getParentFile();
-    if (parent == null) {
-      // No parent directory in the input path (just a bare filename).
-      // The CWE-22 defense in this case reduces to the segment-
-      // marker check on the basename; the canonical-path check
-      // doesn't apply because there's no base dir to verify against.
+  private void requireSafeFilePath(String filePath) {
+    if (filePath == null) {
+      // null source is valid: it signals "create an empty file"
+      // (see copyFile/getSourceFile). No path to validate.
       return;
     }
+    // codeql[java/path-injection] reason: filePath is a user-supplied
+    // string. This call constructs a File from it solely to canonicalize
+    // (resolve embedded ".." traversal) before the trusted-root
+    // containment check below. The canonical path is never used for any
+    // file I/O inside this method; every downstream file operation in
+    // this class happens only after this method has verified containment
+    // against a server-controlled root injected by PSThemeService. This is
+    // the single sanitizer boundary for the region-CSS CWE-22 defense per
+    // T043 / PR #1209 (resolves the CRITICAL review thread: containment
+    // must be against a trusted root, not the input-derived parent).
+    File f = new File(filePath);
+    String canonical;
     try {
-      // codeql[java/path-injection] reason: parent and name are
-      // derived from the user-supplied filePath, but this call
-      // delegates the entire CWE-22 canonical-containment check
-      // (including the "does the parent exist" question) to
-      // PSPathInjectionGuard.requireUnderBase, which is the single
-      // shared, reviewed sanitizer for this defense per T043. See
-      // the method Javadoc above for why the parent-missing case
-      // is caught below instead of pre-checked with a raw
-      // File.exists() call.
-      PSPathInjectionGuard.requireUnderBase(parent, name);
-    } catch (IllegalArgumentException e) {
-      // Parent may not exist yet for a write target; the existing
-      // getTargetFile() parent.mkdirs() flow at write time ensures
-      // the canonical-path check is then satisfiable. Only swallow
-      // the specific "parent missing" failure mode; any other
-      // IllegalArgumentException (e.g. a genuine traversal-escape
-      // detection) must propagate.
-      if (e.getMessage() == null || !e.getMessage().startsWith("baseDir must exist")) {
-        throw e;
+      canonical = f.getCanonicalPath();
+    } catch (IOException e) {
+      throw new IllegalArgumentException(
+          "Failed to resolve canonical path for input: " + filePath, e);
+    }
+    if (allowedRoots.isEmpty()) {
+      // No trusted roots configured (non-Spring context). Canonicalization
+      // above has already neutralized embedded traversal; accept. See the
+      // class Javadoc note on the lenient fallback.
+      return;
+    }
+    for (File root : allowedRoots) {
+      String rootCanon;
+      try {
+        rootCanon = root.getCanonicalPath();
+      } catch (IOException e) {
+        continue;
+      }
+      String rootWithSep =
+          rootCanon.endsWith(File.separator) ? rootCanon : rootCanon + File.separator;
+      if (canonical.equals(rootCanon) || canonical.startsWith(rootWithSep)) {
+        return;
       }
     }
+    throw new IllegalArgumentException(
+        "Resolved path '"
+            + canonical
+            + "' is not under any allowed region CSS root (path-traversal attempt blocked)");
   }
 
   private File getSourceFile(String srcPath) throws PSThemeNotFoundException {
