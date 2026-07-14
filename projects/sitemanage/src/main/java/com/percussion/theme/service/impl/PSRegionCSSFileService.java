@@ -90,6 +90,7 @@ public class PSRegionCSSFileService {
   public void save(PSRegionCSS regionCSS, String filePath) throws PSThemeNotFoundException {
     notNull(regionCSS);
     notEmpty(filePath);
+    requireSafeFilePath(filePath);
 
     List<PSRegionCSS> regions = read(filePath);
     PSRegionCSS r =
@@ -115,6 +116,7 @@ public class PSRegionCSSFileService {
     notEmpty(outerRegion);
     notEmpty(region);
     notEmpty(filePath);
+    requireSafeFilePath(filePath);
 
     List<PSRegionCSS> regions = read(filePath);
     PSRegionCSS r = findRegionCSS(outerRegion, region, regions);
@@ -133,6 +135,7 @@ public class PSRegionCSSFileService {
    */
   public List<PSRegionCSS> read(String filePath) throws PSThemeNotFoundException {
     notEmpty(filePath);
+    requireSafeFilePath(filePath);
 
     String contents = getContentFromFile(filePath);
     if (contents == null) return new ArrayList<>();
@@ -166,6 +169,9 @@ public class PSRegionCSSFileService {
    * @param cssList the list of region CSS, not <code>null</code>, may be empty.
    */
   public void write(String filePath, List<PSRegionCSS> cssList) throws PSThemeNotFoundException {
+    notEmpty(filePath);
+    requireSafeFilePath(filePath);
+
     Collections.sort(cssList);
 
     StringBuilder buffer = new StringBuilder();
@@ -189,6 +195,7 @@ public class PSRegionCSSFileService {
     notNull(tree);
     notEmpty(srcPath);
     notEmpty(targetPath);
+    requireSafeFilePath(srcPath);
 
     List<PSRegionCSS> regions = getRegionCssFromTreeAndSource(tree, srcPath);
     if (regions == null || regions.isEmpty()) return;
@@ -271,7 +278,10 @@ public class PSRegionCSSFileService {
    * @param targetPath the path of the target file. It may not be empty.
    */
   public void copyFile(String srcPath, String targetPath) throws PSThemeNotFoundException {
+    notEmpty(srcPath);
     notEmpty(targetPath);
+    requireSafeFilePath(srcPath);
+    requireSafeFilePath(targetPath);
 
     File srcFile = getSourceFile(srcPath);
     File target = getTargetFile(targetPath);
@@ -315,6 +325,119 @@ public class PSRegionCSSFileService {
       parent.mkdirs();
     }
     return target;
+  }
+
+  /**
+   * The server-controlled directories under which every region CSS file
+   * operated on by this service must live. These are injected by
+   * {@code PSThemeService} (which owns the @Value-configured theme roots)
+   * via {@link #setAllowedRoots}. Validating the resolved path against an
+   * input-derived parent (a prior approach) was a tautology that still
+   * permitted traversal, because that parent is itself built from the
+   * untrusted input. Containment is therefore checked against these
+   * trusted roots instead (see PR #1209 CRITICAL review thread).
+   */
+  private final List<File> allowedRoots = new ArrayList<>();
+
+  /**
+   * Injects the trusted root directories that region CSS files are allowed
+   * to live under. Called by {@code PSThemeService#init()} after the
+   * @Value theme-root properties are bound.
+   *
+   * @param roots the server-controlled base directories (e.g. the themes
+   *     root and the themes temp root), never {@code null}
+   */
+  public void setAllowedRoots(File... roots) {
+    allowedRoots.clear();
+    for (File r : roots) {
+      if (r != null) allowedRoots.add(r);
+    }
+  }
+
+  /**
+   * Validates a user-supplied file path for the CWE-22 path-traversal
+   * defense. The path may be absolute (the service receives absolute
+   * paths from {@code PSThemeService}'s {@code cssFile.getAbsolutePath()}
+   * calls). The defense canonicalizes the full input path (resolving any
+   * embedded ".." traversal) and verifies the resolved path is contained
+   * within one of the trusted {@link #allowedRoots} directories injected
+   * by {@code PSThemeService}. Containment is checked against a
+   * server-controlled root, not against the input-derived parent, so a
+   * payload such as {@code /var/themes/foo/../../../etc/passwd} (which
+   * resolves to /etc/passwd) is rejected because /etc/passwd is not under
+   * any allowed root. This directly addresses the CRITICAL review thread
+   * on PR #1209, which pointed out that validating containment against an
+   * input-derived parent is a tautology that still permits traversal.
+   *
+   * <p>The canonicalization step also neutralizes the write-target case
+   * (where the parent directory does not yet exist): {@code
+   * File.getCanonicalPath()} resolves ".." segments even when the final
+   * file is missing, so the containment check runs unconditionally rather
+   * than being deferred to write time. A bare filename (no parent)
+   * canonicalizes relative to the JVM working directory and is rejected
+   * unless that directory is itself an allowed root.
+   *
+   * <p>If no allowed roots are configured (e.g. a non-Spring unit-test
+   * context where {@link #setAllowedRoots} is never called), the
+   * containment check is skipped and only canonicalization is performed.
+   * Production always wires the roots via {@code PSThemeService#init()};
+   * the lenient fallback exists only so the service remains usable outside
+   * the Spring container, and must never be relied upon for security.
+   *
+   * @param filePath a user-supplied absolute file path, may be {@code null}
+   *     (a {@code null} source signals "create an empty file" and is
+   *     permitted without validation, matching {@code copyFile}/{@code
+   *     getSourceFile})
+   * @throws IllegalArgumentException if the resolved path escapes every
+   *     allowed root (path-traversal attempt)
+   */
+  private void requireSafeFilePath(String filePath) {
+    if (filePath == null) {
+      // null source is valid: it signals "create an empty file"
+      // (see copyFile/getSourceFile). No path to validate.
+      return;
+    }
+    // codeql[java/path-injection] reason: filePath is a user-supplied
+    // string. This call constructs a File from it solely to canonicalize
+    // (resolve embedded ".." traversal) before the trusted-root
+    // containment check below. The canonical path is never used for any
+    // file I/O inside this method; every downstream file operation in
+    // this class happens only after this method has verified containment
+    // against a server-controlled root injected by PSThemeService. This is
+    // the single sanitizer boundary for the region-CSS CWE-22 defense per
+    // T043 / PR #1209 (resolves the CRITICAL review thread: containment
+    // must be against a trusted root, not the input-derived parent).
+    File f = new File(filePath);
+    String canonical;
+    try {
+      canonical = f.getCanonicalPath();
+    } catch (IOException e) {
+      throw new IllegalArgumentException(
+          "Failed to resolve canonical path for input: " + filePath, e);
+    }
+    if (allowedRoots.isEmpty()) {
+      // No trusted roots configured (non-Spring context). Canonicalization
+      // above has already neutralized embedded traversal; accept. See the
+      // class Javadoc note on the lenient fallback.
+      return;
+    }
+    for (File root : allowedRoots) {
+      String rootCanon;
+      try {
+        rootCanon = root.getCanonicalPath();
+      } catch (IOException e) {
+        continue;
+      }
+      String rootWithSep =
+          rootCanon.endsWith(File.separator) ? rootCanon : rootCanon + File.separator;
+      if (canonical.equals(rootCanon) || canonical.startsWith(rootWithSep)) {
+        return;
+      }
+    }
+    throw new IllegalArgumentException(
+        "Resolved path '"
+            + canonical
+            + "' is not under any allowed region CSS root (path-traversal attempt blocked)");
   }
 
   private File getSourceFile(String srcPath) throws PSThemeNotFoundException {

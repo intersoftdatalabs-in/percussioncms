@@ -69,6 +69,15 @@ public class PSThemeService implements IPSThemeService {
     String tempThemeDir = getThemesTempRootDirectory();
     File tempDir = new File(tempThemeDir);
     FileUtils.deleteQuietly(tempDir);
+    // Wire the trusted region-CSS roots into the region CSS file service so
+    // its CWE-22 path-traversal validation (PSRegionCSSFileService#
+    // requireSafeFilePath) checks containment against these server-
+    // controlled directories rather than against a path reconstructed from
+    // the untrusted input. Both roots are injected via @Value from the
+    // deployment configuration. This closes the path-traversal window
+    // flagged by the CRITICAL review thread on PR #1209.
+    cssFileService.setAllowedRoots(
+        new File(getThemesRootDirectory()), new File(getThemesTempRootDirectory()));
   }
 
   /*
