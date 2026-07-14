@@ -331,6 +331,15 @@
           .contents()
           .find(".tinymce")
           .val();
+        var sanitizeHtml = function(html) {
+          if (!html) return '';
+          return html
+            .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, "")
+            .replace(/<iframe\b[^<]*(?:(?!<\/iframe>)<[^<]*)*<\/iframe>/gi, "")
+            .replace(/on\w+\s*=\s*(['"])[^'"]*\1/gi, "")
+            .replace(/on\w+\s*=\s*\S+/gi, "")
+            .replace(/href\s*=\s*(['"])javascript:[^'"]*\1/gi, "");
+        };
         containerArea.append(
           $("<div/>")
             .attr("id", "perc_page_autogen_page_summary")
@@ -341,7 +350,7 @@
             .css("margin", "0px")
             .css("padding", "0px")
             .addClass("datadisplay perc-tinymce-readonly")
-            .html(content)
+            .html(sanitizeHtml(content))
         );
         if (typeof containerAreaDiv !== "undefined") {
           containerAreaDiv.style.display = "none";

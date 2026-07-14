@@ -103,7 +103,7 @@ Candidate disposition heuristics applied (final disposition assigned by module o
 | 82 | 1627 | `js/unsafe-jquery-plugin` | medium | `WebUI/src/main/webapp/cm/app/js/legacy/plugins/perc_utils.js` | `WebUI/` | `obsolete` | remove vendored 3rd-party file (verify not referenced by build/runtime) | `8.2-must-fix` | — | — |
 | 83 | 1626 | `js/unsafe-jquery-plugin` | medium | `WebUI/src/main/webapp/cm/app/js/legacy/plugins/perc_utils.js` | `WebUI/` | `obsolete` | remove vendored 3rd-party file (verify not referenced by build/runtime) | `8.2-must-fix` | — | — |
 | 84 | 1625 | `js/unsafe-jquery-plugin` | medium | `WebUI/src/main/webapp/cm/app/js/legacy/plugins/perc_utils.js` | `WebUI/` | `obsolete` | remove vendored 3rd-party file (verify not referenced by build/runtime) | `8.2-must-fix` | — | — |
-| 85 | 1624 | `js/xss-through-dom` | high | `WebUI/src/main/webapp/cm/widgets/perc_page_edit_dialog.js` | `WebUI/` | `valid` | fix per rule guidance | `8.2-must-fix` | — | — |
+| 85 | 1624 | `js/xss-through-dom` | high | `WebUI/src/main/webapp/cm/widgets/perc_page_edit_dialog.js` | `WebUI/` | `valid` | fix per rule guidance | `8.2-must-fix` | #1218 | Sanitize TinyMCE HTML before DOM content injection |
 | 86 | 1623 | `js/xss-through-dom` | high | `WebUI/src/main/webapp/cm/widgets/PercInlineEditDataTable.js` | `WebUI/` | `valid` | fix per rule guidance | `8.2-must-fix` | — | — |
 | 87 | 1622 | `js/xss-through-dom` | high | `WebUI/src/main/webapp/cm/widgets/PercInlineEditDataTable.js` | `WebUI/` | `valid` | fix per rule guidance | `8.2-must-fix` | — | — |
 | 88 | 1621 | `js/xss-through-dom` | high | `WebUI/src/main/webapp/cm/widgetbuilder/js/views/PercWidgetFieldsViews.js` | `WebUI/` | `valid` | fix per rule guidance | `8.2-must-fix` | — | — |
