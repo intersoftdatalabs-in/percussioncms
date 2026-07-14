@@ -132,7 +132,7 @@ enrich_prrecord() {
       inv="$1"
       tmp="$2"
       files_json="$(gh api "repos/intersoftdatalabs-in/percussioncms/pulls/${n}/files?per_page=100" --paginate 2>/dev/null || echo "[]")"
-      modules=$(printf "%s" "$files_json" | jq -r "[ .[] | .filename | split(\"/\")[0] ] | unique | map(. as \$p | ([\"pom.xml\",\"mvnw\",\"CHANGES.md\",\".github\",\"docs\",\".gitignore\"] | index(\$p)) | not) | join(\"|\")")
+      modules=$(printf "%s" "$files_json" | jq -r "[ .[] | .filename | split(\"/\") as \$parts | if \$parts[0] == \"projects\" then \"projects/\" + \$parts[1] elif \$parts[0] == \"deliverytiersuite\" and \$parts[1] == \"delivery-tier-suite\" then \"deliverytiersuite/delivery-tier-suite/\" + \$parts[2] else \$parts[0] end ] | unique | map(select(. as \$p | ([\"pom.xml\",\"mvnw\",\"CHANGES.md\",\".github\",\"docs\",\".gitignore\"] | index(\$p)) | not)) | join(\"|\")")
       jdk8=$(printf "%s" "$files_json" | jq -r "[ .[] | .filename | test(\"javax/ws/rs|javax/persistence|javax/xml/bind|sun/misc|com/sun/\") ] | any")
       sec=$(printf "%s" "$files_json" | jq -r "[ .[] | .filename | test(\"(?i)(^|/)(cve|security|shiro|tomcat|csp|authentication|authorization|jetty[-_ ]?maven|perc-security)\") ] | any")
       jq --argjson n "$n" --arg modules "$modules" --argjson jdk8 "$jdk8" --argjson sec "$sec" \

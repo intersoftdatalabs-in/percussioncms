@@ -12,11 +12,13 @@ run_report_phase() {
 
   log_info "generating v8.1.7-to-8.2-migration-report.md"
 
-  local total_inv total_excl verdict_dist p0_count backlog_path
+  local total_inv total_excl verdict_dist p0_count backlog_path sec_heur_count empty_modules_count
   total_inv="$(jq 'length' "${inventory}")"
   total_excl="$(jq 'length' "${excluded}")"
   verdict_dist="$(jq -r '[.[].verdict] | group_by(.) | map({k:.[0], v:length}) | .[] | "\(.k)=\(.v)"' "${verdicts}" | tr '\n' ' ' | sed 's/ $//')"
   p0_count="$(jq '[.[] | select(.verdict == "needs-migration" and .securityFlag == true)] | length' "${verdicts}")"
+  sec_heur_count="$(jq '[.[] | select(.securityFlag == true)] | length' "${verdicts}")"
+  empty_modules_count="$(jq '[.[] | select(.modulePaths | length == 0)] | length' "${inventory}")"
   backlog_path="migration-backlog.md"
 
   local from_tag to_tag target_branch run_ts
@@ -25,7 +27,7 @@ run_report_phase() {
   target_branch="$(jq -r '.targetBranch' "${config}")"
   run_ts="$(jq -r '.runTimestamp' "${config}")"
 
-  # Top-10 needs-migration by priority (P0 first), then by merge date desc.
+  # Top-10 needs-migration by priority (P0 first), then by merge date.
   # Join verdicts with inventory to bring in modulePaths/securityFlag/mergedAt.
   local top10
   top10="$(jq -rs '
@@ -43,7 +45,7 @@ run_report_phase() {
             securityFlag: ($v.securityFlag // false),
             priority: (
               if $v.securityFlag then "P0"
-              elif (($pr.modulePaths // []) | any(. == "rest" or . == "projects/sitemanage")) then "P1"
+              elif (($pr.modulePaths // []) | any(. == "rest" or (. | startswith("projects/sitemanage")) or (. | startswith("deliverytiersuite/delivery-tier-suite")))) then "P1"
               elif (($pr.modulePaths // []) | any(. | startswith("WebUI"))) then "P2"
               else "P3"
               end
@@ -80,8 +82,8 @@ run_report_phase() {
     printf 'Excluded %s dependabot PRs (dependency updates, not in scope per FR-002).\n\n' "${total_excl}"
 
     printf '## Open Questions / Data Gaps\n\n'
-    printf -- '- 13 PRs flagged `securityFlag == true` via filename heuristic; per-component dependency version comparison (FR-006a) is a follow-up — current verdicts treat them as `needs-migration` if dev is missing the patched version.\n'
-    printf -- '- 2 PRs without files-changed data have empty `modulePaths`; their priority defaults to P3.\n'
+    printf -- '- %s PRs flagged `securityFlag == true` via filename heuristic; per-component dependency version comparison (FR-006a) is a follow-up — current verdicts treat them as `needs-migration` if dev is missing the patched version.\n' "${sec_heur_count}"
+    printf -- '- %s PRs without files-changed data have empty `modulePaths`; their priority defaults to P3.\n' "${empty_modules_count}"
     printf -- '- Verdict heuristic uses commit-message tokens; manual review recommended for ambiguous cases (verdict != `already-present` AND verdict != `conflicts-with-newer-design`).\n\n'
 
     printf '## Next Steps\n\n'
