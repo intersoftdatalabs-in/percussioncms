@@ -76,7 +76,7 @@ classify_pr() {
 
   # Get the diff files for the v8.1.7 merge commit (timeout-protected)
   local diff_files
-  diff_files="$(timeout 10 git show --name-only --pretty=format: "${merge_commit_sha}" 2>/dev/null | grep -v '^$' | head -20 || true)"
+  diff_files="$(timeout 10 git show --name-only --pretty=format: "${merge_commit_sha}" 2>/dev/null | grep -v '^$' || true)"
 
   if [[ -z "${diff_files}" ]]; then
     verdict="${VERDICT_NOT_APPLICABLE}"

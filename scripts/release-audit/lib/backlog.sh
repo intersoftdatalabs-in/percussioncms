@@ -3,51 +3,7 @@
 # User Story 3 — migration backlog generator.
 # Source from release-audit.sh; depends on lib/common.sh being sourced first.
 
-# Priority constants
-readonly PRIORITY_P0="P0"   # Security
-readonly PRIORITY_P1="P1"   # REST contract / Publishing
-readonly PRIORITY_P2="P2"   # UI fix
-readonly PRIORITY_P3="P3"   # Cosmetic / Gadget
-
-# classify_priority <prrecord-json>
-# Echoes a priority string.
-classify_priority() {
-  local pr="$1"
-  local sec
-  sec="$(jq -r '.securityFlag // false' <<<"${pr}")"
-  if [[ "${sec}" == "true" ]]; then
-    printf '%s\n' "${PRIORITY_P0}"
-    return
-  fi
-  # P1 if any modulePath matches REST / publishing / sitemanage
-  local modules
-  modules="$(jq -r '.modulePaths // [] | join(" ")' <<<"${pr}")"
-  if [[ "${modules}" =~ rest ]] || [[ "${modules}" =~ sitemanage ]] || [[ "${modules}" =~ publishing ]]; then
-    printf '%s\n' "${PRIORITY_P1}"
-    return
-  fi
-  # P2 if any modulePath matches WebUI / widgets / gadgets
-  if [[ "${modules}" =~ WebUI ]] || [[ "${modules}" =~ widget ]] || [[ "${modules}" =~ gadget ]]; then
-    printf '%s\n' "${PRIORITY_P2}"
-    return
-  fi
-  printf '%s\n' "${PRIORITY_P3}"
-}
-
-# recommend_strategy <prrecord-json> <verdict-json>
-# Echoes one of: cherry-pick, back-port, re-implement, skip
-recommend_strategy() {
-  local pr="$1"
-  local vj="$2"
-  local jdk8
-  jdk8="$(jq -r '.jdk8OnlyFlag // false' <<<"${pr}")"
-  if [[ "${jdk8}" == "true" ]]; then
-    printf '%s\n' "back-port"
-    return
-  fi
-  # Default
-  printf '%s\n' "cherry-pick"
-}
+# ---------- Backlog phase orchestrator ----------
 
 # generate_backlog <output-dir>
 # Reads inventory.json and verdicts.json; emits migration-backlog.md.
@@ -123,7 +79,7 @@ run_backlog_phase() {
           pr: .,
           prio: (
             if .securityFlag then "P0"
-            elif ((.modulePaths // []) | any(. == "rest" or . == "projects/sitemanage" or . == "deliverytiersuite/delivery-tier-suite")) then "P1"
+            elif ((.modulePaths // []) | any(. == "rest" or (. | startswith("projects/sitemanage")) or (. | startswith("deliverytiersuite/delivery-tier-suite")))) then "P1"
             elif ((.modulePaths // []) | any(. | startswith("WebUI"))) then "P2"
             else "P3"
             end

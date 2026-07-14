@@ -34,7 +34,7 @@ require_origin() {
   if ! timeout 10 git ls-remote origin >/dev/null 2>&1; then
     die 4 "origin remote is unreachable (timeout or network error)"
   fi
-  if ! gh auth status --active >/dev/null 2>&1; then
+  if ! (gh auth status || true) 2>&1 | grep -q "Active account: true"; then
     die 4 "gh CLI active account is not authenticated (run: gh auth login --hostname github.com)"
   fi
 }
