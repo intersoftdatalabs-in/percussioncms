@@ -31,6 +31,10 @@ import org.junit.jupiter.api.Test;
 /**
  * Regression for GH-844 / v8.1.7 PR #850: Registration widget is listed under the Deprecated group
  * and labels carry the (Deprecated) suffix.
+ *
+ * <p>Package XML files live under {@code modules/perc-packages} (not the sitemanage classpath).
+ * {@link #resolveRepoRoot()} therefore walks from the Surefire CWD ({@code projects/sitemanage}) to
+ * the monorepo root — the same pattern as other 005 migration package-file tests.
  */
 class WidgetRegistryRegistrationDeprecationTest {
 
@@ -51,8 +55,9 @@ class WidgetRegistryRegistrationDeprecationTest {
             || xml.contains("<widget name=\"Registration\"/>"),
         "Registration must not remain in the active Percussion group");
     assertTrue(
-        xml.contains("Registration (Deprecated)"),
-        "Registration must appear with Deprecated label");
+        xml.contains("<widget name=\"Registration (Deprecated)\" />")
+            || xml.contains("<widget name=\"Registration (Deprecated)\"/>"),
+        "Registration must appear as Registration (Deprecated) widget entry");
     int deprecatedIdx = xml.indexOf("<group name=\"Deprecated\">");
     int regIdx = xml.indexOf("Registration (Deprecated)");
     assertTrue(deprecatedIdx >= 0, "Deprecated group must exist");
@@ -76,27 +81,46 @@ class WidgetRegistryRegistrationDeprecationTest {
         root.resolve(
             "modules/perc-packages/src/main/resources/Packages/perc.widget.registration"
                 + "/sys__UserDependency--rxconfig/Widgets/percRegistration.xml");
-    for (Path p : new Path[] {itemDef, nodeDef, widget}) {
-      if (!Files.isRegularFile(p)) {
-        fail("expected " + p.toAbsolutePath());
-      }
-      String text = Files.readString(p, StandardCharsets.UTF_8);
-      assertTrue(
-          text.contains("Deprecated"),
-          p.getFileName() + " must include Deprecated in label/title/description");
-    }
+
+    assertTrue(Files.isRegularFile(itemDef), "expected itemDef at " + itemDef.toAbsolutePath());
+    assertTrue(Files.isRegularFile(nodeDef), "expected nodeDef at " + nodeDef.toAbsolutePath());
+    assertTrue(Files.isRegularFile(widget), "expected widget xml at " + widget.toAbsolutePath());
+
+    String itemText = Files.readString(itemDef, StandardCharsets.UTF_8);
+    String nodeText = Files.readString(nodeDef, StandardCharsets.UTF_8);
+    String widgetText = Files.readString(widget, StandardCharsets.UTF_8);
+
+    assertTrue(
+        itemText.contains("label=\"Registration Asset (Deprecated)\""),
+        "itemDef label must be Registration Asset (Deprecated)");
+    assertTrue(
+        nodeText.contains("<label>Registration Asset (Deprecated)</label>"),
+        "nodeDef label must be Registration Asset (Deprecated)");
+    assertTrue(
+        widgetText.contains("title=\"Registration (Deprecated)\""),
+        "widget title must be Registration (Deprecated)");
+    assertTrue(
+        widgetText.contains("registration form. (Deprecated)")
+            || widgetText.contains("(Deprecated)"),
+        "widget description must note Deprecated");
   }
 
   private static Path resolveRepoRoot() {
     Path cwd = Path.of("").toAbsolutePath().normalize();
     Path candidate = cwd.resolve("../..").normalize();
-    if (Files.isDirectory(candidate.resolve("modules"))) {
+    if (Files.isDirectory(candidate.resolve("modules/perc-packages"))
+        && Files.isDirectory(candidate.resolve("projects/sitemanage"))) {
       return candidate;
     }
-    if (Files.isDirectory(cwd.resolve("modules"))) {
+    if (Files.isDirectory(cwd.resolve("modules/perc-packages"))) {
       return cwd;
     }
-    fail("could not resolve monorepo root");
+    fail(
+        "could not resolve monorepo root (need modules/perc-packages/). Tried: "
+            + candidate
+            + " and "
+            + cwd
+            + " — Surefire basedir is typically projects/sitemanage");
     return cwd;
   }
 }
