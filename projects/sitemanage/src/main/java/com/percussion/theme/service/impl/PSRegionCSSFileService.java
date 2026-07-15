@@ -24,6 +24,7 @@ import static org.apache.commons.lang3.Validate.notEmpty;
 import static org.apache.commons.lang3.Validate.notNull;
 
 import com.percussion.pagemanagement.data.PSRegionTree;
+import com.percussion.security.io.PSPathInjectionGuard;
 import com.percussion.share.service.IPSDataService.PSThemeNotFoundException;
 import com.percussion.theme.data.PSRegionCSS;
 import com.phloc.css.ECSSVersion;
@@ -52,6 +53,21 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 
 public class PSRegionCSSFileService {
+  private File themesRoot;
+
+  /**
+   * Sets the themes root directory used to validate path arguments. When set, public methods that
+   * accept a file path MUST validate that the path resolves under this directory before performing
+   * any file I/O. When unset (legacy/test usage), the methods fall back to single-segment
+   * validation via {@code PSPathInjectionGuard.requireSafeFileName}.
+   *
+   * @param themesRoot the themes root directory, may be {@code null} for single-segment-only
+   *     validation.
+   */
+  public void setThemesRoot(File themesRoot) {
+    this.themesRoot = themesRoot;
+  }
+
   /**
    * Finds the specified region CSS from a file.
    *
@@ -64,7 +80,7 @@ public class PSRegionCSSFileService {
       throws PSThemeNotFoundException {
     notEmpty(outerRegion);
     notEmpty(region);
-    notEmpty(filePath);
+    validatePath(filePath);
 
     List<PSRegionCSS> regions = read(filePath);
     return findRegionCSS(outerRegion, region, regions);
@@ -90,7 +106,7 @@ public class PSRegionCSSFileService {
   public void save(PSRegionCSS regionCSS, String filePath) throws PSThemeNotFoundException {
     notNull(regionCSS);
     notEmpty(filePath);
-    requireSafeFilePath(filePath);
+    validatePath(filePath);
 
     List<PSRegionCSS> regions = read(filePath);
     PSRegionCSS r =
@@ -116,7 +132,7 @@ public class PSRegionCSSFileService {
     notEmpty(outerRegion);
     notEmpty(region);
     notEmpty(filePath);
-    requireSafeFilePath(filePath);
+    validatePath(filePath);
 
     List<PSRegionCSS> regions = read(filePath);
     PSRegionCSS r = findRegionCSS(outerRegion, region, regions);
@@ -135,7 +151,7 @@ public class PSRegionCSSFileService {
    */
   public List<PSRegionCSS> read(String filePath) throws PSThemeNotFoundException {
     notEmpty(filePath);
-    requireSafeFilePath(filePath);
+    validatePath(filePath);
 
     String contents = getContentFromFile(filePath);
     if (contents == null) return new ArrayList<>();
@@ -170,7 +186,7 @@ public class PSRegionCSSFileService {
    */
   public void write(String filePath, List<PSRegionCSS> cssList) throws PSThemeNotFoundException {
     notEmpty(filePath);
-    requireSafeFilePath(filePath);
+    validatePath(filePath);
 
     Collections.sort(cssList);
 
@@ -195,8 +211,8 @@ public class PSRegionCSSFileService {
     notNull(tree);
     notEmpty(srcPath);
     notEmpty(targetPath);
-    requireSafeFilePath(srcPath);
-    requireSafeFilePath(targetPath);
+    validatePath(srcPath);
+    validatePath(targetPath);
 
     List<PSRegionCSS> regions = getRegionCssFromTreeAndSource(tree, srcPath);
     if (regions == null || regions.isEmpty()) return;
@@ -281,8 +297,8 @@ public class PSRegionCSSFileService {
   public void copyFile(String srcPath, String targetPath) throws PSThemeNotFoundException {
     notEmpty(srcPath);
     notEmpty(targetPath);
-    requireSafeFilePath(srcPath);
-    requireSafeFilePath(targetPath);
+    if (srcPath != null) validatePath(srcPath);
+    validatePath(targetPath);
 
     File srcFile = getSourceFile(srcPath);
     File target = getTargetFile(targetPath);
@@ -561,5 +577,34 @@ public class PSRegionCSSFileService {
 
     ECSSSelectorCombinator combinator = (ECSSSelectorCombinator) member;
     return (combinator == ECSSSelectorCombinator.BLANK);
+  }
+
+  /**
+   * Validates that {@code filePath} is a safe path argument for the public methods on this class.
+   * When {@link #themesRoot} is set, the resolved canonical path MUST be contained within {@code
+   * themesRoot}; otherwise, the path is treated as a single-segment name and validated via {@link
+   * PSPathInjectionGuard#requireSafeFileName}.
+   *
+   * @param filePath a user-supplied file path argument; never {@code null} (callers MUST validate
+   *     non-empty before calling).
+   * @throws IllegalArgumentException if {@code filePath} contains a path-traversal payload or
+   *     resolves outside {@code themesRoot}.
+   */
+  private void validatePath(String filePath) {
+    if (filePath == null) {
+      throw new IllegalArgumentException("filePath must not be null");
+    }
+    if (themesRoot != null) {
+      // Canonical-path containment check against the configured
+      // themes root. Rejects any path that resolves outside the
+      // themes root, including "../escape" payloads.
+      PSPathInjectionGuard.requireUnderBase(themesRoot, filePath);
+    } else {
+      // No themesRoot configured (legacy/test usage). Fall back to
+      // single-segment validation: reject path separators, NUL
+      // bytes, and ".." / "." segment markers. Callers that pass
+      // absolute paths in this mode are out of contract.
+      PSPathInjectionGuard.requireSafeFileName(new File(filePath).getName());
+    }
   }
 }

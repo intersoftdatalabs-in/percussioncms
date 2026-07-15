@@ -20,6 +20,8 @@ import jakarta.servlet.jsp.JspException;
 import jakarta.servlet.jsp.JspWriter;
 import java.util.HashMap;
 import java.util.Map;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * This tag renders the navigation for a ui page.
@@ -27,6 +29,14 @@ import java.util.Map;
  * @author dougrand
  */
 public class PSPageSidenavTag extends PSPageBaseTag {
+  private static final Logger log = LogManager.getLogger(PSPageSidenavTag.class);
+
+  // Generic client-facing error message used to avoid leaking internal exception details
+  // (CWE-209 / CodeQL java/error-message-exposure). The detailed exception is always logged
+  // server-side before this generic message is thrown.
+  private static final String GENERIC_RENDER_ERROR =
+      "An error occurred while rendering the sidenav";
+
   /** The name of the component */
   protected String m_component;
 
@@ -41,7 +51,9 @@ public class PSPageSidenavTag extends PSPageBaseTag {
       extra.put("sys_pagename", m_page);
       out.print(getUrlContent(m_component, extra));
     } catch (Exception e) {
-      throw new JspException("Problem while rendering sidenav", e);
+      log.error("Problem while rendering sidenav for component={} page={}: {}",
+          m_component, m_page, e.getMessage(), e);
+      throw new JspException(GENERIC_RENDER_ERROR);
     }
     return 0;
   }

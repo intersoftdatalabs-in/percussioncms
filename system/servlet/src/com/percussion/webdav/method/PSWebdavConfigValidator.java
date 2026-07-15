@@ -64,6 +64,12 @@ public class PSWebdavConfigValidator
 
    private static final Logger log = LogManager.getLogger(PSWebdavConfigValidator.class);
 
+   // Generic client-facing error message used to avoid leaking internal exception details
+   // (CWE-209 / CodeQL java/error-message-exposure). The detailed exception is always logged
+   // server-side before this generic message is rendered or thrown.
+   private static final String GENERIC_VALIDATION_ERROR =
+      "An error occurred while validating the WebDAV configuration";
+
    /**
     * List of String exception msgs generated during the 
     * validation routines
@@ -229,13 +235,13 @@ public class PSWebdavConfigValidator
          log.error(PSExceptionUtils.getMessageForLog(e));
          log.debug(PSExceptionUtils.getDebugMessageForLog(e));
          m_out.write("<h4>" + getResourceString("msg.errors.found") + "</h4>");
-         writeError(e.getMessage(), ERROR);
+         writeError(GENERIC_VALIDATION_ERROR, ERROR);
       }
       catch (Exception e)
       {
          log.error(PSExceptionUtils.getMessageForLog(e));
          log.debug(PSExceptionUtils.getDebugMessageForLog(e));
-         throw new ServletException(e.getMessage());
+         throw new ServletException(GENERIC_VALIDATION_ERROR);
       }
 
       m_out.write("</body>\n</html>");

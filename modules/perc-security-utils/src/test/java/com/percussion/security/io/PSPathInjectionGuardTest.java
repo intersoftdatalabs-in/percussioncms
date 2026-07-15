@@ -24,22 +24,18 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 /**
- * Regression tests for {@link PSPathInjectionGuard} (CodeQL
- * {@code java/path-injection}, T043, US3).
+ * Regression tests for {@link PSPathInjectionGuard} (CodeQL {@code java/path-injection}, T043,
+ * US3).
  *
- * <p>The pre-fix pattern across the 58 T043 sites in projects/sitemanage
- * and system/ was to pass user-supplied strings directly to
- * {@code new File(baseDir, userInput)} without any traversal check.
- * The post-fix pattern is to call {@link PSPathInjectionGuard#requireSafeFileName}
- * on the user-supplied string and/or
- * {@link PSPathInjectionGuard#requireUnderBase} to verify the resolved
+ * <p>The pre-fix pattern across the 58 T043 sites in projects/sitemanage and system/ was to pass
+ * user-supplied strings directly to {@code new File(baseDir, userInput)} without any traversal
+ * check. The post-fix pattern is to call {@link PSPathInjectionGuard#requireSafeFileName} on the
+ * user-supplied string and/or {@link PSPathInjectionGuard#requireUnderBase} to verify the resolved
  * path is still within the base directory.
  *
- * <p><strong>Fail-then-pass coverage (Constitution III).</strong> The
- * pre-fix code accepted every payload below; the post-fix code
- * rejects each one with an {@link IllegalArgumentException} (or, for
- * the canonical-path test, refuses to return a path outside the base
- * directory).
+ * <p><strong>Fail-then-pass coverage (Constitution III).</strong> The pre-fix code accepted every
+ * payload below; the post-fix code rejects each one with an {@link IllegalArgumentException} (or,
+ * for the canonical-path test, refuses to return a path outside the base directory).
  */
 @DisplayName("PSPathInjectionGuard — path-traversal (CWE-22/CWE-23) regression tests")
 class PSPathInjectionGuardTest {
@@ -63,16 +59,14 @@ class PSPathInjectionGuardTest {
     @Test
     @DisplayName("filename with multiple dots is accepted (e.g. archive.tar.gz)")
     void testMultipleDots() {
-      assertEquals(
-          "archive.tar.gz", PSPathInjectionGuard.requireSafeFileName("archive.tar.gz"));
+      assertEquals("archive.tar.gz", PSPathInjectionGuard.requireSafeFileName("archive.tar.gz"));
     }
 
     @Test
     @DisplayName("filename with hyphen, underscore, space is accepted")
     void testSpecialCharsInFilename() {
       assertEquals(
-          "my file-name_v2.txt",
-          PSPathInjectionGuard.requireSafeFileName("my file-name_v2.txt"));
+          "my file-name_v2.txt", PSPathInjectionGuard.requireSafeFileName("my file-name_v2.txt"));
     }
   }
 
@@ -145,24 +139,21 @@ class PSPathInjectionGuardTest {
     @DisplayName("null name is rejected")
     void testNull() {
       assertThrows(
-          IllegalArgumentException.class,
-          () -> PSPathInjectionGuard.requireSafeFileName(null));
+          IllegalArgumentException.class, () -> PSPathInjectionGuard.requireSafeFileName(null));
     }
 
     @Test
     @DisplayName("empty name is rejected")
     void testEmpty() {
       assertThrows(
-          IllegalArgumentException.class,
-          () -> PSPathInjectionGuard.requireSafeFileName(""));
+          IllegalArgumentException.class, () -> PSPathInjectionGuard.requireSafeFileName(""));
     }
 
     @Test
     @DisplayName("'.' (current-dir marker) is rejected")
     void testDot() {
       assertThrows(
-          IllegalArgumentException.class,
-          () -> PSPathInjectionGuard.requireSafeFileName("."));
+          IllegalArgumentException.class, () -> PSPathInjectionGuard.requireSafeFileName("."));
     }
   }
 
@@ -196,20 +187,19 @@ class PSPathInjectionGuardTest {
       // the "/" separator; this test verifies the more permissive
       // contract: requireUnderBase accepts multi-segment paths and
       // relies on the canonical-path check to reject traversal.
-      File result =
-          PSPathInjectionGuard.requireUnderBase(m_tmpRoot, "subdir/inner/file.txt");
+      File result = PSPathInjectionGuard.requireUnderBase(m_tmpRoot, "subdir/inner/file.txt");
       assertNotNull(result);
       String resolvedCanonical = result.getCanonicalPath();
       String baseCanonical = m_tmpRoot.getCanonicalPath();
       String baseWithSep =
-          baseCanonical.endsWith(File.separator)
-              ? baseCanonical
-              : baseCanonical + File.separator;
+          baseCanonical.endsWith(File.separator) ? baseCanonical : baseCanonical + File.separator;
       assertTrue(
-          resolvedCanonical.equals(baseCanonical)
-              || resolvedCanonical.startsWith(baseWithSep),
-          "resolved canonical path '" + resolvedCanonical
-              + "' must be under baseDir '" + baseCanonical + "'");
+          resolvedCanonical.equals(baseCanonical) || resolvedCanonical.startsWith(baseWithSep),
+          "resolved canonical path '"
+              + resolvedCanonical
+              + "' must be under baseDir '"
+              + baseCanonical
+              + "'");
     }
 
     @Test
@@ -253,9 +243,7 @@ class PSPathInjectionGuardTest {
       // tempdir" path so the canonical-path check is meaningful on
       // every OS.
       String os = System.getProperty("os.name").toLowerCase();
-      String traversal = os.contains("win")
-          ? "C:\\Windows\\System32\\config\\SAM"
-          : "/etc/passwd";
+      String traversal = os.contains("win") ? "C:\\Windows\\System32\\config\\SAM" : "/etc/passwd";
       assertThrows(
           IllegalArgumentException.class,
           () -> PSPathInjectionGuard.requireUnderBase(m_tmpRoot, traversal),

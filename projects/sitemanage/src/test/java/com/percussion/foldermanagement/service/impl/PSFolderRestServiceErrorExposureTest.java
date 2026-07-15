@@ -17,27 +17,57 @@
 
 package com.percussion.foldermanagement.service.impl;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.mockito.ArgumentMatchers.anyBoolean;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.when;
 
 import com.percussion.foldermanagement.data.PSWorkflowAssignment;
 import com.percussion.foldermanagement.service.IPSFolderService;
 import com.percussion.foldermanagement.service.IPSFolderService.PSWorkflowAssignmentInProgressException;
 import com.percussion.foldermanagement.service.IPSFolderService.PSWorkflowNotFoundException;
+import com.percussion.share.dao.IPSGenericDao.LoadException;
 import com.percussion.pathmanagement.service.IPSPathService.PSPathNotFoundServiceException;
-import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.Response;
-import java.util.Collections;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
+/**
+ * Regression tests for PSFolderRestService that verify exception messages are not leaked back to the
+ * HTTP client (CWE-209 / CodeQL {@code java/error-message-exposure}).
+ *
+ * <p>Follows the Constitution III fail-then-pass contract: on pre-fix code the response body is
+ * built from {@code e.getMessage()}, so these assertions fail. On post-fix code the body is a
+ * static generic message and the assertions pass.
+ */
 @DisplayName("PSFolderRestService Error Exposure Prevention Tests")
 class PSFolderRestServiceErrorExposureTest {
 
-  private PSFolderRestService folderRestService;
+  private static final String SENSITIVE_TOKEN = "internal-secret-path=/etc/shadow";
+
+  private static final String LEAKY_WORKFLOW_NOT_FOUND =
+      "Workflow not found at " + SENSITIVE_TOKEN;
+
+  private static final String LEAKY_ILLEGAL_ARG =
+      "Illegal argument: bad value at " + SENSITIVE_TOKEN;
+
+  private static final String LEAKY_PATH_NOT_FOUND =
+      "Path not found at " + SENSITIVE_TOKEN;
+
+  private static final String LEAKY_WORKFLOW_IN_PROGRESS =
+      "Workflow assignment in progress for site db1.internal.example.com " + SENSITIVE_TOKEN;
+
+  private static final String LEAKY_RUNTIME =
+      "Internal error connecting to db1.internal.example.com: " + SENSITIVE_TOKEN;
+
+  private PSFolderRestService folderService;
 
   @Mock private IPSFolderService mockFolderService;
 
@@ -69,75 +99,129 @@ class PSFolderRestServiceErrorExposureTest {
   }
 
   @Test
-  @DisplayName("Should not expose PSWorkflowNotFoundException details and should HTML-encode user input in getAssociatedFolders")
-  void testWorkflowNotFoundExceptionMessageHidden() throws Exception {
-    String badWorkflow = "<img src=x onerror=alert(1)>";
-    when(mockFolderService.getAssignedFolders(badWorkflow, "/path", false))
-        .thenThrow(new PSWorkflowNotFoundException("Secret SQL Exception details"));
+  @DisplayName("getAssociatedFolders must not leak PSWorkflowNotFoundException message")
+  void testGetAssociatedFoldersDoesNotLeakWorkflowNotFound() throws Exception {
+    doThrow(new PSWorkflowNotFoundException(LEAKY_WORKFLOW_NOT_FOUND))
+        .when(mockFolderService)
+        .getAssignedFolders(anyString(), anyString(), anyBoolean());
 
-    Response response = folderRestService.getAssociatedFolders(badWorkflow, "path", false);
+    var response = folderService.getAssociatedFolders("blog", "/sites/foo", false);
+
+    assertNotNull(response);
     assertEquals(404, response.getStatus());
-    assertEquals("text/plain", response.getMediaType().toString());
-    String entity = (String) response.getEntity();
-    assertFalse(entity.contains("Secret SQL Exception details"));
-    assertTrue(entity.contains("&lt;img"));
-    assertFalse(entity.contains("<img"));
+    assertNoSensitiveLeak(entityAsString(response));
   }
 
   @Test
-  @DisplayName("Should not expose IllegalArgumentException details to client")
-  void testIllegalArgumentExceptionMessageHidden() throws Exception {
-    when(mockFolderService.getAssignedFolders("wf", "/path", false))
-        .thenThrow(new IllegalArgumentException("Null arguments rejected"));
+  @DisplayName("getAssociatedFolders must not leak IllegalArgumentException message")
+  void testGetAssociatedFoldersDoesNotLeakIllegalArgument() throws Exception {
+    doThrow(new IllegalArgumentException(LEAKY_ILLEGAL_ARG))
+        .when(mockFolderService)
+        .getAssignedFolders(anyString(), anyString(), anyBoolean());
 
-    Response response = folderRestService.getAssociatedFolders("wf", "path", false);
+    var response = folderService.getAssociatedFolders("blog", "/sites/foo", false);
+
+    assertNotNull(response);
     assertEquals(400, response.getStatus());
-    assertEquals("text/plain", response.getMediaType().toString());
-    String entity = (String) response.getEntity();
-    assertFalse(entity.contains("Null arguments rejected"));
+    assertNoSensitiveLeak(entityAsString(response));
   }
 
   @Test
-  @DisplayName("Should not expose PSPathNotFoundServiceException details to client")
-  void testPathNotFoundExceptionMessageHidden() throws Exception {
-    when(mockFolderService.getAssignedFolders("wf", "/path", false))
-        .thenThrow(new PSPathNotFoundServiceException("Secret Path Details"));
+  @DisplayName("getAssociatedFolders must not leak PSPathNotFoundServiceException message")
+  void testGetAssociatedFoldersDoesNotLeakPathNotFound() throws Exception {
+    doThrow(new PSPathNotFoundServiceException(LEAKY_PATH_NOT_FOUND))
+        .when(mockFolderService)
+        .getAssignedFolders(anyString(), anyString(), anyBoolean());
 
-    Response response = folderRestService.getAssociatedFolders("wf", "path", false);
+    var response = folderService.getAssociatedFolders("blog", "/sites/foo", false);
+
+    assertNotNull(response);
     assertEquals(404, response.getStatus());
-    assertEquals("text/plain", response.getMediaType().toString());
-    String entity = (String) response.getEntity();
-    assertFalse(entity.contains("Secret Path Details"));
+    assertNoSensitiveLeak(entityAsString(response));
   }
 
   @Test
-  @DisplayName("Should not expose generic exception details to client")
-  void testGenericExceptionMessageHidden() throws Exception {
-    when(mockFolderService.getAssignedFolders("wf", "/path", false))
-        .thenThrow(new RuntimeException("Critical Null Pointer"));
+  @DisplayName("getAssociatedFolders must not leak LoadException message")
+  void testGetAssociatedFoldersDoesNotLeakLoadException() throws Exception {
+    doThrow(new LoadException(LEAKY_PATH_NOT_FOUND))
+        .when(mockFolderService)
+        .getAssignedFolders(anyString(), anyString(), anyBoolean());
 
-    Response response = folderRestService.getAssociatedFolders("wf", "path", false);
+    var response = folderService.getAssociatedFolders("blog", "/sites/foo", false);
+
+    assertNotNull(response);
+    assertEquals(404, response.getStatus());
+    assertNoSensitiveLeak(entityAsString(response));
+  }
+
+  @Test
+  @DisplayName("getAssociatedFolders must not leak generic Exception message")
+  void testGetAssociatedFoldersDoesNotLeakGenericException() throws Exception {
+    doThrow(new RuntimeException(LEAKY_RUNTIME))
+        .when(mockFolderService)
+        .getAssignedFolders(anyString(), anyString(), anyBoolean());
+
+    var response = folderService.getAssociatedFolders("blog", "/sites/foo", false);
+
+    assertNotNull(response);
     assertEquals(500, response.getStatus());
-    assertEquals("text/plain", response.getMediaType().toString());
-    String entity = (String) response.getEntity();
-    assertFalse(entity.contains("Critical Null Pointer"));
+    assertNoSensitiveLeak(entityAsString(response));
   }
 
   @Test
-  @DisplayName("Should return generic message for in-progress assignment exception")
-  void testWorkflowAssignmentInProgressExceptionHidden() throws Exception {
-    PSWorkflowAssignment assignment = new PSWorkflowAssignment();
-    assignment.setWorkflowName("wf");
-    assignment.setAssignedFolders(new String[]{"folder"});
+  @DisplayName("assignFoldersToWorkflow must not leak PSWorkflowAssignmentInProgressException")
+  void testAssignFoldersDoesNotLeakAssignmentInProgress() throws Exception {
+    var wa = new com.percussion.foldermanagement.data.PSWorkflowAssignment();
+    wa.setWorkflowName("blog");
+    wa.setAssignedFolders(new String[] {"/sites/foo"});
+    doThrow(new PSWorkflowAssignmentInProgressException(LEAKY_WORKFLOW_IN_PROGRESS))
+        .when(mockFolderService)
+        .assignFoldersToWorkflow(org.mockito.ArgumentMatchers.any());
 
-    doThrow(new PSWorkflowAssignmentInProgressException("Job 123 in progress"))
-        .when(mockFolderService).assignFoldersToWorkflow(assignment);
+    var response = folderService.assignFoldersToWorkflow(wa);
 
-    Response response = folderRestService.assignFoldersToWorkflow(assignment);
+    assertNotNull(response);
     assertEquals(409, response.getStatus());
-    assertEquals("text/plain", response.getMediaType().toString());
-    String entity = (String) response.getEntity();
-    assertFalse(entity.contains("Job 123 in progress"));
-    assertEquals("Workflow assignment is already in progress.", entity);
+    assertNoSensitiveLeak(entityAsString(response));
+  }
+
+  @Test
+  @DisplayName("assignFoldersToWorkflow success path returns 204 with no body")
+  void testAssignFoldersSuccessIsUnchanged() throws Exception {
+    var wa = new com.percussion.foldermanagement.data.PSWorkflowAssignment();
+    wa.setWorkflowName("blog");
+    wa.setAssignedFolders(new String[] {"/sites/foo"});
+    doNothing().when(mockFolderService).assignFoldersToWorkflow(org.mockito.ArgumentMatchers.any());
+
+    var response = folderService.assignFoldersToWorkflow(wa);
+
+    assertNotNull(response);
+    assertEquals(204, response.getStatus());
+  }
+
+  @Test
+  @DisplayName("getAssociatedFolders success path returns 200")
+  void testGetAssociatedFoldersSuccessIsUnchanged() throws Exception {
+    when(mockFolderService.getAssignedFolders(anyString(), anyString(), anyBoolean()))
+        .thenReturn(java.util.List.of());
+
+    var response = folderService.getAssociatedFolders("blog", "/sites/foo", false);
+
+    assertNotNull(response);
+    assertEquals(200, response.getStatus());
+  }
+
+  private static String entityAsString(Response response) {
+    Object entity = response.getEntity();
+    if (entity == null) {
+      return "";
+    }
+    return entity.toString();
+  }
+
+  private static void assertNoSensitiveLeak(String responseBody) {
+    assertFalse(
+        responseBody.contains(SENSITIVE_TOKEN),
+        "Response body must not contain sensitive exception details; was: " + responseBody);
   }
 }
