@@ -14111,6 +14111,16 @@ Documentación' href='https://percussioncmshelp.intsof.com/'&gt;percussioncmshel
 	        <seg>Personalizado</seg>
 	    </tuv>
 	 </tu>
+  <tu tuid="perc.ui.dashboard@Deprecated">
+         <prop type="sectionname" xml:lang="en-us">Dashboard</prop>
+         <note xml:lang="en-us"></note>
+         <tuv xml:lang="en-us">
+             <seg>Deprecated (Pending Removal)</seg>
+         </tuv>
+           <tuv xml:lang="es">
+             <seg>En desuso (eliminación pendiente)</seg>
+         </tuv>
+      </tu>
 	 <tu tuid="perc.ui.dashboard@Type">
 	    <prop type="sectionname" xml:lang="en-us">Dashboard</prop>
 	    <note xml:lang="en-us"></note>
