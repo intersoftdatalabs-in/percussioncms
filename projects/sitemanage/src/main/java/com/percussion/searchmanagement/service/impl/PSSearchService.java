@@ -380,6 +380,9 @@ public class PSSearchService implements IPSSearchService {
   }
 
   private String escapeLuceneQuery(String query) {
+    if (StringUtils.isBlank(query)) {
+      return query;
+    }
     var escapedQuery = query;
     for (var specialCharacter : luceneSpecialCharacters) {
       if (escapedQuery.startsWith(specialCharacter)) {
@@ -388,6 +391,7 @@ public class PSSearchService implements IPSSearchService {
         break;
       }
     }
+    escapedQuery = escapedQuery.replaceAll("(?<!\\)/", "\\/");
     return escapedQuery;
   }
 
