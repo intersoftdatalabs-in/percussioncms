@@ -62,6 +62,10 @@ class ViewMetadataTagListControlTest {
     assertTrue(
         body.contains("xsl:value-of") || body.contains("<xsl:value-of"),
         "read-only tags must output Value text");
+    assertTrue(
+        body.contains("not(position()=last())\">, </xsl:if>")
+            || body.contains("not(position()=last())\">, "),
+        "selected tags must be joined with comma+space");
   }
 
   @Test
@@ -74,6 +78,9 @@ class ViewMetadataTagListControlTest {
     assertTrue(
         xsl.contains("parent.$.PercNavigationManager"),
         "must still attempt PercNavigationManager when present");
+    assertTrue(
+        xsl.contains("try {") && xsl.contains("} catch (e) {"),
+        "PercNavigationManager access must be try/catch guarded for iframe contexts");
     // Must not gate tree init solely on parent.$ being defined
     assertFalse(
         Pattern.compile(
