@@ -29,7 +29,7 @@ class PSSitePathItemServiceCurlyApostropheTest {
     Path up = cwd.resolve("../..").normalize();
     if (Files.isDirectory(up.resolve("projects/sitemanage"))) return up;
     if (Files.isDirectory(cwd.resolve("projects/sitemanage"))) return cwd;
-    fail("no root");
+    fail("could not resolve monorepo root (Surefire basedir projects/sitemanage expected)");
     return cwd;
   }
 }
