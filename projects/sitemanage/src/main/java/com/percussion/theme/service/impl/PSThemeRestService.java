@@ -31,6 +31,7 @@ import com.percussion.theme.data.PSRichTextCustomStyle;
 import com.percussion.theme.data.PSRichTextCustomStyleList;
 import com.percussion.theme.data.PSTheme;
 import com.percussion.theme.data.PSThemeSummary;
+import com.percussion.theme.data.PSThemeSummaryList;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.DELETE;
 import jakarta.ws.rs.GET;
@@ -64,8 +65,8 @@ public class PSThemeRestService {
   @GET
   @Path("/summary/all")
   @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
-  public List<PSThemeSummary> findAll() {
-    return themeService.findAll();
+  public PSThemeSummaryList findAll() {
+    return new PSThemeSummaryList(themeService.findAll());
   }
 
   /*
