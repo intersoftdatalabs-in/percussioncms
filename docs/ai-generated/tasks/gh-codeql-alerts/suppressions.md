@@ -12,4 +12,5 @@ verbatim. Path-level exclusions (`.github/codeql/codeql-config.yml`
 
 | alert_id | rule_id | file_path | line | justification | applied_on | applied_by | review_by |
 |----------|---------|-----------|------|---------------|------------|------------|-----------|
+| 1724 | `js/xss-through-dom` | `WebUI/src/main/webapp/cm/widgets/perc_page_edit_dialog.js` | 609 | `parseFromString(html, "text/html")` parses untrusted TinyMCE HTML into a detached Document; the body is consumed only via `stripDangerousElements` + `stripDangerousAttributes` (script/iframe/object/embed/form/style/base/link/meta removed, `on*` and `javascript:`/`data:`/`vbscript:` URL attributes stripped), then surviving children are imported into the host document via `document.importNode` + `appendChild` -- never via `innerHTML` / jQuery `.html()`. Covered by `WebUI/src/main/frontend/src/test/js/perc_page_edit_sanitizer.test.js`. | 2026-07-15 | vijaya-boddipudi | T044 PR #1218 |
 

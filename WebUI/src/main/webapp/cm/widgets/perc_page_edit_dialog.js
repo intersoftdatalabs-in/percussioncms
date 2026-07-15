@@ -598,6 +598,14 @@
       return null;
     }
     var parser = new DOMParser();
+    // codeql[js/xss-through-dom] reason: see T044 / PR #1218 / alert #1724.
+    // parseFromString parses untrusted TinyMCE HTML into a detached Document;
+    // the body is consumed only via stripDangerousElements + stripDangerousAttributes
+    // (script/iframe/object/embed/form/style/base/link/meta removed, on* and
+    // javascript:/data:/vbscript: attributes stripped), then surviving
+    // children are imported into the host document via document.importNode +
+    // appendChild -- never via innerHTML / .html(). Covered by
+    // WebUI/src/main/frontend/src/test/js/perc_page_edit_sanitizer.test.js.
     var doc = parser.parseFromString(html, "text/html");
     var body = doc.body;
     stripDangerousElements(body);
