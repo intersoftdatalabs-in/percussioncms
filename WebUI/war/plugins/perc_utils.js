@@ -35,6 +35,8 @@
     $.ajaxSetup( { cache: false } );
     $.Percussion = $.Percussion || {};
 
+    var isRenamingFolder = false;
+
 
     $.perc_fakes = {
         path_service: false,
@@ -1518,6 +1520,10 @@
                     return oldName;
                 if(value.toLowerCase() !== oldName.toLowerCase())
                 {
+                    if(isRenamingFolder){
+                        return oldName;
+                    }
+                    isRenamingFolder = true;
                     $.PercBlockUI($.PercBlockUIMode.CURSORONLY);
                     $.PercPathService.renameFolder(
                         pathItem.path,

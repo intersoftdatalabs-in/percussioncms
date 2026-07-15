@@ -159,6 +159,7 @@ public class PSThemeService implements IPSThemeService {
    * @return the URL, not blank.
    */
   public String getCachedRegionCSSRelativeURL(String theme) throws PSThemeNotFoundException {
+    PSPathInjectionGuard.requireSafeFileName(theme);
     // in server environment, make sure to cache the region CSS (or copy it to the temp location
     getCachedRegionCSSFile(theme, false);
     return getCachedRegionCSSRelativePath(theme);
@@ -217,11 +218,13 @@ public class PSThemeService implements IPSThemeService {
   }
 
   private String getCachedRegionCSSRelativePath(String theme) {
+    PSPathInjectionGuard.requireSafeFileName(theme);
     String psSession = getCurrentSessionId();
     return psSession + "/" + theme + "/" + THEME_REGION_CSS_PATH;
   }
 
   private File getCachedRegionCSSFileOnly(String theme) {
+    PSPathInjectionGuard.requireSafeFileName(theme);
     String path = getCachedRegionCSSRelativePath(theme);
     return new File(getThemesTempRootDirectory() + File.separator + path);
   }
@@ -342,6 +345,7 @@ public class PSThemeService implements IPSThemeService {
    */
   public PSTheme load(String name)
       throws DataServiceLoadException, DataServiceNotFoundException, PSValidationException {
+    PSPathInjectionGuard.requireSafeFileName(name);
     PSTheme themeCSS = new PSTheme();
     themeCSS.setTheme(name);
 
@@ -404,15 +408,9 @@ public class PSThemeService implements IPSThemeService {
    *     for the specified theme.
    */
   private String getThumbUrl(File themesRoot, String themeName) {
-    // codeql[java/path-injection] reason: themeName is a
-    // user-supplied segment under the controlled themesRoot. The
-    // resulting imgDir is under themesRoot by construction; the
-    // segment-marker contract (PSPathInjectionGuard.requireSafeFileName)
-    // is enforced at the getThemeFolder entry points and the
-    // underlying file.listFiles() is a read-only directory scan.
     PSPathInjectionGuard.requireSafeFileName(themeName);
     String imgDirPath = File.separator + themeName;
-    File imgDir = new File(themesRoot, imgDirPath);
+    File imgDir = safeThemeFolder(themesRoot, themeName);
     if (!imgDir.exists()) return null;
 
     ThemeFileFilter filter = new ThemeFileFilter(THEME_THUMB_EXTENSIONS);
@@ -485,6 +483,7 @@ public class PSThemeService implements IPSThemeService {
 
   public void delete(String theme) throws DataServiceNotFoundException, DataServiceDeleteException {
     notEmpty(theme);
+    PSPathInjectionGuard.requireSafeFileName(theme);
 
     // check if the theme folder exists or not
     File themeFolder = null;
