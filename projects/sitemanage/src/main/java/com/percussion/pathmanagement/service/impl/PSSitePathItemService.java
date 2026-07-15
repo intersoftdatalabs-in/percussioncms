@@ -119,8 +119,7 @@ public class PSSitePathItemService extends PSPathItemService {
                 ? "Oops.  We can't find the site "
                     + sfp.getSiteId()
                     + ".  It may have been deleted."
-                : "Oops. We're sorry. This page should have been deleted when its site was deleted."
-                    + " Please contact Customer Success for assistance.";
+                : "Oops. We're sorry. The requested page is no longer available.";
         throw new PSPathNotFoundServiceException(msg);
       }
     }
