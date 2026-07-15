@@ -365,6 +365,16 @@
 			sql="update RXSITES as site set site.IS_PAGE_BASED = 'T' where exists (select pubser.* from PSX_PUBSERVER pubser where pubser.SITEID = site.SITEID group by pubser.SITEID);"
 			failonerror="false" silenceerrors="true" />
 
+         <PSExecSQLStmt printExceptionStackTrace="true" qualifyTableNames="TRANSITIONS"
+                        qualifyViewNames=""
+                        sqlOracle="UPDATE TRANSITIONS SET TRANSITIONACTIONS = CASE WHEN TRANSITIONACTIONS IS NULL OR TRANSITIONACTIONS = ' ' THEN 'Java/global/percussion/extensions/general/sys_DirectoryIndexTouchWorkflowAction' WHEN TRANSITIONACTIONS LIKE '%sys_DirectoryIndexTouchWorkflowAction%' THEN TRANSITIONACTIONS ELSE TRANSITIONACTIONS || ',Java/global/percussion/extensions/general/sys_DirectoryIndexTouchWorkflowAction' END WHERE WORKFLOWAPPID = 6 AND TRANSITIONLABEL = 'Approve'"
+                        sqlSqlServer="UPDATE TRANSITIONS SET TRANSITIONACTIONS = CASE WHEN TRANSITIONACTIONS IS NULL OR TRANSITIONACTIONS = '' THEN 'Java/global/percussion/extensions/general/sys_DirectoryIndexTouchWorkflowAction' WHEN TRANSITIONACTIONS LIKE '%sys_DirectoryIndexTouchWorkflowAction%' THEN TRANSITIONACTIONS ELSE TRANSITIONACTIONS + ',Java/global/percussion/extensions/general/sys_DirectoryIndexTouchWorkflowAction' END WHERE WORKFLOWAPPID = 6 AND TRANSITIONLABEL = 'Approve'"
+                        sqlMysql="UPDATE TRANSITIONS SET TRANSITIONACTIONS = CASE WHEN TRANSITIONACTIONS IS NULL OR TRANSITIONACTIONS = '' THEN 'Java/global/percussion/extensions/general/sys_DirectoryIndexTouchWorkflowAction' WHEN TRANSITIONACTIONS LIKE '%sys_DirectoryIndexTouchWorkflowAction%' THEN TRANSITIONACTIONS ELSE CONCAT(TRANSITIONACTIONS, ',Java/global/percussion/extensions/general/sys_DirectoryIndexTouchWorkflowAction') END WHERE WORKFLOWAPPID = 6 AND TRANSITIONLABEL = 'Approve'"
+                        sqlDerby="UPDATE TRANSITIONS SET TRANSITIONACTIONS = CASE WHEN TRANSITIONACTIONS IS NULL OR TRANSITIONACTIONS = '' THEN 'Java/global/percussion/extensions/general/sys_DirectoryIndexTouchWorkflowAction' WHEN TRANSITIONACTIONS LIKE '%sys_DirectoryIndexTouchWorkflowAction%' THEN TRANSITIONACTIONS ELSE TRANSITIONACTIONS || ',Java/global/percussion/extensions/general/sys_DirectoryIndexTouchWorkflowAction' END WHERE WORKFLOWAPPID = 6 AND TRANSITIONLABEL = 'Approve'"
+                        sql="UPDATE TRANSITIONS SET TRANSITIONACTIONS = CASE WHEN TRANSITIONACTIONS IS NULL OR TRANSITIONACTIONS = '' THEN 'Java/global/percussion/extensions/general/sys_DirectoryIndexTouchWorkflowAction' WHEN TRANSITIONACTIONS LIKE '%sys_DirectoryIndexTouchWorkflowAction%' THEN TRANSITIONACTIONS ELSE TRANSITIONACTIONS || ',Java/global/percussion/extensions/general/sys_DirectoryIndexTouchWorkflowAction' END WHERE WORKFLOWAPPID = 6 AND TRANSITIONLABEL = 'Approve'"
+                        failonerror="false" silenceerrors="false"
+         />
+
 
 	</target>
 

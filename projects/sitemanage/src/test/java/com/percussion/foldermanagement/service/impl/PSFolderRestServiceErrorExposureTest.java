@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2025 Percussion Software, Inc.
+ * Copyright 1999-2026 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,6 +26,7 @@ import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
 
+import com.percussion.foldermanagement.data.PSWorkflowAssignment;
 import com.percussion.foldermanagement.service.IPSFolderService;
 import com.percussion.foldermanagement.service.IPSFolderService.PSWorkflowAssignmentInProgressException;
 import com.percussion.foldermanagement.service.IPSFolderService.PSWorkflowNotFoundException;
@@ -73,7 +74,7 @@ class PSFolderRestServiceErrorExposureTest {
   @BeforeEach
   void setUp() {
     MockitoAnnotations.openMocks(this);
-    folderService = new PSFolderRestService(mockFolderService);
+    folderRestService = new PSFolderRestService(mockFolderService);
   }
 
   @Test

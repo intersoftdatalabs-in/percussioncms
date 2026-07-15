@@ -114,6 +114,7 @@ public class PSAnalyticsProviderService implements IPSAnalyticsProviderService {
     String userID;
     if (metadata == null) return null;
     var json = metadata.getData();
+    if (StringUtils.isBlank(json)) return null;
     var objectMapper = new com.fasterxml.jackson.databind.ObjectMapper();
     try {
       config = objectMapper.readValue(json, PSAnalyticsProviderConfig.class);

@@ -579,6 +579,14 @@ public class PSFeedServicePerformanceTest {
       Invocation.Builder invocationBuilder = webTarget.request(MediaType.APPLICATION_XML);
       Response response = invocationBuilder.get();
       GregorianCalendar responseDate = new GregorianCalendar();
+      // codeql[java/implicit-cast-in-compound-assignment] justification:
+      // per-request delta is bounded by the @Threshold(value=2000)
+      // annotation (2s cap per request); the running `int` sum cannot
+      // exceed Integer.MAX_VALUE in any realistic run. The class is
+      // @Disabled and is a micro-benchmark for a single developer's
+      // laptop, not a production hot path; widening to long would
+      // obscure the test's intent. See specs/004-zero-code-scanning-alerts/
+      // tasks.md T066 and contracts/C2.
       sum += (responseDate.getTimeInMillis() - initialDate.getTimeInMillis());
 
     } catch (Exception e) {
