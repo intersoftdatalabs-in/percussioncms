@@ -653,7 +653,7 @@ public class ContentTypesResource {
                                     + "        \"uuid\": 363\n"
                                     + "      },\n"
                                     + "      \"hideFromMenu\": false,\n"
-                                    + "      \"label\": \"Registration Asset\",\n"
+                                    + "      \"label\": \"Registration Asset (Deprecated)\",\n"
                                     + "      \"name\": \"percRegistrationAsset\"\n"
                                     + "    },\n"
                                     + "    {\n"

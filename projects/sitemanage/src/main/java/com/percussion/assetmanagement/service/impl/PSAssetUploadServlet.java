@@ -74,8 +74,8 @@ public class PSAssetUploadServlet extends HttpServlet {
     var approve = request.getParameter("approveOnUpload");
     var approveOnUpload = approve != null && approve.equalsIgnoreCase("true");
 
+    String fileName = null;
     try {
-      String fileName = null;
       PSAsset newAsset = null;
       for (var part : request.getParts()) {
         fileName = SecureStringUtils.sanitizeFileName(getFileName(part));
@@ -100,29 +100,86 @@ public class PSAssetUploadServlet extends HttpServlet {
           out.print(jsonObject.toString());
           out.flush();
         }
+      } else {
+        safeWriteErrorResponse(
+            response, fileName, "No valid file was provided for upload.", 400);
       }
     } catch (PSExtractHTMLException caE) {
-      handleExtractionError(caE, response);
+      handleExtractionError(caE, response, fileName);
     } catch (Exception e) {
+      // Log full detail server-side; never return raw e.getMessage() (info disclosure).
       logger.error(PSExceptionUtils.getMessageForLog(e));
-      response.setStatus(500);
+      logger.debug(PSExceptionUtils.getDebugMessageForLog(e));
+      safeWriteErrorResponse(
+          response,
+          fileName,
+          "Upload failed due to an unexpected server error.",
+          HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
     }
   }
 
   /**
-   * Handles extraction errors.
+   * Best-effort error write: if the response is already committed or the write fails, only set
+   * status 500 without attempting a second body write.
+   */
+  private void safeWriteErrorResponse(
+      HttpServletResponse response, String fileName, String message, int statusCode) {
+    try {
+      writeErrorResponse(response, fileName, message, statusCode);
+    } catch (IOException | IllegalStateException ex) {
+      logger.error("Failed to write upload error response", ex);
+      if (!response.isCommitted()) {
+        response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+      }
+    }
+  }
+
+  /** Writes a JSON error response for upload failures. */
+  private void writeErrorResponse(
+      HttpServletResponse response, String fileName, String message, int statusCode)
+      throws IOException {
+    if (response.isCommitted()) {
+      logger.warn("Response already committed; cannot write upload error: {}", message);
+      return;
+    }
+    response.setStatus(statusCode);
+    response.setContentType("application/json");
+    response.setCharacterEncoding("UTF-8");
+    try (PrintWriter w = response.getWriter()) {
+      var err = new JSONObject();
+      try {
+        err.put("error", message != null ? message : "Upload failed.");
+        if (fileName != null && !fileName.isEmpty()) {
+          err.put("name", fileName);
+        }
+      } catch (org.codehaus.jettison.json.JSONException je) {
+        // Fallback plain text if JSON construction fails
+        w.print("{\"error\":\"Upload failed.\"}");
+        w.flush();
+        return;
+      }
+      w.print(err.toString());
+      w.flush();
+    }
+  }
+
+  /**
+   * Handles extraction errors. {@link PSExtractHTMLException} messages are curated product text
+   * (e.g. empty/whitespace-only file) and are intentionally returned to the client.
    *
    * @param e the extraction error / exception, assumed not {@code null}.
    * @param response the HTTP response, assumed not {@code null}.
+   * @param fileName the name of the file being uploaded (may be null).
    */
-  private void handleExtractionError(PSExtractHTMLException e, HttpServletResponse response) {
+  private void handleExtractionError(
+      PSExtractHTMLException e, HttpServletResponse response, String fileName) {
     logger.error(PSExceptionUtils.getMessageForLog(e));
     logger.debug(PSExceptionUtils.getDebugMessageForLog(e));
-    try {
-      response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-    } catch (IOException ex) {
-      response.setStatus(500);
+    String msg = e.getMessage();
+    if (msg == null || msg.trim().isEmpty()) {
+      msg = "Failed to extract content from the uploaded file.";
     }
+    safeWriteErrorResponse(response, fileName, msg, HttpServletResponse.SC_BAD_REQUEST);
   }
 
   private static final Logger logger = LogManager.getLogger("PSAssetUploadServlet");
