@@ -30,10 +30,16 @@ import org.junit.jupiter.api.Test;
  */
 class CategoriesFancytreePortTest {
 
+  private static final String[] CATEGORY_VIEW_COPIES = {
+    "WebUI/war/views/PercCategoryView.js",
+    "WebUI/src/main/webapp/cm/views/PercCategoryView.js",
+    "WebUI/src/main/webapp/cm/app/js/legacy/views/PercCategoryView.js"
+  };
+
   @Test
   void categoryViewAppliesFancytreeRebuildGuards() throws Exception {
     Path root = resolveRoot();
-    Path view = root.resolve("WebUI/war/views/PercCategoryView.js");
+    Path view = root.resolve(CATEGORY_VIEW_COPIES[0]);
     if (!Files.isRegularFile(view)) {
       fail(view.toString());
     }
@@ -47,12 +53,41 @@ class CategoriesFancytreePortTest {
         || js.contains("Only force-expand nodes explicitly marked"));
   }
 
+  /**
+   * CodeQL js/insecure-randomness: generateUid must prefer crypto.getRandomValues in all three
+   * deployed copies of PercCategoryView.js.
+   */
+  @Test
+  void generateUidPrefersCryptoGetRandomValuesInAllCopies() throws Exception {
+    Path root = resolveRoot();
+    for (String rel : CATEGORY_VIEW_COPIES) {
+      Path view = root.resolve(rel);
+      if (!Files.isRegularFile(view)) {
+        fail(view.toString());
+      }
+      String js = Files.readString(view, StandardCharsets.UTF_8);
+      assertTrue(js.contains("generateUid"), rel + " must define generateUid");
+      assertTrue(js.contains("crypto.getRandomValues"), rel + " must use crypto.getRandomValues");
+      assertTrue(js.contains("Uint8Array"), rel + " must fill a Uint8Array buffer");
+      // Math.random may remain only inside the crypto-unavailable fallback branch.
+      int cryptoIdx = js.indexOf("crypto.getRandomValues");
+      assertTrue(cryptoIdx >= 0, rel + " missing crypto path");
+    }
+  }
+
   private static Path resolveRoot() {
-    Path cwd = Path.of("").toAbsolutePath().normalize();
-    Path up = cwd.resolve("../..").normalize();
-    if (Files.isDirectory(up.resolve("WebUI"))) return up;
-    if (Files.isDirectory(cwd.resolve("WebUI"))) return cwd;
-    fail("could not resolve monorepo root");
-    return cwd;
+    Path dir = Path.of("").toAbsolutePath().normalize();
+    while (dir != null) {
+      if (Files.isDirectory(dir.resolve("WebUI")) && Files.isRegularFile(dir.resolve("pom.xml"))) {
+        return dir;
+      }
+      Path parent = dir.getParent();
+      if (parent == null || parent.equals(dir)) {
+        break;
+      }
+      dir = parent;
+    }
+    fail("could not resolve monorepo root from " + Path.of("").toAbsolutePath().normalize());
+    return Path.of("").toAbsolutePath().normalize();
   }
 }

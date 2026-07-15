@@ -64,26 +64,38 @@
     var isPublished = false;
     var siteSelection;
     var originalTitle = null;
+    // Category UIDs are internal CMS keys (not security credentials). Prefer
+    // crypto.getRandomValues so CodeQL/static analysis treats them as secure
+    // randomness; Math.random remains only as a last-resort old-browser fallback.
     var generateUid = function () {
       var delim = "-";
+      var hex = "";
+      var i;
 
-      function S4() {
-        return (((1 + Math.random()) * 0x10000) | 0).toString(16).substring(1);
+      if (typeof crypto !== "undefined" && crypto.getRandomValues) {
+        var buf = new Uint8Array(16);
+        crypto.getRandomValues(buf);
+        for (i = 0; i < buf.length; i++) {
+          hex += ("0" + buf[i].toString(16)).slice(-2);
+        }
+      } else {
+        // Fallback only when Web Crypto is unavailable (legacy browsers).
+        function S4() {
+          return (((1 + Math.random()) * 0x10000) | 0).toString(16).substring(1);
+        }
+        hex = S4() + S4() + S4() + S4() + S4() + S4() + S4() + S4();
       }
 
       return (
-        S4() +
-        S4() +
+        hex.substring(0, 8) +
         delim +
-        S4() +
+        hex.substring(8, 12) +
         delim +
-        S4() +
+        hex.substring(12, 16) +
         delim +
-        S4() +
+        hex.substring(16, 20) +
         delim +
-        S4() +
-        S4() +
-        S4()
+        hex.substring(20, 32)
       );
     };
 
