@@ -100,9 +100,9 @@ class WidgetRegistryRegistrationDeprecationTest {
         widgetText.contains("title=\"Registration (Deprecated)\""),
         "widget title must be Registration (Deprecated)");
     assertTrue(
-        widgetText.contains("registration form. (Deprecated)")
-            || widgetText.contains("(Deprecated)"),
-        "widget description must note Deprecated");
+        widgetText.contains("description=\"Widget to build and render a registration form. (Deprecated)\"")
+            || widgetText.contains("registration form. (Deprecated)"),
+        "widget description must include form. (Deprecated) suffix, not only title");
   }
 
   private static Path resolveRepoRoot() {
