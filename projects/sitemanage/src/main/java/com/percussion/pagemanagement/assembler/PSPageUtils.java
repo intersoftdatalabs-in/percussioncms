@@ -639,10 +639,13 @@ public class PSPageUtils extends PSJexlUtilBase {
         path = path.substring(0, hashIdx);
       }
       path = path.trim();
-      if (path.endsWith(".js")) {
-        return "<script src=\"" + trimmed + "\"></script>";
-      } else if (path.endsWith(".css")) {
-        return "<link rel=\"stylesheet\" href=\"" + trimmed + "\" />";
+      // Case-insensitive extension match; escape attribute value to prevent breakout/XSS
+      String pathLower = path.toLowerCase();
+      String safeUrl = StringEscapeUtils.escapeHtml4(trimmed);
+      if (pathLower.endsWith(".js")) {
+        return "<script src=\"" + safeUrl + "\"></script>";
+      } else if (pathLower.endsWith(".css")) {
+        return "<link rel=\"stylesheet\" href=\"" + safeUrl + "\" />";
       }
     }
     return source;

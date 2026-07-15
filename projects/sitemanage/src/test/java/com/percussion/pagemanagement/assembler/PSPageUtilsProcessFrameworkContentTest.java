@@ -71,6 +71,29 @@ class PSPageUtilsProcessFrameworkContentTest {
         utils.processFrameworkContent("https://example.com/image.png"));
   }
 
+  @Test
+  void processFrameworkContentEscapesAttributeSpecials() {
+    PSPageUtils utils = new PSPageUtils();
+    // Quote in URL must not break out of src/href attribute
+    String withQuote = utils.processFrameworkContent("/a.js\"onload=alert(1).js");
+    assertEquals(
+        "<script src=\"/a.js&quot;onload=alert(1).js\"></script>", withQuote);
+
+    String cssAmp = utils.processFrameworkContent("/styles.css?a=1&b=2");
+    assertEquals(
+        "<link rel=\"stylesheet\" href=\"/styles.css?a=1&amp;b=2\" />", cssAmp);
+  }
+
+  @Test
+  void processFrameworkContentExtensionCheckIsCaseInsensitive() {
+    PSPageUtils utils = new PSPageUtils();
+    assertEquals(
+        "<script src=\"/js/Custom.JS\"></script>",
+        utils.processFrameworkContent("/js/Custom.JS"));
+    assertEquals(
+        "<link rel=\"stylesheet\" href=\"/styles.CSS\" />",
+        utils.processFrameworkContent("/styles.CSS"));
+  }
 
   @Test
   void assemblyVmUsesProcessFrameworkContent() throws Exception {
@@ -90,17 +113,20 @@ class PSPageUtilsProcessFrameworkContentTest {
     assertEquals(3, count, "three sitewide framework injection points");
   }
 
-
+  /**
+   * Walk parent directories from the process working directory until {@code system/} is found.
+   * Works whether Surefire runs from the monorepo root or from {@code projects/sitemanage}.
+   */
   private static Path resolveRepoRoot() {
-    Path cwd = Path.of("").toAbsolutePath().normalize();
-    Path candidate = cwd.resolve("../..").normalize();
-    if (Files.isDirectory(candidate.resolve("system"))) {
-      return candidate;
+    Path dir = Path.of("").toAbsolutePath().normalize();
+    while (dir != null) {
+      if (Files.isDirectory(dir.resolve("system"))
+          && Files.isDirectory(dir.resolve("modules/perc-packages"))) {
+        return dir;
+      }
+      dir = dir.getParent();
     }
-    if (Files.isDirectory(cwd.resolve("system"))) {
-      return cwd;
-    }
-    fail("could not resolve monorepo root");
-    return cwd;
+    fail("could not resolve monorepo root (no system + modules/perc-packages ancestor)");
+    return Path.of("").toAbsolutePath();
   }
 }
