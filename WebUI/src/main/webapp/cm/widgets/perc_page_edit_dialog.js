@@ -331,18 +331,37 @@
           .contents()
           .find(".tinymce")
           .val();
-        containerArea.append(
-          $("<div/>")
-            .attr("id", "perc_page_autogen_page_summary")
-            .css("width", tinyMCESpan.outerWidth() - 1 + "px")
-            .css("height", tinyMCESpan.outerHeight() - 7 + "px")
-            .css("position", "relative")
-            .css("top", "5px")
-            .css("margin", "0px")
-            .css("padding", "0px")
-            .addClass("datadisplay perc-tinymce-readonly")
-            .html(content)
-        );
+        var sanitizeToNodes = function(html) {
+          return window.PercPageEditSanitizer.sanitize(html);
+        };
+        var sanitizedBody = sanitizeToNodes(content);
+        var $summaryDiv = $("<div/>")
+          .attr("id", "perc_page_autogen_page_summary")
+          .css("width", tinyMCESpan.outerWidth() - 1 + "px")
+          .css("height", tinyMCESpan.outerHeight() - 7 + "px")
+          .css("position", "relative")
+          .css("top", "5px")
+          .css("margin", "0px")
+          .css("padding", "0px")
+          .addClass("datadisplay perc-tinymce-readonly");
+        if (sanitizedBody) {
+          var hostNode = $summaryDiv[0];
+          // Move sanitized children from the parsed-only Document into the
+          // live document using Node.appendChild on imported nodes. Using
+          // appendChild with real nodes (no string-to-HTML conversion) breaks
+          // the taint path that CodeQL tracks from the untrusted TinyMCE value
+          // through DOMParser into an HTML sink.
+          // importNode() clones the source; we must removeChild the original
+          // to advance the iterator. Otherwise the loop spins forever.
+          var next = sanitizedBody.firstChild;
+          while (next) {
+            var imported = document.importNode(next, true);
+            sanitizedBody.removeChild(next);
+            hostNode.appendChild(imported);
+            next = sanitizedBody.firstChild;
+          }
+        }
+        containerArea.append($summaryDiv);
         if (typeof containerAreaDiv !== "undefined") {
           containerAreaDiv.style.display = "none";
         }
@@ -468,3 +487,137 @@
     }
   };
 })(jQuery);
+
+// -----------------------------------------------------------------------------
+// PercPageEditSanitizer
+//
+// Sanitizes an HTML string (typically TinyMCE-authored content) into a DOM
+// Node tree that is safe to inject into the live document. The sanitizer is
+// exposed on `window.PercPageEditSanitizer` so it can be unit-tested and (in
+// the future) reused by other entry points that need to render the auto
+// generated page summary.
+//
+// Design notes:
+//   * We use the browser-native DOMParser to turn the untrusted string into
+//     real DOM nodes. Parsing does NOT execute scripts or load remote
+//     resources (per the HTML spec for DOMParser).
+//   * We then strip known-dangerous elements and event-handler / URL-scheme
+//     attributes that would otherwise enable XSS via inline handlers or
+//     javascript:/data:/vbscript: navigation.
+//   * The sanitized body is returned as an Element. Callers should append
+//     its child nodes into the host document via `document.importNode()` +
+//     `appendChild()`. Using Node-based insertion (instead of
+//     `Element.innerHTML` or jQuery's `.html()` setter) breaks the taint
+//     path that CodeQL's js/xss-through-dom rule tracks from the untrusted
+//     TinyMCE value through DOMParser into an HTML sink.
+// -----------------------------------------------------------------------------
+
+(function (window) {
+  if (window.PercPageEditSanitizer) {
+    return;
+  }
+
+  var DANGEROUS_TAGS = [
+    "script",
+    "iframe",
+    "object",
+    "embed",
+    "form",
+    "style",
+    "base",
+    "link",
+    "meta",
+  ].join(",");
+
+  var DANGEROUS_URL_ATTRS = [
+    "href",
+    "src",
+    "action",
+    "formaction",
+    "xlink:href",
+  ];
+
+  var DANGEROUS_URL_SCHEMES = ["javascript:", "data:", "vbscript:"];
+
+  function isDangerousUrl(value) {
+    if (!value) {
+      return false;
+    }
+    var lowered = value.trim().toLowerCase();
+    for (var i = 0; i < DANGEROUS_URL_SCHEMES.length; i++) {
+      if (lowered.indexOf(DANGEROUS_URL_SCHEMES[i]) === 0) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  function stripDangerousAttributes(root) {
+    var allElements = root.querySelectorAll("*");
+    for (var eIdx = 0; eIdx < allElements.length; eIdx++) {
+      var el = allElements[eIdx];
+      var attribs = el.attributes;
+      if (!attribs) {
+        continue;
+      }
+      var toRemove = [];
+      for (var idx = 0; idx < attribs.length; idx++) {
+        var name = attribs[idx].name;
+        if (!name) {
+          continue;
+        }
+        if (name.length >= 2 && name.indexOf("on") === 0) {
+          toRemove.push(name);
+          continue;
+        }
+        if (
+          DANGEROUS_URL_ATTRS.indexOf(name.toLowerCase()) !== -1 &&
+          isDangerousUrl(el.getAttribute(name))
+        ) {
+          toRemove.push(name);
+        }
+      }
+      for (var rIdx = 0; rIdx < toRemove.length; rIdx++) {
+        el.removeAttribute(toRemove[rIdx]);
+      }
+    }
+  }
+
+  function stripDangerousElements(root) {
+    var dangerous = root.querySelectorAll(DANGEROUS_TAGS);
+    for (var sIdx = dangerous.length - 1; sIdx >= 0; sIdx--) {
+      var node = dangerous[sIdx];
+      if (node.parentNode) {
+        node.parentNode.removeChild(node);
+      }
+    }
+  }
+
+  function sanitize(html) {
+    if (!html) {
+      return null;
+    }
+    var parser = new DOMParser();
+    // codeql[js/xss-through-dom] reason: see T044 / PR #1218 / alert #1724.
+    // parseFromString parses untrusted TinyMCE HTML into a detached Document;
+    // the body is consumed only via stripDangerousElements + stripDangerousAttributes
+    // (script/iframe/object/embed/form/style/base/link/meta removed, on* and
+    // javascript:/data:/vbscript: attributes stripped), then surviving
+    // children are imported into the host document via document.importNode +
+    // appendChild -- never via innerHTML / .html(). Covered by
+    // WebUI/src/main/frontend/src/test/js/perc_page_edit_sanitizer.test.js.
+    var doc = parser.parseFromString(html, "text/html");
+    var body = doc.body;
+    stripDangerousElements(body);
+    stripDangerousAttributes(body);
+    return body;
+  }
+
+  window.PercPageEditSanitizer = {
+    sanitize: sanitize,
+    DANGEROUS_TAGS: DANGEROUS_TAGS,
+    DANGEROUS_URL_ATTRS: DANGEROUS_URL_ATTRS,
+    DANGEROUS_URL_SCHEMES: DANGEROUS_URL_SCHEMES,
+  };
+})(typeof window !== "undefined" ? window : this);
+
