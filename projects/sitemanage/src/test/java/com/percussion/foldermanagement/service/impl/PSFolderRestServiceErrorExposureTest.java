@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2025 Percussion Software, Inc.
+ * Copyright 1999-2026 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,113 +18,126 @@
 package com.percussion.foldermanagement.service.impl;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
+import com.percussion.foldermanagement.data.PSWorkflowAssignment;
 import com.percussion.foldermanagement.service.IPSFolderService;
+import com.percussion.foldermanagement.service.IPSFolderService.PSWorkflowAssignmentInProgressException;
+import com.percussion.foldermanagement.service.IPSFolderService.PSWorkflowNotFoundException;
+import com.percussion.pathmanagement.service.IPSPathService.PSPathNotFoundServiceException;
+import jakarta.ws.rs.WebApplicationException;
+import jakarta.ws.rs.core.Response;
+import java.util.Collections;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-/**
- * Unit tests for PSFolderRestService error message exposure prevention (CWE-209). Tests ensure that
- * detailed exception messages from PSWorkflowNotFoundException, PSPathNotFoundServiceException, and
- * other exceptions are not exposed to clients.
- */
 @DisplayName("PSFolderRestService Error Exposure Prevention Tests")
 class PSFolderRestServiceErrorExposureTest {
 
-  private PSFolderRestService folderService;
+  private PSFolderRestService folderRestService;
 
   @Mock private IPSFolderService mockFolderService;
 
   @BeforeEach
   void setUp() {
     MockitoAnnotations.openMocks(this);
-    folderService = new PSFolderRestService(mockFolderService);
+    folderRestService = new PSFolderRestService(mockFolderService);
   }
 
-  /** Tests that PSWorkflowNotFoundException message is not exposed (CWE-209). */
   @Test
-  @DisplayName("Should not expose PSWorkflowNotFoundException details to client")
-  void testWorkflowNotFoundExceptionMessageHidden() {
-    // Given: Workflow assignment called with non-existent workflow
-    // When: PSWorkflowNotFoundException is thrown and caught
-    // Then: Response should be 404 with generic message "Workflow not found"
-    // NOT the actual exception message with workflow name or internal details
+  @DisplayName("Should not expose PSWorkflowNotFoundException details and should HTML-encode user input in startGetAssociatedFoldersJob")
+  void testStartGetAssociatedFoldersJobWorkflowNotFound() throws Exception {
+    String badWorkflow = "<script>alert(1)</script>";
+    when(mockFolderService.startGetAssignedFoldersJob(badWorkflow, "path", false))
+        .thenThrow(new PSWorkflowNotFoundException("Internal DB Error details"));
+
+    try {
+      folderRestService.startGetAssociatedFoldersJob(badWorkflow, "path", false);
+      fail("Expected WebApplicationException");
+    } catch (WebApplicationException e) {
+      Response response = e.getResponse();
+      assertEquals(404, response.getStatus());
+      assertEquals("text/plain", response.getMediaType().toString());
+      String entity = (String) response.getEntity();
+      assertTrue(entity.contains("&lt;script&gt;"));
+      assertFalse(entity.contains("<script>"));
+      assertFalse(entity.contains("Internal DB Error details"));
+    }
   }
 
-  /** Tests that IllegalArgumentException message is not exposed (CWE-209). */
+  @Test
+  @DisplayName("Should not expose PSWorkflowNotFoundException details and should HTML-encode user input in getAssociatedFolders")
+  void testWorkflowNotFoundExceptionMessageHidden() throws Exception {
+    String badWorkflow = "<img src=x onerror=alert(1)>";
+    when(mockFolderService.getAssignedFolders(badWorkflow, "/path", false))
+        .thenThrow(new PSWorkflowNotFoundException("Secret SQL Exception details"));
+
+    Response response = folderRestService.getAssociatedFolders(badWorkflow, "path", false);
+    assertEquals(404, response.getStatus());
+    assertEquals("text/plain", response.getMediaType().toString());
+    String entity = (String) response.getEntity();
+    assertFalse(entity.contains("Secret SQL Exception details"));
+    assertTrue(entity.contains("&lt;img"));
+    assertFalse(entity.contains("<img"));
+  }
+
   @Test
   @DisplayName("Should not expose IllegalArgumentException details to client")
-  void testIllegalArgumentExceptionMessageHidden() {
-    // Given: Invalid arguments passed to folder assignment
-    // When: IllegalArgumentException is caught
-    // Then: Response should be 400 with generic message "Invalid request parameters"
-    // NOT the actual argument validation failure details
+  void testIllegalArgumentExceptionMessageHidden() throws Exception {
+    when(mockFolderService.getAssignedFolders("wf", "/path", false))
+        .thenThrow(new IllegalArgumentException("Null arguments rejected"));
+
+    Response response = folderRestService.getAssociatedFolders("wf", "path", false);
+    assertEquals(400, response.getStatus());
+    assertEquals("text/plain", response.getMediaType().toString());
+    String entity = (String) response.getEntity();
+    assertFalse(entity.contains("Null arguments rejected"));
   }
 
-  /** Tests that PSPathNotFoundServiceException is handled generically (CWE-209). */
   @Test
   @DisplayName("Should not expose PSPathNotFoundServiceException details to client")
-  void testPathNotFoundExceptionMessageHidden() {
-    // Given: Path does not exist in folder service
-    // When: PSPathNotFoundServiceException is caught
-    // Then: Response should be 404 with generic message "Path not found"
-    // NOT the actual path or internal location system details
+  void testPathNotFoundExceptionMessageHidden() throws Exception {
+    when(mockFolderService.getAssignedFolders("wf", "/path", false))
+        .thenThrow(new PSPathNotFoundServiceException("Secret Path Details"));
+
+    Response response = folderRestService.getAssociatedFolders("wf", "path", false);
+    assertEquals(404, response.getStatus());
+    assertEquals("text/plain", response.getMediaType().toString());
+    String entity = (String) response.getEntity();
+    assertFalse(entity.contains("Secret Path Details"));
   }
 
-  /** Tests that generic exceptions don't expose implementation details (CWE-209). */
   @Test
   @DisplayName("Should not expose generic exception details to client")
-  void testGenericExceptionMessageHidden() {
-    // Given: Any unexpected exception occurs
-    // When: Generic Exception is caught in catch-all handler
-    // Then: Response should be 500 with generic message
-    // "An error occurred while processing your request"
-    // NOT the actual exception message or stack trace info
+  void testGenericExceptionMessageHidden() throws Exception {
+    when(mockFolderService.getAssignedFolders("wf", "/path", false))
+        .thenThrow(new RuntimeException("Critical Null Pointer"));
+
+    Response response = folderRestService.getAssociatedFolders("wf", "path", false);
+    assertEquals(500, response.getStatus());
+    assertEquals("text/plain", response.getMediaType().toString());
+    String entity = (String) response.getEntity();
+    assertFalse(entity.contains("Critical Null Pointer"));
   }
 
-  /** Tests that PSWorkflowAssignmentInProgressException is handled safely (CWE-209). */
   @Test
   @DisplayName("Should return generic message for in-progress assignment exception")
-  void testWorkflowAssignmentInProgressExceptionHidden() {
-    // Given: Workflow assignment is in progress
-    // When: PSWorkflowAssignmentInProgressException is caught
-    // Then: Response should be 409 CONFLICT with generic message
-    // "Workflow assignment is in progress"
-    // NOT the internal exception or state details
-  }
+  void testWorkflowAssignmentInProgressExceptionHidden() throws Exception {
+    PSWorkflowAssignment assignment = new PSWorkflowAssignment();
+    assignment.setWorkflowName("wf");
+    assignment.setAssignedFolders(new String[]{"folder"});
 
-  /** Tests that detailed errors are still logged internally. */
-  @Test
-  @DisplayName("Should still log detailed errors for debugging")
-  void testDetailedLoggingStillOccurs() {
-    // Given: Exception occurs
-    // When: Error handler processes exception
-    // Then: log.error() should be called with full message details
-    // (for ops/debug), but client doesn't see this information
-  }
+    doThrow(new PSWorkflowAssignmentInProgressException("Job 123 in progress"))
+        .when(mockFolderService).assignFoldersToWorkflow(assignment);
 
-  /** Tests HTTP status code consistency for different error types. */
-  @Test
-  @DisplayName("Should use consistent HTTP status codes for error types")
-  void testHTTPStatusCodeConsistency() {
-    // Given: Various exceptions during folder operations
-    // When: Error handlers process them
-    // Then: PSWorkflowNotFoundException → 404 NOT_FOUND
-    //       PSPathNotFoundServiceException → 404 NOT_FOUND
-    //       IllegalArgumentException → 400 BAD_REQUEST
-    //       PSWorkflowAssignmentInProgressException → 409 CONFLICT
-    //       Generic Exception → 500 INTERNAL_SERVER_ERROR
-  }
-
-  /** Tests that valid folder operations still work correctly. */
-  @Test
-  @DisplayName("Should successfully process valid folder operations")
-  void testValidFolderOperationsStillWork() {
-    // Given: Valid folder assignment/workflow request
-    // When: folderService processes request
-    // Then: Should return successful response without error exposure
+    Response response = folderRestService.assignFoldersToWorkflow(assignment);
+    assertEquals(409, response.getStatus());
+    assertEquals("text/plain", response.getMediaType().toString());
+    String entity = (String) response.getEntity();
+    assertFalse(entity.contains("Job 123 in progress"));
+    assertEquals("Workflow assignment is already in progress.", entity);
   }
 }
