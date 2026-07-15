@@ -2869,10 +2869,9 @@ public class PSPageUtils extends PSJexlUtilBase {
       serverBase = deliveryInfoService.findBaseByServerType(PSPubServer.STAGING);
     } else {
       if (serverId != null && pubServer != null) {
-        var maybeServerName =
-            pubServer.getProperty("publishServer").map(PSPubServerProperty::getValue).orElse(null);
-        if (maybeServerName != null) {
-          serverBase = deliveryInfoService.findBaseByServerName(maybeServerName);
+        var publishServer = pubServer.getPublishServer().orElse(null);
+        if (publishServer != null) {
+          serverBase = deliveryInfoService.findBaseByServerName(publishServer);
         } else {
           serverBase = deliveryInfoService.findBaseByServerType(PSPubServer.PRODUCTION);
         }
