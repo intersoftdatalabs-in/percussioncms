@@ -218,7 +218,10 @@ public class MainDTSPreInstall {
           Files.copy(archive.getInputStream(entry), entryDest);
           // Preserve executable permissions for shell scripts (v8.1.7 #515 / GH-510)
           if (entryName.endsWith(".sh")) {
-            entryDest.toFile().setExecutable(true, false);
+            File sh = entryDest.toFile();
+            if (!sh.setExecutable(true, false)) {
+              System.out.println("Warning: could not set executable bit on " + entryDest);
+            }
           }
         } catch (SecurityException se) {
           // ZipSlip attack detected - skip malicious entry
