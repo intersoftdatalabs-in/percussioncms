@@ -379,16 +379,9 @@ public class PSSearchService implements IPSSearchService {
     }
   }
 
+  /** Delegates to {@link PSLuceneQueryEscaper#escape(String)} for free-text Lucene queries. */
   private String escapeLuceneQuery(String query) {
-    var escapedQuery = query;
-    for (var specialCharacter : luceneSpecialCharacters) {
-      if (escapedQuery.startsWith(specialCharacter)) {
-        var replacement = "\\" + specialCharacter;
-        escapedQuery = replacement + escapedQuery.substring(1);
-        break;
-      }
-    }
-    return escapedQuery;
+    return PSLuceneQueryEscaper.escape(query);
   }
 
   private String excludeLocalWorkflow(String query, PSWSSearchParams searchParams)
@@ -457,10 +450,6 @@ public class PSSearchService implements IPSSearchService {
   private IPSRecycleService recycleService;
   private IPSSystemService systemService = PSSystemServiceLocator.getSystemService();
   private int localContentWfId = -1;
-
-  private static final List<String> luceneSpecialCharacters =
-      Arrays.asList(
-          "+", "-", "&&", "||", "!", "(", ")", "{", "}", "[", "]", "^", "'", "~", "*", "?", ":");
 
   private static final Logger log = LogManager.getLogger(PSSearchService.class);
 
