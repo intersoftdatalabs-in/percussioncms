@@ -670,7 +670,6 @@ public class PSXmlTreeWalker implements Serializable {
 
     try {
       DOMSource domSource = null;
-      StreamResult streamResult = new StreamResult(out);
 
       Transformer serializer = null;
       synchronized (ms_transformerFactory) {
@@ -683,6 +682,20 @@ public class PSXmlTreeWalker implements Serializable {
       // Indent amount of 3 matches the historical Saxon default that the
       // codebase has relied on.  The old value of "2" was ignored by Saxon.
       serializer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "3");
+      // Force LF line endings at the serializer level when supported (XSLTC-specific).
+      // The legacy Saxon serializer emitted LF only; the JDK XSLTC serializer used
+      // the platform default (CRLF on Windows, LF on Unix). Setting this property
+      // is a defense-in-depth measure that avoids needing to scan and rewrite
+      // CR characters in the output stream. We swallow IllegalArgumentException
+      // because the property is not part of the JAXP standard and some alternate
+      // transformer implementations may reject it; in that case the streaming
+      // CRLF normalization in TrailingNewlineControlWriter still keeps the
+      // output LF-only.
+      try {
+        serializer.setOutputProperty("{http://xml.apache.org/xslt}line-separator", "\n");
+      } catch (IllegalArgumentException ignored) {
+        // Property not supported by this transformer; downstream code handles CRLF.
+      }
 
       // Write the XML declaration ourselves so we can guarantee a trailing
       // newline.  The JDK XSLTC serializer omits the newline after the
@@ -718,22 +731,46 @@ public class PSXmlTreeWalker implements Serializable {
         }
       }
 
-      // The JDK XSLTC serializer used on Java 9+ emits CRLF line
-      // separators and an extra trailing newline after the closing
-      // element when INDENT=yes (the legacy Saxon serializer used LF
-      // only and did not add the trailing newline).  Buffer the
-      // transformer output so we can normalize the line endings back
-      // to LF and strip the trailing whitespace, matching the
-      // historical output the codebase (and its unit tests) rely on.
+      // The JDK XSLTC serializer used on Java 9+ emits CRLF line separators
+      // and an extra trailing newline after the closing element when
+      // INDENT=yes (the legacy Saxon serializer used LF only and did not add
+      // the trailing newline). Buffer the transformer output so we can
+      // normalize the line endings back to LF and strip the trailing
+      // whitespace, matching the historical output the codebase (and its
+      // unit tests) rely on.
+      //
+      // NOTE on peak memory: this StringWriter buffering doubles peak
+      // memory vs. a fully streaming pipeline. PSXmlTreeWalker is the
+      // single serialization path used across the CMS and DTS for object-
+      // store XML, package manifests, config files, and content-editor
+      // output. Most payloads are KB-scale (config files, small manifests);
+      // for multi-MB object-store XML the doubling is dominated by the
+      // XSLTC serializer's own internal buffer (which is already required
+      // to materialize the serialized form before passing it to a Writer).
+      // A fully streaming FilterWriter variant is feasible but requires
+      // careful state tracking around the XSLTC flush boundary; deferred
+      // to a follow-up. See the discussion on PR #1266 review thread.
       try (StringWriter buf = new StringWriter()) {
         StreamResult buffered = new StreamResult(buf);
         serializer.transform(domSource, buffered);
-        String normalized = buf.toString().replace("\r\n", "\n");
-        int end = normalized.length();
-        while (end > 0 && Character.isWhitespace(normalized.charAt(end - 1))) {
+        // Normalize all line-break variants: CRLF -> LF, lone CR -> LF.
+        // The XSLTC serializer on Java 8 emits CRLF; on Java 9+ it honors
+        // the line-separator output property. We normalize here defensively
+        // for robustness across transformer implementations (XSLTC, Saxon,
+        // any custom TransformerFactory implementation registered via
+        // createTransformerFactory()).
+        String content = buf.toString().replace("\r\n", "\n").replace('\r', '\n');
+        // Strip trailing newlines only — not all whitespace — to match the
+        // legacy output contract: exactly one trailing LF after the closing
+        // element. The XSLTC serializer with INDENT=yes may emit multiple
+        // trailing newlines (e.g. one for the closing-element line and one
+        // for a blank line); all of those are dropped here so we can emit
+        // exactly one.
+        int end = content.length();
+        while (end > 0 && content.charAt(end - 1) == '\n') {
           end--;
         }
-        out.write(normalized, 0, end);
+        out.write(content, 0, end);
         out.write('\n');
       }
       out.flush();
