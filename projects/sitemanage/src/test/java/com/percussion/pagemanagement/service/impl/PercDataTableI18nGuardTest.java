@@ -22,6 +22,7 @@ class PercDataTableI18nGuardTest {
       if (!Files.isRegularFile(p)) fail(p.toString());
       String js = Files.readString(p, StandardCharsets.UTF_8);
       assertTrue(js.contains("typeof I18N === \"undefined\""), rel + " must guard I18N");
+      assertTrue(js.contains("No Pages Found"), rel + " must include fallback label");
     }
   }
 
@@ -30,7 +31,7 @@ class PercDataTableI18nGuardTest {
     Path up = cwd.resolve("../..").normalize();
     if (Files.isDirectory(up.resolve("WebUI"))) return up;
     if (Files.isDirectory(cwd.resolve("WebUI"))) return cwd;
-    fail("root");
+    fail("could not resolve monorepo root (Surefire basedir projects/sitemanage expected)");
     return cwd;
   }
 }
