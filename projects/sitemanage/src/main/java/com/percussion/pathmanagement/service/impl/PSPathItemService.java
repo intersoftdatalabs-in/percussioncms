@@ -357,6 +357,30 @@ public abstract class PSPathItemService implements IPSPathService {
     } catch (Exception e) {
       throw new PSPathServiceException("Failed to add folder: " + path, e);
     }
+
+    int retryCount = 5;
+    int retryDelayMs = 200;
+    PSPathNotFoundServiceException lastException = null;
+    for (int i = 0; i < retryCount; i++) {
+      try {
+        return find(path);
+      } catch (PSPathNotFoundServiceException e) {
+        lastException = e;
+        log.warn(
+            "Folder added but path not found, retrying lookup. Attempt {} of {}",
+            i + 1,
+            retryCount);
+        try {
+          Thread.sleep(retryDelayMs);
+        } catch (InterruptedException ie) {
+          Thread.currentThread().interrupt();
+          break;
+        }
+      }
+    }
+    if (lastException != null) {
+      throw lastException;
+    }
     return find(path);
   }
 
