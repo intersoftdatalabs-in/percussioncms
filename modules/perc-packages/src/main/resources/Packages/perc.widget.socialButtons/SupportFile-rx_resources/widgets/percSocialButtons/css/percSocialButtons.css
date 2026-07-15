@@ -32,6 +32,14 @@ div.perc-social-button-ui {
   background-color: #111111;
 }
 
+/* X glyph mask URI is intentionally duplicated in:
+ * - SupportFile-rx_resources/.../percSocialButtons.css (editor assets)
+ * - sys__UserDependency--rx_resources/.../percSocialButtons.css (runtime)
+ * - sys__UserDependency--rxconfig/Widgets/percSocialButtons.xml (velocity CSS)
+ * Package packaging keeps SupportFile vs UserDependency copies in sync;
+ * there is no shared CSS variable across package zip boundaries without redesign.
+ * Keep the three SVG path data values identical when editing the X icon.
+ */
 .perc-social-button-ui .fa-twitter::before,
 .perc-social-button .fa-twitter::before {
   content: "" !important;

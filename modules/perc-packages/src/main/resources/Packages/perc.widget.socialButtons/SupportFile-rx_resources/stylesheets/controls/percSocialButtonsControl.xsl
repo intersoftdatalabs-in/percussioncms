@@ -229,7 +229,8 @@
 							</td>
 							<td class="perc-social-button-td perc-platform-name">
 								<div class="perc-social-button-ui">
-									<i class="fab fa-fw fa-twitter" aria-hidden="true"
+									<!-- aria-hidden omitted so aria-label is exposed to AT -->
+									<i class="fab fa-fw fa-twitter"
 										aria-label="X (Twitter)"></i>
 								</div>
 							</td>

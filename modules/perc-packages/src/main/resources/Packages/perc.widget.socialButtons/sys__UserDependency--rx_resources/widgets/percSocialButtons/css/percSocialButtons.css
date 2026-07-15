@@ -32,6 +32,8 @@ div.perc-social-button-ui {
   background-color: #111111;
 }
 
+/* X glyph mask URI intentionally duplicated — keep in sync with SupportFile CSS
+ * and velocity-inlined CSS in percSocialButtons.xml (package zip boundaries). */
 .perc-social-button-ui .fa-twitter::before,
 .perc-social-button .fa-twitter::before {
   content: "" !important;

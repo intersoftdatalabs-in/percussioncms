@@ -218,6 +218,7 @@
             color: #$outputColor.text;
           }
 
+          /* X glyph mask URI intentionally inlined here (and in SupportFile + UserDependency CSS). Keep path data in sync. */
           .perc-twitter-social-button i::before {
             content: "" !important;
             display: inline-block;

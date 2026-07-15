@@ -78,22 +78,30 @@ class SocialButtonsXRebrandTest {
 
     String xslText = Files.readString(xsl, StandardCharsets.UTF_8);
     assertTrue(xslText.contains("aria-label=\"X (Twitter)\""));
+    // Rebrand label must be exposed: fa-twitter must not carry aria-hidden
+    assertFalse(
+        xslText.matches("(?s).*fa-twitter\"[^>]*aria-hidden=\"true\".*"),
+        "fa-twitter must not use aria-hidden so aria-label is announced");
     assertTrue(xslText.contains("placeholder=\"https://x.com/percussion\""));
 
     String arch = Files.readString(archive, StandardCharsets.UTF_8);
     assertTrue(arch.contains("<Version>1.2.4</Version>"), "package version bump");
   }
 
+  /**
+   * Walk parent directories from the process working directory until {@code
+   * modules/perc-packages} is found. Works whether Surefire runs from the
+   * monorepo root or from {@code projects/sitemanage}.
+   */
   private static Path resolveRepoRoot() {
-    Path cwd = Path.of("").toAbsolutePath().normalize();
-    Path candidate = cwd.resolve("../..").normalize();
-    if (Files.isDirectory(candidate.resolve("modules/perc-packages"))) {
-      return candidate;
+    Path dir = Path.of("").toAbsolutePath().normalize();
+    while (dir != null) {
+      if (Files.isDirectory(dir.resolve("modules/perc-packages"))) {
+        return dir;
+      }
+      dir = dir.getParent();
     }
-    if (Files.isDirectory(cwd.resolve("modules/perc-packages"))) {
-      return cwd;
-    }
-    fail("could not resolve monorepo root");
-    return cwd;
+    fail("could not resolve monorepo root (no modules/perc-packages ancestor)");
+    return Path.of("").toAbsolutePath();
   }
 }
