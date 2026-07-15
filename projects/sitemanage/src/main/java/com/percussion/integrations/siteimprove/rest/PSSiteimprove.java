@@ -57,6 +57,15 @@ public class PSSiteimprove {
   private static final String EXT_NAME =
       "Java/global/percussion/task/perc_PSSiteimproveEditionTask";
 
+  // Generic client-facing error messages used to avoid leaking internal exception details
+  // (CWE-209 / CodeQL java/error-message-exposure). The detailed exception is always logged
+  // server-side before this generic message is returned.
+  private static final String GENERIC_STORE_CREDENTIALS_ERROR =
+      "Failed to store Siteimprove credentials";
+
+  private static final String GENERIC_SAVE_CONFIG_ERROR =
+      "Failed to save Siteimprove configuration settings";
+
   /**
    * Auto wires the metadata service for us to use.
    *
@@ -154,9 +163,11 @@ public class PSSiteimprove {
           .entity("Failed to validate credentials against siteImprove")
           .build();
     } catch (Exception e) {
-      var message = "Failed to store Siteimprove credentials. Exception is: " + e.getMessage();
-      logger.error(message, e);
-      return Response.serverError().entity(message).build();
+      logger.error(
+          "Failed to store Siteimprove credentials. Exception is: {}",
+          e.getMessage(),
+          e);
+      return Response.serverError().entity(GENERIC_STORE_CREDENTIALS_ERROR).build();
     }
   }
 
@@ -191,13 +202,12 @@ public class PSSiteimprove {
       // "204 - No content" to avoid jquery parser error for json.
       return Response.noContent().build();
     } catch (Exception e) {
-      var message =
-          "Failed to save configuration settings for "
-              + publishSettings.getSiteName()
-              + " Exception is "
-              + e.getMessage();
-      logger.error(message, e);
-      return Response.serverError().entity(message).build();
+      logger.error(
+          "Failed to save configuration settings for {}. Exception is {}",
+          publishSettings.getSiteName(),
+          e.getMessage(),
+          e);
+      return Response.serverError().entity(GENERIC_SAVE_CONFIG_ERROR).build();
     }
   }
 

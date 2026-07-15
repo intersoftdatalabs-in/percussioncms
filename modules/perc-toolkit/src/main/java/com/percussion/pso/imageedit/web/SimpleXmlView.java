@@ -35,6 +35,12 @@ import org.w3c.dom.Document;
 public class SimpleXmlView extends AbstractView implements View {
   private static final Logger log = LogManager.getLogger(SimpleXmlView.class);
 
+  // Generic client-facing error message used to avoid leaking internal result-key details
+  // (CWE-209 / CodeQL java/error-message-exposure). The detailed reason is always logged
+  // server-side before this generic message is thrown.
+  private static final String GENERIC_RENDER_ERROR =
+      "An error occurred while rendering the response";
+
   private String encoding = "UTF-8";
 
   private String resultKey = "result";
@@ -66,17 +72,14 @@ public class SimpleXmlView extends AbstractView implements View {
    * @return the result document.
    */
   protected Document findResult(Map<String, Object> model) {
-    String emsg;
     Object result = model.get(getResultKey());
     if (result == null) {
-      emsg = "Result object " + getResultKey() + " was not found";
-      log.error(emsg);
-      throw new RuntimeException(emsg);
+      log.error("Result object {} was not found", getResultKey());
+      throw new RuntimeException(GENERIC_RENDER_ERROR);
     }
     if (!(result instanceof Document)) {
-      emsg = "Result object " + getResultKey() + " was not an XML Document";
-      log.error(emsg);
-      throw new RuntimeException(emsg);
+      log.error("Result object {} was not an XML Document", getResultKey());
+      throw new RuntimeException(GENERIC_RENDER_ERROR);
     }
     return (Document) result;
   }
