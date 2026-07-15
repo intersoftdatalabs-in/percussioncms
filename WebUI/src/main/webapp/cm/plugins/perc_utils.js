@@ -1613,6 +1613,10 @@
         var oldName = $nameEl.parent().attr("title");
         if (value.length === 0) return oldName;
         if (value.toLowerCase() !== oldName.toLowerCase()) {
+          if (isRenamingFolder) {
+            return oldName;
+          }
+          isRenamingFolder = true;
           $.PercBlockUI($.PercBlockUIMode.CURSORONLY);
           $.PercPathService.renameFolder(
             pathItem.path,
@@ -1630,9 +1634,11 @@
                 $.perc_finder().lastClickPath = null;
                 $.perc_finder().open(pth);
                 $.unblockUI();
+                isRenamingFolder = false;
               } else {
                 $nameEl.text(oldName); // Reset back to old name
                 $.unblockUI();
+                isRenamingFolder = false;
                 var errorMsg = "";
                 if (
                   code === "renameFolderItem.reservedName" ||
