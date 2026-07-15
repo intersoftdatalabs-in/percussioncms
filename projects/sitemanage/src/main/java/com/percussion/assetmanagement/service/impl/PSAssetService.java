@@ -1959,19 +1959,23 @@ public class PSAssetService extends PSAbstractFullDataService<PSAsset, PSAssetSu
    */
   private String extractContent(PSExtractedAssetRequest request) throws IOException {
     String content = IOUtils.toString(request.getFileContents(), StandardCharsets.UTF_8);
-    String selector = request.getSelector();
-    String extractedContent = null;
+    String fileName = request.getFileName();
 
-    extractedContent =
+    if (PSEmptyUploadContent.isEmptyOrWhitespaceOnly(content)) {
+      throw new PSExtractHTMLException(PSEmptyUploadContent.rejectionMessage(fileName));
+    }
+
+    String selector = request.getSelector();
+    String extractedContent =
         PSHtmlUtils.extractHtml(
-            selector, content, request.getFileName(), request.shouldIncludeOuterHtml());
+            selector, content, fileName, request.shouldIncludeOuterHtml());
 
     if (isBlank(extractedContent)) {
       String warning =
           "CSS Selector \""
               + selector
               + "\" does not exist in file '"
-              + request.getFileName()
+              + fileName
               + ".'";
       throw new PSExtractHTMLException(warning);
     }
