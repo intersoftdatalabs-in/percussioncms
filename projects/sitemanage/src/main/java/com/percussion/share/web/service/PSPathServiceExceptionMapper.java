@@ -20,6 +20,7 @@ package com.percussion.share.web.service;
 
 import com.percussion.cms.IPSConstants;
 import com.percussion.pathmanagement.service.IPSPathService;
+import com.percussion.share.service.exception.IPSNotFoundException;
 import com.percussion.share.validation.PSErrors;
 import com.percussion.system.utils.PSSiteManageBean;
 import jakarta.inject.Singleton;
@@ -71,6 +72,11 @@ public class PSPathServiceExceptionMapper
   @Override
   @Produces(MediaType.APPLICATION_JSON)
   protected Response.Status getStatus(IPSPathService.PSPathServiceException exception) {
+    // Path not found is a client/path issue, not a server fault (v8.1.7 #924 / GH-867)
+    if (exception instanceof IPSPathService.PSPathNotFoundServiceException
+        || exception.getCause() instanceof IPSNotFoundException) {
+      return Response.Status.NOT_FOUND;
+    }
     return super.getStatus(exception);
   }
 }
