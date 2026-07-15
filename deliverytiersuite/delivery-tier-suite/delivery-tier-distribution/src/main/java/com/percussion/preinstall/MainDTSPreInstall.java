@@ -216,6 +216,10 @@ public class MainDTSPreInstall {
           }
           System.out.println("Creating file " + entryDest);
           Files.copy(archive.getInputStream(entry), entryDest);
+          // Preserve executable permissions for shell scripts (v8.1.7 #515 / GH-510)
+          if (entryName.endsWith(".sh")) {
+            entryDest.toFile().setExecutable(true, false);
+          }
         } catch (SecurityException se) {
           // ZipSlip attack detected - skip malicious entry
           System.out.println("Security: Rejected malicious zip entry: " + entryName);
