@@ -45,26 +45,39 @@ class FormWidgetEmailAutocompleteTest {
     String form = Files.readString(js, StandardCharsets.UTF_8);
     assertTrue(form.contains("getElementById(\"email-from\")") || form.contains("getElementById('email-from')"));
     assertTrue(form.contains("autocomplete") && form.contains("email"));
-    assertTrue(form.contains("setAttribute") && form.contains("type"));
+    // type is set via the DOM property (emailField.type = "email"), not setAttribute
+    assertTrue(
+        form.contains(".type = \"email\"") || form.contains(".type='email'") || form.contains(".type = 'email'"));
+    assertTrue(form.contains("setAttribute") && form.contains("autocomplete"));
 
     String minJs = Files.readString(min, StandardCharsets.UTF_8);
     assertTrue(minJs.contains("email-from"));
     assertTrue(minJs.contains("autocomplete"));
+    assertTrue(minJs.contains("email"));
 
     String arch = Files.readString(archive, StandardCharsets.UTF_8);
     assertTrue(arch.contains("<Version>1.4.8</Version>"));
   }
 
+  /**
+   * Walks up from the process working directory until a monorepo marker is
+   * found ({@code modules/perc-packages} next to root {@code pom.xml}), so the
+   * test is robust when run from repo root, module basedir, or nested CI paths.
+   */
   private static Path resolveRepoRoot() {
-    Path cwd = Path.of("").toAbsolutePath().normalize();
-    Path candidate = cwd.resolve("../..").normalize();
-    if (Files.isDirectory(candidate.resolve("modules/perc-packages"))) {
-      return candidate;
+    Path dir = Path.of("").toAbsolutePath().normalize();
+    while (dir != null) {
+      if (Files.isDirectory(dir.resolve("modules/perc-packages"))
+          && Files.isRegularFile(dir.resolve("pom.xml"))) {
+        return dir;
+      }
+      Path parent = dir.getParent();
+      if (parent == null || parent.equals(dir)) {
+        break;
+      }
+      dir = parent;
     }
-    if (Files.isDirectory(cwd.resolve("modules/perc-packages"))) {
-      return cwd;
-    }
-    fail("could not resolve monorepo root");
-    return cwd;
+    fail("could not resolve monorepo root from " + Path.of("").toAbsolutePath().normalize());
+    return Path.of("").toAbsolutePath().normalize();
   }
 }

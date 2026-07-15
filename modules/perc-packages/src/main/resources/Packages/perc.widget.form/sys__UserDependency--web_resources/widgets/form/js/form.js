@@ -69,17 +69,19 @@
         }
 
         // Set accessibility attributes for email-from field if present.
+        // Prefer the type property over setAttribute: mutating type via
+        // setAttribute is unreliable on already-rendered inputs in some engines.
         var emailField = document.getElementById("email-from");
         if (emailField) {
           emailField.setAttribute("autocomplete", "email");
-          emailField.setAttribute("type", "email");
+          emailField.type = "email";
         }
 
         var formAction = $(this).attr("action");
         formAction = formAction + "collect/";
         if (formAction && formAction.indexOf("/perc-form-processor") === 0) {
-          var version =
-            typeof $.getCMSVersion === "function" ? $.getCMSVersion() : "";
+          // Dead `version` assignment removed (was never read); keeps form.js
+          // in sync with form.min.js so future regenerations do not drift.
           var servicebase =
             typeof $.getDeliveryServiceBase === "function"
               ? $.getDeliveryServiceBase()
