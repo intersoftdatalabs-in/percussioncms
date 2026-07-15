@@ -1623,16 +1623,20 @@
             value,
             function (status, result, code) {
               if (status === $.PercServiceUtils.STATUS_SUCCESS) {
-                var pth = $.perc_finder().lastClickPath;
-                if (
-                  $.perc_finder().lastClickPath === null ||
-                  typeof $.perc_finder().lastClickPath === "undefined"
-                ) {
-                  pth = result.PathItem.path.split("/");
-                  pth.push(value);
+                // Guard the new path-parse against a SUCCESS payload that lacks
+                // a PathItem (e.g. partial server response or unexpected shape).
+                // Without this guard, `result.PathItem.path.split(...)` would
+                // throw TypeError on a missing `PathItem` and the finder would
+                // never re-open. Skip the open() call -- the finder is already
+                // showing the pre-rename view.
+                if (result && result.PathItem && result.PathItem.path) {
+                                                var pth = result.PathItem.path.split("/");
+                                if (pth[pth.length - 1] === "") {
+                                    pth.pop();
+                                }
+                  $.perc_finder().lastClickPath = null;
+                  $.perc_finder().open(pth);
                 }
-                $.perc_finder().lastClickPath = null;
-                $.perc_finder().open(pth);
                 $.unblockUI();
                 isRenamingFolder = false;
               } else {
