@@ -50,6 +50,7 @@ import com.percussion.itemmanagement.service.IPSWorkflowHelper;
 import com.percussion.pagemanagement.data.PSTemplateSummary;
 import com.percussion.pagemanagement.service.IPSTemplateService;
 import com.percussion.pathmanagement.data.PSFolderPermission;
+import com.percussion.recycle.service.IPSRecycleService;
 import com.percussion.security.PSEncryptor;
 import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.services.catalog.PSTypeEnum;
@@ -171,6 +172,13 @@ public class PSItemService implements IPSItemService {
   @Autowired IPSPublishingWs publishingWs;
   @Autowired IPSContentChangeService changeService;
   @Autowired IPSRelationshipService relationshipService;
+  @Autowired private IPSRecycleService recycleService;
+
+  /** Package-visible for unit tests. */
+  void setRecycleService(IPSRecycleService recycleService) {
+    this.recycleService = recycleService;
+  }
+
   private PSAuditLogService psAuditLogService = PSAuditLogService.getInstance();
   private PSContentEvent psContentEvent;
   private SecureKeyRotationListener secureKeyRotationListener;
@@ -1625,6 +1633,10 @@ public class PSItemService implements IPSItemService {
     for (PSUserItem uItem : userItems) {
       PSItemProperties itemProps = null;
       try {
+        // Skip bookmarked items that have been recycled (GH-877 / v8.1.7 PR #893).
+        if (recycleService.isInRecycler(String.valueOf(uItem.getItemId()))) {
+          continue;
+        }
         itemProps =
             folderHelper.findItemPropertiesById(
                 idMapper.getGuid(new PSLocator(uItem.getItemId())).toString());

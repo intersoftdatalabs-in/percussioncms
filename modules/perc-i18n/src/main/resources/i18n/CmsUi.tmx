@@ -17650,10 +17650,10 @@ Documentación' href='https://percussioncmshelp.intsof.com/'&gt;percussioncmshel
 	</tuv>
 </tu>
 <tu tuid="perc.ui.google.setup.gadget@Select Google Profile">
-	<prop type="sectionname" xml:lang="en-us">Select Google Profile</prop>
+	<prop type="sectionname" xml:lang="en-us">Select Google Property</prop>
 	<note xml:lang="en-us"></note>
 	<tuv xml:lang="en-us">
-		<seg>Select a Google profile for each site:</seg>
+		<seg>Select a Google property for each site:</seg>
 	</tuv>
 	  <tuv xml:lang="es">
 		<seg>Seleccione un perfil de Google para cada sitio:</seg>
@@ -17700,20 +17700,20 @@ Documentación' href='https://percussioncmshelp.intsof.com/'&gt;percussioncmshel
 	</tuv>
 </tu>
 <tu tuid="perc.ui.google.setup.gadget@Select Google Analytics Profile">
-	<prop type="sectionname" xml:lang="en-us">Select Google Analytics Profile</prop>
+	<prop type="sectionname" xml:lang="en-us">Select Google Analytics Property</prop>
 	<note xml:lang="en-us"></note>
 	<tuv xml:lang="en-us">
-		<seg>Select Google Analytics Profile</seg>
+		<seg>Select Google Analytics Property</seg>
 	</tuv>
 	  <tuv xml:lang="es">
 		<seg>Seleccione el perfil de Google Analytics</seg>
 	</tuv>
 </tu>
 <tu tuid="perc.ui.google.setup.gadget@Enter API Key">
-	<prop type="sectionname" xml:lang="en-us">Enter API Key for this Google Analytics Profile</prop>
+	<prop type="sectionname" xml:lang="en-us">Enter API Key for this Google Analytics Property</prop>
 	<note xml:lang="en-us"></note>
 	<tuv xml:lang="en-us">
-		<seg>Enter API Key for this Google Analytics Profile</seg>
+		<seg>Enter API Key for this Google Analytics Property</seg>
 	</tuv>
 	  <tuv xml:lang="es">
 		<seg>Ingrese la clave API para este perfil de Google Analytics</seg>
@@ -17898,6 +17898,16 @@ Documentación' href='https://percussioncmshelp.intsof.com/'&gt;percussioncmshel
 	  <tuv xml:lang="es">
 		<seg>Su navegador no soporta iframes.</seg>
 	</tuv>
+</tu>
+<tu tuid="perc.ui.reports.gadget@Report Help">
+<prop type="sectionname" xml:lang="en-us">Report Help</prop>
+<note xml:lang="en-us"></note>
+<tuv xml:lang="en-us">
+<seg>Note: Reports will be emailed to your user's email address. In order for report emails to be delivered, email support must first be configured in rxconfig/Workflow/rxworkflow.properties by the System Administrator.</seg>
+</tuv>
+  <tuv xml:lang="es">
+<seg>Nota: Los informes se enviarán por correo electrónico a la dirección de correo electrónico de su usuario. Para que los correos electrónicos de los informes se entreguen, el correo electrónico debe estar configurado en rxconfig/Workflow/rxworkflow.properties por el Administrador del Sistema.</seg>
+</tuv>
 </tu>
     </body>
 </tmx>

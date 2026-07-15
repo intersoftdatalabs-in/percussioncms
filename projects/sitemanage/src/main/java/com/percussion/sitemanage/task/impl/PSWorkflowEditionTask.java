@@ -27,6 +27,7 @@ import com.percussion.services.sitemgr.IPSSite;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * This post edition task workflows the item after publish. It only workflows the item if the item
@@ -99,20 +100,51 @@ public class PSWorkflowEditionTask extends PSAbstractWorkflowExtension implement
     }
     log.debug("Finished workflowing items for jobId: {}", jobId);
 
-    if (!pubIds.isEmpty()) {
-      log.debug("Started updating post date for items for jobId: {}", jobId);
-      getCmsObjectManager().setPostDate(pubIds);
-      log.debug("Finished updating post date for items for jobId: {}", jobId);
+    updateContentDatesAfterWorkflow(jobId, pubIds, unpubIds);
+  }
 
-      log.debug("Started clearing start date for items for jobId: {}", jobId);
-      getCmsObjectManager().clearStartDate(pubIds);
-      log.debug("Finished clearing start date for items for jobId: {}", jobId);
-    }
+  /**
+   * Updates post/start/expiry dates after post-edition workflow. Concurrency failures are demoted
+   * to INFO and swallowed so the publish job completes; non-concurrency failures still propagate.
+   *
+   * <p>Note: {@code setPostDate} / {@code clearStartDate} / {@code clearExpiryDate} are not one
+   * atomic transaction. If a later call fails with a concurrency exception after an earlier call
+   * succeeded, partial date updates may remain. That is accepted for pure contention (another job
+   * is expected to finish the same writes); non-concurrency errors still abort.
+   *
+   * @param jobId publish job id (logging only)
+   * @param pubIds content ids that published (may be empty)
+   * @param unpubIds content ids that unpublished (may be empty)
+   */
+  void updateContentDatesAfterWorkflow(long jobId, Set<Integer> pubIds, Set<Integer> unpubIds)
+      throws Exception {
+    try {
+      if (!pubIds.isEmpty()) {
+        log.debug("Started updating post date for items for jobId: {}", jobId);
+        getCmsObjectManager().setPostDate(pubIds);
+        log.debug("Finished updating post date for items for jobId: {}", jobId);
 
-    if (!unpubIds.isEmpty()) {
-      log.debug("Started clearing expiry date for items for jobId: {}", jobId);
-      getCmsObjectManager().clearExpiryDate(unpubIds);
-      log.debug("Finished clearing expiry date for items for jobId: {}", jobId);
+        log.debug("Started clearing start date for items for jobId: {}", jobId);
+        getCmsObjectManager().clearStartDate(pubIds);
+        log.debug("Finished clearing start date for items for jobId: {}", jobId);
+      }
+
+      if (!unpubIds.isEmpty()) {
+        log.debug("Started clearing expiry date for items for jobId: {}", jobId);
+        getCmsObjectManager().clearExpiryDate(unpubIds);
+        log.debug("Finished clearing expiry date for items for jobId: {}", jobId);
+      }
+    } catch (Exception e) {
+      if (isConcurrencyException(e)) {
+        log.info(
+            "Concurrent modification detected while updating content dates for jobId: {}. The dates will be/were updated by another concurrent publish job.",
+            jobId);
+        if (log.isDebugEnabled()) {
+          log.debug("Concurrent modification details:", e);
+        }
+      } else {
+        throw e;
+      }
     }
   }
 }
