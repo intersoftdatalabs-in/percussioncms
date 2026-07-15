@@ -74,8 +74,8 @@ public class PSAssetUploadServlet extends HttpServlet {
     var approve = request.getParameter("approveOnUpload");
     var approveOnUpload = approve != null && approve.equalsIgnoreCase("true");
 
+    String fileName = null;
     try {
-      String fileName = null;
       PSAsset newAsset = null;
       for (var part : request.getParts()) {
         fileName = SecureStringUtils.sanitizeFileName(getFileName(part));
@@ -100,12 +100,43 @@ public class PSAssetUploadServlet extends HttpServlet {
           out.print(jsonObject.toString());
           out.flush();
         }
+      } else {
+        writeErrorResponse(response, fileName, "No valid file was provided for upload.", 400);
       }
     } catch (PSExtractHTMLException caE) {
-      handleExtractionError(caE, response);
+      handleExtractionError(caE, response, fileName);
     } catch (Exception e) {
       logger.error(PSExceptionUtils.getMessageForLog(e));
-      response.setStatus(500);
+      String msg = e.getMessage();
+      if (msg == null || msg.trim().isEmpty()) {
+        msg = "Upload failed due to an unexpected server error.";
+      }
+      writeErrorResponse(response, fileName, msg, 500);
+    }
+  }
+
+  /** Writes a JSON error response for upload failures. */
+  private void writeErrorResponse(
+      HttpServletResponse response, String fileName, String message, int statusCode)
+      throws IOException {
+    response.setStatus(statusCode);
+    response.setContentType("application/json");
+    response.setCharacterEncoding("UTF-8");
+    try (PrintWriter w = response.getWriter()) {
+      var err = new JSONObject();
+      try {
+        err.put("error", message != null ? message : "Upload failed.");
+        if (fileName != null && !fileName.isEmpty()) {
+          err.put("name", fileName);
+        }
+      } catch (org.codehaus.jettison.json.JSONException je) {
+        // Fallback plain text if JSON construction fails
+        w.print("{\"error\":\"Upload failed.\"}");
+        w.flush();
+        return;
+      }
+      w.print(err.toString());
+      w.flush();
     }
   }
 
@@ -114,12 +145,18 @@ public class PSAssetUploadServlet extends HttpServlet {
    *
    * @param e the extraction error / exception, assumed not {@code null}.
    * @param response the HTTP response, assumed not {@code null}.
+   * @param fileName the name of the file being uploaded (may be null).
    */
-  private void handleExtractionError(PSExtractHTMLException e, HttpServletResponse response) {
+  private void handleExtractionError(
+      PSExtractHTMLException e, HttpServletResponse response, String fileName) {
     logger.error(PSExceptionUtils.getMessageForLog(e));
     logger.debug(PSExceptionUtils.getDebugMessageForLog(e));
+    String msg = e.getMessage();
+    if (msg == null || msg.trim().isEmpty()) {
+      msg = "Failed to extract content from the uploaded file.";
+    }
     try {
-      response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+      writeErrorResponse(response, fileName, msg, HttpServletResponse.SC_BAD_REQUEST);
     } catch (IOException ex) {
       response.setStatus(500);
     }
