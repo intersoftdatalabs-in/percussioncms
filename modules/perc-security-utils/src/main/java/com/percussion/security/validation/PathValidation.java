@@ -103,6 +103,66 @@ public class PathValidation {
   private static final Logger log = LogManager.getLogger(PathValidation.class);
 
   /**
+   * Checks if a path should be treated as absolute for security purposes, across all platforms.
+   *
+   * <p>On Windows, {@link File#isAbsolute()} only returns {@code true} for paths that begin with a
+   * drive letter (e.g. {@code C:\}) or a UNC root (e.g. {@code \\server\share}). A string like
+   * {@code /etc/passwd} is considered <em>relative</em> by {@link File#isAbsolute()} on Windows
+   * even though it is clearly an attempt to address an absolute location. For path-traversal
+   * detection we must reject any input that <em>looks</em> absolute regardless of the host OS.
+   *
+   * @param path the path string to inspect
+   * @return {@code true} if the path starts with a drive letter, a UNC root, or a leading
+   *     separator
+   */
+  private static boolean looksAbsolute(String path) {
+    if (path == null || path.isEmpty()) {
+      return false;
+    }
+    if (path.startsWith("/") || path.startsWith("\\")) {
+      return true;
+    }
+    if (path.length() >= 2 && Character.isLetter(path.charAt(0)) && path.charAt(1) == ':') {
+      return true;
+    }
+    return false;
+  }
+
+  /**
+   * Tests whether {@code child} is the same path as, or is located within, {@code parent}. The
+   * comparison is performed using canonical paths and is case-insensitive on platforms where the
+   * underlying filesystem is case-insensitive (e.g. Windows).
+   *
+   * @param child the candidate path
+   * @param parent the directory that should contain {@code child}
+   * @return {@code true} if {@code child} resolves to {@code parent} or a descendant of it
+   * @throws IOException if either path cannot be canonicalized
+   */
+  private static boolean isWithin(File child, File parent) throws IOException {
+    String childCanonical = child.getCanonicalPath();
+    String parentCanonical = parent.getCanonicalPath();
+    if (isCaseInsensitiveFs()) {
+      childCanonical = childCanonical.toLowerCase();
+      parentCanonical = parentCanonical.toLowerCase();
+    }
+    if (childCanonical.equals(parentCanonical)) {
+      return true;
+    }
+    return childCanonical.startsWith(parentCanonical + File.separator);
+  }
+
+  /**
+   * Returns {@code true} when the host filesystem treats path components as case-insensitive.
+   *
+   * <p>Currently this is hard-coded to {@code true} on Windows. On other platforms the JDK reports
+   * the underlying {@code FileSystem} as case-sensitive, so we keep the default case-sensitive
+   * behaviour for those systems.
+   */
+  private static boolean isCaseInsensitiveFs() {
+    return File.separatorChar == '\\';
+  }
+
+  /**
    * Constructs a safe file path by combining a base directory with a user-supplied relative path,
    * ensuring the resulting path remains within the base directory.
    *
@@ -163,8 +223,10 @@ public class PathValidation {
       throw new IllegalArgumentException("baseDir must be an existing directory: " + baseDir);
     }
 
-    // Reject absolute paths in user input
-    if (new File(userPath).isAbsolute()) {
+    // Reject absolute paths in user input. Use a platform-agnostic check so that
+    // Unix-style paths like "/etc/passwd" are also rejected on Windows even though
+    // File.isAbsolute() considers them relative on that platform.
+    if (looksAbsolute(userPath) || new File(userPath).isAbsolute()) {
       log.warn("Path traversal attempt: absolute path in userPath: {}", userPath);
       throw new SecurityException(
           "User-supplied path cannot be absolute: " + userPath + " (CWE-22)");
@@ -172,35 +234,32 @@ public class PathValidation {
 
     try {
       // Get canonical paths (resolves .. and symlinks)
-      String baseDirCanonical = baseDir.getCanonicalPath();
       File combinedPath = new File(baseDir, userPath);
-      String combinedCanonical = combinedPath.getCanonicalPath();
 
-      // Check that resolved path is within baseDir
-      if (!combinedCanonical.startsWith(baseDirCanonical + File.separator)
-          && !combinedCanonical.equals(baseDirCanonical)) {
+      // Check that resolved path is within baseDir (case-insensitive on Windows)
+      if (!isWithin(combinedPath, baseDir)) {
         log.warn(
             "Path traversal attempt: {} -> {} (outside allowed base: {})",
             userPath,
-            combinedCanonical,
-            baseDirCanonical);
+            combinedPath.getCanonicalPath(),
+            baseDir.getCanonicalPath());
         throw new SecurityException(
             "Resolved path escapes base directory (CWE-22 path traversal): " + userPath);
       }
 
       // Additional symlink check if requested (for high-security deployments)
-      if (checkSymlinks && combinedPath.exists()) {
-        String symlinkFreeCanonical = combinedPath.getCanonicalFile().getCanonicalPath();
-        if (!symlinkFreeCanonical.startsWith(baseDirCanonical)) {
-          log.warn(
-              "Symlink escape attempt: {} -> {} (outside allowed base)",
-              combinedPath.getAbsolutePath(),
-              symlinkFreeCanonical);
-          throw new SecurityException("Symlink escapes base directory bounds: " + userPath);
-        }
+      if (checkSymlinks && combinedPath.exists() && !isWithin(combinedPath, baseDir)) {
+        log.warn(
+            "Symlink escape attempt: {} -> {} (outside allowed base)",
+            combinedPath.getAbsolutePath(),
+            combinedPath.getCanonicalPath());
+        throw new SecurityException("Symlink escapes base directory bounds: " + userPath);
       }
 
-      return new File(combinedCanonical);
+      // Return the path as constructed (not canonicalized) so that callers see the same
+      // path-string form as the supplied baseDir. The security check above already used
+      // canonical paths to guarantee the result stays within baseDir.
+      return combinedPath;
     } catch (IOException e) {
       log.error("Error validating path: {} + {}: {}", baseDir, userPath, e.getMessage());
       throw new SecurityException("Failed to validate path security: " + e.getMessage(), e);
@@ -237,12 +296,11 @@ public class PathValidation {
     }
 
     try {
-      String parentCanonical = allowedParentDir.getCanonicalPath();
-      String checkCanonical = pathToCheck.getCanonicalPath();
-
-      if (!checkCanonical.startsWith(parentCanonical + File.separator)
-          && !checkCanonical.equals(parentCanonical)) {
-        log.warn("Path outside allowed directory: {} not in {}", checkCanonical, parentCanonical);
+      if (!isWithin(pathToCheck, allowedParentDir)) {
+        log.warn(
+            "Path outside allowed directory: {} not in {}",
+            pathToCheck.getCanonicalPath(),
+            allowedParentDir.getCanonicalPath());
         throw new SecurityException(
             "Path is outside allowed directory: "
                 + pathToCheck
@@ -251,7 +309,7 @@ public class PathValidation {
                 + ")");
       }
 
-      return new File(checkCanonical);
+      return pathToCheck.getCanonicalFile();
     } catch (IOException e) {
       log.error("Error validating path bounds: {}: {}", pathToCheck, e.getMessage());
       throw new SecurityException("Failed to validate path: " + e.getMessage(), e);
@@ -298,8 +356,9 @@ public class PathValidation {
       // Validate each component before adding
       // Allow path that may not exist yet by validating canonically
 
-      // Check for escape attempts
-      if (new File(component).isAbsolute()) {
+      // Check for escape attempts. Use a platform-agnostic absolute-path check so that
+      // Unix-style paths like "/etc/passwd" are rejected on Windows as well.
+      if (looksAbsolute(component) || new File(component).isAbsolute()) {
         log.warn("Path traversal attempt: absolute component: {}", component);
         throw new SecurityException("Component cannot be absolute: " + component + " (CWE-22)");
       }
@@ -312,15 +371,13 @@ public class PathValidation {
       current = new File(current, component);
     }
 
-    // Validate final combined path is within baseDir
+    // Validate final combined path is within baseDir (case-insensitive on Windows)
     try {
-      String baseDirCanonical = baseDir.getCanonicalPath();
-      String finalCanonical = current.getCanonicalPath();
-
-      if (!finalCanonical.startsWith(baseDirCanonical + File.separator)
-          && !finalCanonical.equals(baseDirCanonical)) {
+      if (!isWithin(current, baseDir)) {
         throw new SecurityException(
-            "Combined path escapes baseDir bounds: " + finalCanonical + " (CWE-22)");
+            "Combined path escapes baseDir bounds: "
+                + current.getCanonicalPath()
+                + " (CWE-22)");
       }
     } catch (IOException e) {
       throw new SecurityException("Cannot validate path: " + e.getMessage(), e);
