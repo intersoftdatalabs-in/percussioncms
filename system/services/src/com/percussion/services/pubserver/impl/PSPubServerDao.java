@@ -96,7 +96,22 @@ public class PSPubServerDao
       pubServer.addProperty(PUBLISH_OWN_SERVER_PROPERTY, "false");
       pubServer.addProperty(PUBLISH_FORMAT_PROPERTY, "HTML");
 
-      return pubServer;
+      
+      try
+      {
+         PSDeliveryInfoService psDeliveryInfoService =
+               (PSDeliveryInfoService) PSDeliveryInfoServiceLocator.getDeliveryInfoService();
+         List<String> adminUrls = psDeliveryInfoService.getAdminUrls(pubServer.getServerType());
+         String dtsServer = (adminUrls != null && !adminUrls.isEmpty()) ? adminUrls.get(0) : "NONE";
+         pubServer.addProperty(PUBLISH_SERVER_PROPERTY, dtsServer);
+      }
+      catch (Exception e)
+      {
+         log.error("Failed to initialize default DTS server for site: {}", site.getName(), e);
+         pubServer.addProperty(PUBLISH_SERVER_PROPERTY, "NONE");
+      }
+
+return pubServer;
    }
 
    /*
