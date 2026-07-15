@@ -398,7 +398,7 @@ public class AssetsResource {
       log.debug(PSExceptionUtils.getDebugMessageForLog(e));
       return Response.serverError().build();
     }
-    return Response.accepted().build();
+    return Response.accepted().status(202).build();
   }
 
   @GET
@@ -427,7 +427,7 @@ public class AssetsResource {
       log.debug(PSExceptionUtils.getDebugMessageForLog(e));
       return Response.serverError().build();
     }
-    return Response.accepted().build();
+    return Response.accepted().status(202).build();
   }
 
   @GET
@@ -457,7 +457,7 @@ public class AssetsResource {
       log.debug(PSExceptionUtils.getDebugMessageForLog(e));
       return Response.serverError().build();
     }
-    return Response.accepted().build();
+    return Response.accepted().status(202).build();
   }
 
   @GET
@@ -484,7 +484,7 @@ public class AssetsResource {
       log.debug(PSExceptionUtils.getDebugMessageForLog(e));
       return Response.serverError().build();
     }
-    return Response.accepted().build();
+    return Response.accepted().status(202).build();
   }
 
   private void generateReport(String reportType)
@@ -509,8 +509,7 @@ public class AssetsResource {
               sendMail(out, reportType, toAddress);
             } catch (Exception ex) {
               var errorStr = "Error occurred while generating " + reportType + " report";
-              log.error(errorStr + " cause: " + PSExceptionUtils.getMessageForLog(ex));
-              log.debug(PSExceptionUtils.getDebugMessageForLog(ex));
+              log.error(errorStr, ex);
               sendMail(errorStr, reportType, toAddress);
             }
           });
