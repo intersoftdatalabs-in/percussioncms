@@ -1634,8 +1634,7 @@ public class PSItemService implements IPSItemService {
       PSItemProperties itemProps = null;
       try {
         // Skip bookmarked items that have been recycled (GH-877 / v8.1.7 PR #893).
-        if (recycleService != null
-            && recycleService.isInRecycler(String.valueOf(uItem.getItemId()))) {
+        if (recycleService.isInRecycler(String.valueOf(uItem.getItemId()))) {
           continue;
         }
         itemProps =
