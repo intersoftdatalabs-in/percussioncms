@@ -391,7 +391,7 @@ public class PSSearchService implements IPSSearchService {
         break;
       }
     }
-    escapedQuery = escapedQuery.replaceAll("(?<!\\)/", "\\/");
+    escapedQuery = escapedQuery.replaceAll("(?<!\\\\)/", "\\\\/");
     return escapedQuery;
   }
 
