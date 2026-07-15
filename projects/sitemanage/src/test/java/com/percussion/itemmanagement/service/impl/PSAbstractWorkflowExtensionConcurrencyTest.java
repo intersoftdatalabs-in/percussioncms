@@ -40,56 +40,58 @@ class PSAbstractWorkflowExtensionConcurrencyTest {
   @Test
   void detectsLockAndOptimisticConcurrencyByClassName() {
     assertTrue(
-        PSAbstractWorkflowExtension.isConcurrencyException(
-            new SimulatedLockAcquisitionException("locked")));
+        PSAbstractWorkflowExtension.isConcurrencyException(new LockAcquisitionException("locked")));
+    assertTrue(
+        PSAbstractWorkflowExtension.isConcurrencyException(new OptimisticLockException("optimistic")));
     assertTrue(
         PSAbstractWorkflowExtension.isConcurrencyException(
-            new SimulatedOptimisticLockException("optimistic")));
+            new PessimisticLockException("pessimistic")));
     assertTrue(
         PSAbstractWorkflowExtension.isConcurrencyException(
-            new SimulatedPessimisticLockException("pessimistic")));
-    assertTrue(
-        PSAbstractWorkflowExtension.isConcurrencyException(
-            new SimulatedConcurrencyFailureException("fail")));
+            new ConcurrencyFailureException("fail")));
   }
 
   @Test
   void detectsSpringAndHibernateNamesMissedByOriginalShortList() {
-    // org.springframework.dao.CannotAcquireLockException
     assertTrue(
         PSAbstractWorkflowExtension.isConcurrencyException(
-            new SimulatedCannotAcquireLockException("cannot acquire")));
-    // org.springframework.orm.ObjectOptimisticLockingFailureException
+            new CannotAcquireLockException("cannot acquire")));
     assertTrue(
         PSAbstractWorkflowExtension.isConcurrencyException(
-            new SimulatedObjectOptimisticLockingFailureException("stale")));
-    // org.hibernate.StaleObjectStateException / StaleStateException
+            new ObjectOptimisticLockingFailureException("stale")));
     assertTrue(
         PSAbstractWorkflowExtension.isConcurrencyException(
-            new SimulatedStaleObjectStateException("stale object")));
+            new StaleObjectStateException("stale object")));
     assertTrue(
-        PSAbstractWorkflowExtension.isConcurrencyException(
-            new SimulatedStaleStateException("stale state")));
+        PSAbstractWorkflowExtension.isConcurrencyException(new StaleStateException("stale state")));
   }
 
   @Test
-  void nameContainsConcurrencyMarkerCoversFqcnFragments() {
+  void simpleNameEqualityCoversFqcnAndRejectsEmbeddedFragments() {
     assertTrue(
-        PSAbstractWorkflowExtension.nameContainsConcurrencyMarker(
+        PSAbstractWorkflowExtension.isConcurrencyExceptionSimpleName(
             "org.springframework.dao.CannotAcquireLockException"));
     assertTrue(
-        PSAbstractWorkflowExtension.nameContainsConcurrencyMarker(
+        PSAbstractWorkflowExtension.isConcurrencyExceptionSimpleName(
             "org.springframework.orm.ObjectOptimisticLockingFailureException"));
     assertTrue(
-        PSAbstractWorkflowExtension.nameContainsConcurrencyMarker(
+        PSAbstractWorkflowExtension.isConcurrencyExceptionSimpleName(
             "org.hibernate.StaleObjectStateException"));
     assertFalse(
-        PSAbstractWorkflowExtension.nameContainsConcurrencyMarker("java.lang.IllegalStateException"));
+        PSAbstractWorkflowExtension.isConcurrencyExceptionSimpleName(
+            "java.lang.IllegalStateException"));
+    // Substring false-positives must not demote
+    assertFalse(
+        PSAbstractWorkflowExtension.isConcurrencyExceptionSimpleName(
+            "NotAnOptimisticLockException"));
+    assertFalse(
+        PSAbstractWorkflowExtension.isConcurrencyExceptionSimpleName(
+            "OptimisticLockExceptionHandler"));
   }
 
   @Test
   void walksCauseChain() {
-    Exception outer = new RuntimeException("wrap", new SimulatedOptimisticLockException("inner"));
+    Exception outer = new RuntimeException("wrap", new OptimisticLockException("inner"));
     assertTrue(PSAbstractWorkflowExtension.isConcurrencyException(outer));
   }
 
@@ -104,7 +106,7 @@ class PSAbstractWorkflowExtensionConcurrencyTest {
     var task = new PSWorkflowEditionTask();
     var worker = task.getWorker(Map.of());
     var concurrent = new WorkflowItem();
-    var race = new SimulatedOptimisticLockException("race");
+    var race = new OptimisticLockException("race");
     worker.handleError(concurrent, "workflow", race);
     assertEquals(ItemStatus.FAILED, concurrent.status);
     assertSame(race, concurrent.error);
@@ -116,52 +118,54 @@ class PSAbstractWorkflowExtensionConcurrencyTest {
     assertSame(boom, hard.error);
   }
 
-  // Local stand-ins so we do not depend on Hibernate/Spring exception classes on the test
-  // classpath. Detection is by class name substring / fragment.
-  static final class SimulatedLockAcquisitionException extends RuntimeException {
-    SimulatedLockAcquisitionException(String m) {
+  /**
+   * Stand-ins use the same simple names as Spring/Hibernate/JPA types so detection can use exact
+   * simple-name equality without putting those libraries on the test compile classpath.
+   */
+  static final class LockAcquisitionException extends RuntimeException {
+    LockAcquisitionException(String m) {
       super(m);
     }
   }
 
-  static final class SimulatedOptimisticLockException extends RuntimeException {
-    SimulatedOptimisticLockException(String m) {
+  static final class OptimisticLockException extends RuntimeException {
+    OptimisticLockException(String m) {
       super(m);
     }
   }
 
-  static final class SimulatedPessimisticLockException extends RuntimeException {
-    SimulatedPessimisticLockException(String m) {
+  static final class PessimisticLockException extends RuntimeException {
+    PessimisticLockException(String m) {
       super(m);
     }
   }
 
-  static final class SimulatedConcurrencyFailureException extends RuntimeException {
-    SimulatedConcurrencyFailureException(String m) {
+  static final class ConcurrencyFailureException extends RuntimeException {
+    ConcurrencyFailureException(String m) {
       super(m);
     }
   }
 
-  static final class SimulatedCannotAcquireLockException extends RuntimeException {
-    SimulatedCannotAcquireLockException(String m) {
+  static final class CannotAcquireLockException extends RuntimeException {
+    CannotAcquireLockException(String m) {
       super(m);
     }
   }
 
-  static final class SimulatedObjectOptimisticLockingFailureException extends RuntimeException {
-    SimulatedObjectOptimisticLockingFailureException(String m) {
+  static final class ObjectOptimisticLockingFailureException extends RuntimeException {
+    ObjectOptimisticLockingFailureException(String m) {
       super(m);
     }
   }
 
-  static final class SimulatedStaleObjectStateException extends RuntimeException {
-    SimulatedStaleObjectStateException(String m) {
+  static final class StaleObjectStateException extends RuntimeException {
+    StaleObjectStateException(String m) {
       super(m);
     }
   }
 
-  static final class SimulatedStaleStateException extends RuntimeException {
-    SimulatedStaleStateException(String m) {
+  static final class StaleStateException extends RuntimeException {
+    StaleStateException(String m) {
       super(m);
     }
   }

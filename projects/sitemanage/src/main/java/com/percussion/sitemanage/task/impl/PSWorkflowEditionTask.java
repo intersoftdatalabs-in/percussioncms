@@ -27,6 +27,7 @@ import com.percussion.services.sitemgr.IPSSite;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * This post edition task workflows the item after publish. It only workflows the item if the item
@@ -115,8 +116,7 @@ public class PSWorkflowEditionTask extends PSAbstractWorkflowExtension implement
    * @param pubIds content ids that published (may be empty)
    * @param unpubIds content ids that unpublished (may be empty)
    */
-  void updateContentDatesAfterWorkflow(
-      long jobId, java.util.Set<Integer> pubIds, java.util.Set<Integer> unpubIds)
+  void updateContentDatesAfterWorkflow(long jobId, Set<Integer> pubIds, Set<Integer> unpubIds)
       throws Exception {
     try {
       if (!pubIds.isEmpty()) {

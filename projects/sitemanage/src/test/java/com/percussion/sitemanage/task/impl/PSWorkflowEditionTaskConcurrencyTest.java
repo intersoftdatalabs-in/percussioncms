@@ -43,7 +43,7 @@ class PSWorkflowEditionTaskConcurrencyTest {
     var task = new PSWorkflowEditionTask();
     task.setCmsObjectManager(cmsObjectManager);
 
-    doThrow(new SimulatedCannotAcquireLockException("locked"))
+    doThrow(new CannotAcquireLockException("locked"))
         .when(cmsObjectManager)
         .setPostDate(anyCollection());
 
@@ -62,9 +62,9 @@ class PSWorkflowEditionTaskConcurrencyTest {
     }
   }
 
-  /** Name must contain {@code CannotAcquireLockException} for {@code isConcurrencyException}. */
-  static final class SimulatedCannotAcquireLockException extends RuntimeException {
-    SimulatedCannotAcquireLockException(String m) {
+  /** Simple name must equal {@code CannotAcquireLockException} for exact-name detection. */
+  static final class CannotAcquireLockException extends RuntimeException {
+    CannotAcquireLockException(String m) {
       super(m);
     }
   }

@@ -774,16 +774,25 @@ public abstract class PSAbstractWorkflowExtension implements IPSExtension {
   }
 
   /**
-   * Returns {@code true} when {@code t} (or a cause) is a lock / optimistic-lock / concurrency
-   * failure from Hibernate, JPA, or Spring. Matching is by class-name fragment so callers do not
-   * need those types on the compile classpath; fragments cover common simple names that substring
-   * matches on the original short list would miss (e.g. {@code CannotAcquireLockException}, {@code
-   * ObjectOptimisticLockingFailureException}, {@code StaleObjectStateException}).
+   * Simple class names of known lock / optimistic-lock / concurrency failures from Hibernate, JPA,
+   * and Spring. Matched with exact simple-name equality (not substring) so names like {@code
+   * NotAnOptimisticLockException} are not demoted. Callers need not compile against those types.
    */
+  private static final java.util.Set<String> CONCURRENCY_EXCEPTION_SIMPLE_NAMES =
+      java.util.Set.of(
+          "LockAcquisitionException",
+          "OptimisticLockException",
+          "ObjectOptimisticLockingFailureException",
+          "OptimisticLockingFailureException",
+          "ConcurrencyFailureException",
+          "PessimisticLockException",
+          "CannotAcquireLockException",
+          "StaleObjectStateException",
+          "StaleStateException");
+
   public static boolean isConcurrencyException(Throwable t) {
     while (t != null) {
-      String name = t.getClass().getName();
-      if (nameContainsConcurrencyMarker(name)) {
+      if (isConcurrencyExceptionSimpleName(t.getClass().getSimpleName())) {
         return true;
       }
       t = t.getCause();
@@ -791,20 +800,14 @@ public abstract class PSAbstractWorkflowExtension implements IPSExtension {
     return false;
   }
 
-  /** Package-visible for unit tests. */
-  static boolean nameContainsConcurrencyMarker(String className) {
+  /** Package-visible for unit tests. Accepts simple name or FQCN (uses trailing segment). */
+  static boolean isConcurrencyExceptionSimpleName(String className) {
     if (className == null || className.isEmpty()) {
       return false;
     }
-    // Prefer broader fragments that still stay within lock/optimistic-lock family names.
-    return className.contains("LockAcquisitionException")
-        || className.contains("OptimisticLockException")
-        || className.contains("OptimisticLockingFailureException")
-        || className.contains("ConcurrencyFailureException")
-        || className.contains("PessimisticLockException")
-        || className.contains("CannotAcquireLockException")
-        || className.contains("StaleObjectStateException")
-        || className.contains("StaleStateException");
+    int dot = className.lastIndexOf('.');
+    String simple = dot >= 0 ? className.substring(dot + 1) : className;
+    return CONCURRENCY_EXCEPTION_SIMPLE_NAMES.contains(simple);
   }
 
   /** The log instance to use for this class, never <code>null</code>. */
