@@ -3165,13 +3165,18 @@ onchange    %Script;       #IMPLIED
          </xsl:call-template>
          // <![CDATA[
             readonly = readonly == 'true' ? true : false;
-            if(typeof parent.$ !== 'undefined'){
-               var siteName = parent.$.PercNavigationManager.getSiteName();
-               siteurl = treeSrcUrl + "?" + "sitename="+ siteName + "&rootpath="+rootpath;
-
-               var opts = {url : siteurl, selected : selectedValues, paramName : paramName, readonly : readonly};
-               $('#' + paramName + '-tree').perc_checkboxTree(opts);
+            var siteName = '';
+            try {
+               if (typeof parent.$ !== 'undefined' && parent.$.PercNavigationManager) {
+                  siteName = parent.$.PercNavigationManager.getSiteName() || '';
+               }
+            } catch (e) {
+               // ignore, use empty siteName (metadata dialog iframe has no navigation manager)
             }
+            var siteurl = treeSrcUrl + "?" + "sitename=" + encodeURIComponent(siteName) + "&rootpath=" + (rootpath || '');
+
+            var opts = {url : siteurl, selected : selectedValues, paramName : paramName, readonly : readonly};
+            $('#' + paramName + '-tree').perc_checkboxTree(opts);
         });
         })(jQuery);
         // ]]>
