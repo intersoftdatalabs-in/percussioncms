@@ -466,6 +466,17 @@
           },
         ];
       }
+      // Always destroy any existing tree before re-initializing so post-save
+      // reloads do not leave a stale instance (new/updated children may not
+      // appear until a full browser refresh otherwise). GH-784 / v8.1.7 #1169.
+      try {
+        if (container.data("ui-fancytree") || container.data("fancytree")) {
+          container.fancytree("destroy");
+        }
+      } catch (e) {
+        // ignore if no tree yet
+      }
+
       container.fancytree({
         selectMode: 3,
         keyboard: true,
@@ -517,13 +528,42 @@
 
     function visitTreeForBaseProperties() {
       var treeRoot = container.fancytree("getRoot");
+      var tree = null;
+      try {
+        tree = container.fancytree("getTree");
+      } catch (e) {
+        tree = null;
+      }
 
-      treeRoot.visit(function (node) {
-        node.data.saved = true;
-        if (node.data.initialViewCollapsed === "false") {
-          node.expand(true);
+      // autoCollapse causes each expand to collapse siblings. During bulk
+      // restore that can race animations ("setExpanded while animating").
+      // Temporarily disable autoCollapse for this programmatic restore.
+      // GH-784 / v8.1.7 #1169.
+      var autoCollapse = true;
+      if (tree && tree.options) {
+        autoCollapse = tree.options.autoCollapse;
+        tree.options.autoCollapse = false;
+      }
+
+      try {
+        treeRoot.visit(function (node) {
+          node.data.saved = true;
+          // Only force-expand nodes explicitly marked as not collapsed.
+          // Do not expand purely because a node has children — that undoes
+          // the user's manual collapse state on every save/reload.
+          if (node.data.initialViewCollapsed === "false") {
+            if (typeof node.setExpanded === "function") {
+              node.setExpanded(true, { noAnimation: true });
+            } else if (typeof node.expand === "function") {
+              node.expand(true);
+            }
+          }
+        });
+      } finally {
+        if (tree && tree.options) {
+          tree.options.autoCollapse = autoCollapse;
         }
-      });
+      }
     }
 
     function displayCategoryDetails(node) {
@@ -753,8 +793,10 @@
         addTo = destinationNode;
       } else addTo = destinationNode.getParent();
 
+      var uid = generateUid();
       var child = addTo.addChild({
-        id: generateUid(),
+        id: uid,
+        key: uid, // Explicit key helps fancytree track the node across rebuilds
         title: "New Category",
         selectable: true,
         showInPgMetaData: true,
@@ -767,8 +809,20 @@
       });
 
       child.visitParents(function (childnode) {
-        childnode.expand(true);
+        // Prefer noAnimation when setExpanded exists to avoid "while animating" warnings
+        // and ignored setActive/makeVisible (GH-784 / v8.1.7 #1169).
+        if (typeof childnode.setExpanded === "function") {
+          childnode.setExpanded(true, { noAnimation: true });
+        } else if (typeof childnode.expand === "function") {
+          childnode.expand(true);
+        }
       }, true);
+
+      if (typeof child.setActive === "function") {
+        child.setActive(true);
+      } else if (typeof child.activate === "function") {
+        child.activate();
+      }
 
       return child;
     }
