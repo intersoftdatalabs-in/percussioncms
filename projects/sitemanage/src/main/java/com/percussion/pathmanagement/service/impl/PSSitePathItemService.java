@@ -116,10 +116,10 @@ public class PSSitePathItemService extends PSPathItemService {
         // Site not found, assume orphaned path
         var msg =
             sfp.isOnlySiteId()
-                ? "Oops.  We can't find the site "
+                ? "Oops.  We can’t find the site "
                     + sfp.getSiteId()
                     + ".  It may have been deleted."
-                : "Oops. We're sorry. The requested page is no longer available.";
+                : "Oops. We’re sorry. The requested page is no longer available.";
         throw new PSPathNotFoundServiceException(msg);
       }
     }

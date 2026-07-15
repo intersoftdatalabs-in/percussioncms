@@ -332,6 +332,11 @@ public class PSLocalCommandHandler implements IPSCommandHandler {
     if (null == path) {
       throw new IllegalArgumentException("path cannot be null");
     }
+    try {
+      validatePath(path, "doRemoveFileSystemObject");
+    } catch (SecurityException | IOException e) {
+      throw new PSProcessException("Invalid path: " + e.getMessage(), e);
+    }
     if (path.exists()) {
       File result = removeRecursive(path);
       if (null != result) {
@@ -373,6 +378,11 @@ public class PSLocalCommandHandler implements IPSCommandHandler {
   static void doMakeDirectories(File path) throws PSProcessException {
     if (null == path) {
       throw new IllegalArgumentException("path cannot be null");
+    }
+    try {
+      validatePath(path, "doMakeDirectories");
+    } catch (SecurityException | IOException e) {
+      throw new PSProcessException("Invalid path: " + e.getMessage(), e);
     }
     boolean result = true;
     if (!path.exists()) result = path.mkdirs();

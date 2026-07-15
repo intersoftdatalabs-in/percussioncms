@@ -30,7 +30,6 @@
 <widget name="Navigation" />
 <widget name="Page Auto List" />
 <widget name="Polls" />
-<widget name="Registration" />
 <widget name="Rich Text" />
 <widget name="RSS" />
 <widget name="Result" />
@@ -56,5 +55,6 @@
 <widget name="Share This" />
 <widget name="Calendar" />
 <widget name="Secure Login (Deprecated)" />
+<widget name="Registration (Deprecated)" />
 </group>
 </widgets>
