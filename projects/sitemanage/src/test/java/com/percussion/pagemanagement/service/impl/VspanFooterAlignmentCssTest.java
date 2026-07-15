@@ -17,6 +17,7 @@
 
 package com.percussion.pagemanagement.service.impl;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
@@ -24,7 +25,9 @@ import static org.junit.jupiter.api.Assertions.fail;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.junit.jupiter.api.Test;
@@ -37,7 +40,11 @@ import org.junit.jupiter.api.Test;
 class VspanFooterAlignmentCssTest {
 
   private static final Pattern VSPAN_BLOCK =
-      Pattern.compile("\\.vspan_[2468]\\s*\\{[^}]*\\}", Pattern.DOTALL);
+      Pattern.compile("\\.vspan_([2468])\\s*\\{([^}]*)\\}", Pattern.DOTALL);
+
+  /** Design floor heights for empty vspan regions (px), keyed by span index. */
+  private static final Map<String, String> VSPAN_FLOOR_PX =
+      Map.of("2", "120", "4", "240", "6", "360", "8", "480");
 
   private static final List<String> DECORATION_PATHS =
       List.of(
@@ -56,19 +63,36 @@ class VspanFooterAlignmentCssTest {
     }
     String css = Files.readString(theme, StandardCharsets.UTF_8);
     Matcher m = VSPAN_BLOCK.matcher(css);
+    Map<String, Integer> counts = new LinkedHashMap<>();
+    for (String k : VSPAN_FLOOR_PX.keySet()) {
+      counts.put(k, 0);
+    }
     int blocks = 0;
     while (m.find()) {
       blocks++;
-      String block = m.group();
+      String span = m.group(1);
+      String body = m.group(2);
+      String floor = VSPAN_FLOOR_PX.get(span);
       assertTrue(
-          block.contains("min-height"),
-          "theme vspan block must use min-height: " + block.replace('\n', ' '));
+          Pattern.compile("min-height\\s*:\\s*" + floor + "px").matcher(body).find(),
+          "theme .vspan_"
+              + span
+              + " must set min-height: "
+              + floor
+              + "px: "
+              + body.replace('\n', ' '));
       // Fixed height would clip sidebar content into the footer on published pages.
       assertFalse(
-          Pattern.compile("(?<!min-)height\\s*:").matcher(block).find(),
-          "theme vspan block must not set fixed height: " + block.replace('\n', ' '));
+          Pattern.compile("(?<!min-)height\\s*:").matcher(body).find(),
+          "theme .vspan_" + span + " must not set fixed height: " + body.replace('\n', ' '));
+      counts.merge(span, 1, Integer::sum);
     }
     assertTrue(blocks >= 4, "expected at least one set of vspan_2/4/6/8 rules, found " + blocks);
+    for (Map.Entry<String, Integer> e : counts.entrySet()) {
+      assertTrue(
+          e.getValue() >= 1,
+          "expected at least one .vspan_" + e.getKey() + " rule, found " + e.getValue());
+    }
   }
 
   @Test
@@ -81,21 +105,38 @@ class VspanFooterAlignmentCssTest {
       }
       String css = Files.readString(cssPath, StandardCharsets.UTF_8);
       Matcher m = VSPAN_BLOCK.matcher(css);
+      Map<String, Integer> counts = new LinkedHashMap<>();
+      for (String k : VSPAN_FLOOR_PX.keySet()) {
+        counts.put(k, 0);
+      }
       int blocks = 0;
       while (m.find()) {
         blocks++;
-        String block = m.group();
+        String span = m.group(1);
+        String body = m.group(2);
+        String floor = VSPAN_FLOOR_PX.get(span);
         assertTrue(
-            block.contains("!important"),
-            rel + " vspan block must use !important overrides: " + block.replace('\n', ' '));
+            Pattern.compile("height\\s*:\\s*" + floor + "px\\s*!important").matcher(body).find(),
+            rel
+                + " .vspan_"
+                + span
+                + " must fix height: "
+                + floor
+                + "px !important: "
+                + body.replace('\n', ' '));
         assertTrue(
-            Pattern.compile("height\\s*:\\s*\\d+px\\s*!important").matcher(block).find(),
-            rel + " vspan block must fix height with !important: " + block.replace('\n', ' '));
-        assertTrue(
-            Pattern.compile("min-height\\s*:\\s*0\\s*!important").matcher(block).find(),
-            rel + " vspan block must reset min-height with !important: " + block.replace('\n', ' '));
+            Pattern.compile("min-height\\s*:\\s*0\\s*!important").matcher(body).find(),
+            rel
+                + " .vspan_"
+                + span
+                + " must reset min-height: 0 !important: "
+                + body.replace('\n', ' '));
+        counts.merge(span, 1, Integer::sum);
       }
-      assertTrue(blocks >= 4, rel + ": expected vspan_2/4/6/8 rules, found " + blocks);
+      assertEquals(4, blocks, rel + ": expected exactly vspan_2/4/6/8 rules");
+      for (Map.Entry<String, Integer> e : counts.entrySet()) {
+        assertEquals(1, e.getValue().intValue(), rel + " .vspan_" + e.getKey() + " count");
+      }
     }
   }
 
@@ -109,6 +150,11 @@ class VspanFooterAlignmentCssTest {
     if (Files.isDirectory(cwd.resolve("system")) && Files.isDirectory(cwd.resolve("WebUI"))) {
       return cwd;
     }
-    return cwd;
+    fail(
+        "could not resolve monorepo root (need system/ + WebUI/). Tried: "
+            + candidate
+            + " and "
+            + cwd);
+    return cwd; // unreachable
   }
 }
