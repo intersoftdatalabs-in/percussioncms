@@ -602,7 +602,7 @@ $__style
 #end##
 
 ##Print JQuery and JQuery-UI scripts on top and rest below them##
-#perc_displayText("$!perc.linkContext.site.siteAdditionalHeadContent")##
+#perc_displayText($rx.pageutils.processFrameworkContent("$!perc.linkContext.site.siteAdditionalHeadContent"))##
 #if($jqueryWidgetInstances.size() > 0)##
 #if($perc.isEditMode())##
 <script src="/cm/jslib/profiles/3x/jquery/jquery-3.6.0.js"></script>
@@ -664,7 +664,7 @@ display:none;
 ##
 #print_jquery("afterBodyStart")##
 #print_jqueryUI("afterBodyStart")##
-#perc_displayText("$!perc.linkContext.site.siteAfterBodyOpenContent")##
+#perc_displayText($rx.pageutils.processFrameworkContent("$!perc.linkContext.site.siteAfterBodyOpenContent"))##
 #perc_displayText("$!perc.template.afterBodyStartContent")##
 #perc_displayText("$!perc.page.afterBodyStartContent")##
 #end##
@@ -684,7 +684,7 @@ display:none;
 <script defer src='/Rhythmyx/web_resources/cm/foundation/js/foundation.min.js'></script>
 #end##
 #end##
-#perc_displayText("$!perc.linkContext.site.siteBeforeBodyCloseContent")##
+#perc_displayText($rx.pageutils.processFrameworkContent("$!perc.linkContext.site.siteBeforeBodyCloseContent"))##
 #perc_displayText("$!perc.page.beforeBodyCloseContent")##
 #perc_displayText("$!perc.template.beforeBodyCloseContent")##
 #set($jqueryUIwidget = $rx.pageutils.findWidgetInstances($sys.assemblyItem, $NULL, "percJQueryUIWidget"))##
