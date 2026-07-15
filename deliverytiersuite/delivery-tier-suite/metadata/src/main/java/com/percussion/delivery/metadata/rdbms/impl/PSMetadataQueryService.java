@@ -240,6 +240,7 @@ public class PSMetadataQueryService implements IPSMetadataQueryService {
       }
     }
 
+    // After empty-criteria fast path return, at least one of Q3/Q4 is non-null.
     StringBuilder Q2;
     if (Q3 != null) {
       Q2 =
@@ -247,15 +248,12 @@ public class PSMetadataQueryService implements IPSMetadataQueryService {
                   "select distinct p2.entry.id from PSDbMetadataProperty p2 where p2.entry.id in( ")
               .append(Q3)
               .append(" )");
-    } else if (Q4 != null) {
+    } else {
       Q2 =
           new StringBuilder(
                   "select distinct p2.entry.id from PSDbMetadataProperty p2 where p2.entry.id in( ")
               .append(Q4)
               .append(" )");
-    } else {
-      // Defense-in-depth if fast path was skipped
-      Q2 = new StringBuilder("select distinct p2.entry.id from PSDbMetadataProperty p2");
     }
 
     StringBuilder Q1 =
