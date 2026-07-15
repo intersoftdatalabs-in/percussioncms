@@ -778,8 +778,8 @@ public abstract class PSAbstractWorkflowExtension implements IPSExtension {
    * and Spring. Matched with exact simple-name equality (not substring) so names like {@code
    * NotAnOptimisticLockException} are not demoted. Callers need not compile against those types.
    */
-  private static final java.util.Set<String> CONCURRENCY_EXCEPTION_SIMPLE_NAMES =
-      java.util.Set.of(
+  private static final Set<String> CONCURRENCY_EXCEPTION_SIMPLE_NAMES =
+      Set.of(
           "LockAcquisitionException",
           "OptimisticLockException",
           "ObjectOptimisticLockingFailureException",
