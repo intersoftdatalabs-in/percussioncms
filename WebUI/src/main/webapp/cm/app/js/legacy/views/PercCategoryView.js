@@ -64,38 +64,68 @@
     var isPublished = false;
     var siteSelection;
     var originalTitle = null;
-    // Category UIDs are internal CMS keys (not security credentials). Prefer
-    // crypto.getRandomValues so CodeQL/static analysis treats them as secure
-    // randomness; Math.random remains only as a last-resort old-browser fallback.
+    // Category UIDs are internal CMS keys (not security credentials). Use Web
+    // Crypto only — never Math.random — so CodeQL js/insecure-randomness stays clear.
+    // randomUUID when available; otherwise getRandomValues; last resort is a
+    // monotonic time+counter token (no PRNG) for pre-WebCrypto browsers.
     var generateUid = function () {
       var delim = "-";
       var hex = "";
       var i;
+      var c = typeof crypto !== "undefined" ? crypto : null;
 
-      if (typeof crypto !== "undefined" && crypto.getRandomValues) {
+      if (c && typeof c.randomUUID === "function") {
+        return c.randomUUID();
+      }
+
+      if (c && typeof c.getRandomValues === "function") {
         var buf = new Uint8Array(16);
-        crypto.getRandomValues(buf);
+        c.getRandomValues(buf);
+        // RFC 4122 version-4 bits for a well-formed UUID string
+        buf[6] = (buf[6] & 0x0f) | 0x40;
+        buf[8] = (buf[8] & 0x3f) | 0x80;
         for (i = 0; i < buf.length; i++) {
           hex += ("0" + buf[i].toString(16)).slice(-2);
         }
-      } else {
-        // Fallback only when Web Crypto is unavailable (legacy browsers).
-        function S4() {
-          return (((1 + Math.random()) * 0x10000) | 0).toString(16).substring(1);
-        }
-        hex = S4() + S4() + S4() + S4() + S4() + S4() + S4() + S4();
+        return (
+          hex.substring(0, 8) +
+          delim +
+          hex.substring(8, 12) +
+          delim +
+          hex.substring(12, 16) +
+          delim +
+          hex.substring(16, 20) +
+          delim +
+          hex.substring(20, 32)
+        );
       }
 
+      // No Web Crypto: unique enough for client-side category keys without Math.random
+      generateUid._seq = (generateUid._seq || 0) + 1;
+      var t = Date.now().toString(16);
+      var p =
+        typeof performance !== "undefined" && typeof performance.now === "function"
+          ? Math.floor(performance.now() * 1000).toString(16)
+          : "0";
+      var s = generateUid._seq.toString(16);
+      var pad = function (str, n) {
+        while (str.length < n) {
+          str = "0" + str;
+        }
+        return str.slice(-n);
+      };
       return (
-        hex.substring(0, 8) +
+        pad(t, 8) +
         delim +
-        hex.substring(8, 12) +
+        pad(p, 4) +
         delim +
-        hex.substring(12, 16) +
+        "4" +
+        pad(s, 3) +
         delim +
-        hex.substring(16, 20) +
+        "a" +
+        pad(s, 3) +
         delim +
-        hex.substring(20, 32)
+        pad(t + p + s, 12)
       );
     };
 

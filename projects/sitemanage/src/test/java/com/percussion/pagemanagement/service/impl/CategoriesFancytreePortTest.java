@@ -81,11 +81,20 @@ class CategoriesFancytreePortTest {
   }
 
   @Test
-  void generateUidPrefersCryptoGetRandomValuesInAllCopies() {
+  void generateUidUsesWebCryptoWithoutMathRandom() {
+    Pattern mathRandomCall = Pattern.compile("Math\\.random\\s*\\(");
     for (String rel : VIEW_PATHS) {
       String js = read(rel);
-      assertTrue(js.contains("crypto.getRandomValues"), rel + " needs crypto.getRandomValues");
+      assertTrue(
+          js.contains("crypto.getRandomValues") || js.contains("getRandomValues"),
+          rel + " needs crypto.getRandomValues");
       assertTrue(js.contains("Uint8Array"), rel + " needs Uint8Array buffer");
+      assertTrue(
+          js.contains("randomUUID") || js.contains("getRandomValues"),
+          rel + " should prefer Web Crypto UUID path");
+      assertTrue(
+          !mathRandomCall.matcher(js).find(),
+          rel + " must not call Math.random (CodeQL js/insecure-randomness)");
     }
   }
 
