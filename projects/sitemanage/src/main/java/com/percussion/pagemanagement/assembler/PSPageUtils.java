@@ -613,6 +613,42 @@ public class PSPageUtils extends PSJexlUtilBase {
   }
 
   @IPSJexlMethod(
+      description =
+          "Process framework content. If the content is a URL, wrap it in a script or link tag.",
+      params = {@IPSJexlParam(name = "source", description = "The raw content to process")},
+      returns = "The processed content")
+  public String processFrameworkContent(String source) {
+    if (isBlank(source)) {
+      return "";
+    }
+    String trimmed = source.trim();
+    if (trimmed.contains("<") && trimmed.contains(">")) {
+      return source;
+    }
+    if (trimmed.startsWith("http://")
+        || trimmed.startsWith("https://")
+        || trimmed.startsWith("//")
+        || trimmed.startsWith("/")) {
+      String path = trimmed;
+      int queryIdx = path.indexOf('?');
+      if (queryIdx != -1) {
+        path = path.substring(0, queryIdx);
+      }
+      int hashIdx = path.indexOf('#');
+      if (hashIdx != -1) {
+        path = path.substring(0, hashIdx);
+      }
+      path = path.trim();
+      if (path.endsWith(".js")) {
+        return "<script src=\"" + trimmed + "\"></script>";
+      } else if (path.endsWith(".css")) {
+        return "<link rel=\"stylesheet\" href=\"" + trimmed + "\" />";
+      }
+    }
+    return source;
+  }
+
+  @IPSJexlMethod(
       description = "Strip canonical link",
       params = {
         @IPSJexlParam(name = "source", description = "The source that may contain canonical link")
