@@ -24,6 +24,7 @@ import static org.apache.commons.lang3.Validate.notNull;
 import com.percussion.pagemanagement.data.PSTemplate;
 import com.percussion.pagemanagement.service.IPSTemplateService;
 import com.percussion.security.error.PSExceptionUtils;
+import com.percussion.security.io.PSPathInjectionGuard;
 import com.percussion.server.PSRequest;
 import com.percussion.share.service.IPSDataService.DataServiceDeleteException;
 import com.percussion.share.service.IPSDataService.DataServiceLoadException;
@@ -68,6 +69,11 @@ public class PSThemeService implements IPSThemeService {
     String tempThemeDir = getThemesTempRootDirectory();
     File tempDir = new File(tempThemeDir);
     FileUtils.deleteQuietly(tempDir);
+    // Wire the themes root into the region-CSS file service so that
+    // PSRegionCSSFileService validates every public-method path
+    // argument against the configured themes root (CWE-22 defense
+    // per tasks.md T043).
+    cssFileService.setThemesRoot(getThemesRoot());
   }
 
   /*
@@ -177,7 +183,8 @@ public class PSThemeService implements IPSThemeService {
   }
 
   /**
-   * Calculates the newThemeName if the folder already exists in {@code <INSTALL_DIR>}/web_resources/themes.
+   * Calculates the newThemeName if the folder already exists in {@code
+   * <INSTALL_DIR>}/web_resources/themes.
    *
    * <p>The new name is the first available folder (non existing one) using the following pattern:
    * {@code <themeName>-#} (where # starts with 1)
@@ -199,6 +206,11 @@ public class PSThemeService implements IPSThemeService {
   }
 
   protected File getThemeFolder(String themeName) throws PSThemeNotFoundException {
+    // CWE-22 / CWE-23 defense (tasks.md T043): validate the theme name
+    // before composing any File path. Rejects "../escape" payloads,
+    // path separators, NUL bytes, and ".." / "." segment markers.
+    PSPathInjectionGuard.requireSafeFileName(themeName);
+
     File root = getThemesRoot();
     File themeFolder = new File(root, themeName);
     if (!themeFolder.isDirectory())
