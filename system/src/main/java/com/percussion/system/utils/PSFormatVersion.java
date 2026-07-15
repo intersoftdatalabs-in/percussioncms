@@ -198,7 +198,8 @@ public class PSFormatVersion {
       }
       sb.append(buildNum.substring(6));
     } else {
-      sb.append(buildNum);
+      // Avoid StringBuilder appending the literal "null"
+      sb.append(buildNum != null ? buildNum : "unknown");
       if (typeCode != null) {
         sb.append(typeCode);
       }
