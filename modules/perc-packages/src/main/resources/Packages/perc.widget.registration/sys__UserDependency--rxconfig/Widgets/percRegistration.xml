@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Widget>
-	<WidgetPrefs title="Registration"
+	<WidgetPrefs title="Registration (Deprecated)"
 		contenttype_name="percRegistrationAsset" category="integration"
-		description="Widget to build and render a registration form"
+		description="Widget to build and render a registration form. (Deprecated)"
 		author="Percussion Software Inc"
 		thumbnail="/rx_resources/widgets/registration/images/widgetIconRegistration.gif"
 		preferred_editor_width="800" preferred_editor_height="450"

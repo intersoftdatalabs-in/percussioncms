@@ -4,7 +4,7 @@
     <hide-from-menu>true</hide-from-menu>
     <id>369</id>
     <internal-name>percRegistrationAsset</internal-name>
-    <label>Registration Asset</label>
+    <label>Registration Asset (Deprecated)</label>
     <mandatory>false</mandatory>
     <name>rx:percRegistrationAsset</name>
     <new-request>../psx_cepercRegistrationAsset/percRegistrationAsset.html</new-request>
