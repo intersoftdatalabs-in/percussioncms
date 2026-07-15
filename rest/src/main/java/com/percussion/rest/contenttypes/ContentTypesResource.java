@@ -682,7 +682,7 @@ public class ContentTypesResource {
                                     + "        \"uuid\": 367\n"
                                     + "      },\n"
                                     + "      \"hideFromMenu\": false,\n"
-                                    + "      \"label\": \"Secure Login\",\n"
+                                    + "      \"label\": \"Secure Login (Deprecated)\",\n"
                                     + "      \"name\": \"percSecureLogin\"\n"
                                     + "    },\n"
                                     + "    {\n"

@@ -53,7 +53,7 @@
 
                 <!-- default properties for encryption -->
                 <prop key="encryption.type">ENC</prop>
-                <prop key="contentSecurityPolicy">default-src 'self';</prop>
+                <prop key="contentSecurityPolicy">default-src 'self'; img-src 'self' data: blob:;</prop>
             </props>
         </property>
     </bean>
