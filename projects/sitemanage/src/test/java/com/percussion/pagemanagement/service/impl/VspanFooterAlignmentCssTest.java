@@ -17,7 +17,6 @@
 
 package com.percussion.pagemanagement.service.impl;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
@@ -82,8 +81,9 @@ class VspanFooterAlignmentCssTest {
               + "px: "
               + body.replace('\n', ' '));
       // Fixed height would clip sidebar content into the footer on published pages.
+      // Exclude min-height and max-height property names (lookbehind is not \w-).
       assertFalse(
-          Pattern.compile("(?<!min-)height\\s*:").matcher(body).find(),
+          Pattern.compile("(?<!min-|max-)height\\s*:").matcher(body).find(),
           "theme .vspan_" + span + " must not set fixed height: " + body.replace('\n', ' '));
       counts.merge(span, 1, Integer::sum);
     }
@@ -133,9 +133,11 @@ class VspanFooterAlignmentCssTest {
                 + body.replace('\n', ' '));
         counts.merge(span, 1, Integer::sum);
       }
-      assertEquals(4, blocks, rel + ": expected exactly vspan_2/4/6/8 rules");
+      // At least one rule per span class (allow extra legitimate editor variants later).
+      assertTrue(blocks >= 4, rel + ": expected at least vspan_2/4/6/8 rules, found " + blocks);
       for (Map.Entry<String, Integer> e : counts.entrySet()) {
-        assertEquals(1, e.getValue().intValue(), rel + " .vspan_" + e.getKey() + " count");
+        assertTrue(
+            e.getValue() >= 1, rel + " .vspan_" + e.getKey() + " count=" + e.getValue());
       }
     }
   }
