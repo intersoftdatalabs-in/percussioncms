@@ -42,10 +42,6 @@ public class PageTestAdaptor implements IPageAdaptor {
 
   @Override
   public Page getPage(URI baseUri, String siteName, String path, String pageName) {
-    if ("Sites".equals(siteName)) {
-      throw new IllegalArgumentException("siteName cannot be Sites");
-    }
-
     var page = Examples.SAMPLE_PAGE;
     page.setName(pageName);
     page.setFolderPath(path);
@@ -70,9 +66,6 @@ public class PageTestAdaptor implements IPageAdaptor {
 
   @Override
   public void deletePage(URI baseUri, String siteName, String path, String pageName) {
-    if ("Sites".equals(siteName)) {
-      throw new IllegalArgumentException("siteName cannot be Sites");
-    }
     if ("testNotFound".equals(pageName)) {
       throw new PageNotFoundException();
     }
@@ -80,9 +73,6 @@ public class PageTestAdaptor implements IPageAdaptor {
 
   @Override
   public Page renamePage(URI baseURI, String siteName, String path, String pageName, String name) {
-    if ("Sites".equals(siteName)) {
-      throw new IllegalArgumentException("siteName cannot be Sites");
-    }
     var p = new Page();
     p.setName(name);
     return p;
