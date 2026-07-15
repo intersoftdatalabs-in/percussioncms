@@ -52,6 +52,15 @@ class PSPathServiceExceptionMapperTest {
     assertEquals(Response.Status.NOT_FOUND, mapper.getStatus(ex));
   }
 
+
+  @Test
+  void nestedNotFoundCauseIsNotFound() {
+    Exception mid = new RuntimeException("mid", new CustomNotFoundException());
+    IPSPathService.PSPathServiceException ex =
+        new IPSPathService.PSPathServiceException("outer wrap", mid);
+    assertEquals(Response.Status.NOT_FOUND, mapper.getStatus(ex));
+  }
+
   @Test
   void genericPathServiceExceptionIsServerError() {
     IPSPathService.PSPathServiceException ex =
