@@ -1525,11 +1525,9 @@
                         function(status, result, code){
                             if(status === $.PercServiceUtils.STATUS_SUCCESS)
                             {
-                                var pth = $.perc_finder().lastClickPath;
-                                if($.perc_finder().lastClickPath === null ||  typeof $.perc_finder().lastClickPath === "undefined")
-                                {
-                                    pth = result.PathItem.path.split("/");
-                                    pth.push(value);
+                                                                var pth = result.PathItem.path.split("/");
+                                if (pth[pth.length - 1] === "") {
+                                    pth.pop();
                                 }
                                 $.perc_finder().lastClickPath = null;
                                 $.perc_finder().open(pth);
