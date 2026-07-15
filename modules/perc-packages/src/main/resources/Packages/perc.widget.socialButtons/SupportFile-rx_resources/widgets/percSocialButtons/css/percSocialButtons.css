@@ -29,7 +29,29 @@ div.perc-social-button-ui {
 }
 
 .perc-social-button-ui .fa-twitter {
-  background-color: #00a9f1;
+  background-color: #111111;
+}
+
+/* X glyph mask URI is intentionally duplicated in:
+ * - SupportFile-rx_resources/.../percSocialButtons.css (editor assets)
+ * - sys__UserDependency--rx_resources/.../percSocialButtons.css (runtime)
+ * - sys__UserDependency--rxconfig/Widgets/percSocialButtons.xml (velocity CSS)
+ * Package packaging keeps SupportFile vs UserDependency copies in sync;
+ * there is no shared CSS variable across package zip boundaries without redesign.
+ * Keep the three SVG path data values identical when editing the X icon.
+ */
+.perc-social-button-ui .fa-twitter::before,
+.perc-social-button .fa-twitter::before {
+  content: "" !important;
+  display: inline-block;
+  width: 1em;
+  height: 1em;
+  background-color: currentColor;
+  vertical-align: -0.125em;
+  mask: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><path d='M389.2 48h70.6L305.6 224.2 487 464H345L233.7 318.6 106.5 464H35.8L200.7 275.5 26.8 48H172.4L272.9 180.9 389.2 48zM364.4 421.8h39.1L151.1 88h-42L364.4 421.8z'/></svg>") no-repeat center;
+  mask-size: contain;
+  -webkit-mask: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><path d='M389.2 48h70.6L305.6 224.2 487 464H345L233.7 318.6 106.5 464H35.8L200.7 275.5 26.8 48H172.4L272.9 180.9 389.2 48zM364.4 421.8h39.1L151.1 88h-42L364.4 421.8z'/></svg>") no-repeat center;
+  -webkit-mask-size: contain;
 }
 
 .perc-social-button-ui .fa-linkedin {
