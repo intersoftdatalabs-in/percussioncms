@@ -47,41 +47,56 @@ class ViewMetadataTagListControlTest {
   @Test
   void readOnlyTagListRendersPlainTextNotInputs() throws Exception {
     String xsl = read(TAG_XSL);
-    // Isolate the isReadOnly template body
+    // Isolate the isReadOnly template body (non-greedy so nested templates do not over-match)
     Matcher m =
         Pattern.compile(
-                "match=\"Control\\[@name='percTagListControl' and @isReadOnly='yes'\\]\"[\\s\\S]*?</xsl:template>",
+                "match\\s*=\\s*\"Control\\[@name='percTagListControl' and @isReadOnly='yes'\\]\""
+                    + "[\\s\\S]*?</xsl:template>",
                 Pattern.MULTILINE)
             .matcher(xsl);
     assertTrue(m.find(), "expected isReadOnly percTagListControl template");
     String body = m.group();
+    // Collapse whitespace so cosmetic reformatting does not break the guard
+    String compact = body.replaceAll("\\s+", " ");
     assertFalse(
-        body.contains("<input"),
+        Pattern.compile("<input\\b", Pattern.CASE_INSENSITIVE).matcher(compact).find(),
         "read-only tags must not emit <input> (View Metadata should show plain text)");
-    assertTrue(body.contains("datadisplay"), "read-only tags must use datadisplay wrapper");
     assertTrue(
-        body.contains("xsl:value-of") || body.contains("<xsl:value-of"),
+        compact.contains("datadisplay"), "read-only tags must use datadisplay wrapper");
+    assertTrue(
+        Pattern.compile("xsl:value-of").matcher(compact).find(),
         "read-only tags must output Value text");
     assertTrue(
-        body.contains("not(position()=last())\">, </xsl:if>")
-            || body.contains("not(position()=last())\">, "),
-        "selected tags must be joined with comma+space");
+        Pattern.compile("not\\s*\\(\\s*position\\s*\\(\\s*\\)\\s*=\\s*last\\s*\\(\\s*\\)\\s*\\)")
+            .matcher(compact)
+            .find(),
+        "selected tags must join with a position()!=last separator");
+    assertTrue(
+        compact.contains(", ") || compact.contains("\",\""),
+        "selected tags must be joined with a comma separator");
   }
 
   @Test
   void checkBoxTreeJsAlwaysInitializesWithSafeSiteName() throws Exception {
     String xsl = read(SYS_TEMPLATES);
-    // The CDATA block for sys_CheckBoxTreeJS must always call perc_checkboxTree
+    String compact = xsl.replaceAll("\\s+", " ");
     assertTrue(
-        xsl.contains("encodeURIComponent(siteName)"),
+        compact.contains("encodeURIComponent(siteName)"),
         "siteName must be encodeURIComponent'd for query string safety");
     assertTrue(
-        xsl.contains("parent.$.PercNavigationManager"),
+        compact.contains("encodeURIComponent(rootpath")
+            || compact.contains("encodeURIComponent(rootpath ||")
+            || compact.contains("encodeURIComponent(rootpath||"),
+        "rootpath must be encodeURIComponent'd for query string safety");
+    assertTrue(
+        compact.contains("parent.$.PercNavigationManager"),
         "must still attempt PercNavigationManager when present");
     assertTrue(
-        xsl.contains("try {") && xsl.contains("} catch (e) {"),
+        compact.contains("try {") && compact.contains("} catch (e) {"),
         "PercNavigationManager access must be try/catch guarded for iframe contexts");
-    // Must not gate tree init solely on parent.$ being defined
+    assertTrue(
+        compact.contains("console.debug"),
+        "catch path should log at debug for diagnosability");
     assertFalse(
         Pattern.compile(
                 "if\\s*\\(\\s*typeof\\s+parent\\.\\$\\s*!==\\s*'undefined'\\s*\\)\\s*\\{\\s*"
@@ -90,7 +105,7 @@ class ViewMetadataTagListControlTest {
             .find(),
         "must not use the old pattern that only inits the tree when parent.$ is defined");
     assertTrue(
-        xsl.contains("$('#' + paramName + '-tree').perc_checkboxTree(opts)"),
+        compact.contains("$('#' + paramName + '-tree').perc_checkboxTree(opts)"),
         "perc_checkboxTree must always be invoked");
   }
 

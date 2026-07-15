@@ -3171,9 +3171,13 @@ onchange    %Script;       #IMPLIED
                   siteName = parent.$.PercNavigationManager.getSiteName() || '';
                }
             } catch (e) {
-               // ignore, use empty siteName (metadata dialog iframe has no navigation manager)
+               // metadata dialog iframe has no navigation manager; keep diagnosable
+               if (typeof console !== 'undefined' && console.debug) {
+                  console.debug('PercNavigationManager siteName unavailable; using empty sitename', e);
+               }
             }
-            var siteurl = treeSrcUrl + "?" + "sitename=" + encodeURIComponent(siteName) + "&rootpath=" + (rootpath || '');
+            var siteurl = treeSrcUrl + "?" + "sitename=" + encodeURIComponent(siteName)
+                  + "&rootpath=" + encodeURIComponent(rootpath || '');
 
             var opts = {url : siteurl, selected : selectedValues, paramName : paramName, readonly : readonly};
             $('#' + paramName + '-tree').perc_checkboxTree(opts);
