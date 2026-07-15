@@ -66,7 +66,13 @@ public class PSThemeRestService {
   @Path("/summary/all")
   @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
   public PSThemeSummaryList findAll() {
-    return new PSThemeSummaryList(themeService.findAll());
+    try {
+      return new PSThemeSummaryList(themeService.findAll());
+    } catch (RuntimeException e) {
+      log.error(PSExceptionUtils.getMessageForLog(e));
+      log.debug(PSExceptionUtils.getDebugMessageForLog(e));
+      throw new WebApplicationException(e.getMessage());
+    }
   }
 
   /*

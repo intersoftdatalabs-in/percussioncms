@@ -52,7 +52,7 @@
                     //////////////////////////////////
                     // Iterate over each theme entry
                     //////////////////////////////////
-                    var themes = data ? (data.ThemeSummary || data) : [];
+                                        var themes = data ? (data.ThemeSummary || data) : [];
                     if (!Array.isArray(themes)) {
                         themes = themes ? [themes] : [];
                     }
