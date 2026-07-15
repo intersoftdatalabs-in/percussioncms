@@ -109,33 +109,48 @@ public class PSJdbcTableFactoryException extends Exception {
   }
 
   /**
-   * Prints this Throwable and its backtrace to the standard error stream. This method prints a
-   * stack trace for this Throwable object on the error output stream that is the value of the field
+   * Prints this Throwable's backtrace to the standard error stream. This method prints a stack
+   * trace for this Throwable object on the error output stream that is the value of the field
    * System.err.
+   *
+   * <p>To retrieve the stack trace of a wrapped (cause) exception for server-side logging, use
+   * {@link #getStackTraceAsString(Throwable)} rather than {@code m_th.printStackTrace(...)}; the
+   * cause may contain internal paths and configuration values that should not be emitted to a
+   * client-facing output stream.
    */
+  @Override
   public void printStackTrace() {
-    if (m_th == null) super.printStackTrace();
-    else m_th.printStackTrace();
+    super.printStackTrace();
   }
 
   /**
-   * Prints this Throwable and its backtrace to the specified print stream.
+   * Prints this Throwable's backtrace to the specified print stream.
+   *
+   * <p>To retrieve the stack trace of a wrapped (cause) exception for server-side logging, use
+   * {@link #getStackTraceAsString(Throwable)} rather than {@code m_th.printStackTrace(...)}; the
+   * cause may contain internal paths and configuration values that should not be emitted to a
+   * client-facing output stream.
    *
    * @param s PrintStream to use for output
    */
+  @Override
   public void printStackTrace(PrintStream s) {
-    if (m_th == null) super.printStackTrace(s);
-    else m_th.printStackTrace(s);
+    super.printStackTrace(s);
   }
 
   /**
-   * Prints this Throwable and its backtrace to the specified print writer.
+   * Prints this Throwable's backtrace to the specified print writer.
+   *
+   * <p>To retrieve the stack trace of a wrapped (cause) exception for server-side logging, use
+   * {@link #getStackTraceAsString(Throwable)} rather than {@code m_th.printStackTrace(...)}; the
+   * cause may contain internal paths and configuration values that should not be emitted to a
+   * client-facing output stream.
    *
    * @param s PrintWriter to use for output
    */
+  @Override
   public void printStackTrace(PrintWriter s) {
-    if (m_th == null) super.printStackTrace(s);
-    else m_th.printStackTrace(s);
+    super.printStackTrace(s);
   }
 
   /**
