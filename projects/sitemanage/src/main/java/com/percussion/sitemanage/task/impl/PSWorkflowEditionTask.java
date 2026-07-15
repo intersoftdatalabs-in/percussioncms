@@ -99,6 +99,25 @@ public class PSWorkflowEditionTask extends PSAbstractWorkflowExtension implement
     }
     log.debug("Finished workflowing items for jobId: {}", jobId);
 
+    updateContentDatesAfterWorkflow(jobId, pubIds, unpubIds);
+  }
+
+  /**
+   * Updates post/start/expiry dates after post-edition workflow. Concurrency failures are demoted
+   * to INFO and swallowed so the publish job completes; non-concurrency failures still propagate.
+   *
+   * <p>Note: {@code setPostDate} / {@code clearStartDate} / {@code clearExpiryDate} are not one
+   * atomic transaction. If a later call fails with a concurrency exception after an earlier call
+   * succeeded, partial date updates may remain. That is accepted for pure contention (another job
+   * is expected to finish the same writes); non-concurrency errors still abort.
+   *
+   * @param jobId publish job id (logging only)
+   * @param pubIds content ids that published (may be empty)
+   * @param unpubIds content ids that unpublished (may be empty)
+   */
+  void updateContentDatesAfterWorkflow(
+      long jobId, java.util.Set<Integer> pubIds, java.util.Set<Integer> unpubIds)
+      throws Exception {
     try {
       if (!pubIds.isEmpty()) {
         log.debug("Started updating post date for items for jobId: {}", jobId);

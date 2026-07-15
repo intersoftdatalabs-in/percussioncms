@@ -2019,6 +2019,9 @@ public class PSContentRepository
         PSTypeConfiguration type = ms_configuration.get(key);
         if (type == null)
         {
+            // Demoted from WARN in v8.1.7 PR #853 / GH-849: this fires frequently for obsolete
+            // type ids during bulk queries and flooded logs. Missing/renamed types still return
+            // null (callers skip the type); enable DEBUG on this logger when diagnosing config.
             ms_log.debug("Query problem: type not found for type id: {}", typeid);
             return null;
         }

@@ -353,6 +353,12 @@ public abstract class PSAbstractWorkflowExtension implements IPSExtension {
       return success;
     }
 
+    /**
+     * Records a failed action on the workflow item. Concurrency/lock races are demoted to INFO
+     * (another publish job likely owns the transition) but this job still marks the item {@link
+     * ItemStatus#FAILED}: the transition did not complete in <em>this</em> job. Callers that need
+     * a non-failing outcome must handle concurrency before calling this method.
+     */
     protected void handleError(WorkflowItem wfItem, String action, Exception e) {
       if (isConcurrencyException(e)) {
         log.info(
@@ -365,6 +371,7 @@ public abstract class PSAbstractWorkflowExtension implements IPSExtension {
       } else {
         log.error("Failed to " + action + " item: " + wfItem, e);
       }
+      // Intentionally FAILED for both paths: demotion is log-level only (v8.1.7 PR #853 / GH-849).
       wfItem.error = e;
       wfItem.status = ItemStatus.FAILED;
     }
@@ -766,18 +773,38 @@ public abstract class PSAbstractWorkflowExtension implements IPSExtension {
     this.pubServerService = pubServerService;
   }
 
+  /**
+   * Returns {@code true} when {@code t} (or a cause) is a lock / optimistic-lock / concurrency
+   * failure from Hibernate, JPA, or Spring. Matching is by class-name fragment so callers do not
+   * need those types on the compile classpath; fragments cover common simple names that substring
+   * matches on the original short list would miss (e.g. {@code CannotAcquireLockException}, {@code
+   * ObjectOptimisticLockingFailureException}, {@code StaleObjectStateException}).
+   */
   public static boolean isConcurrencyException(Throwable t) {
     while (t != null) {
       String name = t.getClass().getName();
-      if (name.contains("LockAcquisitionException")
-          || name.contains("OptimisticLockException")
-          || name.contains("ConcurrencyFailureException")
-          || name.contains("PessimisticLockException")) {
+      if (nameContainsConcurrencyMarker(name)) {
         return true;
       }
       t = t.getCause();
     }
     return false;
+  }
+
+  /** Package-visible for unit tests. */
+  static boolean nameContainsConcurrencyMarker(String className) {
+    if (className == null || className.isEmpty()) {
+      return false;
+    }
+    // Prefer broader fragments that still stay within lock/optimistic-lock family names.
+    return className.contains("LockAcquisitionException")
+        || className.contains("OptimisticLockException")
+        || className.contains("OptimisticLockingFailureException")
+        || className.contains("ConcurrencyFailureException")
+        || className.contains("PessimisticLockException")
+        || className.contains("CannotAcquireLockException")
+        || className.contains("StaleObjectStateException")
+        || className.contains("StaleStateException");
   }
 
   /** The log instance to use for this class, never <code>null</code>. */
