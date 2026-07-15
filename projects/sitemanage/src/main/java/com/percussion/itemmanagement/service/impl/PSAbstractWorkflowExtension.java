@@ -353,8 +353,25 @@ public abstract class PSAbstractWorkflowExtension implements IPSExtension {
       return success;
     }
 
+    /**
+     * Records a failed action on the workflow item. Concurrency/lock races are demoted to INFO
+     * (another publish job likely owns the transition) but this job still marks the item {@link
+     * ItemStatus#FAILED}: the transition did not complete in <em>this</em> job. Callers that need
+     * a non-failing outcome must handle concurrency before calling this method.
+     */
     protected void handleError(WorkflowItem wfItem, String action, Exception e) {
-      log.error("Failed to " + action + " item: " + wfItem, e);
+      if (isConcurrencyException(e)) {
+        log.info(
+            "Concurrent modification detected while attempting to {} item: {}. This item was likely updated by another concurrent publish job.",
+            action,
+            wfItem);
+        if (log.isDebugEnabled()) {
+          log.debug("Concurrent modification exception details:", e);
+        }
+      } else {
+        log.error("Failed to " + action + " item: " + wfItem, e);
+      }
+      // Intentionally FAILED for both paths: demotion is log-level only (v8.1.7 PR #853 / GH-849).
       wfItem.error = e;
       wfItem.status = ItemStatus.FAILED;
     }
@@ -754,6 +771,43 @@ public abstract class PSAbstractWorkflowExtension implements IPSExtension {
 
   public void setPubServerService(IPSPubServerService pubServerService) {
     this.pubServerService = pubServerService;
+  }
+
+  /**
+   * Simple class names of known lock / optimistic-lock / concurrency failures from Hibernate, JPA,
+   * and Spring. Matched with exact simple-name equality (not substring) so names like {@code
+   * NotAnOptimisticLockException} are not demoted. Callers need not compile against those types.
+   */
+  private static final Set<String> CONCURRENCY_EXCEPTION_SIMPLE_NAMES =
+      Set.of(
+          "LockAcquisitionException",
+          "OptimisticLockException",
+          "ObjectOptimisticLockingFailureException",
+          "OptimisticLockingFailureException",
+          "ConcurrencyFailureException",
+          "PessimisticLockException",
+          "CannotAcquireLockException",
+          "StaleObjectStateException",
+          "StaleStateException");
+
+  public static boolean isConcurrencyException(Throwable t) {
+    while (t != null) {
+      if (isConcurrencyExceptionSimpleName(t.getClass().getSimpleName())) {
+        return true;
+      }
+      t = t.getCause();
+    }
+    return false;
+  }
+
+  /** Package-visible for unit tests. Accepts simple name or FQCN (uses trailing segment). */
+  static boolean isConcurrencyExceptionSimpleName(String className) {
+    if (className == null || className.isEmpty()) {
+      return false;
+    }
+    int dot = className.lastIndexOf('.');
+    String simple = dot >= 0 ? className.substring(dot + 1) : className;
+    return CONCURRENCY_EXCEPTION_SIMPLE_NAMES.contains(simple);
   }
 
   /** The log instance to use for this class, never <code>null</code>. */

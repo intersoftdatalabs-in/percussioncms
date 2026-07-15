@@ -9,6 +9,11 @@
 	http://www.springframework.org/schema/security/spring-security.xsd
     http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd">
 
+    <!--
+       @deprecated This Spring Security configuration is deprecated because the Secure Login widget
+       and perc-secure-membership module are deprecated.
+    -->
+
     <security:http pattern="/favicon.ico" security='none' />
 
     <security:http create-session="stateless" use-expressions="true" auto-config="true">

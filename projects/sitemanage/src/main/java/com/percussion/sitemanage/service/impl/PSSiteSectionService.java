@@ -2235,6 +2235,7 @@ public class PSSiteSectionService implements IPSSiteSectionService {
               new Object[] {req.getSourceFolderPath()},
               "Cannot create a section from the folder with path \"{0}\" "
                   + "as the path does not correspond to a folder.");
+          return;
         }
       } catch (Exception ex) {
         e.reject(
@@ -2242,6 +2243,7 @@ public class PSSiteSectionService implements IPSSiteSectionService {
             new Object[] {req.getSourceFolderPath()},
             "Cannot create a section from the folder with path \"{0}\" "
                 + "because a folder with that path cannot be found.");
+        return;
       }
       try {
         IPSItemSummary itemSum = folderHelper.findFolder(req.getParentFolderPath());

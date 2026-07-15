@@ -40,3 +40,39 @@ query-filters:
         and the matching row in
         docs/ai-generated/tasks/gh-codeql-alerts/suppressions.md
         (alert_id=2) document this exception per contracts/C2 and C3.
+  - exclude:
+      id: js/xss-through-dom
+      paths:
+        - "WebUI/src/main/webapp/cm/widgets/perc_page_edit_dialog.js"
+      reason: >-
+        Documented CodeQL false positive for code-scanning alert #1724
+        (T044 / PR #1218). The sanitizer inside
+        `window.PercPageEditSanitizer.sanitize` parses untrusted TinyMCE
+        HTML into a *detached* Document via `DOMParser.parseFromString`,
+        then (a) removes a known-dangerous tag blocklist
+        (script/iframe/object/embed/form/style/base/link/meta) and
+        (b) scrubs every remaining element of `on*` event-handler
+        attributes and `javascript:`/`data:`/`vbscript:` URL schemes
+        on `href`/`src`/`action`/`formaction`/`xlink:href`. Surviving
+        children reach the live document through `document.importNode`
+        + `appendChild` only -- never `innerHTML` or jQuery `.html()`.
+        CodeQL's js/xss-through-dom treats any `parseFromString` call
+        fed untrusted text as a sink and did not honor an inline
+        `// codeql[js/xss-through-dom]` comment for that pattern (same
+        limitation encountered for java/xxe above; see the existing
+        exclusion). End-to-end coverage lives in
+        `WebUI/src/main/frontend/src/test/js/perc_page_edit_sanitizer.test.js`
+        (31 tests: API surface, idempotent registration, dangerous-tag
+        stripping, `on*` handler removal, URL-scheme scrub, safe URL
+        preservation, and appendChild sink).
+
+        NOTE: This exclusion intentionally targets the source copy
+        only and does NOT cover the legacy duplicate at
+        `WebUI/war/widgets/perc_page_edit_dialog.js`, which still has
+        the original unsanitized `.html(content)` sink. That file is
+        tracked separately as code-scanning alert #759 in
+        docs/ai-generated/tasks/gh-codeql-alerts/triage.md and will be
+        addressed in a follow-up PR (the directory migration plan
+        `docs/ai-generated/tasks/#000-webui-src-layout/webui-src-layout-migration-plan.md`
+        calls for retiring `war/widgets/**`).
+
