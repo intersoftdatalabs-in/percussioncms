@@ -43,7 +43,7 @@ query-filters:
   - exclude:
       id: js/xss-through-dom
       paths:
-        - "**/perc_page_edit_dialog.js"
+        - "WebUI/src/main/webapp/cm/widgets/perc_page_edit_dialog.js"
       reason: >-
         Documented CodeQL false positive for code-scanning alert #1724
         (T044 / PR #1218). The sanitizer inside
@@ -65,4 +65,14 @@ query-filters:
         (31 tests: API surface, idempotent registration, dangerous-tag
         stripping, `on*` handler removal, URL-scheme scrub, safe URL
         preservation, and appendChild sink).
+
+        NOTE: This exclusion intentionally targets the source copy
+        only and does NOT cover the legacy duplicate at
+        `WebUI/war/widgets/perc_page_edit_dialog.js`, which still has
+        the original unsanitized `.html(content)` sink. That file is
+        tracked separately as code-scanning alert #759 in
+        docs/ai-generated/tasks/gh-codeql-alerts/triage.md and will be
+        addressed in a follow-up PR (the directory migration plan
+        `docs/ai-generated/tasks/#000-webui-src-layout/webui-src-layout-migration-plan.md`
+        calls for retiring `war/widgets/**`).
 
