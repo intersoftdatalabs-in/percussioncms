@@ -87,6 +87,27 @@ class SysAssemblyPublishedScriptsGuardTest {
             .matcher(vm)
             .find(),
         "print_jqueryUI must not open with includeOnPublishedPage guard");
+    // Widget-level UI flag must remain the control for published jquery-ui
+    assertTrue(
+        vm.contains("includeUIOnPublishedPage"),
+        "print_jqueryUI must still honor includeUIOnPublishedPage widget property");
+  }
+
+  @Test
+  void previewOnlyMacrosNotGatedByIncludeOnPublishedPage() throws Exception {
+    String vm = readAssemblyVm();
+    assertFalse(
+        Pattern.compile(
+                "#macro\\(suppressCatalogedLinks\\)##[\\s\\S]*?#if\\(\\$includeOnPublishedPage\\s*!=\\s*\"no\"\\)")
+            .matcher(vm)
+            .find(),
+        "suppressCatalogedLinks must not gate on includeOnPublishedPage");
+    assertFalse(
+        Pattern.compile(
+                "#macro\\(addMobilePreviewToolbar\\)##[\\s\\S]*?#if\\(\\$includeOnPublishedPage\\s*!=\\s*\"no\"\\)")
+            .matcher(vm)
+            .find(),
+        "addMobilePreviewToolbar must not gate on includeOnPublishedPage");
   }
 
   @Test
