@@ -130,7 +130,7 @@ Candidate disposition heuristics applied (final disposition assigned by module o
 | 109 | 1600 | `js/xss-through-dom` | high | `WebUI/src/main/webapp/cm/shared-finder.js` | `WebUI/` | `obsolete` | remove vendored 3rd-party file (verify not referenced by build/runtime) | `8.2-must-fix` | — | — |
 | 110 | 1599 | `js/xss-through-dom` | high | `WebUI/src/main/webapp/cm/shared-finder.js` | `WebUI/` | `obsolete` | remove vendored 3rd-party file (verify not referenced by build/runtime) | `8.2-must-fix` | — | — |
 | 111 | 1598 | `js/xss-through-dom` | high | `WebUI/src/main/webapp/cm/plugins/perc_utils.js` | `WebUI/` | `obsolete` | remove vendored 3rd-party file (verify not referenced by build/runtime) | `8.2-must-fix` | — | — |
-| 112 | 1597 | `js/xss-through-dom` | high | `WebUI/src/main/webapp/cm/plugins/PercRedirectHandler.js` | `WebUI/` | `valid` | fix per rule guidance | `8.2-must-fix` | — | — |
+| 112 | 1597 | `js/xss-through-dom` | high | `WebUI/src/main/webapp/cm/plugins/PercRedirectHandler.js` | `WebUI/` | `valid` | fix per rule guidance | `8.2-must-fix` | #1219 | Secure createDialogHtml against XSS using safe jQuery element creation |
 | 113 | 1596 | `js/xss-through-dom` | high | `WebUI/src/main/webapp/cm/plugins/PercListEditorWidget.js` | `WebUI/` | `valid` | fix per rule guidance | `8.2-must-fix` | — | — |
 | 114 | 1595 | `js/xss-through-dom` | high | `WebUI/src/main/webapp/cm/jslib/profiles/3x/libraries/bootstrap/js/bootstrap.bundle.js` | `WebUI/` | `valid` | fix per rule guidance | `8.2-must-fix` | — | — |
 | 115 | 1594 | `js/xss-through-dom` | high | `WebUI/src/main/webapp/cm/jslib/profiles/3x/libraries/bootstrap/js/bootstrap.js` | `WebUI/` | `valid` | fix per rule guidance | `8.2-must-fix` | — | — |
