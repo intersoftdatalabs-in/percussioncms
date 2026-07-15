@@ -104,6 +104,9 @@ public class PSCategoryUnMarshaller {
   }
 
   public static PSCategory unMarshalFromString(String categoryJson) {
+    if (StringUtils.isBlank(categoryJson)) {
+      return null;
+    }
     try (Reader reader = new StringReader(categoryJson)) {
       var mapper = new ObjectMapper();
       mapper.registerModule(new JavaTimeModule());

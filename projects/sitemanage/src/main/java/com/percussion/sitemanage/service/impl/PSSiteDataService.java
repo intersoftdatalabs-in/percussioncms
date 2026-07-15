@@ -367,20 +367,23 @@ public class PSSiteDataService extends PSAbstractDataService<PSSite, PSSiteSumma
     props.setMobilePreviewEnabled(site.isMobilePreviewEnabled());
     props.setGenerateSiteMap(site.isGenerateSitemap());
 
-    ObjectMapper mapper = new ObjectMapper();
     String jsonString = site.getGenerateSiteMapOptions();
-    if (jsonString != null) {
-      PSGenerateSiteMapOptions psGenerateSiteMapOptions = null;
+    PSGenerateSiteMapOptions psGenerateSiteMapOptions = null;
+    if (StringUtils.isNotBlank(jsonString)) {
+      ObjectMapper mapper = new ObjectMapper();
       try {
         psGenerateSiteMapOptions = mapper.readValue(jsonString, PSGenerateSiteMapOptions.class);
       } catch (JsonProcessingException e) {
-        log.error(
-            "Error in json String for site {} and the error is: {} ",
+        log.warn(
+            "Failed to parse generateSiteMapOptions JSON for site {}, using defaults. Error: {}",
             site.getName(),
             PSExceptionUtils.getMessageForLog(e));
       }
-      props.setGenerateSiteMapOptions(psGenerateSiteMapOptions);
     }
+    if (psGenerateSiteMapOptions == null) {
+      psGenerateSiteMapOptions = new PSGenerateSiteMapOptions();
+    }
+    props.setGenerateSiteMapOptions(psGenerateSiteMapOptions);
   }
 
   public PSSitePublishProperties getSitePublishProperties(String siteName)
