@@ -17,6 +17,8 @@
 package com.percussion.services.pubserver.impl;
 
 import com.percussion.cms.IPSConstants;
+import com.percussion.delivery.service.PSDeliveryInfoServiceLocator;
+import com.percussion.delivery.service.impl.PSDeliveryInfoService;
 import com.percussion.services.catalog.PSTypeEnum;
 import com.percussion.services.error.PSNotFoundException;
 import com.percussion.services.guidmgr.IPSGuidManager;
@@ -101,7 +103,7 @@ public class PSPubServerDao
       {
          PSDeliveryInfoService psDeliveryInfoService =
                (PSDeliveryInfoService) PSDeliveryInfoServiceLocator.getDeliveryInfoService();
-         List<String> adminUrls = psDeliveryInfoService.getAdminUrls(pubServer.getServerType());
+         List<String> adminUrls = psDeliveryInfoService.getAdminUrls(pubServer.getServerType().orElse(null));
          String dtsServer = (adminUrls != null && !adminUrls.isEmpty()) ? adminUrls.get(0) : "NONE";
          pubServer.addProperty(PUBLISH_SERVER_PROPERTY, dtsServer);
       }
