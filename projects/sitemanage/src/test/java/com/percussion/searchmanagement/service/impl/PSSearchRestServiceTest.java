@@ -18,6 +18,7 @@ package com.percussion.searchmanagement.service.impl;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 import com.percussion.searchmanagement.data.PSSearchCriteria;
 import org.junit.jupiter.api.Test;
@@ -37,5 +38,30 @@ class PSSearchRestServiceTest {
     assertNotNull(criteria.getQuery());
     // Lucene classic QueryParser.escape escapes / and -
     assertEquals("people\\/donna\\-williams", criteria.getQuery());
+  }
+
+  /**
+   * Exercises {@link PSLuceneQueryEscaper#escape(String)} mid-query slash escaping used on the
+   * urlDecodedQuery search path in {@code PSSearchService} (GH-878 / #889 / #914).
+   */
+  @Test
+  void escapeLuceneQueryEscapesMidQuerySlash() {
+    assertEquals("a\\/b", PSLuceneQueryEscaper.escape("a/b"));
+    assertEquals("people\\/donna-williams", PSLuceneQueryEscaper.escape("people/donna-williams"));
+  }
+
+  @Test
+  void escapeLuceneQueryLeavesAlreadyEscapedSlashUntouched() {
+    assertEquals("a\\/b", PSLuceneQueryEscaper.escape("a\\/b"));
+    assertEquals("x\\/y\\/z", PSLuceneQueryEscaper.escape("x\\/y\\/z"));
+  }
+
+  @Test
+  void escapeLuceneQueryHandlesBlankAndLeadingSpecial() {
+    assertNull(PSLuceneQueryEscaper.escape(null));
+    assertEquals("", PSLuceneQueryEscaper.escape(""));
+    assertEquals("   ", PSLuceneQueryEscaper.escape("   "));
+    // leading special char is escaped once, then mid-query slashes
+    assertEquals("\\-a\\/b", PSLuceneQueryEscaper.escape("-a/b"));
   }
 }

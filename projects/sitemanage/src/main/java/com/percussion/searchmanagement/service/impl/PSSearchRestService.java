@@ -119,7 +119,7 @@ public class PSSearchRestService {
           try {
             itemList = searchService.search(criteria);
           } catch (PSSearchServiceException e) {
-            checkAndThrowValidationException(e, criteria);
+            return checkAndThrowValidationException(e, criteria);
           }
         }
       }
@@ -145,16 +145,22 @@ public class PSSearchRestService {
       return searchService.getExtendedSearchResults(criteria);
     } catch (PSSearchServiceException e) {
       try {
-        checkAndThrowValidationException(e, criteria);
+        return checkAndThrowValidationException(e, criteria);
       } catch (PSValidationException ve) {
         throw new WebApplicationException(ve);
       }
-      throw e;
     }
   }
 
-  private void checkAndThrowValidationException(
-      PSSearchServiceException e, PSSearchCriteria criteria) throws PSValidationException {
+  /**
+   * If the failure chain contains a Lucene {@code ParseException}, throw a field validation
+   * error; otherwise rethrow the original search exception. Never returns normally.
+   *
+   * @param <T> dummy return type so callers can {@code return} this and satisfy control-flow
+   */
+  private <T> T checkAndThrowValidationException(
+      PSSearchServiceException e, PSSearchCriteria criteria)
+      throws PSValidationException, PSSearchServiceException {
     Throwable cause = e.getCause();
     while (cause != null) {
       if (cause instanceof org.apache.lucene.queryparser.classic.ParseException) {
