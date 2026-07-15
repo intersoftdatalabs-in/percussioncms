@@ -30,6 +30,7 @@ import java.io.OutputStreamWriter;
 import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.io.Serializable;
+import java.io.StringWriter;
 import java.io.Writer;
 import java.util.List;
 import java.util.StringTokenizer;
@@ -717,7 +718,24 @@ public class PSXmlTreeWalker implements Serializable {
         }
       }
 
-      serializer.transform(domSource, streamResult);
+      // The JDK XSLTC serializer used on Java 9+ emits CRLF line
+      // separators and an extra trailing newline after the closing
+      // element when INDENT=yes (the legacy Saxon serializer used LF
+      // only and did not add the trailing newline).  Buffer the
+      // transformer output so we can normalize the line endings back
+      // to LF and strip the trailing whitespace, matching the
+      // historical output the codebase (and its unit tests) rely on.
+      try (StringWriter buf = new StringWriter()) {
+        StreamResult buffered = new StreamResult(buf);
+        serializer.transform(domSource, buffered);
+        String normalized = buf.toString().replace("\r\n", "\n");
+        int end = normalized.length();
+        while (end > 0 && Character.isWhitespace(normalized.charAt(end - 1))) {
+          end--;
+        }
+        out.write(normalized, 0, end);
+        out.write('\n');
+      }
       out.flush();
     } catch (TransformerException e) {
       throw new IOException(e.getLocalizedMessage());
