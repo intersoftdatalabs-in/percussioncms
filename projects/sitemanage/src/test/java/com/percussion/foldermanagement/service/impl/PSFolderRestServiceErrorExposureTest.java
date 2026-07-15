@@ -20,6 +20,8 @@ package com.percussion.foldermanagement.service.impl;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doNothing;
@@ -30,8 +32,9 @@ import com.percussion.foldermanagement.data.PSWorkflowAssignment;
 import com.percussion.foldermanagement.service.IPSFolderService;
 import com.percussion.foldermanagement.service.IPSFolderService.PSWorkflowAssignmentInProgressException;
 import com.percussion.foldermanagement.service.IPSFolderService.PSWorkflowNotFoundException;
-import com.percussion.share.dao.IPSGenericDao.LoadException;
 import com.percussion.pathmanagement.service.IPSPathService.PSPathNotFoundServiceException;
+import com.percussion.share.dao.IPSGenericDao.LoadException;
+import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.Response;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -74,7 +77,7 @@ class PSFolderRestServiceErrorExposureTest {
   @BeforeEach
   void setUp() {
     MockitoAnnotations.openMocks(this);
-    folderRestService = new PSFolderRestService(mockFolderService);
+    folderService = new PSFolderRestService(mockFolderService);
   }
 
   @Test
@@ -85,7 +88,7 @@ class PSFolderRestServiceErrorExposureTest {
         .thenThrow(new PSWorkflowNotFoundException("Internal DB Error details"));
 
     try {
-      folderRestService.startGetAssociatedFoldersJob(badWorkflow, "path", false);
+      folderService.startGetAssociatedFoldersJob(badWorkflow, "path", false);
       fail("Expected WebApplicationException");
     } catch (WebApplicationException e) {
       Response response = e.getResponse();
