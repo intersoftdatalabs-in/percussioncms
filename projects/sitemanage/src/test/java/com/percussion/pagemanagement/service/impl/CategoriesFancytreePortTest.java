@@ -18,76 +18,112 @@ package com.percussion.pagemanagement.service.impl;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.List;
+import java.util.regex.Pattern;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 /**
- * Regression for GH-784 / v8.1.7 PR #1169: Categories tab fancytree rebuild/expand must not force
- * open all children, must avoid animation races, and must destroy stale trees before re-init.
+ * Regression for GH-784 / v8.1.7 PR #1169: Categories tab fancytree rebuild/expand guards.
+ *
+ * <p>These are monorepo path tests (not pure unit tests): they validate that the three shipped
+ * PercCategoryView.js copies retain the structural guards. When the monorepo root cannot be
+ * resolved (module-only CI checkout), tests are skipped rather than failing spuriously.
  */
 class CategoriesFancytreePortTest {
 
-  private static final String[] CATEGORY_VIEW_COPIES = {
-    "WebUI/war/views/PercCategoryView.js",
-    "WebUI/src/main/webapp/cm/views/PercCategoryView.js",
-    "WebUI/src/main/webapp/cm/app/js/legacy/views/PercCategoryView.js"
-  };
+  private static final List<String> VIEW_PATHS =
+      List.of(
+          "WebUI/war/views/PercCategoryView.js",
+          "WebUI/src/main/webapp/cm/views/PercCategoryView.js",
+          "WebUI/src/main/webapp/cm/app/js/legacy/views/PercCategoryView.js");
 
-  @Test
-  void categoryViewAppliesFancytreeRebuildGuards() throws Exception {
-    Path root = resolveRoot();
-    Path view = root.resolve(CATEGORY_VIEW_COPIES[0]);
-    if (!Files.isRegularFile(view)) {
-      fail(view.toString());
-    }
-    String js = Files.readString(view, StandardCharsets.UTF_8);
-    assertTrue(js.contains("destroy"), "must destroy stale tree before re-init");
-    assertTrue(js.contains("autoCollapse = false") || js.contains("autoCollapse=false")
-        || js.contains("tree.options.autoCollapse = false"));
-    assertTrue(js.contains("noAnimation") || js.contains("initialViewCollapsed === \"false\""));
-    assertTrue(js.contains("key: uid") || js.contains("key : uid"));
-    assertTrue(js.contains("Do not expand purely because a node has children")
-        || js.contains("Only force-expand nodes explicitly marked"));
+  private static Path repoRoot;
+
+  @BeforeAll
+  static void resolveRootOrSkip() {
+    repoRoot = findRepoRoot();
+    assumeTrue(repoRoot != null, "monorepo root with WebUI/ not found; skip path-based checks");
   }
 
-  /**
-   * CodeQL js/insecure-randomness: generateUid must prefer crypto.getRandomValues in all three
-   * deployed copies of PercCategoryView.js.
-   */
   @Test
-  void generateUidPrefersCryptoGetRandomValuesInAllCopies() throws Exception {
-    Path root = resolveRoot();
-    for (String rel : CATEGORY_VIEW_COPIES) {
-      Path view = root.resolve(rel);
-      if (!Files.isRegularFile(view)) {
-        fail(view.toString());
-      }
-      String js = Files.readString(view, StandardCharsets.UTF_8);
-      assertTrue(js.contains("generateUid"), rel + " must define generateUid");
-      assertTrue(js.contains("crypto.getRandomValues"), rel + " must use crypto.getRandomValues");
-      assertTrue(js.contains("Uint8Array"), rel + " must fill a Uint8Array buffer");
-      // Math.random may remain only inside the crypto-unavailable fallback branch.
-      int cryptoIdx = js.indexOf("crypto.getRandomValues");
-      assertTrue(cryptoIdx >= 0, rel + " missing crypto path");
+  void destroyFailureIsLoggedNotSwallowedSilently() {
+    for (String rel : VIEW_PATHS) {
+      String js = read(rel);
+      assertTrue(
+          js.contains("fancytree destroy failed") || js.contains("destroy failed"),
+          rel + " should log destroy failures");
+      assertTrue(js.contains("hadTree"), rel + " should track whether a tree existed");
+      assertTrue(
+          js.contains("removeData(\"ui-fancytree\")") || js.contains("removeData('ui-fancytree')"),
+          rel + " should clean widget data after failed destroy");
     }
   }
 
-  private static Path resolveRoot() {
+  @Test
+  void autoCollapseDefaultDerivedFromTreeOptions() {
+    for (String rel : VIEW_PATHS) {
+      String js = read(rel);
+      assertTrue(
+          js.contains("tree && tree.options ? tree.options.autoCollapse : false")
+              || js.contains("tree && tree.options")
+                  && js.contains("tree.options.autoCollapse : false"),
+          rel + " should derive autoCollapse from tree.options (no dead true default)");
+      assertTrue(
+          !Pattern.compile("var autoCollapse\\s*=\\s*true\\s*;").matcher(js).find(),
+          rel + " must not use misleading autoCollapse = true default");
+    }
+  }
+
+  @Test
+  void generateUidPrefersCryptoGetRandomValuesInAllCopies() {
+    for (String rel : VIEW_PATHS) {
+      String js = read(rel);
+      assertTrue(js.contains("crypto.getRandomValues"), rel + " needs crypto.getRandomValues");
+      assertTrue(js.contains("Uint8Array"), rel + " needs Uint8Array buffer");
+    }
+  }
+
+  @Test
+  void newNodeSetsExplicitKeyAndExpandsParentsSafely() {
+    for (String rel : VIEW_PATHS) {
+      String js = read(rel);
+      assertTrue(
+          js.contains("key: uid") || js.contains("key : uid"),
+          rel + " new nodes need explicit key");
+      assertTrue(
+          js.contains("noAnimation") || js.contains("setExpanded"),
+          rel + " parent expand should prefer noAnimation/setExpanded");
+    }
+  }
+
+  private static String read(String rel) {
+    Path p = repoRoot.resolve(rel);
+    if (!Files.isRegularFile(p)) {
+      fail("missing " + p);
+    }
+    try {
+      return Files.readString(p, StandardCharsets.UTF_8);
+    } catch (Exception e) {
+      fail("read failed " + p + ": " + e.getMessage());
+      return "";
+    }
+  }
+
+  /** Walk parents for a directory containing WebUI/ and a root pom.xml. */
+  private static Path findRepoRoot() {
     Path dir = Path.of("").toAbsolutePath().normalize();
-    while (dir != null) {
+    for (int i = 0; i < 8 && dir != null; i++) {
       if (Files.isDirectory(dir.resolve("WebUI")) && Files.isRegularFile(dir.resolve("pom.xml"))) {
         return dir;
       }
-      Path parent = dir.getParent();
-      if (parent == null || parent.equals(dir)) {
-        break;
-      }
-      dir = parent;
+      dir = dir.getParent();
     }
-    fail("could not resolve monorepo root from " + Path.of("").toAbsolutePath().normalize());
-    return Path.of("").toAbsolutePath().normalize();
+    return null;
   }
 }

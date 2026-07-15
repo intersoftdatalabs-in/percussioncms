@@ -481,12 +481,30 @@
       // Always destroy any existing tree before re-initializing so post-save
       // reloads do not leave a stale instance (new/updated children may not
       // appear until a full browser refresh otherwise). GH-784 / v8.1.7 #1169.
+      var hadTree =
+        !!(container.data("ui-fancytree") || container.data("fancytree"));
       try {
-        if (container.data("ui-fancytree") || container.data("fancytree")) {
+        if (hadTree) {
           container.fancytree("destroy");
         }
       } catch (e) {
-        // ignore if no tree yet
+        // No tree yet: safe to ignore. Real destroy mid-teardown: log so we
+        // do not silently re-init against a half-destroyed element.
+        if (hadTree) {
+          if (typeof console !== "undefined" && console.warn) {
+            console.warn(
+              "PercCategoryView: fancytree destroy failed; continuing re-init",
+              e,
+            );
+          }
+          // Best-effort cleanup of widget data so re-init can attach cleanly.
+          try {
+            container.removeData("ui-fancytree");
+            container.removeData("fancytree");
+          } catch (cleanupErr) {
+            /* ignore cleanup errors */
+          }
+        }
       }
 
       container.fancytree({
@@ -551,9 +569,9 @@
       // restore that can race animations ("setExpanded while animating").
       // Temporarily disable autoCollapse for this programmatic restore.
       // GH-784 / v8.1.7 #1169.
-      var autoCollapse = true;
+      var autoCollapse =
+        tree && tree.options ? tree.options.autoCollapse : false;
       if (tree && tree.options) {
-        autoCollapse = tree.options.autoCollapse;
         tree.options.autoCollapse = false;
       }
 
