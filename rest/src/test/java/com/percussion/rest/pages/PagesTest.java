@@ -115,24 +115,47 @@ public class PagesTest {
         WebApplicationException.class, () -> resource.updatePage(p, "site/path/page.html"));
   }
 
+  /**
+   * Regression for GH-891 / v8.1.7 PR #894: paths that include a leading {@code Sites/} (or
+   * {@code /Sites/}) prefix must strip that segment before matching site / folder / page.
+   *
+   * <p>Ported from the Jersey integration test on development-8.1.x to this Mockito unit suite on
+   * JDK 21 {@code development}.
+   */
   @Test
-  public void testPageWithLeadingSitesPath() {
-    String responseMsg =
-        target("pages/by-path/Sites/sitea/path1/pathsub%20/pathsub2/pathsub3/page1.html")
-            .request(MediaType.APPLICATION_JSON)
-            .get(String.class);
-    assertTrue("Name should match", responseMsg.contains("page1.html"));
+  void shouldStripLeadingSitesPrefixOnGetPage() throws Exception {
+    Page page = new Page();
+    page.setName("page1.html");
+    when(adaptor.getPage(any(), eq("sitea"), eq("path1/pathsub /pathsub2/pathsub3"), eq("page1.html")))
+        .thenReturn(page);
 
-    String responseMsgLeadingSlash =
-        target("pages/by-path//Sites/sitea/path1/pathsub%20/pathsub2/pathsub3/page1.html")
-            .request(MediaType.APPLICATION_JSON)
-            .get(String.class);
-    assertTrue("Name should match", responseMsgLeadingSlash.contains("page1.html"));
+    Page result =
+        resource.getPage("Sites/sitea/path1/pathsub%20/pathsub2/pathsub3/page1.html");
+    assertSame(page, result);
+    verify(adaptor)
+        .getPage(uriInfo.getBaseUri(), "sitea", "path1/pathsub /pathsub2/pathsub3", "page1.html");
+  }
 
-    Response deleteResponse =
-        target("pages/by-path/Sites/sitea/path1/pathsub%20/pathsub2/pathsub3/page1.html")
-            .request()
-            .delete();
-    assertEquals(Response.Status.OK.getStatusCode(), deleteResponse.getStatus());
+  @Test
+  void shouldStripLeadingSlashAndSitesPrefixOnGetPage() throws Exception {
+    Page page = new Page();
+    page.setName("page1.html");
+    when(adaptor.getPage(any(), eq("sitea"), eq("path1/pathsub2"), eq("page1.html")))
+        .thenReturn(page);
+
+    Page result = resource.getPage("/Sites/sitea/path1/pathsub2/page1.html");
+    assertSame(page, result);
+    verify(adaptor).getPage(uriInfo.getBaseUri(), "sitea", "path1/pathsub2", "page1.html");
+  }
+
+  @Test
+  void shouldStripLeadingSitesPrefixOnDeletePage() throws Exception {
+    doNothing().when(adaptor).deletePage(any(), eq("sitea"), eq("path1"), eq("page1.html"));
+
+    var status = resource.deletePage("Sites/sitea/path1/page1.html");
+    assertEquals("Deleted", status.getMessage().orElse(null));
+    verify(adaptor).deletePage(uriInfo.getBaseUri(), "sitea", "path1", "page1.html");
   }
 }
+
+
