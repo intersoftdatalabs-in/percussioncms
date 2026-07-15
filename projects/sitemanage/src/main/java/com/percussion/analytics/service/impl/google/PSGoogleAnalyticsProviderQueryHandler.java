@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2026 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -98,7 +98,7 @@ public class PSGoogleAnalyticsProviderQueryHandler implements IPSAnalyticsProvid
       log.debug("[{}] ({}) {}", i, FIELD_PAGE_PATH, r.getString(FIELD_PAGE_PATH));
       log.debug("[{}] ({}) {}", i, FIELD_PAGEVIEWS, r.getInt(FIELD_PAGEVIEWS));
       log.debug("[{}] ({}) {}", i, FIELD_UNIQUE_PAGEVIEWS, r.getInt(FIELD_UNIQUE_PAGEVIEWS));
-      log.debug("[{}] ({}) {}", i, FIELD_DATE, r.getDate(FIELD_DATE).toString());
+      log.debug("[{}] ({}) {}", i, FIELD_DATE, r.getDate(FIELD_DATE));
     }
 
     log.debug("PageViewsByPathPrefix result size: {}", results.size());

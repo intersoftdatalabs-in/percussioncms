@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2026 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -97,7 +97,9 @@ public class PSGoogleAnalyticsProviderHelper {
       String msg =
           "Google authentication failed. Verify the service account email and JSON key file.";
       builder.reject("Google Auth error", msg).throwIfInvalid();
-      return null;
+      // Unreachable: throwIfInvalid always throws after reject; satisfies never-null contract.
+      throw new IllegalStateException(
+          "Google Auth validation failed without throwing PSValidationException");
     }
   }
 
@@ -140,7 +142,9 @@ public class PSGoogleAnalyticsProviderHelper {
       String msg =
           "Google authentication failed. Verify the service account email and JSON key file.";
       builder.reject("Google Auth error", msg).throwIfInvalid();
-      return null;
+      // Unreachable: throwIfInvalid always throws after reject; satisfies never-null contract.
+      throw new IllegalStateException(
+          "Google Auth validation failed without throwing PSValidationException");
     }
   }
 
