@@ -16,6 +16,8 @@
  */
 package com.percussion.assetmanagement.service.impl;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
@@ -30,6 +32,10 @@ import org.junit.jupiter.api.Test;
  *
  * <p>Note: development replaced the legacy bulk upload gadget UI; server-side servlet + extraction
  * messaging is still the product path for empty uploads.
+ *
+ * <p>Path-based source assertions are the established 005 migrate regression pattern for
+ * package/servlet surface code that cannot be driven without a full container. Pure helpers used by
+ * that surface are covered behaviorally below.
  */
 class BulkUploadEmptyFileTest {
 
@@ -43,8 +49,8 @@ class BulkUploadEmptyFileTest {
       fail(svc.toString());
     }
     String text = Files.readString(svc, StandardCharsets.UTF_8);
-    assertTrue(text.contains("is empty (0 bytes)"));
-    assertTrue(text.contains("Cannot create a text-based asset from an empty file"));
+    assertTrue(text.contains("PSEmptyUploadContent.isEmptyOrWhitespaceOnly"));
+    assertTrue(text.contains("PSEmptyUploadContent.rejectionMessage"));
   }
 
   @Test
@@ -58,10 +64,29 @@ class BulkUploadEmptyFileTest {
     }
     String text = Files.readString(servlet, StandardCharsets.UTF_8);
     assertTrue(text.contains("writeErrorResponse"));
+    assertTrue(text.contains("safeWriteErrorResponse"));
     assertTrue(text.contains("No valid file was provided for upload."));
     assertTrue(text.contains("handleExtractionError"));
     assertTrue(text.contains("SC_BAD_REQUEST"));
     assertTrue(text.contains("err.put(\"error\""));
+    // Generic Exception path must not surface raw e.getMessage() to the client
+    assertTrue(text.contains("Upload failed due to an unexpected server error."));
+  }
+
+  /** Pure-function coverage of empty/whitespace guard + message (GH-728 / #775). */
+  @Test
+  void emptyOrWhitespaceHelperRejectsBlankAndWordingAvoidsZeroBytesClaim() {
+    assertTrue(PSEmptyUploadContent.isEmptyOrWhitespaceOnly(null));
+    assertTrue(PSEmptyUploadContent.isEmptyOrWhitespaceOnly(""));
+    assertTrue(PSEmptyUploadContent.isEmptyOrWhitespaceOnly("   \n\t"));
+    assertFalse(PSEmptyUploadContent.isEmptyOrWhitespaceOnly("x"));
+
+    String msg = PSEmptyUploadContent.rejectionMessage("blank.txt");
+    assertTrue(msg.contains("blank.txt"));
+    assertTrue(msg.contains("empty or whitespace-only"));
+    assertTrue(msg.contains("Cannot create a text-based asset from an empty file"));
+    assertFalse(msg.contains("(0 bytes)"));
+    assertEquals(PSEmptyUploadContent.rejectionMessage(null), PSEmptyUploadContent.rejectionMessage(""));
   }
 
   private static Path resolveRepoRoot() {

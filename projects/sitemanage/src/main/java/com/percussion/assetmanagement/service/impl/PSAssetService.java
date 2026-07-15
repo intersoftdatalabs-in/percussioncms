@@ -1961,11 +1961,8 @@ public class PSAssetService extends PSAbstractFullDataService<PSAsset, PSAssetSu
     String content = IOUtils.toString(request.getFileContents(), StandardCharsets.UTF_8);
     String fileName = request.getFileName();
 
-    if (isBlank(content)) {
-      throw new PSExtractHTMLException(
-          "The uploaded file '"
-              + (fileName != null ? fileName : "")
-              + "' is empty (0 bytes). Cannot create a text-based asset from an empty file.");
+    if (PSEmptyUploadContent.isEmptyOrWhitespaceOnly(content)) {
+      throw new PSExtractHTMLException(PSEmptyUploadContent.rejectionMessage(fileName));
     }
 
     String selector = request.getSelector();
