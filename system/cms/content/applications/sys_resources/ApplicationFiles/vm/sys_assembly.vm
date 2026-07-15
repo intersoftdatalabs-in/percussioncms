@@ -433,6 +433,17 @@ $perc.setWidgetContents($rx.pageutils.widgetContents($sys.assemblyItem, $perc.wi
 ## Common header for all base templates
 #macro(perc_templateHeader)##
 #set($selectedDoctype = $perc.template.docType.selected)##
+#set($jqueryWidgetInstances = $rx.pageutils.findWidgetInstances($sys.assemblyItem, $NULL, "percJQueryWidget"))##
+#set($jqueryIsDeferred = "no")##
+#if($jqueryWidgetInstances.size() > 0)##
+#set($jqueryWidgetInstance = $jqueryWidgetInstances.get(0))##
+#set($jqueryWidgetItem = $jqueryWidgetInstance.getItem())##
+#set($jqueryIsDeferred = $jqueryWidgetItem.getProperties().get("isDeferred"))##
+#end##
+#set($deferDependents = false)##
+#if($jqueryIsDeferred == "yes" && !$perc.isEditMode())##
+#set($deferDependents = true)##
+#end##
 #foreach($option in $perc.template.docType.options)##
 #if($option.option.equals($selectedDoctype))##
 #perc_displayText("$!option.value")##
@@ -592,11 +603,17 @@ $__style
 
 ##Print JQuery and JQuery-UI scripts on top and rest below them##
 #perc_displayText("$!perc.linkContext.site.siteAdditionalHeadContent")##
+#if($jqueryWidgetInstances.size() > 0)##
+#if($perc.isEditMode())##
+<script src="/cm/jslib/profiles/3x/jquery/jquery-3.6.0.js"></script>
+<script src="/cm/jslib/profiles/3x/jquery/jquery-migrate-3.3.2.js"></script>
+#else##
+#print_jquery("additionalHeadContent")##
+#end##
+#else##
 #foreach($js_link in $rx.pageutils.javascriptLinks($perc.linkContext, $sys.assemblyItem))##
 #if($js_link.getUrl().endsWith("/jquery.js"))##
-#set($jqueryWidgetInstances = $rx.pageutils.findWidgetInstances($sys.assemblyItem, $NULL, "percJQueryWidget"))##
-    ##Need preview check as on page content view, it shows preview unless on edit mode
-#if($perc.isEditMode() || ($perc.isPreviewMode() && $jqueryWidgetInstances.size()==0))##
+#if($perc.isEditMode() || $perc.isPreviewMode())##
 <script src="/cm/jslib/profiles/3x/jquery/jquery-3.6.0.js"></script>
 <script src="/cm/jslib/profiles/3x/jquery/jquery-migrate-3.3.2.js"></script>
 #else##
@@ -604,6 +621,7 @@ $__style
 #print_jquery("additionalHeadContent")##
 #else##
 <script src="/web_resources/cm/jslib/jquery.js"></script>
+#end##
 #end##
 #end##
 #end##
@@ -675,7 +693,7 @@ display:none;
 #if($perc.isEditMode())##
 <script src='/cm/jslib/profiles/3x/jquery/libraries/jquery-ui/jquery-ui.js'></script>
 #elseif ($perc.isPreviewMode() && ($perc.linkContext.site.overrideSystemJQueryUI==false) && ($jqueryUIwidget.size()==0) )##
-<script src='/cm/jslib/profiles/3x/jquery/libraries/jquery-ui/jquery-ui.js'></script>
+<script src='/cm/jslib/profiles/3x/jquery/libraries/jquery-ui/jquery-ui.js'#if($deferDependents) defer#end></script>
 #else##
 #print_jqueryUI("additionalHeadContent")##
 #end##
@@ -684,7 +702,7 @@ display:none;
 #perc_addDeliveryJSFunctions()##
 #foreach($js_link in $rx.pageutils.javascriptLinks($perc.linkContext, $sys.assemblyItem))##
 #if(! $js_link.getUrl().endsWith("/jquery.js") && !($js_link.getUrl().endsWith("/jquery-ui.js")))##
-<script src="$js_link"></script>
+<script src="$js_link"#if($deferDependents) defer#end></script>
 #end##
 #end##
 </body>
@@ -1047,6 +1065,9 @@ crossorigin="$!{jQueryMigrateCrossOrigin}"
 #set($includeUIOnPublishedPage = "yes")## Default to publishing
 #end##
 #set($isDeferred = $widgetitem.getProperties().get("isUIDeferred"))##
+#if($deferDependents)##
+#set($isDeferred = "yes")##
+#end##
 #set($jQueryLocation = $widgetitem.getProperties().get("jQueryUILocation"))##
 #if("${jQueryLocation}"  ==  "" )##
 #if($perc.linkContext.mode == "PUBLISH")##
@@ -1095,10 +1116,10 @@ crossorigin="$!{jQueryCrossOrigin}"
 #elseif($perc.linkContext.mode.toString() == "PUBLISH" && $location_name == "additionalHeadContent")##
 #if($js_link.getUrl().endsWith("/jquery-ui.js"))##
 #if ($perc.linkContext.site.overrideSystemJQueryUI==false)##
-<script src="/web_resources/cm/jslib/jquery-ui.js"></script>
+<script src="/web_resources/cm/jslib/jquery-ui.js"#if($deferDependents) defer#end></script>
 #end##
 #else##
-<script src="$js_link"></script>
+<script src="$js_link"#if($deferDependents) defer#end></script>
 #end##
 #end##
 #end##
