@@ -322,7 +322,15 @@ P13NProfileEditor.prototype.onProfileDataSubmit = function (
 
   if (!jQuery.browser.msie) {
     var respObj = jQuery("<div/>").append(
-      responseText.replace(/<script(.|\s)*?\/script>/g, "")
+      // Strip <script>...</script> tags using a tempered greedy pattern that avoids the
+      // exponential backtracking of the original `<script(.|\s)*?\/script>` regex
+      // (CodeQL js/redos alert #1040). The negative lookahead `(?!<\/script>)` ensures
+      // each character matched by `[\s\S]` is NOT the start of a closing tag, which
+      // removes the ambiguity that the original `(.|\s)*?` had when many whitespace
+      // characters appeared between `<script` and the next `</script>`. The match is
+      // linear-time in the length of the input regardless of how many spaces precede the
+      // closing tag.
+      responseText.replace(/<script(?:(?!<\/script>)[\s\S])*<\/script>/g, "")
     );
     q("#ProfileEditPane").replaceWith(respObj.find("#ProfileEditPane").hide());
     this.__registerProfileEditor();
