@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-define(["knockout", "pubsub", "utils", "jquery-ui"], function (
+define(["knockout", "pubsub", "utils"], function (
   ko,
   PubSub,
   utils
@@ -465,14 +465,6 @@ define(["knockout", "pubsub", "utils", "jquery-ui"], function (
           });
       }
     };
-
-    $(function () {
-      $(document).tooltip({
-        show: {
-          delay: 1000,
-        },
-      });
-    });
 
     //Custom binding for jquery fadeout/fadein as well as inverting the menu if not visible
     ko.bindingHandlers.fadeVisible = {
