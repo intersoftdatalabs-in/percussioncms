@@ -1935,7 +1935,16 @@
                 <artifactId>simple-jndi</artifactId>
                 <version>${simple.jndi.version}</version>
             </dependency>
-        </dependencies>
+        
+            <!-- Google Cloud Libraries BOM for GA4 Analytics APIs -->
+            <dependency>
+                <groupId>com.google.cloud</groupId>
+                <artifactId>libraries-bom</artifactId>
+                <version>26.80.0</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+</dependencies>
     </dependencyManagement>
     <build>
         <pluginManagement>
