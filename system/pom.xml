@@ -250,15 +250,32 @@
 			<artifactId>jakarta.mail</artifactId>
 			<version>1.6.8</version>
 		</dependency>
+		<!--
+		  RDF4J 4.x (not 5.x): Semargl 0.7 RDFa parser SPI is binary-incompatible with
+		  RDF4J 5 (RDFaParserSettings field types → NoSuchFieldError). 4.3.16 keeps the
+		  RioSetting types Semargl expects. Required for PSMetadataExtractorService
+		  (any23 → rdfa migration from v8.1.7 PR #107).
+		-->
 		<dependency>
 			<groupId>org.eclipse.rdf4j</groupId>
 			<artifactId>rdf4j-rio-api</artifactId>
-			<version>5.0.2</version>
+			<version>4.3.16</version>
 		</dependency>
 		<dependency>
 			<groupId>org.eclipse.rdf4j</groupId>
 			<artifactId>rdf4j-model-api</artifactId>
-			<version>5.0.2</version>
+			<version>4.3.16</version>
+		</dependency>
+		<!-- Registers RDFFormat.RDFA via META-INF/services RDFParserFactory -->
+		<dependency>
+			<groupId>org.semarglproject</groupId>
+			<artifactId>semargl-rdfa</artifactId>
+			<version>0.7</version>
+		</dependency>
+		<dependency>
+			<groupId>org.semarglproject</groupId>
+			<artifactId>semargl-rdf4j</artifactId>
+			<version>0.7</version>
 		</dependency>
 		<dependency>
 			<groupId>io.swagger.core.v3</groupId>
