@@ -23,7 +23,8 @@
         <gadget name="Activity" baseuri="/cm/gadgets/repository/perc_activity_gadget" file="perc_activity_gadget.xml"/>
         <gadget name="Siteimprove" baseuri="/cm/gadgets/repository/perc_site_improve_gadget" file="perc_site_improve_gadget.xml"/>
         <gadget name="Membership" baseuri="/cm/gadgets/repository/perc_membership_gadget" file="perc_membership_gadget.xml"/>
-        <gadget name="Redirect Management" baseuri="/cm/gadgets/repository/perc_website_config_gadget" file="perc_website_config_gadget.xml"/>
+        <!-- Redirect Management removed entirely (issue #715): product discontinued;
+             legacy perc_website_config_gadget assets are no longer shipped. -->
         <gadget name="Widget Configuration" baseuri="/cm/gadgets/repository/PercWidgetConfigGadget" file="PercWidgetConfigGadget.xml"/>
     </group>
 </gadgets>
