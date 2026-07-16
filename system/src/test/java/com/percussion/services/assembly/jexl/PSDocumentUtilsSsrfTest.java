@@ -83,5 +83,14 @@ class PSDocumentUtilsSsrfTest {
       assertEquals("/path", uri.getPath());
       assertEquals("q=1", uri.getQuery());
     }
+
+    @Test
+    @DisplayName("public http URL is accepted with scheme forced to http literal")
+    void testPublicHttpAccepted() throws Exception {
+      URI uri = utils.buildValidatedExternalRequestUri("http://example.com/doc");
+      assertEquals("http", uri.getScheme());
+      assertEquals("example.com", uri.getHost());
+      assertEquals("/doc", uri.getPath());
+    }
   }
 }

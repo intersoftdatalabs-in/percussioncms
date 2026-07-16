@@ -203,12 +203,11 @@ public class PSDocumentUtils extends PSJexlUtilBase
    URI buildValidatedExternalRequestUri(String url)
          throws MalformedURLException, IOException
    {
-      // Validate URL and use the *returned* URL for the outbound request.
-      // CodeQL's java/ssrf taint analysis does not treat a void validation
-      // call as a sanitizer when the sink still consumes the raw string
-      // (alerts #1066 / #1067). Derive the request URI from the validated
-      // URL object so the data flow is clear (same pattern as T037 /
-      // PSProxyQueryResource).
+      // Validate then rebuild the request URI from validated components with
+      // a scheme literal. CodeQL java/ssrf does not model URLValidation as a
+      // sanitizer when the sink still consumes the raw string or a URL object
+      // constructed only from that string (alerts #1066 / #1067 / #1733).
+      // Same pattern as T037 / PSProxyQueryResource.
       java.net.URL validatedUrl;
       try {
          validatedUrl = URLValidation.validateURLString(url);
@@ -217,7 +216,16 @@ public class PSDocumentUtils extends PSJexlUtilBase
       }
 
       try {
-         return validatedUrl.toURI();
+         String safeProtocol =
+               "https".equalsIgnoreCase(validatedUrl.getProtocol()) ? "https" : "http";
+         return new URI(
+               safeProtocol,
+               validatedUrl.getUserInfo(),
+               validatedUrl.getHost(),
+               validatedUrl.getPort(),
+               validatedUrl.getPath(),
+               validatedUrl.getQuery(),
+               validatedUrl.getRef());
       } catch (java.net.URISyntaxException e) {
          throw new IOException("Invalid validated URL: " + url, e);
       }
@@ -246,14 +254,9 @@ public class PSDocumentUtils extends PSJexlUtilBase
                   .connectTimeout(Duration.ofSeconds(30))
                   .build();
 
-      // codeql[java/ssrf] justification: requestUri is derived from
-      // URLValidation.validateURLString's return value (alerts #1066/#1067).
-      // validateURLString rejects private IPs, cloud metadata hosts, and
-      // non-http(s) schemes before the request is built. See suppressions.md.
+      // codeql[java/ssrf] requestUri rebuilt after URLValidation.validateURLString with http/https scheme literal (alerts #1066/#1067/#1733). See suppressions.md.
       HttpRequest.Builder requestBuilder =
-            HttpRequest.newBuilder(requestUri)
-                  .GET()
-                  .timeout(Duration.ofSeconds(60));
+            HttpRequest.newBuilder(requestUri).GET().timeout(Duration.ofSeconds(60));
 
       if (user != null && password != null)
       {
@@ -264,8 +267,7 @@ public class PSDocumentUtils extends PSJexlUtilBase
 
       try
       {
-         // codeql[java/ssrf] justification: same validated requestUri as above
-         // (alert #1067 sink is client.send). See suppressions.md.
+         // codeql[java/ssrf] same validated requestUri as above (alert #1067). See suppressions.md.
          HttpResponse<String> response = client.send(
                requestBuilder.build(),
                HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
