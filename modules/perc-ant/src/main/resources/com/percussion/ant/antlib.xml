@@ -116,6 +116,8 @@
 		classname="com.percussion.ant.install.PSExportDatabase" />
 	<taskdef name="PSMakeLasagna"
 		classname="com.percussion.ant.install.PSMakeLasagna" />
+	<taskdef name="PSValidateRepositoryConnection"
+		classname="com.percussion.ant.install.PSValidateRepositoryConnection" />
 	<taskdef name="PSCopyDirectory"
 		classname="com.percussion.ant.packagetool.PSCopyDirectory" />
 	<taskdef name="PSUnZipPackage"

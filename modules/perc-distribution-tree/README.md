@@ -79,6 +79,50 @@ JARs are placed in the install with their Maven-resolved filenames (e.g. `mariad
 
 Integrators who need a driver that is not bundled (for example an enterprise Oracle driver) can simply drop a JDBC driver JAR into `jetty/base/lib/jdbc/` of the unpacked distribution. The install scripts (`rxconfig/Installer/install.xml`, `installServer.xml`, `installRepository.xml`) do not purge this folder.
 
+## CLI installer: database targets for new installs
+
+By default a **new** command-line install uses the embedded **Derby** repository. To target MySQL/MariaDB, SQL Server, or Oracle on a **new install only**, supply a repository properties file in the same format as `rxconfig/Installer/rxrepository.properties`:
+
+```bash
+java -Ddbprops=/path/to/rxrepository.mysql.properties -jar PercussionCMS.jar /path/to/install/root
+# equivalent:
+java -jar PercussionCMS.jar /path/to/install/root --dbprops=/path/to/rxrepository.mysql.properties
+```
+
+### Supported backends
+
+| `DB_BACKEND` | Structured `db.type` | Notes |
+|--------------|----------------------|-------|
+| `DERBY` | `derby` | Default when no override is given |
+| `MYSQL` | `mysql` | MySQL or MariaDB-compatible; sample uses MariaDB driver class |
+| `MSSQL` | `sqlserver` | Microsoft SQL Server |
+| `ORACLE` | `oracle` | Oracle thin |
+
+### Sample files
+
+Shipped under the distribution installer tree:
+
+- `rxconfig/Installer/samples/rxrepository.mysql.properties`
+- `rxconfig/Installer/samples/rxrepository.sqlserver.properties`
+- `rxconfig/Installer/samples/rxrepository.oracle.properties`
+
+Copy a sample, replace host/credentials, pre-create the empty database/schema, then pass the file with `-Ddbprops` / `--dbprops`.
+
+### Input precedence (new install)
+
+1. `dbprops` file (`-Ddbprops` / `--dbprops`)
+2. Structured CLI `--db.*` (and env-style aliases)
+3. Env file (`--db.config.env.file` / `DB_CONFIG_ENV_FILE`)
+4. Process environment
+5. Defaults (Derby)
+
+### New install vs upgrade
+
+- **New install**: database target input applies; installer writes effective `rxconfig/Installer/rxrepository.properties` and validates connectivity before schema setup.
+- **Upgrade**: existing repository configuration is preserved. You do **not** need `-Ddbprops` to keep a non-Derby backend.
+
+Feature design artifacts: `specs/006-installer-db-targets/` (contracts under `contracts/`).
+
 The install/upgrade script's `<delete>` block in `install.xml` is pinned to the exact bundled-driver filenames shipped in this release (sourced from the parent POM's version properties: `${mariadb.version}`, `${derby.version}`, `${mssql.version}`, `${jtds.version}`, `${ojdbc17.version}`). When a driver version is bumped, THREE places MUST be updated in lockstep in the same commit:
 
 1. **Parent POM** — bump the relevant version property (`${mariadb.version}`, `${derby.version}`, `${mssql.version}`, `${jtds.version}`, or `${ojdbc17.version}`).
