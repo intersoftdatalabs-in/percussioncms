@@ -322,15 +322,28 @@ P13NProfileEditor.prototype.onProfileDataSubmit = function (
 
   if (!jQuery.browser.msie) {
     var respObj = jQuery("<div/>").append(
-      // Strip <script>...</script> tags using a tempered greedy pattern that avoids the
-      // exponential backtracking of the original `<script(.|\s)*?\/script>` regex
-      // (CodeQL js/redos alert #1040). The negative lookahead `(?!<\/script>)` ensures
-      // each character matched by `[\s\S]` is NOT the start of a closing tag, which
-      // removes the ambiguity that the original `(.|\s)*?` had when many whitespace
-      // characters appeared between `<script` and the next `</script>`. The match is
-      // linear-time in the length of the input regardless of how many spaces precede the
-      // closing tag.
-      responseText.replace(/<script(?:(?!<\/script>)[\s\S])*<\/script>/g, "")
+      // Strip <script> tags from the server response before injecting it into the DOM
+      // (CWE-79 / CodeQL js/incomplete-multi-character-sanitization + js/redos #1040).
+      // Two patterns are applied so that BOTH well-formed and malformed/unclosed
+      // `<script>` tags are removed:
+      //   1. `<script(?:(?!<\/script>)[\s\S])*<\/script>` — tempered greedy token that
+      //      matches a well-formed `<script>...</script>` block without exponential
+      //      backtracking (the negative lookahead `(?!<\/script>)` ensures each
+      //      character consumed by `[\s\S]` is NOT the start of the terminator).
+      //   2. `<script\b[^>]*>?` (case-insensitive) — covers any unclosed/malformed
+      //      `<script>` opening tag (e.g. `<script src=//evil>` or `<script>` with no
+      //      attributes and no closing tag). Without this second pass, an
+      //      attacker-supplied unclosed `<script>` would survive the first replace
+      //      and execute when the response is inserted via
+      //      `jQuery("<div/>").append(...)`. The trailing `>?` makes the closing `>`
+      //      optional so a bare `<script` with no `>` is also stripped.
+      // Both patterns run in linear time on the input length. The `\b` word-boundary
+      // in pass 2 prevents stripping benign text like `<scripture>` because `\b`
+      // requires a word/non-word transition — between `<script` and `u` both are
+      // word chars so `\b` does NOT match there.
+      responseText
+        .replace(/<script(?:(?!<\/script>)[\s\S])*<\/script>/gi, "")
+        .replace(/<script\b[^>]*>?/gi, "")
     );
     q("#ProfileEditPane").replaceWith(respObj.find("#ProfileEditPane").hide());
     this.__registerProfileEditor();

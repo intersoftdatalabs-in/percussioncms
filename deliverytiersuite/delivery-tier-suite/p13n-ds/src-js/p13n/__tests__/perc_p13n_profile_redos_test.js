@@ -21,10 +21,17 @@
  * <p>The pre-fix regex `<script(.|\s)*?\/script>` exhibited exponential
  * backtracking when given input of the form `<script` followed by many
  * whitespace characters without a closing `</script>`. The post-fix
- * regex `<script(?:(?!<\/script>)[\s\S])*<\/script>` uses a tempered
- * greedy pattern that matches each character only if it is NOT the
- * start of the terminator, removing the ambiguity that caused the
- * exponential blow-up.
+ * sanitization applies two patterns in sequence:
+ * <ol>
+ *   <li><code>&lt;script(?:(?!&lt;\/script&gt;)[\s\S])*&lt;\/script&gt;</code>
+ *       — tempered greedy token that matches a well-formed script block
+ *       without exponential backtracking.</li>
+ *   <li><code>&lt;script\b[^&gt;]*&gt;</code> (case-insensitive) — strips
+ *       any remaining unclosed/malformed <code>&lt;script&gt;</code> tag
+ *       (CodeQL js/incomplete-multi-character-sanitization follow-up).
+ *       Without this pass, attacker-supplied unclosed <code>&lt;script&gt;</code>
+ *       would survive sanitization and execute on DOM insertion.</li>
+ * </ol>
  *
  * <p>Run with:
  *   node deliverytiersuite/delivery-tier-suite/p13n-ds/src-js/p13n/__tests__/perc_p13n_profile_redos_test.js
@@ -38,8 +45,22 @@
 
 "use strict";
 
-const POST_FIX_REGEX = /<script(?:(?!<\/script>)[\s\S])*<\/script>/g;
+const POST_FIX_PAIR = [
+  /<script(?:(?!<\/script>)[\s\S])*<\/script>/gi,
+  /<script\b[^>]*>?/gi,
+];
 const TIME_BUDGET_MS = 1000;
+
+/**
+ * Apply the post-fix sanitization (both patterns).
+ */
+function sanitize(text) {
+  let out = text;
+  for (const re of POST_FIX_PAIR) {
+    out = out.replace(re, "");
+  }
+  return out;
+}
 
 /**
  * Asserts that the post-fix regex completes within a generous time
@@ -52,19 +73,22 @@ function assertFastOnAdversarialInput() {
   // appear between `<script` and `</script>`.
   const adversarial = "<script" + " ".repeat(100000);
   const start = Date.now();
-  const result = adversarial.replace(POST_FIX_REGEX, "");
+  const result = sanitize(adversarial);
   const elapsed = Date.now() - start;
 
-  console.log(`Post-fix regex on 100K-space adversarial input: ${elapsed}ms`);
+  console.log(`Post-fix sanitize on 100K-space adversarial input: ${elapsed}ms`);
 
   if (elapsed > TIME_BUDGET_MS) {
     throw new Error(
-      `Post-fix regex exceeded ${TIME_BUDGET_MS}ms budget (elapsed=${elapsed}ms) — likely exponential backtracking`
+      `Post-fix sanitize exceeded ${TIME_BUDGET_MS}ms budget (elapsed=${elapsed}ms) — likely exponential backtracking`
     );
   }
-  // Input has no closing </script> so the regex should NOT match.
-  if (result !== adversarial) {
-    throw new Error(`Post-fix regex should not match adversarial input`);
+  // Input has no closing </script>; pass 1 leaves it untouched but pass 2
+  // (unclosed-tag pattern) should still strip the opening tag.
+  if (result.includes("<script")) {
+    throw new Error(
+      `Post-fix sanitize should strip unclosed <script> tag. Got: '${result.slice(0, 80)}...'`
+    );
   }
 }
 
@@ -74,10 +98,10 @@ function assertFastOnAdversarialInput() {
 function assertStripsNormalScriptTag() {
   const input = 'hello <script type="text/javascript">alert(1);</script> world';
   const expected = "hello  world";
-  const actual = input.replace(POST_FIX_REGEX, "");
+  const actual = sanitize(input);
   if (actual !== expected) {
     throw new Error(
-      `Post-fix regex did not strip normal script tag. Expected: '${expected}', Got: '${actual}'`
+      `Post-fix sanitize did not strip normal script tag. Expected: '${expected}', Got: '${actual}'`
     );
   }
 }
@@ -89,10 +113,10 @@ function assertStripsNormalScriptTag() {
  */
 function assertStripsMultiLineScriptTag() {
   const input = 'before\n<script type="text/javascript">\nalert(1);\n</script>\nafter';
-  const actual = input.replace(POST_FIX_REGEX, "");
+  const actual = sanitize(input);
   if (actual !== "before\n\nafter") {
     throw new Error(
-      `Post-fix regex did not strip multi-line script tag correctly. Got: '${actual}'`
+      `Post-fix sanitize did not strip multi-line script tag correctly. Got: '${actual}'`
     );
   }
 }
@@ -102,22 +126,55 @@ function assertStripsMultiLineScriptTag() {
  */
 function assertStripsMultipleScriptTags() {
   const input = '<script>a</script> middle <script>b</script> end';
-  const actual = input.replace(POST_FIX_REGEX, "");
+  const actual = sanitize(input);
   if (actual !== " middle  end") {
     throw new Error(
-      `Post-fix regex did not strip multiple script tags. Got: '${actual}'`
+      `Post-fix sanitize did not strip multiple script tags. Got: '${actual}'`
     );
   }
 }
 
 /**
- * Verify the regex leaves benign `<script>`-like text alone.
+ * Verify the regex leaves benign `<scripture>`-like text alone (the `\b`
+ * word-boundary in pass 2 prevents stripping because there is no
+ * word/non-word transition between `<script` and the trailing `u`).
  */
-function assertLeavesPlainTextAlone() {
-  const input = "no scripts here, just plain text";
-  const actual = input.replace(POST_FIX_REGEX, "");
+function assertLeavesBenignScriptLikeTextAlone() {
+  const input = "<scripture>is a word that should not be modified";
+  const actual = sanitize(input);
   if (actual !== input) {
-    throw new Error(`Post-fix regex should not modify plain text. Got: '${actual}'`);
+    throw new Error(
+      `Post-fix sanitize should not modify '<scripture>' word. Got: '${actual}'`
+    );
+  }
+}
+
+/**
+ * Verify that unclosed `<script>` tags are also stripped (closes
+ * CodeQL js/incomplete-multi-character-sanitization alert on the
+ * post-fix code path).
+ */
+function assertStripsUnclosedScriptTag() {
+  const input = 'safe text <script src=//evil.example/x.js and never closed';
+  const actual = sanitize(input);
+  if (actual.includes("<script")) {
+    throw new Error(
+      `Post-fix sanitize should strip unclosed <script> tag. Got: '${actual}'`
+    );
+  }
+}
+
+/**
+ * Verify that a `<SCRIPT>` (uppercase) tag is also stripped — the
+ * regexes use the `i` flag.
+ */
+function assertStripsUpperCaseScriptTag() {
+  const input = 'safe <SCRIPT>alert(1)</SCRIPT> end';
+  const actual = sanitize(input);
+  if (actual !== "safe  end") {
+    throw new Error(
+      `Post-fix sanitize should strip uppercase <SCRIPT> tag. Got: '${actual}'`
+    );
   }
 }
 
@@ -127,7 +184,9 @@ function runAllTests() {
     ["Strips normal script tag", assertStripsNormalScriptTag],
     ["Strips multi-line script tag", assertStripsMultiLineScriptTag],
     ["Strips multiple script tags", assertStripsMultipleScriptTags],
-    ["Leaves plain text alone", assertLeavesPlainTextAlone],
+    ["Leaves benign <scripture> word alone", assertLeavesBenignScriptLikeTextAlone],
+    ["Strips unclosed <script> tag", assertStripsUnclosedScriptTag],
+    ["Strips uppercase <SCRIPT> tag", assertStripsUpperCaseScriptTag],
   ];
 
   let passed = 0;
