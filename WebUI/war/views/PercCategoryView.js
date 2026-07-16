@@ -64,26 +64,68 @@
     var isPublished = false;
     var siteSelection;
     var originalTitle = null;
+    // Category UIDs are internal CMS keys (not security credentials). Use Web
+    // Crypto only — never Math.random — so CodeQL js/insecure-randomness stays clear.
+    // randomUUID when available; otherwise getRandomValues; last resort is a
+    // monotonic time+counter token (no PRNG) for pre-WebCrypto browsers.
     var generateUid = function () {
       var delim = "-";
+      var hex = "";
+      var i;
+      var c = typeof crypto !== "undefined" ? crypto : null;
 
-      function S4() {
-        return (((1 + Math.random()) * 0x10000) | 0).toString(16).substring(1);
+      if (c && typeof c.randomUUID === "function") {
+        return c.randomUUID();
       }
 
+      if (c && typeof c.getRandomValues === "function") {
+        var buf = new Uint8Array(16);
+        c.getRandomValues(buf);
+        // RFC 4122 version-4 bits for a well-formed UUID string
+        buf[6] = (buf[6] & 0x0f) | 0x40;
+        buf[8] = (buf[8] & 0x3f) | 0x80;
+        for (i = 0; i < buf.length; i++) {
+          hex += ("0" + buf[i].toString(16)).slice(-2);
+        }
+        return (
+          hex.substring(0, 8) +
+          delim +
+          hex.substring(8, 12) +
+          delim +
+          hex.substring(12, 16) +
+          delim +
+          hex.substring(16, 20) +
+          delim +
+          hex.substring(20, 32)
+        );
+      }
+
+      // No Web Crypto: unique enough for client-side category keys without Math.random
+      generateUid._seq = (generateUid._seq || 0) + 1;
+      var t = Date.now().toString(16);
+      var p =
+        typeof performance !== "undefined" && typeof performance.now === "function"
+          ? Math.floor(performance.now() * 1000).toString(16)
+          : "0";
+      var s = generateUid._seq.toString(16);
+      var pad = function (str, n) {
+        while (str.length < n) {
+          str = "0" + str;
+        }
+        return str.slice(-n);
+      };
       return (
-        S4() +
-        S4() +
+        pad(t, 8) +
         delim +
-        S4() +
+        pad(p, 4) +
         delim +
-        S4() +
+        "4" +
+        pad(s, 3) +
         delim +
-        S4() +
+        "a" +
+        pad(s, 3) +
         delim +
-        S4() +
-        S4() +
-        S4()
+        pad(t + p + s, 12)
       );
     };
 
@@ -466,6 +508,35 @@
           },
         ];
       }
+      // Always destroy any existing tree before re-initializing so post-save
+      // reloads do not leave a stale instance (new/updated children may not
+      // appear until a full browser refresh otherwise). GH-784 / v8.1.7 #1169.
+      var hadTree =
+        !!(container.data("ui-fancytree") || container.data("fancytree"));
+      try {
+        if (hadTree) {
+          container.fancytree("destroy");
+        }
+      } catch (e) {
+        // No tree yet: safe to ignore. Real destroy mid-teardown: log so we
+        // do not silently re-init against a half-destroyed element.
+        if (hadTree) {
+          if (typeof console !== "undefined" && console.warn) {
+            console.warn(
+              "PercCategoryView: fancytree destroy failed; continuing re-init",
+              e,
+            );
+          }
+          // Best-effort cleanup of widget data so re-init can attach cleanly.
+          try {
+            container.removeData("ui-fancytree");
+            container.removeData("fancytree");
+          } catch (cleanupErr) {
+            /* ignore cleanup errors */
+          }
+        }
+      }
+
       container.fancytree({
         selectMode: 3,
         keyboard: true,
@@ -517,13 +588,42 @@
 
     function visitTreeForBaseProperties() {
       var treeRoot = container.fancytree("getRoot");
+      var tree = null;
+      try {
+        tree = container.fancytree("getTree");
+      } catch (e) {
+        tree = null;
+      }
 
-      treeRoot.visit(function (node) {
-        node.data.saved = true;
-        if (node.data.initialViewCollapsed === "false") {
-          node.expand(true);
+      // autoCollapse causes each expand to collapse siblings. During bulk
+      // restore that can race animations ("setExpanded while animating").
+      // Temporarily disable autoCollapse for this programmatic restore.
+      // GH-784 / v8.1.7 #1169.
+      var autoCollapse =
+        tree && tree.options ? tree.options.autoCollapse : false;
+      if (tree && tree.options) {
+        tree.options.autoCollapse = false;
+      }
+
+      try {
+        treeRoot.visit(function (node) {
+          node.data.saved = true;
+          // Only force-expand nodes explicitly marked as not collapsed.
+          // Do not expand purely because a node has children — that undoes
+          // the user's manual collapse state on every save/reload.
+          if (node.data.initialViewCollapsed === "false") {
+            if (typeof node.setExpanded === "function") {
+              node.setExpanded(true, { noAnimation: true });
+            } else if (typeof node.expand === "function") {
+              node.expand(true);
+            }
+          }
+        });
+      } finally {
+        if (tree && tree.options) {
+          tree.options.autoCollapse = autoCollapse;
         }
-      });
+      }
     }
 
     function displayCategoryDetails(node) {
@@ -753,8 +853,10 @@
         addTo = destinationNode;
       } else addTo = destinationNode.getParent();
 
+      var uid = generateUid();
       var child = addTo.addChild({
-        id: generateUid(),
+        id: uid,
+        key: uid, // Explicit key helps fancytree track the node across rebuilds
         title: "New Category",
         selectable: true,
         showInPgMetaData: true,
@@ -767,8 +869,20 @@
       });
 
       child.visitParents(function (childnode) {
-        childnode.expand(true);
+        // Prefer noAnimation when setExpanded exists to avoid "while animating" warnings
+        // and ignored setActive/makeVisible (GH-784 / v8.1.7 #1169).
+        if (typeof childnode.setExpanded === "function") {
+          childnode.setExpanded(true, { noAnimation: true });
+        } else if (typeof childnode.expand === "function") {
+          childnode.expand(true);
+        }
       }, true);
+
+      if (typeof child.setActive === "function") {
+        child.setActive(true);
+      } else if (typeof child.activate === "function") {
+        child.activate();
+      }
 
       return child;
     }

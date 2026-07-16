@@ -216,6 +216,9 @@ public class PSCategoryService implements IPSCategoryService {
   public String updateCategoriesWithString(
       @RequestParam("categorystring") String categoryString, @PathParam("sitename") String sitename)
       throws PSDataServiceException {
+    if (StringUtils.isBlank(categoryString)) {
+      throw new IllegalArgumentException("categorystring parameter must not be null or empty");
+    }
     PSCategory categoryWithJson = null;
     try {
       var mapper = new ObjectMapper();
@@ -233,6 +236,9 @@ public class PSCategoryService implements IPSCategoryService {
   @Consumes({MediaType.APPLICATION_JSON, MediaType.TEXT_PLAIN, MediaType.APPLICATION_XML})
   public String updateCategoriesWithString(@RequestParam("categorystring") String categoryString)
       throws PSDataServiceException {
+    if (StringUtils.isBlank(categoryString)) {
+      throw new IllegalArgumentException("categorystring parameter must not be null or empty");
+    }
     PSCategory categoryWithJson = null;
     try {
       var mapper = new ObjectMapper();

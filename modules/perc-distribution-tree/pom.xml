@@ -714,14 +714,14 @@
                         <configuration>
                             <mainClass>org.eclipse.jetty.start.Main</mainClass>
                             <arguments>
-                                <argument>jetty.home=${assembly-directory}/jetty/upstream</argument>
-                                <argument>jetty.base=${assembly-directory}/jetty/base</argument>
                                 <argument>--include-jetty-dir=${assembly-directory}/jetty/defaults</argument>
                                 <argument>--create-start-d</argument>
                                 <argument>--create-files</argument>
                                 <argument>--modules=perc-logging</argument>
                                 <argument>--add-modules=perc</argument>
                                 <argument>--approve-all-licenses</argument>
+                                <argument>jetty.base=${assembly-directory}/jetty/base</argument>
+                                <argument>jetty.home=${assembly-directory}/jetty/upstream</argument>
                             </arguments>
                         </configuration>
                     </execution>

@@ -16,6 +16,7 @@ Source of truth: `docs/ai-generated/tasks/gh-codeql-alerts/triage.md`,
 | `alerts-stale-cache.md` (excluded; file path not in `git ls-files`) | 0 |
 | `triage.md` rows with `disposition != accepted-risk` | 759 |
 | `accepted-risks.md` rows | 0 |
+| `accepted-risks.md` rows | 3 (added 2026-07-16 by T054 follow-up: #769, #770, #787) |
 
 > Pass condition for SC-001: the first row = the third row AND equals 0.
 > **Current gap**: 759 open alerts (165 valid Java + 593 obsolete-vendored js/* + 1 false-positive).
@@ -44,6 +45,9 @@ Source of truth: `docs/ai-generated/tasks/gh-codeql-alerts/triage.md`,
 
 | Alert | Rule | File | Reason | target_milestone | Recorded |
 |-------|------|------|--------|------------------|----------|
+| #769 | `java/error-message-exposure` | `modules/perc-toolkit/.../imageedit/web/SimpleXmlView.java` | Spring `AbstractView.renderMergedOutputModel` exception propagation; constant-swap fix in PR #1268 insufficient for CodeQL taint analysis; needs local exception handler | 8.3 | T054 follow-up |
+| #770 | `java/error-message-exposure` | `modules/perc-toolkit/.../pso/preview/SimpleXmlView.java` | same as #769 (preview variant) | 8.3 | T054 follow-up |
+| #787 | `java/error-message-exposure` | `system/servlet/.../webdav/method/PSWebdavConfigValidator.java` | `writeError(String msg, int level)` helper signature accepts arbitrary string; CodeQL flags the parameter; needs typed enum refactor | 8.3 | T054 follow-up |
 | (queued) | java/weak-cryptographic-algorithm (3) | `modules/perc-legacy/.../PSAesCBC.java` | legacy deprecated crypto; upgrade requires API-breaking change to PSAesCBC API | 9.0 | T047/T048 follow-up |
 | (queued) | java/static-initialization-vector (2) | `modules/perc-legacy/.../PSAesCBC.java` | same root cause as weak-crypto | 9.0 | T047/T048 follow-up |
 
@@ -58,6 +62,7 @@ Source of truth: `docs/ai-generated/tasks/gh-codeql-alerts/triage.md`,
 | Phase 3 — US1 Triage (T012–T018) | DONE | all 5 verify scripts pass; release-readiness report live |
 | Phase 4 — US2 Obsolete removals (T019–T034) | PARTIAL | T027 + T029 merged (#1197, #1196); T021–T026, T028, T030–T031, T032–T034 pending |
 | Phase 5 — US3 Valid mitigations (T035–T063) | PARTIAL | T037, T039, T040, T041, T042, T043 (4 stacked), T044 merged; **5 java/ssrf + 1 java/xxe + 1 java/ldap-injection + 51 java/path-injection + 31 java/xss + 6 java/regex-injection + 6 java/sql-injection + 3 java/zipslip + 3 java/weak-crypto + 2 java/insecure-trustmanager + 6 java/unvalidated-url-redirection + 1 java/unvalidated-url-forward + 1 java/unsafe-hostname-verification + 22 java/error-message-exposure + 2 java/stack-trace-exposure + 2 java/implicit-cast-in-compound-assignment + 2 java/static-iv + 1 java/insecure-cookie + 3 java/redos/polynomial-redos + 4 js/code-injection + 6 js/polynomial-redos + 2 js/redos + 21 js/xss still open**. This snapshot is being driven by AI session(s); subsequent commits update triage.md and add closing PRs per rule cluster. |
+| Phase 5 — US3 Valid mitigations (T035–T063) | PARTIAL | T037, T039, T040, T041, T042, T043 (4 stacked), T044, **T054 (#1268 merged)**; **5 java/ssrf + 1 java/xxe + 1 java/ldap-injection + 51 java/path-injection + 31 java/xss + 6 java/regex-injection + 6 java/sql-injection + 3 java/zipslip + 3 java/weak-crypto + 2 java/insecure-trustmanager + 6 java/unvalidated-url-redirection + 1 java/unvalidated-url-forward + 1 java/unsafe-hostname-verification + 3 java/error-message-exposure (accepted-risk to 8.3: #769, #770, #787) + 2 java/stack-trace-exposure + 2 java/implicit-cast-in-compound-assignment + 2 java/static-iv + 1 java/insecure-cookie + 3 java/redos/polynomial-redos + 4 js/code-injection + 6 js/polynomial-redos + 2 js/redos + 21 js/xss still open**. PR #1268 (T054 cluster) closed 19 of 22 `java/error-message-exposure` alerts; the 3 remaining (#769, #770, #787) require architectural fixes tracked in `accepted-risks.md` for the 8.3 release. This snapshot is being driven by AI session(s); subsequent commits update triage.md and add closing PRs per rule cluster. |
 | Phase 6 — US4 False-positive suppressions (T064–T072) | PARTIAL | T066 + #1204 merged; 2 implicit-cast alerts in HTTPClient/ pending T068 |
 | Phase 7 — Polish (T073–T081) | IN PROGRESS | `verify-pr-review-resolution.sh` written; per-PR gate PR template pending; **this report (T076) updated to live snapshot 2026-07-14** |
 
@@ -114,4 +119,6 @@ the GraphQL `resolveReviewThread` mutation on every outstanding review
 thread and posted an inline reply on every comment citing the commit
 hash. `scripts/verify-pr-review-resolution.sh` reads
 `gh pr view --json reviewThreads` for each closing PR and fails if any
+thread has `isResolved: false`.
+thread has `isResolved: false`.
 thread has `isResolved: false`.

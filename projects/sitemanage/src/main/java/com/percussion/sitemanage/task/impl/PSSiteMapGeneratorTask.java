@@ -106,14 +106,20 @@ public class PSSiteMapGeneratorTask implements IPSEditionTask {
 
     if (site.isGenerateSitemap()) {
 
-      var mapper = new ObjectMapper();
       var jsonString = site.getGenerateSiteMapOptions();
       PSGenerateSiteMapOptions psGenerateSiteMapOptions = null;
-      try {
-        psGenerateSiteMapOptions = mapper.readValue(jsonString, PSGenerateSiteMapOptions.class);
-      } catch (JsonProcessingException e) {
-        log.error(PSExceptionUtils.getMessageForLog(e));
-        throw new PSExtensionException(e);
+      if (jsonString != null && !jsonString.trim().isEmpty()) {
+        var mapper = new ObjectMapper();
+        try {
+          psGenerateSiteMapOptions = mapper.readValue(jsonString, PSGenerateSiteMapOptions.class);
+        } catch (JsonProcessingException e) {
+          log.warn(
+              "Failed to parse generateSiteMapOptions JSON, using defaults. Error: {}",
+              PSExceptionUtils.getMessageForLog(e));
+        }
+      }
+      if (psGenerateSiteMapOptions == null) {
+        psGenerateSiteMapOptions = new PSGenerateSiteMapOptions();
       }
 
       long count = 0;

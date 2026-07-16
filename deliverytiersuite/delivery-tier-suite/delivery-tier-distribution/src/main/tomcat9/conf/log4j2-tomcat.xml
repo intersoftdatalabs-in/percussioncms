@@ -51,5 +51,14 @@
 			<AppenderRef ref="CONSOLE" />
 		</Logger>
 
-	</Loggers>
+	
+        <!-- Expected Tomcat exploded-webapp cache warning noise (v8.1.7 #782). -->
+        <Logger name="org.apache.catalina.webresources.DirResourceSet"
+                level="error"
+                additivity="false">
+            <AppenderRef ref="CATALINA"/>
+            <AppenderRef ref="CONSOLE" />
+        </Logger>
+
+    </Loggers>
 </Configuration>

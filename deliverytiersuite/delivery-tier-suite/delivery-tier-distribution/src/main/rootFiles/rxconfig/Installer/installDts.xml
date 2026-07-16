@@ -102,7 +102,7 @@
 					<isset property="isLinux" />
 					<then>
 						<echo>Setting executable Permissions</echo>
-						<chmod perm="o+x" failifexecutionfails="false"
+						<chmod perm="ugo+x" failifexecutionfails="false"
 							failonerror="false" includes="**/*.sh" dir="${install.dir}" />
 					</then>
 				</if>
@@ -447,7 +447,7 @@
 				file="${install.dir}${staging.dir}/Deployment/Server/conf/perc/perc-security.properties">
 				<entry key="encryption.type" default="ENC" />
 				<entry key="contentSecurityPolicy"
-					default="default-src * ; img-src * 'self' 'unsafe-inline' 'unsafe-eval';object-src * 'self' 'unsafe-inline' 'unsafe-eval'; font-src * 'unsafe-inline' 'unsafe-eval' ; script-src * 'unsafe-inline' 'unsafe-eval' ; style-src * 'unsafe-inline' 'unsafe-eval' ; frame-src * 'self' 'unsafe-inline' 'unsafe-eval'; frame-ancestors * 'self';" />
+					default="default-src * ; img-src * 'self' data: blob: 'unsafe-inline' 'unsafe-eval';object-src * 'self' 'unsafe-inline' 'unsafe-eval'; font-src * 'unsafe-inline' 'unsafe-eval' ; script-src * 'unsafe-inline' 'unsafe-eval' ; style-src * 'unsafe-inline' 'unsafe-eval' ; frame-src * 'self' 'unsafe-inline' 'unsafe-eval'; frame-ancestors * 'self';" />
 				<entry key="cspReportOnly" default="false" />
 				<entry key="csrfCookieHttpOnly" default="false" />
 				<entry key="xframeOptionsPolicy" default="SAMEORIGIN" />
@@ -672,7 +672,18 @@
 						</fileset>
 					</copy>
 
-					<echo>Restore Server.xml... if perc_catalina is already created</echo>
+					                    <!-- Update CSP policy in restored perc-security.properties for issue 818 -->
+                    <if>
+                        <available file="${install.dir}${staging.dir}/Deployment/Server/conf/perc/perc-security.properties" type="file"/>
+                        <then>
+                            <echo>Updating Content Security Policy (CSP) in restored perc-security.properties for issue 818...</echo>
+                            <replaceregexp file="${install.dir}${staging.dir}/Deployment/Server/conf/perc/perc-security.properties"
+                                           match="img-src\s+\*\s+'self'(\s+data:)?(\s+blob:)?\s+'unsafe-inline'\s+'unsafe-eval'"
+                                           replace="img-src * 'self' data: blob: 'unsafe-inline' 'unsafe-eval'"
+                                           byline="true"/>
+                        </then>
+                    </if>
+                    <echo>Restore Server.xml... if perc_catalina is already created</echo>
 					<if>
 						<available
 							file="${new.backup.dir}${staging.dir}/Server/conf/perc/perc-catalina.properties" />

@@ -172,26 +172,52 @@
         }
 
         if (!$.perc_fakes.path_service) {
-            if (folder) {
-                $.ajax({
-                    type: 'GET',
-                    success: callback,
-                    error: err,
-                    url: serviceUrl,
-                    dataType: 'json',
-                    cache: false
-                });
+            var maxRetries = 6;
+            var retryDelay = 300;
+            var retryCount = 0;
+
+            function doOpen() {
+                if (folder) {
+                    $.ajax({
+                        type: 'GET',
+                        success: callback,
+                        error: function(xhr, status, error) {
+                            // Retry on server errors (500) AND path-not-found (404) since folder may not be indexed yet
+                            if ((xhr.status === 500 || xhr.status === 404) && retryCount < maxRetries) {
+                                retryCount++;
+                                console.log("open_path retry " + retryCount + " of " + maxRetries + " for path: " + path_str);
+                                setTimeout(doOpen, retryDelay);
+                            } else {
+                                err(xhr, status, error);
+                            }
+                        },
+                        url: serviceUrl,
+                        dataType: 'json',
+                        cache: false
+                    });
+                }
+                else {
+                    $.ajax({
+                        type: 'GET',
+                        success: callback,
+                        error: function(xhr, status, error) {
+                            // Retry on server errors (500) AND path-not-found (404) since folder may not be indexed yet
+                            if ((xhr.status === 500 || xhr.status === 404) && retryCount < maxRetries) {
+                                retryCount++;
+                                console.log("open_path retry " + retryCount + " of " + maxRetries + " for path: " + path_str);
+                                setTimeout(doOpen, retryDelay);
+                            } else {
+                                err(xhr, status, error);
+                            }
+                        },
+                        url: $.perc_paths.PATH_ITEM + path_str,
+                        dataType: 'json',
+                        cache: false
+                    });
+                }
             }
-            else {
-                $.ajax({
-                    type: 'GET',
-                    success: callback,
-                    error: err,
-                    url: $.perc_paths.PATH_ITEM + path_str,
-                    dataType: 'json',
-                    cache: false
-                });
-            }
+
+            doOpen();
         }
         else {
             var fakes = {

@@ -101,54 +101,16 @@
 		</select>
 	</xsl:template>
 
+	<!-- Read-only (View Metadata): plain comma-separated text, not editable inputs. -->
 	<xsl:template
 		match="Control[@name='percTagListControl' and @isReadOnly='yes']"
 		priority="10" mode="psxcontrol">
 		<div class="datadisplay">
 			<xsl:for-each
 				select="DisplayChoices/DisplayEntry[@selected='yes']">
-				<input type="text" name="{concat(@paramName,'-display')}"
-					id="{concat(@paramName,'-display')}" class="percTagListControl">
-					<xsl:value-of select="Value" />
-					<xsl:if test="not(position()=last())">
-						,
-					</xsl:if>
-				</input>
+				<xsl:value-of select="Value" />
+				<xsl:if test="not(position()=last())">, </xsl:if>
 			</xsl:for-each>
-			<xsl:if test="@accessKey!=''">
-				<xsl:attribute name="accesskey"><xsl:call-template
-					name="getaccesskey"><xsl:with-param name="label"
-					select="preceding-sibling::DisplayLabel" /><xsl:with-param
-					name="sourceType"
-					select="preceding-sibling::DisplayLabel/@sourceType" /><xsl:with-param
-					name="paramName" select="@paramName" /><xsl:with-param
-					name="accessKey" select="@accessKey" /></xsl:call-template></xsl:attribute>
-			</xsl:if>
-			<xsl:call-template name="parametersToAttributes">
-				<xsl:with-param name="controlClassName"
-					select="'sys_EditBox'" />
-				<xsl:with-param name="controlNode" select="." />
-			</xsl:call-template>
-			<input type="hidden" name="{concat(@paramName,'-display')}"
-				id="{concat(@paramName,'-display')}" class="percTagListControl">
-				<xsl:attribute name="value"><xsl:for-each
-					select="DisplayChoices/DisplayEntry[@selected='yes']"><xsl:value-of select="Value" /><xsl:if
-					test="not(position()=last())">, </xsl:if></xsl:for-each></xsl:attribute>
-				<xsl:if test="@accessKey!=''">
-					<xsl:attribute name="accesskey"><xsl:call-template
-						name="getaccesskey"><xsl:with-param name="label"
-						select="preceding-sibling::DisplayLabel" /><xsl:with-param
-						name="sourceType"
-						select="preceding-sibling::DisplayLabel/@sourceType" /><xsl:with-param
-						name="paramName" select="@paramName" /><xsl:with-param
-						name="accessKey" select="@accessKey" /></xsl:call-template></xsl:attribute>
-				</xsl:if>
-				<xsl:call-template name="parametersToAttributes">
-					<xsl:with-param name="controlClassName"
-						select="'sys_EditBox'" />
-					<xsl:with-param name="controlNode" select="." />
-				</xsl:call-template>
-			</input>
 		</div>
 	</xsl:template>
 </xsl:stylesheet>
