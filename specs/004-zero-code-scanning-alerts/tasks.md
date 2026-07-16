@@ -25,7 +25,7 @@ Each Valid-finding (US3) task MUST include a regression test that demonstrably f
 - **Removed obsolete files**: under `WebUI/src/main/webapp/`, `system/cms/content/applications/sys_resources/ApplicationFiles/`, `modules/perc-toolkit/src/main/resources/InstallDir/`, `deliverytiersuite/delivery-tier-suite/*/src-js/`
 - **Packaging surface** (must update when removing bundled files): `modules/perc-ant/install.xml`, `modules/perc-distribution-tree/pom.xml`, `modules/perc-packages/`
 - **Build / test**: `./mvn-env.sh -pl <module> -am test` against JDK 21 (per `AGENTS.md`)
-- **Branch policy (per `AGENTS.md`)**: work is authored on a `004-zero-code-scanning-alerts` branch cut from `development`; per-cluster PRs target `development`. Headline `0 active alerts` is measured on `development` at the `8.2` release cut.
+- **Branch policy (per `AGENTS.md`)**: work is authored on a **local-only** `004-zero-code-scanning-alerts` branch cut from `development` (used for staging and rebase only). **Per-cluster PRs target `development` directly** — not the feature branch. The feature branch is typically deleted from `origin` once a US3 cluster is closed or at the end of Phase 7 (Polish). Headline `0 active alerts` is measured on `development` at the `8.2` release cut.
 
 ## Scope Numbers (seeded 2026-07-11)
 
@@ -45,7 +45,7 @@ Each Valid-finding (US3) task MUST include a regression test that demonstrably f
 - [ ] T002 [P] Read root `AGENTS.md` and identify the module owner for each top-5 module (`WebUI/`, `system/`, `projects/sitemanage/`, `modules/perc-packages/`, `modules/perc-common-ui-bundle/`)
 - [ ] T003 [P] Verify `scripts/fetch-gh-code-scanning-alerts.sh` works against `intersoftdatalabs-in/percussioncms` and writes a non-empty `docs/ai-generated/tasks/gh-codeql-alerts/alerts.md` (already fixed 2026-07-11)
 - [ ] T004 [P] Confirm CodeQL Advanced workflow runs on `push` to `development` (`.github/workflows/codeql.yml`); do not change trigger policy in this feature
-- [ ] T005 Create/checkout the `004-zero-code-scanning-alerts` branch from `development` and push so per-module PRs can target it
+- [ ] T005 Create/checkout the **local** `004-zero-code-scanning-alerts` branch from `development` (local-only; per-cluster PRs target `development` per Branch policy above)
 
 ---
 
@@ -159,7 +159,7 @@ Group by rule; one PR per cluster; all clusters can run in parallel.
 - [ ] T053 [US3] **`java/unsafe-hostname-verification` (1 alert, medium)**: fix `projects/sitemanage/src/main/java/com/percussion/sitemanage/importer/PSSiteImporter.java`; add regression test
 - [ ] T054 [US3] **`java/error-message-exposure` (22 alerts, medium)**: fix `projects/sitemanage/src/main/java/com/percussion/designmanagement/service/impl/PSWebResourcesRestService.java` and other flagged sites by replacing `e.getMessage()` in HTTP responses with a generic message and logging the detail server-side; add regression tests
 - [ ] T055 [US3] **`java/stack-trace-exposure` (2 alerts, medium)**: fix `modules/TableFactory/src/main/java/com/percussion/tablefactory/PSJdbcTableFactoryException.java`; add regression test
-- [ ] T056 [US3] **`java/implicit-cast-in-compound-assignment` (3 alerts, high)**: fix `deliverytiersuite/delivery-tier-suite/feeds/src/test/java/com/percussion/delivery/feeds/PSFeedServicePerformanceTest.java` — but since these are in a test perf micro-benchmark (see triage seed), these are likely false-positives; treat as US4 instead. Update `triage.md`.
+- [ ] T056 [US3→US4] **`java/implicit-cast-in-compound-assignment` (3 alerts, high) — reclassified to US4 false-positive**: Originally a US3 valid-finding cluster; resolved via inline `// codeql[…]` suppressions per US4 (test perf micro-benchmark cast; legacy HTTPClient byte-buffer offset/position casts — both legitimate, values bounded by Integer.MAX_VALUE by buffer-length invariant). Implementation executed as PR #1276 (T056 cluster) following the T066-T068 inline-suppression pattern. **This row retained under US3 for traceability** of the cluster origin; the implementation work product lives in US4 below.
 - [ ] T057 [US3] **`java/insecure-cookie` (1 alert, medium)**: fix `modules/p13n-api/src/main/java/com/percussion/soln/p13n/tracking/web/CookieGenerator.java` by setting `Secure` and `HttpOnly` flags; add regression test
 - [ ] T058 [US3] **`js/polynomial-redos` (6 alerts, high)**: fix `WebUI/src/main/webapp/cm/pages/cui/components/requirejs-text/text.js` and other flagged files — if files are removed under US2, mark these as obsolete instead
 - [ ] T059 [US3] **`js/redos` (3 alerts, high)**: fix `deliverytiersuite/delivery-tier-suite/p13n-ds/src-js/p13n/perc_p13n_profile.js` regex; add regression test
@@ -188,7 +188,7 @@ Group by rule; one PR per cluster; all clusters can run in parallel.
 
 - [ ] T066 [US4] Confirm the 1 seeded false-positive row in `triage.md` (`java/implicit-cast-in-compound-assignment` in `deliverytiersuite/.../feeds/.../PSFeedServicePerformanceTest.java`) and apply an inline `// codeql[java/implicit-cast-in-compound-assignment] justification: <reference to the perf benchmark that intentionally narrows long→int>` comment in the flagged source file (or convert the test code so the suppression isn't needed)
 - [ ] T067 [US4] Append the matching row to `docs/ai-generated/tasks/gh-codeql-alerts/suppressions.md` per `contracts/C3`
-- [ ] T068 [US4] For each `valid` Java finding that was downgraded to `false-positive` during US3 (e.g., T056 implicit-cast-in-compound-assignment in test perf micro-bench), apply the same inline-suppression workflow as T066–T067
+- [ ] T068 [US4] For each `valid` Java finding that was downgraded to `false-positive` during US3 (e.g., **T056** implicit-cast-in-compound-assignment in test perf micro-bench — see PR #1276 which applied inline suppressions to all 3 alerts of the cluster across the test perf micro-bench and the legacy HTTPClient library), apply the same inline-suppression workflow as T066–T067
 - [ ] T069 [US4] For any `false-positive` finding whose path is in vendored code being removed under US2, flip the row in `triage.md` from `false-positive` to `obsolete` so it's not double-counted; do not add to `suppressions.md` (file is gone)
 - [ ] T070 [US4] Re-scan: run `scripts/fetch-gh-code-scanning-alerts.sh` and confirm no false-positive alert has re-opened
 - [ ] T071 [US4] Run `scripts/verify-suppressions.sh` and ensure every suppression is verifiable

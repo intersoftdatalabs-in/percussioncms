@@ -39,6 +39,16 @@ The technical approach, locked in by Phase 0 research, is:
 
 **Owning module(s)**: Repo root for triage/coordination (this feature's process); per-module ownership for each concrete mitigation PR — primary owner is the path of the flagged file under `./AGENTS.md`'s module list.
 
+**Per-module inventory for in-flight US3 clusters** (added 2026-07-16 per analyze finding C1, updated as clusters close):
+
+| Task | Rule | Module(s) | Primary file |
+|------|------|-----------|--------------|
+| T055 | `java/stack-trace-exposure` | `modules/TableFactory/` | `PSJdbcTableFactoryException.java` |
+| T056 | `java/implicit-cast-in-compound-assignment` (US4 reclassified) | `deliverytiersuite/.../feeds/`, `system/HTTPClient/` | `PSFeedServicePerformanceTest.java`, `BufferedInputStream.java`, `RespInputStream.java` |
+| T057 | `java/insecure-cookie` | `modules/p13n-api/` | `CookieGenerator.java` (note: p13n-api pom has 3 missing-version transitive deps; per `AGENTS.md` ignore rule, build verification falls back to CodeQL re-scan) |
+| T058 | `js/polynomial-redos` (US2 obsolete-tracking) | `WebUI/` | `components/requirejs-text/text.js` (US2 task T026b pending) |
+| T059 | `js/redos` | `deliverytiersuite/.../p13n-ds/` | `perc_p13n_profile.js` (fix applied for #1040); `lib-js/jquery-treeview/lib/jquery.js` (US2 task T026c pending for #1038, #1039) |
+
 **AGENTS hierarchy applied**: `./AGENTS.md` (root — authoritative for the triage process, the PR review-comment procedure, the JDK/branch policy, the Dependabot config location, and the module list used to assign ownership). Module-level `AGENTS.md` / `AGENTS.local.md` files consulted on a per-finding basis during mitigation PRs.
 
 ## Constitution Check
