@@ -179,6 +179,7 @@ afterEach(() => {
   vi.restoreAllMocks();
   document.body.innerHTML = "";
   delete globalThis.I18N;
+  delete window.__pwned;
 });
 
 // ---------------------------------------------------------------------------
