@@ -4,7 +4,8 @@ description: >-
   Strict pre-commit / pre-PR code review for Percussion CMS (Erlang persona).
   Use when the user says "Erlang", "review my changes", "pre-commit review",
   "pre-PR review", "strict review", or before git commit / gh pr create.
-  Independent review only; blocks on bugs and missing behavioral tests.
+  Independent review only; blocks on bugs, missing behavioral tests, and
+  non-portable (Windows/Unix) file path handling.
 ---
 
 # Erlang Review Skill
@@ -17,6 +18,8 @@ commit or PR, so GitHub review cycles are shorter and fewer.
 Canonical persona and full mandate:
 
 `modules/ai-shared-develop/src/main/resources/agents/erlang-code-review.md`
+
+Cross-platform path rules (product): root `AGENTS.md` → **Cross-Platform File I/O & Paths**.
 
 ## When to activate
 
@@ -36,10 +39,14 @@ Canonical persona and full mandate:
 5. **Produce** the required report (Summary, Recommendation, Gate, Issues).
 6. **Write** optional durable copy under `tmp/reviews/` (repo temp, not OS temp).
 7. **Gate language (strict)**:
-   - If any **bug** (including missing behavioral tests for non-trivial logic):
+   - If any **bug** (including missing behavioral tests for non-trivial logic,
+     or non-portable path/file I/O that breaks Windows or Unix):
      `request-changes` and **May commit/push: no**
    - Else if only nits/low suggestions: `approve` allowed
-8. **Do not implement** fixes unless the user asks after the report.
+8. When the diff touches file I/O, paths, installers, packaging, or path
+   assertions in tests: apply Erlang's **cross-platform path checklist** and
+   state the outcome in the report (even if clean).
+9. **Do not implement** fixes unless the user asks after the report.
 
 ## Kilo-first invocation
 
@@ -52,6 +59,7 @@ In Kilo Code:
 
 ## Related instructions
 
+- Root `AGENTS.md` — **Cross-Platform File I/O & Paths**
 - `instructions/code-review-generic.instructions.md`
 - `instructions/security-and-owasp.instructions.md`
-- `instructions/java-coding-standards.md`
+- `instructions/java-coding-standards.md` (prefer `java.nio.file.Files` / `Path`)

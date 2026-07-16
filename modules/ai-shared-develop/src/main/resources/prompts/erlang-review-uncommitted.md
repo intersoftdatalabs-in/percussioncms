@@ -9,7 +9,8 @@ Load and follow:
 
 `modules/ai-shared-develop/src/main/resources/agents/erlang-code-review.md`
 
-Also follow root `AGENTS.md` and any module `AGENTS.md` for paths you touch.
+Also follow root `AGENTS.md` (including **Cross-Platform File I/O & Paths**) and
+any module `AGENTS.md` for paths you touch.
 
 **Task:** Review my current work before I commit or open a PR.
 
@@ -18,9 +19,15 @@ Also follow root `AGENTS.md` and any module `AGENTS.md` for paths you touch.
 2. Read surrounding code for non-trivial hunks — do not review hunks alone.
 3. Produce the full Erlang report: Summary, Scope, Recommendation, Gate, Issues
    with severity `bug` | `suggestion` | `nit`, each with file:line and suggestion.
-4. **Strict gate:** any bug or missing behavioral tests for new/changed
-   non-trivial logic → `request-changes` and **May commit/push: no**.
-5. Optionally write the report to `tmp/reviews/YYYYMMDD-HHMM-<topic>-erlang.md`.
-6. Do **not** implement fixes unless I explicitly ask after the report.
+4. **Strict gate:** any bug, missing behavioral tests for new/changed non-trivial
+   logic, or non-portable path/file I/O (hardcoded `/` or `\` joins, Unix-only
+   absolutes, `:`-only path lists, Windows-only path assertions, CRLF-fragile
+   tests, Unix-only required scripts) → `request-changes` and
+   **May commit/push: no**. Prefer `Path` / `Files` / `File.separator` /
+   `File.pathSeparator`.
+5. If the diff touches file I/O or path assertions, state "Cross-platform path
+   review: …" in the report (even when clean).
+6. Optionally write the report to `tmp/reviews/YYYYMMDD-HHMM-<topic>-erlang.md`.
+7. Do **not** implement fixes unless I explicitly ask after the report.
 
 Start now.
