@@ -90,13 +90,17 @@ public class MainTest {
 
     @Autowired private JacksonContextResolver contextResolver;
 
+    /**
+     * Static {@code @Bean} methods avoid early-init issues in Spring Framework 6+ configuration
+     * processing (v8.1.7 PR #574 Jackson compatibility residue).
+     */
     @Bean
-    public JacksonJsonProvider getJacksonJsonProvider() {
+    public static JacksonJsonProvider getJacksonJsonProvider() {
       return new JacksonJsonProvider();
     }
 
     @Bean
-    public JacksonContextResolver getContextResolver() {
+    public static JacksonContextResolver getContextResolver() {
       return new JacksonContextResolver();
     }
 
