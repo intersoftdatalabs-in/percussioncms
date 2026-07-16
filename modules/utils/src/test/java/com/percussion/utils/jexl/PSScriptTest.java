@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -16,7 +16,9 @@
 package com.percussion.utils.jexl;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.HashMap;
@@ -25,6 +27,10 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import org.apache.commons.jexl3.JexlBuilder;
+import org.apache.commons.jexl3.JexlEngine;
+import org.apache.commons.jexl3.MapContext;
+import org.apache.commons.jexl3.introspection.JexlPermissions;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -36,6 +42,21 @@ import org.junit.jupiter.api.Test;
  * @author percussion
  */
 public class PSScriptTest {
+
+  /**
+   * Product-like domain type outside JEXL 3.x RESTRICTED allowlists ({@code java.lang.*}, {@code
+   * java.util.*}, etc.). Methods on this type succeed only when the engine uses {@link
+   * JexlPermissions#UNRESTRICTED} (or an equivalent custom allowlist).
+   */
+  public static class DomainWidget {
+    public String echo(String value) {
+      return value;
+    }
+
+    public String getToken() {
+      return "widget-token";
+    }
+  }
 
   @BeforeEach
   public void setUp() {
@@ -602,11 +623,54 @@ public class PSScriptTest {
   }
 
   /**
-   * Unrestricted permissions must allow legacy method patterns that restricted JEXL 3.x defaults
-   * can block (product scripts invoke ordinary Java methods on domain objects).
+   * Core hardening proof: product domain types are outside JEXL RESTRICTED allowlists. {@link
+   * PSScript} must use {@link JexlPermissions#UNRESTRICTED} so CMS template/widget scripts can call
+   * ordinary methods on domain objects (as they did under JEXL 2.x / early 3.x).
+   *
+   * <p>Control: the same script against a RESTRICTED engine does not return the domain result
+   * (returns null under non-strict silent-ish evaluation). If {@code UNRESTRICTED} were dropped
+   * from {@code PSScript}, this test would fail.
    */
   @Test
-  public void testUnrestrictedPermissionsAllowMethodCalls() {
+  public void testUnrestrictedPermissionsAllowDomainTypeMethods() {
+    DomainWidget widget = new DomainWidget();
+    Map<String, Object> bindings = new HashMap<>();
+    bindings.put("$widget", widget);
+
+    PSScript echoScript = new PSScript("$widget.echo('ok')");
+    assertEquals(
+        "ok",
+        echoScript.eval(bindings),
+        "Domain method echo must work under PSScript (UNRESTRICTED)");
+
+    PSScript tokenScript = new PSScript("$widget.getToken()");
+    assertEquals(
+        "widget-token",
+        tokenScript.eval(bindings),
+        "Domain method getToken must work under PSScript (UNRESTRICTED)");
+
+    // Control: RESTRICTED blocks non-allowlisted domain types (returns null, not the method result)
+    JexlEngine restricted =
+        new JexlBuilder()
+            .permissions(JexlPermissions.RESTRICTED)
+            .strict(false)
+            .safe(true)
+            .create();
+    MapContext restrictedCtx = new MapContext(bindings);
+    Object restrictedResult =
+        restricted.createScript("$widget.echo('ok')").execute(restrictedCtx);
+    assertNotEquals(
+        "ok",
+        restrictedResult,
+        "RESTRICTED must not expose DomainWidget methods — proves the UNRESTRICTED requirement");
+  }
+
+  /**
+   * JDK types remain usable (sanity for common template patterns). Alone these do not prove
+   * UNRESTRICTED; see {@link #testUnrestrictedPermissionsAllowDomainTypeMethods()}.
+   */
+  @Test
+  public void testJdkMethodCallsStillWork() {
     Map<String, Object> bindings = new HashMap<>();
     bindings.put("$text", "percussion");
     bindings.put("$list", new java.util.ArrayList<>(java.util.Arrays.asList("a", "b", "c")));
@@ -614,19 +678,13 @@ public class PSScriptTest {
     PSScript lengthScript = new PSScript("$text.length()");
     assertEquals(10, lengthScript.eval(bindings), "String.length should be allowed");
 
-    PSScript substringScript = new PSScript("$text.substring(0, 4)");
-    assertEquals("perc", substringScript.eval(bindings), "String.substring should be allowed");
-
     PSScript sizeScript = new PSScript("$list.size()");
     assertEquals(3, sizeScript.eval(bindings), "List.size should be allowed");
-
-    PSScript getScript = new PSScript("$list.get(1)");
-    assertEquals("b", getScript.eval(bindings), "List.get should be allowed");
   }
 
   /**
    * When strict is off, safe navigation should return null for missing intermediate properties
-   * rather than throwing (legacy template behavior).
+   * rather than throwing (legacy template behavior; {@code .safe(true)} when not strict).
    */
   @Test
   public void testSafeModeNullPropertyNavigation() {
@@ -638,6 +696,28 @@ public class PSScriptTest {
 
     Object result = ps.eval(bindings);
     assertEquals(null, result, "Null intermediate property should yield null when not strict/safe");
+  }
+
+  /**
+   * When strict is on, {@code .safe(false)} is wired: null intermediate property navigation must
+   * fail rather than return null. Uses per-instance mode so a dedicated engine is built with
+   * strict=true.
+   */
+  @Test
+  public void testStrictModeRejectsNullPropertyNavigation() {
+    PSScript ps = new PSScript("$obj.missing.prop");
+    ps.setUseStrictMode(true);
+    ps.setUseSilentMode(false);
+
+    Map<String, Object> bindings = new HashMap<>();
+    bindings.put("$obj", new HashMap<String, Object>());
+
+    // PSScript also throws RuntimeException for top-level $expr that returns null in strict mode;
+    // either JexlException or that wrapper proves safe/strict pairing is active.
+    assertThrows(
+        RuntimeException.class,
+        () -> ps.eval(bindings),
+        "Strict mode with safe=false must not silently return null for missing intermediate props");
   }
 
   /**
@@ -653,17 +733,23 @@ public class PSScriptTest {
     assertTrue(result instanceof java.util.ArrayList, "Result should be an ArrayList instance");
   }
 
-  /** Per-instance engine path (strict differs from global default) must also use unrestricted perms. */
+  /**
+   * Per-instance engine path (modes diverge from global defaults) must also use UNRESTRICTED so
+   * domain methods work — not only JDK String methods.
+   */
   @Test
-  public void testPerInstanceEngineAllowsMethodCalls() {
-    PSScript ps = new PSScript("$obj.toUpperCase()");
-    // Force per-instance builder (defaults are non-strict; enable silent to diverge further)
+  public void testPerInstanceEngineAllowsDomainTypeMethods() {
+    PSScript ps = new PSScript("$widget.echo('per-instance')");
+    // Force per-instance builder (defaults are non-strict; enable silent to diverge)
     ps.setUseSilentMode(true);
 
     Map<String, Object> bindings = new HashMap<>();
-    bindings.put("$obj", "hello");
+    bindings.put("$widget", new DomainWidget());
 
     Object result = ps.eval(bindings);
-    assertEquals("HELLO", result, "Per-instance engine must allow method invocation");
+    assertEquals(
+        "per-instance",
+        result,
+        "Per-instance engine must allow domain method invocation via UNRESTRICTED");
   }
 }

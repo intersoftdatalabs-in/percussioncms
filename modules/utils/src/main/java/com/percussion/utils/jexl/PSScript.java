@@ -52,8 +52,13 @@ public class PSScript implements IPSScript {
   // Control JEXL debug
   private static boolean jexlUseDebug = false;
 
-  // Explicit feature toggles for backward-compatibility control (legacy defaults: off)
+  /**
+   * Optional JexlFeatures toggles (legacy defaults: off). Loaded from server.properties only when
+   * {@link #reinit(boolean)} is called with {@code reloadOptionsFromConfig=true}; there is no
+   * automatic startup reload today (same as jexlUseStrict/silent/debug/cache).
+   */
   private static boolean jexlLexical = false;
+
   private static boolean jexlLexicalShade = false;
   private static boolean jexlConstCapture = false;
 
