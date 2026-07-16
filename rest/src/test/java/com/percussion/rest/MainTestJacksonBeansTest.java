@@ -60,12 +60,12 @@ class MainTestJacksonBeansTest {
   static class StaticJacksonSpringConfig {
     @Bean
     public static JacksonJsonProvider jacksonJsonProvider() {
-      return MainTest.ContextConfiguration.getJacksonJsonProvider();
+      return MainTest.ContextConfiguration.jacksonJsonProvider();
     }
 
     @Bean
     public static JacksonContextResolver jacksonContextResolver() {
-      return MainTest.ContextConfiguration.getContextResolver();
+      return MainTest.ContextConfiguration.jacksonContextResolver();
     }
   }
 
@@ -81,13 +81,13 @@ class MainTestJacksonBeansTest {
 
   @Test
   void staticJacksonJsonProviderBeanIsConstructible() {
-    JacksonJsonProvider provider = MainTest.ContextConfiguration.getJacksonJsonProvider();
+    JacksonJsonProvider provider = MainTest.ContextConfiguration.jacksonJsonProvider();
     assertNotNull(provider);
   }
 
   @Test
   void staticJacksonContextResolverBeanProvidesConfiguredMapper() {
-    JacksonContextResolver resolver = MainTest.ContextConfiguration.getContextResolver();
+    JacksonContextResolver resolver = MainTest.ContextConfiguration.jacksonContextResolver();
     assertNotNull(resolver);
 
     // Resolver only applies to com.percussion.rest.* types

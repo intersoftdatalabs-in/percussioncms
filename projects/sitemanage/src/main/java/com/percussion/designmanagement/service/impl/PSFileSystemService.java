@@ -195,10 +195,15 @@ public class PSFileSystemService implements IPSFileSystemService {
     // Containment is checked against the trusted root, not against an
     // input-derived parent, so traversal payloads like
     // "themes/../../etc/passwd" (which canonicalize outside the root)
-    // are rejected. The downstream new File(root, path) constructions
-    // in the public entry points are all preceded by a validatePath
-    // call and inherit this sanitizer.
-    File resolved = new File(getRootDirectory(), path);
+    // are rejected. Absolute inputs are resolved as-is (not re-rooted
+    // under rootDirectory): on Unix, `new File(root, "/etc/passwd")`
+    // re-parents to root+"/etc/passwd", which would hide absolute-path
+    // escapes; matching PSPathInjectionGuard.requireUnderBase.
+    // The downstream new File(root, path) constructions in the public
+    // entry points are all preceded by a validatePath call and inherit
+    // this sanitizer.
+    File candidate = new File(path);
+    File resolved = candidate.isAbsolute() ? candidate : new File(getRootDirectory(), path);
     String canonical;
     String rootCanonical;
     try {
@@ -208,9 +213,12 @@ public class PSFileSystemService implements IPSFileSystemService {
       throw new IllegalArgumentException(
           "Failed to resolve canonical path for input: " + path, e);
     }
-    String rootWithSep =
-        rootCanonical.endsWith(File.separator) ? rootCanonical : rootCanonical + File.separator;
-    if (!canonical.equals(rootCanonical) && !canonical.startsWith(rootWithSep)) {
+    // Normalize separators so Windows prefix checks are reliable
+    // (same approach as PSPathInjectionGuard.requireUnderBase).
+    String canonicalNorm = canonical.replace('\\', '/');
+    String rootNorm = rootCanonical.replace('\\', '/');
+    String rootWithSep = rootNorm.endsWith("/") ? rootNorm : rootNorm + "/";
+    if (!canonicalNorm.equals(rootNorm) && !canonicalNorm.startsWith(rootWithSep)) {
       throw new IllegalArgumentException(
           "Resolved path '"
               + canonical

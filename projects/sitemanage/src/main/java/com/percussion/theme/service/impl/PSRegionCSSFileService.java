@@ -599,9 +599,15 @@ public class PSRegionCSSFileService {
       // themes root. Rejects any path that resolves outside the
       // themes root, including "../escape" payloads.
       PSPathInjectionGuard.requireUnderBase(themesRoot, filePath);
+    } else if (!allowedRoots.isEmpty()) {
+      // Unit tests and non-Spring callers inject trusted roots via
+      // setAllowedRoots (T043c / #1209). Reuse requireSafeFilePath so
+      // public entry points (mergeFile, read, write, …) reject absolute
+      // paths that escape those roots even when themesRoot is unset.
+      requireSafeFilePath(filePath);
     } else {
-      // No themesRoot configured (legacy/test usage). Fall back to
-      // single-segment validation: reject path separators, NUL
+      // No themesRoot or allowedRoots configured (legacy usage). Fall
+      // back to single-segment validation: reject path separators, NUL
       // bytes, and ".." / "." segment markers. Callers that pass
       // absolute paths in this mode are out of contract.
       PSPathInjectionGuard.requireSafeFileName(new File(filePath).getName());

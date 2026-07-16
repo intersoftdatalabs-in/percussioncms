@@ -17919,5 +17919,35 @@ Documentación' href='https://percussioncmshelp.intsof.com/'&gt;percussioncmshel
 <seg>Nota: Los informes se enviarán por correo electrónico a la dirección de correo electrónico de su usuario. Para que los correos electrónicos de los informes se entreguen, el correo electrónico debe estar configurado en rxconfig/Workflow/rxworkflow.properties por el Administrador del Sistema.</seg>
 </tuv>
 </tu>
+<tu tuid="perc.ui.pathmanagement@Oops.  We can't find the site ">
+<prop type="sectionname" xml:lang="en-us">Error</prop>
+<note xml:lang="en-us"></note>
+<tuv xml:lang="en-us">
+<seg>Oops.  We can’t find the site </seg>
+</tuv>
+  <tuv xml:lang="es">
+<seg>Oops. No podemos encontrar el sitio </seg>
+</tuv>
+</tu>
+<tu tuid="perc.ui.pathmanagement@.  It may have been deleted.">
+<prop type="sectionname" xml:lang="en-us">Error</prop>
+<note xml:lang="en-us"></note>
+<tuv xml:lang="en-us">
+<seg>.  It may have been deleted.</seg>
+</tuv>
+  <tuv xml:lang="es">
+<seg>. Es posible que haya sido eliminado.</seg>
+</tuv>
+</tu>
+<tu tuid="perc.ui.pathmanagement@Oops. We're sorry. The requested page is no longer available.">
+<prop type="sectionname" xml:lang="en-us">Error</prop>
+<note xml:lang="en-us"></note>
+<tuv xml:lang="en-us">
+<seg>Oops. We’re sorry. The requested page is no longer available.</seg>
+</tuv>
+  <tuv xml:lang="es">
+<seg>Oops. Lo sentimos. La página solicitada ya no está disponible.</seg>
+</tuv>
+</tu>
     </body>
 </tmx>
