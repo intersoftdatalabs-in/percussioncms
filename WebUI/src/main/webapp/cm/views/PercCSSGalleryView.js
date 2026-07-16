@@ -60,23 +60,15 @@
               var $nameAsEntered = this.name;
               var $thumbUrl = this.thumbUrl;
               var $name = _dashify($nameAsEntered);
+              // renderGalleryEntry now binds the click handler directly
+              // on the freshly-built element. The previous
+              // `$("#theme-" + $name).on("click", ...)` binding threw
+              // an unrecoverable jQuery "Syntax error, unrecognized
+              // expression" whenever `name` contained a CSS-selector
+              // metacharacter, which a malicious theme name can do.
               $("#perc-themes-table-row").append(
                 renderGalleryEntry($name, $thumbUrl, $nameAsEntered)
               );
-
-              // Selecting the theme
-              $("#theme-" + $name).on("click", function () {
-                // if user clicks on any theme from the gallery, then set the dirty flag
-                dirtyController.setDirty(true, "style", saveCSS);
-
-                controller.setTemplateTheme($nameAsEntered, function (success) {
-                  // And finally, reset the save button.
-                  $("#perc-css-gallery-edit-save").removeClass(
-                    "ui-state-disabled"
-                  );
-                  selectTheme($name);
-                });
-              });
             });
 
             // And finally select the given bits
@@ -114,22 +106,49 @@
     // Send back one HTML fragment for a given gallery entry. Called from render() above.
 
     function renderGalleryEntry(name, thumbUrl, nameAsEntered) {
-      var output;
-
-      output =
-        '<td><div id="theme-' +
-        name +
-        '-container" class="perc-css-gallery-item" style="display: table-cell"><a id="theme-' +
-        name +
-        '" tabindex="0" title="' +
-        name +
-        '" role="button"  href="#"><img src="' +
-        thumbUrl +
-        '" alt="perc.ui.template.layout@Theme"/><br /><span class="perc-css-gallery-item-name" style="text-align: center">' +
-        nameAsEntered +
-        "</span></div></a></td>";
-
-      return output;
+      // Build the entry via the jQuery DOM API so user-controlled
+      // fields (name, thumbUrl, nameAsEntered) are never concatenated
+      // into an HTML string and parsed back into the DOM. jQuery's
+      // `.attr()` and `.text()` escape their arguments for the relevant
+      // context.
+      var $cell = $("<td/>");
+      var $container = $("<div/>", {
+        id: "theme-" + name + "-container",
+        class: "perc-css-gallery-item",
+      }).css("display", "table-cell");
+      var $link = $("<a/>", {
+        id: "theme-" + name,
+        tabindex: "0",
+        title: name,
+        role: "button",
+        href: "#",
+      });
+      $link.append(
+        $("<img/>", { src: thumbUrl, alt: "perc.ui.template.layout@Theme" }),
+        $("<br/>"),
+        $("<span/>", {
+          class: "perc-css-gallery-item-name",
+        })
+          .css("text-align", "center")
+          .text(nameAsEntered)
+      );
+      $container.append($link);
+      $cell.append($container);
+      // Bind the click handler on the freshly-built element rather than
+      // via `$("#theme-" + name)`, which throws an unrecoverable
+      // jQuery "Syntax error, unrecognized expression" whenever `name`
+      // contains a CSS-selector metacharacter (e.g. `<`, `>`, `"`).
+      // Delegated binding on the gallery root would also work but
+      // requires preserving per-entry state on the closure, so direct
+      // binding on the jQuery wrapper is simpler.
+      $link.on("click", function () {
+        dirtyController.setDirty(true, "style", saveCSS);
+        controller.setTemplateTheme(nameAsEntered, function (success) {
+          $("#perc-css-gallery-edit-save").removeClass("ui-state-disabled");
+          selectTheme(name);
+        });
+      });
+      return $cell;
     }
 
     // called on click of a theme to change the UI appropriately to reflect the newly selected theme.
