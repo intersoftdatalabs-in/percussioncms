@@ -48,7 +48,9 @@ import org.springframework.security.core.userdetails.UserDetails;
  * Security.
  *
  * @author Jay Seletz
+ * @deprecated This class is part of the deprecated secure-membership module.
  */
+@Deprecated
 public class PSMembershipAuthProvider extends AbstractUserDetailsAuthenticationProvider {
   private static final ThreadLocal<String> SESSION_ID = new ThreadLocal<>();
   private static final Client msClient = ClientBuilder.newClient();

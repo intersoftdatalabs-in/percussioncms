@@ -58,16 +58,16 @@ body {
 ----------------------------------*/
 
 .vspan_2 {
-  height: 120px;
+  min-height: 120px;
 }
 .vspan_4 {
-  height: 240px;
+  min-height: 240px;
 }
 .vspan_6 {
-  height: 360px;
+  min-height: 360px;
 }
 .vspan_8 {
-  height: 480px;
+  min-height: 480px;
 }
 
 .hspan_2 {
@@ -1350,16 +1350,16 @@ a.perc-navigation-skiplink:hover {
 
 /* old perc_decoration.css entries */
 .vspan_2 {
-  height: 120px;
+  min-height: 120px;
 }
 .vspan_4 {
-  height: 240px;
+  min-height: 240px;
 }
 .vspan_6 {
-  height: 360px;
+  min-height: 360px;
 }
 .vspan_8 {
-  height: 480px;
+  min-height: 480px;
 }
 .hspan_2 {
   width: 160px;
@@ -1452,16 +1452,16 @@ body {
 ----------------------------------*/
 
 .vspan_2 {
-  height: 120px;
+  min-height: 120px;
 }
 .vspan_4 {
-  height: 240px;
+  min-height: 240px;
 }
 .vspan_6 {
-  height: 360px;
+  min-height: 360px;
 }
 .vspan_8 {
-  height: 480px;
+  min-height: 480px;
 }
 
 .hspan_2 {
@@ -2744,16 +2744,16 @@ a.perc-navigation-skiplink:hover {
 
 /* old perc_decoration.css entries */
 .vspan_2 {
-  height: 120px;
+  min-height: 120px;
 }
 .vspan_4 {
-  height: 240px;
+  min-height: 240px;
 }
 .vspan_6 {
-  height: 360px;
+  min-height: 360px;
 }
 .vspan_8 {
-  height: 480px;
+  min-height: 480px;
 }
 .hspan_2 {
   width: 160px;

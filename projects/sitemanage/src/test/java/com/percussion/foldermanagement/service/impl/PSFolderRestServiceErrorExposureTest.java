@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2025 Percussion Software, Inc.
+ * Copyright 1999-2026 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,17 +20,21 @@ package com.percussion.foldermanagement.service.impl;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
 
+import com.percussion.foldermanagement.data.PSWorkflowAssignment;
 import com.percussion.foldermanagement.service.IPSFolderService;
 import com.percussion.foldermanagement.service.IPSFolderService.PSWorkflowAssignmentInProgressException;
 import com.percussion.foldermanagement.service.IPSFolderService.PSWorkflowNotFoundException;
-import com.percussion.share.dao.IPSGenericDao.LoadException;
 import com.percussion.pathmanagement.service.IPSPathService.PSPathNotFoundServiceException;
+import com.percussion.share.dao.IPSGenericDao.LoadException;
+import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.Response;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -74,6 +78,27 @@ class PSFolderRestServiceErrorExposureTest {
   void setUp() {
     MockitoAnnotations.openMocks(this);
     folderService = new PSFolderRestService(mockFolderService);
+  }
+
+  @Test
+  @DisplayName("Should not expose PSWorkflowNotFoundException details and should HTML-encode user input in startGetAssociatedFoldersJob")
+  void testStartGetAssociatedFoldersJobWorkflowNotFound() throws Exception {
+    String badWorkflow = "<script>alert(1)</script>";
+    when(mockFolderService.startGetAssignedFoldersJob(badWorkflow, "path", false))
+        .thenThrow(new PSWorkflowNotFoundException("Internal DB Error details"));
+
+    try {
+      folderService.startGetAssociatedFoldersJob(badWorkflow, "path", false);
+      fail("Expected WebApplicationException");
+    } catch (WebApplicationException e) {
+      Response response = e.getResponse();
+      assertEquals(404, response.getStatus());
+      assertEquals("text/plain", response.getMediaType().toString());
+      String entity = (String) response.getEntity();
+      assertTrue(entity.contains("&lt;script&gt;"));
+      assertFalse(entity.contains("<script>"));
+      assertFalse(entity.contains("Internal DB Error details"));
+    }
   }
 
   @Test
