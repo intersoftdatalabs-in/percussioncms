@@ -35,6 +35,8 @@ import java.io.InputStreamReader;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * This base tag implements behavior used by the header and sidenav tags
@@ -42,6 +44,8 @@ import java.util.Set;
  * @author dougrand
  */
 public abstract class PSPageBaseTag implements Tag {
+  private static final Logger log = LogManager.getLogger(PSPageBaseTag.class);
+
   protected PSComponentUrls m_urls = null;
 
   protected PageContext m_context = null;
@@ -83,30 +87,30 @@ public abstract class PSPageBaseTag implements Tag {
         requestparams.put(name, extra.get(name));
       }
     }
-    String url = m_urls.getComponentUrl(componentname);
-    // Remove parameters that are overridden
-    Set<String> keys = requestparams.keySet();
-    if (keys.size() > 0 && url.contains("?")) {
-      String parts[] = url.split("\\u003f");
-      StringBuilder b = new StringBuilder(parts[0]);
-      String params[] = parts[1].split("&");
-      boolean first = true;
-      for (int i = 0; i < params.length; i++) {
-        parts = params[i].split("=");
-        if (!keys.contains(parts[0])) {
-          if (first) {
-            b.append('?');
-            first = false;
-          } else {
-            b.append('&');
-          }
-          b.append(params[i]);
-        }
-      }
-      url = b.toString();
-    }
-
     try {
+      String url = m_urls.getComponentUrl(componentname);
+      // Remove parameters that are overridden
+      Set<String> keys = requestparams.keySet();
+      if (keys.size() > 0 && url.contains("?")) {
+        String parts[] = url.split("\\u003f");
+        StringBuilder b = new StringBuilder(parts[0]);
+        String params[] = parts[1].split("&");
+        boolean first = true;
+        for (int i = 0; i < params.length; i++) {
+          parts = params[i].split("=");
+          if (!keys.contains(parts[0])) {
+            if (first) {
+              b.append('?');
+              first = false;
+            } else {
+              b.append('&');
+            }
+            b.append(params[i]);
+          }
+        }
+        url = b.toString();
+      }
+
       PSRequest req = (PSRequest) PSRequestInfo.getRequestInfo(PSRequestInfo.KEY_PSREQUEST);
       PSInternalRequest ireq = PSServer.getInternalRequest(url, req, requestparams, false, null);
       ByteArrayOutputStream os = ireq.getMergedResult();
@@ -123,7 +127,19 @@ public abstract class PSPageBaseTag implements Tag {
       }
       return (String) enc.encode(b.toString());
     } catch (Exception e) {
-      return e.getLocalizedMessage();
+      // CodeQL java/error-message-exposure (alert #1728): the previous implementation
+      // returned e.getLocalizedMessage() to the caller, which PSPageSidenavTag then wrote
+      // to the JSP output via out.print(...), exposing internal exception details to the
+      // end user (CWE-209). Log the detail server-side and return a generic empty string;
+      // the JSP layer (PSPageSidenavTag.doStartTag) already converts any failure into a
+      // generic JspException message, so dropping the body here keeps the user-visible
+      // surface free of internal exception text.
+      log.error(
+          "Problem while loading component URL content for component={}: {}",
+          componentname,
+          e.getMessage(),
+          e);
+      return "";
     }
   }
 
