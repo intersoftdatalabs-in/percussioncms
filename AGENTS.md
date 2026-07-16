@@ -16,7 +16,7 @@ This repository is a large mono-repo with many modules.  This code base has a lo
 - **Primary Configuration:** `./AGENTS.md`
 - **Repo Temp Dir:** `./tmp`
 - **Repo Script Dir:** `./scripts`
-- **Repo Skills Dir:** `./modules/ai-shared-development/src/main/resources/skills`
+- **Repo Skills Dir:** `./modules/ai-shared-develop/src/main/resources/skills`
 - **Stack**: Java 21, Spring, Hibernate, Artemis, React, JSP, jQuery, XML, XSL, JUnit 5, Mockito
 
 ## Key Terms
@@ -41,6 +41,19 @@ This repository is a large mono-repo with many modules.  This code base has a lo
    * If local files exist, their instructions **supersede** global rules for that module's logic.
    * `AGENTS.local.md` takes precedence over `AGENTS.md`.
    * If no local files are found, default strictly to the root-level instructions.
+
+## Pre-commit code review (Erlang)
+
+Before `git commit`, `git push`, or opening/updating a GitHub PR for changes you authored:
+
+1. Run a **strict Erlang** review (independent of the implementer persona).
+2. Canonical agent: `modules/ai-shared-develop/src/main/resources/agents/erlang-code-review.md`
+3. Skill: `modules/ai-shared-develop/src/main/resources/skills/erlang-review/SKILL.md`
+4. **Kilo (preferred):** workflow `/erlang-review` (`.kilocode/workflows/erlang-review.md`); project rule `.kilocode/rules/pre-commit-review.md` also applies.
+5. Any **bug** finding, or missing **behavioral** unit tests for new/changed non-trivial logic, is a **hard gate** — do not commit or open the PR until fixed and re-reviewed.
+6. Optional report path: `tmp/reviews/` (repo temp dir).
+
+Tool-agnostic one-shot prompt: `modules/ai-shared-develop/src/main/resources/prompts/erlang-review-uncommitted.md`.
 
 ## **Project Rules**
 

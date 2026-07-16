@@ -47,7 +47,10 @@
           //////////////////////////////////
           // Iterate over each theme entry
           //////////////////////////////////
-          var themes = data.ThemeSummary;
+                    var themes = data ? (data.ThemeSummary || data) : [];
+          if (!Array.isArray(themes)) {
+              themes = themes ? [themes] : [];
+          }
           root.append(
             "<table id='perc-themes-table'><tr id='perc-themes-table-row'></tr><table>"
           );

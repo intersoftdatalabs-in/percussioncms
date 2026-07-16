@@ -1,7 +1,7 @@
 // REFACTORED: CP-JAVA11
 
 /*
- * Copyright 1999-2025 Percussion Software, Inc.
+ * Copyright 1999-2026 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@
 package com.percussion.category.data;
 
 import com.percussion.server.PSRequest;
+import com.percussion.server.PSUserSessionManager;
 import com.percussion.share.service.exception.PSDataServiceException;
 import com.percussion.user.service.IPSUserService;
 import java.io.File;
@@ -27,6 +28,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.codehaus.jettison.json.JSONException;
@@ -74,9 +76,10 @@ public class PSCategoryLockInfo {
   }
 
   /**
-   * Reads lock info from file.
+   * Reads lock info from file. Clears and returns null when the lock session is stale (no longer
+   * exists) — GH-1182 / v8.1.7 PR #1173.
    *
-   * @return lock info as JSONObject, or null if not found/invalid
+   * @return lock info as JSONObject, or null if not found/invalid/stale
    */
   public static JSONObject getLockInfo() {
     var file = new File(LOCK_INFO_FILE);
@@ -88,21 +91,51 @@ public class PSCategoryLockInfo {
       if (lockInfoBytes.length == 0) {
         return null;
       }
-      return new JSONObject(new String(lockInfoBytes, StandardCharsets.UTF_8));
+      var jsonObject = new JSONObject(new String(lockInfoBytes, StandardCharsets.UTF_8));
+      if (isLockStale(jsonObject)) {
+        removeLockInfo();
+        return null;
+      }
+      return jsonObject;
     } catch (IOException | JSONException e) {
       log.error("Exception reading lock info file - PSCategoryLockInfo.getLockInfo()", e);
       return null;
     }
   }
 
-  /** Removes the lock info file if it exists. */
-  public static void removeLockInfo() {
-    var jsonObject = getLockInfo();
-    if (jsonObject != null) {
-      var file = new File(LOCK_INFO_FILE);
-      if (file.exists() && file.delete()) {
-        log.debug("Lock info file deleted successfully.");
+  /**
+   * Returns true when the lock's sessionId no longer maps to a live user session.
+   *
+   * <p>Package-visible for unit tests.
+   */
+  static boolean isLockStale(JSONObject jsonObject) {
+    if (jsonObject == null) {
+      return false;
+    }
+    try {
+      var sessionId = jsonObject.getString("sessionId");
+      if (StringUtils.isNotBlank(sessionId)
+          && PSUserSessionManager.getUserSession(sessionId) == null) {
+        log.debug(
+            "Removing stale category tab lock for sessionId: {} - session no longer exists",
+            sessionId);
+        return true;
       }
+    } catch (JSONException e) {
+      log.error(
+          "JSON Exception occurred while validating lock - PSCategoryLockInfo.isLockStale()", e);
+    }
+    return false;
+  }
+
+  /**
+   * Removes the lock info file if it exists. Does not call {@link #getLockInfo()} (would recurse
+   * into stale-session checks).
+   */
+  public static void removeLockInfo() {
+    var file = new File(LOCK_INFO_FILE);
+    if (file.exists() && file.delete()) {
+      log.debug("Lock info file deleted successfully.");
     }
   }
 }

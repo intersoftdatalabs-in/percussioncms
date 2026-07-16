@@ -134,6 +134,27 @@ public class PSMetadataQueryService implements IPSMetadataQueryService {
       }
     }
 
+    // Fast path: no criteria (common for global category trees). Complex Q1–Q4
+    // builder assumes at least one filter and produces invalid HQL when empty
+    // (v8.1.7 #782 / GH-748).
+    if (entryCrit.isEmpty() && propsCrit.isEmpty()) {
+      String hql =
+          "SELECT distinct count(p.entry.id), p.name, p.stringvalue "
+              + "FROM PSDbMetadataProperty p "
+              + "WHERE p.name = 'perc:category' "
+              + "GROUP BY p.name, p.stringvalue "
+              + "ORDER BY p.stringvalue";
+      log.debug("{}", hql);
+      try (Session session = getSession()) {
+        Query hq = session.createQuery(hql);
+        cats = hq.getResultList();
+      } catch (Exception e) {
+        log.error("Simple category query failed: {}", e.getMessage());
+        log.debug(PSExceptionUtils.getDebugMessageForLog(e));
+      }
+      return cats;
+    }
+
     StringBuilder Q4WhereClause = null;
     String clauseTemplate = " e.{0} {1} :{2}";
     int paramIndex = 0;
@@ -219,13 +240,20 @@ public class PSMetadataQueryService implements IPSMetadataQueryService {
       }
     }
 
-    StringBuilder Q2 =
-        new StringBuilder(
-            "select distinct p2.entry.id from PSDbMetadataProperty p2 where p2.entry.id in( ");
+    // After empty-criteria fast path return, at least one of Q3/Q4 is non-null.
+    StringBuilder Q2;
     if (Q3 != null) {
-      Q2.append(Q3).append(" )");
-    } else if (Q4 != null) {
-      Q2.append(Q4).append(" )");
+      Q2 =
+          new StringBuilder(
+                  "select distinct p2.entry.id from PSDbMetadataProperty p2 where p2.entry.id in( ")
+              .append(Q3)
+              .append(" )");
+    } else {
+      Q2 =
+          new StringBuilder(
+                  "select distinct p2.entry.id from PSDbMetadataProperty p2 where p2.entry.id in( ")
+              .append(Q4)
+              .append(" )");
     }
 
     StringBuilder Q1 =

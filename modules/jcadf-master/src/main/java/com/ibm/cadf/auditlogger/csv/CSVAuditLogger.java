@@ -32,9 +32,7 @@ public class CSVAuditLogger extends AuditLogger {
 
   private static CSVAuditLogger instance;
 
-  private CSVAuditLogger() {
-    writeFieldNames();
-  }
+  private CSVAuditLogger() {}
 
   public static CSVAuditLogger getInstance() {
 
@@ -52,6 +50,7 @@ public class CSVAuditLogger extends AuditLogger {
 
   @Override
   public void writeLog(Event auditEvent) {
+    writeFieldNames();
 
     BufferedWriter writer = null;
 

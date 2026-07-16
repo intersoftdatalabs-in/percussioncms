@@ -41,11 +41,12 @@ public class JsonAuditLoggerTest {
   @Test
   public void testJsonAuditing() throws CADFException, IOException {
 
-    File file = new File(Constants.JSON_AUDIT_FILES_NAME);
+    File file = new File("target/" + Constants.JSON_AUDIT_FILES_NAME);
     if (file.exists()) {
       file.delete();
     }
     AuditLogger auditLogger = AuditLoggerFactory.getAuditLogger(Constants.AUDIT_FORMAT_TYPE_JSON);
+    auditLogger.setOutputFilePath("target/" + Constants.JSON_AUDIT_FILES_NAME);
     String initiatorId = Identifier.generateUniqueId();
     Resource initiator = new Resource(initiatorId);
     initiator.setTypeURI("/testcase");
