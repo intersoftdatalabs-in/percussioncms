@@ -722,7 +722,13 @@ public class PSJndiUtils {
     if (filterPattern != null) {
       buf.append("(|");
       for (String s : filterPattern) {
-        String filter = s;
+        // Escape RFC 4515 filter metacharacters FIRST so a crafted value
+        // such as "*)(objectClass=*" cannot break out of the surrounding
+        // parentheses (CWE-90 / CodeQL java/ldap-injection, alert #648).
+        // Intentional application wildcards use FILTER_MATCH_MANY ('%'),
+        // which escapeLdapFilter leaves alone; processFilter then converts
+        // '%' to the LDAP wildcard '*'. Order matters: escape-then-wildcard.
+        String filter = escapeLdapFilter(s);
 
         // only support '%', convert to '*'
         filter = processFilter(filter);

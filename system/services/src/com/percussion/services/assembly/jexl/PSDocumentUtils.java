@@ -191,8 +191,41 @@ public class PSDocumentUtils extends PSJexlUtilBase
    }
 
    /**
+    * Validates {@code url} for SSRF and returns a request URI built from the
+    * validated URL object. Package-visible for unit tests (alerts #1066 /
+    * #1067).
+    *
+    * @param url external URL string, never {@code null}
+    * @return URI derived from the validated URL
+    * @throws MalformedURLException if the URL is malformed
+    * @throws IOException if SSRF validation fails or the URL cannot be converted
+    */
+   URI buildValidatedExternalRequestUri(String url)
+         throws MalformedURLException, IOException
+   {
+      // Validate URL and use the *returned* URL for the outbound request.
+      // CodeQL's java/ssrf taint analysis does not treat a void validation
+      // call as a sanitizer when the sink still consumes the raw string
+      // (alerts #1066 / #1067). Derive the request URI from the validated
+      // URL object so the data flow is clear (same pattern as T037 /
+      // PSProxyQueryResource).
+      java.net.URL validatedUrl;
+      try {
+         validatedUrl = URLValidation.validateURLString(url);
+      } catch (SecurityException e) {
+         throw new IOException("SSRF validation failed: " + e.getMessage(), e);
+      }
+
+      try {
+         return validatedUrl.toURI();
+      } catch (java.net.URISyntaxException e) {
+         throw new IOException("Invalid validated URL: " + url, e);
+      }
+   }
+
+   /**
     * Call an external url for a document using the given user name and
-    * password.
+    * password. The URL is validated for SSRF before any HTTP request is sent.
     *
     * @param url the url of the request, assumed not <code>null</code>
     * @param user the user name, may be <code>null</code>
@@ -205,12 +238,7 @@ public class PSDocumentUtils extends PSJexlUtilBase
    private String getExternalDocument(String url, String user, String password)
          throws UnknownHostException, MalformedURLException, IOException
    {
-      // Validate URL to prevent SSRF attacks (CWE-918)
-      try {
-         URLValidation.validateURLString(url);
-      } catch (SecurityException e) {
-         throw new IOException("SSRF validation failed: " + e.getMessage(), e);
-      }
+      final URI requestUri = buildValidatedExternalRequestUri(url);
 
       HttpClient client =
             HttpClient.newBuilder()
@@ -218,8 +246,12 @@ public class PSDocumentUtils extends PSJexlUtilBase
                   .connectTimeout(Duration.ofSeconds(30))
                   .build();
 
+      // codeql[java/ssrf] justification: requestUri is derived from
+      // URLValidation.validateURLString's return value (alerts #1066/#1067).
+      // validateURLString rejects private IPs, cloud metadata hosts, and
+      // non-http(s) schemes before the request is built. See suppressions.md.
       HttpRequest.Builder requestBuilder =
-            HttpRequest.newBuilder(URI.create(url))
+            HttpRequest.newBuilder(requestUri)
                   .GET()
                   .timeout(Duration.ofSeconds(60));
 
@@ -232,6 +264,8 @@ public class PSDocumentUtils extends PSJexlUtilBase
 
       try
       {
+         // codeql[java/ssrf] justification: same validated requestUri as above
+         // (alert #1067 sink is client.send). See suppressions.md.
          HttpResponse<String> response = client.send(
                requestBuilder.build(),
                HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));

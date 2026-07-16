@@ -207,15 +207,25 @@ public class PSDtdTree implements Serializable, PSDtdTreeVisitor, Cloneable {
         in = new BufferedInputStream(new FileInputStream(realPath));
         charSet = PSCharSets.rxStdEnc();
       } else {
-        // open the URL and get the content and its character set
-        // Validate URL to prevent SSRF attacks (CWE-918)
+        // open the URL and get the content and its character set.
+        // Validate and open the *returned* URL so CodeQL's java/ssrf
+        // taint analysis sees the sink fed from a sanitized value
+        // (alert #726). A void validateURL(dtdURL) followed by
+        // dtdURL.openConnection() leaves the original object tainted.
+        URL validatedUrl;
         try {
-          URLValidation.validateURL(dtdURL);
+          validatedUrl = URLValidation.validateURLString(dtdURL.toExternalForm());
         } catch (SecurityException e) {
           throw new IOException("SSRF validation failed: " + e.getMessage(), e);
         }
 
-        URLConnection conn = dtdURL.openConnection();
+        // codeql[java/ssrf] justification: openConnection is called on the
+        // URL returned by URLValidation.validateURLString (alert #726).
+        // Private ranges, cloud metadata, and non-http(s) schemes are
+        // rejected before this sink. See suppressions.md.
+        URLConnection conn = validatedUrl.openConnection();
+        // Keep parseDtd's base URL aligned with what we actually fetched.
+        dtdURL = validatedUrl;
 
         String contentType = conn.getHeaderField("Content-Type");
         if (contentType != null) {

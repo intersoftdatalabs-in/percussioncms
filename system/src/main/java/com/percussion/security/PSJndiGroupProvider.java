@@ -197,6 +197,13 @@ public class PSJndiGroupProvider implements IPSGroupProvider {
         if (locationInfo.mi_groupFilter != null) {
           fullSearchFilter = "(& " + locationInfo.mi_groupFilter + " " + searchFilter + ")";
         } else fullSearchFilter = searchFilter;
+        // codeql[java/ldap-injection] justification: user-supplied filter
+        // values reach getFilterString, which escapes RFC 4515 metacharacters
+        // via PSJndiUtils.escapeLdapFilter before interpolating them, then
+        // converts intentional '%' wildcards to LDAP '*'. A payload such as
+        // "*)(objectClass=*" becomes a single literal assertion value and
+        // cannot break out of its surrounding parentheses (alert #648 /
+        // T040 residual, contracts/C2).
         results = ctx.search("", fullSearchFilter, ctls);
         while (results.hasMore()) {
           /* add the group, appending the current context to the relative

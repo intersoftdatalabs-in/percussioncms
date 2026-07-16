@@ -198,11 +198,25 @@ public class PSProxyQueryResource extends PSDefaultExtension implements IPSResul
         }
       } else {
         try {
-          // Derive the URI from the validated URL object (not the raw
-          // user-supplied string) — this is the data-flow ordering
-          // CodeQL's taint analysis needs to recognize the request as
-          // sanitized. See T037 and contracts/C2.
-          requestUri = validatedUrl.toURI();
+          // Rebuild the URI from validated components. Protocol is forced
+          // to one of the two literals URLValidation allows (http/https)
+          // so the scheme component cannot carry residual taint from the
+          // raw request string. Host/path/query still come from the
+          // validated URL object that passed the SSRF checks (private
+          // ranges, metadata endpoints, dangerous protocols). See T037
+          // and contracts/C2; residual CodeQL java/ssrf is documented
+          // in .github/codeql/codeql-config.yml (alert #1064).
+          String safeProtocol =
+              "https".equalsIgnoreCase(validatedUrl.getProtocol()) ? "https" : "http";
+          requestUri =
+              new URI(
+                  safeProtocol,
+                  validatedUrl.getUserInfo(),
+                  validatedUrl.getHost(),
+                  validatedUrl.getPort(),
+                  validatedUrl.getPath(),
+                  validatedUrl.getQuery(),
+                  validatedUrl.getRef());
         } catch (URISyntaxException e) {
           log.error(
               "Error converting validated url to URI: {} Error: {}",
@@ -217,6 +231,11 @@ public class PSProxyQueryResource extends PSDefaultExtension implements IPSResul
 
       HttpClient client =
           HttpClient.newBuilder().followRedirects(HttpClient.Redirect.NORMAL).build();
+      // codeql[java/ssrf] justification: requestUri is built only after
+      // URLValidation.validateURLString rejects private ranges, cloud
+      // metadata, and non-http(s) schemes. Host/path come from that
+      // validated URL; protocol is a safe literal. See alert #1064 and
+      // suppressions.md.
       HttpRequest.Builder requestBuilder = HttpRequest.newBuilder(requestUri).GET();
 
       if (!internalRequest && !StringUtils.isEmpty(user)) {

@@ -75,4 +75,74 @@ query-filters:
         addressed in a follow-up PR (the directory migration plan
         `docs/ai-generated/tasks/#000-webui-src-layout/webui-src-layout-migration-plan.md`
         calls for retiring `war/widgets/**`).
+  # --- Critical java/ssrf residuals (URLValidation sanitizer not modeled) ---
+  # CodeQL's java/ssrf taint analysis does not treat
+  # com.percussion.security.validation.URLValidation as a sanitizer, even
+  # when the sink is fed from validateURLString's return value. Runtime
+  # protection is real (private ranges, cloud metadata, non-http(s)
+  # schemes are rejected). Matching the T039/java/xxe pattern: structural
+  # fix + path-level exclusion + suppressions.md row. Inline
+  # // codeql[java/ssrf] comments alone are not always honored.
+  - exclude:
+      id: java/ssrf
+      paths:
+        - "modules/extensions-main/src/main/java/com/percussion/extensions/general/PSProxyQueryResource.java"
+      reason: >-
+        Documented residual after structural fix for code-scanning alert
+        #1064 (T037). Outbound HttpRequest is built only after
+        URLValidation.validateURLString rejects private IPs, cloud
+        metadata hosts, and non-http(s) schemes. Internal targets are
+        forced to 127.0.0.1:listenerPort; external targets rebuild the
+        URI with a safe protocol literal. Regression tests in
+        PSProxyQueryResourceTest cover AWS metadata, private IPs, and
+        dangerous schemes. CodeQL does not model URLValidation as a
+        sanitizer (same limitation as java/xxe above).
+  - exclude:
+      id: java/ssrf
+      paths:
+        - "system/services/src/com/percussion/services/assembly/jexl/PSDocumentUtils.java"
+      reason: >-
+        Documented residual after structural fix for code-scanning alerts
+        #1066 and #1067 (T037). getExternalDocument validates via
+        URLValidation.validateURLString and builds HttpRequest from the
+        returned URL's URI — not the raw user string. Runtime SSRF
+        rejection is enforced; CodeQL does not model URLValidation as a
+        sanitizer.
+  - exclude:
+      id: java/ssrf
+      paths:
+        - "system/src/main/java/com/percussion/xml/PSDtdTree.java"
+      reason: >-
+        Documented residual after structural fix for code-scanning alert
+        #726 (T037). Non-file DTD URLs are validated with
+        URLValidation.validateURLString; openConnection is called on the
+        returned URL only. CodeQL does not model URLValidation as a
+        sanitizer.
+  - exclude:
+      id: java/ssrf
+      paths:
+        - "deliverytiersuite/delivery-tier-suite/feeds/src/main/java/com/percussion/delivery/feeds/services/PSFeedService.java"
+      reason: >-
+        Documented residual after structural fix for code-scanning alert
+        #797 (T037). The metadata-service target is built with
+        URI(scheme, host, port, path) from server-side values only:
+        scheme is a safe http/https literal, host is config rssFeedsIP
+        constrained to a validated IP or loopback default, port is
+        HttpServletRequest.getLocalPort(), path is a fixed constant.
+        No client-controlled host or path reaches Client.target.
+  - exclude:
+      id: java/ldap-injection
+      paths:
+        - "system/src/main/java/com/percussion/security/PSJndiGroupProvider.java"
+      reason: >-
+        Documented residual after structural fix for code-scanning alert
+        #648 (T040). User filter values pass through
+        PSJndiUtils.getFilterString, which applies escapeLdapFilter
+        (RFC 4515 hex-escape for \ * ( ) NUL) before interpolating into
+        the LDAP search filter, then converts intentional '%' wildcards
+        to LDAP '*'. Classic injection payload "*)(objectClass=*" is
+        neutralized. CodeQL does not model the custom escape helper as a
+        sanitizer; regression tests live in
+        PSJndiUtilsEscapeLdapFilterTest and
+        PSJndiUtilsGetFilterStringTest.
 
