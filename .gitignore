@@ -36,6 +36,7 @@ node_modules/
 *.ipr
 *.iws
 *.class
+system/release/tomcat/Tomcat/common/endorsed/
 
 derby.log
 null
