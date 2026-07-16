@@ -27,6 +27,7 @@ import static org.springframework.util.CollectionUtils.isEmpty;
 
 import com.percussion.rx.publisher.PSRxPublisherServiceLocator;
 import com.percussion.security.error.PSExceptionUtils;
+import com.percussion.security.validation.PathValidation;
 import com.percussion.security.xml.PSSecureXMLUtils;
 import com.percussion.security.xml.PSXmlSecurityOptions;
 import com.percussion.server.PSServer;
@@ -172,6 +173,12 @@ public class PSSiteConfigUtils {
    * @return a String, never <code>null</code>.
    */
   public static String getSecureFilesPath(String sitename) {
+    if (!PathValidation.isValidFilename(sitename)) {
+      throw new PathValidation.SecurityException(
+          "Site name contains path-traversal or separator characters: "
+              + sitename
+              + " (CWE-22)");
+    }
     String path = getSitesConfigPath();
 
     path += (path.endsWith("/")) ? sitename : "/" + sitename;
@@ -288,8 +295,19 @@ public class PSSiteConfigUtils {
    *
    * @param sitename the name of the site, assumed not blank.
    * @return the configure folder, never <code>null</code>.
+   * @throws SecurityException if {@code sitename} contains a path-traversal sequence (e.g. {@code
+   *     ..}) or a separator, allowing it to escape {@code SitesConfig}. The {@link
+   *     PathValidation#isValidFilename(String)} check defends against the CodeQL {@code
+   *     java/path-injection} alerts on every downstream call site that uses {@link
+   *     #getSiteConfigFolder(String)} (alerts #1059, #1060, #1061, #1062).
    */
   private static File getSiteConfigFolder(String sitename) {
+    if (!PathValidation.isValidFilename(sitename)) {
+      throw new PathValidation.SecurityException(
+          "Site name contains path-traversal or separator characters: "
+              + sitename
+              + " (CWE-22)");
+    }
     File siteConfigFolder = new File(getSitesConfigPath(), sitename);
     return siteConfigFolder;
   }
