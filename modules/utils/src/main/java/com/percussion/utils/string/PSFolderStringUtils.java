@@ -46,24 +46,15 @@ public class PSFolderStringUtils {
     int i = 0;
 
     for (String path : folderPaths) {
+      // Split the path on '%' (documented wildcard) and \Q-quote each literal segment with
+      // Pattern.quote so any regex meta-characters in user input are treated as literals.
+      // Re-join the segments with ".*" between them so '%' still functions as a wildcard.
       StringBuilder matchpath = new StringBuilder(path.length() + 5);
-      for (int j = 0; j < path.length(); j++) {
-        char ch = path.charAt(j);
-        if (Character.isLetterOrDigit(ch) || Character.isWhitespace(ch) || ch == '/') {
-          matchpath.append(ch);
-        } else if (ch == '%') {
+      String[] segments = path.split("%", -1);
+      for (int s = 0; s < segments.length; s++) {
+        matchpath.append(Pattern.quote(segments[s]));
+        if (s < segments.length - 1) {
           matchpath.append(".*");
-        } else {
-          // Quote everything else to be safe
-          matchpath.append("\\u");
-          String hex = Integer.toHexString(ch);
-          if (hex.length() < 4) {
-            int diff = 4 - hex.length();
-            if (diff > 0) {
-              hex = "0000".substring(4 - diff) + hex;
-            }
-          }
-          matchpath.append(hex);
         }
       }
       path = matchpath.toString();

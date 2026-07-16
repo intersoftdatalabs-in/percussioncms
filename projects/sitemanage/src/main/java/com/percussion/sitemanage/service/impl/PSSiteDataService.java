@@ -128,6 +128,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOCase;
 import org.apache.commons.io.filefilter.SuffixFileFilter;
@@ -1792,12 +1794,16 @@ public class PSSiteDataService extends PSAbstractDataService<PSSite, PSSiteSumma
         if (replaceVal != null) {
           for (String original : replaceMappings.keySet()) {
             String replacement = replaceMappings.get(original);
+            String quotedOriginal = Pattern.quote(original);
+            String quotedReplacement = Matcher.quoteReplacement(replacement);
             if (replaceVal.contains(original + '/')) {
-              replaceVal = replaceVal.replaceFirst(original + '/', replacement + '/');
+              replaceVal =
+                  replaceVal.replaceFirst(quotedOriginal + '/', quotedReplacement + '/');
             } else if (replaceVal.contains(original + '%')) {
-              replaceVal = replaceVal.replaceFirst(original + '%', replacement + '%');
+              replaceVal =
+                  replaceVal.replaceFirst(quotedOriginal + '%', quotedReplacement + '%');
             } else {
-              replaceVal = replaceVal.replaceFirst(original, replacement);
+              replaceVal = replaceVal.replaceFirst(quotedOriginal, quotedReplacement);
             }
           }
 
@@ -1871,7 +1877,9 @@ public class PSSiteDataService extends PSAbstractDataService<PSSite, PSSiteSumma
       String copySiteName = copySite.getName();
       String origSiteName = origSite.getName();
 
-      String origPagePath = pagePath.replaceFirst(copySiteName, origSiteName);
+      String origPagePath =
+          pagePath.replaceFirst(
+              Pattern.quote(copySiteName), Matcher.quoteReplacement(origSiteName));
       PSPage origPage = pageDao.findPageByPath(origPagePath);
 
       Collection<String> assetIds = null;
