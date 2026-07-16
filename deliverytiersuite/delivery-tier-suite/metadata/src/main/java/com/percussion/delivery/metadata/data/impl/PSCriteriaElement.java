@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.regex.Pattern;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 
@@ -108,14 +109,14 @@ public class PSCriteriaElement {
                 }
               } else {
                 // Make sure its a number and nothing else so sql does not get spoofed
-                if (!val.matches("[-+]?[0-9]*\\.?[0-9]+")) {
+                if (!NUMERIC_PATTERN.matcher(val).matches()) {
                   throw new PSMalformedMetadataQueryException(MALFORMED + rawCriteria);
                 }
               }
             }
           } else if (!(value.startsWith("'") && value.endsWith("'"))) {
             // Make sure its a number and nothing else so sql does not get spoofed
-            if (!value.matches("[-+]?[0-9]*\\.?[0-9]+")) {
+            if (!NUMERIC_PATTERN.matcher(value).matches()) {
               throw new PSMalformedMetadataQueryException(MALFORMED + rawCriteria);
             }
           }
@@ -232,4 +233,21 @@ public class PSCriteriaElement {
     OPERATORS.put("<", OPERATION_TYPE.LESS_THAN);
     OPERATORS.put(">", OPERATION_TYPE.GREATER_THAN);
   }
+
+  /**
+   * Numeric literal accepted in a non-string criteria value. Three unambiguous branches so the
+   * regular expression cannot backtrack on adversarial input:
+   *
+   * <ul>
+   *   <li>{@code [-+]?\d+\.\d+} - signed decimal with a required integer part (e.g. {@code -5.5})
+   *   <li>{@code [-+]?\.\d+} - signed decimal without an integer part (e.g. {@code .5})
+   *   <li>{@code [-+]?\d+} - signed integer (e.g. {@code 23})
+   * </ul>
+   *
+   * Equivalent in accepted/rejected strings to the previous {@code [-+]?[0-9]*\.?[0-9]+} pattern
+   * (which had overlapping {@code [0-9]*} / {@code [0-9]+} quantifiers flagged by CodeQL
+   * {@code java/polynomial-redos} at PSCriteriaElement.java:111 and :118).
+   */
+  private static final Pattern NUMERIC_PATTERN =
+      Pattern.compile("[-+]?(\\d+\\.\\d+|\\.\\d+|\\d+)");
 }
