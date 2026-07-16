@@ -15,14 +15,18 @@
  */
 package com.percussion.ant.install;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import com.percussion.utils.io.PathUtils;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import org.apache.tools.ant.BuildException;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -31,6 +35,24 @@ import org.junit.jupiter.api.io.TempDir;
 class PSValidateRepositoryConnectionTest {
 
   @TempDir Path tempDir;
+
+  private String previousRxDeployDir;
+
+  @BeforeEach
+  void captureRxDeployDir() {
+    previousRxDeployDir = System.getProperty(PathUtils.DEPLOY_DIR_PROP);
+    PathUtils.clearRxDir();
+  }
+
+  @AfterEach
+  void restoreRxDeployDir() {
+    PathUtils.clearRxDir();
+    if (previousRxDeployDir != null) {
+      System.setProperty(PathUtils.DEPLOY_DIR_PROP, previousRxDeployDir);
+    } else {
+      System.clearProperty(PathUtils.DEPLOY_DIR_PROP);
+    }
+  }
 
   @Test
   void missingRepositoryPropertiesFails() {
@@ -65,6 +87,14 @@ class PSValidateRepositoryConnectionTest {
     // Empty jdbc dir — InstallUtil may still attempt connect; either path must fail closed
     Files.createDirectories(tempDir.resolve("jetty/base/lib/jdbc"));
 
+    // Simulate pollution left by PSAction.setRootDir (e.g. PSPkgConfigFileEmptyConditionTest)
+    // pointing at a deleted temp directory.
+    Path stale = tempDir.resolve("already-deleted");
+    Files.createDirectories(stale);
+    System.setProperty(PathUtils.DEPLOY_DIR_PROP, stale.toAbsolutePath().toString());
+    Files.delete(stale);
+    PathUtils.clearRxDir();
+
     PSValidateRepositoryConnection task = new PSValidateRepositoryConnection();
     task.setRootDir(tempDir.toString());
     task.setLoginTimeoutSeconds(2);
@@ -76,6 +106,28 @@ class PSValidateRepositoryConnectionTest {
     assertTrue(
         PSValidateRepositoryConnection.messageDoesNotContainSecret(ex.getMessage(), secret),
         () -> "password leaked in: " + ex.getMessage());
+  }
+
+  @Test
+  void bindInstallRootPointsPathUtilsAtRoot() {
+    PSValidateRepositoryConnection.bindInstallRoot(tempDir.toString());
+    assertEquals(
+        tempDir.toAbsolutePath().normalize().toString(),
+        PathUtils.getRxDir().getAbsolutePath());
+    assertEquals(
+        tempDir.toAbsolutePath().normalize().toString(),
+        System.getProperty(PathUtils.DEPLOY_DIR_PROP));
+  }
+
+  @Test
+  void bindInstallRootRejectsMissingDirectory() {
+    BuildException ex =
+        assertThrows(
+            BuildException.class,
+            () ->
+                PSValidateRepositoryConnection.bindInstallRoot(
+                    tempDir.resolve("does-not-exist").toString()));
+    assertTrue(ex.getMessage().toLowerCase().contains("does not exist"));
   }
 
   @Test

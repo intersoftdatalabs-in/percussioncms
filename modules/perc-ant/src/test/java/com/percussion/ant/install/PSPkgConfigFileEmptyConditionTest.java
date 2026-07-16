@@ -20,10 +20,12 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.percussion.security.xml.PSSecureXMLUtils;
+import com.percussion.utils.io.PathUtils;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -41,9 +43,23 @@ public class PSPkgConfigFileEmptyConditionTest {
   private static final String TEST_CFG_FILE_EMPTY =
       "/com/percussion/ant/install/perc.SystemObjects_defaultConfig_Empty.xml";
 
+  private String previousRxDeployDir;
+
   @BeforeEach
   public void setup() {
     PSSecureXMLUtils.setupJAXPDefaults();
+    previousRxDeployDir = System.getProperty(PathUtils.DEPLOY_DIR_PROP);
+  }
+
+  @AfterEach
+  public void teardown() {
+    // PSAction.setRootDir sets rxdeploydir; restore so later tests do not see a deleted @TempDir.
+    PathUtils.clearRxDir();
+    if (previousRxDeployDir != null) {
+      System.setProperty(PathUtils.DEPLOY_DIR_PROP, previousRxDeployDir);
+    } else {
+      System.clearProperty(PathUtils.DEPLOY_DIR_PROP);
+    }
   }
 
   @Test
