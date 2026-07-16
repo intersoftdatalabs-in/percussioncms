@@ -102,7 +102,7 @@
 					<isset property="isLinux" />
 					<then>
 						<echo>Setting executable Permissions</echo>
-						<chmod perm="o+x" failifexecutionfails="false"
+						<chmod perm="ugo+x" failifexecutionfails="false"
 							failonerror="false" includes="**/*.sh" dir="${install.dir}" />
 					</then>
 				</if>

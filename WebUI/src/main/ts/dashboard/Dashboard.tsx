@@ -85,7 +85,8 @@ const AVAILABLE_GADGETS: GadgetInfo[] = [
     name: "Activity",
     component: ActivityWidget,
     description: "Recent content activity timeline",
-    category: "Content Management",
+    // GadgetRegistry.xml group "Deprecated" (v8.1.7 #722 / #885)
+    category: "Deprecated",
   },
   {
     id: "process-monitor",
@@ -176,7 +177,8 @@ const AVAILABLE_GADGETS: GadgetInfo[] = [
     name: "Membership",
     component: MembershipWidget,
     description: "User membership information and statistics",
-    category: "System",
+    // GadgetRegistry.xml group "Deprecated" (v8.1.7 #722 / #885)
+    category: "Deprecated",
   },
   {
     id: "sitewide-framework",
@@ -190,7 +192,8 @@ const AVAILABLE_GADGETS: GadgetInfo[] = [
     name: "Siteimprove",
     component: SiteimproveWidget,
     description: "Accessibility and quality metrics from Siteimprove",
-    category: "Analytics",
+    // GadgetRegistry.xml group "Deprecated" (v8.1.7 #722 / #885)
+    category: "Deprecated",
   },
   {
     id: "iframe",
@@ -211,9 +214,11 @@ const AVAILABLE_GADGETS: GadgetInfo[] = [
     name: "Dashboard Configuration",
     component: WidgetConfigurationWidget,
     description: "Manage dashboard widgets and configuration",
-    category: "System",
+    // GadgetRegistry.xml group "Deprecated" (v8.1.7 #722 / #885)
+    category: "Deprecated",
   },
 ];
+
 const DEFAULT_GADGETS: DashboardWidget[] = [
   {
     id: "welcome",
