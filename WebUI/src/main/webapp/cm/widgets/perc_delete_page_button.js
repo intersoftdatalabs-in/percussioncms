@@ -709,11 +709,11 @@
           }
         },
         function (request) {
-          var msg = $.PercServiceUtils.extractDefaultErrorMessage(request);
-          $.perc_utils.alert_dialog({
-            title: I18N.message("perc.ui.publish.title@Error"),
-            content: msg,
-          });
+          // Silently disable delete button on transient path lookup failure after create/rename.
+          $(".perc-finder-menu #perc-finder-delete")
+            .removeClass("ui-enabled")
+            .addClass("ui-disabled")
+            .off("click");
         }
       );
     }

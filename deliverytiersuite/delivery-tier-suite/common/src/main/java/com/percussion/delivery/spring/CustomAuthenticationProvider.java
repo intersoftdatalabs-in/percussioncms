@@ -26,6 +26,11 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationToken;
 import org.springframework.stereotype.Component;
 
+/**
+ * @deprecated This class is part of the deprecated secure-membership/DTS spring security
+ *     integration.
+ */
+@Deprecated
 @Component
 public class CustomAuthenticationProvider
     implements AuthenticationUserDetailsService<PreAuthenticatedAuthenticationToken> {

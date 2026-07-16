@@ -269,6 +269,13 @@ public class Main {
           }
           System.out.println("Creating file " + entryDest);
           Files.copy(archive.getInputStream(entry), entryDest);
+          // Preserve executable permissions for shell scripts (v8.1.7 #515 / GH-510)
+          if (entryName.endsWith(".sh")) {
+            File sh = entryDest.toFile();
+            if (!sh.setExecutable(true, false)) {
+              log.warn("Could not set executable bit on extracted script: {}", entryDest);
+            }
+          }
         } catch (SecurityException se) {
           // ZipSlip or path traversal attack detected
           log.warn("Rejected malicious zip entry: {} - {}", entryName, se.getMessage());

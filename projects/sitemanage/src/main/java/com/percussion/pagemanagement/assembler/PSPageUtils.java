@@ -613,6 +613,45 @@ public class PSPageUtils extends PSJexlUtilBase {
   }
 
   @IPSJexlMethod(
+      description =
+          "Process framework content. If the content is a URL, wrap it in a script or link tag.",
+      params = {@IPSJexlParam(name = "source", description = "The raw content to process")},
+      returns = "The processed content")
+  public String processFrameworkContent(String source) {
+    if (isBlank(source)) {
+      return "";
+    }
+    String trimmed = source.trim();
+    if (trimmed.contains("<") && trimmed.contains(">")) {
+      return source;
+    }
+    if (trimmed.startsWith("http://")
+        || trimmed.startsWith("https://")
+        || trimmed.startsWith("//")
+        || trimmed.startsWith("/")) {
+      String path = trimmed;
+      int queryIdx = path.indexOf('?');
+      if (queryIdx != -1) {
+        path = path.substring(0, queryIdx);
+      }
+      int hashIdx = path.indexOf('#');
+      if (hashIdx != -1) {
+        path = path.substring(0, hashIdx);
+      }
+      path = path.trim();
+      // Case-insensitive extension match; escape attribute value to prevent breakout/XSS
+      String pathLower = path.toLowerCase();
+      String safeUrl = StringEscapeUtils.escapeHtml4(trimmed);
+      if (pathLower.endsWith(".js")) {
+        return "<script src=\"" + safeUrl + "\"></script>";
+      } else if (pathLower.endsWith(".css")) {
+        return "<link rel=\"stylesheet\" href=\"" + safeUrl + "\" />";
+      }
+    }
+    return source;
+  }
+
+  @IPSJexlMethod(
       description = "Strip canonical link",
       params = {
         @IPSJexlParam(name = "source", description = "The source that may contain canonical link")
@@ -2869,10 +2908,9 @@ public class PSPageUtils extends PSJexlUtilBase {
       serverBase = deliveryInfoService.findBaseByServerType(PSPubServer.STAGING);
     } else {
       if (serverId != null && pubServer != null) {
-        var maybeServerName =
-            pubServer.getProperty("publishServer").map(PSPubServerProperty::getValue).orElse(null);
-        if (maybeServerName != null) {
-          serverBase = deliveryInfoService.findBaseByServerName(maybeServerName);
+        var publishServer = pubServer.getPublishServer().orElse(null);
+        if (publishServer != null) {
+          serverBase = deliveryInfoService.findBaseByServerName(publishServer);
         } else {
           serverBase = deliveryInfoService.findBaseByServerType(PSPubServer.PRODUCTION);
         }

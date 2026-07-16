@@ -78,8 +78,10 @@ public class PSWidgetServiceValidationTest {
       // Some expected widgets still present to ensure file is valid and not accidentally truncated
       assertTrue(allWidgetNames.contains("EMS Event List"), "Community widget EMS Event List should remain");
       assertTrue(allWidgetNames.contains("Archives"), "Percussion group widget Archives should remain");
-      assertTrue(allWidgetNames.contains("Flash"), "Flash remains listed under Deprecated (removal de-listed only)");
-      assertTrue(deprecatedWidgets.contains("Flash"), "Flash should be in Deprecated group");
+      // Flash removed completely - should not be present in any group
+      assertFalse(
+          allWidgetNames.contains("Flash"),
+          "Flash should have been removed from WidgetRegistry.xml");
 
       // Community group should no longer contain Evergage
       assertFalse(

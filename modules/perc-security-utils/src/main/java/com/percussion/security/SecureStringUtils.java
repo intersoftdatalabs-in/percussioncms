@@ -1450,6 +1450,9 @@ public class SecureStringUtils {
    * @return The sanitized string
    */
   public static String sanitizeStringForHTML(String str) {
+    if (str == null) {
+      return null;
+    }
     return Encode.forHtml(str);
   }
 
