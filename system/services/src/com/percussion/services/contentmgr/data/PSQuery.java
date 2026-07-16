@@ -33,14 +33,19 @@ import javax.jcr.Node;
 import javax.jcr.PathNotFoundException;
 import javax.jcr.RepositoryException;
 import javax.jcr.UnsupportedRepositoryOperationException;
+import javax.jcr.Value;
 import javax.jcr.lock.LockException;
 import javax.jcr.nodetype.ConstraintViolationException;
+import javax.jcr.query.InvalidQueryException;
 import javax.jcr.query.Query;
 import javax.jcr.query.QueryResult;
 import javax.jcr.version.VersionException;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -117,10 +122,71 @@ public class PSQuery implements Query
    /** (non-Javadoc)
     * @see javax.jcr.query.Query#execute()
     */
-   public QueryResult execute() throws RepositoryException
+   public QueryResult execute() throws InvalidQueryException, RepositoryException
    {
       IPSContentMgr cm = PSContentMgrLocator.getContentMgr();
       return cm.executeQuery(this, -1, null);
+   }
+
+   private long m_limit = -1;
+   private long m_offset = 0;
+   private final Map<String, Value> m_bindValues = new HashMap<>();
+
+   @Override
+   public void bindValue(String varName, Value value)
+         throws IllegalArgumentException, RepositoryException
+   {
+      if (StringUtils.isBlank(varName))
+      {
+         throw new IllegalArgumentException("varName may not be null or empty");
+      }
+      if (value == null)
+      {
+         throw new IllegalArgumentException("value may not be null");
+      }
+      m_bindValues.put(varName, value);
+   }
+
+   @Override
+   public String[] getBindVariableNames() throws RepositoryException
+   {
+      return m_bindValues.keySet().toArray(new String[0]);
+   }
+
+   @Override
+   public void setLimit(long limit)
+   {
+      m_limit = limit;
+   }
+
+   @Override
+   public void setOffset(long offset)
+   {
+      m_offset = offset;
+   }
+
+   /**
+    * @return bound limit, or {@code -1} if unlimited (JCR default semantics for unset)
+    */
+   public long getLimit()
+   {
+      return m_limit;
+   }
+
+   /**
+    * @return bound offset (default 0)
+    */
+   public long getOffset()
+   {
+      return m_offset;
+   }
+
+   /**
+    * @return unmodifiable view of bind values for content manager use
+    */
+   public Map<String, Value> getBoundValues()
+   {
+      return Collections.unmodifiableMap(m_bindValues);
    }
 
    /** (non-Javadoc)

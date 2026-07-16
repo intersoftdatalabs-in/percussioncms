@@ -16,8 +16,12 @@
  */
 package com.percussion.utils.jsr170;
 
+import java.io.InputStream;
+import java.math.BigDecimal;
+import javax.jcr.Binary;
 import javax.jcr.RepositoryException;
 import javax.jcr.Value;
+import javax.jcr.ValueFormatException;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
@@ -34,6 +38,37 @@ public abstract class PSBaseValue<Type> implements Value, IPSJcrCacheItem {
 
   /** Hold string value once loaded */
   protected String m_strValue = null;
+
+  /**
+   * Default JCR 2.0 {@link Value#getBinary()} implementation: wraps {@link #getStream()} in a
+   * buffered {@link PSBinary}.
+   */
+  @Override
+  public Binary getBinary() throws RepositoryException {
+    InputStream stream = getStream();
+    if (stream == null) {
+      return new PSBinary(new byte[0]);
+    }
+    return new PSBinary(stream);
+  }
+
+  /**
+   * Default JCR 2.0 {@link Value#getDecimal()} implementation via {@link #getString()}.
+   *
+   * @throws ValueFormatException if the string form is not a valid decimal
+   */
+  @Override
+  public BigDecimal getDecimal() throws ValueFormatException, RepositoryException {
+    String s = getString();
+    if (s == null || s.trim().isEmpty()) {
+      throw new ValueFormatException("Empty value cannot be converted to decimal");
+    }
+    try {
+      return new BigDecimal(s.trim());
+    } catch (NumberFormatException e) {
+      throw new ValueFormatException(e);
+    }
+  }
 
   /*
    * (non-Javadoc)

@@ -179,6 +179,151 @@ public class PSValuesTest {
   }
 
   @Test
+  public void testJcr20BinaryAndDecimal() throws Exception {
+    PSValueFactory fact = new PSValueFactory();
+    Value longVal = fact.createValue(42L);
+    assertEquals(new java.math.BigDecimal("42"), longVal.getDecimal());
+    assertNotNull(longVal.getBinary());
+    assertEquals(2L, longVal.getBinary().getSize());
+
+    byte[] data = new byte[] {1, 2, 3, 4};
+    javax.jcr.Binary binary = fact.createBinary(new ByteArrayInputStream(data));
+    assertEquals(4L, binary.getSize());
+    Value fromBinary = fact.createValue(binary);
+    assertNotNull(fromBinary.getBinary());
+
+    Value fromDecimal = fact.createValue(new java.math.BigDecimal("3.5"));
+    assertEquals(3.5d, fromDecimal.getDouble(), 0.0001);
+  }
+
+  @Test
+  public void testPropertyDefinitionQueryMetadata() {
+    PSPropertyDefinition def =
+        new PSPropertyDefinition("rx:title", false, PropertyType.STRING, new StubNodeType());
+    assertTrue(def.isFullTextSearchable());
+    assertTrue(def.isQueryOrderable());
+    assertTrue(def.getAvailableQueryOperators().length > 0);
+  }
+
+  /** Minimal node type stub for property definition construction in unit tests. */
+  private static final class StubNodeType implements javax.jcr.nodetype.NodeType {
+    @Override
+    public String getName() {
+      return "stub";
+    }
+
+    @Override
+    public String[] getDeclaredSupertypeNames() {
+      return new String[0];
+    }
+
+    @Override
+    public boolean isAbstract() {
+      return false;
+    }
+
+    @Override
+    public boolean isMixin() {
+      return false;
+    }
+
+    @Override
+    public boolean hasOrderableChildNodes() {
+      return false;
+    }
+
+    @Override
+    public boolean isQueryable() {
+      return true;
+    }
+
+    @Override
+    public String getPrimaryItemName() {
+      return null;
+    }
+
+    @Override
+    public javax.jcr.nodetype.PropertyDefinition[] getDeclaredPropertyDefinitions() {
+      return new javax.jcr.nodetype.PropertyDefinition[0];
+    }
+
+    @Override
+    public javax.jcr.nodetype.NodeDefinition[] getDeclaredChildNodeDefinitions() {
+      return new javax.jcr.nodetype.NodeDefinition[0];
+    }
+
+    @Override
+    public boolean canAddChildNode(String childNodeName) {
+      return false;
+    }
+
+    @Override
+    public boolean canAddChildNode(String childNodeName, String nodeTypeName) {
+      return false;
+    }
+
+    @Override
+    public boolean canRemoveItem(String itemName) {
+      return false;
+    }
+
+    @Override
+    public boolean canRemoveNode(String nodeName) {
+      return false;
+    }
+
+    @Override
+    public boolean canRemoveProperty(String propertyName) {
+      return false;
+    }
+
+    @Override
+    public boolean canSetProperty(String propertyName, Value value) {
+      return false;
+    }
+
+    @Override
+    public boolean canSetProperty(String propertyName, Value[] values) {
+      return false;
+    }
+
+    @Override
+    public javax.jcr.nodetype.NodeDefinition[] getChildNodeDefinitions() {
+      return new javax.jcr.nodetype.NodeDefinition[0];
+    }
+
+    @Override
+    public javax.jcr.nodetype.PropertyDefinition[] getPropertyDefinitions() {
+      return new javax.jcr.nodetype.PropertyDefinition[0];
+    }
+
+    @Override
+    public javax.jcr.nodetype.NodeType[] getDeclaredSupertypes() {
+      return new javax.jcr.nodetype.NodeType[0];
+    }
+
+    @Override
+    public javax.jcr.nodetype.NodeTypeIterator getDeclaredSubtypes() {
+      return null;
+    }
+
+    @Override
+    public javax.jcr.nodetype.NodeType[] getSupertypes() {
+      return new javax.jcr.nodetype.NodeType[0];
+    }
+
+    @Override
+    public javax.jcr.nodetype.NodeTypeIterator getSubtypes() {
+      return null;
+    }
+
+    @Override
+    public boolean isNodeType(String nodeTypeName) {
+      return false;
+    }
+  }
+
+  @Test
   public void testRuntimeCheck() throws Exception {
     Value d = PSValueFactory.createValue((Object) 1.2);
     assertEquals(PropertyType.DOUBLE, d.getType());

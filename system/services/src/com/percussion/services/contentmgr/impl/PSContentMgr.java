@@ -53,10 +53,16 @@ import javax.jcr.Node;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 import javax.jcr.UnsupportedRepositoryOperationException;
+import javax.jcr.nodetype.InvalidNodeTypeDefinitionException;
 import javax.jcr.nodetype.NoSuchNodeTypeException;
 import javax.jcr.nodetype.NodeDefinition;
+import javax.jcr.nodetype.NodeDefinitionTemplate;
 import javax.jcr.nodetype.NodeType;
+import javax.jcr.nodetype.NodeTypeDefinition;
+import javax.jcr.nodetype.NodeTypeExistsException;
 import javax.jcr.nodetype.NodeTypeIterator;
+import javax.jcr.nodetype.NodeTypeTemplate;
+import javax.jcr.nodetype.PropertyDefinitionTemplate;
 import javax.jcr.query.InvalidQueryException;
 import javax.jcr.query.Query;
 import javax.jcr.query.QueryResult;
@@ -128,6 +134,81 @@ public class PSContentMgr  implements IPSContentMgr
    public NodeTypeIterator getMixinNodeTypes()
    {
       throw new UnsupportedOperationException("Not implemented");
+   }
+
+   @Override
+   public boolean hasNodeType(String nodeTypeName) throws RepositoryException
+   {
+      throw new UnsupportedRepositoryOperationException(
+            "Node type manager hasNodeType is not implemented");
+   }
+
+   @Override
+   public NodeTypeTemplate createNodeTypeTemplate()
+         throws UnsupportedRepositoryOperationException, RepositoryException
+   {
+      throw new UnsupportedRepositoryOperationException(
+            "Node type templates are not supported");
+   }
+
+   @Override
+   public NodeTypeTemplate createNodeTypeTemplate(NodeTypeDefinition ntd)
+         throws UnsupportedRepositoryOperationException, RepositoryException
+   {
+      throw new UnsupportedRepositoryOperationException(
+            "Node type templates are not supported");
+   }
+
+   @Override
+   public NodeDefinitionTemplate createNodeDefinitionTemplate()
+         throws UnsupportedRepositoryOperationException, RepositoryException
+   {
+      throw new UnsupportedRepositoryOperationException(
+            "Node definition templates are not supported");
+   }
+
+   @Override
+   public PropertyDefinitionTemplate createPropertyDefinitionTemplate()
+         throws UnsupportedRepositoryOperationException, RepositoryException
+   {
+      throw new UnsupportedRepositoryOperationException(
+            "Property definition templates are not supported");
+   }
+
+   @Override
+   public NodeType registerNodeType(NodeTypeDefinition ntd, boolean allowUpdate)
+         throws InvalidNodeTypeDefinitionException, NodeTypeExistsException,
+         UnsupportedRepositoryOperationException, RepositoryException
+   {
+      throw new UnsupportedRepositoryOperationException(
+            "Dynamic node type registration is not supported");
+   }
+
+   @Override
+   public NodeTypeIterator registerNodeTypes(NodeTypeDefinition[] ntds, boolean allowUpdate)
+         throws InvalidNodeTypeDefinitionException, NodeTypeExistsException,
+         UnsupportedRepositoryOperationException, RepositoryException
+   {
+      throw new UnsupportedRepositoryOperationException(
+            "Dynamic node type registration is not supported");
+   }
+
+   @Override
+   public void unregisterNodeType(String name)
+         throws UnsupportedRepositoryOperationException, NoSuchNodeTypeException,
+         RepositoryException
+   {
+      throw new UnsupportedRepositoryOperationException(
+            "Dynamic node type unregistration is not supported");
+   }
+
+   @Override
+   public void unregisterNodeTypes(String[] names)
+         throws UnsupportedRepositoryOperationException, NoSuchNodeTypeException,
+         RepositoryException
+   {
+      throw new UnsupportedRepositoryOperationException(
+            "Dynamic node type unregistration is not supported");
    }
 
    /**
@@ -498,6 +579,13 @@ public class PSContentMgr  implements IPSContentMgr
    {
       return new String[]
       {Query.SQL, Query.XPATH};
+   }
+
+   @Override
+   public javax.jcr.query.qom.QueryObjectModelFactory getQOMFactory()
+   {
+      throw new UnsupportedOperationException(
+            "JCR Query Object Model (JQOM) is not supported by the CMS content manager");
    }
 
    /*
