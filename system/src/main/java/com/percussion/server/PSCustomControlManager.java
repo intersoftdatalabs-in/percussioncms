@@ -227,12 +227,24 @@ public class PSCustomControlManager extends PSBaseControlManager {
    * @return <code>true</code> if the file is a control file, <code>false</code> otherwise.
    */
   private boolean isControlFile(File file) {
+    if (file.isDirectory()) {
+      return false;
+    }
+
+    String fileName = file.getName();
+    if (fileName.endsWith(".bak")
+        || fileName.endsWith(".tmp")
+        || fileName.endsWith("~")
+        || fileName.endsWith(".old")
+        || fileName.endsWith(".backup")) {
+      return false;
+    }
+
     boolean isControlFile = false;
 
     String ext = ".xsl";
-    String fileName = file.getName();
     String filePath = file.getAbsolutePath();
-    if (!file.getName().endsWith(ext)) {
+    if (!fileName.endsWith(ext)) {
       Object[] args = {filePath};
 
       PSConsole.printMsg(SUBSYSTEM, IPSServerErrors.INVALID_CTRL_FILE_EXT, args);

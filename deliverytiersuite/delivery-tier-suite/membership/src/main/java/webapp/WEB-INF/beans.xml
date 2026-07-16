@@ -72,7 +72,7 @@
             <!-- default properties for encrypting -->
             <prop key="encryption.type">ENC</prop>
             <!-- default properties for Spring Security -->
-            <prop key="contentSecurityPolicy">default-src 'self' *;</prop>
+            <prop key="contentSecurityPolicy">default-src 'self' *; img-src * 'self' data: blob:;</prop>
 
             <!-- default properties for email service -->
             <prop key="email.hostName"></prop>

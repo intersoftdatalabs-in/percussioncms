@@ -1,4 +1,4 @@
-﻿# Code Scanning Triage Inventory — intersoftdatalabs-in/percussioncms
+# Code Scanning Triage Inventory — intersoftdatalabs-in/percussioncms
 
 **Branch**: `004-zero-code-scanning-alerts`
 **Generated**: 2026-07-11 (seeded from `scripts/fetch-gh-code-scanning-alerts.sh`)

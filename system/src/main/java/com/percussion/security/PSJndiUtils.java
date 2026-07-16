@@ -485,6 +485,55 @@ public class PSJndiUtils {
   }
 
   /**
+   * Escapes reserved characters in the provided LDAP assertion value per RFC 4515 §3 so it
+   * can be safely interpolated into an LDAP search filter. Escapes the four
+   * metacharacters that the JNDI LDAP provider treats specially — {@code \}, {@code *},
+   * {@code (}, {@code )} — and the NUL byte, using the {@code \HH} hex-escape form.
+   *
+   * <p>Without this, an untrusted DN component concatenated into a filter can break out
+   * of the surrounding parentheses and inject new clauses (e.g. {@code *)(objectClass=*})
+   * — the classic CWE-90 LDAP injection vector that CodeQL flags as
+   * {@code java/ldap-injection}. The escape is applied at the boundary so the
+   * un-escaped value is never passed to {@code javax.naming.directory.DirContext.search}.
+   *
+   * <p>Behavior matches the OWASP LDAP Injection Prevention Cheat Sheet
+   * (https://cheatsheetseries.owasp.org/cheatsheets/LDAP_Injection_Prevention_Cheat_Sheet.html).
+   *
+   * @param value the assertion value to escape. {@code null} returns an empty string;
+   *             empty string returns as-is
+   * @return the escaped value, never {@code null} (always at least "")
+   * @see #escapeDnComponent(String) for escaping DN component values per RFC 4514
+   *      (different syntax; do not confuse the two)
+   */
+  public static String escapeLdapFilter(String value) {
+    if (value == null || value.isEmpty()) return value == null ? "" : value;
+    StringBuilder buf = new StringBuilder(value.length() + 8);
+    for (int i = 0; i < value.length(); i++) {
+      char c = value.charAt(i);
+      switch (c) {
+        case '\\':
+          buf.append("\\5c");
+          break;
+        case '*':
+          buf.append("\\2a");
+          break;
+        case '(':
+          buf.append("\\28");
+          break;
+        case ')':
+          buf.append("\\29");
+          break;
+        case '\0':
+          buf.append("\\00");
+          break;
+        default:
+          buf.append(c);
+      }
+    }
+    return buf.toString();
+  }
+
+  /**
    * Escapes reserved characters in the provided name so that it is a valid dn component. Escapes
    * the list of chars in {@link #DN_ESCAPE_CHARS} by preceding them with a backslash. Will skip
    * escaping them if they are already escaped.
