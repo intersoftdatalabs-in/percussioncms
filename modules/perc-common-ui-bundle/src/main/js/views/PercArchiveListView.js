@@ -143,7 +143,12 @@
                       "?filter=" +
                       encodeURIComponent(row.year) +
                       encodedQuery;
-                    anchorYear = $("<a>").attr("href", href).text(linkYearText);
+                    // CodeQL js/xss-through-dom (alert #980): href is built from
+                    // user-supplied year data; sanitize before assigning to
+                    // anchor's href to neutralize javascript:/data: schemes.
+                    anchorYear = $("<a>")
+                      .attr("href", $.PercServiceUtils.sanitizeUrlForHref(href))
+                      .text(linkYearText);
                   }
 
                   yearLi = $("<li>")
@@ -214,7 +219,13 @@
                         "?filter=" +
                         encodeURIComponent(row2.month + " " + row.year) +
                         encodedQuery;
-                      a = $("<a>").attr("href", href).text(linkText);
+                      // CodeQL js/xss-through-dom (alert #981): href is built
+                      // from user-supplied year/month data; sanitize before
+                      // assigning to anchor's href to neutralize javascript:/
+                      // data: schemes.
+                      a = $("<a>")
+                        .attr("href", $.PercServiceUtils.sanitizeUrlForHref(href))
+                        .text(linkText);
                     }
 
                     li = $("<li>").addClass("perc-archive-month").append(a);
@@ -314,7 +325,10 @@
                       "?filter=" +
                       encodeURIComponent(row2.month + " " + row.year) +
                       encodedQuery;
-                    a = $("<a>").attr("href", href).text(linkText);
+                    // CodeQL js/xss-through-dom (alert #982): see #980 above.
+                    a = $("<a>")
+                      .attr("href", $.PercServiceUtils.sanitizeUrlForHref(href))
+                      .text(linkText);
                   }
 
                   var li = $("<li>").addClass("perc-archive-month").append(a);

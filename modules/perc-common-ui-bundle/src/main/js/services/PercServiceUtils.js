@@ -588,6 +588,77 @@
     return !csrfSafe;
   }
 
+  /**
+   * Sanitizes a URL string before it is assigned to an anchor element's
+   * {@code href} attribute. Returns the input unchanged when it begins with
+   * a scheme considered safe in the browser context (http, https, mailto,
+   * tel), or a relative/path/fragment reference ("/", "#", or anything with no
+   * scheme prefix). Any other scheme — in particular {@code javascript:},
+   * {@code data:}, {@code vbscript:}, and the various obfuscated variants
+   * (e.g. {@code JaVa\nScRiPt:}, whitespace-padded) — is replaced with
+   * {@code about:blank#blocked} so the browser cannot be tricked into
+   * executing attacker-controlled code via a clicked link (CWE-79 /
+   * js/xss-through-dom).
+   *
+   * <p>The set of dangerous schemes comes from the OWASP XSS Filter
+   * Evasion Cheat Sheet: any URL whose effective scheme is not on the allow
+   * list is considered untrusted. The comparison is performed on a
+   * lowercased, control-stripped prefix so a value like
+   * {@code "  javascript:alert(1)"} still triggers the sanitizer.
+   *
+   * <p>This helper is exported on {@code $.PercServiceUtils.sanitizeUrlForHref}
+   * for use across the widget views (CodeQL js/xss-through-dom, alerts
+   * #980-#993 for {@code modules/perc-common-ui-bundle/}). Callers SHOULD
+   * prefer it over assigning raw user-controlled values to {@code href}.
+   *
+   * @param {string} url the candidate URL, may be null/undefined
+   * @return {string} the original URL when its scheme is safe; otherwise a
+   *     neutralized string ("about:blank#blocked") that the browser will
+   *     navigate to harmlessly.
+   */
+  function sanitizeUrlForHref(url) {
+    if (typeof url !== "string" || url.length === 0) {
+      return "about:blank#blocked";
+    }
+    // Lower-case and strip ASCII control characters / whitespace before
+    // sniffing the scheme so obfuscated prefixes like "  javascript:" or
+    // "java\tscript:" still match. The browser is more permissive here than
+    // us by default, so we cannot rely on URL parsing alone.
+    var probe = url.toLowerCase().replace(/[\u0000-\u001f\s]+/g, "");
+    // Allow-list of safe schemes for href contexts.
+    // - http(s): standard web links (still subject to target=_blank
+    //   rel=noopener protections elsewhere).
+    // - mailto/tel: launch external handlers, no script execution.
+    // - /, #, or any value with no scheme prefix at all: relative path or
+    //   fragment; the browser resolves these against the current document.
+    // We also accept "about:blank" itself for the neutralized return path.
+    if (
+      probe === "about:blank" ||
+      probe.indexOf("http://") === 0 ||
+      probe.indexOf("https://") === 0 ||
+      probe.indexOf("mailto:") === 0 ||
+      probe.indexOf("tel:") === 0 ||
+      probe.charAt(0) === "/" ||
+      probe.charAt(0) === "#" ||
+      probe.charAt(0) === "?"
+    ) {
+      return url;
+    }
+    // Bareword relative URLs (no scheme): "page.html", "blog/post-1".
+    // These are safe because the browser interprets them as same-origin
+    // relative references. We test against the *stripped* probe because a
+    // bareword like "java\tscript:alert(1)" would otherwise match the
+    // scheme regex below even though it isn't actually a bareword.
+    if (!/^[a-z][a-z0-9+.\-]*:/.test(probe)) {
+      return url;
+    }
+    // Disallow: javascript:, data:, vbscript:, file:, blob:, chrome:, and any
+    // other scheme not on the allow-list. Replace with a same-document
+    // neutral target so existing event listeners (e.g. analytics click
+    // handlers) still receive a click event.
+    return "about:blank#blocked";
+  }
+
   function getVersion() {
     //Version can't be empty as it is illegal to have an empty header
     return typeof $.getCMSVersion === "function" ? $.getCMSVersion() : "8.0";
@@ -953,5 +1024,6 @@
     convertMapToArray: convertMapToArray,
     joinURL: joinURL,
     toJSON: toJSON,
+    sanitizeUrlForHref: sanitizeUrlForHref,
   };
 })(jQuery);

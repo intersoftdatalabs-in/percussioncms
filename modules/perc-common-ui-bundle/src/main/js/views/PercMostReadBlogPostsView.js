@@ -104,7 +104,10 @@
         .text(title)
         .css("cursor", "pointer")
         .on("click", function () {
-          window.location = pagePath;
+          // CodeQL js/xss-through-dom (alert #986): pagePath is built from
+          // entry.folder + entry.name; sanitize before navigation so a value
+          // like "javascript:..." cannot execute via the click handler.
+          window.location = $.PercServiceUtils.sanitizeUrlForHref(pagePath);
         })
     );
 
@@ -140,7 +143,9 @@
             "class",
             "perc-no-update-link-text perc-most-read-list-more-link"
           )
-          .attr("href", pagePath)
+          // CodeQL js/xss-through-dom (alert #987): see #986 - pagePath flows
+          // from server data into the anchor href; sanitize.
+          .attr("href", $.PercServiceUtils.sanitizeUrlForHref(pagePath))
           .attr("title", entry.linktext)
           .text(settings.readMoreLink);
         if (null !== data && typeof data !== undefined) {
