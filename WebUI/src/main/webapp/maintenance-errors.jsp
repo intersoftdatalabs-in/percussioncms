@@ -21,13 +21,11 @@
         .perc-warning-message { width:500px; text-align:center;}
         .perc-warning-message a { color: #CCCCCC; text-decoration: none; font-weight: bold; }
         </style>
-	<link rel="stylesheet" type="text/css" href="/cm/cui/components/twitter-bootstrap-3.0.0/dist/css/bootstrap.min.css"/>
     <script
             src="/Rhythmyx/tmx/tmx.jsp?mode=js&amp;prefix=perc.ui.&amp;sys_lang=en-us"></script>
         <script src="/JavaScriptServlet"></script>
         <script src="/cm/cui/components/jquery/jquery.min.js"></script>
         <script src="/cm/cui/components/jquery-migrate/jquery-migrate.min.js"></script>
-         <script src="/cm/cui/components/twitter-bootstrap-3.0.0/dist/js/bootstrap.min.js"></script>
     </head>
     <body>
         <table align="center">
