@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2025 Percussion Software, Inc.
+ * Copyright 1999-2026 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -10,334 +10,167 @@
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.percussion.security.validation;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.io.IOException;
+import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
- * Configuration for URL validation rules. Allows customization of allowed networks and ports for
- * different deployment scenarios (CMS, DTS, etc.).
- *
- * <p>Default behavior:
- *
- * <ul>
- *   <li>Always allows: localhost, 127.0.0.1, ::1 on any port
- *   <li>Always blocks: private IP ranges (10.x, 172.16-31.x, 192.168.x), cloud metadata
- *   <li>Always blocks: dangerous protocols (file, ftp, gopher, jar, netdoc)
- *   <li>Uses only http/https protocols
- * </ul>
- *
- * <p>Customization via environment variables/system properties:
- *
- * <ul>
- *   <li>{@code percussion.url.validation.allow.private.networks=true|false}
- *   <li>{@code percussion.url.validation.allow.ports=8080,9080,9992,9980,8443} (comma-separated)
- *   <li>{@code percussion.url.validation.allowed.ip.ranges=10.0.0.0/8,172.16.0.0/12} (CIDR
- *       notation)
- *   <li>{@code percussion.url.validation.allowed.hosts=internal-api.local,cms-internal}
- *       (comma-separated)
- * </ul>
- *
- * @author Sunny Sal the Senior Java Developer
+ * Configuration for URL validation (SSRF / CWE-918). Hold allow and block URL globs loaded from
+ * install-root files under {@code rxconfig/Server/} (issue #1205). JVM system properties for
+ * allow-hosts/ports/ranges are not used.
  */
 public class URLValidationConfig {
 
+  private static final Logger log = LogManager.getLogger(URLValidationConfig.class);
+
   private static URLValidationConfig INSTANCE;
 
-  private final Set<Integer> allowedPorts;
-  private final Set<String> allowedHosts;
-  private final Set<String> allowedIPRanges;
-  private final boolean allowPrivateNetworks;
-  private final boolean allowAllPorts;
-  private final boolean allowAllHosts;
+  private final List<String> allowPatterns;
+  private final List<String> blockPatterns;
 
-  /**
-   * Creates default configuration that: - Allows localhost/loopback (127.0.0.1, ::1) on any port -
-   * Blocks private IP ranges (10.x, 172.16.x, 192.168.x) - Allows only standard ports 80/443 for
-   * non-localhost - Only allows http/https protocols
-   */
+  /** Empty lists (baseline-only + hard deny). Used by tests. */
   public URLValidationConfig() {
-    this.allowedPorts = new HashSet<>();
-    this.allowedHosts = new HashSet<>();
-    this.allowedIPRanges = new HashSet<>();
-    this.allowPrivateNetworks = false; // Default: block private networks
-    this.allowAllPorts = false;
-    this.allowAllHosts = false;
-
-    // Load from system properties if configured
-    loadFromProperties();
+    this(Collections.emptyList(), Collections.emptyList());
   }
 
   /**
-   * Creates configuration with custom settings.
-   *
-   * @param allowedPorts specific ports to allow (in addition to 80, 443)
-   * @param allowedHosts specific hostnames to allow
-   * @param allowedIPRanges IP ranges in CIDR notation (e.g., "10.0.0.0/8")
-   * @param allowPrivateNetworks whether to allow all RFC 1918 private networks
+   * @param allowPatterns additive allow globs (may be null)
+   * @param blockPatterns block globs (may be null)
    */
-  public URLValidationConfig(
-      Set<Integer> allowedPorts,
-      Set<String> allowedHosts,
-      Set<String> allowedIPRanges,
-      boolean allowPrivateNetworks) {
-    this.allowedPorts = allowedPorts != null ? new HashSet<>(allowedPorts) : new HashSet<>();
-    this.allowedHosts = allowedHosts != null ? new HashSet<>(allowedHosts) : new HashSet<>();
-    this.allowedIPRanges =
-        allowedIPRanges != null ? new HashSet<>(allowedIPRanges) : new HashSet<>();
-    this.allowPrivateNetworks = allowPrivateNetworks;
-    this.allowAllPorts = false;
-    this.allowAllHosts = false;
+  public URLValidationConfig(List<String> allowPatterns, List<String> blockPatterns) {
+    this.allowPatterns =
+        allowPatterns != null
+            ? Collections.unmodifiableList(new ArrayList<>(allowPatterns))
+            : Collections.emptyList();
+    this.blockPatterns =
+        blockPatterns != null
+            ? Collections.unmodifiableList(new ArrayList<>(blockPatterns))
+            : Collections.emptyList();
   }
 
   /**
-   * Gets the singleton default configuration.
-   *
-   * @return default URLValidationConfig instance
+   * Loads from explicit file paths (tests / custom wiring). Seeds missing files from classpath
+   * defaults when parent directories are writable.
    */
+  public static URLValidationConfig fromFiles(Path allowedFile, Path blockedFile) {
+    List<String> allow = Collections.emptyList();
+    List<String> block = Collections.emptyList();
+    try {
+      if (allowedFile != null) {
+        allow =
+            URLListFileLoader.loadPatternsAfterSeed(
+                allowedFile, URLListFileLoader.DEFAULT_ALLOWED_RESOURCE);
+      }
+      if (blockedFile != null) {
+        block =
+            URLListFileLoader.loadPatternsAfterSeed(
+                blockedFile, URLListFileLoader.DEFAULT_BLOCKED_RESOURCE);
+      }
+    } catch (IOException e) {
+      log.warn("Failed to load URL list files: {}", e.toString());
+      log.debug(e);
+    }
+    return new URLValidationConfig(allow, block);
+  }
+
+  /**
+   * Loads from {@code ${rxdeploydir}/rxconfig/Server/} when {@code rxdeploydir} is set; otherwise
+   * empty lists (baseline only until setDefault is called).
+   */
+  public static URLValidationConfig loadFromInstallRoot() {
+    Path serverDir = URLListFileLoader.resolveServerConfigDirFromRxDeployDir();
+    if (serverDir == null) {
+      log.debug("rxdeploydir not set; URL allow/block lists empty until configured");
+      return new URLValidationConfig();
+    }
+    try {
+      URLListFileLoader.seedServerConfigDir(serverDir);
+    } catch (IOException e) {
+      log.warn("Could not seed URL list files under {}: {}", serverDir, e.toString());
+      log.debug(e);
+    }
+    return fromFiles(
+        serverDir.resolve(URLListFileLoader.ALLOWED_FILE_NAME),
+        serverDir.resolve(URLListFileLoader.BLOCKED_FILE_NAME));
+  }
+
   public static synchronized URLValidationConfig getDefault() {
     if (INSTANCE == null) {
-      INSTANCE = new URLValidationConfig();
+      INSTANCE = loadFromInstallRoot();
     }
     return INSTANCE;
   }
 
-  /**
-   * Sets a custom default configuration instance.
-   *
-   * @param config custom configuration to use as default
-   */
   public static synchronized void setDefault(URLValidationConfig config) {
     INSTANCE = config;
   }
 
-  private void loadFromProperties() {
-    // Load allowed ports from properties
-    String portsStr = System.getProperty("percussion.url.validation.allowed.ports");
-    if (portsStr != null && !portsStr.trim().isEmpty()) {
-      for (String port : portsStr.split(",")) {
-        try {
-          allowedPorts.add(Integer.parseInt(port.trim()));
-        } catch (NumberFormatException e) {
-          // Log warning but continue
-          System.err.println("Invalid port in percussion.url.validation.allowed.ports: " + port);
-        }
-      }
-    }
-
-    // Load allowed hosts from properties
-    String hostsStr = System.getProperty("percussion.url.validation.allowed.hosts");
-    if (hostsStr != null && !hostsStr.trim().isEmpty()) {
-      for (String host : hostsStr.split(",")) {
-        allowedHosts.add(host.trim().toLowerCase());
-      }
-    }
-
-    // Load allowed IP ranges from properties
-    String rangesStr = System.getProperty("percussion.url.validation.allowed.ip.ranges");
-    if (rangesStr != null && !rangesStr.trim().isEmpty()) {
-      for (String range : rangesStr.split(",")) {
-        allowedIPRanges.add(range.trim());
-      }
-    }
+  /** Clears singleton so next {@link #getDefault()} reloads (tests). */
+  public static synchronized void resetDefault() {
+    INSTANCE = null;
   }
 
-  /**
-   * Checks if a port is allowed.
-   *
-   * @param port the port number
-   * @param isLoopback true if the host is localhost/127.0.0.1/::1
-   * @return true if port is allowed
-   */
-  public boolean isPortAllowed(int port, boolean isLoopback) {
-    if (allowAllPorts) {
-      return true;
-    }
-
-    // Loopback always allows any port
-    if (isLoopback) {
-      return true;
-    }
-
-    // Standard web ports are always allowed
-    if (port == 80 || port == 443) {
-      return true;
-    }
-
-    // Check configured allowed ports
-    return allowedPorts.contains(port);
+  public List<String> getAllowPatterns() {
+    return allowPatterns;
   }
 
-  /**
-   * Checks if a host is explicitly allowed.
-   *
-   * @param host hostname to check
-   * @return true if host is in the allowed hosts list
-   */
-  public boolean isHostAllowed(String host) {
-    if (allowAllHosts || host == null) {
+  public List<String> getBlockPatterns() {
+    return blockPatterns;
+  }
+
+  public boolean matchesAllow(String normalizedUrl) {
+    return matchesAny(allowPatterns, normalizedUrl);
+  }
+
+  public boolean matchesBlock(String normalizedUrl) {
+    return matchesAny(blockPatterns, normalizedUrl);
+  }
+
+  private static boolean matchesAny(List<String> patterns, String normalizedUrl) {
+    if (patterns == null || patterns.isEmpty() || normalizedUrl == null) {
       return false;
     }
-    return allowedHosts.contains(host.toLowerCase());
-  }
-
-  /**
-   * Checks if private networks are allowed by configuration.
-   *
-   * @return true if private networks (10.x, 172.16.x, 192.168.x) are allowed
-   */
-  public boolean arePrivateNetworksAllowed() {
-    return allowPrivateNetworks;
-  }
-
-  /**
-   * Checks if an IP range is allowed.
-   *
-   * @param host IP address to check
-   * @return true if host matches an allowed IP range (CIDR)
-   */
-  public boolean isIPRangeAllowed(String host) {
-    if (allowedIPRanges.isEmpty()) {
-      return false;
-    }
-
-    // Simple CIDR range checking for configured ranges
-    for (String range : allowedIPRanges) {
-      if (isIPInRange(host, range)) {
+    for (String p : patterns) {
+      if (URLGlobMatcher.matches(p, normalizedUrl)) {
         return true;
       }
     }
     return false;
   }
 
-  /**
-   * Checks if an IP address falls within a CIDR range.
-   *
-   * @param ip IP address to check
-   * @param cidrRange CIDR notation range (e.g., "10.0.0.0/8")
-   * @return true if IP is in range
-   */
-  private boolean isIPInRange(String ip, String cidrRange) {
-    try {
-      String[] rangeParts = cidrRange.split("/");
-      if (rangeParts.length != 2) {
-        return false;
-      }
-
-      String networkStr = rangeParts[0];
-      int prefixLength = Integer.parseInt(rangeParts[1]);
-
-      String[] networkParts = networkStr.split("\\.");
-      String[] ipParts = ip.split("\\.");
-
-      if (networkParts.length != 4 || ipParts.length != 4) {
-        return false;
-      }
-
-      long networkAddr = 0;
-      long ipAddr = 0;
-
-      for (int i = 0; i < 4; i++) {
-        networkAddr = (networkAddr << 8) | (Integer.parseInt(networkParts[i]) & 0xFF);
-        ipAddr = (ipAddr << 8) | (Integer.parseInt(ipParts[i]) & 0xFF);
-      }
-
-      long mask = (0xFFFFFFFFL << (32 - prefixLength)) & 0xFFFFFFFFL;
-      return (networkAddr & mask) == (ipAddr & mask);
-    } catch (Exception e) {
-      return false;
-    }
-  }
-
-  /**
-   * Get a builder for creating custom configurations.
-   *
-   * @return URLValidationConfigBuilder
-   */
   public static Builder builder() {
     return new Builder();
   }
 
-  /** Builder for creating URLValidationConfig instances. */
   public static class Builder {
-    /** Private constructor for builder. */
-    private Builder() {}
+    private final List<String> allow = new ArrayList<>();
+    private final List<String> block = new ArrayList<>();
 
-    private final Set<Integer> ports = new HashSet<>();
-    private final Set<String> hosts = new HashSet<>();
-    private final Set<String> ipRanges = new HashSet<>();
-    private boolean allowPrivateNetworks = false;
-
-    /**
-     * Adds a port to the allowed ports list.
-     *
-     * @param port the port to add
-     * @return this builder for chaining
-     */
-    public Builder addPort(int port) {
-      ports.add(port);
-      return this;
-    }
-
-    /**
-     * Adds multiple ports to the allowed ports list.
-     *
-     * @param ports the ports to add
-     * @return this builder for chaining
-     */
-    public Builder addPorts(int... ports) {
-      for (int port : ports) {
-        this.ports.add(port);
+    public Builder addAllowPattern(String pattern) {
+      if (pattern != null && !pattern.isBlank() && !"*".equals(pattern.trim())) {
+        allow.add(pattern.trim());
       }
       return this;
     }
 
-    /**
-     * Adds a host to the allowed hosts list.
-     *
-     * @param host the host to add
-     * @return this builder for chaining
-     */
-    public Builder addHost(String host) {
-      hosts.add(host.toLowerCase());
+    public Builder addBlockPattern(String pattern) {
+      if (pattern != null && !pattern.isBlank() && !"*".equals(pattern.trim())) {
+        block.add(pattern.trim());
+      }
       return this;
     }
 
-    /**
-     * Adds an IP range (CIDR notation) to the allowed IP ranges list.
-     *
-     * @param cidrRange the CIDR range to add (e.g., "192.168.0.0/16")
-     * @return this builder for chaining
-     */
-    public Builder addIPRange(String cidrRange) {
-      ipRanges.add(cidrRange);
-      return this;
-    }
-
-    /**
-     * Sets whether private networks are allowed.
-     *
-     * @param allow true to allow private networks, false otherwise
-     * @return this builder for chaining
-     */
-    public Builder allowPrivateNetworks(boolean allow) {
-      this.allowPrivateNetworks = allow;
-      return this;
-    }
-
-    /**
-     * Builds the URLValidationConfig with the configured settings.
-     *
-     * @return a new URLValidationConfig instance
-     */
     public URLValidationConfig build() {
-      return new URLValidationConfig(ports, hosts, ipRanges, allowPrivateNetworks);
+      return new URLValidationConfig(allow, block);
     }
   }
 }
