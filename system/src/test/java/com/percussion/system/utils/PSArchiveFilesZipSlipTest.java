@@ -26,6 +26,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipOutputStream;
@@ -147,7 +148,16 @@ class PSArchiveFilesZipSlipTest {
     File base = extractDir;
     File safe = PathValidation.constructSafePath(base, "subdir/file.txt");
     assertNotNull(safe);
-    assertTrue(safe.getAbsolutePath().startsWith(base.getAbsolutePath()),
+    // Use java.nio.file.Path.startsWith(Path) which is case-insensitive on Windows
+    // (java.nio.file.WindowsPath) and case-sensitive on Unix, handling both the
+    // case-folding on Windows and the path-separator difference (/ vs \\) in a
+    // single platform-aware call. The previous String.startsWith was
+    // case-sensitive on all platforms, which produced a Windows-only
+    // regression (CI on dev laptops) when the JUnit TempDir path and the
+    // resolved child path differed only in drive letter casing.
+    Path basePath = base.getAbsoluteFile().toPath().toAbsolutePath().normalize();
+    Path safePath = safe.getAbsoluteFile().toPath().toAbsolutePath().normalize();
+    assertTrue(safePath.startsWith(basePath),
         "safe path must be under baseDir, got: " + safe);
   }
 
