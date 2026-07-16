@@ -2269,8 +2269,12 @@ public class PSPageUtils extends PSJexlUtilBase {
    * @return never <code>null</code>.
    */
   public String html(Object item, String fields, Object defaultValue) {
-    notNull(item, "item cannot be null");
-    notEmpty(fields, "field cannot be empty.");
+    // Graceful defaults for template use: null/empty item or fields must not throw
+    // (ported from v8.1.7 PR #716 release-testing fixes).
+    if (item == null || fields == null || fields.trim().isEmpty()) {
+      return defaultValue == null ? "" : StringEscapeUtils.escapeHtml4(defaultValue.toString());
+    }
+
     try {
       Node node = null;
       if (item instanceof Node) {
@@ -2281,10 +2285,14 @@ public class PSPageUtils extends PSJexlUtilBase {
         node = ((PSRenderAsset) item).getNode();
       } else if (item instanceof Map<?, ?>) {
         NameAndValue nv = getProperty((Map<?, ?>) item, fields);
-        if (nv == null && defaultValue == null) {
-          handleNoFieldFound(item, fields);
+        if (nv == null) {
+          if (defaultValue == null) {
+            handleNoFieldFound(item, fields);
+          } else {
+            return StringEscapeUtils.escapeHtml4(defaultValue.toString());
+          }
         }
-        return nv == null ? null : StringEscapeUtils.escapeHtml4(nv.value);
+        return StringEscapeUtils.escapeHtml4(nv.value);
       } else {
         throw new IllegalArgumentException("Item must be either a map, assembly item, or node");
       }
