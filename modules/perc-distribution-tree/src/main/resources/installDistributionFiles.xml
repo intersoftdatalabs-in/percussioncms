@@ -538,6 +538,8 @@
 				<include name="authtypes.properties" />
 				<include name="stylesheetCleanupFilter.xml" />
 				<include name="addThumbnailURL.properties" />
+				<include name="allowedUrls.properties" />
+				<include name="blockedUrls.properties" />
 			</fileset>
 		</PSCopy>
 

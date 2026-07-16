@@ -30,6 +30,8 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import org.apache.commons.lang3.Validate;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -240,7 +242,11 @@ public class PSBlogPostVisitDao implements IPSBlogPostVisitDao {
     List<PSDbBlogPostVisit> results = session.createQuery(criteriaQuery).getResultList();
 
     for (PSDbBlogPostVisit visit : results) {
-      visit.setPagepath(visit.getPagepath().replaceAll(prevSiteName, newSiteName));
+      visit.setPagepath(
+          visit
+              .getPagepath()
+              .replaceAll(
+                  Pattern.quote(prevSiteName), Matcher.quoteReplacement(newSiteName)));
       session.merge(visit);
     }
   }

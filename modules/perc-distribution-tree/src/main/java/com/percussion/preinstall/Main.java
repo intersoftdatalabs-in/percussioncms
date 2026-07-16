@@ -91,6 +91,9 @@ public class Main {
         System.out.println("Must specify installation or upgrade folder");
         System.out.println(
             "Optional database target for new installs: -Ddbprops=<path> or --dbprops=<path>");
+        System.out.println(
+            "Optional upgrade cleanup: --clean-install-dir (default false) removes obsolete"
+                + " folders such as PreInstall");
         System.exit(0);
       }
 
@@ -143,12 +146,18 @@ public class Main {
         String minor = existingVersion.getProperty("minorVersion");
         log.info("Major Version Found: {}", major);
         log.info("Minor Version Found: {}", minor);
-        try {
-          majorVersion = Integer.parseInt(major);
-          minorVersion = Integer.parseInt(minor);
-        } catch (NumberFormatException ne) {
-          log.warn("Invalid Version number in Version File");
-        }
+        majorVersion = parseVersionPart(major, "majorVersion");
+        minorVersion = parseVersionPart(minor, "minorVersion");
+      }
+
+      // Issue #1157: optional early cleanup of obsolete install-root directories on upgrade only
+      try {
+        runObsoleteInstallDirCleanup(installPath, parsedArgs.options());
+      } catch (Exception cleanupEx) {
+        System.out.println(
+            "Obsolete directory cleanup reported an error (upgrade will continue): "
+                + cleanupEx.getMessage());
+        log.warn("Obsolete directory cleanup error", cleanupEx);
       }
 
       Path installSrc;
@@ -210,6 +219,57 @@ public class Main {
       return;
     }
     System.out.println("Done extracting");
+  }
+
+  /**
+   * Early upgrade cleanup of obsolete install-root directories (issue #1157). Never fails the
+   * overall install solely due to cleanup errors.
+   */
+  /** Parse a version property; blank/null/invalid → 0 (never throws). */
+  static int parseVersionPart(String raw, String label) {
+    if (raw == null || raw.isBlank()) {
+      return 0;
+    }
+    try {
+      return Integer.parseInt(raw.trim());
+    } catch (NumberFormatException ne) {
+      log.warn("Invalid {} in Version.properties: {}", label, raw);
+      return 0;
+    }
+  }
+
+  static void runObsoleteInstallDirCleanup(
+      Path installPath, java.util.Map<String, String> cliOptions) throws Exception {
+    if (!ObsoleteInstallDirCleaner.isUpgradeInstallRoot(installPath)) {
+      return;
+    }
+    boolean cleanFlag = ObsoleteInstallDirCleaner.parseCleanInstallDirFlag(cliOptions);
+    boolean interactive = System.console() != null;
+    ObsoleteInstallDirCleaner.CleanupResult result =
+        ObsoleteInstallDirCleaner.run(
+            installPath,
+            majorVersion,
+            minorVersion,
+            cleanFlag,
+            interactive,
+            prompt -> {
+              System.out.print(prompt);
+              System.out.flush();
+              java.io.Console console = System.console();
+              if (console == null) {
+                return "";
+              }
+              String line = console.readLine();
+              return line == null ? "" : line;
+            });
+    System.out.print(ObsoleteInstallDirCleaner.formatCleanupReport(result));
+    if (!result.proceeded()
+        && "default-retain".equals(result.decisionSource())
+        && !result.candidates().isEmpty()) {
+      System.out.println(
+          "Tip: re-run upgrade with --clean-install-dir to remove obsolete directories"
+              + " without a prompt.");
+    }
   }
 
   /**

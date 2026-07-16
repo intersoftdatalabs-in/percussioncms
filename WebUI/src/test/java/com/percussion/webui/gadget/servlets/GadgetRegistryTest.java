@@ -25,7 +25,7 @@ import org.junit.Test;
 
 /**
  * Regression for v8.1.7 PR #722 / #885: GadgetRegistry.xml on classpath with Percussion +
- * Deprecated groups.
+ * Deprecated groups. Also covers issue #715 (Redirect Management gadget removed).
  */
 public class GadgetRegistryTest {
 
@@ -37,7 +37,6 @@ public class GadgetRegistryTest {
     assertEquals("Deprecated", map.get("Activity"));
     assertEquals("Deprecated", map.get("Siteimprove"));
     assertEquals("Deprecated", map.get("Membership"));
-    assertEquals("Deprecated", map.get("Redirect Management"));
     assertEquals("Deprecated", map.get("Widget Configuration"));
 
     // #885 undeprecated these back to Percussion
@@ -47,6 +46,19 @@ public class GadgetRegistryTest {
 
     assertEquals("Percussion", map.get("Welcome"));
     assertEquals("Percussion", map.get("Bulk Upload"));
+  }
+
+  /**
+   * Issue #715: Redirect Management gadget is discontinued and must not appear in the registry
+   * (neither Percussion nor Deprecated). Unknown names resolve to Custom.
+   */
+  @Test
+  public void redirectManagementGadgetIsRemoved() {
+    Map<String, String> map = GadgetRegistry.loadGadgetTypeMap();
+    assertFalse(
+        "Redirect Management must not be registered after issue #715",
+        map.containsKey("Redirect Management"));
+    assertEquals("Custom", GadgetRegistry.getGadgetType("Redirect Management"));
   }
 
   @Test
