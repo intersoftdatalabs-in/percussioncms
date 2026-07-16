@@ -458,11 +458,14 @@ public class PSSaveAssetsMaintenanceProcess
                 + ":not(img["
                 + IPSManagedLinkService.PERC_LINKID_ATTR
                 + "])");
+    // get all anchor links with an href attr and target="_blank" but without the rel attr.
+    // A_HREF is already "a[href]", so append attribute filters only (not another "a[...]").
+    // Fix ported from v8.1.7 PR #716.
     var targetAnchors =
         doc.select(
             IPSManagedLinkService.A_HREF
-                + "a[target=\"_blank\"]"
-                + ":not(a[rel=\"noopener noreferrer\"])");
+                + "[target=\"_blank\"]"
+                + ":not([rel=\"noopener noreferrer\"])");
     if (anchors.isEmpty() && imgs.isEmpty() && targetAnchors.isEmpty()) {
       hasUnmanagedLinks = false;
     } else {
