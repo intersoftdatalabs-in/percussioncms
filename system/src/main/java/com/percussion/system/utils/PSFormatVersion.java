@@ -189,9 +189,21 @@ public class PSFormatVersion {
     sb.append(getVersion());
     sb.append(exportString);
     sb.append("  Build ");
-    sb.append(getBuildNumber().substring(0, 6));
-    sb.append(ms_buildTypeMap.get(buildType));
-    sb.append(getBuildNumber().substring(6));
+    String buildNum = getBuildNumber();
+    String typeCode = ms_buildTypeMap.get(buildType);
+    if (buildNum != null && buildNum.length() >= 6) {
+      sb.append(buildNum.substring(0, 6));
+      if (typeCode != null) {
+        sb.append(typeCode);
+      }
+      sb.append(buildNum.substring(6));
+    } else {
+      // Avoid StringBuilder appending the literal "null"
+      sb.append(buildNum != null ? buildNum : "unknown");
+      if (typeCode != null) {
+        sb.append(typeCode);
+      }
+    }
     sb.append(" (");
     sb.append(getBuildId());
     sb.append(")");

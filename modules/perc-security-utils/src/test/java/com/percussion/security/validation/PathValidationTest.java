@@ -51,44 +51,45 @@ class PathValidationTest {
 
     @Test
     @DisplayName("Should accept simple filename")
-    void shouldAcceptSimpleFilename() {
+    void shouldAcceptSimpleFilename() throws IOException {
       File result = PathValidation.constructSafePath(baseDir, "document.txt");
-      assertTrue(result.getAbsolutePath().contains("document.txt"));
+      assertTrue(result.getCanonicalPath().contains("document.txt"));
       assertTrue(
-          result.getAbsolutePath().startsWith(baseDir.getAbsolutePath()),
+          result.getCanonicalPath().startsWith(baseDir.getCanonicalPath()),
           "Result should be within baseDir");
     }
 
     @Test
     @DisplayName("Should accept subdirectory with forward slashes")
-    void shouldAcceptSubdirectoryPath() {
+    void shouldAcceptSubdirectoryPath() throws IOException {
       File result = PathValidation.constructSafePath(baseDir, "themes/css/style.css");
       assertTrue(
-          result.getAbsolutePath().startsWith(baseDir.getAbsolutePath()),
+          result.getCanonicalPath().startsWith(baseDir.getCanonicalPath()),
           "Result should be within baseDir");
-      assertTrue(result.getAbsolutePath().contains("themes"));
-      assertTrue(result.getAbsolutePath().contains("css"));
+      assertTrue(result.getCanonicalPath().contains("themes"));
+      assertTrue(result.getCanonicalPath().contains("css"));
     }
 
     @Test
     @DisplayName("Should accept common file extensions")
-    void shouldAcceptCommonExtensions() {
+    void shouldAcceptCommonExtensions() throws IOException {
       String[] extensions = {".txt", ".html", ".css", ".js", ".json", ".xml", ".pdf"};
       for (String ext : extensions) {
         File result = PathValidation.constructSafePath(baseDir, "document" + ext);
         assertTrue(
-            result.getAbsolutePath().startsWith(baseDir.getAbsolutePath()), "Should accept " + ext);
+            result.getCanonicalPath().startsWith(baseDir.getCanonicalPath()),
+            "Should accept " + ext);
       }
     }
 
     @Test
     @DisplayName("Should combine multiple safe path components")
-    void shouldCombineMultipleSafeComponents() {
+    void shouldCombineMultipleSafeComponents() throws IOException {
       File result = PathValidation.combineSafePaths(baseDir, "themes", "dark-mode", "style.css");
-      assertTrue(result.getAbsolutePath().startsWith(baseDir.getAbsolutePath()));
-      assertTrue(result.getAbsolutePath().contains("themes"));
-      assertTrue(result.getAbsolutePath().contains("dark-mode"));
-      assertTrue(result.getAbsolutePath().contains("style.css"));
+      assertTrue(result.getCanonicalPath().startsWith(baseDir.getCanonicalPath()));
+      assertTrue(result.getCanonicalPath().contains("themes"));
+      assertTrue(result.getCanonicalPath().contains("dark-mode"));
+      assertTrue(result.getCanonicalPath().contains("style.css"));
     }
 
     @Test
@@ -103,9 +104,9 @@ class PathValidationTest {
 
     @Test
     @DisplayName("Should accept underscore and hyphen in filenames")
-    void shouldAcceptValidFilenameCharacters() {
+    void shouldAcceptValidFilenameCharacters() throws IOException {
       File result = PathValidation.constructSafePath(baseDir, "my-file_v2.0_backup.txt");
-      assertTrue(result.getAbsolutePath().startsWith(baseDir.getAbsolutePath()));
+      assertTrue(result.getCanonicalPath().startsWith(baseDir.getCanonicalPath()));
     }
   }
 
@@ -236,6 +237,32 @@ class PathValidationTest {
       assertFalse(PathValidation.isValidFilename("dir/file.txt"));
       assertFalse(PathValidation.isValidFilename("dir\\file.txt"));
     }
+
+    @Test
+    @DisplayName("Should accept colon in filename on Unix (not treated as drive letter)")
+    void shouldAcceptColonInFilenameOnUnix() {
+      // On Unix, ':' is a legal filename character; only on Windows should 'C:foo' be
+      // treated as a drive-letter path. We can't fully simulate OS detection in JUnit, but
+      // we verify that on Unix the file is constructed and is contained in baseDir.
+      if (File.separatorChar != '\\') {
+        File result = PathValidation.constructSafePath(baseDir, "report:data.txt");
+        assertTrue(
+            result.getPath().contains("report:data.txt")
+                || result.getPath().contains("report"), // canonical form may drop ':' via fs
+            "Should not reject 'report:data.txt' as absolute on Unix");
+      }
+    }
+
+    @Test
+    @DisplayName("Should not throw for colon-in-filename via combineSafePaths on Unix")
+    void shouldAcceptColonComponentOnUnix() {
+      if (File.separatorChar != '\\') {
+        File result =
+            PathValidation.combineSafePaths(baseDir, "user-data", "report:2025.txt");
+        assertNotNull(result);
+        assertTrue(result.getPath().contains("report") || result.getPath().contains("user-data"));
+      }
+    }
   }
 
   @Nested
@@ -287,19 +314,19 @@ class PathValidationTest {
 
     @Test
     @DisplayName("Real scenario: Safe theme file access")
-    void shouldAllowSafeThemeFileAccess() {
+    void shouldAllowSafeThemeFileAccess() throws IOException {
       // Legitimate: user uploads theme named "my-theme" with file "style.css"
       File result = PathValidation.constructSafePath(baseDir, "my-theme/css/style.css");
-      assertTrue(result.getAbsolutePath().startsWith(baseDir.getAbsolutePath()));
+      assertTrue(result.getCanonicalPath().startsWith(baseDir.getCanonicalPath()));
       assertTrue(result.getPath().contains("my-theme"));
     }
 
     @Test
     @DisplayName("Real scenario: Safe archive extraction")
-    void shouldAllowSafeArchiveExtraction() {
+    void shouldAllowSafeArchiveExtraction() throws IOException {
       // Legitimate: extract zip with entry "app/index.html"
       File result = PathValidation.constructSafePath(baseDir, "app/index.html");
-      assertTrue(result.getAbsolutePath().startsWith(baseDir.getAbsolutePath()));
+      assertTrue(result.getCanonicalPath().startsWith(baseDir.getCanonicalPath()));
     }
 
     @Test
@@ -355,7 +382,7 @@ class PathValidationTest {
 
     @Test
     @DisplayName("Should handle very long paths")
-    void shouldHandleLongPaths() {
+    void shouldHandleLongPaths() throws IOException {
       StringBuilder longPath = new StringBuilder();
       for (int i = 0; i < 100; i++) {
         longPath.append("dir").append(i).append("/");
@@ -364,7 +391,7 @@ class PathValidationTest {
 
       // Should not throw for legitimate long paths
       File result = PathValidation.constructSafePath(baseDir, longPath.toString());
-      assertTrue(result.getAbsolutePath().startsWith(baseDir.getAbsolutePath()));
+      assertTrue(result.getCanonicalPath().startsWith(baseDir.getCanonicalPath()));
     }
 
     @Test
@@ -381,6 +408,38 @@ class PathValidationTest {
       assertFalse(PathValidation.isValidFilename("../escape"));
       assertFalse(PathValidation.isValidFilename("dir/file"));
       assertFalse(PathValidation.isValidFilename("file.txt\0.jsp"));
+    }
+
+    @Test
+    @DisplayName("Should return canonical path from constructSafePath")
+    void shouldReturnCanonicalPathFromConstructSafePath() throws IOException {
+      File result = PathValidation.constructSafePath(baseDir, "subdir/file.txt");
+      // The returned File must report a canonical absolute path equal to baseDir + "subdir/file.txt"
+      assertEquals(new File(baseDir, "subdir/file.txt").getCanonicalPath(), result.getCanonicalPath());
+    }
+
+    @Test
+    @DisplayName("Should return canonical path from combineSafePaths")
+    void shouldReturnCanonicalPathFromCombineSafePaths() throws IOException {
+      File result = PathValidation.combineSafePaths(baseDir, "themes", "dark", "style.css");
+      assertEquals(
+          new File(baseDir, "themes/dark/style.css").getCanonicalPath(),
+          result.getCanonicalPath());
+    }
+
+    @Test
+    @DisplayName("checkSymlinks=true must reject symlink whose target escapes baseDir")
+    void shouldRejectEscapingSymlinkWithCheckSymlinksTrue(@TempDir Path escapeDir)
+        throws IOException {
+      if (!supportsSymlinks()) {
+        return;
+      }
+      // Create a symlink inside baseDir pointing outside of baseDir.
+      Files.createSymbolicLink(baseDir.toPath().resolve("escape"), escapeDir);
+      assertThrows(
+          PathValidation.SecurityException.class,
+          () -> PathValidation.constructSafePath(baseDir, "escape", true),
+          "checkSymlinks=true must reject a symlink whose target is outside baseDir");
     }
   }
 

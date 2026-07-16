@@ -34,7 +34,7 @@
                 <prop key="hibernate.cache.use_second_level_cache">false</prop>
                 <prop key="hibernate.cache.use_query_cache">false</prop>
                 <prop key="hibernate.hbm2ddl.auto">create-drop</prop>
-                <prop key="contentSecurityPolicy">default-src 'self';</prop>
+                <prop key="contentSecurityPolicy">default-src 'self'; img-src 'self' data: blob:;</prop>
                 <prop key="cspReportOnly">false</prop>
                 <prop key="csrfCookieHttpOnly">false</prop>
                 <prop key="xframeOptionsPolicy">SAMEORIGIN</prop>

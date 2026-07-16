@@ -3524,6 +3524,14 @@ The element root indicates any Document Element of the result document.</initPar
       <interface name="com.percussion.extension.IPSWorkflowAction"/>
       <suppliedResources/>
    </Extension>
+   <Extension categorystring="contenteditor" context="global/percussion/extensions/general/" deprecated="no" handler="Java" name="sys_DirectoryIndexTouchWorkflowAction" restoreRequestParamsOnError="no">
+      <initParam name="com.percussion.user.description">Workflow action that touches all percDirectory assets and their AA parent Directory Index pages when a percPerson, percDepartment, or percOrganization item is approved. Ensures the incremental publisher re-publishes Directory Index pages that display updated person or department data.</initParam>
+      <initParam name="com.percussion.extension.version">1</initParam>
+      <initParam name="com.percussion.extension.reentrant">yes</initParam>
+      <initParam name="className">com.percussion.extensions.general.PSDirectoryIndexTouchWorkflowAction</initParam>
+      <interface name="com.percussion.extension.IPSWorkflowAction"/>
+      <suppliedResources/>
+   </Extension>
    <Extension name="sys_TouchContentAndParentItems" context="global/percussion/extensions/general/" handler="Java" categorystring="generic" deprecated="no">
       <initParam name="com.percussion.user.description">This pre-exit touches 0 or more content parent items.</initParam>
       <initParam name="com.percussion.extension.version">1</initParam>
