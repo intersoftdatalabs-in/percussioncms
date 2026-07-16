@@ -43,8 +43,6 @@ var requireJsConfig = {
       "/cm/app/js/legacy/profiles/3x/libraries/fontawesome/css/all.css",
     bootstrap:
       "/cm/app/js/legacy/profiles/3x/libraries/bootstrap/css/bootstrap.min.css",
-    "bootstrap-theme":
-      "/cm/cui/components/twitter-bootstrap-3.0.0/dist/css/bootstrap-theme.min.css",
     "bootstrap5-compat": "/cm/assets/js/bootstrap5-compat",
   },
   shim: {

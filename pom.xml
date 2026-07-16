@@ -2405,7 +2405,6 @@
                                 <exclude>**/cui/components/jquery/**</exclude>
                                 <exclude>**/cui/components/jquery-migrate/**</exclude>
                                 <exclude>**/cui/components/jquery-ui/**</exclude>
-                                <exclude>**/cui/components/twitter-bootstrap-3.0.0/**</exclude>
                                 <exclude>**/cui/components/dynatree/**</exclude>
                                 <exclude>**/cui/components/pubsub-js/**</exclude>
                                 <exclude>**/cui/components/requirejs/**</exclude>
@@ -2414,7 +2413,6 @@
                                 <exclude>**/cui/components/google-fonts/**</exclude>
                                 <exclude>**/cui/**/build/**</exclude>
                                 <exclude>**/cui/**/dist/**</exclude>
-                                <exclude>**/cui/components/twitter-bootstrap-3.0.0/assets/js/raw-files.js</exclude>
                                 <exclude>**/system/Docs/Rhythmyx_Publishing_Design_Help/dhtml_search.js</exclude>
                                 <exclude>**/*.min.js</exclude>
                             </excludes>
