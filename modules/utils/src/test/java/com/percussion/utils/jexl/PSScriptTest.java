@@ -554,4 +554,116 @@ public class PSScriptTest {
     PSScript script4 = new PSScript("empty $notEmpty");
     assertEquals(false, script4.eval(bindings), "Non-empty string should not be empty");
   }
+
+  /**
+   * Concurrent first-compile smoke: many threads hit an uncompiled instance together. Double-checked
+   * locking must publish a single usable compiled script without races.
+   */
+  @Test
+  public void testConcurrentFirstCompile() throws Exception {
+    String script = "$x + 1";
+    PSScript ps = new PSScript(script);
+
+    int threadCount = 16;
+    ExecutorService executor = Executors.newFixedThreadPool(threadCount);
+    CountDownLatch start = new CountDownLatch(1);
+    CountDownLatch done = new CountDownLatch(threadCount);
+    java.util.concurrent.atomic.AtomicReference<Throwable> error =
+        new java.util.concurrent.atomic.AtomicReference<>();
+
+    for (int i = 0; i < threadCount; i++) {
+      final int threadId = i;
+      executor.submit(
+          () -> {
+            try {
+              start.await();
+              Map<String, Object> bindings = new HashMap<>();
+              bindings.put("$x", threadId);
+              Object result = ps.eval(bindings);
+              assertEquals(threadId + 1, result, "Concurrent first compile must eval correctly");
+            } catch (Throwable t) {
+              error.compareAndSet(null, t);
+            } finally {
+              done.countDown();
+            }
+          });
+    }
+
+    start.countDown();
+    assertTrue(done.await(15, TimeUnit.SECONDS), "All concurrent first-compile threads should finish");
+    executor.shutdownNow();
+    if (error.get() != null) {
+      throw new AssertionError("Concurrent first compile failed", error.get());
+    }
+
+    java.lang.reflect.Field compiledScriptField = PSScript.class.getDeclaredField("compiledScript");
+    compiledScriptField.setAccessible(true);
+    assertNotNull(compiledScriptField.get(ps), "Compiled script should be published after concurrent eval");
+  }
+
+  /**
+   * Unrestricted permissions must allow legacy method patterns that restricted JEXL 3.x defaults
+   * can block (product scripts invoke ordinary Java methods on domain objects).
+   */
+  @Test
+  public void testUnrestrictedPermissionsAllowMethodCalls() {
+    Map<String, Object> bindings = new HashMap<>();
+    bindings.put("$text", "percussion");
+    bindings.put("$list", new java.util.ArrayList<>(java.util.Arrays.asList("a", "b", "c")));
+
+    PSScript lengthScript = new PSScript("$text.length()");
+    assertEquals(10, lengthScript.eval(bindings), "String.length should be allowed");
+
+    PSScript substringScript = new PSScript("$text.substring(0, 4)");
+    assertEquals("perc", substringScript.eval(bindings), "String.substring should be allowed");
+
+    PSScript sizeScript = new PSScript("$list.size()");
+    assertEquals(3, sizeScript.eval(bindings), "List.size should be allowed");
+
+    PSScript getScript = new PSScript("$list.get(1)");
+    assertEquals("b", getScript.eval(bindings), "List.get should be allowed");
+  }
+
+  /**
+   * When strict is off, safe navigation should return null for missing intermediate properties
+   * rather than throwing (legacy template behavior).
+   */
+  @Test
+  public void testSafeModeNullPropertyNavigation() {
+    PSScript ps = new PSScript("$obj.missing.prop");
+    ps.setUseStrictMode(false);
+
+    Map<String, Object> bindings = new HashMap<>();
+    bindings.put("$obj", new HashMap<String, Object>());
+
+    Object result = ps.eval(bindings);
+    assertEquals(null, result, "Null intermediate property should yield null when not strict/safe");
+  }
+
+  /**
+   * new(...) construction used by some legacy extension scripts must remain available under
+   * unrestricted permissions.
+   */
+  @Test
+  public void testNewInstanceConstructionAllowed() {
+    PSScript ps = new PSScript("new('java.util.ArrayList')");
+    Map<String, Object> bindings = new HashMap<>();
+    Object result = ps.eval(bindings);
+    assertNotNull(result, "new(ArrayList) should succeed with unrestricted permissions");
+    assertTrue(result instanceof java.util.ArrayList, "Result should be an ArrayList instance");
+  }
+
+  /** Per-instance engine path (strict differs from global default) must also use unrestricted perms. */
+  @Test
+  public void testPerInstanceEngineAllowsMethodCalls() {
+    PSScript ps = new PSScript("$obj.toUpperCase()");
+    // Force per-instance builder (defaults are non-strict; enable silent to diverge further)
+    ps.setUseSilentMode(true);
+
+    Map<String, Object> bindings = new HashMap<>();
+    bindings.put("$obj", "hello");
+
+    Object result = ps.eval(bindings);
+    assertEquals("HELLO", result, "Per-instance engine must allow method invocation");
+  }
 }
