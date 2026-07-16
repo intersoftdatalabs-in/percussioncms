@@ -92,7 +92,7 @@ class DbInstallConfigResolverTest {
         DbInstallConfigResolver.resolveDbConfig(opts);
     assertEquals("sqlserver", cfg.systemProperties().get("perc.db.type"));
     assertEquals("MSSQL", cfg.systemProperties().get("perc.db.cms.backend"));
-    assertEquals("DBO", cfg.systemProperties().get("perc.db.cms.schema"));
+    assertEquals("dbo", cfg.systemProperties().get("perc.db.cms.schema"));
   }
 
   @Test
@@ -111,6 +111,38 @@ class DbInstallConfigResolverTest {
     assertEquals("ORACLE", cfg.systemProperties().get("perc.db.cms.backend"));
     assertEquals("oracle:thin", cfg.systemProperties().get("perc.db.cms.driverName"));
     assertTrue(cfg.systemProperties().get("perc.db.cms.server").startsWith("@ora.example.com"));
+    assertTrue(cfg.systemProperties().get("perc.db.cms.server").endsWith(":ORCL"));
+  }
+
+  @Test
+  void structuredOracleRequiresDbNameForServiceOrSid() {
+    Map<String, String> opts = new HashMap<>();
+    opts.put("db.type", "oracle");
+    opts.put("db.host", "ora.example.com");
+    opts.put("db.port", "1521");
+    opts.put("db.user", "cms");
+    opts.put("db.password", "x");
+    // no db.name → must not produce @host:port:
+    IllegalArgumentException ex =
+        assertThrows(
+            IllegalArgumentException.class,
+            () -> DbInstallConfigResolver.resolveDbConfig(opts));
+    assertTrue(ex.getMessage().contains("db.name"));
+  }
+
+  @Test
+  void structuredSqlServerDefaultsSchemaToDbo() {
+    Map<String, String> opts = new HashMap<>();
+    opts.put("db.type", "sqlserver");
+    opts.put("db.host", "sql.example.com");
+    opts.put("db.port", "1433");
+    opts.put("db.name", "PercussionDB");
+    opts.put("db.user", "sa");
+    opts.put("db.password", "x");
+
+    DbInstallConfigResolver.ResolvedDbConfig cfg =
+        DbInstallConfigResolver.resolveDbConfig(opts);
+    assertEquals("dbo", cfg.systemProperties().get("perc.db.cms.schema"));
   }
 
   @Test
@@ -163,6 +195,7 @@ class DbInstallConfigResolverTest {
         DbInstallConfigResolver.resolveDbConfig(Map.of("dbprops", mssql.toString()));
     assertEquals("sqlserver", m.systemProperties().get("perc.db.type"));
     assertEquals("MSSQL", m.systemProperties().get("perc.db.cms.backend"));
+    assertEquals("dbo", m.systemProperties().get("perc.db.cms.schema"));
 
     Path ora = tempDir.resolve("ora.properties");
     Files.writeString(

@@ -59,10 +59,13 @@ class RepositoryPropertiesInstallGuardTest {
     // Oracle branch present for new installs
     assertTrue(
         xml.contains("arg2=\"oracle\""), "oracle branch required for new-install db targets");
-    // Connection validation also gated
+    // Connection validation wired and excluded for derby (default new install)
     assertTrue(
         xml.contains("PSValidateRepositoryConnection"),
         "connection validation task must be wired");
+    assertTrue(
+        xml.contains("arg2=\"derby\""),
+        "validation must exclude default derby new installs");
   }
 
   @Test

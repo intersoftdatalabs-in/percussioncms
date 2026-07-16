@@ -533,10 +533,18 @@
 
 		<PSMakeLasagna root="${install.dir}" />
 
-		<!-- New-install only: fail fast if repository is unreachable (issue #949 FR-008).
-		     Gated by do.install so upgrades do not re-validate / rewrite backends. -->
+		<!-- New-install non-Derby only: fail fast if repository is unreachable (issue #949 FR-008).
+		     Skip embedded Derby defaults (props are already connectable via product defaults and
+		     validation here would only add risk without targeting enterprise backends).
+		     Upgrades excluded via do.install so backends are not re-validated/rewritten. -->
 		<if>
-			<istrue value="${do.install}" />
+			<and>
+				<istrue value="${do.install}" />
+				<not>
+					<equals arg1="${perc.db.type}" arg2="derby"
+						casesensitive="false" />
+				</not>
+			</and>
 			<then>
 				<PSValidateRepositoryConnection rootDir="${install.dir}"
 					loginTimeoutSeconds="15" />

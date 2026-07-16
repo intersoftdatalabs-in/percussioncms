@@ -109,8 +109,24 @@ class PSValidateRepositoryConnectionTest {
     assertTrue(
         PSValidateRepositoryConnection.looksLikeMissingDriver(
             "Driver mysql is not supported by the current installer.", null));
+    assertTrue(
+        PSValidateRepositoryConnection.looksLikeMissingDriver(
+            "Connection returned null (driver may be missing or failed to load).", null));
     assertFalse(
         PSValidateRepositoryConnection.looksLikeMissingDriver(
             "Connection refused", "org.mariadb.jdbc.Driver"));
+  }
+
+  @Test
+  void nullConnectionMessageTriggersDriverGuidance() {
+    String msg =
+        PSValidateRepositoryConnection.failureMessage(
+            "MYSQL",
+            "//db:3306/p",
+            "org.mariadb.jdbc.Driver",
+            "Connection returned null (driver may be missing or failed to load)."
+                + " Check JDBC drivers under jetty/base/lib/jdbc and credentials.");
+    assertTrue(msg.contains("jetty/base/lib/jdbc"));
+    assertTrue(msg.toLowerCase().contains("driver"));
   }
 }

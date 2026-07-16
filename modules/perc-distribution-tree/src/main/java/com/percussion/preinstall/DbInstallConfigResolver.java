@@ -225,7 +225,8 @@ public final class DbInstallConfigResolver {
     String resolvedSchema = schema;
     if (resolvedSchema == null) {
       if (Objects.equals(dbType, "sqlserver")) {
-        resolvedSchema = "DBO";
+        // SQL Server default schema is lowercase "dbo" (product convention)
+        resolvedSchema = "dbo";
       } else {
         resolvedSchema = "";
       }
@@ -294,7 +295,8 @@ public final class DbInstallConfigResolver {
       if (isBlank(port)) {
         missing.add("db.port");
       }
-      if (isBlank(name) && !Objects.equals(dbType, "oracle")) {
+      // Oracle uses db.name as service name / SID in composed DB_SERVER (@host:port:name)
+      if (isBlank(name)) {
         missing.add("db.name");
       }
       if (isBlank(user)) {
@@ -385,7 +387,7 @@ public final class DbInstallConfigResolver {
       systemProperties.put("perc.db.dts.schema", resolvedSchema);
     } else if (Objects.equals(dbType, "sqlserver")) {
       String resolvedSchema =
-          (schema == null || schema.trim().isEmpty()) ? "DBO" : schema.trim();
+          (schema == null || schema.trim().isEmpty()) ? "dbo" : schema.trim();
       String trustServerCertificate =
           Objects.equals(sslAllowSelfSigned, "true") || Objects.equals(sslVerify, "false")
               ? "true"

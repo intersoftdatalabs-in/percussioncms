@@ -115,9 +115,8 @@ public class PSValidateRepositoryConnection extends Task {
     registerJdbcDriversFromInstall(rootDir);
 
     try {
-      if (getRootDir() != null && !"".equals(getRootDir())) {
-        InstallUtil.setRootDir(getRootDir());
-      }
+      // rootDir already validated non-blank above
+      InstallUtil.setRootDir(rootDir);
 
       PSJdbcDbmsDef dbmsDef = new PSJdbcDbmsDef(props);
       String driver = dbmsDef.getDriver();
@@ -133,14 +132,24 @@ public class PSValidateRepositoryConnection extends Task {
         }
         try (Connection conn =
             InstallUtil.createLoadedConnection(driver, serverName, db, user, password)) {
-          if (conn == null || conn.isClosed()) {
+          if (conn == null) {
+            // createLoadedConnection may return null for driver/loader failures without throwing
             throw new BuildException(
                 failureMessage(
                     backend,
                     server,
                     driverClass,
-                    "Unable to establish a connection. Check host, credentials, database"
-                        + " provisioning, and JDBC drivers under jetty/base/lib/jdbc."));
+                    "Connection returned null (driver may be missing or failed to load)."
+                        + " Check JDBC drivers under jetty/base/lib/jdbc and credentials."));
+          }
+          if (conn.isClosed()) {
+            throw new BuildException(
+                failureMessage(
+                    backend,
+                    server,
+                    driverClass,
+                    "Connection was closed immediately after open. Check host, credentials,"
+                        + " and database provisioning."));
           }
           PSLogger.logInfo("Repository connection validation succeeded for backend=" + backend);
         }
@@ -189,11 +198,15 @@ public class PSValidateRepositoryConnection extends Task {
     if (lower.contains("classnotfound")
         || lower.contains("no suitable driver")
         || lower.contains("driver not found")
+        || lower.contains("driver may be missing")
+        || lower.contains("failed to load")
         || lower.contains("is not supported by the current installer")
-        || (lower.contains("cannot find") && lower.contains("driver"))) {
+        || (lower.contains("cannot find") && lower.contains("driver"))
+        || (lower.contains("returned null") && lower.contains("driver"))) {
       return true;
     }
-    return StringUtils.isNotBlank(driverClass) && detail.contains(driverClass)
+    return StringUtils.isNotBlank(driverClass)
+        && detail.contains(driverClass)
         && (lower.contains("not found") || lower.contains("not supported"));
   }
 
