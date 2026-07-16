@@ -1,11 +1,15 @@
-
-
 <project name="remove_PercussionInstallation"
 	default="remove_PercussionInstallation">
-	<!-- Responsible for removing <InstallDir>/_Percussion_installation folder
-		if present -->
+	<!--
+	  Historical ANT stub for <InstallDir>/_Percussion_Installation.
+
+	  As of issue #1157, obsolete install-root cleanup (including this path and PreInstall)
+	  is owned by the preinstall Java helper com.percussion.preinstall.ObsoleteInstallDirCleaner,
+	  invoked early on upgrade from Main when the operator confirms or passes --clean-install-dir.
+
+	  This target remains a no-op so any antcall to this file does not double-delete or fail.
+	-->
 	<target name="remove_PercussionInstallation">
-		<echo>Removing obsolete _Percussion_Installation folder...</echo>
-		<!-- TODO: Implement Me -->
+		<echo>Obsolete _Percussion_Installation cleanup is handled by preinstall ObsoleteInstallDirCleaner (issue #1157); ANT target is a no-op.</echo>
 	</target>
 </project>

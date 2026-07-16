@@ -123,6 +123,37 @@ Copy a sample, replace host/credentials, pre-create the empty database/schema, t
 
 Feature design artifacts: `specs/006-installer-db-targets/` (contracts under `contracts/`).
 
+## CLI installer: clean obsolete directories on upgrade
+
+Long-lived installs may retain multi-GB **obsolete** directories (especially `PreInstall` from the old installer). On **upgrade only**, the preinstall step can remove a curated set **early** (before ANT upgrade work):
+
+| Relative path | Notes |
+|---------------|--------|
+| `PreInstall` | Legacy preinstall/backup tree unused by 8.x |
+| `_Percussion_Installation` (or `_Percussion_installation`) | Legacy install-metadata folder |
+| `JBossServerXML_BAK` | Offered only when safe for the detected version (not when a 5.3-era migration still needs it without `AppServer`) |
+
+### Flag (automation)
+
+```bash
+java -jar PercussionCMS.jar /path/to/existing/install --clean-install-dir
+# or
+java -jar PercussionCMS.jar /path/to/existing/install --clean-install-dir=true
+```
+
+- **Default: false** — non-interactive upgrades never delete these folders unless the flag is set.
+- When true, candidates are deleted without a second confirmation (even if a TTY is present).
+
+### Interactive upgrade
+
+If a TTY is available, the flag is not set, and candidate folders exist, the installer prints the list and approximate freeable space and asks `[y/N]` (default **N**).
+
+### Failure policy
+
+If a folder cannot be deleted (permissions, locks), the installer **warns and continues** the upgrade.
+
+Design artifacts: `specs/007-clean-install-dir/`.
+
 The install/upgrade script's `<delete>` block in `install.xml` is pinned to the exact bundled-driver filenames shipped in this release (sourced from the parent POM's version properties: `${mariadb.version}`, `${derby.version}`, `${mssql.version}`, `${jtds.version}`, `${ojdbc17.version}`). When a driver version is bumped, THREE places MUST be updated in lockstep in the same commit:
 
 1. **Parent POM** — bump the relevant version property (`${mariadb.version}`, `${derby.version}`, `${mssql.version}`, `${jtds.version}`, or `${ojdbc17.version}`).
