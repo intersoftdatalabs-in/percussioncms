@@ -120,5 +120,4 @@ thread and posted an inline reply on every comment citing the commit
 hash. `scripts/verify-pr-review-resolution.sh` reads
 `gh pr view --json reviewThreads` for each closing PR and fails if any
 thread has `isResolved: false`.
-thread has `isResolved: false`.
-thread has `isResolved: false`.
+

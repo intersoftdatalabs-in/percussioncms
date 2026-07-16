@@ -48,6 +48,7 @@ The technical approach, locked in by Phase 0 research, is:
 | T057 | `java/insecure-cookie` | `modules/p13n-api/` | `CookieGenerator.java` (note: p13n-api pom has 3 missing-version transitive deps; per `AGENTS.md` ignore rule, build verification falls back to CodeQL re-scan) |
 | T058 | `js/polynomial-redos` (US2 obsolete-tracking) | `WebUI/` | `components/requirejs-text/text.js` (US2 task T026b pending) |
 | T059 | `js/redos` | `deliverytiersuite/.../p13n-ds/` | `perc_p13n_profile.js` (fix applied for #1040); `lib-js/jquery-treeview/lib/jquery.js` (US2 task T026c pending for #1038, #1039) |
+
 **AGENTS hierarchy applied**: `./AGENTS.md` (root — authoritative for the triage process, the PR review-comment procedure, the JDK/branch policy, the Dependabot config location, and the module list used to assign ownership). Module-level `AGENTS.md` / `AGENTS.local.md` files consulted on a per-finding basis during mitigation PRs.
 
 ## Constitution Check
