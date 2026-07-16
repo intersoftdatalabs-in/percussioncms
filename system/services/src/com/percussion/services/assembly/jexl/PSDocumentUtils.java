@@ -266,7 +266,14 @@ public class PSDocumentUtils extends PSJexlUtilBase
       {
          String token = Base64.getEncoder().encodeToString(
                (user + ":" + password).getBytes(StandardCharsets.UTF_8));
-         requestBuilder.header("Authorization", "Basic " + token);
+         // CodeQL java/ssrf (alert #1067): the Authorization header carries
+         // only user-supplied username/password for Basic auth; the destination
+         // URL has already been validated against the allow-list by
+         // buildValidatedExternalRequestUri() above. SSRF is not possible from
+         // the Authorization header value (the request URL is fixed for the
+         // lifetime of this builder). Suppression is on the sink line per the
+         // pattern documented at line 257-259.
+         requestBuilder.header("Authorization", "Basic " + token); // codeql[java/ssrf]
       }
 
       try
