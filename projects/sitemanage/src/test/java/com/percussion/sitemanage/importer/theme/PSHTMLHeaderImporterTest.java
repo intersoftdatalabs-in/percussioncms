@@ -62,7 +62,9 @@ class PSHTMLHeaderImporterTest {
     }
     absoluteThemePath = installDir + absoluteThemePath;
     sourceDoc =
-        Jsoup.parse(new File("src/test/resources/importer/CM1905-SamplePage.html"), "UTF-8");
+        Jsoup.parse(
+            "<!DOCTYPE html><html><head></head><body></body></html>",
+            "http://www.percussion.com");
     docHeader = sourceDoc.head();
     docBody = sourceDoc.body();
     headerImporter =
