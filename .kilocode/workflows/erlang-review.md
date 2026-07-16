@@ -1,7 +1,8 @@
 ---
 description: >-
   Strict Erlang pre-commit / pre-PR code review for Percussion CMS. Reviews
-  uncommitted and branch diffs vs development; blocks on bugs and missing tests.
+  uncommitted and branch diffs vs development; blocks on bugs, missing tests,
+  and non-portable (Windows/Unix) path/file I/O.
 ---
 
 ## User Input
@@ -43,10 +44,14 @@ If `$ARGUMENTS` names a branch or path, limit the review accordingly.
 1. Collect the diff and changed-file list. If empty → report nothing to review and stop.
 2. Read surrounding context for non-trivial changes.
 3. Apply Percussion checks from the Erlang agent (tests, silent catches, security,
-   multi-copy lockstep, JDK/branch, secrets).
+   multi-copy lockstep, JDK/branch, secrets, **cross-platform path/file I/O**).
+   Load root `AGENTS.md` section **Cross-Platform File I/O & Paths** when the
+   diff touches paths, files, installers, packaging, or path assertions in tests.
 4. Emit the required report structure (Summary, Scope, Recommendation, Gate, Issues).
+   Include "Cross-platform path review: …" when I/O or paths are in scope.
 5. **Strict gate:**
-   - Any **bug**, or missing **behavioral** tests for new/changed non-trivial logic
+   - Any **bug**, missing **behavioral** tests for new/changed non-trivial logic,
+     or **non-portable path/file I/O** (Windows vs Unix)
      → Recommendation `request-changes`, Gate **May commit/push: no**
    - Tell the author not to commit or open/update a PR until bugs are fixed
 6. Write a durable copy when practical:

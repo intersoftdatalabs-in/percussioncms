@@ -39,6 +39,7 @@ When addressing `[this-escape]` warnings:
 - **Stream Handling:** Always prioritize `try-with-resources` over manual close calls or utility "close" methods.
 - **File Operations:** Use `java.nio.file.Files` for copying, moving, or deleting files.
 - **Dependency:** If complex IO is required, use `org.apache.commons.io.FileUtils` (ensure it is defined in the module's `pom.xml`).
+- **Cross-platform (mandatory):** Percussion CMS builds and deploys on Windows, Linux, and macOS. Never hardcode filesystem separators (`"/"` or `"\\"`) when joining paths. Prefer `java.nio.file.Path` / `Path.of` / `path.resolve(...)` and `Files.*`. Use `File.separator` / `File.pathSeparator` only when a separator character is truly required. Full rules: root `AGENTS.md` → **Cross-Platform File I/O & Paths**. Erlang reviews treat violations as **bugs**.
 
 ### Type Safety & Generics
 

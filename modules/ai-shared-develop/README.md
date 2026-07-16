@@ -63,6 +63,9 @@ Paste `prompts/erlang-review-uncommitted.md` or attach `agents/erlang-code-revie
 ### Strictness
 
 - **Block** on any bug and on missing behavioral tests for new/changed non-trivial logic.
+- **Block** on non-portable path/file I/O (hardcoded separators, Unix-only or Windows-only
+  absolute paths in shared code/tests, etc.). See root `AGENTS.md` → **Cross-Platform File I/O & Paths**
+  and the checklist in `agents/erlang-code-review.md`.
 - Recommendation `request-changes` ⇒ do not commit or open/update a PR yet.
 - Optional durable reports go under repo `tmp/reviews/` (gitignored via `tmp/`).
 
