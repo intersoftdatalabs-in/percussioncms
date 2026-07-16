@@ -218,7 +218,7 @@
                 importDialog.dialog('close');
             });
 
-            narrowSearchLabel.html(I18N.message("perc.ui.users.import.dialogs@NarrowSearch", [maxNumberOfUsers]));
+            narrowSearchLabel.text(I18N.message("perc.ui.users.import.dialogs@NarrowSearch", [maxNumberOfUsers]));
 
             //
             // maxusersLabel.html(maxNumberOfUsers);
@@ -553,7 +553,7 @@
             for(i in assignedRolesArray) {
                 var userRole = assignedRolesArray[i];
                 // use the user item template replacing the username
-                var html = $("<option/>").val(userRole).html(userRole);
+                var html = $("<option/>").val(userRole).text(userRole);
                 // append html to DOM
                 $assignedRoles.append(html);
             }
@@ -577,7 +577,7 @@
             for(i in rolesArrayCache) {
                 var assignedRole = assignedRoles[assignedIndex];
                 if(rolesArrayCache[i] != assignedRole) {
-                    var html = $("<option/>").val(rolesArrayCache[i]).html(rolesArrayCache[i]);
+                    var html = $("<option/>").val(rolesArrayCache[i]).text(rolesArrayCache[i]);
                     availableRoles.append(html);
                 } else {
                     assignedIndex++;
