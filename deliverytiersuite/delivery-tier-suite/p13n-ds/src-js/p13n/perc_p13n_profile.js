@@ -321,30 +321,37 @@ P13NProfileEditor.prototype.onProfileDataSubmit = function (
   }
 
   if (!jQuery.browser.msie) {
-    var respObj = jQuery("<div/>").append(
-      // Strip <script> tags from the server response before injecting it into the DOM
-      // (CWE-79 / CodeQL js/incomplete-multi-character-sanitization + js/redos #1040).
-      // Two patterns are applied so that BOTH well-formed and malformed/unclosed
-      // `<script>` tags are removed:
-      //   1. `<script(?:(?!<\/script>)[\s\S])*<\/script>` — tempered greedy token that
-      //      matches a well-formed `<script>...</script>` block without exponential
-      //      backtracking (the negative lookahead `(?!<\/script>)` ensures each
-      //      character consumed by `[\s\S]` is NOT the start of the terminator).
-      //   2. `<script\b[^>]*>?` (case-insensitive) — covers any unclosed/malformed
-      //      `<script>` opening tag (e.g. `<script src=//evil>` or `<script>` with no
-      //      attributes and no closing tag). Without this second pass, an
-      //      attacker-supplied unclosed `<script>` would survive the first replace
-      //      and execute when the response is inserted via
-      //      `jQuery("<div/>").append(...)`. The trailing `>?` makes the closing `>`
-      //      optional so a bare `<script` with no `>` is also stripped.
-      // Both patterns run in linear time on the input length. The `\b` word-boundary
-      // in pass 2 prevents stripping benign text like `<scripture>` because `\b`
-      // requires a word/non-word transition — between `<script` and `u` both are
-      // word chars so `\b` does NOT match there.
-      responseText
-        .replace(/<script(?:(?!<\/script>)[\s\S])*<\/script>/gi, "")
-        .replace(/<script\b[^>]*>?/gi, "")
+    // Strip <script> elements from the server response before injecting it into
+    // the DOM (CWE-79 / CodeQL js/incomplete-multi-character-sanitization #1730,
+    // #1731 + js/redos #1040).
+    //
+    // The previous regex-based sanitization was insufficient because CodeQL's
+    // data-flow analysis cannot statically prove that the result of
+    // `.replace(/.../g, "")` cannot still contain a `<script` substring (e.g.
+    // when the input has a malformed or unclosed tag). This version uses the
+    // browser's HTML parser via a detached DOM element to extract the target
+    // subtree, then explicitly removes every `<script>` element from the parsed
+    // tree before re-serializing. This is a CodeQL-recognized sanitizer:
+    // `Element.remove()` on script elements clears the taint flow for
+    // `js/incomplete-multi-character-sanitization`.
+    //
+    // The redos fix from the prior PR (tempered greedy pattern for well-formed
+    // `<script>...</script>` blocks) is still applied first as a defense-in-depth
+    // measure, then the DOM-based scrub handles any remaining `<script` substring.
+    var scrubbedText = responseText.replace(
+      /<script(?:(?!<\/script>)[\s\S])*<\/script>/gi,
+      ""
     );
+    // Use jQuery to parse the response into a detached DOM tree. This does NOT
+    // execute scripts in the fragment (jQuery strips them by default when used
+    // with .parseHTML), and gives us an actual DOM tree to walk and scrub.
+    var parsed = jQuery.parseHTML(scrubbedText, document, false);
+    // Walk the parsed tree and remove every <script> element. This is the
+    // CodeQL-recognized sanitizer for js/incomplete-multi-character-sanitization.
+    jQuery(parsed).find("script").remove();
+    jQuery(parsed).filter("script").remove();
+    // Wrap in a container so we can find #ProfileEditPane.
+    var respObj = jQuery("<div/>").append(jQuery(parsed));
     q("#ProfileEditPane").replaceWith(respObj.find("#ProfileEditPane").hide());
     this.__registerProfileEditor();
     q("#ProfileEditPane").show();

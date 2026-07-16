@@ -16,22 +16,22 @@
  */
 
 /**
- * Regression test for js/redos alert #1040 in perc_p13n_profile.js.
+ * Regression test for js/redos alert #1040 and js/incomplete-multi-character-sanitization
+ * alerts #1730/#1731 in perc_p13n_profile.js.
  *
  * <p>The pre-fix regex `<script(.|\s)*?\/script>` exhibited exponential
  * backtracking when given input of the form `<script` followed by many
- * whitespace characters without a closing `</script>`. The post-fix
- * sanitization applies two patterns in sequence:
- * <ol>
- *   <li><code>&lt;script(?:(?!&lt;\/script&gt;)[\s\S])*&lt;\/script&gt;</code>
- *       — tempered greedy token that matches a well-formed script block
- *       without exponential backtracking.</li>
- *   <li><code>&lt;script\b[^&gt;]*&gt;</code> (case-insensitive) — strips
- *       any remaining unclosed/malformed <code>&lt;script&gt;</code> tag
- *       (CodeQL js/incomplete-multi-character-sanitization follow-up).
- *       Without this pass, attacker-supplied unclosed <code>&lt;script&gt;</code>
- *       would survive sanitization and execute on DOM insertion.</li>
- * </ol>
+ * whitespace characters without a closing `</script>`. The first pass
+ * of the post-fix sanitization applies a tempered greedy pattern:
+ *
+ *     /<script(?:(?!<\/script>)[\s\S])*<\/script>/gi
+ *
+ * <p>For the incomplete-multi-character-sanitization alerts, the source
+ * uses a DOM-based scrub: `jQuery.parseHTML` parses the response into a
+ * detached DOM tree, then `jQuery(parsed).find('script').remove()` strips
+ * every `<script>` element. This Node-runnable test exercises the first
+ * pass (regex-based redos fix) since DOM parsing is a browser API. The
+ * CI verifier for the DOM scrub is the CodeQL re-scan on the merged commit.
  *
  * <p>Run with:
  *   node deliverytiersuite/delivery-tier-suite/p13n-ds/src-js/p13n/__tests__/perc_p13n_profile_redos_test.js
@@ -45,21 +45,16 @@
 
 "use strict";
 
-const POST_FIX_PAIR = [
-  /<script(?:(?!<\/script>)[\s\S])*<\/script>/gi,
-  /<script\b[^>]*>?/gi,
-];
+// First-pass regex (tempered greedy) applied before the DOM-based scrub.
+const POST_FIX_REGEX = /<script(?:(?!<\/script>)[\s\S])*<\/script>/gi;
 const TIME_BUDGET_MS = 1000;
 
 /**
- * Apply the post-fix sanitization (both patterns).
+ * Apply the first-pass regex sanitization. The DOM-based scrub runs in the
+ * browser and is verified by the CodeQL re-scan.
  */
 function sanitize(text) {
-  let out = text;
-  for (const re of POST_FIX_PAIR) {
-    out = out.replace(re, "");
-  }
-  return out;
+  return text.replace(POST_FIX_REGEX, "");
 }
 
 /**
@@ -83,13 +78,9 @@ function assertFastOnAdversarialInput() {
       `Post-fix sanitize exceeded ${TIME_BUDGET_MS}ms budget (elapsed=${elapsed}ms) — likely exponential backtracking`
     );
   }
-  // Input has no closing </script>; pass 1 leaves it untouched but pass 2
-  // (unclosed-tag pattern) should still strip the opening tag.
-  if (result.includes("<script")) {
-    throw new Error(
-      `Post-fix sanitize should strip unclosed <script> tag. Got: '${result.slice(0, 80)}...'`
-    );
-  }
+  // Input has no closing </script> so the tempered-greedy regex does not match.
+  // The DOM-based scrub (in the browser) will remove the unclosed <script>
+  // element; this Node-runnable test only verifies the regex timing invariant.
 }
 
 /**
@@ -135,38 +126,8 @@ function assertStripsMultipleScriptTags() {
 }
 
 /**
- * Verify the regex leaves benign `<scripture>`-like text alone (the `\b`
- * word-boundary in pass 2 prevents stripping because there is no
- * word/non-word transition between `<script` and the trailing `u`).
- */
-function assertLeavesBenignScriptLikeTextAlone() {
-  const input = "<scripture>is a word that should not be modified";
-  const actual = sanitize(input);
-  if (actual !== input) {
-    throw new Error(
-      `Post-fix sanitize should not modify '<scripture>' word. Got: '${actual}'`
-    );
-  }
-}
-
-/**
- * Verify that unclosed `<script>` tags are also stripped (closes
- * CodeQL js/incomplete-multi-character-sanitization alert on the
- * post-fix code path).
- */
-function assertStripsUnclosedScriptTag() {
-  const input = 'safe text <script src=//evil.example/x.js and never closed';
-  const actual = sanitize(input);
-  if (actual.includes("<script")) {
-    throw new Error(
-      `Post-fix sanitize should strip unclosed <script> tag. Got: '${actual}'`
-    );
-  }
-}
-
-/**
  * Verify that a `<SCRIPT>` (uppercase) tag is also stripped — the
- * regexes use the `i` flag.
+ * regex uses the `i` flag.
  */
 function assertStripsUpperCaseScriptTag() {
   const input = 'safe <SCRIPT>alert(1)</SCRIPT> end';
@@ -184,8 +145,6 @@ function runAllTests() {
     ["Strips normal script tag", assertStripsNormalScriptTag],
     ["Strips multi-line script tag", assertStripsMultiLineScriptTag],
     ["Strips multiple script tags", assertStripsMultipleScriptTags],
-    ["Leaves benign <scripture> word alone", assertLeavesBenignScriptLikeTextAlone],
-    ["Strips unclosed <script> tag", assertStripsUnclosedScriptTag],
     ["Strips uppercase <SCRIPT> tag", assertStripsUpperCaseScriptTag],
   ];
 
