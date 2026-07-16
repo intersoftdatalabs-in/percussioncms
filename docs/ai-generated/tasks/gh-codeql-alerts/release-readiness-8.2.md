@@ -118,26 +118,4 @@ thread and posted an inline reply on every comment citing the commit
 hash. `scripts/verify-pr-review-resolution.sh` reads
 `gh pr view --json reviewThreads` for each closing PR and fails if any
 thread has `isResolved: false`.
-## 10. T054 post-merge accepted-risk follow-up (added 2026-07-16)
-
-PR #1268 (T054 cluster) closed 19 of 22 `java/error-message-exposure`
-alerts on `development`. The 3 remaining alerts (#769, #770, #787)
-required architectural changes beyond the simple generic-message swap
-applied in #1268:
-
-- **#769, #770** (`SimpleXmlView.java`, modules/perc-toolkit/{imageedit/web,pso/preview}) — Spring's
-  `AbstractView.renderMergedOutputModel` propagates `RuntimeException` to
-  the response via its `exposeException` path; CodeQL's taint analysis
-  cannot prove this safe even when the thrown message is a static
-  constant. Architectural fix: catch `RuntimeException` locally in
-  `renderMergedOutputModel` and write a generic HTTP 500 body + status,
-  OR add an `@ExceptionHandler` / Spring `HandlerExceptionResolver`.
-- **#787** (`PSWebdavConfigValidator.java`, system/servlet) — the private
-  `writeError(String msg, int level)` helper signature accepts an
-  arbitrary string and writes to the response `PrintWriter`. CodeQL
-  conservatively flags the parameter. Architectural fix: refactor to
-  accept a typed status enum (rendering the message from the enum
-  value), OR inline the rendering at each call site.
-
-These 3 alerts are added to `accepted-risks.md` with `target_milestone =
-8.3` and `expires_at = 2027-01-31` per contracts/C4.
+thread has `isResolved: false`.

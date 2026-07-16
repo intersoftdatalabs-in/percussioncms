@@ -59,7 +59,9 @@ public class CookieGenerator {
 
 	private int cookieMaxAge = DEFAULT_COOKIE_MAX_AGE;
 
-	private boolean cookieSecure = false;
+	private boolean cookieSecure = true;
+
+	private boolean cookieHttpOnly = true;
 
 
 	/**
@@ -132,8 +134,12 @@ public class CookieGenerator {
 	/**
 	 * Set whether the cookie should only be sent using a secure protocol,
 	 * such as HTTPS (SSL). This is an indication to the receiving browser,
-	 * not processed by the HTTP server itself. Default is "false".
-	 * @param cookieSecure Default is "false".
+	 * not processed by the HTTP server itself.
+	 *
+	 * <p>Default is "true". Setting to "false" is discouraged as it disables the Secure flag
+	 * and exposes the cookie to cleartext interception (CWE-614, CodeQL java/insecure-cookie).
+	 *
+	 * @param cookieSecure Default is "true".
 	 */
 	public void setCookieSecure(boolean cookieSecure) {
 		this.cookieSecure = cookieSecure;
@@ -142,10 +148,33 @@ public class CookieGenerator {
 	/**
 	 * Return whether the cookie should only be sent using a secure protocol,
 	 * such as HTTPS (SSL).
-	 * @return default is false.
+	 * @return default is true.
 	 */
 	public boolean isCookieSecure() {
 		return cookieSecure;
+	}
+
+	/**
+	 * Set whether the HttpOnly flag should be set on cookies created by this generator. When
+	 * enabled the cookie is inaccessible to client-side JavaScript, mitigating XSS-based
+	 * exfiltration (CWE-1004, CodeQL java/insecure-cookie).
+	 *
+	 * <p>Default is "true". Setting to "false" is discouraged unless there is a documented
+	 * reason the cookie must be readable from client-side script (none currently known in
+	 * this codebase).
+	 *
+	 * @param cookieHttpOnly Default is "true".
+	 */
+	public void setCookieHttpOnly(boolean cookieHttpOnly) {
+		this.cookieHttpOnly = cookieHttpOnly;
+	}
+
+	/**
+	 * Return whether the HttpOnly flag of cookies created by this generator is enabled.
+	 * @return default is true.
+	 */
+	public boolean isCookieHttpOnly() {
+		return cookieHttpOnly;
 	}
 
 
@@ -164,9 +193,8 @@ public class CookieGenerator {
 	public void addCookie(HttpServletResponse response, String cookieValue) {
 		Cookie cookie = createCookie(cookieValue);
 		cookie.setMaxAge(getCookieMaxAge());
-		if (isCookieSecure()) {
-			cookie.setSecure(true);
-		}
+		// cookie.setSecure(true) and cookie.setHttpOnly(true) are applied centrally by
+		// createCookie(...) above; per CWE-614 / CWE-1004 / CodeQL java/insecure-cookie.
 		response.addCookie(cookie);
 		if (logger.isDebugEnabled()) {
 			logger.debug("Added cookie with name [" + getCookieName() + "] and value [" + cookieValue + "]");
@@ -207,6 +235,12 @@ public class CookieGenerator {
 			cookie.setDomain(getCookieDomain());
 		}
 		cookie.setPath(getCookiePath());
+		if (isCookieSecure()) {
+			cookie.setSecure(true);
+		}
+		if (isCookieHttpOnly()) {
+			cookie.setHttpOnly(true);
+		}
 		return cookie;
 	}
 
