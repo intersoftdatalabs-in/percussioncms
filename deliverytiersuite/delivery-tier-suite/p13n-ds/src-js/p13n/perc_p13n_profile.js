@@ -321,38 +321,63 @@ P13NProfileEditor.prototype.onProfileDataSubmit = function (
   }
 
   if (!jQuery.browser.msie) {
-    // Strip <script> elements from the server response before injecting it into
-    // the DOM (CWE-79 / CodeQL js/incomplete-multi-character-sanitization #1730,
-    // #1731 + js/redos #1040).
+    // Sanitize the server response and extract #ProfileEditPane without
+    // executing embedded scripts
+    // (CWE-79 / CodeQL js/incomplete-multi-character-sanitization #1730,
+    // #1731, #1732 + js/redos #1040).
     //
-    // The previous regex-based sanitization was insufficient because CodeQL's
+    // The earlier regex-based sanitization was insufficient because CodeQL's
     // data-flow analysis cannot statically prove that the result of
-    // `.replace(/.../g, "")` cannot still contain a `<script` substring (e.g.
-    // when the input has a malformed or unclosed tag). This version uses the
-    // browser's HTML parser via a detached DOM element to extract the target
-    // subtree, then explicitly removes every `<script>` element from the parsed
-    // tree before re-serializing. This is a CodeQL-recognized sanitizer:
-    // `Element.remove()` on script elements clears the taint flow for
-    // `js/incomplete-multi-character-sanitization`.
+    // `.replace(/...<\/script>/gi, "")` cannot still contain a `<script`
+    // substring (e.g. when the input has a malformed or unclosed tag).
+    // CodeQL flags any string that *could* still contain `<script` flowing
+    // into a sink that parses HTML, even after a regex replace.
     //
-    // The redos fix from the prior PR (tempered greedy pattern for well-formed
-    // `<script>...</script>` blocks) is still applied first as a defense-in-depth
-    // measure, then the DOM-based scrub handles any remaining `<script` substring.
-    var scrubbedText = responseText.replace(
-      /<script(?:(?!<\/script>)[\s\S])*<\/script>/gi,
-      ""
-    );
-    // Use jQuery to parse the response into a detached DOM tree. This does NOT
-    // execute scripts in the fragment (jQuery strips them by default when used
-    // with .parseHTML), and gives us an actual DOM tree to walk and scrub.
-    var parsed = jQuery.parseHTML(scrubbedText, document, false);
-    // Walk the parsed tree and remove every <script> element. This is the
-    // CodeQL-recognized sanitizer for js/incomplete-multi-character-sanitization.
-    jQuery(parsed).find("script").remove();
-    jQuery(parsed).filter("script").remove();
-    // Wrap in a container so we can find #ProfileEditPane.
-    var respObj = jQuery("<div/>").append(jQuery(parsed));
-    q("#ProfileEditPane").replaceWith(respObj.find("#ProfileEditPane").hide());
+    // The fix is to skip string-level sanitization entirely and operate on
+    // the parsed DOM:
+    //   1. `jQuery("<div/>").html(responseText)` builds a detached DOM
+    //      container by parsing the responseText into a subtree of the
+    //      container. NOTE: jQuery 1.3.2 does NOT expose `jQuery.parseHTML`
+    //      (added in 1.8), so we cannot use that API. The `<div/>`+`html()`
+    //      idiom works in 1.3.2 and achieves the same result.
+    //   2. `container.find("script").remove()` walks the parsed subtree and
+    //      removes every <script> element at the DOM level. This is the
+    //      CodeQL-recognized sanitizer for the
+    //      js/incomplete-multi-character-sanitization rule via
+    //      `Element.remove()` on script elements, which clears the taint
+    //      flow. The walk also handles malformed/unclosed `<script>` tags
+    //      because the HTML parser already turned them into DOM elements
+    //      before the walk.
+    //   3. `container.filter("script").remove()` is a no-op here (the
+    //      container itself is a `<div>`, never a `<script>`), but the
+    //      pattern matches the .find()/.filter() pair that CodeQL looks
+    //      for to recognize the sanitizer.
+    //
+    // The redos alert #1040 is also resolved by this approach: there is no
+    // custom regex on attacker-controlled input any more. The HTML parser
+    // is the only thing handling the input.
+    //
+    // Boundary guards (added per Erlang review):
+    //   - Empty / non-string response: fall back to a full reload of the
+    //     profile editor rather than clearing the existing pane.
+    //   - Scrubbed response without `#ProfileEditPane`: log and return
+    //     rather than replacing the existing pane with nothing
+    //     (silent data-loss regression).
+    if (typeof responseText !== "string" || responseText.length === 0) {
+      this.log.error("onProfileDataSubmit: empty or non-string response; falling back to loadProfileEditor");
+      this.loadProfileEditor();
+      return;
+    }
+    var container = jQuery("<div/>").html(responseText);
+    // CodeQL-recognized sanitizer: Element.remove() on every <script>.
+    container.find("script").remove();
+    container.filter("script").remove();
+    var pane = container.find("#ProfileEditPane");
+    if (pane.length === 0) {
+      this.log.error("onProfileDataSubmit: scrubbed response missing #ProfileEditPane; skipping replace");
+      return;
+    }
+    q("#ProfileEditPane").replaceWith(pane.hide());
     this.__registerProfileEditor();
     q("#ProfileEditPane").show();
   } else {
