@@ -144,19 +144,23 @@ class PSArchiveFilesZipSlipTest {
 
   @Test
   @DisplayName("PathValidation.constructSafePath returns a path under baseDir for a valid relative path")
-  void testConstructSafePathAcceptsValidRelative() {
+  void testConstructSafePathAcceptsValidRelative() throws IOException {
     File base = extractDir;
     File safe = PathValidation.constructSafePath(base, "subdir/file.txt");
     assertNotNull(safe);
-    // Use java.nio.file.Path.startsWith(Path) which is case-insensitive on Windows
-    // (java.nio.file.WindowsPath) and case-sensitive on Unix, handling both the
-    // case-folding on Windows and the path-separator difference (/ vs \\) in a
-    // single platform-aware call. The previous String.startsWith was
-    // case-sensitive on all platforms, which produced a Windows-only
-    // regression (CI on dev laptops) when the JUnit TempDir path and the
-    // resolved child path differed only in drive letter casing.
-    Path basePath = base.getAbsoluteFile().toPath().toAbsolutePath().normalize();
-    Path safePath = safe.getAbsoluteFile().toPath().toAbsolutePath().normalize();
+    // Canonicalize both sides before comparing. PathValidation.constructSafePath
+    // returns the canonical form of the resolved path (long-form on Windows),
+    // but base.getAbsoluteFile() returns the path with whatever the JVM cached
+    // for the original constructor - on Windows that can be the 8.3 short form
+    // (e.g. C:\Users\VIJAYA~1.BOD\...) even when the OS still resolves the long
+    // name. The two forms are NOT equal path-by-path, so Path#startsWith sees
+    // different first components (VIJAYA~1.BOD vs vijaya.boddipudi) and
+    // returns false even though both addresses point at the same directory.
+    // Forcing both sides through getCanonicalFile() puts them in the same
+    // canonical long-form, after which Path#startsWith (which is case-insensitive
+    // on Windows) reports containment correctly.
+    Path basePath = base.getCanonicalFile().toPath();
+    Path safePath = safe.getCanonicalFile().toPath();
     assertTrue(safePath.startsWith(basePath),
         "safe path must be under baseDir, got: " + safe);
   }
