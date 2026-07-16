@@ -183,7 +183,7 @@
             var itemId = $(this).find(".item-id").text();
             var itemName = $(this).find(".perc-text-overflow").text();
             $("#perc-select-template").val(itemId);
-            $(".perc-label-right").html("Selected Template:&nbsp;" + itemName);
+            $(".perc-label-right").text("Selected Template: " + itemName);
             $(".perc-items .item").removeClass("perc-selected-item");
             $(this).addClass("perc-selected-item");
           });
@@ -205,11 +205,11 @@
           sourceType = "TEMPLATE";
         }
 
-        $(".perc-label-left").html(
-          "Current Template:&nbsp;" + currentTemplateName
+        $(".perc-label-left").text(
+          "Current Template: " + currentTemplateName
         );
-        $(".perc-label-right").html(
-          "Selected Template:&nbsp;" + selectedTemplateName
+        $(".perc-label-right").text(
+          "Selected Template: " + selectedTemplateName
         );
         $("#perc-select-template").val(currentTemplateName);
 
@@ -220,28 +220,42 @@
          * Creates and returns an entry for the template selection field.
          */
         function createTemplateEntry(data, templateId) {
-          var tempDiv = '<div class="item">';
+          // Build the entry via the jQuery DOM API so user-controlled
+          // fields (data.imageThumbPath, data.id, data.name) are never
+          // concatenated into an HTML string and parsed back into the
+          // DOM. jQuery's `.attr()` and `.text()` escape their
+          // arguments for the relevant context.
+          var $entry = $("<div/>", { class: "item" });
           if (data.id === templateId) {
-            tempDiv = '<div class="item perc-selected-item">';
+            $entry.addClass("perc-selected-item");
           }
-          var temp =
-            tempDiv +
-            '<div class="item-id">@ITEM_ID@</div>' +
-            "    <table>" +
-            "        <tr><td align='left'>" +
-            "            <img style='border:1px solid #E6E6E9' height = '86px' width = '122px' src=\"@IMG_SRC@\"/>" +
-            "        </td></tr>" +
-            "        <tr><td>" +
-            "            <div class='perc-text-overflow-container' style='text-overflow:ellipsis;width:122px;overflow:hidden;white-space:nowrap'>" +
-            "                <div class='perc-text-overflow' style='float:none' title='@ITEM_TT@' alt='@ITEM_TT@'>@ITEM_LABEL@</div>" +
-            "        </td></tr>" +
-            "    </table>" +
-            "</div>";
-          return temp
-            .replace(/@IMG_SRC@/, data.imageThumbPath)
-            .replace(/@ITEM_ID@/, data.id)
-            .replace(/@ITEM_LABEL@/, data.name)
-            .replace(/@ITEM_TT@/g, data.name);
+          var $itemId = $("<div/>", { class: "item-id" }).text(data.id);
+          var $img = $("<img/>", {
+            style: "border:1px solid #E6E6E9",
+            height: "86px",
+            width: "122px",
+          }).attr("src", data.imageThumbPath);
+          var $overflowContainer = $("<div/>", {
+            class: "perc-text-overflow-container",
+            style:
+              "text-overflow:ellipsis;width:122px;overflow:hidden;white-space:nowrap",
+          });
+          var $overflow = $("<div/>", { class: "perc-text-overflow", style: "float:none" })
+            .attr("title", data.name)
+            .attr("alt", data.name)
+            .text(data.name);
+          $overflowContainer.append($overflow);
+          $entry
+            .append($itemId)
+            .append(
+              $("<table/>").append(
+                $("<tbody/>").append(
+                  $("<tr/>").append($("<td/>", { align: "left" }).append($img)),
+                  $("<tr/>").append($("<td/>").append($overflowContainer))
+                )
+              )
+            );
+          return $entry;
         }
       }
     } // End open dialog
