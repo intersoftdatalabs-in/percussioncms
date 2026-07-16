@@ -23,6 +23,19 @@ This module is not intended to be shipped with the product and should not contai
 | `src/main/resources/instructions/` | Always-on style review checklists |
 | `src/main/resources/chatmodes/` | Optional chat-mode definitions |
 
+## CodeQL / code-scanning PRs
+
+**Goal:** Stop residual thrashing (same SSRF/LDAP/path sinks re-opened as new alert IDs on every PR).
+
+| Asset | Path |
+|-------|------|
+| Playbook | repo `docs/ai-generated/tasks/gh-codeql-alerts/codeql-pr-playbook.md` |
+| Skill | `src/main/resources/skills/codeql-pr/SKILL.md` |
+| Advanced workflow | repo `.github/workflows/codeql.yml` |
+| Config + models | repo `.github/codeql/` |
+
+Default CodeQL setup must stay **disabled** (`not-configured`). Analyzer of record is advanced setup only.
+
 ## Erlang — strict pre-commit review
 
 **Goal:** Catch correctness bugs and weak tests **before** commit/PR so GitHub review cycles stay short.

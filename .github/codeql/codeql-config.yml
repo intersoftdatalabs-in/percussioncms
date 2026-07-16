@@ -8,8 +8,9 @@ paths-ignore:
   - "**/docker/dev-data/**"
   - "**/docker/logs/**"
 
-# Local model pack: URLValidation is a request-forgery barrier (see
-# .github/codeql/models/). Advanced CodeQL setup loads this via config-file.
+# Local model pack — custom sanitizer barriers for SSRF, LDAP, path injection,
+# and XXE. Loaded only by advanced setup (analyzer of record). See
+# docs/ai-generated/tasks/gh-codeql-alerts/codeql-pr-playbook.md
 packs:
   - ./.github/codeql/models
 
