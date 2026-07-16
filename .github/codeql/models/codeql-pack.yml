@@ -1,0 +1,10 @@
+# Local CodeQL model pack: teaches default/advanced analysis that
+# URLValidation.validateURLString returns an SSRF-safe URL.
+# See docs/ai-generated/tasks/gh-codeql-alerts/suppressions.md (java/ssrf residuals).
+name: percussion/codeql-models
+version: 0.0.1
+library: true
+extensionTargets:
+  codeql/java-all: "*"
+dataExtensions:
+  - models/**/*.model.yml

@@ -254,9 +254,13 @@ public class PSDocumentUtils extends PSJexlUtilBase
                   .connectTimeout(Duration.ofSeconds(30))
                   .build();
 
-      // codeql[java/ssrf] requestUri rebuilt after URLValidation.validateURLString with http/https scheme literal (alerts #1066/#1067/#1733). See suppressions.md.
+      // requestUri rebuilt after URLValidation.validateURLString with http/https scheme literal
+      // (alerts #1066/#1067/#1733/#1735). See suppressions.md. Suppression is on the sink line:
+      // CodeQL only honors // codeql[...] on the alert line or the line immediately above it.
       HttpRequest.Builder requestBuilder =
-            HttpRequest.newBuilder(requestUri).GET().timeout(Duration.ofSeconds(60));
+            HttpRequest.newBuilder(requestUri) // codeql[java/ssrf]
+                  .GET()
+                  .timeout(Duration.ofSeconds(60));
 
       if (user != null && password != null)
       {
@@ -267,10 +271,10 @@ public class PSDocumentUtils extends PSJexlUtilBase
 
       try
       {
-         // codeql[java/ssrf] same validated requestUri as above (alert #1067). See suppressions.md.
-         HttpResponse<String> response = client.send(
-               requestBuilder.build(),
-               HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
+         HttpResponse<String> response =
+               client.send( // codeql[java/ssrf]
+                     requestBuilder.build(),
+                     HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
          return response.statusCode() == 200 ? response.body() : "";
       }
       catch (InterruptedException e)

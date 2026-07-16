@@ -231,8 +231,10 @@ public class PSDtdTree implements Serializable, PSDtdTreeVisitor, Cloneable {
         // Keep parseDtd's base URL aligned with what we actually fetch.
         dtdURL = validatedUrl;
 
-        // codeql[java/ssrf] openConnection on URL rebuilt after URLValidation.validateURLString with http/https scheme literal (alerts #726/#1734). See suppressions.md.
-        URLConnection conn = validatedUrl.openConnection();
+        // openConnection on URL rebuilt after URLValidation with http/https scheme literal
+        // (alerts #726/#1734/#1736). Suppression on the sink line — CodeQL only honors
+        // // codeql[...] on the alert line or the line immediately above it. See suppressions.md.
+        URLConnection conn = validatedUrl.openConnection(); // codeql[java/ssrf]
 
         String contentType = conn.getHeaderField("Content-Type");
         if (contentType != null) {
