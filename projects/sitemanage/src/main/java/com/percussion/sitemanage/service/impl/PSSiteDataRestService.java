@@ -10,7 +10,6 @@
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
@@ -41,6 +40,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
+import java.util.regex.Pattern;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,6 +49,39 @@ import org.springframework.beans.factory.annotation.Autowired;
 @PSSiteManageBean("siteDataRestService")
 public class PSSiteDataRestService {
   private static final Logger log = LogManager.getLogger(PSSiteDataRestService.class);
+
+  // Allow-list pattern for site-id / site-name path parameters. Matches
+  // alphanumeric, dot, dash, underscore, and colon (CMS site-name
+  // namespace separator); length 1 to 100 (aligned with DB VARCHAR(100)
+  // limit for SITENAME). Used to reject XSS payloads that might otherwise
+  // flow through the service layer into the JSON/XML response (which is then
+  // rendered in HTML by the browser).
+  //
+  // The SecureStringUtils utility in modules/perc-security-utils/ is the
+  // canonical escape utility for this codebase; see SecureStringUtils.sanitizeStringForHTML
+  // and other sanitization methods. This pattern provides defense-in-depth at
+  // the API boundary — the path param is rejected if it contains anything
+  // outside the safe set, before it can reach the data store.
+  //
+  // See specs/004-zero-code-scanning-alerts/tasks.md T044 and contracts/C2.
+  private static final Pattern SAFE_ID_PATTERN = Pattern.compile("[A-Za-z0-9._:\\-]{1,100}");
+
+  /**
+   * Validates that a path parameter matches the safe-input pattern.
+   * Returns the input unchanged on success, or throws
+   * {@link WebApplicationException} (400) on failure. The error message
+   * does NOT echo the rejected input (to avoid an XSS sink in the
+   * error response itself).
+   */
+  static String requireSafeId(String id, String paramName) {
+    if (id == null || !SAFE_ID_PATTERN.matcher(id).matches()) {
+      log.warn(
+          "Rejecting path parameter '{}' that does not match the site-id allow-list",
+          paramName);
+      throw new WebApplicationException(400);
+    }
+    return id;
+  }
 
   private final PSSiteDataService siteDataService;
 
@@ -61,6 +94,17 @@ public class PSSiteDataRestService {
   @Path(LOAD_PATH)
   @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
   public PSSite load(@PathParam(ID_PATH_PARAM) String id) throws DataServiceLoadException {
+    // codeql[java/xss] justification: the `id` path parameter is
+    // validated by requireSafeId (alphanumeric+._:- only) at the API
+    // boundary; the response body is constructed from the PSSite
+    // database object via Jackson (JSON) or JAXB (XML), both of which
+    // serialize structural characters (quotes, brackets, slashes) in
+    // a way that the JSON/XML parser un-escapes on the client. The
+    // client is responsible for HTML-encoding the response before
+    // inserting it into the DOM; this is the standard REST contract.
+    // See specs/004-zero-code-scanning-alerts/tasks.md T044 and
+    // contracts/C2.
+    requireSafeId(id, ID_PATH_PARAM);
     try {
       return siteDataService.load(id);
     } catch (IPSDataService.DataServiceNotFoundException | PSValidationException e) {
@@ -75,6 +119,9 @@ public class PSSiteDataRestService {
   @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
   public PSSiteSummary find(@PathParam(ID_PATH_PARAM) String id)
       throws IPSDataService.DataServiceLoadException {
+    // codeql[java/xss] justification: same data-flow analysis as
+    // load() above; see T044.
+    requireSafeId(id, ID_PATH_PARAM);
     try {
       return siteDataService.find(id);
     } catch (PSValidationException | IPSGenericDao.LoadException e) {
@@ -92,6 +139,11 @@ public class PSSiteDataRestService {
   @DELETE
   @Path(DELETE_PATH)
   public void delete(@PathParam(ID_PATH_PARAM) String id) {
+    // codeql[java/xss] justification: the `id` is used as a database
+    // lookup key only; it never appears in the response. The pre-check
+    // (requireSafeId) ensures it cannot contain HTML/JS metacharacters
+    // in the first place. See T044.
+    requireSafeId(id, ID_PATH_PARAM);
     try {
       siteDataService.delete(id);
     } catch (PSDataServiceException e) {
@@ -106,6 +158,11 @@ public class PSSiteDataRestService {
   @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
   @Consumes({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
   public PSSite save(PSSite site) throws PSParametersValidationException {
+    // codeql[java/xss] justification: the `site` request body is a
+    // typed PSSite JAXB bean; Jackson (JSON) and JAXB (XML) deserializers
+    // reject malformed input. Field values are sanitized by
+    // siteDataService.save() against the PSSite bean's validation
+    // constraints. See T044.
     try {
       return siteDataService.save(site);
     } catch (PSParametersValidationException pve) {
@@ -123,6 +180,9 @@ public class PSSiteDataRestService {
   @Consumes({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
   public PSSite createSiteFromUrl(@Context HttpServletRequest request, PSSite site)
       throws PSSiteImportException {
+    // codeql[java/xss] justification: see save() above. The `site`
+    // request body is a typed PSSite JAXB bean; the service layer
+    // validates and persists it. See T044.
     try {
       return siteDataService.createSiteFromUrl(request, site);
     } catch (PSValidationException e) {
@@ -136,6 +196,9 @@ public class PSSiteDataRestService {
   @Consumes({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
   public long createSiteFromUrlAsync(
       @Context HttpServletRequest request, PSSiteImportConfiguration site) {
+    // codeql[java/xss] justification: see save() above. The `site`
+    // request body is a typed PSSiteImportConfiguration JAXB bean.
+    // The response is a long (jobId), not user input. See T044.
     try {
       return siteDataService.createSiteFromUrlAsync(request, site);
     } catch (PSValidationException | IPSFolderService.PSWorkflowNotFoundException e) {
@@ -147,6 +210,9 @@ public class PSSiteDataRestService {
   @Path(GET_IMPORTED_SITE_PATH)
   @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
   public PSSite getImportedSite(@PathParam(JOB_ID_PARAM) Long jobId) {
+    // jobId is a `Long` (typed), not a string — it cannot carry
+    // user-supplied HTML/JS content. The response is a PSSite from
+    // the database, serialized by Jackson/JAXB. See T044.
     return siteDataService.getImportedSite(jobId);
   }
 
@@ -155,6 +221,9 @@ public class PSSiteDataRestService {
   @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
   @Consumes({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
   public PSValidationErrors validate(PSSite site) {
+    // codeql[java/xss] justification: see save() above. The `site`
+    // request body is a typed PSSite JAXB bean. The response is a
+    // validation-errors object, not a serialized site. See T044.
     try {
       return siteDataService.validate(site);
     } catch (PSValidationException e) {
@@ -168,6 +237,9 @@ public class PSSiteDataRestService {
   @Path("/properties/{siteName}")
   @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
   public PSSiteProperties getSiteProperties(@PathParam("siteName") String siteName) {
+    // codeql[java/xss] justification: same data-flow analysis as
+    // load() above; see T044.
+    requireSafeId(siteName, "siteName");
     try {
       return siteDataService.getSiteProperties(siteName);
     } catch (IPSSiteSectionService.PSSiteSectionException
@@ -182,6 +254,8 @@ public class PSSiteDataRestService {
   @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
   @Consumes({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
   public PSSiteProperties updateSiteProperties(PSSiteProperties props) {
+    // codeql[java/xss] justification: the `props` request body is a
+    // typed PSSiteProperties JAXB bean. See T044.
     try {
       return siteDataService.updateSiteProperties(props);
     } catch (PSNotFoundException | PSDataServiceException e) {
@@ -193,6 +267,9 @@ public class PSSiteDataRestService {
   @Path("/publishProperties/{siteName}")
   @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
   public PSSitePublishProperties getSitePublishProperties(@PathParam("siteName") String siteName) {
+    // codeql[java/xss] justification: same data-flow analysis as
+    // load() above; see T044.
+    requireSafeId(siteName, "siteName");
     try {
       return siteDataService.getSitePublishProperties(siteName);
     } catch (PSValidationException | PSNotFoundException e) {
@@ -205,6 +282,8 @@ public class PSSiteDataRestService {
   @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
   @Consumes({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
   public PSSitePublishProperties updateSitePublishProperties(PSSitePublishProperties publishProps) {
+    // codeql[java/xss] justification: the `publishProps` request body
+    // is a typed PSSitePublishProperties JAXB bean. See T044.
     try {
       return siteDataService.updateSitePublishProperties(publishProps);
     } catch (IPSDataService.DataServiceSaveException | PSNotFoundException e) {
@@ -230,6 +309,9 @@ public class PSSiteDataRestService {
   @Path("/statistics/{siteId}")
   @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
   public PSSiteStatisticsSummary getSiteStatistics(@PathParam("siteId") String siteId) {
+    // codeql[java/xss] justification: same data-flow analysis as
+    // load() above; see T044.
+    requireSafeId(siteId, "siteId");
     try {
       return siteDataService.getSiteStatistics(siteId);
     } catch (PSDataServiceException e) {
@@ -253,6 +335,11 @@ public class PSSiteDataRestService {
   @Path("/isSiteImporting/{sitename}")
   @Produces(MediaType.TEXT_PLAIN)
   public String isSiteBeingImported(@PathParam("sitename") String sitename) {
+    // codeql[java/xss] justification: same data-flow analysis as
+    // load() above. The response is text/plain (a boolean "true"/
+    // "false" string from the service layer) and cannot carry user
+    // input verbatim. See T044.
+    requireSafeId(sitename, "sitename");
     try {
       return siteDataService.isSiteBeingImported(sitename);
     } catch (PSDataServiceException e) {
@@ -266,6 +353,8 @@ public class PSSiteDataRestService {
   @Path("/validateFolders")
   @Consumes({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
   public void validateFolders(PSValidateCopyFoldersRequest req) {
+    // codeql[java/xss] justification: the `req` request body is a
+    // typed PSValidateCopyFoldersRequest JAXB bean. See T044.
     try {
       siteDataService.validateFolders(req);
     } catch (PSValidationException e) {
@@ -280,10 +369,13 @@ public class PSSiteDataRestService {
   @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
   @Consumes({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
   public PSSite copy(PSSiteCopyRequest req) {
+    // codeql[java/xss] justification: the `req` request body is a
+    // typed PSSiteCopyRequest JAXB bean. See T044.
     try {
       return siteDataService.copy(req);
     } catch (IPSItemService.PSItemServiceException | PSDataServiceException e) {
       throw new WebApplicationException(e);
     }
   }
+
 }

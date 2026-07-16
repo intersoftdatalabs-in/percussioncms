@@ -76,6 +76,7 @@
                                 <zip basedir="src/main/resources/skills/javadoc" destfile="${project.build.directory}/skills/javadoc.zip"/>
                                 <zip basedir="src/main/resources/skills/patch" destfile="${project.build.directory}/skills/patch.zip"/>
                                 <zip basedir="src/main/resources/skills/percussioncms-dev" destfile="${project.build.directory}/skills/percussioncms-dev.zip"/>
+                                <zip basedir="src/main/resources/skills/erlang-review" destfile="${project.build.directory}/skills/erlang-review.zip"/>
                             </target>
                         </configuration>
                     </execution>
@@ -113,6 +114,11 @@
                                     <file>${project.build.directory}/skills/percussioncms-dev.zip</file>
                                     <type>zip</type>
                                     <classifier>skill-percussioncms-dev</classifier>
+                                </artifact>
+                                <artifact>
+                                    <file>${project.build.directory}/skills/erlang-review.zip</file>
+                                    <type>zip</type>
+                                    <classifier>skill-erlang-review</classifier>
                                 </artifact>
                             </artifacts>
                         </configuration>

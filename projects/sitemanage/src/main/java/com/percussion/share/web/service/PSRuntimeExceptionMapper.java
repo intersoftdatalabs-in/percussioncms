@@ -17,6 +17,7 @@
  */
 package com.percussion.share.web.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.percussion.cms.IPSConstants;
 import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.share.service.exception.IPSValidationException;
@@ -72,6 +73,16 @@ public class PSRuntimeExceptionMapper extends PSAbstractExceptionMapper<RuntimeE
   @Produces(MediaType.APPLICATION_JSON)
   protected Status getStatus(RuntimeException exception) {
     if (exception instanceof IPSValidationException) {
+      return Status.BAD_REQUEST;
+    }
+    // Jackson null/parse footguns and bad client args map to 400 (v8.1.7 #676)
+    if (exception instanceof NullPointerException) {
+      return Status.BAD_REQUEST;
+    }
+    if (exception instanceof IllegalArgumentException) {
+      return Status.BAD_REQUEST;
+    }
+    if (exception.getCause() instanceof JsonProcessingException) {
       return Status.BAD_REQUEST;
     }
     return super.getStatus(exception);

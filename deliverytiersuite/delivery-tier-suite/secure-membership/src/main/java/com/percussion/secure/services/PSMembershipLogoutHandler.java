@@ -33,7 +33,9 @@ import org.springframework.security.web.authentication.logout.SimpleUrlLogoutSuc
  * Handles logging out of membership and session cookie cleanup.
  *
  * @author Jay Seletz
+ * @deprecated This class is part of the deprecated secure-membership module.
  */
+@Deprecated
 public class PSMembershipLogoutHandler extends SimpleUrlLogoutSuccessHandler {
   private static final Client msClient = ClientBuilder.newClient();
   private PSMembershipConfiguration membershipConfig;

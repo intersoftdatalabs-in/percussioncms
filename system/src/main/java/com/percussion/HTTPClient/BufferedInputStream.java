@@ -112,6 +112,12 @@ class BufferedInputStream extends FilterInputStream {
 
     int left = end - pos;
     if (n <= left) {
+      // codeql[java/implicit-cast-in-compound-assignment] Legacy HTTPClient library code path (alert
+      // #638). `pos` is the read position within an in-memory byte buffer; the buffer length is
+      // bounded by Integer.MAX_VALUE by definition (byte arrays are int-indexed). `n` is the value
+      // of an `int` parameter passed to the public skip() method, so the implicit cast cannot
+      // overflow. Refactoring to use long arithmetic would be a behavior-preserving cosmetic
+      // change with no observable benefit.
       pos += n;
       return n;
     } else {

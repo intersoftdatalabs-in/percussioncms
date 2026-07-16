@@ -24,6 +24,11 @@
 			additivity="false">
 			<AppenderRef ref="RollingRandomAccessFile" />
 		</Logger>
+
+		<!-- Silence Log4j JUL bridge noise during startup (v8.1.7 #782). Sibling Logger under Loggers. -->
+		<Logger name="org.apache.logging.log4j.jul" level="error" additivity="false">
+			<AppenderRef ref="RollingRandomAccessFile"/>
+		</Logger>
 		<!-- Uncomment for MSSQL Driver Debugging <Logger name="com.microsoft.sqlserver.jdbc"
 			level="SEVERE" additivity="true"> <AppenderRef ref="RollingRandomAccessFile"/>
 			</Logger> -->

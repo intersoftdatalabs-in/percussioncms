@@ -25,7 +25,7 @@ Each Valid-finding (US3) task MUST include a regression test that demonstrably f
 - **Removed obsolete files**: under `WebUI/src/main/webapp/`, `system/cms/content/applications/sys_resources/ApplicationFiles/`, `modules/perc-toolkit/src/main/resources/InstallDir/`, `deliverytiersuite/delivery-tier-suite/*/src-js/`
 - **Packaging surface** (must update when removing bundled files): `modules/perc-ant/install.xml`, `modules/perc-distribution-tree/pom.xml`, `modules/perc-packages/`
 - **Build / test**: `./mvn-env.sh -pl <module> -am test` against JDK 21 (per `AGENTS.md`)
-- **Branch policy (per `AGENTS.md`)**: work is authored on a `004-zero-code-scanning-alerts` branch cut from `development`; per-cluster PRs target `development`. Headline `0 active alerts` is measured on `development` at the `8.2` release cut.
+- **Branch policy (per `AGENTS.md`)**: work is authored on a **local-only** `004-zero-code-scanning-alerts` branch cut from `development` (used for staging and rebase only). **Per-cluster PRs target `development` directly** — not the feature branch. The feature branch is typically deleted from `origin` once a US3 cluster is closed or at the end of Phase 7 (Polish). Headline `0 active alerts` is measured on `development` at the `8.2` release cut.
 
 ## Scope Numbers (seeded 2026-07-11)
 
@@ -45,7 +45,7 @@ Each Valid-finding (US3) task MUST include a regression test that demonstrably f
 - [ ] T002 [P] Read root `AGENTS.md` and identify the module owner for each top-5 module (`WebUI/`, `system/`, `projects/sitemanage/`, `modules/perc-packages/`, `modules/perc-common-ui-bundle/`)
 - [ ] T003 [P] Verify `scripts/fetch-gh-code-scanning-alerts.sh` works against `intersoftdatalabs-in/percussioncms` and writes a non-empty `docs/ai-generated/tasks/gh-codeql-alerts/alerts.md` (already fixed 2026-07-11)
 - [ ] T004 [P] Confirm CodeQL Advanced workflow runs on `push` to `development` (`.github/workflows/codeql.yml`); do not change trigger policy in this feature
-- [ ] T005 Create/checkout the `004-zero-code-scanning-alerts` branch from `development` and push so per-module PRs can target it
+- [ ] T005 Create/checkout the **local** `004-zero-code-scanning-alerts` branch from `development` (local-only; per-cluster PRs target `development` per Branch policy above)
 
 ---
 
@@ -112,6 +112,11 @@ Group removals by module. Each cluster = one PR. All clusters can be developed i
 - [ ] T024 [US2] **WebUI/ — shared scripts**: delete `WebUI/src/main/webapp/cm/shared-common.js`, `shared-common-minuet.js`, `shared-finder.js`, `plugins/perc_utils.js`, `app/js/legacy/plugins/perc_utils.js`, `war/plugins/perc_utils.js`, `war/shared-finder.js` only after confirming no JS or JSP references them; covers ~100 alerts of `js/incomplete-sanitization` + `js/incomplete-multi-character-sanitization`; replacement scripts must preserve any public API used by JSP pages
 - [ ] T025 [US2] **WebUI/ — PercDataTable widget**: delete `WebUI/src/main/webapp/cm/widgets/PercDataTable/` (covers ~96 `js/html-constructed-from-input`); confirm no JSP or sitemanage reference; update any navigation registration in `WebUI/src/main/webapp/cm/` config
 - [ ] T026 [US2] **WebUI/ — third-party vendored JS (highlight, datatables, qunit)**: delete `WebUI/src/main/webapp/cm/api/lib/highlight.7.3.pack.js`, `WebUI/war/jslib/profiles/3x/jquery/plugins/jquery-datatables/js/jquery.dataTables.js`, `WebUI/war/cui/components/twitter-bootstrap-3.0.0/js/tests/vendor/qunit.js`
+<<<<<<< HEAD
+=======
+- [ ] T026b [US2] **WebUI/ — requirejs-text vendored plugin**: delete `WebUI/src/main/webapp/cm/pages/cui/components/requirejs-text/text.js`, `WebUI/src/main/webapp/cm/cui/components/requirejs-text/text.js`, `WebUI/war/cui/components/requirejs-text/text.js` AND remove the `text:` plugin entry from `WebUI/src/main/webapp/cm/{pages,cui}/pages/_bootstrap.js` after confirming no module loads text resources via this plugin path; covers 6 `js/polynomial-redos` alerts (#1406, #1405, #1404, #1403, #1037, #1036). Required for T058 closure.
+- [ ] T026c [US2] **deliverytiersuite/ — p13n-ds vendored jQuery**: delete `deliverytiersuite/delivery-tier-suite/p13n-ds/lib-js/jquery-treeview/lib/jquery.js` after confirming no module references the treeview widget's jQuery path; covers 2 `js/redos` alerts (#1038, #1039). Required for T059 closure.
+>>>>>>> origin/development
 - [ ] T027 [US2] **system/ — ApplicationFiles JS (dojo, trinidad, jstree)**: delete `system/cms/content/applications/sys_resources/ApplicationFiles/dojo/`, `ApplicationFiles/trinidad/`, `ApplicationFiles/js/taxonomy/jquery.jstree*` files; update any `sys_resources/ApplicationFiles/*.xml` references; rebuild `system/` and verify
 - [ ] T028 [US2] **system/ — dojo vendor files in non-ApplicationFiles paths**: confirm no other dojo vendored copies; remove if found
 - [ ] T029 [US2] **projects/sitemanage/ — test sample HTML**: delete `projects/sitemanage/src/test/java/com/percussion/sitemanage/importer/helpers/CM1094-SamplePage.html` after confirming it is referenced only by tests that can be updated; covers 28 alerts of `js/incomplete-sanitization`
@@ -188,7 +193,7 @@ Group by rule; one PR per cluster; all clusters can run in parallel.
 
 - [ ] T066 [US4] Confirm the 1 seeded false-positive row in `triage.md` (`java/implicit-cast-in-compound-assignment` in `deliverytiersuite/.../feeds/.../PSFeedServicePerformanceTest.java`) and apply an inline `// codeql[java/implicit-cast-in-compound-assignment] justification: <reference to the perf benchmark that intentionally narrows long→int>` comment in the flagged source file (or convert the test code so the suppression isn't needed)
 - [ ] T067 [US4] Append the matching row to `docs/ai-generated/tasks/gh-codeql-alerts/suppressions.md` per `contracts/C3`
-- [ ] T068 [US4] For each `valid` Java finding that was downgraded to `false-positive` during US3 (e.g., T056 implicit-cast-in-compound-assignment in test perf micro-bench), apply the same inline-suppression workflow as T066–T067
+- [ ] T068 [US4] For each `valid` Java finding that was downgraded to `false-positive` during US3 (e.g., **T056** implicit-cast-in-compound-assignment in test perf micro-bench — see PR #1276 which applied inline suppressions to all 3 alerts of the cluster across the test perf micro-bench and the legacy HTTPClient library), apply the same inline-suppression workflow as T066–T067
 - [ ] T069 [US4] For any `false-positive` finding whose path is in vendored code being removed under US2, flip the row in `triage.md` from `false-positive` to `obsolete` so it's not double-counted; do not add to `suppressions.md` (file is gone)
 - [ ] T070 [US4] Re-scan: run `scripts/fetch-gh-code-scanning-alerts.sh` and confirm no false-positive alert has re-opened
 - [ ] T071 [US4] Run `scripts/verify-suppressions.sh` and ensure every suppression is verifiable

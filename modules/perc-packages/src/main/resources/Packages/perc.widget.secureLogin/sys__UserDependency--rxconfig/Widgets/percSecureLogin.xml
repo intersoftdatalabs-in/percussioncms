@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Widget>
-	<WidgetPrefs title="Secure Login"
-		contenttype_name="percSecureLogin" category="integration"
-		description="Login widget to access secured content."
-		author="Percussion Software Inc."
-		thumbnail="/rx_resources/widgets/percSecureLogin/images/widgetIconLogin.gif"
-		preferred_editor_width="780" preferred_editor_height="450"
-		is_responsive="true" />
-	<UserPref name="labelAlign" display_name="Label align"
-		required="true" default_value="top" datatype="enum">
+<WidgetPrefs title="Secure Login (Deprecated)"
+contenttype_name="percSecureLogin" category="integration"
+description="Login widget to access secured content. (Deprecated)"
+author="Percussion Software Inc."
+thumbnail="/rx_resources/widgets/percSecureLogin/images/widgetIconLogin.gif"
+preferred_editor_width="780" preferred_editor_height="450"
+is_responsive="true" />
+<UserPref name="labelAlign" display_name="Label align"
+required="true" default_value="top" datatype="enum">
 		<EnumValue value="top" display_value="Top of the control" />
 		<EnumValue value="left" display_value="Left of the control" />
 	</UserPref>
