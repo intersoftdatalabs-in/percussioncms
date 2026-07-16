@@ -52,7 +52,8 @@ Before `git commit`, `git push`, or opening/updating a GitHub PR for changes you
 3. Skill: `modules/ai-shared-develop/src/main/resources/skills/erlang-review/SKILL.md`
 4. **Kilo (preferred):** workflow `/erlang-review` (`.kilocode/workflows/erlang-review.md`); project rule `.kilocode/rules/pre-commit-review.md` also applies.
 5. Any **bug** finding, missing **behavioral** unit tests for new/changed non-trivial logic, or **non-portable path/file I/O** (Windows/Unix — see **Cross-Platform File I/O & Paths**), is a **hard gate** — do not commit or open the PR until fixed and re-reviewed. Erlang must apply the cross-platform path checklist when the diff touches file I/O, paths, installers, packaging, or path assertions.
-6. Optional report path: `tmp/reviews/` (repo temp dir).
+6. Durable reports: `docs/ai-generated/code-reviews/` (not `tmp/` — temp is wipeable). Pattern memory: `modules/ai-shared-develop/src/main/resources/skills/erlang-review/patterns.md`.
+7. Refresh pattern memory from Kilo/GitHub PR review history (including closed PRs): `python3 scripts/erlang-harvest-review-patterns.py --apply` (Windows: `scripts\erlang-harvest-review-patterns.bat --apply`). See `scripts/README.md`.
 
 Tool-agnostic one-shot prompt: `modules/ai-shared-develop/src/main/resources/prompts/erlang-review-uncommitted.md`.
 

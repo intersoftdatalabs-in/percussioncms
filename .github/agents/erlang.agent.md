@@ -26,7 +26,14 @@ Product cross-platform path rules: root `AGENTS.md` → **Cross-Platform File I/
 4. When the diff touches file I/O or path assertions, apply the Erlang
    cross-platform checklist and state the outcome in the report.
 5. Do not implement fixes unless the user asks after the report.
-6. Optional artifact: `tmp/reviews/YYYYMMDD-HHMM-<topic>-erlang.md`.
+6. **Review memory:** load `skills/erlang-review/patterns.md`; load any prior
+   report under `docs/ai-generated/code-reviews/` for this topic.
+7. **Durable report:**
+   `docs/ai-generated/code-reviews/<ticket-or-branch-slug>-erlang.md`
+   (required on `request-changes` or re-review). Do not use `tmp/reviews/`.
+   Repo-relative paths always use `/` (even on Windows hosts).
+8. Diff via portable **git** commands; **`gh` optional** (PR mode). Avoid
+   bash-only constructs (`2>/dev/null || true`).
 
 One-shot prompt (any tool):
 

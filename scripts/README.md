@@ -21,6 +21,43 @@ Fetch code scanning (CodeQL) alerts for a repository using the `gh` CLI and writ
   - Pagination is handled automatically (`--paginate`, `per_page=100`).
   - For the `004-zero-code-scanning-alerts` workflow, use this script to (re)generate `alerts.md`, then seed/triage `triage.md` per `specs/004-zero-code-scanning-alerts/contracts/README.md` C1.
 
+### `erlang-harvest-review-patterns.py` (+ `.sh` / `.bat`)
+
+Harvest GitHub PR **line review comments** (including closed/merged PRs) from
+`kilo-code-bot[bot]` (and optional other authors), cluster them into generalized
+themes, write a candidate report, and optionally auto-merge multi-PR themes into
+Erlang review pattern memory.
+
+- **Purpose**: Keep Erlang's institutional review memory (`patterns.md`) fed from
+  real Kilo/GitHub review history without hand-copying every comment. Short-handed
+  teams re-run this instead of maintaining patterns only by hand.
+- **Usage** (repo root; needs `gh auth login` + network):
+  ```text
+  # Candidates only (safe default)
+  python3 scripts/erlang-harvest-review-patterns.py
+  # or: scripts/erlang-harvest-review-patterns.sh
+  # or: scripts\erlang-harvest-review-patterns.bat
+
+  # Merge multi-PR themes into patterns.md
+  python3 scripts/erlang-harvest-review-patterns.py --apply
+
+  # Also promote single-PR CRITICAL hard-gate themes (noisier)
+  python3 scripts/erlang-harvest-review-patterns.py --apply --promote-critical
+  ```
+- **Outputs**:
+  - `docs/ai-generated/code-reviews/harvest-candidates-YYYY-MM-DD.md` — full cluster report + evidence links
+  - With `--apply`: appends selected bullets to
+    `modules/ai-shared-develop/src/main/resources/skills/erlang-review/patterns.md`
+    (marked `_(harvested, seen N×)_`)
+- **Prereqs**: Python 3.9+, `gh` CLI authenticated. No `jq` required (Python parses JSON).
+- **Cross-platform**: Python core; Unix wrapper `.sh` and Windows wrapper `.bat`.
+- **Tests**: `python3 scripts/test_erlang_harvest_review_patterns.py` (offline; uses `--fixture`).
+- **Notes**:
+  - Default authors: `kilo-code-bot[bot]`. Options: `--include-security-bots`, `--include-humans`.
+  - Default `--apply` promotes **multi-PR** themes only (count ≥ 2 and ≥ 2 distinct PRs).
+  - Mitigation / reply threads are skipped (`in_reply_to_id`).
+  - Review the candidates report (and the patterns.md diff) before committing.
+
 ### Other scripts in this directory
 
 - `authenticate-sigstore.sh` — sigstore / cosign authentication helper for artifact verification.
@@ -66,6 +103,7 @@ the "good" fixture is the expected clean state.
 
 ## Conventions
 
-- All scripts in this directory MUST be POSIX `sh` or `bash`, set `-euo pipefail`, and document purpose + usage in this README.
+- Prefer portable entry points: POSIX `sh`/`bash` **and** Windows `.bat` when operators need both, or a single Python/Java tool with thin wrappers (see `erlang-harvest-review-patterns`).
+- Shell scripts MUST set `-euo pipefail` (or `set -eu` for pure `sh`) and document purpose + usage in this README.
 - Scripts MUST NOT write to `%TEMP%` or `$TMPDIR`; use `./tmp` for scratch.
 - Scripts MUST NOT invent third-party APIs or extension points — see root AGENTS.md "Evidence Over Invention".
