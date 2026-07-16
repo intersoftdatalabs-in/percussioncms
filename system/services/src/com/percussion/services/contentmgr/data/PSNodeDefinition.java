@@ -168,6 +168,24 @@ public class PSNodeDefinition implements IPSNodeDefinition
       }
    }
 
+   @Override
+   public String[] getRequiredPrimaryTypeNames()
+   {
+      NodeType type = getDefaultPrimaryType();
+      if (type == null)
+      {
+         return new String[0];
+      }
+      return new String[] { type.getName() };
+   }
+
+   @Override
+   public String getDefaultPrimaryTypeName()
+   {
+      NodeType type = getDefaultPrimaryType();
+      return type == null ? null : type.getName();
+   }
+
    /**
     * (non-Javadoc)
     * 

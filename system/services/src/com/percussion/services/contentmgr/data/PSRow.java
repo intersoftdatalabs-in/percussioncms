@@ -28,7 +28,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 import javax.jcr.ItemNotFoundException;
+import javax.jcr.Node;
 import javax.jcr.RepositoryException;
+import javax.jcr.UnsupportedRepositoryOperationException;
 import javax.jcr.Value;
 import javax.jcr.query.Row;
 
@@ -180,6 +182,45 @@ public class PSRow implements Row
          return PSValueFactory.createValue(val);
       else
          return null;
+   }
+
+   @Override
+   public Node getNode() throws RepositoryException
+   {
+      throw new UnsupportedRepositoryOperationException(
+            "Row.getNode is not supported for CMS query rows");
+   }
+
+   @Override
+   public Node getNode(String selectorName) throws RepositoryException
+   {
+      throw new UnsupportedRepositoryOperationException(
+            "Row.getNode(selector) is not supported for CMS query rows");
+   }
+
+   @Override
+   public String getPath() throws RepositoryException
+   {
+      Value path = getRawValue(IPSContentPropertyConstants.JCR_PATH);
+      return path == null ? null : path.getString();
+   }
+
+   @Override
+   public String getPath(String selectorName) throws RepositoryException
+   {
+      return getPath();
+   }
+
+   @Override
+   public double getScore() throws RepositoryException
+   {
+      return 0.0d;
+   }
+
+   @Override
+   public double getScore(String selectorName) throws RepositoryException
+   {
+      return 0.0d;
    }
 
    /** (non-Javadoc)

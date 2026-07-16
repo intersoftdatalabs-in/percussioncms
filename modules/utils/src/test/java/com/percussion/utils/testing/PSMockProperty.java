@@ -18,8 +18,10 @@ package com.percussion.utils.testing;
 
 import com.percussion.utils.jsr170.PSValueFactory;
 import java.io.InputStream;
+import java.math.BigDecimal;
 import java.util.Calendar;
 import javax.jcr.AccessDeniedException;
+import javax.jcr.Binary;
 import javax.jcr.InvalidItemStateException;
 import javax.jcr.Item;
 import javax.jcr.ItemExistsException;
@@ -131,6 +133,26 @@ public class PSMockProperty implements Property {
     m_value = PSValueFactory.createValue((Object) arg0);
   }
 
+  @Override
+  public void setValue(Binary arg0)
+      throws ValueFormatException,
+          VersionException,
+          LockException,
+          ConstraintViolationException,
+          RepositoryException {
+    m_value = PSValueFactory.createValue((Object) arg0);
+  }
+
+  @Override
+  public void setValue(BigDecimal arg0)
+      throws ValueFormatException,
+          VersionException,
+          LockException,
+          ConstraintViolationException,
+          RepositoryException {
+    m_value = PSValueFactory.createValue((Object) arg0);
+  }
+
   public Value getValue() throws ValueFormatException, RepositoryException {
     return m_value;
   }
@@ -165,6 +187,26 @@ public class PSMockProperty implements Property {
 
   public Node getNode() throws ValueFormatException, RepositoryException {
     throw new RepositoryException("Not supported: getNode()");
+  }
+
+  @Override
+  public Property getProperty() throws ItemNotFoundException, ValueFormatException, RepositoryException {
+    throw new RepositoryException("Not supported: getProperty()");
+  }
+
+  @Override
+  public Binary getBinary() throws ValueFormatException, RepositoryException {
+    return m_value.getBinary();
+  }
+
+  @Override
+  public BigDecimal getDecimal() throws ValueFormatException, RepositoryException {
+    return m_value.getDecimal();
+  }
+
+  @Override
+  public boolean isMultiple() throws RepositoryException {
+    return false;
   }
 
   public long getLength() throws ValueFormatException, RepositoryException {

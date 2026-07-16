@@ -36,6 +36,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import java.math.BigDecimal;
+import javax.jcr.Binary;
 import javax.jcr.PropertyType;
 import javax.jcr.RepositoryException;
 import javax.jcr.Value;
@@ -160,6 +162,18 @@ public class PSDbUtils extends PSJexlUtilBase
          public int getType()
          {
             return PropertyType.LONG;
+         }
+
+         @Override
+         public Binary getBinary() throws RepositoryException
+         {
+            throw new ValueFormatException("Sequence cannot be represented as a binary");
+         }
+
+         @Override
+         public BigDecimal getDecimal() throws ValueFormatException, RepositoryException
+         {
+            return BigDecimal.valueOf(getLong());
          }
          
       };

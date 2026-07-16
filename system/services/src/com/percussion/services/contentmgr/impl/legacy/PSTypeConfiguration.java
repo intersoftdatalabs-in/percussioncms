@@ -44,12 +44,14 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.Set;
 
 import javax.jcr.PropertyType;
 import javax.jcr.Value;
 import javax.jcr.nodetype.NodeDefinition;
 import javax.jcr.nodetype.NodeType;
+import javax.jcr.nodetype.NodeTypeIterator;
 import javax.jcr.nodetype.PropertyDefinition;
 
 
@@ -1801,5 +1803,91 @@ public class PSTypeConfiguration implements NodeType, Serializable
    public boolean isNodeType(String arg0)
    {
       return arg0.equals(getName());
+   }
+
+   @Override
+   public String[] getDeclaredSupertypeNames()
+   {
+      return new String[0];
+   }
+
+   @Override
+   public boolean isAbstract()
+   {
+      return false;
+   }
+
+   @Override
+   public boolean isQueryable()
+   {
+      return true;
+   }
+
+   @Override
+   public boolean canRemoveNode(String nodeName)
+   {
+      return false;
+   }
+
+   @Override
+   public boolean canRemoveProperty(String propertyName)
+   {
+      return false;
+   }
+
+   @Override
+   public NodeTypeIterator getDeclaredSubtypes()
+   {
+      return emptyNodeTypeIterator();
+   }
+
+   @Override
+   public NodeTypeIterator getSubtypes()
+   {
+      return emptyNodeTypeIterator();
+   }
+
+   private static NodeTypeIterator emptyNodeTypeIterator()
+   {
+      return new NodeTypeIterator()
+      {
+         public NodeType nextNodeType()
+         {
+            throw new NoSuchElementException();
+         }
+
+         public void skip(long skipNum)
+         {
+            if (skipNum > 0)
+            {
+               throw new NoSuchElementException();
+            }
+         }
+
+         public long getSize()
+         {
+            return 0;
+         }
+
+         public long getPosition()
+         {
+            return 0;
+         }
+
+         public boolean hasNext()
+         {
+            return false;
+         }
+
+         public Object next()
+         {
+            throw new NoSuchElementException();
+         }
+
+         public void remove()
+         {
+            throw new UnsupportedOperationException();
+         }
+      };
    }
 }
