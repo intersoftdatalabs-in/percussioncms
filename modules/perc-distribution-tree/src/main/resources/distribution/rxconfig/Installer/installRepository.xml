@@ -479,6 +479,31 @@
 				</if>
 
 				<if>
+					<equals arg1="${perc.db.type}" arg2="oracle"
+						casesensitive="false" />
+					<then>
+						<propertyfile file="${rxrepository.properties}"
+							comment="Repository Properties">
+							<entry key="DB_BACKEND" value="${perc.db.cms.backend}" />
+							<entry key="DB_DRIVER_NAME"
+								value="${perc.db.cms.driverName}" />
+							<entry key="DB_DRIVER_CLASS_NAME"
+								value="${perc.db.cms.driverClass}" />
+							<entry key="DB_SERVER" value="${perc.db.cms.server}" />
+							<entry key="DB_NAME" value="${perc.db.cms.name}" />
+							<entry key="DB_SCHEMA" value="${perc.db.cms.schema}" />
+							<entry key="UID" value="${perc.db.user}" />
+							<entry key="PWD" value="${perc.db.password}" />
+							<entry key="PWD_ENCRYPTED" value="N" />
+							<entry key="DB_SSL_ENABLED" value="${perc.db.ssl.enabled}" />
+							<entry key="DB_SSL_VERIFY" value="${perc.db.ssl.verify}" />
+							<entry key="DB_SSL_ALLOW_SELF_SIGNED"
+								value="${perc.db.ssl.allowSelfSigned}" />
+						</propertyfile>
+					</then>
+				</if>
+
+				<if>
 					<equals arg1="${perc.db.type}" arg2="derby"
 						casesensitive="false" />
 					<then>
@@ -507,6 +532,16 @@
 		</if>
 
 		<PSMakeLasagna root="${install.dir}" />
+
+		<!-- New-install only: fail fast if repository is unreachable (issue #949 FR-008).
+		     Gated by do.install so upgrades do not re-validate / rewrite backends. -->
+		<if>
+			<istrue value="${do.install}" />
+			<then>
+				<PSValidateRepositoryConnection rootDir="${install.dir}"
+					loginTimeoutSeconds="15" />
+			</then>
+		</if>
 	</target>
 
 	<target name="exportDB">
