@@ -118,7 +118,6 @@ thread and posted an inline reply on every comment citing the commit
 hash. `scripts/verify-pr-review-resolution.sh` reads
 `gh pr view --json reviewThreads` for each closing PR and fails if any
 thread has `isResolved: false`.
-
 ## 10. T054 post-merge accepted-risk follow-up (added 2026-07-16)
 
 PR #1268 (T054 cluster) closed 19 of 22 `java/error-message-exposure`
