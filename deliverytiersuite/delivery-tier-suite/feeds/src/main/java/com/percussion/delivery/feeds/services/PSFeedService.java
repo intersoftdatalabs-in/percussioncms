@@ -516,13 +516,13 @@ public class PSFeedService extends PSAbstractRestService implements IPSFeedsRest
       this.rssFeedsIP = this.rssFeedsIP.trim();
     }
 
-    // Only accept a literal IP (v4 or v6) or fall back to the loopback default.
-    // Hostname strings are rejected so the metadata-service target cannot be
-    // redirected via a misconfigured property (SSRF / alert #797).
+    // Only accept a literal IPv4/IPv6 (no hostnames, no zone-indexed IPv6).
+    // Explicit v4/v6 checks alone are sufficient: isValid() is redundant and
+    // would also accept zone-indexed IPv6 that we intentionally reject so a
+    // misconfigured rssFeedsIP cannot redirect the metadata call (alert #797).
     InetAddressValidator ipValidator = new InetAddressValidator();
-    if (!ipValidator.isValid(this.rssFeedsIP)
-        || !(ipValidator.isValidInet4Address(this.rssFeedsIP)
-            || ipValidator.isValidInet6Address(this.rssFeedsIP))) {
+    if (!(ipValidator.isValidInet4Address(this.rssFeedsIP)
+        || ipValidator.isValidInet6Address(this.rssFeedsIP))) {
       this.rssFeedsIP = PSFeedService.FEEDS_IP_DEFAULT;
     }
     // Call the metadata service with the query to get page listing
