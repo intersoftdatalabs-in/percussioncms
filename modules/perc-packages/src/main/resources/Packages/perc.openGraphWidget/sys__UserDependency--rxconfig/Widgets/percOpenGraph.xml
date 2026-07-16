@@ -443,49 +443,70 @@
 	}
 	$nl="";
 	if(!empty($use_site_name)){
-		$perc.page.setAdditionalHeadContent($addlHead + $meta_sitename);
+		$addlHead = $perc.page.getAdditionalHeadContent();
+		if (! $addlHead.contains("property=\"og:site_name\"")) {
+			$perc.page.setAdditionalHeadContent($addlHead + $meta_sitename);
+		}
 	}
 
 	if(!empty($use_title)){
 		$addlHead = $perc.page.getAdditionalHeadContent();
-		$perc.page.setAdditionalHeadContent($nl.format("%s%n%s", $addlHead,$meta_title));
+		if (! $addlHead.contains("property=\"og:title\"")) {
+			$perc.page.setAdditionalHeadContent($nl.format("%s%n%s", $addlHead,$meta_title));
+		}
 	}
 
 	if(!empty($use_description)){
 		$addlHead = $perc.page.getAdditionalHeadContent();
-		$perc.page.setAdditionalHeadContent($nl.format("%s%n%s", $addlHead,$meta_description));
+		if (! $addlHead.contains("property=\"og:description\"")) {
+			$perc.page.setAdditionalHeadContent($nl.format("%s%n%s", $addlHead,$meta_description));
+		}
 	}
 	if(!empty($use_url)){
 		$addlHead = $perc.page.getAdditionalHeadContent();
-		$perc.page.setAdditionalHeadContent($nl.format("%s%n%s", $addlHead,$meta_url));
+		if (! $addlHead.contains("property=\"og:url\"")) {
+			$perc.page.setAdditionalHeadContent($nl.format("%s%n%s", $addlHead,$meta_url));
+		}
 	}
 
 	if(!empty($use_type)){
 		$addlHead = $perc.page.getAdditionalHeadContent();
-		$perc.page.setAdditionalHeadContent($nl.format("%s%n%s", $addlHead,$meta_type));
+		if (! $addlHead.contains("property=\"og:type\"")) {
+			$perc.page.setAdditionalHeadContent($nl.format("%s%n%s", $addlHead,$meta_type));
+		}
 	}
 
 	if(!empty($use_image)){
 		$addlHead = $perc.page.getAdditionalHeadContent();
-		$perc.page.setAdditionalHeadContent($nl.format("%s%n%s", $addlHead,$meta_image));
-			if(!empty($use_image_width)){
+		if (! $addlHead.contains("property=\"og:image\"")) {
+			$perc.page.setAdditionalHeadContent($nl.format("%s%n%s", $addlHead,$meta_image));
+		}
+		if(!empty($use_image_width)){
 			$addlHead = $perc.page.getAdditionalHeadContent();
-			$perc.page.setAdditionalHeadContent($nl.format("%s%n%s", $addlHead,$meta_image_width));
+			if (! $addlHead.contains("property=\"og:image:width\"")) {
+				$perc.page.setAdditionalHeadContent($nl.format("%s%n%s", $addlHead,$meta_image_width));
+			}
 		}
 		if(!empty($use_image_height)){
 			$addlHead = $perc.page.getAdditionalHeadContent();
-			$perc.page.setAdditionalHeadContent($nl.format("%s%n%s", $addlHead,$meta_image_height));
+			if (! $addlHead.contains("property=\"og:image:height\"")) {
+				$perc.page.setAdditionalHeadContent($nl.format("%s%n%s", $addlHead,$meta_image_height));
+			}
 		}
 	}
 
 	if(!empty($use_locale)){
 		$addlHead = $perc.page.getAdditionalHeadContent();
-		$perc.page.setAdditionalHeadContent($nl.format("%s%n%s", $addlHead, $meta_locale));
+		if (! $addlHead.contains("property=\"og:locale\"")) {
+			$perc.page.setAdditionalHeadContent($nl.format("%s%n%s", $addlHead, $meta_locale));
+		}
 	}
 
 	if(!empty($use_fb_app_id)){
 		$addlHead = $perc.page.getAdditionalHeadContent();
-		$perc.page.setAdditionalHeadContent($nl.format("%s%n%s", $addlHead,$meta_fb_app_id));
+		if (! $addlHead.contains("property=\"og:fb_app_id\"")) {
+			$perc.page.setAdditionalHeadContent($nl.format("%s%n%s", $addlHead,$meta_fb_app_id));
+		}
 	}
 
 	]]>

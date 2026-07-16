@@ -433,6 +433,17 @@ $perc.setWidgetContents($rx.pageutils.widgetContents($sys.assemblyItem, $perc.wi
 ## Common header for all base templates
 #macro(perc_templateHeader)##
 #set($selectedDoctype = $perc.template.docType.selected)##
+#set($jqueryWidgetInstances = $rx.pageutils.findWidgetInstances($sys.assemblyItem, $NULL, "percJQueryWidget"))##
+#set($jqueryIsDeferred = "no")##
+#if($jqueryWidgetInstances.size() > 0)##
+#set($jqueryWidgetInstance = $jqueryWidgetInstances.get(0))##
+#set($jqueryWidgetItem = $jqueryWidgetInstance.getItem())##
+#set($jqueryIsDeferred = $jqueryWidgetItem.getProperties().get("isDeferred"))##
+#end##
+#set($deferDependents = false)##
+#if($jqueryIsDeferred == "yes" && !$perc.isEditMode())##
+#set($deferDependents = true)##
+#end##
 #foreach($option in $perc.template.docType.options)##
 #if($option.option.equals($selectedDoctype))##
 #perc_displayText("$!option.value")##
@@ -591,12 +602,18 @@ $__style
 #end##
 
 ##Print JQuery and JQuery-UI scripts on top and rest below them##
-#perc_displayText("$!perc.linkContext.site.siteAdditionalHeadContent")##
+#perc_displayText($rx.pageutils.processFrameworkContent("$!perc.linkContext.site.siteAdditionalHeadContent"))##
+#if($jqueryWidgetInstances.size() > 0)##
+#if($perc.isEditMode())##
+<script src="/cm/jslib/profiles/3x/jquery/jquery-3.6.0.js"></script>
+<script src="/cm/jslib/profiles/3x/jquery/jquery-migrate-3.3.2.js"></script>
+#else##
+#print_jquery("additionalHeadContent")##
+#end##
+#else##
 #foreach($js_link in $rx.pageutils.javascriptLinks($perc.linkContext, $sys.assemblyItem))##
 #if($js_link.getUrl().endsWith("/jquery.js"))##
-#set($jqueryWidgetInstances = $rx.pageutils.findWidgetInstances($sys.assemblyItem, $NULL, "percJQueryWidget"))##
-    ##Need preview check as on page content view, it shows preview unless on edit mode
-#if($perc.isEditMode() || ($perc.isPreviewMode() && $jqueryWidgetInstances.size()==0))##
+#if($perc.isEditMode() || $perc.isPreviewMode())##
 <script src="/cm/jslib/profiles/3x/jquery/jquery-3.6.0.js"></script>
 <script src="/cm/jslib/profiles/3x/jquery/jquery-migrate-3.3.2.js"></script>
 #else##
@@ -604,6 +621,7 @@ $__style
 #print_jquery("additionalHeadContent")##
 #else##
 <script src="/web_resources/cm/jslib/jquery.js"></script>
+#end##
 #end##
 #end##
 #end##
@@ -646,7 +664,7 @@ display:none;
 ##
 #print_jquery("afterBodyStart")##
 #print_jqueryUI("afterBodyStart")##
-#perc_displayText("$!perc.linkContext.site.siteAfterBodyOpenContent")##
+#perc_displayText($rx.pageutils.processFrameworkContent("$!perc.linkContext.site.siteAfterBodyOpenContent"))##
 #perc_displayText("$!perc.template.afterBodyStartContent")##
 #perc_displayText("$!perc.page.afterBodyStartContent")##
 #end##
@@ -666,16 +684,16 @@ display:none;
 <script defer src='/Rhythmyx/web_resources/cm/foundation/js/foundation.min.js'></script>
 #end##
 #end##
-#perc_displayText("$!perc.linkContext.site.siteBeforeBodyCloseContent")##
+#perc_displayText($rx.pageutils.processFrameworkContent("$!perc.linkContext.site.siteBeforeBodyCloseContent"))##
 #perc_displayText("$!perc.page.beforeBodyCloseContent")##
 #perc_displayText("$!perc.template.beforeBodyCloseContent")##
 #set($jqueryUIwidget = $rx.pageutils.findWidgetInstances($sys.assemblyItem, $NULL, "percJQueryUIWidget"))##
 #foreach($js_link in $rx.pageutils.javascriptLinks($perc.linkContext, $sys.assemblyItem))##
 #if($js_link.getUrl().endsWith("/jquery-ui.js"))##
-#if($perc.isEditMode() && ($includeOnPublishedPage != "no"))##
+#if($perc.isEditMode())##
 <script src='/cm/jslib/profiles/3x/jquery/libraries/jquery-ui/jquery-ui.js'></script>
-#elseif ($perc.isPreviewMode() && ($includeOnPublishedPage != "no") && ($perc.linkContext.site.overrideSystemJQueryUI==false) && ($jqueryUIwidget.size()==0) )##
-<script src='/cm/jslib/profiles/3x/jquery/libraries/jquery-ui/jquery-ui.js'></script>
+#elseif ($perc.isPreviewMode() && ($perc.linkContext.site.overrideSystemJQueryUI==false) && ($jqueryUIwidget.size()==0) )##
+<script src='/cm/jslib/profiles/3x/jquery/libraries/jquery-ui/jquery-ui.js'#if($deferDependents) defer#end></script>
 #else##
 #print_jqueryUI("additionalHeadContent")##
 #end##
@@ -683,8 +701,8 @@ display:none;
 #end##
 #perc_addDeliveryJSFunctions()##
 #foreach($js_link in $rx.pageutils.javascriptLinks($perc.linkContext, $sys.assemblyItem))##
-#if(! $js_link.getUrl().endsWith("/jquery.js") && !($js_link.getUrl().endsWith("/jquery-ui.js")) && ($includeOnPublishedPage != "no"))##
-<script src="$js_link"></script>
+#if(! $js_link.getUrl().endsWith("/jquery.js") && !($js_link.getUrl().endsWith("/jquery-ui.js")))##
+<script src="$js_link"#if($deferDependents) defer#end></script>
 #end##
 #end##
 </body>
@@ -745,13 +763,13 @@ ga('send', 'pageview');
 #if ($perc.isPreviewMode())##
 #if($perc.isEditMode())##
 #else##
-#if($includeOnPublishedPage != "no")
 <script>
 document.addEventListener("DOMContentLoaded", function(event) {
-(function($){$(document).ready(function(){$('a[href*="/.system/PageCatalog"]').attr('cataloged', 'true' );$('a[href*="/.system/PageCatalog"]').on("click",function(e) {alert('This page has not yet been imported. It will be available for preview after import is complete.');e.preventDefault();});})    })(jQuery);
+    if (typeof jQuery !== 'undefined') {
+        (function($){$(document).ready(function(){$('a[href*="/.system/PageCatalog"]').attr('cataloged', 'true' );$('a[href*="/.system/PageCatalog"]').on("click",function(e) {alert('This page has not yet been imported. It will be available for preview after import is complete.');e.preventDefault();});})    })(jQuery);
+    }
 });
 </script>
-#end##
 #end##
 #end##
 #end##
@@ -761,9 +779,7 @@ document.addEventListener("DOMContentLoaded", function(event) {
 #if ($perc.isPreviewMode())##
 #if($perc.isEditMode())##
 #else##
-#if($includeOnPublishedPage != "no")
 <script src="/Rhythmyx/sys_resources/mobilepreview/js/PercMobilePreview.js" defer></script>
-#end##
 #end##
 #end##
 #end##
@@ -792,9 +808,7 @@ document.addEventListener("DOMContentLoaded", function(event) {
 #if(! $cm1Version )##
 #set($cm1Version = "")##
 #end##
-#if($includeOnPublishedPage != "no")
-<script>(function() { jQuery.getDeliveryServiceBase = function(){ return '$dServiceBase';};jQuery.getCMSVersion = function(){ return '$!{cm1Version}';};})();</script>
-#end##
+<script>(function() { if (typeof jQuery !== 'undefined') { jQuery.getDeliveryServiceBase = function(){ return '$dServiceBase';};jQuery.getCMSVersion = function(){ return '$!{cm1Version}';}; } })();</script>
 #end##
 ##
 ##
@@ -1041,7 +1055,6 @@ crossorigin="$!{jQueryMigrateCrossOrigin}"
 ## $location_name is a reference to additionalHeadContent, beforeBodyClose,
 ## or afterBodyStart, etc.
 #macro(print_jqueryUI $location_name)##
-#if($includeOnPublishedPage != "no")
 #set($instances = $rx.pageutils.findWidgetInstances($sys.assemblyItem, $NULL, "percJQueryUIWidget"))##
 #if($instances.size() > 0)##
 #set($instance = $instances.get(0))##
@@ -1052,6 +1065,9 @@ crossorigin="$!{jQueryMigrateCrossOrigin}"
 #set($includeUIOnPublishedPage = "yes")## Default to publishing
 #end##
 #set($isDeferred = $widgetitem.getProperties().get("isUIDeferred"))##
+#if($deferDependents)##
+#set($isDeferred = "yes")##
+#end##
 #set($jQueryLocation = $widgetitem.getProperties().get("jQueryUILocation"))##
 #if("${jQueryLocation}"  ==  "" )##
 #if($perc.linkContext.mode == "PUBLISH")##
@@ -1100,11 +1116,10 @@ crossorigin="$!{jQueryCrossOrigin}"
 #elseif($perc.linkContext.mode.toString() == "PUBLISH" && $location_name == "additionalHeadContent")##
 #if($js_link.getUrl().endsWith("/jquery-ui.js"))##
 #if ($perc.linkContext.site.overrideSystemJQueryUI==false)##
-<script src="/web_resources/cm/jslib/jquery-ui.js"></script>
+<script src="/web_resources/cm/jslib/jquery-ui.js"#if($deferDependents) defer#end></script>
 #end##
 #else##
-<script src="$js_link"></script>
-#end##
+<script src="$js_link"#if($deferDependents) defer#end></script>
 #end##
 #end##
 #end##

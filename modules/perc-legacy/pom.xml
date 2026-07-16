@@ -29,10 +29,8 @@
     <build>
         <plugins>
             <!-- Ensure surefire runs JUnit Platform -->
-            
             <!-- Ensure test compilation works on Java 11 and disable annotation processing
 				noise -->
-            
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-site-plugin</artifactId>

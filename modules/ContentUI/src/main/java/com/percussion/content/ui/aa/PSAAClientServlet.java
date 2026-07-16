@@ -29,12 +29,22 @@ import java.util.HashMap;
 import java.util.Map;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * Servlet that calls a AA client action to provide a specific response for a request made by the
  * Active Assembly client objects.
  */
 public class PSAAClientServlet extends HttpServlet {
+
+  private static final Logger log = LogManager.getLogger(PSAAClientServlet.class);
+
+  // Generic client-facing error message used to avoid leaking internal exception details
+  // (CWE-209 / CodeQL java/error-message-exposure). The detailed exception is always logged
+  // server-side before this generic message is returned to the client.
+  private static final String GENERIC_ACTION_ERROR =
+      "An error occurred while processing the AA client request";
 
   @Override
   public void service(HttpServletRequest request, HttpServletResponse response) throws IOException {
@@ -53,8 +63,8 @@ public class PSAAClientServlet extends HttpServlet {
         PSActionResponse aResponse = action.execute(MapUtils.unmodifiableMap(params));
         pushResponse(response, aResponse.getResponseData(), aResponse.getResponseTypeString(), 200);
       } catch (PSAAClientActionException e) {
-        String resp = e.getLocalizedMessage();
-        pushResponse(response, resp, "text/plain", 500);
+        log.error("AA client action failed: {}", e.getMessage(), e);
+        pushResponse(response, GENERIC_ACTION_ERROR, "text/plain", 500);
       }
       return;
     }

@@ -109,7 +109,7 @@ public class PagesResource {
       // UTF-8 always supported
     }
 
-    Matcher m = p.matcher(path);
+    Matcher m = p.matcher(normalizePath(path));
     String siteName = "";
     String pageName = "";
     String apiPath = "";
@@ -164,7 +164,7 @@ public class PagesResource {
       // UTF-8 always supported
     }
 
-    Matcher m = p.matcher(path);
+    Matcher m = p.matcher(normalizePath(path));
     String siteName = "";
     String pageName = "";
     String apiPath = "";
@@ -238,7 +238,7 @@ public class PagesResource {
       // UTF-8 always supported
     }
 
-    Matcher m = p.matcher(path);
+    Matcher m = p.matcher(normalizePath(path));
     String siteName = "";
     String pageName = "";
     String apiPath = "";
@@ -283,7 +283,7 @@ public class PagesResource {
       // UTF-8 always supported
     }
 
-    Matcher m = p.matcher(path);
+    Matcher m = p.matcher(normalizePath(path));
     String siteName = "";
     String pageName = "";
     String apiPath = "";
@@ -447,5 +447,43 @@ public class PagesResource {
         "attachment; filename=" + APIUtilities.getReportFileName("all-pages", "csv"));
 
     return r.build();
+  }
+
+  /**
+   * Normalizes a page-by-path argument so clients may pass CMS folder-tree paths.
+   *
+   * <p>Behavior (in order):
+   *
+   * <ol>
+   *   <li>Treat {@code null} as empty.
+   *   <li>Strip <em>all</em> leading {@code /} characters (so {@code //Sites/...} and {@code
+   *       /Sites/...} are equivalent).
+   *   <li>If the path then starts with the CMS sites-root folder name {@code Sites/} (case-sensitive,
+   *       matching the folder-tree root), strip that single prefix once.
+   * </ol>
+   *
+   * <p><b>Contract notes:</b> The leading {@code Sites/} segment is the CMS folder-tree root, not a
+   * site name. A site that is itself named {@code Sites} is addressed as {@code
+   * Sites/Sites/...&lt;page&gt;} after the root prefix is removed once. Lowercase {@code sites/} is
+   * not treated as the CMS root (case-sensitive by design).
+   *
+   * @param path raw path param (may be URL-decoded already)
+   * @return path suitable for the site/folder/page regex matcher
+   */
+  private String normalizePath(String path) {
+    if (path == null) {
+      return "";
+    }
+    String temp = path;
+    // Collapse any number of leading slashes (covers //Sites/ from original #894 coverage).
+    while (temp.startsWith("/")) {
+      temp = temp.substring(1);
+    }
+    // CMS folder-tree root only (case-sensitive). Strip once so site named "Sites" remains
+    // addressable as Sites/<rest-of-path> after this step.
+    if (temp.startsWith("Sites/")) {
+      temp = temp.substring(6);
+    }
+    return temp;
   }
 }

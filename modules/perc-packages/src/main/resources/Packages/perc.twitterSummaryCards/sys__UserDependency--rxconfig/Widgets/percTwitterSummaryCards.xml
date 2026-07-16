@@ -190,6 +190,11 @@
 		$addlHead = $perc.page.getAdditionalHeadContent();
 		$perc.page.setAdditionalHeadContent($nl.format("%s%n%s", $addlHead, $meta_imagealt));
 	}
+	// Single twitter:site emission (v8.1.7 #838 removed a duplicate block; development was missing both).
+	if(!empty($use_twitter_site)){
+		$addlHead = $perc.page.getAdditionalHeadContent();
+		$perc.page.setAdditionalHeadContent($nl.format("%s%n%s", $addlHead, $meta_sitename));
+	}
 
 	]]>
 	</Code>

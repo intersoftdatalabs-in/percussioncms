@@ -17,6 +17,8 @@
 package com.percussion.services.pubserver.impl;
 
 import com.percussion.cms.IPSConstants;
+import com.percussion.delivery.service.PSDeliveryInfoServiceLocator;
+import com.percussion.delivery.service.impl.PSDeliveryInfoService;
 import com.percussion.services.catalog.PSTypeEnum;
 import com.percussion.services.error.PSNotFoundException;
 import com.percussion.services.guidmgr.IPSGuidManager;
@@ -96,7 +98,22 @@ public class PSPubServerDao
       pubServer.addProperty(PUBLISH_OWN_SERVER_PROPERTY, "false");
       pubServer.addProperty(PUBLISH_FORMAT_PROPERTY, "HTML");
 
-      return pubServer;
+      
+      try
+      {
+         PSDeliveryInfoService psDeliveryInfoService =
+               (PSDeliveryInfoService) PSDeliveryInfoServiceLocator.getDeliveryInfoService();
+         List<String> adminUrls = psDeliveryInfoService.getAdminUrls(pubServer.getServerType().orElse(PSPubServer.PRODUCTION));
+         String dtsServer = (adminUrls != null && !adminUrls.isEmpty()) ? adminUrls.get(0) : "NONE";
+         pubServer.addProperty(PUBLISH_SERVER_PROPERTY, dtsServer);
+      }
+      catch (Exception e)
+      {
+         log.error("Failed to initialize default DTS server for site: {}", site.getName(), e);
+         pubServer.addProperty(PUBLISH_SERVER_PROPERTY, "NONE");
+      }
+
+return pubServer;
    }
 
    /*

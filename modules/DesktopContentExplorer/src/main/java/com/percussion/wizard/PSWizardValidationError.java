@@ -20,15 +20,21 @@ import com.percussion.error.PSException;
 
 /** This exception must be thrown for wizard page validation errors. */
 public class PSWizardValidationError extends PSException {
-  /* (non-Javadoc)
-   * @see PSException#PSException(int, Object) for documentation.
+  /**
+   * Constructs the exception with the supplied code and argument.
+   *
+   * @param code the error code, passed through to {@link PSException#PSException(int, Object)}.
+   * @param arg the single argument, may be <code>null</code>.
    */
   public PSWizardValidationError(int code, Object arg) {
     super(code, arg);
   }
 
-  /* (non-Javadoc)
-   * @see PSException#PSException(int, Object[]) for documentation.
+  /**
+   * Constructs the exception with the supplied code and argument array.
+   *
+   * @param code the error code, passed through to {@link PSException#PSException(int, Object[])}.
+   * @param args the arguments, may be <code>null</code>.
    */
   public PSWizardValidationError(int code, Object[] args) {
     super(code, args);

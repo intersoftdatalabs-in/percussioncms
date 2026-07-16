@@ -1,32 +1,66 @@
 # GH Code Scanning Alerts (CodeQL)
 
-This task folder contains a small helper script and a target markdown file to list current code scanning (CodeQL) alerts for a repository using the `gh` CLI.
+This folder holds the raw alert fetch, the triage inventory, and the per-disposition indexes used by the `004-zero-code-scanning-alerts` feature (`specs/004-zero-code-scanning-alerts/spec.md`).
 
-Purpose
-- Provide a reproducible command to fetch code scanning alerts from GitHub and write a readable markdown report.
+## Files
 
-Prerequisites
-- `gh` (GitHub CLI) installed and authenticated (`gh auth login`).
-- `jq` installed for JSON processing.
+| File | Purpose | Owner |
+|------|---------|-------|
+| `alerts.md` | Raw fetch — one section per open alert, produced by `scripts/fetch-gh-code-scanning-alerts.sh`. | Generated |
+| `triage.md` | Triage inventory — one row per open alert with disposition, module owner, target action, target milestone. Seeded by the initial scan; refined per-finding by the module owner. | Human-edited |
+| `suppressions.md` | Index of inline `// codeql[rule-id]` suppressions for `false-positive` dispositions. See `specs/004-zero-code-scanning-alerts/contracts/README.md` C3. | Human-edited |
+| `accepted-risks.md` | Accepted-risk register for findings that cannot be remediated in `8.2`. See `specs/004-zero-code-scanning-alerts/contracts/README.md` C4. | Human-edited |
+| `release-readiness-8.2.md` | Per-release sign-off report. See `specs/004-zero-code-scanning-alerts/contracts/README.md` C6. | Generated at sign-off |
 
-Files created
-- `scripts/fetch-gh-code-scanning-alerts.sh` — helper script that queries the GitHub API via `gh` and generates `alerts.md`.
-- `docs/ai-generated/tasks/gh-codeql-alerts/alerts.md` — placeholder output file created by the script.
+## Initial scan (seeded 2026-07-11)
 
-Usage
-1. From the repository root, run:
+- **Repository**: `intersoftdatalabs-in/percussioncms`
+- **Branch**: `development` (target: `8.2`)
+- **Total open alerts**: 866 (38 distinct rules)
+- **By severity**: 13 critical, 535 high, 318 medium
+- **By language**: predominantly JS (`js/*` — WebUI/JSP) + Java (`java/*` — server)
+
+### Top rules (long-tail concentration)
+
+| Rule | Severity | Count |
+|------|----------|-------|
+| `js/xss-through-dom` | high | 168 |
+| `js/incomplete-sanitization` | high | 164 |
+| `js/html-constructed-from-input` | medium | 96 |
+| `js/unsafe-jquery-plugin` | medium | 84 |
+| `java/path-injection` | high | 58 |
+| `js/functionality-from-untrusted-source` | medium | 55 |
+| `java/xss` | high | 35 |
+| `js/prototype-pollution-utility` | medium | 32 |
+| `js/incomplete-multi-character-sanitization` | high | 27 |
+| `js/xss` | high | 23 |
+
+The top 10 rules account for 742 of 866 alerts (~86%).
+
+### Triage seed disposition counts
+
+| Disposition | Count | Primary target module |
+|-------------|-------|-----------------------|
+| `obsolete` | 485 | `WebUI/` (vendored 3rd-party: knockout, bootstrap, jquery, dojo, requirejs, less, highlight, datatables, qunit, jstree, trinidad, adf, debug builds) |
+| `valid` | 380 | `system/`, `projects/sitemanage/`, `modules/perc-packages/`, `modules/perc-toolkit/`, `deliverytiersuite/.../p13n-ds/`, etc. |
+| `false-positive` | 1 | `deliverytiersuite/.../feeds/` (test perf cast) |
+| `accepted-risk` | 0 | — |
+
+### Implication for the `0 active alerts for 8.2` goal
+
+- **485 obsolete**: removing vendored 3rd-party files is the highest-leverage work item and is the cheapest path to a large reduction.
+- **380 valid**: requires per-finding engineering; 13 critical findings are all in Java (`java/ssrf`, `js/code-injection`, `java/xxe`, `java/ldap-injection`) — these MUST be addressed before any release can be signed off.
+- **1 false-positive**: minimal noise.
+- **Realistic 8.2 outcome**: PASS-WITH-EXCEPTIONS if any `accepted-risk` filings remain; otherwise PASS if the obsolete + valid work completes.
+
+## Refresh procedure
 
 ```bash
-# Use default repo from GITHUB_REPOSITORY or pass owner/repo as first arg
-scripts/fetch-gh-code-scanning-alerts.sh percussion/percussioncms
+# Re-fetch raw alerts
+scripts/fetch-gh-code-scanning-alerts.sh intersoftdatalabs-in/percussioncms
+
+# Refresh triage disposition counts (only after editing triage.md)
+awk -F'|' '/^\| [0-9]+ / {print $7}' docs/ai-generated/tasks/gh-codeql-alerts/triage.md | sort | uniq -c
 ```
 
-2. The script will write `docs/ai-generated/tasks/gh-codeql-alerts/alerts.md` containing a human-readable list of alerts.
-
-Notes
-- The script uses the GitHub REST API endpoint `repos/{owner}/{repo}/code-scanning/alerts` via `gh api`.
-- If you need a different format (CSV, JSON), the script can be adapted easily.
-
-Next steps
-- Run the script locally (requires authenticated `gh`) and review `alerts.md`.
-- I can then open individual alerts and propose fixes or create PRs for high-priority items.
+See `specs/004-zero-code-scanning-alerts/quickstart.md` for the end-to-end triage / mitigation / release-readiness workflow.

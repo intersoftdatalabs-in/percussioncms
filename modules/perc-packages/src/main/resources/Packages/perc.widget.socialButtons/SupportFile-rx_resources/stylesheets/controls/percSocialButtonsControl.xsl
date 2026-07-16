@@ -229,8 +229,9 @@
 							</td>
 							<td class="perc-social-button-td perc-platform-name">
 								<div class="perc-social-button-ui">
-									<i class="fab fa-fw fa-twitter" aria-hidden="true"
-										aria-label="Twitter"></i>
+									<!-- aria-hidden omitted so aria-label is exposed to AT -->
+									<i class="fab fa-fw fa-twitter"
+										aria-label="X (Twitter)"></i>
 								</div>
 							</td>
 							<td class="perc-input-td perc-social-button-td">
@@ -248,7 +249,7 @@
 								<input name="socialLink"
 									class="datadisplay perc-social-button-input perc-social-page-link"
 									style="height: 15px;padding-top: 3px;padding-bottom: 5px;"
-									placeholder="http://www.twitter.com/percussion"></input>
+									placeholder="https://x.com/percussion"></input>
 							</td>
 							<td class="perc-move-button-container">
 								<div role="button" tabindex="0" id="move-up"

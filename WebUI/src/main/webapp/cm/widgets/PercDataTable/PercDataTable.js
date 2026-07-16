@@ -191,9 +191,10 @@
     fnDrawCallback: tableRedrawCallback,
     fnFooterCallback: footerRedrawCallback,
     oLanguage: {
-      sZeroRecords: I18N.message(
-        "perc.ui.workflow.status.gadget@No Pages Found"
-      ),
+      sZeroRecords:
+        typeof I18N === "undefined"
+          ? "No Pages Found"
+          : I18N.message("perc.ui.workflow.status.gadget@No Pages Found"),
       oPaginate: {
         sFirst: "&lt;&lt;",
         sPrevious: "&lt;",

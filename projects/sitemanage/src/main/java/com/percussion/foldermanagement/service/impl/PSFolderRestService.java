@@ -16,6 +16,8 @@
  */
 package com.percussion.foldermanagement.service.impl;
 
+import org.owasp.encoder.Encode;
+
 import com.percussion.foldermanagement.data.PSFolderItem;
 import com.percussion.foldermanagement.data.PSGetAssignedFoldersJobStatus;
 import com.percussion.foldermanagement.data.PSWorkflowAssignment;
@@ -59,6 +61,21 @@ import org.springframework.stereotype.Component;
 public class PSFolderRestService {
   private static final Logger log = LogManager.getLogger(PSFolderRestService.class);
 
+  // Generic client-facing error messages used to avoid leaking internal exception details
+  // (CWE-209 / CodeQL java/error-message-exposure). The detailed exception is always logged
+  // server-side via PSExceptionUtils.getMessageForLog before this generic message is returned.
+  private static final String GENERIC_WORKFLOW_NOT_FOUND = "The specified workflow was not found";
+
+  private static final String GENERIC_BAD_REQUEST = "The request could not be processed";
+
+  private static final String GENERIC_PATH_NOT_FOUND = "The specified path was not found";
+
+  private static final String GENERIC_WORKFLOW_IN_PROGRESS =
+      "A workflow assignment is already in progress";
+
+  private static final String GENERIC_INTERNAL_ERROR =
+      "An error occurred while processing the request";
+
   private final IPSFolderService folderService;
 
   @Autowired
@@ -86,7 +103,9 @@ public class PSFolderRestService {
       return folderService.startGetAssignedFoldersJob(
           workflowName, path, includeFoldersWithDifferentWorkflow);
     } catch (PSWorkflowNotFoundException e) {
-      throw new WebApplicationException(e.getMessage());
+      log.error(PSExceptionUtils.getMessageForLog(e));
+      log.debug(PSExceptionUtils.getDebugMessageForLog(e));
+      throw new WebApplicationException(GENERIC_WORKFLOW_NOT_FOUND);
     }
   }
 
@@ -145,19 +164,19 @@ public class PSFolderRestService {
     } catch (PSWorkflowNotFoundException e) {
       log.error("{}, Error: {}", message, PSExceptionUtils.getMessageForLog(e));
       log.debug(PSExceptionUtils.getDebugMessageForLog(e));
-      return Response.status(Status.NOT_FOUND).entity(message + e.getMessage()).build();
+      return Response.status(Status.NOT_FOUND).entity(GENERIC_WORKFLOW_NOT_FOUND).build();
     } catch (IllegalArgumentException e) {
       log.error("{}, Error: {}", message, PSExceptionUtils.getMessageForLog(e));
       log.debug(PSExceptionUtils.getDebugMessageForLog(e));
-      return Response.status(Status.BAD_REQUEST).entity(message + e.getLocalizedMessage()).build();
+      return Response.status(Status.BAD_REQUEST).entity(GENERIC_BAD_REQUEST).build();
     } catch (PSPathNotFoundServiceException | LoadException e) {
       log.error("{}, Error: {}", message, PSExceptionUtils.getMessageForLog(e));
       log.debug(PSExceptionUtils.getDebugMessageForLog(e));
-      return Response.status(Status.NOT_FOUND).entity(message + e.getLocalizedMessage()).build();
+      return Response.status(Status.NOT_FOUND).entity(GENERIC_PATH_NOT_FOUND).build();
     } catch (Exception e) {
       log.error("{}, Error: {}", message, PSExceptionUtils.getMessageForLog(e));
       log.debug(PSExceptionUtils.getDebugMessageForLog(e));
-      return Response.serverError().entity(message + e.getLocalizedMessage()).build();
+      return Response.serverError().entity(GENERIC_INTERNAL_ERROR).build();
     }
   }
 
@@ -184,19 +203,19 @@ public class PSFolderRestService {
     } catch (PSWorkflowNotFoundException e) {
       log.error("{}, Error: {}", message, PSExceptionUtils.getMessageForLog(e));
       log.debug(PSExceptionUtils.getDebugMessageForLog(e));
-      return Response.status(Status.NOT_FOUND).entity(message + e.getMessage()).build();
+      return Response.status(Status.NOT_FOUND).entity(GENERIC_WORKFLOW_NOT_FOUND).build();
     } catch (PSWorkflowAssignmentInProgressException e) {
       log.error("{}, Error: {}", message, PSExceptionUtils.getMessageForLog(e));
       log.debug(PSExceptionUtils.getDebugMessageForLog(e));
-      return Response.status(Status.CONFLICT).entity(e.getLocalizedMessage()).build();
+      return Response.status(Status.CONFLICT).entity(GENERIC_WORKFLOW_IN_PROGRESS).build();
     } catch (IllegalArgumentException e) {
       log.error("{}, Error: {}", message, PSExceptionUtils.getMessageForLog(e));
       log.debug(PSExceptionUtils.getDebugMessageForLog(e));
-      return Response.status(Status.BAD_REQUEST).entity(message + e.getLocalizedMessage()).build();
+      return Response.status(Status.BAD_REQUEST).entity(GENERIC_BAD_REQUEST).build();
     } catch (Exception e) {
       log.error("{}, Error: {}", message, PSExceptionUtils.getMessageForLog(e));
       log.debug(PSExceptionUtils.getDebugMessageForLog(e));
-      return Response.serverError().entity(message + e.getLocalizedMessage()).build();
+      return Response.serverError().entity(GENERIC_INTERNAL_ERROR).build();
     }
   }
 
@@ -211,7 +230,22 @@ public class PSFolderRestService {
         | PSValidationException e) {
       log.error(PSExceptionUtils.getMessageForLog(e));
       log.debug(PSExceptionUtils.getDebugMessageForLog(e));
-      throw new WebApplicationException(e.getMessage());
+      throw new WebApplicationException(GENERIC_PATH_NOT_FOUND);
     }
+  }
+
+  /**
+   * Builds a plain-text HTTP error response with the supplied status and HTML-encoded message.
+   *
+   * <p>Centralizes the contract that all error responses from this service are emitted as
+   * {@code text/plain} so the browser cannot interpret the body as HTML (CWE-79 XSS via JSON
+   * consumers that re-render server output), and that any caller-supplied content included in
+   * {@code message} is HTML-encoded via the OWASP encoder before being placed on the wire.
+   */
+  private Response plainTextError(Status status, String message) {
+    return Response.status(status)
+        .type(MediaType.TEXT_PLAIN)
+        .entity(Encode.forHtml(message))
+        .build();
   }
 }

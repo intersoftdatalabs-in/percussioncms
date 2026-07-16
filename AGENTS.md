@@ -16,7 +16,7 @@ This repository is a large mono-repo with many modules.  This code base has a lo
 - **Primary Configuration:** `./AGENTS.md`
 - **Repo Temp Dir:** `./tmp`
 - **Repo Script Dir:** `./scripts`
-- **Repo Skills Dir:** `./modules/ai-shared-development/src/main/resources/skills`
+- **Repo Skills Dir:** `./modules/ai-shared-develop/src/main/resources/skills`
 - **Stack**: Java 21, Spring, Hibernate, Artemis, React, JSP, jQuery, XML, XSL, JUnit 5, Mockito
 
 ## Key Terms
@@ -42,6 +42,19 @@ This repository is a large mono-repo with many modules.  This code base has a lo
    * `AGENTS.local.md` takes precedence over `AGENTS.md`.
    * If no local files are found, default strictly to the root-level instructions.
 
+## Pre-commit code review (Erlang)
+
+Before `git commit`, `git push`, or opening/updating a GitHub PR for changes you authored:
+
+1. Run a **strict Erlang** review (independent of the implementer persona).
+2. Canonical agent: `modules/ai-shared-develop/src/main/resources/agents/erlang-code-review.md`
+3. Skill: `modules/ai-shared-develop/src/main/resources/skills/erlang-review/SKILL.md`
+4. **Kilo (preferred):** workflow `/erlang-review` (`.kilocode/workflows/erlang-review.md`); project rule `.kilocode/rules/pre-commit-review.md` also applies.
+5. Any **bug** finding, or missing **behavioral** unit tests for new/changed non-trivial logic, is a **hard gate** — do not commit or open the PR until fixed and re-reviewed.
+6. Optional report path: `tmp/reviews/` (repo temp dir).
+
+Tool-agnostic one-shot prompt: `modules/ai-shared-develop/src/main/resources/prompts/erlang-review-uncommitted.md`.
+
 ## **Project Rules**
 
 * Be creative, but DO NOT *invent* third-party APIs, libraries, functions, or syntax that does not actually exist. If it doesn't exist in real docs (MDN, JDK 21, official Percussion docs, etc.): Ask user to clarify.
@@ -55,6 +68,54 @@ This repository is a large mono-repo with many modules.  This code base has a lo
 * ALWAYS document your work in comments, README, or maven site documentation.
 * **IMPORTANT** you must ALWAYS update or create unit tests for any code change that you make, new or edited. And the tests must pass. No exceptions.
 * Always use the #codebase or root `./` context when resolving missing interfaces or classes.
+* You MUST respect rate limits when calling 3rd party API's. All 3rd party API integrations must be implemented with rate limit detection and exponential backoff logic.
+* You MUST NOT share or leak secrets, tokens, or keys over the wire, in logs, or in LLM sessions.  If you see MKD-REDACTED in a session, that means you leaked a secret.
+
+## PR Review Comment Resolution
+
+When a PR review comment is addressed, the fix is **not** complete until the comment is also explicitly resolved in the PR's review threads. The CI/merge gate will block a PR that has unresolved review threads, so a code-only fix that does not also resolve the corresponding thread is incomplete from the merge-readiness perspective.
+
+For each review comment on a PR you are working on (whether the comment is from a human reviewer, a `kilo-code-bot[bot]`, `github-actions[bot]`, or any other source):
+
+1. **Locate the review threads** for the PR:
+   ```bash
+   gh api graphql -H "X-GitHub-Api-Version: 2022-11-28" -f query='
+     query($owner: String!, $repo: String!, $pr: Int!) {
+       repository(owner: $owner, name: $repo) {
+         pullRequest(number: $pr) {
+           reviewThreads(first: 50) {
+             nodes { id isResolved isOutdated
+                     comments(first: 1) { nodes { databaseId path line body } } }
+           }
+         }
+       }
+     }' -f owner='<owner>' -f repo='<repo>' -F pr=<pr-number>
+   ```
+2. **Reply inline to each comment** with a concrete mitigation statement that cites:
+   - The commit hash that contains the fix (e.g. `f1908b961e`).
+   - A short description of what changed, in enough detail that a reviewer can confirm correctness without re-reading the full diff.
+   - A pointer to any new tests, scripts, or documentation that back the fix.
+   Use the REST endpoint, replying to the specific `databaseId` of the comment:
+   ```bash
+   gh api -X POST repos/<owner>/<repo>/pulls/<pr>/comments/<comment-id>/replies \
+     -f body='**Mitigation (commit `<hash>`):** ...'
+   ```
+3. **Resolve the review thread** via the GraphQL `resolveReviewThread` mutation, using the `id` from step 1 (NOT the `databaseId`):
+   ```bash
+   gh api graphql -H "X-GitHub-Api-Version: 2022-11-28" -f query='
+     mutation($threadId: ID!) {
+       resolveReviewThread(input: { threadId: $threadId }) {
+         thread { id isResolved }
+       }
+     }' -f threadId="<thread-id-from-step-1>"
+   ```
+4. **Re-verify** by re-running the GraphQL query from step 1 and confirming `isResolved: true` for every thread whose underlying finding you have addressed. Do not rely on the inline reply alone — a reply leaves the thread in `isResolved: false` until the mutation is run.
+
+**Outdated threads** (where the diff no longer contains the offending line) still need an inline reply explaining the mitigation AND a `resolveReviewThread` call. The `isOutdated: true` flag is informational; it does not auto-resolve.
+
+**Do not** mark a thread as resolved without first replying inline with the mitigation statement. A bare resolve is not a substitute for a documented fix.
+
+This rule applies to ALL review comments on a PR you own, including comments that arrive after the initial submission (late feedback, as in the 002-jdbc-drivers-cleanup / PR #1185 → #1185 review cycle).
 
 ## Git Branch & Maven Wrapper Information
 
@@ -117,6 +178,7 @@ A list of child modules in this repository. Each bullet contains: Module name �
 - **extensions-sfp** — `./modules/extensions-sfp` — Contains all extensions for Site, Relationships and legacy calendar.
 - **extensions-workflow** — `./modules/extensions-workflow` — CMS Java extensions module containing the core Workflow extensions
 - **extensions-linkback** — `./modules/extensions-linkback` — CMS java extension module that installs the CMS extensions needed for the linkback to editor feature from previewed or published CMS content.
+- **p13n-api** — `./modules/p13n-api` — Personalisation API shared by the DTS p13n-ds service and the legacy client tracking integration.
 - soln-serverutils — modules/extensions-serverutils — No description in pom.xml
 - **perc-package-manager** — `./PCM-PkgMgtUI` — Provides the legacy gwt Package Managent UI implementation for managing components packaged and installed by the `deployer` module.
 - **Percussion CMS Common UI Bundle** — `./modules/perc-common-ui-bundle` — Minified JavaScript bundle for the Percussion CMS delivery-tier widgets (perc_common_ui.js and perc_common_ui_slim.js); built with esbuild and served as bundled web resources from this JAR.

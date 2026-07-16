@@ -42,7 +42,9 @@ import org.xml.sax.SAXException;
  * Handles User Details Mapping for authorization.
  *
  * @author Shweta Patel
+ * @deprecated This class is part of the deprecated secure-membership module.
  */
+@Deprecated
 public class PSLdapUserDetailsMapper extends LdapUserDetailsMapper {
   private static final String ROLE_TEST = "role_test";
   private static final String ROLE_ADMIN = "Domain Admins";

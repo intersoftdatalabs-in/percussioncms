@@ -142,6 +142,43 @@
             <version>${project.parent.version}</version>
             <scope>provided</scope>
         </dependency>
+        <!-- Build-time only: JDBC drivers staged into the distribution's jetty/base/lib/jdbc/ folder.
+             Sourced from parent-POM-managed versions; copied via maven-dependency-plugin. -->
+        <dependency>
+            <groupId>org.mariadb.jdbc</groupId>
+            <artifactId>mariadb-java-client</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.derby</groupId>
+            <artifactId>derby</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.derby</groupId>
+            <artifactId>derbyclient</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.derby</groupId>
+            <artifactId>derbynet</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.microsoft.sqlserver</groupId>
+            <artifactId>mssql-jdbc</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>net.sourceforge.jtds</groupId>
+            <artifactId>jtds</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.oracle.database.jdbc</groupId>
+            <artifactId>ojdbc17</artifactId>
+            <scope>provided</scope>
+        </dependency>
         <dependency>
             <groupId>org.apache.ant</groupId>
             <artifactId>ant</artifactId>
@@ -283,6 +320,13 @@
             <artifactId>perc-xml-security</artifactId>
             <version>${project.parent.version}</version>
             <scope>runtime</scope>
+        </dependency>
+        <!-- 002-jdbc-drivers-cleanup: JUnit 5 for new test sources under src/test/java.
+             Version inherited from parent dependencyManagement (root pom.xml junit5.version). -->
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <scope>test</scope>
         </dependency>
     </dependencies>
     <build>
@@ -450,6 +494,24 @@
                                     <includes>i18n/**</includes>
                                 </artifactItem>
                             </artifactItems>
+                        </configuration>
+                    </execution>
+                    <!-- Stage curated JDBC driver JARs from parent-POM-managed coordinates into
+                         ${assembly-directory}/_jdbc-stage so installDistributionFiles.xml can copy
+                         them into jetty/base/lib/jdbc/ during assembly.
+                         failOnAnyMissingDependency=true satisfies FR-003 / SC-004 (loud failure). -->
+                    <execution>
+                        <id>stage-jdbc-drivers</id>
+                        <goals>
+                            <goal>copy-dependencies</goal>
+                        </goals>
+                        <phase>generate-resources</phase>
+                        <configuration>
+                            <includeScope>provided</includeScope>
+                            <excludeTransitive>true</excludeTransitive>
+                            <outputDirectory>${assembly-directory}/_jdbc-stage</outputDirectory>
+                            <failOnAnyMissingDependency>true</failOnAnyMissingDependency>
+                            <includeTypes>jar</includeTypes>
                         </configuration>
                     </execution>
                 </executions>
@@ -661,6 +723,41 @@
                                 <argument>jetty.base=${assembly-directory}/jetty/base</argument>
                                 <argument>jetty.home=${assembly-directory}/jetty/upstream</argument>
                             </arguments>
+                        </configuration>
+                    </execution>
+                    <!-- Verify the assembled distribution ships JDBC drivers (FR-007 / SC-005).
+                         Runs scripts/verify-jdbc-drivers.sh on the just-built jar; non-zero
+                         exit fails the build. Uses the expected-driver-glob option so the
+                         check stays correct across driver version bumps without editing this pom. -->
+                    <execution>
+                        <id>verify-jdbc-drivers</id>
+                        <goals>
+                            <goal>exec</goal>
+                        </goals>
+                        <phase>verify</phase>
+                        <configuration>
+                            <executable>${basedir}/scripts/verify-jdbc-drivers.sh</executable>
+                            <arguments>
+                                <argument>--artifact</argument>
+                                <argument>${project.build.directory}/perc-distribution-tree.jar</argument>
+                                <argument>--expected-driver-glob</argument>
+                                <argument>mariadb-java-client-*.jar,derby-*.jar,derbyclient-*.jar,derbynet-*.jar,mssql-jdbc-*.jar,jtds-*.jar,ojdbc17-*.jar</argument>
+                            </arguments>
+                        </configuration>
+                    </execution>
+                    <!-- FR-003 / FR-008.b / SC-006: assert the install/upgrade script's
+                         <delete> block uses exact bundled-driver filenames, not globs.
+                         A future change that re-introduces a glob (e.g. mysql-connector-java-*.jar)
+                         will silently purge integrator-supplied drivers on upgrade; this
+                         check fails the build before such a change can land. -->
+                    <execution>
+                        <id>check-no-glob-deletes</id>
+                        <goals>
+                            <goal>exec</goal>
+                        </goals>
+                        <phase>verify</phase>
+                        <configuration>
+                            <executable>${basedir}/scripts/check-no-glob-deletes.sh</executable>
                         </configuration>
                     </execution>
                 </executions>

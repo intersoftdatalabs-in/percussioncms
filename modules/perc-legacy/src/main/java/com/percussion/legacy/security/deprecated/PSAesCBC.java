@@ -35,6 +35,7 @@ import javax.crypto.NoSuchPaddingException;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 
+@Deprecated(forRemoval = true, since = "8.2")
 public class PSAesCBC {
   private static final String AES_ALGORITHM = "AES";
   private static final String AES_CBC_PKCS5 = "AES/CBC/PKCS5Padding";
@@ -44,6 +45,13 @@ public class PSAesCBC {
    * Legacy static IV to preserve backward compatibility with older payloads that assumed a fixed IV
    * value named 'InitialVector'. This constant mirrors the legacy field usage. For new
    * encrypt(byte[]) API below we prepend a random IV for safety.
+   *
+   * <p>ACCEPTED-RISK (CodeQL java/static-initialization-vector; alert #649, #650): this static IV
+   * is intentionally retained for backward compatibility with legacy payloads. Replacement requires
+   * an API-breaking change (new key-derivation scheme + migration utility) and is tracked for the
+   * 9.0 release per docs/ai-generated/tasks/gh-codeql-alerts/accepted-risks.md. The newer {@link
+   * #encrypt(byte[])} overload already prepends a random IV; the legacy String/String
+   * encrypt/decrypt methods are kept for decryption of historical ciphertext only.
    */
   private static final byte[] INITIAL_VECTOR = new byte[IV_LENGTH];
 

@@ -958,65 +958,81 @@ public class PSWorkFlowUtils {
   public static void sendMailWithAttachment(
       File attachment, String subject, String body, String toAddress) throws EmailException {
 
-    // Create Mail
-    MultiPartEmail commonsMultiPartEmail;
-    // Initializes the email client.
+    try {
+      // Create Mail
+      MultiPartEmail commonsMultiPartEmail;
+      // Initializes the email client.
 
-    commonsMultiPartEmail = new MultiPartEmail();
-    commonsMultiPartEmail.setCharset(EmailConstants.UTF_8);
+      commonsMultiPartEmail = new MultiPartEmail();
+      commonsMultiPartEmail.setCharset(EmailConstants.UTF_8);
 
-    // SMTP host name and port
-    String hostProp = PSWorkFlowUtils.properties.getProperty("SMTP_HOST", "");
-    String portProp = PSWorkFlowUtils.properties.getProperty("SMTP_PORT", "");
-    commonsMultiPartEmail.setHostName(hostProp);
-    commonsMultiPartEmail.setSmtpPort(Integer.parseInt(portProp));
+      // SMTP host name and port
+      String hostProp = PSWorkFlowUtils.properties.getProperty("SMTP_HOST", "");
+      String portProp = PSWorkFlowUtils.properties.getProperty("SMTP_PORT", "");
+      commonsMultiPartEmail.setHostName(hostProp);
 
-    // SMTP To Address and Bounce Address
+      if (StringUtils.isNumeric(portProp)) {
+        commonsMultiPartEmail.setSmtpPort(Integer.parseInt(portProp));
+      } else {
+        log.warn("SMTP_PORT property is not a number. Default port will be used.");
+        commonsMultiPartEmail.setSmtpPort(25);
+      }
 
-    commonsMultiPartEmail.addTo(toAddress);
-    String smtpBounceAddr = PSWorkFlowUtils.properties.getProperty("SMTP_BOUNCEADDR", "");
-    commonsMultiPartEmail.setBounceAddress(smtpBounceAddr);
+      // SMTP To Address and Bounce Address
 
-    // SMTP Username Password
-    String smtpUsername = PSWorkFlowUtils.properties.getProperty("SMTP_USERNAME", "");
-    String smtpPassword = PSWorkFlowUtils.properties.getProperty("SMTP_PASSWORD", "");
-    String pwd =
-        PSEncryptProperties.decryptProperty(
-            smtpPassword,
-            PSLegacyEncrypter.getInstance(
-                    PathUtils.getRxDir().getAbsolutePath().concat(PSEncryptor.SECURE_DIR))
-                .getPartOneKey(),
-            PathUtils.getRxDir().getAbsolutePath().concat(PSEncryptor.SECURE_DIR),
-            null);
-    // Only apply authentication if it is supplied.
-    if (!StringUtils.isBlank(smtpUsername)) {
-      commonsMultiPartEmail.setAuthenticator(new DefaultAuthenticator(smtpUsername, pwd));
+      commonsMultiPartEmail.addTo(toAddress);
+      String smtpBounceAddr = PSWorkFlowUtils.properties.getProperty("SMTP_BOUNCEADDR", "");
+      commonsMultiPartEmail.setBounceAddress(smtpBounceAddr);
+
+      // SMTP Username Password
+      String smtpUsername = PSWorkFlowUtils.properties.getProperty("SMTP_USERNAME", "");
+      String smtpPassword = PSWorkFlowUtils.properties.getProperty("SMTP_PASSWORD", "");
+      String pwd =
+          PSEncryptProperties.decryptProperty(
+              smtpPassword,
+              PSLegacyEncrypter.getInstance(
+                      PathUtils.getRxDir().getAbsolutePath().concat(PSEncryptor.SECURE_DIR))
+                  .getPartOneKey(),
+              PathUtils.getRxDir().getAbsolutePath().concat(PSEncryptor.SECURE_DIR),
+              null);
+      // Only apply authentication if it is supplied.
+      if (!StringUtils.isBlank(smtpUsername)) {
+        commonsMultiPartEmail.setAuthenticator(new DefaultAuthenticator(smtpUsername, pwd));
+      }
+
+      // Default TLS to false
+      String tlsEnabled = PSWorkFlowUtils.properties.getProperty("SMTP_TLSENABLED", "");
+      if (StringUtils.isBlank(tlsEnabled)) commonsMultiPartEmail.setStartTLSEnabled(false);
+      else commonsMultiPartEmail.setStartTLSEnabled(Boolean.parseBoolean(tlsEnabled));
+
+      // SSL Port Setting
+      String smtpSSLPort = PSWorkFlowUtils.properties.getProperty("SMTP_SSLPORT", "");
+      if (StringUtils.isNotBlank(smtpSSLPort) && StringUtils.isNumeric(smtpSSLPort)) {
+        commonsMultiPartEmail.setSSLOnConnect(true);
+        commonsMultiPartEmail.setSslSmtpPort(smtpSSLPort);
+      } else if (StringUtils.isNotBlank(smtpSSLPort)) {
+        log.warn("SMTP_SSLPORT property is not a number. SSL will not be enabled.");
+        commonsMultiPartEmail.setSSLOnConnect(false);
+        commonsMultiPartEmail.setSslSmtpPort("465");
+      }
+
+      // Set Mail Subject And Attach File if present
+      commonsMultiPartEmail.setSubject(subject);
+      commonsMultiPartEmail.setMsg(body);
+      if (attachment != null) {
+        commonsMultiPartEmail.attach(attachment);
+      }
+
+      // Send Mail
+      commonsMultiPartEmail.send();
+    } catch (EmailException e) {
+      throw e;
+    } catch (Exception e) {
+      throw new EmailException("Failed to send email with attachment", e);
     }
-
-    // Default TLS to false
-    String tlsEnabled = PSWorkFlowUtils.properties.getProperty("SMTP_TLSENABLED", "");
-    if (StringUtils.isBlank(tlsEnabled)) commonsMultiPartEmail.setStartTLSEnabled(false);
-    else commonsMultiPartEmail.setStartTLSEnabled(Boolean.parseBoolean(tlsEnabled));
-
-    // SSL Port Setting
-    String smtpSSLPort = PSWorkFlowUtils.properties.getProperty("SMTP_SSLPORT", "");
-    if (StringUtils.isNotBlank(smtpSSLPort)) {
-      commonsMultiPartEmail.setSSLOnConnect(true);
-      commonsMultiPartEmail.setSslSmtpPort(smtpSSLPort);
-    }
-
-    // Set Mail Subject And Attach File if present
-    commonsMultiPartEmail.setSubject(subject);
-    commonsMultiPartEmail.setMsg(body);
-    if (attachment != null) {
-      commonsMultiPartEmail.attach(attachment);
-    }
-
-    // Send Mail
-    commonsMultiPartEmail.send();
   }
 
-  /*  ********* String Methods ********* */
+  /* ********* String Methods ********* */
 
   /**
    * Create a list of the substrings of a string, using a specified delimiter. Surrounding

@@ -106,6 +106,8 @@ public class BrowserProps {
   }
 
   /**
+   * Returns whether the browser toolbar is enabled.
+   *
    * @return true if toolbar is enabled
    */
   public boolean isToolbar() {
@@ -113,6 +115,8 @@ public class BrowserProps {
   }
 
   /**
+   * Returns whether the browser location bar is enabled.
+   *
    * @return true if location bar is enabled
    */
   public boolean isLocation() {
@@ -120,6 +124,8 @@ public class BrowserProps {
   }
 
   /**
+   * Returns whether the browser directories bar is enabled.
+   *
    * @return true if directories are enabled
    */
   public boolean isDirectories() {
@@ -127,6 +133,8 @@ public class BrowserProps {
   }
 
   /**
+   * Returns whether the browser status bar is enabled.
+   *
    * @return true if status bar is enabled
    */
   public boolean isStatus() {
@@ -134,6 +142,8 @@ public class BrowserProps {
   }
 
   /**
+   * Returns whether the browser menu bar is enabled.
+   *
    * @return true if menu bar is enabled
    */
   public boolean isMenubar() {
@@ -141,6 +151,8 @@ public class BrowserProps {
   }
 
   /**
+   * Returns whether the browser scrollbars are enabled.
+   *
    * @return true if scrollbars are enabled
    */
   public boolean isScrollbars() {
@@ -148,6 +160,8 @@ public class BrowserProps {
   }
 
   /**
+   * Returns whether the browser window is resizable.
+   *
    * @return true if window is resizable
    */
   public boolean isResizable() {
@@ -155,6 +169,8 @@ public class BrowserProps {
   }
 
   /**
+   * Returns the left position of the browser window.
+   *
    * @return the left position of the window
    */
   public int getLeft() {
@@ -162,6 +178,8 @@ public class BrowserProps {
   }
 
   /**
+   * Returns the height of the browser window.
+   *
    * @return the height of the window
    */
   public int getHeight() {
@@ -169,6 +187,8 @@ public class BrowserProps {
   }
 
   /**
+   * Returns the width of the browser window.
+   *
    * @return the width of the window
    */
   public int getWidth() {

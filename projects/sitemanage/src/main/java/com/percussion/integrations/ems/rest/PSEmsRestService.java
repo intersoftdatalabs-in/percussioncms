@@ -74,6 +74,15 @@ public class PSEmsRestService {
   private static final HttpClient HTTP_CLIENT =
       HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(30)).build();
 
+  // Generic client-facing error messages used to avoid leaking internal exception details
+  // (CWE-209 / CodeQL java/error-message-exposure). The detailed exception is always logged
+  // server-side via PSExceptionUtils.getMessageForLog before this generic message is returned.
+  private static final String GENERIC_EMS_UNAVAILABLE =
+      "The EMS integration service is currently unavailable";
+
+  private static final String GENERIC_EMS_ERROR =
+      "An error occurred while communicating with the EMS integration service";
+
   /***
    * The license Override if any
    */
@@ -199,7 +208,8 @@ public class PSEmsRestService {
     } catch (Exception e) {
       log.error(
           "Error pulling {} from DTS. Error: {}", logLabel, PSExceptionUtils.getMessageForLog(e));
-      return Response.serverError().entity(e.getMessage()).build();
+      log.debug(PSExceptionUtils.getDebugMessageForLog(e));
+      return Response.serverError().entity(GENERIC_EMS_ERROR).build();
     }
     return Response.status(Status.OK).entity(ret).build();
   }
@@ -239,7 +249,8 @@ public class PSEmsRestService {
     } catch (Exception e) {
       log.error(
           "Error pulling {} from DTS. Error: {}", logLabel, PSExceptionUtils.getMessageForLog(e));
-      return Response.serverError().entity(e.getMessage()).build();
+      log.debug(PSExceptionUtils.getDebugMessageForLog(e));
+      return Response.serverError().entity(GENERIC_EMS_ERROR).build();
     }
     return Response.status(Status.OK).entity(ret).build();
   }

@@ -8,7 +8,7 @@
     <url>https://www.github.com/intersoftdatalabs-in/percussioncms</url>
     <licenses>
         <license>
-            <name>The Apache Software License, Version 2.0</name>
+           <name>The Apache Software License, Version 2.0</name>
             <url>https://www.apache.org/licenses/LICENSE-2.0.txt</url>
             <distribution>repo</distribution>
         </license>
@@ -208,6 +208,8 @@
         <maven.war.plugin.version>3.5.1</maven.war.plugin.version>
         <mockito.version>5.21.0</mockito.version>
         <mssql.version>13.3.1.jre11-preview</mssql.version>
+        <mariadb.version>3.5.7</mariadb.version>
+        <ojdbc17.version>23.26.0.0.0</ojdbc17.version>
         <myfaces.version>4.1.2</myfaces.version>
         <nettyall.version>4.2.9.Final</nettyall.version>
         <opencsv.version>5.12.0</opencsv.version>
@@ -1475,7 +1477,7 @@
             <dependency>
                 <groupId>com.oracle.database.jdbc</groupId>
                 <artifactId>ojdbc17</artifactId>
-                <version>23.26.0.0.0</version>
+                <version>${ojdbc17.version}</version>
             </dependency>
             <dependency>
                 <groupId>net.sourceforge.jtds</groupId>
@@ -1486,6 +1488,11 @@
                 <groupId>com.microsoft.sqlserver</groupId>
                 <artifactId>mssql-jdbc</artifactId>
                 <version>${mssql.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.mariadb.jdbc</groupId>
+                <artifactId>mariadb-java-client</artifactId>
+                <version>${mariadb.version}</version>
             </dependency>
             <dependency>
                 <groupId>evil.deeds</groupId>
@@ -1928,7 +1935,16 @@
                 <artifactId>simple-jndi</artifactId>
                 <version>${simple.jndi.version}</version>
             </dependency>
-        </dependencies>
+        
+            <!-- Google Cloud Libraries BOM for GA4 Analytics APIs -->
+            <dependency>
+                <groupId>com.google.cloud</groupId>
+                <artifactId>libraries-bom</artifactId>
+                <version>26.80.0</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+</dependencies>
     </dependencyManagement>
     <build>
         <pluginManagement>
@@ -2401,7 +2417,6 @@
                                 <exclude>**/cui/components/twitter-bootstrap-3.0.0/assets/js/raw-files.js</exclude>
                                 <exclude>**/system/Docs/Rhythmyx_Publishing_Design_Help/dhtml_search.js</exclude>
                                 <exclude>**/*.min.js</exclude>
-                                <exclude>**/system/cms/content/applications/sys_resources/ApplicationFiles/dojo/**</exclude>
                             </excludes>
                             <prettier>
                                 <prettierVersion>2.8.8</prettierVersion>
@@ -2478,8 +2493,6 @@
                                     <!-- Exclude docs with legacy encodings to avoid UTF-8 checks -->
                                     <exclude>**/system/Docs/**</exclude>
                                     <exclude>**/Docs/**</exclude>
-                                    <!-- Exclude legacy Dojo vendor files that Prettier/Spotless can't parse -->
-                                    <exclude>**/system/cms/content/applications/sys_resources/ApplicationFiles/dojo/**</exclude>
                                     <!-- Exclude vendor-provided component templates (may include templating tags) -->
                                     <exclude>**/cui/components/**</exclude>
                                     <!-- Exclude HTML files under test resources to avoid formatting issues in test fixtures -->
@@ -2502,7 +2515,6 @@
                                     <exclude>**/system/**</exclude>
                                     <!-- Exclude system release documentation and legacy release materials -->
                                     <exclude>**/system/release/**</exclude>
-                                    <exclude>**/system/ApplicationFiles/dojo/**</exclude>
                                     <!-- Exclude docker development data which contains unparseable HTML snippets and is not part of source -->
                                     <exclude>**/docker/dev-data/**</exclude>
                                 </excludes>
@@ -2530,7 +2542,6 @@
                                     <exclude>**/src/test/resources/**/*.css</exclude>
                                     <exclude>**/src/test/resources/**/*.scss</exclude>
                                     <exclude>**/src/test/java/**/*.css</exclude>
-                                    <exclude>**/system/ApplicationFiles/dojo/**</exclude>
                                     <exclude>**/docker/dev-data/**</exclude>
                                 </excludes>
                                 <prettier>
@@ -2653,7 +2664,7 @@
                 <plugin>
                     <groupId>com.intsof</groupId>
                     <artifactId>ai-build-integrity-maven-plugin</artifactId>
-                    <version>0.11.1</version>
+                    <version>0.12.0</version>
                     <configuration>
                         <hashFileMode>CENTRAL</hashFileMode>
                         <!-- Scan the entire repo, not just the current module's basedir -->
@@ -2708,7 +2719,7 @@
             <plugin>
                 <groupId>com.intsof</groupId>
                 <artifactId>ai-build-integrity-maven-plugin</artifactId>
-                <version>0.11.1</version>
+                <version>0.12.0</version>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

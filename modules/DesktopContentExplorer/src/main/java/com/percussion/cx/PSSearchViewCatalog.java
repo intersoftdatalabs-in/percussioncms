@@ -41,16 +41,15 @@ import org.w3c.dom.Text;
  */
 public class PSSearchViewCatalog {
   /**
-   * Initializes all available searches and views by making a request to the server and caches them
-   * in this object.
+   * Constructs the catalog and loads all available searches and views.
    *
-   * @param proxy the remote proxy to use to connect to server, may not be <code>null</code>
+   * @param proxy the remote proxy to use to connect to server, may not be <code>null</code>.
    * @param isFtsAvailable <code>true</code> if fts is enabled, <code>false</code> otherwise.
+   * @param applet the content explorer applet, may not be <code>null</code>.
    * @throws PSContentExplorerException if an error happens in the process of loading searches and
    *     views.
    * @throws IllegalStateException if the default search is not found in the available searches.
    */
-  @SuppressWarnings("unused")
   public PSSearchViewCatalog(
       PSComponentProcessorProxy proxy, boolean isFtsAvailable, PSContentExplorerApplet applet)
       throws PSContentExplorerException {

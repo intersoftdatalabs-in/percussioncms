@@ -37,9 +37,13 @@ import java.util.Set;
  */
 public class SoftHashMap<K, V> extends AbstractMap<K, V> {
 
+  /** Backing hash map holding soft references to the values. */
   private Map<K, SoftValue<V>> map;
+
+  /** Queue of soft references that have been cleared by the GC. */
   private ReferenceQueue<V> queue = new ReferenceQueue<V>();
 
+  /** Default constructor. */
   public SoftHashMap() {
     map = new HashMap<K, SoftValue<V>>();
   }
