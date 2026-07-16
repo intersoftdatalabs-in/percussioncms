@@ -1,0 +1,14 @@
+# Local CodeQL model pack — analyzer of record loads this via
+# .github/codeql/codeql-config.yml `packs:`.
+#
+# Purpose: teach CodeQL that Percussion custom sanitizers clear taint for
+# specific vulnerability kinds so PR re-scans stop re-opening residuals.
+#
+# See docs/ai-generated/tasks/gh-codeql-alerts/codeql-pr-playbook.md
+name: percussion/codeql-models
+version: 0.0.2
+library: true
+extensionTargets:
+  codeql/java-all: "*"
+dataExtensions:
+  - models/**/*.model.yml

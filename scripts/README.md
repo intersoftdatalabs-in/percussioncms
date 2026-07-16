@@ -38,6 +38,7 @@ Added for the `004-zero-code-scanning-alerts` feature. All are POSIX `sh` (or po
 | `verify-triage-inventory.sh` | CI-lite check on `triage.md`: row count == open-alert count, every `false-positive`/`accepted-risk` row has non-empty `notes`, every `module_owner` is a path under `AGENTS.md`. | T012 |
 | `verify-distribution-archive.sh` | Rebuild `modules/perc-distribution-tree` (and `modules/perc-packages`) and assert none of the files listed in `tmp/gh-codeql-alerts/removed-files.txt` appear in the resulting JARs or `.ppkg` installer. | T019 |
 | `verify-valid-fixes.sh` | Assert every `triage.md` row with `disposition == valid` has a non-empty `linked_pr`. | T035 |
+| `verify-codeql-analyzer-of-record.sh` | Assert advanced CodeQL is PR-wired, model pack/config/playbook exist, and **default CodeQL setup is `not-configured`** (stops residual thrashing). | codeql-pr-playbook |
 | `verify-suppressions.sh` | For every row in `suppressions.md`, grep the cited source line for the matching `// codeql[…]` comment and `justification:` text. | T064 |
 | `verify-pr-review-resolution.sh` | For every `linked_pr` in `triage.md`, query `gh pr view --json reviewThreads` and fail if any thread has `isResolved: false` (Constitution IX, `SC-007`). | T078b |
 | `test-verify-triage-inventory.sh` | Self-test for `verify-triage-inventory.sh` against `scripts/test-fixtures/triage-good.md` and `triage-bad.md`. | T013 |

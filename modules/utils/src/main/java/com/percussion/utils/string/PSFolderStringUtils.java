@@ -46,7 +46,6 @@ public class PSFolderStringUtils {
    * @return an array of patterns; empty for an empty input, never <code>null</code>
    */
   public static Pattern[] getFolderPatterns(String folderList) {
-  public static Pattern[] getFolderPatterns(String folderList) {
     if (StringUtils.isBlank(folderList)) {
       return new Pattern[0];
     }

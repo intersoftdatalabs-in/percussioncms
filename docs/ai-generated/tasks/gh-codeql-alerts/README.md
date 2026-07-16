@@ -6,11 +6,22 @@ This folder holds the raw alert fetch, the triage inventory, and the per-disposi
 
 | File | Purpose | Owner |
 |------|---------|-------|
+| **`codeql-pr-playbook.md`** | **Operational playbook** — analyzer of record, default-setup off, model pack, sink-line suppressions, disposition ladder, PR checklist. **Read this before any CodeQL/security PR work.** | Human-edited |
 | `alerts.md` | Raw fetch — one section per open alert, produced by `scripts/fetch-gh-code-scanning-alerts.sh`. | Generated |
 | `triage.md` | Triage inventory — one row per open alert with disposition, module owner, target action, target milestone. Seeded by the initial scan; refined per-finding by the module owner. | Human-edited |
 | `suppressions.md` | Index of inline `// codeql[rule-id]` suppressions for `false-positive` dispositions. See `specs/004-zero-code-scanning-alerts/contracts/README.md` C3. | Human-edited |
 | `accepted-risks.md` | Accepted-risk register for findings that cannot be remediated in `8.2`. See `specs/004-zero-code-scanning-alerts/contracts/README.md` C4. | Human-edited |
 | `release-readiness-8.2.md` | Per-release sign-off report. See `specs/004-zero-code-scanning-alerts/contracts/README.md` C6. | Generated at sign-off |
+
+## Analyzer of record (do not re-enable default setup)
+
+- **Workflow**: `.github/workflows/codeql.yml` (push + **pull_request** to `development` + schedule)
+- **Config**: `.github/codeql/codeql-config.yml` (`paths-ignore`, `packs`, `query-filters`)
+- **Models**: `.github/codeql/models/` (custom sanitizer barriers)
+- **Default setup**: must remain `not-configured` — verify with  
+  `gh api repos/intersoftdatalabs-in/percussioncms/code-scanning/default-setup --jq .state`
+
+Agent skill: `modules/ai-shared-develop/src/main/resources/skills/codeql-pr/SKILL.md`
 
 ## Initial scan (seeded 2026-07-11)
 

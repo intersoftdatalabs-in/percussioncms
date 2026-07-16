@@ -1,0 +1,10 @@
+# Models PSPathInjectionGuard helpers as path-injection barriers (T043 family).
+# Runtime: requireSafeFileName rejects separators/NUL/..; requireUnderBasePath
+# resolves and checks the path stays under the base directory.
+extensions:
+  - addsTo:
+      pack: codeql/java-all
+      extensible: barrierModel
+    data:
+      - ["com.percussion.security.io", "PSPathInjectionGuard", false, "requireSafeFileName", "(String)", "", "ReturnValue", "path-injection", "manual"]
+      - ["com.percussion.security.io", "PSPathInjectionGuard", false, "requireUnderBasePath", "(File,String)", "", "ReturnValue", "path-injection", "manual"]

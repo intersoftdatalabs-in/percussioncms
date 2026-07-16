@@ -8,6 +8,12 @@ paths-ignore:
   - "**/docker/dev-data/**"
   - "**/docker/logs/**"
 
+# Local model pack — custom sanitizer barriers for SSRF, LDAP, path injection,
+# and XXE. Loaded only by advanced setup (analyzer of record). See
+# docs/ai-generated/tasks/gh-codeql-alerts/codeql-pr-playbook.md
+packs:
+  - ./.github/codeql/models
+
 # Per-query exclusion for documented false positives.
 # See contracts/C3: every `query-filters exclude` entry MUST have a
 # matching row in `docs/ai-generated/tasks/gh-codeql-alerts/suppressions.md`
