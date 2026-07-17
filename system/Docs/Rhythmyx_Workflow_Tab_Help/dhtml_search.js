@@ -870,15 +870,17 @@ function search(SearchWord) {
   Result +=
     '<form name="SearchForm" action="javascript:search(document.SearchForm.SearchText.value)">';
   if (SearchWord.length >= 1) {
-    while (
-      SearchWord.indexOf("<") > -1 ||
-      SearchWord.indexOf(">") > -1 ||
-      SearchWord.indexOf('"') > -1
-    ) {
-      SearchWord = SearchWord.replace("<", "&lt;")
-        .replace(">", "&gt;")
-        .replace('"', "&quot;");
-    }
+    // Escape every occurrence of <, >, and " in a single pass via a
+    // global regex, instead of a non-global .replace() re-run in a
+    // while loop (closes js/incomplete-sanitization: a bare
+    // .replace(string, ...) call only ever replaces the first match,
+    // which is an easy-to-break anti-pattern for future maintainers
+    // even though the surrounding loop here happened to converge
+    // correctly; a single global-regex pass is simpler, O(n) instead
+    // of worst-case O(n^2), and can't regress the same way).
+    SearchWord = SearchWord.replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;");
   }
   Result +=
     '<input type="text" name="SearchText" size="25" value="' +
