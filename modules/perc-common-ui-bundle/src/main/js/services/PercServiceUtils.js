@@ -592,19 +592,22 @@
    * Sanitizes a URL string before it is assigned to an anchor element's
    * {@code href} attribute. Returns the input unchanged when it begins with
    * a scheme considered safe in the browser context (http, https, mailto,
-   * tel), or a relative/path/fragment reference ("/", "#", or anything with no
-   * scheme prefix). Any other scheme — in particular {@code javascript:},
-   * {@code data:}, {@code vbscript:}, and the various obfuscated variants
-   * (e.g. {@code JaVa\nScRiPt:}, whitespace-padded) — is replaced with
-   * {@code about:blank#blocked} so the browser cannot be tricked into
-   * executing attacker-controlled code via a clicked link (CWE-79 /
-   * js/xss-through-dom).
+   * tel), or a single-leading-slash relative path ("/foo/bar"), a fragment
+   * ("#section"), or a query ("?page=2"). Any other value — in particular
+   * {@code javascript:}, {@code data:}, {@code vbscript:}, protocol-relative
+   * URLs ({@code //evil.example.com/...}), and obfuscated variants (e.g.
+   * {@code JaVa\nScRiPt:}, whitespace-padded, control-character-prefixed) —
+   * is replaced with {@code about:blank#blocked} so the browser cannot be
+   * tricked into executing attacker-controlled code via a clicked link
+   * (CWE-79 / js/xss-through-dom), nor can it be redirected to an arbitrary
+   * external origin (defense-in-depth against phishing / open-redirect).
    *
    * <p>The set of dangerous schemes comes from the OWASP XSS Filter
    * Evasion Cheat Sheet: any URL whose effective scheme is not on the allow
    * list is considered untrusted. The comparison is performed on a
    * lowercased, control-stripped prefix so a value like
-   * {@code "  javascript:alert(1)"} still triggers the sanitizer.
+   * {@code "  javascript:alert(1)"} or {@code "\u007fjavascript:alert(1)"}
+   * still triggers the sanitizer.
    *
    * <p>This helper is exported on {@code $.PercServiceUtils.sanitizeUrlForHref}
    * for use across the widget views (CodeQL js/xss-through-dom, alerts
@@ -620,17 +623,35 @@
     if (typeof url !== "string" || url.length === 0) {
       return "about:blank#blocked";
     }
-    // Lower-case and strip ASCII control characters / whitespace before
-    // sniffing the scheme so obfuscated prefixes like "  javascript:" or
-    // "java\tscript:" still match. The browser is more permissive here than
-    // us by default, so we cannot rely on URL parsing alone.
-    var probe = url.toLowerCase().replace(/[\u0000-\u001f\s]+/g, "");
+    // Lower-case and strip ALL ASCII control characters (C0 \u0000-\u001f
+    // and C1 \u0080-\u009f, including DEL \u007f) and whitespace before
+    // sniffing the scheme so obfuscated prefixes like "  javascript:",
+    // "java\tscript:", or "\u007fjavascript:" still match. Browsers are
+    // inconsistent about ignoring stray control characters in URLs, so the
+    // sanitizer MUST defeat them rather than rely on URL parsing alone.
+    var probe = url
+      .toLowerCase()
+      .replace(/[\u0000-\u001f\u007f-\u009f\s]+/g, "");
+    // Protocol-relative URLs ("//host/path" or "/\\host/path") resolve to
+    // an arbitrary external origin per RFC 3986 and defeat the
+    // defense-in-depth intent of this helper (phishing / open-redirect /
+    // credential-exfiltration risk), even though they are not a
+    // script-execution sink. Block BEFORE the single-slash branch and the
+    // bareword-relative branch below, both of which would otherwise let
+    // these pass through unchanged.
+    if (
+      probe.charAt(0) === "/" &&
+      (probe.charAt(1) === "/" || probe.charAt(1) === "\\")
+    ) {
+      return "about:blank#blocked";
+    }
     // Allow-list of safe schemes for href contexts.
     // - http(s): standard web links (still subject to target=_blank
     //   rel=noopener protections elsewhere).
     // - mailto/tel: launch external handlers, no script execution.
-    // - /, #, or any value with no scheme prefix at all: relative path or
-    //   fragment; the browser resolves these against the current document.
+    // - "/", "#", "?": same-document relative/fragment/query references.
+    //   IMPORTANT: only a SINGLE leading "/" is allowed (the protocol-
+    //   relative case is rejected above).
     // We also accept "about:blank" itself for the neutralized return path.
     if (
       probe === "about:blank" ||

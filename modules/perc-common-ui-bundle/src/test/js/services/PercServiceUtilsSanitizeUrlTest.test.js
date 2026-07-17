@@ -56,11 +56,20 @@ describe("$.PercServiceUtils.sanitizeUrlForHref", () => {
       ["javascript: with leading whitespace", "   javascript:alert(1)"],
       ["javascript: with embedded tab", "java\tscript:alert(1)"],
       ["javascript: with embedded newline", "java\nscript:alert(1)"],
+      ["javascript: prefixed with DEL (\\u007f)", "\u007fjavascript:alert(1)"],
+      ["javascript: prefixed with C1 control (\\u0085)", "\u0085javascript:alert(1)"],
       ["data: URL", "data:text/html,<script>alert(1)</script>"],
       ["vbscript:", "vbscript:msgbox(1)"],
       ["file:", "file:///etc/passwd"],
       ["blob:", "blob:http://evil.example/payload"],
       ["chrome:", "chrome://settings"],
+      // Protocol-relative URLs (review-thread PRRT_kwDOKZBp3M6RjrdQ):
+      // resolve to an arbitrary external origin and defeat the
+      // defense-in-depth intent. Must be neutralized even though they
+      // are not a script-execution sink.
+      ["protocol-relative https", "//evil.example.com/phish"],
+      ["protocol-relative http", "//evil.example.com/path"],
+      ["protocol-relative with whitespace", "  //evil.example.com"],
     ];
 
     for (const [label, input] of dangerous) {
@@ -81,6 +90,8 @@ describe("$.PercServiceUtils.sanitizeUrlForHref", () => {
       ["tel:", "tel:+15551234567"],
       ["relative path", "/blog/post-1"],
       ["relative path with query", "/blog/post-1?filter=foo"],
+      ["relative path with fragment", "/blog/post-1#section-2"],
+      ["single slash root", "/"],
       ["fragment only", "#section-2"],
       ["query only", "?page=2"],
       ["bareword relative", "blog/post-1"],
@@ -142,6 +153,33 @@ describe("$.PercServiceUtils.sanitizeUrlForHref", () => {
       expect(
         $.PercServiceUtils.sanitizeUrlForHref("  javascript:alert(1)")
       ).toBe("about:blank#blocked");
+    });
+  });
+
+  // ----- Defense-in-depth: protocol-relative URL bypass (review thread) -----
+  describe("blocks protocol-relative URLs (defense-in-depth)", () => {
+    it("neutralizes //host/path", () => {
+      expect($.PercServiceUtils.sanitizeUrlForHref("//evil.example.com")).toBe(
+        "about:blank#blocked"
+      );
+    });
+
+    it("neutralizes //host/path with a path component", () => {
+      expect(
+        $.PercServiceUtils.sanitizeUrlForHref("//evil.example.com/login")
+      ).toBe("about:blank#blocked");
+    });
+
+    it("neutralizes backslash-prefixed host (some browsers treat \\\\ as //)", () => {
+      expect(
+        $.PercServiceUtils.sanitizeUrlForHref("/\\evil.example.com")
+      ).toBe("about:blank#blocked");
+    });
+
+    it("preserves a single leading slash (same-origin path)", () => {
+      expect($.PercServiceUtils.sanitizeUrlForHref("/blog/post-1")).toBe(
+        "/blog/post-1"
+      );
     });
   });
 });
