@@ -161,4 +161,32 @@ describe("perc_template_layout_helper parseRegions XSS regression", () => {
     // setVertical(!hasClass) -> hasClass false -> setVertical(true)
     expect(helper.rootRegion.vertical).toBe(true);
   });
+
+  it("only inspects the root element, matching $(markup).hasClass() semantics", () => {
+    // PR #1320 review: a nested element carrying the class (with no
+    // class attribute on the root) must not be treated as horizontal —
+    // that would diverge from jQuery's hasClass(), which only ever
+    // inspects the root element.
+    const payload = `<div><span class="perc-horizontal">${XSS_MARKER}</span></div>`;
+    const $region = makeXmlRegion(payload);
+
+    const helper = new PercTemplateLayoutHelper();
+    helper.parseRegions($region, null);
+
+    // setVertical(!hasClass) -> hasClass false (nested, not root) -> setVertical(true)
+    expect(helper.rootRegion.vertical).toBe(true);
+  });
+
+  it("matches a single-quoted class attribute on the root element", () => {
+    // PR #1320 review: single-quoted class='...' attributes must be
+    // recognized the same way jQuery's hasClass() recognizes them.
+    const payload = `<div class='perc-horizontal'><img src=x ${XSS_MARKER}></div>`;
+    const $region = makeXmlRegion(payload);
+
+    const helper = new PercTemplateLayoutHelper();
+    helper.parseRegions($region, null);
+
+    // setVertical(!hasClass) -> hasClass true -> setVertical(false)
+    expect(helper.rootRegion.vertical).toBe(false);
+  });
 });

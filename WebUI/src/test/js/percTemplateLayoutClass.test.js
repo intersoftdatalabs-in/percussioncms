@@ -113,4 +113,24 @@ describe("perc_template_layout_class percTemplateCodeHasClass regression", () =>
     expect(hasClass(undefined, "perc-horizontal")).toBe(false);
     expect(hasClass("not html at all", "perc-horizontal")).toBe(false);
   });
+
+  it("only inspects the root element, matching $(markup).hasClass() semantics", () => {
+    // PR #1320 review: the original regex matched the first class="..."
+    // occurrence anywhere in the markup, so a *nested* element carrying
+    // the class (with no class attribute on the root) incorrectly
+    // returned true — diverging from jQuery's hasClass(), which only
+    // ever inspects the root element.
+    const hasClass = loadPercTemplateCodeHasClass();
+    const markup = '<div><span class="perc-horizontal"></span></div>';
+    expect(hasClass(markup, "perc-horizontal")).toBe(false);
+  });
+
+  it("matches a single-quoted class attribute on the root element", () => {
+    // PR #1320 review: the original regex only matched double-quoted
+    // class="..." attributes, silently missing single-quoted
+    // class='...' attributes that jQuery's hasClass() matches fine.
+    const hasClass = loadPercTemplateCodeHasClass();
+    const markup = "<div class='perc-horizontal'></div>";
+    expect(hasClass(markup, "perc-horizontal")).toBe(true);
+  });
 });
