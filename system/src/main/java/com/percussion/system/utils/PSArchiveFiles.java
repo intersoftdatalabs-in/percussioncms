@@ -334,49 +334,50 @@ public class PSArchiveFiles {
       pw.println("Extracting files from archive");
     }
 
+    // Resolve once; all entry paths are validated against this base (CWE-22 / java/zipslip #723).
+    File baseDir = directory;
+
     for (Enumeration<? extends ZipEntry> files = archiveFile.entries(); files.hasMoreElements(); ) {
       ZipEntry entry = files.nextElement();
-      StringBuilder errorBuf = new StringBuilder();
 
-      // Check whether the directory exists for this file. If not, create it.
-      String dir = "";
       String name = entry.getName();
       // don't extract manifest file
       if (name.equals(JarFile.MANIFEST_NAME)) continue;
 
       if (pw != null) pw.println(name);
 
+      // Strip trailing slash for directory entries so constructSafePath sees a clean relative path.
+      String relativeName = name;
+      if (entry.isDirectory() && relativeName.endsWith("/")) {
+        relativeName = relativeName.substring(0, relativeName.length() - 1);
+      }
+      if (relativeName.isEmpty() || ".".equals(relativeName)) {
+        continue;
+      }
+
+      // Validate BEFORE any mkdirs / open: prior code used new File(extractDir, dir) for
+      // parent creation with the raw entry name (CodeQL java/zipslip #723 on entry.getName()).
+      // PathValidation.constructSafePath rejects absolute paths and .. traversal (CWE-22).
+      File safeFile = PathValidation.constructSafePath(baseDir, relativeName);
+
       if (entry.isDirectory()) {
-        // As directory entry ends with forward slash remove that
-        dir = name.substring(0, name.length() - 1);
-      } else {
-        int index = -1;
-        if ((index = name.lastIndexOf(File.separator)) != -1) dir = name.substring(0, index);
-        else dir = "."; // to indicate extract to the extract base directory
-      }
-
-      if (!dir.equals(".")) {
-        File file = new File(extractDir, dir);
-        if (!file.exists()) {
-          if (!file.mkdirs()) return "Could not make directory " + file.getCanonicalPath();
+        if (!safeFile.exists() && !safeFile.mkdirs()) {
+          return "Could not make directory " + safeFile.getCanonicalPath();
         }
+        continue;
       }
 
-      // Since entry is directory, just return
-      if (entry.isDirectory()) continue;
+      File parent = safeFile.getParentFile();
+      if (parent != null && !parent.exists() && !parent.mkdirs()) {
+        return "Could not make directory " + parent.getCanonicalPath();
+      }
 
       InputStream in = null;
       FileOutputStream out = null;
 
       try {
         in = archiveFile.getInputStream(entry);
-
-        if (!extractDir.endsWith(File.separator)) extractDir += File.separator;
-
-        // CWE-22: Prevent ZipSlip attacks by validating the extracted path
-        File baseDir = new File(extractDir);
-        File file = PathValidation.constructSafePath(baseDir, entry.getName());
-        out = new FileOutputStream(file);
+        out = new FileOutputStream(safeFile);
 
         byte[] buf = new byte[1024];
         int len;

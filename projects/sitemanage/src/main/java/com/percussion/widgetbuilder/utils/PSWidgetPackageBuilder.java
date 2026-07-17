@@ -17,6 +17,7 @@
  */
 package com.percussion.widgetbuilder.utils;
 
+import com.percussion.security.validation.PathValidation;
 import com.percussion.utils.PSTokenReplacingReader;
 import com.percussion.widgetbuilder.utils.xform.PSAclFileTransformer;
 import com.percussion.widgetbuilder.utils.xform.PSContentTypeFileTransformer;
@@ -112,6 +113,10 @@ public class PSWidgetPackageBuilder {
       if (rootDir.exists()) {
         FileUtils.deleteDirectory(rootDir);
       }
+      // PathValidation.constructSafePath requires baseDir to exist.
+      if (!rootDir.mkdirs() && !rootDir.isDirectory()) {
+        throw new IOException("Could not create package extract directory: " + rootDir);
+      }
 
       try (var in = new FileInputStream(srcFile);
           var zin = new ZipInputStream(in)) {
@@ -119,13 +124,21 @@ public class PSWidgetPackageBuilder {
         ZipEntry entry = zin.getNextEntry();
         while (entry != null) {
           if (!entry.isDirectory()) {
+            // CWE-22 / java/zipslip #722: validate resolved entry path under rootDir before any
+            // FileOutputStream / mkdirs. resolvePath may rewrite template tokens but must still
+            // stay relative; PathValidation rejects absolute paths and .. traversal.
             var resolvePath = resolvePath(entry.getName(), packageSpec);
-            var file = new File(rootDir, resolvePath);
+            var file = PathValidation.constructSafePath(rootDir, resolvePath);
             var xform = getFileTransformer(file);
             if (xform != null) {
               file = xform.transformPath(file, packageSpec);
+              // Re-check after transform so a transformer cannot re-introduce ZipSlip.
+              PathValidation.validatePathWithinDirectory(file, rootDir);
             }
-            file.getParentFile().mkdirs();
+            File parent = file.getParentFile();
+            if (parent != null) {
+              parent.mkdirs();
+            }
 
             try (var fout = new FileOutputStream(file)) {
               if (isTextFile(file)) {
