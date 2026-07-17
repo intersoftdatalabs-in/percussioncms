@@ -14,10 +14,22 @@ const path = require("path");
 const WEBUI_DIR = path.dirname(
   path.dirname(path.dirname(path.dirname(__dirname)))
 );
-const WAR_DIR = path.join(WEBUI_DIR, "src/main/webapp");
+// Legacy source tree lives under cm/ (plugins, jslib, services, css, …).
+// Bundle configs list paths relative to that root (e.g. plugins/perc_utils.js).
+const WAR_DIR = path.join(WEBUI_DIR, "src/main/webapp", "cm");
 const BUNDLE_CONFIG_DIR = path.join(WEBUI_DIR, "src/main/resources/minify");
+// Generated only — never commit these. Maven war plugin overlays this dir.
 const OUTPUT_DIR = path.join(WEBUI_DIR, "target/generated-webui/cm");
 const NODE_MODULES_DIR = path.join(__dirname, "../node_modules");
+
+/** Intermediate bundles that must not be empty (phase-1 outputs). */
+const REQUIRED_INTERMEDIATE_BUNDLES = [
+  "shared-common.js",
+  "shared-common-minuet.js",
+  "shared-finder.js",
+  "shared-common.css",
+  "shared-common-minuet.css",
+];
 
 // Mapping of jslib paths to npm package names for npm-managed libraries
 const NPM_LIBRARY_MAPPINGS = {
@@ -85,30 +97,48 @@ function resolvePath(filePath, baseDir = WAR_DIR) {
 }
 
 /**
- * Read a file or return empty string if file doesn't exist
+ * Read a file. Returns { content, missing, error } so callers can fail hard
+ * when intermediate bundles would otherwise be silently empty, and distinguish
+ * "not found" from I/O errors (permissions, etc.).
  */
 function readFile(filePath) {
   try {
     if (!fs.existsSync(filePath)) {
       console.warn(`  ⚠️  Missing file: ${filePath}`);
-      return "";
+      return { content: "", missing: true, error: false };
     }
-    return fs.readFileSync(filePath, "utf8");
+    return {
+      content: fs.readFileSync(filePath, "utf8"),
+      missing: false,
+      error: false,
+    };
   } catch (err) {
     console.error(`  ❌ Error reading ${filePath}:`, err.message);
-    return "";
+    return { content: "", missing: false, error: true };
   }
 }
 
 /**
- * Build bundles from a single config file
+ * Build bundles from a single config file.
+ * @param {string} configFile
+ * @param {number} processingPhase
+ * @param {{ failOnMissing?: boolean }} options - When true (phase-1 intermediates),
+ *   missing source files abort the build instead of writing empty concatenations.
+ * @returns {{ missingCount: number }}
  */
-function buildBundlesFromConfig(configFile, processingPhase = 1) {
+function buildBundlesFromConfig(
+  configFile,
+  processingPhase = 1,
+  options = {}
+) {
+  const { failOnMissing = false } = options;
   const configPath = path.join(BUNDLE_CONFIG_DIR, configFile);
+  let missingCount = 0;
+  let errorCount = 0;
 
   if (!fs.existsSync(configPath)) {
     console.warn(`⚠️  Config file not found: ${configPath}`);
-    return;
+    return { missingCount: 1, errorCount: 0 };
   }
 
   console.log(`\n📦 Processing ${configFile} (Phase ${processingPhase})...`);
@@ -139,12 +169,19 @@ function buildBundlesFromConfig(configFile, processingPhase = 1) {
     console.log(`  📄 Building ${bundle.name}...`);
 
     // Concatenate all files for this bundle
-    const content = bundle.files
-      .map((file) => {
-        const fullPath = resolvePath(file);
-        return readFile(fullPath);
-      })
-      .join("\n");
+    const parts = [];
+    for (const file of bundle.files) {
+      const fullPath = resolvePath(file);
+      const { content, missing, error } = readFile(fullPath);
+      if (missing) {
+        missingCount += 1;
+      }
+      if (error) {
+        errorCount += 1;
+      }
+      parts.push(content);
+    }
+    const content = parts.join("\n");
 
     // Write the bundle
     fs.writeFileSync(outputPath, content, "utf8");
@@ -152,6 +189,21 @@ function buildBundlesFromConfig(configFile, processingPhase = 1) {
     const outputName = path.relative(OUTPUT_DIR, outputPath);
     console.log(`    ✓ ${outputName} (${sizeKb}KB)`);
   });
+
+  if (failOnMissing && (missingCount > 0 || errorCount > 0)) {
+    const parts = [];
+    if (missingCount > 0) {
+      parts.push(`${missingCount} source file(s) missing`);
+    }
+    if (errorCount > 0) {
+      parts.push(`${errorCount} source file(s) unreadable (I/O error)`);
+    }
+    throw new Error(
+      `${configFile}: ${parts.join(", ")} while building intermediate bundles (source root: ${WAR_DIR})`
+    );
+  }
+
+  return { missingCount, errorCount };
 }
 
 /**
@@ -198,20 +250,46 @@ function syncStandaloneNpmLibraries() {
 }
 
 /**
+ * Assert intermediate shared-* bundles exist and are non-trivial so Maven
+ * packaging never ships empty placeholders when sources fail to resolve.
+ */
+function assertRequiredIntermediates() {
+  const minBytes = 1024;
+  for (const name of REQUIRED_INTERMEDIATE_BUNDLES) {
+    const out = path.join(OUTPUT_DIR, name);
+    if (!fs.existsSync(out)) {
+      throw new Error(`Required intermediate bundle missing: ${out}`);
+    }
+    const size = fs.statSync(out).size;
+    if (size < minBytes) {
+      throw new Error(
+        `Required intermediate bundle too small (${size} bytes): ${out}`
+      );
+    }
+  }
+}
+
+/**
  * Main build process
  */
 function main() {
   console.log("🔨 Building legacy JavaScript and CSS bundles...\n");
-  console.log(`   WAR directory: ${WAR_DIR}`);
+  console.log(`   Source root:   ${WAR_DIR}`);
+  console.log(`   Output:        ${OUTPUT_DIR}`);
   console.log(`   Configs:       ${BUNDLE_CONFIG_DIR}\n`);
 
   try {
-    // Phase 0: Copy standalone npm libraries to war/ for direct <script> loading
+    // Phase 0: Copy standalone npm libraries into cm/ for direct <script> loading
     syncStandaloneNpmLibraries();
 
     // Phase 1: Build intermediate common bundles (shared-common.js, shared-finder.js, etc.)
-    buildBundlesFromConfig("common-bundles.json", 1);
-    buildBundlesFromConfig("common-minuet-bundles.json", 1);
+    // Fail hard on missing sources — these are the only packaging inputs for
+    // shared-common* / shared-finder (no longer checked into git).
+    buildBundlesFromConfig("common-bundles.json", 1, { failOnMissing: true });
+    buildBundlesFromConfig("common-minuet-bundles.json", 1, {
+      failOnMissing: true,
+    });
+    assertRequiredIntermediates();
 
     // Phase 2: Build final page-specific bundles (which reference the intermediate ones)
     buildBundlesFromConfig("static-bundles.json", 2);
@@ -222,45 +300,63 @@ function main() {
     const jslibMinDir = path.join(OUTPUT_DIR, "jslibMin");
     const cssMinDir = path.join(OUTPUT_DIR, "cssMin");
 
-    fs.readdirSync(jslibMinDir).forEach((file) => {
-      if (file.endsWith(".min.js")) {
-        const minFile = file;
-        const nonMinFile = file.replace(".min.js", ".js");
-        const src = path.join(jslibMinDir, minFile);
-        const dest = path.join(jslibMinDir, nonMinFile);
-        try {
-          fs.copyFileSync(src, dest);
-          console.log(`  ✓ ${nonMinFile} (alias for ${minFile})`);
-        } catch (err) {
-          console.error(
-            `  ❌ Error creating alias ${nonMinFile}: ${err.message}`
-          );
+    if (fs.existsSync(jslibMinDir)) {
+      fs.readdirSync(jslibMinDir).forEach((file) => {
+        if (file.endsWith(".min.js")) {
+          const minFile = file;
+          const nonMinFile = file.replace(".min.js", ".js");
+          const src = path.join(jslibMinDir, minFile);
+          const dest = path.join(jslibMinDir, nonMinFile);
+          try {
+            fs.copyFileSync(src, dest);
+            console.log(`  ✓ ${nonMinFile} (alias for ${minFile})`);
+          } catch (err) {
+            console.error(
+              `  ❌ Error creating alias ${nonMinFile}: ${err.message}`
+            );
+          }
         }
-      }
-    });
+      });
+    }
 
-    fs.readdirSync(cssMinDir).forEach((file) => {
-      if (file.endsWith(".min.css")) {
-        const minFile = file;
-        const nonMinFile = file.replace(".min.css", ".css");
-        const src = path.join(cssMinDir, minFile);
-        const dest = path.join(cssMinDir, nonMinFile);
-        try {
-          fs.copyFileSync(src, dest);
-          console.log(`  ✓ ${nonMinFile} (alias for ${minFile})`);
-        } catch (err) {
-          console.error(
-            `  ❌ Error creating alias ${nonMinFile}: ${err.message}`
-          );
+    if (fs.existsSync(cssMinDir)) {
+      fs.readdirSync(cssMinDir).forEach((file) => {
+        if (file.endsWith(".min.css")) {
+          const minFile = file;
+          const nonMinFile = file.replace(".min.css", ".css");
+          const src = path.join(cssMinDir, minFile);
+          const dest = path.join(cssMinDir, nonMinFile);
+          try {
+            fs.copyFileSync(src, dest);
+            console.log(`  ✓ ${nonMinFile} (alias for ${minFile})`);
+          } catch (err) {
+            console.error(
+              `  ❌ Error creating alias ${nonMinFile}: ${err.message}`
+            );
+          }
         }
-      }
-    });
+      });
+    }
 
     console.log("\n✅ Legacy bundles built successfully!");
   } catch (err) {
-    console.error("\n❌ Error building bundles:", err);
+    console.error("\n❌ Error building bundles:", err.message || err);
     process.exit(1);
   }
 }
 
-main();
+if (require.main === module) {
+  main();
+}
+
+module.exports = {
+  WEBUI_DIR,
+  WAR_DIR,
+  OUTPUT_DIR,
+  BUNDLE_CONFIG_DIR,
+  REQUIRED_INTERMEDIATE_BUNDLES,
+  resolvePath,
+  buildBundlesFromConfig,
+  assertRequiredIntermediates,
+  main,
+};

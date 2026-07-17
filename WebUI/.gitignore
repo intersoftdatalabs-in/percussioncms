@@ -124,3 +124,12 @@ fabric.properties
 /war/shared-common.js.map
 /war/shared-common-minuet.js
 /war/shared-common-minuet.css
+/war/shared-finder.js
+# Intermediate legacy concatenations under the Maven webapp tree (generated
+# into target/generated-webui/cm/ at build time — not source).
+/src/main/webapp/cm/shared-common.css
+/src/main/webapp/cm/shared-common.js
+/src/main/webapp/cm/shared-common.js.map
+/src/main/webapp/cm/shared-common-minuet.js
+/src/main/webapp/cm/shared-common-minuet.css
+/src/main/webapp/cm/shared-finder.js
