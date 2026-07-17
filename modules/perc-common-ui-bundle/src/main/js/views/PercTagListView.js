@@ -122,11 +122,16 @@
                   .find("a")
                   .attr(
                     "href",
-                    baseURL +
-                      pageResult +
-                      "?filter=" +
-                      tagEntry.tagName +
-                      encodedQuery
+                    // CodeQL js/xss-through-dom (alert #991): tagEntry.tagName
+                    // is server-supplied tag data; sanitize before assigning
+                    // to href to neutralize javascript:/data: schemes.
+                    $.PercServiceUtils.sanitizeUrlForHref(
+                      baseURL +
+                        pageResult +
+                        "?filter=" +
+                        tagEntry.tagName +
+                        encodedQuery
+                    )
                   )
                   .html(linkText);
               } else {
