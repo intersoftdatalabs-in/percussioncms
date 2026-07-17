@@ -15,11 +15,12 @@ description: >-
 
 ## Hard rules
 
-1. **Analyzer of record** is **CodeQL Advanced** (`.github/workflows/codeql.yml` + `codeql-config.yml` + `.github/codeql/models`). Default setup must stay `not-configured`.
-2. **Disposition ladder**: runtime fix + test → model pack barrier → sink-line `// codeql[rule-id]` → path `query-filters` → dismiss last.
-3. **Sink-line only**: put `// codeql[...]` on the alert line or the single line immediately above a one-line sink. Multi-line builders with a comment three lines up **fail**.
-4. **Do not** open dismiss-only PRs. **Do not** re-enable default CodeQL setup without the same config/models.
-5. After addressing a CodeQL review comment: **reply with mitigation (commit SHA)** then **`resolveReviewThread`** (root `AGENTS.md`).
+1. **Analyzer of record** is **CodeQL Advanced** (`.github/workflows/codeql.yml` + `codeql-config.yml` + `.github/codeql/models`). Scope: **Java + JavaScript/TypeScript only**.
+2. **Default CodeQL setup** must stay `not-configured`. **GitHub Code Quality** (dynamic `Code Quality: CodeQL Setup`) must stay **disabled** (Settings → Code quality) — it ignores advanced config and can mass-close alerts.
+3. **Disposition ladder**: runtime fix + test → model pack barrier → sink-line `// codeql[rule-id]` → path `query-filters` → dismiss last.
+4. **Sink-line only**: put `// codeql[...]` on the alert line or the single line immediately above a one-line sink. Multi-line builders with a comment three lines up **fail**.
+5. **Do not** open dismiss-only PRs. **Do not** re-enable default CodeQL setup or Code Quality without the same config/models.
+6. After addressing a CodeQL review comment: **reply with mitigation (commit SHA)** then **`resolveReviewThread`** (root `AGENTS.md`).
 
 ## Verify default setup off
 

@@ -17,21 +17,23 @@ Default CodeQL setup and advanced setup used to run in parallel:
 
 Structural fixes were correct; **PR gating used the wrong analyzer**. That caused repeated CodeQL review comments, dismissals, and re-opens.
 
-**Policy (as of 2026-07-16):**
+**Policy (as of 2026-07-17):**
 
 1. **Advanced setup is the analyzer of record** for PRs targeting `development` and for pushes to `development`.
 2. **Default CodeQL setup is disabled** (`state=not-configured` on the repo).
-3. Custom sanitizers are modeled in `.github/codeql/models/` first; path `query-filters` are a fallback only.
-4. Dismiss-only is a last resort and must cite model/config + tests.
+3. **GitHub Code Quality** (dynamic workflow `Code Quality: CodeQL Setup` at `dynamic/github-code-scanning/codeql`) must stay **disabled** for this repo. It ignores `codeql-config.yml` / model packs, scans extra languages (C#, Python, Actions, …), and empty/stub analyses on the default branch close open alerts as "fixed".
+4. **Languages in scope**: **Java** (`java-kotlin` with `build-mode: none`) and **JavaScript/TypeScript** only.
+5. Custom sanitizers are modeled in `.github/codeql/models/` first; path `query-filters` are a fallback only.
+6. Dismiss-only is a last resort and must cite model/config + tests.
 
 ---
 
 ## Architecture (source of truth)
 
 ```
-.github/workflows/codeql.yml          # Advanced workflow: push + pull_request + schedule
-.github/codeql/codeql-config.yml      # paths-ignore, packs, query-filters
-.github/codeql/models/                # Local model pack (barrier models)
+.github/workflows/codeql.yml          # Advanced: push + pull_request + schedule + workflow_dispatch
+.github/codeql/codeql-config.yml      # paths-ignore, java packs, query-filters
+.github/codeql/models/                # Local model pack (Java barrier models)
   codeql-pack.yml
   models/*.model.yml
 docs/ai-generated/tasks/gh-codeql-alerts/
@@ -54,7 +56,34 @@ gh api --method PATCH repos/intersoftdatalabs-in/percussioncms/code-scanning/def
   -f state=not-configured
 ```
 
-Do **not** re-enable default setup without also attaching the same config/models — otherwise residual thrashing returns.
+### Disable GitHub Code Quality (required)
+
+API cannot disable this dynamic workflow (returns 422). Use the UI:
+
+1. Repo **Settings** → **Code quality** (under Security)
+2. Click **Disable** → **Save changes**
+
+Confirm the dynamic workflow is idle:
+
+```bash
+gh api repos/intersoftdatalabs-in/percussioncms/actions/workflows \
+  --jq '.workflows[] | select(.path=="dynamic/github-code-scanning/codeql") | {name, state}'
+# Prefer: no active runs on push to development after disable
+```
+
+Symptom when Code Quality / default setup races advanced setup:
+
+- Advanced job fails with: `CodeQL analyses from advanced configurations cannot be processed when the default setup is enabled`
+- Or default-branch analyses appear with `rules_count: 0`, `tool.version: null` → **open alerts mass-closed as fixed**
+
+Do **not** re-enable default setup or Code Quality without also attaching the same config/models — otherwise residual thrashing returns.
+
+### Re-scan after config changes
+
+```bash
+gh workflow run "CodeQL Advanced" --ref development
+# or merge a PR that touches .github/workflows/codeql.yml (push trigger)
+```
 
 ---
 

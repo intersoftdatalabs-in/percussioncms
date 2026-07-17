@@ -13,13 +13,15 @@ This folder holds the raw alert fetch, the triage inventory, and the per-disposi
 | `accepted-risks.md` | Accepted-risk register for findings that cannot be remediated in `8.2`. See `specs/004-zero-code-scanning-alerts/contracts/README.md` C4. | Human-edited |
 | `release-readiness-8.2.md` | Per-release sign-off report. See `specs/004-zero-code-scanning-alerts/contracts/README.md` C6. | Generated at sign-off |
 
-## Analyzer of record (do not re-enable default setup)
+## Analyzer of record (do not re-enable default setup / Code Quality)
 
-- **Workflow**: `.github/workflows/codeql.yml` (push + **pull_request** to `development` + schedule)
-- **Config**: `.github/codeql/codeql-config.yml` (`paths-ignore`, `packs`, `query-filters`)
-- **Models**: `.github/codeql/models/` (custom sanitizer barriers)
+- **Workflow**: `.github/workflows/codeql.yml` (push + **pull_request** to `development` + schedule + `workflow_dispatch`)
+- **Languages**: **Java** + **JavaScript/TypeScript** only
+- **Config**: `.github/codeql/codeql-config.yml` (`paths-ignore`, Java `packs`, `query-filters`)
+- **Models**: `.github/codeql/models/` (custom Java sanitizer barriers)
 - **Default setup**: must remain `not-configured` — verify with  
   `gh api repos/intersoftdatalabs-in/percussioncms/code-scanning/default-setup --jq .state`
+- **Code Quality**: must stay **disabled** (Settings → Code quality). Dynamic workflow `dynamic/github-code-scanning/codeql` ignores advanced config and can wipe default-branch alerts.
 
 Agent skill: `modules/ai-shared-develop/src/main/resources/skills/codeql-pr/SKILL.md`
 
