@@ -148,7 +148,15 @@
           var jsonQuery = { criteria: ["perc:tags LIKE '" + tag + "'"] };
           var encodedQuery =
             "&query=" + encodeURIComponent(JSON.stringify(jsonQuery));
-          $(this).attr("href", blogIndexPage + "?filter=" + tag + encodedQuery);
+          // CodeQL js/xss-through-dom (alert #983): tag is read from the DOM
+          // (attacker-controlled content); sanitize href before assignment so a
+          // tag of "javascript:..." cannot become an executable href.
+          $(this).attr(
+            "href",
+            $.PercServiceUtils.sanitizeUrlForHref(
+              blogIndexPage + "?filter=" + tag + encodedQuery
+            )
+          );
         });
 
       // Categories
@@ -162,9 +170,13 @@
           };
           var encodedQuery =
             "&query=" + encodeURIComponent(JSON.stringify(jsonQuery));
+          // CodeQL js/xss-through-dom (alert #984): category is read from the
+          // DOM; sanitize href before assignment (same rationale as #983).
           $(this).attr(
             "href",
-            blogIndexPage + "?filter=" + category + encodedQuery
+            $.PercServiceUtils.sanitizeUrlForHref(
+              blogIndexPage + "?filter=" + category + encodedQuery
+            )
           );
         });
     });
