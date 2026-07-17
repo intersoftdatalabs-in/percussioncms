@@ -57,11 +57,6 @@ public class PSImportThemeHelper extends PSImportHelper {
   private IPSThemeService themeService;
   private static final Logger log = LogManager.getLogger(PSImportThemeHelper.class);
   private PSHTMLHeaderImporter headerImporter;
-  // Cached per-process theme root directory. Held so removeIfExists (called
-  // after the header importer is built) can validate user-supplied CSS link
-  // paths against the same base the importer used to translate them. See
-  // process() where it is assigned from themeService.
-  private String themeRootDirectory;
   private static final String STATUS_MESSAGE = "importing theme furniture";
 
   @Autowired
@@ -114,15 +109,13 @@ public class PSImportThemeHelper extends PSImportHelper {
           themeService.getThemeRootDirectory(themeSummary != null ? themeSummary.getName() : "");
       String themeRootUrl =
           themeService.getThemeRootUrl(themeSummary != null ? themeSummary.getName() : "");
-      // Cache the resolved theme root for removeIfExists (CWE-22/CWE-23 defense).
-      this.themeRootDirectory = themeRootDirectory;
 
       headerImporter =
           new PSHTMLHeaderImporter(
               sourceDoc, baseUrl, siteName, themeRootDirectory, themeRootUrl, context.getLogger());
 
       linkPaths = headerImporter.getLinkPaths();
-      removeIfExists(linkPaths);
+      removeIfExists(linkPaths, themeRootDirectory);
 
       scriptPaths = headerImporter.getScriptPaths();
       resources.putAll(scriptPaths);
@@ -216,21 +209,37 @@ public class PSImportThemeHelper extends PSImportHelper {
    *
    * @param linkPaths the map of link paths to check.
    */
-  private void removeIfExists(Map<String, String> linkPaths) {
+  private void removeIfExists(Map<String, String> linkPaths, String themeRootDirectory) {
     Set<String> cssURLs = new HashSet<>(linkPaths.keySet());
+    File themeRoot = new File(themeRootDirectory);
     for (var cssURL : cssURLs) {
       var cssFile = linkPaths.get(cssURL);
-      // CWE-22/CWE-23 defense (T043): cssFile is a filesystem path
-      // derived from a CSS link URL extracted from the imported HTML
-      // header (via PSHTMLHeaderImporter.getLinkPaths). Resolve against
-      // the theme root and verify containment BEFORE any File
-      // construction. A malicious HTML header with `<link href=...>`
-      // pointing outside the theme root would otherwise escape the
-      // intended base directory.
-      File safe = PSPathInjectionGuard.requireUnderBase(new File(themeRootDirectory), cssFile);
+      // linkPaths carries mixed values: for off-site CSS links the value
+      // IS the remote URL (e.g. "https://cdn.example/style.css"); for
+      // on-site CSS links the value is a local filesystem path produced
+      // by PSURLConverter. Only the on-site (filesystem-path) values
+      // need the CWE-22/CWE-23 containment check. URL values were never
+      // meant to be opened as files (pre-fix code's `new File(url)` just
+      // returns false); we skip them so external stylesheet support is
+      // preserved.
+      if (isHttpUrl(cssFile)) {
+        continue;
+      }
+      // Defense-in-depth: requireUnderBase canonicalizes cssFile and
+      // verifies it is contained within themeRoot. Traversal payloads
+      // (../) or absolute escapes throw IllegalArgumentException BEFORE
+      // any File construction.
+      File safe = PSPathInjectionGuard.requireUnderBase(themeRoot, cssFile);
       if (safe.exists()) {
         linkPaths.remove(cssURL);
       }
     }
+  }
+
+  /** True if {@code value} is an http or https URL (case-insensitive). */
+  private static boolean isHttpUrl(String value) {
+    if (value == null) return false;
+    String lower = value.toLowerCase(java.util.Locale.ROOT);
+    return lower.startsWith("http://") || lower.startsWith("https://");
   }
 }
