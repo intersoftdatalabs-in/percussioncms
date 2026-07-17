@@ -23,8 +23,6 @@ export default defineConfig({
         "jslibMin/perc_users.packed.min": "src/main/bundles/perc_users.bundle.js",
         "jslibMin/perc_editTemplate.packed.min":
           "src/main/bundles/perc_editTemplate.bundle.js",
-        "jslibMin/perc_widgetBuilder.packed.min":
-          "src/main/bundles/perc_widgetBuilder.bundle.js",
         "jslibMin/perc_admin.packed.min": "src/main/bundles/perc_admin.bundle.js",
         "jslibMin/perc_common_ui": "src/main/bundles/perc_common_ui.bundle.js",
       },

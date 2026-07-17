@@ -29,7 +29,8 @@ export default defineConfig({
     rollupOptions: {
       input: resolve(__dirname, "../ts/index.ts"),
       output: {
-        entryFileNames: "assets/[name]-[hash].js",
+        // Stable entry name so thin JSPs can load PercModernUI without a manifest
+        entryFileNames: "assets/perc-modern-ui.js",
         chunkFileNames: "assets/[name]-[hash].js",
         assetFileNames: "assets/[name]-[hash][extname]",
       },

@@ -17949,5 +17949,177 @@ Documentación' href='https://percussioncmshelp.intsof.com/'&gt;percussioncmshel
 <seg>Oops. Lo sentimos. La página solicitada ya no está disponible.</seg>
 </tuv>
 </tu>
+<!-- Modern Home / Widget Builder chrome (989-react-cui-widget-builder) FR-021/022 -->
+<tu tuid="perc.ui.home.modern@Home">
+    <prop type="sectionname" xml:lang="en-us">Label</prop>
+    <note xml:lang="en-us">Modern Home shell title</note>
+    <tuv xml:lang="en-us"><seg>Home</seg></tuv>
+    <tuv xml:lang="es"><seg>Inicio</seg></tuv>
+    <tuv xml:lang="hi"><seg>Home</seg></tuv>
+</tu>
+<tu tuid="perc.ui.home.modern@Library">
+    <prop type="sectionname" xml:lang="en-us">Label</prop>
+    <note xml:lang="en-us">Home Library section</note>
+    <tuv xml:lang="en-us"><seg>Library</seg></tuv>
+    <tuv xml:lang="es"><seg>Biblioteca</seg></tuv>
+    <tuv xml:lang="hi"><seg>Library</seg></tuv>
+</tu>
+<tu tuid="perc.ui.home.modern@Search">
+    <prop type="sectionname" xml:lang="en-us">Label</prop>
+    <note xml:lang="en-us">Home Search section / submit</note>
+    <tuv xml:lang="en-us"><seg>Search</seg></tuv>
+    <tuv xml:lang="es"><seg>Buscar</seg></tuv>
+    <tuv xml:lang="hi"><seg>Search</seg></tuv>
+</tu>
+<tu tuid="perc.ui.home.modern@No Recent Items">
+    <prop type="sectionname" xml:lang="en-us">Label</prop>
+    <note xml:lang="en-us">Recent empty state</note>
+    <tuv xml:lang="en-us"><seg>No recent items</seg></tuv>
+    <tuv xml:lang="es"><seg>No hay elementos recientes</seg></tuv>
+    <tuv xml:lang="hi"><seg>No recent items</seg></tuv>
+</tu>
+<tu tuid="perc.ui.home.modern@No Search Results">
+    <prop type="sectionname" xml:lang="en-us">Label</prop>
+    <note xml:lang="en-us">Search empty results</note>
+    <tuv xml:lang="en-us"><seg>No search results</seg></tuv>
+    <tuv xml:lang="es"><seg>Sin resultados de búsqueda</seg></tuv>
+    <tuv xml:lang="hi"><seg>No search results</seg></tuv>
+</tu>
+<tu tuid="perc.ui.home.modern@Search Placeholder">
+    <prop type="sectionname" xml:lang="en-us">Label</prop>
+    <note xml:lang="en-us">Search input placeholder</note>
+    <tuv xml:lang="en-us"><seg>Search content…</seg></tuv>
+    <tuv xml:lang="es"><seg>Buscar contenido…</seg></tuv>
+    <tuv xml:lang="hi"><seg>Search content…</seg></tuv>
+</tu>
+<tu tuid="perc.ui.home.modern@Create Page">
+    <prop type="sectionname" xml:lang="en-us">Label</prop>
+    <note xml:lang="en-us">Create page action</note>
+    <tuv xml:lang="en-us"><seg>Create page</seg></tuv>
+    <tuv xml:lang="es"><seg>Crear página</seg></tuv>
+    <tuv xml:lang="hi"><seg>Create page</seg></tuv>
+</tu>
+<tu tuid="perc.ui.home.modern@Create Hint">
+    <prop type="sectionname" xml:lang="en-us">Label</prop>
+    <note xml:lang="en-us">Create section hint</note>
+    <tuv xml:lang="en-us"><seg>Create a new page in a site folder. Asset and blog flows will expand in later iterations.</seg></tuv>
+    <tuv xml:lang="es"><seg>Cree una página nueva en una carpeta del sitio. Los flujos de recursos y blog se ampliarán más adelante.</seg></tuv>
+    <tuv xml:lang="hi"><seg>Create a new page in a site folder. Asset and blog flows will expand in later iterations.</seg></tuv>
+</tu>
+<tu tuid="perc.ui.home.modern@Loading">
+    <prop type="sectionname" xml:lang="en-us">Label</prop>
+    <note xml:lang="en-us">Loading status</note>
+    <tuv xml:lang="en-us"><seg>Loading…</seg></tuv>
+    <tuv xml:lang="es"><seg>Cargando…</seg></tuv>
+    <tuv xml:lang="hi"><seg>Loading…</seg></tuv>
+</tu>
+<tu tuid="perc.ui.home.modern@Error">
+    <prop type="sectionname" xml:lang="en-us">Error</prop>
+    <note xml:lang="en-us">Generic client error chrome</note>
+    <tuv xml:lang="en-us"><seg>Something went wrong. Try again or re-sign in if your session expired.</seg></tuv>
+    <tuv xml:lang="es"><seg>Algo salió mal. Inténtelo de nuevo o vuelva a iniciar sesión si la sesión expiró.</seg></tuv>
+    <tuv xml:lang="hi"><seg>Something went wrong. Try again or re-sign in if your session expired.</seg></tuv>
+</tu>
+<tu tuid="perc.ui.home.modern@Open">
+    <prop type="sectionname" xml:lang="en-us">Label</prop>
+    <note xml:lang="en-us">Open content item</note>
+    <tuv xml:lang="en-us"><seg>Open</seg></tuv>
+    <tuv xml:lang="es"><seg>Abrir</seg></tuv>
+    <tuv xml:lang="hi"><seg>Open</seg></tuv>
+</tu>
+<tu tuid="perc.ui.widgetbuilder.modern@Title">
+    <prop type="sectionname" xml:lang="en-us">Label</prop>
+    <note xml:lang="en-us">Widget Builder modern title</note>
+    <tuv xml:lang="en-us"><seg>Widget Builder</seg></tuv>
+    <tuv xml:lang="es"><seg>Constructor de widgets</seg></tuv>
+    <tuv xml:lang="hi"><seg>Widget Builder</seg></tuv>
+</tu>
+<tu tuid="perc.ui.widgetbuilder.modern@Disabled">
+    <prop type="sectionname" xml:lang="en-us">Label</prop>
+    <note xml:lang="en-us">WB disabled message</note>
+    <tuv xml:lang="en-us"><seg>Widget Builder is not enabled for this system.</seg></tuv>
+    <tuv xml:lang="es"><seg>El constructor de widgets no está habilitado en este sistema.</seg></tuv>
+    <tuv xml:lang="hi"><seg>Widget Builder is not enabled for this system.</seg></tuv>
+</tu>
+<tu tuid="perc.ui.widgetbuilder.modern@Empty">
+    <prop type="sectionname" xml:lang="en-us">Label</prop>
+    <note xml:lang="en-us">WB empty list</note>
+    <tuv xml:lang="en-us"><seg>No widget definitions yet.</seg></tuv>
+    <tuv xml:lang="es"><seg>Aún no hay definiciones de widgets.</seg></tuv>
+    <tuv xml:lang="hi"><seg>No widget definitions yet.</seg></tuv>
+</tu>
+<tu tuid="perc.ui.widgetbuilder.modern@New">
+    <prop type="sectionname" xml:lang="en-us">Label</prop>
+    <tuv xml:lang="en-us"><seg>New definition</seg></tuv>
+    <tuv xml:lang="es"><seg>Nueva definición</seg></tuv>
+    <tuv xml:lang="hi"><seg>New definition</seg></tuv>
+</tu>
+<tu tuid="perc.ui.widgetbuilder.modern@Edit">
+    <prop type="sectionname" xml:lang="en-us">Label</prop>
+    <tuv xml:lang="en-us"><seg>Edit</seg></tuv>
+    <tuv xml:lang="es"><seg>Editar</seg></tuv>
+    <tuv xml:lang="hi"><seg>Edit</seg></tuv>
+</tu>
+<tu tuid="perc.ui.widgetbuilder.modern@Delete">
+    <prop type="sectionname" xml:lang="en-us">Label</prop>
+    <tuv xml:lang="en-us"><seg>Delete</seg></tuv>
+    <tuv xml:lang="es"><seg>Eliminar</seg></tuv>
+    <tuv xml:lang="hi"><seg>Delete</seg></tuv>
+</tu>
+<tu tuid="perc.ui.widgetbuilder.modern@Deploy">
+    <prop type="sectionname" xml:lang="en-us">Label</prop>
+    <tuv xml:lang="en-us"><seg>Deploy</seg></tuv>
+    <tuv xml:lang="es"><seg>Implementar</seg></tuv>
+    <tuv xml:lang="hi"><seg>Deploy</seg></tuv>
+</tu>
+<tu tuid="perc.ui.widgetbuilder.modern@Save">
+    <prop type="sectionname" xml:lang="en-us">Label</prop>
+    <tuv xml:lang="en-us"><seg>Save</seg></tuv>
+    <tuv xml:lang="es"><seg>Guardar</seg></tuv>
+    <tuv xml:lang="hi"><seg>Save</seg></tuv>
+</tu>
+<tu tuid="perc.ui.widgetbuilder.modern@Validate">
+    <prop type="sectionname" xml:lang="en-us">Label</prop>
+    <tuv xml:lang="en-us"><seg>Validate</seg></tuv>
+    <tuv xml:lang="es"><seg>Validar</seg></tuv>
+    <tuv xml:lang="hi"><seg>Validate</seg></tuv>
+</tu>
+<tu tuid="perc.ui.widgetbuilder.modern@Cancel">
+    <prop type="sectionname" xml:lang="en-us">Label</prop>
+    <tuv xml:lang="en-us"><seg>Cancel</seg></tuv>
+    <tuv xml:lang="es"><seg>Cancelar</seg></tuv>
+    <tuv xml:lang="hi"><seg>Cancel</seg></tuv>
+</tu>
+<tu tuid="perc.ui.widgetbuilder.modern@Add Field">
+    <prop type="sectionname" xml:lang="en-us">Label</prop>
+    <tuv xml:lang="en-us"><seg>Add field</seg></tuv>
+    <tuv xml:lang="es"><seg>Añadir campo</seg></tuv>
+    <tuv xml:lang="hi"><seg>Add field</seg></tuv>
+</tu>
+<tu tuid="perc.ui.widgetbuilder.modern@Saved">
+    <prop type="sectionname" xml:lang="en-us">Label</prop>
+    <tuv xml:lang="en-us"><seg>Saved successfully. Reloaded current server state (last write wins).</seg></tuv>
+    <tuv xml:lang="es"><seg>Guardado correctamente. Estado del servidor recargado (última escritura gana).</seg></tuv>
+    <tuv xml:lang="hi"><seg>Saved successfully. Reloaded current server state (last write wins).</seg></tuv>
+</tu>
+<tu tuid="perc.ui.widgetbuilder.modern@Deployed">
+    <prop type="sectionname" xml:lang="en-us">Label</prop>
+    <tuv xml:lang="en-us"><seg>Widget package deploy requested successfully.</seg></tuv>
+    <tuv xml:lang="es"><seg>Implementación del paquete de widget solicitada correctamente.</seg></tuv>
+    <tuv xml:lang="hi"><seg>Widget package deploy requested successfully.</seg></tuv>
+</tu>
+<tu tuid="perc.ui.widgetbuilder.modern@Valid">
+    <prop type="sectionname" xml:lang="en-us">Label</prop>
+    <tuv xml:lang="en-us"><seg>Validation passed.</seg></tuv>
+    <tuv xml:lang="es"><seg>Validación superada.</seg></tuv>
+    <tuv xml:lang="hi"><seg>Validation passed.</seg></tuv>
+</tu>
+<tu tuid="perc.ui.home.modern@Unavailable">
+    <prop type="sectionname" xml:lang="en-us">Label</prop>
+    <note xml:lang="en-us">Moved/unavailable legacy path message</note>
+    <tuv xml:lang="en-us"><seg>This page has moved or is no longer available. Use Home or Widget Builder from the main navigation.</seg></tuv>
+    <tuv xml:lang="es"><seg>Esta página se ha movido o ya no está disponible. Use Inicio o Constructor de widgets en la navegación principal.</seg></tuv>
+    <tuv xml:lang="hi"><seg>This page has moved or is no longer available. Use Home or Widget Builder from the main navigation.</seg></tuv>
+</tu>
     </body>
 </tmx>

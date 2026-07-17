@@ -68,8 +68,8 @@
     views.put("publish", "publish.jsp");
     views.put("workflow", "adminWorkflow.jsp");
     views.put("editTemplate", "editTemplate.jsp");
-    views.put("widgetbuilder", "widgetBuilder.jsp");
-    views.put("home", "home.jsp");
+    views.put("widgetbuilder", "widgetBuilderModern.jsp");
+    views.put("home", "homeModern.jsp");
 
 
     // List of views requiring admin role
@@ -163,9 +163,12 @@
     }
     else
     {
+        // Known views forward to mapped JSPs; unmapped/retired → moved/unavailable (FR-013)
         String temp = views.get(view);
         if(temp != null)
             forwardTo = temp;
+        else
+            forwardTo = "unavailableModern.jsp";
 
         pageContext.forward(forwardTo);
     }

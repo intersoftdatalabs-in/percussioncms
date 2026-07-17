@@ -16,6 +16,7 @@ Read the root [@AGENTS.md](../AGENTS.md) for general guidelines. This file conta
 - ✅ Phase 1: React Dashboard complete (24 widget components)
 - ✅ Phase 2: Build output separation to `target/generated-webui/`
 - ✅ Phase 3: Full Maven integration validated
+- ✅ Track B Home + Widget Builder: React shells (`HomeShell`, `WidgetBuilderApp`) via `PercModernUI`; classic CUI/WB clients removed on feature `989-react-cui-widget-builder`
 - 🔄 Track A: Dojo→jQuery migration planned
 - 🚀 Track B: Incremental React component migration ongoing
 

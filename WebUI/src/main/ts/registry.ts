@@ -26,6 +26,9 @@
 import type { ComponentType } from "react";
 import { HelloWorld } from "./components/HelloWorld";
 import { Dashboard, WorkflowStatusWidget, ActivityWidget, ProcessMonitorWidget, EffectivenessWidget, AssetsStatusWidget, BulkUploadWidget, ReportsWidget, TrafficWidget } from "./dashboard";
+import { HomeShell } from "./home";
+import { UnavailableView } from "./home/UnavailableView";
+import { WidgetBuilderApp } from "./widgetbuilder/WidgetBuilderApp";
 
 /** Map of component names to their React component types. */
 export const componentRegistry = new Map<string, ComponentType<any>>();
@@ -41,3 +44,6 @@ componentRegistry.set("AssetsStatusWidget", AssetsStatusWidget);
 componentRegistry.set("BulkUploadWidget", BulkUploadWidget);
 componentRegistry.set("ReportsWidget", ReportsWidget);
 componentRegistry.set("TrafficWidget", TrafficWidget);
+componentRegistry.set("HomeShell", HomeShell);
+componentRegistry.set("WidgetBuilderApp", WidgetBuilderApp);
+componentRegistry.set("UnavailableView", UnavailableView);
