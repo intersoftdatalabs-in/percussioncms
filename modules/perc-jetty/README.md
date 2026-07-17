@@ -20,3 +20,20 @@ The module descriptor at src/main/jetty/defaults/modules/perc.mod is the source 
 ## Building
 
 Run: ../../mvn-env.sh -pl modules/perc-jetty clean install -DskipTests
+
+## Logging retention (GH-939)
+
+Application logs are configured by Log4j2 in:
+
+`src/main/jetty/defaults/modules/perc-logging/resources/log4j2.xml`
+
+| Policy | Value |
+|--------|--------|
+| Rotate size | **10 MB** (`SizeBasedTriggeringPolicy`) |
+| Rolled file count | **10** (`DefaultRolloverStrategy max` + `Delete` / `IfAccumulatedFileCount exceeds="10"`) |
+
+`max="10"` alone only caps the `%i` counter within a date window when `filePattern`
+includes `%d{yyyy-MM-dd}`. The `Delete` action removes older **dated** archives so
+disk use stays bounded. Same retention idea as DTS `log4j2-tomcat.xml`.
+
+Unit tests: `src/test/java/com/percussion/jetty/logging/PercLoggingLog4j2ConfigTest.java`
