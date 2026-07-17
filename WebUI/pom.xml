@@ -50,6 +50,17 @@
             <artifactId>perc-toolkit</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
+        <!--
+          Must ship in WEB-INF/lib (webapp classloader), not Jetty defaults/lib/perc.
+          perc-system depends on servlet-utils as provided (expects the webapp/container
+          to supply it). After EE11, it cannot live on the server classloader (that
+          cannot see jakarta.servlet.* from EE11 env). Package it here explicitly.
+        -->
+        <dependency>
+            <groupId>com.percussion</groupId>
+            <artifactId>servlet-utils</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
         <!-- TwelveMonkeys ImageIO context listener (jakarta classifier for Jetty EE11) -->
         <dependency>
             <groupId>com.twelvemonkeys.servlet</groupId>
@@ -816,6 +827,8 @@
                 <artifactId>maven-dependency-plugin</artifactId>
                 <configuration>
                     <usedDependencies>
+                        <!-- Runtime: PSContextLoaderListener / perc-system need servlet-utils on WAR classpath -->
+                        <usedDependency>com.percussion:servlet-utils</usedDependency>
                         <usedDependency>com.twelvemonkeys.servlet:servlet</usedDependency>
                         <usedDependency>com.twelvemonkeys.imageio:imageio-core</usedDependency>
                         <usedDependency>com.twelvemonkeys.imageio:imageio-bmp</usedDependency>

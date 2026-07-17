@@ -38,7 +38,8 @@
              which caused:
                NoClassDefFoundError: jakarta/servlet/ServletResponse
              when PSContextLoaderListener called PSServletUtils.initialize().
-             servlet-utils is packaged into the Rhythmyx WAR (WEB-INF/lib) via system/WebUI. -->
+             Packaged into Rhythmyx WEB-INF/lib via explicit WebUI dependency
+             (perc-system keeps servlet-utils as provided). -->
         <dependency>
             <groupId>org.apache.derby</groupId>
             <artifactId>derbyclient</artifactId>
