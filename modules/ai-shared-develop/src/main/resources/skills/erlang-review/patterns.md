@@ -42,6 +42,7 @@
 - Vacuous assertions (`message != null || cause != null`) that any exception would pass
 - Tests that only assert “something was thrown” without SSRF/validation keywords are too weak for security helpers
 - Tests must not depend on uncommitted fixtures or wrong absolute/base directories for path-safety cases
+- Vitest/Jest `test.include` globs must actually resolve (given `root`) to where the test files physically live — a mismatch silently drops whole test directories from the default run script with exit code 0, giving a false "tests passed" signal; verify with a filter-free run and a known expected test count, not just "no error"
 
 ### Security / config
 
