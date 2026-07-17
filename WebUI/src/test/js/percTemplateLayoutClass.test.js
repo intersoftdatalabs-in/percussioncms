@@ -133,4 +133,14 @@ describe("perc_template_layout_class percTemplateCodeHasClass regression", () =>
     const markup = "<div class='perc-horizontal'></div>";
     expect(hasClass(markup, "perc-horizontal")).toBe(true);
   });
+
+  it("still finds the root tag when the markup has leading whitespace", () => {
+    // The root-tag extraction regex (/^\s*<[^>]*>/) explicitly tolerates
+    // leading whitespace/newlines before the first tag, matching how
+    // Velocity template code stored in the CMS is often indented; verify
+    // that tolerance doesn't silently break class detection.
+    const hasClass = loadPercTemplateCodeHasClass();
+    const markup = '\n   <div class="perc-horizontal"></div>';
+    expect(hasClass(markup, "perc-horizontal")).toBe(true);
+  });
 });
