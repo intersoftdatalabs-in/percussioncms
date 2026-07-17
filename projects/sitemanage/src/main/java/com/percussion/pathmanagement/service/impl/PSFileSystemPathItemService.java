@@ -35,6 +35,7 @@ import com.percussion.pathmanagement.data.PSMoveFolderItem;
 import com.percussion.pathmanagement.data.PSPathItem;
 import com.percussion.pathmanagement.data.PSRenameFolderItem;
 import com.percussion.pathmanagement.service.IPSPathService;
+import com.percussion.security.io.PSPathInjectionGuard;
 import com.percussion.share.dao.IPSFolderHelper;
 import com.percussion.share.dao.PSDateUtils;
 import com.percussion.share.data.IPSItemSummary.Category;
@@ -180,6 +181,15 @@ public abstract class PSFileSystemPathItemService implements IPSPathService {
 
   private PSPathItem getPathItemFromFile(String parentPath, File child)
       throws PSPathNotFoundServiceException {
+    // CWE-22/CWE-23 defense (T043): child is a File produced upstream by
+    // PSFileSystemService.getChildren, which calls validatePath on the
+    // user-supplied path; however CodeQL does not yet model that custom
+    // sanitizer. Apply the canonical PSPathInjectionGuard.requireSafeFileName
+    // on child.getName() here as defense-in-depth — the single-segment
+    // name check rejects traversal and NUL-byte payloads BEFORE any
+    // child.isDirectory() / child.getName() / child.getPath() calls below
+    // are reached. See #1053 (CodeQL java/path-injection).
+    PSPathInjectionGuard.requireSafeFileName(child.getName());
     // parent path should be a folder
     if (fileSystemService.getFile(parentPath).isFile()) {
       parentPath = fileSystemService.getParentFolder(parentPath);
