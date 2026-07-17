@@ -17,7 +17,7 @@
 package com.percussion.rxfix;
 
 import com.percussion.security.error.PSExceptionUtils;
-import com.percussion.rx.ui.jsf.beans.PSHelpTopicMapping;
+import com.percussion.rx.ui.PSHelpTopicMapping;
 import com.percussion.rxfix.dbfixes.*;
 import com.percussion.server.IPSStartupProcessManager;
 import com.percussion.server.PSStartupProcessManager;

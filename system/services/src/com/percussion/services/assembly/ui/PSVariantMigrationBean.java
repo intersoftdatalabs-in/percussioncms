@@ -16,7 +16,7 @@
  */
 package com.percussion.services.assembly.ui;
 
-import com.percussion.rx.ui.jsf.beans.PSHelpTopicMapping;
+import com.percussion.rx.ui.PSHelpTopicMapping;
 import com.percussion.services.assembly.IPSAssemblyService;
 import com.percussion.services.assembly.IPSAssemblyTemplate;
 import com.percussion.services.assembly.IPSTemplateSlot;

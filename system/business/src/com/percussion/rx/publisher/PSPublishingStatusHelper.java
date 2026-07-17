@@ -14,19 +14,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.percussion.rx.publisher.jsf.nodes;
+package com.percussion.rx.publisher;
 
 import com.percussion.rx.publisher.IPSPublisherJobStatus;
 import com.percussion.rx.publisher.IPSPublisherJobStatus.State;
-import com.percussion.rx.publisher.IPSRxPublisherServiceInternal;
-import com.percussion.rx.publisher.PSRxPubServiceInternalLocator;
-import com.percussion.rx.publisher.jsf.beans.PSRuntimeNavigation;
-import com.percussion.rx.publisher.jsf.data.PSStatusLogEntry;
-import com.percussion.services.error.PSNotFoundException;
 import com.percussion.services.publisher.IPSPubStatus;
 import com.percussion.services.publisher.IPSPubStatus.EndingState;
-import com.percussion.services.publisher.IPSPublisherService;
-import com.percussion.services.publisher.PSPublisherServiceLocator;
 import com.percussion.services.publisher.impl.PSPublisherService;
 
 import java.text.DateFormat;
@@ -42,8 +35,8 @@ import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 
 /**
- * Takes status from the publishing service and produces useful output for 
- * JSF.
+ * Publishing job status helpers (date/elapsed/percent/image) used by runtime
+ * services and servlets. Formerly under the retired JSF UI package.
  * 
  * @author dougrand
  *
@@ -63,81 +56,6 @@ public class PSPublishingStatusHelper
       DateFormat fmt = DateFormat.getDateTimeInstance();
       return fmt.format(date);
    }
-   /**
-    * Process status results from the publishing service into results that
-    * can be displayed and used by JSF.
-    * 
-    * @param stati the status results, never <code>null</code>.
-    * @param useAnimatedIcon <code>true</code> if use animated running icon.
-    * @param navigation the runtime navigator, never <code>null</code>.
-    * 
-    * @return the processed results, never <code>null</code>.
-    */
-   public static List<Map<String, Object>> processStatus(
-         List<IPSPubStatus> stati,
-         boolean useAnimatedIcon,
-         PSRuntimeNavigation navigation) throws PSNotFoundException {
-      if (stati == null)
-      {
-         throw new IllegalArgumentException("stati may not be null");
-      }
-      if (navigation == null)
-      {
-         throw new IllegalArgumentException("navigation may not be null");
-      }
-      IPSRxPublisherServiceInternal rxpub = PSRxPubServiceInternalLocator
-            .getRxPublisherService();
-      IPSPublisherService pubService = PSPublisherServiceLocator.getPublisherService();
-      Collection<Long> ids = rxpub.getActiveJobIds();
-      List<Map<String,Object>> rval = new ArrayList<>();
-      Map<Long, PSRuntimeNavigation.EditionSiteName> idmap = 
-         navigation.getEditionIdNameMap();
-      PSRuntimeNavigation.EditionSiteName names;
-      for(IPSPubStatus status : stati)
-      {
-         Long jobId = status.getStatusId();
-         Map<String,Object> data = new HashMap<>();
-         data.put("statusid", jobId);
-         
-         // get the start time for display
-         data.put("start", getDatetime(status.getStartDate()));
-         // get the start time for sort
-         data.put("startTime", status.getStartDate().getTime());
-         
-         data.put("elapsed", getElapseTime(status.getStartDate(),
-               status.getEndDate()));
-         data.put("delivered", status.getDeliveredCount());
-         data.put("removed", status.getRemovedCount());
-         data.put("failures", status.getFailedCount());
-         Long editionId = status.getEditionId();
-         
-         boolean activeJob = ids.contains(jobId) || 
-            ( ! pubService.getServerId().equals(status.getServer()) );
-         
-         String[] imgSrc = getStatusImage(status.getEndingState(), activeJob, useAnimatedIcon);
-         data.put("statusImage", imgSrc[0]);
-         data.put("statusDesc", imgSrc[1]);
-
-         PSStatusLogEntry entry = new PSStatusLogEntry(jobId, navigation);
-         entry.setTerminated(!IN_PROCESS.equals(imgSrc[1]));
-         data.put("statusentry", entry);
-
-         names = idmap.get(editionId);
-         if (names != null)
-         {
-            data.put("edition", names.getEditionName());
-            data.put("site", names.getSiteName());
-         }
-         else
-         {
-            data.put("edition", "Unknown Edition");
-            data.put("site", "Unknown Site");
-         }
-         rval.add(data);
-      }
-      return rval;
-   }
-
    /**
     * Gets the source and (short) description of the status image.
     *

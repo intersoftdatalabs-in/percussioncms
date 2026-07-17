@@ -25,7 +25,6 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.IOException;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.mock.web.MockHttpServletResponse;
 
 /**
  * Initialized by the servlet during its initialization, provides utility methods such as
@@ -241,8 +240,7 @@ public class PSServletUtils {
    * CodeQL {@code java/unvalidated-url-forward} (#792) and is the only barrier between
    * caller-supplied input and {@link ServletContext#getRequestDispatcher(String)}.
    *
-   * <p>* @param path the path to the servlet, never <code>null</code> or empty
-   *
+   * @param path the path to the servlet, never <code>null</code> or empty
    * @return a request dispatcher, the semantics are those of the underlying call to {@link
    *     ServletContext#getRequestDispatcher(String)} (on the validated path).
    * @throws IllegalArgumentException if {@code path} is blank, contains forbidden control
@@ -355,15 +353,18 @@ public class PSServletUtils {
   }
 
   /**
-   * Call the servlet at path with the given request object and return the result as a response
-   * object.
+   * Call the servlet at path with the given request object and return a mock response that captures
+   * the body.
    *
-   * @param req the request, never <code>null</code>, will normally be a mock object.
-   * @return the response, never <code>null</code>
+   * <p>Uses {@link PSMockHttpServletResponse} (not Spring {@code spring-test}) so this utility can
+   * load on the Jetty server classloader without test dependencies.
+   *
+   * @param req the request, never <code>null</code>, will normally be a mock/internal request
+   * @return the mock response, never <code>null</code>
    * @throws IOException
    * @throws ServletException
    */
-  public static HttpServletResponse callServlet(HttpServletRequest req)
+  public static PSMockHttpServletResponse callServlet(HttpServletRequest req)
       throws ServletException, IOException {
     if (req == null) {
       throw new IllegalArgumentException("req may not be null");
@@ -376,8 +377,9 @@ public class PSServletUtils {
     if (disp == null) {
       throw new IllegalArgumentException("path does not evaluate to a servlet: " + path);
     }
-    HttpServletResponse response = new MockHttpServletResponse();
+    PSMockHttpServletResponse response = new PSMockHttpServletResponse();
     disp.include(req, response);
+    response.flushBuffer();
     return response;
   }
 

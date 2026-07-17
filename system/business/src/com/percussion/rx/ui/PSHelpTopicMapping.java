@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.percussion.rx.ui.jsf.beans;
+package com.percussion.rx.ui;
 
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
@@ -63,7 +63,7 @@ public class PSHelpTopicMapping
       try
       {
             ms_helpTopicToFile = ResourceBundle
-               .getBundle("com.percussion.rx.ui.jsf.beans.PSHelpTopicMapping");
+               .getBundle("com.percussion.rx.ui.PSHelpTopicMapping");
          return ms_helpTopicToFile;
       }
       catch( MissingResourceException mre )

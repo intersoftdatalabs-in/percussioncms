@@ -31,8 +31,7 @@ import com.percussion.util.PSCharSets;
 import com.percussion.utils.request.PSRequestInfo;
 import com.percussion.utils.string.PSStringUtils;
 import com.percussion.utils.timing.PSStopwatchStack;
-import org.springframework.mock.web.MockHttpServletRequest;
-import org.springframework.mock.web.MockHttpServletResponse;
+import com.percussion.servlet_utils.servlet.PSMockHttpServletRequest;
 
 import jakarta.servlet.ServletException;
 import java.io.ByteArrayInputStream;
@@ -140,8 +139,8 @@ public class PSDocumentUtils extends PSJexlUtilBase
          PSRequest psreq = PSThreadRequestUtils.changeToInternalRequest(true);
          PSServletRequestWrapper reqwrapper = (PSServletRequestWrapper)
             psreq.getServletRequest();
-         MockHttpServletRequest req =
-            (MockHttpServletRequest) reqwrapper.getRequest();
+         PSMockHttpServletRequest req =
+            (PSMockHttpServletRequest) reqwrapper.getRequest();
          if (!PSRequestInfo.isInited())
          {
             PSRequestInfo.initRequestInfo(req);
@@ -179,8 +178,7 @@ public class PSDocumentUtils extends PSJexlUtilBase
          }
          // Invoke and return
 
-         MockHttpServletResponse resp = (MockHttpServletResponse) PSServletUtils
-               .callServlet(req);
+         var resp = PSServletUtils.callServlet(req);
          resp.setCharacterEncoding(PSCharSets.rxStdEnc());
          return resp.getContentAsString();
       }

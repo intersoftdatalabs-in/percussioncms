@@ -40,9 +40,6 @@ updates:
       - dependency-name: "org.aspectj:*"
         versions:
           - ">=1.9.8"
-      - dependency-name: "org.apache.myfaces.core:*"
-        versions:
-          - ">=3"
       - dependency-name: "org.apache.felix:maven-bundle-plugin"
         versions:
           - ">=6"
@@ -137,10 +134,6 @@ updates:
           - ">=5.2"
       # Jakarta namespace - all Jakarta dependencies require Java 11+
       - dependency-name: "jakarta.*:*"
-      # Trinidad 3.x requires Jakarta namespace
-      - dependency-name: "org.apache.myfaces.trinidad:*"
-        versions:
-          - ">=3"
       # XML APIs 2.x may require Java 9+
       - dependency-name: "xml-apis:xml-apis"
         versions:

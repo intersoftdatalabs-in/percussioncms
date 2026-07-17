@@ -16,58 +16,7 @@
         <param-name>jndiPrefix</param-name>
         <param-value>java:</param-value>
     </context-param>
-    <!--
-      Temporary workaround: disable JSF/MyFaces bootstrap settings while investigating
-      startup classloading conflicts.
-    <context-param>
-        <param-name>jakarta.faces.CONFIG_FILES</param-name>
-        <param-value>/WEB-INF/publishing-faces-config.xml,/WEB-INF/admin-faces-config.xml,/WEB-INF/config/user/faces/faces-config.xml</param-value>
-    </context-param>
-    <context-param>
-        <param-name>jakarta.faces.STATE_SAVING_METHOD</param-name>
-        <param-value>client</param-value>
-    </context-param>
-    <context-param>
-        <param-name>jakarta.faces.PARTIAL_STATE_SAVING_METHOD</param-name>
-        <param-value>false</param-value>
-    </context-param>
-    <context-param>
-        <param-name>org.apache.myfaces.PRETTY_HTML</param-name>
-        <param-value>true</param-value>
-    </context-param>
-    <context-param>
-        <param-name>org.apache.myfaces.ALLOW_JAVASCRIPT</param-name>
-        <param-value>true</param-value>
-    </context-param>
-    <context-param>
-        <param-name>org.apache.myfaces.READONLY_AS_DISABLED_FOR_SELECTS</param-name>
-        <param-value>true</param-value>
-    </context-param>
-    <context-param>
-        <param-name>org.apache.myfaces.DETECT_JAVASCRIPT</param-name>
-        <param-value>false</param-value>
-    </context-param>
-    <context-param>
-        <param-name>org.apache.myfaces.AUTO_SCROLL</param-name>
-        <param-value>false</param-value>
-    </context-param>
-    <context-param>
-        <param-name>org.apache.myfaces.trinidad.USE_APPLICATION_VIEW_CACHE</param-name>
-        <param-value>false</param-value>
-    </context-param>
-    <context-param>
-        <param-name>org.apache.myfaces.CHECK_EXTENSIONS_FILTER</param-name>
-        <param-value>true</param-value>
-    </context-param>
-    <context-param>
-        <param-name>org.apache.myfaces.RESOURCE_VIRTUAL_PATH</param-name>
-        <param-value>/sys_resources/trinidad</param-value>
-    </context-param>
-    <context-param>
-        <param-name>org.apache.myfaces.ADD_RESOURCE_CLASS</param-name>
-        <param-value>org.apache.myfaces.component.html.util.StreamingAddResource</param-value>
-    </context-param>
-    -->
+    
     <filter>
         <filter-name>PSCharacterSetFilter</filter-name>
         <filter-class>com.percussion.servlets.PSCharacterSetFilter</filter-class>
@@ -92,22 +41,7 @@
         <filter-name>PSSetCommunityFilter</filter-name>
         <filter-class>com.percussion.servlets.PSSetCommunityFilter</filter-class>
     </filter>
-    <!--
-    <filter>
-        <filter-name>ExtensionsFilter</filter-name>
-        <filter-class>org.apache.myfaces.webapp.filter.ExtensionsFilter</filter-class>
-        <init-param>
-            <description>Set the size limit for uploaded files.
-                Format: 10 - 10 bytes
-                10k - 10 KB
-                10m - 10 MB
-                1g - 1 GB
-            </description>
-            <param-name>maxFileSize</param-name>
-            <param-value>20m</param-value>
-        </init-param>
-    </filter>
-    -->
+    
     <filter>
         <filter-name>RhythmyxWebDavRedirector</filter-name>
         <filter-class>com.percussion.webdav.PSWebDavRequestFilter</filter-class>
@@ -180,13 +114,8 @@
         <servlet-name>JavaScriptServlet</servlet-name>
         <url-pattern>/JavaScriptServlet</url-pattern>
     </servlet-mapping>
-    <!-- trinidad (temporarily disabled with JSF/MyFaces bootstrap) -->
-    <!--
-    <filter>
-        <filter-name>trinidad</filter-name>
-        <filter-class>org.apache.myfaces.trinidad.webapp.TrinidadFilter</filter-class>
-    </filter>
-    -->
+    
+    
     <filter>
         <filter-name>PSDispatchFilter</filter-name>
         <filter-class>com.percussion.servlets.PSDispatcherFilter</filter-class>
@@ -218,20 +147,7 @@
         <url-pattern>/*</url-pattern>
         <dispatcher>REQUEST</dispatcher>
     </filter-mapping>
-    <!--
-    <filter-mapping>
-        <filter-name>ExtensionsFilter</filter-name>
-        <servlet-name>Faces Servlet</servlet-name>
-    </filter-mapping>
-    <filter-mapping>
-        <filter-name>PSIECompatibleFilter</filter-name>
-        <servlet-name>Faces Servlet</servlet-name>
-    </filter-mapping>
-    <filter-mapping>
-        <filter-name>trinidad</filter-name>
-        <servlet-name>Faces Servlet</servlet-name>
-    </filter-mapping>
-    -->
+    
     <filter-mapping>
         <filter-name>PSDispatchFilter</filter-name>
         <url-pattern>/*</url-pattern>
@@ -244,11 +160,7 @@
         <display-name>ImageIO service provider loader/unloader</display-name>
         <listener-class>com.twelvemonkeys.servlet.image.IIOProviderContextListener</listener-class>
     </listener>
-    <!--
-    <listener>
-        <listener-class>org.apache.myfaces.webapp.StartupServletContextListener</listener-class>
-    </listener>
-    -->
+    
     <servlet>
         <servlet-name>CXFServlet</servlet-name>
         <servlet-class>
@@ -263,17 +175,7 @@
     <!--
        + Axis servlets - REMOVED (Axis is no longer supported)
     -->
-    <!--
-    <servlet>
-        <servlet-name>Faces Servlet</servlet-name>
-        <servlet-class>jakarta.faces.webapp.FacesServlet</servlet-class>
-        <load-on-startup>1</load-on-startup>
-    </servlet>
-    <servlet>
-        <servlet-name>Trinidad Resources</servlet-name>
-        <servlet-class>org.apache.myfaces.trinidad.webapp.ResourceServlet</servlet-class>
-    </servlet>
-    -->
+    
     <servlet>
         <servlet-name>RhythmyxServlet</servlet-name>
         <servlet-class>com.percussion.servlets.PSAppServlet</servlet-class>
@@ -428,12 +330,7 @@
         <servlet-name>RhythmyxLoginServlet</servlet-name>
         <url-pattern>/logout</url-pattern>
     </servlet-mapping>
-    <!--
-    <servlet-mapping>
-        <servlet-name>Faces Servlet</servlet-name>
-        <url-pattern>*.faces</url-pattern>
-    </servlet-mapping>
-    -->
+    
     <servlet-mapping>
         <servlet-name>rxwebdav</servlet-name>
         <url-pattern>/rxwebdav/*</url-pattern>
@@ -473,12 +370,7 @@
         <servlet-name>PSTdSchemaXmlServlet</servlet-name>
         <url-pattern>/servlet/tdschemaxml</url-pattern>
     </servlet-mapping>
-    <!--
-    <servlet-mapping>
-        <servlet-name>Trinidad Resources</servlet-name>
-        <url-pattern>/adf/*</url-pattern>
-    </servlet-mapping>
-    -->
+    
     <servlet-mapping>
         <servlet-name>assetUploadServlet</servlet-name>
         <url-pattern>/uploadAssetFile/*</url-pattern>
