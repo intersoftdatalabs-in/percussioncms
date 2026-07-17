@@ -32,7 +32,7 @@ for d in \
     "WebUI/src/main/webapp/cm/widgets/repository/common/lib/jqplot" \
     "WebUI/war/gadgets/repository/common/lib/jqplot"
 do
-    if [ -e "$d" ]; then
+    if [ -d "$d" ]; then
         echo "  FAIL: removed vendor directory reappeared: $d" >&2
         fail=1
     fi

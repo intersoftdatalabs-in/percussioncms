@@ -80,6 +80,7 @@ Added for the `004-zero-code-scanning-alerts` feature. All are POSIX `sh` (or po
 | `verify-pr-review-resolution.sh` | For every `linked_pr` in `triage.md`, query `gh pr view --json reviewThreads` and fail if any thread has `isResolved: false` (Constitution IX, `SC-007`). | T078b |
 | `test-verify-triage-inventory.sh` | Self-test for `verify-triage-inventory.sh` against `scripts/test-fixtures/triage-good.md` and `triage-bad.md`. | T013 |
 | `verify-no-jqplot-vendor-refs.sh` | Guards the `WebUI/.../lib/jqplot` vendor-removal (dead Shindig-gadget-era chart library, confirmed via `git grep` to have zero live JSP/JS/HTML/XML references) against regression: fails if the removed directories reappear or any file references `jqplot` again. | T021-class US2 |
+| `test-verify-no-jqplot-vendor-refs.sh` | Self-test for `verify-no-jqplot-vendor-refs.sh`: drives the real script through its PASS case (current, already-clean repo state) and two FAIL cases (a reintroduced vendor directory; a stray `jqplot` reference in a `git add`ed tracked file), cleaning up all scratch state on exit. | T021-class US2 |
 
 #### Usage
 
