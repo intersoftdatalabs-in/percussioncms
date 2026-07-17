@@ -190,11 +190,15 @@ This rule applies to ALL review comments on a PR you own, including comments tha
 
 **Do not re-enable GitHub CodeQL default setup** without attaching the same config and model pack — default setup caused repeated residual re-opens on PRs (new alert IDs for the same fixed sinks).
 
+**Also keep GitHub Code Quality disabled** (Settings → Code quality). Its dynamic workflow (`dynamic/github-code-scanning/codeql`, run name `Code Quality: CodeQL Setup`) ignores advanced config, scans extra languages, and empty analyses on `development` mass-close open alerts.
+
+**Languages in scope:** Java + JavaScript/TypeScript only (see `.github/workflows/codeql.yml`).
+
 | Piece | Path / command |
 |-------|----------------|
 | Playbook (required reading for security/CodeQL PRs) | `docs/ai-generated/tasks/gh-codeql-alerts/codeql-pr-playbook.md` |
-| Advanced workflow (PRs + `development` + schedule) | `.github/workflows/codeql.yml` |
-| Config (`paths-ignore`, `packs`, `query-filters`) | `.github/codeql/codeql-config.yml` |
+| Advanced workflow (PRs + `development` + schedule + manual) | `.github/workflows/codeql.yml` |
+| Config (`paths-ignore`, Java `packs`, `query-filters`) | `.github/codeql/codeql-config.yml` |
 | Custom sanitizer models | `.github/codeql/models/` |
 | Agent skill | `modules/ai-shared-develop/src/main/resources/skills/codeql-pr/SKILL.md` |
 | Verify default setup off | `gh api repos/intersoftdatalabs-in/percussioncms/code-scanning/default-setup --jq .state` → `not-configured` |

@@ -1,3 +1,9 @@
+# CodeQL config for advanced setup only (.github/workflows/codeql.yml).
+# Default setup / Code Quality ignore this file — keep those disabled.
+#
+# Languages are selected in the workflow matrix (java-kotlin + javascript-typescript).
+# This file supplies paths-ignore, Java model packs, and query-filters.
+
 paths-ignore:
   - "**/target/**"
   - "**/build/**"
@@ -9,10 +15,12 @@ paths-ignore:
   - "**/docker/logs/**"
 
 # Local model pack — custom sanitizer barriers for SSRF, LDAP, path injection,
-# and XXE. Loaded only by advanced setup (analyzer of record). See
+# and XXE. Java-only: do not attach to javascript-typescript analysis (pack
+# targets codeql/java-all). See
 # docs/ai-generated/tasks/gh-codeql-alerts/codeql-pr-playbook.md
 packs:
-  - ./.github/codeql/models
+  java:
+    - ./.github/codeql/models
 
 # Per-query exclusion for documented false positives.
 # See contracts/C3: every `query-filters exclude` entry MUST have a
@@ -151,4 +159,3 @@ query-filters:
         sanitizer; regression tests live in
         PSJndiUtilsEscapeLdapFilterTest and
         PSJndiUtilsGetFilterStringTest.
-
