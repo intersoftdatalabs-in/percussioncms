@@ -199,24 +199,39 @@ export async function searchContent(
   return normalizeList(data);
 }
 
+/**
+ * Map a thrown API / network error to a user-facing string.
+ *
+ * <p>{@link ApiError} from {@code client.ts} is the common case (status + body).
+ * HTTP 401/403 and bodies mentioning {@code NotAuthorized} use
+ * {@code notAuthorizedMsg}; other body text is preferred when present.</p>
+ */
 export function formatApiError(err: unknown, notAuthorizedMsg: string): string {
-  if (err && typeof err === "object" && "body" in err) {
-    const body = (err as ApiError).body;
+  if (err && typeof err === "object" && ("status" in err || "body" in err)) {
+    const apiErr = err as ApiError;
+    if (apiErr.status === 401 || apiErr.status === 403) {
+      return notAuthorizedMsg;
+    }
+    const body = apiErr.body;
     if (typeof body === "string" && body.trim()) {
-      return body;
+      return body.includes("NotAuthorized") ? notAuthorizedMsg : body;
     }
     if (body && typeof body === "object") {
       const o = body as Record<string, unknown>;
-      if (typeof o.message === "string") {
-        return o.message;
+      if (typeof o.message === "string" && o.message.trim()) {
+        return o.message.includes("NotAuthorized")
+          ? notAuthorizedMsg
+          : o.message;
       }
     }
   }
-  if (err === "NotAuthorized" || (typeof err === "string" && err.includes("NotAuthorized"))) {
+  if (typeof err === "string" && err.includes("NotAuthorized")) {
     return notAuthorizedMsg;
   }
   if (err instanceof Error && err.message) {
-    return err.message;
+    return err.message.includes("NotAuthorized")
+      ? notAuthorizedMsg
+      : err.message;
   }
   return notAuthorizedMsg;
 }

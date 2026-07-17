@@ -18066,6 +18066,25 @@ Documentación' href='https://percussioncmshelp.intsof.com/'&gt;percussioncmshel
     <tuv xml:lang="es"><seg>Eliminar</seg></tuv>
     <tuv xml:lang="hi"><seg>Delete</seg></tuv>
 </tu>
+<tu tuid="perc.ui.widgetbuilder.modern@Confirm Delete">
+    <prop type="sectionname" xml:lang="en-us">Label</prop>
+    <note xml:lang="en-us">window.confirm text before deleting a widget definition</note>
+    <tuv xml:lang="en-us"><seg>Delete this widget definition?</seg></tuv>
+    <tuv xml:lang="es"><seg>¿Eliminar esta definición de widget?</seg></tuv>
+    <tuv xml:lang="hi"><seg>Delete this widget definition?</seg></tuv>
+</tu>
+<tu tuid="perc.ui.widgetbuilder.modern@Label Required">
+    <prop type="sectionname" xml:lang="en-us">Label</prop>
+    <tuv xml:lang="en-us"><seg>Label is required.</seg></tuv>
+    <tuv xml:lang="es"><seg>La etiqueta es obligatoria.</seg></tuv>
+    <tuv xml:lang="hi"><seg>Label is required.</seg></tuv>
+</tu>
+<tu tuid="perc.ui.widgetbuilder.modern@Prefix Required">
+    <prop type="sectionname" xml:lang="en-us">Label</prop>
+    <tuv xml:lang="en-us"><seg>Prefix is required.</seg></tuv>
+    <tuv xml:lang="es"><seg>El prefijo es obligatorio.</seg></tuv>
+    <tuv xml:lang="hi"><seg>Prefix is required.</seg></tuv>
+</tu>
 <tu tuid="perc.ui.widgetbuilder.modern@Deploy">
     <prop type="sectionname" xml:lang="en-us">Label</prop>
     <tuv xml:lang="en-us"><seg>Deploy</seg></tuv>

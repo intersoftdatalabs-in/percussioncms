@@ -24,6 +24,8 @@ const K = {
   VALIDATE: "perc.ui.widgetbuilder.modern@Validate",
   CANCEL: "perc.ui.widgetbuilder.modern@Cancel",
   ADD_FIELD: "perc.ui.widgetbuilder.modern@Add Field",
+  LABEL_REQUIRED: "perc.ui.widgetbuilder.modern@Label Required",
+  PREFIX_REQUIRED: "perc.ui.widgetbuilder.modern@Prefix Required",
 };
 
 export interface DefinitionEditorProps {
@@ -51,9 +53,37 @@ export function DefinitionEditor({
 }: DefinitionEditorProps): React.ReactElement {
   const [fieldName, setFieldName] = useState("");
   const [fieldType, setFieldType] = useState(fieldTypes[0]);
+  const [clientErrors, setClientErrors] = useState<string[]>([]);
 
   const set = <K extends keyof WidgetDefinition>(key: K, v: WidgetDefinition[K]) => {
     onChange({ ...value, [key]: v });
+    if (key === "label" || key === "prefix") {
+      setClientErrors([]);
+    }
+  };
+
+  const requiredFieldErrors = (): string[] => {
+    const errors: string[] = [];
+    if (!value.label.trim()) {
+      errors.push(message(K.LABEL_REQUIRED));
+    }
+    if (!value.prefix.trim()) {
+      errors.push(message(K.PREFIX_REQUIRED));
+    }
+    return errors;
+  };
+
+  const canSubmit =
+    value.label.trim().length > 0 && value.prefix.trim().length > 0;
+
+  const guardRequired = (action: () => void): void => {
+    const errors = requiredFieldErrors();
+    if (errors.length > 0) {
+      setClientErrors(errors);
+      return;
+    }
+    setClientErrors([]);
+    action();
   };
 
   const addField = () => {
@@ -81,6 +111,8 @@ export function DefinitionEditor({
     maxWidth: 560,
   };
 
+  const displayMessages = [...clientErrors, ...messages];
+
   return (
     <div data-testid="wb-definition-editor">
       <div style={row}>
@@ -90,6 +122,7 @@ export function DefinitionEditor({
           value={value.label}
           onChange={(e) => set("label", e.target.value)}
           required
+          aria-required="true"
         />
       </div>
       <div style={row}>
@@ -99,6 +132,7 @@ export function DefinitionEditor({
           value={value.prefix}
           onChange={(e) => set("prefix", e.target.value)}
           required
+          aria-required="true"
         />
       </div>
       <div style={row}>
@@ -212,9 +246,9 @@ export function DefinitionEditor({
         </div>
       </fieldset>
 
-      {messages.length > 0 && (
+      {displayMessages.length > 0 && (
         <ul role="alert" style={{ color: "#a00" }}>
-          {messages.map((m, i) => (
+          {displayMessages.map((m, i) => (
             <li key={i}>{m}</li>
           ))}
         </ul>
@@ -222,10 +256,18 @@ export function DefinitionEditor({
       {status && <p role="status">{status}</p>}
 
       <div style={{ display: "flex", gap: 8 }}>
-        <button type="button" disabled={busy} onClick={onValidate}>
+        <button
+          type="button"
+          disabled={busy || !canSubmit}
+          onClick={() => guardRequired(onValidate)}
+        >
           {message(K.VALIDATE)}
         </button>
-        <button type="button" disabled={busy} onClick={onSave}>
+        <button
+          type="button"
+          disabled={busy || !canSubmit}
+          onClick={() => guardRequired(onSave)}
+        >
           {message(K.SAVE)}
         </button>
         <button type="button" disabled={busy} onClick={onCancel}>

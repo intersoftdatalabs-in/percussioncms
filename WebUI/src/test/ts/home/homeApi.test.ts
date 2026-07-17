@@ -20,6 +20,7 @@ import {
   fetchMyContent,
   fetchRecentItems,
   fetchSites,
+  formatApiError,
 } from "@/api/home/homeApi";
 import type { ApiError } from "@/api/client";
 
@@ -72,5 +73,38 @@ describe("homeApi", () => {
     await expect(fetchSites()).rejects.toMatchObject({
       status: 401,
     } as Partial<ApiError>);
+  });
+
+  describe("formatApiError", () => {
+    const notAuth = "Not authorized to create";
+
+    it("maps 401/403 ApiError to notAuthorizedMsg", () => {
+      const err: ApiError = { status: 403, statusText: "Forbidden", body: "" };
+      expect(formatApiError(err, notAuth)).toBe(notAuth);
+      expect(
+        formatApiError(
+          { status: 401, statusText: "Unauthorized", body: null },
+          notAuth,
+        ),
+      ).toBe(notAuth);
+    });
+
+    it("maps body message containing NotAuthorized to notAuthorizedMsg", () => {
+      const err: ApiError = {
+        status: 500,
+        statusText: "Error",
+        body: { message: "NotAuthorized" },
+      };
+      expect(formatApiError(err, notAuth)).toBe(notAuth);
+    });
+
+    it("prefers non-auth body string for other failures", () => {
+      const err: ApiError = {
+        status: 400,
+        statusText: "Bad Request",
+        body: "Name is invalid",
+      };
+      expect(formatApiError(err, notAuth)).toBe("Name is invalid");
+    });
   });
 });

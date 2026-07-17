@@ -14,12 +14,13 @@ describe("DefinitionEditor", () => {
     };
   });
 
-  it("shows validation messages and save", () => {
+  it("shows validation messages and save when required fields are set", () => {
     const onSave = vi.fn();
     const onValidate = vi.fn();
+    const value = { ...emptyDefinition(), label: "My Widget", prefix: "perc" };
     render(
       <DefinitionEditor
-        value={emptyDefinition()}
+        value={value}
         messages={["Name required"]}
         onChange={() => undefined}
         onSave={onSave}
@@ -34,10 +35,32 @@ describe("DefinitionEditor", () => {
     expect(onValidate).toHaveBeenCalled();
   });
 
-  it("shows success status", () => {
+  it("disables save/validate when label or prefix is blank", () => {
+    const onSave = vi.fn();
+    const onValidate = vi.fn();
     render(
       <DefinitionEditor
         value={emptyDefinition()}
+        onChange={() => undefined}
+        onSave={onSave}
+        onValidate={onValidate}
+        onCancel={() => undefined}
+      />,
+    );
+    const save = screen.getByText("perc.ui.widgetbuilder.modern@Save");
+    const validate = screen.getByText("perc.ui.widgetbuilder.modern@Validate");
+    expect((save as HTMLButtonElement).disabled).toBe(true);
+    expect((validate as HTMLButtonElement).disabled).toBe(true);
+    fireEvent.click(save);
+    fireEvent.click(validate);
+    expect(onSave).not.toHaveBeenCalled();
+    expect(onValidate).not.toHaveBeenCalled();
+  });
+
+  it("shows success status", () => {
+    render(
+      <DefinitionEditor
+        value={{ ...emptyDefinition(), label: "X", prefix: "y" }}
         status="perc.ui.widgetbuilder.modern@Saved"
         onChange={() => undefined}
         onSave={() => undefined}

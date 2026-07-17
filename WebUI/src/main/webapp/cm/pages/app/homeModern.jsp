@@ -16,12 +16,18 @@
     if (debug == null) {
         debug = "false";
     }
-    String initialScreen = request.getParameter("initialScreen");
-    if (initialScreen == null) {
-        initialScreen = "";
+    // Allowlist only — never echo arbitrary query text into inline JS (reflected XSS).
+    // Values must stay in sync with WebUI/src/main/ts/home/deepLinkMap.ts.
+    String initialScreen = "";
+    String rawInitialScreen = request.getParameter("initialScreen");
+    if (rawInitialScreen != null) {
+        String n = rawInitialScreen.trim().toLowerCase(java.util.Locale.ROOT);
+        if ("library".equals(n) || "list".equals(n) || "search".equals(n)
+                || "newitem".equals(n) || "bookmarks".equals(n) || "bookmark".equals(n)
+                || "recent".equals(n) || "create".equals(n)) {
+            initialScreen = n;
+        }
     }
-    // Escape for JS string attribute
-    initialScreen = initialScreen.replace("\"", "").replace("'", "");
     Boolean isAdmin = Boolean.TRUE.equals(request.getAttribute("isAdmin"));
 %>
 <i18n:settings lang="<%= locale %>" prefixes="perc.ui." debug="<%= debug %>"/>

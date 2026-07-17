@@ -45,6 +45,7 @@ const K = {
   SAVED: "perc.ui.widgetbuilder.modern@Saved",
   DEPLOYED: "perc.ui.widgetbuilder.modern@Deployed",
   VALID_OK: "perc.ui.widgetbuilder.modern@Valid",
+  CONFIRM_DELETE: "perc.ui.widgetbuilder.modern@Confirm Delete",
 };
 
 type Mode = "list" | "edit";
@@ -164,7 +165,7 @@ export function WidgetBuilderApp(): React.ReactElement {
   };
 
   const onDelete = async (id: number | string) => {
-    if (!window.confirm("Delete this widget definition?")) {
+    if (!window.confirm(message(K.CONFIRM_DELETE))) {
       return;
     }
     setBusy(true);
