@@ -137,7 +137,14 @@
             $el.find(".perc_field_error").remove();
             if(errors){
                 $(errors).each(function(){
-                    $el.find("input[name=" + this.name + "]").parent().append("<label class=\"perc_field_error\" for=\"" + this.name + "\" generated=\"true\" style=\"display: block;\">" + this.message + "</label>");
+                    $el.find("input[name=" + this.name + "]").parent().append(
+                        $("<label></label>")
+                            .addClass("perc_field_error")
+                            .attr("for", this.name)
+                            .attr("generated", "true")
+                            .css("display", "block")
+                            .text(this.message)
+                    );
                 });
             }
         }        
