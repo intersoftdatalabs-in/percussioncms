@@ -86,4 +86,30 @@ class PSJndiUtilsGetFilterStringTest {
       assertEquals("(& (| (cn=Editors)) (objectClass=groupOfNames))", filter);
     }
   }
+
+  @Nested
+  @DisplayName("andLdapFilters")
+  class AndFilters {
+
+    @Test
+    @DisplayName("combines two filters with AND")
+    void testAndBoth() {
+      assertEquals(
+          "(& (objectClass=group) (| (cn=Editors)))",
+          PSJndiUtils.andLdapFilters("(objectClass=group)", "(| (cn=Editors))"));
+    }
+
+    @Test
+    @DisplayName("omits blank left operand")
+    void testAndLeftBlank() {
+      assertEquals("(| (cn=x))", PSJndiUtils.andLdapFilters(null, "(| (cn=x))"));
+      assertEquals("(| (cn=x))", PSJndiUtils.andLdapFilters("  ", "(| (cn=x))"));
+    }
+
+    @Test
+    @DisplayName("omits blank right operand")
+    void testAndRightBlank() {
+      assertEquals("(objectClass=group)", PSJndiUtils.andLdapFilters("(objectClass=group)", null));
+    }
+  }
 }

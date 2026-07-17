@@ -151,6 +151,12 @@ HttpRequest.Builder b =
 4. Bump `version` in `.github/codeql/models/codeql-pack.yml` when models change.
 5. Note the model in the PR body and in `suppressions.md` if replacing a path exclude.
 6. Prefer **return-value barriers** for methods that return sanitized values; **argument barriers** for void validators that throw on bad input.
+7. **Pack path form (hard requirement):** config `packs:` entries for a local pack must use the
+   `+./.github/codeql/models` form (leading `+`). A bare `./.github/codeql/models` is rejected as
+   `Invalid CodeQL pack specification` and **silently ignored** — barriers never load and residuals
+   thrash forever. The Advanced workflow also passes `packs: +./.github/codeql/models` for the
+   `java-kotlin` matrix job only.
+
 
 Example (SSRF):
 

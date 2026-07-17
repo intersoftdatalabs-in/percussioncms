@@ -717,6 +717,12 @@ public class PSJndiUtils {
   public static String getFilterString(String[] filterPattern, String attr, String baseFilter)
       throws PSSecurityException {
     if (filterPattern == null) throw new IllegalArgumentException("filterPattern cannot be null");
+    if (attr == null || attr.trim().isEmpty()) {
+      throw new IllegalArgumentException("attr may not be null or empty");
+    }
+    // Attribute names are LDAP identifiers from configuration, not free text; still
+    // reject metacharacters so a misconfigured attr cannot break filter structure.
+    String safeAttr = escapeLdapFilter(attr.trim());
 
     StringBuilder buf = new StringBuilder();
     if (filterPattern != null) {
@@ -733,7 +739,7 @@ public class PSJndiUtils {
         // only support '%', convert to '*'
         filter = processFilter(filter);
         buf.append(" (");
-        buf.append(attr);
+        buf.append(safeAttr);
         buf.append("=");
         buf.append(filter);
         buf.append(")");
@@ -749,6 +755,32 @@ public class PSJndiUtils {
     }
 
     return buf.toString();
+  }
+
+  /**
+   * Combines two complete LDAP filters with AND. Null or blank operands are omitted.
+   *
+   * <p>Callers must ensure each operand is already a complete, trusted filter expression.
+   * User-supplied assertion values must have been incorporated only via {@link
+   * #getFilterString(String[], String, String)} / {@link #escapeLdapFilter(String)}.
+   *
+   * @param left first filter, may be null/blank
+   * @param right second filter, may be null/blank
+   * @return combined filter, never null (may be empty)
+   */
+  public static String andLdapFilters(String left, String right) {
+    boolean hasLeft = left != null && !left.trim().isEmpty();
+    boolean hasRight = right != null && !right.trim().isEmpty();
+    if (!hasLeft && !hasRight) {
+      return "";
+    }
+    if (!hasLeft) {
+      return right;
+    }
+    if (!hasRight) {
+      return left;
+    }
+    return "(& " + left + " " + right + ")";
   }
 
   /**

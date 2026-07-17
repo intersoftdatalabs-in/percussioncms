@@ -162,14 +162,20 @@ public class PSJndiGroupProvider implements IPSGroupProvider {
     if (filter != null && filter.trim().length() == 0)
       throw new IllegalArgumentException("filter may not be empty");
 
-    String searchFilter;
+    // CWE-90 / java/ldap-injection #648 (T040): user-supplied filter values are
+    // accepted ONLY through getFilterString → escapeLdapFilter (RFC 4515 hex-escape
+    // for \ * ( ) NUL) then %→* wildcard conversion. The raw filter string never
+    // reaches DirContext.search.
+    final String searchFilter;
     if (filter != null) {
       searchFilter =
           PSJndiUtils.getFilterString(
               new String[] {filter},
               PSJndiGroupProvider.PRINCIPAL_GROUP_ATTR,
               getGroupsSearchFilter());
-    } else searchFilter = getGroupsSearchFilter();
+    } else {
+      searchFilter = getGroupsSearchFilter();
+    }
 
     Collection groups = new ArrayList();
 
@@ -192,19 +198,11 @@ public class PSJndiGroupProvider implements IPSGroupProvider {
         SearchControls ctls = new SearchControls();
         ctls.setReturningAttributes(attrIDs);
 
-        // search with empty name to search current context
-        String fullSearchFilter;
-        if (locationInfo.mi_groupFilter != null) {
-          fullSearchFilter = "(& " + locationInfo.mi_groupFilter + " " + searchFilter + ")";
-        } else fullSearchFilter = searchFilter;
-        // codeql[java/ldap-injection] justification: user-supplied filter
-        // values reach getFilterString, which escapes RFC 4515 metacharacters
-        // via PSJndiUtils.escapeLdapFilter before interpolating them, then
-        // converts intentional '%' wildcards to LDAP '*'. A payload such as
-        // "*)(objectClass=*" becomes a single literal assertion value and
-        // cannot break out of its surrounding parentheses (alert #648 /
-        // T040 residual, contracts/C2).
-        results = ctx.search("", fullSearchFilter, ctls);
+        // search with empty name to search current context. Location filter is
+        // configuration; user input is already inside searchFilter (escaped).
+        final String fullSearchFilter =
+            PSJndiUtils.andLdapFilters(locationInfo.mi_groupFilter, searchFilter);
+        results = ctx.search("", fullSearchFilter, ctls); // codeql[java/ldap-injection]
         while (results.hasMore()) {
           /* add the group, appending the current context to the relative
            * name returned
@@ -1129,7 +1127,9 @@ public class PSJndiGroupProvider implements IPSGroupProvider {
         buf.append(" (");
         buf.append(PSJndiProvider.OBJECT_CLASS_ATTR);
         buf.append("=");
-        buf.append(oc);
+        // Config objectClass names: still escape so a misconfigured value cannot
+        // break the filter structure (defense-in-depth for alert #648).
+        buf.append(PSJndiUtils.escapeLdapFilter(oc));
         buf.append(")");
       }
       if (buf.length() != 0) buf.append(")");
