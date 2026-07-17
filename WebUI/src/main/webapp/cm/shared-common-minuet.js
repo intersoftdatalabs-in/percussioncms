@@ -83633,7 +83633,6 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	};
 })(jQuery);
-
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -83651,1674 +83650,1807 @@ return /******/ (function(modules) { // webpackBootstrap
  * limitations under the License.
  */
 
-(function($){
+(function ($) {
+  //Pairs of
+  //{Element to test if visible: Element on which to invoke click event}
+  //
+  $.globalEventIds = { "#perc_head #perc-links": "#perc_head #perc_topnav" };
+  //Onclick event at the document level to toggle any elements
+  //put in globalEventIds
+  document.onclick = function () {
+    $.each($.globalEventIds, function (k, v) {
+      if ($(k).hasClass("perc-visible")) {
+        $(v).trigger("click");
+      }
+    });
+  };
 
-    //Pairs of
-    //{Element to test if visible: Element on which to invoke click event}
-    //
-    $.globalEventIds = {'#perc_head #perc-links':'#perc_head #perc_topnav'};
-//Onclick event at the document level to toggle any elements
-//put in globalEventIds
-    document.onclick = function() {
-        $.each($.globalEventIds, function(k, v) {
-                if($(k).hasClass('perc-visible')) {
-                    $(v).trigger("click");
-                }
-            }
-        );};
+  $.ajaxSetup({ cache: false });
+  $.Percussion = $.Percussion || {};
 
-    $.ajaxSetup( { cache: false } );
-    $.Percussion = $.Percussion || {};
+  $.perc_fakes = {
+    path_service: false,
+    page_service: {
+      create_page: false,
+      render_page: false,
+      new_asset: false,
+      get_widget_ctypes: false,
+    },
+    template_service: {
+      get_template_css: false,
+      set_template_css: false,
+    },
+  };
 
-    var isRenamingFolder = false;
+  $.perc_utils = {
+    id: id,
+    acop: acop,
+    acat: acat,
+    odiff: odiff,
+    a_o: a_o,
+    o_a: o_a,
+    elem: elem,
+    show_error: show_error,
+    alert_dialog: alert_dialog,
+    prompt_dialog: prompt_dialog,
+    confirm_dialog: confirm_dialog,
+    choose_icon: choose_icon,
+    path_id: path_id,
+    input: input,
+    handleLinks: handleLinks,
+    handleObjects: handleObjects,
+    select: select,
+    extract_path: extract_path,
+    extract_path_end: extract_path_end,
+    click_and_double_click: click_and_double_click,
+    unxml: unxml,
+    rexml: rexml,
+    arem: arem,
+    deep_get: deep_get,
+    debug: debug,
+    info: info,
+    error: error,
+    isBlankString: isBlankString,
+    convertCXFArray: convertCXFArray,
+    encodeURL: encodeURL,
+    preLoadImages: preLoadImages,
+    replaceURLWithHTMLLinks: replaceURLWithHTMLLinks,
+    sortCaseInsensitive: sortCaseInsensitive,
+    formatTimeFromDate: formatTimeFromDate,
+    copyRegionObject: copyRegionObject,
+    max: max,
+    min: min,
+    addArrays: addArrays,
+    newArray: newArray,
+    splitDateTime: splitDateTime,
+    addAutoScroll: addAutoScroll,
+    removeAutoScroll: removeAutoScroll,
+    formatFileSize: formatFileSize,
+    parseUTCintoDate: parseUTCintoDate,
+    getDisplayFormat: getDisplayFormat,
+    makeFolderEditable: makeFolderEditable,
+    contains: contains,
+    encodePathArray: encodePathArray,
+    isPathUnderDesign: isPathUnderDesign,
+    percParseInt: percParseInt,
+    logToServer: logToServer,
+    checkValidUserSession: checkValidUserSession,
+    checkMandatoryFieldsEmpty: checkMandatoryFieldsEmpty,
+    getContentId: getContentId,
+  };
 
+  function getContentId(id) {
+    if (id !== null && id !== undefined) {
+      var idArray = id.split("-");
+      return idArray[idArray.length - 1];
+    } else {
+      console.warn("Cannot get contentId from given Asset.");
+      return false;
+    }
+  }
 
-    $.perc_fakes = {
-        path_service: false,
-        page_service: {
-            create_page: false,
-            render_page: false,
-            new_asset: false,
-            get_widget_ctypes: false
+  function percParseInt(value) {
+    var result = null;
+    if (value) {
+      try {
+        result = parseInt(value, 10);
+      } catch (err) {
+        //ignore
+      }
+    }
+    return result;
+  }
+  function getDisplayFormat(path) {
+    if (typeof path !== "string") return "";
+    var pathConstant = path.split("/");
+    var value = "";
+    while (pathConstant.length > 0) {
+      value = $.perc_displayformats[pathConstant.join("/")];
+      if (value !== undefined) {
+        return value;
+      }
+      pathConstant.pop();
+    }
+    return "";
+  }
+
+  /**
+   * Logs supplied mesage to client and then server.
+   * @param {Object} type if debug, error otherwise set to info.
+   * @param {Object} category the category name to recognize the error on server
+   * @param {Object} message the message that needs to be logged must be a valid string if not no logging happens.
+   */
+  function logToServer(type, category, message) {
+    if ($.type(type) !== "string") {
+      return;
+    }
+    //Log client side
+    if ("debug" === type) {
+      debug(message);
+    } else if ("error" === type) {
+      error(message);
+    } else {
+      info(message);
+    }
+    $.PercUtilService.logToServer(type, category, message);
+  }
+
+  /**
+   * Checks if valid user session present.
+   * calls call back function on session validity
+   * failCaseCallback if user session is invalid.
+   * passCaseCallback if user session is valid.
+   */
+  function checkValidUserSession(failCaseCallback, passCaseCallback) {
+    $.ajax({
+      url: "/Rhythmyx/sessioncheck",
+      type: "get",
+      cache: false,
+      data: {},
+      contentType: "application/json; charset=utf-8",
+      dataType: "json",
+      success: function (json, textStatus) {
+        if (!json || (json && 0 >= json.expiry)) {
+          failCaseCallback(json, textStatus);
+        } else {
+          passCaseCallback(json, textStatus);
+        }
+      },
+      error: function (XMLHttpRequest, textStatus, errorThrown) {
+        console.log("error :" + XMLHttpRequest.responseText);
+      },
+    });
+  }
+
+  function checkMandatoryFieldsEmpty(frame) {
+    if (
+      frame
+        .contents()
+        .find("#perc-content-form")
+        .find("#perc-enable-feed")
+        .is(":checked")
+    ) {
+      frame
+        .contents()
+        .find("#perc-content-form")
+        .find("#perc-content-edit-metadata-panel")
+        .find("label")
+        .each(function () {
+          if (!$(this).hasClass("perc-required-field")) {
+            $(this).addClass("perc-required-field");
+          }
+        });
+    } else {
+      frame
+        .contents()
+        .find("#perc-content-form")
+        .find("#perc-content-edit-metadata-panel")
+        .find("label")
+        .each(function () {
+          if ($(this).hasClass("perc-required-field")) {
+            $(this).removeClass("perc-required-field");
+          }
+        });
+    }
+
+    var showMandatoryFieldAlertPopUp = false;
+    frame
+      .contents()
+      .find("#perc-content-form")
+      .find("label")
+      .each(function () {
+        if ($(this).hasClass("perc-required-field")) {
+          if ($(this).siblings("input").val() === "") {
+            showMandatoryFieldAlertPopUp = true;
+          }
+        }
+      });
+
+    if (showMandatoryFieldAlertPopUp) {
+      var dialogMarkup = $("<div/>");
+
+      dialogMarkup.append(
+        $(
+          '<div style="height: 50px; overflow:hidden; margin-left: 30px; margin-right: 30px">'
+        ).append($("<p></p>"))
+      );
+
+      dialogMarkup
+        .find("p")
+        .html(I18N.message("perc.ui.utils@Please fill all required fields"));
+      var dialogButtons = {
+        "Close Normal": {
+          id: "perc_fill_mandatory_fields_close",
+          click: function () {
+            dialog.remove();
+          },
         },
-        template_service: {
-            get_template_css: false,
-            set_template_css: false
-        }
-    };
+      };
 
+      var dialogOptions = {
+        id: "perc_fill_mandatory_fields_dialog",
+        title: I18N.message("perc.ui.utils@Mandatory Form Fields Alert"),
+        modal: true,
+        resizable: false,
+        closeOnEscape: false,
+        width: "auto",
+        height: "auto",
+        percButtons: dialogButtons,
+      };
 
-    $.perc_utils = {
-        id : id,
-        acop : acop,
-        acat : acat,
-        odiff : odiff,
-        a_o : a_o,
-        o_a : o_a,
-        elem: elem,
-        show_error : show_error,
-        alert_dialog: alert_dialog,
-        prompt_dialog: prompt_dialog,
-        confirm_dialog: confirm_dialog,
-        choose_icon : choose_icon,
-        path_id : path_id,
-        input : input,
-        handleLinks : handleLinks,
-        handleObjects : handleObjects,
-        select : select,
-        extract_path: extract_path,
-        extract_path_end: extract_path_end,
-        click_and_double_click: click_and_double_click,
-        unxml: unxml,
-        rexml: rexml,
-        arem: arem,
-        deep_get : deep_get,
-        debug : debug,
-        info : info,
-        error : error,
-        isBlankString:isBlankString,
-        convertCXFArray : convertCXFArray,
-        encodeURL : encodeURL,
-        preLoadImages: preLoadImages,
-        replaceURLWithHTMLLinks : replaceURLWithHTMLLinks,
-        sortCaseInsensitive : sortCaseInsensitive,
-        formatTimeFromDate : formatTimeFromDate,
-        copyRegionObject : copyRegionObject,
-        max : max,
-        min : min,
-        addArrays : addArrays,
-        newArray : newArray,
-        splitDateTime : splitDateTime,
-        addAutoScroll : addAutoScroll,
-        removeAutoScroll : removeAutoScroll,
-        formatFileSize : formatFileSize,
-        parseUTCintoDate : parseUTCintoDate,
-        getDisplayFormat : getDisplayFormat,
-        makeFolderEditable : makeFolderEditable,
-        contains: contains,
-        encodePathArray : encodePathArray,
-        isPathUnderDesign : isPathUnderDesign,
-        percParseInt : percParseInt,
-        logToServer : logToServer,
-        checkValidUserSession : checkValidUserSession,
-        checkMandatoryFieldsEmpty : checkMandatoryFieldsEmpty,
-        getContentId : getContentId
-    };
+      dialog = $(dialogMarkup).perc_dialog(dialogOptions);
+    }
+    return showMandatoryFieldAlertPopUp;
+  }
 
-    function getContentId(id)
-    {
-        if (id !== null && id !== undefined){
-            var idArray = id.split("-");
-            return idArray[idArray.length - 1];
-        } else {
-            console.warn("Cannot get contentId from given Asset.");
-            return false;
-        }
+  /**
+   *  Tranforms a UTC String to be correctly read by new Date() function in IE and Safari browsers
+   *  Transforms from the following format: "yyyy-MM-ddTHH:mm:ss.SSS-HH:mm" to "yyyy/MM/ddTHH:mm:ss-HHmm"
+   *  Note: this is required due to some problem that javascript constructor new Date() presents in IE an Safari
+   *
+   *  @param dateTime (string) the string with the original UTC format
+   *  @return the created date from the transformed string.
+   */
+  function parseUTCintoDate(dateTime) {
+    if (typeof dateTime !== "undefined") {
+      var dateTimeString = dateTime
+        .replace(/(\d\d)-(\d\d)-(\d\d)/, "$1/$2/$3")
+        .replace(/([+-]\d\d):(\d\d)/, "$1$2")
+        .replace(/\.\d\d\d/, "")
+        .replace("T", " ");
+      return new Date(dateTimeString);
+    } else {
+      return dateTime;
+    }
+  }
+
+  /**
+   *  Splits a Date object into its date and time components.
+   *  @param dateTimeString (string) the date time string to parse.
+   *  The format of the string should be ISO-8601. Eg: 2012-01-04T15:16:11.000-02:00
+   *  @param dateFormat (string) optional. Default date format is "M d, yy". Time format is "h:mm AM"
+   */
+  function splitDateTime(dateTimeString, dateFormat) {
+    var dateTime = new Date(dateTimeString);
+    if (typeof dateTime === "undefined" || isNaN(dateTime)) {
+      // in IE it returns NaN
+      dateTime = parseUTCintoDate(dateTimeString);
     }
 
-    function percParseInt(value)
-    {
-        var result = null;
-        if(value){
-            try{
-                result = parseInt(value,10);
-            }
-            catch(err){
-                //ignore
-            }
+    if (!dateFormat) dateFormat = "M d, yy";
+    var date = $.datepicker.formatDate(dateFormat, dateTime);
+    var time = formatTimeFromDate(dateTime);
+    return { date: date, time: time };
+  }
 
-        }
-        return result;
+  /**
+   * A utility function to convert cxf arrays to JavaScript arrays.
+   * @param cxfarray array to convert.
+   * @return JavaScript array
+   */
+
+  function convertCXFArray(cxfarray) {
+    if (typeof cxfarray === "undefined") return [];
+
+    if (!Array.isArray(cxfarray)) return [cxfarray];
+
+    return cxfarray;
+  }
+
+  /**
+   * A utility function to check whether supplied string is blank or not.
+   * @param str String to be checked for.
+   * @return true if the str is undefined or null or not string type or the length of it is < 1. Otherwise false.
+   */
+  function isBlankString(str) {
+    return (
+      !str ||
+      str === null ||
+      "string" !== typeof str ||
+      str.trim().length < 1 ||
+      "undefined" === typeof str
+    );
+  }
+
+  function elem(needle, haystack) {
+    var matches = $.grep(haystack, function (h) {
+      return h === needle;
+    });
+    return matches.length > 0;
+  }
+
+  function select(label, name, id) {
+    return (
+      "<label for='" +
+      id +
+      "'>" +
+      label +
+      "</label><br/>" +
+      "<select name='" +
+      name +
+      "' id='" +
+      id +
+      "' ></select><br/>"
+    );
+  }
+
+  function input(label, name, id, tabindex, type) {
+    type = type || "text";
+    return (
+      "<label for='" +
+      id +
+      "'>" +
+      label +
+      "</label><br/>" +
+      "<input type='" +
+      type +
+      "' name='" +
+      name +
+      "' id='" +
+      id +
+      "' /><br/>"
+    );
+  }
+
+  function extract_path(path) {
+    var p = path.split("/");
+    if (p.length > 1 && p[p.length - 1] === "") p.pop();
+    return p;
+  }
+
+  function path_id(path) {
+    return $.map(path, function (x) {
+      return x;
+    }).join("-");
+  }
+
+  //Generic perc dialog that allows to apply specific styling
+  $.fn.perc_dialog = function (options) {
+    //Passing perc classes to the dialog
+    options.dialogClass = "perc-dialog perc-dialog-corner-all";
+    options.zIndex = 9500;
+
+    //Call jquery dialog with all the options
+    var dlgContent = $(this).dialog(options);
+    var uiDialog = dlgContent.closest(".ui-dialog");
+    //Set id of the dialog if available
+    if (options.id) {
+      uiDialog.attr("id", options.id);
     }
-    function getDisplayFormat(path)
-    {
-        if(typeof path !== "string")
-            return "";
-        var pathConstant = path.split("/");
-        var value = "";
-        while (pathConstant.length > 0)
-        {
-            value = $.perc_displayformats[pathConstant.join("/")];
-            if (value !== undefined)
-            {
-                return value;
-            }
-            pathConstant.pop();
-        }
+
+    $(window).show();
+
+    return dlgContent;
+  };
+
+  function initializeShowAgainCheck(event, ui) {
+    var showCheck = $("<div/>")
+      .addClass("perc-show-again")
+      .append(
+        $("<input/>")
+          .attr("type", "checkBox")
+          .attr("id", "perc_show_again_check")
+      )
+      .append(
+        $("<label/>")
+          .attr("for", "perc_show_again_check")
+          .text("Do not show again")
+      );
+    $(this).parent().find(".ui-dialog-buttonpane").append(showCheck);
+  }
+
+  //Check the "dont show again" user setting of the currentDialogId.
+  function dontShowAgain(confirmDialogId) {
+    var currentUser = $.PercNavigationManager.getUserName();
+    var cookieKey = "dontShowAgain-" + currentUser + "-" + confirmDialogId;
+    var userSetting = $.cookie(cookieKey);
+    return userSetting === "true";
+  }
+
+  //Save the user choice to avoid seeing the dialog each time.
+  function saveConfirmUserSetting(event, ui) {
+    var dontShowAgainOption = $(this)
+      .parent()
+      .find("#perc_show_again_check")
+      .is(":checked");
+    if (dontShowAgainOption) {
+      var currentUser = $.PercNavigationManager.getUserName();
+      var confirmDialogId = $(this).parent().attr("id");
+      var cookieKey = "dontShowAgain-" + currentUser + "-" + confirmDialogId;
+      $.cookie(cookieKey, "true");
+    }
+  }
+
+  //A mildly specialized version of the jQuery dialog.
+  /**
+   * A confirmation diloag that takes the following options.
+   * title: The dialog title.
+   * question: The confirmation question to be diaplayed.
+   * type: Flag to indicate the type of buttons to show. <code>YES_NO</code> requests
+   *      2 buttons, Yes and No. <code>OK</code> requests a single OK button.
+   *      <code>OK_CANCEL</code> requests 2 buttons, OK and cancel. Any other value is
+   *      treated as OK_CANCEL.
+   * cancel: Cancel call back that will be called when cancel or no button is clicked.
+   * success: Success callback that will be called when ok or yes button is clicked.
+   * 09/17/2012 Luis A. Mendez
+   * showAgainCheck: default "false", add the capability to avoid seeing this dialog each time, the user can select to not see again.
+   * the user choice is stored using cookie with the cookieKey: "dontShowAgain-" + currentUser + "-" + confirmDialogId;
+   * dontShowAgainAction: the default action if the dont show again option was checked is the success function, using this property we
+   * can define an alternative action.
+   */
+  function confirm_dialog(options) {
+    //Default settings
+    var settings = {
+      title: I18N.message("perc.ui.utils@Confirm"),
+      question: I18N.message("perc.ui.utils@Do You Want To"),
+      type: "OK_CANCEL",
+      cancel: function () {},
+      success: function () {},
+      showAgainCheck: false,
+      dontShowAgainAction: null,
+    };
+
+    function genericSuccess() {
+      settings.success();
+      dialog.dialog("close");
+      dialog.remove();
+    }
+    function genericCancel() {
+      settings.cancel();
+      dialog.dialog("close");
+      dialog.remove();
+    }
+
+    $.extend(settings, options);
+    var buttons = {};
+    if (settings.type === "YES_NO") {
+      buttons = {
+        Yes: {
+          click: genericSuccess,
+          id: "perc-confirm-generic-yes",
+        },
+        No: {
+          click: genericCancel,
+          id: "perc-confirm-generic-no",
+        },
+      };
+    } else if (settings.type === "YES_PREFERRED_NO") {
+      buttons = {
+        "Yes Preferred": {
+          click: genericSuccess,
+          id: "perc-confirm-generic-yes",
+        },
+        "No Silver": {
+          click: genericCancel,
+          id: "perc-confirm-generic-no",
+        },
+      };
+    } else if (settings.type === "YES_NO_PREFERRED") {
+      buttons = {
+        "Yes Silver": {
+          click: function () {
+            settings.success();
+            dialog.remove();
+          },
+          id: "perc-confirm-generic-yes",
+        },
+        No: {
+          click: function () {
+            settings.cancel();
+            dialog.remove();
+          },
+          id: "perc-confirm-generic-no",
+        },
+      };
+    } else if (settings.type === "OK") {
+      buttons = {
+        Ok: {
+          click: genericSuccess,
+          id: "perc-confirm-generic-ok",
+        },
+      };
+    } else if (settings.type === "OVERRIDE_OK") {
+      buttons = {
+        Ok: {
+          click: genericCancel,
+          id: "perc-confirm-generic-ok",
+        },
+        Override: {
+          click: genericSuccess,
+          id: "perc-confirm-generic-override",
+        },
+      };
+    } else if (settings.type === "SAVE_BEFORE_CONTINUE") {
+      buttons = {
+        Save: {
+          click: function () {
+            settings.save(genericSuccess);
+          },
+          id: "perc-confirm-generic-save",
+        },
+        Cancel: {
+          click: genericCancel,
+          id: "perc-confirm-generic-cancel",
+        },
+        "Don't Save": {
+          click: function () {
+            settings.dontSaveCallback();
+            dialog.dialog("close");
+            dialog.remove();
+          },
+          id: "perc-confirm-generic-continue",
+        },
+      };
+    } else if (settings.type === "CANCEL_CONTINUE") {
+      buttons = {
+        Continue: {
+          click: genericSuccess,
+          id: "perc-confirm-generic-continue",
+        },
+        "Cancel Blue": {
+          click: genericCancel,
+          id: "perc-confirm-generic-cancel",
+        },
+      };
+    } else if (settings.type === "CANCEL_START") {
+      buttons = {
+        Start: {
+          click: genericSuccess,
+          id: "perc-confirm-generic-start",
+        },
+        Cancel: {
+          click: genericCancel,
+          id: "perc-confirm-generic-cancel",
+        },
+      };
+    } else {
+      buttons = {
+        Ok: {
+          click: genericSuccess,
+          id: "perc-confirm-generic-ok",
+        },
+        Cancel: {
+          click: genericCancel,
+          id: "perc-confirm-generic-cancel",
+        },
+      };
+    }
+    var dialog;
+    var dlgOptions = {
+      dialogClass: "perc-confirm-dialog",
+      title: settings.title,
+      modal: true,
+      resizable: false,
+      percButtons: buttons,
+      id: settings.id,
+    };
+    if (options.height) dlgOptions.height = options.height;
+    if (options.width) dlgOptions.width = options.width;
+
+    //Add don't show again functionality
+    if (settings.showAgainCheck) {
+      //Check user setting on show again warning.
+      if (dontShowAgain(dlgOptions.id)) {
+        if (typeof options.dontShowAgainAction === "function")
+          options.dontShowAgainAction();
+        else options.success();
         return "";
+      }
+      dlgOptions.open = initializeShowAgainCheck;
+      dlgOptions.beforeclose = saveConfirmUserSetting;
     }
 
-    /**
-     * Logs supplied mesage to client and then server.
-     * @param {Object} type if debug, error otherwise set to info.
-     * @param {Object} category the category name to recognize the error on server
-     * @param {Object} message the message that needs to be logged must be a valid string if not no logging happens.
-     */
-    function logToServer(type, category, message){
-        if(($.type( type ) !== "string")){
-            return;
-        }
-        //Log client side
-        if('debug' === type){
-            debug(message);
-        }
-        else if('error' === type){
-            error(message);
-        }
-        else{
-            info(message);
-        }
-        $.PercUtilService.logToServer(type, category, message);
+    // Render the question as a text node so attacker-controlled or
+    // server-supplied strings cannot inject HTML/scripts via jQuery's
+    // .append() HTML parsing. Callers that intentionally need HTML
+    // markup should sanitize the input themselves; do not reintroduce
+    // .append(settings.question) here.
+    var $question = $("<div/>");
+    if (settings.questionIsHtml) {
+      // codeql[js/xss-through-dom] reason: caller opts in to raw HTML via
+      // settings.questionIsHtml and is responsible for sanitizing the
+      // markup. Defaults to safe text rendering.
+      $question.html(settings.question);
+    } else {
+      $question.text(settings.question);
     }
+    dialog = $("<div/>").append($question).perc_dialog(dlgOptions);
+  }
 
-    /**
-     * Checks if valid user session present.
-     * calls call back function on session validity
-     * failCaseCallback if user session is invalid.
-     * passCaseCallback if user session is valid.
-     */
-    function checkValidUserSession(failCaseCallback , passCaseCallback) {
-        $.ajax({
-            url: '/Rhythmyx/sessioncheck',
-            type: 'get',
-            cache: false,
-            data: {},
-            contentType: 'application/json; charset=utf-8',
-            dataType: 'json',
-            success: function (json,textStatus) {
-                if (!json || (json && 0 >= json.expiry)) {
-                    failCaseCallback(json , textStatus);
-                }else{
-                    passCaseCallback(json, textStatus);
-                }},
-            error: function (XMLHttpRequest, textStatus, errorThrown) {
-                console.log("error :" + XMLHttpRequest.responseText);
-            }
-        });
-    }
-
-    function checkMandatoryFieldsEmpty(frame) {
-
-        if(frame.contents().find("#perc-content-form").find("#perc-enable-feed").is(':checked')) {
-            frame.contents().find("#perc-content-form").find("#perc-content-edit-metadata-panel").find('label').each(function(){
-                if(!$(this).hasClass("perc-required-field")){
-                    $(this).addClass("perc-required-field");
-                }
-            });
-        }else{
-            frame.contents().find("#perc-content-form").find("#perc-content-edit-metadata-panel").find('label').each(function(){
-                if($(this).hasClass("perc-required-field")){
-                    $(this).removeClass("perc-required-field");
-                }
-            });
-        }
-
-        var showMandatoryFieldAlertPopUp=false;
-        frame.contents().find("#perc-content-form").find('label').each(function(){
-            if($(this).hasClass("perc-required-field")){
-                if($(this).siblings('input').val()===''){
-                    showMandatoryFieldAlertPopUp=true;
-                }
-            }
-        });
-
-
-        if(showMandatoryFieldAlertPopUp){
-            var dialogMarkup = $('<div/>');
-
-            dialogMarkup.append(
-                $('<div style="height: 50px; overflow:hidden; margin-left: 30px; margin-right: 30px">')
-                    .append(
-                        $('<p></p>')
-                    )
-            );
-
-            dialogMarkup.find('p').html(I18N.message("perc.ui.utils@Please fill all required fields"));
-            var dialogButtons = {
-                "Close Normal": {
-                    id: "perc_fill_mandatory_fields_close",
-                    click: function()
-                    {
-                        dialog.remove();
-                    }
-                }
-            };
-
-            var dialogOptions = {
-                id: "perc_fill_mandatory_fields_dialog",
-                title: I18N.message("perc.ui.utils@Mandatory Form Fields Alert"),
-                modal: true,
-                resizable: false,
-                closeOnEscape: false,
-                width: 'auto',
-                height: 'auto',
-                percButtons: dialogButtons
-            };
-
-            dialog = $(dialogMarkup).perc_dialog(dialogOptions);
-
-        }
-        return showMandatoryFieldAlertPopUp;
-    }
-
-    /**
-     *  Tranforms a UTC String to be correctly read by new Date() function in IE and Safari browsers
-     *  Transforms from the following format: "yyyy-MM-ddTHH:mm:ss.SSS-HH:mm" to "yyyy/MM/ddTHH:mm:ss-HHmm"
-     *  Note: this is required due to some problem that javascript constructor new Date() presents in IE an Safari
-     *
-     *  @param dateTime (string) the string with the original UTC format
-     *  @return the created date from the transformed string.
-     */
-    function parseUTCintoDate (dateTime) {
-        if (typeof dateTime !== "undefined") {
-            var dateTimeString = dateTime.replace(/(\d\d)-(\d\d)-(\d\d)/, "$1/$2/$3").replace(/([+-]\d\d):(\d\d)/, "$1$2").replace(/\.\d\d\d/, "").replace("T", " ");
-            return new Date(dateTimeString);
-        }else{
-            return dateTime;
-        }
-
-    }
-
-    /**
-     *  Splits a Date object into its date and time components.
-     *  @param dateTimeString (string) the date time string to parse.
-     *  The format of the string should be ISO-8601. Eg: 2012-01-04T15:16:11.000-02:00
-     *  @param dateFormat (string) optional. Default date format is "M d, yy". Time format is "h:mm AM"
-     */
-    function splitDateTime(dateTimeString, dateFormat) {
-        var dateTime = new Date(dateTimeString);
-        if(typeof(dateTime) === 'undefined' || isNaN(dateTime)) // in IE it returns NaN
-        {
-            dateTime = parseUTCintoDate(dateTimeString);
-        }
-
-        if(!dateFormat)
-            dateFormat = "M d, yy";
-        var date  = $.datepicker.formatDate(dateFormat, dateTime);
-        var time  = formatTimeFromDate(dateTime);
-        return {date : date, time : time};
-    }
-
-    /**
-     * A utility function to convert cxf arrays to JavaScript arrays.
-     * @param cxfarray array to convert.
-     * @return JavaScript array
-     */
-
-    function convertCXFArray(cxfarray) {
-
-        if(typeof(cxfarray) === 'undefined')
-            return [];
-
-        if(!Array.isArray(cxfarray))
-            return [cxfarray];
-
-        return cxfarray;
-    }
-
-
-
-    /**
-     * A utility function to check whether supplied string is blank or not.
-     * @param str String to be checked for.
-     * @return true if the str is undefined or null or not string type or the length of it is < 1. Otherwise false.
-     */
-    function isBlankString(str){
-        return !str || str === null || 'string' !== typeof str || str.trim().length < 1 || "undefined" === typeof str;
-    }
-
-    function elem( needle, haystack ){
-        var matches = $.grep( haystack, function(h) { return h === needle; } );
-        return matches.length > 0;
-    }
-
-    function select( label, name, id ) {
-        return "<label for='"+id+"'>" + label + "</label><br/>" +
-            "<select name='"+name+"' id='"+id+"' ></select><br/>";
-    }
-
-    function input( label, name, id, tabindex, type ) {
-        type = type || "text";
-        return "<label for='"+id+"'>" + label + "</label><br/>" +
-            "<input type='"+type+"' name='"+name+"' id='"+id+"' /><br/>";
-    }
-
-    function extract_path( path ) {
-        var p = path.split('/');
-        if( p.length > 1 && p[ p.length - 1 ] === "" )
-            p.pop();
-        return p;
-    }
-
-    function path_id(path){
-        return $.map( path, function(x)
-        {
-            return x;
-        }).join('-');
-    }
-
-//Generic perc dialog that allows to apply specific styling
-    $.fn.perc_dialog = function(options)    {
-        //Passing perc classes to the dialog
-        options.dialogClass='perc-dialog perc-dialog-corner-all';
-        options.zIndex=9500;
-
-        //Call jquery dialog with all the options
-        var dlgContent = $(this).dialog(options);
-        var uiDialog = dlgContent.closest('.ui-dialog');
-        //Set id of the dialog if available
-        if(options.id)    {
-            uiDialog.attr('id', options.id);
-        }
-
-        $(window).show();
-
-        return dlgContent;
+  function alert_dialog(options) {
+    var settings = {
+      title: I18N.message("perc.ui.utils@Confirm"),
+      content: I18N.message("perc.ui.utils@Something Wrong"),
+      okCallBack: function () {},
     };
 
-    function initializeShowAgainCheck(event, ui){
-        var showCheck =  $("<div/>")
-            .addClass("perc-show-again")
-            .append(
-                $("<input/>")
-                    .attr("type","checkBox")
-                    .attr("id","perc_show_again_check")
-            )
-            .append(
-                $("<label/>")
-                    .attr("for", "perc_show_again_check")
-                    .text("Do not show again")
-            );
-        $(this).parent().find(".ui-dialog-buttonpane").append(showCheck);
+    $.extend(settings, options);
+
+    //Using the title size with fixed number to come with approximate width
+    // minimum width is 400px
+    var w =
+      typeof settings.width === "undefined" || settings.width === null
+        ? Math.max(settings.title.length * 35, 400)
+        : settings.width;
+
+    var dialog;
+    // Render the alert content as a text node so attacker-controlled or
+    // server-supplied strings cannot inject HTML/scripts via jQuery's
+    // .append() HTML parsing. Callers that intentionally need HTML markup
+    // should sanitize the input themselves or opt in via settings.contentIsHtml.
+    var $content = $("<div/>");
+    if (settings.contentIsHtml) {
+      // codeql[js/xss-through-dom] reason: caller opts in to raw HTML via
+      // settings.contentIsHtml and is responsible for sanitizing the
+      // markup. Defaults to safe text rendering.
+      $content.html(settings.content);
+    } else {
+      $content.text(settings.content);
     }
-
-//Check the "dont show again" user setting of the currentDialogId.
-    function dontShowAgain(confirmDialogId){
-        var currentUser = $.PercNavigationManager.getUserName();
-        var cookieKey = "dontShowAgain-" + currentUser + "-" + confirmDialogId;
-        var userSetting = $.cookie(cookieKey);
-        return userSetting === "true";
-    }
-
-//Save the user choice to avoid seeing the dialog each time.
-    function saveConfirmUserSetting(event, ui){
-        var dontShowAgainOption = $(this).parent().find("#perc_show_again_check").is(':checked');
-        if (dontShowAgainOption) {
-            var currentUser = $.PercNavigationManager.getUserName();
-            var confirmDialogId = $(this).parent().attr('id');
-            var cookieKey = "dontShowAgain-" + currentUser + "-" + confirmDialogId;
-            $.cookie(cookieKey, "true");
-        }
-    }
-
-//A mildly specialized version of the jQuery dialog.
-    /**
-     * A confirmation diloag that takes the following options.
-     * title: The dialog title.
-     * question: The confirmation question to be diaplayed.
-     * type: Flag to indicate the type of buttons to show. <code>YES_NO</code> requests
-     *      2 buttons, Yes and No. <code>OK</code> requests a single OK button.
-     *      <code>OK_CANCEL</code> requests 2 buttons, OK and cancel. Any other value is
-     *      treated as OK_CANCEL.
-     * cancel: Cancel call back that will be called when cancel or no button is clicked.
-     * success: Success callback that will be called when ok or yes button is clicked.
-     * 09/17/2012 Luis A. Mendez
-     * showAgainCheck: default "false", add the capability to avoid seeing this dialog each time, the user can select to not see again.
-     * the user choice is stored using cookie with the cookieKey: "dontShowAgain-" + currentUser + "-" + confirmDialogId;
-     * dontShowAgainAction: the default action if the dont show again option was checked is the success function, using this property we
-     * can define an alternative action.
-     */
-    function confirm_dialog( options ) {
-
-        //Default settings
-        var settings = {
-            title: I18N.message("perc.ui.utils@Confirm"),
-            question: I18N.message("perc.ui.utils@Do You Want To"),
-            type: "OK_CANCEL",
-            cancel: function(){},
-            success: function(){},
-            showAgainCheck: false,
-            dontShowAgainAction: null
-        };
-
-        function genericSuccess(){
-            settings.success();  dialog.dialog( "close" ); dialog.remove();
-        }
-        function genericCancel(){
-            settings.cancel();  dialog.dialog( "close" ); dialog.remove();
-        }
-
-        $.extend( settings, options );
-        var buttons = {};
-        if(settings.type === "YES_NO")
-        {
-            buttons = {
-                "Yes":  {
-                    click: genericSuccess,
-                    id: "perc-confirm-generic-yes"
-                },
-                "No": {
-                    click: genericCancel,
-                    id: "perc-confirm-generic-no"
-                }
-            };
-        }
-        else if(settings.type === "YES_PREFERRED_NO")
-        {
-            buttons = {
-                "Yes Preferred": {
-                    click: genericSuccess,
-                    id: "perc-confirm-generic-yes"
-                },
-                "No Silver": {
-                    click: genericCancel,
-                    id: "perc-confirm-generic-no"
-                }
-            };
-        }
-        else if(settings.type === "YES_NO_PREFERRED")
-        {
-            buttons = {
-                "Yes Silver": {
-                    click: function() {settings.success();  dialog.remove();  },
-                    id: "perc-confirm-generic-yes"
-                },
-                "No": {
-                    click: function() {settings.cancel(); dialog.remove(); },
-                    id: "perc-confirm-generic-no"
-                }
-            };
-        }
-        else if (settings.type === "OK")
-        {
-            buttons = {
-                "Ok":  {
-                    click: genericSuccess,
-                    id: "perc-confirm-generic-ok"
-                }
-            };
-        }
-        else if (settings.type === "OVERRIDE_OK")
-        {
-            buttons = {
-                "Ok": {
-                    click: genericCancel,
-                    id: "perc-confirm-generic-ok"
-                },
-                "Override":  {
-                    click: genericSuccess,
-                    id: "perc-confirm-generic-override"
-                }
-            };
-        }
-        else if (settings.type === "SAVE_BEFORE_CONTINUE")
-        {
-            buttons = {
-                "Save":  {
-                    click:  function() {
-                        settings.save(genericSuccess);
-                    },
-                    id: "perc-confirm-generic-save"
-                },
-                "Cancel":  {
-                    click: genericCancel,
-                    id: "perc-confirm-generic-cancel"
-                },
-                "Don't Save": {
-                    click: function() {settings.dontSaveCallback(); dialog.dialog( "close" ); dialog.remove();},
-                    id: "perc-confirm-generic-continue"
-                }
-            };
-        }
-        else if (settings.type === "CANCEL_CONTINUE")
-        {
-            buttons = {
-                "Continue":  {
-                    click: genericSuccess,
-                    id: "perc-confirm-generic-continue"
-                },
-                "Cancel Blue":  {
-                    click: genericCancel,
-                    id: "perc-confirm-generic-cancel"
-                }
-            };
-        }
-        else if (settings.type === "CANCEL_START")
-        {
-            buttons = {
-                "Start":  {
-                    click: genericSuccess,
-                    id: "perc-confirm-generic-start"
-                },
-                "Cancel":  {
-                    click: genericCancel,
-                    id: "perc-confirm-generic-cancel"
-                }
-            };
-        }
-        else
-        {
-            buttons = {
-                "Ok":  {
-                    click: genericSuccess,
-                    id: "perc-confirm-generic-ok"
-                },
-                "Cancel": {
-                    click: genericCancel,
-                    id: "perc-confirm-generic-cancel"
-                }
-            };
-        }
-        var dialog;
-        var dlgOptions = {
-            "dialogClass": "perc-confirm-dialog",
-            "title":settings.title,
-            "modal":true,
-            "resizable": false,
-            "percButtons": buttons,
-            "id": settings.id
-        };
-        if(options.height)
-            dlgOptions.height = options.height;
-        if(options.width)
-            dlgOptions.width = options.width;
-
-        //Add don't show again functionality
-        if(settings.showAgainCheck){
-            //Check user setting on show again warning.
-            if (dontShowAgain(dlgOptions.id)){
-                if (typeof(options.dontShowAgainAction) === "function")
-                    options.dontShowAgainAction();
-                else
-                    options.success();
-                return "";
-            }
-            dlgOptions.open = initializeShowAgainCheck;
-            dlgOptions.beforeclose = saveConfirmUserSetting;
-        }
-
-        dialog = $("<div/>").append( settings.question ).perc_dialog(dlgOptions);
-    }
-
-    function alert_dialog( options ) {
-        var settings = {
-            title       : I18N.message("perc.ui.utils@Confirm"),
-            content     : I18N.message("perc.ui.utils@Something Wrong"),
-            okCallBack  : function(){}
-        };
-
-        $.extend( settings, options );
-
-        //Using the title size with fixed number to come with approximate width
-        // minimum width is 400px
-        var w = (typeof settings.width === 'undefined' || settings.width === null) ?
-            Math.max(settings.title.length * 35, 400) : settings.width;
-
-        var dialog;
-        dialog = $("<div/>").append( settings.content ).perc_dialog({
-            dialogClass   : 'perc-alert-dialog',
-            title         : settings.title,
-            modal         : true,
-            width         : w,
-            resizable     : false,
-            id            : settings.id,
-            "percButtons" : {
-                "Ok" : {
-                    click : function() { dialog.remove(); settings.okCallBack(); },
-                    id    : "perc-alert-generic-ok"
-                }
-            }
-        });
-    }
-
-    function prompt_dialog( options )
-    {
-        var settings = {
-            title:I18N.message("perc.ui.utils@Beg Pardon"),
-            question: I18N.message("perc.ui.utils@What To Do"),
-            cancel: function(){},
-            success: function(){}
-        };
-
-        $.extend( settings, options );
-
-        var inputField = $("<input type='text' id='perc-prompt-dialog-question' />");
-        var dialog = $("<div/>")
-            .append( $("<label for='perc-prompt-dialog-question'/>").append(settings.question) )
-            .append( $("<br/>") )
-            .append( inputField )
-            .dialog(
-                {
-                    dialogClass: 'perc-prompt-dialog',
-                    title: settings.title,
-                    modal: true,
-                    resizable: false,
-                    "percButtons" :
-                        {
-                            "Yes":
-                                {
-                                    click: function()
-                                    {
-                                        var res = inputField.val(); dialog.remove(); settings.success(res);
-                                    },
-                                    id: "perc-prompt-generic-yes"
-                                },
-                            "No":
-                                {
-                                    click: function()
-                                    {
-                                        dialog.remove(); settings.cancel();
-                                    },
-                                    id: "perc-prompt-generic-no"
-                                }
-                        },
-                    id: settings.id
-                });
-    }
-
-    function id(x) { return x; }
-
-    function acop( arr ) {
-        return $.map( arr, id );
-    }
-
-    function acat( a1, a2 ) {
-        return acop(a1).concat( acop(a2) );
-    }
-
-    function odiff( eye, beam ) {
-        //Remove beam from eye
-        var diff = {};
-
-        $.each(eye, function(k,v) {
-            if ( ! beam[k] )
-                diff[k] = v;
-        });
-
-        return diff;
-    }
-
-    function arem( eye, beam ) {
-        $.each( eye, function(idx) {
-            if( eye[idx] === beam ) {
-                delete eye[idx];
-            }
-        } );
-
-    }
-
-    function a_o( obj ) {
-        var a = [];
-        $.each( obj, function(k) {
-            a.push( [k,this] );
-        } );
-        return a;
-    }
-
-    function o_a( arr ) {
-        var o = {};
-        $.each( arr, function() {
-            o[ this.k ] = this.v;
-        });
-        return o;
-    }
-
-
-    function extract_path_end( path ){
-        var path_end = path.split('/');
-        if( path_end[ path_end.length - 1 ] === '' )
-            path_end.pop();
-        return path_end[ path_end.length - 1 ];
-    }
-
-    function show_error( x ) {
-        if( x ) {
-            alert( x );
-        }
-    }
-
-
-    $.fn.perc_button = function( ) {
-        this.addClass("ui-state-default ui-corner-all")
-            .on("mouseenter",function(){
-                if( ! $(this).hasClass("ui-state-disabled") )
-                    $(this).addClass("ui-state-hover");
-            })
-            .on("mouseleave",
-                function(){
-                    $(this).removeClass("ui-state-hover");
-                } );
-        return this;
-    };
-
-    /**
-     *  Formats the file size to B / KB / MB according to the size itself
-     *  Eg: 320 B, 4 KB, 2 MB
-     *  @author federicoromanelli
-     *  @param size (number) the size of the file in bytes
-     *  @return a string with the formatted size of the file or an empty string if the size is not a number.
-     */
-    function formatFileSize (size)
-    {
-        var oneKB = 1024;
-        var oneMB = (1024 * 1024);
-
-        var fileSize = parseFloat(size);
-        if(isNaN(fileSize))
-            return "";
-
-        if (fileSize < oneKB)
-            return fileSize + " B";
-        if (fileSize > oneMB)
-            return (fileSize / oneMB).toFixed(0) + " MB";
-
-        return (fileSize / oneKB).toFixed(0) + " KB";
-    }
-
-    /**
-     * Utility function for returning the icon to be used by the ui.
-     *
-     * @param {string} type - The icon type.
-     * @param {string} icon - The icon to return
-     * @param {id} - The id of the icon to return
-     */
-    function choose_icon( type, icon , id) {
-        var returnIcon = {};
-        var type_icons = {
-            'site': '/cm/images/images/iconWebsite.gif',
-            'Folder' : '/cm/images/images/iconFolder.gif',
-            'percPage' :'/cm/images/images/iconPage.gif',
-            'FSIMAGEFile' : '/cm/images/images/genericImage.png',
-            'FSFile' : '/cm/images/images/genericFile.png',
-            'FSFolder' :'/cm/images/images/iconFolder.gif'
-        };
-
-        if(id === ',' + $.perc_paths.ASSETS_ROOT_NO_SLASH){
-            returnIcon.src='/cm/images/images/iconLibrary.gif';
-            returnIcon.alt=I18N.message("perc.ui.images@AssetLibraryIconAlt");
-            returnIcon.title=I18N.message("perc.ui.images@AssetLibraryIconTitle");
-            returnIcon.decorative=false;
-            return returnIcon;
-        }
-
-        if(id === ',' + $.perc_paths.SITES_ROOT_NO_SLASH){
-            returnIcon.src='/cm/images/images/iconWebsite.gif';
-            returnIcon.alt=I18N.message("perc.ui.images@SiteIconAlt");
-            returnIcon.title=I18N.message("perc.ui.images@SiteIconTitle");
-            returnIcon.decorative=false;
-            return returnIcon;
-        }
-
-        if(id === ',' + $.perc_paths.DESIGN_ROOT_NO_SLASH){
-            returnIcon.src='../images/images/iconDesign.png';
-            returnIcon.alt=I18N.message("perc.ui.images@DesignIconAlt");
-            returnIcon.title=I18N.message("perc.ui.images@DesignIconTitle");
-            returnIcon.decorative=false;
-            return returnIcon;
-        }
-
-        if(id === ',' + 'Search'){
-            returnIcon.src='../images/images/searchIcon.png';
-            returnIcon.alt=I18N.message("perc.ui.images@SearchIconAlt");
-            returnIcon.title=I18N.message("perc.ui.images@SearchIconTitle");
-            returnIcon.decorative=false;
-            return returnIcon;
-        }
-
-        if (id === ',' + $.perc_paths.RECYCLING_ROOT_NO_SLASH) {
-            returnIcon.src='/cm/images/images/iconRecycle.gif';
-            returnIcon.alt=I18N.message("perc.ui.images@RecyclingIconAlt");
-            returnIcon.title=I18N.message("perc.ui.images@RecyclingIconTitle");
-            returnIcon.decorative=false;
-            return returnIcon;
-        }
-
-        //If statement for Landing Page Icon
-        if (icon && icon.includes('finderLandingPage') && type && type_icons[type]) {
-            returnIcon.src = "/Rhythmyx/sys_resources/images/finderLandingPage.png";
-            returnIcon.alt = I18N.message("perc.ui.newpagedialog.label@Navigation Landing Page");
-            returnIcon.title =I18N.message("perc.ui.newpagedialog.label@Navigation Landing Page");
-            returnIcon.decorative = false;
-            return returnIcon;
-        }else if( icon ){
-            //TODO: Need to map calls to this to make sure they are setting alt/title/role
-            debug("Accessibility Check: Verify that " + icon + " has accessible attributes set");
-            debug("i18n Check: Verify that " + icon + " has i18n strings set");
-        }
-
-        if( type && type_icons[ type ] ){
-
-            if(type==="site"){
-                returnIcon.src='/cm/images/images/iconWebsite.gif';
-                returnIcon.alt=I18N.message("perc.ui.images@SiteIconAlt");
-                returnIcon.title=I18N.message("perc.ui.images@SiteIconTitle");
-                returnIcon.decorative=false;
-                return returnIcon;
-            }
-
-            if( type==="percPage" ){
-                returnIcon.src =  '/cm/images/images/iconPage.gif';
-                returnIcon.alt=I18N.message("perc.ui.images@PageIconAlt");
-                returnIcon.title=I18N.message("perc.ui.images@PageIconTitle");
-                returnIcon.decorative=false;
-                return returnIcon;
-            }
-
-            if(type === "Folder" || type === "FSFolder"){
-                if(typeof icon ==="undefined" || icon.indexOf("finderFolder.png")>0){
-                    returnIcon.src =  '/cm/images/images/iconFolder.gif';
-                }else{
-                    returnIcon.src =  icon;
-                }
-                //returnIcon.src =  '/cm/images/images/iconFolder.gif';
-                returnIcon.alt=I18N.message("perc.ui.images@FolderIconAlt");
-                returnIcon.title=I18N.message("perc.ui.images@FolderIconTitle");
-                returnIcon.decorative=false;
-                return returnIcon;
-            }
-            if(type === 'FSIMAGEFile'){
-                returnIcon.src = '/cm/images/images/genericImage.png';
-                returnIcon.alt=I18N.message("perc.ui.images@ImageAssetIconAlt");
-                returnIcon.title=I18N.message("perc.ui.images@ImageAssetIconTitle");
-                returnIcon.decorative=true;
-                return returnIcon;
-            }
-            if('FSFile' === type){
-                returnIcon.src =  '/cm/images/images/genericFile.png';
-                returnIcon.alt=I18N.message("perc.ui.images@FileAssetIconAlt");
-                returnIcon.title=I18N.message("perc.ui.images@FileAssetIconTitle");
-                returnIcon.decorative=true;
-                return returnIcon;
-            }
-            //TODO: Need to map calls to this to make sure they are setting alt/title/role
-            debug("Accessibility Check: Verify that " + icon + " has accessible attributes set");
-            debug("i18n Check: Verify that " + icon + " has i18n strings set");
-
-
-            returnIcon.src = type_icons[ type ];
-            returnIcon.alt='';
-            returnIcon.title='';
-            returnIcon.decorative=false;
-            return returnIcon;
-        }
-
-        if('percImageAsset' === type){
-            // Last resort if image icon url not provided
-            returnIcon.src = '../images/images/genericImage.png';
-            returnIcon.alt=I18N.message("perc.ui.images@ImageAssetIconAlt");
-            returnIcon.title=I18N.message("perc.ui.images@ImageAssetIconTitle");
-            returnIcon.decorative=true;
-            return returnIcon;
-
-        }
-
-        if('percFileAsset' === type){
-            // Last resort if file icon url not provided
-            returnIcon.src =  '../images/images/genericFile.png';
-            returnIcon.alt=I18N.message("perc.ui.images@FileAssetIconAlt");
-            returnIcon.title=I18N.message("perc.ui.images@FileAssetIconTitle");
-            returnIcon.decorative=true;
-            return returnIcon;
-
-        }
-
-        if(type && id[1] === $.perc_paths.ASSETS_ROOT_NO_SLASH){
-            // Last resort if icon url not provided for any other asset type
-            returnIcon.src =  '../images/images/genericAsset.png';
-            returnIcon.alt=I18N.message("perc.ui.images@GenericAssetIconAlt");
-            returnIcon.title=I18N.message("perc.ui.images@GenericAssetIconTitle");
-            returnIcon.decorative=true;
-            return returnIcon;
-        }
-
-        if( type ){
-            returnIcon.src =  '/cm/images/images/iconPage.gif';
-            returnIcon.alt=I18N.message("perc.ui.images@PageIconAlt");
-            returnIcon.title=I18N.message("perc.ui.images@PageIconTitle");
-            returnIcon.decorative=true;
-            return returnIcon;
-        }
-
-
-        returnIcon.src =  '/cm/images/images/iconFolder.gif';
-        returnIcon.alt=I18N.message("perc.ui.images@FolderIconAlt");
-        returnIcon.title=I18N.message("perc.ui.images@FolderIconTitle");
-        returnIcon.decorative=true;
-        return returnIcon;
-
-    }
-
-    /**
-     * This handles the show/hide of the Add Widget button
-     */
-    $.fn.percWidLibMaximizer = function (P)    {
-        var baseEle = "#perc-layout-menu";
-        if($("#tabs-3").length)    {
-            baseEle = "#tabs-3 #perc-layout-menu";
-        }
-
-        if($(baseEle).parent().find(".perc-template-container").hasClass("perc-visible")) {
-            $(baseEle).parent().find(".perc-template-container").removeClass("perc-visible").addClass("perc-hidden");
-            $(baseEle).parent().find("#perc-wid-lib-expander").removeClass("perc-whitebg");
-            $(baseEle).parent().find("#perc-wid-lib-minimizer").replaceWith('<a id="perc-wid-lib-maximizer"  title="'+I18N.message("perc.ui.workflow.view@Maximize")+'" style="float: left;" href="#"></a>');
-        } else {
-            var regionLibContainer   = $(baseEle).parent().find(".perc-region-library-container");
-            // if region tray is visible, toggle it (close it) so that only the widget tray is shown
-            if(regionLibContainer.hasClass("perc-visible")) {
-                $.fn.percRegionLibraryMaximizer(P);
-            }
-
-            $(baseEle).parent().find(".perc-template-container").removeClass("perc-hidden").addClass("perc-visible");
-            $(baseEle).parent().find("#perc-wid-lib-expander").addClass("perc-whitebg");
-            $(baseEle).parent().find("#perc-wid-lib-maximizer").replaceWith('<a id="perc-wid-lib-minimizer" title="'+I18N.message("perc.ui.workflow.view@Minimize")+'" style="float: left;" href="#"></a>');
-        }
-
-        // fix the height of the iframe based on the height of the top part
-        var frame  = $('#frame');
-        var header = $('.perc-main');
-        var bottom = $('#bottom');
-        fixIframeHeight(header, bottom, frame);
-    };
-
-    /**
-     * This handles the show/hide of the Explore Regions button
-     */
-    $.fn.percRegionLibraryMaximizer = function (P)    {
-        var baseEle = "#perc-layout-menu";
-        if($("#tabs-3").length)    {
-            baseEle = "#tabs-3 #perc-layout-menu";
-        }
-
-        var parent = $(baseEle).parent();
-        var regionLibraryContainer = $(parent.find(".perc-region-library-container"));
-        var templateContainer      = $(baseEle).parent().find(".perc-template-container");
-        var regionLibraryExpander  = $(parent.find("#perc-region-library-expander" ));
-        var regionLibraryMaximizer = $(parent.find("#perc-region-library-maximizer"));
-        var regionLibraryMinimizer = $(parent.find("#perc-region-library-minimizer"));
-
-        if( regionLibraryContainer.hasClass("perc-visible")) {
-            regionLibraryContainer.removeClass("perc-visible").addClass("perc-hidden");
-            regionLibraryExpander.removeClass("perc-whitebg");
-            regionLibraryMinimizer.replaceWith('<a id="perc-region-library-maximizer" title="'+I18N.message("perc.ui.workflow.view@Maximize")+'"  style="float: left;" href="#"></a>');
-        } else {
-            // if widget tray is visible, toggle it (close it) so that only the region tray is shown
-            if(templateContainer.hasClass("perc-visible")) {
-                $.fn.percWidLibMaximizer(P);
-            }
-
-            regionLibraryContainer.removeClass("perc-hidden").addClass("perc-visible");
-            regionLibraryExpander.addClass("perc-whitebg");
-            regionLibraryMaximizer.replaceWith('<a id="perc-region-library-minimizer" title="'+I18N.message("perc.ui.workflow.view@Minimize")+'" style="float: left;" href="#"></a>');
-        }
-
-        // fix the height of the iframe based on the height of the top part
-        var frame  = $('#frame');
-        var header = $('.perc-main');
-        var bottom = $('#bottom');
-        fixIframeHeight(header, bottom, frame);
-    };
-
-    /**
-     * This handles the show/hide of the Orphan Assetss button
-     */
-    $.fn.percOrphanAssetsMaximizer = function (P) {
-        var baseEle = "#perc-layout-menu";
-        if($("#tabs-2").length)    {
-            baseEle = "#tabs-2 #perc-content-menu";
-        }
-
-        var parent = $(baseEle).parent();
-        var orphanAssetsContainer = parent.find("#perc_asset_library");
-        var orphanAssetsExpander  = parent.find("#perc_orphan_assets_expander" );
-
-        if( orphanAssetsContainer.hasClass("perc-visible")) {
-            var orphanAssetsMinimizer = parent.find("#perc_orphan_assets_minimizer");
-            orphanAssetsContainer.removeClass("perc-visible").addClass("perc-hidden");
-            orphanAssetsExpander.removeClass("perc-whitebg");
-            orphanAssetsMinimizer.replaceWith('<a id="perc_orphan_assets_maximizer" title="'+I18N.message("perc.ui.workflow.view@Maximize")+'" style="float: left;" href="#"></a>');
-        } else {
-            var orphanAssetsMaximizer = parent.find("#perc_orphan_assets_maximizer");
-            orphanAssetsContainer.removeClass("perc-hidden").addClass("perc-visible");
-            orphanAssetsExpander.addClass("perc-whitebg");
-            orphanAssetsMaximizer.replaceWith('<a id="perc_orphan_assets_minimizer" title="'+I18N.message("perc.ui.workflow.view@Minimize")+'" style="float: left;" href="#"></a>');
-        }
-
-        // fix the height of the iframe based on the height of the top part
-        var frame  = $('#frame');
-        var header = $('.perc-main');
-        var bottom = $('#bottom');
-        fixIframeHeight(header, bottom, frame);
-    };
-
-    function click_and_double_click( elem, single, dbl ){
-        var clicked = false;
-        var interval = 500; //milliseconds
-        elem.on("click", function() {
-            if( clicked ) {
-                //Double click - ignore the click event.
-            } else {
-                //Single click - set up to ignore the next click, if it falls with the chosen interval
-                clicked = true;
-                setTimeout( function(){ clicked = false; }, interval );
-                single();
-            }
-        });
-        elem.on("dblclick", function(e){
-            dbl(e);
-        } );
-    }
-    $.fn.perc_toggle = function( d )    {
-        if($(d).length && $(d).hasClass('perc-hidden'))    {
-            $(d).removeClass('perc-hidden');
-            $(d).addClass('perc-visible');
-        }
-        else    {
-            $(d).removeClass('perc-visible');
-            $(d).addClass('perc-hidden');
-        }
-
-        return this;
-    };
-    $.fn.perc_toggle_padding = function(  )    {
-        var args = $.fn.perc_toggle_padding.arguments;
-        for(let i of args )    {
-            if(i.length && i.hasClass('perc-nopadding'))  {
-                i.removeClass('perc-nopadding');
-            }
-            else    {
-                i.addClass('perc-nopadding');
-            }
-        }
-        return this;
-    };
-
-    function addAutoScroll(){
-        $("#frame").percAutoScroll({
-            offsetY:10,
-            width : 10,
-            speed : 10,
-            directions : "n, s"
-        });
-        $("#frame").percAutoScroll.postScrollView = function(movedX, movedY){
-            $("div.ui-droppable").each(function(){
-                if (!$(this).hasClass("ui-layout-ignore"))
-                    $(this).css("top", $(this).position().top - movedY);
-            });
-        };
-    }
-
-    function removeAutoScroll(){
-        $("#frame").percAutoScroll.remove();
-    }
-
-
-    function unxml ( schema, data ) {
-        if( typeof schema === "function" ) {
-            schema = schema(data.get(0).tagName);
-        }
-        if( schema.valueOf() === '$' ) {
-            return data.text();
-        }
-        if( Array.isArray( schema ) ) {
-            var ret = [];
-            var child_schema = schema[0];
-            var children = data.children();
-
-            if(children.length === 0 && child_schema === '$')
-            {
-                var len = data.length;
-                for(let i = 0; i < len; i++)
-                {
-                    ret.unshift($(data[i]).text());
-                }
-            }
-            else
-            {
-                children.each( function(){
-                    var next = unxml( child_schema, $(this) );
-                    next._tagName = $(this)[0].tagName;
-                    ret.push( next );
-                });
-            }
-
-            return ret;
-        }
-        var ret1 = {};
-        $.each( schema, function( name ) {
-            var tagNames = [];
-            var matches =data.children().filter( function() {
-                tagNames.push( this.tagName );
-                return this.tagName.toLowerCase() === name.toLowerCase(); } );
-            if( matches.length ) {
-                ret1[ name ] = unxml( this, matches );
-            } else {
-                debug( I18N.message("perc.ui.utils@Expected To Find") + name + I18N.message("perc.ui.utils@Tags Found") + tagNames );
-            }
-        });
-        return ret1;
-    }
-
-    function rexml( schema, pageObj ) {
-        return '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' + _rexml( schema, pageObj );
-    }
-
-    function _rexml( schema, pageObj, elemName ) {
-        if( typeof schema === "function") {
-            schema = schema(pageObj._tagName);
-        }
-        if( schema.valueOf() === '$' ) {
-            if( !pageObj ) {
-                debug( "Unexpected null in rexml" );
-                return "";
-            } else {
-                if (typeof(pageObj) === 'string')
-                    return pageObj.replace(/&/g, '&amp;' ).replace( />/g, '&gt;' ).replace( /</g, '&lt;' );
-                else
-                    return pageObj;
-            }
-        } else if( Array.isArray( schema ) ) {
-            var ret = "";
-            if(schema.length === 1 && schema[0] === "$")
-            {
-                var len = pageObj.length;
-                for(i = 0; i < len; i++)
-                {
-                    ret += "<" + elemName + ">" + pageObj[i] + "</" + elemName + ">" ;
-                }
-            } else if( Array.isArray( pageObj ) ) {
-                $.each( pageObj, function() {
-                    ret += "<" + this._tagName + ">" + _rexml( schema[0], this, this.tagName ) + "</" + this._tagName + ">" ;
-                } );
-            } else {
-                debug( "Expected array, got %o instead", pageObj );
-            }
-            return ret;
-        } else {
-            //Object
-            var ret2 = "";
-            $.each( schema, function(name) {
-                if( name in pageObj ) {
-                    var isStringArray = Array.isArray(schema[name]) && schema[name].length === 1 && (schema[name])[0] === "$";
-                    if(!isStringArray) ret2 += "<" + name + ">";
-                    ret2 += _rexml( schema[ name ], pageObj[ name ], name );
-                    if(!isStringArray) ret2 += "</" + name + ">";
-                } else {
-                    debug("Can't find " + name + " in %o", pageObj);
-                }
-            } );
-            return ret2;
-        }
-    }
-
-
-//deep_get -- safely get an object that is nested in a JSON object.
-    function deep_get( json, keys ) {
-        var keyArr = keys.split(" ");
-        var key;
-        while( (key = shift( keyArr )) ) {
-            if( key in json ) {
-                json = json[ key ];
-            }
-            else {
-                return null;
-            }
-        }
-        return json;
-    }
-
-    /**
-     * URL encode the specified path. This is needed for none-ascii characters.
-     * Firefox seems to be able to automatically URL encode the path before
-     * communicate to server, but not IE.
-     *
-     * @param path the path need to be encoded before use it to communicate to server.<b>
-     */
-    function encodeURL(path)
-    {
-        return encodeURIComponent(path).replace(/%2F/g,'/');
-    }
-
-    var debugFlag = false;
-
-    /**
-     * return <code>true</code> if "debug=true" as part of the request parameters.
-     * for example, when use the URL to login CM1: http://localhost:9992/cm/app/?view=dash&debug=true
-     */
-    function isDebug()
-    {
-        return debugFlag;
-    }
-
-    function debug(message)
-    {
-        if(!isDebug())
-            return;
-
-        var msg;
-
-        if (arguments.length > 1)
-            msg = "DEBUG [" + arguments[0] + "] " + arguments[1];
-        else
-            msg = "[DEBUG] " + arguments[0];
-
-        log(msg);
-    }
-
-    function info(message)
-    {
-        var msg;
-        if (arguments.length > 1)
-            msg = "INFO [" + arguments[0] + "] " + arguments[1];
-        else
-            msg = "[INFO] " + arguments[0];
-
-        log(msg);
-    }
-
-    function error(message)
-    {
-        var msg;
-        if (arguments.length > 1)
-            msg = "ERROR [" + arguments[0] + "] " + arguments[1];
-        else
-            msg = "[ERROR] " + arguments[0];
-
-        log(msg);
-    }
-
-    function log(arg)
-    {
-        if( window.console && console && console.log)
-        {
-            console.log.apply( console, arguments );
-        }
-    }
-
-    var __cache = [];
-    /**
-     * Preload images into browser cache.<b>
-     * @param args a list of comma delimited strings containing
-     * image urls.<b>
-     */
-    function preLoadImages() {
-        var args_len = arguments.length;
-        for (var i = args_len; i--;) {
-            var cacheImage = document.createElement('img');
-            cacheImage.src = arguments[i];
-            __cache.push(cacheImage);
-        }
-    }
-
-    /**
-     * Replace occurences of URL for a hyperlink
-     *
-     * @param text {string} The text that might contain hyperlinks
-     * @return Same text but with URLs replaced with hyperlinks
-     */
-    function replaceURLWithHTMLLinks(text) {
-        var exp = /(\b(https?|ftp|file):\/\/[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|])/ig;
-        return text.replace(exp,"<a href='$1'>$1</a>");
-    }
-
-    /**
-     * Finds all object tags and replaces them with a place holder
-     *
-     * @param root frame
-     */
-    function handleObjects(frame){
-        var replacedNum = 0;
-        frame.contents().find('.perc-flash').find("object").each(function(){
-            replacedNum++;
-            var obWidth = $(this).attr("width");
-            var obHeight = $(this).attr("height");
-            var divWidth = obWidth;
-            var divHeight = obHeight;
-            //If object doesn't have the size check the embed tag else set default size.
-            if(obWidth === "")
-            {
-                var emWidth = $(this).children("embed").attr("width");
-                if(emWidth === "")
-                {
-                    divWidth = '100%';
-                }
-                else
-                {
-                    divWidth = emWidth;
-                }
-            }
-            if(obHeight === "")
-            {
-                var emHeight = $(this).children("embed").attr("height");
-                if(emHeight === "")
-                {
-                    divHeight = '100%';
-                }
-                else
-                {
-                    divHeight = emHeight;
-                }
-            }
-
-            //Check to see if its & or px defaults to px if not specified
-            if(divWidth.lastIndexOf("%") < 0 && divWidth.lastIndexOf("px") < 0)
-            {
-                divWidth = divWidth + 'px';
-            }
-            if(divHeight.lastIndexOf("%") < 0 && divHeight.lastIndexOf("px") < 0)
-            {
-                divHeight = divHeight + 'px';
-            }
-
-            $(this).replaceWith($('<div id="perc-object-placeholder-'+ replacedNum +'" class="perc-object-placeholder" style="width: ' + divWidth + '; height: ' + divHeight + ';"></div>'));
-        });
-    }
-
-    /**
-     * Finds all links in the rendered content and deactivates them.
-     *
-     * @param root frame
-     */
-    function handleLinks(frame){
-
-        frame.contents().find("a").each(function(){
-            // Get the href value so we don't lose it
-            var url = $(this).attr("href");
-            $(this).attr('tempURL', url);
-            // Remove target
-            $(this).removeAttr("target");
-            // Deactivate the link by replacing its href value
-            $(this).attr("href", "javascript:void(0);");
-        });
-
-    }
-
-
-    /**
-     * Sorts the specified array case insensitive.
-     *
-     * @param list {array} The list of items to sort, may be modified.
-     */
-    function sortCaseInsensitive(list) {
-        if (Array.isArray(list))
-        {
-            list.sort(function(x,y){
-                var a = String(x).toUpperCase();
-                var b = String(y).toUpperCase();
-                if (a > b)
-                    return 1;
-                if (a < b)
-                    return -1;
-                return 0;
-            });
-        }
-    }
-
-    /**
-     * Formats a date object into a time string h:mm AM
-     */
-    function formatTimeFromDate(date, showsecs) {
-
-        if(typeof date === "undefined"){
-            return "";
-            console.trace("undefined date passed to frmateTimeFromDate.");
-        }else if(typeof date === "string"){
-            date = new Date(date);
-        }
-
-
-        var formattedTime;
-        var hours      = date.getHours();
-        var minutes    = date.getMinutes();
-        var seconds    = date.getSeconds();
-        var ampm        = (hours>=12 ? " PM" : " AM");
-
-        minutes        = (minutes < 10 ? "0" : "") + minutes;
-        hours        = hours%12;
-
-        if(hours === 0) hours = 12;
-
-        formattedTime    = hours + ":" + minutes;
-        if(showsecs)
-            formattedTime += ":" + (seconds<10?"0" + seconds : seconds);
-        formattedTime += ampm;
-
-        return formattedTime;
-    }
-    function max(array) {
-        var mx = -1;
-        for(let a=0; a<array.length; a++) {
-            if(mx < array[a])
-                mx = array[a];
-        }
-        return mx;
-    }
-
-    function min(array) {
-        var mn = 10000000;
-        for(a=0; a<array.length; a++) {
-            if(array[a] < mn )
-                mn = array[a];
-        }
-        return mn;
-    }
-
-    function addArrays(array1, array2) {
-        var resultArray = [];
-        for(i=0; i<array1.length; i++) {
-            resultArray[i] = array1[i] + array2[i];
-        }
-        return resultArray;
-    }
-
-    function newArray(length) {
-        var array = new Array(length);
-        for(i=0; i<length; i++)
-            array[i] = 0;
-        return array;
-    }
-
-    $.percHideBodyScrollbars = function() {
-        $("body")
-            .css("overflow","hidden");
-    };
-
-    $.percShowBodyScrollbars = function() {
-        $("body")
-            .css("position","")
-            .css("overflow","");
-    };
-
-    /**
-     * Makes the folder editable, by finding the new folder node and simulating
-     * dblclick on it.
-     */
-    function makeFolderEditable(pathItem){
-        // Add the JEditable plugin to folders for rename functionality
-        var listing = $('#perc-finder-listing-' + pathItem.id);
-        var $itemName = listing.children('.perc-finder-item-name');
-        var pageItemType = pathItem.type;
-
-        $itemName.editable(
-            function(value, settings){
-                value = value.trim();
-                value = $.perc_textFilters.WINDOWS_FILE_NAME(value);
-
-                // only replace spaces with dashes if we are not renaming fsfolders
-                if(pageItemType !== 'FSFolder')
-                {
-                    value = value.replace(/ /g, '-');
-                }
-
-                var $nameEl = $(this);
-                var oldName = $nameEl.parent().attr('title');
-                if(value.length === 0)
-                    return oldName;
-                if(value.toLowerCase() !== oldName.toLowerCase())
-                {
-                    if(isRenamingFolder){
-                        return oldName;
-                    }
-                    isRenamingFolder = true;
-                    $.PercBlockUI($.PercBlockUIMode.CURSORONLY);
-                    $.PercPathService.renameFolder(
-                        pathItem.path,
-                        value,
-                        function(status, result, code){
-                            if(status === $.PercServiceUtils.STATUS_SUCCESS)
-                            {
-                                // Guard the new path-parse against a SUCCESS
-                                // payload that lacks a PathItem (e.g. partial
-                                // server response or unexpected shape).
-                                // Without this guard, `result.PathItem.path.split(...)`
-                                // would throw TypeError on a missing `PathItem`
-                                // and the finder would never re-open. Skip the
-                                // open() call -- the finder is already showing
-                                // the pre-rename view.
-                                if (result && result.PathItem && result.PathItem.path)
-                                {
-                                                                var pth = result.PathItem.path.split("/");
-                                    if (pth[pth.length - 1] === "") {
-                                        pth.pop();
-                                    }
-                                    $.perc_finder().lastClickPath = null;
-                                    $.perc_finder().open(pth);
-                                }
-                                $.unblockUI();
-                            }
-                            else
-                            {
-                                $nameEl.text(oldName); // Reset back to old name
-                                $.unblockUI();
-                                var errorMsg = "";
-                                if (code === "renameFolderItem.reservedName" || code === "renameFolderItem.longName" ||
-                                    code === "renameFolderItem.invalidCharInName")
-                                {
-                                    errorMsg = result.replace("<old_name>", oldName).replace("<new_name>", value);
-                                }
-                                else
-                                {
-                                    //TODO: I18N below with correct formatting
-                                    errorMsg = 'Cannot rename folder \'' +
-                                        oldName + '\' to \'' + value +
-                                        '\' because an object with the same name already exists.';
-                                }
-                                $.perc_utils.alert_dialog({id: 'perc-finder-rename-folder-error',
-                                    title: I18N.message("perc.ui.publish.title@Error"), content: errorMsg});
-                            }
-                        }
-                    );
-                }
-                else
-                {
-                    $.perc_finder().refresh();
-                }
-                return value;
+    dialog = $("<div/>")
+      .append($content)
+      .perc_dialog({
+        dialogClass: "perc-alert-dialog",
+        title: settings.title,
+        modal: true,
+        width: w,
+        resizable: false,
+        id: settings.id,
+        percButtons: {
+          Ok: {
+            click: function () {
+              dialog.remove();
+              settings.okCallBack();
             },
-            {
-                type: "filteredText",
-                event: "dblclick",
-                // issue CM-89: removing 'inherit' we avoid the field to have ellipsis
-                // style: "inherit",
-                height: "14px",
-                width: "125px",
-                select: true,
-                onblur: "submit",
-                fieldid: 'perc_finder_inline_field_edit',
-                onedit: function(settings){
-                    $("#perc_finder_inline_field_edit").trigger("blur");
-                },
-                data: function(value, settings){
-                    return $(this).parent().attr('title');
-                }
-            });
-        $('#perc-finder-listing-' + pathItem.id)
-            .children(".perc-finder-item-name").trigger('dblclick');
+            id: "perc-alert-generic-ok",
+          },
+        },
+      });
+  }
+
+  function prompt_dialog(options) {
+    var settings = {
+      title: I18N.message("perc.ui.utils@Beg Pardon"),
+      question: I18N.message("perc.ui.utils@What To Do"),
+      cancel: function () {},
+      success: function () {},
+    };
+
+    $.extend(settings, options);
+
+    var inputField = $(
+      "<input type='text' id='perc-prompt-dialog-question' />"
+    );
+    // Render the question as a text node so attacker-controlled or
+    // server-supplied strings cannot inject HTML/scripts via jQuery's
+    // .append() HTML parsing. Callers that intentionally need HTML markup
+    // should sanitize the input themselves or opt in via settings.questionIsHtml.
+    var $question = $("<label for='perc-prompt-dialog-question'/>");
+    if (settings.questionIsHtml) {
+      // codeql[js/xss-through-dom] reason: caller opts in to raw HTML via
+      // settings.questionIsHtml and is responsible for sanitizing the
+      // markup. Defaults to safe text rendering.
+      $question.html(settings.question);
+    } else {
+      $question.text(settings.question);
+    }
+    var dialog = $("<div/>")
+      .append($question)
+      .append($("<br/>"))
+      .append(inputField)
+      .dialog({
+        dialogClass: "perc-prompt-dialog",
+        title: settings.title,
+        modal: true,
+        resizable: false,
+        percButtons: {
+          Yes: {
+            click: function () {
+              var res = inputField.val();
+              dialog.remove();
+              settings.success(res);
+            },
+            id: "perc-prompt-generic-yes",
+          },
+          No: {
+            click: function () {
+              dialog.remove();
+              settings.cancel();
+            },
+            id: "perc-prompt-generic-no",
+          },
+        },
+        id: settings.id,
+      });
+  }
+
+  function id(x) {
+    return x;
+  }
+
+  function acop(arr) {
+    return $.map(arr, id);
+  }
+
+  function acat(a1, a2) {
+    return acop(a1).concat(acop(a2));
+  }
+
+  function odiff(eye, beam) {
+    //Remove beam from eye
+    var diff = {};
+
+    $.each(eye, function (k, v) {
+      if (!beam[k]) diff[k] = v;
+    });
+
+    return diff;
+  }
+
+  function arem(eye, beam) {
+    $.each(eye, function (idx) {
+      if (eye[idx] === beam) {
+        delete eye[idx];
+      }
+    });
+  }
+
+  function a_o(obj) {
+    var a = [];
+    $.each(obj, function (k) {
+      a.push([k, this]);
+    });
+    return a;
+  }
+
+  function o_a(arr) {
+    var o = {};
+    $.each(arr, function () {
+      o[this.k] = this.v;
+    });
+    return o;
+  }
+
+  function extract_path_end(path) {
+    var path_end = path.split("/");
+    if (path_end[path_end.length - 1] === "") path_end.pop();
+    return path_end[path_end.length - 1];
+  }
+
+  function show_error(x) {
+    if (x) {
+      alert(x);
+    }
+  }
+
+  $.fn.perc_button = function () {
+    this.addClass("ui-state-default ui-corner-all")
+      .on("mouseenter", function () {
+        if (!$(this).hasClass("ui-state-disabled"))
+          $(this).addClass("ui-state-hover");
+      })
+      .on("mouseleave", function () {
+        $(this).removeClass("ui-state-hover");
+      });
+    return this;
+  };
+
+  /**
+   *  Formats the file size to B / KB / MB according to the size itself
+   *  Eg: 320 B, 4 KB, 2 MB
+   *  @author federicoromanelli
+   *  @param size (number) the size of the file in bytes
+   *  @return a string with the formatted size of the file or an empty string if the size is not a number.
+   */
+  function formatFileSize(size) {
+    var oneKB = 1024;
+    var oneMB = 1024 * 1024;
+
+    var fileSize = parseFloat(size);
+    if (isNaN(fileSize)) return "";
+
+    if (fileSize < oneKB) return fileSize + " B";
+    if (fileSize > oneMB) return (fileSize / oneMB).toFixed(0) + " MB";
+
+    return (fileSize / oneKB).toFixed(0) + " KB";
+  }
+
+  /**
+   * Utility function for returning the icon to be used by the ui.
+   *
+   * @param {string} type - The icon type.
+   * @param {string} icon - The icon to return
+   * @param {id} - The id of the icon to return
+   */
+  function choose_icon(type, icon, id) {
+    var returnIcon = {};
+    var type_icons = {
+      site: "/cm/images/images/iconWebsite.gif",
+      Folder: "/cm/images/images/iconFolder.gif",
+      percPage: "/cm/images/images/iconPage.gif",
+      FSIMAGEFile: "/cm/images/images/genericImage.png",
+      FSFile: "/cm/images/images/genericFile.png",
+      FSFolder: "/cm/images/images/iconFolder.gif",
+    };
+
+    if (id === "," + $.perc_paths.ASSETS_ROOT_NO_SLASH) {
+      returnIcon.src = "/cm/images/images/iconLibrary.gif";
+      returnIcon.alt = I18N.message("perc.ui.images@AssetLibraryIconAlt");
+      returnIcon.title = I18N.message("perc.ui.images@AssetLibraryIconTitle");
+      returnIcon.decorative = false;
+      return returnIcon;
     }
 
-    /**
-     * Checks if the specified enumeration value object contains the
-     * specified value.
-     *
-     * @param enumVals JSON object with the following structure:
-     * {"EnumVals":{"entries":[{"value":"Archive"},{"value":"Draft"}]}}
-     * @param val {string} The value to check for.
-     * @return true if the object contains the value, false otherwise.
-     */
-    function contains(enumVals, val) {
-        var vals = enumVals.entries;
-        if (!Array.isArray(vals))
-        {
-            var tempArray = [];
-            tempArray.push(vals);
-            vals = tempArray;
-        }
-
-        for (i = 0; i < vals.length; i++)
-        {
-            if (vals[i].value === val)
-            {
-                return true;
-            }
-        }
-
-        return false;
+    if (id === "," + $.perc_paths.SITES_ROOT_NO_SLASH) {
+      returnIcon.src = "/cm/images/images/iconWebsite.gif";
+      returnIcon.alt = I18N.message("perc.ui.images@SiteIconAlt");
+      returnIcon.title = I18N.message("perc.ui.images@SiteIconTitle");
+      returnIcon.decorative = false;
+      return returnIcon;
     }
 
-    /**
-     *  Encodes the array given as a parameter. The array is not modified, a new one is returned.
-     */
-    function encodePathArray(path)
-    {
-        if(typeof(path) === 'undefined')
-        {
-            return;
-        }
+    if (id === "," + $.perc_paths.DESIGN_ROOT_NO_SLASH) {
+      returnIcon.src = "../images/images/iconDesign.png";
+      returnIcon.alt = I18N.message("perc.ui.images@DesignIconAlt");
+      returnIcon.title = I18N.message("perc.ui.images@DesignIconTitle");
+      returnIcon.decorative = false;
+      return returnIcon;
+    }
 
-        var paths = [];
-        $(path).each(function(index, pathElement)
-        {
-            var encodedPath = encodeURL(pathElement);
-            paths.push(encodedPath);
+    if (id === "," + "Search") {
+      returnIcon.src = "../images/images/searchIcon.png";
+      returnIcon.alt = I18N.message("perc.ui.images@SearchIconAlt");
+      returnIcon.title = I18N.message("perc.ui.images@SearchIconTitle");
+      returnIcon.decorative = false;
+      return returnIcon;
+    }
+
+    if (id === "," + $.perc_paths.RECYCLING_ROOT_NO_SLASH) {
+      returnIcon.src = "/cm/images/images/iconRecycle.gif";
+      returnIcon.alt = I18N.message("perc.ui.images@RecyclingIconAlt");
+      returnIcon.title = I18N.message("perc.ui.images@RecyclingIconTitle");
+      returnIcon.decorative = false;
+      return returnIcon;
+    }
+
+    //If statement for Landing Page Icon
+    if (
+      icon &&
+      icon.includes("finderLandingPage") &&
+      type &&
+      type_icons[type]
+    ) {
+      returnIcon.src = "/Rhythmyx/sys_resources/images/finderLandingPage.png";
+      returnIcon.alt = I18N.message(
+        "perc.ui.newpagedialog.label@Navigation Landing Page"
+      );
+      returnIcon.title = I18N.message(
+        "perc.ui.newpagedialog.label@Navigation Landing Page"
+      );
+      returnIcon.decorative = false;
+      return returnIcon;
+    } else if (icon) {
+      //TODO: Need to map calls to this to make sure they are setting alt/title/role
+      debug(
+        "Accessibility Check: Verify that " +
+          icon +
+          " has accessible attributes set"
+      );
+      debug("i18n Check: Verify that " + icon + " has i18n strings set");
+    }
+
+    if (type && type_icons[type]) {
+      if (type === "site") {
+        returnIcon.src = "/cm/images/images/iconWebsite.gif";
+        returnIcon.alt = I18N.message("perc.ui.images@SiteIconAlt");
+        returnIcon.title = I18N.message("perc.ui.images@SiteIconTitle");
+        returnIcon.decorative = false;
+        return returnIcon;
+      }
+
+      if (type === "percPage") {
+        returnIcon.src = "/cm/images/images/iconPage.gif";
+        returnIcon.alt = I18N.message("perc.ui.images@PageIconAlt");
+        returnIcon.title = I18N.message("perc.ui.images@PageIconTitle");
+        returnIcon.decorative = false;
+        return returnIcon;
+      }
+
+      if (type === "Folder" || type === "FSFolder") {
+        if (
+          typeof icon === "undefined" ||
+          icon.indexOf("finderFolder.png") > 0
+        ) {
+          returnIcon.src = "/cm/images/images/iconFolder.gif";
+        } else {
+          returnIcon.src = icon;
+        }
+        //returnIcon.src =  '/cm/images/images/iconFolder.gif';
+        returnIcon.alt = I18N.message("perc.ui.images@FolderIconAlt");
+        returnIcon.title = I18N.message("perc.ui.images@FolderIconTitle");
+        returnIcon.decorative = false;
+        return returnIcon;
+      }
+      if (type === "FSIMAGEFile") {
+        returnIcon.src = "/cm/images/images/genericImage.png";
+        returnIcon.alt = I18N.message("perc.ui.images@ImageAssetIconAlt");
+        returnIcon.title = I18N.message("perc.ui.images@ImageAssetIconTitle");
+        returnIcon.decorative = true;
+        return returnIcon;
+      }
+      if ("FSFile" === type) {
+        returnIcon.src = "/cm/images/images/genericFile.png";
+        returnIcon.alt = I18N.message("perc.ui.images@FileAssetIconAlt");
+        returnIcon.title = I18N.message("perc.ui.images@FileAssetIconTitle");
+        returnIcon.decorative = true;
+        return returnIcon;
+      }
+      //TODO: Need to map calls to this to make sure they are setting alt/title/role
+      debug(
+        "Accessibility Check: Verify that " +
+          icon +
+          " has accessible attributes set"
+      );
+      debug("i18n Check: Verify that " + icon + " has i18n strings set");
+
+      returnIcon.src = type_icons[type];
+      returnIcon.alt = "";
+      returnIcon.title = "";
+      returnIcon.decorative = false;
+      return returnIcon;
+    }
+
+    if ("percImageAsset" === type) {
+      // Last resort if image icon url not provided
+      returnIcon.src = "../images/images/genericImage.png";
+      returnIcon.alt = I18N.message("perc.ui.images@ImageAssetIconAlt");
+      returnIcon.title = I18N.message("perc.ui.images@ImageAssetIconTitle");
+      returnIcon.decorative = true;
+      return returnIcon;
+    }
+
+    if ("percFileAsset" === type) {
+      // Last resort if file icon url not provided
+      returnIcon.src = "../images/images/genericFile.png";
+      returnIcon.alt = I18N.message("perc.ui.images@FileAssetIconAlt");
+      returnIcon.title = I18N.message("perc.ui.images@FileAssetIconTitle");
+      returnIcon.decorative = true;
+      return returnIcon;
+    }
+
+    if (type && id[1] === $.perc_paths.ASSETS_ROOT_NO_SLASH) {
+      // Last resort if icon url not provided for any other asset type
+      returnIcon.src = "../images/images/genericAsset.png";
+      returnIcon.alt = I18N.message("perc.ui.images@GenericAssetIconAlt");
+      returnIcon.title = I18N.message("perc.ui.images@GenericAssetIconTitle");
+      returnIcon.decorative = true;
+      return returnIcon;
+    }
+
+    if (type) {
+      returnIcon.src = "/cm/images/images/iconPage.gif";
+      returnIcon.alt = I18N.message("perc.ui.images@PageIconAlt");
+      returnIcon.title = I18N.message("perc.ui.images@PageIconTitle");
+      returnIcon.decorative = true;
+      return returnIcon;
+    }
+
+    returnIcon.src = "/cm/images/images/iconFolder.gif";
+    returnIcon.alt = I18N.message("perc.ui.images@FolderIconAlt");
+    returnIcon.title = I18N.message("perc.ui.images@FolderIconTitle");
+    returnIcon.decorative = true;
+    return returnIcon;
+  }
+
+  /**
+   * This handles the show/hide of the Add Widget button
+   */
+  $.fn.percWidLibMaximizer = function (P) {
+    var baseEle = "#perc-layout-menu";
+    if ($("#tabs-3").length) {
+      baseEle = "#tabs-3 #perc-layout-menu";
+    }
+
+    if (
+      $(baseEle)
+        .parent()
+        .find(".perc-template-container")
+        .hasClass("perc-visible")
+    ) {
+      $(baseEle)
+        .parent()
+        .find(".perc-template-container")
+        .removeClass("perc-visible")
+        .addClass("perc-hidden");
+      $(baseEle)
+        .parent()
+        .find("#perc-wid-lib-expander")
+        .removeClass("perc-whitebg");
+      $(baseEle)
+        .parent()
+        .find("#perc-wid-lib-minimizer")
+        .replaceWith(
+          '<a id="perc-wid-lib-maximizer"  title="' +
+            I18N.message("perc.ui.workflow.view@Maximize") +
+            '" style="float: left;" href="#"></a>'
+        );
+    } else {
+      var regionLibContainer = $(baseEle)
+        .parent()
+        .find(".perc-region-library-container");
+      // if region tray is visible, toggle it (close it) so that only the widget tray is shown
+      if (regionLibContainer.hasClass("perc-visible")) {
+        $.fn.percRegionLibraryMaximizer(P);
+      }
+
+      $(baseEle)
+        .parent()
+        .find(".perc-template-container")
+        .removeClass("perc-hidden")
+        .addClass("perc-visible");
+      $(baseEle)
+        .parent()
+        .find("#perc-wid-lib-expander")
+        .addClass("perc-whitebg");
+      $(baseEle)
+        .parent()
+        .find("#perc-wid-lib-maximizer")
+        .replaceWith(
+          '<a id="perc-wid-lib-minimizer" title="' +
+            I18N.message("perc.ui.workflow.view@Minimize") +
+            '" style="float: left;" href="#"></a>'
+        );
+    }
+
+    // fix the height of the iframe based on the height of the top part
+    var frame = $("#frame");
+    var header = $(".perc-main");
+    var bottom = $("#bottom");
+    fixIframeHeight(header, bottom, frame);
+  };
+
+  /**
+   * This handles the show/hide of the Explore Regions button
+   */
+  $.fn.percRegionLibraryMaximizer = function (P) {
+    var baseEle = "#perc-layout-menu";
+    if ($("#tabs-3").length) {
+      baseEle = "#tabs-3 #perc-layout-menu";
+    }
+
+    var parent = $(baseEle).parent();
+    var regionLibraryContainer = $(
+      parent.find(".perc-region-library-container")
+    );
+    var templateContainer = $(baseEle)
+      .parent()
+      .find(".perc-template-container");
+    var regionLibraryExpander = $(parent.find("#perc-region-library-expander"));
+    var regionLibraryMaximizer = $(
+      parent.find("#perc-region-library-maximizer")
+    );
+    var regionLibraryMinimizer = $(
+      parent.find("#perc-region-library-minimizer")
+    );
+
+    if (regionLibraryContainer.hasClass("perc-visible")) {
+      regionLibraryContainer
+        .removeClass("perc-visible")
+        .addClass("perc-hidden");
+      regionLibraryExpander.removeClass("perc-whitebg");
+      regionLibraryMinimizer.replaceWith(
+        '<a id="perc-region-library-maximizer" title="' +
+          I18N.message("perc.ui.workflow.view@Maximize") +
+          '"  style="float: left;" href="#"></a>'
+      );
+    } else {
+      // if widget tray is visible, toggle it (close it) so that only the region tray is shown
+      if (templateContainer.hasClass("perc-visible")) {
+        $.fn.percWidLibMaximizer(P);
+      }
+
+      regionLibraryContainer
+        .removeClass("perc-hidden")
+        .addClass("perc-visible");
+      regionLibraryExpander.addClass("perc-whitebg");
+      regionLibraryMaximizer.replaceWith(
+        '<a id="perc-region-library-minimizer" title="' +
+          I18N.message("perc.ui.workflow.view@Minimize") +
+          '" style="float: left;" href="#"></a>'
+      );
+    }
+
+    // fix the height of the iframe based on the height of the top part
+    var frame = $("#frame");
+    var header = $(".perc-main");
+    var bottom = $("#bottom");
+    fixIframeHeight(header, bottom, frame);
+  };
+
+  /**
+   * This handles the show/hide of the Orphan Assetss button
+   */
+  $.fn.percOrphanAssetsMaximizer = function (P) {
+    var baseEle = "#perc-layout-menu";
+    if ($("#tabs-2").length) {
+      baseEle = "#tabs-2 #perc-content-menu";
+    }
+
+    var parent = $(baseEle).parent();
+    var orphanAssetsContainer = parent.find("#perc_asset_library");
+    var orphanAssetsExpander = parent.find("#perc_orphan_assets_expander");
+
+    if (orphanAssetsContainer.hasClass("perc-visible")) {
+      var orphanAssetsMinimizer = parent.find("#perc_orphan_assets_minimizer");
+      orphanAssetsContainer.removeClass("perc-visible").addClass("perc-hidden");
+      orphanAssetsExpander.removeClass("perc-whitebg");
+      orphanAssetsMinimizer.replaceWith(
+        '<a id="perc_orphan_assets_maximizer" title="' +
+          I18N.message("perc.ui.workflow.view@Maximize") +
+          '" style="float: left;" href="#"></a>'
+      );
+    } else {
+      var orphanAssetsMaximizer = parent.find("#perc_orphan_assets_maximizer");
+      orphanAssetsContainer.removeClass("perc-hidden").addClass("perc-visible");
+      orphanAssetsExpander.addClass("perc-whitebg");
+      orphanAssetsMaximizer.replaceWith(
+        '<a id="perc_orphan_assets_minimizer" title="' +
+          I18N.message("perc.ui.workflow.view@Minimize") +
+          '" style="float: left;" href="#"></a>'
+      );
+    }
+
+    // fix the height of the iframe based on the height of the top part
+    var frame = $("#frame");
+    var header = $(".perc-main");
+    var bottom = $("#bottom");
+    fixIframeHeight(header, bottom, frame);
+  };
+
+  function click_and_double_click(elem, single, dbl) {
+    var clicked = false;
+    var interval = 500; //milliseconds
+    elem.on("click", function () {
+      if (clicked) {
+        //Double click - ignore the click event.
+      } else {
+        //Single click - set up to ignore the next click, if it falls with the chosen interval
+        clicked = true;
+        setTimeout(function () {
+          clicked = false;
+        }, interval);
+        single();
+      }
+    });
+    elem.on("dblclick", function (e) {
+      dbl(e);
+    });
+  }
+  $.fn.perc_toggle = function (d) {
+    // codeql[js/unsafe-jquery-plugin] reason: `d` is treated purely as a
+    // selector reference here. The value is forwarded only to .hasClass(),
+    // .addClass(), and .removeClass() which all operate on the matched
+    // DOM elements without parsing `d` as HTML, so an attacker-controlled
+    // `d` cannot inject script via this plugin.
+    if ($(d).length && $(d).hasClass("perc-hidden")) {
+      $(d).removeClass("perc-hidden");
+      $(d).addClass("perc-visible");
+    } else {
+      $(d).removeClass("perc-visible");
+      $(d).addClass("perc-hidden");
+    }
+
+    return this;
+  };
+  $.fn.perc_toggle_padding = function () {
+    var args = $.fn.perc_toggle_padding.arguments;
+    for (let i of args) {
+      if (i.length && i.hasClass("perc-nopadding")) {
+        i.removeClass("perc-nopadding");
+      } else {
+        i.addClass("perc-nopadding");
+      }
+    }
+    return this;
+  };
+
+  function addAutoScroll() {
+    $("#frame").percAutoScroll({
+      offsetY: 10,
+      width: 10,
+      speed: 10,
+      directions: "n, s",
+    });
+    $("#frame").percAutoScroll.postScrollView = function (movedX, movedY) {
+      $("div.ui-droppable").each(function () {
+        if (!$(this).hasClass("ui-layout-ignore"))
+          $(this).css("top", $(this).position().top - movedY);
+      });
+    };
+  }
+
+  function removeAutoScroll() {
+    $("#frame").percAutoScroll.remove();
+  }
+
+  function unxml(schema, data) {
+    if (typeof schema === "function") {
+      schema = schema(data.get(0).tagName);
+    }
+    if (schema.valueOf() === "$") {
+      return data.text();
+    }
+    if (Array.isArray(schema)) {
+      var ret = [];
+      var child_schema = schema[0];
+      var children = data.children();
+
+      if (children.length === 0 && child_schema === "$") {
+        var len = data.length;
+        for (let i = 0; i < len; i++) {
+          ret.unshift($(data[i]).text());
+        }
+      } else {
+        children.each(function () {
+          var next = unxml(child_schema, $(this));
+          next._tagName = $(this)[0].tagName;
+          ret.push(next);
         });
-        return paths;
-    }
+      }
 
-    /**
-     * Returns true if the given path is under Design. The path array should be like this:
-     * path[] = ""
-     * path[] = "Design"
-     * path[] = "..."
-     * So basically it compares the position 1 in the array with the word "Design"
-     */
-    function isPathUnderDesign(path)
-    {
-        if(path.length === 0)
-        {
-            return false;
+      return ret;
+    }
+    var ret1 = {};
+    $.each(schema, function (name) {
+      var tagNames = [];
+      var matches = data.children().filter(function () {
+        tagNames.push(this.tagName);
+        return this.tagName.toLowerCase() === name.toLowerCase();
+      });
+      if (matches.length) {
+        ret1[name] = unxml(this, matches);
+      } else {
+        debug(
+          I18N.message("perc.ui.utils@Expected To Find") +
+            name +
+            I18N.message("perc.ui.utils@Tags Found") +
+            tagNames
+        );
+      }
+    });
+    return ret1;
+  }
+
+  function rexml(schema, pageObj) {
+    return (
+      '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' +
+      _rexml(schema, pageObj)
+    );
+  }
+
+  function _rexml(schema, pageObj, elemName) {
+    if (typeof schema === "function") {
+      schema = schema(pageObj._tagName);
+    }
+    if (schema.valueOf() === "$") {
+      if (!pageObj) {
+        debug("Unexpected null in rexml");
+        return "";
+      } else {
+        if (typeof pageObj === "string")
+          return pageObj
+            .replace(/&/g, "&amp;")
+            .replace(/>/g, "&gt;")
+            .replace(/</g, "&lt;");
+        else return pageObj;
+      }
+    } else if (Array.isArray(schema)) {
+      var ret = "";
+      if (schema.length === 1 && schema[0] === "$") {
+        var len = pageObj.length;
+        for (i = 0; i < len; i++) {
+          ret += "<" + elemName + ">" + pageObj[i] + "</" + elemName + ">";
+        }
+      } else if (Array.isArray(pageObj)) {
+        $.each(pageObj, function () {
+          ret +=
+            "<" +
+            this._tagName +
+            ">" +
+            _rexml(schema[0], this, this.tagName) +
+            "</" +
+            this._tagName +
+            ">";
+        });
+      } else {
+        debug("Expected array, got %o instead", pageObj);
+      }
+      return ret;
+    } else {
+      //Object
+      var ret2 = "";
+      $.each(schema, function (name) {
+        if (name in pageObj) {
+          var isStringArray =
+            Array.isArray(schema[name]) &&
+            schema[name].length === 1 &&
+            schema[name][0] === "$";
+          if (!isStringArray) ret2 += "<" + name + ">";
+          ret2 += _rexml(schema[name], pageObj[name], name);
+          if (!isStringArray) ret2 += "</" + name + ">";
+        } else {
+          debug("Can't find " + name + " in %o", pageObj);
+        }
+      });
+      return ret2;
+    }
+  }
+
+  //deep_get -- safely get an object that is nested in a JSON object.
+  function deep_get(json, keys) {
+    var keyArr = keys.split(" ");
+    var key;
+    while ((key = shift(keyArr))) {
+      if (key in json) {
+        json = json[key];
+      } else {
+        return null;
+      }
+    }
+    return json;
+  }
+
+  /**
+   * URL encode the specified path. This is needed for none-ascii characters.
+   * Firefox seems to be able to automatically URL encode the path before
+   * communicate to server, but not IE.
+   *
+   * @param path the path need to be encoded before use it to communicate to server.<b>
+   */
+  function encodeURL(path) {
+    return encodeURIComponent(path).replace(/%2F/g, "/");
+  }
+
+  var debugFlag = false;
+
+  /**
+   * return <code>true</code> if "debug=true" as part of the request parameters.
+   * for example, when use the URL to login CM1: http://localhost:9992/cm/app/?view=dash&debug=true
+   */
+  function isDebug() {
+    return debugFlag;
+  }
+
+  function debug(message) {
+    if (!isDebug()) return;
+
+    var msg;
+
+    if (arguments.length > 1)
+      msg = "DEBUG [" + arguments[0] + "] " + arguments[1];
+    else msg = "[DEBUG] " + arguments[0];
+
+    log(msg);
+  }
+
+  function info(message) {
+    var msg;
+    if (arguments.length > 1)
+      msg = "INFO [" + arguments[0] + "] " + arguments[1];
+    else msg = "[INFO] " + arguments[0];
+
+    log(msg);
+  }
+
+  function error(message) {
+    var msg;
+    if (arguments.length > 1)
+      msg = "ERROR [" + arguments[0] + "] " + arguments[1];
+    else msg = "[ERROR] " + arguments[0];
+
+    log(msg);
+  }
+
+  function log(arg) {
+    if (window.console && console && console.log) {
+      console.log.apply(console, arguments);
+    }
+  }
+
+  var __cache = [];
+  /**
+   * Preload images into browser cache.<b>
+   * @param args a list of comma delimited strings containing
+   * image urls.<b>
+   */
+  function preLoadImages() {
+    var args_len = arguments.length;
+    for (var i = args_len; i--; ) {
+      var cacheImage = document.createElement("img");
+      cacheImage.src = arguments[i];
+      __cache.push(cacheImage);
+    }
+  }
+
+  /**
+   * Replace occurences of URL for a hyperlink
+   *
+   * @param text {string} The text that might contain hyperlinks
+   * @return Same text but with URLs replaced with hyperlinks
+   */
+  function replaceURLWithHTMLLinks(text) {
+    var exp =
+      /(\b(https?|ftp|file):\/\/[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|])/gi;
+    return text.replace(exp, "<a href='$1'>$1</a>");
+  }
+
+  /**
+   * Finds all object tags and replaces them with a place holder
+   *
+   * @param root frame
+   */
+  function handleObjects(frame) {
+    var replacedNum = 0;
+    frame
+      .contents()
+      .find(".perc-flash")
+      .find("object")
+      .each(function () {
+        replacedNum++;
+        var obWidth = $(this).attr("width");
+        var obHeight = $(this).attr("height");
+        var divWidth = obWidth;
+        var divHeight = obHeight;
+        //If object doesn't have the size check the embed tag else set default size.
+        if (obWidth === "") {
+          var emWidth = $(this).children("embed").attr("width");
+          if (emWidth === "") {
+            divWidth = "100%";
+          } else {
+            divWidth = emWidth;
+          }
+        }
+        if (obHeight === "") {
+          var emHeight = $(this).children("embed").attr("height");
+          if (emHeight === "") {
+            divHeight = "100%";
+          } else {
+            divHeight = emHeight;
+          }
         }
 
-        return (path[1] === 'Design');
+        //Check to see if its & or px defaults to px if not specified
+        if (divWidth.lastIndexOf("%") < 0 && divWidth.lastIndexOf("px") < 0) {
+          divWidth = divWidth + "px";
+        }
+        if (divHeight.lastIndexOf("%") < 0 && divHeight.lastIndexOf("px") < 0) {
+          divHeight = divHeight + "px";
+        }
+
+        $(this).replaceWith(
+          $(
+            '<div id="perc-object-placeholder-' +
+              replacedNum +
+              '" class="perc-object-placeholder" style="width: ' +
+              divWidth +
+              "; height: " +
+              divHeight +
+              ';"></div>'
+          )
+        );
+      });
+  }
+
+  /**
+   * Finds all links in the rendered content and deactivates them.
+   *
+   * @param root frame
+   */
+  function handleLinks(frame) {
+    frame
+      .contents()
+      .find("a")
+      .each(function () {
+        // Get the href value so we don't lose it
+        var url = $(this).attr("href");
+        $(this).attr("tempURL", url);
+        // Remove target
+        $(this).removeAttr("target");
+        // Deactivate the link by replacing its href value
+        $(this).attr("href", "javascript:void(0);");
+      });
+  }
+
+  /**
+   * Sorts the specified array case insensitive.
+   *
+   * @param list {array} The list of items to sort, may be modified.
+   */
+  function sortCaseInsensitive(list) {
+    if (Array.isArray(list)) {
+      list.sort(function (x, y) {
+        var a = String(x).toUpperCase();
+        var b = String(y).toUpperCase();
+        if (a > b) return 1;
+        if (a < b) return -1;
+        return 0;
+      });
+    }
+  }
+
+  /**
+   * Formats a date object into a time string h:mm AM
+   */
+  function formatTimeFromDate(date, showsecs) {
+    if (typeof date === "undefined") {
+      return "";
+      console.trace("undefined date passed to frmateTimeFromDate.");
+    } else if (typeof date === "string") {
+      date = new Date(date);
     }
 
+    var formattedTime;
+    var hours = date.getHours();
+    var minutes = date.getMinutes();
+    var seconds = date.getSeconds();
+    var ampm = hours >= 12 ? " PM" : " AM";
 
+    minutes = (minutes < 10 ? "0" : "") + minutes;
+    hours = hours % 12;
+
+    if (hours === 0) hours = 12;
+
+    formattedTime = hours + ":" + minutes;
+    if (showsecs)
+      formattedTime += ":" + (seconds < 10 ? "0" + seconds : seconds);
+    formattedTime += ampm;
+
+    return formattedTime;
+  }
+  function max(array) {
+    var mx = -1;
+    for (let a = 0; a < array.length; a++) {
+      if (mx < array[a]) mx = array[a];
+    }
+    return mx;
+  }
+
+  function min(array) {
+    var mn = 10000000;
+    for (a = 0; a < array.length; a++) {
+      if (array[a] < mn) mn = array[a];
+    }
+    return mn;
+  }
+
+  function addArrays(array1, array2) {
+    var resultArray = [];
+    for (i = 0; i < array1.length; i++) {
+      resultArray[i] = array1[i] + array2[i];
+    }
+    return resultArray;
+  }
+
+  function newArray(length) {
+    var array = new Array(length);
+    for (i = 0; i < length; i++) array[i] = 0;
+    return array;
+  }
+
+  $.percHideBodyScrollbars = function () {
+    $("body").css("overflow", "hidden");
+  };
+
+  $.percShowBodyScrollbars = function () {
+    $("body").css("position", "").css("overflow", "");
+  };
+
+  /**
+   * Makes the folder editable, by finding the new folder node and simulating
+   * dblclick on it.
+   */
+  function makeFolderEditable(pathItem) {
+    // Add the JEditable plugin to folders for rename functionality
+    var listing = $("#perc-finder-listing-" + pathItem.id);
+    var $itemName = listing.children(".perc-finder-item-name");
+    var pageItemType = pathItem.type;
+
+    $itemName.editable(
+      function (value, settings) {
+        value = value.trim();
+        value = $.perc_textFilters.WINDOWS_FILE_NAME(value);
+
+        // only replace spaces with dashes if we are not renaming fsfolders
+        if (pageItemType !== "FSFolder") {
+          value = value.replace(/ /g, "-");
+        }
+
+        var $nameEl = $(this);
+        var oldName = $nameEl.parent().attr("title");
+        if (value.length === 0) return oldName;
+        if (value.toLowerCase() !== oldName.toLowerCase()) {
+          if (isRenamingFolder) {
+            return oldName;
+          }
+          isRenamingFolder = true;
+          $.PercBlockUI($.PercBlockUIMode.CURSORONLY);
+          $.PercPathService.renameFolder(
+            pathItem.path,
+            value,
+            function (status, result, code) {
+              if (status === $.PercServiceUtils.STATUS_SUCCESS) {
+                // Guard the new path-parse against a SUCCESS payload that lacks
+                // a PathItem (e.g. partial server response or unexpected shape).
+                // Without this guard, `result.PathItem.path.split(...)` would
+                // throw TypeError on a missing `PathItem` and the finder would
+                // never re-open. Skip the open() call -- the finder is already
+                // showing the pre-rename view.
+                if (result && result.PathItem && result.PathItem.path) {
+                                                var pth = result.PathItem.path.split("/");
+                                if (pth[pth.length - 1] === "") {
+                                    pth.pop();
+                                }
+                  $.perc_finder().lastClickPath = null;
+                  $.perc_finder().open(pth);
+                }
+                $.unblockUI();
+                isRenamingFolder = false;
+              } else {
+                $nameEl.text(oldName); // Reset back to old name
+                $.unblockUI();
+                isRenamingFolder = false;
+                var errorMsg = "";
+                if (
+                  code === "renameFolderItem.reservedName" ||
+                  code === "renameFolderItem.longName" ||
+                  code === "renameFolderItem.invalidCharInName"
+                ) {
+                  errorMsg = result
+                    .replace("<old_name>", oldName)
+                    .replace("<new_name>", value);
+                } else {
+                  //TODO: I18N below with correct formatting
+                  errorMsg =
+                    "Cannot rename folder '" +
+                    oldName +
+                    "' to '" +
+                    value +
+                    "' because an object with the same name already exists.";
+                }
+                $.perc_utils.alert_dialog({
+                  id: "perc-finder-rename-folder-error",
+                  title: I18N.message("perc.ui.publish.title@Error"),
+                  content: errorMsg,
+                });
+              }
+            }
+          );
+        } else {
+          $.perc_finder().refresh();
+        }
+        return value;
+      },
+      {
+        type: "filteredText",
+        event: "dblclick",
+        // issue CM-89: removing 'inherit' we avoid the field to have ellipsis
+        // style: "inherit",
+        height: "14px",
+        width: "125px",
+        select: true,
+        onblur: "submit",
+        fieldid: "perc_finder_inline_field_edit",
+        onedit: function (settings) {
+          $("#perc_finder_inline_field_edit").trigger("blur");
+        },
+        data: function (value, settings) {
+          return $(this).parent().attr("title");
+        },
+      }
+    );
+    $("#perc-finder-listing-" + pathItem.id)
+      .children(".perc-finder-item-name")
+      .trigger("dblclick");
+  }
+
+  /**
+   * Checks if the specified enumeration value object contains the
+   * specified value.
+   *
+   * @param enumVals JSON object with the following structure:
+   * {"EnumVals":{"entries":[{"value":"Archive"},{"value":"Draft"}]}}
+   * @param val {string} The value to check for.
+   * @return true if the object contains the value, false otherwise.
+   */
+  function contains(enumVals, val) {
+    var vals = enumVals.entries;
+    if (!Array.isArray(vals)) {
+      var tempArray = [];
+      tempArray.push(vals);
+      vals = tempArray;
+    }
+
+    for (i = 0; i < vals.length; i++) {
+      if (vals[i].value === val) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
+  /**
+   *  Encodes the array given as a parameter. The array is not modified, a new one is returned.
+   */
+  function encodePathArray(path) {
+    if (typeof path === "undefined") {
+      return;
+    }
+
+    var paths = [];
+    $(path).each(function (index, pathElement) {
+      var encodedPath = encodeURL(pathElement);
+      paths.push(encodedPath);
+    });
+    return paths;
+  }
+
+  /**
+   * Returns true if the given path is under Design. The path array should be like this:
+   * path[] = ""
+   * path[] = "Design"
+   * path[] = "..."
+   * So basically it compares the position 1 in the array with the word "Design"
+   */
+  function isPathUnderDesign(path) {
+    if (path.length === 0) {
+      return false;
+    }
+
+    return path[1] === "Design";
+  }
 })(jQuery);
 
 /**
  * Makes a shallow copy of region object
  */
 function copyRegionObject(copyFrom, copyTo) {
-    copyTo.vertical = copyFrom.vertical;
-    copyTo.children = copyFrom.children;
-    copyTo.widgets = copyFrom.widgets;
-    copyTo.width = copyFrom.width;
-    copyTo.height = copyFrom.height;
-    copyTo.owner = copyFrom.owner;
+  copyTo.vertical = copyFrom.vertical;
+  copyTo.children = copyFrom.children;
+  copyTo.widgets = copyFrom.widgets;
+  copyTo.width = copyFrom.width;
+  copyTo.height = copyFrom.height;
+  copyTo.owner = copyFrom.owner;
 }
 
 function htmlEntities(str) {
-    return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/, '&#39;');
+  return String(str)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
 }
-
 
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
@@ -88212,445 +88344,433 @@ function htmlEntities(str) {
  * limitations under the License.
  */
 
-(function($) {
-    $.PercListEditorWidget = function(options) {
-
-        var api = {
-            isEnabled         : isEnabled,
-            setListItems      : setListItems,
-            getListItems      : getListItems,
-            removeListItems   : removeListItems,
-            addListItem       : addListItem,
-            removeListItem    : removeListItem,
-            enable            : enable,
-            disable           : disable,
-            highlightListItem : highlightListItem,
-            scrollToListItem  : scrollToListItem
-        };
-
-        // HTML generated by this widget
-        // html for title, input field, buttons, and scrollable list of users
-        // Build the widget's static markup via the jQuery DOM API so
-        // caller-controlled fields (options.title1, options.title2) are
-        // never concatenated into an HTML string and parsed back into the
-        // DOM. jQuery's `.text()` and `.attr()` escape their arguments for
-        // the relevant context.
-        var $header = $("<div/>", { id: "perc-ui-listedit-header" });
-        var $title = $("<div/>", { id: "perc-ui-listedit-title" });
-        $title
-            .append(
-                $("<div/>", { id: "perc-ui-permission-users-title" }).text(
-                    options.title1
-                )
-            )
-            .append(
-                $("<div/>", { id: "perc-ui-permission-users-write" }).text(
-                    options.title2
-                )
-            )
-            .append($("<div/>", { id: "perc-ui-permission-addstartbutton" }));
-        $header.append($title);
-
-        var $listitemfield = $("<div/>", {
-            id: "perc-ui-listedit-listitemfield",
-        });
-        $listitemfield.append(
-            $("<input/>", {
-                id: "perc-ui-permission-usernamefield",
-                tabindex: "0",
-                title: I18N.message("perc.ui.rolePropsDialog.title@Enter a role"),
-                name: "perc-ui-permission-usernamefield",
-            })
-        );
-        $listitemfield.append(
-            $("<div/>", {
-                id: "perc-ui-permission-plusbutton",
-                tabindex: "0",
-                role: "button",
-                title: I18N.message("perc.ui.rolePropsDialog.title@Add User"),
-            })
-        );
-
-        var $scrollPane = $("<div/>", {
-            id: "perc-ui-permission-user-list-scroll-pane",
-        });
-        var $list = $("<ul/>", { id: "perc-ui-permission-user-list" });
-        var $seedLi = $("<li/>");
-        $seedLi
-            .append($("<span/>").text("Username"))
-            .append(
-                $("<div/>", {
-                    tabindex: "0",
-                    class: "perc-ui-permission-deletebutton",
-                    id: "Username",
-                })
-            );
-        $list.append($seedLi);
-        $scrollPane.append($list);
-
-        // ID of the DIV element where this widget will render
-        var containerId = $("#"+options.container);
-        containerId.empty();
-        containerId.append($header, $listitemfield, $scrollPane);
-
-        // UI elements
-        var list            = containerId.find("#perc-ui-permission-user-list");
-        var startAddButton  = containerId.find("#perc-ui-permission-addstartbutton");
-        var inputFieldDiv   = containerId.find("#perc-ui-listedit-listitemfield");
-        var inputField      = containerId.find("#perc-ui-permission-usernamefield");
-        var plusButton      = containerId.find("#perc-ui-permission-plusbutton");
-        var scrollPane      = containerId.find("#perc-ui-permission-user-list-scroll-pane");
-        var title           = containerId.find("#perc-ui-listedit-title");
-        var deleteButtons; // these are dynamically created when items are rendered
-
-        // I18N
-        var fieldHelpText = "";
-        if (typeof options.help !== 'undefined' && options.help != null)
-            fieldHelpText = options.help;
-        else
-            fieldHelpText = I18N.message("perc.ui.folderPropsDialog.inputField@Enter a username");
-
-        // state variables
-        var listItems = [];
-        var enabled = true;
-        var resultItems = null;
-
-        //
-        // setup event handling
-        //
-
-        // listen to changes on the toggler element passed in the options
-        // if the toggler changes, get its value and if it's in the toggle off array, then disable this whole component
-        // otherwise enable it
-        options.toggler.on("change",function() {
-            updateEnableStatus();
-        });
-
-        // show/hide input field to add a new item
-        startAddButton.off("click").on("click",function() {
-            inputFieldDiv.toggle();
-        });
-
-        // handle plus button to add a new item
-        plusButton.on("click",function() {
-            var itemText = inputField.val();
-            addListItem(itemText);
-        });
-		plusButton.on("keydown",function(event) {
-            if(event.code == "Enter" || event.code == "Space"){
-				document.activeElement.click();
-			}
-        });
-
-        // handle enter key to add a new item
-        inputField
-            .on("keypress",function(event) {
-                var code = (event.keyCode ? event.keyCode : event.which);
-                var itemText = inputField.val();
-                if(code === 13)
-                    if(findItem(itemText))
-                        addListItem(itemText);
-            }).on("click",function(){
-            inputField.trigger("focus");
-            updatePlusButton();
-            updateInputField("clear");
-            list.find("li").removeClass("perc-ui-listedit-itemselected");
-        }).on('keyup',function(){
-            updatePlusButton();
-        }).on("change",function(){
-            updatePlusButton();
-        }).on("blur",function(){
-            updateInputField("help");
-        }).on("focus",function(){
-            updateInputField("clear");
-        });
-
-        if (options.results !== undefined && options.results != null)
-        {
-            resultItems = options.results;
-
-            // add autocomplete to input field
-            inputField.autocomplete(resultItems, {
-                minChars: 0,
-                max: resultItems.length,
-                width: ($.browser.msie) ? 336 : 334,
-                scrollHeight: 101
-            }).result(function(){
-                updatePlusButton();
-            });
-        }
-
-        // initialize UI
-        if($.browser.msie)
-            plusButton.css("margin-right", "18px");
-
-        setListItems(options.items);
-        updateEnableStatus();
-        startAddButton.hide();
-        disablePlusButton();
-        updateInputField("help");
-
-        return api;
-
-        function updateInputField(action) {
-            // get input text
-            var itemText = inputField.val();
-            if(action === "help" && itemText === "") {
-                inputField.css("font-style","italic");
-                inputField.css("color","gray");
-                inputField.val(fieldHelpText);
-            } else if(action === "clear") {
-                if(itemText === fieldHelpText)
-                    inputField.val("");
-                inputField.css("font-style","normal");
-                inputField.css("color","black");
-            }
-        }
-
-        function updatePlusButton() {
-            // get input text
-            var itemText = inputField.val();
-
-            // if text is in the list of valid item values, enable the button
-            var found = findItem(itemText);
-            if(found)
-                enablePlusButton();
-            else
-                // otherwise disable the button
-                disablePlusButton();
-        }
-
-        function findItem(item) {
-            for(let r of resultItems)
-                if(item.toLowerCase() === r.toLowerCase())
-                    return true;
-            return false;
-        }
-
-        /**
-         * Sets the listItems state variable
-         *
-         * @param items (array) list of items to add to the list
-         */
-        function setListItems(items) {
-            // copy the items to a local array
-            listItems = [];
-            if(typeof items !== undefined && items != null && items.length > 0) {
-                for(let u of items) {
-                    listItems.splice(0,0,u);
-                    filterAllowedItems(u);
-                }
-            }
-
-
-            renderListItems();
-        }
-
-        function getListItems() {
-            return listItems;
-        }
-
-        function isEnabled() {
-            return enabled;
-        }
-
-        function removeListItems() {
-            listItems = [];
-            renderListItems();
-        }
-
-        function filterAllowedItems(listItem) {
-            if (resultItems != null)
-            {
-                // remove it from result items
-                resultItems = $.grep(resultItems, function(value) {
-                    return value !== listItem;
-                });
-                inputField.setOptions({data: resultItems});
-            }
-        }
-
-        function addListItem(listItem) {
-            // basic validation
-            if(listItem == null || listItem === "" || typeof listItem === 'undefined')
-                return;
-
-            // dont allow duplicates
-            for(let li of listItems)
-                if(listItem.toLowerCase() === li.toLowerCase())
-                    return;
-
-            // add the new list item
-            listItems.splice(0,0,listItem);
-
-            // clear the input field
-            inputField.val("");
-
-            filterAllowedItems(listItem);
-
-            renderListItems();
-
-            // find where did the element end up
-            var index = -1;
-            for(let li=0; li<listItems.length; li++) {
-                if(listItem === listItems[li]) {
-                    index = li;
-                    break;
-                }
-            }
-
-            // scroll to the new li that we just added
-            var next  = index+1;
-            var newLi = list.find("li:nth-child("+next+")");
-            var liHeight = list.find("li").height();
-            if(index !== -1)
-                scrollPane.scrollTop(index * liHeight);
-
-            // highlight the new li
-            newLi.addClass("perc-ui-listedit-itemselected");
-
-            updatePlusButton();
-        }
-
-        function renderListItems() {
-
-            // sort case insensitive
-            $.perc_utils.sortCaseInsensitive(listItems);
-
-            list.empty();
-            for(u=0; u<listItems.length; u++) {
-                var username = listItems[u];
-                // Build each item via the jQuery DOM API so attacker-controlled
-                // usernames are never concatenated into an HTML string and
-                // parsed back into the DOM. `.attr("id", x)` escapes `x` for
-                // the attribute context; `.text(x)` sets a text node.
-                var $li = $("<li/>");
-                $li.append($("<span/>").text(username));
-                $li.append(
-                    $("<div/>", {
-                        tabindex: "0",
-                        class: "perc-ui-permission-deletebutton",
-                        id: username,
-                        title: "Remove user"
-                    })
-                );
-                list.append($li);
-            }
-
-            // after rendering all the items, attach the delete buttons to a click handler
-            deleteButtons = $(".perc-ui-permission-deletebutton");
-            deleteButtons.on("click",function() {
-                var id = $(this).attr("id");
-                removeListItem(id);
-            });
-			deleteButtons.on("keydown",function() {
-               if(event.code == "Enter" || event.code == "Space"){
-					document.activeElement.click();
-				}
-            });
-        }
-        function removeListItem(listItem) {
-
-            // iterate through the list of items looking for the index of the item to be removed
-            var removeIndex = -1;
-            for(li=0; li<listItems.length; li++)
-                if(listItem === listItems[li]) {
-                    removeIndex = li;
-                    break;
-                }
-
-            if(removeIndex !== -1) {
-                listItems.splice(removeIndex,1);
-
-                if (resultItems != null)
-                {
-                    // add back to result items
-                    resultItems[resultItems.length] = listItem;
-                    $.perc_utils.sortCaseInsensitive(resultItems);
-                    inputField.setOptions({data: resultItems});
-                }
-
-                renderListItems();
-            }
-        }
-
-        function enable() {
-            enabled = true;
-            inputField
-                .prop("disabled",false);
-
-            var inputText = inputField.val();
-            if(inputText !== fieldHelpText)
-                inputField.css("color", "black");
-            if(inputText === "")
-                updateInputField("help");
-
-            scrollPane
-                .removeClass("disabled")
-                .css("color","black");
-            title.css("color","black");
-            deleteButtons.show();
-            updatePlusButton();
-            startAddButton
-                .off("click")
-                .removeClass("disabled")
-                .on("click",function() {
-                    inputFieldDiv.toggle();
-                });
-        }
-
-        function disable() {
-            enabled = false;
-            inputField
-                .prop("disabled", true)
-                .css("color", "gray");
-            scrollPane
-                .addClass("disabled")
-                .css("color","gray");
-            title.css("color","gray");
-            deleteButtons.hide();
-            disablePlusButton();
-            startAddButton
-                .addClass("disabled")
-                .off();
-            list.find("li").removeClass("perc-ui-listedit-itemselected");
-        }
-
-        function disablePlusButton() {
-            plusButton
-                .addClass("disabled")
-				.attr("aria-disabled","true")
-                .off();
-        }
-
-        function enablePlusButton() {
-            plusButton
-                .removeClass("disabled")
-				.attr("aria-disabled","false")
-                .on("click",function() {
-                    var itemText = inputField.val();
-                    addListItem(itemText);
-                })
-				.on("keydown",function(event) {
-                    if(event.code == "Enter" || event.code == "Space"){
-						document.activeElement.click();
-					}
-                });
-        }
-
-        function updateEnableStatus() {
-            var togglerValue = options.toggler.val();
-            if($.inArray(togglerValue, options.toggleroff) !== -1) {
-                disable();
-            } else {
-                enable();
-            }
-        }
-
-        function highlightListItem(listItem) {}
-
-        function scrollToListItem(listItem) {}
+(function ($) {
+  $.PercListEditorWidget = function (options) {
+    var api = {
+      isEnabled: isEnabled,
+      setListItems: setListItems,
+      getListItems: getListItems,
+      removeListItems: removeListItems,
+      addListItem: addListItem,
+      removeListItem: removeListItem,
+      enable: enable,
+      disable: disable,
+      highlightListItem: highlightListItem,
+      scrollToListItem: scrollToListItem,
     };
+
+    // Build the widget's static markup via the jQuery DOM API so
+    // caller-controlled fields (options.title1, options.title2) are
+    // never concatenated into an HTML string and parsed back into the
+    // DOM. jQuery's `.text()` and `.attr()` escape their arguments for
+    // the relevant context.
+    var $header = $("<div/>", { id: "perc-ui-listedit-header" });
+    var $title = $("<div/>", { id: "perc-ui-listedit-title" });
+    $title
+      .append(
+        $("<div/>", { id: "perc-ui-permission-users-title" }).text(
+          options.title1
+        )
+      )
+      .append(
+        $("<div/>", { id: "perc-ui-permission-users-write" }).text(
+          options.title2
+        )
+      )
+      .append($("<div/>", { id: "perc-ui-permission-addstartbutton" }));
+    $header.append($title);
+
+    var $listitemfield = $("<div/>", {
+      id: "perc-ui-listedit-listitemfield",
+    });
+    $listitemfield.append(
+      $("<input/>", {
+        id: "perc-ui-permission-usernamefield",
+        tabindex: "0",
+        title: I18N.message("perc.ui.rolePropsDialog.title@Enter a role"),
+        name: "perc-ui-permission-usernamefield",
+      })
+    );
+    $listitemfield.append(
+      $("<div/>", {
+        id: "perc-ui-permission-plusbutton",
+        tabindex: "0",
+        role: "button",
+        title: I18N.message("perc.ui.rolePropsDialog.title@Add User"),
+      })
+    );
+
+    var $scrollPane = $("<div/>", {
+      id: "perc-ui-permission-user-list-scroll-pane",
+    });
+    var $list = $("<ul/>", { id: "perc-ui-permission-user-list" });
+    var $seedLi = $("<li/>");
+    $seedLi
+      .append($("<span/>").text("Username"))
+      .append(
+        $("<div/>", {
+          tabindex: "0",
+          class: "perc-ui-permission-deletebutton",
+          id: "Username",
+        })
+      );
+    $list.append($seedLi);
+    $scrollPane.append($list);
+
+    // ID of the DIV element where this widget will render
+    var containerId = $("#" + options.container);
+    containerId.empty();
+    containerId.append($header, $listitemfield, $scrollPane);
+
+    // UI elements
+    var list = containerId.find("#perc-ui-permission-user-list");
+    var startAddButton = containerId.find("#perc-ui-permission-addstartbutton");
+    var inputFieldDiv = containerId.find("#perc-ui-listedit-listitemfield");
+    var inputField = containerId.find("#perc-ui-permission-usernamefield");
+    var plusButton = containerId.find("#perc-ui-permission-plusbutton");
+    var scrollPane = containerId.find(
+      "#perc-ui-permission-user-list-scroll-pane"
+    );
+    var title = containerId.find("#perc-ui-listedit-title");
+    var deleteButtons; // these are dynamically created when items are rendered
+
+    // I18N
+    var fieldHelpText = "";
+    if (typeof options.help !== "undefined" && options.help != null)
+      fieldHelpText = options.help;
+    else
+      fieldHelpText = I18N.message(
+        "perc.ui.folderPropsDialog.inputField@Enter a username"
+      );
+
+    // state variables
+    var listItems = [];
+    var enabled = true;
+    var resultItems = null;
+
+    //
+    // setup event handling
+    //
+
+    // listen to changes on the toggler element passed in the options
+    // if the toggler changes, get its value and if it's in the toggle off array, then disable this whole component
+    // otherwise enable it
+    options.toggler.on("change", function () {
+      updateEnableStatus();
+    });
+
+    // show/hide input field to add a new item
+    startAddButton.off("click").on("click", function () {
+      inputFieldDiv.toggle();
+    });
+
+    // handle plus button to add a new item
+    plusButton.on("click", function () {
+      var itemText = inputField.val();
+      addListItem(itemText);
+    });
+    plusButton.on("keydown", function (event) {
+      if (event.code == "Enter" || event.code == "Space") {
+        document.activeElement.click();
+      }
+    });
+
+    // handle enter key to add a new item
+    inputField
+      .on("keypress", function (event) {
+        var code = event.keyCode ? event.keyCode : event.which;
+        var itemText = inputField.val();
+        if (code === 13) if (findItem(itemText)) addListItem(itemText);
+      })
+      .on("click", function () {
+        inputField.trigger("focus");
+        updatePlusButton();
+        updateInputField("clear");
+        list.find("li").removeClass("perc-ui-listedit-itemselected");
+      })
+      .on("keyup", function () {
+        updatePlusButton();
+      })
+      .on("change", function () {
+        updatePlusButton();
+      })
+      .on("blur", function () {
+        updateInputField("help");
+      })
+      .on("focus", function () {
+        updateInputField("clear");
+      });
+
+    if (options.results !== undefined && options.results != null) {
+      resultItems = options.results;
+
+      // add autocomplete to input field
+      inputField
+        .autocomplete(resultItems, {
+          minChars: 0,
+          max: resultItems.length,
+          width: $.browser.msie ? 336 : 334,
+          scrollHeight: 101,
+        })
+        .result(function () {
+          updatePlusButton();
+        });
+    }
+
+    // initialize UI
+    if ($.browser.msie) plusButton.css("margin-right", "18px");
+
+    setListItems(options.items);
+    updateEnableStatus();
+    startAddButton.hide();
+    disablePlusButton();
+    updateInputField("help");
+
+    return api;
+
+    function updateInputField(action) {
+      // get input text
+      var itemText = inputField.val();
+      if (action === "help" && itemText === "") {
+        inputField.css("font-style", "italic");
+        inputField.css("color", "gray");
+        inputField.val(fieldHelpText);
+      } else if (action === "clear") {
+        if (itemText === fieldHelpText) inputField.val("");
+        inputField.css("font-style", "normal");
+        inputField.css("color", "black");
+      }
+    }
+
+    function updatePlusButton() {
+      // get input text
+      var itemText = inputField.val();
+
+      // if text is in the list of valid item values, enable the button
+      var found = findItem(itemText);
+      if (found) enablePlusButton();
+      // otherwise disable the button
+      else disablePlusButton();
+    }
+
+    function findItem(item) {
+      for (let r of resultItems)
+        if (item.toLowerCase() === r.toLowerCase()) return true;
+      return false;
+    }
+
+    /**
+     * Sets the listItems state variable
+     *
+     * @param items (array) list of items to add to the list
+     */
+    function setListItems(items) {
+      // copy the items to a local array
+      listItems = [];
+      if (typeof items !== undefined && items != null && items.length > 0) {
+        for (let u of items) {
+          listItems.splice(0, 0, u);
+          filterAllowedItems(u);
+        }
+      }
+
+      renderListItems();
+    }
+
+    function getListItems() {
+      return listItems;
+    }
+
+    function isEnabled() {
+      return enabled;
+    }
+
+    function removeListItems() {
+      listItems = [];
+      renderListItems();
+    }
+
+    function filterAllowedItems(listItem) {
+      if (resultItems != null) {
+        // remove it from result items
+        resultItems = $.grep(resultItems, function (value) {
+          return value !== listItem;
+        });
+        inputField.setOptions({ data: resultItems });
+      }
+    }
+
+    function addListItem(listItem) {
+      // basic validation
+      if (
+        listItem == null ||
+        listItem === "" ||
+        typeof listItem === "undefined"
+      )
+        return;
+
+      // dont allow duplicates
+      for (let li of listItems)
+        if (listItem.toLowerCase() === li.toLowerCase()) return;
+
+      // add the new list item
+      listItems.splice(0, 0, listItem);
+
+      // clear the input field
+      inputField.val("");
+
+      filterAllowedItems(listItem);
+
+      renderListItems();
+
+      // find where did the element end up
+      var index = -1;
+      for (let li = 0; li < listItems.length; li++) {
+        if (listItem === listItems[li]) {
+          index = li;
+          break;
+        }
+      }
+
+      // scroll to the new li that we just added
+      var next = index + 1;
+      var newLi = list.find("li:nth-child(" + next + ")");
+      var liHeight = list.find("li").height();
+      if (index !== -1) scrollPane.scrollTop(index * liHeight);
+
+      // highlight the new li
+      newLi.addClass("perc-ui-listedit-itemselected");
+
+      updatePlusButton();
+    }
+
+    function renderListItems() {
+      // sort case insensitive
+      $.perc_utils.sortCaseInsensitive(listItems);
+
+      list.empty();
+      for (u = 0; u < listItems.length; u++) {
+        var username = listItems[u];
+        // Build each item via the jQuery DOM API so attacker-controlled
+        // usernames are never concatenated into an HTML string and
+        // parsed back into the DOM. `.attr("id", x)` escapes `x` for
+        // the attribute context; `.text(x)` sets a text node.
+        var $li = $("<li/>");
+        $li.append($("<span/>").text(username));
+        $li.append(
+          $("<div/>", {
+            tabindex: "0",
+            class: "perc-ui-permission-deletebutton",
+            id: username,
+            title: "Remove user",
+          })
+        );
+        // codeql[js/xss-through-dom] reason: $li is a jQuery-wrapped DOM
+        // element built above via the jQuery DOM API; `.append($li)`
+        // attaches the existing element without reparsing any string as
+        // HTML. Attacker-controlled usernames never enter this sink as
+        // a string.
+        list.append($li);
+      }
+
+      // after rendering all the items, attach the delete buttons to a click handler
+      deleteButtons = $(".perc-ui-permission-deletebutton");
+      deleteButtons.on("click", function () {
+        var id = $(this).attr("id");
+        removeListItem(id);
+      });
+      deleteButtons.on("keydown", function () {
+        if (event.code == "Enter" || event.code == "Space") {
+          document.activeElement.click();
+        }
+      });
+    }
+    function removeListItem(listItem) {
+      // iterate through the list of items looking for the index of the item to be removed
+      var removeIndex = -1;
+      for (li = 0; li < listItems.length; li++)
+        if (listItem === listItems[li]) {
+          removeIndex = li;
+          break;
+        }
+
+      if (removeIndex !== -1) {
+        listItems.splice(removeIndex, 1);
+
+        if (resultItems != null) {
+          // add back to result items
+          resultItems[resultItems.length] = listItem;
+          $.perc_utils.sortCaseInsensitive(resultItems);
+          inputField.setOptions({ data: resultItems });
+        }
+
+        renderListItems();
+      }
+    }
+
+    function enable() {
+      enabled = true;
+      inputField.prop("disabled", false);
+
+      var inputText = inputField.val();
+      if (inputText !== fieldHelpText) inputField.css("color", "black");
+      if (inputText === "") updateInputField("help");
+
+      scrollPane.removeClass("disabled").css("color", "black");
+      title.css("color", "black");
+      deleteButtons.show();
+      updatePlusButton();
+      startAddButton
+        .off("click")
+        .removeClass("disabled")
+        .on("click", function () {
+          inputFieldDiv.toggle();
+        });
+    }
+
+    function disable() {
+      enabled = false;
+      inputField.prop("disabled", true).css("color", "gray");
+      scrollPane.addClass("disabled").css("color", "gray");
+      title.css("color", "gray");
+      deleteButtons.hide();
+      disablePlusButton();
+      startAddButton.addClass("disabled").off();
+      list.find("li").removeClass("perc-ui-listedit-itemselected");
+    }
+
+    function disablePlusButton() {
+      plusButton.addClass("disabled").attr("aria-disabled", "true").off();
+    }
+
+    function enablePlusButton() {
+      plusButton
+        .removeClass("disabled")
+        .attr("aria-disabled", "false")
+        .on("click", function () {
+          var itemText = inputField.val();
+          addListItem(itemText);
+        })
+        .on("keydown", function (event) {
+          if (event.code == "Enter" || event.code == "Space") {
+            document.activeElement.click();
+          }
+        });
+    }
+
+    function updateEnableStatus() {
+      var togglerValue = options.toggler.val();
+      if ($.inArray(togglerValue, options.toggleroff) !== -1) {
+        disable();
+      } else {
+        enable();
+      }
+    }
+
+    function highlightListItem(listItem) {}
+
+    function scrollToListItem(listItem) {}
+  };
 })(jQuery);
 
 /*
@@ -89067,310 +89187,386 @@ function htmlEntities(str) {
  * limitations under the License.
  */
 
-(function($) {
-    $.PercRedirectHandler =  {
-        createRedirect: createRedirect
-    };
-    function createRedirect(fromPath, toPath, type)
-    {
-        var deferred = $.Deferred();
-        if(fromPath === toPath){
-            deferred.resolve(I18N.message("perc.ui.redirect.handler@To and From Same"));
-        }
-        else if(!gIsSaaSEnvironment ){
-            deferred.resolve(I18N.message("perc.ui.redirect.handler@SaaS Environment"));
-        }
-        else if(type === $.Perc_SectionServiceClient.PERC_SECTION_TYPE.SECTION_LINK ||
-                type === $.Perc_SectionServiceClient.PERC_SECTION_TYPE.EXTERNAL_LINK ) {
-            deferred.resolve(I18N.message("perc.ui.redirect.handler@Skipping redirect creation"));
-        }
-        else{
-        	// Check for and strip first of double slash if necessary
-        	fromPath = (fromPath.match("^//Sites/")) ? fromPath.substring(1, fromPath.length) : fromPath;
-        	toPath = (toPath.match("^//Sites/")) ? toPath.substring(1, toPath.length) : toPath;
-            var data = {"data":{"fromPath":fromPath, "toPath":toPath, "type":type}};
-            validate(data)
-            .done(function(resData){
-                handleRedirect(fromPath, toPath, resData)
-                .done(function(msg){
-                    deferred.resolve(msg);
-                })
-                .fail(function(errorMsg){
-                    deferred.reject(errorMsg);
-                });
+(function ($) {
+  $.PercRedirectHandler = {
+    createRedirect: createRedirect,
+  };
+  function createRedirect(fromPath, toPath, type) {
+    var deferred = $.Deferred();
+    if (fromPath === toPath) {
+      deferred.resolve(
+        I18N.message("perc.ui.redirect.handler@To and From Same")
+      );
+    } else if (!gIsSaaSEnvironment) {
+      deferred.resolve(
+        I18N.message("perc.ui.redirect.handler@SaaS Environment")
+      );
+    } else if (
+      type === $.Perc_SectionServiceClient.PERC_SECTION_TYPE.SECTION_LINK ||
+      type === $.Perc_SectionServiceClient.PERC_SECTION_TYPE.EXTERNAL_LINK
+    ) {
+      deferred.resolve(
+        I18N.message("perc.ui.redirect.handler@Skipping redirect creation")
+      );
+    } else {
+      // Check for and strip first of double slash if necessary
+      fromPath = fromPath.match("^//Sites/")
+        ? fromPath.substring(1, fromPath.length)
+        : fromPath;
+      toPath = toPath.match("^//Sites/")
+        ? toPath.substring(1, toPath.length)
+        : toPath;
+      var data = { data: { fromPath: fromPath, toPath: toPath, type: type } };
+      validate(data)
+        .done(function (resData) {
+          handleRedirect(fromPath, toPath, resData)
+            .done(function (msg) {
+              deferred.resolve(msg);
             })
-            .fail(function(errorMsg){
-                deferred.reject(errorMsg);
+            .fail(function (errorMsg) {
+              deferred.reject(errorMsg);
             });
-
-        }
-        return deferred.promise();
+        })
+        .fail(function (errorMsg) {
+          deferred.reject(errorMsg);
+        });
     }
-    function validate(data)
-    {
-        var deferred = $.Deferred();
-        var url = $.perc_paths.REDIRECT_ROOT + "validate";
-        $.PercServiceUtils.makeJsonRequest(
-            url,
-            $.PercServiceUtils.TYPE_POST,
-            false,
-            function(status, result)
-            {
-                if(status === $.PercServiceUtils.STATUS_SUCCESS)
-                {
-                    deferred.resolve(result.data);
-                }
-                else
-                {
-                    var defaultMsg = $.PercServiceUtils.extractDefaultErrorMessage(result.request);
-                    deferred.reject(defaultMsg);
-                }
-            },
-            data,
-            function(status)
-            {
-                // On abort(timeout) callback
-                deferred.reject(I18N.message("perc.ui.redirect.handler@Redirect Service Timed Out"));
-            }
+    return deferred.promise();
+  }
+  function validate(data) {
+    var deferred = $.Deferred();
+    var url = $.perc_paths.REDIRECT_ROOT + "validate";
+    $.PercServiceUtils.makeJsonRequest(
+      url,
+      $.PercServiceUtils.TYPE_POST,
+      false,
+      function (status, result) {
+        if (status === $.PercServiceUtils.STATUS_SUCCESS) {
+          deferred.resolve(result.data);
+        } else {
+          var defaultMsg = $.PercServiceUtils.extractDefaultErrorMessage(
+            result.request
+          );
+          deferred.reject(defaultMsg);
+        }
+      },
+      data,
+      function (status) {
+        // On abort(timeout) callback
+        deferred.reject(
+          I18N.message("perc.ui.redirect.handler@Redirect Service Timed Out")
         );
-        return deferred.promise();
+      }
+    );
+    return deferred.promise();
+  }
+  function handleRedirect(fromPath, toPath, resData) {
+    var deferred = $.Deferred();
+
+    fromPathArray = fromPath.split("/");
+    toPathArray = toPath.split("/");
+    fromFileNamePosition = fromPathArray.length - 1;
+    toFileNamePosition = toPathArray.length - 1;
+    currentSite = findSiteFromPath(fromPath);
+
+    sitePropertiesDeferred = $.Deferred();
+    $.PercSiteService.getSiteProperties(currentSite, getSitePropertiesCallback);
+    sitePropertiesDeferred.done(function (result) {
+      siteProperties = result.SiteProperties;
+
+      if (
+        fromPathArray[fromFileNamePosition] ===
+          siteProperties.defaultDocument &&
+        siteProperties.canonicalDist === "sections"
+      ) {
+        fromPath = makeSectionLink(
+          fromPathArray,
+          siteProperties.defaultDocument
+        );
+      }
+
+      if (
+        toPathArray[toFileNamePosition] === siteProperties.defaultDocument &&
+        siteProperties.canonicalDist === "sections"
+      ) {
+        toPath = makeSectionLink(toPathArray, siteProperties.defaultDocument);
+      }
+
+      if (resData.response.status === "Error") {
+        deferred.reject(resData.response.errorMessage);
+      }
+      if (resData.response.status === "NotApplicable") {
+        deferred.resolve(
+          I18N.message("perc.ui.redirect.handler@Redirects Not Applicable")
+        );
+      } else if (resData.response.status === "Published") {
+        showRedirectDialog(fromPath, toPath, resData)
+          .done(function (msg) {
+            deferred.resolve(msg);
+          })
+          .fail(function (msg) {
+            deferred.reject(msg);
+          });
+      } else {
+        deferred.resolve(
+          I18N.message("perc.ui.redirect.handler@Redirect Not Required")
+        );
+      }
+    });
+
+    return deferred.promise();
+  }
+  function makeRedirect(fromPath, toPath, resData) {
+    fromPath = getRelativePath(fromPath);
+    toPath = getRelativePath(toPath);
+    var deferred = $.Deferred();
+    var redLic = resData.response.redirectLicense;
+    var redData = {
+      category: "AUTOGEN",
+      condition: fromPath,
+      enabled: true,
+      key: redLic.key,
+      permanent: true,
+      redirectTo: toPath,
+      site: resData.response.bucketName,
+      type: "CM1",
+    };
+    var authHeader = {
+      id: redLic.key,
+      type: redLic.name,
+      token: redLic.handshake,
+    };
+    $.ajax({
+      type: "POST",
+      beforeSend: function (request) {
+        request.setRequestHeader("Authorization", JSON.stringify(authHeader));
+      },
+      url: redLic.apiProvider + "/rest/redirect/entries?replace=true",
+      data: JSON.stringify(redData),
+      contentType: "application/json",
+    })
+      .done(function (data, status, request) {
+        deferred.resolve(
+          I18N.message("perc.ui.redirect.handler@Created Redirect")
+        );
+      })
+      .fail(function (request, status, errorMsg) {
+        var errMsg = I18N.message(
+          "perc.ui.redirect.handler@Rule Cannot Be Created"
+        );
+        if (request && request.responseText)
+          errMsg = JSON.parse(request.responseText).message;
+        deferred.reject(errMsg);
+      });
+
+    return deferred.promise();
+  }
+
+  function makeSectionLink(originalPathArray, defaultDocument) {
+    originalPathArray.splice(originalPathArray.indexOf(defaultDocument), 1);
+    newPathArray = originalPathArray;
+    newPath = newPathArray.join("/");
+
+    return newPath;
+  }
+
+  function findSiteFromPath(fromPath) {
+    pathArray = fromPath.split("/");
+    return pathArray[2];
+  }
+
+  function getSiteProperties(currentSite) {
+    $.PercSiteService.getSiteProperties(currentSite, getSitePropertiesCallback);
+  }
+
+  function getSitePropertiesCallback(status, result) {
+    if (status === "success") {
+      sitePropertiesDeferred.resolve(result);
+    } else {
+      console.log(
+        I18N.message(
+          "perc.ui.redirect.handler@Could not retrieve site properties"
+        )
+      );
     }
-    function handleRedirect(fromPath, toPath, resData){
+  }
 
-        var deferred = $.Deferred();
+  function showRedirectDialog(fromPath, toPath, resData) {
+    var deferred = $.Deferred();
+    var dialog;
 
-        fromPathArray = fromPath.split('/');
-        toPathArray = toPath.split('/');
-        fromFileNamePosition = (fromPathArray.length - 1);
-        toFileNamePosition = (toPathArray.length - 1);
-        currentSite = findSiteFromPath(fromPath);
+    $.unblockUI();
 
-        sitePropertiesDeferred = $.Deferred();
-        $.PercSiteService.getSiteProperties(currentSite, getSitePropertiesCallback);
-        sitePropertiesDeferred.done(function(result) {
+    percDialogObject = {
+      title: I18N.message("perc.ui.redirect.handler@Manage Redirects"),
+      modal: true,
+      percButtons: {},
+      id: "perc-redirect-dialog",
+      width: 700,
+    };
 
-            siteProperties = result.SiteProperties;
-            
-            if(fromPathArray[fromFileNamePosition] === siteProperties.defaultDocument && siteProperties.canonicalDist === 'sections') {
-                fromPath = makeSectionLink(fromPathArray, siteProperties.defaultDocument);
-            }
-            
-            if(toPathArray[toFileNamePosition] === siteProperties.defaultDocument && siteProperties.canonicalDist === 'sections') {
-                toPath = makeSectionLink(toPathArray, siteProperties.defaultDocument);
-            }
-
-
-            if(resData.response.status === "Error"){
-                deferred.reject(resData.response.errorMessage);
-            }
-            if(resData.response.status === "NotApplicable"){
-                deferred.resolve(I18N.message("perc.ui.redirect.handler@Redirects Not Applicable"));
-            }
-            else if(resData.response.status === "Published"){
-                showRedirectDialog(fromPath, toPath, resData)
-                .done(function(msg){
-                    deferred.resolve(msg);
-                })
-                .fail(function(msg){
-                    deferred.reject(msg);
-                });
-            }
-            else{
-                deferred.resolve(I18N.message("perc.ui.redirect.handler@Redirect Not Required"));
-            }
-
-        });
-
-        return deferred.promise();
-
-    }
-    function makeRedirect(fromPath, toPath, resData){
-        fromPath = getRelativePath(fromPath);
-        toPath = getRelativePath(toPath);
-        var deferred = $.Deferred();
-        var redLic = resData.response.redirectLicense;
-        var redData = {
-           "category":"AUTOGEN",
-           "condition":fromPath,
-           "enabled":true,
-           "key":redLic.key,
-           "permanent":true,
-           "redirectTo":toPath,
-           "site":resData.response.bucketName,
-           "type":"CM1"
-        };
-        var authHeader = {
-            "id":redLic.key,
-            "type":redLic.name,
-            "token":redLic.handshake
-        };
-        $.ajax({
-            type:"POST",
-            beforeSend: function (request)
-            {
-                request.setRequestHeader("Authorization", JSON.stringify(authHeader));
-            },
-            url: redLic.apiProvider + "/rest/redirect/entries?replace=true",
-            data: JSON.stringify(redData),
-            contentType: 'application/json',
-        })
-        .done(function(data, status, request){
-            deferred.resolve(I18N.message("perc.ui.redirect.handler@Created Redirect"));
-        })
-        .fail(function(request, status, errorMsg){
-            var errMsg = I18N.message("perc.ui.redirect.handler@Rule Cannot Be Created");
-            if(request && request.responseText)
-                errMsg = JSON.parse(request.responseText).message;
-            deferred.reject(errMsg);
-        });
-
-        return deferred.promise();
-    }
-
-    function makeSectionLink(originalPathArray, defaultDocument) {
-        originalPathArray.splice(originalPathArray.indexOf(defaultDocument), 1);
-        newPathArray = originalPathArray;
-        newPath = newPathArray.join("/");
-
-        return newPath;
-    }
-
-    function findSiteFromPath(fromPath) {
-        pathArray = fromPath.split('/');
-        return pathArray[2];
-    }
-
-    function getSiteProperties(currentSite) {
-        $.PercSiteService.getSiteProperties(currentSite, getSitePropertiesCallback);
-    }
-
-    function getSitePropertiesCallback(status, result) {
-        if(status === 'success') {
-            sitePropertiesDeferred.resolve(result);
+    percDialogObject.percButtons.Yes = {
+      click: function () {
+        if (!toPath) {
+          toPath = dialog.find("#perc-redirect-to-path").val();
         }
-        else {
-            console.log(I18N.message( "perc.ui.redirect.handler@Could not retrieve site properties" ));
+        if (!toPath) {
+          dialog.find("div.perc_field_error[for=perc-redirect-to-path]").show();
+          return;
+        } else {
+          dialog.find("div.perc_field_error[for=perc-redirect-to-path]").hide();
         }
+        $.PercBlockUI($.PercBlockUIMode.CURSORONLY);
+        makeRedirect(fromPath, toPath, resData)
+          .fail(function (errorMessage) {
+            deferred.reject(errorMessage);
+          })
+          .always(function () {
+            $.unblockUI();
+            dialog.remove();
+            deferred.resolve(
+              I18N.message("perc.ui.redirect.handler@Created Redirect")
+            );
+          });
+      },
+      id: "perc-redirect-yes",
+    };
+
+    percDialogObject.percButtons.No = {
+      click: function () {
+        dialog.remove();
+        deferred.resolve(
+          I18N.message(
+            "perc.ui.redirect.handler@User doesn't want to create redirect"
+          )
+        );
+      },
+      id: "perc-redirect-no",
+    };
+
+    dialog = $(createDialogHtml(fromPath, toPath)).perc_dialog(
+      percDialogObject
+    );
+    addBrowseHandler(dialog);
+    return deferred.promise();
+  }
+  function createDialogHtml(fromPath, toPath) {
+    var dialogHtml = $("<div/>", { id: "perc-redirect-container" });
+    dialogHtml.append(
+      $("<div/>").append(
+        $("<label/>").text(I18N.message("perc.ui.redirect.handler@Page Not Found")),
+        $("<br/>"),
+        $("<br/>")
+      )
+    );
+    dialogHtml.append(
+      $("<div/>").append(
+        $("<label/>").text("From path:"),
+        $("<br/>")
+      )
+    );
+    dialogHtml.append(
+      // codeql[js/xss-through-dom] reason: `.text(getRelativePath(...))`
+      // sets a text node and is HTML-safe; the path value is never
+      // concatenated into an HTML string and re-parsed.
+      $("<div/>")
+        .addClass("readonlyinput")
+        .text(getRelativePath(fromPath))
+    );
+    dialogHtml.append($("<br/>"));
+    dialogHtml.append(
+      $("<div/>").append(
+        $("<label/>").text("To path:"),
+        $("<br/>")
+      )
+    );
+    if (toPath) {
+      dialogHtml.append(
+        // codeql[js/xss-through-dom] reason: `.text(getRelativePath(...))`
+        // sets a text node and is HTML-safe; the path value is never
+        // concatenated into an HTML string and re-parsed.
+        $("<div/>")
+          .addClass("readonlyinput")
+          .text(getRelativePath(toPath))
+      );
+    } else {
+      dialogHtml.append(
+        $("<div/>").append(
+          $("<input/>")
+            .attr("type", "text")
+            .addClass("required")
+            .attr("readonly", "true")
+            .attr("name", "perc-redirect-to-path")
+            .attr("id", "perc-redirect-to-path"),
+          $("<img/>")
+            .attr("id", "perc-redirect-to-path-button")
+            .attr("src", "../images/images/buttonEllipse.png")
+            .addClass("perc-button-ellipse")
+        )
+      );
+      dialogHtml.append(
+        $("<div/>")
+          .attr("for", "perc-redirect-to-path")
+          .addClass("perc_field_error")
+          .css("display", "none")
+          .text(I18N.message("perc.ui.redirect.handler@To path is required"))
+      );
     }
+    return dialogHtml;
+  }
+  function addBrowseHandler(dialog) {
+    dialog.find("#perc-redirect-to-path-button").on("click", function () {
+      var dlgTitle = I18N.message("perc.ui.redirect.handler@Select Path");
+      var treeLabel = I18N.message("perc.ui.redirect.handler@To Path");
+      var updateToPath = function (pathItem) {
+        var path = pathItem.path;
+        //Add double slash if path doesn't start with //
+        if (path.substring(0, 1) === "/" && path.substring(0, 2) === "//")
+          path = "/" + path;
 
-    function showRedirectDialog(fromPath, toPath, resData){
-        var deferred = $.Deferred();
-        var dialog;
-
-
-
-        $.unblockUI();
-
-        percDialogObject = {
-             title: I18N.message("perc.ui.redirect.handler@Manage Redirects"),
-             modal: true,
-             percButtons:   {},
-            id: "perc-redirect-dialog",
-            width: 700
-        };
-
-        percDialogObject.percButtons.Yes = {
-                    click: function()   {
-                        if(!toPath){
-                            toPath = dialog.find("#perc-redirect-to-path").val();
-                        }
-                        if(!toPath){
-                            dialog.find("div.perc_field_error[for=perc-redirect-to-path]").show();
-                            return;
-                        }
-                        else{
-                            dialog.find("div.perc_field_error[for=perc-redirect-to-path]").hide();
-                        }
-                        $.PercBlockUI($.PercBlockUIMode.CURSORONLY);
-                        makeRedirect(fromPath, toPath, resData)
-                        .fail(function(errorMessage){
-                            deferred.reject(errorMessage);
-                        })
-                        .always(function(){
-                            $.unblockUI();
-                            dialog.remove();
-                            deferred.resolve(I18N.message("perc.ui.redirect.handler@Created Redirect"));
-                        });
-                    },
-                    id: "perc-redirect-yes"
-                };
-
-        percDialogObject.percButtons.No = {
-                    click: function()   {
-                        dialog.remove();
-                        deferred.resolve(I18N.message("perc.ui.redirect.handler@User doesn't want to create redirect"));
-                    },
-                    id: "perc-redirect-no"
-                };
-
-        dialog = $(createDialogHtml(fromPath, toPath)).perc_dialog(percDialogObject);
-        addBrowseHandler(dialog);
-        return deferred.promise();
-
-    }
-    function createDialogHtml(fromPath, toPath){
-        var dialogHtml = $("<div/>",{"id":"perc-redirect-container"});
-        dialogHtml.append('<div><label>' +I18N.message("perc.ui.redirect.handler@Page Not Found") + '</label><br/><br/></div>');
-        dialogHtml.append('<div><label>From path:</label><br/></div>');
-        dialogHtml.append('<div class="readonlyinput">'+ getRelativePath(fromPath) +'</div><br/>');
-        dialogHtml.append('<div><label>To path:</label><br/></div>');
-        if(toPath){
-            dialogHtml.append('<div class="readonlyinput">'+ getRelativePath(toPath) +'</div>');
+        //Some of the services from server are not setting the path on PathItem, if not defined get it from folderPaths
+        if (!path) {
+          path = pathItem.folderPaths.split("$System$")[1];
         }
-        else{
-            dialogHtml.append("<div><input type='text' class='required' readonly='true' name='perc-redirect-to-path' id='perc-redirect-to-path'/><img id='perc-redirect-to-path-button' src='../images/images/buttonEllipse.png' class='perc-button-ellipse'/></div>");
-            dialogHtml.append("<div for='perc-redirect-to-path' class='perc_field_error' style='display:none'>" + I18N.message("perc.ui.redirect.handler@To path is required") + "</div>");
-        }
-        return dialogHtml;
+        path = getRelativePath(path);
+        dialog.find("#perc-redirect-to-path").val(path).attr("title", path);
+      };
+      var validator = function (pathItem) {
+        var errMsg = null;
+        if (!pathItem)
+          errMsg = I18N.message(
+            "perc.ui.redirect.handler@Select Folder or Page"
+          );
+        else if (pathItem.path === "/Sites/")
+          errMsg = I18N.message(
+            "perc.ui.redirect.handler@Current Selection Sites Root"
+          );
+        else if (pathItem.type === "site")
+          errMsg = I18N.message(
+            "perc.ui.redirect.handler@Current Selection Site"
+          );
+        return errMsg;
+      };
+      var pathSelectionOptions = {
+        okCallback: updateToPath,
+        dialogTitle: dlgTitle,
+        rootPath: "Sites",
+        initialPath: dialog.find("#perc-convert-folder-path").val(),
+        selectedItemValidator: validator,
+        showFoldersOnly: false,
+      };
+      $.PercPathSelectionDialog.open(pathSelectionOptions);
+    });
+  }
+  function getRelativePath(path) {
+    path = path.replace("//Sites/", "");
+    path = path.replace("/Sites/", "");
+    path = path.substring(path.indexOf("/"));
+    if (path.charAt(path.length - 1) === "/") {
+      path = path.substr(0, path.length - 1);
     }
-    function addBrowseHandler(dialog){
-        dialog.find("#perc-redirect-to-path-button").on("click",function(){
-            var dlgTitle = I18N.message("perc.ui.redirect.handler@Select Path");
-            var treeLabel = I18N.message("perc.ui.redirect.handler@To Path");
-            var updateToPath = function(pathItem){
-                var path = pathItem.path;
-                //Add double slash if path doesn't start with //
-                if(path.substring(0, 1) === "/" && (path.substring(0, 2) === "//"))
-                    path = "/" + path;
-
-                //Some of the services from server are not setting the path on PathItem, if not defined get it from folderPaths
-                if(!path){
-                    path = pathItem.folderPaths.split("$System$")[1];
-                }
-                path = getRelativePath(path);
-                dialog.find("#perc-redirect-to-path").val(path).attr("title",path);
-            };
-            var validator = function(pathItem){
-                var errMsg = null;
-                if(!pathItem)
-                    errMsg = I18N.message("perc.ui.redirect.handler@Select Folder or Page");
-                else if(pathItem.path==="/Sites/")
-                    errMsg = I18N.message("perc.ui.redirect.handler@Current Selection Sites Root");
-                else if(pathItem.type==="site")
-                    errMsg = I18N.message("perc.ui.redirect.handler@Current Selection Site");
-                return errMsg;
-            };
-            var pathSelectionOptions = {
-                okCallback: updateToPath,
-                dialogTitle: dlgTitle,
-                rootPath:"Sites",
-                initialPath: dialog.find("#perc-convert-folder-path" ).val(),
-                selectedItemValidator:validator,
-                showFoldersOnly:false
-            };
-            $.PercPathSelectionDialog.open(pathSelectionOptions);
-        });
-    }
-    function getRelativePath(path){
-        path = path.replace("//Sites/","");
-        path = path.replace("/Sites/","");
-        path = path.substring(path.indexOf("/"));
-        if(path.charAt(path.length-1) === "/")
-        {
-            path = path.substr(0, path.length - 1);
-        }
-        return path;
-    }
+    return path;
+  }
 })(jQuery);
 
 /*
