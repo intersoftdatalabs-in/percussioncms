@@ -502,6 +502,16 @@
                 </exclusion>
             </exclusions>
         </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-api</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-engine</artifactId>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
     <build>
         <finalName>delivery-tier-distribution</finalName>
@@ -855,6 +865,65 @@
                     </archive>
                 </configuration>
             </plugin>
+            <!--
+              GH-1180: MainDTSPreInstall uses PathValidation (ZipSlip) but java -jar runs
+              a thin jar with no Class-Path. Shade only the preinstall runtime types needed
+              for extractArchive — not a full jar-with-dependencies (wars/Tomcat/Spring).
+              CMS installer (perc-distribution-tree) uses fat jar-with-dependencies instead.
+            -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>shade-preinstall-security</id>
+                        <goals>
+                            <goal>shade</goal>
+                        </goals>
+                        <phase>package</phase>
+                        <configuration>
+                            <createDependencyReducedPom>false</createDependencyReducedPom>
+                            <promoteTransitiveDependencies>false</promoteTransitiveDependencies>
+                            <shadedArtifactAttached>false</shadedArtifactAttached>
+                            <filters>
+                                <filter>
+                                    <artifact>*:*</artifact>
+                                    <excludes>
+                                        <exclude>META-INF/*.SF</exclude>
+                                        <exclude>META-INF/*.DSA</exclude>
+                                        <exclude>META-INF/*.RSA</exclude>
+                                        <exclude>META-INF/MANIFEST.MF</exclude>
+                                    </excludes>
+                                </filter>
+                                <!--
+                                  Only PathValidation (+ nested types) is required at preinstall
+                                  runtime today. Keep the filter tight so future bloat in
+                                  perc-security-utils is not pulled into the DTS installer jar.
+                                -->
+                                <filter>
+                                    <artifact>com.percussion:perc-security-utils</artifact>
+                                    <includes>
+                                        <include>com/percussion/security/validation/PathValidation.class</include>
+                                        <include>com/percussion/security/validation/PathValidation$*.class</include>
+                                    </includes>
+                                </filter>
+                            </filters>
+                            <artifactSet>
+                                <includes>
+                                    <include>com.percussion:perc-security-utils</include>
+                                    <!-- PathValidation static logger uses LogManager -->
+                                    <include>org.apache.logging.log4j:log4j-api</include>
+                                </includes>
+                            </artifactSet>
+                            <transformers>
+                                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                                    <mainClass>com.percussion.preinstall.MainDTSPreInstall</mainClass>
+                                </transformer>
+                            </transformers>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-antrun-plugin</artifactId>
@@ -892,6 +961,39 @@
                                 <delete dir="${assembly-directory}/Deployment/Server/webapps/manager"/>
                                 <delete dir="${assembly-directory}/Deployment/Server/webapps/host-manager"/>
                                 <delete file="${assembly-directory}/Deployment/Server/conf/logging.properties"/>
+                            </target>
+                        </configuration>
+                    </execution>
+                    <!--
+                      GH-1180 regression gate: the packaged installer jar must contain
+                      PathValidation after the minimal shade. Runs on every verify so a
+                      future pom change cannot drop the shade without failing the build.
+                    -->
+                    <execution>
+                        <id>verify-pathvalidation-shaded</id>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                        <phase>verify</phase>
+                        <configuration>
+                            <target>
+                                <property name="dts.installer.jar" location="${project.build.directory}/${project.build.finalName}.jar"/>
+                                <available file="${dts.installer.jar}" property="dts.installer.jar.exists"/>
+                                <fail unless="dts.installer.jar.exists" message="DTS installer jar missing: ${dts.installer.jar}"/>
+                                <!-- Portable: jar tool is on the JDK used by Maven; works on Windows/Linux/macOS -->
+                                <exec executable="jar" outputproperty="dts.installer.listing" failonerror="true">
+                                    <arg value="tf"/>
+                                    <arg file="${dts.installer.jar}"/>
+                                </exec>
+                                <condition property="dts.has.pathvalidation">
+                                    <contains string="${dts.installer.listing}" substring="com/percussion/security/validation/PathValidation.class"/>
+                                </condition>
+                                <fail unless="dts.has.pathvalidation" message="GH-1180: ${dts.installer.jar} is missing PathValidation.class — minimal shade of perc-security-utils failed or was removed."/>
+                                <condition property="dts.has.log4j.api">
+                                    <contains string="${dts.installer.listing}" substring="org/apache/logging/log4j/LogManager.class"/>
+                                </condition>
+                                <fail unless="dts.has.log4j.api" message="GH-1180: ${dts.installer.jar} is missing log4j-api (LogManager) required by PathValidation."/>
+                                <echo message="GH-1180: PathValidation + log4j-api present in ${dts.installer.jar}"/>
                             </target>
                         </configuration>
                     </execution>

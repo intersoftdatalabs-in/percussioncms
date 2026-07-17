@@ -223,8 +223,10 @@ public class MainDTSPreInstall {
               System.out.println("Warning: could not set executable bit on " + entryDest);
             }
           }
-        } catch (SecurityException se) {
-          // ZipSlip attack detected - skip malicious entry
+        } catch (PathValidation.SecurityException | SecurityException se) {
+          // ZipSlip / path traversal rejected by PathValidation (CWE-22).
+          // PathValidation throws its nested SecurityException (RuntimeException),
+          // not java.lang.SecurityException — catch both so either form is skipped.
           System.out.println("Security: Rejected malicious zip entry: " + entryName);
         }
       }
