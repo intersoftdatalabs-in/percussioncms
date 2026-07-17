@@ -81,8 +81,11 @@ public class PSSQLStatement implements Statement {
 
   // Implements Statement.executeQuery(String)
   public ResultSet executeQuery(String sql) throws SQLException {
-    startTimer(sql);
-    ResultSet rs = m_stmt.executeQuery(sql);
+    // CWE-89 / java/sql-injection #661: reject stacked queries / comment smuggling at the
+    // Statement wrapper boundary. Callers should prefer PreparedStatement for user values.
+    String safeSql = requireSingleSqlStatement(sql);
+    startTimer(safeSql);
+    ResultSet rs = m_stmt.executeQuery(safeSql);
     logElapsedTime();
 
     return rs;
@@ -90,8 +93,9 @@ public class PSSQLStatement implements Statement {
 
   // Implements Statement.executeUpdate(String)
   public int executeUpdate(String sql) throws SQLException {
-    startTimer(sql);
-    int rs = m_stmt.executeUpdate(sql);
+    String safeSql = requireSingleSqlStatement(sql);
+    startTimer(safeSql);
+    int rs = m_stmt.executeUpdate(safeSql);
     logElapsedTime();
 
     return rs;
@@ -419,5 +423,27 @@ public class PSSQLStatement implements Statement {
   @Override
   public boolean isCloseOnCompletion() throws SQLException {
     throw new UnsupportedOperationException("This method is not yet implemented");
+  }
+
+  /**
+   * Rejects multi-statement SQL and classic comment-smuggling sequences (java/sql-injection #661).
+   * One trailing semicolon is tolerated; any other {@code ;} or SQL comment markers are rejected.
+   */
+  static String requireSingleSqlStatement(String sql) {
+    if (sql == null || sql.trim().isEmpty()) {
+      throw new IllegalArgumentException("sql may not be null or empty");
+    }
+    String trimmed = sql.trim();
+    if (trimmed.endsWith(";")) {
+      trimmed = trimmed.substring(0, trimmed.length() - 1).trim();
+    }
+    if (trimmed.indexOf(';') >= 0) {
+      throw new IllegalArgumentException("Multi-statement SQL is not allowed");
+    }
+    String lower = trimmed.toLowerCase();
+    if (lower.contains("--") || lower.contains("/*")) {
+      throw new IllegalArgumentException("SQL comments are not allowed");
+    }
+    return trimmed;
   }
 }

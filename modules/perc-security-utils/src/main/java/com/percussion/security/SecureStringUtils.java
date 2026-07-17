@@ -1365,6 +1365,75 @@ public class SecureStringUtils {
   }
 
   /**
+   * Unquoted SQL object name pattern (table, column, schema, catalog): letter or underscore start,
+   * then letters, digits, or underscore only. Rejects quotes, spaces, semicolons, comments, and
+   * path-like traversal that enable classic SQL injection when names are concatenated into SQL.
+   *
+   * <p>Used as a fail-closed barrier before identifier concatenation (CodeQL {@code
+   * java/sql-injection}). Prefer parameterized queries for values; use this only for object names
+   * that cannot be bound as parameters.
+   */
+  private static final Pattern SQL_OBJECT_NAME = Pattern.compile("^[A-Za-z_][A-Za-z0-9_]*$");
+
+  /**
+   * Metadata property / order-by token pattern (e.g. {@code dcterms:created}, {@code linktext}).
+   * Allows letters, digits, underscore, colon, dot, and hyphen — no quotes, spaces, or SQL
+   * metacharacters.
+   */
+  private static final Pattern SAFE_METADATA_TOKEN = Pattern.compile("^[A-Za-z0-9_.:-]+$");
+
+  /**
+   * Validates a SQL object name (table, column, schema, catalog) before it is concatenated into
+   * SQL. Returns the same string if valid.
+   *
+   * @param name candidate identifier, must not be null or empty
+   * @return {@code name} when it matches {@link #SQL_OBJECT_NAME}
+   * @throws IllegalArgumentException if {@code name} is null, empty, or contains characters that
+   *     are not allowed in an unquoted SQL identifier
+   */
+  public static String requireSqlObjectName(String name) {
+    if (name == null || name.isEmpty()) {
+      throw new IllegalArgumentException("SQL object name may not be null or empty");
+    }
+    if (!SQL_OBJECT_NAME.matcher(name).matches()) {
+      throw new IllegalArgumentException(
+          "Invalid SQL object name (expected unquoted identifier): " + name);
+    }
+    return name;
+  }
+
+  /**
+   * Optional SQL object name: {@code null} or blank becomes {@code null}; otherwise validated via
+   * {@link #requireSqlObjectName(String)}.
+   *
+   * @param name may be null or blank
+   * @return null if blank, otherwise the validated name
+   */
+  public static String requireSqlObjectNameOrNull(String name) {
+    if (name == null || name.trim().isEmpty()) {
+      return null;
+    }
+    return requireSqlObjectName(name.trim());
+  }
+
+  /**
+   * Validates a metadata property or order-by field token (not a free-form SQL fragment).
+   *
+   * @param token candidate token
+   * @return {@code token} when valid
+   * @throws IllegalArgumentException if invalid
+   */
+  public static String requireSafeMetadataToken(String token) {
+    if (token == null || token.isEmpty()) {
+      throw new IllegalArgumentException("Metadata token may not be null or empty");
+    }
+    if (!SAFE_METADATA_TOKEN.matcher(token).matches()) {
+      throw new IllegalArgumentException("Invalid metadata token: " + token);
+    }
+    return token;
+  }
+
+  /**
    * Utility to sanitize a string for use in a SQL statement.
    *
    * @param str User provided string
