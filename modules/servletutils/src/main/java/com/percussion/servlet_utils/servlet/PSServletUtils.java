@@ -335,7 +335,10 @@ public class PSServletUtils {
         i++;
       }
       if (dotRun == 2
-          && (start == 0 || path.charAt(start - 1) == '/' || path.charAt(start - 1) == '?')
+          && (start == 0
+              || path.charAt(start - 1) == '/'
+              || path.charAt(start - 1) == '?'
+              || path.charAt(start - 1) == '#')
           && (i == len
               || path.charAt(i) == '/'
               || path.charAt(i) == '?'

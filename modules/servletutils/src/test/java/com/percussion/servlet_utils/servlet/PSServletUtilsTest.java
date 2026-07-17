@@ -261,6 +261,22 @@ public class PSServletUtilsTest {
     assertEquals(false, PSServletUtils.containsTraversal("/.../bar"));
   }
 
+  @Test
+  @DisplayName(
+      "containsTraversal: '#' is treated as a segment boundary (defense-in-depth symmetry"
+          + " with '?')")
+  void testContainsTraversalHashBoundary() {
+    // The '..' immediately after a fragment boundary '#' is treated as a traversal
+    // segment for symmetry with '?'. The servlet container typically strips '#fragment'
+    // before getRequestDispatcher sees it, so this is defense-in-depth, but it
+    // closes a class of synthetic inputs that would otherwise slip through.
+    assertEquals(true, PSServletUtils.containsTraversal("/foo#.."));
+    assertEquals(true, PSServletUtils.containsTraversal("/foo#../bar"));
+    assertEquals(true, PSServletUtils.containsTraversal("/foo#..?id=1"));
+    // Plain '..' with no boundary char is still rejected.
+    assertEquals(true, PSServletUtils.containsTraversal("foo#bar/.."));
+  }
+
   // ---------- getDispatcher() end-to-end: container wiring ----------
 
   @Test
@@ -273,9 +289,6 @@ public class PSServletUtilsTest {
         () -> PSServletUtils.getDispatcher("/app/../etc/passwd"),
         "validateForwardPath must run before m_servletContext.getRequestDispatcher so a"
             + " not-yet-initialized context cannot bypass validation");
-    assertNotNull(
-        IllegalArgumentException.class,
-        "sanity: IllegalArgumentException is resolvable on this classpath");
   }
 
   @Test
