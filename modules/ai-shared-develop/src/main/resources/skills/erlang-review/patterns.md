@@ -42,14 +42,12 @@
 - Vacuous assertions (`message != null || cause != null`) that any exception would pass
 - Tests that only assert “something was thrown” without SSRF/validation keywords are too weak for security helpers
 - Tests must not depend on uncommitted fixtures or wrong absolute/base directories for path-safety cases
-- When a fix is duplicated across lockstep-copy files, regression tests that load only one copy leave the others undetected on future drift — acceptable if it matches existing repo convention, but flag as a suggestion
 
 ### Security / config
 
 - Passwords or secrets on process command lines (`-D…`) instead of temp file (mode-restricted) or env
 - SSRF / path / LDAP sanitizers without behavioral tests on rejection paths
 - Broad whole-file CodeQL path excludes without documenting residual risk and runtime tests
-- XSS-through-DOM fixes (jQuery `.append(htmlString)` → `$("<tag></tag>").attr()/.text()`) often have sibling sinks elsewhere using the same string-concat pattern that weren't in the current alert batch — flag as a follow-up suggestion, not a blocker for the in-scope fix
 
 ### Cross-platform / I/O
 
