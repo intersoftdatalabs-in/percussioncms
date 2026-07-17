@@ -40,6 +40,9 @@ updates:
       - dependency-name: "org.aspectj:*"
         versions:
           - ">=1.9.8"
+      - dependency-name: "org.apache.myfaces.core:*"
+        versions:
+          - ">=3"
       - dependency-name: "org.apache.felix:maven-bundle-plugin"
         versions:
           - ">=6"
@@ -83,7 +86,7 @@ updates:
         versions:
           - ">=2.9"
       - dependency-name: "com.percussion:*"
-        versions: [">=0"]
+        versions: [">= 0"]
       - dependency-name: "org.dom4j:dom4j"
         versions:
           - ">=2.2.0"
@@ -133,10 +136,11 @@ updates:
         versions:
           - ">=5.2"
       # Jakarta namespace - all Jakarta dependencies require Java 11+
-      # (Must include versions: Dependabot rejects ignore rules with only dependency-name.)
       - dependency-name: "jakarta.*:*"
+      # Trinidad 3.x requires Jakarta namespace
+      - dependency-name: "org.apache.myfaces.trinidad:*"
         versions:
-          - ">=0"
+          - ">=3"
       # XML APIs 2.x may require Java 9+
       - dependency-name: "xml-apis:xml-apis"
         versions:
@@ -166,7 +170,8 @@ updates:
           - ">20090531"
       - dependency-name: "com.microsoft.sqlserver:mssql-jdbc"
         versions:
-          - ">=13"
+          - ">=*jre11*"
+          - ">=13.3.1.jre11-preview"
       - dependency-name: "com.fasterxml.jackson.core:*"
         versions:
           - ">=2.18.0"
@@ -196,4 +201,4 @@ updates:
         versions:
           - ">=2"
       - dependency-name: "com.percussion:*"
-        versions: [">=0"]
+        versions: [">= 0"]
