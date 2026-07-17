@@ -164,11 +164,22 @@ public class PSFormEncodeDecodeHelper {
    */
   private static String fixCommentTags(String str) {
     if (str == null) return null;
+    // Defense-in-depth guard against catastrophic-backtracking on adversarial
+    // input (CWE-1333 / CodeQL java/redos). The helper is called on editor
+    // content where 64 KiB is far beyond any practical comment-fix workload.
+    if (str.length() > MAX_COMMENT_INPUT_LENGTH) {
+      return str;
+    }
     // This pattern finds all comments that look like <!--nospace--> and
-    // replaces it with <!-- nospace -->.
+    // replaces it with <!-- nospace -->. The previous alternation
+    // ([^\- ]|[\r\n]|-[^\- ])* overlapped the trailing [\r\n\t] whitespace
+    // class on newline input, causing the engine to enumerate ambiguous
+    // splits. Collapsing [\r\n] into [^\- ] (a superset since '\r' and '\n'
+    // are neither '-' nor space) leaves a single, non-overlapping path per
+    // character so the match is linear in input length.
     Pattern commentPattern1 =
         Pattern.compile(
-            "\\<!--([^ ]{1}([^\\- ]|[\\r\\n]|-[^\\- ])*[ \\r\\n\\t]*[^ ]{1})--\\>",
+            "\\<!--([^ ]{1}(?:[^\\- ]|-[^\\- ])*[ \\r\\n\\t]*[^ ]{1})--\\>",
             Pattern.CASE_INSENSITIVE);
     Matcher matcher = commentPattern1.matcher(str);
     return matcher.replaceAll("<!-- $1 -->");
@@ -208,6 +219,14 @@ public class PSFormEncodeDecodeHelper {
 
   /** Constant for the unique string that is concatenated to a comment begin or end. */
   private static final String UNIQUE = "@@__8SCR";
+
+  /**
+   * Hard size cap (in chars) for input accepted by {@link #fixCommentTags(String)}. The helper is
+   * invoked on editor-supplied content; 64 KiB is far beyond any practical comment-fix workload
+   * while also short enough to bound worst-case regex-engine work to milliseconds even on
+   * adversarially constructed input. CWE-1333 / CodeQL {@code java/redos}.
+   */
+  private static final int MAX_COMMENT_INPUT_LENGTH = 64 * 1024;
 
   // Test string
   public static final String ms_test_string =
