@@ -4,6 +4,14 @@
 
 - Read modules/perc-jetty/README.md before making changes in this module.
 
+## Logging (perc-logging / Log4j2)
+
+- Config: `src/main/jetty/defaults/modules/perc-logging/resources/log4j2.xml`
+- GH-939: size rotate **10 MB**, keep **10** rolled files, **Delete** older dated
+  archives via `IfAccumulatedFileCount` (do not rely on `max` alone with `%d` patterns).
+- Tests: `src/test/java/com/percussion/jetty/logging/PercLoggingLog4j2ConfigTest.java`
+  (surefire is explicitly bound because this module is `packaging=pom`).
+
 ## Embedded Messaging
 
 - Embedded JMS broker uses Apache Artemis, not ActiveMQ Classic.

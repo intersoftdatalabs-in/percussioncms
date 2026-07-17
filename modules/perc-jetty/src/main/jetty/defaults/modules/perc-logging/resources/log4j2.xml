@@ -1,49 +1,83 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Percussion Jetty application logging (perc-logging module).
+
+  GH-939 / migrated #1278: size-based rotation at 10 MB and keep only the latest
+  10 rolled files per appender. DefaultRolloverStrategy max="10" alone only caps
+  the %i counter within a date window when filePattern contains %d{yyyy-MM-dd};
+  without a Delete/IfAccumulatedFileCount policy, dated files accumulate forever.
+  The Delete action below enforces a global count of rolled archives (same pattern
+  as DTS Tomcat log4j2-tomcat.xml).
+-->
 <Configuration status="warn" monitorInterval="30">
+	<Properties>
+		<!-- logs/ sits next to the modules/ tree under jetty base -->
+		<Property name="logdir">${log4j:configParentLocation}/../logs</Property>
+	</Properties>
 	<Appenders>
 		<RollingFile name="FILE"
-			fileName="${log4j:configParentLocation}/../logs/server.log"
-			filePattern="${log4j:configParentLocation}/../logs/server-%d{yyyy-MM-dd}-%i.log">
+			fileName="${logdir}/server.log"
+			filePattern="${logdir}/server-%d{yyyy-MM-dd}-%i.log">
 			<PatternLayout
 				header="${sys:rxdeploydir} ${java:runtime} - ${java:vm} - ${java:os}"
 				pattern="%d %-5p [%c] %m%n" />
 			<Policies>
 				<SizeBasedTriggeringPolicy size="10 MB" />
 			</Policies>
-			<DefaultRolloverStrategy max="10" />
+			<DefaultRolloverStrategy max="10">
+				<Delete basePath="${logdir}" maxDepth="1">
+					<IfFileName glob="server-*.log" />
+					<IfAccumulatedFileCount exceeds="10" />
+				</Delete>
+			</DefaultRolloverStrategy>
 		</RollingFile>
 		<RollingFile name="RXGLOBALTEMPLATES"
-			fileName="${log4j:configParentLocation}/../logs/globaltemplate.log"
-			filePattern="${log4j:configParentLocation}/../logs/globaltemplate-%d{yyyy-MM-dd}-%i.log">
+			fileName="${logdir}/globaltemplate.log"
+			filePattern="${logdir}/globaltemplate-%d{yyyy-MM-dd}-%i.log">
 			<PatternLayout>
 				<Pattern>%d %p %c{1.} [%t] %m%n</Pattern>
 			</PatternLayout>
 			<Policies>
 				<SizeBasedTriggeringPolicy size="10 MB" />
 			</Policies>
-			<DefaultRolloverStrategy max="10" />
+			<DefaultRolloverStrategy max="10">
+				<Delete basePath="${logdir}" maxDepth="1">
+					<IfFileName glob="globaltemplate-*.log" />
+					<IfAccumulatedFileCount exceeds="10" />
+				</Delete>
+			</DefaultRolloverStrategy>
 		</RollingFile>
 		<RollingFile name="VELOCITY"
-			fileName="${log4j:configParentLocation}/../logs/velocity.log"
-			filePattern="${log4j:configParentLocation}/../logs/velocity-%d{yyyy-MM-dd}-%i.log">
+			fileName="${logdir}/velocity.log"
+			filePattern="${logdir}/velocity-%d{yyyy-MM-dd}-%i.log">
 			<PatternLayout>
 				<Pattern>%d %p %c{1.} [%t] %m%n</Pattern>
 			</PatternLayout>
 			<Policies>
 				<SizeBasedTriggeringPolicy size="10 MB" />
 			</Policies>
-			<DefaultRolloverStrategy max="10" />
+			<DefaultRolloverStrategy max="10">
+				<Delete basePath="${logdir}" maxDepth="1">
+					<IfFileName glob="velocity-*.log" />
+					<IfAccumulatedFileCount exceeds="10" />
+				</Delete>
+			</DefaultRolloverStrategy>
 		</RollingFile>
 		<RollingFile name="RevisionPurgeApp"
-			fileName="${log4j:configParentLocation}/../logs/revisionPurge.log"
-			filePattern="${log4j:configParentLocation}/../logs/revisionPurge-%d{yyyy-MM-dd}-%i.log">
+			fileName="${logdir}/revisionPurge.log"
+			filePattern="${logdir}/revisionPurge-%d{yyyy-MM-dd}-%i.log">
 			<PatternLayout>
 				<Pattern>%d %p %c{1.} [%t] %m%n</Pattern>
 			</PatternLayout>
 			<Policies>
 				<SizeBasedTriggeringPolicy size="10 MB" />
 			</Policies>
-			<DefaultRolloverStrategy max="10" />
+			<DefaultRolloverStrategy max="10">
+				<Delete basePath="${logdir}" maxDepth="1">
+					<IfFileName glob="revisionPurge-*.log" />
+					<IfAccumulatedFileCount exceeds="10" />
+				</Delete>
+			</DefaultRolloverStrategy>
 		</RollingFile>
 		<Console name="CONSOLE" target="SYSTEM_OUT">
 			<PatternLayout pattern="%d{ABSOLUTE} %-5p [%c{1}] %m%n" />
