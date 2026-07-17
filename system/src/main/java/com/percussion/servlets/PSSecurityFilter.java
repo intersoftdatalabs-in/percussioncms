@@ -29,6 +29,7 @@ import com.percussion.security.PSSecurityToken;
 import com.percussion.security.PSUserEntry;
 import com.percussion.security.SecureStringUtils;
 import com.percussion.security.error.PSExceptionUtils;
+import com.percussion.security.utils.PSRedirectValidation;
 import com.percussion.server.PSApplicationHandler;
 import com.percussion.server.PSBaseResponse;
 import com.percussion.server.PSRequest;
@@ -74,9 +75,11 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 import javax.security.auth.Subject;
 import javax.security.auth.callback.Callback;
@@ -509,7 +512,9 @@ public class PSSecurityFilter implements Filter {
           URL oldUrl = new URL(oldPath);
           int sslport = PSServer.getSslListenerPort() == 443 ? -1 : PSServer.getSslListenerPort();
           URL newUrl = new URL("https", oldUrl.getHost(), sslport, oldUrl.getFile());
-          httpResp.sendRedirect(newUrl.toExternalForm());
+          // CWE-601 / java/unvalidated-url-redirection #645: Host may come from the request URL;
+          // only redirect after allow-list validation (request server name + public hostname).
+          sendValidatedRedirect(httpResp, httpReq, newUrl.toExternalForm());
           return;
         }
         updateSessionTimeout(httpReq);
@@ -1184,15 +1189,17 @@ public class PSSecurityFilter implements Filter {
     try {
       String loginUrl = getLoginUrl(request);
       boolean isBehindProxy = PSServer.isRequestBehindProxy(request);
+      String redirectTarget = loginUrl;
       if (isBehindProxy && request.getMethod().equalsIgnoreCase("GET")) {
         String proxyUrl = PSServer.getProxyURL(request, true);
-        if (StringUtils.isEmpty(proxyUrl)) {
-          proxyUrl = loginUrl;
+        // When a proxy base is configured, prefix it; otherwise use loginUrl alone
+        // (avoid the previous loginUrl+loginUrl double-append when proxy is empty).
+        if (!StringUtils.isEmpty(proxyUrl)) {
+          redirectTarget = proxyUrl + loginUrl;
         }
-        response.sendRedirect(proxyUrl + loginUrl);
-      } else {
-        response.sendRedirect(loginUrl);
       }
+      // CWE-601 / java/unvalidated-url-redirection #646/#647
+      sendValidatedRedirect(response, request, redirectTarget);
 
       ms_log.debug(
           "Redirected authentication to login servlet on thread {}",
@@ -1338,6 +1345,37 @@ public class PSSecurityFilter implements Filter {
    * @param request The current request, assumed not <code>null</code>.
    * @return The new login page, never <code>null</code> or empty.
    */
+  /**
+   * Sends an HTTP redirect only after {@link PSRedirectValidation} accepts the location as a safe
+   * relative path or as an absolute http(s) URL on an allowed host (request server name and
+   * optional {@code publicCmsHostname}).
+   */
+  private static void sendValidatedRedirect(
+      HttpServletResponse response, HttpServletRequest request, String location)
+      throws IOException {
+    if (location == null || location.isBlank()) {
+      response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Invalid redirect location");
+      return;
+    }
+    String safe;
+    if (location.startsWith("/") && !location.startsWith("//")) {
+      safe = PSRedirectValidation.validateInternalRedirectUrl(location);
+    } else {
+      Set<String> allowed = new HashSet<>(PSRedirectValidation.createDefaultWhitelist(request.getServerName()));
+      String publicHost = PSServer.getProperty("publicCmsHostname", null);
+      if (StringUtils.isNotBlank(publicHost)) {
+        allowed.add(publicHost);
+      }
+      safe = PSRedirectValidation.validateRedirectUrl(location, allowed);
+    }
+    if (safe == null) {
+      ms_log.warn("Rejected unvalidated redirect location: {}", location);
+      response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Invalid redirect location");
+      return;
+    }
+    response.sendRedirect(safe);
+  }
+
   private String getLoginUrl(HttpServletRequest request) {
     if (ms_loginForm == null) {
       ms_loginForm = request.getContextPath() + "/login";

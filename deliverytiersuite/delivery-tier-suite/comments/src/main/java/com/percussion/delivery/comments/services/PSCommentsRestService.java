@@ -30,6 +30,7 @@ import com.percussion.delivery.comments.service.rdbms.PSComment;
 import com.percussion.delivery.exceptions.PSBadRequestException;
 import com.percussion.delivery.services.PSAbstractRestService;
 import com.percussion.security.error.PSExceptionUtils;
+import com.percussion.security.utils.PSRedirectValidation;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.inject.Inject;
 import jakarta.servlet.http.Cookie;
@@ -58,6 +59,7 @@ import java.net.URISyntaxException;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.FastDateFormat;
 import org.apache.logging.log4j.LogManager;
@@ -332,17 +334,8 @@ public class PSCommentsRestService extends PSAbstractRestService implements IPSC
           "Detected hidden honeypot field was filled out.  Ignoring comment -- see request headers"
               + " below.");
       String referer = headerParams.getFirst("Referer");
-      URI loc = null;
-      try {
-        loc = new URI(referer);
-      } catch (URISyntaxException e) {
-        PSCommentsRestService.log.error(
-            "Error creating redirect in Honeypot detection with message, Error: {}",
-            PSExceptionUtils.getMessageForLog(e));
-        PSCommentsRestService.log.debug(PSExceptionUtils.getDebugMessageForLog(e));
-        throw new WebApplicationException(e, Response.serverError().build());
-      }
-      return Response.seeOther(loc).build();
+      // CWE-601 / java/unvalidated-url-redirection #643: Referer is attacker-controlled.
+      return seeOtherIfSafe(referer, headerParams);
     }
 
     if (PSCommentsRestService.log.isDebugEnabled()) {
@@ -370,12 +363,9 @@ public class PSCommentsRestService extends PSAbstractRestService implements IPSC
         int commentIndex = referer.indexOf("?lastCommentId");
         referer = referer.substring(0, commentIndex);
       }
-      URI loc = new URI(referer + "?lastCommentId=" + newComment.getId());
-      if (PSCommentsRestService.log.isDebugEnabled()) {
-        PSCommentsRestService.log.debug("URI obtained is : {}", loc.toString());
-      }
-
-      return Response.seeOther(loc).build();
+      String target = referer + "?lastCommentId=" + newComment.getId();
+      // CWE-601 / java/unvalidated-url-redirection #644: validate final redirect target.
+      return seeOtherIfSafe(target, headerParams);
     } catch (Exception e) {
       PSCommentsRestService.log.error(
           "Exception occurred while adding comment, Error: {}",
@@ -383,6 +373,48 @@ public class PSCommentsRestService extends PSAbstractRestService implements IPSC
       PSCommentsRestService.log.debug(PSExceptionUtils.getDebugMessageForLog(e));
       throw new WebApplicationException(e, Response.serverError().build());
     }
+  }
+
+  /**
+   * Returns {@code 303 See Other} only when {@code target} is a relative path or an absolute
+   * http(s) URL whose host matches the request {@code Host} header. Otherwise returns {@code 204
+   * No Content} so an open redirect cannot be forced via Referer.
+   */
+  private static Response seeOtherIfSafe(String target, MultivaluedMap<String, String> headers) {
+    if (StringUtils.isBlank(target)) {
+      return Response.noContent().build();
+    }
+    Set<String> allowed = allowedDomainsFromHostHeader(headers.getFirst("Host"));
+    String safe;
+    if (target.startsWith("/") && !target.startsWith("//")) {
+      safe = PSRedirectValidation.validateInternalRedirectUrl(target);
+    } else {
+      safe = PSRedirectValidation.validateRedirectUrl(target, allowed);
+    }
+    if (safe == null) {
+      PSCommentsRestService.log.warn("Rejected unvalidated redirect target: {}", target);
+      return Response.noContent().build();
+    }
+    try {
+      return Response.seeOther(new URI(safe)).build();
+    } catch (URISyntaxException e) {
+      PSCommentsRestService.log.error(
+          "Error creating redirect URI, Error: {}", PSExceptionUtils.getMessageForLog(e));
+      return Response.noContent().build();
+    }
+  }
+
+  /** Builds an allow-list from the request Host header (host only, port stripped). */
+  private static Set<String> allowedDomainsFromHostHeader(String hostHeader) {
+    if (StringUtils.isBlank(hostHeader)) {
+      return new HashSet<>();
+    }
+    String host = hostHeader.trim();
+    int colon = host.indexOf(':');
+    if (colon > 0) {
+      host = host.substring(0, colon);
+    }
+    return PSRedirectValidation.createDefaultWhitelist(host);
   }
 
   /* (non-Javadoc)
