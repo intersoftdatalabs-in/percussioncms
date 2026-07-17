@@ -18,6 +18,26 @@
 var regionWidgetAssociationXmlString = "";
 
 (function ($) {
+  // Determine whether a (non-HTML-parsed) chunk of Velocity templateCode
+  // markup declares a given CSS class on its root element, without ever
+  // handing the markup string to jQuery's HTML parser / the live DOM.
+  // Closes js/xss-through-dom: templateCode text originates from the
+  // Template object's regionTree (server/CMS content) and must not be
+  // passed to $() or innerHTML just to answer a hasClass() question.
+  function percTemplateCodeHasClass(markup, className) {
+    var match = /class\s*=\s*"([^"]*)"/i.exec(markup || "");
+    if (!match) {
+      return false;
+    }
+    var classes = match[1].split(/\s+/);
+    for (var i = 0; i < classes.length; i++) {
+      if (classes[i] === className) {
+        return true;
+      }
+    }
+    return false;
+  }
+
   // I'm refactoring most of the code dealing with template manipulation in perc_template_layout_helper to this class
   // but this code is not yet functional
   $.Perc_Template_class = function () {
@@ -83,8 +103,12 @@ var regionWidgetAssociationXmlString = "";
       }
       // Get Code
       var $children = $region.children("children");
-      var $templateCode = $($children.find("code templateCode:first").text());
-      newRegion.setVertical(!$templateCode.hasClass("perc-horizontal"));
+      var templateCodeText = $children
+        .find("code templateCode:first")
+        .text();
+      newRegion.setVertical(
+        !percTemplateCodeHasClass(templateCodeText, "perc-horizontal")
+      );
 
       // Get regions
       $children.children("region").each(function () {
