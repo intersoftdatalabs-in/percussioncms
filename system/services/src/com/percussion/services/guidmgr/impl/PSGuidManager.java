@@ -503,7 +503,16 @@ public class PSGuidManager implements IPSGuidManager
       }
       catch (Exception e)
       {
-         throw new RuntimeException("Logic problem in next calculation",e);
+         // Preserve root cause (often No transactional EntityManager / SQL) —
+         // callers and logs previously only saw this generic wrapper.
+         throw new RuntimeException(
+             "Logic problem in next calculation for type "
+                 + type
+                 + " key="
+                 + key
+                 + ": "
+                 + e.getMessage(),
+             e);
       }
 
    }

@@ -234,6 +234,25 @@ public class PSAclService implements IPSAclService
       return req;
    }
 
+   /**
+    * Public entry used by package install / callers. Must be on the Spring proxy
+    * (not only the interface default) so {@code @Transactional} binds an
+    * EntityManager. The interface default calls {@link #createAclImpl} without
+    * re-entering the proxy, which caused
+    * {@code IllegalStateException: No transactional EntityManager available}
+    * and GUID allocation failures during startup package install.
+    */
+   @Override
+   @Transactional
+   public IPSAcl createAcl(IPSGuid objGuid, IPSTypedPrincipal owner)
+   {
+      if (objGuid == null)
+         throw new IllegalArgumentException("objGuid cannot be null");
+      if (owner == null)
+         throw new IllegalArgumentException("owner cannot be null");
+      return createAclImpl(objGuid, owner);
+   }
+
    @Transactional
    public IPSAcl createAclImpl(IPSGuid objGuid, IPSTypedPrincipal owner)
    {
@@ -594,6 +613,21 @@ public class PSAclService implements IPSAclService
       return acls.isEmpty() ? null : acls.get(0);
    }
 
+   /**
+    * See {@link #createAcl} — public save must be proxied for transactions.
+    * Package install calls {@code saveAcls}, not {@code saveAclsImpl}.
+    */
+   @Override
+   @Transactional
+   public void saveAcls(List<IPSAcl> acls) throws PSServiceSecurityException
+   {
+      if (acls == null)
+         throw new IllegalArgumentException("acls cannot be null");
+      if (acls.isEmpty())
+         throw new IllegalArgumentException("acls cannot be empty");
+      saveAclsImpl(acls);
+   }
+
    /*
     * (non-Javadoc)
     *
@@ -646,22 +680,32 @@ public class PSAclService implements IPSAclService
       return updatedList;
    }
 
+   @Override
+   @Transactional
+   public void deleteAcls(List<IPSGuid> objectGuids) throws PSServiceSecurityException
+   {
+      if (objectGuids == null)
+         throw new IllegalArgumentException("objectGuids cannot be null");
+      deleteAclsImpl(objectGuids);
+   }
+
+   @Override
    @Transactional
    public void deleteAcl(IPSGuid aclGuid) throws PSServiceSecurityException
    {
-
-         try {
-            List<IPSAcl> acls = doLoadModifiableAcls(Collections.singletonList(aclGuid), false);
-            IPSAcl acl = acls.isEmpty() ? null : acls.get(0);
-            if (acl != null) {
-               ms_objectIdToAclIdMap.remove(acl.getObjectGuid());
-               getSession().remove(acl);
-            }
-         } catch (DataAccessException e) {
-            throw new PSServiceSecurityException(IPSSecurityErrors.ACL_DELETE_ERROR, e, aclGuid.longValue(),
-                    e.getLocalizedMessage());
+      if (aclGuid == null)
+         throw new IllegalArgumentException("aclGuid cannot be null");
+      try {
+         List<IPSAcl> acls = doLoadModifiableAcls(Collections.singletonList(aclGuid), false);
+         IPSAcl acl = acls.isEmpty() ? null : acls.get(0);
+         if (acl != null) {
+            ms_objectIdToAclIdMap.remove(acl.getObjectGuid());
+            getSession().remove(acl);
          }
-
+      } catch (DataAccessException e) {
+         throw new PSServiceSecurityException(IPSSecurityErrors.ACL_DELETE_ERROR, e, aclGuid.longValue(),
+                 e.getLocalizedMessage());
+      }
    }
 
    /**
