@@ -197,7 +197,10 @@ public class PSFormEncodeDecodeHelperTest {
 
   /**
    * Defensive: input above the size cap is returned unchanged (the helper must not throw, hang, or
-   * truncate adversarial payloads).
+   * truncate adversarial payloads). The cap is {@code MAX_COMMENT_INPUT_LENGTH = 64 * 1024} chars
+   * (declared {@code private} in the production class); this test builds a 70 KiB body, which
+   * exceeds the cap by ~6 KiB. The {@code - 7} accounts for the {@code <!--}/{@code -->} wrapper
+   * so the comment body itself is the intended 70 KiB - 7.
    */
   @Test
   void testEncodePassesThroughOversizedInput() {
