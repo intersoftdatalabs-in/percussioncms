@@ -8,10 +8,10 @@
 **Related issue**: https://github.com/intersoftdatalabs-in/percussioncms/issues/962
 
 ## Module Scope
-- **Primary module(s)**: `modules/perc-jetty/` (Linux service install scripts, Jetty defaults, unit file templates)
-- **Secondary / integration modules**: `modules/perc-distribution-tree/` (ship service assets in the distribution); optional DTS Linux service packaging only if the same install pattern is reused — **CMS Jetty is in scope for P1**
-- **AGENTS files to apply**: root `AGENTS.md`, `modules/perc-jetty/AGENTS.md`, `modules/perc-distribution-tree/AGENTS.md` (if touched)
-- **User roles affected**: ops / system administrators installing or upgrading Percussion CMS on Linux
+- **Primary module(s)**: `modules/perc-jetty/` (CMS Jetty Linux service); `deliverytiersuite/delivery-tier-suite/delivery-tier-distribution/` (DTS Production + Staging Linux service)
+- **Secondary / integration modules**: `modules/perc-distribution-tree/` (ship CMS service assets in the distribution)
+- **AGENTS files to apply**: root `AGENTS.md`, `modules/perc-jetty/AGENTS.md`, delivery-tier-distribution README
+- **User roles affected**: ops / system administrators installing or upgrading Percussion CMS **and** DTS on Linux
 - **Install / upgrade impact**: distribution tree and install/ops scripts only — **no** schema, package `.ppkg`, or application API changes
 
 ## User Scenarios & Testing
@@ -94,7 +94,7 @@ Operators who previously installed via init.d/chkconfig/update-rc.d can uninstal
 - **systemd is the default** on supported modern distros; SysV/init.d remains a **fallback**, not removed in this feature.
 - Scope is **ops packaging and scripts**, not changing CMS upgrade business logic itself (DB/package upgrades may still be slow; the unit must tolerate that).
 - Default service name remains **PercussionCMS** unless the operator supplies another name (existing installer behavior).
-- DTS systemd units are **out of scope for P1** unless trivial reuse; can be a follow-up story.
+- **DTS Production and Staging** Linux installers are **in scope** (same systemd pattern as CMS Jetty: native unit, long TimeoutStartSec, journal, init.d fallback).
 - Operators run install/uninstall with **root** privileges (existing requirement).
 - Product-supported max start time will be chosen in planning (e.g. 15–30+ minutes for upgrades) and documented; exact value is an implementation decision constrained by FR-005.
 - Jetty upstream sample `jetty.service` is a reference only; Percussion must ship a unit wired to product paths and environment files.

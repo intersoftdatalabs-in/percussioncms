@@ -66,6 +66,8 @@ optional: install-jetty-service.sh ... install --systemd  # force systemd or fai
 
 ## R8 — DTS
 
-**Decision**: Out of scope for 988; follow-up issue if needed.
+**Decision**: **In scope** — apply the same systemd pattern to
+`DTSProductionService.sh` / `DTSStagingService.sh` with shared
+`dts-tomcat.service.in` (`Type=forking`, `CATALINA_PID`, `TimeoutStartSec=1800`, journal).
 
-**Rationale**: #962 narrative and comments center on PercussionCMS Jetty.
+**Rationale**: User/product need native systemd for Production and Staging DTS as well as CMS. Separate Tomcat env (`CATALINA_*`) but identical ops model.

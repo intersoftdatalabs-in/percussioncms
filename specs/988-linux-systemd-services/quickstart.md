@@ -39,10 +39,23 @@ Simulate long start (or run post-upgrade) and confirm:
 - No fail at ~90s solely due to timeout if start finishes within 30 minutes
 - Journal or start.log shows progress / pointer to logs
 
+## DTS Production / Staging (manual)
+
+```bash
+cd <dtsInstallRoot>   # directory with DTSProductionService.sh and bin/catalina.sh
+sudo ./DTSProductionService.sh install
+sudo systemctl start PercussionProductionDTS
+journalctl -u PercussionProductionDTS -n 50 --no-pager
+
+sudo ./DTSStagingService.sh install
+sudo systemctl start PercussionStagingDTS
+```
+
 ## Init.d fallback (manual)
 
 ```bash
-./install-jetty-service.sh PercussionCMS install --initd   # if implemented
+./install-jetty-service.sh PercussionCMS install --initd
+./DTSProductionService.sh install --initd
 # or host without systemd
 ```
 

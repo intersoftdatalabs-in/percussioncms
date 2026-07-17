@@ -1,0 +1,28 @@
+# Percussion DTS (Tomcat) systemd unit template (GH-962 / specs/988-linux-systemd-services)
+# Placeholders replaced by DTSProductionService.sh / DTSStagingService.sh:
+#   @SERVICE_NAME@  @DESCRIPTION@  @PID_FILE@  @ENV_FILE@  @INIT_SCRIPT@
+#
+# Type=forking matches Tomcat catalina.sh start with CATALINA_PID.
+# TimeoutStartSec=1800 allows slow starts without false systemd timeout.
+# Journal captures stdout/stderr; app logs remain under CATALINA_BASE/logs.
+
+[Unit]
+Description=@DESCRIPTION@
+After=network.target
+
+[Service]
+Type=forking
+EnvironmentFile=-@ENV_FILE@
+PIDFile=@PID_FILE@
+ExecStart=@INIT_SCRIPT@ start
+ExecStop=@INIT_SCRIPT@ stop
+TimeoutStartSec=1800
+TimeoutStopSec=120
+StandardOutput=journal
+StandardError=journal
+KillMode=control-group
+Restart=on-failure
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target

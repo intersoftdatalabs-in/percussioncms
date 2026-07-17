@@ -57,6 +57,13 @@
 - [x] T022 Spotless/format N/A for shell; ensure scripts use portable bash and LF
 - [ ] T023 Link issue #962 in PR descriptions; close on final merge
 
+## Phase 7: DTS Production + Staging systemd (in-scope extension)
+**Goal**: Same systemd treatment for DTS Tomcat installers  
+- [x] T024 Add `dts-tomcat.service.in` + `README-systemd.md` under delivery-tier-distribution rootFiles
+- [x] T025 Rewrite `DTSProductionService.sh` / `DTSStagingService.sh` for systemd prefer, `--initd`/`--systemd`, clean EnvironmentFile, uninstall unit
+- [x] T026 Structural tests `DtsSystemdUnitTemplateTest` + `DtsServiceInstallScriptTest`
+- [x] T027 Update delivery-tier-distribution README + expand 988 spec scope for DTS
+
 ## Dependencies & Execution Order
 - Setup → Foundational → US1 → US2 → US3 → Polish  
 - US2 may be combined with US1 in one PR if small (TimeoutStartSec + journal live in the same unit template)
