@@ -28,6 +28,7 @@ export interface ContentListItem {
   path?: string;
   type?: string;
   status?: string;
+  folder?: boolean;
   [key: string]: unknown;
 }
 
@@ -39,6 +40,27 @@ export interface FolderChild {
   [key: string]: unknown;
 }
 
+export interface TemplateSummary {
+  id: string;
+  name: string;
+  thumbPath?: string;
+}
+
+export interface AssetTypeSummary {
+  id: string;
+  name: string;
+  label?: string;
+}
+
+export interface BlogSummary {
+  title: string;
+  folderPath: string;
+  templateId: string;
+  site?: string;
+  path?: string;
+}
+
+/** Classic Page JSON create payload (perc_page_manager). */
 export interface CreatePageRequest {
   name: string;
   title: string;

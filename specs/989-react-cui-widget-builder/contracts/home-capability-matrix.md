@@ -82,49 +82,49 @@ Classic entry: **Add New** → type chooser (Page / Asset / Blog if blogs exist)
 
 | Capability | Classic | Spec | Impl | Notes |
 |------------|---------|------|------|-------|
-| Entry from Create / Add New | Yes | MUST | Partial | Section exists; no type chooser |
-| Choose **Page** vs **Asset** vs **Blog** | Yes (`addwizard`) | MUST (FR-001) | Missing | Blog option depends on blogs existing (classic) |
-| Block create when no site (with admin messaging) | Yes | MUST (FR-003) | Thin | |
-| Multi-step wizard UX (not single free-text form) | Yes | MUST equal capability | Missing | Spec assumes wizards (entities, a11y, assumption) |
+| Entry from Create / Add New | Yes | MUST | Done | Create section |
+| Choose **Page** vs **Asset** vs **Blog** | Yes (`addwizard`) | MUST (FR-001) | Done | Blog option only if blogs exist |
+| Block create when no site (with admin messaging) | Yes | MUST (FR-003) | Done | |
+| Multi-step wizard UX (not single free-text form) | Yes | MUST equal capability | Done | Type chooser + wizards |
 
 ### 6.2 Page create
 
 | Capability | Classic | Spec | Impl | Notes |
 |------------|---------|------|------|-------|
-| Select site (if multi-site) | Yes | MUST | Missing | |
-| Select template (all for site) | Yes | MUST | Missing | Free-text template id ≠ parity |
-| Prefer/recent templates filter | Yes | SHOULD | Missing | Classic UX |
-| Select destination folder (tree / list) | Yes | MUST | Missing | Free-text path ≠ parity |
-| Prefer/recent folders filter | Yes | SHOULD | Missing | |
-| Page title | Yes | MUST | Partial | Present as field |
-| Page file name | Yes | MUST | Partial as “name” | Classic separate title vs file + autofill rules |
-| Title → file-name autofill / sanitization | Yes | SHOULD | Missing | Classic behavior |
-| Authorization / not-allowed folder messaging | Yes | MUST equal | Missing | |
-| Persist via same create semantics as today | Yes | MUST | Unproven | Form-field path via pagemanager; REST shape must match |
-| After create: open or locate item | Yes | MUST (US1 #3) | Missing | |
+| Select site (if multi-site) | Yes | MUST | Done | |
+| Select template (all for site) | Yes | MUST | Done | Site templates API |
+| Prefer/recent templates filter | Yes | SHOULD | Missing | Classic filter UI optional |
+| Select destination folder (tree / list) | Yes | MUST | Done | Site root + child folders |
+| Prefer/recent folders filter | Yes | SHOULD | Missing | Optional |
+| Page title | Yes | MUST | Done | |
+| Page file name | Yes | MUST | Done | Separate field |
+| Title → file-name autofill / sanitization | Yes | SHOULD | Done | Classic rules |
+| Authorization / not-allowed folder messaging | Yes | MUST equal | Done | Server error / not-authorized message |
+| Persist via same create semantics as today | Yes | MUST | Done (JSON Page create) | Live UAT still required |
+| After create: open or locate item | Yes | MUST (US1 #3) | Done | Navigate editor by path |
 
 ### 6.3 Asset create
 
 | Capability | Classic | Spec | Impl | Notes |
 |------------|---------|------|------|-------|
-| Select asset type (widget type) | Yes | MUST | Missing | |
-| Recent vs all asset types | Yes | SHOULD | Missing | |
-| Select asset folder | Yes | MUST | Missing | |
-| Recent vs all asset folders | Yes | SHOULD | Missing | |
-| Create asset (`createAsset`) | Yes | MUST | Missing | |
-| After create: open/locate | Yes | MUST | Missing | |
+| Select asset type (widget type) | Yes | MUST | Done | |
+| Recent vs all asset types | Yes | SHOULD | Missing | Optional filter |
+| Select asset folder | Yes | MUST | Done | /Assets + children |
+| Recent vs all asset folders | Yes | SHOULD | Missing | Optional |
+| Create asset (`createAsset` → edit asset) | Yes | MUST | Done | Navigates editAsset like classic |
+| After create: open/locate | Yes | MUST | Done | editAsset handoff |
 
 ### 6.4 Blog post create
 
 | Capability | Classic | Spec | Impl | Notes |
 |------------|---------|------|------|-------|
-| Select site | Yes | MUST | Missing | |
-| Select blog (from blogs for site) | Yes | MUST | Missing | |
-| Title + file name (+ autofill) | Yes | MUST | Missing | |
-| Auth messaging | Yes | MUST equal | Missing | |
-| Create post | Yes | MUST | Missing | |
-| After create: open/locate | Yes | MUST | Missing | |
-| Hide blog option if no blogs | Yes | SHOULD | Missing | Classic add wizard |
+| Select site | Yes | MUST | Done | Via blog list with site label |
+| Select blog (from blogs for site) | Yes | MUST | Done | |
+| Title + file name (+ autofill) | Yes | MUST | Done | |
+| Auth messaging | Yes | MUST equal | Done | |
+| Create post | Yes | MUST | Done | createPage with blog template/folder |
+| After create: open/locate | Yes | MUST | Done | |
+| Hide blog option if no blogs | Yes | SHOULD | Done | |
 
 ### 6.5 Create — explicit non-goals
 

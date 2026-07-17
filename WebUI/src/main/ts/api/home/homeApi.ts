@@ -16,13 +16,18 @@
  */
 
 import { get, post } from "../client";
+import type { ApiError } from "../client";
 import { PATHS } from "../paths";
 import type {
+  AssetTypeSummary,
+  BlogSummary,
   ContentListItem,
   CreatePageRequest,
   FolderChild,
   SiteSummary,
+  TemplateSummary,
 } from "./types";
+import { joinFolderAndName, normalizeCmsPath } from "../../home/create/filenameUtils";
 
 /** Recent content items (type typically {@code item}). */
 export async function fetchRecentItems(
@@ -39,7 +44,6 @@ export async function fetchRecentItems(
 
 /**
  * Bookmarked content (classic CUI "My Bookmarks" via getMyContent).
- * GET {@code /itemmanagement/item/mycontent}
  */
 export async function fetchMyContent(): Promise<ContentListItem[]> {
   const data = await get<unknown>(PATHS.MY_CONTENT);
@@ -68,11 +72,123 @@ export async function fetchSites(): Promise<SiteSummary[]> {
 export async function fetchFolderChildren(
   path: string,
 ): Promise<FolderChild[]> {
-  const normalized = path.startsWith("/") ? path : `/${path}`;
+  const normalized = normalizeCmsPath(path);
   const data = await get<unknown>(
     `${PATHS.PATH_FOLDER}${encodeURI(normalized)}`,
   );
   return normalizeList(data) as FolderChild[];
+}
+
+/** Templates for a site (classic getTemplates). */
+export async function fetchTemplatesForSite(
+  siteName: string,
+): Promise<TemplateSummary[]> {
+  const data = await get<unknown>(
+    `${PATHS.TEMPLATES_BY_SITE}/${encodeURIComponent(siteName)}`,
+  );
+  if (data && typeof data === "object" && "TemplateSummary" in data) {
+    const list = (data as { TemplateSummary: unknown }).TemplateSummary;
+    const arr = Array.isArray(list) ? list : list ? [list] : [];
+    return arr.map((t) => {
+      const o = t as Record<string, unknown>;
+      return {
+        id: String(o.id ?? ""),
+        name: String(o.name ?? o.label ?? o.id ?? ""),
+        thumbPath: o.imageThumbPath
+          ? String(o.imageThumbPath)
+          : o.thumbPath
+            ? String(o.thumbPath)
+            : undefined,
+      };
+    });
+  }
+  return [];
+}
+
+/** Asset widget types (classic getAssetTypes). */
+export async function fetchAssetTypes(
+  filterDisabled = true,
+): Promise<AssetTypeSummary[]> {
+  let url = PATHS.ASSET_TYPES;
+  if (filterDisabled) {
+    url += "?filterDisabledWidgets=yes";
+  }
+  const data = await get<unknown>(url);
+  let list: unknown[] = [];
+  if (data && typeof data === "object" && "WidgetContentType" in data) {
+    const w = (data as { WidgetContentType: unknown }).WidgetContentType;
+    list = Array.isArray(w) ? w : w ? [w] : [];
+  } else if (Array.isArray(data)) {
+    list = data;
+  }
+  return list.map((t) => {
+    const o = t as Record<string, unknown>;
+    return {
+      id: String(o.contentTypeId ?? o.widgetId ?? o.id ?? ""),
+      name: String(o.name ?? o.label ?? o.id ?? ""),
+      label: o.label ? String(o.label) : undefined,
+    };
+  });
+}
+
+/** Blogs for a site (classic getBlogsForSite). */
+export async function fetchBlogsForSite(
+  siteName: string,
+): Promise<BlogSummary[]> {
+  const data = await get<unknown>(
+    `${PATHS.BLOGS_FOR_SITE}/${encodeURIComponent(siteName)}`,
+  );
+  let list: unknown[] = [];
+  if (data && typeof data === "object" && "SiteBlogProperties" in data) {
+    const b = (data as { SiteBlogProperties: unknown }).SiteBlogProperties;
+    list = Array.isArray(b) ? b : b ? [b] : [];
+  } else if (Array.isArray(data)) {
+    list = data;
+  }
+  return list.map((raw) => {
+    const o = raw as Record<string, unknown>;
+    const path = String(o.path ?? "");
+    const folderPath =
+      path && path.includes("/")
+        ? path.substring(0, path.lastIndexOf("/"))
+        : String(o.folderPath ?? "");
+    return {
+      title: String(o.title ?? o.name ?? ""),
+      folderPath,
+      templateId: String(o.blogPostTemplateId ?? o.templateId ?? ""),
+      site: siteName,
+      path,
+    };
+  });
+}
+
+/**
+ * Create a page via page management REST (same JSON shape as perc_page_manager).
+ * folderPath should be the parent folder (classic passes path with leading slash).
+ */
+export async function createPage(req: CreatePageRequest): Promise<unknown> {
+  const folderPath = normalizeCmsPath(req.folderPath);
+  const body = {
+    Page: {
+      name: req.name,
+      title: req.title,
+      templateId: req.templateId,
+      linkTitle: req.linkTitle,
+      folderPath,
+      addToRecent: true,
+    },
+  };
+  return post(PATHS.PAGE_CREATE, body);
+}
+
+/**
+ * Create page then return full item path for open (classic openPage after create).
+ */
+export async function createPageAndPath(
+  req: CreatePageRequest,
+): Promise<string> {
+  await createPage(req);
+  return joinFolderAndName(req.folderPath, req.name);
 }
 
 /** Run extended finder search. */
@@ -83,19 +199,26 @@ export async function searchContent(
   return normalizeList(data);
 }
 
-/**
- * Create a page via page management REST.
- * Payload shape may be refined as server contract is verified in UAT.
- */
-export async function createPage(req: CreatePageRequest): Promise<unknown> {
-  const body = {
-    name: req.name,
-    title: req.title,
-    linkTitle: req.linkTitle,
-    templateId: req.templateId,
-    folderPath: req.folderPath,
-  };
-  return post(PATHS.PAGE_CREATE, body);
+export function formatApiError(err: unknown, notAuthorizedMsg: string): string {
+  if (err && typeof err === "object" && "body" in err) {
+    const body = (err as ApiError).body;
+    if (typeof body === "string" && body.trim()) {
+      return body;
+    }
+    if (body && typeof body === "object") {
+      const o = body as Record<string, unknown>;
+      if (typeof o.message === "string") {
+        return o.message;
+      }
+    }
+  }
+  if (err === "NotAuthorized" || (typeof err === "string" && err.includes("NotAuthorized"))) {
+    return notAuthorizedMsg;
+  }
+  if (err instanceof Error && err.message) {
+    return err.message;
+  }
+  return notAuthorizedMsg;
 }
 
 function normalizeList(data: unknown): ContentListItem[] {
@@ -113,15 +236,19 @@ function normalizeList(data: unknown): ContentListItem[] {
       "PathItem",
       "children",
       "resultPage",
+      "FolderItem",
+      "childFolders",
     ]) {
       const v = obj[key];
       if (Array.isArray(v)) {
         return v as ContentListItem[];
       }
     }
-    // Single wrapper objects with nested arrays
     for (const v of Object.values(obj)) {
-      if (Array.isArray(v) && v.length >= 0 && (v.length === 0 || typeof v[0] === "object")) {
+      if (
+        Array.isArray(v) &&
+        (v.length === 0 || typeof v[0] === "object")
+      ) {
         return v as ContentListItem[];
       }
     }

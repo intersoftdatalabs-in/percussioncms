@@ -25,5 +25,8 @@ export const PATHS = {
   FINDER_SEARCH_EXTENDED: `${SERVICES_ROOT}/searchmanagement/search/get/extendedresults`,
   PAGE_CREATE: `${SERVICES_ROOT}/pagemanagement/page`,
   MY_CONTENT: `${SERVICES_ROOT}/itemmanagement/item/mycontent`,
+  TEMPLATES_BY_SITE: `${SERVICES_ROOT}/sitemanage/sitetemplates/templates`,
+  BLOGS_FOR_SITE: `${SERVICES_ROOT}/sitemanage/section/blogs`,
+  ASSET_TYPES: `${SERVICES_ROOT}/assetmanagement/asset/assetTypes`,
   WIDGET_BUILDER: `${SERVICES_ROOT}/widgetmanagement/widgetbuilder`,
 } as const;
