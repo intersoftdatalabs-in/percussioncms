@@ -23,6 +23,7 @@ import static org.apache.commons.lang3.Validate.notNull;
 import com.percussion.sitemanage.importer.IPSSiteImportLogger;
 import com.percussion.sitemanage.importer.IPSSiteImportLogger.PSLogEntryType;
 import com.percussion.sitemanage.importer.helpers.impl.PSImportThemeHelper;
+import com.percussion.security.io.PSPathInjectionGuard;
 import com.percussion.utils.types.PSPair;
 import java.io.File;
 import java.io.FileInputStream;
@@ -233,7 +234,13 @@ public class PSCSSParser {
   }
 
   private boolean fileExists(String importPath) {
-    return new File(importPath).exists();
+    // CWE-22/CWE-23 defense (T043): importPath is derived from CSS content
+    // extracted via regex (@import / url(...)) and passed through a URL
+    // converter that may produce filesystem paths from user-controlled
+    // inputs. Verify the resolved path is contained within the theme root
+    // BEFORE any File construction.
+    File safe = PSPathInjectionGuard.requireUnderBase(new File(themeRootDirectory), importPath);
+    return safe.exists();
   }
 
   private String updateUrl(String quote, Matcher urlMatcher, PSURLConverter urlConverter) {
@@ -261,7 +268,12 @@ public class PSCSSParser {
   }
 
   private void saveFile(StringBuffer sb, String path) throws IOException {
-    try (var fstream = new FileWriter(path);
+    // CWE-22/CWE-23 defense (T043): path may originate from a user-supplied
+    // CSS link extracted from the imported HTML header. Resolve the path
+    // against the theme root and verify containment BEFORE opening the
+    // file for write.
+    File safe = PSPathInjectionGuard.requireUnderBase(new File(themeRootDirectory), path);
+    try (var fstream = new FileWriter(safe);
         var out = new PrintWriter(fstream)) {
       out.write(sb.toString());
     }
@@ -272,7 +284,11 @@ public class PSCSSParser {
   }
 
   private String loadFileFromDisk(String path) throws IOException {
-    try (var in = new FileInputStream(new File(path))) {
+    // CWE-22/CWE-23 defense (T043): path may originate from a user-supplied
+    // CSS @import or url() value. Resolve and verify containment BEFORE
+    // opening the file for read.
+    File safe = PSPathInjectionGuard.requireUnderBase(new File(themeRootDirectory), path);
+    try (var in = new FileInputStream(safe)) {
       return IOUtils.toString(in);
     }
   }
