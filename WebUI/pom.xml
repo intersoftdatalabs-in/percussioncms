@@ -644,13 +644,24 @@
                             <filtering>false</filtering>
                         </resource>
                     </webResources>
+                    <!--
+                      Do NOT exclude slf4j-api from the WAR. Artemis / Spring JMS in
+                      WEB-INF/lib need org.slf4j.helpers.MessageFormatter on the webapp
+                      classloader; Jetty server-level slf4j is not visible to EE11 webapps.
+                      Keep excluding Log4j core/impl jars (server perc-logging owns those);
+                      slf4j-api + jcl-over-slf4j may ship in WEB-INF/lib.
+                    -->
                     <packagingExcludes>jsps,
 						metadata,
 						config,
 						jboss-4.0,
 						WEB-INF/lib/commons-logging-*.jar,
-						WEB-INF/lib/log4j-*.jar,
-						WEB-INF/lib/*slf4j*.jar,
+						WEB-INF/lib/log4j-api-*.jar,
+						WEB-INF/lib/log4j-core-*.jar,
+						WEB-INF/lib/log4j-1.2-api-*.jar,
+						WEB-INF/lib/log4j-jul-*.jar,
+						WEB-INF/lib/log4j-jcl-*.jar,
+						WEB-INF/lib/log4j-web-*.jar,
 						WEB-INF/lib/ehcache-core-*.jar,
 						WEB-INF/lib/aspectjrt*.jar,
 						WEB-INF/lib/jtidy-4aug2000r7-dev.jar,

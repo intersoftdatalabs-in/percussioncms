@@ -86,6 +86,19 @@ class WebUiServletUtilsPackagingTest {
     }
   }
 
+  @Test
+  @DisplayName("WebUI WAR packaging must not exclude all slf4j jars (Artemis needs MessageFormatter)")
+  void webUiDoesNotExcludeAllSlf4jFromWar() throws Exception {
+    Path pom = resolveWebUiPom();
+    String text = Files.readString(pom);
+    // Historical exclude WEB-INF/lib/*slf4j*.jar left Artemis without MessageFormatter
+    // on the EE11 webapp classloader (server slf4j is not visible to the WAR).
+    assertFalse(
+        text.contains("WEB-INF/lib/*slf4j*.jar")
+            || text.contains("WEB-INF/lib/**/*slf4j*.jar"),
+        "packagingExcludes must not blanket-exclude *slf4j*.jar; ship slf4j-api in WEB-INF/lib");
+  }
+
   private static Path resolveWebUiPom() throws IOException {
     Path cwd = Paths.get("").toAbsolutePath().normalize();
     Path[] candidates =
