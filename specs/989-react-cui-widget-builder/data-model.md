@@ -45,13 +45,15 @@ Logical UI entity; not a DB table.
 
 ### Create request (page / asset / blog)
 
-| Flow | Key inputs (existing capability) |
-|------|----------------------------------|
-| Page | name, linkTitle, templateId, folderPath |
-| Asset | folderPath, widget/asset type id |
-| Blog | site + blog-specific fields per current CUI wizard |
+Full UX and MUST/SHOULD rows: [home-capability-matrix.md](./contracts/home-capability-matrix.md) §6.
 
-Validation: server-side rules remain authoritative; client shows errors.
+| Flow | Key inputs (existing capability) | Picker requirements (parity) |
+|------|----------------------------------|------------------------------|
+| Page | title, file name, templateId, folderPath (+ site when multi-site) | Site (if multi), template list, folder list/tree—not free-text-only IDs/paths |
+| Asset | folderPath, widget/asset type id | Asset type list, asset folder list/tree |
+| Blog | site, blog target, title, file name | Site, blogs-for-site list |
+
+Validation: server-side rules remain authoritative; client shows errors. After create: open or locate item (same as classic).
 
 ## Widget definition
 

@@ -37,4 +37,5 @@
 - Post-analyze remediation 2026-07-17: FR-008/009/010 release-gate wording; FR-020 main-nav smoke; FR-013 on-page unavailable surface; Out of Scope “manual inventory”; tasks T050a/b, T056a/b; plan release gate.
 - Clarify i18n 2026-07-17: TMX-backed UI (FR-021); structural locale parity for new keys (FR-022); tmx.jsp + I18N.message (FR-023); i18n proof = SC-008 key checklist, not Vitest multi-locale (FR-024).
 - Post-analyze remediation (i18n coverage): plan/research R10; tasks T003a, T010a, T020a, T034a, T050c, T056c + shell tmx.jsp; `checklists/i18n-key-checklist.md`.
-- Ready for `/speckit-implement`.
+- Home capability matrix added (`contracts/home-capability-matrix.md`); FR-001a/001b lock Create + open-path parity; classic Home was limited but complete—do not thin further.
+- Ready for Create parity implementation (matrix §6 MUST) before Home acceptance.

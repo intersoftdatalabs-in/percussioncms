@@ -109,9 +109,11 @@ projects/sitemanage/
 2. React shell with section navigation; map `initialScreen` query (library, list, search, newitem) → sections.
 3. Implement sections against existing content REST (via patterns in `PercContributorUiAdaptor` / sitemanage)—**not** parent iframe `jQuery` adaptor after cutover.
 4. Library: site/folder browse + open item (contributor parity).
-5. Create: page/asset/blog (and related) flows with equal capability to CUI wizards in scope.
-6. Empty states, session/CSRF; **all user-visible chrome via TMX keys** (reuse/add in `CmsUi.tmx`, FR-021/022).
-7. Vitest for shell routing, API error handling, critical section smoke (i18n proof is SC-008, not multi-locale Vitest).
+5. Create: **full capability matrix** ([contracts/home-capability-matrix.md](./contracts/home-capability-matrix.md) §6)—type chooser + page/asset/blog wizards equal to CUI (not free-text-only forms); open/locate after create.
+6. Open item from Recent/Library/Search via product path-based navigation (FR-001b).
+7. Empty states, session/CSRF; **all user-visible chrome via TMX keys** (reuse/add in `CmsUi.tmx`, FR-021/022).
+8. Vitest for shell routing, API error handling, wizard state machines, critical section smoke (i18n proof is SC-008, not multi-locale Vitest).
+9. **Do not ship Home cutover as acceptance-complete** until matrix §6 MUST rows are Done (architecture-only MVP is insufficient for FR-001).
 
 ### Phase C — US2 Modern Widget Builder (P1)
 
@@ -144,7 +146,8 @@ No constitution violations requiring exceptions.
 
 | Risk | Mitigation |
 |------|------------|
-| Home create wizards depend on many adaptor paths | Port API surface incrementally; inventory CUI widgets vs adaptor methods in research |
+| Home create wizards depend on many adaptor paths | Follow [home-capability-matrix.md](./contracts/home-capability-matrix.md); port `PercContributorUiAdaptor` operations; P0 = §6 MUST rows before acceptance |
+| Losing classic Home function while only modernizing stack | Treat matrix MUST as non-negotiable; redesign is stack/look, not a thinner product |
 | Hard-cut JSP names break bookmarks | FR-013: map known URLs at dispatcher/nav level without stubs |
 | Dual trees `app/` vs `pages/` | Treat both as production-relevant; rewire/delete both in US3 inventory |
 | `war/` copies | Generated/synced artifacts—clean via build and inventory; do not leave live CUI under war if packaged |
@@ -164,7 +167,7 @@ No constitution violations requiring exceptions.
 |----------|------|
 | Research | [research.md](./research.md) |
 | Data model | [data-model.md](./data-model.md) |
-| Contracts | [contracts/](./contracts/) |
+| Contracts | [contracts/](./contracts/) (includes [home-capability-matrix.md](./contracts/home-capability-matrix.md)) |
 | Quickstart | [quickstart.md](./quickstart.md) |
 | Removal inventory (seed) | [checklists/removal-inventory.md](./checklists/removal-inventory.md) |
 | i18n key checklist (SC-008) | [checklists/i18n-key-checklist.md](./checklists/i18n-key-checklist.md) |
