@@ -294,6 +294,9 @@
       )
     );
     dialogHtml.append(
+      // codeql[js/xss-through-dom] reason: `.text(getRelativePath(...))`
+      // sets a text node and is HTML-safe; the path value is never
+      // concatenated into an HTML string and re-parsed.
       $("<div/>")
         .addClass("readonlyinput")
         .text(getRelativePath(fromPath))
@@ -307,6 +310,9 @@
     );
     if (toPath) {
       dialogHtml.append(
+        // codeql[js/xss-through-dom] reason: `.text(getRelativePath(...))`
+        // sets a text node and is HTML-safe; the path value is never
+        // concatenated into an HTML string and re-parsed.
         $("<div/>")
           .addClass("readonlyinput")
           .text(getRelativePath(toPath))

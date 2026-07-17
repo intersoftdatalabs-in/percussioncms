@@ -201,6 +201,7 @@
                 title: I18N.message("perc.ui.publish.title@Error"),
                 content:
                   '<span style="color:red" > The FileName cannot be empty and must not exceed 255 characters, must be unique within the folder and cannot contain any of the following characters: \\ / | &lt; &gt; ? " : [ ] { } * # ; % </span>',
+                contentIsHtml: true,
               });
               return;
             }
