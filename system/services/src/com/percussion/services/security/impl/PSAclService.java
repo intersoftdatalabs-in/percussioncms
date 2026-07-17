@@ -253,10 +253,11 @@ public class PSAclService implements IPSAclService
    @Transactional
    public IPSAcl createAclImpl(IPSGuid objGuid, IPSTypedPrincipal owner)
    {
+      // Messages match IPSAclService.createAcl contract ("cannot be null").
       if (objGuid == null)
-         throw new IllegalArgumentException("objGuid may not be null");
+         throw new IllegalArgumentException("objGuid cannot be null");
       if (owner == null)
-         throw new IllegalArgumentException("owner may not be null");
+         throw new IllegalArgumentException("owner cannot be null");
 
       IPSGuidManager guidMgr = PSGuidManagerLocator.getGuidMgr();
 
