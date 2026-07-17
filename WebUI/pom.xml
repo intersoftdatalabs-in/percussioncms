@@ -272,21 +272,16 @@
             <groupId>jakarta.el</groupId>
             <artifactId>jakarta.el-api</artifactId>
         </dependency>
+        <!-- Embedded JMS: Apache Artemis (not ActiveMQ Classic). Restores
+             88ca5716b0 after merge 3755de7510 reintroduced Classic 5.7.0
+             (Dependabot #79 CVE-2012-6092, #80 CVE-2013-1880). -->
         <dependency>
             <groupId>org.apache.activemq</groupId>
-            <artifactId>activemq-spring</artifactId>
-            <version>5.7.0</version>
+            <artifactId>artemis-server</artifactId>
         </dependency>
         <dependency>
             <groupId>org.apache.activemq</groupId>
-            <artifactId>activemq-core</artifactId>
-            <version>5.7.0</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.apache.activemq</groupId>
-                    <artifactId>activemq-protobuf</artifactId>
-                </exclusion>
-            </exclusions>
+            <artifactId>artemis-jakarta-client</artifactId>
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
