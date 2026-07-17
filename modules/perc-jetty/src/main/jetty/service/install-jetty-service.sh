@@ -1,264 +1,380 @@
 #!/bin/bash
+# Install or uninstall Percussion CMS Jetty as a Linux service.
+# GH-962: prefer native systemd unit; keep init.d as fallback.
+#
+# Usage:
+#   install-jetty-service.sh [ServiceName] install [--systemd|--initd]
+#   install-jetty-service.sh [ServiceName] uninstall
+#   install-jetty-service.sh [ServiceName] cleanupJBoss
+
 SERVICE_NAME=PercussionCMS
+FORCE_SYSTEMD=false
+FORCE_INITD=false
+
 if [ "$(id -u)" != "0" ]; then
     echo "This script must be run with sudo or as root" 1>&2
     exit 1
 fi
 
-
 function usage() {
-    echo "Usage: $0 [ service name default : PercussionCMS ] {install | uninstall | cleanupJBoss }"
+    echo "Usage: $0 [ service name default : PercussionCMS ] {install | uninstall | cleanupJBoss } [--systemd | --initd]"
+    echo "  --systemd  Require systemd (fail if not available)"
+    echo "  --initd    Force classic SysV/init.d registration (no native unit)"
     exit 1
-
 }
 
+# Parse: optional service name, then action, then optional flags
+if [ $# -lt 1 ]; then
+    usage
+fi
 
-
-if [ $# -gt 1 ];then
+if [ "$1" != "install" ] && [ "$1" != "uninstall" ] && [ "$1" != "cleanupJBoss" ]; then
     SERVICE_NAME="$1"
     shift
 fi
 
-if [ "$1" == "uninstall" ]; then
+ACTION="$1"
+shift || true
+
+while [ $# -gt 0 ]; do
+    case "$1" in
+        --systemd) FORCE_SYSTEMD=true ;;
+        --initd) FORCE_INITD=true ;;
+        *) usage ;;
+    esac
+    shift
+done
+
+if [ "$ACTION" == "uninstall" ]; then
     uninstall=true
-elif [ "$1" == "install" ]; then
+elif [ "$ACTION" == "install" ]; then
     uninstall=false
-elif [ "$1" == "cleanupJBoss" ]; then
+elif [ "$ACTION" == "cleanupJBoss" ]; then
     cleanupJBoss=true
+    uninstall=false
 else
     usage
 fi
 
-function checkForJettyService() {
-    while read -r line; do
-        service=$(basename ${line})
-        echo "Found Jetty service $service in $line"
-        serviceHome=$(bash -c "source ${line} >/dev/null 2>&1 ; echo \${JETTY_BASE}")
-        if [ "$serviceHome" == "$JETTY_BASE" ]; then
-            currentService=$service
-        fi
-    done < <(grep -l /etc/default/* -e 'JETTY_BASE')
+if [ "$FORCE_SYSTEMD" = "true" ] && [ "$FORCE_INITD" = "true" ]; then
+    echo "Cannot combine --systemd and --initd" 1>&2
+    exit 1
+fi
 
+function is_systemd_available() {
+    if [ ! -d /run/systemd/system ]; then
+        return 1
+    fi
+    if ! command -v systemctl >/dev/null 2>&1; then
+        return 1
+    fi
+    return 0
+}
+
+function use_systemd_install() {
+    if [ "$FORCE_INITD" = "true" ]; then
+        return 1
+    fi
+    if [ "$FORCE_SYSTEMD" = "true" ]; then
+        if ! is_systemd_available; then
+            echo "systemd required (--systemd) but not available on this host" 1>&2
+            exit 1
+        fi
+        return 0
+    fi
+    is_systemd_available
+}
+
+function checkForJettyService() {
+    currentService=
+    if compgen -G "/etc/default/*" > /dev/null 2>&1; then
+        while read -r line; do
+            service=$(basename "${line}")
+            echo "Found Jetty service $service in $line"
+            serviceHome=$(bash -c "source ${line} >/dev/null 2>&1 ; echo \${JETTY_BASE}")
+            if [ "$serviceHome" == "$JETTY_BASE" ]; then
+                currentService=$service
+            fi
+        done < <(grep -l /etc/default/* -e 'JETTY_BASE' 2>/dev/null || true)
+    fi
 }
 
 function checkForJbossService() {
+    currentService=
+    if ! compgen -G "/etc/init.d/*" > /dev/null 2>&1; then
+        return 0
+    fi
     while read -r line; do
-        service=$(basename ${line})
+        service=$(basename "${line}")
         echo "Found JBoss service $service in $line"
         serviceHome=$(grep "^SERVER_DIR=" /etc/init.d/${service} | cut -d "=" -f 2)
-        echo $serviceHome
+        echo "$serviceHome"
         if [ "$serviceHome" == "$rxDir" ]; then
             currentService=$service
         fi
-    done < <(grep -l /etc/init.d/* -e 'RhythmyxD')
+    done < <(grep -l /etc/init.d/* -e 'RhythmyxD' 2>/dev/null || true)
 
-    if [ ! -z "$currentService" ];
-    then
+    if [ ! -z "$currentService" ]; then
         if [ "$cleanupJBoss" != "true" ]; then
-            echo "Warning Jboss startup /etc/init.d/${currentService} for this instance ${rxDir} exists use  to remove"
+            echo "Warning Jboss startup /etc/init.d/${currentService} for this instance ${rxDir} exists use cleanupJBoss to remove"
             usage
         fi
         echo "Cleaning up JBoss init scripts"
-        removeServiceFromStartup $currentService
-        removeServiceScript $currentService
-        exit 1
+        removeServiceFromStartup "$currentService"
+        removeServiceScript "$currentService"
+        exit 0
     fi
 }
 
 function removeServiceFromStartup() {
-
-    echo "uninstalling service $1 from startup"
-    if [[ $(type -P "chkconfig") ]]; then
-        echo "Using command 'chkconfig "${1}" off'"
-        chkconfig ${1} off
-    elif [[ $(type -P "update-rc.d") ]]; then
+    echo "uninstalling SysV service $1 from startup"
+    if command -v chkconfig >/dev/null 2>&1; then
+        echo "Using command 'chkconfig ${1} off'"
+        chkconfig "${1}" off || true
+    elif command -v update-rc.d >/dev/null 2>&1; then
         echo "using command 'update-rc.d -f ${1} remove'"
-        update-rc.d -f ${SERVICE_NAME} remove
+        update-rc.d -f "${1}" remove || true
     else
-        echo "Cannot find chkconfig or update-rc.d to remove service looking to removing from rc?.d folders"
+        echo "Cannot find chkconfig or update-rc.d; removing rc?.d links if present"
     fi
 
     if [ -d "/etc/rc.d/rc2.d" ]; then
-        echo "Removing links to etc/rc.d/rc*.d/S??${1} and /etc/rc.d/rc*.d/K??${1}"
-        rm -f /etc/rc.d/rc?.d/S??${1}
-        rm -f /etc/rc.d/rc?.d/K??${1}
+        rm -f /etc/rc.d/rc?.d/S??"${1}"
+        rm -f /etc/rc.d/rc?.d/K??"${1}"
     fi
     if [ -d "/etc/rc2.d" ]; then
-        echo "Removing links to etc/rc*.d/S??${1} and /etc/rc*.d/K??${1} "
-        rm -f /etc/rc?.d/S??${1}
-        rm -f /etc/rc?.d/K??${1}
+        rm -f /etc/rc?.d/S??"${1}"
+        rm -f /etc/rc?.d/K??"${1}"
     fi
+}
 
-
+function removeSystemdUnit() {
+    local name="$1"
+    local unit="/etc/systemd/system/${name}.service"
+    if [ -f "$unit" ] || systemctl list-unit-files "${name}.service" 2>/dev/null | grep -q "${name}.service"; then
+        echo "Removing systemd unit ${name}.service"
+        systemctl disable --now "${name}.service" 2>/dev/null || true
+        rm -f "$unit"
+        systemctl daemon-reload || true
+        systemctl reset-failed "${name}.service" 2>/dev/null || true
+    fi
 }
 
 function removeServiceScript() {
-
-    echo "removing files"
-    set -x
+    echo "removing service files for $1"
     rm -f "/etc/init.d/${1}"
     rm -f "/etc/default/${1}"
+    rm -f "/etc/systemd/system/${1}.service"
     rm -rf "$JETTY_RUN"
     rm -f "$JETTY_BASE/${SERVICE_NAME}.state"
-    { set +x; } > /dev/null 2>&1
-
 }
 
+function installInitScriptAndDefaults() {
+    echo "setting up pid folder ${JETTY_RUN} ownership user=${RX_USER} group=${RX_GROUP}"
+    mkdir -p "${JETTY_RUN}"
+    mkdir -p "/var/run/rxjetty/${SERVICE_NAME}"
+    chown -R "${RX_USER}:${RX_GROUP}" "/var/run/rxjetty/${SERVICE_NAME}"
+    chown -R "${RX_USER}:${RX_GROUP}" "${JETTY_RUN}"
+    chmod -R ugo+rw "/var/run/rxjetty/${SERVICE_NAME}"
 
+    local template="${JETTY_DEFAULTS}/bin/rxjetty.sh"
+    if [ ! -f "$template" ]; then
+        echo "Missing Jetty service template: $template" 1>&2
+        exit 1
+    fi
+    echo "Installing start helper to /etc/init.d/${SERVICE_NAME}"
+    sed -e "s/\${rxjetty_service}/$SERVICE_NAME/" "$template" > "/etc/init.d/${SERVICE_NAME}"
+    chmod 755 "/etc/init.d/${SERVICE_NAME}"
 
-distVersion=$(cat /proc/version 2>&1)
+    # /etc/default must be shell-sourceable (no shell commands mixed into env file)
+    cat > "/etc/default/${SERVICE_NAME}" <<EOF
+JAVA_HOME=${JAVA_HOME}
+JAVA=${JAVA_HOME}/bin/java
+JETTY_HOME=${JETTY_HOME}
+JETTY_BASE=${JETTY_BASE}
+JETTY_DEFAULTS=${JETTY_DEFAULTS}
+JETTY_CONF=${JETTY_CONF}
+JETTY_START_LOG=${JETTY_BASE}/logs/start.log
+JAVA_OPTIONS="-XX:+DisableAttachMechanism -Drxdeploydir=${rxDir} -Djetty_perc_defaults=${JETTY_DEFAULTS}"
+JETTY_RUN=${JETTY_RUN}
+JETTY_PID=${JETTY_RUN}/rxjetty.pid
+JETTY_ARGS="--include-jetty-dir=${JETTY_DEFAULTS}"
+JETTY_USER=${RX_USER}
+EOF
 
+    echo "Wrote /etc/default/${SERVICE_NAME}"
+    cat "/etc/default/${SERVICE_NAME}"
+}
 
-JETTY_ROOT=$(dirname $(dirname $(readlink -f "$0")))
+function installSystemdUnit() {
+    local unit_template
+    unit_template="$(dirname "$(readlink -f "$0")")/percussion-cms.service.in"
+    if [ ! -f "$unit_template" ]; then
+        echo "Missing systemd unit template: $unit_template" 1>&2
+        exit 1
+    fi
+    local unit_path="/etc/systemd/system/${SERVICE_NAME}.service"
+    local pid_file="${JETTY_RUN}/rxjetty.pid"
+    local env_file="/etc/default/${SERVICE_NAME}"
+    local init_script="/etc/init.d/${SERVICE_NAME}"
+    local description="Percussion CMS Jetty (${SERVICE_NAME})"
+
+    echo "Installing systemd unit ${unit_path}"
+    sed \
+        -e "s|@SERVICE_NAME@|${SERVICE_NAME}|g" \
+        -e "s|@DESCRIPTION@|${description}|g" \
+        -e "s|@PID_FILE@|${pid_file}|g" \
+        -e "s|@ENV_FILE@|${env_file}|g" \
+        -e "s|@INIT_SCRIPT@|${init_script}|g" \
+        -e "s|@JETTY_ROOT@|${JETTY_ROOT}|g" \
+        "$unit_template" > "$unit_path"
+    chmod 644 "$unit_path"
+
+    systemctl daemon-reload
+    systemctl enable "${SERVICE_NAME}.service"
+    echo "Enabled ${SERVICE_NAME}.service (not started). Start with: systemctl start ${SERVICE_NAME}"
+}
+
+function enableSysV() {
+    echo "Registering SysV/init.d service for boot"
+    if command -v chkconfig >/dev/null 2>&1; then
+        echo "Using 'chkconfig ${SERVICE_NAME} on'"
+        chkconfig "${SERVICE_NAME}" off > /dev/null 2>&1 || true
+        chkconfig "${SERVICE_NAME}" on
+    elif command -v update-rc.d >/dev/null 2>&1; then
+        echo "using 'update-rc.d ${SERVICE_NAME} defaults'"
+        update-rc.d "${SERVICE_NAME}" defaults
+    elif [ -d "/etc/rc2.d" ]; then
+        echo "Fall back to symbolic linking into /etc/rcx.d folders"
+        ln "/etc/init.d/${SERVICE_NAME}" "/etc/rc2.d/S99${SERVICE_NAME}"
+        ln "/etc/init.d/${SERVICE_NAME}" "/etc/rc0.d/K99${SERVICE_NAME}"
+    else
+        echo "Cannot find chkconfig or update-rc.d or /etc/rc2.d; start manually via /etc/init.d/${SERVICE_NAME}"
+        echo "${distVersion}"
+    fi
+}
+
+distVersion=$(cat /proc/version 2>&1 || true)
+
+JETTY_ROOT=$(dirname "$(dirname "$(readlink -f "$0")")")
 JETTY_HOME=${JETTY_ROOT}/upstream
 JETTY_BASE=${JETTY_ROOT}/base
 JETTY_DEFAULTS=${JETTY_ROOT}/defaults
-rxDir=$(dirname ${JETTY_ROOT})
-RX_USER=$(ls -ld ${rxDir} | awk '{print $3}')
-RX_GROUP=$(ls -ld ${rxDir} | awk '{print $4}')
+rxDir=$(dirname "${JETTY_ROOT}")
+RX_USER=$(ls -ld "${rxDir}" | awk '{print $3}')
+RX_GROUP=$(ls -ld "${rxDir}" | awk '{print $4}')
 JETTY_RUN=/var/run/rxjetty/${SERVICE_NAME}
 
-if [[ $(type -P "service") ]]; then
+if command -v service >/dev/null 2>&1; then
     serviceCmd="service ${SERVICE_NAME}"
 else
     serviceCmd="/etc/init.d/${SERVICE_NAME}"
 fi
-echo before uninstall $uninstall
-if [ "$uninstall" != "true" ];then
-echo in uninstall
 
-
-    if [  -f "/etc/init.d/${SERVICE_NAME}" ];then
-        echo "Service $SERVICE_NAME already installed"
+if [ "$uninstall" != "true" ]; then
+    # ----- install -----
+    if [ -f "/etc/init.d/${SERVICE_NAME}" ] || [ -f "/etc/systemd/system/${SERVICE_NAME}.service" ]; then
+        echo "Service ${SERVICE_NAME} already installed (init.d and/or systemd unit present). Uninstall first."
         exit 1
     fi
 
-
     checkForJbossService
     checkForJettyService
-    if [ ! -z "$currentService" ];
-    then
-       echo "A service with name $service with configuration at /etc/default/${service} is already set up to start this instance. Should be removed."
+    if [ ! -z "$currentService" ]; then
+        echo "A service with configuration at /etc/default/${currentService} is already set up for this instance. Remove it first."
+        exit 1
     fi
 
     echo "JETTY_ROOT=${JETTY_ROOT}"
     echo "rxDir=${rxDir}"
 
-    if [ -d ${rxDir}/JRE ]; then
+    if [ -d "${rxDir}/JRE" ]; then
         echo "Found ${rxDir}/JRE to use as JRE Folder"
         JAVA_HOME=${rxDir}/JRE
     else
         JAVA_HOME=${rxDir}/JRE64
     fi
 
-
-    if [ -f ${JETTY_BASE}/etc/jetty.conf ];then
+    if [ -f "${JETTY_BASE}/etc/jetty.conf" ]; then
         JETTY_CONF=${JETTY_BASE}/etc/jetty.conf
     else
         JETTY_CONF=${JETTY_DEFAULTS}/etc/jetty.conf
     fi
+
     echo "Please identify the user id that the percussion service should run as: <default: root>"
     read -r suppliedUser
+    if [ -z "$suppliedUser" ]; then
+        suppliedUser=root
+    fi
     echo "Using user id: ${suppliedUser}"
     echo "Generating ${rxDir}/rx_user.id file"
-    echo "SYSTEM_USER_ID=${suppliedUser}" > ${rxDir}/rx_user.id
+    echo "SYSTEM_USER_ID=${suppliedUser}" > "${rxDir}/rx_user.id"
     RX_USER=${suppliedUser}
     RX_GROUP=${suppliedUser}
-    echo "Ensuring permissions are set correctly and match top level ${rxDir} folder user=${RX_USER} group=${RX_GROUP}"
+    echo "Ensuring permissions match top level ${rxDir} folder user=${RX_USER} group=${RX_GROUP}"
     chown -R "${RX_USER}:${RX_GROUP}" "${rxDir}"
-    echo
-    echo
 
-    echo "setting up pid folder /var/run/${SERVICE_NAME} setting ownership to  user=${RX_USER} group=${RX_GROUP}"
+    installInitScriptAndDefaults
 
-    mkdir -p ${JETTY_RUN}
-    chown -R "${RX_USER}:${RX_GROUP}" "/var/run/rxjetty/${SERVICE_NAME}"
-    chown -R "${RX_USER}:${RX_GROUP}" "${JETTY_RUN}"
-    chmod -R ugo+rw /var/run/rxjetty/${SERVICE_NAME}
+    if command -v "/etc/init.d/${SERVICE_NAME}" >/dev/null 2>&1 || [ -x "/etc/init.d/${SERVICE_NAME}" ]; then
+        "/etc/init.d/${SERVICE_NAME}" check || true
+    fi
 
-    echo "copying startup script ${JETTY_DEFAULTS}/bin/jetty.sh /etc/init.d/${SERVICE_NAME}"
-
-    sed -e "s/\${rxjetty_service}/$SERVICE_NAME/" ${JETTY_DEFAULTS}/bin/rxjetty.sh > /etc/init.d/${SERVICE_NAME}
-    chmod 755 "/etc/init.d/${SERVICE_NAME}"
-
-    cat <<-EOF > /etc/default/${SERVICE_NAME}
-    JAVA_HOME=${JAVA_HOME}
-    JAVA=${JAVA_HOME}/bin/java
-    JETTY_HOME=${JETTY_HOME}
-    JETTY_BASE=${JETTY_BASE}
-    JETTY_DEFAULTS=${JETTY_DEFAULTS}
-    JETTY_CONF=${JETTY_CONF}
-    JETTY_START_LOG=${JETTY_BASE}/logs/start.log
-    JAVA_OPTIONS="-XX:+DisableAttachMechanism -Drxdeploydir=${rxDir} -Djetty_perc_defaults=${JETTY_DEFAULTS}"
-    JETTY_RUN=${JETTY_RUN}
-    JETTY_PID=${JETTY_RUN}/rxjetty.pid
-    JETTY_ARGS="--include-jetty-dir=${JETTY_DEFAULTS}"
-    JETTY_USER=${RX_USER}
-	  mkdir -p ${JETTY_RUN}
-    chown -R "${RX_USER}:${RX_GROUP}" "/var/run/rxjetty/${SERVICE_NAME}"
-    chmod -R ugo+rw /var/run/rxjetty/${SERVICE_NAME}
-EOF
-
-    echo "configuration for service ${SERVICE_NAME} in /etc/init.d/${SERVICE_NAME} must reinstall or update if paths change"
-
-    echo "**********"
-    cat /etc/default/${SERVICE_NAME}
-    echo "**********"
-    ${serviceCmd} check
-    echo "********"
-
-    echo "Attempting to use chkconfig or update-rc.d to start service automatically on server startup"
-
-
-    if [[ $(type -P "chkconfig" ) ]]; then
-        echo "Using 'chkconfig ${SERVICE_NAME} on' to add to add to server startup"
-        echo "Ignore if error is shown about runlevel 4"
-        chkconfig ${SERVICE_NAME} off > /dev/null 2>&1
-        chkconfig ${SERVICE_NAME} on
-    elif [[ $(type -P "update-rc.d") ]]; then
-        echo "using 'update-rc.d ${SERVICE_NAME} defaults' to add to server startup"
-        update-rc.d ${SERVICE_NAME} defaults
-    elif [ -d "/etc/rc2.d" ]; then
-        echo "Fall back to symbolic linking into /etc/rcx.d folders e.g. Solaris 9"
-        ln /etc/init.d/${SERVICE_NAME} /etc/rc2.d/S99${SERVICE_NAME}
-        ln /etc/init.d/${SERVICE_NAME} /etc/rc0.d/K99${SERVICE_NAME}
+    if use_systemd_install; then
+        echo "Detected systemd — installing native unit (init.d helper kept for ExecStart; SysV boot registration skipped)"
+        installSystemdUnit
+        echo "********"
+        echo "  Start:  systemctl start ${SERVICE_NAME}"
+        echo "  Stop:   systemctl stop ${SERVICE_NAME}"
+        echo "  Status: systemctl status ${SERVICE_NAME}"
+        echo "  Logs:   journalctl -u ${SERVICE_NAME} -n 100 --no-pager"
+        echo "  Also:   ${JETTY_BASE}/logs/ (application Log4j2)"
+        echo "  TimeoutStartSec=1800 (30m) — override with: systemctl edit ${SERVICE_NAME}"
+        echo "********"
     else
-        echo "Cannot find chkconfig or update-rc.d or /etc/rc2.d to run service on startup consult documentation on alternatives for your distro"
-        echo ${distVersion}
+        echo "Using classic init.d registration"
+        enableSysV
+        echo "********"
+        echo "  Start service with '${serviceCmd} start'"
+        echo "  Stop service with '${serviceCmd} stop'"
+        echo "  use '${serviceCmd}' without parameters to check other options"
+        echo "********"
     fi
 
-    echo "********"
-    echo "  Start service with '${serviceCmd} start'"
-    echo "  Stop service with '${serviceCmd} stop'"
-    echo "  use '${serviceCmd}' without parameters to check other options"
-    echo "********"
+else
+    # ----- uninstall -----
+    echo "Checking for installed service ${SERVICE_NAME}"
 
-else # Uninstall
-echo checking for jetty service
-    checkForJettyService
-
-    if [ ! -f "/etc/init.d/${SERVICE_NAME}" ];then
-        echo "Service $SERVICE_NAME not installed in /etc/init.d/${SERVICE_NAME}"
-        exit 1
+    if [ -f "/etc/systemd/system/${SERVICE_NAME}.service" ]; then
+        if systemctl is-active --quiet "${SERVICE_NAME}.service" 2>/dev/null; then
+            echo "Stopping systemd unit ${SERVICE_NAME}"
+            systemctl stop "${SERVICE_NAME}.service" || true
+        fi
+        removeSystemdUnit "${SERVICE_NAME}"
     fi
 
-    if cat "/etc/init.d/${SERVICE_NAME}" | grep -q "jetty"; then
-        echo "Found service installed to /etc/init.d/${SERVICE_NAME}"
-    else
-        cat "/etc/init.d/${SERVICE_NAME}" | grep -q "jetty"
-        echo "Service installed to /etc/init.d/${SERVICE_NAME} is not a Rhythmyx Jetty Service"
-        exit 1
+    if [ -f "/etc/init.d/${SERVICE_NAME}" ]; then
+        if cat "/etc/init.d/${SERVICE_NAME}" | grep -q "jetty"; then
+            echo "Found service installed to /etc/init.d/${SERVICE_NAME}"
+        else
+            echo "Service installed to /etc/init.d/${SERVICE_NAME} is not a Rhythmyx Jetty Service"
+            exit 1
+        fi
+        if ${serviceCmd} status 2>/dev/null | grep -q "Jetty running"; then
+            echo "Service still running, shutting down...."
+            ${serviceCmd} stop || true
+        fi
+        removeServiceFromStartup "${SERVICE_NAME}"
+    elif [ ! -f "/etc/systemd/system/${SERVICE_NAME}.service" ]; then
+        # unit already removed above; if neither existed:
+        if ! systemctl status "${SERVICE_NAME}.service" >/dev/null 2>&1; then
+            echo "Service $SERVICE_NAME not installed"
+            exit 1
+        fi
     fi
-    if  ${serviceCmd} status | grep "Jetty running" ; then
-        echo "Service still running, shutting down...."
-        ${serviceCmd} stop
-    fi
 
-
-
-    removeServiceFromStartup ${SERVICE_NAME}
-    removeServiceScript ${SERVICE_NAME}
-
-
+    removeServiceScript "${SERVICE_NAME}"
+    systemctl daemon-reload 2>/dev/null || true
 fi
+
 echo "done"

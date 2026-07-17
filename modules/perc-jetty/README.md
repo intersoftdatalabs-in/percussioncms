@@ -21,6 +21,20 @@ The module descriptor at src/main/jetty/defaults/modules/perc.mod is the source 
 
 Run: ../../mvn-env.sh -pl modules/perc-jetty clean install -DskipTests
 
+## Linux service (systemd) — GH-962
+
+Native systemd install is provided under `src/main/jetty/service/`:
+
+- `install-jetty-service.sh` — prefers systemd when available; `--initd` forces SysV
+- `percussion-cms.service.in` — unit template (`Type=forking`, `TimeoutStartSec=1800`, journal)
+- `README-systemd.md` — operator install / migrate / journal notes
+
+```bash
+sudo ./install-jetty-service.sh PercussionCMS install
+sudo systemctl start PercussionCMS
+journalctl -u PercussionCMS -n 50 --no-pager
+```
+
 ## Logging retention (GH-939)
 
 Application logs are configured by Log4j2 in:

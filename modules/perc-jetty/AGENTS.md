@@ -4,6 +4,15 @@
 
 - Read modules/perc-jetty/README.md before making changes in this module.
 
+## Linux service install (systemd / init.d)
+
+- Scripts: `src/main/jetty/service/install-jetty-service.sh`, unit template
+  `percussion-cms.service.in`, ops notes `README-systemd.md`
+- GH-962 / specs `988-linux-systemd-services`: prefer **native systemd** unit;
+  init.d is fallback (`--initd`). Do not dual-register chkconfig when systemd is used.
+- Default `TimeoutStartSec=1800` for long post-upgrade starts; journal for stdout/stderr.
+- Tests: `src/test/java/com/percussion/jetty/service/*Test.java`
+
 ## Logging (perc-logging / Log4j2)
 
 - Config: `src/main/jetty/defaults/modules/perc-logging/resources/log4j2.xml`
