@@ -48,8 +48,14 @@ class WebUiServletUtilsPackagingTest {
     Path pom = resolveWebUiPom();
     assertTrue(Files.isRegularFile(pom), "WebUI pom must exist at " + pom);
 
-    Document doc =
-        DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(pom.toFile());
+    DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+    // Harden against XXE even though the POM is a trusted repo file.
+    factory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
+    factory.setFeature("http://xml.org/sax/features/external-general-entities", false);
+    factory.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
+    factory.setXIncludeAware(false);
+    factory.setExpandEntityReferences(false);
+    Document doc = factory.newDocumentBuilder().parse(pom.toFile());
     doc.getDocumentElement().normalize();
 
     NodeList deps = doc.getElementsByTagName("dependency");

@@ -246,10 +246,7 @@ public class PSAclService implements IPSAclService
    @Transactional
    public IPSAcl createAcl(IPSGuid objGuid, IPSTypedPrincipal owner)
    {
-      if (objGuid == null)
-         throw new IllegalArgumentException("objGuid cannot be null");
-      if (owner == null)
-         throw new IllegalArgumentException("owner cannot be null");
+      // Thin proxy entry: validation lives in createAclImpl (fail-fast there).
       return createAclImpl(objGuid, owner);
    }
 

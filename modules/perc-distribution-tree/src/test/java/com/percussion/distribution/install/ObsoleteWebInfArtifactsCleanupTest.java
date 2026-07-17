@@ -188,6 +188,11 @@ class ObsoleteWebInfArtifactsCleanupTest {
       assertNotNull(in, INSTALL_XML + " must be on the classpath");
       DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
       dbf.setNamespaceAware(false);
+      dbf.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
+      dbf.setFeature("http://xml.org/sax/features/external-general-entities", false);
+      dbf.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
+      dbf.setXIncludeAware(false);
+      dbf.setExpandEntityReferences(false);
       DocumentBuilder db = dbf.newDocumentBuilder();
       return db.parse(new InputSource(in));
     }
