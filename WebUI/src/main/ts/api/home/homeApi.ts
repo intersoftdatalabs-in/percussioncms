@@ -37,6 +37,15 @@ export async function fetchRecentItems(
   return normalizeList(data);
 }
 
+/**
+ * Bookmarked content (classic CUI "My Bookmarks" via getMyContent).
+ * GET {@code /itemmanagement/item/mycontent}
+ */
+export async function fetchMyContent(): Promise<ContentListItem[]> {
+  const data = await get<unknown>(PATHS.MY_CONTENT);
+  return normalizeList(data);
+}
+
 /** All sites for Library root. */
 export async function fetchSites(): Promise<SiteSummary[]> {
   const data = await get<unknown>(`${PATHS.SITES_ALL}/`);
@@ -97,6 +106,7 @@ function normalizeList(data: unknown): ContentListItem[] {
     const obj = data as Record<string, unknown>;
     for (const key of [
       "RecentItemList",
+      "ItemProperties",
       "items",
       "ItemList",
       "results",

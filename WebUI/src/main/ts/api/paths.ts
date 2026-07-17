@@ -24,5 +24,6 @@ export const PATHS = {
   PATH_FOLDER: `${SERVICES_ROOT}/pathmanagement/path/folder`,
   FINDER_SEARCH_EXTENDED: `${SERVICES_ROOT}/searchmanagement/search/get/extendedresults`,
   PAGE_CREATE: `${SERVICES_ROOT}/pagemanagement/page`,
+  MY_CONTENT: `${SERVICES_ROOT}/itemmanagement/item/mycontent`,
   WIDGET_BUILDER: `${SERVICES_ROOT}/widgetmanagement/widgetbuilder`,
 } as const;

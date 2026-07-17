@@ -29,6 +29,7 @@ import {
   navStyle,
   shellStyle,
 } from "./home.styles";
+import { BookmarksSection } from "./sections/BookmarksSection";
 import { CreateSection } from "./sections/CreateSection";
 import { LibrarySection } from "./sections/LibrarySection";
 import { RecentSection } from "./sections/RecentSection";
@@ -48,21 +49,26 @@ export interface HomeShellProps {
 
 const SECTIONS: { id: HomeSection; key: string }[] = [
   { id: "recent", key: MSG.SECTION_RECENT },
+  { id: "bookmarks", key: MSG.SECTION_BOOKMARKS },
   { id: "library", key: MSG.SECTION_LIBRARY },
   { id: "search", key: MSG.SECTION_SEARCH },
   { id: "create", key: MSG.SECTION_CREATE },
 ];
 
+/**
+ * Open content using path-first navigation (classic openPathItem style).
+ * Falls back to id when path is absent.
+ */
 function defaultOpenItem(item: ContentListItem): void {
+  const path = item.path != null ? String(item.path).trim() : "";
   const id = item.id != null ? String(item.id) : "";
-  const path = item.path != null ? String(item.path) : "";
-  // Prefer existing editor view when content id is known
-  if (id) {
-    window.location.href = `/cm/app/?view=editor&id=${encodeURIComponent(id)}`;
+  if (path) {
+    // Editor view accepts path; product navigation historically opened by path
+    window.location.href = `/cm/app/?view=editor&path=${encodeURIComponent(path)}`;
     return;
   }
-  if (path) {
-    window.location.href = `/cm/app/?view=editor&path=${encodeURIComponent(path)}`;
+  if (id) {
+    window.location.href = `/cm/app/?view=editor&id=${encodeURIComponent(id)}`;
   }
 }
 
@@ -99,6 +105,9 @@ export function HomeShell({
       </nav>
       <main style={mainStyle}>
         {section === "recent" && <RecentSection onOpenItem={onOpenItem} />}
+        {section === "bookmarks" && (
+          <BookmarksSection onOpenItem={onOpenItem} />
+        )}
         {section === "library" && (
           <LibrarySection isAdmin={isAdmin} onOpenItem={onOpenItem} />
         )}

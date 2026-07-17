@@ -18121,5 +18121,19 @@ Documentación' href='https://percussioncmshelp.intsof.com/'&gt;percussioncmshel
     <tuv xml:lang="es"><seg>Esta página se ha movido o ya no está disponible. Use Inicio o Constructor de widgets en la navegación principal.</seg></tuv>
     <tuv xml:lang="hi"><seg>This page has moved or is no longer available. Use Home or Widget Builder from the main navigation.</seg></tuv>
 </tu>
+<tu tuid="perc.ui.home.modern@My Bookmarks">
+    <prop type="sectionname" xml:lang="en-us">Label</prop>
+    <note xml:lang="en-us">Home My Bookmarks section (classic CUI tab)</note>
+    <tuv xml:lang="en-us"><seg>My Bookmarks</seg></tuv>
+    <tuv xml:lang="es"><seg>Mis favoritos</seg></tuv>
+    <tuv xml:lang="hi"><seg>My Bookmarks</seg></tuv>
+</tu>
+<tu tuid="perc.ui.home.modern@No Bookmarks">
+    <prop type="sectionname" xml:lang="en-us">Label</prop>
+    <note xml:lang="en-us">Bookmarks empty state</note>
+    <tuv xml:lang="en-us"><seg>You have not bookmarked any content. Open content and use the bookmark action to add it here.</seg></tuv>
+    <tuv xml:lang="es"><seg>No ha marcado ningún contenido. Ábralo y use la acción de favorito para añadirlo aquí.</seg></tuv>
+    <tuv xml:lang="hi"><seg>You have not bookmarked any content. Open content and use the bookmark action to add it here.</seg></tuv>
+</tu>
     </body>
 </tmx>

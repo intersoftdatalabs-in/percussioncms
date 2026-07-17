@@ -33,6 +33,8 @@ Fill **Key** (existing or new). Mark **New?** when added in this feature. **Loca
 |---------------------|-----|------|------------|-------|
 | Home shell title / heading | perc.ui.home.modern@Home | Y | en/es/hi | |
 | Section: Recent | perc.ui.home@My Recent | reuse | existing | |
+| Section: My Bookmarks | perc.ui.home.modern@My Bookmarks | Y | en/es/hi | keep decision |
+| Bookmarks empty | perc.ui.home.modern@No Bookmarks | Y | en/es/hi | |
 | Section: Library | perc.ui.home.modern@Library | Y | en/es/hi | |
 | Section: Search | perc.ui.home.modern@Search | Y | en/es/hi | |
 | Section: Create | perc.ui.home@Add New | reuse | existing | |

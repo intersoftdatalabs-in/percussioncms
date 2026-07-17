@@ -21,6 +21,7 @@ import { HomeShell } from "@/home/HomeShell";
 
 vi.mock("@/api/home/homeApi", () => ({
   fetchRecentItems: vi.fn().mockResolvedValue([]),
+  fetchMyContent: vi.fn().mockResolvedValue([]),
   fetchSites: vi.fn().mockResolvedValue([]),
   fetchFolderChildren: vi.fn().mockResolvedValue([]),
   searchContent: vi.fn().mockResolvedValue([]),
@@ -38,6 +39,7 @@ describe("HomeShell", () => {
     render(<HomeShell initialSection="list" />);
     expect(screen.getByTestId("home-shell")).toBeDefined();
     expect(screen.getByText("perc.ui.home@My Recent")).toBeDefined();
+    expect(screen.getByText("perc.ui.home.modern@My Bookmarks")).toBeDefined();
     expect(screen.getByText("perc.ui.home.modern@Library")).toBeDefined();
     expect(screen.getByText("perc.ui.home.modern@Search")).toBeDefined();
     expect(screen.getByText("perc.ui.home@Add New")).toBeDefined();

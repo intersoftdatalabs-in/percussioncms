@@ -41,8 +41,9 @@ describe("mapInitialScreenToSection", () => {
     expect(mapInitialScreenToSection("not-a-screen")).toBe("recent");
   });
 
-  it("accepts modern section names", () => {
+  it("accepts modern section names including bookmarks", () => {
     expect(mapInitialScreenToSection("create")).toBe("create");
+    expect(mapInitialScreenToSection("bookmarks")).toBe("bookmarks");
   });
 
   it("exposes known legacy screens", () => {

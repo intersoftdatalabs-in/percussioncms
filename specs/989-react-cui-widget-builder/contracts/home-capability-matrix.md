@@ -21,7 +21,7 @@
 |------------|---------|------|------|-------|
 | Open Home from main nav | Yes | MUST | Done | `view=home` → modern shell |
 | Single modern shell (not iframe dual-mode) | Dual library vs CUI iframe | MUST (FR-002) | Done | New IA by design |
-| Sections: Recent, Library, Search, Create | Recent + Bookmarks + Search tab; Add/Search dialogs; Library mode separate | MUST (min four) | Done (structure) | Classic “Bookmarks” was a **content list tab**, not “URL bookmarks” |
+| Sections: Recent, **My Bookmarks**, Library, Search, Create | Recent + Bookmarks + Search tab; Add/Search dialogs; Library mode separate | MUST | Done (structure) | My Bookmarks = content list (`getMyContent`), not URL deep-links |
 | Deep link `initialScreen=library\|list\|search\|newitem` | Yes | MUST | Done (map) | See `home-deep-links.md` |
 | Visual language consistent with modern CM | CUI was already “minuet-ish” | MUST (US1) | Partial | Shell is functional; polish vs Dashboard ongoing |
 
@@ -43,10 +43,11 @@
 
 | Capability | Classic | Spec | Impl | Notes |
 |------------|---------|------|------|-------|
-| List bookmarked content (`getMyContent`) | Yes (CUI tab) | **Ambiguous** | Missing | Locked IA lists only Recent/Library/Search/Create. Classic **content** bookmarks were real functionality. **Recommendation: MUST preserve**—either as subsection under Recent or fifth section—not drop silently. |
-| Bookmark from item context | Yes | SHOULD | Missing | Tied to list actions |
+| List bookmarked content (`getMyContent` / `item/mycontent`) | Yes (CUI tab) | **MUST** | Done (section) | Product decision 2026-07-17: **Keep** as Home section **My Bookmarks**. |
+| Open bookmarked item | Yes | MUST | Partial | Path-first open (FR-001b) |
+| Bookmark from item context (star on lists) | Yes | SHOULD | Missing | Follow-on |
 
-**Clarify-note**: Spec “bookmarks” in deep-link Q means **URL bookmarks**, not this feature. Product intent (this doc): do **not** lose My Bookmarks without an explicit de-scope decision.
+**Clarify-note**: Spec deep-link “bookmarks” = **URL** bookmarks. **My Bookmarks content list** is separately locked as MUST (FR-002 / FR-002b).
 
 ---
 
@@ -150,7 +151,7 @@ Classic entry: **Add New** → type chooser (Page / Asset / Blog if blogs exist)
 1. **P0 — Create matrix §6 MUST rows** (chooser + page/asset/blog wizards + post-create open/locate).  
 2. **P0 — Open item** via product path navigation (Recent/Library/Search).  
 3. **P1 — Recent/Search usable lists** (metadata + proven APIs).  
-4. **P1 — My Bookmarks** preserve decision (recommend MUST under Create/Recent or own section).  
+4. **P1 — My Bookmarks** section shipped; deepen list metadata + star-from-list when needed.  
 5. **P2 — List rollover actions** (preview/copy/delete/bookmark) if product wants full classic list parity.  
 6. **P2 — Visual polish** to match modern CM (without changing capabilities).
 

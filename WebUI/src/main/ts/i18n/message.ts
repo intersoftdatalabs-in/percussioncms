@@ -52,10 +52,12 @@ export function message(key: string, args?: unknown[]): string {
 export const MSG = {
   HOME_TITLE: "perc.ui.home.modern@Home",
   SECTION_RECENT: "perc.ui.home@My Recent",
+  SECTION_BOOKMARKS: "perc.ui.home.modern@My Bookmarks",
   SECTION_LIBRARY: "perc.ui.home.modern@Library",
   SECTION_SEARCH: "perc.ui.home.modern@Search",
   SECTION_CREATE: "perc.ui.home@Add New",
   RECENT_EMPTY: "perc.ui.home.modern@No Recent Items",
+  BOOKMARKS_EMPTY: "perc.ui.home.modern@No Bookmarks",
   LIBRARY_EMPTY: "perc.ui.home@No Site Exists",
   LIBRARY_HELP: "perc.ui.home@Click on Site",
   SEARCH_EMPTY: "perc.ui.home.modern@No Search Results",

@@ -29,19 +29,20 @@
 - Q: Runtime resolution of TMX strings in modern Home/WB React? → A: Existing TMX JS pipeline — modern shell JSPs include `tmx.jsp` with session locale; React/TS resolves keys via `I18N.message` or a thin TypeScript wrapper over that global (no second catalog system).
 - Q: What must automated tests prove about i18n? → A: Key presence only — manual/PR checklist that UI strings map to TMX keys (SC-008); no required automated multi-locale or I18N mock assertions in Vitest for this feature.
 - Q: How to prevent losing classic Home function while modernizing stack/look? → A: Home capability matrix (`contracts/home-capability-matrix.md`) is normative for Create/open/list MUST rows; redesign preserves classic contributor capabilities (page/asset/blog wizards equal to CUI), not a thinner product.
+- Q: Preserve classic My Bookmarks content list on modern Home? → A: **Keep** — required Home section listing bookmarked content (`getMyContent` / item/mycontent) with open-item parity.
 
 ## User Scenarios & Testing
 Each story must be independently testable.
 
 ### User Story 1 - Modern Home / Contributor shell (Priority: P1)
 
-Content contributors open **Home** and work in a **single modern Home shell** (no embedded legacy contributor SPA and no separate “library mode vs contributor mode” shells). Within that shell they use **sections/routes**—at minimum **Recent**, **Library** (finder-style browse), **Search**, and **Create**—covering page/asset/blog (and related) flows that today’s Home/CUI + library mode provide, with the same visual language and session behavior as the modern Dashboard.
+Content contributors open **Home** and work in a **single modern Home shell** (no embedded legacy contributor SPA and no separate “library mode vs contributor mode” shells). Within that shell they use **sections/routes**—at minimum **Recent**, **My Bookmarks**, **Library** (finder-style browse), **Search**, and **Create**—covering page/asset/blog (and related) flows that today’s Home/CUI + library mode provide, with the same visual language and session behavior as the modern Dashboard.
 
 **Why P1**: Home is a primary landing surface; retiring the iframe and dual-mode strategy removes Knockout and unifies navigation.
 
 **Acceptance Scenarios**:
 1. **Given** a signed-in user with Home access, **When** they open Home from main navigation, **Then** they see one modern Home shell with navigable sections/routes (not an iframe-only or dual-mode layout).
-2. **Given** the user is on Home, **When** they open Recent, Library, Search, or Create sections, **Then** they complete list/browse, search, and create outcomes for supported roles; **Library** supports site/folder navigation and opening content items (contributor browse/open parity)—not necessarily every advanced admin finder action available elsewhere in Web Management.
+2. **Given** the user is on Home, **When** they open Recent, My Bookmarks, Library, Search, or Create sections, **Then** they complete list/browse, search, and create outcomes for supported roles; **Library** supports site/folder navigation and opening content items (contributor browse/open parity)—not necessarily every advanced admin finder action available elsewhere in Web Management; **My Bookmarks** lists bookmarked content and opens items.
 3. **Given** the user starts a page, asset, or blog creation flow from Home Create (via type chooser and wizard steps equivalent in capability to classic CUI), **When** they complete required fields and confirm, **Then** the content item is created and they can open or locate it as they can today (see capability matrix §6).
 4. **Given** deep links that previously selected Home `initialScreen` values (library, list, search, newitem), **When** opened after migration, **Then** they map to the corresponding modern section/route (known mappings; no classic UI).
 5. **Given** session timeout or permission errors during Home flows, **When** the user acts, **Then** they receive clear recovery (re-login or denied message) without a blank embedded frame.
@@ -103,7 +104,8 @@ In the **same release** that ships modern Home (US1) and modern Widget Builder (
 - **FR-001**: Product MUST provide a modern Home / contributor experience that fulfills the primary tasks of today’s Home (browse/recent, library-style access, search, create page/asset/blog and related add flows) without requiring the legacy embedded contributor SPA for those tasks. Modernization is of **presentation and stack**, not a reduction of classic Home/CUI contributor capabilities listed as MUST in the [Home capability matrix](./contracts/home-capability-matrix.md).
 - **FR-001a**: Home **Create** MUST implement **page**, **asset**, and **blog post** creation with **equal capability** to classic CUI wizards (type chooser; site/template/folder or type/folder or site/blog selection as applicable; required title/name fields; authorization messaging; persist via existing create semantics; after create, open or locate the item). Free-text-only forms that omit product pickers are **not** sufficient. Detail rows: [home-capability-matrix.md](./contracts/home-capability-matrix.md) §6.
 - **FR-001b**: Opening a content item from Home Recent, Library, or Search MUST use the product’s existing path-based open/navigation behavior (classic equivalent: open path item into the editor)—not an incomplete ad-hoc URL that fails for normal contributor items.
-- **FR-002**: Product MUST implement Home as a **single shell** with sections/routes including at least **Recent**, **Library**, **Search**, and **Create**. Product MUST NOT retain separate library-mode vs contributor-iframe shells for the Home nav tab.
+- **FR-002**: Product MUST implement Home as a **single shell** with sections/routes including at least **Recent**, **My Bookmarks**, **Library**, **Search**, and **Create**. Product MUST NOT retain separate library-mode vs contributor-iframe shells for the Home nav tab.
+- **FR-002b**: Home **My Bookmarks** MUST list the current user’s bookmarked content (classic CUI My Bookmarks / `getMyContent`) and allow opening an item with the same open behavior as Recent (FR-001b).
 - **FR-002a**: Home **Library** MUST support site/folder navigation and opening content items for contributor workflows. Full parity with every advanced Web Management finder affordance is NOT required on Home; those may remain on other screens.
 - **FR-003**: Modern Home MUST preserve role-appropriate empty states and messaging (e.g. no sites / create site for admins).
 - **FR-004**: Modern Home MUST honor existing session, CSRF, and **user locale** (e.g. `sys_lang` / session locale used by product TMX) consistent with other CM screens.
@@ -154,7 +156,7 @@ In the **same release** that ships modern Home (US1) and modern Widget Builder (
 - Home Library targets **contributor browse/open** parity (site/folder + open item), not a full clone of every Web Management finder admin action.
 - CUI-exclusive blog wizard and create flows must be preserved or explicitly replaced with equal capability (see [home-capability-matrix.md](./contracts/home-capability-matrix.md)).
 - Classic Home was limited in surface area but **product-complete** for listed contributor tasks; the React redesign MUST NOT drop MUST-matrix capabilities in exchange for a thinner UI.
-- Classic **My Bookmarks** content list is not one of the four locked IA section names; product SHOULD still preserve bookmark list access (e.g. under Recent or an explicit subsection) unless explicitly de-scoped—tracked in the capability matrix as ambiguous → recommended preserve.
+- Classic **My Bookmarks** content list is a **required** Home section (product decision: keep); implemented via `item/mycontent` alongside Recent / Library / Search / Create.
 - Widget Builder remains optional via existing enablement; not all sites use it.
 - **No dual-path beta**: classic Home/CUI and classic Widget Builder UIs are removed when modern equivalents ship (US1+US2+US3 same release after UAT). Pre-release QA may use feature branches/builds, not a supported classic toggle in production.
 - Classic `home.jsp` / `widgetBuilder.jsp` are **not** reused as modern hosts; cutover deletes them and rewires nav/config to modern modules.

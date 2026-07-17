@@ -16,7 +16,11 @@
  */
 
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import { fetchRecentItems, fetchSites } from "@/api/home/homeApi";
+import {
+  fetchMyContent,
+  fetchRecentItems,
+  fetchSites,
+} from "@/api/home/homeApi";
 import type { ApiError } from "@/api/client";
 
 describe("homeApi", () => {
@@ -41,6 +45,20 @@ describe("homeApi", () => {
     const items = await fetchRecentItems("item");
     expect(items).toHaveLength(1);
     expect(items[0].name).toBe("Page A");
+  });
+
+  it("fetchMyContent maps ItemProperties list", async () => {
+    const fetchMock = globalThis.fetch as ReturnType<typeof vi.fn>;
+    fetchMock.mockResolvedValue({
+      ok: true,
+      status: 200,
+      json: async () => ({
+        ItemProperties: [{ name: "Bookmarked", path: "/Sites/a/b" }],
+      }),
+    });
+    const items = await fetchMyContent();
+    expect(items).toHaveLength(1);
+    expect(items[0].name).toBe("Bookmarked");
   });
 
   it("fetchSites surfaces API errors", async () => {

@@ -21,13 +21,20 @@
  * @see specs/989-react-cui-widget-builder/contracts/home-deep-links.md
  */
 
-export type HomeSection = "recent" | "library" | "search" | "create";
+export type HomeSection =
+  | "recent"
+  | "bookmarks"
+  | "library"
+  | "search"
+  | "create";
 
 const INITIAL_SCREEN_MAP: Record<string, HomeSection> = {
   library: "library",
   list: "recent",
   search: "search",
   newitem: "create",
+  bookmarks: "bookmarks",
+  bookmark: "bookmarks",
 };
 
 /**
@@ -43,6 +50,7 @@ export function mapInitialScreenToSection(
   const normalized = initialScreen.trim().toLowerCase();
   if (
     normalized === "recent" ||
+    normalized === "bookmarks" ||
     normalized === "library" ||
     normalized === "search" ||
     normalized === "create"
