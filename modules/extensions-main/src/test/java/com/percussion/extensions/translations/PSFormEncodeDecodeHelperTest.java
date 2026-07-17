@@ -196,18 +196,31 @@ public class PSFormEncodeDecodeHelperTest {
   }
 
   /**
+   * Production {@code MAX_COMMENT_INPUT_LENGTH} is private ({@code 64 * 1024}); keep this test
+   * constant strictly above that value without coupling to the production field visibility.
+   */
+  private static final int PRODUCTION_MAX_COMMENT_INPUT_LENGTH = 64 * 1024;
+
+  /** Deliberately larger than {@link #PRODUCTION_MAX_COMMENT_INPUT_LENGTH} for the pass-through path. */
+  private static final int OVERSIZE_INPUT_CHARS = 70 * 1024;
+
+  /** Length of {@code <!--} + {@code -->} wrappers around the synthetic comment body. */
+  private static final int HTML_COMMENT_WRAPPER_LEN = 7;
+
+  /**
    * Defensive: input above the size cap is returned unchanged (the helper must not throw, hang, or
-   * truncate adversarial payloads). The cap is {@code MAX_COMMENT_INPUT_LENGTH = 64 * 1024} chars
-   * (declared {@code private} in the production class); this test builds a 70 KiB body, which
-   * exceeds the cap by ~6 KiB. The {@code - 7} accounts for the {@code <!--}/{@code -->} wrapper
-   * so the comment body itself is the intended 70 KiB - 7.
+   * truncate adversarial payloads). Builds a body of {@link #OVERSIZE_INPUT_CHARS} total chars so
+   * the payload exceeds {@link #PRODUCTION_MAX_COMMENT_INPUT_LENGTH}; the body loop subtracts
+   * {@link #HTML_COMMENT_WRAPPER_LEN} so the full string length is exactly {@code OVERSIZE_INPUT_CHARS}.
    */
   @Test
   void testEncodePassesThroughOversizedInput() {
-    int overCap = 70 * 1024;
-    StringBuilder input = new StringBuilder(overCap);
+    assertTrue(
+        OVERSIZE_INPUT_CHARS > PRODUCTION_MAX_COMMENT_INPUT_LENGTH,
+        "test oversize must exceed the production cap");
+    StringBuilder input = new StringBuilder(OVERSIZE_INPUT_CHARS);
     input.append("<!--");
-    for (int i = 0; i < overCap - 7; i++) {
+    for (int i = 0; i < OVERSIZE_INPUT_CHARS - HTML_COMMENT_WRAPPER_LEN; i++) {
       input.append('a');
     }
     input.append("-->");
