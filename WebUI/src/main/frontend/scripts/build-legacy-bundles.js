@@ -97,19 +97,24 @@ function resolvePath(filePath, baseDir = WAR_DIR) {
 }
 
 /**
- * Read a file. Returns { content, missing } so callers can fail hard when
- * intermediate bundles would otherwise be silently empty.
+ * Read a file. Returns { content, missing, error } so callers can fail hard
+ * when intermediate bundles would otherwise be silently empty, and distinguish
+ * "not found" from I/O errors (permissions, etc.).
  */
 function readFile(filePath) {
   try {
     if (!fs.existsSync(filePath)) {
       console.warn(`  ⚠️  Missing file: ${filePath}`);
-      return { content: "", missing: true };
+      return { content: "", missing: true, error: false };
     }
-    return { content: fs.readFileSync(filePath, "utf8"), missing: false };
+    return {
+      content: fs.readFileSync(filePath, "utf8"),
+      missing: false,
+      error: false,
+    };
   } catch (err) {
     console.error(`  ❌ Error reading ${filePath}:`, err.message);
-    return { content: "", missing: true };
+    return { content: "", missing: false, error: true };
   }
 }
 
@@ -129,10 +134,11 @@ function buildBundlesFromConfig(
   const { failOnMissing = false } = options;
   const configPath = path.join(BUNDLE_CONFIG_DIR, configFile);
   let missingCount = 0;
+  let errorCount = 0;
 
   if (!fs.existsSync(configPath)) {
     console.warn(`⚠️  Config file not found: ${configPath}`);
-    return { missingCount: 1 };
+    return { missingCount: 1, errorCount: 0 };
   }
 
   console.log(`\n📦 Processing ${configFile} (Phase ${processingPhase})...`);
@@ -166,9 +172,12 @@ function buildBundlesFromConfig(
     const parts = [];
     for (const file of bundle.files) {
       const fullPath = resolvePath(file);
-      const { content, missing } = readFile(fullPath);
+      const { content, missing, error } = readFile(fullPath);
       if (missing) {
         missingCount += 1;
+      }
+      if (error) {
+        errorCount += 1;
       }
       parts.push(content);
     }
@@ -181,13 +190,20 @@ function buildBundlesFromConfig(
     console.log(`    ✓ ${outputName} (${sizeKb}KB)`);
   });
 
-  if (failOnMissing && missingCount > 0) {
+  if (failOnMissing && (missingCount > 0 || errorCount > 0)) {
+    const parts = [];
+    if (missingCount > 0) {
+      parts.push(`${missingCount} source file(s) missing`);
+    }
+    if (errorCount > 0) {
+      parts.push(`${errorCount} source file(s) unreadable (I/O error)`);
+    }
     throw new Error(
-      `${configFile}: ${missingCount} source file(s) missing while building intermediate bundles (source root: ${WAR_DIR})`
+      `${configFile}: ${parts.join(", ")} while building intermediate bundles (source root: ${WAR_DIR})`
     );
   }
 
-  return { missingCount };
+  return { missingCount, errorCount };
 }
 
 /**

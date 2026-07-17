@@ -114,6 +114,21 @@ describe("legacy intermediate bundle builder", () => {
   });
 
   it("builds non-trivial shared-common* / shared-finder intermediates", () => {
+    // Integration-style: exercises real resolvePath + concatenation. Writes under
+    // target/generated-webui/cm (OUTPUT_DIR), which is gitignored. Requires npm
+    // packages for jquery/etc. when WAR_DIR maps to npm; skips if node_modules absent.
+    const jquery = path.join(
+      path.dirname(path.dirname(path.dirname(__dirname))),
+      "node_modules",
+      "jquery",
+      "dist",
+      "jquery.js"
+    );
+    if (!fs.existsSync(jquery)) {
+      // Hermetic CI without frontend node_modules still gets resolution tests above.
+      return;
+    }
+
     buildBundlesFromConfig("common-bundles.json", 1, { failOnMissing: true });
     buildBundlesFromConfig("common-minuet-bundles.json", 1, {
       failOnMissing: true,
