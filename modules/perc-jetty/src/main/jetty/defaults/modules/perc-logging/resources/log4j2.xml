@@ -11,7 +11,13 @@
 -->
 <Configuration status="warn" monitorInterval="30">
 	<Properties>
-		<!-- logs/ sits next to the modules/ tree under jetty base -->
+		<!--
+		  configParentLocation = …/modules/perc-logging/resources (this file's directory).
+		  ../logs => …/modules/perc-logging/logs (sibling of resources under perc-logging).
+		  At runtime jetty base lays out modules/perc-logging from the perc-logging module
+		  tree; operators typically also symlink or collect logs under jetty.base/logs via
+		  ops layout — this property is relative to the config file location, not jetty.base.
+		-->
 		<Property name="logdir">${log4j:configParentLocation}/../logs</Property>
 	</Properties>
 	<Appenders>

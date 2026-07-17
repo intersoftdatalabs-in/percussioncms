@@ -44,7 +44,7 @@ import org.w3c.dom.NodeList;
  */
 class PercLoggingLog4j2ConfigTest {
 
-  private static final Path LOG4J2_CONFIG =
+  private static final Path RELATIVE_FROM_MODULE =
       Path.of(
           "src",
           "main",
@@ -55,6 +55,9 @@ class PercLoggingLog4j2ConfigTest {
           "resources",
           "log4j2.xml");
 
+  private static final Path RELATIVE_FROM_REPO_ROOT =
+      Path.of("modules", "perc-jetty").resolve(RELATIVE_FROM_MODULE);
+
   /** Expected rolled-file glob prefix per RollingFile appender name. */
   private static final Map<String, String> APPENDER_GLOBS =
       Map.of(
@@ -64,17 +67,42 @@ class PercLoggingLog4j2ConfigTest {
           "RevisionPurgeApp", "revisionPurge-*.log");
 
   private static Document configDoc;
+  private static Path log4j2Config;
+
+  /**
+   * Resolve log4j2.xml whether surefire CWD is the module dir or the repo root
+   * (multi-module reactor / IDE).
+   */
+  private static Path resolveLog4j2Config() {
+    Path cwd = Path.of("").toAbsolutePath().normalize();
+    Path[] candidates =
+        new Path[] {
+          cwd.resolve(RELATIVE_FROM_MODULE),
+          cwd.resolve(RELATIVE_FROM_REPO_ROOT),
+          // Walk up a few levels for nested IDE run configs
+          cwd.getParent() != null ? cwd.getParent().resolve(RELATIVE_FROM_REPO_ROOT) : null,
+        };
+    for (Path c : candidates) {
+      if (c != null && Files.isRegularFile(c)) {
+        return c.normalize();
+      }
+    }
+    return cwd.resolve(RELATIVE_FROM_MODULE);
+  }
 
   @BeforeAll
   static void loadConfig() throws Exception {
+    log4j2Config = resolveLog4j2Config();
     assertTrue(
-        Files.isRegularFile(LOG4J2_CONFIG),
-        () -> "Missing perc-logging log4j2.xml at " + LOG4J2_CONFIG.toAbsolutePath());
+        Files.isRegularFile(log4j2Config),
+        () -> "Missing perc-logging log4j2.xml (tried module- and repo-relative paths from "
+            + Path.of("").toAbsolutePath()
+            + ")");
     DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
     factory.setNamespaceAware(false);
     factory.setExpandEntityReferences(false);
     factory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
-    try (InputStream in = Files.newInputStream(LOG4J2_CONFIG)) {
+    try (InputStream in = Files.newInputStream(log4j2Config)) {
       configDoc = factory.newDocumentBuilder().parse(in);
     }
   }
