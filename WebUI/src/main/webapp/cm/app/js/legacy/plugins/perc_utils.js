@@ -625,7 +625,111 @@
       dlgOptions.beforeclose = saveConfirmUserSetting;
     }
 
-    dialog = $("<div/>").append(settings.question).perc_dialog(dlgOptions);
+    dialog = $("<div/>")
+      .append(percSafeDialogContent(settings.question))
+      .perc_dialog(dlgOptions);
+  }
+
+  // Several first-party callers of confirm_dialog()/alert_dialog()/
+  // prompt_dialog() intentionally build small formatted warnings (e.g.
+  // <span id=... style=...>, <p id=...>, <strong>, <br>, and even a
+  // <table> of affected usernames for PercUserView's LDAP-import
+  // warning, or an <a href="..."> link via
+  // perc_utils.replaceURLWithHTMLLinks()) for confirmation dialogs such
+  // as "Delete Role" or "Disable Site Security" -- a blanket
+  // text-escape would visibly break those dialogs by displaying literal
+  // tag syntax instead of the intended
+  // formatting. This allowlist sanitizer preserves that narrow,
+  // observed-in-the-wild set of structural/style tags and attributes
+  // while stripping everything else (event handler attributes,
+  // <script>/<img>/<iframe>/any other tag, javascript:/data:/vbscript:
+  // URLs, CSS expression()/url(javascript:) tricks) -- closing
+  // js/xss-through-dom without breaking legitimate formatting. Modeled
+  // on the same DOMParser-based allowlist approach already vendored in
+  // this codebase's own bootstrap.bundle.js sanitizer.
+  var PERC_DIALOG_HTML_ALLOWED_TAGS = {
+    SPAN: true,
+    P: true,
+    STRONG: true,
+    B: true,
+    EM: true,
+    I: true,
+    U: true,
+    SMALL: true,
+    DIV: true,
+    BR: true,
+    // Tabular warnings (e.g. PercUserView's LDAP-import-failure dialog,
+    // which lists the affected usernames in a <table>) and links (e.g.
+    // perc_utils.replaceURLWithHTMLLinks(), which turns bare http(s)/ftp/
+    // file URLs in a message into <a href="...">...</a>).
+    TABLE: true,
+    THEAD: true,
+    TBODY: true,
+    TR: true,
+    TD: true,
+    TH: true,
+    A: true,
+  };
+  var PERC_DIALOG_HTML_ALLOWED_ATTRS = ["id", "class", "style", "href"];
+  var PERC_DIALOG_HTML_UNSAFE_ATTR_VALUE =
+    /javascript:|data:|vbscript:|expression\s*\(/i;
+
+  function percSanitizeDialogNode(parent) {
+    var children = Array.prototype.slice.call(parent.childNodes);
+    children.forEach(function (child) {
+      if (child.nodeType === 1) {
+        if (!PERC_DIALOG_HTML_ALLOWED_TAGS[child.tagName]) {
+          parent.removeChild(child);
+          return;
+        }
+        Array.prototype.slice.call(child.attributes).forEach(function (attr) {
+          var name = attr.name.toLowerCase();
+          // Strip whitespace/ASCII control characters from a throwaway
+          // copy before scheme-sniffing (never from the value actually
+          // written back to the DOM, so legitimate values like
+          // style="color: red" keep their spaces). Real URL parsers
+          // (WHATWG URL Standard, used by browsers for href navigation)
+          // strip TAB/LF/CR from anywhere in a URL before resolving its
+          // scheme, so "java\tscript:alert(1)" still resolves to a live
+          // javascript: URL even though it doesn't literally contain the
+          // substring "javascript:" -- the naive regex test alone would
+          // miss that.
+          var schemeCheckValue = attr.value.replace(
+            /[\s\u0000-\u001f\u007f]+/g,
+            ""
+          );
+          if (
+            PERC_DIALOG_HTML_ALLOWED_ATTRS.indexOf(name) === -1 ||
+            PERC_DIALOG_HTML_UNSAFE_ATTR_VALUE.test(schemeCheckValue)
+          ) {
+            child.removeAttribute(attr.name);
+          }
+        });
+        percSanitizeDialogNode(child);
+      } else if (child.nodeType !== 3) {
+        // Strip comments/CDATA/processing instructions -- only allowed
+        // elements (filtered above) and plain text nodes ever survive.
+        parent.removeChild(child);
+      }
+    });
+  }
+
+  function percSafeDialogContent(content) {
+    // Duck-type rather than `instanceof jQuery` so a jQuery object
+    // constructed by a *different* frame's jQuery instance (this file
+    // is sometimes called cross-frame, e.g. window.parent.jQuery...) is
+    // still recognized correctly.
+    if (
+      (content && typeof content.jquery === "string") ||
+      (content && content.nodeType)
+    ) {
+      return content;
+    }
+    var text =
+      content === null || content === undefined ? "" : String(content);
+    var parsed = new DOMParser().parseFromString(text, "text/html");
+    percSanitizeDialogNode(parsed.body);
+    return $(parsed.body.childNodes);
   }
 
   function alert_dialog(options) {
@@ -646,7 +750,7 @@
 
     var dialog;
     dialog = $("<div/>")
-      .append(settings.content)
+      .append(percSafeDialogContent(settings.content))
       .perc_dialog({
         dialogClass: "perc-alert-dialog",
         title: settings.title,
@@ -682,7 +786,7 @@
     var dialog = $("<div/>")
       .append(
         $("<label for='perc-prompt-dialog-question'/>").append(
-          settings.question
+          percSafeDialogContent(settings.question)
         )
       )
       .append($("<br/>"))
@@ -1175,13 +1279,29 @@
       dbl(e);
     });
   }
+  // Resolve the perc_toggle() target without ever handing a caller-supplied
+  // string to jQuery's $() HTML-parsing constructor (closes
+  // js/unsafe-jquery-plugin: "constructs HTML from some of its options").
+  // An element/jQuery object is passed through as-is; a string is treated
+  // strictly as a CSS selector via .find(), which uses the Sizzle selector
+  // engine and never HTML-sniffs its argument the way $(string) does.
+  function percResolveToggleTarget(d) {
+    if (d && typeof d.jquery === "string") {
+      return d;
+    }
+    if (d && d.nodeType) {
+      return $(d);
+    }
+    return $(document).find(d);
+  }
   $.fn.perc_toggle = function (d) {
-    if ($(d).length && $(d).hasClass("perc-hidden")) {
-      $(d).removeClass("perc-hidden");
-      $(d).addClass("perc-visible");
+    var $d = percResolveToggleTarget(d);
+    if ($d.length && $d.hasClass("perc-hidden")) {
+      $d.removeClass("perc-hidden");
+      $d.addClass("perc-visible");
     } else {
-      $(d).removeClass("perc-visible");
-      $(d).addClass("perc-hidden");
+      $d.removeClass("perc-visible");
+      $d.addClass("perc-hidden");
     }
 
     return this;
@@ -1769,5 +1889,5 @@ function htmlEntities(str) {
     .replace(/</g, "&lt;")
     .replace(/>/g, "&gt;")
     .replace(/"/g, "&quot;")
-    .replace(/'/, "&#39;");
+    .replace(/'/g, "&#39;");
 }
