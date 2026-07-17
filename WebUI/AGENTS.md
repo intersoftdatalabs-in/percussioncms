@@ -159,7 +159,7 @@ WebUI/
 - Compiled Java classes (src/main/java)
 - JSP pages and assets (src/main/webapp)
 - Generated React bundles (target/generated-webui/cm/modern)
-- Generated legacy bundles (target/generated-webui/cm/jslibMin, cssMin)
+- Generated legacy bundles (target/generated-webui/cm/jslibMin, cssMin, shared-common*, shared-finder.js)
 
 ### Node.js/npm Commands (Frontend Development)
 
@@ -420,6 +420,9 @@ useEffect(() => {
 - `target/generated-webui/cm/modern/` — React bundles
 - `target/generated-webui/cm/jslibMin/` — Minified legacy JS
 - `target/generated-webui/cm/cssMin/` — Minified legacy CSS
+- `target/generated-webui/cm/shared-common.js` (and `-minuet`, `.css`, `shared-finder.js`) — intermediate concatenations from `src/main/resources/minify/*-bundles.json` via `src/main/frontend/scripts/build-legacy-bundles.js`
+
+Do **not** check intermediate bundles into `src/main/webapp/cm/`. Maven overlays `target/generated-webui` into the WAR. Committed copies drift from source and create duplicate CodeQL false positives.
 
 **.gitignore includes:**
 
@@ -428,6 +431,14 @@ WebUI/target/generated-webui/
 WebUI/war/modern/
 WebUI/war/jslibMin/
 WebUI/war/cssMin/
+WebUI/src/main/webapp/cm/modern/
+WebUI/src/main/webapp/cm/jslibMin/
+WebUI/src/main/webapp/cm/cssMin/
+WebUI/src/main/webapp/cm/shared-common.js
+WebUI/src/main/webapp/cm/shared-common-minuet.js
+WebUI/src/main/webapp/cm/shared-finder.js
+WebUI/src/main/webapp/cm/shared-common.css
+WebUI/src/main/webapp/cm/shared-common-minuet.css
 ```
 
 ### WAR Contents
@@ -441,6 +452,7 @@ cm/
 ├── jslibMin/            # Minified bundles (generated)
 ├── cssMin/              # Minified CSS (generated)
 ├── modern/              # React bundles (generated)
+├── shared-common*.js/css, shared-finder.js  # intermediate concatenations (generated)
 ├── vendor/              # jQuery, Bootstrap, etc. (from source)
 ├── widgets/, themes/, api/
 └── [other static assets]
