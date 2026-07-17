@@ -1227,14 +1227,10 @@
     return $(document).find(d);
   }
   $.fn.perc_toggle = function (d) {
-    // codeql[js/unsafe-jquery-plugin] reason: `d` is treated purely as a
-    // selector reference here. The value is forwarded only to .hasClass(),
-    // .addClass(), and .removeClass() which all operate on the matched
-    // DOM elements without parsing `d` as HTML, so an attacker-controlled
-    // `d` cannot inject script via this plugin.
-    if ($(d).length && $(d).hasClass("perc-hidden")) {
-      $(d).removeClass("perc-hidden");
-      $(d).addClass("perc-visible");
+    var $d = percResolveToggleTarget(d);
+    if ($d.length && $d.hasClass("perc-hidden")) {
+      $d.removeClass("perc-hidden");
+      $d.addClass("perc-visible");
     } else {
       $d.removeClass("perc-visible");
       $d.addClass("perc-hidden");

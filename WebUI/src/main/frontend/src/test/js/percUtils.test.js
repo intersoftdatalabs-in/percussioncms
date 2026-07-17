@@ -152,14 +152,17 @@ describe("source-pattern (anti-regression for js/xss-through-dom, js/incomplete-
     expect(code).not.toMatch(/\.append\(\s*settings\.question\s*\)/);
   });
 
-  it("perc_toggle is annotated as a false-positive safe plugin", () => {
-    // Pin the inline codeql suppression so any regression that removes the
-    // annotation fails this test. The suppression may appear immediately
-    // above the function or inside the function body, so we use a
-    // forward-only [\s\S]*? match that allows the suppression and the
-    // function definition to be anywhere within a 500-char window.
+  it("perc_toggle forwards 'd' through percResolveToggleTarget (no raw $)", () => {
+    // The fix for js/unsafe-jquery-plugin is to avoid handing a raw
+    // caller-supplied value to jQuery's $() HTML-parsing constructor. The
+    // resolved target is the only thing that ever sees the DOM API. We
+    // pin that contract by asserting the function body goes through the
+    // helper and that no $(d) remains in the if/else branches.
     expect(src).toMatch(
-      /(\$\.fn\.perc_toggle\s*=\s*function[\s\S]{0,500}?codeql\[js\/unsafe-jquery-plugin\]|codeql\[js\/unsafe-jquery-plugin\][\s\S]{0,500}?\$\.fn\.perc_toggle\s*=\s*function)/
+      /\$\.fn\.perc_toggle\s*=\s*function\s*\(\s*d\s*\)\s*\{[\s\S]{0,200}?percResolveToggleTarget\(d\)/
+    );
+    expect(src).not.toMatch(
+      /\$\.fn\.perc_toggle\s*=\s*function[\s\S]{0,200}?\$\(d\)/
     );
   });
 });
