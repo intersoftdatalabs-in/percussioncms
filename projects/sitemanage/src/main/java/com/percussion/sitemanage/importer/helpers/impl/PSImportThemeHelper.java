@@ -27,6 +27,7 @@ import com.percussion.sitemanage.error.PSSiteImportException;
 import com.percussion.sitemanage.importer.theme.IPSFileDownloader;
 import com.percussion.sitemanage.importer.theme.PSFileDownloader;
 import com.percussion.sitemanage.importer.theme.PSHTMLHeaderImporter;
+import com.percussion.security.io.PSPathInjectionGuard;
 import com.percussion.sitesummaryservice.service.IPSSiteImportSummaryService;
 import com.percussion.theme.data.PSThemeSummary;
 import com.percussion.theme.service.IPSThemeService;
@@ -56,6 +57,11 @@ public class PSImportThemeHelper extends PSImportHelper {
   private IPSThemeService themeService;
   private static final Logger log = LogManager.getLogger(PSImportThemeHelper.class);
   private PSHTMLHeaderImporter headerImporter;
+  // Cached per-process theme root directory. Held so removeIfExists (called
+  // after the header importer is built) can validate user-supplied CSS link
+  // paths against the same base the importer used to translate them. See
+  // process() where it is assigned from themeService.
+  private String themeRootDirectory;
   private static final String STATUS_MESSAGE = "importing theme furniture";
 
   @Autowired
@@ -108,6 +114,8 @@ public class PSImportThemeHelper extends PSImportHelper {
           themeService.getThemeRootDirectory(themeSummary != null ? themeSummary.getName() : "");
       String themeRootUrl =
           themeService.getThemeRootUrl(themeSummary != null ? themeSummary.getName() : "");
+      // Cache the resolved theme root for removeIfExists (CWE-22/CWE-23 defense).
+      this.themeRootDirectory = themeRootDirectory;
 
       headerImporter =
           new PSHTMLHeaderImporter(
@@ -212,8 +220,15 @@ public class PSImportThemeHelper extends PSImportHelper {
     Set<String> cssURLs = new HashSet<>(linkPaths.keySet());
     for (var cssURL : cssURLs) {
       var cssFile = linkPaths.get(cssURL);
-      var f = new File(cssFile);
-      if (f.exists()) {
+      // CWE-22/CWE-23 defense (T043): cssFile is a filesystem path
+      // derived from a CSS link URL extracted from the imported HTML
+      // header (via PSHTMLHeaderImporter.getLinkPaths). Resolve against
+      // the theme root and verify containment BEFORE any File
+      // construction. A malicious HTML header with `<link href=...>`
+      // pointing outside the theme root would otherwise escape the
+      // intended base directory.
+      File safe = PSPathInjectionGuard.requireUnderBase(new File(themeRootDirectory), cssFile);
+      if (safe.exists()) {
         linkPaths.remove(cssURL);
       }
     }
