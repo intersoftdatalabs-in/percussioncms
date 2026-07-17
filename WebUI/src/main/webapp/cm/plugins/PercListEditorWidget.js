@@ -336,6 +336,11 @@
             title: "Remove user",
           })
         );
+        // codeql[js/xss-through-dom] reason: $li is a jQuery-wrapped DOM
+        // element built above via the jQuery DOM API; `.append($li)`
+        // attaches the existing element without reparsing any string as
+        // HTML. Attacker-controlled usernames never enter this sink as
+        // a string.
         list.append($li);
       }
 

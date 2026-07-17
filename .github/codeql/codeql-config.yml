@@ -13,6 +13,38 @@ paths-ignore:
   - "**/.codeql-results/**"
   - "**/docker/dev-data/**"
   - "**/docker/logs/**"
+  # Committed legacy JS/CSS bundles. These are concatenation/minification
+  # outputs of the source under WebUI/src/main/webapp/cm/{jslib,plugins,
+  # widgets,services,controllers,models,views}/** plus the npm-resolved
+  # jQuery / Bootstrap / Popper / Handlebars / momentjs libraries. The
+  # proper location for these artifacts is
+  # WebUI/target/generated-webui/cm/{jslibMin,cssMin}/ per the WebUI
+  # AGENTS.md "Generated (NOT committed)" list. The committed copies in
+  # WebUI/src/main/webapp/cm/ are an artifact of the legacy build pipeline
+  # (build-legacy-bundles.js) and exist only so the WAR packaging step
+  # has a stable path to overlay. CodeQL's js/* and js/incomplete-* queries
+  # are not informative on concatenated vendor minified code: the 36
+  # alerts on shared-common.js in docs/ai-generated/tasks/gh-codeql-alerts/
+  # triage.md rows 35-254 and the 26 vendored 3rd-party library alerts
+  # (jquery plugins, datatables, blockUI, superfish, layout, jeditable,
+  # autocomplete, bbq, jquery-form, etc.) all point into the bundle
+  # concatenation rather than the originating source. The Perc-written
+  # fixes for those 36 alerts are landed via PR #1324 on the source
+  # files (WebUI/src/main/webapp/cm/plugins/perc_utils.js,
+  # PercListEditorWidget.js, PercRedirectHandler.js, views/PercNewPageDialog.js,
+  # and the app/js/legacy/ mirrors). The 26 vendored alerts are pending
+  # T024 vendored-library removal. Ignoring these committed bundle files
+  # stops the "new alert" reopen loop on every bundle-regenerating PR
+  # (default CodeQL setup caused repeated residual re-opens with new
+  # alert IDs for the same fixed sinks; the advanced setup with this
+  # exclusion follows contracts/C3 in AGENTS.md and is paired with a
+  # suppressions.md row). See docs/ai-generated/tasks/gh-codeql-alerts/
+  # codeql-pr-playbook.md for the bundle-vs-source scanning contract.
+  - "WebUI/src/main/webapp/cm/shared-common.js"
+  - "WebUI/src/main/webapp/cm/shared-common-minuet.js"
+  - "WebUI/src/main/webapp/cm/shared-finder.js"
+  - "WebUI/src/main/webapp/cm/shared-common.css"
+  - "WebUI/src/main/webapp/cm/shared-common-minuet.css"
 
 # Local model pack — custom sanitizer barriers for SSRF, LDAP, path injection,
 # and XXE. Java-only: do not attach to javascript-typescript analysis (pack

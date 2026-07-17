@@ -46,6 +46,13 @@ export default defineConfig({
     include: [
       "src/test/ts/**/*.{test,spec}.{ts,tsx}",
       "src/test/js/**/*.{test,spec}.js",
+      // Legacy per-source-file test suites under the module-level
+      // src/test/js directory. These exercise the legacy jQuery/Knockout
+      // UI sources (e.g. plugins/PercListEditorWidget.js) and were
+      // previously not picked up by vitest because its root is the
+      // frontend folder. Adding the absolute path here ensures both
+      // legacy and modern suites run under `npm test`.
+      "../../src/test/js/**/*.{test,spec}.js",
     ],
   },
 });
