@@ -193,7 +193,18 @@ public class PSWidgetPackageBuilder {
    * @return The resolved path.
    */
   private String resolvePath(String path, PSWidgetPackageSpec packageSpec) {
-    return StringUtils.replace(path, WIDGET_TEMPLATE_NAME, packageSpec.getFullWidgetName());
+    // Defense-in-depth: token substitution must not inject path segments. constructSafePath
+    // still rejects .. / absolute paths at the sink (java/zipslip #722); this fails earlier
+    // with a clearer message if a package spec ever carries separators or traversal.
+    String fullWidgetName = packageSpec.getFullWidgetName();
+    if (fullWidgetName == null
+        || fullWidgetName.contains("..")
+        || fullWidgetName.indexOf('/') >= 0
+        || fullWidgetName.indexOf('\\') >= 0) {
+      throw new IllegalArgumentException(
+          "Widget full name must not contain path segments or traversal: " + fullWidgetName);
+    }
+    return StringUtils.replace(path, WIDGET_TEMPLATE_NAME, fullWidgetName);
   }
 
   /**

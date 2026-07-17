@@ -335,6 +335,9 @@ public class PSArchiveFiles {
     }
 
     // Resolve once; all entry paths are validated against this base (CWE-22 / java/zipslip #723).
+    // baseDir is the pre-checked extract directory. extractDir is a method-local String
+    // parameter — the former loop mutation "extractDir += File.separator" was only used
+    // when building File paths inside this method and was never visible to callers.
     File baseDir = directory;
 
     for (Enumeration<? extends ZipEntry> files = archiveFile.entries(); files.hasMoreElements(); ) {
@@ -346,10 +349,13 @@ public class PSArchiveFiles {
 
       if (pw != null) pw.println(name);
 
-      // Strip trailing slash for directory entries so constructSafePath sees a clean relative path.
+      // Strip trailing directory separator for directory entries so constructSafePath sees
+      // a clean relative path. ZIP entries use '/'; also strip '\\' for non-standard archives.
       String relativeName = name;
-      if (entry.isDirectory() && relativeName.endsWith("/")) {
-        relativeName = relativeName.substring(0, relativeName.length() - 1);
+      if (entry.isDirectory()) {
+        while (relativeName.endsWith("/") || relativeName.endsWith("\\")) {
+          relativeName = relativeName.substring(0, relativeName.length() - 1);
+        }
       }
       if (relativeName.isEmpty() || ".".equals(relativeName)) {
         continue;

@@ -90,9 +90,20 @@ public class PSExtractJarFiles extends PSAction {
         final File fJarFile;
         try {
           fJarFile = PathValidation.constructSafePath(fDest, entryName);
-        } catch (PathValidation.SecurityException | IllegalArgumentException se) {
+        } catch (PathValidation.SecurityException se) {
           PSLogger.logError(
-              "PSExtractJarFiles rejecting unsafe jar entry (ZipSlip): " + entryName + " — " + se.getMessage());
+              "PSExtractJarFiles rejecting unsafe jar entry (ZipSlip): "
+                  + entryName
+                  + " — "
+                  + se.getMessage());
+          continue;
+        } catch (IllegalArgumentException iae) {
+          // Config / precondition error (null/empty entry, baseDir missing) — not an attack.
+          PSLogger.logError(
+              "PSExtractJarFiles skipping entry due to invalid path arguments: "
+                  + entryName
+                  + " — "
+                  + iae.getMessage());
           continue;
         }
 
