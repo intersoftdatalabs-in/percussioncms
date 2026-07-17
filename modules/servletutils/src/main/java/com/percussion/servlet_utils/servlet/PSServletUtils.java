@@ -235,16 +235,120 @@ public class PSServletUtils {
    * Get the request dispatcher to invoke the servlet on the given path. This is used to invoke
    * servlets directly, without establishing an http connection to the application server.
    *
+   * <p>The supplied path is validated before being handed to the servlet container: any shape that
+   * could let a {@code forward} escape the web application root (path traversal, control
+   * characters, direct access to {@code WEB-INF} / {@code META-INF}) is rejected. This closes
+   * CodeQL {@code java/unvalidated-url-forward} (#792) and is the only barrier between
+   * caller-supplied input and {@link ServletContext#getRequestDispatcher(String)}.
+   *
    * <p>* @param path the path to the servlet, never <code>null</code> or empty
    *
    * @return a request dispatcher, the semantics are those of the underlying call to {@link
-   *     ServletContext#getRequestDispatcher(String)}.
+   *     ServletContext#getRequestDispatcher(String)} (on the validated path).
+   * @throws IllegalArgumentException if {@code path} is blank, contains forbidden control
+   *     characters, attempts path traversal, or targets {@code WEB-INF} / {@code META-INF}.
    */
   public static RequestDispatcher getDispatcher(String path) {
     if (StringUtils.isBlank(path)) {
       throw new IllegalArgumentException("path may not be null or empty");
     }
+    validateForwardPath(path);
     return m_servletContext.getRequestDispatcher(path);
+  }
+
+  /**
+   * Reject path shapes that would let {@link #getDispatcher(String) getDispatcher} forward outside
+   * the web application root or expose protected resources. Mirrors the servlet-container's own
+   * path normalization but rejects up front so the dispatcher never sees an obviously malicious
+   * shape.
+   *
+   * <p>Rules:
+   *
+   * <ol>
+   *   <li>No control characters (NUL, CR, LF, tab, etc.) — they would let an attacker smuggle raw
+   *       bytes past HTTP framing.
+   *   <li>No backslash — on Windows the forward path uses {@code /}; a backslash would confuse
+   *       downstream path logic.
+   *   <li>No {@code ..} segment (whether encoded, bare, or quoted) — the path must stay inside the
+   *       web application root.
+   *   <li>No path targeting {@code WEB-INF} or {@code META-INF}, which the container protects from
+   *       direct HTTP access but which {@code getRequestDispatcher} will happily serve.
+   * </ol>
+   */
+  static void validateForwardPath(String path) {
+    int len = path.length();
+    for (int i = 0; i < len; i++) {
+      char c = path.charAt(i);
+      if (c < 0x20 || c == 0x7F || c == '\\') {
+        throw new IllegalArgumentException(
+            "path contains disallowed character U+" + Integer.toHexString(c) + ": " + path);
+      }
+    }
+    if (containsTraversal(path)) {
+      throw new IllegalArgumentException("path must not contain '..' traversal sequences: " + path);
+    }
+    // Match WEB-INF / META-INF as full segments — the segment must be preceded by start-of-string
+    // or '/' and followed by end-of-string or '/'. This rejects /WEB-INF/file, WEB-INF, and
+    // /app/WEB-INF/file but accepts look-alike names like /web-info/notes or /WEB_INF/file.
+    String upper = path.toUpperCase(java.util.Locale.ROOT);
+    if (matchesSegment(upper, "WEB-INF") || matchesSegment(upper, "META-INF")) {
+      throw new IllegalArgumentException("path must not target WEB-INF or META-INF: " + path);
+    }
+  }
+
+  /**
+   * Returns true if {@code upperPath} contains {@code segment} as a complete path segment (preceded
+   * by start-of-string or {@code /} and followed by end-of-string or {@code /}). Case-sensitive:
+   * the caller is responsible for upper-casing.
+   */
+  private static boolean matchesSegment(String upperPath, String segment) {
+    int segLen = segment.length();
+    int len = upperPath.length();
+
+    // Check start of string (no leading slash).
+    if (len >= segLen && upperPath.startsWith(segment)) {
+      if (len == segLen || upperPath.charAt(segLen) == '/') {
+        return true;
+      }
+    }
+    // Check after a leading '/'.
+    int idx = -1;
+    while ((idx = upperPath.indexOf('/' + segment, idx + 1)) >= 0) {
+      int after = idx + 1 + segLen;
+      if (after == len || upperPath.charAt(after) == '/') {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  static boolean containsTraversal(String path) {
+    int len = path.length();
+    int i = 0;
+    while (i < len) {
+      // Match a `/..` or leading `..` segment; treat each `..` that stands alone between
+      // segment boundaries (start, end, `/`, `?`, `#`) as traversal.
+      int dotRun = 0;
+      int start = i;
+      while (i < len && path.charAt(i) == '.') {
+        dotRun++;
+        i++;
+      }
+      if (dotRun == 2
+          && (start == 0 || path.charAt(start - 1) == '/' || path.charAt(start - 1) == '?')
+          && (i == len
+              || path.charAt(i) == '/'
+              || path.charAt(i) == '?'
+              || path.charAt(i) == '#')) {
+        return true;
+      }
+      if (dotRun != 0) {
+        // Consumed the dot-run; continue from `i` (which is at the next non-dot char).
+        continue;
+      }
+      i++;
+    }
+    return false;
   }
 
   /**
