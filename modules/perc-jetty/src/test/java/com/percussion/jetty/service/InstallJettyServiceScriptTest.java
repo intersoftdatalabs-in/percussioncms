@@ -46,8 +46,17 @@ class InstallJettyServiceScriptTest {
     assertTrue(script.contains("/run/systemd/system"), "systemd runtime dir check");
     assertTrue(script.contains("installSystemdUnit"), "native unit install");
     assertTrue(script.contains("percussion-cms.service.in"), "unit template name");
+    assertTrue(script.contains("substitute_unit_template"), "safe placeholder substitution");
+    assertTrue(script.contains("validate_service_name"), "service name validation");
     assertTrue(script.contains("systemctl enable"), "enable unit");
     assertTrue(script.contains("systemctl daemon-reload"), "daemon-reload");
+  }
+
+  @Test
+  void script_uninstallTracksHadSystemdAndInitd() {
+    assertTrue(script.contains("had_systemd=true") || script.contains("had_systemd=false"));
+    assertTrue(script.contains("had_initd"));
+    assertTrue(script.contains("had_systemd") && script.contains("had_initd"));
   }
 
   @Test

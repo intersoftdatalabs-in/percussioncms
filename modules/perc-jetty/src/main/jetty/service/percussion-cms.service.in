@@ -1,10 +1,15 @@
 # Percussion CMS Jetty systemd unit template (GH-962 / specs/988-linux-systemd-services)
 # Placeholders replaced by install-jetty-service.sh at install time:
-#   @SERVICE_NAME@  @DESCRIPTION@  @PID_FILE@  @ENV_FILE@  @INIT_SCRIPT@
+#   @SERVICE_NAME@  @DESCRIPTION@  @PID_FILE@  @ENV_FILE@  @INIT_SCRIPT@  @JETTY_ROOT@
 #
-# Type=forking matches Jetty/rxjetty start scripts that write JETTY_PID.
+# Type=forking is required: rxjetty.sh start backgrounds the JVM via
+# start-stop-daemon -b (or nohup) and writes JETTY_PID before the parent exits.
+# If start ever ran in the foreground without writing PIDFile, systemd would hang
+# until TimeoutStartSec. Do not change Type without verifying fork+PID behavior.
+#
 # TimeoutStartSec=1800 allows post-upgrade DB/package work without false timeout.
 # Stdout/stderr go to the journal; detailed app logs remain under JETTY_BASE/logs.
+# No ExecReload: rxjetty has start/stop/restart only (not a config-only reload).
 
 [Unit]
 Description=@DESCRIPTION@
@@ -17,7 +22,6 @@ EnvironmentFile=-@ENV_FILE@
 PIDFile=@PID_FILE@
 ExecStart=@INIT_SCRIPT@ start
 ExecStop=@INIT_SCRIPT@ stop
-ExecReload=@INIT_SCRIPT@ restart
 TimeoutStartSec=1800
 TimeoutStopSec=120
 StandardOutput=journal

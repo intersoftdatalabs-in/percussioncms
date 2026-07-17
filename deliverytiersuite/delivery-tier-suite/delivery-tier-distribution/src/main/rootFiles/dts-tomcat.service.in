@@ -2,9 +2,11 @@
 # Placeholders replaced by DTSProductionService.sh / DTSStagingService.sh:
 #   @SERVICE_NAME@  @DESCRIPTION@  @PID_FILE@  @ENV_FILE@  @INIT_SCRIPT@
 #
-# Type=forking matches Tomcat catalina.sh start with CATALINA_PID.
+# Type=forking: catalina.sh start backgrounds Tomcat and writes CATALINA_PID.
+# Do not change Type without verifying fork+PIDFile behavior.
 # TimeoutStartSec=1800 allows slow starts without false systemd timeout.
 # Journal captures stdout/stderr; app logs remain under CATALINA_BASE/logs.
+# No ExecReload: Tomcat init helper uses start/stop (full restart is systemctl restart).
 
 [Unit]
 Description=@DESCRIPTION@

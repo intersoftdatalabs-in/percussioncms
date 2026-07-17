@@ -46,6 +46,9 @@ class SystemdUnitTemplateTest {
   @Test
   void unit_isTypeForking_withPidAndEnvFile() {
     assertTrue(unitText.contains("Type=forking"), "Type=forking");
+    assertTrue(
+        unitText.contains("start-stop-daemon") || unitText.contains("fork+PID"),
+        "documents forking dependency on start helper");
     assertTrue(unitText.contains("PIDFile=@PID_FILE@"), "PIDFile placeholder");
     assertTrue(
         unitText.contains("EnvironmentFile=-@ENV_FILE@")
@@ -53,6 +56,9 @@ class SystemdUnitTemplateTest {
         "EnvironmentFile");
     assertTrue(unitText.contains("ExecStart=@INIT_SCRIPT@ start"), "ExecStart");
     assertTrue(unitText.contains("ExecStop=@INIT_SCRIPT@ stop"), "ExecStop");
+    assertTrue(
+        !unitText.contains("ExecReload="),
+        "no ExecReload (restart is systemctl restart, not reload)");
   }
 
   @Test

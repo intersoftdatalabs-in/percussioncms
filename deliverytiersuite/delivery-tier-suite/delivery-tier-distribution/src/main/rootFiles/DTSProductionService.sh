@@ -60,6 +60,35 @@ if [ "$FORCE_SYSTEMD" = "true" ] && [ "$FORCE_INITD" = "true" ]; then
 	exit 1
 fi
 
+function validate_service_name() {
+	case "$1" in
+		'' | *[!A-Za-z0-9_-]* | -* | _*)
+			echo "Invalid service name '$1' (use letters, digits, underscore, hyphen; must start with alnum)" 1>&2
+			exit 1
+			;;
+	esac
+}
+
+validate_service_name "$SERVICE_NAME"
+
+function substitute_unit_template() {
+	local template="$1"
+	local dest="$2"
+	local _description="$3"
+	local _pid_file="$4"
+	local _env_file="$5"
+	local _init_script="$6"
+	local line
+	while IFS= read -r line || [ -n "$line" ]; do
+		line=${line//@SERVICE_NAME@/${SERVICE_NAME}}
+		line=${line//@DESCRIPTION@/${_description}}
+		line=${line//@PID_FILE@/${_pid_file}}
+		line=${line//@ENV_FILE@/${_env_file}}
+		line=${line//@INIT_SCRIPT@/${_init_script}}
+		printf '%s\n' "$line"
+	done < "$template" > "$dest"
+}
+
 function is_systemd_available() {
 	[ -d /run/systemd/system ] && command -v systemctl >/dev/null 2>&1
 }
@@ -189,13 +218,8 @@ function installSystemdUnit() {
 	local description="Percussion Production DTS Tomcat (${SERVICE_NAME})"
 
 	echo "Installing systemd unit ${unit_path}"
-	sed \
-		-e "s|@SERVICE_NAME@|${SERVICE_NAME}|g" \
-		-e "s|@DESCRIPTION@|${description}|g" \
-		-e "s|@PID_FILE@|${pid_file}|g" \
-		-e "s|@ENV_FILE@|${env_file}|g" \
-		-e "s|@INIT_SCRIPT@|${init_script}|g" \
-		"$unit_template" > "$unit_path"
+	substitute_unit_template "$unit_template" "$unit_path" \
+		"$description" "$pid_file" "$env_file" "$init_script"
 	chmod 644 "$unit_path"
 	systemctl daemon-reload
 	systemctl enable "${SERVICE_NAME}.service"
@@ -290,8 +314,11 @@ if [ "$uninstall" != "true" ]; then
 	fi
 else
 	echo "Uninstalling ${SERVICE_NAME}"
+	had_systemd=false
+	had_initd=false
 
 	if [ -f "/etc/systemd/system/${SERVICE_NAME}.service" ]; then
+		had_systemd=true
 		if systemctl is-active --quiet "${SERVICE_NAME}.service" 2>/dev/null; then
 			systemctl stop "${SERVICE_NAME}.service" || true
 		fi
@@ -299,6 +326,7 @@ else
 	fi
 
 	if [ -f "/etc/init.d/${SERVICE_NAME}" ]; then
+		had_initd=true
 		if ! grep -q "${CATALINA_MARKER}" "/etc/init.d/${SERVICE_NAME}"; then
 			echo "Service at /etc/init.d/${SERVICE_NAME} is not a Percussion Production DTS service"
 			exit 1
@@ -307,7 +335,9 @@ else
 			${serviceCmd} stop || true
 		fi
 		removeServiceFromStartup "${SERVICE_NAME}"
-	elif [ ! -f "/etc/systemd/system/${SERVICE_NAME}.service" ]; then
+	fi
+
+	if [ "$had_systemd" != "true" ] && [ "$had_initd" != "true" ]; then
 		echo "Service ${SERVICE_NAME} not installed"
 		exit 1
 	fi

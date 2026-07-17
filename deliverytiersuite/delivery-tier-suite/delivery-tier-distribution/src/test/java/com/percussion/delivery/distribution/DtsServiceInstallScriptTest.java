@@ -51,8 +51,12 @@ class DtsServiceInstallScriptTest {
       assertTrue(script.contains("/run/systemd/system"));
       assertTrue(script.contains("installSystemdUnit"));
       assertTrue(script.contains("dts-tomcat.service.in"));
+      assertTrue(script.contains("substitute_unit_template"));
+      assertTrue(script.contains("validate_service_name"));
       assertTrue(script.contains("systemctl enable"));
       assertTrue(script.contains("SysV boot registration skipped"));
+      assertTrue(script.contains("had_systemd"));
+      assertTrue(script.contains("had_initd"));
     }
   }
 

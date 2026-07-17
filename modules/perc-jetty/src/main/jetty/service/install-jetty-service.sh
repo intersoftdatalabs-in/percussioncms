@@ -61,6 +61,39 @@ if [ "$FORCE_SYSTEMD" = "true" ] && [ "$FORCE_INITD" = "true" ]; then
     exit 1
 fi
 
+# Service names are substituted into unit files; restrict to safe identifier chars.
+function validate_service_name() {
+    case "$1" in
+        '' | *[!A-Za-z0-9_-]* | -* | _*)
+            echo "Invalid service name '$1' (use letters, digits, underscore, hyphen; must start with alnum)" 1>&2
+            exit 1
+            ;;
+    esac
+}
+
+validate_service_name "$SERVICE_NAME"
+
+# Replace @PLACEHOLDER@ tokens without sed metacharacter issues in values.
+# Args: template dest description pid_file env_file init_script
+function substitute_unit_template() {
+    local template="$1"
+    local dest="$2"
+    local _description="$3"
+    local _pid_file="$4"
+    local _env_file="$5"
+    local _init_script="$6"
+    local line
+    while IFS= read -r line || [ -n "$line" ]; do
+        line=${line//@SERVICE_NAME@/${SERVICE_NAME}}
+        line=${line//@DESCRIPTION@/${_description}}
+        line=${line//@PID_FILE@/${_pid_file}}
+        line=${line//@ENV_FILE@/${_env_file}}
+        line=${line//@INIT_SCRIPT@/${_init_script}}
+        line=${line//@JETTY_ROOT@/${JETTY_ROOT}}
+        printf '%s\n' "$line"
+    done < "$template" > "$dest"
+}
+
 function is_systemd_available() {
     if [ ! -d /run/systemd/system ]; then
         return 1
@@ -220,14 +253,8 @@ function installSystemdUnit() {
     local description="Percussion CMS Jetty (${SERVICE_NAME})"
 
     echo "Installing systemd unit ${unit_path}"
-    sed \
-        -e "s|@SERVICE_NAME@|${SERVICE_NAME}|g" \
-        -e "s|@DESCRIPTION@|${description}|g" \
-        -e "s|@PID_FILE@|${pid_file}|g" \
-        -e "s|@ENV_FILE@|${env_file}|g" \
-        -e "s|@INIT_SCRIPT@|${init_script}|g" \
-        -e "s|@JETTY_ROOT@|${JETTY_ROOT}|g" \
-        "$unit_template" > "$unit_path"
+    substitute_unit_template "$unit_template" "$unit_path" \
+        "$description" "$pid_file" "$env_file" "$init_script"
     chmod 644 "$unit_path"
 
     systemctl daemon-reload
@@ -316,7 +343,7 @@ if [ "$uninstall" != "true" ]; then
 
     installInitScriptAndDefaults
 
-    if command -v "/etc/init.d/${SERVICE_NAME}" >/dev/null 2>&1 || [ -x "/etc/init.d/${SERVICE_NAME}" ]; then
+    if [ -x "/etc/init.d/${SERVICE_NAME}" ]; then
         "/etc/init.d/${SERVICE_NAME}" check || true
     fi
 
@@ -344,8 +371,11 @@ if [ "$uninstall" != "true" ]; then
 else
     # ----- uninstall -----
     echo "Checking for installed service ${SERVICE_NAME}"
+    had_systemd=false
+    had_initd=false
 
     if [ -f "/etc/systemd/system/${SERVICE_NAME}.service" ]; then
+        had_systemd=true
         if systemctl is-active --quiet "${SERVICE_NAME}.service" 2>/dev/null; then
             echo "Stopping systemd unit ${SERVICE_NAME}"
             systemctl stop "${SERVICE_NAME}.service" || true
@@ -354,6 +384,7 @@ else
     fi
 
     if [ -f "/etc/init.d/${SERVICE_NAME}" ]; then
+        had_initd=true
         if cat "/etc/init.d/${SERVICE_NAME}" | grep -q "jetty"; then
             echo "Found service installed to /etc/init.d/${SERVICE_NAME}"
         else
@@ -365,12 +396,11 @@ else
             ${serviceCmd} stop || true
         fi
         removeServiceFromStartup "${SERVICE_NAME}"
-    elif [ ! -f "/etc/systemd/system/${SERVICE_NAME}.service" ]; then
-        # unit already removed above; if neither existed:
-        if ! systemctl status "${SERVICE_NAME}.service" >/dev/null 2>&1; then
-            echo "Service $SERVICE_NAME not installed"
-            exit 1
-        fi
+    fi
+
+    if [ "$had_systemd" != "true" ] && [ "$had_initd" != "true" ]; then
+        echo "Service $SERVICE_NAME not installed"
+        exit 1
     fi
 
     removeServiceScript "${SERVICE_NAME}"
