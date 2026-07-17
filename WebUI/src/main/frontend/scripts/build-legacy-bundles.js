@@ -16,11 +16,23 @@ const WEBUI_DIR = path.dirname(
 );
 // Legacy source tree lives under cm/ (plugins, jslib, services, css, …).
 // Bundle configs list paths relative to that root (e.g. plugins/perc_utils.js).
+// Served as /cm/ — do NOT use src/main/webapp alone (WAR root without those trees).
 const WAR_DIR = path.join(WEBUI_DIR, "src/main/webapp", "cm");
 const BUNDLE_CONFIG_DIR = path.join(WEBUI_DIR, "src/main/resources/minify");
 // Generated only — never commit these. Maven war plugin overlays this dir.
 const OUTPUT_DIR = path.join(WEBUI_DIR, "target/generated-webui/cm");
 const NODE_MODULES_DIR = path.join(__dirname, "../node_modules");
+// Delivery-tier common UI sources used by perc_common_ui.js (historically
+// referenced as ../../delivery/common/js/... from WebUI/war/).
+const DELIVERY_COMMON_JS_DIR = path.join(
+  WEBUI_DIR,
+  "..",
+  "modules",
+  "perc-common-ui-bundle",
+  "src",
+  "main",
+  "js"
+);
 
 /** Intermediate bundles that must not be empty (phase-1 outputs). */
 const REQUIRED_INTERMEDIATE_BUNDLES = [
@@ -70,7 +82,8 @@ const BUNDLE_CONFIGS = [
 ];
 
 /**
- * Resolve a file path, checking node_modules first for npm packages, then jslib/
+ * Resolve a file path, checking node_modules first for npm packages, then
+ * the cm app root (and the delivery common-ui module for legacy relative paths).
  */
 function resolvePath(filePath, baseDir = WAR_DIR) {
   // Handle references to intermediate builds (these will be pre-built)
@@ -92,7 +105,15 @@ function resolvePath(filePath, baseDir = WAR_DIR) {
     );
   }
 
-  // Otherwise, resolve from jslib/
+  // Legacy relative path from the old WebUI/war layout:
+  //   ../../delivery/common/js/<rest>
+  // now lives in modules/perc-common-ui-bundle/src/main/js/<rest>
+  const deliveryPrefix = "../../delivery/common/js/";
+  if (filePath.startsWith(deliveryPrefix)) {
+    return path.join(DELIVERY_COMMON_JS_DIR, filePath.slice(deliveryPrefix.length));
+  }
+
+  // Otherwise, resolve from the cm app root
   return path.join(baseDir, filePath);
 }
 
@@ -227,7 +248,7 @@ const STANDALONE_NPM_COPIES = [
  * loaded individually via <script> tags (e.g., from the AA page header).
  */
 function syncStandaloneNpmLibraries() {
-  console.log("📋 Phase 0: Syncing standalone npm libraries to war/...");
+  console.log("📋 Phase 0: Syncing standalone npm libraries to webapp/cm/...");
 
   STANDALONE_NPM_COPIES.forEach(({ src, dest }) => {
     const srcPath = path.join(NODE_MODULES_DIR, src);
