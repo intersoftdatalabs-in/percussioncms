@@ -19,7 +19,7 @@
 perc-config
 
 [lib]
-lib/jdbc/*.jar
+lib/jdbc/**.jar
 
 [xml]
 etc/perc-ds.properties
