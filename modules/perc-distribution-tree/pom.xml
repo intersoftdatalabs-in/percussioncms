@@ -713,6 +713,26 @@
                         <phase>process-classes</phase>
                         <configuration>
                             <mainClass>org.eclipse.jetty.start.Main</mainClass>
+                            <!-- jetty.home / jetty.base MUST be JVM system properties (-D…),
+                                 not StartArgs key=value arguments. BaseHome initialises
+                                 before StartArgs parses the CLI; without -D properties it
+                                 falls back to the CWD and then PathMatchers tries
+                                 Path.of("basehome:lib/jdbc/…"), which throws
+                                 InvalidPathException: Illegal char <:> on Windows
+                                 (issue #1179) and silently misses JDBC jars on Linux.
+                                 See modules/perc-jetty/.../worklog/jetty-12-basehome-prefix-removal.md
+                                 PR #1181 landed the right approach then a follow-up commit
+                                 re-added CLI args and dropped systemProperties. -->
+                            <systemProperties>
+                                <systemProperty>
+                                    <key>jetty.home</key>
+                                    <value>${assembly-directory}/jetty/upstream</value>
+                                </systemProperty>
+                                <systemProperty>
+                                    <key>jetty.base</key>
+                                    <value>${assembly-directory}/jetty/base</value>
+                                </systemProperty>
+                            </systemProperties>
                             <arguments>
                                 <argument>--include-jetty-dir=${assembly-directory}/jetty/defaults</argument>
                                 <argument>--create-start-d</argument>
@@ -720,8 +740,6 @@
                                 <argument>--modules=perc-logging</argument>
                                 <argument>--add-modules=perc</argument>
                                 <argument>--approve-all-licenses</argument>
-                                <argument>jetty.base=${assembly-directory}/jetty/base</argument>
-                                <argument>jetty.home=${assembly-directory}/jetty/upstream</argument>
                             </arguments>
                         </configuration>
                     </execution>
