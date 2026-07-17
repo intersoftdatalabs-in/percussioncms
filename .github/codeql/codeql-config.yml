@@ -32,9 +32,10 @@ paths-ignore:
 # and XXE. Java-only: do not attach to javascript-typescript analysis (pack
 # targets codeql/java-all). See
 # docs/ai-generated/tasks/gh-codeql-alerts/codeql-pr-playbook.md
+# Local pack path MUST use "+./..." — bare "./" is rejected as invalid and ignored.
 packs:
   java:
-    - ./.github/codeql/models
+    - +./.github/codeql/models
 
 # Per-query exclusion for documented false positives.
 # See contracts/C3: every `query-filters exclude` entry MUST have a

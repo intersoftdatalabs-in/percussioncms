@@ -83,8 +83,9 @@ jobs:
           languages: ${{ matrix.language }}
           build-mode: ${{ matrix.build-mode }}
           config-file: ./.github/codeql/codeql-config.yml
-          # config-file packs: loads ./.github/codeql/models for Java only
-          # (URLValidation, escapeLdapFilter, path guards, secured XML barriers).
+          # Local model pack for Java only. "+./..." form required — bare "./" is
+          # rejected as invalid pack specification and silently ignored.
+          packs: ${{ matrix.language == 'java-kotlin' && '+./.github/codeql/models' || '' }}
 
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v4

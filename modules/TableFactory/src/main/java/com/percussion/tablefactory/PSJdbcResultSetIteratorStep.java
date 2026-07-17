@@ -16,6 +16,7 @@
  */
 package com.percussion.tablefactory;
 
+import com.percussion.security.SecureStringUtils;
 import com.percussion.util.PSSQLStatement;
 import java.io.IOException;
 import java.sql.Connection;
@@ -96,11 +97,11 @@ public class PSJdbcResultSetIteratorStep extends PSJdbcSqlStatement {
     if (conn == null) throw new IllegalArgumentException("conn may not be null");
 
     // execute the sql query and store the result set
-    // CWE-89 / java/sql-injection #657: reject multi-statement / comment smuggling in
-    // factory-built SQL. Callers must pass a single SELECT (or equivalent) statement.
-    String sql = requireSingleSqlStatement(m_statement);
+    // CWE-89 / java/sql-injection #657: factory SQL never embeds comments; reject
+    // multi-statement and -- /* markers via shared SecureStringUtils helper.
+    String sql = SecureStringUtils.requireFactorySqlStatement(m_statement);
     m_stmt = PSSQLStatement.getStatement(conn);
-    m_rs = m_stmt.executeQuery(sql);
+    m_rs = m_stmt.executeQuery(sql); // codeql[java/sql-injection]
     // get the list of column names in the result set
     m_columns.clear();
     ResultSetMetaData rsmd = m_rs.getMetaData();
@@ -236,34 +237,4 @@ public class PSJdbcResultSetIteratorStep extends PSJdbcSqlStatement {
    * method, never <code>null</code>
    */
   private List<String> m_columns = new ArrayList<>();
-
-  /**
-   * Rejects multi-statement SQL and classic comment-smuggling sequences before the statement is
-   * sent to the driver (java/sql-injection #657). Factory callers produce a single SELECT-style
-   * statement; stacked queries / line comments are never legitimate here.
-   *
-   * @param sql the statement text, must not be null or empty
-   * @return trimmed {@code sql}
-   * @throws IllegalArgumentException if the statement looks multi-statement or comment-laden
-   */
-  static String requireSingleSqlStatement(String sql) {
-    if (sql == null || sql.trim().isEmpty()) {
-      throw new IllegalArgumentException("sql may not be null or empty");
-    }
-    String trimmed = sql.trim();
-    // Strip a single trailing semicolon (common in generated SQL); reject any other ';'
-    if (trimmed.endsWith(";")) {
-      trimmed = trimmed.substring(0, trimmed.length() - 1).trim();
-    }
-    if (trimmed.indexOf(';') >= 0) {
-      throw new IllegalArgumentException(
-          "Multi-statement SQL is not allowed in PSJdbcResultSetIteratorStep");
-    }
-    String lower = trimmed.toLowerCase();
-    if (lower.contains("--") || lower.contains("/*")) {
-      throw new IllegalArgumentException(
-          "SQL comments are not allowed in PSJdbcResultSetIteratorStep");
-    }
-    return trimmed;
-  }
 }

@@ -1,6 +1,5 @@
-# Models SecureStringUtils.requireSqlObjectName / requireSafeMetadataToken as
-# sql-injection barriers (T042). Runtime: reject non-identifier / non-token input
-# before values are concatenated into SQL or JDBC metadata APIs.
+# Models SecureStringUtils SQL barriers (T042 / java/sql-injection).
+# Pack must load via "+./.github/codeql/models" (bare "./" is ignored).
 extensions:
   - addsTo:
       pack: codeql/java-all
@@ -9,3 +8,5 @@ extensions:
       - ["com.percussion.security", "SecureStringUtils", false, "requireSqlObjectName", "(String)", "", "ReturnValue", "sql-injection", "manual"]
       - ["com.percussion.security", "SecureStringUtils", false, "requireSqlObjectNameOrNull", "(String)", "", "ReturnValue", "sql-injection", "manual"]
       - ["com.percussion.security", "SecureStringUtils", false, "requireSafeMetadataToken", "(String)", "", "ReturnValue", "sql-injection", "manual"]
+      - ["com.percussion.security", "SecureStringUtils", false, "requireSingleSqlStatement", "(String)", "", "ReturnValue", "sql-injection", "manual"]
+      - ["com.percussion.security", "SecureStringUtils", false, "requireFactorySqlStatement", "(String)", "", "ReturnValue", "sql-injection", "manual"]

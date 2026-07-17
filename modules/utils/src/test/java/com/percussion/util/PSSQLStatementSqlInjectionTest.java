@@ -18,21 +18,22 @@ package com.percussion.util;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import com.percussion.security.SecureStringUtils;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 /**
- * Regression tests for {@link PSSQLStatement#requireSingleSqlStatement(String)} (CodeQL {@code
- * java/sql-injection} #661, T042).
+ * Regression tests for shared SQL statement guards used by {@link PSSQLStatement} (CodeQL {@code
+ * java/sql-injection} #661, T042). General Statement path rejects multi-statement only.
  */
-@DisplayName("PSSQLStatement.requireSingleSqlStatement — multi-statement rejection (T042)")
+@DisplayName("PSSQLStatement — multi-statement rejection via SecureStringUtils (T042)")
 class PSSQLStatementSqlInjectionTest {
 
   @Test
   void acceptsSingleSelectAndStripsTrailingSemicolon() {
     assertEquals(
         "SELECT COUNT(*) FROM CONTENTSTATUS",
-        PSSQLStatement.requireSingleSqlStatement("SELECT COUNT(*) FROM CONTENTSTATUS;"));
+        SecureStringUtils.requireSingleSqlStatement("SELECT COUNT(*) FROM CONTENTSTATUS;"));
   }
 
   @Test
@@ -40,17 +41,16 @@ class PSSQLStatementSqlInjectionTest {
     assertThrows(
         IllegalArgumentException.class,
         () ->
-            PSSQLStatement.requireSingleSqlStatement(
+            SecureStringUtils.requireSingleSqlStatement(
                 "SELECT 1; DROP TABLE CONTENTSTATUS"));
   }
 
   @Test
-  void rejectsSqlComments() {
-    assertThrows(
-        IllegalArgumentException.class,
-        () -> PSSQLStatement.requireSingleSqlStatement("SELECT 1 -- comment"));
-    assertThrows(
-        IllegalArgumentException.class,
-        () -> PSSQLStatement.requireSingleSqlStatement("SELECT 1 /* evil */"));
+  void generalGuardAllowsCommentMarkersInsideLiterals() {
+    // Intentionally allowed on the general Statement path (kilo review): comments in
+    // string literals / hints must not fail the whole codebase.
+    assertEquals(
+        "SELECT * FROM T WHERE name = 'a--b'",
+        SecureStringUtils.requireSingleSqlStatement("SELECT * FROM T WHERE name = 'a--b'"));
   }
 }

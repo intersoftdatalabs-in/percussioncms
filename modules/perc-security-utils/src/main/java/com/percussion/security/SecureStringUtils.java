@@ -1434,6 +1434,49 @@ public class SecureStringUtils {
   }
 
   /**
+   * Rejects multi-statement SQL (stacked queries) while allowing a single trailing semicolon.
+   * Suitable for general {@code Statement} wrappers where SQL line/block comments may appear
+   * inside string literals or vendor hints.
+   *
+   * <p>CodeQL barrier target for {@code java/sql-injection} (T042 / alert #661).
+   *
+   * @param sql statement text
+   * @return trimmed single-statement SQL
+   * @throws IllegalArgumentException if null/blank or contains an embedded {@code ;}
+   */
+  public static String requireSingleSqlStatement(String sql) {
+    if (sql == null || sql.trim().isEmpty()) {
+      throw new IllegalArgumentException("sql may not be null or empty");
+    }
+    String trimmed = sql.trim();
+    if (trimmed.endsWith(";")) {
+      trimmed = trimmed.substring(0, trimmed.length() - 1).trim();
+    }
+    if (trimmed.indexOf(';') >= 0) {
+      throw new IllegalArgumentException("Multi-statement SQL is not allowed");
+    }
+    return trimmed;
+  }
+
+  /**
+   * Stricter factory-path guard: multi-statement rejection plus SQL comment markers. Intended for
+   * TableFactory / metadata SELECT builders that never embed line or block comments legitimately
+   * (T042 / alert #657).
+   *
+   * @param sql statement text
+   * @return trimmed single-statement SQL without comment markers
+   * @throws IllegalArgumentException if multi-statement or comment markers present
+   */
+  public static String requireFactorySqlStatement(String sql) {
+    String trimmed = requireSingleSqlStatement(sql);
+    String lower = trimmed.toLowerCase();
+    if (lower.contains("--") || lower.contains("/*")) {
+      throw new IllegalArgumentException("SQL comments are not allowed in factory statements");
+    }
+    return trimmed;
+  }
+
+  /**
    * Utility to sanitize a string for use in a SQL statement.
    *
    * @param str User provided string

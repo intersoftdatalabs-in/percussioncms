@@ -73,4 +73,23 @@ class SecureStringUtilsSqlInjectionTest {
     assertThrows(
         IllegalArgumentException.class, () -> SecureStringUtils.requireSafeMetadataToken("a b"));
   }
+
+  @Test
+  void requireSingleSqlStatementRejectsStackedQueriesOnly() {
+    assertEquals("SELECT 1", SecureStringUtils.requireSingleSqlStatement("SELECT 1;"));
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> SecureStringUtils.requireSingleSqlStatement("SELECT 1; DROP TABLE t"));
+    // Comments allowed on general path (string literals / hints).
+    assertEquals(
+        "SELECT * FROM t WHERE c = 'a--b'",
+        SecureStringUtils.requireSingleSqlStatement("SELECT * FROM t WHERE c = 'a--b'"));
+  }
+
+  @Test
+  void requireFactorySqlStatementAlsoRejectsComments() {
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> SecureStringUtils.requireFactorySqlStatement("SELECT 1 -- x"));
+  }
 }
