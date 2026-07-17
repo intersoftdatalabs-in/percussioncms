@@ -77,7 +77,11 @@
             if (!redirectUrl || "" === redirectUrl) {
               redirectUrl = "/";
             }
-            window.location.href = redirectUrl;
+            // CodeQL js/xss-through-dom (alert #988): redirectUrl is a form
+            // field value (attacker-controllable via DOM); sanitize before
+            // navigation so javascript:/data: schemes cannot execute.
+            window.location.href =
+              $.PercServiceUtils.sanitizeUrlForHref(redirectUrl);
           } else {
             $(".perc-reg-confirmation-message").text(data.message);
           }
@@ -267,7 +271,12 @@
                 if ($.param.querystring()) {
                   params = "?" + $.param.querystring();
                 }
-                window.location = confirmation_page + params;
+                // CodeQL js/xss-through-dom (alert #989): confirmation_page is
+                // user-supplied via form; sanitize before navigation.
+                window.location =
+                  $.PercServiceUtils.sanitizeUrlForHref(
+                    confirmation_page + params
+                  );
               }
             } else {
               $(".perc-registration-mode").hide();

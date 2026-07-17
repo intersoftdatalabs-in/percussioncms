@@ -79,7 +79,16 @@
           } else {
             // Handle no items or error here
           }
-          currentFeedWidget.append(feedItem);
+          // CodeQL js/xss-through-dom (alert #990): feedItem is HTML built from
+          // external RSS data via string concatenation. Parse the fragment and
+          // sanitize any anchor href values so attacker-supplied javascript:/
+          // data: schemes cannot execute when the user clicks the link.
+          var $fragment = $($.parseHTML(feedItem));
+          $fragment.find("a").each(function () {
+            var $a = $(this);
+            $a.attr("href", $.PercServiceUtils.sanitizeUrlForHref($a.attr("href")));
+          });
+          currentFeedWidget.append($fragment);
           currentFeedWidget.attr("aria-busy", "false");
         }
       );
@@ -133,13 +142,20 @@
       feedItem += 'id="' + id + '" class="perc-feed-item"' + label + ">";
 
       if (queryString.showItemTitle && item.title) {
+        // CodeQL js/xss-through-dom (alerts #992/#993): item.link is the RSS
+        // entry URL (server-controllable / attacker-controllable if the feed
+        // source is untrusted); sanitize before embedding in href so a
+        // javascript:/data: link cannot execute via the browser. The href
+        // appears twice in the rendered output: once as the anchor's href and
+        // once implicitly in the .find("a") pass on line ~85.
+        var safeItemLink = $.PercServiceUtils.sanitizeUrlForHref(item.link);
         feedItem +=
           "<" +
           itemTitleElement +
           ' id="' +
           title_id +
           '" class="perc-feed-item-title"><a href="' +
-          item.link +
+          safeItemLink +
           '" target="_blank" title="' +
           item.title +
           '" rel="noopener noreferrer">' +

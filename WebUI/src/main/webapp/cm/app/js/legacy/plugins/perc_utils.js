@@ -1211,6 +1211,21 @@
       dbl(e);
     });
   }
+  // Resolve the perc_toggle() target without ever handing a caller-supplied
+  // string to jQuery's $() HTML-parsing constructor (closes
+  // js/unsafe-jquery-plugin: "constructs HTML from some of its options").
+  // An element/jQuery object is passed through as-is; a string is treated
+  // strictly as a CSS selector via .find(), which uses the Sizzle selector
+  // engine and never HTML-sniffs its argument the way $(string) does.
+  function percResolveToggleTarget(d) {
+    if (d && typeof d.jquery === "string") {
+      return d;
+    }
+    if (d && d.nodeType) {
+      return $(d);
+    }
+    return $(document).find(d);
+  }
   $.fn.perc_toggle = function (d) {
     // codeql[js/unsafe-jquery-plugin] reason: `d` is treated purely as a
     // selector reference here. The value is forwarded only to .hasClass(),
@@ -1221,8 +1236,8 @@
       $(d).removeClass("perc-hidden");
       $(d).addClass("perc-visible");
     } else {
-      $(d).removeClass("perc-visible");
-      $(d).addClass("perc-hidden");
+      $d.removeClass("perc-visible");
+      $d.addClass("perc-hidden");
     }
 
     return this;
