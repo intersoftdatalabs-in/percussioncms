@@ -18,7 +18,11 @@ package com.percussion.sitemanage.importer;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 
+import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLSocketFactory;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -29,25 +33,55 @@ import org.junit.jupiter.api.Test;
  * <p>Pre-fix code installed {@code (host, session) -> true}, which disables RFC 2818 hostname
  * matching. The fix leaves the JVM default {@code HostnameVerifier} in place while still
  * installing default trust managers for certificate validation.
+ *
+ * <p>HttpsURLConnection defaults are JVM-wide statics; this test captures/restores them in
+ * {@code @BeforeEach}/{@code @AfterEach} and installs a unique sentinel verifier so the assertion
+ * is not order-dependent under parallel Surefire workers.
  */
 @DisplayName("PSSiteImporter.overrideConnectionProperties — hostname verification (T053)")
 class PSSiteImporterHostnameVerificationTest {
 
+  private SSLSocketFactory savedSocketFactory;
+  private HostnameVerifier savedHostnameVerifier;
+
+  @BeforeEach
+  void captureGlobalSslDefaults() {
+    savedSocketFactory = HttpsURLConnection.getDefaultSSLSocketFactory();
+    savedHostnameVerifier = HttpsURLConnection.getDefaultHostnameVerifier();
+  }
+
+  @AfterEach
+  void restoreGlobalSslDefaults() {
+    HttpsURLConnection.setDefaultSSLSocketFactory(savedSocketFactory);
+    HttpsURLConnection.setDefaultHostnameVerifier(savedHostnameVerifier);
+  }
+
   @Test
-  @DisplayName("override does not replace the default HostnameVerifier with always-true")
-  void overrideKeepsDefaultHostnameVerifier() {
+  @DisplayName("override does not replace the HostnameVerifier with always-true")
+  void overrideDoesNotInstallAlwaysTrueHostnameVerifier() {
+    // Unique sentinel instance: if override installed (h,s)->true, assertSame would fail.
+    HostnameVerifier sentinel = (hostname, session) -> false;
+    HttpsURLConnection.setDefaultHostnameVerifier(sentinel);
+
     var props = PSSiteImporter.overrideConnectionProperties();
     assertNotNull(props, "overrideConnectionProperties must succeed with default trust managers");
     try {
-      // After override the active verifier must still be the one that was default before the
-      // call (saved on the properties object). An always-true lambda would be a different
-      // instance and would re-open CWE-295 / CodeQL #663.
       assertSame(
-          props.getDefaultHostnameVerifier(),
+          sentinel,
           HttpsURLConnection.getDefaultHostnameVerifier(),
-          "override must not install a custom always-true HostnameVerifier");
+          "override must leave the pre-call HostnameVerifier installed"
+              + " (must not replace it with an always-true verifier)");
+      assertSame(
+          sentinel,
+          props.getDefaultHostnameVerifier(),
+          "saved properties must record the pre-call HostnameVerifier for restore");
     } finally {
       PSSiteImporter.restoreConnectionProperties(props);
     }
+
+    assertSame(
+        sentinel,
+        HttpsURLConnection.getDefaultHostnameVerifier(),
+        "restoreConnectionProperties must put the pre-override verifier back");
   }
 }
