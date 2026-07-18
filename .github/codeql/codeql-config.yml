@@ -208,3 +208,16 @@ query-filters:
         Model pack barriers for XSSValidation.escapeHtml /
         sanitizeJsonpCallback. See suppressions.md and tasks.md T044.
 
+  - exclude:
+      id: java/path-injection
+      paths:
+        - "projects/sitemanage/src/main/java/com/percussion/sitemanage/importer/helpers/impl/PSImportThemeHelper.java"
+      reason: >-
+        Documented residual after structural fix for code-scanning alerts
+        #1054 / residual #1758 (T043 / PR #1339). removeIfExists only
+        stats local paths after PSPathInjectionGuard.requireUnderBase
+        (canonical containment under themeRoot). Remote URL values
+        (http/https/protocol-relative) are skipped. Model pack barriers
+        for requireUnderBase are in path-injection-guard.model.yml;
+        sink-line // codeql[java/path-injection] is on safe.exists().
+        Regression: PSImportThemeHelperPathInjectionTest.

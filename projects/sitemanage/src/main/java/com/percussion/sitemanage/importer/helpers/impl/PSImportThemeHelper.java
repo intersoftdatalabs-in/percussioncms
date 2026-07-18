@@ -208,38 +208,62 @@ public class PSImportThemeHelper extends PSImportHelper {
    * Helper method to avoid downloading and processing duplicated css files.
    *
    * @param linkPaths the map of link paths to check.
+   * @param themeRootDirectory absolute path of the theme root used as the
+   *     path-injection validation base (passed per-call to avoid singleton race).
    */
   private void removeIfExists(Map<String, String> linkPaths, String themeRootDirectory) {
     Set<String> cssURLs = new HashSet<>(linkPaths.keySet());
     File themeRoot = new File(themeRootDirectory);
+    // Pre-fix soft behavior: if the theme root does not exist yet (first
+    // import of a brand-new theme), no local CSS under it can exist, so
+    // there is nothing to remove. requireUnderBase requires baseDir to
+    // exist and be a directory — skip rather than throw, which would abort
+    // the entire theme import via process()'s catch (Exception).
+    if (!themeRoot.exists() || !themeRoot.isDirectory()) {
+      return;
+    }
     for (var cssURL : cssURLs) {
       var cssFile = linkPaths.get(cssURL);
       // linkPaths carries mixed values: for off-site CSS links the value
-      // IS the remote URL (e.g. "https://cdn.example/style.css"); for
-      // on-site CSS links the value is a local filesystem path produced
-      // by PSURLConverter. Only the on-site (filesystem-path) values
-      // need the CWE-22/CWE-23 containment check. URL values were never
-      // meant to be opened as files (pre-fix code's `new File(url)` just
-      // returns false); we skip them so external stylesheet support is
-      // preserved.
-      if (isHttpUrl(cssFile)) {
+      // IS the remote URL (e.g. "https://cdn.example/style.css" or a
+      // protocol-relative "//cdn.example/style.css"); for on-site CSS
+      // links the value is a local filesystem path produced by
+      // PSURLConverter. Only the on-site (filesystem-path) values need
+      // the CWE-22/CWE-23 containment check. URL values were never meant
+      // to be opened as files (pre-fix code's `new File(url)` just returns
+      // false); we skip them so external stylesheet support is preserved.
+      if (isRemoteUrl(cssFile)) {
         continue;
       }
       // Defense-in-depth: requireUnderBase canonicalizes cssFile and
       // verifies it is contained within themeRoot. Traversal payloads
       // (../) or absolute escapes throw IllegalArgumentException BEFORE
-      // any File construction.
+      // any File construction that could escape the theme root.
       File safe = PSPathInjectionGuard.requireUnderBase(themeRoot, cssFile);
+      // codeql[java/path-injection] reason: cssFile was validated by
+      // PSPathInjectionGuard.requireUnderBase against themeRoot (alert
+      // #1054 / residual #1758, T043). The returned File is the
+      // canonicalized containment-checked path; exists() only stats the
+      // already-safe target. CodeQL does not always model requireUnderBase
+      // as a path-injection barrier for File.exists sinks (model pack
+      // barrier + path query-filter also applied). See
+      // PSImportThemeHelperPathInjectionTest.
       if (safe.exists()) {
         linkPaths.remove(cssURL);
       }
     }
   }
 
-  /** True if {@code value} is an http or https URL (case-insensitive). */
-  private static boolean isHttpUrl(String value) {
+  /**
+   * True if {@code value} is a remote URL that must not be treated as a local
+   * filesystem path: {@code http://}, {@code https://}, or protocol-relative
+   * {@code //} (case-insensitive scheme check).
+   */
+  private static boolean isRemoteUrl(String value) {
     if (value == null) return false;
     String lower = value.toLowerCase(java.util.Locale.ROOT);
-    return lower.startsWith("http://") || lower.startsWith("https://");
+    return lower.startsWith("http://")
+        || lower.startsWith("https://")
+        || lower.startsWith("//");
   }
 }
