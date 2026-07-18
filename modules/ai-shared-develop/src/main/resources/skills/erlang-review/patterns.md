@@ -62,6 +62,7 @@
 - Modernization of null-check removals can invert keep/drop semantics (`if (x != null) remove` vs `if (x == null) remove`) — treat flipped conditions in package/association cleanup as hard bugs
 - Never cast Spring-injected service interfaces to concrete `*Service` impls (JDK proxies); call interface methods only
 - DOM attribute names are case-sensitive: shipped package XML may use legacy casing (e.g. `returntype` vs `returnType`) — deserializers must accept both when packages cannot be mass-rewritten
+- Do not force-bump Hibernate `@Version` before `merge`/`save` (e.g. `setVersion(loaded+1)`): under Hibernate 7 this causes optimistic-lock failure and `UnexpectedRollbackException` that masks the root cause
 
 ### Maintainability
 
