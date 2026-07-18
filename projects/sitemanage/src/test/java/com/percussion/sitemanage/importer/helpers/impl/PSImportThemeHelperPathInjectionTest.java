@@ -279,11 +279,17 @@ public class PSImportThemeHelperPathInjectionTest {
   void testRemoveIfExistsSoftWhenThemeRootMissing() throws Exception {
     PSImportThemeHelper h = helper();
     Map<String, String> linkPaths = new LinkedHashMap<>();
+    // Pass a non-existent theme root to trigger the soft-fail guard. The
+    // @TempDir `themeRoot` itself exists (JUnit creates it before the test),
+    // so we resolve a sub-path that does NOT exist to exercise the
+    // `!themeRoot.isDirectory()` branch. The removeIfExists call uses
+    // that sub-path as its `themeRootDirectory` argument.
+    String nonExistentRoot = themeRoot.resolve("does-not-exist-yet").toString();
     Path legitFile = themeRoot.resolve("missing-root.css");
     linkPaths.put("http://ok.example/missing-root.css", legitFile.toString());
-    // themeRoot does not exist (we deliberately do not create it).
+    // nonExistentRoot does not exist (we deliberately do not create it).
     assertDoesNotThrow(
-        () -> invokeRemoveIfExists(h, linkPaths, themeRoot.toString()),
+        () -> invokeRemoveIfExists(h, linkPaths, nonExistentRoot),
         "A missing themeRoot must NOT throw IllegalArgumentException; pre-fix"
             + " `new File(cssFile).exists()` was also a no-op in this case (false)."
             + " Throwing here would be silently swallowed by process()'s catch(Exception)"
@@ -312,7 +318,7 @@ public class PSImportThemeHelperPathInjectionTest {
         "Protocol-relative URL entries must remain in the map (off-site to download)");
   }
 
-// ====================================================================
+  // ====================================================================
   // Per-call root parameterization: removeIfExists takes its root as a
   // method parameter, so two sequential calls with different roots
   // validate against their own base (no shared mutable field on the
