@@ -259,3 +259,23 @@ query-filters:
         for requireUnderBase are in path-injection-guard.model.yml;
         sink-line // codeql[java/path-injection] is on safe.exists().
         Regression: PSImportThemeHelperPathInjectionTest.
+
+  # --- js/xss-through-dom residuals (imageSlider thumbnail src from DOM title) ---
+  # Structural: safeThumbnailSrc rejects javascript:/data:/vbscript:; img built
+  # without user data in factory map; src set via .attr after sanitize.
+  - exclude:
+      id: js/xss-through-dom
+      paths:
+        - "modules/perc-packages/src/main/resources/Packages/perc.widget.imageSlider/SupportFile-rx_resources/widgets/percImageSlider/js/percImageSlider.js"
+      reason: >-
+        Structural fix for product js/xss-through-dom #1431/#1432 / residuals
+        #1790–#1795: thumbnail title from DOM is scheme-sanitized
+        (safeThumbnailSrc) before attr src; no HTML string concat of path.
+        CodeQL still residual-flags .attr("src", sanitized) without modeling
+        the local sanitizer.
+  - exclude:
+      id: js/xss-through-dom
+      paths:
+        - "modules/perc-packages/src/main/resources/Packages/perc.widget.imageSlider/sys__UserDependency--rx_resources/widgets/percImageSlider/js/percImageSlider.js"
+      reason: >-
+        Lockstep package copy of percImageSlider.js (same residual as SupportFile).
