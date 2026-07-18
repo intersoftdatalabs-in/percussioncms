@@ -270,3 +270,30 @@ query-filters:
         PSRedirectValidationTest. CodeQL model pack barrier for
         PSRedirectValidation; residual taint still fires at sendRedirect
         without this path exclude.
+  # --- Legacy crypto accepted-risk (T047/T048) ---
+  # NOT false positives: AES/CBC + fixed IV are intentionally retained so
+  # upgrades can decrypt pre-8.2 ciphertext. Production *new* encryption is
+  # AES/GCM via com.percussion.security.PSEncryptor. Call sites of PSAesCBC
+  # in product code are decrypt-only fallbacks after PSEncryptor fails.
+  # See docs/ai-generated/tasks/gh-codeql-alerts/accepted-risks.md
+  # (alerts #649, #650, #757, #758, #759) and suppressions.md.
+  - exclude:
+      id: java/weak-cryptographic-algorithm
+      paths:
+        - "modules/perc-legacy/src/main/java/com/percussion/legacy/security/deprecated/PSAesCBC.java"
+      reason: >-
+        Accepted risk (T047): PSAesCBC AES/CBC is required to decrypt
+        historical payloads during upgrade of older installs. New product
+        encryption uses PSEncryptor (AES/GCM + random IV). Class is
+        @Deprecated(forRemoval=true, since=8.2); removal tracked for 9.0
+        after a one-shot re-encrypt migration. Not a false positive —
+        algorithm is weak but cannot be changed without bricking upgrades.
+  - exclude:
+      id: java/static-initialization-vector
+      paths:
+        - "modules/perc-legacy/src/main/java/com/percussion/legacy/security/deprecated/PSAesCBC.java"
+      reason: >-
+        Accepted risk (T048): fixed IV on PSAesCBC String encrypt/decrypt
+        matches pre-8.2 ciphertext layout. Changing the IV would make
+        historical secrets undecryptable. New encryption uses random IV
+        under AES/GCM (PSAESGCMEncryptor). See accepted-risks.md.
