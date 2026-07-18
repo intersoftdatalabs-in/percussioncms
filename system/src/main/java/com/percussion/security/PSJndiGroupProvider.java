@@ -205,7 +205,6 @@ public class PSJndiGroupProvider implements IPSGroupProvider {
         // path query-filter + sink-line suppression document the FP residual.
         final String fullSearchFilter =
             PSJndiUtils.andLdapFilters(locationInfo.mi_groupFilter, searchFilter);
-        // codeql[java/ldap-injection]
         results = ctx.search("", fullSearchFilter, ctls); // codeql[java/ldap-injection]
         while (results.hasMore()) {
           /* add the group, appending the current context to the relative
