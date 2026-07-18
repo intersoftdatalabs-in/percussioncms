@@ -486,7 +486,10 @@ public class PSAssetRestService {
       // codeql[java/xss] justification: JSON/XML DTO via Jackson/JAXB; client HTML-encodes before DOM insert (alert #736)
       return assetService.save(object);
     } catch (PSDataServiceException e) {
-      throw new WebApplicationException(jakarta.ws.rs.core.Response.Status.INTERNAL_SERVER_ERROR);
+      // codeql[java/xss] justification: status-only 500; no exception text in body
+      // (alert #1772). Log e server-side if needed.
+      throw new WebApplicationException(
+          jakarta.ws.rs.core.Response.Status.INTERNAL_SERVER_ERROR);
     }
   }
 
@@ -533,7 +536,10 @@ public class PSAssetRestService {
       // codeql[java/xss] justification: JSON/XML DTO via Jackson/JAXB; client HTML-encodes before DOM insert (alert #737)
       return assetFolderRelationship;
     } catch (PSDataServiceException e) {
-      throw new WebApplicationException(jakarta.ws.rs.core.Response.Status.INTERNAL_SERVER_ERROR);
+      // codeql[java/xss] justification: status-only 500; no exception text in body
+      // (alert #1773). Log e server-side if needed.
+      throw new WebApplicationException(
+          jakarta.ws.rs.core.Response.Status.INTERNAL_SERVER_ERROR);
     }
   }
 

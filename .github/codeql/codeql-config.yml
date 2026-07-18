@@ -246,6 +246,16 @@ query-filters:
   - exclude:
       id: java/path-injection
       paths:
+        - "projects/sitemanage/src/main/java/com/percussion/theme/service/impl/PSThemeService.java"
+      reason: >-
+        Structural T043 (PR #1361): theme names pass requireSafeFileName; folders via
+        safeThemeFolder/requireUnderBase; cached CSS paths under temp root with
+        session+theme segments validated. create() no longer uses raw
+        new File(themesRoot, newTheme). Sink-line // codeql on exists/delete/copy
+        residuals after barrier. Tests: PSThemeServiceSecurityTest.
+  - exclude:
+      id: java/path-injection
+      paths:
         - "projects/sitemanage/src/main/java/com/percussion/sitemanage/importer/helpers/impl/PSImportThemeHelper.java"
       reason: >-
         Documented residual after structural fix for code-scanning alerts
@@ -263,11 +273,11 @@ query-filters:
   # These path-level exclusions close the auto-injected alerts; matching
   # sink-line // codeql[] suppressions (in canonical `justification:` format)
   # are present in the same files for the CodeQL Advanced workflow.
+  # PSThemeService is covered by the dedicated exclude above (PR #1361 detail).
   - exclude:
       id: java/path-injection
       paths:
         - "projects/sitemanage/src/main/java/com/percussion/theme/service/impl/PSRegionCSSFileService.java"
-        - "projects/sitemanage/src/main/java/com/percussion/theme/service/impl/PSThemeService.java"
         - "projects/sitemanage/src/main/java/com/percussion/pagemanagement/service/impl/PSRenderLinkService.java"
       reason: >-
         Documented residual after structural fixes for code-scanning

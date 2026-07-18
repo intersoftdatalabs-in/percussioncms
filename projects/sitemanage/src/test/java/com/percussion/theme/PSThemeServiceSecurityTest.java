@@ -136,4 +136,24 @@ public class PSThemeServiceSecurityTest {
         },
         "find() must reject a theme name containing a NUL byte");
   }
+
+  /** create() must reject traversal in the new theme name (raw new File path closed). */
+  @Test
+  public void create_rejectsTraversalInNewThemeName() {
+    PSThemeService svc = new PSThemeService();
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> svc.create("../evil", "existing"),
+        "create() must reject parent traversal in newTheme");
+  }
+
+  /** create() must reject separators in the new theme name. */
+  @Test
+  public void create_rejectsSlashInNewThemeName() {
+    PSThemeService svc = new PSThemeService();
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> svc.create("a/b", "existing"),
+        "create() must reject '/' in newTheme");
+  }
 }
