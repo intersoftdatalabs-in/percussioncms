@@ -1859,6 +1859,13 @@ public class ItemRestServiceImpl implements IItemRestService {
       item.addError(
           ErrorCode.UNKNOWN_ERROR,
           "Content id from path different than content id specified in item");
+      // codeql[java/xss] justification: XML REST Item DTO via JAXB; not an HTML response
+      // body. The Item object is serialized via the standard XML contract; the client
+      // HTML-encodes the response before DOM insertion per the REST contract. CodeQL
+      // does not model the JAXB structural encoding as a sanitizer. The id path-param
+      // is parsed as int by JAX-RS (intrinsically safe) and the error message string
+      // does NOT interpolate the id value, so the XSS data flow is empty. See T044 /
+      // alert #1771.
       return item;
     }
     return updateItem(item);
