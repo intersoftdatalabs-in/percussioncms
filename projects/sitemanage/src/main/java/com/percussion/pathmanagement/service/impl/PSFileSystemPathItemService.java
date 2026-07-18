@@ -122,7 +122,8 @@ public abstract class PSFileSystemPathItemService implements IPSPathService {
     return findItem(path);
   }
 
-  protected PSPathItem findItem(String path) throws PSPathNotFoundServiceException {
+  protected PSPathItem findItem(String path)
+      throws PSPathNotFoundServiceException, PSPathServiceException {
     notEmpty(path);
 
     var file = fileSystemService.getFile(path);
@@ -164,10 +165,20 @@ public abstract class PSFileSystemPathItemService implements IPSPathService {
     var filePathItems = new ArrayList<PSPathItem>();
 
     for (var child : children) {
-      if (child.isDirectory()) {
-        folderPathItems.add(getPathItemFromFile(path, child));
-      } else if (!PSPathOptions.folderChildrenOnly()) {
-        filePathItems.add(getPathItemFromFile(path, child));
+      try {
+        if (child.isDirectory()) {
+          folderPathItems.add(getPathItemFromFile(path, child));
+        } else if (!PSPathOptions.folderChildrenOnly()) {
+          filePathItems.add(getPathItemFromFile(path, child));
+        }
+      } catch (IllegalArgumentException e) {
+        // Defense-in-depth segment check rejected this name (e.g. a real
+        // "." or ".." entry leaked through listFiles, or a NUL-byte name).
+        // Skip the entry and continue the listing rather than aborting
+        // the whole directory browser on a single bad entry.
+        log.warn(
+            "Skipping child entry rejected by path-injection segment check: {}",
+            child.getName());
       }
     }
 
@@ -179,17 +190,29 @@ public abstract class PSFileSystemPathItemService implements IPSPathService {
     return folderPathItems;
   }
 
-  private PSPathItem getPathItemFromFile(String parentPath, File child)
-      throws PSPathNotFoundServiceException {
+private PSPathItem getPathItemFromFile(String parentPath, File child)
+      throws PSPathNotFoundServiceException, PSPathServiceException {
     // CWE-22/CWE-23 defense (T043): child is a File produced upstream by
     // PSFileSystemService.getChildren, which calls validatePath on the
     // user-supplied path; however CodeQL does not yet model that custom
-    // sanitizer. Apply the canonical PSPathInjectionGuard.requireSafeFileName
-    // on child.getName() here as defense-in-depth — the single-segment
-    // name check rejects traversal and NUL-byte payloads BEFORE any
-    // child.isDirectory() / child.getName() / child.getPath() calls below
-    // are reached. See #1053 (CodeQL java/path-injection).
-    PSPathInjectionGuard.requireSafeFileName(child.getName());
+    // sanitizer. Apply defense-in-depth here by rejecting names that are
+    // *themselves* path-traversal segments (single "." or "..") and
+    // names containing path separators or NUL bytes. Unlike
+    // PSPathInjectionGuard.requireSafeFileName (which rejects ANY name
+    // containing "..", e.g. "archive..tar.gz"), this segment-based check
+    // only rejects full-segment "." and ".." — legitimate filenames that
+    // happen to contain ".." continue to work. See #1053 (CodeQL
+    // java/path-injection).
+    var name = child.getName();
+    if (".".equals(name)
+        || "..".equals(name)
+        || name.indexOf('/') >= 0
+        || name.indexOf('\\') >= 0
+        || name.indexOf('\0') >= 0) {
+      throw new IllegalArgumentException(
+          "child name is a path-traversal segment or contains a path separator / NUL: "
+              + name);
+    }
     // parent path should be a folder
     if (fileSystemService.getFile(parentPath).isFile()) {
       parentPath = fileSystemService.getParentFolder(parentPath);
@@ -297,7 +320,8 @@ public abstract class PSFileSystemPathItemService implements IPSPathService {
 
   @Override
   public PSPathItem renameFolder(PSRenameFolderItem item)
-      throws PSSpringValidationException, PSPathNotFoundServiceException {
+      throws PSSpringValidationException, PSPathNotFoundServiceException,
+          PSPathServiceException {
     var errors = PSBeanValidationUtils.validate(item);
     errors.throwIfInvalid();
 
@@ -390,7 +414,8 @@ public abstract class PSFileSystemPathItemService implements IPSPathService {
     throw new UnsupportedOperationException();
   }
 
-  protected abstract PSPathItem findRoot() throws PSPathNotFoundServiceException;
+  protected abstract PSPathItem findRoot()
+      throws PSPathNotFoundServiceException, PSPathServiceException;
 
   protected abstract String getFullFolderPath(String path) throws PSPathNotFoundServiceException;
 }
