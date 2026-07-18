@@ -28,6 +28,8 @@ import java.nio.file.Path;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.EnabledOnOs;
+import org.junit.jupiter.api.condition.OS;
 import org.junit.jupiter.api.io.TempDir;
 import sun.misc.Unsafe;
 
@@ -188,20 +190,46 @@ class PSProcessDaemonPathInjectionTest {
             + " requireUnderBase");
   }
 
+  /**
+   * Unix/macOS: a bare absolute path like {@code /tmp/.../outside.txt} is stripped of exactly one
+   * leading {@code /} by legacy daemon logic and becomes a relative segment under {@code
+   * pathRoot} (so it would NOT escape). To assert absolute-escape rejection, prefix an extra
+   * {@code /} so after the single strip the payload is still absolute and outside the root.
+   * Same technique as {@link #rejectsAbsoluteAfterSingleLeadingSlashStrip()}.
+   */
   @Test
-  @DisplayName("validatePath: rejects traversal via parent directory absolute (guard)")
-  void rejectsParentAbsolute() throws Exception {
+  @EnabledOnOs({OS.LINUX, OS.MAC})
+  @DisplayName(
+      "validatePath (Unix/macOS): rejects absolute path outside root after single leading-/ strip")
+  void rejectsParentAbsolute_unix() throws Exception {
     File parent = pathRoot.getParentFile();
-    // Absolute path to a sibling/parent location.
-    String outside = parent.toPath().resolve("outside.txt").toAbsolutePath().toString();
-    // On Unix this starts with / and will be stripped once, becoming a relative
-    // under root in the *old* code path for single-/; the guard still catches
-    // because after resolution the canonical is not under base.
-    // On Windows drive-letter absolutes bypass the strip and escape.
+    String outsideAbs =
+        parent.toPath().resolve("outside.txt").toAbsolutePath().toString().replace('\\', '/');
+    // outsideAbs starts with '/'; payload is "//tmp/..." so after one strip still absolute.
+    String payload = "/" + outsideAbs;
     assertThrows(
         IllegalArgumentException.class,
-        () -> invokeValidatePath(outside.getBytes(StandardCharsets.UTF_8)),
-        "Absolute path outside root must be rejected by requireUnderBase");
+        () -> invokeValidatePath(payload.getBytes(StandardCharsets.UTF_8)),
+        "Unix absolute path that remains absolute after single leading-/ strip must be rejected");
+  }
+
+  /**
+   * Windows: drive-letter absolute paths (e.g. {@code C:/...}) do not start with {@code /}, so
+   * the legacy leading-/ strip is skipped. {@code requireUnderBase} must still reject them when
+   * they resolve outside the virtual root.
+   */
+  @Test
+  @EnabledOnOs(OS.WINDOWS)
+  @DisplayName("validatePath (Windows): rejects drive-letter absolute path outside root")
+  void rejectsParentAbsolute_windows() throws Exception {
+    File parent = pathRoot.getParentFile();
+    String outsideAbs = parent.toPath().resolve("outside.txt").toAbsolutePath().toString();
+    // Keep native Windows form (or slash-normalized); either remains absolute without a leading /
+    // after replace('\\','/') in validatePath.
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> invokeValidatePath(outsideAbs.getBytes(StandardCharsets.UTF_8)),
+        "Windows drive-letter absolute path outside root must be rejected by requireUnderBase");
   }
 
   // ====================================================================
