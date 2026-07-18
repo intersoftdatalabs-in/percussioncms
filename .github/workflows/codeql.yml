@@ -83,8 +83,8 @@ jobs:
           languages: ${{ matrix.language }}
           build-mode: ${{ matrix.build-mode }}
           config-file: ./.github/codeql/codeql-config.yml
-          # config-file packs: loads ./.github/codeql/models for Java only
-          # (URLValidation, escapeLdapFilter, path guards, secured XML barriers).
+          # Do not pass local pack paths via packs: — GHA fails with "not a valid pack".
+          # Models remain in-repo for docs; use sink-line // codeql + query-filters.
 
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v4

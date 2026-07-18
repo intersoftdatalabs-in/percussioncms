@@ -28,13 +28,9 @@ paths-ignore:
   - "WebUI/src/main/webapp/cm/shared-common.css"
   - "WebUI/src/main/webapp/cm/shared-common-minuet.css"
 
-# Local model pack — custom sanitizer barriers for SSRF, LDAP, path injection,
-# and XXE. Java-only: do not attach to javascript-typescript analysis (pack
-# targets codeql/java-all). See
-# docs/ai-generated/tasks/gh-codeql-alerts/codeql-pr-playbook.md
-packs:
-  java:
-    - ./.github/codeql/models
+# Local model pack definitions under .github/codeql/models (for docs / future GHCR).
+# GHA rejects local path packs; do not pass via workflow packs:. Rely on runtime
+# sanitizers, sink-line // codeql[...], and path query-filters.
 
 # Per-query exclusion for documented false positives.
 # See contracts/C3: every `query-filters exclude` entry MUST have a
@@ -208,3 +204,36 @@ query-filters:
         Model pack barriers for XSSValidation.escapeHtml /
         sanitizeJsonpCallback. See suppressions.md and tasks.md T044.
 
+  # --- High java/sql-injection residuals (SecureStringUtils barriers not
+  # loaded as model pack — GHA rejects local packs; workflow relies on
+  # runtime + sink-line // codeql + path query-filters). ---
+  - exclude:
+      id: java/sql-injection
+      paths:
+        - "modules/TableFactory/src/main/java/com/percussion/tablefactory/PSJdbcResultSetIteratorStep.java"
+      reason: >-
+        Documented residual after structural fix for code-scanning alerts
+        #657 / PR residual #1764 (T042). executeQuery is reached only after
+        SecureStringUtils.requireFactorySqlStatement rejects multi-statement
+        SQL and -- /* comment markers (factory SELECTs never embed comments).
+        PSSQLStatement.getStatement always wraps so the general multi-statement
+        guard also applies. Sink-line // codeql[java/sql-injection] present.
+        Local model-pack barrier rows for requireFactorySqlStatement cannot be
+        loaded via GHA packs: (not a valid pack). Regression tests:
+        PSJdbcResultSetIteratorStepSqlInjectionTest,
+        SecureStringUtilsSqlInjectionTest.
+  - exclude:
+      id: java/sql-injection
+      paths:
+        - "modules/utils/src/main/java/com/percussion/util/PSSQLStatement.java"
+      reason: >-
+        Documented residual after structural fix for code-scanning alerts
+        #661 / PR residual #1765 (T042). executeQuery/executeUpdate/execute
+        overloads pass SQL through SecureStringUtils.requireSingleSqlStatement
+        (rejects embedded ';'/stacked queries; allows -- /* for legitimate
+        literals/hints on the general Statement path). getStatement always
+        returns the PSSQLStatement wrapper so the guard applies when debug
+        logging is off. Prefer PreparedStatement for user values. Sink-line
+        // codeql[java/sql-injection] present. Local model-pack barrier cannot
+        load in GHA. Regression tests: PSSQLStatementSqlInjectionTest,
+        SecureStringUtilsSqlInjectionTest.

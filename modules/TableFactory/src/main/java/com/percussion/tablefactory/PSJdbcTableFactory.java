@@ -17,6 +17,7 @@
 
 package com.percussion.tablefactory;
 
+import com.percussion.security.SecureStringUtils;
 import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.security.xml.PSSecureXMLUtils;
 import com.percussion.tablefactory.tools.PSCatalogTableData;
@@ -1210,13 +1211,15 @@ public class PSJdbcTableFactory {
 
     if (tableSchema == null) throw new IllegalArgumentException("tableSchema may not be null");
 
+    // CWE-89 / java/sql-injection #658: table/schema/catalog names cannot be bound as
+    // JDBC parameters. Fail closed on non-identifier characters before concatenation.
+    String safeTable = SecureStringUtils.requireSqlObjectName(tableSchema.getName());
+    String safeDb = SecureStringUtils.requireSqlObjectNameOrNull(dbmsDef.getDataBase());
+    String safeSchema = SecureStringUtils.requireSqlObjectNameOrNull(dbmsDef.getSchema());
     String sqlStmt =
         "SELECT COUNT(*) FROM "
             + PSSqlHelper.qualifyTableName(
-                tableSchema.getName(),
-                dbmsDef.getDataBase(),
-                dbmsDef.getSchema(),
-                dbmsDef.getDriver());
+                safeTable, safeDb, safeSchema, dbmsDef.getDriver());
 
     Statement stmt = null;
     ResultSet rsCount = null;
