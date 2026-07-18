@@ -440,7 +440,8 @@ public class PSFeedService extends PSAbstractRestService implements IPSFeedsRest
       }
     }
 
-    // codeql[java/xss] justification: APPLICATION_XML feed body after URLValidation; not HTML content-type (alert #727)
+    // codeql[java/xss] justification: APPLICATION_XML feed body after URLValidation; not HTML
+    // content-type (alert #727)
     return feeds;
   }
 
@@ -537,7 +538,8 @@ public class PSFeedService extends PSAbstractRestService implements IPSFeedsRest
     final URI metadataUri;
     try {
       metadataUri =
-          buildMetadataServiceUri(httpRequest.getScheme(), this.rssFeedsIP, httpRequest.getLocalPort());
+          buildMetadataServiceUri(
+              httpRequest.getScheme(), this.rssFeedsIP, httpRequest.getLocalPort());
       url = metadataUri.toString();
     } catch (Exception e) {
       throw new FeedException(
