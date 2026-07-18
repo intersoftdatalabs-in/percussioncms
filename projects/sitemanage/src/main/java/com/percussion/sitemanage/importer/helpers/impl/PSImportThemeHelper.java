@@ -240,6 +240,16 @@ public class PSImportThemeHelper extends PSImportHelper {
       // (../) or absolute escapes throw IllegalArgumentException BEFORE
       // any File construction.
       File safe = PSPathInjectionGuard.requireUnderBase(themeRoot, cssFile);
+      // codeql[java/path-injection] justification: cssFile was canonicalized
+      // and contained within themeRoot by requireUnderBase above. The `safe`
+      // File is the result of the requireUnderBase barrier, so exists() only
+      // stats the already-safe target. CodeQL does not always model
+      // requireUnderBase's return-value as a path-injection barrier for
+      // File.exists sinks in the auto-injected dependency-submission check;
+      // the model pack is applied in the CodeQL Advanced workflow (alert
+      // #1054 is closed there). The PR is gated on the auto-injected
+      // check, so an explicit suppression is required here to satisfy the
+      // gating CI. See T043 / alert #1054.
       if (safe.exists()) {
         linkPaths.remove(cssURL);
       }
