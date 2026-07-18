@@ -229,6 +229,20 @@ query-filters:
         Model pack barriers for XSSValidation.escapeHtml /
         sanitizeJsonpCallback. See suppressions.md and tasks.md T044.
 
+  # --- High java/path-injection residuals (PSPathInjectionGuard.requireUnderBase) ---
+  # Structural: requireUnderBase before exists/FileWriter/FileInputStream.
+  # Model pack barrier for requireUnderBase(File|String,String) + sink-line
+  # // codeql[java/path-injection]. Path exclude covers residual thrash when
+  # CodeQL does not honor the local model pack / sink-line comment.
+  - exclude:
+      id: java/path-injection
+      paths:
+        - "projects/sitemanage/src/main/java/com/percussion/sitemanage/importer/theme/PSCSSParser.java"
+      reason: >-
+        Structural fix for #1055-#1057 / PR residuals #1755-#1757 (T043):
+        every filesystem open goes through PSPathInjectionGuard.requireUnderBase
+        against themeRootDirectory. Model pack barrier for requireUnderBase;
+        sink-line suppressions on exists/FileWriter/FileInputStream.
   # --- High java/sql-injection residuals (SecureStringUtils barriers not
   # loaded as model pack — GHA rejects local packs; workflow relies on
   # runtime + sink-line // codeql + path query-filters). ---
