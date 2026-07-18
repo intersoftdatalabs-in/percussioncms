@@ -1011,8 +1011,11 @@ public class PSContentTypeDependencyHandler extends PSContentEditorObjectDepende
         }
       }
 
-      // Final guard: default workflow id must appear in inclusionary list (server validates this)
-      if (objType != null && objType.isWorkflowable()) {
+      // Final guard: default workflow id must appear in inclusionary list (server validates this).
+      // Skip when enableCType is false — no valid default was found, so re-adding
+      // ce.getWorkflowId() would restore a stale package default that may already have
+      // been removed from the inclusion list (Kilo review on PR #1337).
+      if (objType != null && objType.isWorkflowable() && enableCType) {
         PSContentTypeWorkflowInstallUtils.ensureDefaultWorkflowInInclusionList(ce);
       }
 
