@@ -84,10 +84,18 @@
       var callback = menuItem.callback;
       var data = menuItem.data;
 
-      var menuItemDom = $(
-        "<div class='perc-simplemenu-menuitem perc-index-" + index + "'>"
-      )
-        .append(label)
+      // Build menu item without HTML string interpolation of index
+      var menuItemDom = $("<div>")
+        .addClass("perc-simplemenu-menuitem")
+        .addClass("perc-index-" + index)
+        .append(
+          // Labels that are plain strings must not go through $() HTML parse
+          label && label.jquery
+            ? label
+            : typeof label === "object" && label && label.nodeType
+              ? label
+              : $("<span>").text(label == null ? "" : String(label))
+        )
         .addClass(menuItemClass)
         .data("callback", callback)
         .on("click", function (event) {
