@@ -21,16 +21,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import com.percussion.sitemanage.importer.IPSSiteImportLogger;
 import java.io.File;
-import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -134,21 +128,6 @@ public class PSCSSParserPathInjectionTest {
       return LOAD_FILE_METHOD.invoke(p, path);
     } catch (InvocationTargetException ite) {
       throw ite.getCause();
-    }
-  }
-
-  @AfterEach
-  void cleanup() throws IOException {
-    // Recursively delete the @TempDir to avoid leftover files between runs.
-    // JUnit @TempDir auto-cleanup runs after the class, but mid-test cleanup
-    // helps when a test creates an isolated file in the same dir.
-    if (themeRoot != null && themeRoot.exists()) {
-      try (var stream = Files.walk(themeRoot.toPath())) {
-        stream
-            .sorted(java.util.Comparator.reverseOrder())
-            .map(Path::toFile)
-            .forEach(File::delete);
-      }
     }
   }
 
