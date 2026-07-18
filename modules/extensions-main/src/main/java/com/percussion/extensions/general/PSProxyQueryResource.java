@@ -230,7 +230,7 @@ public class PSProxyQueryResource extends PSDefaultExtension implements IPSResul
       log.debug("Trying to get document with: {}", repr);
 
       HttpClient client =
-          HttpClient.newBuilder().followRedirects(HttpClient.Redirect.NORMAL).build();
+          HttpClient.newBuilder().followRedirects(HttpClient.Redirect.NEVER).build();
       // codeql[java/ssrf] justification: requestUri is built only after
       // URLValidation.validateURLString rejects private ranges, cloud
       // metadata, and non-http(s) schemes. Host/path come from that

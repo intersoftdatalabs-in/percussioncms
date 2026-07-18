@@ -250,7 +250,7 @@ public class PSDocumentUtils extends PSJexlUtilBase
 
       HttpClient client =
             HttpClient.newBuilder()
-                  .followRedirects(HttpClient.Redirect.NORMAL)
+                  .followRedirects(HttpClient.Redirect.NEVER)
                   .connectTimeout(Duration.ofSeconds(30))
                   .build();
 
