@@ -738,7 +738,7 @@
       // add role to available role list
       var availableRole = $("<option/>")
         .val(selectedAssignedRoleValue)
-        .html(selectedAssignedRoleValue);
+        .text(selectedAssignedRoleValue);
       var availableRoles = $("#perc-users-available-roles > select").append(
         availableRole
       );
@@ -762,7 +762,7 @@
       // add role to available role list
       var assignedRole = $("<option/>")
         .val(selectedAvailableRoleValue)
-        .html(selectedAvailableRoleValue);
+        .text(selectedAvailableRoleValue);
       var assignedRoles = $("#perc-users-assigned-roles > select").append(
         assignedRole
       );

@@ -342,3 +342,29 @@ describe("public API", () => {
     }
   });
 });
+// ---------------------------------------------------------------------------
+// Lockstep residual sinks (legacy mirror + role-move helpers)
+// CodeQL #1587/#1588: .html(selected*RoleValue) on role transfer buttons
+// ---------------------------------------------------------------------------
+describe("lockstep residual .html sinks (source pattern)", () => {
+  const legacySrc = readFileSync(
+    resolve(__dirname, "../../main/webapp/cm/app/js/legacy/views/PercUserView.js"),
+    "utf8"
+  );
+  const mainSrc = readFileSync(
+    resolve(__dirname, "../../main/webapp/cm/views/PercUserView.js"),
+    "utf8"
+  );
+
+  it("legacy PercUserView does not use .html() for selected role transfer", () => {
+    expect(legacySrc).not.toMatch(/\.html\(selectedAssignedRoleValue\)/);
+    expect(legacySrc).not.toMatch(/\.html\(selectedAvailableRoleValue\)/);
+    expect(legacySrc).toMatch(/\.text\(selectedAssignedRoleValue\)/);
+    expect(legacySrc).toMatch(/\.text\(selectedAvailableRoleValue\)/);
+  });
+
+  it("main PercUserView remains free of selected-role .html sinks", () => {
+    expect(mainSrc).not.toMatch(/\.html\(selectedAssignedRoleValue\)/);
+    expect(mainSrc).not.toMatch(/\.html\(selectedAvailableRoleValue\)/);
+  });
+});
