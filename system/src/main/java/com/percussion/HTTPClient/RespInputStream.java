@@ -137,14 +137,11 @@ final class RespInputStream extends InputStream implements GlobalConstants {
     int left = end - offset;
     if (buffer != null && !(left == 0 && interrupted)) {
       num = (num > left ? left : num);
-      // codeql[java/implicit-cast-in-compound-assignment] Legacy HTTPClient library code path (alert
-      // #639). `offset` is the read position within the underlying HTTP response buffer; the
-      // buffer length is bounded by Integer.MAX_VALUE by definition (byte arrays are int-indexed).
-      // `num` is the long return value of `demux.skip()` but it represents a byte count bounded
-      // by the byte buffer length, so the implicit cast to int cannot overflow. Refactoring to use
-      // long arithmetic would be a behavior-preserving cosmetic change with no observable benefit.
-      offset += num;
-      return num;
+      // Explicit cast: num is clamped to `left` (int range of buffer remaining).
+      // Closes CodeQL java/implicit-cast-in-compound-assignment #639.
+      int skip = (int) num;
+      offset += skip;
+      return skip;
     } else {
       long skpd = demux.skip(num, resph);
       if (resph.resp.got_headers) count += skpd;
