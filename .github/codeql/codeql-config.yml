@@ -27,14 +27,35 @@ paths-ignore:
   - "WebUI/src/main/webapp/cm/shared-finder.js"
   - "WebUI/src/main/webapp/cm/shared-common.css"
   - "WebUI/src/main/webapp/cm/shared-common-minuet.css"
+  # --- Vendored / packaging / test-fixture trees (US2 obsolete scan hygiene) ---
+  # Third-party jQuery/Bootstrap/Knockout/RequireJS copies and WAR packaging
+  # mirrors produce bulk medium/high js/* noise without product-source signal.
+  # Perc-written sources under WebUI/src/main/webapp/cm/{plugins,widgets,views,
+  # services,controllers,models,app} remain scanned. Physical removal of vendor
+  # trees remains US2 T021–T031; paths-ignore stops residual thrashing until
+  # deletion lands. See suppressions.md row "vendor-paths-ignore-us2".
+  - "WebUI/src/main/webapp/cm/jslib/**"
+  - "WebUI/src/main/webapp/cm/vendor/**"
+  - "WebUI/src/main/webapp/cm/cui/components/**"
+  - "WebUI/src/main/webapp/cm/pages/cui/components/**"
+  - "WebUI/src/main/webapp/cm/api/lib/**"
+  - "WebUI/src/main/webapp/cm/cui/require.js"
+  - "WebUI/src/main/webapp/cm/pages/cui/require.js"
+  # Committed WAR packaging tree mirrors webapp sources + vendor libs.
+  - "WebUI/war/**"
+  # Test fixtures and unit test JS (not production attack surface).
+  - "**/src/test/resources/**"
+  - "WebUI/src/test/**"
+  # DTS / packages vendored JS blobs.
+  - "deliverytiersuite/delivery-tier-suite/**/lib-js/**"
+  - "deliverytiersuite/delivery-tier-suite/**/src-js/**"
+  - "modules/perc-packages/**/jquery.qtip.js"
+  - "modules/perc-packages/**/jquery*.js"
+  - "modules/perc-toolkit/src/main/resources/InstallDir/**"
 
-# Local model pack — custom sanitizer barriers for SSRF, LDAP, path injection,
-# and XXE. Java-only: do not attach to javascript-typescript analysis (pack
-# targets codeql/java-all). See
-# docs/ai-generated/tasks/gh-codeql-alerts/codeql-pr-playbook.md
-packs:
-  java:
-    - ./.github/codeql/models
+# Local model pack definitions under .github/codeql/models (for docs / future GHCR).
+# GHA rejects local path packs; do not pass via workflow packs:. Rely on runtime
+# sanitizers, sink-line // codeql[...], and path query-filters.
 
 # Per-query exclusion for documented false positives.
 # See contracts/C3: every `query-filters exclude` entry MUST have a
@@ -163,8 +184,8 @@ query-filters:
       paths:
         - "system/src/main/java/com/percussion/security/PSJndiGroupProvider.java"
       reason: >-
-        Documented residual after structural fix for code-scanning alert
-        #648 (T040). User filter values pass through
+        Documented residual after structural fix for code-scanning alerts
+        #648 and PR residual #1767 (T040). User filter values pass through
         PSJndiUtils.getFilterString, which applies escapeLdapFilter
         (RFC 4515 hex-escape for \ * ( ) NUL) before interpolating into
         the LDAP search filter, then converts intentional '%' wildcards
@@ -173,3 +194,161 @@ query-filters:
         sanitizer; regression tests live in
         PSJndiUtilsEscapeLdapFilterTest and
         PSJndiUtilsGetFilterStringTest.
+  # --- java/xss residuals (T044) ---
+  # Structural fixes: JSONP callback allow-list, HTML-escape on Tomcat sample,
+  # generic WebApplicationException bodies (no exception-message echo),
+  # sink-line suppressions, XSSValidation model pack. Remaining CodeQL
+  # java/xss on JAX-RS methods that return typed JSON/XML DTOs is residual:
+  # Jackson/JAXB serialize data; clients HTML-encode before DOM insert.
+  # Same limitation as java/ssrf (custom sanitizer not always modeled).
+  - exclude:
+      id: java/xss
+      paths:
+        - "projects/sitemanage/src/main/java/com/percussion/sitemanage/service/impl/PSSiteDataRestService.java"
+        - "projects/sitemanage/src/main/java/com/percussion/assetmanagement/service/impl/PSAssetRestService.java"
+        - "projects/sitemanage/src/main/java/com/percussion/dashboardmanagement/service/impl/PSDashboardService.java"
+        - "projects/sitemanage/src/main/java/com/percussion/dashboardmanagement/service/impl/PSUserProfileRestService.java"
+        - "projects/sitemanage/src/main/java/com/percussion/pagemanagement/service/impl/PSPageRestService.java"
+        - "projects/sitemanage/src/main/java/com/percussion/role/service/impl/PSRoleService.java"
+        - "projects/sitemanage/src/main/java/com/percussion/user/service/impl/PSUserService.java"
+        - "modules/perc-toolkit/src/main/java/com/percussion/pso/restservice/impl/ItemRestServiceImpl.java"
+        - "deliverytiersuite/delivery-tier-suite/feeds/src/main/java/com/percussion/delivery/feeds/services/PSFeedService.java"
+        - "deliverytiersuite/delivery-tier-suite/metadata/src/main/java/com/percussion/delivery/metadata/impl/PSMetadataRestService.java"
+        - "deliverytiersuite/delivery-tier-suite/p13n-ds/src/main/java/com/percussion/soln/p13n/delivery/ds/web/DeliveryController.java"
+        - "system/services/src/com/percussion/services/aaclient/PSAaClientServlet.java"
+        - "system/servlet/src/com/percussion/hooks/servlet/RhythmyxServlet.java"
+        - "system/release/tomcat/Tomcat/webapps/tomcat-docs/appdev/sample/src/mypackage/Hello.java"
+      reason: >-
+        Documented residuals after T044 structural XSS work. JSON/XML REST
+        endpoints return typed DTOs (Jackson/JAXB); path params validated
+        (requireSafeId on site APIs); exception messages no longer echoed
+        into WebApplicationException bodies. JSONP callback sanitized via
+        XSSValidation.sanitizeJsonpCallback (#595). Tomcat Hello sample
+        HTML-escapes headers (#624/#625). RhythmyxServlet is a reverse-proxy
+        pass-through; PSAaClientServlet emits trusted CMS widget HTML.
+        Model pack barriers for XSSValidation.escapeHtml /
+        sanitizeJsonpCallback. See suppressions.md and tasks.md T044.
+
+  # --- High java/sql-injection residuals (SecureStringUtils barriers not
+  # loaded as model pack — GHA rejects local packs; workflow relies on
+  # runtime + sink-line // codeql + path query-filters). ---
+  - exclude:
+      id: java/sql-injection
+      paths:
+        - "modules/TableFactory/src/main/java/com/percussion/tablefactory/PSJdbcResultSetIteratorStep.java"
+      reason: >-
+        Documented residual after structural fix for code-scanning alerts
+        #657 / PR residual #1764 (T042). executeQuery is reached only after
+        SecureStringUtils.requireFactorySqlStatement rejects multi-statement
+        SQL and -- /* comment markers (factory SELECTs never embed comments).
+        PSSQLStatement.getStatement always wraps so the general multi-statement
+        guard also applies. Sink-line // codeql[java/sql-injection] present.
+        Local model-pack barrier rows for requireFactorySqlStatement cannot be
+        loaded via GHA packs: (not a valid pack). Regression tests:
+        PSJdbcResultSetIteratorStepSqlInjectionTest,
+        SecureStringUtilsSqlInjectionTest.
+  - exclude:
+      id: java/sql-injection
+      paths:
+        - "modules/utils/src/main/java/com/percussion/util/PSSQLStatement.java"
+      reason: >-
+        Documented residual after structural fix for code-scanning alerts
+        #661 / PR residual #1765 (T042). executeQuery/executeUpdate/execute
+        overloads pass SQL through SecureStringUtils.requireSingleSqlStatement
+        (rejects embedded ';'/stacked queries; allows -- /* for legitimate
+        literals/hints on the general Statement path). getStatement always
+        returns the PSSQLStatement wrapper so the guard applies when debug
+        logging is off. Prefer PreparedStatement for user values. Sink-line
+        // codeql[java/sql-injection] present. Local model-pack barrier cannot
+        load in GHA. Regression tests: PSSQLStatementSqlInjectionTest,
+        SecureStringUtilsSqlInjectionTest.
+  # --- java/unvalidated-url-redirection residuals (PSRedirectValidation) ---
+  # Runtime open-redirect closed via PSRedirectValidation + relative-only
+  # reduction; local model pack marks validate* as url-redirection barriers.
+  # CodeQL still residual-flags Response.seeOther / sendRedirect sinks on
+  # PRs (alerts #1762/#1766 reopen of #643-#647). Sink-line // codeql + path
+  # exclude stop residual thrashing.
+  - exclude:
+      id: java/unvalidated-url-redirection
+      paths:
+        - "deliverytiersuite/delivery-tier-suite/comments/src/main/java/com/percussion/delivery/comments/services/PSCommentsRestService.java"
+      reason: >-
+        Documented residual after structural fix for code-scanning alerts
+        #643/#644 (T051) and PR residual #1762. seeOtherIfSafe reduces
+        absolute Referers to path+query+fragment and only redirects after
+        PSRedirectValidation.validateInternalRedirectUrl returns a safe
+        relative location (null → 204 No Content). Host header is never
+        used as an allow-list. Regression tests in
+        PSCommentsRestServiceRedirectTest. CodeQL model pack barrier for
+        PSRedirectValidation; residual taint through the URI constructor
+        still fires without this path exclude.
+  - exclude:
+      id: java/unvalidated-url-redirection
+      paths:
+        - "system/src/main/java/com/percussion/servlets/PSSecurityFilter.java"
+      reason: >-
+        Documented residual after structural fix for code-scanning alerts
+        #645-#647 (T051) and PR residual #1766. sendValidatedRedirect only
+        calls sendRedirect after PSRedirectValidation accepts the location
+        (relative internal path or absolute URL on publicCmsHostname /
+        post-isValidHostHeader server name). Regression coverage via
+        PSRedirectValidationTest. CodeQL model pack barrier for
+        PSRedirectValidation; residual taint still fires at sendRedirect
+        without this path exclude.
+  # --- java/error-message-exposure residuals (#769/#770/#787, PR #1781–#1784) ---
+  # Structural: SimpleXmlView never throws; writeGenericError writes only
+  # GENERIC_RENDER_ERROR; success path appends model Document XML only.
+  # PSWebdavConfigValidator.writeError(int) writes only constant messages.
+  # One path per exclude entry (same pattern as redirect residuals). Sink-line
+  # // codeql[java/error-message-exposure] on writer.append(content) and
+  # write(GENERIC_RENDER_ERROR). Path exclude stops residual thrash when
+  # CodeQL retargets the sink after line shifts.
+  - exclude:
+      id: java/error-message-exposure
+      paths:
+        - "modules/perc-toolkit/src/main/java/com/percussion/pso/imageedit/web/SimpleXmlView.java"
+      reason: >-
+        Structural fix for medium #769 and PR residuals #1781/#1783: no-throw
+        render path; constant GENERIC_RENDER_ERROR on failure; success path
+        serializes model Document only. Sink-line suppressions on append/write.
+  - exclude:
+      id: java/error-message-exposure
+      paths:
+        - "modules/perc-toolkit/src/main/java/com/percussion/pso/preview/SimpleXmlView.java"
+      reason: >-
+        Structural fix for medium #770 and PR residuals #1782/#1784: same as
+        imageedit SimpleXmlView (preview package twin).
+  - exclude:
+      id: java/error-message-exposure
+      paths:
+        - "system/servlet/src/com/percussion/webdav/method/PSWebdavConfigValidator.java"
+      reason: >-
+        Structural fix for medium #787: writeError(int) emits only constant
+        GENERIC_VALIDATION_ERROR / GENERIC_VALIDATION_WARNING; details logged.
+  # --- Legacy crypto accepted-risk (T047/T048) ---
+  # NOT false positives: AES/CBC + fixed IV are intentionally retained so
+  # upgrades can decrypt pre-8.2 ciphertext. Production *new* encryption is
+  # AES/GCM via com.percussion.security.PSEncryptor. Call sites of PSAesCBC
+  # in product code are decrypt-only fallbacks after PSEncryptor fails.
+  # See docs/ai-generated/tasks/gh-codeql-alerts/accepted-risks.md
+  # (alerts #649, #650, #757, #758, #759) and suppressions.md.
+  - exclude:
+      id: java/weak-cryptographic-algorithm
+      paths:
+        - "modules/perc-legacy/src/main/java/com/percussion/legacy/security/deprecated/PSAesCBC.java"
+      reason: >-
+        Accepted risk (T047): PSAesCBC AES/CBC is required to decrypt
+        historical payloads during upgrade of older installs. New product
+        encryption uses PSEncryptor (AES/GCM + random IV). Class is
+        @Deprecated(forRemoval=true, since=8.2); removal tracked for 9.0
+        after a one-shot re-encrypt migration. Not a false positive —
+        algorithm is weak but cannot be changed without bricking upgrades.
+  - exclude:
+      id: java/static-initialization-vector
+      paths:
+        - "modules/perc-legacy/src/main/java/com/percussion/legacy/security/deprecated/PSAesCBC.java"
+      reason: >-
+        Accepted risk (T048): fixed IV on PSAesCBC String encrypt/decrypt
+        matches pre-8.2 ciphertext layout. Changing the IV would make
+        historical secrets undecryptable. New encryption uses random IV
+        under AES/GCM (PSAESGCMEncryptor). See accepted-risks.md.

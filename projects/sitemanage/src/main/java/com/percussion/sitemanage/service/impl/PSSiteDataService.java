@@ -48,6 +48,7 @@ import com.percussion.pagemanagement.data.PSPage;
 import com.percussion.pagemanagement.data.PSTemplateSummary;
 import com.percussion.pagemanagement.service.IPSPageService;
 import com.percussion.pagemanagement.service.IPSTemplateService;
+import com.percussion.security.io.PSPathInjectionGuard;
 import com.percussion.pagemanagement.service.impl.PSPageService;
 import com.percussion.pathmanagement.data.PSDeleteFolderCriteria;
 import com.percussion.pathmanagement.data.PSFolderPermission;
@@ -487,6 +488,15 @@ public class PSSiteDataService extends PSAbstractDataService<PSSite, PSSiteSumma
         "Updating Page and Template thumbnail cache for site: {} to use new site name: {}...",
         oldSiteName,
         newSiteName);
+
+    // CWE-22/CWE-23 (path traversal) defense: site names must be single path
+    // segments with no separators or traversal sequences before being appended
+    // to a server-controlled base directory. A user-supplied site name like
+    // "../../etc/passwd" or "foo/bar" must NOT reach File construction.
+    // PSPathInjectionGuard.requireSafeFileName rejects null/empty values,
+    // forward/back slashes, embedded NUL bytes, and the literal ".." segment.
+    PSPathInjectionGuard.requireSafeFileName(oldSiteName);
+    PSPathInjectionGuard.requireSafeFileName(newSiteName);
 
     var sourceCacheDir =
         new File(

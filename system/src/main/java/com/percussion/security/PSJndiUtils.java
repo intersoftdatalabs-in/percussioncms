@@ -703,20 +703,36 @@ public class PSJndiUtils {
    * Converts the array of String into a filter, applying the principle attribute and converting
    * wildcards.
    *
+   * <p><strong>Failure-mode change (T040 residual):</strong> {@code attr} that is {@code null} or
+   * blank (after trim) now throws {@link IllegalArgumentException}. Prior behavior interpolated the
+   * empty name into the filter (e.g. {@code (=value)}), which produced an invalid LDAP filter that
+   * failed only at the directory server. Callers that pass a configured attribute name (for example
+   * {@code PSDirectoryConnProviderMetaData} via {@code getRequiredAttributeName}) must ensure the
+   * directory set defines the required object attribute; a missing mapping that previously yielded
+   * {@code null} will now fail fast at filter construction.
+   *
    * @param filterPattern An array of patterns, not null. If any pattern is null or empty, it is
    *     ignored.
    * @param attr The principle attribute to use when constructing the filter. For example, if "cn"
    *     is supplied, each filter is used to construct "cn=pattern". All patterns are combined using
-   *     the OR conditional.
+   *     the OR conditional. Must not be null or blank.
    * @param baseFilter A base filter to append onto. The filter resulting from the supplied
    *     filterPattern is appended onto this using the AND conditional. If null or empty, it is
    *     ignored.
    * @return The filter, never null, may be empty.
+   * @throws IllegalArgumentException if {@code filterPattern} is null, or {@code attr} is null or
+   *     blank.
    * @throws PSSecurityException if the filter contains invalid wildcards.
    */
   public static String getFilterString(String[] filterPattern, String attr, String baseFilter)
       throws PSSecurityException {
     if (filterPattern == null) throw new IllegalArgumentException("filterPattern cannot be null");
+    if (attr == null || attr.trim().isEmpty()) {
+      throw new IllegalArgumentException("attr may not be null or empty");
+    }
+    // Attribute names are LDAP identifiers from configuration, not free text; still
+    // reject metacharacters so a misconfigured attr cannot break filter structure.
+    String safeAttr = escapeLdapFilter(attr.trim());
 
     StringBuilder buf = new StringBuilder();
     if (filterPattern != null) {
@@ -733,7 +749,7 @@ public class PSJndiUtils {
         // only support '%', convert to '*'
         filter = processFilter(filter);
         buf.append(" (");
-        buf.append(attr);
+        buf.append(safeAttr);
         buf.append("=");
         buf.append(filter);
         buf.append(")");
@@ -749,6 +765,32 @@ public class PSJndiUtils {
     }
 
     return buf.toString();
+  }
+
+  /**
+   * Combines two complete LDAP filters with AND. Null or blank operands are omitted.
+   *
+   * <p>Callers must ensure each operand is already a complete, trusted filter expression.
+   * User-supplied assertion values must have been incorporated only via {@link
+   * #getFilterString(String[], String, String)} / {@link #escapeLdapFilter(String)}.
+   *
+   * @param left first filter, may be null/blank
+   * @param right second filter, may be null/blank
+   * @return combined filter, never null (may be empty)
+   */
+  public static String andLdapFilters(String left, String right) {
+    boolean hasLeft = left != null && !left.trim().isEmpty();
+    boolean hasRight = right != null && !right.trim().isEmpty();
+    if (!hasLeft && !hasRight) {
+      return "";
+    }
+    if (!hasLeft) {
+      return right;
+    }
+    if (!hasRight) {
+      return left;
+    }
+    return "(& " + left + " " + right + ")";
   }
 
   /**

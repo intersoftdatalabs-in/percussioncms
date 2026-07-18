@@ -269,14 +269,16 @@ public class PSServletRequesterTest extends PSWebdavServlet {
   }
 
   /**
-   * Writes the exception's stacktrace to the responses writer with the correct html formatting tags
+   * Writes a generic error marker to the response writer. Does not emit exception type, message,
+   * or stack frames (CWE-209 / CodeQL {@code java/stack-trace-exposure} and {@code
+   * java/error-message-exposure}, alert #789 / residual #1768). Detail is logged server-side only.
    *
-   * @param e
+   * @param e the exception to report (logged; not written to the client response)
    */
-  // TODO: Remove me @SuppressFBWarnings("INFORMATION_EXPOSURE_THROUGH_AN_ERROR_MESSAGE")
   private void writeStackTrace(Exception e) {
+    LogManager.getLogger(getClass()).error("PSServletRequesterTest harness error", e);
     m_writer.println("<pre><font size=\"2\" color=\"blue\">");
-    e.printStackTrace(m_writer);
+    m_writer.println("error");
     m_writer.println("</font></pre><br>");
   }
 

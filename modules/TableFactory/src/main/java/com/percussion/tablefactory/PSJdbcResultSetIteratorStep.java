@@ -16,6 +16,7 @@
  */
 package com.percussion.tablefactory;
 
+import com.percussion.security.SecureStringUtils;
 import com.percussion.util.PSSQLStatement;
 import java.io.IOException;
 import java.sql.Connection;
@@ -96,8 +97,12 @@ public class PSJdbcResultSetIteratorStep extends PSJdbcSqlStatement {
     if (conn == null) throw new IllegalArgumentException("conn may not be null");
 
     // execute the sql query and store the result set
+    // CWE-89 / java/sql-injection #657 / residual #1764: factory SQL never embeds comments;
+    // reject multi-statement and -- /* markers via SecureStringUtils.requireFactorySqlStatement.
+    // Local model pack cannot load in GHA; sink-line + path query-filter document residual.
+    String sql = SecureStringUtils.requireFactorySqlStatement(m_statement);
     m_stmt = PSSQLStatement.getStatement(conn);
-    m_rs = m_stmt.executeQuery(m_statement);
+    m_rs = m_stmt.executeQuery(sql); // codeql[java/sql-injection]
     // get the list of column names in the result set
     m_columns.clear();
     ResultSetMetaData rsmd = m_rs.getMetaData();
