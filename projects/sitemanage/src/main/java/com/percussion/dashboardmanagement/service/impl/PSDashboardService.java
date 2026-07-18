@@ -77,7 +77,8 @@ public class PSDashboardService implements IPSDashboardService {
       var user = getUserName();
       log.trace("Saving dashboard for user: {}", user);
       dashboard.setId(user);
-      return dashboardDataService.save(dashboard); // codeql[java/xss] justification: JSON/XML DTO via Jackson/JAXB; not HTML body (alert #738)
+      // XSS residual (Jackson/JAXB/CXF or documented pass-through): JSON/XML DTO via Jackson/JAXB; not HTML body (alert #738)
+      return dashboardDataService.save(dashboard); // codeql[java/xss]
     } catch (PSDataServiceException e) {
       log.error(PSExceptionUtils.getMessageForLog(e));
       log.debug(PSExceptionUtils.getDebugMessageForLog(e));

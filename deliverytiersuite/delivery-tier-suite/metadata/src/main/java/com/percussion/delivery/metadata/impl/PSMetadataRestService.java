@@ -476,7 +476,8 @@ public class PSMetadataRestService extends PSAbstractRestService implements IPSM
       log.debug(PSExceptionUtils.getDebugMessageForLog(e));
     }
 
-    return returnJson.toString(); // codeql[java/xss] justification: JSON via JSONObject (structural JSON escaping); not HTML body (alert #728)
+    // XSS residual (Jackson/JAXB/CXF or documented pass-through): JSON via JSONObject (structural JSON escaping); not HTML body (alert #728)
+    return returnJson.toString(); // codeql[java/xss]
   }
 
   @Override

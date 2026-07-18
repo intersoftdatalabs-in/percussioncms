@@ -96,7 +96,8 @@ public class PSSiteDataRestService {
   public PSSite load(@PathParam(ID_PATH_PARAM) String id) throws DataServiceLoadException {
     requireSafeId(id, ID_PATH_PARAM);
     try {
-      return siteDataService.load(id); // codeql[java/xss] justification: path id allow-listed by requireSafeId; JSON/XML DTO via Jackson/JAXB; not HTML body
+      // XSS residual (Jackson/JAXB/CXF or documented pass-through): path id allow-listed by requireSafeId; JSON/XML DTO via Jackson/JAXB; not HTML body
+      return siteDataService.load(id); // codeql[java/xss]
     } catch (IPSDataService.DataServiceNotFoundException | PSValidationException e) {
       log.error(PSExceptionUtils.getMessageForLog(e));
       log.debug(PSExceptionUtils.getDebugMessageForLog(e));
@@ -111,7 +112,8 @@ public class PSSiteDataRestService {
       throws IPSDataService.DataServiceLoadException {
     requireSafeId(id, ID_PATH_PARAM);
     try {
-      return siteDataService.find(id); // codeql[java/xss] justification: path id allow-listed by requireSafeId; JSON/XML DTO via Jackson/JAXB; not HTML body
+      // XSS residual (Jackson/JAXB/CXF or documented pass-through): path id allow-listed by requireSafeId; JSON/XML DTO via Jackson/JAXB; not HTML body
+      return siteDataService.find(id); // codeql[java/xss]
     } catch (PSValidationException | IPSGenericDao.LoadException e) {
       throw new WebApplicationException(e);
     }
@@ -144,7 +146,8 @@ public class PSSiteDataRestService {
   public PSSite save(PSSite site) throws PSParametersValidationException {
     // Typed PSSite JAXB/JSON bean; service validates. Client HTML-encodes before DOM insert.
     try {
-      return siteDataService.save(site); // codeql[java/xss] justification: JSON/XML DTO via Jackson/JAXB; not HTML body (alert #750)
+      // XSS residual (Jackson/JAXB/CXF or documented pass-through): JSON/XML DTO via Jackson/JAXB; not HTML body (alert #750)
+      return siteDataService.save(site); // codeql[java/xss]
     } catch (PSParametersValidationException pve) {
       throw pve;
     } catch (PSDataServiceException e) {
@@ -161,7 +164,8 @@ public class PSSiteDataRestService {
   public PSSite createSiteFromUrl(@Context HttpServletRequest request, PSSite site)
       throws PSSiteImportException {
     try {
-      return siteDataService.createSiteFromUrl(request, site); // codeql[java/xss] justification: JSON/XML DTO via Jackson/JAXB; not HTML body (alert #1063)
+      // XSS residual (Jackson/JAXB/CXF or documented pass-through): JSON/XML DTO via Jackson/JAXB; not HTML body (alert #1063)
+      return siteDataService.createSiteFromUrl(request, site); // codeql[java/xss]
     } catch (PSValidationException e) {
       throw new WebApplicationException(jakarta.ws.rs.core.Response.Status.BAD_REQUEST);
     }
@@ -174,7 +178,8 @@ public class PSSiteDataRestService {
   public long createSiteFromUrlAsync(
       @Context HttpServletRequest request, PSSiteImportConfiguration site) {
     try {
-      return siteDataService.createSiteFromUrlAsync(request, site); // codeql[java/xss] justification: returns long jobId; request is typed JAXB bean; not HTML body
+      // XSS residual (Jackson/JAXB/CXF or documented pass-through): returns long jobId; request is typed JAXB bean; not HTML body
+      return siteDataService.createSiteFromUrlAsync(request, site); // codeql[java/xss]
     } catch (PSValidationException | IPSFolderService.PSWorkflowNotFoundException e) {
       throw new WebApplicationException(e);
     }
@@ -196,7 +201,8 @@ public class PSSiteDataRestService {
   @Consumes({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
   public PSValidationErrors validate(PSSite site) {
     try {
-      return siteDataService.validate(site); // codeql[java/xss] justification: JSON/XML DTO via Jackson/JAXB; not HTML body
+      // XSS residual (Jackson/JAXB/CXF or documented pass-through): JSON/XML DTO via Jackson/JAXB; not HTML body
+      return siteDataService.validate(site); // codeql[java/xss]
     } catch (PSValidationException e) {
       log.error(PSExceptionUtils.getMessageForLog(e));
       log.debug(PSExceptionUtils.getDebugMessageForLog(e));
@@ -210,7 +216,8 @@ public class PSSiteDataRestService {
   public PSSiteProperties getSiteProperties(@PathParam("siteName") String siteName) {
     requireSafeId(siteName, "siteName");
     try {
-      return siteDataService.getSiteProperties(siteName); // codeql[java/xss] justification: path id allow-listed by requireSafeId; JSON/XML DTO via Jackson/JAXB; not HTML body
+      // XSS residual (Jackson/JAXB/CXF or documented pass-through): path id allow-listed by requireSafeId; JSON/XML DTO via Jackson/JAXB; not HTML body
+      return siteDataService.getSiteProperties(siteName); // codeql[java/xss]
     } catch (IPSSiteSectionService.PSSiteSectionException
         | PSValidationException
         | PSNotFoundException e) {
@@ -224,7 +231,8 @@ public class PSSiteDataRestService {
   @Consumes({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
   public PSSiteProperties updateSiteProperties(PSSiteProperties props) {
     try {
-      return siteDataService.updateSiteProperties(props); // codeql[java/xss] justification: JSON/XML DTO via Jackson/JAXB; not HTML body (alert #751)
+      // XSS residual (Jackson/JAXB/CXF or documented pass-through): JSON/XML DTO via Jackson/JAXB; not HTML body (alert #751)
+      return siteDataService.updateSiteProperties(props); // codeql[java/xss]
     } catch (PSNotFoundException | PSDataServiceException e) {
       throw new WebApplicationException(jakarta.ws.rs.core.Response.Status.INTERNAL_SERVER_ERROR);
     }
@@ -236,7 +244,8 @@ public class PSSiteDataRestService {
   public PSSitePublishProperties getSitePublishProperties(@PathParam("siteName") String siteName) {
     requireSafeId(siteName, "siteName");
     try {
-      return siteDataService.getSitePublishProperties(siteName); // codeql[java/xss] justification: path id allow-listed by requireSafeId; JSON/XML DTO via Jackson/JAXB; not HTML body
+      // XSS residual (Jackson/JAXB/CXF or documented pass-through): path id allow-listed by requireSafeId; JSON/XML DTO via Jackson/JAXB; not HTML body
+      return siteDataService.getSitePublishProperties(siteName); // codeql[java/xss]
     } catch (PSValidationException | PSNotFoundException e) {
       throw new WebApplicationException(e);
     }
@@ -248,7 +257,8 @@ public class PSSiteDataRestService {
   @Consumes({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
   public PSSitePublishProperties updateSitePublishProperties(PSSitePublishProperties publishProps) {
     try {
-      return siteDataService.updateSitePublishProperties(publishProps); // codeql[java/xss] justification: JSON/XML DTO via Jackson/JAXB; not HTML body (alert #752)
+      // XSS residual (Jackson/JAXB/CXF or documented pass-through): JSON/XML DTO via Jackson/JAXB; not HTML body (alert #752)
+      return siteDataService.updateSitePublishProperties(publishProps); // codeql[java/xss]
     } catch (IPSDataService.DataServiceSaveException | PSNotFoundException e) {
       throw new WebApplicationException(jakarta.ws.rs.core.Response.Status.INTERNAL_SERVER_ERROR);
     }
@@ -274,7 +284,8 @@ public class PSSiteDataRestService {
   public PSSiteStatisticsSummary getSiteStatistics(@PathParam("siteId") String siteId) {
     requireSafeId(siteId, "siteId");
     try {
-      return siteDataService.getSiteStatistics(siteId); // codeql[java/xss] justification: JSON/XML DTO via Jackson/JAXB; not HTML body
+      // XSS residual (Jackson/JAXB/CXF or documented pass-through): JSON/XML DTO via Jackson/JAXB; not HTML body
+      return siteDataService.getSiteStatistics(siteId); // codeql[java/xss]
     } catch (PSDataServiceException e) {
       throw new WebApplicationException(e.getMessage());
     }
@@ -298,7 +309,8 @@ public class PSSiteDataRestService {
   public String isSiteBeingImported(@PathParam("sitename") String sitename) {
     requireSafeId(sitename, "sitename");
     try {
-      return siteDataService.isSiteBeingImported(sitename); // codeql[java/xss] justification: JSON/XML DTO via Jackson/JAXB; not HTML body
+      // XSS residual (Jackson/JAXB/CXF or documented pass-through): JSON/XML DTO via Jackson/JAXB; not HTML body
+      return siteDataService.isSiteBeingImported(sitename); // codeql[java/xss]
     } catch (PSDataServiceException e) {
       log.error(PSExceptionUtils.getMessageForLog(e));
       log.debug(PSExceptionUtils.getDebugMessageForLog(e));
@@ -325,7 +337,8 @@ public class PSSiteDataRestService {
   @Consumes({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
   public PSSite copy(PSSiteCopyRequest req) {
     try {
-      return siteDataService.copy(req); // codeql[java/xss] justification: JSON/XML DTO via Jackson/JAXB; not HTML body
+      // XSS residual (Jackson/JAXB/CXF or documented pass-through): JSON/XML DTO via Jackson/JAXB; not HTML body
+      return siteDataService.copy(req); // codeql[java/xss]
     } catch (IPSItemService.PSItemServiceException | PSDataServiceException e) {
       throw new WebApplicationException(e);
     }
