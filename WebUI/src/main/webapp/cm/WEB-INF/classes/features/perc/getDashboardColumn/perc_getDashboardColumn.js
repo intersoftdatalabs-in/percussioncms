@@ -15,13 +15,21 @@ gadgets.window = gadgets.window || {};
  * Sanitisation rationale: the raw regex capture from `RegExp.exec` is
  * never safe to flow into a downstream string context (selector, URL,
  * data-context attribute). This helper was flagged by GitHub CodeQL as
- * `js/incomplete-sanitization`; the fix URL-decodes the captured value
- * and reduces it to an allow-listed character set so callers can
- * concatenate the result without a second pass of escaping.
+ * `js/incomplete-sanitization`; the fix (1) allow-lists the parameter
+ * *name* before building the RegExp (no incomplete `[` / `]` first-only
+ * escape), (2) URL-decodes the captured value, and (3) reduces it to a
+ * safe character set so callers can concatenate the result without a
+ * second pass of escaping.
  */
 function __gup( name )
 {
-  name = name.replace(/[\[]/,"\\\[").replace(/[\]]/,"\\\]");
+  // Parameter names are fixed gadget identifiers (e.g. "mid"). Reject
+  // anything outside a safe identifier set so we never build a RegExp from
+  // untrusted text. (Closes js/incomplete-sanitization on the previous
+  // non-global [ / ] escape.)
+  if (typeof name !== "string" || !/^[A-Za-z0-9._-]+$/.test(name)) {
+    return "";
+  }
   var regexS = "[\\?&]"+name+"=([^&#]*)";
   var regex = new RegExp( regexS );
   var results = regex.exec( window.location.href );

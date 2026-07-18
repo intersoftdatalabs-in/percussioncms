@@ -121,6 +121,15 @@ describe("source-pattern (anti-regression for js/incomplete-sanitization)", () =
     // must exist on the return path.
     expect(src).toMatch(/\.replace\s*\(\s*\/\[\^A-Za-z0-9\._-\]\/g/);
   });
+
+  it("does not use non-global [ / ] first-occurrence replaces for param names", () => {
+    // Pre-residual: name = name.replace(/[\[]/,"\\[").replace(/[\]]/,"\\]");
+    // CodeQL js/incomplete-sanitization (alerts #1110-#1113). Replaced by
+    // an allow-list check on the parameter name before building the RegExp.
+    expect(src).not.toMatch(/name\.replace\s*\(\s*\/\[\\?\[\]\//);
+    expect(src).toMatch(/\[\^A-Za-z0-9\._-\]/);
+    expect(src).toMatch(/typeof name !== "string"/);
+  });
 });
 
 // ---------------------------------------------------------------------------
@@ -168,6 +177,20 @@ describe("__gup() sanitisation", () => {
       globalThis.percJQuery = () => ({ parent: () => ({ attr: () => null }) });
       loadSource();
       expect(globalThis.__gup("missing")).toBe("");
+    });
+  });
+
+  it("rejects parameter names outside the identifier allow-list", () => {
+    withFreshWindow("http://localhost/?mid=abc&x[0]=evil", () => {
+      globalThis.gadgets = { window: {} };
+      globalThis.percJQuery = () => ({ parent: () => ({ attr: () => null }) });
+      loadSource();
+      expect(globalThis.__gup("x[0]")).toBe("");
+      expect(globalThis.__gup("mid.*")).toBe("");
+      expect(globalThis.__gup("")).toBe("");
+      expect(globalThis.__gup(null)).toBe("");
+      // Normal identifier still works.
+      expect(globalThis.__gup("mid")).toBe("abc");
     });
   });
 

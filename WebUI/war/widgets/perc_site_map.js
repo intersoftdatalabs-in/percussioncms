@@ -2190,7 +2190,7 @@
 			for(var i = 0; i < attributeValue_array.length; i++) {
 				var tempArrayData = attributeValue_array[i];
 				var tempArrayData_arr = tempArrayData.split(':');
-				tempArrayData_arr = tempArrayData_arr[0].replace("{","");
+				tempArrayData_arr = tempArrayData_arr[0].replace(/\{/g, "");
 				Ids_arr.push(tempArrayData_arr.trim());
 
 			}
