@@ -511,9 +511,14 @@ public class PSSecurityFilter implements Filter {
           oldPath += httpReq.getQueryString() == null ? "" : "?" + httpReq.getQueryString();
           URL oldUrl = new URL(oldPath);
           int sslport = PSServer.getSslListenerPort() == 443 ? -1 : PSServer.getSslListenerPort();
-          URL newUrl = new URL("https", oldUrl.getHost(), sslport, oldUrl.getFile());
-          // CWE-601 / java/unvalidated-url-redirection #645: Host may come from the request URL;
-          // only redirect after allow-list validation (request server name + public hostname).
+          // Prefer configured public hostname over Host-header-derived host when set.
+          String redirectHost = PSServer.getProperty("publicCmsHostname", null);
+          if (StringUtils.isBlank(redirectHost)) {
+            // isValidHostHeader already ran above; still re-validate the final URL.
+            redirectHost = oldUrl.getHost();
+          }
+          URL newUrl = new URL("https", redirectHost, sslport, oldUrl.getFile());
+          // CWE-601 / java/unvalidated-url-redirection #645
           sendValidatedRedirect(httpResp, httpReq, newUrl.toExternalForm());
           return;
         }
@@ -1340,15 +1345,12 @@ public class PSSecurityFilter implements Filter {
   }
 
   /**
-   * Gets the redirect path based on the current setting for secure login
+   * Sends an HTTP redirect only after {@link PSRedirectValidation} accepts the location.
    *
-   * @param request The current request, assumed not <code>null</code>.
-   * @return The new login page, never <code>null</code> or empty.
-   */
-  /**
-   * Sends an HTTP redirect only after {@link PSRedirectValidation} accepts the location as a safe
-   * relative path or as an absolute http(s) URL on an allowed host (request server name and
-   * optional {@code publicCmsHostname}).
+   * <p>Relative paths are validated as internal-only. Absolute URLs must match {@code
+   * publicCmsHostname} when configured; otherwise {@code request.getServerName()} is used only
+   * after {@link #isValidHostHeader(HttpServletRequest)} has already accepted the request (callers
+   * must not invoke this for absolute URLs without that guard).
    */
   private static void sendValidatedRedirect(
       HttpServletResponse response, HttpServletRequest request, String location)
@@ -1361,19 +1363,30 @@ public class PSSecurityFilter implements Filter {
     if (location.startsWith("/") && !location.startsWith("//")) {
       safe = PSRedirectValidation.validateInternalRedirectUrl(location);
     } else {
-      Set<String> allowed = new HashSet<>(PSRedirectValidation.createDefaultWhitelist(request.getServerName()));
+      Set<String> allowed = new HashSet<>();
       String publicHost = PSServer.getProperty("publicCmsHostname", null);
       if (StringUtils.isNotBlank(publicHost)) {
-        allowed.add(publicHost);
+        allowed.addAll(PSRedirectValidation.createDefaultWhitelist(publicHost));
+      } else {
+        // Fallback: server name is only trustworthy after isValidHostHeader in doFilter.
+        allowed.addAll(PSRedirectValidation.createDefaultWhitelist(request.getServerName()));
       }
       safe = PSRedirectValidation.validateRedirectUrl(location, allowed);
     }
     if (safe == null) {
-      ms_log.warn("Rejected unvalidated redirect location: {}", location);
+      ms_log.warn("Rejected unvalidated redirect location: {}", sanitizeForLog(location));
       response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Invalid redirect location");
       return;
     }
     response.sendRedirect(safe);
+  }
+
+  /** Strip C0 control characters before logging (log injection hygiene). */
+  private static String sanitizeForLog(String value) {
+    if (value == null) {
+      return "";
+    }
+    return value.replaceAll("[\\p{Cntrl}&&[^\t\n\r]]", "").trim();
   }
 
   private String getLoginUrl(HttpServletRequest request) {

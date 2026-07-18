@@ -59,7 +59,6 @@ import java.net.URISyntaxException;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.FastDateFormat;
 import org.apache.logging.log4j.LogManager;
@@ -376,23 +375,20 @@ public class PSCommentsRestService extends PSAbstractRestService implements IPSC
   }
 
   /**
-   * Returns {@code 303 See Other} only when {@code target} is a relative path or an absolute
-   * http(s) URL whose host matches the request {@code Host} header. Otherwise returns {@code 204
-   * No Content} so an open redirect cannot be forced via Referer.
+   * Returns {@code 303 See Other} only for a <em>relative</em> redirect. Absolute Referer URLs are
+   * reduced to path+query+fragment so the client Host header cannot force an off-site location
+   * (CWE-601 / #643/#644 review: do not trust Host as an allow-list).
    */
   private static Response seeOtherIfSafe(String target, MultivaluedMap<String, String> headers) {
     if (StringUtils.isBlank(target)) {
       return Response.noContent().build();
     }
-    Set<String> allowed = allowedDomainsFromHostHeader(headers.getFirst("Host"));
-    String safe;
-    if (target.startsWith("/") && !target.startsWith("//")) {
-      safe = PSRedirectValidation.validateInternalRedirectUrl(target);
-    } else {
-      safe = PSRedirectValidation.validateRedirectUrl(target, allowed);
-    }
+    String relative = toRelativeRedirectTarget(target);
+    String safe =
+        relative == null ? null : PSRedirectValidation.validateInternalRedirectUrl(relative);
     if (safe == null) {
-      PSCommentsRestService.log.warn("Rejected unvalidated redirect target: {}", target);
+      PSCommentsRestService.log.warn(
+          "Rejected unvalidated redirect target: {}", sanitizeForLog(target));
       return Response.noContent().build();
     }
     try {
@@ -404,17 +400,48 @@ public class PSCommentsRestService extends PSAbstractRestService implements IPSC
     }
   }
 
-  /** Builds an allow-list from the request Host header (host only, port stripped). */
-  private static Set<String> allowedDomainsFromHostHeader(String hostHeader) {
-    if (StringUtils.isBlank(hostHeader)) {
-      return new HashSet<>();
+  /**
+   * Converts an absolute URL to a same-document relative path (path + query + fragment). Protocol-
+   * relative and non-http(s) absolute URLs are rejected ({@code null}).
+   */
+  static String toRelativeRedirectTarget(String target) {
+    try {
+      URI uri = new URI(target.trim());
+      if (!uri.isAbsolute()) {
+        if (target.startsWith("/") && !target.startsWith("//")) {
+          return target;
+        }
+        return null;
+      }
+      String scheme = uri.getScheme();
+      if (scheme != null
+          && !"http".equalsIgnoreCase(scheme)
+          && !"https".equalsIgnoreCase(scheme)) {
+        return null;
+      }
+      String path = uri.getRawPath();
+      if (path == null || path.isEmpty()) {
+        path = "/";
+      }
+      StringBuilder b = new StringBuilder(path);
+      if (uri.getRawQuery() != null) {
+        b.append('?').append(uri.getRawQuery());
+      }
+      if (uri.getRawFragment() != null) {
+        b.append('#').append(uri.getRawFragment());
+      }
+      return b.toString();
+    } catch (URISyntaxException e) {
+      return null;
     }
-    String host = hostHeader.trim();
-    int colon = host.indexOf(':');
-    if (colon > 0) {
-      host = host.substring(0, colon);
+  }
+
+  /** Strip C0 control characters before logging (log injection hygiene). */
+  static String sanitizeForLog(String value) {
+    if (value == null) {
+      return "";
     }
-    return PSRedirectValidation.createDefaultWhitelist(host);
+    return value.replaceAll("[\\p{Cntrl}&&[^\t\n\r]]", "").trim();
   }
 
   /* (non-Javadoc)
