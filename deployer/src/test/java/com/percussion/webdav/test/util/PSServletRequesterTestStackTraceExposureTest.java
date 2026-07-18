@@ -25,17 +25,19 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 /**
- * Ensures {@code PSServletRequesterTest.writeStackTrace} no longer dumps frames (CodeQL {@code
- * java/stack-trace-exposure} #789 / T055 residual).
+ * Ensures {@code PSServletRequesterTest.writeStackTrace} never exposes exception type, message, or
+ * stack frames on the response (CodeQL {@code java/stack-trace-exposure} / {@code
+ * java/error-message-exposure} #789 residual #1768 / T055).
  */
-@DisplayName("PSServletRequesterTest.writeStackTrace — no stack dump (#789)")
+@DisplayName("PSServletRequesterTest.writeStackTrace — generic error only (#789/#1768)")
 class PSServletRequesterTestStackTraceExposureTest {
 
+  private static final String SECRET_MESSAGE = "boom <secret-path>/internal";
+
   @Test
-  void writeStackTraceEmitsTypeAndMessageWithoutFrames() throws Exception {
+  void writeStackTraceEmitsGenericErrorWithoutMessageOrFrames() throws Exception {
     PSServletRequesterTest harness = new PSServletRequesterTest();
     StringWriter sw = new StringWriter();
-    // m_writer is package-private? set via reflection if needed
     java.lang.reflect.Field writerField = PSServletRequesterTest.class.getDeclaredField("m_writer");
     writerField.setAccessible(true);
     writerField.set(harness, new PrintWriter(sw, true));
@@ -43,11 +45,13 @@ class PSServletRequesterTestStackTraceExposureTest {
     Method m =
         PSServletRequesterTest.class.getDeclaredMethod("writeStackTrace", Exception.class);
     m.setAccessible(true);
-    m.invoke(harness, new IllegalStateException("boom <x>"));
+    m.invoke(harness, new IllegalStateException(SECRET_MESSAGE));
 
     String out = sw.toString();
-    assertTrue(out.contains("IllegalStateException"), out);
-    assertTrue(out.contains("boom &lt;x&gt;"), "HTML-escaped message expected: " + out);
+    assertTrue(out.contains("error"), "generic error body expected: " + out);
+    assertFalse(out.contains("IllegalStateException"), "must not leak exception type: " + out);
+    assertFalse(out.contains("boom"), "must not leak exception message: " + out);
+    assertFalse(out.contains("secret-path"), "must not leak exception message: " + out);
     assertFalse(out.contains("at "), "must not dump stack frames: " + out);
     assertFalse(out.contains("PSServletRequesterTestStackTraceExposureTest"), out);
   }

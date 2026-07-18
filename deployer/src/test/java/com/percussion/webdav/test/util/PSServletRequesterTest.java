@@ -269,24 +269,16 @@ public class PSServletRequesterTest extends PSWebdavServlet {
   }
 
   /**
-   * Writes a short exception summary to the response writer without a full stack dump (CWE-209 /
-   * CodeQL {@code java/stack-trace-exposure} alert #789). This harness is test-only but still
-   * should not emit stack frames into HTML.
+   * Writes a generic error marker to the response writer. Does not emit exception type, message,
+   * or stack frames (CWE-209 / CodeQL {@code java/stack-trace-exposure} and {@code
+   * java/error-message-exposure}, alert #789 / residual #1768). Detail is logged server-side only.
    *
-   * @param e the exception to report
+   * @param e the exception to report (logged; not written to the client response)
    */
   private void writeStackTrace(Exception e) {
+    LogManager.getLogger(getClass()).error("PSServletRequesterTest harness error", e);
     m_writer.println("<pre><font size=\"2\" color=\"blue\">");
-    String type = e.getClass().getSimpleName();
-    String msg = e.getMessage();
-    if (msg == null || msg.isEmpty()) {
-      m_writer.println(type);
-    } else {
-      // Escape basic HTML specials so messages cannot inject markup.
-      String safe =
-          msg.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;");
-      m_writer.println(type + ": " + safe);
-    }
+    m_writer.println("error");
     m_writer.println("</font></pre><br>");
   }
 
