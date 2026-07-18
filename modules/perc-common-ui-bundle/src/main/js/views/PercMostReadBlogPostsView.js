@@ -59,9 +59,28 @@
     });
   }
 
+  /**
+   * Whitelist heading tag names so `$("<" + name + "/>")` never builds a tag
+   * from untrusted DOM/config text (CodeQL js/xss-through-dom #986/#987).
+   * Both {@code name} and {@code fallback} are allow-listed; invalid values
+   * fall through to {@code "h2"} (never echo an unvalidated fallback).
+   */
+  function safeHeadingTag(name, fallback) {
+    var allowed = /^(h[1-6]|div|p|span)$/;
+    var n = String(name || "").toLowerCase();
+    if (allowed.test(n)) {
+      return n;
+    }
+    var fb = String(fallback || "").toLowerCase();
+    if (allowed.test(fb)) {
+      return fb;
+    }
+    return "h2";
+  }
+
   function createTitleHtml(settings) {
     var title = "";
-    var elemName = settings.headingStyle || "h2";
+    var elemName = safeHeadingTag(settings.headingStyle, "h2");
     if (settings.listTitle) {
       title = $("<div/>").append(
         $("<" + elemName + "/>")
@@ -77,7 +96,7 @@
    * the server.
    */
   function createEntryHtml(settings, entry) {
-    var headingElem = settings.headingStyle || "h3";
+    var headingElem = safeHeadingTag(settings.headingStyle, "h3");
     var pagePath = entry.folder + entry.name;
     var promotedPaths = settings.promotedPagePaths || "";
     promotedPaths = promotedPaths.split(";");
