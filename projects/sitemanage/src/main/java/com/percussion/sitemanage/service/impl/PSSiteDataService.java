@@ -500,8 +500,13 @@ public class PSSiteDataService extends PSAbstractDataService<PSSite, PSSiteSumma
 
     File cacheRoot =
         new File(PSServer.getRxDir().getAbsolutePath() + PAGE_IMAGE_CACHE_DIR);
-    if (!cacheRoot.exists()) {
-      cacheRoot.mkdirs();
+    if (!cacheRoot.exists() && !cacheRoot.mkdirs() && !cacheRoot.isDirectory()) {
+      // mkdirs() false can mean "already exists as dir after race" or true failure.
+      log.error(
+          "Unable to create page/template image cache root: {}. Site thumbnail cache rename"
+              + " skipped.",
+          cacheRoot.getAbsolutePath());
+      return;
     }
     var sourceCacheDir = PSPathInjectionGuard.requireUnderBase(cacheRoot, oldSiteName);
     var destCacheDir = PSPathInjectionGuard.requireUnderBase(cacheRoot, newSiteName);
