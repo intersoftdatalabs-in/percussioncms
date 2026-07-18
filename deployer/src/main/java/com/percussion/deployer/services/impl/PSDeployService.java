@@ -53,8 +53,13 @@ import org.springframework.transaction.annotation.Transactional;
 /**
  * An MSM related service which delineates the transaction boundaries for specific assembly
  * elements. Handles deserialization, transformation, and persistence of deployment objects.
+ *
+ * <p><b>Transaction policy:</b> roll back on any {@link Exception}. The previous {@code
+ * noRollbackFor = Exception.class} caused Hibernate/nested {@code RuntimeException} failures to
+ * mark the TX rollback-only, after which Spring attempted to <em>commit</em> and only reported
+ * {@code UnexpectedRollbackException} — hiding the real cause (filter/keyword package install).
  */
-@Transactional(propagation = Propagation.REQUIRED, noRollbackFor = Exception.class)
+@Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 public class PSDeployService implements IPSDeployService {
   private SessionFactory sessionFactory;
 

@@ -52,6 +52,17 @@ final class PSFilterInstallUtils {
   }
 
   /**
+   * Deploy service must roll back on checked deploy failures (not {@code noRollbackFor =
+   * Exception}). Nested Hibernate {@code RuntimeException}s mark the TX rollback-only; attempting
+   * commit then only reports {@code UnexpectedRollbackException}.
+   *
+   * @return always {@code true}
+   */
+  static boolean deployServiceShouldRollbackOnException() {
+    return true;
+  }
+
+  /**
    * Builds a filter install error message including exception type and root cause.
    *
    * @param e failure, not {@code null}

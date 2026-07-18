@@ -49,6 +49,13 @@ public class PSFilterInstallUtilsTest {
   }
 
   @Test
+  public void testDeployServiceMustRollbackOnException() {
+    assertTrue(
+        PSFilterInstallUtils.deployServiceShouldRollbackOnException(),
+        "PSDeployService must use rollbackFor=Exception, not noRollbackFor=Exception");
+  }
+
+  @Test
   public void testFormatInstallErrorIncludesTypesAndRootCause() {
     Exception root = new IllegalStateException("null version on flush");
     RuntimeException wrapper =

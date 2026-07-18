@@ -56,8 +56,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Class to handle packaging and deploying a Filter definition.
@@ -275,7 +273,12 @@ public class PSFilterDefDependencyHandler extends PSDependencyHandler implements
    * @param ver the version of filter, may be <code>null</code> for new filters
    * @throws PSDeployException
    */
-  @Transactional(propagation = Propagation.REQUIRED)
+  /**
+   * Not Spring-managed — do not put {@code @Transactional} here. Persistence runs under {@link
+   * com.percussion.deployer.services.impl.PSDeployService}'s transaction (and the filter service's
+   * own {@code @Transactional} join). Nested annotations on non-proxied handlers are ignored and
+   * mislead maintainers.
+   */
   public void saveFilter(IPSItemFilter f, Integer ver) throws PSDeployException {
     // Apply version once. Do not null-then-restore on a managed entity elsewhere in the TX —
     // that dirties the session with a null @Version and fails flush under Hibernate 7.
