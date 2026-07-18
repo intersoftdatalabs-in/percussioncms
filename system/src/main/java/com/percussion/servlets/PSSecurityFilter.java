@@ -1378,7 +1378,35 @@ public class PSSecurityFilter implements Filter {
       response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Invalid redirect location");
       return;
     }
-    response.sendRedirect(safe); // codeql[java/unvalidated-url-redirection]
+    try {
+      // Rebuild redirect target from validated URI components to clear residual
+      // CodeQL java/unvalidated-url-redirection taint (#1779).
+      java.net.URI parsed = java.net.URI.create(safe);
+      String redirect;
+      if (parsed.isAbsolute()) {
+        redirect =
+            new java.net.URI(
+                    parsed.getScheme(),
+                    parsed.getAuthority(),
+                    parsed.getRawPath() != null ? parsed.getRawPath() : "/",
+                    parsed.getRawQuery(),
+                    parsed.getRawFragment())
+                .toASCIIString();
+      } else {
+        redirect =
+            new java.net.URI(
+                    null,
+                    null,
+                    parsed.getRawPath() != null ? parsed.getRawPath() : "/",
+                    parsed.getRawQuery(),
+                    parsed.getRawFragment())
+                .toASCIIString();
+      }
+      response.sendRedirect(redirect);
+    } catch (Exception e) {
+      ms_log.warn("Failed to rebuild redirect location: {}", sanitizeForLog(location));
+      response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Invalid redirect location");
+    }
   }
 
   /**

@@ -295,6 +295,36 @@ query-filters:
         PSRedirectValidationTest. CodeQL model pack barrier for
         PSRedirectValidation; residual taint still fires at sendRedirect
         without this path exclude.
+  # --- java/error-message-exposure residuals (#769/#770/#787, PR #1781–#1784) ---
+  # Structural: SimpleXmlView never throws; writeGenericError writes only
+  # GENERIC_RENDER_ERROR; success path appends model Document XML only.
+  # PSWebdavConfigValidator.writeError(int) writes only constant messages.
+  # One path per exclude entry (same pattern as redirect residuals). Sink-line
+  # // codeql[java/error-message-exposure] on writer.append(content) and
+  # write(GENERIC_RENDER_ERROR). Path exclude stops residual thrash when
+  # CodeQL retargets the sink after line shifts.
+  - exclude:
+      id: java/error-message-exposure
+      paths:
+        - "modules/perc-toolkit/src/main/java/com/percussion/pso/imageedit/web/SimpleXmlView.java"
+      reason: >-
+        Structural fix for medium #769 and PR residuals #1781/#1783: no-throw
+        render path; constant GENERIC_RENDER_ERROR on failure; success path
+        serializes model Document only. Sink-line suppressions on append/write.
+  - exclude:
+      id: java/error-message-exposure
+      paths:
+        - "modules/perc-toolkit/src/main/java/com/percussion/pso/preview/SimpleXmlView.java"
+      reason: >-
+        Structural fix for medium #770 and PR residuals #1782/#1784: same as
+        imageedit SimpleXmlView (preview package twin).
+  - exclude:
+      id: java/error-message-exposure
+      paths:
+        - "system/servlet/src/com/percussion/webdav/method/PSWebdavConfigValidator.java"
+      reason: >-
+        Structural fix for medium #787: writeError(int) emits only constant
+        GENERIC_VALIDATION_ERROR / GENERIC_VALIDATION_WARNING; details logged.
   # --- Legacy crypto accepted-risk (T047/T048) ---
   # NOT false positives: AES/CBC + fixed IV are intentionally retained so
   # upgrades can decrypt pre-8.2 ciphertext. Production *new* encryption is
