@@ -56,6 +56,10 @@
 - Reflection or environment assumptions that break under module-only or Windows checkouts without `assumeTrue`
 - Public helper Javadoc that contradicts implementation (e.g. nullability / parse contracts) misleads callers
 
+### Deployer / packaging
+
+- XML `fromXml` modernizations that drop attributes used for runtime type dispatch (e.g. `fileType` → `TYPE_ENUM`) silently default ints to `0` and break package install with well-formed / wrong-type / “missing” dependency-file errors even when archives are correct
+
 ### Maintainability
 
 - `StringBuilder.append(null)` → literal `"null"` in user-visible strings
