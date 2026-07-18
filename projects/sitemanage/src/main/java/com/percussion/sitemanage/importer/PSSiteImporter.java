@@ -36,11 +36,9 @@ import java.util.Date;
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLContext;
-import javax.net.ssl.SSLSession;
 import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.TrustManagerFactory;
-import javax.net.ssl.X509TrustManager;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
 import org.apache.commons.lang3.math.NumberUtils;
@@ -340,8 +338,10 @@ public class PSSiteImporter {
       connectionData.setDefaultHostnameVerifier(HttpsURLConnection.getDefaultHostnameVerifier());
 
       HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());
-      HttpsURLConnection.setDefaultHostnameVerifier(
-          (String urlHostName, SSLSession session) -> true);
+      // Keep the JVM default HostnameVerifier (RFC 2818 host matching). Do not install an
+      // always-true verifier — that was CodeQL java/unsafe-hostname-verification #663 (T053).
+      // Certificate chain trust is enforced by the default TrustManagers installed above;
+      // hostname verification remains the platform default for the duration of the override.
 
       return connectionData;
     } catch (Exception e) {
