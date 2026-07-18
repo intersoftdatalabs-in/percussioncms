@@ -526,6 +526,7 @@
     var safeMetaDescription = $("<div/>").text(metaDescriptiton || "").html();
     var safeMailTo = $("<div/>").text(mailTo || "").html();
     var safeMailSubject = $("<div/>").text(mailSubject || "").html();
+    var safeSaveToUrl = $("<div/>").text(saveToUrl || "").html();
     var readOnlyMetadata = $(
       "<div id='perc-form-metadata-panel'>" +
         "<div id='perc-form-edit-metadata-link' class='perc-form-spacer'>" +
@@ -597,7 +598,7 @@
         "<div id='perc-form-negative-expander'>" +
         "<div class='perc-form-datadisplay' name='perc-save-to-url' type='text' " +
         "id='perc-form-metadata-save-to-url-text-readonly'>" +
-        saveToUrl +
+        safeSaveToUrl +
         "</div>" +
         "</div>" +
         "</div>" +
