@@ -231,8 +231,8 @@ public class PSAssetRestService {
         | IPSWidgetAssetRelationshipService.PSWidgetAssetRelationshipServiceException e) {
       throw new WebApplicationException(jakarta.ws.rs.core.Response.Status.INTERNAL_SERVER_ERROR);
     }
-    // codeql[java/xss] justification: JSON/XML DTO via Jackson/JAXB; client HTML-encodes before DOM insert (alert #735)
-    return awRel;
+    // XSS residual (Jackson/JAXB/CXF or documented pass-through): JSON/XML DTO via Jackson/JAXB; not HTML body (alert #735)
+    return awRel; // codeql[java/xss]
   }
 
   @POST
@@ -483,11 +483,9 @@ public class PSAssetRestService {
   @Consumes({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
   public PSAsset save(PSAsset object) {
     try {
-      // codeql[java/xss] justification: JSON/XML DTO via Jackson/JAXB; client HTML-encodes before DOM insert (alert #736)
-      return assetService.save(object);
+      // XSS residual (Jackson/JAXB/CXF or documented pass-through): JSON/XML DTO via Jackson/JAXB; not HTML body (alert #1843)
+      return assetService.save(object); // codeql[java/xss]
     } catch (PSDataServiceException e) {
-      // codeql[java/xss] justification: status-only 500; no exception text in body
-      // (alert #1772). Log e server-side if needed.
       throw new WebApplicationException(
           jakarta.ws.rs.core.Response.Status.INTERNAL_SERVER_ERROR);
     }
@@ -533,11 +531,9 @@ public class PSAssetRestService {
       PSAssetSummary sum = assetService.find(assetFolderRelationship.getAssetId());
       assetFolderRelationship.setAssetId(sum.getId());
 
-      // codeql[java/xss] justification: JSON/XML DTO via Jackson/JAXB; client HTML-encodes before DOM insert (alert #737)
-      return assetFolderRelationship;
+      // XSS residual (Jackson/JAXB/CXF or documented pass-through): JSON/XML DTO via Jackson/JAXB; not HTML body (alert #1844)
+      return assetFolderRelationship; // codeql[java/xss]
     } catch (PSDataServiceException e) {
-      // codeql[java/xss] justification: status-only 500; no exception text in body
-      // (alert #1773). Log e server-side if needed.
       throw new WebApplicationException(
           jakarta.ws.rs.core.Response.Status.INTERNAL_SERVER_ERROR);
     }

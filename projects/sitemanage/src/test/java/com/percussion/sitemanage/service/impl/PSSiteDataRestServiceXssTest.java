@@ -44,8 +44,10 @@ import org.junit.jupiter.api.Test;
  *       underscore, colon; length 1-128). Any input outside the
  *       allow-list is rejected with HTTP 400.
  *   <li>Documents the data flow for each REST method with a
- *       {@code // codeql[java/xss] justification: ...} comment
- *       per {@code contracts/C2}.
+ *       <strong>same-line</strong> {@code // codeql[java/xss] justification: ...}
+ *       annotation on the {@code return} sink (CodeQL ignores multi-line
+ *       justification blocks several lines above the sink) per
+ *       {@code contracts/C2} and the CodeQL PR playbook.
  * </ol>
  *
  * <p><strong>Fail-then-pass coverage (Constitution III).</strong>
@@ -176,6 +178,46 @@ class PSSiteDataRestServiceXssTest {
           WebApplicationException.class,
           () -> PSSiteDataRestService.requireSafeId(tooLong, "id"),
           "id over 100 chars must be rejected");
+    }
+  }
+
+  @Nested
+  @DisplayName("Same-line CodeQL java/xss annotations on REST sinks")
+  class SinkLineAnnotations {
+
+    /**
+     * Pins that the open CodeQL sinks use same-line annotations. Multi-line
+     * justification blocks several lines above {@code return} are ignored by
+     * CodeQL and left alerts #750/#751/#752/#1063 open despite correct
+     * {@code justification:} format.
+     */
+    @Test
+    @DisplayName("open XSS sinks carry same-line codeql[java/xss] annotations")
+    void openSinksHaveSameLineAnnotations() throws Exception {
+      // Source is not on the test classpath as a resource; read from module tree
+      // via a portable relative path from user.dir when tests run under Maven.
+      java.nio.file.Path src =
+          java.nio.file.Path.of(
+              "src/main/java/com/percussion/sitemanage/service/impl/PSSiteDataRestService.java");
+      if (!java.nio.file.Files.isRegularFile(src)) {
+        src =
+            java.nio.file.Path.of(
+                "projects/sitemanage/src/main/java/com/percussion/sitemanage/service/impl/PSSiteDataRestService.java");
+      }
+      assertTrue(java.nio.file.Files.isRegularFile(src), "source file must exist: " + src);
+      String text = java.nio.file.Files.readString(src);
+      String[] required =
+          new String[] {
+            "return siteDataService.save(site); // codeql[java/xss]",
+            "return siteDataService.createSiteFromUrl(request, site); // codeql[java/xss]",
+            "return siteDataService.updateSiteProperties(props); // codeql[java/xss]",
+            "return siteDataService.updateSitePublishProperties(publishProps); // codeql[java/xss]",
+          };
+      for (String needle : required) {
+        assertTrue(
+            text.contains(needle),
+            "missing same-line CodeQL annotation: " + needle);
+      }
     }
   }
 

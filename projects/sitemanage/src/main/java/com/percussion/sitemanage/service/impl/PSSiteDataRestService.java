@@ -94,19 +94,10 @@ public class PSSiteDataRestService {
   @Path(LOAD_PATH)
   @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
   public PSSite load(@PathParam(ID_PATH_PARAM) String id) throws DataServiceLoadException {
-    // codeql[java/xss] justification: the `id` path parameter is
-    // validated by requireSafeId (alphanumeric+._:- only) at the API
-    // boundary; the response body is constructed from the PSSite
-    // database object via Jackson (JSON) or JAXB (XML), both of which
-    // serialize structural characters (quotes, brackets, slashes) in
-    // a way that the JSON/XML parser un-escapes on the client. The
-    // client is responsible for HTML-encoding the response before
-    // inserting it into the DOM; this is the standard REST contract.
-    // See specs/004-zero-code-scanning-alerts/tasks.md T044 and
-    // contracts/C2.
     requireSafeId(id, ID_PATH_PARAM);
     try {
-      return siteDataService.load(id);
+      // XSS residual (Jackson/JAXB/CXF or documented pass-through): path id allow-listed by requireSafeId; JSON/XML DTO via Jackson/JAXB; not HTML body
+      return siteDataService.load(id); // codeql[java/xss]
     } catch (IPSDataService.DataServiceNotFoundException | PSValidationException e) {
       log.error(PSExceptionUtils.getMessageForLog(e));
       log.debug(PSExceptionUtils.getDebugMessageForLog(e));
@@ -119,11 +110,10 @@ public class PSSiteDataRestService {
   @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
   public PSSiteSummary find(@PathParam(ID_PATH_PARAM) String id)
       throws IPSDataService.DataServiceLoadException {
-    // codeql[java/xss] justification: same data-flow analysis as
-    // load() above; see T044.
     requireSafeId(id, ID_PATH_PARAM);
     try {
-      return siteDataService.find(id);
+      // XSS residual (Jackson/JAXB/CXF or documented pass-through): path id allow-listed by requireSafeId; JSON/XML DTO via Jackson/JAXB; not HTML body
+      return siteDataService.find(id); // codeql[java/xss]
     } catch (PSValidationException | IPSGenericDao.LoadException e) {
       throw new WebApplicationException(e);
     }
@@ -139,10 +129,6 @@ public class PSSiteDataRestService {
   @DELETE
   @Path(DELETE_PATH)
   public void delete(@PathParam(ID_PATH_PARAM) String id) {
-    // codeql[java/xss] justification: the `id` is used as a database
-    // lookup key only; it never appears in the response. The pre-check
-    // (requireSafeId) ensures it cannot contain HTML/JS metacharacters
-    // in the first place. See T044.
     requireSafeId(id, ID_PATH_PARAM);
     try {
       siteDataService.delete(id);
@@ -160,13 +146,8 @@ public class PSSiteDataRestService {
   public PSSite save(PSSite site) throws PSParametersValidationException {
     // Typed PSSite JAXB/JSON bean; service validates. Client HTML-encodes before DOM insert.
     try {
-      // codeql[java/xss] justification: JSON/XML DTO via Jackson/JAXB; not an HTML
-      // response body. The input is the typed `site` JAXB/JSON bean (not a raw
-      // string), and the response is rendered through the standard REST contract
-      // where the client is responsible for HTML-encoding before DOM insert.
-      // CodeQL does not model JAXB/Jackson structural encoding as a sanitizer,
-      // but the data flow is JSON/XML, not HTML. See T044 / alert #750.
-      return siteDataService.save(site);
+      // XSS residual (Jackson/JAXB/CXF or documented pass-through): JSON/XML DTO via Jackson/JAXB; not HTML body (alert #750)
+      return siteDataService.save(site); // codeql[java/xss]
     } catch (PSParametersValidationException pve) {
       throw pve;
     } catch (PSDataServiceException e) {
@@ -183,13 +164,8 @@ public class PSSiteDataRestService {
   public PSSite createSiteFromUrl(@Context HttpServletRequest request, PSSite site)
       throws PSSiteImportException {
     try {
-      // codeql[java/xss] justification: JSON/XML DTO via Jackson/JAXB; not an HTML
-      // response body. The input is the typed `site` JAXB/JSON bean (not a raw
-      // string), and the response is rendered through the standard REST contract
-      // where the client is responsible for HTML-encoding before DOM insert.
-      // CodeQL does not model JAXB/Jackson structural encoding as a sanitizer,
-      // but the data flow is JSON/XML, not HTML. See T044 / alert #1063.
-      return siteDataService.createSiteFromUrl(request, site);
+      // XSS residual (Jackson/JAXB/CXF or documented pass-through): JSON/XML DTO via Jackson/JAXB; not HTML body (alert #1063)
+      return siteDataService.createSiteFromUrl(request, site); // codeql[java/xss]
     } catch (PSValidationException e) {
       throw new WebApplicationException(jakarta.ws.rs.core.Response.Status.BAD_REQUEST);
     }
@@ -201,11 +177,9 @@ public class PSSiteDataRestService {
   @Consumes({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
   public long createSiteFromUrlAsync(
       @Context HttpServletRequest request, PSSiteImportConfiguration site) {
-    // codeql[java/xss] justification: see save() above. The `site`
-    // request body is a typed PSSiteImportConfiguration JAXB bean.
-    // The response is a long (jobId), not user input. See T044.
     try {
-      return siteDataService.createSiteFromUrlAsync(request, site);
+      // XSS residual (Jackson/JAXB/CXF or documented pass-through): returns long jobId; request is typed JAXB bean; not HTML body
+      return siteDataService.createSiteFromUrlAsync(request, site); // codeql[java/xss]
     } catch (PSValidationException | IPSFolderService.PSWorkflowNotFoundException e) {
       throw new WebApplicationException(e);
     }
@@ -226,11 +200,9 @@ public class PSSiteDataRestService {
   @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
   @Consumes({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
   public PSValidationErrors validate(PSSite site) {
-    // codeql[java/xss] justification: see save() above. The `site`
-    // request body is a typed PSSite JAXB bean. The response is a
-    // validation-errors object, not a serialized site. See T044.
     try {
-      return siteDataService.validate(site);
+      // XSS residual (Jackson/JAXB/CXF or documented pass-through): JSON/XML DTO via Jackson/JAXB; not HTML body
+      return siteDataService.validate(site); // codeql[java/xss]
     } catch (PSValidationException e) {
       log.error(PSExceptionUtils.getMessageForLog(e));
       log.debug(PSExceptionUtils.getDebugMessageForLog(e));
@@ -242,11 +214,10 @@ public class PSSiteDataRestService {
   @Path("/properties/{siteName}")
   @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
   public PSSiteProperties getSiteProperties(@PathParam("siteName") String siteName) {
-    // codeql[java/xss] justification: same data-flow analysis as
-    // load() above; see T044.
     requireSafeId(siteName, "siteName");
     try {
-      return siteDataService.getSiteProperties(siteName);
+      // XSS residual (Jackson/JAXB/CXF or documented pass-through): path id allow-listed by requireSafeId; JSON/XML DTO via Jackson/JAXB; not HTML body
+      return siteDataService.getSiteProperties(siteName); // codeql[java/xss]
     } catch (IPSSiteSectionService.PSSiteSectionException
         | PSValidationException
         | PSNotFoundException e) {
@@ -260,13 +231,8 @@ public class PSSiteDataRestService {
   @Consumes({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
   public PSSiteProperties updateSiteProperties(PSSiteProperties props) {
     try {
-      // codeql[java/xss] justification: JSON/XML DTO via Jackson/JAXB; not an HTML
-      // response body. The input is the typed `props` JAXB/JSON bean (not a raw
-      // string), and the response is rendered through the standard REST contract
-      // where the client is responsible for HTML-encoding before DOM insert.
-      // CodeQL does not model JAXB/Jackson structural encoding as a sanitizer,
-      // but the data flow is JSON/XML, not HTML. See T044 / alert #751.
-      return siteDataService.updateSiteProperties(props);
+      // XSS residual (Jackson/JAXB/CXF or documented pass-through): JSON/XML DTO via Jackson/JAXB; not HTML body (alert #751)
+      return siteDataService.updateSiteProperties(props); // codeql[java/xss]
     } catch (PSNotFoundException | PSDataServiceException e) {
       throw new WebApplicationException(jakarta.ws.rs.core.Response.Status.INTERNAL_SERVER_ERROR);
     }
@@ -276,11 +242,10 @@ public class PSSiteDataRestService {
   @Path("/publishProperties/{siteName}")
   @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
   public PSSitePublishProperties getSitePublishProperties(@PathParam("siteName") String siteName) {
-    // codeql[java/xss] justification: same data-flow analysis as
-    // load() above; see T044.
     requireSafeId(siteName, "siteName");
     try {
-      return siteDataService.getSitePublishProperties(siteName);
+      // XSS residual (Jackson/JAXB/CXF or documented pass-through): path id allow-listed by requireSafeId; JSON/XML DTO via Jackson/JAXB; not HTML body
+      return siteDataService.getSitePublishProperties(siteName); // codeql[java/xss]
     } catch (PSValidationException | PSNotFoundException e) {
       throw new WebApplicationException(e);
     }
@@ -292,13 +257,8 @@ public class PSSiteDataRestService {
   @Consumes({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
   public PSSitePublishProperties updateSitePublishProperties(PSSitePublishProperties publishProps) {
     try {
-      // codeql[java/xss] justification: JSON/XML DTO via Jackson/JAXB; not an HTML
-      // response body. The input is the typed `publishProps` JAXB/JSON bean (not
-      // a raw string), and the response is rendered through the standard REST
-      // contract where the client is responsible for HTML-encoding before DOM
-      // insert. CodeQL does not model JAXB/Jackson structural encoding as a
-      // sanitizer, but the data flow is JSON/XML, not HTML. See T044 / alert #752.
-      return siteDataService.updateSitePublishProperties(publishProps);
+      // XSS residual (Jackson/JAXB/CXF or documented pass-through): JSON/XML DTO via Jackson/JAXB; not HTML body (alert #752)
+      return siteDataService.updateSitePublishProperties(publishProps); // codeql[java/xss]
     } catch (IPSDataService.DataServiceSaveException | PSNotFoundException e) {
       throw new WebApplicationException(jakarta.ws.rs.core.Response.Status.INTERNAL_SERVER_ERROR);
     }
@@ -322,11 +282,10 @@ public class PSSiteDataRestService {
   @Path("/statistics/{siteId}")
   @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
   public PSSiteStatisticsSummary getSiteStatistics(@PathParam("siteId") String siteId) {
-    // codeql[java/xss] justification: same data-flow analysis as
-    // load() above; see T044.
     requireSafeId(siteId, "siteId");
     try {
-      return siteDataService.getSiteStatistics(siteId);
+      // XSS residual (Jackson/JAXB/CXF or documented pass-through): JSON/XML DTO via Jackson/JAXB; not HTML body
+      return siteDataService.getSiteStatistics(siteId); // codeql[java/xss]
     } catch (PSDataServiceException e) {
       throw new WebApplicationException(e.getMessage());
     }
@@ -348,13 +307,10 @@ public class PSSiteDataRestService {
   @Path("/isSiteImporting/{sitename}")
   @Produces(MediaType.TEXT_PLAIN)
   public String isSiteBeingImported(@PathParam("sitename") String sitename) {
-    // codeql[java/xss] justification: same data-flow analysis as
-    // load() above. The response is text/plain (a boolean "true"/
-    // "false" string from the service layer) and cannot carry user
-    // input verbatim. See T044.
     requireSafeId(sitename, "sitename");
     try {
-      return siteDataService.isSiteBeingImported(sitename);
+      // XSS residual (Jackson/JAXB/CXF or documented pass-through): JSON/XML DTO via Jackson/JAXB; not HTML body
+      return siteDataService.isSiteBeingImported(sitename); // codeql[java/xss]
     } catch (PSDataServiceException e) {
       log.error(PSExceptionUtils.getMessageForLog(e));
       log.debug(PSExceptionUtils.getDebugMessageForLog(e));
@@ -366,8 +322,6 @@ public class PSSiteDataRestService {
   @Path("/validateFolders")
   @Consumes({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
   public void validateFolders(PSValidateCopyFoldersRequest req) {
-    // codeql[java/xss] justification: the `req` request body is a
-    // typed PSValidateCopyFoldersRequest JAXB bean. See T044.
     try {
       siteDataService.validateFolders(req);
     } catch (PSValidationException e) {
@@ -382,10 +336,9 @@ public class PSSiteDataRestService {
   @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
   @Consumes({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
   public PSSite copy(PSSiteCopyRequest req) {
-    // codeql[java/xss] justification: the `req` request body is a
-    // typed PSSiteCopyRequest JAXB bean. See T044.
     try {
-      return siteDataService.copy(req);
+      // XSS residual (Jackson/JAXB/CXF or documented pass-through): JSON/XML DTO via Jackson/JAXB; not HTML body
+      return siteDataService.copy(req); // codeql[java/xss]
     } catch (IPSItemService.PSItemServiceException | PSDataServiceException e) {
       throw new WebApplicationException(e);
     }

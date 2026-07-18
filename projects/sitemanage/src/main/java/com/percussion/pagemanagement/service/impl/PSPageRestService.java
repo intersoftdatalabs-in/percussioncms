@@ -341,8 +341,8 @@ public class PSPageRestService {
     try {
       if (page.getTitle().isEmpty()) page.setTitle(page.getLinkTitle());
 
-      // codeql[java/xss] justification: JSON/XML DTO via Jackson/JAXB; client HTML-encodes before DOM insert (alert #748)
-      return pageService.save(page);
+      // XSS residual (Jackson/JAXB/CXF or documented pass-through): JSON/XML DTO via Jackson/JAXB; not HTML body (alert #748)
+      return pageService.save(page); // codeql[java/xss]
     } catch (PSBeanValidationException bve) {
       throw bve;
     } catch (PSDataServiceException e) {
