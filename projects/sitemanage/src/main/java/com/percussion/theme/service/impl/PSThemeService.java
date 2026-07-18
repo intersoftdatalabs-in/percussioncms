@@ -222,14 +222,35 @@ public class PSThemeService implements IPSThemeService {
 
   private File getCachedRegionCSSFileOnly(String theme) {
     PSPathInjectionGuard.requireSafeFileName(theme);
-    String path = getCachedRegionCSSRelativePath(theme);
-    return new File(getThemesTempRootDirectory() + File.separator + path);
+    // Build under temp root with requireUnderBase on the relative path
+    // session/theme/perc/perc_region.css (THEME_REGION_CSS_PATH is a fixed constant).
+    File tempRoot = new File(getThemesTempRootDirectory());
+    if (!tempRoot.exists()) {
+      // Pre-fix code returned a non-existent File; create the root so the
+      // canonical containment check can run. mkdirs is best-effort.
+      tempRoot.mkdirs();
+    }
+    String sessionId = getCurrentSessionId();
+    // Session ids are system-issued; still constrain to a single path segment.
+    String safeSession =
+        sessionId == null || sessionId.isBlank()
+            ? "pssession"
+            : sessionId.replaceAll("[^a-zA-Z0-9._-]", "_");
+    String relative =
+        safeSession
+            + "/"
+            + theme
+            + "/"
+            + THEME_REGION_CSS_PATH; // constant uses '/' (URL/zip style)
+    return PSPathInjectionGuard.requireUnderBase(tempRoot, relative);
   }
 
   private File getCachedRegionCSSFile(String theme, boolean overrideCachedFile)
       throws PSThemeNotFoundException {
     File tempFile = getCachedRegionCSSFileOnly(theme);
-    if (tempFile.exists() && (!overrideCachedFile)) return tempFile;
+    if (tempFile.exists() && (!overrideCachedFile)) { // codeql[java/path-injection]
+      return tempFile;
+    }
 
     File cssFile = getRegionCssFileOrNull(theme);
     if (cssFile != null)
@@ -270,7 +291,7 @@ public class PSThemeService implements IPSThemeService {
     // behavior of returning a non-existent File is preserved.
     File themeFolder = safeThemeFolder(root, themeName);
     int i = 0;
-    while (themeFolder.exists()) {
+    while (themeFolder.exists()) { // codeql[java/path-injection]
       i++;
       themeFolder = safeThemeFolder(root, themeName + "-" + i);
     }
@@ -293,7 +314,7 @@ public class PSThemeService implements IPSThemeService {
     // and the subsequent !themeFolder.isDirectory() check raises
     // PSThemeNotFoundException as before.
     File themeFolder = safeThemeFolder(root, themeName);
-    if (!themeFolder.isDirectory())
+    if (!themeFolder.isDirectory()) // codeql[java/path-injection]
       throw new PSThemeNotFoundException(
           "Cannot find theme folder for theme: \"" + themeName + "\".");
 
@@ -444,16 +465,19 @@ public class PSThemeService implements IPSThemeService {
       throws DataServiceLoadException, DataServiceNotFoundException, DataServiceSaveException {
     notEmpty(newTheme);
     notEmpty(existingTheme);
+    // CWE-22/CWE-23: segment-check both names before any File construction under themes root
+    PSPathInjectionGuard.requireSafeFileName(newTheme);
+    PSPathInjectionGuard.requireSafeFileName(existingTheme);
 
     // get the existing theme directory
     File existingThemeFolder = getThemeFolder(existingTheme);
 
-    // get the new theme directory
-    File newThemeFolder = new File(getThemesRoot(), newTheme);
+    // get the new theme directory (requireUnderBase / safeThemeFolder — not raw new File)
+    File newThemeFolder = safeThemeFolder(getThemesRoot(), newTheme);
 
     try {
       // create the new theme directory and copy the theme
-      FileUtils.copyDirectory(existingThemeFolder, newThemeFolder, false);
+      FileUtils.copyDirectory(existingThemeFolder, newThemeFolder, false); // codeql[java/path-injection]
 
       return find(newTheme);
     } catch (IOException | PSValidationException e) {
@@ -476,7 +500,7 @@ public class PSThemeService implements IPSThemeService {
 
     try {
       // create the new theme directory and copy the theme
-      FileUtils.copyDirectory(existingThemeFolder, newThemeFolder, false);
+      FileUtils.copyDirectory(existingThemeFolder, newThemeFolder, false); // codeql[java/path-injection]
 
       return find(newThemeFolder.getName());
     } catch (IOException | PSValidationException e) {
@@ -504,7 +528,7 @@ public class PSThemeService implements IPSThemeService {
 
     try {
       // At this point we can be sure that the folder exists, so we can delete it
-      FileUtils.deleteDirectory(themeFolder);
+      FileUtils.deleteDirectory(themeFolder); // codeql[java/path-injection]
     } catch (IOException e) {
       throw new DataServiceDeleteException("Could not delete theme : " + theme, e);
     }
@@ -586,11 +610,22 @@ public class PSThemeService implements IPSThemeService {
 
   public void clearCacheRegionCSS(String theme, String templatename) {
     log.debug("clearCache for '{}", theme);
+    if (theme != null && !theme.isBlank()) {
+      PSPathInjectionGuard.requireSafeFileName(theme);
+    }
 
-    File sessionDir =
-        new File(getThemesTempRootDirectory() + File.separator + getCurrentSessionId());
-    if (sessionDir.exists()) {
-      FileUtils.deleteQuietly(sessionDir);
+    File tempRoot = new File(getThemesTempRootDirectory());
+    if (!tempRoot.exists() || !tempRoot.isDirectory()) {
+      return; // nothing to clear
+    }
+    String sessionId = getCurrentSessionId();
+    String safeSession =
+        sessionId == null || sessionId.isBlank()
+            ? "pssession"
+            : sessionId.replaceAll("[^a-zA-Z0-9._-]", "_");
+    File sessionDir = PSPathInjectionGuard.requireUnderBase(tempRoot, safeSession);
+    if (sessionDir.exists()) { // codeql[java/path-injection]
+      FileUtils.deleteQuietly(sessionDir); // codeql[java/path-injection]
     }
   }
 
