@@ -322,44 +322,6 @@
 
     {
       "type": "js",
-      "name": "jslibMin/perc_widgetBuilder.packed.js",
-      "files": [
-        "../target/minify-common/shared-common.js",
-        "jslib/profiles/3x/libraries/underscore/underscore.js",
-        "jslib/profiles/3x/libraries/backbone/backbone.js",
-        "jslib/profiles/3x/jquery/libraries/backgridjs/backgrid.js",
-        "widgetbuilder/js/PercWidgetBuilder.js",
-        "widgetbuilder/js/PercWidgetBuilderExpander.js",
-        "widgetbuilder/js/PercWidgetBuilderService.js",
-        "widgetbuilder/js/PercWidgetDefsTable.js",
-        "widgetbuilder/js/models/PercWidgetBuilderDefinitionModel.js",
-        "widgetbuilder/js/models/PercWidgetFieldsModels.js",
-        "widgetbuilder/js/models/PercWidgetDisplayModels.js",
-        "widgetbuilder/js/models/PercWidgetResourceModels.js",
-        "widgetbuilder/js/views/PercWidgetBuilderDefinitionView.js",
-        "widgetbuilder/js/views/PercWidgetFieldsViews.js",
-        "widgetbuilder/js/views/PercWidgetDisplayViews.js",
-        "widgetbuilder/js/views/PercWidgetResourceViews.js",
-        "services/PercUserService.js",
-        "plugins/perc_ChangePwDialog.js",
-        "plugins/perc_ChangeUserEmailDialog.js",
-        "plugins/perc_newsitedialog.js"
-      ]
-    },
-
-    {
-      "type": "css",
-      "name": "cssMin/perc_widgetBuilder.packed.css",
-      "files": [
-        "../target/minify-common/shared-common.css",
-        "css/styles.css",
-        "jslib/profiles/3x/jquery/libraries/backgridjs/backgrid.css",
-        "widgetbuilder/css/perc_widgetbuilder.css",
-        "css/perc_ChangePw.css"
-      ]
-    },
-    {
-      "type": "js",
       "name": "jslibMin/perc_admin.packed.js",
       "files": [
         "../target/minify-common/shared-common.js",

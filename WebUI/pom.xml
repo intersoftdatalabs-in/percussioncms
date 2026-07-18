@@ -50,10 +50,22 @@
             <artifactId>perc-toolkit</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
-        <!-- TwelveMonkeys image processing library - required by web.xml IIOProviderContextListener -->
+        <!--
+          Must ship in WEB-INF/lib (webapp classloader), not Jetty defaults/lib/perc.
+          perc-system depends on servlet-utils as provided (expects the webapp/container
+          to supply it). After EE11, it cannot live on the server classloader (that
+          cannot see jakarta.servlet.* from EE11 env). Package it here explicitly.
+        -->
+        <dependency>
+            <groupId>com.percussion</groupId>
+            <artifactId>servlet-utils</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
+        <!-- TwelveMonkeys ImageIO context listener (jakarta classifier for Jetty EE11) -->
         <dependency>
             <groupId>com.twelvemonkeys.servlet</groupId>
             <artifactId>servlet</artifactId>
+            <classifier>jakarta</classifier>
         </dependency>
         <dependency>
             <groupId>com.twelvemonkeys.imageio</groupId>
@@ -200,18 +212,6 @@
             </exclusions>
         </dependency>
         <dependency>
-            <groupId>org.apache.myfaces.trinidad</groupId>
-            <artifactId>trinidad-api</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.myfaces.trinidad</groupId>
-            <artifactId>trinidad-impl</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.myfaces.tomahawk</groupId>
-            <artifactId>tomahawk</artifactId>
-        </dependency>
-        <dependency>
             <groupId>org.apache.cxf</groupId>
             <artifactId>cxf-rt-rs-service-description-swagger-ui</artifactId>
             <version>${cxf.version}</version>
@@ -330,6 +330,7 @@
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-test</artifactId>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
@@ -389,10 +390,6 @@
                 <exclusion>
                     <groupId>org.aspectj</groupId>
                     <artifactId>aspectjrt</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>com.sun.faces</groupId>
-                    <artifactId>jsf-api</artifactId>
                 </exclusion>
             </exclusions>
         </dependency>
@@ -647,13 +644,24 @@
                             <filtering>false</filtering>
                         </resource>
                     </webResources>
+                    <!--
+                      Do NOT exclude slf4j-api from the WAR. Artemis / Spring JMS in
+                      WEB-INF/lib need org.slf4j.helpers.MessageFormatter on the webapp
+                      classloader; Jetty server-level slf4j is not visible to EE11 webapps.
+                      Keep excluding Log4j core/impl jars (server perc-logging owns those);
+                      slf4j-api + jcl-over-slf4j may ship in WEB-INF/lib.
+                    -->
                     <packagingExcludes>jsps,
 						metadata,
 						config,
 						jboss-4.0,
 						WEB-INF/lib/commons-logging-*.jar,
-						WEB-INF/lib/log4j-*.jar,
-						WEB-INF/lib/*slf4j*.jar,
+						WEB-INF/lib/log4j-api-*.jar,
+						WEB-INF/lib/log4j-core-*.jar,
+						WEB-INF/lib/log4j-1.2-api-*.jar,
+						WEB-INF/lib/log4j-jul-*.jar,
+						WEB-INF/lib/log4j-jcl-*.jar,
+						WEB-INF/lib/log4j-web-*.jar,
 						WEB-INF/lib/ehcache-core-*.jar,
 						WEB-INF/lib/aspectjrt*.jar,
 						WEB-INF/lib/jtidy-4aug2000r7-dev.jar,
@@ -665,7 +673,8 @@
 						WEB-INF/lib/jna-*.jar,
 						WEB-INF/lib/net-cdf4-*.jar,
 						%regex[WEB-INF/lib/commons-beanutils-core.*.jar,
-						WEB-INF/lib/httpclient-osgi*.jar</packagingExcludes>
+						WEB-INF/lib/httpclient-osgi*.jar,
+						WEB-INF/lib/spring-test-*.jar</packagingExcludes>
                 </configuration>
             </plugin>
             <plugin>
@@ -829,6 +838,8 @@
                 <artifactId>maven-dependency-plugin</artifactId>
                 <configuration>
                     <usedDependencies>
+                        <!-- Runtime: PSContextLoaderListener / perc-system need servlet-utils on WAR classpath -->
+                        <usedDependency>com.percussion:servlet-utils</usedDependency>
                         <usedDependency>com.twelvemonkeys.servlet:servlet</usedDependency>
                         <usedDependency>com.twelvemonkeys.imageio:imageio-core</usedDependency>
                         <usedDependency>com.twelvemonkeys.imageio:imageio-bmp</usedDependency>

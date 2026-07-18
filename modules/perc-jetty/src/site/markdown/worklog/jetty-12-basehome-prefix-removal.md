@@ -117,9 +117,9 @@ directory and these `[files]` entries work as documented.
 
 ## Related
 
-- The `setup-home` invocation also emits a deprecation warning
-  `WARN  : Use module compression-gzip instead.` This is unrelated and
-  is a follow-up item for a future Jetty 12.1.x compatibility pass.
+- ~~The `setup-home` invocation also emits a deprecation warning
+  `WARN  : Use module compression-gzip instead.`~~ **Fixed:** `perc.mod`
+  depends on `compression-gzip` instead of deprecated `gzip`.
 - `perc-logging.mod:21` (`basehome:modules/perc-logging` without the
   required `|dest` separator) is still a latent bug. It is harmless
   while the destination directory is empty, but should be fixed in a

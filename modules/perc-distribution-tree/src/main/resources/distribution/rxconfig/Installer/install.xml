@@ -518,6 +518,11 @@
 	<patternset id="upgrade.delete">
 		<include name="jetty/base/lib/extra/PSOToolkit*.jar" />
 		<include name="jetty/base/webapps/Rhythmyx/**" />
+		<!-- Jetty 12 DeploymentScanner rejects both Name and Name.war as
+			deployable directories; older distributions shipped exploded
+			CI_Home.war / EI_Home.war trees alongside CI_Home / EI_Home. -->
+		<include name="jetty/base/webapps/CI_Home.war/**" />
+		<include name="jetty/base/webapps/EI_Home.war/**" />
 		<include name="Repository/derby.properties" />
 		<include name="cm/**" />
 		<include name="jdbc/**" />
@@ -672,6 +677,12 @@
 			inheritrefs="true" />
 		<antcall target="upgrade_server" inheritall="true"
 			inheritrefs="true" />
+		<!-- After Rhythmyx overwrite: drop retired product JARs/config that
+			are no longer in the WAR. upgrade.delete wipes Rhythmyx/** first,
+			but partial upgrades, dirty install.src, and sibling webapps
+			(CI_Home.war) still leave javax/JSF classpath poison. -->
+		<antcall target="deleteObsoleteRhythmyxWebInfArtifacts"
+			inheritall="true" inheritrefs="true" />
 		<antcall target="setupDB" inheritall="true" inheritrefs="true" />
 		<antcall target="upgradeRelationshipConfig" inheritall="true"
 			inheritrefs="true" />
@@ -797,6 +808,77 @@
 			<fileset dir="${install.dir}/JRE64/lib/ext"
 				includes="**/bcpg-*.jar" />
 		</delete>
+	</target>
+	<!--
+		Remove product-shipped artifacts that must not remain on Jetty EE11
+		(Jakarta) classpaths after upgrade. These are not integrator
+		customizations: they were previously bundled by Percussion and left
+		behind when the WAR no longer contains them (upgrade copies do not
+		delete orphans outside the overwrite set for sibling trees, and a
+		dirty WEB-INF/lib is a common field failure mode).
+
+		Keep servlet-*-jakarta.jar (TwelveMonkeys EE11); delete the javax
+		sibling servlet-3.x.y.jar only.
+	-->
+	<target name="deleteObsoleteRhythmyxWebInfArtifacts"
+		description="Remove retired JSF/javax WEB-INF artifacts and Jetty-conflicting *.war webapp trees left after upgrade.">
+		<echo>Deleting obsolete Rhythmyx WEB-INF / Jetty webapp artifacts...</echo>
+		<delete failonerror="false" verbose="true">
+			<fileset
+				dir="${install.dir}/jetty/base/webapps/Rhythmyx/WEB-INF/lib">
+				<!-- Retired MyFaces / Trinidad / Tomahawk (all product versions) -->
+				<include name="myfaces-api-*.jar" />
+				<include name="myfaces-impl-*.jar" />
+				<include name="trinidad-api-*.jar" />
+				<include name="trinidad-impl-*.jar" />
+				<include name="tomahawk-*.jar" />
+				<!-- Test-only Spring must never remain in the production WAR -->
+				<include name="spring-test-*.jar" />
+				<!-- TwelveMonkeys javax servlet artifact (not the jakarta classifier) -->
+				<include name="servlet-3.*.jar" />
+				<exclude name="servlet-*-jakarta.jar" />
+			</fileset>
+		</delete>
+		<!-- Retired faces / Trinidad configuration (source no longer ships these).
+			JSF/Trinidad/Tomahawk tag libraries are packaged as META-INF/*.tld
+			inside the JARs above — removing those JARs removes the TLDs and
+			any listeners declared in them (what Jetty EE11 TldScanner loads).
+			Do NOT delete product TLDs: rxcomp.tld, tmxtags.tld, tlds/csrfguard.tld. -->
+		<delete failonerror="false" verbose="true"
+			file="${install.dir}/jetty/base/webapps/Rhythmyx/WEB-INF/faces-config.xml" />
+		<delete failonerror="false" verbose="true"
+			file="${install.dir}/jetty/base/webapps/Rhythmyx/WEB-INF/admin-faces-config.xml" />
+		<delete failonerror="false" verbose="true"
+			file="${install.dir}/jetty/base/webapps/Rhythmyx/WEB-INF/publishing-faces-config.xml" />
+		<delete failonerror="false" verbose="true"
+			file="${install.dir}/jetty/base/webapps/Rhythmyx/WEB-INF/trinidad-config.xml" />
+		<delete failonerror="false" verbose="true"
+			file="${install.dir}/jetty/base/webapps/Rhythmyx/WEB-INF/trinidad-skins.xml" />
+		<delete failonerror="false" verbose="true" includeemptydirs="true"
+			dir="${install.dir}/jetty/base/webapps/Rhythmyx/WEB-INF/trinidad" />
+		<!-- Per-install faces fragment left under config/user (upgrade.excludes
+			preserve WEB-INF/config/user/** so this survives overwrite). -->
+		<delete failonerror="false" verbose="true" includeemptydirs="true"
+			dir="${install.dir}/jetty/base/webapps/Rhythmyx/WEB-INF/config/user/faces" />
+		<!-- Loose product-era faces/trinidad taglib descriptors if ever
+			extracted outside JARs (defensive; not shipped today). -->
+		<delete failonerror="false" verbose="true">
+			<fileset
+				dir="${install.dir}/jetty/base/webapps/Rhythmyx/WEB-INF">
+				<include name="**/*trinidad*.tld" />
+				<include name="**/*tomahawk*.tld" />
+				<include name="**/*myfaces*.tld" />
+				<include name="**/*jsf*.tld" />
+				<include name="**/html_basic.tld" />
+				<include name="**/html_basic_el.tld" />
+				<include name="**/jsf_core.tld" />
+			</fileset>
+		</delete>
+		<!-- Jetty 12: cannot deploy both CI_Home and CI_Home.war directories -->
+		<delete failonerror="false" verbose="true" includeemptydirs="true"
+			dir="${install.dir}/jetty/base/webapps/CI_Home.war" />
+		<delete failonerror="false" verbose="true" includeemptydirs="true"
+			dir="${install.dir}/jetty/base/webapps/EI_Home.war" />
 	</target>
 	<target name="deleteOldJqueryUIJsFile">
 		<if>

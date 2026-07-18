@@ -809,12 +809,32 @@ public abstract class PSDependencyHandler implements IPSDependencyHandler {
    * @throws PSDeployException if there are any errors.
    */
   protected static Document createXmlDocument(InputStream in) throws PSDeployException {
+    return createXmlDocument(in, null);
+  }
+
+  /**
+   * Creates an Xml document from the supplied dependency file stream.
+   *
+   * @param in The inputstream from which the document is to be created. This method takes ownership
+   *     of the stream and closes it when finished. May not be <code>null</code>.
+   * @param sourceIdentity Optional archive path / file name to include in parse-failure messages
+   *     so package install logs identify the bad entry. May be <code>null</code> or empty.
+   * @return The Document, never <code>null</code>.
+   * @throws IllegalArgumentException if <code>in</code> is <code>null</code>.
+   * @throws PSDeployException if there are any errors.
+   */
+  protected static Document createXmlDocument(InputStream in, String sourceIdentity)
+      throws PSDeployException {
     if (in == null) throw new IllegalArgumentException("in may not be null");
 
     try {
       return PSXmlDocumentBuilder.createXmlDocument(in, false);
     } catch (Exception e) {
-      throw new PSDeployException(IPSDeploymentErrors.UNEXPECTED_ERROR, e.getLocalizedMessage());
+      String msg = e.getLocalizedMessage();
+      if (sourceIdentity != null && !sourceIdentity.isBlank()) {
+        msg = msg + " [archive file: " + sourceIdentity + "]";
+      }
+      throw new PSDeployException(IPSDeploymentErrors.UNEXPECTED_ERROR, msg);
     } finally {
       try {
         in.close();

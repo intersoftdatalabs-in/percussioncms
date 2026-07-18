@@ -990,7 +990,14 @@ public class PSCmsObjectMgr
                setRelationshipConfigSet(config, configSet);
          }
 
-         s.merge(config);
+         // merge may return a different managed instance; flush so @Version advances,
+         // then copy the new version onto the caller's (often long-lived/cached) object.
+         PSConfig managed = s.merge(config);
+         s.flush();
+         if (managed != null && managed.getVersion() != null)
+         {
+            config.setVersion(managed.getVersion());
+         }
 
    }
 

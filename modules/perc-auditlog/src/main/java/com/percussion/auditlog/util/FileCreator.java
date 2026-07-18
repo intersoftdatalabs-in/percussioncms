@@ -98,10 +98,16 @@ public class FileCreator {
         Files.createDirectories(basePath);
       }
 
-      // Create the file
-      Files.createFile(finalPath);
+      // Same-day audit logs reuse the dated filename. createFile() fails with
+      // FileAlreadyExistsException when the file is already present, which left
+      // generateLogFile() with an empty path and broke JSON audit logging on login.
+      if (!Files.exists(finalPath)) {
+        Files.createFile(finalPath);
+        log.debug("File created successfully: {}", finalPath);
+      } else {
+        log.debug("Audit log file already exists, reusing: {}", finalPath);
+      }
       finalFileName = finalPath.toString();
-      log.debug("File created successfully: {}", finalFileName);
 
     } catch (Exception e) {
       log.error("Exception occurred while creating file: {}", e.getMessage(), e);

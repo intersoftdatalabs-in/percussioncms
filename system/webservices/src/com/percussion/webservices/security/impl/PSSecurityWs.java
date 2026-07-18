@@ -50,8 +50,8 @@ import com.percussion.webservices.system.IPSSystemWs;
 import com.percussion.webservices.system.PSSystemWsLocator;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
-import org.springframework.mock.web.MockHttpServletRequest;
-import org.springframework.mock.web.MockHttpServletResponse;
+import com.percussion.servlet_utils.servlet.PSMockHttpServletRequest;
+import com.percussion.servlet_utils.servlet.PSMockHttpServletResponse;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.security.auth.login.LoginException;
@@ -340,7 +340,7 @@ public class PSSecurityWs extends PSSecurityBaseWs implements IPSSecurityWs
 
       try
       {
-         return login(new MockHttpServletRequest(), new MockHttpServletResponse(),
+         return login(new PSMockHttpServletRequest(), new PSMockHttpServletResponse(),
             user, password, null, community, localeCode);
       }
       catch (PSInternalRequestCallException e)

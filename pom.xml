@@ -210,7 +210,6 @@
         <mssql.version>13.3.1.jre11-preview</mssql.version>
         <mariadb.version>3.5.7</mariadb.version>
         <ojdbc17.version>23.26.0.0.0</ojdbc17.version>
-        <myfaces.version>4.1.2</myfaces.version>
         <nettyall.version>4.2.9.Final</nettyall.version>
         <opencsv.version>5.12.0</opencsv.version>
         <oracle.version>12.1.0.1</oracle.version>
@@ -249,7 +248,6 @@
         <!-- with this project's Apache 2.0 license for distribution. -->
         <!-- Do NOT upgrade past 6.8.x without a legal review. -->
         <tinymce.version>6.8.6</tinymce.version>
-        <trinidad.version>2.2.1</trinidad.version>
         <twelvemonkeys.version>3.13.1</twelvemonkeys.version>
         <velocity.tools.version>3.1</velocity.tools.version>
         <velocity.version>2.4.1</velocity.version>
@@ -574,6 +572,8 @@
                 <groupId>org.springframework</groupId>
                 <artifactId>spring-test</artifactId>
                 <version>${spring.version}</version>
+                <!-- Test-only: never package into WAR or Jetty server libs. -->
+                <scope>test</scope>
             </dependency>
             <dependency>
                 <groupId>org.springframework</groupId>
@@ -895,16 +895,6 @@
                 <version>${json.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.apache.myfaces.core</groupId>
-                <artifactId>myfaces-api</artifactId>
-                <version>${myfaces.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.myfaces.core</groupId>
-                <artifactId>myfaces-impl</artifactId>
-                <version>${myfaces.version}</version>
-            </dependency>
-            <dependency>
                 <groupId>saxon</groupId>
                 <artifactId>saxon</artifactId>
                 <version>${saxon.version}</version>
@@ -1030,21 +1020,6 @@
                         <artifactId>gson</artifactId>
                     </exclusion>
                 </exclusions>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.myfaces.trinidad</groupId>
-                <artifactId>trinidad-api</artifactId>
-                <version>${trinidad.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.myfaces.trinidad</groupId>
-                <artifactId>trinidad-impl</artifactId>
-                <version>${trinidad.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.myfaces.tomahawk</groupId>
-                <artifactId>tomahawk</artifactId>
-                <version>1.1.14</version>
             </dependency>
             <dependency>
                 <groupId>com.thoughtworks.xstream</groupId>
@@ -1304,10 +1279,14 @@
                 <artifactId>json-simple</artifactId>
                 <version>1.1.1</version>
             </dependency>
+            <!-- Use jakarta classifier: default artifact implements javax.servlet.* and
+                 fails on Jetty EE11 (NoClassDefFoundError: javax/servlet/ServletContextListener)
+                 when IIOProviderContextListener is declared in web.xml. -->
             <dependency>
                 <groupId>com.twelvemonkeys.servlet</groupId>
                 <artifactId>servlet</artifactId>
                 <version>${twelvemonkeys.version}</version>
+                <classifier>jakarta</classifier>
             </dependency>
             <dependency>
                 <groupId>com.twelvemonkeys.imageio</groupId>

@@ -331,9 +331,11 @@ public class PSApplicationDependencyHandler extends PSContentEditorObjectDepende
     Iterator files = archive.getFiles(dep);
     while (files.hasNext()) {
       PSDependencyFile file = (PSDependencyFile) files.next();
-      if (file.getType() == PSDependencyFile.TYPE_APPLICATION_XML)
-        appDoc = createXmlDocument(archive.getFileData(file));
-      else if (file.getType() == PSDependencyFile.TYPE_APPLICATION_FILE) {
+      if (file.getType() == PSDependencyFile.TYPE_APPLICATION_XML) {
+        String archivePath =
+            file.getArchiveLocation() != null ? file.getArchiveLocation().getPath() : null;
+        appDoc = createXmlDocument(archive.getFileData(file), archivePath);
+      } else if (file.getType() == PSDependencyFile.TYPE_APPLICATION_FILE) {
         appFileList.add(file);
       }
     }

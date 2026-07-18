@@ -318,6 +318,14 @@
                                 <copy todir="${assembly-directory}">
                                     <fileset dir="${basedir}/src/main/jetty"/>
                                 </copy>
+                                <!--
+                                  Jetty 12 DeploymentScanner rejects both Name and Name.war as
+                                  directories for the same deployable. Source keeps exploded
+                                  CI_Home / EI_Home (referenced by *.xml); remove residual
+                                  *.war trees left from older checkouts or unclean target/.
+                                -->
+                                <delete dir="${assembly-directory}/base/webapps/CI_Home.war" quiet="true"/>
+                                <delete dir="${assembly-directory}/base/webapps/EI_Home.war" quiet="true"/>
                             </target>
                         </configuration>
                     </execution>

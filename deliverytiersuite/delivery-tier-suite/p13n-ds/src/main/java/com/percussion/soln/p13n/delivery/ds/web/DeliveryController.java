@@ -29,8 +29,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.apache.commons.lang3.time.StopWatch;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.mock.web.MockHttpServletRequest;
-import org.springframework.mock.web.MockHttpServletResponse;
+
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindException;
 import org.springframework.validation.FieldError;
@@ -201,7 +200,7 @@ public class DeliveryController {
     }
 
     @RequestMapping
-    public void handleRequest(MockHttpServletRequest request, MockHttpServletResponse response) {
+    public void handleRequest(HttpServletRequest request, HttpServletResponse response) {
     }
 
 

@@ -56,6 +56,15 @@
 - Reflection or environment assumptions that break under module-only or Windows checkouts without `assumeTrue`
 - Public helper Javadoc that contradicts implementation (e.g. nullability / parse contracts) misleads callers
 
+### Deployer / packaging
+
+- XML `fromXml` modernizations that drop attributes used for runtime type dispatch (e.g. `fileType` → `TYPE_ENUM`) silently default ints to `0` and break package install with well-formed / wrong-type / “missing” dependency-file errors even when archives are correct
+- Modernization of null-check removals can invert keep/drop semantics (`if (x != null) remove` vs `if (x == null) remove`) — treat flipped conditions in package/association cleanup as hard bugs
+- Never cast Spring-injected service interfaces to concrete `*Service` impls (JDK proxies); call interface methods only
+- DOM attribute names are case-sensitive: shipped package XML may use legacy casing (e.g. `returntype` vs `returnType`) — deserializers must accept both when packages cannot be mass-rewritten
+- Do not force-bump Hibernate `@Version` before `merge`/`save` (e.g. `setVersion(loaded+1)`): under Hibernate 7 this causes optimistic-lock failure and `UnexpectedRollbackException` that masks the root cause
+- Do not null `@Version` on a managed entity then discard the reference: the entity stays in the persistence context, flush fails, and commit surfaces as UnexpectedRollbackException without an app-level throw
+
 ### Maintainability
 
 - `StringBuilder.append(null)` → literal `"null"` in user-visible strings

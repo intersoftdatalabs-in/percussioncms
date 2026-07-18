@@ -212,6 +212,7 @@ public class PSFormEncodeDecodeHelperTest {
    * truncate adversarial payloads). Builds a body of {@link #OVERSIZE_INPUT_CHARS} total chars so
    * the payload exceeds {@link #PRODUCTION_MAX_COMMENT_INPUT_LENGTH}; the body loop subtracts
    * {@link #HTML_COMMENT_WRAPPER_LEN} so the full string length is exactly {@code OVERSIZE_INPUT_CHARS}.
+   * The production cap is {@code MAX_COMMENT_INPUT_LENGTH = 64 * 1024} (private in the helper).
    */
   @Test
   void testEncodePassesThroughOversizedInput() {

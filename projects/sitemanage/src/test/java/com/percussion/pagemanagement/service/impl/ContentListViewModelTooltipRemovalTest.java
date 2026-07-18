@@ -30,6 +30,10 @@ import org.junit.jupiter.api.Test;
 /**
  * Regression for GH-880/881 / v8.1.7 PR #883: content list view model must not install a global
  * jQuery UI tooltip (causes persistent dashboard tooltips) and must not require jquery-ui AMD.
+ *
+ * <p>Track B React Home migration (GH-989) hard-deleted the classic CUI {@code contentList}
+ * widgets. Absent copies are therefore success. If any path is reintroduced, the original
+ * GH-880/881 constraints still apply.
  */
 class ContentListViewModelTooltipRemovalTest {
 
@@ -42,11 +46,14 @@ class ContentListViewModelTooltipRemovalTest {
   @Test
   void noGlobalJqueryUiTooltipInAnyCopy() throws Exception {
     Path root = resolveRepoRoot();
+    int present = 0;
     for (String rel : PATHS) {
       Path p = root.resolve(rel);
       if (!Files.isRegularFile(p)) {
-        fail("expected " + p.toAbsolutePath());
+        // Hard-cut removal (React Track B) — path retired intentionally.
+        continue;
       }
+      present++;
       String js = Files.readString(p, StandardCharsets.UTF_8);
       assertFalse(js.contains("jquery-ui"), rel + " must not AMD-require jquery-ui");
       assertFalse(js.contains(".tooltip("), rel + " must not call .tooltip(");
@@ -54,6 +61,15 @@ class ContentListViewModelTooltipRemovalTest {
           js.contains("define([\"knockout\", \"pubsub\", \"utils\"]"),
           rel + " must keep knockout/pubsub/utils define");
     }
+    // Either all retired (Track B) or every surviving copy is GH-880/881 clean.
+    assertTrue(
+        present == 0 || present == PATHS.size(),
+        "partial contentList.ViewModel.js set is inconsistent: found "
+            + present
+            + " of "
+            + PATHS.size()
+            + " copies under "
+            + root);
   }
 
   private static Path resolveRepoRoot() {

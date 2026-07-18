@@ -31,6 +31,7 @@ import com.percussion.i18n.PSI18nUtils;
 import com.percussion.security.IPSSecurityErrors;
 import com.percussion.security.PSAuthenticationFailedException;
 import com.percussion.security.error.PSExceptionUtils;
+import com.percussion.security.utils.PSRedirectValidation;
 import com.percussion.server.PSRequest;
 import com.percussion.server.PSRequestParsingException;
 import com.percussion.server.PSServer;
@@ -48,7 +49,9 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.HashSet;
 import java.util.Objects;
+import java.util.Set;
 import javax.security.auth.login.LoginException;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -265,6 +268,134 @@ public class PSLoginServlet extends HttpServlet {
   }
 
   /**
+   * Normalizes a post-login redirect path for Jetty 12 {@code UriCompliance}.
+   *
+   * <p>Backslashes and accidental {@code //} segments are treated as ambiguous path separators and
+   * cause {@code IllegalArgumentException: Ambiguous URI path separator} on {@code sendRedirect}.
+   *
+   * <p>This method only normalizes separators — it is <strong>not</strong> an open-redirect
+   * barrier. Callers must pass the result through {@link #resolveSafePostLoginRedirect} before
+   * {@code sendRedirect}.
+   *
+   * @param redirect redirect target, may be {@code null}
+   * @return sanitized path, or {@code null} if input was {@code null}
+   */
+  static String sanitizeRedirectPath(String redirect) {
+    if (redirect == null) {
+      return null;
+    }
+    String s = redirect.replace('\\', '/');
+    // Preserve scheme://host; only collapse // in path-only redirects
+    if (!s.contains("://")) {
+      while (s.contains("//")) {
+        s = s.replace("//", "/");
+      }
+    }
+    return s;
+  }
+
+  /**
+   * Validates and rebuilds a post-login redirect target so open redirects cannot pivot off
+   * session-stored {@code RX_REDIRECT_URL} values (CodeQL {@code java/unvalidated-url-redirection}).
+   *
+   * <ul>
+   *   <li>Path-absolute ({@code /...}): {@link PSRedirectValidation#validateInternalRedirectUrl}
+   *   <li>Absolute http(s): allow-list via {@code publicCmsHostname} and request server name
+   *   <li>App-relative ({@code index.jsp}, legacy main page): no scheme/host/{@code ..}
+   * </ul>
+   *
+   * <p>Invalid or rejected targets fall back to {@link #CMS_INDEX_PAGE}.
+   *
+   * @param request current request (used for host allow-list), never {@code null}
+   * @param redirect candidate redirect, may be {@code null}
+   * @return safe redirect string, never {@code null}
+   */
+  static String resolveSafePostLoginRedirect(HttpServletRequest request, String redirect) {
+    String candidate = sanitizeRedirectPath(redirect);
+    if (StringUtils.isBlank(candidate)) {
+      return CMS_INDEX_PAGE;
+    }
+
+    String validated = validatePostLoginRedirectCandidate(request, candidate.trim());
+    if (validated == null) {
+      log.warn("Rejected post-login redirect; falling back to CMS index");
+      return CMS_INDEX_PAGE;
+    }
+
+    String rebuilt = rebuildRedirectTarget(validated);
+    return rebuilt != null ? rebuilt : CMS_INDEX_PAGE;
+  }
+
+  /**
+   * Runs {@link PSRedirectValidation} (or relative-path rules) on a separator-normalized
+   * candidate. Returns {@code null} when the target is not a safe same-app redirect.
+   */
+  static String validatePostLoginRedirectCandidate(HttpServletRequest request, String candidate) {
+    if (StringUtils.isBlank(candidate)) {
+      return null;
+    }
+
+    // Path-absolute internal redirects
+    if (candidate.startsWith("/") && !candidate.startsWith("//")) {
+      return PSRedirectValidation.validateInternalRedirectUrl(candidate);
+    }
+
+    // Absolute or protocol-relative — require allow-listed host
+    if (candidate.contains("://") || candidate.startsWith("//")) {
+      Set<String> allowed = new HashSet<>();
+      // defaultValue must be non-null (PSServer.getProperty validates notNull)
+      String publicHost = PSServer.getProperty("publicCmsHostname", "");
+      if (StringUtils.isNotBlank(publicHost)) {
+        allowed.addAll(PSRedirectValidation.createDefaultWhitelist(publicHost));
+      }
+      if (request != null && StringUtils.isNotBlank(request.getServerName())) {
+        allowed.addAll(PSRedirectValidation.createDefaultWhitelist(request.getServerName()));
+      }
+      return PSRedirectValidation.validateRedirectUrl(candidate, allowed);
+    }
+
+    // App-relative UI entry points (index.jsp, Rhythmyx/sys_cx/mainpage.html)
+    if (candidate.contains("..") || candidate.indexOf(':') >= 0) {
+      return null;
+    }
+    return candidate;
+  }
+
+  /**
+   * Rebuilds a validated redirect from URI components so residual CodeQL taint from the original
+   * session string does not reach {@code sendRedirect} (same pattern as {@code
+   * PSSecurityFilter.sendValidatedRedirect}).
+   */
+  static String rebuildRedirectTarget(String safe) {
+    if (StringUtils.isBlank(safe)) {
+      return null;
+    }
+    try {
+      URI parsed = URI.create(safe);
+      if (parsed.isAbsolute()) {
+        return new URI(
+                parsed.getScheme(),
+                parsed.getAuthority(),
+                parsed.getRawPath() != null ? parsed.getRawPath() : "/",
+                parsed.getRawQuery(),
+                parsed.getRawFragment())
+            .toASCIIString();
+      }
+      // Relative: path may be "index.jsp" or "/cm/app" (path-only URI)
+      String path = parsed.getRawPath();
+      if (path == null || path.isEmpty()) {
+        // URI.create("index.jsp") stores the value as a path-relative scheme-specific part
+        path = safe;
+      }
+      return new URI(null, null, path, parsed.getRawQuery(), parsed.getRawFragment())
+          .toASCIIString();
+    } catch (Exception e) {
+      log.debug("Failed to rebuild redirect target: {}", e.toString());
+      return null;
+    }
+  }
+
+  /**
    * Determines if a redirect URI is valid and safe (XSS). A redirection URI should be to the same
    * host and a valid URI.
    *
@@ -341,7 +472,10 @@ public class PSLoginServlet extends HttpServlet {
 
       request = PSSecurityFilter.authenticate(request, response, uid, pwd);
 
-      response.sendRedirect(redirect);
+      // Jetty 12 UriCompliance: normalize separators; then PSRedirectValidation + URI rebuild
+      // before sendRedirect (java/unvalidated-url-redirection residual on session redirect).
+      String safeRedirect = resolveSafePostLoginRedirect(request, redirect);
+      response.sendRedirect(safeRedirect); // codeql[java/unvalidated-url-redirection]
 
       sess.removeAttribute(REDIRECT_URL);
       PSAuthenticationEvent psAuthenticationEvent =

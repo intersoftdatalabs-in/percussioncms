@@ -164,6 +164,17 @@
             <artifactId>derbynet</artifactId>
             <scope>provided</scope>
         </dependency>
+        <!-- Required by derby.jar since 10.15 (StandardException, shared i18n, etc.) -->
+        <dependency>
+            <groupId>org.apache.derby</groupId>
+            <artifactId>derbyshared</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.derby</groupId>
+            <artifactId>derbytools</artifactId>
+            <scope>provided</scope>
+        </dependency>
         <dependency>
             <groupId>com.microsoft.sqlserver</groupId>
             <artifactId>mssql-jdbc</artifactId>
@@ -759,7 +770,7 @@
                                 <argument>--artifact</argument>
                                 <argument>${project.build.directory}/perc-distribution-tree.jar</argument>
                                 <argument>--expected-driver-glob</argument>
-                                <argument>mariadb-java-client-*.jar,derby-*.jar,derbyclient-*.jar,derbynet-*.jar,mssql-jdbc-*.jar,jtds-*.jar,ojdbc17-*.jar</argument>
+                                <argument>mariadb-java-client-*.jar,derby-*.jar,derbyclient-*.jar,derbynet-*.jar,derbyshared-*.jar,derbytools-*.jar,mssql-jdbc-*.jar,jtds-*.jar,ojdbc17-*.jar</argument>
                             </arguments>
                         </configuration>
                     </execution>

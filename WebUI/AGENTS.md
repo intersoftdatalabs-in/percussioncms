@@ -16,6 +16,7 @@ Read the root [@AGENTS.md](../AGENTS.md) for general guidelines. This file conta
 - ✅ Phase 1: React Dashboard complete (24 widget components)
 - ✅ Phase 2: Build output separation to `target/generated-webui/`
 - ✅ Phase 3: Full Maven integration validated
+- ✅ Track B Home + Widget Builder: React shells (`HomeShell`, `WidgetBuilderApp`) via `PercModernUI`; classic CUI/WB clients removed on feature `989-react-cui-widget-builder`
 - 🔄 Track A: Dojo→jQuery migration planned
 - 🚀 Track B: Incremental React component migration ongoing
 
@@ -28,8 +29,8 @@ The WebUI shares the Percussion CMS application with 7 other UI layers:
 |        Layer         |              Technology               |   Screens   |       Protocol        |          Track           |
 |----------------------|---------------------------------------|-------------|-----------------------|--------------------------|
 | Desktop Explorer     | Java Swing + JavaFX WebView           | ~10         | JAX-WS SOAP           | Legacy                   |
-| Rhythmyx Admin       | MyFaces JSF + Trinidad                | 12          | JSF managed beans     | Legacy                   |
-| Rhythmyx Publishing  | MyFaces JSF + Trinidad                | 28          | JSF managed beans     | Legacy                   |
+| Rhythmyx Admin       | JSF pages (MyFaces/Trinidad removed)  | 12          | REST / pending React  | Legacy / retiring        |
+| Rhythmyx Publishing  | JSF pages (MyFaces/Trinidad removed)  | 28          | REST / pending React  | Legacy / retiring        |
 | Package Manager      | GWT + SmartGWT                        | 3+          | GWT-RPC               | Legacy                   |
 | **WebUI Legacy**     | **jQuery 3.6 + jQuery UI + Backbone** | **~20**     | **REST/JSON**         | **Maintaining**          |
 | Contributor UI (CUI) | RequireJS + Knockout.js               | ~8          | REST/JSON             | Maintaining              |

@@ -432,17 +432,31 @@ public class PSInputValidatorFilter implements Filter {
             filterConfig, VALIDATOR_ENABLE_PROP_NAME, "" + VALIDATOR_ENABLE_DEFAULT_PARAM_VALUE);
 
     if ("true".equals(isEnabledString)) isEnabled = true;
-    try (InputStream is =
-        this.getClass()
-            .getResourceAsStream(
-                "/com/percussion/servlet_utils/servlet/"
-                    + getClass().getSimpleName()
-                    + ".properties")) {
-      notNull(is, "properties file should not be missing");
+    String resourcePath =
+        "/com/percussion/servlet_utils/servlet/" + getClass().getSimpleName() + ".properties";
+    try (InputStream is = this.getClass().getResourceAsStream(resourcePath)) {
+      if (is == null) {
+        // Must ship on the servlet-utils classpath (main/resources). Missing file used to
+        // throw NPE via notNull and abort webapp start even when validation is disabled.
+        String msg =
+            "Classpath resource missing: "
+                + resourcePath
+                + " (package with modules/servletutils/src/main/resources"
+                + resourcePath
+                + ")";
+        if (isEnabled) {
+          throw new ServletException(msg);
+        }
+        log.warn("{}; request validation remains disabled", msg);
+        return;
+      }
       doLoadProperties(is);
       doLoadCustomProps(propsFilePath);
     } catch (IOException e) {
       log.error(PSExceptionUtils.getMessageForLog(e));
+      if (isEnabled) {
+        throw new ServletException("Failed to load " + resourcePath, e);
+      }
     }
 
     if (isEnabled) log.info("Request Validation is enabled");

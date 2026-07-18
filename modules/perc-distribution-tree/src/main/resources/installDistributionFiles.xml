@@ -710,9 +710,17 @@
 		<copy todir="${assembly-directory}/jetty/base/lib/jdbc/" overwrite="true">
 			<fileset dir="${assembly-directory}/_jdbc-stage">
 				<include name="mariadb-java-client-*.jar" />
+				<!-- Derby 10.15+ splits the engine across multiple JARs. The embedded
+				     driver (derby.jar) requires derbyshared.jar (StandardException, etc.)
+				     and typically derbytools.jar. Omitting them yields:
+				       ClassNotFoundException: org.apache.derby.shared.common.error.StandardException
+				     Note: include pattern "derby-*.jar" does NOT match derbyshared-*
+				     or derbytools-* (no hyphen after "derby"). -->
 				<include name="derby-*.jar" />
 				<include name="derbyclient-*.jar" />
 				<include name="derbynet-*.jar" />
+				<include name="derbyshared-*.jar" />
+				<include name="derbytools-*.jar" />
 				<include name="mssql-jdbc-*.jar" />
 				<include name="jtds-*.jar" />
 				<include name="ojdbc17-*.jar" />
