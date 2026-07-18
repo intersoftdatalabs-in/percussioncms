@@ -50,4 +50,57 @@ public class PSLoginServletTest {
         "http://localhost:9992/Rhythmyx",
         PSLoginServlet.sanitizeRedirectPath("http://localhost:9992/Rhythmyx"));
   }
+
+  @Test
+  public void testResolveSafePostLoginRedirectAcceptsInternalPathsAndDefaults() {
+    request.setScheme("http");
+    request.setServerPort(9992);
+    request.setServerName("perc-test");
+
+    assertEquals("/cm/app", PSLoginServlet.resolveSafePostLoginRedirect(request, "/cm/app"));
+    assertEquals(
+        "/cm/app", PSLoginServlet.resolveSafePostLoginRedirect(request, "\\cm\\app"));
+    // Default CMS index when blank / null
+    assertEquals("index.jsp", PSLoginServlet.resolveSafePostLoginRedirect(request, null));
+    assertEquals("index.jsp", PSLoginServlet.resolveSafePostLoginRedirect(request, "   "));
+    // App-relative entry points
+    assertEquals("index.jsp", PSLoginServlet.resolveSafePostLoginRedirect(request, "index.jsp"));
+    assertEquals(
+        "Rhythmyx/sys_cx/mainpage.html",
+        PSLoginServlet.resolveSafePostLoginRedirect(request, "Rhythmyx/sys_cx/mainpage.html"));
+  }
+
+  @Test
+  public void testResolveSafePostLoginRedirectRejectsOpenRedirects() {
+    request.setScheme("http");
+    request.setServerPort(9992);
+    request.setServerName("perc-test");
+
+    // External host → fall back to CMS index
+    assertEquals(
+        "index.jsp",
+        PSLoginServlet.resolveSafePostLoginRedirect(request, "http://evil.example/phish"));
+    // Path traversal
+    assertEquals(
+        "index.jsp", PSLoginServlet.resolveSafePostLoginRedirect(request, "/../../etc/passwd"));
+    // javascript: scheme (relative form rejected by colon rule)
+    assertEquals(
+        "index.jsp",
+        PSLoginServlet.resolveSafePostLoginRedirect(request, "javascript:alert(1)"));
+    // Same-host absolute is allowed
+    assertEquals(
+        "http://perc-test:9992/logout",
+        PSLoginServlet.resolveSafePostLoginRedirect(request, "http://perc-test:9992/logout"));
+  }
+
+  @Test
+  public void testValidatePostLoginRedirectCandidate() {
+    request.setServerName("perc-test");
+    assertEquals("/admin", PSLoginServlet.validatePostLoginRedirectCandidate(request, "/admin"));
+    assertNull(PSLoginServlet.validatePostLoginRedirectCandidate(request, "/../secret"));
+    assertNull(
+        PSLoginServlet.validatePostLoginRedirectCandidate(
+            request, "http://evil.example/path"));
+    assertEquals("index.jsp", PSLoginServlet.validatePostLoginRedirectCandidate(request, "index.jsp"));
+  }
 }
