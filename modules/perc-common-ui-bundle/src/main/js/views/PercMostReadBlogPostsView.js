@@ -59,9 +59,18 @@
     });
   }
 
+  /**
+   * Whitelist heading tag names so `$("<" + name + "/>")` never builds a tag
+   * from untrusted DOM/config text (CodeQL js/xss-through-dom #986/#987).
+   */
+  function safeHeadingTag(name, fallback) {
+    var n = String(name || fallback || "h2").toLowerCase();
+    return /^(h[1-6]|div|p|span)$/.test(n) ? n : fallback || "h2";
+  }
+
   function createTitleHtml(settings) {
     var title = "";
-    var elemName = settings.headingStyle || "h2";
+    var elemName = safeHeadingTag(settings.headingStyle, "h2");
     if (settings.listTitle) {
       title = $("<div/>").append(
         $("<" + elemName + "/>")
@@ -77,7 +86,7 @@
    * the server.
    */
   function createEntryHtml(settings, entry) {
-    var headingElem = settings.headingStyle || "h3";
+    var headingElem = safeHeadingTag(settings.headingStyle, "h3");
     var pagePath = entry.folder + entry.name;
     var promotedPaths = settings.promotedPagePaths || "";
     promotedPaths = promotedPaths.split(";");

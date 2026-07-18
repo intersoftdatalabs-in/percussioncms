@@ -136,32 +136,38 @@
 
         //restores previously saved options
         $(data.config).each(function () {
-          $(".perc-" + data.config[i].platform + "-row")
+          // CodeQL js/xss-through-dom: platform is config text; restrict to CSS-safe token
+          // before interpolating into a jQuery class selector.
+          var safePlatform = String(data.config[i].platform || "").replace(
+            /[^a-zA-Z0-9_-]/g,
+            ""
+          );
+          $(".perc-" + safePlatform + "-row")
             .find(".perc-social-platform")
             .val(data.config[i].platform);
 
           if (data.config[i].enableButton === true) {
-            $(".perc-" + data.config[i].platform + "-row")
+            $(".perc-" + safePlatform + "-row")
               .find(".perc-social-platform-enabled")
               .prop("checked", true);
           } else {
-            $(".perc-" + data.config[i].platform + "-row")
+            $(".perc-" + safePlatform + "-row")
               .find(".perc-social-platform-enabled")
               .prop("checked", false);
           }
           if (data.config[i].enableDataPush === true) {
-            $(".perc-" + data.config[i].platform + "-row")
+            $(".perc-" + safePlatform + "-row")
               .find(".perc-social-data-push-enabled")
               .prop("checked", true);
           } else {
-            $(".perc-" + data.config[i].platform + "-row")
+            $(".perc-" + safePlatform + "-row")
               .find(".perc-social-data-push-enabled")
               .prop("checked", false);
           }
-          $(".perc-" + data.config[i].platform + "-row")
+          $(".perc-" + safePlatform + "-row")
             .find(".perc-social-page-link")
             .val(data.config[i].socialLink);
-          $(".perc-" + data.config[i].platform + "-row").attr(
+          $(".perc-" + safePlatform + "-row").attr(
             "data-order",
             data.config[i].buttonOrder
           );

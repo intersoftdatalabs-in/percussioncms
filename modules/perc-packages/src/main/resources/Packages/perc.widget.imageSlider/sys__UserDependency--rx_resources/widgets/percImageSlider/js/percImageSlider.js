@@ -116,11 +116,7 @@
           $(this)
             .closest("tr")
             .children("#perc-content-image-thumbnail")
-            .html(
-              '<img id="perc-thumbnail-preview" src="' +
-                thumbnailPath +
-                '" height="33" />'
-            );
+            .empty().append($("<img/>", { id: "perc-thumbnail-preview", src: thumbnailPath, height: 33 }));
           if (
             previousThumbnailPath[i] != thumbnailPath &&
             previousThumbnailPath[i] !== undefined
@@ -318,11 +314,7 @@
         );
       clonedTable
         .find("#perc-content-image-thumbnail")
-        .html(
-          '<img id="perc-thumbnail-preview" src="' +
-            percImagePath +
-            '" height="33" />'
-        );
+        .empty().append($("<img/>", { id: "perc-thumbnail-preview", src: percImagePath, height: 33 }));
       previousThumbnailPath[i] = percImagePath;
     }
 

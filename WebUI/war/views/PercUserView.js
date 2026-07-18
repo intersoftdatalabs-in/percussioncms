@@ -655,7 +655,7 @@
                 assignedRoleSelected.remove();
 
             // add role to available role list
-            var availableRole = $("<option/>").val(selectedAssignedRoleValue).html(selectedAssignedRoleValue);
+            var availableRole = $("<option/>").val(selectedAssignedRoleValue).text(selectedAssignedRoleValue);
             var availableRoles = $("#perc-users-available-roles > select")
                 .append(availableRole);
 
@@ -678,7 +678,7 @@
                 availableRoleSelected.remove();
 
             // add role to available role list
-            var assignedRole = $("<option/>").val(selectedAvailableRoleValue).html(selectedAvailableRoleValue);
+            var assignedRole = $("<option/>").val(selectedAvailableRoleValue).text(selectedAvailableRoleValue);
             var assignedRoles = $("#perc-users-assigned-roles > select")
                 .append(assignedRole);
 
