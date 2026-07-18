@@ -72,38 +72,28 @@ public class SimpleXmlViewTest {
   }
 
   @Test
-  void testRenderMergedOutputWrongType() {
-    Document doc = PSXmlDocumentBuilder.createXmlDocument();
-    PSXmlDocumentBuilder.createRoot(doc, "root");
-
+  void testRenderMergedOutputWrongTypeWritesGenericError() throws Exception {
     MockHttpServletRequest request = new MockHttpServletRequest();
     MockHttpServletResponse response = new MockHttpServletResponse();
     cut.setResultKey("foo");
     model.put("foo", "doc");
 
-    try {
-      cut.render(model, request, response);
-      fail("Should throw exception");
-    } catch (Exception ex) {
-      assertTrue(true, () -> "ExpectedException");
-    }
+    cut.render(model, request, response);
+    assertEquals(500, response.getStatus());
+    String body = response.getContentAsString();
+    assertTrue(body.contains("An error occurred while rendering the response"));
   }
 
   @Test
-  void testRenderMergedOutputWrongName() {
-    Document doc = PSXmlDocumentBuilder.createXmlDocument();
-    PSXmlDocumentBuilder.createRoot(doc, "root");
-
+  void testRenderMergedOutputWrongNameWritesGenericError() throws Exception {
     MockHttpServletRequest request = new MockHttpServletRequest();
     MockHttpServletResponse response = new MockHttpServletResponse();
     cut.setResultKey("faz");
     model.put("foo", "doc");
 
-    try {
-      cut.render(model, request, response);
-      fail("Should throw exception");
-    } catch (Exception ex) {
-      assertTrue(true, () -> "ExpectedException");
-    }
+    cut.render(model, request, response);
+    assertEquals(500, response.getStatus());
+    String body = response.getContentAsString();
+    assertTrue(body.contains("An error occurred while rendering the response"));
   }
 }

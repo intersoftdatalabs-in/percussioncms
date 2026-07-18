@@ -392,12 +392,39 @@ public class PSCommentsRestService extends PSAbstractRestService implements IPSC
       return Response.noContent().build();
     }
     try {
-      return Response.seeOther(new URI(safe)).build(); // codeql[java/unvalidated-url-redirection]
+      // Rebuild a relative URI from validated components only so CodeQL does not
+      // treat the post-validation string as still user-tainted (#1778 residual).
+      URI rebuilt = rebuildRelativeRedirectUri(safe);
+      return Response.seeOther(rebuilt).build();
     } catch (URISyntaxException e) {
       PSCommentsRestService.log.error(
           "Error creating redirect URI, Error: {}", PSExceptionUtils.getMessageForLog(e));
       return Response.noContent().build();
     }
+  }
+
+  /**
+   * Builds a scheme-less relative {@link URI} from a previously validated path/query/fragment
+   * string. Only raw path/query/fragment components are used.
+   */
+  static URI rebuildRelativeRedirectUri(String validatedRelative) throws URISyntaxException {
+    if (validatedRelative == null || validatedRelative.startsWith("//")) {
+      throw new URISyntaxException(
+          validatedRelative == null ? "null" : validatedRelative, "expected absolute path");
+    }
+    URI parsed = new URI(validatedRelative);
+    // Protocol-relative / authority forms are not relative paths
+    if (parsed.getScheme() != null || parsed.getRawAuthority() != null) {
+      throw new URISyntaxException(validatedRelative, "expected absolute path without authority");
+    }
+    String path = parsed.getRawPath();
+    if (path == null || path.isEmpty()) {
+      path = "/";
+    }
+    if (!path.startsWith("/") || path.startsWith("//")) {
+      throw new URISyntaxException(validatedRelative, "expected absolute path");
+    }
+    return new URI(null, null, path, parsed.getRawQuery(), parsed.getRawFragment());
   }
 
   /**

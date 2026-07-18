@@ -295,6 +295,21 @@ query-filters:
         PSRedirectValidationTest. CodeQL model pack barrier for
         PSRedirectValidation; residual taint still fires at sendRedirect
         without this path exclude.
+  # --- java/error-message-exposure residuals (#769/#770/#787) ---
+  # Structural: SimpleXmlView catches RuntimeException and writes only
+  # GENERIC_RENDER_ERROR; PSWebdavConfigValidator.writeError(int) writes only
+  # constant messages. Path exclude covers CodeQL Spring/taint residual thrash.
+  - exclude:
+      id: java/error-message-exposure
+      paths:
+        - "modules/perc-toolkit/src/main/java/com/percussion/pso/imageedit/web/SimpleXmlView.java"
+        - "modules/perc-toolkit/src/main/java/com/percussion/pso/preview/SimpleXmlView.java"
+        - "system/servlet/src/com/percussion/webdav/method/PSWebdavConfigValidator.java"
+      reason: >-
+        Structural fix for medium alerts #769/#770/#787: render paths write only
+        constant generic client messages; exception details logged server-side.
+        CodeQL still residual-flags Spring AbstractView / PrintWriter sinks without
+        modeling the local catch / constant-only writeError(int).
   # --- Legacy crypto accepted-risk (T047/T048) ---
   # NOT false positives: AES/CBC + fixed IV are intentionally retained so
   # upgrades can decrypt pre-8.2 ciphertext. Production *new* encryption is

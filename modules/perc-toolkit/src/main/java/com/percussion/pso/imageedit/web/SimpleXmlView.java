@@ -55,14 +55,26 @@ public class SimpleXmlView extends AbstractView implements View {
   protected void renderMergedOutputModel(
       Map<String, Object> model, HttpServletRequest request, HttpServletResponse response)
       throws Exception {
-    Document result = findResult(model);
+    // Catch locally so Spring AbstractView cannot expose exception text on the
+    // response (CodeQL java/error-message-exposure #769). Details stay in logs.
+    try {
+      Document result = findResult(model);
 
-    Writer writer = response.getWriter();
-    response.setContentType(this.getContentType());
-    response.setCharacterEncoding(getEncoding());
-    String content = PSXmlDocumentBuilder.toString(result, PSXmlDocumentBuilder.FLAG_OMIT_DOC_TYPE);
-    writer.append(content);
-    writer.flush();
+      Writer writer = response.getWriter();
+      response.setContentType(this.getContentType());
+      response.setCharacterEncoding(getEncoding());
+      String content =
+          PSXmlDocumentBuilder.toString(result, PSXmlDocumentBuilder.FLAG_OMIT_DOC_TYPE);
+      writer.append(content);
+      writer.flush();
+    } catch (RuntimeException e) {
+      log.error("SimpleXmlView render failed: {}", e.toString());
+      response.resetBuffer();
+      response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+      response.setContentType("text/plain;charset=UTF-8");
+      response.getWriter().write(GENERIC_RENDER_ERROR);
+      response.getWriter().flush();
+    }
   }
 
   /**
