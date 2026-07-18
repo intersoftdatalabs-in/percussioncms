@@ -89,12 +89,22 @@
       return $("<span>").text(String(label));
     }
     var trimmed = label.trim();
+    // First-party "<a>label</a>" only: parse with DOMParser and take textContent.
+    // Do NOT regex-strip tags (CodeQL js/incomplete-multi-character-sanitization #1780).
     if (/^<a[\s>]/i.test(trimmed) && /<\/a>\s*$/i.test(trimmed)) {
-      var text = trimmed
-        .replace(/^<a[^>]*>/i, "")
-        .replace(/<\/a>\s*$/i, "")
-        .replace(/<[^>]+>/g, "");
-      return $("<a>").text(text);
+      try {
+        var doc = new DOMParser().parseFromString(trimmed, "text/html");
+        var anchors = doc.body ? doc.body.getElementsByTagName("a") : [];
+        if (
+          anchors.length === 1 &&
+          doc.body.children.length === 1 &&
+          anchors[0].tagName === "A"
+        ) {
+          return $("<a>").text(anchors[0].textContent || "");
+        }
+      } catch (e) {
+        // fall through to plain text
+      }
     }
     // Plain text or any other string — never pass to $() HTML constructor
     return $("<span>").text(label);

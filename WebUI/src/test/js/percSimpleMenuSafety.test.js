@@ -123,4 +123,22 @@ describe("percSimpleMenu label resolution (js/unsafe-jquery-plugin)", () => {
     expect(a.text()).toBe("Export");
     expect(host.find("a img").length).toBe(0);
   });
+
+  it("anchor labels never leave executable markup (no regex tag-strip residual)", () => {
+    // Nested/odd markup must not produce live script/img; only text of the <a>
+    host.percSimpleMenu({
+      menuLabels: ['<a><img src=x onerror="window.__menu_pwned=1">Export</a>'],
+      callbacks: [function () {}],
+      callbackData: [{ formSummary: { totalSubmissions: 0, name: "f1" } }],
+      menuTitleCollapsed: "[+]",
+      menuTitleExpanded: "[-]",
+    });
+    expect(host.find("a").length).toBe(1);
+    expect(host.find("img").length).toBe(0);
+    expect(host.find("script").length).toBe(0);
+    expect(globalThis.__menu_pwned).toBeUndefined();
+    // textContent includes Export (img alt empty)
+    expect(host.find("a").text()).toMatch(/Export/);
+  });
+
 });
