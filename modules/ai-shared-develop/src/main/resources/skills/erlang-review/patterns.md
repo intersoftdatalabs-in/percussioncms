@@ -61,6 +61,7 @@
 - XML `fromXml` modernizations that drop attributes used for runtime type dispatch (e.g. `fileType` → `TYPE_ENUM`) silently default ints to `0` and break package install with well-formed / wrong-type / “missing” dependency-file errors even when archives are correct
 - Modernization of null-check removals can invert keep/drop semantics (`if (x != null) remove` vs `if (x == null) remove`) — treat flipped conditions in package/association cleanup as hard bugs
 - Never cast Spring-injected service interfaces to concrete `*Service` impls (JDK proxies); call interface methods only
+- DOM attribute names are case-sensitive: shipped package XML may use legacy casing (e.g. `returntype` vs `returnType`) — deserializers must accept both when packages cannot be mass-rewritten
 
 ### Maintainability
 
