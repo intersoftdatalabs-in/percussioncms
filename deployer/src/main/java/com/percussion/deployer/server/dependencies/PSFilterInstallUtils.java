@@ -39,6 +39,19 @@ final class PSFilterInstallUtils {
   }
 
   /**
+   * Whether package install should treat an existing filter with the same name as an update even
+   * when the package dependency id (GUID) does not match.
+   *
+   * <p>Must remain {@code true}: {@code PSItemFilter.name} is a unique natural id. Inserting a
+   * second row with the same name fails only at flush and surfaces as UnexpectedRollbackException.
+   *
+   * @return always {@code true}
+   */
+  static boolean shouldResolveExistingByName() {
+    return true;
+  }
+
+  /**
    * Builds a filter install error message including exception type and root cause.
    *
    * @param e failure, not {@code null}

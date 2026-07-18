@@ -147,31 +147,51 @@ public class PSDeployService implements IPSDeployService {
 
     var dh = (PSFilterDefDependencyHandler) depHandler;
     try {
-      var existing = dh.findFilterByDependencyID(dep.getDependencyId());
-      boolean isNew = (existing == null);
-      Integer lver = null;
+      // Always deserialize package payload into a fresh (non-managed) object.
+      var packageFilter = dh.generateFilterFromFile(tok, archive, dep, depFile, ctx, null);
+      packageFilter = dh.doTransforms(packageFilter, dep, ctx, true);
 
-      if (!isNew) {
-        String fName = existing.getName();
-        List<IPSGuid> ids = new ArrayList<>();
-        ids.add(existing.getGUID());
-        IPSFilterService filterSvc = PSFilterServiceLocator.getFilterService();
-        try {
-          existing = filterSvc.loadFilter(ids).get(0);
-        } catch (PSNotFoundException e) {
-          throw new PSDeployException(
-              IPSDeploymentErrors.UNEXPECTED_ERROR, "Could not load the existing filter: " + fName);
-        }
-        // Capture DB optimistic-lock version only. Do NOT null version on this managed
-        // entity — it stays in the Hibernate session and a dirty null @Version marks the
-        // TX rollback-only (UnexpectedRollbackException at commit under Hibernate 7).
-        lver = ((PSItemFilter) existing).getVersion();
+      IPSFilterService filterSvc = PSFilterServiceLocator.getFilterService();
+
+      // Prefer match by natural id (name). Package dep ids often do not match a prior
+      // install's GUID; treating that as "new" then persist hits NAME unique constraint
+      // only at flush → UnexpectedRollbackException with no app-level exception.
+      com.percussion.services.filter.IPSItemFilter existingByName = null;
+      try {
+        existingByName = filterSvc.findFilterByName(packageFilter.getName());
+      } catch (com.percussion.services.filter.PSFilterException e) {
+        // FILTER_MISSING is expected for true first install
+        existingByName = null;
       }
 
-      // Always deserialize into a fresh object (null), never the managed instance.
-      var filter = dh.generateFilterFromFile(tok, archive, dep, depFile, ctx, null);
-      filter = dh.doTransforms(filter, dep, ctx, isNew);
-      dh.saveFilter(filter, lver);
+      if (existingByName != null) {
+        List<IPSGuid> ids = new ArrayList<>();
+        ids.add(existingByName.getGUID());
+        try {
+          // Reload for a managed instance we will domain-merge into
+          existingByName = filterSvc.loadFilter(ids).get(0);
+        } catch (PSNotFoundException e) {
+          throw new PSDeployException(
+              IPSDeploymentErrors.UNEXPECTED_ERROR,
+              "Could not load the existing filter: " + packageFilter.getName());
+        }
+        PSItemFilter managed = (PSItemFilter) existingByName;
+        Integer lver = managed.getVersion();
+        // Domain-merge package fields onto the managed row; keep its version untouched.
+        try {
+          managed.merge(packageFilter);
+        } catch (com.percussion.services.filter.PSFilterException e) {
+          throw new PSDeployException(
+              IPSDeploymentErrors.UNEXPECTED_ERROR,
+              e,
+              "Could not merge package filter onto existing filter: " + packageFilter.getName());
+        }
+        // Save with DB version (update path in PSFilterManager)
+        dh.saveFilter(managed, lver);
+      } else {
+        // True insert: null version selects persist path in PSFilterManager
+        dh.saveFilter(packageFilter, null);
+      }
     } catch (PSDeployException e) {
       throw new PSDeployServiceException(e);
     }

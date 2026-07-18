@@ -40,6 +40,15 @@ public class PSFilterInstallUtilsTest {
   }
 
   @Test
+  public void testShouldResolveExistingFilterByNameNotOnlyByDependencyId() {
+    // Package dep GUID often differs from a prior install; name is the natural id.
+    // Install must treat same-name as update (merge), not insert (unique NAME constraint).
+    assertTrue(
+        PSFilterInstallUtils.shouldResolveExistingByName(),
+        "Filter install must resolve existing rows by name for reinstall safety");
+  }
+
+  @Test
   public void testFormatInstallErrorIncludesTypesAndRootCause() {
     Exception root = new IllegalStateException("null version on flush");
     RuntimeException wrapper =

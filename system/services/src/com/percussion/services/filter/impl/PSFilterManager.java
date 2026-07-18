@@ -231,12 +231,20 @@ public class PSFilterManager
             }
             if (current != null)
             {
-               // Merge with existing
-               current.merge(filter);
-
+               // Domain-merge package/edited fields onto the managed row when f is a
+               // different instance. If f already is the managed row (same reference),
+               // skip — caller already applied changes.
+               if (current != f)
+               {
+                  current.merge(filter);
+               }
+               // Ensure persistence context tracks the managed entity (no-op if already managed)
+               session.merge(current);
             } else
                session.persist(f);
          }
+         // Surface constraint / optimistic-lock failures now (not only at outer commit)
+         session.flush();
       }
       catch (Exception e)
       {
