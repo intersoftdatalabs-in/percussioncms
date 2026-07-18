@@ -159,8 +159,8 @@ query-filters:
       paths:
         - "system/src/main/java/com/percussion/security/PSJndiGroupProvider.java"
       reason: >-
-        Documented residual after structural fix for code-scanning alert
-        #648 (T040). User filter values pass through
+        Documented residual after structural fix for code-scanning alerts
+        #648 and PR residual #1767 (T040). User filter values pass through
         PSJndiUtils.getFilterString, which applies escapeLdapFilter
         (RFC 4515 hex-escape for \ * ( ) NUL) before interpolating into
         the LDAP search filter, then converts intentional '%' wildcards

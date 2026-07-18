@@ -198,10 +198,14 @@ public class PSJndiGroupProvider implements IPSGroupProvider {
         SearchControls ctls = new SearchControls();
         ctls.setReturningAttributes(attrIDs);
 
-        // search with empty name to search current context. Location filter is
-        // configuration; user input is already inside searchFilter (escaped).
+        // Search current context (empty name). Location filter is configuration;
+        // user assertion values reach this sink only after getFilterString →
+        // escapeLdapFilter (RFC 4515 hex-escape for \ * ( ) NUL) then %→*. Residual
+        // java/ldap-injection #648 / #1767: GHA cannot load local model packs, so
+        // path query-filter + sink-line suppression document the FP residual.
         final String fullSearchFilter =
             PSJndiUtils.andLdapFilters(locationInfo.mi_groupFilter, searchFilter);
+        // codeql[java/ldap-injection]
         results = ctx.search("", fullSearchFilter, ctls); // codeql[java/ldap-injection]
         while (results.hasMore()) {
           /* add the group, appending the current context to the relative

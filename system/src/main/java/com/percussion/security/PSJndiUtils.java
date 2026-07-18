@@ -703,15 +703,25 @@ public class PSJndiUtils {
    * Converts the array of String into a filter, applying the principle attribute and converting
    * wildcards.
    *
+   * <p><strong>Failure-mode change (T040 residual):</strong> {@code attr} that is {@code null} or
+   * blank (after trim) now throws {@link IllegalArgumentException}. Prior behavior interpolated the
+   * empty name into the filter (e.g. {@code (=value)}), which produced an invalid LDAP filter that
+   * failed only at the directory server. Callers that pass a configured attribute name (for example
+   * {@code PSDirectoryConnProviderMetaData} via {@code getRequiredAttributeName}) must ensure the
+   * directory set defines the required object attribute; a missing mapping that previously yielded
+   * {@code null} will now fail fast at filter construction.
+   *
    * @param filterPattern An array of patterns, not null. If any pattern is null or empty, it is
    *     ignored.
    * @param attr The principle attribute to use when constructing the filter. For example, if "cn"
    *     is supplied, each filter is used to construct "cn=pattern". All patterns are combined using
-   *     the OR conditional.
+   *     the OR conditional. Must not be null or blank.
    * @param baseFilter A base filter to append onto. The filter resulting from the supplied
    *     filterPattern is appended onto this using the AND conditional. If null or empty, it is
    *     ignored.
    * @return The filter, never null, may be empty.
+   * @throws IllegalArgumentException if {@code filterPattern} is null, or {@code attr} is null or
+   *     blank.
    * @throws PSSecurityException if the filter contains invalid wildcards.
    */
   public static String getFilterString(String[] filterPattern, String attr, String baseFilter)
