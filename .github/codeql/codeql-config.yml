@@ -237,3 +237,36 @@ query-filters:
         // codeql[java/sql-injection] present. Local model-pack barrier cannot
         load in GHA. Regression tests: PSSQLStatementSqlInjectionTest,
         SecureStringUtilsSqlInjectionTest.
+  # --- java/unvalidated-url-redirection residuals (PSRedirectValidation) ---
+  # Runtime open-redirect closed via PSRedirectValidation + relative-only
+  # reduction; local model pack marks validate* as url-redirection barriers.
+  # CodeQL still residual-flags Response.seeOther / sendRedirect sinks on
+  # PRs (alerts #1762/#1766 reopen of #643-#647). Sink-line // codeql + path
+  # exclude stop residual thrashing.
+  - exclude:
+      id: java/unvalidated-url-redirection
+      paths:
+        - "deliverytiersuite/delivery-tier-suite/comments/src/main/java/com/percussion/delivery/comments/services/PSCommentsRestService.java"
+      reason: >-
+        Documented residual after structural fix for code-scanning alerts
+        #643/#644 (T051) and PR residual #1762. seeOtherIfSafe reduces
+        absolute Referers to path+query+fragment and only redirects after
+        PSRedirectValidation.validateInternalRedirectUrl returns a safe
+        relative location (null → 204 No Content). Host header is never
+        used as an allow-list. Regression tests in
+        PSCommentsRestServiceRedirectTest. CodeQL model pack barrier for
+        PSRedirectValidation; residual taint through the URI constructor
+        still fires without this path exclude.
+  - exclude:
+      id: java/unvalidated-url-redirection
+      paths:
+        - "system/src/main/java/com/percussion/servlets/PSSecurityFilter.java"
+      reason: >-
+        Documented residual after structural fix for code-scanning alerts
+        #645-#647 (T051) and PR residual #1766. sendValidatedRedirect only
+        calls sendRedirect after PSRedirectValidation accepts the location
+        (relative internal path or absolute URL on publicCmsHostname /
+        post-isValidHostHeader server name). Regression coverage via
+        PSRedirectValidationTest. CodeQL model pack barrier for
+        PSRedirectValidation; residual taint still fires at sendRedirect
+        without this path exclude.

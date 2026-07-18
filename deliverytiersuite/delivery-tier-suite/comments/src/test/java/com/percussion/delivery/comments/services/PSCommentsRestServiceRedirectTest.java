@@ -51,10 +51,11 @@ class PSCommentsRestServiceRedirectTest {
   void sanitizeForLogStripsControlChars() {
     String dirty = "ok\r\nInjected: value";
     String clean = PSCommentsRestService.sanitizeForLog(dirty);
-    assertTrue(clean.contains("ok"));
-    assertTrue(clean.contains("Injected"));
-    // CR/LF are allowed tab/newline/cr class — we strip other Cntrl; CR/LF kept by regex
-    // Ensure BEL and similar are stripped
+    // CR/LF must be removed so a crafted Referer cannot forge extra log lines
+    assertEquals("okInjected: value", clean);
+    assertTrue(!clean.contains("\r") && !clean.contains("\n"));
+    // BEL, TAB, and other Cntrl are stripped
     assertEquals("ab", PSCommentsRestService.sanitizeForLog("a\u0007b"));
+    assertEquals("ab", PSCommentsRestService.sanitizeForLog("a\tb"));
   }
 }

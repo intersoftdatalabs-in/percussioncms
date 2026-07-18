@@ -1378,15 +1378,18 @@ public class PSSecurityFilter implements Filter {
       response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Invalid redirect location");
       return;
     }
-    response.sendRedirect(safe);
+    response.sendRedirect(safe); // codeql[java/unvalidated-url-redirection]
   }
 
-  /** Strip C0 control characters before logging (log injection hygiene). */
-  private static String sanitizeForLog(String value) {
+  /**
+   * Strip all Unicode control characters (including CR/LF/TAB) before logging so crafted location
+   * values cannot inject new log lines (log injection hygiene).
+   */
+  static String sanitizeForLog(String value) {
     if (value == null) {
       return "";
     }
-    return value.replaceAll("[\\p{Cntrl}&&[^\t\n\r]]", "").trim();
+    return value.replaceAll("[\\p{Cntrl}]", "").trim();
   }
 
   private String getLoginUrl(HttpServletRequest request) {

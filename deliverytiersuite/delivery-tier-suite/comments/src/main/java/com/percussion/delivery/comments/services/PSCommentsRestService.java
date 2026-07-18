@@ -392,7 +392,7 @@ public class PSCommentsRestService extends PSAbstractRestService implements IPSC
       return Response.noContent().build();
     }
     try {
-      return Response.seeOther(new URI(safe)).build();
+      return Response.seeOther(new URI(safe)).build(); // codeql[java/unvalidated-url-redirection]
     } catch (URISyntaxException e) {
       PSCommentsRestService.log.error(
           "Error creating redirect URI, Error: {}", PSExceptionUtils.getMessageForLog(e));
@@ -436,12 +436,15 @@ public class PSCommentsRestService extends PSAbstractRestService implements IPSC
     }
   }
 
-  /** Strip C0 control characters before logging (log injection hygiene). */
+  /**
+   * Strip all Unicode control characters (including CR/LF/TAB) before logging so crafted Referer
+   * values cannot inject new log lines (log injection hygiene).
+   */
   static String sanitizeForLog(String value) {
     if (value == null) {
       return "";
     }
-    return value.replaceAll("[\\p{Cntrl}&&[^\t\n\r]]", "").trim();
+    return value.replaceAll("[\\p{Cntrl}]", "").trim();
   }
 
   /* (non-Javadoc)
