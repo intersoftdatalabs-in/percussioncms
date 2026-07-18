@@ -147,28 +147,29 @@ public class PSDeployService implements IPSDeployService {
 
     var dh = (PSFilterDefDependencyHandler) depHandler;
     try {
-      var filter = dh.findFilterByDependencyID(dep.getDependencyId());
-      boolean isNew = (filter == null);
-      String fName = "";
+      var existing = dh.findFilterByDependencyID(dep.getDependencyId());
+      boolean isNew = (existing == null);
       Integer lver = null;
 
       if (!isNew) {
-        fName = filter.getName();
+        String fName = existing.getName();
         List<IPSGuid> ids = new ArrayList<>();
-        ids.add(filter.getGUID());
+        ids.add(existing.getGUID());
         IPSFilterService filterSvc = PSFilterServiceLocator.getFilterService();
         try {
-          filter = filterSvc.loadFilter(ids).get(0);
+          existing = filterSvc.loadFilter(ids).get(0);
         } catch (PSNotFoundException e) {
           throw new PSDeployException(
               IPSDeploymentErrors.UNEXPECTED_ERROR, "Could not load the existing filter: " + fName);
         }
-        lver = ((PSItemFilter) filter).getVersion();
-        ((PSItemFilter) filter).setVersion(null);
-        filter = null;
+        // Capture DB optimistic-lock version only. Do NOT null version on this managed
+        // entity — it stays in the Hibernate session and a dirty null @Version marks the
+        // TX rollback-only (UnexpectedRollbackException at commit under Hibernate 7).
+        lver = ((PSItemFilter) existing).getVersion();
       }
 
-      filter = dh.generateFilterFromFile(tok, archive, dep, depFile, ctx, filter);
+      // Always deserialize into a fresh object (null), never the managed instance.
+      var filter = dh.generateFilterFromFile(tok, archive, dep, depFile, ctx, null);
       filter = dh.doTransforms(filter, dep, ctx, isNew);
       dh.saveFilter(filter, lver);
     } catch (PSDeployException e) {

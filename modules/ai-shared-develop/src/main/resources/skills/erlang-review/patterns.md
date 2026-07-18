@@ -63,6 +63,7 @@
 - Never cast Spring-injected service interfaces to concrete `*Service` impls (JDK proxies); call interface methods only
 - DOM attribute names are case-sensitive: shipped package XML may use legacy casing (e.g. `returntype` vs `returnType`) — deserializers must accept both when packages cannot be mass-rewritten
 - Do not force-bump Hibernate `@Version` before `merge`/`save` (e.g. `setVersion(loaded+1)`): under Hibernate 7 this causes optimistic-lock failure and `UnexpectedRollbackException` that masks the root cause
+- Do not null `@Version` on a managed entity then discard the reference: the entity stays in the persistence context, flush fails, and commit surfaces as UnexpectedRollbackException without an app-level throw
 
 ### Maintainability
 
