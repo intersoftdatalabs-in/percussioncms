@@ -69,7 +69,9 @@ public class SimpleXmlView extends AbstractView implements View {
       response.setCharacterEncoding(getEncoding());
       String content =
           PSXmlDocumentBuilder.toString(result, PSXmlDocumentBuilder.FLAG_OMIT_DOC_TYPE);
-      writer.append(content);
+      // Success path writes the model Document as XML — not exception text.
+      // Residual CodeQL #1783 flags this append as error-message-exposure.
+      writer.append(content); // codeql[java/error-message-exposure]
       writer.flush();
     } catch (Exception e) {
       log.error("SimpleXmlView render failed: {}", e.toString());
