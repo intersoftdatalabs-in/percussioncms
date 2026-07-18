@@ -234,11 +234,8 @@ public class PSCSSParser {
   }
 
   private boolean fileExists(String importPath) {
-    // CWE-22/CWE-23 defense (T043): importPath is derived from CSS content
-    // extracted via regex (@import / url(...)) and passed through a URL
-    // converter that may produce filesystem paths from user-controlled
-    // inputs. Verify the resolved path is contained within the theme root
-    // BEFORE any File construction. Residual #1755 of original #1055.
+    // CWE-22/CWE-23 (T043 / residual #1755): requireUnderBase is the barrier;
+    // exists() only stats the already-safe File.
     File safe = PSPathInjectionGuard.requireUnderBase(new File(themeRootDirectory), importPath);
     return safe.exists(); // codeql[java/path-injection]
   }
@@ -268,10 +265,7 @@ public class PSCSSParser {
   }
 
   private void saveFile(StringBuffer sb, String path) throws IOException {
-    // CWE-22/CWE-23 defense (T043): path may originate from a user-supplied
-    // CSS link extracted from the imported HTML header. Resolve the path
-    // against the theme root and verify containment BEFORE opening the
-    // file for write. Residual #1756 of original #1056.
+    // CWE-22/CWE-23 (T043 / residual #1756): requireUnderBase barrier before write.
     File safe = PSPathInjectionGuard.requireUnderBase(new File(themeRootDirectory), path);
     try (var fstream = new FileWriter(safe); // codeql[java/path-injection]
         var out = new PrintWriter(fstream)) {
@@ -284,9 +278,7 @@ public class PSCSSParser {
   }
 
   private String loadFileFromDisk(String path) throws IOException {
-    // CWE-22/CWE-23 defense (T043): path may originate from a user-supplied
-    // CSS @import or url() value. Resolve and verify containment BEFORE
-    // opening the file for read. Residual #1757 of original #1057.
+    // CWE-22/CWE-23 (T043 / residual #1757): requireUnderBase barrier before read.
     File safe = PSPathInjectionGuard.requireUnderBase(new File(themeRootDirectory), path);
     try (var in = new FileInputStream(safe)) { // codeql[java/path-injection]
       return IOUtils.toString(in);
