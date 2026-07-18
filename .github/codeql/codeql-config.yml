@@ -243,6 +243,16 @@ query-filters:
         every filesystem open goes through PSPathInjectionGuard.requireUnderBase
         against themeRootDirectory. Model pack barrier for requireUnderBase;
         sink-line suppressions on exists/FileWriter/FileInputStream.
+  - exclude:
+      id: java/path-injection
+      paths:
+        - "projects/sitemanage/src/main/java/com/percussion/theme/service/impl/PSThemeService.java"
+      reason: >-
+        Structural T043: theme names pass requireSafeFileName; folders via
+        safeThemeFolder/requireUnderBase; cached CSS paths under temp root with
+        session+theme segments validated. create() no longer uses raw
+        new File(themesRoot, newTheme). Sink-line // codeql on exists/delete/copy
+        residuals after barrier. Tests: PSThemeServiceSecurityTest.
   # --- High java/sql-injection residuals (SecureStringUtils barriers not
   # loaded as model pack — GHA rejects local packs; workflow relies on
   # runtime + sink-line // codeql + path query-filters). ---

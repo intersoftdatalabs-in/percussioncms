@@ -5,8 +5,7 @@
 import { readFileSync } from "fs";
 import { resolve, dirname } from "path";
 import { fileURLToPath } from "url";
-import jquery from "jquery";
-import { describe, it, expect, beforeEach } from "vitest";
+import { describe, it, expect } from "vitest";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = resolve(__dirname, "../../../../");
@@ -44,14 +43,32 @@ describe("PercMostReadBlogPostsView heading tag whitelist", () => {
     expect(src).toMatch(/\^\(h\[1-6\]\|div\|p\|span\)\$/);
   });
 
-  it("rejects script-like headingStyle tokens (unit of safeHeadingTag)", () => {
-    // Mirror production allow-list for a pure unit assertion.
+  it("rejects script-like headingStyle tokens and unvalidated fallbacks", () => {
+    // Mirror production allow-list (both name and fallback must match).
     function safeHeadingTag(name, fallback) {
-      var n = String(name || fallback || "h2").toLowerCase();
-      return /^(h[1-6]|div|p|span)$/.test(n) ? n : fallback || "h2";
+      var allowed = /^(h[1-6]|div|p|span)$/;
+      var n = String(name || "").toLowerCase();
+      if (allowed.test(n)) {
+        return n;
+      }
+      var fb = String(fallback || "").toLowerCase();
+      if (allowed.test(fb)) {
+        return fb;
+      }
+      return "h2";
     }
     expect(safeHeadingTag("script", "h2")).toBe("h2");
     expect(safeHeadingTag("h3", "h2")).toBe("h3");
-    expect(safeHeadingTag('img onerror=x', "h3")).toBe("h3");
+    expect(safeHeadingTag("img onerror=x", "h3")).toBe("h3");
+    // Kilo WARNING: bad fallback must not be returned when name fails allow-list
+    expect(safeHeadingTag("script", "img")).toBe("h2");
+    expect(safeHeadingTag("script", "script")).toBe("h2");
+    expect(safeHeadingTag(null, "div")).toBe("div");
+  });
+
+  it("production source validates fallback before return", () => {
+    // Ensure the helper no longer returns raw fallback without allow-list check.
+    expect(src).toMatch(/allowed\.test\(fb\)/);
+    expect(src).not.toMatch(/: fallback \|\| ["']h2["']/);
   });
 });
