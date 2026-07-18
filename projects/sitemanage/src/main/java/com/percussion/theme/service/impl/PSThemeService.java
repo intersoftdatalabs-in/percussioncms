@@ -39,7 +39,6 @@ import com.percussion.theme.data.PSRichTextCustomStyle;
 import com.percussion.theme.data.PSTheme;
 import com.percussion.theme.data.PSThemeSummary;
 import com.percussion.theme.service.IPSThemeService;
-import com.percussion.security.io.PSPathInjectionGuard;
 import com.percussion.utils.request.PSRequestInfo;
 import jakarta.annotation.PostConstruct;
 import java.io.File;
@@ -168,6 +167,20 @@ public class PSThemeService implements IPSThemeService {
   }
 
   /**
+   * Sanitizes a session id to a single path segment for temp theme-cache paths
+   * and matching relative URLs. Public for unit tests.
+   *
+   * <p>Session ids are system-issued; still constrain to {@code [a-zA-Z0-9._-]}
+   * so file path and relative URL never diverge.
+   */
+  public static String safeSessionSegment(String sessionId) {
+    if (sessionId == null || sessionId.isBlank()) {
+      return "pssession";
+    }
+    return sessionId.replaceAll("[^a-zA-Z0-9._-]", "_");
+  }
+
+  /**
    * Resolves a theme-name File under the themes root with the CWE-22
    * defense. Unlike {@link PSPathInjectionGuard#requireUnderBase} this
    * helper tolerates a missing or non-directory base root, which is
@@ -216,8 +229,11 @@ public class PSThemeService implements IPSThemeService {
 
   private String getCachedRegionCSSRelativePath(String theme) {
     PSPathInjectionGuard.requireSafeFileName(theme);
-    String psSession = getCurrentSessionId();
-    return psSession + "/" + theme + "/" + THEME_REGION_CSS_PATH;
+    return safeSessionSegment(getCurrentSessionId())
+        + "/"
+        + theme
+        + "/"
+        + THEME_REGION_CSS_PATH;
   }
 
   private File getCachedRegionCSSFileOnly(String theme) {
@@ -230,14 +246,8 @@ public class PSThemeService implements IPSThemeService {
       // canonical containment check can run. mkdirs is best-effort.
       tempRoot.mkdirs();
     }
-    String sessionId = getCurrentSessionId();
-    // Session ids are system-issued; still constrain to a single path segment.
-    String safeSession =
-        sessionId == null || sessionId.isBlank()
-            ? "pssession"
-            : sessionId.replaceAll("[^a-zA-Z0-9._-]", "_");
     String relative =
-        safeSession
+        safeSessionSegment(getCurrentSessionId())
             + "/"
             + theme
             + "/"
@@ -620,12 +630,8 @@ public class PSThemeService implements IPSThemeService {
     if (!tempRoot.exists() || !tempRoot.isDirectory()) {
       return; // nothing to clear
     }
-    String sessionId = getCurrentSessionId();
-    String safeSession =
-        sessionId == null || sessionId.isBlank()
-            ? "pssession"
-            : sessionId.replaceAll("[^a-zA-Z0-9._-]", "_");
-    File sessionDir = PSPathInjectionGuard.requireUnderBase(tempRoot, safeSession);
+    File sessionDir =
+        PSPathInjectionGuard.requireUnderBase(tempRoot, safeSessionSegment(getCurrentSessionId()));
     if (sessionDir.exists()) { // codeql[java/path-injection]
       FileUtils.deleteQuietly(sessionDir); // codeql[java/path-injection]
     }

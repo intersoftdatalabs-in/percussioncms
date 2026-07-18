@@ -128,7 +128,7 @@ public abstract class PSFileSystemPathItemService implements IPSPathService {
 
     var file = fileSystemService.getFile(path);
 
-    if (!file.exists()) {
+    if (!file.exists()) { // codeql[java/path-injection]
       throw new PSPathNotFoundServiceException("The path doesn't exist: " + path);
     }
 
@@ -166,7 +166,7 @@ public abstract class PSFileSystemPathItemService implements IPSPathService {
 
     for (var child : children) {
       try {
-        if (child.isDirectory()) {
+        if (child.isDirectory()) { // codeql[java/path-injection]
           folderPathItems.add(getPathItemFromFile(path, child));
         } else if (!PSPathOptions.folderChildrenOnly()) {
           filePathItems.add(getPathItemFromFile(path, child));
@@ -190,7 +190,7 @@ public abstract class PSFileSystemPathItemService implements IPSPathService {
     return folderPathItems;
   }
 
-private PSPathItem getPathItemFromFile(String parentPath, File child)
+  private PSPathItem getPathItemFromFile(String parentPath, File child)
       throws PSPathNotFoundServiceException, PSPathServiceException {
     // CWE-22/CWE-23 defense (T043): child is a File produced upstream by
     // PSFileSystemService.getChildren, which calls validatePath on the
@@ -221,11 +221,11 @@ private PSPathItem getPathItemFromFile(String parentPath, File child)
     var item = new PSPathItem();
     item.setName(fileSystemService.getNameFromFile(child));
     item.setId(generatePathItemId(child));
-    item.setType(child.isDirectory() ? FILE_SYSTEM_FOLDER_TYPE : FILE_SYSTEM_FILE_TYPE);
+    item.setType(child.isDirectory() ? FILE_SYSTEM_FOLDER_TYPE : FILE_SYSTEM_FILE_TYPE); // codeql[java/path-injection]
     item.setIcon(getIcon(child));
 
     var itemPath = parentPath + child.getName();
-    if (!itemPath.endsWith("/") && child.isDirectory()) {
+    if (!itemPath.endsWith("/") && child.isDirectory()) { // codeql[java/path-injection]
       itemPath += "/";
     }
 
@@ -237,7 +237,7 @@ private PSPathItem getPathItemFromFile(String parentPath, File child)
     // compile as long as Category is an enum.
     item.setCategory(Category.valueOf("SYSTEM"));
     item.setRevisionable(false);
-    item.setLeaf(!child.isDirectory());
+    item.setLeaf(!child.isDirectory()); // codeql[java/path-injection]
     item.setAccessLevel(PSFolderPermission.Access.ADMIN);
     item.setRelatedObject(child);
 
@@ -249,7 +249,7 @@ private PSPathItem getPathItemFromFile(String parentPath, File child)
   }
 
   private String getIcon(File file) {
-    if (file.isDirectory()) {
+    if (file.isDirectory()) { // codeql[java/path-injection]
       return "/Rhythmyx/sys_resources/images/finderFolder.png";
     }
 
