@@ -6,7 +6,7 @@
 #
 # See docs/ai-generated/tasks/gh-codeql-alerts/codeql-pr-playbook.md
 name: percussion/codeql-models
-version: 0.0.2
+version: 0.0.3
 library: true
 extensionTargets:
   codeql/java-all: "*"

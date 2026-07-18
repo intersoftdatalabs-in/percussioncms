@@ -510,6 +510,7 @@ public class RhythmyxServlet extends PSServletBase
      int bytesRead;
      while ((bytesRead = in.read(buf)) != -1)
      {
+       // codeql[java/xss] justification: reverse-proxy pass-through of CMS response bytes; not HTML construction (alert #627)
        out.write(buf, 0, bytesRead);
      }
    }
@@ -532,6 +533,7 @@ public class RhythmyxServlet extends PSServletBase
        int charsRead;
        while ((charsRead = inreader.read(buf)) != -1)
         {
+            // codeql[java/xss] justification: reverse-proxy pass-through of CMS response chars; not HTML construction (alert #628)
             respWriterOut.write(buf, 0, charsRead);
         }
    }

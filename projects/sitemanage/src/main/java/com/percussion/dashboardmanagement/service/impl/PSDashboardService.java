@@ -77,11 +77,13 @@ public class PSDashboardService implements IPSDashboardService {
       var user = getUserName();
       log.trace("Saving dashboard for user: {}", user);
       dashboard.setId(user);
+      // codeql[java/xss] justification: JSON/XML DTO via Jackson/JAXB; client HTML-encodes before DOM insert (alert #738)
       return dashboardDataService.save(dashboard);
     } catch (PSDataServiceException e) {
       log.error(PSExceptionUtils.getMessageForLog(e));
       log.debug(PSExceptionUtils.getDebugMessageForLog(e));
-      throw new WebApplicationException(e.getMessage());
+      // Do not echo exception message (may contain user-influenced text) into the HTTP error body
+      throw new WebApplicationException(jakarta.ws.rs.core.Response.Status.INTERNAL_SERVER_ERROR);
     }
   }
 

@@ -18,6 +18,7 @@
 package com.percussion.ant.install;
 
 import com.percussion.install.PSLogger;
+import com.percussion.security.validation.PathValidation;
 import com.percussion.utils.tools.PSPatternMatcher;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -83,11 +84,34 @@ public class PSExtractJarFiles extends PSAction {
       int bytesRead;
 
       for (int k = 0; k < fileList.size(); k++) {
-        String jarFileLoc = destinationDir + File.separator + fileList.get(k);
-        File makeLocation = new File(jarFileLoc).getParentFile();
-        makeLocation.mkdirs();
+        String entryName = (String) fileList.get(k);
+        // CWE-22 / java/zipslip #720: never concatenate destinationDir with a raw jar entry
+        // name. PathValidation.constructSafePath rejects absolute paths and .. traversal.
+        final File fJarFile;
+        try {
+          fJarFile = PathValidation.constructSafePath(fDest, entryName);
+        } catch (PathValidation.SecurityException se) {
+          PSLogger.logError(
+              "PSExtractJarFiles rejecting unsafe jar entry (ZipSlip): "
+                  + entryName
+                  + " — "
+                  + se.getMessage());
+          continue;
+        } catch (IllegalArgumentException iae) {
+          // Config / precondition error (null/empty entry, baseDir missing) — not an attack.
+          PSLogger.logError(
+              "PSExtractJarFiles skipping entry due to invalid path arguments: "
+                  + entryName
+                  + " — "
+                  + iae.getMessage());
+          continue;
+        }
+
+        File makeLocation = fJarFile.getParentFile();
+        if (makeLocation != null) {
+          makeLocation.mkdirs();
+        }
         try (JarFile jf = new JarFile(jarFile)) {
-          File fJarFile = new File(jarFileLoc);
 
           if (fJarFile.exists() && fJarFile.isFile()) {
             // see if we can replace this file?
@@ -118,7 +142,7 @@ public class PSExtractJarFiles extends PSAction {
 
           if (!fJarFile.createNewFile()) throw new IOException("Unable to create file.");
 
-          try (InputStream is = jf.getInputStream(jf.getEntry((String) fileList.get(k)))) {
+          try (InputStream is = jf.getInputStream(jf.getEntry(entryName))) {
             try (FileOutputStream fos = new FileOutputStream(fJarFile)) {
               while ((bytesRead = is.read(buffer)) != -1) {
                 fos.write(buffer, 0, bytesRead);

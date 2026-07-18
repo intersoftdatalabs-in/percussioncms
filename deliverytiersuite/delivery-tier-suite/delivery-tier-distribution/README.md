@@ -31,6 +31,43 @@ etc...
 ```bash
 ./mvn-env.sh -pl deliverytiersuite/delivery-tier-suite/delivery-tier-distribution -am clean install
 # Windows: mvn-env.bat -pl deliverytiersuite/delivery-tier-suite/delivery-tier-distribution -am clean install
+
+## Linux services (systemd) — GH-962
+
+Production and Staging installers under `src/main/rootFiles/` prefer **native systemd**
+when available:
+
+| Script | Default unit |
+|--------|----------------|
+| `DTSProductionService.sh` | `PercussionProductionDTS` |
+| `DTSStagingService.sh` | `PercussionStagingDTS` |
+
+Shared unit template: `dts-tomcat.service.in` (`Type=forking`, `TimeoutStartSec=1800`, journal).  
+Ops notes: `README-systemd.md`. Flags: `--systemd`, `--initd`. Windows `.bat` unchanged.
+
+```bash
+sudo ./DTSProductionService.sh install
+sudo systemctl start PercussionProductionDTS
+journalctl -u PercussionProductionDTS -n 50 --no-pager
+```
+
+## Linux services (systemd) — GH-962
+
+Production and Staging installers under `src/main/rootFiles/` prefer **native systemd**
+when available:
+
+| Script | Default unit |
+|--------|----------------|
+| `DTSProductionService.sh` | `PercussionProductionDTS` |
+| `DTSStagingService.sh` | `PercussionStagingDTS` |
+
+Shared unit template: `dts-tomcat.service.in` (`Type=forking`, `TimeoutStartSec=1800`, journal).  
+Ops notes: `README-systemd.md`. Flags: `--systemd`, `--initd`. Windows `.bat` unchanged.
+
+```bash
+sudo ./DTSProductionService.sh install
+sudo systemctl start PercussionProductionDTS
+journalctl -u PercussionProductionDTS -n 50 --no-pager
 ```
 
 ## Installer jar (`java -jar`)

@@ -135,20 +135,17 @@
         headerClass = headerClasses[h];
       if (columnWidths && columnWidths.length > 0)
         headerWidth = columnWidths[i];
-      // put header text in a SPAN so we move the sorting arrow with the header
-      tableHeaderRow.append(
-        "<th class='perc-datatable-header perc-col-" +
-          i +
-          " " +
-          headerClass +
-          "' style='width:" +
-          headerWidth +
-          "; max-width:" +
-          headerWidth +
-          "'><span>" +
-          header +
-          "</span></th>"
-      );
+      // Build header via jQuery APIs — never interpolate into HTML strings
+      // (CodeQL js/html-constructed-from-input #1571–#1574).
+      var th = $("<th>")
+        .addClass("perc-datatable-header")
+        .addClass("perc-col-" + i)
+        .addClass(headerClass || "");
+      if (headerWidth) {
+        th.css({ width: headerWidth, maxWidth: headerWidth });
+      }
+      th.append($("<span>").text(header == null ? "" : String(header)));
+      tableHeaderRow.append(th);
     }
 
     // create rows
@@ -161,10 +158,15 @@
       var percRow = percRows[r];
       for (let i = 0; i < indices.length; i++) {
         var d = indices[i];
-        var tableData = $("<td class='perc-cell-" + r + "-" + i + "'>");
+        var tableData = $("<td>").addClass("perc-cell-" + r + "-" + i);
         var data = percRow[d];
-        if (data === "" || data === undefined) data = "&nbsp;";
-        tableData.append(data);
+        if (data === "" || data === undefined) {
+          tableData.text("\u00a0");
+        } else if (typeof data === "string") {
+          tableData.text(data);
+        } else {
+          tableData.append(data);
+        }
         tableRow.append(tableData);
       }
       tableBody.append(tableRow);

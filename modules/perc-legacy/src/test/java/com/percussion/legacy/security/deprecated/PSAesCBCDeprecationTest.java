@@ -15,17 +15,26 @@
  */
 package com.percussion.legacy.security.deprecated;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.lang.reflect.Method;
+import java.nio.charset.StandardCharsets;
 import org.junit.jupiter.api.Test;
 
 /**
- * Regression test for feature 004 (zero-code-scanning-alerts) Phase 5 T047/T048: confirms PSAesCBC
- * carries the {@link Deprecated} annotation with {@code forRemoval=true} so that the CodeQL
- * java/weak-cryptographic-algorithm and java/static-initialization-vector alerts are documented as
- * accepted-risk (deferred to release 9.0) rather than outstanding. The test fails on the pre-fix
- * code (annotation absent) and passes on the post-fix code.
+ * Regression tests for feature 004 (zero-code-scanning-alerts) Phase 5 T047/T048.
+ *
+ * <p>Documents the accepted-risk contract for {@link PSAesCBC}:
+ *
+ * <ul>
+ *   <li>Class remains {@code @Deprecated(forRemoval=true)} so callers know it is upgrade-only.
+ *   <li>Historical fixed IV remains so pre-8.2 ciphertext can still be decrypted.
+ *   <li>String encrypt/decrypt round-trip still works (needed for upgrade tooling and fixtures).
+ *   <li>New product encryption must use {@code com.percussion.security.PSEncryptor} (AES/GCM) —
+ *       production call sites of this class are decrypt-only fallbacks.
+ * </ul>
  */
 class PSAesCBCDeprecationTest {
 
@@ -41,6 +50,19 @@ class PSAesCBCDeprecationTest {
   }
 
   @Test
+  void stringEncryptMethodIsDeprecatedForRemoval() throws Exception {
+    Method encrypt =
+        PSAesCBC.class.getMethod("encrypt", String.class, String.class);
+    Deprecated annotation = encrypt.getAnnotation(Deprecated.class);
+    assertNotNull(
+        annotation,
+        "encrypt(String,String) must be @Deprecated — not for new production secrets");
+    assertTrue(
+        annotation.forRemoval(),
+        "encrypt(String,String) @Deprecated(forRemoval=true) required by accepted-risk contract");
+  }
+
+  @Test
   void staticInitializationVectorFieldIsDocumentedAsAcceptedRisk() throws Exception {
     java.lang.reflect.Field f = PSAesCBC.class.getDeclaredField("INITIAL_VECTOR");
     assertNotNull(f, "INITIAL_VECTOR field must exist (CodeQL static-IV accepted-risk)");
@@ -51,5 +73,29 @@ class PSAesCBCDeprecationTest {
     assertNotNull(
         classDep,
         "PSAesCBC must remain @Deprecated to flag the static-IV accepted-risk to callers");
+  }
+
+  @Test
+  void legacyStringRoundTripStillDecryptsHistoricalLayout() throws Exception {
+    // Proves upgrade-path decrypt still works with the fixed IV + AES/CBC layout.
+    // Production encrypt of new secrets must NOT use this path (use PSEncryptor).
+    PSAesCBC aes = new PSAesCBC();
+    String key = "0123456789ABCDEF"; // 16 ISO-8859-1 bytes for AES-128 key material
+    String plain = "upgrade-decrypt-fixture";
+    String cipher = aes.encrypt(plain, key);
+    assertEquals(plain, aes.decrypt(cipher, key));
+  }
+
+  @Test
+  void randomIvByteArrayRoundTripStillWorks() throws Exception {
+    byte[] rawKey = "0123456789ABCDEF".getBytes(StandardCharsets.ISO_8859_1);
+    PSAesCBC aes = new PSAesCBC(rawKey);
+    byte[] plain = "byte-array-fixture".getBytes(StandardCharsets.UTF_8);
+    byte[] cipher = aes.encrypt(plain);
+    assertTrue(cipher.length > 16, "ciphertext must prepend a 16-byte IV");
+    byte[] roundTrip = aes.decrypt(cipher, "0123456789ABCDEF");
+    assertEquals(
+        new String(plain, StandardCharsets.UTF_8),
+        new String(roundTrip, StandardCharsets.UTF_8));
   }
 }

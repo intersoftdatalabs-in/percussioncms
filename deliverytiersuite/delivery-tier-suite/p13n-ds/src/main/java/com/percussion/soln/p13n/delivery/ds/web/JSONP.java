@@ -17,50 +17,57 @@
 
 package com.percussion.soln.p13n.delivery.ds.web;
 
+import com.percussion.security.validation.XSSValidation;
 
 /**
- * See <a href="http://bob.pythonmac.org/archives/2005/12/05/remote-json-jsonp/">Remote JSON - JSONP</a>
- * @author adamgent
+ * See <a href="http://bob.pythonmac.org/archives/2005/12/05/remote-json-jsonp/">Remote JSON -
+ * JSONP</a>
  *
+ * <p>The callback name is sanitized via {@link XSSValidation#sanitizeJsonpCallback(String)} so a
+ * crafted {@code jsoncallback} query parameter cannot break out of {@code callback(...)} script
+ * padding (CodeQL {@code java/xss} / T044 alert #595).
+ *
+ * @author adamgent
  */
 public class JSONP {
-    private Object json;
-    private String callback;
+  private Object json;
+  private String callback;
 
-    public JSONP() {
-    }
-    
-    public JSONP(String callback, Object json) {
-        this();
-        this.callback = callback;
-        this.json = json;
-    }
+  public JSONP() {}
 
+  public JSONP(String callback, Object json) {
+    this();
+    setCallback(callback);
+    this.json = json;
+  }
 
-    @Override
-    public String toString() {
-        String jsonString = getJson() == null ? "undefined" : getJson().toString();
-        if (getCallback() != null)
-            return getCallback() + "(" + jsonString + ")";
-        return jsonString;
+  @Override
+  public String toString() {
+    String jsonString = getJson() == null ? "undefined" : getJson().toString();
+    if (getCallback() != null) {
+      return getCallback() + "(" + jsonString + ")";
     }
-    
-    public Object getJson() {
-        return json;
-    }
+    return jsonString;
+  }
 
-    public void setJson(Object json) {
-        this.json = json;
-    }
+  public Object getJson() {
+    return json;
+  }
 
-    public String getCallback() {
-        return callback;
-    }
+  public void setJson(Object json) {
+    this.json = json;
+  }
 
-    public void setCallback(String callback) {
-        this.callback = callback;
-    }
-    
-    
+  public String getCallback() {
+    return callback;
+  }
 
+  /**
+   * Sets the JSONP callback name. Unsafe values are dropped (plain JSON is emitted instead).
+   *
+   * @param callback raw callback from the request; may be null
+   */
+  public void setCallback(String callback) {
+    this.callback = XSSValidation.sanitizeJsonpCallback(callback);
+  }
 }

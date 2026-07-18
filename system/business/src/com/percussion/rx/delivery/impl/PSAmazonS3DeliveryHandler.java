@@ -353,7 +353,9 @@ public class PSAmazonS3DeliveryHandler extends PSBaseDeliveryHandler
     }
 
     /**
-     * Decrypt the string.  Will attempt to decrypt using legacy algorithms to handle upgrade scenario.
+     * Decrypt the string. Tries modern AES/GCM ({@link PSEncryptor}) first, then falls back to
+     * legacy {@link PSAesCBC} for pre-8.2 ciphertext during upgrade. New secrets use
+     * {@link PSEncryptor#encryptString} only — never {@code PSAesCBC.encrypt}.
      * @param dstr base64 encoded encrypted string
      * @return clear text version of the string.
      */
@@ -363,6 +365,7 @@ public class PSAmazonS3DeliveryHandler extends PSBaseDeliveryHandler
         } catch (PSEncryptionException e) {
             log.warn("Decryption failed: {}. Attempting to decrypt with legacy algorithm", PSExceptionUtils.getMessageForLog(e));
             try {
+                // Decrypt-only upgrade fallback (accepted-risk T047/T048)
                 var aes = new PSAesCBC();
                 // Fallback: use a static key or document that legacy decryption is not supported
                 // TODO: Replace "legacyKey" with the actual key if available, or handle gracefully

@@ -153,7 +153,15 @@ public class DeliveryController {
 
     protected ModelAndView outputJSON(JSONP obj,
             HttpServletResponse response) throws IOException {
+        // application/javascript for JSONP padding; application/json otherwise.
+        // Callback is sanitized in JSONP.setCallback (XSSValidation.sanitizeJsonpCallback).
+        if (obj != null && obj.getCallback() != null) {
+            response.setContentType("application/javascript;charset=UTF-8");
+        } else {
+            response.setContentType("application/json;charset=UTF-8");
+        }
         PrintWriter writer = response.getWriter();
+        // codeql[java/xss] justification: callback sanitized by XSSValidation.sanitizeJsonpCallback; body is JSON from DeliveryWebUtils (alert #595)
         writer.print(obj.toString());
         return null;
     }
