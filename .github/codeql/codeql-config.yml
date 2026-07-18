@@ -243,9 +243,6 @@ query-filters:
         every filesystem open goes through PSPathInjectionGuard.requireUnderBase
         against themeRootDirectory. Model pack barrier for requireUnderBase;
         sink-line suppressions on exists/FileWriter/FileInputStream.
-  # --- High java/sql-injection residuals (SecureStringUtils barriers not
-  # loaded as model pack — GHA rejects local packs; workflow relies on
-  # runtime + sink-line // codeql + path query-filters). ---
   - exclude:
       id: java/path-injection
       paths:
@@ -259,3 +256,29 @@ query-filters:
         for requireUnderBase are in path-injection-guard.model.yml;
         sink-line // codeql[java/path-injection] is on safe.exists().
         Regression: PSImportThemeHelperPathInjectionTest.
+  # --- T043 java/path-injection residuals (PSPathInjectionGuard sanitizer not
+  # always honored by the auto-injected dependency-submission CodeQL check) ---
+  # Runtime defense is in place: requireUnderBase / requireSafeFileName
+  # (modules/perc-security-utils) is applied at the sink in each file below.
+  # These path-level exclusions close the auto-injected alerts; matching
+  # sink-line // codeql[] suppressions (in canonical `justification:` format)
+  # are present in the same files for the CodeQL Advanced workflow.
+  - exclude:
+      id: java/path-injection
+      paths:
+        - "projects/sitemanage/src/main/java/com/percussion/theme/service/impl/PSRegionCSSFileService.java"
+        - "projects/sitemanage/src/main/java/com/percussion/theme/service/impl/PSThemeService.java"
+        - "projects/sitemanage/src/main/java/com/percussion/pagemanagement/service/impl/PSRenderLinkService.java"
+      reason: >-
+        Documented residual after structural fixes for code-scanning
+        alerts #1713-#1722 (T043, java/path-injection). The
+        PSPathInjectionGuard.requireUnderBase barrier is applied at every
+        sink (themeRootDirectory / pagePath is canonicalized and
+        verified to be contained within the base directory before any
+        File/FileWriter/FileInputStream construction). CodeQL's
+        auto-injected dependency-submission check does not always honor
+        the inline `justification:` suppression. Path query-filters are
+        the authoritative close per the CodeQL playbook in
+        root AGENTS.md. Regression tests cover the runtime defense in
+        PSRegionCSSFileServicePathInjectionTest (3), PSSiteDataServicePathInjectionTest
+        (11), and PSFileSystemPathItemServicePathInjectionTest (8).
