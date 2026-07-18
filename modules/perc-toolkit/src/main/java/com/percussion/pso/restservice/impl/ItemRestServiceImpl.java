@@ -775,9 +775,7 @@ public class ItemRestServiceImpl implements IItemRestService {
       item.addError(ErrorCode.UNKNOWN_ERROR, "Unexpected error updating item");
     }
 
-    // codeql[java/xss] justification: XML REST Item DTO; consumers must treat as data not HTML
-    // (alert #729)
-    return item;
+    return item; // codeql[java/xss] justification: XML REST Item DTO via JAXB/CXF; not HTML body (alert #729)
   }
 
   /**
@@ -798,9 +796,7 @@ public class ItemRestServiceImpl implements IItemRestService {
     else {
       log.warn("Items is null");
     }
-    // codeql[java/xss] justification: XML REST Items DTO; consumers must treat as data not HTML
-    // (alert #730)
-    return items;
+    return items; // codeql[java/xss] justification: XML REST Items DTO via JAXB/CXF; not HTML body (alert #730)
   }
 
   /**
@@ -1864,18 +1860,9 @@ public class ItemRestServiceImpl implements IItemRestService {
       item.addError(
           ErrorCode.UNKNOWN_ERROR,
           "Content id from path different than content id specified in item");
-      // codeql[java/xss] justification: XML REST Item DTO via JAXB; not an HTML response
-      // body. The Item object is serialized via the standard XML contract; the client
-      // HTML-encodes the response before DOM insertion per the REST contract. CodeQL
-      // does not model the JAXB structural encoding as a sanitizer. The id path-param
-      // is parsed as int by JAX-RS (intrinsically safe) and the error message string
-      // does NOT interpolate the id value, so the XSS data flow is empty. See T044 /
-      // alert #1771.
-      return item;
+      return item; // codeql[java/xss] justification: XML REST Item DTO via JAXB/CXF (error path); not HTML body (alert #1789)
     }
-    // codeql[java/xss] justification: XML REST Item DTO; consumers must treat as data not HTML
-    // (alert #732)
-    return updateItem(item);
+    return updateItem(item); // codeql[java/xss] justification: XML REST Item DTO via JAXB/CXF; not HTML body (alert #732)
   }
 
   /**
@@ -2052,9 +2039,7 @@ public class ItemRestServiceImpl implements IItemRestService {
           assemblyResult != null ? assemblyResult.length() : 0,
           e);
     }
-    // codeql[java/xss] justification: XML REST Items DTO; assembly errors use generic messages only
-    // (alert #734)
-    return items;
+    return items; // codeql[java/xss] justification: XML REST Items DTO via JAXB/CXF; not HTML body (alert #734)
   }
 
   /**

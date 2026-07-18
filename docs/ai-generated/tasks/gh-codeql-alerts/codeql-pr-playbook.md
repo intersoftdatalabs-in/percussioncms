@@ -118,6 +118,15 @@ or same line:
 someSink(arg); // codeql[java/ssrf]
 ```
 
+**Preferred form for Jackson/JAXB/CXF REST residuals (`java/xss`):** put the annotation
+**on the exact `return` / `write` / `print` line** with a short `justification:` that states
+why the flow is not HTML XSS (e.g. JSON/XML DTO serialization, reverse-proxy pass-through,
+or an `XSSValidation.*` sanitizer). Prefer this over bulk path-exclude or mass dismiss:
+
+```java
+return siteDataService.save(site); // codeql[java/xss] justification: JSON/XML DTO via Jackson/JAXB; not HTML body
+```
+
 **Does not work** (comment not adjacent to the alert line):
 
 ```java

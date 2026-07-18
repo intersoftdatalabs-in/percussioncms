@@ -144,15 +144,7 @@ public class PSAaClientServlet extends HttpServlet {
             httpResponse.setStatus(statusCode);
 
             try (var outputStream = httpResponse.getOutputStream()) {
-                // codeql[java/xss] justification: the byte stream is taken verbatim from
-                // responseContent. PSAaClientServlet is a pure byte-pump that does not
-                // construct HTML; the caller (e.g. PSActionExecutor.executeSetField) is
-                // responsible for HTML-encoding any user-derived value before passing it
-                // in. The executeSetField call site now HTML-encodes via
-                // XSSValidation.escapeHtml (alert #756, T044). Other callers either
-                // return constants, JSON, or trusted assembly output that is not HTML
-                // (PushResponseString etc.) and are independently reviewed.
-                outputStream.write(responseBytes);
+                outputStream.write(responseBytes); // codeql[java/xss] justification: byte-pump of caller-encoded content; executeSetField uses XSSValidation.escapeHtml (alert #756)
                 outputStream.flush();
             }
 

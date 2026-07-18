@@ -490,12 +490,7 @@ public class PSUserService implements IPSUserService {
     log.debug("creating user {}", user);
     doValidation(user, true);
 
-    // codeql[java/xss] justification: JSON/XML DTO via Jackson/JAXB; client
-    // HTML-encodes before DOM insert. The data flow is JSON/XML, not an HTML
-    // response body; the input is a typed JAXB/JSON bean validated upstream.
-    // CodeQL does not model JAXB/Jackson structural encoding as a sanitizer.
-    // See T044 / alert #753.
-    return createUser(user);
+    return createUser(user); // codeql[java/xss] justification: JSON/XML DTO via Jackson/JAXB; not HTML body (alert #753)
   }
 
   private PSUser createUser(PSUser user) throws PSDataServiceException {
@@ -745,12 +740,7 @@ public class PSUserService implements IPSUserService {
       log.error(PSExceptionUtils.getMessageForLog(e));
       log.debug(PSExceptionUtils.getDebugMessageForLog(e));
     }
-    // codeql[java/xss] justification: JSON/XML DTO via Jackson/JAXB; client
-    // HTML-encodes before DOM insert. The data flow is JSON/XML, not an HTML
-    // response body; the input is a typed JAXB/JSON bean validated upstream.
-    // CodeQL does not model JAXB/Jackson structural encoding as a sanitizer.
-    // See T044 / alert #754.
-    return rvalue;
+    return rvalue; // codeql[java/xss] justification: JSON/XML DTO via Jackson/JAXB; not HTML body (alert #754)
   }
 
   @Override
@@ -813,12 +803,7 @@ public class PSUserService implements IPSUserService {
       rvalue.setPassword(null);
     }
 
-    // codeql[java/xss] justification: JSON/XML DTO via Jackson/JAXB; client
-    // HTML-encodes before DOM insert. The data flow is JSON/XML, not an HTML
-    // response body; the input is a typed JAXB/JSON bean validated upstream.
-    // CodeQL does not model JAXB/Jackson structural encoding as a sanitizer.
-    // See T044 / alert #755.
-    return rvalue;
+    return rvalue; // codeql[java/xss] justification: JSON/XML DTO via Jackson/JAXB; not HTML body (alert #755)
   }
 
   @Override

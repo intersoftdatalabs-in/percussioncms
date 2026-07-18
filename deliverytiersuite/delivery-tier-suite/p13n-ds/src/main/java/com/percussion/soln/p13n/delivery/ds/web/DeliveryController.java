@@ -160,8 +160,7 @@ public class DeliveryController {
             response.setContentType("application/json;charset=UTF-8");
         }
         PrintWriter writer = response.getWriter();
-        // codeql[java/xss] justification: callback sanitized by XSSValidation.sanitizeJsonpCallback; body is JSON from DeliveryWebUtils (alert #595)
-        writer.print(obj.toString());
+        writer.print(obj.toString()); // codeql[java/xss] justification: callback sanitized by XSSValidation.sanitizeJsonpCallback; JSON body (alert #595)
         return null;
     }
 
