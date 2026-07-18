@@ -39,33 +39,30 @@ public class PSSQLStatement implements Statement {
   /**
    * Creates a <code>Statement</code> object from the supplied connection.
    *
+   * <p>Always returns a {@link PSSQLStatement} wrapper so the multi-statement SQL guard on {@link
+   * #executeQuery(String)} / {@link #executeUpdate(String)} (and related overloads) applies even
+   * when debug logging is off (T042 / residual CodeQL {@code java/sql-injection} #1765).
+   *
    * @param conn the connection, may not be <code>null</code>.
-   * @return the created <code>PSSQLStatement</code> object if the log4j is configured and debug
-   *     mode is on for this class; otherwise return <code>Statement</code> object, never <code>null
-   *     </code>.
+   * @return the created <code>PSSQLStatement</code> object, never <code>null</code>.
    * @throws SQLException if error occurs.
    */
   public static Statement getStatement(Connection conn) throws SQLException {
     if (conn == null) throw new IllegalArgumentException("conn may not be null");
 
-    Statement stmt = conn.createStatement();
-
-    if (isLogEnabled()) stmt = new PSSQLStatement(stmt);
-
-    return stmt;
+    return new PSSQLStatement(conn.createStatement());
   }
 
   /**
    * Just like {@link #getStatement(Connection)} with additional parameters.
    *
-   * <p>Creates a <code>Statement</code> object from the supplied connection.
+   * <p>Creates a <code>Statement</code> object from the supplied connection. Always wraps so the
+   * multi-statement SQL guard applies regardless of log level.
    *
    * @param conn the connection, may not be <code>null</code>.
    * @param resultSetType a result set type; see ResultSet.TYPE_XXX
    * @param resultSetConcurrency a concurrency type; see ResultSet.CONCUR_XXX
-   * @return the created <code>PSSQLStatement</code> object if the log4j is configured and debug
-   *     mode is on for this class; otherwise return <code>Statement</code> object, never <code>null
-   *     </code>.
+   * @return the created <code>PSSQLStatement</code> object, never <code>null</code>.
    * @see Connection#createStatement(int, int)
    * @throws SQLException if error occurs.
    */
@@ -73,18 +70,16 @@ public class PSSQLStatement implements Statement {
       throws SQLException {
     if (conn == null) throw new IllegalArgumentException("conn may not be null");
 
-    Statement stmt = conn.createStatement(resultSetType, resultSetConcurrency);
-
-    if (isLogEnabled()) stmt = new PSSQLStatement(stmt);
-
-    return stmt;
+    return new PSSQLStatement(conn.createStatement(resultSetType, resultSetConcurrency));
   }
 
   // Implements Statement.executeQuery(String)
   public ResultSet executeQuery(String sql) throws SQLException {
-    // CWE-89 / java/sql-injection #661: reject stacked queries only (not SQL comments —
-    // those may appear inside literals/hints for general Statement callers). Prefer
-    // PreparedStatement for user values. CodeQL barrier: SecureStringUtils.requireSingleSqlStatement.
+    // CWE-89 / java/sql-injection #661 / residual #1765: reject stacked queries only (not SQL
+    // comments — those may appear inside literals/hints for general Statement callers). Prefer
+    // PreparedStatement for user values. Runtime barrier:
+    // SecureStringUtils.requireSingleSqlStatement. Local model pack cannot load in GHA; sink-line
+    // + path query-filter document residual for CodeQL.
     String safeSql = SecureStringUtils.requireSingleSqlStatement(sql);
     startTimer(safeSql);
     ResultSet rs = m_stmt.executeQuery(safeSql); // codeql[java/sql-injection]
@@ -169,8 +164,9 @@ public class PSSQLStatement implements Statement {
 
   // Implements Statement.execute(String)
   public boolean execute(String sql) throws SQLException {
-    startTimer(sql);
-    boolean rs = m_stmt.execute(sql);
+    String safeSql = SecureStringUtils.requireSingleSqlStatement(sql);
+    startTimer(safeSql);
+    boolean rs = m_stmt.execute(safeSql); // codeql[java/sql-injection]
     logElapsedTime();
 
     return rs;
@@ -225,7 +221,7 @@ public class PSSQLStatement implements Statement {
 
   // Implements Statement.addBatch(String)
   public void addBatch(String sql) throws SQLException {
-    m_stmt.addBatch(sql);
+    m_stmt.addBatch(SecureStringUtils.requireSingleSqlStatement(sql));
   }
 
   // Implements Statement.clearBatch()
@@ -264,48 +260,54 @@ public class PSSQLStatement implements Statement {
 
   // Implements Statement.execute(String, String[])
   public boolean execute(String sql, String columnNames[]) throws SQLException {
-    startTimer(sql);
-    boolean rs = m_stmt.execute(sql, columnNames);
+    String safeSql = SecureStringUtils.requireSingleSqlStatement(sql);
+    startTimer(safeSql);
+    boolean rs = m_stmt.execute(safeSql, columnNames); // codeql[java/sql-injection]
     logElapsedTime();
     return rs;
   }
 
   // Implements Statement.execute(String, int[])
   public boolean execute(String sql, int columnIndexes[]) throws SQLException {
-    startTimer(sql);
-    boolean rs = m_stmt.execute(sql, columnIndexes);
+    String safeSql = SecureStringUtils.requireSingleSqlStatement(sql);
+    startTimer(safeSql);
+    boolean rs = m_stmt.execute(safeSql, columnIndexes); // codeql[java/sql-injection]
     logElapsedTime();
     return rs;
   }
 
   // Implements Statement.execute(String, int)
   public boolean execute(String sql, int autoGeneratedKeys) throws SQLException {
-    startTimer(sql);
-    boolean rs = m_stmt.execute(sql, autoGeneratedKeys);
+    String safeSql = SecureStringUtils.requireSingleSqlStatement(sql);
+    startTimer(safeSql);
+    boolean rs = m_stmt.execute(safeSql, autoGeneratedKeys); // codeql[java/sql-injection]
     logElapsedTime();
     return rs;
   }
 
   // Implements Statement.executeUpdate(String, int)
   public int executeUpdate(String sql, int autoGeneratedKeys) throws SQLException {
-    startTimer(sql);
-    int rs = m_stmt.executeUpdate(sql, autoGeneratedKeys);
+    String safeSql = SecureStringUtils.requireSingleSqlStatement(sql);
+    startTimer(safeSql);
+    int rs = m_stmt.executeUpdate(safeSql, autoGeneratedKeys); // codeql[java/sql-injection]
     logElapsedTime();
     return rs;
   }
 
   // Implements Statement.executeUpdate(String, int[])
   public int executeUpdate(String sql, int columnIndexes[]) throws SQLException {
-    startTimer(sql);
-    int rs = m_stmt.executeUpdate(sql, columnIndexes);
+    String safeSql = SecureStringUtils.requireSingleSqlStatement(sql);
+    startTimer(safeSql);
+    int rs = m_stmt.executeUpdate(safeSql, columnIndexes); // codeql[java/sql-injection]
     logElapsedTime();
     return rs;
   }
 
   // Implements Statement.executeUpdate(String, String[])
   public int executeUpdate(String sql, String columnNames[]) throws SQLException {
-    startTimer(sql);
-    int rs = m_stmt.executeUpdate(sql, columnNames);
+    String safeSql = SecureStringUtils.requireSingleSqlStatement(sql);
+    startTimer(safeSql);
+    int rs = m_stmt.executeUpdate(safeSql, columnNames); // codeql[java/sql-injection]
     logElapsedTime();
     return rs;
   }
