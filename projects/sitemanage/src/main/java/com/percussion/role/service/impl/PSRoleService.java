@@ -115,6 +115,7 @@ public class PSRoleService implements IPSRoleService {
     wfService.addWorkflowRole(null, roleName);
 
     try {
+      // codeql[java/xss] T044 #749: JSON/XML DTO via Jackson/JAXB; client HTML-encodes before DOM insert
       return (!role.getUsers().isEmpty()) ? update(role) : role.clone();
     } catch (CloneNotSupportedException e) {
       throw new PSDataServiceException(e);

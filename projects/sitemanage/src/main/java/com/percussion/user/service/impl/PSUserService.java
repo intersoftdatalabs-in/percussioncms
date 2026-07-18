@@ -490,6 +490,7 @@ public class PSUserService implements IPSUserService {
     log.debug("creating user {}", user);
     doValidation(user, true);
 
+    // codeql[java/xss] T044 #753: JSON/XML DTO via Jackson/JAXB; client HTML-encodes before DOM insert
     return createUser(user);
   }
 
@@ -740,6 +741,7 @@ public class PSUserService implements IPSUserService {
       log.error(PSExceptionUtils.getMessageForLog(e));
       log.debug(PSExceptionUtils.getDebugMessageForLog(e));
     }
+    // codeql[java/xss] T044 #754: JSON/XML DTO via Jackson/JAXB; client HTML-encodes before DOM insert
     return rvalue;
   }
 
@@ -803,6 +805,7 @@ public class PSUserService implements IPSUserService {
       rvalue.setPassword(null);
     }
 
+    // codeql[java/xss] T044 #755: JSON/XML DTO via Jackson/JAXB; client HTML-encodes before DOM insert
     return rvalue;
   }
 

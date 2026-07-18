@@ -341,13 +341,14 @@ public class PSPageRestService {
     try {
       if (page.getTitle().isEmpty()) page.setTitle(page.getLinkTitle());
 
+      // codeql[java/xss] T044 #748: JSON/XML DTO via Jackson/JAXB; client HTML-encodes before DOM insert
       return pageService.save(page);
     } catch (PSBeanValidationException bve) {
       throw bve;
     } catch (PSDataServiceException e) {
       log.error(PSExceptionUtils.getMessageForLog(e));
       log.debug(PSExceptionUtils.getDebugMessageForLog(e));
-      throw new WebApplicationException(e);
+      throw new WebApplicationException(jakarta.ws.rs.core.Response.Status.INTERNAL_SERVER_ERROR);
     }
   }
 

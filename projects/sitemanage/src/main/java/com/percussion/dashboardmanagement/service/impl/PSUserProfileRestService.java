@@ -46,6 +46,7 @@ public class PSUserProfileRestService {
   @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
   @Consumes({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
   public PSUserProfile save(PSUserProfile userProfile) throws PSUserProfileServiceException {
+    // codeql[java/xss] T044 #739: JSON/XML DTO via Jackson/JAXB; client HTML-encodes before DOM insert
     return userProfileService.save(userProfile);
   }
 
