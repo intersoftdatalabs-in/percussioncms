@@ -265,6 +265,29 @@ public class PSLoginServlet extends HttpServlet {
   }
 
   /**
+   * Normalizes a post-login redirect path for Jetty 12 {@code UriCompliance}.
+   *
+   * <p>Backslashes and accidental {@code //} segments are treated as ambiguous path separators and
+   * cause {@code IllegalArgumentException: Ambiguous URI path separator} on {@code sendRedirect}.
+   *
+   * @param redirect redirect target, may be {@code null}
+   * @return sanitized path, or {@code null} if input was {@code null}
+   */
+  static String sanitizeRedirectPath(String redirect) {
+    if (redirect == null) {
+      return null;
+    }
+    String s = redirect.replace('\\', '/');
+    // Preserve scheme://host; only collapse // in path-only redirects
+    if (!s.contains("://")) {
+      while (s.contains("//")) {
+        s = s.replace("//", "/");
+      }
+    }
+    return s;
+  }
+
+  /**
    * Determines if a redirect URI is valid and safe (XSS). A redirection URI should be to the same
    * host and a valid URI.
    *
@@ -341,7 +364,9 @@ public class PSLoginServlet extends HttpServlet {
 
       request = PSSecurityFilter.authenticate(request, response, uid, pwd);
 
-      response.sendRedirect(redirect);
+      // Jetty 12 UriCompliance rejects backslashes / mixed separators in redirect paths
+      // ("Ambiguous URI path separator") — normalize before sendRedirect.
+      response.sendRedirect(sanitizeRedirectPath(redirect));
 
       sess.removeAttribute(REDIRECT_URL);
       PSAuthenticationEvent psAuthenticationEvent =

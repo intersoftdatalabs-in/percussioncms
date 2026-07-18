@@ -10,6 +10,7 @@
    value="${sys_runtime_navigation.focusOnStartingNode}" />
 
 <%
-   response.sendRedirect(response.encodeUrl(request.getContextPath()
+   // encodeURL (capital URL) — encodeUrl was removed in Jakarta Servlet
+   response.sendRedirect(response.encodeURL(request.getContextPath()
       + "/ui/pubruntime/ActiveJobStatus.faces"));
 %>

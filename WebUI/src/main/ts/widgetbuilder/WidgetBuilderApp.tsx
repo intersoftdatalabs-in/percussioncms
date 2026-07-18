@@ -90,7 +90,16 @@ export function WidgetBuilderApp(): React.ReactElement {
           await reloadList();
         }
       })
-      .catch(() => setError(message(K.ERROR)));
+      .catch((err: unknown) => {
+        // Surface status when possible (path/auth/JSON-parse issues)
+        const status =
+          err && typeof err === "object" && "status" in err
+            ? String((err as { status: number }).status)
+            : "";
+        const detail = status ? ` (${status})` : "";
+        console.error("[WidgetBuilder] enablement/list failed", err);
+        setError(`${message(K.ERROR)}${detail}`);
+      });
   }, [reloadList]);
 
   const openNew = () => {

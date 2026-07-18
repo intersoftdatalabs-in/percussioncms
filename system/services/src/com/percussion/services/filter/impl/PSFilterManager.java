@@ -121,8 +121,23 @@ public class PSFilterManager
       {
          throw new IllegalArgumentException("name may not be null or empty");
       }
-      return getSession()
-            .bySimpleNaturalId(PSItemFilter.class).load(name);
+      Session session = getSession();
+      // Natural-id load is preferred; it can return null on miss (and rarely on stale
+      // natural-id cache). Fall back to a name query before treating as missing —
+      // package reinstall relies on finding existing unique NAME rows.
+      PSItemFilter filter = session.bySimpleNaturalId(PSItemFilter.class).load(name);
+      if (filter == null)
+      {
+         filter = session
+               .createQuery("from PSItemFilter f where f.name = :name", PSItemFilter.class)
+               .setParameter("name", name)
+               .uniqueResult();
+      }
+      if (filter == null)
+      {
+         throw new PSFilterException(IPSFilterServiceErrors.FILTER_MISSING, name);
+      }
+      return filter;
    }   
 
    /* (non-Javadoc)
@@ -201,6 +216,38 @@ public class PSFilterManager
    @Transactional
    public void saveFilter(IPSItemFilter filter)
    {
+      persistOrMergeFilter(filter, true);
+   }
+
+   /*
+    * (non-Javadoc)
+    * 
+    * @see com.percussion.services.filter.IPSFilterService#saveFilter(java.util.List)
+    */
+   @Transactional
+   public void saveFilter(List<IPSItemFilter> filters)
+   {
+      if (filters == null)
+         throw new IllegalArgumentException("filters may not be null");
+
+      // Single flush after the batch — avoid flush-per-item when saveFilter(List)
+      // is used (package install and bulk admin). Single-item save still flushes.
+      for (IPSItemFilter filter : filters)
+      {
+         persistOrMergeFilter(filter, false);
+      }
+      getSession().flush();
+   }
+
+   /**
+    * Persist or merge a filter. When {@code flush} is true, flush immediately so
+    * constraint / optimistic-lock failures surface in this call (package install path).
+    *
+    * @param filter never {@code null}
+    * @param flush whether to flush after the write
+    */
+   private void persistOrMergeFilter(IPSItemFilter filter, boolean flush)
+   {
       if (filter == null)
          throw new IllegalArgumentException("filter may not be null");
 
@@ -222,12 +269,17 @@ public class PSFilterManager
             }
             catch (PSFilterException e)
             {
-              if(e.getErrorCode()!=IPSFilterServiceErrors.FILTER_MISSING)
-              {
-                 log.error("Exception finding item filter {}. Error: {}",
-                         f.getName(),
-                         PSExceptionUtils.getMessageForLog(e));
-              }
+               // Only FILTER_MISSING means "insert this row". Any other filter-service
+               // error must not be treated as missing — that masks DB failures and
+               // produces confusing unique-constraint / UnexpectedRollbackException later.
+               if (e.getErrorCode() != IPSFilterServiceErrors.FILTER_MISSING)
+               {
+                  log.error("Exception finding item filter {}. Error: {}",
+                          f.getName(),
+                          PSExceptionUtils.getMessageForLog(e));
+                  throw new RuntimeException(
+                        "Failed to look up filter by name: " + f.getName(), e);
+               }
             }
             if (current != null)
             {
@@ -243,8 +295,18 @@ public class PSFilterManager
             } else
                session.persist(f);
          }
-         // Surface constraint / optimistic-lock failures now (not only at outer commit)
-         session.flush();
+         if (flush)
+         {
+            // Surface constraint / optimistic-lock failures now (not only at outer commit)
+            session.flush();
+         }
+      }
+      catch (RuntimeException e)
+      {
+         log.error("Problem saving filter: {}. Error: {}" ,
+                 filter.getName(),
+                 PSExceptionUtils.getMessageForLog(e));
+         throw e;
       }
       catch (Exception e)
       {
@@ -252,24 +314,6 @@ public class PSFilterManager
                  filter.getName(),
                  PSExceptionUtils.getMessageForLog(e));
          throw new RuntimeException(e);
-      }
-
-   }
-
-   /*
-    * (non-Javadoc)
-    * 
-    * @see com.percussion.services.filter.IPSFilterService#saveFilter(java.util.List)
-    */
-   @Transactional
-   public void saveFilter(List<IPSItemFilter> filters)
-   {
-      if (filters == null)
-         throw new IllegalArgumentException("filters may not be null");
-
-      for (IPSItemFilter filter : filters)
-      {
-         saveFilter(filter);
       }
    }
 

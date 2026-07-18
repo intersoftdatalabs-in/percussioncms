@@ -30,7 +30,7 @@
 <html lang="<%= lang %>">
     <head>
         <title><i18n:message key = "perc.ui.page.not.found@Page Not Found Error"/></title>
-        <link rel="stylesheet" type="text/css" href="/cm/pages/app/js/legacy/profiles/3x/libraries/fontawesome/css/all.css"/>
+        <link rel="stylesheet" type="text/css" href="/cm/jslib/profiles/3x/libraries/fontawesome/css/all.css"/>
         <script src="/Rhythmyx/tmx/tmx.jsp?mode=js&amp;prefix=perc.ui.&amp;sys_lang=<%=locale%>"></script>
         <script src="/JavaScriptServlet"></script>
         <style>

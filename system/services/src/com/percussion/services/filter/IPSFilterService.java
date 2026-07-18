@@ -108,7 +108,13 @@ public interface IPSFilterService extends IPSCataloger {
         try {
             return Optional.of(findFilterByName(name));
         } catch (PSFilterException e) {
-            return Optional.empty();
+            // Only "not found" is empty. Other filter errors must not look like a miss
+            // (avoids callers inserting duplicates / masking DB failures).
+            if (e.getErrorCode() == IPSFilterServiceErrors.FILTER_MISSING) {
+                return Optional.empty();
+            }
+            throw new IllegalStateException(
+                    "Filter lookup failed for name: " + name, e);
         }
     }
 

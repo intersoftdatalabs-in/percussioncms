@@ -24,8 +24,8 @@
     <title><i18n:message key="perc.ui.widget.builder@Widget Builder"/></title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <%@include file="includes/common_meta.jsp" %>
-    <script src="/Rhythmyx/tmx/tmx.jsp?mode=js&amp;prefix=perc.ui.&amp;sys_lang=<%= locale %>"></script>
-    <script src="/JavaScriptServlet"></script>
+    <%@include file="includes/modern_shell_head.jsp" %>
+    <script src="/tmx/tmx.jsp?mode=js&amp;prefix=perc.ui.&amp;sys_lang=<%= locale %>"></script>
     <script type="module" src="/cm/modern/assets/perc-modern-ui.js"></script>
 </head>
 <body>

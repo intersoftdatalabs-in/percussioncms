@@ -10,6 +10,7 @@
    value="${sys_design_navigation.focusOnStartingNode}" />
 
 <%
-	response.sendRedirect(response.encodeUrl(request.getContextPath()
+	// encodeURL (capital URL) — encodeUrl was removed in Jakarta Servlet
+	response.sendRedirect(response.encodeURL(request.getContextPath()
 		+ "/ui/publishing/SiteList.faces"));
 %>

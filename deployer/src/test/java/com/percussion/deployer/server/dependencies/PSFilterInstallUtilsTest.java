@@ -56,6 +56,22 @@ public class PSFilterInstallUtilsTest {
   }
 
   @Test
+  public void testOnlyFilterMissingErrorCodeMeansFirstInstall() {
+    // Kilo review: swallowing all PSFilterException masks DB failures as "not found"
+    // and leads to unique NAME constraint / UnexpectedRollbackException.
+    assertTrue(
+        PSFilterInstallUtils.isFilterMissingErrorCode(
+            com.percussion.services.filter.IPSFilterServiceErrors.FILTER_MISSING));
+    assertFalse(
+        PSFilterInstallUtils.isFilterMissingErrorCode(
+            com.percussion.services.filter.IPSFilterServiceErrors.DATABASE));
+    assertFalse(
+        PSFilterInstallUtils.isFilterMissingErrorCode(
+            com.percussion.services.filter.IPSFilterServiceErrors.AUTHTYPE_MISSING));
+    assertFalse(PSFilterInstallUtils.isFilterMissingErrorCode(0));
+  }
+
+  @Test
   public void testFormatInstallErrorIncludesTypesAndRootCause() {
     Exception root = new IllegalStateException("null version on flush");
     RuntimeException wrapper =

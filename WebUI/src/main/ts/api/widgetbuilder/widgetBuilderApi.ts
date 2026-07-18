@@ -18,12 +18,22 @@
 import { del, get, post } from "../client";
 import { PATHS } from "../paths";
 
-const WB = PATHS.WIDGET_BUILDER;
+/** Service base; use getter so context-aware SERVICES_ROOT is current. */
+function wb(): string {
+  return PATHS.WIDGET_BUILDER;
+}
 
+/**
+ * Backend returns {@code text/plain} boolean ({@code true}/{@code false}), not JSON.
+ */
 export async function isWidgetBuilderActive(): Promise<boolean> {
-  const data = await get<unknown>(`${WB}/active`);
+  const data = await get<unknown>(`${wb()}/active`);
   if (typeof data === "boolean") {
     return data;
+  }
+  if (typeof data === "string") {
+    const s = data.trim().toLowerCase();
+    return s === "true" || s === "1" || s === "yes";
   }
   if (data && typeof data === "object" && "value" in data) {
     return Boolean((data as { value: unknown }).value);
@@ -32,7 +42,7 @@ export async function isWidgetBuilderActive(): Promise<boolean> {
 }
 
 export async function fetchSummaries(): Promise<unknown[]> {
-  const data = await get<unknown>(`${WB}/summaries`);
+  const data = await get<unknown>(`${wb()}/summaries`);
   if (Array.isArray(data)) {
     return data;
   }
@@ -47,21 +57,21 @@ export async function fetchSummaries(): Promise<unknown[]> {
 }
 
 export async function loadDefinition(id: number | string): Promise<unknown> {
-  return get(`${WB}/definition/${id}`);
+  return get(`${wb()}/definition/${id}`);
 }
 
 export async function saveDefinition(definition: unknown): Promise<unknown> {
-  return post(`${WB}/definition/`, definition);
+  return post(`${wb()}/definition/`, definition);
 }
 
 export async function validateDefinition(definition: unknown): Promise<unknown> {
-  return post(`${WB}/validate/`, definition);
+  return post(`${wb()}/validate/`, definition);
 }
 
 export async function deployDefinition(id: number | string): Promise<void> {
-  await post(`${WB}/deploy/${id}`);
+  await post(`${wb()}/deploy/${id}`);
 }
 
 export async function deleteDefinition(id: number | string): Promise<void> {
-  await del(`${WB}/definition/${id}`);
+  await del(`${wb()}/definition/${id}`);
 }

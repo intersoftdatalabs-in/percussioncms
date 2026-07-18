@@ -356,10 +356,29 @@ public class PSConfig extends PSComponent {
   @Column(name = "NAME")
   private String m_name = null;
 
-  @SuppressWarnings("unused")
   @Version
   @Column(name = "VERSION")
   private Integer version;
+
+  /**
+   * Hibernate optimistic-lock version for this configuration row.
+   *
+   * @return the version, may be {@code null} before first persist
+   */
+  public Integer getVersion() {
+    return version;
+  }
+
+  /**
+   * Sets the Hibernate optimistic-lock version. Used when re-syncing a long-lived
+   * in-memory cache entry with the database before {@code merge} (e.g. package install
+   * saves the relationships config many times).
+   *
+   * @param version the version from the database, may be {@code null}
+   */
+  public void setVersion(Integer version) {
+    this.version = version;
+  }
 
   /**
    * The configuration file type. Initialized in ctor, never <code>null</code> or empty after that.

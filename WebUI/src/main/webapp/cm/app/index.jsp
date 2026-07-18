@@ -9,7 +9,7 @@
 <%@ page import="com.percussion.utils.container.PSContainerUtilsFactory" %>
 
 <%@ page import="com.percussion.widgetbuilder.service.PSWidgetBuilderService" %>
-<%@ page import="org.apache.commons.lang.ArrayUtils"  %>
+<%@ page import="org.apache.commons.lang3.ArrayUtils"  %>
 
 <%@ page import="org.json.JSONArray" %>
 <%@ page import="jakarta.servlet.http.Cookie" %>
@@ -126,21 +126,24 @@
         while(paramNames.hasMoreElements())
         {
             String key = (String)paramNames.nextElement();
-            String value = request.getParameter(key);
-            System.out.println(value);
-            if(key.equals("view"))
+            // Skip null/blank keys (produces "?null=" garbage in redirect URL)
+            if(key == null || key.isBlank() || "null".equalsIgnoreCase(key) || "view".equals(key))
                 continue;
+            String value = request.getParameter(key);
+            if(value == null)
+                value = "";
             buff.append(count == 0 ? "" : "&");
-            buff.append(key);
+            buff.append(URLEncoder.encode(key, "UTF-8"));
             buff.append("=");
-            buff.append(value);
+            buff.append(URLEncoder.encode(value, "UTF-8"));
             count++;
 
         }
 
 
         String sep = buff.length() == 0 ? "" : "&";
-        String url = proxyURL+"/cm/pages/app/?" + buff.toString() + sep + "view=" + defaultView;
+        // Canonical app shell is /cm/app/ (static assets + relative ../cssMin paths live there)
+        String url = proxyURL+"/cm/app/?" + buff.toString() + sep + "view=" + defaultView;
         response.setHeader( "Pragma", "no-cache" );
         response.setHeader( "Cache-Control", "no-cache" );
         response.setDateHeader( "Expires", 0 );
@@ -148,12 +151,12 @@
     }
     else if(view.equals("popup") && popuppage != null)
     {
-        String url = proxyURL+"/cm/pages/app/popups/" + popuppage;
+        String url = proxyURL+"/cm/app/popups/" + popuppage;
         response.sendRedirect(url);
     }
     else if(view.equals("editor") && linkback != null)
     {
-        String url = proxyURL+"/cm/pages/app/?view=editor";
+        String url = proxyURL+"/cm/app/?view=editor";
         Map params = getItemEditorInfo(request,response);
         for (Object key : params.keySet())
         {

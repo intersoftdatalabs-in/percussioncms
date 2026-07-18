@@ -215,6 +215,23 @@ class FileCreatorTest {
   }
 
   @Test
+  @DisplayName("Should reuse existing same-day audit file without FileAlreadyExistsException")
+  void testReuseExistingSameDayFile() {
+    // Given — first login creates the dated audit file
+    String fileName = "audit_event";
+    String first = FileCreator.generateFile(basePath, fileName, filePattern, extension);
+    assertFalse(first.isEmpty(), "First create should succeed");
+    assertTrue(Files.exists(Paths.get(first)));
+
+    // When — second login (or concurrent audit) targets the same dated path
+    String second = FileCreator.generateFile(basePath, fileName, filePattern, extension);
+
+    // Then — must return the existing path, not empty (regression: login audit noise + empty path)
+    assertEquals(first, second, "Second call should return the same existing path");
+    assertFalse(second.isEmpty());
+  }
+
+  @Test
   @DisplayName("Should handle file names with valid special characters")
   void testHandleValidSpecialCharactersInFileName() {
     // Given - File name with valid special characters

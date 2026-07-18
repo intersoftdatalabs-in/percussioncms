@@ -19,12 +19,14 @@ package com.percussion.servlets;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import org.junit.jupiter.api.Test;
 import org.springframework.mock.web.MockHttpServletRequest;
 
 public class PSLoginServletTest {
 
   MockHttpServletRequest request = new MockHttpServletRequest();
 
+  @Test
   public void testIsValidRedirectUri() throws Exception {
     request.setScheme("http");
     request.setServerPort(9992);
@@ -34,5 +36,18 @@ public class PSLoginServletTest {
     assertTrue(PSLoginServlet.isValidRedirectUri(request, "http://perc-test:9992/logout"));
     assertFalse(PSLoginServlet.isValidRedirectUri(request, "http://badsite.com/login"));
     assertTrue(PSLoginServlet.isValidRedirectUri(request, "/login"));
+  }
+
+  @Test
+  public void testSanitizeRedirectPathRemovesBackslashesAndDoubleSlashes() {
+    // Jetty 12 UriCompliance: Ambiguous URI path separator
+    assertEquals("/cm/app", PSLoginServlet.sanitizeRedirectPath("\\cm\\app"));
+    assertEquals("/cm/app", PSLoginServlet.sanitizeRedirectPath("//cm//app"));
+    assertEquals("index.jsp", PSLoginServlet.sanitizeRedirectPath("index.jsp"));
+    assertNull(PSLoginServlet.sanitizeRedirectPath(null));
+    // scheme:// must not collapse
+    assertEquals(
+        "http://localhost:9992/Rhythmyx",
+        PSLoginServlet.sanitizeRedirectPath("http://localhost:9992/Rhythmyx"));
   }
 }

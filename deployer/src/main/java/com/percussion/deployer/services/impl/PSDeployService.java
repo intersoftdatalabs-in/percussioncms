@@ -26,6 +26,7 @@ import com.percussion.deployer.server.PSDependencyManager;
 import com.percussion.deployer.server.PSImportCtx;
 import com.percussion.deployer.server.dependencies.PSDependencyHandler;
 import com.percussion.deployer.server.dependencies.PSFilterDefDependencyHandler;
+import com.percussion.deployer.server.dependencies.PSFilterInstallUtils;
 import com.percussion.deployer.server.dependencies.PSSiteDefDependencyHandler;
 import com.percussion.deployer.server.dependencies.PSTemplateDefDependencyHandler;
 import com.percussion.deployer.server.dependencies.PSVariantDefDependencyHandler;
@@ -161,11 +162,26 @@ public class PSDeployService implements IPSDeployService {
       // Prefer match by natural id (name). Package dep ids often do not match a prior
       // install's GUID; treating that as "new" then persist hits NAME unique constraint
       // only at flush → UnexpectedRollbackException with no app-level exception.
+      // Only FILTER_MISSING means first install; blank names and other PSFilterException
+      // codes must not be swallowed (Kilo review / unique-constraint mask).
       com.percussion.services.filter.IPSItemFilter existingByName = null;
+      String filterName = packageFilter.getName();
       try {
-        existingByName = filterSvc.findFilterByName(packageFilter.getName());
+        existingByName = filterSvc.findFilterByName(filterName);
+      } catch (IllegalArgumentException e) {
+        throw new PSDeployException(
+            IPSDeploymentErrors.UNEXPECTED_ERROR,
+            e,
+            "Filter package has blank or invalid name while installing dependency "
+                + dep.getDependencyId());
       } catch (com.percussion.services.filter.PSFilterException e) {
-        // FILTER_MISSING is expected for true first install
+        if (!PSFilterInstallUtils.isFilterMissingErrorCode(e.getErrorCode())) {
+          throw new PSDeployException(
+              IPSDeploymentErrors.UNEXPECTED_ERROR,
+              e,
+              "Failed to resolve existing filter by name: " + filterName);
+        }
+        // True first install — row not present
         existingByName = null;
       }
 

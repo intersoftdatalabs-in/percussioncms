@@ -15,9 +15,10 @@
 		}else{
 			redirectUrl = proxyUrl + "/cm/app/";
 		}
-		response.sendRedirect(response.encodeUrl(redirectUrl));
+		// encodeURL (capital URL) — encodeUrl was removed in Jakarta Servlet
+		response.sendRedirect(response.encodeURL(redirectUrl));
 	}else {
-		response.sendRedirect(response.encodeUrl(request.getContextPath()
+		response.sendRedirect(response.encodeURL(request.getContextPath()
 				+ "/cm/app"));
 	}
 %>

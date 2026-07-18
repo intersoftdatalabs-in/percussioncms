@@ -19,9 +19,10 @@ package com.percussion.deployer.server.dependencies;
 
 /**
  * Pure helpers for item-filter package install. Free of Spring so unit tests run without a CMS
- * context.
+ * context. Public so {@code PSDeployService} can share the FILTER_MISSING policy without
+ * duplicating the error-code check.
  */
-final class PSFilterInstallUtils {
+public final class PSFilterInstallUtils {
 
   private PSFilterInstallUtils() {}
 
@@ -34,7 +35,7 @@ final class PSFilterInstallUtils {
    *
    * @return always {@code false}
    */
-  static boolean mayNullVersionOnManagedEntityBeforeDiscard() {
+  public static boolean mayNullVersionOnManagedEntityBeforeDiscard() {
     return false;
   }
 
@@ -47,7 +48,7 @@ final class PSFilterInstallUtils {
    *
    * @return always {@code true}
    */
-  static boolean shouldResolveExistingByName() {
+  public static boolean shouldResolveExistingByName() {
     return true;
   }
 
@@ -58,8 +59,22 @@ final class PSFilterInstallUtils {
    *
    * @return always {@code true}
    */
-  static boolean deployServiceShouldRollbackOnException() {
+  public static boolean deployServiceShouldRollbackOnException() {
     return true;
+  }
+
+  /**
+   * Whether a filter-service error code means "no row with that name" (safe to insert).
+   *
+   * <p>Only {@link com.percussion.services.filter.IPSFilterServiceErrors#FILTER_MISSING} qualifies.
+   * All other codes must propagate so package install does not treat DB failures as a first
+   * install and then hit the unique NAME constraint.
+   *
+   * @param errorCode {@link com.percussion.services.filter.PSFilterException#getErrorCode()}
+   * @return {@code true} only for FILTER_MISSING
+   */
+  public static boolean isFilterMissingErrorCode(int errorCode) {
+    return errorCode == com.percussion.services.filter.IPSFilterServiceErrors.FILTER_MISSING;
   }
 
   /**
@@ -68,7 +83,7 @@ final class PSFilterInstallUtils {
    * @param e failure, not {@code null}
    * @return message for logs / PSDeployException
    */
-  static String formatInstallError(Throwable e) {
+  public static String formatInstallError(Throwable e) {
     if (e == null) {
       throw new IllegalArgumentException("e may not be null");
     }

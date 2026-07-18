@@ -9,7 +9,8 @@ ext
 [depend]
 ee11-deploy
 http
-gzip
+# Jetty 12: gzip module is deprecated; use compression-gzip (CompressionHandler).
+compression-gzip
 ee11-plus
 ee11-jstl
 jaas

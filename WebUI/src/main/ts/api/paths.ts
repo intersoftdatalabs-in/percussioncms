@@ -15,18 +15,66 @@
  * limitations under the License.
  */
 
-/** Service roots matching WebUI perc_path_constants (SERVER_ROOT + /services). */
-export const SERVICES_ROOT = "/Rhythmyx/services";
+/**
+ * Service roots matching WebUI perc_path_constants (SERVER_ROOT + /services).
+ *
+ * <p>Jetty deploys the CMS webapp at context {@code /} (folder name Rhythmyx does not
+ * mean context path /Rhythmyx). Hardcoding {@code /Rhythmyx/services} 404s or redirects
+ * to login incorrectly when the UI is served from {@code /cm/...}. Detect context from
+ * the current location; fall back to {@code /services}.
+ */
+export function detectServicesRoot(): string {
+  try {
+    if (typeof window !== "undefined" && window.location?.pathname) {
+      const p = window.location.pathname;
+      if (p === "/Rhythmyx" || p.startsWith("/Rhythmyx/")) {
+        return "/Rhythmyx/services";
+      }
+    }
+  } catch {
+    /* ignore */
+  }
+  return "/services";
+}
+
+/** Mutable so tests can override; initialized for the current page context. */
+export let SERVICES_ROOT = detectServicesRoot();
+
+/** Test / re-init helper when pathname changes. */
+export function refreshServicesRoot(): string {
+  SERVICES_ROOT = detectServicesRoot();
+  return SERVICES_ROOT;
+}
 
 export const PATHS = {
-  RECENT_ROOT: `${SERVICES_ROOT}/recentmanagement/recent/`,
-  SITES_ALL: `${SERVICES_ROOT}/sitemanage/site`,
-  PATH_FOLDER: `${SERVICES_ROOT}/pathmanagement/path/folder`,
-  FINDER_SEARCH_EXTENDED: `${SERVICES_ROOT}/searchmanagement/search/get/extendedresults`,
-  PAGE_CREATE: `${SERVICES_ROOT}/pagemanagement/page`,
-  MY_CONTENT: `${SERVICES_ROOT}/itemmanagement/item/mycontent`,
-  TEMPLATES_BY_SITE: `${SERVICES_ROOT}/sitemanage/sitetemplates/templates`,
-  BLOGS_FOR_SITE: `${SERVICES_ROOT}/sitemanage/section/blogs`,
-  ASSET_TYPES: `${SERVICES_ROOT}/assetmanagement/asset/assetTypes`,
-  WIDGET_BUILDER: `${SERVICES_ROOT}/widgetmanagement/widgetbuilder`,
+  get RECENT_ROOT() {
+    return `${SERVICES_ROOT}/recentmanagement/recent/`;
+  },
+  get SITES_ALL() {
+    return `${SERVICES_ROOT}/sitemanage/site`;
+  },
+  get PATH_FOLDER() {
+    return `${SERVICES_ROOT}/pathmanagement/path/folder`;
+  },
+  get FINDER_SEARCH_EXTENDED() {
+    return `${SERVICES_ROOT}/searchmanagement/search/get/extendedresults`;
+  },
+  get PAGE_CREATE() {
+    return `${SERVICES_ROOT}/pagemanagement/page`;
+  },
+  get MY_CONTENT() {
+    return `${SERVICES_ROOT}/itemmanagement/item/mycontent`;
+  },
+  get TEMPLATES_BY_SITE() {
+    return `${SERVICES_ROOT}/sitemanage/sitetemplates/templates`;
+  },
+  get BLOGS_FOR_SITE() {
+    return `${SERVICES_ROOT}/sitemanage/section/blogs`;
+  },
+  get ASSET_TYPES() {
+    return `${SERVICES_ROOT}/assetmanagement/asset/assetTypes`;
+  },
+  get WIDGET_BUILDER() {
+    return `${SERVICES_ROOT}/widgetmanagement/widgetbuilder`;
+  },
 } as const;
