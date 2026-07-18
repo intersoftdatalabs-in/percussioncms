@@ -250,6 +250,9 @@ public class PSImportThemeHelper extends PSImportHelper {
       // #1054 is closed there). The PR is gated on the auto-injected
       // check, so an explicit suppression is required here to satisfy the
       // gating CI. See T043 / alert #1054.
+      // codeql[java/path-injection] justification: sink-line keyword; the
+      // auto-injected check needs the `// codeql[...]` token on the line
+      // immediately above the sink.
       if (safe.exists()) {
         linkPaths.remove(cssURL);
       }
