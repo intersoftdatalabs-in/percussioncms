@@ -255,14 +255,14 @@ query-filters:
         - "system/src/main/java/com/percussion/xml/PSDtdTree.java"
         - "system/src/main/java/com/percussion/server/PSServer.java"
       reason: >-
-        Documented multi-pass T043 residuals after structural guards. Each
+        Documented multi-pass T043 residuals after structural guards (includes
+        PSThemeService from PR #1361 + broader residual batch PR #1362). Each
         product sink is gated by PSPathInjectionGuard or file-local validatePath
         / requireSafeFilePath before File I/O. CodeQL Advanced + auto-injected
         scans still residual-flag File.exists/delete/mkdirs/streams and new File
         after those barriers. Path excludes + sink-line suppressions + behavioral
         security tests (PSThemeServiceSecurityTest, PSRegionCSSFileServiceSecurityTest,
         PSCSSParserPathInjectionTest, PSImportThemeHelperPathInjectionTest, etc.).
-
   # --- High java/sql-injection residuals (SecureStringUtils barriers not
   # loaded as model pack — GHA rejects local packs; workflow relies on
   # runtime + sink-line // codeql + path query-filters). ---
