@@ -109,14 +109,12 @@ public class PSAesCBC {
     if (isBlank(plainText)) plainText = "";
     if (isBlank(encryptionKey)) encryptionKey = "";
 
-    // codeql[java/weak-cryptographic-algorithm] ACCEPTED-RISK #757: legacy AES/CBC for historical ciphertext only; new secrets use PSEncryptor AES/GCM
-    Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding", "SunJCE");
+    Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding", "SunJCE"); // codeql[java/weak-cryptographic-algorithm] justification: ACCEPTED-RISK legacy upgrade path only; new secrets use PSEncryptor AES/GCM (alert #757)
 
     SecretKeySpec key =
         new SecretKeySpec(encryptionKey.getBytes(StandardCharsets.ISO_8859_1), "AES");
 
-    // codeql[java/static-initialization-vector] ACCEPTED-RISK #649: fixed IV required for wire-compatible legacy String encrypt/decrypt
-    cipher.init(Cipher.ENCRYPT_MODE, key, new IvParameterSpec(INITIAL_VECTOR));
+    cipher.init(Cipher.ENCRYPT_MODE, key, new IvParameterSpec(INITIAL_VECTOR)); // codeql[java/static-initialization-vector] justification: ACCEPTED-RISK fixed IV required for wire-compatible legacy ciphertext (alert #649)
 
     final byte[] encrypted = cipher.doFinal(plainText.getBytes("ISO-8859-1"));
 
@@ -142,14 +140,12 @@ public class PSAesCBC {
     try {
       final byte[] cipherText = secretText.getBytes(StandardCharsets.ISO_8859_1);
 
-      // codeql[java/weak-cryptographic-algorithm] ACCEPTED-RISK #758: AES/CBC required to decrypt pre-8.2 payloads during upgrade
-      Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding", "SunJCE");
+      Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding", "SunJCE"); // codeql[java/weak-cryptographic-algorithm] justification: ACCEPTED-RISK decrypt pre-8.2 payloads during upgrade only (alert #758)
 
       SecretKeySpec key =
           new SecretKeySpec(encryptionKey.getBytes(StandardCharsets.ISO_8859_1), "AES");
 
-      // codeql[java/static-initialization-vector] ACCEPTED-RISK #650: fixed IV matches historical ciphertext layout
-      cipher.init(Cipher.DECRYPT_MODE, key, new IvParameterSpec(INITIAL_VECTOR));
+      cipher.init(Cipher.DECRYPT_MODE, key, new IvParameterSpec(INITIAL_VECTOR)); // codeql[java/static-initialization-vector] justification: ACCEPTED-RISK fixed IV matches historical ciphertext layout (alert #650)
 
       return new String(cipher.doFinal(cipherText), StandardCharsets.ISO_8859_1);
     } catch (InvalidAlgorithmParameterException
@@ -178,8 +174,7 @@ public class PSAesCBC {
     }
     if (isBlank(encryptionKey)) encryptionKey = "";
 
-    // codeql[java/weak-cryptographic-algorithm] ACCEPTED-RISK #759: AES/CBC decrypt of historical byte[] payloads only
-    Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding", "SunJCE");
+    Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding", "SunJCE"); // codeql[java/weak-cryptographic-algorithm] justification: ACCEPTED-RISK decrypt historical byte[] payloads only (alert #759)
 
     SecretKeySpec key =
         new SecretKeySpec(encryptionKey.getBytes(StandardCharsets.ISO_8859_1), "AES");

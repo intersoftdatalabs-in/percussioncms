@@ -1227,7 +1227,8 @@ public class PSJdbcTableFactory {
     try {
       int count = 0;
       stmt = PSSQLStatement.getStatement(conn);
-      rsCount = stmt.executeQuery(sqlStmt);
+      // Identifiers already fail-closed via requireSqlObjectName*; COUNT(*) template is fixed.
+      rsCount = stmt.executeQuery(sqlStmt); // codeql[java/sql-injection] justification: table/schema/db validated by SecureStringUtils.requireSqlObjectName before qualifyTableName; not user SQL (alert #658)
 
       if (rsCount.next()) count = rsCount.getInt(1);
 

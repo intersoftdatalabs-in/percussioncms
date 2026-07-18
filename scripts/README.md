@@ -80,6 +80,7 @@ Added for the `004-zero-code-scanning-alerts` feature. All are POSIX `sh` (or po
 | `verify-pr-review-resolution.sh` | For every `linked_pr` in `triage.md`, query `gh pr view --json reviewThreads` and fail if any thread has `isResolved: false` (Constitution IX, `SC-007`). | T078b |
 | `test-verify-triage-inventory.sh` | Self-test for `verify-triage-inventory.sh` against `scripts/test-fixtures/triage-good.md` and `triage-bad.md`. | T013 |
 | `verify-dhtml-search-sanitization.js` | Behavioral regression check for the 7 lockstep `system/Docs/*/dhtml_search.js` copies (closes 21 `js/incomplete-sanitization` alerts): extracts the real, checked-in single-pass global-regex escaping expression from each file and drives it with mixed `<`/`>`/`"` inputs; also fails if the old non-global `.replace("<", ...)` anti-pattern reappears. Plain Node (no framework/`.sh` wrapper needed) since `system` has no JS test toolchain. | T044-class US3 |
+| `verify-sys-resources-js-xss.js` | Behavioral + source-pattern checks for CodeQL `js/xss` #945/#946: mobile-preview `escapeHtml`/`safeSameOriginHttpUrl` and webimagefx license URL built from origin+pathname (not raw `location.href`). Plain Node. | remaining CodeQL residuals |
 
 #### Usage
 
