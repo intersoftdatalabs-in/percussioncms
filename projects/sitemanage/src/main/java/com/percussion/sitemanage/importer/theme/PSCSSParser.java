@@ -240,7 +240,14 @@ public class PSCSSParser {
     // inputs. Verify the resolved path is contained within the theme root
     // BEFORE any File construction. Residual #1755 of original #1055.
     File safe = PSPathInjectionGuard.requireUnderBase(new File(themeRootDirectory), importPath);
-    return safe.exists(); // codeql[java/path-injection]
+    // codeql[java/path-injection] justification: importPath was canonicalized and contained
+    // within themeRootDirectory by requireUnderBase above. The `safe` File is the result
+    // of the requireUnderBase barrier, so exists() only stats the already-safe target.
+    // See T043 / alert #1755 (residual #1055). The codeql[] comment uses the canonical
+    // `justification:` keyword format that the auto-injected dependency-submission
+    // CodeQL check recognizes; the prior `// codeql[java/path-injection]` form without
+    // `justification:` was silently ignored.
+    return safe.exists();
   }
 
   private String updateUrl(String quote, Matcher urlMatcher, PSURLConverter urlConverter) {
@@ -273,7 +280,12 @@ public class PSCSSParser {
     // against the theme root and verify containment BEFORE opening the
     // file for write. Residual #1756 of original #1056.
     File safe = PSPathInjectionGuard.requireUnderBase(new File(themeRootDirectory), path);
-    try (var fstream = new FileWriter(safe); // codeql[java/path-injection]
+    // codeql[java/path-injection] justification: path was canonicalized and contained
+    // within themeRootDirectory by requireUnderBase above. The `safe` File is the
+    // result of the requireUnderBase barrier. See T043 / alert #1756 (residual
+    // #1056). The codeql[] comment uses the canonical `justification:` keyword
+    // format that the auto-injected dependency-submission CodeQL check recognizes.
+    try (var fstream = new FileWriter(safe);
         var out = new PrintWriter(fstream)) {
       out.write(sb.toString());
     }
@@ -288,7 +300,12 @@ public class PSCSSParser {
     // CSS @import or url() value. Resolve and verify containment BEFORE
     // opening the file for read. Residual #1757 of original #1057.
     File safe = PSPathInjectionGuard.requireUnderBase(new File(themeRootDirectory), path);
-    try (var in = new FileInputStream(safe)) { // codeql[java/path-injection]
+    // codeql[java/path-injection] justification: path was canonicalized and contained
+    // within themeRootDirectory by requireUnderBase above. The `safe` File is the
+    // result of the requireUnderBase barrier. See T043 / alert #1757 (residual
+    // #1057). The codeql[] comment uses the canonical `justification:` keyword
+    // format that the auto-injected dependency-submission CodeQL check recognizes.
+    try (var in = new FileInputStream(safe)) {
       return IOUtils.toString(in);
     }
   }
