@@ -188,33 +188,28 @@
       }
 
       if (queryString.showItemDescription && item.description) {
-        var description = $("<" + itemDescriptionElement + ">").html(
-          item.description
-        );
-
+        // CodeQL js/xss-through-dom (#992/#993): never parse feed description as
+        // HTML via jQuery html-setter (that reinterprets DOM text as markup).
+        // Treat description as plain text only; strip tags with a non-DOM replace
+        // when itemRemoveHtml is set, then truncate.
+        var descText = String(item.description);
         if (queryString.itemRemoveHtml) {
-          description.html(description.text());
+          descText = descText.replace(/<[^>]*>/g, " ");
+          descText = descText.replace(/\s+/g, " ").trim();
         }
-
         if (!queryString.itemDescriptionEmpty) {
-          //Truncate description
-          description.html(
-            description.html().substring(0, queryString.itemDescriptionLength)
-          );
-          //If there are more description
-          if (
-            "" !==
-            item.description.substring(queryString.itemDescriptionLength + 1)
-          ) {
-            description.html(description.html().trim() + "...");
+          var maxLen = queryString.itemDescriptionLength;
+          if (descText.length > maxLen) {
+            descText = descText.substring(0, maxLen).trim() + "...";
           }
         }
-
+        // Escape for safe embedding into the HTML string builder used for the feed item.
+        var safeDesc = $("<div/>").text(descText).html();
         feedItem +=
           "<" +
           itemDescriptionElement +
           ' class="perc-feed-item-description">' +
-          description.html() +
+          safeDesc +
           "</" +
           itemDescriptionElement +
           ">";

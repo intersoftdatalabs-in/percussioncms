@@ -171,13 +171,23 @@ tinymce.PluginManager.add("percglobalvariables", function (editor, url) {
     }
   });
 
+  function escAttr(s) {
+    return String(s == null ? "" : s)
+      .replace(/&/g, "&amp;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#39;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;");
+  }
+
   editor.on("BeforeSetContent", function (o) {
     o.content = o.content.replace(/<span[^>]*?(.*?)<\/span>/g, function (im) {
       if (
         im.indexOf('class="perc-global-variable-marker') !== -1 &&
         typeof PercGlobalVariablesData != "undefined"
       ) {
-        var varName = $(im).attr("title");
+        var titleMatch = /\btitle\s*=\s*["']([^"']*)["']/i.exec(im);
+        var varName = titleMatch ? titleMatch[1] : "";
         var varValue = PercGlobalVariablesData[varName];
         if (varValue) {
           var urlToServlet =
@@ -189,7 +199,7 @@ tinymce.PluginManager.add("percglobalvariables", function (editor, url) {
             " &gt;";
           var gvhtml =
             "<img class='perc-global-variable-marker' title='" +
-            varName +
+            escAttr(varName) +
             "' src=\"" +
             urlToServlet +
             '">';
@@ -205,13 +215,14 @@ tinymce.PluginManager.add("percglobalvariables", function (editor, url) {
     if (o.get) {
       o.content = o.content.replace(/<img[^>]+>/g, function (im) {
         if (im.indexOf('class="perc-global-variable-marker') !== -1) {
-          var varName = $(im).attr("title");
+          var titleMatch = /\btitle\s*=\s*["']([^"']*)["']/i.exec(im);
+          var varName = titleMatch ? titleMatch[1] : "";
           var varValue = PercGlobalVariablesData[varName];
           var gvhtml =
             '<span class="perc-global-variable-marker" title="' +
-            varName +
+            escAttr(varName) +
             '">' +
-            varValue +
+            escAttr(varValue) +
             "</span>";
           im = gvhtml;
         }

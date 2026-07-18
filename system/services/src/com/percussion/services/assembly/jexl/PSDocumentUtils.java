@@ -232,14 +232,19 @@ public class PSDocumentUtils extends PSJexlUtilBase
    /**
     * Call an external url for a document using the given user name and
     * password. The URL is validated for SSRF before any HTTP request is sent.
+    * Redirects are <strong>not</strong> followed ({@link HttpClient.Redirect#NEVER});
+    * a 3xx status or transport failure yields an empty string (matches the
+    * public {@link #getDocument} contract of "empty string on error").
+    * SSRF validation failures still throw {@link IOException}.
     *
     * @param url the url of the request, assumed not <code>null</code>
     * @param user the user name, may be <code>null</code>
     * @param password the password, may be <code>null</code>
-    * @return the resulting document from the request
+    * @return the resulting document from the request, or empty string on
+    *         non-200 / redirect / soft transport error
     * @throws UnknownHostException
     * @throws MalformedURLException
-    * @throws IOException
+    * @throws IOException when SSRF validation rejects the URL (or interrupt)
     */
    private String getExternalDocument(String url, String user, String password)
          throws UnknownHostException, MalformedURLException, IOException
@@ -248,7 +253,7 @@ public class PSDocumentUtils extends PSJexlUtilBase
 
       HttpClient client =
             HttpClient.newBuilder()
-                  .followRedirects(HttpClient.Redirect.NORMAL)
+                  .followRedirects(HttpClient.Redirect.NEVER)
                   .connectTimeout(Duration.ofSeconds(30))
                   .build();
 
@@ -280,12 +285,25 @@ public class PSDocumentUtils extends PSJexlUtilBase
                client.send( // codeql[java/ssrf]
                      requestBuilder.build(),
                      HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
-         return response.statusCode() == 200 ? response.body() : "";
+         int statusCode = response.statusCode();
+         // Redirect.NEVER: 3xx is returned without following. Empty body matches
+         // getDocument's "empty string on error" contract (no open-redirect pivot).
+         if (statusCode >= 300 && statusCode < 400)
+         {
+            return "";
+         }
+         return statusCode == 200 ? response.body() : "";
       }
       catch (InterruptedException e)
       {
          Thread.currentThread().interrupt();
          throw new IOException("Interrupted while retrieving document from " + url, e);
+      }
+      catch (IOException e)
+      {
+         // Soft transport failures (including rare redirect exceptions) → empty
+         // string per public getDocument Javadoc. SSRF validation already ran.
+         return "";
       }
    }
 

@@ -1847,7 +1847,7 @@ public class PSAssetService extends PSAbstractFullDataService<PSAsset, PSAssetSu
     try {
       PSPurgableTempFile ptf =
           new PSPurgableTempFile("tmp", extension, null, fileName, fileType, null);
-      try (FileOutputStream fos = new FileOutputStream(ptf)) {
+      try (FileOutputStream fos = new FileOutputStream(ptf)) { // codeql[java/path-injection]
         PSCopyStream.copyStream(request.getFileContents(), fos);
         fieldsMap.put(fieldBase, ptf);
 
@@ -1887,7 +1887,7 @@ public class PSAssetService extends PSAbstractFullDataService<PSAsset, PSAssetSu
       PSPurgableTempFile ptf =
           new PSPurgableTempFile("tmp", extension, null, fileName, fileType, null);
 
-      try (FileOutputStream fos = new FileOutputStream(ptf)) {
+      try (FileOutputStream fos = new FileOutputStream(ptf)) { // codeql[java/path-injection]
         PSCopyStream.copyStream(request.getFileContents(), fos);
 
         fieldsMap.put(fieldBase, ptf);

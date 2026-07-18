@@ -288,4 +288,39 @@ class PSProxyQueryResourceTest {
           "PSExtensionProcessingException must be on the test classpath");
     }
   }
+
+  /**
+   * Redirect.NEVER SSRF hardening (PR #1364 / Kilo): 3xx must fail closed with
+   * {@link PSExtensionProcessingException}, not soft-null via the outer catch.
+   */
+  @Nested
+  @DisplayName("Redirect.NEVER fail-closed contract (source)")
+  class RedirectNeverFailClosed {
+    @Test
+    @DisplayName("HttpClient uses Redirect.NEVER and rethrows PSExtensionProcessingException")
+    void redirectNeverAndFailClosedOn3xx() throws Exception {
+      java.nio.file.Path src =
+          java.nio.file.Path.of(
+              "src/main/java/com/percussion/extensions/general/PSProxyQueryResource.java");
+      if (!java.nio.file.Files.isRegularFile(src)) {
+        // Surefire cwd may be module root or reactor root
+        src =
+            java.nio.file.Path.of(
+                "modules/extensions-main/src/main/java/com/percussion/extensions/general/PSProxyQueryResource.java");
+      }
+      String text = java.nio.file.Files.readString(src);
+      assertTrue(
+          text.contains("HttpClient.Redirect.NEVER"),
+          "must disable redirect following for SSRF");
+      assertTrue(
+          text.contains("statusCode >= 300 && statusCode < 400"),
+          "must explicitly refuse 3xx responses");
+      assertTrue(
+          text.contains("catch (PSExtensionProcessingException e)"),
+          "must rethrow PSExtensionProcessingException (not return null)");
+      assertTrue(
+          text.contains("Remote redirect refused"),
+          "redirect refusal message must be present");
+    }
+  }
 }

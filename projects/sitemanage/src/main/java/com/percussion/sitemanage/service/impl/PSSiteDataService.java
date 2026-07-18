@@ -498,19 +498,19 @@ public class PSSiteDataService extends PSAbstractDataService<PSSite, PSSiteSumma
     PSPathInjectionGuard.requireSafeFileName(oldSiteName);
     PSPathInjectionGuard.requireSafeFileName(newSiteName);
 
-    var sourceCacheDir =
-        new File(
-            PSServer.getRxDir().getAbsolutePath()
-                + PAGE_IMAGE_CACHE_DIR
-                + File.separator
-                + oldSiteName);
-    var destCacheDir =
-        new File(
-            PSServer.getRxDir().getAbsolutePath()
-                + PAGE_IMAGE_CACHE_DIR
-                + File.separator
-                + newSiteName);
-    if (sourceCacheDir.renameTo(destCacheDir))
+    File cacheRoot =
+        new File(PSServer.getRxDir().getAbsolutePath() + PAGE_IMAGE_CACHE_DIR);
+    if (!cacheRoot.exists() && !cacheRoot.mkdirs() && !cacheRoot.isDirectory()) {
+      // mkdirs() false can mean "already exists as dir after race" or true failure.
+      log.error(
+          "Unable to create page/template image cache root: {}. Site thumbnail cache rename"
+              + " skipped.",
+          cacheRoot.getAbsolutePath());
+      return;
+    }
+    var sourceCacheDir = PSPathInjectionGuard.requireUnderBase(cacheRoot, oldSiteName);
+    var destCacheDir = PSPathInjectionGuard.requireUnderBase(cacheRoot, newSiteName);
+    if (sourceCacheDir.renameTo(destCacheDir)) // codeql[java/path-injection]
       log.info("Page and Template image cache folder moved to: {}", destCacheDir.getAbsolutePath());
     else
       log.error(
