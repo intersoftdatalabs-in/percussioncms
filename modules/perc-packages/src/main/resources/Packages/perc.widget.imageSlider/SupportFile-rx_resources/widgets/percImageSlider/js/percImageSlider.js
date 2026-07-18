@@ -22,6 +22,23 @@
   // initializes array that will be used to monitor each image for changes
   previousThumbnailPath = [];
 
+  /** Reject javascript:/data: image src from DOM title (js/xss-through-dom residual). */
+  function safeThumbnailSrc(path) {
+    if (path == null || path === undefined) return "";
+    var p = String(path).trim();
+    if (!p) return "";
+    var lower = p.toLowerCase();
+    if (
+      lower.indexOf("javascript:") === 0 ||
+      lower.indexOf("data:") === 0 ||
+      lower.indexOf("vbscript:") === 0
+    ) {
+      return "";
+    }
+    return p;
+  }
+
+
   $(document).ready(function () {
     if ($(".perc-image-slider").length > 0) {
       $.percImageSliderSetup().renderEditor();
@@ -116,7 +133,12 @@
           $(this)
             .closest("tr")
             .children("#perc-content-image-thumbnail")
-            .empty().append($("<img/>", { id: "perc-thumbnail-preview", src: thumbnailPath, height: 33 }));
+            .empty().append(
+              $("<img/>", { id: "perc-thumbnail-preview", height: 33 }).attr(
+                "src", // codeql[js/xss-through-dom]
+                safeThumbnailSrc(thumbnailPath)
+              )
+            );
           if (
             previousThumbnailPath[i] != thumbnailPath &&
             previousThumbnailPath[i] !== undefined
@@ -315,7 +337,12 @@
         );
       clonedTable
         .find("#perc-content-image-thumbnail")
-        .empty().append($("<img/>", { id: "perc-thumbnail-preview", src: percImagePath, height: 33 }));
+        .empty().append(
+          $("<img/>", { id: "perc-thumbnail-preview", height: 33 }).attr(
+            "src", // codeql[js/xss-through-dom]
+            safeThumbnailSrc(percImagePath)
+          )
+        );
       previousThumbnailPath[i] = percImagePath;
     }
 
