@@ -30,6 +30,7 @@ import com.percussion.delivery.comments.service.rdbms.PSComment;
 import com.percussion.delivery.exceptions.PSBadRequestException;
 import com.percussion.delivery.services.PSAbstractRestService;
 import com.percussion.security.error.PSExceptionUtils;
+import com.percussion.security.utils.PSRedirectValidation;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.inject.Inject;
 import jakarta.servlet.http.Cookie;
@@ -332,17 +333,8 @@ public class PSCommentsRestService extends PSAbstractRestService implements IPSC
           "Detected hidden honeypot field was filled out.  Ignoring comment -- see request headers"
               + " below.");
       String referer = headerParams.getFirst("Referer");
-      URI loc = null;
-      try {
-        loc = new URI(referer);
-      } catch (URISyntaxException e) {
-        PSCommentsRestService.log.error(
-            "Error creating redirect in Honeypot detection with message, Error: {}",
-            PSExceptionUtils.getMessageForLog(e));
-        PSCommentsRestService.log.debug(PSExceptionUtils.getDebugMessageForLog(e));
-        throw new WebApplicationException(e, Response.serverError().build());
-      }
-      return Response.seeOther(loc).build();
+      // CWE-601 / java/unvalidated-url-redirection #643: Referer is attacker-controlled.
+      return seeOtherIfSafe(referer, headerParams);
     }
 
     if (PSCommentsRestService.log.isDebugEnabled()) {
@@ -370,12 +362,9 @@ public class PSCommentsRestService extends PSAbstractRestService implements IPSC
         int commentIndex = referer.indexOf("?lastCommentId");
         referer = referer.substring(0, commentIndex);
       }
-      URI loc = new URI(referer + "?lastCommentId=" + newComment.getId());
-      if (PSCommentsRestService.log.isDebugEnabled()) {
-        PSCommentsRestService.log.debug("URI obtained is : {}", loc.toString());
-      }
-
-      return Response.seeOther(loc).build();
+      String target = referer + "?lastCommentId=" + newComment.getId();
+      // CWE-601 / java/unvalidated-url-redirection #644: validate final redirect target.
+      return seeOtherIfSafe(target, headerParams);
     } catch (Exception e) {
       PSCommentsRestService.log.error(
           "Exception occurred while adding comment, Error: {}",
@@ -383,6 +372,79 @@ public class PSCommentsRestService extends PSAbstractRestService implements IPSC
       PSCommentsRestService.log.debug(PSExceptionUtils.getDebugMessageForLog(e));
       throw new WebApplicationException(e, Response.serverError().build());
     }
+  }
+
+  /**
+   * Returns {@code 303 See Other} only for a <em>relative</em> redirect. Absolute Referer URLs are
+   * reduced to path+query+fragment so the client Host header cannot force an off-site location
+   * (CWE-601 / #643/#644 review: do not trust Host as an allow-list).
+   */
+  private static Response seeOtherIfSafe(String target, MultivaluedMap<String, String> headers) {
+    if (StringUtils.isBlank(target)) {
+      return Response.noContent().build();
+    }
+    String relative = toRelativeRedirectTarget(target);
+    String safe =
+        relative == null ? null : PSRedirectValidation.validateInternalRedirectUrl(relative);
+    if (safe == null) {
+      PSCommentsRestService.log.warn(
+          "Rejected unvalidated redirect target: {}", sanitizeForLog(target));
+      return Response.noContent().build();
+    }
+    try {
+      return Response.seeOther(new URI(safe)).build(); // codeql[java/unvalidated-url-redirection]
+    } catch (URISyntaxException e) {
+      PSCommentsRestService.log.error(
+          "Error creating redirect URI, Error: {}", PSExceptionUtils.getMessageForLog(e));
+      return Response.noContent().build();
+    }
+  }
+
+  /**
+   * Converts an absolute URL to a same-document relative path (path + query + fragment). Protocol-
+   * relative and non-http(s) absolute URLs are rejected ({@code null}).
+   */
+  static String toRelativeRedirectTarget(String target) {
+    try {
+      URI uri = new URI(target.trim());
+      if (!uri.isAbsolute()) {
+        if (target.startsWith("/") && !target.startsWith("//")) {
+          return target;
+        }
+        return null;
+      }
+      String scheme = uri.getScheme();
+      if (scheme != null
+          && !"http".equalsIgnoreCase(scheme)
+          && !"https".equalsIgnoreCase(scheme)) {
+        return null;
+      }
+      String path = uri.getRawPath();
+      if (path == null || path.isEmpty()) {
+        path = "/";
+      }
+      StringBuilder b = new StringBuilder(path);
+      if (uri.getRawQuery() != null) {
+        b.append('?').append(uri.getRawQuery());
+      }
+      if (uri.getRawFragment() != null) {
+        b.append('#').append(uri.getRawFragment());
+      }
+      return b.toString();
+    } catch (URISyntaxException e) {
+      return null;
+    }
+  }
+
+  /**
+   * Strip all Unicode control characters (including CR/LF/TAB) before logging so crafted Referer
+   * values cannot inject new log lines (log injection hygiene).
+   */
+  static String sanitizeForLog(String value) {
+    if (value == null) {
+      return "";
+    }
+    return value.replaceAll("[\\p{Cntrl}]", "").trim();
   }
 
   /* (non-Javadoc)
