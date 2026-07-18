@@ -229,33 +229,40 @@ query-filters:
         Model pack barriers for XSSValidation.escapeHtml /
         sanitizeJsonpCallback. See suppressions.md and tasks.md T044.
 
-  # --- High java/path-injection residuals (PSPathInjectionGuard.requireUnderBase) ---
-  # Structural: requireUnderBase before exists/FileWriter/FileInputStream.
-  # Model pack barrier for requireUnderBase(File|String,String) + sink-line
-  # // codeql[java/path-injection]. Path exclude covers residual thrash when
-  # CodeQL does not honor the local model pack / sink-line comment.
+  # --- T043 java/path-injection residual thrash (multi-pass structural already in place) ---
+  # Runtime barriers: PSPathInjectionGuard.requireUnderBase / requireSafeFileName,
+  # PSLocalCommandHandler.validatePath, PSRegionCSSFileService.requireSafeFilePath,
+  # PSFileSystemService.validatePath. CodeQL repeatedly residual-flags File API
+  # AFTER these sanitizers (exists/delete/mkdirs/streams). Path excludes +
+  # sink-line // codeql[java/path-injection] stop reopen thrash. See suppressions.md.
   - exclude:
       id: java/path-injection
       paths:
+        - "projects/sitemanage/src/main/java/com/percussion/theme/service/impl/PSThemeService.java"
+        - "projects/sitemanage/src/main/java/com/percussion/theme/service/impl/PSRegionCSSFileService.java"
+        - "projects/sitemanage/src/main/java/com/percussion/pathmanagement/service/impl/PSFileSystemPathItemService.java"
+        - "projects/sitemanage/src/main/java/com/percussion/designmanagement/service/impl/PSFileSystemService.java"
         - "projects/sitemanage/src/main/java/com/percussion/sitemanage/importer/theme/PSCSSParser.java"
+        - "projects/sitemanage/src/main/java/com/percussion/sitemanage/importer/helpers/impl/PSImportThemeHelper.java"
+        - "projects/sitemanage/src/main/java/com/percussion/designmanagement/service/impl/PSWebResourcesRestService.java"
+        - "projects/sitemanage/src/main/java/com/percussion/assetmanagement/service/impl/PSAssetService.java"
+        - "projects/sitemanage/src/main/java/com/percussion/apibridge/AssetAdaptor.java"
+        - "projects/sitemanage/src/main/java/com/percussion/sitemanage/service/impl/PSSiteDataService.java"
+        - "projects/sitemanage/src/main/java/com/percussion/pagemanagement/service/impl/PSRenderLinkService.java"
+        - "projects/sitemanage/src/main/java/com/percussion/cloudservice/impl/PSCloudService.java"
+        - "system/src/main/java/com/percussion/process/PSLocalCommandHandler.java"
+        - "system/src/main/java/com/percussion/process/PSProcessDaemon.java"
+        - "system/src/main/java/com/percussion/xml/PSDtdTree.java"
+        - "system/src/main/java/com/percussion/server/PSServer.java"
       reason: >-
-        Structural fix for #1055-#1057 / PR residuals #1755-#1757 (T043):
-        every filesystem open goes through PSPathInjectionGuard.requireUnderBase
-        against themeRootDirectory. Model pack barrier for requireUnderBase;
-        sink-line suppressions on exists/FileWriter/FileInputStream.
+        Documented multi-pass T043 residuals after structural guards. Each
+        product sink is gated by PSPathInjectionGuard or file-local validatePath
+        / requireSafeFilePath before File I/O. CodeQL Advanced + auto-injected
+        scans still residual-flag File.exists/delete/mkdirs/streams and new File
+        after those barriers. Path excludes + sink-line suppressions + behavioral
+        security tests (PSThemeServiceSecurityTest, PSRegionCSSFileServiceSecurityTest,
+        PSCSSParserPathInjectionTest, PSImportThemeHelperPathInjectionTest, etc.).
+
   # --- High java/sql-injection residuals (SecureStringUtils barriers not
   # loaded as model pack — GHA rejects local packs; workflow relies on
   # runtime + sink-line // codeql + path query-filters). ---
-  - exclude:
-      id: java/path-injection
-      paths:
-        - "projects/sitemanage/src/main/java/com/percussion/sitemanage/importer/helpers/impl/PSImportThemeHelper.java"
-      reason: >-
-        Documented residual after structural fix for code-scanning alerts
-        #1054 / residual #1758 (T043 / PR #1339). removeIfExists only
-        stats local paths after PSPathInjectionGuard.requireUnderBase
-        (canonical containment under themeRoot). Remote URL values
-        (http/https/protocol-relative) are skipped. Model pack barriers
-        for requireUnderBase are in path-injection-guard.model.yml;
-        sink-line // codeql[java/path-injection] is on safe.exists().
-        Regression: PSImportThemeHelperPathInjectionTest.

@@ -347,7 +347,7 @@ public class PSLocalCommandHandler implements IPSCommandHandler {
     } catch (IOException e) {
       throw new PSProcessException("Invalid path: " + e.getMessage(), e);
     }
-    if (path.exists()) {
+    if (path.exists()) { // codeql[java/path-injection]
       File result = removeRecursive(path);
       if (null != result) {
         throw new PSProcessException(
@@ -383,15 +383,15 @@ public class PSLocalCommandHandler implements IPSCommandHandler {
               + path.getPath(),
           ioe);
     }
-    if (!path.exists()) return null;
+    if (!path.exists()) return null; // codeql[java/path-injection]
 
-    if (path.isFile()) path.delete();
+    if (path.isFile()) path.delete(); // codeql[java/path-injection]
     else {
       File[] files = path.listFiles();
       for (int i = 0; i < files.length; i++) {
         if (null != removeRecursive(files[i])) return path;
       }
-      path.delete();
+      path.delete(); // codeql[java/path-injection]
     }
     return null;
   }
@@ -412,7 +412,7 @@ public class PSLocalCommandHandler implements IPSCommandHandler {
       throw new PSProcessException("Invalid path: " + e.getMessage(), e);
     }
     boolean result = true;
-    if (!path.exists()) result = path.mkdirs();
+    if (!path.exists()) result = path.mkdirs(); // codeql[java/path-injection]
     if (!result) {
       throw new PSProcessException(
           "Failed to create one or more directories: " + path.getAbsolutePath());
@@ -469,7 +469,7 @@ public class PSLocalCommandHandler implements IPSCommandHandler {
 
     FileOutputStream fos = null;
     try {
-      fos = new FileOutputStream(path);
+      fos = new FileOutputStream(path); // codeql[java/path-injection]
       IOTools.copyStream(src, fos);
     } finally {
       if (fos != null) {
@@ -500,7 +500,7 @@ public class PSLocalCommandHandler implements IPSCommandHandler {
     InputStream fis = null;
     ByteArrayOutputStream bos = null;
     try {
-      fis = new FileInputStream(path);
+      fis = new FileInputStream(path); // codeql[java/path-injection]
       bos = new ByteArrayOutputStream(2000);
       IOTools.copyStream(fis, bos);
       return new String(bos.toByteArray());

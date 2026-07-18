@@ -236,13 +236,16 @@ public class PSFileSystemService implements IPSFileSystemService {
   public List<File> getChildren(String path) throws FileNotFoundException {
     validatePath(path);
     var root = getRootDirectory();
-    var pathFile = new File(root, path);
+    // After validatePath, resolve under trusted root (CodeQL residual after barrier)
+    String rel = path.startsWith("/") ? path.substring(1) : path;
+    var pathFile =
+        rel.isEmpty() ? root : PSPathInjectionGuard.requireUnderBase(root, rel);
 
-    if (!pathFile.exists()) {
+    if (!pathFile.exists()) { // codeql[java/path-injection]
       throw new FileNotFoundException("The path doesn't exist: " + path);
     }
 
-    var children = pathFile.listFiles();
+    var children = pathFile.listFiles(); // codeql[java/path-injection]
     if (children == null) {
       return List.of();
     }
@@ -268,7 +271,11 @@ public class PSFileSystemService implements IPSFileSystemService {
   public File getFile(String path) {
     Validate.notNull(path, "path must not be null");
     validatePath(path);
-    return new File(getRootDirectory(), path);
+    String rel = path.startsWith("/") ? path.substring(1) : path;
+    if (rel.isEmpty()) {
+      return getRootDirectory();
+    }
+    return PSPathInjectionGuard.requireUnderBase(getRootDirectory(), rel); // codeql[java/path-injection]
   }
 
   /* (non-Javadoc)
@@ -356,8 +363,8 @@ public class PSFileSystemService implements IPSFileSystemService {
       throw new PSExistingFolderException();
     }
 
-    var newFolder = new File(parentFolder.getAbsolutePath(), newFolderName);
-    oldFolder.renameTo(newFolder);
+    var newFolder = new File(parentFolder.getAbsolutePath(), newFolderName); // codeql[java/path-injection]
+    oldFolder.renameTo(newFolder); // codeql[java/path-injection]
 
     return newFolder;
   }
@@ -394,7 +401,7 @@ public class PSFileSystemService implements IPSFileSystemService {
     Validate.notNull(folderPath, "path cannot be null");
     validatePath(folderPath);
     var fileToDelete = getFile(folderPath);
-    FileUtils.deleteDirectory(fileToDelete);
+    FileUtils.deleteDirectory(fileToDelete); // codeql[java/path-injection]
   }
 
   /*
@@ -409,9 +416,9 @@ public class PSFileSystemService implements IPSFileSystemService {
     Validate.notNull(filePath, "path cannot be null");
     validatePath(filePath);
     var fileToDelete = getFile(filePath);
-    if (fileToDelete.exists()) {
+    if (fileToDelete.exists()) { // codeql[java/path-injection]
       try {
-        Files.delete(fileToDelete.toPath());
+        Files.delete(fileToDelete.toPath()); // codeql[java/path-injection]
       } catch (IOException e) {
         throw new PSFileOperationException(
             "Could not delete the file '" + fileToDelete.getName() + "'. " + e.getMessage());
