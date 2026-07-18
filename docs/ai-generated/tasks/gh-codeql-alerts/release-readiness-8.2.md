@@ -1,8 +1,8 @@
 # Release Readiness — 8.2 Code-Scanning Remediation (in-progress snapshot)
 
 **Branch**: `004-zero-code-scanning-alerts`
-**Status**: IN PROGRESS — Java side partial; large JS-cluster remediation deferred to US2 obsolescence removals
-**Generated**: 2026-07-14 (supersedes 2026-07-13 snapshot)
+**Status**: IN PROGRESS — Java side partial; large JS vendor noise reduced via CodeQL `paths-ignore` (T014b) while US2 physical removals continue
+**Generated**: 2026-07-14 (supersedes 2026-07-13 snapshot); T014b note 2026-07-18
 
 Source of truth: `docs/ai-generated/tasks/gh-codeql-alerts/triage.md`,
 `suppressions.md`, `accepted-risks.md`. Format follows
@@ -27,7 +27,7 @@ Source of truth: `docs/ai-generated/tasks/gh-codeql-alerts/triage.md`,
 
 | Disposition | Count | Closed in working tree (pending PR merge) |
 |-------------|-------|--------------------------------------------|
-| `obsolete` | 593 | US2 clusters pending: T021–T026 (WebUI), T028 (dojo non-AppFiles), T030–T031 (DTS/InstallDir) |
+| `obsolete` | 593 | **T014b paths-ignore** (PR pending): Advanced CodeQL ignores vendor/war/test trees (~186 open js/* alerts expected to close on re-scan without file deletion). Physical removals still US2 T021–T031. |
 | `valid` | 165 | Already merged via #1198 (T037 java/ssrf × 6 — but 5 still open), #1199 (T039 java/xxe × 2 — 1 still open), #1200 (T040 java/ldap-injection × 4 — 1 still open), #1201 (T041 zipslip test), #1202 (T042 sql-injection — 6 still open), #1207-#1210 (T043 path-injection — 51 still open), #1203 (T044 java/xss — 31 still open). Phase 5 follow-ups required for residual alerts. |
 | `false-positive` | 1 | T066 + #1204 merged (java/implicit-cast-in-compound-assignment in PSFeedServicePerformanceTest); 2 more implicit-cast alerts remain in HTTPClient/ (likely accepted-risk for legacy HTTPClient library) |
 | `accepted-risk` | 5+3 | PSAesCBC.java #649/#650/#757–#759 formalized T047/T048 (decrypt-only upgrade; NOT FP); plus #769/#770/#787 error-message residuals |

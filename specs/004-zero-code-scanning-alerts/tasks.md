@@ -81,6 +81,7 @@ Each Valid-finding (US3) task MUST include a regression test that demonstrably f
 ### Implementation for User Story 1
 
 - [ ] T014 [US1] Confirm dispositions for all 485 obsolete rows in `triage.md` — module owners verify the flagged files are not referenced by build/runtime and are not shipped
+- [x] T014b [US1/US2] **Vendor/war paths-ignore (scan hygiene):** add Advanced CodeQL `paths-ignore` for jslib/vendor/cui-components/war/test-fixtures/lib-js so ~186 open js/* vendor alerts (bulk medium + high) stop thrashing while US2 T021–T031 physical removals land. Documented in `suppressions.md` (`vendor-paths-ignore-us2`). Product sources under `cm/{plugins,widgets,views,...}` remain scanned.
 - [ ] T015 [US1] Confirm dispositions for all 380 valid rows in `triage.md` — module owners confirm the finding is real and assign `linked_pr` once the fix lands
 - [ ] T016 [US1] Confirm the 1 false-positive row in `triage.md` — security reviewer signs off and the suppression entry is queued (executed in US4)
 - [ ] T017 [US1] Run `scripts/verify-triage-inventory.sh` and ensure it passes; commit any disposition-only updates to `triage.md`
