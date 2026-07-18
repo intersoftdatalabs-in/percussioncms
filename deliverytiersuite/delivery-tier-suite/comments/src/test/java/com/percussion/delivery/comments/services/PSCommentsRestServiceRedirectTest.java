@@ -17,8 +17,11 @@ package com.percussion.delivery.comments.services;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.net.URI;
+import java.net.URISyntaxException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -57,5 +60,22 @@ class PSCommentsRestServiceRedirectTest {
     // BEL, TAB, and other Cntrl are stripped
     assertEquals("ab", PSCommentsRestService.sanitizeForLog("a\u0007b"));
     assertEquals("ab", PSCommentsRestService.sanitizeForLog("a\tb"));
+  }
+
+  @Test
+  void rebuildRelativeRedirectUriPreservesPathQueryFragment() throws URISyntaxException {
+    URI rebuilt =
+        PSCommentsRestService.rebuildRelativeRedirectUri("/page?lastCommentId=1#top");
+    assertNull(rebuilt.getScheme());
+    assertEquals("/page", rebuilt.getPath());
+    assertEquals("lastCommentId=1", rebuilt.getQuery());
+    assertEquals("top", rebuilt.getFragment());
+  }
+
+  @Test
+  void rebuildRelativeRedirectUriRejectsProtocolRelative() {
+    assertThrows(
+        URISyntaxException.class,
+        () -> PSCommentsRestService.rebuildRelativeRedirectUri("//evil.example/x"));
   }
 }
