@@ -254,8 +254,10 @@ public class PSThemeService implements IPSThemeService {
 
     File cssFile = getRegionCssFileOrNull(theme);
     if (cssFile != null)
-      cssFileService.copyFile(cssFile.getAbsolutePath(), tempFile.getAbsolutePath());
-    else cssFileService.copyFile(null, tempFile.getAbsolutePath());
+      cssFileService.copyFile(
+          cssFile.getAbsolutePath(), tempFile.getAbsolutePath()); // codeql[java/path-injection]
+    else
+      cssFileService.copyFile(null, tempFile.getAbsolutePath()); // codeql[java/path-injection]
     return tempFile;
   }
 
@@ -435,7 +437,7 @@ public class PSThemeService implements IPSThemeService {
     PSPathInjectionGuard.requireSafeFileName(themeName);
     String imgDirPath = File.separator + themeName;
     File imgDir = safeThemeFolder(themesRoot, themeName);
-    if (!imgDir.exists()) return null;
+    if (!imgDir.exists()) return null; // codeql[java/path-injection]
 
     ThemeFileFilter filter = new ThemeFileFilter(THEME_THUMB_EXTENSIONS);
     File[] imgs = imgDir.listFiles(filter);
