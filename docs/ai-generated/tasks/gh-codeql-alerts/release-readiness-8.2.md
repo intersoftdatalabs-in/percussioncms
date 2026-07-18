@@ -30,7 +30,7 @@ Source of truth: `docs/ai-generated/tasks/gh-codeql-alerts/triage.md`,
 | `obsolete` | 593 | US2 clusters pending: T021–T026 (WebUI), T028 (dojo non-AppFiles), T030–T031 (DTS/InstallDir) |
 | `valid` | 165 | Already merged via #1198 (T037 java/ssrf × 6 — but 5 still open), #1199 (T039 java/xxe × 2 — 1 still open), #1200 (T040 java/ldap-injection × 4 — 1 still open), #1201 (T041 zipslip test), #1202 (T042 sql-injection — 6 still open), #1207-#1210 (T043 path-injection — 51 still open), #1203 (T044 java/xss — 31 still open). Phase 5 follow-ups required for residual alerts. |
 | `false-positive` | 1 | T066 + #1204 merged (java/implicit-cast-in-compound-assignment in PSFeedServicePerformanceTest); 2 more implicit-cast alerts remain in HTTPClient/ (likely accepted-risk for legacy HTTPClient library) |
-| `accepted-risk` | 0 | PSAesCBC.java (3 weak-crypto + 2 static-IV) queued for accepted-risk to 9.0 |
+| `accepted-risk` | 5+3 | PSAesCBC.java #649/#650/#757–#759 formalized T047/T048 (decrypt-only upgrade; NOT FP); plus #769/#770/#787 error-message residuals |
 | **Total** | **759** | |
 
 ## 3. Counts by severity (live re-scan 2026-07-14)
@@ -48,8 +48,8 @@ Source of truth: `docs/ai-generated/tasks/gh-codeql-alerts/triage.md`,
 | #769 | `java/error-message-exposure` | `modules/perc-toolkit/.../imageedit/web/SimpleXmlView.java` | Spring `AbstractView.renderMergedOutputModel` exception propagation; constant-swap fix in PR #1268 insufficient for CodeQL taint analysis; needs local exception handler | 8.3 | T054 follow-up |
 | #770 | `java/error-message-exposure` | `modules/perc-toolkit/.../pso/preview/SimpleXmlView.java` | same as #769 (preview variant) | 8.3 | T054 follow-up |
 | #787 | `java/error-message-exposure` | `system/servlet/.../webdav/method/PSWebdavConfigValidator.java` | `writeError(String msg, int level)` helper signature accepts arbitrary string; CodeQL flags the parameter; needs typed enum refactor | 8.3 | T054 follow-up |
-| (queued) | java/weak-cryptographic-algorithm (3) | `modules/perc-legacy/.../PSAesCBC.java` | legacy deprecated crypto; upgrade requires API-breaking change to PSAesCBC API | 9.0 | T047/T048 follow-up |
-| (queued) | java/static-initialization-vector (2) | `modules/perc-legacy/.../PSAesCBC.java` | same root cause as weak-crypto | 9.0 | T047/T048 follow-up |
+| 757, 758, 759 | java/weak-cryptographic-algorithm (3) | `modules/perc-legacy/.../PSAesCBC.java` | AES/CBC kept for upgrade decrypt only; production encrypt is PSEncryptor AES/GCM — accepted-risk (NOT false positive) | 9.0 | T047 done |
+| 649, 650 | java/static-initialization-vector (2) | `modules/perc-legacy/.../PSAesCBC.java` | fixed IV required for wire-compatible historical decrypt; new encrypt uses random IV GCM | 9.0 | T048 done |
 
 ## 5. Pass / fail decision
 
