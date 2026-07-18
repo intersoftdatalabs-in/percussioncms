@@ -281,21 +281,23 @@ public class PSDocumentUtils extends PSJexlUtilBase
 
       try
       {
-         // Sink-line suppressions: requestUri already rebuilt after URLValidation
-         // (alerts #1066/#1067/#1733/#1735/#1847). Path query-filter + model pack
-         // still residual-flag client.send / build / statusCode after Redirect.NEVER.
+         // Runtime SSRF closed: requestUri from buildValidatedExternalRequestUri
+         // (URLValidation + scheme literal) + Redirect.NEVER. CodeQL java/ssrf
+         // residuals #1066/#1067/#1733/#1735/#1847/#1849 are path-filtered and
+         // dismissed FP — do not re-sprinkle // codeql on every residual line
+         // (that re-fingerprints the alert and reopens a new ID on each PR push).
          HttpResponse<String> response =
                client.send( // codeql[java/ssrf]
-                     requestBuilder.build(), // codeql[java/ssrf]
+                     requestBuilder.build(),
                      HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
-         int statusCode = response.statusCode(); // codeql[java/ssrf]
+         int statusCode = response.statusCode();
          // Redirect.NEVER: 3xx is returned without following. Empty body matches
          // getDocument's "empty string on error" contract (no open-redirect pivot).
          if (statusCode >= 300 && statusCode < 400)
          {
             return "";
          }
-         return statusCode == 200 ? response.body() : ""; // codeql[java/ssrf]
+         return statusCode == 200 ? response.body() : "";
       }
       catch (InterruptedException e)
       {
