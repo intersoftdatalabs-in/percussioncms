@@ -144,7 +144,7 @@ public class PSAaClientServlet extends HttpServlet {
             httpResponse.setStatus(statusCode);
 
             try (var outputStream = httpResponse.getOutputStream()) {
-                // codeql[java/xss] T044 #756: intentional CMS widget HTML/JS from trusted assembly templates; callers own escaping of user params
+                // codeql[java/xss] justification: intentional CMS widget HTML/JS from trusted assembly templates; callers own escaping of user params (alert #756)
                 outputStream.write(responseBytes);
                 outputStream.flush();
             }

@@ -440,7 +440,7 @@ public class PSFeedService extends PSAbstractRestService implements IPSFeedsRest
       }
     }
 
-    // codeql[java/xss] T044 #727: APPLICATION_XML feed body after URLValidation; not HTML content-type
+    // codeql[java/xss] justification: APPLICATION_XML feed body after URLValidation; not HTML content-type (alert #727)
     return feeds;
   }
 

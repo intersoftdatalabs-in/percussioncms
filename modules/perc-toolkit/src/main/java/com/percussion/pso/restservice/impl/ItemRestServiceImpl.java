@@ -775,7 +775,7 @@ public class ItemRestServiceImpl implements IItemRestService {
       item.addError(ErrorCode.UNKNOWN_ERROR, "Unexpected error updating item");
     }
 
-    // codeql[java/xss] T044 #729: XML REST Item DTO; consumers must treat as data not HTML
+    // codeql[java/xss] justification: XML REST Item DTO; consumers must treat as data not HTML (alert #729)
     return item;
   }
 
@@ -797,7 +797,7 @@ public class ItemRestServiceImpl implements IItemRestService {
     else {
       log.warn("Items is null");
     }
-    // codeql[java/xss] T044 #730: XML REST Items DTO; consumers must treat as data not HTML
+    // codeql[java/xss] justification: XML REST Items DTO; consumers must treat as data not HTML (alert #730)
     return items;
   }
 
@@ -1862,10 +1862,10 @@ public class ItemRestServiceImpl implements IItemRestService {
       item.addError(
           ErrorCode.UNKNOWN_ERROR,
           "Content id from path different than content id specified in item");
-      // codeql[java/xss] T044 #731: XML REST Item DTO; consumers must treat as data not HTML
+      // codeql[java/xss] justification: XML REST Item DTO; consumers must treat as data not HTML (alert #731)
       return item;
     }
-    // codeql[java/xss] T044 #732: XML REST Item DTO; consumers must treat as data not HTML
+    // codeql[java/xss] justification: XML REST Item DTO; consumers must treat as data not HTML (alert #732)
     return updateItem(item);
   }
 
@@ -2043,7 +2043,7 @@ public class ItemRestServiceImpl implements IItemRestService {
           assemblyResult != null ? assemblyResult.length() : 0,
           e);
     }
-    // codeql[java/xss] T044 #734: XML REST Items DTO; assembly errors use generic messages only
+    // codeql[java/xss] justification: XML REST Items DTO; assembly errors use generic messages only (alert #734)
     return items;
   }
 

@@ -231,7 +231,7 @@ public class PSAssetRestService {
         | IPSWidgetAssetRelationshipService.PSWidgetAssetRelationshipServiceException e) {
       throw new WebApplicationException(jakarta.ws.rs.core.Response.Status.INTERNAL_SERVER_ERROR);
     }
-    // codeql[java/xss] T044 #735: JSON/XML DTO via Jackson/JAXB; client HTML-encodes before DOM insert
+    // codeql[java/xss] justification: JSON/XML DTO via Jackson/JAXB; client HTML-encodes before DOM insert (alert #735)
     return awRel;
   }
 
@@ -483,7 +483,7 @@ public class PSAssetRestService {
   @Consumes({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
   public PSAsset save(PSAsset object) {
     try {
-      // codeql[java/xss] T044 #736: JSON/XML DTO via Jackson/JAXB; client HTML-encodes before DOM insert
+      // codeql[java/xss] justification: JSON/XML DTO via Jackson/JAXB; client HTML-encodes before DOM insert (alert #736)
       return assetService.save(object);
     } catch (PSDataServiceException e) {
       throw new WebApplicationException(jakarta.ws.rs.core.Response.Status.INTERNAL_SERVER_ERROR);
@@ -530,7 +530,7 @@ public class PSAssetRestService {
       PSAssetSummary sum = assetService.find(assetFolderRelationship.getAssetId());
       assetFolderRelationship.setAssetId(sum.getId());
 
-      // codeql[java/xss] T044 #737: JSON/XML DTO via Jackson/JAXB; client HTML-encodes before DOM insert
+      // codeql[java/xss] justification: JSON/XML DTO via Jackson/JAXB; client HTML-encodes before DOM insert (alert #737)
       return assetFolderRelationship;
     } catch (PSDataServiceException e) {
       throw new WebApplicationException(jakarta.ws.rs.core.Response.Status.INTERNAL_SERVER_ERROR);
