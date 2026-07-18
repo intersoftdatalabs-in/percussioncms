@@ -27,6 +27,31 @@ paths-ignore:
   - "WebUI/src/main/webapp/cm/shared-finder.js"
   - "WebUI/src/main/webapp/cm/shared-common.css"
   - "WebUI/src/main/webapp/cm/shared-common-minuet.css"
+  # --- Vendored / packaging / test-fixture trees (US2 obsolete scan hygiene) ---
+  # Third-party jQuery/Bootstrap/Knockout/RequireJS copies and WAR packaging
+  # mirrors produce bulk medium/high js/* noise without product-source signal.
+  # Perc-written sources under WebUI/src/main/webapp/cm/{plugins,widgets,views,
+  # services,controllers,models,app} remain scanned. Physical removal of vendor
+  # trees remains US2 T021–T031; paths-ignore stops residual thrashing until
+  # deletion lands. See suppressions.md row "vendor-paths-ignore-us2".
+  - "WebUI/src/main/webapp/cm/jslib/**"
+  - "WebUI/src/main/webapp/cm/vendor/**"
+  - "WebUI/src/main/webapp/cm/cui/components/**"
+  - "WebUI/src/main/webapp/cm/pages/cui/components/**"
+  - "WebUI/src/main/webapp/cm/api/lib/**"
+  - "WebUI/src/main/webapp/cm/cui/require.js"
+  - "WebUI/src/main/webapp/cm/pages/cui/require.js"
+  # Committed WAR packaging tree mirrors webapp sources + vendor libs.
+  - "WebUI/war/**"
+  # Test fixtures and unit test JS (not production attack surface).
+  - "**/src/test/resources/**"
+  - "WebUI/src/test/**"
+  # DTS / packages vendored JS blobs.
+  - "deliverytiersuite/delivery-tier-suite/**/lib-js/**"
+  - "deliverytiersuite/delivery-tier-suite/**/src-js/**"
+  - "modules/perc-packages/**/jquery.qtip.js"
+  - "modules/perc-packages/**/jquery*.js"
+  - "modules/perc-toolkit/src/main/resources/InstallDir/**"
 
 # Local model pack definitions under .github/codeql/models (for docs / future GHCR).
 # GHA rejects local path packs; do not pass via workflow packs:. Rely on runtime
