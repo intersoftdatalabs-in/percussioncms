@@ -104,7 +104,7 @@
     // all selectors are IDs (looking for #), and that the resulting properties
     // are properly terminated.
 
-    cssString = cssString.replace('"', ""); // HACK!
+    cssString = cssString.replace(/"/g, ""); // HACK! strip all double-quotes
 
     var cssSelectors = getRegionSelectorsFrom(cssString);
     var regionCSS = {};

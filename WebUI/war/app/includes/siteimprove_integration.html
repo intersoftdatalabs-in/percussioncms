@@ -166,7 +166,7 @@
             return;
           } else {
             var dataStr = results.metadata.data;
-            dataStr = dataStr.replace("\\", "");
+            dataStr = dataStr.replace(/\\/g, "");
             //get our site info from the meta data
             var parsedMetadata = JSON.parse(dataStr);
 
@@ -186,7 +186,7 @@
 
     function getParameterByName(name) {
       url = window.location.href;
-      name = name.replace(/[\[\]]/g, "\\$&");
+      name = String(name).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
       var regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"),
         results = regex.exec(url);
       if (!results) return null;
