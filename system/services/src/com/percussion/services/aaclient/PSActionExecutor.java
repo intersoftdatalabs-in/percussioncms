@@ -45,6 +45,7 @@ import com.percussion.services.assembly.jexl.PSAssemblerUtils;
 import com.percussion.services.catalog.PSTypeEnum;
 import com.percussion.services.guidmgr.data.PSGuid;
 import com.percussion.services.guidmgr.data.PSLegacyGuid;
+import com.percussion.security.validation.XSSValidation;
 import com.percussion.system.utils.IPSHtmlParameters;
 import com.percussion.utils.guid.IPSGuid;
 import com.percussion.utils.request.PSRequestInfo;
@@ -134,18 +135,26 @@ public class PSActionExecutor implements IPSWidgetHandler {
       }
    }
 
-   private void executeSetField(HttpServletRequest request, HttpServletResponse response) throws Exception {
-      var cidStr = request.getParameter(IPSHtmlParameters.SYS_CONTENTID);
-      var fieldName = request.getParameter("fieldname");
-      var fieldValue = URLDecoder.decode(
-         Optional.ofNullable(request.getParameter("fieldvalue")).orElse(""),
-         "UTF-8");
+private void executeSetField(HttpServletRequest request, HttpServletResponse response) throws Exception {
+       var cidStr = request.getParameter(IPSHtmlParameters.SYS_CONTENTID);
+       var fieldName = request.getParameter("fieldname");
+       var fieldValue = URLDecoder.decode(
+          Optional.ofNullable(request.getParameter("fieldvalue")).orElse(""),
+          "UTF-8");
 
-      var cid = Integer.parseInt(cidStr);
-      var id = new PSLegacyGuid(cid, -1);
-      var resp = setFieldValue(id, fieldName, fieldValue);
-      PSAaClientServlet.pushResponse(response, resp, "text/html", 200);
-   }
+       var cid = Integer.parseInt(cidStr);
+       var id = new PSLegacyGuid(cid, -1);
+       var resp = setFieldValue(id, fieldName, fieldValue);
+       // CWE-79 defense (T044): the response is `text/html` and the value originated
+       // from a request parameter (`fieldvalue`) that round-trips through the database
+       // (so unsanitized HTML in the request payload could come back unchanged and be
+       // rendered as executable HTML in the AA widget). HTML-encode the value before
+       // sending. This breaks the XSS data flow at the canonical sink boundary so
+       // CodeQL's java/xss sink in PSAaClientServlet.pushResponse (alert #756) is no
+       // longer reachable from user input.
+       resp = XSSValidation.escapeHtml(resp);
+       PSAaClientServlet.pushResponse(response, resp, "text/html", 200);
+    }
 
    private void executeCheckout(HttpServletRequest request, HttpServletResponse response) throws Exception {
       var cidStr = request.getParameter(IPSHtmlParameters.SYS_CONTENTID);
