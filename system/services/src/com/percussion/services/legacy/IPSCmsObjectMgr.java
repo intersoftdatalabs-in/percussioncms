@@ -469,6 +469,18 @@ public interface IPSCmsObjectMgr extends IPSCmsContentSummaries {
     void deletePersistentProperty(PSPersistentProperty property);
 
     /**
+     * Updates a single persistent property (merge existing row).
+     *
+     * <p>Must live on this interface (not only the concrete manager) so callers can use the
+     * Spring-proxied bean without casting to {@code PSCmsObjectMgr}, which fails under JDK dynamic
+     * proxies used for {@code @Transactional}.
+     *
+     * @param property the property to update, not null
+     * @throws IllegalArgumentException if property is null
+     */
+    void updatePersistentProperty(PSPersistentProperty property);
+
+    /**
      * Changes the workflow for a single item.
      *
      * @param itemId the item's content ID, not null
