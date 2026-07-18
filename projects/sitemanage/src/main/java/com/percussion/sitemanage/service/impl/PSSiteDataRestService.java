@@ -158,19 +158,16 @@ public class PSSiteDataRestService {
   @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
   @Consumes({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
   public PSSite save(PSSite site) throws PSParametersValidationException {
-    // codeql[java/xss] justification: the `site` request body is a
-    // typed PSSite JAXB bean; Jackson (JSON) and JAXB (XML) deserializers
-    // reject malformed input. Field values are sanitized by
-    // siteDataService.save() against the PSSite bean's validation
-    // constraints. See T044.
+    // Typed PSSite JAXB/JSON bean; service validates. Client HTML-encodes before DOM insert.
     try {
+      // codeql[java/xss] T044 #750: JSON/XML DTO via Jackson/JAXB; not an HTML response body
       return siteDataService.save(site);
     } catch (PSParametersValidationException pve) {
       throw pve;
     } catch (PSDataServiceException e) {
       log.error(PSExceptionUtils.getMessageForLog(e));
       log.debug(PSExceptionUtils.getDebugMessageForLog(e));
-      throw new WebApplicationException(e.getMessage());
+      throw new WebApplicationException(jakarta.ws.rs.core.Response.Status.INTERNAL_SERVER_ERROR);
     }
   }
 
@@ -180,13 +177,11 @@ public class PSSiteDataRestService {
   @Consumes({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
   public PSSite createSiteFromUrl(@Context HttpServletRequest request, PSSite site)
       throws PSSiteImportException {
-    // codeql[java/xss] justification: see save() above. The `site`
-    // request body is a typed PSSite JAXB bean; the service layer
-    // validates and persists it. See T044.
     try {
+      // codeql[java/xss] T044 #1063: JSON/XML DTO via Jackson/JAXB; not an HTML response body
       return siteDataService.createSiteFromUrl(request, site);
     } catch (PSValidationException e) {
-      throw new WebApplicationException(e);
+      throw new WebApplicationException(jakarta.ws.rs.core.Response.Status.BAD_REQUEST);
     }
   }
 
@@ -254,12 +249,11 @@ public class PSSiteDataRestService {
   @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
   @Consumes({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
   public PSSiteProperties updateSiteProperties(PSSiteProperties props) {
-    // codeql[java/xss] justification: the `props` request body is a
-    // typed PSSiteProperties JAXB bean. See T044.
     try {
+      // codeql[java/xss] T044 #751: JSON/XML DTO via Jackson/JAXB; not an HTML response body
       return siteDataService.updateSiteProperties(props);
     } catch (PSNotFoundException | PSDataServiceException e) {
-      throw new WebApplicationException(e);
+      throw new WebApplicationException(jakarta.ws.rs.core.Response.Status.INTERNAL_SERVER_ERROR);
     }
   }
 
@@ -282,12 +276,11 @@ public class PSSiteDataRestService {
   @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
   @Consumes({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
   public PSSitePublishProperties updateSitePublishProperties(PSSitePublishProperties publishProps) {
-    // codeql[java/xss] justification: the `publishProps` request body
-    // is a typed PSSitePublishProperties JAXB bean. See T044.
     try {
+      // codeql[java/xss] T044 #752: JSON/XML DTO via Jackson/JAXB; not an HTML response body
       return siteDataService.updateSitePublishProperties(publishProps);
     } catch (IPSDataService.DataServiceSaveException | PSNotFoundException e) {
-      throw new WebApplicationException(e);
+      throw new WebApplicationException(jakarta.ws.rs.core.Response.Status.INTERNAL_SERVER_ERROR);
     }
   }
 

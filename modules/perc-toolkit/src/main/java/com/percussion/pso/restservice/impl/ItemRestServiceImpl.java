@@ -771,9 +771,11 @@ public class ItemRestServiceImpl implements IItemRestService {
       log.error("Unexpected Exception", e);
       log.error("Error {}", PSExceptionUtils.getMessageForLog(e));
       log.debug(PSExceptionUtils.getDebugMessageForLog(e));
-      item.addError(ErrorCode.UNKNOWN_ERROR, PSExceptionUtils.getMessageForLog(e));
+      // Do not put raw exception text (may include user XML) into the response item
+      item.addError(ErrorCode.UNKNOWN_ERROR, "Unexpected error updating item");
     }
 
+    // codeql[java/xss] T044 #729: XML REST Item DTO; consumers must treat as data not HTML
     return item;
   }
 
@@ -795,6 +797,7 @@ public class ItemRestServiceImpl implements IItemRestService {
     else {
       log.warn("Items is null");
     }
+    // codeql[java/xss] T044 #730: XML REST Items DTO; consumers must treat as data not HTML
     return items;
   }
 
@@ -1859,8 +1862,10 @@ public class ItemRestServiceImpl implements IItemRestService {
       item.addError(
           ErrorCode.UNKNOWN_ERROR,
           "Content id from path different than content id specified in item");
+      // codeql[java/xss] T044 #731: XML REST Item DTO; consumers must treat as data not HTML
       return item;
     }
+    // codeql[java/xss] T044 #732: XML REST Item DTO; consumers must treat as data not HTML
     return updateItem(item);
   }
 
@@ -2038,6 +2043,7 @@ public class ItemRestServiceImpl implements IItemRestService {
           assemblyResult != null ? assemblyResult.length() : 0,
           e);
     }
+    // codeql[java/xss] T044 #734: XML REST Items DTO; assembly errors use generic messages only
     return items;
   }
 

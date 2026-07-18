@@ -25,7 +25,11 @@ import jakarta.servlet.http.HttpServletResponse;
  * this servlet must be mapped to correspond to the link in the
  * "index.html" file.
  *
- * @author Craig R. McClanahan <Craig.McClanahan@eng.sun.com>
+ * <p>Header names/values are HTML-escaped before being written (T044 /
+ * CodeQL java/xss alerts #624, #625). This is a Tomcat sample packaged
+ * with the product docs tree, not a product CMS endpoint.
+ *
+ * @author Craig R. McClanahan &lt;Craig.McClanahan@eng.sun.com&gt;
  */
 
 public final class Hello extends HttpServlet {
@@ -73,9 +77,12 @@ public final class Hello extends HttpServlet {
 	Enumeration names = request.getHeaderNames();
 	while (names.hasMoreElements()) {
 	    String name = (String) names.nextElement();
+	    String value = request.getHeader(name);
 	    writer.println("<tr>");
-	    writer.println("  <th align=\"right\">" + name + ":</th>");
-	    writer.println("  <td>" + request.getHeader(name) + "</td>");
+	    // codeql[java/xss] T044 #624: header name HTML-escaped before write
+	    writer.println("  <th align=\"right\">" + escapeHtml(name) + ":</th>");
+	    // codeql[java/xss] T044 #625: header value HTML-escaped before write
+	    writer.println("  <td>" + escapeHtml(value) + "</td>");
 	    writer.println("</tr>");
 	}
 	writer.println("</table>");
@@ -83,6 +90,21 @@ public final class Hello extends HttpServlet {
 	writer.println("</body>");
 	writer.println("</html>");
 
+    }
+
+    /**
+     * Minimal HTML escape for this sample servlet (no product-module dependency).
+     */
+    static String escapeHtml(String input) {
+	if (input == null) {
+	    return "";
+	}
+	return input
+	    .replace("&", "&amp;")
+	    .replace("<", "&lt;")
+	    .replace(">", "&gt;")
+	    .replace("\"", "&quot;")
+	    .replace("'", "&#39;");
     }
 
 
