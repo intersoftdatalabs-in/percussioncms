@@ -54,12 +54,9 @@ import org.junit.jupiter.api.io.TempDir;
  *   <li>Passes {@code themeRootDirectory} as a method parameter (instead
  *       of caching it on the singleton) so concurrent imports do not
  *       race for the validation base.
- *   <li>Skips remote URL values (http/https and protocol-relative
- *       {@code //...} off-site CSS links) because they were never meant
- *       to be opened as files; this preserves external-stylesheet
+ *   <li>Skips URL values (off-site CSS links) because they were never
+ *       meant to be opened as files; this preserves external-stylesheet
  *       support on Windows where canonicalizing "https://..." throws.
- *   <li>Soft-skips when the theme root directory does not yet exist
- *       (pre-fix parity: nothing under a missing root can exist).
  *   <li>Calls {@link com.percussion.security.io.PSPathInjectionGuard#requireUnderBase}
  *       on every non-URL value BEFORE File construction. Traversal
  *       payloads throw IllegalArgumentException.
@@ -277,30 +274,70 @@ public class PSImportThemeHelperPathInjectionTest {
             + " validator fails fast).");
   }
 
-  // ====================================================================
-  // Per-call root parameterization: each removeIfExists invocation
-  // validates against the root passed as an argument (not a shared
-  // mutable field). Sequential calls with different roots prove the
-  // contract; this is not a multi-thread concurrency stress test.
+  @Test
+  @DisplayName("removeIfExists: soft-fails when themeRoot does not exist (no IllegalArgumentException)")
+  void testRemoveIfExistsSoftWhenThemeRootMissing() throws Exception {
+    PSImportThemeHelper h = helper();
+    Map<String, String> linkPaths = new LinkedHashMap<>();
+    Path legitFile = themeRoot.resolve("missing-root.css");
+    linkPaths.put("http://ok.example/missing-root.css", legitFile.toString());
+    // themeRoot does not exist (we deliberately do not create it).
+    assertDoesNotThrow(
+        () -> invokeRemoveIfExists(h, linkPaths, themeRoot.toString()),
+        "A missing themeRoot must NOT throw IllegalArgumentException; pre-fix"
+            + " `new File(cssFile).exists()` was also a no-op in this case (false)."
+            + " Throwing here would be silently swallowed by process()'s catch(Exception)"
+            + " and abort the entire import.");
+    assertEquals(
+        1,
+        linkPaths.size(),
+        "Entry stays — nothing under a missing root can exist anyway");
+  }
+
+  @Test
+  @DisplayName(
+      "removeIfExists: skips protocol-relative URLs (//cdn.example/style.css) "
+          + "in addition to http(s)://")
+  void testRemoveIfExistsSkipsProtocolRelativeUrls() throws Exception {
+    PSImportThemeHelper h = helper();
+    Map<String, String> linkPaths = new LinkedHashMap<>();
+    linkPaths.put("//cdn.example/style.css", "//cdn.example/style.css");
+    assertDoesNotThrow(
+        () -> invokeRemoveIfExists(h, linkPaths, themeRoot.toString()),
+        "Protocol-relative URLs (//cdn.example/style.css) must be skipped; "
+            + " canonicalizing them as a filesystem path throws on Windows.");
+    assertEquals(
+        1,
+        linkPaths.size(),
+        "Protocol-relative URL entries must remain in the map (off-site to download)");
+  }
+
+// ====================================================================
+  // Per-call root parameterization: removeIfExists takes its root as a
+  // method parameter, so two sequential calls with different roots
+  // validate against their own base (no shared mutable field on the
+  // singleton). This is a sequential test of the per-call contract, not
+  // an actual concurrency test.
   // ====================================================================
 
   @Test
   @DisplayName(
-      "Per-call root parameterization: sequential calls with different roots"
-          + " each validate only against their own base (no shared field)")
+      "Per-call root parameterization: two sequential calls with different roots"
+          + " each validate against their own base (no shared mutable field)")
   void testPerCallRootParameterization() throws Exception {
     PSImportThemeHelper h = helper();
-    // Two distinct temp directories, simulating two theme imports that
-    // must not share a validation base via a singleton field.
+    // Two distinct temp directories, simulating two concurrent theme imports.
     Path rootA = themeRoot.resolve("import-A");
     Path rootB = themeRoot.resolve("import-B");
     Files.createDirectories(rootA);
     Files.createDirectories(rootB);
 
     Map<String, String> linkPathsA = new LinkedHashMap<>();
-    // File that exists in rootA but NOT in rootB. The critical check is
-    // the escape test below: a path escaping rootB must be rejected when
-    // rootB is the validating base (each call passes its own root).
+    // File that exists in rootA but NOT in rootB. Pre-fix singleton-cached root
+    // would let rootB's call accidentally validate against rootA's base — but
+    // the file's relative path is identical so it would pass either way. The
+    // critical check is the escape test below: rootA's path must NOT pass when
+    // rootB is the validating base.
     Path legitInA = rootA.resolve("local.css");
     Files.createFile(legitInA);
     linkPathsA.put("http://A.example/local.css", legitInA.toString());
@@ -309,9 +346,8 @@ public class PSImportThemeHelperPathInjectionTest {
     Map<String, String> linkPathsB = new LinkedHashMap<>();
     linkPathsB.put("http://B.example/esc.css", escapeForB.toString());
 
-    // Sequential invocations with distinct roots: each call validates
-    // against its OWN base (parameterization eliminates the pre-fix
-    // shared mutable singleton field).
+    // Sequential is sufficient to demonstrate the absence of the shared-field
+    // race: each call passes its OWN root, so each validates against its OWN base.
     invokeRemoveIfExists(h, linkPathsA, rootA.toString());
     assertFalse(
         linkPathsA.containsKey("http://A.example/local.css"),
@@ -323,39 +359,6 @@ public class PSImportThemeHelperPathInjectionTest {
         "Path escaping rootB must be rejected when rootB is the validating base."
             + " Pre-fix (shared mutable field) would have validated against rootA"
             + " because field was overwritten between the two calls.");
-  }
-
-  @Test
-  @DisplayName(
-      "removeIfExists: missing theme root is a soft no-op (pre-fix parity;"
-          + " does not abort import via requireUnderBase baseDir check)")
-  void testRemoveIfExistsSoftWhenThemeRootMissing() throws Exception {
-    PSImportThemeHelper h = helper();
-    Path missingRoot = themeRoot.resolve("does-not-exist-yet");
-    Map<String, String> linkPaths = new LinkedHashMap<>();
-    // Would escape if validated; with a missing root we skip validation
-    // entirely (nothing under a non-existent root can exist).
-    Path wouldEscape =
-        missingRoot.resolve("..").resolve("..").resolve("etc").resolve("passwd");
-    linkPaths.put("http://ok.example/x.css", wouldEscape.toString());
-    assertDoesNotThrow(
-        () -> invokeRemoveIfExists(h, linkPaths, missingRoot.toString()),
-        "Missing theme root must soft-skip (pre-fix: exists() false; post-fix:"
-            + " do not throw from requireUnderBase's baseDir existence check)");
-    assertEquals(1, linkPaths.size(), "Entries must remain when theme root is missing");
-  }
-
-  @Test
-  @DisplayName(
-      "removeIfExists: protocol-relative // URLs are skipped (not treated as paths)")
-  void testRemoveIfExistsSkipsProtocolRelativeUrls() throws Exception {
-    PSImportThemeHelper h = helper();
-    Map<String, String> linkPaths = new LinkedHashMap<>();
-    linkPaths.put("//cdn.example/style.css", "//cdn.example/style.css");
-    assertDoesNotThrow(
-        () -> invokeRemoveIfExists(h, linkPaths, themeRoot.toString()),
-        "Protocol-relative URLs must be skipped like http(s) URLs");
-    assertEquals(1, linkPaths.size());
   }
 
   // ====================================================================
