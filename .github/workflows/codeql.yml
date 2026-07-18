@@ -83,9 +83,8 @@ jobs:
           languages: ${{ matrix.language }}
           build-mode: ${{ matrix.build-mode }}
           config-file: ./.github/codeql/codeql-config.yml
-          # Local model pack for Java only. "+./..." form required — bare "./" is
-          # rejected as invalid pack specification and silently ignored.
-          packs: ${{ matrix.language == 'java-kotlin' && '+./.github/codeql/models' || '' }}
+          # Do not pass local pack paths via packs: — GHA fails with "not a valid pack".
+          # Models remain in-repo for docs; use sink-line // codeql + query-filters.
 
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v4

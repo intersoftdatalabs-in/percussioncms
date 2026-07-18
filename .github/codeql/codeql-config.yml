@@ -28,14 +28,9 @@ paths-ignore:
   - "WebUI/src/main/webapp/cm/shared-common.css"
   - "WebUI/src/main/webapp/cm/shared-common-minuet.css"
 
-# Local model pack — custom sanitizer barriers for SSRF, LDAP, path injection,
-# and XXE. Java-only: do not attach to javascript-typescript analysis (pack
-# targets codeql/java-all). See
-# docs/ai-generated/tasks/gh-codeql-alerts/codeql-pr-playbook.md
-# Local pack path MUST use "+./..." — bare "./" is rejected as invalid and ignored.
-packs:
-  java:
-    - +./.github/codeql/models
+# Local model pack definitions under .github/codeql/models (for docs / future GHCR).
+# GHA rejects local path packs; do not pass via workflow packs:. Rely on runtime
+# sanitizers, sink-line // codeql[...], and path query-filters.
 
 # Per-query exclusion for documented false positives.
 # See contracts/C3: every `query-filters exclude` entry MUST have a
