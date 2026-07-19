@@ -23,6 +23,24 @@ services:
       PERC_INSTALL_ROOT: ${PERC_INSTALL_ROOT:-/opt/Percussion}
       CMS_PORT: ${CMS_PORT:-9992}
       DTS_PORT: ${DTS_PORT:-9980}
+      # Installer DB contract — interpolated from .env.compose.
+      # install-update.sh's db_config_value reads these via ${!VAR} indirection,
+      # so they must reach the container's environment for the install to use
+      # MySQL (or any non-Derby DB) instead of the default.
+      PERC_DB_TYPE: ${PERC_DB_TYPE:-derby}
+      PERC_DB_HOST: ${PERC_DB_HOST:-localhost}
+      PERC_DB_PORT: ${PERC_DB_PORT:-1527}
+      PERC_DB_NAME: ${PERC_DB_NAME:-percussion}
+      PERC_DB_SCHEMA: ${PERC_DB_SCHEMA:-}
+      PERC_DB_USER: ${PERC_DB_USER:-percussion}
+      PERC_DB_PASSWORD: ${PERC_DB_PASSWORD:-percussion}
+      PERC_DB_SSL_ENABLED: ${PERC_DB_SSL_ENABLED:-true}
+      PERC_DB_SSL_VERIFY: ${PERC_DB_SSL_VERIFY:-true}
+      PERC_DB_SSL_ALLOW_SELF_SIGNED: ${PERC_DB_SSL_ALLOW_SELF_SIGNED:-false}
+      PERC_DB_SSL_TRUSTSTORE_PATH: ${PERC_DB_SSL_TRUSTSTORE_PATH:-}
+      PERC_DB_SSL_TRUSTSTORE_PASSWORD: ${PERC_DB_SSL_TRUSTSTORE_PASSWORD:-}
+      PERC_DB_SSL_KEYSTORE_PATH: ${PERC_DB_SSL_KEYSTORE_PATH:-}
+      PERC_DB_SSL_KEYSTORE_PASSWORD: ${PERC_DB_SSL_KEYSTORE_PASSWORD:-}
     ports:
       - "${CMS_PORT:-9992}:9992"
       - "${DTS_PORT:-9980}:9980"
@@ -42,5 +60,13 @@ services:
         ]
       interval: 20s
       timeout: 5s
+<<<<<<< HEAD
       retries: ${PERC_HEALTHCHECK_RETRIES:-60}
       start_period: ${PERC_HEALTHCHECK_START_PERIOD:-30s}
+=======
+      retries: ${PERC_HEALTHCHECK_RETRIES:-180}
+      start_period: ${PERC_HEALTHCHECK_START_PERIOD:-3600s}
+
+volumes:
+  mysql-data:
+>>>>>>> 052c18b956 (fix(docker): wire PERC_DB_* env vars + bump healthcheck window to break install restart loop)
