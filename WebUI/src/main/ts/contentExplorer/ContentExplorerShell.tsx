@@ -15,32 +15,159 @@
  */
 
 /**
- * ContentExplorerShell placeholder component for feature 992-react-content-explorer.
+ * ContentExplorerShell — modern React shell for primary content navigation
+ * (feature 992-react-content-explorer US1 / T017).
  *
- * <p>Registered in {@code registry.ts} so the bridge can resolve the name
- * {@code "ContentExplorerShell"} for {@code window.PercModernUI.mount(...)},
- * and so Vite's bundler pulls the module in. The full tree + detail-list +
- * ReducedAction set implementation lands in US1 (tasks.md T017–T027).</p>
+ * <p>Layout: grid with tree on the left, detail list on the right, and a
+ * header carrying the title + the ReducedAction bar. Selection state is
+ * lifted here; the tree and list are controlled components.</p>
+ *
+ * <p>The shell does not own navigation; onOpen delegates to the host
+ * (default = {@link openInEditor}) so dialog mounts can override.</p>
  */
 
-import * as React from "react";
+import React, { useCallback, useState } from "react";
+import type { PSPathItem } from "../api/contentExplorer/types";
+import { message } from "../i18n/message";
+import { DetailList } from "./DetailList";
+import { ExplorerTree } from "./ExplorerTree";
+import { EXPLORER_MSG } from "./messages";
+import { openInEditor } from "./openInEditor";
+import {
+  ReducedActions,
+  defaultReducedActionHandlers,
+  type ReducedActionHandlers,
+} from "./ReducedActions";
+import { EMPTY_SELECTION, type Selection } from "./selection";
+import {
+  errorStateStyle,
+  headerStyle,
+  headerTitleStyle,
+  shellStyle,
+} from "./styles";
 
 export interface ContentExplorerShellProps {
+  /** Folder path to display on mount; defaults to product root. */
   initialPath?: string;
+  /** Override open behavior (default navigates to the editor). */
+  onOpenItem?: (item: PSPathItem) => void;
+  /** Override create-folder / rename / move / copy / delete handlers. */
+  actionHandlers?: Partial<ReducedActionHandlers>;
+  /**
+   * Fired when a folder is activated. Allows the host to perform additional
+   * work (analytics, deep-link handling, etc.) before the list refreshes.
+   */
+  onFolderActivated?: (path: string, folder: PSPathItem) => void;
 }
 
-export const ContentExplorerShell: React.FC<ContentExplorerShellProps> = (props) => {
-  return React.createElement(
-    "div",
-    {
-      "data-component": "ContentExplorerShell",
-      "data-feature": "992-react-content-explorer",
-      "data-status": "placeholder",
-      role: "region",
-      "aria-label": "Content Explorer (placeholder — US1 implementation pending)",
+export function ContentExplorerShell({
+  initialPath = "/",
+  onOpenItem = openInEditor,
+  actionHandlers,
+  onFolderActivated,
+}: ContentExplorerShellProps): React.ReactElement {
+  const [selection, setSelection] = useState<Selection>(EMPTY_SELECTION);
+  const [error, setError] = useState<string | null>(null);
+
+  const handlers: ReducedActionHandlers = {
+    ...defaultReducedActionHandlers(),
+    ...actionHandlers,
+    onOpen: (item) => {
+      if (item.type === "folder" || (item.leaf === false && item.id == null)) {
+        setSelection({ folderPath: item.path, item: null });
+        return;
+      }
+      onOpenItem(item);
     },
-    `ContentExplorerShell placeholder — initialPath=${props.initialPath ?? "<root>"}. Implementer: replace with full shell in tasks.md US1 (T017–T027).`,
+    onPreview: actionHandlers?.onPreview ?? (() => undefined),
+  };
+  // Preview is real only when the host supplies its own handler; default is no-op.
+  const hasPreviewHandler = Boolean(actionHandlers?.onPreview);
+
+  const handleSelectFolder = useCallback(
+    (path: string, folder: PSPathItem | null) => {
+      setSelection({ folderPath: path, item: null });
+      if (folder) onFolderActivated?.(path, folder);
+    },
+    [onFolderActivated],
   );
-};
+
+  const handleActivate = useCallback(
+    (path: string, folder: PSPathItem) => {
+      setSelection({ folderPath: path, item: null });
+      onFolderActivated?.(path, folder);
+    },
+    [onFolderActivated],
+  );
+
+  const handleSelectItem = useCallback((item: PSPathItem) => {
+    setSelection((prev) => ({ ...prev, item }));
+  }, []);
+
+  const handleActivateItem = useCallback(
+    (item: PSPathItem) => {
+      handlers.onOpen(item);
+    },
+    [handlers],
+  );
+
+  const handleActionError = useCallback((msg: string) => {
+    setError(msg);
+  }, []);
+
+  return (
+    <div
+      style={shellStyle}
+      role="application"
+      aria-label={message(EXPLORER_MSG.TITLE)}
+      data-testid="content-explorer-shell"
+    >
+      <header style={headerStyle}>
+        <h1 style={headerTitleStyle}>{message(EXPLORER_MSG.TITLE)}</h1>
+        <ReducedActions
+          item={selection.item}
+          folder={
+            selection.item?.type === "folder"
+              ? selection.item
+              : selection.folderPath
+                ? // US1 default: assume WRITE on the active folder so the
+                  // user can create sub-folders without first selecting an
+                  // item. Server enforces AuthZ; we surface failures via
+                  // onError. US4 (ACL) tightens this with real permission
+                  // data lifted from the tree.
+                  ({
+                    id: undefined,
+                    path: selection.folderPath,
+                    name: selection.folderPath,
+                    type: "folder",
+                    accessLevel: "WRITE",
+                  } as PSPathItem)
+                : null
+          }
+          handlers={handlers}
+          hasPreviewHandler={hasPreviewHandler}
+          onError={handleActionError}
+        />
+      </header>
+      {error && (
+        <div style={{ ...errorStateStyle, gridColumn: "1 / -1" }} role="alert">
+          {message(EXPLORER_MSG.ERROR_GENERIC)}: {error}
+        </div>
+      )}
+      <ExplorerTree
+        initialPath={initialPath}
+        selectedPath={selection.folderPath}
+        onSelectFolder={handleSelectFolder}
+        onActivate={handleActivate}
+      />
+      <DetailList
+        folderPath={selection.folderPath}
+        selectedItemId={selection.item?.id ?? null}
+        onSelectItem={handleSelectItem}
+        onActivateItem={handleActivateItem}
+      />
+    </div>
+  );
+}
 
 export default ContentExplorerShell;

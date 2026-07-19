@@ -1,0 +1,54 @@
+/*
+ * Copyright 1999-2026 Percussion Software, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+/**
+ * TMX message keys for the modern Content Explorer (FR-026).
+ *
+ * <p>Keys follow the product prefix {@code perc.ui.explorer.*}; actual
+ * catalog entries are added in {@code modules/perc-i18n/.../CmsUi.tmx}
+ * via T023 when the messages stabilize. Until then, the keys fall back
+ * to themselves via the thin {@link message} wrapper.</p>
+ */
+
+export const EXPLORER_MSG = {
+  TITLE: "perc.ui.explorer@Content Explorer",
+  TREE_LOADING: "perc.ui.explorer@Loading folders",
+  TREE_EMPTY: "perc.ui.explorer@No folders available",
+  TREE_LOAD_ERROR: "perc.ui.explorer@Failed to load folders",
+  LIST_LOADING: "perc.ui.explorer@Loading items",
+  LIST_EMPTY: "perc.ui.explorer@No items in this folder",
+  LIST_LOAD_ERROR: "perc.ui.explorer@Failed to load items",
+  COL_NAME: "perc.ui.explorer@Name",
+  COL_TYPE: "perc.ui.explorer@Type",
+  COL_PATH: "perc.ui.explorer@Path",
+  ACTION_OPEN: "perc.ui.explorer@Open",
+  ACTION_PREVIEW: "perc.ui.explorer@Preview",
+  ACTION_CREATE_FOLDER: "perc.ui.explorer@Create Folder",
+  ACTION_RENAME: "perc.ui.explorer@Rename",
+  ACTION_MOVE: "perc.ui.explorer@Move",
+  ACTION_COPY: "perc.ui.explorer@Copy",
+  ACTION_DELETE: "perc.ui.explorer@Delete",
+  CONFIRM_DELETE_TITLE: "perc.ui.explorer@Delete Confirmation",
+  CONFIRM_DELETE_BODY: "perc.ui.explorer@Are you sure you want to delete this item?",
+  CONFIRM_OK: "perc.ui.explorer@OK",
+  CONFIRM_CANCEL: "perc.ui.explorer@Cancel",
+  PERMISSION_DENIED: "perc.ui.explorer@You do not have permission to perform this action",
+  SESSION_EXPIRED: "perc.ui.explorer@Your session has expired. Please log in again.",
+  RETRY: "perc.ui.explorer@Retry",
+  PROMPT_NEW_FOLDER_NAME: "perc.ui.explorer@Enter new folder name",
+  PROMPT_NEW_NAME: "perc.ui.explorer@Enter new name",
+  ERROR_GENERIC: "perc.ui.explorer@Something went wrong",
+} as const;

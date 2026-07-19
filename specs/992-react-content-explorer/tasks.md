@@ -3,7 +3,7 @@
 **Input**: Design documents from `/specs/992-react-content-explorer/`  
 **Prerequisites**: [plan.md](./plan.md), [spec.md](./spec.md), [research.md](./research.md), [data-model.md](./data-model.md), [contracts/](./contracts/), [quickstart.md](./quickstart.md)
 
-**Tests**: Required by FR-023, constitution III, and root `AGENTS.md` (Vitest for modern UI; service-contract tests only if REST changes).
+**Tests**: Required by FR-023, constitution III, and root `AGENTS.md` — **two-layer test strategy**: (a) Vitest + Testing Library for component-level logic with mocked API; (b) Playwright + TestNG (`modules/perc-qa-automation/`) for E2E against the live docker dev CMS. axe-core a11y gate (T082a) per US1/US2/US3 component spec. Service-contract tests only if REST shapes change.
 
 **Target release**: **8.2** — **functional parity blocks 8.2 GA** (FR-029, SC-012). All in-scope matrix rows must be **Done** before labeling 8.2; no post-8.2 deferral of in-scope work.
 
@@ -50,6 +50,8 @@ US2 can start after Foundational+US1 in parallel with US6 if staffing allows (di
 - [x] T012c Enumerate **in-scope hosts for 8.2** in `specs/992-react-content-explorer/checklists/cutover-inventory.md` §C (asset picker, page picker, AA ContentBrowserDialog, folder picker, Home Library optional) with current call-site rows; per-host task IDs **are** T045a–T045f in Phase 5
 - [x] T012d [P] **Evaluate each per-host migration in T045a–T045d** for `system/` server-side wiring need (action-page / content-browser dialog JSPs that cannot be replaced via WebUI + sitemanage + REST); record per-host decision (Keep web-only / Add `system/` task / Mark OUT) in `specs/992-react-content-explorer/checklists/cutover-inventory.md` §C under the host row, citing the constitution II/IV evidence that justifies the choice
 - [x] T012e [P] **If** a per-host decision in T012d requires `system/` wiring, add a concrete task ID under US2 (named `T045X-system-<host>` or similar) referencing the constitution II/IV evidence from T012d and the corresponding threat-model + service-contract test tasks (T052a/T052b pattern); **otherwise** no task is added and `system/` remains untouched
+- [ ] T012f [P] **Bring up the docker dev runtime** (NEW, 2026-07-19): host-side install to `/opt/Percussion` via `scripts/install-cms-dev.sh`; container via `docker compose --env-file .env.compose -f docker-compose.yml up -d cms-dts`. Verify the CMS is reachable at `http://localhost:9992/Rhythmyx/login` and Admin credentials are auto-discoverable from `/opt/Percussion/var/config/generated/passwords`. Default DB is **Derby**; MySQL mode is deferred per [issue #1388](https://github.com/intersoftdatalabs-in/percussioncms/issues/1388). Recorded evidence: `docker compose ps` shows `percussion-cms-dts` running; `curl http://localhost:9992/Rhythmyx/login` returns 200.
+- [ ] T012g [P] **Bring up Playwright** (NEW, 2026-07-19): `cd modules/perc-qa-automation/frontend && npm ci && npx playwright install chromium`. Verify `tests/login.spec.js` passes against the live CMS via `cd modules/perc-qa-automation/frontend && npm test`. Recorded evidence: 3 tests passed in 21.5 s on 2026-07-19 (login + auto-discovery + modern explorer placeholder). Subsequent Playwright tasks build on this.
 
 **Checkpoint**: Path API types compile; placeholders mountable; inventory started. No production cutover.
 
@@ -62,25 +64,27 @@ US2 can start after Foundational+US1 in parallel with US6 if staffing allows (di
 
 ### Tests (Required)
 
-- [ ] T013 [P] [US1] Unit tests for path API helpers (success + error mapping) in `WebUI/src/test/ts/contentExplorer/pathApi.test.ts`
-- [ ] T014 [P] [US1] Component tests for tree expand/select in `WebUI/src/test/ts/contentExplorer/ExplorerTree.test.tsx`
-- [ ] T015 [P] [US1] Component tests for detail list pagination/load in `WebUI/src/test/ts/contentExplorer/DetailList.test.tsx`
-- [ ] T015a [P] [US1] **Vitest perf regression guard** for SC-005: mocked `paginatedFolder` for a 500-child fixture renders first page and opens a selected item within a **tighter dev-machine budget (e.g. ≤ 5 s on the implementer's machine)** — this catches regressions pre-CI; it is **NOT** the SC-005 acceptance measurement. SC-005 itself is proven by `checklists/sc005-perf-evidence.md` against the standard office network per `quickstart.md` Scenario B
-- [ ] T016 [P] [US1] Tests for reduced actions (create/rename/move/delete confirm + error) in `WebUI/src/test/ts/contentExplorer/reducedActions.test.tsx`
+- [x] T013 [P] [US1] Unit tests for path API helpers (success + error mapping) in `WebUI/src/test/ts/contentExplorer/pathApi.test.ts`
+- [x] T014 [P] [US1] Component tests for tree expand/select in `WebUI/src/test/ts/contentExplorer/ExplorerTree.test.tsx`
+- [x] T015 [P] [US1] Component tests for detail list pagination/load in `WebUI/src/test/ts/contentExplorer/DetailList.test.tsx`
+- [x] T015a [P] [US1] **Vitest perf regression guard** for SC-005: mocked `paginatedFolder` for a 500-child fixture renders first page and opens a selected item within a **tighter dev-machine budget (e.g. ≤ 5 s on the implementer's machine)** — this catches regressions pre-CI; it is **NOT** the SC-005 acceptance measurement. SC-005 itself is proven by `checklists/sc005-perf-evidence.md` against the standard office network per `quickstart.md` Scenario B
+- [x] T016 [P] [US1] Tests for reduced actions (create/rename/move/delete confirm + error) in `WebUI/src/test/ts/contentExplorer/reducedActions.test.tsx`
 
 ### Implementation
 
-- [ ] T017 [P] [US1] Implement `ContentExplorerShell` layout (tree + detail panes) in `WebUI/src/main/ts/contentExplorer/ContentExplorerShell.tsx` (+ styles under `WebUI/src/main/ts/contentExplorer/`)
-- [ ] T018 [P] [US1] Implement folder tree component in `WebUI/src/main/ts/contentExplorer/ExplorerTree.tsx` loading children via path API
-- [ ] T019 [P] [US1] Implement detail list with pagination/virtualization for large folders in `WebUI/src/main/ts/contentExplorer/DetailList.tsx` using `paginatedFolder` (SC-005)
-- [ ] T020 [US1] Implement **ReducedAction set** bar/menu (open/preview, create folder, rename, move, copy, delete+confirm) in `WebUI/src/main/ts/contentExplorer/ReducedActions.tsx` (FR-010a)
-- [ ] T021 [US1] Wire open/preview to existing product navigation patterns (path/id → editor) from explorer selection under `WebUI/src/main/ts/contentExplorer/`
-- [ ] T022 [US1] Wire empty states, permission denied, and session/CSRF error UX in `WebUI/src/main/ts/contentExplorer/` via TMX keys
-- [ ] T023 [US1] Add/reuse explorer chrome TMX keys in `modules/perc-i18n/src/main/resources/i18n/CmsUi.tmx` with structural locale parity (FR-026)
+- [x] T017 [P] [US1] Implement `ContentExplorerShell` layout (tree + detail panes) in `WebUI/src/main/ts/contentExplorer/ContentExplorerShell.tsx` (+ styles under `WebUI/src/main/ts/contentExplorer/`)
+- [x] T018 [P] [US1] Implement folder tree component in `WebUI/src/main/ts/contentExplorer/ExplorerTree.tsx` loading children via path API
+- [x] T019 [P] [US1] Implement detail list with pagination/virtualization for large folders in `WebUI/src/main/ts/contentExplorer/DetailList.tsx` using `paginatedFolder` (SC-005)
+- [x] T020 [US1] Implement **ReducedAction set** bar/menu (open/preview, create folder, rename, move, copy, delete+confirm) in `WebUI/src/main/ts/contentExplorer/ReducedActions.tsx` (FR-010a)
+- [x] T021 [US1] Wire open/preview to existing product navigation patterns (path/id → editor) from explorer selection under `WebUI/src/main/ts/contentExplorer/`
+- [x] T022 [US1] Wire empty states, permission denied, and session/CSRF error UX in `WebUI/src/main/ts/contentExplorer/` via TMX keys
+- [x] T023 [US1] Add/reuse explorer chrome TMX keys in `modules/perc-i18n/src/main/resources/i18n/CmsUi.tmx` with structural locale parity (FR-026)
 - [ ] T024 [US1] Mount explorer in Web Management shell for development (e.g. panel in `WebUI/src/main/webapp/cm/app/webmgt.jsp` or thin shell JSP) via `PercModernUI.mount(..., 'ContentExplorerShell', ...)` without final Finder deletion yet
 - [ ] T024a [US1] **Verify shell-mount integration (FR-005)**: confirm explorer entry is reachable from main product navigation alongside Dashboard/Home, chrome matches other modern surfaces, and there are no Finder-only assumptions in the mount path; document evidence under `checklists/us1-shell-mount-evidence.md`
+- [ ] T024b [US1] **Playwright spec `modules/perc-qa-automation/frontend/tests/us1-core-explorer.spec.js`** (NEW): drives the US1 acceptance flow against the live CMS — login as Admin, navigate to the modern explorer entry, assert ContentExplorerShell is mounted, drive ReducedAction flows (create folder → rename → move → delete with confirm), assert state at each step. Asserts SC-001 against the live CMS. Recorded evidence captured by running `cd modules/perc-qa-automation/frontend && npx playwright test tests/us1-core-explorer.spec.js`.
 - [ ] T025 [US1] Run Vitest for `WebUI/src/test/ts/contentExplorer/` and fix failures
-- [ ] T026 [US1] Update capability matrix P0-Core rows status in `specs/992-react-content-explorer/contracts/capability-matrix.md`
+- [ ] T025b [US1] Run Playwright spec `tests/us1-core-explorer.spec.js` against the live CMS and fix failures (mark upstream bugs with `test.skip` + `BUG:` note; see [issue #1387](https://github.com/intersoftdatalabs-in/percussioncms/issues/1387) for folder-by-path)
+- [x] T026 [US1] Update capability matrix P0-Core rows status in `specs/992-react-content-explorer/contracts/capability-matrix.md`
 - [ ] T027 [US1] Commit US1 changes and open PR for review; **per constitution IX, inline reply with mitigation commit hash to every review comment AND run `gh api graphql resolveReviewThread` for each review thread** before merging; pause downstream stories per constitution checkpoint until PR review path is healthy
 
 **Checkpoint**: Explorer usable for core navigate on feature branch; miller Finder may still be present until US6.
@@ -95,6 +99,7 @@ US2 can start after Foundational+US1 in parallel with US6 if staffing allows (di
 ### Tests (Required)
 
 - [ ] T028 [P] [US6] Add/adjust tests proving modern shell mounts without miller-column Finder bootstrap for primary nav entry (e.g. `WebUI/src/test/ts/contentExplorer/primaryNavMount.test.ts` or document manual gate if pure JSP)
+- [ ] T028b [P] [US6] **Playwright spec `modules/perc-qa-automation/frontend/tests/us6-hard-cut.spec.js`** (NEW): assert no miller-column Finder chrome loads after the US6 PR; assert primary content entry redirects/lands on the modern explorer; assert cutover inventory rows for primary nav are signed off (FR-022). Asserts SC-006 against the live CMS.
 - [ ] T029 [US6] Remove or replace legacy-only automated tests that exercise miller Finder primary nav only (search under `WebUI/src/test` and related); do not permanent-skip (FR-024); add a **CI-gate assertion** (Vitest count comparison or test-report check) proving replaced tests are **running** in CI on the target JDK, not silently zero
 - [ ] T029a [US6] **Per-PR review thread resolution (constitution IX)**: inline reply with mitigation commit hash to every review comment AND run `gh api graphql resolveReviewThread` for each review thread before merging the US6 PR
 
@@ -131,12 +136,18 @@ US2 can start after Foundational+US1 in parallel with US6 if staffing allows (di
 - [ ] T043 [US2] Pilot host hard cut: migrate one low-risk host (document choice in cutover inventory) to `PercModernUI.mount(..., 'ContentBrowser', props)` or React import
 - [ ] T044 [US2] Expand host inventory table in `specs/992-react-content-explorer/checklists/cutover-inventory.md` section C with the in-scope hosts enumerated in T012c (asset picker, page picker, AA ContentBrowserDialog, folder picker, Home Library optional); mark each row Keep / Drop / Status with concrete call-site references
 - [ ] T045a [US2] **Migrate `host-asset-picker`** to `ContentBrowser`; record SC-002 evidence (UAT checklist + Vitest) and cutover-inventory row; per-PR constitution IX review-thread resolution
+- [ ] T045a-pw [US2] **Playwright spec `tests/host-asset-picker.spec.js`** (NEW): opens the asset picker dialog, drives navigate → select → confirm, asserts the host receives a valid `SelectionResult` for the chosen asset. Asserts SC-002 for this host.
 - [ ] T045b [US2] **Migrate `host-page-picker`** to `ContentBrowser`; record SC-002 evidence and cutover-inventory row; per-PR constitution IX review-thread resolution
+- [ ] T045b-pw [US2] **Playwright spec `tests/host-page-picker.spec.js`** (NEW): same as T045a-pw but for the page picker.
 - [ ] T045c [US2] **Migrate `host-aa-contentbrowser-dialog`** to `ContentBrowser`; record SC-002 evidence and cutover-inventory row; add a `system/` task ONLY if the AA dialog JSP proves it needs server-side wiring (justified per constitution II/IV); per-PR constitution IX review-thread resolution
+- [ ] T045c-pw [US2] **Playwright spec `tests/host-aa-contentbrowser-dialog.spec.js`** (NEW): same as T045a-pw but for the AA dialog.
 - [ ] T045d [US2] **Migrate `host-folder-picker`** to `ContentBrowser`; record SC-002 evidence and cutover-inventory row; per-PR constitution IX review-thread resolution
+- [ ] T045d-pw [US2] **Playwright spec `tests/host-folder-picker.spec.js`** (NEW): same as T045a-pw but for the folder picker (folder-only selection).
 - [ ] T045e [US2] *(optional, non-blocking)* **`host-home-library`** consumer adoption from `989-react-cui-widget-builder` if ready; record SC-002 evidence if adopted; otherwise mark OUT for 8.2 with rationale
+- [ ] T045e-pw [US2] *(optional)* **Playwright spec `tests/host-home-library.spec.js`** (NEW): if T045e is in scope.
 - [ ] T045f [US2] Verify **all in-scope hosts** are migrated to `ContentBrowser` before 8.2 GA (FR-008a, FR-029); each host hard-cuts without classic fallback
 - [ ] T046 [US2] Run Vitest under `WebUI/src/test/ts/contentBrowser/` and fix failures
+- [ ] T046b [US2] Run all per-host Playwright specs (`tests/host-*.spec.js`) against the live CMS and fix failures (asserts SC-002 for each host)
 - [ ] T047 [US2] Commit US2 + host migrations PR(s); per-PR constitution IX review-thread resolution (inline reply with commit hash + `gh api graphql resolveReviewThread`)
 
 **Checkpoint**: Browser reusable; all in-scope hosts modern-only before 8.2 GA.
@@ -163,8 +174,10 @@ US2 can start after Foundational+US1 in parallel with US6 if staffing allows (di
 - [ ] T053 [US3] Implement context menu + toolbar driven by server actions in `WebUI/src/main/ts/contentExplorer/ContextMenu.tsx` / `ActionToolbar.tsx`
 - [ ] T054 [US3] Wire selection-change refresh of allowed actions and post-action tree/list refresh under `WebUI/src/main/ts/contentExplorer/`
 - [ ] T055 [US3] Ensure keyboard access for open menu and activate item (FR-013); reduce reliance on reduced-fixed-only set while keeping core ops available
-- [ ] T056 [US3] Build SC-003 UAT checklist of ≥10 high-value actions under `specs/992-react-content-explorer/checklists/` (e.g. `sc003-actions-checklist.md`) and execute on feature build
+- [ ] T056 [US3] Build SC-003 checklist of ≥10 high-value actions under `specs/992-react-content-explorer/checklists/sc003-actions-checklist.md` (the 12-action enumeration in `contracts/capability-matrix.md` P-Menu). **Execution is automated** by Playwright spec `tests/us3-menus.spec.js` (T056b) — the manual scenarios in `quickstart.md` Scenario G are the fallback.
+- [ ] T056b [US3] **Playwright spec `tests/us3-menus.spec.js`** (NEW): drives the ≥10 action checklist against the live CMS as Admin — open properties, edit, force check-in, transition workflow, copy, move, delete with confirm, etc. Each action gets its own `test()` for granular reporting. Asserts SC-003.
 - [ ] T057 [US3] Run Vitest for action menu tests; commit US3 PR; per-PR constitution IX review-thread resolution (inline reply with commit hash + `gh api graphql resolveReviewThread`)
+- [ ] T057b [US3] Run Playwright spec `tests/us3-menus.spec.js` against the live CMS; failures flip the matrix row from "automated" to "known broken" with `BUG:` note
 
 **Checkpoint**: Full menus on modern explorer; matrix P-Menu rows Done.
 
@@ -186,7 +199,8 @@ US2 can start after Foundational+US1 in parallel with US6 if staffing allows (di
 - [ ] T061 [US4] Wire open security from explorer actions/context menu; enforce read-only when user lacks rights (FR-016)
 - [ ] T062 [US4] Implement self-lockout warning before save (FR-015) in `WebUI/src/main/ts/contentExplorer/`
 - [ ] T063 [US4] Add ACL-related TMX keys in `modules/perc-i18n/src/main/resources/i18n/CmsUi.tmx`
-- [ ] T064 [US4] Update capability matrix P-ACL rows; run Scenario F; commit US4 PR; per-PR constitution IX review-thread resolution (inline reply with commit hash + `gh api graphql resolveReviewThread`)
+- [ ] T064 [US4] Update capability matrix P-ACL rows; commit US4 PR; per-PR constitution IX review-thread resolution (inline reply with commit hash + `gh api graphql resolveReviewThread`)
+- [ ] T064b [US4] **Playwright spec `tests/us4-acl.spec.js`** (NEW): drives the ACL flow against the live CMS — Admin opens folder properties/security, changes ACL, saves; a second user session (second browser context) refreshes and verifies access change. Also exercises the self-lockout warning. Asserts SC-004.
 
 **Checkpoint**: ACL UI parity for product folder permission model without Desktop CE.
 
@@ -208,6 +222,7 @@ US2 can start after Foundational+US1 in parallel with US6 if staffing allows (di
 - [ ] T068 [US5] Implement explorer search panel in `WebUI/src/main/ts/contentExplorer/SearchPanel.tsx` with open + reveal-in-tree
 - [ ] T069 [US5] Enable search mode in `ContentBrowser` when host sets `enableSearch` (`WebUI/src/main/ts/contentBrowser/ContentBrowser.tsx`)
 - [ ] T070 [US5] Empty/error search states + TMX keys; update matrix P-Search rows; commit US5 PR; per-PR constitution IX review-thread resolution (inline reply with commit hash + `gh api graphql resolveReviewThread`)
+- [ ] T070b [US5] **Playwright spec `tests/us5-search.spec.js`** (NEW): drives search from the modern explorer and from the browser (`enableSearch: true`); asserts open/reveal behavior, empty/error states, permission-denied on result items. Asserts SC-005 (combined with US1 perf spec).
 
 **Checkpoint**: Everyday search/locate without Finder/CE.
 
@@ -233,7 +248,8 @@ US2 can start after Foundational+US1 in parallel with US6 if staffing allows (di
 - [ ] T078 [US7] Implement dependency viewer under `WebUI/src/main/ts/contentExplorer/views/DependencyViewer.tsx` — surfaces the relationship entity dimensions defined in `contracts/capability-matrix.md` P-Adv (outgoing/incoming relationships, AA links, taxonomy edges, local/reverse dependencies)
 - [ ] T079 [US7] Implement IA/relationship views under `WebUI/src/main/ts/contentExplorer/views/RelationshipsView.tsx` (scope per matrix acceptance and the dimensions enumerated in `contracts/capability-matrix.md` P-Adv)
 - [ ] T080 [US7] Mark all P-Adv capability matrix rows **Done** with acceptance evidence in `contracts/capability-matrix.md` (no post-8.2 scheduled)
-- [ ] T081 [US7] Run advanced UAT; commit US7 PR(s); per-PR constitution IX review-thread resolution (inline reply with commit hash + `gh api graphql resolveReviewThread`); confirm **all P-Adv matrix rows Done** with acceptance evidence (no post-8.2 scheduled)
+- [ ] T081 [US7] Commit US7 PR(s); per-PR constitution IX review-thread resolution (inline reply with commit hash + `gh api graphql resolveReviewThread`); confirm **all P-Adv matrix rows Done** with acceptance evidence (no post-8.2 scheduled)
+- [ ] T081b [US7] **Playwright spec `tests/us7-advanced.spec.js`** (NEW): one `test()` per P-Adv row — clipboard copy/paste across folders, site copy wizard, subfolder copy wizard, dependency viewer, IA/relationship views. Asserts SC-011.
 
 **Checkpoint**: Advanced CE matrix complete for 8.2.
 
@@ -243,8 +259,9 @@ US2 can start after Foundational+US1 in parallel with US6 if staffing allows (di
 
 **Purpose**: Cross-cutting quality and formal 8.2 functional parity gate.
 
-- [ ] T082 [P] Accessibility spot-check (SC-009): keyboard tree, list, menus, browser dialog — record results under `specs/992-react-content-explorer/checklists/` (e.g. `a11y-spotcheck.md`)
-- [ ] T082a [P] Add **per-story a11y test gates** under US1 (T013/T014/T015/T016 test set), US2 (T037/T038/T039 test set), and US3 (T048/T049/T050 test set): each component test includes a `jest-axe` / `axe-core` run with zero serious/critical violations on rendered surface. Fails CI if a11y regression detected pre-`/speckit.implement` completes. Complements the manual SC-009 spot-check in T082.
+- [ ] T082 [P] Accessibility spot-check (SC-009): keyboard tree, list, menus, browser dialog — record results under `specs/992-react-content-explorer/checklists/a11y-spotcheck.md`. Manual focus remains for surface-only flows (e.g. embedded iframe scenarios that Playwright can't drive).
+- [ ] T082a [P] Add **per-story a11y test gates** under US1 (T013/T014/T015/T016 test set), US2 (T037/T038/T039 test set), and US3 (T048/T049/T050 test set): each component test includes a `jest-axe` / `axe-core` run with zero serious/critical violations on rendered surface. Fails CI if a11y regression detected. Complements the manual SC-009 spot-check in T082.
+- [ ] T082b [P] **Playwright a11y gate** in each US spec (T024b / T028b / T045*-pw / T056b / T064b / T070b / T081b): inject `axe-core` after each page navigation and assert zero serious/critical violations. Fails CI on a11y regression. Asserts SC-009 automated portion.
 - [ ] T083 [P] i18n key-presence review for explorer/browser chrome TMX keys (FR-026) in checklist under `specs/992-react-content-explorer/checklists/`
 - [ ] T084 [P] Prefer-CE usability feedback notes (SC-010) for ≥5 internal users under `specs/992-react-content-explorer/checklists/`
 - [ ] T085 Complete full cutover inventory sign-off (all sections) in `checklists/cutover-inventory.md`
@@ -252,7 +269,7 @@ US2 can start after Foundational+US1 in parallel with US6 if staffing allows (di
 - [ ] T087 Run full [quickstart.md](./quickstart.md) Scenarios A–I on 8.2 candidate build; record pass/fail
 - [ ] T088 [P] Spotless / frontend format checks on touched modules via project standards; explicitly invoke `./mvn-env.sh -pl <module> -am verify` (or `./mvn-env.bat`) on JDK 21 for any touched Java module (WebUI backend, sitemanage, rest, perc-i18n if changed) — per constitution VII
 - [ ] T089 Security review: AuthZ on folder ACL save, action execution, CSRF, no secrets in logs — note in PR/release evidence; include threat-model note for any new façade from T052b
-- [ ] T089a Produce **aggregated 8.2 functional parity evidence artifact** `docs/ai-generated/release/992-8.2-parity-evidence.md` (or extend `checklists/cutover-inventory.md` §F) that consolidates: (1) capability matrix in-scope rows Done with acceptance evidence, (2) SC-001..SC-011 pass results, (3) Finder + Desktop CE retirement sign-offs, (4) **all in-scope P-Host hosts Done with per-host SC-002 evidence (T045a..T045f)**, (5) **all P-Adv matrix rows Done with acceptance evidence (US7 / T081)**, (6) constitution IX review-thread resolution log per PR; T090 consumes this artifact for the GA go/no-go decision
+- [ ] T089a Produce **aggregated 8.2 functional parity evidence artifact** `docs/ai-generated/release/992-8.2-parity-evidence.md` (or extend `checklists/cutover-inventory.md` §F) that consolidates: (1) capability matrix in-scope rows Done with acceptance evidence, (2) Playwright + Vitest suite pass results (per-US specs in `modules/perc-qa-automation/` + component specs in `WebUI/src/test/ts/`), (3) Finder + Desktop CE retirement sign-offs, (4) **all in-scope P-Host hosts Done with per-host SC-002 evidence (T045a..T045f + T045*-pw)**, (5) **all P-Adv matrix rows Done with acceptance evidence (US7 / T081 + T081b)**, (6) constitution IX review-thread resolution log per PR; T090 consumes this artifact for the GA go/no-go decision
 - [ ] T090 SC-012 decision: **block 8.2 GA** if any FR-029 parity clause fails (including all P-Host hosts Done and all P-Adv matrix rows Done — US7 completion is a parity clause, not just a polish step); only proceed to release labeling when SC-012 passes
 - [ ] T091 Final documentation: update nearest WebUI README or feature notes for operators (modern explorer entry, CE retired)
 
@@ -350,15 +367,20 @@ Complete **US1–US7** + Phase 10 with **SC-012 pass**. Functional parity **bloc
 | Phase | Story | Tasks (approx) |
 |-------|-------|----------------|
 | 1 Setup | — | T001–T005 (5) |
-| 2 Foundational | — | T006–T012 + T012a–T012e (12) |
-| 3 | US1 | T013–T027 + T015a + T024a (17) |
-| 4 | US6 | T028–T036 + T029a (10) |
-| 5 | US2 | T037–T047 → split T045 → T045a–T045f (16) |
-| 6 | US3 | T048–T057 + T052a + T052b (12) |
-| 7 | US4 | T058–T064 (7) |
-| 8 | US5 | T065–T070 (6) |
-| 9 | US7 | T071–T081 (11) |
-| 10 Polish / 8.2 | — | T082–T091 + T089a (11) |
-| **Total** | | **T001–T091 + new IDs (106)** |
+| 2 Foundational | — | T006–T012 + T012a–T012g (14) |
+| 3 | US1 | T013–T027 + T015a + T024a–T024b + T025b (19) |
+| 4 | US6 | T028–T036 + T028b + T029a (11) |
+| 5 | US2 | T037–T047 → split T045 → T045a–T045f + per-host Playwright T045*-pw + T046b (22) |
+| 6 | US3 | T048–T057 + T052a–T052b + T056b + T057b (14) |
+| 7 | US4 | T058–T064 + T064b (8) |
+| 8 | US5 | T065–T070 + T070b (7) |
+| 9 | US7 | T071–T081 + T081b (12) |
+| 10 Polish / 8.2 | — | T082–T091 + T082b + T089a (13) |
+| **Total** | | **T001–T091 + new IDs (125)** |
 
-**Format validation**: All tasks use `- [ ]`, sequential Task IDs, optional `[P]`, story labels on US phases only, and file paths in descriptions. New tasks (T012a–T012e, T015a, T024a, T029a, T045a–T045f, T052a–T052b, T089a) follow the same format and respect [P] parallelism rules.
+**Format validation**: All tasks use `- [ ]`, sequential Task IDs, optional `[P]`, story labels on US phases only, and file paths in descriptions. New tasks (T012a–T012g, T015a, T024a–T024b, T025b, T028b, T029a, T045a–T045f + T045*-pw, T046b, T052a–T052b, T056b, T057b, T064b, T070b, T081b, T082b, T089a) follow the same format and respect [P] parallelism rules.
+
+**Test framework map** (NEW, 2026-07-19):
+- **Vitest** (`WebUI/src/test/ts/`): T013, T014, T015, T015a, T016, T028, T037, T038, T039, T048, T049, T050, T058, T059, T065, T066, T071, T072, T073, T082, T082a. Component-level logic with mocked API.
+- **Playwright** (`modules/perc-qa-automation/frontend/tests/`): T012g, T024b, T025b, T028b, T045a-pw/b-pw/c-pw/d-pw/e-pw, T046b, T056b, T057b, T064b, T070b, T081b, T082b. E2E against the live CMS at `http://localhost:9992`. Each SC-001..SC-011 is asserted here.
+- **axe-core** (via `@axe-core/playwright`): embedded in every Playwright spec via T082b.
