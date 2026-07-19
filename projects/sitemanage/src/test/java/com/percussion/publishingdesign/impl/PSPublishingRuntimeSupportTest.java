@@ -78,11 +78,34 @@ class PSPublishingRuntimeSupportTest {
     when(publisherService.findAllEditionsBySite(siteGuid))
         .thenReturn(Collections.singletonList(edition));
     when(rxPublisherService.getEditionJobId(editionGuid)).thenReturn(55L);
+    IPSPublisherJobStatus st = mock(IPSPublisherJobStatus.class);
+    when(rxPublisherService.getPublishingJobStatus(55L)).thenReturn(st);
+    when(st.getState()).thenReturn(IPSPublisherJobStatus.State.WORKING);
 
     List<PSRuntimeEditionStatus> list = support.listRuntimeEditions("42");
     assertEquals(1, list.size());
     assertEquals("Full", list.get(0).getName());
     assertEquals(55L, list.get(0).getRunningJobId());
+    assertEquals(IPSPublisherJobStatus.State.WORKING.getDisplayName(), list.get(0).getJobStatus());
+  }
+
+  @Test
+  void listRuntimeEditions_statusFetchFailure_usesUnknownNotRunning() {
+    when(guidManager.makeGuid(eq("42"), eq(PSTypeEnum.SITE))).thenReturn(siteGuid);
+    IPSEdition edition = mock(IPSEdition.class);
+    when(edition.getGUID()).thenReturn(editionGuid);
+    when(editionGuid.getUUID()).thenReturn(10);
+    when(edition.getName()).thenReturn("Full");
+    when(publisherService.findAllEditionsBySite(siteGuid))
+        .thenReturn(Collections.singletonList(edition));
+    when(rxPublisherService.getEditionJobId(editionGuid)).thenReturn(55L);
+    when(rxPublisherService.getPublishingJobStatus(55L))
+        .thenThrow(new RuntimeException("status unavailable"));
+
+    List<PSRuntimeEditionStatus> list = support.listRuntimeEditions("42");
+    assertEquals(1, list.size());
+    assertEquals(55L, list.get(0).getRunningJobId());
+    assertEquals("unknown", list.get(0).getJobStatus());
   }
 
   @Test

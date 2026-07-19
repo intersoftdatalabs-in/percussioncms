@@ -35,16 +35,21 @@ import com.percussion.webservices.content.IPSContentWs;
 import com.percussion.webservices.content.PSContentWsLocator;
 import com.percussion.webservices.publishing.IPSPublishingWs;
 import com.percussion.webservices.publishing.PSPublishingWsLocator;
+import com.percussion.security.error.PSExceptionUtils;
 import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.Response;
 import java.util.ArrayList;
 import java.util.List;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * Runtime publishing operations for US5 — thin delegates to Rx publisher and publishing web
  * services. Extracted for unit testing without Spring.
  */
 public class PSPublishingRuntimeSupport {
+  private static final Logger log = LogManager.getLogger(PSPublishingRuntimeSupport.class);
+
   private final IPSPublisherService publisherService;
   private final IPSGuidManager guidManager;
   private final IPSRxPublisherService rxPublisherService;
@@ -90,9 +95,16 @@ public class PSPublishingRuntimeSupport {
             IPSPublisherJobStatus st = rxPublisherService.getPublishingJobStatus(jobId);
             if (st != null && st.getState() != null) {
               row.setJobStatus(st.getState().getDisplayName());
+            } else {
+              row.setJobStatus("unknown");
             }
-          } catch (Exception ignored) {
-            row.setJobStatus("running");
+          } catch (Exception e) {
+            // Do not claim "running" when status fetch failed — job id is still set.
+            log.debug(
+                "Unable to load status for publish job {}: {}",
+                jobId,
+                PSExceptionUtils.getMessageForLog(e));
+            row.setJobStatus("unknown");
           }
         }
       }

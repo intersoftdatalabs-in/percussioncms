@@ -16,6 +16,26 @@ describe("publish nav rewire (US8)", () => {
     expect(text).toContain('views.put("publish", "publishModern.jsp")');
     expect(text).not.toMatch(/views\.put\("publish",\s*"publish\.jsp"\)/);
   });
+
+  it("war/app/publish.jsp redirects to modern shell (Erlang S1)", () => {
+    const warPublish = resolve(__dirname, "../../../../war/app/publish.jsp");
+    const text = readFileSync(warPublish, "utf8");
+    expect(text).toContain("301");
+    expect(text).toContain("/cm/app/");
+    expect(text).toContain("view=publish");
+    expect(text).not.toContain("PercPublishMinuetView");
+  });
+
+  it("publishModern.jsp passes showDesign from Admin/Designer roles (Erlang S5)", () => {
+    const modern = resolve(
+      __dirname,
+      "../../../main/webapp/cm/app/publishModern.jsp",
+    );
+    const text = readFileSync(modern, "utf8");
+    expect(text).toContain("showDesign");
+    expect(text).toContain("isAdminUser");
+    expect(text).toContain("isDesignerUser");
+  });
 });
 
 describe("Minuet pack retirement (US8 / B3)", () => {

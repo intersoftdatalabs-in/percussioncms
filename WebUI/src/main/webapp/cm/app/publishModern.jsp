@@ -1,5 +1,8 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%@ page import="com.percussion.services.utils.jspel.PSRoleUtilities" %>
+<%@ page import="com.percussion.user.data.PSCurrentUser" %>
+<%@ page import="com.percussion.user.service.impl.PSUserService" %>
+<%@ page import="com.percussion.utils.PSSpringBeanProvider" %>
 <%@ taglib uri="/WEB-INF/tmxtags.tld" prefix="i18n" %>
 <%@ taglib uri="http://www.owasp.org/index.php/Category:OWASP_CSRFGuard_Project/Owasp.CsrfGuard.tld" prefix="csrf" %>
 <%
@@ -16,6 +19,18 @@
     if (debug == null) {
         debug = "false";
     }
+    // Progressive disclosure (US7 / Erlang S5): Design for Admin/Designer only.
+    // Fail open to true if role lookup fails so admins are not locked out.
+    boolean showDesign = true;
+    try {
+        PSUserService userService = (PSUserService) PSSpringBeanProvider.getBean("userService");
+        PSCurrentUser user = userService.getCurrentUser();
+        if (user != null) {
+            showDesign = user.isAdminUser() || user.isDesignerUser();
+        }
+    } catch (Exception e) {
+        showDesign = true;
+    }
     // Allowlist only — never echo arbitrary query text into inline JS (reflected XSS).
     // Values must stay in sync with WebUI/src/main/ts/publishing/deepLinkMap.ts.
     String section = "";
@@ -26,7 +41,12 @@
                 || "status".equals(n) || "logs".equals(n) || "log".equals(n)
                 || "design".equals(n) || "runtime".equals(n)
                 || "editions".equals(n) || "edition".equals(n)) {
-            section = n;
+            // Non-designers cannot land on Design via deep link
+            if ("design".equals(n) && !showDesign) {
+                section = "sites";
+            } else {
+                section = n;
+            }
         }
     }
     String siteId = "";
@@ -68,7 +88,8 @@
             window.PercModernUI.mount("perc-publishing-root", "PublishingShell", {
                 section: "<%= section %>",
                 siteId: "<%= siteId %>",
-                serverId: "<%= serverId %>"
+                serverId: "<%= serverId %>",
+                showDesign: <%= showDesign %>
             });
         }
         if (document.readyState === "loading") {

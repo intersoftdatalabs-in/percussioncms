@@ -172,6 +172,82 @@ class PSPublishingDesignRestServiceTest {
   }
 
   @Test
+  void associateContentList_happyPath() throws Exception {
+    when(guidManager.makeGuid(eq("1"), eq(PSTypeEnum.EDITION))).thenReturn(editionGuid);
+    when(guidManager.makeGuid(eq("5"), eq(PSTypeEnum.CONTENT_LIST))).thenReturn(contentListGuid);
+    IPSGuid ctxGuid = mock(IPSGuid.class);
+    when(guidManager.makeGuid(eq("9"), eq(PSTypeEnum.CONTEXT))).thenReturn(ctxGuid);
+    when(publisherService.loadEdition(editionGuid)).thenReturn(mock(IPSEdition.class));
+
+    IPSContentList cl = mock(IPSContentList.class);
+    when(cl.getGUID()).thenReturn(contentListGuid);
+    when(contentListGuid.getUUID()).thenReturn(5);
+    when(cl.getName()).thenReturn("Home Pages");
+    when(cl.isLegacy()).thenReturn(false);
+    when(publisherService.loadContentList(contentListGuid)).thenReturn(cl);
+
+    IPSGuid linkId = mock(IPSGuid.class);
+    when(linkId.longValue()).thenReturn(99L);
+    com.percussion.services.publisher.data.PSEditionContentList link =
+        new com.percussion.services.publisher.data.PSEditionContentList(linkId);
+    when(publisherService.createEditionContentList()).thenReturn(link);
+    when(editionGuid.longValue()).thenReturn(1L);
+    when(contentListGuid.longValue()).thenReturn(5L);
+
+    com.percussion.publishingdesign.data.PSEditionContentListAssoc body =
+        new com.percussion.publishingdesign.data.PSEditionContentListAssoc();
+    body.setContentListId("5");
+    body.setDeliveryContextId("9");
+    body.setSequence(1);
+
+    PSContentListSummary result = service.associateContentList("1", body);
+    assertEquals("Home Pages", result.getName());
+    org.mockito.Mockito.verify(publisherService).saveEditionContentList(link);
+  }
+
+  @Test
+  void copyEdition_requiresSourceAndTarget() {
+    com.percussion.publishingdesign.data.PSCopyEditionRequest req =
+        new com.percussion.publishingdesign.data.PSCopyEditionRequest();
+    req.setSourceEditionId("1");
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> service.copyEdition(req));
+    assertEquals(400, ex.getResponse().getStatus());
+  }
+
+  @Test
+  void copyEdition_happyPathWithoutContentLists() throws Exception {
+    when(guidManager.makeGuid(eq("7"), eq(PSTypeEnum.EDITION))).thenReturn(editionGuid);
+    when(guidManager.makeGuid(eq("42"), eq(PSTypeEnum.SITE))).thenReturn(siteGuid);
+
+    IPSEdition source = mock(IPSEdition.class);
+    when(source.getName()).thenReturn("SourceEd");
+    when(source.getComment()).thenReturn("c");
+    when(source.getPriority()).thenReturn(IPSEdition.Priority.MEDIUM);
+    when(publisherService.loadEdition(editionGuid)).thenReturn(source);
+
+    IPSEdition copy = mock(IPSEdition.class);
+    when(publisherService.createEdition()).thenReturn(copy);
+    when(copy.getGUID()).thenReturn(editionGuid);
+    when(editionGuid.getUUID()).thenReturn(11);
+    when(copy.getName()).thenReturn("SourceEd_copy");
+    when(copy.getPriority()).thenReturn(IPSEdition.Priority.MEDIUM);
+
+    com.percussion.publishingdesign.data.PSCopyEditionRequest req =
+        new com.percussion.publishingdesign.data.PSCopyEditionRequest();
+    req.setSourceEditionId("7");
+    req.setTargetSiteId("42");
+    req.setCopyContentLists(false);
+
+    PSEditionSummary result = service.copyEdition(req);
+    assertEquals("SourceEd_copy", result.getName());
+    assertEquals("42", result.getSiteId());
+    org.mockito.Mockito.verify(publisherService).saveEdition(copy);
+    org.mockito.Mockito.verify(publisherService, org.mockito.Mockito.never())
+        .loadEditionContentLists(any());
+  }
+
+  @Test
   void listDesignSites_requiresSiteManager() {
     // service constructed without site manager
     WebApplicationException ex =
@@ -180,12 +256,12 @@ class PSPublishingDesignRestServiceTest {
   }
 
   @Test
-  void createContext_requiresName() {
+  void createContext_requiresName_whenSiteManagerMissing_returns503() {
     com.percussion.publishingdesign.data.PSContextSummary body =
         new com.percussion.publishingdesign.data.PSContextSummary();
     WebApplicationException ex =
         assertThrows(WebApplicationException.class, () -> service.createContext(body));
-    // 503 without site manager, or 400 with site manager and empty name
-    assertTrue(ex.getResponse().getStatus() == 400 || ex.getResponse().getStatus() == 503);
+    // Without site manager the service fails closed with 503
+    assertEquals(503, ex.getResponse().getStatus());
   }
 }
