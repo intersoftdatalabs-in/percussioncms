@@ -99,4 +99,4 @@ ITM-01–06: item actions intentionally remain on jQuery `PercItemPublisherServi
 | RET-05 | Removal inventory signed off (entry path) | Done |
 | RET-06 | Residual deep faces JSPs + faces-config packaging cleanup | Todo |
 
-**RET residual:** Primary entries (`index.jsp`, DCE header, Minuet exclusive clients) are retired. Deep `ui/publishing/*.jsp` / `ui/pubruntime/*.jsp` faces pages may still exist on disk — tracked as **RET-06 / US9 T122**.
+**RET residual:** Primary entries (`index.jsp`, DCE header, Minuet exclusive clients) are retired. Deep `ui/publishing/*.jsp` / `ui/pubruntime/*.jsp` faces pages may still exist on disk — tracked as **RET-06 / US9 T124**.
