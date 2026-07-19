@@ -46,7 +46,7 @@ cd WebUI && npx vitest run src/test/ts/contentExplorer src/test/ts/contentBrowse
 cd modules/perc-qa-automation/frontend
 npm ci
 npx playwright install chromium
-cd .. && npx --prefix frontend playwright test
+npm test                                            # runs all tests via Playwright Test Runner
 ```
 
 **Expected**: Vitest + Playwright both green for implemented phases. Playwright specs marked `test.skip` (with `BUG:` note) document upstream REST bugs (e.g. [issue #1387](https://github.com/intersoftdatalabs-in/percussioncms/issues/1387)); flipping `test.skip` → `test(...)` is the SC-008 evidence when the fix lands.

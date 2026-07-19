@@ -79,7 +79,7 @@ export function ContentExplorerShell({
       }
       onOpenItem(item);
     },
-    onPreview: actionHandlers?.onPreview,
+    onPreview: actionHandlers?.onPreview ?? (() => undefined),
   };
   // Preview is real only when the host supplies its own handler; default is no-op.
   const hasPreviewHandler = Boolean(actionHandlers?.onPreview);

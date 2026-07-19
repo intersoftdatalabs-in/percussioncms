@@ -55,15 +55,34 @@ function getPasswordsFromInstall(installPath) {
 }
 
 function updateEnvFile(key, value) {
+  // First-run setup: copy .env.example -> .env so dotenv has a file to
+  // load. Subsequent calls update the .env file in place. We do this
+  // lazily so a first-time user (who set DEV_PERCUSSION_INSTALL but
+  // forgot to copy .env.example) does not crash with ENOENT.
+  if (!fs.existsSync(envPath)) {
+    const examplePath = path.resolve(__dirname, '../../../.env.example');
+    if (fs.existsSync(examplePath)) {
+      fs.copyFileSync(examplePath, envPath);
+      console.log(`Created ${envPath} from .env.example`);
+    } else {
+      // No template; create an empty .env with the key we're about to
+      // write so subsequent reads can find it.
+      fs.writeFileSync(envPath, '');
+    }
+  }
+
   let envContent = fs.readFileSync(envPath, 'utf-8');
-  
+
   const regex = new RegExp(`^${key}=.*$`, 'm');
   if (regex.test(envContent)) {
-    envContent = envContent.replace(regex, `${key}=${value}`);
+    // Use a replacer function to avoid `$&`, `$'`, etc. in `value` being
+    // interpreted as regex replacement special sequences (which would
+    // corrupt the .env file for passwords containing those characters).
+    envContent = envContent.replace(regex, () => `${key}=${value}`);
   } else {
     envContent += `\n${key}=${value}`;
   }
-  
+
   fs.writeFileSync(envPath, envContent);
   console.log(`Updated .env file with ${key}`);
 }

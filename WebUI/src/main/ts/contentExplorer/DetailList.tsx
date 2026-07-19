@@ -68,6 +68,14 @@ export function DetailList({
   const [error, setError] = useState<string | null>(null);
   const lastLoadedPath = useRef<string | null>(null);
 
+  // Track the page-to-request in a ref so a folder change can reset
+  // `page` to 0 *without* causing the effect to re-run with a stale
+  // closure. (If `page` were in the deps list, the queued `setPage(0)`
+  // on a folder switch would trigger a second effect run with a stale
+  // captured `page`, doubling the API call.)
+  const pageRef = useRef(page);
+  pageRef.current = page;
+
   useEffect(() => {
     if (!folderPath) {
       setData(null);
@@ -77,15 +85,14 @@ export function DetailList({
       return;
     }
     const isNewFolder = folderPath !== lastLoadedPath.current;
+    let effectivePage = page;
     if (isNewFolder) {
+      // Schedule the visible page reset; do not depend on it in this run.
       setPage(0);
       lastLoadedPath.current = folderPath;
+      effectivePage = 0;
     }
-    // When the folder just changed we MUST fetch page 0 even if the captured
-    // `page` value is stale from the previous folder. Using the conditional
-    // here (not the queued setPage(0) state update) avoids SC-005 stale-page
-    // regressions on rapid folder switches.
-    const startIndex = isNewFolder ? 0 : page * PAGE_SIZE;
+    const startIndex = effectivePage * PAGE_SIZE;
     let cancelled = false;
     setLoading(true);
     setError(null);

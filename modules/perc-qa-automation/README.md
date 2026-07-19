@@ -70,30 +70,41 @@ This will:
 
 ## Running Tests
 
-### Using Maven
+**Always run from `modules/perc-qa-automation/frontend`** — Playwright resolves `playwright.config.js` relative to the current working directory. Running from the parent module dir or elsewhere will report "No tests found" because `testDir: './tests'` resolves incorrectly.
+
+### First-time setup
 
 ```bash
-mvn test
+cd modules/perc-qa-automation/frontend
+npm ci                                              # install @playwright/test + dotenv
+npx playwright install chromium                    # one-time browser download
+# Optional: copy .env.example to .env (auto-discovered from
+# DEV_PERCUSSION_INSTALL on first run if missing)
 ```
 
-### Using npm directly
+### Full suite
 
 ```bash
-cd frontend
-npm test
+cd modules/perc-qa-automation/frontend
+npm test                                            # alias for `npx playwright test`
 ```
 
-### Running specific tests
+### Specific test file
 
 ```bash
+cd modules/perc-qa-automation/frontend
 npx playwright test tests/login.spec.js
 ```
+
+### Maven
+
+`mvn test` from `modules/perc-qa-automation` runs Java Surefire (no tests in this module). Use `npm test` to run Playwright. The `frontend-maven-plugin` only installs Node + `npm ci` — it does NOT invoke Playwright at the Maven `test` phase; the Playwright run is an explicit `npm test` step after the Maven build.
 
 ## Test Configuration
 
 Tests are configured in `frontend/playwright.config.js`. Key settings:
 
-- `testDir`: Points to `./tests` where test specs are located
+- `testDir`: `./tests` (resolved relative to the config file's directory — always run Playwright from `frontend/`)
 - `timeout`: 30 seconds per test
 - `headless`: Tests run in headless mode by default
 

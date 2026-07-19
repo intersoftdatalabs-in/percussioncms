@@ -162,7 +162,7 @@ case "${COMMAND}" in
     INSTALL_ARGS=()
     while [[ $# -gt 0 ]]; do
       case "$1" in
-        --reset|--no-bootstrap)
+        --reset|--skip-dts|--install-dts)
           INSTALL_ARGS+=("$1")
           shift
           ;;

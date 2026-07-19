@@ -48,7 +48,6 @@ ENV_FILE="${PROJECT_ROOT}/.env.compose"
 INSTALL_ROOT_DEFAULT="/opt/Percussion"
 INSTALL_ROOT="${INSTALL_ROOT_DEFAULT}"
 RESET="false"
-BOOTSTRAP="false"
 SKIP_DTS="true"
 
 usage() {
@@ -66,9 +65,19 @@ Options:
   --skip-dts              Run the CMS installer only (DTS is out of scope for
                           992-react-content-explorer story automation).
                           Default is skip-dts=true.
+  --install-dts           Run the DTS installer (default: skip-dts=true).
   -h | --help             Show this help
 
 Reads DB config from .env.compose (PERC_DB_*).
+
+Bootstrap behavior (automatic, no flag):
+  - If ${INSTALL_ROOT} is empty, the script seeds it from
+    ./docker/dev-data/cms-dts/{ObjectStore,var,rxconfig,Deployment/Server/conf,jetty/base}
+    so prior dev state (CMS ObjectStore content, Rx config, Jetty base) is
+    preserved across the migration to the single-bind-mount layout. Pass
+    --reset to skip this (start completely clean).
+  - If ${INSTALL_ROOT} has content, no bootstrap is performed (the install
+    upgrades in place).
 
 Examples:
   sudo mkdir -p /opt/Percussion && sudo chown $USER /opt/Percussion
@@ -232,9 +241,10 @@ if [[ -f "${MARKER_PATH}" && "${RESET}" != "true" ]]; then
   exit 0
 fi
 
-if [[ "${BOOTSTRAP}" == "true" ]]; then
-  bootstrap_install_root
-fi
+# Bootstrap (auto): seed install_root from the pre-seeded dev-data dirs
+# ONLY if install_root is empty. Existing install_root state is left
+# alone (the install does an in-place upgrade in that case).
+bootstrap_install_root
 
 mkdir -p "${INSTALL_ROOT}"
 

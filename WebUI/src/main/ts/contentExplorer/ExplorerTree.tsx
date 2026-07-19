@@ -138,6 +138,19 @@ export function ExplorerTree({
               e.preventDefault();
               onSelectFolder(path, folder);
               if (folderish) toggle(path, folder);
+              return;
+            }
+            // ARIA tree keyboard navigation (WCAG 2.1):
+            if (e.key === "ArrowRight") {
+              e.preventDefault();
+              if (folderish && !isOpen) toggle(path, folder);
+            } else if (e.key === "ArrowLeft") {
+              e.preventDefault();
+              if (folderish && isOpen) toggle(path, folder);
+            } else if (e.key === "ArrowDown" || e.key === "ArrowUp") {
+              // Let the browser handle focus traversal between treeitems;
+              // native tab order through `[tabIndex={0}]` rows is correct.
+              return;
             }
           }}
         >

@@ -5,11 +5,16 @@ services:
       dockerfile: docker/cms/Dockerfile
     container_name: percussion-cms-dts
     restart: unless-stopped
-    # Run as the host UID/GID that owns /opt/Percussion (host nate:mkd-dev
-    # = 1000:1001). StartJetty.sh compares `whoami` to the owner of
-    # /opt/Percussion and refuses to su to a UID that doesn't exist in
-    # the container's /etc/passwd. Matching the host UID bypasses that.
-    user: "1000:1001"
+    # Run as the host UID/GID that owns /opt/Percussion. StartJetty.sh
+    # compares `whoami` to the owner of /opt/Percussion and refuses to
+    # su to a UID that doesn't exist in the container's /etc/passwd, so
+    # the container's UID MUST match the host's install-root owner.
+    #
+    # Override per host via .env.compose (CMS_UID / CMS_GID) or the env
+    # of the docker compose invocation. Default is 1000:1001 which
+    # matches the nate:mkd-dev owner that installed /opt/Percussion
+    # in the original dev setup; other developers can override.
+    user: "${CMS_UID:-1000}:${CMS_GID:-1001}"
     environment:
       # Container is service-only. The install lives entirely on the
       # host (scripts/install-cms-dev.sh) and the bind mount below
