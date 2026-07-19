@@ -120,9 +120,22 @@ export interface SelectionItem {
   name?: string;
   type?: string;
   category?: string;
+  /** Content-type ids the item is associated with; preview selector uses these. */
+  contentTypeIds?: string[];
 }
 
 export interface SelectionResult {
   /** Single-select returns one-element array; multi-select returns full set. */
   items: SelectionItem[];
+}
+
+/**
+ * Preview information for the currently-focused item in ContentBrowser.
+ * Surface added per PR review on `specs/992-react-content-explorer/contracts/content-browser-host.md`.
+ */
+export interface PreviewInfo {
+  item: SelectionItem;
+  templateId: string;
+  /** Server-rendered preview URL or rendered HTML — implementation-defined. */
+  url: string;
 }

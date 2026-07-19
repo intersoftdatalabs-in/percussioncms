@@ -3,6 +3,16 @@
 **Provider**: `rest` module — `com.percussion.rest.actions.ActionMenuResource` (`@Path("/actions")`)  
 **Purpose**: Configuration-driven menus for modern Content Explorer (CE model), replacing the **ReducedAction set** (FR-010a) long-term.
 
+## Maturity note (added per PR review)
+
+The public REST surface under `/actions` is **not feature-complete** today. It exposes only a subset of the menu-finding and visibility machinery that the legacy **XML action manager** (`sys_ActionPage`, `ActionMenu` configuration) provides to Desktop Content Explorer. The long-term intent is for `/actions` (and any thin sitemanage façade needed for **execution**) to fully replace the XML action manager so the modern explorer can render the same configurable menu tree CE does today. Until that parity lands:
+
+- The **ReducedAction set** (FR-010a; see [../data-model.md](../data-model.md) § *ReducedAction*) ships at the Finder / Desktop CE intermediate hard cut to keep the intermediate bar achievable without the full action manager.
+- The full configuration-driven menu phase (US3, FR-010) **requires** either `/actions` reaching feature parity with the XML action manager, **or** a thin sitemanage façade in front of the XML action manager exposing its data over web (see `plan.md` Complexity Tracking and `tasks.md` T052).
+- Capability matrix rows marked **P-Menu** track each CE menu capability against the source-of-truth (XML action manager vs REST). See [./capability-matrix.md](./capability-matrix.md) P-Menu rows + Translation (P-Trans) row.
+
+This note was added per PR review on `specs/992-react-content-explorer/contracts/action-menu-api.md` line 8.
+
 ## Discovery (expected surface)
 
 Public REST exposes action menu finders via adaptor (`IActionMenuAdaptor`), including approximately:
@@ -11,7 +21,7 @@ Public REST exposes action menu finders via adaptor (`IActionMenuAdaptor`), incl
 - Allowed transitions for content id(s)
 - Allowed content types / templates
 
-Exact query parameters and payload fields: implementers MUST align TypeScript types to live OpenAPI/Javadoc of `ActionMenuResource` and related DTOs (`ActionMenu`, `ActionMenuVisibilityContext`, `ActionMenuModeUIContext`, `ActionMenuParameter`) at implementation time—**do not invent fields**.
+Exact query parameters and payload fields: implementers MUST align TypeScript types to live OpenAPI/Javadoc of `ActionMenuResource` and related DTOs (`ActionMenu`, `ActionMenuVisibilityContext`, `ActionMenuModeUIContext`, `ActionMenuParameter`) at implementation time—**do not invent fields**. When a row in the capability matrix P-Menu or P-Trans lists cannot be served by `/actions` at US3 implementation, follow the gap policy at the bottom of this file.
 
 ## Client responsibilities
 

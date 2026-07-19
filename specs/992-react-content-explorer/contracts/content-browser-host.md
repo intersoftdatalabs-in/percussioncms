@@ -21,8 +21,11 @@ Embeddable navigate / search / locate UI that returns a **SelectionResult** to t
 | initialPath | string \| null | product root | Starting folder path |
 | roots | `'sites' \| 'assets' \| 'all' \| string[]` | `'all'` | Root set (align with path services) |
 | enableSearch | boolean | `true` | Show search when API available |
+| enablePreview | boolean | `true` | Show preview pane for the currently-focused item using one (or most) templates associated with the item's content type — e.g. image preview for asset items, page preview for page items. Hosts (e.g. dialogs that pick an asset to insert) can disable it when they only need selection identity. |
+| previewTemplate | string \| null | `null` | Optional explicit template/content-type id to render the preview with. When `null`, the browser picks the default (or first) template associated with the item's content type. |
 | title | string \| null | TMX default | Dialog title |
 | onConfirm | `(selection: SelectionResult) => void` | required in select mode | Host receives selection |
+| onPreviewChange | `(preview: PreviewInfo | null) => void` | optional | Browser tells host which item is currently being previewed (drives host-side UI like an Insert-button hint). |
 | onCancel | `() => void` | optional | User cancelled |
 | onError | `(message: string) => void` | optional | Load/action errors |
 
@@ -35,10 +38,19 @@ interface SelectionItem {
   name?: string;
   type?: string;
   category?: string;
+  /** Content-type id(s) the item is associated with; preview selector uses these. */
+  contentTypeIds?: string[];
 }
 
 interface SelectionResult {
   items: SelectionItem[]; // length 1 if !multiSelect
+}
+
+interface PreviewInfo {
+  item: SelectionItem;
+  templateId: string;
+  /** Server-rendered preview URL or rendered HTML — implementation-defined; see previewUrl helper. */
+  url: string;
 }
 ```
 

@@ -23,7 +23,11 @@
  * picker, optional Home Library consumer from 989-react-cui-widget-builder).</p>
  */
 
-import type { SelectionResult, SelectionItem } from "../api/contentExplorer/types";
+import type {
+  SelectionResult,
+  SelectionItem,
+  PreviewInfo,
+} from "../api/contentExplorer/types";
 
 export type ContentBrowserMode = "select" | "browse";
 export type ContentBrowserRoots = "sites" | "assets" | "all" | string[];
@@ -47,12 +51,18 @@ export interface ContentBrowserProps {
   roots?: ContentBrowserRoots;
   /** Show search pane when API is available (US5). */
   enableSearch?: boolean;
+  /** Show preview pane for the focused item (default true). */
+  enablePreview?: boolean;
+  /** Explicit template/content-type id to render preview with; null = first associated template. */
+  previewTemplate?: string | null;
   /** Dialog title; TMX key preferred. */
   title?: string | null;
   /** Required in select mode. */
   onConfirm?: (selection: SelectionResult) => void;
+  /** Browser tells host which item is currently being previewed (drives host UI like Insert-button hint). */
+  onPreviewChange?: (preview: PreviewInfo | null) => void;
   onCancel?: () => void;
   onError?: (message: string) => void;
 }
 
-export type { SelectionItem, SelectionResult };
+export type { SelectionItem, SelectionResult, PreviewInfo };

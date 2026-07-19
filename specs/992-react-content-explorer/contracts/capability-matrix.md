@@ -129,6 +129,21 @@ The dependency viewer and IA/relationship views surface the following entities/d
 
 ---
 
+## Translation (P-Trans) — required for 8.2 parity
+
+**Status**: Translation was missing from the initial capability matrix seed and is added per PR review. Content Explorer exposes a translation workflow (locale variants, in-flight translations, source-vs-target status) that Finder did not surface; parity requires it on the modern explorer.
+
+| Capability | Legacy source | Target | Phase | Acceptance |
+|------------|---------------|--------|-------|------------|
+| Show item locales (current + available) | CE translation panel | Explorer item detail | P-Trans | Each item row shows current locale + available locale list |
+| Translate (create new locale variant) | CE translation action | action-menu integration (`/actions` + itemmanagement) | P-Trans | Authorized user can request a new locale for an item |
+| In-flight translation status | CE translation queue | Explorer / search filter | P-Trans | List filter `translationState=inFlight`; result shows state |
+| Switch source/target locale session context | CE locale toggle | Modern shell locale switcher | P-Trans | Selecting a locale re-issues path API calls under that locale |
+
+**Open question for follow-up** (non-blocking for plan): exact REST surface for translation queue — investigate whether existing `rest` or `sitemanage` endpoints cover in-flight status, or whether a thin façade is required (T052a/T052b pattern).
+
+---
+
 ## Advanced CE (P-Adv) — after intermediate hard cut; **required for 8.2** (FR-028, FR-029)
 
 | Capability | Legacy source | Target | Phase | Acceptance |
