@@ -34,7 +34,8 @@
 **Inventory (T124, 2026-07-19)** — `WebUI/src/main/webapp/ui/publishing/`:
 `AddContextVariable`, `AssociateContentlist`, `ContentlistEditor/View`, `ContextEditor/List`, `DeliveryTypeEditor/List`, `EditionEditor/List`, `error`, `index` (redirect), `ItemBrowser`, `LocationScheme*`, `menu`, warnings, `PubDesignAuthentication`, `publish`, `Remove*`, `SaveChildSchemeChangesWarning`, `SelectEditionFromOtherSite`, `SiteEditor/List/RootBrowser`.
 
-**Sign-off**: Entry-path retirement Done; deep-page file deletion **explicitly deferred** (owner: packaging follow-up after UAT; do not block #1370).
+**Sign-off**: Entry-path retirement Done; deep-page file deletion **explicitly deferred** (owner: packaging follow-up after UAT; do not block #1370).  
+**Tracking issue**: [#1372](https://github.com/intersoftdatalabs-in/percussioncms/issues/1372) (milestone **8.2**, RET-06)
 
 ## Surface B — JSF Publishing Runtime
 
@@ -47,7 +48,8 @@
 **Inventory (T124, 2026-07-19)** — `WebUI/src/main/webapp/ui/pubruntime/`:
 `ActiveJobStatus`, `AllPubLogs`, `DeleteSiteItemLogsWarning`, `DemandPublish`, `ErrorMessage`, `index` (redirect), `ItemPubLog`, `JobPubLog`, `NoSelectionWarning`, `PubRuntimeAuthentication`, `RuntimeEdition/List`, `SitePubLogs`.
 
-**Sign-off**: Entry-path retirement Done; deep-page file deletion **explicitly deferred** (same packaging follow-up as Design).
+**Sign-off**: Entry-path retirement Done; deep-page file deletion **explicitly deferred** (same packaging follow-up as Design).  
+**Tracking issue**: [#1372](https://github.com/intersoftdatalabs-in/percussioncms/issues/1372) (milestone **8.2**, RET-06)
 
 ## Shared retained
 

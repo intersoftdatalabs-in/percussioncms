@@ -2,7 +2,8 @@
 
 **Feature**: `990-unified-publishing-ui`  
 **Purpose**: Evidence for success criteria that are manual/UAT (T125).  
-**Status**: Ready for human UAT on PR #1370 after US9 code land (2026-07-19). Automated Vitest covers unit parity for residual OPS rows; wall-clock SC criteria need environment runs.
+**Status**: Ready for human UAT on PR #1370 after US9 code land (2026-07-19). Automated Vitest covers unit parity for residual OPS rows; wall-clock SC criteria need environment runs.  
+**Tracking issue**: [#1371](https://github.com/intersoftdatalabs-in/percussioncms/issues/1371) (milestone **8.2**)
 
 ## Environment
 
