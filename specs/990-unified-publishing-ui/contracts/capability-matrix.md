@@ -26,17 +26,17 @@ Status: `Todo` | `In progress` | `Done` | `N/A (deprecated)`
 | OPS-15 | Database MSSQL / MySQL / Oracle fields | Minuet | Done |
 | OPS-16 | Full publish | Minuet | Done |
 | OPS-17 | Incremental preview queue + related | Minuet | Done |
-| OPS-18 | Incremental publish (+ approval if required) | Minuet | In progress |
+| OPS-18 | Incremental publish (+ approval if required) | Minuet | Done |
 | OPS-19 | Stop job | Minuet | Done |
-| OPS-20 | Status table + progress + sort | Minuet | In progress |
+| OPS-20 | Status table + progress + sort | Minuet | Done |
 | OPS-21 | Status auto-refresh | Minuet | Done |
-| OPS-22 | Logs filter + list | Minuet | In progress |
-| OPS-23 | Log details (items) | Minuet | In progress |
+| OPS-22 | Logs filter + list | Minuet | Done |
+| OPS-23 | Log details (items) | Minuet | Done |
 | OPS-24 | Purge/delete logs with confirm | Minuet | Done |
 | OPS-25 | EC2/regions/available pub server helpers | Minuet | Done |
 | OPS-26 | Forbidden / bad config messaging | Minuet | Done |
 
-**US9 residual (do not mark OPS-18/20/22/23 Done until T116–T121 complete):** plain incremental publish and related preview exist; approval selection, status column sort, log filters, and structured item details are still open.
+**US9 residual closed (2026-07-19):** OPS-18 approval selection + `publishIncrementalWithApproval`; OPS-20 status column sort; OPS-22 log filters (site/server/days/maxcount); OPS-23 structured `LogDetailsPanel` (SitePublishItem table).
 
 ## CG-DESIGN (Story US4) — JSF Design parity
 

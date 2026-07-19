@@ -34,6 +34,17 @@ describe("incrementalQueue", () => {
     expect(isQueueEmpty(page)).toBe(false);
   });
 
+  it("extracts PagedItemList.childrenInPage (product queue shape)", () => {
+    const page = {
+      PagedItemList: {
+        childrenInPage: [{ id: 9 }, { id: 10 }],
+        childrenCount: 2,
+      },
+    };
+    expect(extractQueueItems(page)).toHaveLength(2);
+    expect(isQueueEmpty(page)).toBe(false);
+  });
+
   it("uses totalCount for paging", () => {
     const page = { items: [{ a: 1 }], totalCount: 5 };
     expect(hasMorePages(page, 1, 1)).toBe(true);

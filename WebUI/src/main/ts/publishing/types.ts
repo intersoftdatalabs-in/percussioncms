@@ -78,8 +78,12 @@ export interface PublishingJob {
 export interface SitePublishLogRequest {
   siteId?: string | number;
   serverId?: string | number;
+  /** Minuet / PSSitePublishLogRequest field name. */
+  pubServerId?: string | number;
   days?: number;
   maxcount?: number;
+  skipCount?: number;
+  showOnlyFailures?: boolean;
   [key: string]: unknown;
 }
 

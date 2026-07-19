@@ -2,24 +2,24 @@
 
 **Feature**: `990-unified-publishing-ui`  
 **Purpose**: Evidence for success criteria that are manual/UAT (T125).  
-**Status**: Seed — fill during UAT on PR #1370 or US9.
+**Status**: Ready for human UAT on PR #1370 after US9 code land (2026-07-19). Automated Vitest covers unit parity for residual OPS rows; wall-clock SC criteria need environment runs.
 
 ## Environment
 
 | Field | Value |
 |-------|--------|
 | Build / PR | #1370 / branch `990-unified-publishing-ui` |
-| Environment URL | |
-| Date | |
-| Tester | |
+| Environment URL | _fill during UAT_ |
+| Date | _fill during UAT_ |
+| Tester | _fill during UAT_ |
 
 ## SC-001 — Under 2 minutes to full publish path
 
 | Step | Pass? | Notes |
 |------|-------|-------|
-| Open Publishing (modern shell) | | |
-| Select site → server → full publish | | |
-| Job visible in Status | | |
+| Open Publishing (modern shell) | | `publishModern.jsp` / nav Publish |
+| Select site → server → full publish | | Sites section → workspace Full |
+| Job visible in Status | | Status section poll ≤ 5s |
 | Elapsed wall time (excl. job runtime) | | Target &lt; 2 min |
 
 ## SC-003 — Ops without Design (≥80% usability target)
@@ -37,17 +37,19 @@
 
 | Failure scenario | Diagnosable in modern Status/Logs? | Notes |
 |------------------|------------------------------------|-------|
-| Bad server config | | |
+| Bad server config | | FORBIDDEN / BADCONFIG messaging + server editor alerts |
 | Permission / FORBIDDEN | | |
-| Job failed mid-run | | |
+| Job failed mid-run | | Status progress + Logs filters + structured details panel |
 
-## US9 residual (optional before release claim)
+## US9 residual (code complete 2026-07-19)
 
 | Matrix row | Verified Done after T119–T122? |
 |------------|--------------------------------|
-| OPS-18 approval path | |
-| OPS-20 status sort | |
-| OPS-22 log filters | |
-| OPS-23 log item details | |
+| OPS-18 approval path | Yes — unit: `incrementalApproval.test.ts`; UI: related checkboxes → `publishIncrementalWithApproval` |
+| OPS-20 status sort | Yes — unit: `statusSort.test.ts`; UI: sortable Status headers |
+| OPS-22 log filters | Yes — unit: `logsFilter.test.ts`; UI: site/server/days/maxcount |
+| OPS-23 log item details | Yes — unit: extract/filter in `logsFilter.test.ts`; UI: `LogDetailsPanel` |
 
-**Sign-off**: _name / date / PR_
+**FR-020 review (T126)**: `ServerEditor` and design panels surface save failures with `role="alert"`; parent workspace shows success status after server save. No additional toast framework required for this cut.
+
+**Sign-off**: _name / date / PR_ (human after environment UAT)

@@ -25,8 +25,23 @@ export function extractQueueItems(page: IncrementalQueuePage | null | undefined)
   if (Array.isArray(page.items)) {
     return page.items;
   }
+  const root = page as Record<string, unknown>;
+  // Product path list shape: { PagedItemList: { childrenInPage: [...] } }
+  const paged = root.PagedItemList;
+  if (paged && typeof paged === "object") {
+    const children = (paged as Record<string, unknown>).childrenInPage;
+    if (Array.isArray(children)) {
+      return children;
+    }
+    if (children && typeof children === "object") {
+      return [children];
+    }
+  }
+  if (Array.isArray(root.childrenInPage)) {
+    return root.childrenInPage;
+  }
   for (const key of ["SitePublishItem", "contentItems", "results", "items"]) {
-    const v = (page as Record<string, unknown>)[key];
+    const v = root[key];
     if (Array.isArray(v)) {
       return v;
     }

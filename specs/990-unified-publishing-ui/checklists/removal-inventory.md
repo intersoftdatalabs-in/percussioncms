@@ -29,9 +29,12 @@
 |--------------|--------|--------|-------|
 | `ui/publishing/index.jsp` | Redirect → modern Design section | Done | Primary entry |
 | `dce_header.jsp` Design link | Points to modern Design | Done | |
-| Remaining `ui/publishing/*.jsp` | Left in place; entry redirects | Residual → **US9 T124 / RET-06** | Faces-config may still map deep faces URLs; product path uses modern shell. |
+| Remaining `ui/publishing/*.jsp` (28 files) | **Keep packaged** for now | Deferred (RET-06) | Inventory 2026-07-19: deep faces pages still shipped; product nav uses modern shell only. Delete requires consumer/bookmark audit + faces-config purge in a follow-up packaging PR. |
 
-**Sign-off**: Entry-path retirement 2026-07-19 (deep-page packaging = US9)
+**Inventory (T124, 2026-07-19)** — `WebUI/src/main/webapp/ui/publishing/`:
+`AddContextVariable`, `AssociateContentlist`, `ContentlistEditor/View`, `ContextEditor/List`, `DeliveryTypeEditor/List`, `EditionEditor/List`, `error`, `index` (redirect), `ItemBrowser`, `LocationScheme*`, `menu`, warnings, `PubDesignAuthentication`, `publish`, `Remove*`, `SaveChildSchemeChangesWarning`, `SelectEditionFromOtherSite`, `SiteEditor/List/RootBrowser`.
+
+**Sign-off**: Entry-path retirement Done; deep-page file deletion **explicitly deferred** (owner: packaging follow-up after UAT; do not block #1370).
 
 ## Surface B — JSF Publishing Runtime
 
@@ -39,9 +42,12 @@
 |--------------|--------|--------|-------|
 | `ui/pubruntime/index.jsp` | Redirect → modern Runtime section | Done | |
 | `dce_header.jsp` Runtime link | Points to modern Runtime | Done | |
-| Remaining `ui/pubruntime/*.jsp` | Entry redirects | Residual → **US9 T124 / RET-06** | Same packaging note as Design |
+| Remaining `ui/pubruntime/*.jsp` (13 files) | **Keep packaged** for now | Deferred (RET-06) | Same as Design: entry Done; file delete deferred. |
 
-**Sign-off**: Entry-path retirement 2026-07-19 (deep-page packaging = US9)
+**Inventory (T124, 2026-07-19)** — `WebUI/src/main/webapp/ui/pubruntime/`:
+`ActiveJobStatus`, `AllPubLogs`, `DeleteSiteItemLogsWarning`, `DemandPublish`, `ErrorMessage`, `index` (redirect), `ItemPubLog`, `JobPubLog`, `NoSelectionWarning`, `PubRuntimeAuthentication`, `RuntimeEdition/List`, `SitePubLogs`.
+
+**Sign-off**: Entry-path retirement Done; deep-page file deletion **explicitly deferred** (same packaging follow-up as Design).
 
 ## Shared retained
 

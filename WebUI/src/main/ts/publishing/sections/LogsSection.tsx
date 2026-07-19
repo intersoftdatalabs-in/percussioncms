@@ -15,23 +15,33 @@
  * limitations under the License.
  */
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import { fetchSites } from "../../api/home/homeApi";
 import {
   fetchLogDetails,
   fetchPublishingLogs,
   purgePublishingLogs,
 } from "../../api/publishing/statusApi";
 import { message, MSG } from "../../i18n/message";
+import { LogDetailsPanel } from "../components/LogDetailsPanel";
+import {
+  buildLogRequest,
+  DEFAULT_LOG_DAYS,
+  DEFAULT_LOG_MAXCOUNT,
+  LOG_DAYS_OPTIONS,
+  LOG_MAXCOUNT_OPTIONS,
+} from "../logsFilter";
 import {
   buttonStyle,
   emptyStyle,
   errorStyle,
+  formRowStyle,
   tableStyle,
   tdStyle,
   thStyle,
   toolbarStyle,
 } from "../publishing.styles";
-import type { PublishingLogEntry } from "../types";
+import type { PublishSiteSummary, PublishingLogEntry } from "../types";
 
 /**
  * Confirm gate for purge — pure helper for tests and UI.
@@ -42,17 +52,46 @@ export function canPurge(selectedIds: Array<string | number>): boolean {
 
 export function LogsSection(): React.ReactElement {
   const [logs, setLogs] = useState<PublishingLogEntry[]>([]);
+  const [sites, setSites] = useState<PublishSiteSummary[]>([]);
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [details, setDetails] = useState<unknown>(null);
+  const [detailsJob, setDetailsJob] = useState<PublishingLogEntry | null>(null);
   const [confirmPurge, setConfirmPurge] = useState(false);
+
+  const [siteId, setSiteId] = useState("");
+  const [pubServerId, setPubServerId] = useState("");
+  const [days, setDays] = useState(DEFAULT_LOG_DAYS);
+  const [maxcount, setMaxcount] = useState(DEFAULT_LOG_MAXCOUNT);
+
+  useEffect(() => {
+    fetchSites()
+      .then((list) =>
+        setSites(
+          list.map((s) => ({
+            name: s.name,
+            id: s.id,
+            siteId: s.siteId ?? s.id,
+          })),
+        ),
+      )
+      .catch(() => setSites([]));
+  }, []);
 
   async function load(): Promise<void> {
     setLoading(true);
     setError(null);
+    setDetails(null);
+    setDetailsJob(null);
     try {
-      const list = await fetchPublishingLogs({ days: 7, maxcount: 100 });
+      const request = buildLogRequest({
+        siteId: siteId || undefined,
+        pubServerId: pubServerId || undefined,
+        days,
+        maxcount,
+      });
+      const list = await fetchPublishingLogs(request);
       setLogs(list);
     } catch {
       setError(message(MSG.PUBLISH_ERROR));
@@ -73,10 +112,15 @@ export function LogsSection(): React.ReactElement {
     });
   }
 
-  async function onDetails(jobId: string | number): Promise<void> {
+  async function onDetails(log: PublishingLogEntry): Promise<void> {
+    const jobId = log.jobId;
+    if (jobId == null || jobId === "") {
+      return;
+    }
     try {
       const data = await fetchLogDetails({ jobId });
       setDetails(data);
+      setDetailsJob(log);
     } catch {
       setError(message(MSG.PUBLISH_ERROR));
     }
@@ -98,6 +142,77 @@ export function LogsSection(): React.ReactElement {
 
   return (
     <div data-testid="publish-section-logs">
+      <div
+        style={{
+          display: "flex",
+          flexWrap: "wrap",
+          gap: 12,
+          marginBottom: 12,
+          alignItems: "flex-end",
+        }}
+        data-testid="publish-logs-filters"
+      >
+        <div style={{ ...formRowStyle, marginBottom: 0, maxWidth: 200 }}>
+          <label htmlFor="logs-site">Site id</label>
+          <select
+            id="logs-site"
+            value={siteId}
+            onChange={(e) => setSiteId(e.target.value)}
+            data-testid="logs-filter-site"
+          >
+            <option value="">All</option>
+            {sites.map((s) => {
+              const id = String(s.siteId ?? s.id ?? s.name);
+              return (
+                <option key={id} value={id}>
+                  {s.name}
+                </option>
+              );
+            })}
+          </select>
+        </div>
+        <div style={{ ...formRowStyle, marginBottom: 0, maxWidth: 160 }}>
+          <label htmlFor="logs-server">Server id</label>
+          <input
+            id="logs-server"
+            value={pubServerId}
+            onChange={(e) => setPubServerId(e.target.value)}
+            placeholder="All"
+            data-testid="logs-filter-server"
+          />
+        </div>
+        <div style={{ ...formRowStyle, marginBottom: 0, maxWidth: 120 }}>
+          <label htmlFor="logs-days">Days</label>
+          <select
+            id="logs-days"
+            value={days}
+            onChange={(e) => setDays(Number(e.target.value))}
+            data-testid="logs-filter-days"
+          >
+            {LOG_DAYS_OPTIONS.map((d) => (
+              <option key={d} value={d}>
+                {d}
+              </option>
+            ))}
+          </select>
+        </div>
+        <div style={{ ...formRowStyle, marginBottom: 0, maxWidth: 120 }}>
+          <label htmlFor="logs-max">Show</label>
+          <select
+            id="logs-max"
+            value={maxcount}
+            onChange={(e) => setMaxcount(Number(e.target.value))}
+            data-testid="logs-filter-maxcount"
+          >
+            {LOG_MAXCOUNT_OPTIONS.map((n) => (
+              <option key={n} value={n}>
+                {n}
+              </option>
+            ))}
+          </select>
+        </div>
+      </div>
+
       <div style={toolbarStyle}>
         <button type="button" style={buttonStyle} onClick={() => void load()}>
           {message(MSG.PUBLISH_SECTION_LOGS)}
@@ -128,6 +243,7 @@ export function LogsSection(): React.ReactElement {
             <tr>
               <th style={thStyle} />
               <th style={thStyle}>{message(MSG.PUBLISH_SECTION_SITES)}</th>
+              <th style={thStyle}>{message(MSG.PUBLISH_SELECT_SERVER)}</th>
               <th style={thStyle}>{message(MSG.PUBLISH_SECTION_STATUS)}</th>
               <th style={thStyle} />
             </tr>
@@ -146,13 +262,16 @@ export function LogsSection(): React.ReactElement {
                     />
                   </td>
                   <td style={tdStyle}>{log.siteName ?? "—"}</td>
+                  <td style={tdStyle}>
+                    {String(log.serverName ?? log.pubServerName ?? "—")}
+                  </td>
                   <td style={tdStyle}>{log.status ?? "—"}</td>
                   <td style={tdStyle}>
                     {id && (
                       <button
                         type="button"
                         style={buttonStyle}
-                        onClick={() => void onDetails(id)}
+                        onClick={() => void onDetails(log)}
                       >
                         details
                       </button>
@@ -186,11 +305,21 @@ export function LogsSection(): React.ReactElement {
       )}
 
       {details != null && (
-        <pre style={{ marginTop: 12, fontSize: "0.8rem", overflow: "auto" }}>
-          {typeof details === "string"
-            ? details
-            : JSON.stringify(details, null, 2)}
-        </pre>
+        <LogDetailsPanel
+          details={details}
+          jobSummary={{
+            jobId: detailsJob?.jobId,
+            siteName: detailsJob?.siteName,
+            serverName: String(
+              detailsJob?.serverName ?? detailsJob?.pubServerName ?? "",
+            ),
+            status: detailsJob?.status,
+          }}
+          onClose={() => {
+            setDetails(null);
+            setDetailsJob(null);
+          }}
+        />
       )}
     </div>
   );

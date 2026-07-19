@@ -372,20 +372,20 @@ Start at **T001–T016** (setup + foundational), then **T017–T029** (US1) as f
 
 ### Tests (Required)
 
-- [ ] T116 [P] [US9] Vitest for incremental approval selection → `publishIncrementalWithApproval` call shape in `WebUI/src/test/ts/publishing/incrementalApproval.test.ts`
-- [ ] T117 [P] [US9] Vitest for status table sort helpers in `WebUI/src/test/ts/publishing/statusSort.test.ts`
-- [ ] T118 [P] [US9] Vitest for log filter request builder (site/server/days) in `WebUI/src/test/ts/publishing/logsFilter.test.ts`
+- [x] T116 [P] [US9] Vitest for incremental approval selection → `publishIncrementalWithApproval` call shape in `WebUI/src/test/ts/publishing/incrementalApproval.test.ts`
+- [x] T117 [P] [US9] Vitest for status table sort helpers in `WebUI/src/test/ts/publishing/statusSort.test.ts`
+- [x] T118 [P] [US9] Vitest for log filter request builder (site/server/days) in `WebUI/src/test/ts/publishing/logsFilter.test.ts`
 
 ### Implementation
 
-- [ ] T119 [US9] Wire related-items approval UI when queue/product requires it: use `publishIncrementalWithApproval` from `WebUI/src/main/ts/api/publishing/publishApi.ts` in `SiteWorkspace.tsx` / incremental components (OPS-18)
-- [ ] T120 [US9] Add sortable columns to status table in `WebUI/src/main/ts/publishing/sections/StatusSection.tsx` (OPS-20)
-- [ ] T121 [US9] Add logs filters (site, server, days/window) in `WebUI/src/main/ts/publishing/sections/LogsSection.tsx` matching Minuet-supported fields (OPS-22)
-- [ ] T122 [US9] Structured log details panel (job items list, not raw JSON only) under `WebUI/src/main/ts/publishing/components/` (OPS-23)
-- [ ] T123 [US9] Mark OPS-18, OPS-20, OPS-22, OPS-23 **Done** on `contracts/capability-matrix.md` only after T119–T122 pass tests
-- [ ] T124 [P] [US9] Packaging follow-up (RET-06): inventory remaining `WebUI/src/main/webapp/ui/publishing/**` and `ui/pubruntime/**` faces pages + `publishing-faces-config.xml` entries; delete or stop packaging exclusive deep pages after consumer check; update `checklists/removal-inventory.md`
-- [ ] T125 [P] [US9] Document UAT evidence for SC-001 / SC-003 / SC-008 in `specs/990-unified-publishing-ui/checklists/uat-signoff.md` (or PR comment with environment + date)
-- [ ] T126 [P] [US9] Review FR-020: ensure server/design save errors surface success/failure clearly (toasts/alerts) in `ServerEditor.tsx` / design editors; add test if missing
+- [x] T119 [US9] Wire related-items approval UI when queue/product requires it: use `publishIncrementalWithApproval` from `WebUI/src/main/ts/api/publishing/publishApi.ts` in `SiteWorkspace.tsx` / incremental components (OPS-18)
+- [x] T120 [US9] Add sortable columns to status table in `WebUI/src/main/ts/publishing/sections/StatusSection.tsx` (OPS-20)
+- [x] T121 [US9] Add logs filters (site, server, days/window) in `WebUI/src/main/ts/publishing/sections/LogsSection.tsx` matching Minuet-supported fields (OPS-22)
+- [x] T122 [US9] Structured log details panel (job items list, not raw JSON only) under `WebUI/src/main/ts/publishing/components/` (OPS-23)
+- [x] T123 [US9] Mark OPS-18, OPS-20, OPS-22, OPS-23 **Done** on `contracts/capability-matrix.md` only after T119–T122 pass tests
+- [x] T124 [P] [US9] Packaging follow-up (RET-06): inventory remaining `WebUI/src/main/webapp/ui/publishing/**` and `ui/pubruntime/**` faces pages + `publishing-faces-config.xml` entries; delete or stop packaging exclusive deep pages after consumer check; update `checklists/removal-inventory.md`
+- [x] T125 [P] [US9] Document UAT evidence for SC-001 / SC-003 / SC-008 in `specs/990-unified-publishing-ui/checklists/uat-signoff.md` (or PR comment with environment + date)
+- [x] T126 [P] [US9] Review FR-020: ensure server/design save errors surface success/failure clearly (toasts/alerts) in `ServerEditor.tsx` / design editors; add test if missing
 - [ ] T127 [US9] Commit US9 + open PR (or push to #1370); resolve review threads
 
 **Checkpoint**: Matrix OPS residual closed; packaging residual either Done or explicitly deferred with date owner.

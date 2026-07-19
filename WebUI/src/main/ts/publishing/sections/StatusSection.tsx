@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { stopPublishing } from "../../api/publishing/serversApi";
 import { fetchCurrentJobs } from "../../api/publishing/statusApi";
 import { message, MSG } from "../../i18n/message";
@@ -28,15 +28,28 @@ import {
   tdStyle,
   thStyle,
 } from "../publishing.styles";
+import {
+  nextSortState,
+  sortIndicator,
+  sortJobs,
+  type StatusSortKey,
+  type StatusSortState,
+} from "../statusSort";
 import type { PublishingJob } from "../types";
 
 /** Minuet-comparable default poll interval (ms). */
 export const STATUS_POLL_INTERVAL_MS = 5000;
 
+const DEFAULT_SORT: StatusSortState = {
+  key: "siteName",
+  direction: "asc",
+};
+
 export function StatusSection(): React.ReactElement {
   const [jobs, setJobs] = useState<PublishingJob[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const [sort, setSort] = useState<StatusSortState>(DEFAULT_SORT);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const load = useCallback(() => {
@@ -59,6 +72,12 @@ export function StatusSection(): React.ReactElement {
     };
   }, [load]);
 
+  const sortedJobs = useMemo(() => sortJobs(jobs, sort), [jobs, sort]);
+
+  function onHeaderClick(key: StatusSortKey): void {
+    setSort((prev) => nextSortState(prev, key));
+  }
+
   async function onStop(jobId: string | number): Promise<void> {
     try {
       await stopPublishing(jobId);
@@ -66,6 +85,33 @@ export function StatusSection(): React.ReactElement {
     } catch {
       setError(message(MSG.PUBLISH_ERROR));
     }
+  }
+
+  function sortTh(
+    key: StatusSortKey,
+    label: string,
+  ): React.ReactElement {
+    return (
+      <th style={thStyle}>
+        <button
+          type="button"
+          style={{
+            ...buttonStyle,
+            border: "none",
+            background: "transparent",
+            padding: 0,
+            fontWeight: 600,
+            textAlign: "left",
+          }}
+          onClick={() => onHeaderClick(key)}
+          aria-label={`Sort by ${label}`}
+          data-testid={`status-sort-${key}`}
+        >
+          {label}
+          {sortIndicator(sort, key)}
+        </button>
+      </th>
+    );
   }
 
   return (
@@ -83,14 +129,14 @@ export function StatusSection(): React.ReactElement {
         <table style={tableStyle}>
           <thead>
             <tr>
-              <th style={thStyle}>{message(MSG.PUBLISH_SECTION_SITES)}</th>
-              <th style={thStyle}>{message(MSG.PUBLISH_SECTION_STATUS)}</th>
-              <th style={thStyle}>{message(MSG.PUBLISH_FULL)}</th>
+              {sortTh("siteName", message(MSG.PUBLISH_SECTION_SITES))}
+              {sortTh("status", message(MSG.PUBLISH_SECTION_STATUS))}
+              {sortTh("completedItems", message(MSG.PUBLISH_FULL))}
               <th style={thStyle}>{message(MSG.PUBLISH_STOP)}</th>
             </tr>
           </thead>
           <tbody>
-            {jobs.map((job) => {
+            {sortedJobs.map((job) => {
               const id = job.jobId ?? "";
               const stoppable =
                 !job.isStopping &&

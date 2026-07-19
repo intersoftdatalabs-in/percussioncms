@@ -20,6 +20,7 @@ import {
   getIncrementalItems,
   getIncrementalRelatedItems,
   incrementalPublishSite,
+  publishIncrementalWithApproval,
   publishSite,
 } from "../../api/publishing/publishApi";
 import {
@@ -38,6 +39,13 @@ import { ServerEditor } from "../components/ServerEditor";
 import { ServerList } from "../components/ServerList";
 import { useDirtyForm } from "../dirtyFormContext";
 import {
+  buildApprovalPayload,
+  collectRelatedItemIds,
+  relatedItemId,
+  relatedItemLabel,
+  shouldUseApprovalPath,
+} from "../incrementalApproval";
+import {
   extractQueueItems,
   isQueueEmpty,
 } from "../incrementalQueue";
@@ -51,6 +59,9 @@ import {
   emptyStyle,
   errorStyle,
   primaryButtonStyle,
+  tableStyle,
+  tdStyle,
+  thStyle,
   toolbarStyle,
 } from "../publishing.styles";
 import type {
@@ -97,6 +108,10 @@ export function SiteWorkspace({
   const [jobs, setJobs] = useState<PublishingJob[]>([]);
   const [queuePreview, setQueuePreview] = useState<unknown[]>([]);
   const [relatedPreview, setRelatedPreview] = useState<unknown[]>([]);
+  const [selectedRelated, setSelectedRelated] = useState<Set<string>>(
+    new Set(),
+  );
+  const [previewLoaded, setPreviewLoaded] = useState(false);
   const [loadingServers, setLoadingServers] = useState(true);
   const [editorMode, setEditorMode] = useState<"closed" | "create" | "edit">(
     "closed",
@@ -263,12 +278,38 @@ export function SiteWorkspace({
         1,
         25,
       );
-      setRelatedPreview(extractQueueItems(related));
+      const relatedItems = extractQueueItems(related);
+      setRelatedPreview(relatedItems);
+      // Default: select none (user explicitly chooses related items to approve)
+      setSelectedRelated(new Set());
+      setPreviewLoaded(true);
     } catch {
       setQueuePreview([]);
       setRelatedPreview([]);
+      setSelectedRelated(new Set());
+      setPreviewLoaded(false);
       setActionMessage(message(MSG.PUBLISH_ERROR));
       setActionState("error");
+    }
+  }
+
+  function toggleRelated(id: string): void {
+    setSelectedRelated((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) {
+        next.delete(id);
+      } else {
+        next.add(id);
+      }
+      return next;
+    });
+  }
+
+  function toggleSelectAllRelated(checked: boolean): void {
+    if (checked) {
+      setSelectedRelated(new Set(collectRelatedItemIds(relatedPreview)));
+    } else {
+      setSelectedRelated(new Set());
     }
   }
 
@@ -281,9 +322,22 @@ export function SiteWorkspace({
     setActionState(startPublishState());
     setActionMessage(null);
     try {
-      await incrementalPublishSite(siteName, selectedServerName);
+      if (shouldUseApprovalPath(relatedPreview)) {
+        const payload = buildApprovalPayload([...selectedRelated]);
+        await publishIncrementalWithApproval(
+          siteName,
+          selectedServerName,
+          payload,
+        );
+      } else {
+        await incrementalPublishSite(siteName, selectedServerName);
+      }
       setActionState(successPublishState());
       setActionMessage(message(MSG.PUBLISH_SUCCESS));
+      setPreviewLoaded(false);
+      setRelatedPreview([]);
+      setQueuePreview([]);
+      setSelectedRelated(new Set());
       refreshJobs();
     } catch (err) {
       const mapped = mapPublishError(err);
@@ -309,6 +363,10 @@ export function SiteWorkspace({
   }
 
   const noServers = !loadingServers && servers.length === 0;
+  const allRelatedIds = collectRelatedItemIds(relatedPreview);
+  const allRelatedSelected =
+    allRelatedIds.length > 0 &&
+    allRelatedIds.every((id) => selectedRelated.has(id));
 
   if (editorMode !== "closed") {
     return (
@@ -398,8 +456,10 @@ export function SiteWorkspace({
           style={buttonStyle}
           disabled={!selectedServerName || actionState === "starting"}
           onClick={() => void runIncrementalPublish()}
+          data-testid="publish-incremental-confirm"
         >
           {message(MSG.PUBLISH_INCREMENTAL)}
+          {shouldUseApprovalPath(relatedPreview) ? " (with approval)" : ""}
         </button>
       </div>
 
@@ -412,20 +472,68 @@ export function SiteWorkspace({
         </p>
       )}
 
-      {(queuePreview.length > 0 || relatedPreview.length > 0) && (
-        <div style={{ marginTop: 12 }}>
+      {previewLoaded && (
+        <div style={{ marginTop: 12 }} data-testid="publish-incremental-preview">
           <h3 style={{ fontSize: "1rem" }}>
             {message(MSG.PUBLISH_INCREMENTAL)}
           </h3>
           {isQueueEmpty({ items: queuePreview }) ? (
             <p style={emptyStyle}>{message(MSG.PUBLISH_EMPTY_QUEUE)}</p>
           ) : (
-            <p>
-              Queue items: {queuePreview.length}
-              {relatedPreview.length > 0
-                ? `; related: ${relatedPreview.length}`
-                : ""}
-            </p>
+            <p>Queue items: {queuePreview.length}</p>
+          )}
+
+          {relatedPreview.length > 0 && (
+            <div style={{ marginTop: 12 }} data-testid="publish-related-approval">
+              <h4 style={{ fontSize: "0.95rem" }}>
+                {message(MSG.PUBLISH_RELATED_ITEMS)} for approval
+              </h4>
+              <table style={tableStyle}>
+                <thead>
+                  <tr>
+                    <th style={thStyle}>
+                      <input
+                        type="checkbox"
+                        checked={allRelatedSelected}
+                        onChange={(e) =>
+                          toggleSelectAllRelated(e.target.checked)
+                        }
+                        aria-label="select all related items"
+                        data-testid="publish-related-select-all"
+                      />
+                    </th>
+                    <th style={thStyle}>Item</th>
+                    <th style={thStyle}>Id</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {relatedPreview.map((item, idx) => {
+                    const id = relatedItemId(item) ?? `row-${idx}`;
+                    const selectable = relatedItemId(item) != null;
+                    return (
+                      <tr key={id}>
+                        <td style={tdStyle}>
+                          {selectable && (
+                            <input
+                              type="checkbox"
+                              checked={selectedRelated.has(id)}
+                              onChange={() => toggleRelated(id)}
+                              aria-label={`approve related ${id}`}
+                            />
+                          )}
+                        </td>
+                        <td style={tdStyle}>{relatedItemLabel(item)}</td>
+                        <td style={tdStyle}>{id}</td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+              <p style={{ fontSize: "0.85rem", color: "#555" }}>
+                Selected for approval: {selectedRelated.size} of{" "}
+                {allRelatedIds.length}
+              </p>
+            </div>
           )}
         </div>
       )}
