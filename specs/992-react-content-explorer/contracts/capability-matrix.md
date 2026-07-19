@@ -21,20 +21,20 @@
 
 ## Core navigate (P0-Core) — hard-cut bar
 
-| Capability | Legacy source | Target | Phase | Acceptance |
-|------------|---------------|--------|-------|------------|
-| Explorer tree of sites/folders | CE tree / Finder columns | React tree | P0-Core | Expand/select loads children |
-| Detail list of children | CE list / Finder list view | React list + pagination | P0-Core | Columns: name, type at min; SC-005 |
-| Open item edit/preview | Both | Existing editor navigation | P0-Core | Path/id open works |
-| Create folder | Both | path addFolder APIs | P0-Core | Appears after refresh |
-| Rename | Both | renameFolder | P0-Core | Name updates |
-| Move | Both | moveItem | P0-Core | Tree/list refresh |
-| Copy (single item) | Both | path/item copy as today | P0-Core | Reduced action |
-| Delete + confirm | Both | delete APIs | P0-Core | Destructive confirm |
-| Permission denied / session errors | Both | Clear messaging | P0-Core | No blank hang |
-| ReducedAction set | Finder buttons subset | Product fixed set (ReducedAction enum) | P0-Core | FR-010a; entries enumerated in `data-model.md` |
-| Miller-column primary UX | Finder | **Removed** at hard cut | P0-Core | SC-006 |
-| Desktop CE required for core admin | CE app | **Not required** at hard cut | P0-Core | SC-007 |
+| Capability | Legacy source | Target | Phase | Acceptance | Status (US1) |
+|------------|---------------|--------|-------|------------|--------------|
+| Explorer tree of sites/folders | CE tree / Finder columns | React tree | P0-Core | Expand/select loads children | **Implemented** — `WebUI/src/main/ts/contentExplorer/ExplorerTree.tsx` + Vitest (`ExplorerTree.test.tsx`); lazy expand; pending UAT against CMS (T024a) |
+| Detail list of children | CE list / Finder list view | React list + pagination | P0-Core | Columns: name, type at min; SC-005 | **Implemented** — `WebUI/src/main/ts/contentExplorer/DetailList.tsx` + Vitest (`DetailList.test.tsx`); paginatedFolder; SC-005 perf regression guard (`sc005-perf-regression.test.ts`); SC-005 acceptance evidence pending UAT |
+| Open item edit/preview | Both | Existing editor navigation | P0-Core | Path/id open works | **Implemented** — `WebUI/src/main/ts/contentExplorer/openInEditor.ts`; path-first with id fallback (mirrors `HomeShell` default) |
+| Create folder | Both | path addFolder APIs | P0-Core | Appears after refresh | **Implemented** — `ReducedActions.tsx` + `pathApi.addNewFolder`; refreshes via state invalidation in shell |
+| Rename | Both | renameFolder | P0-Core | Name updates | **Implemented** — `ReducedActions.tsx` + `pathApi.renameFolder` |
+| Move | Both | moveItem | P0-Core | Tree/list refresh | **Implemented** — `ReducedActions.tsx` + `pathApi.moveItem` (copy: false) |
+| Copy (single item) | Both | path/item copy as today | P0-Core | Reduced action | **Implemented** — `ReducedActions.tsx` + `pathApi.moveItem` (copy: true) |
+| Delete + confirm | Both | delete APIs | P0-Core | Destructive confirm | **Implemented** — `ReducedActions.tsx` + `pathApi.deleteItem`; confirmation via `handlers.confirm` (default `window.confirm`) |
+| Permission denied / session errors | Both | Clear messaging | P0-Core | No blank hang | **Implemented** — error state surfaces via `errorStateStyle`; permission gating in `selection.ts` (`canRead`/`canWrite`/`canAdmin`); session expiry TMX key reserved (`SESSION_EXPIRED`) |
+| ReducedAction set | Finder buttons subset | Product fixed set (ReducedAction enum) | P0-Core | FR-010a; entries enumerated in `data-model.md` | **Implemented** — 7 actions (open/preview/createFolder/rename/move/copy/delete); Vitest (`reducedActions.test.tsx`) |
+| Miller-column primary UX | Finder | **Removed** at hard cut | P0-Core | SC-006 | **Pending** — US6 (T028-T036); US1 PR removes the placeholder registry entry but does not delete Finder from JSPs |
+| Desktop CE required for core admin | CE app | **Not required** at hard cut | P0-Core | SC-007 | **Pending** — US6 (T034 docs/distribution) |
 
 ---
 

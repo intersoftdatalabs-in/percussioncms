@@ -62,26 +62,26 @@ US2 can start after Foundational+US1 in parallel with US6 if staffing allows (di
 
 ### Tests (Required)
 
-- [ ] T013 [P] [US1] Unit tests for path API helpers (success + error mapping) in `WebUI/src/test/ts/contentExplorer/pathApi.test.ts`
-- [ ] T014 [P] [US1] Component tests for tree expand/select in `WebUI/src/test/ts/contentExplorer/ExplorerTree.test.tsx`
-- [ ] T015 [P] [US1] Component tests for detail list pagination/load in `WebUI/src/test/ts/contentExplorer/DetailList.test.tsx`
-- [ ] T015a [P] [US1] **Vitest perf regression guard** for SC-005: mocked `paginatedFolder` for a 500-child fixture renders first page and opens a selected item within a **tighter dev-machine budget (e.g. ≤ 5 s on the implementer's machine)** — this catches regressions pre-CI; it is **NOT** the SC-005 acceptance measurement. SC-005 itself is proven by `checklists/sc005-perf-evidence.md` against the standard office network per `quickstart.md` Scenario B
-- [ ] T016 [P] [US1] Tests for reduced actions (create/rename/move/delete confirm + error) in `WebUI/src/test/ts/contentExplorer/reducedActions.test.tsx`
+- [x] T013 [P] [US1] Unit tests for path API helpers (success + error mapping) in `WebUI/src/test/ts/contentExplorer/pathApi.test.ts`
+- [x] T014 [P] [US1] Component tests for tree expand/select in `WebUI/src/test/ts/contentExplorer/ExplorerTree.test.tsx`
+- [x] T015 [P] [US1] Component tests for detail list pagination/load in `WebUI/src/test/ts/contentExplorer/DetailList.test.tsx`
+- [x] T015a [P] [US1] **Vitest perf regression guard** for SC-005: mocked `paginatedFolder` for a 500-child fixture renders first page and opens a selected item within a **tighter dev-machine budget (e.g. ≤ 5 s on the implementer's machine)** — this catches regressions pre-CI; it is **NOT** the SC-005 acceptance measurement. SC-005 itself is proven by `checklists/sc005-perf-evidence.md` against the standard office network per `quickstart.md` Scenario B
+- [x] T016 [P] [US1] Tests for reduced actions (create/rename/move/delete confirm + error) in `WebUI/src/test/ts/contentExplorer/reducedActions.test.tsx`
 
 ### Implementation
 
-- [ ] T017 [P] [US1] Implement `ContentExplorerShell` layout (tree + detail panes) in `WebUI/src/main/ts/contentExplorer/ContentExplorerShell.tsx` (+ styles under `WebUI/src/main/ts/contentExplorer/`)
-- [ ] T018 [P] [US1] Implement folder tree component in `WebUI/src/main/ts/contentExplorer/ExplorerTree.tsx` loading children via path API
-- [ ] T019 [P] [US1] Implement detail list with pagination/virtualization for large folders in `WebUI/src/main/ts/contentExplorer/DetailList.tsx` using `paginatedFolder` (SC-005)
-- [ ] T020 [US1] Implement **ReducedAction set** bar/menu (open/preview, create folder, rename, move, copy, delete+confirm) in `WebUI/src/main/ts/contentExplorer/ReducedActions.tsx` (FR-010a)
-- [ ] T021 [US1] Wire open/preview to existing product navigation patterns (path/id → editor) from explorer selection under `WebUI/src/main/ts/contentExplorer/`
-- [ ] T022 [US1] Wire empty states, permission denied, and session/CSRF error UX in `WebUI/src/main/ts/contentExplorer/` via TMX keys
-- [ ] T023 [US1] Add/reuse explorer chrome TMX keys in `modules/perc-i18n/src/main/resources/i18n/CmsUi.tmx` with structural locale parity (FR-026)
-- [ ] T024 [US1] Mount explorer in Web Management shell for development (e.g. panel in `WebUI/src/main/webapp/cm/app/webmgt.jsp` or thin shell JSP) via `PercModernUI.mount(..., 'ContentExplorerShell', ...)` without final Finder deletion yet
-- [ ] T024a [US1] **Verify shell-mount integration (FR-005)**: confirm explorer entry is reachable from main product navigation alongside Dashboard/Home, chrome matches other modern surfaces, and there are no Finder-only assumptions in the mount path; document evidence under `checklists/us1-shell-mount-evidence.md`
-- [ ] T025 [US1] Run Vitest for `WebUI/src/test/ts/contentExplorer/` and fix failures
-- [ ] T026 [US1] Update capability matrix P0-Core rows status in `specs/992-react-content-explorer/contracts/capability-matrix.md`
-- [ ] T027 [US1] Commit US1 changes and open PR for review; **per constitution IX, inline reply with mitigation commit hash to every review comment AND run `gh api graphql resolveReviewThread` for each review thread** before merging; pause downstream stories per constitution checkpoint until PR review path is healthy
+- [x] T017 [P] [US1] Implement `ContentExplorerShell` layout (tree + detail panes) in `WebUI/src/main/ts/contentExplorer/ContentExplorerShell.tsx` (+ styles under `WebUI/src/main/ts/contentExplorer/`)
+- [x] T018 [P] [US1] Implement folder tree component in `WebUI/src/main/ts/contentExplorer/ExplorerTree.tsx` loading children via path API
+- [x] T019 [P] [US1] Implement detail list with pagination/virtualization for large folders in `WebUI/src/main/ts/contentExplorer/DetailList.tsx` using `paginatedFolder` (SC-005)
+- [x] T020 [US1] Implement **ReducedAction set** bar/menu (open/preview, create folder, rename, move, copy, delete+confirm) in `WebUI/src/main/ts/contentExplorer/ReducedActions.tsx` (FR-010a)
+- [x] T021 [US1] Wire open/preview to existing product navigation patterns (path/id → editor) from explorer selection under `WebUI/src/main/ts/contentExplorer/`
+- [x] T022 [US1] Wire empty states, permission denied, and session/CSRF error UX in `WebUI/src/main/ts/contentExplorer/` via TMX keys
+- [x] T023 [US1] Add/reuse explorer chrome TMX keys in `modules/perc-i18n/src/main/resources/i18n/CmsUi.tmx` with structural locale parity (FR-026)
+- [ ] T024 [US1] Mount explorer in Web Management shell for development (e.g. panel in `WebUI/src/main/webapp/cm/app/webmgt.jsp` or thin shell JSP) via `PercModernUI.mount(..., 'ContentExplorerShell', ...)` without final Finder deletion yet  <!-- handoff: requires running CMS / Vitest run / reviewer -->
+- [ ] T024a [US1] **Verify shell-mount integration (FR-005)**: confirm explorer entry is reachable from main product navigation alongside Dashboard/Home, chrome matches other modern surfaces, and there are no Finder-only assumptions in the mount path; document evidence under `checklists/us1-shell-mount-evidence.md`  <!-- handoff: requires running CMS / Vitest run / reviewer -->
+- [ ] T025 [US1] Run Vitest for `WebUI/src/test/ts/contentExplorer/` and fix failures  <!-- handoff: requires running CMS / Vitest run / reviewer -->
+- [x] T026 [US1] Update capability matrix P0-Core rows status in `specs/992-react-content-explorer/contracts/capability-matrix.md`
+- [ ] T027 [US1] Commit US1 changes and open PR for review; **per constitution IX, inline reply with mitigation commit hash to every review comment AND run `gh api graphql resolveReviewThread` for each review thread** before merging; pause downstream stories per constitution checkpoint until PR review path is healthy  <!-- handoff: requires running CMS / Vitest run / reviewer -->
 
 **Checkpoint**: Explorer usable for core navigate on feature branch; miller Finder may still be present until US6.
 

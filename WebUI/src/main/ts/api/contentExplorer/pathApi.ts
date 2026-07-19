@@ -23,14 +23,14 @@
  * Server provider: {@code projects/sitemanage} {@code PSPathService}.</p>
  *
  * <p>This module is intentionally thin: it maps the documented contract to a
- * typed TS surface and delegates transport to {@link apiFetch} (CSRF + JSON +
- * error normalization). It does <em>not</em> invent fields — when a new server
- * field is required, align types to the live {@code PSPathItem} /
- * {@code PSPagedItemList} / {@code PSFolderProperties} DTOs per constitution
- * II (Evidence Over Invention).</p>
+ * typed TS surface and delegates transport to {@link get} / {@link post}
+ * (CSRF + JSON + error normalization). It does <em>not</em> invent fields —
+ * when a new server field is required, align types to the live
+ * {@code PSPathItem} / {@code PSPagedItemList} / {@code PSFolderProperties}
+ * DTOs per constitution II (Evidence Over Invention).</p>
  */
 
-import { apiFetch } from "../client";
+import { get, post } from "../client";
 import { PATHS } from "../paths";
 import type {
   PSPathItem,
@@ -57,7 +57,7 @@ export interface PaginatedFolderParams {
  */
 export function findChildren(path: string): Promise<PSPathItem[]> {
   const safe = encodePath(path);
-  return apiFetch<PSPathItem[]>(`${PATHS.PATH_FOLDER}/${safe}`);
+  return get<PSPathItem[]>(`${PATHS.PATH_FOLDER}/${safe}`);
 }
 
 /**
@@ -79,50 +79,42 @@ export function paginatedFolder(
   if (params.displayFormatId) q.set("displayFormatId", params.displayFormatId);
   if (params.category) q.set("category", params.category);
   if (params.type) q.set("type", params.type);
-  return apiFetch<PSPagedItemList>(
+  return get<PSPagedItemList>(
     `${PATHS.PATH_PAGINATED_FOLDER}/${safe}?${q.toString()}`,
   );
 }
 
 export function findItemByPath(path: string): Promise<PSPathItem> {
   const safe = encodePath(path);
-  return apiFetch<PSPathItem>(`${PATHS.PATH_ITEM}/${safe}`);
+  return get<PSPathItem>(`${PATHS.PATH_ITEM}/${safe}`);
 }
 
 export function findItemById(id: string): Promise<PSPathItem> {
-  return apiFetch<PSPathItem>(`${PATHS.PATH_ITEM_ID}/${encodeURIComponent(id)}`);
+  return get<PSPathItem>(`${PATHS.PATH_ITEM_ID}/${encodeURIComponent(id)}`);
 }
 
 export function addNewFolder(path: string, name: string): Promise<PSPathItem> {
   const safe = encodePath(path);
-  return apiFetch<PSPathItem>(
+  return get<PSPathItem>(
     `${PATHS.PATH_ADD_NEW_FOLDER}/${safe}?name=${encodeURIComponent(name)}`,
   );
 }
 
 export function renameFolder(body: PSRenameFolderItem): Promise<PSPathItem> {
-  return apiFetch<PSPathItem>(PATHS.PATH_RENAME_FOLDER, {
-    method: "POST",
-    body: JSON.stringify(body),
-  });
+  return post<PSPathItem>(PATHS.PATH_RENAME_FOLDER, body);
 }
 
 export function moveItem(body: PSMoveFolderItem): Promise<void> {
-  return apiFetch<void>(PATHS.PATH_MOVE_ITEM, {
-    method: "POST",
-    body: JSON.stringify(body),
-  });
+  return post<void>(PATHS.PATH_MOVE_ITEM, body);
 }
 
 export function deleteItem(path: string): Promise<void> {
   const safe = encodePath(path);
-  return apiFetch<void>(`${PATHS.PATH_DELETE_ITEM}/${safe}`, {
-    method: "POST",
-  });
+  return post<void>(`${PATHS.PATH_DELETE_ITEM}/${safe}`);
 }
 
 export function folderProperties(id: string): Promise<PSFolderProperties> {
-  return apiFetch<PSFolderProperties>(
+  return get<PSFolderProperties>(
     `${PATHS.PATH_FOLDER_PROPERTIES}/${encodeURIComponent(id)}`,
   );
 }
@@ -130,25 +122,25 @@ export function folderProperties(id: string): Promise<PSFolderProperties> {
 export function saveFolderProperties(
   props: PSFolderProperties,
 ): Promise<void> {
-  return apiFetch<void>(PATHS.PATH_SAVE_FOLDER_PROPERTIES, {
-    method: "POST",
-    body: JSON.stringify(props),
-  });
+  return post<void>(PATHS.PATH_SAVE_FOLDER_PROPERTIES, props);
 }
 
 export function validatePath(path: string): Promise<string> {
   const safe = encodePath(path);
-  return apiFetch<string>(`${PATHS.PATH_VALIDATE}/${safe}`);
+  return get<string>(`${PATHS.PATH_VALIDATE}/${safe}`);
 }
 
 export function lastExisting(path: string): Promise<string> {
   const safe = encodePath(path);
-  return apiFetch<string>(`${PATHS.PATH_LAST_EXISTING}/${safe}`);
+  return get<string>(`${PATHS.PATH_LAST_EXISTING}/${safe}`);
 }
 
-function encodePath(path: string): string {
-  // CMS paths use '/' as separator; only encode each segment to keep the
-  // multi-segment URL intact (server JAX-RS expects {path:.*}).
+/**
+ * Encode each `/`-separated path segment with {@link encodeURIComponent}.
+ * The `/` separator is preserved by joining — server JAX-RS expects the
+ * multi-segment `{path:.*}` pattern to remain readable.
+ */
+export function encodePath(path: string): string {
   return path
     .split("/")
     .map((seg) => encodeURIComponent(seg))
