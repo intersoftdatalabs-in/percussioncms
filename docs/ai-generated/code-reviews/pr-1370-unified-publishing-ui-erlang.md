@@ -126,3 +126,16 @@ Author should not merge until B1–B3 are fixed and re-reviewed (or B3 explicitl
 
 **Vitest**: 79 publishing tests passed.  
 **Residual (suggestions, not re-opened as bugs)**: S1 `war/app/publish.jsp` still Minuet; S3–S5 design test depth / showDesign / swallowed status — follow-up OK.
+
+## Re-review (2026-07-19 — follow-up S1–S5)
+
+| Finding | Status | Mitigation |
+|---------|--------|------------|
+| S1 war Minuet publish | **Fixed** | `WebUI/war/app/publish.jsp` → 301 redirect to modern shell |
+| S2 vite.legacy perc_publish | **Fixed** earlier (B3) | root config entry removed |
+| S3 design tests | **Fixed** | `copyEdition` + `associateContentList` happy-path unit tests |
+| S4 false "running" status | **Fixed** | debug log; status `"unknown"` not `"running"`; unit test |
+| S5 showDesign | **Fixed** | Admin/Designer gate in `publishModern.jsp` (app + pages) |
+
+**Java**: DesignRestServiceTest 14 + RuntimeSupportTest 11 = 25 passed.  
+**Commit**: `a8941ce733`
