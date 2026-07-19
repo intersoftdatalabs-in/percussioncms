@@ -195,6 +195,20 @@ In the release(s) that achieve parity for a surface, operators and developers no
 - **Big-bang within a surface**: Once a surface’s modern parity is accepted, that surface does not remain dual-path long term (aligns with modernization features such as 989).
 - **Help docs** are capability references; online help rewrite may trail UI but in-app guidance (empty states, labels) ships with UI.
 - **Default for ambiguous design APIs**: Prefer existing web services / server services discoverable in-repo; if a Design-only operation lacks any server API, plan documents the gap and tasks include a minimal server adapter—not a browser-side reimplementation.
+- **Design “sites” mean publishable site list + design metadata (context variables), not full CMS site lifecycle CRUD** (create site from URL, delete site, etc. remain site admin).
+- **Post-implement residual (US9)**: After baseline shell cutover, remaining Minuet parity polish is tracked as User Story 9 (incremental approval UI, status sort, log filters/details, optional JSF deep-page packaging). Entry-path retirement does not require every faces JSP file deleted in the same release if redirects cover product navigation.
+
+### User Story 9 - Ops parity residual and packaging hygiene (Priority: P2)
+
+Publishers need full Minuet-equivalent incremental **approval** when related items require it, sortable status columns, and logs filters/details sufficient for day-to-day diagnosis without classic Minuet. Optionally, residual deep JSF faces pages are removed from packaging once entry redirects are proven.
+
+**Why P2**: Baseline modern shell ships value first; these close matrix rows OPS-18/20/22/23 and RET-06 without blocking ops primary path.
+
+**Acceptance Scenarios**:
+1. **Given** related items require approval, **When** the user confirms incremental publish, **Then** the product uses the same approval/publish rules as Minuet (including `publishIncrementalWithApproval` when required).
+2. **Given** multiple status rows, **When** the user sorts by a column, **Then** order changes predictably for that column.
+3. **Given** historical logs, **When** the user filters by supported site/server/time window, **Then** the list matches those criteria; opening a row shows structured item-level detail (not raw JSON only).
+4. **Given** residual deep faces packaging cleanup is in scope for the release, **When** packaging is reviewed, **Then** exclusive deep design/runtime faces are absent or explicitly justified.
 
 ## Out of Scope
 - Rewriting the publishing engine, assembly pipeline, or edition task framework for its own sake.
@@ -202,3 +216,4 @@ In the release(s) that achieve parity for a surface, operators and developers no
 - Full Desktop Content Explorer modernization.
 - Changing publish package (`.ppkg`) formats or unrelated admin JSF areas.
 - New publishing cloud products or net-new delivery drivers beyond parity with what the product already supports in the three surfaces.
+- Full CMS site create/delete/copy inside the Publishing Design panel (site administration).

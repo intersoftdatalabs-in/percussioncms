@@ -29,9 +29,9 @@
 |--------------|--------|--------|-------|
 | `ui/publishing/index.jsp` | Redirect → modern Design section | Done | Primary entry |
 | `dce_header.jsp` Design link | Points to modern Design | Done | |
-| Remaining `ui/publishing/*.jsp` | Left in place; entry redirects | Acceptable residual | Faces-config may still map deep faces URLs; product path uses modern shell. Full face page deletion optional follow-up packaging PR. |
+| Remaining `ui/publishing/*.jsp` | Left in place; entry redirects | Residual → **US9 T124 / RET-06** | Faces-config may still map deep faces URLs; product path uses modern shell. |
 
-**Sign-off**: Entry-path retirement 2026-07-19
+**Sign-off**: Entry-path retirement 2026-07-19 (deep-page packaging = US9)
 
 ## Surface B — JSF Publishing Runtime
 
@@ -39,9 +39,9 @@
 |--------------|--------|--------|-------|
 | `ui/pubruntime/index.jsp` | Redirect → modern Runtime section | Done | |
 | `dce_header.jsp` Runtime link | Points to modern Runtime | Done | |
-| Remaining `ui/pubruntime/*.jsp` | Entry redirects | Acceptable residual | Same packaging note as Design |
+| Remaining `ui/pubruntime/*.jsp` | Entry redirects | Residual → **US9 T124 / RET-06** | Same packaging note as Design |
 
-**Sign-off**: Entry-path retirement 2026-07-19
+**Sign-off**: Entry-path retirement 2026-07-19 (deep-page packaging = US9)
 
 ## Shared retained
 

@@ -364,6 +364,40 @@ Start at **T001–T016** (setup + foundational), then **T017–T029** (US1) as f
 
 ---
 
+## Phase 12: User Story 9 — Ops parity residual & packaging (Priority: P2)
+
+**Purpose**: Close post-implement analysis gaps (speckit-analyze E1–E6). Baseline shell (US1–US8) shipped on PR #1370; these tasks restore honest tracking and finish Minuet parity polish.
+
+**Independent Test**: OPS-18/20/22/23 matrix → Done; optional RET-06 packaging PR.
+
+### Tests (Required)
+
+- [ ] T116 [P] [US9] Vitest for incremental approval selection → `publishIncrementalWithApproval` call shape in `WebUI/src/test/ts/publishing/incrementalApproval.test.ts`
+- [ ] T117 [P] [US9] Vitest for status table sort helpers in `WebUI/src/test/ts/publishing/statusSort.test.ts`
+- [ ] T118 [P] [US9] Vitest for log filter request builder (site/server/days) in `WebUI/src/test/ts/publishing/logsFilter.test.ts`
+
+### Implementation
+
+- [ ] T119 [US9] Wire related-items approval UI when queue/product requires it: use `publishIncrementalWithApproval` from `WebUI/src/main/ts/api/publishing/publishApi.ts` in `SiteWorkspace.tsx` / incremental components (OPS-18)
+- [ ] T120 [US9] Add sortable columns to status table in `WebUI/src/main/ts/publishing/sections/StatusSection.tsx` (OPS-20)
+- [ ] T121 [US9] Add logs filters (site, server, days/window) in `WebUI/src/main/ts/publishing/sections/LogsSection.tsx` matching Minuet-supported fields (OPS-22)
+- [ ] T122 [US9] Structured log details panel (job items list, not raw JSON only) under `WebUI/src/main/ts/publishing/components/` (OPS-23)
+- [ ] T123 [US9] Mark OPS-18, OPS-20, OPS-22, OPS-23 **Done** on `contracts/capability-matrix.md` only after T119–T122 pass tests
+- [ ] T124 [P] [US9] Packaging follow-up (RET-06): inventory remaining `WebUI/src/main/webapp/ui/publishing/**` and `ui/pubruntime/**` faces pages + `publishing-faces-config.xml` entries; delete or stop packaging exclusive deep pages after consumer check; update `checklists/removal-inventory.md`
+- [ ] T125 [P] [US9] Document UAT evidence for SC-001 / SC-003 / SC-008 in `specs/990-unified-publishing-ui/checklists/uat-signoff.md` (or PR comment with environment + date)
+- [ ] T126 [P] [US9] Review FR-020: ensure server/design save errors surface success/failure clearly (toasts/alerts) in `ServerEditor.tsx` / design editors; add test if missing
+- [ ] T127 [US9] Commit US9 + open PR (or push to #1370); resolve review threads
+
+**Checkpoint**: Matrix OPS residual closed; packaging residual either Done or explicitly deferred with date owner.
+
+---
+
+## Remediation note (2026-07-19)
+
+`/speckit-analyze` after PR #1370 found **tasks.md fully checked** while **capability matrix still In progress** for OPS-18/20/22/23, plus residual faces packaging. Phase 12 / US9 reopens that work as tracked tasks rather than silently leaving matrix drift.
+
+---
+
 ## Task summary
 
 | Phase | Story | Task IDs | Count |
@@ -379,7 +413,9 @@ Start at **T001–T016** (setup + foundational), then **T017–T029** (US1) as f
 | 9 | US7 | T092–T099 | 8 |
 | 10 | US8 | T100–T110 | 11 |
 | 11 Polish | — | T111–T115 | 5 |
-| **Total** | | **T001–T115** | **115** |
+| 12 Residual | US9 | T116–T127 | 12 |
+| **Baseline total** | | **T001–T115** | **115** |
+| **With residual** | | **T001–T127** | **127** |
 
 | Story | Tasks (approx) | Priority |
 |-------|----------------|----------|
@@ -391,5 +427,6 @@ Start at **T001–T016** (setup + foundational), then **T017–T029** (US1) as f
 | US6 | 7 | P2 |
 | US7 | 8 | P2 |
 | US8 | 11 | P3 retirement |
+| US9 | 12 | P2 residual parity |
 
-**Format validation**: All tasks use `- [ ]`, sequential IDs, `[USn]` on story phases only, `[P]` only when parallel-safe, and concrete file paths.
+**Format validation**: All tasks use `- [ ]` or `- [X]`, sequential IDs, `[USn]` on story phases only, `[P]` only when parallel-safe, and concrete file paths.

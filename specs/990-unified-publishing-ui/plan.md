@@ -184,13 +184,26 @@ system/
 3. Remove exclusive classic assets; retain shared jQuery only if other screens need it.
 4. Update WebUI AGENTS UI layer table when surfaces are gone.
 
+### Phase K — US9 Ops residual & packaging (P2, post-analyze)
+
+Added after `/speckit-analyze` on PR #1370: baseline shell shipped with matrix drift (OPS-18/20/22/23 In progress while tasks fully checked).
+
+1. Incremental **approval** UI → `publishIncrementalWithApproval` (OPS-18).
+2. Status column **sort** (OPS-20).
+3. Logs **filters** + structured **item details** (OPS-22/23).
+4. Optional deep faces packaging cleanup (RET-06).
+5. UAT sign-off artifacts for SC-001/003/008.
+
+Tasks: **T116–T127** in `tasks.md`.
+
 ## Complexity Tracking
 
 | Item | Justification |
 |------|----------------|
 | Optional new sitemanage REST for Design/Runtime | Design is largely JSF-bound; browser cannot safely call internal Java services. Thin JSON façade over **existing** `IPSPublishingWs` / `IPSSiteManager` / `IPSRxPublisherService` is required for FR-007/008 without inventing engine logic. Prefer one coherent `/publishingdesign` or extend existing services—decision R3 in research. |
 | Phased cutover (not single big-bang for all three) | Spec assumption: ops value ships earlier; full design is larger. Final state still one UI. Document temporary dual entry in release notes. |
+| US9 residual after US8 tasks closed | Honest tracking: entry-path retirement ≠ full pixel parity. Keeps matrix as gate without inventing work as already done. |
 
 ## PR / story checkpoint
 
-Constitution workflow: implement, test, commit, open PR per story; monitor review bots; resolve threads before next story. Stack on `990-unified-publishing-ui` off `development`.
+Constitution workflow: implement, test, commit, open PR per story; monitor review bots; resolve threads before next story. Stack on `990-unified-publishing-ui` off `development`. Baseline feature PR: **#1370**; US9 may land as follow-up commits on the same PR or a stacked PR.

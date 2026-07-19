@@ -36,11 +36,13 @@ Status: `Todo` | `In progress` | `Done` | `N/A (deprecated)`
 | OPS-25 | EC2/regions/available pub server helpers | Minuet | Done |
 | OPS-26 | Forbidden / bad config messaging | Minuet | Done |
 
+**US9 residual (do not mark OPS-18/20/22/23 Done until T116–T121 complete):** plain incremental publish and related preview exist; approval selection, status column sort, log filters, and structured item details are still open.
+
 ## CG-DESIGN (Story US4) — JSF Design parity
 
 | ID | Capability | Source | Status |
 |----|------------|--------|--------|
-| DES-01 | List/create/edit/copy/delete sites (design) | Design | Done |
+| DES-01 | List/view design sites (+ context vars via DES-02) | Design | Done |
 | DES-02 | Context variables on site | Design | Done |
 | DES-03 | List/create/edit/copy/delete editions | Design | Done |
 | DES-04 | Associate content lists with edition | Design | Done |
@@ -53,6 +55,8 @@ Status: `Todo` | `In progress` | `Done` | `N/A (deprecated)`
 | DES-11 | Site root / item browser for schemes | Design | Done |
 | DES-12 | Delivery types CRUD | Design | Done |
 | DES-13 | Delete confirmations / dependency warnings | Design | Done |
+
+**DES-01 scope note:** List/view of publishable sites + folder/base URL; full CMS site create/copy/delete remains **site administration**, not this Design panel. Context variables are DES-02.
 
 ## CG-RUNTIME (Story US5) — JSF Runtime parity
 
@@ -89,7 +93,10 @@ ITM-01–06: item actions intentionally remain on jQuery `PercItemPublisherServi
 | UX-03 | Keyboard primary flows | Done |
 | UX-04 | TMX strings | Done |
 | RET-01 | Minuet publish exclusive client removed | Done |
-| RET-02 | JSF Design removed from product path | Done |
-| RET-03 | JSF Runtime removed from product path | Done |
+| RET-02 | JSF Design **entry** removed from product path (redirect) | Done |
+| RET-03 | JSF Runtime **entry** removed from product path (redirect) | Done |
 | RET-04 | Deep links mapped | Done |
-| RET-05 | Removal inventory signed off | Done |
+| RET-05 | Removal inventory signed off (entry path) | Done |
+| RET-06 | Residual deep faces JSPs + faces-config packaging cleanup | Todo |
+
+**RET residual:** Primary entries (`index.jsp`, DCE header, Minuet exclusive clients) are retired. Deep `ui/publishing/*.jsp` / `ui/pubruntime/*.jsp` faces pages may still exist on disk — tracked as **RET-06 / US9 T122**.
