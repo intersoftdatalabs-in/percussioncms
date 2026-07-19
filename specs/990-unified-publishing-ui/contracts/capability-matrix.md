@@ -71,23 +71,25 @@ Status: `Todo` | `In progress` | `Done` | `N/A (deprecated)`
 
 | ID | Capability | Source | Status |
 |----|------------|--------|--------|
-| ITM-01 | Publish now page/resource | Item service | Todo |
-| ITM-02 | Takedown page/resource (+ linked items) | Item service | Todo |
-| ITM-03 | Stage / remove from staging | Item service | Todo |
-| ITM-04 | Get publishing actions | Item service | Todo |
-| ITM-05 | Schedule dates get/set | Item service | Todo |
-| ITM-06 | Publishing history dialog | Item service | Todo |
+| ITM-01 | Publish now page/resource | Item service | Done |
+| ITM-02 | Takedown page/resource (+ linked items) | Item service | Done |
+| ITM-03 | Stage / remove from staging | Item service | Done |
+| ITM-04 | Get publishing actions | Item service | Done |
+| ITM-05 | Schedule dates get/set | Item service | Done |
+| ITM-06 | Publishing history dialog | Item service | Done |
+
+ITM-01–06: item actions intentionally remain on jQuery `PercItemPublisherService` (no regression); history dialog links to modern logs.
 
 ## CG-UX / RETIRE (US7–US8)
 
 | ID | Capability | Status |
 |----|------------|--------|
-| UX-01 | Ops path without Design | Todo |
-| UX-02 | Empty states | Todo |
-| UX-03 | Keyboard primary flows | Todo |
-| UX-04 | TMX strings | Todo |
-| RET-01 | Minuet publish exclusive client removed | Todo |
-| RET-02 | JSF Design removed from product path | Todo |
-| RET-03 | JSF Runtime removed from product path | Todo |
-| RET-04 | Deep links mapped | Todo |
-| RET-05 | Removal inventory signed off | Todo |
+| UX-01 | Ops path without Design | Done |
+| UX-02 | Empty states | Done |
+| UX-03 | Keyboard primary flows | Done |
+| UX-04 | TMX strings | Done |
+| RET-01 | Minuet publish exclusive client removed | Done |
+| RET-02 | JSF Design removed from product path | Done |
+| RET-03 | JSF Runtime removed from product path | Done |
+| RET-04 | Deep links mapped | Done |
+| RET-05 | Removal inventory signed off | Done |

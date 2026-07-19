@@ -19,11 +19,11 @@ import React, { useEffect, useMemo, useState } from "react";
 import { fetchSites } from "../../api/home/homeApi";
 import type { SiteSummary } from "../../api/home/types";
 import { message, MSG } from "../../i18n/message";
+import { EmptyState } from "../components/EmptyState";
 import {
   buttonStyle,
   cardGridStyle,
   cardStyle,
-  emptyStyle,
   errorStyle,
   listItemStyle,
   listStyle,
@@ -141,7 +141,11 @@ export function SitesSection({
         </p>
       )}
       {!loading && !error && filtered.length === 0 && (
-        <p style={emptyStyle}>{message(MSG.PUBLISH_EMPTY_SITES)}</p>
+        <EmptyState
+          title={message(MSG.PUBLISH_EMPTY_SITES)}
+          nextAction="Create or import a site, then return here to configure publish servers."
+          testId="publish-empty-sites"
+        />
       )}
 
       {!loading && viewMode === "card" && filtered.length > 0 && (

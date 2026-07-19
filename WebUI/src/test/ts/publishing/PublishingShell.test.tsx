@@ -17,7 +17,10 @@
 
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
-import { PublishingShell } from "@/publishing/PublishingShell";
+import {
+  defaultLandingSection,
+  PublishingShell,
+} from "@/publishing/PublishingShell";
 
 vi.mock("@/api/home/homeApi", () => ({
   fetchSites: vi.fn().mockResolvedValue([]),
@@ -32,14 +35,21 @@ vi.mock("@/api/publishing/statusApi", () => ({
 }));
 
 describe("PublishingShell", () => {
-  it("mounts and defaults to sites section", () => {
+  it("defaults landing to sites (ops first, not Design)", () => {
+    expect(defaultLandingSection()).toBe("sites");
     render(<PublishingShell />);
     expect(screen.getByTestId("publishing-shell")).toBeTruthy();
     expect(screen.getByTestId("publish-section-sites")).toBeTruthy();
+    expect(screen.queryByTestId("publish-section-design")).toBeNull();
   });
 
   it("opens status section from prop", () => {
     render(<PublishingShell section="status" />);
     expect(screen.getByTestId("publish-section-status")).toBeTruthy();
+  });
+
+  it("can hide Design when showDesign is false", () => {
+    render(<PublishingShell showDesign={false} />);
+    expect(screen.queryByRole("button", { name: /Design/i })).toBeNull();
   });
 });

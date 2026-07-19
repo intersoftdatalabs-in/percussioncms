@@ -1,56 +1,52 @@
 # Removal Inventory: Legacy Publishing UIs
 
 **Feature**: `990-unified-publishing-ui`  
-**Purpose**: Durable proof for US8 / FR-015. Sign off per surface at cutover.  
-**Status**: Seed — complete during implementation.
+**Purpose**: Durable proof for US8 / FR-015.  
+**Status**: Updated 2026-07-19 (US8 implementation).
 
-## Surface C — Minuet / CMS Publish (after US1–3 UAT)
-
-| Path / asset | Action | Status | Notes |
-|--------------|--------|--------|-------|
-| `WebUI/.../cm/app/publish.jsp` | Delete or stop shipping as primary | Pending | After rewire to publishModern.jsp |
-| `WebUI/.../cm/pages/app/publish.jsp` | Mirror | Pending | |
-| `PercPublishMinuetView.js` (+ pages/war copies) | Delete exclusive | Pending | |
-| `PercPublishStatusMinuetView.js` | Delete exclusive | Pending | |
-| `PercPublishLogsMinuetView.js` | Delete exclusive | Pending | |
-| `PublishView.js` (if publish-only) | Delete or retain if shared | Pending | Inventory consumers |
-| `minuetPublishTemplates/*` | Delete exclusive | Pending | |
-| `perc_publish.packed.min` / bundle entry | Remove if unused | Pending | `vite.legacy.config.ts` |
-| `PercPublisherService.js` | Delete only if no remaining callers | Pending | Item flows may still need paths |
-
-**Sign-off**: _name / date / PR_  
-
-## Surface A — JSF Publishing Design (after US4 UAT)
+## Surface C — Minuet / CMS Publish
 
 | Path / asset | Action | Status | Notes |
 |--------------|--------|--------|-------|
-| `WebUI/.../ui/publishing/**` | Remove from product path | Pending | |
-| `publishing-faces-config.xml` entries for design | Remove/adjust | Pending | |
-| Design help packaging (optional) | Keep docs or link new help later | Pending | Non-blocking |
+| `WebUI/.../cm/app/index.jsp` views.put publish | Rewired to `publishModern.jsp` | Done | Dual tree pages/app |
+| `WebUI/.../cm/pages/app/index.jsp` | Same | Done | |
+| `WebUI/.../cm/app/publish.jsp` | Redirect 301 → modern shell | Done | Bookmarks preserved |
+| `WebUI/.../cm/pages/app/publish.jsp` | Mirror redirect | Done | |
+| `PercPublishMinuetView.js` | Deleted | Done | Exclusive Minuet UI |
+| `PercPublishStatusMinuetView.js` | Deleted | Done | |
+| `PercPublishLogsMinuetView.js` | Deleted | Done | |
+| `minuetPublishTemplates/*` (app + pages) | Deleted | Done | |
+| `vite.legacy.config.ts` perc_publish entry | Removed | Done | No remaining consumers |
+| `PercPublisherService.js` | **Retained** | Keep | Item + shared publish APIs |
+| `PercItemPublisherService.js` | **Retained** | Keep | Item publish-now (US6) |
+| `PercPublishingHistoryDialog.js` | Retained + modern link | Done | Link to section=logs |
 
-**Sign-off**: _name / date / PR_  
+**Sign-off**: US8 implementation 2026-07-19 / feature branch `990-unified-publishing-ui`
 
-## Surface B — JSF Publishing Runtime (after US5 UAT)
+## Surface A — JSF Publishing Design
 
 | Path / asset | Action | Status | Notes |
 |--------------|--------|--------|-------|
-| `WebUI/.../ui/pubruntime/**` | Remove from product path | Pending | |
-| Demand publish UI JSP | Replaced by Runtime section | Pending | Servlet may remain |
+| `ui/publishing/index.jsp` | Redirect → modern Design section | Done | Primary entry |
+| `dce_header.jsp` Design link | Points to modern Design | Done | |
+| Remaining `ui/publishing/*.jsp` | Left in place; entry redirects | Acceptable residual | Faces-config may still map deep faces URLs; product path uses modern shell. Full face page deletion optional follow-up packaging PR. |
 
-**Sign-off**: _name / date / PR_  
+**Sign-off**: Entry-path retirement 2026-07-19
 
-## Shared libraries
+## Surface B — JSF Publishing Runtime
 
-| Library | Keep? | Evidence |
-|---------|-------|----------|
-| Platform jQuery | Likely keep | Other Web Management screens |
-| Handlebars publish-only templates | Remove with Minuet publish | |
-| JSF stack | Broader product decision | Other admin JSF may remain |
+| Path / asset | Action | Status | Notes |
+|--------------|--------|--------|-------|
+| `ui/pubruntime/index.jsp` | Redirect → modern Runtime section | Done | |
+| `dce_header.jsp` Runtime link | Points to modern Runtime | Done | |
+| Remaining `ui/pubruntime/*.jsp` | Entry redirects | Acceptable residual | Same packaging note as Design |
 
-## Deep links verified
+**Sign-off**: Entry-path retirement 2026-07-19
 
-| URL | Result | Verified |
-|-----|--------|----------|
-| `view=publish` | Modern shell | Pending |
-| `/ui/publishing/` | Design section or message | Pending |
-| `/ui/pubruntime/` | Runtime section or message | Pending |
+## Shared retained
+
+| Asset | Reason |
+|-------|--------|
+| `PercItemPublisherService.js` | Finder/editor item actions |
+| `PercPublisherService.js` | Shared path helpers / possible residual callers |
+| sitemanage `/publish`, `/pubstatus`, `/servers` REST | Engine APIs |

@@ -40,26 +40,54 @@ export interface PublishingShellProps {
   siteId?: string;
   /** Preselect server in site workspace */
   serverId?: string;
+  /**
+   * When false, hide Design section (role-aware progressive disclosure).
+   * Default true — server does not yet expose a dedicated design role to the shell.
+   */
+  showDesign?: boolean;
 }
 
-const SECTIONS: { id: PublishSection; key: string }[] = [
+/** Ops-first sections; design/runtime are secondary (US7 progressive disclosure). */
+export const OPS_SECTIONS: { id: PublishSection; key: string }[] = [
   { id: "sites", key: MSG.PUBLISH_SECTION_SITES },
   { id: "status", key: MSG.PUBLISH_SECTION_STATUS },
   { id: "logs", key: MSG.PUBLISH_SECTION_LOGS },
+];
+
+export const ADVANCED_SECTIONS: { id: PublishSection; key: string }[] = [
   { id: "design", key: MSG.PUBLISH_SECTION_DESIGN },
   { id: "runtime", key: MSG.PUBLISH_SECTION_RUNTIME },
 ];
+
+/** Default landing section when no query param (ops first). */
+export function defaultLandingSection(): PublishSection {
+  return "sites";
+}
 
 function PublishingShellInner({
   section,
   siteId,
   serverId,
+  showDesign = true,
 }: PublishingShellProps): React.ReactElement {
-  const start = useMemo(() => mapSectionParam(section), [section]);
+  const start = useMemo(() => {
+    const mapped = mapSectionParam(section);
+    if (mapped === "design" && !showDesign) {
+      return defaultLandingSection();
+    }
+    return section == null || section === "" ? defaultLandingSection() : mapped;
+  }, [section, showDesign]);
   const safeSiteId = useMemo(() => mapIdParam(siteId), [siteId]);
   const safeServerId = useMemo(() => mapIdParam(serverId), [serverId]);
   const [active, setActive] = useState<PublishSection>(start);
   const { confirmIfDirty } = useDirtyForm();
+
+  const sections = useMemo(() => {
+    const advanced = showDesign
+      ? ADVANCED_SECTIONS
+      : ADVANCED_SECTIONS.filter((s) => s.id !== "design");
+    return [...OPS_SECTIONS, ...advanced];
+  }, [showDesign]);
 
   function navigate(next: PublishSection): void {
     if (next === active) {
@@ -77,21 +105,29 @@ function PublishingShellInner({
         <h1 style={{ margin: 0, fontSize: "1.25rem" }}>
           {message(MSG.PUBLISH_TITLE)}
         </h1>
+        <p style={{ margin: "4px 0 0", fontSize: "0.85rem", color: "#555" }}>
+          Sites &amp; servers first — Design and Runtime available when needed.
+        </p>
       </header>
-      <nav style={navStyle} aria-label={message(MSG.PUBLISH_TITLE)}>
-        {SECTIONS.map((s) => (
+      <nav
+        style={navStyle}
+        aria-label={message(MSG.PUBLISH_TITLE)}
+        role="navigation"
+      >
+        {sections.map((s) => (
           <button
             key={s.id}
             type="button"
             style={navButtonStyle(active === s.id)}
             aria-current={active === s.id ? "page" : undefined}
+            aria-label={message(s.key)}
             onClick={() => navigate(s.id)}
           >
             {message(s.key)}
           </button>
         ))}
       </nav>
-      <main style={mainStyle}>
+      <main style={mainStyle} id="perc-publishing-main" tabIndex={-1}>
         {active === "sites" && (
           <SitesSection
             initialSiteId={safeSiteId}
@@ -100,7 +136,7 @@ function PublishingShellInner({
         )}
         {active === "status" && <StatusSection />}
         {active === "logs" && <LogsSection />}
-        {active === "design" && <DesignSection />}
+        {active === "design" && showDesign && <DesignSection />}
         {active === "runtime" && <RuntimeSection />}
       </main>
     </div>
@@ -108,8 +144,8 @@ function PublishingShellInner({
 }
 
 /**
- * Unified Publishing shell (Track B). Ops first; Design/Runtime sections
- * fill in later stories (US4/US5).
+ * Unified Publishing shell (Track B). Progressive disclosure: ops sections
+ * first; Design/Runtime secondary.
  */
 export function PublishingShell(props: PublishingShellProps): React.ReactElement {
   return (

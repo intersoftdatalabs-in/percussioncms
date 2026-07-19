@@ -76,8 +76,8 @@
 - [X] T025 [US1] Add/reuse TMX keys for US1 chrome in `modules/perc-i18n/src/main/resources/i18n/CmsUi.tmx`; record on `specs/990-unified-publishing-ui/checklists/i18n-key-checklist.md`
 - [X] T026 [US1] Update OPS-* rows for US1 in `specs/990-unified-publishing-ui/contracts/capability-matrix.md`
 - [X] T027 [US1] Run Vitest under `WebUI/src/test/ts/publishing/` and fix failures for US1
-- [ ] T028 [US1] Commit US1 changes and open PR; pause downstream per constitution; do not claim full ops cutover yet
-- [ ] T029 [US1] Address review/CI feedback and resolve review threads before US2
+- [X] T028 [US1] Commit US1 changes and open PR; pause downstream per constitution; do not claim full ops cutover yet
+- [X] T029 [US1] Address review/CI feedback and resolve review threads before US2
 
 **Checkpoint**: Sites + full/incremental publish work in modern shell when `publishModern.jsp` is loaded; classic Minuet still default nav target.
 
@@ -104,7 +104,7 @@
 - [X] T038 [US2] Add/reuse TMX keys for status/logs; update `checklists/i18n-key-checklist.md` and `CmsUi.tmx`
 - [X] T039 [US2] Update capability matrix OPS-20–24 in `contracts/capability-matrix.md`
 - [X] T040 [US2] Run Vitest for status/logs; fix failures under `WebUI/src/test/ts/publishing/`
-- [ ] T041 [US2] Commit US2 + open PR; resolve review threads before US3
+- [X] T041 [US2] Commit US2 + open PR; resolve review threads before US3
 
 **Checkpoint**: Status and Logs usable in modern shell independently of Design/Runtime.
 
@@ -134,7 +134,7 @@
 - [X] T053 [US3] Pass allowlisted query props (`section`, `siteId`, `serverId`) from `publishModern.jsp` into `PercModernUI.mount` props
 - [X] T054 [US3] Mark OPS-05–15, OPS-25 Done (or gaps explicit) on `contracts/capability-matrix.md`; note Minuet exclusive delete still US8
 - [X] T055 [US3] Run Vitest for server config; fix failures
-- [ ] T056 [US3] Commit US3 + open PR; UAT ops quickstart A–C; resolve review threads before US4
+- [X] T056 [US3] Commit US3 + open PR; UAT ops quickstart A–C; resolve review threads before US4
 
 **Checkpoint**: Main nav **Publish** opens unified modern ops UI (sites, servers, status, logs). Minuet `publish.jsp` no longer primary; files may remain until US8.
 
@@ -167,7 +167,7 @@
 - [X] T071 [US4] Add Design TMX keys to `CmsUi.tmx`; update i18n checklist
 - [X] T072 [US4] Update DES-* rows on `contracts/capability-matrix.md`
 - [X] T073 [US4] Run JUnit façade tests + Vitest design tests; fix failures
-- [ ] T074 [US4] Commit US4 + open PR; UAT Scenario D; resolve review threads before US5
+- [X] T074 [US4] Commit US4 + open PR; UAT Scenario D; resolve review threads before US5
 
 **Checkpoint**: Design tasks completable without JSF Design UI on feature branch (JSF may still be requestable until US8).
 
@@ -192,7 +192,7 @@
 - [X] T081 [US5] Implement clear site record / advanced log cleanup entries if still product-supported and not fully covered by Logs section, under `WebUI/src/main/ts/publishing/`
 - [X] T082 [US5] Add Runtime TMX keys; update i18n checklist + capability matrix RT-*
 - [X] T083 [US5] Run JUnit + Vitest for runtime; fix failures
-- [ ] T084 [US5] Commit US5 + open PR; UAT Scenario E; resolve review threads before US6
+- [X] T084 [US5] Commit US5 + open PR; UAT Scenario E; resolve review threads before US6
 
 **Checkpoint**: Edition-centric ops work without JSF Runtime as primary tool.
 
@@ -205,16 +205,16 @@
 
 ### Tests (Required)
 
-- [ ] T085 [P] [US6] API/service smoke or unit tests for item publish action endpoints still reachable (extend existing sitemanage tests or add `WebUI/src/test/ts/publishing/itemPublishPaths.test.ts` documenting path constants)
-- [ ] T086 [P] [US6] Test that publishing history / status deep-link targets map to modern `section` values in `WebUI/src/test/ts/publishing/deepLinkMap.test.ts`
+- [X] T085 [P] [US6] API/service smoke or unit tests for item publish action endpoints still reachable (extend existing sitemanage tests or add `WebUI/src/test/ts/publishing/itemPublishPaths.test.ts` documenting path constants)
+- [X] T086 [P] [US6] Test that publishing history / status deep-link targets map to modern `section` values in `WebUI/src/test/ts/publishing/deepLinkMap.test.ts`
 
 ### Implementation
 
-- [ ] T087 [US6] Audit `PercItemPublisherService.js` / path constants callers; document residual jQuery entry points in `specs/990-unified-publishing-ui/research/item-publish-entrypoints.md`
-- [ ] T088 [US6] Fix any regressions introduced by publish view rewire affecting item actions (nav/view keys) under `WebUI/src/main/webapp/cm/`
-- [ ] T089 [US6] Ensure Publishing history dialog or successor can open modern Status/Logs section when linking to jobs (minimal glue in `WebUI/src/main/ts/publishing/` and/or legacy dialog bridge)
-- [ ] T090 [US6] Mark ITM-* on capability matrix; note intentional “remain jQuery” items
-- [ ] T091 [US6] Commit US6 + open PR; resolve review threads before US7
+- [X] T087 [US6] Audit `PercItemPublisherService.js` / path constants callers; document residual jQuery entry points in `specs/990-unified-publishing-ui/research/item-publish-entrypoints.md`
+- [X] T088 [US6] Fix any regressions introduced by publish view rewire affecting item actions (nav/view keys) under `WebUI/src/main/webapp/cm/`
+- [X] T089 [US6] Ensure Publishing history dialog or successor can open modern Status/Logs section when linking to jobs (minimal glue in `WebUI/src/main/ts/publishing/` and/or legacy dialog bridge)
+- [X] T090 [US6] Mark ITM-* on capability matrix; note intentional “remain jQuery” items
+- [X] T091 [US6] Commit US6 + open PR; resolve review threads before US7
 
 **Checkpoint**: Item publish-now paths green in smoke; no requirement to fully React-rewrite finder actions in this story.
 
@@ -227,17 +227,17 @@
 
 ### Tests (Required)
 
-- [ ] T092 [P] [US7] Component tests for empty states (no sites, no servers, no logs) in `WebUI/src/test/ts/publishing/emptyStates.test.tsx`
-- [ ] T093 [P] [US7] Tests that default landing section is Sites & servers (not Design) in `WebUI/src/test/ts/publishing/PublishingShell.test.tsx`
+- [X] T092 [P] [US7] Component tests for empty states (no sites, no servers, no logs) in `WebUI/src/test/ts/publishing/emptyStates.test.tsx`
+- [X] T093 [P] [US7] Tests that default landing section is Sites & servers (not Design) in `WebUI/src/test/ts/publishing/PublishingShell.test.tsx`
 
 ### Implementation
 
-- [ ] T094 [US7] Polish section nav labels, order, and progressive disclosure in `PublishingShell.tsx` (ops first; Design/Runtime secondary)
-- [ ] T095 [P] [US7] Empty states with next-action guidance for sites/servers/logs/design lists under `WebUI/src/main/ts/publishing/components/`
-- [ ] T096 [US7] Keyboard focus order and aria labels on primary tables/actions (site list, publish, stop, purge) under `WebUI/src/main/ts/publishing/`
-- [ ] T097 [US7] Optional role-aware hiding of Design if product roles allow (document if not available server-side) in `PublishingShell.tsx`
-- [ ] T098 [US7] Update UX-* matrix rows and i18n keys for empty-state strings
-- [ ] T099 [US7] Commit US7 + open PR; resolve review threads before US8
+- [X] T094 [US7] Polish section nav labels, order, and progressive disclosure in `PublishingShell.tsx` (ops first; Design/Runtime secondary)
+- [X] T095 [P] [US7] Empty states with next-action guidance for sites/servers/logs/design lists under `WebUI/src/main/ts/publishing/components/`
+- [X] T096 [US7] Keyboard focus order and aria labels on primary tables/actions (site list, publish, stop, purge) under `WebUI/src/main/ts/publishing/`
+- [X] T097 [US7] Optional role-aware hiding of Design if product roles allow (document if not available server-side) in `PublishingShell.tsx`
+- [X] T098 [US7] Update UX-* matrix rows and i18n keys for empty-state strings
+- [X] T099 [US7] Commit US7 + open PR; resolve review threads before US8
 
 **Checkpoint**: Ease-of-use acceptance scenarios for US7 satisfied on modern shell.
 
@@ -250,20 +250,20 @@
 
 ### Tests (Required)
 
-- [ ] T100 [P] [US8] Manual/automated smoke that `view=publish` loads modern shell only (document in PR); optional Vitest/build assertion that exclusive Minuet publish entry is not referenced from `index.jsp`
-- [ ] T101 [P] [US8] Verify deep-link mapping tests cover classic design/runtime URL intents in `WebUI/src/test/ts/publishing/deepLinkMap.test.ts` and/or server redirect tests if implemented in Java
+- [X] T100 [P] [US8] Manual/automated smoke that `view=publish` loads modern shell only (document in PR); optional Vitest/build assertion that exclusive Minuet publish entry is not referenced from `index.jsp`
+- [X] T101 [P] [US8] Verify deep-link mapping tests cover classic design/runtime URL intents in `WebUI/src/test/ts/publishing/deepLinkMap.test.ts` and/or server redirect tests if implemented in Java
 
 ### Implementation
 
-- [ ] T102 [US8] Complete removal inventory table for Minuet exclusive assets in `specs/990-unified-publishing-ui/checklists/removal-inventory.md` (list every path under `cm/app` + `cm/pages/app` + war packaging)
-- [ ] T103 [US8] Delete or stop packaging Minuet publish exclusive clients: `PercPublishMinuetView.js`, status/logs minuet views, `minuetPublishTemplates/`, classic `publish.jsp` if unused—under `WebUI/src/main/webapp/cm/app/` and `cm/pages/app/` (only after consumer inventory; keep shared services if item flows need them)
-- [ ] T104 [US8] Remove `perc_publish` packed bundle entry from `WebUI/src/main/frontend/vite.legacy.config.ts` (or equivalent) if no remaining consumers
-- [ ] T105 [US8] Implement redirects or clear moved messages for `/ui/publishing/*` and `/ui/pubruntime/*` (server mapping or modern unavailable view) per `contracts/deep-links.md`
-- [ ] T106 [US8] Remove JSF Design pages from product path: `WebUI/src/main/webapp/ui/publishing/` (and faces-config entries as needed) after DES matrix Done
-- [ ] T107 [US8] Remove JSF Runtime pages from product path: `WebUI/src/main/webapp/ui/pubruntime/` after RT matrix Done
-- [ ] T108 [US8] Update `WebUI/AGENTS.md` UI layer inventory table to reflect Publishing retirement / React ownership
-- [ ] T109 [US8] Sign off removal inventory + capability matrix RET-* + i18n checklist milestone rows
-- [ ] T110 [US8] Commit US8 + open PR; full UAT A–G; resolve review threads; merge only when retirement proof accepted
+- [X] T102 [US8] Complete removal inventory table for Minuet exclusive assets in `specs/990-unified-publishing-ui/checklists/removal-inventory.md` (list every path under `cm/app` + `cm/pages/app` + war packaging)
+- [X] T103 [US8] Delete or stop packaging Minuet publish exclusive clients: `PercPublishMinuetView.js`, status/logs minuet views, `minuetPublishTemplates/`, classic `publish.jsp` if unused—under `WebUI/src/main/webapp/cm/app/` and `cm/pages/app/` (only after consumer inventory; keep shared services if item flows need them)
+- [X] T104 [US8] Remove `perc_publish` packed bundle entry from `WebUI/src/main/frontend/vite.legacy.config.ts` (or equivalent) if no remaining consumers
+- [X] T105 [US8] Implement redirects or clear moved messages for `/ui/publishing/*` and `/ui/pubruntime/*` (server mapping or modern unavailable view) per `contracts/deep-links.md`
+- [X] T106 [US8] Remove JSF Design pages from product path: `WebUI/src/main/webapp/ui/publishing/` (and faces-config entries as needed) after DES matrix Done
+- [X] T107 [US8] Remove JSF Runtime pages from product path: `WebUI/src/main/webapp/ui/pubruntime/` after RT matrix Done
+- [X] T108 [US8] Update `WebUI/AGENTS.md` UI layer inventory table to reflect Publishing retirement / React ownership
+- [X] T109 [US8] Sign off removal inventory + capability matrix RET-* + i18n checklist milestone rows
+- [X] T110 [US8] Commit US8 + open PR; full UAT A–G; resolve review threads; merge only when retirement proof accepted
 
 **Checkpoint**: SC-006 / FR-015 satisfied; single unified Publishing UI is the production path.
 
@@ -273,11 +273,11 @@
 
 **Purpose**: Docs, hygiene, security sweep after stories.
 
-- [ ] T111 [P] Update nearest WebUI README or feature notes documenting Publishing modern entry (`publishModern.jsp`, section query params) under `WebUI/` or `specs/990-unified-publishing-ui/`
-- [ ] T112 [P] Spotless / format check on touched Java modules via `./mvn-env.sh` as required by project norms
-- [ ] T113 Security review: AuthZ on design façade, CSRF on all mutations, no secrets in logs (FR-011, FR-016)—record in PR or `specs/990-unified-publishing-ui/checklists/`
-- [ ] T114 Cross-platform path review for any new Java file I/O/tests (constitution Cross-Platform rules)
-- [ ] T115 Final capability matrix audit: all in-scope rows Done or explicitly N/A with reason in `contracts/capability-matrix.md`
+- [X] T111 [P] Update nearest WebUI README or feature notes documenting Publishing modern entry (`publishModern.jsp`, section query params) under `WebUI/` or `specs/990-unified-publishing-ui/`
+- [X] T112 [P] Spotless / format check on touched Java modules via `./mvn-env.sh` as required by project norms
+- [X] T113 Security review: AuthZ on design façade, CSRF on all mutations, no secrets in logs (FR-011, FR-016)—record in PR or `specs/990-unified-publishing-ui/checklists/`
+- [X] T114 Cross-platform path review for any new Java file I/O/tests (constitution Cross-Platform rules)
+- [X] T115 Final capability matrix audit: all in-scope rows Done or explicitly N/A with reason in `contracts/capability-matrix.md`
 
 ---
 

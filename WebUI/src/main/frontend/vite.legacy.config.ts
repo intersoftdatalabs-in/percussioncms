@@ -19,7 +19,6 @@ export default defineConfig({
         "jslibMin/perc_architecture.packed.min":
           "./src/main/bundles/perc_architecture.bundle.js",
         "jslibMin/perc_webmgt.packed.min": "./src/main/bundles/perc_webmgt.bundle.js",
-        "jslibMin/perc_publish.packed.min": "./src/main/bundles/perc_publish.bundle.js",
         "jslibMin/perc_users.packed.min": "./src/main/bundles/perc_users.bundle.js",
         "jslibMin/perc_editTemplate.packed.min":
           "./src/main/bundles/perc_editTemplate.bundle.js",

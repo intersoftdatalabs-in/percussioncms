@@ -34,6 +34,14 @@ const SECTION_ALIASES: Record<string, PublishSection> = {
   runtime: "runtime",
   editions: "runtime",
   edition: "runtime",
+  // Classic / history deep-link intents (US6 / US8)
+  history: "logs",
+  pubhistory: "logs",
+  publishinghistory: "logs",
+  activejob: "status",
+  jobstatus: "status",
+  pubruntime: "runtime",
+  publishingdesign: "design",
 };
 
 /** Known modern section ids (default landing is sites). */
@@ -87,4 +95,29 @@ export function mapIdParam(raw: string | null | undefined): string {
 
 export function knownSectionAliases(): string[] {
   return Object.keys(SECTION_ALIASES);
+}
+
+/**
+ * Map classic design/runtime path fragments to modern sections (US8 deep links).
+ */
+export function mapClassicPublishingPath(
+  path: string | null | undefined,
+): PublishSection {
+  if (path == null || path === "") {
+    return "sites";
+  }
+  const p = path.toLowerCase();
+  if (p.includes("/ui/publishing") || p.includes("publishingdesign")) {
+    return "design";
+  }
+  if (p.includes("/ui/pubruntime") || p.includes("pubruntime")) {
+    return "runtime";
+  }
+  if (p.includes("activejob") || p.includes("status")) {
+    return "status";
+  }
+  if (p.includes("log") || p.includes("history")) {
+    return "logs";
+  }
+  return "sites";
 }

@@ -232,6 +232,25 @@
           $(this).addClass("selected");
         }
       });
+      // US6: deep link into modern Publishing Status/Logs shell (view=publish).
+      if ($("#perc-pubhistory-open-status").length === 0) {
+        $("#perc-pubhistory-container").prepend(
+          $("<p/>")
+            .css({ margin: "0 0 8px", fontSize: "12px" })
+            .append(
+              $("<a/>")
+                .attr({
+                  id: "perc-pubhistory-open-status",
+                  href: "/cm/app/?view=publish&section=logs",
+                })
+                .text(
+                  (window.I18N &&
+                    I18N.message("perc.ui.publish.modern@Open Status Logs")) ||
+                    "Open Publishing logs (modern UI)"
+                )
+            )
+        );
+      }
     }
 
     /**

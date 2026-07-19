@@ -19,6 +19,7 @@ import { describe, expect, it } from "vitest";
 import {
   isAllowlistedSection,
   knownSectionAliases,
+  mapClassicPublishingPath,
   mapIdParam,
   mapSectionParam,
 } from "@/publishing/deepLinkMap";
@@ -53,5 +54,26 @@ describe("mapIdParam", () => {
     expect(mapIdParam("abc_DEF")).toBe("abc_DEF");
     expect(mapIdParam("<script>")).toBe("");
     expect(mapIdParam("a/b")).toBe("");
+  });
+});
+
+describe("mapSectionParam history intents", () => {
+  it("maps history and classic runtime aliases", () => {
+    expect(mapSectionParam("history")).toBe("logs");
+    expect(mapSectionParam("activejob")).toBe("status");
+    expect(mapSectionParam("pubruntime")).toBe("runtime");
+    expect(mapSectionParam("publishingdesign")).toBe("design");
+  });
+});
+
+describe("mapClassicPublishingPath", () => {
+  it("maps classic design and runtime URLs", () => {
+    expect(mapClassicPublishingPath("/Rhythmyx/ui/publishing/SiteList.faces")).toBe(
+      "design",
+    );
+    expect(mapClassicPublishingPath("/ui/pubruntime/ActiveJobStatus.faces")).toBe(
+      "runtime",
+    );
+    expect(mapClassicPublishingPath("/cm/app/?view=publish")).toBe("sites");
   });
 });

@@ -30,7 +30,7 @@ The WebUI shares the Percussion CMS application with 7 other UI layers:
 |----------------------|---------------------------------------|-------------|-----------------------|--------------------------|
 | Desktop Explorer     | Java Swing + JavaFX WebView           | ~10         | JAX-WS SOAP           | Legacy                   |
 | Rhythmyx Admin       | JSF pages (MyFaces/Trinidad removed)  | 12          | REST / pending React  | Legacy / retiring        |
-| Rhythmyx Publishing  | JSF pages (MyFaces/Trinidad removed)  | 28          | REST / pending React  | Legacy / retiring        |
+| Rhythmyx Publishing  | **React PublishingShell** (`publishModern.jsp`); classic Minuet + JSF entries redirect | Publishing | REST/JSON (Fetch) | **Track B (feature 990)** — exclusive Minuet views removed; JSF deep pages residual packaging only |
 | Package Manager      | GWT + SmartGWT                        | 3+          | GWT-RPC               | Legacy                   |
 | **WebUI Legacy**     | **jQuery 3.6 + jQuery UI + Backbone** | **~20**     | **REST/JSON**         | **Maintaining**          |
 | Contributor UI (CUI) | RequireJS + Knockout.js               | ~8          | REST/JSON             | Maintaining              |

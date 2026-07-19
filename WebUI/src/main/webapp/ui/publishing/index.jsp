@@ -1,16 +1,13 @@
-<%@page errorPage="/ui/error.jsp" pageEncoding="UTF-8" contentType="text/html; charset=UTF-8"%>
-<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
-
-
-
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%
-   /* Always set focus on "Sites" node and make all nodes clickable */
- %>
-<c:set var="invoke_focusOnStartingNode" scope="request"
-   value="${sys_design_navigation.focusOnStartingNode}" />
-
-<%
-	// encodeURL (capital URL) — encodeUrl was removed in Jakarta Servlet
-	response.sendRedirect(response.encodeURL(request.getContextPath()
-		+ "/ui/publishing/SiteList.faces"));
+    String target = "/cm/app/?view=publish&section=design";
+    response.setStatus(301);
+    response.setHeader("Location", target);
 %>
+<!DOCTYPE html>
+<html>
+<head><meta http-equiv="refresh" content="0;url=<%= target %>"/><title>Publishing Design moved</title></head>
+<body>
+<p>Publishing Design is now in the modern Publishing UI. <a href="<%= target %>">Open Design</a>.</p>
+</body>
+</html>
