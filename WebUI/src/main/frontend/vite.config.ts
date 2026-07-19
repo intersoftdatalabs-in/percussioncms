@@ -41,19 +41,26 @@ export default defineConfig({
       "@": resolve(__dirname, "../ts"),
     },
   },
+  // Allow Vitest to load tests and sources outside frontend/ (WebUI/src/test/ts).
+  server: {
+    fs: {
+      allow: [
+        resolve(__dirname, ".."),
+        resolve(__dirname, "../.."),
+        resolve(__dirname, "../../.."),
+      ],
+    },
+  },
   test: {
     globals: true,
     environment: "jsdom",
     include: [
       "src/test/ts/**/*.{test,spec}.{ts,tsx}",
       "src/test/js/**/*.{test,spec}.js",
-      // Legacy per-source-file test suites under the module-level
-      // src/test/js directory. These exercise the legacy jQuery/Knockout
-      // UI sources (e.g. plugins/PercListEditorWidget.js) and were
-      // previously not picked up by vitest because its root is the
-      // frontend folder. Adding the absolute path here ensures both
-      // legacy and modern suites run under `npm test`.
-      "../../src/test/js/**/*.{test,spec}.js",
+      // Module-level modern tests (WebUI/src/test/ts) — Track B home, publishing, etc.
+      resolve(__dirname, "../../test/ts/**/*.{test,spec}.{ts,tsx}"),
+      // Legacy module-level JS tests
+      resolve(__dirname, "../../test/js/**/*.{test,spec}.js"),
     ],
   },
 });

@@ -77,4 +77,33 @@ export const PATHS = {
   get WIDGET_BUILDER() {
     return `${SERVICES_ROOT}/widgetmanagement/widgetbuilder`;
   },
+  /** Site publish / status (sitemanage) — see specs/990-unified-publishing-ui/research/ops-path-inventory.md */
+  get SITE_PUBLISH() {
+    return `${SERVICES_ROOT}/sitemanage/publish`;
+  },
+  get PUBLISH_CURRENT_STATUS() {
+    return `${SERVICES_ROOT}/sitemanage/pubstatus/current`;
+  },
+  get PUBLISH_LOGS() {
+    return `${SERVICES_ROOT}/sitemanage/pubstatus/logs`;
+  },
+  get PUBLISH_LOGS_DETAILS() {
+    return `${SERVICES_ROOT}/sitemanage/pubstatus/details`;
+  },
+  get PUBLISH_PURGE() {
+    return `${SERVICES_ROOT}/sitemanage/pubstatus/purge`;
+  },
+  get INCREMENTAL_LIST() {
+    return `${SERVICES_ROOT}/sitemanage/publish/incremental/content/`;
+  },
+  get INCREMENTAL_RELATED_LIST() {
+    return `${SERVICES_ROOT}/sitemanage/publish/incremental/relatedcontent/`;
+  },
+  get INCREMENTAL_PUBLISH() {
+    return `${SERVICES_ROOT}/sitemanage/publish/incremental/publish/`;
+  },
+  /** Publish servers (publishmanagement) */
+  get PUB_SERVERS() {
+    return `${SERVICES_ROOT}/publishmanagement/servers/`;
+  },
 } as const;

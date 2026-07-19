@@ -28,6 +28,7 @@ import { HelloWorld } from "./components/HelloWorld";
 import { Dashboard, WorkflowStatusWidget, ActivityWidget, ProcessMonitorWidget, EffectivenessWidget, AssetsStatusWidget, BulkUploadWidget, ReportsWidget, TrafficWidget } from "./dashboard";
 import { HomeShell } from "./home";
 import { UnavailableView } from "./home/UnavailableView";
+import { PublishingShell } from "./publishing";
 import { WidgetBuilderApp } from "./widgetbuilder/WidgetBuilderApp";
 
 /** Map of component names to their React component types. */
@@ -45,5 +46,6 @@ componentRegistry.set("BulkUploadWidget", BulkUploadWidget);
 componentRegistry.set("ReportsWidget", ReportsWidget);
 componentRegistry.set("TrafficWidget", TrafficWidget);
 componentRegistry.set("HomeShell", HomeShell);
+componentRegistry.set("PublishingShell", PublishingShell);
 componentRegistry.set("WidgetBuilderApp", WidgetBuilderApp);
 componentRegistry.set("UnavailableView", UnavailableView);

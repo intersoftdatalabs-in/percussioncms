@@ -18256,5 +18256,205 @@ Documentación' href='https://percussioncmshelp.intsof.com/'&gt;percussioncmshel
     <tuv xml:lang="es"><seg>No hay blogs disponibles para publicar.</seg></tuv>
     <tuv xml:lang="hi"><seg>No blogs are available for posting.</seg></tuv>
 </tu>
+
+<!-- Unified Publishing UI (990) modern shell keys -->
+<tu tuid="perc.ui.publish.modern@Sites & Servers">
+    <prop type="sectionname" xml:lang="en-us">Label</prop>
+    <tuv xml:lang="en-us"><seg>Sites &amp; Servers</seg></tuv>
+    <tuv xml:lang="es"><seg>Sitios y servidores</seg></tuv>
+    <tuv xml:lang="hi"><seg>Sites &amp; Servers</seg></tuv>
+</tu>
+<tu tuid="perc.ui.publish.modern@Logs">
+    <prop type="sectionname" xml:lang="en-us">Label</prop>
+    <tuv xml:lang="en-us"><seg>Logs</seg></tuv>
+    <tuv xml:lang="es"><seg>Registros</seg></tuv>
+    <tuv xml:lang="hi"><seg>Logs</seg></tuv>
+</tu>
+<tu tuid="perc.ui.publish.modern@Design">
+    <prop type="sectionname" xml:lang="en-us">Label</prop>
+    <tuv xml:lang="en-us"><seg>Design</seg></tuv>
+    <tuv xml:lang="es"><seg>Diseño</seg></tuv>
+    <tuv xml:lang="hi"><seg>Design</seg></tuv>
+</tu>
+<tu tuid="perc.ui.publish.modern@Runtime">
+    <prop type="sectionname" xml:lang="en-us">Label</prop>
+    <tuv xml:lang="en-us"><seg>Runtime</seg></tuv>
+    <tuv xml:lang="es"><seg>Ejecución</seg></tuv>
+    <tuv xml:lang="hi"><seg>Runtime</seg></tuv>
+</tu>
+<tu tuid="perc.ui.publish.modern@Incremental">
+    <prop type="sectionname" xml:lang="en-us">Label</prop>
+    <tuv xml:lang="en-us"><seg>Incremental</seg></tuv>
+    <tuv xml:lang="es"><seg>Incremental</seg></tuv>
+    <tuv xml:lang="hi"><seg>Incremental</seg></tuv>
+</tu>
+<tu tuid="perc.ui.publish.modern@No Sites">
+    <prop type="sectionname" xml:lang="en-us">Empty</prop>
+    <tuv xml:lang="en-us"><seg>No sites are available for publishing.</seg></tuv>
+    <tuv xml:lang="es"><seg>No hay sitios disponibles para publicar.</seg></tuv>
+    <tuv xml:lang="hi"><seg>No sites are available for publishing.</seg></tuv>
+</tu>
+<tu tuid="perc.ui.publish.modern@No Servers">
+    <prop type="sectionname" xml:lang="en-us">Empty</prop>
+    <tuv xml:lang="en-us"><seg>No publish servers configured. Add a server before publishing.</seg></tuv>
+    <tuv xml:lang="es"><seg>No hay servidores de publicación. Agregue un servidor antes de publicar.</seg></tuv>
+    <tuv xml:lang="hi"><seg>No publish servers configured. Add a server before publishing.</seg></tuv>
+</tu>
+<tu tuid="perc.ui.publish.modern@No Active Jobs">
+    <prop type="sectionname" xml:lang="en-us">Empty</prop>
+    <tuv xml:lang="en-us"><seg>No active publishing jobs.</seg></tuv>
+    <tuv xml:lang="es"><seg>No hay trabajos de publicación activos.</seg></tuv>
+    <tuv xml:lang="hi"><seg>No active publishing jobs.</seg></tuv>
+</tu>
+<tu tuid="perc.ui.publish.modern@No Logs">
+    <prop type="sectionname" xml:lang="en-us">Empty</prop>
+    <tuv xml:lang="en-us"><seg>No publishing logs match the current filters.</seg></tuv>
+    <tuv xml:lang="es"><seg>No hay registros de publicación para los filtros actuales.</seg></tuv>
+    <tuv xml:lang="hi"><seg>No publishing logs match the current filters.</seg></tuv>
+</tu>
+<tu tuid="perc.ui.publish.modern@Publish Forbidden">
+    <prop type="sectionname" xml:lang="en-us">Error</prop>
+    <tuv xml:lang="en-us"><seg>You are not allowed to publish.</seg></tuv>
+    <tuv xml:lang="es"><seg>No tiene permiso para publicar.</seg></tuv>
+    <tuv xml:lang="hi"><seg>You are not allowed to publish.</seg></tuv>
+</tu>
+<tu tuid="perc.ui.publish.modern@Bad Server Configuration">
+    <prop type="sectionname" xml:lang="en-us">Error</prop>
+    <tuv xml:lang="en-us"><seg>Publish server configuration is invalid.</seg></tuv>
+    <tuv xml:lang="es"><seg>La configuración del servidor de publicación no es válida.</seg></tuv>
+    <tuv xml:lang="hi"><seg>Publish server configuration is invalid.</seg></tuv>
+</tu>
+<tu tuid="perc.ui.publish.modern@Section Coming Soon">
+    <prop type="sectionname" xml:lang="en-us">Empty</prop>
+    <tuv xml:lang="en-us"><seg>This Publishing section is not available yet.</seg></tuv>
+    <tuv xml:lang="es"><seg>Esta sección de publicación aún no está disponible.</seg></tuv>
+    <tuv xml:lang="hi"><seg>This Publishing section is not available yet.</seg></tuv>
+</tu>
+
+<tu tuid="perc.ui.publish.modern@Back">
+    <prop type="sectionname" xml:lang="en-us">Label</prop>
+    <tuv xml:lang="en-us"><seg>Back</seg></tuv>
+    <tuv xml:lang="es"><seg>Atrás</seg></tuv>
+    <tuv xml:lang="hi"><seg>Back</seg></tuv>
+</tu>
+
+<tu tuid="perc.ui.publish.modern@Folder">
+    <prop type="sectionname" xml:lang="en-us">Label</prop>
+    <tuv xml:lang="en-us"><seg>Folder</seg></tuv>
+    <tuv xml:lang="es"><seg>Carpeta</seg></tuv>
+    <tuv xml:lang="hi"><seg>Folder</seg></tuv>
+</tu>
+
+<tu tuid="perc.ui.publish.modern@Edit Server">
+    <prop type="sectionname" xml:lang="en-us">Label</prop>
+    <tuv xml:lang="en-us"><seg>Edit server</seg></tuv>
+    <tuv xml:lang="es"><seg>Editar servidor</seg></tuv>
+    <tuv xml:lang="hi"><seg>Edit server</seg></tuv>
+</tu>
+
+<tu tuid="perc.ui.publish.modern@Server Name">
+    <prop type="sectionname" xml:lang="en-us">Label</prop>
+    <tuv xml:lang="en-us"><seg>Server name</seg></tuv>
+    <tuv xml:lang="es"><seg>Nombre del servidor</seg></tuv>
+    <tuv xml:lang="hi"><seg>Server name</seg></tuv>
+</tu>
+
+<tu tuid="perc.ui.publish.modern@Delivery Type">
+    <prop type="sectionname" xml:lang="en-us">Label</prop>
+    <tuv xml:lang="en-us"><seg>Delivery type</seg></tuv>
+    <tuv xml:lang="es"><seg>Tipo de entrega</seg></tuv>
+    <tuv xml:lang="hi"><seg>Delivery type</seg></tuv>
+</tu>
+
+<tu tuid="perc.ui.publish.modern@Driver">
+    <prop type="sectionname" xml:lang="en-us">Label</prop>
+    <tuv xml:lang="en-us"><seg>Driver</seg></tuv>
+    <tuv xml:lang="es"><seg>Controlador</seg></tuv>
+    <tuv xml:lang="hi"><seg>Driver</seg></tuv>
+</tu>
+
+<tu tuid="perc.ui.publish.modern@Save">
+    <prop type="sectionname" xml:lang="en-us">Label</prop>
+    <tuv xml:lang="en-us"><seg>Save</seg></tuv>
+    <tuv xml:lang="es"><seg>Guardar</seg></tuv>
+    <tuv xml:lang="hi"><seg>Save</seg></tuv>
+</tu>
+
+<tu tuid="perc.ui.publish.modern@Confirm Delete Server">
+    <prop type="sectionname" xml:lang="en-us">Label</prop>
+    <tuv xml:lang="en-us"><seg>Delete this publish server?</seg></tuv>
+    <tuv xml:lang="es"><seg>¿Eliminar este servidor de publicación?</seg></tuv>
+    <tuv xml:lang="hi"><seg>Delete this publish server?</seg></tuv>
+</tu>
+
+<tu tuid="perc.ui.publish.modern@Discard Changes">
+    <prop type="sectionname" xml:lang="en-us">Label</prop>
+    <tuv xml:lang="en-us"><seg>Discard unsaved server changes?</seg></tuv>
+    <tuv xml:lang="es"><seg>¿Descartar los cambios no guardados del servidor?</seg></tuv>
+    <tuv xml:lang="hi"><seg>Discard unsaved server changes?</seg></tuv>
+</tu>
+
+<tu tuid="perc.ui.publish.modern@Add Server">
+    <prop type="sectionname" xml:lang="en-us">Label</prop>
+    <tuv xml:lang="en-us"><seg>Add server</seg></tuv>
+    <tuv xml:lang="es"><seg>Agregar servidor</seg></tuv>
+    <tuv xml:lang="hi"><seg>Add server</seg></tuv>
+</tu>
+
+<tu tuid="perc.ui.publish.modern@Set as Publish Now Server">
+    <prop type="sectionname" xml:lang="en-us">Label</prop>
+    <tuv xml:lang="en-us"><seg>Set as Publish Now server</seg></tuv>
+    <tuv xml:lang="es"><seg>Establecer como servidor Publish Now</seg></tuv>
+    <tuv xml:lang="hi"><seg>Set as Publish Now server</seg></tuv>
+</tu>
+
+<tu tuid="perc.ui.publish.modern@Ignore Unmodified Assets">
+    <prop type="sectionname" xml:lang="en-us">Label</prop>
+    <tuv xml:lang="en-us"><seg>Ignore unmodified assets</seg></tuv>
+    <tuv xml:lang="es"><seg>Ignorar activos no modificados</seg></tuv>
+    <tuv xml:lang="hi"><seg>Ignore unmodified assets</seg></tuv>
+</tu>
+
+<tu tuid="perc.ui.publish.modern@Publish Related Items">
+    <prop type="sectionname" xml:lang="en-us">Label</prop>
+    <tuv xml:lang="en-us"><seg>Publish related items</seg></tuv>
+    <tuv xml:lang="es"><seg>Publicar elementos relacionados</seg></tuv>
+    <tuv xml:lang="hi"><seg>Publish related items</seg></tuv>
+</tu>
+
+<tu tuid="perc.ui.publish.view@Add Server">
+    <prop type="sectionname" xml:lang="en-us">Label</prop>
+    <tuv xml:lang="en-us"><seg>Add server</seg></tuv>
+    <tuv xml:lang="es"><seg>Agregar servidor</seg></tuv>
+    <tuv xml:lang="hi"><seg>Add server</seg></tuv>
+</tu>
+
+<tu tuid="perc.ui.publish.servers@Set as Publish Now Server">
+    <prop type="sectionname" xml:lang="en-us">Label</prop>
+    <tuv xml:lang="en-us"><seg>Set as Publish Now server</seg></tuv>
+    <tuv xml:lang="es"><seg>Establecer como servidor Publish Now</seg></tuv>
+    <tuv xml:lang="hi"><seg>Set as Publish Now server</seg></tuv>
+</tu>
+
+<tu tuid="perc.ui.publish.servers@Ignore Unmodified Assets">
+    <prop type="sectionname" xml:lang="en-us">Label</prop>
+    <tuv xml:lang="en-us"><seg>Ignore unmodified assets</seg></tuv>
+    <tuv xml:lang="es"><seg>Ignorar activos no modificados</seg></tuv>
+    <tuv xml:lang="hi"><seg>Ignore unmodified assets</seg></tuv>
+</tu>
+
+<tu tuid="perc.ui.publish.servers@Publish Related Items">
+    <prop type="sectionname" xml:lang="en-us">Label</prop>
+    <tuv xml:lang="en-us"><seg>Publish related items</seg></tuv>
+    <tuv xml:lang="es"><seg>Publicar elementos relacionados</seg></tuv>
+    <tuv xml:lang="hi"><seg>Publish related items</seg></tuv>
+</tu>
+
+<tu tuid="perc.ui.publish.modern@Confirm Delete Design Object">
+    <prop type="sectionname" xml:lang="en-us">Confirm</prop>
+    <tuv xml:lang="en-us"><seg>Delete this design object? This cannot be undone.</seg></tuv>
+    <tuv xml:lang="es"><seg>¿Eliminar este objeto de diseño? Esta acción no se puede deshacer.</seg></tuv>
+    <tuv xml:lang="hi"><seg>Delete this design object? This cannot be undone.</seg></tuv>
+</tu>
     </body>
 </tmx>
