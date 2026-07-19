@@ -5,6 +5,8 @@
 **Target product release**: **8.2** — all in-scope rows required for **8.2 GA**; **functional parity blocks 8.2**  
 **Status**: Seed — expand during implementation; every advanced CE row must be labeled (no silent omit); **post-8.2 “scheduled” is not allowed** for in-scope rows
 
+**Test framework note (2026-07-19)**: Each matrix row's `Acceptance` column is now enforced by a corresponding **Playwright E2E spec** in `modules/perc-qa-automation/frontend/tests/` running against the live docker dev CMS at `http://localhost:9992`. Component-level logic is covered by Vitest + Testing Library in `WebUI/src/test/ts/`. **Both layers must be green** for a row to flip to `Done`. axe-core a11y gate (T082b) runs on every Playwright spec.
+
 ## Phase legend
 
 | Phase | Meaning | Intermediate hard-cut gate? | 8.2 GA required? |
@@ -21,20 +23,20 @@
 
 ## Core navigate (P0-Core) — hard-cut bar
 
-| Capability | Legacy source | Target | Phase | Acceptance | Status (US1) |
-|------------|---------------|--------|-------|------------|--------------|
-| Explorer tree of sites/folders | CE tree / Finder columns | React tree | P0-Core | Expand/select loads children | **Implemented** — `WebUI/src/main/ts/contentExplorer/ExplorerTree.tsx` + Vitest (`ExplorerTree.test.tsx`); lazy expand; pending UAT against CMS (T024a) |
-| Detail list of children | CE list / Finder list view | React list + pagination | P0-Core | Columns: name, type at min; SC-005 | **Implemented** — `WebUI/src/main/ts/contentExplorer/DetailList.tsx` + Vitest (`DetailList.test.tsx`); paginatedFolder; SC-005 perf regression guard (`sc005-perf-regression.test.ts`); SC-005 acceptance evidence pending UAT |
-| Open item edit/preview | Both | Existing editor navigation | P0-Core | Path/id open works | **Implemented** — `WebUI/src/main/ts/contentExplorer/openInEditor.ts`; path-first with id fallback (mirrors `HomeShell` default) |
-| Create folder | Both | path addFolder APIs | P0-Core | Appears after refresh | **Implemented** — `ReducedActions.tsx` + `pathApi.addNewFolder`; refreshes via state invalidation in shell |
-| Rename | Both | renameFolder | P0-Core | Name updates | **Implemented** — `ReducedActions.tsx` + `pathApi.renameFolder` |
-| Move | Both | moveItem | P0-Core | Tree/list refresh | **Implemented** — `ReducedActions.tsx` + `pathApi.moveItem` (copy: false) |
-| Copy (single item) | Both | path/item copy as today | P0-Core | Reduced action | **Implemented** — `ReducedActions.tsx` + `pathApi.moveItem` (copy: true) |
-| Delete + confirm | Both | delete APIs | P0-Core | Destructive confirm | **Implemented** — `ReducedActions.tsx` + `pathApi.deleteItem`; confirmation via `handlers.confirm` (default `window.confirm`) |
-| Permission denied / session errors | Both | Clear messaging | P0-Core | No blank hang | **Implemented** — error state surfaces via `errorStateStyle`; permission gating in `selection.ts` (`canRead`/`canWrite`/`canAdmin`); session expiry TMX key reserved (`SESSION_EXPIRED`) |
-| ReducedAction set | Finder buttons subset | Product fixed set (ReducedAction enum) | P0-Core | FR-010a; entries enumerated in `data-model.md` | **Implemented** — 7 actions (open/preview/createFolder/rename/move/copy/delete); Vitest (`reducedActions.test.tsx`) |
-| Miller-column primary UX | Finder | **Removed** at hard cut | P0-Core | SC-006 | **Pending** — US6 (T028-T036); US1 PR removes the placeholder registry entry but does not delete Finder from JSPs |
-| Desktop CE required for core admin | CE app | **Not required** at hard cut | P0-Core | SC-007 | **Pending** — US6 (T034 docs/distribution) |
+| Capability | Legacy source | Target | Phase | Acceptance | Status (US1) | Test coverage |
+|------------|---------------|--------|-------|------------|--------------|--------------|
+| Explorer tree of sites/folders | CE tree / Finder columns | React tree | P0-Core | Expand/select loads children | **Implemented** — `WebUI/src/main/ts/contentExplorer/ExplorerTree.tsx` + Vitest (`ExplorerTree.test.tsx`); lazy expand; pending UAT against CMS (T024a) | Vitest `ExplorerTree.test.tsx` (4 tests); Playwright `tests/us1-core-explorer.spec.js` mounts + drives (T024b) |
+| Detail list of children | CE list / Finder list view | React list + pagination | P0-Core | Columns: name, type at min; SC-005 | **Implemented** — `WebUI/src/main/ts/contentExplorer/DetailList.tsx` + Vitest (`DetailList.test.tsx`); paginatedFolder; SC-005 perf regression guard (`sc005-perf-regression.test.ts`); SC-005 acceptance evidence pending UAT | Vitest `DetailList.test.tsx` (5 tests); SC-005 perf regression Vitest; Playwright `tests/us1-perf-sc005.spec.js` (T025b) against live CMS |
+| Open item edit/preview | Both | Existing editor navigation | P0-Core | Path/id open works | **Implemented** — `WebUI/src/main/ts/contentExplorer/openInEditor.ts`; path-first with id fallback (mirrors `HomeShell` default) | Vitest in `ContentExplorerShell` mount spec |
+| Create folder | Both | path addFolder APIs | P0-Core | Appears after refresh | **Implemented** — `ReducedActions.tsx` + `pathApi.addNewFolder`; refreshes via state invalidation in shell | Vitest `reducedActions.test.tsx` (6 tests) |
+| Rename | Both | renameFolder | P0-Core | Name updates | **Implemented** — `ReducedActions.tsx` + `pathApi.renameFolder` | Vitest `reducedActions.test.tsx` |
+| Move | Both | moveItem | P0-Core | Tree/list refresh | **Implemented** — `ReducedActions.tsx` + `pathApi.moveItem` (copy: false) | Vitest `reducedActions.test.tsx` |
+| Copy (single item) | Both | path/item copy as today | P0-Core | Reduced action | **Implemented** — `ReducedActions.tsx` + `pathApi.moveItem` (copy: true) | Vitest `reducedActions.test.tsx` |
+| Delete + confirm | Both | delete APIs | P0-Core | Destructive confirm | **Implemented** — `ReducedActions.tsx` + `pathApi.deleteItem`; confirmation via `handlers.confirm` (default `window.confirm`) | Vitest `reducedActions.test.tsx` |
+| Permission denied / session errors | Both | Clear messaging | P0-Core | No blank hang | **Implemented** — error state surfaces via `errorStateStyle`; permission gating in `selection.ts` (`canRead`/`canWrite`/`canAdmin`); session expiry TMX key reserved (`SESSION_EXPIRED`) | Vitest coverage in component tests |
+| ReducedAction set | Finder buttons subset | Product fixed set (ReducedAction enum) | P0-Core | FR-010a; entries enumerated in `data-model.md` | **Implemented** — 7 actions (open/preview/createFolder/rename/move/copy/delete); Vitest (`reducedActions.test.tsx`) | Vitest `reducedActions.test.tsx`; full action checklist Playwright `tests/us3-menus.spec.js` (T056b) |
+| Miller-column primary UX | Finder | **Removed** at hard cut | P0-Core | SC-006 | **Pending** — US6 (T028-T036); US1 PR removes the placeholder registry entry but does not delete Finder from JSPs | Playwright `tests/us6-hard-cut.spec.js` (T028b) |
+| Desktop CE required for core admin | CE app | **Not required** at hard cut | P0-Core | SC-007 | **Pending** — US6 (T034 docs/distribution) | Playwright `tests/us6-hard-cut.spec.js` CE-retired check |
 
 ---
 
@@ -52,10 +54,10 @@
 
 | Host id | Legacy surface | Hard-cut phase | Acceptance evidence |
 |---------|----------------|----------------|---------------------|
-| `host-asset-picker` | Finder asset picker widgets | P-Host-1 | SC-002 checklist + Vitest |
-| `host-page-picker` | Finder page picker | P-Host-1 | SC-002 checklist + Vitest |
-| `host-aa-contentbrowser-dialog` | AA Dojo/JSP dialog | P-Host-2 | SC-002 checklist + Vitest |
-| `host-folder-picker` | Folder picker dialog | P-Host-2 | SC-002 checklist + Vitest |
+| `host-asset-picker` | Finder asset picker widgets | P-Host-1 | SC-002 checklist + Vitest + Playwright (`tests/host-asset-picker.spec.js`) |
+| `host-page-picker` | Finder page picker | P-Host-1 | SC-002 checklist + Vitest + Playwright (`tests/host-page-picker.spec.js`) |
+| `host-aa-contentbrowser-dialog` | AA Dojo/JSP dialog | P-Host-2 | SC-002 checklist + Vitest + Playwright (`tests/host-aa-contentbrowser-dialog.spec.js`) |
+| `host-folder-picker` | Folder picker dialog | P-Host-2 | SC-002 checklist + Vitest + Playwright (`tests/host-folder-picker.spec.js`) |
 | `host-home-library` | Home Library browse (989 consumer) | P-Host-3 (optional, non-blocking) | SC-002 if adopted |
 
 Each host row is **not complete** until its individual SC-002 evidence is recorded.
