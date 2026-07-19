@@ -16,6 +16,7 @@
  */
 
 import { describe, expect, it } from "vitest";
+import { buildPurgeRequestBody } from "@/publishing/logRequestBodies";
 import { canPurge } from "@/publishing/sections/LogsSection";
 
 describe("purge confirmation gate", () => {
@@ -25,5 +26,11 @@ describe("purge confirmation gate", () => {
 
   it("allows purge when ids selected", () => {
     expect(canPurge(["1", "2"])).toBe(true);
+  });
+
+  it("pairs with Minuet-shaped purge payload (jobids)", () => {
+    const body = buildPurgeRequestBody(["1", "2"]);
+    const root = body.SitePublishPurgeRequest as { jobids: number[] };
+    expect(root.jobids).toEqual([1, 2]);
   });
 });

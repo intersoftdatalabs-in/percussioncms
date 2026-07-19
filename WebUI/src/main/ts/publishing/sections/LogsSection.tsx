@@ -118,7 +118,7 @@ export function LogsSection(): React.ReactElement {
       return;
     }
     try {
-      const data = await fetchLogDetails({ jobId });
+      const data = await fetchLogDetails(jobId);
       setDetails(data);
       setDetailsJob(log);
     } catch {
@@ -131,7 +131,7 @@ export function LogsSection(): React.ReactElement {
       return;
     }
     try {
-      await purgePublishingLogs({ jobIds: [...selected] });
+      await purgePublishingLogs([...selected]);
       setSelected(new Set());
       setConfirmPurge(false);
       await load();

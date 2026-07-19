@@ -17,6 +17,11 @@
 
 import { get, post } from "../client";
 import { PATHS } from "../paths";
+import {
+  buildLogDetailsRequestBody,
+  buildLogListRequestBody,
+  buildPurgeRequestBody,
+} from "../../publishing/logRequestBodies";
 import type {
   PublishingJob,
   PublishingLogEntry,
@@ -61,11 +66,14 @@ export async function fetchCurrentJobsForSite(
   return normalizeJobList(data);
 }
 
-/** Historical publish logs (POST body matches SitePublishLogRequest). */
+/** Historical publish logs (POST body matches Minuet / PSSitePublishLogRequest). */
 export async function fetchPublishingLogs(
   request: SitePublishLogRequest,
 ): Promise<PublishingLogEntry[]> {
-  const data = await post<unknown>(`${PATHS.PUBLISH_LOGS}/`, request);
+  const data = await post<unknown>(
+    `${PATHS.PUBLISH_LOGS}/`,
+    buildLogListRequestBody(request),
+  );
   if (Array.isArray(data)) {
     return data as PublishingLogEntry[];
   }
@@ -81,16 +89,25 @@ export async function fetchPublishingLogs(
   return [];
 }
 
-/** Job item details for a log row. */
+/**
+ * Job item details for a log row.
+ * @param jobId publish job id (numeric string or number)
+ */
 export async function fetchLogDetails(
-  body: Record<string, unknown>,
+  jobId: string | number,
 ): Promise<unknown> {
-  return post<unknown>(PATHS.PUBLISH_LOGS_DETAILS, body);
+  return post<unknown>(
+    PATHS.PUBLISH_LOGS_DETAILS,
+    buildLogDetailsRequestBody(jobId),
+  );
 }
 
-/** Purge selected log job ids. */
+/**
+ * Purge selected log job ids.
+ * @param jobIds list of job ids (numeric strings or numbers)
+ */
 export async function purgePublishingLogs(
-  body: Record<string, unknown>,
+  jobIds: Array<string | number>,
 ): Promise<unknown> {
-  return post<unknown>(PATHS.PUBLISH_PURGE, body);
+  return post<unknown>(PATHS.PUBLISH_PURGE, buildPurgeRequestBody(jobIds));
 }

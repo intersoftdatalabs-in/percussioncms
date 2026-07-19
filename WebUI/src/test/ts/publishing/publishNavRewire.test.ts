@@ -17,3 +17,29 @@ describe("publish nav rewire (US8)", () => {
     expect(text).not.toMatch(/views\.put\("publish",\s*"publish\.jsp"\)/);
   });
 });
+
+describe("Minuet pack retirement (US8 / B3)", () => {
+  it("static-bundles perc_publish pack does not list deleted Minuet exclusive views", () => {
+    const packPath = resolve(
+      __dirname,
+      "../../../main/resources/minify/static-bundles.json",
+    );
+    const json = JSON.parse(readFileSync(packPath, "utf8")) as {
+      bundles?: Array<{ name?: string; files?: string[] }>;
+    };
+    const pack = (json.bundles ?? []).find(
+      (b) => b.name === "jslibMin/perc_publish.packed.js",
+    );
+    expect(pack).toBeDefined();
+    const files = pack?.files ?? [];
+    for (const banned of [
+      "views/PercPublishMinuetView.js",
+      "views/PercPublishStatusMinuetView.js",
+      "views/PercPublishLogsMinuetView.js",
+    ]) {
+      expect(files).not.toContain(banned);
+    }
+    // Shared publisher service retained for item publish-now
+    expect(files.some((f) => f.includes("PercPublisherService"))).toBe(true);
+  });
+});
