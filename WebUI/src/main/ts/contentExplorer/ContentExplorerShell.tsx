@@ -79,7 +79,11 @@ export function ContentExplorerShell({
       }
       onOpenItem(item);
     },
+<<<<<<< HEAD
     onPreview: actionHandlers?.onPreview ?? (() => undefined),
+=======
+    onPreview: actionHandlers?.onPreview,
+>>>>>>> 0a73c81eee (feat(992): US1 core explorer (tree + detail list + ReducedAction set))
   };
   // Preview is real only when the host supplies its own handler; default is no-op.
   const hasPreviewHandler = Boolean(actionHandlers?.onPreview);
