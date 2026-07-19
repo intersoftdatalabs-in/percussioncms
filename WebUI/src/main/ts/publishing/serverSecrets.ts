@@ -24,6 +24,9 @@ export const SECRET_PROPERTY_KEYS = new Set([
   "accessKey",
   "privatekey",
   "passphrase",
+  // Product / Minuet S3 property names (IPSPubServerDao)
+  "accesskey",
+  "securitykey",
 ]);
 
 /**

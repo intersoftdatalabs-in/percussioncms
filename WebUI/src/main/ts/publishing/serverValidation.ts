@@ -38,7 +38,8 @@ export interface ServerFormValues {
 }
 
 const FILE_REMOTE = ["serverip", "user", "password", "port"] as const;
-const S3_FIELDS = ["accessKey", "secretKey", "bucketName", "region"] as const;
+/** Product / Minuet property keys (IPSPubServerDao AS3 keys are lowercase). */
+const S3_FIELDS = ["accesskey", "securitykey", "bucketName", "region"] as const;
 const DB_FIELDS = ["driver", "server", "database", "user", "password"] as const;
 
 export function requiredFieldsForDriver(driver: string): string[] {

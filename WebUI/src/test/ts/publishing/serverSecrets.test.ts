@@ -36,8 +36,21 @@ describe("redactSecretsForLog", () => {
     expect((out.nested as Record<string, unknown>).region).toBe("us-east-1");
   });
 
+  it("redacts product S3 lowercase keys (accesskey / securitykey)", () => {
+    const out = redactSecretsForLog({
+      accesskey: "AKIA",
+      securitykey: "sekret",
+      bucketName: "b",
+    }) as Record<string, unknown>;
+    expect(out.accesskey).toBe("[REDACTED]");
+    expect(out.securitykey).toBe("[REDACTED]");
+    expect(out.bucketName).toBe("b");
+  });
+
   it("identifies secret keys", () => {
     expect(isSecretPropertyKey("password")).toBe(true);
+    expect(isSecretPropertyKey("accesskey")).toBe(true);
+    expect(isSecretPropertyKey("securitykey")).toBe(true);
     expect(isSecretPropertyKey("serverip")).toBe(false);
   });
 });

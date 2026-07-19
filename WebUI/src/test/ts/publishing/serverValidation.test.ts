@@ -33,9 +33,15 @@ describe("requiredFieldsForDriver", () => {
     );
   });
 
-  it("requires S3 fields", () => {
+  it("requires S3 fields using product lowercase keys", () => {
     expect(requiredFieldsForDriver("AMAZONS3")).toEqual(
-      expect.arrayContaining(["bucketName", "region", "accessKey"]),
+      expect.arrayContaining([
+        "serverName",
+        "bucketName",
+        "region",
+        "accesskey",
+        "securitykey",
+      ]),
     );
   });
 });
@@ -61,5 +67,37 @@ describe("validateServerForm", () => {
     });
     expect(r.valid).toBe(false);
     expect(r.missing).toContain("serverip");
+  });
+
+  it("passes S3 when form uses accesskey/securitykey", () => {
+    const r = validateServerForm({
+      serverName: "s3prod",
+      driver: "AMAZONS3",
+      properties: {
+        accesskey: "AKIA",
+        securitykey: "secret",
+        bucketName: "my-bucket",
+        region: "us-east-1",
+      },
+    });
+    expect(r.valid).toBe(true);
+    expect(r.missing).toEqual([]);
+  });
+
+  it("fails S3 when only camelCase keys present (mismatch with form)", () => {
+    const r = validateServerForm({
+      serverName: "s3prod",
+      driver: "AMAZONS3",
+      properties: {
+        accessKey: "AKIA",
+        secretKey: "secret",
+        bucketName: "my-bucket",
+        region: "us-east-1",
+      },
+    });
+    expect(r.valid).toBe(false);
+    expect(r.missing).toEqual(
+      expect.arrayContaining(["accesskey", "securitykey"]),
+    );
   });
 });
