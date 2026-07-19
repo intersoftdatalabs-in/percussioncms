@@ -21,6 +21,23 @@ Fetch code scanning (CodeQL) alerts for a repository using the `gh` CLI and writ
   - Pagination is handled automatically (`--paginate`, `per_page=100`).
   - For the `004-zero-code-scanning-alerts` workflow, use this script to (re)generate `alerts.md`, then seed/triage `triage.md` per `specs/004-zero-code-scanning-alerts/contracts/README.md` C1.
 
+### `create-large-folder-fixture.sh`
+
+Create a single CMS folder with ≥500 children for the SC-005 perf UAT scenario of feature `992-react-content-explorer` (`quickstart.md` Scenario B).
+
+- **Purpose**: Tasks.md T012b perf fixture scaffolding. Run on a test CMS instance to seed the fixture used for the SC-005 pass criterion (`p95 ≤ 10 s` on standard office network) and the T015a Vitest regression guard.
+- **Usage**:
+  ```bash
+  CMS_BASE_URL=https://cms.local:8443 \
+  CMS_USER=admin1 CMS_PASS=<redacted> \
+  FIXTURE_PATH=/Sites/PerfFixture FIXTURE_COUNT=500 \
+  ./scripts/create-large-folder-fixture.sh
+  ```
+- **Output**: A folder `FIXTURE_PATH/PerfFixtureRoot` with `FIXTURE_COUNT` children (default `/Sites/PerfFixture/PerfFixtureRoot` × 500).
+- **Cross-platform**: Windows users run the `.cmd` counterpart (add when needed; the `.sh` is portable to Linux/macOS). Default count + path match the SC-005 fixture in `quickstart.md`.
+- **Evidence**: After UAT, append a row to `specs/992-react-content-explorer/checklists/sc005-perf-evidence.md` with run name, git SHA, fixture size, network profile, p50/p95/max times, pass/fail.
+- **Prereqs**: `curl`, network reachability to a running CMS instance with admin credentials; idempotent (re-running will create additional children under the same parent — clean up between runs as needed).
+
 ### `erlang-harvest-review-patterns.py` (+ `.sh` / `.bat`)
 
 Harvest GitHub PR **line review comments** (including closed/merged PRs) from

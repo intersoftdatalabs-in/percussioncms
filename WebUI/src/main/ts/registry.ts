@@ -29,6 +29,8 @@ import { Dashboard, WorkflowStatusWidget, ActivityWidget, ProcessMonitorWidget, 
 import { HomeShell } from "./home";
 import { UnavailableView } from "./home/UnavailableView";
 import { WidgetBuilderApp } from "./widgetbuilder/WidgetBuilderApp";
+import { ContentExplorerShell } from "./contentExplorer/ContentExplorerShell";
+import { ContentBrowser } from "./contentBrowser/ContentBrowser";
 
 /** Map of component names to their React component types. */
 export const componentRegistry = new Map<string, ComponentType<any>>();
@@ -47,3 +49,5 @@ componentRegistry.set("TrafficWidget", TrafficWidget);
 componentRegistry.set("HomeShell", HomeShell);
 componentRegistry.set("WidgetBuilderApp", WidgetBuilderApp);
 componentRegistry.set("UnavailableView", UnavailableView);
+componentRegistry.set("ContentExplorerShell", ContentExplorerShell);
+componentRegistry.set("ContentBrowser", ContentBrowser);
