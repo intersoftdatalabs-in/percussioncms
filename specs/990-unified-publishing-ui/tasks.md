@@ -386,7 +386,7 @@ Start at **T001–T016** (setup + foundational), then **T017–T029** (US1) as f
 - [x] T124 [P] [US9] Packaging follow-up (RET-06): inventory remaining `WebUI/src/main/webapp/ui/publishing/**` and `ui/pubruntime/**` faces pages + `publishing-faces-config.xml` entries; delete or stop packaging exclusive deep pages after consumer check; update `checklists/removal-inventory.md`
 - [x] T125 [P] [US9] Document UAT evidence for SC-001 / SC-003 / SC-008 in `specs/990-unified-publishing-ui/checklists/uat-signoff.md` (or PR comment with environment + date)
 - [x] T126 [P] [US9] Review FR-020: ensure server/design save errors surface success/failure clearly (toasts/alerts) in `ServerEditor.tsx` / design editors; add test if missing
-- [ ] T127 [US9] Commit US9 + open PR (or push to #1370); resolve review threads
+- [x] T127 [US9] Commit US9 + open PR (or push to #1370); resolve review threads
 
 **Checkpoint**: Matrix OPS residual closed; packaging residual either Done or explicitly deferred with date owner.
 
