@@ -18,6 +18,7 @@ import React, { useState } from "react";
 import { message } from "../../i18n/message";
 import { WF_ADMIN_MSG } from "../messages";
 import { WorkflowStep, WorkflowStepList } from "./WorkflowStepList";
+import { WorkflowSiteAssign } from "./WorkflowSiteAssign";
 
 export interface WorkflowDefinition {
   name: string;
@@ -44,6 +45,7 @@ export const WorkflowEditor: React.FC<WorkflowEditorProps> = ({
   const [stagingRoleId, setStagingRoleId] = useState(workflow?.stagingRoleId || "");
   const [steps, setSteps] = useState<WorkflowStep[]>(workflow?.steps || []);
   const [error, setError] = useState<string | null>(null);
+  const [assignDialogOpen, setAssignDialogOpen] = useState<boolean>(false);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -67,6 +69,16 @@ export const WorkflowEditor: React.FC<WorkflowEditorProps> = ({
           {workflow ? message(WF_ADMIN_MSG.EDIT_WORKFLOW) : message(WF_ADMIN_MSG.CREATE_WORKFLOW)}
         </h3>
         <div>
+          {workflow && (
+            <button
+              type="button"
+              onClick={() => setAssignDialogOpen(true)}
+              style={{ marginRight: "8px" }}
+              data-testid="open-site-assign-button"
+            >
+              {message(WF_ADMIN_MSG.ASSIGN_SITES_FOLDERS)}
+            </button>
+          )}
           <button type="button" onClick={onCancel} style={{ marginRight: "8px" }}>
             {message(WF_ADMIN_MSG.CANCEL)}
           </button>
@@ -131,6 +143,13 @@ export const WorkflowEditor: React.FC<WorkflowEditorProps> = ({
       </div>
 
       <WorkflowStepList steps={steps} availableRoles={availableRoles} onChange={setSteps} />
+
+      {assignDialogOpen && workflow && (
+        <WorkflowSiteAssign
+          workflowName={workflow.name}
+          onClose={() => setAssignDialogOpen(false)}
+        />
+      )}
     </form>
   );
 };
