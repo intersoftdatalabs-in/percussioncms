@@ -49,14 +49,36 @@ export interface PSPathItem {
   folderPaths?: string[];
 }
 
+/**
+ * Wire shape of the sitemanage `PSPagedItemList` response.
+ *
+ * <p>Mirrors {@code projects/sitemanage/src/main/java/com/percussion/share/data/PSPagedItemList.java}:
+ * the server-side DTO has {@code @JsonRootName("PagedItemList")} and
+ * fields {@code childrenCount} (Integer), {@code startIndex} (Integer),
+ * {@code firstItemId} (String), {@code childrenInPage} (List<PSPathItem>).
+ * The root wrapper key is {@code PagedItemList}.</p>
+ *
+ * <p>Use {@link paginatedFolder} in {@code pathApi.ts} to get a normalized
+ * client-facing shape ({@code children}, {@code totalCount}, {@code startIndex})
+ * — the pathApi unwraps this wire shape.</p>
+ */
 export interface PSPagedItemList {
-  startIndex: number;
-  maxResults: number;
+  childrenCount?: number;
+  startIndex?: number;
+  firstItemId?: string;
+  childrenInPage?: PSPathItem[];
+}
+
+/**
+ * Client-facing paginated result returned by {@link paginatedFolder}.
+ *
+ * <p>This is a normalized shape (independent of the server wire format).
+ * Per-page array is under {@code children}; total under {@code totalCount}.</p>
+ */
+export interface PSPagedResult {
+  children: PSPathItem[];
   totalCount?: number;
-  /** paged children; field name follows server contract. */
-  children?: PSPathItem[];
-  /** Some server versions return `items` instead of `children`. */
-  items?: PSPathItem[];
+  startIndex: number;
 }
 
 export interface PSFolderPermission {
