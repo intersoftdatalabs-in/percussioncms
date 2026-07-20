@@ -218,6 +218,22 @@ export const PATHS = {
   get ROLE_AVAILABLE_USERS() {
     return `${SERVICES_ROOT}/rolemanagement/role/availableUsers`;
   },
+  /** Category tree management (categorymanagement) — Feature 993 */
+  get CATEGORY_ALL() {
+    return `${SERVICES_ROOT}/category/all`;
+  },
+  get CATEGORY_UPDATE() {
+    return `${SERVICES_ROOT}/category/update`;
+  },
+  get CATEGORY_LOCK_INFO() {
+    return `${SERVICES_ROOT}/category/lockinfo`;
+  },
+  get CATEGORY_LOCK_TAB() {
+    return `${SERVICES_ROOT}/category/locktab/`;
+  },
+  get CATEGORY_REMOVE_LOCK_TAB() {
+    return `${SERVICES_ROOT}/category/removelocktab`;
+  },
   /** Item workflow management (itemmanagement) — Feature 993 */
   get ITEM_WORKFLOW_TRANSITIONS() {
     return `${SERVICES_ROOT}/itemmanagement/workflow/getTransitions/`;

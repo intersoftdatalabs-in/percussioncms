@@ -96,4 +96,16 @@ export const WF_ADMIN_MSG = {
   IMPORT_SUCCESS: "perc.ui.users@Imported successfully.",
   PASSWORD_PLACEHOLDER: "perc.ui.users@Leave blank to keep current",
   NO_USERS_FOUND: "perc.ui.users@No users found",
+
+  // Categories - US6
+  CATEGORIES_TITLE: "perc.ui.categories@Categories",
+  ADD_CATEGORY: "perc.ui.categories@Add Category",
+  DELETE_CATEGORY: "perc.ui.categories@Delete Category",
+  CONFIRM_DELETE_CATEGORY: "perc.ui.categories@Are you sure you want to delete category \"{0}\"?",
+  LOCK_ACQUIRED_BY: "perc.ui.categories@Categories are locked by {0}.",
+  LOCK_TAB: "perc.ui.categories@Lock Tab",
+  REMOVE_LOCK: "perc.ui.categories@Remove Lock",
+  SELECTABLE: "perc.ui.categories@Selectable",
+  TITLE: "perc.ui.categories@Title",
+  CATEGORY_NAME_REQUIRED: "perc.ui.categories@Category name is required.",
 } as const;
