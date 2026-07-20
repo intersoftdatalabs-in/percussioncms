@@ -86,7 +86,7 @@ export const TasksSection: React.FC = () => {
   };
 
   const handleDelete = async (task: ScheduledTask) => {
-    if (!window.confirm(message(ADMIN_MSG.CONFIRM_DELETE_TASK).replace("{0}", task.name))) {
+    if (!window.confirm(message(ADMIN_MSG.CONFIRM_DELETE_TASK, [task.name]))) {
       return;
     }
     setError(null);
@@ -284,13 +284,37 @@ export const TasksSection: React.FC = () => {
               <label style={{ display: "block", fontWeight: 600, marginBottom: "4px" }}>
                 {message(ADMIN_MSG.TASK_TYPE)} (Extension Class)
               </label>
-              <input
-                type="text"
-                value={editingTask.extensionName || ""}
-                onChange={(e) => setEditingTask((prev) => ({ ...prev, extensionName: e.target.value }))}
-                style={{ width: "100%", padding: "8px", borderRadius: "4px", border: "1px solid #cbd5e1" }}
-                data-testid="task-type-input"
-              />
+              <select
+                value={
+                  ["com.percussion.services.schedule.impl.PSPurgeScheduledTaskLog", "com.percussion.services.schedule.impl.PSRunEdition", "com.percussion.services.schedule.impl.PSPurgeRevisions", "com.percussion.services.schedule.impl.PSRunCommand", "com.percussion.services.schedule.impl.PSPurgePublishingLog", "com.percussion.services.schedule.impl.PSPurgeExpiredLog"].includes(editingTask.extensionName || "")
+                    ? editingTask.extensionName
+                    : "custom"
+                }
+                onChange={(e) => {
+                  const val = e.target.value;
+                  setEditingTask((prev) => ({ ...prev, extensionName: val === "custom" ? "" : val }));
+                }}
+                style={{ width: "100%", padding: "8px", borderRadius: "4px", border: "1px solid #cbd5e1", marginBottom: "8px" }}
+                data-testid="task-type-select"
+              >
+                <option value="com.percussion.services.schedule.impl.PSPurgeScheduledTaskLog">Purge Scheduled Task Log</option>
+                <option value="com.percussion.services.schedule.impl.PSRunEdition">Run Edition</option>
+                <option value="com.percussion.services.schedule.impl.PSPurgeRevisions">Purge Revisions</option>
+                <option value="com.percussion.services.schedule.impl.PSRunCommand">Run Command</option>
+                <option value="com.percussion.services.schedule.impl.PSPurgePublishingLog">Purge Publishing Log</option>
+                <option value="com.percussion.services.schedule.impl.PSPurgeExpiredLog">Purge Expired Log</option>
+                <option value="custom">Custom...</option>
+              </select>
+              {(!["com.percussion.services.schedule.impl.PSPurgeScheduledTaskLog", "com.percussion.services.schedule.impl.PSRunEdition", "com.percussion.services.schedule.impl.PSPurgeRevisions", "com.percussion.services.schedule.impl.PSRunCommand", "com.percussion.services.schedule.impl.PSPurgePublishingLog", "com.percussion.services.schedule.impl.PSPurgeExpiredLog"].includes(editingTask.extensionName || "")) && (
+                <input
+                  type="text"
+                  placeholder="Enter fully-qualified class name"
+                  value={editingTask.extensionName || ""}
+                  onChange={(e) => setEditingTask((prev) => ({ ...prev, extensionName: e.target.value }))}
+                  style={{ width: "100%", padding: "8px", borderRadius: "4px", border: "1px solid #cbd5e1" }}
+                  data-testid="task-type-input"
+                />
+              )}
             </div>
 
             <div style={{ marginBottom: "12px" }}>

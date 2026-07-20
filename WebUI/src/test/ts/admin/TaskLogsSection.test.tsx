@@ -25,6 +25,10 @@ vi.mock("../../../main/ts/api/client", () => ({
   post: vi.fn(),
   put: vi.fn(),
   del: vi.fn(),
+  buildHeaders: vi.fn(),
+  parseBody: vi.fn(),
+  handleResponse: vi.fn(),
+  getCsrfToken: vi.fn(),
 }));
 
 describe("TaskLogsSection", () => {
@@ -47,7 +51,7 @@ describe("TaskLogsSection", () => {
     render(<TaskLogsSection />);
 
     await waitFor(() => {
-      expect(screen.getByTestId("perc-task-logs-section")).toBeTruthy();
+      expect(screen.getByTestId("perc-task-logs-section")).toBeDefined();
     });
     expect(screen.getByText("Success")).toBeTruthy();
     expect(screen.getByText("localhost")).toBeTruthy();
@@ -70,7 +74,7 @@ describe("TaskLogsSection", () => {
     render(<TaskLogsSection />);
 
     await waitFor(() => {
-      expect(screen.getByTestId("purge-logs-btn")).toBeTruthy();
+      expect(screen.getByTestId("purge-logs-btn")).toBeDefined();
     });
 
     vi.mocked(client.del).mockResolvedValue({});

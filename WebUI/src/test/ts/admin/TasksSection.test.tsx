@@ -25,6 +25,10 @@ vi.mock("../../../main/ts/api/client", () => ({
   post: vi.fn(),
   put: vi.fn(),
   del: vi.fn(),
+  buildHeaders: vi.fn(),
+  parseBody: vi.fn(),
+  handleResponse: vi.fn(),
+  getCsrfToken: vi.fn(),
 }));
 
 describe("TasksSection", () => {
@@ -50,7 +54,7 @@ describe("TasksSection", () => {
     render(<TasksSection />);
 
     await waitFor(() => {
-      expect(screen.getByTestId("perc-tasks-section")).toBeTruthy();
+      expect(screen.getByTestId("perc-tasks-section")).toBeDefined();
     });
     expect(screen.getByText("Logs Purge Task")).toBeTruthy();
     expect(screen.getByText("0 0 12 * * ?")).toBeTruthy();
@@ -67,12 +71,12 @@ describe("TasksSection", () => {
     render(<TasksSection />);
 
     await waitFor(() => {
-      expect(screen.getByTestId("create-task-btn")).toBeTruthy();
+      expect(screen.getByTestId("create-task-btn")).toBeDefined();
     });
 
     const createBtn = screen.getByTestId("create-task-btn");
     fireEvent.click(createBtn);
 
-    expect(screen.getByTestId("task-dialog")).toBeTruthy();
+    expect(screen.getByTestId("task-dialog")).toBeDefined();
   });
 });

@@ -246,16 +246,32 @@ public class PSTaskManagementService {
             task.setNotify((Boolean) payload.get("notify"));
         }
         if (payload.containsKey("notifyWhen")) {
-            task.setNotifyWhen(com.percussion.services.schedule.data.PSScheduledTask.NotifyWhen.valueOf((String) payload.get("notifyWhen")));
+            String val = (String) payload.get("notifyWhen");
+            try {
+                task.setNotifyWhen(com.percussion.services.schedule.data.PSScheduledTask.NotifyWhen.valueOf(val));
+            } catch (Exception e) {
+                throw new WebApplicationException(
+                    Response.status(Response.Status.BAD_REQUEST)
+                        .entity("Invalid notifyWhen value: " + val)
+                        .build()
+                );
+            }
         }
         if (payload.containsKey("server")) {
             task.setServer((String) payload.get("server"));
         }
         if (payload.containsKey("parameters")) {
-            Map<String, String> params = (Map<String, String>) payload.get("parameters");
-            task.getParameters().clear();
-            if (params != null) {
-                task.getParameters().putAll(params);
+            Object paramsObj = payload.get("parameters");
+            if (task.getParameters() != null) {
+                task.getParameters().clear();
+                if (paramsObj instanceof Map) {
+                    Map<?, ?> rawMap = (Map<?, ?>) paramsObj;
+                    for (Map.Entry<?, ?> entry : rawMap.entrySet()) {
+                        String key = String.valueOf(entry.getKey());
+                        String value = entry.getValue() != null ? String.valueOf(entry.getValue()) : null;
+                        task.getParameters().put(key, value);
+                    }
+                }
             }
         }
         if (payload.containsKey("notificationTemplateId")) {

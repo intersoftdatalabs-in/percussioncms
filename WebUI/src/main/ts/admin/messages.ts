@@ -49,7 +49,7 @@ export const ADMIN_MSG = {
   
   TEMPLATE_NAME: "perc.ui.admin@Template Name",
   SUBJECT: "perc.ui.admin@Subject",
-  BODY: "perc.ui.admin@BodyText",
+  BODY: "perc.ui.admin@Body",
   SAVE: "perc.ui.admin@Save",
   CANCEL: "perc.ui.admin@Cancel",
   LOADING: "perc.ui.admin@Loading...",
