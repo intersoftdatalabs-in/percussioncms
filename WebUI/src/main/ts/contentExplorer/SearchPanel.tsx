@@ -33,8 +33,9 @@
  *   <li>{@code ready} — has results (possibly empty).</li>
  *   <li>{@code error} — fetch rejected / server error; the
  *       {@code SearchStatusView} renders a Retry button that re-issues
- *       the last query via {@link SearchStatusView.onRetry} (or the
- *       inline {@link SearchPanel.runSearch} default).</li>
+ *       the last query. The handler is wired by the parent
+ *       {@link SearchPanel} (which owns the transport); see the
+ *       {@code onRetry} prop description in {@link SearchStatusView}.</li>
  * </ul>
  */
 
@@ -167,8 +168,12 @@ function SearchStatusView(props: {
   onOpen?: (r: PSItemProperties) => void;
   onReveal?: (r: PSItemProperties) => void;
   /** Re-issues the failed search. Optional to keep the helper pure; the
-   * parent {@link SearchPanel} wires its own {@link SearchPanel.runSearch}
-   * closure here so the parent stays the single owner of the transport.
+   * parent {@link SearchPanel} wires its own {@code runSearch} closure
+   * here so the parent stays the single owner of the transport.
+   *
+   * <p>(Plain-text reference; {@code SearchStatusView.onRetry} is a
+   * destructured prop parameter rather than a property of the function,
+   * so it cannot be the target of a {@code {@link ...}} tag.)</p>
    */
   onRetry?: () => void;
 }): React.JSX.Element {
