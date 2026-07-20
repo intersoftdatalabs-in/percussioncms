@@ -1,0 +1,183 @@
+/*
+ * Copyright 1999-2026 Percussion Software, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+import React, { useEffect, useState } from "react";
+import { get, post, put, del } from "../../api/client";
+import { PATHS } from "../../api/paths";
+import { message } from "../../i18n/message";
+import { WF_ADMIN_MSG } from "../messages";
+import { WorkflowDefinition, WorkflowEditor } from "./WorkflowEditor";
+
+export const WorkflowSection: React.FC = () => {
+  const [workflows, setWorkflows] = useState<WorkflowDefinition[]>([]);
+  const [availableRoles, setAvailableRoles] = useState<string[]>([]);
+  const [selectedWorkflow, setSelectedWorkflow] = useState<WorkflowDefinition | null>(null);
+  const [isEditing, setIsEditing] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  const loadData = async () => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const [wfList, roleList] = await Promise.all([
+        get<WorkflowDefinition[]>(PATHS.WORKFLOW_METADATA),
+        post<{ name: string }[]>(PATHS.ROLES_FIND, { name: "" }).catch(() => []),
+      ]);
+      setWorkflows(wfList || []);
+      setAvailableRoles((roleList || []).map((r) => r.name));
+    } catch (err) {
+      setError(message(WF_ADMIN_MSG.ERROR_GENERIC));
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    loadData();
+  }, []);
+
+  const handleCreate = () => {
+    setSelectedWorkflow(null);
+    setIsEditing(true);
+  };
+
+  const handleEdit = (wf: WorkflowDefinition) => {
+    setSelectedWorkflow(wf);
+    setIsEditing(true);
+  };
+
+  const handleDelete = async (wf: WorkflowDefinition) => {
+    if (wf.isDefault) {
+      alert("Cannot delete the system default workflow.");
+      return;
+    }
+    if (!confirm(`Are you sure you want to delete workflow "${wf.name}"?`)) return;
+
+    try {
+      await del(`${PATHS.WORKFLOWS}${encodeURIComponent(wf.name)}`);
+      await loadData();
+    } catch (err) {
+      alert("Failed to delete workflow.");
+    }
+  };
+
+  const handleSave = async (wf: WorkflowDefinition) => {
+    try {
+      if (selectedWorkflow) {
+        await put(`${PATHS.WORKFLOWS}${encodeURIComponent(wf.name)}`, wf);
+      } else {
+        await post(`${PATHS.WORKFLOWS}${encodeURIComponent(wf.name)}`, wf);
+      }
+      setIsEditing(false);
+      await loadData();
+    } catch (err) {
+      alert("Failed to save workflow.");
+    }
+  };
+
+  if (isLoading) {
+    return <div style={{ padding: "24px" }}>{message(WF_ADMIN_MSG.LOADING)}</div>;
+  }
+
+  if (isEditing) {
+    return (
+      <WorkflowEditor
+        workflow={selectedWorkflow}
+        availableRoles={availableRoles}
+        onSave={handleSave}
+        onCancel={() => setIsEditing(false)}
+      />
+    );
+  }
+
+  return (
+    <div className="perc-workflow-section" data-testid="perc-workflow-section">
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px" }}>
+        <h3>Workflows</h3>
+        <button
+          type="button"
+          className="perc-button-primary"
+          onClick={handleCreate}
+          data-testid="create-workflow-button"
+        >
+          {message(WF_ADMIN_MSG.CREATE_WORKFLOW)}
+        </button>
+      </div>
+
+      {error && (
+        <div style={{ color: "#d9534f", marginBottom: "16px", padding: "12px", background: "#fdf7f7" }}>
+          {error}
+        </div>
+      )}
+
+      <table className="perc-table" style={{ width: "100%", borderCollapse: "collapse" }}>
+        <thead>
+          <tr style={{ borderBottom: "2px solid #ccc", textAlign: "left" }}>
+            <th style={{ padding: "8px" }}>Name</th>
+            <th style={{ padding: "8px" }}>Default</th>
+            <th style={{ padding: "8px" }}>Staging Role</th>
+            <th style={{ padding: "8px", textAlign: "right" }}>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {workflows.length === 0 ? (
+            <tr>
+              <td colSpan={4} style={{ padding: "16px", textAlign: "center", color: "#666" }}>
+                No workflows found.
+              </td>
+            </tr>
+          ) : (
+            workflows.map((wf) => (
+              <tr key={wf.name} style={{ borderBottom: "1px solid #eee" }} data-testid={`workflow-row-${wf.name}`}>
+                <td style={{ padding: "8px", fontWeight: 600 }}>{wf.name}</td>
+                <td style={{ padding: "8px" }}>
+                  {wf.isDefault ? (
+                    <span style={{ background: "#5cb85c", color: "#fff", padding: "2px 8px", borderRadius: "10px", fontSize: "12px" }}>
+                      Default
+                    </span>
+                  ) : (
+                    "-"
+                  )}
+                </td>
+                <td style={{ padding: "8px" }}>{wf.stagingRoleId || <em>None</em>}</td>
+                <td style={{ padding: "8px", textAlign: "right" }}>
+                  <button
+                    type="button"
+                    onClick={() => handleEdit(wf)}
+                    style={{ marginRight: "8px" }}
+                    data-testid={`edit-wf-${wf.name}`}
+                  >
+                    Edit
+                  </button>
+                  <button
+                    type="button"
+                    disabled={wf.isDefault}
+                    onClick={() => handleDelete(wf)}
+                    style={{ color: wf.isDefault ? "#ccc" : "#d9534f" }}
+                    data-testid={`delete-wf-${wf.name}`}
+                  >
+                    Delete
+                  </button>
+                </td>
+              </tr>
+            ))
+          )}
+        </tbody>
+      </table>
+    </div>
+  );
+};

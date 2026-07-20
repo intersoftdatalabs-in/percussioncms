@@ -3,32 +3,32 @@
 **Prerequisites**: plan.md, spec.md, research.md, data-model.md, contracts/workflow-api.md, contracts/admin-api.md, quickstart.md
 
 ## Phase 1: Setup
-- [ ] T001 Identify owning module path(s) and read AGENTS hierarchy (root `AGENTS.md` and `WebUI/AGENTS.md`)
-- [ ] T002 Confirm branch JDK (JDK 21) and verify baseline tests in `WebUI/` (`cd WebUI && npm test`) and `perc-qa-automation/`
+- [x] T001 Identify owning module path(s) and read AGENTS hierarchy (root `AGENTS.md` and `WebUI/AGENTS.md`)
+- [x] T002 Confirm branch JDK (JDK 21) and verify baseline tests in `WebUI/` (`cd WebUI && npm test`) and `perc-qa-automation/`
 
 ## Phase 2: Foundational (Blocking Prerequisites)
-- [ ] T003 Map existing REST APIs and client stubs in `WebUI/src/main/ts/api/paths.ts` and `api/client.ts`
-- [ ] T004 Confirm CSRF token auto-injection and auth state wrappers in `WebUI/src/main/ts/api/client.ts`
-- [ ] T005 Add paths for workflows, roles, users, and categories to `WebUI/src/main/ts/api/paths.ts`
+- [x] T003 Map existing REST APIs and client stubs in `WebUI/src/main/ts/api/paths.ts` and `api/client.ts`
+- [x] T004 Confirm CSRF token auto-injection and auth state wrappers in `WebUI/src/main/ts/api/client.ts`
+- [x] T005 Add paths for workflows, roles, users, and categories to `WebUI/src/main/ts/api/paths.ts`
 
 ## Phase 3: User Story 1 — Manage Workflow Definitions (Priority: P1)
 **Goal**: Implement `WorkflowAdminShell` and the Workflow section allowing CRUD management of workflow definitions.
 **Independent Test**: Navigate to `/cm/app/index.jsp?view=workflow` and perform full CRUD on a workflow definition, verifying creation, step configuration, step reordering, default setting, and deletion rules.
 
 ### Tests
-- [ ] T006 [P] [US1] Unit test for `WorkflowAdminShell` container component in `WebUI/src/test/ts/workflowAdmin/WorkflowAdminShell.test.tsx`
-- [ ] T007 [P] [US1] Unit test for `WorkflowSection` and `WorkflowEditor` in `WebUI/src/test/ts/workflowAdmin/WorkflowSection.test.tsx`
-- [ ] T008 [P] [US1] Playwright E2E spec for workflow CRUD verification in `modules/perc-qa-automation/frontend/tests/us1-workflow-definitions.spec.js`
+- [x] T006 [P] [US1] Unit test for `WorkflowAdminShell` container component in `WebUI/src/test/ts/workflowAdmin/WorkflowAdminShell.test.tsx`
+- [x] T007 [P] [US1] Unit test for `WorkflowSection` and `WorkflowEditor` in `WebUI/src/test/ts/workflowAdmin/WorkflowSection.test.tsx`
+- [x] T008 [P] [US1] Playwright E2E spec for workflow CRUD verification in `modules/perc-qa-automation/frontend/tests/us1-workflow-definitions.spec.js`
 
 ### Implementation
-- [ ] T009 [P] [US1] Register `WorkflowAdminShell` in `WebUI/src/main/ts/registry.ts`
-- [ ] T010 [P] [US1] Define i18n TMX key mappings for workflow actions in `WebUI/src/main/ts/workflowAdmin/messages.ts`
-- [ ] T011 [P] [US1] Create the core shell wrapper `WebUI/src/main/ts/workflowAdmin/WorkflowAdminShell.tsx` with tab sections
-- [ ] T012 [P] [US1] Create the workflow section list view `WebUI/src/main/ts/workflowAdmin/workflow/WorkflowSection.tsx`
-- [ ] T013 [P] [US1] Create the workflow detail editor `WebUI/src/main/ts/workflowAdmin/workflow/WorkflowEditor.tsx` with CRUD forms
-- [ ] T014 [P] [US1] Create the step list and drag-reorder component `WebUI/src/main/ts/workflowAdmin/workflow/WorkflowStepList.tsx`
-- [ ] T015 [P] [US1] Add host JSP `WebUI/src/main/webapp/cm/app/adminWorkflowModern.jsp` to load modern bundle and mount `WorkflowAdminShell`
-- [ ] T016 [US1] Update `WebUI/src/main/webapp/cm/app/index.jsp` view map to route `workflow` to `adminWorkflowModern.jsp`
+- [x] T009 [P] [US1] Register `WorkflowAdminShell` in `WebUI/src/main/ts/registry.ts`
+- [x] T010 [P] [US1] Define i18n TMX key mappings for workflow actions in `WebUI/src/main/ts/workflowAdmin/messages.ts`
+- [x] T011 [P] [US1] Create the core shell wrapper `WebUI/src/main/ts/workflowAdmin/WorkflowAdminShell.tsx` with tab sections
+- [x] T012 [P] [US1] Create the workflow section list view `WebUI/src/main/ts/workflowAdmin/workflow/WorkflowSection.tsx`
+- [x] T013 [P] [US1] Create the workflow detail editor `WebUI/src/main/ts/workflowAdmin/workflow/WorkflowEditor.tsx` with CRUD forms
+- [x] T014 [P] [US1] Create the step list and drag-reorder component `WebUI/src/main/ts/workflowAdmin/workflow/WorkflowStepList.tsx`
+- [x] T015 [P] [US1] Add host JSP `WebUI/src/main/webapp/cm/app/adminWorkflowModern.jsp` to load modern bundle and mount `WorkflowAdminShell`
+- [x] T016 [US1] Update `WebUI/src/main/webapp/cm/app/index.jsp` view map to route `workflow` to `adminWorkflowModern.jsp`
 - [ ] T017 [US1] Commit changes and submit PR for review, pausing downstream tasks
 - [ ] T018 [US1] Monitor Kilo Code check, address feedback, and resolve comments (pause on check failure)
 - [ ] T019 [US1] Verify human approval and merge of PR before starting next story
