@@ -231,6 +231,12 @@ export const PATHS = {
   get ITEM_WORKFLOW_FORCE_CHECKOUT() {
     return `${SERVICES_ROOT}/itemmanagement/workflow/forceCheckOut/`;
   },
+  get ITEM_WORKFLOW_TRANSITION() {
+    return `${SERVICES_ROOT}/itemmanagement/workflow/transition/`;
+  },
+  get ITEM_WORKFLOW_TRANSITION_WITH_COMMENTS() {
+    return `${SERVICES_ROOT}/itemmanagement/workflow/transitionWithComments/`;
+  },
   /** Scheduled task management — Feature 993 */
   get SCHEDULED_TASKS() {
     return `${SERVICES_ROOT}/taskmanagement/tasks`;
