@@ -19,8 +19,8 @@
     "backbone": "^1.6.0",
     "bootstrap": "^5.3.8",
     "bowser": "^2.11.0",
-    "date-fns": "^4.1.0",
     "datatables.net": "^2.3.7",
+    "date-fns": "^4.1.0",
     "handlebars": "^4.7.9",
     "jquery": "^3.7.1",
     "jquery-form": "^4.3.0",
@@ -37,6 +37,7 @@
     "underscore": "^1.13.7"
   },
   "devDependencies": {
+    "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.0",
     "@types/react": "^19.1.4",
     "@types/react-dom": "^19.1.5",

@@ -106,4 +106,42 @@ export const PATHS = {
   get PUB_SERVERS() {
     return `${SERVICES_ROOT}/publishmanagement/servers/`;
   },
+  /** Sitemanage path management — used by ContentBrowser (US2). */
+  get PATH_PAGINATED_FOLDER() {
+    return `${SERVICES_ROOT}/pathmanagement/path/paginatedFolder`;
+  },
+  get PATH_ITEM() {
+    return `${SERVICES_ROOT}/pathmanagement/path/item`;
+  },
+  get PATH_ITEM_ID() {
+    return `${SERVICES_ROOT}/pathmanagement/path/item/id`;
+  },
+  get PATH_ADD_NEW_FOLDER() {
+    return `${SERVICES_ROOT}/pathmanagement/path/addNewFolder`;
+  },
+  get PATH_RENAME_FOLDER() {
+    return `${SERVICES_ROOT}/pathmanagement/path/renameFolder`;
+  },
+  get PATH_MOVE_ITEM() {
+    return `${SERVICES_ROOT}/pathmanagement/path/moveItem`;
+  },
+  get PATH_DELETE_ITEM() {
+    return `${SERVICES_ROOT}/pathmanagement/path/delete`;
+  },
+  get PATH_FOLDER_PROPERTIES() {
+    return `${SERVICES_ROOT}/pathmanagement/path/folderProperties`;
+  },
+  get PATH_SAVE_FOLDER_PROPERTIES() {
+    return `${SERVICES_ROOT}/pathmanagement/path/saveFolderProperties`;
+  },
+  get PATH_VALIDATE() {
+    return `${SERVICES_ROOT}/pathmanagement/path/validate`;
+  },
+  get PATH_LAST_EXISTING() {
+    return `${SERVICES_ROOT}/pathmanagement/path/lastExisting`;
+  },
+  /** Action menu (US3) — see capability-matrix.md P-Menu. */
+  get ACTIONS_ROOT() {
+    return `${SERVICES_ROOT}/actions`;
+  },
 } as const;
