@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { get } from "../../api/client";
 import { PATHS } from "../../api/paths";
 import { message } from "../../i18n/message";
@@ -31,6 +31,8 @@ interface SiteItem {
   folderPath: string;
 }
 
+type JobState = "idle" | "inProgress" | "complete" | "failed";
+
 export const WorkflowSiteAssign: React.FC<WorkflowSiteAssignProps> = ({
   workflowName,
   onClose,
@@ -38,54 +40,93 @@ export const WorkflowSiteAssign: React.FC<WorkflowSiteAssignProps> = ({
   const [sites, setSites] = useState<SiteItem[]>([]);
   const [selectedPath, setSelectedPath] = useState<string>("");
   const [customPath, setCustomPath] = useState<string>("");
-  const [jobInProgress, setJobInProgress] = useState<boolean>(false);
+  const [jobState, setJobState] = useState<JobState>("idle");
   const [jobStatusMsg, setJobStatusMsg] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
+  const pollIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
+    let isMounted = true;
     const fetchSites = async () => {
       try {
         const result = await get<SiteItem[]>(PATHS.SITES_ALL);
-        setSites(result || []);
+        if (isMounted) setSites(result || []);
       } catch {
-        // Fallback if sites list endpoint unavailable
-        setSites([]);
+        if (isMounted) setSites([]);
       } finally {
-        setIsLoading(false);
+        if (isMounted) setIsLoading(false);
       }
     };
     fetchSites();
+
+    return () => {
+      isMounted = false;
+      if (pollIntervalRef.current) {
+        clearInterval(pollIntervalRef.current);
+      }
+    };
   }, []);
 
   const handleStartAssignment = async () => {
     const targetPath = customPath.trim() || selectedPath;
     if (!targetPath) return;
 
-    setJobInProgress(true);
+    if (pollIntervalRef.current) {
+      clearInterval(pollIntervalRef.current);
+    }
+
+    setJobState("inProgress");
     setJobStatusMsg(message(WF_ADMIN_MSG.JOB_IN_PROGRESS));
 
     try {
       const encodedPath = encodeURIComponent(targetPath.replace(/^\//, ""));
+      // Legacy Percussion CMS PSFolderRestService contract defines job start endpoint as GET
       await get(`${PATHS.FOLDER_ASSIGNMENT_JOB_START}${encodeURIComponent(workflowName)}/${encodedPath}`);
       
       // Poll status
-      const interval = setInterval(async () => {
+      pollIntervalRef.current = setInterval(async () => {
         try {
           const status = await get<{ isInProgress: boolean }>(PATHS.FOLDER_ASSIGNMENT_JOB_STATUS);
           if (!status.isInProgress) {
-            clearInterval(interval);
-            setJobInProgress(false);
+            if (pollIntervalRef.current) clearInterval(pollIntervalRef.current);
+            setJobState("complete");
             setJobStatusMsg(message(WF_ADMIN_MSG.JOB_COMPLETE));
           }
         } catch {
-          clearInterval(interval);
-          setJobInProgress(false);
+          if (pollIntervalRef.current) clearInterval(pollIntervalRef.current);
+          setJobState("failed");
           setJobStatusMsg(message(WF_ADMIN_MSG.JOB_FAILED));
         }
       }, 1000);
     } catch {
-      setJobInProgress(false);
+      setJobState("failed");
       setJobStatusMsg(message(WF_ADMIN_MSG.JOB_FAILED));
+    }
+  };
+
+  const getStatusBgColor = () => {
+    switch (jobState) {
+      case "inProgress":
+        return "#e8f4f8";
+      case "failed":
+        return "#fdf7f7";
+      case "complete":
+        return "#eaf6ea";
+      default:
+        return "transparent";
+    }
+  };
+
+  const getStatusTextColor = () => {
+    switch (jobState) {
+      case "inProgress":
+        return "#007ea8";
+      case "failed":
+        return "#d9534f";
+      case "complete":
+        return "#2e7d32";
+      default:
+        return "inherit";
     }
   };
 
@@ -120,7 +161,7 @@ export const WorkflowSiteAssign: React.FC<WorkflowSiteAssignProps> = ({
               <label style={{ display: "block", fontWeight: 600, marginBottom: "4px" }}>Site</label>
               <select
                 value={selectedPath}
-                disabled={jobInProgress}
+                disabled={jobState === "inProgress"}
                 onChange={(e) => {
                   setSelectedPath(e.target.value);
                   setCustomPath("");
@@ -144,7 +185,7 @@ export const WorkflowSiteAssign: React.FC<WorkflowSiteAssignProps> = ({
               <input
                 type="text"
                 value={customPath}
-                disabled={jobInProgress}
+                disabled={jobState === "inProgress"}
                 placeholder="//Sites/MySite/folder"
                 onChange={(e) => {
                   setCustomPath(e.target.value);
@@ -161,8 +202,8 @@ export const WorkflowSiteAssign: React.FC<WorkflowSiteAssignProps> = ({
           <div
             style={{
               padding: "10px",
-              background: jobInProgress ? "#e8f4f8" : jobStatusMsg.includes("failed") ? "#fdf7f7" : "#eaf6ea",
-              color: jobInProgress ? "#007ea8" : jobStatusMsg.includes("failed") ? "#d9534f" : "#2e7d32",
+              background: getStatusBgColor(),
+              color: getStatusTextColor(),
               marginBottom: "16px",
               borderRadius: "4px",
             }}
@@ -173,14 +214,14 @@ export const WorkflowSiteAssign: React.FC<WorkflowSiteAssignProps> = ({
         )}
 
         <div style={{ display: "flex", justifyContent: "flex-end", gap: "8px" }}>
-          <button type="button" onClick={onClose} disabled={jobInProgress}>
+          <button type="button" onClick={onClose} disabled={jobState === "inProgress"}>
             {message(WF_ADMIN_MSG.CANCEL)}
           </button>
           <button
             type="button"
             className="perc-button-primary"
             onClick={handleStartAssignment}
-            disabled={jobInProgress || (!selectedPath && !customPath)}
+            disabled={jobState === "inProgress" || (!selectedPath && !customPath)}
             data-testid="start-assignment-button"
           >
             {message(WF_ADMIN_MSG.START_JOB)}
