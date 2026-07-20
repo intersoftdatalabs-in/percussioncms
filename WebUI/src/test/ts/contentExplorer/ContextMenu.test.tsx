@@ -18,6 +18,7 @@ import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import type { MenuAction } from "../../../main/ts/api/contentExplorer/types";
 import { ContextMenu } from "../../../main/ts/contentExplorer/ContextMenu";
+import { renderA11yGate } from "./a11y";
 
 const ACTIONS: MenuAction[] = [
   { name: "open", label: "Open", sortRank: 10, menuType: "MENUITEM" },
@@ -215,5 +216,10 @@ describe("ContextMenu", () => {
     fireEvent.click(screen.getByTestId("context-menu-item-open"));
     // No fallback because the URL passed the guard.
     expect(onInvoke).not.toHaveBeenCalled();
+  });
+
+  it("passes the zero serious/critical axe-core gate (default-rendered with menuitems)", async () => {
+    const { baseElement } = render(<ContextMenu actions={ACTIONS} />);
+    await renderA11yGate(baseElement);
   });
 });

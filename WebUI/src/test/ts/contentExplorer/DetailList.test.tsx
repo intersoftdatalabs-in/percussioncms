@@ -19,6 +19,7 @@ import { describe, expect, it } from "vitest";
 import { DetailList } from "../../../main/ts/contentExplorer/DetailList";
 import type { PSPathItem } from "../../../main/ts/api/contentExplorer/types";
 import { mockFetch } from "./setup";
+import { renderA11yGate } from "./a11y";
 
 const CHILDREN: PSPathItem[] = [
   {
@@ -165,5 +166,23 @@ describe("DetailList", () => {
     await waitFor(() =>
       expect(screen.getByRole("alert")).toHaveTextContent(/Failed to load/),
     );
+  });
+
+  it("passes the zero serious/critical axe-core gate (populated state)", async () => {
+    mockFetch(async () =>
+      new Response(JSON.stringify({ children: CHILDREN, totalCount: CHILDREN.length }), {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      }),
+    );
+    const { container } = render(
+      <DetailList
+        folderPath="/Sites/Foo"
+        selectedItemId="p-1"
+        onSelectItem={() => undefined}
+      />,
+    );
+    await waitFor(() => expect(screen.getAllByTestId(/^detail-row-/).length).toBeGreaterThan(0));
+    await renderA11yGate(container);
   });
 });

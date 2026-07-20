@@ -18,6 +18,7 @@ import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import type { MenuAction } from "../../../main/ts/api/contentExplorer/types";
 import { ActionToolbar } from "../../../main/ts/contentExplorer/ActionToolbar";
+import { renderA11yGate } from "./a11y";
 
 const ACTIONS: MenuAction[] = [
   { name: "open", label: "Open", sortRank: 0, menuType: "MENUITEM" },
@@ -51,5 +52,15 @@ describe("ActionToolbar", () => {
     expect(screen.getByRole("toolbar").getAttribute("aria-label")).toBe(
       "Item actions",
     );
+  });
+
+  it("passes the zero serious/critical axe-core gate (populated state)", async () => {
+    const { container } = render(<ActionToolbar actions={ACTIONS} ariaLabel="Item actions" />);
+    await renderA11yGate(container);
+  });
+
+  it("passes the zero serious/critical axe-core gate (empty state)", async () => {
+    const { container } = render(<ActionToolbar actions={[]} ariaLabel="Item actions" />);
+    await renderA11yGate(container);
   });
 });

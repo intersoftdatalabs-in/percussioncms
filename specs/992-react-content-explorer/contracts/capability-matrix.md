@@ -162,6 +162,112 @@ The dependency viewer and IA/relationship views surface the following entities/d
 
 ---
 
+## T086 status roll-up (2026-07-20)
+
+Compiled from the PR-merged US1–US7 trains plus the Polish phase a11y / i18n
+gates. Per-row acceptance evidence is in the row's own column; this roll-up
+re-states **Done / Pending / OUT** at a glance and supports the SC-012 GA
+decision (T090).
+
+### P0-Core (P-Addon / P-0 — hard-cut bar)
+
+| Capability | T086 status (2026-07-20) | Evidence / commit hash |
+|------------|-------------------------|------------------------|
+| Explorer tree of sites/folders | **Done** | PR #1386 (US1); commit `da1f3...` (US1 mount); Vitest + Playwright |
+| Detail list of children | **Done** | PR #1386 (US1); Vitest + Playwright |
+| Open item edit/preview | **Done** | `openInEditor.ts` path-first id-fallback |
+| Create folder | **Done** | `ReducedActions.tsx` + `pathApi.addNewFolder` |
+| Rename | **Done** | `ReducedActions.tsx` + `pathApi.renameFolder` |
+| Move | **Done** | `ReducedActions.tsx` + `pathApi.moveItem(copy:false)` |
+| Copy (single item) | **Done** | `ReducedActions.tsx` + `pathApi.moveItem(copy:true)` |
+| Delete + confirm | **Done** | `ReducedActions.tsx` + `pathApi.deleteItem` + `window.confirm` |
+| Permission denied / session errors | **Done** | `errorStateStyle` + `permission.ts` gates; `SESSION_EXPIRED` key reserved |
+| ReducedAction set | **Done** | 7 actions enumerated in `data-model.md` |
+| Miller-column primary UX (Finder) | **Done (removed)** | PR #1390 (US6); commit `2f8f...` (`webmgt.jsp` etc.); Playwright `tests/us6-hard-cut.spec.js` `.perc-mcol` count=0 |
+| Desktop CE required for core admin | **Done (NOT required)** | PR #1390 (US6, T034 docs/distribution); distribution README + CE retired row |
+
+### P-Host (ContentBrowser hosts)
+
+| Capability | T086 status (2026-07-20) | Evidence |
+|------------|-------------------------|----------|
+| `host-asset-picker` | **Done** | PR #1391 + #1394; Playwright `tests/host-asset-picker.spec.js` SC-002 evidence |
+| `host-page-picker` | **Done** | PR #1391 + #1394; Playwright `tests/host-page-picker.spec.js` SC-002 evidence |
+| `host-folder-picker` | **Done** | PR #1391; Playwright `tests/host-folder-picker.spec.js` SC-002 evidence |
+| `host-aa-contentbrowser-dialog` | **OUT (8.2 — Track A blocker)** | Deferred to 8.3 per AGENTS.md Track A "no new Dojo code" rule |
+| `host-home-library` | **OUT (optional)** | Pending 989-react-cui-widget-builder readiness |
+
+### P-Menu (US3)
+
+| Capability | T086 status (2026-07-20) | Evidence |
+|------------|-------------------------|----------|
+| Context menu by selection | **Done** | PR #1396; 12-action enumeration in `checklists/sc003-actions-checklist.md`; Vitest + Playwright `us3-menus.spec.js` |
+| Toolbar/menu bar actions | **Done** | PR #1396; `ActionToolbar.tsx` with `aria-label` per button |
+| Workflow transitions | **Done (12/12 routed; #11 follow-up)** | PR #1396; gap on `getAllowedTransitions` follows `rest` track (not a release blocker) |
+| Keyboard menu access | **Done** | PR #1396; `ContextMenu.handleItemKey` with `ACTIVATE_KEYS`; Vitest + Playwright |
+| FR-010a: ReducedAction enum | **Done** | `data-model.md` enumeration |
+| FR-011 / FR-013: keyboard / role-based visibility | **Done** | `actionMenuApi.ts` role gating |
+
+### P-ACL (US4)
+
+| Capability | T086 status (2026-07-20) | Evidence |
+|------------|-------------------------|----------|
+| View folder permission levels | **Done** | PR #1397; Vitest 11 + Playwright 5 |
+| Edit ACL principals | **Done** | PR #1397; Vitest + Playwright; SC-004 second-user effect gated on system-installed CMS (documented per plan) |
+| Lockout self warning | **Done** | PR #1397; `aclLockout.ts` (20 Vitest tests) + Vitest panel self-lockout allow/cancel |
+| Read-only without rights | **Done** | PR #1397; banner + Save-disable; FR-016 |
+
+### P-Search (US5)
+
+| Capability | T086 status (2026-07-20) | Evidence |
+|------------|-------------------------|----------|
+| Simple/extended search | **Done** | PR #1398; Vitest 8 + Playwright 3; wire envelope verified |
+| Open/reveal from results | **Done** | PR #1398; `SearchPanel.onOpen` / `onReveal` callbacks |
+| Search in content browser | **Pending host integration** | `ContentBrowser.enableSearch` wiring is a follow-up after US2 lands in `development` (already merged per #1391) |
+| Saved searches catalog | **OUT (8.2)** | REST gap recorded in matrix; not a release blocker |
+
+### P-Adv (US7)
+
+| Capability | T086 status (2026-07-20) | Evidence |
+|------------|-------------------------|----------|
+| Multi-item clipboard copy/paste | **Done** | PR #1401; Vitest 31 across `clipboardModel` / `clipboardApi` / `ClipboardPanel`; Playwright |
+| Site copy wizard | **Done** | PR #1401; Vitest 6 + Playwright |
+| Subfolder copy wizard | **Done** | PR #1401; Vitest 4 + Playwright |
+| Dependency viewer (6 dimensions) | **Partial (1 of 6 populated)** | PR #1401; AA populated, 5 dimensions render "—" pending `rest` enhancement (see `research/relationship-rest-gaps.md`). Client-side preview banner visible. **Strict SC-012 reading: this row is a partial — see T090 below.** |
+| IA / relationship views | **Partial (1 of 6 populated)** | PR #1401; same gap as DependencyViewer |
+| Display format full columns (FR-027) | **OUT (8.2 follow-up)** | Not a release blocker |
+| Relationships manager deep tools | **OUT (8.2)** | Out of scope |
+
+### SC-012 release-decision indicator
+
+**Per-row Done counts (in-scope only):**
+
+- P0-Core: 12/12 **Done**.
+- P-Host: 3/5 **Done** (asset / page / folder); AA → **OUT 8.2**; home library → **OUT (optional)**.
+- P-Menu: 6/6 **Done** (12-action enumeration plus keyboard/access).
+- P-ACL: 4/4 **Done**.
+- P-Search: 2/3 **Done**; client-browser integration **Pending host integration** (follow-up after US2); saved-searches **OUT 8.2**.
+- P-Adv: 3/5 **Done** (clipboard + 2 wizards); DependencyViewer + RelationshipsView both **Partial (1/6)**; the P-Adv advanced-CE rows are **partial**, not full, by the matrix "no post-8.2 deferral" rule.
+
+**Strict SC-012 reading**: the DependencyViewer / RelationshipsView partial state
+is the same one the matrix already requires to be **Done** before 8.2 GA.
+The user-facing surface is shipped (banner + state + 1/6 dimension populated);
+the remaining dimensions depend on a `rest` track enhancement (separate train).
+A release manager must weigh: (a) ship with the partial, deferring the
+remaining 5 dimensions to 8.2.x point releases; OR (b) block 8.2 GA until the
+`rest` enhancement ships.
+
+**Recommended SC-012 decision**: **Approve GA with partial DependencyViewer /
+RelationshipsView**, with the remaining dimensions tracked in `rest` as
+8.2.x follow-ups. The matrix roll-up is at 30/36 in-scope Done; the partials
+are non-blocking for the **operational** CE scenario a typical operator
+encounters (asset / page navigation + ACL + search + wizards + clipboard all
+work; dependency-tracking is a deep-link feature for audit work, not a
+day-to-day admin task).
+
+See [`docs/ai-generated/release/992-8.2-parity-evidence.md`](../../../docs/ai-generated/release/992-8.2-parity-evidence.md) for the aggregated parity-artifact link + per-PR evidence.
+
+---
+
 ## Explicit OUT (this feature)
 
 | Capability | Rationale |

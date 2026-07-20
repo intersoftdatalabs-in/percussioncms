@@ -37,6 +37,7 @@
 
 const { test, expect } = require("@playwright/test");
 const { loginAsAdmin, BASE_URL } = require("./helpers/auth");
+const { expectNoSeriousA11yViolations } = require("./helpers/a11y");
 
 /**
  * Build the pilot page URL with a per-test cache-buster so consecutive
@@ -104,5 +105,14 @@ test.describe("US4 P-ACL — folder security panel (SC-004)", () => {
     await expect(root).toBeVisible({ timeout: 15_000 });
     // The legacy miller-column Finder chrome should still be absent.
     await expect(page.locator(".perc-mcol")).toHaveCount(0);
+  });
+
+  test("axe-core a11y gate — FolderSecurityPanel (T082b)", async ({ page }) => {
+    await page.goto(aclUrl("1"), { waitUntil: "networkidle" });
+    const root = page.locator('[data-testid="perc-folder-security-root"]');
+    await expect(root).toBeVisible({ timeout: 15_000 });
+    await expectNoSeriousA11yViolations(page, {
+      scope: '[data-testid="perc-folder-security-root"], [data-testid="folder-security-panel"]',
+    });
   });
 });

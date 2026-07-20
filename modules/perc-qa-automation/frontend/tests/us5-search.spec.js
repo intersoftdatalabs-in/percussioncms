@@ -46,6 +46,7 @@
 
 const { test, expect } = require("@playwright/test");
 const { loginAsAdmin, BASE_URL } = require("./helpers/auth");
+const { expectNoSeriousA11yViolations } = require("./helpers/a11y");
 
 const SEARCH_URL = `${BASE_URL}/Rhythmyx/cm/app/searchModern.jsp?_=${Date.now()}`;
 
@@ -88,5 +89,19 @@ test.describe("US5 P-Search \u2014 search panel (FR-017)", () => {
         )
         .first(),
     ).toBeVisible({ timeout: 15_000 });
+  });
+
+  test("axe-core a11y gate — SearchPanel mounted with no Finder chrome (T082b)", async ({
+    page,
+  }) => {
+    await page.goto(SEARCH_URL, { waitUntil: "networkidle" });
+    await expect(
+      page.locator('[data-testid="perc-search-root"]').first(),
+    ).toBeVisible({ timeout: 15_000 });
+    // Confirm legacy Finder chrome is absent (echo of US6 expectation).
+    await expect(page.locator(".perc-mcol")).toHaveCount(0);
+    await expectNoSeriousA11yViolations(page, {
+      scope: '[data-testid="perc-search-root"], [data-testid="search-panel"]',
+    });
   });
 });

@@ -12,6 +12,7 @@ import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import type { PSMoveFolderItem } from "../../../main/ts/api/contentExplorer/types";
 import { SubfolderCopyWizard } from "../../../main/ts/contentExplorer/wizards/SubfolderCopyWizard";
+import { renderA11yGate } from "./a11y";
 
 describe("SubfolderCopyWizard", () => {
   it("renders at step 0 (source) with source field", () => {
@@ -71,5 +72,10 @@ describe("SubfolderCopyWizard", () => {
     expect(screen.getByTestId("subfolder-copy-progress").textContent).toContain(
       "mock fail",
     );
+  });
+
+  it("passes the zero serious/critical axe-core gate (step 0)", async () => {
+    const { container } = render(<SubfolderCopyWizard />);
+    await renderA11yGate(container);
   });
 });

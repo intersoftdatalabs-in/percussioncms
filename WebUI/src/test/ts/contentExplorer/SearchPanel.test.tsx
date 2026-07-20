@@ -21,6 +21,7 @@ import type {
   PSSearchResults,
 } from "../../../main/ts/api/contentExplorer/types";
 import { SearchPanel } from "../../../main/ts/contentExplorer/SearchPanel";
+import { renderA11yGate } from "./a11y";
 
 function makeResults(children: PSItemProperties[]): PSSearchResults {
   return { children, totalCount: children.length, startIndex: 0 };
@@ -163,5 +164,39 @@ describe("SearchPanel", () => {
     const search = vi.fn();
     render(<SearchPanel search={search} />);
     expect(search).not.toHaveBeenCalled();
+  });
+
+  it("passes the zero serious/critical axe-core gate (idle state)", async () => {
+    const { container } = render(<SearchPanel />);
+    await renderA11yGate(container);
+  });
+
+  it("passes the zero serious/critical axe-core gate (results state)", async () => {
+    const search = vi.fn().mockResolvedValue(makeResults(ONE_ROW));
+    const { container } = render(<SearchPanel search={search} />);
+    fireEvent.change(screen.getByTestId("search-panel-input"), {
+      target: { value: "Welcome" },
+    });
+    fireEvent.click(screen.getByTestId("search-panel-submit"));
+    await waitFor(() => {
+      expect(screen.getByTestId("search-panel-results")).toBeTruthy();
+    });
+    await renderA11yGate(container);
+  });
+
+  it("passes the zero serious/critical axe-core gate (error state with retry)", async () => {
+    const search = vi.fn().mockRejectedValue(new Error("boom"));
+    const onRetry = vi.fn();
+    const { container } = render(
+      <SearchPanel search={search} onRetry={onRetry} />,
+    );
+    fireEvent.change(screen.getByTestId("search-panel-input"), {
+      target: { value: "anything" },
+    });
+    fireEvent.click(screen.getByTestId("search-panel-submit"));
+    await waitFor(() => {
+      expect(screen.getByTestId("search-panel-retry")).toBeTruthy();
+    });
+    await renderA11yGate(container);
   });
 });

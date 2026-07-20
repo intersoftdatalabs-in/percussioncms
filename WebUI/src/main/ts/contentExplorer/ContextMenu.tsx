@@ -124,13 +124,16 @@ export function ContextMenu(props: ContextMenuProps): React.JSX.Element {
           (No actions)
         </div>
       ) : (
-        <ul style={{ listStyle: "none", padding: 0, margin: 0 }}>
+        <ul
+          role="presentation"
+          style={{ listStyle: "none", padding: 0, margin: 0 }}
+        >
           {actions.map((action) => {
             const isPivot = (action.children?.length ?? 0) > 0;
             const expanded = openPivot === action.name;
             const submenuId = `${baseId}-${action.name}-submenu`;
             return (
-              <li key={action.name}>
+              <li key={action.name} role="none">
                 <div
                   role="menuitem"
                   tabIndex={0}
@@ -146,9 +149,7 @@ export function ContextMenu(props: ContextMenuProps): React.JSX.Element {
                       activate(action, baseHref, onInvoke);
                     }
                   }}
-                  onKeyDown={(e) =>
-                    handleItemKey(e, action, isPivot, expanded)
-                  }
+                  onKeyDown={(e) => handleItemKey(e, action, isPivot, expanded)}
                   style={{ padding: "4px 8px", cursor: "pointer" }}
                 >
                   {action.label}
@@ -167,7 +168,11 @@ export function ContextMenu(props: ContextMenuProps): React.JSX.Element {
                     }}
                   >
                     {action.children.map((c) => (
-                      <li key={c.name} style={{ padding: "2px 4px" }}>
+                      <li
+                        key={c.name}
+                        role="none"
+                        style={{ padding: "2px 4px" }}
+                      >
                         <div
                           role="menuitem"
                           tabIndex={0}

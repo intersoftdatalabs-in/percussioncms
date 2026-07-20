@@ -11,6 +11,7 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 import { DependencyViewer } from "../../../main/ts/contentExplorer/views/DependencyViewer";
+import { renderA11yGate } from "./a11y";
 
 describe("DependencyViewer", () => {
   it("renders the 6 dimension rows for a page item", () => {
@@ -40,5 +41,12 @@ describe("DependencyViewer", () => {
   it("shows the client-side preview banner", () => {
     render(<DependencyViewer item={{ id: "x" }} />);
     expect(screen.getByTestId("dependency-client-side-preview")).toBeTruthy();
+  });
+
+  it("passes the zero serious/critical axe-core gate", async () => {
+    const { container } = render(
+      <DependencyViewer item={{ id: "x", folderPath: "/p" }} aaLinkCount={3} />
+    );
+    await renderA11yGate(container);
   });
 });

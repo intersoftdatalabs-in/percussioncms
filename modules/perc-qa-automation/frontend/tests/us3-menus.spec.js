@@ -43,6 +43,7 @@
 
 const { test, expect } = require("@playwright/test");
 const { loginAsAdmin, BASE_URL } = require("./helpers/auth");
+const { expectNoSeriousA11yViolations } = require("./helpers/a11y");
 
 const MENU_URL = `${BASE_URL}/Rhythmyx/cm/app/actionMenuModern.jsp?_=${Date.now()}`;
 
@@ -132,5 +133,17 @@ test.describe("US3 P-Menu — action toolbar / context menu (SC-003)", () => {
     await page.keyboard.press(" ");
     const result = page.locator('[data-testid="perc-action-menu-result"]');
     await expect(result).toHaveText(/Invoked: preview/);
+  });
+
+  test("axe-core a11y gate — ActionToolbar with role+aria-label (T082b)", async ({
+    page,
+  }) => {
+    await page.goto(MENU_URL, { waitUntil: "networkidle" });
+    await expect(
+      page.locator('[role="toolbar"], [data-testid="perc-action-toolbar"]').first(),
+    ).toBeVisible({ timeout: 15_000 });
+    await expectNoSeriousA11yViolations(page, {
+      scope: '[data-testid="perc-action-toolbar"], [role="toolbar"]',
+    });
   });
 });

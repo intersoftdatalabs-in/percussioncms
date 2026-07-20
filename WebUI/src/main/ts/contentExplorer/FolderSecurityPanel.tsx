@@ -169,7 +169,9 @@ export function FolderSecurityPanel(
       .catch((err: unknown) => {
         if (cancelled) return;
         const msg =
-          err instanceof Error ? err.message : message(EXPLORER_MSG.ERROR_GENERIC);
+          err instanceof Error
+            ? err.message
+            : message(EXPLORER_MSG.ERROR_GENERIC);
         setStatus({ kind: "error", message: msg });
       });
     return () => {
@@ -177,7 +179,9 @@ export function FolderSecurityPanel(
     };
   }, [folderId, initial, load]);
 
-  function patchProps(updater: (p: PSFolderProperties) => PSFolderProperties): void {
+  function patchProps(
+    updater: (p: PSFolderProperties) => PSFolderProperties,
+  ): void {
     if (status.kind !== "ready") return;
     setStatus({ ...status, props: updater(status.props), dirty: true });
   }
@@ -202,9 +206,7 @@ export function FolderSecurityPanel(
       try {
         const proceed = confirmLockout
           ? await confirmLockout(lockoutLevels[0]!.level, currentUserIdentities)
-          : window.confirm(
-              message(EXPLORER_MSG.SECURITY_LOCKOUT_WARNING_BODY),
-            );
+          : window.confirm(message(EXPLORER_MSG.SECURITY_LOCKOUT_WARNING_BODY));
         if (!proceed) return;
       } catch (err: unknown) {
         // Host-supplied confirmLockout threw; treat rejection-from-confirm
@@ -228,7 +230,9 @@ export function FolderSecurityPanel(
       onSaved?.(current);
     } catch (err: unknown) {
       const msg =
-        err instanceof Error ? err.message : message(EXPLORER_MSG.SECURITY_SAVE_ERROR);
+        err instanceof Error
+          ? err.message
+          : message(EXPLORER_MSG.SECURITY_SAVE_ERROR);
       setStatus({ kind: "error", message: msg });
     } finally {
       setPendingSave(false);
@@ -355,17 +359,17 @@ function PrincipalListEditor(props: {
       style={{ border: "1px solid #ccc", padding: 8, marginBottom: 8 }}
     >
       <legend>{draft.label}</legend>
-      <ul style={{ listStyle: "none", padding: 0, margin: 0 }}>
-        {draft.principals.length === 0 ? (
-          <li
-            role="presentation"
-            data-testid={`folder-security-list-${draft.level}-empty`}
-            style={{ color: "#888" }}
-          >
-            (none)
-          </li>
-        ) : (
-          draft.principals.map((p, idx) => (
+      {draft.principals.length === 0 ? (
+        <div
+          role="status"
+          data-testid={`folder-security-list-${draft.level}-empty`}
+          style={{ color: "#888" }}
+        >
+          (none)
+        </div>
+      ) : (
+        <ul style={{ listStyle: "none", padding: 0, margin: 0 }}>
+          {draft.principals.map((p, idx) => (
             <li
               key={`${p.type}:${p.name}`}
               style={{ display: "flex", gap: 8, alignItems: "center" }}
@@ -377,18 +381,16 @@ function PrincipalListEditor(props: {
                 type="button"
                 disabled={!editable}
                 onClick={() =>
-                  onChange(
-                    draft.principals.filter((_, i) => i !== idx),
-                  )
+                  onChange(draft.principals.filter((_, i) => i !== idx))
                 }
                 data-testid={`folder-security-list-${draft.level}-remove-${p.name}`}
               >
                 {message(EXPLORER_MSG.SECURITY_PRINCIPAL_REMOVE)}
               </button>
             </li>
-          ))
-        )}
-      </ul>
+          ))}
+        </ul>
+      )}
       {editable ? (
         adding ? (
           <div style={{ display: "flex", gap: 8, marginTop: 8 }}>
@@ -416,7 +418,8 @@ function PrincipalListEditor(props: {
                 };
                 if (
                   draft.principals.some(
-                    (p) => p.name === principal.name && p.type === principal.type,
+                    (p) =>
+                      p.name === principal.name && p.type === principal.type,
                   )
                 ) {
                   setAdding(false);
@@ -456,4 +459,3 @@ function PrincipalListEditor(props: {
     </fieldset>
   );
 }
-

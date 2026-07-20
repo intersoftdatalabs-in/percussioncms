@@ -11,6 +11,7 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 import { RelationshipsView } from "../../../main/ts/contentExplorer/views/RelationshipsView";
+import { renderA11yGate } from "./a11y";
 
 describe("RelationshipsView", () => {
   it("renders the 4 IA-primary rows + a supplementary details panel for AA / reverse", () => {
@@ -32,5 +33,12 @@ describe("RelationshipsView", () => {
   it("shows the client-side preview banner", () => {
     render(<RelationshipsView item={{ id: "x" }} />);
     expect(screen.getByTestId("relationships-client-side-preview")).toBeTruthy();
+  });
+
+  it("passes the zero serious/critical axe-core gate", async () => {
+    const { container } = render(
+      <RelationshipsView item={{ id: "x", folderPath: "/p" }} aaLinkCount={3} />
+    );
+    await renderA11yGate(container);
   });
 });
