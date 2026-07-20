@@ -65,7 +65,7 @@
     views.put("design", "admin.jsp");
     views.put("arch", "siteArchitecture.jsp");
     views.put("editor", "webmgt.jsp");
-    views.put("publish", "publish.jsp");
+    views.put("publish", "publishModern.jsp");
     views.put("workflow", "adminWorkflow.jsp");
     views.put("editTemplate", "editTemplate.jsp");
     views.put("widgetbuilder", "widgetBuilderModern.jsp");

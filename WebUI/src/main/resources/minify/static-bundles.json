@@ -177,10 +177,7 @@
         "services/PercUtilService.js",
         "services/PercSiteService.js",
         "services/PercWorkflowService.js",
-        "views/PercPublishMinuetView.js",
         "views/PercNavigationMinuetView.js",
-        "views/PercPublishStatusMinuetView.js",
-        "views/PercPublishLogsMinuetView.js",
         "services/PercUserService.js",
         "plugins/PercChangePasswordMinuet.js"
       ]

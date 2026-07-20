@@ -123,6 +123,7 @@ http://cxf.apache.org/schemas/jaxrs.xsd">
             <ref bean="sitePublishStatusService"/>
             <ref bean="monitorService"/>
             <ref bean="publishStagingService"/>
+            <ref bean="publishingDesignRestService"/>
         </jaxrs:serviceBeans>
         <jaxrs:extensionMappings>
             <entry key="json" value="application/json"/>
@@ -1292,6 +1293,9 @@ http://cxf.apache.org/schemas/jaxrs.xsd">
          </constructor-arg>
      </bean>
     -->
+    <!-- Feature 990: Design/Runtime JSON façade (also scanned via @PSSiteManageBean). -->
+    <bean id="publishingDesignRestService"
+          class="com.percussion.publishingdesign.impl.PSPublishingDesignRestService"/>
     <!--  Folder UI Management  -->
     <!--
      <bean id="folderService" class="com.percussion.foldermanagement.service.impl.PSFolderService" autowire="constructor">

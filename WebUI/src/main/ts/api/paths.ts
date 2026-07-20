@@ -77,42 +77,33 @@ export const PATHS = {
   get WIDGET_BUILDER() {
     return `${SERVICES_ROOT}/widgetmanagement/widgetbuilder`;
   },
-  // --- Content Explorer (992-react-content-explorer) ---
-  get PATH_PAGINATED_FOLDER() {
-    return `${SERVICES_ROOT}/pathmanagement/path/paginatedFolder`;
+  /** Site publish / status (sitemanage) — see specs/990-unified-publishing-ui/research/ops-path-inventory.md */
+  get SITE_PUBLISH() {
+    return `${SERVICES_ROOT}/sitemanage/publish`;
   },
-  get PATH_ITEM() {
-    return `${SERVICES_ROOT}/pathmanagement/path/item`;
+  get PUBLISH_CURRENT_STATUS() {
+    return `${SERVICES_ROOT}/sitemanage/pubstatus/current`;
   },
-  get PATH_ITEM_ID() {
-    return `${SERVICES_ROOT}/pathmanagement/path/item/id`;
+  get PUBLISH_LOGS() {
+    return `${SERVICES_ROOT}/sitemanage/pubstatus/logs`;
   },
-  get PATH_ADD_NEW_FOLDER() {
-    return `${SERVICES_ROOT}/pathmanagement/path/addNewFolder`;
+  get PUBLISH_LOGS_DETAILS() {
+    return `${SERVICES_ROOT}/sitemanage/pubstatus/details`;
   },
-  get PATH_RENAME_FOLDER() {
-    return `${SERVICES_ROOT}/pathmanagement/path/renameFolder`;
+  get PUBLISH_PURGE() {
+    return `${SERVICES_ROOT}/sitemanage/pubstatus/purge`;
   },
-  get PATH_MOVE_ITEM() {
-    return `${SERVICES_ROOT}/pathmanagement/path/moveItem`;
+  get INCREMENTAL_LIST() {
+    return `${SERVICES_ROOT}/sitemanage/publish/incremental/content/`;
   },
-  get PATH_DELETE_ITEM() {
-    return `${SERVICES_ROOT}/pathmanagement/path/delete`;
+  get INCREMENTAL_RELATED_LIST() {
+    return `${SERVICES_ROOT}/sitemanage/publish/incremental/relatedcontent/`;
   },
-  get PATH_FOLDER_PROPERTIES() {
-    return `${SERVICES_ROOT}/pathmanagement/path/folderProperties`;
+  get INCREMENTAL_PUBLISH() {
+    return `${SERVICES_ROOT}/sitemanage/publish/incremental/publish/`;
   },
-  get PATH_SAVE_FOLDER_PROPERTIES() {
-    return `${SERVICES_ROOT}/pathmanagement/path/saveFolderProperties`;
-  },
-  get PATH_VALIDATE() {
-    return `${SERVICES_ROOT}/pathmanagement/path/validate`;
-  },
-  get PATH_LAST_EXISTING() {
-    return `${SERVICES_ROOT}/pathmanagement/path/lastExisting`;
-  },
-  // --- Actions (US3) ---
-  get ACTIONS_ROOT() {
-    return `${SERVICES_ROOT}/actions`;
+  /** Publish servers (publishmanagement) */
+  get PUB_SERVERS() {
+    return `${SERVICES_ROOT}/publishmanagement/servers/`;
   },
 } as const;
