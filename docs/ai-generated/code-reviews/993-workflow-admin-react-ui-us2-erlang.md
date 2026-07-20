@@ -9,7 +9,7 @@ Code quality is high: async polling lifecycle is properly cleaned up via `useRef
 ## Scope
 
 - Base: `5898108648` (`development`)
-- Head: `dc2eebdfe4` (`993-workflow-site-assignment`)
+- Head: `993-workflow-site-assignment`
 - Files: 6 changed (351 insertions, 6 deletions)
 - Prior report: `docs/ai-generated/code-reviews/993-workflow-admin-react-ui-erlang.md`
 - Memory patterns hit: `tests.structural-only` (verified tests exercise behavioral async loop), `paths.hardcoded-sep` (verified REST URLs use `/`)
@@ -29,6 +29,13 @@ approve
 - No filesystem path joins or OS-dependent separators introduced.
 - Cross-platform path review outcome: **Pass (no issues)**.
 
+## Re-review (Async Polling Overlap Fix)
+
+- Updated `WorkflowSiteAssign.tsx` to replace `setInterval` with recursive `setTimeout` (`pollTimerRef`).
+- Added `isMountedRef` check inside `pollJobStatus` to ensure state updates (`setJobState`, `setJobStatusMsg`) do not run if the dialog unmounts while a status GET request is in-flight.
+- Next poll tick is scheduled only after the prior request resolves, preventing concurrent in-flight polling requests.
+- Re-review recommendation: **approve**.
+
 ## Issues
 
 No blocking bugs or suggestions identified.
@@ -36,4 +43,4 @@ No blocking bugs or suggestions identified.
 ### Verification Matrix
 - `npm test`: 6/6 tests passing (including `WorkflowSiteAssign.test.tsx`).
 - `i18n`: 100% TMX message coverage (`message(WF_ADMIN_MSG.*)`).
-- `React`: Clean effect unmount and interval cleanup.
+- `React`: Clean effect unmount, `isMountedRef` guards, and recursive `setTimeout` interval cleanup.

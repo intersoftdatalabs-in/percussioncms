@@ -43,36 +43,58 @@ export const WorkflowSiteAssign: React.FC<WorkflowSiteAssignProps> = ({
   const [jobState, setJobState] = useState<JobState>("idle");
   const [jobStatusMsg, setJobStatusMsg] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
-  const pollIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const pollTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const isMountedRef = useRef<boolean>(true);
 
   useEffect(() => {
-    let isMounted = true;
+    isMountedRef.current = true;
     const fetchSites = async () => {
       try {
         const result = await get<SiteItem[]>(PATHS.SITES_ALL);
-        if (isMounted) setSites(result || []);
+        if (isMountedRef.current) setSites(result || []);
       } catch {
-        if (isMounted) setSites([]);
+        if (isMountedRef.current) setSites([]);
       } finally {
-        if (isMounted) setIsLoading(false);
+        if (isMountedRef.current) setIsLoading(false);
       }
     };
     fetchSites();
 
     return () => {
-      isMounted = false;
-      if (pollIntervalRef.current) {
-        clearInterval(pollIntervalRef.current);
+      isMountedRef.current = false;
+      if (pollTimerRef.current) {
+        clearTimeout(pollTimerRef.current);
       }
     };
   }, []);
+
+  const pollJobStatus = async () => {
+    if (!isMountedRef.current) return;
+    try {
+      const status = await get<{ isInProgress: boolean }>(PATHS.FOLDER_ASSIGNMENT_JOB_STATUS);
+      if (!isMountedRef.current) return;
+
+      if (!status.isInProgress) {
+        setJobState("complete");
+        setJobStatusMsg(message(WF_ADMIN_MSG.JOB_COMPLETE));
+      } else {
+        // Schedule next poll tick only after current request completes
+        pollTimerRef.current = setTimeout(pollJobStatus, 1000);
+      }
+    } catch {
+      if (isMountedRef.current) {
+        setJobState("failed");
+        setJobStatusMsg(message(WF_ADMIN_MSG.JOB_FAILED));
+      }
+    }
+  };
 
   const handleStartAssignment = async () => {
     const targetPath = customPath.trim() || selectedPath;
     if (!targetPath) return;
 
-    if (pollIntervalRef.current) {
-      clearInterval(pollIntervalRef.current);
+    if (pollTimerRef.current) {
+      clearTimeout(pollTimerRef.current);
     }
 
     setJobState("inProgress");
@@ -82,25 +104,15 @@ export const WorkflowSiteAssign: React.FC<WorkflowSiteAssignProps> = ({
       const encodedPath = encodeURIComponent(targetPath.replace(/^\//, ""));
       // Legacy Percussion CMS PSFolderRestService contract defines job start endpoint as GET
       await get(`${PATHS.FOLDER_ASSIGNMENT_JOB_START}${encodeURIComponent(workflowName)}/${encodedPath}`);
-      
-      // Poll status
-      pollIntervalRef.current = setInterval(async () => {
-        try {
-          const status = await get<{ isInProgress: boolean }>(PATHS.FOLDER_ASSIGNMENT_JOB_STATUS);
-          if (!status.isInProgress) {
-            if (pollIntervalRef.current) clearInterval(pollIntervalRef.current);
-            setJobState("complete");
-            setJobStatusMsg(message(WF_ADMIN_MSG.JOB_COMPLETE));
-          }
-        } catch {
-          if (pollIntervalRef.current) clearInterval(pollIntervalRef.current);
-          setJobState("failed");
-          setJobStatusMsg(message(WF_ADMIN_MSG.JOB_FAILED));
-        }
-      }, 1000);
+      if (!isMountedRef.current) return;
+
+      // Start recursive polling with setTimeout to avoid overlapping requests
+      pollTimerRef.current = setTimeout(pollJobStatus, 1000);
     } catch {
-      setJobState("failed");
-      setJobStatusMsg(message(WF_ADMIN_MSG.JOB_FAILED));
+      if (isMountedRef.current) {
+        setJobState("failed");
+        setJobStatusMsg(message(WF_ADMIN_MSG.JOB_FAILED));
+      }
     }
   };
 
