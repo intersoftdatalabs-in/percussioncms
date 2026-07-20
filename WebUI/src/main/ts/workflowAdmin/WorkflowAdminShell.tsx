@@ -19,6 +19,7 @@ import { message } from "../i18n/message";
 import { WF_ADMIN_MSG } from "./messages";
 import { WorkflowSection } from "./workflow/WorkflowSection";
 import { RolesSection } from "./role/RolesSection";
+import { UsersSection } from "./user/UsersSection";
 
 export type WorkflowAdminTab = "workflow" | "roles" | "users" | "categories";
 
@@ -144,11 +145,7 @@ export const WorkflowAdminShell: React.FC<WorkflowAdminShellProps> = ({
       >
         {activeTab === "workflow" && <WorkflowSection />}
         {activeTab === "roles" && <RolesSection />}
-        {activeTab === "users" && (
-          <div data-testid="users-placeholder" style={{ padding: "20px" }}>
-            Users management section
-          </div>
-        )}
+        {activeTab === "users" && <UsersSection />}
         {activeTab === "categories" && (
           <div data-testid="categories-placeholder" style={{ padding: "20px" }}>
             Categories management section
