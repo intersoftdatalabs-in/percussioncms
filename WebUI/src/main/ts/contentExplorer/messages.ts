@@ -51,4 +51,15 @@ export const EXPLORER_MSG = {
   PROMPT_NEW_FOLDER_NAME: "perc.ui.explorer@Enter new folder name",
   PROMPT_NEW_NAME: "perc.ui.explorer@Enter new name",
   ERROR_GENERIC: "perc.ui.explorer@Something went wrong",
+
+  // US5 P-Search / search panel (FR-017, FR-018, SC-005)
+  SEARCH_TITLE: "perc.ui.explorer@Search",
+  SEARCH_PLACEHOLDER: "perc.ui.explorer@Type to search\u2026",
+  SEARCH_SUBMIT: "perc.ui.explorer@Search",
+  SEARCH_LOADING: "perc.ui.explorer@Searching\u2026",
+  SEARCH_EMPTY: "perc.ui.explorer@No results",
+  SEARCH_ERROR: "perc.ui.explorer@Search failed",
+  SEARCH_OPEN: "perc.ui.explorer@Open",
+  SEARCH_REVEAL: "perc.ui.explorer@Reveal in folder",
+  SEARCH_PERMISSION_DENIED: "perc.ui.explorer@You do not have permission to open this item",
 } as const;
