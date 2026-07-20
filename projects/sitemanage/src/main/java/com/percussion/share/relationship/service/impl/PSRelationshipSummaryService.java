@@ -127,8 +127,10 @@ public class PSRelationshipSummaryService implements IPSRelationshipSummaryServi
     if (!isResolvable(itemId)) return Optional.empty();
     // Per the typed DTO and the IPSRelationshipSummaryService contract, the incoming dimension
     // counts the items that are the dependents in translation / linkback relationships — that
-    // is the owner side of those configurations — so we resolve via systemWs.findOwners with the
-    // supplied item treated as the dependent. The single-argument cataloger path is reused.
+    // is the owner side of those configurations — so we resolve via systemWs.findDependents
+    // with the supplied item treated as the owner. The cataloger helper delegates to the
+    // systemWs facade per the direction parameter; the single-argument cataloger path is the
+    // OWNERS direction only.
     return Optional.of(summariseFromCataloger(itemId, PSRelationshipFilter.FILTER_CATEGORY_ACTIVE_ASSEMBLY, Direction.DEPENDENTS));
   }
 

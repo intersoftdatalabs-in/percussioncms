@@ -93,15 +93,23 @@ class PSRelationshipSummaryServiceTest {
 
   @Test
   void summariseIncomingReportsDependents() {
-    when(relationshipCataloger.findOwners(
-            org.mockito.ArgumentMatchers.eq("456"), anyString(), any(), any()))
-        .thenReturn(List.of("only-1"));
+    // The incoming dimension resolves via systemWs.findDependents (the supplied item is the
+    // owner; the dependents are what counts). Stub the systemWs path correctly per the bot
+    // review thread on PR #1414. The idMapper mocks are required because the cataloger
+    // helper resolves the supplied itemId to a guid + locator before issuing the systemWs call.
+    IPSGuid guid = stubGuid("456");
+    when(systemWs.findDependents(
+            org.mockito.ArgumentMatchers.eq(guid),
+            org.mockito.ArgumentMatchers.any(com.percussion.cms.objectstore.PSRelationshipFilter.class)))
+        .thenReturn(List.of(guid));
+    when(idMapper.<String>getString(guid)).thenReturn("only-1");
 
     Optional<com.percussion.share.relationship.data.PSRelationshipSummary> out =
         service.summariseIncoming("456");
 
     assertTrue(out.isPresent());
     assertEquals(1L, out.get().getCount());
+    assertEquals("translation", out.get().getByType().get(0).getType());
   }
 
   @Test
