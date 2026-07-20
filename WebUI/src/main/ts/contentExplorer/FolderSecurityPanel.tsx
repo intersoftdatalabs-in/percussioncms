@@ -120,12 +120,6 @@ const PRINCIPAL_LABELS: Record<PrincipalListKey, string> = {
   viewPrincipals: "View",
 };
 
-const DEFAULT_PROPS: PSFolderProperties = {
-  id: "",
-  name: "",
-  permission: undefined,
-};
-
 export function FolderSecurityPanel(
   props: FolderSecurityPanelProps,
 ): React.JSX.Element {
@@ -145,14 +139,32 @@ export function FolderSecurityPanel(
       : { kind: "loading" },
   );
   const [pendingSave, setPendingSave] = useState(false);
+  /**
+   * Snapshot of the permission object that was *originally loaded* from
+   * the server. The lockout warning compares this against the
+   * post-edit permission; without it, the `detectSelfLockout` check
+   * always sees {@code before === after} (the current edited state)
+   * and never fires. Reset on each successful load + whenever the
+   * supplied {@code initial} prop changes.
+   *
+   * Mitigation for kilo-code-bot PR #1397 thread 3614415903.
+   */
+  const originalPermissionRef = React.useRef<PSFolderPermission | undefined>(
+    initial?.permission,
+  );
 
   React.useEffect(() => {
-    if (initial) return;
+    if (initial) {
+      originalPermissionRef.current = initial.permission;
+      return;
+    }
     let cancelled = false;
     setStatus({ kind: "loading" });
     load(folderId)
       .then((props) => {
-        if (!cancelled) setStatus({ kind: "ready", props, dirty: false });
+        if (cancelled) return;
+        originalPermissionRef.current = props.permission;
+        setStatus({ kind: "ready", props, dirty: false });
       })
       .catch((err: unknown) => {
         if (cancelled) return;
@@ -175,24 +187,43 @@ export function FolderSecurityPanel(
     const current = status.props;
     if (!current.permission) return;
 
-    const lockoutLevels = current.permission
-      ? detectSelfLockout(initial?.permission ?? DEFAULT_PROPS.permission ?? current.permission,
-        current.permission,
-        currentUserIdentities)
-      : [];
+    // Lockout check: compare the original loaded permission against the
+    // current edited permission so removing the current user from any
+    // level is detected. Without `originalPermissionRef`, `before`
+    // and `after` collapse to the same object and the check never
+    // fires. Mitigation for kilo-code-bot PR #1397 thread 3614415903.
+    const lockoutLevels = detectSelfLockout(
+      originalPermissionRef.current ?? current.permission,
+      current.permission,
+      currentUserIdentities,
+    );
 
     if (lockoutLevels.length > 0) {
-      const proceed = confirmLockout
-        ? await confirmLockout(lockoutLevels[0]!.level, currentUserIdentities)
-        : window.confirm(
-            message(EXPLORER_MSG.SECURITY_LOCKOUT_WARNING_BODY),
-          );
-      if (!proceed) return;
+      try {
+        const proceed = confirmLockout
+          ? await confirmLockout(lockoutLevels[0]!.level, currentUserIdentities)
+          : window.confirm(
+              message(EXPLORER_MSG.SECURITY_LOCKOUT_WARNING_BODY),
+            );
+        if (!proceed) return;
+      } catch (err: unknown) {
+        // Host-supplied confirmLockout threw; treat rejection-from-confirm
+        // as "user cancelled" so the save does NOT proceed with no
+        // confirmation. Mitigation for kilo-code-bot PR #1397
+        // thread 3614415910.
+        // eslint-disable-next-line no-console -- surface to ops
+        console.warn(
+          `[FolderSecurityPanel] confirmLockout rejected; aborting save: ${err instanceof Error ? err.message : String(err)}`,
+        );
+        return;
+      }
     }
 
     setPendingSave(true);
     try {
       await save(current);
+      // Snapshot is now the new post-save state.
+      originalPermissionRef.current = current.permission;
       setStatus({ ...status, dirty: false });
       onSaved?.(current);
     } catch (err: unknown) {
@@ -203,6 +234,22 @@ export function FolderSecurityPanel(
       setPendingSave(false);
     }
   }
+
+  // Hooks MUST be called in the same order on every render. The
+  // loading / error / no-access branches are early returns below;
+  // useMemo must run before them or React throws "Rendered more
+  // hooks than during the previous render" on the second render
+  // (when status transitions loading → ready).
+  const drafts: PrincipalListDraft[] = useMemo(() => {
+    const permission =
+      status.kind === "ready" ? status.props.permission : undefined;
+    if (!permission) return [];
+    return (Object.keys(PRINCIPAL_LABELS) as PrincipalListKey[]).map((k) => ({
+      level: k,
+      label: PRINCIPAL_LABELS[k],
+      principals: permission[k] ?? [],
+    }));
+  }, [status]);
 
   if (status.kind === "loading") {
     return (
@@ -238,14 +285,6 @@ export function FolderSecurityPanel(
   }
 
   const editable = canEditSecurityPanel(permission);
-  const drafts: PrincipalListDraft[] = useMemo(() => {
-    if (!permission) return [];
-    return (Object.keys(PRINCIPAL_LABELS) as PrincipalListKey[]).map((k) => ({
-      level: k,
-      label: PRINCIPAL_LABELS[k],
-      principals: permission[k] ?? [],
-    }));
-  }, [permission]);
 
   return (
     <section

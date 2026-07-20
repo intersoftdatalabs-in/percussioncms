@@ -164,6 +164,67 @@ describe("FolderSecurityPanel", () => {
     });
   });
 
+  it("self-lockout warning fires WITHOUT initial props (load fetches its own snapshot) — bug fix for kilo-code-bot PR #1397 thread 3614415903", async () => {
+    const loadedProps = makeProps({ permission: permission(["Admin"], [], [], []) });
+    const load = vi.fn().mockResolvedValue(loadedProps);
+    const confirmLockout = vi.fn().mockResolvedValue(true);
+    const saveMock = vi.fn().mockResolvedValue(undefined);
+    const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => undefined);
+    render(
+      <FolderSecurityPanel
+        folderId={loadedProps.id}
+        currentUserIdentities={["Admin"]}
+        load={load}
+        save={saveMock}
+        confirmLockout={confirmLockout}
+      />,
+    );
+    // Wait for the panel's own load to settle.
+    await waitFor(() => {
+      expect(screen.getByTestId("folder-security-save")).toBeTruthy();
+    });
+    // Remove Admin from adminPrincipals and Save.
+    fireEvent.click(
+      screen.getByTestId("folder-security-list-adminPrincipals-remove-Admin"),
+    );
+    fireEvent.click(screen.getByTestId("folder-security-save"));
+    await waitFor(() => {
+      expect(confirmLockout).toHaveBeenCalledTimes(1);
+      expect(saveMock).toHaveBeenCalledTimes(1);
+    });
+    // The failed-save surface MUST NOT be rendered when the save
+    // succeeds after confirm.
+    expect(screen.queryByTestId("folder-security-error")).toBeNull();
+    warnSpy.mockRestore();
+  });
+
+  it("self-lockout: a host confirmLockout that throws is treated as cancel (no save) — bug fix for PR #1397 thread 3614415910", async () => {
+    const props = makeProps({ permission: permission(["Admin"], [], [], []) });
+    const confirmLockout = vi.fn().mockRejectedValue(new Error("host boom"));
+    const saveMock = vi.fn().mockResolvedValue(undefined);
+    const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => undefined);
+    render(
+      <FolderSecurityPanel
+        folderId={props.id}
+        currentUserIdentities={["Admin"]}
+        initial={props}
+        save={saveMock}
+        confirmLockout={confirmLockout}
+      />,
+    );
+    fireEvent.click(
+      screen.getByTestId("folder-security-list-adminPrincipals-remove-Admin"),
+    );
+    fireEvent.click(screen.getByTestId("folder-security-save"));
+    await waitFor(() => {
+      expect(confirmLockout).toHaveBeenCalledTimes(1);
+    });
+    // Cancel-from-error path: save not called.
+    expect(saveMock).not.toHaveBeenCalled();
+    expect(warnSpy).toHaveBeenCalled();
+    warnSpy.mockRestore();
+  });
+
   it("add-principal flow: typing + confirming appends to the list", () => {
     const props = makeProps({ permission: permission(["Admin"], [], [], []) });
     render(
