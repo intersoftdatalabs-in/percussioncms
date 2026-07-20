@@ -138,7 +138,7 @@ export function RelationshipsView(
         className={className}
         style={{ border: "1px solid #ccc", padding: 12, background: "#fff" }}
       >
-        <p aria-live="polite">{message(EXPLORER_MSG.SEARCH_LOADING)}</p>
+        <p aria-live="polite">{message(EXPLORER_MSG.RELATIONSHIPS_LOADING)}</p>
       </section>
     );
   }
