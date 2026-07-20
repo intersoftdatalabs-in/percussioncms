@@ -96,4 +96,33 @@ export const EXPLORER_MSG = {
   RELATIONSHIPS_TITLE: "perc.ui.explorer@IA Relationships",
   RELATIONSHIPS_CLIENT_SIDE_PREVIEW:
     "perc.ui.explorer@Client-side preview (full graph pending rest enhancement)",
+  // US5 P-Search / search panel (FR-017, FR-018, SC-005)
+  SEARCH_TITLE: "perc.ui.explorer@Search",
+  SEARCH_PLACEHOLDER: "perc.ui.explorer@Type to search…",
+  SEARCH_SUBMIT: "perc.ui.explorer@Search",
+  SEARCH_LOADING: "perc.ui.explorer@Searching…",
+  SEARCH_EMPTY: "perc.ui.explorer@No results",
+  SEARCH_ERROR: "perc.ui.explorer@Search failed",
+  SEARCH_OPEN: "perc.ui.explorer@Open",
+  SEARCH_REVEAL: "perc.ui.explorer@Reveal in folder",
+  SEARCH_PERMISSION_DENIED: "perc.ui.explorer@You do not have permission to open this item",
+  // US4 P-ACL / folder security (FR-014–FR-016, SC-004)
+  SECURITY_TITLE: "perc.ui.explorer@Folder Security",
+  SECURITY_LOADING: "perc.ui.explorer@Loading permissions",
+  SECURITY_LOAD_ERROR: "perc.ui.explorer@Failed to load folder permissions",
+  SECURITY_SAVE_SUCCESS: "perc.ui.explorer@Permissions saved",
+  SECURITY_SAVE_ERROR: "perc.ui.explorer@Failed to save permissions",
+  SECURITY_READ_ONLY: "perc.ui.explorer@View-only (you do not have ADMIN access)",
+  SECURITY_LOCKOUT_WARNING_TITLE: "perc.ui.explorer@Confirm self-lockout",
+  SECURITY_LOCKOUT_WARNING_BODY:
+    "perc.ui.explorer@Saving these changes will remove your access to this folder. Continue?",
+  SECURITY_LOCKOUT_WARNING_CONFIRM: "perc.ui.explorer@Save anyway",
+  SECURITY_LOCKOUT_WARNING_CANCEL: "perc.ui.explorer@Cancel",
+  SECURITY_LEVEL_ADMIN: "perc.ui.explorer@Admin",
+  SECURITY_LEVEL_WRITE: "perc.ui.explorer@Write",
+  SECURITY_LEVEL_READ: "perc.ui.explorer@Read",
+  SECURITY_LEVEL_VIEW: "perc.ui.explorer@View",
+  SECURITY_PRINCIPAL_REMOVE: "perc.ui.explorer@Remove",
+  SECURITY_PRINCIPAL_ADD: "perc.ui.explorer@Add principal",
+  SECURITY_PRINCIPAL_NAME_LABEL: "perc.ui.explorer@Principal name",
 } as const;

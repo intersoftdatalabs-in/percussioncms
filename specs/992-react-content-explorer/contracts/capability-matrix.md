@@ -111,23 +111,23 @@ The dependency viewer and IA/relationship views surface the following entities/d
 
 ## Folder security (P-ACL)
 
-| Capability | Legacy source | Target | Phase | Acceptance |
-|------------|---------------|--------|-------|------------|
-| View folder permission levels | CE `PSFolderSecurityPanel` | folderProperties UI | P-ACL | SC-004 |
-| Edit ACL principals | CE ACL editor | saveFolderProperties | P-ACL | SC-004 |
-| Lockout self warning | CE | Client warn + server | P-ACL | FR-015 |
-| Read-only without rights | CE | Hide/disable | P-ACL | FR-016 |
+| Capability | Legacy source | Target | Phase | Acceptance | Status | Test coverage |
+|------------|---------------|--------|-------|------------|------------|---------------|
+| View folder permission levels | CE `PSFolderSecurityPanel` | `FolderSecurityPanel` + `folderProperties` | P-ACL | SC-004 | **Implemented** — `WebUI/src/main/ts/contentExplorer/FolderSecurityPanel.tsx`; pure helpers in `aclLockout.ts` (`canViewSecurityPanel`, `canEditSecurityPanel`); uses sitemanage `PSFolderProperties` + `PSFolderPermission` (mirrored to live `projects/sitemanage/src/main/java/com/percussion/pathmanagement/data/` 1:1, no invented fields) | Vitest `WebUI/src/test/ts/contentExplorer/FolderSecurityPanel.test.tsx` (11 tests); Playwright `modules/perc-qa-automation/frontend/tests/us4-acl.spec.js` (5 tests) |
+| Edit ACL principals | CE ACL editor | `saveFolderProperties` | P-ACL | SC-004 | **Implemented** — `FolderSecurityPanel` add / remove controls per level; saves via `pathApi.saveFolderProperties`. SC-004 second-user effect is gated on a system-installed CMS (the dev Derby image has no folder ACL data); Vitest + Playwright cover the structural surface | Vitest + Playwright as above |
+| Lockout self warning | CE | Client warn (`window.confirm` or host-provided `confirmLockout`) + server | P-ACL | FR-015 | **Implemented** — pure `detectSelfLockout` / `wouldSelfLockout` in `aclLockout.ts`; the panel surfaces the warning via `EXPLORER_MSG.SECURITY_LOCKOUT_WARNING_BODY`; Vitest tests assert both `confirm=true` (save proceeds) and `confirm=false` (save aborted) paths | Vitest `aclLockout.test.ts` (20 tests covering single + multi-level removals, USER + ROLE names, identity-set semantics, empty/null defensive cases); `FolderSecurityPanel.test.tsx` self-lockout allow + cancel paths |
+| Read-only without rights | CE | `canViewSecurityPanel` gate on the panel; edit controls disabled via `canEditSecurityPanel` | P-ACL | FR-016 | **Implemented** — `FolderSecurityPanel` renders the `SECURITY_READ_ONLY` banner + disables the Save button when `accessLevel !== 'ADMIN'`; renders the `PERMISSION_DENIED` placeholder when `accessLevel === 'VIEW'` | Vitest `aclLockout.test.ts` `canViewSecurityPanel` + `canEditSecurityPanel` tests; `FolderSecurityPanel.test.tsx` READ / VIEW paths |
 
 ---
 
 ## Search (P-Search)
 
-| Capability | Legacy source | Target | Phase | Acceptance |
-|------------|---------------|--------|-------|------------|
-| Simple/extended search | CE / Finder search | searchmanagement | P-Search | US5 |
-| Open/reveal from results | Both | Explorer | P-Search | US5 |
-| Search in content browser | Dialogs | enableSearch prop | P-Search | US2/US5 |
-| Saved searches catalog | CE | Matrix detail / REST gap | P-Search | Spike if missing |
+| Capability | Legacy source | Target | Phase | Acceptance | Status | Test coverage |
+|------------|---------------|--------|-------|------------|------------|---------------|
+| Simple/extended search | CE / Finder search | sitemanage `PSSearchRestService.extendedSearch` + typed `searchApi.ts` | P-Search | US5 | **Implemented** — `WebUI/src/main/ts/api/contentExplorer/searchApi.ts` wraps `POST /Rhythmyx/services/searchmanagement/search/get/extendedresults`; types mirrored to live `PSSearchCriteria` / `PSPagedItemPropertiesList` / `PSItemProperties` 1:1 (no invented fields). Wire envelopes (`{"SearchCriteria":...}` / `{"PagedItemPropertiesList":{"childrenInPage":[...]}}`) verified against the live docker dev CMS at `localhost:9992` on 2026-07-20. | Vitest `WebUI/src/test/ts/contentExplorer/searchApi.test.ts` (8 tests); Playwright `modules/perc-qa-automation/frontend/tests/us5-search.spec.js` (3 tests) |
+| Open/reveal from results | Both | `SearchPanel.onOpen` / `onReveal` callbacks | P-Search | US5 | **Implemented** — `SearchPanel.tsx` invokes host callbacks per row (Open writes to result block in the pilot; Reveal writes the parent path); the host (explorer shell) is responsible for navigation / tree-selection | Vitest `SearchPanel.test.tsx` (8 tests covering open + reveal paths); Playwright `us5-search.spec.js` mounts the panel |
+| Search in content browser | Dialogs | `enableSearch` prop | P-Search | US5 | **Pending host integration** — the `ContentBrowser` is the US2 deliverable (PR #1391). Wireing `enableSearch` to mount the `SearchPanel` header is host integration work, deferred to a follow-up PR after US2's component lands in `development`. The component + typed client are independently usable. | Vitest unit suite; integration pending |
+| Saved searches catalog | CE | Matrix detail / REST gap | P-Search | Spike if missing | **Pending spike** — follow-up per the matrix P-Search row; no immediate 8.2 GA blocker | n/a |
 
 ---
 

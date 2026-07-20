@@ -283,6 +283,94 @@ export interface NodeRelationshipSummary {
    */
   clientSideOnly: boolean;
 }
+// ---------- US5 P-Search: searchmanagement REST DTO mirrors ----------
+//
+// Mirrors `projects/sitemanage/src/main/java/com/percussion/searchmanagement/data/*`
+// (PSSearchCriteria, PSPagedItemPropertiesList, PSItemProperties). Align to
+// live DTOs per constitution II (Evidence Over Invention). Do not invent
+// fields; if a field is missing on the server, add it via a sitemanage
+// change with a service-contract test (T052a) and threat-model note (T052b).
+//
+// See `specs/992-react-content-explorer/contracts/search-api.md` (TODO if
+// not present; US5 contract path is the sitemanage OpenAPI generator for
+// PSSearchRestService at `/Rhythmyx/services/searchmanagement/search/get/extendedresults`).
+
+/**
+ * Wire body for `POST /searchmanagement/search/get/extendedresults`.
+ *
+ * <p>Mirrors {@code com.percussion.searchmanagement.data.PSSearchCriteria}.
+ * The wire is wrapped under `SearchCriteria` (the DTO's
+ * {@code @XmlRootElement(name = "SearchCriteria")} triggers Jackson's
+ * root-name wrapping); the helper {@code searchExtended} unwraps the
+ * envelope before sending the request.</p>
+ */
+export interface PSSearchCriteria {
+  query?: string;
+  searchType?: string;
+  startIndex?: number;
+  maxResults?: number;
+  sortColumn?: string;
+  sortOrder?: string;
+  formatId?: number;
+  /** Per-field constraint map; matches `PSSearchCriteria.searchFields`. */
+  searchFields?: Record<string, string>;
+  folderPath?: string;
+  caseSensitive?: boolean;
+}
+
+/**
+ * Per-result row from {@code PSPagedItemPropertiesList}. Mirrors
+ * {@code com.percussion.share.data.PSItemProperties}.
+ */
+export interface PSItemProperties {
+  /** Item id (pathmanagement / itemmanagement id space). */
+  id?: string;
+  /** Display title, typically the workflow title field. */
+  title?: string;
+  name?: string;
+  /** Folder path of the item (e.g. {@code /Sites/Foo/Bar}). */
+  folderPath?: string;
+  /** Item type discriminator (page / asset / folder). */
+  type?: string;
+  /** Display-format column values keyed by column id. */
+  displayProperties?: Record<string, unknown>;
+  /** Workflow / state hints surfaced for the list view. */
+  workflowState?: string;
+  /** Last modified timestamp (ISO 8601 string per server). */
+  lastModified?: string;
+  /** Locale of the result. */
+  locale?: string;
+}
+
+/**
+ * Wire shape of {@code PSPagedItemPropertiesList} — list wrapper with
+ * paged metadata. The server carries
+ * {@code @JsonRootName(value = "PagedItemPropertiesList")} (verified
+ * against the live CMS on 2026-07-20) and the array of results is
+ * under {@code childrenInPage}.
+ */
+export interface PSPagedItemPropertiesList {
+  childrenCount?: number;
+  startIndex?: number;
+  /** Per-page rows. */
+  childrenInPage?: PSItemProperties[];
+}
+
+/** Wire envelope for the {@code /search/get/extendedresults} response. */
+export interface PSPagedItemPropertiesListEnvelope {
+  PagedItemPropertiesList?: PSPagedItemPropertiesList;
+}
+
+/**
+ * Client-facing search result set (normalized across wire envelopes).
+ * Used by the {@code SearchPanel} component and any downstream
+ * explorer open / reveal flows.
+ */
+export interface PSSearchResults {
+  children: PSItemProperties[];
+  totalCount?: number;
+  startIndex: number;
+}
 
 // ---------- US3 P-Menu: action-menu REST DTO mirrors ----------
 //
