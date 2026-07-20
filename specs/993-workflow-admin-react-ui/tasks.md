@@ -86,18 +86,18 @@
 **Independent Test**: Open content item edit context, open workflow drawer, lock/unlock item, select a transition, fill comments if required, search and select ad-hoc reviewers, submit and confirm workflow state updates.
 
 ### Tests
-- [ ] T038 [P] [US5] Unit test for `WorkflowActionsPanel` in `WebUI/src/test/ts/workflowActions/WorkflowActionsPanel.test.tsx`
-- [ ] T039 [P] [US5] Unit test for `TransitionDialog` and search in `WebUI/src/test/ts/workflowActions/TransitionDialog.test.tsx`
-- [ ] T040 [P] [US5] Playwright E2E spec for in-context transitions in `modules/perc-qa-automation/frontend/tests/us4-item-transitions.spec.js`
+- [x] T038 [P] [US5] Unit test for `WorkflowActionsPanel` in `WebUI/src/test/ts/workflowActions/WorkflowActionsPanel.test.tsx`
+- [x] T039 [P] [US5] Unit test for `TransitionDialog` and search in `WebUI/src/test/ts/workflowActions/TransitionDialog.test.tsx`
+- [x] T040 [P] [US5] Playwright E2E spec for in-context transitions in `modules/perc-qa-automation/frontend/tests/us4-item-transitions.spec.js`
 
 ### Implementation
-- [ ] T041 [P] [US5] Create workflow status actions drawer `WebUI/src/main/ts/workflowActions/WorkflowActionsPanel.tsx`
-- [ ] T042 [P] [US5] Create transition parameters overlay `WebUI/src/main/ts/workflowActions/TransitionDialog.tsx`
-- [ ] T043 [P] [US5] Create ad-hoc user search field `WebUI/src/main/ts/workflowActions/AdhocSearch.tsx`
-- [ ] T044 [US5] Wire new React workflow actions panel into core edit/preview frame, replacing legacy JSP and Dojo scripts
-- [ ] T045 [US5] Commit changes and submit PR for review, pausing downstream tasks
-- [ ] T046 [US5] Monitor Kilo Code check, address feedback, and resolve comments (pause on check failure)
-- [ ] T047 [US5] Verify human approval and merge of PR before proceeding
+- [x] T041 [P] [US5] Create workflow status actions drawer `WebUI/src/main/ts/workflowActions/WorkflowActionsPanel.tsx`
+- [x] T042 [P] [US5] Create transition parameters overlay `WebUI/src/main/ts/workflowActions/TransitionDialog.tsx`
+- [x] T043 [P] [US5] Create ad-hoc user search field `WebUI/src/main/ts/workflowActions/AdhocSearch.tsx`
+- [x] T044 [US5] Wire new React workflow actions panel into core edit/preview frame, replacing legacy JSP and Dojo scripts
+- [x] T045 [US5] Commit changes and submit PR for review, pausing downstream tasks
+- [x] T046 [US5] Monitor Kilo Code check, address feedback, and resolve comments (pause on check failure)
+- [x] T047 [US5] Verify human approval and merge of PR before proceeding
 
 ## Phase 8: User Story 6 — Manage Categories (Priority: P2)
 **Goal**: Implement `CategoriesSection` for taxonomy tree management.
