@@ -154,6 +154,13 @@ export const PATHS = {
   get WORKFLOW_METADATA_DEFAULT() {
     return `${SERVICES_ROOT}/workflowmanagement/workflows/metadata/default`;
   },
+  /** Folder workflow assignment (foldermanagement) — Feature 993 */
+  get FOLDER_ASSIGNMENT_JOB_START() {
+    return `${SERVICES_ROOT}/foldermanagement/GetAssociatedFoldersJob/start/`;
+  },
+  get FOLDER_ASSIGNMENT_JOB_STATUS() {
+    return `${SERVICES_ROOT}/foldermanagement/workflowassignment/isInProgress`;
+  },
   /** User management (user) — Feature 993 */
   get USERS() {
     return `${SERVICES_ROOT}/user/user/users`;

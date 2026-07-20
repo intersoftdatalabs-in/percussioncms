@@ -29,23 +29,23 @@
 - [x] T014 [P] [US1] Create the step list and drag-reorder component `WebUI/src/main/ts/workflowAdmin/workflow/WorkflowStepList.tsx`
 - [x] T015 [P] [US1] Add host JSP `WebUI/src/main/webapp/cm/app/adminWorkflowModern.jsp` to load modern bundle and mount `WorkflowAdminShell`
 - [x] T016 [US1] Update `WebUI/src/main/webapp/cm/app/index.jsp` view map to route `workflow` to `adminWorkflowModern.jsp`
-- [ ] T017 [US1] Commit changes and submit PR for review, pausing downstream tasks
+- [x] T017 [US1] Commit changes and submit PR for review, pausing downstream tasks
 - [x] T018 [US1] Monitor Kilo Code check, address feedback, and resolve comments (pause on check failure)
-- [ ] T019 [US1] Verify human approval and merge of PR before starting next story
+- [x] T019 [US1] Verify human approval and merge of PR before starting next story
 
 ## Phase 4: User Story 2 — Assign Workflows to Sites and Folders (Priority: P1)
 **Goal**: Add site/folder workflow assignment dialog and monitor background job.
 **Independent Test**: Within `WorkflowAdminShell` workflow section, click "Assign to Site/Folder", choose a folder, start the job, and confirm the async progress overlay correctly reports status and completes.
 
 ### Tests
-- [ ] T020 [P] [US2] Unit test for `WorkflowSiteAssign` dialog component in `WebUI/src/test/ts/workflowAdmin/WorkflowSiteAssign.test.tsx`
+- [x] T020 [P] [US2] Unit test for `WorkflowSiteAssign` dialog component in `WebUI/src/test/ts/workflowAdmin/WorkflowSiteAssign.test.tsx`
 
 ### Implementation
-- [ ] T021 [P] [US2] Create site/folder selection browser tree component `WebUI/src/main/ts/workflowAdmin/workflow/WorkflowSiteAssign.tsx`
-- [ ] T022 [P] [US2] Implement API calls for assignment job status and start endpoints in `WebUI/src/main/ts/api/client.ts`
-- [ ] T023 [US2] Wire folder assignment action and background progress overlay into `WebUI/src/main/ts/workflowAdmin/workflow/WorkflowEditor.tsx`
-- [ ] T024 [US2] Commit changes and submit PR for review, pausing downstream tasks
-- [ ] T025 [US2] Monitor Kilo Code check, address feedback, and resolve comments (pause on check failure)
+- [x] T021 [P] [US2] Create site/folder selection browser tree component `WebUI/src/main/ts/workflowAdmin/workflow/WorkflowSiteAssign.tsx`
+- [x] T022 [P] [US2] Implement API calls for assignment job status and start endpoints in `WebUI/src/main/ts/api/client.ts`
+- [x] T023 [US2] Wire folder assignment action and background progress overlay into `WebUI/src/main/ts/workflowAdmin/workflow/WorkflowEditor.tsx`
+- [x] T024 [US2] Commit changes and submit PR for review, pausing downstream tasks
+- [x] T025 [US2] Monitor Kilo Code check, address feedback, and resolve comments (pause on check failure)
 - [ ] T026 [US2] Verify human approval and merge of PR before proceeding
 
 ## Phase 5: User Story 3 — Manage Roles (Priority: P1)
