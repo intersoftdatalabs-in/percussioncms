@@ -32,6 +32,10 @@ vi.mock("../../../main/ts/workflowAdmin/user/UsersSection", () => ({
   UsersSection: () => <div data-testid="perc-users-section">Users Content</div>,
 }));
 
+vi.mock("../../../main/ts/workflowAdmin/category/CategoriesSection", () => ({
+  CategoriesSection: () => <div data-testid="perc-categories-section">Categories Content</div>,
+}));
+
 describe("WorkflowAdminShell", () => {
   it("renders shell title and default active tab", () => {
     render(<WorkflowAdminShell />);
@@ -53,6 +57,6 @@ describe("WorkflowAdminShell", () => {
 
     const catTab = screen.getByTestId("tab-categories");
     fireEvent.click(catTab);
-    expect(screen.getByTestId("categories-placeholder")).toBeTruthy();
+    expect(screen.getByTestId("perc-categories-section")).toBeTruthy();
   });
 });
