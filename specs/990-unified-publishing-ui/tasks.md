@@ -392,9 +392,23 @@ Start at **T001–T016** (setup + foundational), then **T017–T029** (US1) as f
 
 ---
 
-## Remediation note (2026-07-19)
+## Phase 13: E2E Playwright Automation (Priority: P2)
 
-`/speckit-analyze` after PR #1370 found **tasks.md fully checked** while **capability matrix still In progress** for OPS-18/20/22/23, plus residual faces packaging. Phase 12 / US9 reopens that work as tracked tasks rather than silently leaving matrix drift.
+**Purpose**: Author and verify end-to-end browser tests for the modern Publishing UI using Playwright.
+
+- [X] T128 [P] Initialize Playwright test structure under `modules/perc-qa-automation/frontend/tests/publishing/`
+- [X] T129 [US1] Author Playwright E2E tests for site list, workspace navigation, and full/incremental publish runs in `modules/perc-qa-automation/frontend/tests/publishing/siteOperations.spec.js`
+- [X] T130 [US2] Author Playwright E2E tests for status polling, logs filtering, and logs purge flows in `modules/perc-qa-automation/frontend/tests/publishing/statusLogs.spec.js`
+- [X] T131 [US3] Author Playwright E2E tests for server configuration creation, editing, driver properties validation, and default publish now in `modules/perc-qa-automation/frontend/tests/publishing/serverConfig.spec.js`
+- [X] T132 [US4] Author Playwright E2E tests for publishing design infrastructure (editions, content lists, contexts) in `modules/perc-qa-automation/frontend/tests/publishing/designInfrastructure.spec.js`
+- [X] T133 [US5] Author Playwright E2E tests for runtime edition execution, stop operations, and demand publish in `modules/perc-qa-automation/frontend/tests/publishing/runtimeEditions.spec.js`
+- [X] T134 Execute full Playwright publishing test suite (`npx playwright test`) inside `modules/perc-qa-automation/frontend` to verify all end-to-end scenarios pass
+
+---
+
+## Remediation note (2026-07-20)
+
+`/speckit-analyze` performed on PR branch found gaps in E2E browser automation. Phase 13 has been added to require E2E testing of all modern Publishing UI views under the `perc-qa-automation` module.
 
 ---
 
@@ -414,19 +428,22 @@ Start at **T001–T016** (setup + foundational), then **T017–T029** (US1) as f
 | 10 | US8 | T100–T110 | 11 |
 | 11 Polish | — | T111–T115 | 5 |
 | 12 Residual | US9 | T116–T127 | 12 |
+| 13 Playwright | — | T128–T134 | 7 |
 | **Baseline total** | | **T001–T115** | **115** |
 | **With residual** | | **T001–T127** | **127** |
+| **With E2E automation** | | **T001–T134** | **134** |
 
 | Story | Tasks (approx) | Priority |
 |-------|----------------|----------|
-| US1 | 13 | P1 MVP |
-| US2 | 12 | P1 MVP |
-| US3 | 15 | P1 MVP + ops cutover |
-| US4 | 18 | P2 |
-| US5 | 10 | P2 |
+| US1 | 14 | P1 MVP |
+| US2 | 13 | P1 MVP |
+| US3 | 16 | P1 MVP + ops cutover |
+| US4 | 19 | P2 |
+| US5 | 11 | P2 |
 | US6 | 7 | P2 |
 | US7 | 8 | P2 |
 | US8 | 11 | P3 retirement |
 | US9 | 12 | P2 residual parity |
+| E2E | 7 | P2 automation |
 
 **Format validation**: All tasks use `- [ ]` or `- [X]`, sequential IDs, `[USn]` on story phases only, `[P]` only when parallel-safe, and concrete file paths.

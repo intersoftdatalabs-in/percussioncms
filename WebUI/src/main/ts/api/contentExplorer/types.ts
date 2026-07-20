@@ -250,3 +250,112 @@ export interface PSSearchResults {
   totalCount?: number;
   startIndex: number;
 }
+
+// ---------- US3 P-Menu: action-menu REST DTO mirrors ----------
+//
+// Mirrors `rest/src/main/java/com/percussion/rest/actions/*`. Align to live
+// DTOs (`ActionMenu`, `ActionMenuList`, `ActionMenuParameter`,
+// `ActionMenuProperty`, `ActionMenuVisibilityContext`,
+// `ActionMenuModeUIContext`, `AllowedContentTypeMenusRequest`,
+// `AllowedWorkflowTransitionsRequest`) per constitution II
+// (Evidence Over Invention). Do not invent fields; if a field is missing
+// on the server, add it via a rest change with a service-contract test
+// (T052a) and threat-model note (T052b).
+//
+// See `specs/992-react-content-explorer/contracts/action-menu-api.md` for the
+// surface contract and current REST gaps (US3 maturity notes).
+
+/**
+ * Mirrors {@code PSAction.TYPE_*} constants on the server:
+ * {@code TYPE_MENU}, {@code TYPE_CONTEXTMENU}, {@code TYPE_MENUITEM},
+ * {@code DYNAMICMENU}.
+ */
+export type ActionMenuType = "MENU" | "CONTEXTMENU" | "MENUITEM" | "DYNAMICMENU";
+
+export interface ActionMenuParameter {
+  name?: string;
+  value?: string;
+  description?: string;
+}
+
+export interface ActionMenuProperty {
+  actionId: number;
+  name?: string;
+  value?: string;
+  description?: string;
+}
+
+export interface ActionMenuVisibilityContext {
+  // Field shape per server DTO; the typed mapper + Vitest tests pin
+  // the until-then-permissive surface until the SPEC exposes the
+  // field set explicitly.
+  [key: string]: unknown;
+}
+
+export interface ActionMenuModeUIContext {
+  [key: string]: unknown;
+}
+
+/**
+ * Server children envelope. Server's {@code ActionMenu.children} is
+ * the {@code ActionMenuList extends ArrayList<ActionMenu>} type with
+ * {@code @XmlRootElement(name = "ActionMenuList")}, so the wire is
+ * {@code {"ActionMenuList": ActionMenu[]}}.
+ */
+export interface ActionMenuListEnvelope {
+  ActionMenuList?: ActionMenu[];
+}
+
+/**
+ * Mirrors {@code com.percussion.rest.actions.ActionMenu}. See the
+ * {@code @Schema} / Javadoc on the server DTO for per-field meaning;
+ * fields with non-nullable semantics on the server
+ * ({@code name}) are required here.
+ */
+export interface ActionMenu {
+  id: number;
+  guid?: { raw?: string };
+  name: string;
+  label?: string;
+  description?: string;
+  /** Action URL relative to document base for the page hosting the menu. */
+  url?: string;
+  sortRank: number;
+  menuType: ActionMenuType;
+  /** Marker for client-handled vs server-handled actions. */
+  handler?: string;
+  children?: ActionMenuListEnvelope;
+  parameters?: ActionMenuParameter[];
+  visibilityContexts?: ActionMenuVisibilityContext[];
+  uiContexts?: ActionMenuModeUIContext[];
+  properties?: ActionMenuProperty[];
+}
+
+/**
+ * Wire body for {@code POST /actions/find/types}. Mirrors
+ * {@code AllowedContentTypeMenusRequest}.
+ */
+export interface AllowedContentTypeMenusRequest {
+  contentIds: number[];
+}
+
+/**
+ * Client-facing flattened menu model used by {@code ContextMenu} /
+ * {@code ActionToolbar} (US3 T053 / T054). Decoupled from the wire
+ * shape so the UI does not depend on server naming and so unit tests
+ * can build menus without mocking the REST envelope.
+ */
+export interface MenuAction {
+  /** Stable identifier (server `name`); used as the React `key`. */
+  name: string;
+  /** Display label (server `label`); falls back to `name` if absent. */
+  label: string;
+  description?: string;
+  url?: string;
+  handler?: string;
+  sortRank: number;
+  menuType: ActionMenuType;
+  parameters?: ActionMenuParameter[];
+  /** Empty unless the parent has cascading children. */
+  children?: MenuAction[];
+}
