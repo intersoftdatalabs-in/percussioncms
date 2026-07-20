@@ -36,7 +36,6 @@
  * the {@code declare global} type augmentation that Vitest does not
  * support on its {@code expect} function reference.</p>
  */
-import "@testing-library/jest-dom/vitest";
 import axeCore from "axe-core";
 
 /**
