@@ -21,14 +21,25 @@ The single source of truth is the `provided`-scope driver dependencies declared 
 | 2 | `org.apache.derby` | `derby` | `10.17.1.0` (`pom.xml:115`) | `derby-10.17.1.0.jar` | yes |
 | 3 | `org.apache.derby` | `derbyclient` | `10.17.1.0` | `derbyclient-10.17.1.0.jar` | yes |
 | 4 | `org.apache.derby` | `derbynet` | `10.17.1.0` | `derbynet-10.17.1.0.jar` | yes |
-| 5 | `com.microsoft.sqlserver` | `mssql-jdbc` | `13.3.1.jre11-preview` (`pom.xml:210`) | `mssql-jdbc-13.3.1.jre11-preview.jar` | yes |
-| 6 | `net.sourceforge.jtds` | `jtds` | `1.3.1` (`pom.xml:168`) | `jtds-1.3.1.jar` | yes |
-| 7 | `com.oracle.database.jdbc` | `ojdbc17` | `23.26.0.0.0` (`pom.xml:212`) | `ojdbc17-23.26.0.0.0.jar` | yes |
+| 5 | `org.apache.derby` | `derbyshared` | `10.17.1.0` | `derbyshared-10.17.1.0.jar` | yes |
+| 6 | `org.apache.derby` | `derbytools` | `10.17.1.0` | `derbytools-10.17.1.0.jar` | yes |
+| 7 | `com.microsoft.sqlserver` | `mssql-jdbc` | `13.3.1.jre11-preview` (`pom.xml:210`) | `mssql-jdbc-13.3.1.jre11-preview.jar` | yes |
+| 8 | `net.sourceforge.jtds` | `jtds` | `1.3.1` (`pom.xml:168`) | `jtds-1.3.1.jar` | yes |
+| 9 | `com.oracle.database.jdbc` | `ojdbc17` | `23.26.0.0.0` (`pom.xml:212`) | `ojdbc17-23.26.0.0.0.jar` | yes |
 
 Validation rules:
-- All 7 entries MUST be present in the assembled `perc-distribution-tree.jar` under `jetty/base/lib/jdbc/`.
+- All 9 entries MUST be present in the assembled `perc-distribution-tree.jar` under `jetty/base/lib/jdbc/`.
 - No other JAR (no `provided`-scope non-JDBC dep, no transitive dep) may appear under `jetty/base/lib/jdbc/`.
-- The 4 `derby` JARs share the same version, but they are distinct artifacts and have distinct filenames.
+- The 6 `derby` JARs share the same version, but they are distinct artifacts and have distinct filenames.
+- `derbyshared` and `derbytools` are required at runtime by the embedded `derby` engine since
+  Derby 10.15 split the engine across multiple JARs — omitting them surfaces as
+  `ClassNotFoundException: org.apache.derby.shared.common.error.StandardException`. The
+  glob pattern `derby-*.jar` does NOT match them (the artifactId has no hyphen after
+  `derby`), so each must appear as a separate `<include>` entry in
+  `installDistributionFiles.xml:712-726` and in the staging fixture.
+- See `BundledJdbcDrivers.STAGING_GLOBS` and the `GLOB_TO_ARTIFACT_ID` table in
+  `modules/perc-distribution-tree/src/test/java/.../BundledJdbcDrivers.java` for the
+  programmatic mirror of this table.
 
 ### E2. Install Script Delete Set (after change)
 
