@@ -5,7 +5,6 @@
 
 <%@ page import="com.percussion.i18n.PSI18nUtils" %>
 <%@ page import="com.percussion.i18n.ui.PSI18NTranslationKeyValues" %>
-<%@ page import="org.jsecurity.util.StringUtils" %>
 <%@ page import="com.percussion.security.SecureStringUtils" %>
 
 
@@ -106,13 +105,20 @@
         $("#perc_site_map").perc_site_map({
             site: siteArchUrl,
             onChange: function () {
-                $.perc_finder().refresh();
+                // US6: $.perc_finder().refresh() removed — the legacy
+                // miller-column Finder has been hard-cut from the primary
+                // nav per SC-006. Refresh on change is now handled by
+                // the modern React ContentExplorerShell's internal
+                // reducer; no explicit refresh call needed here.
             }
         });
         <%} else { %>
         $("#perc_site_map").html("<div style='height: 10px;'></div><div id='perc-site-templates-inline-help'><%=inlineHelpMsg%></div>");
         <%}%>
-        $.Percussion.PercFinderView();
+        // US6: removed $.Percussion.PercFinderView() (legacy miller-column
+        // Finder has been hard-cut from the primary nav per SC-006);
+        // the modern React ContentExplorerShell is mounted via the
+        // PercModernUI bridge below.
     });
 </script>
 </head>
@@ -125,9 +131,40 @@
     </div>
 
     <div class="ui-layout-north" style="padding: 0 0; overflow:visible">
-        <jsp:include page="includes/finder.jsp" flush="true">
-            <jsp:param name="openedObject" value="PERC_SITE"/>
-        </jsp:include>
+        <%-- US6 (T031): legacy miller-column Finder include replaced with
+             a modern ContentExplorerShell mount target. --%>
+        <div id="perc-site-architecture-explorer"
+             data-testid="perc-site-architecture-explorer"
+             style="border: 1px solid #ddd; background: #fff;"></div>
+        <script>
+            (function () {
+                // US6 (T031): self-load the modern bridge if a parent page
+                // didn't already include it. The bridge is loaded exactly
+                // once per page; the cb= cache-buster ensures the browser
+                // picks up the new bundle on the first paint of each
+                // iter-dev cycle.
+                if (!document.querySelector('script[src*="perc-modern-ui.js"]')) {
+                    var s = document.createElement("script");
+                    s.type = "module";
+                    s.src = "/cm/modern/assets/perc-modern-ui.js?cb=" + Date.now();
+                    document.head.appendChild(s);
+                }
+                                function mountExplorer() {
+                    if (!window.PercModernUI || typeof window.PercModernUI.mount !== "function") {
+                        window.setTimeout(mountExplorer, 50);
+                        return;
+                    }
+                    window.PercModernUI.mount("perc-site-architecture-explorer", "ContentExplorerShell", {
+                        initialPath: ""
+                    });
+                }
+                if (document.readyState === "loading") {
+                    document.addEventListener("DOMContentLoaded", mountExplorer);
+                } else {
+                    mountExplorer();
+                }
+            })();
+        </script>
     </div>
 </div>
 
