@@ -59,13 +59,15 @@ export const RoleEditor: React.FC<RoleEditorProps> = ({
       }
     };
     fetchAvailableUsers();
-  }, [role, name, assignedUsers]);
+  }, [role, assignedUsers]);
 
   const handleAddUser = (user: string) => {
+    setError(null);
     setAssignedUsers((prev) => [...prev, user].sort());
   };
 
   const handleRemoveUser = async (user: string) => {
+    setError(null);
     // Validate remove users if updating
     if (role) {
       try {
@@ -73,7 +75,7 @@ export const RoleEditor: React.FC<RoleEditorProps> = ({
           UserList: { users: [user] },
         });
       } catch (err: any) {
-        alert(err?.message || "Cannot remove user from this role.");
+        setError(err?.message || "Cannot remove user from this role.");
         return;
       }
     }

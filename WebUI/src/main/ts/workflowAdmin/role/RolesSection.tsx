@@ -71,6 +71,7 @@ export const RolesSection: React.FC = () => {
     if (!window.confirm(message(WF_ADMIN_MSG.CONFIRM_DELETE_ROLE).replace("{0}", roleName))) {
       return;
     }
+    setError(null);
     try {
       // Validate delete first
       await post(PATHS.ROLE_DELETE_VALIDATE, { Role: { name: roleName, description: "", users: [] } });
@@ -78,7 +79,7 @@ export const RolesSection: React.FC = () => {
       await post(PATHS.ROLE_DELETE, { psstring: { value: roleName } });
       loadRoles();
     } catch (err: any) {
-      alert(err?.message || message(WF_ADMIN_MSG.DELETE_FAILED));
+      setError(err?.message || message(WF_ADMIN_MSG.DELETE_FAILED));
     }
   };
 

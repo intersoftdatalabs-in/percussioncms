@@ -29,6 +29,14 @@ approve
 - No filesystem path joins or OS-dependent separators introduced.
 - Cross-platform path review outcome: **Pass (no issues)**.
 
+## Re-review (PR Feedback Fixes)
+
+- Removed `name` and `description` from `RoleEditor.tsx` `useEffect` dependencies list to prevent flooding backend API requests on every keystroke.
+- Replaced blocking/thread-halting `alert()` calls with clean inline `setError()` status messages in `RoleEditor` user removal validation and `RolesSection` delete actions.
+- Restored explicit `type="button"` on shell tab buttons to avoid default `"submit"` behavior when shell components are placed inside form contexts.
+- Aligned mock `RolesSection` `data-testid` in `WorkflowAdminShell.test.tsx` to the real component ID (`"perc-roles-section"`) and updated the test assertions.
+- Re-review recommendation: **approve**.
+
 ## Issues
 
 No blocking bugs or suggestions identified.

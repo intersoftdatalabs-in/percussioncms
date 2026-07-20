@@ -25,7 +25,7 @@ vi.mock("../../../main/ts/workflowAdmin/workflow/WorkflowSection", () => ({
 }));
 
 vi.mock("../../../main/ts/workflowAdmin/role/RolesSection", () => ({
-  RolesSection: () => <div data-testid="roles-placeholder">Roles Content</div>,
+  RolesSection: () => <div data-testid="perc-roles-section">Roles Content</div>,
 }));
 
 describe("WorkflowAdminShell", () => {
@@ -40,7 +40,7 @@ describe("WorkflowAdminShell", () => {
     
     const rolesTab = screen.getByTestId("tab-roles");
     fireEvent.click(rolesTab);
-    expect(screen.getByTestId("roles-placeholder")).toBeTruthy();
+    expect(screen.getByTestId("perc-roles-section")).toBeTruthy();
     expect(screen.queryByTestId("mock-workflow-section")).toBeNull();
 
     const usersTab = screen.getByTestId("tab-users");

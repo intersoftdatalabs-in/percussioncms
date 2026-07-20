@@ -56,6 +56,7 @@ export const WorkflowAdminShell: React.FC<WorkflowAdminShellProps> = ({
         }}
       >
         <button
+          type="button"
           role="tab"
           id="tab-workflow"
           aria-selected={activeTab === "workflow"}
@@ -75,6 +76,7 @@ export const WorkflowAdminShell: React.FC<WorkflowAdminShellProps> = ({
         </button>
 
         <button
+          type="button"
           role="tab"
           id="tab-roles"
           aria-selected={activeTab === "roles"}
@@ -94,6 +96,7 @@ export const WorkflowAdminShell: React.FC<WorkflowAdminShellProps> = ({
         </button>
 
         <button
+          type="button"
           role="tab"
           id="tab-users"
           aria-selected={activeTab === "users"}
@@ -113,6 +116,7 @@ export const WorkflowAdminShell: React.FC<WorkflowAdminShellProps> = ({
         </button>
 
         <button
+          type="button"
           role="tab"
           id="tab-categories"
           aria-selected={activeTab === "categories"}
