@@ -108,4 +108,29 @@ test.describe("US3 P-Menu — action toolbar / context menu (SC-003)", () => {
     // menu is still in the document (Escape doesn't unmount).
     await expect(menu).toBeVisible({ timeout: 5_000 });
   });
+
+  test("ContextMenu: Enter activates a focused menu item (kilo-code-bot PR #1396 mitigation)", async ({
+    page,
+  }) => {
+    await page.goto(MENU_URL, { waitUntil: "networkidle" });
+    const item = page.locator('[data-testid="context-menu-item-preview"]');
+    await expect(item).toBeVisible({ timeout: 15_000 });
+    // Focus the item, press Enter, assert the result block is updated.
+    await item.focus();
+    await page.keyboard.press("Enter");
+    const result = page.locator('[data-testid="perc-action-menu-result"]');
+    await expect(result).toHaveText(/Invoked: preview/);
+  });
+
+  test("ContextMenu: Space activates a focused menu item (kilo-code-bot PR #1396 mitigation)", async ({
+    page,
+  }) => {
+    await page.goto(MENU_URL, { waitUntil: "networkidle" });
+    const item = page.locator('[data-testid="context-menu-item-preview"]');
+    await expect(item).toBeVisible({ timeout: 15_000 });
+    await item.focus();
+    await page.keyboard.press(" ");
+    const result = page.locator('[data-testid="perc-action-menu-result"]');
+    await expect(result).toHaveText(/Invoked: preview/);
+  });
 });

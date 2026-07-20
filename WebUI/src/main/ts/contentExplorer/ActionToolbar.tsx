@@ -33,6 +33,7 @@
 import React from "react";
 import type { MenuAction } from "../api/contentExplorer/types";
 import { message } from "../i18n/message";
+import { safeNavigate } from "../util/safeNavigate";
 
 export interface ActionToolbarProps {
   actions: MenuAction[];
@@ -45,6 +46,8 @@ export interface ActionToolbarProps {
 
 export function ActionToolbar(props: ActionToolbarProps): React.JSX.Element {
   const { actions, onInvoke, ariaLabel, emptyMessage, className } = props;
+  const baseHref =
+    typeof window !== "undefined" ? window.location.href : "http://localhost/";
   return (
     <div
       role="toolbar"
@@ -67,7 +70,15 @@ export function ActionToolbar(props: ActionToolbarProps): React.JSX.Element {
             title={a.description ?? a.label}
             onClick={() => {
               if (a.url) {
-                window.location.href = a.url;
+                const result = safeNavigate(a.url, baseHref);
+                if (!result.ok) {
+                  // eslint-disable-next-line no-console -- surface rejection for ops
+                  console.warn(
+                    `[ActionToolbar] rejected action "${a.name}" url "${result.href}" reason="${result.reason}"`,
+                  );
+                  onInvoke?.(a.name, a);
+                  return;
+                }
                 return;
               }
               onInvoke?.(a.name, a);

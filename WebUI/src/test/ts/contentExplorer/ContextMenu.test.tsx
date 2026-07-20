@@ -90,4 +90,130 @@ describe("ContextMenu", () => {
     render(<ContextMenu actions={ACTIONS} />);
     expect(isInDocument(screen.getByRole("menu"))).toBe(true);
   });
+
+  it("Enter key activates a leaf menu item via onInvoke", () => {
+    const onInvoke = vi.fn();
+    render(<ContextMenu actions={ACTIONS} onInvoke={onInvoke} />);
+    const item = screen.getByTestId("context-menu-item-delete");
+    fireEvent.keyDown(item, { key: "Enter" });
+    expect(onInvoke).toHaveBeenCalledTimes(1);
+    expect(onInvoke.mock.calls[0]?.[0]).toBe("delete");
+  });
+
+  it("Space key activates a leaf menu item via onInvoke", () => {
+    const onInvoke = vi.fn();
+    render(<ContextMenu actions={ACTIONS} onInvoke={onInvoke} />);
+    const item = screen.getByTestId("context-menu-item-delete");
+    fireEvent.keyDown(item, { key: " " });
+    expect(onInvoke).toHaveBeenCalledTimes(1);
+    expect(onInvoke.mock.calls[0]?.[0]).toBe("delete");
+  });
+
+  it("Enter on a cascade pivot toggles aria-expanded rather than invoking", () => {
+    const onInvoke = vi.fn();
+    const pivots: MenuAction[] = [
+      {
+        name: "file",
+        label: "File",
+        sortRank: 0,
+        menuType: "MENU",
+        children: [
+          { name: "save", label: "Save", sortRank: 0, menuType: "MENUITEM" },
+        ],
+      },
+    ];
+    render(<ContextMenu actions={pivots} onInvoke={onInvoke} />);
+    const pivot = screen.getByTestId("context-menu-item-file");
+    fireEvent.keyDown(pivot, { key: "Enter" });
+    expect(onInvoke).not.toHaveBeenCalled();
+    expect(pivot.getAttribute("aria-expanded")).toBe("true");
+    expect(pivot.getAttribute("aria-controls")).toMatch(/-submenu$/);
+  });
+
+  it("cascading submenu ul has an id that matches the pivot's aria-controls", () => {
+    const pivots: MenuAction[] = [
+      {
+        name: "file",
+        label: "File",
+        sortRank: 0,
+        menuType: "MENU",
+        children: [
+          { name: "save", label: "Save", sortRank: 0, menuType: "MENUITEM" },
+        ],
+      },
+    ];
+    render(<ContextMenu actions={pivots} />);
+    // First click the pivot to open the submenu.
+    fireEvent.click(screen.getByTestId("context-menu-item-file"));
+    const sub = document.querySelector("ul[aria-label='File submenu']");
+    expect(sub).toBeTruthy();
+    const pivot = screen.getByTestId("context-menu-item-file");
+    expect(sub?.id).toBe(pivot.getAttribute("aria-controls"));
+  });
+
+  it("javascript: URL is rejected; onInvoke fires as the fallback (no window assignment)", () => {
+    const onInvoke = vi.fn();
+    const malicious: MenuAction[] = [
+      {
+        name: "open",
+        label: "Open",
+        url: "javascript:alert(1)",
+        sortRank: 0,
+        menuType: "MENUITEM",
+      },
+    ];
+    render(<ContextMenu actions={malicious} onInvoke={onInvoke} />);
+    fireEvent.click(screen.getByTestId("context-menu-item-open"));
+    expect(onInvoke).toHaveBeenCalledTimes(1);
+    expect(onInvoke.mock.calls[0]?.[0]).toBe("open");
+  });
+
+  it("javascript: URL with mixed case is rejected the same way", () => {
+    const onInvoke = vi.fn();
+    const mixed: MenuAction[] = [
+      {
+        name: "open",
+        label: "Open",
+        url: "JaVaScRiPt:alert(1)",
+        sortRank: 0,
+        menuType: "MENUITEM",
+      },
+    ];
+    render(<ContextMenu actions={mixed} onInvoke={onInvoke} />);
+    fireEvent.click(screen.getByTestId("context-menu-item-open"));
+    expect(onInvoke).toHaveBeenCalledTimes(1);
+  });
+
+  it("data: URL is rejected; fallback fires", () => {
+    const onInvoke = vi.fn();
+    const data: MenuAction[] = [
+      {
+        name: "open",
+        label: "Open",
+        url: "data:text/html,<script>alert(1)</script>",
+        sortRank: 0,
+        menuType: "MENUITEM",
+      },
+    ];
+    render(<ContextMenu actions={data} onInvoke={onInvoke} />);
+    fireEvent.click(screen.getByTestId("context-menu-item-open"));
+    expect(onInvoke).toHaveBeenCalledTimes(1);
+  });
+
+  it("same-origin http URL is navigated (no fallback)", () => {
+    const onInvoke = vi.fn();
+    const ok: MenuAction[] = [
+      {
+        name: "open",
+        label: "Open",
+        url: "/Rhythmyx/cm/app/foo.jsp",
+        sortRank: 0,
+        menuType: "MENUITEM",
+      },
+    ];
+    render(<ContextMenu actions={ok} onInvoke={onInvoke} />);
+    fireEvent.click(screen.getByTestId("context-menu-item-open"));
+    // No fallback because the URL passed the guard.
+    expect(onInvoke).not.toHaveBeenCalled();
+  });
 });
