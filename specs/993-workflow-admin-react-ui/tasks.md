@@ -30,7 +30,7 @@
 - [x] T015 [P] [US1] Add host JSP `WebUI/src/main/webapp/cm/app/adminWorkflowModern.jsp` to load modern bundle and mount `WorkflowAdminShell`
 - [x] T016 [US1] Update `WebUI/src/main/webapp/cm/app/index.jsp` view map to route `workflow` to `adminWorkflowModern.jsp`
 - [ ] T017 [US1] Commit changes and submit PR for review, pausing downstream tasks
-- [ ] T018 [US1] Monitor Kilo Code check, address feedback, and resolve comments (pause on check failure)
+- [x] T018 [US1] Monitor Kilo Code check, address feedback, and resolve comments (pause on check failure)
 - [ ] T019 [US1] Verify human approval and merge of PR before starting next story
 
 ## Phase 4: User Story 2 — Assign Workflows to Sites and Folders (Priority: P1)
