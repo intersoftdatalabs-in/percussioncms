@@ -8,7 +8,7 @@
  *     http://www.apache.org/licenses/LICENSE-2.0
  */
 import { render, screen, waitFor } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { RelationshipsView } from "../../../main/ts/contentExplorer/views/RelationshipsView";
 import type { PSNodeRelationshipSummary } from "../../../main/ts/api/contentExplorer/relationship";
 import { renderA11yGate } from "./a11y";
@@ -84,5 +84,17 @@ describe("RelationshipsView", () => {
       ),
     );
     await renderA11yGate(container);
+  });
+
+  it("renders the auth placeholder and does not call loadServerSummary when item.id is missing", async () => {
+    const loader = vi.fn();
+    render(<RelationshipsView item={{}} loadServerSummary={loader} />);
+    await waitFor(() =>
+      expect(screen.queryByTestId("relationships-view")).toHaveAttribute(
+        "data-testid-state",
+        "auth",
+      ),
+    );
+    expect(loader).not.toHaveBeenCalled();
   });
 });

@@ -103,6 +103,7 @@ export const EXPLORER_MSG = {
   RELATIONSHIPS_CLIENT_SIDE_PREVIEW:
     "perc.ui.explorer@Client-side preview (full graph pending rest enhancement)",
   RELATIONSHIPS_LOADING: "perc.ui.explorer@Loading IA relationships…",
+  RELATIONSHIPS_ERROR: "perc.ui.explorer@Could not load IA relationships",
   // US5 P-Search / search panel (FR-017, FR-018, SC-005)
   SEARCH_TITLE: "perc.ui.explorer@Search",
   SEARCH_PLACEHOLDER: "perc.ui.explorer@Type to search…",

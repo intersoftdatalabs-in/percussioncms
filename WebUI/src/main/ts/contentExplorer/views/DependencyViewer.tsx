@@ -98,6 +98,14 @@ export function DependencyViewer(
 
   React.useEffect(() => {
     let alive = true;
+    if (!itemId) {
+      // No item id → don't fire a network round-trip; the rest endpoint
+      // would 404 on the empty path segment. Render the auth placeholder
+      // instead so the dependency view surfaces the no-access signal
+      // cleanly (per the bot review on PR #1410).
+      setState({ kind: "auth" });
+      return;
+    }
     setState({ kind: "loading" });
     loadServerSummary(itemId)
       .then((summary) => {
