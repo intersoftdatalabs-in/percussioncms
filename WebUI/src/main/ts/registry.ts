@@ -10,17 +10,8 @@
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */
-
-/**
- * Component registry for the mount-point bridge.
- *
- * <p>Each React component that should be mountable from legacy JSP pages must
- * be registered here by name. The bridge module looks up components by name
- * when {@code window.PercModernUI.mount()} is called.</p>
  */
 
 import type { ComponentType } from "react";
@@ -31,6 +22,11 @@ import { UnavailableView } from "./home/UnavailableView";
 import { PublishingShell } from "./publishing";
 import { WidgetBuilderApp } from "./widgetbuilder/WidgetBuilderApp";
 import { ContentExplorerShell } from "./contentExplorer/ContentExplorerShell";
+import { ClipboardPanel } from "./contentExplorer/clipboard/ClipboardPanel";
+import { SiteCopyWizard } from "./contentExplorer/wizards/SiteCopyWizard";
+import { SubfolderCopyWizard } from "./contentExplorer/wizards/SubfolderCopyWizard";
+import { DependencyViewer } from "./contentExplorer/views/DependencyViewer";
+import { RelationshipsView } from "./contentExplorer/views/RelationshipsView";
 import { ContentBrowser } from "./contentBrowser/ContentBrowser";
 
 /** Map of component names to their React component types. */
@@ -53,3 +49,11 @@ componentRegistry.set("WidgetBuilderApp", WidgetBuilderApp);
 componentRegistry.set("UnavailableView", UnavailableView);
 componentRegistry.set("ContentExplorerShell", ContentExplorerShell);
 componentRegistry.set("ContentBrowser", ContentBrowser);
+componentRegistry.set("ClipboardPanel", ClipboardPanel);
+componentRegistry.set("SiteCopyWizard", SiteCopyWizard);
+componentRegistry.set("SubfolderCopyWizard", SubfolderCopyWizard);
+componentRegistry.set("DependencyViewer", DependencyViewer);
+componentRegistry.set("RelationshipsView", RelationshipsView);
+// US5 components (SearchPanel) intentionally NOT registered here:
+// they live on the US5 PR branch and will arrive in development
+// when PR #1398 merges.

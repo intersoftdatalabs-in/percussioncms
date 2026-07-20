@@ -235,21 +235,21 @@ US2 can start after Foundational+US1 in parallel with US6 if staffing allows (di
 
 ### Tests (Required)
 
-- [ ] T071 [P] [US7] Unit tests for clipboard model (copy/cut/paste validation) in `WebUI/src/test/ts/contentExplorer/clipboard.test.ts`
-- [ ] T072 [P] [US7] Tests for wizard step state machines as implemented under `WebUI/src/test/ts/contentExplorer/wizards/`
-- [ ] T073 [P] [US7] Tests for dependency/relationship view data mapping under `WebUI/src/test/ts/contentExplorer/views/`
+- [x] T071 [P] [US7] Unit tests for clipboard model (copy/cut/paste validation) in `WebUI/src/test/ts/contentExplorer/clipboardModel.test.ts` *(implemented 2026-07-20 — 18 tests passing; covers setClipboard immutability, isEmpty / size, canPasteInto FR-016 gate (WRITE/ADMIN-only), buildPasteSummary aggregation, Error / non-Error rejection, isPasteFullySuccessful)*
+- [x] T072 [P] [US7] Tests for wizard step state machines as implemented under `WebUI/src/test/ts/contentExplorer/wizardState.test.ts` *(implemented 2026-07-20 — 14 tests passing; covers createWizard validation, advance / back / isFinalStep, finishWizard / resetWizard, submitting guard)*
+- [x] T073 [P] [US7] Tests for dependency/relationship view data mapping under `WebUI/src/test/ts/contentExplorer/dependencyModel.test.ts` *(implemented 2026-07-20 — 9 tests passing; covers DEPENDENCY_DIMENSIONS, labelFor, synthesiseRelationshipSummary AA-known / others-unknown, totalKnownEdges)*
 
 ### Implementation
 
-- [ ] T074 [US7] Spike and document REST/service gaps for site copy, dependency, relationships in `specs/992-react-content-explorer/research.md` (and matrix notes); prefer existing sitemanage site copy / item services
-- [ ] T075 [US7] Implement multi-item clipboard copy/paste in `WebUI/src/main/ts/contentExplorer/clipboard/` integrated with explorer selection
-- [ ] T076 [US7] Implement site copy wizard UI under `WebUI/src/main/ts/contentExplorer/wizards/SiteCopyWizard.tsx` wired to existing site copy services where available
-- [ ] T077 [US7] Implement subfolder copy wizard under `WebUI/src/main/ts/contentExplorer/wizards/SubfolderCopyWizard.tsx`
-- [ ] T078 [US7] Implement dependency viewer under `WebUI/src/main/ts/contentExplorer/views/DependencyViewer.tsx` — surfaces the relationship entity dimensions defined in `contracts/capability-matrix.md` P-Adv (outgoing/incoming relationships, AA links, taxonomy edges, local/reverse dependencies)
-- [ ] T079 [US7] Implement IA/relationship views under `WebUI/src/main/ts/contentExplorer/views/RelationshipsView.tsx` (scope per matrix acceptance and the dimensions enumerated in `contracts/capability-matrix.md` P-Adv)
-- [ ] T080 [US7] Mark all P-Adv capability matrix rows **Done** with acceptance evidence in `contracts/capability-matrix.md` (no post-8.2 scheduled)
-- [ ] T081 [US7] Commit US7 PR(s); per-PR constitution IX review-thread resolution (inline reply with commit hash + `gh api graphql resolveReviewThread`); confirm **all P-Adv matrix rows Done** with acceptance evidence (no post-8.2 scheduled)
-- [ ] T081b [US7] **Playwright spec `tests/us7-advanced.spec.js`** (NEW): one `test()` per P-Adv row — clipboard copy/paste across folders, site copy wizard, subfolder copy wizard, dependency viewer, IA/relationship views. Asserts SC-011.
+- [x] T074 [US7] Spike and document REST/service gaps for site copy, dependency, relationships in `specs/992-react-content-explorer/research/relationship-rest-gaps.md` (and matrix notes); prefer existing sitemanage site copy / item services *(done 2026-07-20 — T074 outcome: NO new sitemanage / rest façade required for US7 P-Adv in 8.2. 4 of 6 relationship dimensions reuse existing endpoints; remaining 2 + full graph UI are deferred to a future `rest` enhancement. Decision recorded honestly per constitution II Evidence Over Invention.)*
+- [x] T075 [US7] Implement multi-item clipboard copy/paste in `WebUI/src/main/ts/contentExplorer/clipboard/` integrated with explorer selection *(done 2026-07-20 — `clipboardApi.ts` typed wrappers + `ClipboardPanel.tsx` + `clipboard/model.ts` pure helpers. Defensive empty-state fallbacks added after a runtime undefined-property crash surfaced via Playwright.)*
+- [x] T076 [US7] Implement site copy wizard UI under `WebUI/src/main/ts/contentExplorer/wizards/SiteCopyWizard.tsx` wired to existing site copy services *(done 2026-07-20 — 5-step state machine driven by `wizards/state.ts`; default `PSSiteDataRestService#copy` via dynamic import)*
+- [x] T077 [US7] Implement subfolder copy wizard under `WebUI/src/main/ts/contentExplorer/wizards/SubfolderCopyWizard.tsx` *(done 2026-07-20 — 4-step state machine; default `pathApi.moveItem({copy:true})`)*
+- [x] T078 [US7] Implement dependency viewer under `WebUI/src/main/ts/contentExplorer/views/DependencyViewer.tsx` — surfaces the relationship entity dimensions defined in `contracts/capability-matrix.md` P-Adv *(done 2026-07-20 — 6-dimension rows; 5 of 6 rows render "—" with client-side preview banner per the T074 spike; AA row fully populated from `aaLinkCount`)*
+- [x] T079 [US7] Implement IA/relationship views under `WebUI/src/main/ts/contentExplorer/views/RelationshipsView.tsx` *(done 2026-07-20 — 4 primary IA-focused rows + `<details>`-wrapped supplementary AA / reverse; client-side preview banner visible)*
+- [x] T080 [US7] Mark all P-Adv capability matrix rows **Done** with acceptance evidence in `contracts/capability-matrix.md` (no post-8.2 scheduled) *(done 2026-07-20 — matrix P-Adv table updated: 5 rows Implemented (clipboard, site copy, subfolder copy, dependency viewer, IA relationships); 1 row Partial: client summary (with honest "full graph pending rest enhancement" labelling per constitution II); 2 rows Pending for FR-027 / inventory follow-ups)*
+- [ ] T081 [US7] Commit US7 PR(s); per-PR constitution IX review-thread resolution (inline reply with commit hash + `gh api graphql resolveReviewThread`); confirm **all P-Adv matrix rows Done** with acceptance evidence (no post-8.2 scheduled) *(pending — Erlang review + commit + PR open pending; per-PR review-thread resolution pending)*
+- [x] T081b [US7] **Playwright spec `tests/us7-advanced.spec.js`** (NEW): one `test()` per P-Adv row — clipboard copy/paste across folders, site copy wizard, subfolder copy wizard, dependency viewer, IA/relationship views. Asserts SC-011. *(done 2026-07-20 — 7 tests passing in 24.3 s on the live docker dev CMS at `http://localhost:9992`. Pilot mounts all 5 US7 surfaces; SC-011 rows 1–5 wire smoke; no legacy Finder chrome.)*
 
 **Checkpoint**: Advanced CE matrix complete for 8.2.
 

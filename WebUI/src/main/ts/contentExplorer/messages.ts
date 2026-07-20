@@ -51,4 +51,49 @@ export const EXPLORER_MSG = {
   PROMPT_NEW_FOLDER_NAME: "perc.ui.explorer@Enter new folder name",
   PROMPT_NEW_NAME: "perc.ui.explorer@Enter new name",
   ERROR_GENERIC: "perc.ui.explorer@Something went wrong",
+
+  // US7 P-Adv / clipboard / wizards / dependency / relationships (FR-021–FR-029, SC-011)
+  CLIPBOARD_TITLE: "perc.ui.explorer@Clipboard",
+  CLIPBOARD_MODE_LABEL: "perc.ui.explorer@Clipboard mode",
+  CLIPBOARD_MODE_COPY: "perc.ui.explorer@Copy",
+  CLIPBOARD_MODE_CUT: "perc.ui.explorer@Cut",
+  CLIPBOARD_ADD: "perc.ui.explorer@Add to clipboard",
+  CLIPBOARD_CLEAR: "perc.ui.explorer@Clear clipboard",
+  CLIPBOARD_PASTE: "perc.ui.explorer@Paste",
+  CLIPBOARD_EMPTY: "perc.ui.explorer@Clipboard is empty",
+  CLIPBOARD_PASTE_TARGET_REQUIRED: "perc.ui.explorer@Select a destination folder before pasting",
+
+  WIZARD_NEXT: "perc.ui.explorer@Next",
+  WIZARD_BACK: "perc.ui.explorer@Back",
+  WIZARD_CANCEL: "perc.ui.explorer@Cancel",
+  WIZARD_SUBMIT: "perc.ui.explorer@Run",
+  WIZARD_FINISH: "perc.ui.explorer@Finish",
+  WIZARD_STEP: "perc.ui.explorer@Step",
+  WIZARD_OF: "perc.ui.explorer@of",
+  WIZARD_ERROR: "perc.ui.explorer@The wizard could not be completed",
+
+  SITE_COPY_TITLE: "perc.ui.explorer@Site Copy",
+  SITE_COPY_STEP_SOURCE: "perc.ui.explorer@Source site",
+  SITE_COPY_STEP_TARGET: "perc.ui.explorer@Target site",
+  SITE_COPY_STEP_OPTIONS: "perc.ui.explorer@Options",
+  SITE_COPY_STEP_CONFIRM: "perc.ui.explorer@Confirm",
+  SITE_COPY_STEP_PROGRESS: "perc.ui.explorer@Progress",
+
+  SUBFOLDER_COPY_TITLE: "perc.ui.explorer@Subfolder Copy",
+  SUBFOLDER_COPY_STEP_SOURCE: "perc.ui.explorer@Source folder",
+  SUBFOLDER_COPY_STEP_TARGET: "perc.ui.explorer@Target folder",
+  SUBFOLDER_COPY_STEP_CONFIRM: "perc.ui.explorer@Confirm",
+
+  DEPENDENCY_TITLE: "perc.ui.explorer@Dependencies",
+  DEPENDENCY_OUTGOING: "perc.ui.explorer@Outgoing relationships",
+  DEPENDENCY_INCOMING: "perc.ui.explorer@Incoming relationships",
+  DEPENDENCY_AA: "perc.ui.explorer@Active Assembly links",
+  DEPENDENCY_TAXONOMY: "perc.ui.explorer@Site / taxonomy edges",
+  DEPENDENCY_LOCAL: "perc.ui.explorer@Local dependencies",
+  DEPENDENCY_REVERSE: "perc.ui.explorer@Reverse dependencies",
+  DEPENDENCY_CLIENT_SIDE_PREVIEW: "perc.ui.explorer@Client-side preview",
+
+  RELATIONSHIPS_TITLE: "perc.ui.explorer@IA Relationships",
+  RELATIONSHIPS_CLIENT_SIDE_PREVIEW:
+    "perc.ui.explorer@Client-side preview (full graph pending rest enhancement)",
 } as const;
