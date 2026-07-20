@@ -230,6 +230,48 @@ npm test -- --config=playwright.config.js
 npm test -- --debug
 ```
 
+## Fast iteration against the dev CMS (no container restart)
+
+When the dev CMS is running via the docker compose stack at `localhost:9992` (see `docker-compose.yml` + `docker/scripts/perc-devctl.sh`), **JS / TS / JSP changes do NOT require a container restart** — rebuild and copy the artifact. See the WebUI AGENTS.md "Hot Deployment" section for the full iteration cost table. Quick reference for QA work:
+
+```bash
+# 1. Edit spec file in modules/perc-qa-automation/frontend/tests/
+# 2. Run (no rebuild needed for spec changes)
+cd modules/perc-qa-automation/frontend
+npm test -- tests/<spec>.spec.js
+
+# If you also touched a TS helper or the auth module:
+cd WebUI/src/main/frontend
+npm run build:modern
+cp WebUI/target/generated-webui/cm/modern/assets/perc-modern-ui.js \
+   /opt/Percussion/jetty/base/webapps/Rhythmyx/cm/modern/assets/perc-modern-ui.js
+# (No restart needed for JS changes — the page picks up the new bundle on next request;
+# add a cache-buster to the test URL to force a fresh fetch.)
+```
+
+**JSP-only changes** (e.g. new `explorerModern.jsp` page): copy the file to the runtime webapp, no build. Jetty serves the new JSP on the next request.
+
+**Test URL cache-buster** (when the CMS-side bundle changes):
+
+```javascript
+// in helpers/auth.js or the spec
+const EXPLORER_URL = `${BASE_URL}/Rhythmyx/cm/app/explorerModern.jsp?_=${Date.now()}`;
+```
+
+This avoids the browser caching the previous bundle across spec reruns.
+
+## Iteration cost reference
+
+| Change | Build | Restart | Total |
+|--------|-------|---------|-------|
+| Spec file (.spec.js) | none | none | ~1 s |
+| TS / TSX in `helpers/` | `npm run build:modern` (~3 s) + copy | none | ~3 s |
+| CSS / styles | `npm run build:modern` + copy | none | ~3 s |
+| JSP (e.g. modern entry point) | none (copy) | none | ~1 s |
+| WebUI backend Java | `./mvn-env.sh -pl WebUI -am install` (~30–60 s) | `docker compose restart` | ~1–2 min |
+
+When iterating, prefer the cheap paths first (spec → helpers → CSS → JSP → Java).
+
 ## Limitations
 
 - **No bug reporting**: Currently, you should only verify existing bugs, not create new issue reports

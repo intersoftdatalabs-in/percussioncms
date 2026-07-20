@@ -34,7 +34,7 @@
 
     String view = request.getParameter("view");
     String className = "perc-ui-view-ready";
-    if (view.equals("editor")) {
+    if ("editor".equals(view)) {
         className = "perc-ui-view-processing";
     }
 

@@ -5,6 +5,7 @@ services:
       dockerfile: docker/cms/Dockerfile
     container_name: percussion-cms-dts
     restart: unless-stopped
+<<<<<<< HEAD
     # Run as the host UID/GID that owns /opt/Percussion. StartJetty.sh
     # compares `whoami` to the owner of /opt/Percussion and refuses to
     # su to a UID that doesn't exist in the container's /etc/passwd, so
@@ -15,6 +16,13 @@ services:
     # matches the nate:mkd-dev owner that installed /opt/Percussion
     # in the original dev setup; other developers can override.
     user: "${CMS_UID:-1000}:${CMS_GID:-1001}"
+=======
+    # Run as the host UID/GID that owns /opt/Percussion (host nate:mkd-dev
+    # = 1000:1001). StartJetty.sh compares `whoami` to the owner of
+    # /opt/Percussion and refuses to su to a UID that doesn't exist in
+    # the container's /etc/passwd. Matching the host UID bypasses that.
+    user: "1000:1001"
+>>>>>>> 2d35a93c49 (feat(docker): install-on-host CMS dev runtime with container service-only mode)
     environment:
       # Container is service-only. The install lives entirely on the
       # host (scripts/install-cms-dev.sh) and the bind mount below
@@ -42,5 +50,15 @@ services:
         ]
       interval: 20s
       timeout: 5s
+<<<<<<< HEAD
+<<<<<<< HEAD
       retries: ${PERC_HEALTHCHECK_RETRIES:-60}
       start_period: ${PERC_HEALTHCHECK_START_PERIOD:-30s}
+
+volumes:
+  mysql-data:
+>>>>>>> 052c18b956 (fix(docker): wire PERC_DB_* env vars + bump healthcheck window to break install restart loop)
+=======
+      retries: ${PERC_HEALTHCHECK_RETRIES:-60}
+      start_period: ${PERC_HEALTHCHECK_START_PERIOD:-30s}
+>>>>>>> 2d35a93c49 (feat(docker): install-on-host CMS dev runtime with container service-only mode)

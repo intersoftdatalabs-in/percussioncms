@@ -25,7 +25,7 @@
 
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { paginatedFolder } from "../api/contentExplorer/pathApi";
-import type { PSPathItem, PSPagedItemList } from "../api/contentExplorer/types";
+import type { PSPathItem, PSPagedResult } from "../api/contentExplorer/types";
 import { message } from "../i18n/message";
 import { canRead } from "./selection";
 import {
@@ -63,7 +63,7 @@ export function DetailList({
   onActivateItem,
 }: DetailListProps): React.ReactElement {
   const [page, setPage] = useState(0);
-  const [data, setData] = useState<PSPagedItemList | null>(null);
+  const [data, setData] = useState<PSPagedResult | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const lastLoadedPath = useRef<string | null>(null);
@@ -100,10 +100,10 @@ export function DetailList({
       startIndex,
       maxResults: PAGE_SIZE,
     })
-      .then((res) => {
-        if (cancelled) return;
-        setData(res);
-      })
+    .then((res) => {
+      if (cancelled) return;
+      setData(res as PSPagedResult);
+    })
       .catch((err: unknown) => {
         if (cancelled) return;
         const msg = err instanceof Error ? err.message : String(err);
@@ -119,7 +119,7 @@ export function DetailList({
 
   const children = useMemo<PSPathItem[]>(() => {
     if (!data) return [];
-    return data.children ?? data.items ?? [];
+    return data.children;
   }, [data]);
 
   const totalCount = data?.totalCount;
