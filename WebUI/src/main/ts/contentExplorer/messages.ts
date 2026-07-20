@@ -51,4 +51,24 @@ export const EXPLORER_MSG = {
   PROMPT_NEW_FOLDER_NAME: "perc.ui.explorer@Enter new folder name",
   PROMPT_NEW_NAME: "perc.ui.explorer@Enter new name",
   ERROR_GENERIC: "perc.ui.explorer@Something went wrong",
+
+  // US4 P-ACL / folder security (FR-014–FR-016, SC-004)
+  SECURITY_TITLE: "perc.ui.explorer@Folder Security",
+  SECURITY_LOADING: "perc.ui.explorer@Loading permissions",
+  SECURITY_LOAD_ERROR: "perc.ui.explorer@Failed to load folder permissions",
+  SECURITY_SAVE_SUCCESS: "perc.ui.explorer@Permissions saved",
+  SECURITY_SAVE_ERROR: "perc.ui.explorer@Failed to save permissions",
+  SECURITY_READ_ONLY: "perc.ui.explorer@View-only (you do not have ADMIN access)",
+  SECURITY_LOCKOUT_WARNING_TITLE: "perc.ui.explorer@Confirm self-lockout",
+  SECURITY_LOCKOUT_WARNING_BODY:
+    "perc.ui.explorer@Saving these changes will remove your access to this folder. Continue?",
+  SECURITY_LOCKOUT_WARNING_CONFIRM: "perc.ui.explorer@Save anyway",
+  SECURITY_LOCKOUT_WARNING_CANCEL: "perc.ui.explorer@Cancel",
+  SECURITY_LEVEL_ADMIN: "perc.ui.explorer@Admin",
+  SECURITY_LEVEL_WRITE: "perc.ui.explorer@Write",
+  SECURITY_LEVEL_READ: "perc.ui.explorer@Read",
+  SECURITY_LEVEL_VIEW: "perc.ui.explorer@View",
+  SECURITY_PRINCIPAL_REMOVE: "perc.ui.explorer@Remove",
+  SECURITY_PRINCIPAL_ADD: "perc.ui.explorer@Add principal",
+  SECURITY_PRINCIPAL_NAME_LABEL: "perc.ui.explorer@Principal name",
 } as const;
