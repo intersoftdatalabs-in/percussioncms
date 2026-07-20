@@ -2,10 +2,12 @@
 
 **Feature**: [spec.md](../../specs/992-react-content-explorer/spec.md)
 **Scope**: FR-026 / SC-009 / threat-model surface for the new React/TypeScript surface in the modern Content Explorer.
-**Effective date**: 2026-07-20 (Polish phase, post-PRs #1386, #1390–#1391, #1394, #1396–#1398, #1401).
+**Effective date**: 2026-07-20 (Polish phase, post-PRs #1386, #1390–#1391, #1394, #1396–#1398, #1401; **scope amendment 2026-07-20 15:15 ET adds US8 / T092–T104 — see §"US8 amendment 2026-07-20"**).
 **Reviewer**: Kilo session (implementer; submitted for UAT/security-team confirmation at 8.2 GA candidate build).
 
-## Threat-model scope (added by T052b trigger)
+## US8 amendment 2026-07-20
+
+Per the same-day policy revision ("no residuals allowed out of spec phases"), US8 was added to scope to ship the 5 typed REST endpoints behind a new façade. The row below supersedes the prior US7 "None added" claim for the relevant dimensions. Threat-model entries that follow remain correct for the read-only, GET-only, ACL-bounded, CSRF-exempt new surface.
 
 | Layer | Component | New surface? | AuthZ source | CSRF | Server-side threat surface |
 |-------|-----------|--------------|--------------|------|----------------------------|
@@ -14,7 +16,9 @@
 | US3 | `ContextMenu` / `ActionToolbar` | No | Same `actions/...` REST endpoints as Finder | Same wrapper | None added |
 | US4 | `FolderSecurityPanel` | Yes (new client) | `folderProperties` / `saveFolderProperties` (existing) | Same wrapper | **T052b note**: `saveFolderProperties` is AuthZ-gated server-side (admin write required); client-side `canEditSecurityPanel` is a UX gate only. Real AuthZ is server-side. |
 | US5 | `SearchPanel` + `searchApi.ts` | New typed wrapper | `searchmanagement/.../extendedresults` (existing) | Same wrapper | None added |
-| US7 | `ClipboardPanel` + `clipboardApi.ts` + `SiteCopyWizard` + `SubfolderCopyWizard` + `DependencyViewer` + `RelationshipsView` | Yes (new client) | `pagemanagement/page/copy` + `pathmanagement/path/moveItem` + `sitemanage/site/copy` (existing) | Same wrapper | None added |
+| US7 | `ClipboardPanel` + `clipboardApi.ts` + `SiteCopyWizard` + `SubfolderCopyWizard` | Yes (new client) | `pagemanagement/page/copy` + `pathmanagement/path/moveItem` + `sitemanage/site/copy` (existing) | Same wrapper | None added |
+| **US8 (new 2026-07-20)** | `DependencyViewer` + `RelationshipsView` consuming `relationshipsApi.ts` | Yes — **5 new GET endpoints + 1 consolidated summary endpoint** behind `rest/` at `/Rhythmyx/rest/content-explorer/relationships` | New sitemanage `IPSRelationshipSummaryService` wrapping existing `IPSRelationshipCataloger` + `IPSNodeService` + page/widget DAO layer; ACL-gated per existing `accessLevel` model (Admin/Write/Read allowed; View returns 403 on private folders) | **GET only — CSRF-exempt** | Documented per row below |
+| US7 (5 dimensions now authoritative via US8) | `DependencyViewer` + `RelationshipsView` no longer use the unknown / clientSidePreview branch | (no client-only residual) | (US8 supersedes the partial) | n/a | n/a |
 
 ## Threat-model controls per row
 
@@ -24,24 +28,27 @@
 | **AuthZ on action execution** (FR-013) | Action menu items route through existing REST endpoints, each AuthZ-gated server-side. The frontend `actionMenuApi.findActions()` only enumerates actions the user is authorized to invoke (server-side filter). | `WebUI/src/main/ts/api/contentExplorer/actionMenuApi.ts`; `modules/sitemanage/.../ActionMenuResource.java` |
 | **AuthZ on search** (FR-017) | `searchmanagement/search/get/extendedresults` is AuthZ-gated server-side; the client passes the user's authenticated session. No client-side privilege escalation. | `WebUI/src/main/ts/api/contentExplorer/searchApi.ts`; `projects/sitemanage/.../searchmanagement` |
 | **AuthZ on clipboard paste** | `PSClipBoard` server-side; the target folder's write-permission is checked at paste time on the server (FR-016 inherited). The client's `canPasteInto` is a UX hint. | `WebUI/src/main/ts/contentExplorer/clipboard/canPasteInto.ts`; server `PSClipBoardService` |
-| **CSRF** | All POST endpoints go through the existing CSRF-token fetch wrapper (`api/client.ts`). The CMS already returns the token in the login response; no new client-side surface exempts. | `WebUI/src/main/ts/api/client.ts` |
+| **CSRF** | All POST endpoints go through the existing CSRF-token fetch wrapper (`api/client.ts`). **All US8 endpoints are GETs and are CSRF-exempt.** The CMS already returns the token in the login response; no new client-side surface exempts. | `WebUI/src/main/ts/api/client.ts`; `rest/.../RelationshipSummaryResource.java` (US8 GETs) |
+| **AuthZ negative on US8 GETs** (T099 service-contract test asserts) | `IPSRelationshipSummaryService` checks the caller's ACL on `itemId` before computing counts; returns 403 (not 0) when the caller has View-only access on a private folder's content. | `projects/sitemanage/.../relationship/PSRelationshipSummaryService.java` (new in US8) |
 | **XSS in dropdown / menu** (path / label rendering) | All string interpolation in React components is JSX-escaped by default. Server-controlled strings (item titles, paths) flow through React text nodes. No `dangerouslySetInnerHTML`. | sweep `WebUI/src/main/ts/contentExplorer/**/*.tsx` |
 | **XXE in dependency / wizard XML** | No XML parsing on the client; all client input is JSON. Server-side XML parsers are existing (not modified by this feature). | n/a |
 | **Zip-slip / archive extraction** | No new archive handling on the client; `SiteCopyWizard` submits JSON, server returns JSON. No path-traversal surface added. | n/a |
 | **Open redirect / unsafe URL navigation** | `ContextMenu` action items route through `safeNavigate` (URL protocol + host allowlist). No direct `window.location.href = ...` outside `safeNavigate`. | `WebUI/src/main/ts/util/safeNavigate.ts` (16 Vitest tests); review confirmed no regressions |
-| **Secrets in logs** | The data-testid labels, error messages, and TMX keys do not include credentials, session tokens, or passwords. Playwright tests use the env-resolved auto-discovered credentials (`helpers/auth.js`). Logs on the React side stay at `console.error` for caught promises only. | `WebUI/src/main/ts/contentExplorer/**/*.tsx` |
+| **DoS on US8 #7 consolidated summary** | The consolidated endpoint composes counts in-process via the new sitemanage service; bounded by per-node row scan of `RXRELATIONSHIPS`, `RXNAVIGATION`, `PSWidgetAssetRelationship`. An AuthZ-denied caller returns 403 before row scan. No new external dependency added. | `rest/.../RelationshipSummaryResource.java` |
+| **Secrets in logs** | The data-testid labels, error messages, and TMX keys do not include credentials, session tokens, or passwords. US8 server logs only `itemId + actor + count`; no PII. Playwright tests use the env-resolved auto-discovered credentials (`helpers/auth.js`). Logs on the React side stay at `console.error` for caught promises only. | `WebUI/src/main/ts/contentExplorer/**/*.tsx` |
 | **CSRF in JSP shell bootstrap** | The `PercModernUI.mount()` call is rendered by the same JSP shell that mounts the legacy Finder; CSRF token state is already a JSP attribute, no change. | `WebUI/src/main/webapp/cm/app/explorerModern.jsp` etc. (JSPs unchanged structurally; only mount target added) |
 
-## No-new-façade statement (per T052)
+## No-new-façade statement (per T052, amended by US8 on 2026-07-20)
 
-Per the T052 decision (US3 — see [`../specs/992-react-content-explorer/checklists/sc003-actions-checklist.md`](../../specs/992-react-content-explorer/checklists/sc003-actions-checklist.md)):
+Per the original T052 decision (US3 — see [`../specs/992-react-content-explorer/checklists/sc003-actions-checklist.md`](../../specs/992-react-content-explorer/checklists/sc003-actions-checklist.md)):
 
 > **No new sitemanage or `rest` façade was added for the 8.2 dev surface.**
-> US3, US4, US5, and US7 all reuse existing server endpoints.
+> US3, US4, and US5 reuse existing server endpoints.
 
-Therefore: **no new service-contract tests were authored** (T052a = N/A) and
-**no new threat-model entry is required** for the 8.2 release beyond the rows
-above, which all map to existing server endpoints.
+US7 split into two scopes on 2026-07-20 15:15 ET:
+
+- **Original scope (clipboard + 2 wizards)** stays a no-new-façade client.
+- **US8 (added 2026-07-20)** introduces the new `IPSRelationshipSummaryService` + `RelationshipSummaryResource` so the DependencyViewer + RelationshipsView render all 6 dimensions authoritatively. Threat-model rows above apply.
 
 ## Pre-release hardening still required
 

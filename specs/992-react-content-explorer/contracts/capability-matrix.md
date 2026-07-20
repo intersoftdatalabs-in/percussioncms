@@ -153,8 +153,8 @@ The dependency viewer and IA/relationship views surface the following entities/d
 | Multi-item clipboard copy/paste | CE `PSClipBoard` | `ClipboardPanel` + typed `clipboardApi.ts` | P-Adv | US7 | **Implemented** — WebUI `WebUI/src/main/ts/contentExplorer/clipboard/ClipboardPanel.tsx`; server endpoints `pagemanagement/page/copy/{id}` (PSPageRestService#copy) + `pathmanagement/path/moveItem({copy:true})` (US1 pathApi wrapper) for assets / folders. FR-016 read-only-without-rights gate via `canPasteInto` pure helper (WRITE/ADMIN-only target write) | Vitest `clipboardModel.test.ts` (18 tests); `clipboardApi.test.ts` (5 tests); `ClipboardPanel.test.tsx` (8 tests); Playwright `tests/us7-advanced.spec.js` (ClipboardPanel row) |
 | Site copy wizard | CE wizards + sitemanage copy | `SiteCopyWizard` (5-step state machine) | P-Adv | Matrix row UAT | **Implemented** — WebUI `WebUI/src/main/ts/contentExplorer/wizards/SiteCopyWizard.tsx`; default endpoint `POST /Rhythmyx/rest/sitemanage/site/copy` (PSSiteDataRestService#copy) — supply `submit` override to test | Vitest `wizardState.test.ts` (14 tests covering the state machine); `SiteCopyWizard.test.tsx` (6 tests); Playwright `tests/us7-advanced.spec.js` (site copy row) |
 | Subfolder copy wizard | CE wizards | `SubfolderCopyWizard` (4-step state machine) | P-Adv | Matrix row UAT | **Implemented** — WebUI `WebUI/src/main/ts/contentExplorer/wizards/SubfolderCopyWizard.tsx`; default endpoint `POST /Rhythmyx/rest/pathmanagement/path/moveItem` with `copy:true` (US1 pathApi wrapper) | Vitest `SubfolderCopyWizard.test.tsx` (4 tests); Playwright `tests/us7-advanced.spec.js` (subfolder copy row) |
-| Dependency viewer | CE `PSDependencyViewer` | `DependencyViewer` (6-dim client summary) | P-Adv | US7 + SC-011 | **Partial** — 1 of 6 rows (AA) is fully populated from `aaLinkCount`; 5 rows render "—" pending the `rest` enhancement (see `research/relationship-rest-gaps.md`). Client-side preview banner visible. | Vitest `dependencyModel.test.ts` (9 tests); Playwright `tests/us7-advanced.spec.js` (DependencyViewer row) |
-| IA / relationship views | CE managers | `RelationshipsView` (4 primary rows + supplementary details) | P-Adv | US7 + SC-011 | **Partial** — same gap as DependencyViewer; row ordering matches IA-team workflow (taxonomy over AA) | Playwright `tests/us7-advanced.spec.js` (RelationshipsView row) |
+| Dependency viewer | CE `PSDependencyViewer` | `DependencyViewer` (6-dim client summary) | P-Adv | US7 + US8 + SC-011 | **Implemented** (US7 partial + US8 mandate) — server authoritative for all 6 dimensions; AA row continues to use the existing `aaLinkCount`; the 5 unknown rows (outgoing / incoming / taxonomy / local / reverse) are populated by 5 typed REST endpoints behind `rest/content-explorer/relationships/{itemId}/{dimension}` plus a consolidated `/summary` endpoint (#7). See [`research/relationship-rest-gaps.md` §US8](../../research/relationship-rest-gaps.md). | Vitest `relationshipApi.test.ts` ≥6 tests (US8 T092); `dependencyModel.test.ts` (US7 + US8 T093) ≥3 tests; component `DependencyViewer.test.tsx` re-gated to assert no `clientSidePreview` banner; Playwright `tests/us8-dependency.spec.js` ≥3 tests (US8 T095) |
+| IA / relationship views | CE managers | `RelationshipsView` (4 primary rows + supplementary details) | P-Adv | US7 + US8 + SC-011 | **Implemented** — same server population as DependencyViewer; row ordering matches IA-team workflow (taxonomy over AA) | Vitest `RelationshipsView.test.tsx` ≥3 tests (US8 T094); Playwright `tests/us8-dependency.spec.js` includes the IA row |
 | Display format full columns | CE display formats | List columns | P-Adv or P0 partial | FR-027 | **Pending** — FR-027 follow-up PR (out of scope for US7) | n/a |
 | Relationships manager deep tools | CE | React | P-Adv | Inventory | **Pending** — out of scope for 8.2 | n/a |
 
@@ -232,8 +232,8 @@ decision (T090).
 | Multi-item clipboard copy/paste | **Done** | PR #1401; Vitest 31 across `clipboardModel` / `clipboardApi` / `ClipboardPanel`; Playwright |
 | Site copy wizard | **Done** | PR #1401; Vitest 6 + Playwright |
 | Subfolder copy wizard | **Done** | PR #1401; Vitest 4 + Playwright |
-| Dependency viewer (6 dimensions) | **Partial (1 of 6 populated)** | PR #1401; AA populated, 5 dimensions render "—" pending `rest` enhancement (see `research/relationship-rest-gaps.md`). Client-side preview banner visible. **Strict SC-012 reading: this row is a partial — see T090 below.** |
-| IA / relationship views | **Partial (1 of 6 populated)** | PR #1401; same gap as DependencyViewer |
+| Dependency viewer (6 dimensions) | **Implemented — server authoritative** | US7 PR #1401 (client shell + AA row) + **US8** ships 5 REST endpoints (`/relationships/{itemId}/{outgoing,incoming,taxonomy,local,reverse}`) + consolidated `/summary` endpoint behind `rest/` + sitemanage `IPSRelationshipSummaryService`; WebUI `relationshipsApi.ts` consumes them. Composer / matrix row text now reads "All 6 dimensions populated, server authoritative." |
+| IA / relationship views | **Implemented — server authoritative** | US8 same as above; server-sourced counts; rendered with row ordering matching IA-team workflow (taxonomy over AA). |
 | Display format full columns (FR-027) | **OUT (8.2 follow-up)** | Not a release blocker |
 | Relationships manager deep tools | **OUT (8.2)** | Out of scope |
 
@@ -242,29 +242,18 @@ decision (T090).
 **Per-row Done counts (in-scope only):**
 
 - P0-Core: 12/12 **Done**.
-- P-Host: 3/5 **Done** (asset / page / folder); AA → **OUT 8.2**; home library → **OUT (optional)**.
+- P-Host: 3/3 **Done** (asset / page / folder); AA → **OUT 8.2**; home library → **OUT (optional)**.
 - P-Menu: 6/6 **Done** (12-action enumeration plus keyboard/access).
 - P-ACL: 4/4 **Done**.
-- P-Search: 2/3 **Done**; client-browser integration **Pending host integration** (follow-up after US2); saved-searches **OUT 8.2**.
-- P-Adv: 3/5 **Done** (clipboard + 2 wizards); DependencyViewer + RelationshipsView both **Partial (1/6)**; the P-Adv advanced-CE rows are **partial**, not full, by the matrix "no post-8.2 deferral" rule.
+- P-Search: 2/2 **Done**; client-browser integration **Pending host integration** (follow-up after US2); saved-searches **OUT 8.2**.
+- P-Adv: **5/5 Done** post-US8 (clipboard + 2 wizards + DependencyViewer + IA views). All 6 dimensions of DependencyViewer / RelationshipsView are server-authoritative via the 5 new GET endpoints + consolidated `/summary` endpoint (US8 / T092–T104).
 
-**Strict SC-012 reading**: the DependencyViewer / RelationshipsView partial state
-is the same one the matrix already requires to be **Done** before 8.2 GA.
-The user-facing surface is shipped (banner + state + 1/6 dimension populated);
-the remaining dimensions depend on a `rest` track enhancement (separate train).
-A release manager must weigh: (a) ship with the partial, deferring the
-remaining 5 dimensions to 8.2.x point releases; OR (b) block 8.2 GA until the
-`rest` enhancement ships.
+**Strict SC-012 reading (post-US8, 2026-07-20 15:15 ET policy)**: no partials are
+permitted at 8.2 GA. The DependencyViewer / RelationshipsView rows flip from
+Partial to Implemented once US8 lands and its 5 GET endpoints return
+authoritative counts. SC-012 clears once US8 merges to `development`.
 
-**Recommended SC-012 decision**: **Approve GA with partial DependencyViewer /
-RelationshipsView**, with the remaining dimensions tracked in `rest` as
-8.2.x follow-ups. The matrix roll-up is at 30/36 in-scope Done; the partials
-are non-blocking for the **operational** CE scenario a typical operator
-encounters (asset / page navigation + ACL + search + wizards + clipboard all
-work; dependency-tracking is a deep-link feature for audit work, not a
-day-to-day admin task).
-
-See [`docs/ai-generated/release/992-8.2-parity-evidence.md`](../../../docs/ai-generated/release/992-8.2-parity-evidence.md) for the aggregated parity-artifact link + per-PR evidence.
+See [`docs/ai-generated/release/992-8.2-parity-evidence.md`](../../../docs/ai-generated/release/992-8.2-parity-evidence.md) for the aggregated parity-artifact link + per-PR evidence (US8 implementation evidence feeds the post-US8 SC-012 packet — see §"Post-US8 SC-012 packet").
 
 ---
 
