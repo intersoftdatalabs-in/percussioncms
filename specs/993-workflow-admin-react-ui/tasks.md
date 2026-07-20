@@ -46,7 +46,7 @@
 - [x] T023 [US2] Wire folder assignment action and background progress overlay into `WebUI/src/main/ts/workflowAdmin/workflow/WorkflowEditor.tsx`
 - [x] T024 [US2] Commit changes and submit PR for review, pausing downstream tasks
 - [x] T025 [US2] Monitor Kilo Code check, address feedback, and resolve comments (pause on check failure)
-- [ ] T026 [US2] Verify human approval and merge of PR before proceeding
+- [x] T026 [US2] Verify human approval and merge of PR before proceeding
 
 ## Phase 5: User Story 3 — Manage Roles (Priority: P1)
 **Goal**: Implement `RolesSection` inside the shell for role configuration and user assignment.
