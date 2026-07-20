@@ -35,7 +35,8 @@
  *       {@code SearchStatusView} renders a Retry button that re-issues
  *       the last query. The handler is wired by the parent
  *       {@link SearchPanel} (which owns the transport); see the
- *       {@code onRetry} prop description in {@link SearchStatusView}.</li>
+ *       {@code onRetry} prop description in the local
+ *       {@code SearchStatusView} function component below.</li>
  * </ul>
  */
 
