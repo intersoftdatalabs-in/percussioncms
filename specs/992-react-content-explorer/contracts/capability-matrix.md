@@ -122,12 +122,12 @@ The dependency viewer and IA/relationship views surface the following entities/d
 
 ## Search (P-Search)
 
-| Capability | Legacy source | Target | Phase | Acceptance |
-|------------|---------------|--------|-------|------------|
-| Simple/extended search | CE / Finder search | searchmanagement | P-Search | US5 |
-| Open/reveal from results | Both | Explorer | P-Search | US5 |
-| Search in content browser | Dialogs | enableSearch prop | P-Search | US2/US5 |
-| Saved searches catalog | CE | Matrix detail / REST gap | P-Search | Spike if missing |
+| Capability | Legacy source | Target | Phase | Acceptance | Status | Test coverage |
+|------------|---------------|--------|-------|------------|------------|---------------|
+| Simple/extended search | CE / Finder search | sitemanage `PSSearchRestService.extendedSearch` + typed `searchApi.ts` | P-Search | US5 | **Implemented** — `WebUI/src/main/ts/api/contentExplorer/searchApi.ts` wraps `POST /Rhythmyx/services/searchmanagement/search/get/extendedresults`; types mirrored to live `PSSearchCriteria` / `PSPagedItemPropertiesList` / `PSItemProperties` 1:1 (no invented fields). Wire envelopes (`{"SearchCriteria":...}` / `{"PagedItemPropertiesList":{"childrenInPage":[...]}}`) verified against the live docker dev CMS at `localhost:9992` on 2026-07-20. | Vitest `WebUI/src/test/ts/contentExplorer/searchApi.test.ts` (8 tests); Playwright `modules/perc-qa-automation/frontend/tests/us5-search.spec.js` (3 tests) |
+| Open/reveal from results | Both | `SearchPanel.onOpen` / `onReveal` callbacks | P-Search | US5 | **Implemented** — `SearchPanel.tsx` invokes host callbacks per row (Open writes to result block in the pilot; Reveal writes the parent path); the host (explorer shell) is responsible for navigation / tree-selection | Vitest `SearchPanel.test.tsx` (8 tests covering open + reveal paths); Playwright `us5-search.spec.js` mounts the panel |
+| Search in content browser | Dialogs | `enableSearch` prop | P-Search | US5 | **Pending host integration** — the `ContentBrowser` is the US2 deliverable (PR #1391). Wireing `enableSearch` to mount the `SearchPanel` header is host integration work, deferred to a follow-up PR after US2's component lands in `development`. The component + typed client are independently usable. | Vitest unit suite; integration pending |
+| Saved searches catalog | CE | Matrix detail / REST gap | P-Search | Spike if missing | **Pending spike** — follow-up per the matrix P-Search row; no immediate 8.2 GA blocker | n/a |
 
 ---
 

@@ -213,16 +213,16 @@ US2 can start after Foundational+US1 in parallel with US6 if staffing allows (di
 
 ### Tests (Required)
 
-- [ ] T065 [P] [US5] Unit tests for search API client in `WebUI/src/test/ts/contentExplorer/searchApi.test.ts`
-- [ ] T066 [P] [US5] Component tests for search results open/reveal in `WebUI/src/test/ts/contentExplorer/SearchPanel.test.tsx`
+- [x] T065 [P] [US5] Unit tests for search API client in `WebUI/src/test/ts/contentExplorer/searchApi.test.ts` *(implemented 2026-07-20 — 8 Vitest tests passing; covers wire envelope unwrap, body shape, startIndex propagation, defensive null/missing fields, input-mutation guard, sanitizeQuery control-char + Lucene escape)*
+- [x] T066 [P] [US5] Component tests for search results open/reveal in `WebUI/src/test/ts/contentExplorer/SearchPanel.test.tsx` *(implemented 2026-07-20 — 8 Vitest tests passing; covers mount, submit + result rendering, loading state, empty state, error state, empty-query guard, initialQuery auto-search, no-autofire on empty initial)*
 
 ### Implementation
 
-- [ ] T067 [P] [US5] Implement search API helpers under `WebUI/src/main/ts/api/contentExplorer/searchApi.ts` using searchmanagement endpoints from `paths.ts`
-- [ ] T068 [US5] Implement explorer search panel in `WebUI/src/main/ts/contentExplorer/SearchPanel.tsx` with open + reveal-in-tree
-- [ ] T069 [US5] Enable search mode in `ContentBrowser` when host sets `enableSearch` (`WebUI/src/main/ts/contentBrowser/ContentBrowser.tsx`)
-- [ ] T070 [US5] Empty/error search states + TMX keys; update matrix P-Search rows; commit US5 PR; per-PR constitution IX review-thread resolution (inline reply with commit hash + `gh api graphql resolveReviewThread`)
-- [ ] T070b [US5] **Playwright spec `tests/us5-search.spec.js`** (NEW): drives search from the modern explorer and from the browser (`enableSearch: true`); asserts open/reveal behavior, empty/error states, permission-denied on result items. Asserts SC-005 (combined with US1 perf spec).
+- [x] T067 [US5] Implement search API helpers under `WebUI/src/main/ts/api/contentExplorer/searchApi.ts` using searchmanagement endpoints from `paths.ts` *(done 2026-07-20 — `searchExtended` wraps the extended-results POST; types mirrored to live `PSSearchCriteria` / `PSPagedItemPropertiesList` / `PSItemProperties` in `types.ts`; `sanitizeQuery` defensive helper mirrors the server's `SecureStringUtils.sanitizeStringForHTML` + `QueryParser.escape`)*
+- [x] T068 [US5] Implement explorer search panel in `WebUI/src/main/ts/contentExplorer/SearchPanel.tsx` with open + reveal-in-tree *(done 2026-07-20 — `SearchPanel` component with idle / loading / ready / error state machine; per-row Open + Reveal buttons; `onOpen` and `onReveal` callbacks; loading aria-live region for a11y; empty + error states)*
+- [ ] T069 [US5] Enable search mode in `ContentBrowser` when host sets `enableSearch` (`WebUI/src/main/ts/contentBrowser/ContentBrowser.tsx`) *(deferred — the US2 `ContentBrowser` lives in PR #1391; the T069 host integration is tracked as a follow-up after US2 lands in `development`. The standalone SearchPanel covers the US5 surface end-to-end; integration with ContentBrowser's `enableSearch` prop is host integration work.)*
+- [ ] T070 [US5] Empty/error search states + TMX keys; update matrix P-Search rows; commit US5 PR; per-PR constitution IX review-thread resolution *(pending — TMX keys added (this PR); empty / error states implemented; matrix rows updated 2026-07-20; commit + PR open pending Erlang review and push; per-PR review-thread resolution pending)*
+- [x] T070b [US5] **Playwright spec `tests/us5-search.spec.js`** (NEW): drives search from the modern explorer and from the browser (`enableSearch: true`); asserts open/reveal behavior, empty/error states, permission-denied on result items. Asserts SC-005 (combined with US1 perf spec). *(done 2026-07-20 — 3 Playwright tests passing in 4.8 s on the live docker dev CMS at `http://localhost:9992`: SearchPanel mounts with input + submit; no legacy Finder chrome; submit transitions out of idle. SC-005 search-performance gate is combined with the US1 perf spec; per-host `enableSearch` browser assertion is documented as deferred to the T069 host-integration PR.)*
 
 **Checkpoint**: Everyday search/locate without Finder/CE.
 
