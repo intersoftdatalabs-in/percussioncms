@@ -104,16 +104,16 @@
 **Independent Test**: Navigate to Categories tab, add node, reorder siblings, verify lock indicators on system categories.
 
 ### Tests
-- [ ] T048 [P] [US6] Unit test for tree structure and lock states in `WebUI/src/test/ts/workflowAdmin/CategoriesSection.test.tsx`
-- [ ] T049 [P] [US6] Playwright E2E spec for categories in `modules/perc-qa-automation/frontend/tests/us5-categories-admin.spec.js`
+- [x] T048 [P] [US6] Unit test for tree structure and lock states in `WebUI/src/test/ts/workflowAdmin/CategoriesSection.test.tsx`
+- [x] T049 [P] [US6] Playwright E2E spec for categories in `modules/perc-qa-automation/frontend/tests/us5-categories-admin.spec.js`
 
 ### Implementation
-- [ ] T050 [P] [US6] Create tree explorer layout `WebUI/src/main/ts/workflowAdmin/categories/CategoriesSection.tsx`
-- [ ] T051 [P] [US6] Create interactive category item row with lock validation `WebUI/src/main/ts/workflowAdmin/categories/CategoryNode.tsx`
-- [ ] T052 [US6] Wire categories tab component into main shell `WebUI/src/main/ts/workflowAdmin/WorkflowAdminShell.tsx`
-- [ ] T053 [US6] Commit changes and submit PR for review, pausing downstream tasks
-- [ ] T054 [US6] Monitor Kilo Code check, address feedback, and resolve comments (pause on check failure)
-- [ ] T055 [US6] Verify human approval and merge of PR before proceeding
+- [x] T050 [P] [US6] Create tree explorer layout `WebUI/src/main/ts/workflowAdmin/categories/CategoriesSection.tsx`
+- [x] T051 [P] [US6] Create interactive category item row with lock validation `WebUI/src/main/ts/workflowAdmin/categories/CategoryNode.tsx`
+- [x] T052 [US6] Wire categories tab component into main shell `WebUI/src/main/ts/workflowAdmin/WorkflowAdminShell.tsx`
+- [x] T053 [US6] Commit changes and submit PR for review, pausing downstream tasks
+- [x] T054 [US6] Monitor Kilo Code check, address feedback, and resolve comments (pause on check failure)
+- [x] T055 [US6] Verify human approval and merge of PR before proceeding
 
 ## Phase 9: User Story 7 — Manage Scheduled Tasks (Priority: P2)
 **Goal**: Implement `AdminShell` and `TasksSection` for scheduler configuration.
