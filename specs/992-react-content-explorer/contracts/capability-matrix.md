@@ -148,15 +148,15 @@ The dependency viewer and IA/relationship views surface the following entities/d
 
 ## Advanced CE (P-Adv) — after intermediate hard cut; **required for 8.2** (FR-028, FR-029)
 
-| Capability | Legacy source | Target | Phase | Acceptance |
-|------------|---------------|--------|-------|------------|
-| Multi-item clipboard copy/paste | CE `PSClipBoard` | Explorer clipboard | P-Adv | US7 |
-| Site copy wizard | CE wizards + sitemanage copy | React wizard | P-Adv | Matrix row UAT |
-| Subfolder copy wizard | CE wizards | React wizard | P-Adv | Matrix row UAT |
-| Dependency viewer | CE `PSDependencyViewer` | React view | P-Adv | US7 |
-| IA / relationship views | CE managers | React views | P-Adv | US7 |
-| Display format full columns | CE display formats | List columns | P-Adv or P0 partial | FR-027 |
-| Relationships manager deep tools | CE | React | P-Adv | Inventory |
+| Capability | Legacy source | Target | Phase | Acceptance | Status | Test coverage |
+|------------|---------------|--------|-------|------------|------------|---------------|
+| Multi-item clipboard copy/paste | CE `PSClipBoard` | `ClipboardPanel` + typed `clipboardApi.ts` | P-Adv | US7 | **Implemented** — WebUI `WebUI/src/main/ts/contentExplorer/clipboard/ClipboardPanel.tsx`; server endpoints `pagemanagement/page/copy/{id}` (PSPageRestService#copy) + `pathmanagement/path/moveItem({copy:true})` (US1 pathApi wrapper) for assets / folders. FR-016 read-only-without-rights gate via `canPasteInto` pure helper (WRITE/ADMIN-only target write) | Vitest `clipboardModel.test.ts` (18 tests); `clipboardApi.test.ts` (5 tests); `ClipboardPanel.test.tsx` (8 tests); Playwright `tests/us7-advanced.spec.js` (ClipboardPanel row) |
+| Site copy wizard | CE wizards + sitemanage copy | `SiteCopyWizard` (5-step state machine) | P-Adv | Matrix row UAT | **Implemented** — WebUI `WebUI/src/main/ts/contentExplorer/wizards/SiteCopyWizard.tsx`; default endpoint `POST /Rhythmyx/rest/sitemanage/site/copy` (PSSiteDataRestService#copy) — supply `submit` override to test | Vitest `wizardState.test.ts` (14 tests covering the state machine); `SiteCopyWizard.test.tsx` (6 tests); Playwright `tests/us7-advanced.spec.js` (site copy row) |
+| Subfolder copy wizard | CE wizards | `SubfolderCopyWizard` (4-step state machine) | P-Adv | Matrix row UAT | **Implemented** — WebUI `WebUI/src/main/ts/contentExplorer/wizards/SubfolderCopyWizard.tsx`; default endpoint `POST /Rhythmyx/rest/pathmanagement/path/moveItem` with `copy:true` (US1 pathApi wrapper) | Vitest `SubfolderCopyWizard.test.tsx` (4 tests); Playwright `tests/us7-advanced.spec.js` (subfolder copy row) |
+| Dependency viewer | CE `PSDependencyViewer` | `DependencyViewer` (6-dim client summary) | P-Adv | US7 + SC-011 | **Partial** — 1 of 6 rows (AA) is fully populated from `aaLinkCount`; 5 rows render "—" pending the `rest` enhancement (see `research/relationship-rest-gaps.md`). Client-side preview banner visible. | Vitest `dependencyModel.test.ts` (9 tests); Playwright `tests/us7-advanced.spec.js` (DependencyViewer row) |
+| IA / relationship views | CE managers | `RelationshipsView` (4 primary rows + supplementary details) | P-Adv | US7 + SC-011 | **Partial** — same gap as DependencyViewer; row ordering matches IA-team workflow (taxonomy over AA) | Playwright `tests/us7-advanced.spec.js` (RelationshipsView row) |
+| Display format full columns | CE display formats | List columns | P-Adv or P0 partial | FR-027 | **Pending** — FR-027 follow-up PR (out of scope for US7) | n/a |
+| Relationships manager deep tools | CE | React | P-Adv | Inventory | **Pending** — out of scope for 8.2 | n/a |
 
 **SC-011 / SC-012**: Before **8.2 GA**, every in-scope matrix row (including P-Adv) is **Done** with acceptance met—not unlabeled, not “post-8.2.”
 

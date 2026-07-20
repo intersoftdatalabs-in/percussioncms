@@ -62,6 +62,10 @@ export const PATHS = {
   get PAGE_CREATE() {
     return `${SERVICES_ROOT}/pagemanagement/page`;
   },
+  /** Page-level copy (US7 clipboard paste; PSPageRestService#copy). */
+  get PAGE_COPY() {
+    return `${SERVICES_ROOT}/pagemanagement/page/copy`;
+  },
   get MY_CONTENT() {
     return `${SERVICES_ROOT}/itemmanagement/item/mycontent`;
   },

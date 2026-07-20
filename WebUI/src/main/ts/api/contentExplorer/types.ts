@@ -162,6 +162,127 @@ export interface PreviewInfo {
   url: string;
 }
 
+// ---------- US7 P-Adv: clipboard / dependency / wizard DTO mirrors ----------
+//
+// All US7 types are derived from the existing sitemanage + rest DTOs
+// already in scope (pathApi: pathmanagement; PSSearchCriteria;
+// IPSWidgetAssetRelationshipService). Per constitution II (Evidence
+// Over Invention) there are no invented fields — when a new server
+// field is required, add it via a `rest` change with a
+// service-contract test (T052a) and threat-model note (T052b).
+//
+// See `specs/992-react-content-explorer/research/relationship-rest-gaps.md`
+// for the T074 spike result that drives the gap policy for the
+// DependencyViewer + RelationshipsView rows.
+
+/**
+ * One clipboard entry. The clipboard is an in-memory store of the
+ * items the explorer user has cut or copied; paste operations
+ * resolve through the typed {@link ClipboardItem.kind}-switched
+ * transport in {@code clipboardApi.ts}.
+ */
+export interface ClipboardItem {
+  /** Stable item id (pathmanagement / itemmanagement id space). */
+  id: string;
+  /** Item path (e.g. {@code /Sites/Foo/Bar}). */
+  path: string;
+  /** Item type discriminator (page / asset / folder). */
+  kind: "page" | "asset" | "folder";
+  /** Display name (title for page/asset, name for folder). */
+  name?: string;
+  /** Permission snapshot from the source folder; surfaced for the
+   *  paste-warning UX (FR-016 read-only without rights). */
+  sourceAccessLevel?: FolderAccessLevel;
+}
+
+/**
+ * The clipboard state. Empty by default; populated by the explorer's
+ * cut / copy actions; cleared after a successful paste. The state
+ * is intentionally local (not persisted across page reloads) so the
+ * accidental re-paste after a session restore can't bypass an
+ * explicit user action.
+ */
+export interface Clipboard {
+  /** Operation mode — copy is non-destructive, cut moves the items. */
+  operation: "copy" | "cut";
+  /** The items in the clipboard (preserves source order). */
+  items: ReadonlyArray<ClipboardItem>;
+  /** Timestamp the clipboard was last mutated. */
+  updatedAt: string;
+}
+
+/**
+ * Wire body for `POST /Rhythmyx/rest/sitemanage/site/copy` — mirrors
+ * {@code com.percussion.sitemanage.data.PSSiteCopyRequest}. The modern
+ * SiteCopyWizard UIs this body and submits.
+ */
+export interface PSSiteCopyRequest {
+  sourceSite?: string;
+  targetSite?: string;
+  targetFolder?: string;
+  workflows?: string;
+  templates?: string;
+  autoCleanup?: boolean;
+}
+
+/**
+ * Wire body for `POST /Rhythmyx/rest/pathmanagement/path/moveItem` —
+ * mirrors {@code com.percussion.pathmanagement.data.PSMoveFolderItem}
+ * (the existing pathApi.moveItem DTO). Re-used by the
+ * SubfolderCopyWizard (copy:true) and the ReducedActions move / copy
+ * wiring (US1).
+ */
+export interface PSCopyRequest {
+  sourcePath: string;
+  targetPath: string;
+  copy: boolean;
+}
+
+/**
+ * Result of one clipboard paste operation. Reports the per-item
+ * outcome so the explorer shell can refresh the tree / list and
+ * surface partial-failure messages.
+ */
+export interface ClipboardPasteResultItem {
+  item: ClipboardItem;
+  /** True when the underlying REST call returned 2xx. */
+  ok: boolean;
+  /** Error message from the failed REST call, present when {@link ok} is false. */
+  message?: string;
+}
+
+export interface ClipboardPasteSummary {
+  operation: "copy" | "cut";
+  results: ClipboardPasteResultItem[];
+}
+
+export type RelationshipDimension =
+  | "outgoing"
+  | "incoming"
+  | "aa"
+  | "taxonomy"
+  | "local"
+  | "reverse";
+
+export interface RelationshipSummary {
+  dimension: RelationshipDimension;
+  count: number;
+  label?: string;
+  unknown?: boolean;
+}
+
+export interface NodeRelationshipSummary {
+  nodeId: string;
+  nodePath?: string;
+  dimensions: RelationshipSummary[];
+  /**
+   * True when this summary was assembled client-side from item
+   * metadata only (the full server-side graph query is gated). The
+   * UI uses this to label the panel "Client-side preview".
+   * See `specs/992-react-content-explorer/research/relationship-rest-gaps.md`.
+   */
+  clientSideOnly: boolean;
+}
 // ---------- US5 P-Search: searchmanagement REST DTO mirrors ----------
 //
 // Mirrors `projects/sitemanage/src/main/java/com/percussion/searchmanagement/data/*`
