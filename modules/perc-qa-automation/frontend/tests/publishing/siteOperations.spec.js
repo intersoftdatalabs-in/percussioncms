@@ -35,7 +35,13 @@ test.describe("Unified Publishing UI - Site Operations (US1)", () => {
     await publishButton.click();
     
     // Verify toast or progress container starts
-    const successToast = page.locator(".perc-toast-success, .perc-publishing-job-started");
+    const successToast = page.locator(".perc-publishing-job-started");
     await expect(successToast).toBeVisible();
+
+    // Clean up: Stop the running job to prevent side-effects
+    const stopButton = page.locator("button:has-text('Stop')");
+    if (await stopButton.isVisible()) {
+      await stopButton.click();
+    }
   });
 });

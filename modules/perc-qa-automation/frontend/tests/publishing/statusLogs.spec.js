@@ -6,7 +6,7 @@ test.describe("Unified Publishing UI - Status and Logs (US2)", () => {
     await loginAsAdmin(page);
   });
 
-  test("verify Status and Logs tabs and purge action", async ({ page }) => {
+  test("verify Status and Logs tabs and purge button visibility", async ({ page }) => {
     await page.goto(`${BASE_URL}/cm/app/index.jsp?view=publish`);
 
     // Click Logs tab

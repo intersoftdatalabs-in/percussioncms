@@ -6,7 +6,7 @@ test.describe("Unified Publishing UI - Server Configuration (US3)", () => {
     await loginAsAdmin(page);
   });
 
-  test("verify server settings CRUD", async ({ page }) => {
+  test("verify server settings form fields exist", async ({ page }) => {
     await page.goto(`${BASE_URL}/cm/app/index.jsp?view=publish`);
 
     // Select first site and open workspace
