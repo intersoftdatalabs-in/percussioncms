@@ -75,7 +75,7 @@ export const UsersSection: React.FC = () => {
       await del(`${PATHS.USER_DELETE}/${encodeURIComponent(userName)}`);
       loadUsers();
     } catch (err: any) {
-      setError(err?.message || "Failed to delete user.");
+      setError(err?.message || message(WF_ADMIN_MSG.DELETE_FAILED));
     }
   };
 

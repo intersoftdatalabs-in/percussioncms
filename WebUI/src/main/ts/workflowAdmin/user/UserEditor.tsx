@@ -65,7 +65,7 @@ export const UserEditor: React.FC<UserEditorProps> = ({
       setError(message(WF_ADMIN_MSG.USER_NAME_REQUIRED));
       return;
     }
-    if (!user && password !== confirmPassword) {
+    if ((!user || password) && password !== confirmPassword) {
       setError(message(WF_ADMIN_MSG.PASSWORDS_DONOT_MATCH));
       return;
     }
@@ -89,11 +89,6 @@ export const UserEditor: React.FC<UserEditorProps> = ({
         await post(PATHS.USER_UPDATE, userPayload);
         // If password fields are filled during edit, perform changepw
         if (password) {
-          if (password !== confirmPassword) {
-            setError(message(WF_ADMIN_MSG.PASSWORDS_DONOT_MATCH));
-            setIsSaving(false);
-            return;
-          }
           await put(PATHS.USER_CHANGE_PW, {
             User: {
               name: name.trim(),
@@ -184,7 +179,7 @@ export const UserEditor: React.FC<UserEditorProps> = ({
               <input
                 type="password"
                 value={password}
-                placeholder={user ? "Leave blank to keep current" : ""}
+                placeholder={user ? message(WF_ADMIN_MSG.PASSWORD_PLACEHOLDER) : ""}
                 onChange={(e) => setPassword(e.target.value)}
                 style={{ width: "100%", padding: "8px", borderRadius: "4px", border: "1px solid #cbd5e1" }}
                 data-testid="user-password-input"

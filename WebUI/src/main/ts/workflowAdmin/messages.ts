@@ -94,4 +94,6 @@ export const WF_ADMIN_MSG = {
   USER_NAME_REQUIRED: "perc.ui.users@Username is required.",
   IMPORT: "perc.ui.users@Import",
   IMPORT_SUCCESS: "perc.ui.users@Imported successfully.",
+  PASSWORD_PLACEHOLDER: "perc.ui.users@Leave blank to keep current",
+  NO_USERS_FOUND: "perc.ui.users@No users found",
 } as const;

@@ -194,7 +194,7 @@ export const LdapImportDialog: React.FC<LdapImportDialogProps> = ({ onClose }) =
             ) : (
               <div style={{ border: "1px solid #e2e8f0", borderRadius: "6px", maxHeight: "200px", overflowY: "auto", marginBottom: "16px" }}>
                 {searchResults.length === 0 ? (
-                  <div style={{ padding: "12px", color: "#94a3b8", textAlign: "center" }}>No users found</div>
+                  <div style={{ padding: "12px", color: "#94a3b8", textAlign: "center" }}>{message(WF_ADMIN_MSG.NO_USERS_FOUND)}</div>
                 ) : (
                   searchResults.map((user) => (
                     <label

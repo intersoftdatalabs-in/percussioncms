@@ -29,6 +29,14 @@ approve
 - No filesystem path joins or OS-dependent separators introduced.
 - Cross-platform path review outcome: **Pass (no issues)**.
 
+## Re-review (PR Feedback Fixes)
+
+- Rearranged password validation checks inside `UserEditor.tsx` to execute before the metadata update network request is sent to prevent partial metadata saves on mismatch.
+- Localized hardcoded password field placeholder (`"Leave blank to keep current"`) via `WF_ADMIN_MSG.PASSWORD_PLACEHOLDER`.
+- Localized hardcoded search empty result string (`"No users found"`) via `WF_ADMIN_MSG.NO_USERS_FOUND`.
+- Updated hardcoded error string on user deletion failure to use the existing `WF_ADMIN_MSG.DELETE_FAILED` TMX key.
+- Re-review recommendation: **approve**.
+
 ## Issues
 
 No blocking bugs or suggestions identified.
