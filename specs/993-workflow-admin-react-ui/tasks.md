@@ -69,17 +69,17 @@
 **Independent Test**: Navigate to Users tab, create local user with password and email, import an LDAP user via search dialog, modify user parameters, save, and confirm updates.
 
 ### Tests
-- [ ] T029 [P] [US4] Unit test for `UsersSection`, `UserEditor`, and `LdapImportDialog` in `WebUI/src/test/ts/workflowAdmin/UsersSection.test.tsx`
-- [ ] T030 [P] [US4] Playwright E2E spec for user operations and LDAP search in `modules/perc-qa-automation/frontend/tests/us3-users-management.spec.js`
+- [x] T029 [P] [US4] Unit test for `UsersSection`, `UserEditor`, and `LdapImportDialog` in `WebUI/src/test/ts/workflowAdmin/UsersSection.test.tsx`
+- [x] T030 [P] [US4] Playwright E2E spec for user operations and LDAP search in `modules/perc-qa-automation/frontend/tests/us3-users-management.spec.js`
 
 ### Implementation
-- [ ] T031 [P] [US4] Create user list and table view in `WebUI/src/main/ts/workflowAdmin/users/UsersSection.tsx`
-- [ ] T032 [P] [US4] Create user form and role assignment checkboxes in `WebUI/src/main/ts/workflowAdmin/users/UserEditor.tsx`
-- [ ] T033 [P] [US4] Create LDAP directory search and select modal `WebUI/src/main/ts/workflowAdmin/users/LdapImportDialog.tsx`
-- [ ] T034 [US4] Wire users tab component into main shell `WebUI/src/main/ts/workflowAdmin/WorkflowAdminShell.tsx`
-- [ ] T035 [US4] Commit changes and submit PR for review, pausing downstream tasks
-- [ ] T036 [US4] Monitor Kilo Code check, address feedback, and resolve comments (pause on check failure)
-- [ ] T037 [US4] Verify human approval and merge of PR before proceeding
+- [x] T031 [P] [US4] Create user list and table view in `WebUI/src/main/ts/workflowAdmin/users/UsersSection.tsx`
+- [x] T032 [P] [US4] Create user form and role assignment checkboxes in `WebUI/src/main/ts/workflowAdmin/users/UserEditor.tsx`
+- [x] T033 [P] [US4] Create LDAP directory search and select modal `WebUI/src/main/ts/workflowAdmin/users/LdapImportDialog.tsx`
+- [x] T034 [US4] Wire users tab component into main shell `WebUI/src/main/ts/workflowAdmin/WorkflowAdminShell.tsx`
+- [x] T035 [US4] Commit changes and submit PR for review, pausing downstream tasks
+- [x] T036 [US4] Monitor Kilo Code check, address feedback, and resolve comments (pause on check failure)
+- [x] T037 [US4] Verify human approval and merge of PR before proceeding
 
 ## Phase 7: User Story 5 — Perform In-Context Item Workflow Transitions (Priority: P1)
 **Goal**: Rebuild the Dojo-based item toolbar workflow actions panel in React.
