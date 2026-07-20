@@ -235,11 +235,18 @@ class ObsoleteInstallDirCleanerTest {
   @Test
   void percussionInstallationAltCasing() throws Exception {
     seedUpgradeRoot();
-    Files.createDirectories(tempDir.resolve("_Percussion_installation"));
+    Path created = tempDir.resolve("_Percussion_installation");
+    Files.createDirectories(created);
     List<ObsoleteInstallDirCleaner.Candidate> c =
         ObsoleteInstallDirCleaner.listEligibleCandidates(tempDir, 8, 0);
     assertEquals(1, c.size());
-    assertEquals("_Percussion_installation", c.get(0).relativeName());
+    // The cleaner selects whichever casing exists on disk (both refer to the same directory on
+    // case-insensitive filesystems). Verify the candidate names the directory case-insensitively
+    // and points at the same on-disk path as the fixture we created.
+    assertEquals(
+        "_Percussion_installation".toLowerCase(java.util.Locale.ROOT),
+        c.get(0).relativeName().toLowerCase(java.util.Locale.ROOT));
+    assertTrue(Files.isSameFile(c.get(0).absolutePath(), created));
   }
 
   @Test

@@ -27,7 +27,10 @@ import { SiteCopyWizard } from "./contentExplorer/wizards/SiteCopyWizard";
 import { SubfolderCopyWizard } from "./contentExplorer/wizards/SubfolderCopyWizard";
 import { DependencyViewer } from "./contentExplorer/views/DependencyViewer";
 import { RelationshipsView } from "./contentExplorer/views/RelationshipsView";
+import { ContextMenu } from "./contentExplorer/ContextMenu";
+import { ActionToolbar } from "./contentExplorer/ActionToolbar";
 import { ContentBrowser } from "./contentBrowser/ContentBrowser";
+import { WorkflowAdminShell } from "./workflowAdmin/WorkflowAdminShell";
 
 /** Map of component names to their React component types. */
 export const componentRegistry = new Map<string, ComponentType<any>>();
@@ -54,6 +57,6 @@ componentRegistry.set("SiteCopyWizard", SiteCopyWizard);
 componentRegistry.set("SubfolderCopyWizard", SubfolderCopyWizard);
 componentRegistry.set("DependencyViewer", DependencyViewer);
 componentRegistry.set("RelationshipsView", RelationshipsView);
-// US5 components (SearchPanel) intentionally NOT registered here:
-// they live on the US5 PR branch and will arrive in development
-// when PR #1398 merges.
+componentRegistry.set("ActionToolbar", ActionToolbar);
+componentRegistry.set("ContextMenu", ContextMenu);
+componentRegistry.set("WorkflowAdminShell", WorkflowAdminShell);

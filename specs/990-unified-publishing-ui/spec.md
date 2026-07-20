@@ -156,7 +156,7 @@ In the release(s) that achieve parity for a surface, operators and developers no
 - **FR-014**: Known deep links and bookmarks to classic Publish, Design, and Runtime entry points MUST map to unified equivalents or show a clear moved/unavailable message after the corresponding surface is cut over.
 - **FR-015**: After accepted parity for a surface (ops/design/runtime), that surface’s classic primary client MUST be removable from production navigation and packaging per the retirement story; retirement proof is a durable inventory checklist under this feature directory, signed off in PR/release review.
 - **FR-016**: Forms that hold publish server secrets (passwords, keys) MUST NOT expose secrets in logs, analytics, or error reports; display/storage of secrets MUST follow existing product security norms.
-- **FR-017**: Automated tests MUST cover new/changed client behavior for non-trivial logic and MUST preserve or replace service-contract coverage for publish, status, logs, and server APIs used by the UI; tests MUST be cross-platform (Windows/Linux/macOS) per project rules.
+- **FR-017**: Automated tests MUST cover new/changed client behavior for non-trivial logic, MUST preserve or replace service-contract coverage, and MUST include automated Playwright end-to-end tests in `modules/perc-qa-automation` verifying all core UI screens and workflows; tests MUST be cross-platform (Windows/Linux/macOS) per project rules.
 - **FR-018**: Primary Publishing workflows MUST be operable with keyboard and provide accessible names/labels for critical controls (site list, server actions, publish, stop, log purge).
 - **FR-019**: Empty, error, and in-progress states MUST be explicit for sites, servers, jobs, logs, and design lists so users always know the next safe action or recovery step.
 - **FR-020**: Concurrent use of the Publishing UI by multiple operators MUST not corrupt server or design definitions; last-write-wins is acceptable where the product has no merge UI today, with success/failure clearly shown.
@@ -175,14 +175,14 @@ In the release(s) that achieve parity for a surface, operators and developers no
 
 ## Success Criteria
 ### Measurable Outcomes
-- **SC-001**: A trained publisher completes **site select → full publish → visible job in status** in under **2 minutes** on a reference environment with a preconfigured server (excluding actual job runtime).
-- **SC-002**: **100%** of capability groups listed in `research/inventory.md` §7 that are marked in-scope for a cutover milestone have passing acceptance scenarios before that surface’s classic UI is removed.
-- **SC-003**: In usability validation with at least five representative publishers, **≥80%** successfully complete full publish **without** opening Design documentation or Design UI.
+- **SC-001**: An automated Playwright test verifies a publisher can complete **site select → full publish → visible job in status** in under **2 minutes** on a reference environment with a preconfigured server (excluding actual job runtime).
+- **SC-002**: **100%** of capability groups listed in `research/inventory.md` §7 that are marked in-scope for a cutover milestone have passing Playwright E2E automated test scripts before that surface’s classic UI is removed.
+- **SC-003**: In usability validation with at least five representative publishers, or via automated keyboard/accessibility checks using Playwright/A11y tools, **≥80%** successfully complete full publish **without** opening Design documentation or Design UI.
 - **SC-004**: Status for active jobs reflects progress updates at least as often as the current Publish status experience (no worse operational visibility).
-- **SC-005**: Zero intentional regressions on item publish-now / takedown / stage paths in automated or scripted smoke tests that exist or are added for those APIs as part of this feature.
+- **SC-005**: Zero regressions on item publish-now / takedown / stage paths, enforced by automated Playwright E2E integration tests added to the test suite for those APIs.
 - **SC-006**: After final retirement milestone, production packaging does not require classic Minuet Publish **and** JSF Design **and** JSF Runtime clients for users to perform their respective tasks; known classic URLs resolve per FR-014.
 - **SC-007**: Critical user-visible Publishing chrome strings resolve from localization catalogs (not fixed single-locale hardcoding as the product bar).
-- **SC-008**: Support/ops can diagnose a failed publish using only the unified Status/Logs experience for scenarios currently diagnosable in Minuet or Runtime logs (spot-check of representative failure cases in UAT).
+- **SC-008**: Diagnostic flows for failed publishes are verified via automated Playwright test scripts simulating failures, ensuring the unified Status/Logs experience provides sufficient detail to diagnose representative failure cases.
 
 ## Assumptions
 - **Parity means outcomes, not pixel clones**: Layouts may improve for ease of use; every user-visible capability and business rule from the three surfaces remains available unless explicitly deprecated in a later clarify/plan decision.

@@ -21,7 +21,7 @@ Deliver **feature parity** with progressive disclosure for ease of use (ops firs
 - **AGENTS Hierarchy**: root `AGENTS.md`, `WebUI/AGENTS.md` (Track B; Rhythmyx Publishing ~28 JSF screens marked legacy/retiring)
 - **Dependencies & Storage**: Existing REST/JSON + session cookies + CSRF (`WebUI/src/main/ts/api/client.ts`); Hibernate-backed publisher/sitemgr entities unchanged unless gap forces a thin REST DTO layer (no ad-hoc schema)
 - **i18n**: TMX + `tmx.jsp` + `I18N.message` / TS wrapper (same as feature 989). Reuse `perc.ui.publish.*` keys heavily; add keys for Design/Runtime chrome
-- **Testing**: Vitest + Testing Library (`WebUI/src/test/ts`); JUnit 5 for any new Java REST adapters; cross-platform path rules; service-contract tests if adapters added
+- **Testing**: Vitest + Testing Library (`WebUI/src/test/ts`); Playwright E2E integration tests (`modules/perc-qa-automation/frontend/tests/publishing/`); JUnit 5 for any new Java REST adapters; cross-platform path rules; service-contract tests if adapters added
 - **Target Platform**: Windows, Linux, macOS
 - **Project Type**: Hybrid J2EE WAR + modern frontend island (not full SPA takeover of all Web Management)
 - **Performance Goals**: Status refresh no worse than Minuet polling; site/server lists usable for typical multi-site installs; large log lists remain paged/limited as today
@@ -98,6 +98,9 @@ WebUI/
 │   └── pubruntime/                   # JSF Runtime — RETIRE after US5 cutover
 ├── src/test/ts/publishing/           # NEW Vitest
 └── src/main/frontend/                # Vite entries as needed for modern bundle
+
+modules/perc-qa-automation/
+└── frontend/tests/publishing/        # NEW Playwright E2E Tests
 
 projects/sitemanage/
 ├── .../sitemanage/service/impl/PSSitePublish*.java   # REUSE

@@ -148,4 +148,75 @@ export const PATHS = {
   get ACTIONS_ROOT() {
     return `${SERVICES_ROOT}/actions`;
   },
+  /** Workflow management (workflowmanagement) — Feature 993 */
+  get WORKFLOWS() {
+    return `${SERVICES_ROOT}/workflowmanagement/workflows/`;
+  },
+  get WORKFLOW_METADATA() {
+    return `${SERVICES_ROOT}/workflowmanagement/workflows/metadata`;
+  },
+  get WORKFLOW_METADATA_DEFAULT() {
+    return `${SERVICES_ROOT}/workflowmanagement/workflows/metadata/default`;
+  },
+  /** User management (user) — Feature 993 */
+  get USERS() {
+    return `${SERVICES_ROOT}/user/user/users`;
+  },
+  get USER_FIND() {
+    return `${SERVICES_ROOT}/user/user/find`;
+  },
+  get USER_CREATE() {
+    return `${SERVICES_ROOT}/user/user/create`;
+  },
+  get USER_UPDATE() {
+    return `${SERVICES_ROOT}/user/user/update`;
+  },
+  get USER_DELETE() {
+    return `${SERVICES_ROOT}/user/user/delete`;
+  },
+  get USER_CHANGE_PW() {
+    return `${SERVICES_ROOT}/user/user/changepw`;
+  },
+  get USER_LDAP_FIND() {
+    return `${SERVICES_ROOT}/user/user/external/find`;
+  },
+  get USER_LDAP_IMPORT() {
+    return `${SERVICES_ROOT}/user/user/import`;
+  },
+  get USER_LDAP_STATUS() {
+    return `${SERVICES_ROOT}/user/user/external/status`;
+  },
+  /** Role management (rolemanagement) — Feature 993 */
+  get ROLES_FIND() {
+    return `${SERVICES_ROOT}/rolemanagement/role/find`;
+  },
+  get ROLE_CREATE() {
+    return `${SERVICES_ROOT}/rolemanagement/role/create`;
+  },
+  get ROLE_UPDATE() {
+    return `${SERVICES_ROOT}/rolemanagement/role/update`;
+  },
+  get ROLE_DELETE() {
+    return `${SERVICES_ROOT}/rolemanagement/role/delete`;
+  },
+  get ROLE_AVAILABLE_USERS() {
+    return `${SERVICES_ROOT}/rolemanagement/role/availableUsers`;
+  },
+  /** Item workflow management (itemmanagement) — Feature 993 */
+  get ITEM_WORKFLOW_TRANSITIONS() {
+    return `${SERVICES_ROOT}/itemmanagement/workflow/getTransitions/`;
+  },
+  get ITEM_WORKFLOW_CHECKIN() {
+    return `${SERVICES_ROOT}/itemmanagement/workflow/checkIn/`;
+  },
+  get ITEM_WORKFLOW_CHECKOUT() {
+    return `${SERVICES_ROOT}/itemmanagement/workflow/checkOut/`;
+  },
+  get ITEM_WORKFLOW_FORCE_CHECKOUT() {
+    return `${SERVICES_ROOT}/itemmanagement/workflow/forceCheckOut/`;
+  },
+  /** Scheduled task management — Feature 993 */
+  get SCHEDULED_TASKS() {
+    return `${SERVICES_ROOT}/taskmanagement/tasks`;
+  },
 } as const;
