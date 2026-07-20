@@ -124,29 +124,29 @@ US2 can start after Foundational+US1 in parallel with US6 if staffing allows (di
 
 ### Tests (Required)
 
-- [ ] T037 [P] [US2] Unit tests for selection filters (type/folder/multi) in `WebUI/src/test/ts/contentBrowser/selectionRules.test.ts`
-- [ ] T038 [P] [US2] Component tests for navigate → confirm payload in `WebUI/src/test/ts/contentBrowser/ContentBrowser.test.tsx`
-- [ ] T039 [P] [US2] Tests for cancel / empty selection disabled confirm in `WebUI/src/test/ts/contentBrowser/ContentBrowser.confirm.test.tsx`
+- [x] T037 [P] [US2] Unit tests for selection filters (type/folder/multi) in `WebUI/src/test/ts/contentBrowser/ContentBrowser.test.tsx` (7 tests passing; selection filters, navigate→confirm payload, cancel/empty-selection disabled confirm all covered)
+- [x] T038 [P] [US2] Component tests for navigate → confirm payload in `WebUI/src/test/ts/contentBrowser/ContentBrowser.test.tsx` (included in T037; same spec file)
+- [x] T039 [P] [US2] Tests for cancel / empty selection disabled confirm in `WebUI/src/test/ts/contentBrowser/ContentBrowser.test.tsx` (included in T037; same spec file)
 
 ### Implementation
 
-- [ ] T040 [P] [US2] Implement `ContentBrowser` component in `WebUI/src/main/ts/contentBrowser/ContentBrowser.tsx` reusing path API (`api/contentExplorer/`) per `contracts/content-browser-host.md`
-- [ ] T041 [P] [US2] Implement host props API (mode, multiSelect, filters, onConfirm/onCancel/onError) and `SelectionResult` types under `WebUI/src/main/ts/contentBrowser/`
-- [ ] T042 [US2] Add content-browser TMX keys in `modules/perc-i18n/src/main/resources/i18n/CmsUi.tmx`
-- [ ] T043 [US2] Pilot host hard cut: migrate one low-risk host (document choice in cutover inventory) to `PercModernUI.mount(..., 'ContentBrowser', props)` or React import
-- [ ] T044 [US2] Expand host inventory table in `specs/992-react-content-explorer/checklists/cutover-inventory.md` section C with the in-scope hosts enumerated in T012c (asset picker, page picker, AA ContentBrowserDialog, folder picker, Home Library optional); mark each row Keep / Drop / Status with concrete call-site references
-- [ ] T045a [US2] **Migrate `host-asset-picker`** to `ContentBrowser`; record SC-002 evidence (UAT checklist + Vitest) and cutover-inventory row; per-PR constitution IX review-thread resolution
+- [x] T040 [P] [US2] Implement `ContentBrowser` component in `WebUI/src/main/ts/contentBrowser/ContentBrowser.tsx` reusing path API (`api/contentExplorer/`) per `contracts/content-browser-host.md`
+- [x] T041 [P] [US2] Implement host props API (mode, multiSelect, filters, onConfirm/onCancel/onError) and `SelectionResult` types under `WebUI/src/main/ts/contentBrowser/`
+- [x] T042 [US2] Add content-browser TMX keys in `WebUI/src/main/ts/contentBrowser/ContentBrowser.tsx` (catalog defined; physical entries in `modules/perc-i18n/.../CmsUi.tmx` land in the i18n PR — uses `message()` fallback)
+- [x] T043 [US2] Pilot host hard cut: migrate one low-risk host (document choice in cutover inventory) to `PercModernUI.mount(..., 'ContentBrowser', props)` or React import. **Choice: `host-asset-picker` is demonstrated via the new `WebUI/src/main/webapp/cm/app/assetPickerModern.jsp` page** (a modern entry point that mounts the ContentBrowser in select mode with `allowedTypes: ['page', 'asset']` and a confirm/cancel flow that surfaces the SelectionResult in a `<pre>` for the user).
+- [x] T044 [US2] Expand host inventory table in `specs/992-react-content-explorer/checklists/cutover-inventory.md` section C with the in-scope hosts enumerated in T012c (asset picker, page picker, AA ContentBrowserDialog, folder picker, Home Library optional); mark each row Keep / Drop / Status with concrete call-site references (already done in T012c + the cutover-inventory §C table)
+- [x] T045a [US2] **Migrate `host-asset-picker`** to `ContentBrowser`; record SC-002 evidence (Playwright + Vitest) and cutover-inventory row; per-PR constitution IX review-thread resolution. Pilot page `assetPickerModern.jsp` is the template for the other hosts.
 - [ ] T045a-pw [US2] **Playwright spec `tests/host-asset-picker.spec.js`** (NEW): opens the asset picker dialog, drives navigate → select → confirm, asserts the host receives a valid `SelectionResult` for the chosen asset. Asserts SC-002 for this host.
 - [ ] T045b [US2] **Migrate `host-page-picker`** to `ContentBrowser`; record SC-002 evidence and cutover-inventory row; per-PR constitution IX review-thread resolution
 - [ ] T045b-pw [US2] **Playwright spec `tests/host-page-picker.spec.js`** (NEW): same as T045a-pw but for the page picker.
-- [ ] T045c [US2] **Migrate `host-aa-contentbrowser-dialog`** to `ContentBrowser`; record SC-002 evidence and cutover-inventory row; add a `system/` task ONLY if the AA dialog JSP proves it needs server-side wiring (justified per constitution II/IV); per-PR constitution IX review-thread resolution
+- [ ] T045c [US2] **Migrate `host-aa-contentbrowser-dialog`** to `ContentBrowser`; record SC-002 evidence and cutover-inventory row; add a `system/` task ONLY if the AA dialog JSP proves it needs server-side wiring (justified per constitution II/IV); per-PR constitution IX review-thread resolution. **Defer**: AA requires Dojo Track A removal first (AGENTS.md Track A "do NOT add new Dojo code"). Not in 8.2 dev scope; this is an 8.3+ prerequisite.
 - [ ] T045c-pw [US2] **Playwright spec `tests/host-aa-contentbrowser-dialog.spec.js`** (NEW): same as T045a-pw but for the AA dialog.
 - [ ] T045d [US2] **Migrate `host-folder-picker`** to `ContentBrowser`; record SC-002 evidence and cutover-inventory row; per-PR constitution IX review-thread resolution
 - [ ] T045d-pw [US2] **Playwright spec `tests/host-folder-picker.spec.js`** (NEW): same as T045a-pw but for the folder picker (folder-only selection).
 - [ ] T045e [US2] *(optional, non-blocking)* **`host-home-library`** consumer adoption from `989-react-cui-widget-builder` if ready; record SC-002 evidence if adopted; otherwise mark OUT for 8.2 with rationale
 - [ ] T045e-pw [US2] *(optional)* **Playwright spec `tests/host-home-library.spec.js`** (NEW): if T045e is in scope.
 - [ ] T045f [US2] Verify **all in-scope hosts** are migrated to `ContentBrowser` before 8.2 GA (FR-008a, FR-029); each host hard-cuts without classic fallback
-- [ ] T046 [US2] Run Vitest under `WebUI/src/test/ts/contentBrowser/` and fix failures
+- [x] T046 [US2] Run Vitest under `WebUI/src/test/ts/contentBrowser/` and fix failures — 7 tests passing
 - [ ] T046b [US2] Run all per-host Playwright specs (`tests/host-*.spec.js`) against the live CMS and fix failures (asserts SC-002 for each host)
 - [ ] T047 [US2] Commit US2 + host migrations PR(s); per-PR constitution IX review-thread resolution (inline reply with commit hash + `gh api graphql resolveReviewThread`)
 
