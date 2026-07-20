@@ -29,6 +29,7 @@ import "@testing-library/jest-dom/vitest";
 import { ContentBrowser } from "../../../main/ts/contentBrowser/ContentBrowser";
 import * as pathApi from "../../../main/ts/api/contentExplorer/pathApi";
 import type { PSPathItem } from "../../../main/ts/api/contentExplorer/types";
+import { appendUniqueById } from "../../../main/ts/contentBrowser/selectionHelpers";
 
 const SAMPLE: PSPathItem[] = [
   {
@@ -99,38 +100,24 @@ describe("ContentBrowser", () => {
     expect(onConfirm).not.toHaveBeenCalled();
   });
 
-  it("multiSelect activation does not duplicate items in the selection", async () => {
-    // Direct unit call on handleListActivate (via the public button
-    // surface — the activation path is private). The test is a
-    // regression guard for the dedup behavior added in #1391 review:
-    // repeated double-click on the same item must not append duplicates.
-    const onConfirm = vi.fn();
-    const onError = vi.fn();
-    const { rerender } = render(
-      <ContentBrowser
-        mode="select"
-        multiSelect
-        allowedTypes={["page"]}
-        onConfirm={onConfirm}
-        onError={onError}
-      />,
-    );
-    // Confirm is disabled when selection is empty.
-    const confirm = screen.getByTestId("content-browser-confirm");
-    expect(confirm).toBeDisabled();
-    // The component doesn't expose activate directly; we verify dedup via
-    // the public contract: confirm is disabled (no selection possible from
-    // empty state).
-    rerender(
-      <ContentBrowser
-        mode="select"
-        multiSelect
-        allowedTypes={["page"]}
-        onConfirm={onConfirm}
-      />,
-    );
-    expect(confirm).toBeDisabled();
+  it("multiSelect activation does not duplicate items in the selection", () => {
+    // Unit-level regression for handleListActivate multiSelect path (#1391
+    // Kilo review): repeated activate on the same id must not grow the list.
+    // Pure helper is what ContentBrowser uses for the append path.
+    const page = { id: "p-1", path: "/Sites/Page1", name: "Page1" };
+    const once = appendUniqueById([], page);
+    expect(once).toHaveLength(1);
+    const twice = appendUniqueById(once, page);
+    expect(twice).toHaveLength(1);
+    expect(twice[0]?.id).toBe("p-1");
+    const other = appendUniqueById(twice, {
+      id: "p-2",
+      path: "/Sites/Page2",
+      name: "Page2",
+    });
+    expect(other).toHaveLength(2);
   });
+
 
   it("confirm is disabled in single-select when selection is empty (no programmatic empty confirm)", () => {
     // The fix for review thread #1: handleConfirm is a no-op for empty

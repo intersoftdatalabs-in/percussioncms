@@ -47,6 +47,7 @@ import type {
   SelectionResult,
 } from "../api/contentExplorer/types";
 import type { ContentBrowserProps } from "./types";
+import { appendUniqueById } from "./selectionHelpers";
 import {
   emptyStateStyle,
   errorStateStyle,
@@ -281,8 +282,7 @@ export const ContentBrowser: React.FC<ContentBrowserProps> = (props) => {
       if (multiSelect) {
         // Add to selection but skip if already present (no duplicates from
         // repeated double-click / Enter on the same item).
-        if (isSelected(sel.id)) return;
-        setSelected((prev) => [...prev, sel]);
+        setSelected((prev) => appendUniqueById(prev, sel));
       } else {
         // Single-select: replace selection. Activate does NOT auto-confirm;
         // the host calls onConfirm explicitly via the Confirm button (or
@@ -291,7 +291,7 @@ export const ContentBrowser: React.FC<ContentBrowserProps> = (props) => {
         setSelected([sel]);
       }
     },
-    [mode, multiSelect, allowedTypes, allowedCategories, isSelected],
+    [mode, multiSelect, allowedTypes, allowedCategories],
   );
 
   // Selection error feedback (auto-clear after a tick so the message is visible briefly).
