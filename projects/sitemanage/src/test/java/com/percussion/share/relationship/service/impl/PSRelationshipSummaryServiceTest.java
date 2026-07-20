@@ -18,6 +18,7 @@ package com.percussion.share.relationship.service.impl;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -25,7 +26,6 @@ import static org.mockito.Mockito.when;
 
 import com.percussion.assetmanagement.service.IPSWidgetAssetRelationshipService;
 import com.percussion.cms.objectstore.PSRelationshipFilter;
-import com.percussion.cms.objectstore.server.PSItemDefManager;
 import com.percussion.design.objectstore.PSLocator;
 import com.percussion.share.dao.IPSRelationshipCataloger;
 import com.percussion.share.dao.PSJcrNodeFinder;
@@ -56,7 +56,6 @@ import org.mockito.MockitoAnnotations;
 class PSRelationshipSummaryServiceTest {
 
   @Mock private IPSIdMapper idMapper;
-  @Mock private PSItemDefManager itemDefManager;
   @Mock private IPSSystemWs systemWs;
   @Mock private IPSRelationshipCataloger relationshipCataloger;
   @Mock private PSJcrNodeFinder jcrNodeFinder;
@@ -70,7 +69,6 @@ class PSRelationshipSummaryServiceTest {
     service =
         new PSRelationshipSummaryService(
             idMapper,
-            itemDefManager,
             systemWs,
             relationshipCataloger,
             jcrNodeFinder,
@@ -174,19 +172,65 @@ class PSRelationshipSummaryServiceTest {
   }
 
   @Test
-  void summariseToleratesCatalogerRuntimeExceptions() throws Exception {
+  void summariseCatalogerThrows_propagates() {
+    // Per the PR #1414 bot review: RuntimeException thrown by the cataloger path must
+    // propagate so the framework emits a 5xx, not a 200-with-empty-data. The taxonomy and
+    // local dimensions still trap (their fallback contract is documented separately).
     when(relationshipCataloger.findOwners(anyString(), anyString(), any(), any()))
         .thenThrow(new RuntimeException("cataloger down"));
 
+    assertThrows(RuntimeException.class, () -> service.summarise("ok"));
+    assertThrows(RuntimeException.class, () -> service.summariseOutgoing("ok"));
+    assertThrows(RuntimeException.class, () -> service.summariseReverse("ok"));
+  }
+
+  @Test
+  void summariseJcrThrows_returnsEmptyOptional() {
+    // The taxonomy dimension treats infra / JCR failure as AuthZ-equivalent: returns empty
+    // so the rest façade translates to 403 (the same path as a missing item).
+    when(relationshipCataloger.findOwners(anyString(), anyString(), any(), any()))
+        .thenReturn(Collections.emptyList());
+    when(jcrNodeFinder.find(anyString(), org.mockito.ArgumentMatchers.<Map<String, String>>any()))
+        .thenThrow(new RuntimeException("jcr down"));
+
     Optional<PSNodeRelationshipSummary> out = service.summarise("ok");
 
-    // Each per-dimension method catches RuntimeException and substitutes an empty summary,
-    // so the consolidated endpoint still returns a usable Optional with all-empty buckets.
-    // The dependency viewer renders "0 (no links)" rather than a hard failure.
+    assertFalse(out.isPresent(), "taxonomy failure should propagate to empty-Optional at the consolidated endpoint");
+    assertFalse(service.summariseTaxonomy("ok").isPresent());
+  }
+
+  @Test
+  void summariseTaxonomyId_usedAsPathArgument() {
+    // The sitemanage service treats the supplied id as the JCR path argument. Path resolution is
+    // the rest-facade's responsibility (PR #1415 next pass): the resource resolves the
+    // supplied itemId to a JCR path via IPSPathService and calls this method only with a path it
+    // has already resolved. For backwards compatibility with the in-process callers we accept
+    // the itemId as a path-style string and look it up directly via PSJcrNodeFinder.
+    when(jcrNodeFinder.find(anyString(), org.mockito.ArgumentMatchers.<Map<String, String>>any()))
+        .thenReturn(Collections.emptyList());
+
+    Optional<com.percussion.share.relationship.data.PSTaxonomySummary> out =
+        service.summariseTaxonomy("/foo/bar");
+
     assertTrue(out.isPresent());
-    assertEquals(0L, out.get().getOutgoing().getCount());
-    assertEquals(0L, out.get().getIncoming().getCount());
-    assertEquals(0L, out.get().getReverse().getCount());
+    assertEquals(0L, out.get().getCount());
+  }
+
+  @Test
+  void summariseLocalRuntimeException_returnsEmpty() throws Exception {
+    // The local dimension traps RuntimeException per its documented contract — there's no
+    // meaningful AuthZ semantic on the local-assets surface.
+    when(relationshipCataloger.findOwners(anyString(), anyString(), any(), any()))
+        .thenReturn(Collections.emptyList());
+    when(jcrNodeFinder.find(anyString(), org.mockito.ArgumentMatchers.<Map<String, String>>any()))
+        .thenReturn(Collections.emptyList());
+    when(widgetAssetRelationshipService.getLocalAssets(anyString()))
+        .thenThrow(new RuntimeException("local lookup down"));
+
+    Optional<PSNodeRelationshipSummary> out = service.summarise("ok");
+
+    assertTrue(out.isPresent());
+    assertEquals(0L, out.get().getLocal().getCount());
   }
 
   @Test

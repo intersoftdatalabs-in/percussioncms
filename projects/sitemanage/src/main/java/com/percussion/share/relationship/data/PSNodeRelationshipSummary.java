@@ -71,7 +71,10 @@ public class PSNodeRelationshipSummary extends PSAbstractDataObject {
   }
 
   public void setOutgoing(PSRelationshipSummary outgoing) {
-    this.outgoing = outgoing;
+    // Defensive null guard mirrors the ctor: JAX-RS deserialisation or a caller passing null
+    // never leaves the DTO in a partially-null state that the dependency view can't render.
+    this.outgoing =
+        outgoing == null ? new PSRelationshipSummary(0L, java.util.Collections.emptyList()) : outgoing;
   }
 
   public PSRelationshipSummary getIncoming() {
@@ -79,7 +82,8 @@ public class PSNodeRelationshipSummary extends PSAbstractDataObject {
   }
 
   public void setIncoming(PSRelationshipSummary incoming) {
-    this.incoming = incoming;
+    this.incoming =
+        incoming == null ? new PSRelationshipSummary(0L, java.util.Collections.emptyList()) : incoming;
   }
 
   public PSTaxonomySummary getTaxonomy() {
@@ -87,7 +91,7 @@ public class PSNodeRelationshipSummary extends PSAbstractDataObject {
   }
 
   public void setTaxonomy(PSTaxonomySummary taxonomy) {
-    this.taxonomy = taxonomy;
+    this.taxonomy = taxonomy == null ? new PSTaxonomySummary(0L, java.util.Collections.emptyList()) : taxonomy;
   }
 
   public PSLocalDependencySummary getLocal() {
@@ -95,7 +99,7 @@ public class PSNodeRelationshipSummary extends PSAbstractDataObject {
   }
 
   public void setLocal(PSLocalDependencySummary local) {
-    this.local = local;
+    this.local = local == null ? new PSLocalDependencySummary(0L, java.util.Collections.emptyList()) : local;
   }
 
   public PSRelationshipSummary getReverse() {
@@ -103,6 +107,7 @@ public class PSNodeRelationshipSummary extends PSAbstractDataObject {
   }
 
   public void setReverse(PSRelationshipSummary reverse) {
-    this.reverse = reverse;
+    this.reverse =
+        reverse == null ? new PSRelationshipSummary(0L, java.util.Collections.emptyList()) : reverse;
   }
 }
