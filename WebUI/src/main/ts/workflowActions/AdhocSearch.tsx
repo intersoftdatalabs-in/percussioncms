@@ -30,14 +30,25 @@ export const AdhocSearch: React.FC<AdhocSearchProps> = ({
   const [query, setQuery] = useState<string>("");
   const [results, setResults] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const isMountedRef = useRef<boolean>(true);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    isMountedRef.current = true;
+    const handleClickOutside = (event: MouseEvent) => {
+      if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
+        setResults([]);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
     return () => {
-      isMountedRef.current = false;
+      document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Escape") {
+      setResults([]);
+    }
+  };
 
   useEffect(() => {
     if (!query.trim()) {
@@ -45,28 +56,32 @@ export const AdhocSearch: React.FC<AdhocSearchProps> = ({
       return;
     }
 
+    let active = true;
+
     const delayDebounce = setTimeout(async () => {
       setIsLoading(true);
       try {
-        // Query users using the endpoint
         const res = await get<{ UserList: { users: string[] } }>(
           `${PATHS.USERS}/names/${encodeURIComponent(query.trim())}`
         );
-        if (isMountedRef.current) {
+        if (active) {
           setResults(res?.UserList?.users || []);
         }
       } catch {
-        if (isMountedRef.current) {
+        if (active) {
           setResults([]);
         }
       } finally {
-        if (isMountedRef.current) {
+        if (active) {
           setIsLoading(false);
         }
       }
     }, 300);
 
-    return () => clearTimeout(delayDebounce);
+    return () => {
+      active = false;
+      clearTimeout(delayDebounce);
+    };
   }, [query]);
 
   const handleAdd = (user: string) => {
@@ -81,7 +96,7 @@ export const AdhocSearch: React.FC<AdhocSearchProps> = ({
   };
 
   return (
-    <div className="perc-adhoc-search" data-testid="perc-adhoc-search" style={{ marginTop: "12px" }}>
+    <div ref={containerRef} className="perc-adhoc-search" data-testid="perc-adhoc-search" style={{ marginTop: "12px" }}>
       <label style={{ display: "block", fontWeight: 600, marginBottom: "6px", fontSize: "14px" }}>
         Ad-hoc Reviewers
       </label>
@@ -105,6 +120,7 @@ export const AdhocSearch: React.FC<AdhocSearchProps> = ({
             <button
               type="button"
               onClick={() => handleRemove(user)}
+              aria-label={`Remove ${user}`}
               style={{ background: "none", border: "none", color: "#1e40af", cursor: "pointer", padding: 0 }}
             >
               &times;
@@ -117,6 +133,7 @@ export const AdhocSearch: React.FC<AdhocSearchProps> = ({
           type="text"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
+          onKeyDown={handleKeyDown}
           placeholder="Search users to add..."
           style={{ width: "100%", padding: "8px", borderRadius: "4px", border: "1px solid #cbd5e1" }}
           data-testid="adhoc-search-input"

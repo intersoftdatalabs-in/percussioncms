@@ -29,6 +29,16 @@ approve
 - No filesystem path joins or OS-dependent separators introduced.
 - Cross-platform path review outcome: **Pass (no issues)**.
 
+## Re-review (PR Feedback Fixes)
+
+- Modified `WorkflowActionsPanel.tsx` to append `adhocAssignees` as a query parameter when selected.
+- Introduced `activeIdRef` to protect `loadWorkflowData` from stale data race conditions when `itemId` changes mid-request.
+- Fixed `handleCheckOut` and other action methods to reload the full transitions list `loadWorkflowData()` rather than only updating checkout user state.
+- Added `isSubmitting` state to `TransitionDialog.tsx` to disable the submit button and inputs during submission.
+- Added click-outside event listeners and Escape-key hooks to `AdhocSearch.tsx` to allow dismissing the search results dropdown.
+- Added `aria-label` attribute to the remove button in `AdhocSearch.tsx` for accessibility.
+- Re-review recommendation: **approve**.
+
 ## Issues
 
 No blocking bugs or suggestions identified.

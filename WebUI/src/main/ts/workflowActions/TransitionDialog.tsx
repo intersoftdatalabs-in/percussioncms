@@ -35,14 +35,20 @@ export const TransitionDialog: React.FC<TransitionDialogProps> = ({
   const [comment, setComment] = useState<string>("");
   const [selectedUsers, setSelectedUsers] = useState<string[]>([]);
   const [error, setError] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (requiresComment && !comment.trim()) {
       setError("Comment is required for this transition.");
       return;
     }
-    onSubmit(comment.trim(), selectedUsers);
+    setIsSubmitting(true);
+    try {
+      await onSubmit(comment.trim(), selectedUsers);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -88,6 +94,7 @@ export const TransitionDialog: React.FC<TransitionDialogProps> = ({
           <textarea
             value={comment}
             onChange={(e) => setComment(e.target.value)}
+            disabled={isSubmitting}
             rows={4}
             style={{ width: "100%", padding: "8px", borderRadius: "4px", border: "1px solid #cbd5e1" }}
             data-testid="transition-comment-input"
@@ -99,16 +106,17 @@ export const TransitionDialog: React.FC<TransitionDialogProps> = ({
         )}
 
         <div style={{ display: "flex", justifyContent: "flex-end", gap: "8px", marginTop: "24px" }}>
-          <button type="button" onClick={onCancel} style={{ padding: "8px 16px", borderRadius: "4px", border: "1px solid #cbd5e1", cursor: "pointer" }}>
+          <button type="button" onClick={onCancel} disabled={isSubmitting} style={{ padding: "8px 16px", borderRadius: "4px", border: "1px solid #cbd5e1", cursor: "pointer" }}>
             Cancel
           </button>
           <button
             type="submit"
+            disabled={isSubmitting}
             className="perc-button-primary"
             style={{ padding: "8px 16px", borderRadius: "4px", cursor: "pointer" }}
             data-testid="transition-submit-button"
           >
-            Submit
+            {isSubmitting ? "Submitting..." : "Submit"}
           </button>
         </div>
       </form>

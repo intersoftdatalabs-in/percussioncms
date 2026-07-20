@@ -50,6 +50,7 @@ export const WorkflowActionsPanel: React.FC<WorkflowActionsPanelProps> = ({
   const [activeTrigger, setActiveTrigger] = useState<string | null>(null);
   
   const isMountedRef = useRef<boolean>(true);
+  const activeIdRef = useRef<string>(itemId);
 
   const loadWorkflowData = async () => {
     setIsLoading(true);
@@ -60,16 +61,16 @@ export const WorkflowActionsPanel: React.FC<WorkflowActionsPanelProps> = ({
       // 2. Fetch state/transition details
       const trans = await get<ItemStateTransition>(`${PATHS.ITEM_WORKFLOW_TRANSITIONS}${encodeURIComponent(itemId)}`);
       
-      if (isMountedRef.current) {
+      if (isMountedRef.current && activeIdRef.current === itemId) {
         setUserInfo(info);
         setStateTransition(trans);
       }
     } catch (err: any) {
-      if (isMountedRef.current) {
+      if (isMountedRef.current && activeIdRef.current === itemId) {
         setError(err?.message || "Failed to load workflow status.");
       }
     } finally {
-      if (isMountedRef.current) {
+      if (isMountedRef.current && activeIdRef.current === itemId) {
         setIsLoading(false);
       }
     }
@@ -77,6 +78,7 @@ export const WorkflowActionsPanel: React.FC<WorkflowActionsPanelProps> = ({
 
   useEffect(() => {
     isMountedRef.current = true;
+    activeIdRef.current = itemId;
     loadWorkflowData();
     return () => {
       isMountedRef.current = false;
@@ -87,7 +89,7 @@ export const WorkflowActionsPanel: React.FC<WorkflowActionsPanelProps> = ({
     setError(null);
     try {
       await get(`${PATHS.ITEM_WORKFLOW_CHECKIN}${encodeURIComponent(itemId)}`);
-      loadWorkflowData();
+      await loadWorkflowData();
       if (onStateChange) onStateChange();
     } catch (err: any) {
       setError(err?.message || "Check in failed.");
@@ -98,10 +100,8 @@ export const WorkflowActionsPanel: React.FC<WorkflowActionsPanelProps> = ({
     setError(null);
     try {
       const endpoint = force ? PATHS.ITEM_WORKFLOW_FORCE_CHECKOUT : PATHS.ITEM_WORKFLOW_CHECKOUT;
-      const info = await get<ItemUserInfo>(`${endpoint}${encodeURIComponent(itemId)}`);
-      if (isMountedRef.current) {
-        setUserInfo(info);
-      }
+      await get<ItemUserInfo>(`${endpoint}${encodeURIComponent(itemId)}`);
+      await loadWorkflowData();
       if (onStateChange) onStateChange();
     } catch (err: any) {
       setError(err?.message || "Check out failed.");
@@ -114,11 +114,18 @@ export const WorkflowActionsPanel: React.FC<WorkflowActionsPanelProps> = ({
     setActiveTrigger(null);
     try {
       let url = `${PATHS.ITEM_WORKFLOW_TRANSITION_WITH_COMMENTS}${encodeURIComponent(itemId)}/${encodeURIComponent(activeTrigger)}`;
+      const params: string[] = [];
       if (comment) {
-        url += `?comment=${encodeURIComponent(comment)}`;
+        params.push(`comment=${encodeURIComponent(comment)}`);
+      }
+      if (assignees && assignees.length > 0) {
+        params.push(`adhocAssignees=${encodeURIComponent(assignees.join(","))}`);
+      }
+      if (params.length > 0) {
+        url += `?${params.join("&")}`;
       }
       await get(url);
-      loadWorkflowData();
+      await loadWorkflowData();
       if (onStateChange) onStateChange();
     } catch (err: any) {
       setError(err?.message || "Transition failed.");
