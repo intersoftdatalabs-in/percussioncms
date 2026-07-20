@@ -1,5 +1,5 @@
 const { test, expect } = require("@playwright/test");
-const { loginAsAdmin } = require("../helpers/auth");
+const { loginAsAdmin, BASE_URL } = require("../helpers/auth");
 
 test.describe("Unified Publishing UI - Design Infrastructure (US4)", () => {
   test.beforeEach(async ({ page }) => {
@@ -7,7 +7,7 @@ test.describe("Unified Publishing UI - Design Infrastructure (US4)", () => {
   });
 
   test("verify design navigation panel is present", async ({ page }) => {
-    await page.goto("/cm/app/index.jsp?view=publish");
+    await page.goto(`${BASE_URL}/cm/app/index.jsp?view=publish`);
 
     // Click Design tab
     const designTab = page.locator("a:has-text('Design')");

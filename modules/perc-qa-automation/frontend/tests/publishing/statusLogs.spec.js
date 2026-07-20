@@ -1,5 +1,5 @@
 const { test, expect } = require("@playwright/test");
-const { loginAsAdmin } = require("../helpers/auth");
+const { loginAsAdmin, BASE_URL } = require("../helpers/auth");
 
 test.describe("Unified Publishing UI - Status and Logs (US2)", () => {
   test.beforeEach(async ({ page }) => {
@@ -7,7 +7,7 @@ test.describe("Unified Publishing UI - Status and Logs (US2)", () => {
   });
 
   test("verify Status and Logs tabs and purge action", async ({ page }) => {
-    await page.goto("/cm/app/index.jsp?view=publish");
+    await page.goto(`${BASE_URL}/cm/app/index.jsp?view=publish`);
 
     // Click Logs tab
     const logsTab = page.locator("a:has-text('Logs')");

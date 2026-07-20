@@ -1,5 +1,5 @@
 const { test, expect } = require("@playwright/test");
-const { loginAsAdmin } = require("../helpers/auth");
+const { loginAsAdmin, BASE_URL } = require("../helpers/auth");
 
 test.describe("Unified Publishing UI - Server Configuration (US3)", () => {
   test.beforeEach(async ({ page }) => {
@@ -7,11 +7,14 @@ test.describe("Unified Publishing UI - Server Configuration (US3)", () => {
   });
 
   test("verify server settings CRUD", async ({ page }) => {
-    await page.goto("/cm/app/index.jsp?view=publish");
+    await page.goto(`${BASE_URL}/cm/app/index.jsp?view=publish`);
 
     // Select first site and open workspace
     const siteCard = page.locator(".perc-site-card").first();
     await siteCard.click();
+
+    // Confirm navigation to workspace
+    await expect(page.locator("button:has-text('Back')")).toBeVisible();
 
     // Click Add Server
     const addServerBtn = page.locator("button:has-text('Add Server')");
