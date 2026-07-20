@@ -33,6 +33,7 @@ import { ContextMenu } from "./contentExplorer/ContextMenu";
 import { ActionToolbar } from "./contentExplorer/ActionToolbar";
 import { ContentBrowser } from "./contentBrowser/ContentBrowser";
 import { WorkflowAdminShell } from "./workflowAdmin/WorkflowAdminShell";
+import { AdminShell } from "./admin/AdminShell";
 
 /** Map of component names to their React component types. */
 export const componentRegistry = new Map<string, ComponentType<any>>();
@@ -64,3 +65,4 @@ componentRegistry.set("FolderSecurityPanel", FolderSecurityPanel);
 componentRegistry.set("ActionToolbar", ActionToolbar);
 componentRegistry.set("ContextMenu", ContextMenu);
 componentRegistry.set("WorkflowAdminShell", WorkflowAdminShell);
+componentRegistry.set("AdminShell", AdminShell);

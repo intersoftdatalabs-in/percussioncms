@@ -1,0 +1,270 @@
+/*
+ * Copyright 1999-2026 Percussion Software, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.percussion.schedule.web.service.impl;
+
+import com.percussion.services.guidmgr.IPSGuidManager;
+import com.percussion.services.schedule.IPSSchedulingService;
+import com.percussion.services.schedule.data.PSScheduledTask;
+import com.percussion.services.schedule.data.PSScheduledTaskLog;
+import com.percussion.services.schedule.data.PSNotificationTemplate;
+import com.percussion.utils.guid.IPSGuid;
+import com.percussion.services.catalog.PSTypeEnum;
+import jakarta.ws.rs.*;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
+import org.springframework.stereotype.Component;
+import java.util.*;
+import java.util.stream.Collectors;
+
+@Path("/tasks")
+@Component("taskManagementService")
+@Lazy
+@Produces(MediaType.APPLICATION_JSON)
+@Consumes(MediaType.APPLICATION_JSON)
+public class PSTaskManagementService {
+
+    private final IPSSchedulingService schedulingService;
+    private final IPSGuidManager guidManager;
+
+    @Autowired
+    public PSTaskManagementService(IPSSchedulingService schedulingService, IPSGuidManager guidManager) {
+        this.schedulingService = schedulingService;
+        this.guidManager = guidManager;
+    }
+
+    @GET
+    @Path("/")
+    public List<Map<String, Object>> getTasks() {
+        try {
+            return schedulingService.findAllSchedules().stream()
+                    .map(this::serializeTask)
+                    .collect(Collectors.toList());
+        } catch (Exception e) {
+            throw new WebApplicationException(e, Response.Status.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @GET
+    @Path("/{taskId}")
+    public Map<String, Object> getTask(@PathParam("taskId") String taskId) {
+        try {
+            IPSGuid guid = guidManager.makeGuid(taskId, PSTypeEnum.SCHEDULED_TASK);
+            PSScheduledTask task = schedulingService.findScheduledTaskById(guid)
+                    .orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
+            return serializeTask(task);
+        } catch (WebApplicationException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new WebApplicationException(e, Response.Status.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @POST
+    @Path("/")
+    public Map<String, Object> createTask(Map<String, Object> payload) {
+        try {
+            PSScheduledTask task = schedulingService.createSchedule();
+            updateTaskFromPayload(task, payload);
+            schedulingService.saveSchedule(task);
+            return serializeTask(task);
+        } catch (Exception e) {
+            throw new WebApplicationException(e, Response.Status.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @PUT
+    @Path("/{taskId}")
+    public Map<String, Object> updateTask(@PathParam("taskId") String taskId, Map<String, Object> payload) {
+        try {
+            IPSGuid guid = guidManager.makeGuid(taskId, PSTypeEnum.SCHEDULED_TASK);
+            PSScheduledTask task = schedulingService.findScheduledTaskById(guid)
+                    .orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
+            updateTaskFromPayload(task, payload);
+            schedulingService.saveSchedule(task);
+            return serializeTask(task);
+        } catch (WebApplicationException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new WebApplicationException(e, Response.Status.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @DELETE
+    @Path("/{taskId}")
+    public Response deleteTask(@PathParam("taskId") String taskId) {
+        try {
+            IPSGuid guid = guidManager.makeGuid(taskId, PSTypeEnum.SCHEDULED_TASK);
+            schedulingService.deleteSchedule(guid);
+            return Response.noContent().build();
+        } catch (Exception e) {
+            throw new WebApplicationException(e, Response.Status.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @POST
+    @Path("/{taskId}/run")
+    public Response runTask(@PathParam("taskId") String taskId) {
+        try {
+            IPSGuid guid = guidManager.makeGuid(taskId, PSTypeEnum.SCHEDULED_TASK);
+            PSScheduledTask task = schedulingService.findScheduledTaskById(guid)
+                    .orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
+            schedulingService.runNow(task);
+            return Response.ok().build();
+        } catch (WebApplicationException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new WebApplicationException(e, Response.Status.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @GET
+    @Path("/logs")
+    public List<Map<String, Object>> getTaskLogs() {
+        try {
+            return schedulingService.findAllTaskLogs(100).stream()
+                    .map(this::serializeLog)
+                    .collect(Collectors.toList());
+        } catch (Exception e) {
+            throw new WebApplicationException(e, Response.Status.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @DELETE
+    @Path("/logs")
+    public Response purgeLogs() {
+        try {
+            schedulingService.deleteAllTaskLogs();
+            return Response.noContent().build();
+        } catch (Exception e) {
+            throw new WebApplicationException(e, Response.Status.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @GET
+    @Path("/templates")
+    public List<Map<String, Object>> getTemplates() {
+        try {
+            return schedulingService.findAllNotificationTemplates().stream()
+                    .map(this::serializeTemplate)
+                    .collect(Collectors.toList());
+        } catch (Exception e) {
+            throw new WebApplicationException(e, Response.Status.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @PUT
+    @Path("/templates/{templateId}")
+    public Map<String, Object> updateTemplate(@PathParam("templateId") String templateId, Map<String, Object> payload) {
+        try {
+            IPSGuid guid = guidManager.makeGuid(templateId, PSTypeEnum.NOTIFICATION_TEMPLATE);
+            PSNotificationTemplate template = schedulingService.findNotificationTemplateById(guid)
+                    .orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
+            if (payload.containsKey("subject")) {
+                template.setSubject((String) payload.get("subject"));
+            }
+            if (payload.containsKey("body")) {
+                template.setBody((String) payload.get("body"));
+            }
+            schedulingService.saveNotificationTemplate(template);
+            return serializeTemplate(template);
+        } catch (WebApplicationException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new WebApplicationException(e, Response.Status.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    private Map<String, Object> serializeTask(PSScheduledTask task) {
+        Map<String, Object> map = new HashMap<>();
+        map.put("id", task.getId().toString());
+        map.put("name", task.getName());
+        map.put("cronSpecification", task.getCronSpecification());
+        map.put("extensionName", task.getExtensionName());
+        map.put("emailAddresses", task.getEmailAddresses());
+        map.put("notify", task.getNotify());
+        map.put("notifyWhen", task.getNotifyWhen().toString());
+        map.put("server", task.getServer());
+        map.put("parameters", task.getParameters());
+        if (task.getNotificationTemplateId() != null) {
+            map.put("notificationTemplateId", task.getNotificationTemplateId().toString());
+        }
+        return map;
+    }
+
+    private Map<String, Object> serializeLog(PSScheduledTaskLog log) {
+        Map<String, Object> map = new HashMap<>();
+        map.put("id", log.getId().toString());
+        map.put("taskId", log.getTaskId().toString());
+        map.put("startTime", log.getStartTime() != null ? log.getStartTime().getTime() : null);
+        map.put("endTime", log.getEndTime() != null ? log.getEndTime().getTime() : null);
+        map.put("success", log.isSuccess());
+        map.put("problemDescription", log.getProblemDescription());
+        map.put("serverName", log.getServerName());
+        return map;
+    }
+
+    private Map<String, Object> serializeTemplate(PSNotificationTemplate template) {
+        Map<String, Object> map = new HashMap<>();
+        map.put("id", template.getId().toString());
+        map.put("name", template.getName());
+        map.put("subject", template.getSubject());
+        map.put("body", template.getBody());
+        return map;
+    }
+
+    private void updateTaskFromPayload(PSScheduledTask task, Map<String, Object> payload) {
+        if (payload.containsKey("name")) {
+            task.setName((String) payload.get("name"));
+        }
+        if (payload.containsKey("cronSpecification")) {
+            task.setCronSpecification((String) payload.get("cronSpecification"));
+        }
+        if (payload.containsKey("extensionName")) {
+            task.setExtensionName((String) payload.get("extensionName"));
+        }
+        if (payload.containsKey("emailAddresses")) {
+            task.setEmailAddresses((String) payload.get("emailAddresses"));
+        }
+        if (payload.containsKey("notify")) {
+            task.setNotify((Boolean) payload.get("notify"));
+        }
+        if (payload.containsKey("notifyWhen")) {
+            task.setNotifyWhen(com.percussion.services.schedule.data.PSScheduledTask.NotifyWhen.valueOf((String) payload.get("notifyWhen")));
+        }
+        if (payload.containsKey("server")) {
+            task.setServer((String) payload.get("server"));
+        }
+        if (payload.containsKey("parameters")) {
+            Map<String, String> params = (Map<String, String>) payload.get("parameters");
+            task.getParameters().clear();
+            if (params != null) {
+                task.getParameters().putAll(params);
+            }
+        }
+        if (payload.containsKey("notificationTemplateId")) {
+            String templateIdStr = (String) payload.get("notificationTemplateId");
+            if (StringUtils.isNotBlank(templateIdStr)) {
+                task.setNotificationTemplateId(guidManager.makeGuid(templateIdStr, PSTypeEnum.NOTIFICATION_TEMPLATE));
+            } else {
+                task.setNotificationTemplateId(null);
+            }
+        }
+    }
+}

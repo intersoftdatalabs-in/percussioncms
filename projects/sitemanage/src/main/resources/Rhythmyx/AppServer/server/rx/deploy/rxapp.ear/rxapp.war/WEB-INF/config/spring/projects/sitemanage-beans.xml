@@ -222,6 +222,22 @@ http://cxf.apache.org/schemas/jaxrs.xsd">
         </jaxrs:features>
     </jaxrs:server>
 
+    <jaxrs:server id="taskmanagement-jax-rs" address="/taskmanagement">
+        <jaxrs:serviceBeans>
+            <ref bean="taskManagementService"/>
+        </jaxrs:serviceBeans>
+        <jaxrs:extensionMappings>
+            <entry key="json" value="application/json"/>
+            <entry key="xml" value="application/xml"/>
+        </jaxrs:extensionMappings>
+        <jaxrs:providers>
+            <ref bean="validationExceptionMapper"/>
+            <ref bean="constraintsViolatedExceptionMapper"/>
+            <ref bean="runtimeExceptionMapper"/>
+            <ref bean="jacksonProvider"/>
+        </jaxrs:providers>
+    </jaxrs:server>
+
     <jaxrs:server id="role-jax-rs" address="/rolemanagement">
         <jaxrs:serviceBeans>
             <ref bean="roleService"/>
