@@ -176,7 +176,6 @@ public class PSRelationshipSummaryService implements IPSRelationshipSummaryServi
     // Path resolution is the rest-facade's responsibility (PR #1415 next pass): the resource
     // resolves the supplied itemId to a JCR path via IPSPathService and calls this method only
     // with a path it has already resolved. For backwards compatibility with the in-process
-    // with a path it has already resolved. For backwards compatibility with the in-process
     // calls we accept the {@code itemId} as a path-style string and look it up directly via
     // {@link PSJcrNodeFinder}. The host shell wires this through the rest façade.
     String path = itemId;
