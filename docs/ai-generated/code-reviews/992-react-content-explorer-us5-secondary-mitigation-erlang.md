@@ -74,3 +74,64 @@ and the GraphQL `resolveReviewThread` mutation is idempotent.
 - Recommendation: `approve`. May commit/push: yes.
 - Suggested commit message:
   `docs(992/us5): fix broken {@link SearchPanelProps.onRetrySearch} JSDoc refs after retry-button mitigation`
+
+---
+
+## Follow-up #2 (2026-07-20, post-rebase): ST4mT + sync merge
+
+After the mitigation commit `67c0a165b8`, the Kilo Code bot re-ran a
+review pass on the rebased PR #1398 (post-merge of spec 993
+WorkflowAdminShell into origin/development) and raised one new
+unresolved thread:
+
+- `PRRT_kwDOKZBp3M6ST4mT` (dbId 3615878944):
+  *Claim:* The replacement `{@link SearchStatusView.onRetry}` is not a
+  valid reference because `onRetry` is a destructured prop parameter,
+  not a property of the function component.
+
+**Mitigation commit** `c2794aeede566f82807579cf3297ac1d37954d82`
+(docs-only; 9 insertions, 4 deletions in
+`WebUI/src/main/ts/contentExplorer/SearchPanel.tsx`):
+
+- Replaced `{@link SearchPanel.runSearch}` (target also did not exist)
+  with plain-text `` `runSearch` `` in the `onRetry` JSDoc.
+- Replaced `{@link SearchStatusView.onRetry}` in the state-machine
+  description with an explanatory prose pointer at the `onRetry` prop
+  description inside `SearchStatusView` itself.
+- Added a parenthetical note in the prop JSDoc documenting *why*
+  `SearchStatusView.onRetry` is not a valid `{@link ...}` target.
+- Verifying grep: remaining `{@link X}` references in the file all
+  resolve to exported declarations —
+  `SearchPanelProps.onOpen / .onReveal`,
+  `searchExtended`, `SearchPanel`, `SearchStatusView`. None reference
+  properties of function components.
+
+**Sync merge** `bdb41210afdb074fd38ca7f28ddfe07ef534a582` (merge-only):
+origin/development was brought in to clear the develop-vs-US5 drift
+(carrying spec 993 WorkflowAdminShell + the upcoming
+`obsolete-cleanup` reorg). Three rebase conflicts resolved:
+
+1. `WebUI/src/main/ts/registry.ts` — concatenated imports and
+   registrations for `SearchPanel`, `FolderSecurityPanel`,
+   `ContextMenu`, `ActionToolbar`, and `WorkflowAdminShell`. No
+   duplicate imports or `componentRegistry.set` calls remain.
+2. `WebUI/src/main/ts/contentExplorer/messages.ts` — concatenated
+   `SEARCH_*` (9 keys) + `SECURITY_*` (18 keys). No key overlap.
+3. `WebUI/src/main/ts/api/contentExplorer/types.ts` — kept US5 search
+   DTOs (`PSSearchCriteria`, `PSItemProperties`,
+   `PSPagedItemPropertiesList`, `PSPagedItemPropertiesListEnvelope`,
+   `PSSearchResults`) preceding the US3 action-menu DTOs (9
+   interfaces).
+
+**Verification (post-merge + post-JSDoc-cleanup)**:
+
+```
+$ npx vitest run SearchPanel.test.tsx                  -> 9/9 passing
+$ npx vitest run SearchPanel + safeNavigate tests      -> 25/25 passing
+$ npx vitest run US3/4/5 surface tests                 -> 53/53 passing
+```
+
+Final thread state on PR #1398: 4 threads, **0 unresolved**.
+
+Recommendation unchanged: **approve**. May commit/push: **yes**.
+No blocking bugs. No portable-path changes. No behavioral change.
