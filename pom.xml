@@ -67,6 +67,7 @@
         <module>modules/perc-packages</module>
         <module>deliverytiersuite/delivery-tier-suite</module>
         <module>modules/perc-distribution-tree</module>
+        <module>modules/perc-qa-automation</module>
     </modules>
     <scm>
         <connection>scm:git:https://github.com/intersoftdatalabs-in/percussioncms</connection>

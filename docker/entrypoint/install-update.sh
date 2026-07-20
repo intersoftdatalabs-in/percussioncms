@@ -1,120 +1,44 @@
 #!/usr/bin/env bash
+#
+# docker/entrypoint/install-update.sh
+#
+# Container entrypoint for the cms-dts dev/test docker compose stack.
+# **Service-only mode** as of the install-on-host refactor (992-react-
+# content-explorer story automation follow-up). The install runs ONCE
+# on the host via scripts/install-cms-dev.sh; this entrypoint only
+# starts the service.
+#
+# Contract with the host bind mount:
+#   docker-compose.yml bind-mounts ./docker/dev-data/cms-dts/install_root/
+#   into the container at /opt/Percussion/. The install lives entirely
+#   on the host; the container is responsible for executing the service.
+#
+# If /opt/Percussion/jetty/StartJetty.sh is missing on entry, this
+# script exits non-zero with a clear pointer to the host-side installer.
+#
+# Cross-platform: Linux/macOS containers (Jetty + bash). Windows
+# containers (if any) would require a different launcher; documented
+# out-of-scope for the dev/test runtime.
+
 set -euo pipefail
 
-log() {
-  printf '[install-update] %s\n' "$*"
-}
+log() { printf '[install-update] %s\n' "$*"; }
 
 INSTALL_ROOT="${PERC_INSTALL_ROOT:-/opt/Percussion}"
-INSTALL_MODE="${PERC_INSTALL_MODE:-install-if-missing}"
-INSTALL_MARKER_NAME="${PERC_INSTALL_MARKER:-.percussion-install-complete}"
-INSTALL_MARKER_PATH="${INSTALL_ROOT}/${INSTALL_MARKER_NAME}"
-SERVICE_MODE="${SERVICE_MODE:-cms-dts}"
-CMS_JAR="${CMS_DISTRIBUTION_JAR:-/workspace/modules/perc-distribution-tree/target/perc-distribution-tree.jar}"
-DTS_JAR="${DTS_DISTRIBUTION_JAR:-/workspace/deliverytiersuite/delivery-tier-suite/delivery-tier-distribution/target/delivery-tier-distribution.jar}"
-
-db_config_value() {
-  local primary="$1"
-  local fallback="$2"
-  local default_value="${3:-}"
-  local value="${!primary:-}"
-  if [[ -z "$value" && -n "$fallback" ]]; then
-    value="${!fallback:-}"
-  fi
-  if [[ -z "$value" ]]; then
-    value="$default_value"
-  fi
-  printf '%s' "$value"
-}
-
-build_installer_db_args() {
-  local -a args=()
-  local db_type
-  local db_ssl_enabled
-  local db_ssl_verify
-  local db_ssl_allow_self_signed
-
-  db_type="$(db_config_value PERC_DB_TYPE DB_TYPE derby)"
-  db_ssl_enabled="$(db_config_value PERC_DB_SSL_ENABLED DB_SSL_ENABLED true)"
-  db_ssl_verify="$(db_config_value PERC_DB_SSL_VERIFY DB_SSL_VERIFY true)"
-  db_ssl_allow_self_signed="$(db_config_value PERC_DB_SSL_ALLOW_SELF_SIGNED DB_SSL_ALLOW_SELF_SIGNED false)"
-
-  args+=("--db.type=${db_type}")
-  args+=("--db.ssl.enabled=${db_ssl_enabled}")
-  args+=("--db.ssl.verify=${db_ssl_verify}")
-  args+=("--db.ssl.allowSelfSigned=${db_ssl_allow_self_signed}")
-
-  local env_file
-  env_file="$(db_config_value PERC_DB_CONFIG_ENV_FILE DB_CONFIG_ENV_FILE "")"
-  if [[ -n "$env_file" ]]; then
-    args+=("--db.config.env.file=${env_file}")
-  fi
-
-  local host
-  host="$(db_config_value PERC_DB_HOST DB_HOST "")"
-  [[ -n "$host" ]] && args+=("--db.host=${host}")
-
-  local port
-  port="$(db_config_value PERC_DB_PORT DB_PORT "")"
-  [[ -n "$port" ]] && args+=("--db.port=${port}")
-
-  local name
-  name="$(db_config_value PERC_DB_NAME DB_NAME "")"
-  [[ -n "$name" ]] && args+=("--db.name=${name}")
-
-  local schema
-  schema="$(db_config_value PERC_DB_SCHEMA DB_SCHEMA "")"
-  [[ -n "$schema" ]] && args+=("--db.schema=${schema}")
-
-  local user
-  user="$(db_config_value PERC_DB_USER DB_USER "")"
-  [[ -n "$user" ]] && args+=("--db.user=${user}")
-
-  local password
-  password="$(db_config_value PERC_DB_PASSWORD DB_PASSWORD "")"
-  [[ -n "$password" ]] && args+=("--db.password=${password}")
-
-  local truststore_path
-  truststore_path="$(db_config_value PERC_DB_SSL_TRUSTSTORE_PATH DB_SSL_TRUSTSTORE_PATH "")"
-  [[ -n "$truststore_path" ]] && args+=("--db.ssl.trustStorePath=${truststore_path}")
-
-  local truststore_password
-  truststore_password="$(db_config_value PERC_DB_SSL_TRUSTSTORE_PASSWORD DB_SSL_TRUSTSTORE_PASSWORD "")"
-  [[ -n "$truststore_password" ]] && args+=("--db.ssl.trustStorePassword=${truststore_password}")
-
-  local keystore_path
-  keystore_path="$(db_config_value PERC_DB_SSL_KEYSTORE_PATH DB_SSL_KEYSTORE_PATH "")"
-  [[ -n "$keystore_path" ]] && args+=("--db.ssl.keyStorePath=${keystore_path}")
-
-  local keystore_password
-  keystore_password="$(db_config_value PERC_DB_SSL_KEYSTORE_PASSWORD DB_SSL_KEYSTORE_PASSWORD "")"
-  [[ -n "$keystore_password" ]] && args+=("--db.ssl.keyStorePassword=${keystore_password}")
-
-  printf '%s\n' "${args[@]}"
-}
-
-install_jar_if_present() {
-  local label="$1"
-  local jar_path="$2"
-  shift 2
-  local -a installer_args=("$@")
-
-  if [[ -f "$jar_path" ]]; then
-    log "Running ${label} installer/update: ${jar_path} -> ${INSTALL_ROOT}"
-    java -jar "$jar_path" "$INSTALL_ROOT" "${installer_args[@]}"
-  else
-    log "Skipping ${label} installer/update; jar not found: ${jar_path}"
-  fi
-}
+CMS_START_SCRIPT="${INSTALL_ROOT}/jetty/StartJetty.sh"
+DTS_START_SCRIPT_PRIMARY="${INSTALL_ROOT}/TomcatStartup.sh"
+DTS_START_SCRIPT_FALLBACK="${INSTALL_ROOT}/startup.sh"
 
 start_cms() {
-  local cms_start_script="${INSTALL_ROOT}/jetty/StartJetty.sh"
-  if [[ ! -x "$cms_start_script" ]]; then
-    log "ERROR: CMS start script missing or not executable: ${cms_start_script}"
+  if [[ ! -x "${CMS_START_SCRIPT}" ]]; then
+    log "ERROR: CMS start script missing or not executable: ${CMS_START_SCRIPT}"
+    log "The install must run on the host first:"
+    log "  ./scripts/install-cms-dev.sh"
+    log "  docker compose --env-file .env.compose -f docker-compose.yml up -d"
     exit 1
   fi
 
-  log "Starting CMS via ${cms_start_script}"
+  log "Starting CMS via ${CMS_START_SCRIPT}"
   (
     cd "${INSTALL_ROOT}/jetty"
     ./StartJetty.sh
@@ -124,13 +48,14 @@ start_cms() {
 }
 
 start_dts() {
-  local dts_start_script="${INSTALL_ROOT}/TomcatStartup.sh"
-  if [[ ! -x "$dts_start_script" ]]; then
-    dts_start_script="${INSTALL_ROOT}/startup.sh"
+  local dts_start_script="${DTS_START_SCRIPT_PRIMARY}"
+  if [[ ! -x "${dts_start_script}" ]]; then
+    dts_start_script="${DTS_START_SCRIPT_FALLBACK}"
   fi
-
-  if [[ ! -x "$dts_start_script" ]]; then
-    log "ERROR: DTS start script missing or not executable: ${INSTALL_ROOT}/TomcatStartup.sh or ${INSTALL_ROOT}/startup.sh"
+  if [[ ! -x "${dts_start_script}" ]]; then
+    log "ERROR: DTS start script missing: ${DTS_START_SCRIPT_PRIMARY} (or fallback ${DTS_START_SCRIPT_FALLBACK})"
+    log "The install must run on the host first:"
+    log "  ./scripts/install-cms-dev.sh"
     exit 1
   fi
 
@@ -159,55 +84,29 @@ stream_logs_foreground() {
   exec tail -F "${log_files[@]}"
 }
 
-main() {
-  mkdir -p "$INSTALL_ROOT"
-  mapfile -t installer_db_args < <(build_installer_db_args)
+# Sanity check that the bind-mounted install_root has a real CMS tree.
+if [[ ! -x "${CMS_START_SCRIPT}" ]]; then
+  log "ERROR: ${CMS_START_SCRIPT} not present. Did the host-side installer run?"
+  log "  ./scripts/install-cms-dev.sh"
+  exit 1
+fi
 
-  case "$INSTALL_MODE" in
-    install-always)
-      log "Install mode is install-always; running installer/update flow."
-      install_jar_if_present "CMS" "$CMS_JAR" "${installer_db_args[@]}"
-      install_jar_if_present "DTS" "$DTS_JAR" "${installer_db_args[@]}"
-      touch "$INSTALL_MARKER_PATH"
-      ;;
-    install-if-missing)
-      if [[ -f "$INSTALL_MARKER_PATH" ]]; then
-        log "Install marker found at ${INSTALL_MARKER_PATH}; skipping installer/update flow."
-      else
-        log "Install marker missing; running installer/update flow."
-        install_jar_if_present "CMS" "$CMS_JAR" "${installer_db_args[@]}"
-        install_jar_if_present "DTS" "$DTS_JAR" "${installer_db_args[@]}"
-        touch "$INSTALL_MARKER_PATH"
-      fi
-      ;;
-    skip-install)
-      log "Install mode is skip-install; installer/update flow skipped."
-      ;;
-    *)
-      log "ERROR: Unsupported PERC_INSTALL_MODE=${INSTALL_MODE}; expected install-always|install-if-missing|skip-install"
-      exit 1
-      ;;
-  esac
-
-  case "$SERVICE_MODE" in
-    cms)
-      start_cms
-      stream_logs_foreground
-      ;;
-    dts)
-      start_dts
-      stream_logs_foreground
-      ;;
-    cms-dts)
-      start_cms
-      start_dts
-      stream_logs_foreground
-      ;;
-    *)
-      log "ERROR: Unsupported SERVICE_MODE=${SERVICE_MODE}; expected cms|dts|cms-dts"
-      exit 1
-      ;;
-  esac
-}
-
-main "$@"
+case "${SERVICE_MODE:-cms-dts}" in
+  cms)
+    start_cms
+    stream_logs_foreground
+    ;;
+  dts)
+    start_dts
+    stream_logs_foreground
+    ;;
+  cms-dts)
+    start_cms
+    start_dts
+    stream_logs_foreground
+    ;;
+  *)
+    log "ERROR: Unsupported SERVICE_MODE=${SERVICE_MODE}; expected cms|dts|cms-dts"
+    exit 1
+    ;;
+esac

@@ -16,6 +16,8 @@
 .grok
 
 docker/dev-data
+.env.compose
+.env.compose.local
 qdrant_storage
 .vscode/*
 !.vscode/extensions.json

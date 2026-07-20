@@ -30,6 +30,8 @@ import { HomeShell } from "./home";
 import { UnavailableView } from "./home/UnavailableView";
 import { PublishingShell } from "./publishing";
 import { WidgetBuilderApp } from "./widgetbuilder/WidgetBuilderApp";
+import { ContentExplorerShell } from "./contentExplorer/ContentExplorerShell";
+import { ContentBrowser } from "./contentBrowser/ContentBrowser";
 
 /** Map of component names to their React component types. */
 export const componentRegistry = new Map<string, ComponentType<any>>();
@@ -49,3 +51,5 @@ componentRegistry.set("HomeShell", HomeShell);
 componentRegistry.set("PublishingShell", PublishingShell);
 componentRegistry.set("WidgetBuilderApp", WidgetBuilderApp);
 componentRegistry.set("UnavailableView", UnavailableView);
+componentRegistry.set("ContentExplorerShell", ContentExplorerShell);
+componentRegistry.set("ContentBrowser", ContentBrowser);

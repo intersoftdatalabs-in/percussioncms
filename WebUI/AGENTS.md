@@ -498,6 +498,54 @@ nvm use 18
 
 Rebuilds WebUI and redeploys to local installation.
 
+### Fast iteration against the docker dev CMS (no container restart)
+
+When the dev CMS is running via the docker compose stack at `localhost:9992` (see `docker-compose.yml` + `docker/scripts/perc-devctl.sh`), **JS/TS/JSP changes do NOT require a container restart** — just rebuild and copy the artifact:
+
+```bash
+# 1. Rebuild only the modern bundle (fast: ~3s)
+cd WebUI/src/main/frontend
+npm run build:modern
+
+# 2. Copy the new bundle to the runtime webapp
+cp WebUI/target/generated-webui/cm/modern/assets/perc-modern-ui.js \
+   /opt/Percussion/jetty/base/webapps/Rhythmyx/cm/modern/assets/perc-modern-ui.js
+cp WebUI/target/generated-webui/cm/modern/assets/perc-modern-ui.js.map \
+   /opt/Percussion/jetty/base/webapps/Rhythmyx/cm/modern/assets/perc-modern-ui.js.map
+
+# 3. Copy new/modified JSPs (Jetty serves them fresh on the next request)
+cp WebUI/src/main/webapp/cm/app/explorerModern.jsp \
+   /opt/Percussion/jetty/base/webapps/Rhythmyx/cm/app/explorerModern.jsp
+# (and the cm/pages/app/ mirror if the page is reached through the legacy Track A path)
+
+# 4. Bust the browser cache for the new bundle
+# Add a cache-buster to the JSP <script> tag, e.g.:
+#   <script type="module" src="/cm/modern/assets/perc-modern-ui.js?cb=<%= System.currentTimeMillis() %>"></script>
+# or hit the page with a unique querystring (Playwright tests can do this).
+```
+
+**Java code** (when you change `.java` files, e.g. `PSPathService`) **does** need a full container restart because Jetty's WebAppClassLoader doesn't hot-reload classes. The fastest path:
+
+```bash
+./mvn-env.sh -pl <module> -am install   # rebuild jar
+docker compose --env-file .env.compose -f docker-compose.yml restart cms-dts
+./docker/scripts/perc-devctl.sh verify   # confirm health
+```
+
+**When in doubt, Jetty's `<servlet>` config can be set to `<init-param><param-name>development</param-name><param-value>true</param-value></init-param>`** so JSPs hot-reload on the next request. Default is single-recompile per deploy; flip to `true` in `web.xml` to avoid the `docker compose restart` cycle for JSP-only changes.
+
+### Iteration cost reference
+
+| Change | Build | Restart | Total |
+|--------|-------|---------|-------|
+| TS/TSX (component or path API) | `npm run build:modern` (~3 s) | copy + cache-buster (0 s) | ~3 s |
+| JSP | copy file (0 s) | none (Jetty re-serves on request) | ~1 s |
+| SCSS / styles | `npm run build:modern` (~3 s) | copy (~0 s) | ~3 s |
+| Java class | `./mvn-env.sh -pl <m> -am install` (~30–60 s) | `docker compose restart` (~30 s) | ~1–2 min |
+| Maven / pom | `./mvn-env.sh clean install` (~5–10 min first time) | `docker compose restart` | ~5–10 min |
+
+When iterating, prefer the cheap paths first (TS + JSP); only escalate to Java / pom when the change actually requires it.
+
 ---
 
 ## Common Tasks Cheatsheet

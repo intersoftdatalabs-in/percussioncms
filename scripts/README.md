@@ -21,6 +21,78 @@ Fetch code scanning (CodeQL) alerts for a repository using the `gh` CLI and writ
   - Pagination is handled automatically (`--paginate`, `per_page=100`).
   - For the `004-zero-code-scanning-alerts` workflow, use this script to (re)generate `alerts.md`, then seed/triage `triage.md` per `specs/004-zero-code-scanning-alerts/contracts/README.md` C1.
 
+### `install-cms-dev.sh`
+
+Run the Percussion CMS installer ONCE on the host into a persistent
+`install_root/` directory. The docker dev/test runtime bind-mounts that
+directory into the `cms-dts` container at `/opt/Percussion/` so:
+
+- the container's only job is to run `StartJetty.sh` (no in-container install);
+- container restarts do **not** re-install (the install persists on the host);
+- hot-deploys (jar swaps, config edits) are local file edits in `install_root/`,
+  picked up by the container on the next `docker compose restart`.
+
+This replaces the old "install inside the container" pattern, which fought
+bind mounts and the in-container healthcheck window.
+
+- **Purpose**: One-time CMS install into `./docker/dev-data/cms-dts/install_root/`
+  (default). Idempotent — skips install if the marker file is present.
+- **Usage**:
+  ```bash
+  ./scripts/install-cms-dev.sh                  # one-time install
+  ./scripts/install-cms-dev.sh --reset         # force reinstall
+  ./scripts/install-cms-dev.sh --install-root /tmp/cms-install
+  ```
+- **Prereqs**:
+  - JDK 21 on the host (the installer runs in the same JRE/JDK the container uses).
+  - Built artifacts: `modules/perc-distribution-tree/target/perc-distribution-tree.jar`
+    and `deliverytiersuite/delivery-tier-suite/delivery-tier-distribution/target/delivery-tier-distribution.jar`
+    (run `./mvn-env.sh clean install -DskipTests=true`).
+  - For MySQL installs: the `mysql` compose service must be running and reachable
+    on `localhost:3306` (docker compose publishes the container port to the host).
+    The installer reads `PERC_DB_*` from `.env.compose`.
+  - For Derby installs: no external service needed; uses the embedded default.
+- **Bootstrap**: When `install_root/` is empty, the script seeds it from the
+  pre-existing `docker/dev-data/cms-dts/{ObjectStore,var,rxconfig,Deployment/Server/conf,jetty/base}`
+  subdirs so prior dev state (CMS ObjectStore content, Rx config, Jetty base) is
+  preserved across the migration to single-bind-mount. Pass `--no-bootstrap`
+  to skip the seed.
+- **Output**: `RESULT:OK STEP:install LOG:<path>` or `RESULT:FAIL STEP:install LOG:<path>`.
+- **Typical workflow**:
+  ```bash
+  cp .env.compose.example .env.compose             # edit secrets
+  ./mvn-env.sh clean install -DskipTests=true
+  ./docker/scripts/perc-devctl.sh up --build       # starts mysql + cms-dts (mysql must be up before install)
+  docker compose --env-file .env.compose -f docker-compose.yml up -d mysql  # or `up --build` brings both
+  ./scripts/install-cms-dev.sh                    # populates install_root/
+  ./docker/scripts/perc-devctl.sh up -d cms-dts   # starts cms-dts against the installed tree
+  ./docker/scripts/perc-devctl.sh verify          # confirm CMS + DTS endpoints respond
+  ```
+- **Hot-deploy**:
+  ```bash
+  # Edit a file in install_root/ on host, then restart the container:
+  docker compose --env-file .env.compose -f docker-compose.yml restart cms-dts
+  # Or, hot-swap a jar via the existing hot-deploy-jar.sh:
+  ./docker/scripts/hot-deploy-jar.sh --jar modules/utils/target/utils-8.2.0-SNAPSHOT.jar --target both --restart
+  ```
+
+### `create-large-folder-fixture.sh`
+
+Create a single CMS folder with ≥500 children for the SC-005 perf UAT scenario of feature `992-react-content-explorer` (`quickstart.md` Scenario B).
+
+- **Purpose**: Tasks.md T012b perf fixture scaffolding. Run on a test CMS instance to seed the fixture used for the SC-005 pass criterion (`p95 ≤ 10 s` on standard office network) and the T015a Vitest regression guard.
+- **Usage**:
+  ```bash
+  CMS_BASE_URL=https://cms.local:8443 \
+  CMS_USER=admin1 CMS_PASS=<redacted> \
+  FIXTURE_PATH=/Sites/PerfFixture FIXTURE_COUNT=500 \
+  ./scripts/create-large-folder-fixture.sh
+  ```
+- **Output**: A folder `FIXTURE_PATH/PerfFixtureRoot` with `FIXTURE_COUNT` children (default `/Sites/PerfFixture/PerfFixtureRoot` × 500).
+- **Cross-platform**: Windows users run the `.cmd` counterpart (add when needed; the `.sh` is portable to Linux/macOS). Default count + path match the SC-005 fixture in `quickstart.md`.
+- **Evidence**: After UAT, append a row to `specs/992-react-content-explorer/checklists/sc005-perf-evidence.md` with run name, git SHA, fixture size, network profile, p50/p95/max times, pass/fail.
+- **Prereqs**: `curl`, network reachability to a running CMS instance with admin credentials; idempotent (re-running will create additional children under the same parent — clean up between runs as needed).
+
 ### `erlang-harvest-review-patterns.py` (+ `.sh` / `.bat`)
 
 Harvest GitHub PR **line review comments** (including closed/merged PRs) from
