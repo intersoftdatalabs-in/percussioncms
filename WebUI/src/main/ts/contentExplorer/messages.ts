@@ -42,11 +42,14 @@ export const EXPLORER_MSG = {
   ACTION_COPY: "perc.ui.explorer@Copy",
   ACTION_DELETE: "perc.ui.explorer@Delete",
   CONFIRM_DELETE_TITLE: "perc.ui.explorer@Delete Confirmation",
-  CONFIRM_DELETE_BODY: "perc.ui.explorer@Are you sure you want to delete this item?",
+  CONFIRM_DELETE_BODY:
+    "perc.ui.explorer@Are you sure you want to delete this item?",
   CONFIRM_OK: "perc.ui.explorer@OK",
   CONFIRM_CANCEL: "perc.ui.explorer@Cancel",
-  PERMISSION_DENIED: "perc.ui.explorer@You do not have permission to perform this action",
-  SESSION_EXPIRED: "perc.ui.explorer@Your session has expired. Please log in again.",
+  PERMISSION_DENIED:
+    "perc.ui.explorer@You do not have permission to perform this action",
+  SESSION_EXPIRED:
+    "perc.ui.explorer@Your session has expired. Please log in again.",
   RETRY: "perc.ui.explorer@Retry",
   PROMPT_NEW_FOLDER_NAME: "perc.ui.explorer@Enter new folder name",
   PROMPT_NEW_NAME: "perc.ui.explorer@Enter new name",
@@ -61,7 +64,8 @@ export const EXPLORER_MSG = {
   CLIPBOARD_CLEAR: "perc.ui.explorer@Clear clipboard",
   CLIPBOARD_PASTE: "perc.ui.explorer@Paste",
   CLIPBOARD_EMPTY: "perc.ui.explorer@Clipboard is empty",
-  CLIPBOARD_PASTE_TARGET_REQUIRED: "perc.ui.explorer@Select a destination folder before pasting",
+  CLIPBOARD_PASTE_TARGET_REQUIRED:
+    "perc.ui.explorer@Select a destination folder before pasting",
 
   WIZARD_NEXT: "perc.ui.explorer@Next",
   WIZARD_BACK: "perc.ui.explorer@Back",
@@ -92,10 +96,13 @@ export const EXPLORER_MSG = {
   DEPENDENCY_LOCAL: "perc.ui.explorer@Local dependencies",
   DEPENDENCY_REVERSE: "perc.ui.explorer@Reverse dependencies",
   DEPENDENCY_CLIENT_SIDE_PREVIEW: "perc.ui.explorer@Client-side preview",
+  DEPENDENCY_LOADING: "perc.ui.explorer@Loading relationship summary…",
+  DEPENDENCY_ERROR: "perc.ui.explorer@Could not load relationship summary",
 
   RELATIONSHIPS_TITLE: "perc.ui.explorer@IA Relationships",
   RELATIONSHIPS_CLIENT_SIDE_PREVIEW:
     "perc.ui.explorer@Client-side preview (full graph pending rest enhancement)",
+  RELATIONSHIPS_LOADING: "perc.ui.explorer@Loading IA relationships…",
   // US5 P-Search / search panel (FR-017, FR-018, SC-005)
   SEARCH_TITLE: "perc.ui.explorer@Search",
   SEARCH_PLACEHOLDER: "perc.ui.explorer@Type to search…",
@@ -105,14 +112,16 @@ export const EXPLORER_MSG = {
   SEARCH_ERROR: "perc.ui.explorer@Search failed",
   SEARCH_OPEN: "perc.ui.explorer@Open",
   SEARCH_REVEAL: "perc.ui.explorer@Reveal in folder",
-  SEARCH_PERMISSION_DENIED: "perc.ui.explorer@You do not have permission to open this item",
+  SEARCH_PERMISSION_DENIED:
+    "perc.ui.explorer@You do not have permission to open this item",
   // US4 P-ACL / folder security (FR-014–FR-016, SC-004)
   SECURITY_TITLE: "perc.ui.explorer@Folder Security",
   SECURITY_LOADING: "perc.ui.explorer@Loading permissions",
   SECURITY_LOAD_ERROR: "perc.ui.explorer@Failed to load folder permissions",
   SECURITY_SAVE_SUCCESS: "perc.ui.explorer@Permissions saved",
   SECURITY_SAVE_ERROR: "perc.ui.explorer@Failed to save permissions",
-  SECURITY_READ_ONLY: "perc.ui.explorer@View-only (you do not have ADMIN access)",
+  SECURITY_READ_ONLY:
+    "perc.ui.explorer@View-only (you do not have ADMIN access)",
   SECURITY_LOCKOUT_WARNING_TITLE: "perc.ui.explorer@Confirm self-lockout",
   SECURITY_LOCKOUT_WARNING_BODY:
     "perc.ui.explorer@Saving these changes will remove your access to this folder. Continue?",

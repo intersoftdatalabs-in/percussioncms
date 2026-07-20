@@ -14,11 +14,13 @@
 import { describe, expect, it } from "vitest";
 import {
   DEPENDENCY_DIMENSIONS,
+  composeFromServerSummary,
   labelFor,
   synthesiseRelationshipSummary,
   totalKnownEdges,
 } from "../../../main/ts/contentExplorer/views/dependencyModel";
 import type { PSItemProperties } from "../../../main/ts/api/contentExplorer/types";
+import type { PSNodeRelationshipSummary } from "../../../main/ts/api/contentExplorer/relationship";
 
 function item(id = "i-1"): PSItemProperties {
   return { id, folderPath: "/Sites/Foo", type: "page" };
@@ -91,5 +93,48 @@ describe("totalKnownEdges", () => {
   it("returns 0 when all dimensions are unknown", () => {
     const summary = synthesiseRelationshipSummary(item(), 0);
     expect(totalKnownEdges(summary)).toBe(0);
+  });
+});
+
+describe("composeFromServerSummary (US8 / T102)", () => {
+  const server: PSNodeRelationshipSummary = {
+    outgoing: { count: 3, byType: [{ type: "translation", count: 3 }] },
+    incoming: { count: 1, byType: [{ type: "translation", count: 1 }] },
+    taxonomy: { count: 2, nodes: ["a", "b"] },
+    local: { count: 4, links: [{ type: "local", targetId: "x" }] },
+    reverse: { count: 5, byType: [{ type: "linkback", count: 5 }] },
+  };
+
+  it("marks the summary as server-authoritative (clientSideOnly=false)", () => {
+    const summary = composeFromServerSummary(item(), server, 2);
+    expect(summary.clientSideOnly).toBe(false);
+  });
+
+  it("uses the supplied AA-link count for the AA row", () => {
+    const summary = composeFromServerSummary(item(), server, 7);
+    const aa = summary.dimensions.find((d) => d.dimension === "aa");
+    expect(aa?.count).toBe(7);
+    expect(aa?.label).toBe("7 AA links");
+  });
+
+  it("promotes the per-type breakdown into the row label", () => {
+    const summary = composeFromServerSummary(item(), server, 0);
+    const out = summary.dimensions.find((d) => d.dimension === "outgoing");
+    expect(out?.label).toContain("3");
+    expect(out?.label).toContain("translation");
+  });
+
+  it("renders the taxonomy path list as a count label", () => {
+    const summary = composeFromServerSummary(item(), server, 0);
+    const tax = summary.dimensions.find((d) => d.dimension === "taxonomy");
+    expect(tax?.count).toBe(2);
+    expect(tax?.label).toMatch(/2 nodes/);
+  });
+
+  it("uses the local-link count for the local row", () => {
+    const summary = composeFromServerSummary(item(), server, 0);
+    const local = summary.dimensions.find((d) => d.dimension === "local");
+    expect(local?.count).toBe(4);
+    expect(local?.label).toBe("4 local links");
   });
 });

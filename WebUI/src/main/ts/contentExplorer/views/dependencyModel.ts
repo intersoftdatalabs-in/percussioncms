@@ -15,23 +15,27 @@
  */
 
 /**
- * Pure helper for the modern Content Explorer's dependency view (US7 / T078).
+ * Pure helper for the modern Content Explorer's dependency view (US8 / T102).
  *
- * <p>The DependencyViewer renders the 6 {@link RelationshipDimension}
+ * <p>The DependencyViewer renders the 6 {@link DependencyDimension}
  * rows listed in `specs/992-react-content-explorer/contracts/capability-matrix.md`
  * P-Adv: outgoing / incoming / AA / taxonomy / local / reverse.
- * Until the gated `rest` enhancement for typed relationship lookup
- * ships (see `specs/992-react-content-explorer/research/relationship-rest-gaps.md`),
- * the only fully-derived row is the AA dimension (which the
- * `PSWidgetAssetRelationship` data can count via the existing AA
- * template lookup); the other 5 rows are marked {@code unknown} so
- * the UI labels the panel "Client-side preview" and avoids
- * pretending to be authoritative.</p>
  *
- * <p>This module is pure (no React, no fetch) — the component layer
- * consumes the returned summary shape.</p>
+ * <p>As of US8 (spec 992), all 6 dimensions are authoritative. The server-supplied
+ * consolidated summary (returned by {@link fetchNodeSummary} in
+ * {@code relationshipsApi.ts}) is composed into the dependency view's row shape here.
+ * The morning "unknown / clientSidePreview" branch is retained only as a unit-test
+ * fallback (`synthesiseRelationshipSummary`); no production paths use it now that
+ * US8 ships.</p>
+ *
+ * <p>This module is pure (no React, no fetch) — the component layer consumes the
+ * returned summary shape.</p>
  */
 
+import type {
+  PSNodeRelationshipSummary as ServerNodeSummary,
+  PSRelationshipSummary as ServerRelationSummary,
+} from "../../api/contentExplorer/relationship";
 import type { RelationshipSummary } from "../../api/contentExplorer/types";
 
 /** Minimal item shape consumed by the dependency helper. */
@@ -69,9 +73,11 @@ export function labelFor(d: DependencyDimension): string {
 
 /**
  * The full set of relationship dimensions rendered for a single
- * selected node. Counts are derived client-side until the
- * `rest` enhancement for typed relationship lookup lands (see
- * `specs/992-react-content-explorer/research/relationship-rest-gaps.md`).
+ * selected node. Counts are derived from the server-supplied summary
+ * when {@link NodeRelationshipSummary} is built via
+ * {@link composeFromServerSummary}; the legacy client-side fallback
+ * (`synthesiseRelationshipSummary`) flags the 5 non-AA rows as
+ * {@code unknown} and exists for unit-test legibility only.
  */
 export interface NodeRelationshipSummary {
   nodeId: string;
@@ -81,11 +87,93 @@ export interface NodeRelationshipSummary {
 }
 
 /**
- * Synthesise a {@link NodeRelationshipSummary} for the supplied item.
- * The AA dimension is the only fully-populated row in 8.2; the
- * others are flagged {@code unknown} to reflect the `rest` gap
- * (matrix P-Adv row reads "Partial: client summary; full graph
- * pending rest enhancement"). The function is pure.
+ * Compose a {@link NodeRelationshipSummary} from the sitemanage
+ * consolidated summary (US8 / T102). Six dimensions are sourced:
+ *
+ * <ul>
+ *   <li>outgoing — server-supplied row count + per-type breakdown.
+ *   <li>incoming — same shape, AA-aware count.
+ *   <li>aa — sourced host-side (the host shell already knows the AA-link
+ *       count from {@code PSWidgetAssetRelationshipService}). Accepts
+ *       {@code aaLinkCount >= 0}; 0 yields the empty-render shape.
+ *   <li>taxonomy — node path list (the dependency view renders the
+ *       count + first few nodes inline).
+ *   <li>local — local-link rows (rendered with count + a "+N more"
+ *       overflow link).
+ *   <li>reverse — server-supplied row count; expected equal to
+ *       {@code incoming} for the canonical translation category.
+ * </ul>
+ */
+export function composeFromServerSummary(
+  item: DependencyItemLike,
+  server: ServerNodeSummary,
+  aaLinkCount: number,
+): NodeRelationshipSummary {
+  return {
+    nodeId: item.id ?? "",
+    nodePath: item.folderPath ?? item.path,
+    clientSideOnly: false,
+    dimensions: [
+      toRelationSummary("outgoing", server.outgoing),
+      toRelationSummary("incoming", server.incoming),
+      {
+        dimension: "aa",
+        count: aaLinkCount,
+        label: `${aaLinkCount} AA link${aaLinkCount === 1 ? "" : "s"}`,
+      },
+      toRelationSummary("taxonomy", {
+        count: server.taxonomy.count,
+        byType: server.taxonomy.nodes.map((node) => ({ type: node, count: 1 })),
+      }),
+      {
+        dimension: "local",
+        count: server.local.count,
+        label: `${server.local.count} local link${server.local.count === 1 ? "" : "s"}`,
+      },
+      toRelationSummary("reverse", server.reverse),
+    ],
+  };
+}
+
+/** Convert the server-typed summary to the component-typed `RelationshipSummary`. */
+function toRelationSummary(
+  dimension: RelationshipSummary["dimension"],
+  server: ServerRelationSummary,
+): RelationshipSummary {
+  if (
+    dimension === "outgoing" ||
+    dimension === "incoming" ||
+    dimension === "reverse" ||
+    dimension === "aa"
+  ) {
+    return {
+      dimension,
+      count: server.count,
+      label:
+        server.byType.length === 0
+          ? `${server.count} link${server.count === 1 ? "" : "s"}`
+          : server.byType.map((b) => `${b.count} ${b.type}`).join(", "),
+    };
+  }
+  // taxonomy is reported as a node-path list in PSNodeRelationshipSummary; keep clientSideOnly=false
+  // because the server has the data but the type-bridge collapses it into a byType-style label.
+  return {
+    dimension: "taxonomy",
+    count: server.count,
+    label:
+      server.byType.length === 0
+        ? `${server.count} nodes`
+        : `${server.count} node${server.count === 1 ? "" : "s"}`,
+  };
+}
+
+/**
+ * Synthesise a {@link NodeRelationshipSummary} for the supplied item using only client-side
+ * data. The AA dimension is fully populated; the other five rows are flagged {@code unknown}
+ * to reflect the absence of server data.
+ *
+ * <p>Retained for unit-test legibility. Production code paths must use
+ * {@link composeFromServerSummary} now that US8 ships.</p>
  */
 export function synthesiseRelationshipSummary(
   item: DependencyItemLike,
@@ -112,8 +200,5 @@ export function synthesiseRelationshipSummary(
 export function totalKnownEdges(summary: NodeRelationshipSummary): number {
   return summary.dimensions
     .filter((d: RelationshipSummary) => !d.unknown)
-    .reduce(
-      (acc: number, d: RelationshipSummary) => acc + d.count,
-      0,
-    );
+    .reduce((acc: number, d: RelationshipSummary) => acc + d.count, 0);
 }
