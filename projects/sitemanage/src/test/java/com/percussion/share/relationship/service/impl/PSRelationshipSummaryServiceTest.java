@@ -109,7 +109,9 @@ class PSRelationshipSummaryServiceTest {
 
     assertTrue(out.isPresent());
     assertEquals(1L, out.get().getCount());
-    assertEquals("translation", out.get().getByType().get(0).getType());
+    // summariseIncoming routes through FILTER_CATEGORY_ACTIVE_ASSEMBLY ("rs_activeassembly"),
+    // which normaliseCategoryLabel strips to "activeassembly" before populating the bucket.
+    assertEquals("activeassembly", out.get().getByType().get(0).getType());
   }
 
   @Test
