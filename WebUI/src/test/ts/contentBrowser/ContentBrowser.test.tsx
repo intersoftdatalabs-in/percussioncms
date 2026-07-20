@@ -30,6 +30,7 @@ import { ContentBrowser } from "../../../main/ts/contentBrowser/ContentBrowser";
 import * as pathApi from "../../../main/ts/api/contentExplorer/pathApi";
 import type { PSPathItem } from "../../../main/ts/api/contentExplorer/types";
 import { appendUniqueById } from "../../../main/ts/contentBrowser/selectionHelpers";
+import { renderA11yGate } from "../contentExplorer/a11y";
 
 const SAMPLE: PSPathItem[] = [
   {
@@ -171,5 +172,14 @@ describe("ContentBrowser", () => {
     // The ExplorerTree mounts the React tree; assert its root.
     expect(document.querySelector('[data-testid="explorer-tree"]')).toBeInTheDocument();
     expect(document.querySelector('[data-testid="detail-list"]')).toBeInTheDocument();
+  });
+
+  it("passes the zero serious/critical axe-core gate (browse mode)", async () => {
+    vi.spyOn(pathApi, "findChildren").mockResolvedValue(SAMPLE);
+    const { baseElement } = render(<ContentBrowser initialPath="/Sites" />);
+    await waitFor(() =>
+      expect(document.querySelector('[data-testid="explorer-tree"]')).toBeInTheDocument(),
+    );
+    await renderA11yGate(baseElement);
   });
 });

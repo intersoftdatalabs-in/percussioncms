@@ -12,6 +12,7 @@ import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import type { PSSiteCopyRequest } from "../../../main/ts/api/contentExplorer/types";
 import { SiteCopyWizard } from "../../../main/ts/contentExplorer/wizards/SiteCopyWizard";
+import { renderA11yGate } from "./a11y";
 
 describe("SiteCopyWizard", () => {
   it("renders the 5-step wizard at step 0 (source)", () => {
@@ -96,5 +97,10 @@ describe("SiteCopyWizard", () => {
     expect(screen.getByTestId("site-copy-progress").textContent).toContain(
       "mock failure",
     );
+  });
+
+  it("passes the zero serious/critical axe-core gate (step 0)", async () => {
+    const { container } = render(<SiteCopyWizard />);
+    await renderA11yGate(container);
   });
 });

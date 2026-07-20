@@ -19,6 +19,7 @@ import { describe, expect, it } from "vitest";
 import { ExplorerTree } from "../../../main/ts/contentExplorer/ExplorerTree";
 import type { PSPathItem } from "../../../main/ts/api/contentExplorer/types";
 import { mockFetch } from "./setup";
+import { renderA11yGate } from "./a11y";
 
 const ROOT_FOLDER: PSPathItem = {
   id: "root-1",
@@ -154,5 +155,25 @@ describe("ExplorerTree", () => {
     await waitFor(() =>
       expect(screen.getByRole("alert")).toHaveTextContent(/Failed to load/),
     );
+  });
+
+  it("passes the zero serious/critical axe-core gate (loaded state with treeitem children)", async () => {
+    mockFetch(async () =>
+      new Response(JSON.stringify([ROOT_FOLDER]), {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      }),
+    );
+    const { container } = render(
+      <ExplorerTree
+        initialPath="/Sites"
+        selectedPath="/Sites"
+        onSelectFolder={() => undefined}
+      />,
+    );
+    await waitFor(() =>
+      expect(screen.getByTestId("tree-node-/Sites/Sites")).toBeTruthy(),
+    );
+    await renderA11yGate(container);
   });
 });

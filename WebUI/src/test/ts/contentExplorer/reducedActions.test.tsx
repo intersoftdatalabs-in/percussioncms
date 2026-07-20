@@ -20,6 +20,7 @@ import type { PSPathItem } from "../../../main/ts/api/contentExplorer/types";
 import { ReducedActions } from "../../../main/ts/contentExplorer/ReducedActions";
 import type { ReducedActionHandlers } from "../../../main/ts/contentExplorer/ReducedActions";
 import { mockFetch } from "./setup";
+import { renderA11yGate } from "./a11y";
 
 const FOLDER: PSPathItem = {
   id: "f-1",
@@ -202,5 +203,21 @@ describe("ReducedActions", () => {
     fireEvent.click(screen.getByTestId("action-delete"));
     await waitFor(() => expect(onError).toHaveBeenCalled());
     expect(String(onError.mock.calls[0]?.[0])).toMatch(/500|denied/);
+  });
+
+  it("passes the zero serious/critical axe-core gate (admin item)", () => {
+    const handlers = makeHandlers();
+    const { container } = render(
+      <ReducedActions item={FOLDER} handlers={handlers} />,
+    );
+    return renderA11yGate(container);
+  });
+
+  it("passes the zero serious/critical axe-core gate (read-only item)", () => {
+    const handlers = makeHandlers();
+    const { container } = render(
+      <ReducedActions item={READ_ONLY} handlers={handlers} />,
+    );
+    return renderA11yGate(container);
   });
 });

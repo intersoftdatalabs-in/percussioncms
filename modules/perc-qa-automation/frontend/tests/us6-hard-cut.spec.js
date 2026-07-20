@@ -38,6 +38,7 @@
 
 const { test, expect } = require("@playwright/test");
 const { loginAsAdmin, BASE_URL } = require("./helpers/auth");
+const { expectNoSeriousA11yViolations } = require("./helpers/a11y");
 
 /**
  * Each entry is a shell that previously mounted miller-column Finder.
@@ -160,5 +161,20 @@ test.describe("US6 hard cut — cutover inventory evidence (FR-022)", () => {
     // in webmgt), so the per-shell loop no longer asserts on it; the
     // cutover-inventory block uses the same scoped assertion.
     await expect(page.locator(".perc-mcol")).toHaveCount(0);
+  });
+
+  test("axe-core a11y gate — hard-cut explorer mounts (T082b)", async ({
+    page,
+  }) => {
+    // Spot-check the first modern entry point for serious/critical
+    // a11y regressions. A failing test here is a release-blocker for
+    // SC-009 (a11y) and SC-012 (FR-029 parity).
+    await page.goto(
+      `${BASE_URL}/Rhythmyx/cm/app/explorerModern.jsp?_=${Date.now()}`,
+      { waitUntil: "networkidle" },
+    );
+    await expectNoSeriousA11yViolations(page, {
+      scope: '[id="perc-modern-ui-mount"], [data-testid="explorer-tree"]',
+    });
   });
 });

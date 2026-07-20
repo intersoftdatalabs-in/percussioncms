@@ -48,6 +48,7 @@
 
 const { test, expect } = require("@playwright/test");
 const { loginAsAdmin, BASE_URL } = require("./helpers/auth");
+const { expectNoSeriousA11yViolations } = require("./helpers/a11y");
 
 const DIALOG_URL = `${BASE_URL}/Rhythmyx/cm/app/assetPickerModern.jsp?_=${Date.now()}`;
 
@@ -94,5 +95,17 @@ test.describe("US2 host-asset-picker migration (SC-002)", () => {
       () => document.activeElement?.tagName,
     );
     expect(focusedTag).toBe("BUTTON");
+  });
+
+  test("axe-core a11y gate — host asset picker modern dialog (T082b)", async ({
+    page,
+  }) => {
+    await page.goto(DIALOG_URL, { waitUntil: "networkidle" });
+    await expect(
+      page.locator('[data-testid="perc-content-browser-root"]'),
+    ).toBeVisible({ timeout: 15_000 });
+    await expectNoSeriousA11yViolations(page, {
+      scope: '[data-testid="perc-content-browser-root"]',
+    });
   });
 });

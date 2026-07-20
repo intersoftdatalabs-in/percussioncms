@@ -43,6 +43,7 @@ const {
   BASE_URL,
   ADMIN_USERNAME,
 } = require("./helpers/auth");
+const { expectNoSeriousA11yViolations } = require("./helpers/a11y");
 
 const EXPLORER_URL =
   `${BASE_URL}/Rhythmyx/cm/app/explorerModern.jsp?_=${Date.now()}`;
@@ -106,5 +107,14 @@ test.describe("modern React Content Explorer (US1) — feature 992", () => {
     await page.goto(`${BASE_URL}/Rhythmyx/index.jsp`);
     expect(page.url()).toMatch(/\/Rhythmyx\/index\.jsp/);
     expect(ADMIN_USERNAME).toBe("Admin");
+  });
+
+  test("axe-core a11y gate — modern Content Explorer shell (T082b)", async ({
+    page,
+  }) => {
+    await page.goto(EXPLORER_URL, { waitUntil: "networkidle" });
+    await expectNoSeriousA11yViolations(page, {
+      scope: '[id="perc-modern-ui-mount"], [data-testid="explorer-tree"], [data-testid="detail-list"]',
+    });
   });
 });

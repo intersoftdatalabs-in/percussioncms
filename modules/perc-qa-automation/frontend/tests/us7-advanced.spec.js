@@ -40,6 +40,7 @@
 
 const { test, expect } = require("@playwright/test");
 const { loginAsAdmin, BASE_URL } = require("./helpers/auth");
+const { expectNoSeriousA11yViolations } = require("./helpers/a11y");
 
 const US7_URL = `${BASE_URL}/Rhythmyx/cm/app/us7AdvancedModern.jsp?_=${Date.now()}`;
 
@@ -160,5 +161,22 @@ test.describe("US7 P-Adv \u2014 advanced CE (SC-011)", () => {
   }) => {
     await page.goto(US7_URL, { waitUntil: "networkidle" });
     await expect(page.locator(".perc-mcol")).toHaveCount(0);
+  });
+
+  test("axe-core a11y gate — DependencyViewer / Clipboard / Sites wizard (T082b)", async ({
+    page,
+  }) => {
+    await page.goto(US7_URL, { waitUntil: "networkidle" });
+    // The pilot page embeds 6+ panels stacked; the modern shell root has
+    // a stable testid we can scope to. If absent, scan page-level.
+    const root = page.locator('[data-testid="perc-us7-root"]');
+    if ((await root.count()) > 0) {
+      await expect(root).toBeVisible({ timeout: 15_000 });
+      await expectNoSeriousA11yViolations(page, {
+        scope: '[data-testid="perc-us7-root"]',
+      });
+    } else {
+      await expectNoSeriousA11yViolations(page);
+    }
   });
 });

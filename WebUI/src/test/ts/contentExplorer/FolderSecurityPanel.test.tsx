@@ -21,6 +21,7 @@ import type {
   PSFolderPermission,
 } from "../../../main/ts/api/contentExplorer/types";
 import { FolderSecurityPanel } from "../../../main/ts/contentExplorer/FolderSecurityPanel";
+import { renderA11yGate } from "./a11y";
 
 function permission(
   admin: string[] = [],
@@ -326,5 +327,41 @@ describe("FolderSecurityPanel", () => {
       expect(screen.getByTestId("folder-security-error")).toBeTruthy();
     });
     expect(screen.getByTestId("folder-security-retry")).toBeTruthy();
+  });
+
+  it("passes the zero serious/critical axe-core gate (loaded admin state)", async () => {
+    const { container } = render(
+      <FolderSecurityPanel
+        folderId="f-1"
+        currentUserIdentities={["Admin"]}
+        load={async () =>
+          makeProps({
+            permission: permission(["Admin"], ["Editor1"], [], []),
+          })
+        }
+      />,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("folder-security-panel")).toBeTruthy();
+    });
+    await renderA11yGate(container);
+  });
+
+  it("passes the zero serious/critical axe-core gate (read-only state)", async () => {
+    const { container } = render(
+      <FolderSecurityPanel
+        folderId="f-1"
+        currentUserIdentities={["Contributor"]}
+        load={async () =>
+          makeProps({
+            permission: permission([], [], [], []),
+          })
+        }
+      />,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("folder-security-panel")).toBeTruthy();
+    });
+    await renderA11yGate(container);
   });
 });

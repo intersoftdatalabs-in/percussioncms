@@ -23,6 +23,7 @@ import type {
 } from "../../../main/ts/api/contentExplorer/types";
 import { ClipboardPanel } from "../../../main/ts/contentExplorer/clipboard/ClipboardPanel";
 import { EMPTY_CLIPBOARD, setClipboard } from "../../../main/ts/contentExplorer/clipboard/model";
+import { renderA11yGate } from "./a11y";
 
 function item(id: string): ClipboardItem {
   return { id, path: `/Sites/Foo/${id}`, kind: "page", sourceAccessLevel: "ADMIN" };
@@ -174,5 +175,35 @@ describe("ClipboardPanel", () => {
       expect(onClipboardChange).toHaveBeenCalledWith(EMPTY_CLIPBOARD);
     });
     expect(screen.getByTestId("clipboard-summary")).toBeTruthy();
+  });
+
+  it("passes the zero serious/critical axe-core gate (empty state)", async () => {
+    const { container } = render(
+      <ClipboardPanel
+        clipboard={EMPTY_CLIPBOARD}
+        onClipboardChange={() => {}}
+        items={[]}
+        mode="copy"
+        onModeChange={() => {}}
+        target={null}
+        paste={async () => ({ count: 0, summary: [] })}
+      />,
+    );
+    await renderA11yGate(container);
+  });
+
+  it("passes the zero serious/critical axe-core gate (populated state)", async () => {
+    const { container } = render(
+      <ClipboardPanel
+        clipboard={makeCb([item("a"), item("b")])}
+        onClipboardChange={() => {}}
+        items={[]}
+        mode="copy"
+        onModeChange={() => {}}
+        target={{ path: "/Sites/Foo", accessLevel: "ADMIN" }}
+        paste={async () => ({ count: 0, summary: [] })}
+      />,
+    );
+    await renderA11yGate(container);
   });
 });
