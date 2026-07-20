@@ -70,6 +70,7 @@
     views.put("editTemplate", "editTemplate.jsp");
     views.put("widgetbuilder", "widgetBuilderModern.jsp");
     views.put("home", "homeModern.jsp");
+    views.put("admin", "adminModern.jsp");
 
 
     // List of views requiring admin role
@@ -78,7 +79,8 @@
             "arch",
             "publish",
             "workflow",
-            "widgetbuilder"
+            "widgetbuilder",
+            "admin"
     };
 
     // List of views requiring designer role

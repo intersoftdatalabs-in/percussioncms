@@ -120,23 +120,23 @@
 **Independent Test**: Open `/cm/app/index.jsp?view=admin`, create a cron task, configure alerts, view log entries, verify log deletion.
 
 ### Tests
-- [ ] T056 [P] [US7] Unit test for scheduled task CRUD and form in `WebUI/src/test/ts/admin/TasksSection.test.tsx`
-- [ ] T057 [P] [US7] Unit test for log list and notification configuration in `WebUI/src/test/ts/admin/TaskLogsSection.test.tsx`
+- [x] T056 [P] [US7] Unit test for scheduled task CRUD and form in `WebUI/src/test/ts/admin/TasksSection.test.tsx`
+- [x] T057 [P] [US7] Unit test for log list and notification configuration in `WebUI/src/test/ts/admin/TaskLogsSection.test.tsx`
 - [ ] T058 [P] [US7] Playwright E2E spec for scheduler in `modules/perc-qa-automation/frontend/tests/us6-scheduled-tasks.spec.js`
 
 ### Implementation
-- [ ] T059 [P] [US7] Register `AdminShell` in `WebUI/src/main/ts/registry.ts`
-- [ ] T060 [P] [US7] Define i18n TMX key mappings for admin tool actions in `WebUI/src/main/ts/admin/messages.ts`
-- [ ] T061 [P] [US7] Create the core admin shell `WebUI/src/main/ts/admin/AdminShell.tsx`
-- [ ] T062 [P] [US7] Create scheduled tasks list and settings screen `WebUI/src/main/ts/admin/tasks/TasksSection.tsx`
-- [ ] T063 [P] [US7] Create scheduled task editor form `WebUI/src/main/ts/admin/tasks/TaskEditor.tsx`
-- [ ] T064 [P] [US7] Create task log records viewer `WebUI/src/main/ts/admin/tasks/TaskLogsSection.tsx`
-- [ ] T065 [P] [US7] Create email alerts setting component `WebUI/src/main/ts/admin/tasks/TaskNotifications.tsx`
-- [ ] T066 [P] [US7] Add host JSP `WebUI/src/main/webapp/cm/app/adminModern.jsp` to load modern bundle and mount `AdminShell`
-- [ ] T067 [US7] Update `WebUI/src/main/webapp/cm/app/index.jsp` view map to route `admin` to `adminModern.jsp`
-- [ ] T068 [US7] Commit changes and submit PR for review, pausing downstream tasks
-- [ ] T069 [US7] Monitor Kilo Code check, address feedback, and resolve comments (pause on check failure)
-- [ ] T070 [US7] Verify human approval and merge of PR before proceeding
+- [x] T059 [P] [US7] Register `AdminShell` in `WebUI/src/main/ts/registry.ts`
+- [x] T060 [P] [US7] Define i18n TMX key mappings for admin tool actions in `WebUI/src/main/ts/admin/messages.ts`
+- [x] T061 [P] [US7] Create the core admin shell `WebUI/src/main/ts/admin/AdminShell.tsx`
+- [x] T062 [P] [US7] Create scheduled tasks list and settings screen `WebUI/src/main/ts/admin/tasks/TasksSection.tsx`
+- [x] T063 [P] [US7] Create scheduled task editor form `WebUI/src/main/ts/admin/tasks/TaskEditor.tsx`
+- [x] T064 [P] [US7] Create task log records viewer `WebUI/src/main/ts/admin/tasks/TaskLogsSection.tsx`
+- [x] T065 [P] [US7] Create email alerts setting component `WebUI/src/main/ts/admin/tasks/TaskNotifications.tsx`
+- [x] T066 [P] [US7] Add host JSP `WebUI/src/main/webapp/cm/app/adminModern.jsp` to load modern bundle and mount `AdminShell`
+- [x] T067 [US7] Update `WebUI/src/main/webapp/cm/app/index.jsp` view map to route `admin` to `adminModern.jsp`
+- [x] T068 [US7] Commit changes and submit PR for review, pausing downstream tasks
+- [x] T069 [US7] Monitor Kilo Code check, address feedback, and resolve comments (pause on check failure)
+- [x] T070 [US7] Verify human approval and merge of PR before proceeding
 
 ## Phase 10: User Story 8 — Run System Consistency Check (Priority: P3)
 **Goal**: Integrate Consistency Checker and system tools section in AdminShell.
