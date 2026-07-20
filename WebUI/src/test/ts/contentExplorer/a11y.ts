@@ -21,24 +21,23 @@
  * in the modern Content Explorer test suites. Used by component specs
  * to assert zero serious/critical violations on rendered surfaces.</p>
  *
- * <p>The function uses {@link axe.run} from
- * <code>jest-axe</code> directly (via its <code>axe</code> re-export)
- * so the standard {@code axe.run} options work — including
- * {@code runOptions.rules} overrides for vendor chrome false-positives
- * documented per component.</p>
+ * <p>We import {@code axe-core} directly (not via
+ * <code>jest-axe</code>) because the <code>jest-axe</code> re-export of
+ * <code>axe.run</code> resolves to {@code undefined} under jsdom + Vitest 4.
+ * Direct {@code axeCore.run} is the supported entry point and accepts the
+ * same options object — including {@code runOptions.rules} overrides for
+ * vendor chrome false-positives documented per component.</p>
+ *
+ * <p>The Vitest matchers from <code>jest-axe</code>
+ * (<code>toHaveNoViolations</code>) are NOT registered here: tests use
+ * {@link renderA11yGate}, which throws a structured error with per-rule
+ * summary on failure and returns silently on success. The matcher is
+ * therefore not needed and skipping {@code expect.extend(...)} avoids
+ * the {@code declare global} type augmentation that Vitest does not
+ * support on its {@code expect} function reference.</p>
  */
 import "@testing-library/jest-dom/vitest";
-import { toHaveNoViolations } from "jest-axe";
 import axeCore from "axe-core";
-
-expect.extend(toHaveNoViolations);
-
-declare global {
-  // eslint-disable-next-line no-var
-  var expect: typeof import("vitest").expect & {
-    extend: (matchers: Record<string, unknown>) => void;
-  };
-}
 
 /**
  * Run axe-core on a rendered DOM container. Returns the raw result so

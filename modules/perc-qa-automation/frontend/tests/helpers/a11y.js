@@ -56,8 +56,12 @@ const { AxeBuilder } = require("@axe-core/playwright");
 async function runA11yCheck(page, opts = {}) {
   const { scope, disabledRules = [] } = opts;
 
-  let builder = new AxeBuilder({ page })
-    .withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa"]);
+  let builder = new AxeBuilder({ page }).withTags([
+    "wcag2a",
+    "wcag2aa",
+    "wcag21a",
+    "wcag21aa",
+  ]);
 
   if (scope) builder = builder.include(scope);
 
@@ -68,7 +72,7 @@ async function runA11yCheck(page, opts = {}) {
   const results = await builder.analyze();
 
   const filtered = (results.violations || []).filter((v) =>
-    ["serious", "critical"].includes(v.impact)
+    ["serious", "critical"].includes(v.impact),
   );
 
   return { violations: filtered, completed: true };
@@ -79,35 +83,40 @@ async function runA11yCheck(page, opts = {}) {
  * structured error message that pin-points each violation to the
  * offending nodes. Used as <code>await expectNoSeriousA11yViolations(page, ...)</code>.
  *
+ * <p>Failure path: throws an Error with a structured per-rule summary
+ * (rule id, impact, target selector, first 160 chars of offending HTML
+ * per node, capped at 3 nodes per rule).</p>
+ *
+ * <p>Success path: returns silently. We deliberately do NOT call
+ * <code>expect(violations.length).toBe(0)</code>: the throw on the
+ * failure path already exits the function, and a "should-be-zero
+ * equals zero" assertion on the success path is tautological.</p>
+ *
  * @param {import('@playwright/test').Page} page
  * @param {Object} [opts] Same as {@link runA11yCheck}.
- * @param {import('@playwright/test').Expect} [customExpect] optional Playwright expect
- * @throws Error (Playwright assertion) with per-rule summary.
+ * @returns {Promise<void>} Resolves on success; throws on violations.
  */
-async function expectNoSeriousA11yViolations(page, opts = {}, customExpect) {
-  const expect_ = customExpect || require("@playwright/test").expect;
+async function expectNoSeriousA11yViolations(page, opts = {}) {
   const { violations } = await runA11yCheck(page, opts);
-  if (violations.length > 0) {
-    const summary = violations
-      .map(
-        (v) =>
-          `  - [${v.impact}] ${v.id} (${v.nodes.length} node(s)): ${v.help}\n` +
-          v.nodes
-            .slice(0, 3)
-            .map(
-              (n) =>
-                `      target=${JSON.stringify(n.target)} html=${JSON.stringify(
-                  (n.html || "").slice(0, 160)
-                )}`
-            )
-            .join("\n")
-      )
-      .join("\n");
-    throw new Error(
-      `axe-core found ${violations.length} serious/critical violation(s):\n${summary}`
-    );
-  }
-  expect_(violations.length).toBe(0);
+  if (violations.length === 0) return;
+  const summary = violations
+    .map(
+      (v) =>
+        `  - [${v.impact}] ${v.id} (${v.nodes.length} node(s)): ${v.help}\n` +
+        v.nodes
+          .slice(0, 3)
+          .map(
+            (n) =>
+              `      target=${JSON.stringify(n.target)} html=${JSON.stringify(
+                (n.html || "").slice(0, 160),
+              )}`,
+          )
+          .join("\n"),
+    )
+    .join("\n");
+  throw new Error(
+    `axe-core found ${violations.length} serious/critical violation(s):\n${summary}`,
+  );
 }
 
 module.exports = {
