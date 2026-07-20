@@ -34,6 +34,7 @@ import { ContentExplorerShell } from "./contentExplorer/ContentExplorerShell";
 import { ContextMenu } from "./contentExplorer/ContextMenu";
 import { ActionToolbar } from "./contentExplorer/ActionToolbar";
 import { ContentBrowser } from "./contentBrowser/ContentBrowser";
+import { WorkflowAdminShell } from "./workflowAdmin/WorkflowAdminShell";
 
 /** Map of component names to their React component types. */
 export const componentRegistry = new Map<string, ComponentType<any>>();
@@ -57,3 +58,4 @@ componentRegistry.set("ContentExplorerShell", ContentExplorerShell);
 componentRegistry.set("ContentBrowser", ContentBrowser);
 componentRegistry.set("ActionToolbar", ActionToolbar);
 componentRegistry.set("ContextMenu", ContextMenu);
+componentRegistry.set("WorkflowAdminShell", WorkflowAdminShell);
