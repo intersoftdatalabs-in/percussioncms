@@ -109,6 +109,38 @@ describe("SearchPanel", () => {
     });
   });
 
+  it("error state exposes a Retry button that re-issues the failed query — bug fix for kilo-code-bot PR #1398 thread 3614493938", async () => {
+    let attempt = 0;
+    const search = vi.fn().mockImplementation(() => {
+      attempt += 1;
+      return attempt === 1
+        ? Promise.reject(new Error("first attempt failed"))
+        : Promise.resolve(makeResults([]));
+    });
+    render(<SearchPanel search={search} />);
+    fireEvent.change(screen.getByTestId("search-panel-input"), {
+      target: { value: "retry-test" },
+    });
+    fireEvent.click(screen.getByTestId("search-panel-submit"));
+    await waitFor(() => {
+      expect(screen.getByTestId("search-panel-error")).toBeTruthy();
+    });
+    expect(attempt).toBe(1);
+    // Click Retry — same query is re-issued; this time the search
+    // resolves to empty, so the panel transitions to ready + empty.
+    fireEvent.click(screen.getByTestId("search-panel-retry"));
+    await waitFor(() => {
+      expect(screen.getByTestId("search-panel-empty")).toBeTruthy();
+    });
+    expect(attempt).toBe(2);
+    // The retry used the same query the user submitted earlier
+    // (status.query) rather than re-reading the input, so this
+    // assertion is a behaviour contract: re-issuing the original
+    // failure is more useful than re-issuing whatever the user
+    // happens to have typed since.
+    expect(search.mock.calls[1]?.[0]?.query).toBe("retry-test");
+  });
+
   it("skip-trim: an empty query returns to idle without calling search", async () => {
     const search = vi.fn().mockResolvedValue(makeResults([]));
     render(<SearchPanel search={search} />);

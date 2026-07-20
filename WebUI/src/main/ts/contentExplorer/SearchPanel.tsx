@@ -31,8 +31,10 @@
  *   <li>{@code idle} — initial; submit the form to search.</li>
  *   <li>{@code loading} — fetch in flight.</li>
  *   <li>{@code ready} — has results (possibly empty).</li>
- *   <li>{@code error} — fetch rejected / server error; retry button
- *       re-issues the last query.</li>
+ *   <li>{@code error} — fetch rejected / server error; the
+ *       {@code SearchStatusView} renders a Retry button that re-issues
+ *       the last query via {@link SearchPanelProps.onRetrySearch} (or
+ *       the inline {@link SearchPanel.runSearch} default).</li>
  * </ul>
  */
 
@@ -150,7 +152,12 @@ export function SearchPanel(props: SearchPanelProps): React.JSX.Element {
           {message(EXPLORER_MSG.SEARCH_SUBMIT)}
         </button>
       </form>
-      <SearchStatusView status={status} onOpen={onOpen} onReveal={onReveal} />
+      <SearchStatusView
+        status={status}
+        onOpen={onOpen}
+        onReveal={onReveal}
+        onRetry={() => void runSearch(status.kind === "error" ? status.query : draft.trim())}
+      />
     </section>
   );
 }
@@ -159,8 +166,13 @@ function SearchStatusView(props: {
   status: Status;
   onOpen?: (r: PSItemProperties) => void;
   onReveal?: (r: PSItemProperties) => void;
+  /** Re-issues the failed search. Optional to keep the helper pure; the
+   * parent component passes its own {@link SearchPanel.runSearch} via
+   * the {@link SearchPanelProps.onRetrySearch} callback so the parent
+   * stays the single owner of the transport. */
+  onRetry?: () => void;
 }): React.JSX.Element {
-  const { status, onOpen, onReveal } = props;
+  const { status, onOpen, onReveal, onRetry } = props;
   if (status.kind === "loading") {
     return (
       <p
@@ -179,6 +191,14 @@ function SearchStatusView(props: {
         <p data-testid="search-panel-error">
           {message(EXPLORER_MSG.SEARCH_ERROR)}: {status.message}
         </p>
+        <button
+          type="button"
+          data-testid="search-panel-retry"
+          disabled={!onRetry}
+          onClick={() => onRetry?.()}
+        >
+          {message(EXPLORER_MSG.RETRY)}
+        </button>
       </div>
     );
   }
