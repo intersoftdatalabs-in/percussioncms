@@ -53,16 +53,16 @@
 **Independent Test**: Navigate to Roles tab, create a new role, assign users via dual list, save, verify persistent relationship and dependency checks on delete.
 
 ### Tests
-- [ ] T021a [P] [US3] Unit test for `RolesSection` and `RoleEditor` components in `WebUI/src/test/ts/workflowAdmin/RolesSection.test.tsx`
-- [ ] T022a [P] [US3] Playwright E2E spec for role CRUD validation in `modules/perc-qa-automation/frontend/tests/us2-roles-management.spec.js`
+- [x] T021a [P] [US3] Unit test for `RolesSection` and `RoleEditor` components in `WebUI/src/test/ts/workflowAdmin/RolesSection.test.tsx`
+- [x] T022a [P] [US3] Playwright E2E spec for role CRUD validation in `modules/perc-qa-automation/frontend/tests/us2-roles-management.spec.js`
 
 ### Implementation
-- [ ] T023a [P] [US3] Create roles list view in `WebUI/src/main/ts/workflowAdmin/roles/RolesSection.tsx`
-- [ ] T024a [P] [US3] Create role form and user membership dual list in `WebUI/src/main/ts/workflowAdmin/roles/RoleEditor.tsx`
-- [ ] T025a [US3] Wire roles tab component into main shell `WebUI/src/main/ts/workflowAdmin/WorkflowAdminShell.tsx`
-- [ ] T026a [US3] Commit changes and submit PR for review, pausing downstream tasks
-- [ ] T027 [US3] Monitor Kilo Code check, address feedback, and resolve comments (pause on check failure)
-- [ ] T028 [US3] Verify human approval and merge of PR before proceeding
+- [x] T023a [P] [US3] Create roles list view in `WebUI/src/main/ts/workflowAdmin/roles/RolesSection.tsx`
+- [x] T024a [P] [US3] Create role form and user membership dual list in `WebUI/src/main/ts/workflowAdmin/roles/RoleEditor.tsx`
+- [x] T025a [US3] Wire roles tab component into main shell `WebUI/src/main/ts/workflowAdmin/WorkflowAdminShell.tsx`
+- [x] T026a [US3] Commit changes and submit PR for review, pausing downstream tasks
+- [x] T027 [US3] Monitor Kilo Code check, address feedback, and resolve comments (pause on check failure)
+- [x] T028 [US3] Verify human approval and merge of PR before proceeding
 
 ## Phase 6: User Story 4 — Manage Users (Priority: P1)
 **Goal**: Implement `UsersSection` supporting local user CRUD and LDAP integration/directory user imports.
