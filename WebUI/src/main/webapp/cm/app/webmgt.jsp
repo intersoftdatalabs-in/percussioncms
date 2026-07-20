@@ -343,7 +343,18 @@
              style="border: 1px solid #ddd; background: #fff;"></div>
         <script>
             (function () {
-                function mountExplorer() {
+        // US6 (T031): self-load the modern bridge if a parent page didn't
+        // already include it. Idempotent — once loaded, the bridge
+        // exposes window.PercModernUI globally. The cb= cache-buster
+        // busts the browser's cache on first paint so iter-dev cycles
+        // pick up the new bundle.
+        if (!document.querySelector('script[src*="perc-modern-ui.js"]')) {
+            var s = document.createElement("script");
+            s.type = "module";
+            s.src = "/cm/modern/assets/perc-modern-ui.js?cb=" + Date.now();
+            document.head.appendChild(s);
+        }
+                        function mountExplorer() {
                     if (!window.PercModernUI || typeof window.PercModernUI.mount !== "function") {
                         window.setTimeout(mountExplorer, 50);
                         return;

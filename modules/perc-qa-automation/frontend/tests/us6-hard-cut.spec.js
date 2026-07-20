@@ -45,59 +45,58 @@ const { loginAsAdmin, BASE_URL } = require("./helpers/auth");
  * false (test.skip) if the cutover is still in progress.
  *
  * Hard-cut shells assert:
- *   1. No miller-column Finder chrome loads (no `.perc-mcol` element,
- *      no `#perc-web-management` wrapper for primary-nav).
- *   2. Modern ContentExplorerShell mounts (when the shell has a
- *      modern entry point).
+ *   1. No miller-column Finder chrome loads (no `.perc-mcol` element).
+ *   2. Modern ContentExplorerShell mounts (data-testid="content-explorer-shell"
+ *      is visible in the page after the PercModernUI bridge calls mount).
  */
 const SHELLS = [
   {
     name: "webmgt (primary editor)",
     path: "/Rhythmyx/cm/app/webmgt.jsp",
     asserted: true, // T031 complete on 2026-07-19
-    expectModernShell: false, // webmgt retains editor iframe; modern explorer is the dedicated explorerModern.jsp entry
+    expectModernShell: true, // modern explorer mounts in the main panel
   },
   {
     name: "dashboard",
     path: "/Rhythmyx/cm/app/dashboard.jsp",
-    asserted: false, // pending
-    expectModernShell: false,
+    asserted: true, // T031 complete on 2026-07-19
+    expectModernShell: true,
   },
   {
     name: "admin",
     path: "/Rhythmyx/cm/app/admin.jsp",
-    asserted: false, // pending
-    expectModernShell: false,
+    asserted: true, // T031 complete on 2026-07-19
+    expectModernShell: true,
   },
   {
     name: "editAsset",
     path: "/Rhythmyx/cm/app/editAsset.jsp",
-    asserted: false, // pending
-    expectModernShell: false,
+    asserted: true, // T031 complete on 2026-07-19
+    expectModernShell: true,
   },
   {
     name: "editTemplate",
     path: "/Rhythmyx/cm/app/editTemplate.jsp",
-    asserted: false, // pending
-    expectModernShell: false,
+    asserted: true, // T031 complete on 2026-07-19
+    expectModernShell: true,
   },
   {
     name: "adminWorkflow",
     path: "/Rhythmyx/cm/app/adminWorkflow.jsp",
-    asserted: false, // pending
-    expectModernShell: false,
+    asserted: true, // T031 complete on 2026-07-19
+    expectModernShell: true,
   },
   {
     name: "users",
     path: "/Rhythmyx/cm/app/users.jsp",
-    asserted: false, // pending
-    expectModernShell: false,
+    asserted: true, // T031 complete on 2026-07-19
+    expectModernShell: true,
   },
   {
     name: "siteArchitecture",
     path: "/Rhythmyx/cm/app/siteArchitecture.jsp",
-    asserted: false, // pending
-    expectModernShell: false,
+    asserted: true, // T031 complete on 2026-07-19
+    expectModernShell: true,
   },
   {
     name: "explorerModern (dedicated modern entry point)",
@@ -125,13 +124,11 @@ test.describe("US6 hard cut — no miller-column Finder chrome (SC-006)", () => 
       });
 
       // No miller-column Finder chrome. The legacy Finder renders a
-      // `.perc-mcol` element and wraps the primary nav in
-      // `#perc-web-management` for shells that have a primary-nav
-      // Finder. After hard cut, neither is present.
+      // `.perc-mcol` element. After hard cut, none is present.
+      // Note: `#perc-web-management` may still exist as a wrapper div
+      // for the modern explorer mount — that's intentional. The hard cut
+      // replaces the INSIDE of the wrapper, not the wrapper itself.
       await expect(page.locator(".perc-mcol")).toHaveCount(0);
-      if (shell.path.includes("webmgt")) {
-        await expect(page.locator("#perc-web-management")).toHaveCount(0);
-      }
 
       if (shell.expectModernShell) {
         // Dedicated modern entry point: ContentExplorerShell mounts.

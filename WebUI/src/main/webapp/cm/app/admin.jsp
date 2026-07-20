@@ -143,7 +143,10 @@
 
         $(document).ready(function () {
             $.Percussion.templateDesignView();
-            $.Percussion.PercFinderView();
+            // US6: removed $.Percussion.PercFinderView() (legacy miller-column
+            // Finder has been hard-cut from the primary nav per SC-006);
+            // the modern React ContentExplorerShell is mounted via the
+            // PercModernUI bridge below.
         });
 
         function percTempLibMaximizer() {
@@ -186,9 +189,40 @@
     </div>
 
     <div class="ui-layout-north" style="padding: 0px 0px; overflow:visible">
-        <jsp:include page="includes/finder.jsp" flush="true">
-            <jsp:param name="openedObject" value="PERC_SITE"/>
-        </jsp:include>
+        <%-- US6 (T031): legacy miller-column Finder include replaced with
+             a modern ContentExplorerShell mount target. --%>
+        <div id="perc-admin-explorer"
+             data-testid="perc-admin-explorer"
+             style="border: 1px solid #ddd; background: #fff;"></div>
+        <script>
+            (function () {
+                // US6 (T031): self-load the modern bridge if a parent page
+                // didn't already include it. The bridge is loaded exactly
+                // once per page; the cb= cache-buster ensures the browser
+                // picks up the new bundle on the first paint of each
+                // iter-dev cycle.
+                if (!document.querySelector('script[src*="perc-modern-ui.js"]')) {
+                    var s = document.createElement("script");
+                    s.type = "module";
+                    s.src = "/cm/modern/assets/perc-modern-ui.js?cb=" + Date.now();
+                    document.head.appendChild(s);
+                }
+                                function mountExplorer() {
+                    if (!window.PercModernUI || typeof window.PercModernUI.mount !== "function") {
+                        window.setTimeout(mountExplorer, 50);
+                        return;
+                    }
+                    window.PercModernUI.mount("perc-admin-explorer", "ContentExplorerShell", {
+                        initialPath: ""
+                    });
+                }
+                if (document.readyState === "loading") {
+                    document.addEventListener("DOMContentLoaded", mountExplorer);
+                } else {
+                    mountExplorer();
+                }
+            })();
+        </script>
         <div id="tabs">
             <ul>
                 <div id="perc-site-templates-label" class="perc-site-templates-label">

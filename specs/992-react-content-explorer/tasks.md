@@ -99,18 +99,18 @@ US2 can start after Foundational+US1 in parallel with US6 if staffing allows (di
 ### Tests (Required)
 
 - [ ] T028 [P] [US6] Add/adjust tests proving modern shell mounts without miller-column Finder bootstrap for primary nav entry (e.g. `WebUI/src/test/ts/contentExplorer/primaryNavMount.test.ts` or document manual gate if pure JSP)
-- [ ] T028b [P] [US6] **Playwright spec `modules/perc-qa-automation/frontend/tests/us6-hard-cut.spec.js`** (NEW): assert no miller-column Finder chrome loads after the US6 PR; assert primary content entry redirects/lands on the modern explorer; assert cutover inventory rows for primary nav are signed off (FR-022). Asserts SC-006 against the live CMS.
+- [x] T028b [P] [US6] **Playwright spec `modules/perc-qa-automation/frontend/tests/us6-hard-cut.spec.js`** (NEW): assert no miller-column Finder chrome loads after the US6 PR; assert primary content entry redirects/lands on the modern explorer; assert cutover inventory rows for primary nav are signed off (FR-022). Asserts SC-006 against the live CMS.
 - [ ] T029 [US6] Remove or replace legacy-only automated tests that exercise miller Finder primary nav only (search under `WebUI/src/test` and related); do not permanent-skip (FR-024); add a **CI-gate assertion** (Vitest count comparison or test-report check) proving replaced tests are **running** in CI on the target JDK, not silently zero
 - [ ] T029a [US6] **Per-PR review thread resolution (constitution IX)**: inline reply with mitigation commit hash to every review comment AND run `gh api graphql resolveReviewThread` for each review thread before merging the US6 PR
 
 ### Implementation
 
-- [ ] T030 [US6] Finalize primary-nav rows in `specs/992-react-content-explorer/checklists/cutover-inventory.md` for `webmgt.jsp`, `includes/finder.jsp`, `includes/finder_js.jsp`, common js/css Finder deps
-- [ ] T031 [US6] Hard-cut production primary nav: rewire `WebUI/src/main/webapp/cm/app/webmgt.jsp` (and `WebUI/src/main/webapp/cm/pages/app/webmgt.jsp` if mirrored) to mount `ContentExplorerShell` and **stop including** miller Finder for primary exploration (FR-020)
+- [x] T030 [US6] Finalize primary-nav rows in `specs/992-react-content-explorer/checklists/cutover-inventory.md` for `webmgt.jsp`, `includes/finder.jsp`, `includes/finder_js.jsp`, common js/css Finder deps
+- [x] T031 [US6] Hard-cut production primary nav: rewire `WebUI/src/main/webapp/cm/app/webmgt.jsp` (and `WebUI/src/main/webapp/cm/pages/app/webmgt.jsp` if mirrored) to mount `ContentExplorerShell` and **stop including** miller Finder for primary exploration (FR-020)
 - [ ] T032 [US6] Remove or stop shipping exclusive Finder entry includes from production path (`WebUI/src/main/webapp/cm/app/includes/finder.jsp`, `finder_js.jsp`) when inventory proves exclusive; keep shared libs still required elsewhere
 - [ ] T033 [US6] Map known legacy Finder/CE deep links to modern explorer destinations; implement clear moved/unavailable message for unknown paths (feature deep-link helper under `WebUI/src/main/ts/contentExplorer/` and/or JSP routing)
 - [ ] T034 [US6] Desktop CE retirement packaging/docs: update install/support docs and distribution notes so ordinary content admin does not require Desktop CE; record in `checklists/cutover-inventory.md` section B (FR-021, SC-007)
-- [ ] T035 [US6] Sign off US6 inventory rows for intermediate hard cut; run quickstart Scenarios C–D
+- [x] T035 [US6] Sign off US6 inventory rows for intermediate hard cut; run quickstart Scenarios C–D
 - [ ] T036 [US6] Commit US6 hard-cut PR; resolve review threads; **do not** claim 8.2 GA (SC-012 still open)
 
 **Checkpoint**: Production primary path is modern explorer only; full parity still incomplete until US2–US5 + US7.

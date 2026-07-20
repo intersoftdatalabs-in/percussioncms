@@ -20,10 +20,19 @@
     if(thesite == null)
         thesite = "";
     boolean isDebug = "true".equals(debug);
-    boolean isAdmin = (Boolean)request.getAttribute("isAdmin");
-    boolean isDesigner = (Boolean)request.getAttribute("isDesigner");
-    String wdgBuilderParam = (String)request.getAttribute("isWidgetBuilderActive");
-    boolean isWdgActive = "true".equalsIgnoreCase(wdgBuilderParam.trim());
+    // US6 (T024 pre-req): null-safe request-attribute casts. The legacy
+    // code did `(Boolean)request.getAttribute(...)` which throws NPE when
+    // the attribute is unset (newer servlet containers + clean test
+    // sessions set it lazily). The dev CMS hard-cut exposes this
+    // because the modern JSP entry paths no longer set the attributes.
+    Object isAdminAttr = request.getAttribute("isAdmin");
+    Object isDesignerAttr = request.getAttribute("isDesigner");
+    Object wdgBuilderAttr = request.getAttribute("isWidgetBuilderActive");
+    boolean isAdmin = isAdminAttr != null && (Boolean) isAdminAttr;
+    boolean isDesigner = isDesignerAttr != null && (Boolean) isDesignerAttr;
+    String wdgBuilderParam = wdgBuilderAttr != null ? (String) wdgBuilderAttr : null;
+    boolean isWdgActive = wdgBuilderParam != null
+        && "true".equalsIgnoreCase(wdgBuilderParam.trim());
     String debugQueryString = isDebug ? "&debug=true" : "";
 %>
 <script>
