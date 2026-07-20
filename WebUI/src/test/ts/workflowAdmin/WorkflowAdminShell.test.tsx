@@ -24,6 +24,10 @@ vi.mock("../../../main/ts/workflowAdmin/workflow/WorkflowSection", () => ({
   WorkflowSection: () => <div data-testid="mock-workflow-section">Workflow Content</div>,
 }));
 
+vi.mock("../../../main/ts/workflowAdmin/role/RolesSection", () => ({
+  RolesSection: () => <div data-testid="roles-placeholder">Roles Content</div>,
+}));
+
 describe("WorkflowAdminShell", () => {
   it("renders shell title and default active tab", () => {
     render(<WorkflowAdminShell />);

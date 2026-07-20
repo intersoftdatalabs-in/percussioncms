@@ -44,6 +44,16 @@ export const WF_ADMIN_MSG = {
   DELETE_FAILED: "perc.ui.workflow.view@Failed to delete workflow.",
   SAVE_FAILED: "perc.ui.workflow.view@Failed to save workflow.",
 
+  // Roles
+  ROLES_TITLE: "perc.ui.roles.view@Roles",
+  CREATE_ROLE: "perc.ui.role.view@Create Role",
+  EDIT_ROLE: "perc.ui.role.view@Edit Role",
+  ROLE_NAME: "perc.ui.role.view@Role Name",
+  ROLE_MEMBERS: "perc.ui.role.view@Assigned Users",
+  AVAILABLE_USERS: "perc.ui.role.view@Available Users",
+  CONFIRM_DELETE_ROLE: "perc.ui.role.view@Are you sure you want to delete role \"{0}\"?",
+  ROLE_NAME_REQUIRED: "perc.ui.role.view@Role name is required.",
+
   // Steps
   SECTION_STEPS: "perc.ui.workflow.steps.view@Workflow Steps",
   ADD_STEP: "perc.ui.workflow.steps.view@Add New Step",

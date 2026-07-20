@@ -165,6 +165,9 @@ export const PATHS = {
   get USERS() {
     return `${SERVICES_ROOT}/user/user/users`;
   },
+  get USER_ROLES() {
+    return `${SERVICES_ROOT}/user/user/roles`;
+  },
   get USER_FIND() {
     return `${SERVICES_ROOT}/user/user/find`;
   },
@@ -201,6 +204,12 @@ export const PATHS = {
   },
   get ROLE_DELETE() {
     return `${SERVICES_ROOT}/rolemanagement/role/delete`;
+  },
+  get ROLE_DELETE_VALIDATE() {
+    return `${SERVICES_ROOT}/rolemanagement/role/validateForDelete`;
+  },
+  get ROLE_REMOVE_USERS_VALIDATE() {
+    return `${SERVICES_ROOT}/rolemanagement/role/validateDeleteUsers`;
   },
   get ROLE_AVAILABLE_USERS() {
     return `${SERVICES_ROOT}/rolemanagement/role/availableUsers`;

@@ -18,6 +18,7 @@ import React, { useState } from "react";
 import { message } from "../i18n/message";
 import { WF_ADMIN_MSG } from "./messages";
 import { WorkflowSection } from "./workflow/WorkflowSection";
+import { RolesSection } from "./role/RolesSection";
 
 export type WorkflowAdminTab = "workflow" | "roles" | "users" | "categories";
 
@@ -31,19 +32,30 @@ export const WorkflowAdminShell: React.FC<WorkflowAdminShellProps> = ({
   const [activeTab, setActiveTab] = useState<WorkflowAdminTab>(initialTab);
 
   return (
-    <div className="perc-workflow-admin-shell" data-testid="perc-workflow-admin-shell" style={{ padding: "20px", fontFamily: "sans-serif" }}>
-      <header style={{ borderBottom: "2px solid #007ea8", paddingBottom: "12px", marginBottom: "20px" }}>
-        <h2 style={{ margin: 0, color: "#007ea8" }}>{message(WF_ADMIN_MSG.TITLE)}</h2>
+    <div
+      className="perc-workflow-admin-shell"
+      data-testid="perc-workflow-admin-shell"
+      style={{
+        fontFamily: "var(--perc-font-family, sans-serif)",
+        padding: "20px",
+        maxWidth: "1200px",
+        margin: "0 auto",
+      }}
+    >
+      <header style={{ marginBottom: "20px" }}>
+        <h1>{message(WF_ADMIN_MSG.TITLE)}</h1>
       </header>
 
       <nav
         className="perc-tab-nav"
         role="tablist"
-        aria-label={message(WF_ADMIN_MSG.TITLE)}
-        style={{ display: "flex", borderBottom: "1px solid #ccc", marginBottom: "20px" }}
+        style={{
+          display: "flex",
+          borderBottom: "1px solid #e2e8f0",
+          marginBottom: "20px",
+        }}
       >
         <button
-          type="button"
           role="tab"
           id="tab-workflow"
           aria-selected={activeTab === "workflow"}
@@ -61,8 +73,8 @@ export const WorkflowAdminShell: React.FC<WorkflowAdminShellProps> = ({
         >
           {message(WF_ADMIN_MSG.TAB_WORKFLOW)}
         </button>
+
         <button
-          type="button"
           role="tab"
           id="tab-roles"
           aria-selected={activeTab === "roles"}
@@ -80,8 +92,8 @@ export const WorkflowAdminShell: React.FC<WorkflowAdminShellProps> = ({
         >
           {message(WF_ADMIN_MSG.TAB_ROLES)}
         </button>
+
         <button
-          type="button"
           role="tab"
           id="tab-users"
           aria-selected={activeTab === "users"}
@@ -99,8 +111,8 @@ export const WorkflowAdminShell: React.FC<WorkflowAdminShellProps> = ({
         >
           {message(WF_ADMIN_MSG.TAB_USERS)}
         </button>
+
         <button
-          type="button"
           role="tab"
           id="tab-categories"
           aria-selected={activeTab === "categories"}
@@ -127,11 +139,7 @@ export const WorkflowAdminShell: React.FC<WorkflowAdminShellProps> = ({
         aria-labelledby={`tab-${activeTab}`}
       >
         {activeTab === "workflow" && <WorkflowSection />}
-        {activeTab === "roles" && (
-          <div data-testid="roles-placeholder" style={{ padding: "20px" }}>
-            Roles management section
-          </div>
-        )}
+        {activeTab === "roles" && <RolesSection />}
         {activeTab === "users" && (
           <div data-testid="users-placeholder" style={{ padding: "20px" }}>
             Users management section
