@@ -153,9 +153,12 @@ test.describe("US6 hard cut — cutover inventory evidence (FR-022)", () => {
       waitUntil: "networkidle",
     });
 
-    // The legacy Finder exposes a specific DOM signature
-    // (`.perc-mcol`, `#perc-web-management > .perc-finder`).
+    // The legacy Finder exposes a specific DOM signature (`.perc-mcol`).
+    // After T031, only the legacy Finder chrome is gone — the modern
+    // ContentExplorerShell mounts in its place. The `#perc-web-management`
+    // wrapper div is intentionally retained (it hosts the modern explorer
+    // in webmgt), so the per-shell loop no longer asserts on it; the
+    // cutover-inventory block uses the same scoped assertion.
     await expect(page.locator(".perc-mcol")).toHaveCount(0);
-    await expect(page.locator("#perc-web-management")).toHaveCount(0);
   });
 });
