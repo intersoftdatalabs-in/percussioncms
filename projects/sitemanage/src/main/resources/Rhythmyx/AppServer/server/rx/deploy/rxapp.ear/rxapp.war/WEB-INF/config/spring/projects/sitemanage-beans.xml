@@ -83,6 +83,7 @@ http://cxf.apache.org/schemas/jaxrs.xsd">
             <ref bean="restContentTypesResource" />
             <ref bean="restContextResource" />
             <ref bean="restDeliveryTypesResource"/>
+            <ref bean="restRelationshipSummaryResource"/>
             <ref bean="restEditionsResource"/>
             <ref bean="restExtensionsResource"/>
             <ref bean="restItemFilterResource"/>
