@@ -98,7 +98,7 @@ export const WorkflowStepList: React.FC<WorkflowStepListProps> = ({
   return (
     <div className="perc-workflow-step-list" data-testid="perc-workflow-step-list">
       <div className="perc-step-list-header" style={{ display: "flex", justifyContent: "space-between", marginBottom: "12px" }}>
-        <h4>Workflow Steps</h4>
+        <h4>{message(WF_ADMIN_MSG.SECTION_STEPS)}</h4>
         <button
           type="button"
           className="perc-button-primary"
@@ -112,26 +112,26 @@ export const WorkflowStepList: React.FC<WorkflowStepListProps> = ({
       <table className="perc-table" style={{ width: "100%", borderCollapse: "collapse" }}>
         <thead>
           <tr style={{ borderBottom: "2px solid #ccc", textAlign: "left" }}>
-            <th style={{ padding: "8px" }}>#</th>
-            <th style={{ padding: "8px" }}>Name</th>
-            <th style={{ padding: "8px" }}>Assigned Roles</th>
-            <th style={{ padding: "8px", textAlign: "right" }}>Actions</th>
+            <th style={{ padding: "8px" }}>{message(WF_ADMIN_MSG.TABLE_HASH)}</th>
+            <th style={{ padding: "8px" }}>{message(WF_ADMIN_MSG.STEP_NAME)}</th>
+            <th style={{ padding: "8px" }}>{message(WF_ADMIN_MSG.STEP_ROLES)}</th>
+            <th style={{ padding: "8px", textAlign: "right" }}>{message(WF_ADMIN_MSG.TABLE_ACTIONS)}</th>
           </tr>
         </thead>
         <tbody>
           {steps.length === 0 ? (
             <tr>
               <td colSpan={4} style={{ padding: "16px", textAlign: "center", color: "#666" }}>
-                No steps defined. Click "Add New Step" to create one.
+                {message(WF_ADMIN_MSG.NO_STEPS_DEFINED)}
               </td>
             </tr>
           ) : (
             steps.map((step, idx) => (
-              <tr key={idx} style={{ borderBottom: "1px solid #eee" }} data-testid={`step-row-${idx}`}>
+              <tr key={step.name || `step-${idx}`} style={{ borderBottom: "1px solid #eee" }} data-testid={`step-row-${idx}`}>
                 <td style={{ padding: "8px" }}>{idx + 1}</td>
                 <td style={{ padding: "8px", fontWeight: 600 }}>{step.name}</td>
                 <td style={{ padding: "8px" }}>
-                  {step.roleNames.length > 0 ? step.roleNames.join(", ") : <em>None</em>}
+                  {step.roleNames.length > 0 ? step.roleNames.join(", ") : <em>{message(WF_ADMIN_MSG.NONE)}</em>}
                 </td>
                 <td style={{ padding: "8px", textAlign: "right" }}>
                   <button
@@ -157,14 +157,14 @@ export const WorkflowStepList: React.FC<WorkflowStepListProps> = ({
                     onClick={() => handleOpenEdit(idx)}
                     style={{ marginRight: "4px" }}
                   >
-                    Edit
+                    {message(WF_ADMIN_MSG.EDIT)}
                   </button>
                   <button
                     type="button"
                     onClick={() => handleDeleteStep(idx)}
                     style={{ color: "#d9534f" }}
                   >
-                    Delete
+                    {message(WF_ADMIN_MSG.DELETE)}
                   </button>
                 </td>
               </tr>
@@ -191,7 +191,7 @@ export const WorkflowStepList: React.FC<WorkflowStepListProps> = ({
           data-testid="step-edit-dialog"
         >
           <div style={{ background: "#fff", padding: "24px", borderRadius: "8px", width: "400px" }}>
-            <h3>{editingIndex === -1 ? "Add Step" : "Edit Step"}</h3>
+            <h3>{editingIndex === -1 ? message(WF_ADMIN_MSG.ADD_STEP_TITLE) : message(WF_ADMIN_MSG.EDIT_STEP_TITLE)}</h3>
             <div style={{ marginBottom: "12px" }}>
               <label style={{ display: "block", marginBottom: "4px" }}>
                 {message(WF_ADMIN_MSG.STEP_NAME)}
@@ -210,7 +210,7 @@ export const WorkflowStepList: React.FC<WorkflowStepListProps> = ({
               </label>
               <div style={{ maxHeight: "150px", overflowY: "auto", border: "1px solid #ccc", padding: "8px" }}>
                 {availableRoles.length === 0 ? (
-                  <span style={{ color: "#666" }}>No roles available</span>
+                  <span style={{ color: "#666" }}>{message(WF_ADMIN_MSG.NO_ROLES_AVAILABLE)}</span>
                 ) : (
                   availableRoles.map((role) => (
                     <label key={role} style={{ display: "block", marginBottom: "4px" }}>

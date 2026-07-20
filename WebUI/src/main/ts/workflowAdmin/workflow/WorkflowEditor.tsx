@@ -48,7 +48,7 @@ export const WorkflowEditor: React.FC<WorkflowEditorProps> = ({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!name.trim()) {
-      setError("Workflow name is required.");
+      setError(message(WF_ADMIN_MSG.NAME_REQUIRED));
       return;
     }
     setError(null);
@@ -63,7 +63,9 @@ export const WorkflowEditor: React.FC<WorkflowEditorProps> = ({
   return (
     <form className="perc-workflow-editor" onSubmit={handleSubmit} data-testid="perc-workflow-editor">
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px" }}>
-        <h3>{workflow ? "Edit Workflow Details" : "Create New Workflow"}</h3>
+        <h3>
+          {workflow ? message(WF_ADMIN_MSG.EDIT_WORKFLOW) : message(WF_ADMIN_MSG.CREATE_WORKFLOW)}
+        </h3>
         <div>
           <button type="button" onClick={onCancel} style={{ marginRight: "8px" }}>
             {message(WF_ADMIN_MSG.CANCEL)}
@@ -118,7 +120,7 @@ export const WorkflowEditor: React.FC<WorkflowEditorProps> = ({
             style={{ width: "100%", maxWidth: "400px", padding: "8px" }}
             data-testid="workflow-staging-role-select"
           >
-            <option value="">-- None --</option>
+            <option value="">-- {message(WF_ADMIN_MSG.NONE)} --</option>
             {availableRoles.map((role) => (
               <option key={role} value={role}>
                 {role}

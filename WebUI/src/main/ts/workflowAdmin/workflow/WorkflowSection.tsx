@@ -62,16 +62,16 @@ export const WorkflowSection: React.FC = () => {
 
   const handleDelete = async (wf: WorkflowDefinition) => {
     if (wf.isDefault) {
-      alert("Cannot delete the system default workflow.");
+      alert(message(WF_ADMIN_MSG.CANNOT_DELETE_DEFAULT));
       return;
     }
-    if (!confirm(`Are you sure you want to delete workflow "${wf.name}"?`)) return;
+    if (!confirm(message(WF_ADMIN_MSG.CONFIRM_DELETE_WORKFLOW, [wf.name]))) return;
 
     try {
       await del(`${PATHS.WORKFLOWS}${encodeURIComponent(wf.name)}`);
       await loadData();
     } catch (err) {
-      alert("Failed to delete workflow.");
+      alert(message(WF_ADMIN_MSG.DELETE_FAILED));
     }
   };
 
@@ -85,7 +85,7 @@ export const WorkflowSection: React.FC = () => {
       setIsEditing(false);
       await loadData();
     } catch (err) {
-      alert("Failed to save workflow.");
+      alert(message(WF_ADMIN_MSG.SAVE_FAILED));
     }
   };
 
@@ -107,7 +107,7 @@ export const WorkflowSection: React.FC = () => {
   return (
     <div className="perc-workflow-section" data-testid="perc-workflow-section">
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px" }}>
-        <h3>Workflows</h3>
+        <h3>{message(WF_ADMIN_MSG.WORKFLOWS_TITLE)}</h3>
         <button
           type="button"
           className="perc-button-primary"
@@ -127,17 +127,17 @@ export const WorkflowSection: React.FC = () => {
       <table className="perc-table" style={{ width: "100%", borderCollapse: "collapse" }}>
         <thead>
           <tr style={{ borderBottom: "2px solid #ccc", textAlign: "left" }}>
-            <th style={{ padding: "8px" }}>Name</th>
-            <th style={{ padding: "8px" }}>Default</th>
-            <th style={{ padding: "8px" }}>Staging Role</th>
-            <th style={{ padding: "8px", textAlign: "right" }}>Actions</th>
+            <th style={{ padding: "8px" }}>{message(WF_ADMIN_MSG.WORKFLOW_NAME)}</th>
+            <th style={{ padding: "8px" }}>{message(WF_ADMIN_MSG.IS_DEFAULT)}</th>
+            <th style={{ padding: "8px" }}>{message(WF_ADMIN_MSG.STAGING_ROLE)}</th>
+            <th style={{ padding: "8px", textAlign: "right" }}>{message(WF_ADMIN_MSG.TABLE_ACTIONS)}</th>
           </tr>
         </thead>
         <tbody>
           {workflows.length === 0 ? (
             <tr>
               <td colSpan={4} style={{ padding: "16px", textAlign: "center", color: "#666" }}>
-                No workflows found.
+                {message(WF_ADMIN_MSG.NO_WORKFLOWS_FOUND)}
               </td>
             </tr>
           ) : (
@@ -147,13 +147,13 @@ export const WorkflowSection: React.FC = () => {
                 <td style={{ padding: "8px" }}>
                   {wf.isDefault ? (
                     <span style={{ background: "#5cb85c", color: "#fff", padding: "2px 8px", borderRadius: "10px", fontSize: "12px" }}>
-                      Default
+                      {message(WF_ADMIN_MSG.IS_DEFAULT)}
                     </span>
                   ) : (
                     "-"
                   )}
                 </td>
-                <td style={{ padding: "8px" }}>{wf.stagingRoleId || <em>None</em>}</td>
+                <td style={{ padding: "8px" }}>{wf.stagingRoleId || <em>{message(WF_ADMIN_MSG.NONE)}</em>}</td>
                 <td style={{ padding: "8px", textAlign: "right" }}>
                   <button
                     type="button"
@@ -161,7 +161,7 @@ export const WorkflowSection: React.FC = () => {
                     style={{ marginRight: "8px" }}
                     data-testid={`edit-wf-${wf.name}`}
                   >
-                    Edit
+                    {message(WF_ADMIN_MSG.EDIT)}
                   </button>
                   <button
                     type="button"
@@ -170,7 +170,7 @@ export const WorkflowSection: React.FC = () => {
                     style={{ color: wf.isDefault ? "#ccc" : "#d9534f" }}
                     data-testid={`delete-wf-${wf.name}`}
                   >
-                    Delete
+                    {message(WF_ADMIN_MSG.DELETE)}
                   </button>
                 </td>
               </tr>

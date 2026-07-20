@@ -22,6 +22,7 @@ export const WF_ADMIN_MSG = {
   TAB_CATEGORIES: "perc.ui.admin.workflow@Categories",
   
   // Workflows
+  WORKFLOWS_TITLE: "perc.ui.workflow.view@Workflows",
   CREATE_WORKFLOW: "perc.ui.workflow.view@Add New Workflow",
   EDIT_WORKFLOW: "perc.ui.workflow@Edit Workflow Details",
   DELETE_WORKFLOW: "perc.ui.workflow.view@Delete Workflow",
@@ -30,14 +31,31 @@ export const WF_ADMIN_MSG = {
   IS_DEFAULT: "perc.ui.workflow@Default",
   STAGING_ROLE: "perc.ui.workflow@Staging Role",
   ASSIGN_SITES_FOLDERS: "perc.ui.workflow.view@Assign to Site/Folder",
+  NAME_REQUIRED: "perc.ui.workflow.view@Workflow name is required.",
+  NO_WORKFLOWS_FOUND: "perc.ui.workflow.view@No workflows found.",
+  CONFIRM_DELETE_WORKFLOW: "perc.ui.workflow.view@Are you sure you want to delete workflow \"{0}\"?",
+  CANNOT_DELETE_DEFAULT: "perc.ui.workflow.view@Cannot delete the system default workflow.",
+  DELETE_FAILED: "perc.ui.workflow.view@Failed to delete workflow.",
+  SAVE_FAILED: "perc.ui.workflow.view@Failed to save workflow.",
+
+  // Steps
+  SECTION_STEPS: "perc.ui.workflow.steps.view@Workflow Steps",
   ADD_STEP: "perc.ui.workflow.steps.view@Add New Step",
+  ADD_STEP_TITLE: "perc.ui.workflow.steps.view@Add Step",
+  EDIT_STEP_TITLE: "perc.ui.workflow.steps.view@Edit Step",
   STEP_NAME: "perc.ui.workflow.steps.view@Step Name",
   STEP_ROLES: "perc.ui.workflow.steps.view@Assigned Roles",
+  NO_STEPS_DEFINED: "perc.ui.workflow.steps.view@No steps defined. Click \"Add New Step\" to create one.",
 
-  // Common
+  // Common & Table
+  EDIT: "perc.ui.workflow.steps.view@Edit",
+  DELETE: "perc.ui.workflow.steps.view@Delete",
+  NONE: "perc.ui.workflow@None",
+  TABLE_HASH: "perc.ui.workflow@#",
+  TABLE_ACTIONS: "perc.ui.workflow@Actions",
+  NO_ROLES_AVAILABLE: "perc.ui.roles@No roles available",
   SAVE: "perc.ui.workflow.steps.view@Submit",
   CANCEL: "perc.ui.workflow.steps.view@Cancel",
-  DELETE: "perc.ui.workflow.steps.view@Delete Step",
   LOADING: "perc.ui.workflow.view@Loading...",
   ERROR_GENERIC: "perc.ui.workflow.view@An error occurred while processing your request.",
 } as const;

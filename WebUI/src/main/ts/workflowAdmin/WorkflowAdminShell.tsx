@@ -36,9 +36,18 @@ export const WorkflowAdminShell: React.FC<WorkflowAdminShellProps> = ({
         <h2 style={{ margin: 0, color: "#007ea8" }}>{message(WF_ADMIN_MSG.TITLE)}</h2>
       </header>
 
-      <nav className="perc-tab-nav" style={{ display: "flex", borderBottom: "1px solid #ccc", marginBottom: "20px" }}>
+      <nav
+        className="perc-tab-nav"
+        role="tablist"
+        aria-label={message(WF_ADMIN_MSG.TITLE)}
+        style={{ display: "flex", borderBottom: "1px solid #ccc", marginBottom: "20px" }}
+      >
         <button
           type="button"
+          role="tab"
+          id="tab-workflow"
+          aria-selected={activeTab === "workflow"}
+          aria-controls="panel-workflow"
           onClick={() => setActiveTab("workflow")}
           style={{
             padding: "10px 20px",
@@ -54,6 +63,10 @@ export const WorkflowAdminShell: React.FC<WorkflowAdminShellProps> = ({
         </button>
         <button
           type="button"
+          role="tab"
+          id="tab-roles"
+          aria-selected={activeTab === "roles"}
+          aria-controls="panel-roles"
           onClick={() => setActiveTab("roles")}
           style={{
             padding: "10px 20px",
@@ -69,6 +82,10 @@ export const WorkflowAdminShell: React.FC<WorkflowAdminShellProps> = ({
         </button>
         <button
           type="button"
+          role="tab"
+          id="tab-users"
+          aria-selected={activeTab === "users"}
+          aria-controls="panel-users"
           onClick={() => setActiveTab("users")}
           style={{
             padding: "10px 20px",
@@ -84,6 +101,10 @@ export const WorkflowAdminShell: React.FC<WorkflowAdminShellProps> = ({
         </button>
         <button
           type="button"
+          role="tab"
+          id="tab-categories"
+          aria-selected={activeTab === "categories"}
+          aria-controls="panel-categories"
           onClick={() => setActiveTab("categories")}
           style={{
             padding: "10px 20px",
@@ -99,7 +120,12 @@ export const WorkflowAdminShell: React.FC<WorkflowAdminShellProps> = ({
         </button>
       </nav>
 
-      <main className="perc-tab-content">
+      <main
+        className="perc-tab-content"
+        role="tabpanel"
+        id={`panel-${activeTab}`}
+        aria-labelledby={`tab-${activeTab}`}
+      >
         {activeTab === "workflow" && <WorkflowSection />}
         {activeTab === "roles" && (
           <div data-testid="roles-placeholder" style={{ padding: "20px" }}>
