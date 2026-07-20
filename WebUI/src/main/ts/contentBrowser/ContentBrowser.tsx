@@ -207,7 +207,12 @@ export const ContentBrowser: React.FC<ContentBrowserProps> = (props) => {
 
   const handleConfirm = useCallback(async () => {
     if (mode !== "select" || !onConfirm) return;
-    if (selected.length === 0 && !multiSelect) return; // confirm disabled
+    // Confirm is disabled when selection is empty (button disabled via
+    // `selected.length === 0`), so this guard is a defense-in-depth that
+    // also applies to programmatic triggers (e.g. Enter key on a focused
+    // confirm button) — never invoke onConfirm with an empty items
+    // array, regardless of multiSelect.
+    if (selected.length === 0) return;
     setBusy(true);
     try {
       const result: SelectionResult = { items: selected };
@@ -267,15 +272,26 @@ export const ContentBrowser: React.FC<ContentBrowserProps> = (props) => {
 
   const handleListActivate = useCallback(
     (item: PSPathItem) => {
-      if (mode === "select") {
-        // Double-click / Enter in select mode = confirm with this single item.
-        if (passesFilters(item, allowedTypes, allowedCategories)) {
-          const sel = toSelectionItem(item);
-          setSelected(multiSelect ? [...selected, sel] : [sel]);
-        }
+      if (mode !== "select") return;
+      if (!passesFilters(item, allowedTypes, allowedCategories)) {
+        setError(message(BROWSER_MSG.TYPE_MISMATCH));
+        return;
+      }
+      const sel = toSelectionItem(item);
+      if (multiSelect) {
+        // Add to selection but skip if already present (no duplicates from
+        // repeated double-click / Enter on the same item).
+        if (isSelected(sel.id)) return;
+        setSelected((prev) => [...prev, sel]);
+      } else {
+        // Single-select: replace selection. Activate does NOT auto-confirm;
+        // the host calls onConfirm explicitly via the Confirm button (or
+        // its own double-click handler). Activate in single-select mode is
+        // equivalent to a high-visibility selection change.
+        setSelected([sel]);
       }
     },
-    [mode, multiSelect, allowedTypes, allowedCategories, selected],
+    [mode, multiSelect, allowedTypes, allowedCategories, isSelected],
   );
 
   // Selection error feedback (auto-clear after a tick so the message is visible briefly).

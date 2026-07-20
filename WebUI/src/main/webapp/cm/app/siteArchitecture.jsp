@@ -105,11 +105,15 @@
         $("#perc_site_map").perc_site_map({
             site: siteArchUrl,
             onChange: function () {
-                // US6: $.perc_finder().refresh() removed — the legacy
-                // miller-column Finder has been hard-cut from the primary
-                // nav per SC-006. Refresh on change is now handled by
-                // the modern React ContentExplorerShell's internal
-                // reducer; no explicit refresh call needed here.
+                // US6: removed $.perc_finder().refresh() (the legacy
+                // miller-column Finder that the original hook targeted
+                // has been hard-cut from the primary nav per SC-006).
+                // The modern perc_site_map is decoupled from the modern
+                // ContentExplorerShell: each is its own data source.
+                // The site_map's own onChange hook was the legacy
+                // Finder-refresh trigger; the modern equivalent is the
+                // `onActivate` callback below, which routes the user's
+                // selection into the modern ContentExplorerShell.
             }
         });
         <%} else { %>
