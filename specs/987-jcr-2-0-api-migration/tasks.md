@@ -76,7 +76,7 @@
 
 ### Implementation
 
-- [x] T036 [US1] Produce type-aware inventory of **JCR** `Node.getUUID` call sites (exclude `IPSGuid.getUUID` and non-JCR GUIDs) into `tmp/jcr-getuuid-inventory.md` covering `system/services`, `modules/utils`, `projects/sitemanage`
+- [x] T036 [US1] Produce type-aware inventory of **JCR** `Node.getUUID` call sites (exclude `IPSGuid.getUUID` and non-JCR GUIDs) into `specs/987-jcr-2-0-api-migration/getuuid-inventory.md` covering `system/services`, `modules/utils`, `projects/sitemanage`
 - [ ] T037 [US1] Migrate critical contentmgr/assembly/publisher JCR `getUUID` call sites to `getIdentifier()` (or shared helper in `modules/utils/src/main/java/com/percussion/utils/jsr170/`) under `system/services/src/com/percussion/services/`
 - [ ] T038 [P] [US1] Migrate critical sitemanage JCR node identity call sites in `projects/sitemanage/src/main/java/com/percussion/share/dao/PSJcrNodeFinder.java`, `pathmanagement`, and related editor-facing services
 - [ ] T039 [P] [US1] Review binary property touchpoints in contentmgr loaders (`system/services/src/com/percussion/services/contentmgr/`) and adopt `Binary` APIs only where a clear replacement improves correctness without drive-by rewrites
