@@ -66,7 +66,6 @@ import com.percussion.server.webservices.PSServerFolderProcessor;
 import com.percussion.services.catalog.PSTypeEnum;
 import com.percussion.services.catalog.data.PSObjectSummary;
 import com.percussion.services.content.data.PSItemStatus;
-import com.percussion.services.content.data.PSItemSummary;
 import com.percussion.services.error.PSNotFoundException;
 import com.percussion.services.guidmgr.data.PSGuid;
 import com.percussion.services.guidmgr.data.PSLegacyGuid;
@@ -294,8 +293,8 @@ public class FolderAdaptor implements IFolderAdaptor {
     if (StringUtils.isEmpty(path) && StringUtils.isEmpty(folderName)) {
       isSiteRoot = true;
     }
-    // convert summary guid to string id
-    String summaryId = String.valueOf(((PSItemSummary) folderSummary).getGUID().getUUID());
+    // convert summary to string id
+    String summaryId = folderSummary.getId();
     folder.setId(summaryId);
 
     // Folder properties for workflow
