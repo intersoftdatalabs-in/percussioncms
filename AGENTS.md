@@ -63,34 +63,66 @@ Tool-agnostic one-shot prompt: `modules/ai-shared-develop/src/main/resources/pro
 
 ### Requirements (all must pass)
 
-1. **Compile** — every changed module and its required reactor neighbors build successfully.
+1. **Compile** — every changed module builds successfully **standalone** (see below).
 2. **Tests** — unit/integration tests that Maven runs for those modules **pass**. No exceptions for “known flaky” without fixing or an explicit, documented skip approved in the PR body.
 3. **No new warnings** — the clean install must not introduce **new** compiler, surefire, enforcer, Spotless, or plugin warnings attributable to the change. Prefer zero warnings on the modules you own; if the baseline already warns, do not add more (diff against a clean build of the base branch when unsure).
-4. **Use the env wrapper** — always `./mvn-env.sh` (Linux/macOS) or `./mvn-env.bat` (Windows) so the correct JDK is used.
+4. **Use the env wrapper** — always invoke `mvn-env.sh` / `mvn-env.bat` from the **module directory** (path to the wrapper is relative to depth) so the correct JDK is used.
 
-### How to run (mandatory shape)
+### How to run (default: per-module standalone — NOT full reactor)
 
-Identify changed Maven modules from the diff (e.g. `rest`, `projects/sitemanage`, `system`). Then, from the **repo root**:
+This monorepo is large. **Do not** default to root `./mvn-env.sh -pl … -am clean install` — that often rebuilds dozens of upstream modules and wastes time. Prefer **standalone** builds: change into each changed module’s directory and clean-install **only that module**, resolving dependencies from the local repo / already-installed SNAPSHOTs.
+
+Identify changed Maven modules from the diff (e.g. `rest`, `projects/sitemanage`, `system`). Then, for **each** changed module:
 
 ```bash
-# Single module
-./mvn-env.sh -pl <module-path-or-artifact> clean install
+# Example: only rest changed
+cd rest
+../mvn-env.sh clean install
 
-# Multiple modules (comma-separated -pl)
-./mvn-env.sh -pl rest,projects/sitemanage clean install
+# Example: only sitemanage changed (two levels down)
+cd projects/sitemanage
+../../mvn-env.sh clean install
 
-# When the change needs updated dependencies from the reactor first:
-./mvn-env.sh -pl rest,projects/sitemanage -am clean install
+# Example: two modules changed — build each standalone, producer first if one depends on the other
+cd rest && ../mvn-env.sh clean install && cd ..
+cd projects/sitemanage && ../../mvn-env.sh clean install && cd ../..
 ```
 
-Windows: the same arguments with `mvn-env.bat`.
+Windows (from the module directory):
+
+```bat
+cd rest
+..\mvn-env.bat clean install
+```
+
+Adjust `../` vs `../../` (etc.) so the path points at the **repo-root** `mvn-env.sh` / `mvn-env.bat`. Maven uses the **current working directory**’s `pom.xml`, so only that module is built.
 
 | Situation | Command guidance |
 |-----------|------------------|
-| Only one leaf module’s sources changed | `-pl <that-module> clean install` |
-| Several modules in the same PR | `-pl m1,m2,... clean install` (all of them) |
-| Changed module depends on other modules you also changed, or needs a fresh reactor install of upstreams | add `-am` (also-make) |
-| POM / dependencyManagement / parent changes | include every affected consumer module you touched; when in doubt, `-pl <changed> -am clean install` |
+| One or more leaf modules’ sources/tests/resources changed | **`cd` into each module** → `…/mvn-env.sh clean install` (standalone). If module B depends on module A and you changed both, build **A first**, then B (each still standalone after A is installed to `~/.m2`). |
+| Only docs / AGENTS.md / non-Maven files | No Maven clean install required; say so in the PR body. |
+| Change **requires** a multi-module reactor (see below) | Only then use a root reactor command — and scope it as tightly as possible. |
+
+### When a full (or partial) reactor build *is* required
+
+Use root reactor / `-pl` / `-am` **only** when standalone module builds are insufficient, for example:
+
+* Parent `pom.xml` / `dependencyManagement` / pluginManagement changes that affect multiple children
+* Moving types or APIs across modules so local SNAPSHOTs must be rebuilt in order for compile correctness beyond a simple producer→consumer install
+* You changed an upstream module and the downstream standalone build still resolves a **stale** installed artifact and you cannot fix that by installing only the upstream module first
+* Packaging / distribution / installer modules that assemble many reactor outputs in one reactor build
+
+When reactor is justified:
+
+```bash
+# From repo root — prefer the smallest set of modules; avoid -am unless you truly need upstreams rebuilt
+./mvn-env.sh -pl rest,projects/sitemanage clean install
+
+# Only if upstream reactor modules must be rebuilt for this change (expensive — justify in PR body)
+./mvn-env.sh -pl projects/sitemanage -am clean install
+```
+
+**Do not** use `-am` “just in case.” Prefer standalone `cd module && …/mvn-env.sh clean install` first.
 
 ### Hard bans
 
@@ -98,15 +130,17 @@ Windows: the same arguments with `mvn-env.bat`.
 * **Do not** use `-DskipTests`, `-Dmaven.test.skip=true`, or equivalent to green-wash a PR unless the user explicitly ordered a docs-only or non-code exception **and** the PR body states it.
 * **Do not** claim “builds” from a non-clean incremental compile alone when the PR includes structural moves, package renames, or POM edits — **clean** is required.
 * **Do not** rely on CI alone as the first full build of your modules; local (or agent-session) clean install is the pre-PR gate.
+* **Do not** default to root `-pl … -am` / full-reactor builds for ordinary single- or multi-module source edits — that rebuilds large chunks of the monorepo unnecessarily.
 
 ### Evidence in the PR
 
 In the PR description (or a short comment before “ready for review”), record:
 
-* The exact `./mvn-env.sh … clean install` command(s) run
-* **BUILD SUCCESS** (or paste the reactor summary)
+* The exact command(s) run (**including `cd` into each module**, or a justified reactor command)
+* **BUILD SUCCESS** for each changed module
 * Test counts for modules with test changes (e.g. `Tests run: N, Failures: 0`)
 * Confirmation of no new warnings on the changed modules
+* If a reactor / `-am` build was used, **one sentence why** standalone was not enough
 
 Failing this section is a **hard gate** equal to a failing Erlang review: fix, re-run clean install, then open/update the PR.
 
@@ -122,7 +156,7 @@ Failing this section is a **hard gate** equal to a failing Erlang review: fix, r
 * ALWAYS update relevant script dir `README.md` files with doc on script purpose and usage scanrios when creating/editing scripts.
 * ALWAYS document your work in comments, README, or maven site documentation.
 * **IMPORTANT** you must ALWAYS update or create unit tests for any code change that you make, new or edited. And the tests must pass. No exceptions.
-* **IMPORTANT — Pre-PR build:** Before opening or updating a GitHub PR, run `./mvn-env.sh` / `mvn-env.bat` **`clean install`** on **every module you changed**. Code must compile, tests must pass, and there must be **no new warnings**. See **Pre-PR Maven verification (HARD GATE)** above. CI is not a substitute for this local gate.
+* **IMPORTANT — Pre-PR build:** Before opening or updating a GitHub PR, **`cd` into each module you changed** and run repo-root `mvn-env.sh` / `mvn-env.bat` **`clean install` standalone** (not default root `-pl -am` reactor builds). Code must compile, tests must pass, and there must be **no new warnings**. Use a full/partial reactor only when the change requires it. See **Pre-PR Maven verification (HARD GATE)** above. CI is not a substitute for this local gate.
 * Always use the #codebase or root `./` context when resolving missing interfaces or classes.
 * You MUST respect rate limits when calling 3rd party API's. All 3rd party API integrations must be implemented with rate limit detection and exponential backoff logic.
 * You MUST NOT share or leak secrets, tokens, or keys over the wire, in logs, or in LLM sessions.  If you see MKD-REDACTED in a session, that means you leaked a secret.
