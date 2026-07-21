@@ -55,9 +55,9 @@
 - [x] T027 [US2] Fix any remaining compile errors in secondary modules (`projects/sitemanage`, `modules/segmentation-rx`, `deployer`, `modules/extensions-*`, `modules/p13n-api`, `modules/ContentUI`) only as required for compile—not deprecation cleanup
 - [x] T028 [US2] Run `./mvn-env.sh -DskipTests compile` to BUILD SUCCESS and re-run US2 unit tests (`modules/utils`, contentmgr tests)
 - [x] T029 [US2] Verify `./mvn-env.sh -pl system -am dependency:tree -Dincludes=javax.jcr:jcr` shows only version 2.0
-- [x] T030 [US2] Commit compile-clean work only and open Phase-1 PR (PR #1448 submitted); link #506 / this spec
-- [ ] T031 [US2] Monitor CI/Kilo Code checks on the Phase-1 PR; address feedback; resolve review threads per AGENTS (inline mitigation + `resolveReviewThread`)
-- [ ] T032 [US2] Verify human approval and merge of Phase-1 compile PR before starting User Story 1 deprecation work
+- [x] T030 [US2] Commit compile-clean work only and open Phase-1 PR (PR #1448 submitted & merged); link #506 / this spec
+- [x] T031 [US2] Monitor CI/Kilo Code checks on the Phase-1 PR; address feedback; resolve review threads per AGENTS (PR #1448 review threads resolved)
+- [x] T032 [US2] Verify human approval and merge of Phase-1 compile PR before starting User Story 1 deprecation work (PR #1448 merged to development)
 
 ---
 

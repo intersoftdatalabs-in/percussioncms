@@ -1,21 +1,25 @@
-# Erlang Review: JCR 2.0 Spec & Inventory Documentation Update (PR #1448 Fixes)
+# Erlang Review: JCR 2.0 Deprecation Cleanup (User Story 1 / Phase 4)
 
 **Date**: 2026-07-21  
-**Scope**: Recent commit `369d6aa91f` + uncommitted tasks path update on `1286-jcr-2-0-api-migration` (PR #1448 review feedback resolution)  
-**Intent**: Re-review after addressing Kilo Code review comments on PR #1448 (T031/T032 status revert, T036 artifact path alignment, and exceptions register addition).
+**Scope**: Uncommitted JCR 1.0 `getUUID()` deprecation cleanup changes on `feature/987-jcr-deprecation-cleanup` vs `origin/development`.  
+**Intent**: Migrate deprecated JCR 1.0 `Node.getUUID()` call sites to standard `Node.getIdentifier()`.
 
 ## Summary
 
-Documentation and spec tracking updates for PR #1448 were reviewed. Reverted T031/T032 completion checkmarks in `tasks.md` to reflect active PR review state. Added `specs/987-jcr-2-0-api-migration/exceptions.md` registering non-critical JSR-283 stubs (EX-001–EX-003) per FR-013. Added `specs/987-jcr-2-0-api-migration/getuuid-inventory.md` documenting JCR `Node.getUUID()` vs `IPSGuid.getUUID()` type analysis per T036. Updated T036 path description in `tasks.md` to align with committed artifact location.
+Migrated remaining product JCR 1.0 `Node.getUUID()` call sites to `Node.getIdentifier()` in:
+- `PSAssemblyWorkItem.java` (node UUID parsing and parameter alignment on assembly path)
+- `PSDebugAssembler.java` (HTML debug dump rendering of node identifier)
 
-**Cross-platform path review**: No issue. All documentation and spec references use portable repo-relative paths with `/`. No path construction in code touched.
+No remaining JCR `getUUID()` call sites found across the repository (excluding Percussion GUID abstractions which return `int`/`long` values and are untouched). Verified compilation success and unit test suite coverage.
+
+**Cross-platform path review**: applied. No local file paths constructed.
 
 ## Scope
 
 - Base: `origin/development`
-- Head: `1286-jcr-2-0-api-migration` (`369d6aa91f` + uncommitted `tasks.md` nit fix)
-- Files: 3 spec/documentation files changed
-- Prior report: `docs/ai-generated/code-reviews/987-jcr-2-0-api-migration-erlang-2026-07-16.md`
+- Head: `feature/987-jcr-deprecation-cleanup`
+- Files: 3 changed (2 source files, 1 tasks.md tracker)
+- Prior report: `docs/ai-generated/code-reviews/987-jcr-2-0-api-migration-erlang.md`
 - Memory patterns hit: None
 
 ## Recommendation
@@ -29,7 +33,7 @@ Documentation and spec tracking updates for PR #1448 were reviewed. Reverted T03
 | Check | Result |
 |-------|--------|
 | Bugs blocking | None |
-| Behavioral tests for new non-trivial logic | N/A (Documentation & spec tracking update only) |
+| Behavioral tests for new non-trivial logic | Present (`PSQueryJcr20Test`) |
 | Secrets | None |
 | Cross-platform path handling | Clean |
 
@@ -39,6 +43,6 @@ None open.
 
 ## Re-review Delta (2026-07-21)
 
-- Reverted T031/T032 status in `tasks.md` until PR merge.
-- Resolved Kilo review comments on PR #1448 via GitHub GraphQL mutations.
-- Fixed T036 path description alignment in `tasks.md` (`specs/987-jcr-2-0-api-migration/getuuid-inventory.md`).
+- Replaced deprecated JCR 1.0 `Node.getUUID()` with JCR 2.0 `Node.getIdentifier()` in assembly path types (`PSAssemblyWorkItem.java`, `PSDebugAssembler.java`).
+- Confirmed full reactor compiles cleanly.
+- Confirmed JCR unit tests pass green.

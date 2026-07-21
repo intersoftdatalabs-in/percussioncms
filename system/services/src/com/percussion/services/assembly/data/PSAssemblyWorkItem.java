@@ -999,14 +999,14 @@ public class PSAssemblyWorkItem implements IPSAssemblyResult
          int nodeid = 0;
          try
          {
-            if (!node.getUUID().equals(""))
-            {
-              nodeid = Integer.parseInt(node.getUUID());
-            }
-         } catch (NumberFormatException | RepositoryException e)
-         {
-            ms_log.error("Cannot get node uuid",e);
-         }
+             if (!node.getIdentifier().equals(""))
+             {
+               nodeid = Integer.parseInt(node.getIdentifier());
+             }
+          } catch (NumberFormatException | RepositoryException e)
+          {
+             ms_log.error("Cannot get node identifier",e);
+          }
          if (m_id.getUUID() != nodeid) {
             m_folderId=0;
             removeParameter(IPSHtmlParameters.SYS_FOLDERID);

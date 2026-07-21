@@ -395,7 +395,7 @@ public class PSDebugAssembler implements IPSAssembler, IPSExtension
                List<Node> nodes = cmgr.findItemsByGUID(ids, null);
                Node node = nodes.get(0);
                pw.print("<tr><td class='cell'>");
-               pw.print(node.getUUID());
+               pw.print(node.getIdentifier());
                pw.print("</td><td class='cell'>");
                pw.print(node.getProperty("rx:sys_title").getString());
                pw.print("</td><td class='cell'>");
