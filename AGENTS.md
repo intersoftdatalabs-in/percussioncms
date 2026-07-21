@@ -57,6 +57,93 @@ Before `git commit`, `git push`, or opening/updating a GitHub PR for changes you
 
 Tool-agnostic one-shot prompt: `modules/ai-shared-develop/src/main/resources/prompts/erlang-review-uncommitted.md`.
 
+## Pre-PR Maven verification (HARD GATE)
+
+**Before** opening or updating a GitHub PR (and before treating a change set as “done”), agents **MUST** run a real Maven **clean install** against every module whose sources, tests, resources, or `pom.xml` they changed. Partial compiles, IDE “make project”, or “tests only on one class” are **not** a substitute.
+
+### Requirements (all must pass)
+
+1. **Compile** — every changed module builds successfully **standalone** (see below).
+2. **Tests** — unit/integration tests that Maven runs for those modules **pass**. No exceptions for “known flaky” without fixing or an explicit, documented skip approved in the PR body.
+3. **No new warnings** — the clean install must not introduce **new** compiler, surefire, enforcer, Spotless, or plugin warnings attributable to the change. Prefer zero warnings on the modules you own; if the baseline already warns, do not add more (diff against a clean build of the base branch when unsure).
+4. **Use the env wrapper** — always invoke `mvn-env.sh` / `mvn-env.bat` from the **module directory** (path to the wrapper is relative to depth) so the correct JDK is used.
+
+### How to run (default: per-module standalone — NOT full reactor)
+
+This monorepo is large. **Do not** default to root `./mvn-env.sh -pl … -am clean install` — that often rebuilds dozens of upstream modules and wastes time. Prefer **standalone** builds: change into each changed module’s directory and clean-install **only that module**, resolving dependencies from the local repo / already-installed SNAPSHOTs.
+
+Identify changed Maven modules from the diff (e.g. `rest`, `projects/sitemanage`, `system`). Then, for **each** changed module:
+
+```bash
+# Example: only rest changed
+cd rest
+../mvn-env.sh clean install
+
+# Example: only sitemanage changed (two levels down)
+cd projects/sitemanage
+../../mvn-env.sh clean install
+
+# Example: two modules changed — build each standalone, producer first if one depends on the other
+cd rest && ../mvn-env.sh clean install && cd ..
+cd projects/sitemanage && ../../mvn-env.sh clean install && cd ../..
+```
+
+Windows (from the module directory):
+
+```bat
+cd rest
+..\mvn-env.bat clean install
+```
+
+Adjust `../` vs `../../` (etc.) so the path points at the **repo-root** `mvn-env.sh` / `mvn-env.bat`. Maven uses the **current working directory**’s `pom.xml`, so only that module is built.
+
+| Situation | Command guidance |
+|-----------|------------------|
+| One or more leaf modules’ sources/tests/resources changed | **`cd` into each module** → `…/mvn-env.sh clean install` (standalone). If module B depends on module A and you changed both, build **A first**, then B (each still standalone after A is installed to `~/.m2`). |
+| Only docs / AGENTS.md / non-Maven files | No Maven clean install required; say so in the PR body. |
+| Change **requires** a multi-module reactor (see below) | Only then use a root reactor command — and scope it as tightly as possible. |
+
+### When a full (or partial) reactor build *is* required
+
+Use root reactor / `-pl` / `-am` **only** when standalone module builds are insufficient, for example:
+
+* Parent `pom.xml` / `dependencyManagement` / pluginManagement changes that affect multiple children
+* Moving types or APIs across modules so local SNAPSHOTs must be rebuilt in order for compile correctness beyond a simple producer→consumer install
+* You changed an upstream module and the downstream standalone build still resolves a **stale** installed artifact and you cannot fix that by installing only the upstream module first
+* Packaging / distribution / installer modules that assemble many reactor outputs in one reactor build
+
+When reactor is justified:
+
+```bash
+# From repo root — prefer the smallest set of modules; avoid -am unless you truly need upstreams rebuilt
+./mvn-env.sh -pl rest,projects/sitemanage clean install
+
+# Only if upstream reactor modules must be rebuilt for this change (expensive — justify in PR body)
+./mvn-env.sh -pl projects/sitemanage -am clean install
+```
+
+**Do not** use `-am` “just in case.” Prefer standalone `cd module && …/mvn-env.sh clean install` first.
+
+### Hard bans
+
+* **Do not** open or update a PR if clean install failed, tests failed, or new warnings appeared in the modules you changed.
+* **Do not** use `-DskipTests`, `-Dmaven.test.skip=true`, or equivalent to green-wash a PR unless the user explicitly ordered a docs-only or non-code exception **and** the PR body states it.
+* **Do not** claim “builds” from a non-clean incremental compile alone when the PR includes structural moves, package renames, or POM edits — **clean** is required.
+* **Do not** rely on CI alone as the first full build of your modules; local (or agent-session) clean install is the pre-PR gate.
+* **Do not** default to root `-pl … -am` / full-reactor builds for ordinary single- or multi-module source edits — that rebuilds large chunks of the monorepo unnecessarily.
+
+### Evidence in the PR
+
+In the PR description (or a short comment before “ready for review”), record:
+
+* The exact command(s) run (**including `cd` into each module**, or a justified reactor command)
+* **BUILD SUCCESS** for each changed module
+* Test counts for modules with test changes (e.g. `Tests run: N, Failures: 0`)
+* Confirmation of no new warnings on the changed modules
+* If a reactor / `-am` build was used, **one sentence why** standalone was not enough
+
+Failing this section is a **hard gate** equal to a failing Erlang review: fix, re-run clean install, then open/update the PR.
+
 ## **Project Rules**
 
 * Be creative, but DO NOT *invent* third-party APIs, libraries, functions, or syntax that does not actually exist. If it doesn't exist in real docs (MDN, JDK 21, official Percussion docs, etc.): Ask user to clarify.
@@ -69,6 +156,7 @@ Tool-agnostic one-shot prompt: `modules/ai-shared-develop/src/main/resources/pro
 * ALWAYS update relevant script dir `README.md` files with doc on script purpose and usage scanrios when creating/editing scripts.
 * ALWAYS document your work in comments, README, or maven site documentation.
 * **IMPORTANT** you must ALWAYS update or create unit tests for any code change that you make, new or edited. And the tests must pass. No exceptions.
+* **IMPORTANT — Pre-PR build:** Before opening or updating a GitHub PR, **`cd` into each module you changed** and run repo-root `mvn-env.sh` / `mvn-env.bat` **`clean install` standalone** (not default root `-pl -am` reactor builds). Code must compile, tests must pass, and there must be **no new warnings**. Use a full/partial reactor only when the change requires it. See **Pre-PR Maven verification (HARD GATE)** above. CI is not a substitute for this local gate.
 * Always use the #codebase or root `./` context when resolving missing interfaces or classes.
 * You MUST respect rate limits when calling 3rd party API's. All 3rd party API integrations must be implemented with rate limit detection and exponential backoff logic.
 * You MUST NOT share or leak secrets, tokens, or keys over the wire, in logs, or in LLM sessions.  If you see MKD-REDACTED in a session, that means you leaked a secret.
