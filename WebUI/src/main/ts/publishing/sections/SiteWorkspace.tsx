@@ -51,9 +51,11 @@ import {
 } from "../incrementalQueue";
 import {
   mapPublishError,
+  mapPublishResponse,
   startPublishState,
   successPublishState,
 } from "../publishActions";
+import type { PublishActionResult } from "../publishActions";
 import {
   buttonStyle,
   emptyStyle,
@@ -90,6 +92,29 @@ function unwrapServer(data: unknown): PublishServer {
     return (data as { serverInfo: PublishServer }).serverInfo;
   }
   return (data ?? {}) as PublishServer;
+}
+
+function caughtErrorMessage(result: PublishActionResult): string {
+  if (result.state === "forbidden") {
+    return message(MSG.PUBLISH_FORBIDDEN);
+  }
+  if (result.state === "badconfig") {
+    return message(MSG.PUBLISH_BADCONFIG);
+  }
+  return result.message || message(MSG.PUBLISH_ERROR);
+}
+
+function preflightErrorMessage(result: PublishActionResult): string {
+  if (result.message && result.message !== result.token) {
+    return result.message;
+  }
+  if (result.state === "forbidden") {
+    return message(MSG.PUBLISH_FORBIDDEN);
+  }
+  if (result.state === "badconfig") {
+    return message(MSG.PUBLISH_BADCONFIG);
+  }
+  return result.message || message(MSG.PUBLISH_ERROR);
 }
 
 export function SiteWorkspace({
@@ -248,20 +273,20 @@ export function SiteWorkspace({
     setActionState(startPublishState());
     setActionMessage(null);
     try {
-      await publishSite(siteName, selectedServerName);
+      const result = await publishSite(siteName, selectedServerName);
+      const preflight = mapPublishResponse(result);
+      if (preflight) {
+        setActionState(preflight.state);
+        setActionMessage(preflightErrorMessage(preflight));
+        return;
+      }
       setActionState(successPublishState());
       setActionMessage(message(MSG.PUBLISH_SUCCESS));
       refreshJobs();
     } catch (err) {
       const mapped = mapPublishError(err);
       setActionState(mapped.state);
-      setActionMessage(
-        mapped.state === "forbidden"
-          ? message(MSG.PUBLISH_FORBIDDEN)
-          : mapped.state === "badconfig"
-            ? message(MSG.PUBLISH_BADCONFIG)
-            : mapped.message || message(MSG.PUBLISH_ERROR),
-      );
+      setActionMessage(caughtErrorMessage(mapped));
     }
   }
 
@@ -322,15 +347,22 @@ export function SiteWorkspace({
     setActionState(startPublishState());
     setActionMessage(null);
     try {
+      let result: unknown;
       if (shouldUseApprovalPath(relatedPreview)) {
         const payload = buildApprovalPayload([...selectedRelated]);
-        await publishIncrementalWithApproval(
+        result = await publishIncrementalWithApproval(
           siteName,
           selectedServerName,
           payload,
         );
       } else {
-        await incrementalPublishSite(siteName, selectedServerName);
+        result = await incrementalPublishSite(siteName, selectedServerName);
+      }
+      const preflight = mapPublishResponse(result);
+      if (preflight) {
+        setActionState(preflight.state);
+        setActionMessage(preflightErrorMessage(preflight));
+        return;
       }
       setActionState(successPublishState());
       setActionMessage(message(MSG.PUBLISH_SUCCESS));
@@ -342,13 +374,7 @@ export function SiteWorkspace({
     } catch (err) {
       const mapped = mapPublishError(err);
       setActionState(mapped.state);
-      setActionMessage(
-        mapped.state === "forbidden"
-          ? message(MSG.PUBLISH_FORBIDDEN)
-          : mapped.state === "badconfig"
-            ? message(MSG.PUBLISH_BADCONFIG)
-            : mapped.message || message(MSG.PUBLISH_ERROR),
-      );
+      setActionMessage(caughtErrorMessage(mapped));
     }
   }
 
