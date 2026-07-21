@@ -136,6 +136,7 @@ Erlang review pattern memory.
 - `gh-preflight.sh` — pre-flight checks for `gh` CLI usage.
 - `hot-deploy-local.sh` — local hot-deploy helper for the CMS.
 - `resolve-conflicts.sh` — git conflict resolution helper.
+- `verify-no-finder-jsp-references.sh` (+ `.bat`) — CI-gate artifact-grep for spec 992 / FR-019a. Asserts `cm/app/webmgt.jsp` (modern Track B shell, hard-cut in PR #1390) contains zero navigation entries to `finder.jsp`. Carves out the `finder_js.jsp` shared-library include (required for non-Finder functionality) and `cm/pages/app/webmgt.jsp` (Track A; deferred to the Track A migration workstream). Paired self-test at `test-verify-no-finder-jsp-references.sh` exercises the PASS + FAIL + carve-out cases. Vitest spec at `WebUI/src/test/ts/scripts/verify-no-finder-jsp-references.test.ts` is the load-bearing CI assertion that fires on every `npx vitest run`. T029b.
 
 ### `004-zero-code-scanning-alerts` workflow scripts
 
