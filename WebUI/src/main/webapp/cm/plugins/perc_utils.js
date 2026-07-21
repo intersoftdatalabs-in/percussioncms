@@ -625,7 +625,21 @@
       dlgOptions.beforeclose = saveConfirmUserSetting;
     }
 
-    dialog = $("<div/>").append(settings.question).perc_dialog(dlgOptions);
+    // Render the question as a text node so attacker-controlled or
+    // server-supplied strings cannot inject HTML/scripts via jQuery's
+    // .append() HTML parsing. Callers that intentionally need HTML
+    // markup should sanitize the input themselves; do not reintroduce
+    // .append(settings.question) here.
+    var $question = $("<div/>");
+    if (settings.questionIsHtml) {
+      // codeql[js/xss-through-dom] reason: caller opts in to raw HTML via
+      // settings.questionIsHtml and is responsible for sanitizing the
+      // markup. Defaults to safe text rendering.
+      $question.html(settings.question);
+    } else {
+      $question.text(settings.question);
+    }
+    dialog = $("<div/>").append($question).perc_dialog(dlgOptions);
   }
 
   function alert_dialog(options) {
@@ -645,8 +659,21 @@
         : settings.width;
 
     var dialog;
+    // Render the alert content as a text node so attacker-controlled or
+    // server-supplied strings cannot inject HTML/scripts via jQuery's
+    // .append() HTML parsing. Callers that intentionally need HTML markup
+    // should sanitize the input themselves or opt in via settings.contentIsHtml.
+    var $content = $("<div/>");
+    if (settings.contentIsHtml) {
+      // codeql[js/xss-through-dom] reason: caller opts in to raw HTML via
+      // settings.contentIsHtml and is responsible for sanitizing the
+      // markup. Defaults to safe text rendering.
+      $content.html(settings.content);
+    } else {
+      $content.text(settings.content);
+    }
     dialog = $("<div/>")
-      .append(settings.content)
+      .append($content)
       .perc_dialog({
         dialogClass: "perc-alert-dialog",
         title: settings.title,
@@ -679,12 +706,21 @@
     var inputField = $(
       "<input type='text' id='perc-prompt-dialog-question' />"
     );
+    // Render the question as a text node so attacker-controlled or
+    // server-supplied strings cannot inject HTML/scripts via jQuery's
+    // .append() HTML parsing. Callers that intentionally need HTML markup
+    // should sanitize the input themselves or opt in via settings.questionIsHtml.
+    var $question = $("<label for='perc-prompt-dialog-question'/>");
+    if (settings.questionIsHtml) {
+      // codeql[js/xss-through-dom] reason: caller opts in to raw HTML via
+      // settings.questionIsHtml and is responsible for sanitizing the
+      // markup. Defaults to safe text rendering.
+      $question.html(settings.question);
+    } else {
+      $question.text(settings.question);
+    }
     var dialog = $("<div/>")
-      .append(
-        $("<label for='perc-prompt-dialog-question'/>").append(
-          settings.question
-        )
-      )
+      .append($question)
       .append($("<br/>"))
       .append(inputField)
       .dialog({
@@ -1175,13 +1211,29 @@
       dbl(e);
     });
   }
+  // Resolve the perc_toggle() target without ever handing a caller-supplied
+  // string to jQuery's $() HTML-parsing constructor (closes
+  // js/unsafe-jquery-plugin: "constructs HTML from some of its options").
+  // An element/jQuery object is passed through as-is; a string is treated
+  // strictly as a CSS selector via .find(), which uses the Sizzle selector
+  // engine and never HTML-sniffs its argument the way $(string) does.
+  function percResolveToggleTarget(d) {
+    if (d && typeof d.jquery === "string") {
+      return d;
+    }
+    if (d && d.nodeType) {
+      return $(d);
+    }
+    return $(document).find(d);
+  }
   $.fn.perc_toggle = function (d) {
-    if ($(d).length && $(d).hasClass("perc-hidden")) {
-      $(d).removeClass("perc-hidden");
-      $(d).addClass("perc-visible");
+    var $d = percResolveToggleTarget(d);
+    if ($d.length && $d.hasClass("perc-hidden")) {
+      $d.removeClass("perc-hidden");
+      $d.addClass("perc-visible");
     } else {
-      $(d).removeClass("perc-visible");
-      $(d).addClass("perc-hidden");
+      $d.removeClass("perc-visible");
+      $d.addClass("perc-hidden");
     }
 
     return this;
@@ -1773,5 +1825,5 @@ function htmlEntities(str) {
     .replace(/</g, "&lt;")
     .replace(/>/g, "&gt;")
     .replace(/"/g, "&quot;")
-    .replace(/'/, "&#39;");
+    .replace(/'/g, "&#39;");
 }

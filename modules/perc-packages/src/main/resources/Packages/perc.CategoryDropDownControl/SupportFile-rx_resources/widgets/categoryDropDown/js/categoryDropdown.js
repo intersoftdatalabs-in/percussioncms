@@ -283,7 +283,11 @@
     }
 
     function createSubCategorySelect(name, id) {
-      var subCategories = $('<select id="' + id + '" name="' + name + '" />');
+      // Build via attr APIs — never interpolate name/id into an HTML string
+      // (CodeQL js/html-constructed-from-input #1408/#1409).
+      var subCategories = $("<select>")
+        .attr("id", id == null ? "" : String(id))
+        .attr("name", name == null ? "" : String(name));
       if (readonly === "yes")
         $("#datadisplay-" + paramName).append(subCategories);
       else $("#maindiv-" + paramName).append(subCategories);

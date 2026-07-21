@@ -21,6 +21,115 @@ Fetch code scanning (CodeQL) alerts for a repository using the `gh` CLI and writ
   - Pagination is handled automatically (`--paginate`, `per_page=100`).
   - For the `004-zero-code-scanning-alerts` workflow, use this script to (re)generate `alerts.md`, then seed/triage `triage.md` per `specs/004-zero-code-scanning-alerts/contracts/README.md` C1.
 
+### `install-cms-dev.sh`
+
+Run the Percussion CMS installer ONCE on the host into a persistent
+`install_root/` directory. The docker dev/test runtime bind-mounts that
+directory into the `cms-dts` container at `/opt/Percussion/` so:
+
+- the container's only job is to run `StartJetty.sh` (no in-container install);
+- container restarts do **not** re-install (the install persists on the host);
+- hot-deploys (jar swaps, config edits) are local file edits in `install_root/`,
+  picked up by the container on the next `docker compose restart`.
+
+This replaces the old "install inside the container" pattern, which fought
+bind mounts and the in-container healthcheck window.
+
+- **Purpose**: One-time CMS install into `./docker/dev-data/cms-dts/install_root/`
+  (default). Idempotent — skips install if the marker file is present.
+- **Usage**:
+  ```bash
+  ./scripts/install-cms-dev.sh                  # one-time install
+  ./scripts/install-cms-dev.sh --reset         # force reinstall
+  ./scripts/install-cms-dev.sh --install-root /tmp/cms-install
+  ```
+- **Prereqs**:
+  - JDK 21 on the host (the installer runs in the same JRE/JDK the container uses).
+  - Built artifacts: `modules/perc-distribution-tree/target/perc-distribution-tree.jar`
+    and `deliverytiersuite/delivery-tier-suite/delivery-tier-distribution/target/delivery-tier-distribution.jar`
+    (run `./mvn-env.sh clean install -DskipTests=true`).
+  - For MySQL installs: the `mysql` compose service must be running and reachable
+    on `localhost:3306` (docker compose publishes the container port to the host).
+    The installer reads `PERC_DB_*` from `.env.compose`.
+  - For Derby installs: no external service needed; uses the embedded default.
+- **Bootstrap**: When `install_root/` is empty, the script seeds it from the
+  pre-existing `docker/dev-data/cms-dts/{ObjectStore,var,rxconfig,Deployment/Server/conf,jetty/base}`
+  subdirs so prior dev state (CMS ObjectStore content, Rx config, Jetty base) is
+  preserved across the migration to single-bind-mount. Pass `--no-bootstrap`
+  to skip the seed.
+- **Output**: `RESULT:OK STEP:install LOG:<path>` or `RESULT:FAIL STEP:install LOG:<path>`.
+- **Typical workflow**:
+  ```bash
+  cp .env.compose.example .env.compose             # edit secrets
+  ./mvn-env.sh clean install -DskipTests=true
+  ./docker/scripts/perc-devctl.sh up --build       # starts mysql + cms-dts (mysql must be up before install)
+  docker compose --env-file .env.compose -f docker-compose.yml up -d mysql  # or `up --build` brings both
+  ./scripts/install-cms-dev.sh                    # populates install_root/
+  ./docker/scripts/perc-devctl.sh up -d cms-dts   # starts cms-dts against the installed tree
+  ./docker/scripts/perc-devctl.sh verify          # confirm CMS + DTS endpoints respond
+  ```
+- **Hot-deploy**:
+  ```bash
+  # Edit a file in install_root/ on host, then restart the container:
+  docker compose --env-file .env.compose -f docker-compose.yml restart cms-dts
+  # Or, hot-swap a jar via the existing hot-deploy-jar.sh:
+  ./docker/scripts/hot-deploy-jar.sh --jar modules/utils/target/utils-8.2.0-SNAPSHOT.jar --target both --restart
+  ```
+
+### `create-large-folder-fixture.sh`
+
+Create a single CMS folder with ≥500 children for the SC-005 perf UAT scenario of feature `992-react-content-explorer` (`quickstart.md` Scenario B).
+
+- **Purpose**: Tasks.md T012b perf fixture scaffolding. Run on a test CMS instance to seed the fixture used for the SC-005 pass criterion (`p95 ≤ 10 s` on standard office network) and the T015a Vitest regression guard.
+- **Usage**:
+  ```bash
+  CMS_BASE_URL=https://cms.local:8443 \
+  CMS_USER=admin1 CMS_PASS=<redacted> \
+  FIXTURE_PATH=/Sites/PerfFixture FIXTURE_COUNT=500 \
+  ./scripts/create-large-folder-fixture.sh
+  ```
+- **Output**: A folder `FIXTURE_PATH/PerfFixtureRoot` with `FIXTURE_COUNT` children (default `/Sites/PerfFixture/PerfFixtureRoot` × 500).
+- **Cross-platform**: Windows users run the `.cmd` counterpart (add when needed; the `.sh` is portable to Linux/macOS). Default count + path match the SC-005 fixture in `quickstart.md`.
+- **Evidence**: After UAT, append a row to `specs/992-react-content-explorer/checklists/sc005-perf-evidence.md` with run name, git SHA, fixture size, network profile, p50/p95/max times, pass/fail.
+- **Prereqs**: `curl`, network reachability to a running CMS instance with admin credentials; idempotent (re-running will create additional children under the same parent — clean up between runs as needed).
+
+### `erlang-harvest-review-patterns.py` (+ `.sh` / `.bat`)
+
+Harvest GitHub PR **line review comments** (including closed/merged PRs) from
+`kilo-code-bot[bot]` (and optional other authors), cluster them into generalized
+themes, write a candidate report, and optionally auto-merge multi-PR themes into
+Erlang review pattern memory.
+
+- **Purpose**: Keep Erlang's institutional review memory (`patterns.md`) fed from
+  real Kilo/GitHub review history without hand-copying every comment. Short-handed
+  teams re-run this instead of maintaining patterns only by hand.
+- **Usage** (repo root; needs `gh auth login` + network):
+  ```text
+  # Candidates only (safe default)
+  python3 scripts/erlang-harvest-review-patterns.py
+  # or: scripts/erlang-harvest-review-patterns.sh
+  # or: scripts\erlang-harvest-review-patterns.bat
+
+  # Merge multi-PR themes into patterns.md
+  python3 scripts/erlang-harvest-review-patterns.py --apply
+
+  # Also promote single-PR CRITICAL hard-gate themes (noisier)
+  python3 scripts/erlang-harvest-review-patterns.py --apply --promote-critical
+  ```
+- **Outputs**:
+  - `docs/ai-generated/code-reviews/harvest-candidates-YYYY-MM-DD.md` — full cluster report + evidence links
+  - With `--apply`: appends selected bullets to
+    `modules/ai-shared-develop/src/main/resources/skills/erlang-review/patterns.md`
+    (marked `_(harvested, seen N×)_`)
+- **Prereqs**: Python 3.9+, `gh` CLI authenticated. No `jq` required (Python parses JSON).
+- **Cross-platform**: Python core; Unix wrapper `.sh` and Windows wrapper `.bat`.
+- **Tests**: `python3 scripts/test_erlang_harvest_review_patterns.py` (offline; uses `--fixture`).
+- **Notes**:
+  - Default authors: `kilo-code-bot[bot]`. Options: `--include-security-bots`, `--include-humans`.
+  - Default `--apply` promotes **multi-PR** themes only (count ≥ 2 and ≥ 2 distinct PRs).
+  - Mitigation / reply threads are skipped (`in_reply_to_id`).
+  - Review the candidates report (and the patterns.md diff) before committing.
+
 ### Other scripts in this directory
 
 - `authenticate-sigstore.sh` — sigstore / cosign authentication helper for artifact verification.
@@ -38,9 +147,12 @@ Added for the `004-zero-code-scanning-alerts` feature. All are POSIX `sh` (or po
 | `verify-triage-inventory.sh` | CI-lite check on `triage.md`: row count == open-alert count, every `false-positive`/`accepted-risk` row has non-empty `notes`, every `module_owner` is a path under `AGENTS.md`. | T012 |
 | `verify-distribution-archive.sh` | Rebuild `modules/perc-distribution-tree` (and `modules/perc-packages`) and assert none of the files listed in `tmp/gh-codeql-alerts/removed-files.txt` appear in the resulting JARs or `.ppkg` installer. | T019 |
 | `verify-valid-fixes.sh` | Assert every `triage.md` row with `disposition == valid` has a non-empty `linked_pr`. | T035 |
+| `verify-codeql-analyzer-of-record.sh` | Assert advanced CodeQL is PR-wired, model pack/config/playbook exist, and **default CodeQL setup is `not-configured`** (stops residual thrashing). | codeql-pr-playbook |
 | `verify-suppressions.sh` | For every row in `suppressions.md`, grep the cited source line for the matching `// codeql[…]` comment and `justification:` text. | T064 |
 | `verify-pr-review-resolution.sh` | For every `linked_pr` in `triage.md`, query `gh pr view --json reviewThreads` and fail if any thread has `isResolved: false` (Constitution IX, `SC-007`). | T078b |
 | `test-verify-triage-inventory.sh` | Self-test for `verify-triage-inventory.sh` against `scripts/test-fixtures/triage-good.md` and `triage-bad.md`. | T013 |
+| `verify-dhtml-search-sanitization.js` | Behavioral regression check for the 7 lockstep `system/Docs/*/dhtml_search.js` copies (closes 21 `js/incomplete-sanitization` alerts): extracts the real, checked-in single-pass global-regex escaping expression from each file and drives it with mixed `<`/`>`/`"` inputs; also fails if the old non-global `.replace("<", ...)` anti-pattern reappears. Plain Node (no framework/`.sh` wrapper needed) since `system` has no JS test toolchain. | T044-class US3 |
+| `verify-sys-resources-js-xss.js` | Behavioral + source-pattern checks for CodeQL `js/xss` #945/#946: mobile-preview `escapeHtml`/`safeSameOriginHttpUrl` and webimagefx license URL built from origin+pathname (not raw `location.href`). Plain Node. | remaining CodeQL residuals |
 
 #### Usage
 
@@ -65,6 +177,7 @@ the "good" fixture is the expected clean state.
 
 ## Conventions
 
-- All scripts in this directory MUST be POSIX `sh` or `bash`, set `-euo pipefail`, and document purpose + usage in this README.
+- Prefer portable entry points: POSIX `sh`/`bash` **and** Windows `.bat` when operators need both, or a single Python/Java tool with thin wrappers (see `erlang-harvest-review-patterns`).
+- Shell scripts MUST set `-euo pipefail` (or `set -eu` for pure `sh`) and document purpose + usage in this README.
 - Scripts MUST NOT write to `%TEMP%` or `$TMPDIR`; use `./tmp` for scratch.
 - Scripts MUST NOT invent third-party APIs or extension points — see root AGENTS.md "Evidence Over Invention".

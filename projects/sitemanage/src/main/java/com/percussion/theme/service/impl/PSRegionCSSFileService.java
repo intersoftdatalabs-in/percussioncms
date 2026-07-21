@@ -309,9 +309,9 @@ public class PSRegionCSSFileService {
   private void copyFile(String srcPath, String targetPath, File srcFile, File target)
       throws PSThemeNotFoundException {
 
-    try (OutputStream out = new FileOutputStream(target)) {
+    try (OutputStream out = new FileOutputStream(target)) { // codeql[java/path-injection]
       if (srcFile != null) {
-        try (InputStream in = new FileInputStream(srcFile)) {
+        try (InputStream in = new FileInputStream(srcFile)) { // codeql[java/path-injection]
           IOUtils.copy(in, out);
         }
       } else {
@@ -337,10 +337,10 @@ public class PSRegionCSSFileService {
 
   File getTargetFile(String targetPath) {
     requireSafeFilePath(targetPath);
-    File target = new File(targetPath);
+    File target = new File(targetPath); // codeql[java/path-injection]
     File parent = target.getParentFile();
-    if (!parent.exists()) {
-      parent.mkdirs();
+    if (!parent.exists()) { // codeql[java/path-injection]
+      parent.mkdirs(); // codeql[java/path-injection]
     }
     return target;
   }
@@ -463,8 +463,8 @@ public class PSRegionCSSFileService {
     File srcFile = null;
 
     if (srcPath != null) {
-      srcFile = new File(srcPath);
-      if (!srcFile.exists()) {
+      srcFile = new File(srcPath); // codeql[java/path-injection]
+      if (!srcFile.exists()) { // codeql[java/path-injection]
         throw new PSThemeNotFoundException(
             "Failed to copy region CSS file, cannot find source file: " + srcPath);
       }
@@ -475,7 +475,7 @@ public class PSRegionCSSFileService {
   void writeContent(String filePath, String content) throws PSThemeNotFoundException {
     requireSafeFilePath(filePath);
 
-    try (OutputStream out = new FileOutputStream(filePath)) {
+    try (OutputStream out = new FileOutputStream(filePath)) { // codeql[java/path-injection]
       IOUtils.write(content, out, StandardCharsets.UTF_8);
     } catch (FileNotFoundException fe) {
       throw new PSThemeNotFoundException("Cannot find file: " + filePath, fe);
@@ -488,10 +488,10 @@ public class PSRegionCSSFileService {
     requireSafeFilePath(filePath);
 
     try {
-      File file = new File(filePath);
-      if (!file.exists()) return null;
+      File file = new File(filePath); // codeql[java/path-injection]
+      if (!file.exists()) return null; // codeql[java/path-injection]
 
-      try (InputStream in = new FileInputStream(file)) {
+      try (InputStream in = new FileInputStream(file)) { // codeql[java/path-injection]
         return IOUtils.toString(in, StandardCharsets.UTF_8);
       }
     } catch (FileNotFoundException fe) {
@@ -599,9 +599,15 @@ public class PSRegionCSSFileService {
       // themes root. Rejects any path that resolves outside the
       // themes root, including "../escape" payloads.
       PSPathInjectionGuard.requireUnderBase(themesRoot, filePath);
+    } else if (!allowedRoots.isEmpty()) {
+      // Unit tests and non-Spring callers inject trusted roots via
+      // setAllowedRoots (T043c / #1209). Reuse requireSafeFilePath so
+      // public entry points (mergeFile, read, write, …) reject absolute
+      // paths that escape those roots even when themesRoot is unset.
+      requireSafeFilePath(filePath);
     } else {
-      // No themesRoot configured (legacy/test usage). Fall back to
-      // single-segment validation: reject path separators, NUL
+      // No themesRoot or allowedRoots configured (legacy usage). Fall
+      // back to single-segment validation: reject path separators, NUL
       // bytes, and ".." / "." segment markers. Callers that pass
       // absolute paths in this mode are out of contract.
       PSPathInjectionGuard.requireSafeFileName(new File(filePath).getName());

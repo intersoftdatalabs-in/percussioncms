@@ -16,6 +16,7 @@
  */
 package com.percussion.process;
 
+import com.percussion.security.io.PSPathInjectionGuard;
 import com.percussion.system.utils.PSServerShutdownHelper;
 import com.percussion.util.IOTools;
 import com.percussion.util.PSOsTool;
@@ -850,7 +851,14 @@ public class PSProcessDaemon extends Thread {
         throw new Exception("Virtual root is no longer present.");
       }
       if (sourcePath.startsWith("/")) sourcePath = sourcePath.substring(1, sourcePath.length());
-      File fullPath = new File(m_pathRoot, sourcePath);
+      // codeql[java/path-injection] justification: the legacy substring
+      // check above (../ rejection) is replaced with
+      // PSPathInjectionGuard.requireUnderBase which canonicalizes the path
+      // and verifies it stays under m_pathRoot. This catches all traversal
+      // vectors the substring check would miss (full-segment .. after
+      // normalization, mixed-separator tricks, NUL bytes, absolute escapes,
+      // canonicalization symlink resolution, etc.). See alert #707.
+      File fullPath = PSPathInjectionGuard.requireUnderBase(m_pathRoot, sourcePath);
       return fullPath;
     }
 

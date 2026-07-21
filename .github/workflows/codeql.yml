@@ -1,23 +1,43 @@
-# For most projects, this workflow file will not need changing; you simply need
-# to commit it to your repository.
+# CodeQL Advanced — analyzer of record for this repository.
 #
-# You may wish to alter this file to override the set of languages analyzed,
-# or to provide custom queries or build logic.
+# Scope: Java and JavaScript/TypeScript only (no Actions, C#, Python, etc.).
 #
-# ******** NOTE ********
-# We have attempted to detect the languages in your repository. Please check
-# the `language` matrix defined below to confirm you have the correct set of
-# supported CodeQL languages.
+# IMPORTANT — only one CodeQL orchestrator may own code-scanning uploads:
+#   - This workflow (.github/workflows/codeql.yml) is the analyzer of record.
+#   - Code scanning *default setup* must stay state=not-configured.
+#   - GitHub *Code Quality* (dynamic workflow "Code Quality: CodeQL Setup" at
+#     dynamic/github-code-scanning/codeql) must be DISABLED for this repo.
+#     Settings → Code quality → Disable. That dynamic runner ignores this
+#     config file, scans extra languages, and empty/stub analyses on the
+#     default branch close open alerts as "fixed".
+#
+# Verify default setup:
+#   gh api repos/intersoftdatalabs-in/percussioncms/code-scanning/default-setup --jq .state
+#   # expected: not-configured
+#
+# Config applied only by this workflow:
+#   - .github/codeql/codeql-config.yml (paths-ignore, query-filters, model packs)
+#   - .github/codeql/models (custom sanitizer barriers for Java)
+#
+# See docs/ai-generated/tasks/gh-codeql-alerts/codeql-pr-playbook.md
 #
 name: "CodeQL Advanced"
 
 on:
   push:
     branches: ["development"]
-  #pull_request:
-  #  branches: [ "development" ]
+  pull_request:
+    branches: ["development"]
   schedule:
     - cron: "44 2 * * 4"
+  # Manual re-scan after config changes or after disabling Code Quality / default setup
+  workflow_dispatch:
+
+# Least privilege at workflow level; jobs elevate only what CodeQL needs.
+# Repo may have default_workflow_permissions=read — security-events must be
+# requested explicitly or SARIF upload silently fails to open alerts.
+permissions:
+  contents: read
 
 jobs:
   analyze:
@@ -26,10 +46,9 @@ jobs:
     #   - https://gh.io/recommended-hardware-resources-for-running-codeql
     #   - https://gh.io/supported-runners-and-hardware-resources
     #   - https://gh.io/using-larger-runners (GitHub.com only)
-    # Consider using larger runners or machines with greater resources for possible analysis time improvements.
-    runs-on: ${{ (matrix.language == 'swift' && 'macos-latest') || 'ubuntu-latest' }}
+    runs-on: ubuntu-latest
     permissions:
-      # required for all workflows
+      # required to upload SARIF / open code-scanning alerts
       security-events: write
 
       # required to fetch internal or private CodeQL packs
@@ -39,66 +58,35 @@ jobs:
       actions: read
       contents: read
 
+      # required so PR checks / annotations can be written for the head SHA
+      pull-requests: read
+
     strategy:
       fail-fast: false
       matrix:
         include:
-          - language: actions
-            build-mode: none
+          # Java only (build-mode none does not analyze Kotlin). Prefer none for
+          # this monorepo size; switch to autobuild/manual if coverage is thin.
           - language: java-kotlin
-            build-mode: none # This mode only analyzes Java. Set this to 'autobuild' or 'manual' to analyze Kotlin too.
+            build-mode: none
           - language: javascript-typescript
             build-mode: none
-        # CodeQL supports the following values keywords for 'language': 'actions', 'c-cpp', 'csharp', 'go', 'java-kotlin', 'javascript-typescript', 'python', 'ruby', 'rust', 'swift'
-        # Use `c-cpp` to analyze code written in C, C++ or both
-        # Use 'java-kotlin' to analyze code written in Java, Kotlin or both
-        # Use 'javascript-typescript' to analyze code written in JavaScript, TypeScript or both
-        # To learn more about changing the languages that are analyzed or customizing the build mode for your analysis,
-        # see https://docs.github.com/en/code-security/code-scanning/creating-an-advanced-setup-for-code-scanning/customizing-your-advanced-setup-for-code-scanning.
-        # If you are analyzing a compiled language, you can modify the 'build-mode' for that language to customize how
-        # your codebase is analyzed, see https://docs.github.com/en/code-security/code-scanning/creating-an-advanced-setup-for-code-scanning/codeql-code-scanning-for-compiled-languages
+        # Intentionally NOT scanning: actions, c-cpp, csharp, go, python, ruby, rust, swift
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # Add any setup steps before running the `github/codeql-action/init` action.
-      # This includes steps like installing compilers or runtimes (`actions/setup-node`
-      # or others). This is typically only required for manual builds.
-      # - name: Setup runtime (example)
-      #   uses: actions/setup-example@v1
-
-      # Initializes the CodeQL tools for scanning.
       - name: Initialize CodeQL
         uses: github/codeql-action/init@v4
         with:
           languages: ${{ matrix.language }}
           build-mode: ${{ matrix.build-mode }}
           config-file: ./.github/codeql/codeql-config.yml
-          # If you wish to specify custom queries, you can do so here or in a config file.
-          # By default, queries listed here will override any specified in a config file.
-          # Prefix the list here with "+" to use these queries and those in the config file.
-
-          # For more details on CodeQL's query packs, refer to: https://docs.github.com/en/code-security/code-scanning/automatically-scanning-your-code-for-vulnerabilities-and-errors/configuring-code-scanning#using-queries-in-ql-packs
-          # queries: security-extended,security-and-quality
-
-      # If the analyze step fails for one of the languages you are analyzing with
-      # "We were unable to automatically build your code", modify the matrix above
-      # to set the build mode to "manual" for that language. Then modify this step
-      # to build your code.
-      # ℹ️ Command-line programs to run using the OS shell.
-      # 📚 See https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#jobsjob_idstepsrun
-      - name: Run manual build steps
-        if: matrix.build-mode == 'manual'
-        shell: bash
-        run: |
-          echo 'If you are using a "manual" build mode for one or more of the' \
-            'languages you are analyzing, replace this with the commands to build' \
-            'your code, for example:'
-          echo '  make bootstrap'
-          echo '  make release'
-          exit 1
+          # Do not pass local pack paths via packs: — GHA fails with "not a valid pack".
+          # Models remain in-repo for docs; use sink-line // codeql + query-filters.
 
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v4
         with:
-          category: "/language:${{matrix.language}}"
+          category: "/language:${{ matrix.language }}"

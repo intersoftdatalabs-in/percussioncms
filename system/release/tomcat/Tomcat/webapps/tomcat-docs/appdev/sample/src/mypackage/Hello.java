@@ -25,7 +25,11 @@ import jakarta.servlet.http.HttpServletResponse;
  * this servlet must be mapped to correspond to the link in the
  * "index.html" file.
  *
- * @author Craig R. McClanahan <Craig.McClanahan@eng.sun.com>
+ * <p>Does not echo request header names/values into HTML (T044 /
+ * CodeQL java/xss #624/#625/#1769/#1770). Header count only — sample
+ * packaging, not a product CMS endpoint.
+ *
+ * @author Craig R. McClanahan &lt;Craig.McClanahan@eng.sun.com&gt;
  */
 
 public final class Hello extends HttpServlet {
@@ -45,7 +49,7 @@ public final class Hello extends HttpServlet {
                       HttpServletResponse response)
       throws IOException, ServletException {
 
-	response.setContentType("text/html");
+	response.setContentType("text/html; charset=UTF-8");
 	PrintWriter writer = response.getWriter();
 
 	writer.println("<html>");
@@ -62,23 +66,20 @@ public final class Hello extends HttpServlet {
 	writer.println("<td>");
 	writer.println("<h1>Sample Application Servlet</h1>");
 	writer.println("This is the output of a servlet that is part of");
-	writer.println("the Hello, World application.  It displays the");
-	writer.println("request headers from the request we are currently");
-	writer.println("processing.");
+	writer.println("the Hello, World application.");
 	writer.println("</td>");
 	writer.println("</tr>");
 	writer.println("</table>");
 
-	writer.println("<table border=\"0\" width=\"100%\">");
+	// Count headers only — never write user-controlled header text into HTML
+	// (closes CodeQL java/xss #624/#625 residuals #1769/#1770 / T044).
+	int headerCount = 0;
 	Enumeration names = request.getHeaderNames();
 	while (names.hasMoreElements()) {
-	    String name = (String) names.nextElement();
-	    writer.println("<tr>");
-	    writer.println("  <th align=\"right\">" + name + ":</th>");
-	    writer.println("  <td>" + request.getHeader(name) + "</td>");
-	    writer.println("</tr>");
+	    names.nextElement();
+	    headerCount++;
 	}
-	writer.println("</table>");
+	writer.println("<p>Request header count: " + headerCount + "</p>");
 
 	writer.println("</body>");
 	writer.println("</html>");

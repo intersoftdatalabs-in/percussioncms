@@ -75,6 +75,15 @@ final class BundledJdbcDrivers {
             "derby-*.jar",
             "derbyclient-*.jar",
             "derbynet-*.jar",
+            // Derby 10.15+ splits the engine across multiple JARs. The embedded
+            // driver (derby.jar) requires derbyshared.jar (StandardException,
+            // shared i18n, etc.) and derbytools.jar (utility classes). The glob
+            // pattern "derby-*.jar" does NOT match these (no hyphen after
+            // "derby"), so they MUST appear as separate <include> entries.
+            // Mirrors modules/perc-distribution-tree/src/main/resources/
+            // installDistributionFiles.xml:712-726 and pom.xml:167-177.
+            "derbyshared-*.jar",
+            "derbytools-*.jar",
             "mssql-jdbc-*.jar",
             "jtds-*.jar",
             "ojdbc17-*.jar"
@@ -91,6 +100,8 @@ final class BundledJdbcDrivers {
             {"derby-*.jar",               "derby"},
             {"derbyclient-*.jar",         "derbyclient"},
             {"derbynet-*.jar",            "derbynet"},
+            {"derbyshared-*.jar",         "derbyshared"},
+            {"derbytools-*.jar",          "derbytools"},
             {"mssql-jdbc-*.jar",          "mssql-jdbc"},
             {"jtds-*.jar",                "jtds"},
             {"ojdbc17-*.jar",             "ojdbc17"}

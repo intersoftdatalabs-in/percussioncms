@@ -1,4 +1,4 @@
-<%@page contentType="text/html; charset=utf-8" import="org.apache.commons.lang.StringUtils"%>
+<%@page contentType="text/html; charset=utf-8" import="org.apache.commons.lang3.StringUtils"%>
 <%@ taglib uri="http://rhythmyx.percussion.com/components" prefix="rxcomp"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>	
 <%@ taglib tagdir="/WEB-INF/tags/banner" prefix="rxb"%>

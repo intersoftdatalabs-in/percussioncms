@@ -17,6 +17,8 @@
 
 package com.percussion.rest;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.fasterxml.jackson.jakarta.rs.json.JacksonJsonProvider;
@@ -42,6 +44,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.FilterType;
 import org.springframework.context.annotation.ImportResource;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
@@ -53,6 +56,8 @@ public class MainTest {
 
   public static final String ENDPOINT_HOST = "http://127.0.0.1";
   public static final String ENDPOINT_PATH = "/rest";
+
+  @Autowired private ApplicationContext applicationContext;
 
   public WebTarget target(String address) {
 
@@ -74,12 +79,36 @@ public class MainTest {
 
   @Test
   public void testContextLoaded() {
+    assertNotNull(applicationContext);
     assertTrue(true);
+  }
+
+  /**
+   * Regression: {@link MainTestJacksonBeansTest.StaticJacksonSpringConfig} must not be
+   * component-scanned into this context (duplicate JacksonJsonProvider breaks @Autowired by type).
+   */
+  @Test
+  public void testUniqueJacksonBeans() {
+    assertEquals(
+        1,
+        applicationContext.getBeanNamesForType(JacksonJsonProvider.class).length,
+        "exactly one JacksonJsonProvider bean expected");
+    assertEquals(
+        1,
+        applicationContext.getBeanNamesForType(JacksonContextResolver.class).length,
+        "exactly one JacksonContextResolver bean expected");
   }
 
   @Configuration
   @ImportResource({"classpath:META-INF/cxf/cxf.xml"})
-  @ComponentScan(basePackages = {"com.percussion.rest"})
+  // Exclude MainTestJacksonBeansTest nested @Configuration: component-scan would otherwise
+  // register a second JacksonJsonProvider / JacksonContextResolver and fail @Autowired by type.
+  @ComponentScan(
+      basePackages = {"com.percussion.rest"},
+      excludeFilters =
+          @ComponentScan.Filter(
+              type = FilterType.REGEX,
+              pattern = ".*\\.MainTestJacksonBeansTest(\\$.*)?"))
   public static class ContextConfiguration {
 
     public static int port;
@@ -95,12 +124,12 @@ public class MainTest {
      * processing (v8.1.7 PR #574 Jackson compatibility residue).
      */
     @Bean
-    public static JacksonJsonProvider getJacksonJsonProvider() {
+    public static JacksonJsonProvider jacksonJsonProvider() {
       return new JacksonJsonProvider();
     }
 
     @Bean
-    public static JacksonContextResolver getContextResolver() {
+    public static JacksonContextResolver jacksonContextResolver() {
       return new JacksonContextResolver();
     }
 

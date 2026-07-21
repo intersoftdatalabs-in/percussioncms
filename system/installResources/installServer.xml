@@ -1273,8 +1273,6 @@
 				<include name="jsch-0.1.40.jar" />
 				<include name="jsch-0.1.48.jar" />
 				<include name="junit-3.8.1.jar" />
-				<include name="myfaces-api.jar" />
-				<include name="myfaces-impl.jar" />
 				<include name="servlet.jar" />
 				<include name="spring-aop.jar" />
 				<include name="spring-beans.jar" />
@@ -1287,7 +1285,6 @@
 				<include name="spring-remoting.jar" />
 				<include name="spring-support.jar" />
 				<include name="spring-mock.jar" />
-				<include name="tomahawk.jar" />
 				<include name="velocity-1.4.jar" />
 				<include name="velocity-1.5.jar" />
 				<include name="velocity-tools-1.2.jar" />
@@ -1733,19 +1730,6 @@
 		<!-- jboss-web -->
 		<PSCopy todir="${install.jbossweb}/conf"
 			file="${release.tomcatdir}/Tomcat/webapps/jboss-web/conf/web.xml" />
-		<mkdir dir="${install.jbossweb}/myfaces-lib" />
-		<PSCopy todir="${install.jbossweb}/myfaces-lib">
-			<fileset dir="${toolsdir}/Commons">
-				<include name="commons-beanutils-1.7.0.jar" />
-				<include name="commons-digester-1.8.jar" />
-				<include name="commons-el-1.0.jar" />
-				<include name="commons-lang-2.4.jar" />
-			</fileset>
-			<fileset dir="${toolsdir}/JSF">
-				<include name="myfaces-api-1.1.5.jar" />
-				<include name="myfaces-impl-1.1.5.jar" />
-			</fileset>
-		</PSCopy>
 
 		<!-- Install packages -->
 		<antcall target="installPackages" inheritrefs="true" />

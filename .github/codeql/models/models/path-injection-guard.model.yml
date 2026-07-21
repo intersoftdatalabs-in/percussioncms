@@ -1,0 +1,14 @@
+# Models PSPathInjectionGuard helpers as path-injection barriers (T043 family).
+# Runtime: requireSafeFileName rejects separators/NUL/..; requireUnderBase /
+# requireUnderBasePath resolve and check the path stays under the base directory.
+# Both File and Path overloads must be modeled — call sites commonly use
+# requireUnderBase(File,String) which returns File (e.g. PSCSSParser #1755-#1757).
+extensions:
+  - addsTo:
+      pack: codeql/java-all
+      extensible: barrierModel
+    data:
+      - ["com.percussion.security.io", "PSPathInjectionGuard", false, "requireSafeFileName", "(String)", "", "ReturnValue", "path-injection", "manual"]
+      - ["com.percussion.security.io", "PSPathInjectionGuard", false, "requireUnderBase", "(File,String)", "", "ReturnValue", "path-injection", "manual"]
+      - ["com.percussion.security.io", "PSPathInjectionGuard", false, "requireUnderBase", "(String,String)", "", "ReturnValue", "path-injection", "manual"]
+      - ["com.percussion.security.io", "PSPathInjectionGuard", false, "requireUnderBasePath", "(File,String)", "", "ReturnValue", "path-injection", "manual"]

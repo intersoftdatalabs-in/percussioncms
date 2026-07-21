@@ -164,6 +164,17 @@
             <artifactId>derbynet</artifactId>
             <scope>provided</scope>
         </dependency>
+        <!-- Required by derby.jar since 10.15 (StandardException, shared i18n, etc.) -->
+        <dependency>
+            <groupId>org.apache.derby</groupId>
+            <artifactId>derbyshared</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.derby</groupId>
+            <artifactId>derbytools</artifactId>
+            <scope>provided</scope>
+        </dependency>
         <dependency>
             <groupId>com.microsoft.sqlserver</groupId>
             <artifactId>mssql-jdbc</artifactId>
@@ -713,6 +724,26 @@
                         <phase>process-classes</phase>
                         <configuration>
                             <mainClass>org.eclipse.jetty.start.Main</mainClass>
+                            <!-- jetty.home / jetty.base MUST be JVM system properties (-D…),
+                                 not StartArgs key=value arguments. BaseHome initialises
+                                 before StartArgs parses the CLI; without -D properties it
+                                 falls back to the CWD and then PathMatchers tries
+                                 Path.of("basehome:lib/jdbc/…"), which throws
+                                 InvalidPathException: Illegal char <:> on Windows
+                                 (issue #1179) and silently misses JDBC jars on Linux.
+                                 See modules/perc-jetty/.../worklog/jetty-12-basehome-prefix-removal.md
+                                 PR #1181 landed the right approach then a follow-up commit
+                                 re-added CLI args and dropped systemProperties. -->
+                            <systemProperties>
+                                <systemProperty>
+                                    <key>jetty.home</key>
+                                    <value>${assembly-directory}/jetty/upstream</value>
+                                </systemProperty>
+                                <systemProperty>
+                                    <key>jetty.base</key>
+                                    <value>${assembly-directory}/jetty/base</value>
+                                </systemProperty>
+                            </systemProperties>
                             <arguments>
                                 <argument>--include-jetty-dir=${assembly-directory}/jetty/defaults</argument>
                                 <argument>--create-start-d</argument>
@@ -720,28 +751,27 @@
                                 <argument>--modules=perc-logging</argument>
                                 <argument>--add-modules=perc</argument>
                                 <argument>--approve-all-licenses</argument>
-                                <argument>jetty.base=${assembly-directory}/jetty/base</argument>
-                                <argument>jetty.home=${assembly-directory}/jetty/upstream</argument>
                             </arguments>
                         </configuration>
                     </execution>
                     <!-- Verify the assembled distribution ships JDBC drivers (FR-007 / SC-005).
-                         Runs scripts/verify-jdbc-drivers.sh on the just-built jar; non-zero
-                         exit fails the build. Uses the expected-driver-glob option so the
-                         check stays correct across driver version bumps without editing this pom. -->
+                         Runs the Java port of scripts/verify-jdbc-drivers.sh so the build gate
+                         is cross-platform (Windows/Linux/macOS, see root AGENTS.md). Uses the
+                         expected-driver-glob option so the check stays correct across driver
+                         version bumps without editing this pom. -->
                     <execution>
                         <id>verify-jdbc-drivers</id>
                         <goals>
-                            <goal>exec</goal>
+                            <goal>java</goal>
                         </goals>
                         <phase>verify</phase>
                         <configuration>
-                            <executable>${basedir}/scripts/verify-jdbc-drivers.sh</executable>
+                            <mainClass>com.percussion.distribution.install.VerifyJdbcDrivers</mainClass>
                             <arguments>
                                 <argument>--artifact</argument>
                                 <argument>${project.build.directory}/perc-distribution-tree.jar</argument>
                                 <argument>--expected-driver-glob</argument>
-                                <argument>mariadb-java-client-*.jar,derby-*.jar,derbyclient-*.jar,derbynet-*.jar,mssql-jdbc-*.jar,jtds-*.jar,ojdbc17-*.jar</argument>
+                                <argument>mariadb-java-client-*.jar,derby-*.jar,derbyclient-*.jar,derbynet-*.jar,derbyshared-*.jar,derbytools-*.jar,mssql-jdbc-*.jar,jtds-*.jar,ojdbc17-*.jar</argument>
                             </arguments>
                         </configuration>
                     </execution>
@@ -749,15 +779,16 @@
                          <delete> block uses exact bundled-driver filenames, not globs.
                          A future change that re-introduces a glob (e.g. mysql-connector-java-*.jar)
                          will silently purge integrator-supplied drivers on upgrade; this
-                         check fails the build before such a change can land. -->
+                         check fails the build before such a change can land. Cross-platform
+                         Java port of scripts/check-no-glob-deletes.sh. -->
                     <execution>
                         <id>check-no-glob-deletes</id>
                         <goals>
-                            <goal>exec</goal>
+                            <goal>java</goal>
                         </goals>
                         <phase>verify</phase>
                         <configuration>
-                            <executable>${basedir}/scripts/check-no-glob-deletes.sh</executable>
+                            <mainClass>com.percussion.distribution.install.CheckNoGlobDeletes</mainClass>
                         </configuration>
                     </execution>
                 </executions>

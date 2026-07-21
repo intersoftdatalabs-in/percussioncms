@@ -7,7 +7,7 @@
     import="com.percussion.server.PSRequest"
     import="com.percussion.server.webservices.PSServerFolderProcessor, com.percussion.services.catalog.PSTypeEnum, com.percussion.services.contentmgr.IPSContentMgr, com.percussion.services.contentmgr.IPSNodeDefinition, com.percussion.services.contentmgr.PSContentMgrLocator, com.percussion.services.guidmgr.data.PSGuid, com.percussion.services.guidmgr.data.PSLegacyGuid, com.percussion.services.legacy.IPSCmsObjectMgr, com.percussion.services.legacy.PSCmsObjectMgrLocator"
     import="com.percussion.utils.guid.IPSGuid, com.percussion.utils.request.PSRequestInfo, com.percussion.webservices.content.IPSContentWs, com.percussion.webservices.content.PSContentWsLocator"
-    import="com.percussion.webservices.security.IPSSecurityWs, com.percussion.webservices.security.PSSecurityWsLocator, org.apache.commons.lang.StringUtils, javax.jcr.Value, javax.jcr.query.QueryResult"
+    import="com.percussion.webservices.security.IPSSecurityWs, com.percussion.webservices.security.PSSecurityWsLocator, org.apache.commons.lang3.StringUtils, javax.jcr.Value, javax.jcr.query.QueryResult"
     import="javax.jcr.query.Row, javax.jcr.query.RowIterator, jakarta.servlet.jsp.JspWriter"
     import="java.util.*,com.percussion.server.PSServer"
     import="com.percussion.services.utils.jspel.PSRoleUtilities"

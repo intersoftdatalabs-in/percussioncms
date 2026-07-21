@@ -17,6 +17,7 @@
 
 package com.percussion.tablefactory;
 
+import com.percussion.security.SecureStringUtils;
 import com.percussion.util.PSSqlHelper;
 import com.percussion.utils.collections.PSIteratorUtils;
 import java.sql.Connection;
@@ -61,28 +62,33 @@ public class PSJdbcTableMetaData {
 
     if (tableName == null || tableName.trim().length() == 0)
       throw new IllegalArgumentException("tableName may not be null or empty");
+    // CWE-89 / java/sql-injection #659/#660: validate identifiers before they reach
+    // DatabaseMetaData.getColumns / getPrimaryKeys or concatenated meta-data SQL.
+    tableName = SecureStringUtils.requireSqlObjectName(tableName.trim());
 
     try {
       m_dbmsDef = dbmsDef;
       m_dataTypeMap = dataTypeMap;
 
-      m_database = m_dbmsDef.getDataBase();
+      m_database = SecureStringUtils.requireSqlObjectNameOrNull(m_dbmsDef.getDataBase());
 
-      if (m_database != null && m_database.trim().length() == 0) m_database = null;
-      m_schema = m_dbmsDef.getSchema();
-      if (m_schema != null && m_schema.trim().length() == 0) m_schema = null;
+      m_schema = SecureStringUtils.requireSqlObjectNameOrNull(m_dbmsDef.getSchema());
 
       if (m_schema == null) {
         if (dbmsDef.getConnectionDetail() != null
             && dbmsDef.getConnectionDetail().getOrigin() != null) {
-          m_schema = dbmsDef.getConnectionDetail().getOrigin();
+          m_schema =
+              SecureStringUtils.requireSqlObjectNameOrNull(
+                  dbmsDef.getConnectionDetail().getOrigin());
         }
       }
 
       if (m_database == null) {
         if (dbmsDef.getConnectionDetail() != null
             && dbmsDef.getConnectionDetail().getDatabase() != null) {
-          m_database = dbmsDef.getConnectionDetail().getDatabase();
+          m_database =
+              SecureStringUtils.requireSqlObjectNameOrNull(
+                  dbmsDef.getConnectionDetail().getDatabase());
         }
       }
       m_tableName = tableName;
@@ -363,7 +369,9 @@ public class PSJdbcTableMetaData {
         ResultSetMetaData meta = step.getMetaData();
         if (meta != null) loadColumnInformation(meta);
       } else {
-        rs = md.getColumns(m_database, m_schema, m_tableName, "%");
+        // Catalog/schema/table identifiers validated in ctor via requireSqlObjectName*.
+        // DatabaseMetaData.getColumns is a JDBC metadata API, not string-SQL execution.
+        rs = md.getColumns(m_database, m_schema, m_tableName, "%"); // codeql[java/sql-injection] justification: identifiers allow-listed in ctor (requireSqlObjectName); JDBC metadata API not SQL string concat (alert #659)
         // driver can return a null ResultSet even though the API doc implies
         // that they should not (for example, Informix)
         if (rs != null) {
@@ -459,7 +467,9 @@ public class PSJdbcTableMetaData {
   private void loadKeyInformation(DatabaseMetaData md) throws SQLException {
     ResultSet rs = null;
     try {
-      rs = md.getPrimaryKeys(m_database, m_schema, m_tableName);
+      // Catalog/schema/table identifiers validated in ctor via requireSqlObjectName*.
+      // DatabaseMetaData.getPrimaryKeys is a JDBC metadata API, not string-SQL execution.
+      rs = md.getPrimaryKeys(m_database, m_schema, m_tableName); // codeql[java/sql-injection] justification: identifiers allow-listed in ctor (requireSqlObjectName); JDBC metadata API not SQL string concat (alert #660)
       // driver can return a null ResultSet even though the API doc implies
       // that they should not (for example, Informix)
       if (rs != null) {

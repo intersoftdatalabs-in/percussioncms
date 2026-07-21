@@ -173,7 +173,7 @@
       );
       return;
     }
-    usernameStartsWith = usernameStartsWith.replace("%", "*");
+    usernameStartsWith = usernameStartsWith.replace(/%/g, "*");
     if (!usernameStartsWith.endsWith("*"))
       usernameStartsWith = usernameStartsWith + "*";
     var urlfindExternalUsernamesThatStartwith =

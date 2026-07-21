@@ -16,6 +16,8 @@
 .grok
 
 docker/dev-data
+.env.compose
+.env.compose.local
 qdrant_storage
 .vscode/*
 !.vscode/extensions.json
@@ -69,9 +71,25 @@ WebUI/target/generated-webui/
 WebUI/war/modern/
 WebUI/war/jslibMin/
 WebUI/war/cssMin/
+WebUI/war/shared-common.js
+WebUI/war/shared-common.js.map
+WebUI/war/shared-common.css
+WebUI/war/shared-common-minuet.js
+WebUI/war/shared-common-minuet.css
+WebUI/war/shared-finder.js
 WebUI/src/main/webapp/cm/modern/
 WebUI/src/main/webapp/cm/jslibMin/
 WebUI/src/main/webapp/cm/cssMin/
+# Intermediate legacy concatenations (built by build-legacy-bundles.js into
+# target/generated-webui/cm/ and overlaid into the WAR). Never commit these —
+# they duplicate source under cm/{plugins,jslib,services,...} and produce
+# stale CodeQL alerts when checked in.
+WebUI/src/main/webapp/cm/shared-common.js
+WebUI/src/main/webapp/cm/shared-common.js.map
+WebUI/src/main/webapp/cm/shared-common.css
+WebUI/src/main/webapp/cm/shared-common-minuet.js
+WebUI/src/main/webapp/cm/shared-common-minuet.css
+WebUI/src/main/webapp/cm/shared-finder.js
 
 # Node/npm artifacts in WebUI
 WebUI/src/main/frontend/node_modules/
@@ -200,16 +218,8 @@ docker/logs
 AGENTS.local.md
 .AGENTS.local.md.sigstore.json
 
-# Generated frontend outputs (do not commit)
-WebUI/target/generated-webui/
-WebUI/war/modern/
-WebUI/war/jslibMin/
-WebUI/war/cssMin/
-WebUI/src/main/webapp/cm/modern/
-WebUI/src/main/webapp/cm/jslibMin/
-WebUI/src/main/webapp/cm/cssMin/
-
-# Node/npm artifacts
+# Node/npm artifacts (duplicate module path coverage for tooling that only
+# scans this lower section — generated WebUI outputs are listed once above)
 WebUI/src/main/frontend/node_modules/
 WebUI/src/main/frontend/node/
 WebUI/src/main/frontend/.vite/

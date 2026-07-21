@@ -27,14 +27,23 @@ import org.apache.commons.lang3.StringUtils;
  */
 public class PSFolderStringUtils {
   /**
-   * This translates an input path that uses '%' to indicate a wildcard and ';' to separate paths to
-   * an array of pattern objects. The paths are scanned and converted to valid patterns. Any
-   * non-alphanumeric, whitespace or forward slash is turned into a hex character to avoid issues
-   * with the regex package.
+   * Translates an input folder list that uses '%' to indicate a wildcard and ';' to separate paths
+   * to an array of compiled regex {@link Pattern}s.
+   *
+   * <p>Each path is split on the '%' wildcard, and each literal segment is wrapped via
+   * {@link Pattern#quote(String)} so any regex meta-characters in user input (e.g. {@code \., (,
+   * [)}, are treated as literals. The quoted segments are then re-joined with {@code ".*"} between
+   * them so the '%' wildcard still functions as a multi-char wildcard.
+   *
+   * <p>This quoting strategy (introduced in T045 / PR #1295) prevents the unvalidated
+   * concatenation of user-supplied folder paths into compiled regular expressions, addressing
+   * the CodeQL {@code java/regex-injection} cluster (alerts #761, #765, #766, #1041, #1042,
+   * #1043). The previous implementation hex-encoded all non-alphanumeric / whitespace / slash
+   * characters; that approach was equivalent for matching but obscured the path semantics at
+   * debug time.
    *
    * @param folderList the input folder string, may be <code>null</code> or empty
-   * @return an array of patterns, this will be empty for an empty input, but never <code>null
-   *     </code>
+   * @return an array of patterns; empty for an empty input, never <code>null</code>
    */
   public static Pattern[] getFolderPatterns(String folderList) {
     if (StringUtils.isBlank(folderList)) {
@@ -46,24 +55,15 @@ public class PSFolderStringUtils {
     int i = 0;
 
     for (String path : folderPaths) {
+      // Split the path on '%' (documented wildcard) and \Q-quote each literal segment with
+      // Pattern.quote so any regex meta-characters in user input are treated as literals.
+      // Re-join the segments with ".*" between them so '%' still functions as a wildcard.
       StringBuilder matchpath = new StringBuilder(path.length() + 5);
-      for (int j = 0; j < path.length(); j++) {
-        char ch = path.charAt(j);
-        if (Character.isLetterOrDigit(ch) || Character.isWhitespace(ch) || ch == '/') {
-          matchpath.append(ch);
-        } else if (ch == '%') {
+      String[] segments = path.split("%", -1);
+      for (int s = 0; s < segments.length; s++) {
+        matchpath.append(Pattern.quote(segments[s]));
+        if (s < segments.length - 1) {
           matchpath.append(".*");
-        } else {
-          // Quote everything else to be safe
-          matchpath.append("\\u");
-          String hex = Integer.toHexString(ch);
-          if (hex.length() < 4) {
-            int diff = 4 - hex.length();
-            if (diff > 0) {
-              hex = "0000".substring(4 - diff) + hex;
-            }
-          }
-          matchpath.append(hex);
         }
       }
       path = matchpath.toString();

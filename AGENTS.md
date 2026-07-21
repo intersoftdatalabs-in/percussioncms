@@ -18,6 +18,7 @@ This repository is a large mono-repo with many modules.  This code base has a lo
 - **Repo Script Dir:** `./scripts`
 - **Repo Skills Dir:** `./modules/ai-shared-develop/src/main/resources/skills`
 - **Stack**: Java 21, Spring, Hibernate, Artemis, React, JSP, jQuery, XML, XSL, JUnit 5, Mockito
+- **Platforms**: Cross-platform product — builds, tests, installs, and runs on **Windows**, **Linux**, and **macOS**. All file I/O and path handling MUST be portable (see **Cross-Platform File I/O & Paths** below).
 
 ## Key Terms
 - **DTS**" `Delivery Tier Service` means `./deliverytiersuite/delivery-tier-suite`
@@ -50,8 +51,9 @@ Before `git commit`, `git push`, or opening/updating a GitHub PR for changes you
 2. Canonical agent: `modules/ai-shared-develop/src/main/resources/agents/erlang-code-review.md`
 3. Skill: `modules/ai-shared-develop/src/main/resources/skills/erlang-review/SKILL.md`
 4. **Kilo (preferred):** workflow `/erlang-review` (`.kilocode/workflows/erlang-review.md`); project rule `.kilocode/rules/pre-commit-review.md` also applies.
-5. Any **bug** finding, or missing **behavioral** unit tests for new/changed non-trivial logic, is a **hard gate** — do not commit or open the PR until fixed and re-reviewed.
-6. Optional report path: `tmp/reviews/` (repo temp dir).
+5. Any **bug** finding, missing **behavioral** unit tests for new/changed non-trivial logic, or **non-portable path/file I/O** (Windows/Unix — see **Cross-Platform File I/O & Paths**), is a **hard gate** — do not commit or open the PR until fixed and re-reviewed. Erlang must apply the cross-platform path checklist when the diff touches file I/O, paths, installers, packaging, or path assertions.
+6. Durable reports: `docs/ai-generated/code-reviews/` (not `tmp/` — temp is wipeable). Pattern memory: `modules/ai-shared-develop/src/main/resources/skills/erlang-review/patterns.md`.
+7. Refresh pattern memory from Kilo/GitHub PR review history (including closed PRs): `python3 scripts/erlang-harvest-review-patterns.py --apply` (Windows: `scripts\erlang-harvest-review-patterns.bat --apply`). See `scripts/README.md`.
 
 Tool-agnostic one-shot prompt: `modules/ai-shared-develop/src/main/resources/prompts/erlang-review-uncommitted.md`.
 
@@ -70,6 +72,73 @@ Tool-agnostic one-shot prompt: `modules/ai-shared-develop/src/main/resources/pro
 * Always use the #codebase or root `./` context when resolving missing interfaces or classes.
 * You MUST respect rate limits when calling 3rd party API's. All 3rd party API integrations must be implemented with rate limit detection and exponential backoff logic.
 * You MUST NOT share or leak secrets, tokens, or keys over the wire, in logs, or in LLM sessions.  If you see MKD-REDACTED in a session, that means you leaked a secret.
+* **Cross-platform is mandatory.** Percussion CMS is a cross-platform build, test, and deploy product (Windows, Linux, macOS). Any production code, unit/integration test, script, or path assertion that works only on Unix-style paths is a defect. Follow **Cross-Platform File I/O & Paths** below.
+
+## Cross-Platform File I/O & Paths
+
+Percussion CMS is built, tested, installed, and deployed on **Windows, Linux, and macOS**. Agents MUST write portable file and path code. Failures that appear only on Windows (or only on Unix) from non-portable path handling are preventable defects — treat them as hard bugs, not environment quirks.
+
+### Non-negotiable rules
+
+1. **Never hardcode OS path separators in filesystem paths.** Do not concatenate paths with `"/"`, `"\\"`, or mixed literals for local files. Hardcoded `/` is correct only for **URL, URI, classpath, and ZIP entry** paths (those always use `/`).
+2. **Prefer portable Java NIO path APIs** for all filesystem work:
+   * `java.nio.file.Path`, `Paths.get(...)`, `Path.of(...)` (JDK 11+)
+   * `path.resolve("child")`, `path.resolveSibling(...)`, `path.getParent()`, `path.normalize()`, `path.toAbsolutePath()`
+   * `Files.*` (`Files.readString`, `Files.write`, `Files.createDirectories`, `Files.exists`, `Files.walk`, etc.) instead of ad-hoc `File` + string ops when practical
+3. **When a separator character is required**, use the platform constants — do not invent them:
+   * `File.separator` / `File.separatorChar` — path element separator (`\` on Windows, `/` on Unix)
+   * `File.pathSeparator` / `File.pathSeparatorChar` — multi-path list separator (`;` on Windows, `:` on Unix)
+   * Prefer `Path` resolve/join over manually inserting separators
+4. **Do not assume a case-sensitive filesystem.** Windows (default) and some macOS volumes are case-insensitive. Avoid tests or logic that require `Foo.txt` and `foo.txt` as distinct files in the same directory. Prefer exact canonical names and case-insensitive comparisons only when the product domain requires them.
+5. **Do not assume Unix-only roots or temp locations.** Avoid hardcoding `/tmp`, `/var`, `/home`, or drive-letter-free absolute paths. Use `System.getProperty("java.io.tmpdir")`, `Files.createTempFile` / `Files.createTempDirectory`, or the repo temp dir (`./tmp`) as appropriate. On Windows, absolute paths include a drive letter or UNC prefix (`C:\...`, `\\server\share\...`).
+6. **Normalize before comparing paths as strings.** Prefer `Path` equality (`path1.normalize().toAbsolutePath().equals(...)`) or `Files.isSameFile` over string equality of raw path text. If string form is unavoidable, normalize separators first (e.g. via `Path` then `toString()`, or consistent use of `File.separator`).
+7. **Line endings differ by platform.** Do not assert exact multi-line file contents with only `\n` when the runtime or Git may produce `\r\n` on Windows. Normalize line endings in tests (`replace("\r\n", "\n")`) or compare logical lines / use platform-agnostic matchers.
+8. **Shell scripts are not portable by themselves.** Repo automation that must run on Windows needs a `.bat`/`.cmd` counterpart (or a documented Java/Maven entry point). Existing pattern: `./mvn-env.sh` and `./mvn-env.bat`. Do not land Unix-only scripts as the sole way to run a required workflow.
+9. **Unit and integration tests must be cross-platform.** Tests that construct paths, write files, parse absolute paths, or assert path strings MUST pass on Windows. Common failure modes to avoid:
+   * Expected path strings built with `/` when the OS returns `\`
+   * Splitting `PATH` / classpath with `:` only
+   * Regexes that only match Unix paths (`^/.*`) and reject `C:\...`
+   * Commands invoked via `/bin/sh` without a Windows alternative in product code paths
+   * Assuming executable bits / POSIX permissions semantics
+
+### Preferred patterns (Java)
+
+```java
+// GOOD: portable join and resolve
+Path base = Path.of(System.getProperty("java.io.tmpdir"), "percussion-test");
+Path out = base.resolve("reports").resolve("result.xml");
+Files.createDirectories(out.getParent());
+Files.writeString(out, content);
+
+// GOOD: when a File is required by a legacy API
+File f = out.toFile();
+
+// GOOD: multi-entry path lists (classpath, PATH)
+String joined = String.join(File.pathSeparator, entry1, entry2);
+
+// BAD: hardcoded separators for filesystem paths
+String bad1 = base + "/reports/result.xml";
+String bad2 = "C:\\temp\\reports\\result.xml";
+String bad3 = dir + "\\" + name;
+
+// GOOD: URLs / classpath / zip always use '/'
+String resource = "com/percussion/config/defaults.xml";
+URI uri = URI.create("file:///some/logical/url"); // URL path form, not OS file join
+```
+
+### Review checklist (agents)
+
+Before finishing any change that touches file I/O, paths, installers, packaging, or tests:
+
+* [ ] No new `".../" +` or `"...\\" +` filesystem path construction
+* [ ] New path logic uses `Path` / `Paths.get` / `Path.of` / `Files`
+* [ ] Separators from `File.separator` / `File.pathSeparator` only when a char/string is truly needed
+* [ ] Tests do not assert Unix-only absolute path shapes or raw `/` path strings from the OS
+* [ ] Temp files use portable APIs or the repo `./tmp` convention — not OS-specific temp hardcodes
+* [ ] Line-ending sensitive assertions are normalized
+* [ ] Required scripts have Windows counterparts or a cross-platform runner where operators need them
+
+**Linux/macOS-only developer machines are not an excuse.** Code and tests must still be written as if the next CI agent or customer install is Windows.
 
 ## PR Review Comment Resolution
 
@@ -116,6 +185,25 @@ For each review comment on a PR you are working on (whether the comment is from 
 **Do not** mark a thread as resolved without first replying inline with the mitigation statement. A bare resolve is not a substitute for a documented fix.
 
 This rule applies to ALL review comments on a PR you own, including comments that arrive after the initial submission (late feedback, as in the 002-jdbc-drivers-cleanup / PR #1185 → #1185 review cycle).
+
+## CodeQL / code scanning (analyzer of record)
+
+**Do not re-enable GitHub CodeQL default setup** without attaching the same config and model pack — default setup caused repeated residual re-opens on PRs (new alert IDs for the same fixed sinks).
+
+**Also keep GitHub Code Quality disabled** (Settings → Code quality). Its dynamic workflow (`dynamic/github-code-scanning/codeql`, run name `Code Quality: CodeQL Setup`) ignores advanced config, scans extra languages, and empty analyses on `development` mass-close open alerts.
+
+**Languages in scope:** Java + JavaScript/TypeScript only (see `.github/workflows/codeql.yml`).
+
+| Piece | Path / command |
+|-------|----------------|
+| Playbook (required reading for security/CodeQL PRs) | `docs/ai-generated/tasks/gh-codeql-alerts/codeql-pr-playbook.md` |
+| Advanced workflow (PRs + `development` + schedule + manual) | `.github/workflows/codeql.yml` |
+| Config (`paths-ignore`, Java `packs`, `query-filters`) | `.github/codeql/codeql-config.yml` |
+| Custom sanitizer models | `.github/codeql/models/` |
+| Agent skill | `modules/ai-shared-develop/src/main/resources/skills/codeql-pr/SKILL.md` |
+| Verify default setup off | `gh api repos/intersoftdatalabs-in/percussioncms/code-scanning/default-setup --jq .state` → `not-configured` |
+
+Disposition ladder: **runtime fix + test → model pack barrier → sink-line `// codeql[rule-id]` → path query-filters → dismiss last**. Put suppressions on the **exact sink line** (not above multi-line builders).
 
 ## Git Branch & Maven Wrapper Information
 

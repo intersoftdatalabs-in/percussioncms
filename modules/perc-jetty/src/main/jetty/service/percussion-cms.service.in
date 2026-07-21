@@ -1,0 +1,37 @@
+# Percussion CMS Jetty systemd unit template (GH-962 / specs/988-linux-systemd-services)
+# Placeholders replaced by install-jetty-service.sh at install time:
+#   @SERVICE_NAME@  @DESCRIPTION@  @PID_FILE@  @ENV_FILE@  @INIT_SCRIPT@  @JETTY_ROOT@
+#
+# Type=forking is required: rxjetty.sh start backgrounds the JVM via
+# start-stop-daemon -b (or nohup) and writes JETTY_PID before the parent exits.
+# If start ever ran in the foreground without writing PIDFile, systemd would hang
+# until TimeoutStartSec. Do not change Type without verifying fork+PID behavior.
+#
+# TimeoutStartSec=1800 allows post-upgrade DB/package work without false timeout.
+# Stdout/stderr go to the journal; detailed app logs remain under JETTY_BASE/logs.
+# No ExecReload: rxjetty has start/stop/restart only (not a config-only reload).
+
+[Unit]
+Description=@DESCRIPTION@
+After=network.target
+Documentation=file://@JETTY_ROOT@/service/README-systemd.md
+
+[Service]
+Type=forking
+EnvironmentFile=-@ENV_FILE@
+PIDFile=@PID_FILE@
+ExecStart=@INIT_SCRIPT@ start
+ExecStop=@INIT_SCRIPT@ stop
+TimeoutStartSec=1800
+TimeoutStopSec=120
+StandardOutput=journal
+StandardError=journal
+# Process user is applied by the Jetty start script via JETTY_USER in EnvironmentFile.
+# Running the unit as root allows the init helper to drop privileges consistently with
+# the historic init.d install path.
+KillMode=control-group
+Restart=on-failure
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target

@@ -79,7 +79,16 @@
           } else {
             // Handle no items or error here
           }
-          currentFeedWidget.append(feedItem);
+          // CodeQL js/xss-through-dom (alert #990): feedItem is HTML built from
+          // external RSS data via string concatenation. Parse the fragment and
+          // sanitize any anchor href values so attacker-supplied javascript:/
+          // data: schemes cannot execute when the user clicks the link.
+          var $fragment = $($.parseHTML(feedItem));
+          $fragment.find("a").each(function () {
+            var $a = $(this);
+            $a.attr("href", $.PercServiceUtils.sanitizeUrlForHref($a.attr("href")));
+          });
+          currentFeedWidget.append($fragment);
           currentFeedWidget.attr("aria-busy", "false");
         }
       );
@@ -133,13 +142,20 @@
       feedItem += 'id="' + id + '" class="perc-feed-item"' + label + ">";
 
       if (queryString.showItemTitle && item.title) {
+        // CodeQL js/xss-through-dom (alerts #992/#993): item.link is the RSS
+        // entry URL (server-controllable / attacker-controllable if the feed
+        // source is untrusted); sanitize before embedding in href so a
+        // javascript:/data: link cannot execute via the browser. The href
+        // appears twice in the rendered output: once as the anchor's href and
+        // once implicitly in the .find("a") pass on line ~85.
+        var safeItemLink = $.PercServiceUtils.sanitizeUrlForHref(item.link);
         feedItem +=
           "<" +
           itemTitleElement +
           ' id="' +
           title_id +
           '" class="perc-feed-item-title"><a href="' +
-          item.link +
+          safeItemLink +
           '" target="_blank" title="' +
           item.title +
           '" rel="noopener noreferrer">' +
@@ -172,33 +188,28 @@
       }
 
       if (queryString.showItemDescription && item.description) {
-        var description = $("<" + itemDescriptionElement + ">").html(
-          item.description
-        );
-
+        // CodeQL js/xss-through-dom (#992/#993): never parse feed description as
+        // HTML via jQuery html-setter (that reinterprets DOM text as markup).
+        // Treat description as plain text only; strip tags with a non-DOM replace
+        // when itemRemoveHtml is set, then truncate.
+        var descText = String(item.description);
         if (queryString.itemRemoveHtml) {
-          description.html(description.text());
+          descText = descText.replace(/<[^>]*>/g, " ");
+          descText = descText.replace(/\s+/g, " ").trim();
         }
-
         if (!queryString.itemDescriptionEmpty) {
-          //Truncate description
-          description.html(
-            description.html().substring(0, queryString.itemDescriptionLength)
-          );
-          //If there are more description
-          if (
-            "" !==
-            item.description.substring(queryString.itemDescriptionLength + 1)
-          ) {
-            description.html(description.html().trim() + "...");
+          var maxLen = queryString.itemDescriptionLength;
+          if (descText.length > maxLen) {
+            descText = descText.substring(0, maxLen).trim() + "...";
           }
         }
-
+        // Escape for safe embedding into the HTML string builder used for the feed item.
+        var safeDesc = $("<div/>").text(descText).html();
         feedItem +=
           "<" +
           itemDescriptionElement +
           ' class="perc-feed-item-description">' +
-          description.html() +
+          safeDesc +
           "</" +
           itemDescriptionElement +
           ">";

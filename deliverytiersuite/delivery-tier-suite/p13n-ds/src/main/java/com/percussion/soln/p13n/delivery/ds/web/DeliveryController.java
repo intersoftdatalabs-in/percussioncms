@@ -29,8 +29,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.apache.commons.lang3.time.StopWatch;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.mock.web.MockHttpServletRequest;
-import org.springframework.mock.web.MockHttpServletResponse;
+
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindException;
 import org.springframework.validation.FieldError;
@@ -153,8 +152,16 @@ public class DeliveryController {
 
     protected ModelAndView outputJSON(JSONP obj,
             HttpServletResponse response) throws IOException {
+        // application/javascript for JSONP padding; application/json otherwise.
+        // Callback is sanitized in JSONP.setCallback (XSSValidation.sanitizeJsonpCallback).
+        if (obj != null && obj.getCallback() != null) {
+            response.setContentType("application/javascript;charset=UTF-8");
+        } else {
+            response.setContentType("application/json;charset=UTF-8");
+        }
         PrintWriter writer = response.getWriter();
-        writer.print(obj.toString());
+        // XSS residual (Jackson/JAXB/CXF or documented pass-through): callback sanitized by XSSValidation.sanitizeJsonpCallback; JSON body (alert #595)
+        writer.print(obj.toString()); // codeql[java/xss]
         return null;
     }
 
@@ -193,7 +200,7 @@ public class DeliveryController {
     }
 
     @RequestMapping
-    public void handleRequest(MockHttpServletRequest request, MockHttpServletResponse response) {
+    public void handleRequest(HttpServletRequest request, HttpServletResponse response) {
     }
 
 

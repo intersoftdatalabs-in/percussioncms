@@ -239,7 +239,7 @@
         importDialog.dialog("close");
       });
 
-      narrowSearchLabel.html(
+      narrowSearchLabel.text(
         I18N.message("perc.ui.users.import.dialogs@NarrowSearch", [
           maxNumberOfUsers,
         ])
@@ -629,7 +629,7 @@
       for (i in assignedRolesArray) {
         var userRole = assignedRolesArray[i];
         // use the user item template replacing the username
-        var html = $("<option/>").val(userRole).html(userRole);
+        var html = $("<option/>").val(userRole).text(userRole);
         // append html to DOM
         $assignedRoles.append(html);
       }
@@ -654,7 +654,7 @@
         if (rolesArrayCache[i] != assignedRole) {
           var html = $("<option/>")
             .val(rolesArrayCache[i])
-            .html(rolesArrayCache[i]);
+            .text(rolesArrayCache[i]);
           availableRoles.append(html);
         } else {
           assignedIndex++;
@@ -738,7 +738,7 @@
       // add role to available role list
       var availableRole = $("<option/>")
         .val(selectedAssignedRoleValue)
-        .html(selectedAssignedRoleValue);
+        .text(selectedAssignedRoleValue);
       var availableRoles = $("#perc-users-available-roles > select").append(
         availableRole
       );
@@ -762,7 +762,7 @@
       // add role to available role list
       var assignedRole = $("<option/>")
         .val(selectedAvailableRoleValue)
-        .html(selectedAvailableRoleValue);
+        .text(selectedAvailableRoleValue);
       var assignedRoles = $("#perc-users-assigned-roles > select").append(
         assignedRole
       );

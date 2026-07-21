@@ -1,13 +1,16 @@
 package com.percussion.designmanagement.service.impl;
 
-import com.percussion.designmanagement.service.IPSFileSystemService.PSFolderOperationException;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.io.TempDir;
-import java.io.File;
-import java.util.List;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import com.percussion.designmanagement.service.IPSFileSystemService.PSFolderOperationException;
+import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.List;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 /**
  * Regression tests for the CWE-22 path-traversal defense in
@@ -60,21 +63,22 @@ public class PSFileSystemServiceSecurityTest {
   }
 
   @Test
-  public void legitimateInRootPathIsAccepted(@TempDir java.nio.file.Path root) throws Exception {
+  public void legitimateInRootPathIsAccepted(@TempDir Path root) throws Exception {
     PSFileSystemService svc = new PSFileSystemService(root.toString());
 
-    File target = new File(root.toFile(), "themes/site/page.html");
-    target.getParentFile().mkdirs();
+    Path target = root.resolve("themes").resolve("site").resolve("page.html");
+    Files.createDirectories(target.getParent());
+    Files.createFile(target);
 
     // getFile and getChildren must not throw for an in-root path.
-    File resolved = svc.getFile("themes/site/page.html");
+    File resolved = svc.getFile(root.relativize(target).toString());
     assertNotNull(resolved);
-    assertTrue(resolved.getAbsolutePath().startsWith(root.toFile().getAbsolutePath()));
+    assertTrue(Files.isSameFile(target, resolved.toPath()));
 
-    File parent = new File(root.toFile(), "themes/site");
-    List<File> children = svc.getChildren("themes/site");
+    Path parent = target.getParent();
+    List<File> children = svc.getChildren(root.relativize(parent).toString());
     assertNotNull(children);
-    assertTrue(parent.exists());
+    assertTrue(Files.exists(parent));
   }
 
   @Test

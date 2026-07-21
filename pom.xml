@@ -67,6 +67,7 @@
         <module>modules/perc-packages</module>
         <module>deliverytiersuite/delivery-tier-suite</module>
         <module>modules/perc-distribution-tree</module>
+        <module>modules/perc-qa-automation</module>
     </modules>
     <scm>
         <connection>scm:git:https://github.com/intersoftdatalabs-in/percussioncms</connection>
@@ -131,7 +132,7 @@
         <httpcomponents.version>4.5.14</httpcomponents.version>
         <install.jre.version>8.222.10.1</install.jre.version>
         <jackson.annotation.api.version>2.22</jackson.annotation.api.version>
-        <jackson.version>2.22.0</jackson.version>
+        <jackson.version>2.22.1</jackson.version>
         <jakarta.activation.version>2.1.4</jakarta.activation.version>
         <jakarta.annotation.api.version>3.0.0</jakarta.annotation.api.version>
         <jakarta.el.api.version>6.0.1</jakarta.el.api.version>
@@ -210,7 +211,6 @@
         <mssql.version>13.3.1.jre11-preview</mssql.version>
         <mariadb.version>3.5.7</mariadb.version>
         <ojdbc17.version>23.26.0.0.0</ojdbc17.version>
-        <myfaces.version>4.1.2</myfaces.version>
         <nettyall.version>4.2.9.Final</nettyall.version>
         <opencsv.version>5.12.0</opencsv.version>
         <oracle.version>12.1.0.1</oracle.version>
@@ -249,7 +249,6 @@
         <!-- with this project's Apache 2.0 license for distribution. -->
         <!-- Do NOT upgrade past 6.8.x without a legal review. -->
         <tinymce.version>6.8.6</tinymce.version>
-        <trinidad.version>2.2.1</trinidad.version>
         <twelvemonkeys.version>3.13.1</twelvemonkeys.version>
         <velocity.tools.version>3.1</velocity.tools.version>
         <velocity.version>2.4.1</velocity.version>
@@ -574,6 +573,8 @@
                 <groupId>org.springframework</groupId>
                 <artifactId>spring-test</artifactId>
                 <version>${spring.version}</version>
+                <!-- Test-only: never package into WAR or Jetty server libs. -->
+                <scope>test</scope>
             </dependency>
             <dependency>
                 <groupId>org.springframework</groupId>
@@ -895,16 +896,6 @@
                 <version>${json.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.apache.myfaces.core</groupId>
-                <artifactId>myfaces-api</artifactId>
-                <version>${myfaces.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.myfaces.core</groupId>
-                <artifactId>myfaces-impl</artifactId>
-                <version>${myfaces.version}</version>
-            </dependency>
-            <dependency>
                 <groupId>saxon</groupId>
                 <artifactId>saxon</artifactId>
                 <version>${saxon.version}</version>
@@ -1030,21 +1021,6 @@
                         <artifactId>gson</artifactId>
                     </exclusion>
                 </exclusions>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.myfaces.trinidad</groupId>
-                <artifactId>trinidad-api</artifactId>
-                <version>${trinidad.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.myfaces.trinidad</groupId>
-                <artifactId>trinidad-impl</artifactId>
-                <version>${trinidad.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.myfaces.tomahawk</groupId>
-                <artifactId>tomahawk</artifactId>
-                <version>1.1.14</version>
             </dependency>
             <dependency>
                 <groupId>com.thoughtworks.xstream</groupId>
@@ -1304,10 +1280,14 @@
                 <artifactId>json-simple</artifactId>
                 <version>1.1.1</version>
             </dependency>
+            <!-- Use jakarta classifier: default artifact implements javax.servlet.* and
+                 fails on Jetty EE11 (NoClassDefFoundError: javax/servlet/ServletContextListener)
+                 when IIOProviderContextListener is declared in web.xml. -->
             <dependency>
                 <groupId>com.twelvemonkeys.servlet</groupId>
                 <artifactId>servlet</artifactId>
                 <version>${twelvemonkeys.version}</version>
+                <classifier>jakarta</classifier>
             </dependency>
             <dependency>
                 <groupId>com.twelvemonkeys.imageio</groupId>
@@ -2662,7 +2642,7 @@
                 <plugin>
                     <groupId>com.intsof</groupId>
                     <artifactId>ai-build-integrity-maven-plugin</artifactId>
-                    <version>0.12.0</version>
+                    <version>0.13.2</version>
                     <configuration>
                         <hashFileMode>CENTRAL</hashFileMode>
                         <!-- Scan the entire repo, not just the current module's basedir -->
@@ -2717,7 +2697,7 @@
             <plugin>
                 <groupId>com.intsof</groupId>
                 <artifactId>ai-build-integrity-maven-plugin</artifactId>
-                <version>0.12.0</version>
+                <version>0.13.2</version>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -3080,7 +3060,7 @@
                                     <executable>bash</executable>
                                     <arguments>
                                         <argument>-c</argument>
-                                        <argument>set -euo pipefail; command -v codeql &gt;/dev/null || { echo "CodeQL CLI not found in PATH."; exit 1; }; mkdir -p "${codeql.database.dir}"; rm -rf "${codeql.database.dir}/actions" "${codeql.database.dir}/java" "${codeql.database.dir}/js"; codeql database create "${codeql.database.dir}/actions" --language=actions --source-root "${codeql.source.root}" --codescanning-config="${codeql.source.root}/.github/codeql/codeql-config.yml"; codeql database create "${codeql.database.dir}/java" --language=java --build-mode none --source-root "${codeql.source.root}" --codescanning-config="${codeql.source.root}/.github/codeql/codeql-config.yml"; codeql database create "${codeql.database.dir}/js" --language=javascript --source-root "${codeql.source.root}" --codescanning-config="${codeql.source.root}/.github/codeql/codeql-config.yml"; echo "CodeQL databases created in ${codeql.database.dir}";</argument>
+                                        <argument>set -euo pipefail; command -v codeql &gt;/dev/null || { echo "CodeQL CLI not found in PATH."; exit 1; }; mkdir -p "${codeql.database.dir}"; rm -rf "${codeql.database.dir}/java" "${codeql.database.dir}/js"; codeql database create "${codeql.database.dir}/java" --language=java --build-mode none --source-root "${codeql.source.root}" --codescanning-config="${codeql.source.root}/.github/codeql/codeql-config.yml"; codeql database create "${codeql.database.dir}/js" --language=javascript --source-root "${codeql.source.root}" --codescanning-config="${codeql.source.root}/.github/codeql/codeql-config.yml"; echo "CodeQL databases created in ${codeql.database.dir}";</argument>
                                     </arguments>
                                 </configuration>
                             </execution>
@@ -3094,7 +3074,7 @@
                                     <executable>bash</executable>
                                     <arguments>
                                         <argument>-c</argument>
-                                        <argument>set -euo pipefail; command -v codeql &gt;/dev/null || { echo "CodeQL CLI not found in PATH."; exit 1; }; [[ -d "${codeql.database.dir}/actions" ]] || { echo "Missing database: ${codeql.database.dir}/actions. Run exec:exec@codeql-create-db first."; exit 1; }; [[ -d "${codeql.database.dir}/java" ]] || { echo "Missing database: ${codeql.database.dir}/java. Run exec:exec@codeql-create-db first."; exit 1; }; [[ -d "${codeql.database.dir}/js" ]] || { echo "Missing database: ${codeql.database.dir}/js. Run exec:exec@codeql-create-db first."; exit 1; }; mkdir -p "${codeql.results.dir}"; codeql database analyze "${codeql.database.dir}/actions" codeql/actions-queries --format=sarif-latest --output "${codeql.results.dir}/actions.sarif"; codeql database analyze "${codeql.database.dir}/java" codeql/java-queries "${codeql.source.root}/codeql-custom-queries-java" --format=sarif-latest --output "${codeql.results.dir}/java.sarif"; codeql database analyze "${codeql.database.dir}/js" codeql/javascript-queries --format=sarif-latest --output "${codeql.results.dir}/javascript.sarif"; echo "CodeQL analysis complete. SARIF files are in ${codeql.results.dir}";</argument>
+                                        <argument>set -euo pipefail; command -v codeql &gt;/dev/null || { echo "CodeQL CLI not found in PATH."; exit 1; }; [[ -d "${codeql.database.dir}/java" ]] || { echo "Missing database: ${codeql.database.dir}/java. Run exec:exec@codeql-create-db first."; exit 1; }; [[ -d "${codeql.database.dir}/js" ]] || { echo "Missing database: ${codeql.database.dir}/js. Run exec:exec@codeql-create-db first."; exit 1; }; mkdir -p "${codeql.results.dir}"; codeql database analyze "${codeql.database.dir}/java" codeql/java-queries "${codeql.source.root}/codeql-custom-queries-java" --format=sarif-latest --output "${codeql.results.dir}/java.sarif"; codeql database analyze "${codeql.database.dir}/js" codeql/javascript-queries --format=sarif-latest --output "${codeql.results.dir}/javascript.sarif"; echo "CodeQL analysis complete. SARIF files are in ${codeql.results.dir}";</argument>
                                     </arguments>
                                 </configuration>
                             </execution>
@@ -3108,7 +3088,7 @@
                                     <executable>bash</executable>
                                     <arguments>
                                         <argument>-c</argument>
-                                        <argument>set -euo pipefail; command -v codeql &gt;/dev/null || { echo "CodeQL CLI not found in PATH."; exit 1; }; mkdir -p "${codeql.database.dir}" "${codeql.results.dir}"; rm -rf "${codeql.database.dir}/actions" "${codeql.database.dir}/java" "${codeql.database.dir}/js"; codeql database create "${codeql.database.dir}/actions" --language=actions --source-root "${codeql.source.root}" --codescanning-config="${codeql.source.root}/.github/codeql/codeql-config.yml"; codeql database create "${codeql.database.dir}/java" --language=java --build-mode none --source-root "${codeql.source.root}" --codescanning-config="${codeql.source.root}/.github/codeql/codeql-config.yml"; codeql database create "${codeql.database.dir}/js" --language=javascript --source-root "${codeql.source.root}" --codescanning-config="${codeql.source.root}/.github/codeql/codeql-config.yml"; codeql database analyze "${codeql.database.dir}/actions" codeql/actions-queries --format=sarif-latest --output "${codeql.results.dir}/actions.sarif"; codeql database analyze "${codeql.database.dir}/java" codeql/java-queries "${codeql.source.root}/codeql-custom-queries-java" --format=sarif-latest --output "${codeql.results.dir}/java.sarif"; codeql database analyze "${codeql.database.dir}/js" codeql/javascript-queries --format=sarif-latest --output "${codeql.results.dir}/javascript.sarif"; echo "CodeQL scan complete. SARIF files are in ${codeql.results.dir}";</argument>
+                                        <argument>set -euo pipefail; command -v codeql &gt;/dev/null || { echo "CodeQL CLI not found in PATH."; exit 1; }; mkdir -p "${codeql.database.dir}" "${codeql.results.dir}"; rm -rf "${codeql.database.dir}/java" "${codeql.database.dir}/js"; codeql database create "${codeql.database.dir}/java" --language=java --build-mode none --source-root "${codeql.source.root}" --codescanning-config="${codeql.source.root}/.github/codeql/codeql-config.yml"; codeql database create "${codeql.database.dir}/js" --language=javascript --source-root "${codeql.source.root}" --codescanning-config="${codeql.source.root}/.github/codeql/codeql-config.yml"; codeql database analyze "${codeql.database.dir}/java" codeql/java-queries "${codeql.source.root}/codeql-custom-queries-java" --format=sarif-latest --output "${codeql.results.dir}/java.sarif"; codeql database analyze "${codeql.database.dir}/js" codeql/javascript-queries --format=sarif-latest --output "${codeql.results.dir}/javascript.sarif"; echo "CodeQL scan complete. SARIF files are in ${codeql.results.dir}";</argument>
                                     </arguments>
                                 </configuration>
                             </execution>

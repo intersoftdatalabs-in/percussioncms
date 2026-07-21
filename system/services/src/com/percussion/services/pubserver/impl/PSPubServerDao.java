@@ -103,7 +103,7 @@ public class PSPubServerDao
       {
          PSDeliveryInfoService psDeliveryInfoService =
                (PSDeliveryInfoService) PSDeliveryInfoServiceLocator.getDeliveryInfoService();
-         List<String> adminUrls = psDeliveryInfoService.getAdminUrls(pubServer.getServerType().orElse(PSPubServer.PRODUCTION));
+         List<String> adminUrls = psDeliveryInfoService.getAdminUrls(pubServer.getServerType().orElse(null));
          String dtsServer = (adminUrls != null && !adminUrls.isEmpty()) ? adminUrls.get(0) : "NONE";
          pubServer.addProperty(PUBLISH_SERVER_PROPERTY, dtsServer);
       }

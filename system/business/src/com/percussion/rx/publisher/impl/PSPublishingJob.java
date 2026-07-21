@@ -39,7 +39,7 @@ package com.percussion.rx.publisher.impl;
  import com.percussion.rx.publisher.data.PSJobControlMessage;
  import com.percussion.rx.publisher.data.PSPubItemStatus;
  import com.percussion.rx.publisher.data.PSPublisherJobStatus;
- import com.percussion.rx.publisher.jsf.nodes.PSPublishingStatusHelper;
+ import com.percussion.rx.publisher.PSPublishingStatusHelper;
  import com.percussion.security.PSSecurityProvider;
  import com.percussion.server.PSRequest;
  import com.percussion.server.PSServer;

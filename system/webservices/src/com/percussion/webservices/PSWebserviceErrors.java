@@ -127,25 +127,33 @@ public class PSWebserviceErrors
     * @param loc the locale for which to get the error text, may be
     *    <code>null</code> on which case the default locale will be used.
     * @return the requested error text, may be <code>null</code> or empty if
-    *    no bundle or error text was found for the specified code.
-    * @throws MissingResourceException if no error string bundle was found 
-    *    for the specified locale or the default locale.
+    *    no bundle or error text was found for the specified code. Never throws
+    *    for a missing bundle — returns {@code null} so callers can fall back
+    *    to a plain {@code code: args} message (package install must not fail
+    *    with MissingResourceException while reporting another error).
     */
    private static String getErrorText(int code, Locale loc) 
-      throws MissingResourceException
    {
       String errorText = null;
       
-      // get the bundle for the requested locale
-      ResourceBundle bundle = getErrorStringBundle(
-         loc == null ? Locale.getDefault() : loc);
-      
-      // get the default bundle if no bundle was found for the specified locale
-      if (bundle == null && loc != null)
-         bundle = getErrorStringBundle(Locale.getDefault());
-      
-      if (bundle != null)
-         errorText = bundle.getString(String.valueOf(code));
+      try
+      {
+         // get the bundle for the requested locale
+         ResourceBundle bundle = getErrorStringBundle(
+            loc == null ? Locale.getDefault() : loc);
+         
+         // get the default bundle if no bundle was found for the specified locale
+         if (bundle == null && loc != null)
+            bundle = getErrorStringBundle(Locale.getDefault());
+         
+         if (bundle != null)
+            errorText = bundle.getString(String.valueOf(code));
+      }
+      catch (MissingResourceException e)
+      {
+         // Bundle missing from classpath or key absent — fall back in createErrorMessage
+         return null;
+      }
       
       return errorText;
    }

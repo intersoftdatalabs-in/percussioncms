@@ -21,8 +21,17 @@ Usage:
   ./docker/scripts/perc-devctl.sh <command> [options]
 
 Commands:
+  install [--reset] [--no-bootstrap] [--install-root <path>]
+      Run the host-side installer (scripts/install-cms-dev.sh) into
+      the persistent install_root/ directory. Idempotent: skips if the
+      install marker is already present unless --reset is passed.
+      Run this ONCE per host, then `up`. Re-run after a CMS distribution
+      version bump (e.g. 8.1.x → 8.2.x) or to apply local patches.
+
   up [--build]
-      Start mysql + cms-dts compose stack.
+      Start mysql + cms-dts compose stack. Assumes the install_root
+      has been populated by `install` (otherwise the container will
+      exit with a clear pointer to `install-cms-dev.sh`).
 
   down [--volumes]
       Stop compose stack. Use --volumes to remove MySQL volume.
@@ -149,6 +158,27 @@ COMMAND="$1"
 shift
 
 case "${COMMAND}" in
+  install)
+    INSTALL_ARGS=()
+    while [[ $# -gt 0 ]]; do
+      case "$1" in
+        --reset|--skip-dts|--install-dts)
+          INSTALL_ARGS+=("$1")
+          shift
+          ;;
+        --install-root)
+          INSTALL_ARGS+=("$1" "$2")
+          shift 2
+          ;;
+        *)
+          echo "Unknown install option: $1" >&2
+          exit 1
+          ;;
+      esac
+    done
+    run_logged "install" "cd '${PROJECT_ROOT}' && ./scripts/install-cms-dev.sh ${INSTALL_ARGS[*]}"
+    ;;
+
   up)
     BUILD_FLAG=""
     if [[ "${1:-}" == "--build" ]]; then

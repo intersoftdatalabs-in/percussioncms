@@ -26,7 +26,7 @@ import com.percussion.rx.publisher.IPSPublishingJobStatusCallback;
 import com.percussion.rx.publisher.IPSRxPublisherServiceInternal;
 import com.percussion.rx.publisher.data.PSDemandWork;
 import com.percussion.rx.publisher.data.PSPubItemStatus;
-import com.percussion.rx.publisher.jsf.nodes.PSPublishingStatusHelper;
+import com.percussion.rx.publisher.PSPublishingStatusHelper;
 import com.percussion.server.PSServer;
 import com.percussion.services.assembly.IPSAssemblyItem;
 import com.percussion.services.catalog.PSTypeEnum;

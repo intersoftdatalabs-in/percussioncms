@@ -257,17 +257,61 @@
 
     }
     function createDialogHtml(fromPath, toPath){
+        // CWE-79 / js/xss-through-dom: build nodes with jQuery factories and
+        // .text() so path values are never concatenated into HTML strings.
         var dialogHtml = $("<div/>",{"id":"perc-redirect-container"});
-        dialogHtml.append('<div><label>' +I18N.message("perc.ui.redirect.handler@Page Not Found") + '</label><br/><br/></div>');
-        dialogHtml.append('<div><label>From path:</label><br/></div>');
-        dialogHtml.append('<div class="readonlyinput">'+ getRelativePath(fromPath) +'</div><br/>');
-        dialogHtml.append('<div><label>To path:</label><br/></div>');
+        dialogHtml.append(
+            $("<div/>").append(
+                $("<label/>").text(I18N.message("perc.ui.redirect.handler@Page Not Found")),
+                $("<br/>"),
+                $("<br/>")
+            )
+        );
+        dialogHtml.append(
+            $("<div/>").append(
+                $("<label/>").text("From path:"),
+                $("<br/>")
+            )
+        );
+        dialogHtml.append(
+            $("<div/>").addClass("readonlyinput").text(getRelativePath(fromPath))
+        );
+        dialogHtml.append($("<br/>"));
+        dialogHtml.append(
+            $("<div/>").append(
+                $("<label/>").text("To path:"),
+                $("<br/>")
+            )
+        );
         if(toPath){
-            dialogHtml.append('<div class="readonlyinput">'+ getRelativePath(toPath) +'</div>');
+            dialogHtml.append(
+                $("<div/>").addClass("readonlyinput").text(getRelativePath(toPath))
+            );
         }
         else{
-            dialogHtml.append("<div><input type='text' class='required' readonly='true' name='perc-redirect-to-path' id='perc-redirect-to-path'/><img id='perc-redirect-to-path-button' src='../images/images/buttonEllipse.png' class='perc-button-ellipse'/></div>");
-            dialogHtml.append("<div for='perc-redirect-to-path' class='perc_field_error' style='display:none'>" + I18N.message("perc.ui.redirect.handler@To path is required") + "</div>");
+            dialogHtml.append(
+                $("<div/>").append(
+                    $("<input/>", {
+                        type: "text",
+                        "class": "required",
+                        readonly: "true",
+                        name: "perc-redirect-to-path",
+                        id: "perc-redirect-to-path"
+                    }),
+                    $("<img/>", {
+                        id: "perc-redirect-to-path-button",
+                        src: "../images/images/buttonEllipse.png",
+                        "class": "perc-button-ellipse"
+                    })
+                )
+            );
+            dialogHtml.append(
+                $("<div/>", {
+                    "for": "perc-redirect-to-path",
+                    "class": "perc_field_error",
+                    css: { display: "none" }
+                }).text(I18N.message("perc.ui.redirect.handler@To path is required"))
+            );
         }
         return dialogHtml;
     }

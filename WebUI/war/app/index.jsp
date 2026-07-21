@@ -9,7 +9,7 @@
 <%@ page import="com.percussion.utils.container.PSContainerUtilsFactory" %>
 
 <%@ page import="com.percussion.widgetbuilder.service.PSWidgetBuilderService" %>
-<%@ page import="org.apache.commons.lang.ArrayUtils"  %>
+<%@ page import="org.apache.commons.lang3.ArrayUtils"  %>
 
 <%@ page import="org.json.JSONArray" %>
 <%@ page import="jakarta.servlet.http.Cookie" %>

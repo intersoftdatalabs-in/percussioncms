@@ -1,15 +1,13 @@
-<%@page errorPage="/ui/error.jsp" pageEncoding="UTF-8" contentType="text/html; charset=UTF-8"%>
-<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
-
-
-
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%
-   /* Always set focus on "Status" node */
- %>
-<c:set var="invoke_focusOnStartingNode" scope="request"
-   value="${sys_runtime_navigation.focusOnStartingNode}" />
-
-<%
-   response.sendRedirect(response.encodeUrl(request.getContextPath()
-      + "/ui/pubruntime/ActiveJobStatus.faces"));
+    String target = "/cm/app/?view=publish&section=runtime";
+    response.setStatus(301);
+    response.setHeader("Location", target);
 %>
+<!DOCTYPE html>
+<html>
+<head><meta http-equiv="refresh" content="0;url=<%= target %>"/><title>Publishing Runtime moved</title></head>
+<body>
+<p>Publishing Runtime is now in the modern Publishing UI. <a href="<%= target %>">Open Runtime</a>.</p>
+</body>
+</html>

@@ -9,7 +9,7 @@
 <%@ page import="com.percussion.utils.container.PSContainerUtilsFactory" %>
 
 <%@ page import="com.percussion.widgetbuilder.service.PSWidgetBuilderService" %>
-<%@ page import="org.apache.commons.lang.ArrayUtils"  %>
+<%@ page import="org.apache.commons.lang3.ArrayUtils"  %>
 
 <%@ page import="org.json.JSONArray" %>
 <%@ page import="jakarta.servlet.http.Cookie" %>
@@ -65,11 +65,12 @@
     views.put("design", "admin.jsp");
     views.put("arch", "siteArchitecture.jsp");
     views.put("editor", "webmgt.jsp");
-    views.put("publish", "publish.jsp");
-    views.put("workflow", "adminWorkflow.jsp");
+    views.put("publish", "publishModern.jsp");
+    views.put("workflow", "adminWorkflowModern.jsp");
     views.put("editTemplate", "editTemplate.jsp");
-    views.put("widgetbuilder", "widgetBuilder.jsp");
-    views.put("home", "home.jsp");
+    views.put("widgetbuilder", "widgetBuilderModern.jsp");
+    views.put("home", "homeModern.jsp");
+    views.put("admin", "adminModern.jsp");
 
 
     // List of views requiring admin role
@@ -78,7 +79,8 @@
             "arch",
             "publish",
             "workflow",
-            "widgetbuilder"
+            "widgetbuilder",
+            "admin"
     };
 
     // List of views requiring designer role
@@ -126,21 +128,24 @@
         while(paramNames.hasMoreElements())
         {
             String key = (String)paramNames.nextElement();
-            String value = request.getParameter(key);
-            System.out.println(value);
-            if(key.equals("view"))
+            // Skip null/blank keys (produces "?null=" garbage in redirect URL)
+            if(key == null || key.isBlank() || "null".equalsIgnoreCase(key) || "view".equals(key))
                 continue;
+            String value = request.getParameter(key);
+            if(value == null)
+                value = "";
             buff.append(count == 0 ? "" : "&");
-            buff.append(key);
+            buff.append(URLEncoder.encode(key, "UTF-8"));
             buff.append("=");
-            buff.append(value);
+            buff.append(URLEncoder.encode(value, "UTF-8"));
             count++;
 
         }
 
 
         String sep = buff.length() == 0 ? "" : "&";
-        String url = proxyURL+"/cm/pages/app/?" + buff.toString() + sep + "view=" + defaultView;
+        // Canonical app shell is /cm/app/ (static assets + relative ../cssMin paths live there)
+        String url = proxyURL+"/cm/app/?" + buff.toString() + sep + "view=" + defaultView;
         response.setHeader( "Pragma", "no-cache" );
         response.setHeader( "Cache-Control", "no-cache" );
         response.setDateHeader( "Expires", 0 );
@@ -148,12 +153,12 @@
     }
     else if(view.equals("popup") && popuppage != null)
     {
-        String url = proxyURL+"/cm/pages/app/popups/" + popuppage;
+        String url = proxyURL+"/cm/app/popups/" + popuppage;
         response.sendRedirect(url);
     }
     else if(view.equals("editor") && linkback != null)
     {
-        String url = proxyURL+"/cm/pages/app/?view=editor";
+        String url = proxyURL+"/cm/app/?view=editor";
         Map params = getItemEditorInfo(request,response);
         for (Object key : params.keySet())
         {
@@ -163,9 +168,12 @@
     }
     else
     {
+        // Known views forward to mapped JSPs; unmapped/retired → moved/unavailable (FR-013)
         String temp = views.get(view);
         if(temp != null)
             forwardTo = temp;
+        else
+            forwardTo = "unavailableModern.jsp";
 
         pageContext.forward(forwardTo);
     }

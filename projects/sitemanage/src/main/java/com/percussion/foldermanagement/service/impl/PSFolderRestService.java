@@ -103,9 +103,18 @@ public class PSFolderRestService {
       return folderService.startGetAssignedFoldersJob(
           workflowName, path, includeFoldersWithDifferentWorkflow);
     } catch (PSWorkflowNotFoundException e) {
+      // CWE-209: log internal exception details server-side only.
+      // CWE-79: return 404 text/plain with HTML-encoded workflowName so
+      // user-supplied path params cannot inject markup into the body
+      // (T044 / #1221). Do not use the no-arg WebApplicationException
+      // string constructor — it defaults to HTTP 500.
       log.error(PSExceptionUtils.getMessageForLog(e));
       log.debug(PSExceptionUtils.getDebugMessageForLog(e));
-      throw new WebApplicationException(GENERIC_WORKFLOW_NOT_FOUND);
+      throw new WebApplicationException(
+          Response.status(Status.NOT_FOUND)
+              .type(MediaType.TEXT_PLAIN)
+              .entity(Encode.forHtml("Workflow not found: " + workflowName))
+              .build());
     }
   }
 

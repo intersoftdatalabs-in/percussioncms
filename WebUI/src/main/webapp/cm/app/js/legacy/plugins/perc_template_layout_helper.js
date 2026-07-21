@@ -16,6 +16,37 @@
  */
 
 (function ($) {
+  // Determine whether a (non-HTML-parsed) chunk of Velocity templateCode
+  // markup declares a given CSS class on its root element, without ever
+  // handing the markup string to jQuery's HTML parser / the live DOM.
+  // Closes js/xss-through-dom: templateCode text originates from the
+  // Template object's regionTree (server/CMS content) and must not be
+  // passed to $() or innerHTML just to answer a hasClass() question.
+  function percTemplateCodeHasClass(markup, className) {
+    // Only inspect the root/first element's own class attribute — never
+    // any class attribute belonging to a nested element — to mirror the
+    // original jQuery hasClass() semantics (root element only). Extract
+    // the root tag's text (from the start of the markup through its
+    // first closing ">") first, then look for a class attribute (single
+    // or double quoted) inside that substring only.
+    var text = markup || "";
+    var rootTagMatch = /^\s*<[^>]*>/.exec(text);
+    if (!rootTagMatch) {
+      return false;
+    }
+    var classMatch = /\bclass\s*=\s*["']([^"']*)["']/i.exec(rootTagMatch[0]);
+    if (!classMatch) {
+      return false;
+    }
+    var classes = classMatch[1].split(/\s+/);
+    for (var i = 0; i < classes.length; i++) {
+      if (classes[i] === className) {
+        return true;
+      }
+    }
+    return false;
+  }
+
   $.perc_template_layout_helper = function () {
     /*=============================================================
      *  Vars
@@ -233,8 +264,12 @@
       }
       // Get Code
       var $children = $region.children("children");
-      var $templateCode = $($children.find("code templateCode:first").text());
-      newRegion.setVertical(!$templateCode.hasClass("perc-horizontal"));
+      var templateCodeText = $children
+        .find("code templateCode:first")
+        .text();
+      newRegion.setVertical(
+        !percTemplateCodeHasClass(templateCodeText, "perc-horizontal")
+      );
 
       // Get regions
       $children.children("region").each(function () {

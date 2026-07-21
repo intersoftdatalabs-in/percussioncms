@@ -72,8 +72,8 @@ import javax.security.auth.Subject;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.springframework.mock.web.MockHttpServletRequest;
-import org.springframework.mock.web.MockHttpServletResponse;
+import com.percussion.servlet_utils.servlet.PSMockHttpServletRequest;
+import com.percussion.servlet_utils.servlet.PSMockHttpServletResponse;
 import org.w3c.dom.Document;
 
 /**
@@ -96,13 +96,13 @@ public class PSRequest {
   public PSRequest(
       HttpServletRequest req, HttpServletResponse resp, PSErrorHandler eh, PSLogHandler lh) {
     if (req == null) {
-      MockHttpServletRequest mock = new MockHttpServletRequest();
+      PSMockHttpServletRequest mock = new PSMockHttpServletRequest();
 
       Subject s = (Subject) PSRequestInfoBase.getRequestInfo(PSRequestInfoBase.SUBJECT);
       req = new PSServletRequestWrapper(mock, s);
     }
     if (resp == null) {
-      resp = new MockHttpServletResponse();
+      resp = new PSMockHttpServletResponse();
     }
 
     // Do this early to avoid timing issues
@@ -217,7 +217,7 @@ public class PSRequest {
 
     // Copy information to mock servlet request
     ServletRequestWrapper wrapper = (ServletRequestWrapper) req.getServletRequest();
-    MockHttpServletRequest mockreq = (MockHttpServletRequest) wrapper.getRequest();
+    PSMockHttpServletRequest mockreq = (PSMockHttpServletRequest) wrapper.getRequest();
     mockreq.setAuthType(m_servletRequest.getAuthType());
     mockreq.setCharacterEncoding(m_servletRequest.getCharacterEncoding());
     mockreq.setContentType(m_servletRequest.getContentType());
@@ -464,8 +464,8 @@ public class PSRequest {
     }
 
     HttpServletRequestWrapper wrapper = (HttpServletRequestWrapper) m_servletRequest;
-    if (wrapper != null && wrapper.getRequest() instanceof MockHttpServletRequest) {
-      MockHttpServletRequest mockreq = (MockHttpServletRequest) wrapper.getRequest();
+    if (wrapper != null && wrapper.getRequest() instanceof PSMockHttpServletRequest) {
+      PSMockHttpServletRequest mockreq = (PSMockHttpServletRequest) wrapper.getRequest();
       // Strip the first part of the path
       int cut = PSServer.getRequestRoot().length();
       if (cut < reqFileURL.length()) {
@@ -1727,8 +1727,8 @@ public class PSRequest {
 
     if (servletReq instanceof PSServletRequestWrapper)
       servletReq = ((PSServletRequestWrapper) servletReq).getRequest();
-    if (servletReq instanceof MockHttpServletRequest) {
-      MockHttpServletRequest mockReq = (MockHttpServletRequest) servletReq;
+    if (servletReq instanceof PSMockHttpServletRequest) {
+      PSMockHttpServletRequest mockReq = (PSMockHttpServletRequest) servletReq;
       mockReq.setServerName(host);
       mockReq.setServerPort(port);
       mockReq.setScheme(scheme);

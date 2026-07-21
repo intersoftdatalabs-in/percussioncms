@@ -49,7 +49,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 @Server(url = "http://localhost:9980/", siteName = "Site1", feedName = "feeds1")
 public class PSFeedServicePerformanceTest {
   private static final Logger log = LogManager.getLogger(PSFeedServicePerformanceTest.class);
-  private static int sum = 0;
+  /** Running sum of per-request wall-clock ms; long avoids long→int compound cast (CodeQL #796). */
+  private static long sum = 0;
   private static int Threshold = 0;
   private static String URL = "";
   private static String SITENAME = "";
@@ -579,11 +580,6 @@ public class PSFeedServicePerformanceTest {
       Invocation.Builder invocationBuilder = webTarget.request(MediaType.APPLICATION_XML);
       Response response = invocationBuilder.get();
       GregorianCalendar responseDate = new GregorianCalendar();
-      // codeql[java/implicit-cast-in-compound-assignment] Test perf micro-benchmark intentionally
-      // narrows long (millis-since-epoch difference) to int (running sum). The values are bounded
-      // by the test wall-clock duration (milliseconds), well within Integer.MAX_VALUE across the
-      // 100-iteration benchmark. The aggregate is asserted as `(sum / 100) < Threshold` for the
-      // average, so no precision loss is observable. See triage.md row for alert #796.
       sum += (responseDate.getTimeInMillis() - initialDate.getTimeInMillis());
 
     } catch (Exception e) {

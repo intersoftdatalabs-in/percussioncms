@@ -12,12 +12,27 @@ function isVBScriptSupported() {
   return isWindows && isIE;
 }
 
+/**
+ * Build the WebImageFX license handler URL without embedding raw
+ * window.location.href into a script src (CodeQL js/xss #946).
+ *
+ * Uses origin + a path-only CMS root prefix (characters restricted to a
+ * safe identifier set). Query/hash and free-form href text never enter
+ * the script src.
+ */
 function getWifxLicenseHandlerPath() {
-  //First parse the rhythmyx root from the location href
-  var pos = window.location.href.indexOf("/Rhythmyx");
-  var rxRoot = window.location.href.substring(0, pos + 9);
-
-  return rxRoot + "/rx_wep/ektron?licensekey=webimagefx1";
+  var path = window.location.pathname || "";
+  var pos = path.indexOf("/Rhythmyx");
+  var rxRoot = pos >= 0 ? path.substring(0, pos + 9) : "/Rhythmyx";
+  // Fail closed if the derived prefix is not a safe path.
+  if (!/^\/[A-Za-z0-9._\-\/]*$/.test(rxRoot)) {
+    rxRoot = "/Rhythmyx";
+  }
+  var origin =
+    window.location.protocol +
+    "//" +
+    window.location.host;
+  return origin + rxRoot + "/rx_wep/ektron?licensekey=webimagefx1";
 }
 
 function defaultMsgsFilename() {
@@ -40,6 +55,9 @@ function defaultMsgsFilename() {
       strLanguageCode = ""; // use default (English)
     }
   }
+  // Language code is allow-listed above; still strip anything outside [a-z-]
+  // so the script filename cannot break out of the src attribute.
+  strLanguageCode = String(strLanguageCode).replace(/[^a-z\-]/g, "");
   return "webimagefxmessages" + strLanguageCode + ".js";
 }
 

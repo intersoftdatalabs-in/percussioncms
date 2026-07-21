@@ -5,7 +5,7 @@
 <%@ page import="com.percussion.util.*" %>
 <%@ page import="com.percussion.design.objectstore.*" %>
 <%@ page import="com.percussion.services.catalog.*" %>
-<%@ page import="org.apache.commons.lang.StringUtils" %>
+<%@ page import="org.apache.commons.lang3.StringUtils" %>
 <%@ page import="org.json.JSONArray" %>
 <%@ page import="org.json.JSONObject" %>
 

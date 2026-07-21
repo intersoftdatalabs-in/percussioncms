@@ -308,6 +308,7 @@
             <groupId>com.twelvemonkeys.servlet</groupId>
             <artifactId>servlet</artifactId>
             <version>${twelvemonkeys.version}</version>
+            <classifier>jakarta</classifier>
             <scope>provided</scope>
         </dependency>
         <dependency>

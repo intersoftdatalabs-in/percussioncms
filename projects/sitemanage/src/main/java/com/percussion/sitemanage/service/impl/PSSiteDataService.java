@@ -48,6 +48,7 @@ import com.percussion.pagemanagement.data.PSPage;
 import com.percussion.pagemanagement.data.PSTemplateSummary;
 import com.percussion.pagemanagement.service.IPSPageService;
 import com.percussion.pagemanagement.service.IPSTemplateService;
+import com.percussion.security.io.PSPathInjectionGuard;
 import com.percussion.pagemanagement.service.impl.PSPageService;
 import com.percussion.pathmanagement.data.PSDeleteFolderCriteria;
 import com.percussion.pathmanagement.data.PSFolderPermission;
@@ -128,6 +129,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOCase;
 import org.apache.commons.io.filefilter.SuffixFileFilter;
@@ -486,19 +489,28 @@ public class PSSiteDataService extends PSAbstractDataService<PSSite, PSSiteSumma
         oldSiteName,
         newSiteName);
 
-    var sourceCacheDir =
-        new File(
-            PSServer.getRxDir().getAbsolutePath()
-                + PAGE_IMAGE_CACHE_DIR
-                + File.separator
-                + oldSiteName);
-    var destCacheDir =
-        new File(
-            PSServer.getRxDir().getAbsolutePath()
-                + PAGE_IMAGE_CACHE_DIR
-                + File.separator
-                + newSiteName);
-    if (sourceCacheDir.renameTo(destCacheDir))
+    // CWE-22/CWE-23 (path traversal) defense: site names must be single path
+    // segments with no separators or traversal sequences before being appended
+    // to a server-controlled base directory. A user-supplied site name like
+    // "../../etc/passwd" or "foo/bar" must NOT reach File construction.
+    // PSPathInjectionGuard.requireSafeFileName rejects null/empty values,
+    // forward/back slashes, embedded NUL bytes, and the literal ".." segment.
+    PSPathInjectionGuard.requireSafeFileName(oldSiteName);
+    PSPathInjectionGuard.requireSafeFileName(newSiteName);
+
+    File cacheRoot =
+        new File(PSServer.getRxDir().getAbsolutePath() + PAGE_IMAGE_CACHE_DIR);
+    if (!cacheRoot.exists() && !cacheRoot.mkdirs() && !cacheRoot.isDirectory()) {
+      // mkdirs() false can mean "already exists as dir after race" or true failure.
+      log.error(
+          "Unable to create page/template image cache root: {}. Site thumbnail cache rename"
+              + " skipped.",
+          cacheRoot.getAbsolutePath());
+      return;
+    }
+    var sourceCacheDir = PSPathInjectionGuard.requireUnderBase(cacheRoot, oldSiteName);
+    var destCacheDir = PSPathInjectionGuard.requireUnderBase(cacheRoot, newSiteName);
+    if (sourceCacheDir.renameTo(destCacheDir)) // codeql[java/path-injection]
       log.info("Page and Template image cache folder moved to: {}", destCacheDir.getAbsolutePath());
     else
       log.error(
@@ -1792,12 +1804,16 @@ public class PSSiteDataService extends PSAbstractDataService<PSSite, PSSiteSumma
         if (replaceVal != null) {
           for (String original : replaceMappings.keySet()) {
             String replacement = replaceMappings.get(original);
+            String quotedOriginal = Pattern.quote(original);
+            String quotedReplacement = Matcher.quoteReplacement(replacement);
             if (replaceVal.contains(original + '/')) {
-              replaceVal = replaceVal.replaceFirst(original + '/', replacement + '/');
+              replaceVal =
+                  replaceVal.replaceFirst(quotedOriginal + '/', quotedReplacement + '/');
             } else if (replaceVal.contains(original + '%')) {
-              replaceVal = replaceVal.replaceFirst(original + '%', replacement + '%');
+              replaceVal =
+                  replaceVal.replaceFirst(quotedOriginal + '%', quotedReplacement + '%');
             } else {
-              replaceVal = replaceVal.replaceFirst(original, replacement);
+              replaceVal = replaceVal.replaceFirst(quotedOriginal, quotedReplacement);
             }
           }
 
@@ -1871,7 +1887,9 @@ public class PSSiteDataService extends PSAbstractDataService<PSSite, PSSiteSumma
       String copySiteName = copySite.getName();
       String origSiteName = origSite.getName();
 
-      String origPagePath = pagePath.replaceFirst(copySiteName, origSiteName);
+      String origPagePath =
+          pagePath.replaceFirst(
+              Pattern.quote(copySiteName), Matcher.quoteReplacement(origSiteName));
       PSPage origPage = pageDao.findPageByPath(origPagePath);
 
       Collection<String> assetIds = null;

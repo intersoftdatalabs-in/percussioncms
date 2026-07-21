@@ -16,6 +16,7 @@ Read the root [@AGENTS.md](../AGENTS.md) for general guidelines. This file conta
 - ✅ Phase 1: React Dashboard complete (24 widget components)
 - ✅ Phase 2: Build output separation to `target/generated-webui/`
 - ✅ Phase 3: Full Maven integration validated
+- ✅ Track B Home + Widget Builder: React shells (`HomeShell`, `WidgetBuilderApp`) via `PercModernUI`; classic CUI/WB clients removed on feature `989-react-cui-widget-builder`
 - 🔄 Track A: Dojo→jQuery migration planned
 - 🚀 Track B: Incremental React component migration ongoing
 
@@ -28,8 +29,8 @@ The WebUI shares the Percussion CMS application with 7 other UI layers:
 |        Layer         |              Technology               |   Screens   |       Protocol        |          Track           |
 |----------------------|---------------------------------------|-------------|-----------------------|--------------------------|
 | Desktop Explorer     | Java Swing + JavaFX WebView           | ~10         | JAX-WS SOAP           | Legacy                   |
-| Rhythmyx Admin       | MyFaces JSF + Trinidad                | 12          | JSF managed beans     | Legacy                   |
-| Rhythmyx Publishing  | MyFaces JSF + Trinidad                | 28          | JSF managed beans     | Legacy                   |
+| Rhythmyx Admin       | JSF pages (MyFaces/Trinidad removed)  | 12          | REST / pending React  | Legacy / retiring        |
+| Rhythmyx Publishing  | **React PublishingShell** (`publishModern.jsp`); classic Minuet + JSF entries redirect | Publishing | REST/JSON (Fetch) | **Track B (feature 990)** — exclusive Minuet views removed; JSF deep pages residual packaging only |
 | Package Manager      | GWT + SmartGWT                        | 3+          | GWT-RPC               | Legacy                   |
 | **WebUI Legacy**     | **jQuery 3.6 + jQuery UI + Backbone** | **~20**     | **REST/JSON**         | **Maintaining**          |
 | Contributor UI (CUI) | RequireJS + Knockout.js               | ~8          | REST/JSON             | Maintaining              |
@@ -159,7 +160,7 @@ WebUI/
 - Compiled Java classes (src/main/java)
 - JSP pages and assets (src/main/webapp)
 - Generated React bundles (target/generated-webui/cm/modern)
-- Generated legacy bundles (target/generated-webui/cm/jslibMin, cssMin)
+- Generated legacy bundles (target/generated-webui/cm/jslibMin, cssMin, shared-common*, shared-finder.js)
 
 ### Node.js/npm Commands (Frontend Development)
 
@@ -420,6 +421,9 @@ useEffect(() => {
 - `target/generated-webui/cm/modern/` — React bundles
 - `target/generated-webui/cm/jslibMin/` — Minified legacy JS
 - `target/generated-webui/cm/cssMin/` — Minified legacy CSS
+- `target/generated-webui/cm/shared-common.js` (and `-minuet`, `.css`, `shared-finder.js`) — intermediate concatenations from `src/main/resources/minify/*-bundles.json` via `src/main/frontend/scripts/build-legacy-bundles.js`
+
+Do **not** check intermediate bundles into `src/main/webapp/cm/`. Maven overlays `target/generated-webui` into the WAR. Committed copies drift from source and create duplicate CodeQL false positives.
 
 **.gitignore includes:**
 
@@ -428,6 +432,14 @@ WebUI/target/generated-webui/
 WebUI/war/modern/
 WebUI/war/jslibMin/
 WebUI/war/cssMin/
+WebUI/src/main/webapp/cm/modern/
+WebUI/src/main/webapp/cm/jslibMin/
+WebUI/src/main/webapp/cm/cssMin/
+WebUI/src/main/webapp/cm/shared-common.js
+WebUI/src/main/webapp/cm/shared-common-minuet.js
+WebUI/src/main/webapp/cm/shared-finder.js
+WebUI/src/main/webapp/cm/shared-common.css
+WebUI/src/main/webapp/cm/shared-common-minuet.css
 ```
 
 ### WAR Contents
@@ -441,6 +453,7 @@ cm/
 ├── jslibMin/            # Minified bundles (generated)
 ├── cssMin/              # Minified CSS (generated)
 ├── modern/              # React bundles (generated)
+├── shared-common*.js/css, shared-finder.js  # intermediate concatenations (generated)
 ├── vendor/              # jQuery, Bootstrap, etc. (from source)
 ├── widgets/, themes/, api/
 └── [other static assets]
@@ -484,6 +497,54 @@ nvm use 18
 ```
 
 Rebuilds WebUI and redeploys to local installation.
+
+### Fast iteration against the docker dev CMS (no container restart)
+
+When the dev CMS is running via the docker compose stack at `localhost:9992` (see `docker-compose.yml` + `docker/scripts/perc-devctl.sh`), **JS/TS/JSP changes do NOT require a container restart** — just rebuild and copy the artifact:
+
+```bash
+# 1. Rebuild only the modern bundle (fast: ~3s)
+cd WebUI/src/main/frontend
+npm run build:modern
+
+# 2. Copy the new bundle to the runtime webapp
+cp WebUI/target/generated-webui/cm/modern/assets/perc-modern-ui.js \
+   /opt/Percussion/jetty/base/webapps/Rhythmyx/cm/modern/assets/perc-modern-ui.js
+cp WebUI/target/generated-webui/cm/modern/assets/perc-modern-ui.js.map \
+   /opt/Percussion/jetty/base/webapps/Rhythmyx/cm/modern/assets/perc-modern-ui.js.map
+
+# 3. Copy new/modified JSPs (Jetty serves them fresh on the next request)
+cp WebUI/src/main/webapp/cm/app/explorerModern.jsp \
+   /opt/Percussion/jetty/base/webapps/Rhythmyx/cm/app/explorerModern.jsp
+# (and the cm/pages/app/ mirror if the page is reached through the legacy Track A path)
+
+# 4. Bust the browser cache for the new bundle
+# Add a cache-buster to the JSP <script> tag, e.g.:
+#   <script type="module" src="/cm/modern/assets/perc-modern-ui.js?cb=<%= System.currentTimeMillis() %>"></script>
+# or hit the page with a unique querystring (Playwright tests can do this).
+```
+
+**Java code** (when you change `.java` files, e.g. `PSPathService`) **does** need a full container restart because Jetty's WebAppClassLoader doesn't hot-reload classes. The fastest path:
+
+```bash
+./mvn-env.sh -pl <module> -am install   # rebuild jar
+docker compose --env-file .env.compose -f docker-compose.yml restart cms-dts
+./docker/scripts/perc-devctl.sh verify   # confirm health
+```
+
+**When in doubt, Jetty's `<servlet>` config can be set to `<init-param><param-name>development</param-name><param-value>true</param-value></init-param>`** so JSPs hot-reload on the next request. Default is single-recompile per deploy; flip to `true` in `web.xml` to avoid the `docker compose restart` cycle for JSP-only changes.
+
+### Iteration cost reference
+
+| Change | Build | Restart | Total |
+|--------|-------|---------|-------|
+| TS/TSX (component or path API) | `npm run build:modern` (~3 s) | copy + cache-buster (0 s) | ~3 s |
+| JSP | copy file (0 s) | none (Jetty re-serves on request) | ~1 s |
+| SCSS / styles | `npm run build:modern` (~3 s) | copy (~0 s) | ~3 s |
+| Java class | `./mvn-env.sh -pl <m> -am install` (~30–60 s) | `docker compose restart` (~30 s) | ~1–2 min |
+| Maven / pom | `./mvn-env.sh clean install` (~5–10 min first time) | `docker compose restart` | ~5–10 min |
+
+When iterating, prefer the cheap paths first (TS + JSP); only escalate to Java / pom when the change actually requires it.
 
 ---
 

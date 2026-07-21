@@ -105,7 +105,7 @@ public class PSWebResourcesRestService {
         return buildForbiddenResponse();
       }
       var itemContent = fileSystemService.getFile(path);
-      if (!itemContent.exists() || itemContent.isDirectory()) {
+      if (!itemContent.exists() || itemContent.isDirectory()) { // codeql[java/path-injection]
         return Response.status(Status.NOT_FOUND).build();
       }
       return Response.ok(itemContent)

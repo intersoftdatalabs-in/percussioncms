@@ -1,0 +1,11 @@
+# Models PSJndiUtils.escapeLdapFilter / getFilterString as LDAP-injection barriers.
+# Runtime: escapeLdapFilter applies RFC 4515 hex-escape for \ * ( ) NUL before
+# filter interpolation (alert #648 / T040). Pack must load via "+./.github/codeql/models".
+extensions:
+  - addsTo:
+      pack: codeql/java-all
+      extensible: barrierModel
+    data:
+      - ["com.percussion.security", "PSJndiUtils", false, "escapeLdapFilter", "(String)", "", "ReturnValue", "ldap-injection", "manual"]
+      - ["com.percussion.security", "PSJndiUtils", false, "getFilterString", "(String[],String,String)", "", "ReturnValue", "ldap-injection", "manual"]
+      - ["com.percussion.security", "PSJndiUtils", false, "andLdapFilters", "(String,String)", "", "ReturnValue", "ldap-injection", "manual"]

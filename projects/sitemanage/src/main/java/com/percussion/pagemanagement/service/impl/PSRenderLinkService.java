@@ -17,6 +17,7 @@
 // REFACTORED: CP-JAVA11
 package com.percussion.pagemanagement.service.impl;
 
+import com.percussion.security.io.PSPathInjectionGuard;
 import static com.percussion.pagemanagement.assembler.PSResourceLinkAndLocationUtils.concatPath;
 import static com.percussion.pagemanagement.assembler.PSResourceLinkAndLocationUtils.escapePathForUrl;
 import static com.percussion.share.web.service.PSRestServicePathConstants.ID_PATH_PARAM;
@@ -681,9 +682,10 @@ public class PSRenderLinkService
 
     // Check if file is empty, don't add url
     try {
-      File cssFile =
-          new File(themeService.getThemesRootDirectory().concat(File.separator + regionCssPath));
-      if (!cssFile.exists() || cssFile.length() == 0) {
+      File themesRoot = new File(themeService.getThemesRootDirectory());
+      // regionCssPath is theme-relative (validated via theme summary); contain under themes root
+      File cssFile = PSPathInjectionGuard.requireUnderBase(themesRoot, regionCssPath);
+      if (!cssFile.exists() || cssFile.length() == 0) { // codeql[java/path-injection]
         return new PSRenderLink("", resource);
       }
     } catch (Exception e) {

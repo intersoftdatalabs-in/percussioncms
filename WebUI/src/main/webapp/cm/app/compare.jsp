@@ -31,14 +31,14 @@
     <script src="/Rhythmyx/tmx/tmx.jsp?mode=js&amp;prefix=perc.ui.&amp;sys_lang=<%= locale %>"></script>
     <script src="/JavaScriptServlet"></script>
     <i18n:settings lang="<%=locale %>" prefixes="perc.ui.revisionDialog." debug="<%= debug %>"/>
-    <script src="/cm/pages/app/js/legacy/profiles/3x/jquery/jquery-3.6.0.js"></script>
-    <script type="text/javascript" src="/cm/pages/app/js/legacy/services/PercCompareService.js"></script>
-    <script type="text/javascript" src="/cm/pages/app/js/legacy/services/PercRevisionService.js"></script>
-    <script type="text/javascript" src="/cm/pages/app/js/legacy/plugins/perc_path_constants.js"></script>
-    <script type="text/javascript" src="/cm/pages/app/js/legacy/services/PercServiceUtils.js"></script>
-    <script type="text/javascript" src="/cm/pages/app/js/legacy/services/PercPathService.js"></script>
+    <script src="/cm/jslib/profiles/3x/jquery/jquery-3.6.0.js"></script>
+    <script type="text/javascript" src="/cm/app/js/legacy/services/PercCompareService.js"></script>
+    <script type="text/javascript" src="/cm/app/js/legacy/services/PercRevisionService.js"></script>
+    <script type="text/javascript" src="/cm/app/js/legacy/plugins/perc_path_constants.js"></script>
+    <script type="text/javascript" src="/cm/app/js/legacy/services/PercServiceUtils.js"></script>
+    <script type="text/javascript" src="/cm/app/js/legacy/services/PercPathService.js"></script>
     <script type="text/javascript" src="/cm/widgets/htmldiff.js"></script>
-    <script type="text/javascript" src="/cm/pages/app/js/legacy/plugins/perc_utils.js"></script>
+    <script type="text/javascript" src="/cm/app/js/legacy/plugins/perc_utils.js"></script>
     <style>
         .tab {
             display: none;

@@ -117,7 +117,7 @@ $(document).ready(function () {
       );
       for (var i = 0; i < dptList.length; i++) {
         $("#perc-dpt-filter").append(
-          '<option value="' + dptList[i] + '">' + dptList[i] + "</option>"
+          $("<option/>").val(dptList[i]).text(dptList[i])
         );
       }
       if (percDirectorySearchAllDepts) $("#perc-dpt-filter").show();
@@ -138,7 +138,7 @@ $(document).ready(function () {
       );
       for (var i = 0; i < dptList.length; i++) {
         $("#perc-dpt-filter").append(
-          '<option value="' + dptList[i] + '">' + dptList[i] + "</option>"
+          $("<option/>").val(dptList[i]).text(dptList[i])
         );
       }
     });

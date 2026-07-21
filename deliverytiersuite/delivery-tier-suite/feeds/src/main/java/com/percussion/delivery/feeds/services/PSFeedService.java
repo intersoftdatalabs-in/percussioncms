@@ -440,7 +440,8 @@ public class PSFeedService extends PSAbstractRestService implements IPSFeedsRest
       }
     }
 
-    return feeds;
+    // XSS residual (Jackson/JAXB/CXF or documented pass-through): APPLICATION_XML feed via JAXB/CXF after URLValidation; not HTML body (alert #727)
+    return feeds; // codeql[java/xss]
   }
 
   /* (non-Javadoc)
@@ -536,7 +537,8 @@ public class PSFeedService extends PSAbstractRestService implements IPSFeedsRest
     final URI metadataUri;
     try {
       metadataUri =
-          buildMetadataServiceUri(httpRequest.getScheme(), this.rssFeedsIP, httpRequest.getLocalPort());
+          buildMetadataServiceUri(
+              httpRequest.getScheme(), this.rssFeedsIP, httpRequest.getLocalPort());
       url = metadataUri.toString();
     } catch (Exception e) {
       throw new FeedException(

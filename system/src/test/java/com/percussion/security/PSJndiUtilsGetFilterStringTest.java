@@ -17,6 +17,7 @@ package com.percussion.security;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.DisplayName;
@@ -84,6 +85,81 @@ class PSJndiUtilsGetFilterStringTest {
           PSJndiUtils.getFilterString(
               new String[] {"Editors"}, ATTR, "(objectClass=groupOfNames)");
       assertEquals("(& (| (cn=Editors)) (objectClass=groupOfNames))", filter);
+    }
+  }
+
+  @Nested
+  @DisplayName("attr validation (null/blank fails fast)")
+  class AttrValidation {
+
+    @Test
+    @DisplayName("null attr throws IllegalArgumentException")
+    void testNullAttrRejected() {
+      IllegalArgumentException ex =
+          assertThrows(
+              IllegalArgumentException.class,
+              () -> PSJndiUtils.getFilterString(new String[] {"Editors"}, null, null));
+      assertTrue(
+          ex.getMessage().contains("attr"),
+          "message should name the attr parameter; got: " + ex.getMessage());
+    }
+
+    @Test
+    @DisplayName("empty and whitespace-only attr throw IllegalArgumentException")
+    void testBlankAttrRejected() {
+      assertThrows(
+          IllegalArgumentException.class,
+          () -> PSJndiUtils.getFilterString(new String[] {"Editors"}, "", null));
+      assertThrows(
+          IllegalArgumentException.class,
+          () -> PSJndiUtils.getFilterString(new String[] {"Editors"}, "   ", null));
+    }
+
+    @Test
+    @DisplayName("attr with filter metacharacters is escaped (misconfig defense)")
+    void testAttrMetacharactersEscaped() throws PSSecurityException {
+      // Misconfigured attr name must not break filter structure.
+      String filter = PSJndiUtils.getFilterString(new String[] {"Editors"}, "cn)(objectClass=*", null);
+      assertFalse(filter.contains(")("), "attr metacharacters must be hex-escaped: " + filter);
+      assertTrue(filter.contains("\\29"), "close paren in attr must be escaped: " + filter);
+      assertTrue(filter.contains("\\28"), "open paren in attr must be escaped: " + filter);
+      assertTrue(filter.contains("\\2a"), "asterisk in attr must be escaped: " + filter);
+    }
+  }
+
+  @Nested
+  @DisplayName("andLdapFilters")
+  class AndFilters {
+
+    @Test
+    @DisplayName("combines two filters with AND")
+    void testAndBoth() {
+      assertEquals(
+          "(& (objectClass=group) (| (cn=Editors)))",
+          PSJndiUtils.andLdapFilters("(objectClass=group)", "(| (cn=Editors))"));
+    }
+
+    @Test
+    @DisplayName("omits blank left operand")
+    void testAndLeftBlank() {
+      assertEquals("(| (cn=x))", PSJndiUtils.andLdapFilters(null, "(| (cn=x))"));
+      assertEquals("(| (cn=x))", PSJndiUtils.andLdapFilters("", "(| (cn=x))"));
+      assertEquals("(| (cn=x))", PSJndiUtils.andLdapFilters("  ", "(| (cn=x))"));
+    }
+
+    @Test
+    @DisplayName("omits blank right operand")
+    void testAndRightBlank() {
+      assertEquals("(objectClass=group)", PSJndiUtils.andLdapFilters("(objectClass=group)", null));
+      assertEquals("(objectClass=group)", PSJndiUtils.andLdapFilters("(objectClass=group)", ""));
+      assertEquals("(objectClass=group)", PSJndiUtils.andLdapFilters("(objectClass=group)", "  "));
+    }
+
+    @Test
+    @DisplayName("both blank yields empty string")
+    void testAndBothBlank() {
+      assertEquals("", PSJndiUtils.andLdapFilters(null, null));
+      assertEquals("", PSJndiUtils.andLdapFilters("", "  "));
     }
   }
 }

@@ -83,5 +83,47 @@ class PSDocumentUtilsSsrfTest {
       assertEquals("/path", uri.getPath());
       assertEquals("q=1", uri.getQuery());
     }
+
+    @Test
+    @DisplayName("public http URL is accepted with scheme forced to http literal")
+    void testPublicHttpAccepted() throws Exception {
+      URI uri = utils.buildValidatedExternalRequestUri("http://example.com/doc");
+      assertEquals("http", uri.getScheme());
+      assertEquals("example.com", uri.getHost());
+      assertEquals("/doc", uri.getPath());
+    }
+  }
+
+  /**
+   * Redirect.NEVER SSRF hardening (PR #1364 / Kilo): 3xx and soft transport errors
+   * must yield empty string per getDocument Javadoc, not unexpected throw.
+   */
+  @Nested
+  @DisplayName("Redirect.NEVER empty-string-on-error contract (source)")
+  class RedirectNeverEmptyOnError {
+    @Test
+    @DisplayName("getExternalDocument refuses redirects and soft-fails transport errors")
+    void redirectNeverAndEmptyOnSoftError() throws Exception {
+      java.nio.file.Path src =
+          java.nio.file.Path.of(
+              "services/src/com/percussion/services/assembly/jexl/PSDocumentUtils.java");
+      if (!java.nio.file.Files.isRegularFile(src)) {
+        src =
+            java.nio.file.Path.of(
+                "system/services/src/com/percussion/services/assembly/jexl/PSDocumentUtils.java");
+      }
+      String text = java.nio.file.Files.readString(src);
+      assertTrue(
+          text.contains("HttpClient.Redirect.NEVER"),
+          "must disable redirect following for SSRF");
+      assertTrue(
+          text.contains("statusCode >= 300 && statusCode < 400"),
+          "must treat 3xx as empty-string failure");
+      // Soft IOException after validation returns "" (not rethrown)
+      assertTrue(
+          text.contains("return \"\";")
+              && text.contains("catch (IOException e)"),
+          "must soft-fail IOException after validation with empty string");
+    }
   }
 }

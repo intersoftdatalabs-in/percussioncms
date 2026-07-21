@@ -217,7 +217,10 @@ var isPreviewMode;
     }
 
     var a = $("<a>")
-      .attr("href", href)
+      // CodeQL js/xss-through-dom (alert #985): href is built from
+      // node.category (server-supplied data, treated as user-controllable for
+      // defense in depth); sanitize before assignment.
+      .attr("href", $.PercServiceUtils.sanitizeUrlForHref(href))
       .attr("data-count", countTotal)
       .attr("title", nodeStr)
       .addClass("perc-node")

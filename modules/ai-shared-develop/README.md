@@ -23,6 +23,19 @@ This module is not intended to be shipped with the product and should not contai
 | `src/main/resources/instructions/` | Always-on style review checklists |
 | `src/main/resources/chatmodes/` | Optional chat-mode definitions |
 
+## CodeQL / code-scanning PRs
+
+**Goal:** Stop residual thrashing (same SSRF/LDAP/path sinks re-opened as new alert IDs on every PR).
+
+| Asset | Path |
+|-------|------|
+| Playbook | repo `docs/ai-generated/tasks/gh-codeql-alerts/codeql-pr-playbook.md` |
+| Skill | `src/main/resources/skills/codeql-pr/SKILL.md` |
+| Advanced workflow | repo `.github/workflows/codeql.yml` |
+| Config + models | repo `.github/codeql/` |
+
+Default CodeQL setup must stay **disabled** (`not-configured`). Analyzer of record is advanced setup only.
+
 ## Erlang — strict pre-commit review
 
 **Goal:** Catch correctness bugs and weak tests **before** commit/PR so GitHub review cycles stay short.
@@ -31,7 +44,9 @@ This module is not intended to be shipped with the product and should not contai
 |-------|------|
 | Canonical agent | `src/main/resources/agents/erlang-code-review.md` |
 | Skill | `src/main/resources/skills/erlang-review/SKILL.md` |
+| Pattern memory | `src/main/resources/skills/erlang-review/patterns.md` |
 | One-shot prompt | `src/main/resources/prompts/erlang-review-uncommitted.md` |
+| Durable reports | repo `docs/ai-generated/code-reviews/` (not `tmp/`) |
 | Kilo workflow | repo `.kilocode/workflows/erlang-review.md` (`/erlang-review`) |
 | Kilo project rule | repo `.kilocode/rules/pre-commit-review.md` |
 | Copilot agent mirror | repo `.github/agents/erlang.agent.md` |
@@ -50,8 +65,15 @@ Paste `prompts/erlang-review-uncommitted.md` or attach `agents/erlang-code-revie
 ### Strictness
 
 - **Block** on any bug and on missing behavioral tests for new/changed non-trivial logic.
+- **Block** on non-portable path/file I/O (hardcoded separators, Unix-only or Windows-only
+  absolute paths in shared code/tests, etc.). See root `AGENTS.md` → **Cross-Platform File I/O & Paths**
+  and the checklist in `agents/erlang-code-review.md`.
 - Recommendation `request-changes` ⇒ do not commit or open/update a PR yet.
-- Optional durable reports go under repo `tmp/reviews/` (gitignored via `tmp/`).
+- Durable reports go under repo `docs/ai-generated/code-reviews/` (not wipeable `tmp/`).
+- Institutional pattern memory: `src/main/resources/skills/erlang-review/patterns.md`.
+- Refresh patterns from Kilo/GitHub PR review history:
+  `python3 scripts/erlang-harvest-review-patterns.py --apply`
+  (see `scripts/README.md`; Windows: `scripts\erlang-harvest-review-patterns.bat`).
 
 ### Not for production
 

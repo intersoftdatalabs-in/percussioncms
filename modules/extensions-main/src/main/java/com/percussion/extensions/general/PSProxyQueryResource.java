@@ -230,7 +230,7 @@ public class PSProxyQueryResource extends PSDefaultExtension implements IPSResul
       log.debug("Trying to get document with: {}", repr);
 
       HttpClient client =
-          HttpClient.newBuilder().followRedirects(HttpClient.Redirect.NORMAL).build();
+          HttpClient.newBuilder().followRedirects(HttpClient.Redirect.NEVER).build();
       // codeql[java/ssrf] justification: requestUri is built only after
       // URLValidation.validateURLString rejects private ranges, cloud
       // metadata, and non-http(s) schemes. Host/path come from that
@@ -250,6 +250,22 @@ public class PSProxyQueryResource extends PSDefaultExtension implements IPSResul
             client.send(
                 requestBuilder.build(), HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
         int statusCode = response.statusCode();
+
+        // Redirect.NEVER returns the 3xx response without following. Do not
+        // treat that as a soft null — fail closed so callers cannot silently
+        // continue with a missing document after a redirect (SSRF open-redirect
+        // pivot). Declared as PSExtensionProcessingException so the outer catch
+        // rethrows instead of returning null.
+        if (statusCode >= 300 && statusCode < 400) {
+          log.error(
+              "Remote redirect refused (SSRF hardening) url={} status={}", url, statusCode);
+          throw new PSExtensionProcessingException(
+              0,
+              "Remote redirect refused for SSRF hardening: "
+                  + url
+                  + " status "
+                  + statusCode);
+        }
 
         if (statusCode != 200) {
           log.error("Remote request to url: {} failed with status code: {}", url, statusCode);
@@ -276,6 +292,9 @@ public class PSProxyQueryResource extends PSDefaultExtension implements IPSResul
         log.error("Fatal transport error: {}", PSExceptionUtils.getMessageForLog(e));
         throw new Exception(e);
       }
+    } catch (PSExtensionProcessingException e) {
+      // Fail closed: validation / redirect refusal must not become null.
+      throw e;
     } catch (Exception e) {
       log.debug("PSProxyQueryResource attempt failed. Returning null to caller.", e);
       return null;

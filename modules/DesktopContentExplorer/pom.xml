@@ -52,10 +52,6 @@
                     <artifactId>*</artifactId>
                 </exclusion>
                 <exclusion>
-                    <groupId>org.apache.myfaces.core</groupId>
-                    <artifactId>*</artifactId>
-                </exclusion>
-                <exclusion>
                     <groupId>com.amazonaws</groupId>
                     <artifactId>*</artifactId>
                 </exclusion>

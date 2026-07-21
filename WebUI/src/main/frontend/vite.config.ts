@@ -29,7 +29,8 @@ export default defineConfig({
     rollupOptions: {
       input: resolve(__dirname, "../ts/index.ts"),
       output: {
-        entryFileNames: "assets/[name]-[hash].js",
+        // Stable entry name so thin JSPs can load PercModernUI without a manifest
+        entryFileNames: "assets/perc-modern-ui.js",
         chunkFileNames: "assets/[name]-[hash].js",
         assetFileNames: "assets/[name]-[hash][extname]",
       },
@@ -40,12 +41,26 @@ export default defineConfig({
       "@": resolve(__dirname, "../ts"),
     },
   },
+  // Allow Vitest to load tests and sources outside frontend/ (WebUI/src/test/ts).
+  server: {
+    fs: {
+      allow: [
+        resolve(__dirname, ".."),
+        resolve(__dirname, "../.."),
+        resolve(__dirname, "../../.."),
+      ],
+    },
+  },
   test: {
     globals: true,
     environment: "jsdom",
     include: [
       "src/test/ts/**/*.{test,spec}.{ts,tsx}",
       "src/test/js/**/*.{test,spec}.js",
+      // Module-level modern tests (WebUI/src/test/ts) — Track B home, publishing, etc.
+      resolve(__dirname, "../../test/ts/**/*.{test,spec}.{ts,tsx}"),
+      // Legacy module-level JS tests
+      resolve(__dirname, "../../test/js/**/*.{test,spec}.js"),
     ],
   },
 });

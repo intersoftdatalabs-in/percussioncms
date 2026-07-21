@@ -70,6 +70,9 @@ public class PSWebdavConfigValidator
    private static final String GENERIC_VALIDATION_ERROR =
       "An error occurred while validating the WebDAV configuration";
 
+   private static final String GENERIC_VALIDATION_WARNING =
+      "A warning was raised while validating the WebDAV configuration";
+
    /**
     * List of String exception msgs generated during the 
     * validation routines
@@ -203,11 +206,14 @@ public class PSWebdavConfigValidator
             if (obj instanceof PSWebdavException)
             {
                PSWebdavException ex = (PSWebdavException) obj;
-               writeError(ex.getMessage(), ERROR);
+               // Log detail; never echo exception text to the HTML report (#787)
+               log.error("WebDAV config validation error: {}", PSExceptionUtils.getMessageForLog(ex));
+               writeError(ERROR);
             }
             else if (obj instanceof String)
             {
-               writeError((String) obj, ERROR);
+               log.error("WebDAV config validation error: {}", obj);
+               writeError(ERROR);
             }
          }
 
@@ -218,7 +224,9 @@ public class PSWebdavConfigValidator
                   + "</h4>");
          while (warnings.hasNext())
          {
-            writeError((String) warnings.next(), WARNING);
+            Object w = warnings.next();
+            log.warn("WebDAV config validation warning: {}", w);
+            writeError(WARNING);
          }
 
          if (m_exceptionsList.size() == 0)
@@ -235,7 +243,7 @@ public class PSWebdavConfigValidator
          log.error(PSExceptionUtils.getMessageForLog(e));
          log.debug(PSExceptionUtils.getDebugMessageForLog(e));
          m_out.write("<h4>" + getResourceString("msg.errors.found") + "</h4>");
-         writeError(GENERIC_VALIDATION_ERROR, ERROR);
+         writeError(ERROR);
       }
       catch (Exception e)
       {
@@ -597,32 +605,30 @@ public class PSWebdavConfigValidator
    }
 
    /**
-    * Writes an error message to the responses PrintWriter
-    * adding the correct font formatting.
-    *
-    * @param msg the message, may be <code>null</code>
+    * Writes a fixed client-facing error/warning line to the response. Only
+    * constant resource / generic strings are written so exception text and
+    * validation payloads cannot leak into HTML (CodeQL #787).
     *
     * @param level the error level (ERROR or WARNING)
     */
-   private void writeError(String msg, int level)
+   private void writeError(int level)
    {
-      if (msg == null)
-         msg = "";
       String color = "red";
+      String msg = GENERIC_VALIDATION_ERROR;
       switch (level) {
       case ERROR:
          color = "red";
+         msg = GENERIC_VALIDATION_ERROR;
          break;
 
       case WARNING:
          color = "blue";
+         msg = GENERIC_VALIDATION_WARNING;
          break;
 
       default:
       }
-      msg = "<li><font color=\"" + color + "\">" + msg + "</font></li>";
-      m_out.write(msg);
-
+      m_out.write("<li><font color=\"" + color + "\">" + msg + "</font></li>");
    }
 
    /**

@@ -201,4 +201,28 @@ class XSSValidationTest {
     assertFalse(safeComment.startsWith("<img"));
     assertFalse(safeComment.contains("><"));
   }
+
+  @Test
+  @DisplayName("sanitizeJsonpCallback accepts legal identifiers and dotted names")
+  void testSanitizeJsonpCallbackAcceptsSafeNames() {
+    assertEquals("jQuery123_456", XSSValidation.sanitizeJsonpCallback("jQuery123_456"));
+    assertEquals(
+        "angular.callbacks._0", XSSValidation.sanitizeJsonpCallback("angular.callbacks._0"));
+    assertEquals("_cb", XSSValidation.sanitizeJsonpCallback("  _cb  "));
+  }
+
+  @Test
+  @DisplayName("sanitizeJsonpCallback rejects script-breakout payloads (T044 / alert #595)")
+  void testSanitizeJsonpCallbackRejectsInjection() {
+    assertNull(XSSValidation.sanitizeJsonpCallback("alert(1)//"));
+    assertNull(XSSValidation.sanitizeJsonpCallback("foo);alert(1);//"));
+    assertNull(XSSValidation.sanitizeJsonpCallback("<script>"));
+    assertNull(XSSValidation.sanitizeJsonpCallback("javascript:alert(1)"));
+    assertNull(XSSValidation.sanitizeJsonpCallback("a b"));
+    assertNull(XSSValidation.sanitizeJsonpCallback(null));
+    assertNull(XSSValidation.sanitizeJsonpCallback(""));
+    assertNull(
+        XSSValidation.sanitizeJsonpCallback(
+            "a".repeat(XSSValidation.MAX_JSONP_CALLBACK_LENGTH + 1)));
+  }
 }

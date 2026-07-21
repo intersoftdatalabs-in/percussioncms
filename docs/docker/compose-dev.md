@@ -133,17 +133,51 @@ Then the combined app container starts both CMS and DTS processes.
 
 Container env equivalents for installer contract are provided in `.env.compose.example` as `PERC_DB_*` keys.
 
-## Persistent writable mount paths
+## Persistent writable data (`var/config` contract)
 
-CMS-DTS container host bindings:
+**Design intent:** under RX root (`/opt/Percussion`), **`var/config`** is the home for
+**user-writable / instance-specific** data that Docker (and similar deployments) should
+persist on a volume. Product code and packaging should prefer writing runtime-generated
+or operator-mutable files under `var/config` (or paths that resolve there) rather than
+into the immutable distribution tree.
 
-- `docker/dev-data/cms-dts/ObjectStore -> /opt/Percussion/ObjectStore`
-- `docker/dev-data/cms-dts/var -> /opt/Percussion/var`
-- `docker/dev-data/cms-dts/rxconfig -> /opt/Percussion/rxconfig`
-- `docker/dev-data/cms-dts/Deployment/Server/conf -> /opt/Percussion/Deployment/Server/conf`
-- `docker/dev-data/cms-dts/jetty/base -> /opt/Percussion/jetty/base`
+| Path | Role |
+|------|------|
+| `var/config/` | Root for persistent, instance-specific config and writable artifacts |
+| `var/config/generated/` | Auto-generated secrets and similar (e.g. first-boot passwords) |
+| `var/config/generated/passwords` | Generated CMS credentials on first startup |
+| `var/config/CustomXMLCatalog.xml` | Instance XML catalog overrides (when present) |
 
-These host-side folders are editable directly from your IDE.
+**Also treated as persistent / user-writable** (and often volume-mounted next to or via
+the same durability strategy as `var/`):
+
+| Path | Role |
+|------|------|
+| `ObjectStore/` | CMS object store (design-time apps, content editor defs, etc.) |
+| `rxconfig/` | Server runtime config (Installer, I18n, ESAPI, categories, …) |
+| `jetty/base/` | Jetty base (logs, webapps overlay, runtime jetty config) |
+| `Deployment/Server/conf/` | DTS Tomcat/conf and perc datasources |
+
+When adding new features that write files at runtime (generated passwords, locks,
+catalogs, local overrides), put them under **`var/config`** (or a clearly versioned
+subdir there) so Docker can map one durable volume for “anything the user/instance owns.”
+
+`ObjectStore` and `rxconfig` historically live at RX root for on-prem layouts; in Docker
+they are volume-mounted separately today. Future hardening may re-home or symlink more of
+those trees under `var/config` — until then, treat **all of the mounts below** as the
+writable set.
+
+### Compose dev mounts (current)
+
+CMS-DTS container host bindings (`docker-compose.yml`):
+
+- `docker/dev-data/cms-dts/ObjectStore` → `/opt/Percussion/ObjectStore`
+- `docker/dev-data/cms-dts/var` → `/opt/Percussion/var` (**includes `var/config`**)
+- `docker/dev-data/cms-dts/rxconfig` → `/opt/Percussion/rxconfig`
+- `docker/dev-data/cms-dts/Deployment/Server/conf` → `/opt/Percussion/Deployment/Server/conf`
+- `docker/dev-data/cms-dts/jetty/base` → `/opt/Percussion/jetty/base`
+
+These host-side folders are editable directly from your IDE and survive container rebuilds.
 
 ## Logs and status
 

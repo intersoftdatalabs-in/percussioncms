@@ -19,7 +19,8 @@
  * Typed fetch wrapper for Percussion CMS REST APIs.
  *
  * <p>Every request automatically includes the OWASP CSRFGuard token (if
- * available) and sends/receives JSON by default.</p>
+ * available) and sends/receives JSON by default. Endpoints that return
+ * {@code text/plain} (e.g. widgetbuilder /active) are parsed as text.</p>
  */
 
 import { getCsrfToken } from "./csrf";
@@ -30,12 +31,15 @@ export interface ApiError {
   body: unknown;
 }
 
-function buildHeaders(extra: HeadersInit = {}): Headers {
+function buildHeaders(extra: HeadersInit = {}, preferJson = true): Headers {
   const headers = new Headers(extra);
-  if (!headers.has("Content-Type")) {
+  if (!headers.has("Content-Type") && preferJson) {
     headers.set("Content-Type", "application/json");
   }
-  headers.set("Accept", "application/json");
+  // Accept both — some endpoints are TEXT_PLAIN (boolean flags)
+  if (!headers.has("Accept")) {
+    headers.set("Accept", "application/json, text/plain, */*");
+  }
 
   const csrf = getCsrfToken();
   if (csrf) {
@@ -44,13 +48,34 @@ function buildHeaders(extra: HeadersInit = {}): Headers {
   return headers;
 }
 
+async function parseBody(response: Response): Promise<unknown> {
+  const contentType = (response.headers.get("Content-Type") || "").toLowerCase();
+  const text = await response.text();
+  if (text == null || text.length === 0) {
+    return undefined;
+  }
+  if (
+    contentType.includes("application/json") ||
+    contentType.includes("+json") ||
+    text.trimStart().startsWith("{") ||
+    text.trimStart().startsWith("[")
+  ) {
+    try {
+      return JSON.parse(text);
+    } catch {
+      return text;
+    }
+  }
+  return text;
+}
+
 async function handleResponse<T>(response: Response): Promise<T> {
   if (!response.ok) {
     let body: unknown;
     try {
-      body = await response.json();
+      body = await parseBody(response);
     } catch {
-      body = await response.text();
+      body = undefined;
     }
     const error: ApiError = {
       status: response.status,
@@ -63,10 +88,10 @@ async function handleResponse<T>(response: Response): Promise<T> {
   if (response.status === 204) {
     return undefined as T;
   }
-  return response.json() as Promise<T>;
+  return (await parseBody(response)) as T;
 }
 
-/** Sends a GET request and returns the parsed JSON body. */
+/** Sends a GET request and returns the parsed body (JSON object/array or plain text). */
 export async function get<T>(
   url: string,
   headers?: HeadersInit,

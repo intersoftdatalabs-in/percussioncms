@@ -24,7 +24,6 @@ import com.percussion.extension.PSExtensionRef;
 import com.percussion.rx.config.IPSConfigHandler.ObjectState;
 import com.percussion.rx.config.PSConfigException;
 import com.percussion.rx.design.IPSAssociationSet;
-import com.percussion.rx.publisher.jsf.nodes.PSLocationSchemeEditor;
 import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.server.PSServer;
 import com.percussion.services.error.PSNotFoundException;
@@ -169,7 +168,7 @@ public class PSLocationSchemeSetter extends PSSimplePropertySetter {
       throw new PSConfigException(EXPRESSION + " property must be a string.");
     }
     var expr = (String) propValue;
-    scheme.setGenerator(PSLocationSchemeEditor.JEXL_GENERATOR);
+    scheme.setGenerator(JEXL_GENERATOR);
     scheme.setParameter(EXPRESSION, "String", expr);
   }
 
@@ -241,7 +240,11 @@ public class PSLocationSchemeSetter extends PSSimplePropertySetter {
   private static final Logger log = LogManager.getLogger(PSLocationSchemeSetter.class);
 
   /** The JEXL expression property name. */
-  public static final String EXPRESSION = PSLocationSchemeEditor.EXPRESSION_PARAM;
+  /** JEXL assembly location generator FQN (was on retired JSF PSLocationSchemeEditor). */
+  public static final String JEXL_GENERATOR =
+      "Java/global/percussion/contentassembler/sys_JexlAssemblyLocation";
+
+  public static final String EXPRESSION = "expression";
 
   /** The generator name property. */
   public static final String GENERATOR = "generator";

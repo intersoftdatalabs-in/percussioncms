@@ -97,9 +97,43 @@
             <groupId>org.apache.geronimo.components</groupId>
             <artifactId>geronimo-jaspi</artifactId>
         </dependency>
+        <!-- GH-939: unit tests for perc-logging log4j2 retention policy (packaging=pom) -->
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
     <build>
+        <!-- packaging=pom has no default test bindings; bind compiler + surefire explicitly -->
+        <testSourceDirectory>src/test/java</testSourceDirectory>
         <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>test-compile</id>
+                        <goals>
+                            <goal>testCompile</goal>
+                        </goals>
+                        <phase>test-compile</phase>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>default-test</id>
+                        <goals>
+                            <goal>test</goal>
+                        </goals>
+                        <phase>test</phase>
+                    </execution>
+                </executions>
+            </plugin>
             <!-- Copies the additional distribution content over the unpacked jetty-home
 				artifact contents, after the antrun execution that initially populates the
 				jetty-distribution directory -->
@@ -284,6 +318,14 @@
                                 <copy todir="${assembly-directory}">
                                     <fileset dir="${basedir}/src/main/jetty"/>
                                 </copy>
+                                <!--
+                                  Jetty 12 DeploymentScanner rejects both Name and Name.war as
+                                  directories for the same deployable. Source keeps exploded
+                                  CI_Home / EI_Home (referenced by *.xml); remove residual
+                                  *.war trees left from older checkouts or unclean target/.
+                                -->
+                                <delete dir="${assembly-directory}/base/webapps/CI_Home.war" quiet="true"/>
+                                <delete dir="${assembly-directory}/base/webapps/EI_Home.war" quiet="true"/>
                             </target>
                         </configuration>
                     </execution>

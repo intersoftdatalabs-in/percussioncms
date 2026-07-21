@@ -251,4 +251,40 @@ public final class XSSValidation {
         || input.contains("vbscript:")
         || input.contains("data:text/html");
   }
+
+  /**
+   * Maximum length accepted for a JSONP callback name (defense-in-depth against oversized
+   * parameter abuse).
+   */
+  public static final int MAX_JSONP_CALLBACK_LENGTH = 128;
+
+  /**
+   * Allow-list for JSONP callback function names: a JavaScript identifier optionally
+   * dotted (e.g. {@code jQuery123}, {@code angular.callbacks._0}). Rejects anything that
+   * could break out of {@code callback(...)} and inject script (alert #595 / T044).
+   */
+  private static final java.util.regex.Pattern SAFE_JSONP_CALLBACK =
+      java.util.regex.Pattern.compile("^[A-Za-z_$][A-Za-z0-9_$]*(?:\\.[A-Za-z_$][A-Za-z0-9_$]*)*$");
+
+  /**
+   * Validates and returns a safe JSONP callback name, or {@code null} if the input is not a
+   * legal callback identifier. Callers should treat {@code null} as "emit plain JSON" (no
+   * padding). Never concatenate an unsanitized query parameter into script output.
+   *
+   * @param callback raw {@code jsoncallback} query parameter, may be {@code null} or blank
+   * @return the original callback if it matches the allow-list; otherwise {@code null}
+   */
+  public static String sanitizeJsonpCallback(String callback) {
+    if (callback == null) {
+      return null;
+    }
+    String trimmed = callback.trim();
+    if (trimmed.isEmpty() || trimmed.length() > MAX_JSONP_CALLBACK_LENGTH) {
+      return null;
+    }
+    if (!SAFE_JSONP_CALLBACK.matcher(trimmed).matches()) {
+      return null;
+    }
+    return trimmed;
+  }
 }

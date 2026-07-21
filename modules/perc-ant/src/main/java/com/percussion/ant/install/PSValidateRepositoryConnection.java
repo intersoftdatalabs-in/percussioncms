@@ -19,6 +19,7 @@ import com.percussion.install.InstallUtil;
 import com.percussion.install.PSLogger;
 import com.percussion.tablefactory.PSJdbcDbmsDef;
 import com.percussion.tablefactory.PSJdbcTableFactoryException;
+import com.percussion.utils.io.PathUtils;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -117,6 +118,10 @@ public class PSValidateRepositoryConnection extends Task {
     try {
       // rootDir already validated non-blank above
       InstallUtil.setRootDir(rootDir);
+      // PSJdbcDbmsDef static init and password handling resolve the install root via PathUtils
+      // (rxdeploydir). Match PSAction.setRootDir so a stale/deleted temp path from earlier Ant
+      // tasks or unit tests cannot abort validation with ExceptionInInitializerError.
+      bindInstallRoot(rootDir);
 
       PSJdbcDbmsDef dbmsDef = new PSJdbcDbmsDef(props);
       String driver = dbmsDef.getDriver();
@@ -164,7 +169,30 @@ public class PSValidateRepositoryConnection extends Task {
     } catch (Exception e) {
       throw new BuildException(
           failureMessage(backend, server, driverClass, safeExceptionMessage(e)), e);
+    } catch (ExceptionInInitializerError | NoClassDefFoundError e) {
+      // PathUtils / crypto static init failures are Errors, not Exceptions
+      throw new BuildException(
+          failureMessage(backend, server, driverClass, safeExceptionMessage(e)), e);
     }
+  }
+
+  /**
+   * Point {@code rxdeploydir} / {@link PathUtils} at the install root before code that depends on
+   * them during class or instance initialization (notably {@link PSJdbcDbmsDef}).
+   *
+   * @param installRoot absolute or relative install root; must exist as a directory
+   */
+  static void bindInstallRoot(String installRoot) {
+    File root = new File(installRoot).getAbsoluteFile();
+    if (!root.isDirectory()) {
+      throw new BuildException(
+          "Install root for repository connection validation does not exist or is not a"
+              + " directory: "
+              + root.getAbsolutePath());
+    }
+    System.setProperty(PathUtils.DEPLOY_DIR_PROP, root.getAbsolutePath());
+    PathUtils.clearRxDir();
+    PathUtils.setRxDir(root);
   }
 
   /**

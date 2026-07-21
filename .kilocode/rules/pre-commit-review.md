@@ -15,11 +15,16 @@ authored in this session:
    `modules/ai-shared-develop/src/main/resources/agents/erlang-code-review.md`
 
 3. Prefer the skill `erlang-review` or Kilo workflow `/erlang-review`.
-4. If the recommendation is `request-changes` or Gate says **May commit/push: no**:
-   - Fix all **bug** findings (including missing behavioral tests)
+4. Load pattern memory from
+   `modules/ai-shared-develop/src/main/resources/skills/erlang-review/patterns.md`
+   and any prior report under `docs/ai-generated/code-reviews/`.
+5. Write durable reports under `docs/ai-generated/code-reviews/` (not `tmp/`).
+6. If the recommendation is `request-changes` or Gate says **May commit/push: no**:
+   - Fix all **bug** findings (including missing behavioral tests and
+     non-portable path/file I/O — see root `AGENTS.md` **Cross-Platform File I/O & Paths**)
    - Re-run Erlang on the fix pack
    - Only then commit / push / open PR
-5. Do not treat CI or GitHub bot review as a substitute for this pre-commit pass.
+7. Do not treat CI or GitHub bot review as a substitute for this pre-commit pass.
 
 ## Exceptions
 
@@ -30,4 +35,5 @@ in the commit message or PR body.
 ## Why
 
 Unreviewed commits create long GitHub review cycles (human + bots). Catching
-defects and weak tests locally is mandatory team practice for Percussion CMS.
+defects, weak tests, and Unix-only path bugs that fail on Windows (and the
+reverse) locally is mandatory team practice for Percussion CMS.
