@@ -32,11 +32,15 @@ vi.mock("../../../main/ts/admin/TaskNotifications", () => ({
   TaskNotifications: () => <div data-testid="mock-notifications-section">Notifications Content</div>,
 }));
 
+vi.mock("../../../main/ts/admin/tools/ToolsSection", () => ({
+  ToolsSection: () => <div data-testid="mock-tools-section">Tools Content</div>,
+}));
+
 describe("AdminShell", () => {
   it("renders administration shell title and default active tab", () => {
     render(<AdminShell />);
-    expect(screen.getByTestId("perc-admin-shell")).toBeTruthy();
-    expect(screen.getByTestId("mock-tasks-section")).toBeTruthy();
+    expect(screen.getByTestId("perc-admin-shell")).toBeDefined();
+    expect(screen.getByTestId("mock-tasks-section")).toBeDefined();
   });
 
   it("switches tabs when nav buttons are clicked", () => {
@@ -44,11 +48,15 @@ describe("AdminShell", () => {
 
     const logsTab = screen.getByTestId("tab-logs");
     fireEvent.click(logsTab);
-    expect(screen.getByTestId("mock-logs-section")).toBeTruthy();
+    expect(screen.getByTestId("mock-logs-section")).toBeDefined();
     expect(screen.queryByTestId("mock-tasks-section")).toBeNull();
 
     const notifTab = screen.getByTestId("tab-notifications");
     fireEvent.click(notifTab);
-    expect(screen.getByTestId("mock-notifications-section")).toBeTruthy();
+    expect(screen.getByTestId("mock-notifications-section")).toBeDefined();
+
+    const toolsTab = screen.getByTestId("tab-tools");
+    fireEvent.click(toolsTab);
+    expect(screen.getByTestId("mock-tools-section")).toBeDefined();
   });
 });
