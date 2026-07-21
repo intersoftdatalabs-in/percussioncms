@@ -20,6 +20,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -120,12 +121,18 @@ class CheckNoGlobDeletesTest {
   @Test
   @DisplayName("End-to-end on the real shipped install.xml returns no globs (current install expectations)")
   void shippedInstallXmlHasNoGlobs() throws Exception {
-    // Resolve relative to the module working dir that surefire uses.
+    // Resolve relative to the module working dir that surefire uses. We do NOT silently skip when
+    // the file is missing: a missing shipped install.xml means the assertion's invariant is not
+    // actually being checked, which would mask a real regression in the installer config.
     Path xml =
         Path.of("src", "main", "resources", "distribution", "rxconfig", "Installer", "install.xml");
     if (!Files.isRegularFile(xml)) {
-      // the maven module cwd may differ; fall back to a copy in workdir
-      return;
+      fail(
+          "shipped install.xml not found at "
+              + xml.toAbsolutePath()
+              + " — the test must run from the module root ("
+              + Path.of("").toAbsolutePath()
+              + ")");
     }
     List<String> globs = CheckNoGlobDeletes.collectGlobsInDeleteBlock(xml);
     assertTrue(
