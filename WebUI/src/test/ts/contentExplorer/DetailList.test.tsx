@@ -16,7 +16,13 @@
 
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
-import { DetailList } from "../../../main/ts/contentExplorer/DetailList";
+import {
+  DetailList,
+  columnHeaderLabel,
+  renderDisplayFormatCell,
+  resolveDisplayFormatColumns,
+} from "../../../main/ts/contentExplorer/DetailList";
+import { EXPLORER_MSG } from "../../../main/ts/contentExplorer/messages";
 import type { PSPathItem } from "../../../main/ts/api/contentExplorer/types";
 import { mockFetch } from "./setup";
 import { renderA11yGate } from "./a11y";
@@ -58,10 +64,11 @@ describe("DetailList", () => {
       expect(url).toContain("maxResults=50");
       return new Response(
         JSON.stringify({
-          startIndex: 0,
-          maxResults: 50,
-          totalCount: 2,
-          children: CHILDREN,
+          PagedItemList: {
+            childrenInPage: CHILDREN,
+            childrenCount: CHILDREN.length,
+            startIndex: 0,
+          },
         }),
         { status: 200, headers: { "Content-Type": "application/json" } },
       );
@@ -90,10 +97,11 @@ describe("DetailList", () => {
       currentStart = match ? Number(match[1]) : 0;
       return new Response(
         JSON.stringify({
-          startIndex: currentStart,
-          maxResults: 50,
-          totalCount: 120,
-          children: CHILDREN,
+          PagedItemList: {
+            childrenInPage: CHILDREN,
+            childrenCount: 120,
+            startIndex: currentStart,
+          },
         }),
         { status: 200, headers: { "Content-Type": "application/json" } },
       );
@@ -130,9 +138,11 @@ describe("DetailList", () => {
     mockFetch(async () =>
       new Response(
         JSON.stringify({
-          startIndex: 0,
-          maxResults: 50,
-          children: CHILDREN,
+          PagedItemList: {
+            childrenInPage: CHILDREN,
+            childrenCount: CHILDREN.length,
+            startIndex: 0,
+          },
         }),
         { status: 200, headers: { "Content-Type": "application/json" } },
       ),
@@ -170,10 +180,19 @@ describe("DetailList", () => {
 
   it("passes the zero serious/critical axe-core gate (populated state)", async () => {
     mockFetch(async () =>
-      new Response(JSON.stringify({ children: CHILDREN, totalCount: CHILDREN.length }), {
-        status: 200,
-        headers: { "Content-Type": "application/json" },
-      }),
+      new Response(
+        JSON.stringify({
+          PagedItemList: {
+            childrenInPage: CHILDREN,
+            childrenCount: CHILDREN.length,
+            startIndex: 0,
+          },
+        }),
+        {
+          status: 200,
+          headers: { "Content-Type": "application/json" },
+        },
+      ),
     );
     const { container } = render(
       <DetailList
@@ -184,5 +203,150 @@ describe("DetailList", () => {
     );
     await waitFor(() => expect(screen.getAllByTestId(/^detail-row-/).length).toBeGreaterThan(0));
     await renderA11yGate(container);
+  });
+});
+describe("T092b / FR-027: display-format column resolution", () => {
+  const sample: PSPathItem = {
+    id: "p-1",
+    name: "Welcome",
+    path: "/Sites/Foo/Welcome",
+    type: "page",
+    title: "Welcome Page",
+    category: "page",
+    lastModified: "2026-07-01",
+    workflowId: "wf-default",
+  };
+
+  it("resolveDisplayFormatColumns returns default when columns empty", () => {
+    expect(resolveDisplayFormatColumns([])).toEqual(["name", "type", "path"]);
+    expect(resolveDisplayFormatColumns(undefined as unknown as [])).toEqual([
+      "name",
+      "type",
+      "path",
+    ]);
+  });
+
+  it("resolveDisplayFormatColumns honours supplied order + dedup", () => {
+    expect(
+      resolveDisplayFormatColumns(["modified", "name", "modified"]),
+    ).toEqual(["modified", "name"]);
+  });
+
+  it("resolveDisplayFormatColumns filters unknown ids", () => {
+    expect(
+      resolveDisplayFormatColumns([
+        "name",
+        "bogus" as unknown as never,
+        "modified",
+      ]),
+    ).toEqual(["name", "modified"]);
+  });
+
+  it("renderDisplayFormatCell covers every supported column id", () => {
+    expect(renderDisplayFormatCell("name", sample)).toBe("Welcome");
+    expect(renderDisplayFormatCell("type", sample)).toBe("page");
+    expect(renderDisplayFormatCell("path", sample)).toBe("/Sites/Foo/Welcome");
+    expect(renderDisplayFormatCell("title", sample)).toBe("Welcome Page");
+    expect(renderDisplayFormatCell("category", sample)).toBe("page");
+    expect(renderDisplayFormatCell("modified", sample)).toBe("2026-07-01");
+    expect(renderDisplayFormatCell("workflow", sample)).toBe("wf-default");
+  });
+
+  it("renderDisplayFormatCell tolerates null optional fields", () => {
+    const minimal: PSPathItem = { id: "x", name: "X", path: "/x" };
+    expect(renderDisplayFormatCell("title", minimal)).toBe("X"); // falls back to name
+    expect(renderDisplayFormatCell("modified", minimal)).toBe("");
+  });
+
+  it("columnHeaderLabel returns translated headers", () => {
+    expect(columnHeaderLabel("name", EXPLORER_MSG)).toContain("Name");
+    expect(columnHeaderLabel("modified", EXPLORER_MSG)).toContain("Modified");
+    expect(columnHeaderLabel("bogus" as unknown as never, EXPLORER_MSG)).toBe(
+      "bogus",
+    );
+  });
+
+  it("renders the supplied display format columns in the supplied order", async () => {
+    mockFetch(async () =>
+      new Response(
+        JSON.stringify({
+          PagedItemList: {
+            childrenInPage: [sample],
+            childrenCount: 1,
+            startIndex: 0,
+          },
+        }),
+        { status: 200, headers: { "Content-Type": "application/json" } },
+      ),
+    );
+    const { container } = render(
+      <DetailList
+        folderPath="/Sites/Foo"
+        selectedItemId={null}
+        onSelectItem={() => undefined}
+        displayFormat={{
+          columns: ["name", "title", "modified"],
+        }}
+      />,
+    );
+    await waitFor(() =>
+      expect(screen.getAllByTestId(/^detail-row-/).length).toBeGreaterThan(0),
+    );
+    expect(
+      screen.getByTestId("detail-col-header-name").textContent,
+    ).toMatch(/Name/);
+    expect(
+      screen.getByTestId("detail-col-header-title").textContent,
+    ).toMatch(/Title/);
+    expect(
+      screen.getByTestId("detail-col-header-modified").textContent,
+    ).toMatch(/Modified/);
+    expect(
+      screen.queryByTestId("detail-col-header-type"),
+    ).toBeNull();
+    expect(
+      screen.getByTestId(`detail-cell-name-p-1`).textContent,
+    ).toBe("Welcome");
+    expect(
+      screen.getByTestId(`detail-cell-title-p-1`).textContent,
+    ).toBe("Welcome Page");
+    expect(
+      screen.getByTestId(`detail-cell-modified-p-1`).textContent,
+    ).toBe("2026-07-01");
+    await renderA11yGate(container);
+  });
+
+  it("falls back to default Name + Type + Path when displayFormat is absent", async () => {
+    mockFetch(async () =>
+      new Response(
+        JSON.stringify({
+          PagedItemList: {
+            childrenInPage: [sample],
+            childrenCount: 1,
+            startIndex: 0,
+          },
+        }),
+        { status: 200, headers: { "Content-Type": "application/json" } },
+      ),
+    );
+    render(
+      <DetailList
+        folderPath="/Sites/Foo"
+        selectedItemId={null}
+        onSelectItem={() => undefined}
+      />,
+    );
+    await waitFor(() =>
+      expect(screen.getAllByTestId(/^detail-row-/).length).toBeGreaterThan(0),
+    );
+    expect(
+      screen.getByTestId("detail-col-header-name").textContent,
+    ).toMatch(/Name/);
+    expect(
+      screen.getByTestId("detail-col-header-type").textContent,
+    ).toMatch(/Type/);
+    expect(
+      screen.getByTestId("detail-col-header-path").textContent,
+    ).toMatch(/Path/);
   });
 });
