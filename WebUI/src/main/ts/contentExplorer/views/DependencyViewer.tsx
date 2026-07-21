@@ -17,13 +17,15 @@
 import React from "react";
 import type { NodeRelationshipSummary } from "./dependencyModel";
 import type { RelationshipSummary } from "../../api/contentExplorer/types";
+import type { PSNodeRelationshipSummary } from "../../api/contentExplorer/relationship";
 import { message } from "../../i18n/message";
 import { EXPLORER_MSG } from "../messages";
 import {
+  composeFromServerSummary,
   labelFor,
-  synthesiseRelationshipSummary,
   totalKnownEdges,
 } from "./dependencyModel";
+import { fetchNodeSummary } from "../../api/contentExplorer/relationshipsApi";
 
 export interface DependencyItem {
   id?: string;
@@ -35,53 +37,171 @@ export interface DependencyViewerProps {
   /** The item whose dependencies are rendered. */
   item: DependencyItem;
   /**
-   * AA-link count for the supplied item. Host computes this from
-   * the existing `PSWidgetAssetRelationshipService` data; defaults
-   * to 0 (rows other than AA get marked {@code unknown} per the
-   * T074 spike).
+   * AA-link count for the supplied item. Host computes this from the existing AA relationship
+   * data on the existing `PSWidgetAssetRelationshipService`; defaults to 0 (the row renders the
+   * empty count, never an unknown).
    */
   aaLinkCount?: number;
-  /**
-   * Override the summary synthesis (e.g. with a future
-   * server-provided full graph). Pure function in, pure shape out.
-   */
-  summarise?: (item: DependencyItem, aaLinkCount: number) => NodeRelationshipSummary;
+  /** Optional injection seam for tests: pre-loads the consolidated server summary. */
+  loadServerSummary?: (itemId: string) => Promise<PSNodeRelationshipSummary>;
+  /** Optional injection seam for tests: summarises server-shape with AA-link count. */
+  composeSummary?: (
+    item: DependencyItem,
+    serverSummary: PSNodeRelationshipSummary,
+    aaLinkCount: number,
+  ) => NodeRelationshipSummary;
   ariaLabel?: string;
   className?: string;
 }
 
-export function DependencyViewer(props: DependencyViewerProps): React.JSX.Element {
+async function defaultLoadServerSummary(
+  itemId: string,
+): Promise<PSNodeRelationshipSummary> {
+  return fetchNodeSummary(itemId);
+}
+
+function defaultComposeSummary(
+  item: DependencyItem,
+  server: PSNodeRelationshipSummary,
+  aaLinkCount: number,
+): NodeRelationshipSummary {
+  return composeFromServerSummary(item, server, aaLinkCount);
+}
+
+/**
+ * Modern Content Explorer's dependency view (US8 / T103).
+ *
+ * <p>Renders the 6 relationship dimensions for a single node. As of US8 all 6 dimensions are
+ * authoritative — the morning "client-side preview" banner is removed; a transient loading
+ * skeleton appears during the {@code fetchNodeSummary} round-trip.
+ */
+export function DependencyViewer(
+  props: DependencyViewerProps,
+): React.JSX.Element {
   const {
     item,
     aaLinkCount = 0,
-    summarise = synthesiseRelationshipSummary,
+    loadServerSummary = defaultLoadServerSummary,
+    composeSummary,
     ariaLabel,
     className,
   } = props;
-  const summary: NodeRelationshipSummary = summarise(item, aaLinkCount);
+  const summarise = composeSummary ?? defaultComposeSummary;
+
+  const itemId = item.id ?? "";
+  const [state, setState] = React.useState<
+    | { kind: "loading" }
+    | { kind: "ok"; summary: PSNodeRelationshipSummary }
+    | { kind: "auth" }
+    | { kind: "error"; message: string }
+  >({ kind: "loading" });
+
+  React.useEffect(() => {
+    let alive = true;
+    if (!itemId) {
+      // No item id → don't fire a network round-trip; the rest endpoint
+      // would 404 on the empty path segment. Render the auth placeholder
+      // instead so the dependency view surfaces the no-access signal
+      // cleanly (per the bot review on PR #1410).
+      setState({ kind: "auth" });
+      return;
+    }
+    setState({ kind: "loading" });
+    loadServerSummary(itemId)
+      .then((summary) => {
+        if (!alive) return;
+        setState({ kind: "ok", summary });
+      })
+      .catch((err: unknown) => {
+        if (!alive) return;
+        if (
+          err &&
+          typeof err === "object" &&
+          "status" in err &&
+          (err as { status: number }).status === 403
+        ) {
+          setState({ kind: "auth" });
+          return;
+        }
+        setState({
+          kind: "error",
+          message: err instanceof Error ? err.message : String(err),
+        });
+      });
+    return () => {
+      alive = false;
+    };
+  }, [itemId, loadServerSummary]);
+
+  if (state.kind === "loading") {
+    return (
+      <section
+        role="region"
+        aria-label={ariaLabel ?? message(EXPLORER_MSG.DEPENDENCY_TITLE)}
+        data-testid="dependency-viewer"
+        data-testid-state="loading"
+        className={className}
+        style={{ border: "1px solid #ccc", padding: 12, background: "#fff" }}
+      >
+        <p aria-live="polite">{message(EXPLORER_MSG.DEPENDENCY_LOADING)}</p>
+      </section>
+    );
+  }
+  if (state.kind === "auth") {
+    return (
+      <section
+        role="region"
+        aria-label={ariaLabel ?? message(EXPLORER_MSG.DEPENDENCY_TITLE)}
+        data-testid="dependency-viewer"
+        data-testid-state="auth"
+        className={className}
+        style={{ border: "1px solid #ccc", padding: 12, background: "#fff" }}
+      >
+        <p role="status" aria-live="polite">
+          {message(EXPLORER_MSG.PERMISSION_DENIED)}
+        </p>
+      </section>
+    );
+  }
+  if (state.kind === "error") {
+    return (
+      <section
+        role="region"
+        aria-label={ariaLabel ?? message(EXPLORER_MSG.DEPENDENCY_TITLE)}
+        data-testid="dependency-viewer"
+        data-testid-state="error"
+        className={className}
+        style={{ border: "1px solid #ccc", padding: 12, background: "#fff" }}
+      >
+        <p role="alert">
+          {message(EXPLORER_MSG.DEPENDENCY_ERROR)}: {state.message}
+        </p>
+      </section>
+    );
+  }
+
+  const summary: NodeRelationshipSummary = summarise(
+    item,
+    state.summary,
+    aaLinkCount,
+  );
   const total = totalKnownEdges(summary);
+
   return (
     <section
       role="region"
       aria-label={ariaLabel ?? message(EXPLORER_MSG.DEPENDENCY_TITLE)}
       data-testid="dependency-viewer"
+      data-testid-state="ok"
       className={className}
       style={{ border: "1px solid #ccc", padding: 12, background: "#fff" }}
     >
       <h2 style={{ fontSize: "1rem", margin: "0 0 8px 0" }}>
-        {message(EXPLORER_MSG.DEPENDENCY_TITLE)}
-        : <code style={{ fontSize: "0.85rem" }}>{summary.nodePath ?? summary.nodeId}</code>
+        {message(EXPLORER_MSG.DEPENDENCY_TITLE)}:{" "}
+        <code style={{ fontSize: "0.85rem" }}>
+          {summary.nodePath ?? summary.nodeId}
+        </code>
       </h2>
-      {summary.clientSideOnly ? (
-        <p
-          role="status"
-          aria-live="polite"
-          data-testid="dependency-client-side-preview"
-          style={{ color: "#a00", margin: "0 0 8px 0" }}
-        >
-          {message(EXPLORER_MSG.DEPENDENCY_CLIENT_SIDE_PREVIEW)}
-        </p>
-      ) : null}
       <p
         aria-live="polite"
         data-testid="dependency-total"
@@ -107,11 +227,7 @@ export function DependencyViewer(props: DependencyViewerProps): React.JSX.Elemen
           >
             <span>{labelFor(d.dimension)}</span>
             <span>
-              {d.unknown
-                ? "—"
-                : d.label
-                  ? `${d.label}`
-                  : `${d.count}`}
+              {d.unknown ? "—" : d.label ? `${d.label}` : `${d.count}`}
             </span>
           </li>
         ))}
