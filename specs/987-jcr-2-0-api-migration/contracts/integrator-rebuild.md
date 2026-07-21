@@ -1,38 +1,44 @@
-# Contract: Integrator Extension Rebuild (Custom Java)
+# Integrator Rebuild Contract: JCR 2.0 API Upgrade
 
-**Feature**: `987-jcr-2-0-api-migration`  
-**Audience**: Partners and custom extension authors  
-**Stability**: Documented upgrade expectation
+**Specification**: Spec 987 (JCR 1.0 to 2.0 API Migration)  
+**Target Release**: Percussion CMS 8.2.0  
+**Requirement**: FR-011 / FR-009
 
-## Summary
+---
 
-Percussion CMS development line uses the **JCR 2.0** (`javax.jcr` 2.0) API library. Custom Java extensions that compile against product APIs **must be rebuilt** with the upgraded product (and JCR 2.0) on the classpath.
+## 1. Overview
 
-## Guarantees
+Percussion CMS 8.2.0 upgrades the Java Content Repository API dependency from `javax.jcr:jcr:1.0` to `javax.jcr:jcr:2.0` (`JSR-283`).
 
-| Area | Guarantee |
-|------|-----------|
-| Editor / publisher UX | No intentional functional change |
-| HTTP APIs (REST/SOAP/UI services) | Backward compatible |
-| Content data / DB schema | No migration required for standard installs |
-| Pre-built extension JARs compiled only for JCR 1.0 types | **Not** guaranteed to load or run |
+All built-in Percussion CMS modules and core extensions have been compiled against and verified with `javax.jcr:jcr:2.0`. 
 
-## Integrator actions
+**Action Required for Custom Extensions & Third-Party Integrations**:  
+Custom Java extensions, custom plugins, or third-party integrations compiled against Percussion CMS 8.1.x (or earlier JCR 1.0 builds) MUST be recompiled against the Percussion CMS 8.2.0 SDK / API dependencies.
 
-1. Obtain product SDK / compile dependencies from the upgraded release.
-2. Ensure `javax.jcr:jcr:2.0` is on the extension compile classpath (normally via product BOM).
-3. Recompile extension sources.
-4. If the extension **implements** `javax.jcr.Node`, `Property`, `Value`, `Query`, etc., add any new 2.0 methods (see implementor surface contract).
-5. Prefer `Node.getIdentifier()` over deprecated `getUUID()` for JCR nodes.
-6. Redeploy rebuilt extension JAR.
+---
 
-## Failure mode (accepted)
+## 2. API & Signature Changes
 
-Deploying an old extension JAR without rebuild may fail class load or linkage. This is **not** a product defect for this upgrade.
+### 2.1 Deprecated Method Calls
+- `javax.jcr.Node.getUUID()` is deprecated in JCR 2.0. Replace with `Node.getIdentifier()`.
+- `javax.jcr.Property.getStream()` and `setValue(InputStream)` are deprecated in JCR 2.0. Replace with `Property.getBinary()` and `Property.setValue(Binary)`.
 
-## Product documentation obligation
+### 2.2 Extended JCR 2.0 Interfaces
+- Implementors of `javax.jcr.Node`, `javax.jcr.Property`, `javax.jcr.Value`, `javax.jcr.query.Query`, or `javax.jcr.nodetype.NodeType` must support the new JSR-283 interface methods.
+- Built-in Percussion types (e.g. `PSContentNode`, `PSProperty`, `PSQuery`) throw `UnsupportedRepositoryOperationException` for optional features not supported by the underlying CMS engine (such as JCR Query Object Model or lifecycle transitions).
 
-Release notes MUST state:
-- Content repository API standard upgraded 1.0 → 2.0
-- Custom Java extensions require rebuild
-- No standard content data migration
+---
+
+## 3. Query Language Compatibility
+
+- Percussion CMS maintains full backward compatibility for `Query.SQL` and `Query.XPATH` strings.
+- Custom extensions executing repository queries via `PSOQueryTools` or `PSContentMgr` do NOT need to rewrite existing JCR SQL queries to JCR-SQL2.
+
+---
+
+## 4. Rebuild Verification Checklist
+
+1. Update project POM/build dependencies to `javax.jcr:jcr:2.0` (or set Percussion CMS parent POM to `8.2.0-SNAPSHOT` / `8.2.0`).
+2. Run a clean build (`mvn clean compile` / `gradle clean build`).
+3. Replace any usage of `Node.getUUID()` with `Node.getIdentifier()`.
+4. Deploy updated JARs into `/AppServer/server/rx/deploy/rxapp.ear/rxapp.war/WEB-INF/lib/` or custom extension directory.

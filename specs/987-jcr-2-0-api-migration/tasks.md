@@ -77,15 +77,15 @@
 ### Implementation
 
 - [x] T036 [US1] Produce type-aware inventory of **JCR** `Node.getUUID` call sites (exclude `IPSGuid.getUUID` and non-JCR GUIDs) into `specs/987-jcr-2-0-api-migration/getuuid-inventory.md` covering `system/services`, `modules/utils`, `projects/sitemanage`
-- [ ] T037 [US1] Migrate critical contentmgr/assembly/publisher JCR `getUUID` call sites to `getIdentifier()` (or shared helper in `modules/utils/src/main/java/com/percussion/utils/jsr170/`) under `system/services/src/com/percussion/services/`
-- [ ] T038 [P] [US1] Migrate critical sitemanage JCR node identity call sites in `projects/sitemanage/src/main/java/com/percussion/share/dao/PSJcrNodeFinder.java`, `pathmanagement`, and related editor-facing services
-- [ ] T039 [P] [US1] Review binary property touchpoints in contentmgr loaders (`system/services/src/com/percussion/services/contentmgr/`) and adopt `Binary` APIs only where a clear replacement improves correctness without drive-by rewrites
+- [x] T037 [US1] Migrate critical contentmgr/assembly/publisher JCR `getUUID` call sites to `getIdentifier()` (or shared helper in `modules/utils/src/main/java/com/percussion/utils/jsr170/`) under `system/services/src/com/percussion/services/`
+- [x] T038 [P] [US1] Migrate critical sitemanage JCR node identity call sites in `projects/sitemanage/src/main/java/com/percussion/share/dao/PSJcrNodeFinder.java`, `pathmanagement`, and related editor-facing services
+- [x] T039 [P] [US1] Review binary property touchpoints in contentmgr loaders (`system/services/src/com/percussion/services/contentmgr/`) and adopt `Binary` APIs only where a clear replacement improves correctness without drive-by rewrites
 - [x] T040 [US1] Explicitly **do not** convert product `Query.SQL` / `Query.XPATH` languages to JCR-SQL2; leave `system/services/src/com/percussion/services/contentmgr/impl/PSContentMgr.java` language support intact
 - [x] T041 [US1] Record any non-critical hard cases that cannot be migrated in `specs/987-jcr-2-0-api-migration/exceptions.md` (owner, rationale, follow-up); ensure **zero** exceptions on critical editor/publish paths
-- [ ] T042 [US1] Run designated automated tests: `./mvn-env.sh -pl modules/utils,system,projects/sitemanage -am test` (adjust modules if failures are pre-existing and documented)
-- [ ] T043 [US1] Commit US1 deprecation/critical-path work and open PR; pause for review
-- [ ] T044 [US1] Monitor CI/Kilo Code; address feedback; resolve review threads per AGENTS
-- [ ] T045 [US1] Verify human approval and merge of US1 PR before starting US4/US3 story PRs
+- [x] T042 [US1] Run designated automated tests: `./mvn-env.sh -pl modules/utils,system,projects/sitemanage -am test` (adjust modules if failures are pre-existing and documented)
+- [x] T043 [US1] Commit US1 deprecation/critical-path work and open PR (PR #1449 submitted); pause for review
+- [x] T044 [US1] Monitor CI/Kilo Code; address feedback; resolve review threads per AGENTS
+- [x] T045 [US1] Verify human approval and merge of US1 PR before starting US4/US3 story PRs (PR #1449 merged)
 
 ---
 
@@ -97,16 +97,13 @@
 
 ### Tests (Required)
 
-- [ ] T046 [P] [US4] Add/adjust tests for toolkit value/query helpers under `modules/perc-toolkit/src/test/java/` for any JCR 2.0 method or identity changes
-- [ ] T047 [P] [US4] Add/adjust segmentation-rx tests under `modules/segmentation-rx/src/test/java/` if query construction changes
-
-### Implementation
-
-- [ ] T048 [P] [US4] Migrate remaining clear JCR deprecations in `modules/perc-toolkit/src/main/java/` (e.g. relationship builder, PSO query tools, validation) without changing public HTTP contracts
-- [ ] T049 [P] [US4] Migrate remaining clear JCR deprecations in `modules/segmentation-rx/`, `modules/p13n-api/`, `modules/extensions-main/`, `modules/extensions-nav/`, `modules/extensions-sfp/`, `modules/extensions-workflow/`, `modules/extensions-serverutils/`, `modules/extensions-landingpage/`, `deployer/src/`
-- [ ] T050 [US4] Ensure [contracts/integrator-rebuild.md](./contracts/integrator-rebuild.md) is accurate vs actual signature changes; update if product public Java types leaked new requirements
-- [ ] T051 [US4] Update exception register `specs/987-jcr-2-0-api-migration/exceptions.md` for any non-critical leftover integrator-facing sites
-- [ ] T052 [US4] Run tests for toolkit/segmentation/extensions modules touched; fix failures
+- [x] T046 [P] [US4] Add/adjust tests for toolkit value/query helpers under `modules/perc-toolkit/src/test/java/` for any JCR 2.0 method or identity changes
+- [x] T047 [P] [US4] Add/adjust segmentation-rx tests under `modules/segmentation-rx/src/test/java/` if query construction changes
+- [x] T048 [P] [US4] Migrate remaining clear JCR deprecations in `modules/perc-toolkit/src/main/java/` (e.g. relationship builder, PSO query tools, validation) without changing public HTTP contracts
+- [x] T049 [P] [US4] Migrate remaining clear JCR deprecations in `modules/segmentation-rx/`, `modules/p13n-api/`, `modules/extensions-main/`, `modules/extensions-nav/`, `modules/extensions-sfp/`, `modules/extensions-workflow/`, `modules/extensions-serverutils/`, `modules/extensions-landingpage/`, `deployer/src/`
+- [x] T050 [US4] Ensure [contracts/integrator-rebuild.md](./contracts/integrator-rebuild.md) is accurate vs actual signature changes; update if product public Java types leaked new requirements
+- [x] T051 [US4] Update exception register `specs/987-jcr-2-0-api-migration/exceptions.md` for any non-critical leftover integrator-facing sites
+- [x] T052 [US4] Run tests for toolkit/segmentation/extensions modules touched; fix failures
 - [ ] T053 [US4] Commit US4 work and open PR; pause for review
 - [ ] T054 [US4] Monitor CI/Kilo Code; address feedback; resolve review threads per AGENTS
 - [ ] T055 [US4] Verify human approval and merge of US4 PR
@@ -121,10 +118,10 @@
 
 ### Implementation
 
-- [ ] T056 [P] [US3] Draft release-notes / changelog entry covering JCR 2.0 API upgrade, no content data migration, custom extension rebuild requirement (paths: product release-notes location used by the project, or `specs/987-jcr-2-0-api-migration/release-notes-draft.md` if no single CHANGELOG exists)
-- [ ] T057 [US3] Run `./mvn-env.sh -pl system -am dependency:tree -Dincludes=javax.jcr:jcr` (and broader tree if needed) and record evidence of **2.0 only** in `tmp/jcr-dependency-tree.txt`
-- [ ] T058 [US3] Perform/record dependency or vulnerability review note for repository stack (no new unexplained high-severity findings, or document exceptions) in `tmp/jcr-security-review.md`
-- [ ] T059 [US3] Cross-link integrator rebuild contract from release notes draft to `specs/987-jcr-2-0-api-migration/contracts/integrator-rebuild.md`
+- [x] T056 [P] [US3] Draft release-notes / changelog entry covering JCR 2.0 API upgrade, no content data migration, custom extension rebuild requirement (paths: product release-notes location used by the project, or `specs/987-jcr-2-0-api-migration/release-notes-draft.md` if no single CHANGELOG exists)
+- [x] T057 [US3] Run `./mvn-env.sh -pl system -am dependency:tree -Dincludes=javax.jcr:jcr` (and broader tree if needed) and record evidence of **2.0 only** in `tmp/jcr-dependency-tree.txt`
+- [x] T058 [US3] Perform/record dependency or vulnerability review note for repository stack (no new unexplained high-severity findings, or document exceptions) in `tmp/jcr-security-review.md`
+- [x] T059 [US3] Cross-link integrator rebuild contract from release notes draft to `specs/987-jcr-2-0-api-migration/contracts/integrator-rebuild.md`
 - [ ] T060 [US3] Commit docs/evidence and open PR (may combine with polish if small); pause for review
 - [ ] T061 [US3] Monitor CI/Kilo Code if code touched; resolve review threads; verify merge
 
