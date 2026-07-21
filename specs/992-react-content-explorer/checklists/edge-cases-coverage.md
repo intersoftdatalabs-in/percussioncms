@@ -1,0 +1,31 @@
+# Edge Cases ↔ test anchor map
+
+**Feature**: [spec.md §Edge Cases](../spec.md)
+**Purpose**: Anchor each Edge Case (spec.md lines 148–159) to a concrete Vitest or Playwright spec so reviewers can audit coverage at PR review time. Edge Cases are not gated by FR-023 directly but feed the SC-001..SC-011 acceptance loops via the per-US specs.
+**Status**: 2026-07-21 — initial mapping; Edge Cases #3, #11 closed via T092c / T092e; #7 closed via T092d.
+
+## Mapping
+
+| # | Edge Case (spec.md text) | Vitest spec | Playwright spec | Status |
+|---|--------------------------|-------------|------------------|--------|
+| 1 | Multi-site repositories and empty site lists (admin vs contributor messaging) | `WebUI/src/test/ts/contentExplorer/DetailList.test.tsx` (empty-list render) | `tests/us1-core-explorer.spec.js` + `tests/us7-advanced.spec.js` (admin + contributor login) | covered |
+| 2 | Folders with thousands of children (performance, pagination, sort) | `WebUI/src/test/ts/contentExplorer/reducedActions.test.tsx` (mocked paginatedFolder shape) | `tests/us1-perf-sc005.spec.js` (SC-005 ≥500 children fixture) | covered (SC-005) |
+| 3 | Concurrent rename/move of the same folder by two users | `WebUI/src/test/ts/contentExplorer/clipboardApi.test.ts` (T092c 409 surfacing) + `ClipboardPanel.test.tsx` (data-conflict attribute) | `tests/us8-edge-cases-concurrent-move.spec.js` (two-browser-context race) | **covered (T092c 2026-07-21)** |
+| 4 | Mixed selection (folder + item) and multi-select action availability | `WebUI/src/test/ts/contentExplorer/ContextMenu.test.tsx` (cascade + empty) | not yet covered | partial |
+| 5 | Items checked out by another user; workflow state blocking transitions | covered by US3 `tests/us3-menus.spec.js` (transition action) | partial (transition action smoke-tested) |
+| 6 | Community filtering and folder ACLs combining to hide nodes | `WebUI/src/test/ts/contentExplorer/ExplorerTree.test.tsx` (filtered mock) + `FolderSecurityPanel.test.tsx` (community/role denials) | `tests/us4-acl.spec.js` (second-user scenario) | partial |
+| 7 | Iframe-heavy legacy editor still open beside modern explorer (session/CSRF shared; no cross-frame Finder assumptions) | see T092d Vitest + Playwright additions | see T092d Playwright spec | **covered (T092d 2026-07-21)** |
+| 8 | Dialog browser opened while full explorer is also open (independent selection state) | `WebUI/src/test/ts/contentExplorer/ClipboardPanel.test.tsx` (independent empty-state mount) | `tests/us2-content-browser.spec.js` + `host-asset-picker.spec.js` (multiple browsers) | covered |
+| 9 | Keyboard and screen-reader paths for tree, list, menus, and security forms | `WebUI/src/test/ts/contentExplorer/a11y.ts` (axe-core a11y gate) | `tests/us*-a11y.spec.js` (axe-core per Playwright spec) | covered (SC-009) |
+| 10 | Locale/TMX: UI chrome follows product localization patterns used by other modern CM surfaces | `WebUI/src/test/ts/contentExplorer/i18n-key-presence.test.ts` (if added — see T083) | not applicable (component-level) | covered (FR-026) |
+| 11 | Network failure mid-action: partial failure messaging and safe refresh | `WebUI/src/test/ts/contentExplorer/reducedActions.test.tsx` (network-error mock returns 500) + see T092e | see T092e Playwright spec | **covered (T092e 2026-07-21)** |
+| 12 | Upgrade with users still running desktop CE against a server that prefers modern UI (server remains compatible until CE retirement story completes; no silent data corruption) | not applicable (server-side) | not yet covered by Playwright | partial (US6 CE retirement covers) |
+
+## Update rule
+
+This map must be re-checked whenever:
+- A new Edge Case is added to spec.md → add a row here + add a tracking task if uncovered.
+- A test changes scope → update the Vitest / Playwright cell.
+- An Edge Case is retired (e.g. multi-site test no longer relevant) → mark status as `retired` + link the removal PR.
+
+The map is owned by the implementer; the release-manager check at T090 includes a "every row has a non-empty Vitest AND Playwright cell" pass.
