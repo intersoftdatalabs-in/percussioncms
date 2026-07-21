@@ -83,18 +83,24 @@ describe("ConsistencyChecker", () => {
       return { jobId: "check-123", status: "RUNNING" };
     });
 
-    vi.mocked(client.get).mockResolvedValue({
-      jobId: "check-123",
-      status: "COMPLETE",
-      issues: [
-        {
-          issueId: "issue-1",
-          type: "UNLINKED_ASSET",
-          description: "Asset #1024 is unlinked.",
-          fixable: true,
-        },
-      ],
-    });
+    vi.mocked(client.get)
+      .mockResolvedValueOnce({
+        jobId: "check-123",
+        status: "COMPLETE",
+        issues: [
+          {
+            issueId: "issue-1",
+            type: "UNLINKED_ASSET",
+            description: "Asset #1024 is unlinked.",
+            fixable: true,
+          },
+        ],
+      })
+      .mockResolvedValueOnce({
+        jobId: "check-123",
+        status: "COMPLETE",
+        issues: [],
+      });
 
     render(<ConsistencyChecker />);
 
@@ -108,6 +114,7 @@ describe("ConsistencyChecker", () => {
 
     await waitFor(() => {
       expect(client.post).toHaveBeenCalledWith(expect.stringContaining("/fix/issue-1"), {});
+      expect(screen.queryByTestId("issue-row-issue-1")).toBeNull();
     });
   });
 });

@@ -289,18 +289,28 @@ public class PSTaskManagementService {
     // Consistency Checker Endpoints
     // -----------------------------------------------------------------------
 
+    // -----------------------------------------------------------------------
+    // Consistency Checker Endpoints
+    // -----------------------------------------------------------------------
+
+    private static final int MAX_CONSISTENCY_JOBS = 50;
     private static final Map<String, Map<String, Object>> consistencyJobs = new ConcurrentHashMap<>();
 
     @POST
     @Path("/consistency")
     @Produces(MediaType.APPLICATION_JSON)
     public Response startConsistencyCheck() {
+        if (consistencyJobs.size() >= MAX_CONSISTENCY_JOBS) {
+            Optional<String> oldestKey = consistencyJobs.keySet().stream().findFirst();
+            oldestKey.ifPresent(consistencyJobs::remove);
+        }
+
         String jobId = "check-" + System.currentTimeMillis();
         Map<String, Object> job = new HashMap<>();
         job.put("jobId", jobId);
         job.put("status", "COMPLETE");
 
-        List<Map<String, Object>> issues = new ArrayList<>();
+        List<Map<String, Object>> issues = Collections.synchronizedList(new ArrayList<>());
         Map<String, Object> issue1 = new HashMap<>();
         issue1.put("issueId", "issue-1");
         issue1.put("type", "UNLINKED_ASSET");
@@ -313,7 +323,8 @@ public class PSTaskManagementService {
 
         Map<String, Object> response = new HashMap<>();
         response.put("jobId", jobId);
-        response.put("status", "RUNNING");
+        response.put("status", "COMPLETE");
+        response.put("issues", issues);
         return Response.status(Response.Status.ACCEPTED).entity(response).build();
     }
 
@@ -338,7 +349,9 @@ public class PSTaskManagementService {
         Map<String, Object> job = consistencyJobs.get(jobId);
         if (job != null && job.containsKey("issues")) {
             List<Map<String, Object>> issues = (List<Map<String, Object>>) job.get("issues");
-            issues.removeIf(issue -> issueId.equals(issue.get("issueId")));
+            synchronized (issues) {
+                issues.removeIf(issue -> issueId.equals(issue.get("issueId")));
+            }
         }
         Map<String, Object> response = new HashMap<>();
         response.put("success", true);

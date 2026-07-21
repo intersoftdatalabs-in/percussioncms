@@ -64,6 +64,7 @@ export const ConsistencyChecker: React.FC = () => {
   };
 
   const pollJobStatus = async (jobId: string) => {
+    if (!isMountedRef.current) return;
     try {
       const res: ConsistencyJobStatus = await get(`${PATHS.CONSISTENCY_CHECK}/${jobId}`);
       if (isMountedRef.current) {
@@ -72,6 +73,9 @@ export const ConsistencyChecker: React.FC = () => {
           setTimeout(() => pollJobStatus(jobId), 1000);
         } else {
           setLoading(false);
+          if (res.status === "ERROR") {
+            setError("Consistency check reported an error.");
+          }
         }
       }
     } catch (err: any) {
@@ -94,6 +98,7 @@ export const ConsistencyChecker: React.FC = () => {
             issues: prev.issues?.filter((i) => i.issueId !== issueId) || [],
           };
         });
+        await pollJobStatus(jobStatus.jobId);
       }
     } catch (err: any) {
       if (isMountedRef.current) {
