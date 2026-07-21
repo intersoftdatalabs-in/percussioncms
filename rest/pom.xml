@@ -16,6 +16,13 @@
             <artifactId>perc-security-utils</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
+        <!-- US8 (992): sitemanage hosts the IPSRelationshipSummaryService + DTOs that the
+             Content Explorer relationship summary REST surface depends on. -->
+        <dependency>
+            <groupId>com.percussion</groupId>
+            <artifactId>sitemanage</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
         <dependency>
             <groupId>com.percussion</groupId>
             <artifactId>perc-system</artifactId>
