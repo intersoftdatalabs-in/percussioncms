@@ -33,9 +33,9 @@ Full automated module test suite runs:
 
 ## 3. Exceptions & Security Audit
 
-- **Exceptions Register**: Verified [`exceptions.md`](../specs/987-jcr-2-0-api-migration/exceptions.md). **0 exceptions** on critical editor, assembly, or publishing paths.
-- **Dependency Audit**: Verified [`tmp/jcr-dependency-tree.txt`](../tmp/jcr-dependency-tree.txt). Only `javax.jcr:jcr:2.0` present in runtime dependency tree.
-- **Security Audit**: Verified [`tmp/jcr-security-review.md`](../tmp/jcr-security-review.md). 0 active CVEs.
+- **Exceptions Register**: Verified [`exceptions.md`](./exceptions.md). **0 exceptions** on critical editor, assembly, or publishing paths.
+- **Dependency Audit**: Verified [`dependency-tree.txt`](./dependency-tree.txt). Only `javax.jcr:jcr:2.0` present in runtime dependency tree.
+- **Security Audit**: Verified [`security-review.md`](./security-review.md). 0 active CVEs.
 
 ---
 

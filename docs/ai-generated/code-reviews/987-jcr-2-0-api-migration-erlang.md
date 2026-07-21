@@ -8,7 +8,7 @@
 
 Completed Phase 7 (Polish & Feature-Complete Gate) for Spec 987 (JCR 1.0 to 2.0 API Migration):
 - Updated `specs/987-jcr-2-0-api-migration/tasks.md` marking all tasks across Phases 1–7 complete.
-- Recorded scripted smoke test results in `tmp/jcr-smoke-results.md`.
+- Recorded scripted smoke test results in `specs/987-jcr-2-0-api-migration/smoke-results.md`.
 - Verified exceptions register `specs/987-jcr-2-0-api-migration/exceptions.md` (0 exceptions on critical editor/publish paths).
 
 **Cross-platform path review**: All created/edited documentation files use portable repo-relative paths with `/`.
@@ -17,7 +17,7 @@ Completed Phase 7 (Polish & Feature-Complete Gate) for Spec 987 (JCR 1.0 to 2.0 
 
 - Base: `origin/development`
 - Head: `feature/987-phase7-polish`
-- Files: 3 files changed (`tasks.md`, `tmp/jcr-smoke-results.md`, `docs/ai-generated/code-reviews/987-jcr-2-0-api-migration-erlang.md`)
+- Files: 5 files changed (`tasks.md`, `smoke-results.md`, `dependency-tree.txt`, `security-review.md`, `docs/ai-generated/code-reviews/987-jcr-2-0-api-migration-erlang.md`)
 - Memory patterns hit: None
 
 ## Recommendation
