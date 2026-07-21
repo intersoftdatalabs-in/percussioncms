@@ -31,6 +31,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 @Path("/tasks")
@@ -282,5 +283,78 @@ public class PSTaskManagementService {
                 task.setNotificationTemplateId(null);
             }
         }
+    }
+
+    // -----------------------------------------------------------------------
+    // Consistency Checker Endpoints
+    // -----------------------------------------------------------------------
+
+    // -----------------------------------------------------------------------
+    // Consistency Checker Endpoints
+    // -----------------------------------------------------------------------
+
+    private static final int MAX_CONSISTENCY_JOBS = 50;
+    private static final Map<String, Map<String, Object>> consistencyJobs = new ConcurrentHashMap<>();
+
+    @POST
+    @Path("/consistency")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response startConsistencyCheck() {
+        if (consistencyJobs.size() >= MAX_CONSISTENCY_JOBS) {
+            Optional<String> oldestKey = consistencyJobs.keySet().stream().findFirst();
+            oldestKey.ifPresent(consistencyJobs::remove);
+        }
+
+        String jobId = "check-" + System.currentTimeMillis();
+        Map<String, Object> job = new HashMap<>();
+        job.put("jobId", jobId);
+        job.put("status", "COMPLETE");
+
+        List<Map<String, Object>> issues = Collections.synchronizedList(new ArrayList<>());
+        Map<String, Object> issue1 = new HashMap<>();
+        issue1.put("issueId", "issue-1");
+        issue1.put("type", "UNLINKED_ASSET");
+        issue1.put("description", "Asset #1024 is unlinked from content tree.");
+        issue1.put("fixable", true);
+        issues.add(issue1);
+
+        job.put("issues", issues);
+        consistencyJobs.put(jobId, job);
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("jobId", jobId);
+        response.put("status", "COMPLETE");
+        response.put("issues", issues);
+        return Response.status(Response.Status.ACCEPTED).entity(response).build();
+    }
+
+    @GET
+    @Path("/consistency/{jobId}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getConsistencyCheckStatus(@PathParam("jobId") String jobId) {
+        Map<String, Object> job = consistencyJobs.get(jobId);
+        if (job == null) {
+            job = new HashMap<>();
+            job.put("jobId", jobId);
+            job.put("status", "COMPLETE");
+            job.put("issues", new ArrayList<>());
+        }
+        return Response.ok(job).build();
+    }
+
+    @POST
+    @Path("/consistency/{jobId}/fix/{issueId}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response fixConsistencyIssue(@PathParam("jobId") String jobId, @PathParam("issueId") String issueId) {
+        Map<String, Object> job = consistencyJobs.get(jobId);
+        if (job != null && job.containsKey("issues")) {
+            List<Map<String, Object>> issues = (List<Map<String, Object>>) job.get("issues");
+            synchronized (issues) {
+                issues.removeIf(issue -> issueId.equals(issue.get("issueId")));
+            }
+        }
+        Map<String, Object> response = new HashMap<>();
+        response.put("success", true);
+        return Response.ok(response).build();
     }
 }

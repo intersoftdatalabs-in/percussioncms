@@ -257,4 +257,8 @@ export const PATHS = {
   get SCHEDULED_TASKS() {
     return `${SERVICES_ROOT}/taskmanagement/tasks`;
   },
+  /** System Consistency Checker — Feature 993 */
+  get CONSISTENCY_CHECK() {
+    return `${SERVICES_ROOT}/taskmanagement/tasks/consistency`;
+  },
 } as const;

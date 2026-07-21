@@ -20,8 +20,9 @@ import { ADMIN_MSG } from "./messages";
 import { TasksSection } from "./TasksSection";
 import { TaskLogsSection } from "./TaskLogsSection";
 import { TaskNotifications } from "./TaskNotifications";
+import { ToolsSection } from "./tools/ToolsSection";
 
-export type AdminTab = "tasks" | "logs" | "notifications";
+export type AdminTab = "tasks" | "logs" | "notifications" | "tools";
 
 export interface AdminShellProps {
   initialTab?: AdminTab;
@@ -113,6 +114,26 @@ export const AdminShell: React.FC<AdminShellProps> = ({ initialTab = "tasks" }) 
         >
           {message(ADMIN_MSG.TAB_NOTIFICATIONS)}
         </button>
+
+        <button
+          type="button"
+          role="tab"
+          id="tab-tools"
+          aria-selected={activeTab === "tools"}
+          aria-controls="panel-tools"
+          onClick={() => setActiveTab("tools")}
+          style={{
+            padding: "10px 20px",
+            border: "none",
+            borderBottom: activeTab === "tools" ? "3px solid #007ea8" : "none",
+            fontWeight: activeTab === "tools" ? 600 : 400,
+            background: "transparent",
+            cursor: "pointer",
+          }}
+          data-testid="tab-tools"
+        >
+          System Tools
+        </button>
       </nav>
 
       <main
@@ -124,6 +145,7 @@ export const AdminShell: React.FC<AdminShellProps> = ({ initialTab = "tasks" }) 
         {activeTab === "tasks" && <TasksSection />}
         {activeTab === "logs" && <TaskLogsSection />}
         {activeTab === "notifications" && <TaskNotifications />}
+        {activeTab === "tools" && <ToolsSection />}
       </main>
     </div>
   );
