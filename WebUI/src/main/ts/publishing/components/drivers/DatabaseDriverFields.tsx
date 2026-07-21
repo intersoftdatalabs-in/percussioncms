@@ -58,15 +58,25 @@ function Field({
 }
 
 /**
- * Database common + MSSQL/MySQL/Oracle fields (Minuet property key names).
+ * Database common + MSSQL/MySQL/Oracle fields.
+ *
+ * <p>Property keys match the constants on the backend
+ * {@code com.percussion.services.pubserver.IPSPubServerDao} and the legacy
+ * Minuet {@code percName} attributes in {@code cm/.../propEditor.jsp}. In
+ * particular, MSSQL uses {@code owner} (not {@code schema}) and Oracle uses
+ * {@code sid} (not {@code database}); see
+ * {@code PSDatabasePubServer(String)} which reads
+ * {@code PUBLISH_OWNER_PROPERTY} for MSSQL and {@code PUBLISH_SCHEMA_PROPERTY}
+ * for Oracle.</p>
  */
 export function DatabaseDriverFields({
   driver,
   properties,
   onChange,
 }: DatabaseDriverFieldsProps): React.ReactElement {
+  const d = driver.toUpperCase();
   return (
-    <div data-testid={`driver-db-${driver.toLowerCase()}`}>
+    <div data-testid={`driver-db-${d.toLowerCase()}`}>
       <Field
         label="Database server"
         propKey="server"
@@ -81,13 +91,24 @@ export function DatabaseDriverFields({
         onChange={onChange}
         required
       />
-      <Field
-        label="Database name"
-        propKey="database"
-        properties={properties}
-        onChange={onChange}
-        required
-      />
+      {(d === "MYSQL" || d === "MSSQL") && (
+        <Field
+          label="Database name"
+          propKey="database"
+          properties={properties}
+          onChange={onChange}
+          required
+        />
+      )}
+      {d === "ORACLE" && (
+        <Field
+          label="SID / service"
+          propKey="sid"
+          properties={properties}
+          onChange={onChange}
+          required
+        />
+      )}
       <Field
         label="User ID"
         propKey="userid"
@@ -103,20 +124,22 @@ export function DatabaseDriverFields({
         type="password"
         required
       />
-      {driver.toUpperCase() === "ORACLE" && (
+      {d === "MSSQL" && (
         <Field
-          label="SID / service"
-          propKey="sid"
+          label="Owner"
+          propKey="owner"
           properties={properties}
           onChange={onChange}
+          required
         />
       )}
-      {driver.toUpperCase() === "MSSQL" && (
+      {d === "ORACLE" && (
         <Field
           label="Schema"
           propKey="schema"
           properties={properties}
           onChange={onChange}
+          required
         />
       )}
     </div>

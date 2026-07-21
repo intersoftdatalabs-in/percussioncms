@@ -102,8 +102,8 @@ export function FileDriverFields({
           required
         />
         <Field
-          label="User"
-          propKey="user"
+          label="User ID"
+          propKey="userid"
           properties={properties}
           onChange={onChange}
           required
@@ -152,7 +152,7 @@ export function FileDriverFields({
         />
         <Field
           label="Bucket"
-          propKey="bucketName"
+          propKey="bucketlocation"
           properties={properties}
           onChange={onChange}
           required

@@ -16,6 +16,34 @@
  */
 
 import type { PublishServer, PublishServerProperty } from "./types";
+import { LEGACY_PROPERTY_ALIASES } from "./serverValidation";
+
+/**
+ * Drivers for which the {@code user → userid} alias applies. These are the
+ * drivers whose backend delivery handler reads
+ * {@code IPSPubServerDao.PUBLISH_USER_ID_PROPERTY} when authenticating. The
+ * alias must NOT be applied for non-matching drivers (e.g. a Local server
+ * with an unrelated custom property named {@code user} would otherwise be
+ * silently dropped by {@link PSPubServerService.setProperties()}).
+ */
+const USER_ALIAS_DRIVERS = new Set(["FTP", "FTPS", "SFTP"]);
+
+/**
+ * Drivers for which the {@code bucketName → bucketlocation} alias applies.
+ * Mirrors the S3 delivery handler, which reads
+ * {@code IPSPubServerDao.PUBLISH_AS3_BUCKET_PROPERTY}.
+ */
+const BUCKET_ALIAS_DRIVERS = new Set(["AMAZONS3", "S3"]);
+
+/**
+ * Test whether a property value is absent or only whitespace. Matches the
+ * blankness semantics used by {@link validateServerForm} so the read path
+ * does not promote a whitespace-only legacy value over a missing canonical
+ * value (or vice-versa).
+ */
+function isBlank(value: unknown): boolean {
+  return value == null || String(value).trim() === "";
+}
 
 /** UI-editable server form state (flattened). */
 export interface ServerEditorModel {
@@ -32,6 +60,7 @@ export interface ServerEditorModel {
 
 export function propsToMap(
   props: PublishServerProperty[] | Record<string, string> | undefined,
+  driver?: string,
 ): Record<string, string> {
   if (props == null) {
     return {};
@@ -41,7 +70,7 @@ export function propsToMap(
     for (const [k, v] of Object.entries(props)) {
       out[k] = v == null ? "" : String(v);
     }
-    return out;
+    return applyLegacyAliases(out, driver);
   }
   const out: Record<string, string> = {};
   for (const p of props) {
@@ -51,7 +80,44 @@ export function propsToMap(
     }
     out[key] = p.value == null ? "" : String(p.value);
   }
-  return out;
+  return applyLegacyAliases(out, driver);
+}
+
+/**
+ * Self-heal publishing-server property records that were written by an
+ * earlier draft of the React driver components using non-canonical keys
+ * (e.g. {@code user} instead of {@code userid}, {@code bucketName} instead
+ * of {@code bucketlocation}). When the canonical key is absent but the
+ * legacy alias is present for the matching driver, the value is surfaced
+ * under the canonical key so the editor displays it; the legacy alias is
+ * then dropped so the next save writes only the canonical key
+ * (self-healing the persisted record). The alias is strictly scoped to
+ * the driver that owns it — applying it universally would silently delete
+ * unrelated custom properties (e.g. a Local server with a property named
+ * {@code user}) because {@code PSPubServerService.setProperties()} clears
+ * the persisted set and re-adds only what the client sends. See
+ * {@link LEGACY_PROPERTY_ALIASES} for the alias table.
+ */
+function applyLegacyAliases(
+  map: Record<string, string>,
+  driver?: string,
+): Record<string, string> {
+  const d = (driver ?? "").toUpperCase();
+  if (USER_ALIAS_DRIVERS.has(d) && "userid" in LEGACY_PROPERTY_ALIASES) {
+    const legacy = LEGACY_PROPERTY_ALIASES.userid;
+    if (isBlank(map["userid"]) && !isBlank(map[legacy])) {
+      map["userid"] = map[legacy];
+    }
+    delete map[legacy];
+  }
+  if (BUCKET_ALIAS_DRIVERS.has(d) && "bucketlocation" in LEGACY_PROPERTY_ALIASES) {
+    const legacy = LEGACY_PROPERTY_ALIASES.bucketlocation;
+    if (isBlank(map["bucketlocation"]) && !isBlank(map[legacy])) {
+      map["bucketlocation"] = map[legacy];
+    }
+    delete map[legacy];
+  }
+  return map;
 }
 
 export function mapToProps(
@@ -86,8 +152,19 @@ export function serverToModel(raw: PublishServer | Record<string, unknown>): Ser
   const root = (raw as { serverInfo?: PublishServer }).serverInfo
     ? ((raw as { serverInfo: PublishServer }).serverInfo as PublishServer)
     : (raw as PublishServer);
-  const map = propsToMap(root.properties);
-  const driver = map.driver || "Local";
+  // Read the driver BEFORE aliasing so the alias layer can scope the
+  // user / bucketName → userid / bucketlocation rewrite to drivers that
+  // actually own those property names (FTP/FTPS/SFTP and AMAZONS3/S3).
+  const driverFromRoot = (root as { driver?: string }).driver;
+  const driverFromProps =
+    (Array.isArray(root.properties)
+      ? root.properties.find((p) => p?.key === "driver")?.value
+      : (root.properties as Record<string, string> | undefined)?.driver) ??
+    "";
+  const rawMap = propsToMap(root.properties);
+  const driver =
+    driverFromRoot || driverFromProps || rawMap.driver || "Local";
+  const map = propsToMap(root.properties, driver);
   return {
     serverId: String(root.serverId ?? ""),
     serverName: String(root.serverName ?? root.name ?? ""),

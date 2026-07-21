@@ -29,7 +29,7 @@ describe("requiredFieldsForDriver", () => {
   it("requires FTP remote fields", () => {
     const f = requiredFieldsForDriver("FTP");
     expect(f).toEqual(
-      expect.arrayContaining(["serverip", "user", "password", "port"]),
+      expect.arrayContaining(["serverip", "userid", "password", "port"]),
     );
   });
 
@@ -37,7 +37,7 @@ describe("requiredFieldsForDriver", () => {
     expect(requiredFieldsForDriver("AMAZONS3")).toEqual(
       expect.arrayContaining([
         "serverName",
-        "bucketName",
+        "bucketlocation",
         "region",
         "accesskey",
         "securitykey",
@@ -63,13 +63,28 @@ describe("validateServerForm", () => {
     const r = validateServerForm({
       serverName: "ftp1",
       driver: "FTP",
-      properties: { user: "u", password: "p", port: "21" },
+      properties: { userid: "u", password: "p", port: "21" },
     });
     expect(r.valid).toBe(false);
     expect(r.missing).toContain("serverip");
   });
 
-  it("passes S3 when form uses accesskey/securitykey", () => {
+  it("passes S3 when form uses canonical bucketlocation key", () => {
+    const r = validateServerForm({
+      serverName: "s3prod",
+      driver: "AMAZONS3",
+      properties: {
+        accesskey: "AKIA",
+        securitykey: "secret",
+        bucketlocation: "my-bucket",
+        region: "us-east-1",
+      },
+    });
+    expect(r.valid).toBe(true);
+    expect(r.missing).toEqual([]);
+  });
+
+  it("fails S3 when bucket is stored under the legacy bucketName key", () => {
     const r = validateServerForm({
       serverName: "s3prod",
       driver: "AMAZONS3",
@@ -80,24 +95,144 @@ describe("validateServerForm", () => {
         region: "us-east-1",
       },
     });
-    expect(r.valid).toBe(true);
-    expect(r.missing).toEqual([]);
+    expect(r.valid).toBe(false);
+    expect(r.missing).toContain("bucketlocation");
   });
 
-  it("fails S3 when only camelCase keys present (mismatch with form)", () => {
-    const r = validateServerForm({
-      serverName: "s3prod",
-      driver: "AMAZONS3",
+  it("requires SFTP userid (canonical) and rejects the legacy 'user' key", () => {
+    const required = requiredFieldsForDriver("SFTP");
+    expect(required).toEqual(
+      expect.arrayContaining(["serverName", "serverip", "userid", "port"]),
+    );
+    expect(required).not.toContain("user");
+    const legacy = validateServerForm({
+      serverName: "sftp1",
+      driver: "SFTP",
+      properties: { serverip: "h", port: "22", user: "alice", password: "p" },
+    });
+    expect(legacy.valid).toBe(false);
+    expect(legacy.missing).toContain("userid");
+    const canonical = validateServerForm({
+      serverName: "sftp1",
+      driver: "SFTP",
+      properties: { serverip: "h", port: "22", userid: "alice", password: "p" },
+    });
+    expect(canonical.valid).toBe(true);
+    expect(canonical.missing).toEqual([]);
+  });
+
+  it("requires MySQL canonical fields and rejects 'schema' / 'sid'", () => {
+    const ok = validateServerForm({
+      serverName: "mysql1",
+      driver: "MYSQL",
       properties: {
-        accessKey: "AKIA",
-        secretKey: "secret",
-        bucketName: "my-bucket",
-        region: "us-east-1",
+        driver: "MYSQL",
+        server: "db.local",
+        port: "3306",
+        database: "appdb",
+        userid: "alice",
+        password: "p",
+      },
+    });
+    expect(ok.valid).toBe(true);
+
+    const wrong = validateServerForm({
+      serverName: "mysql1",
+      driver: "MYSQL",
+      properties: {
+        driver: "MYSQL",
+        server: "db.local",
+        port: "3306",
+        database: "appdb",
+        userid: "alice",
+        password: "p",
+        schema: "dbo",
+        sid: "orcl",
+      },
+    });
+    expect(wrong.missing).not.toContain("schema");
+    expect(wrong.missing).not.toContain("sid");
+  });
+
+  it("requires MSSQL canonical fields including owner", () => {
+    const ok = validateServerForm({
+      serverName: "mssql1",
+      driver: "MSSQL",
+      properties: {
+        driver: "MSSQL",
+        server: "db.local",
+        port: "1433",
+        database: "appdb",
+        userid: "alice",
+        owner: "dbo",
+        password: "p",
+      },
+    });
+    expect(ok.valid).toBe(true);
+
+    const missingOwner = validateServerForm({
+      serverName: "mssql1",
+      driver: "MSSQL",
+      properties: {
+        driver: "MSSQL",
+        server: "db.local",
+        port: "1433",
+        database: "appdb",
+        userid: "alice",
+        password: "p",
+        schema: "dbo",
+      },
+    });
+    expect(missingOwner.valid).toBe(false);
+    expect(missingOwner.missing).toContain("owner");
+  });
+
+  it("requires Oracle canonical fields (sid, schema) and rejects database", () => {
+    const ok = validateServerForm({
+      serverName: "ora1",
+      driver: "ORACLE",
+      properties: {
+        driver: "ORACLE",
+        server: "db.local",
+        port: "1521",
+        userid: "alice",
+        sid: "orcl",
+        schema: "APP",
+        password: "p",
+      },
+    });
+    expect(ok.valid).toBe(true);
+
+    const missingSid = validateServerForm({
+      serverName: "ora1",
+      driver: "ORACLE",
+      properties: {
+        driver: "ORACLE",
+        server: "db.local",
+        port: "1521",
+        userid: "alice",
+        schema: "APP",
+        password: "p",
+        database: "X",
+      },
+    });
+    expect(missingSid.valid).toBe(false);
+    expect(missingSid.missing).toContain("sid");
+    expect(missingSid.missing).not.toContain("database");
+  });
+
+  it("treats whitespace-only values as missing", () => {
+    const r = validateServerForm({
+      serverName: "ftp1",
+      driver: "FTP",
+      properties: {
+        serverip: "h",
+        port: "21",
+        userid: "   ",
+        password: "p",
       },
     });
     expect(r.valid).toBe(false);
-    expect(r.missing).toEqual(
-      expect.arrayContaining(["accesskey", "securitykey"]),
-    );
+    expect(r.missing).toContain("userid");
   });
 });

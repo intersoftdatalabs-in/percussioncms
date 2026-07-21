@@ -37,10 +37,34 @@ export interface ServerFormValues {
   properties?: Record<string, string>;
 }
 
-const FILE_REMOTE = ["serverip", "user", "password", "port"] as const;
+/**
+ * Canonical publish-server property keys. These match the constants on the
+ * backend {@code com.percussion.services.pubserver.IPSPubServerDao} (e.g.
+ * {@code PUBLISH_USER_ID_PROPERTY = "userid"},
+ * {@code PUBLISH_AS3_BUCKET_PROPERTY = "bucketlocation"}) and the legacy
+ * Minuet {@code percName} attributes in {@code cm/.../propEditor.jsp}. The
+ * React driver-field components write these keys on save; the backend
+ * handlers (FTP/FTPS/SFTP, S3, JDBC) read them on login. Writing the wrong
+ * key silently breaks publish connectivity (e.g. FTP logs in with an empty
+ * username).
+ */
+const FILE_REMOTE = ["serverip", "userid", "password", "port"] as const;
 /** Product / Minuet property keys (IPSPubServerDao AS3 keys are lowercase). */
-const S3_FIELDS = ["accesskey", "securitykey", "bucketName", "region"] as const;
-const DB_FIELDS = ["driver", "server", "database", "user", "password"] as const;
+const S3_FIELDS = ["accesskey", "securitykey", "bucketlocation", "region"] as const;
+
+/**
+ * Legacy aliases that earlier drafts of the React driver-field components
+ * wrote to the DB instead of the canonical key. Servers saved before this
+ * fix landed may have their credential stored under the alias and appear
+ * blank in the modern UI; {@link propsToMap} falls back to the alias so the
+ * value is surfaced for the next save (which writes it under the canonical
+ * key and self-heals the record).
+ */
+export const LEGACY_PROPERTY_ALIASES: Readonly<Record<string, string>> =
+  Object.freeze({
+    userid: "user",
+    bucketlocation: "bucketName",
+  });
 
 export function requiredFieldsForDriver(driver: string): string[] {
   const d = (driver || "").toUpperCase();
@@ -51,18 +75,44 @@ export function requiredFieldsForDriver(driver: string): string[] {
     return ["serverName", ...FILE_REMOTE];
   }
   if (d === "SFTP") {
-    return ["serverName", "serverip", "user", "port"];
+    return ["serverName", "serverip", "userid", "port"];
   }
   if (d === "AMAZONS3" || d === "S3") {
     return ["serverName", ...S3_FIELDS];
   }
-  if (
-    d.includes("MSSQL") ||
-    d.includes("MYSQL") ||
-    d.includes("ORACLE") ||
-    d === "DATABASE"
-  ) {
-    return ["serverName", ...DB_FIELDS];
+  // Database drivers: property keys mirror IPSPubServerDao.PUBLISH_*_PROPERTY
+  // (PUBLISH_DATABASE_NAME_PROPERTY="database",
+  //  PUBLISH_OWNER_PROPERTY="owner", PUBLISH_SCHEMA_PROPERTY="schema",
+  //  PUBLISH_SID_PROPERTY="sid") and the legacy Minuet propEditor.jsp.
+  if (d.includes("MYSQL") || d === "MYSQL8") {
+    return ["serverName", "driver", "server", "port", "userid", "database", "password"];
+  }
+  if (d.includes("MSSQL")) {
+    return [
+      "serverName",
+      "driver",
+      "server",
+      "port",
+      "userid",
+      "database",
+      "owner",
+      "password",
+    ];
+  }
+  if (d.includes("ORACLE")) {
+    return [
+      "serverName",
+      "driver",
+      "server",
+      "port",
+      "userid",
+      "sid",
+      "schema",
+      "password",
+    ];
+  }
+  if (d === "DATABASE") {
+    return ["serverName", "driver", "server", "port", "userid", "database", "password"];
   }
   return ["serverName"];
 }
