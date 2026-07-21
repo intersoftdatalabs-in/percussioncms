@@ -104,9 +104,9 @@
 - [x] T050 [US4] Ensure [contracts/integrator-rebuild.md](./contracts/integrator-rebuild.md) is accurate vs actual signature changes; update if product public Java types leaked new requirements
 - [x] T051 [US4] Update exception register `specs/987-jcr-2-0-api-migration/exceptions.md` for any non-critical leftover integrator-facing sites
 - [x] T052 [US4] Run tests for toolkit/segmentation/extensions modules touched; fix failures
-- [ ] T053 [US4] Commit US4 work and open PR; pause for review
-- [ ] T054 [US4] Monitor CI/Kilo Code; address feedback; resolve review threads per AGENTS
-- [ ] T055 [US4] Verify human approval and merge of US4 PR
+- [x] T053 [US4] Commit US4 work and open PR (PR #1452 submitted & merged); pause for review
+- [x] T054 [US4] Monitor CI/Kilo Code; address feedback; resolve review threads per AGENTS (PR #1452 review threads resolved)
+- [x] T055 [US4] Verify human approval and merge of US4 PR (PR #1452 merged)
 
 ---
 
@@ -119,11 +119,11 @@
 ### Implementation
 
 - [x] T056 [P] [US3] Draft release-notes / changelog entry covering JCR 2.0 API upgrade, no content data migration, custom extension rebuild requirement (paths: product release-notes location used by the project, or `specs/987-jcr-2-0-api-migration/release-notes-draft.md` if no single CHANGELOG exists)
-- [x] T057 [US3] Run `./mvn-env.sh -pl system -am dependency:tree -Dincludes=javax.jcr:jcr` (and broader tree if needed) and record evidence of **2.0 only** in `tmp/jcr-dependency-tree.txt`
-- [x] T058 [US3] Perform/record dependency or vulnerability review note for repository stack (no new unexplained high-severity findings, or document exceptions) in `tmp/jcr-security-review.md`
+- [x] T057 [US3] Run `./mvn-env.sh -pl system -am dependency:tree -Dincludes=javax.jcr:jcr` (and broader tree if needed) and record evidence of **2.0 only** in `specs/987-jcr-2-0-api-migration/dependency-tree.txt`
+- [x] T058 [US3] Perform/record dependency or vulnerability review note for repository stack (no new unexplained high-severity findings, or document exceptions) in `specs/987-jcr-2-0-api-migration/security-review.md`
 - [x] T059 [US3] Cross-link integrator rebuild contract from release notes draft to `specs/987-jcr-2-0-api-migration/contracts/integrator-rebuild.md`
-- [ ] T060 [US3] Commit docs/evidence and open PR (may combine with polish if small); pause for review
-- [ ] T061 [US3] Monitor CI/Kilo Code if code touched; resolve review threads; verify merge
+- [x] T060 [US3] Commit docs/evidence and open PR (PR #1452 submitted & merged); pause for review
+- [x] T061 [US3] Monitor CI/Kilo Code if code touched; resolve review threads; verify merge (PR #1452 merged)
 
 ---
 
@@ -132,14 +132,14 @@
 **Goal**: FR-010 / FR-012 / SC-003 / SC-006 — full automated green + scripted smoke; housekeeping.  
 **Depends on**: US1–US4 complete (or US3 docs merged).
 
-- [ ] T062 [P] Run Spotless (or project format check) on all touched modules via `./mvn-env.sh` Spotless goals used by the repo
-- [ ] T063 [P] Update nearest module README or Maven site notes if implementor behavior for unsupported JCR features needs operator/dev visibility (`modules/utils` and/or `system` docs as applicable)
-- [ ] T064 Finalize `specs/987-jcr-2-0-api-migration/exceptions.md` (empty list preferred; no critical-path entries)
-- [ ] T065 Run full designated automated suite: `./mvn-env.sh -pl modules/utils,system,projects/sitemanage,modules/perc-toolkit -am test` (expand if CI requires)
-- [ ] T066 Execute **scripted smoke** per [quickstart.md](./quickstart.md) (create/save, open, preview, one publish); record results on final PR comment or `tmp/jcr-smoke-results.md`
-- [ ] T067 Open/update final feature-complete PR (or confirm last story PR includes smoke evidence); monitor checks; resolve threads
-- [ ] T068 Verify issue #506 can be closed or updated with remaining tracked exceptions only
-- [ ] T069 Confirm feature checklist readiness: compile 2.0-only, deprecation inventory done, docs published, smoke recorded
+- [x] T062 [P] Run Spotless (or project format check) on all touched modules via `./mvn-env.sh` Spotless goals used by the repo
+- [x] T063 [P] Update nearest module README or Maven site notes if implementor behavior for unsupported JCR features needs operator/dev visibility (`modules/utils` and/or `system` docs as applicable)
+- [x] T064 Finalize `specs/987-jcr-2-0-api-migration/exceptions.md` (empty list preferred; no critical-path entries)
+- [x] T065 Run full designated automated suite: `./mvn-env.sh -pl modules/utils,system,projects/sitemanage,modules/perc-toolkit -am test` (expand if CI requires)
+- [x] T066 Execute **scripted smoke** per [quickstart.md](./quickstart.md) (create/save, open, preview, one publish); record results on final PR comment or `specs/987-jcr-2-0-api-migration/smoke-results.md`
+- [x] T067 Open/update final feature-complete PR (or confirm last story PR includes smoke evidence); monitor checks; resolve threads
+- [x] T068 Verify issue #506 can be closed or updated with remaining tracked exceptions only
+- [x] T069 Confirm feature checklist readiness: compile 2.0-only, deprecation inventory done, docs published, smoke recorded
 
 ---
 
