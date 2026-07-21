@@ -72,6 +72,7 @@ final class BundledJdbcDrivers {
      */
     static final String[] STAGING_GLOBS = {
             "mariadb-java-client-*.jar",
+            "mysql-connector-j-*.jar",
             "derby-*.jar",
             "derbyclient-*.jar",
             "derbynet-*.jar",
@@ -97,6 +98,7 @@ final class BundledJdbcDrivers {
      */
     static final String[][] GLOB_TO_ARTIFACT_ID = {
             {"mariadb-java-client-*.jar", "mariadb-java-client"},
+            {"mysql-connector-j-*.jar",   "mysql-connector-j"},
             {"derby-*.jar",               "derby"},
             {"derbyclient-*.jar",         "derbyclient"},
             {"derbynet-*.jar",            "derbynet"},
@@ -110,6 +112,7 @@ final class BundledJdbcDrivers {
     static {
         Set<String> filenames = new LinkedHashSet<>();
         filenames.add("mariadb-java-client-3.5.7.jar");
+        filenames.add("mysql-connector-j-8.4.0.jar");
         filenames.add("derby-10.17.1.0.jar");
         filenames.add("derbyclient-10.17.1.0.jar");
         filenames.add("derbynet-10.17.1.0.jar");

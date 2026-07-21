@@ -192,6 +192,7 @@
 			<fileset dir="${install.dir}/jetty/base/lib/jdbc">
 				<!-- CURRENT (matches BundledJdbcDrivers.EXACT_FILENAMES) -->
 				<include name="mariadb-java-client-3.5.7.jar" />
+				<include name="mysql-connector-j-8.4.0.jar" />
 				<include name="derby-10.17.1.0.jar" />
 				<include name="derbyclient-10.17.1.0.jar" />
 				<include name="derbynet-10.17.1.0.jar" />
@@ -751,6 +752,7 @@
 				<include name="mssql-jdbc-*.jar" />
 				<include name="jtds-*.jar" />
 				<include name="ojdbc17-*.jar" />
+				<include name="mysql-connector-j-*.jar" />
 				<include name="mysql-connector-java-*.jar" />
 				<include name="mysql-connector.jar" />
 			</fileset>

@@ -210,6 +210,7 @@
         <mockito.version>5.21.0</mockito.version>
         <mssql.version>13.3.1.jre11-preview</mssql.version>
         <mariadb.version>3.5.7</mariadb.version>
+        <mysql.connector.version>8.4.0</mysql.connector.version>
         <ojdbc17.version>23.26.0.0.0</ojdbc17.version>
         <nettyall.version>4.2.9.Final</nettyall.version>
         <opencsv.version>5.12.0</opencsv.version>
@@ -1473,6 +1474,11 @@
                 <groupId>org.mariadb.jdbc</groupId>
                 <artifactId>mariadb-java-client</artifactId>
                 <version>${mariadb.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.mysql</groupId>
+                <artifactId>mysql-connector-j</artifactId>
+                <version>${mysql.connector.version}</version>
             </dependency>
             <dependency>
                 <groupId>evil.deeds</groupId>

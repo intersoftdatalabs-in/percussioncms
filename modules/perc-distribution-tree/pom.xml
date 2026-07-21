@@ -150,6 +150,11 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
+            <groupId>com.mysql</groupId>
+            <artifactId>mysql-connector-j</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
             <groupId>org.apache.derby</groupId>
             <artifactId>derby</artifactId>
             <scope>provided</scope>
@@ -771,7 +776,7 @@
                                 <argument>--artifact</argument>
                                 <argument>${project.build.directory}/perc-distribution-tree.jar</argument>
                                 <argument>--expected-driver-glob</argument>
-                                <argument>mariadb-java-client-*.jar,derby-*.jar,derbyclient-*.jar,derbynet-*.jar,derbyshared-*.jar,derbytools-*.jar,mssql-jdbc-*.jar,jtds-*.jar,ojdbc17-*.jar</argument>
+                                <argument>mariadb-java-client-*.jar,mysql-connector-j-*.jar,derby-*.jar,derbyclient-*.jar,derbynet-*.jar,derbyshared-*.jar,derbytools-*.jar,mssql-jdbc-*.jar,jtds-*.jar,ojdbc17-*.jar</argument>
                             </arguments>
                         </configuration>
                     </execution>
