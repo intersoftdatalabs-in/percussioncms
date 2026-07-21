@@ -248,7 +248,11 @@ function SummaryView(props: { summary: ClipboardPasteSummary }): React.JSX.Eleme
           {summary.results
             .filter((r) => !r.ok)
             .map((r, idx) => (
-              <li key={`${r.item.path}-${idx}`}>
+              <li
+                key={`${r.item.path}-${idx}`}
+                data-testid={`clipboard-summary-failure-${idx}`}
+                data-conflict={r.status === 409 ? "true" : undefined}
+              >
                 <code>{r.item.path}</code>: {r.message}
               </li>
             ))}

@@ -242,6 +242,12 @@ export interface PSCopyRequest {
  * Result of one clipboard paste operation. Reports the per-item
  * outcome so the explorer shell can refresh the tree / list and
  * surface partial-failure messages.
+ *
+ * <p>{@link status} carries the HTTP status from the failed REST call
+ * when available (e.g. {@code 409} for a concurrent-rename/move
+ * conflict). The presence of {@code status} lets the consumer
+ * distinguish recoverable conflicts (409) from generic failures
+ * (500 / network) without parsing {@link message}.</p>
  */
 export interface ClipboardPasteResultItem {
   item: ClipboardItem;
@@ -249,6 +255,8 @@ export interface ClipboardPasteResultItem {
   ok: boolean;
   /** Error message from the failed REST call, present when {@link ok} is false. */
   message?: string;
+  /** HTTP status from the failed REST call (e.g. 409 = conflict). Absent when the error is not an HTTP failure (network, transport). */
+  status?: number;
 }
 
 export interface ClipboardPasteSummary {

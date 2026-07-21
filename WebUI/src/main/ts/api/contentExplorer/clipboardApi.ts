@@ -110,8 +110,34 @@ export async function pasteClipboardItems(
       if (s.status === "fulfilled") {
         return { item: it, ok: true };
       }
-      const reason = s.reason instanceof Error ? s.reason.message : String(s.reason);
-      return { item: it, ok: false, message: reason };
+      const reason = s.reason;
+      // Carry the HTTP status through when the rejection is an ApiError so
+      // consumers (e.g. ClipboardPanel) can distinguish recoverable 409
+      // conflicts from generic 500 / network failures without parsing the
+      // message. See Edge Cases #3 / T092c.
+      const status =
+        reason && typeof reason === "object" && "status" in reason &&
+        typeof (reason as { status?: unknown }).status === "number"
+          ? (reason as { status: number }).status
+          : undefined;
+      let message: string;
+      if (reason instanceof Error) {
+        message = reason.message;
+      } else if (status != null) {
+        // ApiError (or any { status, statusText }) — build a clear,
+        // human-readable message so the UI can render the conflict
+        // without parsing JSON.
+        const statusText =
+          reason && typeof reason === "object" && "statusText" in reason
+            ? String((reason as { statusText?: unknown }).statusText ?? "")
+            : "";
+        message = statusText ? `${status} ${statusText}` : `${status}`;
+      } else {
+        message = String(reason);
+      }
+      return status != null
+        ? { item: it, ok: false, message, status }
+        : { item: it, ok: false, message };
     }),
   };
 }

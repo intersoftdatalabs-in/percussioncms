@@ -97,3 +97,60 @@ describe("pasteClipboardItems", () => {
     expect(summary).toEqual({ operation: "copy", results: [] });
   });
 });
+
+describe("pasteClipboardItems / T092c / Edge Cases #3: concurrent rename/move 409", () => {
+  it("surfaces a 409 from moveItem as a clear conflict per-item result (no silent overwrite)", async () => {
+    // The default transport hits POST /Rhythmyx/rest/pathmanagement/path/moveItem.
+    // Mock the server returning 409 Conflict — the second of two concurrent
+    // moves on the same source folder; the first wins, the second sees 409.
+    vi.spyOn(global, "fetch").mockResolvedValueOnce(
+      new Response(
+        JSON.stringify({ error: { code: "folder.nameConflict", message: "Folder already exists at target path" } }),
+        { status: 409, headers: { "Content-Type": "application/json" } },
+      ),
+    );
+    const summary = await pasteClipboardItems(
+      [folder("shared")],
+      "cut",
+    );
+    expect(summary.results).toHaveLength(1);
+    expect(summary.results[0]?.ok).toBe(false);
+    expect(summary.results[0]?.status).toBe(409);
+    expect(summary.results[0]?.message).toContain("409");
+    // No silent overwrite: the per-item failure is reported; the other
+    // items in the clipboard (none here) would still proceed via
+    // Promise.allSettled in the multi-item case.
+  });
+
+  it("surfaces 409 from moveItem in a mixed-clipboard paste; the rest proceed", async () => {
+    // First item (folder) — server returns 409 conflict.
+    // Second item (folder) — server returns 200 success.
+    vi.spyOn(global, "fetch")
+      .mockResolvedValueOnce(
+        new Response(
+          JSON.stringify({ error: { code: "folder.nameConflict", message: "Already exists" } }),
+          { status: 409, headers: { "Content-Type": "application/json" } },
+        ),
+      )
+      .mockResolvedValueOnce(
+        new Response("", { status: 200 }),
+      );
+    const summary = await pasteClipboardItems(
+      [folder("conflict"), folder("ok")],
+      "copy",
+    );
+    expect(summary.results).toHaveLength(2);
+    expect(summary.results[0]?.ok).toBe(false);
+    expect(summary.results[0]?.status).toBe(409);
+    expect(summary.results[1]?.ok).toBe(true);
+    expect(summary.results[1]?.status).toBeUndefined();
+  });
+
+  it("does not set status when the rejection is a generic Error (network failure)", async () => {
+    const transport = vi.fn().mockRejectedValueOnce(new Error("network down"));
+    const summary = await pasteClipboardItems([folder("x")], "copy", transport);
+    expect(summary.results[0]?.ok).toBe(false);
+    expect(summary.results[0]?.status).toBeUndefined();
+    expect(summary.results[0]?.message).toBe("network down");
+  });
+});

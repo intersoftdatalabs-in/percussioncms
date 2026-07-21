@@ -206,4 +206,37 @@ describe("ClipboardPanel", () => {
     );
     await renderA11yGate(container);
   });
+
+  it("T092c / Edge Cases #3: marks the failure row with data-conflict when status=409", async () => {
+    // Simulate the second of two concurrent moves losing the race; the
+    // default paste transport would convert this ApiError into a
+    // ClipboardPasteResultItem with status=409. The summary view must
+    // expose that as data-conflict="true" so Playwright + axe can assert
+    // it without scraping the human-readable text.
+    const apiError = Object.assign(new Error("409 Conflict"), {
+      status: 409,
+      statusText: "Conflict",
+    });
+    const paste = vi.fn().mockRejectedValueOnce(apiError);
+    const onPasteSettled = vi.fn();
+    render(
+      <ClipboardPanel
+        clipboard={makeCb([item("shared")])}
+        onClipboardChange={() => {}}
+        items={[]}
+        mode="cut"
+        onModeChange={() => {}}
+        target={{ path: "/Sites/Foo", accessLevel: "ADMIN" }}
+        paste={paste}
+        onPasteSettled={onPasteSettled}
+      />,
+    );
+    fireEvent.click(screen.getByTestId("clipboard-paste"));
+    await waitFor(() => {
+      expect(onPasteSettled).toHaveBeenCalledTimes(1);
+    });
+    const failureRow = screen.getByTestId("clipboard-summary-failure-0");
+    expect(failureRow.getAttribute("data-conflict")).toBe("true");
+    expect(failureRow.textContent).toContain("409");
+  });
 });
