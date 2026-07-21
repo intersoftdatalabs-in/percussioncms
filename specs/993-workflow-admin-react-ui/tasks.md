@@ -143,15 +143,15 @@
 **Independent Test**: Open system tools section, trigger consistency verification, view reported issues, apply a fix, verify resolved state.
 
 ### Tests
-- [ ] T071 [P] [US8] Integration smoke tests for consistency tool views in `WebUI/src/test/ts/admin/AdminShell.test.tsx`
+- [x] T071 [P] [US8] Integration smoke tests for consistency tool views in `WebUI/src/test/ts/admin/AdminShell.test.tsx`
 
 ### Implementation
-- [ ] T072 [P] [US8] Create tools navigation layout `WebUI/src/main/ts/admin/tools/ToolsSection.tsx`
-- [ ] T073 [P] [US8] Create consistency check results display `WebUI/src/main/ts/admin/tools/ConsistencyChecker.tsx`
-- [ ] T074 [US8] Wire system tools view into main shell `WebUI/src/main/ts/admin/AdminShell.tsx`
-- [ ] T075 [US8] Commit changes and submit PR for review, pausing downstream tasks
-- [ ] T076 [US8] Monitor Kilo Code check, address feedback, and resolve comments (pause on check failure)
-- [ ] T077 [US8] Verify human approval and merge of PR before proceeding
+- [x] T072 [P] [US8] Create tools navigation layout `WebUI/src/main/ts/admin/tools/ToolsSection.tsx`
+- [x] T073 [P] [US8] Create consistency check results display `WebUI/src/main/ts/admin/tools/ConsistencyChecker.tsx`
+- [x] T074 [US8] Wire system tools view into main shell `WebUI/src/main/ts/admin/AdminShell.tsx`
+- [x] T075 [US8] Commit changes and submit PR for review, pausing downstream tasks
+- [x] T076 [US8] Monitor Kilo Code check, address feedback, and resolve comments (pause on check failure)
+- [x] T077 [US8] Verify human approval and merge of PR before proceeding
 
 ## Phase 11: Polish & Cross-Cutting Concerns
 - [ ] T078 [P] Update WebUI README.md with modernization info and routing paths
