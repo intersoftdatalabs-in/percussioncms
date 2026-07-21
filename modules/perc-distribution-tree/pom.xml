@@ -755,17 +755,18 @@
                         </configuration>
                     </execution>
                     <!-- Verify the assembled distribution ships JDBC drivers (FR-007 / SC-005).
-                         Runs scripts/verify-jdbc-drivers.sh on the just-built jar; non-zero
-                         exit fails the build. Uses the expected-driver-glob option so the
-                         check stays correct across driver version bumps without editing this pom. -->
+                         Runs the Java port of scripts/verify-jdbc-drivers.sh so the build gate
+                         is cross-platform (Windows/Linux/macOS, see root AGENTS.md). Uses the
+                         expected-driver-glob option so the check stays correct across driver
+                         version bumps without editing this pom. -->
                     <execution>
                         <id>verify-jdbc-drivers</id>
                         <goals>
-                            <goal>exec</goal>
+                            <goal>java</goal>
                         </goals>
                         <phase>verify</phase>
                         <configuration>
-                            <executable>${basedir}/scripts/verify-jdbc-drivers.sh</executable>
+                            <mainClass>com.percussion.distribution.install.VerifyJdbcDrivers</mainClass>
                             <arguments>
                                 <argument>--artifact</argument>
                                 <argument>${project.build.directory}/perc-distribution-tree.jar</argument>
@@ -778,15 +779,16 @@
                          <delete> block uses exact bundled-driver filenames, not globs.
                          A future change that re-introduces a glob (e.g. mysql-connector-java-*.jar)
                          will silently purge integrator-supplied drivers on upgrade; this
-                         check fails the build before such a change can land. -->
+                         check fails the build before such a change can land. Cross-platform
+                         Java port of scripts/check-no-glob-deletes.sh. -->
                     <execution>
                         <id>check-no-glob-deletes</id>
                         <goals>
-                            <goal>exec</goal>
+                            <goal>java</goal>
                         </goals>
                         <phase>verify</phase>
                         <configuration>
-                            <executable>${basedir}/scripts/check-no-glob-deletes.sh</executable>
+                            <mainClass>com.percussion.distribution.install.CheckNoGlobDeletes</mainClass>
                         </configuration>
                     </execution>
                 </executions>
