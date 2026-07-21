@@ -22,35 +22,95 @@ Source of truth for dependency versions is the root `pom.xml`:
 
 ## Design Patterns
 
-### Adaptor Pattern
+### Adaptor Pattern (with sitemanage apibridge)
 
-The REST module uses the **Adaptor pattern** to separate concerns:
+The REST module uses the **Adaptor pattern**. HTTP concerns live here; **implementations live in
+`projects/sitemanage`**, not in this module.
 
 ```text
 HTTP Request
     ↓
-JAX-RS Resource (@Path, @GET, @POST, etc.)
+JAX-RS Resource  (rest)              e.g. PreferenceResource, RelationshipSummaryResource
     ↓
-Adaptor Interface (IXxxAdaptor)
+Adaptor Interface (rest)             e.g. IPreferenceAdaptor, IRelationshipSummaryAdaptor
     ↓
-Adaptor Implementation
+Adaptor Implementation (sitemanage)  com.percussion.apibridge.*  e.g. PreferencesAdaptor
     ↓
-CMS System Services (perc-system)
+Domain services (sitemanage / perc-system)
     ↓
 Database & Internal Services
 ```
 
-See README.md for detailed explanation of the Adaptor pattern components and responsibilities.
+| Layer | Module | Package example | Owns |
+|-------|--------|-----------------|------|
+| JAX-RS resource | **rest** | `com.percussion.rest.*` | Paths, HTTP verbs, status codes, OpenAPI annotations |
+| Wire DTOs | **rest** | `com.percussion.rest.*` or `com.percussion.share.relationship.data` | JSON/XML shapes returned by the public API |
+| Adaptor interface | **rest** | `com.percussion.rest.*.IXxxAdaptor` | Contract the resource injects |
+| Adaptor implementation | **sitemanage** | `com.percussion.apibridge.*` | CMS/domain calls, Optional→HTTP mapping |
+| Domain services | **sitemanage** / perc-system | e.g. `IPSRelationshipSummaryService` | Business logic, AuthZ |
+
+**Rules for agents adding a new REST surface:**
+
+1. Put the **resource**, **adaptor interface**, and **wire DTOs** in `rest`.
+2. Put the **adaptor implementation** in `projects/sitemanage/.../apibridge/` with `@PSSiteManageBean`
+   (same pattern as `PreferencesAdaptor`, `UserAdaptor`, `RelationshipSummaryAdaptor`).
+3. Unit-test the resource in `rest` (mock the interface). Unit-test the adaptor in `sitemanage`
+   (mock domain services).
+4. Register beans via `@PSSiteManageBean` / component-scan — do not invent a rest→sitemanage Maven edge.
+
+See also `projects/sitemanage/AGENTS.md` (apibridge side) and README.md.
+
+## Maven dependency direction (HARD RULE — no reactor cycles)
+
+```text
+  rest  ──depends on──▶  perc-system, perc-security-utils, utils, ...
+    ▲
+    │  (allowed)
+    │
+  sitemanage  ──depends on──▶  rest
+```
+
+| Direction | Allowed? | Why |
+|-----------|----------|-----|
+| **sitemanage → rest** | **Yes** (required) | apibridge implements `IXxxAdaptor`; services may return rest wire DTOs |
+| **rest → sitemanage** | **Never** | Introduces `rest ↔ sitemanage` reactor cycle (`ProjectCycleException`) |
+
+**Do not** add:
+
+```xml
+<!-- FORBIDDEN in rest/pom.xml -->
+<dependency>
+  <groupId>com.percussion</groupId>
+  <artifactId>sitemanage</artifactId>
+</dependency>
+```
+
+If a rest class seems to need a type from sitemanage:
+
+- **Wire DTO / API shape** → define it in **rest** (resource package or a shared wire package under rest).
+- **Service / domain interface used only by the adaptor** → keep it in **sitemanage**; call it from
+  `com.percussion.apibridge.*`, not from the JAX-RS resource.
+- **Need a shared type used by both** → put the shared API surface in **rest** (or a lower module
+  both already depend on, e.g. perc-system). Never reverse the Maven arrow.
+
+Historical foot-gun (US8 / relationship summary): DTOs were added under sitemanage and rest was given
+a sitemanage dependency for the adaptor. That cycle was fixed by moving wire DTOs into rest and the
+adaptor impl into `sitemanage` apibridge. Do not reintroduce that edge.
 
 ## Key Integration Points
 
 ### sitemanage Module Integration
 
-The REST module integrates with `projects/sitemanage` for site operations. See README.md for details on:
+Runtime integration is **in-process Spring wiring**, not a Maven dependency from rest to sitemanage:
 
-- How to use `PSSiteManageBean` for site operations
-- Site DTO imports from `com.percussion.sitemanage.*`
-- Exception handling for site management
+- Resources use `@PSSiteManageBean` (from perc-system / site-manage bean utilities) so CXF/Spring
+  discovers them in the Rhythmyx webapp that also loads sitemanage.
+- Resources `@Autowired` / constructor-inject **adaptor interfaces** defined in rest; sitemanage
+  provides the only production implementations under `com.percussion.apibridge`.
+- Domain exceptions and AuthZ failures are translated in the **apibridge** (e.g. `Optional.empty()`
+  → `WebApplicationException` 403), not by importing sitemanage types into rest.
+
+See `projects/sitemanage/AGENTS.md` and README.md.
 
 ### openapi-webapp Module Integration
 
@@ -98,42 +158,40 @@ public interface IResourceAdaptor extends IAdaptor {
 }
 ```
 
-1. **Implement the Adaptor**:
+1. **Implement the Adaptor in sitemanage** (not in rest):
 
 ```java
-@Component
+// projects/sitemanage/.../com/percussion/apibridge/ResourceAdaptor.java
+@PSSiteManageBean
 public class ResourceAdaptor implements IResourceAdaptor {
 
-    private final ResourceService resourceService;
+    private final SomeDomainService domainService;
 
-    public ResourceAdaptor(ResourceService resourceService) {
-        this.resourceService = resourceService;
+    @Autowired
+    public ResourceAdaptor(SomeDomainService domainService) {
+        this.domainService = domainService;
     }
 
     @Override
-    public Response getResources() {
-        try {
-            List<Resource> resources = resourceService.getAll();
-            return Response.ok(resources).build();
-        } catch (Exception e) {
-            return handleError(e);
-        }
+    public List<ResourceDto> getResources() {
+        return domainService.findAll(); // map domain → rest wire DTOs as needed
     }
 }
 ```
 
 ### Best Practices for REST Resources
 
-- **Resource Class**: Keep focused on HTTP concerns (routing, binding, serialization)
-- **Adaptor Interface**: Define clear contracts for business operations
-- **Adaptor Implementation**: Handle CMS business logic and error cases
+- **Resource Class** (rest): HTTP concerns only (routing, binding, serialization, OpenAPI)
+- **Adaptor Interface** (rest): Clear contracts; prefer rest wire DTOs as return types
+- **Adaptor Implementation** (sitemanage apibridge): CMS/domain logic, AuthZ mapping, error cases
+- **Wire DTOs** (rest): Jackson/JAXB annotations; never import sitemanage domain types into resources
 - **OpenAPI Annotations**: Always include `@Operation`, `@ApiResponse`, `@Parameter` annotations
 - **HTTP Methods**: Use `@GET`, `@POST`, `@PUT`, `@PATCH`, `@DELETE` appropriately
 - **Path Parameters**: Use `/resources/{id}` for resource identity
 - **Query Parameters**: Use `?type=X&status=Y` for filtering
 - **Request Body**: Use `@Consumes("application/json")` for POST/PUT
-- **Response Control**: Always return `Response` object for status code control
-- **Response Objects**: Use `@XmlRootElement` and `@XmlElement` for serialization
+- **Response Control**: Prefer returning `Response` when status codes must vary
+- **Response Objects**: Use `@XmlRootElement` / `@JsonRootName` for wire envelopes when required
 
 ### Error Handling
 

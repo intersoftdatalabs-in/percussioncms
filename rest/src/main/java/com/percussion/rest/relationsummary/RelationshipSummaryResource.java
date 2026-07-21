@@ -49,10 +49,10 @@ import org.springframework.beans.factory.annotation.Autowired;
  * </pre>
  *
  * <p>All endpoints are read-only (GETs are CSRF-exempt). AuthZ is enforced server-side by the
- * underlying sitemanage service: id-resolution failure or read-access denial returns
- * {@code Optional.empty()} from {@link IPSRelationshipSummaryService}, which the default adaptor
- * surfaces as a {@link WebApplicationException} with status {@code 403 FORBIDDEN}. No JAX-RS
- * exception mapper is required — the framework translates the status code automatically.
+ * underlying sitemanage service: id-resolution failure or read-access denial returns {@code
+ * Optional.empty()}, which the sitemanage apibridge adaptor surfaces as a JAX-RS {@code
+ * WebApplicationException} with status {@code 403 FORBIDDEN}. No exception mapper is required —
+ * the framework translates the status code automatically.
  *
  * <p>Bean id {@code restRelationshipSummaryResource} matches the CXF server registration at
  * {@code projects/sitemanage-beans.xml}. Wiring is auto-discovered via {@code @PSSiteManageBean}

@@ -219,16 +219,12 @@ public class PSRelationshipSummaryService implements IPSRelationshipSummaryServi
         }
       }
     } catch (PSValidationException
-        | PSNotFoundException
         | IPSWidgetAssetRelationshipService.PSWidgetAssetRelationshipServiceException
         | RuntimeException e) {
-      // RuntimeException is caught here too so a transient infra failure (e.g. JCR outage) does
-      // not leak 500s to the JAX-RS layer when the other dimension methods succeed. The other
-      // dimensions use the empty-Optional + framework-propagated-exception contract; the local
-      // dimension intentionally traps to a 200 with empty links because there is no meaningful
-      // AuthZ-failure semantic on this surface. The bot review confirmed this is acceptable for
-      // the local dimension specifically (the warning was about `summariseFromCataloger` returning
-      // Optional.of(empty), not about summariseLocal returning empty).
+      // Catch RuntimeException (covers PSNotFoundException, which extends PSRuntimeException) so a
+      // transient infra failure (e.g. JCR outage) does not leak 500s to the JAX-RS layer when the
+      // other dimension methods succeed. The local dimension intentionally traps to a 200 with empty
+      // links because there is no meaningful AuthZ-failure semantic on this surface.
       log.debug("Local-assets lookup unavailable for {}: {}", itemId, e.getMessage());
     }
     return Optional.of(new PSLocalDependencySummary(links.size(), links));

@@ -24,8 +24,11 @@ import java.net.URI;
 /**
  * Adaptor interface for the modern Content Explorer's relationship summary REST surface (US8 /
  * T098). Follows the {@code rest/} module's adaptor pattern: HTTP concerns live on the resource;
- * the adaptor interface is the contract the resource consumes; the adaptor impl owns the
- * translation from the sitemanage DTOs to whatever the REST layer returns.
+ * the adaptor interface is the contract the resource consumes; the sitemanage {@code apibridge}
+ * implementation delegates to {@code IPSRelationshipSummaryService}.
+ *
+ * <p>DTOs live in this module ({@code com.percussion.share.relationship.data}) so rest does not
+ * depend on sitemanage (avoids a Maven reactor cycle: sitemanage → rest).
  *
  * <p>The default adaptor raises a {@code WebApplicationException} with HTTP 403 on AuthZ denial;
  * no exception mapper is required because JAX-RS translates the status code automatically.
