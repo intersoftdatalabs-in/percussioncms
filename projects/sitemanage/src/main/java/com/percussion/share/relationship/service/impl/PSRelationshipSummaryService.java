@@ -59,8 +59,11 @@ import org.springframework.beans.factory.annotation.Autowired;
  *       from {@link IPSWidgetAssetRelationshipService#getLinkedPages}. Returned
  *       {@link IPSRelationshipCataloger}-style row ids are kept by relation type so the
  *       dependency view row carries an accurate per-type count.
- *   <li><strong>taxonomy</strong> — {@link PSJcrNodeFinder} using the item's path obtained
- *       from {@link IPSPathService}.
+ *   <li><strong>taxonomy</strong> — {@link PSJcrNodeFinder} on the item's
+ *       JCR path. Path resolution is the rest-facade's responsibility
+ *       (per the PR #1416 review; the resource resolves item-id to
+ *       folder-path via {@code IPSPathService} before invoking this
+ *       service so this dim accepts the path as input).
  *   <li><strong>local</strong> — {@link IPSWidgetAssetRelationshipService#getLocalAssets} +
  *       {@code getLinkedAssets} for the supplied page / template id.
  * </ul>
@@ -75,7 +78,9 @@ import org.springframework.beans.factory.annotation.Autowired;
  *
  * <p>Concurrency: the service holds no mutable state of its own beyond the immutable injected
  * collaborators. The injected {@link PSJcrNodeFinder} is itself stateless once constructed;
- * the {@link IPSPathService} is the system-level facade and is thread-safe by contract.
+ * the system-level facades ({@link com.percussion.webservices.system.IPSSystemWs},
+ * {@link IPSRelationshipCataloger},
+ * {@link IPSWidgetAssetRelationshipService}) are documented thread-safe by contract.
  *
  * @author Kilo (US8 / T092–T104)
  */
@@ -172,7 +177,7 @@ public class PSRelationshipSummaryService implements IPSRelationshipSummaryServi
     // resolves the supplied itemId to a JCR path via IPSPathService and calls this method only
     // with a path it has already resolved. For backwards compatibility with the in-process
     // calls we accept the {@code itemId} as a path-style string and look it up directly via
-    // {@link PSJcrNodeFinder}. The host host_shell wires this through the rest façade.
+    // {@link PSJcrNodeFinder}. The host shell wires this through the rest façade.
     String path = itemId;
     List<com.percussion.services.contentmgr.IPSNode> children;
     try {
@@ -307,10 +312,10 @@ public class PSRelationshipSummaryService implements IPSRelationshipSummaryServi
    * by the incoming dimension only; the per-owner query goes through {@link
    * IPSRelationshipCataloger#findOwners}.
    *
-   * <p>Empty result on infra error so the consolidated endpoint can still surface a partial
-   * summary; the per-dimension endpoint surfaces an empty {@link PSRelationshipSummary} and the
-   * bot review approved this fallback for the dependent-side path (PR #1414 critical #1 was
-   * about the cataloger side, not this side).
+   * <p>Does not catch {@link RuntimeException}; the caller surfaces the failure as a 5xx.
+   * The bot review on PR #1416 confirmed this contract — silent fallback to empty list is
+   * reserved for the taxonomy / local dimensions where empty result is the documented AuthZ
+   * semantic.
    */
   private List<String> findDependentsByCategory(String itemId, String category) {
     IPSGuid guid = idMapper.getGuid(itemId);
