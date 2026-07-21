@@ -3,7 +3,7 @@
 **Date**: 2026-07-21  
 **Specification**: Spec 987 (JCR 1.0 to 2.0 API Migration)  
 **Target Branch**: `feature/987-phase7-polish` / `origin/development`  
-**Commit**: `5a4a4cd3a1`
+**Commit**: `5a4a4cd3a162daadc6b79830c0705d89072a6853`
 
 ---
 
@@ -33,9 +33,9 @@ Full automated module test suite runs:
 
 ## 3. Exceptions & Security Audit
 
-- **Exceptions Register**: Verified [`exceptions.md`](./exceptions.md). **0 exceptions** on critical editor, assembly, or publishing paths.
-- **Dependency Audit**: Verified `tmp/jcr-dependency-tree.txt`. Only `javax.jcr:jcr:2.0` present in runtime dependency tree.
-- **Security Audit**: Verified `tmp/jcr-security-review.md`. 0 active CVEs.
+- **Exceptions Register**: Verified [`exceptions.md`](../specs/987-jcr-2-0-api-migration/exceptions.md). **0 exceptions** on critical editor, assembly, or publishing paths.
+- **Dependency Audit**: Verified [`tmp/jcr-dependency-tree.txt`](../tmp/jcr-dependency-tree.txt). Only `javax.jcr:jcr:2.0` present in runtime dependency tree.
+- **Security Audit**: Verified [`tmp/jcr-security-review.md`](../tmp/jcr-security-review.md). 0 active CVEs.
 
 ---
 

@@ -104,9 +104,9 @@
 - [x] T050 [US4] Ensure [contracts/integrator-rebuild.md](./contracts/integrator-rebuild.md) is accurate vs actual signature changes; update if product public Java types leaked new requirements
 - [x] T051 [US4] Update exception register `specs/987-jcr-2-0-api-migration/exceptions.md` for any non-critical leftover integrator-facing sites
 - [x] T052 [US4] Run tests for toolkit/segmentation/extensions modules touched; fix failures
-- [ ] T053 [US4] Commit US4 work and open PR; pause for review
-- [ ] T054 [US4] Monitor CI/Kilo Code; address feedback; resolve review threads per AGENTS
-- [ ] T055 [US4] Verify human approval and merge of US4 PR
+- [x] T053 [US4] Commit US4 work and open PR (PR #1452 submitted & merged); pause for review
+- [x] T054 [US4] Monitor CI/Kilo Code; address feedback; resolve review threads per AGENTS (PR #1452 review threads resolved)
+- [x] T055 [US4] Verify human approval and merge of US4 PR (PR #1452 merged)
 
 ---
 
