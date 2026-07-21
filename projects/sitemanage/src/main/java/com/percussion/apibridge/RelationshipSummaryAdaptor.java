@@ -13,29 +13,32 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.percussion.rest.relationsummary;
+package com.percussion.apibridge;
 
+import com.percussion.rest.relationsummary.IRelationshipSummaryAdaptor;
 import com.percussion.share.relationship.data.PSLocalDependencySummary;
 import com.percussion.share.relationship.data.PSNodeRelationshipSummary;
 import com.percussion.share.relationship.data.PSRelationshipSummary;
 import com.percussion.share.relationship.data.PSTaxonomySummary;
 import com.percussion.share.relationship.service.IPSRelationshipSummaryService;
+import com.percussion.system.utils.PSSiteManageBean;
 import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.Response;
 import java.net.URI;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
 /**
  * Default adaptor impl for {@link IRelationshipSummaryAdaptor} (US8 / T098).
  *
- * <p>Delegates to the sitemanage {@link IPSRelationshipSummaryService}; converts the empty-{@code
- * Optional} AuthZ-denied response into a {@link WebApplicationException} with HTTP 403 so the JAX-RS
- * runtime translates it to a {@code 403 Forbidden} response without an additional exception mapper.
+ * <p>Lives in sitemanage {@code apibridge} so {@code rest} depends only on its own DTOs/interfaces
+ * (no rest → sitemanage reactor edge). Delegates to {@link IPSRelationshipSummaryService}; converts
+ * the empty-{@code Optional} AuthZ-denied response into a {@link WebApplicationException} with HTTP
+ * 403 so the JAX-RS runtime translates it to a {@code 403 Forbidden} response without an additional
+ * exception mapper.
  *
  * @author Kilo (US8 / T098)
  */
-@Component
+@PSSiteManageBean
 public class RelationshipSummaryAdaptor implements IRelationshipSummaryAdaptor {
 
   private final IPSRelationshipSummaryService service;
@@ -49,48 +52,42 @@ public class RelationshipSummaryAdaptor implements IRelationshipSummaryAdaptor {
   public PSRelationshipSummary outgoing(URI baseURI, String itemId) {
     return service
         .summariseOutgoing(itemId)
-        .orElseThrow(
-            () -> forbidden("Cannot summarise outgoing for " + itemId));
+        .orElseThrow(() -> forbidden("Cannot summarise outgoing for " + itemId));
   }
 
   @Override
   public PSRelationshipSummary incoming(URI baseURI, String itemId) {
     return service
         .summariseIncoming(itemId)
-        .orElseThrow(
-            () -> forbidden("Cannot summarise incoming for " + itemId));
+        .orElseThrow(() -> forbidden("Cannot summarise incoming for " + itemId));
   }
 
   @Override
   public PSTaxonomySummary taxonomy(URI baseURI, String itemId) {
     return service
         .summariseTaxonomy(itemId)
-        .orElseThrow(
-            () -> forbidden("Cannot summarise taxonomy for " + itemId));
+        .orElseThrow(() -> forbidden("Cannot summarise taxonomy for " + itemId));
   }
 
   @Override
   public PSLocalDependencySummary local(URI baseURI, String itemId) {
     return service
         .summariseLocal(itemId)
-        .orElseThrow(
-            () -> forbidden("Cannot summarise local for " + itemId));
+        .orElseThrow(() -> forbidden("Cannot summarise local for " + itemId));
   }
 
   @Override
   public PSRelationshipSummary reverse(URI baseURI, String itemId) {
     return service
         .summariseReverse(itemId)
-        .orElseThrow(
-            () -> forbidden("Cannot summarise reverse for " + itemId));
+        .orElseThrow(() -> forbidden("Cannot summarise reverse for " + itemId));
   }
 
   @Override
   public PSNodeRelationshipSummary summary(URI baseURI, String itemId) {
     return service
         .summarise(itemId)
-        .orElseThrow(
-            () -> forbidden("Cannot summarise node " + itemId));
+        .orElseThrow(() -> forbidden("Cannot summarise node " + itemId));
   }
 
   /**

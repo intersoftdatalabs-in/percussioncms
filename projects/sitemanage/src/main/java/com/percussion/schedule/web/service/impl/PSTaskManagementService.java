@@ -174,14 +174,14 @@ public class PSTaskManagementService {
     @Path("/templates/{templateId}")
     public Map<String, Object> updateTemplate(@PathParam("templateId") String templateId, Map<String, Object> payload) {
         try {
-            IPSGuid guid = guidManager.makeGuid(templateId, PSTypeEnum.NOTIFICATION_TEMPLATE);
+            IPSGuid guid = guidManager.makeGuid(templateId, PSTypeEnum.SCHEDULE_NOTIFICATION_TEMPLATE);
             PSNotificationTemplate template = schedulingService.findNotificationTemplateById(guid)
                     .orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
             if (payload.containsKey("subject")) {
                 template.setSubject((String) payload.get("subject"));
             }
             if (payload.containsKey("body")) {
-                template.setBody((String) payload.get("body"));
+                template.setTemplate((String) payload.get("body"));
             }
             schedulingService.saveNotificationTemplate(template);
             return serializeTemplate(template);
@@ -216,8 +216,8 @@ public class PSTaskManagementService {
         map.put("startTime", log.getStartTime() != null ? log.getStartTime().getTime() : null);
         map.put("endTime", log.getEndTime() != null ? log.getEndTime().getTime() : null);
         map.put("success", log.isSuccess());
-        map.put("problemDescription", log.getProblemDescription());
-        map.put("serverName", log.getServerName());
+        map.put("problemDescription", log.getProblemDesc());
+        map.put("serverName", log.getServer());
         return map;
     }
 
@@ -226,7 +226,7 @@ public class PSTaskManagementService {
         map.put("id", template.getId().toString());
         map.put("name", template.getName());
         map.put("subject", template.getSubject());
-        map.put("body", template.getBody());
+        map.put("body", template.getTemplate());
         return map;
     }
 
@@ -244,12 +244,13 @@ public class PSTaskManagementService {
             task.setEmailAddresses((String) payload.get("emailAddresses"));
         }
         if (payload.containsKey("notify")) {
-            task.setNotify((Boolean) payload.get("notify"));
+            Object notifyVal = payload.get("notify");
+            task.setNotify(notifyVal != null ? String.valueOf(notifyVal) : null);
         }
         if (payload.containsKey("notifyWhen")) {
             String val = (String) payload.get("notifyWhen");
             try {
-                task.setNotifyWhen(com.percussion.services.schedule.data.PSScheduledTask.NotifyWhen.valueOf(val));
+                task.setNotifyWhen(com.percussion.services.schedule.data.PSNotifyWhen.valueOf(val));
             } catch (Exception e) {
                 throw new WebApplicationException(
                     Response.status(Response.Status.BAD_REQUEST)
@@ -278,7 +279,8 @@ public class PSTaskManagementService {
         if (payload.containsKey("notificationTemplateId")) {
             String templateIdStr = (String) payload.get("notificationTemplateId");
             if (StringUtils.isNotBlank(templateIdStr)) {
-                task.setNotificationTemplateId(guidManager.makeGuid(templateIdStr, PSTypeEnum.NOTIFICATION_TEMPLATE));
+                task.setNotificationTemplateId(
+                    guidManager.makeGuid(templateIdStr, PSTypeEnum.SCHEDULE_NOTIFICATION_TEMPLATE));
             } else {
                 task.setNotificationTemplateId(null);
             }

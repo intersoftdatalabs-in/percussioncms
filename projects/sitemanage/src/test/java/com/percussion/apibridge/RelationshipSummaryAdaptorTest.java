@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.percussion.rest.relationsummary;
+package com.percussion.apibridge;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -45,14 +45,14 @@ import org.mockito.junit.jupiter.MockitoExtension;
  *
  * <ul>
  *   <li><strong>happy path</strong>: the adaptor delegates to the service and returns the DTO.
- *   <li><strong>AuthZ negative</strong>: when the service returns {@code Optional.empty()},
- *       the adaptor throws {@link WebApplicationException} with HTTP 403.
+ *   <li><strong>AuthZ negative</strong>: when the service returns {@code Optional.empty()}, the
+ *       adaptor throws {@link WebApplicationException} with HTTP 403.
  *   <li><strong>wire envelope</strong>: the DTOs the adaptor returns are Jackson-serialisable
  *       ({@code @JsonRootName}; verified via reflection).
  * </ul>
  *
- * <p>The {@link RelationshipSummaryResource} HTTP-layer logic is exercised in the larger
- * {@code rest/} module test suite; these tests scope the adaptor contract itself.
+ * <p>The {@code RelationshipSummaryResource} HTTP-layer logic is exercised in the rest module unit
+ * tests; these tests scope the adaptor contract itself (sitemanage apibridge).
  */
 @ExtendWith(MockitoExtension.class)
 class RelationshipSummaryAdaptorTest {

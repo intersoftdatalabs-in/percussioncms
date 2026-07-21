@@ -73,14 +73,17 @@ This separation allows REST endpoints to remain focused on HTTP/REST concerns wh
 
 #### sitemanage Module Integration
 
-The REST API integrates with the `projects/sitemanage` module for:
+Runtime wiring is in-process Spring; **Maven direction is one-way: `sitemanage` → `rest` only**
+(never `rest` → `sitemanage` — that creates a reactor cycle).
 
-- Site creation and management APIs
-- Gadget and widget support
-- Site processing operations
-- Backend support for site-related API calls
+| This module (`rest`) owns | `projects/sitemanage` owns |
+|---------------------------|----------------------------|
+| JAX-RS resources, OpenAPI annotations | Domain services, CM1/WebUI middleware |
+| Wire DTOs + `IXxxAdaptor` interfaces | `com.percussion.apibridge.*` adaptor **implementations** (`@PSSiteManageBean`) |
 
-The REST resources use `PSSiteManageBean` and related site management DTOs from the sitemanage module to handle site operations.
+Resources inject adaptor interfaces; sitemanage provides the production beans (e.g.
+`PreferencesAdaptor`, `RelationshipSummaryAdaptor`). Agent rules: `rest/AGENTS.md` and
+`projects/sitemanage/AGENTS.md`.
 
 #### openapi-webapp Module Integration
 
