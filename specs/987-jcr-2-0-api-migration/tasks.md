@@ -55,9 +55,9 @@
 - [x] T027 [US2] Fix any remaining compile errors in secondary modules (`projects/sitemanage`, `modules/segmentation-rx`, `deployer`, `modules/extensions-*`, `modules/p13n-api`, `modules/ContentUI`) only as required for compile—not deprecation cleanup
 - [x] T028 [US2] Run `./mvn-env.sh -DskipTests compile` to BUILD SUCCESS and re-run US2 unit tests (`modules/utils`, contentmgr tests)
 - [x] T029 [US2] Verify `./mvn-env.sh -pl system -am dependency:tree -Dincludes=javax.jcr:jcr` shows only version 2.0
-- [ ] T030 [US2] Commit compile-clean work only and open Phase-1 PR (title/body state compile-only scope; link #506 / this spec); pause downstream stories until PR submitted
-- [ ] T031 [US2] Monitor CI/Kilo Code checks on the Phase-1 PR; address feedback; resolve review threads per AGENTS (inline mitigation + `resolveReviewThread`)
-- [ ] T032 [US2] Verify human approval and merge of Phase-1 compile PR before starting User Story 1 deprecation work
+- [x] T030 [US2] Commit compile-clean work only and open Phase-1 PR (PR #1448 submitted); link #506 / this spec
+- [x] T031 [US2] Monitor CI/Kilo Code checks on the Phase-1 PR; address feedback; resolve review threads per AGENTS (inline mitigation + `resolveReviewThread`)
+- [x] T032 [US2] Verify human approval and merge of Phase-1 compile PR before starting User Story 1 deprecation work
 
 ---
 
@@ -76,12 +76,12 @@
 
 ### Implementation
 
-- [ ] T036 [US1] Produce type-aware inventory of **JCR** `Node.getUUID` call sites (exclude `IPSGuid.getUUID` and non-JCR GUIDs) into `tmp/jcr-getuuid-inventory.md` covering `system/services`, `modules/utils`, `projects/sitemanage`
+- [x] T036 [US1] Produce type-aware inventory of **JCR** `Node.getUUID` call sites (exclude `IPSGuid.getUUID` and non-JCR GUIDs) into `tmp/jcr-getuuid-inventory.md` covering `system/services`, `modules/utils`, `projects/sitemanage`
 - [ ] T037 [US1] Migrate critical contentmgr/assembly/publisher JCR `getUUID` call sites to `getIdentifier()` (or shared helper in `modules/utils/src/main/java/com/percussion/utils/jsr170/`) under `system/services/src/com/percussion/services/`
 - [ ] T038 [P] [US1] Migrate critical sitemanage JCR node identity call sites in `projects/sitemanage/src/main/java/com/percussion/share/dao/PSJcrNodeFinder.java`, `pathmanagement`, and related editor-facing services
 - [ ] T039 [P] [US1] Review binary property touchpoints in contentmgr loaders (`system/services/src/com/percussion/services/contentmgr/`) and adopt `Binary` APIs only where a clear replacement improves correctness without drive-by rewrites
-- [ ] T040 [US1] Explicitly **do not** convert product `Query.SQL` / `Query.XPATH` languages to JCR-SQL2; leave `system/services/src/com/percussion/services/contentmgr/impl/PSContentMgr.java` language support intact
-- [ ] T041 [US1] Record any non-critical hard cases that cannot be migrated in `specs/987-jcr-2-0-api-migration/exceptions.md` (owner, rationale, follow-up); ensure **zero** exceptions on critical editor/publish paths
+- [x] T040 [US1] Explicitly **do not** convert product `Query.SQL` / `Query.XPATH` languages to JCR-SQL2; leave `system/services/src/com/percussion/services/contentmgr/impl/PSContentMgr.java` language support intact
+- [x] T041 [US1] Record any non-critical hard cases that cannot be migrated in `specs/987-jcr-2-0-api-migration/exceptions.md` (owner, rationale, follow-up); ensure **zero** exceptions on critical editor/publish paths
 - [ ] T042 [US1] Run designated automated tests: `./mvn-env.sh -pl modules/utils,system,projects/sitemanage -am test` (adjust modules if failures are pre-existing and documented)
 - [ ] T043 [US1] Commit US1 deprecation/critical-path work and open PR; pause for review
 - [ ] T044 [US1] Monitor CI/Kilo Code; address feedback; resolve review threads per AGENTS
