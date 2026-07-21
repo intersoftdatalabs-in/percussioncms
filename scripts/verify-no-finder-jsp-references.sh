@@ -53,6 +53,15 @@ set -eu
 repo_root="$(CDPATH='' cd -- "$(dirname -- "$0")/.." && pwd)"
 cd "$repo_root"
 
+# Verify perl is available before relying on it. A missing perl would
+# cause the `perl | grep | ...` pipeline below to fail silently (the
+# `|| true` swallows the failure) and the gate would falsely PASS.
+# Fail loudly here so a missing dependency is caught immediately.
+if ! command -v perl >/dev/null 2>&1; then
+    echo "verify-no-finder-jsp-references: FAIL (perl is required but not on PATH)" >&2
+    exit 1
+fi
+
 fail=0
 
 # The regex matches the literal navigation-entry forms:

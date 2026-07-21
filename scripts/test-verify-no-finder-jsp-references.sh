@@ -21,7 +21,14 @@
 # Any scratch files/directories this test creates are removed on exit
 # (via trap, so cleanup still runs on failure/interrupt) and are never
 # committed.
-set -u
+#
+# `set -e` exits on the first failure; `set -u` rejects unset
+# variables. Without `set -e`, a silent `cp` failure inside the
+# backup step would leave us mutating the target JSP without a
+# restore path, potentially corrupting it. POSIX-portable: this
+# script targets `sh` (not bash) so `set -o pipefail` is not used
+# (bash extension; not supported by dash).
+set -eu
 
 cd "$(dirname "$0")/.."
 
