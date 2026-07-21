@@ -710,6 +710,7 @@
 		<copy todir="${assembly-directory}/jetty/base/lib/jdbc/" overwrite="true">
 			<fileset dir="${assembly-directory}/_jdbc-stage">
 				<include name="mariadb-java-client-*.jar" />
+				<include name="mysql-connector-j-*.jar" />
 				<!-- Derby 10.15+ splits the engine across multiple JARs. The embedded
 				     driver (derby.jar) requires derbyshared.jar (StandardException, etc.)
 				     and typically derbytools.jar. Omitting them yields:
