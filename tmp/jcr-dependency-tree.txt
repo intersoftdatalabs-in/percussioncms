@@ -1,0 +1,42 @@
+[INFO] Scanning for projects...
+Downloading from central: https://repo.maven.apache.org/maven2/com/diffplug/spotless/maven-metadata.xml
+Downloading from central: https://repo.maven.apache.org/maven2/org/codehaus/cargo/maven-metadata.xml
+Downloading from central: https://repo.maven.apache.org/maven2/org/liquibase/maven-metadata.xml
+Downloading from central: https://repo.maven.apache.org/maven2/com/intsof/maven-metadata.xml
+Progress (1): 394 B                   Downloading from central: https://repo.maven.apache.org/maven2/com/github/eirslett/maven-metadata.xml
+Progress (2): 394 B | 234 B                           Downloaded from central: https://repo.maven.apache.org/maven2/org/liquibase/maven-metadata.xml (394 B at 116 B/s)
+Downloaded from central: https://repo.maven.apache.org/maven2/org/codehaus/cargo/maven-metadata.xml (234 B at 68 B/s)
+Downloading from central: https://repo.maven.apache.org/maven2/com/samaxes/maven/maven-metadata.xml
+Downloading from central: https://repo.maven.apache.org/maven2/org/codehaus/plexus/maven-metadata.xml
+Progress (1): 240 B                   Downloaded from central: https://repo.maven.apache.org/maven2/com/github/eirslett/maven-metadata.xml (240 B at 2.6 kB/s)
+Downloading from central: https://repo.maven.apache.org/maven2/org/apache/felix/maven-metadata.xml
+Progress (1): 381 BProgress (2): 381 B | 621 B                           Downloaded from central: https://repo.maven.apache.org/maven2/com/samaxes/maven/maven-metadata.xml (381 B at 4.6 kB/s)
+Downloading from central: https://repo.maven.apache.org/maven2/org/eclipse/m2e/maven-metadata.xml
+Downloaded from central: https://repo.maven.apache.org/maven2/org/codehaus/plexus/maven-metadata.xml (621 B at 6.8 kB/s)
+Downloading from central: https://repo.maven.apache.org/maven2/org/eclipse/jetty/maven-metadata.xml
+Progress (1): 270 BProgress (2): 270 B | 1.4 kB                            Downloaded from central: https://repo.maven.apache.org/maven2/com/intsof/maven-metadata.xml (270 B at 76 B/s)
+Downloaded from central: https://repo.maven.apache.org/maven2/org/apache/felix/maven-metadata.xml (1.4 kB at 14 kB/s)
+Downloading from central: https://repo.maven.apache.org/maven2/dev/sigstore/maven-metadata.xml
+Downloading from central: https://repo.maven.apache.org/maven2/org/owasp/maven-metadata.xml
+Downloading from central: https://repo.maven.apache.org/maven2/org/apache/maven/plugins/maven-metadata.xml
+Progress (1): 408 B                   Downloaded from central: https://repo.maven.apache.org/maven2/org/eclipse/jetty/maven-metadata.xml (408 B at 4.0 kB/s)
+Downloading from central: https://repo.maven.apache.org/maven2/org/codehaus/mojo/maven-metadata.xml
+Progress (1): 257 B                   Downloaded from central: https://repo.maven.apache.org/maven2/org/owasp/maven-metadata.xml (257 B at 2.8 kB/s)
+Progress (1): 4.6 kBProgress (1): 9.7 kBProgress (1): 14 kB                    Downloaded from central: https://repo.maven.apache.org/maven2/org/apache/maven/plugins/maven-metadata.xml (14 kB at 115 kB/s)
+Progress (1): 3.1 kBProgress (1): 7.7 kBProgress (2): 7.7 kB | 240 BProgress (2): 12 kB | 240 B Progress (2): 17 kB | 240 B                           Downloaded from central: https://repo.maven.apache.org/maven2/dev/sigstore/maven-metadata.xml (240 B at 1.2 kB/s)
+Progress (1): 20 kBProgress (1): 21 kB                   Downloaded from central: https://repo.maven.apache.org/maven2/org/codehaus/mojo/maven-metadata.xml (21 kB at 64 kB/s)
+[INFO] 
+[INFO] ---------------------< com.percussion:perc-system >---------------------
+[INFO] Building perc-system 8.2.0-SNAPSHOT
+[INFO]   from pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- dependency:3.9.0:tree (default-cli) @ perc-system ---
+[INFO] com.percussion:perc-system:jar:8.2.0-SNAPSHOT
+[INFO] \- javax.jcr:jcr:jar:2.0:compile
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD SUCCESS
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  28.651 s
+[INFO] Finished at: 2026-07-21T12:05:18-04:00
+[INFO] ------------------------------------------------------------------------

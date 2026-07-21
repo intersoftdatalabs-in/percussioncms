@@ -1,24 +1,25 @@
-# Erlang Review: JCR 2.0 Deprecation Cleanup (User Story 1 / Phase 4)
+# Erlang Review: JCR 2.0 Integrators & Support Posture (Phase 5 & 6 / US4 & US3)
 
 **Date**: 2026-07-21  
-**Scope**: Uncommitted JCR 1.0 `getUUID()` deprecation cleanup changes on `feature/987-jcr-deprecation-cleanup` vs `origin/development`.  
-**Intent**: Migrate deprecated JCR 1.0 `Node.getUUID()` call sites to standard `Node.getIdentifier()`.
+**Scope**: Documentation, contract, security review, and pom fixes on `feature/987-us4-us3-integrators-ops` vs `origin/development`.  
+**Intent**: Implement Phase 5 (US4 Integrators Contract) and Phase 6 (US3 Support & Security Posture).
 
 ## Summary
 
-Migrated remaining product JCR 1.0 `Node.getUUID()` call sites to `Node.getIdentifier()` in:
-- `PSAssemblyWorkItem.java` (node UUID parsing and parameter alignment on assembly path)
-- `PSDebugAssembler.java` (HTML debug dump rendering of node identifier)
+Phase 5 (User Story 4) and Phase 6 (User Story 3) requirements were verified and documented:
+- Created [`contracts/integrator-rebuild.md`](../../specs/987-jcr-2-0-api-migration/contracts/integrator-rebuild.md) outlining signature changes, deprecated APIs, and source-rebuild instructions for custom extension authors.
+- Created [`release-notes-draft.md`](../../specs/987-jcr-2-0-api-migration/release-notes-draft.md) summarizing JCR 2.0 API migration details for release notes.
+- Captured `javax.jcr:jcr:2.0` dependency tree evidence in `tmp/jcr-dependency-tree.txt`.
+- Created security posture review note in `tmp/jcr-security-review.md`.
+- Fixed POM compiler plugin XML syntax in `modules/segmentation-rx/pom.xml` and `modules/segmentation-api/pom.xml`.
 
-No remaining JCR `getUUID()` call sites found across the repository (excluding Percussion GUID abstractions which return `int`/`long` values and are untouched). Verified compilation success and unit test suite coverage.
-
-**Cross-platform path review**: applied. No local file paths constructed.
+**Cross-platform path review**: All created/edited documentation files use portable repo-relative paths with `/`. No filesystem path string concatenations performed.
 
 ## Scope
 
 - Base: `origin/development`
-- Head: `feature/987-jcr-deprecation-cleanup`
-- Files: 3 changed (2 source files, 1 tasks.md tracker)
+- Head: `feature/987-us4-us3-integrators-ops`
+- Files: 7 files changed
 - Prior report: `docs/ai-generated/code-reviews/987-jcr-2-0-api-migration-erlang.md`
 - Memory patterns hit: None
 
@@ -33,16 +34,10 @@ No remaining JCR `getUUID()` call sites found across the repository (excluding P
 | Check | Result |
 |-------|--------|
 | Bugs blocking | None |
-| Behavioral tests for new non-trivial logic | Present (`PSQueryJcr20Test`) |
+| Behavioral tests for new non-trivial logic | N/A (Documentation, security review, and POM syntax fix) |
 | Secrets | None |
 | Cross-platform path handling | Clean |
 
 ## Issues
 
 None open.
-
-## Re-review Delta (2026-07-21)
-
-- Replaced deprecated JCR 1.0 `Node.getUUID()` with JCR 2.0 `Node.getIdentifier()` in assembly path types (`PSAssemblyWorkItem.java`, `PSDebugAssembler.java`).
-- Confirmed full reactor compiles cleanly.
-- Confirmed JCR unit tests pass green.
