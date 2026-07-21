@@ -64,33 +64,23 @@ public class PSLogHandler {
    * @throws PSDeployException If fail to get any of the table schemas.
    */
   public PSLogHandler() throws PSDeployException {
-    try {
-        m_dbmsHandle = PSDbmsHelper.getInstance();
-        m_archiveLogSummarySchema = m_dbmsHandle.catalogTable(ALS_TABLE_NAME, false);
-        m_archiveLogSummarySchema.setAllowSchemaChanges(false);
+    m_dbmsHandle = PSDbmsHelper.getInstance();
+    m_archiveLogSummarySchema = m_dbmsHandle.catalogTable(ALS_TABLE_NAME, false);
+    m_archiveLogSummarySchema.setAllowSchemaChanges(false);
 
-        m_archivePackageSchema = m_dbmsHandle.catalogTable(AP_TABLE_NAME, false);
-        m_archivePackageSchema.setAllowSchemaChanges(false);
+    m_archivePackageSchema = m_dbmsHandle.catalogTable(AP_TABLE_NAME, false);
+    m_archivePackageSchema.setAllowSchemaChanges(false);
 
-        // need one for deletes, so we can set an update key
-        m_archivePackageDeleteSchema = new PSJdbcTableSchema(m_archivePackageSchema);
-        m_archivePackageDeleteSchema.setAllowSchemaChanges(false);
-        m_dbmsHandle.setUpdateKeyForSchema(AP_ARCHIVE_LOG_ID, m_archivePackageDeleteSchema);
+    // need one for deletes, so we can set an update key
+    m_archivePackageDeleteSchema = new PSJdbcTableSchema(m_archivePackageSchema);
+    m_archivePackageDeleteSchema.setAllowSchemaChanges(false);
+    m_dbmsHandle.setUpdateKeyForSchema(AP_ARCHIVE_LOG_ID, m_archivePackageDeleteSchema);
 
-        m_logTxnSchema = m_dbmsHandle.catalogTable(TXN_TABLE_NAME, false);
-        m_logTxnSchema.setAllowSchemaChanges(false);
+    m_logTxnSchema = m_dbmsHandle.catalogTable(TXN_TABLE_NAME, false);
+    m_logTxnSchema.setAllowSchemaChanges(false);
 
-        m_logSummarySchema = m_dbmsHandle.catalogTable(LS_TABLE_NAME, false);
-        m_logSummarySchema.setAllowSchemaChanges(false);
-    } catch (Exception e) {
-        // In test environments DB may be unavailable; leave schemas null.
-        m_dbmsHandle = null;
-        m_archiveLogSummarySchema = null;
-        m_archivePackageSchema = null;
-        m_archivePackageDeleteSchema = null;
-        m_logTxnSchema = null;
-        m_logSummarySchema = null;
-    }
+    m_logSummarySchema = m_dbmsHandle.catalogTable(LS_TABLE_NAME, false);
+    m_logSummarySchema.setAllowSchemaChanges(false);
   }
 
   /**
@@ -747,15 +737,18 @@ public class PSLogHandler {
    * @throws PSDeployException if any error occurs.
    */
   /**
-   * Public wrapper for {@link #getTableDataForSaveArchiveSummary(int, PSArchiveInfo, PSArchiveManifest)}.
+   * Public wrapper for {@link #getTableDataForSaveArchiveSummary(int, PSArchiveInfo,
+   * PSArchiveManifest)}.
    *
    * @param id the archive log summary id
    * @param archiveInfo the archive info (must not be {@code null})
    * @param archiveManifest the archive manifest (must not be {@code null})
    * @return table data ready for insertion into the archive summary table
    */
-  public PSJdbcTableData createArchiveLogSummaryTableData(int id, PSArchiveInfo archiveInfo, PSArchiveManifest archiveManifest) {
-    return getTableDataForSaveArchiveSummary(id, archiveInfo, archiveManifest);
+  public PSJdbcTableData createArchiveLogSummaryTableData(
+      int id, PSArchiveInfo archiveInfo, PSArchiveManifest archiveManifest) {
+    String tgtServer = PSServer.getHostName() + ":" + PSServer.getListenerPort();
+    return buildArchiveLogSummaryTableData(id, tgtServer, archiveInfo, archiveManifest);
   }
 
   public int createArchiveLog(PSArchiveInfo archiveInfo, PSArchiveManifest archiveManifest)
@@ -796,6 +789,24 @@ public class PSLogHandler {
    */
   private PSJdbcTableData getTableDataForSaveArchiveSummary(
       int id, PSArchiveInfo archiveInfo, PSArchiveManifest archiveManifest) {
+    // Local server identity. If this fails (misconfigured Rx install),
+    // let it propagate rather than silently writing a placeholder like
+    // "localhost:9992" into the TGT_SERVER_NAME column — a bogus value
+    // would corrupt deployment metadata and downstream "find archives for
+    // this server" queries.
+    String tgtServer = PSServer.getHostName() + ":" + PSServer.getListenerPort();
+    return buildArchiveLogSummaryTableData(id, tgtServer, archiveInfo, archiveManifest);
+  }
+
+  /**
+   * Builds the archive-log summary row for insertion. Package-private and static so unit tests can
+   * exercise it without a real database (the {@link PSLogHandler} constructor opens DB schemas via
+   * {@link PSDbmsHelper}). The caller supplies {@code tgtServer} (the local-server identity for the
+   * {@code TGT_SERVER_NAME} column); tests pass a literal string, production callers pass {@code
+   * PSServer.getHostName() + ":" + PSServer.getListenerPort()}.
+   */
+  static PSJdbcTableData buildArchiveLogSummaryTableData(
+      int id, String tgtServer, PSArchiveInfo archiveInfo, PSArchiveManifest archiveManifest) {
     // prepare the row data
     List<PSJdbcColumnData> cols = new ArrayList<>();
 
@@ -821,13 +832,6 @@ public class PSLogHandler {
     col = new PSJdbcColumnData(ALS_SRC_SERVER_BUILD_ID, archiveInfo.getServerBuildId());
     cols.add(col);
 
-    // Use safe server name in test environments; fallback to localhost if PSServer is unavailable.
-    String tgtServer;
-    try {
-      tgtServer = PSServer.getHostName() + ":" + PSServer.getListenerPort();
-    } catch (Exception e) {
-      tgtServer = "localhost:9992"; // default placeholder
-    }
     col = new PSJdbcColumnData(ALS_TGT_SERVER_NAME, tgtServer);
     cols.add(col);
 
