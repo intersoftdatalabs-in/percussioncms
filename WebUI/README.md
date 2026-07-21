@@ -92,3 +92,39 @@ The legacy Miller-column Finder is hard-cut in 8.2:
 | Vitest (component + a11y gate) | `WebUI/src/test/ts/{contentExplorer,contentBrowser}/` | `cd WebUI/src/main/frontend && npx vitest run` |
 | Playwright (E2E + a11y gate) | `modules/perc-qa-automation/frontend/tests/` | `cd modules/perc-qa-automation/frontend && npm test` |
 
+## Modern Unified Workflow & Admin UI (feature 993)
+
+Modern React replacement for the legacy Workflow, Role, User, Category, and Admin UI screens. Integrated within `WorkflowAdminShell` and `AdminShell`.
+
+### Entry points (modern JSP host pages)
+
+| Page | URL | Component(s) mounted |
+|------|-----|----------------------|
+| Modern Workflow Shell | `cm/app/adminWorkflowModern.jsp` | `WorkflowAdminShell` (Workflow definitions, assignment, roles, users, categories) |
+| Modern Admin Shell | `cm/app/adminModern.jsp` | `AdminShell` (Scheduled Tasks, Task Logs, Task Notifications, System Consistency Checker) |
+
+All modern JSP hosts are mirrored under `cm/pages/app/`.
+
+### React Components — interactive map
+
+| Component | Mount path | Role |
+|-----------|-----------|------|
+| `WorkflowAdminShell` | `adminWorkflowModern.jsp` | Top-level workflow navigation (Workflows, Site Assign, Roles, Users, Categories) |
+| `WorkflowsSection` | inside Shell | Workflow list, creation, editing, state & transition management |
+| `WorkflowAssignmentSection` | inside Shell | Site-to-workflow mapping, contentType & publishing default template rules |
+| `RolesSection` | inside Shell | Role list, creation, member management with dual list picker |
+| `UsersSection` | inside Shell | User list, user creation, role & group assignment |
+| `CategoriesSection` | inside Shell | Category tree explorer, node creation, lock management |
+| `InContextTransitionButton` | standalone / editor | Action button for executing item workflow state transitions |
+| `AdminShell` | `adminModern.jsp` | System administration shell (Tasks, Logs, Notifications, System Tools) |
+| `TasksSection` | inside AdminShell | Scheduled task list, schedule builder, trigger actions |
+| `TaskLogsSection` | inside AdminShell | Task execution logs, status filter, detail viewer |
+| `TaskNotifications` | inside AdminShell | Email notification template manager |
+| `ToolsSection` | inside AdminShell | System tools layout container |
+| `ConsistencyChecker` | inside ToolsSection | Content tree consistency verification & fix launcher |
+
+### Spec / artifacts
+
+- Spec/plan/tasks: `specs/993-workflow-admin-react-ui/`.
+
+

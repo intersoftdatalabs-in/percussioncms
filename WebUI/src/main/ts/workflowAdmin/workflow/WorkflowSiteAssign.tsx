@@ -43,7 +43,7 @@ export const WorkflowSiteAssign: React.FC<WorkflowSiteAssignProps> = ({
   const [jobState, setJobState] = useState<JobState>("idle");
   const [jobStatusMsg, setJobStatusMsg] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
-  const pollTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const pollTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const isMountedRef = useRef<boolean>(true);
 
   useEffect(() => {

@@ -123,7 +123,7 @@ export const CategoriesSection: React.FC = () => {
       // API expects form param or string payload
       const payloadString = JSON.stringify(updatedTree);
       await post(`${PATHS.CATEGORY_UPDATE}/undefined`, payloadString, {
-        headers: { "Content-Type": "application/json" }
+        "Content-Type": "application/json"
       });
       setTree(updatedTree);
     } catch (err: any) {

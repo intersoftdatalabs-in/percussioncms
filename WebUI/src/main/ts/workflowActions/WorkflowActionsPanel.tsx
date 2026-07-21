@@ -200,7 +200,7 @@ export const WorkflowActionsPanel: React.FC<WorkflowActionsPanelProps> = ({
                 key={trigger}
                 type="button"
                 onClick={() => setActiveTrigger(trigger)}
-                disabled={isCheckedOutByOther}
+                disabled={Boolean(isCheckedOutByOther)}
                 className="perc-button-secondary"
                 data-testid={`transition-button-${trigger}`}
               >

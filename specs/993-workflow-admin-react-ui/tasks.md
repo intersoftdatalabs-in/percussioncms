@@ -154,14 +154,14 @@
 - [x] T077 [US8] Verify human approval and merge of PR before proceeding
 
 ## Phase 11: Polish & Cross-Cutting Concerns
-- [ ] T078 [P] Update WebUI README.md with modernization info and routing paths
-- [ ] T079 [P] Remove all legacy JSP/JS files specified in plan.md legacy removal checklist
-- [ ] T080 Verify no JSP compilation or build path breakages after files cleanup
-- [ ] T081 Compile the full production build (`npm run build`) and verify build sizes
-- [ ] T082 Run full spotless code formatter pass on code tree
-- [ ] T083 Verify i18n lint checks pass and TMX file contains no missing strings
-- [ ] T084 Run accessibility checker against Workflow and Admin panels, verify zero failures
-- [ ] T085 Run the full suite of automated Playwright integration tests and check results
+- [x] T078 [P] Update WebUI README.md with modernization info and routing paths
+- [x] T079 [P] Remove all legacy JSP/JS files specified in plan.md legacy removal checklist
+- [x] T080 Verify no JSP compilation or build path breakages after files cleanup
+- [x] T081 Compile the full production build (`npm run build`) and verify build sizes
+- [x] T082 Run full spotless code formatter pass on code tree
+- [x] T083 Verify i18n lint checks pass and TMX file contains no missing strings
+- [x] T084 Run accessibility checker against Workflow and Admin panels, verify zero failures
+- [x] T085 Run the full suite of automated Playwright integration tests and check results
 
 ---
 

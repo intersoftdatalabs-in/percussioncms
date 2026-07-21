@@ -106,6 +106,6 @@ export const WF_ADMIN_MSG = {
   LOCK_TAB: "perc.ui.categories@Lock Tab",
   REMOVE_LOCK: "perc.ui.categories@Remove Lock",
   SELECTABLE: "perc.ui.categories@Selectable",
-  TITLE: "perc.ui.categories@Title",
+  CATEGORY_TITLE: "perc.ui.categories@Title",
   CATEGORY_NAME_REQUIRED: "perc.ui.categories@Category name is required.",
 } as const;
