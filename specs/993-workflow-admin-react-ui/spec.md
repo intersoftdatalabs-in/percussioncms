@@ -190,7 +190,7 @@ As an Administrator, I need to run a consistency check on the CMS content store 
 - **FR-017**: All new React components MUST be accessible (WCAG 2.1 AA minimum), including full keyboard navigation, ARIA roles, focus management, and adequate color contrast.
 - **FR-018**: The new UI MUST reuse the existing typed API client layer and REST endpoints; no new backend services or REST endpoints are required unless a gap is discovered during implementation.
 - **FR-019**: The system MUST display informative error messages when background jobs fail, when the directory service is unreachable, or when a deletion is blocked by dependencies.
-- **FR-020**: Each admin and workflow screen MUST be reachable via stable deep-linkable URLs within the WebUI routing scheme.
+- **FR-020**: Each admin and workflow screen MUST be reachable via stable deep-linkable URLs within the WebUI routing scheme (specifically `cm/app/index.jsp?view=workflow` for `WorkflowAdminShell` and `cm/app/index.jsp?view=admin` for `AdminShell`).
 - **FR-021**: The new UI MUST include automated Playwright E2E browser tests for all primary user flows (US1–US8) and Vitest/React Testing Library unit tests for all component logic.
 
 ### Key Entities
@@ -227,5 +227,5 @@ As an Administrator, I need to run a consistency check on the CMS content store 
 - The LDAP import feature will be conditionally rendered based on the directory service connectivity status returned by the existing API; no new admin configuration UI for LDAP settings is in scope.
 - The `perc-qa-automation` Playwright module is available and is the designated E2E testing framework.
 - The `perc-i18n` TMX keys that currently cover the legacy screens (`perc.ui.workflow.*`, `perc.ui.users.*`, `perc.ui.roles.*`, etc.) will be reused or extended as needed; no TMX key renames that break backward compatibility.
-- "Consistency Checker" and "Admin Console" are lower-priority (P3) features that may ship as pass-through iframes or minimal wrappers if full React implementation is not feasible within the release timeline.
+- "Consistency Checker" and "Admin Console" are lower-priority (P3) features implemented as native React components (`ConsistencyChecker.tsx` and `ToolsSection.tsx`) within `AdminShell`.
 - The content item in-context workflow action panel (US5) replaces `workflowactions.jsp` and its Dojo dependency and integrates into the existing content editor/preview UI entry points.

@@ -122,7 +122,7 @@
 ### Tests
 - [x] T056 [P] [US7] Unit test for scheduled task CRUD and form in `WebUI/src/test/ts/admin/TasksSection.test.tsx`
 - [x] T057 [P] [US7] Unit test for log list and notification configuration in `WebUI/src/test/ts/admin/TaskLogsSection.test.tsx`
-- [ ] T058 [P] [US7] Playwright E2E spec for scheduler in `modules/perc-qa-automation/frontend/tests/us6-scheduled-tasks.spec.js`
+- [x] T058 [P] [US7] Playwright E2E spec for scheduler in `modules/perc-qa-automation/frontend/tests/us6-scheduled-tasks.spec.js`
 
 ### Implementation
 - [x] T059 [P] [US7] Register `AdminShell` in `WebUI/src/main/ts/registry.ts`
