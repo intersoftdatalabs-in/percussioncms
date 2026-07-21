@@ -121,6 +121,11 @@ public class RelationshipSummaryResource {
   public Response taxonomy(
       @Parameter(name = "itemId", required = true) @PathParam("itemId") String itemId) {
     URI base = uriInfo == null ? null : uriInfo.getBaseUri();
+    // TODO(site-finder-folder-mapping): the taxonomy dimension passes the supplied id
+    // straight through to the sitemanage service. Callers that pass a content id or
+    // guid rather than a folder path get a 403 today because the JCR finder resolves
+    // paths only. Path resolution is the rest-facade's responsibility (per the PR #1416
+    // review); a follow-up commit adds an id-to-path mapping layer here.
     PSTaxonomySummary body = adaptor.taxonomy(base, itemId);
     return Response.ok(body).build();
   }
