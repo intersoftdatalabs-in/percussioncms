@@ -57,6 +57,59 @@ Before `git commit`, `git push`, or opening/updating a GitHub PR for changes you
 
 Tool-agnostic one-shot prompt: `modules/ai-shared-develop/src/main/resources/prompts/erlang-review-uncommitted.md`.
 
+## Pre-PR Maven verification (HARD GATE)
+
+**Before** opening or updating a GitHub PR (and before treating a change set as “done”), agents **MUST** run a real Maven **clean install** against every module whose sources, tests, resources, or `pom.xml` they changed. Partial compiles, IDE “make project”, or “tests only on one class” are **not** a substitute.
+
+### Requirements (all must pass)
+
+1. **Compile** — every changed module and its required reactor neighbors build successfully.
+2. **Tests** — unit/integration tests that Maven runs for those modules **pass**. No exceptions for “known flaky” without fixing or an explicit, documented skip approved in the PR body.
+3. **No new warnings** — the clean install must not introduce **new** compiler, surefire, enforcer, Spotless, or plugin warnings attributable to the change. Prefer zero warnings on the modules you own; if the baseline already warns, do not add more (diff against a clean build of the base branch when unsure).
+4. **Use the env wrapper** — always `./mvn-env.sh` (Linux/macOS) or `./mvn-env.bat` (Windows) so the correct JDK is used.
+
+### How to run (mandatory shape)
+
+Identify changed Maven modules from the diff (e.g. `rest`, `projects/sitemanage`, `system`). Then, from the **repo root**:
+
+```bash
+# Single module
+./mvn-env.sh -pl <module-path-or-artifact> clean install
+
+# Multiple modules (comma-separated -pl)
+./mvn-env.sh -pl rest,projects/sitemanage clean install
+
+# When the change needs updated dependencies from the reactor first:
+./mvn-env.sh -pl rest,projects/sitemanage -am clean install
+```
+
+Windows: the same arguments with `mvn-env.bat`.
+
+| Situation | Command guidance |
+|-----------|------------------|
+| Only one leaf module’s sources changed | `-pl <that-module> clean install` |
+| Several modules in the same PR | `-pl m1,m2,... clean install` (all of them) |
+| Changed module depends on other modules you also changed, or needs a fresh reactor install of upstreams | add `-am` (also-make) |
+| POM / dependencyManagement / parent changes | include every affected consumer module you touched; when in doubt, `-pl <changed> -am clean install` |
+
+### Hard bans
+
+* **Do not** open or update a PR if clean install failed, tests failed, or new warnings appeared in the modules you changed.
+* **Do not** use `-DskipTests`, `-Dmaven.test.skip=true`, or equivalent to green-wash a PR unless the user explicitly ordered a docs-only or non-code exception **and** the PR body states it.
+* **Do not** claim “builds” from a non-clean incremental compile alone when the PR includes structural moves, package renames, or POM edits — **clean** is required.
+* **Do not** rely on CI alone as the first full build of your modules; local (or agent-session) clean install is the pre-PR gate.
+
+### Evidence in the PR
+
+In the PR description (or a short comment before “ready for review”), record:
+
+* The exact `./mvn-env.sh … clean install` command(s) run
+* **BUILD SUCCESS** (or paste the reactor summary)
+* Test counts for modules with test changes (e.g. `Tests run: N, Failures: 0`)
+* Confirmation of no new warnings on the changed modules
+
+Failing this section is a **hard gate** equal to a failing Erlang review: fix, re-run clean install, then open/update the PR.
+
 ## **Project Rules**
 
 * Be creative, but DO NOT *invent* third-party APIs, libraries, functions, or syntax that does not actually exist. If it doesn't exist in real docs (MDN, JDK 21, official Percussion docs, etc.): Ask user to clarify.
@@ -69,6 +122,7 @@ Tool-agnostic one-shot prompt: `modules/ai-shared-develop/src/main/resources/pro
 * ALWAYS update relevant script dir `README.md` files with doc on script purpose and usage scanrios when creating/editing scripts.
 * ALWAYS document your work in comments, README, or maven site documentation.
 * **IMPORTANT** you must ALWAYS update or create unit tests for any code change that you make, new or edited. And the tests must pass. No exceptions.
+* **IMPORTANT — Pre-PR build:** Before opening or updating a GitHub PR, run `./mvn-env.sh` / `mvn-env.bat` **`clean install`** on **every module you changed**. Code must compile, tests must pass, and there must be **no new warnings**. See **Pre-PR Maven verification (HARD GATE)** above. CI is not a substitute for this local gate.
 * Always use the #codebase or root `./` context when resolving missing interfaces or classes.
 * You MUST respect rate limits when calling 3rd party API's. All 3rd party API integrations must be implemented with rate limit detection and exponential backoff logic.
 * You MUST NOT share or leak secrets, tokens, or keys over the wire, in logs, or in LLM sessions.  If you see MKD-REDACTED in a session, that means you leaked a secret.
