@@ -146,7 +146,7 @@ public class PSFormatVersion {
   public Date getBuildDate() {
     Date dt = null;
     try {
-      FastDateFormat fmt = FastDateFormat.getInstance("yyyyMMDD");
+      FastDateFormat fmt = FastDateFormat.getInstance("yyyyMMdd");
 
       dt = fmt.parse(m_buildNumber);
     } catch (ParseException e) {
