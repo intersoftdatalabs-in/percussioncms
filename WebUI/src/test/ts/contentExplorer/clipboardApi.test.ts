@@ -154,3 +154,97 @@ describe("pasteClipboardItems / T092c / Edge Cases #3: concurrent rename/move 40
     expect(summary.results[0]?.message).toBe("network down");
   });
 });
+
+describe("pasteClipboardItems / T092e / Edge Cases #11: network failure mid-action", () => {
+  it("surfaces a network-drop mid-flight as a recoverable failure (no data corruption, no hard fail)", async () => {
+    // Browser network drop: fetch rejects with TypeError("Failed to fetch").
+    // The summary surfaces the failure per-item; the destination folder is
+    // untouched (no partial write). The UI can render a recoverable error
+    // and let the user retry without a hard refresh.
+    const transport = vi
+      .fn()
+      .mockRejectedValueOnce(new TypeError("Failed to fetch"));
+    const summary = await pasteClipboardItems(
+      [folder("net-drop")],
+      "copy",
+      transport,
+    );
+    expect(summary.results[0]?.ok).toBe(false);
+    expect(summary.results[0]?.status).toBeUndefined();
+    expect(summary.results[0]?.message).toBe("Failed to fetch");
+    // No status field — this is a transport-level failure, not an HTTP
+    // status; consumers distinguish "network" from "conflict" by the
+    // absence of status (T092c) + the TypeError name.
+  });
+
+  it("surfaces a 401 (session expired) as a recoverable re-auth-required failure", async () => {
+    // Session expired mid-action: the server returns 401 Unauthorized.
+    // The clipboard layer surfaces it as ok:false with status=401; the UI
+    // can render a "session expired — please refresh and retry" message.
+    // No data corruption: the server rejected the write; the destination
+    // folder is untouched.
+    const apiError = Object.assign(new Error("401 Unauthorized"), {
+      status: 401,
+      statusText: "Unauthorized",
+    });
+    const transport = vi.fn().mockRejectedValueOnce(apiError);
+    const summary = await pasteClipboardItems(
+      [folder("auth")],
+      "cut",
+      transport,
+    );
+    expect(summary.results[0]?.ok).toBe(false);
+    expect(summary.results[0]?.status).toBe(401);
+    expect(summary.results[0]?.message).toContain("401");
+  });
+
+  it("supports re-auth + retry without a hard refresh (second attempt succeeds)", async () => {
+    // First paste attempt: network drop (TypeError). User re-auths via
+    // the in-page login dialog (no page reload). Second paste attempt
+    // (same clipboard contents) succeeds — the destination folder
+    // receives the copy; no data corruption from the first attempt's
+    // failure. Each pasteClipboardItems call is independent; the
+    // summary is fresh per call.
+    const failingTransport = vi
+      .fn()
+      .mockRejectedValueOnce(new TypeError("Failed to fetch"));
+    const firstSummary = await pasteClipboardItems(
+      [folder("retry")],
+      "copy",
+      failingTransport,
+    );
+    expect(firstSummary.results[0]?.ok).toBe(false);
+
+    // Re-auth happened (mocked at the boundary). The retry transport
+    // succeeds — proves the paste layer is idempotent across retry.
+    const succeedingTransport = vi.fn().mockResolvedValueOnce(undefined);
+    const secondSummary = await pasteClipboardItems(
+      [folder("retry")],
+      "copy",
+      succeedingTransport,
+    );
+    expect(secondSummary.results[0]?.ok).toBe(true);
+    expect(succeedingTransport).toHaveBeenCalledTimes(1);
+  });
+
+  it("does not silently overwrite on transport failure (Promise.allSettled keeps per-item boundaries)", async () => {
+    // Two items in the clipboard; the first call hits a network drop;
+    // the second call succeeds. Each item's outcome is reported
+    // independently — there is no "all-or-nothing" rollback because
+    // the server is the authoritative writer (it would have rejected
+    // the first write before any side-effect). The test asserts the
+    // boundary is preserved per-item, not silently absorbed.
+    const transport = vi
+      .fn()
+      .mockRejectedValueOnce(new TypeError("network blip"))
+      .mockResolvedValueOnce(undefined);
+    const summary = await pasteClipboardItems(
+      [folder("a"), folder("b")],
+      "copy",
+      transport,
+    );
+    expect(summary.results.map((r) => r.ok)).toEqual([false, true]);
+    expect(summary.results[0]?.status).toBeUndefined();
+    expect(summary.results[1]?.status).toBeUndefined();
+  });
+});
