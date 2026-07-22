@@ -128,6 +128,13 @@ class TestExecutableBitGuard(unittest.TestCase):
         """A StartJetty.sh with no execute bit must surface as
         EXIT_INSTALL_MISSING (matches the original [[ -x ]] guard).
         """
+        if sys.platform.startswith("win"):
+            self.skipTest(
+                "Windows file permissions are POSIX-incompatible: "
+                "os.access(X_OK) returns True even after chmod(0o644); "
+                "the executable-bit guard is a Linux/macOS concept "
+                "(verified by the Linux-side CI job)."
+            )
         self._write_non_executable("jetty", "StartJetty.sh")
         rc = iu.run(
             install_root=self.install_root,
@@ -142,6 +149,12 @@ class TestExecutableBitGuard(unittest.TestCase):
         Mirrors the original ``[[ -x ${dts_start_script} ]]`` guard
         that skipped non-executable candidates.
         """
+        if sys.platform.startswith("win"):
+            self.skipTest(
+                "Windows file permissions are POSIX-incompatible: "
+                "chmod(0o644) does not strip the executable bit; the "
+                "primary-vs-fallback distinction is a Linux/macOS concept."
+            )
         # CMS script must exist so `run()`'s upfront sanity check passes
         # before reaching the DTS branch. Use the executable helper to
         # mark it executable.
@@ -176,6 +189,11 @@ class TestExecutableBitGuard(unittest.TestCase):
         executable, EXIT_INSTALL_MISSING (not a confusing kernel
         permission error).
         """
+        if sys.platform.startswith("win"):
+            self.skipTest(
+                "Windows file permissions are POSIX-incompatible; "
+                "the neither-executable branch is a Linux/macOS concept."
+            )
         self._write_non_executable("TomcatStartup.sh")
         self._write_non_executable("startup.sh")
         rc = iu.run(
@@ -187,6 +205,11 @@ class TestExecutableBitGuard(unittest.TestCase):
 
     def test_is_executable_helper(self):
         """Direct unit test for the _is_executable helper."""
+        if sys.platform.startswith("win"):
+            self.skipTest(
+                "Windows file permissions are POSIX-incompatible; "
+                "the _is_executable helper is a Linux/macOS concept."
+            )
         exe = self._write_executable("exe.sh")
         non_exe = self._write_non_executable("non-exe.sh")
         missing = self.install_root / "no-such.sh"

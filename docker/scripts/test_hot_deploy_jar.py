@@ -248,12 +248,20 @@ class TestRealRun(unittest.TestCase):
         ``-c``, or ``[ `` — the latter three would indicate a shell
         snippet with the user-controlled jar name embedded.
         """
+        # The full Linux/Unix injection payload contains single quotes,
+        # which Windows file systems reject with WinError 3. Use a
+        # Windows-safe variant that still exercises the path-string
+        # surfacing we want to assert.
+        if sys.platform.startswith("win"):
+            malicious_jar_name = "evil&touch PWNED.jar"
+        else:
+            malicious_jar_name = "evil'; touch /tmp/PWNED; '.jar"
         calls, fake_run = _stub_subprocess()
         # Use a malicious-looking jar name to make the test name clearly
         # match the security concern; the recorded argv must not let it
         # escape via shell.
         self.td_path.mkdir(parents=True, exist_ok=True)
-        malicious_jar = self.td_path / "evil'; touch /tmp/PWNED; '.jar"
+        malicious_jar = self.td_path / malicious_jar_name
         malicious_jar.parent.mkdir(parents=True, exist_ok=True)
         malicious_jar.write_bytes(b"x")
         with unittest.mock.patch.object(hdj.subprocess, "run", side_effect=fake_run):

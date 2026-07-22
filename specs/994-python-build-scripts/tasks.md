@@ -73,18 +73,18 @@
 
 **Independent Test (per `quickstart.md` Scenarios C + E.1)**: `python3 docker/scripts/perc-devctl.py --help` lists all subcommands; `python3 -m pytest docker/scripts/ modules/ai-shared-develop/scripts/` exits 0 on Linux + Windows; `find docker/scripts/ docker/entrypoint/ modules/ai-shared-develop/scripts/ -type f -name '*.sh'` returns empty (SC-002).
 
-- [ ] T042 [P] [US4] Create `docker/scripts/hot-deploy-jar.py` + `docker/scripts/test_hot_deploy_jar.py` per contracts
-- [ ] T043 [P] [US4] Create `docker/scripts/perc-devctl.py` + `docker/scripts/test_perc_devctl.py` per contracts; preserve all bash subcommands (`install`, `up`, `down`, `status`, `verify`, `it-verify`, `deploy-jar`, `verify-fix`, `logs-path`, `inspect-install`, `show-generated-passwords`); document the bash trap → `try`/`finally` deviation in `## Behavioral Notes` (FR-009b, R2)
-- [ ] T044 [P] [US4] Create `docker/entrypoint/install-update.py` + `docker/entrypoint/test_install_update.py` per contracts
-- [ ] T045 [P] [US4] Create `modules/ai-shared-develop/scripts/sign-ai-resources.py` + `modules/ai-shared-develop/scripts/test_sign_ai_resources.py` per contracts
-- [ ] T046 [P] [US4] Create `modules/ai-shared-develop/scripts/verify-signatures-hook.py` + `modules/ai-shared-develop/scripts/test_verify_signatures_hook.py` per contracts
-- [ ] T047 [P] [US4] Create `modules/ai-shared-develop/scripts/build-integrity-check.py` + `modules/ai-shared-develop/scripts/test_build_integrity_check.py` per contracts
-- [ ] T048 [US4] Delete `docker/scripts/*.sh`, `docker/entrypoint/*.sh`, `modules/ai-shared-develop/scripts/*.sh` (FR-004)
-- [ ] T049 [P] [US4] Update `docker/README.md` to reference the new `.py` entry points and drop `.sh` references (FR-011)
-- [ ] T050 [P] [US4] Update `modules/ai-shared-develop/AGENTS.md` to reference the new `.py` entry points (FR-011)
-- [ ] T051 [US4] Run `python3 -m pytest docker/scripts/ modules/ai-shared-develop/scripts/ -v` locally; run on Windows too
-- [ ] T052 [US4] Open PR titled `build(docker,ai-shared): migrate docker + AI dev scripts to cross-platform Python`
-- [ ] T053 [US4] Run Erlang review; resolve review threads; verify CI green on both runners; wait for human approval and merge
+- [X] T042 [P] [US4] Create `docker/scripts/hot-deploy-jar.py` + `docker/scripts/test_hot_deploy_jar.py` per contracts
+- [X] T043 [P] [US4] Create `docker/scripts/perc-devctl.py` + `docker/scripts/test_perc_devctl.py` per contracts; preserve all bash subcommands (`install`, `up`, `down`, `status`, `verify`, `it-verify`, `deploy-jar`, `verify-fix`, `logs-path`, `inspect-install`, `show-generated-passwords`); document the bash trap → `try`/`finally` deviation in `## Behavioral Notes` (FR-009b, R2)
+- [X] T044 [P] [US4] Create `docker/entrypoint/install-update.py` + `docker/entrypoint/test_install_update.py` per contracts
+- [X] T045 [P] [US4] Create `modules/ai-shared-develop/scripts/sign-ai-resources.py` + `modules/ai-shared-develop/scripts/test_sign_ai_resources.py` per contracts
+- [X] T046 [P] [US4] Create `modules/ai-shared-develop/scripts/verify-signatures-hook.py` + `modules/ai-shared-develop/scripts/test_verify_signatures_hook.py` per contracts
+- [X] T047 [P] [US4] Create `modules/ai-shared-develop/scripts/build-integrity-check.py` + `modules/ai-shared-develop/scripts/test_build_integrity_check.py` per contracts
+- [X] T048 [US4] Delete `docker/scripts/*.sh`, `docker/entrypoint/*.sh`, `modules/ai-shared-develop/scripts/*.sh` (FR-004)
+- [X] T049 [P] [US4] Update `docker/README.md` to reference the new `.py` entry points and drop `.sh` references (FR-011)
+- [X] T050 [P] [US4] Update `modules/ai-shared-develop/AGENTS.md` to reference the new `.py` entry points (FR-011)
+- [X] T051 [US4] Run `python3 -m pytest docker/scripts/ modules/ai-shared-develop/scripts/ -v` locally; run on Windows too
+- [X] T052 [US4] Open PR titled `build(docker,ai-shared): migrate docker + AI dev scripts to cross-platform Python`
+- [X] T053 [US4] Run Erlang review; resolve review threads; verify CI green on both runners; wait for human approval and merge
 
 ## Phase 5: User Story 4 (cont.) - AI skill helper scripts (Priority: P2) — Scope 4 nested (`modules/ai-shared-develop/src/main/resources/skills/*/scripts/`)
 
