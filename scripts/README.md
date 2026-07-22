@@ -2,183 +2,152 @@
 
 Repository-wide operational and helper scripts. Per the project's AGENTS.md, generated scripts MUST live under this directory (or the owning module's script directory). Scratch work uses `./tmp`; do not use system temp dirs.
 
+## Scope (per spec 994-python-build-scripts)
+
+All build-time scripts in this directory are cross-platform Python 3.9+ (FR-001). The migration delivers per-directory PRs (FR-001a); the `scripts/` directory is **Scope 1** and landed in **US2**. See [`specs/994-python-build-scripts/spec.md`](../../specs/994-python-build-scripts/spec.md) for the full in-scope/out-of-scope split and [`specs/994-python-build-scripts/contracts/cli-schemas.md`](../../specs/994-python-build-scripts/contracts/cli-schemas.md) for the CLI contract of each script.
+
+Out of scope for spec 994 (must NOT be touched):
+- `../mvn-env.{sh,bat}` — already cross-platform, per Clarification Q2.
+- `release-audit/erlang-harvest-review-patterns.{sh,bat}` — Phase 3 (US3).
+- Anything under `system/release/`, `system/installResources/`, `system/Tools/`, etc. — runtime scripts deployed with customer installations (FR-013).
+
 ## Scripts
 
-### `fetch-gh-code-scanning-alerts.sh`
+### `fetch-gh-code-scanning-alerts.py`
 
 Fetch code scanning (CodeQL) alerts for a repository using the `gh` CLI and write a markdown report.
 
 - **Purpose**: Reusable enumerator for the `004-zero-code-scanning-alerts` triage workflow and any future release-readiness check.
 - **Usage**:
   ```bash
-  scripts/fetch-gh-code-scanning-alerts.sh [owner/repo] [state]
+  python3 scripts/fetch-gh-code-scanning-alerts.py [--repo OWNER/REPO] [--state open|dismissed|fixed|all]
   # state: open | dismissed | fixed | all (default: open)
+  python scripts/fetch-gh-code-scanning-alerts.py        # Windows
   ```
 - **Output**: `docs/ai-generated/tasks/gh-codeql-alerts/alerts.md` — markdown list of alerts including alert number, rule ID, severity, file path + line, and message.
-- **Prereqs**: `gh` CLI authenticated (`gh auth login`), `jq` installed.
+- **Prereqs**: `gh` CLI authenticated (`gh auth login`).
 - **Notes**:
-  - The GitHub REST API nests `rule.id` and `rule.security_severity_level` under `.rule.*`. Earlier versions of this script used flat field names and produced `<no-rule>` placeholders; fixed 2026-07-11.
   - Pagination is handled automatically (`--paginate`, `per_page=100`).
-  - For the `004-zero-code-scanning-alerts` workflow, use this script to (re)generate `alerts.md`, then seed/triage `triage.md` per `specs/004-zero-code-scanning-alerts/contracts/README.md` C1.
+  - After fetching, the script invokes `filter_stale_alerts.py` to write `alerts-stale-cache.md` (T007b).
+- **Tests**: `python3 -m pytest scripts/test_fetch_gh_code_scanning_alerts.py -v`
 
-### `install-cms-dev.sh`
+### `install-cms-dev.py`
 
-Run the Percussion CMS installer ONCE on the host into a persistent
-`install_root/` directory. The docker dev/test runtime bind-mounts that
-directory into the `cms-dts` container at `/opt/Percussion/` so:
+Run the Percussion CMS installer ONCE on the host into a persistent `install_root/` directory. The docker dev/test runtime bind-mounts that directory into the `cms-dts` container at `/opt/Percussion/` so:
 
 - the container's only job is to run `StartJetty.sh` (no in-container install);
 - container restarts do **not** re-install (the install persists on the host);
-- hot-deploys (jar swaps, config edits) are local file edits in `install_root/`,
-  picked up by the container on the next `docker compose restart`.
+- hot-deploys (jar swaps, config edits) are local file edits in `install_root/`, picked up by the container on the next `docker compose restart`.
 
-This replaces the old "install inside the container" pattern, which fought
-bind mounts and the in-container healthcheck window.
-
-- **Purpose**: One-time CMS install into `./docker/dev-data/cms-dts/install_root/`
-  (default). Idempotent — skips install if the marker file is present.
+- **Purpose**: One-time CMS install into `./docker/dev-data/cms-dts/install_root/` (default). Idempotent — skips install if the marker file is present.
 - **Usage**:
   ```bash
-  ./scripts/install-cms-dev.sh                  # one-time install
-  ./scripts/install-cms-dev.sh --reset         # force reinstall
-  ./scripts/install-cms-dev.sh --install-root /tmp/cms-install
+  python3 scripts/install-cms-dev.py                  # one-time install
+  python3 scripts/install-cms-dev.py --reset          # force reinstall
+  python3 scripts/install-cms-dev.py --install-root /tmp/cms-install
   ```
 - **Prereqs**:
-  - JDK 21 on the host (the installer runs in the same JRE/JDK the container uses).
-  - Built artifacts: `modules/perc-distribution-tree/target/perc-distribution-tree.jar`
-    and `deliverytiersuite/delivery-tier-suite/delivery-tier-distribution/target/delivery-tier-distribution.jar`
-    (run `./mvn-env.sh clean install -DskipTests=true`).
-  - For MySQL installs: the `mysql` compose service must be running and reachable
-    on `localhost:3306` (docker compose publishes the container port to the host).
-    The installer reads `PERC_DB_*` from `.env.compose`.
-  - For Derby installs: no external service needed; uses the embedded default.
-- **Bootstrap**: When `install_root/` is empty, the script seeds it from the
-  pre-existing `docker/dev-data/cms-dts/{ObjectStore,var,rxconfig,Deployment/Server/conf,jetty/base}`
-  subdirs so prior dev state (CMS ObjectStore content, Rx config, Jetty base) is
-  preserved across the migration to single-bind-mount. Pass `--no-bootstrap`
-  to skip the seed.
+  - JDK 21 on the host.
+  - Built artifacts: `modules/perc-distribution-tree/target/perc-distribution-tree.jar` and `deliverytiersuite/delivery-tier-suite/delivery-tier-distribution/target/delivery-tier-distribution.jar` (run `./mvn-env.sh clean install -DskipTests=true`).
+  - For MySQL installs: the `mysql` compose service must be running and reachable on `localhost:3306`.
 - **Output**: `RESULT:OK STEP:install LOG:<path>` or `RESULT:FAIL STEP:install LOG:<path>`.
-- **Typical workflow**:
-  ```bash
-  cp .env.compose.example .env.compose             # edit secrets
-  ./mvn-env.sh clean install -DskipTests=true
-  ./docker/scripts/perc-devctl.sh up --build       # starts mysql + cms-dts (mysql must be up before install)
-  docker compose --env-file .env.compose -f docker-compose.yml up -d mysql  # or `up --build` brings both
-  ./scripts/install-cms-dev.sh                    # populates install_root/
-  ./docker/scripts/perc-devctl.sh up -d cms-dts   # starts cms-dts against the installed tree
-  ./docker/scripts/perc-devctl.sh verify          # confirm CMS + DTS endpoints respond
-  ```
-- **Hot-deploy**:
-  ```bash
-  # Edit a file in install_root/ on host, then restart the container:
-  docker compose --env-file .env.compose -f docker-compose.yml restart cms-dts
-  # Or, hot-swap a jar via the existing hot-deploy-jar.sh:
-  ./docker/scripts/hot-deploy-jar.sh --jar modules/utils/target/utils-8.2.0-SNAPSHOT.jar --target both --restart
-  ```
+- **Tests**: `python3 -m pytest scripts/test_install_cms_dev.py -v`
 
-### `create-large-folder-fixture.sh`
+### `create-large-folder-fixture.py`
 
-Create a single CMS folder with ≥500 children for the SC-005 perf UAT scenario of feature `992-react-content-explorer` (`quickstart.md` Scenario B).
+Create a single CMS folder with ≥500 children for the SC-005 perf UAT scenario of feature `992-react-content-explorer`.
 
-- **Purpose**: Tasks.md T012b perf fixture scaffolding. Run on a test CMS instance to seed the fixture used for the SC-005 pass criterion (`p95 ≤ 10 s` on standard office network) and the T015a Vitest regression guard.
+- **Purpose**: Tasks.md T012b perf fixture scaffolding. Run on a test CMS instance to seed the fixture used for the SC-005 pass criterion (`p95 ≤ 10 s` on standard office network).
 - **Usage**:
   ```bash
-  CMS_BASE_URL=https://cms.local:8443 \
-  CMS_USER=admin1 CMS_PASS=<redacted> \
-  FIXTURE_PATH=/Sites/PerfFixture FIXTURE_COUNT=500 \
-  ./scripts/create-large-folder-fixture.sh
+  python3 scripts/create-large-folder-fixture.py \
+      --base-url https://cms.local:8443 \
+      --user admin1 --password <redacted> \
+      --fixture-path /Sites/PerfFixture --fixture-count 500
   ```
 - **Output**: A folder `FIXTURE_PATH/PerfFixtureRoot` with `FIXTURE_COUNT` children (default `/Sites/PerfFixture/PerfFixtureRoot` × 500).
-- **Cross-platform**: Windows users run the `.cmd` counterpart (add when needed; the `.sh` is portable to Linux/macOS). Default count + path match the SC-005 fixture in `quickstart.md`.
-- **Evidence**: After UAT, append a row to `specs/992-react-content-explorer/checklists/sc005-perf-evidence.md` with run name, git SHA, fixture size, network profile, p50/p95/max times, pass/fail.
-- **Prereqs**: `curl`, network reachability to a running CMS instance with admin credentials; idempotent (re-running will create additional children under the same parent — clean up between runs as needed).
+- **Prereqs**: `curl`, network reachability to a running CMS instance with admin credentials.
+- **Tests**: `python3 -m pytest scripts/test_create_large_folder_fixture.py -v`
 
-### `erlang-harvest-review-patterns.py` (+ `.sh` / `.bat`)
+### `erlang-harvest-review-patterns.py` (US3, not converted in US2)
 
-Harvest GitHub PR **line review comments** (including closed/merged PRs) from
-`kilo-code-bot[bot]` (and optional other authors), cluster them into generalized
-themes, write a candidate report, and optionally auto-merge multi-PR themes into
-Erlang review pattern memory.
+Harvest GitHub PR **line review comments** (including closed/merged PRs) from `kilo-code-bot[bot]` (and optional other authors), cluster them into generalized themes, write a candidate report, and optionally auto-merge multi-PR themes into Erlang review pattern memory.
 
-- **Purpose**: Keep Erlang's institutional review memory (`patterns.md`) fed from
-  real Kilo/GitHub review history without hand-copying every comment. Short-handed
-  teams re-run this instead of maintaining patterns only by hand.
-- **Usage** (repo root; needs `gh auth login` + network):
-  ```text
-  # Candidates only (safe default)
-  python3 scripts/erlang-harvest-review-patterns.py
-  # or: scripts/erlang-harvest-review-patterns.sh
-  # or: scripts\erlang-harvest-review-patterns.bat
-
-  # Merge multi-PR themes into patterns.md
-  python3 scripts/erlang-harvest-review-patterns.py --apply
-
-  # Also promote single-PR CRITICAL hard-gate themes (noisier)
-  python3 scripts/erlang-harvest-review-patterns.py --apply --promote-critical
+- **Purpose**: Keep Erlang's institutional review memory (`patterns.md`) fed from real Kilo/GitHub review history.
+- **Usage**:
+  ```bash
+  python3 scripts/erlang-harvest-review-patterns.py [--apply] [--promote-critical]
   ```
-- **Outputs**:
-  - `docs/ai-generated/code-reviews/harvest-candidates-YYYY-MM-DD.md` — full cluster report + evidence links
-  - With `--apply`: appends selected bullets to
-    `modules/ai-shared-develop/src/main/resources/skills/erlang-review/patterns.md`
-    (marked `_(harvested, seen N×)_`)
-- **Prereqs**: Python 3.9+, `gh` CLI authenticated. No `jq` required (Python parses JSON).
-- **Cross-platform**: Python core; Unix wrapper `.sh` and Windows wrapper `.bat`.
-- **Tests**: `python3 scripts/test_erlang_harvest_review_patterns.py` (offline; uses `--fixture`).
-- **Notes**:
-  - Default authors: `kilo-code-bot[bot]`. Options: `--include-security-bots`, `--include-humans`.
-  - Default `--apply` promotes **multi-PR** themes only (count ≥ 2 and ≥ 2 distinct PRs).
-  - Mitigation / reply threads are skipped (`in_reply_to_id`).
-  - Review the candidates report (and the patterns.md diff) before committing.
+- **Outputs**: `docs/ai-generated/code-reviews/harvest-candidates-YYYY-MM-DD.md` and, with `--apply`, appends selected bullets to `modules/ai-shared-develop/src/main/resources/skills/erlang-review/patterns.md`.
+- **Prereqs**: Python 3.9+, `gh` CLI authenticated.
+- **Tests**: `python3 -m pytest scripts/test_erlang_harvest_review_patterns.py -v`
 
 ### Other scripts in this directory
 
-- `authenticate-sigstore.sh` — sigstore / cosign authentication helper for artifact verification.
-- `gh-preflight.sh` — pre-flight checks for `gh` CLI usage.
-- `hot-deploy-local.sh` — local hot-deploy helper for the CMS.
-- `resolve-conflicts.sh` — git conflict resolution helper.
-- `verify-no-finder-jsp-references.sh` (+ `.bat`) — CI-gate artifact-grep for spec 992 / FR-019a. Asserts `cm/app/webmgt.jsp` (modern Track B shell, hard-cut in PR #1390) contains zero navigation entries to `finder.jsp`. Carves out the `finder_js.jsp` shared-library include (required for non-Finder functionality) and `cm/pages/app/webmgt.jsp` (Track A; deferred to the Track A migration workstream). Paired self-test at `test-verify-no-finder-jsp-references.sh` exercises the PASS + FAIL + carve-out cases. Vitest spec at `WebUI/src/test/ts/scripts/verify-no-finder-jsp-references.test.ts` is the load-bearing CI assertion that fires on every `npx vitest run`. T029b.
+Each entry below has been ported to cross-platform Python 3.9+ with pytest coverage under `scripts/test_<name>.py`.
+
+- `authenticate-sigstore.py` — Sigstore OIDC token retrieval + cache. Test: `test_authenticate_sigstore.py`.
+- `gh-preflight.py` — pre-flight checks for `gh` CLI usage. Test: `test_gh_preflight.py`.
+- `hot-deploy-local.py` — local hot-deploy helper for the CMS (jar modules + webui). Test: `test_hot_deploy_local.py`.
+- `resolve-conflicts.py` — git conflict resolution helper (ours / theirs / manual). Test: `test_resolve_conflicts.py`.
+- `verify-no-finder-jsp-references.py` — CI-gate artifact-grep for spec 992 / FR-019a (modern Track B shell, hard-cut in PR #1390). Test: `test_verify_no_finder_jsp_references.py`.
+- `verify-no-jqplot-vendor-refs.py` — CI-gate guard that the removed jqplot vendor library stays gone. Test: `test_verify_no_jqplot_vendor_refs.py`.
+- `verify-codeql-analyzer-of-record.py` — asserts the advanced CodeQL workflow + config + playbook are in place and that the default-setup is `not-configured`. Test: `test_verify_codeql_analyzer_of_record.py`.
 
 ### `004-zero-code-scanning-alerts` workflow scripts
 
-Added for the `004-zero-code-scanning-alerts` feature. All are POSIX `sh` (or portable `bash`) per `AGENTS.md`; all run from the repo root.
+All converted to cross-platform Python 3.9+ (US2). All run from the repo root.
 
-| Script | Purpose | Spec ref |
-|--------|---------|----------|
-| `filter-stale-alerts.sh` | Filter out alerts whose file path is no longer in `git ls-files`; write the stale rows to `alerts-stale-cache.md` for audit. Invoked automatically by `fetch-gh-code-scanning-alerts.sh` at the end of every fetch. | T007b |
-| `verify-triage-inventory.sh` | CI-lite check on `triage.md`: row count == open-alert count, every `false-positive`/`accepted-risk` row has non-empty `notes`, every `module_owner` is a path under `AGENTS.md`. | T012 |
-| `verify-distribution-archive.sh` | Rebuild `modules/perc-distribution-tree` (and `modules/perc-packages`) and assert none of the files listed in `tmp/gh-codeql-alerts/removed-files.txt` appear in the resulting JARs or `.ppkg` installer. | T019 |
-| `verify-valid-fixes.sh` | Assert every `triage.md` row with `disposition == valid` has a non-empty `linked_pr`. | T035 |
-| `verify-codeql-analyzer-of-record.sh` | Assert advanced CodeQL is PR-wired, model pack/config/playbook exist, and **default CodeQL setup is `not-configured`** (stops residual thrashing). | codeql-pr-playbook |
-| `verify-suppressions.sh` | For every row in `suppressions.md`, grep the cited source line for the matching `// codeql[…]` comment and `justification:` text. | T064 |
-| `verify-pr-review-resolution.sh` | For every `linked_pr` in `triage.md`, query `gh pr view --json reviewThreads` and fail if any thread has `isResolved: false` (Constitution IX, `SC-007`). | T078b |
-| `test-verify-triage-inventory.sh` | Self-test for `verify-triage-inventory.sh` against `scripts/test-fixtures/triage-good.md` and `triage-bad.md`. | T013 |
-| `verify-dhtml-search-sanitization.js` | Behavioral regression check for the 7 lockstep `system/Docs/*/dhtml_search.js` copies (closes 21 `js/incomplete-sanitization` alerts): extracts the real, checked-in single-pass global-regex escaping expression from each file and drives it with mixed `<`/`>`/`"` inputs; also fails if the old non-global `.replace("<", ...)` anti-pattern reappears. Plain Node (no framework/`.sh` wrapper needed) since `system` has no JS test toolchain. | T044-class US3 |
-| `verify-sys-resources-js-xss.js` | Behavioral + source-pattern checks for CodeQL `js/xss` #945/#946: mobile-preview `escapeHtml`/`safeSameOriginHttpUrl` and webimagefx license URL built from origin+pathname (not raw `location.href`). Plain Node. | remaining CodeQL residuals |
+| Python script | Purpose | Spec ref |
+|---------------|---------|----------|
+| `filter-stale-alerts.py` | Filter out alerts whose file path is no longer in `git ls-files`; write the stale rows to `alerts-stale-cache.md` for audit. Invoked automatically by `fetch-gh-code-scanning-alerts.py` at the end of every fetch. | T007b |
+| `verify-triage-inventory.py` | CI-lite check on `triage.md`: row count == open-alert count, every `false-positive`/`accepted-risk` row has non-empty `notes`, every `module_owner` is a path under `AGENTS.md`. | T012 |
+| `verify-distribution-archive.py` | Rebuild `modules/perc-distribution-tree` (and `modules/perc-packages`) and assert none of the files listed in `tmp/gh-codeql-alerts/removed-files.txt` appear in the resulting JARs or `.ppkg` installer. | T019 |
+| `verify-valid-fixes.py` | Assert every `triage.md` row with `disposition == valid` has a non-empty `linked_pr`. | T035 |
+| `verify-suppressions.py` | For every row in `suppressions.md`, grep the cited source line for the matching `// codeql[…] comment and `justification:` text. | T064 |
+| `verify-pr-review-resolution.py` | For every `linked_pr` in `triage.md`, query `gh pr view --json reviewThreads` and fail if any thread has `isResolved: false` (Constitution IX, `SC-007`). | T078b |
+| `test-verify-triage-inventory.py` | Self-test for `verify-triage-inventory.py` against `scripts/test-fixtures/triage-good.md` and `triage-bad.md`. | T013 |
 
 #### Usage
 
 ```sh
 # Re-fetch and re-triage (weekly cadence per the alerts dir README).
-scripts/fetch-gh-code-scanning-alerts.sh intersoftdatalabs-in/percussioncms
+python3 scripts/fetch-gh-code-scanning-alerts.py --repo intersoftdatalabs-in/percussioncms
 
 # Pre-merge gates (run before merging a closing PR).
-scripts/verify-triage-inventory.sh
-scripts/verify-valid-fixes.sh
-scripts/verify-suppressions.sh
-scripts/verify-distribution-archive.sh
-scripts/verify-pr-review-resolution.sh
+python3 scripts/verify-triage-inventory.py
+python3 scripts/verify-valid-fixes.py
+python3 scripts/verify-suppressions.py
+python3 scripts/verify-distribution-archive.py
+python3 scripts/verify-pr-review-resolution.py
 ```
 
 #### Test fixtures
 
-`scripts/test-fixtures/triage-good.md` and `triage-bad.md` are minimal 4-row
-triage inventories used by `test-verify-triage-inventory.sh`. The "bad"
-fixture exercises the empty-notes and unknown-module_owner failure modes;
-the "good" fixture is the expected clean state.
+`scripts/test-fixtures/triage-{good,bad}.md` are minimal 4-row triage inventories used by `test-verify-triage-inventory.py`. Companion `scripts/test-fixtures/alerts-{good,bad}.md` files provide the alerts.md content for the row-count check. The "bad" fixture exercises the empty-notes and unknown-module_owner failure modes; the "good" fixture is the expected clean state.
+
+### `release-audit/` package
+
+Cross-platform Python port of the v8.1.x → 8.2 migration audit pipeline (spec 005-migrate-8.1.7-changes). Replaces the previous bash `release-audit.sh` + `lib/*.sh` + `tests/test_*.sh` layout with a Python package (`scripts/release-audit/*.py` + `scripts/release-audit/tests/*.py`).
+
+- **Usage**:
+  ```bash
+  python3 scripts/release-audit/__main__.py --help
+  python3 scripts/release-audit/__main__.py --from-tag v8.1.6 --to-tag v8.1.7 \
+      --target-branch development --output-dir ./tmp/release-audit/v8.1.6..v8.1.7
+  ```
+- **Subcommands**: `inventory`, `verdicts`, `backlog`, `report`, `port`, `all` (default).
+- **Tests**: `python3 -m pytest scripts/release-audit/tests/ -v`
+- **Note**: The directory name `release-audit/` contains a dash, which Python cannot import as a package name. Users invoke the entry point by file path (`python3 scripts/release-audit/__main__.py`) rather than via `python -m release_audit`.
 
 ## Conventions
 
-- Prefer portable entry points: POSIX `sh`/`bash` **and** Windows `.bat` when operators need both, or a single Python/Java tool with thin wrappers (see `erlang-harvest-review-patterns`).
-- Shell scripts MUST set `-euo pipefail` (or `set -eu` for pure `sh`) and document purpose + usage in this README.
-- Scripts MUST NOT write to `%TEMP%` or `$TMPDIR`; use `./tmp` for scratch.
-- Scripts MUST NOT invent third-party APIs or extension points — see root AGENTS.md "Evidence Over Invention".
+- **Cross-platform Python only.** All scripts in this directory are Python 3.9+ per spec 994 FR-001. The legacy "Windows users run the `.cmd` counterpart" guidance has been retired (FR-011).
+- **Stdlib only at runtime.** No third-party imports beyond pytest (which is declared in `scripts/requirements-dev.txt`, FR-006).
+- **`pathlib.Path` everywhere.** No hardcoded `/` or `\\` separators in filesystem paths (FR-007; root AGENTS.md Cross-Platform File I/O & Paths).
+- **`subprocess.run([...], shell=False, check=False, timeout=N)`** for every external invocation (FR-008). Never `shell=True`, `os.system`, `bash -c`, `cmd /c`.
+- **Colocated pytest module** (`test_<name>.py`) per script (FR-009). Tests invoke scripts via `subprocess.run([sys.executable, str(script_path), ...])` per R4.
+- **`## Behavioral Notes`** section in every script's module docstring enumerating deviations from the shell original (FR-009b).
+- **`logging.getLogger(__name__)`** with format `%(asctime)s %(levelname)s %(message)s`.
+- **Scripts MUST NOT write to `%TEMP%` or `$TMPDIR`**; use `./tmp` for scratch.
+- **Scripts MUST NOT invent third-party APIs or extension points** — see root AGENTS.md "Evidence Over Invention".
