@@ -1,0 +1,75 @@
+name: python-build-scripts
+
+# Spec 994-python-build-scripts — Python-script tests only (no Maven / full build).
+# See contracts/cli-schemas.md for the CLI surface each script must preserve.
+
+on:
+  pull_request:
+    paths:
+      - 'scripts/**'
+      - 'scripts/requirements-dev.txt'
+      - 'scripts/run-python-tests.sh'
+      - 'scripts/run-python-tests.cmd'
+      - '.github/workflows/python-build-scripts.yml'
+      - 'docker/scripts/**'
+      - 'docker/entrypoint/**'
+      - 'modules/perc-distribution-tree/scripts/**'
+      - 'modules/perc-distribution-tree/APIUpdate-*.bat'
+      - 'modules/perc-distribution-tree/UpdateTinyMCE.bat'
+      - 'modules/perc-distribution-tree/AGENTS.md'
+      - 'modules/ai-shared-develop/scripts/**'
+      - 'modules/ai-shared-develop/src/main/resources/skills/**/scripts/**'
+      - 'modules/ai-shared-develop/AGENTS.md'
+      - 'docs/ai-generated/tasks/#000-webui-src-layout/**'
+  push:
+    branches: [development]
+    paths:
+      - 'scripts/**'
+      - 'scripts/requirements-dev.txt'
+      - 'scripts/run-python-tests.sh'
+      - 'scripts/run-python-tests.cmd'
+      - '.github/workflows/python-build-scripts.yml'
+      - 'docker/scripts/**'
+      - 'docker/entrypoint/**'
+      - 'modules/perc-distribution-tree/scripts/**'
+      - 'modules/perc-distribution-tree/APIUpdate-*.bat'
+      - 'modules/perc-distribution-tree/UpdateTinyMCE.bat'
+      - 'modules/perc-distribution-tree/AGENTS.md'
+      - 'modules/ai-shared-develop/scripts/**'
+      - 'modules/ai-shared-develop/src/main/resources/skills/**/scripts/**'
+      - 'modules/ai-shared-develop/AGENTS.md'
+      - 'docs/ai-generated/tasks/#000-webui-src-layout/**'
+
+permissions:
+  contents: read
+
+jobs:
+  python-build-scripts:
+    name: python-build-scripts (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - ubuntu-latest
+          - windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+          cache-dependency-path: scripts/requirements-dev.txt
+
+      - name: Run cross-platform Python-script tests (bash on Unix)
+        if: matrix.os != 'windows-latest'
+        shell: bash
+        run: bash scripts/run-python-tests.sh
+
+      - name: Run cross-platform Python-script tests (cmd on Windows)
+        if: matrix.os == 'windows-latest'
+        shell: cmd
+        run: scripts\run-python-tests.cmd

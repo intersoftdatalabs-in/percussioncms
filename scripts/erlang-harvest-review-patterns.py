@@ -1078,8 +1078,13 @@ def main(argv: Optional[list[str]] = None) -> int:
         patterns_rel=patterns_rel,
     )
     out_path.write_text(report, encoding="utf-8", newline="\n")
-    # Always write with / in printed path
-    rel_out = out_path.relative_to(root).as_posix()
+    # Always write with / in printed path. Resolve both sides first so 8.3
+    # short paths (common on Windows under tempfile.TemporaryDirectory()) and
+    # their long-form equivalents are treated as the same directory — without
+    # this, Path.relative_to() raises ValueError on Windows when the test
+    # chdir's into a short-path temp dir while find_repo_root() resolved cwd
+    # to the long-path form.
+    rel_out = out_path.resolve().relative_to(root.resolve()).as_posix()
     print(f"erlang-harvest: wrote candidates → {rel_out}", flush=True)
 
     n_added = 0
