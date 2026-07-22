@@ -42,6 +42,7 @@ import java.util.Set;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 
 /**
  * Default impl of {@link IPSRelationshipSummaryService}.
@@ -102,7 +103,9 @@ public class PSRelationshipSummaryService implements IPSRelationshipSummaryServi
    * @param systemWs the system-level web-services facade (used by the findDependents side of
    *     the cataloger path); required.
    * @param relationshipCataloger pre-existing typed wrapper over {@code systemWs.findOwners(...)};
-   *     required.
+   *     required. The {@code @Qualifier("relationshipCataloger")} is required to disambiguate from
+   *     {@code contentItemDao} (which also implements {@link IPSRelationshipCataloger} via
+   *     {@link com.percussion.share.dao.IPSContentItemDao}); see issue #1419.
    * @param jcrNodeFinder JCR node finder for the taxonomy / site edges; required.
    * @param widgetAssetRelationshipService the AA / widget relationship service for local + linked
    *     assets; required.
@@ -111,7 +114,7 @@ public class PSRelationshipSummaryService implements IPSRelationshipSummaryServi
   public PSRelationshipSummaryService(
       IPSIdMapper idMapper,
       IPSSystemWs systemWs,
-      IPSRelationshipCataloger relationshipCataloger,
+      @Qualifier("relationshipCataloger") IPSRelationshipCataloger relationshipCataloger,
       PSJcrNodeFinder jcrNodeFinder,
       IPSWidgetAssetRelationshipService widgetAssetRelationshipService) {
     this.idMapper = idMapper;
