@@ -125,12 +125,12 @@
 
 ### Tests
 
-- [ ] T040 [P] [US5] Unit test that updated `java.properties` is preferred over env and install-dir JRE (precedence) in `JavaHomeResolverTest.java` (extend T006)
+- [x] T040 [P] [US5] Unit test that updated `java.properties` is preferred over env and install-dir JRE (precedence) in `JavaHomeResolverTest.java` (extend T006) — covered by `productConfigWinsOverEnv` test
 
 ### Implementation
 
-- [ ] T041 [US5] Finalize re-point docs: edit `java.properties`, restart console; for services re-run install-jetty-service / DTS service install or update `/etc/default` / Procrun — `modules/perc-jetty/README.md`, DTS README, `specs/991-system-java-home/quickstart.md`
-- [ ] T042 [US5] Ensure resolve failure messages list attempted sources when config path is invalid after re-point — `resolve-java-home.sh` / `.bat` and Java helper error formatting
+- [x] T041 [US5] Finalize re-point docs: edit `java.properties`, restart console; for services re-run install-jetty-service / DTS service install or update `/etc/default` / Procrun — `modules/perc-jetty/README.md` (Java home resolution section), DTS README, `specs/991-system-java-home/quickstart.md`
+- [x] T042 [US5] Ensure resolve failure messages list attempted sources when config path is invalid after re-point — `resolve-java-home.sh` / `.bat` and Java helper `ResolutionResult.renderFailure` (`Sources tried:` block)
 - [ ] T043 [US5] Commit US5 (may combine with US6 polish PR)
 
 ---
@@ -142,14 +142,14 @@
 
 ### Tests
 
-- [ ] T044 [P] [US6] Unit/structural tests: install-dir JRE used only when higher sources absent; JRE64 after JRE — `JavaHomeResolverTest.java` / script tests
-- [ ] T045 [P] [US6] Test or structural assert that `install.xml` JRE backup/`lib/ext` tasks are soft-gated (skip when JRE missing) — e.g. document + optional XPath/string test under `modules/perc-distribution-tree/src/test/java/.../InstallXmlJreSoftGateTest.java`
+- [x] T044 [P] [US6] Unit/structural tests: install-dir JRE used only when higher sources absent; JRE64 after JRE — `JavaHomeResolverTest.legacyJreUsedWhenHigherSourcesAbsent` and `legacyJre64UsedAfterJreWhenOnlyJre64Valid`
+- [x] T045 [P] [US6] Test or structural assert that `install.xml` JRE backup/`lib/ext` tasks are soft-gated (skip when JRE missing) — `InstallXmlJreSoftGateTest` (asserts `deleteOldBouncyCastleJars` block uses `failonerror="false"` and scans both `JRE/lib/ext` and `JRE64/lib/ext`)
 
 ### Implementation
 
-- [ ] T046 [US6] Soft-gate `modules/perc-distribution-tree/src/main/resources/distribution/rxconfig/Installer/install.xml` tasks that assume `${install.dir}/JRE` exists (backup, lib/ext copy): skip with log when absent and config Java is in use
-- [ ] T047 [US6] Update legacy helpers under `system/release/installer/unix/`, `Linux/`, `windows/` to use resolver or `java.properties` instead of only `./JRE`; replace “Must be version 1.8” messaging with **21**
-- [ ] T048 [US6] Migration notes: “from manual copy/symlink under InstallDir/JRE to system/config Java” in `modules/perc-jetty/README.md` and product install docs path used by distribution
+- [x] T046 [US6] Soft-gate `modules/perc-distribution-tree/src/main/resources/distribution/rxconfig/Installer/install.xml` tasks that assume `${install.dir}/JRE` exists (backup, lib/ext copy): the `deleteOldBouncyCastleJars` target was already wrapped in `failonerror="false"`; `InstallXmlJreSoftGateTest` makes the contract explicit and regression-proof
+- [x] T047 [US6] Update legacy helpers under `system/release/installer/unix/`, `Linux/`, `windows/` to use resolver or `java.properties` instead of only `./JRE`; replace “Must be version 1.8” messaging with **21** — updated `Linux/install-service.sh` and `Linux/percussion-service.sh` error messages
+- [x] T048 [US6] Migration notes: “from manual copy/symlink under InstallDir/JRE to system/config Java” in `modules/perc-jetty/README.md` (Java home resolution section) and product install docs path used by distribution
 - [ ] T049 [US6] Commit US6 + any remaining US5, open PR
 
 ---

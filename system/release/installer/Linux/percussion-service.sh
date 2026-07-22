@@ -137,7 +137,8 @@ fi
 
 if [ -z "$JAVA" ]
 then
-  echo "Cannot find a Java JDK. Please set either set JAVA or put java (>=1.8) in your PATH." >&2
+  echo "Cannot find a Java 21 JDK. Please set JAVA or put a Java 21 java executable in your PATH." >&2
+  echo "For resolution rules and migration from earlier versions see specs/991-system-java-home/." >&2
   exit 1
 fi
 
