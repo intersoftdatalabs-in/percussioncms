@@ -245,34 +245,41 @@ Same workflow as `install_latest_dts` — the scripts already default to the dev
 ## 3. API Skills
 
 All API calls target `${API_BASE}` (default `http://localhost:9992/Rhythmyx/rest`). Authentication is handled in the helpers.
-
 ### Authentication
 
 - **All hosts:** invoke `python3 .github/skills/percussioncms-dev/scripts/api-client.py --method GET --endpoint /folders/by-path/Assets` (one-shot CLI; the original shell-function surface becomes per-call argparse arguments).
-- 
+- Login: add `--login-form --user "${CMS_USER}" --password "${CMS_PASSWORD}" --endpoint /j_security_check` (omit `--endpoint` for the form path which targets `${API_BASE%/rest}/j_security_check` by default).
+
+
 
 ```bash
-# Login (Linux/macOS)
-python3 .github/skills/percussioncms-dev/scripts/api-client.py
-perc_login "${CMS_USER}" "${CMS_PASSWORD}"
+# Login (Linux/macOS, form-based)
+python3 .github/skills/percussioncms-dev/scripts/api-client.py \
+    --login-form \
+    --user "${CMS_USER}" \
+    --password "${CMS_PASSWORD}"
 ```
 
 ```powershell
-# Login (Windows)
-
-perc-login -Username ${CMS_USER} -Password (Read-Host -AsSecureString)
+# Login (Windows, form-based)
+python3 .github\skills\percussioncms-dev\scripts\api-client.py `
+    --login-form `
+    --user $env:CMS_USER `
+    --password $env:CMS_PASSWORD
 ```
 
 ### 3.1 api_list_sites
 
-Call `/folders/by-path/Sites` to retrieve the list of site folders. Use `perc_api GET "/folders/by-path/Sites"` or the Windows equivalent. Responses include `subfolders` entries for each site.
+Call `/folders/by-path/Sites` to retrieve the list of site folders. Use `python3 .github/skills/percussioncms-dev/scripts/api-client.py --method GET --endpoint /folders/by-path/Sites` on every host. Responses include `subfolders` entries for each site.
 
 ### 3.2 api_list_folders
 
 List folders within a site or nested path. Example:
 
 ```bash
-perc_api GET "/folders/by-path/MySite/FolderA"
+python3 .github/skills/percussioncms-dev/scripts/api-client.py \
+    --method GET \
+    --endpoint /folders/by-path/MySite/FolderA
 ```
 
 ### 3.3 api_list_assets
@@ -306,7 +313,7 @@ Pages are returned as part of folder responses. Use `/pages/by-path/MySite/MyPag
 ## 5. Troubleshooting
 
 - **CMS won't start:** Ensure `JRE` points at a JDK 21 installation (`JAVA_HOME`).
-- **API returns 401/403:** Run `perc_login`/`perc-login`, then retry the call.
+- **API returns 401/403:** Re-run `api-client.py --login-form --user ... --password ...` to refresh the cookie jar, then retry the call.
   -- **Local build JAR missing:** Run `./mvn-env.sh clean install` to produce the artifacts.
 - **Port conflict:** CMS defaults to 9992. Check `lsof` (Linux/macOS) or `netstat` (Windows) for other services.
 - **Windows symlinks fail:** Run PowerShell as Administrator so `New-Item -ItemType SymbolicLink` succeeds.

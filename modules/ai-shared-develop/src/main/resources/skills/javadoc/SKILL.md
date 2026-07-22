@@ -56,8 +56,7 @@ Use this skill when generating or updating Javadoc comments in the percussioncms
 
 ## Scripts
 
-- `scripts/generate-javadoc-stubs.py` — Cross-platform Python port that generates stub comments
-- `scripts/generate-javadoc-stubs.py` — (superseded by the cross-platform Python entry point)
+- `scripts/generate-javadoc-stubs.py` — Cross-platform Python port that generates stub comments (replaces the legacy `.sh` and `.ps1` variants).
 
 ## Maven Integration
 

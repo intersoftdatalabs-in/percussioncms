@@ -44,6 +44,7 @@ import json
 import logging
 import os
 import sys
+import time
 import urllib.error
 import urllib.request
 from pathlib import Path
@@ -60,6 +61,11 @@ DEFAULT_REPO = "intersoftdatalabs-in/percussioncms"
 DEFAULT_RELEASE = "stable"
 DEFAULT_TARGET_DIR = "./downloads"
 GITHUB_API_BASE = "https://api.github.com"
+
+# Rate-limit handling (AGENTS.md: all 3rd-party APIs must detect rate
+# limits and retry with exponential backoff).
+MAX_RETRIES = 3
+BACKOFF_SECONDS = 1
 
 
 def _build_arg_parser() -> argparse.ArgumentParser:
@@ -110,15 +116,46 @@ def _build_arg_parser() -> argparse.ArgumentParser:
 def _github_request(url: str, *, token: Optional[str] = None, timeout: float = 30.0) -> dict:
     """GET a GitHub API URL and return the parsed JSON body.
 
-    Raises ``urllib.error.HTTPError`` for non-2xx responses.
+    Handles GitHub rate limiting: HTTP 403 with a ``X-RateLimit-Remaining:
+    0`` header is treated as ``HTTPError(429)`` by ``urllib`` so we
+    retry up to ``MAX_RETRIES`` times with exponential backoff
+    (``1s, 2s, 4s``) before raising. This satisfies the AGENTS.md rule
+    "all 3rd-party API integrations must be implemented with rate limit
+    detection and exponential backoff logic".
+
+    Raises ``urllib.error.HTTPError`` for non-2xx responses after
+    retries are exhausted.
     """
     headers = {"Accept": "application/vnd.github+json"}
     if token:
         headers["Authorization"] = f"Bearer {token}"
-    request = urllib.request.Request(url, headers=headers)
-    with urllib.request.urlopen(request, timeout=timeout) as response:
-        body = response.read().decode("utf-8")
-        return json.loads(body)
+    last_error: Optional[urllib.error.HTTPError] = None
+    for attempt in range(MAX_RETRIES):
+        request = urllib.request.Request(url, headers=headers)
+        try:
+            with urllib.request.urlopen(request, timeout=timeout) as response:
+                body = response.read().decode("utf-8")
+                return json.loads(body)
+        except urllib.error.HTTPError as e:
+            last_error = e
+            # GitHub returns 403 with X-RateLimit-Remaining=0 for rate
+            # limit hits (the API also surfaces 403 for secondary rate
+            # limits on abuse, which we cannot safely retry; we retry
+            # only when GitHub explicitly signals rate-limit headers).
+            if e.code in (429, 403) and (
+                e.headers.get("X-RateLimit-Remaining") == "0"
+                or e.headers.get("Retry-After") is not None
+            ):
+                delay = BACKOFF_SECONDS * (2 ** attempt)
+                LOG.warning(
+                    "Rate-limited (HTTP %s); retrying in %ds (attempt %d/%d)",
+                    e.code, delay, attempt + 1, MAX_RETRIES,
+                )
+                time.sleep(delay)
+                continue
+            raise
+    assert last_error is not None
+    raise last_error
 
 
 def _download_to(url: str, target: Path, *, token: Optional[str] = None) -> int:

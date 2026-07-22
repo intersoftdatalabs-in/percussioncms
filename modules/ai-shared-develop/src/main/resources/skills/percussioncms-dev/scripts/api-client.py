@@ -144,7 +144,10 @@ def _build_arg_parser() -> argparse.ArgumentParser:
         help=(
             "Cookie storage path "
             "(default: ~/.cache/perc-api/perc-cookies.txt on Unix, "
-            "%%LOCALAPPDATA%%/perc-api/perc-cookies.txt on Windows)."
+            "%%LOCALAPPDATA%%/perc-api/perc-cookies.txt on Windows). "
+            "Use %%LOCALAPPDATA%% literally on Windows (NOT "
+            "expanded by argparse — argparse only expands %%-prefixed "
+            "names like %%prog)."
         ),
     )
     p.add_argument(
@@ -179,11 +182,17 @@ def _request(
     user: str = "",
     password: str = "",
     data: Optional[str] = None,
+    content_type: Optional[str] = None,
     cookie_jar: Optional[Path] = None,
 ) -> tuple[int, str]:
     """Issue an HTTP request via ``urllib``. Returns ``(status_code,
     body)``. Authentication via ``user:password`` (Basic Auth). Sets
     ``Cookie: ...`` header from ``cookie_jar`` if it exists.
+
+    ``content_type`` overrides the default ``application/json`` body
+    Content-Type. Useful for the form-encoded ``j_security_check``
+    login path, which must send ``application/x-www-form-urlencoded``
+    or Percussion CMS rejects the request.
 
     Cross-platform: ``urllib`` is stdlib and works identically on
     Windows + Unix + macOS. The cookie jar is the urllib-format
@@ -193,7 +202,7 @@ def _request(
         "Accept": "application/json",
     }
     if data is not None:
-        headers["Content-Type"] = "application/json"
+        headers["Content-Type"] = content_type or "application/json"
     if user or password:
         # Basic Auth via the Authorization header. Use
         # ``base64``-encoded ``user:password``.
@@ -282,7 +291,11 @@ def call(
         form_url = f"{base_no_rest}/j_security_check"
         form_body = f"j_username={urllib.parse.quote(user)}&j_password={urllib.parse.quote(password)}"
         status, body = _request(
-            "POST", form_url, data=form_body, cookie_jar=cookie_jar,
+            "POST",
+            form_url,
+            data=form_body,
+            content_type="application/x-www-form-urlencoded",
+            cookie_jar=cookie_jar,
         )
         if status in (200, 302, 303):
             print(body)
