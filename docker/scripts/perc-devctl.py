@@ -244,6 +244,16 @@ def _run_logged(
     """Run a subprocess and capture full output to ``docker/logs/<label>-<ts>.log``.
     Emits a single ``RESULT:OK`` / ``RESULT:FAIL`` line on stdout for
     agent consumption (matches the original ``.sh`` ``run_logged``).
+
+    Cross-platform note: the log file is opened inside a ``with``
+    block in BOTH the dry-run and real-run paths so the OS file
+    handle is released deterministically. On Windows, leaving an
+    unclosed ``open("w")`` handle causes ``PermissionError
+    [WinError 32]`` when a later code path tries to open a file in
+    the same directory (the OS keeps the handle locked until
+    Python's garbage collector runs, which is unpredictable across
+    tests). The ``with`` block fixes this on Windows without
+    affecting the POSIX behavior.
     """
     log_file = _new_log_file(log_dir, label)
     if dry_run:
@@ -255,14 +265,15 @@ def _run_logged(
         print(f"RESULT:OK STEP:{label} LOG:{log_file}")
         return EXIT_OK
     LOG.info("Running: %s (cwd=%s)", " ".join(argv), cwd)
-    completed = subprocess.run(
-        list(argv),
-        cwd=str(cwd) if cwd else None,
-        shell=False,
-        check=False,
-        stdout=log_file.open("w"),
-        stderr=subprocess.STDOUT,
-    )
+    with log_file.open("w", encoding="utf-8") as f:
+        completed = subprocess.run(
+            list(argv),
+            cwd=str(cwd) if cwd else None,
+            shell=False,
+            check=False,
+            stdout=f,
+            stderr=subprocess.STDOUT,
+        )
     if completed.returncode != 0:
         print(f"RESULT:FAIL STEP:{label} LOG:{log_file}")
         return EXIT_SUBPROCESS_FAILED
