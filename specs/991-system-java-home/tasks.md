@@ -131,7 +131,8 @@
 
 - [x] T041 [US5] Finalize re-point docs: edit `java.properties`, restart console; for services re-run install-jetty-service / DTS service install or update `/etc/default` / Procrun — `modules/perc-jetty/README.md` (Java home resolution section), DTS README, `specs/991-system-java-home/quickstart.md`
 - [x] T042 [US5] Ensure resolve failure messages list attempted sources when config path is invalid after re-point — `resolve-java-home.sh` / `.bat` and Java helper `ResolutionResult.renderFailure` (`Sources tried:` block)
-- [ ] T043 [US5] Commit US5 (may combine with US6 polish PR)
+- [x] T043 [US5] Commit US5 (may combine with US6 polish PR) — done as part of `9105a97d9 GH-991 US5 + US6: re-point docs and legacy install compatibility`
+- [x] T049 [US6] Commit US6 + any remaining US5, open PR — done in `9105a97d9`; PR #1466 open. Review threads 3631027580, 3631027600, 3631027608, 3631027615, 3631027624 replied with mitigations citing commit `0969ae8b7` and resolved.
 
 ---
 
