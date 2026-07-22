@@ -64,11 +64,12 @@ jobs:
           cache: 'pip'
           cache-dependency-path: scripts/requirements-dev.txt
 
-      - name: Run cross-platform Python-script tests
+      - name: Run cross-platform Python-script tests (bash on Unix)
+        if: matrix.os != 'windows-latest'
         shell: bash
-        run: |
-          if [[ "${{ matrix.os }}" == "windows-latest" ]]; then
-            python scripts/run-python-tests.cmd
-          else
-            bash scripts/run-python-tests.sh
-          fi
+        run: bash scripts/run-python-tests.sh
+
+      - name: Run cross-platform Python-script tests (cmd on Windows)
+        if: matrix.os == 'windows-latest'
+        shell: cmd
+        run: scripts\run-python-tests.cmd
