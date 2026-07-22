@@ -87,15 +87,15 @@
 
 ### Tests (Required)
 
-- [ ] T028 [P] [US3] Unit tests for candidate discovery/filter (major 21, executable launcher) in `modules/perc-distribution-tree/src/test/java/com/percussion/preinstall/java/JavaCandidateDiscoveryTest.java`
-- [ ] T029 [P] [US3] Unit tests for selection outcomes (0/1/N candidates) and `java.properties` write content in `.../JavaInstallSelectionTest.java`
+- [x] T028 [P] [US3] Unit tests for candidate discovery/filter (major 21, executable launcher) in `modules/perc-distribution-tree/src/test/java/com/percussion/preinstall/java/JavaCandidateDiscoveryTest.java`
+- [x] T029 [P] [US3] Unit tests for selection outcomes (0/1/N candidates) and `java.properties` write content in `.../JavaInstallSelectionTest.java`
 
 ### Implementation
 
-- [ ] T030 [US3] Implement discovery helpers (env, process home, common OS paths, PATH) in `modules/perc-distribution-tree/src/main/java/com/percussion/preinstall/java/JavaCandidateDiscovery.java`
-- [ ] T031 [US3] Wire interactive selection + write of `{installPath}/java.properties` into `modules/perc-distribution-tree/src/main/java/com/percussion/preinstall/Main.java` (reuse `perc.java.home` when already set and valid as preferred single candidate)
-- [ ] T032 [US3] Fail install with actionable message when zero eligible candidates (must mention major version 21) in preinstall flow / user-visible output
-- [ ] T033 [US3] Align DTS preinstall if it owns a separate install root: `deliverytiersuite/.../MainDTSPreInstall.java` write the same `java.properties` contract under DTS install root
+- [x] T030 [US3] Implement discovery helpers (env, process home, common OS paths, PATH) in `modules/perc-distribution-tree/src/main/java/com/percussion/preinstall/java/JavaCandidateDiscovery.java`
+- [x] T031 [US3] Wire interactive selection + write of `{installPath}/java.properties` into `modules/perc-distribution-tree/src/main/java/com/percussion/preinstall/Main.java` (reuse `perc.java.home` when already set and valid as preferred single candidate)
+- [x] T032 [US3] Fail install with actionable message when zero eligible candidates (must mention major version 21) in preinstall flow / user-visible output
+- [x] T033 [US3] Align DTS preinstall if it owns a separate install root: `deliverytiersuite/.../MainDTSPreInstall.java` write the same `java.properties` contract under DTS install root
 - [ ] T034 [US3] Commit US3, open PR, pause for review/merge before US4 (or combine US3+US4 if small)
 
 ---
@@ -107,13 +107,13 @@
 
 ### Tests (Required)
 
-- [ ] T035 [P] [US4] Unit tests for unattended property/path validation and no write on failure in `modules/perc-distribution-tree/src/test/java/com/percussion/preinstall/java/UnattendedJavaHomeTest.java`
+- [x] T035 [P] [US4] Unit tests for unattended property/path validation and no write on failure in `modules/perc-distribution-tree/src/test/java/com/percussion/preinstall/java/UnattendedJavaHomeTest.java` (covered by `JavaInstallSelectionTest`)
 
 ### Implementation
 
-- [ ] T036 [US4] Ensure unattended path honors `-Dperc.java.home=...` (and document any response-file/env alias) with same validation as interactive — `Main.java` / installer docs under `modules/perc-distribution-tree/`
-- [ ] T037 [US4] On invalid/missing unattended home: non-zero failure; do not write success config pointing at non-existent `InstallDir/JRE`
-- [ ] T038 [US4] Document unattended flags in installer README / `specs/991-system-java-home/quickstart.md` Smoke F
+- [x] T036 [US4] Ensure unattended path honors `-Dperc.java.home=...` (and document any response-file/env alias) with same validation as interactive — `Main.java` / installer docs under `modules/perc-distribution-tree/`
+- [x] T037 [US4] On invalid/missing unattended home: non-zero failure; do not write success config pointing at non-existent `InstallDir/JRE`
+- [x] T038 [US4] Document unattended flags in installer README / `specs/991-system-java-home/quickstart.md` Smoke F
 - [ ] T039 [US4] Commit US4, open PR, pause for review/merge before US5/US6
 
 ---

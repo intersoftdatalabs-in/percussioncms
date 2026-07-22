@@ -17,6 +17,7 @@
 
 package com.percussion.preinstall;
 
+import com.percussion.preinstall.java.JavaInstallSelection;
 import com.percussion.security.validation.PathValidation;
 import java.io.File;
 import java.io.IOException;
@@ -108,6 +109,33 @@ public class MainDTSPreInstall {
 
       System.out.println("Installation folder =" + parsedArgs.installPath());
       var installPath = parsedArgs.installPath();
+      // Issue #1340 / US3 + US4 parity: persist the Java home used by DTS
+      // start, stop, and service install paths into <installPath>/java.properties
+      // before the Ant install runs. Honors -Dperc.java.home; otherwise
+      // discovers eligible Java 21 candidates and prompts when interactive.
+      try {
+        var unattended = parseUnattendedJavaHome(System.getProperty(PERC_JAVA_HOME));
+        var outcome =
+            new JavaInstallSelection(
+                    installPath,
+                    unattended,
+                    prompt -> {
+                      java.io.Console c = System.console();
+                      return c == null ? "" : c.readLine(prompt);
+                    })
+                .selectAndPersist();
+        System.out.println("DTS Java home selection: " + outcome.summary());
+      } catch (JavaInstallSelection.JavaSelectionException sel) {
+        System.out.println("DTS Java home selection failed: " + sel.getMessage());
+        throw new AntJobFailedException(
+            String.format("Installation failed. %s", sel.getMessage()));
+      } catch (IOException io) {
+        throw new AntJobFailedException(
+            String.format(
+                "Could not write java.properties at %s: %s",
+                installPath.resolve("java.properties"), io.getMessage()));
+      }
+
       ResolvedDbConfig resolvedDbConfig = resolveDbConfig(parsedArgs.options());
       var isProduction = System.getProperty("install.prod.dts");
       System.out.println(
@@ -315,6 +343,22 @@ public class MainDTSPreInstall {
     }
 
     return new ParsedArgs(installPath, options);
+  }
+
+  /**
+   * Treat -Dperc.java.home=... as the unattended input to the Java home
+   * selector. Returns {@code null} when unset so the discovery / interactive
+   * path takes over.
+   */
+  static java.nio.file.Path parseUnattendedJavaHome(String raw) {
+    if (raw == null) {
+      return null;
+    }
+    String trimmed = raw.trim();
+    if (trimmed.isEmpty() || "${perc.java.home}".equals(trimmed)) {
+      return null;
+    }
+    return java.nio.file.Path.of(trimmed);
   }
 
   private static ResolvedDbConfig resolveDbConfig(Map<String, String> cliOptions) {

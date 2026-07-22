@@ -16,6 +16,7 @@
 
 package com.percussion.preinstall;
 
+import com.percussion.preinstall.java.JavaInstallSelection;
 import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.security.validation.PathValidation;
 import com.percussion.security.xml.PSSecureXMLUtils;
@@ -140,6 +141,39 @@ public class Main {
 
       System.out.println("Installation folder is " + installPath.toAbsolutePath().toString());
 
+      // Issue #1340 / US3 + US4: resolve and persist the Java home used at
+      // runtime by CMS / DTS start, stop, and service install paths. Honor an
+      // explicit -Dperc.java.home=... override; otherwise discover and (when
+      // interactive) prompt for a Java 21 home. Survives a non-interactive
+      // environment by auto-selecting single candidates and failing loudly
+      // when zero are eligible — never silently fall back to a manual
+      // <InstallDir>/JRE copy.
+      try {
+        Path unattended = parseUnattendedJavaHome(System.getProperty(PERC_JAVA_HOME));
+        JavaInstallSelection.SelectionOutcome outcome =
+            new JavaInstallSelection(
+                    installPath,
+                    unattended,
+                    prompt -> {
+                      java.io.Console c = System.console();
+                      return c == null ? "" : c.readLine(prompt);
+                    })
+                .selectAndPersist();
+        System.out.println("Java home selection: " + outcome.summary());
+      } catch (JavaInstallSelection.JavaSelectionException sel) {
+        System.out.println("Java home selection failed: " + sel.getMessage());
+        System.exit(2);
+        return;
+      } catch (IOException io) {
+        System.out.println(
+            "Could not write java.properties at "
+                + installPath.resolve("java.properties")
+                + ": "
+                + io.getMessage());
+        System.exit(2);
+        return;
+      }
+
       Properties existingVersion = loadVersionProperties(installPath);
       if (existingVersion != null) {
         String major = existingVersion.getProperty("majorVersion");
@@ -236,6 +270,20 @@ public class Main {
       log.warn("Invalid {} in Version.properties: {}", label, raw);
       return 0;
     }
+  }
+
+  /** Treat the supplied -Dperc.java.home value as the unattended input to the
+   * Java home selection. Returns {@code null} when the property is unset, so
+   * the discovery / interactive path takes over. */
+  static java.nio.file.Path parseUnattendedJavaHome(String raw) {
+    if (raw == null) {
+      return null;
+    }
+    String trimmed = raw.trim();
+    if (trimmed.isEmpty() || "${perc.java.home}".equals(trimmed)) {
+      return null;
+    }
+    return java.nio.file.Path.of(trimmed);
   }
 
   static void runObsoleteInstallDirCleanup(
