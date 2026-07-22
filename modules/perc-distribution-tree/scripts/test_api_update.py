@@ -161,22 +161,23 @@ class TestRunModuleDryRun(unittest.TestCase):
                 no_restart=no_restart,
                 dry_run=True,
             )
-        return rc, "\n".join(cm.output)
+        raw_log = "\n".join(cm.output)
+        # Normalize backslashes to forward slashes so path assertions
+        # work on Windows (where str(Path) emits ``\\``) and Unix (where
+        # it emits ``/``). This is the same path-string trap the prior
+        # follow-up fixed for the path-resolution tests; do it once here
+        # so every downstream assertion can use forward-slash substrings.
+        normalized_log = raw_log.replace("\\", "/")
+        return rc, normalized_log
 
     def test_dry_run_webui_copies_recursive_tree(self):
         rc, log = self._run_with_logs(module="webui")
         self.assertEqual(rc, au.EXIT_OK)
         # Maven module selector for `--module webui`
         self.assertIn("-pl :CMLite-WebUI", log)
-        # WebUI is recursive — verify the recursive copy destination is logged.
-        # Use ``as_posix()`` so the assertion works on Windows where the
-        # log path uses ``\\`` separators (the same path-string trap the
-        # earlier follow-up fixed for the path-resolution tests).
+        # WebUI is recursive — verify the recursive copy destination is logged
         self.assertIn("copytree", log)
-        self.assertTrue(
-            any("jetty/base/webapps/Rhythmyx" in line for line in log.splitlines()),
-            msg=f"recursive webui copy destination not in log:\n{log}",
-        )
+        self.assertIn("jetty/base/webapps/Rhythmyx", log)
         # Jetty restart command (cmd /c on Windows host running CI; CI is
         # windows-latest, so this assertion matches the actual path).
         self.assertIn("cmd /c", log)
@@ -188,15 +189,7 @@ class TestRunModuleDryRun(unittest.TestCase):
         # Single-jar copy, not recursive
         self.assertIn("copy2", log)
         self.assertIn("rest-*.jar", log)
-        # Cross-platform: the path uses ``\\`` on Windows and ``/`` on
-        # Unix; assert on a substring that is the same regardless.
-        self.assertTrue(
-            any(
-                "Rhythmyx" in line and ("WEB-INF/lib" in line or "WEB-INF\\lib" in line)
-                for line in log.splitlines()
-            ),
-            msg=f"rest jar destination not in log:\n{log}",
-        )
+        self.assertIn("jetty/base/webapps/Rhythmyx/WEB-INF/lib", log)
 
     def test_dry_run_sitemanage_copies_single_jar(self):
         rc, log = self._run_with_logs(module="sitemanage")
