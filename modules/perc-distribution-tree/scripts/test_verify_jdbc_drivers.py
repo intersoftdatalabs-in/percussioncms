@@ -182,6 +182,32 @@ class TestVerifyExitCodes(unittest.TestCase):
         self.artifact.write_bytes(b"not-a-zip")
         self.assertEqual(self._run(), vjd.EXIT_UNPACK_FAILED)
 
+    def test_path_traversal_member_blocked(self):
+        """PEP 706 path-traversal guard: a member whose name escapes the
+        target directory must NOT be written. Without ``_safe_extract``
+        this would succeed on Python 3.9-3.11 and silently write outside
+        ``dist_root`` (kilo-code-bot review thread #3).
+        """
+        with zipfile.ZipFile(self.artifact, "w") as zf:
+            # Legitimate sibling: a benign file in the normal jdbc dir.
+            zf.writestr(
+                "jetty/base/lib/jdbc/mariadb-java-client-3.0.10.jar",
+                _make_valid_jar_bytes(),
+            )
+            # Path-traversal attempt: enough `..` segments to escape
+            # ``dist_root`` (the four leading segments are jetty/base/lib/
+            # jdbc; four `..` cancel those, plus one more to leave
+            # ``dist_root`` itself).
+            zf.writestr(
+                "jetty/base/lib/jdbc/../../../../../tmp/evil.py",
+                b"x" * 1024,
+            )
+        rc = self._run()
+        self.assertEqual(
+            rc, vjd.EXIT_UNPACK_FAILED,
+            msg="path-traversal zip member must abort unpacking",
+        )
+
     def test_empty_jdbc_dir(self):
         _build_artifact(self.artifact, [])  # no jdbc entries at all
         self.assertEqual(self._run(), vjd.EXIT_MISSING_OR_EMPTY)

@@ -54,6 +54,7 @@ from __future__ import annotations
 
 import argparse
 import logging
+import os
 import shutil
 import subprocess
 import sys
@@ -80,7 +81,7 @@ MODULE_BUILD: dict[str, str] = {
     "webui": ":CMLite-WebUI",
     "rest": ":rest",
     "sitemanage": ":sitemanage",
-    "jars": ":perc-system,:sitemanage,:rest,:CMLite-WebUI,:perc-tinymce",
+    "jars": ":perc-system,:perc-auditlog,:sitemanage,:rest,:CMLite-WebUI,:perc-tinymce",
 }
 
 
@@ -244,20 +245,59 @@ def _build_arg_parser() -> argparse.ArgumentParser:
             "build-time cost."
         ),
     )
+    p.add_argument(
+        "--maven-timeout",
+        type=int,
+        default=3600,
+        metavar="SECONDS",
+        help=(
+            "Maximum seconds to wait for a single Maven invocation before "
+            "killing the subprocess (default: 3600 = 1 hour). A stalled "
+            "build, hung plugin, or deadlocked reactor would otherwise "
+            "freeze the operator's terminal indefinitely with no way to "
+            "interrupt gracefully."
+        ),
+    )
     return p
 
 
 def _resolve_maven(maven_path: Optional[Path]) -> Optional[List[str]]:
-    """Return an argv list for the Maven executable, honoring ``MAVEN_HOME``
-    / PATH discovery. Returns ``None`` if no Maven can be located.
+    """Return an argv list for the Maven executable. Returns ``None`` if no
+    Maven can be located.
 
-    Cross-platform: returns the literal command name ``mvn`` so the OS
-    resolver handles ``.bat`` / ``.cmd`` / executable bit differences. We
-    pass ``mvn`` as a single argv element with ``shell=False`` — the OS
-    finds it on PATH.
+    Discovery order:
+
+    1. Explicit ``maven_path`` argument wins (used by pytest stubs).
+    2. ``MAVEN_HOME`` / ``M2_HOME`` environment variable — checked via
+       ``<MAVEN_HOME>/bin/mvn`` on Unix or ``<MAVEN_HOME>\\bin\\mvn.cmd``
+       on Windows. Both layouts are supported because Maven's Windows
+       installer uses ``mvn.cmd`` while Git Bash / WSL expose ``mvn``.
+    3. ``shutil.which("mvn")`` — cross-platform PATH lookup. Returns the
+       resolved absolute path (or the original command name if the OS
+       PATH lookup yields a bare name without an absolute path).
+
+    Cross-platform: returns an argv list with a single absolute path so
+    ``subprocess.run([...], shell=False)`` works on Windows + Unix without
+    relying on the parent shell's PATH resolution.
     """
     if maven_path is not None:
         return [str(maven_path)]
+
+    maven_home = os.environ.get("MAVEN_HOME") or os.environ.get("M2_HOME")
+    if maven_home:
+        # Try ``mvn`` first (Unix / Git Bash / WSL); fall back to
+        # ``mvn.cmd`` (Windows native). ``is_file()`` covers both layouts
+        # without hardcoding the OS.
+        for candidate in (
+            Path(maven_home) / "bin" / "mvn",
+            Path(maven_home) / "bin" / "mvn.cmd",
+        ):
+            if candidate.is_file():
+                return [str(candidate)]
+
+    found = shutil.which("mvn")
+    if found:
+        return [found]
     return None
 
 
@@ -265,13 +305,24 @@ def _run_maven(
     argv0: Sequence[str],
     *,
     cwd: Path,
+    build_selector: str,
     skip_tests: bool,
     dry_run: bool,
+    timeout_seconds: int,
 ) -> int:
     """Run Maven via ``subprocess.run([...], shell=False)``. Returns the
     child process exit code, or 0 under ``--dry-run``.
+
+    ``build_selector`` is the ``-pl`` value from ``MODULE_BUILD[module]``
+    (e.g. ``:rest`` for ``--module rest``). It is appended to the Maven
+    argv so the build is scoped to the selected module(s).
+
+    ``timeout_seconds`` is the wall-clock cap; ``subprocess.TimeoutExpired``
+    is mapped to ``EXIT_BUILD_FAILED`` so the operator sees a clear
+    "Maven timed out after N seconds" message instead of an opaque
+    stacktrace.
     """
-    mvn_args = list(argv0) + ["clean", "install"]
+    mvn_args = list(argv0) + ["clean", "install", "-pl", build_selector]
     if skip_tests:
         mvn_args.append("-DskipTests=true")
     if dry_run:
@@ -281,14 +332,28 @@ def _run_maven(
             cwd,
         )
         return EXIT_OK
-    LOG.info("Running: %s (cwd=%s)", " ".join(mvn_args), cwd)
-    completed = subprocess.run(
-        mvn_args,
-        cwd=str(cwd),
-        shell=False,
-        check=False,
-        timeout=None,
+    LOG.info(
+        "Running: %s (cwd=%s, timeout=%ds)",
+        " ".join(mvn_args),
+        cwd,
+        timeout_seconds,
     )
+    try:
+        completed = subprocess.run(
+            mvn_args,
+            cwd=str(cwd),
+            shell=False,
+            check=False,
+            timeout=timeout_seconds,
+        )
+    except subprocess.TimeoutExpired:
+        LOG.error(
+            "ERROR: Maven timed out after %d seconds; "
+            "rerun with --maven-timeout to raise the cap, or "
+            "--dry-run to inspect the build plan",
+            timeout_seconds,
+        )
+        return EXIT_BUILD_FAILED
     return completed.returncode
 
 
@@ -304,6 +369,17 @@ def _copy_artifact(
     """
     source_root = repo_root / spec.source_root_rel
     destination = dist_root / spec.destination_rel
+    if dry_run:
+        # Log the glob + destination up front so the dry-run output is
+        # reviewable as a build plan (and so a misspelled glob / wrong
+        # destination_rel would surface in a CI capture).
+        LOG.info(
+            "DRY-RUN: copy plan: glob=%s in %s -> %s (recursive=%s)",
+            spec.source_glob,
+            source_root,
+            destination,
+            spec.recursive,
+        )
     if not source_root.is_dir():
         LOG.error(
             "ERROR: source directory does not exist: %s "
@@ -368,31 +444,68 @@ def _restart_jetty(
     dry_run: bool,
 ) -> int:
     """Restart Jetty by running the StartJetty script in the distribution.
-    The original ``.bat`` files used ``start /WAIT cmd /C target\\classes\\
-    distribution\\jetty\\StartJetty.bat``; the Python port invokes the
-    script directly with ``subprocess.run([...], shell=False)``. On Windows
-    the launcher resolves ``StartJetty.bat`` via the OS association; on
-    Unix this would be a no-op unless the operator also runs Jetty from a
-    POSIX shell, which is outside this helper's scope.
+
+    Cross-platform semantics:
+
+    - On Windows the canonical ``StartJetty.bat`` is invoked via
+      ``cmd /c <bat>``. ``subprocess.run([bat], shell=False)`` would
+      fail on Windows because ``CreateProcessW`` does not consult the
+      file-extension association table (see Windows error 193,
+      ``%1 is not a valid Win32 application``).
+    - On Unix the legacy ``StartJetty.bat`` does not exist (the
+      cross-platform start command is ``java -jar start.jar --add-modules=...``
+      from ``installDistributionFiles.xml``, which is NOT a port-time
+      concern of this helper). The original ``APIUpdate-*.bat`` files
+      were Windows-only; on Unix operators use ``docker compose up`` or
+      invoke ``start.jar`` directly. So the Python port mirrors the
+      original: log a clear info message and return ``EXIT_OK`` on Unix.
+
+    In ``--dry-run`` mode, log the planned command on every host so the
+    build plan is portable to read in CI captures regardless of the OS
+    the test is running on.
     """
-    if not jetty_script.is_file():
-        LOG.error(
-            "ERROR: Jetty start script not found: %s "
-            "(run `mvn package` in modules/perc-distribution-tree first)",
-            jetty_script,
+    if os.name == "nt":  # Windows
+        if not jetty_script.is_file():
+            LOG.error(
+                "ERROR: Jetty start script not found: %s "
+                "(run `mvn package` in modules/perc-distribution-tree first)",
+                jetty_script,
+            )
+            return EXIT_RESTART_FAILED
+        if dry_run:
+            LOG.info("DRY-RUN: cmd /c %s (cwd=%s)", jetty_script, cwd)
+            return EXIT_OK
+        LOG.info("Starting Jetty via cmd: %s (cwd=%s)", jetty_script, cwd)
+        # cmd.exe is guaranteed to be at %SystemRoot%\System32\cmd.exe on
+        # Windows; locate it via COMSPEC or fall back to the canonical
+        # path. ``cmd /c <bat>`` is the documented Microsoft-recommended
+        # way to invoke a batch file via Win32 CreateProcessW (which
+        # subprocess.run uses by default).
+        comspec = os.environ.get("COMSPEC") or (
+            r"C:\Windows\System32\cmd.exe" if os.name == "nt" else "/bin/sh"
         )
-        return EXIT_RESTART_FAILED
+        completed = subprocess.run(
+            [comspec, "/c", str(jetty_script)],
+            cwd=str(cwd),
+            shell=False,
+            check=False,
+        )
+        return completed.returncode
+
+    # Non-Windows (Linux, macOS, WSL where .bat is unreachable).
     if dry_run:
-        LOG.info("DRY-RUN: run %s (cwd=%s)", jetty_script, cwd)
+        LOG.info(
+            "DRY-RUN: Jetty restart skipped on non-Windows host "
+            "(StartJetty.bat is Windows-only); plan would invoke "
+            "`cmd /c %s` on a Windows runner", jetty_script,
+        )
         return EXIT_OK
-    LOG.info("Starting Jetty: %s (cwd=%s)", jetty_script, cwd)
-    completed = subprocess.run(
-        [str(jetty_script)],
-        cwd=str(cwd),
-        shell=False,
-        check=False,
+    LOG.info(
+        "Jetty restart skipped on non-Windows host (StartJetty.bat is "
+        "Windows-only); start Jetty out of band (e.g. `docker compose up` "
+        "or `java -jar <dist>/jetty/start.jar --add-modules=logging-log4j2`)"
     )
-    return completed.returncode
+    return EXIT_OK
 
 
 def run_module(
@@ -401,29 +514,34 @@ def run_module(
     skip_tests: bool,
     no_restart: bool,
     dry_run: bool,
+    maven_timeout: int,
     paths: ResolvedPaths,
     maven_argv0: Optional[Sequence[str]] = None,
 ) -> int:
     """Top-level entry point used by both ``main()`` and pytest tests.
 
     ``maven_argv0`` lets tests inject a stub that records invocations
-    instead of running Maven. Pass ``None`` to discover Maven from PATH.
+    instead of running Maven. Pass ``None`` to discover Maven from PATH
+    (``MAVEN_HOME`` / ``M2_HOME`` env vars, then ``shutil.which("mvn")``).
     """
     build_selector = MODULE_BUILD[module]
     if maven_argv0 is None:
         maven_argv0 = _resolve_maven(None)
         if maven_argv0 is None:
             LOG.error(
-                "ERROR: Maven not found on PATH (set MAVEN_HOME or add mvn "
-                "to PATH); rerun with --dry-run to inspect the build plan"
+                "ERROR: Maven not found on PATH or MAVEN_HOME; set "
+                "MAVEN_HOME (or M2_HOME) or add `mvn` to PATH, or rerun "
+                "with --dry-run to inspect the build plan"
             )
             return EXIT_INVOCATION
 
     rc = _run_maven(
         maven_argv0,
         cwd=paths.repo_root,
+        build_selector=build_selector,
         skip_tests=skip_tests,
         dry_run=dry_run,
+        timeout_seconds=maven_timeout,
     )
     if rc != EXIT_OK:
         LOG.error("ERROR: Maven build failed with exit code %d", rc)
@@ -461,6 +579,7 @@ def main(argv: Optional[Iterable[str]] = None) -> int:
         skip_tests=args.skip_tests,
         no_restart=args.no_restart,
         dry_run=args.dry_run,
+        maven_timeout=args.maven_timeout,
         paths=paths,
     )
 

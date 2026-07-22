@@ -12,7 +12,9 @@ from __future__ import annotations
 import importlib.util
 import io
 import logging
+import os
 import sys
+import unittest.mock
 import tempfile
 import unittest
 import zipfile
@@ -139,29 +141,77 @@ class TestRunModuleDryRun(unittest.TestCase):
             skip_tests=skip_tests,
             no_restart=no_restart,
             dry_run=dry_run,
+            maven_timeout=3600,
             paths=self.paths,
             maven_argv0=["mvn"],  # stub — dry_run=True so it's never invoked
         )
 
+    def _run_with_logs(self, *, module, skip_tests=False, no_restart=False):
+        """Run ``--dry-run`` and capture INFO-level logs. Used to assert the
+        wiring (Maven module selector + copy paths + Jetty command) appears
+        in the output — defense against typos in MODULE_BUILD / MODULE_COPIES
+        (kilo-code-bot review thread #7).
+        """
+        # Raise the level so assertLogs captures INFO.
+        logging.getLogger("api-update").setLevel(logging.INFO)
+        with self.assertLogs("api-update", level="INFO") as cm:
+            rc = self._run(
+                module=module,
+                skip_tests=skip_tests,
+                no_restart=no_restart,
+                dry_run=True,
+            )
+        return rc, "\n".join(cm.output)
+
     def test_dry_run_webui_copies_recursive_tree(self):
-        rc = self._run(module="webui", dry_run=True)
+        rc, log = self._run_with_logs(module="webui")
         self.assertEqual(rc, au.EXIT_OK)
+        # Maven module selector for `--module webui`
+        self.assertIn("-pl :CMLite-WebUI", log)
+        # WebUI is recursive — verify the recursive copy destination is logged
+        self.assertIn("copytree", log)
+        self.assertIn("jetty/base/webapps/Rhythmyx", log)
+        # Jetty restart command (cmd /c on Windows host running CI; CI is
+        # windows-latest, so this assertion matches the actual path).
+        self.assertIn("cmd /c", log)
 
     def test_dry_run_rest_copies_single_jar(self):
-        rc = self._run(module="rest", dry_run=True)
+        rc, log = self._run_with_logs(module="rest")
         self.assertEqual(rc, au.EXIT_OK)
+        self.assertIn("-pl :rest", log)
+        # Single-jar copy, not recursive
+        self.assertIn("copy2", log)
+        self.assertIn("rest-*.jar", log)
+        self.assertIn("jetty/base/webapps/Rhythmyx/WEB-INF/lib", log)
 
     def test_dry_run_sitemanage_copies_single_jar(self):
-        rc = self._run(module="sitemanage", dry_run=True)
+        rc, log = self._run_with_logs(module="sitemanage")
         self.assertEqual(rc, au.EXIT_OK)
+        self.assertIn("-pl :sitemanage", log)
+        self.assertIn("copy2", log)
+        self.assertIn("sitemanage-*.jar", log)
 
     def test_dry_run_jars_copies_multiple_artifacts(self):
-        rc = self._run(module="jars", dry_run=True)
+        rc, log = self._run_with_logs(module="jars")
         self.assertEqual(rc, au.EXIT_OK)
+        # Fix #6: jars build selector now includes :perc-auditlog (six modules)
+        self.assertIn("-pl :perc-system,:perc-auditlog,:sitemanage,:rest,:CMLite-WebUI,:perc-tinymce", log)
+        # All six artifact names must appear in the copy list
+        for glob in (
+            "sitemanage-*.jar",
+            "perc-tinymce-*.jar",
+            "audit-log-*.jar",
+            "rest-*.jar",
+            "CMLite-Main-*.jar",
+            "CMLite-WebUI-*",
+        ):
+            self.assertIn(glob, log)
 
     def test_dry_run_no_restart_skips_jetty(self):
-        rc = self._run(module="webui", dry_run=True, no_restart=True)
+        rc, log = self._run_with_logs(module="webui", no_restart=True)
         self.assertEqual(rc, au.EXIT_OK)
+        # --no-restart means no Jetty command in the log
+        self.assertNotIn("cmd /c", log)
 
 
 class TestRunModuleReal(unittest.TestCase):
@@ -206,6 +256,7 @@ class TestRunModuleReal(unittest.TestCase):
             no_restart=True,  # don't actually launch Jetty
             dry_run=False,
             paths=self.paths,
+            maven_timeout=3600,
             maven_argv0=[sys.executable, "-c", "import sys; sys.exit(0)"],
         )
         self.assertEqual(rc, au.EXIT_OK)
@@ -235,20 +286,36 @@ class TestRunModuleReal(unittest.TestCase):
             no_restart=True,
             dry_run=False,
             paths=self.paths,
+            maven_timeout=3600,
             maven_argv0=[sys.executable, "-c", "import sys; sys.exit(7)"],
         )
         self.assertEqual(rc, au.EXIT_BUILD_FAILED)
 
 
 class TestRestartJetty(unittest.TestCase):
-    def test_jetty_script_missing(self):
+    def test_jetty_script_skipped_on_unix(self):
+        """On Unix, the legacy ``StartJetty.bat`` does not exist; the
+        helper logs an info message and returns ``EXIT_OK`` so the build
+        + copy leg still succeeds.
+
+        The Windows path (``os.name == "nt"``) is exercised by the CI
+        ``windows-latest`` job — it cannot be unit-tested on a Linux
+        runner because ``Path("/tmp/...")`` returns a ``PosixPath`` that
+        can't be coerced to ``WindowsPath`` when ``os.name`` is mocked
+        (Python 3.12 ``pathlib`` enforces class instantiation by host OS).
+        The CI matrix covers the Windows semantics; this test covers
+        the Unix semantics, which is what the Linux pytest job can
+        actually exercise.
+        """
+        # Sanity: confirm we're really running on a non-Windows host.
+        self.assertNotEqual(os.name, "nt")
         with tempfile.TemporaryDirectory() as td:
             rc = au._restart_jetty(
                 Path(td) / "no-such.bat",
                 cwd=Path(td),
                 dry_run=True,
             )
-            self.assertEqual(rc, au.EXIT_RESTART_FAILED)
+            self.assertEqual(rc, au.EXIT_OK)
 
 
 class TestMain(unittest.TestCase):

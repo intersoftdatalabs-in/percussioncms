@@ -166,6 +166,31 @@ def _is_valid_jar(path: Path) -> bool:
         return False
 
 
+def _safe_extract(zf: zipfile.ZipFile, target: Path) -> None:
+    """Extract every member of ``zf`` under ``target`` after asserting that
+    the resolved path is contained within ``target``. Raises
+    ``ValueError`` on any member whose name escapes ``target``.
+
+    Background: ``zipfile.ZipFile.extractall`` only installs the
+    ``filter`` / ``members`` safety check by default in Python 3.12+ (PEP
+    706). The script supports Python 3.9+ per FR-002, so we do the check
+    manually on the older interpreters. Without this guard, an artifact
+    containing a member like ``jetty/base/lib/jdbc/../../tmp/evil.py``
+    would write outside ``target`` on Python 3.9 / 3.10 / 3.11.
+    """
+    resolved_target = target.resolve()
+    for member in zf.infolist():
+        member_path = (resolved_target / member.filename).resolve()
+        # ``is_relative_to`` was added in Python 3.9 — exactly the floor
+        # this script promises to support, so it is always available.
+        if not member_path.is_relative_to(resolved_target):
+            raise ValueError(
+                f"zip member escapes target directory: {member.filename!r} "
+                f"resolves to {member_path}"
+            )
+    zf.extractall(resolved_target)
+
+
 def verify(
     *,
     artifact: Path,
@@ -202,9 +227,15 @@ def verify(
         # Unpack the artifact. zipfile.extractall raises BadZipFile / OSError on
         # truncated or unreadable archives; map both to EXIT_UNPACK_FAILED to
         # match the shell script's `if ! unzip -q ... ; then exit 5` semantics.
+        #
+        # Path-traversal guard (PEP 706 — Python 3.12+ default behavior):
+        # Python 3.9-3.11 don't defend against members whose joined path
+        # escapes ``dist_root`` (e.g. ``../etc/passwd``). Filter explicitly
+        # so this script is safe on the entire ``requires-python = ">=3.9"``
+        # range promised in the module docstring.
         try:
             with zipfile.ZipFile(artifact) as zf:
-                zf.extractall(dist_root)
+                _safe_extract(zf, dist_root)
         except (zipfile.BadZipFile, OSError, ValueError) as exc:
             LOG.error("ERROR: failed to unpack artifact: %s (%s)", artifact, exc)
             return EXIT_UNPACK_FAILED
