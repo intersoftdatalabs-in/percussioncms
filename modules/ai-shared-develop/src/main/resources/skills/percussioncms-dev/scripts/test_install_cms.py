@@ -166,7 +166,7 @@ class TestResolveJar(unittest.TestCase):
         fake_script = Path("/tmp/repo/modules/ai-shared-develop/src/main/resources/skills/percussioncms-dev/scripts/install-cms.py")
         resolved = ic._resolve_jar(fake_script, None)
         self.assertTrue(
-            str(resolved).endswith(
+            resolved.as_posix().endswith(
                 "modules/perc-distribution-tree/target/perc-distribution-tree.jar"
             )
         )

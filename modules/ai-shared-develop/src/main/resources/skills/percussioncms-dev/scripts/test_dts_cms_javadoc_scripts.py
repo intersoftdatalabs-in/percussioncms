@@ -151,7 +151,7 @@ class TestInstallDtsResolve(unittest.TestCase):
         fake_script = Path("/tmp/repo/modules/ai-shared-develop/src/main/resources/skills/percussioncms-dev/scripts/install-dts.py")
         resolved = _ID_DTS._resolve_jar(fake_script, None)
         self.assertTrue(
-            str(resolved).endswith(
+            resolved.as_posix().endswith(
                 "deliverytiersuite/delivery-tier-suite/delivery-tier-distribution/target/delivery-tier-distribution.jar"
             )
         )
