@@ -25,11 +25,7 @@ from pathlib import Path
 SCRIPTS_ROOT = Path(__file__).resolve().parent
 
 # Make the importable script modules reachable.
-SCRIPT_PARENT = Path(
-    "/home/nate/workspaces/intersoft-workspace/percussioncms"
-    "/modules/ai-shared-develop/src/main/resources/skills"
-    "/percussioncms-dev/scripts"
-)
+SCRIPT_PARENT = SCRIPTS_ROOT
 
 
 def _load_from(name: str, path: Path) -> object:
@@ -53,11 +49,7 @@ _START_DTS = _load_from(
     "start_dts",
     SCRIPT_PARENT / "start-dts.py",
 )
-_JAVADOC_PARENT = Path(
-    "/home/nate/workspaces/intersoft-workspace/percussioncms"
-    "/modules/ai-shared-develop/src/main/resources/skills"
-    "/javadoc/scripts"
-)
+_JAVADOC_PARENT = SCRIPTS_ROOT.parent.parent / "javadoc" / "scripts"
 _GENERATE_JAVADOC_STUBS = _load_from(
     "generate_javadoc_stubs",
     _JAVADOC_PARENT / "generate-javadoc-stubs.py",
