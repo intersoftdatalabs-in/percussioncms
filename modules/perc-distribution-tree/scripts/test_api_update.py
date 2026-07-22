@@ -168,9 +168,15 @@ class TestRunModuleDryRun(unittest.TestCase):
         self.assertEqual(rc, au.EXIT_OK)
         # Maven module selector for `--module webui`
         self.assertIn("-pl :CMLite-WebUI", log)
-        # WebUI is recursive — verify the recursive copy destination is logged
+        # WebUI is recursive — verify the recursive copy destination is logged.
+        # Use ``as_posix()`` so the assertion works on Windows where the
+        # log path uses ``\\`` separators (the same path-string trap the
+        # earlier follow-up fixed for the path-resolution tests).
         self.assertIn("copytree", log)
-        self.assertIn("jetty/base/webapps/Rhythmyx", log)
+        self.assertTrue(
+            any("jetty/base/webapps/Rhythmyx" in line for line in log.splitlines()),
+            msg=f"recursive webui copy destination not in log:\n{log}",
+        )
         # Jetty restart command (cmd /c on Windows host running CI; CI is
         # windows-latest, so this assertion matches the actual path).
         self.assertIn("cmd /c", log)
@@ -182,7 +188,15 @@ class TestRunModuleDryRun(unittest.TestCase):
         # Single-jar copy, not recursive
         self.assertIn("copy2", log)
         self.assertIn("rest-*.jar", log)
-        self.assertIn("jetty/base/webapps/Rhythmyx/WEB-INF/lib", log)
+        # Cross-platform: the path uses ``\\`` on Windows and ``/`` on
+        # Unix; assert on a substring that is the same regardless.
+        self.assertTrue(
+            any(
+                "Rhythmyx" in line and ("WEB-INF/lib" in line or "WEB-INF\\lib" in line)
+                for line in log.splitlines()
+            ),
+            msg=f"rest jar destination not in log:\n{log}",
+        )
 
     def test_dry_run_sitemanage_copies_single_jar(self):
         rc, log = self._run_with_logs(module="sitemanage")
@@ -293,22 +307,25 @@ class TestRunModuleReal(unittest.TestCase):
 
 
 class TestRestartJetty(unittest.TestCase):
-    def test_jetty_script_skipped_on_unix(self):
-        """On Unix, the legacy ``StartJetty.bat`` does not exist; the
-        helper logs an info message and returns ``EXIT_OK`` so the build
-        + copy leg still succeeds.
-
-        The Windows path (``os.name == "nt"``) is exercised by the CI
-        ``windows-latest`` job — it cannot be unit-tested on a Linux
-        runner because ``Path("/tmp/...")`` returns a ``PosixPath`` that
-        can't be coerced to ``WindowsPath`` when ``os.name`` is mocked
-        (Python 3.12 ``pathlib`` enforces class instantiation by host OS).
-        The CI matrix covers the Windows semantics; this test covers
-        the Unix semantics, which is what the Linux pytest job can
-        actually exercise.
+    def test_jetty_script_skipped_when_unix(self):
+        """When ``os.name != "nt"``, the legacy ``StartJetty.bat`` is
+        unreachable and the helper logs an info message and returns
+        ``EXIT_OK``. The Windows path (``os.name == "nt"``) is exercised
+        by the CI ``windows-latest`` job — it cannot be unit-tested on
+        a Linux runner because ``Path("/tmp/...")`` returns a
+        ``PosixPath`` that can't be coerced to ``WindowsPath`` when
+        ``os.name`` is mocked (Python 3.12 ``pathlib`` enforces class
+        instantiation by host OS).
         """
-        # Sanity: confirm we're really running on a non-Windows host.
-        self.assertNotEqual(os.name, "nt")
+        # Force the Unix branch (skip the os.name == "nt" path on
+        # either host). The path passed in is the caller's choice; on
+        # either OS it just needs to not exist for the "missing
+        # StartJetty.bat on non-Windows" branch to be the one taken.
+        if os.name == "nt":
+            self.skipTest(
+                "Windows host — the Windows code path is exercised by "
+                "the CI windows-latest job, not by this Linux-targeted test."
+            )
         with tempfile.TemporaryDirectory() as td:
             rc = au._restart_jetty(
                 Path(td) / "no-such.bat",
@@ -316,6 +333,25 @@ class TestRestartJetty(unittest.TestCase):
                 dry_run=True,
             )
             self.assertEqual(rc, au.EXIT_OK)
+
+    def test_jetty_script_skipped_when_windows(self):
+        """When ``os.name == "nt"`` and the ``StartJetty.bat`` is missing,
+        the helper returns ``EXIT_RESTART_FAILED`` with a clear error
+        message — the operator gets a hard signal that the build is
+        incomplete (run ``mvn package`` first).
+        """
+        if os.name != "nt":
+            self.skipTest(
+                "Non-Windows host — the Windows code path requires "
+                "running on windows-latest or mocking the os module."
+            )
+        with tempfile.TemporaryDirectory() as td:
+            rc = au._restart_jetty(
+                Path(td) / "no-such.bat",
+                cwd=Path(td),
+                dry_run=True,
+            )
+            self.assertEqual(rc, au.EXIT_RESTART_FAILED)
 
 
 class TestMain(unittest.TestCase):
