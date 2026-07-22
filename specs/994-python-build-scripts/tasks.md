@@ -112,17 +112,17 @@
 
 **Independent Test**: `python3 modules/perc-distribution-tree/scripts/verify-jdbc-drivers.py --help` exits 0; `python3 modules/perc-distribution-tree/scripts/api-update.py --help` exits 0 and lists `--module {webui,rest,sitemanage,jars}`; `python3 -m pytest modules/perc-distribution-tree/scripts/ -v` exits 0; `cd modules/perc-distribution-tree && ../../mvn-env.sh clean install` succeeds with no new warnings (SC-007).
 
-- [ ] T067 [P] Create `modules/perc-distribution-tree/scripts/verify-jdbc-drivers.py` + `test_verify_jdbc_drivers.py` per contracts
-- [ ] T068 [P] Create `modules/perc-distribution-tree/scripts/check-no-glob-deletes.py` + `test_check_no_glob_deletes.py` per contracts
-- [ ] T069 Create `modules/perc-distribution-tree/scripts/api-update.py` (consolidated helper for `--module {webui,rest,sitemanage,jars}`) + `test_api_update.py` per contracts; document the Windows `start /WAIT cmd /C ...` → `subprocess.run([...], shell=False)` deviation in `## Behavioral Notes` (FR-009b, R2); the live Maven invocation is gated behind a `--dry-run` flag for tests
-- [ ] T070 [P] Create `modules/perc-distribution-tree/scripts/update-tinymce.py` + `test_update_tinymce.py` per contracts
-- [ ] T071 Delete `modules/perc-distribution-tree/scripts/*.sh` and `modules/perc-distribution-tree/scripts/*.bat` (FR-004)
-- [ ] T072 Delete `modules/perc-distribution-tree/APIUpdate-WEBUI.bat`, `APIUpdate-REST.bat`, `APIUpdate-SiteManage.bat`, `APIUpdateJars.bat`, `UpdateTinyMCE.bat` (FR-004)
-- [ ] T073 [P] Update `modules/perc-distribution-tree/AGENTS.md` and `modules/perc-distribution-tree/scripts/README.md` (if exists; create if absent) to reference the new `.py` entry points (FR-011)
-- [ ] T074 Run `python3 -m pytest modules/perc-distribution-tree/scripts/ -v` locally and on Windows
-- [ ] T075 Verify `cd modules/perc-distribution-tree && ../../mvn-env.sh clean install` succeeds (SC-007); run Erlang review on the diff
-- [ ] T076 Open PR titled `build(perc-distribution-tree): migrate build verification + APIUpdate helpers to cross-platform Python`
-- [ ] T077 Resolve review threads; verify CI green on both runners; wait for human approval and merge
+- [X] T067 [P] Create `modules/perc-distribution-tree/scripts/verify-jdbc-drivers.py` + `test_verify_jdbc_drivers.py` per contracts
+- [X] T068 [P] Create `modules/perc-distribution-tree/scripts/check-no-glob-deletes.py` + `test_check_no_glob_deletes.py` per contracts
+- [X] T069 Create `modules/perc-distribution-tree/scripts/api-update.py` (consolidated helper for `--module {webui,rest,sitemanage,jars}`) + `test_api_update.py` per contracts; document the Windows `start /WAIT cmd /C ...` → `subprocess.run([...], shell=False)` deviation in `## Behavioral Notes` (FR-009b, R2); the live Maven invocation is gated behind a `--dry-run` flag for tests
+- [X] T070 [P] Create `modules/perc-distribution-tree/scripts/update-tinymce.py` + `test_update_tinymce.py` per contracts
+- [X] T071 Delete `modules/perc-distribution-tree/scripts/*.sh` and `modules/perc-distribution-tree/scripts/*.bat` (FR-004)
+- [X] T072 Delete `modules/perc-distribution-tree/APIUpdate-WEBUI.bat`, `APIUpdate-REST.bat`, `APIUpdate-SiteManage.bat`, `APIUpdateJars.bat`, `UpdateTinyMCE.bat` (FR-004)
+- [X] T073 [P] Update `modules/perc-distribution-tree/AGENTS.md` and `modules/perc-distribution-tree/scripts/README.md` (if exists; create if absent) to reference the new `.py` entry points (FR-011)
+- [X] T074 Run `python3 -m pytest modules/perc-distribution-tree/scripts/ -v` locally and on Windows
+- [X] T075 Verify `cd modules/perc-distribution-tree && ../../mvn-env.sh clean install` succeeds (SC-007); run Erlang review on the diff
+- [X] T076 Open PR titled `build(perc-distribution-tree): migrate build verification + APIUpdate helpers to cross-platform Python`
+- [X] T077 Resolve review threads; verify CI green on both runners; wait for human approval and merge
 
 ## Phase 7: Polish & Cross-Cutting Concerns
 

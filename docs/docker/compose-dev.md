@@ -2,7 +2,7 @@
 
 ## Agent-friendly command interface
 
-Use `./docker/scripts/perc-devctl.sh` for concise pass/fail output with full logs saved to `docker/logs/`.
+Use `./docker/scripts/perc-devctl.py` for concise pass/fail output with full logs saved to `docker/logs/`.
 
 Each command prints a single summary line:
 
@@ -89,7 +89,7 @@ Developer self-signed mode (explicit opt-in):
 To confirm what the running server actually uses (CMS repo + DTS datasource), run:
 
 ```bash
-./docker/scripts/perc-devctl.sh inspect-install
+./docker/scripts/perc-devctl.py inspect-install
 ```
 
 The referenced log file includes values from:
@@ -106,7 +106,7 @@ docker compose --env-file .env.compose up -d --build
 Agent-friendly equivalent:
 
 ```bash
-./docker/scripts/perc-devctl.sh up --build
+./docker/scripts/perc-devctl.py up --build
 ```
 
 Maven lifecycle equivalent (profile-driven):
@@ -189,8 +189,8 @@ docker compose --env-file .env.compose logs -f cms-dts
 Agent-friendly status + verification:
 
 ```bash
-./docker/scripts/perc-devctl.sh status
-./docker/scripts/perc-devctl.sh verify --timeout-seconds 300
+./docker/scripts/perc-devctl.py status
+./docker/scripts/perc-devctl.py verify --timeout-seconds 300
 ```
 
 ## Stop stack
@@ -202,7 +202,7 @@ docker compose --env-file .env.compose down
 Agent-friendly equivalent:
 
 ```bash
-./docker/scripts/perc-devctl.sh down
+./docker/scripts/perc-devctl.py down
 ```
 
 Maven lifecycle equivalent:
@@ -220,7 +220,7 @@ docker compose --env-file .env.compose down -v
 Agent-friendly with volume cleanup:
 
 ```bash
-./docker/scripts/perc-devctl.sh down --volumes
+./docker/scripts/perc-devctl.py down --volumes
 ```
 
 ## Run integration tests against Compose stack
@@ -234,7 +234,7 @@ Use profile-driven lifecycle to start stack, run integration tests, and teardown
 Agent-friendly equivalent:
 
 ```bash
-./docker/scripts/perc-devctl.sh it-verify
+./docker/scripts/perc-devctl.py it-verify
 ```
 
 This flow performs:
@@ -276,13 +276,13 @@ Build just the module jar, then deploy into running container:
 Agent-friendly equivalent with optional post-deploy verification:
 
 ```bash
-./docker/scripts/perc-devctl.sh deploy-jar --jar modules/utils/target/<your-jar>.jar --target both --restart --verify
+./docker/scripts/perc-devctl.py deploy-jar --jar modules/utils/target/<your-jar>.jar --target both --restart --verify
 ```
 
 Single-command fix verification (deploy + verify + one final result line):
 
 ```bash
-./docker/scripts/perc-devctl.sh verify-fix --jar modules/utils/target/<your-jar>.jar --target both --restart --timeout-seconds 240
+./docker/scripts/perc-devctl.py verify-fix --jar modules/utils/target/<your-jar>.jar --target both --restart --timeout-seconds 240
 ```
 
 Notes:
@@ -301,7 +301,7 @@ On first CMS startup, generated credentials are written to:
 Retrieve with:
 
 ```bash
-./docker/scripts/perc-devctl.sh show-generated-passwords
+./docker/scripts/perc-devctl.py show-generated-passwords
 ```
 
 If unavailable, the command returns `RESULT:FAIL` and a detailed log path.

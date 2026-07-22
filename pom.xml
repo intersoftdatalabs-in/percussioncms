@@ -2797,7 +2797,7 @@
                 <artifactId>exec-maven-plugin</artifactId>
                 <version>${maven.exec.plugin.version}</version>
                 <executions>
-                    <!-- TODO: Experimental - potentially remove 
+                    <!-- TODO: Experimental - potentially remove
 			<execution>
                         <id>verify-agent-integrity</id>
                         <goals>
@@ -2805,8 +2805,9 @@
                         </goals>
                         <phase>validate</phase>
                         <configuration>
-                            <executable>${maven.multiModuleProjectDirectory}/modules/ai-shared-develop/scripts/build-integrity-check.sh</executable>
+                            <executable>python3</executable>
                             <arguments>
+                                <argument>${maven.multiModuleProjectDirectory}/modules/ai-shared-develop/scripts/build-integrity-check.py</argument>
                                 <argument>${maven.multiModuleProjectDirectory}/AGENTS.md</argument>
                             </arguments>
                             <successCodes>
