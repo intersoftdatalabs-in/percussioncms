@@ -6,7 +6,7 @@
 
 # --- Python (spec 994-python-build-scripts) ---
 # Bytecode + tool caches produced by python3 -m py_compile and pytest.
-# Project temp dir is already excluded by the `tmp/` rule near the bottom.
+# Repo-wide: pycache should never be checked in anywhere.
 **/__pycache__/
 *.pyc
 *.pyo
