@@ -606,23 +606,13 @@ def cmd_logs_path(args: argparse.Namespace, paths: tuple[Path, Path, Path]) -> i
     return EXIT_OK
 
 
-def _docker_exec_capture(
-    argv_tail: Sequence[str],
-    *,
-    log_dir: Path,
-    label: str,
-    dry_run: bool,
-) -> int:
-    """Run ``docker exec <container> bash -lc '<script>'`` (preserving
-    the original ``.sh`` form) and capture output. Returns the script
-    exit code.
-    """
-    return _run_logged(
-        label,
-        ["docker", "exec", DEFAULT_CONTAINER, "bash", "-lc", " ".join(argv_tail)],
-        log_dir=log_dir,
-        dry_run=dry_run,
-    )
+# Note: the original ``.sh`` had a ``_docker_exec_capture`` helper that
+# wrapped ``docker exec container bash -lc '<script>'``. With the refactor
+# to ``_run_logged`` returning ``(rc, log_path)`` tuples (kilo-code-bot
+# review thread #7 on PR #1468), that wrapper would need its signature
+# updated; but the wrapper has no remaining callers in ``_DISPATCH`` so
+# the simpler fix is to delete it. Direct ``docker exec`` invocations live
+# in ``cmd_inspect_install`` and ``cmd_show_generated_passwords`` inline.
 
 
 _INSPECT_SCRIPT = """set -euo pipefail

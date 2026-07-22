@@ -194,6 +194,13 @@ class TestExecutableBitGuard(unittest.TestCase):
                 "Windows file permissions are POSIX-incompatible; "
                 "the neither-executable branch is a Linux/macOS concept."
             )
+        # CMS script must exist so `run()`'s upfront sanity check passes
+        # before reaching the DTS branch. Without this, the test was
+        # asserting the right exit code but via the WRONG code path —
+        # `cms_script.is_file()` failed first and returned
+        # EXIT_INSTALL_MISSING before `_start_dts` was ever called
+        # (kilo-code-bot review thread #8 on PR #1468).
+        self._write_executable("jetty", "StartJetty.sh")
         self._write_non_executable("TomcatStartup.sh")
         self._write_non_executable("startup.sh")
         rc = iu.run(
