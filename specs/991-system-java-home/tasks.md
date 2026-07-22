@@ -19,21 +19,21 @@
 
 ## Phase 1: Setup
 
-- [ ] T001 Identify owning module path(s) and read AGENTS hierarchy: root `AGENTS.md`, `modules/perc-jetty/AGENTS.md`, `modules/perc-distribution-tree/AGENTS.md` (if present), delivery-tier-distribution README
-- [ ] T002 Confirm branch JDK 21 and verify baseline tests: `./mvn-env.sh -pl modules/perc-jetty -am test` (structural harness already present for service scripts)
+- [x] T001 Identify owning module path(s) and read AGENTS hierarchy: root `AGENTS.md`, `modules/perc-jetty/AGENTS.md`, `modules/perc-distribution-tree/AGENTS.md` (if present), delivery-tier-distribution README
+- [x] T002 Confirm branch JDK 21 and verify baseline tests: `./mvn-env.sh -pl modules/perc-jetty -am test` (structural harness already present for service scripts)
 
 ## Phase 2: Foundational (Blocking Prerequisites)
 
 **Goal**: Shared resolution contract implemented as pure Java helpers + dual platform resolve scripts that all stories consume. No CMS/DTS start script cutover yet (that is US1/US2).
 
-- [ ] T003 Map all hard-coded `JRE` / `JRE64` / `JAVA_HOME` consumers: `modules/perc-jetty/src/main/jetty/StartJetty.sh`, `StartJetty.bat`, `StopJetty.bat`, `service/install-jetty-service.sh`, `service/install-jetty-service.bat`; DTS `deliverytiersuite/delivery-tier-suite/delivery-tier-distribution/src/main/rootFiles/TomcatStartup.*`, `TomcatShutdown.*`, `DTSProductionService.*`, `DTSStagingService.*`; preinstall `modules/perc-distribution-tree/.../Main.java`; `system/release/installer/**` — update inventory note in `specs/991-system-java-home/research.md` if gaps found
-- [ ] T004 Assess security/ops surface: only filesystem paths in `java.properties`; no secrets; validate path existence before exec; document service re-install after re-point in `specs/991-system-java-home/quickstart.md` notes
-- [ ] T005 [P] Implement Java pure helpers for version parse, home validation, properties load/merge/write, and precedence order per `specs/991-system-java-home/contracts/java-home-resolution.md` and `java-properties-contract.md` under `modules/perc-distribution-tree/src/main/java/com/percussion/preinstall/java/` (e.g. `JavaHomeResolver.java`, `JavaPropertiesSupport.java`) using portable `java.nio.file.Path`
-- [ ] T006 [P] Add JUnit 5 tests for helpers in `modules/perc-distribution-tree/src/test/java/com/percussion/preinstall/java/JavaHomeResolverTest.java` and `JavaPropertiesSupportTest.java` (temp dirs via NIO; major 21 accept/reject; precedence order; merge preserves unknown keys)
-- [ ] T007 [P] Add Unix resolver script `modules/perc-jetty/src/main/jetty/resolve-java-home.sh` implementing the same precedence (config → env → JRE → JRE64 → PATH → fail with “21”)
-- [ ] T008 [P] Add Windows resolver script `modules/perc-jetty/src/main/jetty/resolve-java-home.bat` with identical precedence and absolute path outputs for `JAVA_HOME` / `JAVA`
-- [ ] T009 Add structural/content tests asserting resolvers exist and encode contract markers (precedence labels, major 21 error text) in `modules/perc-jetty/src/test/java/com/percussion/jetty/java/ResolveJavaHomeScriptTest.java`
-- [ ] T010 Document canonical helper entry points in `modules/perc-jetty/README.md` (section: Java home resolution) and cross-link contracts under `specs/991-system-java-home/contracts/`
+- [x] T003 Map all hard-coded `JRE` / `JRE64` / `JAVA_HOME` consumers: `modules/perc-jetty/src/main/jetty/StartJetty.sh`, `StartJetty.bat`, `StopJetty.bat`, `service/install-jetty-service.sh`, `service/install-jetty-service.bat`; DTS `deliverytiersuite/delivery-tier-suite/delivery-tier-distribution/src/main/rootFiles/TomcatStartup.*`, `TomcatShutdown.*`, `DTSProductionService.*`, `DTSStagingService.*`; preinstall `modules/perc-distribution-tree/.../Main.java`; `system/release/installer/**` — update inventory note in `specs/991-system-java-home/research.md` if gaps found
+- [x] T004 Assess security/ops surface: only filesystem paths in `java.properties`; no secrets; validate path existence before exec; document service re-install after re-point in `specs/991-system-java-home/quickstart.md` notes
+- [x] T005 [P] Implement Java pure helpers for version parse, home validation, properties load/merge/write, and precedence order per `specs/991-system-java-home/contracts/java-home-resolution.md` and `java-properties-contract.md` under `modules/perc-distribution-tree/src/main/java/com/percussion/preinstall/java/` (e.g. `JavaHomeResolver.java`, `JavaPropertiesSupport.java`) using portable `java.nio.file.Path`
+- [x] T006 [P] Add JUnit 5 tests for helpers in `modules/perc-distribution-tree/src/test/java/com/percussion/preinstall/java/JavaHomeResolverTest.java` and `JavaPropertiesSupportTest.java` (temp dirs via NIO; major 21 accept/reject; precedence order; merge preserves unknown keys)
+- [x] T007 [P] Add Unix resolver script `modules/perc-jetty/src/main/jetty/resolve-java-home.sh` implementing the same precedence (config → env → JRE → JRE64 → PATH → fail with “21”)
+- [x] T008 [P] Add Windows resolver script `modules/perc-jetty/src/main/jetty/resolve-java-home.bat` with identical precedence and absolute path outputs for `JAVA_HOME` / `JAVA`
+- [x] T009 Add structural/content tests asserting resolvers exist and encode contract markers (precedence labels, major 21 error text) in `modules/perc-jetty/src/test/java/com/percussion/jetty/java/ResolveJavaHomeScriptTest.java`
+- [x] T010 Document canonical helper entry points in `modules/perc-jetty/README.md` (section: Java home resolution) and cross-link contracts under `specs/991-system-java-home/contracts/`
 
 ---
 
@@ -44,16 +44,16 @@
 
 ### Tests (Required)
 
-- [ ] T011 [P] [US1] Extend `modules/perc-jetty/src/test/java/com/percussion/jetty/java/ResolveJavaHomeScriptTest.java` (or new `StartJettyJavaHomeTest.java`) to assert `StartJetty.sh`, `StartJetty.bat`, `StopJetty.bat` source/call `resolve-java-home` and do **not** unconditionally assign only `%rxDir%\JRE` / `${rxDir}/JRE`
-- [ ] T012 [P] [US1] Test `install-jetty-service.sh` / `.bat` snippets populate service Java from resolver/`java.properties` (not hard-coded install-dir JRE only) in `modules/perc-jetty/src/test/java/com/percussion/jetty/service/InstallJettyServiceJavaHomeTest.java`
+- [x] T011 [P] [US1] Extend `modules/perc-jetty/src/test/java/com/percussion/jetty/java/ResolveJavaHomeScriptTest.java` (or new `StartJettyJavaHomeTest.java`) to assert `StartJetty.sh`, `StartJetty.bat`, `StopJetty.bat` source/call `resolve-java-home` and do **not** unconditionally assign only `%rxDir%\JRE` / `${rxDir}/JRE`
+- [x] T012 [P] [US1] Test `install-jetty-service.sh` / `.bat` snippets populate service Java from resolver/`java.properties` (not hard-coded install-dir JRE only) in `modules/perc-jetty/src/test/java/com/percussion/jetty/service/InstallJettyServiceJavaHomeTest.java`
 
 ### Implementation
 
-- [ ] T013 [US1] Wire `StartJetty.sh` to source `resolve-java-home.sh` with install root = parent of jetty dir; fail fast if resolve fails — `modules/perc-jetty/src/main/jetty/StartJetty.sh`
-- [ ] T014 [P] [US1] Wire `StartJetty.bat` and `StopJetty.bat` to call `resolve-java-home.bat` — `modules/perc-jetty/src/main/jetty/StartJetty.bat`, `StopJetty.bat`
-- [ ] T015 [US1] Update `modules/perc-jetty/src/main/jetty/service/install-jetty-service.sh` to resolve Java via the shared order before writing `/etc/default/${SERVICE_NAME}` (`JAVA_HOME` / `JAVA` lines)
-- [ ] T016 [US1] Update `modules/perc-jetty/src/main/jetty/service/install-jetty-service.bat` to set Procrun `--JavaHome` / `PR_JVM` from resolved home (absolute), not only `..\JRE`
-- [ ] T017 [US1] Add operator note for post-install re-point (edit `java.properties`, restart; re-run service install if service cached home) in `modules/perc-jetty/README.md` and `specs/991-system-java-home/quickstart.md` (supports US5 early)
+- [x] T013 [US1] Wire `StartJetty.sh` to source `resolve-java-home.sh` with install root = parent of jetty dir; fail fast if resolve fails — `modules/perc-jetty/src/main/jetty/StartJetty.sh`
+- [x] T014 [P] [US1] Wire `StartJetty.bat` and `StopJetty.bat` to call `resolve-java-home.bat` — `modules/perc-jetty/src/main/jetty/StartJetty.bat`, `StopJetty.bat`
+- [x] T015 [US1] Update `modules/perc-jetty/src/main/jetty/service/install-jetty-service.sh` to resolve Java via the shared order before writing `/etc/default/${SERVICE_NAME}` (`JAVA_HOME` / `JAVA` lines)
+- [x] T016 [US1] Update `modules/perc-jetty/src/main/jetty/service/install-jetty-service.bat` to set Procrun `--JavaHome` / `PR_JVM` from resolved home (absolute), not only `..\JRE`
+- [x] T017 [US1] Add operator note for post-install re-point (edit `java.properties`, restart; re-run service install if service cached home) in `modules/perc-jetty/README.md` and `specs/991-system-java-home/quickstart.md` (supports US5 early)
 - [ ] T018 [US1] Commit US1 + foundational (T005–T017 as needed), open PR against `development`, pause for review/merge before US2
 - [ ] T019 [US1] Monitor CI/Kilo checks; address feedback; resolve review threads per AGENTS.md before next story
 
