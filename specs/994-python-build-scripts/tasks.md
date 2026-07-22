@@ -73,18 +73,18 @@
 
 **Independent Test (per `quickstart.md` Scenarios C + E.1)**: `python3 docker/scripts/perc-devctl.py --help` lists all subcommands; `python3 -m pytest docker/scripts/ modules/ai-shared-develop/scripts/` exits 0 on Linux + Windows; `find docker/scripts/ docker/entrypoint/ modules/ai-shared-develop/scripts/ -type f -name '*.sh'` returns empty (SC-002).
 
-- [ ] T042 [P] [US4] Create `docker/scripts/hot-deploy-jar.py` + `docker/scripts/test_hot_deploy_jar.py` per contracts
-- [ ] T043 [P] [US4] Create `docker/scripts/perc-devctl.py` + `docker/scripts/test_perc_devctl.py` per contracts; preserve all bash subcommands (`install`, `up`, `down`, `status`, `verify`, `it-verify`, `deploy-jar`, `verify-fix`, `logs-path`, `inspect-install`, `show-generated-passwords`); document the bash trap → `try`/`finally` deviation in `## Behavioral Notes` (FR-009b, R2)
-- [ ] T044 [P] [US4] Create `docker/entrypoint/install-update.py` + `docker/entrypoint/test_install_update.py` per contracts
-- [ ] T045 [P] [US4] Create `modules/ai-shared-develop/scripts/sign-ai-resources.py` + `modules/ai-shared-develop/scripts/test_sign_ai_resources.py` per contracts
-- [ ] T046 [P] [US4] Create `modules/ai-shared-develop/scripts/verify-signatures-hook.py` + `modules/ai-shared-develop/scripts/test_verify_signatures_hook.py` per contracts
-- [ ] T047 [P] [US4] Create `modules/ai-shared-develop/scripts/build-integrity-check.py` + `modules/ai-shared-develop/scripts/test_build_integrity_check.py` per contracts
-- [ ] T048 [US4] Delete `docker/scripts/*.sh`, `docker/entrypoint/*.sh`, `modules/ai-shared-develop/scripts/*.sh` (FR-004)
-- [ ] T049 [P] [US4] Update `docker/README.md` to reference the new `.py` entry points and drop `.sh` references (FR-011)
-- [ ] T050 [P] [US4] Update `modules/ai-shared-develop/AGENTS.md` to reference the new `.py` entry points (FR-011)
-- [ ] T051 [US4] Run `python3 -m pytest docker/scripts/ modules/ai-shared-develop/scripts/ -v` locally; run on Windows too
-- [ ] T052 [US4] Open PR titled `build(docker,ai-shared): migrate docker + AI dev scripts to cross-platform Python`
-- [ ] T053 [US4] Run Erlang review; resolve review threads; verify CI green on both runners; wait for human approval and merge
+- [X] T042 [P] [US4] Create `docker/scripts/hot-deploy-jar.py` + `docker/scripts/test_hot_deploy_jar.py` per contracts
+- [X] T043 [P] [US4] Create `docker/scripts/perc-devctl.py` + `docker/scripts/test_perc_devctl.py` per contracts; preserve all bash subcommands (`install`, `up`, `down`, `status`, `verify`, `it-verify`, `deploy-jar`, `verify-fix`, `logs-path`, `inspect-install`, `show-generated-passwords`); document the bash trap → `try`/`finally` deviation in `## Behavioral Notes` (FR-009b, R2)
+- [X] T044 [P] [US4] Create `docker/entrypoint/install-update.py` + `docker/entrypoint/test_install_update.py` per contracts
+- [X] T045 [P] [US4] Create `modules/ai-shared-develop/scripts/sign-ai-resources.py` + `modules/ai-shared-develop/scripts/test_sign_ai_resources.py` per contracts
+- [X] T046 [P] [US4] Create `modules/ai-shared-develop/scripts/verify-signatures-hook.py` + `modules/ai-shared-develop/scripts/test_verify_signatures_hook.py` per contracts
+- [X] T047 [P] [US4] Create `modules/ai-shared-develop/scripts/build-integrity-check.py` + `modules/ai-shared-develop/scripts/test_build_integrity_check.py` per contracts
+- [X] T048 [US4] Delete `docker/scripts/*.sh`, `docker/entrypoint/*.sh`, `modules/ai-shared-develop/scripts/*.sh` (FR-004)
+- [X] T049 [P] [US4] Update `docker/README.md` to reference the new `.py` entry points and drop `.sh` references (FR-011)
+- [X] T050 [P] [US4] Update `modules/ai-shared-develop/AGENTS.md` to reference the new `.py` entry points (FR-011)
+- [X] T051 [US4] Run `python3 -m pytest docker/scripts/ modules/ai-shared-develop/scripts/ -v` locally; run on Windows too
+- [X] T052 [US4] Open PR titled `build(docker,ai-shared): migrate docker + AI dev scripts to cross-platform Python`
+- [X] T053 [US4] Run Erlang review; resolve review threads; verify CI green on both runners; wait for human approval and merge
 
 ## Phase 5: User Story 4 (cont.) - AI skill helper scripts (Priority: P2) — Scope 4 nested (`modules/ai-shared-develop/src/main/resources/skills/*/scripts/`)
 
@@ -112,17 +112,17 @@
 
 **Independent Test**: `python3 modules/perc-distribution-tree/scripts/verify-jdbc-drivers.py --help` exits 0; `python3 modules/perc-distribution-tree/scripts/api-update.py --help` exits 0 and lists `--module {webui,rest,sitemanage,jars}`; `python3 -m pytest modules/perc-distribution-tree/scripts/ -v` exits 0; `cd modules/perc-distribution-tree && ../../mvn-env.sh clean install` succeeds with no new warnings (SC-007).
 
-- [ ] T067 [P] Create `modules/perc-distribution-tree/scripts/verify-jdbc-drivers.py` + `test_verify_jdbc_drivers.py` per contracts
-- [ ] T068 [P] Create `modules/perc-distribution-tree/scripts/check-no-glob-deletes.py` + `test_check_no_glob_deletes.py` per contracts
-- [ ] T069 Create `modules/perc-distribution-tree/scripts/api-update.py` (consolidated helper for `--module {webui,rest,sitemanage,jars}`) + `test_api_update.py` per contracts; document the Windows `start /WAIT cmd /C ...` → `subprocess.run([...], shell=False)` deviation in `## Behavioral Notes` (FR-009b, R2); the live Maven invocation is gated behind a `--dry-run` flag for tests
-- [ ] T070 [P] Create `modules/perc-distribution-tree/scripts/update-tinymce.py` + `test_update_tinymce.py` per contracts
-- [ ] T071 Delete `modules/perc-distribution-tree/scripts/*.sh` and `modules/perc-distribution-tree/scripts/*.bat` (FR-004)
-- [ ] T072 Delete `modules/perc-distribution-tree/APIUpdate-WEBUI.bat`, `APIUpdate-REST.bat`, `APIUpdate-SiteManage.bat`, `APIUpdateJars.bat`, `UpdateTinyMCE.bat` (FR-004)
-- [ ] T073 [P] Update `modules/perc-distribution-tree/AGENTS.md` and `modules/perc-distribution-tree/scripts/README.md` (if exists; create if absent) to reference the new `.py` entry points (FR-011)
-- [ ] T074 Run `python3 -m pytest modules/perc-distribution-tree/scripts/ -v` locally and on Windows
-- [ ] T075 Verify `cd modules/perc-distribution-tree && ../../mvn-env.sh clean install` succeeds (SC-007); run Erlang review on the diff
-- [ ] T076 Open PR titled `build(perc-distribution-tree): migrate build verification + APIUpdate helpers to cross-platform Python`
-- [ ] T077 Resolve review threads; verify CI green on both runners; wait for human approval and merge
+- [X] T067 [P] Create `modules/perc-distribution-tree/scripts/verify-jdbc-drivers.py` + `test_verify_jdbc_drivers.py` per contracts
+- [X] T068 [P] Create `modules/perc-distribution-tree/scripts/check-no-glob-deletes.py` + `test_check_no_glob_deletes.py` per contracts
+- [X] T069 Create `modules/perc-distribution-tree/scripts/api-update.py` (consolidated helper for `--module {webui,rest,sitemanage,jars}`) + `test_api_update.py` per contracts; document the Windows `start /WAIT cmd /C ...` → `subprocess.run([...], shell=False)` deviation in `## Behavioral Notes` (FR-009b, R2); the live Maven invocation is gated behind a `--dry-run` flag for tests
+- [X] T070 [P] Create `modules/perc-distribution-tree/scripts/update-tinymce.py` + `test_update_tinymce.py` per contracts
+- [X] T071 Delete `modules/perc-distribution-tree/scripts/*.sh` and `modules/perc-distribution-tree/scripts/*.bat` (FR-004)
+- [X] T072 Delete `modules/perc-distribution-tree/APIUpdate-WEBUI.bat`, `APIUpdate-REST.bat`, `APIUpdate-SiteManage.bat`, `APIUpdateJars.bat`, `UpdateTinyMCE.bat` (FR-004)
+- [X] T073 [P] Update `modules/perc-distribution-tree/AGENTS.md` and `modules/perc-distribution-tree/scripts/README.md` (if exists; create if absent) to reference the new `.py` entry points (FR-011)
+- [X] T074 Run `python3 -m pytest modules/perc-distribution-tree/scripts/ -v` locally and on Windows
+- [X] T075 Verify `cd modules/perc-distribution-tree && ../../mvn-env.sh clean install` succeeds (SC-007); run Erlang review on the diff
+- [X] T076 Open PR titled `build(perc-distribution-tree): migrate build verification + APIUpdate helpers to cross-platform Python`
+- [X] T077 Resolve review threads; verify CI green on both runners; wait for human approval and merge
 
 ## Phase 7: Polish & Cross-Cutting Concerns
 

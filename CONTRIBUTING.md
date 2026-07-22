@@ -211,7 +211,7 @@ Instructions, prompts, and skills must be signed to be executed by AI agents.
 1. **Sign Resources:** After modifying AI resources, run the signing script:
 
    ```bash
-   modules/ai-shared-develop/scripts/sign-ai-resources.sh
+   modules/ai-shared-develop/scripts/sign-ai-resources.py
    ```
 
    This script will sign all tracked resources and local `AGENTS.local.md` overrides.

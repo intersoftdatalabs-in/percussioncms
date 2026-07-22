@@ -14,7 +14,7 @@ Use Maven profiles and lifecycle phases as the primary dev workflow for local ru
 
 ### Concise logging for agents (preferred command surface)
 
-Use `./docker/scripts/perc-devctl.sh` when an AI agent needs deterministic success/failure output and detailed logs on failure.
+Use `./docker/scripts/perc-devctl.py` when an AI agent needs deterministic success/failure output and detailed logs on failure.
 
 - Success format: `RESULT:OK STEP:<step> LOG:<path>`
 - Failure format: `RESULT:FAIL STEP:<step> LOG:<path>`
@@ -24,19 +24,19 @@ Detailed logs are always written under `docker/logs/`.
 Common commands:
 
 ```bash
-./docker/scripts/perc-devctl.sh up --build
-./docker/scripts/perc-devctl.sh verify --timeout-seconds 300
-./docker/scripts/perc-devctl.sh deploy-jar --jar modules/utils/target/<your-jar>.jar --target both --restart --verify
-./docker/scripts/perc-devctl.sh verify-fix --jar modules/utils/target/<your-jar>.jar --target both --restart --timeout-seconds 240
-./docker/scripts/perc-devctl.sh it-verify
-./docker/scripts/perc-devctl.sh down --volumes
+./docker/scripts/perc-devctl.py up --build
+./docker/scripts/perc-devctl.py verify --timeout-seconds 300
+./docker/scripts/perc-devctl.py deploy-jar --jar modules/utils/target/<your-jar>.jar --target both --restart --verify
+./docker/scripts/perc-devctl.py verify-fix --jar modules/utils/target/<your-jar>.jar --target both --restart --timeout-seconds 240
+./docker/scripts/perc-devctl.py it-verify
+./docker/scripts/perc-devctl.py down --volumes
 ```
 
 Database and credential verification commands:
 
 ```bash
-./docker/scripts/perc-devctl.sh inspect-install
-./docker/scripts/perc-devctl.sh show-generated-passwords
+./docker/scripts/perc-devctl.py inspect-install
+./docker/scripts/perc-devctl.py show-generated-passwords
 ```
 
 `inspect-install` captures effective CMS and DTS DB settings from the running server config files.

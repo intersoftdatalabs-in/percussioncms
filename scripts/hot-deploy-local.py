@@ -24,7 +24,7 @@ Options
 - ``--with-tests``          Run tests during Maven build (default: -DskipTests)
 - ``--timeout-seconds N``   Maven timeout in seconds (default: 600)
 - ``--target <cms|dts|both|/abs/path>``  Alias for backwards compatibility with
-  the docker hot-deploy-jar.sh contract; informational only here.
+  the docker hot-deploy-jar.py contract; informational only here.
 
 Behavioral Notes
 ----------------
@@ -99,7 +99,7 @@ def _build_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "--target",
         default="both",
-        help="Informational only (matches docker hot-deploy-jar.sh contract).",
+        help="Informational only (matches docker hot-deploy-jar.py contract).",
     )
     parser.add_argument(
         "--verify",

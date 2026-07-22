@@ -500,7 +500,7 @@ Rebuilds WebUI and redeploys to local installation.
 
 ### Fast iteration against the docker dev CMS (no container restart)
 
-When the dev CMS is running via the docker compose stack at `localhost:9992` (see `docker-compose.yml` + `docker/scripts/perc-devctl.sh`), **JS/TS/JSP changes do NOT require a container restart** — just rebuild and copy the artifact:
+When the dev CMS is running via the docker compose stack at `localhost:9992` (see `docker-compose.yml` + `docker/scripts/perc-devctl.py`), **JS/TS/JSP changes do NOT require a container restart** — just rebuild and copy the artifact:
 
 ```bash
 # 1. Rebuild only the modern bundle (fast: ~3s)
@@ -529,7 +529,7 @@ cp WebUI/src/main/webapp/cm/app/explorerModern.jsp \
 ```bash
 ./mvn-env.sh -pl <module> -am install   # rebuild jar
 docker compose --env-file .env.compose -f docker-compose.yml restart cms-dts
-./docker/scripts/perc-devctl.sh verify   # confirm health
+./docker/scripts/perc-devctl.py verify   # confirm health
 ```
 
 **When in doubt, Jetty's `<servlet>` config can be set to `<init-param><param-name>development</param-name><param-value>true</param-value></init-param>`** so JSPs hot-reload on the next request. Default is single-recompile per deploy; flip to `true` in `web.xml` to avoid the `docker compose restart` cycle for JSP-only changes.

@@ -232,7 +232,7 @@ npm test -- --debug
 
 ## Fast iteration against the dev CMS (no container restart)
 
-When the dev CMS is running via the docker compose stack at `localhost:9992` (see `docker-compose.yml` + `docker/scripts/perc-devctl.sh`), **JS / TS / JSP changes do NOT require a container restart** — rebuild and copy the artifact. See the WebUI AGENTS.md "Hot Deployment" section for the full iteration cost table. Quick reference for QA work:
+When the dev CMS is running via the docker compose stack at `localhost:9992` (see `docker-compose.yml` + `docker/scripts/perc-devctl.py`), **JS / TS / JSP changes do NOT require a container restart** — rebuild and copy the artifact. See the WebUI AGENTS.md "Hot Deployment" section for the full iteration cost table. Quick reference for QA work:
 
 ```bash
 # 1. Edit spec file in modules/perc-qa-automation/frontend/tests/
