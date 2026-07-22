@@ -8,7 +8,6 @@ All build-time scripts in this directory are cross-platform Python 3.9+ (FR-001)
 
 Out of scope for spec 994 (must NOT be touched):
 - `../mvn-env.{sh,bat}` — already cross-platform, per Clarification Q2.
-- `release-audit/erlang-harvest-review-patterns.{sh,bat}` — Phase 3 (US3).
 - Anything under `system/release/`, `system/installResources/`, `system/Tools/`, etc. — runtime scripts deployed with customer installations (FR-013).
 
 ## Scripts
@@ -69,7 +68,7 @@ Create a single CMS folder with ≥500 children for the SC-005 perf UAT scenario
 - **Prereqs**: `curl`, network reachability to a running CMS instance with admin credentials.
 - **Tests**: `python3 -m pytest scripts/test_create_large_folder_fixture.py -v`
 
-### `erlang-harvest-review-patterns.py` (US3, not converted in US2)
+### `erlang-harvest-review-patterns.py`
 
 Harvest GitHub PR **line review comments** (including closed/merged PRs) from `kilo-code-bot[bot]` (and optional other authors), cluster them into generalized themes, write a candidate report, and optionally auto-merge multi-PR themes into Erlang review pattern memory.
 

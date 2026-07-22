@@ -337,6 +337,63 @@ class TestFixtureEndToEnd(unittest.TestCase):
             self.assertIn("harvested", body)
             self.assertIn("Missing behavioral", body)
 
+    def test_report_does_not_reference_removed_wrappers(self):
+        """Spec 994 US3: the candidate report must not point readers at
+        scripts/erlang-harvest-review-patterns.{sh,bat}, since those wrappers
+        were deleted. The Python script itself is the only entry point."""
+        with tempfile.TemporaryDirectory() as td:
+            td_path = Path(td)
+            (td_path / "AGENTS.md").write_text("# t\n", encoding="utf-8")
+            (td_path / ".git").mkdir()
+            patterns = (
+                td_path
+                / "modules"
+                / "ai-shared-develop"
+                / "src"
+                / "main"
+                / "resources"
+                / "skills"
+                / "erlang-review"
+                / "patterns.md"
+            )
+            patterns.parent.mkdir(parents=True)
+            patterns.write_text(
+                "# Erlang review patterns\n\n## Hard gates\n\n- Gate\n",
+                encoding="utf-8",
+                newline="\n",
+            )
+            fix = td_path / "fixture.json"
+            fix.write_text("[]", encoding="utf-8")
+            out = td_path / "docs" / "ai-generated" / "code-reviews" / "out.md"
+            out.parent.mkdir(parents=True)
+
+            old = Path.cwd()
+            try:
+                os.chdir(td_path)
+                rc = harvest.main(
+                    [
+                        "--fixture",
+                        str(fix),
+                        "--repo",
+                        "o/r",
+                        "--output",
+                        str(out),
+                    ]
+                )
+            finally:
+                os.chdir(old)
+            self.assertEqual(rc, 0)
+            self.assertTrue(out.is_file())
+            report = out.read_text(encoding="utf-8")
+            self.assertNotIn(
+                "erlang-harvest-review-patterns.bat", report,
+                msg="candidate report must not reference deleted .bat wrapper",
+            )
+            self.assertNotIn(
+                "erlang-harvest-review-patterns.sh", report,
+                msg="candidate report must not reference deleted .sh wrapper",
+            )
+
 
 if __name__ == "__main__":
     unittest.main()
