@@ -115,7 +115,7 @@ def _collect_basenames(inventory: Path, cluster: str) -> set[str]:
         stripped = line.strip()
         if not stripped or stripped.startswith("#"):
             continue
-        name = os.path.basename(stripped.rstrip("/"))
+        name = Path(stripped.rstrip("/")).name
         if name:
             basenames.add(name)
     return basenames
@@ -144,7 +144,7 @@ def stage_rows(
             linked = parts[10].strip() if len(parts) > 10 else ""
             matched = False
             if mode == "basename":
-                file_basename = os.path.basename(file_path)
+                file_basename = Path(file_path).name
                 matched = file_basename in matchers
             else:
                 matched = any(m in file_path for m in matchers)

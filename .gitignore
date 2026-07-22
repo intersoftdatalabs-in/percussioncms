@@ -6,8 +6,19 @@
 
 # --- Python (spec 994-python-build-scripts) ---
 # Bytecode + tool caches produced by python3 -m py_compile and pytest.
-# Project temp dir is already excluded by the `tmp/` rule near the bottom.
-**/__pycache__/
+# Scoped to in-scope script dirs (per FR-013 in-scope enumeration) so future
+# Python tools outside this spec aren't accidentally ignored.
+scripts/__pycache__/
+scripts/**/__pycache__/
+docker/scripts/__pycache__/
+docker/scripts/**/__pycache__/
+docker/entrypoint/__pycache__/
+docker/entrypoint/**/__pycache__/
+modules/perc-distribution-tree/scripts/__pycache__/
+modules/perc-distribution-tree/scripts/**/__pycache__/
+modules/ai-shared-develop/scripts/__pycache__/
+modules/ai-shared-develop/scripts/**/__pycache__/
+modules/ai-shared-develop/src/main/resources/skills/**/__pycache__/
 *.pyc
 *.pyo
 .pytest_cache/

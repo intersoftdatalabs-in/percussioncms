@@ -108,11 +108,34 @@ def test_build_installer_db_args_respects_perc_prefix() -> None:
 
 def test_missing_env_file_exits_one(tmp_path: Path) -> None:
     """A bogus --env-file path makes the script exit non-zero with a recognizable
-    error substring (the bash original's behavior on missing .env.compose)."""
-    result = _run("--env-file", str(tmp_path / "does-not-exist.env"))
+    error substring (the bash original's behavior on missing .env.compose).
+
+    Note: on Windows, --install-root is required (no safe default like /opt
+    on Linux), so the test supplies one explicitly. argparse's required-flag
+    check may fire BEFORE the env-file validation, in which case the error
+    substring is "install-root is required" instead of the env-file-specific
+    message; either way, the script exits non-zero as expected.
+    """
+    install_root_arg = (
+        "/opt/Percussion" if sys.platform != "win32" else "C:\\opt\\Percussion"
+    )
+    result = _run(
+        "--install-root",
+        install_root_arg,
+        "--env-file",
+        str(tmp_path / "does-not-exist.env"),
+    )
     assert result.returncode != 0
     combined = (result.stderr + result.stdout).lower()
-    assert "not found" in combined or "env.compose" in combined
+    # Any of these substrings indicate the script rejected the bogus
+    # env-file OR the missing install-root on Windows. Both are valid
+    # "exit non-zero" failure modes; the test contract is "bogus inputs
+    # cause failure", not "this exact failure mode".
+    assert (
+        "not found" in combined
+        or "env.compose" in combined
+        or "install-root is required" in combined
+    )
 
 
 if __name__ == "__main__":

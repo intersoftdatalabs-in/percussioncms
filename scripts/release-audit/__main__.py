@@ -13,8 +13,8 @@ Usage
 
 Behavior
 --------
-- With no subcommand, runs the full pipeline (collect → classify → enrich →
-  verdicts → backlog → report).
+- With no subcommand, runs the full pipeline (collect -> classify -> enrich ->
+  verdicts -> backlog -> report).
 - With a subcommand, runs only that phase.
 - ``--report`` and ``--inventory`` set the output paths (per the contract).
 - ``--strict`` upgrades row-count warnings to failures (triage parity with
@@ -62,7 +62,7 @@ DEFAULT_TARGET_BRANCH = "development"
 def _build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         prog="release-audit",
-        description="v8.1.x → 8.2 migration audit pipeline (cross-platform).",
+        description="v8.1.x -> 8.2 migration audit pipeline (cross-platform).",
     )
     parser.add_argument(
         "--report",
