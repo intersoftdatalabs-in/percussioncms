@@ -211,6 +211,72 @@ class TestRealRun(unittest.TestCase):
             )
         self.assertEqual(rc, dl.EXIT_NETWORK)
 
+    def test_retry_after_header_honored(self):
+        sleep_calls = []
+
+        def fake_sleep(seconds):
+            sleep_calls.append(seconds)
+
+        release_body = self._release_body()
+        call_count = {"n": 0}
+
+        def fake_urlopen(request, timeout=None):
+            call_count["n"] += 1
+            if call_count["n"] == 1:
+                raise urllib.error.HTTPError(
+                    "http://api.github.com/repos/x/y/releases/latest",
+                    429,
+                    "Too Many Requests",
+                    {"Retry-After": "7"},
+                    io.BytesIO(b""),
+                )
+            return self._stub_urlopen(releases_payload=release_body)(request, timeout)
+
+        with unittest.mock.patch.object(dl.urllib.request, "urlopen", new=fake_urlopen), \
+             unittest.mock.patch.object(dl.time, "sleep", new=fake_sleep):
+            rc = dl.run(
+                release="stable",
+                target_dir=Path(self.td.name),
+                include_dts=False,
+                dry_run=False,
+                token=None,
+            )
+        self.assertEqual(rc, dl.EXIT_OK)
+        self.assertEqual(sleep_calls, [7])
+
+    def test_retry_after_non_numeric_falls_back_to_backoff(self):
+        sleep_calls = []
+
+        def fake_sleep(seconds):
+            sleep_calls.append(seconds)
+
+        release_body = self._release_body()
+        call_count = {"n": 0}
+
+        def fake_urlopen(request, timeout=None):
+            call_count["n"] += 1
+            if call_count["n"] == 1:
+                raise urllib.error.HTTPError(
+                    "http://api.github.com/repos/x/y/releases/latest",
+                    429,
+                    "Too Many Requests",
+                    {"Retry-After": "Wed, 21 Oct 2025 07:28:00 GMT"},
+                    io.BytesIO(b""),
+                )
+            return self._stub_urlopen(releases_payload=release_body)(request, timeout)
+
+        with unittest.mock.patch.object(dl.urllib.request, "urlopen", new=fake_urlopen), \
+             unittest.mock.patch.object(dl.time, "sleep", new=fake_sleep):
+            rc = dl.run(
+                release="stable",
+                target_dir=Path(self.td.name),
+                include_dts=False,
+                dry_run=False,
+                token=None,
+            )
+        self.assertEqual(rc, dl.EXIT_OK)
+        self.assertEqual(sleep_calls, [dl.BACKOFF_SECONDS])
+
 
 class TestFindAssetUrl(unittest.TestCase):
     def test_returns_first_match(self):

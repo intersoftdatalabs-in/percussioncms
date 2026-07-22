@@ -254,8 +254,11 @@ All API calls target `${API_BASE}` (default `http://localhost:9992/Rhythmyx/rest
 
 ```bash
 # Login (Linux/macOS, form-based)
+# --endpoint must be /j_security_check for the form-based j_security_check login
+# path; without it, the script returns EXIT_INVOCATION (exit 1).
 python3 .github/skills/percussioncms-dev/scripts/api-client.py \
     --login-form \
+    --endpoint /j_security_check \
     --user "${CMS_USER}" \
     --password "${CMS_PASSWORD}"
 ```
@@ -264,6 +267,7 @@ python3 .github/skills/percussioncms-dev/scripts/api-client.py \
 # Login (Windows, form-based)
 python3 .github\skills\percussioncms-dev\scripts\api-client.py `
     --login-form `
+    --endpoint /j_security_check `
     --user $env:CMS_USER `
     --password $env:CMS_PASSWORD
 ```

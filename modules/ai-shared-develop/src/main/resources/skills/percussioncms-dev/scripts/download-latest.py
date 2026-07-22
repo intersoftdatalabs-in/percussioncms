@@ -146,7 +146,17 @@ def _github_request(url: str, *, token: Optional[str] = None, timeout: float = 3
                 e.headers.get("X-RateLimit-Remaining") == "0"
                 or e.headers.get("Retry-After") is not None
             ):
-                delay = BACKOFF_SECONDS * (2 ** attempt)
+                # Honor the server-provided Retry-After header when present
+                # (GitHub sends an integer-second hint); otherwise fall
+                # back to exponential backoff.
+                retry_after_raw = e.headers.get("Retry-After")
+                if retry_after_raw is not None:
+                    try:
+                        delay = max(int(retry_after_raw), 0)
+                    except ValueError:
+                        delay = BACKOFF_SECONDS * (2 ** attempt)
+                else:
+                    delay = BACKOFF_SECONDS * (2 ** attempt)
                 LOG.warning(
                     "Rate-limited (HTTP %s); retrying in %ds (attempt %d/%d)",
                     e.code, delay, attempt + 1, MAX_RETRIES,
