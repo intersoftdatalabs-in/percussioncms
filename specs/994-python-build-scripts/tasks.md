@@ -10,15 +10,15 @@
 
 **Independent Test**: A clean clone on Linux + Windows can `pip install -r scripts/requirements-dev.txt`, run `scripts/run-python-tests.{sh,cmd}`, see the US1 sentinel pass, and the new GH Actions workflow runs green on both runners (SC-003, SC-008).
 
-- [ ] T001 Read AGENTS hierarchy: root `/AGENTS.md` (cross-platform paths, scripts/ convention, Pre-PR Maven gate); `scripts/AGENTS.md` if present; module AGENTS for each scope touched later (R7 path-depth reference)
-- [ ] T002 Confirm Python 3.9+ on the working host (`python3 --version` on Linux/macOS, `python --version` on Windows); document in PR body
-- [ ] T003 Create `scripts/requirements-dev.txt` with pytest pinned (e.g. `pytest==8.3.*`) per FR-009a / R4; commit
-- [ ] T004 [P] Create `scripts/run-python-tests.sh` (Linux/macOS): `set -euo pipefail`; `python3 -m pip install -r scripts/requirements-dev.txt`; `python3 -m pytest scripts/ docker/scripts/ docker/entrypoint/ modules/perc-distribution-tree/scripts/ modules/ai-shared-develop/scripts/ modules/ai-shared-develop/src/main/resources/skills/ "$@"` (FR-009a)
-- [ ] T005 [P] Create `scripts/run-python-tests.cmd` (Windows): `@echo off`, install via `python -m pip install -r scripts\requirements-dev.txt`, run `python -m pytest` over the same set of in-scope dirs (FR-009a)
-- [ ] T006 Create `.github/workflows/python-build-scripts.yml` with `on: pull_request` + `push: branches: [development]`; `paths` filter union of in-scope script dirs + runner files + workflow file itself; matrix `ubuntu-latest` + `windows-latest`; `actions/setup-python@v5` with `python-version: '3.11'`, `cache: 'pip'`, `cache-dependency-path: scripts/requirements-dev.txt`; run the runner shim; NO `actions/setup-java` and NO Maven invocation (FR-012a, R5, Clarification Q4)
-- [ ] T007 [P] Create `scripts/test_mvn_env_untouched.py` (US1 regression sentinel per Clarification Q2): asserts `mvn-env.sh` and `mvn-env.bat` exist on the branch; asserts both files contain the expected pre-spec content snippet (`JAVA_HOME_21`, `set -e` for `.sh`; `@setlocal` for `.bat`); fails if either file is deleted or mutated (SC-004)
-- [ ] T008 Run `bash scripts/run-python-tests.sh` locally — expect exit 0 with the US1 sentinel passing and no other tests yet; push branch and observe `.github/workflows/python-build-scripts.yml` green on both runners (SC-003)
-- [ ] T009 Run Erlang review per root AGENTS pre-commit gate; open foundation PR; address feedback inline + resolve review threads per AGENTS.md IX; wait for human approval and merge before starting any per-directory phase
+- [X] T001 Read AGENTS hierarchy: root `/AGENTS.md` (cross-platform paths, scripts/ convention, Pre-PR Maven gate); `scripts/AGENTS.md` if present; module AGENTS for each scope touched later (R7 path-depth reference)
+- [X] T002 Confirm Python 3.9+ on the working host (`python3 --version` on Linux/macOS, `python --version` on Windows); document in PR body
+- [X] T003 Create `scripts/requirements-dev.txt` with pytest pinned (e.g. `pytest==8.3.*`) per FR-009a / R4; commit
+- [X] T004 [P] Create `scripts/run-python-tests.sh` (Linux/macOS): `set -euo pipefail`; `python3 -m pip install -r scripts/requirements-dev.txt`; `python3 -m pytest scripts/ docker/scripts/ docker/entrypoint/ modules/perc-distribution-tree/scripts/ modules/ai-shared-develop/scripts/ modules/ai-shared-develop/src/main/resources/skills/ "$@"` (FR-009a)
+- [X] T005 [P] Create `scripts/run-python-tests.cmd` (Windows): `@echo off`, install via `python -m pip install -r scripts\requirements-dev.txt`, run `python -m pytest` over the same set of in-scope dirs (FR-009a)
+- [X] T006 Create `.github/workflows/python-build-scripts.yml` with `on: pull_request` + `push: branches: [development]`; `paths` filter union of in-scope script dirs + runner files + workflow file itself; matrix `ubuntu-latest` + `windows-latest`; `actions/setup-python@v5` with `python-version: '3.11'`, `cache: 'pip'`, `cache-dependency-path: scripts/requirements-dev.txt`; run the runner shim; NO `actions/setup-java` and NO Maven invocation (FR-012a, R5, Clarification Q4)
+- [X] T007 [P] Create `scripts/test_mvn_env_untouched.py` (US1 regression sentinel per Clarification Q2): asserts `mvn-env.sh` and `mvn-env.bat` exist on the branch; asserts both files contain the expected pre-spec content snippet (`JAVA_HOME_21`, `set -e` for `.sh`; `@setlocal` for `.bat`); fails if either file is deleted or mutated (SC-004)
+- [X] T008 Run `bash scripts/run-python-tests.sh` locally — expect exit 0 with the US1 sentinel passing and no other tests yet; push branch and observe `.github/workflows/python-build-scripts.yml` green on both runners (SC-003)
+- [X] T009 Run Erlang review per root AGENTS pre-commit gate; open foundation PR; address feedback inline + resolve review threads per AGENTS.md IX; wait for human approval and merge before starting any per-directory phase
 
 ## Phase 2: User Story 2 - CI/release verify scripts run identically on every OS (Priority: P1) — Scope 1 `scripts/`
 
@@ -27,31 +27,31 @@
 **Independent Test (per `quickstart.md` Scenario B)**: Each converted script's `--help` exits 0; the verify scripts pass on the existing fixtures; `python3 -m pytest scripts/` exits 0 on Linux; `python -m pytest scripts\` exits 0 on Windows; `find scripts/ -type f \( -name '*.sh' -o -name '*.bat' \)` returns empty (SC-005, SC-002).
 
 ### Tests + Implementation (per script — colocated test runs in same PR)
-- [ ] T010 [P] [US2] Create `scripts/install-cms-dev.py` + `scripts/test_install_cms_dev.py` per `contracts/cli-schemas.md` Scope 1 entry (FR-002/FR-009); include `## Behavioral Notes` in module docstring (FR-009b, R2)
-- [ ] T011 [P] [US2] Create `scripts/authenticate-sigstore.py` + `scripts/test_authenticate_sigstore.py` per contracts
-- [ ] T012 [P] [US2] Create `scripts/gh-preflight.py` + `scripts/test_gh_preflight.py` per contracts
-- [ ] T013 [P] [US2] Create `scripts/hot-deploy-local.py` + `scripts/test_hot_deploy_local.py` per contracts
-- [ ] T014 [P] [US2] Create `scripts/resolve-conflicts.py` + `scripts/test_resolve_conflicts.py` per contracts
-- [ ] T015 [P] [US2] Create `scripts/fetch-gh-code-scanning-alerts.py` + `scripts/test_fetch_gh_code_scanning_alerts.py` per contracts (gated `@pytest.mark.network` for the live fetch path; offline unit test exercises the JSON parser with a fixture)
-- [ ] T016 [P] [US2] Create `scripts/generate-umbrella-issues.py` + `scripts/test_generate_umbrella_issues.py` per contracts
-- [ ] T017 [P] [US2] Create `scripts/stage-triage-cluster.py` + `scripts/test_stage_triage_cluster.py` per contracts
-- [ ] T018 [P] [US2] Create `scripts/filter-stale-alerts.py` + `scripts/test_filter_stale_alerts.py` per contracts
-- [ ] T019 [P] [US2] Create `scripts/verify-triage-inventory.py` + `scripts/test_verify_triage_inventory.py` per contracts; reuse `scripts/test-fixtures/triage-{good,bad}.md` (FR-010)
-- [ ] T020 [P] [US2] Create `scripts/verify-valid-fixes.py` + `scripts/test_verify_valid_fixes.py` per contracts
-- [ ] T021 [P] [US2] Create `scripts/verify-suppressions.py` + `scripts/test_verify_suppressions.py` per contracts
-- [ ] T022 [P] [US2] Create `scripts/verify-distribution-archive.py` + `scripts/test_verify_distribution_archive.py` per contracts
-- [ ] T023 [P] [US2] Create `scripts/verify-pr-review-resolution.py` + `scripts/test_verify_pr_review_resolution.py` per contracts (gated `@pytest.mark.network` for the live `gh` call)
-- [ ] T024 [P] [US2] Create `scripts/verify-no-finder-jsp-references.py` + `scripts/test_verify_no_finder_jsp_references.py` per contracts
-- [ ] T025 [P] [US2] Create `scripts/verify-no-jqplot-vendor-refs.py` + `scripts/test_verify_no_jqplot_vendor_refs.py` per contracts
-- [ ] T026 [P] [US2] Create `scripts/verify-codeql-analyzer-of-record.py` + `scripts/test_verify_codeql_analyzer_of_record.py` per contracts
-- [ ] T027 [P] [US2] Create `scripts/create-large-folder-fixture.py` + `scripts/test_create_large_folder_fixture.py` per contracts (gated `@pytest.mark.network` for the live CMS API path; offline test covers arg parsing and fixture dir creation)
-- [ ] T028 [P] [US2] Create `scripts/test-verify-triage-inventory.py` (Python port of the bash self-test) per contracts
-- [ ] T029 [US2] Convert `scripts/release-audit/release-audit.sh` + `scripts/release-audit/lib/{common,inventory,verdicts,backlog,report,port}.sh` + `scripts/release-audit/tests/test_*.sh` to a Python package (`scripts/release-audit/*.py` + `scripts/release-audit/tests/test_*.py`); bash `source lib/*.sh` becomes Python module imports (R8)
-- [ ] T030 [US2] Delete `scripts/*.sh` and `scripts/*.bat` for all scripts converted in T010–T028 (FR-004); leave `scripts/erlang-harvest-review-patterns.{sh,bat}` for Phase 3
-- [ ] T031 [US2] Update `scripts/README.md`: rewrite each catalog entry to reference the new `.py` (FR-011, FR-014); add the in-scope/out-of-scope section linking to the spec (FR-014); delete legacy "Windows users run the `.cmd` counterpart" notes (FR-011)
-- [ ] T032 [US2] Run `python3 -m pytest scripts/ -v` locally (SC-002) and `python -m pytest scripts\ -v` on Windows; both must exit 0
-- [ ] T033 [US2] Open PR titled `build(scripts): migrate verify/audit/dev scripts to cross-platform Python`; link to spec 994 / FR-013 in-scope enumeration
-- [ ] T034 [US2] Run Erlang review (root AGENTS pre-PR gate); address feedback inline + resolve review threads per AGENTS.md IX; verify CI green on both runners (SC-003); wait for human approval and merge
+- [X] T010 [P] [US2] Create `scripts/install-cms-dev.py` + `scripts/test_install_cms_dev.py` per `contracts/cli-schemas.md` Scope 1 entry (FR-002/FR-009); include `## Behavioral Notes` in module docstring (FR-009b, R2)
+- [X] T011 [P] [US2] Create `scripts/authenticate-sigstore.py` + `scripts/test_authenticate_sigstore.py` per contracts
+- [X] T012 [P] [US2] Create `scripts/gh-preflight.py` + `scripts/test_gh_preflight.py` per contracts
+- [X] T013 [P] [US2] Create `scripts/hot-deploy-local.py` + `scripts/test_hot_deploy_local.py` per contracts
+- [X] T014 [P] [US2] Create `scripts/resolve-conflicts.py` + `scripts/test_resolve_conflicts.py` per contracts
+- [X] T015 [P] [US2] Create `scripts/fetch-gh-code-scanning-alerts.py` + `scripts/test_fetch_gh_code_scanning_alerts.py` per contracts (gated `@pytest.mark.network` for the live fetch path; offline unit test exercises the JSON parser with a fixture)
+- [X] T016 [P] [US2] Create `scripts/generate-umbrella-issues.py` + `scripts/test_generate_umbrella_issues.py` per contracts
+- [X] T017 [P] [US2] Create `scripts/stage-triage-cluster.py` + `scripts/test_stage_triage_cluster.py` per contracts
+- [X] T018 [P] [US2] Create `scripts/filter-stale-alerts.py` + `scripts/test_filter_stale_alerts.py` per contracts
+- [X] T019 [P] [US2] Create `scripts/verify-triage-inventory.py` + `scripts/test_verify_triage_inventory.py` per contracts; reuse `scripts/test-fixtures/triage-{good,bad}.md` (FR-010)
+- [X] T020 [P] [US2] Create `scripts/verify-valid-fixes.py` + `scripts/test_verify_valid_fixes.py` per contracts
+- [X] T021 [P] [US2] Create `scripts/verify-suppressions.py` + `scripts/test_verify_suppressions.py` per contracts
+- [X] T022 [P] [US2] Create `scripts/verify-distribution-archive.py` + `scripts/test_verify_distribution_archive.py` per contracts
+- [X] T023 [P] [US2] Create `scripts/verify-pr-review-resolution.py` + `scripts/test_verify_pr_review_resolution.py` per contracts (gated `@pytest.mark.network` for the live `gh` call)
+- [X] T024 [P] [US2] Create `scripts/verify-no-finder-jsp-references.py` + `scripts/test_verify_no_finder_jsp_references.py` per contracts
+- [X] T025 [P] [US2] Create `scripts/verify-no-jqplot-vendor-refs.py` + `scripts/test_verify_no_jqplot_vendor_refs.py` per contracts
+- [X] T026 [P] [US2] Create `scripts/verify-codeql-analyzer-of-record.py` + `scripts/test_verify_codeql_analyzer_of_record.py` per contracts
+- [X] T027 [P] [US2] Create `scripts/create-large-folder-fixture.py` + `scripts/test_create_large_folder_fixture.py` per contracts (gated `@pytest.mark.network` for the live CMS API path; offline test covers arg parsing and fixture dir creation)
+- [X] T028 [P] [US2] Create `scripts/test-verify-triage-inventory.py` (Python port of the bash self-test) per contracts
+- [X] T029 [US2] Convert `scripts/release-audit/release-audit.sh` + `scripts/release-audit/lib/{common,inventory,verdicts,backlog,report,port}.sh` + `scripts/release-audit/tests/test_*.sh` to a Python package (`scripts/release-audit/*.py` + `scripts/release-audit/tests/test_*.py`); bash `source lib/*.sh` becomes Python module imports (R8)
+- [X] T030 [US2] Delete `scripts/*.sh` and `scripts/*.bat` for all scripts converted in T010–T028 (FR-004); leave `scripts/erlang-harvest-review-patterns.{sh,bat}` for Phase 3
+- [X] T031 [US2] Update `scripts/README.md`: rewrite each catalog entry to reference the new `.py` (FR-011, FR-014); add the in-scope/out-of-scope section linking to the spec (FR-014); delete legacy "Windows users run the `.cmd` counterpart" notes (FR-011)
+- [X] T032 [US2] Run `python3 -m pytest scripts/ -v` locally (SC-002) and `python -m pytest scripts\ -v` on Windows; both must exit 0
+- [X] T033 [US2] Open PR titled `build(scripts): migrate verify/audit/dev scripts to cross-platform Python`; link to spec 994 / FR-013 in-scope enumeration
+- [X] T034 [US2] Run Erlang review (root AGENTS pre-PR gate); address feedback inline + resolve review threads per AGENTS.md IX; verify CI green on both runners (SC-003); wait for human approval and merge
 
 ## Phase 3: User Story 3 - Erlang review pattern harvesting works cross-platform (Priority: P2) — Scope 1 `scripts/` subset
 
@@ -59,13 +59,13 @@
 
 **Independent Test (per `quickstart.md` Scenario B.3)**: `python3 scripts/erlang-harvest-review-patterns.py --help` exits 0; `python3 -m pytest scripts/test_erlang_harvest_review_patterns.py -v` exits 0; `find scripts/ -type f \( -name '*.sh' -o -name '*.bat' \)` returns empty (SC-002, SC-005).
 
-- [ ] T035 [US3] Verify `scripts/erlang-harvest-review-patterns.py` already exists (introduced 2026); if any new CLI args have been added since, update the contract in `contracts/cli-schemas.md` (FR-002)
-- [ ] T036 [P] [US3] Verify `scripts/test_erlang_harvest_review_patterns.py` runs via `python3 -m pytest` (it currently runs via raw `python3`; the pytest adaptation is documented in `scripts/README.md` and reuses the existing `--fixture` flag — adjust only the runner)
-- [ ] T037 [US3] Delete `scripts/erlang-harvest-review-patterns.sh` and `scripts/erlang-harvest-review-patterns.bat` (FR-004)
-- [ ] T038 [US3] Update `scripts/README.md` `erlang-harvest-review-patterns` entry to drop the `.sh`/`.bat` references and the "Cross-platform: Python core; Unix wrapper `.sh` and Windows wrapper `.bat`" line (FR-011)
-- [ ] T039 [US3] Run `bash scripts/run-python-tests.sh` locally — expect exit 0 with erlang-harvest tests included
-- [ ] T040 [US3] Open PR titled `build(scripts): remove erlang-harvest .sh/.bat wrappers (Python is the entry point)`; reference US3 in PR body
-- [ ] T041 [US3] Run Erlang review; resolve review threads; verify CI green on both runners; wait for human approval and merge
+- [X] T035 [US3] Verify `scripts/erlang-harvest-review-patterns.py` already exists (introduced 2026); if any new CLI args have been added since, update the contract in `contracts/cli-schemas.md` (FR-002)
+- [X] T036 [P] [US3] Verify `scripts/test_erlang_harvest_review_patterns.py` runs via `python3 -m pytest` (it currently runs via raw `python3`; the pytest adaptation is documented in `scripts/README.md` and reuses the existing `--fixture` flag — adjust only the runner)
+- [X] T037 [US3] Delete `scripts/erlang-harvest-review-patterns.sh` and `scripts/erlang-harvest-review-patterns.bat` (FR-004)
+- [X] T038 [US3] Update `scripts/README.md` `erlang-harvest-review-patterns` entry to drop the `.sh`/`.bat` references and the "Cross-platform: Python core; Unix wrapper `.sh` and Windows wrapper `.bat`" line (FR-011)
+- [X] T039 [US3] Run `bash scripts/run-python-tests.sh` locally — expect exit 0 with erlang-harvest tests included
+- [X] T040 [US3] Open PR titled `build(scripts): remove erlang-harvest .sh/.bat wrappers (Python is the entry point)`; reference US3 in PR body
+- [X] T041 [US3] Run Erlang review; resolve review threads; verify CI green on both runners; wait for human approval and merge
 
 ## Phase 4: User Story 4 - AI skill scripts and docker dev tooling work cross-platform (Priority: P2) — Scopes 2 (`docker/`) and 4 root (`modules/ai-shared-develop/scripts/`)
 
