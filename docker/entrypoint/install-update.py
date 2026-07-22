@@ -112,6 +112,17 @@ def _build_arg_parser() -> argparse.ArgumentParser:
     return p
 
 
+def _is_executable(path: Path) -> bool:
+    """Return True if ``path`` exists AND has any execute bit set
+    (``os.X_OK`` matches owner/group/other). Mirrors the original
+    ``[[ -x "$path" ]]`` shell test the install-update.sh used; without
+    this guard a present-but-not-executable ``StartJetty.sh`` would
+    fail with a confusing ``Permission denied`` from the kernel
+    instead of a clear "missing executable bit" error.
+    """
+    return path.is_file() and os.access(str(path), os.X_OK)
+
+
 def _start_cms(
     install_root: Path,
     *,
@@ -119,13 +130,24 @@ def _start_cms(
 ) -> int:
     """Start the CMS service by running ``StartJetty.sh`` in ``install_root/jetty``."""
     cms_start = install_root / "jetty" / CMS_START_SCRIPT_NAME
-    if not cms_start.is_file():
-        LOG.error(
-            "ERROR: CMS start script missing: %s. "
-            "Run scripts/install-cms-dev.py on the host first, then "
-            "docker compose up -d.",
-            cms_start,
-        )
+    if not _is_executable(cms_start):
+        # Mirror the original install-update.sh's ``[[ ! -x ... ]]`` guard.
+        # A missing file and a non-executable file are both "the installer
+        # has not completed" from the container's perspective.
+        if cms_start.is_file():
+            LOG.error(
+                "ERROR: CMS start script exists but is not executable: %s. "
+                "Run `chmod +x %s` on the host, or re-run "
+                "scripts/install-cms-dev.py.",
+                cms_start, cms_start,
+            )
+        else:
+            LOG.error(
+                "ERROR: CMS start script missing: %s. "
+                "Run scripts/install-cms-dev.py on the host first, then "
+                "docker compose up -d.",
+                cms_start,
+            )
         return EXIT_INSTALL_MISSING
 
     if dry_run:
@@ -160,16 +182,20 @@ def _start_dts(
     """
     primary = install_root / DTS_START_SCRIPT_PRIMARY
     fallback = install_root / DTS_START_SCRIPT_FALLBACK
-    if primary.is_file():
+    # Mirror the original install-update.sh's `-x` guard on both
+    # primary and fallback. The original skipped a candidate if it
+    # wasn't executable (so a non-executable ``TomcatStartup.sh``
+    # would fall through to ``startup.sh``).
+    if _is_executable(primary):
         dts_start = primary
-    elif fallback.is_file():
+    elif _is_executable(fallback):
         dts_start = fallback
     else:
         LOG.error(
-            "ERROR: DTS start script missing: %s (or fallback %s). "
-            "Run scripts/install-cms-dev.py on the host first.",
-            primary,
-            fallback,
+            "ERROR: DTS start script missing or not executable: %s "
+            "(or fallback %s). Run scripts/install-cms-dev.py on the host first, "
+            "or `chmod +x` the start script.",
+            primary, fallback,
         )
         return EXIT_INSTALL_MISSING
 

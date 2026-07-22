@@ -240,10 +240,16 @@ def _run_logged(
     log_dir: Path,
     cwd: Optional[Path] = None,
     dry_run: bool,
-) -> int:
+) -> tuple[int, Path]:
     """Run a subprocess and capture full output to ``docker/logs/<label>-<ts>.log``.
     Emits a single ``RESULT:OK`` / ``RESULT:FAIL`` line on stdout for
     agent consumption (matches the original ``.sh`` ``run_logged``).
+
+    Returns ``(exit_code, log_file_path)`` so callers (e.g.
+    ``cmd_verify_fix``) can include the log path in their own
+    ``RESULT:FAIL`` lines. The agent-workflow contract is
+    ``RESULT:OK/FAIL STEP:<label> LOG:<path>``; downstream subcommands
+    MUST include the path so retry/loop diagnostics stay reachable.
 
     Cross-platform note: the log file is opened inside a ``with``
     block in BOTH the dry-run and real-run paths so the OS file
@@ -263,7 +269,7 @@ def _run_logged(
             if cwd:
                 f.write(f"cwd={cwd}\n")
         print(f"RESULT:OK STEP:{label} LOG:{log_file}")
-        return EXIT_OK
+        return EXIT_OK, log_file
     LOG.info("Running: %s (cwd=%s)", " ".join(argv), cwd)
     with log_file.open("w", encoding="utf-8") as f:
         completed = subprocess.run(
@@ -276,9 +282,9 @@ def _run_logged(
         )
     if completed.returncode != 0:
         print(f"RESULT:FAIL STEP:{label} LOG:{log_file}")
-        return EXIT_SUBPROCESS_FAILED
+        return EXIT_SUBPROCESS_FAILED, log_file
     print(f"RESULT:OK STEP:{label} LOG:{log_file}")
-    return EXIT_OK
+    return EXIT_OK, log_file
 
 
 def _docker_compose(env_file: Path, compose_file: Path, *args: str) -> List[str]:
@@ -306,13 +312,14 @@ def cmd_install(args: argparse.Namespace, paths: tuple[Path, Path, Path]) -> int
         install_argv.append("--no-bootstrap")
     if args.install_root:
         install_argv.extend(["--install-root", args.install_root])
-    return _run_logged(
+    rc, _log_path = _run_logged(
         "install",
         install_argv,
         log_dir=log_dir,
         cwd=repo_root,
         dry_run=args.dry_run,
     )
+    return rc
 
 
 def cmd_up(args: argparse.Namespace, paths: tuple[Path, Path, Path]) -> int:
@@ -321,13 +328,14 @@ def cmd_up(args: argparse.Namespace, paths: tuple[Path, Path, Path]) -> int:
     compose_argv = _docker_compose(env_file, compose_file, "up", "-d")
     if args.build:
         compose_argv.append("--build")
-    return _run_logged(
+    rc, _log_path = _run_logged(
         "up",
         compose_argv,
         log_dir=log_dir,
         cwd=repo_root,
         dry_run=args.dry_run,
     )
+    return rc
 
 
 def cmd_down(args: argparse.Namespace, paths: tuple[Path, Path, Path]) -> int:
@@ -336,25 +344,27 @@ def cmd_down(args: argparse.Namespace, paths: tuple[Path, Path, Path]) -> int:
     compose_argv = _docker_compose(env_file, compose_file, "down")
     if args.volumes:
         compose_argv.append("-v")
-    return _run_logged(
+    rc, _log_path = _run_logged(
         "down",
         compose_argv,
         log_dir=log_dir,
         cwd=repo_root,
         dry_run=args.dry_run,
     )
+    return rc
 
 
 def cmd_status(args: argparse.Namespace, paths: tuple[Path, Path, Path]) -> int:
     repo_root, env_file, compose_file = paths
     log_dir = _log_dir(repo_root)
-    return _run_logged(
+    rc, _log_path = _run_logged(
         "status",
         _docker_compose(env_file, compose_file, "ps", "--format", "json"),
         log_dir=log_dir,
         cwd=repo_root,
         dry_run=args.dry_run,
     )
+    return rc
 
 
 def _curl_status(url: str, *, timeout: float) -> int:
@@ -449,7 +459,7 @@ def cmd_verify(args: argparse.Namespace, paths: tuple[Path, Path, Path]) -> int:
 def cmd_it_verify(args: argparse.Namespace, paths: tuple[Path, Path, Path]) -> int:
     repo_root, env_file, compose_file = paths
     log_dir = _log_dir(repo_root)
-    return _run_logged(
+    rc, _log_path = _run_logged(
         "it-verify",
         [
             str(repo_root / "mvn-env.sh"),
@@ -460,6 +470,7 @@ def cmd_it_verify(args: argparse.Namespace, paths: tuple[Path, Path, Path]) -> i
         cwd=repo_root,
         dry_run=args.dry_run,
     )
+    return rc
 
 
 def _deploy_jar_argv(
@@ -483,7 +494,7 @@ def _deploy_jar_argv(
 def cmd_deploy_jar(args: argparse.Namespace, paths: tuple[Path, Path, Path]) -> int:
     repo_root, env_file, compose_file = paths
     log_dir = _log_dir(repo_root)
-    rc = _run_logged(
+    rc, _log_path = _run_logged(
         "deploy-jar",
         _deploy_jar_argv(repo_root, args.jar, args.target, args.restart),
         log_dir=log_dir,
@@ -493,10 +504,11 @@ def cmd_deploy_jar(args: argparse.Namespace, paths: tuple[Path, Path, Path]) -> 
     if rc != EXIT_OK or not args.verify:
         return rc
     # ``--verify`` triggers a follow-up health check (3 minutes by default).
-    return _verify_inline(
+    rc_verify, _log_path = _verify_inline(
         repo_root, env_file, compose_file, log_dir,
         timeout_seconds=180, interval_seconds=5, dry_run=args.dry_run,
     )
+    return rc_verify
 
 
 def cmd_verify_fix(args: argparse.Namespace, paths: tuple[Path, Path, Path]) -> int:
@@ -505,7 +517,7 @@ def cmd_verify_fix(args: argparse.Namespace, paths: tuple[Path, Path, Path]) -> 
     restart_flag = args.restart and not args.no_restart
     # Phase 1 — deploy
     deploy_argv = _deploy_jar_argv(repo_root, args.jar, args.target, restart_flag)
-    rc_deploy = _run_logged(
+    rc_deploy, deploy_log = _run_logged(
         "deploy-jar",
         deploy_argv,
         log_dir=log_dir,
@@ -513,18 +525,24 @@ def cmd_verify_fix(args: argparse.Namespace, paths: tuple[Path, Path, Path]) -> 
         dry_run=args.dry_run,
     )
     if rc_deploy != EXIT_OK:
-        print(f"RESULT:FAIL STEP:verify-fix PHASE:deploy LOG:")
+        # Include the deploy log path so the agent-workflow contract
+        # ``RESULT:OK/FAIL STEP:<label> LOG:<path>`` is honored. Without
+        # this, downstream retry/loop tooling can't find the diagnostics
+        # (kilo-code-bot review thread 3631740695).
+        print(f"RESULT:FAIL STEP:verify-fix PHASE:deploy LOG:{deploy_log}")
         return EXIT_SUBPROCESS_FAILED
     # Phase 2 — verify
-    rc_verify = _verify_inline(
+    rc_verify, verify_log = _verify_inline(
         repo_root, env_file, compose_file, log_dir,
         timeout_seconds=args.timeout_seconds, interval_seconds=5,
         dry_run=args.dry_run,
     )
     if rc_verify != EXIT_OK:
-        print(f"RESULT:FAIL STEP:verify-fix PHASE:verify LOG:")
+        # Same contract — always include the verify log path
+        # (kilo-code-bot review thread 3631740700).
+        print(f"RESULT:FAIL STEP:verify-fix PHASE:verify LOG:{verify_log}")
         return EXIT_SUBPROCESS_FAILED
-    print(f"RESULT:OK STEP:verify-fix LOG:")
+    print(f"RESULT:OK STEP:verify-fix LOG:{verify_log}")
     return EXIT_OK
 
 
@@ -537,10 +555,12 @@ def _verify_inline(
     timeout_seconds: int,
     interval_seconds: int,
     dry_run: bool,
-) -> int:
+) -> tuple[int, Path]:
     """Inline verify used by ``deploy-jar --verify`` and ``verify-fix``.
     Mirrors ``cmd_verify`` but bypasses the wrapped ``verify`` parser
-    argument.
+    argument. Returns ``(exit_code, log_file_path)`` so callers
+    (e.g. ``cmd_verify_fix``) can include the log path in their own
+    ``RESULT:FAIL`` lines.
     """
     max_checks = max(1, timeout_seconds // interval_seconds) if interval_seconds > 0 else 1
     log_file = _new_log_file(log_dir, "verify")
@@ -550,7 +570,7 @@ def _verify_inline(
             f.write(
                 f"DRY-RUN: verify-inline max_checks={max_checks} interval={interval_seconds}\n"
             )
-        return EXIT_OK
+        return EXIT_OK, log_file
 
     for _ in range(1, max_checks + 1):
         cms_code = _curl_status(VERIFY_CMS_URL, timeout=5.0)
@@ -570,13 +590,13 @@ def _verify_inline(
                 f"RESULT:OK STEP:verify CMS_HTTP:{cms_code} DTS_HTTP:{dts_code} "
                 f"HEALTH:{health} LOG:{log_file}"
             )
-            return EXIT_OK
+            return EXIT_OK, log_file
         time.sleep(interval_seconds)
 
     with log_file.open("w", encoding="utf-8") as f:
         f.write("verify failed\n")
     print(f"RESULT:FAIL STEP:verify LOG:{log_file}")
-    return EXIT_SUBPROCESS_FAILED
+    return EXIT_SUBPROCESS_FAILED, log_file
 
 
 def cmd_logs_path(args: argparse.Namespace, paths: tuple[Path, Path, Path]) -> int:
@@ -640,24 +660,25 @@ cat \"$pwd_file\"
 def cmd_inspect_install(args: argparse.Namespace, paths: tuple[Path, Path, Path]) -> int:
     repo_root, _, _ = paths
     log_dir = _log_dir(repo_root)
-    argv_tail = [_INSPECT_SCRIPT]
-    return _run_logged(
+    rc, _log_path = _run_logged(
         "inspect-install",
         ["docker", "exec", DEFAULT_CONTAINER, "bash", "-lc", _INSPECT_SCRIPT],
         log_dir=log_dir,
         dry_run=getattr(args, "dry_run", False),
     )
+    return rc
 
 
 def cmd_show_generated_passwords(args: argparse.Namespace, paths: tuple[Path, Path, Path]) -> int:
     repo_root, _, _ = paths
     log_dir = _log_dir(repo_root)
-    return _run_logged(
+    rc, _log_path = _run_logged(
         "show-generated-passwords",
         ["docker", "exec", DEFAULT_CONTAINER, "bash", "-lc", _SHOW_PASSWORDS_SCRIPT],
         log_dir=log_dir,
         dry_run=getattr(args, "dry_run", False),
     )
+    return rc
 
 
 # ---------------------------------------------------------------------------

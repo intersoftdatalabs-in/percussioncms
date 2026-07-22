@@ -211,34 +211,41 @@ def _deploy_to_path(
         return EXIT_DOCKER_FAILED
 
     # If a previous jar exists, copy it aside as .bak.<TS>.
-    # ``[ -f $target_jar ]`` becomes a Python-side pre-check via
-    # ``docker exec`` (the container has the file, not the host).
-    # For dry-run we skip the check.
-    if not dry_run:
+    #
+    # Security: do NOT use ``docker exec ... sh -c "if [ -f '<jar>' ]..."``
+    # with the jar name interpolated into the shell snippet. ``--jar`` is
+    # a CLI arg (operator-controlled) and a name like ``foo'; rm -rf /; '``
+    # would inject arbitrary shell commands. Use ``stat`` (external
+    # command, accepts the path as a single argv element) to probe for
+    # the file's existence, then ``mv`` for the rename — both pass
+    # ``target_jar`` / ``backup_jar`` as argv elements, not shell-quoted
+    # fragments, so a malicious name cannot break out of the docker
+    # exec namespace. (kilo-code-bot review thread 3631740669.)
+    if dry_run:
+        LOG.info(
+            "DRY-RUN: backup-if-exists: docker exec %s stat %s ; then mv %s %s",
+            container_name, target_jar, target_jar, backup_jar,
+        )
+    else:
         check_rc = subprocess.run(
             [
                 "docker", "exec", container_name,
-                "sh", "-c",
-                f"if [ -f '{target_jar}' ]; then echo EXISTS; fi",
+                "stat", target_jar,
             ],
             capture_output=True,
-            text=True,
             shell=False,
             check=False,
         )
-        if check_rc.returncode == 0 and "EXISTS" in (check_rc.stdout or ""):
+        if check_rc.returncode == 0:
             backup_rc = _run(
                 [
                     "docker", "exec", container_name,
-                    "sh", "-c",
-                    f"cp '{target_jar}' '{backup_jar}'",
+                    "mv", target_jar, backup_jar,
                 ],
-                dry_run=dry_run,
+                dry_run=False,
             )
             if backup_rc != EXIT_OK:
                 return EXIT_DOCKER_FAILED
-    else:
-        LOG.info("DRY-RUN: backup-if-exists %s -> %s", target_jar, backup_jar)
 
     # ``docker cp host container:remote`` is the actual deploy step.
     # On Windows, ``Path.as_posix()`` produces ``C:/Users/.../foo.jar``;

@@ -234,6 +234,76 @@ class TestRealRun(unittest.TestCase):
             )
         self.assertEqual(rc, hdj.EXIT_DOCKER_FAILED)
 
+    def test_no_shell_interpolation_in_docker_exec(self):
+        """Security regression (kilo-code-bot review thread 3631740669):
+
+        ``_deploy_to_path`` MUST NOT use ``docker exec ... sh -c "..."``
+        with the jar name interpolated into the shell snippet. A name
+        like ``foo'; rm -rf /; '`` would inject arbitrary shell commands.
+        The fix replaces ``sh -c "if [ -f '<jar>' ]..."`` with
+        ``docker exec container stat <jar>`` (external command, path is
+        a single argv element — no shell expansion).
+
+        Verify the recorded docker argv list never contains ``sh``,
+        ``-c``, or ``[ `` — the latter three would indicate a shell
+        snippet with the user-controlled jar name embedded.
+        """
+        calls, fake_run = _stub_subprocess()
+        # Use a malicious-looking jar name to make the test name clearly
+        # match the security concern; the recorded argv must not let it
+        # escape via shell.
+        self.td_path.mkdir(parents=True, exist_ok=True)
+        malicious_jar = self.td_path / "evil'; touch /tmp/PWNED; '.jar"
+        malicious_jar.parent.mkdir(parents=True, exist_ok=True)
+        malicious_jar.write_bytes(b"x")
+        with unittest.mock.patch.object(hdj.subprocess, "run", side_effect=fake_run):
+            rc = hdj.deploy(
+                jar_path=malicious_jar,
+                container_name="percussion-cms-dts",
+                target="cms",
+                restart=False,
+                dry_run=False,
+            )
+        self.assertEqual(rc, hdj.EXIT_OK)
+        # No call should include "sh", "-c", or bash shell-test syntax.
+        for c in calls:
+            argv = c[0]
+            self.assertNotIn("sh", argv, msg=f"shell invocation found: {argv}")
+            self.assertNotIn("-c", argv, msg=f"shell -c invocation found: {argv}")
+        # The stat call should be present (replaces the sh -c [ -f check).
+        stat_calls = [
+            c for c in calls if len(c[0]) >= 4 and c[0][:3] == ["docker", "exec", "percussion-cms-dts"]
+            and c[0][3] == "stat"
+        ]
+        self.assertGreaterEqual(len(stat_calls), 1, msg="expected a `docker exec stat` call")
+
+    def test_existing_jar_uses_mv_not_sh_cp(self):
+        """Security regression (kilo-code-bot review thread 3631740677):
+
+        The backup rename MUST use ``docker exec container mv <src> <dst>``
+        (external command, both paths as argv elements — no shell
+        expansion). The previous ``sh -c "cp '<src>' '<dst>'"`` form is
+        removed.
+        """
+        calls, fake_run = _stub_subprocess()
+        with unittest.mock.patch.object(hdj.subprocess, "run", side_effect=fake_run):
+            rc = hdj.deploy(
+                jar_path=self.jar,
+                container_name="percussion-cms-dts",
+                target="cms",
+                restart=False,
+                dry_run=False,
+            )
+        self.assertEqual(rc, hdj.EXIT_OK)
+        # No shell-based cp command.
+        for c in calls:
+            argv = c[0]
+            if len(argv) >= 4 and argv[:3] == ["docker", "exec", "percussion-cms-dts"]:
+                # The exec'd command should be mv or stat, never `sh`/`bash`/`cp`.
+                self.assertNotEqual(argv[3], "sh", msg=f"shell invocation: {argv}")
+                self.assertNotEqual(argv[3], "bash", msg=f"shell invocation: {argv}")
+                self.assertNotEqual(argv[3], "cp", msg=f"in-container cp invocation: {argv}")
+
 
 class TestMain(unittest.TestCase):
     def test_main_help(self):

@@ -299,6 +299,89 @@ class TestVerifyFixRealMode(unittest.TestCase):
         self.assertEqual(rc, pdc.EXIT_SUBPROCESS_FAILED)
         self.assertIn("RESULT:FAIL STEP:verify-fix", out)
 
+    def test_verify_fix_failure_includes_log_path(self):
+        """Regression for kilo-code-bot review threads 3631740695 +
+        3631740700: ``RESULT:FAIL`` lines for verify-fix must include
+        the log file path so agent retry/loop tooling can find the
+        diagnostics. Previous implementation printed ``LOG:`` with
+        an empty path.
+        """
+        with unittest.mock.patch.object(pdc, "_curl_status") as mock_curl, \
+             unittest.mock.patch.object(pdc, "_docker_health") as mock_health, \
+             unittest.mock.patch.object(pdc.subprocess, "run") as mock_run, \
+             unittest.mock.patch.object(pdc.time, "sleep"):
+            def fake_run(argv, *args, **kwargs):
+                if any("hot-deploy-jar.py" in str(a) for a in argv):
+                    # Deploy succeeds.
+                    return subprocess.CompletedProcess(
+                        args=argv, returncode=0, stdout="", stderr=""
+                    )
+                return subprocess.CompletedProcess(
+                    args=argv, returncode=1, stdout="", stderr=""
+                )
+            mock_run.side_effect = fake_run
+            mock_curl.return_value = 0  # curl fails
+            mock_health.return_value = "unknown"
+            import io
+            from contextlib import redirect_stdout
+            buf = io.StringIO()
+            with redirect_stdout(buf):
+                rc = pdc.main([
+                    "--repo-root", str(self.repo_root),
+                    "verify-fix",
+                    "--jar", "/tmp/foo.jar",
+                    "--timeout-seconds", "5",
+                ])
+            out = buf.getvalue()
+        self.assertEqual(rc, pdc.EXIT_SUBPROCESS_FAILED)
+        # Must include a non-empty LOG:<path> segment in the failure line.
+        self.assertIn("RESULT:FAIL STEP:verify-fix", out)
+        # The empty-LOG bug: ``LOG:`` followed by an EOL is forbidden.
+        self.assertNotIn("PHASE:verify LOG:\n", out)
+        # The fix: ``LOG:`` must be followed by a non-empty path (the
+        # verify log file path). We don't assert the exact path because
+        # it is timestamped, but we assert it's non-empty after LOG:.
+        import re
+        for m in re.finditer(r"PHASE:verify LOG:(\S*)\n", out):
+            self.assertTrue(
+                m.group(1),
+                msg=f"PHASE:verify LOG: has empty path: {m.group(0)!r}",
+            )
+
+    def test_verify_fix_deploy_failure_includes_log_path(self):
+        """Regression for kilo-code-bot review thread 3631740695:
+        when the deploy phase fails, the RESULT:FAIL line must include
+        the deploy-jar log path.
+        """
+        with unittest.mock.patch.object(pdc.subprocess, "run") as mock_run, \
+             unittest.mock.patch.object(pdc.time, "sleep"):
+            # Deploy fails (rc=1 for hot-deploy-jar.py call).
+            mock_run.return_value = subprocess.CompletedProcess(
+                args=[], returncode=1, stdout="", stderr=""
+            )
+            import io
+            from contextlib import redirect_stdout
+            buf = io.StringIO()
+            with redirect_stdout(buf):
+                rc = pdc.main([
+                    "--repo-root", str(self.repo_root),
+                    "verify-fix",
+                    "--jar", "/tmp/foo.jar",
+                    "--timeout-seconds", "5",
+                ])
+            out = buf.getvalue()
+        self.assertEqual(rc, pdc.EXIT_SUBPROCESS_FAILED)
+        self.assertIn("RESULT:FAIL STEP:verify-fix PHASE:deploy", out)
+        # Must NOT have empty LOG: (the previous bug).
+        self.assertNotIn("PHASE:deploy LOG:\n", out)
+        # The deploy log path must be present and non-empty.
+        import re
+        for m in re.finditer(r"PHASE:deploy LOG:(\S*)\n", out):
+            self.assertTrue(
+                m.group(1),
+                msg=f"PHASE:deploy LOG: has empty path: {m.group(0)!r}",
+            )
+
 
 class TestDispatch(unittest.TestCase):
     def test_unknown_subcommand(self):
