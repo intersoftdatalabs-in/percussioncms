@@ -3,19 +3,18 @@
 # Start Tomcat
 ################
 #set -x
-CURDIR=`pwd`
-export SERVER_DIR=$CURDIR/Deployment/Server
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+INSTALL_ROOT="$(dirname "$SCRIPT_DIR")"
+export SERVER_DIR=$INSTALL_ROOT/Deployment/Server
 
-if [ -f "JRE/bin/java" ]
-then
-    cd JRE
-elif [ -f "../JRE/bin/java" ]
-then
-    cd ../JRE
-fi
+# Resolve Java via shared precedence contract (java.properties > env > install-dir
+# JRE|JRE64 > PATH > fail, major 21). Required operator step before service start.
+# See specs/991-system-java-home/contracts/java-home-resolution.md.
+# shellcheck disable=SC1091
+source "${SCRIPT_DIR}/../resolve-java-home.sh" "$INSTALL_ROOT" || exit 1
 
-export JAVA_HOME=`pwd`
-export JRE_HOME=`pwd`
+export JAVA_HOME
+export JRE_HOME="$JAVA_HOME"
 
 cd bin
 

@@ -273,14 +273,32 @@ if [ "$uninstall" != "true" ]; then
 	echo "rxDir=${rxDir}"
 
 	if [ -d "${rxDir}/JRE" ]; then
-		JAVA_HOME=${rxDir}/JRE
-	elif [ -d "${rxDir}/Staging/JRE" ]; then
-		JAVA_HOME=${rxDir}/Staging/JRE
-	elif [ -d "${CATALINA_HOME}/JRE" ]; then
-		JAVA_HOME=${CATALINA_HOME}/JRE
-	else
-		if [ -z "${JAVA_HOME:-}" ]; then
-			echo "JAVA_HOME not found; set JAVA_HOME or install JRE under ${rxDir}" 1>&2
+		echo "Legacy ${rxDir}/JRE found; will be overridden by shared resolver if available"
+	fi
+
+	# Resolve Java via the shared precedence contract (java.properties > env
+	# JAVA_HOME > install-dir JRE|JRE64 > PATH > fail, major 21). When resolution
+	# produces a valid home, it overrides the legacy heuristic. See
+	# specs/991-system-java-home/contracts/java-home-resolution.md.
+	RESOLVER="${rxDir}/resolve-java-home.sh"
+	if [ -f "$RESOLVER" ] && [ -r "$RESOLVER" ]; then
+		# shellcheck disable=SC1090
+		if (source "$RESOLVER" "${rxDir}") 2>/dev/null; then
+			echo "Service Java home resolved via ${RESOLVE_SOURCE:-unknown}"
+		else
+			echo "Warning: ${RESOLVER} failed; falling back to install-dir JRE/JRE64" >&2
+		fi
+	fi
+
+	if [ -z "${JAVA_HOME:-}" ] || [ ! -x "${JAVA_HOME}/bin/java" ]; then
+		if [ -d "${rxDir}/JRE" ]; then
+			JAVA_HOME=${rxDir}/JRE
+		elif [ -d "${rxDir}/Staging/JRE" ]; then
+			JAVA_HOME=${rxDir}/Staging/JRE
+		elif [ -d "${CATALINA_HOME}/JRE" ]; then
+			JAVA_HOME=${CATALINA_HOME}/JRE
+		else
+			echo "JAVA_HOME not found; set JAVA_HOME or write java.properties before install" 1>&2
 			exit 1
 		fi
 	fi

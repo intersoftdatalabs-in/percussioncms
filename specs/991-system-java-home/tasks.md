@@ -66,16 +66,16 @@
 
 ### Tests (Required)
 
-- [ ] T020 [P] [US2] Structural tests for DTS rootFiles resolvers and startup scripts in `deliverytiersuite/delivery-tier-suite/delivery-tier-distribution/src/test/java/.../DtsJavaHomeScriptTest.java` (assert source order / no sole hard-coded JRE success path)
-- [ ] T021 [P] [US2] Structural tests for `DTSProductionService.sh` / `DTSStagingService.sh` / `.bat` Java home selection in same test package
+- [x] T020 [P] [US2] Structural tests for DTS rootFiles resolvers and startup scripts in `deliverytiersuite/delivery-tier-suite/delivery-tier-distribution/src/test/java/.../DtsJavaHomeScriptTest.java` (assert source order / no sole hard-coded JRE success path)
+- [x] T021 [P] [US2] Structural tests for `DTSProductionService.sh` / `DTSStagingService.sh` / `.bat` Java home selection in same test package
 
 ### Implementation
 
-- [ ] T022 [US2] Add or package DTS copies of resolve helpers under `deliverytiersuite/delivery-tier-suite/delivery-tier-distribution/src/main/rootFiles/resolve-java-home.sh` and `resolve-java-home.bat` (keep behavior identical to Jetty contract; avoid silent drift)
-- [ ] T023 [US2] Update `TomcatStartup.sh` and `TomcatStartup.bat` to use resolver instead of only `cd JRE` / `SCRIPT_DIR\JRE` — `.../rootFiles/TomcatStartup.sh`, `TomcatStartup.bat`
-- [ ] T024 [P] [US2] Update `TomcatShutdown.sh` and `TomcatShutdown.bat` the same way — `.../rootFiles/TomcatShutdown.sh`, `TomcatShutdown.bat`
-- [ ] T025 [US2] Update `DTSProductionService.sh`, `DTSStagingService.sh`, `DTSProductionService.bat`, `DTSStagingService.bat` to resolve Java via shared order when writing service env / Procrun JavaHome
-- [ ] T026 [US2] Document DTS Java resolution in `deliverytiersuite/delivery-tier-suite/delivery-tier-distribution/README.md` (or module README)
+- [x] T022 [US2] Add or package DTS copies of resolve helpers under `deliverytiersuite/delivery-tier-suite/delivery-tier-distribution/src/main/rootFiles/resolve-java-home.sh` and `resolve-java-home.bat` (keep behavior identical to Jetty contract; avoid silent drift)
+- [x] T023 [US2] Update `TomcatStartup.sh` and `TomcatStartup.bat` to use resolver instead of only `cd JRE` / `SCRIPT_DIR\JRE` — `.../rootFiles/TomcatStartup.sh`, `TomcatStartup.bat`
+- [x] T024 [P] [US2] Update `TomcatShutdown.sh` and `TomcatShutdown.bat` the same way — `.../rootFiles/TomcatShutdown.sh`, `TomcatShutdown.bat`
+- [x] T025 [US2] Update `DTSProductionService.sh`, `DTSStagingService.sh`, `DTSProductionService.bat`, `DTSStagingService.bat` to resolve Java via shared order when writing service env / Procrun JavaHome
+- [x] T026 [US2] Document DTS Java resolution in `deliverytiersuite/delivery-tier-suite/delivery-tier-distribution/README.md` (or module README)
 - [ ] T027 [US2] Commit US2, open PR, pause for review/merge before US3
 
 ---
