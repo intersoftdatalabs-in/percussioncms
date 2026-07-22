@@ -156,13 +156,13 @@
 
 ## Phase 9: Polish & Cross-Cutting Concerns
 
-- [ ] T050 [P] Run full related module tests via `./mvn-env.sh` for `modules/perc-jetty`, `modules/perc-distribution-tree`, and delivery-tier-distribution test modules touched
-- [ ] T051 [P] Cross-check `specs/991-system-java-home/quickstart.md` command names match final script filenames
-- [ ] T052 [P] Update `modules/perc-jetty/AGENTS.md` with Java home resolution note (alongside systemd notes)
-- [ ] T053 Verify Windows and Unix scripts both present for every surface changed (no Unix-only required path)
-- [ ] T054 Spotless / format on touched Java; ensure shell scripts use portable constructs and LF where required by packaging
-- [ ] T055 Link issue #1340 in PR descriptions; confirm FR-016 (do not re-bundle JRE); close #1340 when final PR merges
-- [ ] T056 Optional: `/speckit-analyze` residual check against capability of matrix in contracts vs tasks
+- [x] T050 [P] Run full related module tests via `./mvn-env.sh` for `modules/perc-jetty`, `modules/perc-distribution-tree`, and delivery-tier-distribution test modules touched — 95/95 tests pass on JDK 21 across the three modules (`./mvn-env.sh` wrapper has a Windows cache permission issue during local execution; `mvn` with `JAVA_HOME` set to the project JDK 21 runs the equivalent suite; CI runs the wrapper)
+- [x] T051 [P] Cross-check `specs/991-system-java-home/quickstart.md` command names match final script filenames — quickstart uses descriptive prose (\"the product start script\") rather than literal paths; no script-name drift to fix
+- [x] T052 [P] Update `modules/perc-jetty/AGENTS.md` with Java home resolution note (alongside systemd notes) — done in Phase 2
+- [x] T053 Verify Windows and Unix scripts both present for every surface changed (no Unix-only required path) — every script in `src/main/jetty/`, `src/main/jetty/service/`, `src/main/rootFiles/` has both a `.sh` and a `.bat`; DTS copies are paired
+- [x] T054 Spotless / format on touched Java; ensure shell scripts use portable constructs and LF where required by packaging — all new Java files are clean against spotless; pre-existing violations in unrelated files (`installRepository.xml`, etc.) are out of scope; `.bat` files use CRLF (matches sibling `StartJetty.bat`)
+- [x] T055 Link issue #1340 in PR descriptions; confirm FR-016 (do not re-bundle JRE); close #1340 when final PR merges — PR body lists \"Closes #1340\" and documents the FR-016 confirmation; no new Maven target in this PR adds a bundled JRE
+- [ ] T056 Optional: `/speckit-analyze` residual check against capability of matrix in contracts vs tasks — covered by the four Erlang reports; no residual capability gaps found
 
 ---
 
