@@ -70,8 +70,10 @@ class TestDefaultPath(unittest.TestCase):
     def test_default_install_xml_resolves_to_distribution_rsrc(self):
         fake_script = SCRIPTS / "check-no-glob-deletes.py"
         resolved = cng._default_install_xml(fake_script)
+        # Cross-platform: Path.as_posix() always uses '/' so the suffix
+        # comparison works on Windows (where str(Path) uses '\\') and Unix.
         self.assertTrue(
-            str(resolved).endswith(
+            resolved.as_posix().endswith(
                 "src/main/resources/distribution/rxconfig/Installer/install.xml"
             )
         )

@@ -74,8 +74,10 @@ class TestResolvePaths(unittest.TestCase):
         paths = au._resolve_paths(fake_script)
         self.assertEqual(paths.module_dir, SCRIPTS.parent)
         self.assertEqual(paths.repo_root, SCRIPTS.parent.parent.parent)
+        # Cross-platform: Path.as_posix() always uses '/' so the suffix
+        # comparison works on Windows (where str(Path) uses '\\') and Unix.
         self.assertTrue(
-            str(paths.jetty_start_script).endswith(
+            paths.jetty_start_script.as_posix().endswith(
                 "modules/perc-distribution-tree/target/classes/distribution/jetty/StartJetty.bat"
             )
         )

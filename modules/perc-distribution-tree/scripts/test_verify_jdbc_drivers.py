@@ -86,7 +86,9 @@ class TestArgParser(unittest.TestCase):
     def test_default_artifact_resolves_to_target(self):
         fake_script = SCRIPTS / "verify-jdbc-drivers.py"
         resolved = vjd._default_artifact(fake_script)
-        self.assertTrue(str(resolved).endswith("target/perc-distribution-tree.jar"))
+        # Cross-platform: Path.as_posix() always uses '/' so the suffix
+        # comparison works on Windows (where str(Path) uses '\\') and Unix.
+        self.assertTrue(resolved.as_posix().endswith("target/perc-distribution-tree.jar"))
 
 
 class TestFindJdbcDir(unittest.TestCase):

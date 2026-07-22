@@ -44,11 +44,13 @@ class TestDefaultPaths(unittest.TestCase):
     def test_default_paths_resolve_to_perc_tinymce_module(self):
         fake_script = SCRIPTS / "update-tinymce.py"
         source, target = ut._default_paths(fake_script)
+        # Cross-platform: Path.as_posix() always uses '/' so the suffix
+        # comparison works on Windows (where str(Path) uses '\\') and Unix.
         self.assertTrue(
-            str(source).endswith("modules/perc-tinymce/src/main/tinymce")
+            source.as_posix().endswith("modules/perc-tinymce/src/main/tinymce")
         )
         self.assertTrue(
-            str(target).endswith("modules/perc-tinymce/src/main/resources/tinymce")
+            target.as_posix().endswith("modules/perc-tinymce/src/main/resources/tinymce")
         )
 
 
