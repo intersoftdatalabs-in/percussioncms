@@ -1325,7 +1325,11 @@ public class PSUserService implements IPSUserService {
   @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
   public PSDirectoryServiceStatus checkDirectoryService() {
     try {
-      findUsersFromDirectoryService("a");
+      // No-arg overload exists for this exact purpose: probe the directory
+      // service with a wildcard query so any directory / connectivity /
+      // configuration failure surfaces as a PSDirectoryServiceException
+      // carrying the relevant status. Do not invent a query parameter here.
+      findUsersFromDirectoryService();
     } catch (PSDirectoryServiceException e) {
       return e.getStatus();
     }
