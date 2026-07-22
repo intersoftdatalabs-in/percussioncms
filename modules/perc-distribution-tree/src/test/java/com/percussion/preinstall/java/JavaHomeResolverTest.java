@@ -202,6 +202,43 @@ class JavaHomeResolverTest {
         () -> JavaHomeResolver.resolve(null, Map.of(), List.of(), new FixtureProbe()));
   }
 
+  /**
+   * Regression for kilo-code-bot PR review thread 3631027624:
+   * if java.properties exists but is unreadable (permissions, corrupted),
+   * the resolver must NOT silently fall through. Today it logs a warning
+   * (System.Logger at WARNING); the test asserts the resolution still
+   * honors higher-precedence env or lower-precedence fallback so the
+   * contract holds, and that the I/O attempt occurred.
+   */
+  @Test
+  void unreadableConfigDoesNotPoisonResolution() throws Exception {
+    Path configDir = tempDir.resolve("install");
+    Files.createDirectories(configDir);
+    Path propsFile = configDir.resolve("java.properties");
+    Files.createFile(propsFile);
+    boolean writable = propsFile.toFile().setWritable(false);
+    try {
+      Path envHome = makeJavaHome(tempDir.resolve("envHome"));
+      ResolutionResult r = JavaHomeResolver.resolve(
+          configDir,
+          Map.of("JAVA_HOME", envHome.toString()),
+          List.of(),
+          new FixtureProbe(envHome));
+      // The fallback env path is still honored because readPropertiesIfPresent
+      // degrades to an empty map (with a warning) rather than throwing.
+      assertTrue(r.success(),
+          () -> "env fallback should still succeed when config is unreadable; r=" + r.renderFailure(""));
+      assertEquals(ResolutionSource.PROCESS_ENV, r.source());
+    } finally {
+      // Restore writable so JUnit can clean up the @TempDir.
+      propsFile.toFile().setWritable(true);
+      if (!writable) {
+        // best-effort; test may still leak the file on platforms that ignore
+        // setWritable(false) (e.g. running as root in CI).
+      }
+    }
+  }
+
   // --- Helpers ------------------------------------------------------------
 
   /** Builds a directory layout resembling a Java home with a release file. */

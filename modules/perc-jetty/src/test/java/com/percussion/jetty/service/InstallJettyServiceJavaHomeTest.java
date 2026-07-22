@@ -17,6 +17,7 @@
 package com.percussion.jetty.service;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -56,5 +57,20 @@ class InstallJettyServiceJavaHomeTest {
         "install-jetty-service.bat must call resolve-java-home.bat");
     assertTrue(s.contains("--JavaHome=%JAVA_HOME%"),
         "Procrun --JavaHome is wired to resolved JAVA_HOME");
+  }
+
+  /**
+   * Regression for kilo-code-bot PR review thread 3631027608:
+   * the resolver must be sourced INTO the install shell, not in a subshell.
+   * A subshell isolates the assignments of JAVA_HOME / JAVA / RESOLVE_SOURCE
+   * from the resolver and silently discards them, bypassing the documented
+   * precedence contract in favor of the legacy JRE/JRE64 fallback.
+   */
+  @Test
+  void installSh_doesNotWrapResolverInSubshell() throws Exception {
+    String s = Files.readString(INSTALL_SH, StandardCharsets.UTF_8);
+    assertFalse(
+        s.contains("(source \"$RESOLVER\""),
+        "install-jetty-service.sh must not wrap the resolver in a subshell");
   }
 }

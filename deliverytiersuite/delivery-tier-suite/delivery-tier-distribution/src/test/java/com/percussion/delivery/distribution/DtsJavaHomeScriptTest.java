@@ -79,6 +79,31 @@ class DtsJavaHomeScriptTest {
     assertTrue(s.contains("exit /b 1"));
   }
 
+  /**
+   * Regression for kilo-code-bot PR review thread 3631027615:
+   * the DTS copy of resolve-java-home.bat must also be ASCII-safe so it
+   * renders correctly under Windows cmd.exe's default OEM code page.
+   */
+  @Test
+  void dtsResolverBatIsAsciiSafe() throws Exception {
+    String s = Files.readString(RESOLVE_BAT, StandardCharsets.UTF_8);
+    for (int line = 1, i = 0; i < s.length(); i++) {
+      char c = s.charAt(i);
+      if (c == '\n') {
+        line++;
+        continue;
+      }
+      if (c > 0x7E || (c < 0x20 && c != '\t' && c != '\r' && c != '\n')) {
+        assertTrue(
+            false,
+            "DTS resolve-java-home.bat contains non-ASCII char U+"
+                + String.format("%04X", (int) c)
+                + " on line "
+                + line);
+      }
+    }
+  }
+
   @Test
   void tomcatStartupUsesResolverOnBothPlatforms() throws Exception {
     String sh = Files.readString(TOMCAT_START_SH, StandardCharsets.UTF_8);
@@ -118,6 +143,17 @@ class DtsJavaHomeScriptTest {
   }
 
   @Test
+  void dtsProductionServiceShDoesNotWrapResolverInSubshell() throws Exception {
+    // Regression for kilo-code-bot PR review thread 3631027580: a subshell
+    // `(source ...)` would scope JAVA_HOME / JAVA / RESOLVE_SOURCE inside
+    // the subshell and the legacy JRE / JRE64 fallback would silently win.
+    String sh = Files.readString(PROD_SH, StandardCharsets.UTF_8);
+    assertFalse(
+        sh.contains("(source \"$RESOLVER\""),
+        "DTSProductionService.sh must not wrap the resolver in a subshell");
+  }
+
+  @Test
   void dtsStagingServiceUsesResolver() throws Exception {
     String sh = Files.readString(STAGING_SH, StandardCharsets.UTF_8);
     String bat = Files.readString(STAGING_BAT, StandardCharsets.UTF_8);
@@ -127,5 +163,14 @@ class DtsJavaHomeScriptTest {
         "DTSStagingService.bat calls resolve-java-home.bat");
     assertTrue(bat.contains("--JavaHome=%JRE_HOME%"),
         "Procrun --JavaHome is wired to resolved Java home");
+  }
+
+  @Test
+  void dtsStagingServiceShDoesNotWrapResolverInSubshell() throws Exception {
+    // Regression for kilo-code-bot PR review thread 3631027600.
+    String sh = Files.readString(STAGING_SH, StandardCharsets.UTF_8);
+    assertFalse(
+        sh.contains("(source \"$RESOLVER\""),
+        "DTSStagingService.sh must not wrap the resolver in a subshell");
   }
 }

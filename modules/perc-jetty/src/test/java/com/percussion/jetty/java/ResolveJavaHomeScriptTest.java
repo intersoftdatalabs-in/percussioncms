@@ -69,6 +69,33 @@ class ResolveJavaHomeScriptTest {
     assertTrue(s.contains("exit /b 1"), "bat exits with /b 1 on failure");
   }
 
+  /**
+   * Regression for kilo-code-bot PR review thread 3631027615:
+   * non-ASCII em-dashes render as Latin-1 mojibake under Windows cmd.exe's
+   * default OEM code page. The script must be ASCII-only in comments so it
+   * ships portably across code pages.
+   */
+  @Test
+  void batScriptIsAsciiSafe() throws Exception {
+    String s = Files.readString(BAT, StandardCharsets.UTF_8);
+    for (int line = 1, i = 0; i < s.length(); i++) {
+      char c = s.charAt(i);
+      if (c == '\n') {
+        line++;
+        continue;
+      }
+      if (c > 0x7E || (c < 0x20 && c != '\t' && c != '\r' && c != '\n')) {
+        assertTrue(
+            false,
+            "resolve-java-home.bat contains non-ASCII char U+"
+                + String.format("%04X", (int) c)
+                + " on line "
+                + line
+                + " (Windows cmd.exe OEM code page renders as mojibake)");
+      }
+    }
+  }
+
   @Test
   void shPrefersConfigOverEnvMarker() throws Exception {
     String s = Files.readString(SH, StandardCharsets.UTF_8);

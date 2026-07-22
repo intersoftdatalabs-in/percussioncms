@@ -324,7 +324,10 @@ if [ "$uninstall" != "true" ]; then
     JAVA_HOME=""
     if [ -f "$RESOLVER" ] && [ -r "$RESOLVER" ]; then
         # shellcheck disable=SC1090
-        if (source "$RESOLVER" "${rxDir}") 2>/dev/null; then
+        # Source directly into the installer shell (NOT in a subshell) so the
+        # resolver's JAVA_HOME / JAVA / RESOLVE_SOURCE assignments propagate;
+        # a subshell would silently discard them and force the legacy fallback.
+        if source "$RESOLVER" "${rxDir}" 2>/dev/null; then
             echo "Service Java home resolved via $RESOLVE_SOURCE"
         else
             echo "Warning: ${RESOLVER} failed; falling back to install-dir JRE/JRE64" >&2

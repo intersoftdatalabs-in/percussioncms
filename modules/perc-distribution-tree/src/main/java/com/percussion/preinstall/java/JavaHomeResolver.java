@@ -214,6 +214,9 @@ public final class JavaHomeResolver {
     return os.toLowerCase(Locale.ROOT).contains("win") ? "java.exe" : "java";
   }
 
+  private static final System.Logger RESOLVER_LOG =
+      System.getLogger(JavaHomeResolver.class.getName());
+
   private static Map<String, String> readPropertiesIfPresent(Path file) {
     if (!Files.exists(file)) {
       return Map.of();
@@ -221,7 +224,16 @@ public final class JavaHomeResolver {
     java.util.Properties raw = new java.util.Properties();
     try (InputStream in = Files.newInputStream(file)) {
       raw.load(in);
-    } catch (IOException ignored) {
+    } catch (IOException io) {
+      // File is present but unreadable (permissions, I/O, corruption).
+      // Surface the failure so preinstall triage can detect it; otherwise the
+      // resolver silently degrades to env / install-dir / PATH as if the file
+      // were absent.
+      RESOLVER_LOG.log(
+          System.Logger.Level.WARNING,
+          "Could not read java.properties at {0}: {1}; continuing without it",
+          file,
+          io.getMessage());
       return Map.of();
     }
     Map<String, String> out = new java.util.LinkedHashMap<>();

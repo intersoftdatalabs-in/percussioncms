@@ -67,10 +67,11 @@ goto :main
 
 :check_major
     if "%MAJOR%"=="1" (
-        REM Legacy "1.8.0_xxx" â€” bump past leading 1.
+        REM Legacy "1.8.0_xxx" -- bump past leading 1.
         for /f "tokens=2 delims=." %%b in ("%RAW%") do (
             set "MAJOR=%%b"
         )
+    )
     )
     if "%MAJOR%"=="%REQUIRED_MAJOR%" (
         exit /b 0
