@@ -698,9 +698,13 @@
 		       (a) failOnAnyMissingDependency=true on the Maven copy-dependencies
 		           execution (pom.xml stage-jdbc-drivers) catches missing Maven
 		           coordinates at the generate-resources phase.
-		       (b) scripts/verify-jdbc-drivers.sh, wired into the Maven verify
-		           phase, inspects the assembled JAR and fails the build when the
-		           curated driver set is missing or invalid.
+		       (b) scripts/verify-jdbc-drivers.py (cross-platform Python port;
+		           the canonical implementation is the
+		           com.percussion.distribution.install.VerifyJdbcDrivers Java
+		           main invoked by exec-maven-plugin:java in pom.xml),
+		           wired into the Maven verify phase, inspects the assembled
+		           JAR and fails the build when the curated driver set is
+		           missing or invalid.
 		     The <delete> immediately below removes the transient _jdbc-stage
 		     directory after the copy so it cannot leak into the assembled
 		     perc-distribution-tree.jar (FR-001). failonerror="false" makes the

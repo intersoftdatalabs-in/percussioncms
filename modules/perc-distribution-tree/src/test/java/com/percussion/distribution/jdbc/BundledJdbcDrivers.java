@@ -67,8 +67,11 @@ final class BundledJdbcDrivers {
     /**
      * Staging {@code <fileset>} {@code <include>} globs used by
      * {@code installDistributionFiles.xml} lines 707-717 and by
-     * {@code verify-jdbc-drivers.sh} (wired into the Maven {@code verify} phase
-     * at module {@code pom.xml:737}).
+     * {@code verify-jdbc-drivers.py} (cross-platform Python port; the
+     * canonical implementation is the
+     * {@code com.percussion.distribution.install.VerifyJdbcDrivers} Java
+     * main wired into the Maven {@code verify} phase at module
+     * {@code pom.xml}).
      */
     static final String[] STAGING_GLOBS = {
             "mariadb-java-client-*.jar",
