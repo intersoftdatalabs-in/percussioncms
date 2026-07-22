@@ -1,4 +1,4 @@
-﻿@echo off
+@echo off
 REM Shared runtime Java home resolver for Percussion CMS / DTS start, stop, and
 REM service install paths on Windows. See specs/991-system-java-home/contracts/
 REM java-home-resolution.md for the algorithm and contracts/java-properties-contract.md
