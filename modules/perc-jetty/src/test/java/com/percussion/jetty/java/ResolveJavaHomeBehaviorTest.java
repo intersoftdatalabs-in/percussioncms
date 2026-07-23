@@ -113,7 +113,7 @@ class ResolveJavaHomeBehaviorTest {
   @ValueSource(strings = {"8"})
   @EnabledOnOs({OS.LINUX, OS.MAC})
   void envRejectsWrongMajor(String fakeMajor, @TempDir Path scratch) throws Exception {
-    runScriptFailure(scratch, fakeMajor, false, true, false);
+    runScriptFailure(scratch, fakeMajor, false, true, false, /*overwriteInvalidConfig*/ false);
   }
 
   /** Scenario 6: PATH rejects wrong major (Java 8). */
@@ -121,7 +121,7 @@ class ResolveJavaHomeBehaviorTest {
   @ValueSource(strings = {"8"})
   @EnabledOnOs({OS.LINUX, OS.MAC})
   void pathRejectsWrongMajor(String fakeMajor, @TempDir Path scratch) throws Exception {
-    runScriptFailure(scratch, fakeMajor, false, false, true);
+    runScriptFailure(scratch, fakeMajor, false, false, true, /*overwriteInvalidConfig*/ false);
   }
 
   /** Scenario 7: config rejects invalid path. */
@@ -129,7 +129,7 @@ class ResolveJavaHomeBehaviorTest {
   @ValueSource(strings = {"21"})
   @EnabledOnOs({OS.LINUX, OS.MAC})
   void configRejectsInvalidPath(String fakeMajor, @TempDir Path scratch) throws Exception {
-    runScriptFailure(scratch, fakeMajor, true, false, false);
+    runScriptFailure(scratch, fakeMajor, true, false, false, /*overwriteInvalidConfig*/ true);
   }
 
   // --- Helpers ---
@@ -139,7 +139,11 @@ class ResolveJavaHomeBehaviorTest {
    * parent is renamed to {@code fake-java-home-N-XXXX} so the fixture (which reads the
    * parent dir's suffix) emits the right major version.
    */
-  private static Path setupFakeJavaHome(Path installRoot, String fakeMajor, boolean writeConfig)
+  private static Path setupFakeJavaHome(
+      Path installRoot,
+      String fakeMajor,
+      boolean writeConfig,
+      boolean overwriteInvalidConfig)
       throws java.io.IOException {
     // We need a directory whose basename ends with -NN so the fixture's case
     // statement picks the right version. JUnit @TempDir can place us under a
@@ -173,6 +177,14 @@ class ResolveJavaHomeBehaviorTest {
           "JAVA_HOME=" + home + "\nJAVA=" + home + "/bin/java\n",
           StandardCharsets.UTF_8);
     }
+    if (overwriteInvalidConfig) {
+      // Force the resolver to reject the config source so the next lower
+      // precedence layer is tried. The path is intentionally non-existent.
+      Files.writeString(
+          installRoot.resolve("java.properties"),
+          "JAVA_HOME=C:/does/not/exist\nJAVA=C:/does/not/exist/bin/java\n",
+          StandardCharsets.UTF_8);
+    }
     return installRoot;
   }
 
@@ -195,8 +207,8 @@ class ResolveJavaHomeBehaviorTest {
       String expectedSource,
       String expectedMajor)
       throws Exception {
-    Path installRoot = setupFakeJavaHome(scratch, fakeMajor, writeConfig);
-    ResolveResult r = invokeResolver(installRoot, envHome, onPath, /*fakeInvalidPath*/ false);
+    Path installRoot = setupFakeJavaHome(scratch, fakeMajor, writeConfig, false);
+    ResolveResult r = invokeResolver(installRoot, envHome, onPath);
     assertEquals(0, r.exit, "Expected zero exit. Output:\n" + r.output);
     assertTrue(
         r.output.toLowerCase().contains(expectedSource.toLowerCase()),
@@ -208,13 +220,22 @@ class ResolveJavaHomeBehaviorTest {
 
   /**
    * As {@link #runScript} but asserts the failure path: exit non-zero, output
-   * mentions required major version 21.
+   * mentions required major version 21. The {@code overwriteInvalidConfig}
+   * parameter, when true, replaces the config with a non-existent path so
+   * the resolver rejects the config source and the lower-precedence layers
+   * (env, PATH) drive the failure outcome.
    */
   private static void runScriptFailure(
-      Path scratch, String fakeMajor, boolean writeConfig, boolean envHome, boolean onPath)
+      Path scratch,
+      String fakeMajor,
+      boolean writeConfig,
+      boolean envHome,
+      boolean onPath,
+      boolean overwriteInvalidConfig)
       throws Exception {
-    Path installRoot = setupFakeJavaHome(scratch, fakeMajor, writeConfig);
-    ResolveResult r = invokeResolver(installRoot, envHome, onPath, /*fakeInvalidPath*/ false);
+    Path installRoot =
+        setupFakeJavaHome(scratch, fakeMajor, writeConfig, overwriteInvalidConfig);
+    ResolveResult r = invokeResolver(installRoot, envHome, onPath);
     assertNotEquals(0, r.exit, "Expected non-zero exit. Output:\n" + r.output);
     assertTrue(
         r.output.contains("21"),
@@ -238,8 +259,7 @@ class ResolveJavaHomeBehaviorTest {
    * {@code destroyForcibly} on timeout) so a hung child process cannot mask
    * test failures with {@code IllegalThreadStateException}.
    */
-  private static ResolveResult invokeResolver(
-      Path installRoot, boolean envHome, boolean onPath, boolean fakeInvalidPath)
+  private static ResolveResult invokeResolver(Path installRoot, boolean envHome, boolean onPath)
       throws Exception {
     Map<String, String> env = new HashMap<>(System.getenv());
     // Drop any inherited JAVA_HOME unless the scenario sets it explicitly so that
