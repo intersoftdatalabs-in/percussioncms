@@ -1,0 +1,54 @@
+#!/bin/bash
+# T057 fixture: fake `java` shell script for FR-013 layer-3 behavioral tests.
+#
+# Invocation: .../fake-java-home/jre/bin/java [-version]
+#
+# Emits a synthetic `openjdk version "X.Y.Z"` line on stderr so the resolve-java-home.sh
+# parser path runs end-to-end without a real JDK. The major version is selected via
+# the script's parent directory name suffix:
+#
+#   .../fake-java-home-21/jre/bin/java   -> emits "21.0.0" (success)
+#   .../fake-java-home-8/jre/bin/java    -> emits "8.0.0" (rejected: not 21)
+#   .../fake-java-home-17/jre/bin/java   -> emits "17.0.0" (rejected)
+#   .../fake-java-home-22/jre/bin/java   -> emits "22.0.0" (rejected)
+#
+# The major version is encoded in the parent directory's basename: we look for
+# `-NN` in the path; default to 21 if no `-NN` is present.
+#
+# Exit code is always 0 so the parser path is exercised (a real java -version also
+# exits 0). The resolver's `_validate_java_home` shell helper runs `java -version`
+# and captures stderr; this script writes only to stderr to mimic real-Java behavior.
+#
+# Behavior summary:
+#   - java -version      -> writes "openjdk version \"X.Y.Z\"  YYYY-MM-DD\n" to stderr, exits 0
+#   - java (no args)     -> silently exits 0 (the resolver calls `java -version`, never
+#                           no-arg `java`; this branch is for safety)
+#   - any other args     -> silently exits 0
+#
+# Usage as a test fixture: tests create a TempDir under a parent whose name encodes
+# the desired major version, copy this script to the install root's
+# `jre/bin/java`, then invoke resolve-java-home.sh which calls this script.
+
+set -u
+
+# Resolve the major version from the parent directory's basename, e.g.
+# /tmp/foo-21/jre/bin/java -> 21; /tmp/bar-8/jre/bin/java -> 8.
+parent_dir="$(cd "$(dirname "$0")/.." && pwd)"
+major='21'
+case "$parent_dir" in
+  *-8)  major='8' ;;
+  *-17) major='17' ;;
+  *-21) major='21' ;;
+  *-22) major='22' ;;
+  *)    major='21' ;;
+esac
+
+case "$major" in
+  8)  echo 'openjdk version "8.0.0" 2026-01-01' >&2 ;;
+  17) echo 'openjdk version "17.0.0" 2026-01-01' >&2 ;;
+  21) echo 'openjdk version "21.0.0" 2026-01-01' >&2 ;;
+  22) echo 'openjdk version "22.0.0" 2026-01-01' >&2 ;;
+  *)  echo "openjdk version \"$major.0.0\" 2026-01-01" >&2 ;;
+esac
+
+exit 0
