@@ -81,9 +81,7 @@ class ResolveJavaHomeBehaviorTest {
   @ValueSource(strings = {"21"})
   @EnabledOnOs({OS.LINUX, OS.MAC})
   void configOnlyHappyPath(String fakeMajor, @TempDir Path scratch) throws Exception {
-    setupFakeJavaHome(scratch, fakeMajor, true, false, false);
-    ResolveResult r = runResolver(scratch);
-    assertSuccess(r, "PRODUCT_CONFIG", "21");
+    runScript(scratch, fakeMajor, true, false, false, "PRODUCT_CONFIG", "21");
   }
 
   /** Scenario 2: env-only happy path. */
@@ -91,9 +89,7 @@ class ResolveJavaHomeBehaviorTest {
   @ValueSource(strings = {"21"})
   @EnabledOnOs({OS.LINUX, OS.MAC})
   void envOnlyHappyPath(String fakeMajor, @TempDir Path scratch) throws Exception {
-    setupFakeJavaHome(scratch, fakeMajor, false, true, false);
-    ResolveResult r = runResolver(scratch);
-    assertSuccess(r, "PROCESS_ENV", "21");
+    runScript(scratch, fakeMajor, false, true, false, "PROCESS_ENV", "21");
   }
 
   /** Scenario 3: PATH happy path. */
@@ -101,9 +97,7 @@ class ResolveJavaHomeBehaviorTest {
   @ValueSource(strings = {"21"})
   @EnabledOnOs({OS.LINUX, OS.MAC})
   void pathOnlyHappyPath(String fakeMajor, @TempDir Path scratch) throws Exception {
-    setupFakeJavaHome(scratch, fakeMajor, false, false, true);
-    ResolveResult r = runResolver(scratch);
-    assertSuccess(r, "PATH", "21");
+    runScript(scratch, fakeMajor, false, false, true, "PATH", "21");
   }
 
   /** Scenario 4: config beats env. */
@@ -111,9 +105,7 @@ class ResolveJavaHomeBehaviorTest {
   @ValueSource(strings = {"21"})
   @EnabledOnOs({OS.LINUX, OS.MAC})
   void configBeatsEnv(String fakeMajor, @TempDir Path scratch) throws Exception {
-    setupFakeJavaHome(scratch, fakeMajor, true, true, false);
-    ResolveResult r = runResolver(scratch);
-    assertSuccess(r, "PRODUCT_CONFIG", "21");
+    runScript(scratch, fakeMajor, true, true, false, "PRODUCT_CONFIG", "21");
   }
 
   /** Scenario 5: env rejects wrong major (Java 8). */
@@ -121,9 +113,7 @@ class ResolveJavaHomeBehaviorTest {
   @ValueSource(strings = {"8"})
   @EnabledOnOs({OS.LINUX, OS.MAC})
   void envRejectsWrongMajor(String fakeMajor, @TempDir Path scratch) throws Exception {
-    setupFakeJavaHome(scratch, fakeMajor, false, true, false);
-    ResolveResult r = runResolver(scratch);
-    assertFailure(r);
+    runScriptFailure(scratch, fakeMajor, false, true, false);
   }
 
   /** Scenario 6: PATH rejects wrong major (Java 8). */
@@ -131,9 +121,7 @@ class ResolveJavaHomeBehaviorTest {
   @ValueSource(strings = {"8"})
   @EnabledOnOs({OS.LINUX, OS.MAC})
   void pathRejectsWrongMajor(String fakeMajor, @TempDir Path scratch) throws Exception {
-    setupFakeJavaHome(scratch, fakeMajor, false, false, true);
-    ResolveResult r = runResolver(scratch);
-    assertFailure(r);
+    runScriptFailure(scratch, fakeMajor, false, false, true);
   }
 
   /** Scenario 7: config rejects invalid path. */
@@ -141,25 +129,17 @@ class ResolveJavaHomeBehaviorTest {
   @ValueSource(strings = {"21"})
   @EnabledOnOs({OS.LINUX, OS.MAC})
   void configRejectsInvalidPath(String fakeMajor, @TempDir Path scratch) throws Exception {
-    setupFakeJavaHome(scratch, fakeMajor, true, false, false);
-    // Overwrite config with an invalid path
-    Files.writeString(
-        scratch.resolve("java.properties"),
-        "JAVA_HOME=C:/does/not/exist\nJAVA=C:/does/not/exist/bin/java\n",
-        StandardCharsets.UTF_8);
-    ResolveResult r = runResolver(scratch);
-    assertFailure(r);
+    runScriptFailure(scratch, fakeMajor, true, false, false);
   }
 
   // --- Helpers ---
 
   /**
    * Sets up a per-test install root with the fake-java fixture. The {@code @TempDir}
-   * parent is named {@code fake-java-home-N-XXXX} so the fixture (which reads the
+   * parent is renamed to {@code fake-java-home-N-XXXX} so the fixture (which reads the
    * parent dir's suffix) emits the right major version.
    */
-  private static void setupFakeJavaHome(
-      Path installRoot, String fakeMajor, boolean writeConfig, boolean envHome, boolean onPath)
+  private static Path setupFakeJavaHome(Path installRoot, String fakeMajor, boolean writeConfig)
       throws java.io.IOException {
     // We need a directory whose basename ends with -NN so the fixture's case
     // statement picks the right version. JUnit @TempDir can place us under a
@@ -193,16 +173,91 @@ class ResolveJavaHomeBehaviorTest {
           "JAVA_HOME=" + home + "\nJAVA=" + home + "/bin/java\n",
           StandardCharsets.UTF_8);
     }
+    return installRoot;
   }
 
-  /** Invokes resolve-java-home.sh with appropriate env. */
-  private static ResolveResult runResolver(Path installRoot) throws Exception {
+  /**
+   * Runs the resolver script and asserts the precedence-layer success case.
+   * The {@code envHome} / {@code onPath} flags control the parent-process
+   * environment (and the {@code PATH}) that is set up before invocation:
+   * {@code envHome=true} sets {@code JAVA_HOME} on the parent process to the
+   * fake Java home (so the resolver sees PROCESS_ENV); {@code onPath=true}
+   * prepends the fake {@code bin} to {@code PATH} (so the resolver sees PATH).
+   * {@code writeConfig=true} writes {@code java.properties} so the resolver
+   * sees PRODUCT_CONFIG. Each scenario is independent.
+   */
+  private static void runScript(
+      Path scratch,
+      String fakeMajor,
+      boolean writeConfig,
+      boolean envHome,
+      boolean onPath,
+      String expectedSource,
+      String expectedMajor)
+      throws Exception {
+    Path installRoot = setupFakeJavaHome(scratch, fakeMajor, writeConfig);
+    ResolveResult r = invokeResolver(installRoot, envHome, onPath, /*fakeInvalidPath*/ false);
+    assertEquals(0, r.exit, "Expected zero exit. Output:\n" + r.output);
+    assertTrue(
+        r.output.toLowerCase().contains(expectedSource.toLowerCase()),
+        "Output must contain source token '" + expectedSource + "'. Output:\n" + r.output);
+    assertTrue(
+        r.output.contains(expectedMajor),
+        "Output must mention major version " + expectedMajor + ". Output:\n" + r.output);
+  }
+
+  /**
+   * As {@link #runScript} but asserts the failure path: exit non-zero, output
+   * mentions required major version 21.
+   */
+  private static void runScriptFailure(
+      Path scratch, String fakeMajor, boolean writeConfig, boolean envHome, boolean onPath)
+      throws Exception {
+    Path installRoot = setupFakeJavaHome(scratch, fakeMajor, writeConfig);
+    ResolveResult r = invokeResolver(installRoot, envHome, onPath, /*fakeInvalidPath*/ false);
+    assertNotEquals(0, r.exit, "Expected non-zero exit. Output:\n" + r.output);
+    assertTrue(
+        r.output.contains("21"),
+        "Output must mention required major version 21. Output:\n" + r.output);
+  }
+
+  /**
+   * Invokes {@code resolve-java-home.sh} under a controlled environment:
+   *
+   * <ul>
+   *   <li>If {@code envHome} is true, the parent process {@code JAVA_HOME} is
+   *       set to the fake install root before launching — so the resolver sees
+   *       PROCESS_ENV.
+   *   <li>If {@code onPath} is true, the parent process {@code PATH} has the
+   *       fake {@code bin} prepended — so the resolver sees PATH.
+   *   <li>If {@code writeConfig} is true (set during {@link #setupFakeJavaHome}),
+   *       the resolver also sees PRODUCT_CONFIG.
+   * </ul>
+   *
+   * <p>After invocation we verify that the exit code is reported (with
+   * {@code destroyForcibly} on timeout) so a hung child process cannot mask
+   * test failures with {@code IllegalThreadStateException}.
+   */
+  private static ResolveResult invokeResolver(
+      Path installRoot, boolean envHome, boolean onPath, boolean fakeInvalidPath)
+      throws Exception {
+    Map<String, String> env = new HashMap<>(System.getenv());
+    // Drop any inherited JAVA_HOME unless the scenario sets it explicitly so that
+    // the "config-only" and "PATH" scenarios see a clean env. The "env-only"
+    // and "config beats env" scenarios set envHome below.
+    env.remove("JAVA_HOME");
+    if (envHome) {
+      env.put("JAVA_HOME", installRoot.toAbsolutePath().toString());
+    }
+    if (onPath) {
+      Path fakeBin = installRoot.resolve("bin");
+      String currentPath = env.getOrDefault("PATH", "");
+      env.put("PATH", fakeBin.toAbsolutePath() + ":" + currentPath);
+    }
+
     ProcessBuilder pb = new ProcessBuilder(
         "bash", RESOLVE_SH.toAbsolutePath().toString(), installRoot.toAbsolutePath().toString())
         .redirectErrorStream(true);
-    Map<String, String> env = new HashMap<>(System.getenv());
-    // Clear JAVA_HOME so each scenario's precedence assertion is deterministic.
-    env.remove("JAVA_HOME");
     pb.environment().clear();
     pb.environment().putAll(env);
     pb.directory(installRoot.toFile());
@@ -216,25 +271,20 @@ class ResolveJavaHomeBehaviorTest {
         out.append(new String(buf, 0, n, StandardCharsets.UTF_8));
       }
     }
-    p.waitFor(15, TimeUnit.SECONDS);
-    return new ResolveResult(p.exitValue(), out.toString());
-  }
-
-  private static void assertSuccess(ResolveResult r, String expectedSource, String expectedMajor) {
-    assertEquals(0, r.exit, "Expected zero exit. Output:\n" + r.output);
-    assertTrue(
-        r.output.toLowerCase().contains(expectedSource.toLowerCase()),
-        "Output must contain source token '" + expectedSource + "'. Output:\n" + r.output);
-    assertTrue(
-        r.output.contains(expectedMajor),
-        "Output must mention major version " + expectedMajor + ". Output:\n" + r.output);
-  }
-
-  private static void assertFailure(ResolveResult r) {
-    assertNotEquals(0, r.exit, "Expected non-zero exit. Output:\n" + r.output);
-    assertTrue(
-        r.output.contains("21"),
-        "Output must mention required major version 21. Output:\n" + r.output);
+    boolean finished = p.waitFor(15, TimeUnit.SECONDS);
+    if (!finished) {
+      p.destroyForcibly();
+      // drain remaining output for diagnostics
+      try (InputStream in = p.getInputStream()) {
+        byte[] buf = new byte[4096];
+        int n;
+        while ((n = in.read(buf)) > 0) {
+          out.append(new String(buf, 0, n, StandardCharsets.UTF_8));
+        }
+      }
+    }
+    int exit = p.exitValue();
+    return new ResolveResult(exit, out.toString());
   }
 
   /** Captured exit code + combined stdout/stderr from the resolver invocation. */
