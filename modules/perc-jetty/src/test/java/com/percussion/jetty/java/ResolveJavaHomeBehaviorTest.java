@@ -178,8 +178,13 @@ class ResolveJavaHomeBehaviorTest {
           StandardCharsets.UTF_8);
     }
     if (overwriteInvalidConfig) {
-      // Force the resolver to reject the config source so the next lower
-      // precedence layer is tried. The path is intentionally non-existent.
+      // Force the resolver to reject the config source. The path is
+      // intentionally non-existent so the PRODUCT_CONFIG source fails the
+      // existence/launcher checks in the resolver. The companion test
+      // (`configRejectsInvalidPath`) does not set envHome or onPath, so the
+      // lower-precedence sources are absent and the resolver fails after
+      // exhausting all sources; this test exercises the config rejection
+      // path specifically, not the fallback chain.
       Files.writeString(
           installRoot.resolve("java.properties"),
           "JAVA_HOME=C:/does/not/exist\nJAVA=C:/does/not/exist/bin/java\n",
@@ -222,8 +227,12 @@ class ResolveJavaHomeBehaviorTest {
    * As {@link #runScript} but asserts the failure path: exit non-zero, output
    * mentions required major version 21. The {@code overwriteInvalidConfig}
    * parameter, when true, replaces the config with a non-existent path so
-   * the resolver rejects the config source and the lower-precedence layers
-   * (env, PATH) drive the failure outcome.
+   * the resolver rejects the PRODUCT_CONFIG source. When the caller
+   * additionally passes {@code envHome=true} or {@code onPath=true}, the
+   * lower-precedence layers will be tried as part of the failure
+   * outcome; when both are false (as in {@code configRejectsInvalidPath})
+   * the test exercises the config-rejection path only and the resolver
+   * fails with "no sources" after exhausting all (absent) sources.
    */
   private static void runScriptFailure(
       Path scratch,
