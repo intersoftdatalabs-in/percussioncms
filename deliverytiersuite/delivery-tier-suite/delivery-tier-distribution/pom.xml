@@ -825,6 +825,7 @@
                 </executions>
             </plugin>
             <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-dependency-plugin</artifactId>
                 <executions>
                     <execution>
@@ -868,6 +869,48 @@
                             <overWriteSnapshots>true</overWriteSnapshots>
                         </configuration>
                     </execution>
+                    <execution>
+                        <id>unpack-pathvalidation</id>
+                        <goals>
+                            <goal>unpack</goal>
+                        </goals>
+                        <phase>process-resources</phase>
+                        <configuration>
+                            <artifactItems>
+                                <artifactItem>
+                                    <groupId>com.percussion</groupId>
+                                    <artifactId>perc-security-utils</artifactId>
+                                    <version>${project.parent.version}</version>
+                                    <type>jar</type>
+                                    <includes>com/percussion/security/validation/PathValidation.class,com/percussion/security/validation/PathValidation$*.class</includes>
+                                    <outputDirectory>${project.build.outputDirectory}</outputDirectory>
+                                </artifactItem>
+                                <artifactItem>
+                                    <groupId>org.apache.logging.log4j</groupId>
+                                    <artifactId>log4j-api</artifactId>
+                                    <version>${log4j2.version}</version>
+                                    <type>jar</type>
+                                    <!--
+                                      PathValidation's <clinit> resolves LogManager at
+                                      class init, and LogManager's <clinit> transitively
+                                      loads org.apache.logging.log4j.spi.AbstractLogger (the
+                                      superclass of Logger) plus many other log4j-api
+                                      classes. Listing each class by hand is brittle —
+                                      previous attempt missed AbstractLogger and produced
+                                      a NoClassDefFoundError at first use. Unpack the
+                                      full log4j-api jar so every internal class is
+                                      present; the size overhead (~1.5 MB) is negligible
+                                      compared to the 143 MB perc-ant.jar already bundled.
+                                      module-info.class is excluded so the JPMS
+                                      `requires org.osgi.core` it declares does not have
+                                      to be resolvable in this non-modular runtime.
+                                    -->
+                                    <outputDirectory>${project.build.outputDirectory}</outputDirectory>
+                                    <excludes>module-info.class</excludes>
+                                </artifactItem>
+                            </artifactItems>
+                        </configuration>
+                    </execution>
                 </executions>
             </plugin>
             <plugin>
@@ -901,54 +944,6 @@
                         <include>**/*</include>
                     </includes>
                 </configuration>
-            </plugin>
-            <!--
-              GH-1180: MainDTSPreInstall uses PathValidation (ZipSlip) but java -jar runs
-              a thin jar with no Class-Path. Stage PathValidation (+ nested types) and
-              the minimal log4j-api surface used by PathValidation's static logger
-              directly into the build output directory so the jar-plugin packages them
-              alongside the install scripts and the bundled perc-ant.jar.
-
-              Previously this used maven-shade-plugin with shadedArtifactAttached=false
-              which REPLACED the staging jar with the shaded one and silently
-              dropped the bundled install payload (perc-ant-*.jar, installDts.xml,
-              DTSProductionService.{sh,bat}, etc.). Using a separate antrun
-              unpack step keeps the staging content intact while still satisfying
-              GH-1180 (PathValidation must be present in the shipping jar to make
-              ZipSlip checks at runtime).
-            -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-dependency-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>unpack-pathvalidation</id>
-                        <goals>
-                            <goal>unpack</goal>
-                        </goals>
-                        <phase>process-resources</phase>
-                        <configuration>
-                            <artifactItems>
-                                <artifactItem>
-                                    <groupId>com.percussion</groupId>
-                                    <artifactId>perc-security-utils</artifactId>
-                                    <version>${project.parent.version}</version>
-                                    <type>jar</type>
-                                    <includes>com/percussion/security/validation/PathValidation.class,com/percussion/security/validation/PathValidation$*.class</includes>
-                                    <outputDirectory>${project.build.outputDirectory}</outputDirectory>
-                                </artifactItem>
-                                <artifactItem>
-                                    <groupId>org.apache.logging.log4j</groupId>
-                                    <artifactId>log4j-api</artifactId>
-                                    <version>${log4j2.version}</version>
-                                    <type>jar</type>
-                                    <includes>org/apache/logging/log4j/LogManager.class,org/apache/logging/log4j/Logger.class,org/apache/logging/log4j/Level.class,org/apache/logging/log4j/spi/LoggerProvider.class,org/apache/logging/log4j/spi/AbstractLoggerProvider.class,org/apache/logging/log4j/LogBuilder.class,org/apache/logging/log4j/util/StackLocator.class,org/apache/logging/log4j/util/PropertiesUtil.class,org/apache/logging/log4j/util/PropertySource.class,org/apache/logging/log4j/status/StatusLogger.class,org/apache/logging/log4j/message/*,org/apache/logging/log4j/simple/*,org/apache/logging/log4j/spi/LoggingSystem*.class,org/apache/logging/log4j/spi/AbstractDefaultLoggerProvider.class,org/apache/logging/log4j/spi/DefaultLoggerContext.class,org/apache/logging/log4j/spi/LoggerContext.class,org/apache/logging/log4j/spi/LoggerContextFactory.class,org/apache/logging/log4j/spi/ThreadContextStack.class,org/apache/logging/log4j/spi/ThreadContextMap.class,org/apache/logging/log4j/spi/ThreadContext.class,org/apache/logging/log4j/spi/ThreadContextFactory.class,org/apache/logging/log4j/spi/ThreadContextProvider.class,org/apache/logging/log4j/spi/TypedLogger*.class,org/apache/logging/log4j/spi/PropertySource*.class,org/apache/logging/log4j/spi/DefaultThreadContextMap.class,org/apache/logging/log4j/spi/DefaultThreadContextStack.class,org/apache/logging/log4j/spi/MutableThreadContextStack.class,org/apache/logging/log4j/spi/StandardLevel.class</includes>
-                                    <outputDirectory>${project.build.outputDirectory}</outputDirectory>
-                                </artifactItem>
-                            </artifactItems>
-                        </configuration>
-                    </execution>
-                </executions>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
