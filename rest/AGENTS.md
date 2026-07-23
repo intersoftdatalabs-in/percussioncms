@@ -245,7 +245,7 @@ Build the module with:
 For rapid development iteration:
 
 ```bash
-./scripts/hot-deploy-local.sh --install-dir /path/to/install --modules rest,system --restart
+./scripts/hot-deploy-local.py --install-dir /path/to/install --modules rest,system --restart
 ```
 
 Details on using this script are in README.md.

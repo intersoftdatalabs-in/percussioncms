@@ -128,11 +128,11 @@
 
 **Goal**: Make the historical-scripts decision (R3), update cross-cutting documentation, run the final SC verification (Scenario F from `quickstart.md`), and close the spec.
 
-- [ ] T078 [P] Resolve the R3 decision for `docs/ai-generated/tasks/#000-webui-src-layout/*.sh`: confirm with maintainer whether to delete (preferred) or carve-out from spec scope; apply the chosen outcome (likely delete; record the decision in PR body)
-- [ ] T079 [P] Update `scripts/README.md` with the in-scope/out-of-scope section linking to spec 994 (FR-014) — already partially done in T031; verify completeness after all phases have landed
-- [ ] T080 [P] Update root `AGENTS.md` only if any reference to in-scope scripts slipped through during the per-directory PRs (do NOT touch the `mvn-env.{sh,bat}` lines per Clarification Q2)
-- [ ] T081 Run the full Scenario F end-to-end verification from `quickstart.md` on Linux: SC-001 zero survivors, SC-002 pytest green, SC-003 CI green, SC-004 mvn-env unchanged, SC-005 verify parity, SC-006 zero doc refs, SC-007 Maven regression-free, SC-008 requirements-dev.txt + runner idempotent
-- [ ] T082 [P] Open a final docs/cleanup PR titled `docs(994): close spec — all per-directory PRs merged; final SC-001..SC-008 verification recorded`; include the Scenario F output in the PR body
+- [X] T078 [P] Resolve the R3 decision for `docs/ai-generated/tasks/#000-webui-src-layout/*.sh`: confirm with maintainer whether to delete (preferred) or carve-out from spec scope; apply the chosen outcome (likely delete; record the decision in PR body)
+- [X] T079 [P] Update `scripts/README.md` with the in-scope/out-of-scope section linking to spec 994 (FR-014) — already partially done in T031; verify completeness after all phases have landed
+- [X] T080 [P] Update root `AGENTS.md` only if any reference to in-scope scripts slipped through during the per-directory PRs (do NOT touch the `mvn-env.{sh,bat}` lines per Clarification Q2)
+- [X] T081 Run the full Scenario F end-to-end verification from `quickstart.md` on Linux: SC-001 zero survivors, SC-002 pytest green, SC-003 CI green, SC-004 mvn-env unchanged, SC-005 verify parity, SC-006 zero doc refs, SC-007 Maven regression-free, SC-008 requirements-dev.txt + runner idempotent
+- [X] T082 [P] Open a final docs/cleanup PR titled `docs(994): close spec — all per-directory PRs merged; final SC-001..SC-008 verification recorded`; include the Scenario F output in the PR body
 - [ ] T083 Resolve review threads; verify CI green on both runners; merge; mark spec 994 complete in `specs/994-python-build-scripts/tasks.md` (all boxes ticked)
 - [ ] T084 (Post-merge) Run `python3 scripts/save_kilo_memory.py` (or invoke `kilo_memory_save` action=remember) with key `spec_994_python_build_scripts_status` capturing: total PRs merged, total Python scripts landed, total `.sh`/`.bat` removed, pytest count, CI matrix green — for continuity into future sessions
 

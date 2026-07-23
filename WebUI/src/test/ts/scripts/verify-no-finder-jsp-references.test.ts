@@ -17,19 +17,19 @@
 /**
  * Vitest spec: T029b — CI-gate artifact-grep for FR-019a.
  *
- * <p>Asserts the {@code scripts/verify-no-finder-jsp-references.sh}
+ * <p>Asserts the {@code scripts/verify-no-finder-jsp-references.py}
  * gate returns {@code 0} on the current tree (US6 hard-cut of
  * {@code cm/app/webmgt.jsp} is intact — no finder.jsp navigation
  * entry remains). The FAIL cases (re-introduced navigation entry,
  * alternate {@code <%@include>} form, false-positive trap on the
  * {@code finder_js.jsp} shared-lib include) are covered by the
- * paired shell self-test at
- * {@code scripts/test-verify-no-finder-jsp-references.sh}; this
+ * paired pytest self-test at
+ * {@code scripts/test_verify_no_finder_jsp_references.py}; this
  * Vitest spec is the load-bearing CI gate that fires on every
  * Vitest run via {@code npx vitest run}.</p>
  *
  * <p>The gate's scope, carve-outs, and rationale are documented in
- * the {@code .sh} script's header comment. In summary:</p>
+ * the {@code .py} script's header comment. In summary:</p>
  * <ul>
  *   <li>Target: {@code cm/app/webmgt.jsp} (modern Track B shell).</li>
  *   <li>Carve-out: {@code cm/pages/app/webmgt.jsp} (Track A; deferred
@@ -48,24 +48,23 @@ import { describe, expect, it } from "vitest";
 // __dirname is <repo>/WebUI/src/test/ts/scripts. Going up 5 levels
 // (`../../../../../`) reaches the repo root.
 const REPO_ROOT = resolve(__dirname, "../../../../..");
-const GATE_SH = join(REPO_ROOT, "scripts/verify-no-finder-jsp-references.sh");
+const GATE_PY = join(REPO_ROOT, "scripts/verify-no-finder-jsp-references.py");
 
-describe("scripts/verify-no-finder-jsp-references.sh / T029b / FR-019a CI gate", () => {
+describe("scripts/verify-no-finder-jsp-references.py / T029b / FR-019a CI gate", () => {
   it("script file is present and executable", () => {
-    expect(existsSync(GATE_SH)).toBe(true);
+    expect(existsSync(GATE_PY)).toBe(true);
   });
 
   it("returns 0 (PASS) on the current tree (US6 hard-cut is intact)", () => {
-    // The gate is a POSIX shell script. We invoke it via the user's
-    // shell (`sh`) so the Vitest runner does not depend on the
-    // executable bit being honoured by the OS (some Windows CI agents
-    // and some POSIX CI agents strip +x from a freshly-checked-out
-    // file; `sh <script>` is portable).
+    // The gate is a cross-platform Python script (per spec 994). We
+    // invoke it via `python3` so the Vitest runner is portable across
+    // Linux, macOS, and Windows CI agents (no executable bit / shebang
+    // dependency).
     let stdout = "";
     let stderr = "";
     let exitCode = 0;
     try {
-      stdout = execFileSync("sh", [GATE_SH], {
+      stdout = execFileSync("python3", [GATE_PY], {
         cwd: REPO_ROOT,
         encoding: "utf8",
         stdio: ["ignore", "pipe", "pipe"],

@@ -490,7 +490,7 @@ nvm use 18
 ## Hot Deployment
 
 ```bash
-./scripts/hot-deploy-local.sh \
+./scripts/hot-deploy-local.py \
   --install-dir /path/to/cms-install \
   --modules webui \
   --restart
@@ -560,7 +560,7 @@ When iterating, prefer the cheap paths first (TS + JSP); only escalate to Java /
 | Check types        | `cd WebUI/src/main/frontend && npx tsc --noEmit`                              |
 | Lint check         | `cd WebUI/src/main/frontend && npm run lint`                                  |
 | Format code        | `./mvn-env.sh spotless:apply`                                                 |
-| Hot deploy         | `./scripts/hot-deploy-local.sh --install-dir /path --modules webui --restart` |
+| Hot deploy         | `./scripts/hot-deploy-local.py --install-dir /path --modules webui --restart` |
 
 ---
 
