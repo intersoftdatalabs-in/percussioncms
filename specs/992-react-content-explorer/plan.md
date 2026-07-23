@@ -20,7 +20,7 @@ Replace the Web Management **miller-column Finder** (`perc_finder` / FancyTree c
   - `modules/perc-i18n/` — TMX keys for explorer/browser chrome
   - **`modules/perc-qa-automation/`** — Playwright + TestNG end-to-end test module. **Primary automated acceptance surface for SC-001..SC-011** in this feature. One Playwright spec per US, runnable against the live docker dev CMS at `http://localhost:9992`.
   - `system/` — **NOT a default touched module**. In scope **only when a specific in-scope host hard-cut proves it needs server-side wiring** (e.g. an action-page / content-browser dialog JSP that cannot be replaced via WebUI + sitemanage + REST). Each such case adds a per-host task in `tasks.md` US2; otherwise `system/` is untouched.
-- **Dev runtime (operational, 2026-07-19)**: Docker compose stack (`docker-compose.yml`) bringing up `percussion-cms-dts` against a host-side install at `/opt/Percussion`. Install is run once on host via `scripts/install-cms-dev.sh`; container is service-only. Default DB is **Derby** (dev/test). MySQL mode is deferred pending [issue #1388](https://github.com/intersoftdatalabs-in/percussioncms/issues/1388) (collation bug). CMS reachable at `http://localhost:9992/Rhythmyx/login` with Admin/Editor/Contributor credentials auto-discovered from `/opt/Percussion/var/config/generated/passwords`. UI development does **not** require MySQL — the backend DB type is not a UI implementation concern.
+- **Dev runtime (operational, 2026-07-19)**: Docker compose stack (`docker-compose.yml`) bringing up `percussion-cms-dts` against a host-side install at `/opt/Percussion`. Install is run once on host via `scripts/install-cms-dev.py`; container is service-only. Default DB is **Derby** (dev/test). MySQL mode is deferred pending [issue #1388](https://github.com/intersoftdatalabs-in/percussioncms/issues/1388) (collation bug). CMS reachable at `http://localhost:9992/Rhythmyx/login` with Admin/Editor/Contributor credentials auto-discovered from `/opt/Percussion/var/config/generated/passwords`. UI development does **not** require MySQL — the backend DB type is not a UI implementation concern.
 - **AGENTS Hierarchy**: root `AGENTS.md`, `WebUI/AGENTS.md` (Track B bridge, Vite, tests), **`modules/perc-qa-automation/AGENTS.md` (QA automation profile)**; module AGENTS when touching sitemanage/rest
 - **Dependencies & Storage**:
   - Path REST: `/services/pathmanagement/path/*` (`PSPathService`) — folder children, paginatedFolder, move, rename, add, delete, folderProperties, saveFolderProperties
@@ -124,7 +124,7 @@ modules/perc-i18n/…/CmsUi.tmx       # add perc.ui.explorer.* / browser keys
 3. Register `ContentExplorerShell` and `ContentBrowser` in `registry.ts`.
 4. TMX key plan for chrome (tree, list, reduced actions, errors).
 5. Vitest harness patterns aligned with Home/Dashboard tests.
-6. **Bring up docker dev runtime** (T012f): host-side install to `/opt/Percussion` via `scripts/install-cms-dev.sh`; container via `docker compose up -d cms-dts`. Verifies CMS reachable at `http://localhost:9992/Rhythmyx/login`.
+6. **Bring up docker dev runtime** (T012f): host-side install to `/opt/Percussion` via `scripts/install-cms-dev.py`; container via `docker compose up -d cms-dts`. Verifies CMS reachable at `http://localhost:9992/Rhythmyx/login`.
 7. **Bring up Playwright** (T012g): `cd modules/perc-qa-automation/frontend && npm ci && npx playwright install chromium`. Verifies `tests/login.spec.js` passes against the live CMS.
 
 ### Phase B — US1 Core explorer (P1) — **hard-cut gate**

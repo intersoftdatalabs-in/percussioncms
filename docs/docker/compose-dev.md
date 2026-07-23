@@ -270,7 +270,7 @@ Build just the module jar, then deploy into running container:
 
 ```bash
 ./mvn-env.sh -pl modules/utils -am package -DskipTests
-./docker/scripts/hot-deploy-jar.sh --jar modules/utils/target/<your-jar>.jar --target both --restart
+./docker/scripts/hot-deploy-jar.py --jar modules/utils/target/<your-jar>.jar --target both --restart
 ```
 
 Agent-friendly equivalent with optional post-deploy verification:

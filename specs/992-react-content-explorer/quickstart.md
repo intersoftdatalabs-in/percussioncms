@@ -21,13 +21,13 @@ A `docker-compose.yml` stack brings up the `cms-dts` container against a host-si
 cp .env.compose.example .env.compose            # edit secrets if needed (defaults work for local dev)
 
 # 2. Host-side install (one-time per branch; idempotent via marker file)
-./scripts/install-cms-dev.sh --skip-dts         # CMS-only install (DTS is out of dev scope)
+./scripts/install-cms-dev.py --skip-dts         # CMS-only install (DTS is out of dev scope)
 
 # 3. Bring up the container
 docker compose --env-file .env.compose -f docker-compose.yml up -d cms-dts
 
 # 4. Verify
-./docker/scripts/perc-devctl.sh verify           # polls login + DTS endpoints, 30 s start_period + 60 retries
+./docker/scripts/perc-devctl.py verify           # polls login + DTS endpoints, 30 s start_period + 60 retries
 
 # 5. Admin creds live at /opt/Percussion/var/config/generated/passwords:
 #    Admin=<pw>, Editor=<pw>, Contributor=<pw>

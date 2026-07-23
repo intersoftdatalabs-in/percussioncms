@@ -158,7 +158,7 @@ Key testing guidelines:
 For development, use the hot-deploy script to rebuild and deploy:
 
 ```bash
-./scripts/hot-deploy-local.sh --install-dir /path/to/install --modules rest,system --restart
+./scripts/hot-deploy-local.py --install-dir /path/to/install --modules rest,system --restart
 ```
 
 ## Dependencies

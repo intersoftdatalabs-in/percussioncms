@@ -25,7 +25,7 @@ services:
 >>>>>>> 2d35a93c49 (feat(docker): install-on-host CMS dev runtime with container service-only mode)
     environment:
       # Container is service-only. The install lives entirely on the
-      # host (scripts/install-cms-dev.sh) and the bind mount below
+      # host (scripts/install-cms-dev.py) and the bind mount below
       # surfaces the host's install_root/ as /opt/Percussion/.
       SERVICE_MODE: ${SERVICE_MODE:-cms-dts}
       PERC_INSTALL_ROOT: ${PERC_INSTALL_ROOT:-/opt/Percussion}
