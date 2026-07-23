@@ -911,6 +911,65 @@
                             </artifactItems>
                         </configuration>
                     </execution>
+                    <execution>
+                        <id>copy-deployment-server-common-lib</id>
+                        <goals>
+                            <goal>copy</goal>
+                        </goals>
+                        <!--
+                          Bundle the runtime libraries installDts.xml copies out of
+                          ${install.src}/Deployment/Server/common/lib/ at line 345-349
+                          (log4j*.jar, commons-logging*.jar, slf4j*.jar). Without this,
+                          the bundled Ant installer fails at line 344 with
+                          'Deployment\Server\common\lib does not exist' (#1473).
+                          Run at prepare-package so the jars are staged alongside
+                          perc-ant.jar / perc-service-wrapper.jar before jar-plugin
+                          packages the staging tree.
+
+                          disrupter*.jar is not bundled because installDts.xml line 349
+                          has a glob typo (it should be disruptor*.jar). The actual
+                          `com.lmax:disruptor` jar is copied under the disruptor*.jar
+                          name so the install script's typo'd glob can pick it up if
+                          corrected in a follow-up.
+                        -->
+                        <phase>prepare-package</phase>
+                        <configuration>
+                            <artifactItems>
+                                <artifactItem>
+                                    <groupId>org.apache.logging.log4j</groupId>
+                                    <artifactId>log4j-api</artifactId>
+                                    <type>jar</type>
+                                    <outputDirectory>${assembly-directory}/Deployment/Server/common/lib</outputDirectory>
+                                </artifactItem>
+                                <artifactItem>
+                                    <groupId>org.apache.logging.log4j</groupId>
+                                    <artifactId>log4j-core</artifactId>
+                                    <type>jar</type>
+                                    <outputDirectory>${assembly-directory}/Deployment/Server/common/lib</outputDirectory>
+                                </artifactItem>
+                                <artifactItem>
+                                    <groupId>commons-logging</groupId>
+                                    <artifactId>commons-logging</artifactId>
+                                    <type>jar</type>
+                                    <outputDirectory>${assembly-directory}/Deployment/Server/common/lib</outputDirectory>
+                                </artifactItem>
+                                <artifactItem>
+                                    <groupId>org.slf4j</groupId>
+                                    <artifactId>slf4j-api</artifactId>
+                                    <type>jar</type>
+                                    <outputDirectory>${assembly-directory}/Deployment/Server/common/lib</outputDirectory>
+                                </artifactItem>
+                                <artifactItem>
+                                    <groupId>com.lmax</groupId>
+                                    <artifactId>disruptor</artifactId>
+                                    <type>jar</type>
+                                    <outputDirectory>${assembly-directory}/Deployment/Server/common/lib</outputDirectory>
+                                </artifactItem>
+                            </artifactItems>
+                            <overWriteReleases>false</overWriteReleases>
+                            <overWriteSnapshots>true</overWriteSnapshots>
+                        </configuration>
+                    </execution>
                 </executions>
             </plugin>
             <plugin>
