@@ -92,19 +92,19 @@
 
 **Independent Test (per `quickstart.md` Scenario E.2 + E.3)**: Every skill helper's `--help` exits 0; `python3 -m pytest modules/ai-shared-develop/src/main/resources/skills/ -v` exits 0 on Linux + Windows; the parent module's `mvn-env.sh clean install` of `modules/ai-shared-develop` stays green (SC-007).
 
-- [ ] T054 [P] [US4] Create `modules/ai-shared-develop/src/main/resources/skills/percussioncms-dev/scripts/api-client.py` + `test_api_client.py` per contracts
-- [ ] T055 [P] [US4] Create `modules/ai-shared-develop/src/main/resources/skills/percussioncms-dev/scripts/download-latest.py` + `test_download_latest.py` per contracts
-- [ ] T056 [P] [US4] Create `modules/ai-shared-develop/src/main/resources/skills/percussioncms-dev/scripts/install-cms.py` + `test_install_cms.py` per contracts
-- [ ] T057 [P] [US4] Create `modules/ai-shared-develop/src/main/resources/skills/percussioncms-dev/scripts/install-dts.py` + `test_install_dts.py` per contracts
-- [ ] T058 [P] [US4] Create `modules/ai-shared-develop/src/main/resources/skills/percussioncms-dev/scripts/start-cms.py` + `test_start_cms.py` per contracts
-- [ ] T059 [P] [US4] Create `modules/ai-shared-develop/src/main/resources/skills/percussioncms-dev/scripts/start-dts.py` + `test_start_dts.py` per contracts
-- [ ] T060 [P] [US4] Create `modules/ai-shared-develop/src/main/resources/skills/javadoc/scripts/generate-javadoc-stubs.py` + `test_generate_javadoc_stubs.py` per contracts
-- [ ] T061 [US4] Update each affected skill's `SKILL.md` to reference the new `.py` entry points and drop `.sh` references (FR-011)
-- [ ] T062 [US4] Delete the `.sh` files under `modules/ai-shared-develop/src/main/resources/skills/*/scripts/` (FR-004)
-- [ ] T063 [US4] Run `python3 -m pytest modules/ai-shared-develop/src/main/resources/skills/ -v` locally; run on Windows too
-- [ ] T064 [US4] Verify `cd modules/ai-shared-develop && ../../mvn-env.sh clean install` succeeds with no new warnings (SC-007)
-- [ ] T065 [US4] Open PR titled `build(ai-shared/skills): migrate skill helper scripts to cross-platform Python`
-- [ ] T066 [US4] Run Erlang review; resolve review threads; verify CI green on both runners; wait for human approval and merge
+- [X] T054 [P] [US4] Create `modules/ai-shared-develop/src/main/resources/skills/percussioncms-dev/scripts/api-client.py` + `test_api_client.py` per contracts
+- [X] T055 [P] [US4] Create `modules/ai-shared-develop/src/main/resources/skills/percussioncms-dev/scripts/download-latest.py` + `test_download_latest.py` per contracts
+- [X] T056 [P] [US4] Create `modules/ai-shared-develop/src/main/resources/skills/percussioncms-dev/scripts/install-cms.py` + `test_install_cms.py` per contracts
+- [X] T057 [P] [US4] Create `modules/ai-shared-develop/src/main/resources/skills/percussioncms-dev/scripts/install-dts.py` + `test_install_dts.py` per contracts
+- [X] T058 [P] [US4] Create `modules/ai-shared-develop/src/main/resources/skills/percussioncms-dev/scripts/start-cms.py` + `test_start_cms.py` per contracts
+- [X] T059 [P] [US4] Create `modules/ai-shared-develop/src/main/resources/skills/percussioncms-dev/scripts/start-dts.py` + `test_start_dts.py` per contracts
+- [X] T060 [P] [US4] Create `modules/ai-shared-develop/src/main/resources/skills/javadoc/scripts/generate-javadoc-stubs.py` + `test_generate_javadoc_stubs.py` per contracts
+- [X] T061 [US4] Update each affected skill's `SKILL.md` to reference the new `.py` entry points and drop `.sh` references (FR-011)
+- [X] T062 [US4] Delete the `.sh` files under `modules/ai-shared-develop/src/main/resources/skills/*/scripts/` (FR-004)
+- [X] T063 [US4] Run `python3 -m pytest modules/ai-shared-develop/src/main/resources/skills/ -v` locally; run on Windows too
+- [X] T064 [US4] Verify `cd modules/ai-shared-develop && ../../mvn-env.sh clean install` succeeds with no new warnings (SC-007)
+- [X] T065 [US4] Open PR titled `build(ai-shared/skills): migrate skill helper scripts to cross-platform Python`
+- [X] T066 [US4] Run Erlang review; resolve review threads; verify CI green on both runners; wait for human approval and merge
 
 ## Phase 6: `modules/perc-distribution-tree/` build verification + APIUpdate helpers (Scope 3)
 
