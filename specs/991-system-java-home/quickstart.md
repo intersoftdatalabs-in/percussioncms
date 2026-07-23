@@ -14,13 +14,18 @@
 ## Automated checks (CI / local)
 
 ```bash
-# From repo root — module list finalized in tasks.md; examples:
-./mvn-env.sh -pl modules/perc-jetty -am test -Dtest='*JavaHome*,*ResolveJava*,InstallJetty*'
-./mvn-env.sh -pl modules/perc-distribution-tree -am test -Dtest='*JavaHome*,*Preinstall*Java*'
+# From repo root — full FR-013 layer-1 + layer-2 + layer-3 matrix
+./mvn-env.sh -pl modules/perc-jetty,modules/perc-distribution-tree,deliverytiersuite/delivery-tier-suite/delivery-tier-distribution -am test -Dtest='JavaHomeResolverTest,JavaPropertiesSupportTest,JavaCandidateDiscoveryTest,JavaInstallSelectionTest,ResolveJavaHomeScriptTest,DtsJavaHomeScriptTest,InstallJettyServiceJavaHomeTest,ResolveJavaHomeBehaviorTest'
 # DTS module tests similarly once added under delivery-tier-distribution
 ```
 
-**Expect**: Resolution precedence tests pass; invalid major versions rejected; property write/read round-trip on temp dirs (portable `Path`).
+**Expect** (FR-013 + SC-006): all three layers green —
+
+- **Layer 1 — unit tests** pass (`JavaHomeResolverTest`, `JavaPropertiesSupportTest`, `JavaCandidateDiscoveryTest`, `JavaInstallSelectionTest`).
+- **Layer 2 — structural tests** assert the runtime scripts source/call the resolver and embed the contract markers (`ResolveJavaHomeScriptTest`, `DtsJavaHomeScriptTest`, `InstallJettyServiceJavaHomeTest`, `InstallJettyServiceScriptTest`).
+- **Layer 3 — behavioral tests** (`ResolveJavaHomeBehaviorTest`) actually invoke `resolve-java-home.sh` on Linux + macOS against fixture scenarios: config-only, env-only, PATH-only, config beats env, env rejects wrong major (Java 8), PATH rejects wrong major (Java 8), and config rejects invalid path. The fake-`java` fixture at `src/test/resources/fixtures/fake-java-home/jre/bin/` is a tiny shell script that echoes a synthetic `openjdk version "X.Y.Z"` line on stderr where the major version is encoded in the parent directory's basename suffix (e.g. `fake-java-home-21` emits `21.0.0`). Each scenario is a single `@ParameterizedTest` parameterized by major version, giving 7 test methods on Linux + macOS. Windows coverage is provided structurally by `DtsJavaHomeScriptTest` and `ResolveJavaHomeScriptTest` until a real PE-binary launcher fixture is available.
+
+No real multi-JDK installations required. CI runs all three layers in parallel with the existing unit / structural suite; SC-006 closes when this command returns `BUILD SUCCESS`.
 
 ## Smoke A — CMS without InstallDir/JRE (SC-001)
 

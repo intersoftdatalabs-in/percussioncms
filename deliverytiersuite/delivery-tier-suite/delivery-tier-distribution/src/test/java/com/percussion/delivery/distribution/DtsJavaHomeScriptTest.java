@@ -165,6 +165,45 @@ class DtsJavaHomeScriptTest {
         "Procrun --JavaHome is wired to resolved Java home");
   }
 
+  /**
+   * Regression for issue #1475: the ciphers {@code <replace>} in
+   * installDts.xml must be gated on an {@code <available>} check for
+   * {@code Deployment/Server/conf/server.xml}, otherwise fresh installs
+   * (where the file does not yet exist) crash at line 1059 with
+   * "Replace: source file ... doesn't exist". Without the guard, the
+   * entire install aborts.
+   */
+  @Test
+  void installDtsCiphersReplaceIsGatedOnServerXmlPresence() throws Exception {
+    Path script =
+        Path.of(
+            "src",
+            "main",
+            "rootFiles",
+            "rxconfig",
+            "Installer",
+            "installDts.xml");
+    assertTrue(
+        Files.isRegularFile(script), () -> "missing " + script.toAbsolutePath());
+    String xml = Files.readString(script, StandardCharsets.UTF_8);
+
+    // Find the "Adding Ciphers to connector..." block and assert the
+    // immediately-following <if> contains an <available> guard for
+    // server.xml.
+    int ciphersIdx = xml.indexOf("Adding Ciphers to connector");
+    assertTrue(ciphersIdx >= 0, "'Adding Ciphers to connector...' block missing");
+    int ifIdx = xml.indexOf("<if>", ciphersIdx);
+    assertTrue(ifIdx > ciphersIdx, "no <if> after ciphers block");
+    int thenIdx = xml.indexOf("<then>", ifIdx);
+    assertTrue(thenIdx > ifIdx, "no <then> after ciphers <if>");
+    String block = xml.substring(ifIdx, thenIdx);
+    assertTrue(
+        block.contains("<available file=\"${install.dir}${staging.dir}/Deployment/Server/conf/server.xml\""),
+        "ciphers <if> block must guard on <available ...server.xml ...>; "
+            + "without it, fresh installs (no server.xml yet) crash at line 1059. "
+            + "See issue #1475.");
+  }
+
   @Test
   void dtsStagingServiceShDoesNotWrapResolverInSubshell() throws Exception {
     // Regression for kilo-code-bot PR review thread 3631027600.

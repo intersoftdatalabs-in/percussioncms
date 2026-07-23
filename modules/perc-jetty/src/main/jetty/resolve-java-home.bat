@@ -27,19 +27,15 @@ if not "%~1"=="" (
 ) else (
     set "INSTALL_ROOT=%~dp0.."
 )
-REM Normalize trailing backslash via pushd/popd to get a canonical, testable path.
-pushd "%INSTALL_ROOT%" >nul 2>&1
-if errorlevel 1 (
-    echo resolve-java-home: cannot resolve install root %INSTALL_ROOT% 1>&2
-    endlocal & exit /b 1
-)
-set "INSTALL_ROOT=%CD%"
-popd >nul
+REM Canonicalize via the for %%~fI expansion. This is portable across cmd.exe
+REM versions and does not rely on pushd/popd + %CD% which has subtle failures
+REM under some service-account contexts.
+for %%I in ("%INSTALL_ROOT%") do set "INSTALL_ROOT=%%~fI"
 
 set LAUNCHER=java.exe
 
-REM ----- helper: validate a Java home by executing the launcher with -version -----
-REM Args: %1 = candidate home. Sets VALID and PARSED_MAJOR. Returns 0 valid, 1 invalid.
+REM ----- helper: capture launcher -version output into a temp file -----
+REM   Args: %1 = candidate home.  Sets VERSION_LINE.  Returns 0 valid, 1 invalid.
 goto :main
 
 :validate_java_home
@@ -49,21 +45,35 @@ goto :main
         echo launcher missing: %EXE% 1>&2
         exit /b 1
     )
-    for /f "usebackq tokens=2 delims=" %%v in ('"%EXE%" -version 2^>^&1') do (
+    REM java -version writes to stderr; redirect both to a temp file so the
+    REM parser below does not have to depend on `for /F usebackq` command-form
+    REM quirks across Windows versions.
+    set "TEMP_JV=%TEMP%\perc-jv-%RANDOM%.tmp"
+    "%EXE%" -version 1>"%TEMP_JV%" 2>&1
+    if errorlevel 1 (
+        echo could not execute %EXE% for -version 1>&2
+        del "%TEMP_JV%" >nul 2>&1
+        exit /b 1
+    )
+    for /f "usebackq tokens=3 delims= " %%v in ("%TEMP_JV%") do (
         set "VERSION_LINE=%%v"
+        del "%TEMP_JV%" >nul 2>&1
         goto :parse_version_line
     )
+    del "%TEMP_JV%" >nul 2>&1
     echo could not parse version output for %EXE% 1>&2
     exit /b 1
 
 :parse_version_line
-    REM Strip surrounding double quotes then split on . / -
+    REM Strip surrounding double quotes then split on . + -
     set "RAW=%VERSION_LINE%"
     set "RAW=%RAW:"=%"
     for /f "tokens=1 delims=.+-" %%a in ("%RAW%") do (
         set "MAJOR=%%a"
         goto :check_major
     )
+    echo could not parse major from version line "%VERSION_LINE%" for %EXE% 1>&2
+    exit /b 1
 
 :check_major
     if "%MAJOR%"=="1" (
@@ -71,7 +81,6 @@ goto :main
         for /f "tokens=2 delims=." %%b in ("%RAW%") do (
             set "MAJOR=%%b"
         )
-    )
     )
     if "%MAJOR%"=="%REQUIRED_MAJOR%" (
         exit /b 0
@@ -154,7 +163,7 @@ REM ----- source 4: PATH discovery (best-effort; quiet fail) -----
     for %%D in ("%PATH:;=";"%") do (
         set "DIR=%%~D"
         if exist "!DIR!\%LAUNCHER%" (
-            REM Pushd into the parent of bin to canonicalize.
+            REM Canonicalize the parent of bin via for %%~fI to compute the home.
             set "BIN=!DIR!"
             goto :path_check
         )
@@ -162,14 +171,7 @@ REM ----- source 4: PATH discovery (best-effort; quiet fail) -----
     call :record_error PATH "%LAUNCHER%" "no launcher found"
     exit /b 1
 :path_check
-    pushd "%BIN%\.." >nul 2>&1
-    if errorlevel 1 (
-        call :record_error PATH "%BIN%" "could not resolve home"
-        popd >nul 2>&1
-        exit /b 1
-    )
-    set "HOME_DIR=%CD%"
-    popd >nul 2>&1
+    for %%I in ("!BIN!\..") do set "HOME_DIR=%%~fI"
     call :validate_java_home "!HOME_DIR!"
     if not errorlevel 1 (
         set "JAVA_HOME=!HOME_DIR!"
