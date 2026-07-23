@@ -55,7 +55,7 @@ goto :main
         del "%TEMP_JV%" >nul 2>&1
         exit /b 1
     )
-    for /f "tokens=3 delims= " %%v in ("%TEMP_JV%") do (
+    for /f "usebackq tokens=3 delims= " %%v in ("%TEMP_JV%") do (
         set "VERSION_LINE=%%v"
         del "%TEMP_JV%" >nul 2>&1
         goto :parse_version_line
