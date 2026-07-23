@@ -25,6 +25,29 @@ Phase 7 closes out spec 994-python-build-scripts. The diff is **docs-only** plus
 
 No blocking issues.
 
+## Re-review (commit `57a3905180`, post-initial-review)
+
+Kilo-code-bot flagged CRITICAL dbId 3634830202: `docker-compose.yml` contained **TWO unresolved merge-conflict zones** (lines 8-25 and lines 53-64) inherited from `origin/development` since PRs #1386/#1389 (commits `2d35a93c49` vs `052c18b956`). My Phase 7 initial commit (`4da0e8a30e`) edited the file without resolving the conflicts — Erlang review was blind to this because the conflict markers pre-existed on the base branch.
+
+**Fix applied in commit `57a3905180`:**
+- Zone 1 (cms-dts.user): kept HEAD `${CMS_UID:-1000}:${CMS_GID:-1001}` env-var override; rejected hardcoded `user: "1000:1001"` from commit 2d35a93c49 (env-var-driven is portable across hosts per AGENTS.md cross-platform rules).
+- Zone 2 (healthcheck + top-level volumes): kept HEAD content (retries + start_period + `volumes: mysql-data:` named volume); rejected bare retries/start_period from both incoming branches.
+
+**Verified:**
+- No `<<<<<<<`, `=======`, or `>>>>>>>` markers remain.
+- YAML parses via PyYAML: `services=[cms-dts]`, `volumes=[mysql-data]`, `cms-dts.user="${CMS_UID:-1000}:${CMS_GID:-1001}"`, `healthcheck.retries=60`, `healthcheck.start_period=30s`.
+- Kilo-code-bot review thread resolved (dbId 3634830202 → PRRT_kwDOKZBp3M6TG-Ev `isResolved: true`).
+
+**Process improvement noted:** Erlang review on a branch must explicitly compare the working tree against `origin/development`'s blob, not just the diff line count, when the base branch may contain stale unresolved conflict markers. A pre-review `git show origin/development:<file>` check for any file in the diff that has no recorded modification history since the last clean base is warranted.
+
+## Side benefit
+
+Fixes a long-broken pre-existing dev container: `docker compose up` against the prior `docker-compose.yml` would have failed to parse the YAML due to the active conflict markers. Any developer running the docker dev runtime post-PR #1386 was silently affected.
+
+## Memory
+
+- `spec_994_phase7_merge_conflict_inheritance`: Erlang review must verify base-branch file content (not just the diff) when files appear "unchanged" in the diff stat but exist with broken markers on the base.
+
 ### Notes (non-blocking)
 
 1. **`WebUI/src/test/ts/scripts/verify-no-finder-jsp-references.test.ts`** — Fixed a real bug introduced by Phase 2 (PR #1463): the Vitest CI gate still invoked the deleted `scripts/verify-no-finder-jsp-references.sh` via `sh`. The test asserted `existsSync(GATE_SH)` (always false post-Phase 2) and tried to exec the missing file. I rewrote the test to invoke `scripts/verify-no-finder-jsp-references.py` via `python3`, which is portable across Linux/macOS/Windows and matches spec 994 FR-001a. **Local run:** 2/2 tests pass in 3.84 s. (`WebUI/src/test/ts/scripts/verify-no-finder-jsp-references.test.ts:43-85`)
