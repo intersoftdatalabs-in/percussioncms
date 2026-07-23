@@ -1047,12 +1047,23 @@
 			</if>
 
 			<echo>Adding Ciphers to connector...</echo>
+			<!--
+			  Issue #1475: skip the ciphers replacement on fresh installs where
+			  Deployment/Server/conf/server.xml does not yet exist. The replacement
+			  is an upgrade-only operation; for fresh installs (or for any install
+			  target that lacks the file) the section below silently no-ops. The
+			  `<available>` guard is the same pattern used elsewhere in this script
+			  to defer to the install target's existing layout.
+			-->
 			<if>
-				<not>
-					<resourcecontains
-						resource="${install.dir}${staging.dir}/Deployment/Server/conf/server.xml"
-						substring="ciphers=" />
-				</not>
+				<and>
+					<available file="${install.dir}${staging.dir}/Deployment/Server/conf/server.xml" type="file" />
+					<not>
+						<resourcecontains
+							resource="${install.dir}${staging.dir}/Deployment/Server/conf/server.xml"
+							substring="ciphers=" />
+					</not>
+				</and>
 				<then>
 					<replace
 						file="${install.dir}${staging.dir}/Deployment/Server/conf/server.xml"
@@ -1065,17 +1076,33 @@
 				</then>
 			</if>
 
-			<replace
-				file="${install.dir}${staging.dir}/Deployment/Server/bin/setenv.sh"
-				summary="yes" token="@JAVA_OPTS@"
-				value="-Drxdeploydir=${install.dir}">
-			</replace>
+			<!--
+			  Issue #1475: same fresh-install guard as the ciphers block above.
+			  setenv.sh / setenv.bat are staged by the install script from a
+			  previous install; on a fresh install the files do not yet exist,
+			  so the token-replace would fail with 'source file ... doesn't exist'.
+			-->
+			<if>
+				<available file="${install.dir}${staging.dir}/Deployment/Server/bin/setenv.sh" type="file" />
+				<then>
+					<replace
+						file="${install.dir}${staging.dir}/Deployment/Server/bin/setenv.sh"
+						summary="yes" token="@JAVA_OPTS@"
+						value="-Drxdeploydir=${install.dir}">
+					</replace>
+				</then>
+			</if>
 
-			<replace
-				file="${install.dir}${staging.dir}/Deployment/Server/bin/setenv.bat"
-				summary="yes" token="@JAVA_OPTS@"
-				value="-Drxdeploydir=${install.dir}">
-			</replace>
+			<if>
+				<available file="${install.dir}${staging.dir}/Deployment/Server/bin/setenv.bat" type="file" />
+				<then>
+					<replace
+						file="${install.dir}${staging.dir}/Deployment/Server/bin/setenv.bat"
+						summary="yes" token="@JAVA_OPTS@"
+						value="-Drxdeploydir=${install.dir}">
+					</replace>
+				</then>
+			</if>
 
 			<echo>Registering current TLS ciphers...</echo>
 			<echo>NOTE: Ciphers supported will depend on the JRE version and make
