@@ -42,8 +42,13 @@ import java.util.zip.ZipInputStream;
  * {@code modules/perc-distribution-tree/scripts/README.md} and root {@code AGENTS.md} cross-platform
  * rules.
  *
- * <p>Exit codes match the original POSIX script exactly, so any existing tooling that observes
- * them (CI dashboards, the README's table, downstream scripts) keeps working.
+ * <p>Logical exit codes match the original POSIX script (and {@code run(String[])} return values)
+ * so unit tests and the Python operator port stay aligned. The {@code main} method must
+ * <strong>not</strong> call {@link System#exit} when invoked via {@code exec-maven-plugin:java}:
+ * that goal runs in the Maven JVM, so {@code System.exit(0)} after a successful check aborts
+ * the reactor mid-verify (no install, no later modules). Non-zero results throw so the mojo
+ * fails the build; zero returns normally. Forked CLI runs that need process exit codes can pass
+ * {@code -Dperc.build.gate.systemExit=true}.
  */
 public final class VerifyJdbcDrivers {
 
@@ -68,7 +73,7 @@ public final class VerifyJdbcDrivers {
       System.err.println("ERROR: " + e.getMessage());
       code = EXIT_INVOCATION;
     }
-    System.exit(code);
+    BuildGateMains.complete(code, "VerifyJdbcDrivers");
   }
 
   /**

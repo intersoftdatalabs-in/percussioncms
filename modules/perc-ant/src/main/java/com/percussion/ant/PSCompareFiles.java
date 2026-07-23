@@ -28,8 +28,12 @@ import org.apache.tools.ant.Task;
  */
 public class PSCompareFiles extends Task {
   /**
-   * This directory contains files which will be scanned and compared against those found in the
-   * directory specified by {@link #m_dir2}.
+   * Creates a new file comparison task.
+   */
+  public PSCompareFiles() {}
+
+  /**
+   * Sets the first directory of files to be compared.
    *
    * @param dir the first directory of files to be compared.
    */

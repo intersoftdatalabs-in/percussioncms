@@ -43,6 +43,9 @@ import org.xml.sax.InputSource;
  * This class is the build-time gate; the JUnit test runs in {@code test} phase, this runs in
  * {@code verify} phase, so the build still catches the regression when run with {@code mvn -DskipTests
  * install}.
+ *
+ * <p>Like {@link VerifyJdbcDrivers}, {@code main} must not call {@link System#exit} under
+ * {@code exec-maven-plugin:java} (in-process Maven JVM). See {@link BuildGateMains}.
  */
 public final class CheckNoGlobDeletes {
 
@@ -55,25 +58,34 @@ public final class CheckNoGlobDeletes {
 
   private CheckNoGlobDeletes() {}
 
+  /** Entry point for the build gate; returns via {@link BuildGateMains#complete(int, String)}. */
   public static void main(String[] args) {
+    BuildGateMains.complete(run(args), "CheckNoGlobDeletes");
+  }
+
+  /**
+   * Gate logic returning a process-style exit code (for tests and {@link #main}). Does not call
+   * {@link System#exit}.
+   */
+  static int run(String[] args) {
     Path installXml = computeDefaultInstallXmlPath();
     for (int i = 0; i < args.length; i++) {
       String flag = args[i];
       if ("--install-xml".equals(flag)) {
         if (++i >= args.length) {
           System.err.println("ERROR: --install-xml requires a value");
-          System.exit(EXIT_INVOCATION);
+          return EXIT_INVOCATION;
         }
         installXml = Paths.get(args[i]);
       } else {
         System.err.println("ERROR: unknown argument: " + flag);
         System.err.println("Usage: CheckNoGlobDeletes [--install-xml <path>]");
-        System.exit(EXIT_INVOCATION);
+        return EXIT_INVOCATION;
       }
     }
     if (!Files.isRegularFile(installXml)) {
       System.err.println("ERROR: install.xml not found: " + installXml);
-      System.exit(EXIT_INVOCATION);
+      return EXIT_INVOCATION;
     }
 
     List<String> globs;
@@ -81,8 +93,7 @@ public final class CheckNoGlobDeletes {
       globs = collectGlobsInDeleteBlock(installXml);
     } catch (IOException | ParserConfigurationException | org.xml.sax.SAXException e) {
       System.err.println("ERROR: failed to parse install.xml: " + e.getMessage());
-      System.exit(EXIT_INVOCATION);
-      return;
+      return EXIT_INVOCATION;
     }
     if (!globs.isEmpty()) {
       System.err.println(
@@ -93,20 +104,95 @@ public final class CheckNoGlobDeletes {
       System.err.println(
           "Fix: replace each glob with the exact bundled-driver filename (see BundledJdbcDrivers"
               + " constant in the test sources).");
-      System.exit(EXIT_GLOB_FOUND);
-      return;
+      return EXIT_GLOB_FOUND;
     }
     System.out.println(
         "OK: install_jdbc_drivers <delete> uses exact filenames only; no glob patterns found");
-    System.exit(EXIT_OK);
+    return EXIT_OK;
   }
 
-  /** Resolves the classpath-default {@code install.xml} relative to a base (used in tests). */
+  /**
+   * Resolves the default {@code install.xml} when {@code --install-xml} is not passed.
+   *
+   * <p>Tries several locations so the gate works both when the process CWD is the module root
+   * (standalone {@code mvn} from {@code modules/perc-distribution-tree}) and when Maven was
+   * launched from the monorepo root (multi-module reactor). The Maven {@code verify} execution
+   * still passes an explicit {@code --install-xml ${project.basedir}/...} path; this method is
+   * the fallback for CLI / tests without that argument.
+   */
   static Path computeDefaultInstallXmlPath() {
-    // Same resolution as the POSIX script: relative to the module working
-    // directory. The check is wired into the verify phase with the Maven
-    // default working directory at modules/perc-distribution-tree/.
-    return Paths.get("src", "main", "resources", "distribution", "rxconfig", "Installer", "install.xml");
+    Path relative =
+        Paths.get("src", "main", "resources", "distribution", "rxconfig", "Installer", "install.xml");
+    List<Path> candidates = new ArrayList<>();
+    candidates.add(relative);
+
+    // Maven / surefire often expose the module directory as -Dbasedir=...
+    String basedir = System.getProperty("basedir");
+    if (basedir != null && !basedir.isBlank()) {
+      candidates.add(
+          Paths.get(
+              basedir,
+              "src",
+              "main",
+              "resources",
+              "distribution",
+              "rxconfig",
+              "Installer",
+              "install.xml"));
+    }
+
+    // Reactor root when Maven sets maven.multiModuleProjectDirectory
+    String multi = System.getProperty("maven.multiModuleProjectDirectory");
+    if (multi != null && !multi.isBlank()) {
+      candidates.add(
+          Paths.get(
+              multi,
+              "modules",
+              "perc-distribution-tree",
+              "src",
+              "main",
+              "resources",
+              "distribution",
+              "rxconfig",
+              "Installer",
+              "install.xml"));
+    }
+
+    // Walk up from user.dir looking for the module layout (operator CLI from a subdir / monorepo root)
+    Path cwd = Paths.get("").toAbsolutePath().normalize();
+    Path dir = cwd;
+    for (int depth = 0; dir != null && depth < 8; depth++, dir = dir.getParent()) {
+      candidates.add(
+          dir.resolve(
+              Paths.get(
+                  "src",
+                  "main",
+                  "resources",
+                  "distribution",
+                  "rxconfig",
+                  "Installer",
+                  "install.xml")));
+      candidates.add(
+          dir.resolve(
+              Paths.get(
+                  "modules",
+                  "perc-distribution-tree",
+                  "src",
+                  "main",
+                  "resources",
+                  "distribution",
+                  "rxconfig",
+                  "Installer",
+                  "install.xml")));
+    }
+
+    for (Path candidate : candidates) {
+      if (Files.isRegularFile(candidate)) {
+        return candidate;
+      }
+    }
+    // Prefer the relative path in the error message when nothing matches
+    return relative;
   }
 
   /**

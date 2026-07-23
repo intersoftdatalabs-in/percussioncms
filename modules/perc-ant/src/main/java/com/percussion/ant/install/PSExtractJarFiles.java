@@ -55,7 +55,14 @@ import java.util.jar.JarFile;
  *
  * </pre>
  */
+/**
+ * Extracts files from JAR files.
+ */
 public class PSExtractJarFiles extends PSAction {
+  /**
+   * Creates a new JAR file extraction task.
+   */
+  public PSExtractJarFiles() {}
   // see base class
   @Override
   public void execute() {
@@ -225,14 +232,18 @@ public class PSExtractJarFiles extends PSAction {
   }
 
   /**
-   * @return Returns the m_neverReplaceFilter.
+   * Returns the list of files that should never be replaced during extraction.
+   *
+   * @return the never-replace filter patterns, never <code>null</code> but may be empty.
    */
   public String[] getNeverReplaceFilter() {
     return m_neverReplaceFilter;
   }
 
   /**
-   * @param replaceFilter The m_neverReplaceFilter to set.
+   * Sets the list of files that should never be replaced during extraction.
+   *
+   * @param replaceFilter the never-replace filter patterns, may be <code>null</code> or empty.
    */
   public void setNeverReplaceFilter(String replaceFilter) {
     m_neverReplaceFilter = convertToArray(replaceFilter);

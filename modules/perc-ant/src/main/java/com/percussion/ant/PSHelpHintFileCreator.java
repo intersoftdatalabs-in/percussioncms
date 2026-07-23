@@ -62,7 +62,11 @@ public class PSHelpHintFileCreator {
     m_target = target;
   }
 
-  /** Create the help hint file */
+  /**
+   * Create the help hint file
+   *
+   * @throws IOException if the target file cannot be written.
+   */
   public void createFile() throws IOException {
     validatePaths();
     Properties mappings = loadMappings();
@@ -89,13 +93,15 @@ public class PSHelpHintFileCreator {
   /**
    * Set debug on or off
    *
-   * @param on
+   * @param on <code>true</code> to enable debug mode, <code>false</code> to disable.
    */
   public void setDebug(boolean on) {
     m_debug = on;
   }
 
   /**
+   * Returns an iterator of all unique parsed images.
+   *
    * @return iterator of all unique parsed images. Never <code>null</code>, may be empty.
    */
   public Iterator getImages() {
@@ -449,7 +455,8 @@ public class PSHelpHintFileCreator {
   /**
    * Main used for testing only
    *
-   * @param args
+   * @param args command-line arguments, not used.
+   * @throws Exception if an error occurs during file creation.
    */
   public static void main(String[] args) throws Exception {
     String base = "E:\\rxMain\\Designer\\ui\\default-config\\rxconfig\\Workbench\\";

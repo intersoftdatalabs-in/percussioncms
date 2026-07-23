@@ -62,6 +62,10 @@ import java.io.IOException;
  * </pre>
  */
 public class PSCopyFileAction extends PSAction {
+  /**
+   * Creates a new file copy action task.
+   */
+  public PSCopyFileAction() {}
   // see base class
   @Override
   public void execute() {

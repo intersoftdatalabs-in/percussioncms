@@ -797,6 +797,14 @@
                         <phase>verify</phase>
                         <configuration>
                             <mainClass>com.percussion.distribution.install.CheckNoGlobDeletes</mainClass>
+                            <!-- Absolute module path: exec:java keeps the reactor launch CWD
+                                 (often repo root), so a relative src/main/resources/... path
+                                 fails outside modules/perc-distribution-tree. Same pattern as
+                                 verify-jdbc-drivers using ${project.build.directory}. -->
+                            <arguments>
+                                <argument>--install-xml</argument>
+                                <argument>${project.basedir}/src/main/resources/distribution/rxconfig/Installer/install.xml</argument>
+                            </arguments>
                         </configuration>
                     </execution>
                 </executions>

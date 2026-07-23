@@ -75,6 +75,10 @@ import java.util.Properties;
  * </pre>
  */
 public class PSDBXMLDataUpdate extends PSXMLFileUpdate {
+  /**
+   * Creates a new database XML update task.
+   */
+  public PSDBXMLDataUpdate() {}
   // see base class
 
   @Override

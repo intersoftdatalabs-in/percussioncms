@@ -66,6 +66,10 @@ class PSRelationshipSummaryServiceTest {
   @BeforeEach
   void setUp() {
     MockitoAnnotations.openMocks(this);
+    // Use the package-private test-friendly ctor so we can mock PSJcrNodeFinder directly without
+    // standing up a IPSContentMgr stub for createQuery / executeQuery. Spring uses the
+    // @Autowired primary ctor (which builds PSJcrNodeFinder from IPSContentMgr) — see #1419
+    // follow-up.
     service =
         new PSRelationshipSummaryService(
             idMapper,

@@ -39,26 +39,48 @@ class JavaCandidateDiscoveryTest {
   void discoversRunningJvmAndEnvAndPaths() throws IOException {
     String launcher = launcherForCurrentPlatform();
     Path jdk21 = makeHome(tempDir.resolve("jdk21"), "21", launcher);
+    Path jdk25 = makeHome(tempDir.resolve("jdk25"), "25", launcher);
     Path jdk8 = makeHome(tempDir.resolve("jdk8"), "1.8", launcher);
     Map<String, String> env = Map.of("JAVA_HOME", jdk21.toString());
-    // PATH includes jdk8 bin so discovery would consider it via PATH source.
+    // PATH includes jdk8 and jdk25 bins so discovery considers them via PATH.
+    String path =
+        jdk8.resolve("bin") + java.io.File.pathSeparator + jdk25.resolve("bin");
     List<JavaCandidateDiscovery.Candidate> raw =
-        JavaCandidateDiscovery.discover(env, jdk21.toString(),
-            jdk8.resolve("bin").toString());
+        JavaCandidateDiscovery.discover(env, jdk21.toString(), path);
 
     assertNotNull(raw);
     // Running JVM and JAVA_HOME both point at jdk21; we expect jdk21 to appear
-    // once and jdk8 to appear via PATH launcher inference.
+    // once and jdk8/jdk25 to appear via PATH launcher inference.
     long jdk21Count = raw.stream().filter(c -> c.path().toString().equals(jdk21.toString())).count();
     long jdk8Count = raw.stream().filter(c -> c.path().toString().equals(jdk8.toString())).count();
+    long jdk25Count = raw.stream().filter(c -> c.path().toString().equals(jdk25.toString())).count();
     assertEquals(1, jdk21Count, "jdk21 deduplicated across running JVM + env");
     assertTrue(jdk8Count >= 1, "jdk8 discovered via PATH launcher");
+    assertTrue(jdk25Count >= 1, "jdk25 discovered via PATH launcher");
 
     List<JavaCandidateDiscovery.Candidate> eligible = JavaCandidateDiscovery.eligible(raw);
-    assertTrue(eligible.stream().allMatch(c -> c.versionDisplay().startsWith("21")),
-        "all eligible candidates report Java 21 version");
+    assertTrue(
+        eligible.stream().allMatch(c ->
+            JavaCandidateDiscovery.Candidate.meetsMinimumMajor(c.versionDisplay())),
+        "all eligible candidates meet minimum major 21");
+    assertTrue(
+        eligible.stream().anyMatch(c -> c.path().toString().equals(jdk21.toString())),
+        "jdk21 must be eligible");
+    assertTrue(
+        eligible.stream().anyMatch(c -> c.path().toString().equals(jdk25.toString())),
+        "jdk25 must be eligible (21+)");
     assertFalse(eligible.stream().anyMatch(c -> c.path().toString().equals(jdk8.toString())),
         "jdk8 must not be eligible");
+  }
+
+  @Test
+  void meetsMinimumMajorAccepts21PlusRejectsOlder() {
+    assertTrue(JavaCandidateDiscovery.Candidate.meetsMinimumMajor("21"));
+    assertTrue(JavaCandidateDiscovery.Candidate.meetsMinimumMajor("25"));
+    assertFalse(JavaCandidateDiscovery.Candidate.meetsMinimumMajor("17"));
+    assertFalse(JavaCandidateDiscovery.Candidate.meetsMinimumMajor("1.8"));
+    assertFalse(JavaCandidateDiscovery.Candidate.meetsMinimumMajor(""));
+    assertFalse(JavaCandidateDiscovery.Candidate.meetsMinimumMajor(null));
   }
 
   private static String launcherForCurrentPlatform() {
@@ -81,7 +103,10 @@ class JavaCandidateDiscoveryTest {
     Files.writeString(target.resolve("release"),
         "JAVA_VERSION=\"" + majorMinor + ".0.1\"",
         StandardCharsets.UTF_8);
-    Files.createFile(target.resolve("bin").resolve(launcherName));
+    Path launcher = target.resolve("bin").resolve(launcherName);
+    Files.createFile(launcher);
+    // Eligibility requires an executable launcher on non-Windows hosts.
+    launcher.toFile().setExecutable(true, false);
     return target;
   }
 }

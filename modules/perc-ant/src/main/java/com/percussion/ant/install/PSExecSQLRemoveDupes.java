@@ -16,7 +16,14 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.tools.ant.BuildException;
 
+/**
+ * Executes a SQL statement to remove duplicate rows from a table.
+ */
 public class PSExecSQLRemoveDupes extends PSExecSQLStmt {
+  /**
+   * Creates a new SQL remove duplicates statement.
+   */
+  public PSExecSQLRemoveDupes() {}
   private static final Logger log = LogManager.getLogger(PSExecSQLRemoveDupes.class);
   private String qualifyingTableName = "";
   private String columns = "";
@@ -147,19 +154,39 @@ public class PSExecSQLRemoveDupes extends PSExecSQLStmt {
     }
   }
 
+  /**
+   * Gets the qualifying table name.
+   *
+   * @return the qualifying table name, never <code>null</code>, may be empty
+   */
   public String getQualifyingTableName() {
     return qualifyingTableName;
   }
 
+  /**
+   * Sets the qualifying table name.
+   *
+   * @param qualifyingTableName the qualifying table name, may be <code>null</code>
+   */
   public void setQualifyingTableName(String qualifyingTableName) {
     if (qualifyingTableName == null) qualifyingTableName = "";
     this.qualifyingTableName = qualifyingTableName;
   }
 
+  /**
+   * Gets the column names.
+   *
+   * @return the column names, never <code>null</code>, may be empty
+   */
   public String getColumns() {
     return columns;
   }
 
+  /**
+   * Sets the column names.
+   *
+   * @param columns the column names, may be <code>null</code>
+   */
   public void setColumns(String columns) {
     if (columns == null) columns = "";
     this.columns = columns;

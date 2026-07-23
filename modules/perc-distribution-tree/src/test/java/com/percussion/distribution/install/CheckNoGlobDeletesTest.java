@@ -121,16 +121,15 @@ class CheckNoGlobDeletesTest {
   @Test
   @DisplayName("End-to-end on the real shipped install.xml returns no globs (current install expectations)")
   void shippedInstallXmlHasNoGlobs() throws Exception {
-    // Resolve relative to the module working dir that surefire uses. We do NOT silently skip when
-    // the file is missing: a missing shipped install.xml means the assertion's invariant is not
-    // actually being checked, which would mask a real regression in the installer config.
-    Path xml =
-        Path.of("src", "main", "resources", "distribution", "rxconfig", "Installer", "install.xml");
+    // Uses multi-candidate resolution (CWD, basedir, monorepo walk) so the assertion still
+    // runs when surefire's user.dir is not the module root. We do NOT silently skip when
+    // the file is missing: a missing shipped install.xml means the invariant is not checked.
+    Path xml = CheckNoGlobDeletes.computeDefaultInstallXmlPath();
     if (!Files.isRegularFile(xml)) {
       fail(
-          "shipped install.xml not found at "
+          "shipped install.xml not found (resolved default="
               + xml.toAbsolutePath()
-              + " — the test must run from the module root ("
+              + ", user.dir="
               + Path.of("").toAbsolutePath()
               + ")");
     }
@@ -138,5 +137,52 @@ class CheckNoGlobDeletesTest {
     assertTrue(
         globs.isEmpty(),
         "shipped install.xml must not contain glob-based <delete> entries; found: " + globs);
+  }
+
+  @Test
+  @DisplayName("Default path resolution finds the shipped install.xml under the monorepo layout")
+  void computeDefaultInstallXmlPathFindsShippedFile() {
+    Path xml = CheckNoGlobDeletes.computeDefaultInstallXmlPath();
+    assertTrue(
+        Files.isRegularFile(xml),
+        "expected to locate shipped install.xml; got " + xml.toAbsolutePath());
+    assertTrue(
+        xml.getFileName().toString().equals("install.xml"),
+        "resolved path should end with install.xml: " + xml);
+  }
+
+  @Test
+  @DisplayName("run() without args succeeds against shipped install.xml (no globs)")
+  void runWithoutArgsAgainstShippedInstallXml() {
+    int code = CheckNoGlobDeletes.run(new String[0]);
+    assertEquals(CheckNoGlobDeletes.EXIT_OK, code, "gate should pass on current install.xml");
+  }
+
+  @Test
+  @DisplayName("run() with --install-xml uses the explicit path")
+  void runWithExplicitInstallXml(@TempDir Path workdir) throws Exception {
+    Path xml = workdir.resolve("install.xml");
+    Files.writeString(
+        xml,
+        "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
+            + "<project name=\"x\">"
+            + "  <target name=\"install_jdbc_drivers\">"
+            + "    <delete><include name=\"good.jar\"/></delete>"
+            + "  </target>"
+            + "</project>",
+        java.nio.charset.StandardCharsets.UTF_8);
+
+    int code =
+        CheckNoGlobDeletes.run(new String[] {"--install-xml", xml.toAbsolutePath().toString()});
+    assertEquals(CheckNoGlobDeletes.EXIT_OK, code);
+  }
+
+  @Test
+  @DisplayName("run() reports missing install.xml as invocation error")
+  void runMissingInstallXml(@TempDir Path workdir) {
+    Path missing = workdir.resolve("does-not-exist.xml");
+    int code =
+        CheckNoGlobDeletes.run(new String[] {"--install-xml", missing.toAbsolutePath().toString()});
+    assertEquals(CheckNoGlobDeletes.EXIT_INVOCATION, code);
   }
 }

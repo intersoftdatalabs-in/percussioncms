@@ -23,21 +23,22 @@ import java.util.List;
 import java.util.Locale;
 
 /**
- * Selects a Java 21 home for the install and persists it to the install-root
- * {@code java.properties} file. Implements US3 (interactive multi-candidate
- * selection) and US4 (unattended explicit {@code -Dperc.java.home=...}) in
- * one entry point so the preinstall does not need separate paths.
+ * Selects a Java home (major {@link JavaHomeResolver#REQUIRED_MAJOR} or later)
+ * for the install and persists it to the install-root {@code java.properties}
+ * file. Implements US3 (interactive multi-candidate selection) and US4
+ * (unattended explicit {@code -Dperc.java.home=...}) in one entry point so the
+ * preinstall does not need separate paths.
  *
  * <p>Outcome rules:
  *
  * <ul>
- *   <li>When {@link #unattendedHome} is supplied, validate as a Java 21 home.
- *       Fail if invalid. Persist on success.
+ *   <li>When {@link #unattendedHome} is supplied, validate as a Java home with
+ *       major 21 or later. Fail if invalid. Persist on success.
  *   <li>Otherwise, when {@link #interactivePrompt} is non-null and there are
  *       two or more eligible candidates, prompt the operator to choose.
  *   <li>If there is exactly one eligible candidate, auto-select and log.
  *   <li>If there are zero eligible candidates, fail with a clear error that
- *       names major version 21.
+ *       names the minimum major version (21 or later).
  * </ul>
  */
 public final class JavaInstallSelection {
@@ -60,7 +61,7 @@ public final class JavaInstallSelection {
    * Selects and persists the chosen Java home. On success, returns the
    * absolute launcher path of the chosen home; on failure throws
    * {@link JavaSelectionException} with a clear operator message that
-   * mentions major version 21.
+   * mentions the minimum major version (21 or later).
    */
   public SelectionOutcome selectAndPersist() throws IOException, JavaSelectionException {
     Path chosen;
@@ -69,8 +70,9 @@ public final class JavaInstallSelection {
       chosen = unattendedHome.toAbsolutePath().normalize();
       if (!isValidJava21Home(chosen)) {
         throw new JavaSelectionException(
-            "Unattended Java home is not a valid Java 21 install: " + chosen
-                + " (required: major version 21)");
+            "Unattended Java home is not a valid Java install: " + chosen
+                + " (required: major version "
+                + JavaHomeResolver.REQUIRED_MAJOR + " or later)");
       }
       source = "unattended (-Dperc.java.home)";
     } else {
@@ -78,8 +80,10 @@ public final class JavaInstallSelection {
           JavaCandidateDiscovery.discoverEligible();
       if (eligible.isEmpty()) {
         throw new JavaSelectionException(
-            "No eligible Java 21 home found on this host. Required: major version 21."
-                + " Set -Dperc.java.home=<path> or install a Java 21 JRE/JDK before"
+            "No eligible Java home found on this host. Required: major version "
+                + JavaHomeResolver.REQUIRED_MAJOR + " or later."
+                + " Set -Dperc.java.home=<path> or install a Java "
+                + JavaHomeResolver.REQUIRED_MAJOR + "+ JRE/JDK before"
                 + " continuing.");
       }
       if (eligible.size() == 1 || interactivePrompt == null || !isInteractiveAvailable()) {
@@ -106,7 +110,9 @@ public final class JavaInstallSelection {
   private Path promptForChoice(List<JavaCandidateDiscovery.Candidate> candidates)
       throws JavaSelectionException {
     StringBuilder menu = new StringBuilder();
-    menu.append("Multiple Java 21 candidates detected. Select the Java home to use:\n");
+    menu.append("Multiple Java ")
+        .append(JavaHomeResolver.REQUIRED_MAJOR)
+        .append("+ candidates detected. Select the Java home to use:\n");
     for (int i = 0; i < candidates.size(); i++) {
       JavaCandidateDiscovery.Candidate c = candidates.get(i);
       menu.append("  [").append(i + 1).append("] ")
@@ -126,7 +132,10 @@ public final class JavaInstallSelection {
     return candidates.get(pick - 1).path();
   }
 
-  /** Best-effort "is this a Java 21 home" check using a sibling release file. */
+  /**
+   * Best-effort "is this a Java home with major {@code >=}
+   * {@link JavaHomeResolver#REQUIRED_MAJOR}" check using a sibling release file.
+   */
   static boolean isValidJava21Home(Path home) {
     if (home == null || !Files.isDirectory(home)) {
       return false;
@@ -138,7 +147,7 @@ public final class JavaInstallSelection {
       Path launcher = home.resolve("bin").resolve(launcherName());
       return Files.isRegularFile(launcher);
     }
-    return version.startsWith("21");
+    return JavaCandidateDiscovery.Candidate.meetsMinimumMajor(version);
   }
 
   private static String separator() {

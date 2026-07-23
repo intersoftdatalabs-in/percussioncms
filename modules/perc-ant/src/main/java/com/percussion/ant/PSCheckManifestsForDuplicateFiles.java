@@ -37,7 +37,16 @@ import org.apache.tools.ant.types.FileSet;
  * @author Andriy Palamarchuk
  */
 public class PSCheckManifestsForDuplicateFiles extends Task {
-  /** Adds list of files to check. */
+  /**
+   * Creates a new manifest duplicate files check task.
+   */
+  public PSCheckManifestsForDuplicateFiles() {}
+
+  /**
+   * Adds list of files to check.
+   *
+   * @param fileset the fileset to add, never <code>null</code>
+   */
   public void addFileset(final FileSet fileset) {
     m_fileSets.add(fileset);
   }
@@ -191,6 +200,10 @@ public class PSCheckManifestsForDuplicateFiles extends Task {
   /** Stores file name of a library excluded from the check. */
   public static class Exclude {
     /**
+     * Creates a new exclude entry.
+     */
+    public Exclude() {}
+    /**
      * File name of a library to be excluded from a check.
      *
      * @return name of a library to exclude which is set before by call to {@link #getName()}. Never
@@ -201,8 +214,10 @@ public class PSCheckManifestsForDuplicateFiles extends Task {
     }
 
     /**
-     * @see #getName()
+     * Sets the name of the excluded file.
+     *
      * @param name file name of a library to be excluded. Should not be blank.
+     * @see #getName()
      */
     public void setName(String name) {
       if (StringUtils.isBlank(name)) {

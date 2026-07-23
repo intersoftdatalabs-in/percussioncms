@@ -26,47 +26,48 @@ function resolve_java_home(INSTALL_ROOT):
   # 1. Product config
   props = load_optional(INSTALL_ROOT + "/java.properties")
   if props.JAVA_HOME:
-    if is_valid_java21_home(props.JAVA_HOME):
+    if is_valid_java_home(props.JAVA_HOME):
       return success(props.JAVA_HOME, PRODUCT_CONFIG)
-    attempts += (PRODUCT_CONFIG, props.JAVA_HOME, "invalid or not Java 21")
+    attempts += (PRODUCT_CONFIG, props.JAVA_HOME, "invalid or below minimum major 21")
   if props.JAVA:
     home = infer_home_from_launcher(props.JAVA)
-    if home and is_valid_java21_home(home):
+    if home and is_valid_java_home(home):
       return success(home, PRODUCT_CONFIG)
-    attempts += (PRODUCT_CONFIG, props.JAVA, "launcher invalid or not Java 21")
+    attempts += (PRODUCT_CONFIG, props.JAVA, "launcher invalid or below minimum major 21")
 
   # 2. Process environment
   if env.JAVA_HOME:
-    if is_valid_java21_home(env.JAVA_HOME):
+    if is_valid_java_home(env.JAVA_HOME):
       return success(env.JAVA_HOME, PROCESS_ENV)
-    attempts += (PROCESS_ENV, env.JAVA_HOME, "invalid or not Java 21")
+    attempts += (PROCESS_ENV, env.JAVA_HOME, "invalid or below minimum major 21")
 
   # 3. Legacy install-dir layout (operator-provided only)
   for rel in ["JRE", "JRE64"]:
     candidate = INSTALL_ROOT + "/" + rel   # platform join
-    if is_valid_java21_home(candidate):
+    if is_valid_java_home(candidate):
       return success(candidate, INSTALL_DIR_JRE*)
     if path_exists(candidate):
-      attempts += (INSTALL_DIR_JRE*, candidate, "present but not valid Java 21")
+      attempts += (INSTALL_DIR_JRE*, candidate, "present but not valid Java 21+")
 
   # 4. PATH
   launcher = find_java_on_path()
   if launcher:
     home = infer_home_from_launcher(launcher)
-    if home and is_valid_java21_home(home):
+    if home and is_valid_java_home(home):
       return success(home, PATH)
-    attempts += (PATH, launcher, "not Java 21 or home unresolved")
+    attempts += (PATH, launcher, "below minimum major 21 or home unresolved")
 
   # 5. Fail
-  fail(message including required major version 21 and attempts)
+  fail(message including minimum major version 21 or later and attempts)
 ```
 
-## `is_valid_java21_home(path)`
+## `is_valid_java_home(path)` (formerly `is_valid_java21_home`)
 
 Must all hold:
 1. Path exists as a directory (follow symlinks for validity).  
 2. Launcher exists: Unix `bin/java` (executable); Windows `bin\java.exe`.  
-3. Running the launcher reports major version **21** (parse `-version` or showSettings).
+3. Running the launcher reports major version **>= 21** (parse `-version` or showSettings).  
+   Major **21 is the minimum**; 22, 25, and later are accepted. Majors below 21 (8, 11, 17, …) are rejected.
 
 ## Outputs (on success)
 
@@ -79,13 +80,14 @@ Must all hold:
 ## Failure message (minimum content)
 
 - Statement that no compatible Java was found  
-- Required major version: **21**  
+- Required major version: **21 or later**  
 - At least a summary of sources tried (config / env / install-dir / PATH)  
 - Non-zero exit (scripts) / non-success return for installers  
 
 ## Non-goals
 
 - Accepting Java 8/11/17 as success on 8.2  
+- Requiring an exact major match (equality-only 21) — **superseded**: 21+ is required  
 - Creating `<InstallDir>/JRE` automatically by copying a system JRE (optional symlink is **not** required for success)  
 - Changing application classpath layout  
 

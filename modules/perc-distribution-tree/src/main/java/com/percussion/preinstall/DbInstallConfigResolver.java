@@ -46,8 +46,11 @@ import java.util.Properties;
 public final class DbInstallConfigResolver {
 
   public static final String DB_TYPE_DEFAULT = "derby";
+  /** Default SSL enabled value for new installs. */
   public static final String DB_SSL_ENABLED_DEFAULT = "true";
+  /** Default SSL verify value for new installs. */
   public static final String DB_SSL_VERIFY_DEFAULT = "true";
+  /** Default SSL allow-self-signed value for new installs. */
   public static final String DB_SSL_ALLOW_SELF_SIGNED_DEFAULT = "false";
 
   /** Issue #949 system property / CLI key for repository properties file path. */
@@ -65,6 +68,9 @@ public final class DbInstallConfigResolver {
   /**
    * Parse installer CLI arguments: first non-{@code --} token is install path; {@code --key=value}
    * and {@code --key value} options fill the options map.
+   *
+   * @param args raw CLI arguments
+   * @return parsed install path and options (install path may be null if omitted)
    */
   public static ParsedArgs parseArgs(String[] args) {
     Path installPath = null;
@@ -637,13 +643,17 @@ public final class DbInstallConfigResolver {
     }
   }
 
+  /** CLI arguments parsed from the preinstall invocation. */
   public record ParsedArgs(Path installPath, Map<String, String> options) {}
 
   /**
+   * Resolved database configuration for the ANT install JVM.
+   *
    * @param systemProperties map of {@code perc.db.*} keys for the ANT JVM
    * @param source diagnostic label: {@code default}, {@code dbprops}, {@code structured}
    */
   public record ResolvedDbConfig(Map<String, String> systemProperties, String source) {
+    /** Defaults source to {@code "default"}; used by tests and callers that only have properties. */
     public ResolvedDbConfig(Map<String, String> systemProperties) {
       this(systemProperties, "default");
     }

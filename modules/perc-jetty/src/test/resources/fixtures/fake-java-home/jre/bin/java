@@ -7,10 +7,11 @@
 # parser path runs end-to-end without a real JDK. The major version is selected via
 # the script's parent directory name suffix:
 #
-#   .../fake-java-home-21/jre/bin/java   -> emits "21.0.0" (success)
-#   .../fake-java-home-8/jre/bin/java    -> emits "8.0.0" (rejected: not 21)
-#   .../fake-java-home-17/jre/bin/java   -> emits "17.0.0" (rejected)
-#   .../fake-java-home-22/jre/bin/java   -> emits "22.0.0" (rejected)
+#   .../fake-java-home-21/jre/bin/java   -> emits "21.0.0" (success: minimum)
+#   .../fake-java-home-8/jre/bin/java    -> emits "8.0.0" (rejected: below min)
+#   .../fake-java-home-17/jre/bin/java   -> emits "17.0.0" (rejected: below min)
+#   .../fake-java-home-22/jre/bin/java   -> emits "22.0.0" (success: 21+)
+#   .../fake-java-home-25/jre/bin/java   -> emits "25.0.0" (success: 21+)
 #
 # The major version is encoded in the parent directory's basename: we look for
 # `-NN` in the path; default to 21 if no `-NN` is present.
@@ -40,6 +41,7 @@ case "$parent_dir" in
   *-17) major='17' ;;
   *-21) major='21' ;;
   *-22) major='22' ;;
+  *-25) major='25' ;;
   *)    major='21' ;;
 esac
 
@@ -48,6 +50,7 @@ case "$major" in
   17) echo 'openjdk version "17.0.0" 2026-01-01' >&2 ;;
   21) echo 'openjdk version "21.0.0" 2026-01-01' >&2 ;;
   22) echo 'openjdk version "22.0.0" 2026-01-01' >&2 ;;
+  25) echo 'openjdk version "25.0.0" 2026-01-01' >&2 ;;
   *)  echo "openjdk version \"$major.0.0\" 2026-01-01" >&2 ;;
 esac
 

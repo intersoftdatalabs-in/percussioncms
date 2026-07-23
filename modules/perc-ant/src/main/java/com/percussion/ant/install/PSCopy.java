@@ -51,6 +51,10 @@ import org.apache.tools.ant.taskdefs.Copy;
  * @author peterfrontiero
  */
 public class PSCopy extends Copy {
+  /**
+   * Creates a new copy task.
+   */
+  public PSCopy() {}
   // see base class
   @Override
   public void execute() {

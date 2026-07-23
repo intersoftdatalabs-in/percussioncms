@@ -62,6 +62,10 @@ import org.w3c.dom.NodeList;
  * </pre>
  */
 public class PSXMLElementCondition extends PSAction implements Condition {
+  /**
+   * Creates a new XML element condition.
+   */
+  public PSXMLElementCondition() {}
   /* (non-Javadoc)
    * @see org.apache.tools.ant.taskdefs.condition.Condition#eval()
    */

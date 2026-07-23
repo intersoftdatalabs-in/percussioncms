@@ -51,6 +51,10 @@ import org.apache.tools.ant.BuildException;
  * </pre>
  */
 public class PSConfigurePort extends PSAction {
+  /**
+   * Creates a new port configuration task.
+   */
+  public PSConfigurePort() {}
   // see base class
   @Override
   public void execute() {
@@ -105,12 +109,20 @@ public class PSConfigurePort extends PSAction {
    * Property Accessors and Mutators
    *************************************************************************/
 
-  /** Accessor for the server properties location */
+  /**
+   * Accessor for the server properties location.
+   *
+   * @return the server properties location path
+   */
   public static String getServerPropsLocation() {
     return ms_strServerPropsLocation;
   }
 
-  /** Accessor for the server port */
+  /**
+   * Accessor for the server port.
+   *
+   * @return the server port, never <code>null</code>
+   */
   public String getServerPort() {
     if (m_strServerPort == null || m_strServerPort.trim().equals("")) {
       m_strServerPort = "9992";
@@ -118,7 +130,11 @@ public class PSConfigurePort extends PSAction {
     return m_strServerPort;
   }
 
-  /** Mutator for the server port. */
+  /**
+   * Mutator for the server port.
+   *
+   * @param strServerPort the server port to set
+   */
   public void setServerPort(String strServerPort) {
     m_strServerPort = strServerPort;
   }

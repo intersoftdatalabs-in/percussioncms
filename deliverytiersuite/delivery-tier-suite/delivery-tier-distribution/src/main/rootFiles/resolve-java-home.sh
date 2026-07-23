@@ -6,8 +6,8 @@
 # Usage:  source resolve-java-home.sh [<install_root>]
 #         # After sourcing: $JAVA_HOME, $JAVA, $RESOLVE_SOURCE are populated
 #         # When resolution fails the script exits non-zero with an actionable
-#         # error message that mentions the required major version (21) and the
-#         # sources tried.
+#         # error message that mentions the minimum major version (21 or later)
+#         # and the sources tried.
 #
 # Sourced (not executed) so callers can inherit JAVA_HOME / JAVA as shell
 # variables. Intentionally minimal — no external commands beyond `java`,
@@ -15,6 +15,7 @@
 
 set +u
 
+# Minimum supported major version (21 or later is accepted).
 REQUIRED_MAJOR=21
 RESOLVE_ERRORS=()
 RESOLVE_SOURCE=""
@@ -72,8 +73,9 @@ _validate_java_home() {
         echo "could not parse major version from: $out" >&2
         return 1
     fi
-    if [ "$major" != "$REQUIRED_MAJOR" ]; then
-        echo "Java major version $major != required $REQUIRED_MAJOR" >&2
+    # Integer compare: accept major >= REQUIRED_MAJOR (21+). Non-numeric majors fail.
+    if ! [ "$major" -ge "$REQUIRED_MAJOR" ] 2>/dev/null; then
+        echo "Java major version $major is below minimum $REQUIRED_MAJOR (21 or later required)" >&2
         return 1
     fi
     echo "$major"
@@ -97,7 +99,7 @@ _config_source() {
         return 0
     fi
     if [ -n "$home" ]; then
-        RESOLVE_ERRORS+=("PRODUCT_CONFIG:$home:not a valid Java $REQUIRED_MAJOR home")
+        RESOLVE_ERRORS+=("PRODUCT_CONFIG:$home:not a valid Java home (minimum major $REQUIRED_MAJOR)")
     else
         RESOLVE_ERRORS+=("PRODUCT_CONFIG:$props:JAVA_HOME missing")
     fi
@@ -115,7 +117,7 @@ _env_source() {
         RESOLVE_SOURCE="env JAVA_HOME (PROCESS_ENV)"
         return 0
     fi
-    RESOLVE_ERRORS+=("PROCESS_ENV:$JAVA_HOME:not a valid Java $REQUIRED_MAJOR home")
+    RESOLVE_ERRORS+=("PROCESS_ENV:$JAVA_HOME:not a valid Java home (minimum major $REQUIRED_MAJOR)")
     return 1
 }
 
@@ -132,7 +134,7 @@ _legacy_source() {
             return 0
         fi
         if [ -d "$candidate" ]; then
-            RESOLVE_ERRORS+=("$label:$candidate:not a valid Java $REQUIRED_MAJOR home")
+            RESOLVE_ERRORS+=("$label:$candidate:not a valid Java home (minimum major $REQUIRED_MAJOR)")
         fi
     done
     return 1
@@ -159,19 +161,19 @@ _path_source() {
         fi
     done
     IFS="$saved_ifs"
-    RESOLVE_ERRORS+=("PATH:$LAUNCHER:no valid Java $REQUIRED_MAJOR launcher")
+    RESOLVE_ERRORS+=("PATH:$LAUNCHER:no valid Java launcher (minimum major $REQUIRED_MAJOR)")
     return 1
 }
 
 # Apply precedence. First success wins. On total failure print an actionable
-# error that explicitly names major version 21 (helps operator diagnose).
+# error that explicitly names minimum major version 21 (helps operator diagnose).
 _config_source \
     || _env_source \
     || _legacy_source \
     || _path_source \
     || {
         echo "resolve-java-home: no compatible Java home found." >&2
-        echo "Required Java major version: $REQUIRED_MAJOR" >&2
+        echo "Required Java major version: $REQUIRED_MAJOR or later" >&2
         echo "Install root: $INSTALL_ROOT" >&2
         echo "Sources tried:" >&2
         for e in "${RESOLVE_ERRORS[@]}"; do

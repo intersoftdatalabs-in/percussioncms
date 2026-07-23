@@ -55,6 +55,11 @@ import org.apache.tools.ant.Task;
  */
 public class PSAction extends Task {
   /**
+   * Creates a new action task.
+   */
+  public PSAction() {}
+
+  /**
    * This will handle initialization of the install logger, loading of PreviousVersion.properties
    * for upgrades, and setting of the entity resolver's resolution home used to find DTD's. It also
    * determines if all files should be refreshed by date.
@@ -170,20 +175,36 @@ public class PSAction extends Task {
   /**
    * Sets wether the action should fail on error.
    *
-   * @param failonerror
+   * @param failonerror <code>true</code> if the action should fail when an error occurs
    */
   public void setFailonerror(boolean failonerror) {
     m_failonerror = failonerror;
   }
 
+  /**
+   * Sets whether errors should be silenced.
+   *
+   * @param silenceErrors <code>true</code> if errors should not be reported to logs
+   */
   public void setSilenceErrors(boolean silenceErrors) {
     m_silenceerrors = silenceErrors;
   }
 
+  /**
+   * Checks whether the action should fail on error.
+   *
+   * @return <code>true</code> if the action should fail when an error occurs, <code>false</code>
+   *     otherwise
+   */
   public boolean isFailonerror() {
     return m_failonerror;
   }
 
+  /**
+   * Checks whether errors are silenced.
+   *
+   * @return <code>true</code> if errors are silenced, <code>false</code> otherwise
+   */
   public boolean isSilenceErrors() {
     return m_silenceerrors;
   }

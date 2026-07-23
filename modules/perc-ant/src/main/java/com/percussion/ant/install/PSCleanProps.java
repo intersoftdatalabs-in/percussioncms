@@ -47,6 +47,10 @@ import java.io.FileOutputStream;
  * </pre>
  */
 public class PSCleanProps extends PSAction {
+  /**
+   * Creates a new properties cleaning task.
+   */
+  public PSCleanProps() {}
   // see base class
   @Override
   public void execute() {

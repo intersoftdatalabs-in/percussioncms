@@ -12,6 +12,8 @@ Asserts that the assembled distribution artifact contains a valid, non-empty `je
 
 **Cross-platform behavior**: the canonical implementation is the Java main `com.percussion.distribution.install.VerifyJdbcDrivers`. The Maven `verify` phase invokes that main class via `exec-maven-plugin:java` (see `modules/perc-distribution-tree/pom.xml` execution `verify-jdbc-drivers`), so the build gate does not depend on Git-Bash, WSL, or `bash` being present on Windows CI. `verify-jdbc-drivers.py` is the cross-platform Python port of the same logic for manual operator runs.
 
+**Maven in-process note**: `exec-maven-plugin:java` runs inside the Maven JVM. The Java mains must **not** call `System.exit` on success (or they abort the reactor mid-verify with no install). Failures throw; logical exit codes remain on `run(...)`. For a forked CLI that needs process exit codes, pass `-Dperc.build.gate.systemExit=true`.
+
 **When to run**: after `mvn package` / `mvn verify` of `modules/perc-distribution-tree`, and as part of CI.
 
 **Invocation (POSIX / Windows / macOS — identical)**:

@@ -25,7 +25,7 @@ import java.util.List;
  * Summary of the taxonomy / site edges incident on the supplied item (US8 / T092–T104).
  *
  * <p>Backed by the JCR node layer in {@code projects/sitemanage/src/main/java/.../share/dao/}
- * via {@link com.percussion.share.dao.PSJcrNodeFinder}: for each site folder the supplied item
+ * via PSJcrNodeFinder: for each site folder the supplied item
  * sits under, the service counts the child nodes that fall under taxonomy.
  *
  * <p>The {@link #nodes} field carries the taxonomy node paths so the dependency view can show them

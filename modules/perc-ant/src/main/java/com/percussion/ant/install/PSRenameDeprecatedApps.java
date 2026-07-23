@@ -51,6 +51,10 @@ import org.apache.logging.log4j.Logger;
  * </pre>
  */
 public class PSRenameDeprecatedApps extends PSAction {
+  /**
+   * Creates a new deprecated apps rename task.
+   */
+  public PSRenameDeprecatedApps() {}
   private static final Logger log = LogManager.getLogger(PSRenameDeprecatedApps.class);
 
   // see base class

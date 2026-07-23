@@ -945,27 +945,27 @@ public class PSHtmlParser {
    *       <LI>Replacing character 9 and 13 (ASCII HT and CR) with character 32 (SPACE)
    *     </UL>
    *     The characters will be converted according to this scheme:
-   *     <TABLE BORDER=1>
+   *     <TABLE BORDER=1><caption>Character to entity mapping</caption>
    * <TR>
    *   <TD>&lt;</TD>
-   * <TD>&amp;lt;</TD>
+   *   <TD>&amp;lt;</TD>
    * </TR>
    * <TR>
    *   <TD>&gt;</TD>
-   * <TD>&amp;gt;</TD>
+   *   <TD>&amp;gt;</TD>
    * </TR>
    * <TR>
    *   <TD>&apos;</TD>
-   * <TD>&amp;apos;</TD>
+   *   <TD>&amp;apos;</TD>
    * </TR>
    * <TR>
    *   <TD>&quot;</TD>
-   * <TD>&amp;quot;</TD>
+   *   <TD>&amp;quot;</TD>
    * </TR>
    * </TABLE>
    *
-   * @param input
-   * @return String A new String with all special characters transformed into their entities.
+   * @param input the input string
+   * @param out the writer to write the escaped attribute to
    */
   public static void prepareAttribute(String input, Writer out) throws java.io.IOException {
     /* This implementation should be fairly efficient in that
@@ -1051,22 +1051,22 @@ public class PSHtmlParser {
    *       <LI>Replacing character 9 and 13 (ASCII HT and CR) with character 32 (SPACE)
    *     </UL>
    *     The characters will be converted according to this scheme:
-   *     <TABLE BORDER=1>
+   *     <TABLE BORDER=1><caption>Character to entity mapping</caption>
    * <TR>
    *   <TD>&lt;</TD>
-   * <TD>&amp;lt;</TD>
+   *   <TD>&amp;lt;</TD>
    * </TR>
    * <TR>
    *   <TD>&gt;</TD>
-   * <TD>&amp;gt;</TD>
+   *   <TD>&amp;gt;</TD>
    * </TR>
    * <TR>
    *   <TD>&apos;</TD>
-   * <TD>&amp;apos;</TD>
+   *   <TD>&amp;apos;</TD>
    * </TR>
    * <TR>
    *   <TD>&quot;</TD>
-   * <TD>&amp;quot;</TD>
+   *   <TD>&amp;quot;</TD>
    * </TR>
    * </TABLE>
    *

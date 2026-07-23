@@ -48,7 +48,11 @@ import java.util.Scanner;
  */
 public final class JavaHomeResolver {
 
-  /** Required major version for CMS / DTS on the 8.2 line. */
+  /**
+   * Minimum supported major version for CMS / DTS on the 8.2 line.
+   * Homes reporting major {@code >=} this value (21, 22, 25, …) are accepted;
+   * older majors (8, 11, 17, …) are rejected.
+   */
   public static final int REQUIRED_MAJOR = 21;
 
   /** Names of legacy install-dir Java folders consulted in precedence order. */
@@ -86,7 +90,8 @@ public final class JavaHomeResolver {
         return ResolutionResult.success(cfg, ResolutionSource.PRODUCT_CONFIG, attempts);
       }
       attempts.add(new Attempt(ResolutionSource.PRODUCT_CONFIG, cfgHome,
-          "configured JAVA_HOME not a valid Java " + REQUIRED_MAJOR + " home"));
+          "configured JAVA_HOME not a valid Java home (minimum major "
+              + REQUIRED_MAJOR + ")"));
     }
     String cfgLauncher = props.get(JavaPropertiesSupport.KEY_JAVA);
     if (cfgLauncher != null && !cfgLauncher.isBlank()) {
@@ -95,7 +100,8 @@ public final class JavaHomeResolver {
         return ResolutionResult.success(inferred, ResolutionSource.PRODUCT_CONFIG, attempts);
       }
       attempts.add(new Attempt(ResolutionSource.PRODUCT_CONFIG, cfgLauncher,
-          "configured JAVA launcher not a valid Java " + REQUIRED_MAJOR + " home"));
+          "configured JAVA launcher not a valid Java home (minimum major "
+              + REQUIRED_MAJOR + ")"));
     }
 
     // 2. Process environment JAVA_HOME.
@@ -107,7 +113,7 @@ public final class JavaHomeResolver {
           return ResolutionResult.success(p, ResolutionSource.PROCESS_ENV, attempts);
         }
         attempts.add(new Attempt(ResolutionSource.PROCESS_ENV, envHome,
-            "env JAVA_HOME not a valid Java " + REQUIRED_MAJOR + " home"));
+            "env JAVA_HOME not a valid Java home (minimum major " + REQUIRED_MAJOR + ")"));
       }
     }
 
@@ -122,7 +128,7 @@ public final class JavaHomeResolver {
       }
       if (Files.exists(candidate)) {
         attempts.add(new Attempt(ResolutionSource.INSTALL_DIR_JRE, candidate.toString(),
-            "present but not a valid Java " + REQUIRED_MAJOR + " home"));
+            "present but not a valid Java home (minimum major " + REQUIRED_MAJOR + ")"));
       }
     }
 
@@ -136,7 +142,7 @@ public final class JavaHomeResolver {
             return ResolutionResult.success(inferred, ResolutionSource.PATH, attempts);
           }
           attempts.add(new Attempt(ResolutionSource.PATH, launcher.toString(),
-              "launcher not Java " + REQUIRED_MAJOR + " or home unresolved"));
+              "launcher below minimum major " + REQUIRED_MAJOR + " or home unresolved"));
         }
       }
     }
@@ -206,6 +212,14 @@ public final class JavaHomeResolver {
       }
     }
     return -1;
+  }
+
+  /**
+   * Returns {@code true} when {@code major} meets the product minimum
+   * ({@link #REQUIRED_MAJOR} or later). Negative / unparseable majors fail.
+   */
+  public static boolean isSupportedMajor(int major) {
+    return major >= REQUIRED_MAJOR;
   }
 
   /** Returns the launcher name for the current host platform. */
@@ -279,7 +293,8 @@ public final class JavaHomeResolver {
             if ("JAVA_VERSION".equals(key)) {
               String value = line.substring(eq + 1).trim().replace("\"", "");
               int major = parseMajorVersion("\"" + value + "\"");
-              return major == requiredMajor;
+              // Accept major >= requiredMajor (minimum), not equality-only.
+              return major >= requiredMajor;
             }
           }
         } catch (IOException ignored) {
@@ -358,7 +373,7 @@ public final class JavaHomeResolver {
         sb.append(header).append(System.lineSeparator());
       }
       sb.append("Required Java major version: ").append(REQUIRED_MAJOR)
-          .append(System.lineSeparator());
+          .append(" or later").append(System.lineSeparator());
       if (attempts.isEmpty()) {
         sb.append("No sources were inspected.");
       } else {

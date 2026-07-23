@@ -63,8 +63,12 @@ class DtsJavaHomeScriptTest {
     assertTrue(s.contains("PROCESS_ENV"));
     assertTrue(s.contains("INSTALL_DIR_JRE"));
     assertTrue(s.contains("INSTALL_DIR_JRE64"));
-    assertTrue(s.contains("REQUIRED_MAJOR=21"));
+    assertTrue(s.contains("REQUIRED_MAJOR=21"), "minimum major is 21");
+    assertTrue(
+        s.contains("-ge \"$REQUIRED_MAJOR\"") || s.contains("-ge $REQUIRED_MAJOR"),
+        "sh accepts major >= 21 (21+), not equality-only");
     assertTrue(s.contains("Required Java major version"));
+    assertTrue(s.contains("or later"), "failure message states 21 or later");
   }
 
   @Test
@@ -75,7 +79,10 @@ class DtsJavaHomeScriptTest {
     assertTrue(s.contains("PRODUCT_CONFIG"));
     assertTrue(s.contains("PROCESS_ENV"));
     assertTrue(s.contains("INSTALL_DIR_JRE"));
-    assertTrue(s.contains("REQUIRED_MAJOR=21"));
+    assertTrue(s.contains("REQUIRED_MAJOR=21"), "minimum major is 21");
+    assertTrue(s.contains("GEQ %REQUIRED_MAJOR%"),
+        "bat accepts major >= 21 (21+), not equality-only");
+    assertTrue(s.contains("or later"), "failure message states 21 or later");
     assertTrue(s.contains("exit /b 1"));
   }
 

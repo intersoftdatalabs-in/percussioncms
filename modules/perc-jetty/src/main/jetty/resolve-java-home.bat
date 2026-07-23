@@ -7,14 +7,15 @@ REM
 REM Usage (call):  call resolve-java-home.bat [<install_root>]
 REM                After the call, JAVA_HOME and JAVA are set in the caller's
 REM                environment. On failure the script exits non-zero, prints
-REM                an actionable error that mentions major version 21, and lists
-REM                the sources tried.
+REM                an actionable error that mentions minimum major version 21
+REM                (21 or later) and lists the sources tried.
 REM
 REM This file MUST be sourced with `call` (not run directly) so the variables
 REM propagate to the caller. The exit code is preserved via exit /b.
 
 setlocal EnableDelayedExpansion
 
+REM Minimum supported major version (21 or later is accepted).
 set REQUIRED_MAJOR=21
 set RESOLVE_SOURCE=
 set RESOLVE_ERRORS=
@@ -82,10 +83,11 @@ goto :main
             set "MAJOR=%%b"
         )
     )
-    if "%MAJOR%"=="%REQUIRED_MAJOR%" (
+    REM Accept major >= REQUIRED_MAJOR (21+). Integer compare via GEQ.
+    if %MAJOR% GEQ %REQUIRED_MAJOR% (
         exit /b 0
     )
-    echo Java major version %MAJOR% ^^!= required %REQUIRED_MAJOR% 1>&2
+    echo Java major version %MAJOR% is below minimum %REQUIRED_MAJOR% (21 or later required) 1>&2
     exit /b 1
 
 REM ----- source 1: install-root java.properties -----
@@ -111,7 +113,7 @@ REM ----- source 1: install-root java.properties -----
             set "RESOLVE_SOURCE=java.properties (PRODUCT_CONFIG)"
             exit /b 0
         )
-        call :record_error PRODUCT_CONFIG "!CFG_HOME!" "not a valid Java %REQUIRED_MAJOR% home"
+        call :record_error PRODUCT_CONFIG "!CFG_HOME!" "not a valid Java home (minimum major %REQUIRED_MAJOR%)"
     ) else (
         call :record_error PRODUCT_CONFIG "%PROPS%" "JAVA_HOME missing"
     )
@@ -129,7 +131,7 @@ REM ----- source 2: process env JAVA_HOME -----
         set "RESOLVE_SOURCE=env JAVA_HOME (PROCESS_ENV)"
         exit /b 0
     )
-    call :record_error PROCESS_ENV "%JAVA_HOME%" "not a valid Java %REQUIRED_MAJOR% home"
+    call :record_error PROCESS_ENV "%JAVA_HOME%" "not a valid Java home (minimum major %REQUIRED_MAJOR%)"
     exit /b 1
 
 REM ----- source 3: legacy install-dir JRE / JRE64 -----
@@ -154,7 +156,7 @@ REM ----- source 3: legacy install-dir JRE / JRE64 -----
         set "RESOLVE_SOURCE=legacy install-dir !DIRN! (!LABEL!)"
         exit /b 0
     )
-    call :record_error !LABEL! "!CAND!" "not a valid Java %REQUIRED_MAJOR% home"
+    call :record_error !LABEL! "!CAND!" "not a valid Java home (minimum major %REQUIRED_MAJOR%)"
     exit /b 1
 
 REM ----- source 4: PATH discovery (best-effort; quiet fail) -----
@@ -179,7 +181,7 @@ REM ----- source 4: PATH discovery (best-effort; quiet fail) -----
         set "RESOLVE_SOURCE=PATH"
         exit /b 0
     )
-    call :record_error PATH "!BIN!" "launcher not Java %REQUIRED_MAJOR%"
+    call :record_error PATH "!BIN!" "launcher below minimum major %REQUIRED_MAJOR%"
     exit /b 1
 
 :record_error
@@ -196,7 +198,7 @@ REM ----- source 4: PATH discovery (best-effort; quiet fail) -----
     call :try_path
     if not errorlevel 1 goto :end_success
     echo resolve-java-home: no compatible Java home found. 1>&2
-    echo Required Java major version: %REQUIRED_MAJOR% 1>&2
+    echo Required Java major version: %REQUIRED_MAJOR% or later 1>&2
     echo Install root: %INSTALL_ROOT% 1>&2
     echo Sources tried: 1>&2
     if defined RESOLVE_ERRORS echo %RESOLVE_ERRORS% 1>&2

@@ -55,6 +55,10 @@ import org.apache.tools.ant.BuildException;
 
 /** Update jetty configuration based upon JBoss for an upgrade */
 public class PSUpdateJettyConfigFromJBoss extends PSAction {
+  /**
+   * Creates a new Jetty config update from JBoss task.
+   */
+  public PSUpdateJettyConfigFromJBoss() {}
   private static final Logger log = LogManager.getLogger(PSUpdateJettyConfigFromJBoss.class);
 
   public static final String PERCUSSION_SERVER_LAX = "PercussionServer.lax";

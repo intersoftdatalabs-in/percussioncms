@@ -49,7 +49,11 @@ class JavaInstallSelectionTest {
     var ex = assertThrows(JavaInstallSelection.JavaSelectionException.class,
         unattended::selectAndPersist);
     assertTrue(ex.getMessage().contains("21"),
-        "error message must mention required major version");
+        "error message must mention minimum major version");
+    assertTrue(
+        ex.getMessage().toLowerCase().contains("or later")
+            || ex.getMessage().toLowerCase().contains("later"),
+        "error message must state 21 or later: " + ex.getMessage());
   }
 
   @Test
@@ -71,6 +75,18 @@ class JavaInstallSelectionTest {
     String body = Files.readString(installRoot.resolve("java.properties"), StandardCharsets.UTF_8);
     assertTrue(body.contains("jdk21"),
         "properties file contains JAVA_HOME jdk21 suffix: " + body);
+  }
+
+  @Test
+  void unattendedMajor25IsAccepted() throws Exception {
+    Path installRoot = tempDir.resolve("install25");
+    Files.createDirectories(installRoot);
+    Path jdk25 = JavaCandidateDiscoveryTest.makeHome(installRoot.resolve("jdk25"), "25", "java");
+    JavaInstallSelection sel = new JavaInstallSelection(installRoot, jdk25, null);
+    JavaInstallSelection.SelectionOutcome out = sel.selectAndPersist();
+    assertEquals(jdk25.toAbsolutePath().normalize(), out.javaHome().toAbsolutePath().normalize());
+    String body = Files.readString(installRoot.resolve("java.properties"), StandardCharsets.UTF_8);
+    assertTrue(body.contains("jdk25"), "properties file contains jdk25: " + body);
   }
 
   @Test

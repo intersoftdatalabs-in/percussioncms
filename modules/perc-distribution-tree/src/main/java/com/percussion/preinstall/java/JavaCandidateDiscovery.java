@@ -29,9 +29,10 @@ import java.util.Locale;
 import java.util.Set;
 
 /**
- * Discovers Java 21 candidate homes on the local host without invoking any
- * launcher executable (so the discovery itself is portable and safe to run
- * during preinstall). Candidates are drawn from:
+ * Discovers Java candidate homes (major {@link JavaHomeResolver#REQUIRED_MAJOR}
+ * or later) on the local host without invoking any launcher executable (so the
+ * discovery itself is portable and safe to run during preinstall). Candidates
+ * are drawn from:
  *
  * <ol>
  *   <li>the JVM currently running the preinstall,
@@ -41,8 +42,8 @@ import java.util.Set;
  *   <li>{@code PATH} entries containing a {@code java} / {@code java.exe} launcher.
  * </ol>
  *
- * <p>Eligible candidates pass the major-version-21 check (parsed from a
- * sibling {@code release} file when present) and have an executable launcher.
+ * <p>Eligible candidates pass the minimum-major check (parsed from a sibling
+ * {@code release} file when present) and have an executable launcher.
  */
 public final class JavaCandidateDiscovery {
 
@@ -50,7 +51,11 @@ public final class JavaCandidateDiscovery {
     // Static-only.
   }
 
-  /** Returns the ordered, deduplicated list of Java home candidates on this host. */
+  /**
+   * Returns the ordered, deduplicated list of Java home candidates on this host.
+   *
+   * @return ordered, deduplicated candidate list
+   */
   public static List<Candidate> discover() {
     return discover(System.getenv(), System.getProperty("java.home"),
         System.getProperty("PATH"));
@@ -67,7 +72,13 @@ public final class JavaCandidateDiscovery {
     return result;
   }
 
-  /** Filters {@link #discover()} results to eligible (major-version 21, executable launcher). */
+  /**
+   * Filters {@link #discover()} results to eligible (major {@code >=}
+   * {@link JavaHomeResolver#REQUIRED_MAJOR}, executable launcher).
+   *
+   * @param rawCandidates candidates to filter; may be null
+   * @return eligible candidates
+   */
   public static List<Candidate> eligible(List<Candidate> rawCandidates) {
     if (rawCandidates == null) {
       return List.of();
@@ -209,20 +220,44 @@ public final class JavaCandidateDiscovery {
     private final String versionDisplay;
     private final boolean eligible;
 
+    /**
+     * Creates a candidate record.
+     *
+     * @param path absolute path to the candidate Java home
+     * @param versionDisplay version string parsed from the {@code release} file
+     * @param executable true when the launcher is present and executable
+     */
     public Candidate(Path path, String versionDisplay, boolean executable) {
       this.path = path;
       this.versionDisplay = versionDisplay == null ? "" : versionDisplay;
-      this.eligible = executable && versionDisplay.startsWith("21");
+      this.eligible = executable && meetsMinimumMajor(this.versionDisplay);
     }
 
+    /**
+     * {@code versionDisplay} is typically the major token from {@code release}
+     * ({@code "21"}, {@code "25"}, or legacy {@code "1.8"}). Accept major
+     * {@code >=} {@link JavaHomeResolver#REQUIRED_MAJOR}.
+     */
+    static boolean meetsMinimumMajor(String versionDisplay) {
+      if (versionDisplay == null || versionDisplay.isBlank()) {
+        return false;
+      }
+      // Reuse parser: wrap as a quoted -version style segment.
+      int major = JavaHomeResolver.parseMajorVersion("version \"" + versionDisplay + "\"");
+      return JavaHomeResolver.isSupportedMajor(major);
+    }
+
+    /** Absolute path to the candidate Java home. */
     public Path path() {
       return path;
     }
 
+    /** Version display string (e.g. {@code "21"} or {@code "1.8"}). */
     public String versionDisplay() {
       return versionDisplay;
     }
 
+    /** True when the candidate meets the minimum major version and launcher is executable. */
     public boolean eligible() {
       return eligible;
     }

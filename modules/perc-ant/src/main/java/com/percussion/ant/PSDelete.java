@@ -32,6 +32,10 @@ import org.apache.tools.ant.types.FileSet;
  */
 public class PSDelete extends Delete {
   /**
+   * Creates a new delete task.
+   */
+  public PSDelete() {}
+  /**
    * If false, note errors but continue.
    *
    * @param failonerror true or false
@@ -41,6 +45,11 @@ public class PSDelete extends Delete {
     m_failonerror = failonerror;
   }
 
+  /**
+   * Sets the mapped directory for deleting files.
+   *
+   * @param path the mapped directory path, may be <code>null</code>
+   */
   public void setMappeddir(String path) {
     m_mappedDir = path;
   }

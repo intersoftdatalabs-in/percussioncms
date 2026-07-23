@@ -50,6 +50,10 @@ import java.util.Properties;
  * </pre>
  */
 public class PSUpdatePropFileWizAction extends PSAction {
+  /**
+   * Creates a new property file wizard action update task.
+   */
+  public PSUpdatePropFileWizAction() {}
   // see base class
   @Override
   public void execute() {

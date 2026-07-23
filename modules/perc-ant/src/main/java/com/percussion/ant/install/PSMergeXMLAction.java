@@ -63,6 +63,12 @@ import org.xml.sax.SAXException;
  * </pre>
  */
 public class PSMergeXMLAction extends PSAction {
+
+  /**
+   * Creates a new action instance with default settings.
+   */
+  public PSMergeXMLAction() {}
+
   // see base class
   @Override
   public void execute() {
@@ -169,42 +175,74 @@ public class PSMergeXMLAction extends PSAction {
    * Bean properties
    ****************************************************************************/
 
-  /** Mutator for parent. */
+  /**
+   * Mutator for parent.
+   *
+   * @param strParent a comma-delimited list of parent element names
+   */
   public void setParent(String strParent) {
     m_strParent = convertToArray(strParent);
   }
 
-  /** Accesssor for parent. */
+  /**
+   * Accesssor for parent.
+   *
+   * @return the array of parent element names
+   */
   public String[] getParent() {
     return m_strParent;
   }
 
-  /** Mutator for copy element. */
+  /**
+   * Mutator for copy element.
+   *
+   * @param strCopy the name of the XML elements to copy from the source document
+   */
   public void setCopyElement(String strCopy) {
     m_strCopyElement = strCopy;
   }
 
-  /** Accesssor for copy element. */
+  /**
+   * Accesssor for copy element.
+   *
+   * @return the name of the copy element
+   */
   public String getCopyElement() {
     return m_strCopyElement;
   }
 
-  /** Mutator for source doc. */
+  /**
+   * Mutator for source doc.
+   *
+   * @param strSourceDoc the path to the source XML document relative to the resources
+   */
   public void setSourceDoc(String strSourceDoc) {
     m_strSourceDoc = strSourceDoc;
   }
 
-  /** Accesssor for source doc. */
+  /**
+   * Accesssor for source doc.
+   *
+   * @return the source document path
+   */
   public String getSourceDoc() {
     return m_strSourceDoc;
   }
 
-  /** Mutator for Dest doc. */
+  /**
+   * Mutator for Dest doc.
+   *
+   * @param strDestDoc the path to the destination XML document relative to the installation root
+   */
   public void setDestinationDoc(String strDestDoc) {
     m_strDestinationDoc = strDestDoc;
   }
 
-  /** Accesssor for Dest doc. */
+  /**
+   * Accesssor for Dest doc.
+   *
+   * @return the destination document path
+   */
   public String getDestinationDoc() {
     return m_strDestinationDoc;
   }

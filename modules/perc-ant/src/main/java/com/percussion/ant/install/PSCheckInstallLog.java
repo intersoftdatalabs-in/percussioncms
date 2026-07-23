@@ -51,6 +51,10 @@ import org.apache.tools.ant.BuildException;
  * @author peterfrontiero
  */
 public class PSCheckInstallLog extends PSAction {
+  /**
+   * Creates a new install log check task.
+   */
+  public PSCheckInstallLog() {}
   // see base class
   @Override
   public void execute() {

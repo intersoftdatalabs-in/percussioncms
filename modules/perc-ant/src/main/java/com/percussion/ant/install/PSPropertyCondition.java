@@ -53,6 +53,12 @@ import org.apache.tools.ant.taskdefs.condition.Condition;
  * </pre>
  */
 public class PSPropertyCondition extends PSAction implements Condition {
+
+  /**
+   * Creates a new condition instance with default settings.
+   */
+  public PSPropertyCondition() {}
+
   /* (non-Javadoc)
    * @see org.apache.tools.ant.taskdefs.condition.Condition#eval()
    */
@@ -185,7 +191,10 @@ public class PSPropertyCondition extends PSAction implements Condition {
   }
 
   /**
-   * @param b
+   * Sets whether the comparison of the specified property value and the actual value in the
+   * property file should be case-sensitive or not.
+   *
+   * @param b <code>true</code> if the comparison should be case-sensitive, otherwise <code>false</code>
    */
   public void setIsCaseSensitive(boolean b) {
     m_caseSensitive = b;
@@ -232,12 +241,20 @@ public class PSPropertyCondition extends PSAction implements Condition {
    */
   private boolean m_caseSensitive;
 
-  /** Getter for the allowed ops. */
+  /**
+   * Getter for the allowed ops.
+   *
+   * @return the array of supported comparison operators
+   */
   public String[] getSupportedOperators() {
     return m_compareOperators;
   }
 
-  /** Getter for the ip. */
+  /**
+   * Getter for the ip.
+   *
+   * @return the current compare operator
+   */
   public String getCompareOperator() {
     return m_compareOp;
   }
@@ -245,7 +262,7 @@ public class PSPropertyCondition extends PSAction implements Condition {
   /**
    * Sets only compare op. Validated against the allowed set.
    *
-   * @param op
+   * @param op the compare operator to set, validated against the allowed set
    */
   public void setCompareOperator(String op) {
     if (op == null || op.trim().length() == 0) m_compareOp = m_compareOperators[0];

@@ -28,7 +28,7 @@ import org.junit.jupiter.api.Test;
  * Structural / contract-marker tests for the {@code resolve-java-home} sh and bat
  * scripts shipped alongside the Jetty scripts. These enforce the dual-script
  * contract from specs/991-system-java-home/contracts/java-home-resolution.md
- * without trying to execute the scripts (which would require a Java 21 install
+ * without trying to execute the scripts (which would require a Java 21+ install
  * matching the project's runtime contract).
  */
 class ResolveJavaHomeScriptTest {
@@ -48,11 +48,16 @@ class ResolveJavaHomeScriptTest {
     assertTrue(s.contains("INSTALL_DIR_JRE"), "contains INSTALL_DIR_JRE source label");
     assertTrue(s.contains("INSTALL_DIR_JRE64"), "contains INSTALL_DIR_JRE64 source label");
     assertTrue(s.contains("PATH"), "PATH source label");
-    assertTrue(s.contains("REQUIRED_MAJOR=21"), "REQUIRED_MAJOR is 21");
+    assertTrue(s.contains("REQUIRED_MAJOR=21"), "REQUIRED_MAJOR minimum is 21");
+    assertTrue(
+        s.contains("-ge \"$REQUIRED_MAJOR\"") || s.contains("-ge $REQUIRED_MAJOR"),
+        "sh accepts major >= REQUIRED_MAJOR (21+), not equality-only");
     assertTrue(s.contains("exit 1") || s.contains("return 1"),
         "failure path exits non-zero");
     assertTrue(s.contains("Required Java major version"),
         "failure message includes required major version label");
+    assertTrue(s.contains("or later"),
+        "failure message states 21 or later");
   }
 
   @Test
@@ -63,9 +68,13 @@ class ResolveJavaHomeScriptTest {
     assertTrue(s.contains("PRODUCT_CONFIG"), "contains PRODUCT_CONFIG source label");
     assertTrue(s.contains("PROCESS_ENV"), "contains PROCESS_ENV source label");
     assertTrue(s.contains("INSTALL_DIR_JRE"), "contains INSTALL_DIR_JRE source label");
-    assertTrue(s.contains("REQUIRED_MAJOR=21"), "REQUIRED_MAJOR is 21");
+    assertTrue(s.contains("REQUIRED_MAJOR=21"), "REQUIRED_MAJOR minimum is 21");
+    assertTrue(s.contains("GEQ %REQUIRED_MAJOR%"),
+        "bat accepts major >= REQUIRED_MAJOR (21+), not equality-only");
     assertTrue(s.contains("Required Java major version"),
         "failure message includes required major version label");
+    assertTrue(s.contains("or later"),
+        "failure message states 21 or later");
     assertTrue(s.contains("exit /b 1"), "bat exits with /b 1 on failure");
   }
 

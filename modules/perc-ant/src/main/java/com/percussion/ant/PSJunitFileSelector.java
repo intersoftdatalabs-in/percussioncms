@@ -38,6 +38,10 @@ import org.apache.tools.ant.types.selectors.SelectorUtils;
  * Custom Ant selector, used to select junit test cases based on a set of include/exclude filters.
  */
 public class PSJunitFileSelector extends BaseExtendSelector {
+  /**
+   * Creates a new junit file selector.
+   */
+  public PSJunitFileSelector() {}
 
   private static final Logger log = LogManager.getLogger(PSJunitFileSelector.class);
 

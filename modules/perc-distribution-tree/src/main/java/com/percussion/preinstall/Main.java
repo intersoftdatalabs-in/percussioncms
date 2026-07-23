@@ -55,6 +55,11 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
+/**
+ * Pre-install entry point invoked by the distribution assembly. Extracts the assembled
+ * distribution, resolves database configuration, selects a runtime Java home, and executes the
+ * ANT installer against the target directory.
+ */
 public class Main {
 
   private static final Logger log = LogManager.getLogger(Main.class);
@@ -66,6 +71,7 @@ public class Main {
   public static final String INSTALL_TEMPDIR = "percInstallTmp_";
   public static final String PERC_ANT_JAR = "perc-ant";
   public static final String DEVELOPMENT = "DEVELOPMENT";
+  /** Name of the ANT build file inside the installer directory. */
   public static final String ANT_INSTALL = "install.xml";
   public static final String JAVA_TEMP = "java.io.tmpdir";
   public static final String VERSION_PROPERTIES = "Version.properties";

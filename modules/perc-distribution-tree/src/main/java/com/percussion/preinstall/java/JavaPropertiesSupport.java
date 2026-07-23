@@ -50,13 +50,21 @@ public final class JavaPropertiesSupport {
 
   /** Marker key written/updated by this feature for round-trip diagnostics. */
   public static final String KEY_WRITTEN_BY = "#written-by";
+  /** Value written into {@link #KEY_WRITTEN_BY} to identify the writer. */
   public static final String WRITTEN_BY_VALUE = "perc-preinstall-java-home";
+
+  /** Creates a new properties support instance. */
+  public JavaPropertiesSupport() {}
 
   /**
    * Loads properties from {@code <installRoot>/java.properties} if present. Returns
    * an empty map when the file does not exist so callers can treat absent-file as
    * "no product config". Malformed entries are surfaced via {@link JavaLoadResult}
    * to allow callers to log without throwing.
+   *
+   * @param installRoot directory expected to contain {@code java.properties}
+   * @return load result describing the file and its contents
+   * @throws java.io.IOException if an I/O error occurs reading the file
    */
   public static JavaLoadResult load(Path installRoot) throws IOException {
     if (installRoot == null) {
@@ -82,6 +90,10 @@ public final class JavaPropertiesSupport {
   /**
    * Returns the persisted {@code JAVA_HOME} value as a string, or {@code null} when
    * not set or blank. Callers must validate the path before treating it as resolved.
+   *
+   * @param installRoot directory expected to contain {@code java.properties}
+   * @return persisted {@code JAVA_HOME} value, or null
+   * @throws java.io.IOException if an I/O error occurs reading the file
    */
   public static String readJavaHome(Path installRoot) throws IOException {
     return readString(installRoot, KEY_JAVA_HOME);
@@ -89,6 +101,10 @@ public final class JavaPropertiesSupport {
 
   /**
    * Returns the persisted {@code JAVA} (launcher) value, or {@code null} when not set.
+   *
+   * @param installRoot directory expected to contain {@code java.properties}
+   * @return persisted {@code JAVA} value, or null
+   * @throws java.io.IOException if an I/O error occurs reading the file
    */
   public static String readJava(Path installRoot) throws IOException {
     return readString(installRoot, KEY_JAVA);
@@ -109,6 +125,12 @@ public final class JavaPropertiesSupport {
    * {@code <installRoot>/java.properties}, preserving any unrelated keys already on
    * disk. Parent directories are created as needed. Relative paths supplied by the
    * caller are rejected to avoid runtime ambiguity; absolute paths only.
+   *
+   * @param installRoot directory that will contain {@code java.properties}
+   * @param javaHome absolute path to the Java home to persist
+   * @param javaLauncher absolute path to the launcher to persist, or null to derive from {@code javaHome}
+   * @throws java.io.IOException if an I/O error occurs writing the file
+   * @throws IllegalArgumentException if a path is null, blank, or relative
    */
   public static void write(Path installRoot, String javaHome, String javaLauncher)
       throws IOException {
@@ -148,6 +170,11 @@ public final class JavaPropertiesSupport {
    * {@code java.properties} file, merged with {@code additional}. Existing values
    * take precedence — only keys absent on disk are added from {@code additional}.
    * The file on disk is not modified by this call.
+   *
+   * @param installRoot directory expected to contain {@code java.properties}
+   * @param additional extra properties to merge in
+   * @return merged properties map
+   * @throws java.io.IOException if an I/O error occurs reading the file
    */
   public static Map<String, String> mergePreserving(Path installRoot,
       Map<String, String> additional) throws IOException {
@@ -179,17 +206,30 @@ public final class JavaPropertiesSupport {
 
   /** Result of loading {@code java.properties}. */
   public record JavaLoadResult(
-      Path location, Map<String, String> properties, boolean present, IOException error) {
+      /** Location of the properties file. */
+      Path location,
+      /** Loaded property key/value pairs. */
+      Map<String, String> properties,
+      /** True when the file existed and was parseable. */
+      boolean present,
+      /** I/O error if the file existed but could not be read, or null. */
+      IOException error) {
 
+    /** Returns the property keys for debug logging. */
     public List<String> keysForDebug() {
       return new ArrayList<>(properties.keySet());
     }
 
-    /** Pretty-prints the resulting properties without values, suitable for logs. */
+    /**
+     * Pretty-prints the resulting properties without values, suitable for logs.
+     *
+     * @return summary string
+     */
     public String summary() {
       return "java.properties " + (present ? "loaded" : "absent") + " keys=" + keysForDebug();
     }
 
+    /** Formats a path for log output, substituting {@code <null>} when null. */
     public static String forLogPath(Path path) {
       return path == null ? "<null>" : path.toString();
     }

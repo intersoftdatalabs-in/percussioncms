@@ -29,9 +29,10 @@ import java.util.Locale;
 import java.util.Set;
 
 /**
- * Discovers Java 21 candidate homes on the local host without invoking any
- * launcher executable (so the discovery itself is portable and safe to run
- * during preinstall). Candidates are drawn from:
+ * Discovers Java candidate homes (major {@link JavaHomeResolver#REQUIRED_MAJOR}
+ * or later) on the local host without invoking any launcher executable (so the
+ * discovery itself is portable and safe to run during preinstall). Candidates
+ * are drawn from:
  *
  * <ol>
  *   <li>the JVM currently running the preinstall,
@@ -41,8 +42,8 @@ import java.util.Set;
  *   <li>{@code PATH} entries containing a {@code java} / {@code java.exe} launcher.
  * </ol>
  *
- * <p>Eligible candidates pass the major-version-21 check (parsed from a
- * sibling {@code release} file when present) and have an executable launcher.
+ * <p>Eligible candidates pass the minimum-major check (parsed from a sibling
+ * {@code release} file when present) and have an executable launcher.
  */
 public final class JavaCandidateDiscovery {
 
@@ -67,7 +68,10 @@ public final class JavaCandidateDiscovery {
     return result;
   }
 
-  /** Filters {@link #discover()} results to eligible (major-version 21, executable launcher). */
+  /**
+   * Filters {@link #discover()} results to eligible (major {@code >=}
+   * {@link JavaHomeResolver#REQUIRED_MAJOR}, executable launcher).
+   */
   public static List<Candidate> eligible(List<Candidate> rawCandidates) {
     if (rawCandidates == null) {
       return List.of();
@@ -212,7 +216,21 @@ public final class JavaCandidateDiscovery {
     public Candidate(Path path, String versionDisplay, boolean executable) {
       this.path = path;
       this.versionDisplay = versionDisplay == null ? "" : versionDisplay;
-      this.eligible = executable && versionDisplay.startsWith("21");
+      this.eligible = executable && meetsMinimumMajor(this.versionDisplay);
+    }
+
+    /**
+     * {@code versionDisplay} is typically the major token from {@code release}
+     * ({@code "21"}, {@code "25"}, or legacy {@code "1.8"}). Accept major
+     * {@code >=} {@link JavaHomeResolver#REQUIRED_MAJOR}.
+     */
+    static boolean meetsMinimumMajor(String versionDisplay) {
+      if (versionDisplay == null || versionDisplay.isBlank()) {
+        return false;
+      }
+      // Reuse parser: wrap as a quoted -version style segment.
+      int major = JavaHomeResolver.parseMajorVersion("version \"" + versionDisplay + "\"");
+      return JavaHomeResolver.isSupportedMajor(major);
     }
 
     public Path path() {

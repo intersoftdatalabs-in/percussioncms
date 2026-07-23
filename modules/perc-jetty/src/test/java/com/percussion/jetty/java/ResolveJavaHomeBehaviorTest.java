@@ -20,6 +20,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.io.File;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -27,6 +28,7 @@ import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.PosixFilePermission;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
@@ -76,36 +78,36 @@ class ResolveJavaHomeBehaviorTest {
             + "; skipping behavioral tests");
   }
 
-  /** Scenario 1: config-only happy path. */
+  /** Scenario 1: config-only happy path (minimum 21 and newer majors). */
   @ParameterizedTest
-  @ValueSource(strings = {"21"})
+  @ValueSource(strings = {"21", "25"})
   @EnabledOnOs({OS.LINUX, OS.MAC})
   void configOnlyHappyPath(String fakeMajor, @TempDir Path scratch) throws Exception {
-    runScript(scratch, fakeMajor, true, false, false, "PRODUCT_CONFIG", "21");
+    runScript(scratch, fakeMajor, true, false, false, "PRODUCT_CONFIG", fakeMajor);
   }
 
-  /** Scenario 2: env-only happy path. */
+  /** Scenario 2: env-only happy path (minimum 21 and newer majors). */
   @ParameterizedTest
-  @ValueSource(strings = {"21"})
+  @ValueSource(strings = {"21", "25"})
   @EnabledOnOs({OS.LINUX, OS.MAC})
   void envOnlyHappyPath(String fakeMajor, @TempDir Path scratch) throws Exception {
-    runScript(scratch, fakeMajor, false, true, false, "PROCESS_ENV", "21");
+    runScript(scratch, fakeMajor, false, true, false, "PROCESS_ENV", fakeMajor);
   }
 
-  /** Scenario 3: PATH happy path. */
+  /** Scenario 3: PATH happy path (minimum 21 and newer majors). */
   @ParameterizedTest
-  @ValueSource(strings = {"21"})
+  @ValueSource(strings = {"21", "25"})
   @EnabledOnOs({OS.LINUX, OS.MAC})
   void pathOnlyHappyPath(String fakeMajor, @TempDir Path scratch) throws Exception {
-    runScript(scratch, fakeMajor, false, false, true, "PATH", "21");
+    runScript(scratch, fakeMajor, false, false, true, "PATH", fakeMajor);
   }
 
   /** Scenario 4: config beats env. */
   @ParameterizedTest
-  @ValueSource(strings = {"21"})
+  @ValueSource(strings = {"21", "25"})
   @EnabledOnOs({OS.LINUX, OS.MAC})
   void configBeatsEnv(String fakeMajor, @TempDir Path scratch) throws Exception {
-    runScript(scratch, fakeMajor, true, true, false, "PRODUCT_CONFIG", "21");
+    runScript(scratch, fakeMajor, true, true, false, "PRODUCT_CONFIG", fakeMajor);
   }
 
   /** Scenario 5: env rejects wrong major (Java 8). */
@@ -225,14 +227,14 @@ class ResolveJavaHomeBehaviorTest {
 
   /**
    * As {@link #runScript} but asserts the failure path: exit non-zero, output
-   * mentions required major version 21. The {@code overwriteInvalidConfig}
-   * parameter, when true, replaces the config with a non-existent path so
-   * the resolver rejects the PRODUCT_CONFIG source. When the caller
-   * additionally passes {@code envHome=true} or {@code onPath=true}, the
-   * lower-precedence layers will be tried as part of the failure
-   * outcome; when both are false (as in {@code configRejectsInvalidPath})
-   * the test exercises the config-rejection path only and the resolver
-   * fails with "no sources" after exhausting all (absent) sources.
+   * mentions the minimum major version (21 or later). The {@code
+   * overwriteInvalidConfig} parameter, when true, replaces the config with a
+   * non-existent path so the resolver rejects the PRODUCT_CONFIG source. When
+   * the caller additionally passes {@code envHome=true} or {@code onPath=true},
+   * the lower-precedence layers will be tried as part of the failure outcome;
+   * when both are false (as in {@code configRejectsInvalidPath}) the test
+   * exercises the config-rejection path only and the resolver fails with "no
+   * sources" after exhausting all (absent) sources.
    */
   private static void runScriptFailure(
       Path scratch,
@@ -248,7 +250,11 @@ class ResolveJavaHomeBehaviorTest {
     assertNotEquals(0, r.exit, "Expected non-zero exit. Output:\n" + r.output);
     assertTrue(
         r.output.contains("21"),
-        "Output must mention required major version 21. Output:\n" + r.output);
+        "Output must mention minimum major version 21. Output:\n" + r.output);
+    assertTrue(
+        r.output.toLowerCase().contains("or later")
+            || r.output.toLowerCase().contains("minimum"),
+        "Output must describe 21 as a minimum (21+). Output:\n" + r.output);
   }
 
   /**
@@ -258,11 +264,18 @@ class ResolveJavaHomeBehaviorTest {
    *   <li>If {@code envHome} is true, the parent process {@code JAVA_HOME} is
    *       set to the fake install root before launching — so the resolver sees
    *       PROCESS_ENV.
-   *   <li>If {@code onPath} is true, the parent process {@code PATH} has the
-   *       fake {@code bin} prepended — so the resolver sees PATH.
+   *   <li>If {@code onPath} is true, the parent process {@code PATH} includes
+   *       only the fake {@code bin} (plus a tools dir) — so the resolver sees
+   *       PATH discovery from the fixture alone.
    *   <li>If {@code writeConfig} is true (set during {@link #setupFakeJavaHome}),
    *       the resolver also sees PRODUCT_CONFIG.
    * </ul>
+   *
+   * <p>PATH is always isolated from the host JVM's PATH. Without isolation the
+   * resolver falls through to a real system Java 21 (e.g. {@code /usr/bin/java})
+   * after config/env/fake-Java-8 fail, and the negative scenarios incorrectly
+   * exit 0. Tools the script needs ({@code awk}, {@code sed}, …) are exposed via
+   * a dedicated tools directory of symlinks that deliberately omits {@code java}.
    *
    * <p>After invocation we verify that the exit code is reported (with
    * {@code destroyForcibly} on timeout) so a hung child process cannot mask
@@ -278,14 +291,17 @@ class ResolveJavaHomeBehaviorTest {
     if (envHome) {
       env.put("JAVA_HOME", installRoot.toAbsolutePath().toString());
     }
-    if (onPath) {
-      Path fakeBin = installRoot.resolve("bin");
-      String currentPath = env.getOrDefault("PATH", "");
-      env.put("PATH", fakeBin.toAbsolutePath() + ":" + currentPath);
+    // Always isolate PATH so host Java 21 cannot satisfy fallback sources.
+    env.put("PATH", buildIsolatedPath(installRoot, onPath));
+
+    // Resolve bash via the host PATH (absolute) so the child need not inherit it.
+    String bash = findOnHostPath("bash");
+    if (bash == null) {
+      bash = "/bin/bash";
     }
 
     ProcessBuilder pb = new ProcessBuilder(
-        "bash", RESOLVE_SH.toAbsolutePath().toString(), installRoot.toAbsolutePath().toString())
+        bash, RESOLVE_SH.toAbsolutePath().toString(), installRoot.toAbsolutePath().toString())
         .redirectErrorStream(true);
     pb.environment().clear();
     pb.environment().putAll(env);
@@ -314,6 +330,88 @@ class ResolveJavaHomeBehaviorTest {
     }
     int exit = p.exitValue();
     return new ResolveResult(exit, out.toString());
+  }
+
+  /**
+   * Builds a PATH that never exposes the host {@code java} launcher.
+   *
+   * <p>On merged-usr systems ({@code /bin → /usr/bin}) putting {@code /bin} or
+   * {@code /usr/bin} on PATH would reintroduce system Java and defeat the
+   * negative scenarios. Instead we symlink only the utilities the resolver
+   * script invokes ({@code awk}, {@code sed}, {@code head}, {@code tr},
+   * {@code uname}, …) into a private tools directory under the install root.
+   *
+   * @param installRoot fixture install root (also the home of the tools dir)
+   * @param onPath when true, prepend the fake {@code bin} so PATH discovery
+   *     sees the fixture launcher only
+   */
+  private static String buildIsolatedPath(Path installRoot, boolean onPath) throws Exception {
+    Path toolsDir = installRoot.resolve(".resolve-test-tools");
+    Files.createDirectories(toolsDir);
+
+    // Utilities used by resolve-java-home.sh (validation + config parsing).
+    // Deliberately exclude "java" so PATH discovery cannot fall through to the host.
+    for (String cmd : List.of("awk", "sed", "head", "tr", "uname", "dirname", "basename", "cat")) {
+      linkHostCommand(toolsDir, cmd);
+    }
+
+    StringBuilder path = new StringBuilder();
+    if (onPath) {
+      path.append(installRoot.resolve("bin").toAbsolutePath());
+      path.append(File.pathSeparator);
+    }
+    path.append(toolsDir.toAbsolutePath());
+    return path.toString();
+  }
+
+  /**
+   * Creates a symlink (or copy fallback) from {@code toolsDir/cmd} to the host
+   * executable for {@code cmd}. No-op when the host command cannot be found.
+   */
+  private static void linkHostCommand(Path toolsDir, String cmd) throws Exception {
+    String host = findOnHostPath(cmd);
+    if (host == null) {
+      return;
+    }
+    Path link = toolsDir.resolve(cmd);
+    if (Files.exists(link)) {
+      return;
+    }
+    Path target = Path.of(host);
+    try {
+      Files.createSymbolicLink(link, target);
+    } catch (UnsupportedOperationException | java.nio.file.FileSystemException ex) {
+      // Some environments disallow symlinks; a plain copy still keeps java off PATH.
+      Files.copy(target, link, StandardCopyOption.REPLACE_EXISTING);
+      link.toFile().setExecutable(true, false);
+    }
+  }
+
+  /**
+   * Locates {@code cmd} on the host process PATH (not the isolated test PATH).
+   * Returns an absolute path string, or {@code null} if not found.
+   */
+  private static String findOnHostPath(String cmd) {
+    String hostPath = System.getenv("PATH");
+    if (hostPath == null || hostPath.isBlank()) {
+      return null;
+    }
+    for (String dir : hostPath.split(java.util.regex.Pattern.quote(File.pathSeparator))) {
+      if (dir == null || dir.isBlank()) {
+        continue;
+      }
+      Path candidate = Path.of(dir, cmd);
+      if (Files.isExecutable(candidate) && Files.isRegularFile(candidate)) {
+        return candidate.toAbsolutePath().toString();
+      }
+      // Allow following symlinks (e.g. /usr/bin/java -> alternatives); isRegularFile
+      // follows links by default. For directory-style shims use isExecutable alone
+      // after exists check:
+      if (Files.isExecutable(candidate) && Files.exists(candidate)) {
+        return candidate.toAbsolutePath().toString();
+      }
+    }
+    return null;
   }
 
   /** Captured exit code + combined stdout/stderr from the resolver invocation. */

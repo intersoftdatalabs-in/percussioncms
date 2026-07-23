@@ -38,30 +38,60 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
 /**
+ * Check the tmx file for correct data. The classes in the tmx file must actually exist. Spit
+ * out errors for the ones that don't exist.
+ *
  * @author dougrand
- *     <p>Check the tmx file for correct data. The classes in the tmx file must actually exist. Spit
- *     out errors for the ones that don't exist.
  */
 public class PSCheckTmxFile extends Task {
+  /**
+   * Creates a new TMX file check task.
+   */
+  public PSCheckTmxFile() {}
 
   private static final Logger log = LogManager.getLogger(PSCheckTmxFile.class);
 
+  /**
+   * Gets the class directory.
+   *
+   * @return the class directory, never <code>null</code>
+   */
   public String getClassdir() {
     return m_classdir;
   }
 
+  /**
+   * Sets the class directory.
+   *
+   * @param classPath the class directory path, may be <code>null</code>
+   */
   public void setClassdir(String classPath) {
     m_classdir = classPath;
   }
 
+  /**
+   * Gets the TMX file path.
+   *
+   * @return the TMX file path, never <code>null</code>
+   */
   public String getTmxPath() {
     return m_tmxPath;
   }
 
+  /**
+   * Sets the TMX file path.
+   *
+   * @param tmxPath the TMX file path, may be <code>null</code>
+   */
   public void setTmxPath(String tmxPath) {
     m_tmxPath = tmxPath;
   }
 
+  /**
+   * Sets whether to fail on error.
+   *
+   * @param fail <code>true</code> to fail on error, <code>false</code> otherwise
+   */
   public void setFailOnError(boolean fail) {
     m_failOnError = fail;
   }
