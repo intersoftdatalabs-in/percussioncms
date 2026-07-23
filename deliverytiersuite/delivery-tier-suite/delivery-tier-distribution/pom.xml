@@ -832,7 +832,17 @@
                         <goals>
                             <goal>copy</goal>
                         </goals>
-                        <phase>package</phase>
+                        <!--
+                          Run at prepare-package (BEFORE package) so that the artifacts
+                          (perc-ant.jar, perc-service-wrapper.jar) are staged under
+                          target/classes/distribution/{rxconfig/Installer,}/ before the
+                          jar-plugin:jar packages the staging directory. The previous
+                          phase=package declaration ran AFTER jar-plugin had already
+                          packaged an empty staging directory, so the artifacts never
+                          made it into delivery-tier-distribution.jar and the preinstall
+                          extractor failed with 'perc-ant-*.jar not found'.
+                        -->
+                        <phase>prepare-package</phase>
                         <configuration>
                             <artifactItems>
                                 <artifactItem>
@@ -869,63 +879,73 @@
                             <mainClass>com.percussion.preinstall.MainDTSPreInstall</mainClass>
                         </manifest>
                     </archive>
+                    <!--
+                      The preinstall extractor relies on perc-ant-*.jar being present
+                      alongside installDts.xml inside <assembly-directory>/rxconfig/Installer/
+                      after Maven extraction (see extractArchive in MainDTSPreInstall.java).
+                      maven-antrun-plugin and maven-dependency-plugin:copy both stage
+                      perc-ant.jar there. The single <include>**/*</include> pattern packages
+                      every staged file (jar files included); the previous explicit
+                      extension list silently dropped jar files from the staging dir even
+                      though the pattern matched by eye. Use the catch-all pattern so a
+                      future addition to the staging dir (e.g. another extension) is
+                      packaged automatically.
+
+                      When the previous maven-shade-plugin (shadedArtifactAttached=false)
+                      was active it OVERWROTE the jar produced here, silently dropping the
+                      install payload. That plugin has been replaced with a
+                      maven-dependency-plugin:unpack execution above so the staging
+                      directory is now packaged verbatim.
+                    -->
+                    <includes>
+                        <include>**/*</include>
+                    </includes>
                 </configuration>
             </plugin>
             <!--
               GH-1180: MainDTSPreInstall uses PathValidation (ZipSlip) but java -jar runs
-              a thin jar with no Class-Path. Shade only the preinstall runtime types needed
-              for extractArchive — not a full jar-with-dependencies (wars/Tomcat/Spring).
-              CMS installer (perc-distribution-tree) uses fat jar-with-dependencies instead.
+              a thin jar with no Class-Path. Stage PathValidation (+ nested types) and
+              the minimal log4j-api surface used by PathValidation's static logger
+              directly into the build output directory so the jar-plugin packages them
+              alongside the install scripts and the bundled perc-ant.jar.
+
+              Previously this used maven-shade-plugin with shadedArtifactAttached=false
+              which REPLACED the staging jar with the shaded one and silently
+              dropped the bundled install payload (perc-ant-*.jar, installDts.xml,
+              DTSProductionService.{sh,bat}, etc.). Using a separate antrun
+              unpack step keeps the staging content intact while still satisfying
+              GH-1180 (PathValidation must be present in the shipping jar to make
+              ZipSlip checks at runtime).
             -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-shade-plugin</artifactId>
+                <artifactId>maven-dependency-plugin</artifactId>
                 <executions>
                     <execution>
-                        <id>shade-preinstall-security</id>
+                        <id>unpack-pathvalidation</id>
                         <goals>
-                            <goal>shade</goal>
+                            <goal>unpack</goal>
                         </goals>
-                        <phase>package</phase>
+                        <phase>process-resources</phase>
                         <configuration>
-                            <createDependencyReducedPom>false</createDependencyReducedPom>
-                            <promoteTransitiveDependencies>false</promoteTransitiveDependencies>
-                            <shadedArtifactAttached>false</shadedArtifactAttached>
-                            <filters>
-                                <filter>
-                                    <artifact>*:*</artifact>
-                                    <excludes>
-                                        <exclude>META-INF/*.SF</exclude>
-                                        <exclude>META-INF/*.DSA</exclude>
-                                        <exclude>META-INF/*.RSA</exclude>
-                                        <exclude>META-INF/MANIFEST.MF</exclude>
-                                    </excludes>
-                                </filter>
-                                <!--
-                                  Only PathValidation (+ nested types) is required at preinstall
-                                  runtime today. Keep the filter tight so future bloat in
-                                  perc-security-utils is not pulled into the DTS installer jar.
-                                -->
-                                <filter>
-                                    <artifact>com.percussion:perc-security-utils</artifact>
-                                    <includes>
-                                        <include>com/percussion/security/validation/PathValidation.class</include>
-                                        <include>com/percussion/security/validation/PathValidation$*.class</include>
-                                    </includes>
-                                </filter>
-                            </filters>
-                            <artifactSet>
-                                <includes>
-                                    <include>com.percussion:perc-security-utils</include>
-                                    <!-- PathValidation static logger uses LogManager -->
-                                    <include>org.apache.logging.log4j:log4j-api</include>
-                                </includes>
-                            </artifactSet>
-                            <transformers>
-                                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                                    <mainClass>com.percussion.preinstall.MainDTSPreInstall</mainClass>
-                                </transformer>
-                            </transformers>
+                            <artifactItems>
+                                <artifactItem>
+                                    <groupId>com.percussion</groupId>
+                                    <artifactId>perc-security-utils</artifactId>
+                                    <version>${project.parent.version}</version>
+                                    <type>jar</type>
+                                    <includes>com/percussion/security/validation/PathValidation.class,com/percussion/security/validation/PathValidation$*.class</includes>
+                                    <outputDirectory>${project.build.outputDirectory}</outputDirectory>
+                                </artifactItem>
+                                <artifactItem>
+                                    <groupId>org.apache.logging.log4j</groupId>
+                                    <artifactId>log4j-api</artifactId>
+                                    <version>${log4j2.version}</version>
+                                    <type>jar</type>
+                                    <includes>org/apache/logging/log4j/LogManager.class,org/apache/logging/log4j/Logger.class,org/apache/logging/log4j/Level.class,org/apache/logging/log4j/spi/LoggerProvider.class,org/apache/logging/log4j/spi/AbstractLoggerProvider.class,org/apache/logging/log4j/LogBuilder.class,org/apache/logging/log4j/util/StackLocator.class,org/apache/logging/log4j/util/PropertiesUtil.class,org/apache/logging/log4j/util/PropertySource.class,org/apache/logging/log4j/status/StatusLogger.class,org/apache/logging/log4j/message/*,org/apache/logging/log4j/simple/*,org/apache/logging/log4j/spi/LoggingSystem*.class,org/apache/logging/log4j/spi/AbstractDefaultLoggerProvider.class,org/apache/logging/log4j/spi/DefaultLoggerContext.class,org/apache/logging/log4j/spi/LoggerContext.class,org/apache/logging/log4j/spi/LoggerContextFactory.class,org/apache/logging/log4j/spi/ThreadContextStack.class,org/apache/logging/log4j/spi/ThreadContextMap.class,org/apache/logging/log4j/spi/ThreadContext.class,org/apache/logging/log4j/spi/ThreadContextFactory.class,org/apache/logging/log4j/spi/ThreadContextProvider.class,org/apache/logging/log4j/spi/TypedLogger*.class,org/apache/logging/log4j/spi/PropertySource*.class,org/apache/logging/log4j/spi/DefaultThreadContextMap.class,org/apache/logging/log4j/spi/DefaultThreadContextStack.class,org/apache/logging/log4j/spi/MutableThreadContextStack.class,org/apache/logging/log4j/spi/StandardLevel.class</includes>
+                                    <outputDirectory>${project.build.outputDirectory}</outputDirectory>
+                                </artifactItem>
+                            </artifactItems>
                         </configuration>
                     </execution>
                 </executions>
