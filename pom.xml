@@ -2648,7 +2648,7 @@
                 <plugin>
                     <groupId>com.intsof</groupId>
                     <artifactId>ai-build-integrity-maven-plugin</artifactId>
-                    <version>0.13.2</version>
+                    <version>0.13.3</version>
                     <configuration>
                         <hashFileMode>CENTRAL</hashFileMode>
                         <!-- Scan the entire repo, not just the current module's basedir -->
@@ -2703,7 +2703,7 @@
             <plugin>
                 <groupId>com.intsof</groupId>
                 <artifactId>ai-build-integrity-maven-plugin</artifactId>
-                <version>0.13.2</version>
+                <version>0.13.3</version>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
