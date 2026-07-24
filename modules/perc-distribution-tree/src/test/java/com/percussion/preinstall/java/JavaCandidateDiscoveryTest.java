@@ -125,16 +125,17 @@ class JavaCandidateDiscoveryTest {
         "JAVA_HOME_FOO", scratch.resolve("fake").toString(),
         "JAVA_HOME_", scratch.resolve("blank").toString(),
         "JAVA_HOME_21abc", scratch.resolve("suffix").toString());
+    // Empty PATH so addPathLaunchers / addCommonOsLocations contribute nothing;
+    // any candidate in `raw` came from addVersionedHomeEnvVars or readJavaHome.
     List<JavaCandidateDiscovery.Candidate> raw =
         JavaCandidateDiscovery.discover(env, null, "");
     // Only JAVA_HOME_21 is recognized as a versioned home; the others are
     // silently filtered. JAVA_HOME itself is NOT in the env map here, so the
-    // versioned path produces exactly one candidate.
-    long numeric = raw.stream()
-        .filter(c -> c.path().toString().equals(real.toString()))
-        .count();
-    assertEquals(1, numeric,
+    // versioned path produces exactly one candidate total.
+    assertEquals(1, raw.size(),
         "Only JAVA_HOME_21 should resolve to a candidate; found: " + raw);
+    assertEquals(real, raw.get(0).path(),
+        "Surviving candidate must point at JAVA_HOME_21's value; found: " + raw.get(0));
   }
 
   private static String launcherForCurrentPlatform() {

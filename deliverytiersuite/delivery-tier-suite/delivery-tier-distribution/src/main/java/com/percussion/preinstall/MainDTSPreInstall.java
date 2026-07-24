@@ -376,12 +376,22 @@ public class MainDTSPreInstall {
     try {
       System.out.print(prompt);
       System.out.flush();
+      // Do NOT close the Scanner: closing it would close System.in, which
+      // downstream code (and any subsequent interactive prompts in this JVM)
+      // might still need. The Scanner is intentionally leaked.
       java.util.Scanner scanner = new java.util.Scanner(System.in);
       if (scanner.hasNextLine()) {
         return scanner.nextLine();
       }
       return "";
     } catch (Exception e) {
+      // User-facing fallback: surface the failure to stderr so the operator
+      // sees that stdin could not be read instead of watching the installer
+      // silently auto-pick a JDK. The empty-string return lets the
+      // auto-select path fall through.
+      System.err.println(
+          "[WARN] Failed to read interactive line from stdin; falling back to auto-select: "
+              + e);
       return "";
     }
   }

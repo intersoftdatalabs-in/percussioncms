@@ -85,15 +85,15 @@ class JavaCandidateDiscoveryTest {
 
   /** Mirror of CMS test — multi-JDK host discovers JAVA_HOME_21 and JAVA_HOME_8. */
   @Test
-  void discoversVersionedHomeEnvVars(@org.junit.jupiter.api.io.TempDir java.nio.file.Path scratch) throws java.io.IOException {
+  void discoversVersionedHomeEnvVars(@TempDir Path scratch) throws IOException {
     String launcher = launcherForCurrentPlatform();
-    java.nio.file.Path jdk21 = makeHome(scratch.resolve("jdk21"), "21", launcher);
-    java.nio.file.Path jdk8 = makeHome(scratch.resolve("jdk8"), "8", launcher);
-    java.util.Map<String, String> env = java.util.Map.of(
+    Path jdk21 = makeHome(scratch.resolve("jdk21"), "21", launcher);
+    Path jdk8 = makeHome(scratch.resolve("jdk8"), "8", launcher);
+    Map<String, String> env = Map.of(
         "JAVA_HOME_21", jdk21.toString(),
         "JAVA_HOME_8", jdk8.toString(),
         "PATH", scratch.resolve("jdk21").resolve("bin").toString());
-    java.util.List<JavaCandidateDiscovery.Candidate> raw =
+    List<JavaCandidateDiscovery.Candidate> raw =
         JavaCandidateDiscovery.discover(env, null, env.get("PATH"));
     assertTrue(
         raw.stream().anyMatch(c -> c.path().toString().equals(jdk21.toString())),
@@ -101,6 +101,30 @@ class JavaCandidateDiscoveryTest {
     assertTrue(
         raw.stream().anyMatch(c -> c.path().toString().equals(jdk8.toString())),
         "JAVA_HOME_8 must produce a candidate; found: " + raw);
+  }
+
+  /**
+   * Mirror of CMS test — regression: non-numeric suffixes
+   * ({@code JAVA_HOME_FOO}) and the bare {@code JAVA_HOME} must NOT be
+   * treated as versioned home vars. See CMS sibling for full rationale.
+   */
+  @Test
+  void addVersionedHomeEnvVarsRejectsNonNumeric(@TempDir Path scratch) throws IOException {
+    String launcher = launcherForCurrentPlatform();
+    Path real = makeHome(scratch.resolve("real"), "21", launcher);
+    Map<String, String> env = Map.of(
+        "JAVA_HOME_21", real.toString(),
+        "JAVA_HOME_FOO", scratch.resolve("fake").toString(),
+        "JAVA_HOME_", scratch.resolve("blank").toString(),
+        "JAVA_HOME_21abc", scratch.resolve("suffix").toString());
+    // Empty PATH so addPathLaunchers / addCommonOsLocations contribute nothing;
+    // any candidate in `raw` came from addVersionedHomeEnvVars or readJavaHome.
+    List<JavaCandidateDiscovery.Candidate> raw =
+        JavaCandidateDiscovery.discover(env, null, "");
+    assertEquals(1, raw.size(),
+        "Only JAVA_HOME_21 should resolve to a candidate; found: " + raw);
+    assertEquals(real, raw.get(0).path(),
+        "Surviving candidate must point at JAVA_HOME_21's value; found: " + raw.get(0));
   }
 
   private static String launcherForCurrentPlatform() {

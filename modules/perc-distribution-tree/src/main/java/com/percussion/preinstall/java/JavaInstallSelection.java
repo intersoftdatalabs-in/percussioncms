@@ -123,10 +123,10 @@ public final class JavaInstallSelection {
    * MainDTSPreInstall} InteractivePrompt implementations handle that case
    * by using a {@link java.util.Scanner} on {@code System.in} directly, so
    * the prompt can still read user input. We use a non-blocking probe
-   * ({@code System.in.available() > 0} or stream open) as the fallback to
-   * confirm the prompt has a real stdin to read from, since auto-selecting
-   * with no input available is the documented behavior for non-interactive
-   * installs.
+   * ({@code System.in.available() >= 0} — i.e. the stream is reachable
+   * without throwing) as the fallback to confirm the prompt has a real
+   * stdin to read from, since auto-selecting with no input available is
+   * the documented behavior for non-interactive installs.
    */
   private static boolean isInteractiveAvailable() {
     if (System.console() != null) {
@@ -136,7 +136,7 @@ public final class JavaInstallSelection {
     // bytes. (An earlier Scanner-based probe consumed the user's typed
     // input before the actual prompt could read it.) The caller's prompt
     // is responsible for the actual blocking read; this method just
-    // reports whether stdin is open.
+    // reports whether stdin is reachable (returns >= 0) without throwing.
     try {
       return System.in.available() >= 0;
     } catch (java.io.IOException e) {

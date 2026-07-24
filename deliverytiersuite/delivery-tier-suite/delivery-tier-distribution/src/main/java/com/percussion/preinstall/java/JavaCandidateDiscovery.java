@@ -86,7 +86,9 @@ public final class JavaCandidateDiscovery {
     }
     for (java.util.Map.Entry<String, String> e : env.entrySet()) {
       String key = e.getKey();
-      if (key == null || !key.startsWith("JAVA_HOME_") || key.equals("JAVA_HOME")) {
+      // Require the literal trailing underscore so the bare "JAVA_HOME"
+      // is left to the readJavaHome(env) path above.
+      if (key == null || !key.startsWith("JAVA_HOME_")) {
         continue;
       }
       // e.g. JAVA_HOME_21 -> "21" -> 21
