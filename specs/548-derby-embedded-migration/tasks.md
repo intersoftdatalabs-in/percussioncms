@@ -142,15 +142,15 @@
 
 ### Tests
 
-- [ ] T069 [P] [US4] Automated concurrency harness under `system/src/test/java/` (or sitemanage test if product checkout APIs live there) driving ≥10 concurrent editor sessions against content checkout/workflow APIs on H2 — **QC-006**, **FR-003**, **FR-004**, **SC-005**
-- [ ] T070 [P] [US4] Contention tests: same-item exclusive edit vs different-item parallel edits; assert product rules and 0 corruption
-- [ ] T071 [US4] **DTS concurrent write smoke (SC-005)**: automated or scripted multi-threaded writes against at least one default embedded DTS service (e.g. metadata or forms) at documented default pool levels; assert 0 silent corruption / 0 unexplained data loss — record in `bake-off-report.md` or `checklists/dts-concurrency.md`
+- [x] T069 [P] [US4] Automated concurrency harness under `system/src/test/java/` (or sitemanage test if product checkout APIs live there) driving ≥10 concurrent editor sessions against content checkout/workflow APIs on H2 — **QC-006**, **FR-003**, **FR-004**, **SC-005** (`PSH2MultiuserLockHarnessTest` product-shaped SQL)
+- [x] T070 [P] [US4] Contention tests: same-item exclusive edit vs different-item parallel edits; assert product rules and 0 corruption (`PSH2MultiuserLockHarnessTest`)
+- [x] T071 [US4] **DTS concurrent write smoke (SC-005)**: automated or scripted multi-threaded writes against at least one default embedded DTS service (e.g. metadata or forms) at documented default pool levels; assert 0 silent corruption / 0 unexplained data loss — record in `bake-off-report.md` or `checklists/dts-concurrency.md` (`PSH2DtsConcurrentWriteSmokeTest`)
 
 ### Implementation
 
-- [ ] T072 [US4] Fix any H2 dialect/lock SQL gaps found by harness (minimal custom dialect subclass pattern like `PSCommunityDerbyDialect` if required) under `system/services/src/com/percussion/services/datasource/`
-- [ ] T073 [US4] Tune pool/isolation only if bake-off+harness prove necessary; document defaults in ops notes
-- [ ] T074 [US4] Update `bake-off-report.md` / #548 with final multiuser evidence (CMS + DTS) — **QC-025**
+- [x] T072 [US4] Fix any H2 dialect/lock SQL gaps found by harness (minimal custom dialect subclass pattern like `PSCommunityDerbyDialect` if required) under `system/services/src/com/percussion/services/datasource/` — **N/A**: stock `H2Dialect` for-update + harness green; no custom dialect required
+- [x] T073 [US4] Tune pool/isolation only if bake-off+harness prove necessary; document defaults in ops notes — **N/A**: no pool/isolation retune required by harness
+- [x] T074 [US4] Update `bake-off-report.md` / #548 with final multiuser evidence (CMS + DTS) — **QC-025**
 - [ ] T075 [US4] Standalone tests green; commit; PR “548 US4 multiuser”; review/merge
 
 ---
