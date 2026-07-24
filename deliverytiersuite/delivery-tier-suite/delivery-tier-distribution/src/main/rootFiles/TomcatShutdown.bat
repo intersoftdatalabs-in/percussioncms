@@ -26,6 +26,7 @@ if not exist "%SERVER_DIR%\bin\catalina.bat" (
     exit /b 1
 )
 
-set JAVA_OPTS=%JAVA_OPTS% -Dhttps.protocols=TLSv1.2 -Djava.net.preferIPv4Stack=true -Djava.net.preferIPv4Addresses=true -Dfile.encoding=UTF-8 -Xmx1024m -XX:+DisableExplicitGC -XX:+UseConcMarkSweepGC -XX:NewSize=256m -XX:SurvivorRatio=16 -Djava.endorsed.dirs=%SERVER_DIR%\endorsed -Dcatalina.base=%SERVER_DIR% -Dcatalina.home=%SERVER_DIR% -Djava.io.tmpdir=%SERVER_DIR%\temp -Dderby.system.home=%SERVER_DIR%\derbydata
+REM Note: java.endorsed.dirs property is not supported on Java 9+ (fatal on 21); do not add it back.
+set JAVA_OPTS=%JAVA_OPTS% -Dhttps.protocols=TLSv1.2 -Djava.net.preferIPv4Stack=true -Djava.net.preferIPv4Addresses=true -Dfile.encoding=UTF-8 -Xmx1024m -XX:+DisableExplicitGC -XX:+UseConcMarkSweepGC -XX:NewSize=256m -XX:SurvivorRatio=16 -Dcatalina.base=%SERVER_DIR% -Dcatalina.home=%SERVER_DIR% -Djava.io.tmpdir=%SERVER_DIR%\temp -Dderby.system.home=%SERVER_DIR%\derbydata
 set CATALINA_HOME=%SERVER_DIR%
 "%SERVER_DIR%\bin\catalina.bat" stop

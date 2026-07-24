@@ -125,7 +125,8 @@ set PR_LOGPATH=
 set PR_CLASSPATH=
 set PR_JVM=
 rem Set extra parameters
-"%EXECUTABLE%" //US//%SERVICE_NAME% --JvmOptions "-Dcatalina.base=%CATALINA_BASE%;-Dcatalina.home=%CATALINA_HOME%;-Djava.endorsed.dirs=%CATALINA_HOME%\endorsed" --StartMode jvm --StopMode jvm
+REM Note: java.endorsed.dirs property is not supported on Java 9+ (fatal on 21); do not add it back.
+"%EXECUTABLE%" //US//%SERVICE_NAME% --JvmOptions "-Dcatalina.base=%CATALINA_BASE%;-Dcatalina.home=%CATALINA_HOME%" --StartMode jvm --StopMode jvm
 rem More extra parameters
 set PR_LOGPATH=%CATALINA_BASE%\logs
 set PR_STDOUTPUT=auto

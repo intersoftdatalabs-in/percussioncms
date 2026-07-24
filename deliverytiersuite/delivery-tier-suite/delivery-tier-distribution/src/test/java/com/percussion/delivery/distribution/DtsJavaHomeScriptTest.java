@@ -22,6 +22,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.List;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -148,6 +149,26 @@ class DtsJavaHomeScriptTest {
    * scripts live under {@code jetty/}; DTS Tomcat scripts live at install root
    * next to {@code resolve-java-home.*}.
    */
+  @Test
+  void tomcatScriptsDoNotPassJavaEndorsedDirs() throws Exception {
+    // Java 9+ removed endorsed standards override; Java 21 treats
+    // -Djava.endorsed.dirs=... as a fatal JVM option.
+    for (Path p :
+        List.of(
+            TOMCAT_START_SH,
+            TOMCAT_STOP_SH,
+            TOMCAT_START_BAT,
+            TOMCAT_STOP_BAT,
+            PROD_BAT,
+            STAGING_BAT)) {
+      String s = Files.readString(p, StandardCharsets.UTF_8);
+      // Match the JVM option form only — comments may mention the removed flag.
+      assertFalse(
+          s.contains("-Djava.endorsed.dirs"),
+          p.getFileName() + " must not set -Djava.endorsed.dirs (fatal on Java 21)");
+    }
+  }
+
   private static void assertTomcatScriptsResolveFromInstallRoot(
       String sh, String bat, String label) {
     assertTrue(
