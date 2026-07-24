@@ -135,4 +135,27 @@ public class PSRepositoryOfflineBackupTest {
     Path joined = base.resolve("..").resolve("Repository").resolve("CMDB").normalize();
     assertEquals(base.resolve("CMDB").normalize(), joined);
   }
+
+  /** T088 — refuse offline backup when engine lock markers present. */
+  @Test
+  void refusesWhenLiveLockMarkerPresent() throws Exception {
+    Path repo = temp.resolve("liveRepo");
+    Files.createDirectories(repo);
+    Files.writeString(repo.resolve("seg0"), "data", StandardCharsets.UTF_8);
+    Files.writeString(repo.resolve("db.lck"), "lock", StandardCharsets.UTF_8);
+
+    assertFalse(PSRepositoryOfflineBackup.findLiveMarkers(repo).isEmpty());
+
+    Path backupRoot = temp.resolve("backup-live");
+    IOException ex =
+        assertThrows(
+            IOException.class,
+            () -> PSRepositoryOfflineBackup.copyRepositoryTree(repo, backupRoot));
+    assertTrue(ex.getMessage().toLowerCase().contains("live"), ex.getMessage());
+
+    // Explicit allow when operator forces offline copy despite markers
+    PSRepositoryOfflineBackup.Result forced =
+        PSRepositoryOfflineBackup.copyRepositoryTree(repo, backupRoot, false);
+    assertTrue(forced.filesCopied() >= 1);
+  }
 }
