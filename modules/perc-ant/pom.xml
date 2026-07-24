@@ -47,6 +47,11 @@
             <artifactId>ant-launcher</artifactId>
             <version>${ant.version}</version>
         </dependency>
+        <!-- Required by PSSecureProperty (BouncyCastleProvider) for standalone module compile -->
+        <dependency>
+            <groupId>org.bouncycastle</groupId>
+            <artifactId>bcprov-jdk18on</artifactId>
+        </dependency>
         <dependency>
             <groupId>org.apache.derby</groupId>
             <artifactId>derby</artifactId>

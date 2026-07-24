@@ -1,6 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Pre-upgrade plugins run with the CMS stopped (see install.xml preInstallForDevUpg /
+  production upgrade init). Modules that must run as pre-upgrade include <preupgrade/>.
 
-
+  #548: Derby→H2 migration must complete before SQL/upgrade plugins that assume the live
+  repository backend.
+-->
 <rxupgrade>
-
+	<module name="server"
+		logfile="PSUpgradePluginEmbeddedRepositoryMigration.log">
+		<preupgrade />
+		<from major="-1" minor="-1" micro="-1" build="-1" />
+		<to major="-1" minor="-1" micro="-1" build="-1" />
+		<plugins>
+			<plugin name="PSUpgradePluginEmbeddedRepositoryMigration">
+				<class>com.percussion.install.PSUpgradePluginEmbeddedRepositoryMigration</class>
+				<data />
+			</plugin>
+		</plugins>
+	</module>
 </rxupgrade>
