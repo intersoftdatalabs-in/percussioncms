@@ -44,6 +44,15 @@ public class PSJdbcUtils {
   /** constant for the Embedded Apache Derby driver type. */
   public static final String DERBY_DRIVER = "derby";
 
+  /**
+   * Constant for the H2 embedded driver type (default embedded replacement for retired Derby —
+   * GitHub #548). Must match driver name in server configuration ({@code config.xml}).
+   */
+  public static final String H2_DRIVER = "h2";
+
+  /** H2 JDBC driver class name. */
+  public static final String H2_DRIVER_CLASS = "org.h2.Driver";
+
   /** constant for the DB2 driver type. */
   public static final String DB2_DRIVER = "db2";
 
@@ -92,6 +101,9 @@ public class PSJdbcUtils {
   /** constant for the Apache Derby driver type. */
   public static final String DERBY = DERBY_DRIVER;
 
+  /** constant for the H2 driver type (alias of {@link #H2_DRIVER}). */
+  public static final String H2 = H2_DRIVER;
+
   /** constant for the MYSQL driver type. */
   public static final String MYSQL = MYSQL_DRIVER;
 
@@ -121,6 +133,9 @@ public class PSJdbcUtils {
 
   /** Constant for Apache Derby db backend property, see */
   public static final String DERBY_DB_BACKEND = "DERBY";
+
+  /** Constant for H2 db backend property ({@code DB_BACKEND=H2}). */
+  public static final String H2_DB_BACKEND = "H2";
 
   /** Constant for MYSQL db backend property, see */
   public static final String MYSQL_DB_BACKEND = "MYSQL";
@@ -336,6 +351,7 @@ public class PSJdbcUtils {
         && serverNameOrConnUrl.indexOf(";create=true") == -1) {
       rval.append(";create=true");
     }
+    // H2 file URLs create the database by default; do not append Derby-style ";create=true".
 
     return rval.toString().replace(";;", ";");
   }
@@ -352,6 +368,7 @@ public class PSJdbcUtils {
     if (driver.equals(SPRINTA)) strDBBackend = SPRINTA_DB_BACKEND;
     else if (driver.equals(DB2)) strDBBackend = DB2_DB_BACKEND;
     else if (driver.equals(DERBY_DRIVER)) strDBBackend = DERBY_DB_BACKEND;
+    else if (driver.equalsIgnoreCase(H2_DRIVER)) strDBBackend = H2_DB_BACKEND;
     else if (driver.equals(MYSQL_DRIVER)) strDBBackend = MYSQL_DB_BACKEND;
     else if (driver.equals(JTDS_DRIVER)
         || driver.equalsIgnoreCase(MICROSOFT_DRIVER)
@@ -405,6 +422,7 @@ public class PSJdbcUtils {
     ms_jdbcUrlToDriverMap.put(MICROSOFT_DRIVER, MICROSOFT_DRIVER);
     ms_jdbcUrlToDriverMap.put(JTDS_DRIVER, JTDS_DRIVER);
     ms_jdbcUrlToDriverMap.put(DERBY_DRIVER, DERBY_DRIVER);
+    ms_jdbcUrlToDriverMap.put(H2_DRIVER, H2_DRIVER);
     ms_jdbcUrlToDriverMap.put(MYSQL_DRIVER, MYSQL_DRIVER);
 
     // weblogic drivers

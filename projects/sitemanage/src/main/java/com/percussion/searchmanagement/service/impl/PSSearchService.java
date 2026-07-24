@@ -477,6 +477,8 @@ public class PSSearchService implements IPSSearchService {
       type = SecureStringUtils.DatabaseType.MSSQL;
     } else if (systemService.isDerby()) {
       type = SecureStringUtils.DatabaseType.DERBY;
+    } else if (systemService.isH2()) {
+      type = SecureStringUtils.DatabaseType.H2;
     }
 
     if (criteria.getQuery() != null && !criteria.getQuery().trim().isEmpty()) {

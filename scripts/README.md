@@ -12,6 +12,21 @@ Out of scope for spec 994 (must NOT be touched):
 
 ## Scripts
 
+### `derby-surface-inventory.py` / `derby-surface-inventory.bat`
+
+Repo-wide inventory of Apache Derby surface area for feature **#548** (default embedded DB migration).
+
+- **Purpose**: QC-001 / tasks T004–T005 — produce a dispositionable checklist of every `derby` / `sqlDerby` / NetworkServer / Liquibase `dbms=derby` / etc. hit for triage before GA.
+- **Usage**:
+  ```bash
+  python3 scripts/derby-surface-inventory.py
+  # Windows:
+  scripts\derby-surface-inventory.bat
+  ```
+- **Output**: `specs/548-derby-embedded-migration/checklists/derby-surface-inventory.md`
+- **Prereqs**: Python 3.9+
+- **Notes**: Excludes `target/`, `node_modules/`, `.git`, and common binary suffixes. Heuristic dispositions are starting points; unknown rows must reach zero at GA.
+
 ### `fetch-gh-code-scanning-alerts.py`
 
 Fetch code scanning (CodeQL) alerts for a repository using the `gh` CLI and write a markdown report.

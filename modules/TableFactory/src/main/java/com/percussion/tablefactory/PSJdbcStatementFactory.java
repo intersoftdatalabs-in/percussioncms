@@ -245,7 +245,8 @@ public class PSJdbcStatementFactory {
       } else if (column.getAction() == PSJdbcTableComponent.ACTION_DELETE) {
         block.addStep(getDropComponentStatement(fullTableName, column.getName()));
       } else if (column.getAction() == PSJdbcTableComponent.ACTION_REPLACE) {
-        if (PSSqlHelper.isDerby(dbmsDef.getDriver())) {
+        if (PSSqlHelper.isDerby(dbmsDef.getDriver()) || PSSqlHelper.isH2(dbmsDef.getDriver())) {
+          // Derby and H2 (#548) need recreate-style alter for some type changes
           List<PSJdbcSqlStatement> steps =
               getAlterColumnRecreateStatements(dbmsDef, fullTableName, column);
           for (PSJdbcExecutionStep step : steps) {
@@ -1444,8 +1445,11 @@ public class PSJdbcStatementFactory {
       buf.append(tableName);
       buf.append(" MODIFY ");
       buf.append(column.getSqlDef(dbmsDef));
-    } else if (PSSqlHelper.isDerby(dbmsDef.getDriver()) || PSSqlHelper.isDB2(dbmsDef.getDriver())) {
+    } else if (PSSqlHelper.isDerby(dbmsDef.getDriver())
+        || PSSqlHelper.isDB2(dbmsDef.getDriver())
+        || PSSqlHelper.isH2(dbmsDef.getDriver())) {
       // ALTER TABLE [table] ALTER COLUMN [column] SET DATA TYPE [type];
+      // H2 (#548) accepts SET DATA TYPE similarly to Derby
       buf.append("ALTER TABLE ");
       buf.append(tableName);
       buf.append(" ALTER COLUMN ");

@@ -271,4 +271,38 @@ public class PSJdbcDataTypeMapTest {
     var map_db2 = new PSJdbcDataTypeMap("DB2", "db2", null);
     assertTrue(map_db2.isCreateForeignKeyIndexes());
   }
+
+  /**
+   * H2 map for #548 default embedded replacement. Assumes values in PSJdbcDataTypeMaps.xml.
+   */
+  @Test
+  public void testH2Mappings() throws Exception {
+    PSJdbcDataTypeMap map = new PSJdbcDataTypeMap("H2", "h2", null);
+    PSJdbcDataTypeMapping dataType;
+
+    dataType = map.getMapping(Types.BIT);
+    assertEquals("BIT", dataType.getJdbc());
+    assertEquals("BOOLEAN", dataType.getNative());
+
+    dataType = map.getMapping(Types.INTEGER);
+    assertEquals("INTEGER", dataType.getJdbc());
+    assertEquals("INTEGER", dataType.getNative());
+
+    dataType = map.getMapping(Types.CLOB);
+    assertEquals("CLOB", dataType.getJdbc());
+    assertEquals("CLOB", dataType.getNative());
+
+    dataType = map.getMapping(Types.BLOB);
+    assertEquals("BLOB", dataType.getJdbc());
+    assertEquals("BLOB", dataType.getNative());
+
+    dataType = map.getMapping(Types.DATE);
+    assertEquals("DATE", dataType.getJdbc());
+    assertEquals("TIMESTAMP", dataType.getNative());
+
+    dataType = map.getMapping(Types.VARCHAR);
+    assertEquals("VARCHAR", dataType.getJdbc());
+    assertEquals("VARCHAR", dataType.getNative());
+    assertNotNull(dataType.getDefaultSize());
+  }
 }

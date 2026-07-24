@@ -508,6 +508,12 @@
 			<type>test-jar</type>
 			<scope>test</scope>
 		</dependency>
+		<!-- #548 H2 smoke / dialect tests (default embedded replacement) -->
+		<dependency>
+			<groupId>com.h2database</groupId>
+			<artifactId>h2</artifactId>
+			<scope>test</scope>
+		</dependency>
 		<dependency>
 			<groupId>org.jdom</groupId>
 			<artifactId>jdom2</artifactId>

@@ -1175,17 +1175,18 @@ public class PSContentRepository
     private IPSDatasourceManager m_dsMgr;
 
     /**
-     * Determines if the repository is a derby database.
+     * Determines if the repository needs Derby-style LOB materialization (Clob→String /
+     * Blob→byte[]). True for Apache Derby and for H2 (GitHub #548 default embedded replacement).
      *
-     * @return <code>true</code> if it is a derby database; otherwise return
-     *   <code>false</code>.
+     * @return <code>true</code> for embedded file-store backends that need LOB remapping
      */
     private boolean isDerbyDatabase()
     {
         try
         {
             PSConnectionDetail connDetail = m_dsMgr.getConnectionDetail(null);
-            return connDetail.getDriver().equalsIgnoreCase("derby");
+            String driver = connDetail.getDriver();
+            return com.percussion.util.PSSqlHelper.isEmbeddedFileStore(driver);
         }
         catch (Exception e)
         {

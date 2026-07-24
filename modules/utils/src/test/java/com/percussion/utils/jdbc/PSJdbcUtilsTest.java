@@ -19,7 +19,9 @@ package com.percussion.utils.jdbc;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import com.percussion.util.PSSqlHelper;
 import org.junit.jupiter.api.Test;
 
 public class PSJdbcUtilsTest {
@@ -55,6 +57,27 @@ public class PSJdbcUtilsTest {
         PSJdbcUtils.JTDS_DB_BACKEND, PSJdbcUtils.getDBBackendForDriver(PSJdbcUtils.JTDS_DRIVER));
     assertEquals(
         PSJdbcUtils.ORACLE_DB_BACKEND, PSJdbcUtils.getDBBackendForDriver(PSJdbcUtils.ORACLE));
+    assertEquals(PSJdbcUtils.H2_DB_BACKEND, PSJdbcUtils.getDBBackendForDriver(PSJdbcUtils.H2_DRIVER));
+    assertEquals(PSJdbcUtils.H2_DB_BACKEND, PSJdbcUtils.getDBBackendForDriver("h2"));
+  }
+
+  @Test
+  public void testH2JdbcUrlAndDriverMap() {
+    assertEquals("jdbc:h2:./data/cms", PSJdbcUtils.getJdbcUrl(PSJdbcUtils.H2_DRIVER, "./data/cms"));
+    assertEquals("h2", PSJdbcUtils.getDriverFromUrl("jdbc:h2:./data/cms"));
+    assertEquals(PSJdbcUtils.H2_DRIVER_CLASS, "org.h2.Driver");
+    assertEquals(PSJdbcUtils.H2, PSJdbcUtils.H2_DRIVER);
+  }
+
+  @Test
+  public void testSqlHelperH2AndEmbeddedFileStore() {
+    assertTrue(PSSqlHelper.isH2("h2"));
+    assertTrue(PSSqlHelper.isH2("H2"));
+    assertFalse(PSSqlHelper.isH2("derby"));
+    assertFalse(PSSqlHelper.isH2(null));
+    assertTrue(PSSqlHelper.isEmbeddedFileStore("h2"));
+    assertTrue(PSSqlHelper.isEmbeddedFileStore("derby"));
+    assertFalse(PSSqlHelper.isEmbeddedFileStore("mysql"));
   }
 
   @Test
