@@ -116,32 +116,92 @@ public final class JavaInstallSelection {
   /**
    * Detects whether the user can be prompted interactively.
    *
-   * <p>The primary check is {@link System#console()} non-null. On Windows
-   * hosts launched via {@code java -jar} from PowerShell, {@code
-   * System.console()} returns null even when stdin/stdout are connected to
-   * a terminal — a known JDK limitation. The {@link Main} / {@link
-   * MainDTSPreInstall} InteractivePrompt implementations handle that case
-   * by using a {@link java.util.Scanner} on {@code System.in} directly, so
-   * the prompt can still read user input. We use a non-blocking probe
-   * ({@code System.in.available() >= 0} — i.e. the stream is reachable
-   * without throwing) as the fallback to confirm the prompt has a real
-   * stdin to read from, since auto-selecting with no input available is
-   * the documented behavior for non-interactive installs.
+   * <p>Resolution order:
+   * <ol>
+   *   <li>If {@link System#console()} is non-null, the operator is at a real
+   *       TTY — interactive.</li>
+   *   <li>Otherwise (Windows PowerShell {@code java -jar}, CI runners, cron,
+   *       piped input, etc.), we probe stdin non-blockingly via
+   *       {@link java.io.InputStream#available()}. If bytes are already queued
+   *       ({@code > 0}), the operator piped input or is mid-typing — interactive.</li>
+   *   <li>Finally, if stdin is reachable but no bytes are queued, we fall
+   *       through to auto-select <em>only</em> when at least one standard
+   *       CI/cron environment marker is set ({@code CI},
+   *       {@code CONTINUOUS_INTEGRATION}, {@code GITHUB_ACTIONS},
+   *       {@code JENKINS_URL}, {@code BUILDKITE}, {@code TF_BUILD},
+   *       {@code GITLAB_CI}, {@code CIRCLECI}). This preserves the documented
+   *       "non-interactive installs auto-select" behavior on CI runners
+   *       while still showing the prompt menu to an operator who launched
+   *       the installer from PowerShell on a workstation (where none of
+   *       those markers are set).</li>
+   * </ol>
+   *
+   * <p>The previous implementation used {@code System.in.available() >= 0},
+   * which returned {@code true} for an open-but-empty stdin (e.g.
+   * {@code < /dev/null} on Unix, or an exhausted pipe in a CI runner). That
+   * caused {@link #promptForChoice} to enter the interactive path, print
+   * the menu, and block forever on {@code Scanner.nextLine()} because no
+   * operator was watching — a hard hang in non-interactive environments.
    */
-  private static boolean isInteractiveAvailable() {
+  static boolean isInteractiveAvailable() {
+    return isInteractiveAvailable(probeStdinHasBytes(), isCiEnvironment(System.getenv()));
+  }
+
+  /**
+   * Pure-logic variant of {@link #isInteractiveAvailable()} for tests. The
+   * {@link System#console()} check is still applied (it cannot be mocked
+   * cleanly from JUnit), so this overload primarily exercises the
+   * "no-console" decision branch.
+   */
+  static boolean isInteractiveAvailable(boolean stdinHasBytes, boolean ciEnvironment) {
     if (System.console() != null) {
       return true;
     }
-    // Non-TTY fallback: probe stdin via available() which does NOT consume
-    // bytes. (An earlier Scanner-based probe consumed the user's typed
-    // input before the actual prompt could read it.) The caller's prompt
-    // is responsible for the actual blocking read; this method just
-    // reports whether stdin is reachable (returns >= 0) without throwing.
+    if (stdinHasBytes) {
+      return true;
+    }
+    return !ciEnvironment;
+  }
+
+  /**
+   * Non-blocking probe of {@link System#in} that does NOT consume bytes
+   * (a previous {@code Scanner}-based probe consumed the operator's typed
+   * input before the actual prompt could read it).
+   */
+  private static boolean probeStdinHasBytes() {
     try {
-      return System.in.available() >= 0;
+      return System.in.available() > 0;
     } catch (java.io.IOException e) {
       return false;
     }
+  }
+
+  /**
+   * Detects whether the current process is running inside a CI / cron /
+   * batch environment by inspecting standard env-var markers. The marker
+   * is considered "set" when it is non-blank and not a literal
+   * {@code "false"} / {@code "0"}.
+   */
+  static boolean isCiEnvironment(java.util.Map<String, String> env) {
+    if (env == null) {
+      return false;
+    }
+    String[] markers = {
+        "CI", "CONTINUOUS_INTEGRATION", "GITHUB_ACTIONS",
+        "JENKINS_URL", "BUILDKITE", "TF_BUILD",
+        "GITLAB_CI", "CIRCLECI"
+    };
+    for (String marker : markers) {
+      String value = env.get(marker);
+      if (value == null || value.isBlank()) {
+        continue;
+      }
+      if (value.equalsIgnoreCase("false") || value.equals("0")) {
+        continue;
+      }
+      return true;
+    }
+    return false;
   }
 
   private Path promptForChoice(List<JavaCandidateDiscovery.Candidate> candidates)

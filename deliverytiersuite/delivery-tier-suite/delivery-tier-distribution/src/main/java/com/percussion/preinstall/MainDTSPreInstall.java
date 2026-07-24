@@ -360,13 +360,16 @@ public class MainDTSPreInstall {
 
   /**
    * Reads a line of input from the operator for the multi-candidate Java
-   * home selection prompt. Uses {@link System#console()} when a real TTY
-   * is available; falls back to a {@link java.util.Scanner} on
-   * {@code System.in} so the prompt also works on Windows hosts launched via
-   * {@code java -jar} from PowerShell (where {@code System.console()}
-   * returns null even though stdin is connected). Returns an empty string
-   * when neither a console nor a readable stdin is available so the
-   * auto-select path can fall through.
+   * home selection prompt. Mirrors the CMS sibling
+   * ({@code modules/perc-distribution-tree/.../Main#readInteractiveLine})
+   * — see that file for the full rationale on
+   * {@link java.io.BufferedReader} vs {@link java.util.Scanner}. The short
+   * version: a Scanner pre-fetches into its internal buffer on construction
+   * and cannot be safely closed (closing would close {@code System.in} for
+   * downstream code), so its leaked buffer can silently steal characters
+   * from any subsequent {@code System.in} read in the same JVM. A
+   * {@code BufferedReader} reads byte-by-byte through {@code System.in.read()}
+   * on demand and has no internal pre-fetch buffer to leak.
    */
   static String readInteractiveLine(String prompt) {
     java.io.Console console = System.console();
@@ -376,12 +379,10 @@ public class MainDTSPreInstall {
     try {
       System.out.print(prompt);
       System.out.flush();
-      // Do NOT close the Scanner: closing it would close System.in, which
-      // downstream code (and any subsequent interactive prompts in this JVM)
-      // might still need. The Scanner is intentionally leaked.
-      java.util.Scanner scanner = new java.util.Scanner(System.in);
-      if (scanner.hasNextLine()) {
-        return scanner.nextLine();
+      java.io.BufferedReader reader =
+          new java.io.BufferedReader(new java.io.InputStreamReader(System.in));
+      if (reader.ready()) {
+        return reader.readLine();
       }
       return "";
     } catch (Exception e) {

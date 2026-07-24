@@ -103,20 +103,72 @@ public final class JavaInstallSelection {
     return new SelectionOutcome(chosen, Path.of(launcher), source);
   }
 
-  private static boolean isInteractiveAvailable() {
+  /**
+   * Detects whether the user can be prompted interactively. Mirrors the
+   * CMS sibling ({@code modules/perc-distribution-tree/.../JavaInstallSelection})
+   * so the two copies stay in lockstep. See the CMS javadoc for the full
+   * resolution order; the short version is:
+   * <ol>
+   *   <li>{@link System#console()} non-null → interactive.</li>
+   *   <li>{@link java.io.InputStream#available() available() > 0} on
+   *       {@code System.in} → interactive (operator piped input).</li>
+   *   <li>Otherwise, fall through to auto-select <em>only</em> when at
+   *       least one standard CI/cron env marker is set, so that
+   *       {@code < /dev/null}, cron, and CI runners no longer hang on the
+   *       prompt menu.</li>
+   * </ol>
+   *
+   * <p>The previous {@code available() >= 0} implementation hung CI / cron
+   * environments because {@code available()} returns {@code 0} for
+   * open-but-empty stdin (e.g. {@code < /dev/null}), so the {@code >= 0}
+   * check returned {@code true} and {@code Scanner.nextLine()} blocked
+   * forever.
+   */
+  static boolean isInteractiveAvailable() {
+    return isInteractiveAvailable(probeStdinHasBytes(), isCiEnvironment(System.getenv()));
+  }
+
+  /**
+   * Pure-logic variant for tests; see CMS sibling for full javadoc.
+   */
+  static boolean isInteractiveAvailable(boolean stdinHasBytes, boolean ciEnvironment) {
     if (System.console() != null) {
       return true;
     }
-    // Non-TTY fallback: probe stdin via available() which does NOT consume
-    // bytes. (An earlier Scanner-based probe consumed the user's typed
-    // input before the actual prompt could read it.) The caller's prompt
-    // is responsible for the actual blocking read; this method just
-    // reports whether stdin is open.
+    if (stdinHasBytes) {
+      return true;
+    }
+    return !ciEnvironment;
+  }
+
+  private static boolean probeStdinHasBytes() {
     try {
-      return System.in.available() >= 0;
+      return System.in.available() > 0;
     } catch (java.io.IOException e) {
       return false;
     }
+  }
+
+  static boolean isCiEnvironment(java.util.Map<String, String> env) {
+    if (env == null) {
+      return false;
+    }
+    String[] markers = {
+        "CI", "CONTINUOUS_INTEGRATION", "GITHUB_ACTIONS",
+        "JENKINS_URL", "BUILDKITE", "TF_BUILD",
+        "GITLAB_CI", "CIRCLECI"
+    };
+    for (String marker : markers) {
+      String value = env.get(marker);
+      if (value == null || value.isBlank()) {
+        continue;
+      }
+      if (value.equalsIgnoreCase("false") || value.equals("0")) {
+        continue;
+      }
+      return true;
+    }
+    return false;
   }
 
   private Path promptForChoice(List<JavaCandidateDiscovery.Candidate> candidates)

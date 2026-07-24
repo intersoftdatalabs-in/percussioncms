@@ -292,12 +292,21 @@ public class Main {
   /**
    * Reads a line of input from the operator for the multi-candidate Java
    * home selection prompt. Uses {@link System#console()} when a real TTY
-   * is available; falls back to a {@link java.util.Scanner} on
+   * is available; falls back to a {@link java.io.BufferedReader} on
    * {@code System.in} so the prompt also works on Windows hosts launched via
    * {@code java -jar} from PowerShell (where {@code System.console()}
    * returns null even though stdin is connected). Returns an empty string
    * when neither a console nor a readable stdin is available so the
    * auto-select path can fall through.
+   *
+   * <p>A {@link java.io.BufferedReader} is preferred over a {@link
+   * java.util.Scanner} here because a Scanner reads ahead into its
+   * internal buffer on construction; that buffer is not closed (closing
+   * the Scanner would close {@code System.in} for downstream code) and
+   * could therefore silently steal characters from any subsequent
+   * {@code System.in} read in the same JVM. A {@code BufferedReader}
+   * reads byte-by-byte through {@code System.in.read()} on demand and
+   * has no internal pre-fetch buffer to leak.
    */
   static String readInteractiveLine(String prompt) {
     java.io.Console console = System.console();
@@ -307,12 +316,14 @@ public class Main {
     try {
       System.out.print(prompt);
       System.out.flush();
-      // Do NOT close the Scanner: closing it would close System.in, which
-      // downstream code (and any subsequent interactive prompts in this JVM)
-      // might still need. The Scanner is intentionally leaked.
-      java.util.Scanner scanner = new java.util.Scanner(System.in);
-      if (scanner.hasNextLine()) {
-        return scanner.nextLine();
+      java.io.BufferedReader reader =
+          new java.io.BufferedReader(new java.io.InputStreamReader(System.in));
+      // Use ready() rather than reading directly so we don't block the
+      // caller forever when stdin is closed (e.g. CI redirect from
+      // /dev/null). If no input is ready within the Java SE guarantee,
+      // fall through to the empty-string / auto-select path.
+      if (reader.ready()) {
+        return reader.readLine();
       }
       return "";
     } catch (Exception e) {

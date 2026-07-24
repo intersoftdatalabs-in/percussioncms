@@ -121,4 +121,73 @@ class JavaInstallSelectionTest {
     // Robustness check: candidates list is never null.
     assertTrue(candidates != null);
   }
+
+  // ---------- isInteractiveAvailable() / isCiEnvironment(env) regression ----------
+
+  @Test
+  void isCiEnvironmentRecognizesAllStandardMarkers() {
+    // Each standard CI / cron env-var marker should flip isCiEnvironment to true.
+    String[] markers = {
+        "CI", "CONTINUOUS_INTEGRATION", "GITHUB_ACTIONS",
+        "JENKINS_URL", "BUILDKITE", "TF_BUILD",
+        "GITLAB_CI", "CIRCLECI"
+    };
+    for (String marker : markers) {
+      java.util.Map<String, String> env = java.util.Map.of(marker, "true");
+      assertTrue(JavaInstallSelection.isCiEnvironment(env),
+          "marker must be detected: " + marker);
+    }
+  }
+
+  @Test
+  void isCiEnvironmentIgnoresFalseAndZeroAndBlankValues() {
+    // CI=true is meaningful; CI=false, CI=0, CI="", and missing CI must NOT
+    // count as CI environments.
+    assertTrue(!JavaInstallSelection.isCiEnvironment(java.util.Map.of("CI", "false")));
+    assertTrue(!JavaInstallSelection.isCiEnvironment(java.util.Map.of("CI", "0")));
+    assertTrue(!JavaInstallSelection.isCiEnvironment(java.util.Map.of("CI", "")));
+    assertTrue(!JavaInstallSelection.isCiEnvironment(java.util.Map.of("CI", "FALSE")));
+    assertTrue(!JavaInstallSelection.isCiEnvironment(java.util.Map.of()));
+    assertTrue(!JavaInstallSelection.isCiEnvironment(null));
+  }
+
+  /**
+   * Regression for the pre-PR-1501-review hang: when stdin is reachable but
+   * no bytes are queued (the typical CI redirect-from-/dev/null scenario),
+   * {@code isInteractiveAvailable(stdinHasBytes, ciEnvironment)} must
+   * return {@code false} so the auto-select path fires and the installer
+   * does not block forever on the prompt menu.
+   */
+  @Test
+  void isInteractiveAvailableFallsThroughInCiWithEmptyStdin() {
+    assertTrue(!JavaInstallSelection.isInteractiveAvailable(false, true),
+        "stdin empty + CI env must auto-select (no hang)");
+  }
+
+  /**
+   * PowerShell-interactive regression: when an operator launches the
+   * installer via {@code java -jar} from Windows PowerShell, {@code
+   * System.console()} returns null but stdin is connected to the operator
+   * (not to a CI runner). With no bytes queued yet and no CI markers set,
+   * we must treat the session as interactive so the prompt menu prints.
+   */
+  @Test
+  void isInteractiveAvailableAllowsPromptInPowerShellStyleEnvironment() {
+    assertTrue(JavaInstallSelection.isInteractiveAvailable(false, false),
+        "stdin empty + no CI env must still treat as interactive "
+            + "(PowerShell / desktop operator case)");
+  }
+
+  /**
+   * Piped-input regression: when stdin has at least one byte queued (e.g.
+   * an operator piped {@code echo 1 | java -jar ...}), the session is
+   * interactive regardless of CI markers.
+   */
+  @Test
+  void isInteractiveAvailableTreatsQueuedBytesAsInteractive() {
+    assertTrue(JavaInstallSelection.isInteractiveAvailable(true, false),
+        "stdin with queued bytes must be interactive");
+    assertTrue(JavaInstallSelection.isInteractiveAvailable(true, true),
+        "stdin with queued bytes must be interactive even in CI");
+  }
 }

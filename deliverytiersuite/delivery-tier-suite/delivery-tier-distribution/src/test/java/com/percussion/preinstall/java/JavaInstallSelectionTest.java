@@ -121,4 +121,53 @@ class JavaInstallSelectionTest {
     // Robustness check: candidates list is never null.
     assertTrue(candidates != null);
   }
+
+  // ---------- isInteractiveAvailable() / isCiEnvironment(env) regression ----------
+  // (Mirror of CMS tests; see modules/perc-distribution-tree sibling for full
+  //  rationale on the CI-aware fallback heuristic.)
+
+  @Test
+  void isCiEnvironmentRecognizesAllStandardMarkers() {
+    String[] markers = {
+        "CI", "CONTINUOUS_INTEGRATION", "GITHUB_ACTIONS",
+        "JENKINS_URL", "BUILDKITE", "TF_BUILD",
+        "GITLAB_CI", "CIRCLECI"
+    };
+    for (String marker : markers) {
+      java.util.Map<String, String> env = java.util.Map.of(marker, "true");
+      assertTrue(JavaInstallSelection.isCiEnvironment(env),
+          "marker must be detected: " + marker);
+    }
+  }
+
+  @Test
+  void isCiEnvironmentIgnoresFalseAndZeroAndBlankValues() {
+    assertTrue(!JavaInstallSelection.isCiEnvironment(java.util.Map.of("CI", "false")));
+    assertTrue(!JavaInstallSelection.isCiEnvironment(java.util.Map.of("CI", "0")));
+    assertTrue(!JavaInstallSelection.isCiEnvironment(java.util.Map.of("CI", "")));
+    assertTrue(!JavaInstallSelection.isCiEnvironment(java.util.Map.of("CI", "FALSE")));
+    assertTrue(!JavaInstallSelection.isCiEnvironment(java.util.Map.of()));
+    assertTrue(!JavaInstallSelection.isCiEnvironment(null));
+  }
+
+  @Test
+  void isInteractiveAvailableFallsThroughInCiWithEmptyStdin() {
+    assertTrue(!JavaInstallSelection.isInteractiveAvailable(false, true),
+        "stdin empty + CI env must auto-select (no hang)");
+  }
+
+  @Test
+  void isInteractiveAvailableAllowsPromptInPowerShellStyleEnvironment() {
+    assertTrue(JavaInstallSelection.isInteractiveAvailable(false, false),
+        "stdin empty + no CI env must still treat as interactive "
+            + "(PowerShell / desktop operator case)");
+  }
+
+  @Test
+  void isInteractiveAvailableTreatsQueuedBytesAsInteractive() {
+    assertTrue(JavaInstallSelection.isInteractiveAvailable(true, false),
+        "stdin with queued bytes must be interactive");
+    assertTrue(JavaInstallSelection.isInteractiveAvailable(true, true),
+        "stdin with queued bytes must be interactive even in CI");
+  }
 }
