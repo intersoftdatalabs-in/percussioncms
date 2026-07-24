@@ -136,8 +136,6 @@
             <version>${project.version}</version>
             <type>war</type>
         </dependency>
-        <!-- <dependency> <groupId>com.percussion.deliverytier</groupId> <artifactId>perc-integrations</artifactId>
-			<version>${project.version}</version> <type>war</type> </dependency> -->
         <dependency>
             <groupId>com.percussion.deliverytier</groupId>
             <artifactId>perc-membership-services</artifactId>
@@ -704,10 +702,6 @@
                             </configfile>
                             <configfile>
                                 <file>${project.basedir}/src/main/conf/perc/polls-log4j2.xml</file>
-                                <todir>conf/perc</todir>
-                            </configfile>
-                            <configfile>
-                                <file>${project.basedir}/src/main/conf/perc/integrations-log4j2.xml</file>
                                 <todir>conf/perc</todir>
                             </configfile>
                             <configfile>

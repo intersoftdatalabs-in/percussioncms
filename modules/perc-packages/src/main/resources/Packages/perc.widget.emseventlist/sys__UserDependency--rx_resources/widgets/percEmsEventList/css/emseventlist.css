@@ -1,8 +1,0 @@
-.perc-ems-eventlist-sample-content {
-  height: 100px;
-  background: transparent
-    url(/Rhythmyx/rx_resources/widgets/percEmsEventList/images/emsEventList-widgetPlaceholder.png)
-    no-repeat scroll center center;
-  filter: alpha(opacity=50);
-  opacity: 0.5;
-}

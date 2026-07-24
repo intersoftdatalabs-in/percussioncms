@@ -48,9 +48,7 @@
 <widget name="Most Read Blog Posts" />
 <widget name="Redirect" />
 </group>
-<group name="Community">
-<widget name="EMS Event List" />
-</group>
+<!-- Community group removed with EMS Event List widget (GH#706) -->
 <group name="Deprecated">
 <widget name="Share This" />
 <widget name="Calendar" />

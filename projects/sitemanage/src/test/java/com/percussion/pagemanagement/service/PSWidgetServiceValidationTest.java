@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2025 Percussion Software, Inc.
+ * Copyright 1999-2026 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,9 +31,8 @@ import org.w3c.dom.NodeList;
 
 /**
  * Validates the WidgetRegistry.xml contents. Ensures removed widgets (e.g. Evergage Beacon per
- * GH#709) are no longer listed in any group. This test is activated as part of the widget removal
- * work (previously placeholder during migration). Updated for final package dir removal in
- * perc-packages (perc.evergageBeacon).
+ * GH#709, EMS Event List per GH#706) are no longer listed in any group, and that the Percussion
+ * group is not accidentally truncated.
  */
 public class PSWidgetServiceValidationTest {
 
@@ -50,23 +49,17 @@ public class PSWidgetServiceValidationTest {
       Document doc = PSXmlDocumentBuilder.createXmlDocument(in, false);
       NodeList groupElems = doc.getElementsByTagName("group");
       Set<String> allWidgetNames = new HashSet<>();
-      Set<String> communityWidgets = new HashSet<>();
-      Set<String> deprecatedWidgets = new HashSet<>();
+      Set<String> groupNames = new HashSet<>();
 
       for (int i = 0; i < groupElems.getLength(); i++) {
         Element groupElem = (Element) groupElems.item(i);
         String groupName = groupElem.getAttribute("name");
+        groupNames.add(groupName);
         NodeList widgetElems = groupElem.getElementsByTagName("widget");
         for (int j = 0; j < widgetElems.getLength(); j++) {
           Element widgetElem = (Element) widgetElems.item(j);
           String wdgName = widgetElem.getAttribute("name");
           allWidgetNames.add(wdgName);
-          if ("Community".equals(groupName)) {
-            communityWidgets.add(wdgName);
-          }
-          if ("Deprecated".equals(groupName)) {
-            deprecatedWidgets.add(wdgName);
-          }
         }
       }
 
@@ -75,18 +68,22 @@ public class PSWidgetServiceValidationTest {
           allWidgetNames.contains("Evergage Beacon"),
           "Evergage Beacon should have been removed from WidgetRegistry.xml");
 
+      // EMS Event List removed completely (GH#706) with its Community group and DTS integrations
+      assertFalse(
+          allWidgetNames.contains("EMS Event List"),
+          "EMS Event List should have been removed from WidgetRegistry.xml (GH#706)");
+      assertFalse(
+          groupNames.contains("Community"),
+          "Empty Community group must not remain after EMS Event List removal (GH#706)");
+
       // Some expected widgets still present to ensure file is valid and not accidentally truncated
-      assertTrue(allWidgetNames.contains("EMS Event List"), "Community widget EMS Event List should remain");
-      assertTrue(allWidgetNames.contains("Archives"), "Percussion group widget Archives should remain");
+      assertTrue(
+          allWidgetNames.contains("Archives"),
+          "Percussion group widget Archives should remain");
       // Flash removed completely - should not be present in any group
       assertFalse(
           allWidgetNames.contains("Flash"),
           "Flash should have been removed from WidgetRegistry.xml");
-
-      // Community group should no longer contain Evergage
-      assertFalse(
-          communityWidgets.contains("Evergage Beacon"),
-          "Evergage Beacon must not be in Community group");
     }
   }
 }
