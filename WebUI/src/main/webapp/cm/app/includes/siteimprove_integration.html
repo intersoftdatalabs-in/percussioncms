@@ -186,7 +186,10 @@
 
     function getParameterByName(name) {
       url = window.location.href;
-      name = String(name).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+      // Jasper EL parses template text even inside JS comments, so do not write
+      // dollar-brace with nothing between them in this file. Character class keeps
+      // $ and braces as separate members (same RegExp-escape semantics).
+      name = String(name).replace(/[.*+?^$()|[\]\\{}]/g, "\\$&");
       var regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"),
         results = regex.exec(url);
       if (!results) return null;

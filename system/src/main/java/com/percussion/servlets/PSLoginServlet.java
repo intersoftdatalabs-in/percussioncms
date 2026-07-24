@@ -252,7 +252,9 @@ public class PSLoginServlet extends HttpServlet {
       }
     }
 
-    String redirect = request.getParameter(IPSHtmlParameters.SYS_REDIRECT);
+    String redirect =
+        PSRedirectValidation.decodeOverEncodedRedirect(
+            request.getParameter(IPSHtmlParameters.SYS_REDIRECT));
     if (isValidRedirectUri(request, redirect)) {
       request.getSession().setAttribute(REDIRECT_URL, redirect);
     }
@@ -311,7 +313,8 @@ public class PSLoginServlet extends HttpServlet {
    * @return safe redirect string, never {@code null}
    */
   static String resolveSafePostLoginRedirect(HttpServletRequest request, String redirect) {
-    String candidate = sanitizeRedirectPath(redirect);
+    String candidate =
+        sanitizeRedirectPath(PSRedirectValidation.decodeOverEncodedRedirect(redirect));
     if (StringUtils.isBlank(candidate)) {
       return CMS_INDEX_PAGE;
     }
@@ -365,34 +368,13 @@ public class PSLoginServlet extends HttpServlet {
    * Rebuilds a validated redirect from URI components so residual CodeQL taint from the original
    * session string does not reach {@code sendRedirect} (same pattern as {@code
    * PSSecurityFilter.sendValidatedRedirect}).
+   *
+   * <p>Delegates to {@link PSRedirectValidation#rebuildValidatedRedirect(String)} which preserves
+   * percent-encoding (must not use multi-arg {@link URI} with raw components — that double-encodes
+   * and trips Jetty {@code Ambiguous URI path encoding}).
    */
   static String rebuildRedirectTarget(String safe) {
-    if (StringUtils.isBlank(safe)) {
-      return null;
-    }
-    try {
-      URI parsed = URI.create(safe);
-      if (parsed.isAbsolute()) {
-        return new URI(
-                parsed.getScheme(),
-                parsed.getAuthority(),
-                parsed.getRawPath() != null ? parsed.getRawPath() : "/",
-                parsed.getRawQuery(),
-                parsed.getRawFragment())
-            .toASCIIString();
-      }
-      // Relative: path may be "index.jsp" or "/cm/app" (path-only URI)
-      String path = parsed.getRawPath();
-      if (path == null || path.isEmpty()) {
-        // URI.create("index.jsp") stores the value as a path-relative scheme-specific part
-        path = safe;
-      }
-      return new URI(null, null, path, parsed.getRawQuery(), parsed.getRawFragment())
-          .toASCIIString();
-    } catch (Exception e) {
-      log.debug("Failed to rebuild redirect target: {}", e.toString());
-      return null;
-    }
+    return PSRedirectValidation.rebuildValidatedRedirect(safe);
   }
 
   /**

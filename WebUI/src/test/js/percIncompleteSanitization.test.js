@@ -194,11 +194,13 @@ describe("siteimprove_integration.html (alerts #1134/#1135/#1115/#1116)", () => 
       });
 
       it("uses a full RegExp-escape for query-param names (incl. backslash)", () => {
-        // name = String(name).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+        // name = String(name).replace(/[.*+?^$()|[\]\\{}]/g, "\\$&");
+        // Must not contain empty EL (dollar immediately followed by open-brace);
+        // Jasper rejects that when this HTML is static-included into a JSP.
         expect(src).toMatch(/String\s*\(\s*name\s*\)\.replace\s*\(/);
-        // Character class must include backslash and common metacharacters;
-        // replacement must use $& (whole match) with a leading escape.
-        expect(src).toContain("[.*+?^${}()|[\\]\\\\]");
+        expect(src).not.toMatch(/\$\{}/);
+        // Metacharacters (incl. backslash) remain; $ and braces as separate class members.
+        expect(src).toMatch(/\[\.\*\+\?\^\$\(\)\|\[\\\]\\\\\{\}\]/);
         expect(src).toContain("$&");
       });
 
@@ -224,12 +226,15 @@ describe("siteimprove_integration.html (alerts #1134/#1135/#1115/#1116)", () => 
   });
 
   it("behaviourally escapes all RegExp metacharacters including backslash", () => {
+    // Same class as siteimprove_integration.html (JSP-safe: no "${}" sequence)
     const escape = (s) =>
-      String(s).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+      String(s).replace(/[.*+?^$()|[\]\\{}]/g, "\\$&");
     expect(escape("id")).toBe("id");
     expect(escape("a.b")).toBe("a\\.b");
     expect(escape("x[0]")).toBe("x\\[0\\]");
     expect(escape("a\\b")).toBe("a\\\\b");
+    expect(escape("a{1}")).toBe("a\\{1\\}");
+    expect(escape("$x")).toBe("\\$x");
     // Incomplete pre-fix only handled [ and ]:
     const preFix = (s) => s.replace(/[\[\]]/g, "\\$&");
     expect(preFix("a.b")).toBe("a.b"); // still special in RegExp

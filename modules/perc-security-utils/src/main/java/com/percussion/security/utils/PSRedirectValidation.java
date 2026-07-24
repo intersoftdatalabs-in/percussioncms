@@ -19,6 +19,8 @@ package com.percussion.security.utils;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.util.HashSet;
 import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
@@ -221,5 +223,122 @@ public class PSRedirectValidation {
       }
     }
     return whitelist;
+  }
+
+  /**
+   * Rebuilds a <em>validated</em> redirect location from URI components without re-encoding.
+   *
+   * <p>Used to clear CodeQL {@code java/unvalidated-url-redirection} residual taint after {@link
+   * #validateRedirectUrl} / {@link #validateInternalRedirectUrl} accept a location.
+   *
+   * <p><strong>Why not {@code new URI(scheme, authority, path, query, fragment)}?</strong> That
+   * constructor treats path/query as <em>decoded</em> text and re-encodes. Passing already-encoded
+   * raw components (from {@link URI#getRawPath()} / {@link URI#getRawQuery()}) double-encodes
+   * {@code %} as {@code %25}. Jetty 12 {@code UriCompliance.DEFAULT_REDIRECT} then rejects the
+   * Location with {@code IllegalArgumentException: Ambiguous URI path encoding} (and encoded {@code
+   * /} as path separator). That broke login after CodeQL redirect rebuilds: {@code
+   * /login?sys_redirect=http%3a%2f%2f...} became {@code sys_redirect=http%253a%252f%252f...}.
+   *
+   * <p>Assembling raw components into a new string preserves encoding and still yields a fresh
+   * non-tainted value for {@code sendRedirect}.
+   *
+   * @param safe location already accepted by a validate* method; may be {@code null}
+   * @return rebuilt location, or {@code null} if blank/unparseable
+   */
+  public static String rebuildValidatedRedirect(String safe) {
+    if (StringUtils.isBlank(safe)) {
+      return null;
+    }
+    try {
+      String trimmed = safe.trim();
+      URI parsed = URI.create(trimmed);
+      StringBuilder sb = new StringBuilder(trimmed.length() + 8);
+      if (parsed.isAbsolute()) {
+        sb.append(parsed.getScheme()).append(':');
+        if (parsed.getRawAuthority() != null) {
+          sb.append("//").append(parsed.getRawAuthority());
+        }
+        String path = parsed.getRawPath();
+        sb.append(path != null && !path.isEmpty() ? path : "/");
+        if (parsed.getRawQuery() != null) {
+          sb.append('?').append(parsed.getRawQuery());
+        }
+        if (parsed.getRawFragment() != null) {
+          sb.append('#').append(parsed.getRawFragment());
+        }
+        return sb.toString();
+      }
+
+      // Relative: path-absolute ("/cm/app") or path-relative ("index.jsp")
+      String path = parsed.getRawPath();
+      if (path == null || path.isEmpty()) {
+        int q = trimmed.indexOf('?');
+        int h = trimmed.indexOf('#');
+        int end = trimmed.length();
+        if (q >= 0) {
+          end = Math.min(end, q);
+        }
+        if (h >= 0) {
+          end = Math.min(end, h);
+        }
+        path = trimmed.substring(0, end);
+      }
+      if (path.isEmpty()) {
+        return null;
+      }
+      sb.append(path);
+      if (parsed.getRawQuery() != null) {
+        sb.append('?').append(parsed.getRawQuery());
+      }
+      if (parsed.getRawFragment() != null) {
+        sb.append('#').append(parsed.getRawFragment());
+      }
+      return sb.toString();
+    } catch (Exception e) {
+      return null;
+    }
+  }
+
+  /**
+   * Undoes accidental over-encoding of redirect targets (e.g. double-encoded {@code sys_redirect}
+   * values left in bookmarks or older sessions).
+   *
+   * <p>Stops when the value looks like a normal absolute URL ({@code scheme://}) or a path-absolute
+   * internal redirect, or after a small fixed number of decode rounds.
+   *
+   * @param candidate redirect candidate, may be {@code null}
+   * @return decoded candidate, or original when blank/undecodable
+   */
+  public static String decodeOverEncodedRedirect(String candidate) {
+    if (StringUtils.isBlank(candidate)) {
+      return candidate;
+    }
+    String current = candidate.trim();
+    for (int i = 0; i < 3; i++) {
+      boolean absolute = current.contains("://");
+      boolean pathAbsolute = current.startsWith("/") && !current.startsWith("//");
+      boolean stillEncodedAbsolute =
+          startsWithIgnoreCase(current, "http%") || startsWithIgnoreCase(current, "https%");
+      if ((absolute || pathAbsolute) && !stillEncodedAbsolute) {
+        return current;
+      }
+      if (!current.contains("%")) {
+        return current;
+      }
+      try {
+        String decoded = URLDecoder.decode(current, StandardCharsets.UTF_8);
+        if (decoded.equals(current)) {
+          return current;
+        }
+        current = decoded;
+      } catch (IllegalArgumentException e) {
+        return current;
+      }
+    }
+    return current;
+  }
+
+  private static boolean startsWithIgnoreCase(String value, String prefix) {
+    return value.regionMatches(true, 0, prefix, 0, prefix.length());
   }
 }
