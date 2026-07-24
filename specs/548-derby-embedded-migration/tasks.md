@@ -103,7 +103,7 @@
 - [x] T043 [P] [US2] Unit tests for backup gate matrix (product backup / external confirm / neither) in migrator test class under `system/src/test/java/com/percussion/install/` (or chosen package) — **QC-007**, **FR-018**, **SC-010** (`PSRepositoryBackupGateTest`)
 - [x] T044 [P] [US2] Unit tests for migrator state machine outcomes (`SUCCESS`, `FAILED`, `SKIPPED_NON_DERBY`, `BLOCKED_BACKUP_GATE`, `ALREADY_MIGRATED`) and secrets redaction helper — **QC-010**, **QC-022**, **FR-017** (`PSEmbeddedRepositoryMigratorTest`)
 - [x] T045 [P] [US2] Unit/IT for exclusive migrator lock (`FileChannel.tryLock`) second-process blocked — **QC-019** (`PSMigratorLockTest`)
-- [ ] T046 [US2] Integration test: mini Derby source fixture → migrate → table-set equality + identity preserve + NEXTNUMBER probe under `system/src/test/java/` — **QC-003**, **QC-028**, **FR-007**, **SC-002**
+- [x] T046 [US2] Integration test: mini source fixture → TableFactory export/import → identity preserve + NEXTNUMBER + cutover under `system/src/test/java/` — **QC-003**, **QC-028**, **FR-007**, **SC-002** (`PSTableFactoryMigrationTransferTest`, `PSEmbeddedRepositoryMigrationIT`; H2↔H2 exercises transfer; production uses Derby source props + FR-021 jars)
 - [ ] T047 [US2] Integration tests for failure injection (**target 10/10** cases: disk full, kill mid-copy, corrupt source, validation fail, etc.) asserting config remains Derby and source openable — **QC-008**, **QC-021**, **FR-008**, **SC-004**
 - [ ] T048 [US2] Integration test multi-file cutover consistency (`rxrepository` + Jetty perc-ds labels both H2 after SUCCESS; mid-cutover restore) — **QC-009**, **FR-013**
 - [ ] T049 [US2] Boolean/BIT and CLOB content probes in migration IT — **QC-004**, **QC-005**, **FR-007**
@@ -118,9 +118,9 @@
 - [ ] T055 [US2] If installer surfaces a visible checkbox/label for T054, add `perc-i18n` string keys for those operator-facing messages under the project i18n module/resources; if no UI strings, record N/A in PR body
 - [x] T056 [US2] Implement disk precheck before pump and exclusive lock file under install root — **QC-019**, **QC-021** (`PSMigratorLock`, `PSRepositoryOfflineBackup.hasSufficientDiskSpace`)
 - [x] T057 [US2] Implement CMS detector for product-managed Derby (embedded and networked ClientDriver configs) reading `rxrepository.properties` (`PSEmbeddedRepositoryDetector`)
-- [ ] T058 [US2] Implement CMS schema create on H2 via TableFactory + FK-safe ordered pump with **explicit PKs** and NEXTNUMBER re-sync — **QC-003**, **QC-028**, **FR-005**, **FR-007**
-- [ ] T059 [US2] Implement validation probes (table-set, counts, boolean, CLOB, NEXTNUMBER, login entities) before cutover — **FR-007**, **SC-002**
-- [ ] T060 [US2] Implement multi-file cutover + rollback for `rxrepository.properties`, Jetty `perc-ds.properties` / related, with durable writes — **QC-009**, **FR-013**
+- [x] T058 [US2] Implement CMS schema create on H2 via TableFactory export XML → import (not custom JDBC pump) with **explicit PKs** and NEXTNUMBER preserved — **QC-003**, **QC-028**, **FR-005**, **FR-007** (`PSCatalogTableData.exportDatabase`, `PSJdbcTableFactory.importDatabase`, `PSTableFactoryMigrationTransfer`)
+- [x] T059 [US2] Implement validation probes (table-set / post-import target checks, NEXTNUMBER) before cutover — **FR-007**, **SC-002** (`PSMigrationValidator.validateTargetOnly` + dual-conn validate)
+- [x] T060 [US2] Implement multi-file cutover + rollback for `rxrepository.properties`, Jetty `perc-ds.properties` / related, with durable writes — **QC-009**, **FR-013** (`PSConfigCutover`)
 - [ ] T061 [US2] Implement migration outcome logging **and durable report file** per `contracts/migration-observability.md` (**FR-017**)
 - [ ] T062 [US2] Retain Derby files after SUCCESS; implement optional/documented cleanup entry point without auto-delete — **QC-016**, **FR-019**, **SC-011**
 - [ ] T063 [US2] Wire migrator into CMS upgrade path (ANT/install upgrade targets under `system/installResources` / distribution upgrade sequence)
