@@ -31,13 +31,13 @@ Wall-clock depends on repository size, disk speed, and host load. Capture measur
 specs/548-derby-embedded-migration/checklists/migration-timing.md
 ```
 
-| Scale (illustrative) | Expectation |
-|----------------------|-------------|
+| Scale | Observed / expectation |
+|-------|------------------------|
 | Empty / smoke fixture | Seconds |
-| Small content set | Minutes |
-| Large (≥1000 content items / multi-GB) | Plan a maintenance window; log actuals in migration-timing.md (T050) |
+| **1000 CONTENT rows** (TableFactory H2→H2, agent host 2026-07-24) | Seed ~2.8 s; transfer ~5.9 s — see `checklists/migration-timing.md` |
+| Large multi-GB product repos | Plan a maintenance window; re-run scale fixture / dry-run on a clone |
 
-Until T050 scale fixtures publish measured numbers, treat large repos as **maintenance-window** work and run a dry-run timing on a clone when possible.
+Measured rows come from `PSMigrationScaleFixtureTest` (T050). Product Derby→H2 wall-clock will be higher (networked Derby, disk, host load).
 
 ## Failure injection confidence
 
