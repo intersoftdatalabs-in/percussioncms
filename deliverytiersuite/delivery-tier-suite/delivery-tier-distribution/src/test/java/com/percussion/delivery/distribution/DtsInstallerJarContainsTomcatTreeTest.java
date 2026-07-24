@@ -41,6 +41,17 @@ class DtsInstallerJarContainsTomcatTreeTest {
 
   private static final String SERVER_PREFIX = "distribution/Deployment/Server/";
 
+  /** Cargo {@code deployables} in pom.xml — all must ship or a service is silently missing. */
+  private static final String[] DTS_WARS = {
+    "perc-metadata-services.war",
+    "perc-comments-services.war",
+    "perc-form-processor.war",
+    "perc-membership-services.war",
+    "perc-polls-services.war",
+    "feeds.war",
+    "perc-common-ui.war",
+  };
+
   @Test
   void shippingJarBundlesTomcatServerTreeAndDtsWars() throws IOException {
     Path jar = Path.of("target", "delivery-tier-distribution.jar");
@@ -56,10 +67,19 @@ class DtsInstallerJarContainsTomcatTreeTest {
     }
 
     assertContains(entries, SERVER_PREFIX + "conf/server.xml");
+
+    // Dual-platform console launchers from the Cargo Tomcat package
     assertContains(entries, SERVER_PREFIX + "bin/catalina.sh");
-    assertContains(entries, SERVER_PREFIX + "webapps/perc-metadata-services.war");
-    assertContains(entries, SERVER_PREFIX + "webapps/perc-form-processor.war");
-    assertContains(entries, SERVER_PREFIX + "webapps/feeds.war");
+    assertContains(entries, SERVER_PREFIX + "bin/catalina.bat");
+
+    // Windows Procrun / service binaries ship in rootFiles (install root of the jar
+    // payload). installDts.xml later copies tomcat10.exe into Server/bin on Windows.
+    assertContains(entries, "distribution/tomcat10.exe");
+    assertContains(entries, "distribution/tomcat10w.exe");
+
+    for (String war : DTS_WARS) {
+      assertContains(entries, SERVER_PREFIX + "webapps/" + war);
+    }
 
     // Manager apps must remain stripped from the shipping payload
     assertTrue(
