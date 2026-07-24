@@ -329,11 +329,20 @@ public class PSDtsEmbeddedRepositoryMigrator {
       return true;
     }
     if (url != null) {
-      String u = url.toLowerCase(Locale.ROOT);
-      return u.contains(serviceLower) || u.contains("derbydata/" + serviceLower)
+      String u = normalizeJdbcPath(url);
+      return u.contains(serviceLower)
+          || u.contains("derbydata/" + serviceLower)
           || u.contains("h2data/" + serviceLower);
     }
     return false;
+  }
+
+  /** Lowercase and normalize path separators in JDBC URLs for cross-platform matching. */
+  static String normalizeJdbcPath(String url) {
+    if (url == null) {
+      return "";
+    }
+    return url.toLowerCase(Locale.ROOT).replace('\\', '/');
   }
 
   static void cutoverServiceConfigs(Path serverRoot, String serviceName, Path h2Base)
@@ -354,13 +363,12 @@ public class PSDtsEmbeddedRepositoryMigrator {
       if (!pathOrUrlMentionsService(propsPath, url, svc)) {
         continue;
       }
-      String lower = url.toLowerCase(Locale.ROOT);
-      // Do not rewrite already-H2 or external URLs that do not mention this service
+      String lower = normalizeJdbcPath(url);
+      // File already filtered to this service; only cut over Derby / this service's data path
       boolean needsCutover =
-          lower.contains("derby")
+          lower.contains("jdbc:derby")
               || lower.contains("derbydata/" + svc)
-              || lower.contains("h2data/" + svc)
-              || lower.contains(svc);
+              || lower.contains("h2data/" + svc);
       if (!needsCutover) {
         continue;
       }
@@ -401,15 +409,16 @@ public class PSDtsEmbeddedRepositoryMigrator {
    * True if JDBC URL clearly targets another known service's data directory.
    */
   static boolean pointsAtDifferentService(String urlLower, String thisServiceLower) {
+    String u = normalizeJdbcPath(urlLower);
     for (String other : DEFAULT_SERVICES) {
       String o = other.toLowerCase(Locale.ROOT);
       if (o.equals(thisServiceLower)) {
         continue;
       }
-      if (urlLower.contains("derbydata/" + o)
-          || urlLower.contains("h2data/" + o)
-          || urlLower.endsWith("/" + o)
-          || urlLower.contains("/" + o + ";")) {
+      if (u.contains("derbydata/" + o)
+          || u.contains("h2data/" + o)
+          || u.endsWith("/" + o)
+          || u.contains("/" + o + ";")) {
         return true;
       }
     }

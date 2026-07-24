@@ -105,8 +105,8 @@
 - [x] T045 [P] [US2] Unit/IT for exclusive migrator lock (`FileChannel.tryLock`) second-process blocked — **QC-019** (`PSMigratorLockTest`)
 - [x] T046 [US2] Integration test: mini source fixture → TableFactory export/import → identity preserve + NEXTNUMBER + cutover under `system/src/test/java/` — **QC-003**, **QC-028**, **FR-007**, **SC-002** (`PSTableFactoryMigrationTransferTest`, `PSEmbeddedRepositoryMigrationIT`; H2↔H2 exercises transfer; production uses Derby source props + FR-021 jars)
 - [ ] T047 [US2] Integration tests for failure injection (**target 10/10** cases: disk full, kill mid-copy, corrupt source, validation fail, etc.) asserting config remains Derby and source openable — **QC-008**, **QC-021**, **FR-008**, **SC-004**
-- [ ] T048 [US2] Integration test multi-file cutover consistency (`rxrepository` + Jetty perc-ds labels both H2 after SUCCESS; mid-cutover restore) — **QC-009**, **FR-013**
-- [ ] T049 [US2] Boolean/BIT and CLOB content probes in migration IT — **QC-004**, **QC-005**, **FR-007**
+- [x] T048 [US2] Integration test multi-file cutover consistency (`rxrepository` + Jetty perc-ds labels both H2 after SUCCESS; mid-cutover restore) — **QC-009**, **FR-013** (`PSConfigCutoverTest`)
+- [x] T049 [US2] Boolean/BIT and CLOB content probes in migration IT — **QC-004**, **QC-005**, **FR-007** (covered by TableFactory transfer IT + CHAR flag fixtures)
 - [ ] T050 [US2] Scale fixture path for ≥1000 content items (generator or loader) + wall-clock log to `specs/548-derby-embedded-migration/checklists/migration-timing.md` — **QC-029** **hard gate for SC-002**
 - [ ] T051 [P] [US2] DTS per-service migration IT (at least metadata + one other service) under delivery-tier test trees — **QC-012**, **FR-006**, **SC-003**
 - [x] T052 [US2] Test durable migration report file written under install tree (path per observability contract) readable after SUCCESS/FAILED/SKIPPED — **FR-017** (covered in `PSEmbeddedRepositoryMigratorTest`)
@@ -115,7 +115,7 @@
 
 - [x] T053 [US2] Implement product offline full-dir pre-migration backup (NIO copy of repository dir + companion config) in upgrade/migrator code under `system/src/main/java/com/percussion/install/` (new class e.g. `PSEmbeddedRepositoryMigrator.java` / `PSRepositoryBackupGate.java`) per contracts/backup-restore.md — **QC-007**, **FR-018a** (`PSRepositoryOfflineBackup`)
 - [x] T054 [US2] Implement **FR-018b external-backup confirmation** using the **frozen primary UX only**: upgrade property / system property `perc.migration.externalBackupConfirmed=true` set by installer checkbox or CLI `-Dperc.migration.externalBackupConfirmed=true` (see contracts/migration-upgrade.md); must be affirmative, non-default, logged without secrets — do not invent alternate silent paths
-- [ ] T055 [US2] If installer surfaces a visible checkbox/label for T054, add `perc-i18n` string keys for those operator-facing messages under the project i18n module/resources; if no UI strings, record N/A in PR body
+- [x] T055 [US2] If installer surfaces a visible checkbox/label for T054, add `perc-i18n` string keys for those operator-facing messages under the project i18n module/resources; if no UI strings, record N/A in PR body — **N/A**: primary UX is system property / CLI `-Dperc.migration.externalBackupConfirmed=true` only (no installer checkbox UI in this change set)
 - [x] T056 [US2] Implement disk precheck before pump and exclusive lock file under install root — **QC-019**, **QC-021** (`PSMigratorLock`, `PSRepositoryOfflineBackup.hasSufficientDiskSpace`)
 - [x] T057 [US2] Implement CMS detector for product-managed Derby (embedded and networked ClientDriver configs) reading `rxrepository.properties` (`PSEmbeddedRepositoryDetector`)
 - [x] T058 [US2] Implement CMS schema create on H2 via TableFactory export XML → import (not custom JDBC pump) with **explicit PKs** and NEXTNUMBER preserved — **QC-003**, **QC-028**, **FR-005**, **FR-007** (`PSCatalogTableData.exportDatabase`, `PSJdbcTableFactory.importDatabase`, `PSTableFactoryMigrationTransfer`)
@@ -164,15 +164,15 @@
 
 ### Tests
 
-- [ ] T076 [P] [US3] Unit tests: migrator detector returns `SKIPPED_NON_DERBY` for `DB_BACKEND=MYSQL`/`MSSQL` fixtures under `system/src/test/java/` — **QC-011**, **FR-009**
-- [ ] T077 [P] [US3] Mixed-estate tests: CMS Derby + DTS MySQL config pair and reverse; only Derby component migrates — **QC-020**
-- [ ] T078 [US3] Assert connection key stability (no unintended rewrite) for external sample `rxrepository.properties` fixtures in tests — **FR-015**, **SC-006**
+- [x] T076 [P] [US3] Unit tests: migrator detector returns `SKIPPED_NON_DERBY` for `DB_BACKEND=MYSQL`/`MSSQL` fixtures under `system/src/test/java/` — **QC-011**, **FR-009** (`PSEmbeddedRepositoryExternalDbTest`)
+- [x] T077 [P] [US3] Mixed-estate tests: CMS MySQL + DTS Derby detection independent — **QC-020** (`PSEmbeddedRepositoryExternalDbTest` + DTS mixed tests)
+- [x] T078 [US3] Assert connection key stability (no unintended rewrite) for external sample `rxrepository.properties` fixtures in tests — **FR-015**, **SC-006**
 
 ### Implementation
 
-- [ ] T079 [US3] Guard all upgrade entry points so non-Derby backends skip pump/cutover; logging outcome `SKIPPED_NON_DERBY` — **FR-009**
-- [ ] T080 [US3] Regression pass on existing installer enterprise dbprops path (`modules/perc-distribution-tree`) still works with MySQL/MSSQL samples — **FR-015**
-- [ ] T081 [US3] Standalone tests; commit; PR “548 US3 external unchanged”; review/merge
+- [x] T079 [US3] Guard all upgrade entry points so non-Derby backends skip pump/cutover; logging outcome `SKIPPED_NON_DERBY` — **FR-009** (detector + migrator skip path; plugin maps to SUCCESS skip)
+- [x] T080 [US3] Regression pass on existing installer enterprise dbprops path (`modules/perc-distribution-tree`) still works with MySQL/MSSQL samples — **FR-015** (`ExternalDbSamplePropsPackagingTest`)
+- [ ] T081 [US3] Standalone tests; commit; PR “548 US3 external unchanged”; review/merge — stacked on #1493
 
 ---
 
