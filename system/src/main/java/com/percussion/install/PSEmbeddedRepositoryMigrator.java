@@ -364,7 +364,8 @@ public class PSEmbeddedRepositoryMigrator {
   }
 
   private boolean diskPrecheck(Path volumePath) {
-    if (isTruthy(systemProperties.getProperty(FORCE_DISK_PRECHECK_FAIL_PROPERTY))) {
+    if (PSInstallPropertyUtil.isTruthy(
+        systemProperties.getProperty(FORCE_DISK_PRECHECK_FAIL_PROPERTY))) {
       LOG.warning(
           "Disk precheck forced fail via "
               + FORCE_DISK_PRECHECK_FAIL_PROPERTY
@@ -383,14 +384,6 @@ public class PSEmbeddedRepositoryMigrator {
       LOG.warning("Disk precheck failed open: " + e.getMessage());
       return false;
     }
-  }
-
-  private static boolean isTruthy(String value) {
-    if (value == null) {
-      return false;
-    }
-    String v = value.trim();
-    return "true".equalsIgnoreCase(v) || "yes".equalsIgnoreCase(v) || "1".equals(v);
   }
 
   private static long dirSize(Path root) throws IOException {

@@ -125,27 +125,18 @@ public class PSMigrationScaleFixtureTest {
 
   private static void appendTimingLog(long seedMs, long xferMs, int rows, int tables) {
     try {
-      Path log =
-          Path.of("specs", "548-derby-embedded-migration", "checklists", "migration-timing.md");
-      // Resolve from module cwd (system/) or repo root
-      Path candidates =
-          Files.isRegularFile(log)
-              ? log
-              : Path.of("..").resolve(log).normalize();
-      if (!Files.isRegularFile(candidates)) {
-        // Create under temp-friendly location relative to CWD when checklist exists one level up
-        Path fromSystem = Path.of("..", "specs", "548-derby-embedded-migration", "checklists",
-            "migration-timing.md");
-        if (Files.isRegularFile(fromSystem) || Files.isDirectory(fromSystem.getParent())) {
-          candidates = fromSystem;
-        } else {
+      Path logFile = resolveTimingLogFile();
+      if (logFile == null) {
+        return;
+      }
+      if (!Files.isRegularFile(logFile)) {
+        Path parent = logFile.getParent();
+        if (parent == null) {
           return;
         }
-      }
-      if (!Files.exists(candidates)) {
-        Files.createDirectories(candidates.getParent());
+        Files.createDirectories(parent);
         Files.writeString(
-            candidates,
+            logFile,
             "# Migration timing log (T050 / QC-029)\n\n"
                 + "| When (UTC) | Host note | Rows | Tables | Seed ms | Transfer ms |\n"
                 + "|------------|-----------|------|--------|---------|-------------|\n",
@@ -156,9 +147,39 @@ public class PSMigrationScaleFixtureTest {
               "| %s | PSMigrationScaleFixtureTest | %d | %d | %d | %d |%n",
               java.time.Instant.now(), rows, tables, seedMs, xferMs);
       Files.writeString(
-          candidates, line, StandardCharsets.UTF_8, java.nio.file.StandardOpenOption.APPEND);
+          logFile, line, StandardCharsets.UTF_8, java.nio.file.StandardOpenOption.APPEND);
     } catch (Exception ignored) {
       // Best-effort timing log; transfer assertions above are the hard gate
     }
+  }
+
+  /**
+   * Resolve the checklist markdown file path only (never a directory). Tries repo-root and {@code
+   * system/}-cwd layouts.
+   *
+   * @return path to write, or null if no suitable location
+   */
+  static Path resolveTimingLogFile() {
+    Path fromRepoRoot =
+        Path.of("specs", "548-derby-embedded-migration", "checklists", "migration-timing.md");
+    if (Files.isRegularFile(fromRepoRoot)) {
+      return fromRepoRoot;
+    }
+    Path fromSystemModule =
+        Path.of("..", "specs", "548-derby-embedded-migration", "checklists", "migration-timing.md")
+            .normalize();
+    if (Files.isRegularFile(fromSystemModule)) {
+      return fromSystemModule;
+    }
+    // Prefer creating under parent checklist dir when that directory already exists
+    Path checklistDir = fromSystemModule.getParent();
+    if (checklistDir != null && Files.isDirectory(checklistDir)) {
+      return fromSystemModule;
+    }
+    checklistDir = fromRepoRoot.getParent();
+    if (checklistDir != null && Files.isDirectory(checklistDir)) {
+      return fromRepoRoot;
+    }
+    return null;
   }
 }

@@ -97,7 +97,7 @@ public final class PSRepositoryOfflineBackup {
                 + "Emergency override only: -D"
                 + ALLOW_LIVE_BACKUP_PROPERTY
                 + "=true";
-        if (isTruthy(System.getProperty(ALLOW_LIVE_BACKUP_PROPERTY))) {
+        if (PSInstallPropertyUtil.isTruthy(System.getProperty(ALLOW_LIVE_BACKUP_PROPERTY))) {
           LOG.warning(msg + " — proceeding due to " + ALLOW_LIVE_BACKUP_PROPERTY);
         } else {
           throw new IOException(msg);
@@ -144,7 +144,8 @@ public final class PSRepositoryOfflineBackup {
       return markers;
     }
     Path root = repositoryDir.toAbsolutePath().normalize();
-    try (var walk = Files.walk(root, 8)) {
+    // No maxDepth cap: nested repository layouts must still surface lock markers (T088).
+    try (var walk = Files.walk(root)) {
       walk.filter(Files::isRegularFile)
           .forEach(
               p -> {
@@ -158,14 +159,6 @@ public final class PSRepositoryOfflineBackup {
               });
     }
     return List.copyOf(markers);
-  }
-
-  private static boolean isTruthy(String value) {
-    if (value == null) {
-      return false;
-    }
-    String v = value.trim();
-    return "true".equalsIgnoreCase(v) || "yes".equalsIgnoreCase(v) || "1".equals(v);
   }
 
   /**
