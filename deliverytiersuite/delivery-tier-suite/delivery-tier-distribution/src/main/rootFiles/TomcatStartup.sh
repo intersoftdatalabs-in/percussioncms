@@ -27,6 +27,6 @@ if [ ! -x "${SERVER_DIR}/bin/catalina.sh" ]; then
 fi
 
 # Note: java.endorsed.dirs property is not supported on Java 9+ (fatal on 21); do not add it back.
-export JAVA_OPTS="$JAVA_OPTS -Dhttps.protocols=TLSv1.2 -Djava.net.preferIPv4Stack=true -Djava.net.preferIPv4Addresses=true -Dfile.encoding=UTF-8 -Xmx1024m -Dcatalina.base=$SERVER_DIR -Dcatalina.home=$SERVER_DIR -Djava.io.tmpdir=$SERVER_DIR/temp -Dderby.system.home=$SERVER_DIR/derbydata"
+export JAVA_OPTS="$JAVA_OPTS -Dhttps.protocols=TLSv1.2 -Djava.net.preferIPv4Stack=true -Djava.net.preferIPv4Addresses=true -Dfile.encoding=UTF-8 -Xmx1024m -Dcatalina.base=$SERVER_DIR -Dcatalina.home=$SERVER_DIR -Djava.io.tmpdir=$SERVER_DIR/temp -Dderby.system.home=$SERVER_DIR/derbydata -Dperc.h2.data.home=$SERVER_DIR/h2data"
 export CATALINA_HOME=$SERVER_DIR
 "$SERVER_DIR/bin/catalina.sh" run

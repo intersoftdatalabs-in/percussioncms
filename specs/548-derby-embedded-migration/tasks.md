@@ -80,10 +80,10 @@
 - [x] T031 [US1] Update default `system/config/Default/rxrepository.properties` and installer-shipped `rxrepository.properties` to H2 backend/driver/server form using frozen URL template
 - [x] T032 [US1] Update Jetty defaults: `modules/perc-jetty/src/main/jetty/defaults/etc/perc-ds.properties`, `perc-ds.xml`, `modules/perc.mod` / `perc-ds` — drop `derby.drda.*` and `derby.system.home` as live defaults; wire H2
 - [x] T033 [US1] Ship H2 JAR on CMS JDBC/lib packaging paths consistent with how Derby was packaged (`modules/perc-jetty` / distribution tree); scope Derby to migration-only if still on classpath — **FR-014**
-- [ ] T034 [US1] Update DTS service default datasource props/beans for comments, forms, feeds, membership, metadata, polls (and other inventory hits) under `deliverytiersuite/delivery-tier-suite/*/resources` and `**/WEB-INF/**`
-- [ ] T035 [US1] Port Liquibase `dbms="derby"` changesets to H2 (or db-agnostic) in `deliverytiersuite/delivery-tier-suite/metadata/src/main/resources/changeLogIndex*.xml` and related — **QC-012** start
-- [ ] T036 [US1] Update `deliverytiersuite/delivery-tier-suite/delivery-tier-distribution` packaging, cargo DS, and start scripts (`TomcatStartup.*`, service bats) to H2 home properties — **QC-024** start
-- [ ] T037 [US1] Replace DTS Hibernate `DerbyDialect` hardcodes with H2 dialect class names in beans/xml configs (inventory-driven)
+- [x] T034 [US1] Update DTS service default datasource props/beans for comments, forms, feeds, membership, metadata, polls (and other inventory hits) under `deliverytiersuite/delivery-tier-suite/*/resources` and `**/WEB-INF/**`
+- [x] T035 [US1] Port Liquibase `dbms="derby"` changesets to H2 (or db-agnostic) in `deliverytiersuite/delivery-tier-suite/metadata/src/main/resources/changeLogIndex*.xml` and related — **QC-012** start
+- [x] T036 [US1] Update `deliverytiersuite/delivery-tier-suite/delivery-tier-distribution` packaging, cargo DS, and start scripts (`TomcatStartup.*`, service bats) to H2 home properties — **QC-024** start
+- [x] T037 [US1] Replace DTS Hibernate `DerbyDialect` hardcodes with H2 dialect class names in beans/xml configs (inventory-driven)
 - [ ] T038 [US1] **OS matrix smoke (SC-001)**: document and execute new default CMS login + DTS health smoke on **Windows, Linux, and macOS** (skip only with product-owner waiver recorded on #548 for unsupported component/OS); capture commands/results in `specs/548-derby-embedded-migration/checklists/os-smoke-matrix.md`
 - [ ] T039 [US1] **FR-010 copy audit**: grep installer/distribution docs and default templates for contradictory “Derby default” new-install guidance; fix remaining new-install messaging to H2/new default
 - [ ] T040 [US1] Standalone `mvn-env.sh clean install` for each changed module in this story; record evidence for PR body — **QC-018**
