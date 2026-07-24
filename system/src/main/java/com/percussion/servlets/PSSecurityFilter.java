@@ -1379,32 +1379,19 @@ public class PSSecurityFilter implements Filter {
       return;
     }
     try {
-      // Rebuild redirect target from validated URI components to clear residual
-      // CodeQL java/unvalidated-url-redirection taint (#1779).
-      java.net.URI parsed = java.net.URI.create(safe);
-      String redirect;
-      if (parsed.isAbsolute()) {
-        redirect =
-            new java.net.URI(
-                    parsed.getScheme(),
-                    parsed.getAuthority(),
-                    parsed.getRawPath() != null ? parsed.getRawPath() : "/",
-                    parsed.getRawQuery(),
-                    parsed.getRawFragment())
-                .toASCIIString();
-      } else {
-        redirect =
-            new java.net.URI(
-                    null,
-                    null,
-                    parsed.getRawPath() != null ? parsed.getRawPath() : "/",
-                    parsed.getRawQuery(),
-                    parsed.getRawFragment())
-                .toASCIIString();
+      // Rebuild from validated components to clear CodeQL taint (#1779) without re-encoding.
+      // Multi-arg URI(scheme, auth, rawPath, rawQuery, frag).toASCIIString() double-encodes %
+      // and breaks Jetty UriCompliance (Ambiguous URI path encoding) on login sys_redirect.
+      String redirect = PSRedirectValidation.rebuildValidatedRedirect(safe);
+      if (redirect == null) {
+        // Log validated target (safe), not raw location — more actionable on rebuild failure
+        ms_log.warn("Failed to rebuild redirect location: {}", sanitizeForLog(safe));
+        response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Invalid redirect location");
+        return;
       }
       response.sendRedirect(redirect);
     } catch (Exception e) {
-      ms_log.warn("Failed to rebuild redirect location: {}", sanitizeForLog(location));
+      ms_log.warn("Failed to rebuild redirect location: {}", sanitizeForLog(safe));
       response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Invalid redirect location");
     }
   }
