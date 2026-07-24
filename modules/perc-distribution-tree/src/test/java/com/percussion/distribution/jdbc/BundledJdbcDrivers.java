@@ -76,6 +76,9 @@ final class BundledJdbcDrivers {
     static final String[] STAGING_GLOBS = {
             "mariadb-java-client-*.jar",
             "mysql-connector-j-*.jar",
+            // #548 default embedded engine
+            "h2-*.jar",
+            // Derby retained for migration / legacy
             "derby-*.jar",
             "derbyclient-*.jar",
             "derbynet-*.jar",
@@ -102,6 +105,7 @@ final class BundledJdbcDrivers {
     static final String[][] GLOB_TO_ARTIFACT_ID = {
             {"mariadb-java-client-*.jar", "mariadb-java-client"},
             {"mysql-connector-j-*.jar",   "mysql-connector-j"},
+            {"h2-*.jar",                  "h2"},
             {"derby-*.jar",               "derby"},
             {"derbyclient-*.jar",         "derbyclient"},
             {"derbynet-*.jar",            "derbynet"},
@@ -116,6 +120,7 @@ final class BundledJdbcDrivers {
         Set<String> filenames = new LinkedHashSet<>();
         filenames.add("mariadb-java-client-3.5.7.jar");
         filenames.add("mysql-connector-j-8.4.0.jar");
+        filenames.add("h2-2.3.232.jar");
         filenames.add("derby-10.17.1.0.jar");
         filenames.add("derbyclient-10.17.1.0.jar");
         filenames.add("derbynet-10.17.1.0.jar");

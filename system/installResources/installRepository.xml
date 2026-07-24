@@ -2,7 +2,7 @@
 <project name="install" default="install" basedir="..">
 
 
-	<!-- Define Derby DB classpath -->
+	<!-- Embedded DB classpaths (H2 default #548; Derby retained for legacy/migration installs) -->
 	<path id="DERBY_TOOL.CLASSPATH">
 		<fileset dir="C:\DevEnv\Installs\dev\Repository\lib">
 			<include name="derby.jar" />
@@ -11,11 +11,18 @@
 			<include name="derbytools.jar" />
 		</fileset>
 	</path>
+	<path id="H2_TOOL.CLASSPATH">
+		<fileset dir="${install.dir}/jetty/base/lib/jdbc" erroronmissingdir="false">
+			<include name="h2*.jar" />
+		</fileset>
+		<fileset dir="${toolsdir}" erroronmissingdir="false">
+			<include name="**/h2*.jar" />
+		</fileset>
+	</path>
 	<!-- <classloader name="ant.coreLoader"/> -->
 	<property name="DERBY_PROPS_FILE"
 		value="${install.dir}/Repository/derby.properties" />
 
-	<!-- Define Derby DB classpath -->
 
 	<!-- The main install target -->
 	<target name="install">
@@ -99,17 +106,39 @@
 		</if>
 	</target>
 
-	<!-- Install Embedded Derby DB -->
+	<!-- Install embedded repository (H2 default #548; Derby NetworkServer legacy path retained) -->
 	<target name="setupEmbeddedDB">
 		<property
 			file="${install.dir}/rxconfig/Installer/rxrepository.properties" />
+		<!-- H2: in-process file DB — no NetworkServer / port 1527 -->
+		<if>
+			<PSPropertyCondition compareOperator="=="
+				isCaseSensitive="false" leftSideValue="h2"
+				propertyFile="rxconfig/Installer/rxrepository.properties"
+				propertyName="DB_DRIVER_NAME" />
+			<then>
+				<echo>Preparing embedded H2 repository (in-process, no NetworkServer)</echo>
+				<mkdir dir="${install.dir}/Repository" />
+				<mkdir dir="${install.dir}/logs" />
+				<echo>Connecting to H2 file DB...</echo>
+				<!-- Portable file path: Ant sql task with H2 EmbeddedDriver -->
+				<sql driver="org.h2.Driver"
+					url="jdbc:h2:file:${install.dir}/Repository/CMDB;DB_CLOSE_ON_EXIT=FALSE"
+					classpathref="H2_TOOL.CLASSPATH" userid="sa" password=""
+					onerror="continue">
+					SELECT 1;
+				</sql>
+				<echo>H2 DB connection successful (empty file store; schema via TableFactory)...</echo>
+			</then>
+		</if>
+		<!-- Derby: legacy path for installs that still declare DB_DRIVER_NAME=derby -->
 		<if>
 			<PSPropertyCondition compareOperator="=="
 				isCaseSensitive="false" leftSideValue="derby"
 				propertyFile="rxconfig/Installer/rxrepository.properties"
 				propertyName="DB_DRIVER_NAME" />
 			<then>
-				<echo>Unzipping embedded DB</echo>
+				<echo>Unzipping embedded Derby DB (legacy)</echo>
 				<unzip src="${toolsdir}/Derby/Repository.zip"
 					dest="${install.dir}" />
 				<copy todir="${install.dir}/AppServer/server/rx/lib"
