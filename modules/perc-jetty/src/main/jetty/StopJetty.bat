@@ -8,12 +8,11 @@ SET JETTY_BASE=%mypath%base
 SET JETTY_DEFAULTS=%mypath%defaults
 set STOPPORT=50011
 
-REM Resolve Java via the shared precedence contract — StopJetty must use the same
-REM Java home the matching StartJetty would, even when <installRoot>\JRE is absent.
+REM GH-991: same resolve path as StartJetty (java.properties primary; JRE not required).
 REM See specs/991-system-java-home/contracts/java-home-resolution.md.
 call "%~dp0resolve-java-home.bat" "%rxDir%"
 if errorlevel 1 (
-    echo StopJetty: Java home resolution failed 1>&2
+    echo StopJetty: Java home resolution failed. Check java.properties or JAVA_HOME. 1>&2
     exit /b 1
 )
 

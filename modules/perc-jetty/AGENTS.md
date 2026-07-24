@@ -16,9 +16,11 @@
 ## Java home resolution (GH-991 / issue #1340)
 
 - Scripts at `src/main/jetty/resolve-java-home.{sh,bat}` implement the shared
-  precedence (java.properties > env > install-dir JRE|JRE64 > PATH) and require
-  major version **21**. `StartJetty.sh`, `StartJetty.bat`, `StopJetty.bat`, and
-  `service/install-jetty-service.{sh,bat}` source/call the helper.
+  precedence (java.properties > env > optional install-dir JRE|JRE64 > PATH)
+  and require major version **21+**. Operators do **not** need `<InstallDir>/JRE`.
+- `StartJetty.sh`, `StartJetty.bat`, `StopJetty.bat`, and
+  `service/install-jetty-service.{sh,bat}` source/call the helper and **hard-fail**
+  on resolve failure (no soft-fail into unvalidated JRE/JRE64).
 - Spec/contracts live in `specs/991-system-java-home/contracts/`; tests live
   under `src/test/java/com/percussion/jetty/java/` and
   `src/test/java/com/percussion/jetty/service/`.

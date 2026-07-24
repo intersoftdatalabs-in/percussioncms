@@ -315,32 +315,25 @@ if [ "$uninstall" != "true" ]; then
     echo "JETTY_ROOT=${JETTY_ROOT}"
     echo "rxDir=${rxDir}"
 
-    # Prefer a Java home resolved via the shared precedence contract
-    # (java.properties > env JAVA_HOME > install-dir JRE|JRE64 > PATH > fail,
-    # major 21). Falls back to legacy <installRoot>/JRE or JRE64 when the
-    # resolver is unavailable, so existing manual layouts continue to work.
+    # GH-991 / issue #1340: install-time selection wrote <installRoot>/java.properties.
+    # Service install MUST use resolve-java-home (java.properties > env > optional
+    # legacy JRE|JRE64 > PATH > fail, major 21+). Do NOT require <installRoot>/JRE
+    # and do NOT soft-fail into an unvalidated JRE/JRE64 path.
     # See specs/991-system-java-home/contracts/java-home-resolution.md.
     RESOLVER="${JETTY_ROOT}/resolve-java-home.sh"
-    JAVA_HOME=""
-    if [ -f "$RESOLVER" ] && [ -r "$RESOLVER" ]; then
-        # shellcheck disable=SC1090
-        # Source directly into the installer shell (NOT in a subshell) so the
-        # resolver's JAVA_HOME / JAVA / RESOLVE_SOURCE assignments propagate;
-        # a subshell would silently discard them and force the legacy fallback.
-        if source "$RESOLVER" "${rxDir}" 2>/dev/null; then
-            echo "Service Java home resolved via $RESOLVE_SOURCE"
-        else
-            echo "Warning: ${RESOLVER} failed; falling back to install-dir JRE/JRE64" >&2
-        fi
+    if [ ! -f "$RESOLVER" ] || [ ! -r "$RESOLVER" ]; then
+        echo "Missing ${RESOLVER}. Re-run the CMS installer or restore resolve-java-home.sh under jetty/." 1>&2
+        exit 1
     fi
-    if [ -z "$JAVA_HOME" ] || [ ! -x "${JAVA_HOME}/bin/java" ]; then
-        if [ -d "${rxDir}/JRE" ]; then
-            echo "Found ${rxDir}/JRE to use as JRE Folder"
-            JAVA_HOME=${rxDir}/JRE
-        else
-            JAVA_HOME=${rxDir}/JRE64
-        fi
+    # Source into this shell (NOT a subshell) so JAVA_HOME / JAVA / RESOLVE_SOURCE
+    # propagate. Hard-fail on resolve failure — the helper prints sources tried.
+    # shellcheck disable=SC1090
+    source "$RESOLVER" "${rxDir}" || exit 1
+    if [ -z "${JAVA_HOME:-}" ] || [ ! -x "${JAVA_HOME}/bin/java" ]; then
+        echo "resolve-java-home did not set a usable JAVA_HOME; check ${rxDir}/java.properties or JAVA_HOME." 1>&2
+        exit 1
     fi
+    echo "Service Java home resolved via ${RESOLVE_SOURCE:-unknown}: ${JAVA_HOME}"
 
     if [ -f "${JETTY_BASE}/etc/jetty.conf" ]; then
         JETTY_CONF=${JETTY_BASE}/etc/jetty.conf

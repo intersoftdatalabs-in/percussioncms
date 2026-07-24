@@ -8,11 +8,11 @@ SET JETTY_BASE=%mypath%base
 SET JETTY_DEFAULTS=%mypath%defaults
 set STOPPORT=50011
 
-REM Resolve Java via shared precedence: java.properties > env > install-dir JRE|JRE64 > PATH > fail.
-REM See specs/991-system-java-home/contracts/java-home-resolution.md.
+REM GH-991: install-time selection wrote java.properties; resolve it (not a
+REM mandatory <InstallRoot>\JRE). Hard-fail on resolve. See java-home-resolution.md.
 call "%~dp0resolve-java-home.bat" "%rxDir%"
 if errorlevel 1 (
-    echo StartJetty: Java home resolution failed 1>&2
+    echo StartJetty: Java home resolution failed. Check java.properties or JAVA_HOME. 1>&2
     exit /b 1
 )
 

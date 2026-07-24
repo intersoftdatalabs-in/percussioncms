@@ -6,8 +6,9 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 rxDir=$(dirname ${DIR})
 echo rxDir=$rxDir
 
-# Resolve Java via shared precedence: java.properties (PRODUCT_CONFIG) >
-# env JAVA_HOME (PROCESS_ENV) > legacy <installRoot>/JRE|JRE64 > PATH > fail.
+# GH-991: install-time selection wrote java.properties; resolve it (not a
+# mandatory <InstallRoot>/JRE). Precedence: java.properties > env >
+# optional legacy JRE|JRE64 > PATH > fail (major 21+). Hard-fail on resolve.
 # See specs/991-system-java-home/contracts/java-home-resolution.md.
 INSTALL_ROOT="$rxDir"
 # shellcheck disable=SC1091
