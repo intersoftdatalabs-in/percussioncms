@@ -19,6 +19,14 @@ Also stop **Derby Network Server** if still used for product-managed networked D
 
 **Do not** copy repository files while the process is live — results are unsupported and may be inconsistent.
 
+Product offline backup (`PSRepositoryOfflineBackup`) **refuses** when common engine lock markers are present under the repository tree (e.g. Derby `db.lck`, H2 `*.lock.db`). Emergency override only:
+
+```text
+-Dperc.migration.allowLiveBackup=true
+```
+
+Absence of markers does **not** prove the instance is stopped — always stop services first.
+
 ## 2. What to include
 
 ### CMS
