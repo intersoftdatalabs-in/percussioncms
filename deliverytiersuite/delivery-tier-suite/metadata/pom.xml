@@ -142,7 +142,12 @@
             <artifactId>spring-orm</artifactId>
             <scope>test</scope>
         </dependency>
-        <dependency>
+                <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+            <version>${h2.version}</version>
+        </dependency>
+<dependency>
             <groupId>org.apache.derby</groupId>
             <artifactId>derby</artifactId>
             <scope>test</scope>
@@ -258,8 +263,8 @@
                             <configuration>
                                 <properties>
                                     <cargo.servlet.port>8080</cargo.servlet.port>
-                                    <cargo.datasource.datasource.derby>cargo.datasource.driver=org.apache.derby.jdbc.EmbeddedDriver|
-										cargo.datasource.url=jdbc:derby:derbyDB;create=true|
+                                    <cargo.datasource.datasource.derby>cargo.datasource.driver=org.h2.Driver|
+										cargo.datasource.url=jdbc:h2:mem:cargoDB;DB_CLOSE_DELAY=-1|
 										cargo.datasource.jndi=jdbc/CargoDS|
 										cargo.datasource.username=APP|
 										cargo.datasource.password=nonemptypassword</cargo.datasource.datasource.derby>

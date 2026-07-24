@@ -11,7 +11,7 @@
 	<property name="perc.java.home" value="${install.dir}/JRE" />
 	<property name="perc.dts.backup"
 		value="${install.dir}/PreInstall/Backups" />
-	<property name="perc.db.type" value="derby" />
+	<property name="perc.db.type" value="h2" />
 	<property name="perc.db.ssl.enabled" value="true" />
 	<property name="perc.db.ssl.verify" value="true" />
 	<property name="perc.db.ssl.allowSelfSigned" value="false" />
@@ -1013,7 +1013,10 @@
 					<available
 						file="${install.dir}${staging.dir}/Deployment/Server/conf/perc/perc-datasources.properties" />
 					<not>
-						<equals arg1="${perc.db.type}" arg2="derby" casesensitive="false" />
+						<or>
+							<equals arg1="${perc.db.type}" arg2="derby" casesensitive="false" />
+							<equals arg1="${perc.db.type}" arg2="h2" casesensitive="false" />
+						</or>
 					</not>
 				</and>
 				<then>

@@ -36,13 +36,13 @@
 				<prop key="hibernate.cache.use_query_cache">false</prop>
 
 				<!-- Apache Derby -->
-				<prop key="jdbcUrl">jdbc:derby:memory:percfeeds;create=true</prop>
-				<prop key="jdbcDriver">org.apache.derby.jdbc.EmbeddedDriver</prop>
+				<prop key="jdbcUrl">jdbc:h2:mem:percfeeds;DB_CLOSE_DELAY=-1</prop>
+				<prop key="jdbcDriver">org.h2.Driver</prop>
 				<prop key="db.username">test</prop>
 				<prop key="db.password">test</prop>
-				<prop key="db.schema">APP</prop>
-				<prop key="hibernate.dialect">org.hibernate.community.dialect.DerbyDialect</prop>
-				<prop key="hibernate.query.substitutions">true 'T', false 'F'</prop>
+				<prop key="db.schema">PUBLIC</prop>
+				<prop key="hibernate.dialect">org.hibernate.dialect.H2Dialect</prop>
+				<prop key="hibernate.query.substitutions"></prop>
 				<prop key="tenant.cache.ttl">1440</prop>
 				<prop key="tenant.cache.reauth">true</prop>
 				<prop key="rss.feeds.ip">127.0.0.1</prop>
