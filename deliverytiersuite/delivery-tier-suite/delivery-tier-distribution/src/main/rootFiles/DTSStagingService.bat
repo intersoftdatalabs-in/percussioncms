@@ -86,6 +86,8 @@ REM Resolve Java via the shared precedence contract (java.properties > env
 REM JAVA_HOME > install-dir JRE|JRE64 > PATH > fail, major 21). Service installer
 REM uses the resolved absolute home for the Procrun --JavaHome. See
 REM specs/991-system-java-home/contracts/java-home-resolution.md.
+REM Script lives at <InstallRoot>\Staging\Deployment\Server\ (or Production layout);
+REM resolve helper is two levels up at that tree's install root.
 call "%~dp0..\..\resolve-java-home.bat" "%~dp0..\.."
 if errorlevel 1 (
     echo DTSStagingService: Java home resolution failed 1>&2

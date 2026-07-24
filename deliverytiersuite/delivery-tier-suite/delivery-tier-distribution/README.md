@@ -44,9 +44,14 @@ CMS Jetty (see `specs/991-system-java-home/contracts/`):
 4. `java` discoverable on `PATH`
 5. Fail with actionable message that names major version **21** and lists sources tried
 
-Resolve helpers (`resolve-java-home.sh` / `.bat`) ship alongside
-`TomcatStartup.*`, `TomcatShutdown.*`, `DTSProductionService.*`, and
-`DTSStagingService.*` in `src/main/rootFiles/`. Both consoles and both
+Resolve helpers (`resolve-java-home.sh` / `.bat`) ship in
+`src/main/rootFiles/` next to `TomcatStartup.*` / `TomcatShutdown.*`.
+`installDts.xml` places those files at the **install root** (and under
+`Staging/` for staging). Service installers are copied under
+`Deployment/Server/` and therefore resolve the helper **two levels up**
+(`INSTALL_ROOT` / `%~dp0..\..`). Console scripts resolve the helper from
+the **same directory** as the script (`SCRIPT_DIR`), not the parent —
+Jetty-style `SCRIPT_DIR/..` paths are wrong for DTS. Both consoles and both
 service installers source/call the helper before populating Procrun
 `--JavaHome` or `/etc/default/<service>`. See
 `specs/991-system-java-home/quickstart.md` (Smoke B and migration notes)

@@ -237,7 +237,11 @@ function enableSysV() {
 }
 
 distVersion=$(cat /proc/version 2>&1 || true)
+# Service script is installed at <InstallRoot>/Staging/Deployment/Server/ (or
+# <InstallRoot>/Deployment/Server/ when Staging is the sole tree).
 CATALINA_HOME=$(dirname "$(abspath "$0")")
+# Staging install root holds resolve-java-home.sh (two levels up from Server).
+INSTALL_ROOT="$(cd "${CATALINA_HOME}/../.." && pwd)"
 if [ -d "$(dirname "${CATALINA_HOME}")/JRE" ]; then
 	rxDir=$(dirname "${CATALINA_HOME}")
 elif [ -d "${CATALINA_HOME}/Staging/JRE" ]; then
@@ -247,8 +251,8 @@ elif [ -d "$(dirname "${CATALINA_HOME}")/Staging/JRE" ]; then
 else
 	rxDir=$(dirname "${CATALINA_HOME}")
 fi
-RX_USER=$(ls -ld "${rxDir}" | awk '{print $3}')
-RX_GROUP=$(ls -ld "${rxDir}" | awk '{print $4}')
+RX_USER=$(ls -ld "${INSTALL_ROOT}" | awk '{print $3}')
+RX_GROUP=$(ls -ld "${INSTALL_ROOT}" | awk '{print $4}')
 TOMCAT_RUN=${RUN_PARENT}/${SERVICE_NAME}
 
 if command -v service >/dev/null 2>&1; then
@@ -270,24 +274,26 @@ if [ "$uninstall" != "true" ]; then
 	fi
 
 	echo "CATALINA_HOME=${CATALINA_HOME}"
+	echo "INSTALL_ROOT=${INSTALL_ROOT}"
 	echo "rxDir=${rxDir}"
 
-	if [ -d "${rxDir}/JRE" ]; then
-		echo "Legacy ${rxDir}/JRE found; will be overridden by shared resolver if available"
+	if [ -d "${INSTALL_ROOT}/JRE" ]; then
+		echo "Legacy ${INSTALL_ROOT}/JRE found; will be overridden by shared resolver if available"
 	fi
 
 	# Resolve Java via the shared precedence contract (java.properties > env
 	# JAVA_HOME > install-dir JRE|JRE64 > PATH > fail, major 21). When resolution
 	# produces a valid home, it overrides the legacy heuristic. See
 	# specs/991-system-java-home/contracts/java-home-resolution.md.
-	RESOLVER="${rxDir}/resolve-java-home.sh"
+	# Helper ships at the Staging (or Production) install root next to TomcatStartup.*.
+	RESOLVER="${INSTALL_ROOT}/resolve-java-home.sh"
 	if [ -f "$RESOLVER" ] && [ -r "$RESOLVER" ]; then
 		# Source the resolver directly into the installer shell (NOT a subshell)
 		# so JAVA_HOME / JAVA / RESOLVE_SOURCE from the resolver propagate to
 		# this script. A subshell wrapper would silently discard them and the
 		# legacy JRE/JRE64 fallback below would always win.
 		# shellcheck disable=SC1090
-		if source "$RESOLVER" "${rxDir}" 2>/dev/null; then
+		if source "$RESOLVER" "${INSTALL_ROOT}" 2>/dev/null; then
 			echo "Service Java home resolved via ${RESOLVE_SOURCE:-unknown}"
 		else
 			echo "Warning: ${RESOLVER} failed; falling back to install-dir JRE/JRE64" >&2
@@ -295,7 +301,9 @@ if [ "$uninstall" != "true" ]; then
 	fi
 
 	if [ -z "${JAVA_HOME:-}" ] || [ ! -x "${JAVA_HOME}/bin/java" ]; then
-		if [ -d "${rxDir}/JRE" ]; then
+		if [ -d "${INSTALL_ROOT}/JRE" ]; then
+			JAVA_HOME=${INSTALL_ROOT}/JRE
+		elif [ -d "${rxDir}/JRE" ]; then
 			JAVA_HOME=${rxDir}/JRE
 		elif [ -d "${rxDir}/Staging/JRE" ]; then
 			JAVA_HOME=${rxDir}/Staging/JRE

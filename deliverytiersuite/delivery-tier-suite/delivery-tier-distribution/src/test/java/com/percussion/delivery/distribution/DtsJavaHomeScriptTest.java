@@ -124,6 +124,10 @@ class DtsJavaHomeScriptTest {
         "TomcatStartup.sh must not cd-only into JRE");
     assertFalse(bat.contains("SET JAVA_HOME=%SCRIPT_DIR%\\JRE"),
         "TomcatStartup.bat must not hard-code only JRE");
+    // installDts places TomcatStartup.* and resolve-java-home.* at the same
+    // install root (not under a jetty-style subdirectory). Using ../ looks
+    // one level above the install and fails: "No such file or directory".
+    assertTomcatScriptsResolveFromInstallRoot(sh, bat, "TomcatStartup");
   }
 
   @Test
@@ -135,6 +139,45 @@ class DtsJavaHomeScriptTest {
     assertFalse(sh.contains("cd JRE") || sh.contains("cd ../JRE"));
     assertFalse(bat.contains("SET JAVA_HOME=%SCRIPT_DIR%\\JRE"),
         "TomcatShutdown.bat must not hard-code only JRE");
+    assertTomcatScriptsResolveFromInstallRoot(sh, bat, "TomcatShutdown");
+  }
+
+  /**
+   * Regression: GH-991 US2 initially copied the Jetty pattern ({@code SCRIPT_DIR/..}
+   * for both INSTALL_ROOT and the resolve helper) onto DTS Tomcat scripts. Jetty
+   * scripts live under {@code jetty/}; DTS Tomcat scripts live at install root
+   * next to {@code resolve-java-home.*}.
+   */
+  private static void assertTomcatScriptsResolveFromInstallRoot(
+      String sh, String bat, String label) {
+    assertTrue(
+        sh.contains("INSTALL_ROOT=\"${SCRIPT_DIR}\"")
+            || sh.contains("INSTALL_ROOT=${SCRIPT_DIR}"),
+        label + ".sh must set INSTALL_ROOT to SCRIPT_DIR (install root), not parent");
+    assertFalse(
+        sh.contains("INSTALL_ROOT=\"$(dirname \"$SCRIPT_DIR\")\"")
+            || sh.contains("INSTALL_ROOT=$(dirname \"$SCRIPT_DIR\")"),
+        label + ".sh must not use dirname of SCRIPT_DIR as install root");
+    assertTrue(
+        sh.contains("source \"${SCRIPT_DIR}/resolve-java-home.sh\""),
+        label + ".sh must source resolve-java-home.sh from SCRIPT_DIR (same dir)");
+    assertFalse(
+        sh.contains("source \"${SCRIPT_DIR}/../resolve-java-home.sh\""),
+        label + ".sh must not source resolve-java-home.sh from parent of SCRIPT_DIR");
+    assertTrue(
+        sh.contains("SERVER_DIR=\"${INSTALL_ROOT}/Deployment/Server\"")
+            || sh.contains("SERVER_DIR=${INSTALL_ROOT}/Deployment/Server"),
+        label + ".sh SERVER_DIR must be under INSTALL_ROOT/Deployment/Server");
+
+    assertTrue(
+        bat.contains("call \"%SCRIPT_DIR%\\resolve-java-home.bat\" \"%SCRIPT_DIR%\""),
+        label + ".bat must call resolve-java-home.bat from SCRIPT_DIR (same dir)");
+    assertFalse(
+        bat.contains("call \"%SCRIPT_DIR%\\..\\resolve-java-home.bat\""),
+        label + ".bat must not call resolve-java-home.bat via SCRIPT_DIR\\..");
+    assertTrue(
+        bat.contains("SET SERVER_DIR=%SCRIPT_DIR%\\Deployment\\Server"),
+        label + ".bat SERVER_DIR must be SCRIPT_DIR\\Deployment\\Server");
   }
 
   @Test
@@ -147,6 +190,22 @@ class DtsJavaHomeScriptTest {
         "DTSProductionService.bat calls resolve-java-home.bat");
     assertTrue(bat.contains("--JavaHome=%JRE_HOME%"),
         "Procrun --JavaHome is wired to resolved Java home");
+    // Service script is at Deployment/Server; helper is at install root (../..).
+    assertTrue(
+        sh.contains("INSTALL_ROOT=\"$(cd \"${CATALINA_HOME}/../..\" && pwd)\""),
+        "DTSProductionService.sh INSTALL_ROOT must be grandparent of CATALINA_HOME");
+    assertTrue(
+        sh.contains("RESOLVER=\"${INSTALL_ROOT}/resolve-java-home.sh\""),
+        "DTSProductionService.sh must resolve helper under INSTALL_ROOT");
+    assertFalse(
+        sh.contains("RESOLVER=\"${rxDir}/resolve-java-home.sh\""),
+        "DTSProductionService.sh must not look for resolve helper under rxDir/Deployment");
+    assertTrue(
+        bat.contains("call \"%~dp0..\\..\\resolve-java-home.bat\" \"%~dp0..\\..\""),
+        "DTSProductionService.bat must call resolve helper two levels up from Server");
+    assertFalse(
+        bat.contains("pushd \"%CATALINA_HOME%\\.."),
+        "DTSProductionService.bat must not use a broken pushd before resolve");
   }
 
   @Test
@@ -170,6 +229,18 @@ class DtsJavaHomeScriptTest {
         "DTSStagingService.bat calls resolve-java-home.bat");
     assertTrue(bat.contains("--JavaHome=%JRE_HOME%"),
         "Procrun --JavaHome is wired to resolved Java home");
+    assertTrue(
+        sh.contains("INSTALL_ROOT=\"$(cd \"${CATALINA_HOME}/../..\" && pwd)\""),
+        "DTSStagingService.sh INSTALL_ROOT must be grandparent of CATALINA_HOME");
+    assertTrue(
+        sh.contains("RESOLVER=\"${INSTALL_ROOT}/resolve-java-home.sh\""),
+        "DTSStagingService.sh must resolve helper under INSTALL_ROOT");
+    assertFalse(
+        sh.contains("RESOLVER=\"${rxDir}/resolve-java-home.sh\""),
+        "DTSStagingService.sh must not look for resolve helper under rxDir/Deployment");
+    assertTrue(
+        bat.contains("call \"%~dp0..\\..\\resolve-java-home.bat\" \"%~dp0..\\..\""),
+        "DTSStagingService.bat must call resolve helper two levels up from Server");
   }
 
   /**

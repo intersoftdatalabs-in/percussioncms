@@ -86,15 +86,12 @@ REM Resolve Java via the shared precedence contract (java.properties > env
 REM JAVA_HOME > install-dir JRE|JRE64 > PATH > fail, major 21). Service installer
 REM uses the resolved absolute home for the Procrun --JavaHome. See
 REM specs/991-system-java-home/contracts/java-home-resolution.md.
-pushd "%CATALINA_HOME%\..
-
-cd %CATALINA_HOME%
+REM Script lives at <InstallRoot>\Deployment\Server\; resolve helper is two levels up.
 call "%~dp0..\..\resolve-java-home.bat" "%~dp0..\.."
 if errorlevel 1 (
     echo DTSProductionService: Java home resolution failed 1>&2
     goto end
 )
-popd
 
 SET JRE_HOME=%JAVA_HOME%
 
