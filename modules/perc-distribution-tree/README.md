@@ -81,7 +81,7 @@ Integrators who need a driver that is not bundled (for example an enterprise Ora
 
 ## CLI installer: database targets for new installs
 
-By default a **new** command-line install uses the embedded **Derby** repository. To target MySQL/MariaDB, SQL Server, or Oracle on a **new install only**, supply a repository properties file in the same format as `rxconfig/Installer/rxrepository.properties`:
+By default a **new** command-line install uses the embedded **H2** repository (GitHub #548; Apache Derby is retired as the live default and retained only for upgrade migration). To target MySQL/MariaDB, SQL Server, or Oracle on a **new install only**, supply a repository properties file in the same format as `rxconfig/Installer/rxrepository.properties`:
 
 ```bash
 java -Ddbprops=/path/to/rxrepository.mysql.properties -jar PercussionCMS.jar /path/to/install/root
@@ -93,7 +93,8 @@ java -jar PercussionCMS.jar /path/to/install/root --dbprops=/path/to/rxrepositor
 
 | `DB_BACKEND` | Structured `db.type` | Notes |
 |--------------|----------------------|-------|
-| `DERBY` | `derby` | Default when no override is given |
+| `H2` | `h2` | Default embedded engine when no override is given (#548) |
+| `DERBY` | `derby` | Legacy product-managed embedded; upgrade migration only |
 | `MYSQL` | `mysql` | MySQL or MariaDB-compatible; sample uses MariaDB driver class |
 | `MSSQL` | `sqlserver` | Microsoft SQL Server |
 | `ORACLE` | `oracle` | Oracle thin |
@@ -114,12 +115,12 @@ Copy a sample, replace host/credentials, pre-create the empty database/schema, t
 2. Structured CLI `--db.*` (and env-style aliases)
 3. Env file (`--db.config.env.file` / `DB_CONFIG_ENV_FILE`)
 4. Process environment
-5. Defaults (Derby)
+5. Defaults (H2 embedded)
 
 ### New install vs upgrade
 
 - **New install**: database target input applies; installer writes effective `rxconfig/Installer/rxrepository.properties` and validates connectivity before schema setup.
-- **Upgrade**: existing repository configuration is preserved. You do **not** need `-Ddbprops` to keep a non-Derby backend.
+- **Upgrade**: existing repository configuration is preserved. You do **not** need `-Ddbprops` to keep a non-H2 / external backend. Product-managed Derby installs are migrated to H2 by the upgrade path (#548).
 
 Feature design artifacts: `specs/006-installer-db-targets/` (contracts under `contracts/`).
 

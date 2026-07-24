@@ -42,7 +42,8 @@ public class MainDTSPreInstall {
   private static final String INSTALL_TEMPDIR = "percDTSInstallTmp_";
   private static final String PERC_ANT_JAR = "perc-ant";
   private static final String ANT_INSTALL = "installDts.xml";
-  private static final String DB_TYPE_DEFAULT = "derby";
+  /** Default embedded engine after Apache Derby retirement (GitHub #548). */
+  private static final String DB_TYPE_DEFAULT = "h2";
   private static final String DB_SSL_ENABLED_DEFAULT = "true";
   private static final String DB_SSL_VERIFY_DEFAULT = "true";
   private static final String DB_SSL_ALLOW_SELF_SIGNED_DEFAULT = "false";
@@ -437,7 +438,10 @@ public class MainDTSPreInstall {
     String password = systemProperties.get("perc.db.password");
     String schema = systemProperties.get("perc.db.schema");
 
-    if (!"derby".equals(dbTypeNormalized)) {
+    // Embedded engines (H2 default, Derby migration window) do not require host/port/name.
+    boolean embedded =
+        "h2".equals(dbTypeNormalized) || "derby".equals(dbTypeNormalized);
+    if (!embedded) {
       List<String> missing = new ArrayList<>();
       if (isBlank(host)) {
         missing.add("db.host");

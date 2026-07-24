@@ -164,7 +164,7 @@ def build_installer_db_args() -> list[str]:
     Pure function — exposed so tests can exercise the env-var → CLI-arg mapping
     without running the installer.
     """
-    db_type = _db_config_value("PERC_DB_TYPE", "DB_TYPE", "derby")
+    db_type = _db_config_value("PERC_DB_TYPE", "DB_TYPE", "h2")
     ssl_enabled = _db_config_value("PERC_DB_SSL_ENABLED", "DB_SSL_ENABLED", "true")
     ssl_verify = _db_config_value("PERC_DB_SSL_VERIFY", "DB_SSL_VERIFY", "true")
     ssl_allow_self_signed = _db_config_value(
@@ -313,7 +313,7 @@ def main(argv: list[str] | None = None) -> int:
     LOGGER.info("Installing CMS into %s", install_root_path)
     LOGGER.info("  CMS_JAR=%s", cms_jar)
     LOGGER.info("  DTS_JAR=%s", dts_jar)
-    LOGGER.info("  DB_TYPE=%s", os.environ.get("PERC_DB_TYPE", "derby"))
+    LOGGER.info("  DB_TYPE=%s", os.environ.get("PERC_DB_TYPE", "h2"))
 
     db_args = build_installer_db_args()
     LOGGER.info("  DB_ARGS=%s", db_args or "<none>")
