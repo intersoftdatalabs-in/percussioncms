@@ -530,14 +530,24 @@ public final class DbInstallConfigResolver {
     };
   }
 
-  private static String backendLabelForType(String dbType) {
+  /**
+   * Map normalized installer {@code db.type} values to {@code DB_BACKEND} labels.
+   *
+   * <p>Only known types are accepted — fail-fast like {@link #normalizeStructuredDbType(String)}
+   * (do not silently default unknown values to H2).
+   */
+  static String backendLabelForType(String dbType) {
     return switch (dbType) {
       case "h2" -> "H2";
       case "mysql" -> "MYSQL";
       case "sqlserver" -> "MSSQL";
       case "oracle" -> "ORACLE";
       case "derby" -> "DERBY";
-      default -> "H2";
+      default ->
+          throw new IllegalArgumentException(
+              "Unknown db.type='"
+                  + dbType
+                  + "' for backend label. Allowed values: h2, derby, mysql, sqlserver, oracle");
     };
   }
 

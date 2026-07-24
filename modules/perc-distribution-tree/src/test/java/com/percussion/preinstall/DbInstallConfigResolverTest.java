@@ -43,6 +43,19 @@ class DbInstallConfigResolverTest {
   }
 
   @Test
+  void backendLabelForTypeFailsFastOnUnknown() {
+    assertEquals("H2", DbInstallConfigResolver.backendLabelForType("h2"));
+    assertEquals("DERBY", DbInstallConfigResolver.backendLabelForType("derby"));
+    assertEquals("MYSQL", DbInstallConfigResolver.backendLabelForType("mysql"));
+    IllegalArgumentException ex =
+        assertThrows(
+            IllegalArgumentException.class,
+            () -> DbInstallConfigResolver.backendLabelForType("postgres"));
+    assertTrue(ex.getMessage().contains("postgres"));
+    assertTrue(ex.getMessage().toLowerCase().contains("allowed"));
+  }
+
+  @Test
   void structuredMysqlMapsCmsFieldsWithMariaDbDriver() {
     Map<String, String> opts = new HashMap<>();
     opts.put("db.type", "mysql");
