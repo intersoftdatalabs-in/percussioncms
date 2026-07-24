@@ -97,4 +97,90 @@ public class PSDtsEmbeddedRepositoryMigratorTest {
         new PSDtsEmbeddedRepositoryMigrator(install, new Properties(), false);
     assertEquals(PSMigrationOutcome.SKIPPED_NON_DERBY, m.migrateService("percmetadata"));
   }
+
+  @Test
+  void detectDoesNotConflateOtherServiceDerby() throws Exception {
+    Path server = root.resolve("Deployment").resolve("Server");
+    // metadata already on H2
+    Path meta =
+        server
+            .resolve("webapps")
+            .resolve("perc-metadata-services")
+            .resolve("WEB-INF")
+            .resolve("perc-datasources.properties");
+    Files.createDirectories(meta.getParent());
+    Files.writeString(
+        meta,
+        "jdbcDriver=org.h2.Driver\njdbcUrl=jdbc:h2:file:${catalina.home}/h2data/percmetadata\n",
+        StandardCharsets.UTF_8);
+    // comments still Derby
+    Path comments =
+        server
+            .resolve("webapps")
+            .resolve("perc-comments-services")
+            .resolve("WEB-INF")
+            .resolve("perc-datasources.properties");
+    Files.createDirectories(comments.getParent());
+    Files.writeString(
+        comments,
+        "jdbcDriver=org.apache.derby.jdbc.EmbeddedDriver\n"
+            + "jdbcUrl=jdbc:derby:${catalina.home}/derbydata/perccomments\n",
+        StandardCharsets.UTF_8);
+    Files.createDirectories(server.resolve("derbydata").resolve("perccomments"));
+
+    var metaDet =
+        PSDtsEmbeddedRepositoryMigrator.detect(
+            server, "percmetadata", server.resolve("derbydata").resolve("percmetadata"));
+    assertEquals(
+        PSDtsEmbeddedRepositoryMigrator.DetectionClass.ALREADY_H2, metaDet.classification());
+
+    var commentsDet =
+        PSDtsEmbeddedRepositoryMigrator.detect(
+            server, "perccomments", server.resolve("derbydata").resolve("perccomments"));
+    assertEquals(
+        PSDtsEmbeddedRepositoryMigrator.DetectionClass.PRODUCT_MANAGED_DERBY,
+        commentsDet.classification());
+  }
+
+  @Test
+  void cutoverDoesNotRewriteOtherServiceDerby() throws Exception {
+    Path server = root.resolve("Deployment").resolve("Server");
+    Path meta =
+        server
+            .resolve("webapps")
+            .resolve("perc-metadata-services")
+            .resolve("WEB-INF")
+            .resolve("perc-datasources.properties");
+    Path comments =
+        server
+            .resolve("webapps")
+            .resolve("perc-comments-services")
+            .resolve("WEB-INF")
+            .resolve("perc-datasources.properties");
+    Files.createDirectories(meta.getParent());
+    Files.createDirectories(comments.getParent());
+    Files.writeString(
+        meta,
+        "jdbcDriver=org.apache.derby.jdbc.EmbeddedDriver\n"
+            + "jdbcUrl=jdbc:derby:${catalina.home}/derbydata/percmetadata\n",
+        StandardCharsets.UTF_8);
+    String commentsBody =
+        "jdbcDriver=org.apache.derby.jdbc.EmbeddedDriver\n"
+            + "jdbcUrl=jdbc:derby:${catalina.home}/derbydata/perccomments\n";
+    Files.writeString(comments, commentsBody, StandardCharsets.UTF_8);
+
+    PSDtsEmbeddedRepositoryMigrator.cutoverServiceConfigs(
+        server, "percmetadata", server.resolve("h2data").resolve("percmetadata"));
+
+    Properties commentsProps = new Properties();
+    try (var in = Files.newInputStream(comments)) {
+      commentsProps.load(in);
+    }
+    assertTrue(
+        commentsProps.getProperty("jdbcUrl").contains("derbydata/perccomments"),
+        "other service Derby URL must remain intact");
+    assertTrue(
+        commentsProps.getProperty("jdbcDriver").contains("derby"),
+        "other service Derby driver must remain intact");
+  }
 }

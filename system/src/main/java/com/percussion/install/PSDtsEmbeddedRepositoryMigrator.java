@@ -243,10 +243,12 @@ public class PSDtsEmbeddedRepositoryMigrator {
   record Detection(DetectionClass classification, String sourceLabel) {}
 
   static Detection detect(Path serverRoot, String serviceName, Path derbyDir) throws IOException {
-    List<Path> propFiles = findDatasourcePropertyFiles(serverRoot);
+    // Only inspect property files that belong to this service (mixed-backend safe)
+    List<Path> propFiles = findDatasourcePropertyFilesForService(serverRoot, serviceName);
     boolean sawDerby = false;
     boolean sawH2 = false;
     boolean sawExternal = false;
+    String svc = serviceName.toLowerCase(Locale.ROOT);
     for (Path propsPath : propFiles) {
       Properties p = loadProps(propsPath);
       String url = firstNonBlank(p.getProperty("jdbcUrl"), p.getProperty("jdbc.url"));
@@ -254,7 +256,12 @@ public class PSDtsEmbeddedRepositoryMigrator {
       if (url == null && driver == null) {
         continue;
       }
-      String combined = ((url == null ? "" : url) + " " + (driver == null ? "" : driver)).toLowerCase(Locale.ROOT);
+      String combined =
+          ((url == null ? "" : url) + " " + (driver == null ? "" : driver)).toLowerCase(Locale.ROOT);
+      // Require service name in path or URL so global conf/perc is only used when it targets us
+      if (!pathOrUrlMentionsService(propsPath, url, svc)) {
+        continue;
+      }
       if (combined.contains("h2")) {
         sawH2 = true;
       } else if (combined.contains("derby")) {
@@ -263,6 +270,7 @@ public class PSDtsEmbeddedRepositoryMigrator {
         sawExternal = true;
       }
     }
+    // Local derbydata/<service> is authoritative for product-managed Derby
     if (sawDerby || Files.isDirectory(derbyDir)) {
       return new Detection(DetectionClass.PRODUCT_MANAGED_DERBY, PSJdbcUtils.DERBY_DB_BACKEND);
     }
@@ -275,54 +283,89 @@ public class PSDtsEmbeddedRepositoryMigrator {
     return new Detection(DetectionClass.NO_SOURCE, "NONE");
   }
 
-  static List<Path> findDatasourcePropertyFiles(Path serverRoot) throws IOException {
+  /**
+   * Datasource property files that belong to {@code serviceName} (path and/or jdbc URL mention the
+   * service token). Scans candidates then filters so mixed estates are not conflated.
+   */
+  static List<Path> findDatasourcePropertyFilesForService(Path serverRoot, String serviceName)
+      throws IOException {
+    String svc = serviceName.toLowerCase(Locale.ROOT);
     List<Path> found = new ArrayList<>();
     if (!Files.isDirectory(serverRoot)) {
       return found;
     }
+    List<Path> candidates = new ArrayList<>();
     try (var walk = Files.walk(serverRoot, 8)) {
       walk.filter(Files::isRegularFile)
           .filter(
               p -> {
                 String n = p.getFileName().toString();
-                return n.equals("perc-datasources.properties")
-                    || n.endsWith("-services.properties")
-                    || n.equals("perc-datasources.properties");
+                return n.equals("perc-datasources.properties") || n.endsWith("-services.properties");
               })
-          .forEach(found::add);
+          .forEach(candidates::add);
     }
-    Path confPerc = serverRoot.resolve("conf").resolve("perc").resolve("perc-datasources.properties");
-    if (Files.isRegularFile(confPerc) && !found.contains(confPerc)) {
-      found.add(confPerc);
+    for (Path p : candidates) {
+      Properties props = loadProps(p);
+      String url = firstNonBlank(props.getProperty("jdbcUrl"), props.getProperty("jdbc.url"));
+      if (pathOrUrlMentionsService(p, url, svc)) {
+        found.add(p);
+      }
     }
     return found;
   }
 
+  /** Map service db dir names to common webapp path fragments. */
+  static String serviceWebappHint(String serviceLower) {
+    // percmetadata → metadata; perccomments → comments; etc.
+    if (serviceLower.startsWith("perc")) {
+      return serviceLower.substring(4);
+    }
+    return serviceLower;
+  }
+
+  static boolean pathOrUrlMentionsService(Path propsPath, String url, String serviceLower) {
+    String pathLower = propsPath.toString().toLowerCase(Locale.ROOT).replace('\\', '/');
+    if (pathLower.contains(serviceLower) || pathLower.contains(serviceWebappHint(serviceLower))) {
+      return true;
+    }
+    if (url != null) {
+      String u = url.toLowerCase(Locale.ROOT);
+      return u.contains(serviceLower) || u.contains("derbydata/" + serviceLower)
+          || u.contains("h2data/" + serviceLower);
+    }
+    return false;
+  }
+
   static void cutoverServiceConfigs(Path serverRoot, String serviceName, Path h2Base)
       throws IOException {
-    // Portable JDBC path with forward slashes
     String abs = h2Base.toAbsolutePath().normalize().toString().replace('\\', '/');
     String h2Url = "jdbc:h2:file:" + abs + ";DB_CLOSE_ON_EXIT=FALSE";
-    // Also write catalina-relative form for product defaults
     String relativeUrl =
         "jdbc:h2:file:${catalina.home}/h2data/" + serviceName + ";DB_CLOSE_ON_EXIT=FALSE";
+    String svc = serviceName.toLowerCase(Locale.ROOT);
 
-    for (Path propsPath : findDatasourcePropertyFiles(serverRoot)) {
+    // Only rewrite property files that clearly target this service
+    for (Path propsPath : findDatasourcePropertyFilesForService(serverRoot, serviceName)) {
       Properties p = loadProps(propsPath);
       String url = firstNonBlank(p.getProperty("jdbcUrl"), p.getProperty("jdbc.url"));
       if (url == null) {
         continue;
       }
-      String lower = url.toLowerCase(Locale.ROOT);
-      // Only rewrite files that reference this service's derby path or generic derby for service
-      boolean forService =
-          lower.contains(serviceName.toLowerCase(Locale.ROOT))
-              || lower.contains("derbydata")
-              || (lower.contains("jdbc:derby") && lower.contains(serviceName.toLowerCase(Locale.ROOT)));
-      if (!forService && !lower.contains("jdbc:derby")) {
+      if (!pathOrUrlMentionsService(propsPath, url, svc)) {
         continue;
       }
-      if (!lower.contains("derby") && !lower.contains(serviceName.toLowerCase(Locale.ROOT))) {
+      String lower = url.toLowerCase(Locale.ROOT);
+      // Do not rewrite already-H2 or external URLs that do not mention this service
+      boolean needsCutover =
+          lower.contains("derby")
+              || lower.contains("derbydata/" + svc)
+              || lower.contains("h2data/" + svc)
+              || lower.contains(svc);
+      if (!needsCutover) {
+        continue;
+      }
+      // Never rewrite a URL that points at a *different* service data dir
+      if (pointsAtDifferentService(lower, svc)) {
         continue;
       }
       if (p.containsKey("jdbcUrl")) {
@@ -343,7 +386,6 @@ public class PSDtsEmbeddedRepositoryMigrator {
       if (p.containsKey("db.schema")) {
         p.setProperty("db.schema", "PUBLIC");
       }
-      // Clear Derby T/F substitutions when present
       if (p.containsKey("hibernate.query.substitutions")) {
         String sub = p.getProperty("hibernate.query.substitutions", "");
         if (sub.contains("true") && sub.contains("T")) {
@@ -353,6 +395,25 @@ public class PSDtsEmbeddedRepositoryMigrator {
       writeProps(propsPath, p);
       LOG.info(() -> "DTS cutover wrote " + propsPath + " -> " + relativeUrl + " (abs=" + h2Url + ")");
     }
+  }
+
+  /**
+   * True if JDBC URL clearly targets another known service's data directory.
+   */
+  static boolean pointsAtDifferentService(String urlLower, String thisServiceLower) {
+    for (String other : DEFAULT_SERVICES) {
+      String o = other.toLowerCase(Locale.ROOT);
+      if (o.equals(thisServiceLower)) {
+        continue;
+      }
+      if (urlLower.contains("derbydata/" + o)
+          || urlLower.contains("h2data/" + o)
+          || urlLower.endsWith("/" + o)
+          || urlLower.contains("/" + o + ";")) {
+        return true;
+      }
+    }
+    return false;
   }
 
   static Properties buildDerbySourceProps(Path derbyDir) {
