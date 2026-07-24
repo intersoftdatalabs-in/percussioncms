@@ -103,4 +103,29 @@ public class PSLoginServletTest {
             request, "http://evil.example/path"));
     assertEquals("index.jsp", PSLoginServlet.validatePostLoginRedirectCandidate(request, "index.jsp"));
   }
+
+  @Test
+  public void testRebuildRedirectTargetDoesNotDoubleEncode() {
+    // Jetty 12: Ambiguous URI path encoding when % is re-encoded to %25
+    String withEncodedSpace = "http://perc-test:9992/path%20x";
+    assertEquals(withEncodedSpace, PSLoginServlet.rebuildRedirectTarget(withEncodedSpace));
+    assertFalse(PSLoginServlet.rebuildRedirectTarget(withEncodedSpace).contains("%25"));
+
+    String loginSysRedirect =
+        "/login?sys_redirect=http%3a%2f%2flocalhost%3a9992%2fRhythmyx%2fcm%2fapp";
+    assertEquals(loginSysRedirect, PSLoginServlet.rebuildRedirectTarget(loginSysRedirect));
+  }
+
+  @Test
+  public void testResolveSafePostLoginRedirectDecodesOverEncodedSysRedirect() {
+    // Realistic session value after getParameter once-decodes a double-encoded Location query
+    request.setScheme("http");
+    request.setServerPort(9992);
+    request.setServerName("localhost");
+
+    String stillEncoded = "http%3a%2f%2flocalhost%3a9992%2fRhythmyx%2fcm%2fapp";
+    assertEquals(
+        "http://localhost:9992/Rhythmyx/cm/app",
+        PSLoginServlet.resolveSafePostLoginRedirect(request, stillEncoded));
+  }
 }
