@@ -86,7 +86,10 @@ class EmsEventListRemovalTest {
         List.of(
             "system/config/delivery-servers.xml",
             "system/config/delivery-servers.xml.dev",
-            "system/config/delivery-servers.xml.qa")) {
+            "system/config/delivery-servers.xml.qa",
+            // Test fixtures also scrubbed in this PR — keep covered so they cannot regress
+            "projects/sitemanage/src/test/resources/deliveries/FailingToLoadTest.xml",
+            "projects/sitemanage/src/test/java/com/percussion/delivery/service/impl/FailingToLoadTest.xml")) {
       Path cfg = root.resolve(rel);
       assertTrue(Files.isRegularFile(cfg), "missing delivery-servers config: " + rel);
       String xml = Files.readString(cfg, StandardCharsets.UTF_8);
