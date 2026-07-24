@@ -548,5 +548,30 @@ class PSRedirectValidationTest {
       assertEquals("/cm/app", PSRedirectValidation.decodeOverEncodedRedirect("/cm/app"));
       assertEquals("index.jsp", PSRedirectValidation.decodeOverEncodedRedirect("index.jsp"));
     }
+
+    @Test
+    @DisplayName("Decodes path-absolute percent sequences before .. gate (e.g. %2e%2e)")
+    void decodesPathAbsoluteEncodedDotDot() {
+      assertEquals(
+          "/../secret", PSRedirectValidation.decodeOverEncodedRedirect("/%2e%2e/secret"));
+      assertEquals(
+          "/../secret", PSRedirectValidation.decodeOverEncodedRedirect("/%2E%2E/secret"));
+    }
+  }
+
+  @Nested
+  @DisplayName("rebuildValidatedRedirect — path-less absolute URIs")
+  class RebuildPathlessAbsoluteTests {
+
+    @Test
+    @DisplayName("Does not force trailing slash on path-less absolute hosts")
+    void rebuildPreservesPathlessAbsolute() {
+      assertEquals(
+          "http://example.com",
+          PSRedirectValidation.rebuildValidatedRedirect("http://example.com"));
+      assertEquals(
+          "https://example.com:8443",
+          PSRedirectValidation.rebuildValidatedRedirect("https://example.com:8443"));
+    }
   }
 }

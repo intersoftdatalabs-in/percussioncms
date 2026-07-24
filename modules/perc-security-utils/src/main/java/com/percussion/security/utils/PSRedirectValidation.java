@@ -258,8 +258,12 @@ public class PSRedirectValidation {
         if (parsed.getRawAuthority() != null) {
           sb.append("//").append(parsed.getRawAuthority());
         }
+        // Preserve path-less absolute form (http://host) — do not force a trailing "/".
+        // Only emit an explicit path when the URI had one (including empty path as "").
         String path = parsed.getRawPath();
-        sb.append(path != null && !path.isEmpty() ? path : "/");
+        if (path != null && !path.isEmpty()) {
+          sb.append(path);
+        }
         if (parsed.getRawQuery() != null) {
           sb.append('?').append(parsed.getRawQuery());
         }
@@ -303,8 +307,10 @@ public class PSRedirectValidation {
    * Undoes accidental over-encoding of redirect targets (e.g. double-encoded {@code sys_redirect}
    * values left in bookmarks or older sessions).
    *
-   * <p>Stops when the value looks like a normal absolute URL ({@code scheme://}) or a path-absolute
-   * internal redirect, or after a small fixed number of decode rounds.
+   * <p>Stops when the value looks like a normal absolute URL ({@code scheme://}) without remaining
+   * {@code http%} prefix encoding, or a path-absolute redirect with no remaining percent escapes,
+   * or after a small fixed number of decode rounds. Path-absolute values that still contain {@code
+   * %} (e.g. {@code /%2e%2e/secret}) continue decoding so later {@code ..} gates see real dots.
    *
    * @param candidate redirect candidate, may be {@code null}
    * @return decoded candidate, or original when blank/undecodable
@@ -319,7 +325,12 @@ public class PSRedirectValidation {
       boolean pathAbsolute = current.startsWith("/") && !current.startsWith("//");
       boolean stillEncodedAbsolute =
           startsWithIgnoreCase(current, "http%") || startsWithIgnoreCase(current, "https%");
-      if ((absolute || pathAbsolute) && !stillEncodedAbsolute) {
+      // Absolute http(s) URL fully decoded — done
+      if (absolute && !stillEncodedAbsolute) {
+        return current;
+      }
+      // Path-absolute with no remaining percent escapes — done (decode first if % present)
+      if (pathAbsolute && !stillEncodedAbsolute && !current.contains("%")) {
         return current;
       }
       if (!current.contains("%")) {

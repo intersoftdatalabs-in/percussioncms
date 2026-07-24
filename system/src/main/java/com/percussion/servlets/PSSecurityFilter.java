@@ -1384,13 +1384,14 @@ public class PSSecurityFilter implements Filter {
       // and breaks Jetty UriCompliance (Ambiguous URI path encoding) on login sys_redirect.
       String redirect = PSRedirectValidation.rebuildValidatedRedirect(safe);
       if (redirect == null) {
-        ms_log.warn("Failed to rebuild redirect location: {}", sanitizeForLog(location));
+        // Log validated target (safe), not raw location — more actionable on rebuild failure
+        ms_log.warn("Failed to rebuild redirect location: {}", sanitizeForLog(safe));
         response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Invalid redirect location");
         return;
       }
       response.sendRedirect(redirect);
     } catch (Exception e) {
-      ms_log.warn("Failed to rebuild redirect location: {}", sanitizeForLog(location));
+      ms_log.warn("Failed to rebuild redirect location: {}", sanitizeForLog(safe));
       response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Invalid redirect location");
     }
   }
