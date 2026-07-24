@@ -115,7 +115,8 @@ public class PSEmbeddedRepositoryMigrator {
       PSMigrationOutcome skip = PSEmbeddedRepositoryDetector.toSkipOutcome(classification);
       if (skip != null) {
         outcome = skip;
-        gateKind = PSBackupGateKind.NOT_SATISFIED;
+        // Gate was not evaluated — leave backupGate blank-equivalent via null-safe report field
+        gateKind = null;
         writeReport(outcome, gateKind, sourceBackend, targetBackend, null);
         logOutcome(outcome, "skip path for classification=" + classification);
         return outcome;
@@ -134,7 +135,9 @@ public class PSEmbeddedRepositoryMigrator {
               "Product offline backup failed: "
                   + PSMigrationSecretsRedactor.redact(backupEx.getMessage());
           outcome = PSMigrationOutcome.BLOCKED_BACKUP_GATE;
-          writeReport(outcome, PSBackupGateKind.NOT_SATISFIED, sourceBackend, targetBackend, failureReason);
+          // Preserve that product backup was attempted (observability)
+          writeReport(
+              outcome, PSBackupGateKind.PRODUCT_BACKUP, sourceBackend, targetBackend, failureReason);
           logOutcome(outcome, failureReason);
           return outcome;
         }
@@ -316,15 +319,34 @@ public class PSEmbeddedRepositoryMigrator {
     if (server.isBlank()) {
       return installRoot.resolve("Repository");
     }
-    // Embedded directory-style server under Repository
-    if (!server.startsWith("//") && !server.regionMatches(true, 0, "file:", 0, 5)) {
-      Path p = Path.of(server);
+    String trimmed = server.trim();
+    // H2 / file-URL form: file:/abs/path/CMDB;params or file:relative;params
+    if (trimmed.regionMatches(true, 0, "file:", 0, 5)) {
+      String pathAndParams = trimmed.substring(5);
+      int semi = pathAndParams.indexOf(';');
+      String pathPart = semi >= 0 ? pathAndParams.substring(0, semi) : pathAndParams;
+      Path p = Path.of(pathPart);
       if (!p.isAbsolute()) {
-        return installRoot.resolve("Repository").resolve(server.split(";")[0]);
+        Path base = installRoot.resolve("jetty").resolve("base");
+        if (!java.nio.file.Files.isDirectory(base)) {
+          base = installRoot;
+        }
+        p = base.resolve(pathPart).normalize();
       }
-      return p;
+      // Parent of CMDB file base is the repository data directory when present
+      Path parent = p.getParent();
+      return parent != null ? parent : p;
     }
-    return installRoot.resolve("Repository");
+    // Networked Derby ClientDriver form //host:port/... — no local data dir
+    if (trimmed.startsWith("//")) {
+      return installRoot.resolve("Repository");
+    }
+    // Embedded directory-style server under Repository
+    Path p = Path.of(trimmed.split(";")[0]);
+    if (!p.isAbsolute()) {
+      return installRoot.resolve("Repository").resolve(p);
+    }
+    return p;
   }
 
   private boolean diskPrecheck(Path volumePath) {

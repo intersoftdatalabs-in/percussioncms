@@ -31,7 +31,7 @@ public final class PSMigrationSecretsRedactor {
   /** Matches {@code password=...}, {@code pwd=...}, {@code PWD=...} style tokens. */
   private static final Pattern PASSWORD_KEY =
       Pattern.compile(
-          "(?i)((?:password|pwd|passwd|secret|token)\\s*[=:]\\s*)([^\\s,;&\"']+)",
+          "((?:password|pwd|passwd|secret|token)\\s*[=:]\\s*)([^\\s,;&\"']+)",
           Pattern.CASE_INSENSITIVE);
 
   /** Matches userinfo in JDBC URLs: {@code jdbc:...://user:pass@host}. */

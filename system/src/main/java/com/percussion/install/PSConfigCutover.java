@@ -190,18 +190,14 @@ public final class PSConfigCutover {
     if (!Files.isRegularFile(live)) {
       return;
     }
-    Path rel;
-    // Prefer storing under same relative structure from install root when possible
-    Path name = live.getFileName();
-    Path dest = backupDir.resolve(name);
-    // Also keep a path-keyed copy using sanitized full relative path
+    // Unique name from absolute path so multiple config surfaces do not collide
     String safe =
         live.toAbsolutePath()
             .toString()
             .replace(':', '_')
             .replace('\\', '_')
             .replace('/', '_');
-    dest = backupDir.resolve(safe);
+    Path dest = backupDir.resolve(safe);
     Files.copy(live, dest, StandardCopyOption.REPLACE_EXISTING);
     backups.put(live, dest);
   }

@@ -17,12 +17,14 @@
 package com.percussion.install;
 
 import java.io.IOException;
+import java.nio.file.FileVisitOption;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.util.EnumSet;
 import java.util.Objects;
 
 /**
@@ -107,8 +109,13 @@ public final class PSRepositoryOfflineBackup {
 
   private static CopyStats copyTree(Path source, Path target) throws IOException {
     CopyStats stats = new CopyStats();
+    // FOLLOW_LINKS so symlinked repository subtrees (if present) are copied as content,
+    // not as empty placeholder directories. Offline backup only; operator has stopped the
+    // instance (FR-020).
     Files.walkFileTree(
         source,
+        EnumSet.of(FileVisitOption.FOLLOW_LINKS),
+        Integer.MAX_VALUE,
         new SimpleFileVisitor<>() {
           @Override
           public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs)
@@ -125,7 +132,11 @@ public final class PSRepositoryOfflineBackup {
             Path rel = source.relativize(file);
             Path dest = target.resolve(rel.toString());
             Files.createDirectories(dest.getParent());
-            Files.copy(file, dest, StandardCopyOption.REPLACE_EXISTING);
+            Files.copy(
+                file,
+                dest,
+                StandardCopyOption.REPLACE_EXISTING,
+                StandardCopyOption.COPY_ATTRIBUTES);
             stats.files++;
             stats.bytes += attrs.size();
             return FileVisitResult.CONTINUE;
