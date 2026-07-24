@@ -73,9 +73,9 @@ class DtsInstallerJarContainsTomcatTreeTest {
     assertContains(entries, SERVER_PREFIX + "bin/catalina.bat");
 
     // Windows Procrun / service binaries ship in rootFiles (install root of the jar
-    // payload). installDts.xml later copies tomcat10.exe into Server/bin on Windows.
-    assertContains(entries, "distribution/tomcat10.exe");
-    assertContains(entries, "distribution/tomcat10w.exe");
+    // payload). installDts.xml later copies tomcat11.exe into Server/bin on Windows.
+    assertContains(entries, "distribution/tomcat11.exe");
+    assertContains(entries, "distribution/tomcat11w.exe");
 
     for (String war : DTS_WARS) {
       assertContains(entries, SERVER_PREFIX + "webapps/" + war);

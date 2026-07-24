@@ -9,9 +9,21 @@ This module contains all the configuration files for DTS. For e.g.
 * DTS tomcat configurations
 etc...
 
-## Java 17 Refactoring Status
+## Runtime platform (Jakarta EE 11 / Tomcat 11)
 
-✅ **Fully refactored to Java 17** (August 4, 2025)
+| Item | Value |
+|------|--------|
+| Tomcat version property | `${tomcat.version}` (currently **11.0.x**) in `delivery-tier-suite/pom.xml` |
+| Cargo container | **`tomcat11x`** via `cargo-maven3-plugin` |
+| Conf overlay source | `src/main/tomcat11/` |
+| Windows Procrun | `rootFiles/tomcat11.exe` + `tomcat11w.exe` (installed by `installDts.xml`) |
+| Windows service scripts | `DTSProductionService.bat` / `DTSStagingService.bat` → **`tomcat11.exe`** |
+
+Residual checklist: `docs/ai-generated/tasks/667-jakarta-ee11-residual-checklist/README.md` (issue #667).
+
+## Java baseline
+
+✅ Builds and runs on **JDK 21** (product baseline for 8.2). Historical notes below refer to earlier refactors.
 
 ### Refactored Classes:
 
