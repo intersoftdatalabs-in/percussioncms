@@ -108,7 +108,7 @@
 - [x] T048 [US2] Integration test multi-file cutover consistency (`rxrepository` + Jetty perc-ds labels both H2 after SUCCESS; mid-cutover restore) — **QC-009**, **FR-013** (`PSConfigCutoverTest`)
 - [x] T049 [US2] Boolean/BIT and CLOB content probes in migration IT — **QC-004**, **QC-005**, **FR-007** (covered by TableFactory transfer IT + CHAR flag fixtures)
 - [x] T050 [US2] Scale fixture path for ≥1000 content items (generator or loader) + wall-clock log to `specs/548-derby-embedded-migration/checklists/migration-timing.md` — **QC-029** **hard gate for SC-002**
-- [ ] T051 [P] [US2] DTS per-service migration IT (at least metadata + one other service) under delivery-tier test trees — **QC-012**, **FR-006**, **SC-003**
+- [x] T051 [P] [US2] DTS per-service migration IT (at least metadata + one other service) under delivery-tier test trees — **QC-012**, **FR-006**, **SC-003** (`PSDtsEmbeddedRepositoryMigratorTest` dual-service detect/cutover isolation)
 - [x] T052 [US2] Test durable migration report file written under install tree (path per observability contract) readable after SUCCESS/FAILED/SKIPPED — **FR-017** (covered in `PSEmbeddedRepositoryMigratorTest`)
 
 ### Implementation
@@ -194,7 +194,7 @@
 - [x] T086 [US5] Document **CMS+DTS upgrade sequence** (from T065) and mixed-estate behavior for operators in the same docs tree
 - [x] T087 [US5] Publish **migration duration / disk sizing guidance** table in `docs/ai-generated/tasks/548-derby-embedded-migration/migration-sizing.md` using T050 wall-clock + disk precheck formula (source + target + temp + backup) — plan WP6 / spec large-repo edge case
 - [x] T088 [US5] Ensure backup helper refuses/warns if used while instance is live when that can be detected; docs state stop-first
-- [ ] T089 [US5] Cross-platform script notes: any helper under `scripts/` has `.bat` counterpart or Java/Maven entry point per AGENTS; inventory script already requires `.bat` (T004)
+- [x] T089 [US5] Cross-platform script notes: any helper under `scripts/` has `.bat` counterpart or Java/Maven entry point per AGENTS; inventory script already requires `.bat` (T004) — **N/A this change set**: no new `scripts/` helpers; product path is Java migrator + ANT
 - [ ] T090 [US5] Commit docs + tests; PR “548 US5 backup restore”; review/merge
 
 ---
