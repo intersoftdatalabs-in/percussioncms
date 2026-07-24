@@ -115,8 +115,7 @@ public class PSEmbeddedRepositoryMigrator {
       PSMigrationOutcome skip = PSEmbeddedRepositoryDetector.toSkipOutcome(classification);
       if (skip != null) {
         outcome = skip;
-        // Gate was not evaluated — leave backupGate blank-equivalent via null-safe report field
-        gateKind = null;
+        gateKind = PSBackupGateKind.NOT_EVALUATED;
         writeReport(outcome, gateKind, sourceBackend, targetBackend, null);
         logOutcome(outcome, "skip path for classification=" + classification);
         return outcome;
@@ -325,7 +324,15 @@ public class PSEmbeddedRepositoryMigrator {
       String pathAndParams = trimmed.substring(5);
       int semi = pathAndParams.indexOf(';');
       String pathPart = semi >= 0 ? pathAndParams.substring(0, semi) : pathAndParams;
-      Path p = Path.of(pathPart);
+      if (pathPart == null || pathPart.isBlank()) {
+        return installRoot.resolve("Repository");
+      }
+      Path p;
+      try {
+        p = Path.of(pathPart);
+      } catch (Exception e) {
+        return installRoot.resolve("Repository");
+      }
       if (!p.isAbsolute()) {
         Path base = installRoot.resolve("jetty").resolve("base");
         if (!java.nio.file.Files.isDirectory(base)) {

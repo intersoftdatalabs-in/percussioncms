@@ -90,9 +90,12 @@ public final class PSMigrationReportWriter {
     Properties props = new Properties();
     props.setProperty("component", nullToEmpty(report.component()));
     props.setProperty("outcome", report.outcome() == null ? "" : report.outcome().name());
-    // Empty when gate was not evaluated (e.g. SKIPPED_NON_DERBY / ALREADY_MIGRATED)
+    // NOT_EVALUATED when gate was not applied (skip paths); never leave blank
     props.setProperty(
-        "backupGate", report.backupGate() == null ? "NOT_EVALUATED" : report.backupGate().name());
+        "backupGate",
+        report.backupGate() == null
+            ? PSBackupGateKind.NOT_EVALUATED.name()
+            : report.backupGate().name());
     props.setProperty("sourceBackend", nullToEmpty(report.sourceBackend()));
     props.setProperty("targetBackend", nullToEmpty(report.targetBackend()));
     props.setProperty(
