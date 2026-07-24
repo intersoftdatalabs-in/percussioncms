@@ -11,8 +11,9 @@ SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 INSTALL_ROOT="${SCRIPT_DIR}"
 export SERVER_DIR="${INSTALL_ROOT}/Deployment/Server"
 
-# Resolve Java via shared precedence contract (java.properties > env > install-dir
-# JRE|JRE64 > PATH > fail, major 21). Required operator step before service start.
+# GH-991: install-time selection wrote java.properties; resolve it (not a
+# mandatory <InstallRoot>/JRE). Precedence: java.properties > env >
+# optional legacy JRE|JRE64 > PATH > fail (major 21+).
 # See specs/991-system-java-home/contracts/java-home-resolution.md.
 # shellcheck disable=SC1091
 source "${SCRIPT_DIR}/resolve-java-home.sh" "$INSTALL_ROOT" || exit 1

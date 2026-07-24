@@ -34,28 +34,28 @@ etc...
 
 ## Java home resolution (GH-991 / issue #1340)
 
-Operators no longer have to copy or symlink a JRE into `<InstallDir>/JRE`.
-DTS console and service install paths use the same precedence contract as
-CMS Jetty (see `specs/991-system-java-home/contracts/`):
+Operators **do not** need to place a JRE under `<InstallDir>/JRE`. At DTS
+install time the preinstall selects a system JDK/JRE (or honors
+`-Dperc.java.home=...`) and writes `<InstallDir>/java.properties`. Console
+and service scripts **must** resolve Java through that contract (see
+`specs/991-system-java-home/contracts/`):
 
-1. `<InstallDir>/java.properties` (`JAVA_HOME`, optionally `JAVA`) — install-persisted
+1. `<InstallDir>/java.properties` (`JAVA_HOME`, optionally `JAVA`) — **primary**
 2. Process `JAVA_HOME` environment variable
-3. Legacy `<InstallDir>/JRE` then `<InstallDir>/JRE64` (operator copy or symlink)
+3. Optional legacy `<InstallDir>/JRE` then `<InstallDir>/JRE64` (if an operator still has one)
 4. `java` discoverable on `PATH`
-5. Fail with actionable message that names major version **21** and lists sources tried
+5. **Hard fail** with major **21+** and sources tried — never soft-fail into an unvalidated JRE path
 
 Resolve helpers (`resolve-java-home.sh` / `.bat`) ship in
 `src/main/rootFiles/` next to `TomcatStartup.*` / `TomcatShutdown.*`.
-`installDts.xml` places those files at the **install root** (and under
-`Staging/` for staging). Service installers are copied under
-`Deployment/Server/` and therefore resolve the helper **two levels up**
-(`INSTALL_ROOT` / `%~dp0..\..`). Console scripts resolve the helper from
-the **same directory** as the script (`SCRIPT_DIR`), not the parent —
-Jetty-style `SCRIPT_DIR/..` paths are wrong for DTS. Both consoles and both
-service installers source/call the helper before populating Procrun
-`--JavaHome` or `/etc/default/<service>`. See
-`specs/991-system-java-home/quickstart.md` (Smoke B and migration notes)
-for re-point steps.
+`installDts.xml` places those files at the **product surface root** (and under
+`Staging/` for staging). Service installers live under
+`Deployment/Server/` and locate the surface root **two levels up**. Console
+scripts use the **same directory** as the script (`SCRIPT_DIR`) as the surface
+root. Both consoles and both service installers **hard-fail** if resolve fails
+before writing Procrun `--JavaHome` or `/etc/default/<service>`. See
+`specs/991-system-java-home/quickstart.md` for re-point steps (edit
+`java.properties`, restart — no JRE folder required).
 ## Linux services (systemd) — GH-962
 
 Production and Staging installers under `src/main/rootFiles/` prefer **native systemd**

@@ -244,16 +244,11 @@ distVersion=$(cat /proc/version 2>&1 || true)
 # Service script is installed at <InstallRoot>/Deployment/Server/ (see installDts.xml).
 CATALINA_HOME=$(dirname "$(abspath "$0")")
 EXECUTABLE="${CATALINA_HOME}/bin/catalina.sh"
-# Install root holds resolve-java-home.sh and java.properties (two levels up from Server).
+# Product surface root: two levels up from Server. Holds resolve-java-home.sh and
+# (after install-time selection) java.properties — not a mandatory JRE folder.
 INSTALL_ROOT="$(cd "${CATALINA_HOME}/../.." && pwd)"
-# rxDir remains the Deployment parent for chown scope (not the whole CMS tree when co-located).
-if [ -d "$(dirname "${CATALINA_HOME}")/JRE" ]; then
-	rxDir=$(dirname "${CATALINA_HOME}")
-elif [ -d "${CATALINA_HOME}/JRE" ]; then
-	rxDir=${CATALINA_HOME}
-else
-	rxDir=$(dirname "${CATALINA_HOME}")
-fi
+# Deployment parent for chown only (do not chown the whole CMS tree when co-located).
+rxDir="$(cd "${CATALINA_HOME}/.." && pwd)"
 RX_USER=$(ls -ld "${INSTALL_ROOT}" | awk '{print $3}')
 RX_GROUP=$(ls -ld "${INSTALL_ROOT}" | awk '{print $4}')
 TOMCAT_RUN=${RUN_PARENT}/${SERVICE_NAME}
@@ -280,41 +275,26 @@ if [ "$uninstall" != "true" ]; then
 	echo "INSTALL_ROOT=${INSTALL_ROOT}"
 	echo "rxDir=${rxDir}"
 
-	if [ -d "${INSTALL_ROOT}/JRE" ]; then
-		echo "Legacy ${INSTALL_ROOT}/JRE found; will be overridden by shared resolver if available"
-	fi
-
-	# Resolve Java via the shared precedence contract (java.properties > env
-	# JAVA_HOME > install-dir JRE|JRE64 > PATH > fail, major 21). When resolution
-	# produces a valid home, it overrides the legacy heuristic. See
-	# specs/991-system-java-home/contracts/java-home-resolution.md.
-	# Helper ships at install root next to TomcatStartup.* (not under Deployment/).
+	# GH-991 / issue #1340: operators pick Java at install time; the preinstall
+	# writes <INSTALL_ROOT>/java.properties. Runtime and service install MUST
+	# use resolve-java-home (java.properties > env > optional legacy JRE/JRE64 >
+	# PATH > fail). Do NOT require <INSTALL_ROOT>/JRE and do NOT soft-fail into
+	# an unvalidated JRE path. See specs/991-system-java-home/contracts/.
 	RESOLVER="${INSTALL_ROOT}/resolve-java-home.sh"
-	if [ -f "$RESOLVER" ] && [ -r "$RESOLVER" ]; then
-		# Source the resolver directly into the installer shell (NOT a subshell)
-		# so JAVA_HOME / JAVA / RESOLVE_SOURCE from the resolver propagate to
-		# this script. A subshell wrapper would silently discard them and the
-		# legacy JRE/JRE64 fallback below would always win.
-		# shellcheck disable=SC1090
-		if source "$RESOLVER" "${INSTALL_ROOT}" 2>/dev/null; then
-			echo "Service Java home resolved via ${RESOLVE_SOURCE:-unknown}"
-		else
-			echo "Warning: ${RESOLVER} failed; falling back to install-dir JRE/JRE64" >&2
-		fi
+	if [ ! -f "$RESOLVER" ] || [ ! -r "$RESOLVER" ]; then
+		echo "Missing ${RESOLVER}. Re-run the DTS installer or copy resolve-java-home.sh next to TomcatStartup.sh." 1>&2
+		exit 1
 	fi
-
+	# Source into this shell (NOT a subshell) so JAVA_HOME / JAVA / RESOLVE_SOURCE
+	# propagate. Hard-fail on resolve failure — the helper already prints the
+	# sources tried and required major 21+.
+	# shellcheck disable=SC1090
+	source "$RESOLVER" "${INSTALL_ROOT}" || exit 1
 	if [ -z "${JAVA_HOME:-}" ] || [ ! -x "${JAVA_HOME}/bin/java" ]; then
-		if [ -d "${INSTALL_ROOT}/JRE" ]; then
-			JAVA_HOME=${INSTALL_ROOT}/JRE
-		elif [ -d "${rxDir}/JRE" ]; then
-			JAVA_HOME=${rxDir}/JRE
-		elif [ -d "${CATALINA_HOME}/JRE" ]; then
-			JAVA_HOME=${CATALINA_HOME}/JRE
-		else
-			echo "JAVA_HOME not found under ${INSTALL_ROOT}/JRE, ${rxDir}/JRE, or ${CATALINA_HOME}/JRE; set JAVA_HOME or write java.properties before install" 1>&2
-			exit 1
-		fi
+		echo "resolve-java-home did not set a usable JAVA_HOME; check ${INSTALL_ROOT}/java.properties or JAVA_HOME." 1>&2
+		exit 1
 	fi
+	echo "Service Java home resolved via ${RESOLVE_SOURCE:-unknown}: ${JAVA_HOME}"
 
 	echo "Ensuring permissions on ${rxDir} user=${RX_USER} group=${RX_GROUP}"
 	chown -R "${RX_USER}:${RX_GROUP}" "${rxDir}"

@@ -82,14 +82,12 @@ echo The service '%SERVICE_NAME%' has been removed
 goto end
 
 :doInstall
-REM Resolve Java via the shared precedence contract (java.properties > env
-REM JAVA_HOME > install-dir JRE|JRE64 > PATH > fail, major 21). Service installer
-REM uses the resolved absolute home for the Procrun --JavaHome. See
-REM specs/991-system-java-home/contracts/java-home-resolution.md.
-REM Script lives at <InstallRoot>\Deployment\Server\; resolve helper is two levels up.
+REM GH-991: install-time selection wrote java.properties at product surface root.
+REM Hard-fail via resolve helper — do not require <InstallRoot>\JRE.
+REM Script lives at <InstallRoot>\Deployment\Server\; helper is two levels up.
 call "%~dp0..\..\resolve-java-home.bat" "%~dp0..\.."
 if errorlevel 1 (
-    echo DTSProductionService: Java home resolution failed 1>&2
+    echo DTSProductionService: Java home resolution failed. Check java.properties or JAVA_HOME. 1>&2
     goto end
 )
 

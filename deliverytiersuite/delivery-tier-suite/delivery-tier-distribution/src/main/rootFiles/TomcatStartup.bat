@@ -10,9 +10,8 @@ SET SCRIPT_DIR=%SCRIPT_DIR:~0,-1%
 SET SERVER_DIR=%SCRIPT_DIR%\Deployment\Server
 SET SERVER_URL_PATH=file:///%SERVER_DIR:\=/%
 
-REM Resolve Java via shared precedence contract — required operator step before
-REM service start. See specs/991-system-java-home/contracts/java-home-resolution.md
-REM and US2 DTS parity requirement.
+REM GH-991: install-time selection wrote java.properties; resolve it (not a
+REM mandatory <InstallRoot>\JRE). See java-home-resolution.md.
 call "%SCRIPT_DIR%\resolve-java-home.bat" "%SCRIPT_DIR%"
 if errorlevel 1 (
     echo TomcatStartup: Java home resolution failed 1>&2

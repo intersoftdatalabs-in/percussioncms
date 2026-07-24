@@ -227,6 +227,7 @@ class DtsJavaHomeScriptTest {
     assertFalse(
         bat.contains("pushd \"%CATALINA_HOME%\\.."),
         "DTSProductionService.bat must not use a broken pushd before resolve");
+    assertServiceHardFailsOnResolve(sh, bat, "DTSProductionService");
   }
 
   @Test
@@ -262,6 +263,32 @@ class DtsJavaHomeScriptTest {
     assertTrue(
         bat.contains("call \"%~dp0..\\..\\resolve-java-home.bat\" \"%~dp0..\\..\""),
         "DTSStagingService.bat must call resolve helper two levels up from Server");
+    assertServiceHardFailsOnResolve(sh, bat, "DTSStagingService");
+  }
+
+  /**
+   * GH-991: service install must hard-fail through resolve-java-home and must
+   * not re-introduce a mandatory or soft-fallback {@code <InstallDir>/JRE}
+   * requirement after install-time {@code java.properties} selection.
+   */
+  private static void assertServiceHardFailsOnResolve(String sh, String bat, String label) {
+    assertTrue(
+        sh.contains("source \"$RESOLVER\"") && sh.contains("|| exit 1"),
+        label + ".sh must hard-fail when resolve-java-home fails");
+    assertFalse(
+        sh.contains("falling back to install-dir JRE"),
+        label + ".sh must not soft-fail into install-dir JRE after resolve failure");
+    assertFalse(
+        sh.contains("JAVA_HOME=${INSTALL_ROOT}/JRE")
+            || sh.contains("JAVA_HOME=${rxDir}/JRE")
+            || sh.contains("JAVA_HOME=${CATALINA_HOME}/JRE"),
+        label + ".sh must not assign JAVA_HOME from a hard-coded JRE folder after resolve");
+    assertFalse(
+        sh.contains("JAVA_HOME not found under ${INSTALL_ROOT}/JRE"),
+        label + ".sh must not claim JAVA_HOME is only under INSTALL_ROOT/JRE");
+    assertTrue(
+        bat.contains("if errorlevel 1"),
+        label + ".bat must check resolve failure");
   }
 
   /**
