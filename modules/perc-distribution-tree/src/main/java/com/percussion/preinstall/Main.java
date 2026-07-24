@@ -160,10 +160,7 @@ public class Main {
             new JavaInstallSelection(
                     installPath,
                     unattended,
-                    prompt -> {
-                      java.io.Console c = System.console();
-                      return c == null ? "" : c.readLine(prompt);
-                    })
+                    prompt -> readInteractiveLine(prompt))
                 .selectAndPersist();
         System.out.println("Java home selection: " + outcome.summary());
       } catch (JavaInstallSelection.JavaSelectionException sel) {
@@ -290,6 +287,34 @@ public class Main {
       return null;
     }
     return java.nio.file.Path.of(trimmed);
+  }
+
+  /**
+   * Reads a line of input from the operator for the multi-candidate Java
+   * home selection prompt. Uses {@link System#console()} when a real TTY
+   * is available; falls back to a {@link java.util.Scanner} on
+   * {@code System.in} so the prompt also works on Windows hosts launched via
+   * {@code java -jar} from PowerShell (where {@code System.console()}
+   * returns null even though stdin is connected). Returns an empty string
+   * when neither a console nor a readable stdin is available so the
+   * auto-select path can fall through.
+   */
+  static String readInteractiveLine(String prompt) {
+    java.io.Console console = System.console();
+    if (console != null) {
+      return console.readLine(prompt);
+    }
+    try {
+      System.out.print(prompt);
+      System.out.flush();
+      java.util.Scanner scanner = new java.util.Scanner(System.in);
+      if (scanner.hasNextLine()) {
+        return scanner.nextLine();
+      }
+      return "";
+    } catch (Exception e) {
+      return "";
+    }
   }
 
   static void runObsoleteInstallDirCleanup(

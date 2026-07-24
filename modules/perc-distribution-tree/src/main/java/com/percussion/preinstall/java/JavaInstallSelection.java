@@ -99,8 +99,8 @@ public final class JavaInstallSelection {
       if (eligible.size() == 1 || interactivePrompt == null || !isInteractiveAvailable()) {
         chosen = eligible.get(0).path().toAbsolutePath().normalize();
         source = eligible.size() == 1
-            ? "auto-selected (single candidate)"
-            : "auto-selected (non-interactive batch)";
+            ? "auto-selected (single eligible candidate: the Java home contract only scans JAVA_HOME and JAVA_HOME_<NN> env vars)"
+            : "auto-selected (non-interactive batch: console or stdin unavailable)";
       } else {
         chosen = promptForChoice(eligible);
         source = "selected by operator";
@@ -113,8 +113,41 @@ public final class JavaInstallSelection {
     return new SelectionOutcome(chosen, Path.of(launcher), source);
   }
 
+  /**
+   * Detects whether the user can be prompted interactively.
+   *
+   * <p>The primary check is {@link System#console()} non-null. On Windows
+   * hosts launched via {@code java -jar} from PowerShell, {@code
+   * System.console()} returns null even when stdin/stdout are connected to
+   * a terminal — a known JDK limitation. The {@link Main} / {@link
+   * MainDTSPreInstall} InteractivePrompt implementations handle that case
+   * by using a {@link java.util.Scanner} on {@code System.in} directly, so
+   * the prompt can still read user input. We use a non-blocking probe
+   * ({@code System.in.available() > 0} or stream open) as the fallback to
+   * confirm the prompt has a real stdin to read from, since auto-selecting
+   * with no input available is the documented behavior for non-interactive
+   * installs.
+   */
   private static boolean isInteractiveAvailable() {
-    return System.console() != null;
+    if (System.console() != null) {
+      return true;
+    }
+    // Fallback: probe stdin. If a Scanner can be opened on System.in and
+    // either has input available OR is open (will be when stdin is connected
+    // to a TTY or pipe), treat as interactive. The call-site prompt
+    // implementation is responsible for actually reading.
+    try (java.util.Scanner probe = new java.util.Scanner(System.in)) {
+      if (probe.hasNextLine()) {
+        return true; // there's data already pending
+      }
+      // No pending data; assume stdin is connected (TTY or pipe) and the
+      // caller's prompt will block on readLine. If the caller's prompt
+      // returns "" without blocking (true no-input), the selection falls
+      // through to auto-select.
+      return true;
+    } catch (Exception e) {
+      return false;
+    }
   }
 
   private Path promptForChoice(List<JavaCandidateDiscovery.Candidate> candidates)

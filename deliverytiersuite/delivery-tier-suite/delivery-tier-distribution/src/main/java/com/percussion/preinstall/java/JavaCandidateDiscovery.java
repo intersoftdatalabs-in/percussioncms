@@ -63,9 +63,43 @@ public final class JavaCandidateDiscovery {
     List<Candidate> result = new ArrayList<>();
     addCandidate(seen, result, runningJavaHome != null ? Path.of(runningJavaHome) : null);
     addCandidate(seen, result, env != null ? readJavaHome(env) : null);
+    addVersionedHomeEnvVars(seen, result, env);
     addCommonOsLocations(seen, result);
     addPathLaunchers(seen, result, pathValue);
     return result;
+  }
+
+  /**
+   * Scans the env map for {@code JAVA_HOME_<NN>} variables (e.g. {@code
+   * JAVA_HOME_21}, {@code JAVA_HOME_8}, {@code JAVA_HOME_17}, {@code JAVA_HOME_26}).
+   * These are the per-major-version home directories the project itself uses
+   * in {@code mvn-env.bat} ({@code JAVA_HOME_21} drives the Maven toolchain).
+   * Operators routinely set several of these on a single host; without
+   * scanning them the resolver would only ever see {@code JAVA_HOME} (if set)
+   * or the running JVM home, and the user would be unable to choose between
+   * the available installations.
+   */
+  static void addVersionedHomeEnvVars(Set<Path> seen, List<Candidate> sink,
+      java.util.Map<String, String> env) {
+    if (env == null) {
+      return;
+    }
+    for (java.util.Map.Entry<String, String> e : env.entrySet()) {
+      String key = e.getKey();
+      if (key == null || !key.startsWith("JAVA_HOME_") || key.equals("JAVA_HOME")) {
+        continue;
+      }
+      // e.g. JAVA_HOME_21 -> "21" -> 21
+      String suffix = key.substring("JAVA_HOME_".length());
+      if (suffix.isBlank() || !suffix.chars().allMatch(Character::isDigit)) {
+        continue;
+      }
+      String value = e.getValue();
+      if (value == null || value.isBlank()) {
+        continue;
+      }
+      addCandidate(seen, sink, Path.of(value));
+    }
   }
 
   /**

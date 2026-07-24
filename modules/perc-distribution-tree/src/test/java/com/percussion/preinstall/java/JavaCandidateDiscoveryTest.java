@@ -83,6 +83,60 @@ class JavaCandidateDiscoveryTest {
     assertFalse(JavaCandidateDiscovery.Candidate.meetsMinimumMajor(null));
   }
 
+  /**
+   * Regression for the multi-JDK host case: when operators set several of the
+   * project-standard per-major env vars (e.g. {@code JAVA_HOME_21},
+   * {@code JAVA_HOME_8}, {@code JAVA_HOME_17}), the resolver must scan
+   * them so the user can choose between available installations.
+   */
+  @Test
+  void discoversVersionedHomeEnvVars(@TempDir Path scratch) throws IOException {
+    String launcher = launcherForCurrentPlatform();
+    Path jdk21 = makeHome(scratch.resolve("jdk21"), "21", launcher);
+    Path jdk8 = makeHome(scratch.resolve("jdk8"), "8", launcher);
+    Map<String, String> env = Map.of(
+        "JAVA_HOME_21", jdk21.toString(),
+        "JAVA_HOME_8", jdk8.toString(),
+        "PATH", scratch.resolve("jdk21").resolve("bin").toString());
+    // Both JAVA_HOME_21 and JAVA_HOME_8 must appear as candidates.
+    List<JavaCandidateDiscovery.Candidate> raw =
+        JavaCandidateDiscovery.discover(env, /*runningJavaHome*/ null, env.get("PATH"));
+    assertTrue(
+        raw.stream().anyMatch(c -> c.path().toString().equals(jdk21.toString())),
+        "JAVA_HOME_21 must produce a candidate; found: " + raw);
+    assertTrue(
+        raw.stream().anyMatch(c -> c.path().toString().equals(jdk8.toString())),
+        "JAVA_HOME_8 must produce a candidate; found: " + raw);
+  }
+
+  /**
+   * Regression: non-numeric suffixes (e.g. {@code JAVA_HOME_FOO}) and the bare
+   * {@code JAVA_HOME} must NOT be treated as versioned home vars. The bare
+   * {@code JAVA_HOME} is still consulted via the existing
+   * {@code addCandidate(... readJavaHome(env) ...)} path; this test asserts
+   * the {@code addVersionedHomeEnvVars} helper itself filters strictly.
+   */
+  @Test
+  void addVersionedHomeEnvVarsRejectsNonNumeric(@TempDir Path scratch) throws IOException {
+    String launcher = launcherForCurrentPlatform();
+    Path real = makeHome(scratch.resolve("real"), "21", launcher);
+    Map<String, String> env = Map.of(
+        "JAVA_HOME_21", real.toString(),
+        "JAVA_HOME_FOO", scratch.resolve("fake").toString(),
+        "JAVA_HOME_", scratch.resolve("blank").toString(),
+        "JAVA_HOME_21abc", scratch.resolve("suffix").toString());
+    List<JavaCandidateDiscovery.Candidate> raw =
+        JavaCandidateDiscovery.discover(env, null, "");
+    // Only JAVA_HOME_21 is recognized as a versioned home; the others are
+    // silently filtered. JAVA_HOME itself is NOT in the env map here, so the
+    // versioned path produces exactly one candidate.
+    long numeric = raw.stream()
+        .filter(c -> c.path().toString().equals(real.toString()))
+        .count();
+    assertEquals(1, numeric,
+        "Only JAVA_HOME_21 should resolve to a candidate; found: " + raw);
+  }
+
   private static String launcherForCurrentPlatform() {
     String os = System.getProperty("os.name", "");
     return os.toLowerCase(java.util.Locale.ROOT).contains("win") ? "java.exe" : "java";

@@ -83,6 +83,26 @@ class JavaCandidateDiscoveryTest {
     assertFalse(JavaCandidateDiscovery.Candidate.meetsMinimumMajor(null));
   }
 
+  /** Mirror of CMS test — multi-JDK host discovers JAVA_HOME_21 and JAVA_HOME_8. */
+  @Test
+  void discoversVersionedHomeEnvVars(@org.junit.jupiter.api.io.TempDir java.nio.file.Path scratch) throws java.io.IOException {
+    String launcher = launcherForCurrentPlatform();
+    java.nio.file.Path jdk21 = makeHome(scratch.resolve("jdk21"), "21", launcher);
+    java.nio.file.Path jdk8 = makeHome(scratch.resolve("jdk8"), "8", launcher);
+    java.util.Map<String, String> env = java.util.Map.of(
+        "JAVA_HOME_21", jdk21.toString(),
+        "JAVA_HOME_8", jdk8.toString(),
+        "PATH", scratch.resolve("jdk21").resolve("bin").toString());
+    java.util.List<JavaCandidateDiscovery.Candidate> raw =
+        JavaCandidateDiscovery.discover(env, null, env.get("PATH"));
+    assertTrue(
+        raw.stream().anyMatch(c -> c.path().toString().equals(jdk21.toString())),
+        "JAVA_HOME_21 must produce a candidate; found: " + raw);
+    assertTrue(
+        raw.stream().anyMatch(c -> c.path().toString().equals(jdk8.toString())),
+        "JAVA_HOME_8 must produce a candidate; found: " + raw);
+  }
+
   private static String launcherForCurrentPlatform() {
     String os = System.getProperty("os.name", "");
     return os.toLowerCase(java.util.Locale.ROOT).contains("win") ? "java.exe" : "java";
