@@ -52,7 +52,6 @@
 <widget name="EMS Event List" />
 </group>
 <group name="Deprecated">
-<widget name="Share This" />
 <widget name="Calendar" />
 <widget name="Secure Login (Deprecated)" />
 <widget name="Registration (Deprecated)" />

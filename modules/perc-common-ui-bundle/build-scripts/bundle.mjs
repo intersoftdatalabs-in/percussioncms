@@ -131,7 +131,6 @@ const FULL_BUNDLE = [
   "src/main/js/views/PercArchiveListView.js",
   "src/main/js/views/PercResultView.js",
   "src/main/js/views/PercBlogPostView.js",
-  "src/main/js/views/PercShareThisView.js",
   "src/main/js/views/PercRssView.js",
   "src/main/js/views/PercRegistrationView.js",
   "src/main/js/views/PercLoginView.js",

@@ -31,9 +31,9 @@ import org.w3c.dom.NodeList;
 
 /**
  * Validates the WidgetRegistry.xml contents. Ensures removed widgets (e.g. Evergage Beacon per
- * GH#709) are no longer listed in any group. This test is activated as part of the widget removal
- * work (previously placeholder during migration). Updated for final package dir removal in
- * perc-packages (perc.evergageBeacon).
+ * GH#709, Share This per GH#690) are no longer listed in any group. This test is activated as part
+ * of the widget removal work (previously placeholder during migration). Updated for final package
+ * dir removal in perc-packages (perc.evergageBeacon).
  */
 public class PSWidgetServiceValidationTest {
 
@@ -82,6 +82,14 @@ public class PSWidgetServiceValidationTest {
       assertFalse(
           allWidgetNames.contains("Flash"),
           "Flash should have been removed from WidgetRegistry.xml");
+
+      // Share This removed completely (GH#690) - retired sharethis.com widget
+      assertFalse(
+          allWidgetNames.contains("Share This"),
+          "Share This should have been removed from WidgetRegistry.xml");
+      assertFalse(
+          deprecatedWidgets.contains("Share This"),
+          "Share This must not remain in the Deprecated group");
 
       // Community group should no longer contain Evergage
       assertFalse(
