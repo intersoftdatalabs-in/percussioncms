@@ -82,13 +82,12 @@ echo The service '%SERVICE_NAME%' has been removed
 goto end
 
 :doInstall
-REM Resolve Java via the shared precedence contract (java.properties > env
-REM JAVA_HOME > install-dir JRE|JRE64 > PATH > fail, major 21). Service installer
-REM uses the resolved absolute home for the Procrun --JavaHome. See
-REM specs/991-system-java-home/contracts/java-home-resolution.md.
+REM GH-991: install-time selection wrote java.properties at product surface root.
+REM Hard-fail via resolve helper — do not require <InstallRoot>\JRE.
+REM Script at <SurfaceRoot>\Deployment\Server\; helper two levels up.
 call "%~dp0..\..\resolve-java-home.bat" "%~dp0..\.."
 if errorlevel 1 (
-    echo DTSStagingService: Java home resolution failed 1>&2
+    echo DTSStagingService: Java home resolution failed. Check java.properties or JAVA_HOME. 1>&2
     goto end
 )
 
@@ -124,7 +123,8 @@ set PR_LOGPATH=
 set PR_CLASSPATH=
 set PR_JVM=
 rem Set extra parameters
-"%EXECUTABLE%" //US//%SERVICE_NAME% --JvmOptions "-Dcatalina.base=%CATALINA_BASE%;-Dcatalina.home=%CATALINA_HOME%;-Djava.endorsed.dirs=%CATALINA_HOME%\endorsed" --StartMode jvm --StopMode jvm
+REM Note: java.endorsed.dirs property is not supported on Java 9+ (fatal on 21); do not add it back.
+"%EXECUTABLE%" //US//%SERVICE_NAME% --JvmOptions "-Dcatalina.base=%CATALINA_BASE%;-Dcatalina.home=%CATALINA_HOME%" --StartMode jvm --StopMode jvm
 rem More extra parameters
 set PR_LOGPATH=%CATALINA_BASE%\logs
 set PR_STDOUTPUT=auto

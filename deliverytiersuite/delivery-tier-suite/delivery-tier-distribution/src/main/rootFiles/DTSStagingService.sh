@@ -237,18 +237,15 @@ function enableSysV() {
 }
 
 distVersion=$(cat /proc/version 2>&1 || true)
+# Service script is installed at <SurfaceRoot>/Deployment/Server/ where
+# SurfaceRoot is either <InstallRoot> (staging-only) or <InstallRoot>/Staging.
 CATALINA_HOME=$(dirname "$(abspath "$0")")
-if [ -d "$(dirname "${CATALINA_HOME}")/JRE" ]; then
-	rxDir=$(dirname "${CATALINA_HOME}")
-elif [ -d "${CATALINA_HOME}/Staging/JRE" ]; then
-	rxDir=${CATALINA_HOME}
-elif [ -d "$(dirname "${CATALINA_HOME}")/Staging/JRE" ]; then
-	rxDir=$(dirname "${CATALINA_HOME}")
-else
-	rxDir=$(dirname "${CATALINA_HOME}")
-fi
-RX_USER=$(ls -ld "${rxDir}" | awk '{print $3}')
-RX_GROUP=$(ls -ld "${rxDir}" | awk '{print $4}')
+# Product surface root: two levels up from Server. Holds resolve-java-home.sh.
+INSTALL_ROOT="$(cd "${CATALINA_HOME}/../.." && pwd)"
+# Deployment parent for chown only.
+rxDir="$(cd "${CATALINA_HOME}/.." && pwd)"
+RX_USER=$(ls -ld "${INSTALL_ROOT}" | awk '{print $3}')
+RX_GROUP=$(ls -ld "${INSTALL_ROOT}" | awk '{print $4}')
 TOMCAT_RUN=${RUN_PARENT}/${SERVICE_NAME}
 
 if command -v service >/dev/null 2>&1; then
@@ -270,42 +267,37 @@ if [ "$uninstall" != "true" ]; then
 	fi
 
 	echo "CATALINA_HOME=${CATALINA_HOME}"
+	echo "INSTALL_ROOT=${INSTALL_ROOT}"
 	echo "rxDir=${rxDir}"
 
-	if [ -d "${rxDir}/JRE" ]; then
-		echo "Legacy ${rxDir}/JRE found; will be overridden by shared resolver if available"
-	fi
-
-	# Resolve Java via the shared precedence contract (java.properties > env
-	# JAVA_HOME > install-dir JRE|JRE64 > PATH > fail, major 21). When resolution
-	# produces a valid home, it overrides the legacy heuristic. See
-	# specs/991-system-java-home/contracts/java-home-resolution.md.
-	RESOLVER="${rxDir}/resolve-java-home.sh"
-	if [ -f "$RESOLVER" ] && [ -r "$RESOLVER" ]; then
-		# Source the resolver directly into the installer shell (NOT a subshell)
-		# so JAVA_HOME / JAVA / RESOLVE_SOURCE from the resolver propagate to
-		# this script. A subshell wrapper would silently discard them and the
-		# legacy JRE/JRE64 fallback below would always win.
-		# shellcheck disable=SC1090
-		if source "$RESOLVER" "${rxDir}" 2>/dev/null; then
-			echo "Service Java home resolved via ${RESOLVE_SOURCE:-unknown}"
-		else
-			echo "Warning: ${RESOLVER} failed; falling back to install-dir JRE/JRE64" >&2
+	# GH-991 / issue #1340: install-time Java selection → java.properties; runtime
+	# uses resolve-java-home only. Do not require <INSTALL_ROOT>/JRE.
+	# When Staging is nested under a CMS co-install, java.properties may live on
+	# the parent install root — prefer that as the config root for resolution.
+	JAVA_CONFIG_ROOT="${INSTALL_ROOT}"
+	if [ ! -f "${JAVA_CONFIG_ROOT}/java.properties" ]; then
+		parent_root="$(cd "${INSTALL_ROOT}/.." && pwd)"
+		if [ -f "${parent_root}/java.properties" ]; then
+			JAVA_CONFIG_ROOT="${parent_root}"
 		fi
 	fi
-
-	if [ -z "${JAVA_HOME:-}" ] || [ ! -x "${JAVA_HOME}/bin/java" ]; then
-		if [ -d "${rxDir}/JRE" ]; then
-			JAVA_HOME=${rxDir}/JRE
-		elif [ -d "${rxDir}/Staging/JRE" ]; then
-			JAVA_HOME=${rxDir}/Staging/JRE
-		elif [ -d "${CATALINA_HOME}/JRE" ]; then
-			JAVA_HOME=${CATALINA_HOME}/JRE
+	RESOLVER="${INSTALL_ROOT}/resolve-java-home.sh"
+	if [ ! -f "$RESOLVER" ] || [ ! -r "$RESOLVER" ]; then
+		# Helper may also sit next to java.properties on a CMS co-install parent.
+		if [ -f "${JAVA_CONFIG_ROOT}/resolve-java-home.sh" ]; then
+			RESOLVER="${JAVA_CONFIG_ROOT}/resolve-java-home.sh"
 		else
-			echo "JAVA_HOME not found; set JAVA_HOME or write java.properties before install" 1>&2
+			echo "Missing resolve-java-home.sh under ${INSTALL_ROOT} (or ${JAVA_CONFIG_ROOT}). Re-run the DTS installer." 1>&2
 			exit 1
 		fi
 	fi
+	# shellcheck disable=SC1090
+	source "$RESOLVER" "${JAVA_CONFIG_ROOT}" || exit 1
+	if [ -z "${JAVA_HOME:-}" ] || [ ! -x "${JAVA_HOME}/bin/java" ]; then
+		echo "resolve-java-home did not set a usable JAVA_HOME; check ${JAVA_CONFIG_ROOT}/java.properties or JAVA_HOME." 1>&2
+		exit 1
+	fi
+	echo "Service Java home resolved via ${RESOLVE_SOURCE:-unknown}: ${JAVA_HOME}"
 
 	echo "Ensuring permissions on ${rxDir} user=${RX_USER} group=${RX_GROUP}"
 	chown -R "${RX_USER}:${RX_GROUP}" "${rxDir}"
