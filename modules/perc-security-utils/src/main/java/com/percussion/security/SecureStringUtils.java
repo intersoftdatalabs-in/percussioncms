@@ -202,7 +202,9 @@ public class SecureStringUtils {
     /** Microsoft SQL Server database */
     MSSQL,
     /** Apache Derby database */
-    DERBY
+    DERBY,
+    /** H2 embedded database (default after Derby retirement, #548) */
+    H2
   }
 
   /**

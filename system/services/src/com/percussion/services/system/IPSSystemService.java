@@ -362,5 +362,11 @@ public interface IPSSystemService
    boolean isDB2();
 
    boolean isDerby();
+
+   /**
+    * @return {@code true} if the repository datasource uses H2 (default embedded engine after
+    *     Apache Derby retirement, GitHub #548)
+    */
+   boolean isH2();
 }
 

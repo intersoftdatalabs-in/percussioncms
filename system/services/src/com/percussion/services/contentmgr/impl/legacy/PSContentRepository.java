@@ -1175,17 +1175,19 @@ public class PSContentRepository
     private IPSDatasourceManager m_dsMgr;
 
     /**
-     * Determines if the repository is a derby database.
+     * Determines if the repository needs embedded file-store LOB materialization (Clob→String /
+     * Blob→byte[]). True for Apache Derby (legacy) and H2 (GitHub #548 default embedded
+     * replacement). Named for behavior, not Derby-only.
      *
-     * @return <code>true</code> if it is a derby database; otherwise return
-     *   <code>false</code>.
+     * @return <code>true</code> for embedded file-store backends that need LOB remapping
      */
-    private boolean isDerbyDatabase()
+    private boolean isEmbeddedFileStoreDatabase()
     {
         try
         {
             PSConnectionDetail connDetail = m_dsMgr.getConnectionDetail(null);
-            return connDetail.getDriver().equalsIgnoreCase("derby");
+            String driver = connDetail.getDriver();
+            return com.percussion.util.PSSqlHelper.isEmbeddedFileStore(driver);
         }
         catch (Exception e)
         {
@@ -1226,7 +1228,7 @@ public class PSContentRepository
             if (removeUnregisteredConfigs(waitingChanges))
                 return; // no further action if unregister/remove only
 
-            addRegisteredConfigs(waitingChanges, isDerbyDatabase());
+            addRegisteredConfigs(waitingChanges, isEmbeddedFileStoreDatabase());
 
             if (restoreUnregisteredConfigs())
             {
@@ -1333,15 +1335,15 @@ public class PSContentRepository
      *
      * @param waitingChanges the list of changed objects, assumed not
      * <code>null</code>.
-     * @param isDerbyDatabase <code>true</code> if the repository is a derby
-     *   database.
+     * @param isEmbeddedFileStore <code>true</code> if the repository is an
+     *   embedded file-store backend (Derby or H2) that needs LOB materialization.
      *
      * @throws RepositoryException if an error occurs.
      */
     private void addRegisteredConfigs(List<PSContentTypeChange> waitingChanges,
-                                      boolean isDerbyDatabase) throws RepositoryException
+                                      boolean isEmbeddedFileStore) throws RepositoryException
     {
-        final boolean isDerby = isDerbyDatabase;
+        final boolean isEmbeddedFileStoreFlag = isEmbeddedFileStore;
         // Now walk the list and recreate all that are being added (i.e.
         // not deleted)
         Object[] args = new Object[]
@@ -1361,7 +1363,7 @@ public class PSContentRepository
                                 IPSTypeKey key = new PSContentTypeKey(definition
                                         .getContentEditor().getContentType());
                                 PSTypeConfiguration config = new PSTypeConfiguration(
-                                        definition, null, isDerby);
+                                        definition, null, isEmbeddedFileStoreFlag);
                                 return new Object[]
                                         {key, config};
                             }
@@ -1375,7 +1377,7 @@ public class PSContentRepository
                                         definition.getContentEditor().getContentType(),
                                         child.getChildId());
                                 PSTypeConfiguration config = new PSTypeConfiguration(
-                                        definition, child, isDerby);
+                                        definition, child, isEmbeddedFileStoreFlag);
                                 return new Object[]
                                         {key, config};
                             }

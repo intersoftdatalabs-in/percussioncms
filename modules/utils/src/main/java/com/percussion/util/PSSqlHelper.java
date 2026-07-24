@@ -1367,6 +1367,22 @@ public class PSSqlHelper {
   }
 
   /**
+   * @param driverName JDBC driver name or URL fragment; may be {@code null}
+   * @return {@code true} if the driver is H2 (GitHub #548 default embedded engine)
+   */
+  public static boolean isH2(String driverName) {
+    return driverName != null && driverName.toUpperCase().contains("H2");
+  }
+
+  /**
+   * Product-managed embedded file-store backends (Derby legacy or H2 default). Used for LOB
+   * materialization and similar cross-engine behavior (must not treat only Derby as special).
+   */
+  public static boolean isEmbeddedFileStore(String driverName) {
+    return isDerby(driverName) || isH2(driverName);
+  }
+
+  /**
    * Determines if the supplied index name is a "backing index".
    *
    * <p>Certain RDBMS systems, such as Apache Derby have the concept of a "backing index". This is

@@ -114,6 +114,8 @@
         <commons.validator.version>1.10.1</commons.validator.version>
         <cxf.version>4.1.4</cxf.version>
         <derby.version>10.17.1.0</derby.version>
+        <!-- #548 default embedded replacement (bake-off primary); Derby retained for migration window -->
+        <h2.version>2.3.232</h2.version>
         <duplicate.finder.maven.plugin.version>1.4.0</duplicate.finder.maven.plugin.version>
         <eclipse-manifest-location>META-INF</eclipse-manifest-location>
         <ehcache.version>3.10.8</ehcache.version>
@@ -1445,6 +1447,11 @@
                 <artifactId>derbyshared</artifactId>
                 <version>${derby.version}</version>
                 <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>com.h2database</groupId>
+                <artifactId>h2</artifactId>
+                <version>${h2.version}</version>
             </dependency>
             <dependency>
                 <groupId>evil.deeds</groupId>

@@ -171,4 +171,31 @@
 			suffix="FOR BIT DATA" />
 		<DataType jdbc="BLOB" native="BLOB" />
 	</DataTypeMap>
+	<!-- H2: default embedded replacement for retired Apache Derby (#548). Prefer native BOOLEAN. -->
+	<DataTypeMap for="H2" os="" driver="h2">
+		<DataType jdbc="BIT" native="BOOLEAN" />
+		<DataType jdbc="TINYINT" native="TINYINT" />
+		<DataType jdbc="SMALLINT" native="SMALLINT" />
+		<DataType jdbc="INTEGER" native="INTEGER" />
+		<DataType jdbc="BIGINT" native="BIGINT" />
+		<DataType jdbc="FLOAT" native="DOUBLE" />
+		<DataType jdbc="REAL" native="REAL" />
+		<DataType jdbc="DOUBLE" native="DOUBLE" />
+		<DataType jdbc="NUMERIC" native="DECIMAL" defaultSize="18"
+			defaultScale="0" />
+		<DataType jdbc="DECIMAL" native="DECIMAL" defaultSize="18"
+			defaultScale="0" />
+		<DataType jdbc="CHAR" native="CHAR" defaultSize="1" />
+		<DataType jdbc="VARCHAR" native="VARCHAR" defaultSize="1" />
+		<DataType jdbc="LONGVARCHAR" native="CLOB" />
+		<DataType jdbc="CLOB" native="CLOB" />
+		<!-- H2 native DATE is date-only (no time); do not widen to TIMESTAMP -->
+		<DataType jdbc="DATE" native="DATE" />
+		<DataType jdbc="TIME" native="TIME" />
+		<DataType jdbc="TIMESTAMP" native="TIMESTAMP" />
+		<DataType jdbc="BINARY" native="VARBINARY" defaultSize="1" />
+		<DataType jdbc="VARBINARY" native="VARBINARY" defaultSize="1" />
+		<DataType jdbc="LONGVARBINARY" native="BLOB" />
+		<DataType jdbc="BLOB" native="BLOB" />
+	</DataTypeMap>
 </DataTypeMaps>

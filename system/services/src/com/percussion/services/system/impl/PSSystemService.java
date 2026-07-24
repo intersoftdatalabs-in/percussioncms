@@ -1290,6 +1290,22 @@ public class PSSystemService
       }
       return false;
    }
+
+   @Override
+   public boolean isH2() {
+      if (h2 != null) {
+         return h2;
+      }
+      try {
+         PSConnectionDetail connDetail = m_dsMgr.getConnectionDetail(null);
+         h2 = PSSqlHelper.isH2(connDetail.getDriver()) ? Boolean.TRUE : Boolean.FALSE;
+         return h2;
+      } catch (Exception e) {
+         ms_logger.error("Failed to determine database type {}", PSExceptionUtils.getMessageForLog(e));
+      }
+      return false;
+   }
+
    /**
     * Determines if the repository is an oracle database or not.
     * It is <code>true</code> if the repository is an oracle database.
@@ -1304,6 +1320,8 @@ public class PSSystemService
    private  Boolean db2 = null;
 
    private Boolean derby = null;
+
+   private Boolean h2 = null;
 
    /**
     * The datasource manager to use to override the new configuration.

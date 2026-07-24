@@ -59,6 +59,16 @@
 				specified date.</Description>
 		</PSXDatabaseFunctionDef>
 		<PSXDatabaseFunctionDef
+			standardFunctionName="DAY" driver="h2">
+			<Body>DAY({0})</Body>
+			<Param name="source">
+				<Description>Required. Valid values are any replacement value
+					containing string representation of a date or timestamp.</Description>
+			</Param>
+			<Description>Returns an integer (1-31) representing the day in the
+				specified date.</Description>
+		</PSXDatabaseFunctionDef>
+		<PSXDatabaseFunctionDef
 			standardFunctionName="DAY" driver="mysql">
 			<Body>DAY({0})</Body>
 			<Param name="source">
@@ -100,6 +110,10 @@
 			<Body>CURRENT_DATE</Body>
 		</PSXDatabaseFunctionDef>
 		<PSXDatabaseFunctionDef
+			standardFunctionName="CURRENT_DATE" driver="h2">
+			<Body>CURRENT_DATE</Body>
+		</PSXDatabaseFunctionDef>
+		<PSXDatabaseFunctionDef
 			standardFunctionName="CURRENT_DATE" driver="mysql">
 			<Body>CURDATE()</Body>
 		</PSXDatabaseFunctionDef>
@@ -122,6 +136,10 @@
 		</PSXDatabaseFunctionDef>
 		<PSXDatabaseFunctionDef
 			standardFunctionName="CURRENT_TIMESTAMP" driver="derby">
+			<Body>CURRENT_TIMESTAMP</Body>
+		</PSXDatabaseFunctionDef>
+		<PSXDatabaseFunctionDef
+			standardFunctionName="CURRENT_TIMESTAMP" driver="h2">
 			<Body>CURRENT_TIMESTAMP</Body>
 		</PSXDatabaseFunctionDef>
 		<PSXDatabaseFunctionDef
@@ -152,6 +170,10 @@
 		</PSXDatabaseFunctionDef>
 		<PSXDatabaseFunctionDef
 			standardFunctionName="LEFT" driver="derby">
+			<Body>SUBSTR({0}, 1, {1})</Body>
+		</PSXDatabaseFunctionDef>
+		<PSXDatabaseFunctionDef
+			standardFunctionName="LEFT" driver="h2">
 			<Body>SUBSTR({0}, 1, {1})</Body>
 		</PSXDatabaseFunctionDef>
 	</PSXDatabaseFunction>
@@ -243,6 +265,16 @@
 				of a specified date.</Description>
 		</PSXDatabaseFunctionDef>
 		<PSXDatabaseFunctionDef
+			standardFunctionName="MONTH" driver="h2">
+			<Body>MONTH({0})</Body>
+			<Param name="source">
+				<Description>Required. Valid values are any replacement value
+					containing string representation of a date or timestamp.</Description>
+			</Param>
+			<Description>Returns an integer (1-12) that represents the month part
+				of a specified date.</Description>
+		</PSXDatabaseFunctionDef>
+		<PSXDatabaseFunctionDef
 			standardFunctionName="MONTH" driver="mysql">
 			<Body>MONTH({0})</Body>
 			<Param name="source">
@@ -276,6 +308,10 @@
 		</PSXDatabaseFunctionDef>
 		<PSXDatabaseFunctionDef
 			standardFunctionName="RIGHT" driver="derby">
+			<Body>SUBSTR({0}, LENGTH({0})-{1}, {1})</Body>
+		</PSXDatabaseFunctionDef>
+		<PSXDatabaseFunctionDef
+			standardFunctionName="RIGHT" driver="h2">
 			<Body>SUBSTR({0}, LENGTH({0})-{1}, {1})</Body>
 		</PSXDatabaseFunctionDef>
 	</PSXDatabaseFunction>
@@ -315,6 +351,11 @@
 			standardFunctionName="SOUNDEX" driver="derby"> <Description>Returns a character
 			string containing the phonetic representation of the source string. This
 			function allows comparison of words that are spelled differently, but sound
+			alike in English.</Description> </PSXDatabaseFunctionDef>
+		<PSXDatabaseFunctionDef
+			standardFunctionName="SOUNDEX" driver="h2"> <Description>Returns a character
+			string containing the phonetic representation of the source string. This
+			function allows comparison of words that are spelled differently, but sound
 			alike in English.</Description> </PSXDatabaseFunctionDef> -->
 	</PSXDatabaseFunction>
 	<!-- SUBSTRING -->
@@ -352,6 +393,10 @@
 			standardFunctionName="SUBSTRING" driver="derby">
 			<Body>SUBSTR({0}, {1}, {2})</Body>
 		</PSXDatabaseFunctionDef>
+		<PSXDatabaseFunctionDef
+			standardFunctionName="SUBSTRING" driver="h2">
+			<Body>SUBSTR({0}, {1}, {2})</Body>
+		</PSXDatabaseFunctionDef>
 	</PSXDatabaseFunction>
 	<!-- TRIM -->
 	<PSXDatabaseFunction standardFunctionName="TRIM">
@@ -367,6 +412,10 @@
 		</PSXDatabaseFunctionDef>
 		<PSXDatabaseFunctionDef
 			standardFunctionName="TRIM" driver="derby">
+			<Body>TRIM({0})</Body>
+		</PSXDatabaseFunctionDef>
+		<PSXDatabaseFunctionDef
+			standardFunctionName="TRIM" driver="h2">
 			<Body>TRIM({0})</Body>
 		</PSXDatabaseFunctionDef>
 		<PSXDatabaseFunctionDef
@@ -441,6 +490,16 @@
 		</PSXDatabaseFunctionDef>
 		<PSXDatabaseFunctionDef
 			standardFunctionName="YEAR" driver="derby">
+			<Body>YEAR({0})</Body>
+			<Param name="source">
+				<Description>Required. Valid values are any replacement value
+					containing string representation of a date or timestamp.</Description>
+			</Param>
+			<Description>Returns an integer (1-9999) that represents the year
+				part of a specified date.</Description>
+		</PSXDatabaseFunctionDef>
+		<PSXDatabaseFunctionDef
+			standardFunctionName="YEAR" driver="h2">
 			<Body>YEAR({0})</Body>
 			<Param name="source">
 				<Description>Required. Valid values are any replacement value
@@ -577,6 +636,15 @@
 			<Description>Converts a CHAR type to an integer</Description>
 		</PSXDatabaseFunctionDef>
 		<PSXDatabaseFunctionDef
+			standardFunctionName="CHAR_TO_INT" driver="h2">
+			<Body>CAST({0} as integer)</Body>
+			<Param name="source">
+				<Description>Required. Valid values are any replacement value
+					containing string representation of an integer.</Description>
+			</Param>
+			<Description>Converts a CHAR type to an integer</Description>
+		</PSXDatabaseFunctionDef>
+		<PSXDatabaseFunctionDef
 			standardFunctionName="CHAR_TO_INT" driver="mysql">
 			<Body>CAST({0} as integer)</Body>
 			<Param name="source">
@@ -645,6 +713,16 @@
 		</PSXDatabaseFunctionDef>
 		<PSXDatabaseFunctionDef
 			standardFunctionName="DAYSFROMDATE" driver="derby">
+			<Body>'{'fn TIMESTAMPDIFF(SQL_TSI_DAY,CURRENT_TIMESTAMP, CAST({0} AS
+				TIMESTAMP) '}'</Body>
+			<Param name="first date">
+				<Description>Required. Valid values are database columns that
+					contain a date.</Description>
+			</Param>
+			<Description>Compares two dates</Description>
+		</PSXDatabaseFunctionDef>
+		<PSXDatabaseFunctionDef
+			standardFunctionName="DAYSFROMDATE" driver="h2">
 			<Body>'{'fn TIMESTAMPDIFF(SQL_TSI_DAY,CURRENT_TIMESTAMP, CAST({0} AS
 				TIMESTAMP) '}'</Body>
 			<Param name="first date">

@@ -439,11 +439,11 @@ public class PSTypeConfiguration implements NodeType, Serializable
     * @param definition The parent item's definition, never <code>null</code>
     * @param child The child definition, may be <code>null</code> if this
     *           configuration is for a parent
-    * @param isDerbyDatabase if <code>true</code> then the repository is a
-    *      derby database.
+    * @param isEmbeddedFileStore if <code>true</code> then the repository is an
+    *      embedded file-store backend (Derby or H2) needing LOB materialization.
     */
    public PSTypeConfiguration(PSItemDefinition definition, PSItemChild child,
-         boolean isDerbyDatabase)
+         boolean isEmbeddedFileStore)
    {
       Iterator<PSField> fiter;
       Map<String, List<String>> fieldsByTable = new HashMap<>();
@@ -472,7 +472,7 @@ public class PSTypeConfiguration implements NodeType, Serializable
       processFields(definition, fiter, fieldsByTable, fieldToColumnName,
             m_fieldToType, m_tableNames, isComplexChild);
       calculateConfiguration(m_tableNames, fieldsByTable, fieldToColumnName,
-            m_fieldToType, m_sortedChild, isDerbyDatabase);
+            m_fieldToType, m_sortedChild, isEmbeddedFileStore);
    }
 
    /**
@@ -841,13 +841,13 @@ public class PSTypeConfiguration implements NodeType, Serializable
     * @param fieldToType A map that correlates fields to specific data types
     * @param sortedchild if <code>true</code>, this is configuring a sorted
     *           child field
-    * @param isDerbyDatabase if <code>true</code> then the repository is a
-    *      derby database.
+    * @param isEmbeddedFileStore if <code>true</code> then the repository is an
+    *      embedded file-store backend (Derby or H2) needing LOB materialization.
     */
    private void calculateConfiguration(Set<String> tableNames,
          Map<String, List<String>> fieldsByTable,
          Map<String, String> fieldToColumnName, Map<String, Class> fieldToType,
-         boolean sortedchild, boolean isDerbyDatabase)
+         boolean sortedchild, boolean isEmbeddedFileStore)
    {
       String firstTable = m_firstTable;
 
@@ -858,13 +858,13 @@ public class PSTypeConfiguration implements NodeType, Serializable
       }
 
       handleImplementationClass(tableNames, fieldsByTable, fieldToColumnName,
-            fieldToType, sortedchild, firstTable, false, isDerbyDatabase);
+            fieldToType, sortedchild, firstTable, false, isEmbeddedFileStore);
 
       if (m_lazyLoadProperties.size() > 0)
       {
          handleImplementationClass(tableNames, fieldsByTable,
                fieldToColumnName, fieldToType, sortedchild, firstTable, true,
-               isDerbyDatabase);
+               isEmbeddedFileStore);
       }
 
       // Add PSComponentSummary
@@ -889,14 +889,14 @@ public class PSTypeConfiguration implements NodeType, Serializable
     * @param sortedchild
     * @param firstTable
     * @param lazyFields
-    * @param isDerbyDatabase if <code>true</code> then the repository is a
+    * @param isEmbeddedFileStore if <code>true</code> then the repository is a
     * derby database.
     */
    private void handleImplementationClass(Set<String> tableNames,
          Map<String, List<String>> fieldsByTable,
          Map<String, String> fieldToColumnName, Map<String, Class> fieldToType,
          boolean sortedchild, String firstTable, boolean lazyFields,
-         boolean isDerbyDatabase)
+         boolean isEmbeddedFileStore)
    {
       IDType load;
       List<String> props = new ArrayList<>();
@@ -914,7 +914,7 @@ public class PSTypeConfiguration implements NodeType, Serializable
          // Add all the properties
          handleProperties(fieldsByTable, fieldToColumnName, fieldToType,
                firstTable, props, hibProps, gen, table, pertableprops,
-               lazyFields, isDerbyDatabase);
+               lazyFields, isEmbeddedFileStore);
 
          // Handle join
          if (!table.equals(firstTable))
@@ -965,14 +965,14 @@ public class PSTypeConfiguration implements NodeType, Serializable
     * @param pertableprops
     * @param lazyFields if <code>true</code> then only map the lazy fields for
     *           properties, if <code>false</code> only map the non-lazy fields
-    * @param isDerbyDatabase if <code>true</code> then the repository is a
+    * @param isEmbeddedFileStore if <code>true</code> then the repository is a
     * derby database.
     */
    private void handleProperties(Map<String, List<String>> fieldsByTable,
          Map<String, String> fieldToColumnName, Map<String, Class> fieldToType,
          String firstTable, List<String> props, StringBuilder hibProps,
          PSBeanGenerator gen, String table, StringBuilder pertableprops,
-         boolean lazyFields, boolean isDerbyDatabase)
+         boolean lazyFields, boolean isEmbeddedFileStore)
    {
       for (String field : fieldsByTable.get(table))
       {
@@ -992,9 +992,9 @@ public class PSTypeConfiguration implements NodeType, Serializable
          // Add the field to the generated class bean.
          Class type = fieldToType.get(field);
 
-         if (isDerbyDatabase)
+         if (isEmbeddedFileStore)
          {
-            // Note special processing (for Derby, specifically).
+            // Note special processing for embedded file-store (Derby / H2).
             //  CLOBs will be materialized as a String field.
             //  BLOBs will be materialized as an Array of Bytes.
             if (type.getName().equals("java.sql.Clob"))
