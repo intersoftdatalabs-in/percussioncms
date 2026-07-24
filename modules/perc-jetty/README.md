@@ -37,24 +37,26 @@ journalctl -u PercussionCMS -n 50 --no-pager
 
 ## Java home resolution (GH-991 / issue #1340)
 
-Operators no longer have to copy or symlink a JRE into `<InstallDir>/JRE`.
-Start, stop, and service install scripts resolve a Java 21 home using the
-shared precedence contract under `specs/991-system-java-home/contracts/`:
+Operators **do not** need to place a JRE under `<InstallDir>/JRE`. At CMS
+install time the preinstall selects a system JDK/JRE (or honors
+`-Dperc.java.home=...`) and writes `<InstallDir>/java.properties`. Start,
+stop, and service install scripts **must** resolve Java through that contract
+(`specs/991-system-java-home/contracts/`):
 
-1. `<InstallDir>/java.properties` (`JAVA_HOME`, optionally `JAVA`) — install-persisted
+1. `<InstallDir>/java.properties` (`JAVA_HOME`, optionally `JAVA`) — **primary**
 2. Process `JAVA_HOME` environment variable
-3. Legacy `<InstallDir>/JRE` then `<InstallDir>/JRE64` (operator copy or symlink)
+3. Optional legacy `<InstallDir>/JRE` then `<InstallDir>/JRE64` (if still present)
 4. `java` discoverable on `PATH`
-5. Fail with actionable message that names major version **21** and lists sources tried
+5. **Hard fail** with major **21+** and sources tried — never soft-fail into an
+   unvalidated JRE/JRE64 path
 
 Resolve helpers (`resolve-java-home.sh` / `.bat`) ship next to the Jetty
 scripts and are sourced by `StartJetty.sh`, `StartJetty.bat`, `StopJetty.bat`,
-and `install-jetty-service.{sh,bat}`. After install, you can change which Java
-home CMS uses without reinstalling by editing `java.properties` and either
-restarting the console, or re-running `install-jetty-service.sh` so the
-`/etc/default/<service>` file (or Procrun `--JavaHome`) reflects the new path.
-See `specs/991-system-java-home/quickstart.md` (Smoke A and D) for the exact
-operator steps and migration notes.
+and `install-jetty-service.{sh,bat}` (all hard-fail on resolve failure). After
+install, change which Java home CMS uses by editing `java.properties` and either
+restarting the console, or re-running `install-jetty-service.sh` so
+`/etc/default/<service>` (or Procrun `--JavaHome`) reflects the new path.
+See `specs/991-system-java-home/quickstart.md` (Smoke A and D).
 
 ## Logging retention (GH-939)
 

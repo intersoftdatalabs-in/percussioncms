@@ -16,8 +16,8 @@
 
 package com.percussion.jetty.service;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -57,6 +57,8 @@ class InstallJettyServiceJavaHomeTest {
         "install-jetty-service.bat must call resolve-java-home.bat");
     assertTrue(s.contains("--JavaHome=%JAVA_HOME%"),
         "Procrun --JavaHome is wired to resolved JAVA_HOME");
+    assertTrue(s.contains("if errorlevel 1"),
+        "install-jetty-service.bat must hard-fail when resolve fails");
   }
 
   /**
@@ -72,5 +74,26 @@ class InstallJettyServiceJavaHomeTest {
     assertFalse(
         s.contains("(source \"$RESOLVER\""),
         "install-jetty-service.sh must not wrap the resolver in a subshell");
+  }
+
+  /**
+   * GH-991: service install must hard-fail through resolve-java-home and must
+   * not re-introduce a mandatory or soft-fallback {@code <InstallDir>/JRE}
+   * requirement after install-time {@code java.properties} selection.
+   */
+  @Test
+  void installSh_hardFailsOnResolveWithoutJreFallback() throws Exception {
+    String s = Files.readString(INSTALL_SH, StandardCharsets.UTF_8);
+    assertTrue(
+        s.contains("source \"$RESOLVER\"") && s.contains("|| exit 1"),
+        "install-jetty-service.sh must hard-fail when resolve-java-home fails");
+    assertFalse(
+        s.contains("falling back to install-dir JRE"),
+        "install-jetty-service.sh must not soft-fail into install-dir JRE after resolve failure");
+    assertFalse(
+        s.contains("Found ${rxDir}/JRE to use as JRE Folder")
+            || s.contains("JAVA_HOME=${rxDir}/JRE")
+            || s.contains("JAVA_HOME=${rxDir}/JRE64"),
+        "install-jetty-service.sh must not assign JAVA_HOME from a hard-coded JRE folder after resolve");
   }
 }

@@ -44,12 +44,17 @@ set PR_STDOUTPUT=auto
 set PR_STDERROR=auto
 set PR_LOGLEVEL=Error
 
-@REM Path to Java Installation — resolved via shared precedence contract
-REM (java.properties > env JAVA_HOME > install-dir JRE|JRE64 > PATH > fail).
+@REM GH-991: install-time selection wrote java.properties at CMS install root.
+@REM Hard-fail via resolve helper — do not require <InstallRoot>\JRE.
+@REM Helper lives next to StartJetty under jetty\; install root is parent of JETTY_ROOT.
 REM See specs/991-system-java-home/contracts/java-home-resolution.md.
 call "%~dp0..\resolve-java-home.bat" "%JETTY_ROOT%.."
 if errorlevel 1 (
-    echo install-jetty-service: Java home resolution failed 1>&2
+    echo install-jetty-service: Java home resolution failed. Check java.properties or JAVA_HOME. 1>&2
+    goto end
+)
+if not defined JAVA_HOME (
+    echo install-jetty-service: resolve-java-home did not set JAVA_HOME. 1>&2
     goto end
 )
 
