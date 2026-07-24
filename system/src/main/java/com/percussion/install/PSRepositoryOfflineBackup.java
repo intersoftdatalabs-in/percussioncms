@@ -109,19 +109,27 @@ public final class PSRepositoryOfflineBackup {
 
   private static CopyStats copyTree(Path source, Path target) throws IOException {
     CopyStats stats = new CopyStats();
-    // FOLLOW_LINKS so symlinked repository subtrees (if present) are copied as content,
-    // not as empty placeholder directories. Offline backup only; operator has stopped the
-    // instance (FR-020).
+    Path sourceAbs = source.toAbsolutePath().normalize();
+    Path targetAbs = target.toAbsolutePath().normalize();
+    // FOLLOW_LINKS materialises symlink content for offline backup, but only when the
+    // resolved path stays under the source tree (no write outside target via .. segments).
     Files.walkFileTree(
-        source,
+        sourceAbs,
         EnumSet.of(FileVisitOption.FOLLOW_LINKS),
         Integer.MAX_VALUE,
         new SimpleFileVisitor<>() {
           @Override
           public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs)
               throws IOException {
-            Path rel = source.relativize(dir);
-            Path destDir = target.resolve(rel.toString());
+            Path dirAbs = dir.toAbsolutePath().normalize();
+            if (!dirAbs.startsWith(sourceAbs)) {
+              return FileVisitResult.SKIP_SUBTREE;
+            }
+            Path rel = sourceAbs.relativize(dirAbs);
+            Path destDir = targetAbs.resolve(rel).normalize();
+            if (!destDir.startsWith(targetAbs)) {
+              return FileVisitResult.SKIP_SUBTREE;
+            }
             Files.createDirectories(destDir);
             return FileVisitResult.CONTINUE;
           }
@@ -129,11 +137,18 @@ public final class PSRepositoryOfflineBackup {
           @Override
           public FileVisitResult visitFile(Path file, BasicFileAttributes attrs)
               throws IOException {
-            Path rel = source.relativize(file);
-            Path dest = target.resolve(rel.toString());
+            Path fileAbs = file.toAbsolutePath().normalize();
+            if (!fileAbs.startsWith(sourceAbs)) {
+              return FileVisitResult.CONTINUE;
+            }
+            Path rel = sourceAbs.relativize(fileAbs);
+            Path dest = targetAbs.resolve(rel).normalize();
+            if (!dest.startsWith(targetAbs)) {
+              return FileVisitResult.CONTINUE;
+            }
             Files.createDirectories(dest.getParent());
             Files.copy(
-                file,
+                fileAbs,
                 dest,
                 StandardCopyOption.REPLACE_EXISTING,
                 StandardCopyOption.COPY_ATTRIBUTES);

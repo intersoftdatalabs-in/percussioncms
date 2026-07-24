@@ -30,7 +30,12 @@ public enum PSBackupGateKind {
    */
   EXTERNAL_CONFIRM,
   /** Neither product backup nor external confirmation; migration blocked. */
-  NOT_SATISFIED;
+  NOT_SATISFIED,
+  /**
+   * Backup gate was not evaluated (e.g. skip paths {@code ALREADY_MIGRATED} / {@code
+   * SKIPPED_NON_DERBY}). Durable reports use this instead of leaving the field blank.
+   */
+  NOT_EVALUATED;
 
   /**
    * Parse a case-insensitive gate kind.

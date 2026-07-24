@@ -190,13 +190,15 @@ public final class PSConfigCutover {
     if (!Files.isRegularFile(live)) {
       return;
     }
-    // Unique name from absolute path so multiple config surfaces do not collide
-    String safe =
-        live.toAbsolutePath()
-            .toString()
-            .replace(':', '_')
-            .replace('\\', '_')
-            .replace('/', '_');
+    // Short unique name: original filename + hash of absolute path (filesystem name limit safe)
+    String name = live.getFileName() != null ? live.getFileName().toString() : "config.properties";
+    String abs = live.toAbsolutePath().normalize().toString();
+    String hash =
+        Integer.toHexString(abs.hashCode()).replace('-', 'n');
+    String safe = name + "." + hash + ".bak";
+    if (safe.length() > 200) {
+      safe = "cutover." + hash + ".bak";
+    }
     Path dest = backupDir.resolve(safe);
     Files.copy(live, dest, StandardCopyOption.REPLACE_EXISTING);
     backups.put(live, dest);
