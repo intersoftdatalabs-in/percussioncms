@@ -74,3 +74,14 @@ These remain on the implementation plan; they do **not** reopen H2 vs HSQL unles
 - Product-shaped patterns: `SELECT … FOR UPDATE` checkout user column; object lock claim/release.
 - Seed DDL must `commit()` under `autoCommit=false` (caught during harness debug).
 - Seed strategy **A** locked: empty H2 + TableFactory/product load (`research.md` R11, `contracts/repository-config.md`).
+
+
+## US4 multiuser evidence (T069–T074)
+
+| Gate | Result | Evidence |
+|------|--------|----------|
+| ≥10 editor distinct checkout | PASS (automated) | `PSH2MultiuserLockHarnessTest` |
+| Same-item exclusive checkout | PASS | same class |
+| DTS concurrent write smoke | PASS | `PSH2DtsConcurrentWriteSmokeTest` + `checklists/dts-concurrency.md` |
+| Custom H2 dialect | N/A | stock `H2Dialect` sufficient |
+| Pool/isolation retune | N/A | not required by harness |
