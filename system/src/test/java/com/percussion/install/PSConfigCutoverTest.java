@@ -23,6 +23,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.Properties;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -82,9 +84,64 @@ public class PSConfigCutoverTest {
   void shortPathDigest_isStableAndDistinct() {
     String a = PSConfigCutover.shortPathDigest("/install/rxconfig/Installer/rxrepository.properties");
     String b = PSConfigCutover.shortPathDigest("/install/jetty/base/etc/perc-ds.properties");
-    assertEquals(a, PSConfigCutover.shortPathDigest("/install/rxconfig/Installer/rxrepository.properties"));
+    assertEquals(
+        a, PSConfigCutover.shortPathDigest("/install/rxconfig/Installer/rxrepository.properties"));
     assertNotEquals(a, b);
     assertEquals(16, a.length());
   }
 
+  /**
+   * Validates the same restore path used when cutover fails mid-write: rebuild the live→backup map
+   * from digest-named files and call {@link PSConfigCutover#rollback(Map)}.
+   */
+  @Test
+  void rollbackRestoresPreCutoverConfigs() throws Exception {
+    Path rx = installRoot.resolve(PSConfigCutover.RXREPOSITORY_RELATIVE);
+    Files.createDirectories(rx.getParent());
+    String derbyRx =
+        "DB_BACKEND=DERBY\nDB_DRIVER_NAME=derby\nDB_SERVER=//localhost:1527/CMDB\n";
+    Files.writeString(rx, derbyRx, StandardCharsets.UTF_8);
+
+    Path perc = installRoot.resolve(PSConfigCutover.PERC_DS_RELATIVE);
+    Files.createDirectories(perc.getParent());
+    String derbyPerc =
+        "perc.ds.1.driver.name=derby\nperc.ds.1.driver.class=org.apache.derby.jdbc.EmbeddedDriver\n"
+            + "perc.ds.1.server=//localhost:1527/CMDB\n";
+    Files.writeString(perc, derbyPerc, StandardCharsets.UTF_8);
+
+    Properties h2 = new Properties();
+    h2.setProperty("DB_BACKEND", "H2");
+    h2.setProperty("DB_DRIVER_NAME", "h2");
+    h2.setProperty("DB_DRIVER_CLASS_NAME", "org.h2.Driver");
+    h2.setProperty("DB_SERVER", "file:/tmp/test/CMDB;DB_CLOSE_ON_EXIT=FALSE");
+    h2.setProperty("UID", "sa");
+    h2.setProperty("PWD", "");
+
+    PSConfigCutover.Result result = PSConfigCutover.cutoverToH2(installRoot, h2);
+    assertEquals("H2", loadProps(rx).getProperty("DB_BACKEND"));
+    assertTrue(Files.isDirectory(result.backupDir()));
+
+    Map<Path, Path> backups = new LinkedHashMap<>();
+    for (Path live : result.filesWritten()) {
+      String name = live.getFileName().toString();
+      String digest = PSConfigCutover.shortPathDigest(live.toAbsolutePath().normalize().toString());
+      Path bak = result.backupDir().resolve(name + "." + digest + ".bak");
+      assertTrue(Files.isRegularFile(bak), "expected backup for " + live + " at " + bak);
+      backups.put(live, bak);
+    }
+
+    PSConfigCutover.rollback(backups);
+
+    assertEquals("DERBY", loadProps(rx).getProperty("DB_BACKEND"));
+    assertEquals("derby", loadProps(rx).getProperty("DB_DRIVER_NAME"));
+    assertEquals("derby", loadProps(perc).getProperty("perc.ds.1.driver.name"));
+  }
+
+  private static Properties loadProps(Path path) throws Exception {
+    Properties p = new Properties();
+    try (var in = Files.newInputStream(path)) {
+      p.load(in);
+    }
+    return p;
+  }
 }
