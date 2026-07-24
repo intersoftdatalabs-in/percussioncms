@@ -199,6 +199,41 @@ public class PSDtsEmbeddedRepositoryMigratorTest {
   }
 
   @Test
+  void cutoverBackupNames_areUniqueForSameBasenameDifferentPaths() throws Exception {
+    Path server = root.resolve("Deployment").resolve("Server");
+    // Two configs with identical simple filename in different trees
+    Path a =
+        server
+            .resolve("webapps")
+            .resolve("perc-metadata-services")
+            .resolve("WEB-INF")
+            .resolve("perc-datasources.properties");
+    Path b =
+        server
+            .resolve("conf")
+            .resolve("perc")
+            .resolve("perc-datasources.properties");
+    Files.createDirectories(a.getParent());
+    Files.createDirectories(b.getParent());
+    String derby =
+        "jdbcDriver=org.apache.derby.jdbc.EmbeddedDriver\n"
+            + "jdbcUrl=jdbc:derby:${catalina.home}/derbydata/percmetadata\n";
+    Files.writeString(a, derby, StandardCharsets.UTF_8);
+    Files.writeString(b, derby, StandardCharsets.UTF_8);
+
+    PSDtsEmbeddedRepositoryMigrator.cutoverServiceConfigs(
+        server, "percmetadata", server.resolve("h2data").resolve("percmetadata"));
+
+    Path backupRoot = server.resolve("PreInstall").resolve("dts-cutover-backup");
+    assertTrue(Files.isDirectory(backupRoot));
+    long bakCount;
+    try (var walk = Files.walk(backupRoot)) {
+      bakCount = walk.filter(p -> p.getFileName().toString().endsWith(".bak")).count();
+    }
+    assertTrue(bakCount >= 2, "each distinct config path needs its own backup file");
+  }
+
+  @Test
   void cutoverDoesNotRewriteBackupPathUrls() throws Exception {
     Path server = root.resolve("Deployment").resolve("Server");
     Path props =

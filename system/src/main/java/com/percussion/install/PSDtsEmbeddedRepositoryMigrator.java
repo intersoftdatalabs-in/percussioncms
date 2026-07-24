@@ -382,15 +382,14 @@ public class PSDtsEmbeddedRepositoryMigrator {
           continue;
         }
         Files.createDirectories(backupDir);
-        Path bak = backupDir.resolve(propsPath.getFileName().toString() + ".bak");
-        if (Files.exists(bak)) {
-          bak =
-              backupDir.resolve(
-                  propsPath.getFileName().toString()
-                      + "."
-                      + Integer.toHexString(propsPath.toString().length())
-                      + ".bak");
-        }
+        // Collision-resistant basename (same approach as PSConfigCutover.shortPathDigest)
+        String baseName =
+            propsPath.getFileName() != null
+                ? propsPath.getFileName().toString()
+                : "datasource.properties";
+        String digest =
+            PSConfigCutover.shortPathDigest(propsPath.toAbsolutePath().normalize().toString());
+        Path bak = backupDir.resolve(baseName + "." + digest + ".bak");
         Files.copy(propsPath, bak, StandardCopyOption.REPLACE_EXISTING);
         backups.put(propsPath, bak);
 
