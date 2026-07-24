@@ -346,7 +346,7 @@
 					<include name="log4j*.jar" />
 					<include name="commons-logging*.jar" />
 					<include name="slf4j*.jar" />
-					<include name="disrupter*.jar" />
+					<include name="disruptor*.jar" />
 				</fileset>
 			</copy>
 
@@ -474,6 +474,16 @@
 						</fileset>
 					</copy>
 
+					<!-- Fail closed: hollow installer jars (scripts + common/lib only) used to
+					     report BUILD SUCCESSFUL with no Tomcat/webapps. Fresh install must have
+					     a real server tree from the shipping distribution payload. -->
+					<available
+						file="${install.dir}${staging.dir}/Deployment/Server/conf/server.xml"
+						type="file"
+						property="dts.fresh.server.xml.present" />
+					<fail unless="dts.fresh.server.xml.present"
+						message="DTS fresh install: ${install.dir}${staging.dir}/Deployment/Server/conf/server.xml is missing after copying Deployment/** from the installer payload. The delivery-tier-distribution.jar was built without the Cargo Tomcat package (bin/conf/lib/webapps). Rebuild delivery-tier-distribution so jar contains distribution/Deployment/Server/conf/server.xml and webapps/*.war." />
+
 					<copy todir="${install.dir}${staging.dir}/" verbose="true">
 						<fileset dir="${install.src}">
 							<include name="*" />
@@ -595,7 +605,7 @@
 							<include name="log4j*.jar" />
 							<include name="commons-logging*.jar" />
 							<include name="slf4j*.jar" />
-							<include name="disrupter*.jar" />
+							<include name="disruptor*.jar" />
 						</fileset>
 					</copy>
 

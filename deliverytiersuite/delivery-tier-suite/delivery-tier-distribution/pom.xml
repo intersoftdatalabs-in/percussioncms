@@ -926,11 +926,10 @@
                           perc-ant.jar / perc-service-wrapper.jar before jar-plugin
                           packages the staging tree.
 
-                          disrupter*.jar is not bundled because installDts.xml line 349
-                          has a glob typo (it should be disruptor*.jar). The actual
-                          `com.lmax:disruptor` jar is copied under the disruptor*.jar
-                          name so the install script's typo'd glob can pick it up if
-                          corrected in a follow-up.
+                          installDts.xml selects disruptor*.jar (typo disrupter* fixed
+                          on this branch). The com.lmax:disruptor jar is staged here so
+                          the Ant log4j2/lib copy finds it even if Cargo packaging order
+                          differs.
                         -->
                         <phase>prepare-package</phase>
                         <configuration>
@@ -1045,6 +1044,52 @@
                         </configuration>
                     </execution>
                     <!--
+                      Stage Cargo Tomcat + DTS wars into the installer assembly.
+
+                      cargo:package (prepare-package) builds a full configured Tomcat under
+                      ${project.build.directory}/package (bin, conf/server.xml, lib, webapps/*.war).
+                      Historically packager/outputLocation was intended to write straight into
+                      ${assembly-directory}/Deployment/Server, but with cargo-maven2→maven3 1.9.x
+                      the package still lands in target/package and the shipping jar only got
+                      root scripts + common/lib — install finished in seconds with no Tomcat.
+
+                      Copy after cargo:package and before jar:jar (this plugin is declared after
+                      cargo / dependency-plugin so prepare-package order is correct).
+                    -->
+                    <execution>
+                        <id>stage-cargo-package-into-assembly</id>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                        <phase>prepare-package</phase>
+                        <configuration>
+                            <target>
+                                <property name="cargo.package.dir" location="${project.build.directory}/package"/>
+                                <property name="cargo.package.server.xml" location="${cargo.package.dir}/conf/server.xml"/>
+                                <available file="${cargo.package.server.xml}" property="cargo.package.present"/>
+                                <fail unless="cargo.package.present"
+                                      message="Cargo package incomplete: missing ${cargo.package.server.xml}. cargo:package must run before this step (phase prepare-package)."/>
+                                <mkdir dir="${assembly-directory}/Deployment/Server"/>
+                                <copy todir="${assembly-directory}/Deployment/Server" overwrite="true" verbose="false">
+                                    <fileset dir="${cargo.package.dir}">
+                                        <exclude name="temp/**"/>
+                                    </fileset>
+                                </copy>
+                                <!-- Match prior antrun cleanup: do not ship Tomcat manager apps -->
+                                <delete dir="${assembly-directory}/Deployment/Server/webapps/manager" failonerror="false"/>
+                                <delete dir="${assembly-directory}/Deployment/Server/webapps/host-manager" failonerror="false"/>
+                                <delete file="${assembly-directory}/Deployment/Server/conf/logging.properties" failonerror="false"/>
+                                <available file="${assembly-directory}/Deployment/Server/conf/server.xml" property="assembly.has.server.xml"/>
+                                <fail unless="assembly.has.server.xml"
+                                      message="Assembly missing Deployment/Server/conf/server.xml after staging Cargo package"/>
+                                <available file="${assembly-directory}/Deployment/Server/webapps/perc-metadata-services.war" property="assembly.has.metadata.war"/>
+                                <fail unless="assembly.has.metadata.war"
+                                      message="Assembly missing perc-metadata-services.war after staging Cargo package"/>
+                                <echo message="Staged Cargo package into ${assembly-directory}/Deployment/Server"/>
+                            </target>
+                        </configuration>
+                    </execution>
+                    <!--
                       GH-1180 regression gate: the packaged installer jar must contain
                       PathValidation after the minimal shade. Runs on every verify so a
                       future pom change cannot drop the shade without failing the build.
@@ -1073,7 +1118,15 @@
                                     <contains string="${dts.installer.listing}" substring="org/apache/logging/log4j/LogManager.class"/>
                                 </condition>
                                 <fail unless="dts.has.log4j.api" message="GH-1180: ${dts.installer.jar} is missing log4j-api (LogManager) required by PathValidation."/>
-                                <echo message="GH-1180: PathValidation + log4j-api present in ${dts.installer.jar}"/>
+                                <condition property="dts.has.server.xml">
+                                    <contains string="${dts.installer.listing}" substring="distribution/Deployment/Server/conf/server.xml"/>
+                                </condition>
+                                <fail unless="dts.has.server.xml" message="DTS installer jar missing distribution/Deployment/Server/conf/server.xml (Cargo package not staged)."/>
+                                <condition property="dts.has.metadata.war">
+                                    <contains string="${dts.installer.listing}" substring="distribution/Deployment/Server/webapps/perc-metadata-services.war"/>
+                                </condition>
+                                <fail unless="dts.has.metadata.war" message="DTS installer jar missing perc-metadata-services.war (Cargo package not staged)."/>
+                                <echo message="GH-1180: PathValidation + log4j-api + Tomcat/server.xml + metadata war present in ${dts.installer.jar}"/>
                             </target>
                         </configuration>
                     </execution>
