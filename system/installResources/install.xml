@@ -428,6 +428,12 @@
 
 	</taskdef>
 
+	<!-- #548: Derby→H2 migration task (fails install on FAILED/BLOCKED_BACKUP_GATE) -->
+	<taskdef name="PSMigrateEmbeddedRepository"
+		classname="${ant.install}.PSMigrateEmbeddedRepository"
+		loaderref="ant.coreLoader">
+	</taskdef>
+
 	<taskdef name="PSTrimRxPubDocs"
 		classname="${ant.install}.PSTrimRxPubDocs" loaderref="ant.coreLoader">
 
@@ -819,10 +825,13 @@
 					</then>
 				</if>
 
-				<!-- Run pre-upgrade plugins -->
+				<!-- Run pre-upgrade plugins (includes #548 Derby→H2 migration) -->
 				<PSCopy tofile="${install.upgrade}/rxPreUpgradePlugins.xml"
 					file="${releasedir}/src/com/percussion/rxupgrade/rxPreUpgradePlugins.xml" />
 				<PSUpgrade upgradeFileNames="rxPreUpgradePlugins.xml" />
+				<!-- Hard-fail gate: same migrator; throws BuildException if FAILED/blocked -->
+				<PSMigrateEmbeddedRepository rootDir="${install.dir}"
+					performProductBackup="true" failOnBlock="true" />
 
 				<if>
 					<isSet property="VERSION_50_TO_57" />
@@ -986,6 +995,9 @@
 						<antcall target="resolveRxJBossFilesUpgrade"
 							inheritall="true" />
 
+						<!-- #548: ensure Derby→H2 before plugins that use the repository -->
+						<PSMigrateEmbeddedRepository rootDir="${install.dir}"
+							performProductBackup="true" failOnBlock="true" />
 						<!-- Run Upgrade Plugins -->
 						<PSUpgrade
 							upgradeFileNames="rxupgrade.xml,rxOrphanedDataCleanupPlugins.xml" />

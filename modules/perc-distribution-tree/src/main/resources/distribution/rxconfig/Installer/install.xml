@@ -676,6 +676,10 @@
 			inheritrefs="true" />
 		<antcall target="deleteOldJdbcDrivers" inheritall="true"
 			inheritrefs="true" />
+		<!-- #548: Derby→H2 before file overwrite / DB setup plugins use repository -->
+		<echo>Migrating product-managed embedded repository if still Derby (#548)...</echo>
+		<PSMigrateEmbeddedRepository rootDir="${install.dir}"
+			performProductBackup="true" failOnBlock="true" />
 		<antcall target="upgrade_server" inheritall="true"
 			inheritrefs="true" />
 		<!-- After Rhythmyx overwrite: drop retired product JARs/config that
