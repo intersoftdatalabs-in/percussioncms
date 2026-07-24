@@ -36,6 +36,7 @@ import org.junit.jupiter.api.Test;
  *       production call sites of this class are decrypt-only fallbacks.
  * </ul>
  */
+@SuppressWarnings({"removal", "deprecation"})
 class PSAesCBCDeprecationTest {
 
   @Test
@@ -51,12 +52,10 @@ class PSAesCBCDeprecationTest {
 
   @Test
   void stringEncryptMethodIsDeprecatedForRemoval() throws Exception {
-    Method encrypt =
-        PSAesCBC.class.getMethod("encrypt", String.class, String.class);
+    Method encrypt = PSAesCBC.class.getMethod("encrypt", String.class, String.class);
     Deprecated annotation = encrypt.getAnnotation(Deprecated.class);
     assertNotNull(
-        annotation,
-        "encrypt(String,String) must be @Deprecated — not for new production secrets");
+        annotation, "encrypt(String,String) must be @Deprecated — not for new production secrets");
     assertTrue(
         annotation.forRemoval(),
         "encrypt(String,String) @Deprecated(forRemoval=true) required by accepted-risk contract");
@@ -95,7 +94,6 @@ class PSAesCBCDeprecationTest {
     assertTrue(cipher.length > 16, "ciphertext must prepend a 16-byte IV");
     byte[] roundTrip = aes.decrypt(cipher, "0123456789ABCDEF");
     assertEquals(
-        new String(plain, StandardCharsets.UTF_8),
-        new String(roundTrip, StandardCharsets.UTF_8));
+        new String(plain, StandardCharsets.UTF_8), new String(roundTrip, StandardCharsets.UTF_8));
   }
 }

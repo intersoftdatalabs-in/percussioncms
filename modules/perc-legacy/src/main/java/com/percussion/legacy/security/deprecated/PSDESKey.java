@@ -75,7 +75,7 @@ public class PSDESKey implements IPSSecretKey {
    * @param secret the secret to use to generate the key
    * @exception IllegalArgumentException if the secret is invalid for this object
    */
-  public void setSecret(byte[] secret) throws IllegalArgumentException {
+  public final void setSecret(byte[] secret) throws IllegalArgumentException {
     if ((secret == null) || (secret.length != 8))
       throw new IllegalArgumentException(
           "SECRET_KEY_INVALID_SIZE: expected 8, received "
