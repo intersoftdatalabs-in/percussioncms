@@ -17,8 +17,11 @@
 package com.percussion.install;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -26,7 +29,7 @@ import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
-/** Offline backup NIO copy + disk precheck (T053 / T056 / T082 start). */
+/** Offline backup NIO copy + disk precheck (T053 / T056 / T082). */
 @Tag("UnitTest")
 public class PSRepositoryOfflineBackupTest {
 
@@ -68,10 +71,8 @@ public class PSRepositoryOfflineBackupTest {
   @Test
   void diskSpaceCheckAgainstTemp() throws Exception {
     assertTrue(PSRepositoryOfflineBackup.hasSufficientDiskSpace(temp, 1L));
-    // Unreasonably large requirement should fail on any normal volume
     assertTrue(
-        !PSRepositoryOfflineBackup.hasSufficientDiskSpace(
-            temp, Long.MAX_VALUE / 2));
+        !PSRepositoryOfflineBackup.hasSufficientDiskSpace(temp, Long.MAX_VALUE / 2));
   }
 
   @Test
@@ -91,5 +92,47 @@ public class PSRepositoryOfflineBackupTest {
         PSRepositoryOfflineBackup.copyRepositoryTree(link, backupRoot);
     assertTrue(result.filesCopied() >= 1);
     assertTrue(Files.isRegularFile(backupRoot.resolve("repository-data").resolve("seg0")));
+  }
+
+  /**
+   * T082 / QC-017: path building uses {@link Path#resolve} (portable separators). Companion dest
+   * is file-name only so Windows absolute paths do not leak into backup tree structure.
+   */
+  @Test
+  void pathBuildingUsesPortableResolve_companionIsFilenameOnly() throws Exception {
+    Path repo = temp.resolve("install").resolve("Repository");
+    Path nested = repo.resolve("seg").resolve("nested");
+    Files.createDirectories(nested);
+    Files.writeString(nested.resolve("data.bin"), "x", StandardCharsets.UTF_8);
+
+    Path viaMulti = temp.resolve(Path.of("install", "Repository", "seg", "nested"));
+    assertEquals(nested.normalize(), viaMulti.normalize());
+
+    Path companion =
+        temp.resolve("rxconfig")
+            .resolve("Installer")
+            .resolve("rxrepository.properties");
+    Files.createDirectories(companion.getParent());
+    Files.writeString(companion, "DB_BACKEND=DERBY\n", StandardCharsets.UTF_8);
+
+    Path backupRoot = temp.resolve("PreInstall").resolve("migration-backup");
+    PSRepositoryOfflineBackup.Result result =
+        PSRepositoryOfflineBackup.copyRepositoryTree(repo, backupRoot, companion);
+
+    assertTrue(result.filesCopied() >= 2);
+    Path companionDest =
+        backupRoot.resolve("companion-config").resolve("rxrepository.properties");
+    assertTrue(Files.isRegularFile(companionDest));
+    assertEquals("rxrepository.properties", companionDest.getFileName().toString());
+    assertTrue(
+        Files.isRegularFile(
+            backupRoot.resolve("repository-data").resolve("seg").resolve("nested").resolve("data.bin")));
+  }
+
+  @Test
+  void pathNormalize_relativeSegmentsDoNotEscapeIntendedParent() {
+    Path base = temp.resolve("Repository").normalize();
+    Path joined = base.resolve("..").resolve("Repository").resolve("CMDB").normalize();
+    assertEquals(base.resolve("CMDB").normalize(), joined);
   }
 }
