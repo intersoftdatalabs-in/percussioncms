@@ -298,7 +298,8 @@ public class PSJdbcDataTypeMapTest {
 
     dataType = map.getMapping(Types.DATE);
     assertEquals("DATE", dataType.getJdbc());
-    assertEquals("TIMESTAMP", dataType.getNative());
+    // H2 native DATE is date-only; do not widen to TIMESTAMP (#548 / PR #1494)
+    assertEquals("DATE", dataType.getNative());
 
     dataType = map.getMapping(Types.VARCHAR);
     assertEquals("VARCHAR", dataType.getJdbc());

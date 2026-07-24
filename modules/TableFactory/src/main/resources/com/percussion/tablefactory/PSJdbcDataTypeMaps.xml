@@ -189,7 +189,8 @@
 		<DataType jdbc="VARCHAR" native="VARCHAR" defaultSize="1" />
 		<DataType jdbc="LONGVARCHAR" native="CLOB" />
 		<DataType jdbc="CLOB" native="CLOB" />
-		<DataType jdbc="DATE" native="TIMESTAMP" />
+		<!-- H2 native DATE is date-only (no time); do not widen to TIMESTAMP -->
+		<DataType jdbc="DATE" native="DATE" />
 		<DataType jdbc="TIME" native="TIME" />
 		<DataType jdbc="TIMESTAMP" native="TIMESTAMP" />
 		<DataType jdbc="BINARY" native="VARBINARY" defaultSize="1" />
