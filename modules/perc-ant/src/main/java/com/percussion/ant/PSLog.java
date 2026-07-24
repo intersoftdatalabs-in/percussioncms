@@ -44,6 +44,13 @@ import org.apache.tools.ant.Task;
  * </pre>
  */
 public class PSLog extends Task {
+  /**
+   * Creates a new task for writing a message to a log file.
+   */
+  public PSLog() {
+    super();
+  }
+
   @Override
   public void execute() throws BuildException {
     File logFile = null;
@@ -70,6 +77,12 @@ public class PSLog extends Task {
     }
   }
 
+  /**
+   * Sets the log file path.
+   *
+   * @param file the log file path, never <code>null</code> or empty.
+   * @throws IllegalArgumentException if file is <code>null</code> or empty.
+   */
   public void setFile(String file) {
     if (file == null || file.trim().length() == 0) {
       throw new IllegalArgumentException("file may not be null or empty");
@@ -78,10 +91,20 @@ public class PSLog extends Task {
     m_file = file;
   }
 
+  /**
+   * Sets the message to log.
+   *
+   * @param message the message to write to the log file.
+   */
   public void setMessage(String message) {
     m_message = message;
   }
 
+  /**
+   * Sets whether to append to the log file or overwrite it.
+   *
+   * @param append <code>true</code> to append, <code>false</code> to overwrite.
+   */
   public void setAppend(boolean append) {
     m_bAppend = append;
   }

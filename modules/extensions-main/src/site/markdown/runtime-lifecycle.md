@@ -87,7 +87,7 @@ followed by a server restart.
 
 ```bash
 # From the repository root
-./scripts/hot-deploy-local.sh \
+./scripts/hot-deploy-local.py \
     --install-dir /path/to/cms-install \
     --modules system \
     --restart

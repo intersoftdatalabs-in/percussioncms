@@ -21,7 +21,7 @@
  *
  * <p>The CMS is expected to be running on {@link BASE_URL}
  * (`http://localhost:9992` by default). Bring it up via:
- * {@code ./docker/scripts/perc-devctl.sh up}.</p>
+ * {@code ./docker/scripts/perc-devctl.py up}.</p>
  *
  * <p>Known bugs as of 2026-07-19 are codified as `test.skip` with a
  * clear note so the failures are visible but don't gate the suite.

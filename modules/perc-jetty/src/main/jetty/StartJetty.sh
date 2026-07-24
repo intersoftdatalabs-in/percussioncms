@@ -6,8 +6,12 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 rxDir=$(dirname ${DIR})
 echo rxDir=$rxDir
 
-JAVA_HOME=${rxDir}/JRE
-echo JAVA_HOME=$JAVA_HOME
+# Resolve Java via shared precedence: java.properties (PRODUCT_CONFIG) >
+# env JAVA_HOME (PROCESS_ENV) > legacy <installRoot>/JRE|JRE64 > PATH > fail.
+# See specs/991-system-java-home/contracts/java-home-resolution.md.
+INSTALL_ROOT="$rxDir"
+# shellcheck disable=SC1091
+source "${DIR}/resolve-java-home.sh" "$INSTALL_ROOT" || exit 1
 
 JETTY_HOME=${DIR}/upstream
 echo JETTY_HOME=$JETTY_HOME

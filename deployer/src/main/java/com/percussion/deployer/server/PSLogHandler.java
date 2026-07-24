@@ -1286,7 +1286,8 @@ public class PSLogHandler {
   private static final String ALS_SRC_SERVER_NAME = "SRC_SERVER_NAME";
   private static final String ALS_SRC_SERVER_VERSION = "SRC_SERVER_VERSION";
   private static final String ALS_SRC_SERVER_BUILD_ID = "SRC_SERVER_BUILD_ID";
-  private static final String ALS_SRC_SERVER_BUILD_DATE = "ALS_SRC_SERVER_BUILD_DATE";
+  // Physical column is SRC_SERVER_BUILD_DATE (ALS_ is Java-only naming, like other ALS_* keys).
+  private static final String ALS_SRC_SERVER_BUILD_DATE = "SRC_SERVER_BUILD_DATE";
   private static final String ALS_TGT_SERVER_NAME = "TGT_SERVER_NAME";
   private static final String ALS_ARCHIVE_INFO = "ARCHIVE_INFO";
   private static final String ALS_ARCHIVE_MANIFEST = "ARCHIVE_MANIFEST";

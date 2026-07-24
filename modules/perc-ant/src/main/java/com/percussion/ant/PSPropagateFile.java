@@ -30,6 +30,10 @@ import org.apache.tools.ant.util.FileUtils;
 
 /** Propagates a file to any number of directories specified in a directory set. */
 public class PSPropagateFile extends Task {
+  /**
+   * Creates a new file propagation task.
+   */
+  public PSPropagateFile() {}
 
   /**
    * Sets the source file path

@@ -82,10 +82,16 @@ echo The service '%SERVICE_NAME%' has been removed
 goto end
 
 :doInstall
-cd %CATALINA_HOME%
-cd ..\..\..\JRE
-SET JRE_HOME=%cd%
-SET JAVA_HOME=%cd%
+REM GH-991: install-time selection wrote java.properties at product surface root.
+REM Hard-fail via resolve helper — do not require <InstallRoot>\JRE.
+REM Script at <SurfaceRoot>\Deployment\Server\; helper two levels up.
+call "%~dp0..\..\resolve-java-home.bat" "%~dp0..\.."
+if errorlevel 1 (
+    echo DTSStagingService: Java home resolution failed. Check java.properties or JAVA_HOME. 1>&2
+    goto end
+)
+
+SET JRE_HOME=%JAVA_HOME%
 
 rem Install the service
 echo Installing the service '%SERVICE_NAME%' ...
@@ -117,7 +123,8 @@ set PR_LOGPATH=
 set PR_CLASSPATH=
 set PR_JVM=
 rem Set extra parameters
-"%EXECUTABLE%" //US//%SERVICE_NAME% --JvmOptions "-Dcatalina.base=%CATALINA_BASE%;-Dcatalina.home=%CATALINA_HOME%;-Djava.endorsed.dirs=%CATALINA_HOME%\endorsed" --StartMode jvm --StopMode jvm
+REM Note: java.endorsed.dirs property is not supported on Java 9+ (fatal on 21); do not add it back.
+"%EXECUTABLE%" //US//%SERVICE_NAME% --JvmOptions "-Dcatalina.base=%CATALINA_BASE%;-Dcatalina.home=%CATALINA_HOME%" --StartMode jvm --StopMode jvm
 rem More extra parameters
 set PR_LOGPATH=%CATALINA_BASE%\logs
 set PR_STDOUTPUT=auto

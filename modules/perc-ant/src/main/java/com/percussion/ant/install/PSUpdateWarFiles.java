@@ -58,6 +58,10 @@ import java.util.jar.JarOutputStream;
  * </pre>
  */
 public class PSUpdateWarFiles extends PSAction {
+  /**
+   * Creates a new war files update task.
+   */
+  public PSUpdateWarFiles() {}
   // see base class
   @Override
   public void execute() {

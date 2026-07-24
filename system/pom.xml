@@ -871,6 +871,18 @@
 					</execution>
 				</executions>
 			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-javadoc-plugin</artifactId>
+				<configuration>
+					<additionalClasspathElements>
+						<path>${project.build.outputDirectory}</path>
+					</additionalClasspathElements>
+					<sourcepath>
+            ${project.basedir}/src/main/java${path.separator}${project.basedir}/agenthandler/src${path.separator}${project.basedir}/Tools/ImageWidgetService/src${path.separator}${project.basedir}/webservices/src${path.separator}${project.basedir}/beans/src${path.separator}${project.basedir}/i18n/src${path.separator}${project.basedir}/release/src${path.separator}${project.basedir}/business/src${path.separator}${project.basedir}/services/src${path.separator}${project.basedir}/servlet/src${path.separator}${project.basedir}/Tools/Converters/src${path.separator}${project.basedir}/Tools/RxFix/src${path.separator}${project.basedir}/uploader/src${path.separator}${project.basedir}/Tools/InlineLinkConverter/src${path.separator}${project.basedir}/controls/src
+          </sourcepath>
+				</configuration>
+			</plugin>
 		</plugins>
 		<sourceDirectory>src/main/java</sourceDirectory>
 		<testSourceDirectory>src/test/java</testSourceDirectory>

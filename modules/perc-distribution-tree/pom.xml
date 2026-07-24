@@ -760,10 +760,11 @@
                         </configuration>
                     </execution>
                     <!-- Verify the assembled distribution ships JDBC drivers (FR-007 / SC-005).
-                         Runs the Java port of scripts/verify-jdbc-drivers.sh so the build gate
-                         is cross-platform (Windows/Linux/macOS, see root AGENTS.md). Uses the
-                         expected-driver-glob option so the check stays correct across driver
-                         version bumps without editing this pom. -->
+                         Runs the cross-platform Java main (canonical implementation); the
+                         operator-facing scripts/verify-jdbc-drivers.py port (spec 994 US6)
+                         exists for manual runs. Uses the expected-driver-glob option so the
+                         check stays correct across driver version bumps without editing this
+                         pom. -->
                     <execution>
                         <id>verify-jdbc-drivers</id>
                         <goals>
@@ -785,7 +786,9 @@
                          A future change that re-introduces a glob (e.g. mysql-connector-java-*.jar)
                          will silently purge integrator-supplied drivers on upgrade; this
                          check fails the build before such a change can land. Cross-platform
-                         Java port of scripts/check-no-glob-deletes.sh. -->
+                         Java main (canonical implementation); the operator-facing
+                         scripts/check-no-glob-deletes.py port (spec 994 US6) exists for
+                         manual runs. -->
                     <execution>
                         <id>check-no-glob-deletes</id>
                         <goals>
@@ -794,6 +797,14 @@
                         <phase>verify</phase>
                         <configuration>
                             <mainClass>com.percussion.distribution.install.CheckNoGlobDeletes</mainClass>
+                            <!-- Absolute module path: exec:java keeps the reactor launch CWD
+                                 (often repo root), so a relative src/main/resources/... path
+                                 fails outside modules/perc-distribution-tree. Same pattern as
+                                 verify-jdbc-drivers using ${project.build.directory}. -->
+                            <arguments>
+                                <argument>--install-xml</argument>
+                                <argument>${project.basedir}/src/main/resources/distribution/rxconfig/Installer/install.xml</argument>
+                            </arguments>
                         </configuration>
                     </execution>
                 </executions>

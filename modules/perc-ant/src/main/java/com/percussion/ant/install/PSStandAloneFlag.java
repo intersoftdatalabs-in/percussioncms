@@ -42,6 +42,10 @@ package com.percussion.ant.install;
  * @author vamsinukala
  */
 public class PSStandAloneFlag extends PSAction {
+  /**
+   * Creates a new stand-alone flag condition.
+   */
+  public PSStandAloneFlag() {}
   // see base class
   @Override
   public void execute() {}

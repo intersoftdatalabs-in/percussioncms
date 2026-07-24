@@ -20,7 +20,7 @@ package com.percussion.preinstall;
 import org.apache.tools.ant.BuildEvent;
 import org.apache.tools.ant.BuildListener;
 
-/***
+/**
  * Listens for ant build output and passes the messages to the Installer if running
  * in installer mode.  For dev installs does nothing.
  *
@@ -30,6 +30,9 @@ import org.apache.tools.ant.BuildListener;
  * to maintain backward compatibility with build scripts.
  */
 public class AntBuildListener implements BuildListener {
+
+  /** Creates a no-op build listener. */
+  public AntBuildListener() {}
 
   @Override
   public void buildStarted(BuildEvent buildEvent) {

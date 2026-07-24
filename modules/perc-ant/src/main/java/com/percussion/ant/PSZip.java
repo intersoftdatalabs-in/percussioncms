@@ -47,6 +47,10 @@ import org.apache.tools.ant.taskdefs.Zip;
  */
 public class PSZip extends Zip {
   /**
+   * Creates a new zip task.
+   */
+  public PSZip() {}
+  /**
    * Sets the file to be used as a comment.
    *
    * @param commentFile the path to the comment file. May be <code>null</code> or empty.

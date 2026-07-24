@@ -55,6 +55,10 @@ import java.util.Properties;
  * </pre>
  */
 public class PSConvertOraLongToLOB extends PSAction {
+  /**
+   * Creates a new LONG to LOB conversion task.
+   */
+  public PSConvertOraLongToLOB() {}
   // see base class
 
   @Override

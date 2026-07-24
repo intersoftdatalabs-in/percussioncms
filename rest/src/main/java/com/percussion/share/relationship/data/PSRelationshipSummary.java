@@ -34,7 +34,7 @@ import java.util.Objects;
  *   <li><strong>incoming</strong>: items that are owned by the supplied item via the same category.
  *       Backed by {@code IPSSystemWs.findDependents(...)}.
  *   <li><strong>reverse</strong>: the union of incoming plus any inline-link parents; computed by
- *       combining {@link #incoming} with the supplied item's
+ *       combining the incoming dimension with the supplied item's
  *       {@code IPSWidgetAssetRelationshipService.getLinkedPages(...)} and
  *       {@code IPSWidgetAssetRelationshipService.getLinkedAssets(...)} parents.
  * </ul>

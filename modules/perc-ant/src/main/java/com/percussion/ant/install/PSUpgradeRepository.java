@@ -50,6 +50,10 @@ import java.util.Properties;
  * </pre>
  */
 public class PSUpgradeRepository extends PSAction {
+  /**
+   * Creates a new repository upgrade task.
+   */
+  public PSUpgradeRepository() {}
   // see base class
   @Override
   public void execute() {

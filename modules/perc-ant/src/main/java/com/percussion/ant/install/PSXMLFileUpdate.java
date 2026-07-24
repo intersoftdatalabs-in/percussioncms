@@ -83,6 +83,10 @@ import org.xml.sax.InputSource;
  * </pre>
  */
 public class PSXMLFileUpdate extends PSAction implements EntityResolver {
+  /**
+   * Creates a new XML file update task.
+   */
+  public PSXMLFileUpdate() {}
 
   /***************************************************************************
    * EntityResolver implementation

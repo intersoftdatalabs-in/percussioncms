@@ -32,6 +32,30 @@ etc...
 ./mvn-env.sh -pl deliverytiersuite/delivery-tier-suite/delivery-tier-distribution -am clean install
 # Windows: mvn-env.bat -pl deliverytiersuite/delivery-tier-suite/delivery-tier-distribution -am clean install
 
+## Java home resolution (GH-991 / issue #1340)
+
+Operators **do not** need to place a JRE under `<InstallDir>/JRE`. At DTS
+install time the preinstall selects a system JDK/JRE (or honors
+`-Dperc.java.home=...`) and writes `<InstallDir>/java.properties`. Console
+and service scripts **must** resolve Java through that contract (see
+`specs/991-system-java-home/contracts/`):
+
+1. `<InstallDir>/java.properties` (`JAVA_HOME`, optionally `JAVA`) — **primary**
+2. Process `JAVA_HOME` environment variable
+3. Optional legacy `<InstallDir>/JRE` then `<InstallDir>/JRE64` (if an operator still has one)
+4. `java` discoverable on `PATH`
+5. **Hard fail** with major **21+** and sources tried — never soft-fail into an unvalidated JRE path
+
+Resolve helpers (`resolve-java-home.sh` / `.bat`) ship in
+`src/main/rootFiles/` next to `TomcatStartup.*` / `TomcatShutdown.*`.
+`installDts.xml` places those files at the **product surface root** (and under
+`Staging/` for staging). Service installers live under
+`Deployment/Server/` and locate the surface root **two levels up**. Console
+scripts use the **same directory** as the script (`SCRIPT_DIR`) as the surface
+root. Both consoles and both service installers **hard-fail** if resolve fails
+before writing Procrun `--JavaHome` or `/etc/default/<service>`. See
+`specs/991-system-java-home/quickstart.md` for re-point steps (edit
+`java.properties`, restart — no JRE folder required).
 ## Linux services (systemd) — GH-962
 
 Production and Staging installers under `src/main/rootFiles/` prefer **native systemd**

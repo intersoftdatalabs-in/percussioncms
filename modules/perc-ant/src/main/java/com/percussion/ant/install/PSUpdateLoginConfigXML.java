@@ -51,6 +51,10 @@ import org.w3c.dom.NodeList;
  * </pre>
  */
 public class PSUpdateLoginConfigXML extends PSAction {
+  /**
+   * Creates a new login config XML update task.
+   */
+  public PSUpdateLoginConfigXML() {}
   // see base class
   @Override
   public void execute() {

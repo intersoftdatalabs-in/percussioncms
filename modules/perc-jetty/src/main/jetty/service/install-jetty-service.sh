@@ -315,11 +315,31 @@ if [ "$uninstall" != "true" ]; then
     echo "JETTY_ROOT=${JETTY_ROOT}"
     echo "rxDir=${rxDir}"
 
-    if [ -d "${rxDir}/JRE" ]; then
-        echo "Found ${rxDir}/JRE to use as JRE Folder"
-        JAVA_HOME=${rxDir}/JRE
-    else
-        JAVA_HOME=${rxDir}/JRE64
+    # Prefer a Java home resolved via the shared precedence contract
+    # (java.properties > env JAVA_HOME > install-dir JRE|JRE64 > PATH > fail,
+    # major 21). Falls back to legacy <installRoot>/JRE or JRE64 when the
+    # resolver is unavailable, so existing manual layouts continue to work.
+    # See specs/991-system-java-home/contracts/java-home-resolution.md.
+    RESOLVER="${JETTY_ROOT}/resolve-java-home.sh"
+    JAVA_HOME=""
+    if [ -f "$RESOLVER" ] && [ -r "$RESOLVER" ]; then
+        # shellcheck disable=SC1090
+        # Source directly into the installer shell (NOT in a subshell) so the
+        # resolver's JAVA_HOME / JAVA / RESOLVE_SOURCE assignments propagate;
+        # a subshell would silently discard them and force the legacy fallback.
+        if source "$RESOLVER" "${rxDir}" 2>/dev/null; then
+            echo "Service Java home resolved via $RESOLVE_SOURCE"
+        else
+            echo "Warning: ${RESOLVER} failed; falling back to install-dir JRE/JRE64" >&2
+        fi
+    fi
+    if [ -z "$JAVA_HOME" ] || [ ! -x "${JAVA_HOME}/bin/java" ]; then
+        if [ -d "${rxDir}/JRE" ]; then
+            echo "Found ${rxDir}/JRE to use as JRE Folder"
+            JAVA_HOME=${rxDir}/JRE
+        else
+            JAVA_HOME=${rxDir}/JRE64
+        fi
     fi
 
     if [ -f "${JETTY_BASE}/etc/jetty.conf" ]; then

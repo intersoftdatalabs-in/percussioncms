@@ -42,6 +42,10 @@ import com.percussion.install.InstallUtil;
  * </pre>
  */
 public class PSBrandProduct extends PSAction {
+  /**
+   * Creates a new product branding task.
+   */
+  public PSBrandProduct() {}
   // see base class
   @Override
   public void execute() {

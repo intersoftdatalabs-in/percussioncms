@@ -17,6 +17,8 @@ package com.percussion.share.relationship.service.impl;
 
 import com.percussion.assetmanagement.service.IPSWidgetAssetRelationshipService;
 import com.percussion.cms.objectstore.PSRelationshipFilter;
+import com.percussion.pagemanagement.service.IPSPageService;
+import com.percussion.services.contentmgr.IPSContentMgr;
 import com.percussion.share.dao.IPSRelationshipCataloger;
 import com.percussion.share.dao.PSJcrNodeFinder;
 import com.percussion.share.relationship.data.PSLocalDependencySummary;
@@ -97,7 +99,14 @@ public class PSRelationshipSummaryService implements IPSRelationshipSummaryServi
   private final IPSWidgetAssetRelationshipService widgetAssetRelationshipService;
 
   /**
-   * Ctor. All collaborators are required.
+   * Spring primary ctor. All collaborators are required.
+   *
+   * <p>Constructs the {@link PSJcrNodeFinder} internally because it is not a Spring bean —
+   * see issue #1419 follow-up. The pattern matches {@link
+   * com.percussion.sitemanage.service.impl.PSSiteSectionService} and {@link
+   * com.percussion.pagemanagement.dao.impl.PSPageDao}, both of which take {@link IPSContentMgr}
+   * in their ctor and {@code new} up a finder scoped to {@link
+   * IPSPageService#PAGE_CONTENT_TYPE} / {@code sys_title}.
    *
    * @param idMapper mapping guid-string &harr; {@link IPSGuid}; required.
    * @param systemWs the system-level web-services facade (used by the findDependents side of
@@ -106,12 +115,39 @@ public class PSRelationshipSummaryService implements IPSRelationshipSummaryServi
    *     required. The {@code @Qualifier("relationshipCataloger")} is required to disambiguate from
    *     {@code contentItemDao} (which also implements {@link IPSRelationshipCataloger} via
    *     {@link com.percussion.share.dao.IPSContentItemDao}); see issue #1419.
-   * @param jcrNodeFinder JCR node finder for the taxonomy / site edges; required.
+   * @param contentMgr JCR content manager used to construct the {@link PSJcrNodeFinder}; required.
    * @param widgetAssetRelationshipService the AA / widget relationship service for local + linked
    *     assets; required.
    */
   @Autowired
   public PSRelationshipSummaryService(
+      IPSIdMapper idMapper,
+      IPSSystemWs systemWs,
+      @Qualifier("relationshipCataloger") IPSRelationshipCataloger relationshipCataloger,
+      IPSContentMgr contentMgr,
+      IPSWidgetAssetRelationshipService widgetAssetRelationshipService) {
+    this(
+        idMapper,
+        systemWs,
+        relationshipCataloger,
+        new PSJcrNodeFinder(contentMgr, IPSPageService.PAGE_CONTENT_TYPE, "sys_title"),
+        widgetAssetRelationshipService);
+  }
+
+  /**
+   * Test-friendly ctor. Used by unit tests to inject a pre-built {@link PSJcrNodeFinder} (typically
+   * a Mockito mock) directly without standing up a {@link IPSContentMgr} stub for
+   * {@code createQuery} / {@code executeQuery}. Spring uses the {@code @Autowired} ctor above.
+   *
+   * @param idMapper mapping guid-string &harr; {@link IPSGuid}; required.
+   * @param systemWs the system-level web-services facade; required.
+   * @param relationshipCataloger pre-existing typed wrapper over {@code systemWs.findOwners(...)};
+   *     required.
+   * @param jcrNodeFinder JCR node finder for the taxonomy / site edges; required.
+   * @param widgetAssetRelationshipService the AA / widget relationship service for local + linked
+   *     assets; required.
+   */
+  PSRelationshipSummaryService(
       IPSIdMapper idMapper,
       IPSSystemWs systemWs,
       @Qualifier("relationshipCataloger") IPSRelationshipCataloger relationshipCataloger,

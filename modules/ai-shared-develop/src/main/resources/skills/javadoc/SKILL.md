@@ -11,7 +11,7 @@ Use this skill when generating or updating Javadoc comments in the percussioncms
 
 1. **Check JDK version** — Look at `pom.xml` for `<source>/<target>/<release>` (likely 21)
 2. **Use the checklist** — See `reference/javadoc-checklist.md` for per-file guidance
-3. **Run generation scripts** — Use `scripts/generate-javadoc-stubs.sh` for initial stubs
+3. **Run generation scripts** — Use `scripts/generate-javadoc-stubs.py` for initial stubs
 
 ## JDK Version Detection
 
@@ -56,8 +56,7 @@ Use this skill when generating or updating Javadoc comments in the percussioncms
 
 ## Scripts
 
-- `scripts/generate-javadoc-stubs.sh` — Bash script to generate stub comments
-- `scripts/generate-javadoc-stubs.ps1` — PowerShell equivalent
+- `scripts/generate-javadoc-stubs.py` — Cross-platform Python port that generates stub comments (replaces the legacy `.sh` and `.ps1` variants).
 
 ## Maven Integration
 

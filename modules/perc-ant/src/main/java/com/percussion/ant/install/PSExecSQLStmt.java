@@ -74,6 +74,10 @@ import org.apache.tools.ant.BuildException;
  * </pre>
  */
 public class PSExecSQLStmt extends PSAction {
+  /**
+   * Creates a new SQL statement executor.
+   */
+  public PSExecSQLStmt() {}
   private static final Logger log = LogManager.getLogger(PSExecSQLStmt.class);
 
   // see base class
@@ -148,8 +152,12 @@ public class PSExecSQLStmt extends PSAction {
     }
   }
 
+  /**
+   * Handles exceptions thrown during SQL execution.
+   *
+   * @param ex the exception to handle, never <code>null</code>
+   */
   public void handleException(Exception ex) {
-    // ERROR Code for specified View Not Exist, ignore it
     if (ex.getMessage().contains("ORA-00942") || ex.getMessage().contains("does not exist")) {
       PSLogger.logWarn(ex.getMessage());
       return;

@@ -27,9 +27,14 @@ import org.apache.tools.ant.Task;
 public class PSMakeHelpHints extends Task {
 
   /**
+   * Creates a new task instance with default settings.
+   */
+  public PSMakeHelpHints() {}
+
+  /**
    * The location of the help mappings file (Required)
    *
-   * @param helpMappings
+   * @param helpMappings the file containing help mappings, must not be <code>null</code>
    */
   public void setHelpmappings(File helpMappings) {
     m_helpMappings = helpMappings;
@@ -38,7 +43,7 @@ public class PSMakeHelpHints extends Task {
   /**
    * The help plugin directory where all the help files can be found (Required)
    *
-   * @param helpPath
+   * @param helpPath the directory containing help plugin files, must not be <code>null</code>
    */
   public void setHelppath(File helpPath) {
     m_helpPath = helpPath;
@@ -47,7 +52,7 @@ public class PSMakeHelpHints extends Task {
   /**
    * The target path for the file to be created (Required)
    *
-   * @param target
+   * @param target the target file path where the help hints XML will be written, must not be <code>null</code>
    */
   public void setTarget(File target) {
     m_target = target;

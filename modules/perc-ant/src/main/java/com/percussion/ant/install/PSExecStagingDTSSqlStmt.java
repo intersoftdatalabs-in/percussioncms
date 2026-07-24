@@ -19,7 +19,14 @@ package com.percussion.ant.install;
 
 import java.io.File;
 
+/**
+ * Executes a staging DTS SQL statement.
+ */
 public class PSExecStagingDTSSqlStmt extends PSExecDTSSqlStmt {
+  /**
+   * Creates a new staging DTS SQL statement executor.
+   */
+  public PSExecStagingDTSSqlStmt() {}
 
   @Override
   protected String getDBPropertyFile() {

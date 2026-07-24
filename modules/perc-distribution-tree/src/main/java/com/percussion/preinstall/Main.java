@@ -16,6 +16,7 @@
 
 package com.percussion.preinstall;
 
+import com.percussion.preinstall.java.JavaInstallSelection;
 import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.security.validation.PathValidation;
 import com.percussion.security.xml.PSSecureXMLUtils;
@@ -54,6 +55,11 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
+/**
+ * Pre-install entry point invoked by the distribution assembly. Extracts the assembled
+ * distribution, resolves database configuration, selects a runtime Java home, and executes the
+ * ANT installer against the target directory.
+ */
 public class Main {
 
   private static final Logger log = LogManager.getLogger(Main.class);
@@ -65,6 +71,7 @@ public class Main {
   public static final String INSTALL_TEMPDIR = "percInstallTmp_";
   public static final String PERC_ANT_JAR = "perc-ant";
   public static final String DEVELOPMENT = "DEVELOPMENT";
+  /** Name of the ANT build file inside the installer directory. */
   public static final String ANT_INSTALL = "install.xml";
   public static final String JAVA_TEMP = "java.io.tmpdir";
   public static final String VERSION_PROPERTIES = "Version.properties";
@@ -139,6 +146,39 @@ public class Main {
       System.out.println(DEVELOPMENT + "=" + developmentFlag);
 
       System.out.println("Installation folder is " + installPath.toAbsolutePath().toString());
+
+      // Issue #1340 / US3 + US4: resolve and persist the Java home used at
+      // runtime by CMS / DTS start, stop, and service install paths. Honor an
+      // explicit -Dperc.java.home=... override; otherwise discover and (when
+      // interactive) prompt for a Java 21 home. Survives a non-interactive
+      // environment by auto-selecting single candidates and failing loudly
+      // when zero are eligible — never silently fall back to a manual
+      // <InstallDir>/JRE copy.
+      try {
+        Path unattended = parseUnattendedJavaHome(System.getProperty(PERC_JAVA_HOME));
+        JavaInstallSelection.SelectionOutcome outcome =
+            new JavaInstallSelection(
+                    installPath,
+                    unattended,
+                    prompt -> {
+                      java.io.Console c = System.console();
+                      return c == null ? "" : c.readLine(prompt);
+                    })
+                .selectAndPersist();
+        System.out.println("Java home selection: " + outcome.summary());
+      } catch (JavaInstallSelection.JavaSelectionException sel) {
+        System.out.println("Java home selection failed: " + sel.getMessage());
+        System.exit(2);
+        return;
+      } catch (IOException io) {
+        System.out.println(
+            "Could not write java.properties at "
+                + installPath.resolve("java.properties")
+                + ": "
+                + io.getMessage());
+        System.exit(2);
+        return;
+      }
 
       Properties existingVersion = loadVersionProperties(installPath);
       if (existingVersion != null) {
@@ -236,6 +276,20 @@ public class Main {
       log.warn("Invalid {} in Version.properties: {}", label, raw);
       return 0;
     }
+  }
+
+  /** Treat the supplied -Dperc.java.home value as the unattended input to the
+   * Java home selection. Returns {@code null} when the property is unset, so
+   * the discovery / interactive path takes over. */
+  static java.nio.file.Path parseUnattendedJavaHome(String raw) {
+    if (raw == null) {
+      return null;
+    }
+    String trimmed = raw.trim();
+    if (trimmed.isEmpty() || "${perc.java.home}".equals(trimmed)) {
+      return null;
+    }
+    return java.nio.file.Path.of(trimmed);
   }
 
   static void runObsoleteInstallDirCleanup(

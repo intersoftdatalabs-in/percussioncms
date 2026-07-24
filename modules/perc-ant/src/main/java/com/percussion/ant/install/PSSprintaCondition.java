@@ -47,6 +47,10 @@ import org.apache.tools.ant.taskdefs.condition.Condition;
  * </pre>
  */
 public class PSSprintaCondition extends PSAction implements Condition {
+  /**
+   * Creates a new sprint/stand-alone condition.
+   */
+  public PSSprintaCondition() {}
   /* (non-Javadoc)
    * @see org.apache.tools.ant.taskdefs.condition.Condition#eval()
    */

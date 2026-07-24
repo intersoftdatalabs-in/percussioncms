@@ -59,6 +59,10 @@ import java.util.Properties;
  * </pre>
  */
 public class PSUpdateRepoProps extends PSAction {
+  /**
+   * Creates a new repository properties update task.
+   */
+  public PSUpdateRepoProps() {}
 
   public void execute() {
     File root = new File(getRootDir());

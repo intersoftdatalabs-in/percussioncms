@@ -58,6 +58,10 @@ import java.util.Properties;
  * </pre>
  */
 public class PSCreateTableBackupAction extends PSAction {
+  /**
+   * Creates a new table backup action.
+   */
+  public PSCreateTableBackupAction() {}
   // see base class
 
   @Override
@@ -190,7 +194,11 @@ public class PSCreateTableBackupAction extends PSAction {
     this.dropTables = dropTables;
   }
 
-  /** Returns the suffix to be added to the table to obtain the name of the backup table. */
+  /**
+   * Returns the suffix to be added to the table to obtain the name of the backup table.
+   *
+   * @return the suffix to be added to the table name
+   */
   public String getSuffix() {
     return suffix;
   }
@@ -198,6 +206,8 @@ public class PSCreateTableBackupAction extends PSAction {
   /**
    * Sets the value of the suffix to be used in creating the backup table name. The set will only
    * occur for non-empty input values.
+   *
+   * @param newSuffix the suffix to use for backup table names
    */
   public void setSuffix(String newSuffix) {
     if (newSuffix != null && newSuffix.trim().length() > 0) suffix = newSuffix;

@@ -122,9 +122,10 @@ if [ "$uninstall" != "true" ]; then
 
     # If still not set, need to set java.properties
     if [ -z "$JAVA" ]; then
-        echo "Did not find any JRE on the system.  Please update the java.properties file"
-        echo "in the root of the server.  Add the 'JAVA=' property and set it to point"
-        echo "to the java executable.  Must be version 1.8 of the JRE."
+        echo "Did not find any Java runtime on the system.  Please update java.properties"
+        echo "in the root of the server.  Add the 'JAVA=' property and set it to point to"
+        echo "a Java 21 (major version 21) executable.  See specs/991-system-java-home/"
+        echo "for the resolution contract and migration notes from Java 1.8 layouts."
         exit 1
     fi
 

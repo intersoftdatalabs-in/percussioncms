@@ -47,6 +47,10 @@ import org.apache.tools.ant.Task;
  * </pre>
  */
 public class PSValidateRepositoryConnection extends Task {
+  /**
+   * Creates a new repository connection validation task.
+   */
+  public PSValidateRepositoryConnection() {}
 
   private String rootDir;
   private int loginTimeoutSeconds = 15;

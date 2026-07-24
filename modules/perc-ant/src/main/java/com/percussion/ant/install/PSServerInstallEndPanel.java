@@ -51,6 +51,10 @@ import java.util.Properties;
  * </pre>
  */
 public class PSServerInstallEndPanel extends PSAction {
+  /**
+   * Creates a new server install end panel task.
+   */
+  public PSServerInstallEndPanel() {}
   // see base class
   @Override
   public void execute() {

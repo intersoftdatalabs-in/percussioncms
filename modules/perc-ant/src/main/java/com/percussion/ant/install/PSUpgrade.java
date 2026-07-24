@@ -45,6 +45,10 @@ import com.percussion.security.error.PSExceptionUtils;
  * </pre>
  */
 public class PSUpgrade extends PSAction {
+  /**
+   * Creates a new upgrade task.
+   */
+  public PSUpgrade() {}
   // see base class
   @Override
   public void execute() {

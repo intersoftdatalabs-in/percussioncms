@@ -26,6 +26,10 @@ import org.apache.tools.ant.BuildException;
  * algorithm and then re-encrypted using the new one.
  */
 public class PSUpgradeEncryption extends PSAction {
+  /**
+   * Creates a new encryption upgrade task.
+   */
+  public PSUpgradeEncryption() {}
 
   /* TODO: Update encrypted strings in the following files
           1. rxconfig/Installer/rxrepository.properties

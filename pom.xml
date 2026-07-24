@@ -2648,7 +2648,7 @@
                 <plugin>
                     <groupId>com.intsof</groupId>
                     <artifactId>ai-build-integrity-maven-plugin</artifactId>
-                    <version>0.13.2</version>
+                    <version>0.13.3</version>
                     <configuration>
                         <hashFileMode>CENTRAL</hashFileMode>
                         <!-- Scan the entire repo, not just the current module's basedir -->
@@ -2703,7 +2703,7 @@
             <plugin>
                 <groupId>com.intsof</groupId>
                 <artifactId>ai-build-integrity-maven-plugin</artifactId>
-                <version>0.13.2</version>
+                <version>0.13.3</version>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -2797,7 +2797,7 @@
                 <artifactId>exec-maven-plugin</artifactId>
                 <version>${maven.exec.plugin.version}</version>
                 <executions>
-                    <!-- TODO: Experimental - potentially remove 
+                    <!-- TODO: Experimental - potentially remove
 			<execution>
                         <id>verify-agent-integrity</id>
                         <goals>
@@ -2805,8 +2805,9 @@
                         </goals>
                         <phase>validate</phase>
                         <configuration>
-                            <executable>${maven.multiModuleProjectDirectory}/modules/ai-shared-develop/scripts/build-integrity-check.sh</executable>
+                            <executable>python3</executable>
                             <arguments>
+                                <argument>${maven.multiModuleProjectDirectory}/modules/ai-shared-develop/scripts/build-integrity-check.py</argument>
                                 <argument>${maven.multiModuleProjectDirectory}/AGENTS.md</argument>
                             </arguments>
                             <successCodes>

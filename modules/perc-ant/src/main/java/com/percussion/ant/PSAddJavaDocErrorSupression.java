@@ -32,6 +32,10 @@ import org.apache.tools.ant.Task;
  * error handler into the index.html file that will supress all javascript errors.
  */
 public class PSAddJavaDocErrorSupression extends Task {
+  /**
+   * Creates a new javadoc error suppression task.
+   */
+  public PSAddJavaDocErrorSupression() {}
 
   private static final Logger log = LogManager.getLogger(PSAddJavaDocErrorSupression.class);
 
@@ -124,6 +128,11 @@ public class PSAddJavaDocErrorSupression extends Task {
     }
   }
 
+  /**
+   * Entry point for running this task standalone.
+   *
+   * @param args the command-line arguments
+   */
   public static void main(String[] args) {
     PSAddJavaDocErrorSupression task = new PSAddJavaDocErrorSupression();
     task.setDir(new File("E:\\rxMain\\system\\publicJavaDocs\\docs"));

@@ -78,7 +78,7 @@ class PSLogHandlerTest {
     assertEquals("8.2.0", colsByName.get("SRC_SERVER_VERSION"));
     assertEquals("2026.07.21", colsByName.get("SRC_SERVER_BUILD_ID"));
     assertEquals("rhythmx-target:9992", colsByName.get("TGT_SERVER_NAME"));
-    assertEquals("2026-07-21 15:30:45", colsByName.get("ALS_SRC_SERVER_BUILD_DATE"));
+    assertEquals("2026-07-21 15:30:45", colsByName.get("SRC_SERVER_BUILD_DATE"));
     assertNotNull(colsByName.get("ARCHIVE_INFO"));
     assertNotNull(colsByName.get("ARCHIVE_MANIFEST"));
   }
@@ -108,7 +108,7 @@ class PSLogHandlerTest {
     String buildDateValue = null;
     while (cols.hasNext()) {
       PSJdbcColumnData col = cols.next();
-      if ("ALS_SRC_SERVER_BUILD_DATE".equalsIgnoreCase(col.getName())) {
+      if ("SRC_SERVER_BUILD_DATE".equalsIgnoreCase(col.getName())) {
         buildDateValue = col.getValue();
         break;
       }

@@ -44,10 +44,15 @@ set PR_STDOUTPUT=auto
 set PR_STDERROR=auto
 set PR_LOGLEVEL=Error
 
-@REM Path to Java Installation
+@REM Path to Java Installation — resolved via shared precedence contract
+REM (java.properties > env JAVA_HOME > install-dir JRE|JRE64 > PATH > fail).
+REM See specs/991-system-java-home/contracts/java-home-resolution.md.
+call "%~dp0..\resolve-java-home.bat" "%JETTY_ROOT%.."
+if errorlevel 1 (
+    echo install-jetty-service: Java home resolution failed 1>&2
+    goto end
+)
 
-CALL :NORMALIZEPATH "%JETTY_ROOT%..\JRE"
-set JAVA_HOME=%RETVAL%
 set PR_JVM="%JAVA_HOME%\bin\server\jvm.dll"
 set PR_CLASSPATH="%JETTY_HOME%\start.jar;%JAVA_HOME%\lib\tools.jar"
 

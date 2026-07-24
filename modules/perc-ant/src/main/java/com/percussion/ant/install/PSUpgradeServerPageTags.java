@@ -70,6 +70,10 @@ import org.w3c.dom.NodeList;
  * </pre>
  */
 public class PSUpgradeServerPageTags extends PSAction {
+  /**
+   * Creates a new server page tags upgrade task.
+   */
+  public PSUpgradeServerPageTags() {}
   // see base class
   @Override
   public void execute() {
