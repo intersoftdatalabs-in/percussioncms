@@ -22,6 +22,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -159,8 +160,9 @@ public class PSDtsEmbeddedRepositoryMigrator {
               "Product offline backup failed: "
                   + PSMigrationSecretsRedactor.redact(e.getMessage());
           outcome = PSMigrationOutcome.BLOCKED_BACKUP_GATE;
+          // Gate not satisfied — PRODUCT_BACKUP is reserved for successful product offline backup
           writeReport(
-              component, outcome, PSBackupGateKind.PRODUCT_BACKUP, sourceBackend, targetBackend,
+              component, outcome, PSBackupGateKind.NOT_SATISFIED, sourceBackend, targetBackend,
               failureReason);
           log(component, outcome, failureReason);
           return outcome;
@@ -329,11 +331,20 @@ public class PSDtsEmbeddedRepositoryMigrator {
       return true;
     }
     if (url != null) {
-      String u = url.toLowerCase(Locale.ROOT);
-      return u.contains(serviceLower) || u.contains("derbydata/" + serviceLower)
+      String u = normalizeJdbcPath(url);
+      return u.contains(serviceLower)
+          || u.contains("derbydata/" + serviceLower)
           || u.contains("h2data/" + serviceLower);
     }
     return false;
+  }
+
+  /** Lowercase and normalize path separators in JDBC URLs for cross-platform matching. */
+  static String normalizeJdbcPath(String url) {
+    if (url == null) {
+      return "";
+    }
+    return url.toLowerCase(Locale.ROOT).replace('\\', '/');
   }
 
   static void cutoverServiceConfigs(Path serverRoot, String serviceName, Path h2Base)
@@ -344,76 +355,126 @@ public class PSDtsEmbeddedRepositoryMigrator {
         "jdbc:h2:file:${catalina.home}/h2data/" + serviceName + ";DB_CLOSE_ON_EXIT=FALSE";
     String svc = serviceName.toLowerCase(Locale.ROOT);
 
-    // Only rewrite property files that clearly target this service
-    for (Path propsPath : findDatasourcePropertyFilesForService(serverRoot, serviceName)) {
-      Properties p = loadProps(propsPath);
-      String url = firstNonBlank(p.getProperty("jdbcUrl"), p.getProperty("jdbc.url"));
-      if (url == null) {
-        continue;
-      }
-      if (!pathOrUrlMentionsService(propsPath, url, svc)) {
-        continue;
-      }
-      String lower = url.toLowerCase(Locale.ROOT);
-      // Do not rewrite already-H2 or external URLs that do not mention this service
-      boolean needsCutover =
-          lower.contains("derby")
-              || lower.contains("derbydata/" + svc)
-              || lower.contains("h2data/" + svc)
-              || lower.contains(svc);
-      if (!needsCutover) {
-        continue;
-      }
-      // Never rewrite a URL that points at a *different* service data dir
-      if (pointsAtDifferentService(lower, svc)) {
-        continue;
-      }
-      if (p.containsKey("jdbcUrl")) {
-        p.setProperty("jdbcUrl", relativeUrl);
-      }
-      if (p.containsKey("jdbc.url")) {
-        p.setProperty("jdbc.url", relativeUrl);
-      }
-      if (p.containsKey("jdbcDriver")) {
-        p.setProperty("jdbcDriver", PSJdbcUtils.H2_DRIVER_CLASS);
-      }
-      if (p.containsKey("jdbc.driver")) {
-        p.setProperty("jdbc.driver", PSJdbcUtils.H2_DRIVER_CLASS);
-      }
-      if (p.containsKey("hibernate.dialect")) {
-        p.setProperty("hibernate.dialect", "org.hibernate.dialect.H2Dialect");
-      }
-      if (p.containsKey("db.schema")) {
-        p.setProperty("db.schema", "PUBLIC");
-      }
-      if (p.containsKey("hibernate.query.substitutions")) {
-        String sub = p.getProperty("hibernate.query.substitutions", "");
-        if (sub.contains("true") && sub.contains("T")) {
-          p.setProperty("hibernate.query.substitutions", "");
+    Map<Path, Path> backups = new LinkedHashMap<>();
+    Path backupDir =
+        serverRoot
+            .resolve("PreInstall")
+            .resolve("dts-cutover-backup")
+            .resolve(serviceName + "-" + System.currentTimeMillis());
+    try {
+      // Only rewrite property files that clearly target this service
+      for (Path propsPath : findDatasourcePropertyFilesForService(serverRoot, serviceName)) {
+        Properties p = loadProps(propsPath);
+        String url = firstNonBlank(p.getProperty("jdbcUrl"), p.getProperty("jdbc.url"));
+        if (url == null) {
+          continue;
         }
+        if (!pathOrUrlMentionsService(propsPath, url, svc)) {
+          continue;
+        }
+        String lower = normalizeJdbcPath(url);
+        // Only cut over live service data URLs (not backup/temp paths that merely contain the name)
+        if (!isLiveServiceDataUrl(lower, svc)) {
+          continue;
+        }
+        // Never rewrite a URL that points at a *different* service data dir
+        if (pointsAtDifferentService(lower, svc)) {
+          continue;
+        }
+        Files.createDirectories(backupDir);
+        Path bak = backupDir.resolve(propsPath.getFileName().toString() + ".bak");
+        if (Files.exists(bak)) {
+          bak =
+              backupDir.resolve(
+                  propsPath.getFileName().toString()
+                      + "."
+                      + Integer.toHexString(propsPath.toString().length())
+                      + ".bak");
+        }
+        Files.copy(propsPath, bak, StandardCopyOption.REPLACE_EXISTING);
+        backups.put(propsPath, bak);
+
+        if (p.containsKey("jdbcUrl")) {
+          p.setProperty("jdbcUrl", relativeUrl);
+        }
+        if (p.containsKey("jdbc.url")) {
+          p.setProperty("jdbc.url", relativeUrl);
+        }
+        if (p.containsKey("jdbcDriver")) {
+          p.setProperty("jdbcDriver", PSJdbcUtils.H2_DRIVER_CLASS);
+        }
+        if (p.containsKey("jdbc.driver")) {
+          p.setProperty("jdbc.driver", PSJdbcUtils.H2_DRIVER_CLASS);
+        }
+        if (p.containsKey("hibernate.dialect")) {
+          p.setProperty("hibernate.dialect", "org.hibernate.dialect.H2Dialect");
+        }
+        if (p.containsKey("db.schema")) {
+          p.setProperty("db.schema", "PUBLIC");
+        }
+        if (p.containsKey("hibernate.query.substitutions")) {
+          String sub = p.getProperty("hibernate.query.substitutions", "");
+          if (sub.contains("true") && sub.contains("T")) {
+            p.setProperty("hibernate.query.substitutions", "");
+          }
+        }
+        writeProps(propsPath, p);
+        LOG.info(
+            () -> "DTS cutover wrote " + propsPath + " -> " + relativeUrl + " (abs=" + h2Url + ")");
       }
-      writeProps(propsPath, p);
-      LOG.info(() -> "DTS cutover wrote " + propsPath + " -> " + relativeUrl + " (abs=" + h2Url + ")");
+    } catch (IOException e) {
+      PSConfigCutover.rollback(backups);
+      throw new IOException(
+          "DTS cutover failed for service "
+              + serviceName
+              + "; restored previous configs: "
+              + e.getMessage(),
+          e);
     }
   }
 
   /**
-   * True if JDBC URL clearly targets another known service's data directory.
+   * True if JDBC URL clearly targets another known service's live data directory.
    */
   static boolean pointsAtDifferentService(String urlLower, String thisServiceLower) {
+    String u = normalizeJdbcPath(urlLower);
     for (String other : DEFAULT_SERVICES) {
       String o = other.toLowerCase(Locale.ROOT);
       if (o.equals(thisServiceLower)) {
         continue;
       }
-      if (urlLower.contains("derbydata/" + o)
-          || urlLower.contains("h2data/" + o)
-          || urlLower.endsWith("/" + o)
-          || urlLower.contains("/" + o + ";")) {
+      if (isLiveServiceDataUrl(u, o)) {
         return true;
       }
     }
     return false;
+  }
+
+  /**
+   * Live product data paths only: {@code derbydata/&lt;svc&gt;}, {@code h2data/&lt;svc&gt;}, or a
+   * path segment ending in {@code /&lt;svc&gt;} (optional trailing JDBC params). Excludes backup /
+   * temp paths that only contain the service name as a substring (e.g. {@code
+   * /backup/perccomments_backup}).
+   */
+  static boolean isLiveServiceDataUrl(String urlLower, String serviceLower) {
+    String u = normalizeJdbcPath(urlLower);
+    if (u.isEmpty() || serviceLower == null || serviceLower.isBlank()) {
+      return false;
+    }
+    String svc = serviceLower.toLowerCase(Locale.ROOT);
+    if (u.contains("derbydata/" + svc) || u.contains("h2data/" + svc)) {
+      return true;
+    }
+    int idx = u.lastIndexOf('/' + svc);
+    if (idx < 0) {
+      return false;
+    }
+    int after = idx + 1 + svc.length();
+    if (after == u.length()) {
+      return true;
+    }
+    char c = u.charAt(after);
+    return c == ';' || c == '?' || c == '#';
   }
 
   static Properties buildDerbySourceProps(Path derbyDir) {

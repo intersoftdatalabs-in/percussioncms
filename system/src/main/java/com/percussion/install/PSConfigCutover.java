@@ -20,10 +20,14 @@ import com.percussion.utils.jdbc.PSJdbcUtils;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
+import java.util.HexFormat;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -190,11 +194,10 @@ public final class PSConfigCutover {
     if (!Files.isRegularFile(live)) {
       return;
     }
-    // Short unique name: original filename + hash of absolute path (filesystem name limit safe)
+    // Short unique name: original filename + collision-resistant path digest
     String name = live.getFileName() != null ? live.getFileName().toString() : "config.properties";
     String abs = live.toAbsolutePath().normalize().toString();
-    String hash =
-        Integer.toHexString(abs.hashCode()).replace('-', 'n');
+    String hash = shortPathDigest(abs);
     String safe = name + "." + hash + ".bak";
     if (safe.length() > 200) {
       safe = "cutover." + hash + ".bak";
@@ -202,6 +205,23 @@ public final class PSConfigCutover {
     Path dest = backupDir.resolve(safe);
     Files.copy(live, dest, StandardCopyOption.REPLACE_EXISTING);
     backups.put(live, dest);
+  }
+
+  /**
+   * Collision-resistant short digest of an absolute path for backup basenames (not {@link
+   * String#hashCode()}).
+   */
+  static String shortPathDigest(String absolutePath) {
+    try {
+      MessageDigest md = MessageDigest.getInstance("SHA-256");
+      byte[] dig = md.digest(absolutePath.getBytes(StandardCharsets.UTF_8));
+      // 16 hex chars = 64 bits; ample for config-path uniqueness in one install tree
+      return HexFormat.of().formatHex(dig, 0, 8);
+    } catch (NoSuchAlgorithmException e) {
+      // Unreachable on a standard JRE; fall back to hex of UTF-8 bytes length+prefix
+      return Integer.toHexString(absolutePath.length())
+          + Integer.toHexString(absolutePath.hashCode()).replace('-', 'n');
+    }
   }
 
   private static Properties loadProperties(Path path) throws IOException {

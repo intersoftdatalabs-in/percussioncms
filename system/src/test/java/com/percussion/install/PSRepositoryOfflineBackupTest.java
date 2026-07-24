@@ -73,4 +73,23 @@ public class PSRepositoryOfflineBackupTest {
         !PSRepositoryOfflineBackup.hasSufficientDiskSpace(
             temp, Long.MAX_VALUE / 2));
   }
+
+  @Test
+  void symlinkSourceTreeIsCopied() throws Exception {
+    Path real = temp.resolve("realRepo");
+    Files.createDirectories(real);
+    Files.writeString(real.resolve("seg0"), "via-symlink", StandardCharsets.UTF_8);
+    Path link = temp.resolve("linkRepo");
+    try {
+      Files.createSymbolicLink(link, real);
+    } catch (Exception ex) {
+      org.junit.jupiter.api.Assumptions.assumeTrue(
+          false, "symlinks not supported: " + ex.getMessage());
+    }
+    Path backupRoot = temp.resolve("backup-symlink");
+    PSRepositoryOfflineBackup.Result result =
+        PSRepositoryOfflineBackup.copyRepositoryTree(link, backupRoot);
+    assertTrue(result.filesCopied() >= 1);
+    assertTrue(Files.isRegularFile(backupRoot.resolve("repository-data").resolve("seg0")));
+  }
 }

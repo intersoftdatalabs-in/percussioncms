@@ -17,6 +17,7 @@
 package com.percussion.install;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.nio.charset.StandardCharsets;
@@ -182,5 +183,44 @@ public class PSDtsEmbeddedRepositoryMigratorTest {
     assertTrue(
         commentsProps.getProperty("jdbcDriver").contains("derby"),
         "other service Derby driver must remain intact");
+  }
+
+  @Test
+  void isLiveServiceDataUrl_rejectsBackupSubstrings() {
+    assertTrue(
+        PSDtsEmbeddedRepositoryMigrator.isLiveServiceDataUrl(
+            "jdbc:derby:${catalina.home}/derbydata/perccomments", "perccomments"));
+    assertFalse(
+        PSDtsEmbeddedRepositoryMigrator.isLiveServiceDataUrl(
+            "jdbc:derby:/backup/perccomments_backup", "perccomments"));
+    assertFalse(
+        PSDtsEmbeddedRepositoryMigrator.isLiveServiceDataUrl(
+            "jdbc:derby:/tmp/percmetadata-tmp", "percmetadata"));
+  }
+
+  @Test
+  void cutoverDoesNotRewriteBackupPathUrls() throws Exception {
+    Path server = root.resolve("Deployment").resolve("Server");
+    Path props =
+        server
+            .resolve("webapps")
+            .resolve("perc-comments-services")
+            .resolve("WEB-INF")
+            .resolve("perc-datasources.properties");
+    Files.createDirectories(props.getParent());
+    String backupUrl = "jdbc:derby:/var/backup/perccomments_backup";
+    Files.writeString(
+        props,
+        "jdbcDriver=org.apache.derby.jdbc.EmbeddedDriver\njdbcUrl=" + backupUrl + "\n",
+        StandardCharsets.UTF_8);
+
+    PSDtsEmbeddedRepositoryMigrator.cutoverServiceConfigs(
+        server, "perccomments", server.resolve("h2data").resolve("perccomments"));
+
+    Properties live = new Properties();
+    try (var in = Files.newInputStream(props)) {
+      live.load(in);
+    }
+    assertEquals(backupUrl, live.getProperty("jdbcUrl"), "backup URL must not be rewritten");
   }
 }

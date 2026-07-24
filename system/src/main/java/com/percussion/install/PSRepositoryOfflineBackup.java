@@ -109,8 +109,11 @@ public final class PSRepositoryOfflineBackup {
 
   private static CopyStats copyTree(Path source, Path target) throws IOException {
     CopyStats stats = new CopyStats();
-    Path sourceAbs = source.toAbsolutePath().normalize();
+    // Resolve symlinks on the source root so FOLLOW_LINKS walk paths compare against the real
+    // tree (otherwise the first preVisitDirectory is the resolved target and fails startsWith).
+    Path sourceAbs = source.toRealPath();
     Path targetAbs = target.toAbsolutePath().normalize();
+    Files.createDirectories(targetAbs);
     // FOLLOW_LINKS materialises symlink content for offline backup, but only when the
     // resolved path stays under the source tree (no write outside target via .. segments).
     Files.walkFileTree(
@@ -121,7 +124,7 @@ public final class PSRepositoryOfflineBackup {
           @Override
           public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs)
               throws IOException {
-            Path dirAbs = dir.toAbsolutePath().normalize();
+            Path dirAbs = dir.toRealPath();
             if (!dirAbs.startsWith(sourceAbs)) {
               return FileVisitResult.SKIP_SUBTREE;
             }
@@ -137,7 +140,7 @@ public final class PSRepositoryOfflineBackup {
           @Override
           public FileVisitResult visitFile(Path file, BasicFileAttributes attrs)
               throws IOException {
-            Path fileAbs = file.toAbsolutePath().normalize();
+            Path fileAbs = file.toRealPath();
             if (!fileAbs.startsWith(sourceAbs)) {
               return FileVisitResult.CONTINUE;
             }

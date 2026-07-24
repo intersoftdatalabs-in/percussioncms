@@ -134,9 +134,9 @@ public class PSEmbeddedRepositoryMigrator {
               "Product offline backup failed: "
                   + PSMigrationSecretsRedactor.redact(backupEx.getMessage());
           outcome = PSMigrationOutcome.BLOCKED_BACKUP_GATE;
-          // Preserve that product backup was attempted (observability)
+          // Gate was not satisfied — do not record PRODUCT_BACKUP (that means success)
           writeReport(
-              outcome, PSBackupGateKind.PRODUCT_BACKUP, sourceBackend, targetBackend, failureReason);
+              outcome, PSBackupGateKind.NOT_SATISFIED, sourceBackend, targetBackend, failureReason);
           logOutcome(outcome, failureReason);
           return outcome;
         }

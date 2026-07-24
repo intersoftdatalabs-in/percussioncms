@@ -17,6 +17,7 @@
 package com.percussion.install;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.nio.charset.StandardCharsets;
@@ -76,4 +77,14 @@ public class PSConfigCutoverTest {
     assertEquals("org.h2.Driver", livePerc.getProperty("perc.ds.1.driver.class"));
     assertTrue(livePerc.getProperty("perc.ds.1.server").contains("file:"));
   }
+
+  @Test
+  void shortPathDigest_isStableAndDistinct() {
+    String a = PSConfigCutover.shortPathDigest("/install/rxconfig/Installer/rxrepository.properties");
+    String b = PSConfigCutover.shortPathDigest("/install/jetty/base/etc/perc-ds.properties");
+    assertEquals(a, PSConfigCutover.shortPathDigest("/install/rxconfig/Installer/rxrepository.properties"));
+    assertNotEquals(a, b);
+    assertEquals(16, a.length());
+  }
+
 }
