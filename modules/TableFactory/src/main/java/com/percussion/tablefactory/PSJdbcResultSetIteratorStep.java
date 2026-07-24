@@ -195,6 +195,8 @@ public class PSJdbcResultSetIteratorStep extends PSJdbcSqlStatement {
   /**
    * @see java.lang.Object
    */
+  @SuppressWarnings("removal")
+  @Override
   protected void finalize() throws Throwable {
     close();
     super.finalize();

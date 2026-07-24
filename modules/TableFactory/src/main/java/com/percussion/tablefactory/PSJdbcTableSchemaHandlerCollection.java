@@ -26,6 +26,7 @@ import org.w3c.dom.Element;
  * This class is a container for a list of <code>PSJdbcTableSchemaHandler</code> objects, enabling
  * them to be serialized as a collection to and from Xml.
  */
+@SuppressWarnings("this-escape")
 public class PSJdbcTableSchemaHandlerCollection extends PSCollection {
   /** Constructor */
   public PSJdbcTableSchemaHandlerCollection() {
@@ -54,7 +55,7 @@ public class PSJdbcTableSchemaHandlerCollection extends PSCollection {
    * @throws IllegalArgumentException if <code>sourceNode</code> is <code>null</code>.
    * @throws PSJdbcTableFactoryException if there are any errors.
    */
-  public void fromXml(Element sourceNode) throws PSJdbcTableFactoryException {
+  public final void fromXml(Element sourceNode) throws PSJdbcTableFactoryException {
     if (sourceNode == null) throw new IllegalArgumentException("sourceNode may not be null");
 
     if (!sourceNode.getNodeName().equals(NODE_NAME)) {

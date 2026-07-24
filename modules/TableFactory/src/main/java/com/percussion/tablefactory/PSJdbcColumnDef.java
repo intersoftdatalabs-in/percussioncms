@@ -28,6 +28,7 @@ import org.w3c.dom.Element;
  * This class is used to represent a column definition in a table schema, and the action to perform
  * when that table schema is used to create or modify a table.
  */
+@SuppressWarnings("this-escape")
 public class PSJdbcColumnDef extends PSJdbcTableComponent {
   /**
    * Convenience method for calling {@link #PSJdbcColumnDef(PSJdbcDataTypeMap, String, int, int,
@@ -168,7 +169,7 @@ public class PSJdbcColumnDef extends PSJdbcTableComponent {
    * @throws PSJdbcTableFactoryException if there are any errors.
    */
   @Override
-  public void fromXml(Element sourceNode) throws PSJdbcTableFactoryException {
+  public final void fromXml(Element sourceNode) throws PSJdbcTableFactoryException {
     if (sourceNode == null) throw new IllegalArgumentException("sourceNode may not be null");
 
     if (!sourceNode.getNodeName().equals(NODE_NAME)) {
@@ -412,7 +413,7 @@ public class PSJdbcColumnDef extends PSJdbcTableComponent {
    *     at construction.
    * @throws PSJdbcTableFactoryException if type is not valid.
    */
-  public void setType(int type) throws PSJdbcTableFactoryException {
+  public final void setType(int type) throws PSJdbcTableFactoryException {
     // get the string representation of this type - this will validate
     m_jdbcTypeString = m_dataTypeMap.convertJdbcType(type);
     m_jdbcType = type;
@@ -430,7 +431,7 @@ public class PSJdbcColumnDef extends PSJdbcTableComponent {
    * @throws IllegalArgumentException if type is <code>null</code> or empty.
    * @throws PSJdbcTableFactoryException if type is not valid.
    */
-  public void setType(String type) throws PSJdbcTableFactoryException {
+  public final void setType(String type) throws PSJdbcTableFactoryException {
     if (type == null || type.trim().length() == 0)
       throw new IllegalArgumentException("type may not be null or empty");
 
@@ -491,7 +492,7 @@ public class PSJdbcColumnDef extends PSJdbcTableComponent {
    * @param allowsNull If <code>true</code>, nulls will be allowed, if <code>false</code>, they will
    *     not be allowed.
    */
-  public void setAllowsNull(boolean allowsNull) {
+  public final void setAllowsNull(boolean allowsNull) {
     m_allowsNull = allowsNull;
   }
 

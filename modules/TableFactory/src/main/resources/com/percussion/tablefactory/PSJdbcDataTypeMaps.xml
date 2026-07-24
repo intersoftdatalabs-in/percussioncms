@@ -171,7 +171,8 @@
 			suffix="FOR BIT DATA" />
 		<DataType jdbc="BLOB" native="BLOB" />
 	</DataTypeMap>
-	<!-- H2: default embedded replacement for retired Apache Derby (#548). Prefer native BOOLEAN. -->
+	<!-- H2: default embedded replacement for retired Apache Derby (#548). Prefer
+		native BOOLEAN. -->
 	<DataTypeMap for="H2" os="" driver="h2">
 		<DataType jdbc="BIT" native="BOOLEAN" />
 		<!-- Types.BOOLEAN (16) appears when cataloging H2 native boolean columns -->

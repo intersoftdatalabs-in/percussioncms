@@ -29,17 +29,16 @@ import org.junit.jupiter.api.Test;
 
 /**
  * Regression tests for PSJdbcTableFactoryException that verify wrapped (cause) exception
- * stack-trace information is NOT leaked through {@code printStackTrace(...)} sinks that could
- * be HTTP response writers (CodeQL {@code java/stack-trace-exposure}).
+ * stack-trace information is NOT leaked through {@code printStackTrace(...)} sinks that could be
+ * HTTP response writers (CodeQL {@code java/stack-trace-exposure}).
  *
  * <p>Follows the Constitution III fail-then-pass contract: on pre-fix code the {@code
- * printStackTrace(PrintWriter s)} and {@code printStackTrace(PrintStream s)} overrides
- * delegated to {@code m_th.printStackTrace(s)} which would emit the wrapped exception's
- * stack trace (potentially containing internal paths / connection-string fragments) into the
- * caller's writer. On post-fix code the overrides delegate to {@code super.printStackTrace(s)},
- * which emits only {@code this} exception's stack trace, and callers that need the wrapped
- * trace for server-side logging must use {@link
- * PSJdbcTableFactoryException#getStackTraceAsString(Throwable)}.
+ * printStackTrace(PrintWriter s)} and {@code printStackTrace(PrintStream s)} overrides delegated to
+ * {@code m_th.printStackTrace(s)} which would emit the wrapped exception's stack trace (potentially
+ * containing internal paths / connection-string fragments) into the caller's writer. On post-fix
+ * code the overrides delegate to {@code super.printStackTrace(s)}, which emits only {@code this}
+ * exception's stack trace, and callers that need the wrapped trace for server-side logging must use
+ * {@link PSJdbcTableFactoryException#getStackTraceAsString(Throwable)}.
  */
 @DisplayName("PSJdbcTableFactoryException Stack Trace Exposure Prevention Tests")
 class PSJdbcTableFactoryExceptionStackTraceExposureTest {

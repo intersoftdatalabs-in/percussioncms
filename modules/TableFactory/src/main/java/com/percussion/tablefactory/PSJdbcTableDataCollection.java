@@ -32,6 +32,7 @@ import org.w3c.dom.Element;
  * This class is a container for a list of PSJdbcTableData objects, enabling them to be serialized
  * as a collection to and from Xml.
  */
+@SuppressWarnings("this-escape")
 public class PSJdbcTableDataCollection extends PSCollection {
   private static final Logger log = LogManager.getLogger(LOG_CATEGORY);
 
@@ -68,7 +69,7 @@ public class PSJdbcTableDataCollection extends PSCollection {
    * @throws IllegalArgumentException if sourceNode is <code>null</code>.
    * @throws PSJdbcTableFactoryException if there are any errors.
    */
-  public void fromXml(Element sourceNode) throws PSJdbcTableFactoryException {
+  public final void fromXml(Element sourceNode) throws PSJdbcTableFactoryException {
     if (sourceNode == null) throw new IllegalArgumentException("sourceNode may not be null");
 
     if (!sourceNode.getNodeName().equals(NODE_NAME)) {

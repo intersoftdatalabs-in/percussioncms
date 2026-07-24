@@ -86,6 +86,7 @@ import org.xml.sax.SAXException;
  * on these parameters and other for obtaining the catalog of tables from the database and creating
  * the table definition xml of the selected tables.
  */
+@SuppressWarnings("this-escape")
 public class PSTDToolDialog extends JPanel {
 
   private static final Logger log = LogManager.getLogger(PSTDToolDialog.class);
@@ -162,7 +163,7 @@ public class PSTDToolDialog extends JPanel {
       if (index != -1) m_dbTypesList.removeElementAt(index);
       m_dbTypesList.insertElementAt(dbType, 0);
     }
-    m_dbTypeCombo = new JComboBox(m_dbTypesList);
+    m_dbTypeCombo = new JComboBox<String>(m_dbTypesList);
     m_dbTypeCombo.setEditable(true);
 
     m_driverList = parseString(m_resourceProps.getProperty(KEY_DRIVERS_LIST));
@@ -172,7 +173,7 @@ public class PSTDToolDialog extends JPanel {
       if (index != -1) m_driverList.removeElementAt(index);
       m_driverList.insertElementAt(driverType, 0);
     }
-    m_driverCombo = new JComboBox(m_driverList);
+    m_driverCombo = new JComboBox<String>(m_driverList);
     m_driverCombo.setEditable(true);
 
     m_driverClassList = parseString(m_resourceProps.getProperty(KEY_DRIVER_CLASSES_LIST));
@@ -182,7 +183,7 @@ public class PSTDToolDialog extends JPanel {
       if (index != -1) m_driverClassList.removeElementAt(index);
       m_driverClassList.insertElementAt(driverClass, 0);
     }
-    m_driverClassCombo = new JComboBox(m_driverClassList);
+    m_driverClassCombo = new JComboBox<String>(m_driverClassList);
     m_driverClassCombo.setEditable(true);
 
     m_dbNameField = new JTextField(m_serverProps.getProperty(PSJdbcDbmsDef.DB_NAME_PROPERTY, ""));
@@ -519,7 +520,7 @@ public class PSTDToolDialog extends JPanel {
            */
           public void actionPerformed(@SuppressWarnings("unused") ActionEvent e) {
             TableModel model = table.getModel();
-            List tables = ((DataTableModel) model).getSelectedTables();
+            List<String> tables = ((DataTableModel) model).getSelectedTables();
             m_tablesIterator = tables.iterator();
             m_lengthOfTask = tables.size();
             if (m_lengthOfTask == 0) {
@@ -739,11 +740,11 @@ public class PSTDToolDialog extends JPanel {
         if (description == null || isExtensionListInDescription()) {
           fullDescription = description == null ? "(" : description + " (";
           // build the description from the extension list
-          Enumeration extensions = Collections.enumeration(filters.keySet());
+          Enumeration<String> extensions = Collections.enumeration(filters.keySet());
           if (extensions != null) {
-            fullDescription += "." + (String) extensions.nextElement();
+            fullDescription += "." + extensions.nextElement();
             while (extensions.hasMoreElements()) {
-              fullDescription += ", " + (String) extensions.nextElement();
+              fullDescription += ", " + extensions.nextElement();
             }
           }
           fullDescription += ")";
@@ -849,7 +850,7 @@ public class PSTDToolDialog extends JPanel {
     @Override
     public String getColumnName(int col) {
       if (col >= m_columnNames.size()) return null;
-      return (String) m_columnNames.elementAt(col);
+      return m_columnNames.elementAt(col);
     }
 
     /**
@@ -881,7 +882,7 @@ public class PSTDToolDialog extends JPanel {
      *     </code> if this column does not exist
      */
     @Override
-    public Class getColumnClass(int c) {
+    public Class<?> getColumnClass(int c) {
       switch (c) {
         case CHECKBOXES_COL:
           return Boolean.class;
@@ -976,7 +977,7 @@ public class PSTDToolDialog extends JPanel {
     }
 
     /** List of column names, never <code>null</code> or empty. */
-    Vector m_columnNames =
+    Vector<String> m_columnNames =
         PSTDToolDialog.parseString(m_resourceProps.getProperty(KEY_COL_NAME_HDR));
 
     /**
@@ -984,14 +985,14 @@ public class PSTDToolDialog extends JPanel {
      * </code> is <code>true</code> if the user has selected the corresponding table. This list is
      * never <code>null</code> but may be empty if the table on the "DBMS Builder" tab is empty.
      */
-    final List<Boolean> m_checkBoxes = new ArrayList<Boolean>();
+    final transient List<Boolean> m_checkBoxes = new ArrayList<Boolean>();
 
     /**
      * <code>List</code> of tablenames obtained from the database, based on the connection
      * parameters entered by the user on the "connection" tab. This list is never <code>null</code>
      * but may be empty if the table on the "DBMS Builder" tab is empty.
      */
-    final List<String> m_tableNames = new ArrayList<String>();
+    final transient List<String> m_tableNames = new ArrayList<String>();
   }
 
   /**
@@ -1411,7 +1412,7 @@ public class PSTDToolDialog extends JPanel {
       // create all tabledef nodes into a map by table names
       final Map<String, Element> tabledefNodes = new HashMap<String, Element>();
       while (m_tablesIterator.hasNext() && (m_current < m_lengthOfTask)) {
-        String tableName = (String) m_tablesIterator.next();
+        String tableName = m_tablesIterator.next();
         m_current++;
 
         args[0] = new String(String.valueOf(m_current));
@@ -1495,12 +1496,12 @@ public class PSTDToolDialog extends JPanel {
    *     duplicates in which case the first found must be used for the produced output order.
    */
   private void orderTableNames(
-      String tableName, Map tabledefNodes, List<String> orderedTableNames) {
-    Element node = (Element) tabledefNodes.get(tableName);
-    List references = getReferencedTables(node);
+      String tableName, Map<String, Element> tabledefNodes, List<String> orderedTableNames) {
+    Element node = tabledefNodes.get(tableName);
+    List<String> references = getReferencedTables(node);
     if (!references.isEmpty()) {
       for (int i = 0; i < references.size(); i++) {
-        String referencedTableName = (String) references.get(i);
+        String referencedTableName = references.get(i);
         if (tabledefNodes.get(referencedTableName) != null)
           orderTableNames(referencedTableName, tabledefNodes, orderedTableNames);
       }
@@ -1524,7 +1525,7 @@ public class PSTDToolDialog extends JPanel {
    * @return a list with all external table names referenced in the supplied node, never <code>null
    *     </code>, may be empty.
    */
-  private List getReferencedTables(Element node) {
+  private List<String> getReferencedTables(Element node) {
     final List<String> references = new ArrayList<String>();
 
     NodeList foreignKeys = node.getElementsByTagName("foreignkey");
@@ -1688,7 +1689,7 @@ public class PSTDToolDialog extends JPanel {
    * created, initially <code>null</code>, initialized in the <code>actionPerformed</code> method of
    * the "Save" button.
    */
-  ProgressMonitor m_progressMonitor;
+  transient ProgressMonitor m_progressMonitor;
 
   /**
    * timer control for updating the message displayed on the progress monitor, initially <code>null
@@ -1710,7 +1711,7 @@ public class PSTDToolDialog extends JPanel {
    * <code>actionPerformed</code> method of the "Save" button. May be empty if no table is selected
    * on the "DBMS Builder" tab.
    */
-  Iterator m_tablesIterator;
+  transient Iterator<String> m_tablesIterator;
 
   /**
    * the xml file in which to save the table schema definition, initially <code>null</code>,
@@ -1726,7 +1727,7 @@ public class PSTDToolDialog extends JPanel {
    * null</code> if resource file is not found, initially <code>null</code>, initialized in the
    * <code>loadResourceBundle</code> method.
    */
-  private ResourceBundle m_resBundle;
+  private transient ResourceBundle m_resBundle;
 
   /** stores the resource properties, never <code>null</code> */
   Properties m_resourceProps = new Properties();
@@ -1753,19 +1754,19 @@ public class PSTDToolDialog extends JPanel {
    * Combobox for database type, initially <code>null</code>, initialized in the <code>
    * createConnectionDialogBox</code> method.
    */
-  private JComboBox m_dbTypeCombo;
+  private JComboBox<String> m_dbTypeCombo;
 
   /**
    * Combobox for driver type, initially <code>null</code>, initialized in the <code>
    * createConnectionDialogBox</code> method.
    */
-  private JComboBox m_driverCombo;
+  private JComboBox<String> m_driverCombo;
 
   /**
    * Combobox for driver class, initially <code>null</code>, initialized in the <code>
    * createConnectionDialogBox</code> method.
    */
-  private JComboBox m_driverClassCombo;
+  private JComboBox<String> m_driverClassCombo;
 
   /**
    * Textfield for database name, initially <code>null</code>, initialized in the <code>

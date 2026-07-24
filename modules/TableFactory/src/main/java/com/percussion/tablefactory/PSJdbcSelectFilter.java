@@ -103,7 +103,7 @@ public class PSJdbcSelectFilter {
    * @return <code>true</code> if op is a valid conditional operator, else returns <code>false
    *     </code>
    */
-  protected boolean isValidOp(int op) {
+  protected final boolean isValidOp(int op) {
     switch (op) {
       case EQUALS:
       case NOT_EQUALS:
@@ -133,7 +133,7 @@ public class PSJdbcSelectFilter {
    * @return the string form of the conditional operator specified by parameter op, may return
    *     <code>null</code> if op is an invalid conditional operator
    */
-  protected String getStringOp(int op) {
+  protected final String getStringOp(int op) {
     switch (op) {
       case EQUALS:
         return STR_EQUALS;

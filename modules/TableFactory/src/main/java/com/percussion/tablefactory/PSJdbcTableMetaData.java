@@ -37,6 +37,7 @@ import java.util.TreeMap;
  * Retrieves and caches table info from {@link java.sql.DatabaseMetaData}. Class is immutable after
  * ctor.
  */
+@SuppressWarnings("this-escape")
 public class PSJdbcTableMetaData {
   /**
    * Retrieve and cache table meta data for the specified table.
@@ -126,7 +127,7 @@ public class PSJdbcTableMetaData {
   /**
    * @return <code>true</code> if the table exists, <code>false</code> if not.
    */
-  public boolean exists() {
+  public final boolean exists() {
     return m_tableExists;
   }
 
@@ -310,7 +311,9 @@ public class PSJdbcTableMetaData {
         int jdbcType = meta.getColumnType(i);
         String nativeType = meta.getColumnTypeName(i);
 
-        jdbcType = PSSqlHelper.convertNativeDataType(new Short("" + jdbcType), nativeType, driver);
+        @SuppressWarnings("removal")
+        Short deprecated = new Short("" + jdbcType);
+        jdbcType = PSSqlHelper.convertNativeDataType(deprecated, nativeType, driver);
         String size;
         int sizeInt = meta.getColumnDisplaySize(i);
         if (m_dbmsDef.getDriver().equals("db2") && jdbcType == Types.BLOB) {
@@ -371,7 +374,14 @@ public class PSJdbcTableMetaData {
       } else {
         // Catalog/schema/table identifiers validated in ctor via requireSqlObjectName*.
         // DatabaseMetaData.getColumns is a JDBC metadata API, not string-SQL execution.
-        rs = md.getColumns(m_database, m_schema, m_tableName, "%"); // codeql[java/sql-injection] justification: identifiers allow-listed in ctor (requireSqlObjectName); JDBC metadata API not SQL string concat (alert #659)
+        rs =
+            md.getColumns(
+                m_database,
+                m_schema,
+                m_tableName,
+                "%"); // codeql[java/sql-injection] justification: identifiers allow-listed in ctor
+        // (requireSqlObjectName); JDBC metadata API not SQL string concat (alert
+        // #659)
         // driver can return a null ResultSet even though the API doc implies
         // that they should not (for example, Informix)
         if (rs != null) {
@@ -469,7 +479,13 @@ public class PSJdbcTableMetaData {
     try {
       // Catalog/schema/table identifiers validated in ctor via requireSqlObjectName*.
       // DatabaseMetaData.getPrimaryKeys is a JDBC metadata API, not string-SQL execution.
-      rs = md.getPrimaryKeys(m_database, m_schema, m_tableName); // codeql[java/sql-injection] justification: identifiers allow-listed in ctor (requireSqlObjectName); JDBC metadata API not SQL string concat (alert #660)
+      rs =
+          md.getPrimaryKeys(
+              m_database,
+              m_schema,
+              m_tableName); // codeql[java/sql-injection] justification: identifiers allow-listed in
+      // ctor (requireSqlObjectName); JDBC metadata API not SQL string concat
+      // (alert #660)
       // driver can return a null ResultSet even though the API doc implies
       // that they should not (for example, Informix)
       if (rs != null) {

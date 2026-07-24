@@ -373,9 +373,10 @@ public class PSJdbcTableFactoryException extends Exception {
 
   /**
    * The array of arguments to use to format the message with. Set during ctor, may be <code>null
-   * </code>, never modified after that.
+   * </code>, never modified after that. Marked <code>transient</code> so the non-Serializable
+   * <code>Object</code> component does not break serialization of this exception.
    */
-  private Object[] m_args;
+  private transient Object[] m_args;
 
   /**
    * The resource bundle containing error message formats. <code>null</code> until the first call to

@@ -41,6 +41,7 @@ import oracle.sql.CLOB;
  * Wraps Prepared Sql Statement for Oracle and contains bound parameters. Supports Blob and Clob
  * data inserts and updates.
  */
+@SuppressWarnings("removal")
 public class PSJdbcOracleSqlStatement extends PSJdbcPreparedSqlStatement {
   /**
    * Constructs Sql statement to execute, including the parameter values.
