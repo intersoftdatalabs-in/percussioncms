@@ -24,16 +24,29 @@ import java.nio.file.Path;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.util.ArrayList;
 import java.util.EnumSet;
+import java.util.List;
+import java.util.Locale;
 import java.util.Objects;
+import java.util.logging.Logger;
 
 /**
  * Offline full-directory pre-migration backup (FR-018a, contracts/backup-restore.md).
  *
  * <p>Uses portable NIO path APIs only (AGENTS cross-platform rules). Caller must ensure the
- * instance is stopped before invoking.
+ * instance is stopped before invoking. When engine lock markers are present, {@link
+ * #copyRepositoryTree} refuses by default (T088 / FR-020).
  */
 public final class PSRepositoryOfflineBackup {
+
+  private static final Logger LOG = Logger.getLogger(PSRepositoryOfflineBackup.class.getName());
+
+  /**
+   * When {@code true}, allow offline backup even if live engine lock markers are detected
+   * (emergency override only; still unsupported for consistency).
+   */
+  public static final String ALLOW_LIVE_BACKUP_PROPERTY = "perc.migration.allowLiveBackup";
 
   private PSRepositoryOfflineBackup() {}
 
@@ -48,20 +61,48 @@ public final class PSRepositoryOfflineBackup {
 
   /**
    * Copy repository data directory and optional companion config files into {@code backupRoot}.
+   * Refuses when the repository appears live unless {@link #ALLOW_LIVE_BACKUP_PROPERTY} is set.
    *
    * @param repositoryDir live repository data directory (source)
    * @param backupRoot destination directory (created if missing)
    * @param companionConfigs optional companion files (e.g. rxrepository.properties); may be empty
    * @return result with sizes; never null
-   * @throws IOException on I/O failure
+   * @throws IOException on I/O failure or when live markers are present and not overridden
    */
   public static Result copyRepositoryTree(
       Path repositoryDir, Path backupRoot, Path... companionConfigs) throws IOException {
+    return copyRepositoryTree(repositoryDir, backupRoot, true, companionConfigs);
+  }
+
+  /**
+   * @param refuseIfLive when true, refuse if {@link #findLiveMarkers(Path)} is non-empty (unless
+   *     allow-live property is set)
+   */
+  public static Result copyRepositoryTree(
+      Path repositoryDir, Path backupRoot, boolean refuseIfLive, Path... companionConfigs)
+      throws IOException {
     Objects.requireNonNull(repositoryDir, "repositoryDir");
     Objects.requireNonNull(backupRoot, "backupRoot");
     if (!Files.isDirectory(repositoryDir)) {
       throw new IOException("Repository directory does not exist or is not a directory: "
           + repositoryDir);
+    }
+    if (refuseIfLive) {
+      List<Path> live = findLiveMarkers(repositoryDir);
+      if (!live.isEmpty()) {
+        String msg =
+            "Repository appears live (engine lock markers present): "
+                + live
+                + ". Stop the instance before offline backup (FR-020). "
+                + "Emergency override only: -D"
+                + ALLOW_LIVE_BACKUP_PROPERTY
+                + "=true";
+        if (PSInstallPropertyUtil.isTruthy(System.getProperty(ALLOW_LIVE_BACKUP_PROPERTY))) {
+          LOG.warning(msg + " — proceeding due to " + ALLOW_LIVE_BACKUP_PROPERTY);
+        } else {
+          throw new IOException(msg);
+        }
+      }
     }
     Files.createDirectories(backupRoot);
     Path dataTarget = backupRoot.resolve("repository-data");
@@ -84,6 +125,40 @@ public final class PSRepositoryOfflineBackup {
       }
     }
     return new Result(backupRoot, stats.bytes, stats.files);
+  }
+
+  /**
+   * Heuristic live-instance detection for offline backup (T088 / FR-020).
+   *
+   * <p>Looks for common Derby/H2 engine lock marker file names under the repository tree. Presence
+   * strongly suggests a running engine; absence does not prove the instance is stopped (docs still
+   * require stop-first).
+   *
+   * @param repositoryDir repository data directory
+   * @return list of marker paths found; empty if none
+   */
+  public static List<Path> findLiveMarkers(Path repositoryDir) throws IOException {
+    Objects.requireNonNull(repositoryDir, "repositoryDir");
+    List<Path> markers = new ArrayList<>();
+    if (!Files.isDirectory(repositoryDir)) {
+      return markers;
+    }
+    Path root = repositoryDir.toAbsolutePath().normalize();
+    // No maxDepth cap: nested repository layouts must still surface lock markers (T088).
+    try (var walk = Files.walk(root)) {
+      walk.filter(Files::isRegularFile)
+          .forEach(
+              p -> {
+                String name = p.getFileName().toString().toLowerCase(Locale.ROOT);
+                if (name.equals("db.lck")
+                    || name.endsWith(".lck")
+                    || name.endsWith(".lock.db")
+                    || name.equals("dbex.lck")) {
+                  markers.add(p);
+                }
+              });
+    }
+    return List.copyOf(markers);
   }
 
   /**

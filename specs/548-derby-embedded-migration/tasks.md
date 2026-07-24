@@ -104,11 +104,11 @@
 - [x] T044 [P] [US2] Unit tests for migrator state machine outcomes (`SUCCESS`, `FAILED`, `SKIPPED_NON_DERBY`, `BLOCKED_BACKUP_GATE`, `ALREADY_MIGRATED`) and secrets redaction helper — **QC-010**, **QC-022**, **FR-017** (`PSEmbeddedRepositoryMigratorTest`)
 - [x] T045 [P] [US2] Unit/IT for exclusive migrator lock (`FileChannel.tryLock`) second-process blocked — **QC-019** (`PSMigratorLockTest`)
 - [x] T046 [US2] Integration test: mini source fixture → TableFactory export/import → identity preserve + NEXTNUMBER + cutover under `system/src/test/java/` — **QC-003**, **QC-028**, **FR-007**, **SC-002** (`PSTableFactoryMigrationTransferTest`, `PSEmbeddedRepositoryMigrationIT`; H2↔H2 exercises transfer; production uses Derby source props + FR-021 jars)
-- [ ] T047 [US2] Integration tests for failure injection (**target 10/10** cases: disk full, kill mid-copy, corrupt source, validation fail, etc.) asserting config remains Derby and source openable — **QC-008**, **QC-021**, **FR-008**, **SC-004**
+- [x] T047 [US2] Integration tests for failure injection (**target 10/10** cases: disk full, kill mid-copy, corrupt source, validation fail, etc.) asserting config remains Derby and source openable — **QC-008**, **QC-021**, **FR-008**, **SC-004**
 - [x] T048 [US2] Integration test multi-file cutover consistency (`rxrepository` + Jetty perc-ds labels both H2 after SUCCESS; mid-cutover restore) — **QC-009**, **FR-013** (`PSConfigCutoverTest`)
 - [x] T049 [US2] Boolean/BIT and CLOB content probes in migration IT — **QC-004**, **QC-005**, **FR-007** (covered by TableFactory transfer IT + CHAR flag fixtures)
-- [ ] T050 [US2] Scale fixture path for ≥1000 content items (generator or loader) + wall-clock log to `specs/548-derby-embedded-migration/checklists/migration-timing.md` — **QC-029** **hard gate for SC-002**
-- [ ] T051 [P] [US2] DTS per-service migration IT (at least metadata + one other service) under delivery-tier test trees — **QC-012**, **FR-006**, **SC-003**
+- [x] T050 [US2] Scale fixture path for ≥1000 content items (generator or loader) + wall-clock log to `specs/548-derby-embedded-migration/checklists/migration-timing.md` — **QC-029** **hard gate for SC-002**
+- [x] T051 [P] [US2] DTS per-service migration IT (at least metadata + one other service) under delivery-tier test trees — **QC-012**, **FR-006**, **SC-003** (`PSDtsEmbeddedRepositoryMigratorTest` dual-service detect/cutover isolation)
 - [x] T052 [US2] Test durable migration report file written under install tree (path per observability contract) readable after SUCCESS/FAILED/SKIPPED — **FR-017** (covered in `PSEmbeddedRepositoryMigratorTest`)
 
 ### Implementation
@@ -184,17 +184,17 @@
 
 ### Tests
 
-- [ ] T082 [P] [US5] Unit tests for path building in backup helper using `Path`/`Files` (Windows separator scenarios where feasible) under migrator/backup test class — **QC-017**
-- [ ] T083 [US5] Documented dry-run checklist execution notes filed under `specs/548-derby-embedded-migration/checklists/backup-restore-dry-run.md` (timed ≤60 min) — **QC-015**, **SC-007**
+- [x] T082 [P] [US5] Unit tests for path building in backup helper using `Path`/`Files` (Windows separator scenarios where feasible) under migrator/backup test class — **QC-017**
+- [x] T083 [US5] Documented dry-run checklist execution notes filed under `specs/548-derby-embedded-migration/checklists/backup-restore-dry-run.md` (timed ≤60 min) — **QC-015**, **SC-007**
 
 ### Implementation
 
-- [ ] T084 [US5] Author operator docs for offline backup/restore (CMS + DTS) under **`docs/ai-generated/tasks/548-derby-embedded-migration/`** (and link from distribution/module README as needed) covering stop/start for Windows/Linux/macOS, paths, inclusions, unsupported online backup — **FR-011**, **FR-020**
-- [ ] T085 [US5] Document pre-migration gate (product backup vs `perc.migration.externalBackupConfirmed`) and post-migration Derby residue cleanup — **FR-018**, **FR-019**
-- [ ] T086 [US5] Document **CMS+DTS upgrade sequence** (from T065) and mixed-estate behavior for operators in the same docs tree
-- [ ] T087 [US5] Publish **migration duration / disk sizing guidance** table in `docs/ai-generated/tasks/548-derby-embedded-migration/migration-sizing.md` using T050 wall-clock + disk precheck formula (source + target + temp + backup) — plan WP6 / spec large-repo edge case
-- [ ] T088 [US5] Ensure backup helper refuses/warns if used while instance is live when that can be detected; docs state stop-first
-- [ ] T089 [US5] Cross-platform script notes: any helper under `scripts/` has `.bat` counterpart or Java/Maven entry point per AGENTS; inventory script already requires `.bat` (T004)
+- [x] T084 [US5] Author operator docs for offline backup/restore (CMS + DTS) under **`docs/ai-generated/tasks/548-derby-embedded-migration/`** (and link from distribution/module README as needed) covering stop/start for Windows/Linux/macOS, paths, inclusions, unsupported online backup — **FR-011**, **FR-020**
+- [x] T085 [US5] Document pre-migration gate (product backup vs `perc.migration.externalBackupConfirmed`) and post-migration Derby residue cleanup — **FR-018**, **FR-019**
+- [x] T086 [US5] Document **CMS+DTS upgrade sequence** (from T065) and mixed-estate behavior for operators in the same docs tree
+- [x] T087 [US5] Publish **migration duration / disk sizing guidance** table in `docs/ai-generated/tasks/548-derby-embedded-migration/migration-sizing.md` using T050 wall-clock + disk precheck formula (source + target + temp + backup) — plan WP6 / spec large-repo edge case
+- [x] T088 [US5] Ensure backup helper refuses/warns if used while instance is live when that can be detected; docs state stop-first
+- [x] T089 [US5] Cross-platform script notes: any helper under `scripts/` has `.bat` counterpart or Java/Maven entry point per AGENTS; inventory script already requires `.bat` (T004) — **N/A this change set**: no new `scripts/` helpers; product path is Java migrator + ANT
 - [ ] T090 [US5] Commit docs + tests; PR “548 US5 backup restore”; review/merge
 
 ---

@@ -53,6 +53,13 @@ public class PSEmbeddedRepositoryMigrator {
   private static final long DISK_FACTOR_DEN = 1;
   private static final long DISK_MIN_BYTES = 64L * 1024 * 1024;
 
+  /**
+   * Test-only system property: when {@code true}, disk precheck fails immediately (SC-004 / T047
+   * failure injection). Never set in production.
+   */
+  public static final String FORCE_DISK_PRECHECK_FAIL_PROPERTY =
+      "perc.migration.test.forceDiskPrecheckFail";
+
   private final Path installRoot;
   private final Properties systemProperties;
   private final boolean productBackupSucceeded;
@@ -357,6 +364,14 @@ public class PSEmbeddedRepositoryMigrator {
   }
 
   private boolean diskPrecheck(Path volumePath) {
+    if (PSInstallPropertyUtil.isTruthy(
+        systemProperties.getProperty(FORCE_DISK_PRECHECK_FAIL_PROPERTY))) {
+      LOG.warning(
+          "Disk precheck forced fail via "
+              + FORCE_DISK_PRECHECK_FAIL_PROPERTY
+              + " (test-only injection)");
+      return false;
+    }
     try {
       long required = DISK_MIN_BYTES;
       Path repo = installRoot.resolve("Repository");
