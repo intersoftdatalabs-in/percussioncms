@@ -84,17 +84,18 @@ public class PSEmbeddedRepositoryMigratorTest {
   }
 
   @Test
-  void externalConfirmUnblocksGateThenFailsSafelyUntilPumpImplemented() throws Exception {
+  void externalConfirmUnblocksGateThenFailsSafelyWhenSourceUnreachable() throws Exception {
     writeDerbyRepo();
     Properties sys = new Properties();
     sys.setProperty(PSRepositoryBackupGate.EXTERNAL_BACKUP_CONFIRMED_PROPERTY, "true");
     PSMigrationOutcome outcome =
         new PSEmbeddedRepositoryMigrator(installRoot, sys, false, null).migrate();
-    // Gate opens; pump not yet implemented → FAILED with source intact (no cutover).
+    // Gate opens; fake //localhost:1527 source is unreachable → FAILED, no cutover.
     assertEquals(PSMigrationOutcome.FAILED, outcome);
     PSMigrationReportWriter.Report report =
         PSMigrationReportWriter.read(
-            PSMigrationReportWriter.reportPath(installRoot, PSEmbeddedRepositoryMigrator.COMPONENT_CMS));
+            PSMigrationReportWriter.reportPath(
+                installRoot, PSEmbeddedRepositoryMigrator.COMPONENT_CMS));
     assertEquals(PSBackupGateKind.EXTERNAL_CONFIRM, report.backupGate());
     assertEquals("DERBY", report.sourceBackend());
     assertEquals("H2", report.targetBackend());
@@ -109,14 +110,15 @@ public class PSEmbeddedRepositoryMigratorTest {
   }
 
   @Test
-  void productBackupUnblocksGate() throws Exception {
+  void productBackupUnblocksGateThenFailsWhenSourceUnreachable() throws Exception {
     writeDerbyRepo();
     PSMigrationOutcome outcome =
         new PSEmbeddedRepositoryMigrator(installRoot, new Properties(), true, null).migrate();
-    assertEquals(PSMigrationOutcome.FAILED, outcome); // pump stub
+    assertEquals(PSMigrationOutcome.FAILED, outcome);
     PSMigrationReportWriter.Report report =
         PSMigrationReportWriter.read(
-            PSMigrationReportWriter.reportPath(installRoot, PSEmbeddedRepositoryMigrator.COMPONENT_CMS));
+            PSMigrationReportWriter.reportPath(
+                installRoot, PSEmbeddedRepositoryMigrator.COMPONENT_CMS));
     assertEquals(PSBackupGateKind.PRODUCT_BACKUP, report.backupGate());
   }
 

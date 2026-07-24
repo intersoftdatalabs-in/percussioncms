@@ -487,7 +487,10 @@ public class PSJdbcDbmsDef implements IPSJdbcDbmsDefConstants {
         try {
           conn = DriverManager.getConnection(connStr, props);
           if (conn != null) {
-            if (database != null) conn.setCatalog(database);
+            // H2 and other embedded engines reject setCatalog("") as invalid SET CATALOG
+            if (database != null && database.trim().length() > 0) {
+              conn.setCatalog(database);
+            }
             break;
           }
         } catch (SQLException e) {

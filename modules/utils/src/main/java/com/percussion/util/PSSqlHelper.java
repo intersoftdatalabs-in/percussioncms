@@ -1321,7 +1321,8 @@ public class PSSqlHelper {
     // get the plaintext version of the password
     props.put("password", password);
 
-    if (database != null) {
+    // Empty catalog confuses H2 (SET CATALOG with no name). Only set when non-blank.
+    if (database != null && database.trim().length() > 0) {
       props.put("catalog", database);
       props.put("db", database); // this was the ODBC name for it
     }
