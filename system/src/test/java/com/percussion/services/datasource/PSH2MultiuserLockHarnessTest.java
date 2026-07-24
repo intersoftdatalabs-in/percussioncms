@@ -40,27 +40,30 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.hibernate.dialect.H2Dialect;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
 /**
- * Bake-off multiuser harness for H2 (#548 / T009 / QC-006).
+ * H2 multiuser lock harness for #548 (T009 bake-off + T069/T070 US4 / QC-006 / SC-005).
  *
- * <p>Models product <em>content checkout</em> and <em>object lock</em> patterns without a full CMS
- * Spring container:
+ * <p>Models product <em>content checkout</em> and <em>object lock</em> patterns on multiuser H2
+ * without a full CMS Spring container:
  *
  * <ul>
  *   <li>Exclusive checkout via {@code SELECT … FOR UPDATE} then update of a checkout-user column
  *       (CONTENTSTATUS-style)
  *   <li>Design-object locks via row-level exclusive claim (PSObjectLock-style)
- *   <li>≥10 concurrent "editors" on distinct connections
+ *   <li>≥10 concurrent "editors" on distinct connections (FR-003 / SC-005 floor)
+ *   <li>Same-item exclusive vs distinct-item parallel (T070)
  * </ul>
  *
- * <p>Full product checkout API harness remains T069; this gate validates H2 locking under
- * product-shaped SQL before engine lock.
+ * <p>A full Spring/sitemanage checkout IT can still be layered later; this harness is the automated
+ * concurrency gate for the default embedded engine on the migration branch.
  */
-@DisplayName("H2 multiuser lock harness (#548 T009)")
-class PSH2MultiuserLockHarnessTest {
+@Tag("IntegrationTest")
+@DisplayName("H2 multiuser lock harness (#548 T009/T069/T070)")
+public class PSH2MultiuserLockHarnessTest {
 
   /** Spec / SC-005 floor */
   private static final int EDITOR_COUNT = 10;
