@@ -35,10 +35,10 @@ class DbInstallConfigResolverTest {
   @TempDir Path tempDir;
 
   @Test
-  void defaultIsDerbyWhenNoOptions() {
+  void defaultIsH2WhenNoOptions() {
     DbInstallConfigResolver.ResolvedDbConfig cfg =
         DbInstallConfigResolver.resolveDbConfig(Map.of());
-    assertEquals("derby", cfg.systemProperties().get("perc.db.type"));
+    assertEquals("h2", cfg.systemProperties().get("perc.db.type"));
     assertFalse(cfg.systemProperties().containsKey("perc.db.cms.backend"));
   }
 

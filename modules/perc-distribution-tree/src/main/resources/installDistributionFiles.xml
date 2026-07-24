@@ -715,12 +715,14 @@
 			<fileset dir="${assembly-directory}/_jdbc-stage">
 				<include name="mariadb-java-client-*.jar" />
 				<include name="mysql-connector-j-*.jar" />
+				<!-- #548 default embedded engine -->
+				<include name="h2-*.jar" />
 				<!-- Derby 10.15+ splits the engine across multiple JARs. The embedded
 				     driver (derby.jar) requires derbyshared.jar (StandardException, etc.)
 				     and typically derbytools.jar. Omitting them yields:
 				       ClassNotFoundException: org.apache.derby.shared.common.error.StandardException
 				     Note: include pattern "derby-*.jar" does NOT match derbyshared-*
-				     or derbytools-* (no hyphen after "derby"). -->
+				     or derbytools-* (no hyphen after "derby"). Retained for migration. -->
 				<include name="derby-*.jar" />
 				<include name="derbyclient-*.jar" />
 				<include name="derbynet-*.jar" />

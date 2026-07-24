@@ -19,9 +19,9 @@
 
 ## Phase 1: Setup
 
-- [ ] T001 Identify owning modules and read AGENTS hierarchy: root `AGENTS.md`, `modules/utils`, `modules/TableFactory`, `system/`, `modules/perc-jetty`, `modules/perc-distribution-tree`, `deliverytiersuite/delivery-tier-suite/**`, and any module-local `AGENTS.md` / `AGENTS.local.md`
-- [ ] T002 Confirm branch `548-derby-embedded-migration` is based on current `development`, JDK 21 via `./mvn-env.sh -version` (or equivalent), and note baseline health for `modules/utils`, `modules/TableFactory` with standalone `cd <module> && ../../mvn-env.sh test` (or correct depth)
-- [ ] T003 [P] Re-read design package: `specs/548-derby-embedded-migration/{spec,plan,research,data-model,quickstart}.md`, `contracts/*`, `checklists/quality-gates.md`, Sherlock review — especially R2 CMS/DTS split and R11 installer multi-process
+- [x] T001 Identify owning modules and read AGENTS hierarchy: root `AGENTS.md`, `modules/utils`, `modules/TableFactory`, `system/`, `modules/perc-jetty`, `modules/perc-distribution-tree`, `deliverytiersuite/delivery-tier-suite/**`, and any module-local `AGENTS.md` / `AGENTS.local.md`
+- [x] T002 Confirm branch `548-derby-embedded-migration` is based on current `development`, JDK 21 via `./mvn-env.sh -version` (or equivalent), and note baseline health for `modules/utils`, `modules/TableFactory` with standalone `cd <module> && ../../mvn-env.sh test` (or correct depth)
+- [x] T003 [P] Re-read design package: `specs/548-derby-embedded-migration/{spec,plan,research,data-model,quickstart}.md`, `contracts/*`, `checklists/quality-gates.md`, Sherlock review — especially R2 CMS/DTS split and R11 installer multi-process
 
 ---
 
@@ -54,10 +54,10 @@
 - [x] T019 Add H2 rows to `system/config/sys_DatabaseFunctionDefs.xml` for functions product uses on default installs (parity with `driver="derby"` entries from inventory)
 - [x] T020 Generalize LOB materialization beyond Derby-only checks in `system/services/src/com/percussion/services/contentmgr/impl/legacy/PSContentRepository.java` and `PSTypeConfiguration.java` (predicate covering H2) — **QC-005** start
 - [x] T021 Extend `IPSSystemService` / `PSSystemService` database-type API for H2 (add `isH2` or `getDatabaseType`; update call sites like `PSSearchService` SecureStringUtils branching from inventory) without breaking external backends
-- [ ] T022 [P] Unit tests for dialect/session/LOB/type detection under `system/src/test/java/com/percussion/services/`
-- [ ] T023 Run standalone clean tests: `cd modules/utils && ../../mvn-env.sh clean test`, `cd modules/TableFactory && ../../mvn-env.sh clean test`, and targeted `system` tests for new classes — **QC-018** practice
+- [x] T022 [P] Unit tests for dialect/session/LOB/type detection under `system/src/test/java/com/percussion/services/`
+- [x] T023 Run standalone clean tests: `cd modules/utils && ../../mvn-env.sh clean test`, `cd modules/TableFactory && ../../mvn-env.sh clean test`, and targeted `system` tests for new classes — **QC-018** practice
 - [x] T024 **Seed strategy decision (R11)**: choose and record in `specs/548-derby-embedded-migration/research.md` R11 and `contracts/repository-config.md` exactly one of: (A) empty H2 + TableFactory/load, or (B) prebuilt H2 seed tree replacing `Derby/Repository.zip`; no dual “or” left open — blocks US1 T029
-- [ ] T025 Commit foundational platform + inventory + bake-off + seed decision; open PR “548 WP0–WP1 foundation”; pause user-story PRs until this merges (or stack deliberately)
+- [x] T025 Commit foundational platform + inventory + bake-off + seed decision; open PR “548 WP0–WP1 foundation”; pause user-story PRs until this merges (or stack deliberately)
 
 ---
 
@@ -69,17 +69,17 @@
 
 ### Tests
 
-- [ ] T026 [P] [US1] Packaging/unit test that distribution/Jetty defaults reference H2 driver class (not Derby) in `modules/perc-jetty` and/or `modules/perc-distribution-tree` test sources — **QC-013**
-- [ ] T027 [P] [US1] Install-path test or resource assert that install orchestration no longer requires `NetworkServerControl` / `1527` for default path (refactor `system/installResources/installRepository.xml` / distribution copy) — **QC-014**; **exit criterion**: zero NetworkServerControl start for default install path
-- [ ] T028 [P] [US1] DTS default datasource properties tests/asserts under `deliverytiersuite/delivery-tier-suite/*/src/test` that default driver is H2 for product-managed services
+- [x] T026 [P] [US1] Packaging/unit test that distribution/Jetty defaults reference H2 driver class (not Derby) in `modules/perc-jetty` and/or `modules/perc-distribution-tree` test sources — **QC-013**
+- [x] T027 [P] [US1] Install-path test or resource assert that install orchestration no longer requires `NetworkServerControl` / `1527` for default path (refactor `system/installResources/installRepository.xml` / distribution copy) — **QC-014**; **exit criterion**: zero NetworkServerControl start for default install path
+- [x] T028 [P] [US1] DTS default datasource properties tests/asserts under `deliverytiersuite/delivery-tier-suite/*/src/test` that default driver is H2 for product-managed services
 
 ### Implementation
 
-- [ ] T029 [US1] Redesign CMS install DB setup per research R11 **and T024 seed decision** in `system/installResources/installRepository.xml` and `modules/perc-distribution-tree/src/main/resources/distribution/rxconfig/Installer/installRepository.xml` — pure in-process H2 (or approved R11 B/C only if T024/bake-off required); remove NetworkServer start/stop for default path; **exit criterion**: clean default install succeeds with no listen on 1527
-- [ ] T030 [US1] Replace/add `sqlH2` (or generic) statements for every install `sqlDerby` still executed on new installs in distribution + system install XML resources — **QC-026**, **FR-010**
-- [ ] T031 [US1] Update default `system/config/Default/rxrepository.properties` and installer-shipped `rxrepository.properties` to H2 backend/driver/server form using frozen URL template
-- [ ] T032 [US1] Update Jetty defaults: `modules/perc-jetty/src/main/jetty/defaults/etc/perc-ds.properties`, `perc-ds.xml`, `modules/perc.mod` / `perc-ds` — drop `derby.drda.*` and `derby.system.home` as live defaults; wire H2
-- [ ] T033 [US1] Ship H2 JAR on CMS JDBC/lib packaging paths consistent with how Derby was packaged (`modules/perc-jetty` / distribution tree); scope Derby to migration-only if still on classpath — **FR-014**
+- [x] T029 [US1] Redesign CMS install DB setup per research R11 **and T024 seed decision** in `system/installResources/installRepository.xml` and `modules/perc-distribution-tree/src/main/resources/distribution/rxconfig/Installer/installRepository.xml` — pure in-process H2 (or approved R11 B/C only if T024/bake-off required); remove NetworkServer start/stop for default path; **exit criterion**: clean default install succeeds with no listen on 1527
+- [x] T030 [US1] Replace/add `sqlH2` (or generic) statements for every install `sqlDerby` still executed on new installs in distribution + system install XML resources — **QC-026**, **FR-010**
+- [x] T031 [US1] Update default `system/config/Default/rxrepository.properties` and installer-shipped `rxrepository.properties` to H2 backend/driver/server form using frozen URL template
+- [x] T032 [US1] Update Jetty defaults: `modules/perc-jetty/src/main/jetty/defaults/etc/perc-ds.properties`, `perc-ds.xml`, `modules/perc.mod` / `perc-ds` — drop `derby.drda.*` and `derby.system.home` as live defaults; wire H2
+- [x] T033 [US1] Ship H2 JAR on CMS JDBC/lib packaging paths consistent with how Derby was packaged (`modules/perc-jetty` / distribution tree); scope Derby to migration-only if still on classpath — **FR-014**
 - [ ] T034 [US1] Update DTS service default datasource props/beans for comments, forms, feeds, membership, metadata, polls (and other inventory hits) under `deliverytiersuite/delivery-tier-suite/*/resources` and `**/WEB-INF/**`
 - [ ] T035 [US1] Port Liquibase `dbms="derby"` changesets to H2 (or db-agnostic) in `deliverytiersuite/delivery-tier-suite/metadata/src/main/resources/changeLogIndex*.xml` and related — **QC-012** start
 - [ ] T036 [US1] Update `deliverytiersuite/delivery-tier-suite/delivery-tier-distribution` packaging, cargo DS, and start scripts (`TomcatStartup.*`, service bats) to H2 home properties — **QC-024** start

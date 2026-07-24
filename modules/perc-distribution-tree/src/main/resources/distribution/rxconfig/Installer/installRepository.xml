@@ -390,7 +390,8 @@
 			<then>
 				<echo>Applying fresh-install database configuration...</echo>
 
-				<property name="perc.db.type" value="derby" />
+				<!-- Default embedded engine is H2 (#548); Derby still recognized for legacy/migration -->
+				<property name="perc.db.type" value="h2" />
 				<property name="perc.db.ssl.enabled" value="true" />
 				<property name="perc.db.ssl.verify" value="true" />
 				<property name="perc.db.ssl.allowSelfSigned" value="false" />
@@ -398,8 +399,12 @@
 				<if>
 					<and>
 						<not>
-							<equals arg1="${perc.db.type}" arg2="derby"
-								casesensitive="false" />
+							<or>
+								<equals arg1="${perc.db.type}" arg2="derby"
+									casesensitive="false" />
+								<equals arg1="${perc.db.type}" arg2="h2"
+									casesensitive="false" />
+							</or>
 						</not>
 						<or>
 							<not>
@@ -516,6 +521,28 @@
 						</propertyfile>
 					</then>
 				</if>
+
+				<if>
+					<equals arg1="${perc.db.type}" arg2="h2"
+						casesensitive="false" />
+					<then>
+						<!-- Ensure H2 defaults when fresh-install path runs; ship file already H2 -->
+						<propertyfile file="${rxrepository.properties}"
+							comment="Repository Properties">
+							<entry key="DB_BACKEND" value="H2" />
+							<entry key="DB_DRIVER_NAME" value="h2" />
+							<entry key="DB_DRIVER_CLASS_NAME" value="org.h2.Driver" />
+							<entry key="DB_SERVER"
+								value="file:../../Repository/CMDB;DB_CLOSE_ON_EXIT=FALSE" />
+							<entry key="DB_SCHEMA" value="PUBLIC" />
+							<entry key="UID" value="sa" />
+							<entry key="DB_SSL_ENABLED" value="${perc.db.ssl.enabled}" />
+							<entry key="DB_SSL_VERIFY" value="${perc.db.ssl.verify}" />
+							<entry key="DB_SSL_ALLOW_SELF_SIGNED"
+								value="${perc.db.ssl.allowSelfSigned}" />
+						</propertyfile>
+					</then>
+				</if>
 			</then>
 		</if>
 
@@ -533,16 +560,19 @@
 
 		<PSMakeLasagna root="${install.dir}" />
 
-		<!-- New-install non-Derby only: fail fast if repository is unreachable (issue #949 FR-008).
-		     Skip embedded Derby defaults (props are already connectable via product defaults and
-		     validation here would only add risk without targeting enterprise backends).
+		<!-- New-install non-embedded only: fail fast if repository is unreachable (issue #949 FR-008).
+		     Skip embedded H2/Derby defaults (product defaults; validation targets enterprise backends).
 		     Upgrades excluded via do.install so backends are not re-validated/rewritten. -->
 		<if>
 			<and>
 				<istrue value="${do.install}" />
 				<not>
-					<equals arg1="${perc.db.type}" arg2="derby"
-						casesensitive="false" />
+					<or>
+						<equals arg1="${perc.db.type}" arg2="derby"
+							casesensitive="false" />
+						<equals arg1="${perc.db.type}" arg2="h2"
+							casesensitive="false" />
+					</or>
 				</not>
 			</and>
 			<then>
