@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<Context swallowOutput="true">
-	<!-- Default set of monitored resources. If one of these changes, the -->
-	<!-- web application will be reloaded. -->
-	<WatchedResource>WEB-INF/web.xml</WatchedResource>
-	<WatchedResource>${catalina.base}/conf/web.xml</WatchedResource>
-	<CookieProcessor sameSiteCookies="lax" />
-</Context>

@@ -554,11 +554,11 @@
             </plugin>
             <plugin>
                 <groupId>org.codehaus.cargo</groupId>
-                <artifactId>cargo-maven2-plugin</artifactId>
-                <version>1.9.0</version>
+                <artifactId>cargo-maven3-plugin</artifactId>
+                <version>1.10.28</version>
                 <configuration>
                     <container>
-                        <containerId>tomcat10x</containerId>
+                        <containerId>tomcat11x</containerId>
                         <!-- <type>embedded</type> -->
                         <!-- TODO: This really should be moved to be mirrored on Percussion's
 							nexus server -->
@@ -637,7 +637,7 @@
                     <configuration>
                         <files>
                             <file>
-                                <file>${project.basedir}/src/main/tomcat10/webapps/ROOT/</file>
+                                <file>${project.basedir}/src/main/tomcat11/webapps/ROOT/</file>
                                 <todir>webapps/ROOT</todir>
                             </file>
                             <file>
@@ -711,19 +711,19 @@
                                 <todir>conf/perc</todir>
                             </configfile>
                             <configfile>
-                                <file>${project.basedir}/src/main/tomcat10/conf/context.xml</file>
+                                <file>${project.basedir}/src/main/tomcat11/conf/context.xml</file>
                                 <todir>conf</todir>
                             </configfile>
                             <configfile>
-                                <file>${project.basedir}/src/main/tomcat10/conf/server.xml</file>
+                                <file>${project.basedir}/src/main/tomcat11/conf/server.xml</file>
                                 <todir>conf</todir>
                             </configfile>
                             <configfile>
-                                <file>${project.basedir}/src/main/tomcat10/conf/log4j2-tomcat.xml</file>
+                                <file>${project.basedir}/src/main/tomcat11/conf/log4j2-tomcat.xml</file>
                                 <todir>log4j2/conf</todir>
                             </configfile>
                             <configfile>
-                                <file>${project.basedir}/src/main/tomcat10/conf/catalina.properties</file>
+                                <file>${project.basedir}/src/main/tomcat11/conf/catalina.properties</file>
                                 <todir>conf</todir>
                             </configfile>
                             <configfile>
@@ -731,19 +731,19 @@
                                 <todir>conf/perc</todir>
                             </configfile>
                             <configfile>
-                                <file>${project.basedir}/src/main/tomcat10/bin/setenv.bat</file>
+                                <file>${project.basedir}/src/main/tomcat11/bin/setenv.bat</file>
                                 <todir>bin</todir>
                             </configfile>
                             <configfile>
-                                <file>${project.basedir}/src/main/tomcat10/bin/setenv.sh</file>
+                                <file>${project.basedir}/src/main/tomcat11/bin/setenv.sh</file>
                                 <todir>bin</todir>
                             </configfile>
                             <configfile>
-                                <file>${project.basedir}/src/main/tomcat10/bin/catalina.sh</file>
+                                <file>${project.basedir}/src/main/tomcat11/bin/catalina.sh</file>
                                 <todir>bin</todir>
                             </configfile>
                             <configfile>
-                                <file>${project.basedir}/src/main/tomcat10/conf/catalina.policy</file>
+                                <file>${project.basedir}/src/main/tomcat11/conf/catalina.policy</file>
                                 <todir>conf</todir>
                             </configfile>
                         </configfiles>
@@ -803,8 +803,11 @@
                             <type>war</type>
                         </deployable>
                     </deployables>
+                    <!-- Cargo 1.10+ writes the package tree to outputLocation (not always target/package).
+                         Keep output under ${project.build.directory}/package so stage-cargo-package-into-assembly
+                         can copy + strip manager apps into the shipping jar layout (issue #667). -->
                     <packager>
-                        <outputLocation>${assembly-directory}/Deployment/Server</outputLocation>
+                        <outputLocation>${project.build.directory}/package</outputLocation>
                     </packager>
                 </configuration>
                 <executions>
@@ -1047,14 +1050,9 @@
                       Stage Cargo Tomcat + DTS wars into the installer assembly.
 
                       cargo:package (prepare-package) builds a full configured Tomcat under
-                      ${project.build.directory}/package (bin, conf/server.xml, lib, webapps/*.war).
-                      Historically packager/outputLocation was intended to write straight into
-                      ${assembly-directory}/Deployment/Server, but with cargo-maven2→maven3 1.9.x
-                      the package still lands in target/package and the shipping jar only got
-                      root scripts + common/lib — install finished in seconds with no Tomcat.
-
-                      Copy after cargo:package and before jar:jar (this plugin is declared after
-                      cargo / dependency-plugin so prepare-package order is correct).
+                      ${project.build.directory}/package (packager.outputLocation; cargo-maven3 1.10+
+                      with tomcat11x). Antrun then copies into ${assembly-directory}/Deployment/Server
+                      and strips manager apps so the shipping jar is complete.
                     -->
                     <execution>
                         <id>stage-cargo-package-into-assembly</id>
@@ -1141,8 +1139,8 @@
                 <plugins>
                     <plugin>
                         <groupId>org.codehaus.cargo</groupId>
-                        <artifactId>cargo-maven2-plugin</artifactId>
-                        <version>1.9.0</version>
+                        <artifactId>cargo-maven3-plugin</artifactId>
+                        <version>1.10.28</version>
                         <configuration>
                             <container>
                                 <containerId>jetty9x</containerId>

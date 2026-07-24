@@ -112,15 +112,16 @@
             <artifactId>jersey-client</artifactId>
             <scope>test</scope>
         </dependency>
-        <dependency>
-            <groupId>org.glassfish.jersey.bundles</groupId>
-            <artifactId>jaxrs-ri</artifactId>
-            <scope>provided</scope>
-        </dependency>
+        <!-- Jersey 4: use modular jersey-* + jakarta.ws.rs-api (jaxrs-ri bundle discontinued) -->
         <dependency>
             <groupId>jakarta.ws.rs</groupId>
             <artifactId>jakarta.ws.rs-api</artifactId>
             <scope>provided</scope>
+        </dependency>
+        <!-- Previously transitive via jaxrs-ri; required for @Xml* annotations in this module -->
+        <dependency>
+            <groupId>jakarta.xml.bind</groupId>
+            <artifactId>jakarta.xml.bind-api</artifactId>
         </dependency>
         <dependency>
             <groupId>org.jasypt</groupId>
