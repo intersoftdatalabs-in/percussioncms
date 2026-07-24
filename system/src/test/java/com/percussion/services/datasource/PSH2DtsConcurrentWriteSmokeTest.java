@@ -175,13 +175,20 @@ public class PSH2DtsConcurrentWriteSmokeTest {
           if (rs.next()) {
             int id = rs.getInt(1);
             int ver = rs.getInt(2);
+            // Optimistic version check: refuse lost updates if VERSION changed under us
             try (PreparedStatement upd =
                 c.prepareStatement(
-                    "UPDATE METADATA_PAGE SET PAYLOAD = ?, VERSION = ? WHERE ID = ?")) {
+                    "UPDATE METADATA_PAGE SET PAYLOAD = ?, VERSION = ? "
+                        + "WHERE ID = ? AND VERSION = ?")) {
               upd.setString(1, payload);
               upd.setInt(2, ver + 1);
               upd.setInt(3, id);
-              assertEquals(1, upd.executeUpdate());
+              upd.setInt(4, ver);
+              int n = upd.executeUpdate();
+              assertEquals(
+                  1,
+                  n,
+                  "expected optimistic update of id=" + id + " at version=" + ver);
             }
           } else {
             try (PreparedStatement ins =
