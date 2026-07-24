@@ -132,20 +132,14 @@ public final class JavaInstallSelection {
     if (System.console() != null) {
       return true;
     }
-    // Fallback: probe stdin. If a Scanner can be opened on System.in and
-    // either has input available OR is open (will be when stdin is connected
-    // to a TTY or pipe), treat as interactive. The call-site prompt
-    // implementation is responsible for actually reading.
-    try (java.util.Scanner probe = new java.util.Scanner(System.in)) {
-      if (probe.hasNextLine()) {
-        return true; // there's data already pending
-      }
-      // No pending data; assume stdin is connected (TTY or pipe) and the
-      // caller's prompt will block on readLine. If the caller's prompt
-      // returns "" without blocking (true no-input), the selection falls
-      // through to auto-select.
-      return true;
-    } catch (Exception e) {
+    // Non-TTY fallback: probe stdin via available() which does NOT consume
+    // bytes. (An earlier Scanner-based probe consumed the user's typed
+    // input before the actual prompt could read it.) The caller's prompt
+    // is responsible for the actual blocking read; this method just
+    // reports whether stdin is open.
+    try {
+      return System.in.available() >= 0;
+    } catch (java.io.IOException e) {
       return false;
     }
   }

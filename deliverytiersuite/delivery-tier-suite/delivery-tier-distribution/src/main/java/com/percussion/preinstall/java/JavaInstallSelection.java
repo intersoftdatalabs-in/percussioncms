@@ -104,7 +104,19 @@ public final class JavaInstallSelection {
   }
 
   private static boolean isInteractiveAvailable() {
-    return System.console() != null;
+    if (System.console() != null) {
+      return true;
+    }
+    // Non-TTY fallback: probe stdin via available() which does NOT consume
+    // bytes. (An earlier Scanner-based probe consumed the user's typed
+    // input before the actual prompt could read it.) The caller's prompt
+    // is responsible for the actual blocking read; this method just
+    // reports whether stdin is open.
+    try {
+      return System.in.available() >= 0;
+    } catch (java.io.IOException e) {
+      return false;
+    }
   }
 
   private Path promptForChoice(List<JavaCandidateDiscovery.Candidate> candidates)
