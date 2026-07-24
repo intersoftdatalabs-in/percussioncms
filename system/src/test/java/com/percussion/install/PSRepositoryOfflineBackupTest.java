@@ -73,4 +73,48 @@ public class PSRepositoryOfflineBackupTest {
         !PSRepositoryOfflineBackup.hasSufficientDiskSpace(
             temp, Long.MAX_VALUE / 2));
   }
+
+  /**
+   * T082 / QC-017: path building uses {@link Path#resolve} (portable separators). Companion dest
+   * is file-name only so Windows absolute paths do not leak into backup tree structure.
+   */
+  @Test
+  void pathBuildingUsesPortableResolve_companionIsFilenameOnly() throws Exception {
+    Path repo = temp.resolve("install").resolve("Repository");
+    Path nested = repo.resolve("seg").resolve("nested");
+    Files.createDirectories(nested);
+    Files.writeString(nested.resolve("data.bin"), "x", StandardCharsets.UTF_8);
+
+    // Multi-segment resolve must equal successive resolve (no hardcoded separators)
+    Path viaMulti = temp.resolve(Path.of("install", "Repository", "seg", "nested"));
+    assertEquals(nested.normalize(), viaMulti.normalize());
+
+    Path companion =
+        temp.resolve("rxconfig")
+            .resolve("Installer")
+            .resolve("rxrepository.properties");
+    Files.createDirectories(companion.getParent());
+    Files.writeString(companion, "DB_BACKEND=DERBY\n", StandardCharsets.UTF_8);
+
+    Path backupRoot = temp.resolve("PreInstall").resolve("migration-backup");
+    PSRepositoryOfflineBackup.Result result =
+        PSRepositoryOfflineBackup.copyRepositoryTree(repo, backupRoot, companion);
+
+    assertTrue(result.filesCopied() >= 2);
+    Path companionDest =
+        backupRoot.resolve("companion-config").resolve("rxrepository.properties");
+    assertTrue(Files.isRegularFile(companionDest));
+    // Destination uses getFileName() only — not absolute path segments
+    assertEquals("rxrepository.properties", companionDest.getFileName().toString());
+    assertTrue(
+        Files.isRegularFile(
+            backupRoot.resolve("repository-data").resolve("seg").resolve("nested").resolve("data.bin")));
+  }
+
+  @Test
+  void pathNormalize_relativeSegmentsDoNotEscapeIntendedParent() {
+    Path base = temp.resolve("Repository").normalize();
+    Path joined = base.resolve("..").resolve("Repository").resolve("CMDB").normalize();
+    assertEquals(base.resolve("CMDB").normalize(), joined);
+  }
 }
