@@ -81,6 +81,27 @@ public class PSJdbcUtilsTest {
   }
 
   @Test
+  public void testPostgresJdbcUrlDriverMapAndBackend() {
+    assertEquals(
+        "jdbc:postgresql://db.example.com:5432/percussion",
+        PSJdbcUtils.getJdbcUrl(PSJdbcUtils.POSTGRES_DRIVER, "//db.example.com:5432/percussion"));
+    assertEquals(
+        "postgresql", PSJdbcUtils.getDriverFromUrl("jdbc:postgresql://db.example.com:5432/cms"));
+    assertEquals(PSJdbcUtils.POSTGRES_DRIVER_CLASS, "org.postgresql.Driver");
+    assertEquals(
+        PSJdbcUtils.POSTGRES_DB_BACKEND,
+        PSJdbcUtils.getDBBackendForDriver(PSJdbcUtils.POSTGRES_DRIVER));
+    assertEquals(PSJdbcUtils.POSTGRES_DB_BACKEND, PSJdbcUtils.getDBBackendForDriver("postgres"));
+    assertTrue(PSSqlHelper.isPostgres("postgresql"));
+    assertTrue(PSSqlHelper.isPostgres("POSTGRESQL"));
+    assertTrue(PSSqlHelper.isPostgres("postgres"));
+    assertFalse(PSSqlHelper.isPostgres("mysql"));
+    assertFalse(PSSqlHelper.isPostgres(null));
+    assertFalse(PSSqlHelper.isEmbeddedFileStore("postgresql"));
+    assertTrue(PSJdbcUtils.isExternalDriver(PSJdbcUtils.POSTGRES_DRIVER));
+  }
+
+  @Test
   public void testGetDatabaseFromUrl() {
     String DB_NAME = "myDatabase";
 

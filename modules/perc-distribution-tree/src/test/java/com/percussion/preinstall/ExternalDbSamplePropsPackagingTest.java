@@ -58,6 +58,15 @@ public class ExternalDbSamplePropsPackagingTest {
         "oracle:thin");
   }
 
+  @Test
+  void postgresqlSampleIsExternalPostgres() throws Exception {
+    assertSample(
+        Path.of(
+            "src/main/resources/distribution/rxconfig/Installer/samples/rxrepository.postgresql.properties"),
+        "POSTGRES",
+        "postgresql");
+  }
+
   private static void assertSample(Path relative, String backend, String driverName)
       throws Exception {
     assertTrue(Files.isRegularFile(relative), "missing sample: " + relative);

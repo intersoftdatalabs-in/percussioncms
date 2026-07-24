@@ -200,6 +200,12 @@
             <artifactId>ojdbc17</artifactId>
             <scope>provided</scope>
         </dependency>
+        <!-- #1500 PostgreSQL external CMS repository -->
+        <dependency>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <scope>provided</scope>
+        </dependency>
         <dependency>
             <groupId>org.apache.ant</groupId>
             <artifactId>ant</artifactId>
@@ -782,7 +788,7 @@
                                 <argument>--artifact</argument>
                                 <argument>${project.build.directory}/perc-distribution-tree.jar</argument>
                                 <argument>--expected-driver-glob</argument>
-                                <argument>mariadb-java-client-*.jar,mysql-connector-j-*.jar,h2-*.jar,derby-*.jar,derbyclient-*.jar,derbynet-*.jar,derbyshared-*.jar,derbytools-*.jar,mssql-jdbc-*.jar,jtds-*.jar,ojdbc17-*.jar</argument>
+                                <argument>mariadb-java-client-*.jar,mysql-connector-j-*.jar,h2-*.jar,derby-*.jar,derbyclient-*.jar,derbynet-*.jar,derbyshared-*.jar,derbytools-*.jar,mssql-jdbc-*.jar,jtds-*.jar,ojdbc17-*.jar,postgresql-*.jar</argument>
                             </arguments>
                         </configuration>
                     </execution>

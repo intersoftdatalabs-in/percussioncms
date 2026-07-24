@@ -63,6 +63,10 @@ public final class DbInstallConfigResolver {
       "com.microsoft.sqlserver.jdbc.SQLServerDriver";
   private static final String ORACLE_DRIVER_CLASS = "oracle.jdbc.OracleDriver";
   private static final String ORACLE_DRIVER_NAME = "oracle:thin";
+  /** PostgreSQL JDBC (#1500). */
+  private static final String POSTGRES_DRIVER_CLASS = "org.postgresql.Driver";
+  private static final String POSTGRES_DRIVER_NAME = "postgresql";
+  private static final String POSTGRES_DEFAULT_SCHEMA = "public";
 
   private DbInstallConfigResolver() {}
 
@@ -219,7 +223,10 @@ public final class DbInstallConfigResolver {
     if (driverClass == null) {
       missing.add("DB_DRIVER_CLASS_NAME");
     }
-    if ((Objects.equals(dbType, "mysql") || Objects.equals(dbType, "sqlserver")) && name == null) {
+    if ((Objects.equals(dbType, "mysql")
+            || Objects.equals(dbType, "sqlserver")
+            || Objects.equals(dbType, "postgresql"))
+        && name == null) {
       missing.add("DB_NAME");
     }
     if (!missing.isEmpty()) {
@@ -235,6 +242,8 @@ public final class DbInstallConfigResolver {
       if (Objects.equals(dbType, "sqlserver")) {
         // SQL Server default schema is lowercase "dbo" (product convention)
         resolvedSchema = "dbo";
+      } else if (Objects.equals(dbType, "postgresql")) {
+        resolvedSchema = POSTGRES_DEFAULT_SCHEMA;
       } else {
         resolvedSchema = "";
       }
@@ -453,6 +462,25 @@ public final class DbInstallConfigResolver {
       systemProperties.put("perc.db.dts.jdbcDriver", ORACLE_DRIVER_CLASS);
       systemProperties.put("perc.db.dts.hibernateDialect", "org.hibernate.dialect.Oracle12cDialect");
       systemProperties.put("perc.db.dts.schema", resolvedSchema);
+    } else if (Objects.equals(dbType, "postgresql")) {
+      String resolvedSchema =
+          (schema == null || schema.trim().isEmpty())
+              ? POSTGRES_DEFAULT_SCHEMA
+              : schema.trim();
+      // Product DB_SERVER form mirrors MySQL: //host:port/database (jdbc:postgresql: + server)
+      String cmsServer = "//" + host + ":" + port + "/" + name;
+      systemProperties.put("perc.db.cms.backend", "POSTGRES");
+      systemProperties.put("perc.db.cms.driverName", POSTGRES_DRIVER_NAME);
+      systemProperties.put("perc.db.cms.driverClass", POSTGRES_DRIVER_CLASS);
+      systemProperties.put("perc.db.cms.server", cmsServer);
+      systemProperties.put("perc.db.cms.name", name);
+      systemProperties.put("perc.db.cms.schema", resolvedSchema);
+      systemProperties.put(
+          "perc.db.dts.jdbcUrl", "jdbc:postgresql://" + host + ":" + port + "/" + name);
+      systemProperties.put("perc.db.dts.jdbcDriver", POSTGRES_DRIVER_CLASS);
+      systemProperties.put(
+          "perc.db.dts.hibernateDialect", "org.hibernate.dialect.PostgreSQLDialect");
+      systemProperties.put("perc.db.dts.schema", resolvedSchema);
     }
 
     return new ResolvedDbConfig(systemProperties, "structured");
@@ -493,6 +521,16 @@ public final class DbInstallConfigResolver {
         String thin = server.startsWith("@") ? server : "@" + server;
         systemProperties.put("perc.db.dts.jdbcUrl", "jdbc:oracle:thin:" + thin);
       }
+    } else if (Objects.equals(dbType, "postgresql")) {
+      systemProperties.put("perc.db.dts.jdbcDriver", driverClass);
+      systemProperties.put(
+          "perc.db.dts.hibernateDialect", "org.hibernate.dialect.PostgreSQLDialect");
+      systemProperties.put(
+          "perc.db.dts.schema",
+          (schema == null || schema.isEmpty()) ? POSTGRES_DEFAULT_SCHEMA : schema);
+      if (server != null && server.startsWith("//")) {
+        systemProperties.put("perc.db.dts.jdbcUrl", "jdbc:postgresql:" + server);
+      }
     }
   }
 
@@ -510,23 +548,25 @@ public final class DbInstallConfigResolver {
       case "MYSQL" -> "mysql";
       case "MSSQL" -> "sqlserver";
       case "ORACLE", "ORA" -> "oracle";
+      case "POSTGRES", "POSTGRESQL" -> "postgresql";
       default -> throw new IllegalArgumentException(
           "Unknown DB_BACKEND='"
               + backendRaw
-              + "'. Allowed values: H2, DERBY, MYSQL, MSSQL, ORACLE");
+              + "'. Allowed values: H2, DERBY, MYSQL, MSSQL, ORACLE, POSTGRES");
     };
   }
 
   static String normalizeStructuredDbType(String dbTypeRaw) {
     String t = dbTypeRaw.trim().toLowerCase(Locale.ROOT);
     return switch (t) {
-      case "h2", "derby", "mysql", "sqlserver", "oracle" -> t;
+      case "h2", "derby", "mysql", "sqlserver", "oracle", "postgresql" -> t;
       case "mssql" -> "sqlserver";
       case "ora" -> "oracle";
+      case "postgres" -> "postgresql";
       default -> throw new IllegalArgumentException(
           "Unknown db.type='"
               + dbTypeRaw
-              + "'. Allowed values: h2, derby, mysql, sqlserver, oracle");
+              + "'. Allowed values: h2, derby, mysql, sqlserver, oracle, postgresql");
     };
   }
 
@@ -543,11 +583,12 @@ public final class DbInstallConfigResolver {
       case "sqlserver" -> "MSSQL";
       case "oracle" -> "ORACLE";
       case "derby" -> "DERBY";
+      case "postgresql" -> "POSTGRES";
       default ->
           throw new IllegalArgumentException(
               "Unknown db.type='"
                   + dbType
-                  + "' for backend label. Allowed values: h2, derby, mysql, sqlserver, oracle");
+                  + "' for backend label. Allowed values: h2, derby, mysql, sqlserver, oracle, postgresql");
     };
   }
 

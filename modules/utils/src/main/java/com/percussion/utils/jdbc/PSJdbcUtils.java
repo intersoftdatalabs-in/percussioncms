@@ -53,6 +53,18 @@ public class PSJdbcUtils {
   /** H2 JDBC driver class name. */
   public static final String H2_DRIVER_CLASS = "org.h2.Driver";
 
+  /**
+   * Constant for the PostgreSQL JDBC driver type (external repository backend — GitHub #1500). Must
+   * match driver name in server configuration ({@code config.xml}).
+   */
+  public static final String POSTGRES_DRIVER = "postgresql";
+
+  /** PostgreSQL JDBC driver class name ({@code org.postgresql:postgresql}). */
+  public static final String POSTGRES_DRIVER_CLASS = "org.postgresql.Driver";
+
+  /** Default PostgreSQL TCP port. */
+  public static final int POSTGRES_DEFAULT_PORT = 5432;
+
   /** constant for the DB2 driver type. */
   public static final String DB2_DRIVER = "db2";
 
@@ -104,6 +116,9 @@ public class PSJdbcUtils {
   /** constant for the H2 driver type (alias of {@link #H2_DRIVER}). */
   public static final String H2 = H2_DRIVER;
 
+  /** constant for the PostgreSQL driver type (alias of {@link #POSTGRES_DRIVER}). */
+  public static final String POSTGRES = POSTGRES_DRIVER;
+
   /** constant for the MYSQL driver type. */
   public static final String MYSQL = MYSQL_DRIVER;
 
@@ -136,6 +151,12 @@ public class PSJdbcUtils {
 
   /** Constant for H2 db backend property ({@code DB_BACKEND=H2}). */
   public static final String H2_DB_BACKEND = "H2";
+
+  /**
+   * Constant for PostgreSQL db backend property ({@code DB_BACKEND=POSTGRES}). Installer {@code
+   * db.type} aliases {@code postgresql} / {@code postgres} normalize to this backend label.
+   */
+  public static final String POSTGRES_DB_BACKEND = "POSTGRES";
 
   /** Constant for MYSQL db backend property, see */
   public static final String MYSQL_DB_BACKEND = "MYSQL";
@@ -369,12 +390,14 @@ public class PSJdbcUtils {
     else if (driver.equals(DB2)) strDBBackend = DB2_DB_BACKEND;
     else if (driver.equals(DERBY_DRIVER)) strDBBackend = DERBY_DB_BACKEND;
     else if (driver.equalsIgnoreCase(H2_DRIVER)) strDBBackend = H2_DB_BACKEND;
+    else if (driver.equalsIgnoreCase(POSTGRES_DRIVER)
+        || "postgres".equalsIgnoreCase(driver)) strDBBackend = POSTGRES_DB_BACKEND;
     else if (driver.equals(MYSQL_DRIVER)) strDBBackend = MYSQL_DB_BACKEND;
     else if (driver.equals(JTDS_DRIVER)
         || driver.equalsIgnoreCase(MICROSOFT_DRIVER)
         || driver.equalsIgnoreCase(MICROSOFT_DRIVER)) strDBBackend = JTDS_DB_BACKEND;
     else {
-      // Oracle is the only supported driver left
+      // Oracle thin/oci families and any remaining legacy thin aliases
       strDBBackend = ORACLE_DB_BACKEND;
     }
 
@@ -423,6 +446,7 @@ public class PSJdbcUtils {
     ms_jdbcUrlToDriverMap.put(JTDS_DRIVER, JTDS_DRIVER);
     ms_jdbcUrlToDriverMap.put(DERBY_DRIVER, DERBY_DRIVER);
     ms_jdbcUrlToDriverMap.put(H2_DRIVER, H2_DRIVER);
+    ms_jdbcUrlToDriverMap.put(POSTGRES_DRIVER, POSTGRES_DRIVER);
     ms_jdbcUrlToDriverMap.put(MYSQL_DRIVER, MYSQL_DRIVER);
 
     // weblogic drivers
@@ -435,8 +459,9 @@ public class PSJdbcUtils {
     ms_jdbcUrlToDriverMap.put("datadirect:oracle", "datadirect:oracle");
     ms_jdbcUrlToDriverMap.put("datadirect:sqlserver", "datadirect:sqlserver");
 
-    // external drivers
+    // external drivers (not the product-managed embedded default)
     ms_externalDrivers.add(MYSQL_DRIVER);
+    ms_externalDrivers.add(POSTGRES_DRIVER);
   }
 
   /**
