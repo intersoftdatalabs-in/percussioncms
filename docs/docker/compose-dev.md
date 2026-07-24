@@ -51,18 +51,19 @@ Resolution order:
 
 Defaults:
 
-- `db.type=derby`
+- `db.type=h2` (embedded default after Apache Derby retirement; GitHub #548)
 - `db.ssl.enabled=true`
 - `db.ssl.verify=true`
 - `db.ssl.allowSelfSigned=false`
 
 Supported fresh-install DB types:
 
-- `derby`
+- `h2` (default embedded)
+- `derby` (legacy; upgrade/migration only)
 - `mysql`
 - `sqlserver`
 
-For non-Derby installs, required parameters are:
+For non-embedded installs (not `h2` / `derby`), required parameters are:
 
 - `db.host`
 - `db.port`
@@ -84,7 +85,7 @@ Developer self-signed mode (explicit opt-in):
   - `MYSQL_PASSWORD`
   - `MYSQL_ROOT_PASSWORD`
 - The MySQL service runs with UTF-8 defaults (`utf8mb4`, `utf8mb4_unicode_ci`).
-- Installer defaults are historically Derby-oriented unless installation/runtime configs are changed.
+- Installer defaults use embedded **H2** unless installation/runtime configs target an external RDBMS or a legacy Derby path for migration testing.
 
 To confirm what the running server actually uses (CMS repo + DTS datasource), run:
 
