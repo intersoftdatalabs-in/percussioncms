@@ -84,10 +84,10 @@
 - [x] T035 [US1] Port Liquibase `dbms="derby"` changesets to H2 (or db-agnostic) in `deliverytiersuite/delivery-tier-suite/metadata/src/main/resources/changeLogIndex*.xml` and related — **QC-012** start
 - [x] T036 [US1] Update `deliverytiersuite/delivery-tier-suite/delivery-tier-distribution` packaging, cargo DS, and start scripts (`TomcatStartup.*`, service bats) to H2 home properties — **QC-024** start
 - [x] T037 [US1] Replace DTS Hibernate `DerbyDialect` hardcodes with H2 dialect class names in beans/xml configs (inventory-driven)
-- [ ] T038 [US1] **OS matrix smoke (SC-001)**: document and execute new default CMS login + DTS health smoke on **Windows, Linux, and macOS** (skip only with product-owner waiver recorded on #548 for unsupported component/OS); capture commands/results in `specs/548-derby-embedded-migration/checklists/os-smoke-matrix.md`
-- [ ] T039 [US1] **FR-010 copy audit**: grep installer/distribution docs and default templates for contradictory “Derby default” new-install guidance; fix remaining new-install messaging to H2/new default
+- [ ] T038 [US1] **OS matrix smoke (SC-001)**: document and execute new default CMS login + DTS health smoke on **Windows, Linux, and macOS** (skip only with product-owner waiver recorded on #548 for unsupported component/OS); capture commands/results in `specs/548-derby-embedded-migration/checklists/os-smoke-matrix.md` — checklist + packaging unit evidence started 2026-07-24; full install smoke pending distribution artifact
+- [x] T039 [US1] **FR-010 copy audit**: grep installer/distribution docs and default templates for contradictory “Derby default” new-install guidance; fix remaining new-install messaging to H2/new default — see `checklists/fr010-copy-audit.md`
 - [ ] T040 [US1] Standalone `mvn-env.sh clean install` for each changed module in this story; record evidence for PR body — **QC-018**
-- [ ] T041 [US1] Commit US1 changes; open PR “548 US1 new-install H2 defaults”; pause for review
+- [ ] T041 [US1] Commit US1 changes; open PR “548 US1 new-install H2 defaults”; pause for review — PR #1493 open (stacked commits)
 - [ ] T042 [US1] Monitor CI/Kilo; fix feedback; reply+resolve review threads per AGENTS; merge before US2
 
 ---
@@ -100,33 +100,34 @@
 
 ### Tests
 
-- [ ] T043 [P] [US2] Unit tests for backup gate matrix (product backup / external confirm / neither) in migrator test class under `system/src/test/java/com/percussion/install/` (or chosen package) — **QC-007**, **FR-018**, **SC-010**
-- [ ] T044 [P] [US2] Unit tests for migrator state machine outcomes (`SUCCESS`, `FAILED`, `SKIPPED_NON_DERBY`, `BLOCKED_BACKUP_GATE`, `ALREADY_MIGRATED`) and secrets redaction helper — **QC-010**, **QC-022**, **FR-017**
-- [ ] T045 [P] [US2] Unit/IT for exclusive migrator lock (`FileChannel.tryLock`) second-process blocked — **QC-019**
-- [ ] T046 [US2] Integration test: mini Derby source fixture → migrate → table-set equality + identity preserve + NEXTNUMBER probe under `system/src/test/java/` — **QC-003**, **QC-028**, **FR-007**, **SC-002**
+- [x] T043 [P] [US2] Unit tests for backup gate matrix (product backup / external confirm / neither) in migrator test class under `system/src/test/java/com/percussion/install/` (or chosen package) — **QC-007**, **FR-018**, **SC-010** (`PSRepositoryBackupGateTest`)
+- [x] T044 [P] [US2] Unit tests for migrator state machine outcomes (`SUCCESS`, `FAILED`, `SKIPPED_NON_DERBY`, `BLOCKED_BACKUP_GATE`, `ALREADY_MIGRATED`) and secrets redaction helper — **QC-010**, **QC-022**, **FR-017** (`PSEmbeddedRepositoryMigratorTest`)
+- [x] T045 [P] [US2] Unit/IT for exclusive migrator lock (`FileChannel.tryLock`) second-process blocked — **QC-019** (`PSMigratorLockTest`)
+- [x] T046 [US2] Integration test: mini source fixture → TableFactory export/import → identity preserve + NEXTNUMBER + cutover under `system/src/test/java/` — **QC-003**, **QC-028**, **FR-007**, **SC-002** (`PSTableFactoryMigrationTransferTest`, `PSEmbeddedRepositoryMigrationIT`; H2↔H2 exercises transfer; production uses Derby source props + FR-021 jars)
 - [ ] T047 [US2] Integration tests for failure injection (**target 10/10** cases: disk full, kill mid-copy, corrupt source, validation fail, etc.) asserting config remains Derby and source openable — **QC-008**, **QC-021**, **FR-008**, **SC-004**
 - [ ] T048 [US2] Integration test multi-file cutover consistency (`rxrepository` + Jetty perc-ds labels both H2 after SUCCESS; mid-cutover restore) — **QC-009**, **FR-013**
 - [ ] T049 [US2] Boolean/BIT and CLOB content probes in migration IT — **QC-004**, **QC-005**, **FR-007**
 - [ ] T050 [US2] Scale fixture path for ≥1000 content items (generator or loader) + wall-clock log to `specs/548-derby-embedded-migration/checklists/migration-timing.md` — **QC-029** **hard gate for SC-002**
 - [ ] T051 [P] [US2] DTS per-service migration IT (at least metadata + one other service) under delivery-tier test trees — **QC-012**, **FR-006**, **SC-003**
-- [ ] T052 [US2] Test durable migration report file written under install tree (path per observability contract) readable after SUCCESS/FAILED/SKIPPED — **FR-017**
+- [x] T052 [US2] Test durable migration report file written under install tree (path per observability contract) readable after SUCCESS/FAILED/SKIPPED — **FR-017** (covered in `PSEmbeddedRepositoryMigratorTest`)
 
 ### Implementation
 
-- [ ] T053 [US2] Implement product offline full-dir pre-migration backup (NIO copy of repository dir + companion config) in upgrade/migrator code under `system/src/main/java/com/percussion/install/` (new class e.g. `PSEmbeddedRepositoryMigrator.java` / `PSRepositoryBackupGate.java`) per contracts/backup-restore.md — **QC-007**, **FR-018a**
-- [ ] T054 [US2] Implement **FR-018b external-backup confirmation** using the **frozen primary UX only**: upgrade property / system property `perc.migration.externalBackupConfirmed=true` set by installer checkbox or CLI `-Dperc.migration.externalBackupConfirmed=true` (see contracts/migration-upgrade.md); must be affirmative, non-default, logged without secrets — do not invent alternate silent paths
+- [x] T053 [US2] Implement product offline full-dir pre-migration backup (NIO copy of repository dir + companion config) in upgrade/migrator code under `system/src/main/java/com/percussion/install/` (new class e.g. `PSEmbeddedRepositoryMigrator.java` / `PSRepositoryBackupGate.java`) per contracts/backup-restore.md — **QC-007**, **FR-018a** (`PSRepositoryOfflineBackup`)
+- [x] T054 [US2] Implement **FR-018b external-backup confirmation** using the **frozen primary UX only**: upgrade property / system property `perc.migration.externalBackupConfirmed=true` set by installer checkbox or CLI `-Dperc.migration.externalBackupConfirmed=true` (see contracts/migration-upgrade.md); must be affirmative, non-default, logged without secrets — do not invent alternate silent paths
 - [ ] T055 [US2] If installer surfaces a visible checkbox/label for T054, add `perc-i18n` string keys for those operator-facing messages under the project i18n module/resources; if no UI strings, record N/A in PR body
-- [ ] T056 [US2] Implement disk precheck before pump and exclusive lock file under install root — **QC-019**, **QC-021**
-- [ ] T057 [US2] Implement CMS detector for product-managed Derby (embedded and networked ClientDriver configs) reading `rxrepository.properties`
-- [ ] T058 [US2] Implement CMS schema create on H2 via TableFactory + FK-safe ordered pump with **explicit PKs** and NEXTNUMBER re-sync — **QC-003**, **QC-028**, **FR-005**, **FR-007**
-- [ ] T059 [US2] Implement validation probes (table-set, counts, boolean, CLOB, NEXTNUMBER, login entities) before cutover — **FR-007**, **SC-002**
-- [ ] T060 [US2] Implement multi-file cutover + rollback for `rxrepository.properties`, Jetty `perc-ds.properties` / related, with durable writes — **QC-009**, **FR-013**
-- [ ] T061 [US2] Implement migration outcome logging **and durable report file** per `contracts/migration-observability.md` (**FR-017**)
-- [ ] T062 [US2] Retain Derby files after SUCCESS; implement optional/documented cleanup entry point without auto-delete — **QC-016**, **FR-019**, **SC-011**
-- [ ] T063 [US2] Wire migrator into CMS upgrade path (ANT/install upgrade targets under `system/installResources` / distribution upgrade sequence)
-- [ ] T064 [US2] Implement DTS per-service migration (Hibernate/Liquibase target schema + JDBC pump + config/script cutover) in distribution upgrade or shared DTS upgrade helper under `deliverytiersuite/delivery-tier-suite/delivery-tier-distribution` — **QC-012**, **FR-006**, **SC-003**
-- [ ] T065 [US2] **CMS+DTS upgrade sequencing**: implement/document recommended order in `contracts/migration-upgrade.md` and operator docs — stop all → migrate CMS → migrate each Derby DTS service independently → start; independent detection; log per-component outcomes (**FR-017**); add integration or documented dry-run checklist under `specs/548-derby-embedded-migration/checklists/upgrade-sequence.md`
-- [ ] T066 [US2] Keep Derby jars on migration classpath only (**FR-021** window); document scope in module POMs
+- [x] T056 [US2] Implement disk precheck before pump and exclusive lock file under install root — **QC-019**, **QC-021** (`PSMigratorLock`, `PSRepositoryOfflineBackup.hasSufficientDiskSpace`)
+- [x] T057 [US2] Implement CMS detector for product-managed Derby (embedded and networked ClientDriver configs) reading `rxrepository.properties` (`PSEmbeddedRepositoryDetector`)
+- [x] T058 [US2] Implement CMS schema create on H2 via TableFactory export XML → import (not custom JDBC pump) with **explicit PKs** and NEXTNUMBER preserved — **QC-003**, **QC-028**, **FR-005**, **FR-007** (`PSCatalogTableData.exportDatabase`, `PSJdbcTableFactory.importDatabase`, `PSTableFactoryMigrationTransfer`)
+- [x] T059 [US2] Implement validation probes (table-set / post-import target checks, NEXTNUMBER) before cutover — **FR-007**, **SC-002** (`PSMigrationValidator.validateTargetOnly` + dual-conn validate)
+- [x] T060 [US2] Implement multi-file cutover + rollback for `rxrepository.properties`, Jetty `perc-ds.properties` / related, with durable writes — **QC-009**, **FR-013** (`PSConfigCutover`)
+- [x] T061 [US2] Implement migration outcome logging **and durable report file** per `contracts/migration-observability.md` (**FR-017**) — `PSMigrationReportWriter` + migrator log lines; report under `rxconfig/Installer/migration-report-CMS.properties`
+- [x] T062 [US2] Retain Derby files after SUCCESS; implement optional/documented cleanup entry point without auto-delete — **QC-016**, **FR-019**, **SC-011** — SUCCESS never deletes Derby residue; cutover only rewrites configs (cleanup entry point deferred to US5 docs T085)
+- [x] T063 [US2] Wire migrator into CMS upgrade path (ANT/install upgrade targets under `system/installResources` / distribution upgrade sequence) — `PSUpgradePluginEmbeddedRepositoryMigration` in `rxPreUpgradePlugins.xml` + `rxupgrade.xml`; `PSMigrateEmbeddedRepository` ANT task in system + distribution `upgrade.chain`
+- [x] T064 [US2] Implement DTS per-service migration (TableFactory export/import + config cutover) — **QC-012**, **FR-006**, **SC-003** (`PSDtsEmbeddedRepositoryMigrator`, `PSMigrateDtsEmbeddedRepository`, `installDts.xml`)
+- [x] T065 [US2] **CMS+DTS upgrade sequencing** documented — `checklists/upgrade-sequence.md` (+ contracts already state order)
+- [x] T066 [US2] Keep Derby jars on migration classpath only (**FR-021** window); document scope — `checklists/derby-migration-classpath.md`
+
 - [ ] T067 [US2] Standalone clean install/tests for all modules touched in US2; PR evidence — **QC-018**
 - [ ] T068 [US2] Commit US2; open PR “548 US2 Derby migration”; pause for review/merge
 

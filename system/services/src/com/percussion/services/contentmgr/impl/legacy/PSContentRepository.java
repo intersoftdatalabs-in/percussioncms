@@ -1177,7 +1177,7 @@ public class PSContentRepository
     /**
      * Determines if the repository needs embedded file-store LOB materialization (Clob→String /
      * Blob→byte[]). True for Apache Derby (legacy) and H2 (GitHub #548 default embedded
-     * replacement). Named for behavior, not Derby-only.
+     * replacement). Named for behavior (file-store LOB handling), not Derby-only.
      *
      * @return <code>true</code> for embedded file-store backends that need LOB remapping
      */

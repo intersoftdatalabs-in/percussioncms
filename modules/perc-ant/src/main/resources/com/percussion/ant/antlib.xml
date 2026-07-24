@@ -155,6 +155,12 @@
 		classname="com.percussion.ant.PSSyncFiles" />
 	<taskdef name="PSUpgradeDerby"
 		classname="com.percussion.ant.install.PSUpgradeDerby" />
+	<!-- #548 CMS Derby→H2 migration (upgrade; fail install on FAILED/BLOCKED) -->
+	<taskdef name="PSMigrateEmbeddedRepository"
+		classname="com.percussion.ant.install.PSMigrateEmbeddedRepository" />
+	<!-- #548 DTS per-service Derby→H2 migration -->
+	<taskdef name="PSMigrateDtsEmbeddedRepository"
+		classname="com.percussion.ant.install.PSMigrateDtsEmbeddedRepository" />
 	<taskdef name="PSUpgradeEncryption"
 		classname="com.percussion.ant.install.PSUpgradeEncryption" />
 	<taskdef name="PSUpgradeSiteConfig"

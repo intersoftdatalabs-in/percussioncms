@@ -53,9 +53,10 @@ def test_bogus_flag_exits_nonzero() -> None:
     assert "no-such-flag" in combined or "unrecognized" in combined
 
 
-def test_build_installer_db_args_defaults_to_derby() -> None:
-    """The pure helper defaults to derby + ssl enabled/verify=true when no env
-    is set; tests import the module to exercise the function directly.
+def test_build_installer_db_args_defaults_to_h2() -> None:
+    """The pure helper defaults to h2 + ssl enabled/verify=true when no env
+    is set (#548 embedded default); tests import the module to exercise the
+    function directly.
     """
     import importlib.util
 
@@ -70,7 +71,7 @@ def test_build_installer_db_args_defaults_to_derby() -> None:
             if k.startswith("PERC_DB_") or k.startswith("DB_"):
                 os.environ.pop(k, None)
         args = module.build_installer_db_args()
-        assert "--db.type=derby" in args
+        assert "--db.type=h2" in args
         assert "--db.ssl.enabled=true" in args
         assert "--db.ssl.verify=true" in args
         assert "--db.ssl.allowSelfSigned=false" in args
