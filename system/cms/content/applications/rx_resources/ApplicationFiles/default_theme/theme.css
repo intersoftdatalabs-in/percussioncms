@@ -1208,49 +1208,6 @@ div.perc-clear-both {
 /* End CM1 V2.0 updates */
 
 /* Begin CM1 V2.2 updates */
-/* Begin Share This Widget CSS */
-
-.perc-share-this-widget {
-}
-
-.perc-share-this-widget-facebook-button {
-  background-image: url(/web_resources/widgets/shareThis/images/IconFacebook.png);
-  background-repeat: no-repeat;
-  display: inline-block;
-  height: 32px;
-  width: 32px;
-}
-
-.perc-share-this-widget-facebook-button:hover {
-  cursor: pointer;
-}
-
-.perc-share-this-widget-twitter-button {
-  background-image: url(/web_resources/widgets/shareThis/images/IconTwitter.png);
-  background-repeat: no-repeat;
-  display: inline-block;
-  height: 32px;
-  width: 32px;
-}
-
-.perc-share-this-widget-twitter-button:hover {
-  cursor: pointer;
-}
-
-.perc-share-this-widget-digg-button {
-  background-image: url(/web_resources/widgets/shareThis/images/IconDigg.png);
-  background-repeat: no-repeat;
-  display: inline-block;
-  height: 32px;
-  width: 32px;
-}
-
-.perc-share-this-widget-digg-button:hover {
-  cursor: pointer;
-}
-
-/* End Share This Widget CSS */
-
 /* Begin Rss Widget CSS */
 
 .perc-feed-widget {
@@ -2602,49 +2559,6 @@ div.perc-clear-both {
 /* End CM1 V2.0 updates */
 
 /* Begin CM1 V2.2 updates */
-/* Begin Share This Widget CSS */
-
-.perc-share-this-widget {
-}
-
-.perc-share-this-widget-facebook-button {
-  background-image: url(/web_resources/widgets/shareThis/images/IconFacebook.png);
-  background-repeat: no-repeat;
-  display: inline-block;
-  height: 32px;
-  width: 32px;
-}
-
-.perc-share-this-widget-facebook-button:hover {
-  cursor: pointer;
-}
-
-.perc-share-this-widget-twitter-button {
-  background-image: url(/web_resources/widgets/shareThis/images/IconTwitter.png);
-  background-repeat: no-repeat;
-  display: inline-block;
-  height: 32px;
-  width: 32px;
-}
-
-.perc-share-this-widget-twitter-button:hover {
-  cursor: pointer;
-}
-
-.perc-share-this-widget-digg-button {
-  background-image: url(/web_resources/widgets/shareThis/images/IconDigg.png);
-  background-repeat: no-repeat;
-  display: inline-block;
-  height: 32px;
-  width: 32px;
-}
-
-.perc-share-this-widget-digg-button:hover {
-  cursor: pointer;
-}
-
-/* End Share This Widget CSS */
-
 /* Begin Rss Widget CSS */
 
 .perc-feed-widget {

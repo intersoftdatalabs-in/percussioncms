@@ -161,7 +161,8 @@
         <jdeps.fail.build>false</jdeps.fail.build>
         <jdk.version>21</jdk.version>
         <jenkins.buildNumber>2024</jenkins.buildNumber>
-        <jetty.maven.plugin.version>11.0.26</jetty.maven.plugin.version>
+        <!-- Jetty 12 EE11 Maven plugin (dev jetty:run). Runtime packaging uses perc-jetty ee11 / jetty.version. -->
+        <jetty.maven.plugin.version>${jetty.version}</jetty.maven.plugin.version>
         <jetty.version>12.1.7</jetty.version>
         <jfx.version>11.0.2</jfx.version>
         <json.version>20251224</json.version>
@@ -1272,11 +1273,6 @@
                 <version>${quartz.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.apache.commons</groupId>
-                <artifactId>commons-imaging</artifactId>
-                <version>1.0.0-alpha6</version>
-            </dependency>
-            <dependency>
                 <groupId>com.googlecode.json-simple</groupId>
                 <artifactId>json-simple</artifactId>
                 <version>1.1.1</version>
@@ -1976,8 +1972,8 @@
                 </plugin>
                 <plugin>
                     <groupId>org.codehaus.cargo</groupId>
-                    <artifactId>cargo-maven2-plugin</artifactId>
-                    <version>1.9.0</version>
+                    <artifactId>cargo-maven3-plugin</artifactId>
+                    <version>1.10.28</version>
                 </plugin>
                 <plugin>
                     <groupId>com.github.eirslett</groupId>
@@ -2143,8 +2139,8 @@
                     </configuration>
                 </plugin>
                 <plugin>
-                    <groupId>org.eclipse.jetty</groupId>
-                    <artifactId>jetty-maven-plugin</artifactId>
+                    <groupId>org.eclipse.jetty.ee11</groupId>
+                    <artifactId>jetty-ee11-maven-plugin</artifactId>
                     <version>${jetty.maven.plugin.version}</version>
                     <configuration>
                         <scanIntervalSeconds>10</scanIntervalSeconds>

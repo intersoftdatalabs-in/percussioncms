@@ -39,13 +39,13 @@ rem Guess CATALINA_HOME if not defined
 set CURRENT_DIR=%cd%
 
 set CATALINA_HOME=%cd%
-if exist "%CATALINA_HOME%\bin\tomcat9.exe" goto okHome
+if exist "%CATALINA_HOME%\bin\tomcat11.exe" goto okHome
 rem CD to the upper dir
 cd ..
 set CATALINA_HOME=%cd%
 :gotHome
-if exist "%CATALINA_HOME%\bin\tomcat9.exe" goto okHome
-echo The tomcat9.exe was not found...
+if exist "%CATALINA_HOME%\bin\tomcat11.exe" goto okHome
+echo The tomcat11.exe was not found...
 echo The CATALINA_HOME environment variable is not defined correctly.
 echo This environment variable is needed to run this program
 goto end
@@ -54,7 +54,7 @@ rem Make sure prerequisite environment variables are set
 
 set CATALINA_BASE=%CATALINA_HOME%
  
-set EXECUTABLE=%CATALINA_HOME%\bin\tomcat9.exe
+set EXECUTABLE=%CATALINA_HOME%\bin\tomcat11.exe
 
 rem Set default Service name
 set SERVICE_NAME=PercussionProductionDTS

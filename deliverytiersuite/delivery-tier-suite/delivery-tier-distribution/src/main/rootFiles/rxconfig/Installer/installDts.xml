@@ -493,8 +493,8 @@
 							<exclude name="linux-x64-jre/" />
 							<exclude name="windows-x64-jre/" />
 							<exclude name="rxconfig/" />
-							<exclude name="tomcat10.exe" />
-							<exclude name="tomcat10w.exe" />
+							<exclude name="tomcat11.exe" />
+							<exclude name="tomcat11w.exe" />
 							<exclude name="tcnative-1.dll" />
 							<exclude name="DTSProductionService.bat" />
 							<exclude name="DTSStagingService.bat" />
@@ -513,8 +513,8 @@
 					<copy
 						todir="${install.dir}${staging.dir}/Deployment/Server/bin">
 						<fileset dir="${install.src}">
-							<include name="tomcat10.exe" if="${isWindows}" />
-							<include name="tomcat10w.exe" if="${isWindows}" />
+							<include name="tomcat11.exe" if="${isWindows}" />
+							<include name="tomcat11w.exe" if="${isWindows}" />
 							<include name="tcnative-1.dll" if="${isWindows}" />
 						</fileset>
 					</copy>
@@ -664,8 +664,8 @@
 						todir="${install.dir}${staging.dir}/Deployment/Server/bin"
 						overwrite="true" verbose="true">
 						<fileset dir="${install.src}">
-							<include name="tomcat10.exe" if="${isWindows}" />
-							<include name="tomcat10w.exe" if="${isWindows}" />
+							<include name="tomcat11.exe" if="${isWindows}" />
+							<include name="tomcat11w.exe" if="${isWindows}" />
 							<include name="tcnative-1.dll" if="${isWindows}" />
 						</fileset>
 					</copy>
@@ -803,8 +803,8 @@
 							<exclude name="linux-x64-jre/" />
 							<exclude name="windows-x64-jre/" />
 							<exclude name="rxconfig/" />
-							<exclude name="tomcat10.exe" />
-							<exclude name="tomcat10w.exe" />
+							<exclude name="tomcat11.exe" />
+							<exclude name="tomcat11w.exe" />
 							<exclude name="tcnative-1.dll" />
 							<exclude name="DTSProductionService.bat" />
 							<exclude name="DTSStagingService.bat" />

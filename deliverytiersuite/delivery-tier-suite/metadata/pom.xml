@@ -239,14 +239,15 @@
                 <plugins>
                     <plugin>
                         <groupId>org.codehaus.cargo</groupId>
-                        <artifactId>cargo-maven2-plugin</artifactId>
-                        <version>1.9.0</version>
+                        <artifactId>cargo-maven3-plugin</artifactId>
+                        <version>1.10.28</version>
                         <configuration>
                             <container>
-                                <containerId>tomcat7x</containerId>
+                                <!-- Align optional cargo.run profile with DTS Tomcat 11 / EE11 baseline (#667) -->
+                                <containerId>tomcat11x</containerId>
                                 <!-- <type>embedded</type> -->
                                 <zipUrlInstaller>
-                                    <url>http://repo1.maven.org/maven2/org/apache/tomcat/tomcat/7.0.68/tomcat-7.0.68.zip</url>
+                                    <url>https://repo1.maven.org/maven2/org/apache/tomcat/tomcat/${tomcat.version}/tomcat-${tomcat.version}.zip</url>
                                 </zipUrlInstaller>
                                 <dependencies>
                                     <dependency>
