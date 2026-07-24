@@ -37,7 +37,6 @@ import com.percussion.widgets.image.services.ImageCacheManager;
 import com.percussion.widgets.image.services.ImageCacheManagerLocator;
 import com.percussion.widgets.image.services.ImageResizeManager;
 import com.percussion.widgets.image.services.ImageResizeManagerLocator;
-import com.percussion.widgets.image.web.impl.ImageReader;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
