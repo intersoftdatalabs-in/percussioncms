@@ -311,7 +311,7 @@ if [ "$uninstall" != "true" ]; then
 		elif [ -d "${CATALINA_HOME}/JRE" ]; then
 			JAVA_HOME=${CATALINA_HOME}/JRE
 		else
-			echo "JAVA_HOME not found under ${INSTALL_ROOT}/JRE; set JAVA_HOME or write java.properties before install" 1>&2
+			echo "JAVA_HOME not found under ${INSTALL_ROOT}/JRE, ${rxDir}/JRE, or ${CATALINA_HOME}/JRE; set JAVA_HOME or write java.properties before install" 1>&2
 			exit 1
 		fi
 	fi
