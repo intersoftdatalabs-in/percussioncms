@@ -30,11 +30,11 @@
 		<property name="properties">
 			<props>
 				<prop key="hibernate.hbm2ddl.auto">update</prop>
-				<prop key="hibernate.dialect">org.hibernate.community.dialect.DerbyDialect</prop>
+				<prop key="hibernate.dialect">org.hibernate.dialect.H2Dialect</prop>
 				<!-- This EL avoids setting default_schema when it's empty. -->
 				<prop
 					key="hibernate.default_schema#{'${db.schema}'.length() == 0 ? '.null' : ''}">${db.schema}</prop>
-				<prop key="hibernate.query.substitutions">true 'T', false 'F'</prop>
+				<prop key="hibernate.query.substitutions"></prop>
 				<prop key="hibernate.show_sql">true</prop>
 				<prop key="hibernate.jdbc.batch_size">50</prop>
 				<prop key="hibernate.cache.use_query_cache">false</prop>

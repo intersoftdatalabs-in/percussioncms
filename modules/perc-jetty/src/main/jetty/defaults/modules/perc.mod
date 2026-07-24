@@ -61,8 +61,7 @@ jetty.webapp.addProtectedClasses+=,org.xml.sax.,org.w3c.,org.apache.xmlcommons.V
 -Djava.library.path=../../bin
 -Djavax.xml.parsers.SAXParserFactory=com.percussion.xml.PSSaxParserFactoryImpl
 -Dorg.apache.commons.logging.LogFactory=org.apache.commons.logging.impl.LogFactoryImpl
--Dderby.system.home=../../Repository
--Dderby.drda.startNetworkServer=true
+# H2 file DB lives under ../../Repository (see perc-ds.properties). No Derby Network Server (#548).
 -Djava.net.preferIPv4Stack=true
 -Djava.net.preferIPv4Addresses=true
 

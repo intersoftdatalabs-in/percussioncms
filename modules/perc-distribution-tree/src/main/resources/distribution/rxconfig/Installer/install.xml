@@ -744,6 +744,7 @@
 		<delete failonerror="false" verbose="true">
 			<fileset dir="${install.dir}/jetty/base/lib/jdbc">
 				<include name="mariadb-java-client-*.jar" />
+				<include name="h2-*.jar" />
 				<include name="derby-*.jar" />
 				<include name="derbyclient-*.jar" />
 				<include name="derbynet-*.jar" />

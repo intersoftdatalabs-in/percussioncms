@@ -37,7 +37,7 @@ import java.util.Properties;
  *   <li>{@code -Ddbprops=} / {@code --dbprops=} property files in {@code rxrepository.properties}
  *       format (issue #949)
  *   <li>Structured {@code --db.*} CLI / env-file / environment inputs (existing automation surface)
- *   <li>Default embedded Derby when no override is supplied
+ *   <li>Default embedded H2 when no override is supplied (GitHub #548; Derby retained for migration)
  * </ul>
  *
  * <p><strong>Security:</strong> never log or print {@code PWD} / password field values in error
@@ -45,7 +45,8 @@ import java.util.Properties;
  */
 public final class DbInstallConfigResolver {
 
-  public static final String DB_TYPE_DEFAULT = "derby";
+  /** Default embedded engine type after Apache Derby retirement (#548). */
+  public static final String DB_TYPE_DEFAULT = "h2";
   /** Default SSL enabled value for new installs. */
   public static final String DB_SSL_ENABLED_DEFAULT = "true";
   /** Default SSL verify value for new installs. */
@@ -189,7 +190,8 @@ public final class DbInstallConfigResolver {
     systemProperties.put("perc.db.ssl.verify", sslVerify);
     systemProperties.put("perc.db.ssl.allowSelfSigned", sslAllowSelfSigned);
 
-    if (Objects.equals(dbType, "derby")) {
+    if (Objects.equals(dbType, "derby") || Objects.equals(dbType, "h2")) {
+      // Embedded defaults: product ship props / TableFactory; no enterprise CMS field mapping
       return new ResolvedDbConfig(systemProperties, "dbprops");
     }
 
@@ -293,7 +295,7 @@ public final class DbInstallConfigResolver {
     String user = getConfigValue("db.user", cliOptions, environmentFileValues, null);
     String password = getConfigValue("db.password", cliOptions, environmentFileValues, null);
 
-    if (!Objects.equals(dbType, "derby")) {
+    if (!Objects.equals(dbType, "derby") && !Objects.equals(dbType, "h2")) {
       List<String> missing = new ArrayList<>();
       if (isBlank(host)) {
         missing.add("db.host");
@@ -504,35 +506,48 @@ public final class DbInstallConfigResolver {
     String b = backendRaw.trim().toUpperCase(Locale.ROOT);
     return switch (b) {
       case "DERBY" -> "derby";
+      case "H2" -> "h2";
       case "MYSQL" -> "mysql";
       case "MSSQL" -> "sqlserver";
       case "ORACLE", "ORA" -> "oracle";
       default -> throw new IllegalArgumentException(
           "Unknown DB_BACKEND='"
               + backendRaw
-              + "'. Allowed values: DERBY, MYSQL, MSSQL, ORACLE");
+              + "'. Allowed values: H2, DERBY, MYSQL, MSSQL, ORACLE");
     };
   }
 
   static String normalizeStructuredDbType(String dbTypeRaw) {
     String t = dbTypeRaw.trim().toLowerCase(Locale.ROOT);
     return switch (t) {
-      case "derby", "mysql", "sqlserver", "oracle" -> t;
+      case "h2", "derby", "mysql", "sqlserver", "oracle" -> t;
       case "mssql" -> "sqlserver";
       case "ora" -> "oracle";
       default -> throw new IllegalArgumentException(
           "Unknown db.type='"
               + dbTypeRaw
-              + "'. Allowed values: derby, mysql, sqlserver, oracle");
+              + "'. Allowed values: h2, derby, mysql, sqlserver, oracle");
     };
   }
 
-  private static String backendLabelForType(String dbType) {
+  /**
+   * Map normalized installer {@code db.type} values to {@code DB_BACKEND} labels.
+   *
+   * <p>Only known types are accepted — fail-fast like {@link #normalizeStructuredDbType(String)}
+   * (do not silently default unknown values to H2).
+   */
+  static String backendLabelForType(String dbType) {
     return switch (dbType) {
+      case "h2" -> "H2";
       case "mysql" -> "MYSQL";
       case "sqlserver" -> "MSSQL";
       case "oracle" -> "ORACLE";
-      default -> "DERBY";
+      case "derby" -> "DERBY";
+      default ->
+          throw new IllegalArgumentException(
+              "Unknown db.type='"
+                  + dbType
+                  + "' for backend label. Allowed values: h2, derby, mysql, sqlserver, oracle");
     };
   }
 

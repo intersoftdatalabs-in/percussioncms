@@ -29,7 +29,7 @@
 						<Set name="ConnectionTestQuery">
 							<Call class="com.percussion.utils.container.PSStaticContainerUtils" name="connectionTestQuery">
 								<Arg>
-									<Property default="derby" name="perc.ds.1.driver.name" />
+									<Property default="h2" name="perc.ds.1.driver.name" />
 								</Arg>
 								<Arg>
 									<Property default="SELECT 1" name="perc.ds.1.connectiontest" />
@@ -39,10 +39,10 @@
 						<Set name="jdbcUrl">
 							<Call class="com.percussion.utils.container.PSStaticContainerUtils" name="buildConnectionUrl">
 								<Arg>
-									<Property default="derby" name="perc.ds.1.driver.name" />
+									<Property default="h2" name="perc.ds.1.driver.name" />
 								</Arg>
 								<Arg>
-									<Property default="memory:musicbrainz" name="perc.ds.1.server" />
+									<Property default="file:../../Repository/CMDB;DB_CLOSE_ON_EXIT=FALSE" name="perc.ds.1.server" />
 								</Arg>
 							</Call>
 						</Set>

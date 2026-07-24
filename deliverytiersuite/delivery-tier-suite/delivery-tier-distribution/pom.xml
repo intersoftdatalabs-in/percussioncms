@@ -338,7 +338,12 @@
                 </exclusion>
             </exclusions>
         </dependency>
-        <dependency>
+                <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+            <version>${h2.version}</version>
+        </dependency>
+<dependency>
             <groupId>org.apache.derby</groupId>
             <artifactId>derby</artifactId>
             <version>${derby.version}</version>
@@ -1155,6 +1160,11 @@
                                         <artifactId>c3p0</artifactId>
                                     </dependency>
                                     <dependency>
+                                        <groupId>com.h2database</groupId>
+                                        <artifactId>h2</artifactId>
+                                    </dependency>
+                                    <!-- Derby retained on cargo classpath for FR-021 migration-window tests only -->
+                                    <dependency>
                                         <groupId>org.apache.derby</groupId>
                                         <artifactId>derby</artifactId>
                                     </dependency>
@@ -1255,11 +1265,11 @@
                                     <cargo.servlet.port>9980</cargo.servlet.port>
                                     <cargo.runtime.args>${project.basedir}/src/main/resources/etc/dts-realm.xml
 										${project.basedir}/src/main/resources/etc/dts-realm.properties</cargo.runtime.args>
-                                    <cargo.datasource.datasource.derby>cargo.datasource.driver=org.apache.derby.jdbc.EmbeddedDriver|
-										cargo.datasource.url=jdbc:derby:derbyDB;create=true|
+                                    <cargo.datasource.datasource.h2>cargo.datasource.driver=org.h2.Driver|
+										cargo.datasource.url=jdbc:h2:mem:cargoDB;DB_CLOSE_DELAY=-1|
 										cargo.datasource.jndi=jdbc/CargoDS|
 										cargo.datasource.username=APP|
-										cargo.datasource.password=nonemptypassword</cargo.datasource.datasource.derby>
+										cargo.datasource.password=nonemptypassword</cargo.datasource.datasource.h2>
                                     <!-- <cargo.jetty.realm.name>metadata</cargo.jetty.realm.name> -->
                                 </properties>
                                 <configfiles>
