@@ -136,8 +136,6 @@
             <version>${project.version}</version>
             <type>war</type>
         </dependency>
-        <!-- <dependency> <groupId>com.percussion.deliverytier</groupId> <artifactId>perc-integrations</artifactId>
-			<version>${project.version}</version> <type>war</type> </dependency> -->
         <dependency>
             <groupId>com.percussion.deliverytier</groupId>
             <artifactId>perc-membership-services</artifactId>
@@ -707,10 +705,7 @@
                                 <todir>conf/perc</todir>
                             </configfile>
                             <configfile>
-                                <file>${project.basedir}/src/main/conf/perc/integrations-log4j2.xml</file>
-                                <todir>conf/perc</todir>
-                            </configfile>
-                            <configfile>
+                                <!-- Tomcat 11 (development); integrations log4j removed with GH#706 -->
                                 <file>${project.basedir}/src/main/tomcat11/conf/context.xml</file>
                                 <todir>conf</todir>
                             </configfile>

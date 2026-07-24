@@ -91,14 +91,14 @@ public class PSDependencyFileTest {
 
   @Test
   public void testApplicationFileNotDefaultedToApplicationXml() throws Exception {
-    // Simulates companion DTD entry from package manifests (e.g. percEmsEventList(1).application)
+    // Simulates companion DTD entry from package manifests (e.g. percEventAsset(1).application)
     PSDependencyFile dtdCompanion =
         new PSDependencyFile(
             PSDependencyFile.TYPE_APPLICATION_FILE,
-            new File("percEmsEventList(1).application"),
+            new File("percEventAsset(1).application"),
             new File("sys_Lookup.dtd"));
     dtdCompanion.setArchiveLocation(
-        new File("Application-percEmsEventList", "percEmsEventList(1).application"));
+        new File("Application-percEventAsset", "percEventAsset(1).application"));
 
     Document doc = PSXmlDocumentBuilder.createXmlDocument();
     PSDependencyFile restored = new PSDependencyFile(dtdCompanion.toXml(doc));

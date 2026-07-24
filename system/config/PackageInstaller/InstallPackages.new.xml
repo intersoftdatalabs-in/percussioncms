@@ -169,10 +169,6 @@
 		<status>PENDING</status>
 	</PackageFileEntry>
 	<PackageFileEntry>
-		<packageName>perc.widget.emseventlist</packageName>
-		<status>PENDING</status>
-	</PackageFileEntry>
-	<PackageFileEntry>
 		<packageName>perc.widget.jquery</packageName>
 		<status>PENDING</status>
 	</PackageFileEntry>

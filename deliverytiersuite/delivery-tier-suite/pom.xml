@@ -23,7 +23,6 @@
         <module>metadata</module>
         <module>polls</module>
         <module>secure-membership</module>
-        <!-- <module>integrations</module> -->
         <module>delivery-tier-distribution</module>
     </modules>
     <properties>

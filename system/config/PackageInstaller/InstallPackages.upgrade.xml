@@ -170,10 +170,6 @@
 		<status>PENDING</status>
 	</PackageFileEntry>
 	<PackageFileEntry>
-		<packageName>perc.widget.emseventlist</packageName>
-		<status>PENDING</status>
-	</PackageFileEntry>
-	<PackageFileEntry>
 		<packageName>perc.widgets.Redirect</packageName>
 		<status>UNINSTALL</status>
 	</PackageFileEntry>

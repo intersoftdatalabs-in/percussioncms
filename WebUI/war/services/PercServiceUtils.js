@@ -68,7 +68,6 @@
     var CSRF_METADATA_PATH="/perc-metadata-services/metadata/csrf";
     var CSRF_FORMS_PATH="/perc-form-processor/forms/csrf";
     var CSRF_POLLS_PATH="/perc-polls-services/polls/csrf";
-    var CSRF_INTEGRATION_PATH="/perc-integrations/integrations/csrf";
     var CSRF_COMMENTS_PATH="/perc-comments-services/comment/csrf";
     var CSRF_MEMBERSHIP_PATH="/perc-membership-services/membership/csrf";
     var CSRF_FEEDS_PATH="/feeds/rss/csrf";
