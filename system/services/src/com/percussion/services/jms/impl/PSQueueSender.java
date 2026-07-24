@@ -60,9 +60,9 @@ public class PSQueueSender implements IPSQueueSender
    private Queue m_queue = null;
 
    /**
-    * A wapper class of {@link QueueSender}. It sets delivery mode to
-    * {@link javax.jms.DeliveryMode#PERSISTENT} and the send message will be
-    * retain indefinitely by the message system.
+    * A wapper class of {@link MessageProducer}. It sets delivery mode to
+    * {@link jakarta.jms.DeliveryMode#NON_PERSISTENT} (time-to-live 0) for
+    * queue send operations.
     */
    private class PSSender
    {
@@ -114,7 +114,7 @@ public class PSQueueSender implements IPSQueueSender
       }
 
       /**
-       * A wrapper method of {@link javax.jms.MessageProducer#setPriority(int)}
+       * A wrapper method of {@link jakarta.jms.MessageProducer#setPriority(int)}
        * @param priority the new priority.
        * @throws JMSException if fail to set the priority.
        */
@@ -132,7 +132,7 @@ public class PSQueueSender implements IPSQueueSender
       }
 
       /**
-       * A wrapper method of {@link javax.jms.MessageProducer#getPriority()}
+       * A wrapper method of {@link jakarta.jms.MessageProducer#getPriority()}
        * @return the message priority for this message sender.
        * @throws JMSException if fail to get the priority.
        */
