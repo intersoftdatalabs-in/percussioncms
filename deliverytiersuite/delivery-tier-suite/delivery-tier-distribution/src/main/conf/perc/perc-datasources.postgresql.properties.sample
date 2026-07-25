@@ -1,0 +1,46 @@
+###################################
+# perc-datasources.properties - PostgreSQL
+#
+#    Properties specific for form-processor service, database and hibernate properties.
+#    Configure for PostgreSQL database.
+
+########################
+# data-source properties
+db.username=percuser
+db.password=percpass
+
+
+#############################################################
+# Specify the database name that should be used to own the schema
+# PostgreSQL - Should be the database name
+#############################################################
+db.name=percdb
+
+# For PostgreSQL you may use db.schema=public (default)
+db.schema=public
+
+# the JDBC driver class name
+jdbcDriver=org.postgresql.Driver
+
+# the connection URL
+# PostgreSQL: jdbc:postgresql://<host>:<port>/<database>
+# Example for docker-compose postgres service:
+jdbcUrl=jdbc:postgresql://localhost:5432/percdb
+maximumPoolSize=10
+
+
+######################################
+# hibernate session factory properties
+
+# name of the data-source bean
+datasource=percDataSource
+
+# name of the bean with hibernate properties
+hibernateProperties=percHibernateProperties
+
+# Hibernate dialect for PostgreSQL
+hibernate.dialect=org.hibernate.dialect.PostgreSQLDialect
+
+# PostgreSQL does not require query substitutions
+hibernate.query.substitutions=
+hibernate.id.new_generator_mappings=true
