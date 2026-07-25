@@ -508,6 +508,19 @@ public class MainDTSPreInstall {
           "perc.db.dts.hibernateDialect",
           "com.percussion.delivery.rdbms.PSUnicodeSQLServerDialect");
       systemProperties.put("perc.db.dts.schema", firstNonBlank(schema, "DBO"));
+    } else if ("postgresql".equals(dbTypeNormalized) || "postgres".equals(dbTypeNormalized)) {
+      String dtsJdbcUrl =
+          "jdbc:postgresql://"
+              + host
+              + ":"
+              + port
+              + "/"
+              + name;
+      systemProperties.put("perc.db.dts.jdbcUrl", dtsJdbcUrl);
+      systemProperties.put("perc.db.dts.jdbcDriver", "org.postgresql.Driver");
+      systemProperties.put(
+          "perc.db.dts.hibernateDialect", "org.hibernate.dialect.PostgreSQLDialect");
+      systemProperties.put("perc.db.dts.schema", firstNonBlank(schema, "public"));
     }
 
     return new ResolvedDbConfig(systemProperties);

@@ -788,6 +788,9 @@ public class PSMetadataQueryService implements IPSMetadataQueryService {
   /** constant for the MySQL driver type. */
   public static final String JDBC_MYSQL_DRIVER = "mysql";
 
+  /** constant for the PostgreSQL driver type. */
+  public static final String JDBC_POSTGRESQL_DRIVER = "postgresql";
+
   /** constant for the Apache Derby driver type. */
   public static final String JDBC_DERBY_DRIVER = "derby";
 
