@@ -206,8 +206,9 @@ services:
       - mysql
       - db-all
     environment:
-      MYSQL_ROOT_MKD-REDACT-xxxxxxxxxxxxxxxxxx      MYSQL_USER: percuser
-      MYSQL_MKD-REDACT-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+      MYSQL_ROOT_PASSWORD: PercRootPass123
+      MYSQL_USER: percuser
+      MYSQL_PASSWORD: PercPass123
       MYSQL_DATABASE: percdb
     command:
       - --character-set-server=utf8mb4
@@ -232,7 +233,7 @@ services:
       - db-all
     environment:
       POSTGRES_USER: percuser
-      POSTGRES_MKD-REDACT-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+      POSTGRES_PASSWORD: PercPass123
       POSTGRES_DB: percdb
     ports:
       - "5432:5432"
@@ -253,13 +254,14 @@ services:
       - db-all
     environment:
       ACCEPT_EULA: Y
-      MSSQL_SA_MKD-REDACT-xxxxxxxxxxxxxxxxxxxxxx      MSSQL_PID: Developer
+      MSSQL_SA_PASSWORD: PercPass123!
+      MSSQL_PID: Developer
     ports:
       - "1433:1433"
     volumes:
       - sqlserver-data:/var/opt/mssql
     healthcheck:
-      test: ["CMD-SHELL", "/opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P 'PercPass123!' -Q 'SELECT 1'"]
+      test: ["CMD-SHELL", "/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P 'PercPass123!' -Q 'SELECT 1'"]
       interval: 10s
       timeout: 5s
       retries: 10
