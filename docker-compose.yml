@@ -1,24 +1,15 @@
 services:
+  # ============================================================
+  # Dev CMS (bind-mounted install from host) - for development
+  # ============================================================
   cms-dts:
     build:
       context: .
       dockerfile: docker/cms/Dockerfile
     container_name: percussion-cms-dts
     restart: unless-stopped
-    # Run as the host UID/GID that owns /opt/Percussion. StartJetty.sh
-    # compares `whoami` to the owner of /opt/Percussion and refuses to
-    # su to a UID that doesn't exist in the container's /etc/passwd, so
-    # the container's UID MUST match the host's install-root owner.
-    #
-    # Override per host via .env.compose (CMS_UID / CMS_GID) or the env
-    # of the docker compose invocation. Default is 1000:1001 which
-    # matches the nate:mkd-dev owner that installed /opt/Percussion
-    # in the original dev setup; other developers can override.
     user: "${CMS_UID:-1000}:${CMS_GID:-1001}"
     environment:
-      # Container is service-only. The install lives entirely on the
-      # host (scripts/install-cms-dev.py) and the bind mount below
-      # surfaces the host's install_root/ as /opt/Percussion/.
       SERVICE_MODE: ${SERVICE_MODE:-cms-dts}
       PERC_INSTALL_ROOT: ${PERC_INSTALL_ROOT:-/opt/Percussion}
       CMS_PORT: ${CMS_PORT:-9992}
@@ -28,11 +19,6 @@ services:
       - "${DTS_PORT:-9980}:9980"
     volumes:
       - ${PROJECT_ROOT:-.}:/workspace:ro
-      # Single bind mount: the host install_root MUST equal the
-      # in-container path. The installer writes absolute paths into
-      # config files (rxrepository.properties etc.); if the host path
-      # differs from /opt/Percussion, those recorded paths will not
-      # resolve inside the container.
       - /opt/Percussion:/opt/Percussion
     healthcheck:
       test:
@@ -46,8 +32,170 @@ services:
       start_period: ${PERC_HEALTHCHECK_START_PERIOD:-30s}
 
   # ============================================================
-  # Database backends for testing - use --profile to activate
-  # Example: docker compose --profile mysql up -d
+  # Fresh install CMS containers for database backend testing
+  # Each service: starts DB, installs CMS fresh, starts Jetty
+  # Usage: docker compose --profile cms-h2 up -d
+  # ============================================================
+
+  cms-h2:
+    build:
+      context: .
+      dockerfile: docker/cms/Dockerfile
+    container_name: percussion-cms-h2
+    restart: unless-stopped
+    profiles:
+      - cms-h2
+      - cms-all
+    user: "1000:1001"
+    environment:
+      CMS_PORT: "9993"
+      DB_TYPE: "h2"
+    ports:
+      - "9993:9993"
+    volumes:
+      - perc-h2-data:/opt/Percussion
+    command: >
+      /bin/sh -c "
+        echo 'Installing CMS with H2...' &&
+        java -jar /workspace/modules/perc-distribution-tree/target/perc-distribution-tree-*-bin.zip-extracted/perc-distribution-tree-*/perc-preinstall.jar
+        /opt/Percussion --silent --db.type=h2 &&
+        /opt/Percussion/StartJetty.sh
+      "
+    healthcheck:
+      test: ["CMD-SHELL", "curl -s -o /dev/null -w '%{http_code}' http://localhost:9993/Rhythmyx/login | grep -q '200\\|302'"]
+      interval: 30s
+      timeout: 10s
+      retries: 60
+
+  cms-mysql:
+    build:
+      context: .
+      dockerfile: docker/cms/Dockerfile
+    container_name: percussion-cms-mysql
+    restart: unless-stopped
+    profiles:
+      - cms-mysql
+      - cms-all
+    user: "1000:1001"
+    environment:
+      CMS_PORT: "9994"
+      DB_TYPE: "mysql"
+    ports:
+      - "9994:9994"
+    depends_on:
+      mysql:
+        condition: service_healthy
+    volumes:
+      - perc-mysql-data:/opt/Percussion
+    command: >
+      /bin/sh -c "
+        echo 'Waiting for MySQL...' &&
+        until mysql -h mysql -u percuser -pPercPass123 -e 'SELECT 1' 2>/dev/null; do
+          sleep 2;
+        done &&
+        echo 'MySQL ready, installing CMS...' &&
+        java -jar /workspace/modules/perc-distribution-tree/target/perc-distribution-tree-*-bin.zip-extracted/perc-distribution-tree-*/perc-preinstall.jar
+        /opt/Percussion --silent
+        --db.type=mysql
+        --db.host=mysql
+        --db.port=3306
+        --db.name=percdb
+        --db.user=percuser
+        --db.password=PercPass123 &&
+        /opt/Percussion/StartJetty.sh
+      "
+    healthcheck:
+      test: ["CMD-SHELL", "curl -s -o /dev/null -w '%{http_code}' http://localhost:9994/Rhythmyx/login | grep -q '200\\|302'"]
+      interval: 30s
+      timeout: 10s
+      retries: 60
+
+  cms-postgresql:
+    build:
+      context: .
+      dockerfile: docker/cms/Dockerfile
+    container_name: percussion-cms-postgresql
+    restart: unless-stopped
+    profiles:
+      - cms-postgresql
+      - cms-all
+    user: "1000:1001"
+    environment:
+      CMS_PORT: "9995"
+      DB_TYPE: "postgresql"
+    ports:
+      - "9995:9995"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - perc-postgres-data:/opt/Percussion
+    command: >
+      /bin/sh -c "
+        echo 'Waiting for PostgreSQL...' &&
+        until pg_isready -h postgres -U percuser 2>/dev/null; do
+          sleep 2;
+        done &&
+        echo 'PostgreSQL ready, installing CMS...' &&
+        java -jar /workspace/modules/perc-distribution-tree/target/perc-distribution-tree-*-bin.zip-extracted/perc-distribution-tree-*/perc-preinstall.jar
+        /opt/Percussion --silent
+        --db.type=postgresql
+        --db.host=postgres
+        --db.port=5432
+        --db.name=percdb
+        --db.user=percuser
+        --db.password=PercPass123 &&
+        /opt/Percussion/StartJetty.sh
+      "
+    healthcheck:
+      test: ["CMD-SHELL", "curl -s -o /dev/null -w '%{http_code}' http://localhost:9995/Rhythmyx/login | grep -q '200\\|302'"]
+      interval: 30s
+      timeout: 10s
+      retries: 60
+
+  cms-sqlserver:
+    build:
+      context: .
+      dockerfile: docker/cms/Dockerfile
+    container_name: percussion-cms-sqlserver
+    restart: unless-stopped
+    profiles:
+      - cms-sqlserver
+      - cms-all
+    user: "1000:1001"
+    environment:
+      CMS_PORT: "9996"
+      DB_TYPE: "sqlserver"
+    ports:
+      - "9996:9996"
+    depends_on:
+      sqlserver:
+        condition: service_healthy
+    volumes:
+      - perc-sqlserver-data:/opt/Percussion
+    command: >
+      /bin/sh -c "
+        echo 'Waiting for SQL Server...' &&
+        sleep 15 &&
+        echo 'SQL Server ready, installing CMS...' &&
+        java -jar /workspace/modules/perc-distribution-tree/target/perc-distribution-tree-*-bin.zip-extracted/perc-distribution-tree-*/perc-preinstall.jar
+        /opt/Percussion --silent
+        --db.type=sqlserver
+        --db.host=sqlserver
+        --db.port=1433
+        --db.name=percdb
+        --db.user=percuser
+        --db.password=PercPass123! &&
+        /opt/Percussion/StartJetty.sh
+      "
+    healthcheck:
+      test: ["CMD-SHELL", "curl -s -o /dev/null -w '%{http_code}' http://localhost:9996/Rhythmyx/login | grep -q '200\\|302'"]
+      interval: 30s
+      timeout: 10s
+      retries: 60
+
+  # ============================================================
+  # Database backends for CMS testing
   # ============================================================
 
   mysql:
@@ -58,8 +206,7 @@ services:
       - mysql
       - db-all
     environment:
-      MYSQL_ROOT_PASSWORD: percroot
-      MYSQL_USER: percuser
+      MYSQL_ROOT_MKD-REDACT-xxxxxxxxxxxxxxxxxx      MYSQL_USER: percuser
       MYSQL_MKD-REDACT-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
       MYSQL_DATABASE: percdb
     command:
@@ -71,7 +218,7 @@ services:
     volumes:
       - mysql-data:/var/lib/mysql
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-ppercroot"]
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-pPercRootPass123"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -106,14 +253,13 @@ services:
       - db-all
     environment:
       ACCEPT_EULA: Y
-      MSSQL_SA_PASSWORD: PercUser123!
-      MSSQL_PID: Developer
+      MSSQL_SA_MKD-REDACT-xxxxxxxxxxxxxxxxxxxxxx      MSSQL_PID: Developer
     ports:
       - "1433:1433"
     volumes:
       - sqlserver-data:/var/opt/mssql
     healthcheck:
-      test: ["CMD-SHELL", "/opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P PercUser123! -Q 'SELECT 1'"]
+      test: ["CMD-SHELL", "/opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P 'PercPass123!' -Q 'SELECT 1'"]
       interval: 10s
       timeout: 5s
       retries: 10
@@ -122,3 +268,7 @@ volumes:
   mysql-data:
   postgres-data:
   sqlserver-data:
+  perc-h2-data:
+  perc-mysql-data:
+  perc-postgres-data:
+  perc-sqlserver-data:
