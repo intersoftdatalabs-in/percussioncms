@@ -89,6 +89,15 @@ class JavaCandidateDiscoveryTest {
    * and are NOT part of the installer / runtime contract. The resolver must
    * ignore them and rely only on the standard {@code JAVA_HOME} and PATH /
    * common-OS-locations discovery.
+   *
+   * <p>Test shape: {@code jdk21} is placed on {@code PATH} (so it is
+   * discovered via PATH-based launcher inference), {@code jdk8} is on
+   * disk but <em>not</em> on {@code PATH}, and both homes are also
+   * exposed via the non-standard {@code JAVA_HOME_<NN>} env vars. If
+   * the resolver honored {@code JAVA_HOME_<NN>}, {@code jdk8} would
+   * appear as a second candidate. Asserting {@code raw.size() == 1} and
+   * the surviving path equals {@code jdk21} proves the
+   * {@code JAVA_HOME_<NN>} scan is truly inactive.
    */
   @Test
   void ignoresVersionedHomeEnvVars(@TempDir Path scratch) throws IOException {
@@ -101,9 +110,11 @@ class JavaCandidateDiscoveryTest {
         "PATH", scratch.resolve("jdk21").resolve("bin").toString());
     List<JavaCandidateDiscovery.Candidate> raw =
         JavaCandidateDiscovery.discover(env, null, env.get("PATH"));
-    assertFalse(
-        raw.stream().anyMatch(c -> c.path().toString().equals(jdk8.toString())),
-        "JAVA_HOME_8 alone must not produce a candidate; found: " + raw);
+    assertEquals(1, raw.size(),
+        "JAVA_HOME_<NN> must not promote a candidate; expected only the PATH-detected jdk21,"
+            + " found: " + raw);
+    assertEquals(jdk21, raw.get(0).path(),
+        "Surviving candidate must be the PATH-detected jdk21; found: " + raw.get(0));
   }
 
   private static String launcherForCurrentPlatform() {
