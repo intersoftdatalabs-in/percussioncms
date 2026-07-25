@@ -154,14 +154,18 @@ public class Main {
       // environment by auto-selecting single candidates and failing loudly
       // when zero are eligible — never silently fall back to a manual
       // <InstallDir>/JRE copy.
+      //
+      // Unattended installs (explicit -Dperc.java.home, or no console + CI
+      // markers per JavaInstallSelection.isInteractiveAvailable) pass null
+      // for the prompt so the operator is never asked to choose. When a
+      // single eligible candidate is found, the installer also auto-selects
+      // without prompting.
       try {
         Path unattended = parseUnattendedJavaHome(System.getProperty(PERC_JAVA_HOME));
+        JavaInstallSelection.InteractivePrompt prompt =
+            unattended == null ? (p -> readInteractiveLine(p)) : null;
         JavaInstallSelection.SelectionOutcome outcome =
-            new JavaInstallSelection(
-                    installPath,
-                    unattended,
-                    prompt -> readInteractiveLine(prompt))
-                .selectAndPersist();
+            new JavaInstallSelection(installPath, unattended, prompt).selectAndPersist();
         System.out.println("Java home selection: " + outcome.summary());
       } catch (JavaInstallSelection.JavaSelectionException sel) {
         System.out.println("Java home selection failed: " + sel.getMessage());

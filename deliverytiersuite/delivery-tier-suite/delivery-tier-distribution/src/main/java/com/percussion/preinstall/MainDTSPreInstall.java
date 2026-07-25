@@ -113,14 +113,18 @@ public class MainDTSPreInstall {
       // start, stop, and service install paths into <installPath>/java.properties
       // before the Ant install runs. Honors -Dperc.java.home; otherwise
       // discovers eligible Java 21 candidates and prompts when interactive.
+      //
+      // Unattended installs (explicit -Dperc.java.home, or no console + CI
+      // markers per JavaInstallSelection.isInteractiveAvailable) pass null
+      // for the prompt so the operator is never asked to choose. When a
+      // single eligible candidate is found, the installer also auto-selects
+      // without prompting.
       try {
         var unattended = parseUnattendedJavaHome(System.getProperty(PERC_JAVA_HOME));
+        JavaInstallSelection.InteractivePrompt prompt =
+            unattended == null ? (p -> readInteractiveLine(p)) : null;
         var outcome =
-            new JavaInstallSelection(
-                    installPath,
-                    unattended,
-                    prompt -> readInteractiveLine(prompt))
-                .selectAndPersist();
+            new JavaInstallSelection(installPath, unattended, prompt).selectAndPersist();
         System.out.println("DTS Java home selection: " + outcome.summary());
       } catch (JavaInstallSelection.JavaSelectionException sel) {
         System.out.println("DTS Java home selection failed: " + sel.getMessage());

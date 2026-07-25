@@ -84,13 +84,14 @@ class JavaCandidateDiscoveryTest {
   }
 
   /**
-   * Regression for the multi-JDK host case: when operators set several of the
-   * project-standard per-major env vars (e.g. {@code JAVA_HOME_21},
-   * {@code JAVA_HOME_8}, {@code JAVA_HOME_17}), the resolver must scan
-   * them so the user can choose between available installations.
+   * Regression: the per-major {@code JAVA_HOME_<NN>} env vars (e.g.
+   * {@code JAVA_HOME_21}) are a developer-only convenience used by
+   * {@code mvn-env.bat} and are NOT part of the installer / runtime
+   * contract. The resolver must ignore them and rely only on the standard
+   * {@code JAVA_HOME} and PATH / common-OS-locations discovery.
    */
   @Test
-  void discoversVersionedHomeEnvVars(@TempDir Path scratch) throws IOException {
+  void ignoresVersionedHomeEnvVars(@TempDir Path scratch) throws IOException {
     String launcher = launcherForCurrentPlatform();
     Path jdk21 = makeHome(scratch.resolve("jdk21"), "21", launcher);
     Path jdk8 = makeHome(scratch.resolve("jdk8"), "8", launcher);
@@ -98,44 +99,18 @@ class JavaCandidateDiscoveryTest {
         "JAVA_HOME_21", jdk21.toString(),
         "JAVA_HOME_8", jdk8.toString(),
         "PATH", scratch.resolve("jdk21").resolve("bin").toString());
-    // Both JAVA_HOME_21 and JAVA_HOME_8 must appear as candidates.
+    // JAVA_HOME_<NN> must NOT be promoted to a candidate on its own — only the
+    // PATH-resident bin (jdk21) is discovered. jdk8 is on disk but not on PATH
+    // and is not exposed via any standard env var, so it must NOT appear.
     List<JavaCandidateDiscovery.Candidate> raw =
-        JavaCandidateDiscovery.discover(env, /*runningJavaHome*/ null, env.get("PATH"));
-    assertTrue(
-        raw.stream().anyMatch(c -> c.path().toString().equals(jdk21.toString())),
-        "JAVA_HOME_21 must produce a candidate; found: " + raw);
-    assertTrue(
+        JavaCandidateDiscovery.discover(env, /* runningJavaHome */ null, env.get("PATH"));
+    assertFalse(
         raw.stream().anyMatch(c -> c.path().toString().equals(jdk8.toString())),
-        "JAVA_HOME_8 must produce a candidate; found: " + raw);
-  }
-
-  /**
-   * Regression: non-numeric suffixes (e.g. {@code JAVA_HOME_FOO}) and the bare
-   * {@code JAVA_HOME} must NOT be treated as versioned home vars. The bare
-   * {@code JAVA_HOME} is still consulted via the existing
-   * {@code addCandidate(... readJavaHome(env) ...)} path; this test asserts
-   * the {@code addVersionedHomeEnvVars} helper itself filters strictly.
-   */
-  @Test
-  void addVersionedHomeEnvVarsRejectsNonNumeric(@TempDir Path scratch) throws IOException {
-    String launcher = launcherForCurrentPlatform();
-    Path real = makeHome(scratch.resolve("real"), "21", launcher);
-    Map<String, String> env = Map.of(
-        "JAVA_HOME_21", real.toString(),
-        "JAVA_HOME_FOO", scratch.resolve("fake").toString(),
-        "JAVA_HOME_", scratch.resolve("blank").toString(),
-        "JAVA_HOME_21abc", scratch.resolve("suffix").toString());
-    // Empty PATH so addPathLaunchers / addCommonOsLocations contribute nothing;
-    // any candidate in `raw` came from addVersionedHomeEnvVars or readJavaHome.
-    List<JavaCandidateDiscovery.Candidate> raw =
-        JavaCandidateDiscovery.discover(env, null, "");
-    // Only JAVA_HOME_21 is recognized as a versioned home; the others are
-    // silently filtered. JAVA_HOME itself is NOT in the env map here, so the
-    // versioned path produces exactly one candidate total.
-    assertEquals(1, raw.size(),
-        "Only JAVA_HOME_21 should resolve to a candidate; found: " + raw);
-    assertEquals(real, raw.get(0).path(),
-        "Surviving candidate must point at JAVA_HOME_21's value; found: " + raw.get(0));
+        "JAVA_HOME_8 alone must not produce a candidate; found: " + raw);
+    assertFalse(
+        raw.stream().anyMatch(c -> c.path().toString().equals(jdk21.toString())
+            && !c.path().toString().equals(scratch.resolve("jdk21").toString())),
+        "JAVA_HOME_21 alone must not produce a candidate; found: " + raw);
   }
 
   private static String launcherForCurrentPlatform() {

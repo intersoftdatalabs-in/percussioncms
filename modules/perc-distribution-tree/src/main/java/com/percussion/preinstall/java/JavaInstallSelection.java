@@ -99,7 +99,7 @@ public final class JavaInstallSelection {
       if (eligible.size() == 1 || interactivePrompt == null || !isInteractiveAvailable()) {
         chosen = eligible.get(0).path().toAbsolutePath().normalize();
         source = eligible.size() == 1
-            ? "auto-selected (single eligible candidate: the Java home contract only scans JAVA_HOME and JAVA_HOME_<NN> env vars)"
+            ? "auto-selected (single eligible candidate)"
             : "auto-selected (non-interactive batch: console or stdin unavailable)";
       } else {
         chosen = promptForChoice(eligible);
