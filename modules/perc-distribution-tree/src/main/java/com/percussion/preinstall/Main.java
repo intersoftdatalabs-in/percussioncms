@@ -101,10 +101,16 @@ public class Main {
         System.out.println(
             "Optional upgrade cleanup: --clean-install-dir (default false) removes obsolete"
                 + " folders such as PreInstall");
+        System.out.println(
+            "Silent mode: --silent or --no-tty (disables interactive prompts for automated testing)");
         System.exit(0);
       }
 
       Path installPath = parsedArgs.installPath();
+
+      // Check for silent/non-interactive mode (--silent or --no-tty)
+      Map<String, String> options = parsedArgs.options();
+      boolean silent = isSilentMode(options);
 
       DbInstallConfigResolver.ResolvedDbConfig resolvedDbConfig;
       try {
@@ -161,6 +167,9 @@ public class Main {
                     installPath,
                     unattended,
                     prompt -> {
+                      if (silent) {
+                        return "";
+                      }
                       java.io.Console c = System.console();
                       return c == null ? "" : c.readLine(prompt);
                     })
@@ -192,7 +201,7 @@ public class Main {
 
       // Issue #1157: optional early cleanup of obsolete install-root directories on upgrade only
       try {
-        runObsoleteInstallDirCleanup(installPath, parsedArgs.options());
+        runObsoleteInstallDirCleanup(installPath, parsedArgs.options(), silent);
       } catch (Exception cleanupEx) {
         System.out.println(
             "Obsolete directory cleanup reported an error (upgrade will continue): "
@@ -293,12 +302,13 @@ public class Main {
   }
 
   static void runObsoleteInstallDirCleanup(
-      Path installPath, java.util.Map<String, String> cliOptions) throws Exception {
+      Path installPath, java.util.Map<String, String> cliOptions, boolean silent)
+      throws Exception {
     if (!ObsoleteInstallDirCleaner.isUpgradeInstallRoot(installPath)) {
       return;
     }
     boolean cleanFlag = ObsoleteInstallDirCleaner.parseCleanInstallDirFlag(cliOptions);
-    boolean interactive = System.console() != null;
+    boolean interactive = !silent && System.console() != null;
     ObsoleteInstallDirCleaner.CleanupResult result =
         ObsoleteInstallDirCleaner.run(
             installPath,
@@ -307,6 +317,9 @@ public class Main {
             cleanFlag,
             interactive,
             prompt -> {
+              if (silent) {
+                return "";
+              }
               System.out.print(prompt);
               System.out.flush();
               java.io.Console console = System.console();
@@ -349,6 +362,26 @@ public class Main {
       return sharedProcessCode;
     }
     return 0;
+  }
+
+  /**
+   * Check if silent/non-interactive mode is enabled via --silent or --no-tty CLI options.
+   *
+   * @param options parsed CLI options
+   * @return true if silent mode is enabled
+   */
+  private static boolean isSilentMode(Map<String, String> options) {
+    if (options == null) {
+      return false;
+    }
+    String silent = options.get(DbInstallConfigResolver.SILENT_KEY);
+    String noTty = options.get("no-tty");
+    return "true".equalsIgnoreCase(silent)
+        || "yes".equalsIgnoreCase(silent)
+        || "1".equals(silent)
+        || "true".equalsIgnoreCase(noTty)
+        || "yes".equalsIgnoreCase(noTty)
+        || "1".equals(noTty);
   }
 
   private static void deleteOldJDBCJars(Path installPath) {

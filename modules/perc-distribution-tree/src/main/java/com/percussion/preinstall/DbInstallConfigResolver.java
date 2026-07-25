@@ -57,6 +57,9 @@ public final class DbInstallConfigResolver {
   /** Issue #949 system property / CLI key for repository properties file path. */
   public static final String DBPROPS_KEY = "dbprops";
 
+  /** CLI key for silent/non-interactive mode (--silent or --no-tty). */
+  public static final String SILENT_KEY = "silent";
+
   private static final String MARIADB_DRIVER_CLASS = "org.mariadb.jdbc.Driver";
   private static final String MYSQL_COMPAT_DRIVER_NAME = "mysql";
   private static final String MSSQL_DRIVER_CLASS =
