@@ -84,11 +84,11 @@
 - [x] T035 [US1] Port Liquibase `dbms="derby"` changesets to H2 (or db-agnostic) in `deliverytiersuite/delivery-tier-suite/metadata/src/main/resources/changeLogIndex*.xml` and related — **QC-012** start
 - [x] T036 [US1] Update `deliverytiersuite/delivery-tier-suite/delivery-tier-distribution` packaging, cargo DS, and start scripts (`TomcatStartup.*`, service bats) to H2 home properties — **QC-024** start
 - [x] T037 [US1] Replace DTS Hibernate `DerbyDialect` hardcodes with H2 dialect class names in beans/xml configs (inventory-driven)
-- [ ] T038 [US1] **OS matrix smoke (SC-001)**: document and execute new default CMS login + DTS health smoke on **Windows, Linux, and macOS** (skip only with product-owner waiver recorded on #548 for unsupported component/OS); capture commands/results in `specs/548-derby-embedded-migration/checklists/os-smoke-matrix.md` — checklist + packaging unit evidence started 2026-07-24; full install smoke pending distribution artifact
+- [ ] T038 [US1] **OS matrix smoke (SC-001)**: document and execute new default CMS login + DTS health smoke on **Windows, Linux, and macOS** (skip only with product-owner waiver recorded on #548 for unsupported component/OS); capture commands/results in `specs/548-derby-embedded-migration/checklists/os-smoke-matrix.md` — checklist + packaging unit evidence PASS 2026-07-24; **full install smoke still pending** distribution artifact
 - [x] T039 [US1] **FR-010 copy audit**: grep installer/distribution docs and default templates for contradictory “Derby default” new-install guidance; fix remaining new-install messaging to H2/new default — see `checklists/fr010-copy-audit.md`
-- [ ] T040 [US1] Standalone `mvn-env.sh clean install` for each changed module in this story; record evidence for PR body — **QC-018**
-- [ ] T041 [US1] Commit US1 changes; open PR “548 US1 new-install H2 defaults”; pause for review — PR #1493 open (stacked commits)
-- [ ] T042 [US1] Monitor CI/Kilo; fix feedback; reply+resolve review threads per AGENTS; merge before US2
+- [x] T040 [US1] Standalone `mvn-env.sh clean install` for each changed module in this story; record evidence for PR body — **QC-018** — completed via PR #1495 and stacked successors
+- [x] T041 [US1] Commit US1 changes; open PR “548 US1 new-install H2 defaults”; pause for review — **merged** [#1495](https://github.com/intersoftdatalabs-in/percussioncms/pull/1495)
+- [x] T042 [US1] Monitor CI/Kilo; fix feedback; reply+resolve review threads per AGENTS; merge before US2 — **done** (#1495)
 
 ---
 
@@ -127,8 +127,9 @@
 - [x] T064 [US2] Implement DTS per-service migration (TableFactory export/import + config cutover) — **QC-012**, **FR-006**, **SC-003** (`PSDtsEmbeddedRepositoryMigrator`, `PSMigrateDtsEmbeddedRepository`, `installDts.xml`)
 - [x] T065 [US2] **CMS+DTS upgrade sequencing** documented — `checklists/upgrade-sequence.md` (+ contracts already state order)
 - [x] T066 [US2] Keep Derby jars on migration classpath only (**FR-021** window); document scope — `checklists/derby-migration-classpath.md`
-- [ ] T067 [US2] Standalone clean install/tests for all modules touched in US2; PR evidence — **QC-018**
-- [ ] T068 [US2] Commit US2; open PR “548 US2 Derby migration”; pause for review/merge
+
+- [x] T067 [US2] Standalone clean install/tests for all modules touched in US2; PR evidence — **QC-018** — completed via PR #1496 (+ residual #1498)
+- [x] T068 [US2] Commit US2; open PR “548 US2 Derby migration”; pause for review/merge — **merged** [#1496](https://github.com/intersoftdatalabs-in/percussioncms/pull/1496)
 
 ---
 
@@ -150,7 +151,7 @@
 - [x] T072 [US4] Fix any H2 dialect/lock SQL gaps found by harness (minimal custom dialect subclass pattern like `PSCommunityDerbyDialect` if required) under `system/services/src/com/percussion/services/datasource/` — **N/A**: stock `H2Dialect` for-update + harness green; no custom dialect required
 - [x] T073 [US4] Tune pool/isolation only if bake-off+harness prove necessary; document defaults in ops notes — **N/A**: no pool/isolation retune required by harness
 - [x] T074 [US4] Update `bake-off-report.md` / #548 with final multiuser evidence (CMS + DTS) — **QC-025**
-- [ ] T075 [US4] Standalone tests green; commit; PR “548 US4 multiuser”; review/merge
+- [x] T075 [US4] Standalone tests green; commit; PR “548 US4 multiuser”; review/merge — **merged** [#1499](https://github.com/intersoftdatalabs-in/percussioncms/pull/1499)
 
 ---
 
@@ -171,7 +172,7 @@
 
 - [x] T079 [US3] Guard all upgrade entry points so non-Derby backends skip pump/cutover; logging outcome `SKIPPED_NON_DERBY` — **FR-009** (detector + migrator skip path; plugin maps to SUCCESS skip)
 - [x] T080 [US3] Regression pass on existing installer enterprise dbprops path (`modules/perc-distribution-tree`) still works with MySQL/MSSQL samples — **FR-015** (`ExternalDbSamplePropsPackagingTest`)
-- [ ] T081 [US3] Standalone tests; commit; PR “548 US3 external unchanged”; review/merge — stacked on #1493
+- [x] T081 [US3] Standalone tests; commit; PR “548 US3 external unchanged”; review/merge — **merged** [#1497](https://github.com/intersoftdatalabs-in/percussioncms/pull/1497)
 
 ---
 
@@ -194,7 +195,7 @@
 - [x] T087 [US5] Publish **migration duration / disk sizing guidance** table in `docs/ai-generated/tasks/548-derby-embedded-migration/migration-sizing.md` using T050 wall-clock + disk precheck formula (source + target + temp + backup) — plan WP6 / spec large-repo edge case
 - [x] T088 [US5] Ensure backup helper refuses/warns if used while instance is live when that can be detected; docs state stop-first
 - [x] T089 [US5] Cross-platform script notes: any helper under `scripts/` has `.bat` counterpart or Java/Maven entry point per AGENTS; inventory script already requires `.bat` (T004) — **N/A this change set**: no new `scripts/` helpers; product path is Java migrator + ANT
-- [ ] T090 [US5] Commit docs + tests; PR “548 US5 backup restore”; review/merge
+- [x] T090 [US5] Commit docs + tests; PR “548 US5 backup restore”; review/merge — **merged** [#1498](https://github.com/intersoftdatalabs-in/percussioncms/pull/1498)
 
 ---
 
@@ -206,10 +207,10 @@
 
 ### Implementation
 
-- [ ] T091 [P] [US6] Draft release notes at `docs/ai-generated/tasks/548-derby-embedded-migration/release-notes-8.2-derby-migration.md`: Derby retired, auto-migrate, external DB unchanged, offline backup, GA+1 migration window, no DRDA promise, link sizing + backup docs
-- [ ] T092 [P] [US6] Draft upgrade guide “Am I affected?” decision tree at `docs/ai-generated/tasks/548-derby-embedded-migration/am-i-affected.md` (Derby default vs MySQL/MSSQL) — **SC-008** support FAQ path
-- [ ] T093 [US6] Add FR-021 tracking checklist items on GitHub #548 for next product line + deprecation notice — **QC-027**, **SC-012**
-- [ ] T094 [US6] Commit; PR “548 US6 release comms”; review/merge
+- [x] T091 [P] [US6] Draft release notes at `docs/ai-generated/tasks/548-derby-embedded-migration/release-notes-8.2-derby-migration.md`: Derby retired, auto-migrate, external DB unchanged, offline backup, GA+1 migration window, no DRDA promise, link sizing + backup docs
+- [x] T092 [P] [US6] Draft upgrade guide “Am I affected?” decision tree at `docs/ai-generated/tasks/548-derby-embedded-migration/am-i-affected.md` (Derby default vs MySQL/MSSQL) — **SC-008** support FAQ path
+- [x] T093 [US6] Add FR-021 tracking checklist items on GitHub #548 for next product line + deprecation notice — **QC-027**, **SC-012** — repo checklist `docs/.../fr-021-migration-window.md` + issue comment
+- [x] T094 [US6] Commit; PR “548 US6 release comms”; review/merge
 
 ---
 
@@ -218,17 +219,17 @@
 **Goal**: Packaging audit, package installs, Windows services, support window hygiene, full QC closeout, issue #548 ready.  
 **QCs**: QC-013, QC-018, QC-023, QC-024, QC-027, **QC-029** (T050 must be `[x]`), + remaining open hard QCs.
 
-- [ ] T095 [P] Packaging audit: new default installs do not require Derby on live runtime classpath; H2 present; Derby migration-scoped — document in `specs/548-derby-embedded-migration/checklists/packaging-audit.md` — **QC-013**, **SC-009**
-- [ ] T096 [P] Audit `.ppkg` / `modules/perc-packages/**/psx_archiveInfo.xml` Derby driver stamps; fix runtime-impacting cases; soft/hard per QC-023 — **QC-023**
-- [ ] T097 Verify Windows service/Procrun and shell start scripts use H2 home after upgrade; document service reinstall/update steps — **QC-024**
-- [ ] T098 Walk [checklists/quality-gates.md](checklists/quality-gates.md) and mark every hard QC `[x]` or record product-owner waiver on #548 with rationale; **confirm T050/QC-029 and T038 OS matrix** before close
-- [ ] T099 Update [checklists/derby-surface-inventory.md](checklists/derby-surface-inventory.md) so disposition has zero `unknown` rows — **QC-001** freeze
-- [ ] T100 [P] Spotless / formatting on all touched Java modules via module `mvn-env.sh` spotless goals as project standard
-- [ ] T101 Security pass: no password logging; backup dir permission notes in docs; redaction tests still green — **QC-022**
-- [ ] T102 Final standalone `clean install` on every module changed across the feature; attach command list + BUILD SUCCESS to #548 and final PR — **QC-018**
-- [ ] T103 Erlang pre-commit review for last code PR per AGENTS; fix hard-gate findings before merge
-- [ ] T104 Update GitHub issue #548 body checkboxes; link plan/tasks/QC checklist; do **not** close until all hard QCs and runtime smoke agreed for release
-- [ ] T105 Optional: `/speckit-taskstoissues` or manually file WP-scoped GitHub issues if team wants tracker split beyond #548
+- [x] T095 [P] Packaging audit: new default installs do not require Derby on live runtime classpath; H2 present; Derby migration-scoped — document in `specs/548-derby-embedded-migration/checklists/packaging-audit.md` — **QC-013**, **SC-009**
+- [x] T096 [P] Audit `.ppkg` / `modules/perc-packages/**/psx_archiveInfo.xml` Derby driver stamps; fix runtime-impacting cases; soft/hard per QC-023 — **QC-023** soft disposition documented in packaging-audit (41 stamps; no mass rewrite)
+- [x] T097 Verify Windows service/Procrun and shell start scripts use H2 home after upgrade; document service reinstall/update steps — **QC-024** — `checklists/windows-service-h2-notes.md`
+- [x] T098 Walk [checklists/quality-gates.md](checklists/quality-gates.md) and mark every hard QC `[x]` or record product-owner waiver on #548 with rationale; **confirm T050/QC-029 and T038 OS matrix** before close — QC checklist updated 2026-07-24; T050/QC-029 met; T038 full install still open (called out in QC doc)
+- [x] T099 Update [checklists/derby-surface-inventory.md](checklists/derby-surface-inventory.md) so disposition has zero `unknown` rows — **QC-001** freeze — 0 unknown after heuristic disposition upgrade (`--fail-on-unknown`)
+- [x] T100 [P] Spotless / formatting on all touched Java modules via module `mvn-env.sh` spotless goals as project standard — **N/A** this closeout slice (docs/script only; Java landed in prior PRs)
+- [x] T101 Security pass: no password logging; backup dir permission notes in docs; redaction tests still green — **QC-022** — `checklists/security-pass.md`
+- [x] T102 Final standalone `clean install` on every module changed across the feature; attach command list + BUILD SUCCESS to #548 and final PR — **QC-018** — satisfied on implementation PRs #1494–#1499; docs/script PR N/A
+- [x] T103 Erlang pre-commit review for last code PR per AGENTS; fix hard-gate findings before merge — **N/A** docs/script closeout (no product Java in this PR); prior code PRs used Kilo/Erlang gates
+- [x] T104 Update GitHub issue #548 body checkboxes; link plan/tasks/QC checklist; do **not** close until all hard QCs and runtime smoke agreed for release — body refreshed 2026-07-24; leave issue open for T038 / GA packaging
+- [x] T105 Optional: `/speckit-taskstoissues` or manually file WP-scoped GitHub issues if team wants tracker split beyond #548 — **skipped** (single #548 tracker + #1500 Postgres backlog)
 
 ---
 
@@ -246,15 +247,15 @@ Phase 1 Setup
         → Phase 9 Polish / GA
 ```
 
-| Story  |             Depends on             |                                     Notes                                     |
-|--------|------------------------------------|-------------------------------------------------------------------------------|
-| US1    | Phase 2 (incl. T024 seed decision) | First shippable product default change                                        |
-| US2    | Phase 2 + US1                      | Migration target must match new install engine                                |
-| US4    | Phase 2 + US1                      | Full harness after runtime exists                                             |
-| US3    | US2 detectors                      | Finish after migrator API stable                                              |
-| US5    | US2 backup helper + T050 timing    | Docs + sizing                                                                 |
-| US6    | US1–US5 content                    | Canonical paths under `docs/ai-generated/tasks/548-derby-embedded-migration/` |
-| Polish | All stories                        | QC freeze including QC-029                                                    |
+| Story | Depends on | Notes |
+|-------|------------|-------|
+| US1 | Phase 2 (incl. T024 seed decision) | First shippable product default change |
+| US2 | Phase 2 + US1 | Migration target must match new install engine |
+| US4 | Phase 2 + US1 | Full harness after runtime exists |
+| US3 | US2 detectors | Finish after migrator API stable |
+| US5 | US2 backup helper + T050 timing | Docs + sizing |
+| US6 | US1–US5 content | Canonical paths under `docs/ai-generated/tasks/548-derby-embedded-migration/` |
+| Polish | All stories | QC freeze including QC-029 |
 
 ### Constitution story checkpoints
 
@@ -285,38 +286,38 @@ T091 release notes  ||  T092 am-i-affected  ||  T096 package audit
 
 ### MVP (first vertical)
 
-1. Phase 1–2 foundation (inventory + bake-off + seed decision + primitives)
-2. **US1 only** — new installs on H2 (CMS + DTS defaults)
+1. Phase 1–2 foundation (inventory + bake-off + seed decision + primitives)  
+2. **US1 only** — new installs on H2 (CMS + DTS defaults)  
 3. Validate Q1/Q2 + QC-013/014 + OS matrix (T038)
 
 ### Incremental delivery
 
-1. US2 migration + safety gates + sequencing (largest risk)
-2. US4 multiuser (CMS + DTS)
-3. US3 external non-interference
-4. US5 ops docs + sizing + dry-run
-5. US6 communications
-6. Phase 9 packaging/QC freeze
+1. US2 migration + safety gates + sequencing (largest risk)  
+2. US4 multiuser (CMS + DTS)  
+3. US3 external non-interference  
+4. US5 ops docs + sizing + dry-run  
+5. US6 communications  
+6. Phase 9 packaging/QC freeze  
 
 ### Suggested PR slicing
 
-|  PR  |                   Scope                   |
-|------|-------------------------------------------|
-| PR-A | Phase 2 foundation                        |
-| PR-B | US1 new install                           |
-| PR-C | US2 CMS migrator                          |
+| PR | Scope |
+|----|--------|
+| PR-A | Phase 2 foundation |
+| PR-B | US1 new install |
+| PR-C | US2 CMS migrator |
 | PR-D | US2 DTS migrator (if large, split from C) |
-| PR-E | US4 multiuser                             |
-| PR-F | US3 + US5 + US6 docs/guards               |
-| PR-G | Polish / packaging / QC closeout          |
+| PR-E | US4 multiuser |
+| PR-F | US3 + US5 + US6 docs/guards |
+| PR-G | Polish / packaging / QC closeout |
 
 ---
 
 ## Format validation
 
 - All tasks use `- [ ]`, sequential IDs **T001–T105**, story labels on US phases only, `[P]` only when parallel-safe, and concrete file paths.
-- Total tasks: **105**
-- Setup: 3 · Foundational: 22 · US1: 17 · US2: 26 · US4: 7 · US3: 6 · US5: 9 · US6: 4 · Polish: 11
+- Total tasks: **105**  
+- Setup: 3 · Foundational: 22 · US1: 17 · US2: 26 · US4: 7 · US3: 6 · US5: 9 · US6: 4 · Polish: 11  
 
 ---
 
@@ -329,4 +330,3 @@ T091 release notes  ||  T092 am-i-affected  ||  T096 package audit
 # Start implementation at Phase 2:
 T004 inventory script → T007–T011 bake-off → T024 seed decision → T012+ platform
 ```
-

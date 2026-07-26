@@ -26,7 +26,7 @@ Repo-wide inventory of Apache Derby surface area for feature **#548** (default e
   ```
 - **Output**: `specs/548-derby-embedded-migration/checklists/derby-surface-inventory.md`
 - **Prereqs**: Python 3.9+
-- **Notes**: Excludes `target/`, `node_modules/`, `.git`, and common binary suffixes. Heuristic dispositions are starting points; unknown rows must reach zero at GA.
+- **Notes**: Excludes `target/`, `node_modules/`, `.git`, `*.log`, and common binary suffixes. Assigns dispositions (`port`, `migration-only`, `docs-only`, `test-only`, `false-positive`, …). Re-run after large tree changes. Use `--fail-on-unknown` for QC-001 freeze checks (must exit 0 with zero `unknown` rows).
 
 ### `fetch-gh-code-scanning-alerts.py`
 
