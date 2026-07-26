@@ -20,10 +20,13 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import org.junit.jupiter.api.Test;
 
@@ -88,6 +91,39 @@ class DtsInstallerJarContainsTomcatTreeTest {
     assertTrue(
         entries.stream().noneMatch(n -> n.startsWith(SERVER_PREFIX + "webapps/host-manager/")),
         "shipping jar must not include Tomcat host-manager webapp");
+
+    // #1500 matrix / product default: HTTP on ${http.port} (9980 via perc-catalina.properties),
+    // not stock Tomcat 8080. Without PROPERTY_SOURCE + common/lib, digester cannot resolve it.
+    try (ZipFile zip = new ZipFile(jar.toFile())) {
+      String serverXml = readZipEntry(zip, SERVER_PREFIX + "conf/server.xml");
+      assertTrue(
+          serverXml.contains("port=\"${http.port}\""),
+          "server.xml must bind HTTP to ${http.port} (perc-catalina.properties default 9980);"
+              + " stock Tomcat port 8080 breaks matrix probe 9980 and product port docs");
+      assertTrue(
+          serverXml.contains("port=\"${shutdown.port}\"")
+              || serverXml.contains("<Server port=\"${shutdown.port}\""),
+          "server.xml must use ${shutdown.port} for Server shutdown port");
+
+      String catalinaProps = readZipEntry(zip, SERVER_PREFIX + "conf/catalina.properties");
+      assertTrue(
+          catalinaProps.contains(
+              "org.apache.tomcat.util.digester.PROPERTY_SOURCE=com.percussion.tomcat.PSTomcatPropertySource"),
+          "catalina.properties must register PSTomcatPropertySource for ${http.port} resolution");
+      assertTrue(
+          catalinaProps.contains("common/lib"),
+          "catalina.properties common.loader must include common/lib for perc-tomcat-common");
+    }
+  }
+
+  private static String readZipEntry(ZipFile zip, String name) throws IOException {
+    ZipEntry entry = zip.getEntry(name);
+    if (entry == null) {
+      fail("Missing zip entry: " + name);
+    }
+    try (InputStream in = zip.getInputStream(entry)) {
+      return new String(in.readAllBytes(), StandardCharsets.UTF_8);
+    }
   }
 
   private static void assertContains(List<String> entries, String required) {
