@@ -12,6 +12,19 @@ Most ui elements are located under the war folder. When deployed they are placed
 
 war/
 
+## UI Themes (`src/main/ts/ui-themes/`)
+
+The modern React layer ships a pluggable theme system. The default theme is
+**Intersoft Data Labs** (sampled from `https://intsof.com/`). The product
+wordmark remains **Percussion CMS**; the theme only aligns the chrome,
+colors, and typography with the Intersoft brand.
+
+* Tokens: `ui-themes/intersoft/intersoftTheme.ts` (colors, type, spacing, brand)
+* React context: `ui-themes/ThemeProvider.tsx` (injects CSS custom properties)
+* Branded chrome: `ui-themes/components/Branding.tsx` (`<BrandBar />`, `<BrandFooter />`)
+* Brand assets: `src/main/webapp/cm/themes/intersoft/brand/`
+* Per-theme guide + customisation: `ui-themes/README.md`
+
 ## Modern Publishing UI (feature 990)
 
 Primary nav `view=publish` loads `cm/app/publishModern.jsp` (mirrored under `cm/pages/app`), mounting React `PublishingShell` via `PercModernUI`.

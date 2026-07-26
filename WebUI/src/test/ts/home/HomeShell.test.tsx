@@ -45,6 +45,17 @@ describe("HomeShell", () => {
     expect(screen.getByText("perc.ui.home@Add New")).toBeDefined();
   });
 
+  it("wraps the shell in the intersoft theme and renders branded chrome", () => {
+    const { container } = render(<HomeShell initialSection="list" />);
+    const scope = container.querySelector("[data-perc-theme='intersoft']");
+    expect(scope).not.toBeNull();
+    expect(screen.getByTestId("perc-brand-bar")).toBeDefined();
+    expect(screen.getByTestId("perc-brand-product").textContent).toBe(
+      "Percussion CMS",
+    );
+    expect(screen.getByTestId("perc-brand-footer")).toBeDefined();
+  });
+
   it("starts on library when initialScreen is library", async () => {
     render(<HomeShell initialSection="library" />);
     await waitFor(() => {
