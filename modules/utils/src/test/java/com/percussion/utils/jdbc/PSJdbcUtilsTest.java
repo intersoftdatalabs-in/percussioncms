@@ -22,9 +22,13 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.percussion.util.PSSqlHelper;
+import java.nio.file.Path;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 public class PSJdbcUtilsTest {
+
+  @TempDir Path tempDir;
 
   @Test
   public void testGetDriverFromUrl() {
@@ -86,6 +90,43 @@ public class PSJdbcUtilsTest {
     assertEquals("h2", PSJdbcUtils.getDriverFromUrl("jdbc:h2:tcp://localhost/~/test"));
     assertEquals(PSJdbcUtils.H2_DRIVER_CLASS, "org.h2.Driver");
     assertEquals(PSJdbcUtils.H2, PSJdbcUtils.H2_DRIVER);
+  }
+
+  @Test
+  public void testResolveEmbeddedFileServer_relativeProductDefault() {
+    Path installRoot = tempDir.resolve("Percussion").toAbsolutePath().normalize();
+    String resolved =
+        PSJdbcUtils.resolveEmbeddedFileServer(
+            "file:../../Repository/CMDB;DB_CLOSE_ON_EXIT=FALSE;NON_KEYWORDS=VALUE", installRoot);
+    String expected =
+        "file:"
+            + installRoot
+                .resolve("Repository")
+                .resolve("CMDB")
+                .toAbsolutePath()
+                .normalize()
+                .toString()
+                .replace('\\', '/')
+            + ";DB_CLOSE_ON_EXIT=FALSE;NON_KEYWORDS=VALUE";
+    assertEquals(expected, resolved);
+  }
+
+  @Test
+  public void testResolveEmbeddedFileServer_absoluteUnchangedExceptNormalize() {
+    Path absDb = tempDir.resolve("abs").resolve("CMDB").toAbsolutePath().normalize();
+    String absFragment = "file:" + absDb.toString().replace('\\', '/') + ";DB_CLOSE_ON_EXIT=FALSE";
+    String resolved = PSJdbcUtils.resolveEmbeddedFileServer(absFragment, tempDir);
+    assertEquals(
+        "file:" + absDb.toString().replace('\\', '/') + ";DB_CLOSE_ON_EXIT=FALSE", resolved);
+  }
+
+  @Test
+  public void testResolveEmbeddedFileServer_nullsAndNonFile() {
+    assertNull(PSJdbcUtils.resolveEmbeddedFileServer(null, tempDir));
+    assertEquals(
+        "file:../../Repository/CMDB",
+        PSJdbcUtils.resolveEmbeddedFileServer("file:../../Repository/CMDB", null));
+    assertEquals("//localhost:5432/cms", PSJdbcUtils.resolveEmbeddedFileServer("//localhost:5432/cms", tempDir));
   }
 
   @Test

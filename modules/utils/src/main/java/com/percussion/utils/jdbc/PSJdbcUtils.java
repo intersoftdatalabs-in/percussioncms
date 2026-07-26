@@ -16,6 +16,7 @@
  */
 package com.percussion.utils.jdbc;
 
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -382,6 +383,51 @@ public class PSJdbcUtils {
     // H2 file URLs create the database by default; do not append Derby-style ";create=true".
 
     return rval.toString().replace(";;", ";");
+  }
+
+  /**
+   * Resolve relative H2 {@code file:} {@code DB_SERVER} fragments against the install tree.
+   *
+   * <p>Product default is {@code file:../../Repository/CMDB;...}, authored relative to {@code
+   * jetty/base}. During silent install Ant runs with {@code user.dir} under the extract temp tree,
+   * so without this resolution H2 creates the database under temp and Jetty later opens an empty
+   * database under the install root (matrix smoke / #548 / #1500).
+   *
+   * <p>Relative paths are always anchored at {@code installRoot/jetty/base} (whether or not that
+   * directory exists yet) so {@code ../../Repository/CMDB} normalizes to {@code
+   * installRoot/Repository/CMDB}. Absolute {@code file:} paths are normalized only. Non-{@code
+   * file:} fragments are returned unchanged.
+   *
+   * @param serverFragment value of {@code DB_SERVER} (not a full {@code jdbc:} URL); may be {@code
+   *     null}
+   * @param installRoot install root used as resolution base; if {@code null}, returns {@code
+   *     serverFragment} unchanged
+   * @return absolute {@code file:} fragment when input was relative; otherwise the original (or
+   *     path-normalized absolute) fragment
+   */
+  public static String resolveEmbeddedFileServer(String serverFragment, Path installRoot) {
+    if (serverFragment == null || installRoot == null) {
+      return serverFragment;
+    }
+    String s = serverFragment.trim();
+    if (!s.regionMatches(true, 0, "file:", 0, 5)) {
+      return s;
+    }
+    String pathAndParams = s.substring(5);
+    int semi = pathAndParams.indexOf(';');
+    String pathPart = semi >= 0 ? pathAndParams.substring(0, semi) : pathAndParams;
+    String params = semi >= 0 ? pathAndParams.substring(semi) : "";
+    if (pathPart.isEmpty()) {
+      return s;
+    }
+    Path path = Path.of(pathPart);
+    if (path.isAbsolute()) {
+      return "file:" + path.toAbsolutePath().normalize().toString().replace('\\', '/') + params;
+    }
+    // Product-relative H2 paths are authored for jetty/base (../../Repository/CMDB).
+    Path base = installRoot.toAbsolutePath().normalize().resolve("jetty").resolve("base");
+    Path resolved = base.resolve(pathPart).normalize().toAbsolutePath();
+    return "file:" + resolved.toString().replace('\\', '/') + params;
   }
 
   /**

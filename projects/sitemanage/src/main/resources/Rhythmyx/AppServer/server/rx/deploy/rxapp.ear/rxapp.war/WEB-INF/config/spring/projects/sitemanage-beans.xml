@@ -464,7 +464,8 @@ http://cxf.apache.org/schemas/jaxrs.xsd">
     <jaxrs:server id="integration-siteimprove-jax-rs" address="/integrations">
         <jaxrs:serviceBeans>
             <ref bean="siteImproveService"/>
-            <ref bean="emsAPIService"/>
+            <!-- emsAPIService removed: bean was never defined (NoSuchBeanDefinitionException
+                 blocked ROOT webapp start once H2 install/startup reached Spring refresh). -->
         </jaxrs:serviceBeans>
         <jaxrs:extensionMappings>
             <entry key="json" value="application/json"/>

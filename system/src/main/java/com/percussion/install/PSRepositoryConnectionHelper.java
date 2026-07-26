@@ -119,7 +119,8 @@ public final class PSRepositoryConnectionHelper {
    * Resolve a {@code DB_SERVER} fragment for JDBC URL construction.
    *
    * <p>For H2 {@code file:} fragments that are relative (e.g. {@code file:../../Repository/CMDB}),
-   * resolve against {@code installRoot/jetty/base} when present, else {@code installRoot}.
+   * delegates to {@link PSJdbcUtils#resolveEmbeddedFileServer(String, Path)} so install-time and
+   * migration-time connections agree with Jetty ({@code installRoot/Repository/CMDB}).
    */
   static String resolveServerFragment(String server, Path installRoot, String driverName) {
     if (server == null) {
@@ -131,19 +132,7 @@ public final class PSRepositoryConnectionHelper {
     }
     if (PSJdbcUtils.H2_DRIVER.equalsIgnoreCase(driverName)
         && s.regionMatches(true, 0, "file:", 0, 5)) {
-      String pathAndParams = s.substring(5);
-      int semi = pathAndParams.indexOf(';');
-      String pathPart = semi >= 0 ? pathAndParams.substring(0, semi) : pathAndParams;
-      String params = semi >= 0 ? pathAndParams.substring(semi) : "";
-      Path path = Path.of(pathPart);
-      if (!path.isAbsolute()) {
-        Path base = installRoot.resolve("jetty").resolve("base");
-        if (!java.nio.file.Files.isDirectory(base)) {
-          base = installRoot;
-        }
-        path = base.resolve(pathPart).normalize();
-      }
-      return "file:" + path.toAbsolutePath().toString().replace('\\', '/') + params;
+      return PSJdbcUtils.resolveEmbeddedFileServer(s, installRoot);
     }
     if (PSJdbcUtils.DERBY_DRIVER.equalsIgnoreCase(driverName)
         && !s.startsWith("//")
