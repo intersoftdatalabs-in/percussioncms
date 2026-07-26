@@ -15,6 +15,8 @@
  */
 package com.percussion.preinstall;
 
+import com.percussion.preinstall.java.JavaInstallSelection;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -28,9 +30,13 @@ import java.util.Objects;
 /**
  * Console wizard for CMS preinstall (issue #1513).
  *
- * <p><strong>Phase 1:</strong> installation directory (when missing) and summary + confirm. Later
- * phases add Java selection orchestration, multi-step database capture, and optional connection
- * test. Silent / non-TTY installs skip prompts and keep the existing parameter-driven contract.
+ * <p><strong>Phase 1:</strong> installation directory (when missing) and summary + confirm.
+ *
+ * <p><strong>Phase 2:</strong> Java home selection ({@link JavaInstallSelection}) after path.
+ *
+ * <p><strong>Phase 3:</strong> interactive multi-step database capture ({@link
+ * InteractiveDbConfigCollector}) and optional {@link RepositoryConnectionProbe} for external
+ * backends. Silent / non-TTY installs skip prompts and keep the existing parameter-driven contract.
  *
  * <p>Passwords and other secret values from resolved DB config are never printed in the summary.
  */
@@ -44,6 +50,9 @@ public final class InteractiveInstallWizard {
 
   /** Exit code when database configuration validation fails. */
   public static final int EXIT_DB_CONFIG = 1;
+
+  /** Exit code when Java home selection fails (matches historical Main exit code). */
+  public static final int EXIT_JAVA = 2;
 
   private InteractiveInstallWizard() {}
 
@@ -75,8 +84,8 @@ public final class InteractiveInstallWizard {
   }
 
   /**
-   * Phase 1: ensure install path, resolve DB config from existing CLI/env defaults, show summary,
-   * and confirm when interactive.
+   * Phase 1–2: ensure install path, select/persist Java home, resolve DB config from existing
+   * CLI/env defaults, show summary, and confirm when interactive.
    *
    * @param parsedArgs CLI parse result (path may be null)
    * @param interactive whether to prompt
@@ -85,6 +94,20 @@ public final class InteractiveInstallWizard {
    */
   public static Phase1Result runPhase1(
       DbInstallConfigResolver.ParsedArgs parsedArgs, boolean interactive, InstallPrompt prompt) {
+    return runPhase1(parsedArgs, interactive, prompt, Main.parseUnattendedJavaHome(System.getProperty(Main.PERC_JAVA_HOME)));
+  }
+
+  /**
+   * Same as {@link #runPhase1(DbInstallConfigResolver.ParsedArgs, boolean, InstallPrompt)} with an
+   * explicit unattended Java home (tests inject a fixture home).
+   *
+   * @param unattendedJavaHome explicit Java home override, or null to discover
+   */
+  public static Phase1Result runPhase1(
+      DbInstallConfigResolver.ParsedArgs parsedArgs,
+      boolean interactive,
+      InstallPrompt prompt,
+      Path unattendedJavaHome) {
     Objects.requireNonNull(parsedArgs, "parsedArgs");
     if (interactive && prompt == null) {
       throw new IllegalArgumentException("prompt is required when interactive");
@@ -108,15 +131,40 @@ public final class InteractiveInstallWizard {
       installPath = installPath.toAbsolutePath().normalize();
     }
 
+    JavaInstallSelection.SelectionOutcome javaOutcome;
+    try {
+      JavaInstallSelection.InteractivePrompt javaPrompt =
+          interactive && prompt != null ? prompt::readLine : null;
+      javaOutcome =
+          new JavaInstallSelection(installPath, unattendedJavaHome, javaPrompt).selectAndPersist();
+      if (interactive && prompt != null) {
+        prompt.println("Java home selection: " + javaOutcome.summary());
+      }
+    } catch (JavaInstallSelection.JavaSelectionException sel) {
+      return Phase1Result.abort(EXIT_JAVA, "Java home selection failed: " + sel.getMessage());
+    } catch (IOException io) {
+      return Phase1Result.abort(
+          EXIT_JAVA,
+          "Could not write java.properties at "
+              + installPath.resolve("java.properties")
+              + ": "
+              + io.getMessage());
+    }
+
+    boolean upgrade = isUpgradeInstall(installPath);
     DbInstallConfigResolver.ResolvedDbConfig dbConfig;
     try {
-      dbConfig = DbInstallConfigResolver.resolveDbConfig(options);
+      if (interactive) {
+        dbConfig = collectAndResolveDbInteractive(options, upgrade, prompt);
+      } else {
+        dbConfig = DbInstallConfigResolver.resolveDbConfig(options);
+      }
     } catch (IllegalArgumentException badDb) {
       return Phase1Result.abort(EXIT_DB_CONFIG, "Database configuration error: " + badDb.getMessage());
     }
 
     if (interactive) {
-      String summary = buildSummary(installPath, dbConfig);
+      String summary = buildSummary(installPath, dbConfig, javaOutcome);
       prompt.println(summary);
       boolean defaultYes = isDefaultYesConfirm(dbConfig);
       if (!confirmProceed(prompt, defaultYes)) {
@@ -124,7 +172,68 @@ public final class InteractiveInstallWizard {
       }
     }
 
-    return Phase1Result.proceed(installPath, Map.copyOf(options), dbConfig);
+    return Phase1Result.proceed(installPath, Map.copyOf(options), dbConfig, javaOutcome);
+  }
+
+  /**
+   * Interactive DB collection, resolve, optional connection probe with re-edit loop.
+   *
+   * @param options mutable options map (updated in place)
+   * @param upgrade whether install root is an upgrade
+   * @param prompt operator I/O
+   * @return resolved DB config
+   */
+  static DbInstallConfigResolver.ResolvedDbConfig collectAndResolveDbInteractive(
+      Map<String, String> options, boolean upgrade, InstallPrompt prompt) {
+    for (int attempt = 0; attempt < 5; attempt++) {
+      Map<String, String> collected =
+          InteractiveDbConfigCollector.collect(options, upgrade, prompt);
+      options.clear();
+      options.putAll(collected);
+
+      DbInstallConfigResolver.ResolvedDbConfig dbConfig =
+          DbInstallConfigResolver.resolveDbConfig(options);
+
+      if (upgrade || isDefaultYesConfirm(dbConfig)) {
+        return dbConfig;
+      }
+
+      Boolean test =
+          parseYesNo(prompt.readLine("Test database connection now? [Y/n] "), true);
+      if (test == null || !test) {
+        return dbConfig;
+      }
+
+      RepositoryConnectionProbe.ProbeResult probe =
+          RepositoryConnectionProbe.probe(
+              dbConfig.systemProperties(), RepositoryConnectionProbe.DEFAULT_LOGIN_TIMEOUT_SECONDS);
+      prompt.println(probe.message());
+
+      if (probe.isSuccess() || probe.status() == RepositoryConnectionProbe.ProbeStatus.SKIPPED) {
+        return dbConfig;
+      }
+
+      Boolean retry =
+          parseYesNo(
+              prompt.readLine("Connection test failed. Re-enter database settings? [Y/n] "),
+              true);
+      if (retry == null || !retry) {
+        throw new IllegalArgumentException(
+            "Database connection test failed and operator chose not to re-enter settings.");
+      }
+      // Force re-prompt of fields on next loop (clear explicit override keys except silent flags)
+      options.remove(DbInstallConfigResolver.DBPROPS_KEY);
+      options.remove("db.props");
+      options.remove("db.type");
+      options.remove("db.host");
+      options.remove("db.port");
+      options.remove("db.name");
+      options.remove("db.schema");
+      options.remove("db.user");
+      options.remove("db.password");
+    }
+    throw new IllegalArgumentException(
+        "Too many failed database configuration attempts. Aborting.");
   }
 
   /**
@@ -164,10 +273,13 @@ public final class InteractiveInstallWizard {
    *
    * @param installPath absolute install path
    * @param dbConfig resolved DB config
+   * @param javaOutcome selected Java home (may be null before Phase 2)
    * @return multi-line summary text
    */
   static String buildSummary(
-      Path installPath, DbInstallConfigResolver.ResolvedDbConfig dbConfig) {
+      Path installPath,
+      DbInstallConfigResolver.ResolvedDbConfig dbConfig,
+      JavaInstallSelection.SelectionOutcome javaOutcome) {
     List<String> lines = new ArrayList<>();
     lines.add("");
     lines.add("========================================");
@@ -176,9 +288,16 @@ public final class InteractiveInstallWizard {
     lines.add("Install path : " + installPath.toAbsolutePath().normalize());
     lines.add("Mode         : " + (isUpgradeInstall(installPath) ? "Upgrade" : "New install"));
     lines.add("Database     : " + formatDbSummary(dbConfig));
-    lines.add("Java home    : " + formatJavaHomeHint());
+    lines.add("Java home    : " + formatJavaHomeLine(javaOutcome));
     lines.add("========================================");
     return String.join(System.lineSeparator(), lines);
+  }
+
+  /** Convenience for tests that omit a Java selection outcome. */
+  @Deprecated
+  static String buildSummary(
+      Path installPath, DbInstallConfigResolver.ResolvedDbConfig dbConfig) {
+    return buildSummary(installPath, dbConfig, null);
   }
 
   static boolean isUpgradeInstall(Path installPath) {
@@ -204,7 +323,10 @@ public final class InteractiveInstallWizard {
     return sb.toString();
   }
 
-  static String formatJavaHomeHint() {
+  static String formatJavaHomeLine(JavaInstallSelection.SelectionOutcome javaOutcome) {
+    if (javaOutcome != null && javaOutcome.javaHome() != null) {
+      return javaOutcome.javaHome() + " (" + javaOutcome.source() + ")";
+    }
     String unattended = System.getProperty(Main.PERC_JAVA_HOME);
     if (unattended != null
         && !unattended.isBlank()
@@ -305,12 +427,13 @@ public final class InteractiveInstallWizard {
   }
 
   /**
-   * Outcome of Phase 1 wizard (path + DB resolve + optional confirm).
+   * Outcome of Phase 1–2 wizard (path + Java + DB resolve + optional confirm).
    *
    * @param proceed true when install may continue
    * @param installPath resolved absolute install path when proceed (or null if aborted early)
    * @param options CLI options map (immutable when proceed)
    * @param dbConfig resolved DB config when proceed
+   * @param javaOutcome selected Java home when proceed
    * @param exitCode process exit code when !proceed
    * @param message operator-facing message when !proceed (may be null)
    */
@@ -319,18 +442,20 @@ public final class InteractiveInstallWizard {
       Path installPath,
       Map<String, String> options,
       DbInstallConfigResolver.ResolvedDbConfig dbConfig,
+      JavaInstallSelection.SelectionOutcome javaOutcome,
       int exitCode,
       String message) {
 
     static Phase1Result proceed(
         Path installPath,
         Map<String, String> options,
-        DbInstallConfigResolver.ResolvedDbConfig dbConfig) {
-      return new Phase1Result(true, installPath, options, dbConfig, 0, null);
+        DbInstallConfigResolver.ResolvedDbConfig dbConfig,
+        JavaInstallSelection.SelectionOutcome javaOutcome) {
+      return new Phase1Result(true, installPath, options, dbConfig, javaOutcome, 0, null);
     }
 
     static Phase1Result abort(int exitCode, String message) {
-      return new Phase1Result(false, null, Map.of(), null, exitCode, message);
+      return new Phase1Result(false, null, Map.of(), null, null, exitCode, message);
     }
   }
 }

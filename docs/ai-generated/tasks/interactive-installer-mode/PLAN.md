@@ -4,7 +4,7 @@
 **Feature branch:** `feat/1513-interactive-installer`  
 **Process:** Issue + feature branch implementation — **not** full Speckit  
 **Branch base:** `development`  
-**Status:** Phase 1 implemented on branch (CMS path prompt + summary/confirm)  
+**Status:** CMS Phases 1–3 implemented on branch (path, Java, DB multi-step, probe, confirm)  
 **Primary modules:** `modules/perc-distribution-tree` (CMS preinstall), `deliverytiersuite/.../delivery-tier-distribution` (DTS preinstall)  
 **Related work already landed:**
 
@@ -169,16 +169,16 @@ Recommended order for each field:
 - Unit tests with fake prompt.  
 - **Landed:** `InteractiveInstallWizard`, `InstallPrompt`, `SystemConsoleInstallPrompt`, wired from `Main`; tests in `InteractiveInstallWizardTest`.
 
-### Phase 2 — Java step integration
+### Phase 2 — Java step integration ✅
 
-- Run `JavaInstallSelection` as wizard step 2 (already mostly done; order after install path).  
-- Optional custom path entry.
+- Run `JavaInstallSelection` as wizard step 2 (before summary).  
+- Optional custom path entry (deferred — discovery + `-Dperc.java.home` covers MVP).
 
-### Phase 3 — Database multi-step + optional test
+### Phase 3 — Database multi-step + optional test ✅
 
-- Wizard collects structured fields → options map → `resolveDbConfig`.  
-- Optional connection test for external backends; re-prompt on failure.  
-- Extract/shared tester so ANT post-write validation and pre-install test stay consistent.
+- `InteractiveDbConfigCollector` menu + structured fields (incl. SQL Server Express copy).  
+- `RepositoryConnectionProbe` best-effort preinstall probe (SKIPPED when driver not on classpath).  
+- ANT `PSValidateRepositoryConnection` remains authoritative after files are written.
 
 ### Phase 4 — DTS parity + docs
 

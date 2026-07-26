@@ -117,13 +117,21 @@ public class Main {
       Path installPath = phase1.installPath();
       options = phase1.options();
       DbInstallConfigResolver.ResolvedDbConfig resolvedDbConfig = phase1.dbConfig();
+      // Issue #1340 / #1513 Phase 2: Java home already selected and persisted by the wizard.
+      JavaInstallSelection.SelectionOutcome javaOutcome = phase1.javaOutcome();
+      if (javaOutcome != null) {
+        System.out.println("Java home selection: " + javaOutcome.summary());
+      }
 
       debug = System.getProperty("DEBUG");
       if (debug == null || debug.equalsIgnoreCase("")) {
         debug = "false";
       }
 
-      String javaHome = System.getProperty(PERC_JAVA_HOME);
+      String javaHome =
+          javaOutcome != null && javaOutcome.javaHome() != null
+              ? javaOutcome.javaHome().toString()
+              : System.getProperty(PERC_JAVA_HOME);
       if (javaHome == null || javaHome.trim().equalsIgnoreCase(""))
         javaHome = System.getProperty(JAVA_HOME);
 
@@ -148,42 +156,6 @@ public class Main {
       System.out.println(DEVELOPMENT + "=" + developmentFlag);
 
       System.out.println("Installation folder is " + installPath.toAbsolutePath().toString());
-
-      // Issue #1340 / US3 + US4: resolve and persist the Java home used at
-      // runtime by CMS / DTS start, stop, and service install paths. Honor an
-      // explicit -Dperc.java.home=... override; otherwise discover and (when
-      // interactive) prompt for a Java 21 home. Survives a non-interactive
-      // environment by auto-selecting single candidates and failing loudly
-      // when zero are eligible — never silently fall back to a manual
-      // <InstallDir>/JRE copy.
-      try {
-        Path unattended = parseUnattendedJavaHome(System.getProperty(PERC_JAVA_HOME));
-        JavaInstallSelection.SelectionOutcome outcome =
-            new JavaInstallSelection(
-                    installPath,
-                    unattended,
-                    prompt -> {
-                      if (silent) {
-                        return "";
-                      }
-                      java.io.Console c = System.console();
-                      return c == null ? "" : c.readLine(prompt);
-                    })
-                .selectAndPersist();
-        System.out.println("Java home selection: " + outcome.summary());
-      } catch (JavaInstallSelection.JavaSelectionException sel) {
-        System.out.println("Java home selection failed: " + sel.getMessage());
-        System.exit(2);
-        return;
-      } catch (IOException io) {
-        System.out.println(
-            "Could not write java.properties at "
-                + installPath.resolve("java.properties")
-                + ": "
-                + io.getMessage());
-        System.exit(2);
-        return;
-      }
 
       Properties existingVersion = loadVersionProperties(installPath);
       if (existingVersion != null) {
