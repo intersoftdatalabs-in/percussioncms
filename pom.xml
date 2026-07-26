@@ -230,8 +230,6 @@
         <rome.version>2.1.0</rome.version>
         <saxon.version>6.5.3</saxon.version>
         <servlet.spec>6.1.0</servlet.spec>
-        <sigstore.java.version>1.2.0</sigstore.java.version>
-        <sigstore.maven.plugin.version>2.0.0</sigstore.maven.plugin.version>
         <simple.jndi.version>0.11.4.1</simple.jndi.version>
         <simplexml.version>2.7.1</simplexml.version>
         <sitemap4j.version>1.1.2</sitemap4j.version>
@@ -1389,11 +1387,6 @@
                 <groupId>com.github.jai-imageio</groupId>
                 <artifactId>jai-imageio-jpeg2000</artifactId>
                 <version>1.4.0</version>
-            </dependency>
-            <dependency>
-                <groupId>dev.sigstore</groupId>
-                <artifactId>sigstore-java</artifactId>
-                <version>${sigstore.java.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.htmlparser</groupId>
@@ -2633,11 +2626,6 @@
                     </dependencies>
                 </plugin>
                 <plugin>
-                    <groupId>dev.sigstore</groupId>
-                    <artifactId>sigstore-maven-plugin</artifactId>
-                    <version>${sigstore.maven.plugin.version}</version>
-                </plugin>
-                <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-javadoc-plugin</artifactId>
                     <version>3.12.0</version>
@@ -2801,31 +2789,6 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
                 <version>${maven.jar.plugin.version}</version>
-            </plugin>
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>exec-maven-plugin</artifactId>
-                <version>${maven.exec.plugin.version}</version>
-                <executions>
-                    <!-- TODO: Experimental - potentially remove
-			<execution>
-                        <id>verify-agent-integrity</id>
-                        <goals>
-                            <goal>exec</goal>
-                        </goals>
-                        <phase>validate</phase>
-                        <configuration>
-                            <executable>python3</executable>
-                            <arguments>
-                                <argument>${maven.multiModuleProjectDirectory}/modules/ai-shared-develop/scripts/build-integrity-check.py</argument>
-                                <argument>${maven.multiModuleProjectDirectory}/AGENTS.md</argument>
-                            </arguments>
-                            <successCodes>
-                                <successCode>0</successCode>
-                            </successCodes>
-                        </configuration>
-                    </execution> -->
-                </executions>
             </plugin>
             <!-- Used to find plugin updates -->
             <!-- mvn versions:display-plugin-updates
@@ -3147,31 +3110,6 @@
             <id>sign</id>
             <build>
                 <plugins>
-                    <plugin>
-                        <groupId>dev.sigstore</groupId>
-                        <artifactId>sigstore-maven-plugin</artifactId>
-                        <version>${sigstore.maven.plugin.version}</version>
-                        <configuration>
-                            <!-- Sigstore OIDC configuration - uses SIGSTORE_IDENTITY_TOKEN env var -->
-                            <sigstore>
-                                <online>true</online>
-                            </sigstore>
-                            <!-- Pass the identity token via environment variable to forked JVMs -->
-                            <environmentVariables>
-                                <SIGSTORE_IDENTITY_TOKEN>${env.SIGSTORE_IDENTITY_TOKEN}</SIGSTORE_IDENTITY_TOKEN>
-                            </environmentVariables>
-                        </configuration>
-                        <executions>
-                            <execution>
-                                <id>sigstore-sign</id>
-                                <goals>
-                                    <goal>sign</goal>
-                                </goals>
-                                <phase>verify</phase>
-                                <inherited>false</inherited>
-                            </execution>
-                        </executions>
-                    </plugin>
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-gpg-plugin</artifactId>
