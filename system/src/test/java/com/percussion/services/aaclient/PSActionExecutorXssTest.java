@@ -17,7 +17,6 @@
 package com.percussion.services.aaclient;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.percussion.security.validation.XSSValidation;
@@ -25,20 +24,19 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 /**
- * Regression tests for the CWE-79 / java/xss fix in
- * {@link PSActionExecutor#executeSetField} (CodeQL alert #756, T044).
+ * Regression tests for the CWE-79 / java/xss fix in {@link PSActionExecutor#executeSetField}
+ * (CodeQL alert #756, T044).
  *
- * <p>The pre-fix code called {@code PSAaClientServlet.pushResponse(response, resp, "text/html", 200)}
- * with {@code resp} derived from a URL-decoded request parameter
- * {@code fieldvalue}. A request like {@code fieldvalue=<script>alert(1)</script>}
- * would round-trip through the database and be rendered as executable HTML in
- * the AA widget response. The fix calls {@link XSSValidation#escapeHtml} on
- * {@code resp} before pushing the response, breaking the XSS data flow.
+ * <p>The pre-fix code called {@code PSAaClientServlet.pushResponse(response, resp, "text/html",
+ * 200)} with {@code resp} derived from a URL-decoded request parameter {@code fieldvalue}. A
+ * request like {@code fieldvalue=<script>alert(1)</script>} would round-trip through the database
+ * and be rendered as executable HTML in the AA widget response. The fix calls {@link
+ * XSSValidation#escapeHtml} on {@code resp} before pushing the response, breaking the XSS data
+ * flow.
  *
- * <p>These tests verify the encoder helper is invoked at the right point:
- * since {@code executeSetField} is private and depends on a live
- * PSRequest/servlet stack, we test the call's INPUT/output contract directly
- * via reflection on the encoder call site — the helper {@link
+ * <p>These tests verify the encoder helper is invoked at the right point: since {@code
+ * executeSetField} is private and depends on a live PSRequest/servlet stack, we test the call's
+ * INPUT/output contract directly via reflection on the encoder call site — the helper {@link
  * XSSValidation#escapeHtml} is itself the security boundary.
  */
 public class PSActionExecutorXssTest {
@@ -83,7 +81,10 @@ public class PSActionExecutorXssTest {
     // returns null for null input. Callers must null-check before passing the value
     // to a write sink; this matches the broader PS codebase convention.
     String result = XSSValidation.escapeHtml(null);
-    assertEquals(null, result, "escapeHtml(null) currently passes through null (defensive"
-        + " callers should null-check before write). This is documented behavior, not a bug.");
+    assertEquals(
+        null,
+        result,
+        "escapeHtml(null) currently passes through null (defensive"
+            + " callers should null-check before write). This is documented behavior, not a bug.");
   }
 }

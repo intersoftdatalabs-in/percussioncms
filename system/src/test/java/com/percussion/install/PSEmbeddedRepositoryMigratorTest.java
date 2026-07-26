@@ -31,8 +31,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
 /**
- * Migrator state-machine outcomes, secrets redaction, durable report (T044 / T052 / QC-010 /
- * QC-022 / FR-017).
+ * Migrator state-machine outcomes, secrets redaction, durable report (T044 / T052 / QC-010 / QC-022
+ * / FR-017).
  */
 @Tag("UnitTest")
 public class PSEmbeddedRepositoryMigratorTest {
@@ -77,7 +77,8 @@ public class PSEmbeddedRepositoryMigratorTest {
     assertEquals(PSMigrationOutcome.BLOCKED_BACKUP_GATE, outcome);
     PSMigrationReportWriter.Report report =
         PSMigrationReportWriter.read(
-            PSMigrationReportWriter.reportPath(installRoot, PSEmbeddedRepositoryMigrator.COMPONENT_CMS));
+            PSMigrationReportWriter.reportPath(
+                installRoot, PSEmbeddedRepositoryMigrator.COMPONENT_CMS));
     assertEquals(PSBackupGateKind.NOT_SATISFIED, report.backupGate());
     assertNotNull(report.failureReason());
     assertFalse(report.failureReason().isBlank());
@@ -131,8 +132,9 @@ public class PSEmbeddedRepositoryMigratorTest {
     assertEquals(
         PSEmbeddedRepositoryDetector.Classification.PRODUCT_MANAGED_DERBY,
         PSEmbeddedRepositoryDetector.classify(p));
-    assertNull(PSEmbeddedRepositoryDetector.toSkipOutcome(
-        PSEmbeddedRepositoryDetector.Classification.PRODUCT_MANAGED_DERBY));
+    assertNull(
+        PSEmbeddedRepositoryDetector.toSkipOutcome(
+            PSEmbeddedRepositoryDetector.Classification.PRODUCT_MANAGED_DERBY));
   }
 
   @Test

@@ -20,15 +20,18 @@ Implements install-root `allowedUrls.properties` / `blockedUrls.properties` with
 ## Issues
 
 ### Issue 1 -- Severity: suggestion
+
 - File: `URLValidation.java` decision order
 - Description: Hard metadata deny runs before block-list match; operators cannot “allow” metadata even if they remove block lines (intentional defense-in-depth per research R8). Document clearly in release notes (already in snippet).
 - Suggestion: Keep as-is.
 
 ### Issue 2 -- Severity: nit
+
 - Description: Optional server-init wiring (tasks T029) skipped when `rxdeploydir` is set at process start; production CMS sets this. Document that tests must inject config via `setDefault`/`fromFiles`.
 - Suggestion: Accept for v1.
 
 ### Issue 3 -- Severity: nit
+
 - Description: `new URL(...)` deprecation warnings on Java 21 in tests — pre-existing style in this module.
 - Suggestion: Follow-up to URI if desired.
 

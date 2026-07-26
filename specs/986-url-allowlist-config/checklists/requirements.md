@@ -35,3 +35,4 @@
 - File path `rxconfig/Server/*.properties` is product install-root configuration location from the issue (operator-facing), not an implementation stack choice.
 - Validation iteration 1 (2026-07-16): all items pass.
 - Clarify session 2026-07-16: 5/5 questions answered and integrated (additive allow; private unlock via allow; remove unreleased system properties; full-URL glob; allow file comments-only defaults). Re-validated: all items still pass. Ready for `/speckit-plan`.
+

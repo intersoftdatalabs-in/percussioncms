@@ -26,9 +26,7 @@ import org.apache.tools.ant.Task;
  */
 public class PSMakeHelpHints extends Task {
 
-  /**
-   * Creates a new task instance with default settings.
-   */
+  /** Creates a new task instance with default settings. */
   public PSMakeHelpHints() {}
 
   /**
@@ -52,7 +50,8 @@ public class PSMakeHelpHints extends Task {
   /**
    * The target path for the file to be created (Required)
    *
-   * @param target the target file path where the help hints XML will be written, must not be <code>null</code>
+   * @param target the target file path where the help hints XML will be written, must not be <code>
+   *     null</code>
    */
   public void setTarget(File target) {
     m_target = target;

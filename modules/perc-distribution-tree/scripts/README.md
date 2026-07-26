@@ -35,15 +35,15 @@ bump and is not wired into the CI build.
 
 **Exit codes**:
 
-| Code | Meaning |
-|------|---------|
-| 0 | All checks passed |
-| 1 | Invocation error (bad args, artifact not found, missing tool) |
-| 2 | `jetty/base/lib/jdbc/` missing or empty |
-| 3 | One or more JARs are zero-byte |
-| 4 | One or more JARs are not valid Java archives |
-| 5 | Artifact could not be unpacked |
-| 6 | `--expected-driver-set` or `--expected-driver-glob` does not match what's shipped |
+| Code |                                      Meaning                                      |
+|------|-----------------------------------------------------------------------------------|
+| 0    | All checks passed                                                                 |
+| 1    | Invocation error (bad args, artifact not found, missing tool)                     |
+| 2    | `jetty/base/lib/jdbc/` missing or empty                                           |
+| 3    | One or more JARs are zero-byte                                                    |
+| 4    | One or more JARs are not valid Java archives                                      |
+| 5    | Artifact could not be unpacked                                                    |
+| 6    | `--expected-driver-set` or `--expected-driver-glob` does not match what's shipped |
 
 **Tests**: `python3 -m pytest modules/perc-distribution-tree/scripts/test_verify_jdbc_drivers.py -v`
 
@@ -65,11 +65,11 @@ python3 modules/perc-distribution-tree/scripts/check-no-glob-deletes.py \
 
 **Exit codes**:
 
-| Code | Meaning |
-|------|---------|
-| 0 | install_jdbc_drivers `<delete>` uses exact filenames only |
-| 1 | Invocation error (bad args, install.xml not found) |
-| 7 | One or more `<include>` entries are glob patterns (contains `*` or `?`) — the failure this script exists to catch |
+| Code |                                                      Meaning                                                      |
+|------|-------------------------------------------------------------------------------------------------------------------|
+| 0    | install_jdbc_drivers `<delete>` uses exact filenames only                                                         |
+| 1    | Invocation error (bad args, install.xml not found)                                                                |
+| 7    | One or more `<include>` entries are glob patterns (contains `*` or `?`) — the failure this script exists to catch |
 
 **Tests**: `python3 -m pytest modules/perc-distribution-tree/scripts/test_check_no_glob_deletes.py -v`
 

@@ -62,7 +62,7 @@ test.describe("US4 P-ACL — folder security panel (SC-004)", () => {
   }) => {
     await page.goto(aclUrl(), { waitUntil: "networkidle" });
     const placeholder = page.locator(
-      '[data-testid="perc-folder-security-no-folder"]',
+      '[data-testid="perc-folder-security-no-folder"]'
     );
     await expect(placeholder).toBeVisible({ timeout: 15_000 });
   });
@@ -112,7 +112,8 @@ test.describe("US4 P-ACL — folder security panel (SC-004)", () => {
     const root = page.locator('[data-testid="perc-folder-security-root"]');
     await expect(root).toBeVisible({ timeout: 15_000 });
     await expectNoSeriousA11yViolations(page, {
-      scope: '[data-testid="perc-folder-security-root"], [data-testid="folder-security-panel"]',
+      scope:
+        '[data-testid="perc-folder-security-root"], [data-testid="folder-security-panel"]',
     });
   });
 });

@@ -26,11 +26,13 @@ Removes the discontinued **Redirect Management** dashboard gadget from `GadgetRe
 ## Issues
 
 ### Issue 1 -- Severity: nit
+
 - File: `WebUI/.../GadgetRegistry.xml` (XML comment)
 - Description: In-file comment is useful for archaeology; optional to drop if style prefers no narrative XML comments.
 - Suggestion: Keep as-is for #715 traceability.
 
 ### Issue 2 -- Severity: suggestion (out of scope / product note)
+
 - Description: Users who already saved the gadget on a personal dashboard may still hold a stale URL in metadata and see a blank chrome until they remove it.
 - Suggestion: Accept for this PR unless product wants a metadata cleanup migration (not required by current AC).
 

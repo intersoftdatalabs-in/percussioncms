@@ -41,8 +41,7 @@ import { fileURLToPath } from "url";
 import { describe, it, expect } from "vitest";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const webapp = (...parts) =>
-  resolve(__dirname, "../../main/webapp", ...parts);
+const webapp = (...parts) => resolve(__dirname, "../../main/webapp", ...parts);
 
 function read(rel) {
   return readFileSync(webapp(rel), "utf8");
@@ -227,8 +226,7 @@ describe("siteimprove_integration.html (alerts #1134/#1135/#1115/#1116)", () => 
 
   it("behaviourally escapes all RegExp metacharacters including backslash", () => {
     // Same class as siteimprove_integration.html (JSP-safe: no "${}" sequence)
-    const escape = (s) =>
-      String(s).replace(/[.*+?^$()|[\]\\{}]/g, "\\$&");
+    const escape = (s) => String(s).replace(/[.*+?^$()|[\]\\{}]/g, "\\$&");
     expect(escape("id")).toBe("id");
     expect(escape("a.b")).toBe("a\\.b");
     expect(escape("x[0]")).toBe("x\\[0\\]");

@@ -61,8 +61,7 @@ class ViewMetadataTagListControlTest {
     assertFalse(
         Pattern.compile("<input\\b", Pattern.CASE_INSENSITIVE).matcher(compact).find(),
         "read-only tags must not emit <input> (View Metadata should show plain text)");
-    assertTrue(
-        compact.contains("datadisplay"), "read-only tags must use datadisplay wrapper");
+    assertTrue(compact.contains("datadisplay"), "read-only tags must use datadisplay wrapper");
     assertTrue(
         Pattern.compile("xsl:value-of").matcher(compact).find(),
         "read-only tags must output Value text");
@@ -95,8 +94,7 @@ class ViewMetadataTagListControlTest {
         compact.contains("try {") && compact.contains("} catch (e) {"),
         "PercNavigationManager access must be try/catch guarded for iframe contexts");
     assertTrue(
-        compact.contains("console.debug"),
-        "catch path should log at debug for diagnosability");
+        compact.contains("console.debug"), "catch path should log at debug for diagnosability");
     assertFalse(
         Pattern.compile(
                 "if\\s*\\(\\s*typeof\\s+parent\\.\\$\\s*!==\\s*'undefined'\\s*\\)\\s*\\{\\s*"

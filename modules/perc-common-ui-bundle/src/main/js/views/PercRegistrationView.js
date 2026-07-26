@@ -273,10 +273,9 @@
                 }
                 // CodeQL js/xss-through-dom (alert #989): confirmation_page is
                 // user-supplied via form; sanitize before navigation.
-                window.location =
-                  $.PercServiceUtils.sanitizeUrlForHref(
-                    confirmation_page + params
-                  );
+                window.location = $.PercServiceUtils.sanitizeUrlForHref(
+                  confirmation_page + params
+                );
               }
             } else {
               $(".perc-registration-mode").hide();

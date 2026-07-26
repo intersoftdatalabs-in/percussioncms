@@ -423,16 +423,14 @@ public class PSSecureXMLUtils {
   }
 
   /**
-   * Returns a {@link Source} backed by a secured SAX parser for use with
-   * JAXB {@code Unmarshaller.unmarshal(Source)}. External entity
-   * declarations are rejected and external DTDs are disabled at the
-   * parser level, preventing XXE (CWE-611) regardless of the JAXB
-   * default configuration.
+   * Returns a {@link Source} backed by a secured SAX parser for use with JAXB {@code
+   * Unmarshaller.unmarshal(Source)}. External entity declarations are rejected and external DTDs
+   * are disabled at the parser level, preventing XXE (CWE-611) regardless of the JAXB default
+   * configuration.
    *
-   * <p>Default security options (from {@link PSXmlSecurityOptions#secure()}):
-   * DTDs disabled, external entities disabled, external DTD references
-   * disabled, secure processing on. Callers that need DTDs (e.g., legacy
-   * XSD imports) can pass a custom {@link PSXmlSecurityOptions} to the
+   * <p>Default security options (from {@link PSXmlSecurityOptions#secure()}): DTDs disabled,
+   * external entities disabled, external DTD references disabled, secure processing on. Callers
+   * that need DTDs (e.g., legacy XSD imports) can pass a custom {@link PSXmlSecurityOptions} to the
    * overload below.
    *
    * @param inputStream the XML input stream; assumed not {@code null}
@@ -444,8 +442,8 @@ public class PSSecureXMLUtils {
   }
 
   /**
-   * Returns a {@link Source} backed by a secured SAX parser for use with
-   * JAXB {@code Unmarshaller.unmarshal(Source)}.
+   * Returns a {@link Source} backed by a secured SAX parser for use with JAXB {@code
+   * Unmarshaller.unmarshal(Source)}.
    *
    * @param inputStream the XML input stream; assumed not {@code null}
    * @param options the security options to apply

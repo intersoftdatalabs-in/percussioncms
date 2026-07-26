@@ -103,3 +103,4 @@ A build engineer or CI pipeline builds `modules/perc-distribution-tree` and need
 - The legacy `DEVELOPMENT=true` override and the path it currently references are kept for backward compatibility; the fix layers production-mode driver inclusion on top of the existing logic rather than removing the override.
 - The `installDistributionFiles.xml` ANT script remains the assembly orchestrator; the fix updates or augments that script (and its referenced source locations) rather than introducing a parallel packaging system.
 - A reusable JDBC driver JAR is available somewhere in the repository or as a curated Maven dependency in the parent POM, so the assembly can reference a known-good path without inventing a new third-party download.
+

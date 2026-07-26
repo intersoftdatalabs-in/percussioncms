@@ -10,10 +10,10 @@ Product classes that implement `javax.jcr.*` interfaces MUST satisfy **JSR-283 (
 
 ## Dependency contract
 
-| Coordinate | Version | Managed in |
-|------------|---------|------------|
-| `javax.jcr:jcr` | `2.0` | Parent `pom.xml` dependencyManagement |
-| `org.apache.jackrabbit:jackrabbit-jcr-commons` | existing 2.22.x line | Parent `pom.xml` |
+|                   Coordinate                   |       Version        |              Managed in               |
+|------------------------------------------------|----------------------|---------------------------------------|
+| `javax.jcr:jcr`                                | `2.0`                | Parent `pom.xml` dependencyManagement |
+| `org.apache.jackrabbit:jackrabbit-jcr-commons` | existing 2.22.x line | Parent `pom.xml`                      |
 
 Modules MUST NOT reintroduce `javax.jcr:jcr:1.0`.
 
@@ -21,17 +21,17 @@ Modules MUST NOT reintroduce `javax.jcr:jcr:1.0`.
 
 ### Required complete implementations (behavior-preserving)
 
-| Interface | Primary product type(s) | Notes |
-|-----------|-------------------------|-------|
-| `Node` | `PSContentNode` (`IPSNode`) | `getIdentifier()` maps to existing identity; new optional features may UROE |
-| `Property` | `PSProperty`, `PSMultiProperty` | Binary/decimal accessors |
-| `Value` | `PSBaseValue` hierarchy | `getBinary`, `getDecimal` |
-| `ValueFactory` | `PSValueFactory` | `createBinary`, decimal/binary factory methods |
-| `Query` | `PSQuery` | bind/limit/offset; execute signature |
-| `QueryResult` | `PSQueryResult`, publisher `RowQueryResult` | `getSelectorNames` |
-| `QueryManager` | `PSContentMgr` / `IPSContentMgr` | `getQOMFactory` |
-| `PropertyDefinition` | `PSPropertyDefinition` | query metadata methods |
-| `NodeType` | `PSTypeConfiguration` | 2.0 hierarchy / new methods |
+|      Interface       |           Primary product type(s)           |                                    Notes                                    |
+|----------------------|---------------------------------------------|-----------------------------------------------------------------------------|
+| `Node`               | `PSContentNode` (`IPSNode`)                 | `getIdentifier()` maps to existing identity; new optional features may UROE |
+| `Property`           | `PSProperty`, `PSMultiProperty`             | Binary/decimal accessors                                                    |
+| `Value`              | `PSBaseValue` hierarchy                     | `getBinary`, `getDecimal`                                                   |
+| `ValueFactory`       | `PSValueFactory`                            | `createBinary`, decimal/binary factory methods                              |
+| `Query`              | `PSQuery`                                   | bind/limit/offset; execute signature                                        |
+| `QueryResult`        | `PSQueryResult`, publisher `RowQueryResult` | `getSelectorNames`                                                          |
+| `QueryManager`       | `PSContentMgr` / `IPSContentMgr`            | `getQOMFactory`                                                             |
+| `PropertyDefinition` | `PSPropertyDefinition`                      | query metadata methods                                                      |
+| `NodeType`           | `PSTypeConfiguration`                       | 2.0 hierarchy / new methods                                                 |
 
 ### Unsupported capability pattern
 
@@ -54,3 +54,4 @@ Supported languages remain product SQL and XPath as returned by `getSupportedQue
 
 - REST, SOAP, sitemanage JSON, and `.ppkg` formats: **no intentional change**.
 - If a public Java type exposes `javax.jcr.Node` / `Query` in a signature, binary compatibility for third-party JARs is **not** guaranteed (integrators rebuild).
+

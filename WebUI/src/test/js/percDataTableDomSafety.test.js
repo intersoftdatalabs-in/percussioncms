@@ -52,7 +52,12 @@ function loadPercDataTable($) {
   const src = readFileSync(SRC, "utf8");
   // File is an IIFE that expects global jQuery as $
   // eslint-disable-next-line no-new-func
-  const run = new Function("jQuery", "window", "document", src + "\n; return jQuery.fn.PercDataTable;");
+  const run = new Function(
+    "jQuery",
+    "window",
+    "document",
+    src + "\n; return jQuery.fn.PercDataTable;"
+  );
   run($, globalThis, globalThis.document);
   return $.fn.PercDataTable;
 }
@@ -100,7 +105,7 @@ describe("PercDataTable DOM construction safety", () => {
 
   it("builds cells without interpreting hostile class tokens as HTML", () => {
     loadPercDataTable($);
-    const hostileHeader = "x\" onclick=alert(1) x=\"";
+    const hostileHeader = 'x" onclick=alert(1) x="';
     const config = {
       percExpandParentFrameVertically: false,
       bPaginate: false,
@@ -138,14 +143,19 @@ describe("PercDataTable DOM construction safety", () => {
       aoColumns: [{ sType: "string" }],
       percData: [
         {
-          rowContent: [{ content: "Body", title: "Title with 'quotes\" & more" }],
+          rowContent: [
+            { content: "Body", title: "Title with 'quotes\" & more" },
+          ],
           rowData: {},
         },
       ],
     };
     host.PercDataTable(config);
     const titled = host.find("[title]").filter(function () {
-      return $(this).attr("title") && $(this).attr("title").indexOf("Title with") === 0;
+      return (
+        $(this).attr("title") &&
+        $(this).attr("title").indexOf("Title with") === 0
+      );
     });
     expect(titled.length).toBeGreaterThan(0);
     expect(titled.first().attr("title")).toContain("Title with");

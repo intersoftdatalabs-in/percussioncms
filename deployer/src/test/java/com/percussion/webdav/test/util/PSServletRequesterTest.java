@@ -269,8 +269,8 @@ public class PSServletRequesterTest extends PSWebdavServlet {
   }
 
   /**
-   * Writes a generic error marker to the response writer. Does not emit exception type, message,
-   * or stack frames (CWE-209 / CodeQL {@code java/stack-trace-exposure} and {@code
+   * Writes a generic error marker to the response writer. Does not emit exception type, message, or
+   * stack frames (CWE-209 / CodeQL {@code java/stack-trace-exposure} and {@code
    * java/error-message-exposure}, alert #789 / residual #1768). Detail is logged server-side only.
    *
    * @param e the exception to report (logged; not written to the client response)

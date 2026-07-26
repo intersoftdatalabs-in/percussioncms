@@ -31,8 +31,7 @@ import org.junit.jupiter.api.Test;
 class JQueryLoadOrderDeferTest {
 
   private static final Path VM =
-      Path.of(
-          "system/cms/content/applications/sys_resources/ApplicationFiles/vm/sys_assembly.vm");
+      Path.of("system/cms/content/applications/sys_resources/ApplicationFiles/vm/sys_assembly.vm");
 
   @Test
   void assemblyDefersDependentsWhenJqueryDeferred() throws Exception {
@@ -43,8 +42,9 @@ class JQueryLoadOrderDeferTest {
     }
     String text = Files.readString(vm, StandardCharsets.UTF_8);
     assertTrue(text.contains("#set($deferDependents = false)##"));
-    assertTrue(text.contains("#set($jqueryIsDeferred = \"no\")##")
-        || text.contains("#set($jqueryIsDeferred = \"no\")##".replace("\\\"", "\"")));
+    assertTrue(
+        text.contains("#set($jqueryIsDeferred = \"no\")##")
+            || text.contains("#set($jqueryIsDeferred = \"no\")##".replace("\\\"", "\"")));
     assertTrue(text.contains("$jqueryIsDeferred == \"yes\""));
     assertTrue(text.contains("#if($deferDependents) defer#end"));
     assertTrue(text.contains("#if($jqueryWidgetInstances.size() > 0)##"));

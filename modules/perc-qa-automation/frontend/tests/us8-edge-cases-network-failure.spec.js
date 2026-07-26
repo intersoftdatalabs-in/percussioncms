@@ -56,17 +56,20 @@ test.describe("T092e / Edge Cases #11 — network failure mid-action", () => {
 
     // Simulate the network drop on the moveItem endpoint only.
     let aborted = false;
-    await page.route("**/Rhythmyx/rest/pathmanagement/path/moveItem", (route) => {
-      if (!aborted) {
-        aborted = true;
-        return route.abort("failed");
+    await page.route(
+      "**/Rhythmyx/rest/pathmanagement/path/moveItem",
+      (route) => {
+        if (!aborted) {
+          aborted = true;
+          return route.abort("failed");
+        }
+        return route.continue();
       }
-      return route.continue();
-    });
+    );
 
     await page.goto(EXPLORER_URL, { waitUntil: "networkidle" });
     await expect(
-      page.locator('[data-testid="perc-explorer-host"]'),
+      page.locator('[data-testid="perc-explorer-host"]')
     ).toBeVisible({ timeout: 15_000 });
 
     // The clipboard paste is exercised manually in the live browser via

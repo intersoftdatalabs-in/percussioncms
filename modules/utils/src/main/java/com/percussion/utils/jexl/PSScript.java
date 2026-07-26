@@ -161,8 +161,7 @@ public class PSScript implements IPSScript {
                 && useSilentMode == jexlUseSilent) {
               local = EngineSingletonHolder.DEFAULT_ENGINE.createScript(this.fixedScriptText);
             } else {
-              JexlEngine engine =
-                  newBuilder(useStrictMode, useSilentMode, useDebugMode).create();
+              JexlEngine engine = newBuilder(useStrictMode, useSilentMode, useDebugMode).create();
               local = engine.createScript(this.fixedScriptText);
             }
             compiledScript = local;

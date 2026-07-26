@@ -26,7 +26,6 @@ import static org.mockito.Mockito.when;
 import com.percussion.pathmanagement.data.PSPathItem;
 import com.percussion.pathmanagement.service.IPSPathService.PSPathNotFoundServiceException;
 import com.percussion.pathmanagement.service.impl.PSSitePathItemService;
-import com.percussion.share.service.IPSDataService;
 import com.percussion.share.service.IPSDataService.DataServiceLoadException;
 import com.percussion.share.service.IPSDataService.DataServiceNotFoundException;
 import com.percussion.share.service.exception.PSValidationException;
@@ -88,4 +87,3 @@ class PSSitePathItemServiceOrphanedPageMessageTest {
     }
   }
 }
-

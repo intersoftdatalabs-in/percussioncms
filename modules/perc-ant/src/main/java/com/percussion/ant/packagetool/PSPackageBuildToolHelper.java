@@ -35,9 +35,7 @@ import org.apache.logging.log4j.Logger;
 /** Few helper methods to deal with directories paths etc for storing contents of the .ppkg files */
 public class PSPackageBuildToolHelper {
 
-  /**
-   * Creates a new helper instance.
-   */
+  /** Creates a new helper instance. */
   public PSPackageBuildToolHelper() {}
 
   private static final Logger log = LogManager.getLogger(PSPackageBuildToolHelper.class);
@@ -392,7 +390,8 @@ public class PSPackageBuildToolHelper {
    * properties file in destDirectoryPath
    *
    * @param tempDirPath the temporary directory path containing the mapping properties file
-   * @param destDirectoryPath the destination directory path where the properties file should be copied
+   * @param destDirectoryPath the destination directory path where the properties file should be
+   *     copied
    */
   public static void copyPropertiesFile(String tempDirPath, String destDirectoryPath) {
     String directoryName = getDirectoryName(tempDirPath);

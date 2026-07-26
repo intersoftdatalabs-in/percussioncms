@@ -2080,9 +2080,9 @@ public class PSPubServerService implements IPSPubServerService {
   };
 
   /**
-   * Decrypt the string. Tries modern AES/GCM ({@link PSEncryptor}) first, then falls back to
-   * legacy {@link PSAesCBC} so upgrades can still read pre-8.2 ciphertext. New secrets are always
-   * written with {@link PSEncryptor#encryptString} — never with {@code PSAesCBC.encrypt}.
+   * Decrypt the string. Tries modern AES/GCM ({@link PSEncryptor}) first, then falls back to legacy
+   * {@link PSAesCBC} so upgrades can still read pre-8.2 ciphertext. New secrets are always written
+   * with {@link PSEncryptor#encryptString} — never with {@code PSAesCBC.encrypt}.
    *
    * @param dstr base64 encoded encrypted string
    * @return clear text version of the string.

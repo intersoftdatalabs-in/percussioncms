@@ -112,8 +112,7 @@ class PSValidateRepositoryConnectionTest {
   void bindInstallRootPointsPathUtilsAtRoot() {
     PSValidateRepositoryConnection.bindInstallRoot(tempDir.toString());
     assertEquals(
-        tempDir.toAbsolutePath().normalize().toString(),
-        PathUtils.getRxDir().getAbsolutePath());
+        tempDir.toAbsolutePath().normalize().toString(), PathUtils.getRxDir().getAbsolutePath());
     assertEquals(
         tempDir.toAbsolutePath().normalize().toString(),
         System.getProperty(PathUtils.DEPLOY_DIR_PROP));

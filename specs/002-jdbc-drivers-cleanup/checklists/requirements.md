@@ -39,3 +39,4 @@
 - FR-004 covers either the "fix behavior to match README" or "update README to match behavior" branch, so this spec does not lock in a policy decision prematurely.
 - **2026-07-11 clarification session**: Policy resolved to Option A (preserve integrator drivers, narrow `install.xml` delete set to exact bundled filenames from `pom.xml`); staging cleanup mechanism resolved to Option B (`<delete>` after copy); verify-script example resolved to Option A (switch to `--expected-driver-glob`); test scope resolved to Option C (JUnit 5 unit test + shell static assertion wired into Maven `verify`). All captured in spec `## Clarifications` and reflected in FR-003, FR-004, FR-006, FR-008, SC-005, SC-006.
 - Items marked incomplete require spec updates before `/speckit.clarify` or `/speckit.plan`
+

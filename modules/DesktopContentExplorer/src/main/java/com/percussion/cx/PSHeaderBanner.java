@@ -32,8 +32,8 @@ import javax.swing.JPanel;
 import javax.swing.OverlayLayout;
 
 /**
- * The banner panel that hosts the embedded JavaFX web view used to render the Rhythmyx header
- * image and any interactive content at the top of the content explorer window.
+ * The banner panel that hosts the embedded JavaFX web view used to render the Rhythmyx header image
+ * and any interactive content at the top of the content explorer window.
  */
 public class PSHeaderBanner extends JPanel {
 

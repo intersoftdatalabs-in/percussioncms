@@ -282,40 +282,32 @@
     var dialogHtml = $("<div/>", { id: "perc-redirect-container" });
     dialogHtml.append(
       $("<div/>").append(
-        $("<label/>").text(I18N.message("perc.ui.redirect.handler@Page Not Found")),
+        $("<label/>").text(
+          I18N.message("perc.ui.redirect.handler@Page Not Found")
+        ),
         $("<br/>"),
         $("<br/>")
       )
     );
     dialogHtml.append(
-      $("<div/>").append(
-        $("<label/>").text("From path:"),
-        $("<br/>")
-      )
+      $("<div/>").append($("<label/>").text("From path:"), $("<br/>"))
     );
     dialogHtml.append(
       // codeql[js/xss-through-dom] reason: `.text(getRelativePath(...))`
       // sets a text node and is HTML-safe; the path value is never
       // concatenated into an HTML string and re-parsed.
-      $("<div/>")
-        .addClass("readonlyinput")
-        .text(getRelativePath(fromPath))
+      $("<div/>").addClass("readonlyinput").text(getRelativePath(fromPath))
     );
     dialogHtml.append($("<br/>"));
     dialogHtml.append(
-      $("<div/>").append(
-        $("<label/>").text("To path:"),
-        $("<br/>")
-      )
+      $("<div/>").append($("<label/>").text("To path:"), $("<br/>"))
     );
     if (toPath) {
       dialogHtml.append(
         // codeql[js/xss-through-dom] reason: `.text(getRelativePath(...))`
         // sets a text node and is HTML-safe; the path value is never
         // concatenated into an HTML string and re-parsed.
-        $("<div/>")
-          .addClass("readonlyinput")
-          .text(getRelativePath(toPath))
+        $("<div/>").addClass("readonlyinput").text(getRelativePath(toPath))
       );
     } else {
       dialogHtml.append(

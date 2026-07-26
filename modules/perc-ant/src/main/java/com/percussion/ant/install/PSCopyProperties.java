@@ -49,10 +49,9 @@ import java.io.FileOutputStream;
  * </pre>
  */
 public class PSCopyProperties extends PSAction {
-  /**
-   * Creates a new properties copy task.
-   */
+  /** Creates a new properties copy task. */
   public PSCopyProperties() {}
+
   // see base class
   @Override
   public void execute() {

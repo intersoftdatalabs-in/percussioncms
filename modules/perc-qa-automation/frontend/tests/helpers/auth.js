@@ -1,56 +1,56 @@
-const fs = require('fs');
-const path = require('path');
+const fs = require("fs");
+const path = require("path");
 
-const envPath = path.resolve(__dirname, '../../../.env');
-require('dotenv').config({ path: envPath });
+const envPath = path.resolve(__dirname, "../../../.env");
+require("dotenv").config({ path: envPath });
 
 const INSTALL_PATH = process.env.DEV_PERCUSSION_INSTALL;
 const DTS_INSTALL_PATH = process.env.DEV_PERCUSSION_DTS_INSTALL;
-const ADMIN_USERNAME = process.env.ADMIN_USERNAME || 'Admin';
-const USERNAME_EDITOR = process.env.EDITOR_USERNAME || 'Editor';
-const USERNAME_CONTRIBUTOR = process.env.CONTRIBUTOR_USERNAME || 'Contributor';
+const ADMIN_USERNAME = process.env.ADMIN_USERNAME || "Admin";
+const USERNAME_EDITOR = process.env.EDITOR_USERNAME || "Editor";
+const USERNAME_CONTRIBUTOR = process.env.CONTRIBUTOR_USERNAME || "Contributor";
 
-const users = ['Admin', 'Editor', 'Contributor'];
+const users = ["Admin", "Editor", "Contributor"];
 
 function getUrlFromInstall(installPath, propsFile, portKey) {
   const filePath = path.join(installPath, propsFile);
-  
+
   if (!fs.existsSync(filePath)) {
     throw new Error(`${propsFile} not found at: ${filePath}`);
   }
-  
-  const content = fs.readFileSync(filePath, 'utf-8');
+
+  const content = fs.readFileSync(filePath, "utf-8");
   const portMatch = content.match(new RegExp(`${portKey}=(\\d+)`));
-  
+
   if (!portMatch) {
     throw new Error(`${portKey} not found in ${propsFile}`);
   }
-  
+
   const port = portMatch[1];
   return `http://localhost:${port}`;
 }
 
 function getPasswordsFromInstall(installPath) {
-  const passwordFile = path.join(installPath, 'var/config/generated/passwords');
-  
+  const passwordFile = path.join(installPath, "var/config/generated/passwords");
+
   if (!fs.existsSync(passwordFile)) {
     throw new Error(`Password file not found at: ${passwordFile}`);
   }
-  
-  const content = fs.readFileSync(passwordFile, 'utf-8');
+
+  const content = fs.readFileSync(passwordFile, "utf-8");
   const passwords = {};
-  
-  users.forEach(user => {
+
+  users.forEach((user) => {
     const match = content.match(new RegExp(`${user}=([^\\n]+)`));
     if (match) {
       passwords[user] = match[1].trim();
     }
   });
-  
+
   if (Object.keys(passwords).length === 0) {
-    throw new Error('No passwords found in passwords file');
+    throw new Error("No passwords found in passwords file");
   }
-  
+
   return passwords;
 }
 
@@ -60,20 +60,20 @@ function updateEnvFile(key, value) {
   // lazily so a first-time user (who set DEV_PERCUSSION_INSTALL but
   // forgot to copy .env.example) does not crash with ENOENT.
   if (!fs.existsSync(envPath)) {
-    const examplePath = path.resolve(__dirname, '../../../.env.example');
+    const examplePath = path.resolve(__dirname, "../../../.env.example");
     if (fs.existsSync(examplePath)) {
       fs.copyFileSync(examplePath, envPath);
       console.log(`Created ${envPath} from .env.example`);
     } else {
       // No template; create an empty .env with the key we're about to
       // write so subsequent reads can find it.
-      fs.writeFileSync(envPath, '');
+      fs.writeFileSync(envPath, "");
     }
   }
 
-  let envContent = fs.readFileSync(envPath, 'utf-8');
+  let envContent = fs.readFileSync(envPath, "utf-8");
 
-  const regex = new RegExp(`^${key}=.*$`, 'm');
+  const regex = new RegExp(`^${key}=.*$`, "m");
   if (regex.test(envContent)) {
     // Use a replacer function to avoid `$&`, `$'`, etc. in `value` being
     // interpreted as regex replacement special sequences (which would
@@ -88,7 +88,7 @@ function updateEnvFile(key, value) {
 }
 
 function updateEnvFileWithPasswords(passwords) {
-  users.forEach(user => {
+  users.forEach((user) => {
     const key = `${user.toUpperCase()}_PASSWORD`;
     if (!process.env[key] && passwords[user]) {
       updateEnvFile(key, passwords[user]);
@@ -99,22 +99,34 @@ function updateEnvFileWithPasswords(passwords) {
 let PERCUSSION_URL = process.env.DEV_PERCUSSION_URL;
 
 if (!PERCUSSION_URL && INSTALL_PATH) {
-  console.log('DEV_PERCUSSION_URL not found in .env, calculating from installation...');
-  PERCUSSION_URL = getUrlFromInstall(INSTALL_PATH, 'jetty/base/etc/installation.properties', 'jetty.http.port');
-  updateEnvFile('DEV_PERCUSSION_URL', PERCUSSION_URL);
+  console.log(
+    "DEV_PERCUSSION_URL not found in .env, calculating from installation..."
+  );
+  PERCUSSION_URL = getUrlFromInstall(
+    INSTALL_PATH,
+    "jetty/base/etc/installation.properties",
+    "jetty.http.port"
+  );
+  updateEnvFile("DEV_PERCUSSION_URL", PERCUSSION_URL);
 } else if (!PERCUSSION_URL) {
-  PERCUSSION_URL = 'http://localhost:9992';
+  PERCUSSION_URL = "http://localhost:9992";
 }
 
 let DTS_URL = process.env.DEV_PERCUSSION_DTS_URL;
 
 if (!DTS_URL && DTS_INSTALL_PATH) {
-  console.log('DEV_PERCUSSION_DTS_URL not found in .env, calculating from DTS installation...');
+  console.log(
+    "DEV_PERCUSSION_DTS_URL not found in .env, calculating from DTS installation..."
+  );
   try {
-    DTS_URL = getUrlFromInstall(DTS_INSTALL_PATH, 'Deployment/Server/conf/perc/perc-catalina.properties', 'http.port');
-    updateEnvFile('DEV_PERCUSSION_DTS_URL', DTS_URL);
+    DTS_URL = getUrlFromInstall(
+      DTS_INSTALL_PATH,
+      "Deployment/Server/conf/perc/perc-catalina.properties",
+      "http.port"
+    );
+    updateEnvFile("DEV_PERCUSSION_DTS_URL", DTS_URL);
   } catch (e) {
-    console.log('DTS not configured, skipping...');
+    console.log("DTS not configured, skipping...");
     DTS_URL = null;
   }
 }
@@ -122,27 +134,32 @@ if (!DTS_URL && DTS_INSTALL_PATH) {
 let passwords = {};
 
 if (INSTALL_PATH) {
-  const missingPasswords = users.some(user => !process.env[`${user.toUpperCase()}_PASSWORD`]);
+  const missingPasswords = users.some(
+    (user) => !process.env[`${user.toUpperCase()}_PASSWORD`]
+  );
   if (missingPasswords) {
-    console.log('Some passwords missing, reading from installation...');
+    console.log("Some passwords missing, reading from installation...");
     passwords = getPasswordsFromInstall(INSTALL_PATH);
     updateEnvFileWithPasswords(passwords);
   }
 }
 
-const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || passwords['Admin'];
-const EDITOR_PASSWORD = process.env.EDITOR_PASSWORD || passwords['Editor'];
-const CONTRIBUTOR_PASSWORD = process.env.CONTRIBUTOR_PASSWORD || passwords['Contributor'];
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || passwords["Admin"];
+const EDITOR_PASSWORD = process.env.EDITOR_PASSWORD || passwords["Editor"];
+const CONTRIBUTOR_PASSWORD =
+  process.env.CONTRIBUTOR_PASSWORD || passwords["Contributor"];
 
 async function login(page, username, password) {
   if (!password) {
-    throw new Error(`Password for ${username} not set and could not be read from installation`);
+    throw new Error(
+      `Password for ${username} not set and could not be read from installation`
+    );
   }
 
   await page.goto(`${PERCUSSION_URL}/Rhythmyx/login`);
   await page.fill('input[name="j_username"]', username);
   await page.fill('input[name="j_password"]', password);
-  await page.selectOption('select[name="j_locale"]', 'en-us');
+  await page.selectOption('select[name="j_locale"]', "en-us");
 
   // The CMS uses a multipart/form-data POST with OWASP-CSRFTOKEN. The
   // server returns 302 → /Rhythmyx/index.jsp (JSP welcome). We submit
@@ -152,9 +169,9 @@ async function login(page, username, password) {
   await Promise.all([
     page
       .waitForFunction(
-        () => !window.location.pathname.endsWith('/Rhythmyx/login'),
+        () => !window.location.pathname.endsWith("/Rhythmyx/login"),
         null,
-        { timeout: 15_000 },
+        { timeout: 15_000 }
       )
       .catch(async () => {
         // networkidle sometimes fires before the JS function evaluates;
@@ -165,8 +182,10 @@ async function login(page, username, password) {
   ]);
 
   const url = page.url();
-  if (url.includes('/Rhythmyx/login')) {
-    throw new Error(`Login did not navigate away from /Rhythmyx/login (still at ${url})`);
+  if (url.includes("/Rhythmyx/login")) {
+    throw new Error(
+      `Login did not navigate away from /Rhythmyx/login (still at ${url})`
+    );
   }
 }
 
@@ -193,5 +212,5 @@ module.exports = {
   CONTRIBUTOR_PASSWORD,
   loginAsAdmin,
   loginAsEditor,
-  loginAsContributor
+  loginAsContributor,
 };

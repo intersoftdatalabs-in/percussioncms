@@ -163,10 +163,7 @@ public class PSSiteimprove {
           .entity("Failed to validate credentials against siteImprove")
           .build();
     } catch (Exception e) {
-      logger.error(
-          "Failed to store Siteimprove credentials. Exception is: {}",
-          e.getMessage(),
-          e);
+      logger.error("Failed to store Siteimprove credentials. Exception is: {}", e.getMessage(), e);
       return Response.serverError().entity(GENERIC_STORE_CREDENTIALS_ERROR).build();
     }
   }

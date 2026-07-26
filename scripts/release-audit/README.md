@@ -31,36 +31,36 @@ bash scripts/release-audit/release-audit.sh \
 
 ### Flags
 
-| Flag | Default | Notes |
-|------|---------|-------|
-| `--from-tag <TAG>` | `v8.1.6` | Lower bound of tag range; required |
-| `--to-tag <TAG>` | `v8.1.7` | Upper bound of tag range; required |
-| `--target-branch <BRANCH>` | `development` | Branch to compare against |
-| `--output-dir <DIR>` | `./tmp/release-audit/<from>..<to>` | Where the four output files are written |
-| `--include-dependabot` | `false` | Include dependabot PRs in the inventory (flagged but not excluded) |
-| `-h`, `--help` | — | Show usage and exit |
+|            Flag            |              Default               |                               Notes                                |
+|----------------------------|------------------------------------|--------------------------------------------------------------------|
+| `--from-tag <TAG>`         | `v8.1.6`                           | Lower bound of tag range; required                                 |
+| `--to-tag <TAG>`           | `v8.1.7`                           | Upper bound of tag range; required                                 |
+| `--target-branch <BRANCH>` | `development`                      | Branch to compare against                                          |
+| `--output-dir <DIR>`       | `./tmp/release-audit/<from>..<to>` | Where the four output files are written                            |
+| `--include-dependabot`     | `false`                            | Include dependabot PRs in the inventory (flagged but not excluded) |
+| `-h`, `--help`             | —                                  | Show usage and exit                                                |
 
 ### Exit codes
 
-| Code | Meaning |
-|------|---------|
-| `0` | Success; all expected output files written |
-| `2` | Partial failure; some output files may be present |
-| `3` | Invalid arguments (e.g. tag range unresolvable on `origin`) |
-| `4` | `gh` CLI active account not authenticated, or `origin` unreachable |
+| Code |                              Meaning                               |
+|------|--------------------------------------------------------------------|
+| `0`  | Success; all expected output files written                         |
+| `2`  | Partial failure; some output files may be present                  |
+| `3`  | Invalid arguments (e.g. tag range unresolvable on `origin`)        |
+| `4`  | `gh` CLI active account not authenticated, or `origin` unreachable |
 
 ## Outputs
 
 Written under `--output-dir` (gitignored via `./tmp/release-audit/`):
 
-| File | Format | Schema |
-|------|--------|--------|
-| `_audit_config.json` | JSON | run timestamp, tag range, target branch, commit SHAs |
-| `inventory.json` | JSON array | one PRRecord per non-dependabot PR in range |
-| `dependabot-excluded.json` | JSON array | audit log of dependabot PRs excluded from inventory |
-| `verdicts.json` | JSON array | one PRVerdict per PRRecord (verdict + evidence) |
-| `migration-backlog.md` | Markdown | prioritized backlog (only `needs-migration` PRs) |
-| `v8.1.7-to-8.2-migration-report.md` | Markdown | 7-section summary for posting to a GitHub issue |
+|                File                 |   Format   |                        Schema                        |
+|-------------------------------------|------------|------------------------------------------------------|
+| `_audit_config.json`                | JSON       | run timestamp, tag range, target branch, commit SHAs |
+| `inventory.json`                    | JSON array | one PRRecord per non-dependabot PR in range          |
+| `dependabot-excluded.json`          | JSON array | audit log of dependabot PRs excluded from inventory  |
+| `verdicts.json`                     | JSON array | one PRVerdict per PRRecord (verdict + evidence)      |
+| `migration-backlog.md`              | Markdown   | prioritized backlog (only `needs-migration` PRs)     |
+| `v8.1.7-to-8.2-migration-report.md` | Markdown   | 7-section summary for posting to a GitHub issue      |
 
 Full JSON / Markdown schemas: [`specs/005-migrate-8.1.7-changes/contracts/audit-output-schemas.md`](../../specs/005-migrate-8.1.7-changes/contracts/audit-output-schemas.md).
 
@@ -117,3 +117,4 @@ The audit can run in CI on every new v*.x tag push. Sample GitHub Actions step:
 - All paths are repo-relative.
 - Outputs are plain text / JSON / Markdown so they diff cleanly in a PR review.
 - The script is intentionally **not** a Maven module — it's a bash tool under `scripts/release-audit/` per the Complexity Tracking decision in `plan.md` and the AGENTS.md rule "ALWAYS add generated scripts to repo script dir".
+

@@ -171,3 +171,4 @@ The migration is per-directory and per-PR; there are no runtime state machines. 
 - `scripts/requirements-dev.txt` size: ~10 lines (pytest + transitive test deps if any)
 - New CI workflow file: ~50 lines
 - Per-PR diff size: ≤ 2000 lines (typical for a directory conversion; the foundation PR is smaller)
+

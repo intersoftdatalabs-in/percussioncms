@@ -39,22 +39,23 @@ public class JSClipDataBridge {
   static Logger log = LogManager.getLogger(JSClipDataBridge.class);
 
   /**
-   * The MIME types currently held on the clipboard, mirrored from
-   * {@link javafx.scene.input.Clipboard#getContentTypes()}. Maps to
-   * {@code DataTransfer.types} when this object is exposed to JavaScript.
+   * The MIME types currently held on the clipboard, mirrored from {@link
+   * javafx.scene.input.Clipboard#getContentTypes()}. Maps to {@code DataTransfer.types} when this
+   * object is exposed to JavaScript.
    */
   public String[] types = new String[0];
 
   /**
-   * The individual clipboard entries, one per supported MIME type. Maps to
-   * {@code DataTransfer.items} when this object is exposed to JavaScript.
+   * The individual clipboard entries, one per supported MIME type. Maps to {@code
+   * DataTransfer.items} when this object is exposed to JavaScript.
    */
   public JSClipDataItem[] items = new JSClipDataItem[0];
+
   private static volatile boolean isInit = false;
 
   /**
-   * Constructs a new bridge and seeds the public {@code types} and {@code items} fields from
-   * the current system {@link javafx.scene.input.Clipboard} (HTML and plain text content).
+   * Constructs a new bridge and seeds the public {@code types} and {@code items} fields from the
+   * current system {@link javafx.scene.input.Clipboard} (HTML and plain text content).
    */
   public JSClipDataBridge() {
     javafx.scene.input.Clipboard clipboardFx = javafx.scene.input.Clipboard.getSystemClipboard();
@@ -100,11 +101,11 @@ public class JSClipDataBridge {
   }
 
   /**
-   * Stores a value for the supplied MIME type, replacing any existing entry of the same type,
-   * and propagates the change to the system clipboard (after initialization).
+   * Stores a value for the supplied MIME type, replacing any existing entry of the same type, and
+   * propagates the change to the system clipboard (after initialization).
    *
-   * @param type the MIME type to store, currently only {@code text/html} and {@code text/plain}
-   *     are supported; any other type is ignored.
+   * @param type the MIME type to store, currently only {@code text/html} and {@code text/plain} are
+   *     supported; any other type is ignored.
    * @param value the string value to associate with {@code type}.
    */
   public void setData(String type, String value) {
@@ -130,9 +131,7 @@ public class JSClipDataBridge {
     if (isInit) setClipboardData(this);
   }
 
-  /**
-   * Clears all clipboard data held by this bridge and empties the system clipboard.
-   */
+  /** Clears all clipboard data held by this bridge and empties the system clipboard. */
   public void clearData() {
     items = new JSClipDataItem[0];
     types = new String[0];

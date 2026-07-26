@@ -83,9 +83,11 @@ Cross-platform correctness: **Windows pass; Linux unvalidated** — explicit gap
 ## Issues
 
 ### Issue 1 — Severity: bug
+
 *(none)*
 
 ### Issue 2 — Severity: suggestion
+
 *(see S-1..S-4 below)*
 
 ## Suggestions (non-blocking)
@@ -152,3 +154,4 @@ The brief's instruction "The `collectCaseInsensitiveCollisions` skip-with-direct
 4. **Durable report path**: `docs/ai-generated/code-reviews/fix-perc-distribution-tree-verify-jdbc-drivers-windows-erlang.md` (this file).
 5. **Patterns loaded**; prior topic report `2026-07-16-erlang-985-clean-install-dir.md` and its `rereview` loaded for continuity.
 6. **Reviewer independence**: this is a fresh Erlang subagent session; the author is the implementer of the change under review (disclosed per persona rule).
+

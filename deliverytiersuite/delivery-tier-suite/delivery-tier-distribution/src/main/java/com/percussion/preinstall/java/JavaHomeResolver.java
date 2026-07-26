@@ -29,29 +29,28 @@ import java.util.Map;
 import java.util.Scanner;
 
 /**
- * Pure helpers implementing the runtime Java home resolution contract for
- * CMS and DTS (see {@code specs/991-system-java-home/contracts/java-home-resolution.md}).
+ * Pure helpers implementing the runtime Java home resolution contract for CMS and DTS (see {@code
+ * specs/991-system-java-home/contracts/java-home-resolution.md}).
  *
  * <p>The resolver is split into:
  *
  * <ul>
  *   <li>file and process-environment probes — implemented directly in Java,
- *   <li>launcher version parsing — implemented in Java (parse a captured
- *       {@code -version} stream rather than executing the launcher),
- *   <li>PATH discovery — used as a final fallback for candidates but launcher
- *       execution is left to shell/bat helpers that share the helper contract.
+ *   <li>launcher version parsing — implemented in Java (parse a captured {@code -version} stream
+ *       rather than executing the launcher),
+ *   <li>PATH discovery — used as a final fallback for candidates but launcher execution is left to
+ *       shell/bat helpers that share the helper contract.
  * </ul>
  *
- * <p>Every step records an {@link Attempt} so error messages can list the
- * sources tried. The {@link ResolutionResult} reports the first {@code VALID}
- * source in the contractually defined order, or {@code NONE} on failure.
+ * <p>Every step records an {@link Attempt} so error messages can list the sources tried. The {@link
+ * ResolutionResult} reports the first {@code VALID} source in the contractually defined order, or
+ * {@code NONE} on failure.
  */
 public final class JavaHomeResolver {
 
   /**
-   * Minimum supported major version for CMS / DTS on the 8.2 line.
-   * Homes reporting major {@code >=} this value (21, 22, 25, …) are accepted;
-   * older majors (8, 11, 17, …) are rejected.
+   * Minimum supported major version for CMS / DTS on the 8.2 line. Homes reporting major {@code >=}
+   * this value (21, 22, 25, …) are accepted; older majors (8, 11, 17, …) are rejected.
    */
   public static final int REQUIRED_MAJOR = 21;
 
@@ -63,15 +62,11 @@ public final class JavaHomeResolver {
   }
 
   /**
-   * Attempts to resolve a Java home from the supplied inputs. Each {@code
-   * attempts} entry added during evaluation contains the source, candidate path
-   * and reason text.
+   * Attempts to resolve a Java home from the supplied inputs. Each {@code attempts} entry added
+   * during evaluation contains the source, candidate path and reason text.
    */
   public static ResolutionResult resolve(
-      Path installRoot,
-      Map<String, String> env,
-      List<Path> pathEntries,
-      JavaHomeProbe probe) {
+      Path installRoot, Map<String, String> env, List<Path> pathEntries, JavaHomeProbe probe) {
     if (installRoot == null) {
       throw new IllegalArgumentException("installRoot must not be null");
     }
@@ -89,9 +84,11 @@ public final class JavaHomeResolver {
       if (probe.isValidJavaHome(cfg, REQUIRED_MAJOR)) {
         return ResolutionResult.success(cfg, ResolutionSource.PRODUCT_CONFIG, attempts);
       }
-      attempts.add(new Attempt(ResolutionSource.PRODUCT_CONFIG, cfgHome,
-          "configured JAVA_HOME not a valid Java home (minimum major "
-              + REQUIRED_MAJOR + ")"));
+      attempts.add(
+          new Attempt(
+              ResolutionSource.PRODUCT_CONFIG,
+              cfgHome,
+              "configured JAVA_HOME not a valid Java home (minimum major " + REQUIRED_MAJOR + ")"));
     }
     String cfgLauncher = props.get(JavaPropertiesSupport.KEY_JAVA);
     if (cfgLauncher != null && !cfgLauncher.isBlank()) {
@@ -99,9 +96,13 @@ public final class JavaHomeResolver {
       if (inferred != null && probe.isValidJavaHome(inferred, REQUIRED_MAJOR)) {
         return ResolutionResult.success(inferred, ResolutionSource.PRODUCT_CONFIG, attempts);
       }
-      attempts.add(new Attempt(ResolutionSource.PRODUCT_CONFIG, cfgLauncher,
-          "configured JAVA launcher not a valid Java home (minimum major "
-              + REQUIRED_MAJOR + ")"));
+      attempts.add(
+          new Attempt(
+              ResolutionSource.PRODUCT_CONFIG,
+              cfgLauncher,
+              "configured JAVA launcher not a valid Java home (minimum major "
+                  + REQUIRED_MAJOR
+                  + ")"));
     }
 
     // 2. Process environment JAVA_HOME.
@@ -112,8 +113,11 @@ public final class JavaHomeResolver {
         if (probe.isValidJavaHome(p, REQUIRED_MAJOR)) {
           return ResolutionResult.success(p, ResolutionSource.PROCESS_ENV, attempts);
         }
-        attempts.add(new Attempt(ResolutionSource.PROCESS_ENV, envHome,
-            "env JAVA_HOME not a valid Java home (minimum major " + REQUIRED_MAJOR + ")"));
+        attempts.add(
+            new Attempt(
+                ResolutionSource.PROCESS_ENV,
+                envHome,
+                "env JAVA_HOME not a valid Java home (minimum major " + REQUIRED_MAJOR + ")"));
       }
     }
 
@@ -121,14 +125,19 @@ public final class JavaHomeResolver {
     for (String name : LEGACY_INSTALL_DIR_NAMES) {
       Path candidate = installRoot.resolve(name);
       if (probe.isValidJavaHome(candidate, REQUIRED_MAJOR)) {
-        return ResolutionResult.success(candidate,
-            name.equals("JRE64") ? ResolutionSource.INSTALL_DIR_JRE64
+        return ResolutionResult.success(
+            candidate,
+            name.equals("JRE64")
+                ? ResolutionSource.INSTALL_DIR_JRE64
                 : ResolutionSource.INSTALL_DIR_JRE,
             attempts);
       }
       if (Files.exists(candidate)) {
-        attempts.add(new Attempt(ResolutionSource.INSTALL_DIR_JRE, candidate.toString(),
-            "present but not a valid Java home (minimum major " + REQUIRED_MAJOR + ")"));
+        attempts.add(
+            new Attempt(
+                ResolutionSource.INSTALL_DIR_JRE,
+                candidate.toString(),
+                "present but not a valid Java home (minimum major " + REQUIRED_MAJOR + ")"));
       }
     }
 
@@ -141,8 +150,11 @@ public final class JavaHomeResolver {
           if (inferred != null && probe.isValidJavaHome(inferred, REQUIRED_MAJOR)) {
             return ResolutionResult.success(inferred, ResolutionSource.PATH, attempts);
           }
-          attempts.add(new Attempt(ResolutionSource.PATH, launcher.toString(),
-              "launcher below minimum major " + REQUIRED_MAJOR + " or home unresolved"));
+          attempts.add(
+              new Attempt(
+                  ResolutionSource.PATH,
+                  launcher.toString(),
+                  "launcher below minimum major " + REQUIRED_MAJOR + " or home unresolved"));
         }
       }
     }
@@ -151,9 +163,9 @@ public final class JavaHomeResolver {
   }
 
   /**
-   * Infers a JDK/JRE home directory from a launcher path like {@code <home>/bin/java}.
-   * Returns {@code null} if the launcher has fewer than two path elements (the launcher
-   * itself must live under a {@code bin} directory).
+   * Infers a JDK/JRE home directory from a launcher path like {@code <home>/bin/java}. Returns
+   * {@code null} if the launcher has fewer than two path elements (the launcher itself must live
+   * under a {@code bin} directory).
    */
   public static Path inferHomeFromLauncher(Path launcher) {
     if (launcher == null) {
@@ -171,8 +183,8 @@ public final class JavaHomeResolver {
   }
 
   /**
-   * Parses the major version from the output of {@code java -version}. The launcher
-   * writes to stderr; sample lines:
+   * Parses the major version from the output of {@code java -version}. The launcher writes to
+   * stderr; sample lines:
    *
    * <pre>{@code
    * openjdk version "21.0.2" 2024-01-16
@@ -215,8 +227,8 @@ public final class JavaHomeResolver {
   }
 
   /**
-   * Returns {@code true} when {@code major} meets the product minimum
-   * ({@link #REQUIRED_MAJOR} or later). Negative / unparseable majors fail.
+   * Returns {@code true} when {@code major} meets the product minimum ({@link #REQUIRED_MAJOR} or
+   * later). Negative / unparseable majors fail.
    */
   public static boolean isSupportedMajor(int major) {
     return major >= REQUIRED_MAJOR;
@@ -259,8 +271,8 @@ public final class JavaHomeResolver {
   public record Attempt(ResolutionSource source, String candidate, String reason) {}
 
   /**
-   * Probes the filesystem to determine if a path is a usable Java home.
-   * Decoupled from the static resolver so tests can inject a fixture-only probe.
+   * Probes the filesystem to determine if a path is a usable Java home. Decoupled from the static
+   * resolver so tests can inject a fixture-only probe.
    */
   public interface JavaHomeProbe {
     boolean isValidJavaHome(Path path, int requiredMajor);
@@ -320,9 +332,8 @@ public final class JavaHomeResolver {
   }
 
   /**
-   * Result of a resolution attempt. Successful results carry a path and a
-   * non-{@code NONE} source. Failed results carry an attempts list suitable
-   * for surfacing in a script's stderr.
+   * Result of a resolution attempt. Successful results carry a path and a non-{@code NONE} source.
+   * Failed results carry an attempts list suitable for surfacing in a script's stderr.
    */
   public static final class ResolutionResult {
     private final boolean success;
@@ -330,16 +341,16 @@ public final class JavaHomeResolver {
     private final ResolutionSource source;
     private final List<Attempt> attempts;
 
-    private ResolutionResult(boolean success, Path javaHome,
-        ResolutionSource source, List<Attempt> attempts) {
+    private ResolutionResult(
+        boolean success, Path javaHome, ResolutionSource source, List<Attempt> attempts) {
       this.success = success;
       this.javaHome = javaHome;
       this.source = source;
       this.attempts = List.copyOf(attempts);
     }
 
-    public static ResolutionResult success(Path home, ResolutionSource source,
-        List<Attempt> attempts) {
+    public static ResolutionResult success(
+        Path home, ResolutionSource source, List<Attempt> attempts) {
       return new ResolutionResult(true, home, source, attempts);
     }
 
@@ -364,24 +375,31 @@ public final class JavaHomeResolver {
     }
 
     /**
-     * Renders an error suitable for surfacing in shell/bat failure messages.
-     * Includes the required major version and a per-source summary.
+     * Renders an error suitable for surfacing in shell/bat failure messages. Includes the required
+     * major version and a per-source summary.
      */
     public String renderFailure(String header) {
       StringBuilder sb = new StringBuilder();
       if (header != null && !header.isBlank()) {
         sb.append(header).append(System.lineSeparator());
       }
-      sb.append("Required Java major version: ").append(REQUIRED_MAJOR)
-          .append(" or later").append(System.lineSeparator());
+      sb.append("Required Java major version: ")
+          .append(REQUIRED_MAJOR)
+          .append(" or later")
+          .append(System.lineSeparator());
       if (attempts.isEmpty()) {
         sb.append("No sources were inspected.");
       } else {
         sb.append("Sources tried:").append(System.lineSeparator());
         for (Attempt a : attempts) {
-          sb.append("  - ").append(a.source())
-              .append(": ").append(a.candidate() == null ? "<unset>" : a.candidate())
-              .append(" (").append(a.reason()).append(")").append(System.lineSeparator());
+          sb.append("  - ")
+              .append(a.source())
+              .append(": ")
+              .append(a.candidate() == null ? "<unset>" : a.candidate())
+              .append(" (")
+              .append(a.reason())
+              .append(")")
+              .append(System.lineSeparator());
         }
       }
       return sb.toString();

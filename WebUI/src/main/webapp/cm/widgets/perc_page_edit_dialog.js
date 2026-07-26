@@ -331,7 +331,7 @@
           .contents()
           .find(".tinymce")
           .val();
-        var sanitizeToNodes = function(html) {
+        var sanitizeToNodes = function (html) {
           return window.PercPageEditSanitizer.sanitize(html);
         };
         var sanitizedBody = sanitizeToNodes(content);
@@ -620,4 +620,3 @@
     DANGEROUS_URL_SCHEMES: DANGEROUS_URL_SCHEMES,
   };
 })(typeof window !== "undefined" ? window : this);
-

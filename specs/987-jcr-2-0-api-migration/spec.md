@@ -7,6 +7,7 @@
 **Related**: Backlog issue #506; dependency version bump merged via #531 (2026-07-16)
 
 ## Module Scope
+
 - **Primary module(s)**: `system/` (content manager, assembly, publisher, and related services — majority of content-repository call sites); `modules/utils/` (shared repository helpers)
 - **Secondary / integration modules**: `modules/perc-toolkit/`, `projects/sitemanage/`, `modules/p13n-api/`, `modules/segmentation-rx/`, `deployer/`, selected extensions (`extensions-main`, `extensions-nav`, `extensions-sfp`, `extensions-workflow`, `extensions-serverutils`, `extensions-landingpage`), `modules/ContentUI/`, limited delivery-tier touchpoints that depend on repository abstractions
 - **AGENTS files to apply**: root `./AGENTS.md`; module AGENTS when present under primary/secondary modules
@@ -24,6 +25,7 @@
 - Q: Dependency vs application-code landing? → A: Dependency already updated on development (leads); first deliverable is compile-clean build + PR for that work only; then continue deprecation cleanup and remaining implementation in follow-on PRs
 
 ## User Scenarios & Testing
+
 Each story must be independently testable.
 
 ### User Story 1 - Editors and publishers keep working after the repository standard upgrade (Priority: P1)
@@ -88,6 +90,7 @@ Partners and internal authors of extensions, finders, and query-driven features 
 ---
 
 ### Edge Cases
+
 - Content with large binary or multi-value fields, or deep folder hierarchies, continues to load and save without truncation or path errors.
 - Existing content queries used by generators, finders, and lists continue to execute or fail with the same business-level outcomes as before; no new silent empty result sets.
 - Concurrent edit workflows and publish jobs that touch many items do not introduce new session or save-order failures.
@@ -97,7 +100,9 @@ Partners and internal authors of extensions, finders, and query-driven features 
 - If a specific call site has no compatible equivalent under the new standard: prefer a real 2.0 replacement or a product-owned shared helper; if neither is viable, a **documented tracked exception** (owner, rationale, follow-up) is allowed only for **non-critical** paths. Critical editor/publish paths MUST NOT rely on exceptions. Undocumented workarounds are forbidden.
 
 ## Requirements
+
 ### Functional Requirements
+
 - **FR-001**: The product MUST build and run using only the supported content-repository API standard version 2.0 (no remaining compile or runtime dependency on the 1.0-only API component for shipping modules). The 2.0 dependency pin is **already present** on the development line; this feature completes application compatibility against that pin.
 - **FR-002**: Application and extension code that previously relied on 1.0-only repository contracts MUST be updated so that equivalent content operations (read, write, query, and session lifecycle as used today) succeed under the 2.0 standard. This includes (a) resolving all compile/link failures against the 2.0 API (including new methods required on product types that implement repository interfaces) and (b) systematically replacing product call sites that use deprecated 1.0 methods with their documented 2.0 equivalents where a clear replacement exists. Adoption of optional new 2.0-only capabilities is out of scope unless required to replace a removed or non-viable 1.0 contract.
 - **FR-014**: Delivery MUST be phased: **Phase 1** restores a compiling build against the existing 2.0 dependency and is submitted as its **own pull request** (compile-clean scope only). **Phase 2+** continues deprecation cleanup, tests, documentation, exception tracking, and scripted smoke through follow-on PRs until feature-complete (FR-010, FR-012, FR-013).
@@ -114,13 +119,16 @@ Partners and internal authors of extensions, finders, and query-driven features 
 - **FR-013**: When a call site lacks a clear 2.0 replacement, implementers MUST prefer (1) a documented 2.0 equivalent or (2) a product-owned shared helper. If neither is viable by feature-complete, a **tracked exception** (owner, rationale, follow-up work item) MAY remain only on **non-critical** paths. Critical editor, assembly, and publish paths MUST have a real replacement or helper—no exceptions. Undocumented workarounds are forbidden.
 
 ### Key Entities
+
 - **Content repository session**: The authenticated unit of work through which the CMS reads and writes repository-backed content; lifecycle and save semantics must remain correct after the upgrade.
 - **Content node / item projection**: Repository-backed representation of CMS content used by assembly, finders, and services; identity and property access must remain stable for callers.
 - **Repository query**: Statement and result used by content lists, finders, segmentation, and related features; result behavior must remain functionally equivalent for existing product queries.
 - **Shared repository helpers**: Utilities in shared modules that wrap repository access for the rest of the product; preferred place for any compatibility adaptations so call sites stay consistent.
 
 ## Success Criteria
+
 ### Measurable Outcomes
+
 - **SC-001**: Every shipping module that used the content-repository API builds successfully against the 2.0 standard, and the legacy 1.0 API component is removed from product dependency management.
 - **SC-007**: Product call sites of deprecated 1.0 repository methods that have a documented 2.0 replacement are migrated (inventory-driven). Remaining exceptions are listed with owner, rationale, and follow-up; **zero** exceptions remain on critical editor/publish paths; unjustified exceptions in shipping modules are not allowed.
 - **SC-002**: All automated tests in the suites designated for repository-backed modules pass on the development-line platform after the migration (preferred: zero open, reviewed exceptions).
@@ -131,6 +139,7 @@ Partners and internal authors of extensions, finders, and query-driven features 
 - **SC-008**: Phase 1 is evidenced by a submitted (and ideally merged) pull request whose primary scope is restoring compile success against the already-updated 2.0 dependency, before or independent of full deprecation cleanup.
 
 ## Assumptions
+
 - The 2026-07-16 security-oriented dependency update (#531: content-repository API library 1.0 → 2.0 on `development`) is **already landed**; this feature completes **application compatibility** against that pin (dependency leads; code catches up).
 - Scope is **compile-clean + deprecation cleanup**: fix all 2.0 build breaks and replace deprecated 1.0 call sites with clear 2.0 equivalents. Not a full modernization into optional new 2.0-only product capabilities unless required to replace removed or non-viable 1.0 contracts.
 - **Delivery order**: (1) get the build compiling and open a PR for compile-clean work only; (2) continue implementation (deprecation cleanup, tests, docs, smoke) in subsequent PRs until feature-complete.
@@ -144,3 +153,4 @@ Partners and internal authors of extensions, finders, and query-driven features 
 - Merge verification: intermediate story PRs may rely on automated tests; feature-complete merge additionally requires the documented scripted smoke (FR-012 / SC-003). Full multi-site UAT is out of scope as a merge gate.
 - Hard-case call sites: non-critical tracked exceptions allowed; critical editor/publish paths require real replacements or shared helpers (FR-013).
 - Approximately 200+ source files across the mono-repo import repository types today; planning should inventory call sites rather than assume a single-module fix.
+

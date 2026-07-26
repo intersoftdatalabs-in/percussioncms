@@ -49,10 +49,9 @@ import java.util.List;
  * </pre>
  */
 public class PSRxFix extends PSAction {
-  /**
-   * Creates a new RX fix task.
-   */
+  /** Creates a new RX fix task. */
   public PSRxFix() {}
+
   // see base class
 
   @Override

@@ -33,12 +33,12 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
 /**
- * EE11 classloader contract: {@code servlet-utils} must be packaged into the
- * Rhythmyx WAR (WEB-INF/lib), not only as a {@code provided} dep of perc-system
- * or on the Jetty server classloader.
+ * EE11 classloader contract: {@code servlet-utils} must be packaged into the Rhythmyx WAR
+ * (WEB-INF/lib), not only as a {@code provided} dep of perc-system or on the Jetty server
+ * classloader.
  *
- * <p>Without a direct non-provided WebUI dependency, {@code PSContextLoaderListener}
- * fails at startup with {@code ClassNotFoundException: PSServletUtils}.
+ * <p>Without a direct non-provided WebUI dependency, {@code PSContextLoaderListener} fails at
+ * startup with {@code ClassNotFoundException: PSServletUtils}.
  */
 class WebUiServletUtilsPackagingTest {
 
@@ -93,15 +93,15 @@ class WebUiServletUtilsPackagingTest {
   }
 
   @Test
-  @DisplayName("WebUI WAR packaging must not exclude all slf4j jars (Artemis needs MessageFormatter)")
+  @DisplayName(
+      "WebUI WAR packaging must not exclude all slf4j jars (Artemis needs MessageFormatter)")
   void webUiDoesNotExcludeAllSlf4jFromWar() throws Exception {
     Path pom = resolveWebUiPom();
     String text = Files.readString(pom);
     // Historical exclude WEB-INF/lib/*slf4j*.jar left Artemis without MessageFormatter
     // on the EE11 webapp classloader (server slf4j is not visible to the WAR).
     assertFalse(
-        text.contains("WEB-INF/lib/*slf4j*.jar")
-            || text.contains("WEB-INF/lib/**/*slf4j*.jar"),
+        text.contains("WEB-INF/lib/*slf4j*.jar") || text.contains("WEB-INF/lib/**/*slf4j*.jar"),
         "packagingExcludes must not blanket-exclude *slf4j*.jar; ship slf4j-api in WEB-INF/lib");
   }
 

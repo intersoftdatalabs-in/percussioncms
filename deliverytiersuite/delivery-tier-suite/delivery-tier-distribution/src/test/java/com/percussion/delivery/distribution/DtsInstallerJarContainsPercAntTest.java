@@ -31,28 +31,28 @@ import org.junit.jupiter.api.Test;
 /**
  * Regression guard for the DTS installer jar packaging.
  *
- * <p>The preinstall extractor (MainDTSPreInstall.extractArchive) writes the shipping
- * jar's {@code distribution/} directory into a temp folder, then expects to find
- * {@code distribution/rxconfig/Installer/perc-ant-X.Y.Z.jar} alongside
- * {@code distribution/rxconfig/Installer/installDts.xml}.
+ * <p>The preinstall extractor (MainDTSPreInstall.extractArchive) writes the shipping jar's {@code
+ * distribution/} directory into a temp folder, then expects to find {@code
+ * distribution/rxconfig/Installer/perc-ant-X.Y.Z.jar} alongside {@code
+ * distribution/rxconfig/Installer/installDts.xml}.
  *
- * <p>maven-antrun-plugin and maven-dependency-plugin:copy both stage
- * {@code perc-ant-*.jar} into {@code target/classes/distribution/rxconfig/Installer/},
- * but maven-jar-plugin's default excludes pattern silently dropped the bundled jar
- * from the shipping jar (manifest showed only the .xml files). This test asserts
- * the shipping jar contains the expected bundle.
+ * <p>maven-antrun-plugin and maven-dependency-plugin:copy both stage {@code perc-ant-*.jar} into
+ * {@code target/classes/distribution/rxconfig/Installer/}, but maven-jar-plugin's default excludes
+ * pattern silently dropped the bundled jar from the shipping jar (manifest showed only the .xml
+ * files). This test asserts the shipping jar contains the expected bundle.
  *
- * <p>If a future pom change re-enables the default excludes, this test fails before
- * the broken installer can ship.
+ * <p>If a future pom change re-enables the default excludes, this test fails before the broken
+ * installer can ship.
  */
 class DtsInstallerJarContainsPercAntTest {
 
-  private static final String PERC_ANT_PATH_PREFIX =
-      "distribution/rxconfig/Installer/perc-ant-";
+  private static final String PERC_ANT_PATH_PREFIX = "distribution/rxconfig/Installer/perc-ant-";
 
-  /** No-op when run outside Maven (e.g. IDE) since target/delivery-tier-distribution.jar
-   * is a build artifact. The antrun 'verify-pathvalidation-shaded' gate already runs
-   * at verify-time and asserts similar structural invariants on the same jar. */
+  /**
+   * No-op when run outside Maven (e.g. IDE) since target/delivery-tier-distribution.jar is a build
+   * artifact. The antrun 'verify-pathvalidation-shaded' gate already runs at verify-time and
+   * asserts similar structural invariants on the same jar.
+   */
   @Test
   void shippingJarBundlesPercAnt() {
     Path jar = Path.of("target", "delivery-tier-distribution.jar");
@@ -70,10 +70,8 @@ class DtsInstallerJarContainsPercAntTest {
       fail("Could not read " + jar + ": " + io.getMessage());
     }
 
-    Pattern namePattern =
-        Pattern.compile("^distribution/rxconfig/Installer/perc-ant-.+\\.jar$");
-    List<String> invalid =
-        matches.stream().filter(namePattern.asPredicate().negate()).toList();
+    Pattern namePattern = Pattern.compile("^distribution/rxconfig/Installer/perc-ant-.+\\.jar$");
+    List<String> invalid = matches.stream().filter(namePattern.asPredicate().negate()).toList();
     if (!invalid.isEmpty()) {
       fail(
           "Shipping jar contains entries under "

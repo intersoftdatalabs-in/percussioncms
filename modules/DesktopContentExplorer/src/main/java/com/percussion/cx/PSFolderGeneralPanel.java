@@ -59,8 +59,8 @@ public class PSFolderGeneralPanel extends PSPropertyPanel {
    *     this is a new folder.
    * @param parentFolderNode the folder node in which the new folder need to be created or the node
    *     that is parent of the supplied folder node, may not be <code>null</code>
-   * @param navigationPath current content navigation path, such as //Folder/ Folder1/Folder2,
-   *     never <code>null</code>.
+   * @param navigationPath current content navigation path, such as //Folder/ Folder1/Folder2, never
+   *     <code>null</code>.
    * @param isNewFolder <code>true</code> if a new folder, <code>false</code> otherwise.
    * @param editable <code>true</code> if any data can be entered, <code>false</code> otherwise.
    * @param userCommunityId the community id of the current session.

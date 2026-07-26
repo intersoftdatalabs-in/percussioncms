@@ -110,8 +110,6 @@
         </dependency>
     </dependencies>
     <build>
-        <!-- packaging=pom has no default test bindings; bind compiler + surefire explicitly -->
-        <testSourceDirectory>src/test/java</testSourceDirectory>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -401,5 +399,7 @@
                 <artifactId>maven-site-plugin</artifactId>
             </plugin>
         </plugins>
+        <!-- packaging=pom has no default test bindings; bind compiler + surefire explicitly -->
+        <testSourceDirectory>src/test/java</testSourceDirectory>
     </build>
 </project>

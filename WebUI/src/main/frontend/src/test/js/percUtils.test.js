@@ -108,7 +108,8 @@ function loadSource() {
   // $.fn.perc_dialog; our stub for .dialog() above will be invoked when
   // perc_dialog delegates to it.
   (0, eval)(readFileSync(SRC_PATH, "utf8"));
-  htmlEntities = globalThis.htmlEntities || $.perc_utils && $.perc_utils.htmlEntities;
+  htmlEntities =
+    globalThis.htmlEntities || ($.perc_utils && $.perc_utils.htmlEntities);
 }
 
 beforeEach(() => {
@@ -193,7 +194,7 @@ describe("htmlEntities sink", () => {
     expect((out.match(/&#39;/g) || []).length).toBe(6);
   });
 
-  it("escapes & < > \" characters (preserves prior coverage)", () => {
+  it('escapes & < > " characters (preserves prior coverage)', () => {
     const fn = loadHtmlEntities();
     const out = fn(`<a href="x">&'</a>`);
     expect(out).toBe("&lt;a href=&quot;x&quot;&gt;&amp;&#39;&lt;/a&gt;");
@@ -203,7 +204,10 @@ describe("htmlEntities sink", () => {
 describe("alert_dialog sink", () => {
   it("renders caller-supplied content as inert text by default", () => {
     const malicious = "<script>window.__pwned_alert=1</script>";
-    $.perc_utils.alert_dialog({ title: "alert-text-title", content: malicious });
+    $.perc_utils.alert_dialog({
+      title: "alert-text-title",
+      content: malicious,
+    });
     const scripts = document.body.querySelectorAll("script");
     expect(scripts.length, "no <script> from content").toBe(0);
     expect(window.__pwned_alert).toBeUndefined();
@@ -233,7 +237,10 @@ describe("alert_dialog sink", () => {
 describe("confirm_dialog sink", () => {
   it("renders caller-supplied question as inert text by default", () => {
     const malicious = "<script>window.__pwned_confirm=1</script>";
-    $.perc_utils.confirm_dialog({ title: "confirm-text-title", question: malicious });
+    $.perc_utils.confirm_dialog({
+      title: "confirm-text-title",
+      question: malicious,
+    });
     const scripts = document.body.querySelectorAll("script");
     expect(scripts.length, "no <script> from question").toBe(0);
     expect(window.__pwned_confirm).toBeUndefined();
@@ -252,7 +259,10 @@ describe("confirm_dialog sink", () => {
       questionIsHtml: true,
     });
     const marker = document.getElementById("confirm-html-marker");
-    expect(marker, "<b id='confirm-html-marker'> should be present").toBeTruthy();
+    expect(
+      marker,
+      "<b id='confirm-html-marker'> should be present"
+    ).toBeTruthy();
     expect(marker.tagName).toBe("B");
   });
 });
@@ -260,11 +270,16 @@ describe("confirm_dialog sink", () => {
 describe("prompt_dialog sink", () => {
   it("renders caller-supplied question as inert text by default", () => {
     const malicious = "<script>window.__pwned_prompt=1</script>";
-    $.perc_utils.prompt_dialog({ title: "prompt-text-title", question: malicious });
+    $.perc_utils.prompt_dialog({
+      title: "prompt-text-title",
+      question: malicious,
+    });
     const scripts = document.body.querySelectorAll("script");
     expect(scripts.length, "no <script> from prompt question").toBe(0);
     expect(window.__pwned_prompt).toBeUndefined();
-    const label = document.body.querySelector("label[for='perc-prompt-dialog-question']");
+    const label = document.body.querySelector(
+      "label[for='perc-prompt-dialog-question']"
+    );
     expect(label).toBeTruthy();
     expect(label.querySelector("script")).toBeNull();
     expect(label.textContent).toBe(malicious);
@@ -297,7 +312,11 @@ describe("HTML opt-in caller pattern (PercNewPageDialog scenario)", () => {
   it("renders a styled <span> as a real span when contentIsHtml is true", () => {
     const html =
       '<span style="color:red">The FileName cannot be empty and must not exceed 255 characters.</span>';
-    $.perc_utils.alert_dialog({ title: "html-span", content: html, contentIsHtml: true });
+    $.perc_utils.alert_dialog({
+      title: "html-span",
+      content: html,
+      contentIsHtml: true,
+    });
     const span = document.querySelector("span[style*='color:red']");
     expect(span, "the styled span should be parsed as an element").toBeTruthy();
     expect(span.style.color).toBe("red");

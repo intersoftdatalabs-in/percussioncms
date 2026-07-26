@@ -46,3 +46,4 @@
 
 - Items marked incomplete require spec updates before `/speckit-clarify` or `/speckit-plan`
 - Spec directory `987` is sequential under `specs/`; git branch from the before_specify hook is `1286-jcr-2-0-api-migration` (independent numbering)
+

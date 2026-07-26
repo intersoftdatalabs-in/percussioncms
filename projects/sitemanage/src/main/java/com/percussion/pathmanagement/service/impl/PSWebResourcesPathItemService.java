@@ -46,8 +46,7 @@ public class PSWebResourcesPathItemService extends PSFileSystemPathItemService {
   }
 
   @Override
-  protected PSPathItem findRoot()
-      throws PSPathNotFoundServiceException, PSPathServiceException {
+  protected PSPathItem findRoot() throws PSPathNotFoundServiceException, PSPathServiceException {
     var rootItem = findItem("/");
     rootItem.setName(rootName);
     var fullFolderPath = getFullFolderPath("/");

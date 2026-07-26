@@ -97,8 +97,7 @@ public class PSWidgetServiceValidationTest {
 
       // Some expected widgets still present to ensure file is valid and not accidentally truncated
       assertTrue(
-          allWidgetNames.contains("Archives"),
-          "Percussion group widget Archives should remain");
+          allWidgetNames.contains("Archives"), "Percussion group widget Archives should remain");
       // Flash removed completely - should not be present in any group
       assertFalse(
           allWidgetNames.contains("Flash"),

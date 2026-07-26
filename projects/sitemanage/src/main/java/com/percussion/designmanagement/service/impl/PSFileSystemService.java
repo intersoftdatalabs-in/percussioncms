@@ -133,40 +133,35 @@ public class PSFileSystemService implements IPSFileSystemService {
   }
 
   /**
-   * Validates a user-supplied path against the CWE-22 path-traversal defense.
-   * The defense has two parts:
+   * Validates a user-supplied path against the CWE-22 path-traversal defense. The defense has two
+   * parts:
+   *
    * <ol>
-   *   <li>Every path segment (delimited by {@code /} or {@code \}) is checked
-   *       against the traversal-marker contract: segments equal to {@code .}
-   *       or {@code ..} are rejected. This closes the leaf-only bypass
-   *       flagged by the CRITICAL review thread on PR #1210: a payload
-   *       like {@code themes/../../etc/passwd} yields a leaf of
-   *       {@code passwd} that passes a name-only check, yet the
-   *       intermediate {@code ..} segments resolve the file outside the
-   *       intended root. Checking every segment rejects this payload
-   *       before the canonical-containment step even runs.</li>
-   *   <li>The resolved canonical path is verified to be contained within
-   *       the server-controlled {@link #getRootDirectory() rootDirectory}
-   *       (the configured web_resources root). Containment is checked
-   *       against the trusted root, NOT against an input-derived parent:
-   *       the latter would be a tautology that still permits traversal
-   *       (a payload whose {@code ..} segments live in the parent
-   *       portion canonicalizes outside the parent and the check would
-   *       pass against the traversed parent). The trusted-root check
-   *       closes this bypass as well.</li>
+   *   <li>Every path segment (delimited by {@code /} or {@code \}) is checked against the
+   *       traversal-marker contract: segments equal to {@code .} or {@code ..} are rejected. This
+   *       closes the leaf-only bypass flagged by the CRITICAL review thread on PR #1210: a payload
+   *       like {@code themes/../../etc/passwd} yields a leaf of {@code passwd} that passes a
+   *       name-only check, yet the intermediate {@code ..} segments resolve the file outside the
+   *       intended root. Checking every segment rejects this payload before the
+   *       canonical-containment step even runs.
+   *   <li>The resolved canonical path is verified to be contained within the server-controlled
+   *       {@link #getRootDirectory() rootDirectory} (the configured web_resources root).
+   *       Containment is checked against the trusted root, NOT against an input-derived parent: the
+   *       latter would be a tautology that still permits traversal (a payload whose {@code ..}
+   *       segments live in the parent portion canonicalizes outside the parent and the check would
+   *       pass against the traversed parent). The trusted-root check closes this bypass as well.
    * </ol>
-   * This method is the single sanitizer boundary for the file-system
-   * service CWE-22 defense (per T043d / PR #1210). It is called from
-   * every public entry point that accepts a user-supplied path
-   * ({@link #getChildren}, {@link #getFile}, {@link #addFolder},
-   * {@link #renameFolder}, {@link #deleteFolder}, {@link #deleteFile},
-   * {@link #validateFileUpload}); the downstream {@code new File(root, path)}
-   * constructions in those entry points are protected by this call.
+   *
+   * This method is the single sanitizer boundary for the file-system service CWE-22 defense (per
+   * T043d / PR #1210). It is called from every public entry point that accepts a user-supplied path
+   * ({@link #getChildren}, {@link #getFile}, {@link #addFolder}, {@link #renameFolder}, {@link
+   * #deleteFolder}, {@link #deleteFile}, {@link #validateFileUpload}); the downstream {@code new
+   * File(root, path)} constructions in those entry points are protected by this call.
    *
    * @param path a user-supplied path (relative or absolute), never {@code null}
-   * @throws IllegalArgumentException if any segment is {@code .} or {@code ..},
-   *     if the path contains a NUL byte, or if the resolved canonical path
-   *     escapes the configured root directory
+   * @throws IllegalArgumentException if any segment is {@code .} or {@code ..}, if the path
+   *     contains a NUL byte, or if the resolved canonical path escapes the configured root
+   *     directory
    */
   private void validatePath(String path) {
     if (path == null) {
@@ -210,8 +205,7 @@ public class PSFileSystemService implements IPSFileSystemService {
       canonical = resolved.getCanonicalPath();
       rootCanonical = getRootDirectory().getCanonicalPath();
     } catch (IOException e) {
-      throw new IllegalArgumentException(
-          "Failed to resolve canonical path for input: " + path, e);
+      throw new IllegalArgumentException("Failed to resolve canonical path for input: " + path, e);
     }
     // Normalize separators so Windows prefix checks are reliable
     // (same approach as PSPathInjectionGuard.requireUnderBase).
@@ -238,8 +232,7 @@ public class PSFileSystemService implements IPSFileSystemService {
     var root = getRootDirectory();
     // After validatePath, resolve under trusted root (CodeQL residual after barrier)
     String rel = path.startsWith("/") ? path.substring(1) : path;
-    var pathFile =
-        rel.isEmpty() ? root : PSPathInjectionGuard.requireUnderBase(root, rel);
+    var pathFile = rel.isEmpty() ? root : PSPathInjectionGuard.requireUnderBase(root, rel);
 
     if (!pathFile.exists()) { // codeql[java/path-injection]
       throw new FileNotFoundException("The path doesn't exist: " + path);
@@ -275,7 +268,8 @@ public class PSFileSystemService implements IPSFileSystemService {
     if (rel.isEmpty()) {
       return getRootDirectory();
     }
-    return PSPathInjectionGuard.requireUnderBase(getRootDirectory(), rel); // codeql[java/path-injection]
+    return PSPathInjectionGuard.requireUnderBase(
+        getRootDirectory(), rel); // codeql[java/path-injection]
   }
 
   /* (non-Javadoc)
@@ -363,7 +357,8 @@ public class PSFileSystemService implements IPSFileSystemService {
       throw new PSExistingFolderException();
     }
 
-    var newFolder = new File(parentFolder.getAbsolutePath(), newFolderName); // codeql[java/path-injection]
+    var newFolder =
+        new File(parentFolder.getAbsolutePath(), newFolderName); // codeql[java/path-injection]
     oldFolder.renameTo(newFolder); // codeql[java/path-injection]
 
     return newFolder;

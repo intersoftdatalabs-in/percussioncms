@@ -6,10 +6,10 @@
 
 ## Files reviewed
 
-| File | Change |
-|------|--------|
+|         File         |                                                                                                                                                            Change                                                                                                                                                            |
+|----------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | `docker-compose.yml` | Added `PERC_DB_*` env vars to `cms-dts.environment:` (Type, Host, Port, Name, Schema, User, Password, SSL_*). Interpolated `retries`/`start_period` from `${PERC_HEALTHCHECK_RETRIES:-180}` / `${PERC_HEALTHCHECK_START_PERIOD:-3600s}`. Restored `cms-dts:` 2-space indent (accidentally stripped during the env-var edit). |
-| `.env.compose` | Bumped `PERC_HEALTHCHECK_START_PERIOD=3600s`, `PERC_HEALTHCHECK_RETRIES=180`. Set `PERC_DB_TYPE=mysql`, `PERC_DB_HOST=mysql` (compose service name), `PERC_DB_PORT=3306`, `PERC_DB_USER=percussion`, `PERC_DB_PASSWORD=percussion`, `PERC_DB_SSL_VERIFY=false`, `PERC_DB_SSL_ALLOW_SELF_SIGNED=true` (local MySQL). |
+| `.env.compose`       | Bumped `PERC_HEALTHCHECK_START_PERIOD=3600s`, `PERC_HEALTHCHECK_RETRIES=180`. Set `PERC_DB_TYPE=mysql`, `PERC_DB_HOST=mysql` (compose service name), `PERC_DB_PORT=3306`, `PERC_DB_USER=percussion`, `PERC_DB_PASSWORD=percussion`, `PERC_DB_SSL_VERIFY=false`, `PERC_DB_SSL_ALLOW_SELF_SIGNED=true` (local MySQL).          |
 
 ## Summary
 
@@ -21,13 +21,13 @@ This commit fixes both root causes:
 
 ## Hard gates checked
 
-| Gate | Status |
-|------|--------|
-| Non-portable filesystem path joins | **Pass (n/a)** — no filesystem path code in this commit. `.env.compose` uses URL-free `MYSQL_*`, `PERC_*` env keys. |
-| Secrets on command line | **Pass (n/a)** — `.env.compose` is an env file consumed by `docker compose --env-file`, not passed as argv. Passwords (`MYSQL_PASSWORD`, `MYSQL_ROOT_PASSWORD`, `PERC_DB_PASSWORD`) are values in the env file. **Caveat**: `.env.compose` is local-dev secrets and is `.gitignore`'d by `.env.compose.example` semantics — NOT committed (only `.env.compose.example` is tracked). Verify with `git status` before push. |
-| Default-true DB password `percussion` | **Pass for local dev**. The docstring on `.env.compose` explicitly says "Secrets are local-dev placeholders; rotate before any non-local use." Production must override. |
-| Healthcheck exit code drift | **Pass** — healthcheck test is unchanged; the change is in `retries`/`start_period` defaults. |
-| Boolean env interpolation | **Pass** — `PERC_DB_SSL_ENABLED`/`VERIFY`/`ALLOW_SELF_SIGNED` are interpolated via `${VAR:-true|false}` and read by `install-update.sh`'s `db_config_value` via `${!VAR}` bash indirection. Compose v5.3.1 expands `${VAR:-default}` correctly inside the `environment:` block. |
+|                 Gate                  |                                                                                                                                                                                                          Status                                                                                                                                                                                                           |
+|---------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Non-portable filesystem path joins    | **Pass (n/a)** — no filesystem path code in this commit. `.env.compose` uses URL-free `MYSQL_*`, `PERC_*` env keys.                                                                                                                                                                                                                                                                                                       |
+| Secrets on command line               | **Pass (n/a)** — `.env.compose` is an env file consumed by `docker compose --env-file`, not passed as argv. Passwords (`MYSQL_PASSWORD`, `MYSQL_ROOT_PASSWORD`, `PERC_DB_PASSWORD`) are values in the env file. **Caveat**: `.env.compose` is local-dev secrets and is `.gitignore`'d by `.env.compose.example` semantics — NOT committed (only `.env.compose.example` is tracked). Verify with `git status` before push. |
+| Default-true DB password `percussion` | **Pass for local dev**. The docstring on `.env.compose` explicitly says "Secrets are local-dev placeholders; rotate before any non-local use." Production must override.                                                                                                                                                                                                                                                  |
+| Healthcheck exit code drift           | **Pass** — healthcheck test is unchanged; the change is in `retries`/`start_period` defaults.                                                                                                                                                                                                                                                                                                                             |
+| Boolean env interpolation             | **Pass** — `PERC_DB_SSL_ENABLED`/`VERIFY`/`ALLOW_SELF_SIGNED` are interpolated via `${VAR:-true|false}` and read by `install-update.sh`'s `db_config_value` via `${!VAR}` bash indirection. Compose v5.3.1 expands `${VAR:-default}` correctly inside the `environment:` block.                                                                                                                                           |
 
 ## Cross-platform path checklist
 

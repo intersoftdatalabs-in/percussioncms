@@ -26,16 +26,16 @@ Read the root [@AGENTS.md](../AGENTS.md) for general guidelines. This file conta
 
 The WebUI shares the Percussion CMS application with 7 other UI layers:
 
-|        Layer         |              Technology               |   Screens   |       Protocol        |          Track           |
-|----------------------|---------------------------------------|-------------|-----------------------|--------------------------|
-| Desktop Explorer     | Java Swing + JavaFX WebView           | ~10         | JAX-WS SOAP           | Legacy                   |
-| Rhythmyx Admin       | JSF pages (MyFaces/Trinidad removed)  | 12          | REST / pending React  | Legacy / retiring        |
-| Rhythmyx Publishing  | **React PublishingShell** (`publishModern.jsp`); classic Minuet + JSF entries redirect | Publishing | REST/JSON (Fetch) | **Track B (feature 990)** — exclusive Minuet views removed; JSF deep pages residual packaging only |
-| Package Manager      | GWT + SmartGWT                        | 3+          | GWT-RPC               | Legacy                   |
-| **WebUI Legacy**     | **jQuery 3.6 + jQuery UI + Backbone** | **~20**     | **REST/JSON**         | **Maintaining**          |
-| Contributor UI (CUI) | RequireJS + Knockout.js               | ~8          | REST/JSON             | Maintaining              |
-| Dojo Screens (AA/CB) | **Dojo 0.4.3**                        | **5**       | **REST/JSON**         | **→Track A (jQuery)**    |
-| **React Modern**     | **React 19 + TypeScript + Vite**      | **Growing** | **REST/JSON (Fetch)** | **→Track B (Strategic)** |
+|        Layer         |                                       Technology                                       |   Screens   |       Protocol        |                                               Track                                                |
+|----------------------|----------------------------------------------------------------------------------------|-------------|-----------------------|----------------------------------------------------------------------------------------------------|
+| Desktop Explorer     | Java Swing + JavaFX WebView                                                            | ~10         | JAX-WS SOAP           | Legacy                                                                                             |
+| Rhythmyx Admin       | JSF pages (MyFaces/Trinidad removed)                                                   | 12          | REST / pending React  | Legacy / retiring                                                                                  |
+| Rhythmyx Publishing  | **React PublishingShell** (`publishModern.jsp`); classic Minuet + JSF entries redirect | Publishing  | REST/JSON (Fetch)     | **Track B (feature 990)** — exclusive Minuet views removed; JSF deep pages residual packaging only |
+| Package Manager      | GWT + SmartGWT                                                                         | 3+          | GWT-RPC               | Legacy                                                                                             |
+| **WebUI Legacy**     | **jQuery 3.6 + jQuery UI + Backbone**                                                  | **~20**     | **REST/JSON**         | **Maintaining**                                                                                    |
+| Contributor UI (CUI) | RequireJS + Knockout.js                                                                | ~8          | REST/JSON             | Maintaining                                                                                        |
+| Dojo Screens (AA/CB) | **Dojo 0.4.3**                                                                         | **5**       | **REST/JSON**         | **→Track A (jQuery)**                                                                              |
+| **React Modern**     | **React 19 + TypeScript + Vite**                                                       | **Growing** | **REST/JSON (Fetch)** | **→Track B (Strategic)**                                                                           |
 
 **Reference:** [UI Layer Inventory & Technical Research](../docs/ai-generated/tasks/#000-unified-ui-plan/ui-layer-inventory.md)
 
@@ -536,13 +536,13 @@ docker compose --env-file .env.compose -f docker-compose.yml restart cms-dts
 
 ### Iteration cost reference
 
-| Change | Build | Restart | Total |
-|--------|-------|---------|-------|
-| TS/TSX (component or path API) | `npm run build:modern` (~3 s) | copy + cache-buster (0 s) | ~3 s |
-| JSP | copy file (0 s) | none (Jetty re-serves on request) | ~1 s |
-| SCSS / styles | `npm run build:modern` (~3 s) | copy (~0 s) | ~3 s |
-| Java class | `./mvn-env.sh -pl <m> -am install` (~30–60 s) | `docker compose restart` (~30 s) | ~1–2 min |
-| Maven / pom | `./mvn-env.sh clean install` (~5–10 min first time) | `docker compose restart` | ~5–10 min |
+|             Change             |                        Build                        |              Restart              |   Total   |
+|--------------------------------|-----------------------------------------------------|-----------------------------------|-----------|
+| TS/TSX (component or path API) | `npm run build:modern` (~3 s)                       | copy + cache-buster (0 s)         | ~3 s      |
+| JSP                            | copy file (0 s)                                     | none (Jetty re-serves on request) | ~1 s      |
+| SCSS / styles                  | `npm run build:modern` (~3 s)                       | copy (~0 s)                       | ~3 s      |
+| Java class                     | `./mvn-env.sh -pl <m> -am install` (~30–60 s)       | `docker compose restart` (~30 s)  | ~1–2 min  |
+| Maven / pom                    | `./mvn-env.sh clean install` (~5–10 min first time) | `docker compose restart`          | ~5–10 min |
 
 When iterating, prefer the cheap paths first (TS + JSP); only escalate to Java / pom when the change actually requires it.
 

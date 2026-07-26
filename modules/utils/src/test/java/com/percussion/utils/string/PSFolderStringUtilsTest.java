@@ -51,11 +51,11 @@ public class PSFolderStringUtilsTest {
 
   /**
    * Regression test for the {@code java/regex-injection} alerts CodeQL raised at
-   * PSFolderStringUtils.java:73. The pre-fix code escaped non-alphanumeric characters to
-   * Unicode hex sequences but {@code CodeQL}'s static analysis couldn't statically prove
-   * the escaping covered every meta-character. The post-fix code splits the path on '%' (the
-   * documented wildcard) and applies {@link Pattern#quote} to each literal segment, joining
-   * with {@code .*} so the wildcard feature still works.
+   * PSFolderStringUtils.java:73. The pre-fix code escaped non-alphanumeric characters to Unicode
+   * hex sequences but {@code CodeQL}'s static analysis couldn't statically prove the escaping
+   * covered every meta-character. The post-fix code splits the path on '%' (the documented
+   * wildcard) and applies {@link Pattern#quote} to each literal segment, joining with {@code .*} so
+   * the wildcard feature still works.
    *
    * <p>Adversarial inputs containing regex meta-characters ({@code .}, {@code $}, {@code (}, etc.)
    * must be treated as literal characters in the produced pattern, not as regex syntax.
@@ -88,8 +88,7 @@ public class PSFolderStringUtilsTest {
               + ")");
       assertTrue(
           compiled.endsWith("\\E/"),
-          "Pattern must end with '\\E/' so paths match the trailing slash; compiled: "
-              + compiled);
+          "Pattern must end with '\\E/' so paths match the trailing slash; compiled: " + compiled);
 
       // Behavioural check: each pattern must match its own literal input plus trailing slash.
       Pattern p = patterns[0];
@@ -125,26 +124,21 @@ public class PSFolderStringUtilsTest {
     assertEquals(1, patterns.length);
     String compiled = patterns[0].pattern();
     assertTrue(
-        compiled.contains(".*"),
-        "percent wildcard should still compile to .* in: " + compiled);
+        compiled.contains(".*"), "percent wildcard should still compile to .* in: " + compiled);
     // foo%bar/ should match foo + anything + bar + /
     assertTrue(patterns[0].matcher("fooanythingbar/").matches());
     assertTrue(patterns[0].matcher("foobar/").matches()); // % matches empty
     assertFalse(patterns[0].matcher("foo/ba/").matches()); // too short
   }
 
-  /**
-   * Verifies that multiple folder patterns separated by ';' are correctly compiled.
-   */
+  /** Verifies that multiple folder patterns separated by ';' are correctly compiled. */
   @Test
   public void testGetFolderPatternsMultiplePaths() {
     Pattern[] patterns = PSFolderStringUtils.getFolderPatterns("path1;path2;path3");
     assertEquals(3, patterns.length);
   }
 
-  /**
-   * Verifies that null/blank input returns an empty array (never null).
-   */
+  /** Verifies that null/blank input returns an empty array (never null). */
   @Test
   public void testGetFolderPatternsBlankInput() {
     assertEquals(0, PSFolderStringUtils.getFolderPatterns(null).length);

@@ -50,9 +50,7 @@ class PSSQLStatementSqlInjectionTest {
   void rejectsStackedStatements() {
     assertThrows(
         IllegalArgumentException.class,
-        () ->
-            SecureStringUtils.requireSingleSqlStatement(
-                "SELECT 1; DROP TABLE CONTENTSTATUS"));
+        () -> SecureStringUtils.requireSingleSqlStatement("SELECT 1; DROP TABLE CONTENTSTATUS"));
   }
 
   @Test
@@ -95,8 +93,7 @@ class PSSQLStatementSqlInjectionTest {
     Statement stmt = new PSSQLStatement(proxyStatement(captured));
 
     assertThrows(
-        IllegalArgumentException.class,
-        () -> stmt.executeUpdate("UPDATE T SET x=1; DROP TABLE T"));
+        IllegalArgumentException.class, () -> stmt.executeUpdate("UPDATE T SET x=1; DROP TABLE T"));
     stmt.executeUpdate("UPDATE T SET x=1");
     assertEquals("UPDATE T SET x=1", captured.get());
     stmt.close();

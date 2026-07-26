@@ -112,9 +112,7 @@ describe("percSimpleMenu label resolution (js/unsafe-jquery-plugin)", () => {
     host.percSimpleMenu({
       menuLabels: ["<a>Export</a>"],
       callbacks: [function () {}],
-      callbackData: [
-        { formSummary: { totalSubmissions: 0, name: "f1" } },
-      ],
+      callbackData: [{ formSummary: { totalSubmissions: 0, name: "f1" } }],
       menuTitleCollapsed: "[+]",
       menuTitleExpanded: "[-]",
     });
@@ -140,5 +138,4 @@ describe("percSimpleMenu label resolution (js/unsafe-jquery-plugin)", () => {
     // textContent includes Export (img alt empty)
     expect(host.find("a").text()).toMatch(/Export/);
   });
-
 });

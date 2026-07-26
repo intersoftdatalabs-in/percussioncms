@@ -11,18 +11,18 @@
 
 The distribution already contains a **partial** non-Derby new-install path that is incomplete relative to issue #949:
 
-| Layer | Location | Behavior today |
-|-------|----------|----------------|
-| Preinstall entry | `modules/perc-distribution-tree/src/main/java/com/percussion/preinstall/Main.java` | `resolveDbConfig()` accepts CLI `--db.*` / env file / env vars; maps **mysql** and **sqlserver** to `perc.db.*` system properties; defaults `db.type=derby`. **No Oracle.** **No `dbprops` / `rxrepository.properties` file input.** |
-| Property pass-through | `Main.execJar(...)` | Forwards `ResolvedDbConfig.systemProperties` as `-Dperc.db.*=...` on the ANT JVM command line. |
-| Fresh-install write | `.../rxconfig/Installer/installRepository.xml` target `repository_properties` | Guarded by `${do.install}` (true only for **new** installs). Writes `rxrepository.properties` for `mysql` and `sqlserver`; Derby only updates SSL keys. **No Oracle branch.** |
-| Default ship file | `.../rxconfig/Installer/rxrepository.properties` | `DB_BACKEND=DERBY` with embedded driver settings. |
-| Upgrade safety | `install.xml` `do.install` / `do.upgrade` | Upgrade path does **not** enter the fresh-install property rewrite for backend selection — aligns with FR-006. |
-| Downstream consumers | `modules/perc-ant` (`PSConfigureDatasource`, `PSMakeLasagna`, `PSExecSQLStmt`, etc.) | Read **install-root** `rxconfig/Installer/rxrepository.properties` after it is written. |
-| Backend constants | `modules/utils/.../PSJdbcUtils.java` | Canonical backend labels: `DERBY`, `MYSQL`, `MSSQL`, `ORACLE`. |
-| JDBC packaging | `specs/001-fix-jdbc-drivers` | Distribution ships MariaDB, Derby, MSSQL, jTDS, Oracle drivers under `jetty/base/lib/jdbc/`. |
-| Tests | `MainExtractExecutableTest` + JDBC assembly tests | **No unit tests** for `resolveDbConfig` / `parseArgs` / property-file load. |
-| DTS | `perc.db.dts.*` set in `Main` for mysql/sqlserver | **No ANT consumer found** under installer resources that writes DTS datasources from these properties. Spec keeps full DTS contract out of scope. |
+|         Layer         |                                       Location                                       |                                                                                                            Behavior today                                                                                                            |
+|-----------------------|--------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Preinstall entry      | `modules/perc-distribution-tree/src/main/java/com/percussion/preinstall/Main.java`   | `resolveDbConfig()` accepts CLI `--db.*` / env file / env vars; maps **mysql** and **sqlserver** to `perc.db.*` system properties; defaults `db.type=derby`. **No Oracle.** **No `dbprops` / `rxrepository.properties` file input.** |
+| Property pass-through | `Main.execJar(...)`                                                                  | Forwards `ResolvedDbConfig.systemProperties` as `-Dperc.db.*=...` on the ANT JVM command line.                                                                                                                                       |
+| Fresh-install write   | `.../rxconfig/Installer/installRepository.xml` target `repository_properties`        | Guarded by `${do.install}` (true only for **new** installs). Writes `rxrepository.properties` for `mysql` and `sqlserver`; Derby only updates SSL keys. **No Oracle branch.**                                                        |
+| Default ship file     | `.../rxconfig/Installer/rxrepository.properties`                                     | `DB_BACKEND=DERBY` with embedded driver settings.                                                                                                                                                                                    |
+| Upgrade safety        | `install.xml` `do.install` / `do.upgrade`                                            | Upgrade path does **not** enter the fresh-install property rewrite for backend selection — aligns with FR-006.                                                                                                                       |
+| Downstream consumers  | `modules/perc-ant` (`PSConfigureDatasource`, `PSMakeLasagna`, `PSExecSQLStmt`, etc.) | Read **install-root** `rxconfig/Installer/rxrepository.properties` after it is written.                                                                                                                                              |
+| Backend constants     | `modules/utils/.../PSJdbcUtils.java`                                                 | Canonical backend labels: `DERBY`, `MYSQL`, `MSSQL`, `ORACLE`.                                                                                                                                                                       |
+| JDBC packaging        | `specs/001-fix-jdbc-drivers`                                                         | Distribution ships MariaDB, Derby, MSSQL, jTDS, Oracle drivers under `jetty/base/lib/jdbc/`.                                                                                                                                         |
+| Tests                 | `MainExtractExecutableTest` + JDBC assembly tests                                    | **No unit tests** for `resolveDbConfig` / `parseArgs` / property-file load.                                                                                                                                                          |
+| DTS                   | `perc.db.dts.*` set in `Main` for mysql/sqlserver                                    | **No ANT consumer found** under installer resources that writes DTS datasources from these properties. Spec keeps full DTS contract out of scope.                                                                                    |
 
 ### Gap vs issue #949
 
@@ -57,20 +57,20 @@ In ANT, `<property name="perc.db.type" value="derby" />` sets the property **onl
 
 **Alternatives considered**:
 
-| Alternative | Why not primary |
-|-------------|-----------------|
-| Only keep `--db.host` / `DB_TYPE` env style | Does not satisfy issue #949 wording; harder for ops teams that already maintain repository property files. |
-| Require interactive GUI | Out of scope; CLI/unattended is the pain point. |
-| Post-install manual edit of `rxrepository.properties` | Status quo; fails SC-001. |
+|                      Alternative                      |                                              Why not primary                                               |
+|-------------------------------------------------------|------------------------------------------------------------------------------------------------------------|
+| Only keep `--db.host` / `DB_TYPE` env style           | Does not satisfy issue #949 wording; harder for ops teams that already maintain repository property files. |
+| Require interactive GUI                               | Out of scope; CLI/unattended is the pain point.                                                            |
+| Post-install manual edit of `rxrepository.properties` | Status quo; fails SC-001.                                                                                  |
 
 ### D2 — Keep existing `db.*` CLI/env as secondary input
 
 **Decision**: Retain and document the already-coded precedence for structured flags:
 
-1. **`dbprops` file** (if path present) — highest for repository identity fields  
-2. CLI `--db.*` / env-style keys in CLI  
-3. Env file (`--db.config.env.file` / `DB_CONFIG_ENV_FILE` / `PERC_DB_CONFIG_ENV_FILE`)  
-4. Process environment  
+1. **`dbprops` file** (if path present) — highest for repository identity fields
+2. CLI `--db.*` / env-style keys in CLI
+3. Env file (`--db.config.env.file` / `DB_CONFIG_ENV_FILE` / `PERC_DB_CONFIG_ENV_FILE`)
+4. Process environment
 5. Defaults (Derby + SSL defaults)
 
 When `dbprops` is present, map its keys into the same internal `ResolvedDbConfig` used today so ANT remains a single write path. Do **not** invent a second ANT write path that copies the file blindly without validation.
@@ -81,18 +81,18 @@ When `dbprops` is present, map its keys into the same internal `ResolvedDbConfig
 
 **Decision**: Load with `java.util.Properties` and map:
 
-| File key | Internal / `perc.db.*` role |
-|----------|-----------------------------|
-| `DB_BACKEND` | Determines `perc.db.type`: `DERBY`→`derby`, `MYSQL`→`mysql`, `MSSQL`→`sqlserver`, `ORACLE`→`oracle` (case-insensitive). Reject unknown. |
-| `DB_SERVER` | `perc.db.cms.server` (pass-through; **do not re-compose** host/port when using dbprops — file already holds the product’s server string form) |
-| `DB_NAME` | `perc.db.cms.name` |
-| `DB_SCHEMA` | `perc.db.cms.schema` |
-| `DB_DRIVER_NAME` | `perc.db.cms.driverName` |
-| `DB_DRIVER_CLASS_NAME` | `perc.db.cms.driverClass` |
-| `UID` | `perc.db.user` |
-| `PWD` | `perc.db.password` |
-| `DSCONFIG_NAME` | optional; default `PercussionData` if absent |
-| `DB_SSL_*` / `PWD_ENCRYPTED` | optional; SSL keys map to existing `perc.db.ssl.*`; encrypted password handling must follow existing `PSMakeLasagna` / encryptor rules |
+|           File key           |                                                          Internal / `perc.db.*` role                                                          |
+|------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------|
+| `DB_BACKEND`                 | Determines `perc.db.type`: `DERBY`→`derby`, `MYSQL`→`mysql`, `MSSQL`→`sqlserver`, `ORACLE`→`oracle` (case-insensitive). Reject unknown.       |
+| `DB_SERVER`                  | `perc.db.cms.server` (pass-through; **do not re-compose** host/port when using dbprops — file already holds the product’s server string form) |
+| `DB_NAME`                    | `perc.db.cms.name`                                                                                                                            |
+| `DB_SCHEMA`                  | `perc.db.cms.schema`                                                                                                                          |
+| `DB_DRIVER_NAME`             | `perc.db.cms.driverName`                                                                                                                      |
+| `DB_DRIVER_CLASS_NAME`       | `perc.db.cms.driverClass`                                                                                                                     |
+| `UID`                        | `perc.db.user`                                                                                                                                |
+| `PWD`                        | `perc.db.password`                                                                                                                            |
+| `DSCONFIG_NAME`              | optional; default `PercussionData` if absent                                                                                                  |
+| `DB_SSL_*` / `PWD_ENCRYPTED` | optional; SSL keys map to existing `perc.db.ssl.*`; encrypted password handling must follow existing `PSMakeLasagna` / encryptor rules        |
 
 When using **structured** `--db.*` (not dbprops), continue **composing** `DB_SERVER` / JDBC URL from host+port+name+ssl as today.
 
@@ -133,10 +133,10 @@ Flow:
 
 **Alternatives**:
 
-| Alternative | Why secondary |
-|-------------|----------------|
+|             Alternative              |               Why secondary                |
+|--------------------------------------|--------------------------------------------|
 | Validate only in Main before extract | Drivers often not on preinstall classpath. |
-| Skip connect; only write props | Fails FR-008; half-configured installs. |
+| Skip connect; only write props       | Fails FR-008; half-configured installs.    |
 
 ### D7 — Upgrade non-regression
 
@@ -154,12 +154,12 @@ Flow:
 
 **Decision**: Extract pure functions from `Main` into a focused helper (e.g. `com.percussion.preinstall.DbInstallConfigResolver` or package-visible methods) so JUnit 5 can cover:
 
-- parseArgs  
-- load/map dbprops  
-- backend normalization  
-- required-field validation  
-- precedence  
-- secret redaction helpers for log messages  
+- parseArgs
+- load/map dbprops
+- backend normalization
+- required-field validation
+- precedence
+- secret redaction helpers for log messages
 
 Avoid large refactor of extract/zip/upgrade helpers in the same change set.
 
@@ -188,12 +188,12 @@ Avoid large refactor of extract/zip/upgrade helpers in the same change set.
 
 ## Open risks (accepted, mitigated in plan)
 
-| Risk | Mitigation |
-|------|------------|
+|                                   Risk                                    |                                                                                                                                                                          Mitigation                                                                                                                                                                          |
+|---------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | Password special characters in `-Dperc.db.password=...` on ProcessBuilder | Prefer writing a temp properties sidecar or env for secrets if quoting proves fragile; at minimum document and test characters that break shells. Research favors keeping `-D` for parity with current code but adding a test matrix for special chars; if failures found, switch password pass-through to ANT property file only (dbprops already has PWD). |
-| MariaDB vs MySQL URL differences | Document; allow full override via dbprops. |
-| Oracle service name vs SID | Document one recommended sample; accept full `DB_SERVER` from file. |
-| Connect timeout hangs install | Set short login timeout on validation connection. |
+| MariaDB vs MySQL URL differences                                          | Document; allow full override via dbprops.                                                                                                                                                                                                                                                                                                                   |
+| Oracle service name vs SID                                                | Document one recommended sample; accept full `DB_SERVER` from file.                                                                                                                                                                                                                                                                                          |
+| Connect timeout hangs install                                             | Set short login timeout on validation connection.                                                                                                                                                                                                                                                                                                            |
 
 ## NEEDS CLARIFICATION resolution
 

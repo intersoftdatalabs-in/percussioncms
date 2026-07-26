@@ -37,7 +37,8 @@ import java.util.Properties;
  *   <li>{@code -Ddbprops=} / {@code --dbprops=} property files in {@code rxrepository.properties}
  *       format (issue #949)
  *   <li>Structured {@code --db.*} CLI / env-file / environment inputs (existing automation surface)
- *   <li>Default embedded H2 when no override is supplied (GitHub #548; Derby retained for migration)
+ *   <li>Default embedded H2 when no override is supplied (GitHub #548; Derby retained for
+ *       migration)
  * </ul>
  *
  * <p><strong>Security:</strong> never log or print {@code PWD} / password field values in error
@@ -47,10 +48,13 @@ public final class DbInstallConfigResolver {
 
   /** Default embedded engine type after Apache Derby retirement (#548). */
   public static final String DB_TYPE_DEFAULT = "h2";
+
   /** Default SSL enabled value for new installs. */
   public static final String DB_SSL_ENABLED_DEFAULT = "true";
+
   /** Default SSL verify value for new installs. */
   public static final String DB_SSL_VERIFY_DEFAULT = "true";
+
   /** Default SSL allow-self-signed value for new installs. */
   public static final String DB_SSL_ALLOW_SELF_SIGNED_DEFAULT = "false";
 
@@ -59,8 +63,7 @@ public final class DbInstallConfigResolver {
 
   private static final String MARIADB_DRIVER_CLASS = "org.mariadb.jdbc.Driver";
   private static final String MYSQL_COMPAT_DRIVER_NAME = "mysql";
-  private static final String MSSQL_DRIVER_CLASS =
-      "com.microsoft.sqlserver.jdbc.SQLServerDriver";
+  private static final String MSSQL_DRIVER_CLASS = "com.microsoft.sqlserver.jdbc.SQLServerDriver";
   private static final String ORACLE_DRIVER_CLASS = "oracle.jdbc.OracleDriver";
   private static final String ORACLE_DRIVER_NAME = "oracle:thin";
 
@@ -394,8 +397,7 @@ public final class DbInstallConfigResolver {
           "perc.db.dts.hibernateDialect", "org.hibernate.dialect.MySQL5InnoDBDialect");
       systemProperties.put("perc.db.dts.schema", resolvedSchema);
     } else if (Objects.equals(dbType, "sqlserver")) {
-      String resolvedSchema =
-          (schema == null || schema.trim().isEmpty()) ? "dbo" : schema.trim();
+      String resolvedSchema = (schema == null || schema.trim().isEmpty()) ? "dbo" : schema.trim();
       String trustServerCertificate =
           Objects.equals(sslAllowSelfSigned, "true") || Objects.equals(sslVerify, "false")
               ? "true"
@@ -451,7 +453,8 @@ public final class DbInstallConfigResolver {
       systemProperties.put(
           "perc.db.dts.jdbcUrl", "jdbc:oracle:thin:@" + host + ":" + port + ":" + serviceOrSid);
       systemProperties.put("perc.db.dts.jdbcDriver", ORACLE_DRIVER_CLASS);
-      systemProperties.put("perc.db.dts.hibernateDialect", "org.hibernate.dialect.Oracle12cDialect");
+      systemProperties.put(
+          "perc.db.dts.hibernateDialect", "org.hibernate.dialect.Oracle12cDialect");
       systemProperties.put("perc.db.dts.schema", resolvedSchema);
     }
 
@@ -487,7 +490,8 @@ public final class DbInstallConfigResolver {
       }
     } else if (Objects.equals(dbType, "oracle")) {
       systemProperties.put("perc.db.dts.jdbcDriver", driverClass);
-      systemProperties.put("perc.db.dts.hibernateDialect", "org.hibernate.dialect.Oracle12cDialect");
+      systemProperties.put(
+          "perc.db.dts.hibernateDialect", "org.hibernate.dialect.Oracle12cDialect");
       systemProperties.put("perc.db.dts.schema", schema);
       if (server != null) {
         String thin = server.startsWith("@") ? server : "@" + server;
@@ -510,10 +514,11 @@ public final class DbInstallConfigResolver {
       case "MYSQL" -> "mysql";
       case "MSSQL" -> "sqlserver";
       case "ORACLE", "ORA" -> "oracle";
-      default -> throw new IllegalArgumentException(
-          "Unknown DB_BACKEND='"
-              + backendRaw
-              + "'. Allowed values: H2, DERBY, MYSQL, MSSQL, ORACLE");
+      default ->
+          throw new IllegalArgumentException(
+              "Unknown DB_BACKEND='"
+                  + backendRaw
+                  + "'. Allowed values: H2, DERBY, MYSQL, MSSQL, ORACLE");
     };
   }
 
@@ -523,10 +528,11 @@ public final class DbInstallConfigResolver {
       case "h2", "derby", "mysql", "sqlserver", "oracle" -> t;
       case "mssql" -> "sqlserver";
       case "ora" -> "oracle";
-      default -> throw new IllegalArgumentException(
-          "Unknown db.type='"
-              + dbTypeRaw
-              + "'. Allowed values: h2, derby, mysql, sqlserver, oracle");
+      default ->
+          throw new IllegalArgumentException(
+              "Unknown db.type='"
+                  + dbTypeRaw
+                  + "'. Allowed values: h2, derby, mysql, sqlserver, oracle");
     };
   }
 
@@ -668,7 +674,9 @@ public final class DbInstallConfigResolver {
    * @param source diagnostic label: {@code default}, {@code dbprops}, {@code structured}
    */
   public record ResolvedDbConfig(Map<String, String> systemProperties, String source) {
-    /** Defaults source to {@code "default"}; used by tests and callers that only have properties. */
+    /**
+     * Defaults source to {@code "default"}; used by tests and callers that only have properties.
+     */
     public ResolvedDbConfig(Map<String, String> systemProperties) {
       this(systemProperties, "default");
     }

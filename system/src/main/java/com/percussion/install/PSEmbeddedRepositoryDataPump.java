@@ -23,7 +23,9 @@ package com.percussion.install;
 @Deprecated(forRemoval = true, since = "8.2")
 public final class PSEmbeddedRepositoryDataPump {
 
-  /** @deprecated NEXTNUMBER table name for post-import probes */
+  /**
+   * @deprecated NEXTNUMBER table name for post-import probes
+   */
   @Deprecated public static final String NEXTNUMBER_TABLE = "NEXTNUMBER";
 
   private PSEmbeddedRepositoryDataPump() {}

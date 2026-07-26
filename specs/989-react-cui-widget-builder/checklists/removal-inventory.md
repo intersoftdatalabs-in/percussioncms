@@ -6,10 +6,10 @@
 
 **Sign-off**:
 
-| Role | Name | Date | Notes |
-|------|------|------|-------|
+|    Role     |           Name            |    Date    |                    Notes                    |
+|-------------|---------------------------|------------|---------------------------------------------|
 | Implementer | agent (implement session) | 2026-07-17 | Exclusive deletes applied on feature branch |
-| Reviewer | | | |
+| Reviewer    |                           |            |                                             |
 
 ---
 
@@ -56,25 +56,25 @@
 
 ## 3. Must keep (do not delete casually)
 
-| Asset | Why |
-|-------|-----|
-| Platform jQuery / `common_js` | Remaining ~20 admin screens |
-| `perc_widget_library.js` / CSS | Still used by `webmgt.jsp`, `editAsset.jsp` |
-| Widget Builder **server** (`PSWidgetBuilderService`) | System of record |
-| Modern `/cm/modern/` bundles | New UI |
-| Finder / other non-Home screens | Out of scope |
+|                        Asset                         |                     Why                     |
+|------------------------------------------------------|---------------------------------------------|
+| Platform jQuery / `common_js`                        | Remaining ~20 admin screens                 |
+| `perc_widget_library.js` / CSS                       | Still used by `webmgt.jsp`, `editAsset.jsp` |
+| Widget Builder **server** (`PSWidgetBuilderService`) | System of record                            |
+| Modern `/cm/modern/` bundles                         | New UI                                      |
+| Finder / other non-Home screens                      | Out of scope                                |
 
 ---
 
 ## 4. Orphan vendor candidates (manual inventory)
 
-| Vendor / path (examples) | Consumers found | Decision (drop / keep) | Evidence (files) |
-|--------------------------|-----------------|------------------------|------------------|
-| Backbone (`.../backbone/backbone.js`) | `cm/api/index.html` (API explorer) | **keep** | api docs page |
-| Underscore (`.../underscore/underscore.js`) | still in other legacy packs / shared | **keep** | other packed bundles |
-| Backgrid (`.../backgridjs/...`) | no remaining product JSP after WB delete | **keep for now** | only library tree; leave for follow-on cleanup (not exclusive Home/WB) |
-| RequireJS outside CUI tree | none material | n/a | CUI trees deleted |
-| CUI Knockout | exclusive under deleted CUI | **removed with CUI** | section 1 |
+|          Vendor / path (examples)           |             Consumers found              | Decision (drop / keep) |                            Evidence (files)                            |
+|---------------------------------------------|------------------------------------------|------------------------|------------------------------------------------------------------------|
+| Backbone (`.../backbone/backbone.js`)       | `cm/api/index.html` (API explorer)       | **keep**               | api docs page                                                          |
+| Underscore (`.../underscore/underscore.js`) | still in other legacy packs / shared     | **keep**               | other packed bundles                                                   |
+| Backgrid (`.../backgridjs/...`)             | no remaining product JSP after WB delete | **keep for now**       | only library tree; leave for follow-on cleanup (not exclusive Home/WB) |
+| RequireJS outside CUI tree                  | none material                            | n/a                    | CUI trees deleted                                                      |
+| CUI Knockout                                | exclusive under deleted CUI              | **removed with CUI**   | section 1                                                              |
 
 ---
 
@@ -93,3 +93,4 @@
 - [x] Section 4 complete for all candidates
 - [x] No classic `home.jsp` / `widgetBuilder.jsp` left as rewrite or redirect stubs
 - [ ] SC-003 considered satisfied for this release — **pending human sign-off**
+

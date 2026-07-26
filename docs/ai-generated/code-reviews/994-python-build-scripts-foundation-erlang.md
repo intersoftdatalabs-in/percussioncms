@@ -42,6 +42,7 @@ III, VIII verified.
 ## Issues
 
 ### Issue 1 — Severity: info
+
 - File: `scripts/run-python-tests.sh:87` and `scripts/run-python-tests.cmd:74`
 - Description: `pip install` does not pass `--break-system-packages` (or set
   `PIP_BREAK_SYSTEM_PACKAGES=1`). On modern Ubuntu 24.04 host Pythons this can
@@ -58,6 +59,7 @@ III, VIII verified.
 - Status: open (non-blocking)
 
 ### Issue 2 — Severity: info
+
 - File: `scripts/run-python-tests.cmd:32`
 - Description: `REQUIREMENTS_FILE` is built as
   `%PROJECT_ROOT%\scripts\requirements-dev.txt` where `PROJECT_ROOT` is
@@ -70,6 +72,7 @@ III, VIII verified.
 - Status: open (non-blocking)
 
 ### Issue 3 — Severity: info
+
 - File: `scripts/test_mvn_env_untouched.py:135-147`
 - Description: The `.bat` balance heuristic counts standalone `)` lines as
   close-parens. If a future `mvn-env.bat` revision adds an unrelated `)`
@@ -82,6 +85,7 @@ III, VIII verified.
 - Status: open (non-blocking)
 
 ### Issue 4 — Severity: info
+
 - File: `specs/994-python-build-scripts/tasks.md:T007` (spec doc, not in diff)
 - Description: The task description hints at `"set -e"` for `.sh` and
   `"@setlocal"` for `.bat` as example snippets; the shipped sentinel uses
@@ -94,18 +98,18 @@ III, VIII verified.
 
 ## Cross-platform path / file I/O checklist (always)
 
-| Smell | Result |
-|-------|--------|
-| Hardcoded `/` or `\\` in filesystem paths | **None.** Sentinel uses `pathlib.Path.resolve().parent.parent` and `Path("mvn-env.sh")` joins only. `scripts/run-python-tests.sh` uses `$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)` (POSIX-portable). `scripts/run-python-tests.cmd` uses `%~dp0..` (Windows-portable). Workflow paths are GH Actions glob patterns, not OS paths. |
-| Unix-only absolute roots (`/tmp`, `/var`, `/home`) | **None.** |
-| Windows-only roots (`C:\…`) | **None** in Python or YAML. `.cmd` references are relative. |
-| Multi-path list joined with `:` or `;` | **N/A** (no multi-path lists in this PR). |
-| Path regex asserting Unix shape | **None.** Sentinel uses `pathlib`. |
-| Case-sensitive path/import assumptions | **None** (paths via `Path` API). |
-| CRLF-only line-ending assertions | **None.** Sentinel normalizes via `read_text(encoding="utf-8")`. |
-| Unix-shell-only automation with no `.bat` counterpart | **None.** Runner ships both `.sh` and `.cmd`. |
-| `shell=True` / `os.system` / `bash -c` in product code | **None.** Sentinel does no subprocess at all. |
-| Hardcoded `subprocess.run(shell=True)` in any new Python | **N/A** — sentinel has no subprocess. (FR-008 applies to the later per-script conversions.) |
+|                          Smell                           |                                                                                                                                                                  Result                                                                                                                                                                  |
+|----------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Hardcoded `/` or `\\` in filesystem paths                | **None.** Sentinel uses `pathlib.Path.resolve().parent.parent` and `Path("mvn-env.sh")` joins only. `scripts/run-python-tests.sh` uses `$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)` (POSIX-portable). `scripts/run-python-tests.cmd` uses `%~dp0..` (Windows-portable). Workflow paths are GH Actions glob patterns, not OS paths. |
+| Unix-only absolute roots (`/tmp`, `/var`, `/home`)       | **None.**                                                                                                                                                                                                                                                                                                                                |
+| Windows-only roots (`C:\…`)                              | **None** in Python or YAML. `.cmd` references are relative.                                                                                                                                                                                                                                                                              |
+| Multi-path list joined with `:` or `;`                   | **N/A** (no multi-path lists in this PR).                                                                                                                                                                                                                                                                                                |
+| Path regex asserting Unix shape                          | **None.** Sentinel uses `pathlib`.                                                                                                                                                                                                                                                                                                       |
+| Case-sensitive path/import assumptions                   | **None** (paths via `Path` API).                                                                                                                                                                                                                                                                                                         |
+| CRLF-only line-ending assertions                         | **None.** Sentinel normalizes via `read_text(encoding="utf-8")`.                                                                                                                                                                                                                                                                         |
+| Unix-shell-only automation with no `.bat` counterpart    | **None.** Runner ships both `.sh` and `.cmd`.                                                                                                                                                                                                                                                                                            |
+| `shell=True` / `os.system` / `bash -c` in product code   | **None.** Sentinel does no subprocess at all.                                                                                                                                                                                                                                                                                            |
+| Hardcoded `subprocess.run(shell=True)` in any new Python | **N/A** — sentinel has no subprocess. (FR-008 applies to the later per-script conversions.)                                                                                                                                                                                                                                              |
 
 ## Constitution check
 
@@ -167,3 +171,4 @@ None.
   SC-003 / SC-004 / SC-008; (b) the `python3 -m pytest scripts/test_mvn_env_untouched.py -v`
   output showing 18/18 pass; (c) the GH Actions run URL once green on both
   runners (can be added after first push).
+

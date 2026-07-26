@@ -346,24 +346,21 @@ public class PSRegionCSSFileService {
   }
 
   /**
-   * The server-controlled directories under which every region CSS file
-   * operated on by this service must live. These are injected by
-   * {@code PSThemeService} (which owns the @Value-configured theme roots)
-   * via {@link #setAllowedRoots}. Validating the resolved path against an
-   * input-derived parent (a prior approach) was a tautology that still
-   * permitted traversal, because that parent is itself built from the
-   * untrusted input. Containment is therefore checked against these
+   * The server-controlled directories under which every region CSS file operated on by this service
+   * must live. These are injected by {@code PSThemeService} (which owns the @Value-configured theme
+   * roots) via {@link #setAllowedRoots}. Validating the resolved path against an input-derived
+   * parent (a prior approach) was a tautology that still permitted traversal, because that parent
+   * is itself built from the untrusted input. Containment is therefore checked against these
    * trusted roots instead (see PR #1209 CRITICAL review thread).
    */
   private final List<File> allowedRoots = new ArrayList<>();
 
   /**
-   * Injects the trusted root directories that region CSS files are allowed
-   * to live under. Called by {@code PSThemeService#init()} after the
-   * @Value theme-root properties are bound.
+   * Injects the trusted root directories that region CSS files are allowed to live under. Called by
+   * {@code PSThemeService#init()} after the @Value theme-root properties are bound.
    *
-   * @param roots the server-controlled base directories (e.g. the themes
-   *     root and the themes temp root), never {@code null}
+   * @param roots the server-controlled base directories (e.g. the themes root and the themes temp
+   *     root), never {@code null}
    */
   public void setAllowedRoots(File... roots) {
     allowedRoots.clear();
@@ -373,41 +370,34 @@ public class PSRegionCSSFileService {
   }
 
   /**
-   * Validates a user-supplied file path for the CWE-22 path-traversal
-   * defense. The path may be absolute (the service receives absolute
-   * paths from {@code PSThemeService}'s {@code cssFile.getAbsolutePath()}
-   * calls). The defense canonicalizes the full input path (resolving any
-   * embedded ".." traversal) and verifies the resolved path is contained
-   * within one of the trusted {@link #allowedRoots} directories injected
-   * by {@code PSThemeService}. Containment is checked against a
-   * server-controlled root, not against the input-derived parent, so a
-   * payload such as {@code /var/themes/foo/../../../etc/passwd} (which
-   * resolves to /etc/passwd) is rejected because /etc/passwd is not under
-   * any allowed root. This directly addresses the CRITICAL review thread
-   * on PR #1209, which pointed out that validating containment against an
-   * input-derived parent is a tautology that still permits traversal.
+   * Validates a user-supplied file path for the CWE-22 path-traversal defense. The path may be
+   * absolute (the service receives absolute paths from {@code PSThemeService}'s {@code
+   * cssFile.getAbsolutePath()} calls). The defense canonicalizes the full input path (resolving any
+   * embedded ".." traversal) and verifies the resolved path is contained within one of the trusted
+   * {@link #allowedRoots} directories injected by {@code PSThemeService}. Containment is checked
+   * against a server-controlled root, not against the input-derived parent, so a payload such as
+   * {@code /var/themes/foo/../../../etc/passwd} (which resolves to /etc/passwd) is rejected because
+   * /etc/passwd is not under any allowed root. This directly addresses the CRITICAL review thread
+   * on PR #1209, which pointed out that validating containment against an input-derived parent is a
+   * tautology that still permits traversal.
    *
-   * <p>The canonicalization step also neutralizes the write-target case
-   * (where the parent directory does not yet exist): {@code
-   * File.getCanonicalPath()} resolves ".." segments even when the final
-   * file is missing, so the containment check runs unconditionally rather
-   * than being deferred to write time. A bare filename (no parent)
-   * canonicalizes relative to the JVM working directory and is rejected
-   * unless that directory is itself an allowed root.
+   * <p>The canonicalization step also neutralizes the write-target case (where the parent directory
+   * does not yet exist): {@code File.getCanonicalPath()} resolves ".." segments even when the final
+   * file is missing, so the containment check runs unconditionally rather than being deferred to
+   * write time. A bare filename (no parent) canonicalizes relative to the JVM working directory and
+   * is rejected unless that directory is itself an allowed root.
    *
-   * <p>If no allowed roots are configured (e.g. a non-Spring unit-test
-   * context where {@link #setAllowedRoots} is never called), the
-   * containment check is skipped and only canonicalization is performed.
-   * Production always wires the roots via {@code PSThemeService#init()};
-   * the lenient fallback exists only so the service remains usable outside
-   * the Spring container, and must never be relied upon for security.
+   * <p>If no allowed roots are configured (e.g. a non-Spring unit-test context where {@link
+   * #setAllowedRoots} is never called), the containment check is skipped and only canonicalization
+   * is performed. Production always wires the roots via {@code PSThemeService#init()}; the lenient
+   * fallback exists only so the service remains usable outside the Spring container, and must never
+   * be relied upon for security.
    *
-   * @param filePath a user-supplied absolute file path, may be {@code null}
-   *     (a {@code null} source signals "create an empty file" and is
-   *     permitted without validation, matching {@code copyFile}/{@code
-   *     getSourceFile})
-   * @throws IllegalArgumentException if the resolved path escapes every
-   *     allowed root (path-traversal attempt)
+   * @param filePath a user-supplied absolute file path, may be {@code null} (a {@code null} source
+   *     signals "create an empty file" and is permitted without validation, matching {@code
+   *     copyFile}/{@code getSourceFile})
+   * @throws IllegalArgumentException if the resolved path escapes every allowed root
+   *     (path-traversal attempt)
    */
   private void requireSafeFilePath(String filePath) {
     if (filePath == null) {

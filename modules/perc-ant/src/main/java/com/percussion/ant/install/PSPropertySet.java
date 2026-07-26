@@ -49,10 +49,9 @@ import java.io.IOException;
  * </pre>
  */
 public class PSPropertySet extends PSAction {
-  /**
-   * Creates a new property set task.
-   */
+  /** Creates a new property set task. */
   public PSPropertySet() {}
+
   // see base class
   @Override
   public void execute() {

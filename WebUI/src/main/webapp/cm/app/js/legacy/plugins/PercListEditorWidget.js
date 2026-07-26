@@ -78,15 +78,13 @@
     });
     var $list = $("<ul/>", { id: "perc-ui-permission-user-list" });
     var $seedLi = $("<li/>");
-    $seedLi
-      .append($("<span/>").text("Username"))
-      .append(
-        $("<div/>", {
-          tabindex: "0",
-          class: "perc-ui-permission-deletebutton",
-          id: "Username",
-        })
-      );
+    $seedLi.append($("<span/>").text("Username")).append(
+      $("<div/>", {
+        tabindex: "0",
+        class: "perc-ui-permission-deletebutton",
+        id: "Username",
+      })
+    );
     $list.append($seedLi);
     $scrollPane.append($list);
 

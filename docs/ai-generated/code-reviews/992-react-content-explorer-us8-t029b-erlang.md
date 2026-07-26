@@ -28,28 +28,28 @@
 
 ### Spec / contract
 
-| Artifact | Change | Compliance |
-|----------|--------|------------|
-| `scripts/verify-no-finder-jsp-references.sh` (NEW) | POSIX shell gate. Regex matches navigation-entry forms only; multi-line JSP comment stripping via `perl -0777 -pe 's/<%--.*?--%>//gs'`. | ✅ |
-| `scripts/verify-no-finder-jsp-references.bat` (NEW) | Windows counterpart. Uses PowerShell's `Select-String` for the same regex + comment stripping. | ✅ Cross-platform mandate. |
-| `scripts/test-verify-no-finder-jsp-references.sh` (NEW) | Paired self-test (4 cases: PASS on current tree, FAIL on re-introduced `<jsp:include>`, FAIL on `<%@include>`, PASS on `finder_js.jsp` shared-lib include). Backs up + restores the target JSP via `trap`. | ✅ |
-| `WebUI/src/test/ts/scripts/verify-no-finder-jsp-references.test.ts` (NEW) | Vitest spec — load-bearing CI assertion. 2 tests: script file present, PASS on current tree. Uses `execFileSync("sh", [GATE_SH], ...)` so it doesn't depend on the executable bit (Windows CI compatibility). | ✅ Constitution III (behavioral tests). |
-| `scripts/README.md` | New entry under "Other scripts in this directory" for `verify-no-finder-jsp-references.sh` + `.bat` with purpose + Spec ref T029b. | ✅ AGENTS.md "ALWAYS update relevant script dir `README.md` files with doc on script purpose". |
-| `specs/992-react-content-explorer/tasks.md` | T029b entry added; T029 closure note updated; format-validation line lists T029b alongside the other new task IDs. | ✅ |
+|                                 Artifact                                  |                                                                                                    Change                                                                                                     |                                          Compliance                                           |
+|---------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------|
+| `scripts/verify-no-finder-jsp-references.sh` (NEW)                        | POSIX shell gate. Regex matches navigation-entry forms only; multi-line JSP comment stripping via `perl -0777 -pe 's/<%--.*?--%>//gs'`.                                                                       | ✅                                                                                             |
+| `scripts/verify-no-finder-jsp-references.bat` (NEW)                       | Windows counterpart. Uses PowerShell's `Select-String` for the same regex + comment stripping.                                                                                                                | ✅ Cross-platform mandate.                                                                     |
+| `scripts/test-verify-no-finder-jsp-references.sh` (NEW)                   | Paired self-test (4 cases: PASS on current tree, FAIL on re-introduced `<jsp:include>`, FAIL on `<%@include>`, PASS on `finder_js.jsp` shared-lib include). Backs up + restores the target JSP via `trap`.    | ✅                                                                                             |
+| `WebUI/src/test/ts/scripts/verify-no-finder-jsp-references.test.ts` (NEW) | Vitest spec — load-bearing CI assertion. 2 tests: script file present, PASS on current tree. Uses `execFileSync("sh", [GATE_SH], ...)` so it doesn't depend on the executable bit (Windows CI compatibility). | ✅ Constitution III (behavioral tests).                                                        |
+| `scripts/README.md`                                                       | New entry under "Other scripts in this directory" for `verify-no-finder-jsp-references.sh` + `.bat` with purpose + Spec ref T029b.                                                                            | ✅ AGENTS.md "ALWAYS update relevant script dir `README.md` files with doc on script purpose". |
+| `specs/992-react-content-explorer/tasks.md`                               | T029b entry added; T029 closure note updated; format-validation line lists T029b alongside the other new task IDs.                                                                                            | ✅                                                                                             |
 
 ### Constitutional compliance
 
-| Constraint | Compliance |
-|------------|------------|
-| I (no invariants violated) | ✅ No shipped product code modified; only test/script/spec-doc additions. |
-| II (no invented APIs) | ✅ N/A — no API change. |
-| III (behavioral tests) | ✅ 2 new Vitest tests; 4-case paired shell self-test. |
-| IV (service-contract tests) | ✅ N/A — no Java/API change. |
-| V (Plan / Complexity) | ✅ 1 .sh + 1 .bat + 1 paired self-test + 1 Vitest spec + 1 README update + 1 task entry. No new deps. |
-| VI (threat-model note) | ✅ N/A — no new auth/network surface. The gate is a regression guard for the existing US6 cutover. |
-| VII (format checks) | ✅ `npx tsc --noEmit` clean; `npx vitest run ../../test/ts/scripts/verify-no-finder-jsp-references.test.ts` = 2/2; shell self-test = 4/4 cases pass. |
-| IX (review-thread resolution) | ⏳ Will resolve per-thread on PR review. |
-| E (no residuals out of spec phases) | ✅ T029b closes FR-019a measurable gate; spec 992 is now feature-complete (matrix 32/32 + US8 sub-PRs + edge cases #3/#7/#11 + FR-019a gate). |
+|             Constraint              |                                                                     Compliance                                                                      |
+|-------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------|
+| I (no invariants violated)          | ✅ No shipped product code modified; only test/script/spec-doc additions.                                                                            |
+| II (no invented APIs)               | ✅ N/A — no API change.                                                                                                                              |
+| III (behavioral tests)              | ✅ 2 new Vitest tests; 4-case paired shell self-test.                                                                                                |
+| IV (service-contract tests)         | ✅ N/A — no Java/API change.                                                                                                                         |
+| V (Plan / Complexity)               | ✅ 1 .sh + 1 .bat + 1 paired self-test + 1 Vitest spec + 1 README update + 1 task entry. No new deps.                                                |
+| VI (threat-model note)              | ✅ N/A — no new auth/network surface. The gate is a regression guard for the existing US6 cutover.                                                   |
+| VII (format checks)                 | ✅ `npx tsc --noEmit` clean; `npx vitest run ../../test/ts/scripts/verify-no-finder-jsp-references.test.ts` = 2/2; shell self-test = 4/4 cases pass. |
+| IX (review-thread resolution)       | ⏳ Will resolve per-thread on PR review.                                                                                                             |
+| E (no residuals out of spec phases) | ✅ T029b closes FR-019a measurable gate; spec 992 is now feature-complete (matrix 32/32 + US8 sub-PRs + edge cases #3/#7/#11 + FR-019a gate).        |
 
 ### Cross-platform / portability
 
@@ -66,14 +66,14 @@ Per the project's cross-platform mandate (root `AGENTS.md`):
 
 ### ER-typed summary
 
-| Category | Count |
-|----------|------:|
-| Blocking bugs | 0 |
-| Bugs caught-and-fixed-in-session | 2 (multi-line sed regex; __dirname over-count) |
-| Non-blocking observations | 4 (carve-outs explicit; cross-platform; Vitest is load-bearing; no new deps) |
-| Style cleanups | 0 |
-| Cross-platform portability findings | 0 |
-| Constitution rule violations | 0 |
+|              Category               |                                                                        Count |
+|-------------------------------------|-----------------------------------------------------------------------------:|
+| Blocking bugs                       |                                                                            0 |
+| Bugs caught-and-fixed-in-session    |                               2 (multi-line sed regex; __dirname over-count) |
+| Non-blocking observations           | 4 (carve-outs explicit; cross-platform; Vitest is load-bearing; no new deps) |
+| Style cleanups                      |                                                                            0 |
+| Cross-platform portability findings |                                                                            0 |
+| Constitution rule violations        |                                                                            0 |
 
 ---
 

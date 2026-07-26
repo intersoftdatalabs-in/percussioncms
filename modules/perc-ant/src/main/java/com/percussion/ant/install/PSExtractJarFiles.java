@@ -55,14 +55,11 @@ import java.util.jar.JarFile;
  *
  * </pre>
  */
-/**
- * Extracts files from JAR files.
- */
+/** Extracts files from JAR files. */
 public class PSExtractJarFiles extends PSAction {
-  /**
-   * Creates a new JAR file extraction task.
-   */
+  /** Creates a new JAR file extraction task. */
   public PSExtractJarFiles() {}
+
   // see base class
   @Override
   public void execute() {

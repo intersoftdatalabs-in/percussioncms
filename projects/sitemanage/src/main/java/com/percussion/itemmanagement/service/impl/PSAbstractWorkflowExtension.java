@@ -356,13 +356,14 @@ public abstract class PSAbstractWorkflowExtension implements IPSExtension {
     /**
      * Records a failed action on the workflow item. Concurrency/lock races are demoted to INFO
      * (another publish job likely owns the transition) but this job still marks the item {@link
-     * ItemStatus#FAILED}: the transition did not complete in <em>this</em> job. Callers that need
-     * a non-failing outcome must handle concurrency before calling this method.
+     * ItemStatus#FAILED}: the transition did not complete in <em>this</em> job. Callers that need a
+     * non-failing outcome must handle concurrency before calling this method.
      */
     protected void handleError(WorkflowItem wfItem, String action, Exception e) {
       if (isConcurrencyException(e)) {
         log.info(
-            "Concurrent modification detected while attempting to {} item: {}. This item was likely updated by another concurrent publish job.",
+            "Concurrent modification detected while attempting to {} item: {}. This item was likely"
+                + " updated by another concurrent publish job.",
             action,
             wfItem);
         if (log.isDebugEnabled()) {

@@ -54,9 +54,7 @@ import org.apache.tools.ant.Task;
  * @author peterfrontiero
  */
 public class PSAction extends Task {
-  /**
-   * Creates a new action task.
-   */
+  /** Creates a new action task. */
   public PSAction() {}
 
   /**

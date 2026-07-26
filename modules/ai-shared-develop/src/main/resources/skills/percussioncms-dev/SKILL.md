@@ -245,12 +245,11 @@ Same workflow as `install_latest_dts` — the scripts already default to the dev
 ## 3. API Skills
 
 All API calls target `${API_BASE}` (default `http://localhost:9992/Rhythmyx/rest`). Authentication is handled in the helpers.
+
 ### Authentication
 
 - **All hosts:** invoke `python3 .github/skills/percussioncms-dev/scripts/api-client.py --method GET --endpoint /folders/by-path/Assets` (one-shot CLI; the original shell-function surface becomes per-call argparse arguments).
 - Login: add `--login-form --user "${CMS_USER}" --password "${CMS_PASSWORD}" --endpoint /j_security_check` (omit `--endpoint` for the form path which targets `${API_BASE%/rest}/j_security_check` by default).
-
-
 
 ```bash
 # Login (Linux/macOS, form-based)

@@ -5,7 +5,7 @@
 **Branch**: `990-unified-publishing-ui` → `development`  
 **Scope**: 132 files, ~+13.7k / −4.7k (React PublishingShell, sitemanage design façade, Minuet cutover, US9 residual)  
 **Reviewer persona**: Erlang (strict independent review; Kilo infra failed — substitute)  
-**Memory patterns hit**: missing behavioral contract for API request shapes; multi-copy shared WebUI assets; empty/swallowed catch; incomplete dual-tree retirement  
+**Memory patterns hit**: missing behavioral contract for API request shapes; multi-copy shared WebUI assets; empty/swallowed catch; incomplete dual-tree retirement
 
 ## Summary
 
@@ -19,12 +19,12 @@ Large, coherent feature PR that lands a modern React Publishing shell, a thin si
 
 ## Gate
 
-| Gate | Result |
-|------|--------|
-| Bugs (correctness / contract) | **Fail** — purge + log details body shape |
+|                  Gate                  |                                         Result                                         |
+|----------------------------------------|----------------------------------------------------------------------------------------|
+| Bugs (correctness / contract)          | **Fail** — purge + log details body shape                                              |
 | Behavioral tests for non-trivial logic | Pass for pure TS helpers + design REST core; **gap** on purge/details request builders |
-| Cross-platform path/file I/O | Pass (N/A for most of this PR; no new non-portable FS joins found) |
-| May merge as-is | **No** |
+| Cross-platform path/file I/O           | Pass (N/A for most of this PR; no new non-portable FS joins found)                     |
+| May merge as-is                        | **No**                                                                                 |
 
 ## Issues
 
@@ -34,11 +34,15 @@ Large, coherent feature PR that lands a modern React Publishing shell, a thin si
 
 - **Where**: `WebUI/src/main/ts/publishing/sections/LogsSection.tsx` → `purgePublishingLogs({ jobIds: [...] })`; `WebUI/src/main/ts/api/publishing/statusApi.ts`
 - **Evidence**: Server `PSSitePublishPurgeRequest` exposes `jobids` (not `jobIds`) and is `@JsonRootName("SitePublishPurgeRequest")`. Minuet `PercPublisherService.purgeJob` posts:
+
   ```json
   { "SitePublishPurgeRequest": { "jobids": [ ... ] } }
   ```
+
   Modern client posts `{ "jobIds": [ ... ] }` (wrong property name, no root wrapper).
+
 - **Impact**: Purge selection appears to work in UI but server will not receive job IDs → purge no-ops or 400; breaks OPS-24 / SC-008 diagnose-and-cleanup path.
+
 - **Fix**: Align client with Minuet/DTO: send `jobids` (and root name if mapper requires UNWRAP). Add unit test for request body shape (behavioral contract test).
 
 #### B2 — Log details request body uses `jobId` instead of `jobid`
@@ -89,27 +93,27 @@ Large, coherent feature PR that lands a modern React Publishing shell, a thin si
 
 ## Cross-platform path checklist
 
-- [x] No new OS filesystem path joins with hardcoded separators in product Java for this feature  
-- [x] URL/classpath paths correctly use `/`  
-- [x] Tests do not assert Unix-only absolute FS paths for new logic  
-- N/A: installer/package path handling  
+- [x] No new OS filesystem path joins with hardcoded separators in product Java for this feature
+- [x] URL/classpath paths correctly use `/`
+- [x] Tests do not assert Unix-only absolute FS paths for new logic
+- N/A: installer/package path handling
 
 ## Positives (do not lose in rework)
 
-- Query allowlist in `publishModern.jsp` (section + siteId + serverId) — solid XSS control  
-- Dual `cm/app` + `cm/pages` index rewire to modern shell  
-- Vitest for approval payload, status sort, logs filter, queue PagedItemList shape, server validation, deep links  
-- JUnit/Mockito for design REST and runtime support core paths  
-- Secret redaction helper for server property dumps  
-- Spring registration of `publishingDesignRestService` in jaxrs serviceBeans  
-- Honest residual tracking for faces packaging / UAT via #1371 / #1372  
+- Query allowlist in `publishModern.jsp` (section + siteId + serverId) — solid XSS control
+- Dual `cm/app` + `cm/pages` index rewire to modern shell
+- Vitest for approval payload, status sort, logs filter, queue PagedItemList shape, server validation, deep links
+- JUnit/Mockito for design REST and runtime support core paths
+- Secret redaction helper for server property dumps
+- Spring registration of `publishingDesignRestService` in jaxrs serviceBeans
+- Honest residual tracking for faces packaging / UAT via #1371 / #1372
 
 ## Suggested fix order
 
-1. B1 + B2 (+ tests for request builders)  
-2. B3 packaging/minify inventory  
-3. S1/S2 dual-tree/config alignment  
-4. S3–S5 as capacity allows  
+1. B1 + B2 (+ tests for request builders)
+2. B3 packaging/minify inventory
+3. S1/S2 dual-tree/config alignment
+4. S3–S5 as capacity allows
 
 ## Handoff
 
@@ -117,25 +121,25 @@ Author should not merge until B1–B3 are fixed and re-reviewed (or B3 explicitl
 
 ## Re-review (2026-07-19 — mitigation commit)
 
-| Finding | Status | Mitigation |
-|---------|--------|------------|
-| B1 purge body | **Fixed** | `logRequestBodies.buildPurgeRequestBody` → `{ SitePublishPurgeRequest: { jobids } }`; `purgePublishingLogs(jobIds)` |
-| B2 details body | **Fixed** | `buildLogDetailsRequestBody` → `{ SitePublishLogDetailsRequest: { jobid } }`; also wrapped log list POST |
-| B3 Minuet pack | **Fixed** | Removed three exclusive Minuet views from `static-bundles.json` perc_publish pack; dropped root `vite.legacy` perc_publish entry; structural test asserts pack list |
-| Tests | **Added** | `logRequestBodies.test.ts`, purge gate pairs with payload, `publishNavRewire` B3 assert |
+|     Finding     |  Status   |                                                                             Mitigation                                                                              |
+|-----------------|-----------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| B1 purge body   | **Fixed** | `logRequestBodies.buildPurgeRequestBody` → `{ SitePublishPurgeRequest: { jobids } }`; `purgePublishingLogs(jobIds)`                                                 |
+| B2 details body | **Fixed** | `buildLogDetailsRequestBody` → `{ SitePublishLogDetailsRequest: { jobid } }`; also wrapped log list POST                                                            |
+| B3 Minuet pack  | **Fixed** | Removed three exclusive Minuet views from `static-bundles.json` perc_publish pack; dropped root `vite.legacy` perc_publish entry; structural test asserts pack list |
+| Tests           | **Added** | `logRequestBodies.test.ts`, purge gate pairs with payload, `publishNavRewire` B3 assert                                                                             |
 
 **Vitest**: 79 publishing tests passed.  
 **Residual (suggestions, not re-opened as bugs)**: S1 `war/app/publish.jsp` still Minuet; S3–S5 design test depth / showDesign / swallowed status — follow-up OK.
 
 ## Re-review (2026-07-19 — follow-up S1–S5)
 
-| Finding | Status | Mitigation |
-|---------|--------|------------|
-| S1 war Minuet publish | **Fixed** | `WebUI/war/app/publish.jsp` → 301 redirect to modern shell |
-| S2 vite.legacy perc_publish | **Fixed** earlier (B3) | root config entry removed |
-| S3 design tests | **Fixed** | `copyEdition` + `associateContentList` happy-path unit tests |
-| S4 false "running" status | **Fixed** | debug log; status `"unknown"` not `"running"`; unit test |
-| S5 showDesign | **Fixed** | Admin/Designer gate in `publishModern.jsp` (app + pages) |
+|           Finding           |         Status         |                          Mitigation                          |
+|-----------------------------|------------------------|--------------------------------------------------------------|
+| S1 war Minuet publish       | **Fixed**              | `WebUI/war/app/publish.jsp` → 301 redirect to modern shell   |
+| S2 vite.legacy perc_publish | **Fixed** earlier (B3) | root config entry removed                                    |
+| S3 design tests             | **Fixed**              | `copyEdition` + `associateContentList` happy-path unit tests |
+| S4 false "running" status   | **Fixed**              | debug log; status `"unknown"` not `"running"`; unit test     |
+| S5 showDesign               | **Fixed**              | Admin/Designer gate in `publishModern.jsp` (app + pages)     |
 
 **Java**: DesignRestServiceTest 14 + RuntimeSupportTest 11 = 25 passed.  
 **Commit**: `a8941ce733`

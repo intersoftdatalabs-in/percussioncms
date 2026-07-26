@@ -8,9 +8,7 @@ import com.percussion.share.service.exception.PSValidationException;
 import jakarta.ws.rs.core.Response;
 import org.junit.jupiter.api.Test;
 
-/**
- * Regression for GH-866 / v8.1.7 PR #929: validation exception mappers return BAD_REQUEST.
- */
+/** Regression for GH-866 / v8.1.7 PR #929: validation exception mappers return BAD_REQUEST. */
 class PSValidationExceptionMapperTest {
 
   private final PSValidationExceptionMapper validationMapper = new PSValidationExceptionMapper();

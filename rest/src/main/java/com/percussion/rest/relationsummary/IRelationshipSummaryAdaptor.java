@@ -30,8 +30,8 @@ import java.net.URI;
  * <p>DTOs live in this module ({@code com.percussion.share.relationship.data}) so rest does not
  * depend on sitemanage (avoids a Maven reactor cycle: sitemanage → rest).
  *
- * <p>The default adaptor raises a {@code WebApplicationException} with HTTP 403 on AuthZ denial;
- * no exception mapper is required because JAX-RS translates the status code automatically.
+ * <p>The default adaptor raises a {@code WebApplicationException} with HTTP 403 on AuthZ denial; no
+ * exception mapper is required because JAX-RS translates the status code automatically.
  *
  * @author Kilo (US8 / T098)
  */

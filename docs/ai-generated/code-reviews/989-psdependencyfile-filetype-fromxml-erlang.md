@@ -1,14 +1,14 @@
 # Erlang review — PSDependencyFile.fromXml fileType restore
 
-| Field | Value |
-|-------|--------|
-| **Date** | 2026-07-17 |
-| **Branch** | `989-react-cui-widget-builder` |
-| **Scope** | Uncommitted local changes only (vs `HEAD`) |
-| **Intent** | Restore `fileType` deserialization dropped in Java modernization; diagnose package-install well-formed / wrong-type / “missing” item-def failures; improve parse-error identity |
-| **Recommendation** | **approve** |
-| **Gate** | **May commit/push: yes** |
-| **Memory patterns hit** | Missing behavioral tests (avoided); path portability (clean for this pack) |
+|          Field          |                                                                                      Value                                                                                      |
+|-------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| **Date**                | 2026-07-17                                                                                                                                                                      |
+| **Branch**              | `989-react-cui-widget-builder`                                                                                                                                                  |
+| **Scope**               | Uncommitted local changes only (vs `HEAD`)                                                                                                                                      |
+| **Intent**              | Restore `fileType` deserialization dropped in Java modernization; diagnose package-install well-formed / wrong-type / “missing” item-def failures; improve parse-error identity |
+| **Recommendation**      | **approve**                                                                                                                                                                     |
+| **Gate**                | **May commit/push: yes**                                                                                                                                                        |
+| **Memory patterns hit** | Missing behavioral tests (avoided); path portability (clean for this pack)                                                                                                      |
 
 ## Summary
 
@@ -20,12 +20,12 @@ No hard-gate bugs found. Cross-platform path checklist: clean for this change (u
 
 ## Files reviewed
 
-| Path | Role |
-|------|------|
-| `deployer/.../PSDependencyFile.java` | `fromXml` fileType + archive/original validation |
-| `deployer/.../PSDependencyHandler.java` | `createXmlDocument(in, sourceIdentity)` |
-| `deployer/.../PSApplicationDependencyHandler.java` | pass archive path into createXmlDocument |
-| `deployer/.../PSDependencyFileTest.java` | new unit tests (21 cases) |
+|                        Path                        |                       Role                       |
+|----------------------------------------------------|--------------------------------------------------|
+| `deployer/.../PSDependencyFile.java`               | `fromXml` fileType + archive/original validation |
+| `deployer/.../PSDependencyHandler.java`            | `createXmlDocument(in, sourceIdentity)`          |
+| `deployer/.../PSApplicationDependencyHandler.java` | pass archive path into createXmlDocument         |
+| `deployer/.../PSDependencyFileTest.java`           | new unit tests (21 cases)                        |
 
 ## Verification (author)
 
@@ -53,10 +53,10 @@ _None._
 
 ## Cross-platform path checklist
 
-- [x] No new `"/" +` / `"\\" +` filesystem joins in production code  
-- [x] Archive path still normalized at ZIP open via existing `getNormalizedArchivePath`  
-- [x] Tests use relative `File` / child segments; no Unix-only absolute roots  
-- [x] Original-file restore uses `getNormalizedPath`; test normalizes separators before compare  
+- [x] No new `"/" +` / `"\\" +` filesystem joins in production code
+- [x] Archive path still normalized at ZIP open via existing `getNormalizedArchivePath`
+- [x] Tests use relative `File` / child segments; no Unix-only absolute roots
+- [x] Original-file restore uses `getNormalizedPath`; test normalizes separators before compare
 
 ## Gate
 

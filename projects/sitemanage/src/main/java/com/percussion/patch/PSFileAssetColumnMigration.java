@@ -18,8 +18,8 @@
 package com.percussion.patch;
 
 /**
- * Pure decision helpers for the legacy {@code CT_PERCFILEASSET} attachment-column rename
- * ({@code ITEM_FILE_ATTACHMENTX} → {@code ITEM_FILE_ATTACHMENT}).
+ * Pure decision helpers for the legacy {@code CT_PERCFILEASSET} attachment-column rename ({@code
+ * ITEM_FILE_ATTACHMENTX} → {@code ITEM_FILE_ATTACHMENT}).
  *
  * <p>Historical upgrade left some repositories with both columns. The migration must <em>never</em>
  * drop {@code ITEM_FILE_ATTACHMENT} merely because the table has zero non-null values — that is

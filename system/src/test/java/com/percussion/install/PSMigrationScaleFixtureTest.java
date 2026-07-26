@@ -37,8 +37,9 @@ import org.junit.jupiter.api.io.TempDir;
  * Scale fixture for TableFactory migration transfer (T050 / QC-029 / SC-002).
  *
  * <p>Seeds ≥1000 content rows, runs export→import, asserts row count, and appends wall-clock to
- * {@code specs/548-derby-embedded-migration/checklists/migration-timing.md} when that path is
- * writable from the test working directory (best-effort; never fails the build if missing).
+ * {@code target/migration-timing.md} under the current working directory (best-effort; never fails
+ * the build if missing). Keeping the log under {@code target/} ensures tests do not mutate tracked
+ * source files.
  */
 @Tag("IntegrationTest")
 public class PSMigrationScaleFixtureTest {
@@ -66,10 +67,8 @@ public class PSMigrationScaleFixtureTest {
         Statement st = c.createStatement()) {
       st.execute(
           "CREATE TABLE CONTENT (ID INT PRIMARY KEY, TITLE VARCHAR(128), FLAG CHAR(1), BODY CLOB)");
-      st.execute(
-          "CREATE TABLE NEXTNUMBER (KEYNAME VARCHAR(64) PRIMARY KEY, NEXTNR INT NOT NULL)");
-      try (PreparedStatement ps =
-          c.prepareStatement("INSERT INTO CONTENT VALUES (?, ?, 'T', ?)")) {
+      st.execute("CREATE TABLE NEXTNUMBER (KEYNAME VARCHAR(64) PRIMARY KEY, NEXTNR INT NOT NULL)");
+      try (PreparedStatement ps = c.prepareStatement("INSERT INTO CONTENT VALUES (?, ?, 'T', ?)")) {
         for (int i = 1; i <= SCALE_ROWS; i++) {
           ps.setInt(1, i);
           ps.setString(2, "item-" + i);
@@ -154,32 +153,12 @@ public class PSMigrationScaleFixtureTest {
   }
 
   /**
-   * Resolve the checklist markdown file path only (never a directory). Tries repo-root and {@code
-   * system/}-cwd layouts.
+   * Resolve the timing-log markdown file path under the build {@code target/} directory. This keeps
+   * test output out of tracked source files and avoids breaking the ai-build-integrity seal.
    *
    * @return path to write, or null if no suitable location
    */
   static Path resolveTimingLogFile() {
-    Path fromRepoRoot =
-        Path.of("specs", "548-derby-embedded-migration", "checklists", "migration-timing.md");
-    if (Files.isRegularFile(fromRepoRoot)) {
-      return fromRepoRoot;
-    }
-    Path fromSystemModule =
-        Path.of("..", "specs", "548-derby-embedded-migration", "checklists", "migration-timing.md")
-            .normalize();
-    if (Files.isRegularFile(fromSystemModule)) {
-      return fromSystemModule;
-    }
-    // Prefer creating under parent checklist dir when that directory already exists
-    Path checklistDir = fromSystemModule.getParent();
-    if (checklistDir != null && Files.isDirectory(checklistDir)) {
-      return fromSystemModule;
-    }
-    checklistDir = fromRepoRoot.getParent();
-    if (checklistDir != null && Files.isDirectory(checklistDir)) {
-      return fromRepoRoot;
-    }
-    return null;
+    return Path.of("target", "migration-timing.md").toAbsolutePath().normalize();
   }
 }

@@ -91,7 +91,7 @@ description: "Task list for v8.1.7 → 8.2 migration audit pipeline"
 ### Tests for User Story 2 (REQUIRED) ⚠️
 
 - [x] T018 [P] [US2] Write shell-driven assertion in `scripts/release-audit/tests/test_verdicts.sh` that asserts: (a) `verdicts.json` has 141 entries matching `inventory.json` PR numbers, (b) every verdict is one of the 5 enum values, (c) every `evidenceNote` is non-empty
-- [x] T019 [P] [US2] (deferred — covered by test_verdicts.sh structure check on evidenceCommit non-empty for already-present)
+- [x] T019 [P] [US2](deferred — covered by test_verdicts.sh structure check on evidenceCommit non-empty for already-present)
 - [x] T020 [P] [US2] Implement path resolution in `scripts/release-audit/lib/verdicts.sh`: `resolve_dev_path <v817-path>` handles the `system/Packages/` → `modules/perc-packages/src/main/resources/Packages/` migration
 - [x] T021 [P] [US2] Implement verdict heuristics in `scripts/release-audit/lib/verdicts.sh`: `classify_pr <prrecord> <output-dir>` applies the 5-rule decision tree from data-model.md
 - [x] T022 [US2] Implement security/dependency verdict specialization in `scripts/release-audit/lib/verdicts.sh`: FR-006a applied via filename heuristic for securityFlag=true (full per-component dependency check is a follow-up; filename heuristic flags 13 PRs)
@@ -111,7 +111,7 @@ description: "Task list for v8.1.7 → 8.2 migration audit pipeline"
 ### Tests for User Story 3 (REQUIRED) ⚠️
 
 - [x] T025 [P] [US3] Write shell-driven assertion in `scripts/release-audit/tests/test_backlog.sh` that asserts all backlog sections + Issue Clusters Appendix + Report's 7 sections
-- [x] T026 [P] [US3] (merged into T025 — same test asserts both backlog and report sections)
+- [x] T026 [P] [US3](merged into T025 — same test asserts both backlog and report sections)
 - [x] T027 [P] [US3] Implement priority classifier in `scripts/release-audit/lib/backlog.sh`: `classify_priority <prrecord>` returns P0/P1/P2/P3 by security flag + module path
 - [x] T028 [P] [US3] Implement strategy recommender in `scripts/release-audit/lib/backlog.sh`: `recommend_strategy <prrecord> <verdict>` returns cherry-pick (default) or back-port (for JDK 8 idioms)
 - [x] T029 [US3] Implement backlog generator in `scripts/release-audit/lib/backlog.sh`: `run_backlog_phase <output-dir>` emits migration-backlog.md per contracts §"Contract 4" with P0/P1/P2/P3 sections, per-item table rows, and Issue Clusters Appendix per FR-005a
@@ -138,7 +138,7 @@ description: "Task list for v8.1.7 → 8.2 migration audit pipeline"
 - [x] T034 [P] [US4] Implement port workflow in `scripts/release-audit/lib/port.sh`: `cherry_pick_pr <pr_number> <target_branch>` creates a feature branch from `<target_branch>`, cherry-picks the v8.1.7 merge commit with `-x` annotation, returns the branch name on success and the conflict list on partial failure (exit 2)
 - [x] T035 [US4] Implement JDK 21 translation helper in `scripts/release-audit/lib/port.sh`: `flag_jdk8_idioms <diff>` scans the cherry-picked diff for `javax.ws.rs.|javax.persistence.|javax.xml/bind.|sun.misc.|com.sun.` and emits a warning file with each match's file:line for the porter to translate manually
 - [x] T036 [US4] Document the per-porting-PR pattern in `scripts/release-audit/PORTING.md`: pre-flight (resolve dev path, check AGENTS.md per module), branch creation, cherry-pick with `-x`, JDK 8 translation if flagged, test execution via `./mvn-env.sh`, Spotless check, PR body template that cites both the v8.1.7 PR and the backlog item
-- [x] T037 [US4] (representative port deferred to porter — see PORTING.md for the documented workflow; actual cherry-pick of PR #894 requires porter judgment on JDK 21 translation and is downstream work, not part of this audit deliverable per Clarifications Q2)
+- [x] T037 [US4](representative port deferred to porter — see PORTING.md for the documented workflow; actual cherry-pick of PR #894 requires porter judgment on JDK 21 translation and is downstream work, not part of this audit deliverable per Clarifications Q2)
 
 **Checkpoint**: User Story 4's workflow is documented and validated on one representative item. Porting of remaining backlog items is downstream work.
 
@@ -297,3 +297,4 @@ With multiple developers:
 - The audit pipeline is a bash tool under `scripts/release-audit/` — it does NOT add a new Maven module, per Complexity Tracking in plan.md
 - Constitution Principle IX (PR Review Comment Resolution) applies to T037 (the representative porting PR): porter MUST reply inline AND resolve each review thread per root `AGENTS.md` procedure
 - `research.md` contains the 141-PR inventory and 20-PR sample verdicts — reference it when implementing T022 (security specialization) and T029 (backlog generator) so the heuristics match the validated sample
+

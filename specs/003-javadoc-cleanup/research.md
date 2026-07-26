@@ -15,12 +15,12 @@ Command used:
 
 Raw output archived at `specs/003-javadoc-cleanup/baseline-raw.txt`.
 
-| Metric | Count |
-|--------|-------|
-| Errors (javadoc tool output) | **44** |
-| Warnings (javadoc tool output) | **198** |
-| Unique files producing errors | **26** |
-| Unique files producing any issue | ~70 |
+|              Metric              |  Count  |
+|----------------------------------|---------|
+| Errors (javadoc tool output)     | **44**  |
+| Warnings (javadoc tool output)   | **198** |
+| Unique files producing errors    | **26**  |
+| Unique files producing any issue | ~70     |
 
 The javadoc tool's own summary line at the end of its output:
 
@@ -37,23 +37,23 @@ The javadoc tool's own summary line at the end of its output:
 
 ### Issue categories (raw line counts)
 
-| Category | Count | Fix mechanism |
-|----------|------:|---------------|
-| `cannot find symbol` (referenced via `{@link ...}`) | 144 | Replace with correct FQN or remove stale `{@link}` |
-| `package com.percussion.services.* does not exist` (cross-module `{@link}` resolution) | 124 | Replace with module-correct `{@link}` (often `#FQN` without `package` qualifier) or remove stale reference |
-| `no comment` (class / constructor / method) | 56 | Add Javadoc block with substantive description (FR-003) |
-| `no @param` | 32 | Add `@param` for each parameter OR add justification comment |
-| `no main description` | 30 | Add a description paragraph at the start of the Javadoc block |
-| `no description for @throws` | 30 | Add a description after each `@throws` tag |
-| `reference not found` (broken `{@link}` to local member) | 16 | Fix the `{@link}` target (typo, wrong overload, missing method) |
-| `unknown tag` (HTML/Javadoc tag not recognized) | 14 | Replace tag with supported Javadoc/HTML (FR-003) |
-| `@param name not found` (param name doesn't match signature) | 14 | Correct the parameter name in the `@param` |
-| `no @return` | 14 | Add `@return` (or add justification comment for void) |
-| `unexpected text` | 12 | Move text outside the Javadoc / use proper tag form |
-| `malformed HTML` / `element not closed: code` / `bad HTML entity` | 22 | Repair HTML (close `<code>`, escape `<` `>` `&`) |
-| `exception not thrown` (declared `@throws` for an undeclared exception) | 4 | Remove or correct `@throws` (or add the declaration) |
-| `use of default constructor, which does not provide a comment` | 4 | Add Javadoc to no-arg constructors or annotate `@SuppressWarnings("javadoc")` per module convention |
-| misc (semicolon, nested tag, empty comment, invalid HTML) | small | surgical repair |
+|                                        Category                                        | Count |                                               Fix mechanism                                                |
+|----------------------------------------------------------------------------------------|------:|------------------------------------------------------------------------------------------------------------|
+| `cannot find symbol` (referenced via `{@link ...}`)                                    |   144 | Replace with correct FQN or remove stale `{@link}`                                                         |
+| `package com.percussion.services.* does not exist` (cross-module `{@link}` resolution) |   124 | Replace with module-correct `{@link}` (often `#FQN` without `package` qualifier) or remove stale reference |
+| `no comment` (class / constructor / method)                                            |    56 | Add Javadoc block with substantive description (FR-003)                                                    |
+| `no @param`                                                                            |    32 | Add `@param` for each parameter OR add justification comment                                               |
+| `no main description`                                                                  |    30 | Add a description paragraph at the start of the Javadoc block                                              |
+| `no description for @throws`                                                           |    30 | Add a description after each `@throws` tag                                                                 |
+| `reference not found` (broken `{@link}` to local member)                               |    16 | Fix the `{@link}` target (typo, wrong overload, missing method)                                            |
+| `unknown tag` (HTML/Javadoc tag not recognized)                                        |    14 | Replace tag with supported Javadoc/HTML (FR-003)                                                           |
+| `@param name not found` (param name doesn't match signature)                           |    14 | Correct the parameter name in the `@param`                                                                 |
+| `no @return`                                                                           |    14 | Add `@return` (or add justification comment for void)                                                      |
+| `unexpected text`                                                                      |    12 | Move text outside the Javadoc / use proper tag form                                                        |
+| `malformed HTML` / `element not closed: code` / `bad HTML entity`                      |    22 | Repair HTML (close `<code>`, escape `<` `>` `&`)                                                           |
+| `exception not thrown` (declared `@throws` for an undeclared exception)                |     4 | Remove or correct `@throws` (or add the declaration)                                                       |
+| `use of default constructor, which does not provide a comment`                         |     4 | Add Javadoc to no-arg constructors or annotate `@SuppressWarnings("javadoc")` per module convention        |
+| misc (semicolon, nested tag, empty comment, invalid HTML)                              | small | surgical repair                                                                                            |
 
 ## Decision: build mechanism
 
@@ -130,10 +130,10 @@ as content explorer issues (they appear in this module's sources). Fix those by 
 
 Two commands, both documented in `quickstart.md`:
 
-| Goal | Command |
-|------|---------|
-| Standard javadoc generation (CI will run something equivalent) | `./mvn-env.sh -pl modules/DesktopContentExplorer javadoc:javadoc -DskipTests` |
-| Per-class javadoc generation (debugging) | `./mvn-env.sh -pl modules/DesktopContentExplorer javadoc:javadoc -DskipTests -Dsourcepath=modules/DesktopContentExplorer/src/main/java` |
+|                              Goal                              |                                                                 Command                                                                 |
+|----------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------|
+| Standard javadoc generation (CI will run something equivalent) | `./mvn-env.sh -pl modules/DesktopContentExplorer javadoc:javadoc -DskipTests`                                                           |
+| Per-class javadoc generation (debugging)                       | `./mvn-env.sh -pl modules/DesktopContentExplorer javadoc:javadoc -DskipTests -Dsourcepath=modules/DesktopContentExplorer/src/main/java` |
 
 Exit code 0, "0 errors", and "0 warnings" are the targets. The tool prints a final
 summary line `N errors` / `N warnings`; we key off that.

@@ -46,10 +46,9 @@ import org.apache.tools.ant.taskdefs.condition.Condition;
  * </pre>
  */
 public class PSLicenseProdCondition extends PSAction implements Condition {
-  /**
-   * Creates a new license production condition.
-   */
+  /** Creates a new license production condition. */
   public PSLicenseProdCondition() {}
+
   /* (non-Javadoc)
    * @see org.apache.tools.ant.taskdefs.condition.Condition#eval()
    */

@@ -17,6 +17,7 @@ The audit script lives at `./scripts/release-audit/release-audit.sh` once promot
 **Goal**: Produce the inventory, verdicts, backlog, and summary for `v8.1.6..v8.1.7` against `development`.
 
 **Run**:
+
 ```bash
 ./scripts/release-audit/release-audit.sh \
   --from-tag v8.1.6 --to-tag v8.1.7 \
@@ -33,6 +34,7 @@ The audit script lives at `./scripts/release-audit/release-audit.sh` once promot
 - File `./tmp/release-audit/v8.1.6..v8.1.7/v8.1.7-to-8.2-migration-report.md` exists; reviewable in <10 min.
 
 **Validation checks** (run after the script):
+
 ```bash
 # SC-001: 100% of non-dependabot PRs inventoried
 test "$(jq 'length' tmp/release-audit/v8.1.6..v8.1.7/inventory.json)" = "141"
@@ -53,6 +55,7 @@ grep -c "^### " tmp/release-audit/v8.1.6..v8.1.7/migration-backlog.md  # > 0
 **Goal**: Manually verify that verdict classifications are reproducible and evidence is concrete.
 
 **Run** (one PR per row from the sample in `research.md`):
+
 ```bash
 # PR #763 (UI, verdict: needs-migration)
 gh pr view 763 --repo intersoftdatalabs-in/percussioncms --json files --jq '.files[].path'
@@ -85,6 +88,7 @@ git show development:deliverytiersuite/delivery-tier-suite/feeds/src/main/java/w
 **Setup**: This scenario is forward-looking and may not be runnable today (no v8.1.8 tag exists). Use the v8.1.5..v8.1.6 range as a substitute dry-run.
 
 **Run**:
+
 ```bash
 ./scripts/release-audit/release-audit.sh \
   --from-tag v8.1.5 --to-tag v8.1.6 \
@@ -101,6 +105,7 @@ ls -la ./tmp/release-audit/v8.1.5..v8.1.6/
 **Setup**: Pick PR #894 from the backlog — "GH-891: Support leading `Sites/` in Page by Path REST resource". The change is contained to `rest/` and has clear tests in v8.1.7.
 
 **Run**:
+
 ```bash
 # 1. Create a feature branch from development
 git switch -c 005-migrate-891-rest-leading-sites development
@@ -135,6 +140,7 @@ gh pr create --base development --head 005-migrate-891-rest-leading-sites \
 **Goal**: Confirm FR-002 override works.
 
 **Run**:
+
 ```bash
 ./scripts/release-audit/release-audit.sh \
   --from-tag v8.1.6 --to-tag v8.1.7 \
@@ -153,3 +159,4 @@ jq '[.[] | select(.dependabotFlag == true)] | length' \
 - Migration backlog (the actionable list): `migration-backlog.md` once Scenario 1 has been run end-to-end.
 - Constitution compliance: see plan.md Constitution Check.
 - Module ownership and per-module AGENTS lookup: required per-module at porting time (US4 step 1).
+

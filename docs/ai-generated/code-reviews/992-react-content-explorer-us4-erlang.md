@@ -69,7 +69,7 @@ concerns (REST URL constants only).
 
 - Pure module — no React, no fetch, no DOM. Imports `PSFolderPermission`
   + `PSPrincipal` from `api/contentExplorer/types.ts` (no circular
-  dependency).
+    dependency).
 - `detectSelfLockout(before, after, identities)`: returns the list of
   access levels (ADMIN → VIEW) from which the current user is being
   removed, sorted broadest-first. Pure function over
@@ -249,7 +249,7 @@ review thread:
 1. Reply inline with `**Mitigation (commit <hash>):** <description>`.
 2. Run `gh api graphql resolveReviewThread` per thread.
 3. Re-verify via the GraphQL `reviewThreads(first: 50) { nodes {
-   isResolved } }` query before merging.
+isResolved } }` query before merging.
 
 ## Handoff
 
@@ -263,3 +263,4 @@ review thread:
   6. `docs(992/us4): tick T058-T064b; P-ACL rows Done in capability-matrix`
 - After this PR lands, the next concrete open tasks are T045f
   (US2 per-host verify-all) and US5 search (T065-T070).
+

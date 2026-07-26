@@ -84,7 +84,7 @@ public class PSFormData implements IPSFormData {
       name = "PERC_FORM_FIELDS",
       joinColumns = @JoinColumn(name = "PARENT_FORM_ID", referencedColumnName = "ID"))
   @MapKeyColumn(name = "FIELD_NAME")
-  @Column(name = "VALUE", length = 2048)
+  @Column(name = "FIELD_VALUE", length = 2048)
   private Map<String, String> properties = new HashMap<>();
 
   /**

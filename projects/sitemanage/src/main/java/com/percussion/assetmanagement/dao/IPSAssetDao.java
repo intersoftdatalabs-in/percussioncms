@@ -39,8 +39,9 @@ public interface IPSAssetDao extends IPSGenericDao<PSAsset, String> {
   void removeItemFromPath(IPSItemSummary item, String folderPath) throws PSDataServiceException;
 
   /**
-   * Gets the asset from its identifier, similar to {@link #find(String, boolean)}, except caller can specify
-   * the returned asset includes all fields or only the summary properties of the object.
+   * Gets the asset from its identifier, similar to {@link #find(String, boolean)}, except caller
+   * can specify the returned asset includes all fields or only the summary properties of the
+   * object.
    *
    * @param id the identifier (primary key) of the asset to get
    * @param isSummary true if load summary properties of the items, which does not include Clob or

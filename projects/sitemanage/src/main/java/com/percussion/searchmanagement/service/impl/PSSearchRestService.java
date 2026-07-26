@@ -28,7 +28,9 @@ import com.percussion.services.system.IPSSystemService;
 import com.percussion.share.data.PSPagedItemList;
 import com.percussion.share.data.PSPagedItemPropertiesList;
 import com.percussion.share.service.IPSDataService;
+import com.percussion.share.service.exception.PSParametersValidationException;
 import com.percussion.share.service.exception.PSValidationException;
+import com.percussion.share.validation.PSValidationErrorsBuilder;
 import com.percussion.webservices.PSWebserviceUtils;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.ws.rs.Consumes;
@@ -40,8 +42,6 @@ import jakarta.ws.rs.core.MediaType;
 import java.util.ArrayList;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import com.percussion.share.service.exception.PSParametersValidationException;
-import com.percussion.share.validation.PSValidationErrorsBuilder;
 import org.apache.lucene.queryparser.classic.QueryParser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -153,8 +153,8 @@ public class PSSearchRestService {
   }
 
   /**
-   * If the failure chain contains a Lucene {@code ParseException}, throw a field validation
-   * error; otherwise rethrow the original search exception. Never returns normally.
+   * If the failure chain contains a Lucene {@code ParseException}, throw a field validation error;
+   * otherwise rethrow the original search exception. Never returns normally.
    *
    * @param <T> dummy return type so callers can {@code return} this and satisfy control-flow
    */

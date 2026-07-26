@@ -19,30 +19,28 @@ package com.percussion.ant;
 import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.util.FileNameMapper;
 
-  /**
-   * This is an ant mapper that will truncate a directory mapping by dropping anything that appears
-   * before the specified truncation string. Correctly handles differences in Unix and Windows-style
-   * paths.
-   *
-   * <pre>
-   *    USAGE:
-   *
-   *        &lt;mapper classname="com.percussion.ant.PSTruncateDirectoryMapper"
-   *               classpathref="antExt.class.path"
-   *               to="com\"/&gt;
-   *
-   *    classname = the name of the PSTruncateDirectoryMapper class
-   *    classpathref = the reference id to the class path that points
-   *                   to the above class
-   *    to = The truncation string, anything before this will be removed from
-   *         the directory path
-   *
-   * </pre>
-   */
+/**
+ * This is an ant mapper that will truncate a directory mapping by dropping anything that appears
+ * before the specified truncation string. Correctly handles differences in Unix and Windows-style
+ * paths.
+ *
+ * <pre>
+ *    USAGE:
+ *
+ *        &lt;mapper classname="com.percussion.ant.PSTruncateDirectoryMapper"
+ *               classpathref="antExt.class.path"
+ *               to="com\"/&gt;
+ *
+ *    classname = the name of the PSTruncateDirectoryMapper class
+ *    classpathref = the reference id to the class path that points
+ *                   to the above class
+ *    to = The truncation string, anything before this will be removed from
+ *         the directory path
+ *
+ * </pre>
+ */
 public class PSTruncateDirectoryMapper implements FileNameMapper {
-  /**
-   * Creates a new truncate directory mapper.
-   */
+  /** Creates a new truncate directory mapper. */
   public PSTruncateDirectoryMapper() {}
 
   /** Ignored. */

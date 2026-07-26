@@ -62,10 +62,7 @@ class MainDTSPreInstallExtractArchiveTest {
   @Test
   void extractArchive_skipsEntriesOutsidePrefix() throws Exception {
     Path archive = tempDir.resolve("prefix.zip");
-    writeZip(
-        archive,
-        entry("other/ignore.txt", "nope"),
-        entry(PREFIX + "/keep.txt", "yes"));
+    writeZip(archive, entry("other/ignore.txt", "nope"), entry(PREFIX + "/keep.txt", "yes"));
 
     Path dest = tempDir.resolve("out");
     MainDTSPreInstall.extractArchive(archive, dest, PREFIX);

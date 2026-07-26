@@ -36,24 +36,22 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 /**
- * Regression tests for {@link PSArchiveFiles#extractFilesFromArchive} (CodeQL
- * {@code java/zipslip}, T041, US3).
+ * Regression tests for {@link PSArchiveFiles#extractFilesFromArchive} (CodeQL {@code java/zipslip},
+ * T041, US3).
  *
- * <p><strong>Background.</strong> The pre-fix code used the raw {@code entry.getName()}
- * as the destination path of a {@link FileOutputStream}, which is the canonical
- * zip-slip vector (CWE-22): a zip entry named {@code ../../etc/passwd} would write
- * outside the extract directory. The fix routes the entry name through
- * {@link PathValidation#constructSafePath(File, String)}, which canonicalizes the
- * resolved path and rejects any path that escapes the base directory.
+ * <p><strong>Background.</strong> The pre-fix code used the raw {@code entry.getName()} as the
+ * destination path of a {@link FileOutputStream}, which is the canonical zip-slip vector (CWE-22):
+ * a zip entry named {@code ../../etc/passwd} would write outside the extract directory. The fix
+ * routes the entry name through {@link PathValidation#constructSafePath(File, String)}, which
+ * canonicalizes the resolved path and rejects any path that escapes the base directory.
  *
- * <p><strong>Fail-then-pass coverage (Constitution III).</strong> The pre-fix
- * code was structurally vulnerable — for a zip entry named {@code ../escape.txt},
- * the test on a real local filesystem would create {@code escape.txt} in the
- * parent directory of the extract root. The post-fix code throws a
- * {@link SecurityException} (wrapped in {@link IOException} by
- * {@code extractFilesFromArchive}) and writes nothing. The test below exercises
- * this directly: a zip containing a traversal entry is created on disk, the
- * extract is invoked, and the test asserts the parent directory is unchanged.
+ * <p><strong>Fail-then-pass coverage (Constitution III).</strong> The pre-fix code was structurally
+ * vulnerable — for a zip entry named {@code ../escape.txt}, the test on a real local filesystem
+ * would create {@code escape.txt} in the parent directory of the extract root. The post-fix code
+ * throws a {@link SecurityException} (wrapped in {@link IOException} by {@code
+ * extractFilesFromArchive}) and writes nothing. The test below exercises this directly: a zip
+ * containing a traversal entry is created on disk, the extract is invoked, and the test asserts the
+ * parent directory is unchanged.
  */
 @DisplayName("PSArchiveFiles.extractFilesFromArchive — ZipSlip (CWE-22) regression tests")
 class PSArchiveFilesZipSlipTest {
@@ -103,21 +101,25 @@ class PSArchiveFilesZipSlipTest {
       // only handles IOException, so the SecurityException propagates out
       // of the for loop. We assert that the bad entry is rejected and the
       // escape file is NOT created in the parent directory.
-      SecurityException ex = assertThrows(
-          SecurityException.class,
-          () -> PSArchiveFiles.extractFilesFromArchive(
-              archiveFile, extractDir.getAbsolutePath(), null),
-          "extractFilesFromArchive must propagate PathValidation's"
-              + " SecurityException for a zip-slip entry");
-      assertNotNull(ex.getMessage(),
-          "the SecurityException must carry a descriptive message");
-      assertTrue(ex.getMessage().toLowerCase().contains("escape")
+      SecurityException ex =
+          assertThrows(
+              SecurityException.class,
+              () ->
+                  PSArchiveFiles.extractFilesFromArchive(
+                      archiveFile, extractDir.getAbsolutePath(), null),
+              "extractFilesFromArchive must propagate PathValidation's"
+                  + " SecurityException for a zip-slip entry");
+      assertNotNull(ex.getMessage(), "the SecurityException must carry a descriptive message");
+      assertTrue(
+          ex.getMessage().toLowerCase().contains("escape")
               || ex.getMessage().toLowerCase().contains("cwe-22")
               || ex.getMessage().toLowerCase().contains("traversal")
               || ex.getMessage().toLowerCase().contains("../"),
           "the SecurityException message should describe the traversal attempt,"
-              + " got: " + ex.getMessage());
-      assertFalse(escapeFile.exists(),
+              + " got: "
+              + ex.getMessage());
+      assertFalse(
+          escapeFile.exists(),
           "../escape.txt must NOT be created in the parent of the extract directory"
               + " (the zip-slip regression - the file appearing here is the original"
               + " CWE-22 path-traversal bug)");
@@ -128,7 +130,8 @@ class PSArchiveFilesZipSlipTest {
   @DisplayName("PathValidation.constructSafePath rejects absolute paths in user input")
   void testConstructSafePathRejectsAbsolutePath() {
     File base = extractDir;
-    assertThrows(SecurityException.class,
+    assertThrows(
+        SecurityException.class,
         () -> PathValidation.constructSafePath(base, "/etc/passwd"),
         "constructSafePath must throw SecurityException for an absolute userPath");
   }
@@ -137,13 +140,15 @@ class PSArchiveFilesZipSlipTest {
   @DisplayName("PathValidation.constructSafePath rejects ..-traversal in user input")
   void testConstructSafePathRejectsTraversal() {
     File base = extractDir;
-    assertThrows(SecurityException.class,
+    assertThrows(
+        SecurityException.class,
         () -> PathValidation.constructSafePath(base, "../../etc/passwd"),
         "constructSafePath must throw SecurityException for a ..-traversal userPath");
   }
 
   @Test
-  @DisplayName("PathValidation.constructSafePath returns a path under baseDir for a valid relative path")
+  @DisplayName(
+      "PathValidation.constructSafePath returns a path under baseDir for a valid relative path")
   void testConstructSafePathAcceptsValidRelative() throws IOException {
     File base = extractDir;
     File safe = PathValidation.constructSafePath(base, "subdir/file.txt");
@@ -161,8 +166,7 @@ class PSArchiveFilesZipSlipTest {
     // on Windows) reports containment correctly.
     Path basePath = base.getCanonicalFile().toPath();
     Path safePath = safe.getCanonicalFile().toPath();
-    assertTrue(safePath.startsWith(basePath),
-        "safe path must be under baseDir, got: " + safe);
+    assertTrue(safePath.startsWith(basePath), "safe path must be under baseDir, got: " + safe);
   }
 
   /** Recursive delete helper for tmp dirs. */

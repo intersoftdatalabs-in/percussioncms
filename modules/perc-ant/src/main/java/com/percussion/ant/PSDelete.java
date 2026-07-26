@@ -31,10 +31,9 @@ import org.apache.tools.ant.types.FileSet;
  * another and delete the mapped files.
  */
 public class PSDelete extends Delete {
-  /**
-   * Creates a new delete task.
-   */
+  /** Creates a new delete task. */
   public PSDelete() {}
+
   /**
    * If false, note errors but continue.
    *

@@ -92,14 +92,14 @@ None.
 
 ## Behavior parity check
 
-| Input (child.getName())          | Pre-fix (analysis)                | Post-fix (verified)                  | Correct? |
-|----------------------------------|-----------------------------------|--------------------------------------|----------|
-| `"legit-dir"`                    | passes; reaches `isDirectory()`   | passes (validator accepts)           | yes      |
-| `"readme.txt"`                   | passes                            | passes                               | yes      |
-| `"archive.tar.gz"`               | passes                            | passes                               | yes      |
-| `".."`                           | NPE later (`List.of(null)` path)  | `IllegalArgumentException`           | yes      |
-| `"foo/bar"`                      | NPE later                         | `IllegalArgumentException`           | yes      |
-| `"good\0.css"` (via `File.getName()`) | NPE later (pre-fix NUL reaches `getIcon`/`FolderHelper` mocks returning nulls → `List.of(null)` NPE) | `IllegalArgumentException` | yes |
+|        Input (child.getName())        |                                          Pre-fix (analysis)                                          |    Post-fix (verified)     | Correct? |
+|---------------------------------------|------------------------------------------------------------------------------------------------------|----------------------------|----------|
+| `"legit-dir"`                         | passes; reaches `isDirectory()`                                                                      | passes (validator accepts) | yes      |
+| `"readme.txt"`                        | passes                                                                                               | passes                     | yes      |
+| `"archive.tar.gz"`                    | passes                                                                                               | passes                     | yes      |
+| `".."`                                | NPE later (`List.of(null)` path)                                                                     | `IllegalArgumentException` | yes      |
+| `"foo/bar"`                           | NPE later                                                                                            | `IllegalArgumentException` | yes      |
+| `"good\0.css"` (via `File.getName()`) | NPE later (pre-fix NUL reaches `getIcon`/`FolderHelper` mocks returning nulls → `List.of(null)` NPE) | `IllegalArgumentException` | yes      |
 
 ## Fail-then-pass verification
 
@@ -136,3 +136,4 @@ None.
   and the tests are behavioral, fail-then-pass where it matters, and free of
   `sun.misc.Unsafe` / cross-platform anti-patterns. No follow-up changes required
   before merging.
+

@@ -110,7 +110,10 @@ function resolvePath(filePath, baseDir = WAR_DIR) {
   // now lives in modules/perc-common-ui-bundle/src/main/js/<rest>
   const deliveryPrefix = "../../delivery/common/js/";
   if (filePath.startsWith(deliveryPrefix)) {
-    return path.join(DELIVERY_COMMON_JS_DIR, filePath.slice(deliveryPrefix.length));
+    return path.join(
+      DELIVERY_COMMON_JS_DIR,
+      filePath.slice(deliveryPrefix.length)
+    );
   }
 
   // Otherwise, resolve from the cm app root
@@ -147,11 +150,7 @@ function readFile(filePath) {
  *   missing source files abort the build instead of writing empty concatenations.
  * @returns {{ missingCount: number }}
  */
-function buildBundlesFromConfig(
-  configFile,
-  processingPhase = 1,
-  options = {}
-) {
+function buildBundlesFromConfig(configFile, processingPhase = 1, options = {}) {
   const { failOnMissing = false } = options;
   const configPath = path.join(BUNDLE_CONFIG_DIR, configFile);
   let missingCount = 0;
@@ -220,7 +219,9 @@ function buildBundlesFromConfig(
       parts.push(`${errorCount} source file(s) unreadable (I/O error)`);
     }
     throw new Error(
-      `${configFile}: ${parts.join(", ")} while building intermediate bundles (source root: ${WAR_DIR})`
+      `${configFile}: ${parts.join(
+        ", "
+      )} while building intermediate bundles (source root: ${WAR_DIR})`
     );
   }
 

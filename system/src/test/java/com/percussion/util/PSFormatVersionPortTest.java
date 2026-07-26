@@ -43,8 +43,7 @@ class PSFormatVersionPortTest {
         PSXmlDocumentBuilder.createXmlDocument(
             new StringReader(String.format(XML_TEMPLATE, "123")), false);
     PSFormatVersion fv = PSFormatVersion.createFromXml(doc.getDocumentElement());
-    String vs =
-        assertDoesNotThrow(fv::getVersionString, "short buildNumber must not throw");
+    String vs = assertDoesNotThrow(fv::getVersionString, "short buildNumber must not throw");
     assertTrue(vs.contains("Build"));
     assertFalse(vs.contains("null"), "must not append literal null");
   }

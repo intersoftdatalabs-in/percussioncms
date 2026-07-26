@@ -22,10 +22,10 @@
 
 **Expect**:
 
-- Flag false + non-interactive → no delete  
-- Flag true → delete without prompt  
-- Interactive + flag false + candidates → decision method returns “prompt required”  
-- Flag true + interactive → proceed without prompt  
+- Flag false + non-interactive → no delete
+- Flag true → delete without prompt
+- Interactive + flag false + candidates → decision method returns “prompt required”
+- Flag true + interactive → proceed without prompt
 
 ## Scenario 3 — Unit: size estimate
 

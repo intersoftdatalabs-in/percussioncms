@@ -351,8 +351,7 @@
 			standardFunctionName="SOUNDEX" driver="derby"> <Description>Returns a character
 			string containing the phonetic representation of the source string. This
 			function allows comparison of words that are spelled differently, but sound
-			alike in English.</Description> </PSXDatabaseFunctionDef>
-		<PSXDatabaseFunctionDef
+			alike in English.</Description> </PSXDatabaseFunctionDef> <PSXDatabaseFunctionDef
 			standardFunctionName="SOUNDEX" driver="h2"> <Description>Returns a character
 			string containing the phonetic representation of the source string. This
 			function allows comparison of words that are spelled differently, but sound

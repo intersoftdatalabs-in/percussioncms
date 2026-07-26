@@ -64,10 +64,7 @@ public final class PSMigratorLock implements AutoCloseable {
     }
     FileChannel channel =
         FileChannel.open(
-            lockFile,
-            StandardOpenOption.CREATE,
-            StandardOpenOption.WRITE,
-            StandardOpenOption.READ);
+            lockFile, StandardOpenOption.CREATE, StandardOpenOption.WRITE, StandardOpenOption.READ);
     FileLock lock;
     try {
       lock = channel.tryLock();

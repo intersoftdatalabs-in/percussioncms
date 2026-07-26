@@ -8,7 +8,47 @@ extensions:
       pack: codeql/java-all
       extensible: barrierModel
     data:
-      - ["com.percussion.security.io", "PSPathInjectionGuard", false, "requireSafeFileName", "(String)", "", "ReturnValue", "path-injection", "manual"]
-      - ["com.percussion.security.io", "PSPathInjectionGuard", false, "requireUnderBase", "(File,String)", "", "ReturnValue", "path-injection", "manual"]
-      - ["com.percussion.security.io", "PSPathInjectionGuard", false, "requireUnderBase", "(String,String)", "", "ReturnValue", "path-injection", "manual"]
-      - ["com.percussion.security.io", "PSPathInjectionGuard", false, "requireUnderBasePath", "(File,String)", "", "ReturnValue", "path-injection", "manual"]
+      - [
+          "com.percussion.security.io",
+          "PSPathInjectionGuard",
+          false,
+          "requireSafeFileName",
+          "(String)",
+          "",
+          "ReturnValue",
+          "path-injection",
+          "manual",
+        ]
+      - [
+          "com.percussion.security.io",
+          "PSPathInjectionGuard",
+          false,
+          "requireUnderBase",
+          "(File,String)",
+          "",
+          "ReturnValue",
+          "path-injection",
+          "manual",
+        ]
+      - [
+          "com.percussion.security.io",
+          "PSPathInjectionGuard",
+          false,
+          "requireUnderBase",
+          "(String,String)",
+          "",
+          "ReturnValue",
+          "path-injection",
+          "manual",
+        ]
+      - [
+          "com.percussion.security.io",
+          "PSPathInjectionGuard",
+          false,
+          "requireUnderBasePath",
+          "(File,String)",
+          "",
+          "ReturnValue",
+          "path-injection",
+          "manual",
+        ]

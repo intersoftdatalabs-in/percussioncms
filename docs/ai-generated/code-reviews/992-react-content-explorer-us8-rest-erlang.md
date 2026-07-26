@@ -30,24 +30,24 @@ No file I/O, no path construction, no OS-specific concerns. The path-templating 
 
 ### Constitution compliance (US8 deliverable, rest side)
 
-| Constraint | Compliance | Notes |
-|------------|------------|-------|
-| II (no invented APIs) | ✅ | The wire shapes are exactly the sitemanage DTOs (`PSRelationshipSummary` / `PSTaxonomySummary` / `PSLocalDependencySummary` / `PSNodeRelationshipSummary`); no extra fields invented. |
-| III (behavioral tests) | ✅ | 12 tests across two files (8 adaptor + 4 resource) cover happy path + AuthZ 403 + DTO wire envelope (Jackson `@JsonRootName` present on every returned DTO). |
-| IV (service-contract tests) | ✅ | Per `rest/AGENTS.md`, the adaptor is the service contract — happy-path + AuthZ-negative + 403-status verification land on the adaptor tests. The full module's `rest/.../errors/RestExceptionMapper` already exists in the codebase (HTTP status code translation). |
-| VI (threat-model note for new façade) | ✅ | AuthZ is server-side (sitemanage); the rest surface adds no new CSRF surface (GETs are exempt by JAX-RS semantics); 403 path is the AuthZ-denied return; no PII; no path traversal; no new database schema. Documented in `docs/ai-generated/release/security-review-992.md` §"US8 amendment 2026-07-20". |
-| VII (format checks) | ✅ | No new Java files outside `rest/src/main/java/com/percussion/rest/relationsummary/` + `rest/src/test/java/com/percussion/rest/relationsummary/`; compile + test pass on JDK 21 with `./mvn-env.sh -pl rest test` (the integrity plugin skipped via `-Dskip.ai.integrity=true`). |
-| IX (review-thread resolution per PR) | ✅ | The pre-push Erlang gate has fired; per-PR review-thread resolution follows on human review pass. |
+|              Constraint               | Compliance |                                                                                                                                                   Notes                                                                                                                                                   |
+|---------------------------------------|------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| II (no invented APIs)                 | ✅          | The wire shapes are exactly the sitemanage DTOs (`PSRelationshipSummary` / `PSTaxonomySummary` / `PSLocalDependencySummary` / `PSNodeRelationshipSummary`); no extra fields invented.                                                                                                                     |
+| III (behavioral tests)                | ✅          | 12 tests across two files (8 adaptor + 4 resource) cover happy path + AuthZ 403 + DTO wire envelope (Jackson `@JsonRootName` present on every returned DTO).                                                                                                                                              |
+| IV (service-contract tests)           | ✅          | Per `rest/AGENTS.md`, the adaptor is the service contract — happy-path + AuthZ-negative + 403-status verification land on the adaptor tests. The full module's `rest/.../errors/RestExceptionMapper` already exists in the codebase (HTTP status code translation).                                       |
+| VI (threat-model note for new façade) | ✅          | AuthZ is server-side (sitemanage); the rest surface adds no new CSRF surface (GETs are exempt by JAX-RS semantics); 403 path is the AuthZ-denied return; no PII; no path traversal; no new database schema. Documented in `docs/ai-generated/release/security-review-992.md` §"US8 amendment 2026-07-20". |
+| VII (format checks)                   | ✅          | No new Java files outside `rest/src/main/java/com/percussion/rest/relationsummary/` + `rest/src/test/java/com/percussion/rest/relationsummary/`; compile + test pass on JDK 21 with `./mvn-env.sh -pl rest test` (the integrity plugin skipped via `-Dskip.ai.integrity=true`).                           |
+| IX (review-thread resolution per PR)  | ✅          | The pre-push Erlang gate has fired; per-PR review-thread resolution follows on human review pass.                                                                                                                                                                                                         |
 
 ### ER-typed summary
 
-| Category | Count |
-|----------|------:|
-| Blocking bugs | 0 |
-| Non-blocking observations | 4 (all "documented inline / ship as-is") |
-| Style cleanups | 0 |
-| Cross-platform portability findings | 0 |
-| Constitution rule violations | 0 |
+|              Category               |                                    Count |
+|-------------------------------------|-----------------------------------------:|
+| Blocking bugs                       |                                        0 |
+| Non-blocking observations           | 4 (all "documented inline / ship as-is") |
+| Style cleanups                      |                                        0 |
+| Cross-platform portability findings |                                        0 |
+| Constitution rule violations        |                                        0 |
 
 ---
 

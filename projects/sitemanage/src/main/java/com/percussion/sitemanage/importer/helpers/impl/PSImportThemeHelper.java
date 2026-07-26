@@ -20,6 +20,7 @@ package com.percussion.sitemanage.importer.helpers.impl;
 import static com.percussion.share.spring.PSSpringWebApplicationContextUtils.getWebApplicationContext;
 import static org.apache.commons.lang3.Validate.notNull;
 
+import com.percussion.security.io.PSPathInjectionGuard;
 import com.percussion.sitemanage.data.PSPageContent;
 import com.percussion.sitemanage.data.PSSite;
 import com.percussion.sitemanage.data.PSSiteImportCtx;
@@ -27,7 +28,6 @@ import com.percussion.sitemanage.error.PSSiteImportException;
 import com.percussion.sitemanage.importer.theme.IPSFileDownloader;
 import com.percussion.sitemanage.importer.theme.PSFileDownloader;
 import com.percussion.sitemanage.importer.theme.PSHTMLHeaderImporter;
-import com.percussion.security.io.PSPathInjectionGuard;
 import com.percussion.sitesummaryservice.service.IPSSiteImportSummaryService;
 import com.percussion.theme.data.PSThemeSummary;
 import com.percussion.theme.service.IPSThemeService;
@@ -249,17 +249,14 @@ public class PSImportThemeHelper extends PSImportHelper {
   }
 
   /**
-   * True if {@code value} is an http, https, or protocol-relative URL
-   * (case-insensitive). Protocol-relative URLs ({@code //cdn.example/style.css})
-   * are preserved by getLinkPaths() for off-site CSS imports and must be
-   * skipped — otherwise canonicalizing them as a filesystem path would
-   * throw on Windows or silently mis-resolve on Unix.
+   * True if {@code value} is an http, https, or protocol-relative URL (case-insensitive).
+   * Protocol-relative URLs ({@code //cdn.example/style.css}) are preserved by getLinkPaths() for
+   * off-site CSS imports and must be skipped — otherwise canonicalizing them as a filesystem path
+   * would throw on Windows or silently mis-resolve on Unix.
    */
   private static boolean isRemoteUrl(String value) {
     if (value == null) return false;
     String lower = value.toLowerCase(java.util.Locale.ROOT);
-    return lower.startsWith("http://")
-        || lower.startsWith("https://")
-        || lower.startsWith("//");
+    return lower.startsWith("http://") || lower.startsWith("https://") || lower.startsWith("//");
   }
 }

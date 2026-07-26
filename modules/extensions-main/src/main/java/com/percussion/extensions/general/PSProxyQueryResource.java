@@ -141,16 +141,13 @@ public class PSProxyQueryResource extends PSDefaultExtension implements IPSResul
           int internalPort = PSServer.getListenerPort();
           int pathStart = url.indexOf('/', requestRoot.length());
           String targetPath = pathStart >= 0 ? url.substring(pathStart) : "/";
-          URL outboundTarget =
-              new URL(scheme, "127.0.0.1", internalPort, targetPath);
+          URL outboundTarget = new URL(scheme, "127.0.0.1", internalPort, targetPath);
           validatedUrl = URLValidation.validateURLString(outboundTarget.toString());
         } else {
           validatedUrl = URLValidation.validateURLString(url);
         }
       } catch (SecurityException e) {
-        log.error(
-            "URL validation failed for request: {}",
-            PSExceptionUtils.getMessageForLog(e));
+        log.error("URL validation failed for request: {}", PSExceptionUtils.getMessageForLog(e));
         throw new PSExtensionProcessingException(0, "Invalid URL: " + e.getMessage());
       }
 
@@ -257,14 +254,9 @@ public class PSProxyQueryResource extends PSDefaultExtension implements IPSResul
         // pivot). Declared as PSExtensionProcessingException so the outer catch
         // rethrows instead of returning null.
         if (statusCode >= 300 && statusCode < 400) {
-          log.error(
-              "Remote redirect refused (SSRF hardening) url={} status={}", url, statusCode);
+          log.error("Remote redirect refused (SSRF hardening) url={} status={}", url, statusCode);
           throw new PSExtensionProcessingException(
-              0,
-              "Remote redirect refused for SSRF hardening: "
-                  + url
-                  + " status "
-                  + statusCode);
+              0, "Remote redirect refused for SSRF hardening: " + url + " status " + statusCode);
         }
 
         if (statusCode != 200) {

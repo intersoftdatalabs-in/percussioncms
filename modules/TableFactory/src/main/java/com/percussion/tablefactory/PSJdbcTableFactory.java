@@ -927,9 +927,8 @@ public class PSJdbcTableFactory {
    * com.percussion.tablefactory.tools.PSCatalogTableData#exportDatabase} (or {@code -dbexport})
    * staging tree into the target backend described by {@code dbmsDef}.
    *
-   * <p>Applies TableFactory schema create/load via {@link #processTables} using the target
-   * driver's datatype map (e.g. H2 for #548). Binary LOBs are read from {@code
-   * storageRoot/binaryData}.
+   * <p>Applies TableFactory schema create/load via {@link #processTables} using the target driver's
+   * datatype map (e.g. H2 for #548). Binary LOBs are read from {@code storageRoot/binaryData}.
    *
    * @param dbmsDef target database (H2, MySQL, …); binary storage location is set by this method
    * @param storageRoot export root containing {@code defData/tableDef.xml}
@@ -949,8 +948,7 @@ public class PSJdbcTableFactory {
       throw new IllegalArgumentException("storageRoot may not be null");
     }
 
-    File binaryStorageFolder =
-        new File(storageRoot, PSJdbcImportExportHelper.BINARY_DATA_FOLDER);
+    File binaryStorageFolder = new File(storageRoot, PSJdbcImportExportHelper.BINARY_DATA_FOLDER);
     dbmsDef.setBinaryStorageLocation(binaryStorageFolder);
 
     File defDataFolder = new File(storageRoot, PSJdbcImportExportHelper.DEF_DATA_FOLDER);
@@ -983,8 +981,7 @@ public class PSJdbcTableFactory {
       try {
         if (tableDataFile.isFile()) {
           try (FileInputStream inputXml = new FileInputStream(tableDataFile);
-              BufferedReader in =
-                  new BufferedReader(new PSXmlNormalizingReader(inputXml))) {
+              BufferedReader in = new BufferedReader(new PSXmlNormalizingReader(inputXml))) {
             Document tableData = PSXmlDocumentBuilder.createXmlDocument(in, false);
             log.info("Started processing: {}", tableName);
             processTables(dbmsDef, null, tableDef, tableData, null, false);
@@ -1244,8 +1241,7 @@ public class PSJdbcTableFactory {
     String safeSchema = SecureStringUtils.requireSqlObjectNameOrNull(dbmsDef.getSchema());
     String sqlStmt =
         "SELECT COUNT(*) FROM "
-            + PSSqlHelper.qualifyTableName(
-                safeTable, safeDb, safeSchema, dbmsDef.getDriver());
+            + PSSqlHelper.qualifyTableName(safeTable, safeDb, safeSchema, dbmsDef.getDriver());
 
     Statement stmt = null;
     ResultSet rsCount = null;
@@ -1254,7 +1250,11 @@ public class PSJdbcTableFactory {
       int count = 0;
       stmt = PSSQLStatement.getStatement(conn);
       // Identifiers already fail-closed via requireSqlObjectName*; COUNT(*) template is fixed.
-      rsCount = stmt.executeQuery(sqlStmt); // codeql[java/sql-injection] justification: table/schema/db validated by SecureStringUtils.requireSqlObjectName before qualifyTableName; not user SQL (alert #658)
+      rsCount =
+          stmt.executeQuery(
+              sqlStmt); // codeql[java/sql-injection] justification: table/schema/db validated by
+      // SecureStringUtils.requireSqlObjectName before qualifyTableName; not user
+      // SQL (alert #658)
 
       if (rsCount.next()) count = rsCount.getInt(1);
 

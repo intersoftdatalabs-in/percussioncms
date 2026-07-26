@@ -1,10 +1,10 @@
 # Erlang review — PSDeployService rollback policy + filter install
 
-| Field | Value |
-|-------|--------|
-| **Date** | 2026-07-18 |
-| **Recommendation** | **approve** |
-| **Gate** | **May commit/push: yes** |
+|       Field        |          Value           |
+|--------------------|--------------------------|
+| **Date**           | 2026-07-18               |
+| **Recommendation** | **approve**              |
+| **Gate**           | **May commit/push: yes** |
 
 ## Summary
 

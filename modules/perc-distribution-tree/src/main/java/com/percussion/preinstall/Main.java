@@ -57,8 +57,8 @@ import org.xml.sax.SAXException;
 
 /**
  * Pre-install entry point invoked by the distribution assembly. Extracts the assembled
- * distribution, resolves database configuration, selects a runtime Java home, and executes the
- * ANT installer against the target directory.
+ * distribution, resolves database configuration, selects a runtime Java home, and executes the ANT
+ * installer against the target directory.
  */
 public class Main {
 
@@ -71,8 +71,10 @@ public class Main {
   public static final String INSTALL_TEMPDIR = "percInstallTmp_";
   public static final String PERC_ANT_JAR = "perc-ant";
   public static final String DEVELOPMENT = "DEVELOPMENT";
+
   /** Name of the ANT build file inside the installer directory. */
   public static final String ANT_INSTALL = "install.xml";
+
   public static final String JAVA_TEMP = "java.io.tmpdir";
   public static final String VERSION_PROPERTIES = "Version.properties";
   private static final String INSTALLATION_PROPS_PATH = "/jetty/base/etc/installation.properties";
@@ -110,8 +112,7 @@ public class Main {
       try {
         resolvedDbConfig = DbInstallConfigResolver.resolveDbConfig(parsedArgs.options());
       } catch (IllegalArgumentException badDbConfig) {
-        System.out.println(
-            "Database configuration error: " + badDbConfig.getMessage());
+        System.out.println("Database configuration error: " + badDbConfig.getMessage());
         System.exit(1);
         return;
       }
@@ -278,9 +279,11 @@ public class Main {
     }
   }
 
-  /** Treat the supplied -Dperc.java.home value as the unattended input to the
-   * Java home selection. Returns {@code null} when the property is unset, so
-   * the discovery / interactive path takes over. */
+  /**
+   * Treat the supplied -Dperc.java.home value as the unattended input to the Java home selection.
+   * Returns {@code null} when the property is unset, so the discovery / interactive path takes
+   * over.
+   */
   static java.nio.file.Path parseUnattendedJavaHome(String raw) {
     if (raw == null) {
       return null;
@@ -334,8 +337,7 @@ public class Main {
    * @param sharedProcessCode shared process code field updated by {@link #execJar}
    * @return 0 on success; non-zero on failure
    */
-  static int resolveInstallExitCode(
-      Integer antExit, Boolean errorFlag, Integer sharedProcessCode) {
+  static int resolveInstallExitCode(Integer antExit, Boolean errorFlag, Integer sharedProcessCode) {
     if (antExit != null && antExit != 0) {
       return antExit;
     }

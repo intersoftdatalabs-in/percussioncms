@@ -50,11 +50,11 @@ import org.mockito.Mockito;
 /**
  * Unit tests for {@link PSUserService}.
  *
- * <p>Covers issue #937: {@code checkDirectoryService()} historically invoked
- * {@code findUsersFromDirectoryService("a")} with a meaningless literal query. The fix replaces it
- * with the existing no-arg overload, which is the documented probe entry point. These tests pin
- * the behavior so that (a) the contract of {@code checkDirectoryService()} is preserved and (b)
- * any regression that re-introduces a literal query argument is caught immediately.
+ * <p>Covers issue #937: {@code checkDirectoryService()} historically invoked {@code
+ * findUsersFromDirectoryService("a")} with a meaningless literal query. The fix replaces it with
+ * the existing no-arg overload, which is the documented probe entry point. These tests pin the
+ * behavior so that (a) the contract of {@code checkDirectoryService()} is preserved and (b) any
+ * regression that re-introduces a literal query argument is caught immediately.
  */
 @DisplayName("PSUserService#checkDirectoryService")
 class PSUserServiceMockTest {
@@ -94,8 +94,7 @@ class PSUserServiceMockTest {
   @Test
   @DisplayName("returns CONFIG_ERROR when the probe surfaces a configuration error")
   void returnsConfigErrorOnConfigException() {
-    PSDirectoryServiceException cause =
-        new PSDirectoryServiceConfigException("bad config");
+    PSDirectoryServiceException cause = new PSDirectoryServiceConfigException("bad config");
     doThrow(cause).when(userServiceSpy).findUsersFromDirectoryService();
 
     PSDirectoryServiceStatus status = userServiceSpy.checkDirectoryService();
@@ -152,8 +151,7 @@ class PSUserServiceMockTest {
 
     // checkDirectoryService() must translate the exception into a status payload,
     // never let it bubble up.
-    PSDirectoryServiceStatus status =
-        assertDoesNotThrow(userServiceSpy::checkDirectoryService);
+    PSDirectoryServiceStatus status = assertDoesNotThrow(userServiceSpy::checkDirectoryService);
     assertEquals(ServiceStatus.CONFIG_ERROR, status.getStatus());
   }
 }

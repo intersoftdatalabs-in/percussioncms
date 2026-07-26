@@ -36,8 +36,8 @@ public interface IPSContentItemDao
       throws PSDataServiceException;
 
   /**
-   * Gets the content item from its identifier, similar to {@link #find(String, boolean)}, except caller can
-   * specify the returned object includes all fields or only the summary properties.
+   * Gets the content item from its identifier, similar to {@link #find(String, boolean)}, except
+   * caller can specify the returned object includes all fields or only the summary properties.
    *
    * @param id the identifier (primary key) of the object to get
    * @param isSummary true if load summary properties of the items, which does not include Clob or

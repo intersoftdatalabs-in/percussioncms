@@ -61,13 +61,13 @@ This document records the evidence used to plan the implementation. Every fact b
 
 ## Resolved decisions (locked by spec clarification)
 
-| # | Decision | Spec reference |
-|---|----------|----------------|
-| D1 | Install/upgrade script policy = **preserve integrator drivers** | Clarification Q1 (Option A) |
-| D2 | Source of truth for the delete set = **exact-filename list pinned in `install.xml`** | Clarification Q2 (Option B) |
+| #  |                                                          Decision                                                          |       Spec reference        |
+|----|----------------------------------------------------------------------------------------------------------------------------|-----------------------------|
+| D1 | Install/upgrade script policy = **preserve integrator drivers**                                                            | Clarification Q1 (Option A) |
+| D2 | Source of truth for the delete set = **exact-filename list pinned in `install.xml`**                                       | Clarification Q2 (Option B) |
 | D3 | Mechanism to keep `_jdbc-stage` out of JAR = **`<delete dir="${assembly-directory}/_jdbc-stage"/>` after the staged copy** | Clarification Q3 (Option B) |
-| D4 | `scripts/README.md` example = **switch to `--expected-driver-glob` with real Maven-resolved globs** | Clarification Q4 (Option A) |
-| D5 | Test scope = **JUnit 5 unit test + shell assertion wired into Maven `verify`** | Clarification Q5 (Option C) |
+| D4 | `scripts/README.md` example = **switch to `--expected-driver-glob` with real Maven-resolved globs**                        | Clarification Q4 (Option A) |
+| D5 | Test scope = **JUnit 5 unit test + shell assertion wired into Maven `verify`**                                             | Clarification Q5 (Option C) |
 
 ## Out-of-scope (deliberately not addressed)
 

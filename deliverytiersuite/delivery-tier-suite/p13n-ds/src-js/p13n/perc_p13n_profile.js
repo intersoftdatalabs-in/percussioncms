@@ -364,7 +364,9 @@ P13NProfileEditor.prototype.onProfileDataSubmit = function (
     //     rather than replacing the existing pane with nothing
     //     (silent data-loss regression).
     if (typeof responseText !== "string" || responseText.length === 0) {
-      this.log.error("onProfileDataSubmit: empty or non-string response; falling back to loadProfileEditor");
+      this.log.error(
+        "onProfileDataSubmit: empty or non-string response; falling back to loadProfileEditor"
+      );
       this.loadProfileEditor();
       return;
     }
@@ -374,7 +376,9 @@ P13NProfileEditor.prototype.onProfileDataSubmit = function (
     container.filter("script").remove();
     var pane = container.find("#ProfileEditPane");
     if (pane.length === 0) {
-      this.log.error("onProfileDataSubmit: scrubbed response missing #ProfileEditPane; skipping replace");
+      this.log.error(
+        "onProfileDataSubmit: scrubbed response missing #ProfileEditPane; skipping replace"
+      );
       return;
     }
     q("#ProfileEditPane").replaceWith(pane.hide());

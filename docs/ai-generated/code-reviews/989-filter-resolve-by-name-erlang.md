@@ -1,11 +1,11 @@
 # Erlang review — filter install resolve by name + flush
 
-| Field | Value |
-|-------|--------|
-| **Date** | 2026-07-18 |
-| **Branch** | `989-react-cui-widget-builder` |
-| **Recommendation** | **approve** |
-| **Gate** | **May commit/push: yes** |
+|       Field        |             Value              |
+|--------------------|--------------------------------|
+| **Date**           | 2026-07-18                     |
+| **Branch**         | `989-react-cui-widget-builder` |
+| **Recommendation** | **approve**                    |
+| **Gate**           | **May commit/push: yes**       |
 
 ## Summary
 

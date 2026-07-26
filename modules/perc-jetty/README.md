@@ -64,9 +64,9 @@ Application logs are configured by Log4j2 in:
 
 `src/main/jetty/defaults/modules/perc-logging/resources/log4j2.xml`
 
-| Policy | Value |
-|--------|--------|
-| Rotate size | **10 MB** (`SizeBasedTriggeringPolicy`) |
+|      Policy       |                                           Value                                           |
+|-------------------|-------------------------------------------------------------------------------------------|
+| Rotate size       | **10 MB** (`SizeBasedTriggeringPolicy`)                                                   |
 | Rolled file count | **10** (`DefaultRolloverStrategy max` + `Delete` / `IfAccumulatedFileCount exceeds="10"`) |
 
 `max="10"` alone only caps the `%i` counter within a date window when `filePattern`

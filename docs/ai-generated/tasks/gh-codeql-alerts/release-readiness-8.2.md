@@ -8,44 +8,44 @@ Source of truth: `docs/ai-generated/tasks/gh-codeql-alerts/{alerts,triage,suppre
 
 ## 1. Total open alerts
 
-| Source | Count |
-|--------|-------|
-| `alerts.md` (live re-fetch via `scripts/fetch-gh-code-scanning-alerts.sh intersoftdatalabs-in/percussioncms open`) | **0** |
-| `alerts-stale-cache.md` (excluded; file path not in `git ls-files`) | 0 |
-| `triage.md` non-ready-to-close rows (excluded; alert closed) | 674 (historical; see §6 archival note) |
-| `accepted-risks.md` rows | 8 |
-| **Net active alerts on `development`** | **0** |
+|                                                       Source                                                       |                 Count                  |
+|--------------------------------------------------------------------------------------------------------------------|----------------------------------------|
+| `alerts.md` (live re-fetch via `scripts/fetch-gh-code-scanning-alerts.sh intersoftdatalabs-in/percussioncms open`) | **0**                                  |
+| `alerts-stale-cache.md` (excluded; file path not in `git ls-files`)                                                | 0                                      |
+| `triage.md` non-ready-to-close rows (excluded; alert closed)                                                       | 674 (historical; see §6 archival note) |
+| `accepted-risks.md` rows                                                                                           | 8                                      |
+| **Net active alerts on `development`**                                                                             | **0**                                  |
 
 > Pass condition for SC-001 (FR-009): **MET**. The first row equals zero, and zero equals zero. The PR-template gate (T078b) and the release-notes acceptance-risk citation (T077) are tracked under T073-T081 (Polish).
 
 ## 2. Counts by state (live re-scan 2026-07-21)
 
-| State | Count | Notes |
-|-------|-------|-------|
-| `open` | **0** | Live GitHub Code Scanning API confirms zero open alerts on `development`. |
-| `fixed` | 1634 | Alerts closed by source-tree changes (T037-T053 US3 fixes), vendored-library removal (T021-T031 US2), path-ignore cleanups (T014b paths-ignore), or model-pack barriers (T062-T065). |
-| `dismissed` | 187 | API-dismissed per contracts/C1; cross-referenced in §4 below. |
-| **Total alerts (all-time)** | **1821** | Per `alerts.md` (state=all re-fetch). |
+|            State            |  Count   |                                                                                        Notes                                                                                         |
+|-----------------------------|----------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `open`                      | **0**    | Live GitHub Code Scanning API confirms zero open alerts on `development`.                                                                                                            |
+| `fixed`                     | 1634     | Alerts closed by source-tree changes (T037-T053 US3 fixes), vendored-library removal (T021-T031 US2), path-ignore cleanups (T014b paths-ignore), or model-pack barriers (T062-T065). |
+| `dismissed`                 | 187      | API-dismissed per contracts/C1; cross-referenced in §4 below.                                                                                                                        |
+| **Total alerts (all-time)** | **1821** | Per `alerts.md` (state=all re-fetch).                                                                                                                                                |
 
 ## 3. Counts by disposition (per triage.md)
 
-| Disposition | Count | Notes |
-|-------------|-------|-------|
-| `obsolete` | historical | All obsolete entries now state=`fixed` (file removed or path-ignored). Triage.md retains the rows as an audit trail (see §6 archival). |
-| `valid` | historical | Closed by US3 PRs (#1198, #1199, #1200, #1201, #1202, #1203, #1207-#1210, #1268, #1275, #1276, #1278, #1280, #1281, #1283, #1293, #1297, #1300, #1317, #1337-#1367, #1389, and others). |
-| `false-positive` | 0 (open) | Closed via inline `// codeql[...]` annotations or path-ignore; tracked in suppressions.md. |
-| `accepted-risk` | 8 | See §4 — all `8.2` accepted-risks; 5 expire `2027-07-31` (8.3 re-review), 3 expire `2027-07-31` (9.0 re-review for PSAesCBC legacy-decrypt). |
-| **Total triage rows (historical)** | **866** | `triage.md` retains rows as audit trail; 192 marked `ready_to_close` via `linked_pr`, 674 historical (alert now `fixed`). |
+|            Disposition             |   Count    |                                                                                          Notes                                                                                          |
+|------------------------------------|------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `obsolete`                         | historical | All obsolete entries now state=`fixed` (file removed or path-ignored). Triage.md retains the rows as an audit trail (see §6 archival).                                                  |
+| `valid`                            | historical | Closed by US3 PRs (#1198, #1199, #1200, #1201, #1202, #1203, #1207-#1210, #1268, #1275, #1276, #1278, #1280, #1281, #1283, #1293, #1297, #1300, #1317, #1337-#1367, #1389, and others). |
+| `false-positive`                   | 0 (open)   | Closed via inline `// codeql[...]` annotations or path-ignore; tracked in suppressions.md.                                                                                              |
+| `accepted-risk`                    | 8          | See §4 — all `8.2` accepted-risks; 5 expire `2027-07-31` (8.3 re-review), 3 expire `2027-07-31` (9.0 re-review for PSAesCBC legacy-decrypt).                                            |
+| **Total triage rows (historical)** | **866**    | `triage.md` retains rows as audit trail; 192 marked `ready_to_close` via `linked_pr`, 674 historical (alert now `fixed`).                                                               |
 
 ## 4. Accepted risks
 
-| Alert | Rule | File | Reason | target_milestone | Recorded |
-|-------|------|------|--------|------------------|----------|
-| #769 | `java/error-message-exposure` | `modules/perc-toolkit/.../imageedit/web/SimpleXmlView.java` | **Closed by runtime fix:** no-throw + constant error body | `8.2` (8.3 re-review) | T054 done |
-| #770 | `java/error-message-exposure` | `modules/perc-toolkit/.../pso/preview/SimpleXmlView.java` | **Closed by runtime fix:** same as #769 | `8.2` (8.3 re-review) | T054 done |
-| #787 | `java/error-message-exposure` | `system/servlet/.../webdav/method/PSWebdavConfigValidator.java` | **Closed by runtime fix:** constant-only writer | `8.2` (8.3 re-review) | T054 done |
-| #757, #758, #759 | `java/weak-cryptographic-algorithm` (3) | `modules/perc-legacy/.../PSAesCBC.java` | AES/CBC kept for upgrade decrypt only; new secrets AES/GCM via `PSEncryptor` | `9.0` | T047 done |
-| #649, #650 | `java/static-initialization-vector` (2) | `modules/perc-legacy/.../PSAesCBC.java` | Fixed IV required for wire-compatible historical decrypt | `9.0` | T048 done |
+|      Alert       |                  Rule                   |                              File                               |                                    Reason                                    |   target_milestone    | Recorded  |
+|------------------|-----------------------------------------|-----------------------------------------------------------------|------------------------------------------------------------------------------|-----------------------|-----------|
+| #769             | `java/error-message-exposure`           | `modules/perc-toolkit/.../imageedit/web/SimpleXmlView.java`     | **Closed by runtime fix:** no-throw + constant error body                    | `8.2` (8.3 re-review) | T054 done |
+| #770             | `java/error-message-exposure`           | `modules/perc-toolkit/.../pso/preview/SimpleXmlView.java`       | **Closed by runtime fix:** same as #769                                      | `8.2` (8.3 re-review) | T054 done |
+| #787             | `java/error-message-exposure`           | `system/servlet/.../webdav/method/PSWebdavConfigValidator.java` | **Closed by runtime fix:** constant-only writer                              | `8.2` (8.3 re-review) | T054 done |
+| #757, #758, #759 | `java/weak-cryptographic-algorithm` (3) | `modules/perc-legacy/.../PSAesCBC.java`                         | AES/CBC kept for upgrade decrypt only; new secrets AES/GCM via `PSEncryptor` | `9.0`                 | T047 done |
+| #649, #650       | `java/static-initialization-vector` (2) | `modules/perc-legacy/.../PSAesCBC.java`                         | Fixed IV required for wire-compatible historical decrypt                     | `9.0`                 | T048 done |
 
 All 8 accepted-risk rows cite `accepted-risks.md` for full disposition, compensating control, owner, target milestone, and `expires_at`. Per contracts/C4 every row has non-empty `rationale`, `compensating_control`, `owner`, `target_milestone`, and `expires_at`. Re-review due `2027-07-31` for the 8.3 milestone.
 
@@ -53,15 +53,15 @@ All 8 accepted-risk rows cite `accepted-risks.md` for full disposition, compensa
 
 **`PASS-WITH-EXCEPTIONS`** — 0 active code-scanning alerts on `development`; 8 accepted-risks recorded in §4 (5 due for 8.3 re-review, 3 due for 9.0 re-review with the legacy AES/CBC decrypt-only carve-out).
 
-| Phase | Status | Notes |
-|-------|--------|-------|
-| Phase 1 — Setup (T001–T005) | DONE | branch confirmed; `gh auth status` green; JDK 21 active; CodeQL workflow trigger policy unchanged; `modules/p13n-api` added to `AGENTS.md` |
-| Phase 2 — Foundational (T006–T011) | DONE | fetch script + stale-cache filter; `suppressions.md` and `accepted-risks.md` seeded; 5 umbrella tracking issues filed (#1189–#1193) |
-| Phase 3 — US1 Triage (T012–T018) | DONE | all 6 verify scripts pass; release-readiness report live |
-| Phase 4 — US2 Obsolete removals (T019–T034) | DONE | vendored libs (knockout, bootstrap, jquery-migrate, shared-common.js, etc.) removed; paths-ignore cleanups per T014b; per-cluster PRs merged |
-| Phase 5 — US3 Valid mitigations (T035–T063) | DONE | all java/* security fix clusters closed: ssrf (#1198), xxe (#1199), ldap-injection (#1200), zipslip (#1201), sql-injection (#1202, #1343), path-injection (#1207-#1210, #1338-#1367), xss (#1203, #1317, #1367), regex-injection, insecure-trustmanager, unvalidated-url-*, unsafe-hostname-verification, error-message-exposure (#1268, #1357), stack-trace-exposure (#1275), implicit-cast-in-compound-assignment (#1276), insecure-cookie (#1278), polynomial-redos (#1280), redos (#1281), code-injection, weak-crypto + static-IV (accepted-risks to 9.0) |
-| Phase 6 — US4 False-positive suppressions (T064–T072) | DONE | suppressions.md reflects only inline `// codeql[...]` anchors in source; accepted-risks.md captures the 8 accepted-risks per contracts/C4 |
-| Phase 7 — Polish (T073–T081) | DONE | `scripts/verify-pr-review-resolution.sh` enforces per-PR constitution-IX gate; per-PR review-thread resolution complete on all closing PRs (cross-PR summary at `docs/ai-generated/tasks/gh-codeql-alerts/pr-review-summary.md`); this report (T076) updated to PASS |
+|                         Phase                         | Status |                                                                                                                                                                                                                                                                             Notes                                                                                                                                                                                                                                                                              |
+|-------------------------------------------------------|--------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Phase 1 — Setup (T001–T005)                           | DONE   | branch confirmed; `gh auth status` green; JDK 21 active; CodeQL workflow trigger policy unchanged; `modules/p13n-api` added to `AGENTS.md`                                                                                                                                                                                                                                                                                                                                                                                                                     |
+| Phase 2 — Foundational (T006–T011)                    | DONE   | fetch script + stale-cache filter; `suppressions.md` and `accepted-risks.md` seeded; 5 umbrella tracking issues filed (#1189–#1193)                                                                                                                                                                                                                                                                                                                                                                                                                            |
+| Phase 3 — US1 Triage (T012–T018)                      | DONE   | all 6 verify scripts pass; release-readiness report live                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
+| Phase 4 — US2 Obsolete removals (T019–T034)           | DONE   | vendored libs (knockout, bootstrap, jquery-migrate, shared-common.js, etc.) removed; paths-ignore cleanups per T014b; per-cluster PRs merged                                                                                                                                                                                                                                                                                                                                                                                                                   |
+| Phase 5 — US3 Valid mitigations (T035–T063)           | DONE   | all java/* security fix clusters closed: ssrf (#1198), xxe (#1199), ldap-injection (#1200), zipslip (#1201), sql-injection (#1202, #1343), path-injection (#1207-#1210, #1338-#1367), xss (#1203, #1317, #1367), regex-injection, insecure-trustmanager, unvalidated-url-*, unsafe-hostname-verification, error-message-exposure (#1268, #1357), stack-trace-exposure (#1275), implicit-cast-in-compound-assignment (#1276), insecure-cookie (#1278), polynomial-redos (#1280), redos (#1281), code-injection, weak-crypto + static-IV (accepted-risks to 9.0) |
+| Phase 6 — US4 False-positive suppressions (T064–T072) | DONE   | suppressions.md reflects only inline `// codeql[...]` anchors in source; accepted-risks.md captures the 8 accepted-risks per contracts/C4                                                                                                                                                                                                                                                                                                                                                                                                                      |
+| Phase 7 — Polish (T073–T081)                          | DONE   | `scripts/verify-pr-review-resolution.sh` enforces per-PR constitution-IX gate; per-PR review-thread resolution complete on all closing PRs (cross-PR summary at `docs/ai-generated/tasks/gh-codeql-alerts/pr-review-summary.md`); this report (T076) updated to PASS                                                                                                                                                                                                                                                                                           |
 
 ## 6. Audit / archival note
 

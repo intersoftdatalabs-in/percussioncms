@@ -41,6 +41,8 @@ approve
 No blocking bugs or suggestions identified.
 
 ### Verification Matrix
+
 - `npm test`: 6/6 tests passing (including `WorkflowSiteAssign.test.tsx`).
 - `i18n`: 100% TMX message coverage (`message(WF_ADMIN_MSG.*)`).
 - `React`: Clean effect unmount, `isMountedRef` guards, and recursive `setTimeout` interval cleanup.
+

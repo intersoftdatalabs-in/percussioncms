@@ -18,6 +18,7 @@ Repo-wide inventory of Apache Derby surface area for feature **#548** (default e
 
 - **Purpose**: QC-001 / tasks T004–T005 — produce a dispositionable checklist of every `derby` / `sqlDerby` / NetworkServer / Liquibase `dbms=derby` / etc. hit for triage before GA.
 - **Usage**:
+
   ```bash
   python3 scripts/derby-surface-inventory.py
   # Windows:
@@ -33,6 +34,7 @@ Fetch code scanning (CodeQL) alerts for a repository using the `gh` CLI and writ
 
 - **Purpose**: Reusable enumerator for the `004-zero-code-scanning-alerts` triage workflow and any future release-readiness check.
 - **Usage**:
+
   ```bash
   python3 scripts/fetch-gh-code-scanning-alerts.py [--repo OWNER/REPO] [--state open|dismissed|fixed|all]
   # state: open | dismissed | fixed | all (default: open)
@@ -52,9 +54,9 @@ Run the Percussion CMS installer ONCE on the host into a persistent `install_roo
 - the container's only job is to run `StartJetty.sh` (no in-container install);
 - container restarts do **not** re-install (the install persists on the host);
 - hot-deploys (jar swaps, config edits) are local file edits in `install_root/`, picked up by the container on the next `docker compose restart`.
-
 - **Purpose**: One-time CMS install into `./docker/dev-data/cms-dts/install_root/` (default). Idempotent — skips install if the marker file is present.
 - **Usage**:
+
   ```bash
   python3 scripts/install-cms-dev.py                  # one-time install
   python3 scripts/install-cms-dev.py --reset          # force reinstall
@@ -73,6 +75,7 @@ Create a single CMS folder with ≥500 children for the SC-005 perf UAT scenario
 
 - **Purpose**: Tasks.md T012b perf fixture scaffolding. Run on a test CMS instance to seed the fixture used for the SC-005 pass criterion (`p95 ≤ 10 s` on standard office network).
 - **Usage**:
+
   ```bash
   python3 scripts/create-large-folder-fixture.py \
       --base-url https://cms.local:8443 \
@@ -89,6 +92,7 @@ Harvest GitHub PR **line review comments** (including closed/merged PRs) from `k
 
 - **Purpose**: Keep Erlang's institutional review memory (`patterns.md`) fed from real Kilo/GitHub review history.
 - **Usage**:
+
   ```bash
   python3 scripts/erlang-harvest-review-patterns.py [--apply] [--promote-critical]
   ```
@@ -112,15 +116,15 @@ Each entry below has been ported to cross-platform Python 3.9+ with pytest cover
 
 All converted to cross-platform Python 3.9+ (US2). All run from the repo root.
 
-| Python script | Purpose | Spec ref |
-|---------------|---------|----------|
-| `filter-stale-alerts.py` | Filter out alerts whose file path is no longer in `git ls-files`; write the stale rows to `alerts-stale-cache.md` for audit. Invoked automatically by `fetch-gh-code-scanning-alerts.py` at the end of every fetch. | T007b |
-| `verify-triage-inventory.py` | CI-lite check on `triage.md`: row count == open-alert count, every `false-positive`/`accepted-risk` row has non-empty `notes`, every `module_owner` is a path under `AGENTS.md`. | T012 |
-| `verify-distribution-archive.py` | Rebuild `modules/perc-distribution-tree` (and `modules/perc-packages`) and assert none of the files listed in `tmp/gh-codeql-alerts/removed-files.txt` appear in the resulting JARs or `.ppkg` installer. | T019 |
-| `verify-valid-fixes.py` | Assert every `triage.md` row with `disposition == valid` has a non-empty `linked_pr`. | T035 |
-| `verify-suppressions.py` | For every row in `suppressions.md`, grep the cited source line for the matching `// codeql[…] comment and `justification:` text. | T064 |
-| `verify-pr-review-resolution.py` | For every `linked_pr` in `triage.md`, query `gh pr view --json reviewThreads` and fail if any thread has `isResolved: false` (Constitution IX, `SC-007`). | T078b |
-| `test-verify-triage-inventory.py` | Self-test for `verify-triage-inventory.py` against `scripts/test-fixtures/triage-good.md` and `triage-bad.md`. | T013 |
+|           Python script           |                                                                                                       Purpose                                                                                                       | Spec ref |
+|-----------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|----------|
+| `filter-stale-alerts.py`          | Filter out alerts whose file path is no longer in `git ls-files`; write the stale rows to `alerts-stale-cache.md` for audit. Invoked automatically by `fetch-gh-code-scanning-alerts.py` at the end of every fetch. | T007b    |
+| `verify-triage-inventory.py`      | CI-lite check on `triage.md`: row count == open-alert count, every `false-positive`/`accepted-risk` row has non-empty `notes`, every `module_owner` is a path under `AGENTS.md`.                                    | T012     |
+| `verify-distribution-archive.py`  | Rebuild `modules/perc-distribution-tree` (and `modules/perc-packages`) and assert none of the files listed in `tmp/gh-codeql-alerts/removed-files.txt` appear in the resulting JARs or `.ppkg` installer.           | T019     |
+| `verify-valid-fixes.py`           | Assert every `triage.md` row with `disposition == valid` has a non-empty `linked_pr`.                                                                                                                               | T035     |
+| `verify-suppressions.py`          | For every row in `suppressions.md`, grep the cited source line for the matching `// codeql[…] comment and `justification:` text.                                                                                    | T064     |
+| `verify-pr-review-resolution.py`  | For every `linked_pr` in `triage.md`, query `gh pr view --json reviewThreads` and fail if any thread has `isResolved: false` (Constitution IX, `SC-007`).                                                           | T078b    |
+| `test-verify-triage-inventory.py` | Self-test for `verify-triage-inventory.py` against `scripts/test-fixtures/triage-good.md` and `triage-bad.md`.                                                                                                      | T013     |
 
 #### Usage
 
@@ -145,6 +149,7 @@ python3 scripts/verify-pr-review-resolution.py
 Cross-platform Python port of the v8.1.x → 8.2 migration audit pipeline (spec 005-migrate-8.1.7-changes). Replaces the previous bash `release-audit.sh` + `lib/*.sh` + `tests/test_*.sh` layout with a Python package (`scripts/release-audit/*.py` + `scripts/release-audit/tests/*.py`).
 
 - **Usage**:
+
   ```bash
   python3 scripts/release-audit/__main__.py --help
   python3 scripts/release-audit/__main__.py --from-tag v8.1.6 --to-tag v8.1.7 \
@@ -165,3 +170,4 @@ Cross-platform Python port of the v8.1.x → 8.2 migration audit pipeline (spec 
 - **`logging.getLogger(__name__)`** with format `%(asctime)s %(levelname)s %(message)s`.
 - **Scripts MUST NOT write to `%TEMP%` or `$TMPDIR`**; use `./tmp` for scratch.
 - **Scripts MUST NOT invent third-party APIs or extension points** — see root AGENTS.md "Evidence Over Invention".
+

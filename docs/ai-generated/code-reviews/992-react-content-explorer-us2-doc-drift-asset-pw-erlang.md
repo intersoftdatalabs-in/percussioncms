@@ -72,10 +72,10 @@ fully covered by the live-CMS spec.
   - `content-browser-confirm` (test 3, initial state) → :403
   - `content-browser-selection-summary` (test 3) → :382
   - `content-browser-cancel` (test 4, keyboard-completable) → :393
-  These are the same DOM IDs asserted by the merged
-  `host-page-picker.spec.js:47,62,63,73` and
-  `host-folder-picker.spec.js:51,66,67,77`, so the asset-picker
-  spec is a structural twin — no new selectors introduced.
+    These are the same DOM IDs asserted by the merged
+    `host-page-picker.spec.js:47,62,63,73` and
+    `host-folder-picker.spec.js:51,66,67,77`, so the asset-picker
+    spec is a structural twin — no new selectors introduced.
 - Test 2 asserts `.perc-mcol` count is zero (legacy miller-column
   Finder chrome is not loaded). This is a behavioral DOM-count
   assertion, not a token grep; the legacy widget is a real DOM
@@ -163,3 +163,4 @@ constitution IX: inline reply with mitigation commit hash + run
   follow-up in `perc_delete_page_button.js` /
   `PercActionDataTable.js` / `PercPageView.js` /
   `perc_folderproperties_button.js` / `PercFolderHelper.js`).
+

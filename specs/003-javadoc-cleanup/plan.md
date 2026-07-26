@@ -41,17 +41,17 @@ time.
 - No public-type-signature or visibility changes anywhere in the module (FR-004).
 - No new dependencies, no parent POM edits (FR-005).
 - Javadoc plugin configuration stays as inherited from `pom.xml:2636-2653`
-  (`maven-javadoc-plugin` 3.12.0, `doclint=all`, `failOnError=false`,
-  `failOnWarnings=false`).
+(`maven-javadoc-plugin` 3.12.0, `doclint=all`, `failOnError=false`,
+`failOnWarnings=false`).
 **Scale/Scope**: Single module — `modules/DesktopContentExplorer/` only. ~70 Java
 files implicated by the baseline; ~242 issue lines total.
 **Owning module(s)**: `modules/DesktopContentExplorer/` (`com.percussion:perc-content-explorer`).
 **AGENTS hierarchy applied**:
 - Root `AGENTS.md` (always-on governance: mono-repo, JDK branch matrix, rule discovery
-  protocol, Module List, JUnit 5 + Mockito + Spotless).
+protocol, Module List, JUnit 5 + Mockito + Spotless).
 - Module `AGENTS.md` / `AGENTS.local.md`: **none present** at
-  `modules/DesktopContentExplorer/` (Rule Discovery Protocol confirms by `ls`); root
-  rules apply directly.
+`modules/DesktopContentExplorer/` (Rule Discovery Protocol confirms by `ls`); root
+rules apply directly.
 
 ## Constitution Check
 
@@ -141,5 +141,6 @@ out of scope. No new directories, no new artifacts outside the spec folder.
 > No Constitution Check violations. Table intentionally empty.
 
 | Violation | Why Needed | Simpler Alternative Rejected Because |
-|-----------|------------|-------------------------------------|
-| _none_ | _n/a_ | _n/a_ |
+|-----------|------------|--------------------------------------|
+| _none_    | _n/a_      | _n/a_                                |
+

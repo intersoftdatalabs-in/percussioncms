@@ -256,7 +256,8 @@ class PSLocalCommandHandlerSecurityTest {
     @DisplayName("Should reject path traversal pattern in doRemoveFileSystemObject")
     void shouldRejectPathTraversalInRemove() {
       File path = new File("../../etc/passwd");
-      assertThrows(PSProcessException.class, () -> PSLocalCommandHandler.doRemoveFileSystemObject(path));
+      assertThrows(
+          PSProcessException.class, () -> PSLocalCommandHandler.doRemoveFileSystemObject(path));
     }
 
     @Test
@@ -270,14 +271,16 @@ class PSLocalCommandHandlerSecurityTest {
     @DisplayName("Should reject path traversal pattern in doSaveTextFile")
     void shouldRejectPathTraversalInSaveText() {
       File path = new File("../../etc/passwd");
-      assertThrows(SecurityException.class, () -> PSLocalCommandHandler.doSaveTextFile(path, "test"));
+      assertThrows(
+          SecurityException.class, () -> PSLocalCommandHandler.doSaveTextFile(path, "test"));
     }
 
     @Test
     @DisplayName("Should reject path traversal pattern in doSaveBinaryFile")
     void shouldRejectPathTraversalInSaveBinary() {
       File path = new File("../../etc/passwd");
-      assertThrows(SecurityException.class, () -> PSLocalCommandHandler.doSaveBinaryFile(path, null));
+      assertThrows(
+          SecurityException.class, () -> PSLocalCommandHandler.doSaveBinaryFile(path, null));
     }
   }
 }

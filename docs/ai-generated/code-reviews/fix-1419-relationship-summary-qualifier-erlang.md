@@ -15,11 +15,11 @@
 
 ## Summary
 
-| Severity | Count |
-|----------|-------|
-| CRITICAL | 0 |
-| WARNING  | 0 |
-| SUGGESTION | 0 |
+|  Severity  | Count |
+|------------|-------|
+| CRITICAL   | 0     |
+| WARNING    | 0     |
+| SUGGESTION | 0     |
 
 The fix is a one-token surgical annotation addition (`@Qualifier("relationshipCataloger")`)
 on the `IPSRelationshipCataloger` constructor parameter of `PSRelationshipSummaryService`.
@@ -103,3 +103,4 @@ to document non-obvious Spring wiring decisions.
   → exits 0; `verify-jdbc-drivers` exec printed `OK: 9 JDBC driver JAR(s) verified under jetty/base/lib/jdbc/`
   (the cross-platform Java port from PR #1413 — issue #1403's `.sh` script is no longer
   invoked by the build, the `.bat` shim remains for operators).
+

@@ -57,6 +57,7 @@ Cross-platform path rules (product): root `AGENTS.md` → **Cross-Platform File 
    - **Required** when gate is `request-changes` or this is a re-review.
    - **Recommended** on approve for feature work.
    - On re-review: update the same file (statuses + `## Re-review` section).
+
 8. **Pattern memory touch (optional, careful):** if this review found **bugs** or
    high-signal suggestions that generalize beyond this task, append or reinforce
    a one-line principle in `patterns.md` (no file:line nits; keep the file short).
@@ -69,7 +70,9 @@ Cross-platform path rules (product): root `AGENTS.md` → **Cross-Platform File 
    (Windows: `scripts\erlang-harvest-review-patterns.bat --apply`.) Review the
    candidates report under `docs/ai-generated/code-reviews/` before relying on
    newly harvested bullets.
+
 9. **Gate language (strict)**:
+
    - If any **bug** (including missing behavioral tests for non-trivial logic,
      or non-portable path/file I/O that breaks Windows or Unix):
      `request-changes` and **May commit/push: no**
@@ -96,3 +99,4 @@ In Kilo Code:
 - `instructions/code-review-generic.instructions.md`
 - `instructions/security-and-owasp.instructions.md`
 - `instructions/java-coding-standards.md` (prefer `java.nio.file.Files` / `Path`)
+

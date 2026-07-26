@@ -114,7 +114,7 @@ tmp/release-audit/v8.1.6..v8.1.7/         # GENERATED: audit outputs (gitignored
 > **Fill ONLY if Constitution Check has violations that must be justified**
 
 | Violation | Why Needed | Simpler Alternative Rejected Because |
-|-----------|------------|-------------------------------------|
-| (none) | — | — |
+|-----------|------------|--------------------------------------|
+| (none)    | —          | —                                    |
 
 No constitution violations require justification. The audit script stays within the existing tool surface (`bash`, `gh`, `git`, `jq`) and introduces no new frameworks, modules, or contracts. Porting PRs are downstream and must clear their own Constitution Check at PR time.

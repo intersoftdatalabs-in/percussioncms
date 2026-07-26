@@ -104,7 +104,8 @@
       generateUid._seq = (generateUid._seq || 0) + 1;
       var t = Date.now().toString(16);
       var p =
-        typeof performance !== "undefined" && typeof performance.now === "function"
+        typeof performance !== "undefined" &&
+        typeof performance.now === "function"
           ? Math.floor(performance.now() * 1000).toString(16)
           : "0";
       var s = generateUid._seq.toString(16);
@@ -511,8 +512,9 @@
       // Always destroy any existing tree before re-initializing so post-save
       // reloads do not leave a stale instance (new/updated children may not
       // appear until a full browser refresh otherwise). GH-784 / v8.1.7 #1169.
-      var hadTree =
-        !!(container.data("ui-fancytree") || container.data("fancytree"));
+      var hadTree = !!(
+        container.data("ui-fancytree") || container.data("fancytree")
+      );
       try {
         if (hadTree) {
           container.fancytree("destroy");
@@ -524,7 +526,7 @@
           if (typeof console !== "undefined" && console.warn) {
             console.warn(
               "PercCategoryView: fancytree destroy failed; continuing re-init",
-              e,
+              e
             );
           }
           // Best-effort cleanup of widget data so re-init can attach cleanly.

@@ -64,10 +64,10 @@ public class PSSiteConfigUtilsStandaloneTest {
 
   /**
    * Regression test for the {@code java/path-injection} alerts CodeQL raised at
-   * PSSiteConfigUtils.java:260, 306, 340, 341 (alerts #1059, #1060, #1061, #1062). The pre-fix
-   * code passed the user-supplied {@code sitename} straight into {@link java.io.File} and {@link
-   * org.apache.commons.io.FileUtils} paths without validating that the name was a safe filename
-   * (no path separators, no {@code ..}). The post-fix code calls {@link
+   * PSSiteConfigUtils.java:260, 306, 340, 341 (alerts #1059, #1060, #1061, #1062). The pre-fix code
+   * passed the user-supplied {@code sitename} straight into {@link java.io.File} and {@link
+   * org.apache.commons.io.FileUtils} paths without validating that the name was a safe filename (no
+   * path separators, no {@code ..}). The post-fix code calls {@link
    * com.percussion.security.validation.PathValidation#isValidFilename(String)} on the site name
    * inside {@code getSiteConfigFolder} and {@code getSecureFilesPath}, throwing a {@link
    * PathValidation.SecurityException} on traversal attempts.

@@ -29,14 +29,13 @@ public class JSClipEventBridge {
 
   // public for JS to see
   /**
-   * The clipboard payload associated with this event, initialized lazily from the system
-   * clipboard by the no-arg constructor. Exposed to JavaScript.
+   * The clipboard payload associated with this event, initialized lazily from the system clipboard
+   * by the no-arg constructor. Exposed to JavaScript.
    */
   public JSClipDataBridge clipboardData;
 
   /**
-   * Constructs a new event bridge and initializes {@link #clipboardData} from the system
-   * clipboard.
+   * Constructs a new event bridge and initializes {@link #clipboardData} from the system clipboard.
    */
   public JSClipEventBridge() {
     this.clipboardData = new JSClipDataBridge();
@@ -52,8 +51,8 @@ public class JSClipEventBridge {
   }
 
   /**
-   * Marks the default action for this event as prevented, mirroring the DOM
-   * {@code Event.preventDefault()} contract.
+   * Marks the default action for this event as prevented, mirroring the DOM {@code
+   * Event.preventDefault()} contract.
    */
   public void preventDefault() {
     defaultPrevented = true;

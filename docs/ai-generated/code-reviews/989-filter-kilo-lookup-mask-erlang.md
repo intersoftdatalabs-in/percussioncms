@@ -1,8 +1,8 @@
 # Erlang review — filter install: Kilo lookup-mask mitigations
 
-| Field | Value |
-|-------|-------|
-| **Branch** | `989-react-cui-widget-builder` |
+|   Field    |                                              Value                                               |
+|------------|--------------------------------------------------------------------------------------------------|
+| **Branch** | `989-react-cui-widget-builder`                                                                   |
 | **Intent** | Address Kilo WARN on filter package install path; stop masking real lookup failures as "missing" |
 
 ## Findings addressed

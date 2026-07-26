@@ -41,13 +41,13 @@ Domain services (sitemanage / perc-system)
 Database & Internal Services
 ```
 
-| Layer | Module | Package example | Owns |
-|-------|--------|-----------------|------|
-| JAX-RS resource | **rest** | `com.percussion.rest.*` | Paths, HTTP verbs, status codes, OpenAPI annotations |
-| Wire DTOs | **rest** | `com.percussion.rest.*` or `com.percussion.share.relationship.data` | JSON/XML shapes returned by the public API |
-| Adaptor interface | **rest** | `com.percussion.rest.*.IXxxAdaptor` | Contract the resource injects |
-| Adaptor implementation | **sitemanage** | `com.percussion.apibridge.*` | CMS/domain calls, Optional→HTTP mapping |
-| Domain services | **sitemanage** / perc-system | e.g. `IPSRelationshipSummaryService` | Business logic, AuthZ |
+|         Layer          |            Module            |                           Package example                           |                         Owns                         |
+|------------------------|------------------------------|---------------------------------------------------------------------|------------------------------------------------------|
+| JAX-RS resource        | **rest**                     | `com.percussion.rest.*`                                             | Paths, HTTP verbs, status codes, OpenAPI annotations |
+| Wire DTOs              | **rest**                     | `com.percussion.rest.*` or `com.percussion.share.relationship.data` | JSON/XML shapes returned by the public API           |
+| Adaptor interface      | **rest**                     | `com.percussion.rest.*.IXxxAdaptor`                                 | Contract the resource injects                        |
+| Adaptor implementation | **sitemanage**               | `com.percussion.apibridge.*`                                        | CMS/domain calls, Optional→HTTP mapping              |
+| Domain services        | **sitemanage** / perc-system | e.g. `IPSRelationshipSummaryService`                                | Business logic, AuthZ                                |
 
 **Rules for agents adding a new REST surface:**
 
@@ -63,17 +63,17 @@ See also `projects/sitemanage/AGENTS.md` (apibridge side) and README.md.
 ## Maven dependency direction (HARD RULE — no reactor cycles)
 
 ```text
-  rest  ──depends on──▶  perc-system, perc-security-utils, utils, ...
-    ▲
-    │  (allowed)
-    │
-  sitemanage  ──depends on──▶  rest
+rest  ──depends on──▶  perc-system, perc-security-utils, utils, ...
+  ▲
+  │  (allowed)
+  │
+sitemanage  ──depends on──▶  rest
 ```
 
-| Direction | Allowed? | Why |
-|-----------|----------|-----|
+|       Direction       |      Allowed?      |                                  Why                                   |
+|-----------------------|--------------------|------------------------------------------------------------------------|
 | **sitemanage → rest** | **Yes** (required) | apibridge implements `IXxxAdaptor`; services may return rest wire DTOs |
-| **rest → sitemanage** | **Never** | Introduces `rest ↔ sitemanage` reactor cycle (`ProjectCycleException`) |
+| **rest → sitemanage** | **Never**          | Introduces `rest ↔ sitemanage` reactor cycle (`ProjectCycleException`) |
 
 **Do not** add:
 

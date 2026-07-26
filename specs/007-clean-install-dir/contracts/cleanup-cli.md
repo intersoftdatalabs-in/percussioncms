@@ -8,11 +8,11 @@
 --clean-install-dir=false
 ```
 
-| Form | Meaning |
-|------|---------|
-| Absent | `false` (default) |
-| Present alone | `true` |
-| `=true` / `=false` | explicit |
+|        Form        |      Meaning      |
+|--------------------|-------------------|
+| Absent             | `false` (default) |
+| Present alone      | `true`            |
+| `=true` / `=false` | explicit          |
 
 Applies on **upgrade** only. On new install: no-op (log nothing-to-clean or silence).
 

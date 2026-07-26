@@ -272,9 +272,7 @@ public class PSJdbcDataTypeMapTest {
     assertTrue(map_db2.isCreateForeignKeyIndexes());
   }
 
-  /**
-   * H2 map for #548 default embedded replacement. Assumes values in PSJdbcDataTypeMaps.xml.
-   */
+  /** H2 map for #548 default embedded replacement. Assumes values in PSJdbcDataTypeMaps.xml. */
   @Test
   public void testH2Mappings() throws Exception {
     PSJdbcDataTypeMap map = new PSJdbcDataTypeMap("H2", "h2", null);

@@ -24,3 +24,4 @@ Tests: **27** green (`ObsoleteInstallDirCleanerTest` 22 + extract + exit-code).
 
 - Do not stage `org/`
 - Optional: force a real mid-tree delete failure in CI (chmod) for extra warn-and-continue coverage
+

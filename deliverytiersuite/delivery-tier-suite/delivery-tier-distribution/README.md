@@ -11,13 +11,13 @@ etc...
 
 ## Runtime platform (Jakarta EE 11 / Tomcat 11)
 
-| Item | Value |
-|------|--------|
+|          Item           |                                    Value                                    |
+|-------------------------|-----------------------------------------------------------------------------|
 | Tomcat version property | `${tomcat.version}` (currently **11.0.x**) in `delivery-tier-suite/pom.xml` |
-| Cargo container | **`tomcat11x`** via `cargo-maven3-plugin` |
-| Conf overlay source | `src/main/tomcat11/` |
-| Windows Procrun | `rootFiles/tomcat11.exe` + `tomcat11w.exe` (installed by `installDts.xml`) |
-| Windows service scripts | `DTSProductionService.bat` / `DTSStagingService.bat` → **`tomcat11.exe`** |
+| Cargo container         | **`tomcat11x`** via `cargo-maven3-plugin`                                   |
+| Conf overlay source     | `src/main/tomcat11/`                                                        |
+| Windows Procrun         | `rootFiles/tomcat11.exe` + `tomcat11w.exe` (installed by `installDts.xml`)  |
+| Windows service scripts | `DTSProductionService.bat` / `DTSStagingService.bat` → **`tomcat11.exe`**   |
 
 Residual checklist: `docs/ai-generated/tasks/667-jakarta-ee11-residual-checklist/README.md` (issue #667).
 
@@ -92,10 +92,10 @@ journalctl -u PercussionProductionDTS -n 50 --no-pager
 Production and Staging installers under `src/main/rootFiles/` prefer **native systemd**
 when available:
 
-| Script | Default unit |
-|--------|----------------|
+|          Script           |       Default unit        |
+|---------------------------|---------------------------|
 | `DTSProductionService.sh` | `PercussionProductionDTS` |
-| `DTSStagingService.sh` | `PercussionStagingDTS` |
+| `DTSStagingService.sh`    | `PercussionStagingDTS`    |
 
 Shared unit template: `dts-tomcat.service.in` (`Type=forking`, `TimeoutStartSec=1800`, journal).  
 Ops notes: `README-systemd.md`. Flags: `--systemd`, `--initd`. Windows `.bat` unchanged.
@@ -121,9 +121,9 @@ lives in `perc-security-utils` and is **not** on a thin jar classpath when using
 
 **GH-1180:** package runs a **minimal** `maven-shade-plugin` step that merges only:
 
-| Artifact | What is included |
-|----------|------------------|
-| `com.percussion:perc-security-utils` | `PathValidation` + nested types only |
+|               Artifact               |           What is included            |
+|--------------------------------------|---------------------------------------|
+| `com.percussion:perc-security-utils` | `PathValidation` + nested types only  |
 | `org.apache.logging.log4j:log4j-api` | Required by `PathValidation`'s logger |
 
 This is intentionally **not** a full `jar-with-dependencies` (unlike

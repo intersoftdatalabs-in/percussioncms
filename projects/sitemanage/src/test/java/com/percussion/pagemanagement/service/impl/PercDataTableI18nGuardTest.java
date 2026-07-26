@@ -17,8 +17,7 @@ class PercDataTableI18nGuardTest {
   // arbitrary whitespace between the guard and the fallback so both layouts
   // match the same assertion.
   private static final Pattern GUARDED_FALLBACK =
-      Pattern.compile(
-          "typeof\\s+I18N\\s*===\\s*\"undefined\"\\s*\\?\\s*\"No Pages Found\"");
+      Pattern.compile("typeof\\s+I18N\\s*===\\s*\"undefined\"\\s*\\?\\s*\"No Pages Found\"");
 
   @Test
   void guardsMissingI18n() throws Exception {

@@ -28,12 +28,12 @@ Completed Phase 7 (Polish & Feature-Complete Gate) for Spec 987 (JCR 1.0 to 2.0 
 
 ## Gate
 
-| Check | Result |
-|-------|--------|
-| Bugs blocking | None |
+|                   Check                    |                      Result                       |
+|--------------------------------------------|---------------------------------------------------|
+| Bugs blocking                              | None                                              |
 | Behavioral tests for new non-trivial logic | N/A (Documentation & spec task completion update) |
-| Secrets | None |
-| Cross-platform path handling | Clean |
+| Secrets                                    | None                                              |
+| Cross-platform path handling               | Clean                                             |
 
 ## Issues
 

@@ -53,12 +53,12 @@
 
 ## Suite results after the fix-pack
 
-| Suite | Result |
-|-------|--------|
-| `npx vitest run` on the green-stack (`DependencyViewer`, `RelationshipsView`, `ClipboardPanel`, `SearchPanel`, `ActionToolbar`, `ContextMenu`, `SiteCopyWizard`, `SubfolderCopyWizard`, `FolderSecurityPanel`, `ContentBrowser`) | **90 / 90 passing** (10 spec files; was 79 / 79 before + ContentBrowser fresh run on this side). |
-| `npx tsc --noEmit` for `WebUI/src/main/frontend` | pre-existing `NodeJS` namespace error in `WorkflowSiteAssign.tsx` (unrelated to this PR); `a11y.ts` itself type-clean. |
-| Prettier | both helpers format-clean; `a11y.js` re-formatted on this pass. |
-| Live Playwright a11y gate tests (US1–US7 + 3 host pilots) | syntax-referenced correctly via `require("./helpers/a11y")`; live CMS not required for change-validation (helpers load + functions exported). |
+|                                                                                                              Suite                                                                                                               |                                                                    Result                                                                     |
+|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------|
+| `npx vitest run` on the green-stack (`DependencyViewer`, `RelationshipsView`, `ClipboardPanel`, `SearchPanel`, `ActionToolbar`, `ContextMenu`, `SiteCopyWizard`, `SubfolderCopyWizard`, `FolderSecurityPanel`, `ContentBrowser`) | **90 / 90 passing** (10 spec files; was 79 / 79 before + ContentBrowser fresh run on this side).                                              |
+| `npx tsc --noEmit` for `WebUI/src/main/frontend`                                                                                                                                                                                 | pre-existing `NodeJS` namespace error in `WorkflowSiteAssign.tsx` (unrelated to this PR); `a11y.ts` itself type-clean.                        |
+| Prettier                                                                                                                                                                                                                         | both helpers format-clean; `a11y.js` re-formatted on this pass.                                                                               |
+| Live Playwright a11y gate tests (US1–US7 + 3 host pilots)                                                                                                                                                                        | syntax-referenced correctly via `require("./helpers/a11y")`; live CMS not required for change-validation (helpers load + functions exported). |
 
 ## Cross-platform / portability
 
@@ -66,14 +66,14 @@ No file I/O, no path construction, no OS-specific calls added or removed. The ch
 
 ## Constitution compliance
 
-| Constraint | Compliance | Notes |
-|------------|------------|-------|
-| II (no invented APIs) | ✅ | changes are to existing helper-file internal logic only |
-| III (tests for new components) | ✅ | green-stack re-run confirms 90 / 90 |
-| IV (service-contract tests) | ✅ N/A | no server change |
-| VI (threat-model note) | ✅ N/A | no new surface |
-| VII (format checks) | ✅ | Prettier clean |
-| IX (review-thread resolution) | **in progress** | inline reply + `resolveReviewThread` mutation per thread after this commit is recorded; see PR comments |
+|           Constraint           |   Compliance    |                                                  Notes                                                  |
+|--------------------------------|-----------------|---------------------------------------------------------------------------------------------------------|
+| II (no invented APIs)          | ✅               | changes are to existing helper-file internal logic only                                                 |
+| III (tests for new components) | ✅               | green-stack re-run confirms 90 / 90                                                                     |
+| IV (service-contract tests)    | ✅ N/A           | no server change                                                                                        |
+| VI (threat-model note)         | ✅ N/A           | no new surface                                                                                          |
+| VII (format checks)            | ✅               | Prettier clean                                                                                          |
+| IX (review-thread resolution)  | **in progress** | inline reply + `resolveReviewThread` mutation per thread after this commit is recorded; see PR comments |
 
 ## Findings (new)
 

@@ -8,11 +8,11 @@ End-to-end validation guide. The scenarios below prove the feature works: from a
 
 ## Prerequisites
 
-| Prereq | Linux/macOS | Windows | Notes |
-|--------|-------------|---------|-------|
-| Git | any 2.x+ | any 2.x+ | Clone the repo |
-| Python | 3.9+ (3.11 recommended) | 3.9+ (3.11 recommended) | `python3 --version` / `python --version` |
-| pip | bundled with Python | bundled with Python | `python3 -m pip --version` |
+| Prereq |          Linux/macOS          |            Windows             |                                                Notes                                                |
+|--------|-------------------------------|--------------------------------|-----------------------------------------------------------------------------------------------------|
+| Git    | any 2.x+                      | any 2.x+                       | Clone the repo                                                                                      |
+| Python | 3.9+ (3.11 recommended)       | 3.9+ (3.11 recommended)        | `python3 --version` / `python --version`                                                            |
+| pip    | bundled with Python           | bundled with Python            | `python3 -m pip --version`                                                                          |
 | JDK 21 | required by `mvn-env.sh` only | required by `mvn-env.bat` only | NOT required for this feature — `python-build-scripts.yml` does not invoke Maven (Clarification Q4) |
 
 No Docker, no `gh`, no Maven, no `jq`. The Python-script test suite is self-contained; only scripts that themselves call out to `gh`/`docker` are gated behind `pytest.importorskip` / network markers (FR-010).
@@ -59,10 +59,10 @@ scripts\run-python-tests.cmd
 
 Push the branch (or open a draft PR); observe `.github/workflows/python-build-scripts.yml` triggering on the PR. The Actions tab shows:
 
-| Job | Runner | Steps | Expected duration |
-|-----|--------|-------|-------------------|
-| `python-build-scripts` | `ubuntu-latest` | checkout → setup-python@v5 → pip install → `bash scripts/run-python-tests.sh` | < 3 min |
-| `python-build-scripts` | `windows-latest` | checkout → setup-python@v5 → pip install → `scripts\run-python-tests.cmd` | < 5 min |
+|          Job           |      Runner      |                                     Steps                                     | Expected duration |
+|------------------------|------------------|-------------------------------------------------------------------------------|-------------------|
+| `python-build-scripts` | `ubuntu-latest`  | checkout → setup-python@v5 → pip install → `bash scripts/run-python-tests.sh` | < 3 min           |
+| `python-build-scripts` | `windows-latest` | checkout → setup-python@v5 → pip install → `scripts\run-python-tests.cmd`     | < 5 min           |
 
 **Expected**: both runners green; the workflow does NOT run any Java/Maven step.
 
@@ -326,29 +326,29 @@ bash scripts/run-python-tests.sh --skip-install   # idempotent re-run
 
 ## Troubleshooting
 
-| Symptom | Likely cause | Fix |
-|---------|--------------|-----|
-| `python3: command not found` | Python not installed (Linux/macOS) | Install via OS package manager (`brew install python@3.11`, `apt install python3.11`) |
-| `python: command not found` | Python not on PATH (Windows) | Install Python 3.11 from python.org; check "Add to PATH" |
-| `pip install` fails with `externally-managed-environment` | PEP 668 enforced (newer Linux distros) | Use a venv: `python3 -m venv .venv && source .venv/bin/activate && pip install -r scripts/requirements-dev.txt` |
-| `pytest` not found after install | Stale `pip` cache | `python3 -m pip install --upgrade -r scripts/requirements-dev.txt` |
-| Windows runner step fails with `python is not recognized` | PATH issue on `windows-latest` | The workflow uses `actions/setup-python@v5` which sets PATH; confirm `python-version: '3.11'` is set (R5) |
-| `scripts/run-python-tests.cmd` exits with `Access is denied` | File association issue | Run from cmd.exe or PowerShell; do not double-click |
-| `find_in_scope` returns hits in `docs/ai-generated/tasks/#000-webui-src-layout/` | R3 exception not applied | Confirm with maintainer; either delete the dir or document the carve-out |
+|                                     Symptom                                      |              Likely cause              |                                                       Fix                                                       |
+|----------------------------------------------------------------------------------|----------------------------------------|-----------------------------------------------------------------------------------------------------------------|
+| `python3: command not found`                                                     | Python not installed (Linux/macOS)     | Install via OS package manager (`brew install python@3.11`, `apt install python3.11`)                           |
+| `python: command not found`                                                      | Python not on PATH (Windows)           | Install Python 3.11 from python.org; check "Add to PATH"                                                        |
+| `pip install` fails with `externally-managed-environment`                        | PEP 668 enforced (newer Linux distros) | Use a venv: `python3 -m venv .venv && source .venv/bin/activate && pip install -r scripts/requirements-dev.txt` |
+| `pytest` not found after install                                                 | Stale `pip` cache                      | `python3 -m pip install --upgrade -r scripts/requirements-dev.txt`                                              |
+| Windows runner step fails with `python is not recognized`                        | PATH issue on `windows-latest`         | The workflow uses `actions/setup-python@v5` which sets PATH; confirm `python-version: '3.11'` is set (R5)       |
+| `scripts/run-python-tests.cmd` exits with `Access is denied`                     | File association issue                 | Run from cmd.exe or PowerShell; do not double-click                                                             |
+| `find_in_scope` returns hits in `docs/ai-generated/tasks/#000-webui-src-layout/` | R3 exception not applied               | Confirm with maintainer; either delete the dir or document the carve-out                                        |
 
 ---
 
 ## Validation matrix summary
 
-| Scenario | Linux | Windows | CI gate | Spec SC |
-|----------|-------|---------|---------|---------|
-| A.1 — Install pytest | ✓ | ✓ | N/A | SC-008 |
-| A.2/A.3 — Run runner | ✓ | ✓ | ✓ (`ubuntu-latest`, `windows-latest` matrix) | SC-003, SC-008 |
-| A.4 — CI workflow | ✓ | ✓ | ✓ | SC-003 |
-| B — `scripts/` PR | ✓ | ✓ | ✓ | SC-002, SC-005, SC-006 |
-| C — `docker/` PR | ✓ | ✓ | ✓ | SC-002 |
-| D — `perc-distribution-tree/` PR | ✓ | ✓ | ✓ | SC-002 |
-| E — `ai-shared-develop/` PR | ✓ | ✓ | ✓ | SC-002 |
-| F — End-to-end | ✓ | ✓ | ✓ | SC-001, SC-002, SC-003, SC-004, SC-005, SC-006, SC-007, SC-008 |
+|             Scenario             | Linux | Windows |                   CI gate                    |                            Spec SC                             |
+|----------------------------------|-------|---------|----------------------------------------------|----------------------------------------------------------------|
+| A.1 — Install pytest             | ✓     | ✓       | N/A                                          | SC-008                                                         |
+| A.2/A.3 — Run runner             | ✓     | ✓       | ✓ (`ubuntu-latest`, `windows-latest` matrix) | SC-003, SC-008                                                 |
+| A.4 — CI workflow                | ✓     | ✓       | ✓                                            | SC-003                                                         |
+| B — `scripts/` PR                | ✓     | ✓       | ✓                                            | SC-002, SC-005, SC-006                                         |
+| C — `docker/` PR                 | ✓     | ✓       | ✓                                            | SC-002                                                         |
+| D — `perc-distribution-tree/` PR | ✓     | ✓       | ✓                                            | SC-002                                                         |
+| E — `ai-shared-develop/` PR      | ✓     | ✓       | ✓                                            | SC-002                                                         |
+| F — End-to-end                   | ✓     | ✓       | ✓                                            | SC-001, SC-002, SC-003, SC-004, SC-005, SC-006, SC-007, SC-008 |
 
 A per-directory PR needs only the matching lettered scenario (B/C/D/E) to pass before merge; Scenario A is the foundation PR; Scenario F is the final post-merge verification.

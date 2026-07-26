@@ -160,10 +160,12 @@ describe("__gup() sanitisation", () => {
 
   it("strips characters outside [A-Za-z0-9._-]", () => {
     withFreshWindow(
-      'http://localhost/?mid=%3Cscript%3Ealert(1)%3C%2Fscript%3E',
+      "http://localhost/?mid=%3Cscript%3Ealert(1)%3C%2Fscript%3E",
       () => {
         globalThis.gadgets = { window: {} };
-        globalThis.percJQuery = () => ({ parent: () => ({ attr: () => null }) });
+        globalThis.percJQuery = () => ({
+          parent: () => ({ attr: () => null }),
+        });
         loadSource();
         const got = globalThis.__gup("mid");
         expect(got).toBe("scriptalert1script");
@@ -214,7 +216,9 @@ describe("__gup() sanitisation", () => {
     for (const p of payloads) {
       withFreshWindow(`http://localhost/?mid=${encodeURIComponent(p)}`, () => {
         globalThis.gadgets = { window: {} };
-        globalThis.percJQuery = () => ({ parent: () => ({ attr: () => null }) });
+        globalThis.percJQuery = () => ({
+          parent: () => ({ attr: () => null }),
+        });
         loadSource();
         const got = globalThis.__gup("mid");
         expect(got, `payload ${p} -> ${got}`).not.toMatch(/[<>"'`&/\\ ]/);
@@ -243,7 +247,7 @@ describe("gadgets.window.getDashboardColumn", () => {
 
   it("never lets an attacker-controlled mid reach a sink via the selector", () => {
     withFreshWindow(
-      'http://localhost/?mid=%22%3E%3Cimg+src%3Dx+onerror%3Dalert(1)%3E',
+      "http://localhost/?mid=%22%3E%3Cimg+src%3Dx+onerror%3Dalert(1)%3E",
       () => {
         let selectorSeen = null;
         globalThis.gadgets = { window: {} };

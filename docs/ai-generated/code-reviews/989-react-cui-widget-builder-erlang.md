@@ -3,7 +3,7 @@
 **Date:** 2026-07-17  
 **Reviewer:** Erlang (strict independent pre-commit/pre-push)  
 **Branch:** `989-react-cui-widget-builder`  
-**PR:** #1337  
+**PR:** #1337
 
 ## Summary
 
@@ -17,14 +17,14 @@ transaction boundary change.
 
 ## Scope
 
-| Item | Detail |
-|------|--------|
-| Uncommitted | `system/services/.../PSAclService.java` — exception message alignment |
-| Unpushed commits | none (`origin...HEAD` = 0/0) |
-| Intent | Keep public null-arg messages stable (`cannot be null`) after thin proxy entry |
-| Prior report | none for this slug |
-| Memory patterns hit | none blocking (no path I/O; no new non-trivial logic) |
-| Cross-platform path review | N/A — no filesystem path handling in this diff |
+|            Item            |                                     Detail                                     |
+|----------------------------|--------------------------------------------------------------------------------|
+| Uncommitted                | `system/services/.../PSAclService.java` — exception message alignment          |
+| Unpushed commits           | none (`origin...HEAD` = 0/0)                                                   |
+| Intent                     | Keep public null-arg messages stable (`cannot be null`) after thin proxy entry |
+| Prior report               | none for this slug                                                             |
+| Memory patterns hit        | none blocking (no path I/O; no new non-trivial logic)                          |
+| Cross-platform path review | N/A — no filesystem path handling in this diff                                 |
 
 ## Diff under review
 
@@ -45,10 +45,10 @@ Aligned with `IPSAclService.createAcl` default (`Objects.requireNonNull(..., "�
 
 ## Gate
 
-| Field | Value |
-|-------|--------|
-| Gate | `approve` |
-| **May commit/push** | **yes** |
+|        Field        |   Value   |
+|---------------------|-----------|
+| Gate                | `approve` |
+| **May commit/push** | **yes**   |
 
 No bugs, no missing behavioral tests required for a message-string alignment,
 no path/portability issues.

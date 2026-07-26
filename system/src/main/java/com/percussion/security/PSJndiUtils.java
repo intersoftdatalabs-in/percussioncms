@@ -485,25 +485,25 @@ public class PSJndiUtils {
   }
 
   /**
-   * Escapes reserved characters in the provided LDAP assertion value per RFC 4515 §3 so it
-   * can be safely interpolated into an LDAP search filter. Escapes the four
-   * metacharacters that the JNDI LDAP provider treats specially — {@code \}, {@code *},
-   * {@code (}, {@code )} — and the NUL byte, using the {@code \HH} hex-escape form.
+   * Escapes reserved characters in the provided LDAP assertion value per RFC 4515 §3 so it can be
+   * safely interpolated into an LDAP search filter. Escapes the four metacharacters that the JNDI
+   * LDAP provider treats specially — {@code \}, {@code *}, {@code (}, {@code )} — and the NUL byte,
+   * using the {@code \HH} hex-escape form.
    *
-   * <p>Without this, an untrusted DN component concatenated into a filter can break out
-   * of the surrounding parentheses and inject new clauses (e.g. {@code *)(objectClass=*})
-   * — the classic CWE-90 LDAP injection vector that CodeQL flags as
-   * {@code java/ldap-injection}. The escape is applied at the boundary so the
-   * un-escaped value is never passed to {@code javax.naming.directory.DirContext.search}.
+   * <p>Without this, an untrusted DN component concatenated into a filter can break out of the
+   * surrounding parentheses and inject new clauses (e.g. {@code *)(objectClass=*}) — the classic
+   * CWE-90 LDAP injection vector that CodeQL flags as {@code java/ldap-injection}. The escape is
+   * applied at the boundary so the un-escaped value is never passed to {@code
+   * javax.naming.directory.DirContext.search}.
    *
    * <p>Behavior matches the OWASP LDAP Injection Prevention Cheat Sheet
    * (https://cheatsheetseries.owasp.org/cheatsheets/LDAP_Injection_Prevention_Cheat_Sheet.html).
    *
-   * @param value the assertion value to escape. {@code null} returns an empty string;
-   *             empty string returns as-is
+   * @param value the assertion value to escape. {@code null} returns an empty string; empty string
+   *     returns as-is
    * @return the escaped value, never {@code null} (always at least "")
-   * @see #escapeDnComponent(String) for escaping DN component values per RFC 4514
-   *      (different syntax; do not confuse the two)
+   * @see #escapeDnComponent(String) for escaping DN component values per RFC 4514 (different
+   *     syntax; do not confuse the two)
    */
   public static String escapeLdapFilter(String value) {
     if (value == null || value.isEmpty()) return value == null ? "" : value;

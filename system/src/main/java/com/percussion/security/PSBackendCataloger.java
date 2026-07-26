@@ -49,6 +49,7 @@ import org.w3c.dom.Element;
 public class PSBackendCataloger {
 
   private static final Logger log = LogManager.getLogger(PSBackendCataloger.class);
+
   /**
    * Convenience method that call {@link #getRoleAttributes(String, String)
    * getRoleAttributes(String, null)}.
@@ -237,9 +238,7 @@ public class PSBackendCataloger {
         // can emit empty <Attribute> shells for subjects with no global attributes.
         // Throwing here floods PSRoleMgr with "Error finding users" on every UI poll.
         // Skip the empty node; keep hard-failing only is not useful for runtime catalog.
-        log.debug(
-            "Skipping catalog Attribute without @name under parent {}",
-            parent.getTagName());
+        log.debug("Skipping catalog Attribute without @name under parent {}", parent.getTagName());
         continue;
       }
 

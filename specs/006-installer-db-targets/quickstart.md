@@ -16,7 +16,7 @@ This guide is a **validation runbook** for implementers and reviewers. It is not
 
 ## Scenario 1 — Unit: resolve default Derby
 
-**Goal**: SC-002 / FR-005  
+**Goal**: SC-002 / FR-005
 
 ```bash
 ./mvn-env.sh -pl modules/perc-distribution-tree -am test \
@@ -30,7 +30,7 @@ This guide is a **validation runbook** for implementers and reviewers. It is not
 
 ## Scenario 2 — Unit: load dbprops MySQL and map keys
 
-**Goal**: FR-001, FR-002, FR-003, FR-004  
+**Goal**: FR-001, FR-002, FR-003, FR-004
 
 Provide a temp properties file in test resources with `DB_BACKEND=MYSQL` and required keys (see [contracts/installer-db-input.md](contracts/installer-db-input.md)).
 
@@ -42,7 +42,7 @@ Provide a temp properties file in test resources with `DB_BACKEND=MYSQL` and req
 
 ## Scenario 3 — Unit: Oracle and SQL Server backends
 
-**Goal**: FR-004  
+**Goal**: FR-004
 
 **Expect**:
 
@@ -52,13 +52,13 @@ Provide a temp properties file in test resources with `DB_BACKEND=MYSQL` and req
 
 ## Scenario 4 — Unit: precedence dbprops over CLI
 
-**Goal**: research D2  
+**Goal**: research D2
 
 **Expect**: When both `--dbprops` (MySQL file) and `--db.type=sqlserver` are present, repository identity follows **dbprops**.
 
 ## Scenario 5 — Unit / action: connect validation failure
 
-**Goal**: FR-008, SC-003  
+**Goal**: FR-008, SC-003
 
 Mock or use invalid host with short timeout.
 
@@ -66,7 +66,7 @@ Mock or use invalid host with short timeout.
 
 ## Scenario 6 — New install Derby (integration / manual)
 
-**Goal**: SC-002 regression  
+**Goal**: SC-002 regression
 
 ```bash
 # After building distribution artifact per modules/perc-distribution-tree/README.md
@@ -79,7 +79,7 @@ grep -E '^(DB_BACKEND|DB_DRIVER)' /tmp/perc-install-derby/rxconfig/Installer/rxr
 
 ## Scenario 7 — New install with dbprops (manual / CI with MySQL)
 
-**Goal**: SC-001  
+**Goal**: SC-001
 
 1. Create `mysql.properties` from shipped sample; set host/user/password for a pre-created empty DB.
 2. Run:
@@ -95,7 +95,7 @@ java -Ddbprops=/path/to/mysql.properties -jar <distribution-installer.jar> /tmp/
 
 ## Scenario 8 — Upgrade non-regression (fixture)
 
-**Goal**: SC-005 / FR-006  
+**Goal**: SC-005 / FR-006
 
 1. Seed an install root fixture with `DB_BACKEND=MSSQL` (or MYSQL) in `rxconfig/Installer/rxrepository.properties` and version markers that force **upgrade** mode.
 2. Run installer **without** dbprops against that root.
@@ -105,7 +105,7 @@ java -Ddbprops=/path/to/mysql.properties -jar <distribution-installer.jar> /tmp/
 
 ## Scenario 9 — Documentation check
 
-**Goal**: SC-006 / FR-010  
+**Goal**: SC-006 / FR-010
 
 ```bash
 # Samples exist in distribution tree sources:

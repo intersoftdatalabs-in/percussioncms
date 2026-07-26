@@ -264,9 +264,7 @@
       }
       // Get Code
       var $children = $region.children("children");
-      var templateCodeText = $children
-        .find("code templateCode:first")
-        .text();
+      var templateCodeText = $children.find("code templateCode:first").text();
       newRegion.setVertical(
         !percTemplateCodeHasClass(templateCodeText, "perc-horizontal")
       );

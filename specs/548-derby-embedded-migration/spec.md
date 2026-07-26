@@ -17,6 +17,7 @@
 - Q: Minimum concurrent-user target for multiuser acceptance on default CMS → A: **10 concurrent editors** as the hard acceptance floor (Option B)
 
 ## Module Scope
+
 - **Primary module(s)**: CMS core repository configuration and data access (`system/`), schema/data tooling (`modules/TableFactory`), CMS runtime packaging (`modules/perc-jetty`), installer / distribution tree pieces that select or wire the default repository
 - **Secondary / integration modules**: Delivery Tier Suite services and DTS distribution (default embedded repository for metadata, forms, comments, feeds, membership, polls, and related services); upgrade plugins and install resources; shared JDBC utilities and repository property templates; product documentation for install, upgrade, backup, and restore
 - **AGENTS files to apply**: root `AGENTS.md`; module-local `AGENTS.md` / `AGENTS.local.md` for each touched module (especially `system/`, TableFactory, DTS modules, installer/distribution)
@@ -24,6 +25,7 @@
 - **Install / upgrade impact**: **schema + config + distribution tree** — new default repository engine for zero-admin installs; automatic data migration for existing default-repository (Derby) sites; installer and upgrade paths updated; backup/restore procedures updated. External MySQL / SQL Server configurations remain supported and unchanged.
 
 ## User Scenarios & Testing
+
 Each story must be independently testable.
 
 ### User Story 1 - New install uses maintained default repository (Priority: P1)
@@ -215,3 +217,4 @@ As a customer or partner, I understand that Derby is retired upstream, what happ
 - **Upgrade window duration** for large Derby repositories—mitigate with progress logging, disk prechecks, and sizing guidance in docs.
 - **Communication gap** (customers surprised by maintenance window)—mitigate with release notes and upgrade guide lead time.
 - **Partial estate complexity** (CMS vs DTS different backends)—mitigate with per-component detection and clear logs (FR-017).
+

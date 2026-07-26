@@ -61,15 +61,15 @@ has a `--help` exit-0 path (FR-009 / R4).
 
 ## Cross-platform path / file I/O checklist
 
-| Item | Status |
-|------|--------|
-| No hardcoded `/` or `\\` in filesystem-path joins | **PASS** — all 4 new scripts use `pathlib.Path` exclusively. The single literal occurrence of `\\` in `api-update.py` line 350 is a docstring illustration of Windows `StartJetty.bat` invocation syntax (deliberately Windows-flavored to convey the original `.bat` workflow), not a filesystem separator. |
-| No Unix-only absolute roots in tests | **PASS** — every test uses `tempfile.TemporaryDirectory()` and `Path` chains. |
-| `subprocess.run` always uses argv lists with `shell=False` | **PASS** — verified by grep; every `subprocess.run` / `_run_maven` / `_restart_jetty` call in the new code uses argv lists. No `shell=True`, `os.system`, `bash -c`, `cmd /c`, or `cmd.exe` anywhere in the new code. The original `.bat` files used `start /WAIT cmd /C ...`; the Python port invokes Maven / Jetty via `subprocess.run([...], shell=False)` per FR-008 and R2. |
-| No third-party deps beyond pytest | **PASS** — runtime imports are stdlib-only: `argparse`, `fnmatch`, `logging`, `pathlib`, `shutil`, `subprocess`, `sys`, `tempfile`, `unittest` (in tests), `xml.etree.ElementTree`, `zipfile`. No `requests`, `urllib`, `pip` calls in product code. |
-| `shebang` / `encoding` / `from __future__ import annotations` | **PASS** — every new script has all three (or `from __future__` only, where stdlib imports are deliberately minimized). |
-| `pathlib.Path` for repo-root resolution (R7) | **PASS** — `_resolve_paths()` in `api-update.py`, `_default_paths()` in `update-tinymce.py`, `_default_install_xml()` in `check-no-glob-deletes.py`, `_default_artifact()` in `verify-jdbc-drivers.py` all use `Path(__file__).resolve().parents[N]`. |
-| Maven `exec-maven-plugin` continues to invoke Java mains (FR-014: don't break the build gate) | **PASS** — verified by `mvn clean install`: BUILD SUCCESS, 75 tests pass (incl. the existing `VerifyJdbcDriversTest` and `CheckNoGlobDeletesTest`), the `verify-jdbc-drivers` and `check-no-glob-deletes` `exec:java` executions run cleanly and report `OK: 10 JDBC driver JAR(s) verified under jetty/base/lib/jdbc/`. |
+|                                             Item                                              |                                                                                                                                                                                      Status                                                                                                                                                                                      |
+|-----------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| No hardcoded `/` or `\\` in filesystem-path joins                                             | **PASS** — all 4 new scripts use `pathlib.Path` exclusively. The single literal occurrence of `\\` in `api-update.py` line 350 is a docstring illustration of Windows `StartJetty.bat` invocation syntax (deliberately Windows-flavored to convey the original `.bat` workflow), not a filesystem separator.                                                                     |
+| No Unix-only absolute roots in tests                                                          | **PASS** — every test uses `tempfile.TemporaryDirectory()` and `Path` chains.                                                                                                                                                                                                                                                                                                    |
+| `subprocess.run` always uses argv lists with `shell=False`                                    | **PASS** — verified by grep; every `subprocess.run` / `_run_maven` / `_restart_jetty` call in the new code uses argv lists. No `shell=True`, `os.system`, `bash -c`, `cmd /c`, or `cmd.exe` anywhere in the new code. The original `.bat` files used `start /WAIT cmd /C ...`; the Python port invokes Maven / Jetty via `subprocess.run([...], shell=False)` per FR-008 and R2. |
+| No third-party deps beyond pytest                                                             | **PASS** — runtime imports are stdlib-only: `argparse`, `fnmatch`, `logging`, `pathlib`, `shutil`, `subprocess`, `sys`, `tempfile`, `unittest` (in tests), `xml.etree.ElementTree`, `zipfile`. No `requests`, `urllib`, `pip` calls in product code.                                                                                                                             |
+| `shebang` / `encoding` / `from __future__ import annotations`                                 | **PASS** — every new script has all three (or `from __future__` only, where stdlib imports are deliberately minimized).                                                                                                                                                                                                                                                          |
+| `pathlib.Path` for repo-root resolution (R7)                                                  | **PASS** — `_resolve_paths()` in `api-update.py`, `_default_paths()` in `update-tinymce.py`, `_default_install_xml()` in `check-no-glob-deletes.py`, `_default_artifact()` in `verify-jdbc-drivers.py` all use `Path(__file__).resolve().parents[N]`.                                                                                                                            |
+| Maven `exec-maven-plugin` continues to invoke Java mains (FR-014: don't break the build gate) | **PASS** — verified by `mvn clean install`: BUILD SUCCESS, 75 tests pass (incl. the existing `VerifyJdbcDriversTest` and `CheckNoGlobDeletesTest`), the `verify-jdbc-drivers` and `check-no-glob-deletes` `exec:java` executions run cleanly and report `OK: 10 JDBC driver JAR(s) verified under jetty/base/lib/jdbc/`.                                                         |
 
 ## Build verification (T075 / SC-007)
 
@@ -80,16 +80,17 @@ has a `--help` exit-0 path (FR-009 / R4).
 
 ## Behavioral parity matrix
 
-| Original (`.sh`/`.bat`) | Python replacement | Behavioral deviation |
-|------------------------|--------------------|----------------------|
-| `verify-jdbc-drivers.sh` (POSIX logic) + `verify-jdbc-drivers.bat` (delegates to `com.percussion.distribution.install.VerifyJdbcDrivers`) | `verify-jdbc-drivers.py` | None for the operator-facing surface. Python port replicates the `.sh` logic (zipfile vs. `unzip`; fnmatch vs. shell-glob expansion; `Path.stat().st_size` vs. `stat -c '%s'`). The Java main continues to exist as the canonical implementation invoked by Maven `exec-maven-plugin:java`; both produce identical exit codes for identical inputs. |
-| `check-no-glob-deletes.sh` (POSIX awk/grep/sed) + `check-no-glob-deletes.bat` (delegates to `com.percussion.distribution.install.CheckNoGlobDeletes`) | `check-no-glob-deletes.py` | None observable. Python port uses `xml.etree.ElementTree` (more robust than the shell two-pass extraction) and `_find_target`/`_find_first_child_delete` match the original's narrow scope: only the first `<delete>` directly inside `<target name="install_jdbc_drivers">` is inspected. Documented in the script's `## Behavioral Notes`. |
-| `APIUpdate-WEBUI.bat` + `APIUpdate-REST.bat` + `APIUpdate-SiteManage.bat` + `APIUpdateJars.bat` (4 Windows-only `.bat` files; no `.sh` counterpart) | `api-update.py --module {webui,rest,sitemanage,jars}` | **Consolidation** — the 4 batch files are replaced by 1 entry point. The behavioral surface (build + copy + restart) is preserved per `--module`. New `--dry-run` flag prints the build plan without invoking Maven / touching the filesystem (gates pytest). Documented in the script's `## Behavioral Notes`. |
-| `UpdateTinyMCE.bat` (Windows-only; no `.sh` counterpart) | `update-tinymce.py` | **Scope narrowed** — the `.bat` did build (`mvn ... -pl :perc-tinymce`) + copy `perc-tinymce-*.jar` to the distribution + restart Jetty. The Python port implements only the *asset-sync* leg (sync `modules/perc-tinymce/src/main/tinymce/` → `modules/perc-tinymce/src/main/resources/tinymce/`) per `cli-schemas.md` Scope 3 contract. The build-and-deploy leg is now `api-update.py --module jars` (which covers `:perc-tinymce`); the Jetty restart is operator-controlled via `--no-restart`. Documented in the script's `## Behavioral Notes`. |
+|                                                                Original (`.sh`/`.bat`)                                                                |                  Python replacement                   |                                                                                                                                                                                                                                                                  Behavioral deviation                                                                                                                                                                                                                                                                  |
+|-------------------------------------------------------------------------------------------------------------------------------------------------------|-------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `verify-jdbc-drivers.sh` (POSIX logic) + `verify-jdbc-drivers.bat` (delegates to `com.percussion.distribution.install.VerifyJdbcDrivers`)             | `verify-jdbc-drivers.py`                              | None for the operator-facing surface. Python port replicates the `.sh` logic (zipfile vs. `unzip`; fnmatch vs. shell-glob expansion; `Path.stat().st_size` vs. `stat -c '%s'`). The Java main continues to exist as the canonical implementation invoked by Maven `exec-maven-plugin:java`; both produce identical exit codes for identical inputs.                                                                                                                                                                                                    |
+| `check-no-glob-deletes.sh` (POSIX awk/grep/sed) + `check-no-glob-deletes.bat` (delegates to `com.percussion.distribution.install.CheckNoGlobDeletes`) | `check-no-glob-deletes.py`                            | None observable. Python port uses `xml.etree.ElementTree` (more robust than the shell two-pass extraction) and `_find_target`/`_find_first_child_delete` match the original's narrow scope: only the first `<delete>` directly inside `<target name="install_jdbc_drivers">` is inspected. Documented in the script's `## Behavioral Notes`.                                                                                                                                                                                                           |
+| `APIUpdate-WEBUI.bat` + `APIUpdate-REST.bat` + `APIUpdate-SiteManage.bat` + `APIUpdateJars.bat` (4 Windows-only `.bat` files; no `.sh` counterpart)   | `api-update.py --module {webui,rest,sitemanage,jars}` | **Consolidation** — the 4 batch files are replaced by 1 entry point. The behavioral surface (build + copy + restart) is preserved per `--module`. New `--dry-run` flag prints the build plan without invoking Maven / touching the filesystem (gates pytest). Documented in the script's `## Behavioral Notes`.                                                                                                                                                                                                                                        |
+| `UpdateTinyMCE.bat` (Windows-only; no `.sh` counterpart)                                                                                              | `update-tinymce.py`                                   | **Scope narrowed** — the `.bat` did build (`mvn ... -pl :perc-tinymce`) + copy `perc-tinymce-*.jar` to the distribution + restart Jetty. The Python port implements only the *asset-sync* leg (sync `modules/perc-tinymce/src/main/tinymce/` → `modules/perc-tinymce/src/main/resources/tinymce/`) per `cli-schemas.md` Scope 3 contract. The build-and-deploy leg is now `api-update.py --module jars` (which covers `:perc-tinymce`); the Jetty restart is operator-controlled via `--no-restart`. Documented in the script's `## Behavioral Notes`. |
 
 ## Issues
 
 ### Issue 1 — Severity: suggestion (not blocking; recorded for future work)
+
 - **File**: `modules/perc-distribution-tree/scripts/verify-jdbc-drivers.py:159`
 - **Description**: When `--workdir` is None, the script uses `tempfile.TemporaryDirectory()` (defaults to OS `tmp`). The repo convention from root `AGENTS.md` is `use ./tmp for scratch`. The original `.sh` used `mktemp -d` (also OS temp) — so the Python port matches the original behavior, not the repo convention. Same for the `Path(__file__).parents[3]/tmp/...` form, which would require ensuring `./tmp` exists on every host.
 - **Suggestion**: Either (a) accept the parity-with-original behavior (current state — matches `.sh` 1:1), or (b) add a `--workdir-default-mode {system-tmp,repo-tmp}` flag for operators who want repo-local scratch. Not blocking because (i) the Python port is observable-equivalent to the `.sh` and (ii) the JUnit `VerifyJdbcDriversTest` and the Maven `exec-maven-plugin:java` execution both pass `--workdir` explicitly or rely on the system temp default that the build environment already has. For a future cleanup PR (Phase 7 polish / SC-001 sweep) consider aligning with the repo convention.
@@ -97,6 +98,7 @@ has a `--help` exit-0 path (FR-009 / R4).
 - **Pattern-id**: conventions.scratch-location
 
 ### Issue 2 — Severity: nit
+
 - **File**: `modules/perc-distribution-tree/scripts/api-update.py:11`
 - **Description**: Module docstring opens with `r"""Cross-platform consolidated API update helper.` — used a raw docstring to silence the `SyntaxWarning: invalid escape sequence` warning that was triggered by the original docstring's literal `\*` and `webapps\Rhythmyx\WEB-INF\lib` Windows-style paths.
 - **Suggestion**: Raw docstring is the correct fix; no further action. Documented here so future edits know why the `r"""` is intentional.
@@ -104,6 +106,7 @@ has a `--help` exit-0 path (FR-009 / R4).
 - **Pattern-id**: nit.docstring-escape
 
 ### Issue 3 — Severity: suggestion (now resolved)
+
 - **File**: `modules/perc-distribution-tree/scripts/api-update.py:419-430` (commit-uncommitted)
 - **Description**: Original `run_module` had a parameter name mismatch (`maven_argv0` parameter vs `mvn_argv0` local). Python's UnboundLocalError surfaced when tests passed `maven_argv0=["mvn"]` (the `if maven_argv0 is None` branch is skipped, but the inner `mvn_argv0 = ...` assignment makes the name local for the rest of the function — accessing it before the assignment crashes).
 - **Suggestion**: Rename the local to `maven_argv0` so the parameter rebinding flows through.
@@ -111,6 +114,7 @@ has a `--help` exit-0 path (FR-009 / R4).
 - **Pattern-id**: nit.parameter-rebind
 
 ### Issue 4 — Severity: nit (now resolved)
+
 - **File**: `modules/perc-distribution-tree/scripts/test_update_tinymce.py:84`
 - **Description**: `setUp` wrote `tinymce.js` directly under `self.source` without first calling `self.source.mkdir(parents=True, exist_ok=True)`. `Path.write_text` does NOT auto-create parents, so every TestSync test failed with `FileNotFoundError` on the very first setUp.
 - **Suggestion**: Add `self.source.mkdir(parents=True, exist_ok=True)` before any file write.
@@ -118,6 +122,7 @@ has a `--help` exit-0 path (FR-009 / R4).
 - **Pattern-id**: nit.test-fixture-setup
 
 ### Issue 5 — Severity: suggestion (now resolved)
+
 - **File**: `modules/perc-distribution-tree/scripts/api-update.py:139-180` (commit-uncommitted)
 - **Description**: Original `MODULE_COPIES` `destination_rel` values were prefixed with `modules/perc-distribution-tree/target/classes/distribution/...`, but the `_copy_artifact` function joins them onto `dist_root` which already starts with `module_dir/target/classes/distribution`. The result was a double-prefixed destination like `.../distribution/modules/perc-distribution-tree/target/classes/distribution/jetty/...`, and the rest jar never landed in `WEB-INF/lib`.
 - **Suggestion**: Make `destination_rel` relative to `dist_root` (i.e. `jetty/base/webapps/Rhythmyx/WEB-INF/lib`, not `modules/perc-distribution-tree/target/classes/distribution/jetty/...`).
@@ -125,6 +130,7 @@ has a `--help` exit-0 path (FR-009 / R4).
 - **Pattern-id**: paths.destination-prefix-double-count
 
 ### Issue 6 — Severity: suggestion (now resolved)
+
 - **File**: `.github/workflows/python-build-scripts.yml:17-18, 35-36` (commit-uncommitted)
 - **Description**: Workflow path-filter listed `modules/perc-distribution-tree/APIUpdate-*.bat` and `modules/perc-distribution-tree/UpdateTinyMCE.bat` so CI would trigger when those `.bat` files changed. After this PR deletes those files, the filters would dangle and GitHub would silently ignore them — no harm but no signal either.
 - **Suggestion**: Drop both `APIUpdate-*.bat` and `UpdateTinyMCE.bat` path-filter entries; the `modules/perc-distribution-tree/scripts/**` filter already covers the new Python entry points and their tests.
@@ -132,6 +138,7 @@ has a `--help` exit-0 path (FR-009 / R4).
 - **Pattern-id**: ci.dangling-path-filter
 
 ### Issue 7 — Severity: nit (documentation update; resolved in this PR)
+
 - **Files**: 6 (this PR)
   - `modules/perc-distribution-tree/AGENTS.md:69` — replaced `verify-jdbc-drivers.sh` reference with `verify-jdbc-drivers.py` + cross-platform Python port note
   - `modules/perc-distribution-tree/README.md:166, 168` — replaced both `.sh` references with `.py` references and added a sentence about the canonical Java mains
@@ -145,12 +152,12 @@ has a `--help` exit-0 path (FR-009 / R4).
 
 ## Behavioral tests added
 
-| Test | Asserts |
-|------|---------|
-| `test_verify_jdbc_drivers.py` (24 tests) | Every documented exit code (0/1/2/3/4/5/6); argparse help/unknown-arg; CSV split; default-artifact resolution; jdbc-dir candidate discovery (bare + distribution-prefixed); jar validation (nonexistent / zero-byte / valid / corrupt); default-workdir routes through `tempfile.TemporaryDirectory` |
+|                    Test                    |                                                                                                                                                                                               Asserts                                                                                                                                                                                               |
+|--------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `test_verify_jdbc_drivers.py` (24 tests)   | Every documented exit code (0/1/2/3/4/5/6); argparse help/unknown-arg; CSV split; default-artifact resolution; jdbc-dir candidate discovery (bare + distribution-prefixed); jar validation (nonexistent / zero-byte / valid / corrupt); default-workdir routes through `tempfile.TemporaryDirectory`                                                                                                |
 | `test_check_no_glob_deletes.py` (14 tests) | Every documented exit code (0/1/7); argparse help/unknown-arg; default `install.xml` resolution; missing install.xml / invalid XML / missing target / no-delete-block all surface as exit 1; star-glob and question-mark-glob both surface as exit 7; unrelated target globs are ignored (scope matches original `.sh`); only the FIRST `<delete>` block inside `install_jdbc_drivers` is inspected |
-| `test_api_update.py` (13 tests) | argparse help/missing-module/unknown-module; well-known path resolution; `--dry-run` exercises the wiring for all 4 `--module` values without invoking Maven or touching the filesystem; real-run path actually copies a rest jar into the expected `WEB-INF/lib/` destination and propagates Maven's exit code; Jetty-script-missing path returns `EXIT_RESTART_FAILED` |
-| `test_update_tinymce.py` (10 tests) | argparse help/unknown-arg; default paths resolve to `modules/perc-tinymce/src/main/{tinymce,resources/tinymce}`; copy is recursive; operator-placed files in target are preserved (`dirs_exist_ok=True`); stale files are overwritten; missing source exits 1; missing target is auto-created |
+| `test_api_update.py` (13 tests)            | argparse help/missing-module/unknown-module; well-known path resolution; `--dry-run` exercises the wiring for all 4 `--module` values without invoking Maven or touching the filesystem; real-run path actually copies a rest jar into the expected `WEB-INF/lib/` destination and propagates Maven's exit code; Jetty-script-missing path returns `EXIT_RESTART_FAILED`                            |
+| `test_update_tinymce.py` (10 tests)        | argparse help/unknown-arg; default paths resolve to `modules/perc-tinymce/src/main/{tinymce,resources/tinymce}`; copy is recursive; operator-placed files in target are preserved (`dirs_exist_ok=True`); stale files are overwritten; missing source exits 1; missing target is auto-created                                                                                                       |
 
 Full in-scope pytest collection (per `scripts/run-python-tests.sh --skip-install`):
 **167 passed in 20.02s** (106 from US2+US3 + 61 new from US6).

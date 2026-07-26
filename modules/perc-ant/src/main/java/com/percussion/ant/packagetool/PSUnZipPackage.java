@@ -71,10 +71,9 @@ import org.apache.tools.ant.taskdefs.Expand;
  * </pre>
  */
 public class PSUnZipPackage extends Expand {
-  /**
-   * Creates a new unzip package task.
-   */
+  /** Creates a new unzip package task. */
   public PSUnZipPackage() {}
+
   /** The source package file path(required) */
   private String m_zipFilePath;
 

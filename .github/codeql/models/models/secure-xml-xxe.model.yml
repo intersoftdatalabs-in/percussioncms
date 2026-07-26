@@ -6,7 +6,47 @@ extensions:
       pack: codeql/java-all
       extensible: barrierModel
     data:
-      - ["com.percussion.security.xml", "PSSecureXMLUtils", false, "getSecuredSaxSource", "(InputStream)", "", "ReturnValue", "xxe", "manual"]
-      - ["com.percussion.security.xml", "PSSecureXMLUtils", false, "getSecuredSaxSource", "(InputStream,PSXmlSecurityOptions)", "", "ReturnValue", "xxe", "manual"]
-      - ["com.percussion.security.xml", "PSSecureXMLUtils", false, "getSecuredSaxParserFactory", "(PSXmlSecurityOptions)", "", "ReturnValue", "xxe", "manual"]
-      - ["com.percussion.security.xml", "PSSecureXMLUtils", false, "getSecuredSaxParserFactory", "(String,ClassLoader,PSXmlSecurityOptions)", "", "ReturnValue", "xxe", "manual"]
+      - [
+          "com.percussion.security.xml",
+          "PSSecureXMLUtils",
+          false,
+          "getSecuredSaxSource",
+          "(InputStream)",
+          "",
+          "ReturnValue",
+          "xxe",
+          "manual",
+        ]
+      - [
+          "com.percussion.security.xml",
+          "PSSecureXMLUtils",
+          false,
+          "getSecuredSaxSource",
+          "(InputStream,PSXmlSecurityOptions)",
+          "",
+          "ReturnValue",
+          "xxe",
+          "manual",
+        ]
+      - [
+          "com.percussion.security.xml",
+          "PSSecureXMLUtils",
+          false,
+          "getSecuredSaxParserFactory",
+          "(PSXmlSecurityOptions)",
+          "",
+          "ReturnValue",
+          "xxe",
+          "manual",
+        ]
+      - [
+          "com.percussion.security.xml",
+          "PSSecureXMLUtils",
+          false,
+          "getSecuredSaxParserFactory",
+          "(String,ClassLoader,PSXmlSecurityOptions)",
+          "",
+          "ReturnValue",
+          "xxe",
+          "manual",
+        ]

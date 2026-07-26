@@ -276,7 +276,8 @@ public class PSAssetService extends PSAbstractFullDataService<PSAsset, PSAssetSu
         var wf =
             workflowService.loadWorkflow(
                 PSGuidUtils.makeGuid(
-                    safeParseLong((String) a.getFields().get(IPSHtmlParameters.SYS_WORKFLOWID), -1L),
+                    safeParseLong(
+                        (String) a.getFields().get(IPSHtmlParameters.SYS_WORKFLOWID), -1L),
                     PSTypeEnum.WORKFLOW));
         var state =
             workflowService.loadWorkflowState(
@@ -392,7 +393,8 @@ public class PSAssetService extends PSAbstractFullDataService<PSAsset, PSAssetSu
       var state =
           workflowService.loadWorkflowState(
               PSGuidUtils.makeGuid(
-                  safeParseLong((String) a.getFields().get(IPSHtmlParameters.SYS_CONTENTSTATEID), -1L),
+                  safeParseLong(
+                      (String) a.getFields().get(IPSHtmlParameters.SYS_CONTENTSTATEID), -1L),
                   PSTypeEnum.WORKFLOW_STATE),
               wf.getGUID());
       row.setWorkflowName(wf.getLabel());
@@ -498,7 +500,8 @@ public class PSAssetService extends PSAbstractFullDataService<PSAsset, PSAssetSu
       var state =
           workflowService.loadWorkflowState(
               PSGuidUtils.makeGuid(
-                  safeParseLong((String) a.getFields().get(IPSHtmlParameters.SYS_CONTENTSTATEID), -1L),
+                  safeParseLong(
+                      (String) a.getFields().get(IPSHtmlParameters.SYS_CONTENTSTATEID), -1L),
                   PSTypeEnum.WORKFLOW_STATE),
               wf.getGUID());
       row.setWorkflowName(wf.getLabel());
@@ -606,7 +609,8 @@ public class PSAssetService extends PSAbstractFullDataService<PSAsset, PSAssetSu
       var state =
           workflowService.loadWorkflowState(
               PSGuidUtils.makeGuid(
-                  safeParseLong((String) a.getFields().get(IPSHtmlParameters.SYS_CONTENTSTATEID), -1L),
+                  safeParseLong(
+                      (String) a.getFields().get(IPSHtmlParameters.SYS_CONTENTSTATEID), -1L),
                   PSTypeEnum.WORKFLOW_STATE),
               wf.getGUID());
       row.setWorkflowName(wf.getLabel());
@@ -1967,16 +1971,11 @@ public class PSAssetService extends PSAbstractFullDataService<PSAsset, PSAssetSu
 
     String selector = request.getSelector();
     String extractedContent =
-        PSHtmlUtils.extractHtml(
-            selector, content, fileName, request.shouldIncludeOuterHtml());
+        PSHtmlUtils.extractHtml(selector, content, fileName, request.shouldIncludeOuterHtml());
 
     if (isBlank(extractedContent)) {
       String warning =
-          "CSS Selector \""
-              + selector
-              + "\" does not exist in file '"
-              + fileName
-              + ".'";
+          "CSS Selector \"" + selector + "\" does not exist in file '" + fileName + ".'";
       throw new PSExtractHTMLException(warning);
     }
 

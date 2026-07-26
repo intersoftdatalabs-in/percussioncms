@@ -290,7 +290,7 @@ describe("Sanitized nodes can be safely appended via Node.appendChild", () => {
   it("does not inject script elements after sanitization + import", () => {
     const host = document.createElement("div");
     const sanitized = globalThis.PercPageEditSanitizer.sanitize(
-      '<p>hi</p><script>window.__pwned=true;</script>'
+      "<p>hi</p><script>window.__pwned=true;</script>"
     );
     let next = sanitized.firstChild;
     while (next) {

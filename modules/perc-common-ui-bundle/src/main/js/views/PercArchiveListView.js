@@ -224,7 +224,10 @@
                       // assigning to anchor's href to neutralize javascript:/
                       // data: schemes.
                       a = $("<a>")
-                        .attr("href", $.PercServiceUtils.sanitizeUrlForHref(href))
+                        .attr(
+                          "href",
+                          $.PercServiceUtils.sanitizeUrlForHref(href)
+                        )
                         .text(linkText);
                     }
 

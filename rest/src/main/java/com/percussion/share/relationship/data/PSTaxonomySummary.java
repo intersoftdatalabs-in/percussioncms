@@ -24,13 +24,13 @@ import java.util.List;
 /**
  * Summary of the taxonomy / site edges incident on the supplied item (US8 / T092–T104).
  *
- * <p>Backed by the JCR node layer in {@code projects/sitemanage/src/main/java/.../share/dao/}
- * via PSJcrNodeFinder: for each site folder the supplied item
- * sits under, the service counts the child nodes that fall under taxonomy.
+ * <p>Backed by the JCR node layer in {@code projects/sitemanage/src/main/java/.../share/dao/} via
+ * PSJcrNodeFinder: for each site folder the supplied item sits under, the service counts the child
+ * nodes that fall under taxonomy.
  *
  * <p>The {@link #nodes} field carries the taxonomy node paths so the dependency view can show them
- * under "Site / taxonomy edges" without a second round-trip. Empty (rather than {@code null})
- * when the supplied item has no taxonomy edges.
+ * under "Site / taxonomy edges" without a second round-trip. Empty (rather than {@code null}) when
+ * the supplied item has no taxonomy edges.
  *
  * <p>Wire envelope: {@code {"PSTaxonomySummary": { ... }}}.
  *

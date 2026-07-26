@@ -31,29 +31,25 @@ import org.junit.jupiter.api.io.TempDir;
 import sun.misc.Unsafe;
 
 /**
- * Regression tests for {@link PSCSSParser} focused on the three
- * {@code java/path-injection} findings closed at
- * {@code PSCSSParser.java:236, 264, 275} (CodeQL alerts #1055, #1056,
- * #1057, T043).
+ * Regression tests for {@link PSCSSParser} focused on the three {@code java/path-injection}
+ * findings closed at {@code PSCSSParser.java:236, 264, 275} (CodeQL alerts #1055, #1056, #1057,
+ * T043).
  *
- * <p>The pre-fix code called {@code new File(path)} /
- * {@code new FileWriter(path)} / {@code new FileInputStream(new File(path))}
- * with paths derived from CSS {@code @import} and {@code url(...)} values
- * extracted via regex from user-supplied CSS, without verifying the
- * resolved path was contained within the theme root. A CSS payload
- * containing {@code @import url('../../../etc/passwd')} could escape the
- * theme directory and reach the filesystem with attacker-controlled
- * traversal sequences.
+ * <p>The pre-fix code called {@code new File(path)} / {@code new FileWriter(path)} / {@code new
+ * FileInputStream(new File(path))} with paths derived from CSS {@code @import} and {@code url(...)}
+ * values extracted via regex from user-supplied CSS, without verifying the resolved path was
+ * contained within the theme root. A CSS payload containing {@code @import
+ * url('../../../etc/passwd')} could escape the theme directory and reach the filesystem with
+ * attacker-controlled traversal sequences.
  *
- * <p>The fix calls {@link com.percussion.security.io.PSPathInjectionGuard#requireUnderBase}
- * on every path BEFORE any File / FileWriter / FileInputStream
- * construction, with the theme root as the canonical base.
+ * <p>The fix calls {@link com.percussion.security.io.PSPathInjectionGuard#requireUnderBase} on
+ * every path BEFORE any File / FileWriter / FileInputStream construction, with the theme root as
+ * the canonical base.
  *
- * <p>Tests use {@link sun.misc.Unsafe#allocateInstance} to bypass the
- * PSCSSParser constructor (which has a {@code @notNull} precondition and
- * a real logger dependency) and reflectively invoke the three private
- * sink methods. The same pattern is used by
- * {@code PSSiteDataServicePathInjectionTest} (T043).
+ * <p>Tests use {@link sun.misc.Unsafe#allocateInstance} to bypass the PSCSSParser constructor
+ * (which has a {@code @notNull} precondition and a real logger dependency) and reflectively invoke
+ * the three private sink methods. The same pattern is used by {@code
+ * PSSiteDataServicePathInjectionTest} (T043).
  */
 public class PSCSSParserPathInjectionTest {
 
@@ -69,15 +65,12 @@ public class PSCSSParserPathInjectionTest {
       Field f = Unsafe.class.getDeclaredField("theUnsafe");
       f.setAccessible(true);
       UNSAFE = (Unsafe) f.get(null);
-      FILE_EXISTS_METHOD =
-          PSCSSParser.class.getDeclaredMethod("fileExists", String.class);
+      FILE_EXISTS_METHOD = PSCSSParser.class.getDeclaredMethod("fileExists", String.class);
       FILE_EXISTS_METHOD.setAccessible(true);
       SAVE_FILE_METHOD =
-          PSCSSParser.class.getDeclaredMethod(
-              "saveFile", StringBuffer.class, String.class);
+          PSCSSParser.class.getDeclaredMethod("saveFile", StringBuffer.class, String.class);
       SAVE_FILE_METHOD.setAccessible(true);
-      LOAD_FILE_METHOD =
-          PSCSSParser.class.getDeclaredMethod("loadFileFromDisk", String.class);
+      LOAD_FILE_METHOD = PSCSSParser.class.getDeclaredMethod("loadFileFromDisk", String.class);
       LOAD_FILE_METHOD.setAccessible(true);
     } catch (ReflectiveOperationException e) {
       throw new ExceptionInInitializerError(e);
@@ -85,9 +78,8 @@ public class PSCSSParserPathInjectionTest {
   }
 
   /**
-   * Constructs an uninitialized PSCSSParser instance and sets the
-   * {@code themeRootDirectory} field via reflection so the
-   * validator has a real base directory to check against.
+   * Constructs an uninitialized PSCSSParser instance and sets the {@code themeRootDirectory} field
+   * via reflection so the validator has a real base directory to check against.
    */
   private PSCSSParser parser() throws Exception {
     PSCSSParser p = (PSCSSParser) UNSAFE.allocateInstance(PSCSSParser.class);
@@ -174,8 +166,7 @@ public class PSCSSParserPathInjectionTest {
     //   <themeRoot>/sub1/../../../../etc/passwd
     // which canonicalizes to a path under /etc/passwd on Unix, and to a
     // path under C:\etc\passwd on Windows — both OUTSIDE the theme root.
-    String traversal =
-        themeRoot.getAbsolutePath() + "/sub1/../../../../etc/passwd";
+    String traversal = themeRoot.getAbsolutePath() + "/sub1/../../../../etc/passwd";
     assertThrows(
         IllegalArgumentException.class,
         () -> invokeFileExists(p, traversal),
@@ -187,8 +178,7 @@ public class PSCSSParserPathInjectionTest {
   void testFileExistsRejectsNul() throws Throwable {
     PSCSSParser p = parser();
     assertThrows(
-        IllegalArgumentException.class,
-        () -> invokeFileExists(p, "good.css\0../../etc/passwd"));
+        IllegalArgumentException.class, () -> invokeFileExists(p, "good.css\0../../etc/passwd"));
   }
 
   @Test
@@ -234,8 +224,7 @@ public class PSCSSParserPathInjectionTest {
     File target = new File(themeRoot, "out.css");
     assertDoesNotThrow(
         () ->
-            invokeSaveFile(
-                p, new StringBuffer("body { color: red; }"), target.getAbsolutePath()));
+            invokeSaveFile(p, new StringBuffer("body { color: red; }"), target.getAbsolutePath()));
     assertTrue(target.exists(), "saveFile must write the file when path is inside theme root");
   }
 
@@ -250,11 +239,10 @@ public class PSCSSParserPathInjectionTest {
   void testLoadFileFromDiskRejectsTraversal() throws Throwable {
     PSCSSParser p = parser();
     String traversal = themeRoot.getAbsolutePath() + "/../../etc/passwd";
-    assertThrows(
-        IllegalArgumentException.class, () -> invokeLoadFile(p, traversal));
+    assertThrows(IllegalArgumentException.class, () -> invokeLoadFile(p, traversal));
   }
 
-@Test
+  @Test
   @DisplayName("loadFileFromDisk: accepts a path under the theme root and reports missing file")
   void testLoadFileFromDiskAcceptsPathInsideRoot() throws Throwable {
     PSCSSParser p = parser();
@@ -289,18 +277,11 @@ public class PSCSSParserPathInjectionTest {
     // is out of scope for this test) by passing a path that resolves
     // outside the theme root.
     PSCSSParser p = parser();
-    String resolved =
-        new File(themeRoot, "../../../etc/passwd").getAbsolutePath();
+    String resolved = new File(themeRoot, "../../../etc/passwd").getAbsolutePath();
+    assertThrows(IllegalArgumentException.class, () -> invokeFileExists(p, resolved));
+    assertThrows(IllegalArgumentException.class, () -> invokeLoadFile(p, resolved));
     assertThrows(
         IllegalArgumentException.class,
-        () -> invokeFileExists(p, resolved));
-    assertThrows(
-        IllegalArgumentException.class,
-        () -> invokeLoadFile(p, resolved));
-    assertThrows(
-        IllegalArgumentException.class,
-        () ->
-            invokeSaveFile(
-                p, new StringBuffer("/* should never write */"), resolved));
+        () -> invokeSaveFile(p, new StringBuffer("/* should never write */"), resolved));
   }
 }

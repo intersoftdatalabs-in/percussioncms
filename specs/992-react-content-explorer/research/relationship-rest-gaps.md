@@ -10,14 +10,14 @@
 
 US7 ships 6 relationship dimensions for the DependencyViewer:
 
-| # | Dimension | Existing server support? | Client population |
-|---|-----------|--------------------------|-------------------|
-| 1 | **outgoing relationships** | No typed REST endpoint; underlying data in `RXRELATIONSHIPS` + `PSRelationshipConfigSet` is reachable via internal Java APIs (`IPSRelationshipCataloger`) but not exposed to /Rhythmyx/rest/. | rendered `unknown` |
-| 2 | **incoming relationships** | Same. | rendered `unknown` |
-| 3 | **Active Assembly links** | Yes — `PSWidgetAssetRelationshipService.findOwners(...)` is the source of truth; `aaLinkCount` is supplied by the host shell (P-Addon / P-Adv wiring layer). | rendered with count |
-| 4 | **taxonomy / site edges** | No typed REST endpoint; underlying data in `PSNode` / `taxonomy` schema reachable via `IPSNodeService` but not exposed. | rendered `unknown` |
-| 5 | **local dependencies** | No typed REST endpoint; the dimension is component-assembly-style edges (template → widget → asset within a single page); reachable via `IPSWidgetAssetRelationshipService` only for widgets, not by page-level graph. | rendered `unknown` |
-| 6 | **reverse dependencies** | No typed REST endpoint; `IPSRelationshipCataloger.getParents(...)` is internal Java. | rendered `unknown` |
+| # |         Dimension          |                                                                                                Existing server support?                                                                                                |  Client population  |
+|---|----------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|---------------------|
+| 1 | **outgoing relationships** | No typed REST endpoint; underlying data in `RXRELATIONSHIPS` + `PSRelationshipConfigSet` is reachable via internal Java APIs (`IPSRelationshipCataloger`) but not exposed to /Rhythmyx/rest/.                          | rendered `unknown`  |
+| 2 | **incoming relationships** | Same.                                                                                                                                                                                                                  | rendered `unknown`  |
+| 3 | **Active Assembly links**  | Yes — `PSWidgetAssetRelationshipService.findOwners(...)` is the source of truth; `aaLinkCount` is supplied by the host shell (P-Addon / P-Adv wiring layer).                                                           | rendered with count |
+| 4 | **taxonomy / site edges**  | No typed REST endpoint; underlying data in `PSNode` / `taxonomy` schema reachable via `IPSNodeService` but not exposed.                                                                                                | rendered `unknown`  |
+| 5 | **local dependencies**     | No typed REST endpoint; the dimension is component-assembly-style edges (template → widget → asset within a single page); reachable via `IPSWidgetAssetRelationshipService` only for widgets, not by page-level graph. | rendered `unknown`  |
+| 6 | **reverse dependencies**   | No typed REST endpoint; `IPSRelationshipCataloger.getParents(...)` is internal Java.                                                                                                                                   | rendered `unknown`  |
 
 The T074 outcome in the morning shipped `DependencyViewer.tsx` + `RelationshipsView.tsx` showing the 5 dimensions as `unknown` with a `clientSidePreview` banner, on the assumption that the missing endpoints were a follow-up `rest` track.
 
@@ -51,14 +51,14 @@ dimension). They live in the `rest/` module so they participate in the
 existing `rest` build + OpenAPI surface, and they delegate to existing
 sitemanage services where available.
 
-| # | Endpoint | Method | Path | Source service |
-|---|----------|--------|------|----------------|
-| 1 | Get outgoing relationship count | `GET` | `/Rhythmyx/rest/content-explorer/relationships/{itemId}/outgoing` | new `IPSRelationshipSummaryService` (sitemanage) wrapping `IPSRelationshipCataloger` |
-| 2 | Get incoming relationship count | `GET` | `/Rhythmyx/rest/content-explorer/relationships/{itemId}/incoming` | same service |
-| 3 | (already shipped, US7) | (existing) | the AA dimension is sourced via the existing `PSWidgetAssetRelationshipService` count supplied by the host | — |
-| 4 | Get taxonomy / site edge count | `GET` | `/Rhythmyx/rest/content-explorer/relationships/{itemId}/taxonomy` | new service wrapping `IPSNodeService` / taxonomy schema |
-| 5 | Get local (page-assembly) edges | `GET` | `/Rhythmyx/rest/content-explorer/relationships/{itemId}/local` | new service wrapping page / template / widget DAO layer |
-| 6 | Get reverse-dependency count | `GET` | `/Rhythmyx/rest/content-explorer/relationships/{itemId}/reverse` | same service as #1, parent-side aggregation |
+| # |            Endpoint             |   Method   |                                                    Path                                                    |                                    Source service                                    |
+|---|---------------------------------|------------|------------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------|
+| 1 | Get outgoing relationship count | `GET`      | `/Rhythmyx/rest/content-explorer/relationships/{itemId}/outgoing`                                          | new `IPSRelationshipSummaryService` (sitemanage) wrapping `IPSRelationshipCataloger` |
+| 2 | Get incoming relationship count | `GET`      | `/Rhythmyx/rest/content-explorer/relationships/{itemId}/incoming`                                          | same service                                                                         |
+| 3 | (already shipped, US7)          | (existing) | the AA dimension is sourced via the existing `PSWidgetAssetRelationshipService` count supplied by the host | —                                                                                    |
+| 4 | Get taxonomy / site edge count  | `GET`      | `/Rhythmyx/rest/content-explorer/relationships/{itemId}/taxonomy`                                          | new service wrapping `IPSNodeService` / taxonomy schema                              |
+| 5 | Get local (page-assembly) edges | `GET`      | `/Rhythmyx/rest/content-explorer/relationships/{itemId}/local`                                             | new service wrapping page / template / widget DAO layer                              |
+| 6 | Get reverse-dependency count    | `GET`      | `/Rhythmyx/rest/content-explorer/relationships/{itemId}/reverse`                                           | same service as #1, parent-side aggregation                                          |
 
 A sixth consolidated convenience endpoint is added:
 
@@ -79,12 +79,12 @@ The endpoints are typed 1:1 to the Java DTOs that the underlying services
 produce. No server-side data is invented in the TypeScript layer; the
 existing relationships / taxonomy / page-assembly schemas are reused.
 
-| Endpoint | Wire format | Source DTO |
-|----------|-------------|------------|
-| #1, #2, #6 | `{ "PSRelationshipSummary": { "count": number, "byType": [{ "type": "string", "count": number }] } }` | new `PSRelationshipSummary` in `rest/src/main/java/com/percussion/share/relationship/` mirroring existing `PSRelationship` |
-| #4 | `{ "PSTaxonomySummary": { "count": number, "nodes": ["string"] } }` | new `PSTaxonomySummary` in `rest/src/main/java/com/percussion/share/relationship/` |
-| #5 | `{ "PSLocalDependencySummary": { "count": number, "links": [{ "type": "string", "targetId": "string" }] } }` | new `PSLocalDependencySummary` in `rest/src/main/java/com/percussion/share/relationship/` |
-| #7 | `{ "PSNodeRelationshipSummary": { "outgoing": ..., "incoming": ..., "taxonomy": ..., "local": ..., "reverse": ... } }` | new `PSNodeRelationshipSummary` in `rest/src/main/java/com/percussion/share/relationship/` |
+|  Endpoint  |                                                      Wire format                                                       |                                                         Source DTO                                                         |
+|------------|------------------------------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------------------|
+| #1, #2, #6 | `{ "PSRelationshipSummary": { "count": number, "byType": [{ "type": "string", "count": number }] } }`                  | new `PSRelationshipSummary` in `rest/src/main/java/com/percussion/share/relationship/` mirroring existing `PSRelationship` |
+| #4         | `{ "PSTaxonomySummary": { "count": number, "nodes": ["string"] } }`                                                    | new `PSTaxonomySummary` in `rest/src/main/java/com/percussion/share/relationship/`                                         |
+| #5         | `{ "PSLocalDependencySummary": { "count": number, "links": [{ "type": "string", "targetId": "string" }] } }`           | new `PSLocalDependencySummary` in `rest/src/main/java/com/percussion/share/relationship/`                                  |
+| #7         | `{ "PSNodeRelationshipSummary": { "outgoing": ..., "incoming": ..., "taxonomy": ..., "local": ..., "reverse": ... } }` | new `PSNodeRelationshipSummary` in `rest/src/main/java/com/percussion/share/relationship/`                                 |
 
 TypeScript mirrors land in `WebUI/src/main/ts/api/contentExplorer/types.ts`'s
 `relationship.ts` (new file). Each is consumed by:
@@ -151,3 +151,4 @@ implementation lands (separate PR train; Phase 11 of the spec).
 - 📋 **Required reviewers / sign-off** — release-manager (T090 SC-012) confirms that US8 merge trains before labeling 8.2 GA.
 
 ---
+

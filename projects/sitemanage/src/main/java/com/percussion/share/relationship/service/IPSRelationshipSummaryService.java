@@ -21,31 +21,31 @@ import com.percussion.share.relationship.data.PSRelationshipSummary;
 import com.percussion.share.relationship.data.PSTaxonomySummary;
 
 /**
- * Produces the per-node relationship summary served as endpoints 1, 2, 4, 5, 6, and 7 of the
- * modern Content Explorer's REST API.
+ * Produces the per-node relationship summary served as endpoints 1, 2, 4, 5, 6, and 7 of the modern
+ * Content Explorer's REST API.
  *
  * <p>Backed by:
  *
  * <ul>
- *   <li>{@code IPSSystemWs#findOwners(...)} / {@code findDependents(...)} — translation /
- *       linkback ownership chain;
+ *   <li>{@code IPSSystemWs#findOwners(...)} / {@code findDependents(...)} — translation / linkback
+ *       ownership chain;
  *   <li>{@code PSJcrNodeFinder#find(...)} — taxonomy / site edges;
- *   <li>{@code IPSWidgetAssetRelationshipService#getLocalAssets(...)} +
- *       {@code getLinkedPages(...)} + {@code getLinkedAssets(...)} — local page-assembly edges.
+ *   <li>{@code IPSWidgetAssetRelationshipService#getLocalAssets(...)} + {@code getLinkedPages(...)}
+ *       + {@code getLinkedAssets(...)} — local page-assembly edges.
  * </ul>
  *
- * <p>AuthZ is enforced server-side per the existing {@code PSObjectAcl} model; calls over the
- * REST façade that cannot resolve the caller's identity or whose {@code accessLevel} is below
- * {@code READ} on the supplied item are answered with {@link java.util.Optional#empty()} so the
- * JAX-RS resource can translate to a 403 (per
- * {@code docs/ai-generated/release/security-review-992.md} §"US8 amendment").
+ * <p>AuthZ is enforced server-side per the existing {@code PSObjectAcl} model; calls over the REST
+ * façade that cannot resolve the caller's identity or whose {@code accessLevel} is below {@code
+ * READ} on the supplied item are answered with {@link java.util.Optional#empty()} so the JAX-RS
+ * resource can translate to a 403 (per {@code docs/ai-generated/release/security-review-992.md}
+ * §"US8 amendment").
  *
  * <p>The interface is read-only on purpose: the 8.2 surface uses it solely for the dependency
- * viewer; if a later spec needs write operations (e.g. reassign taxonomy nodes), it would land in
- * a sibling interface rather than grow this one.
+ * viewer; if a later spec needs write operations (e.g. reassign taxonomy nodes), it would land in a
+ * sibling interface rather than grow this one.
  *
- * <p>Thread-safety: callers may share a single instance across threads; the impl holds no
- * mutable state of its own.
+ * <p>Thread-safety: callers may share a single instance across threads; the impl holds no mutable
+ * state of its own.
  *
  * @author Kilo (US8 / T092–T104)
  */

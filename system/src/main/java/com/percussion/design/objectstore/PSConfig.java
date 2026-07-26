@@ -370,9 +370,9 @@ public class PSConfig extends PSComponent {
   }
 
   /**
-   * Sets the Hibernate optimistic-lock version. Used when re-syncing a long-lived
-   * in-memory cache entry with the database before {@code merge} (e.g. package install
-   * saves the relationships config many times).
+   * Sets the Hibernate optimistic-lock version. Used when re-syncing a long-lived in-memory cache
+   * entry with the database before {@code merge} (e.g. package install saves the relationships
+   * config many times).
    *
    * @param version the version from the database, may be {@code null}
    */

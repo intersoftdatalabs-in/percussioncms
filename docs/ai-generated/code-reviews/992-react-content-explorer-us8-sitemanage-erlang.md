@@ -30,25 +30,25 @@ No file I/O, no path construction on the public surface. The JCR parent-path heu
 
 ### Constitution compliance (US8 deliverable)
 
-| Constraint | Compliance | Notes |
-|------------|------------|-------|
-| II (no invented APIs) | ✅ | DTOs mirror the field shapes already used by the existing `IPSRelationshipCataloger`, `IPSWidgetAssetRelationshipService`, and `PSJcrNodeFinder`. No new field types invented. |
-| III (behavioral tests) | ✅ | 9 Vitest-style JUnit 5 tests; one per dimension, plus the consolidated endpoint with collaborator failures, plus blanked-id rejection, plus id-resolution failure. |
-| IV (service-contract tests) | ⏳ | Deferred to US8 sub-PR #2 (rest module) per the task plan — this sub-PR ships only the sitemanage contract surface. |
-| V (Plan / Complexity) | ✅ | Records in `research/relationship-rest-gaps.md` §US8; 4 DTOs + 1 interface + 1 impl + 1 test class. |
-| VI (threat-model note for new façade) | ✅ | Documented in `docs/ai-generated/release/security-review-992.md` §"US8 amendment 2026-07-20" — authz, CSRF (GET-exempt), path traversal, secrets. The sitemanage service itself does not add a façade (CSRF surface unchanged); the rest-resource sub-PR brings the façade and the AuthZ mapper. |
-| VII (format checks) | ✅ | No new Java file outside the sitemanage module; mvn `compile` + `test` both clean on JDK 21. |
-| IX (review-thread resolution per PR) | ✅ | This Erlang review fires pre-push; per-PR review-thread resolution logs on this PR once the human reviewer lands. |
+|              Constraint               | Compliance |                                                                                                                                              Notes                                                                                                                                               |
+|---------------------------------------|------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| II (no invented APIs)                 | ✅          | DTOs mirror the field shapes already used by the existing `IPSRelationshipCataloger`, `IPSWidgetAssetRelationshipService`, and `PSJcrNodeFinder`. No new field types invented.                                                                                                                   |
+| III (behavioral tests)                | ✅          | 9 Vitest-style JUnit 5 tests; one per dimension, plus the consolidated endpoint with collaborator failures, plus blanked-id rejection, plus id-resolution failure.                                                                                                                               |
+| IV (service-contract tests)           | ⏳          | Deferred to US8 sub-PR #2 (rest module) per the task plan — this sub-PR ships only the sitemanage contract surface.                                                                                                                                                                              |
+| V (Plan / Complexity)                 | ✅          | Records in `research/relationship-rest-gaps.md` §US8; 4 DTOs + 1 interface + 1 impl + 1 test class.                                                                                                                                                                                              |
+| VI (threat-model note for new façade) | ✅          | Documented in `docs/ai-generated/release/security-review-992.md` §"US8 amendment 2026-07-20" — authz, CSRF (GET-exempt), path traversal, secrets. The sitemanage service itself does not add a façade (CSRF surface unchanged); the rest-resource sub-PR brings the façade and the AuthZ mapper. |
+| VII (format checks)                   | ✅          | No new Java file outside the sitemanage module; mvn `compile` + `test` both clean on JDK 21.                                                                                                                                                                                                     |
+| IX (review-thread resolution per PR)  | ✅          | This Erlang review fires pre-push; per-PR review-thread resolution logs on this PR once the human reviewer lands.                                                                                                                                                                                |
 
 ### ER-typed summary
 
-| Category | Count |
-|----------|------:|
-| Blocking bugs | 0 |
-| Non-blocking observations | 5 (all "documented inline; ship as-is") |
-| Style cleanups | 0 |
-| Cross-platform portability findings | 0 |
-| Constitution rule violations | 0 |
+|              Category               |                                   Count |
+|-------------------------------------|----------------------------------------:|
+| Blocking bugs                       |                                       0 |
+| Non-blocking observations           | 5 (all "documented inline; ship as-is") |
+| Style cleanups                      |                                       0 |
+| Cross-platform portability findings |                                       0 |
+| Constitution rule violations        |                                       0 |
 
 ---
 

@@ -6,12 +6,12 @@
 
 ### URLPattern
 
-| Field | Type | Rules |
-|-------|------|--------|
-| rawLine | string | Original line from file (for logging) |
-| pattern | string | Glob pattern after trim; may contain `*` |
-| active | boolean | False if comment, blank, or discarded lone `*` on allow |
-| source | enum | `ALLOW` \| `BLOCK` |
+|  Field  |  Type   |                          Rules                          |
+|---------|---------|---------------------------------------------------------|
+| rawLine | string  | Original line from file (for logging)                   |
+| pattern | string  | Glob pattern after trim; may contain `*`                |
+| active  | boolean | False if comment, blank, or discarded lone `*` on allow |
+| source  | enum    | `ALLOW` \| `BLOCK`                                      |
 
 **Validation**:
 - Empty / `#` comment → not active
@@ -20,12 +20,12 @@
 
 ### URLListFile
 
-| Field | Type | Rules |
-|-------|------|--------|
-| path | path | Install-root relative `rxconfig/Server/allowedUrls.properties` or `blockedUrls.properties` |
-| kind | enum | `ALLOWED` \| `BLOCKED` |
-| patterns | list of URLPattern | Loaded active patterns only |
-| loadedAt | instant | For diagnostics |
+|  Field   |        Type        |                                           Rules                                            |
+|----------|--------------------|--------------------------------------------------------------------------------------------|
+| path     | path               | Install-root relative `rxconfig/Server/allowedUrls.properties` or `blockedUrls.properties` |
+| kind     | enum               | `ALLOWED` \| `BLOCKED`                                                                     |
+| patterns | list of URLPattern | Loaded active patterns only                                                                |
+| loadedAt | instant            | For diagnostics                                                                            |
 
 **Lifecycle**:
 1. **Missing** → seed with product defaults (create once)
@@ -34,22 +34,22 @@
 
 ### ValidationBaseline (code-defined, not a file)
 
-| Rule | Behavior |
-|------|----------|
-| Scheme | Only `http`, `https` |
-| Loopback hosts | `localhost`, `127.0.0.1`, `::1` (any port) → permit after block check |
-| Public host + port -1 or 80/443 | Permit if not private/metadata and not blocked |
-| Private IPv4 ranges / link-local metadata | Deny unless allow-pattern match |
-| Hard metadata hosts | Deny even if block file emptied (defense in depth) |
+|                   Rule                    |                               Behavior                                |
+|-------------------------------------------|-----------------------------------------------------------------------|
+| Scheme                                    | Only `http`, `https`                                                  |
+| Loopback hosts                            | `localhost`, `127.0.0.1`, `::1` (any port) → permit after block check |
+| Public host + port -1 or 80/443           | Permit if not private/metadata and not blocked                        |
+| Private IPv4 ranges / link-local metadata | Deny unless allow-pattern match                                       |
+| Hard metadata hosts                       | Deny even if block file emptied (defense in depth)                    |
 
 ### ValidationDecision
 
-| Field | Type | Description |
-|-------|------|-------------|
-| outcome | enum | `PERMIT` \| `DENY` |
-| reason | enum | `SCHEME`, `BLOCK_LIST`, `BASELINE`, `ALLOW_LIST`, `DEFAULT_DENY`, `HARD_BLOCK` |
-| matchedPattern | string? | Pattern that fired, if any |
-| candidateNormalized | string | String used for glob matching |
+|        Field        |  Type   |                                  Description                                   |
+|---------------------|---------|--------------------------------------------------------------------------------|
+| outcome             | enum    | `PERMIT` \| `DENY`                                                             |
+| reason              | enum    | `SCHEME`, `BLOCK_LIST`, `BASELINE`, `ALLOW_LIST`, `DEFAULT_DENY`, `HARD_BLOCK` |
+| matchedPattern      | string? | Pattern that fired, if any                                                     |
+| candidateNormalized | string  | String used for glob matching                                                  |
 
 ## Decision flow (state)
 
@@ -83,3 +83,4 @@ http://169.254.169.254/*
 - Active line = non-empty, not starting with `#` after trim.
 - Example patterns in default **allow** file are written as comments.
 - Default **block** file has active lines for dangerous targets.
+

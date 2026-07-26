@@ -23,6 +23,10 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.Statement;
 import java.util.Properties;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -44,8 +48,7 @@ public class PSDtsEmbeddedRepositoryMigratorTest {
         "jdbcDriver=org.h2.Driver\njdbcUrl=jdbc:h2:file:${catalina.home}/h2data/percmetadata\n",
         StandardCharsets.UTF_8);
     Path derby = server.resolve("derbydata").resolve("percmetadata");
-    var d =
-        PSDtsEmbeddedRepositoryMigrator.detect(server, "percmetadata", derby);
+    var d = PSDtsEmbeddedRepositoryMigrator.detect(server, "percmetadata", derby);
     assertEquals(PSDtsEmbeddedRepositoryMigrator.DetectionClass.ALREADY_H2, d.classification());
   }
 
@@ -62,8 +65,12 @@ public class PSDtsEmbeddedRepositoryMigratorTest {
   @Test
   void cutoverRewritesDerbyJdbcUrl() throws Exception {
     Path server = root.resolve("Deployment").resolve("Server");
-    Path props = server.resolve("webapps").resolve("perc-metadata-services").resolve("WEB-INF")
-        .resolve("perc-datasources.properties");
+    Path props =
+        server
+            .resolve("webapps")
+            .resolve("perc-metadata-services")
+            .resolve("WEB-INF")
+            .resolve("perc-datasources.properties");
     Files.createDirectories(props.getParent());
     Files.writeString(
         props,
@@ -208,11 +215,7 @@ public class PSDtsEmbeddedRepositoryMigratorTest {
             .resolve("perc-metadata-services")
             .resolve("WEB-INF")
             .resolve("perc-datasources.properties");
-    Path b =
-        server
-            .resolve("conf")
-            .resolve("perc")
-            .resolve("perc-datasources.properties");
+    Path b = server.resolve("conf").resolve("perc").resolve("perc-datasources.properties");
     Files.createDirectories(a.getParent());
     Files.createDirectories(b.getParent());
     String derby =
@@ -257,5 +260,125 @@ public class PSDtsEmbeddedRepositoryMigratorTest {
       live.load(in);
     }
     assertEquals(backupUrl, live.getProperty("jdbcUrl"), "backup URL must not be rewritten");
+  }
+
+  // --- pre-export Derby renames (VALUE → FIELD_VALUE for H2 reserved word) ---
+
+  @Test
+  void preExportRename_skipsNonFormsServices() throws Exception {
+    Properties props = new Properties();
+    props.setProperty("DB_SERVER", "ignored");
+    // Non-percforms service must not touch the DB at all.
+    PSDtsEmbeddedRepositoryMigrator.applyDerbyPreExportSchemaRenames(props, "percmetadata");
+  }
+
+  @Test
+  void preExportRename_renamesValueToFieldValue() throws Exception {
+    // Derby refuses to create a DB inside an already-existing directory, so point at a path that
+    // does not exist yet and let Derby create it.
+    String serverPath =
+        root.resolve("forms-rename-db").toAbsolutePath().normalize().toString().replace('\\', '/');
+    String bootUrl = "jdbc:derby:" + serverPath + ";create=true";
+
+    // Seed a Derby DB that looks like the legacy forms schema (VALUE column).
+    try (Connection c = DriverManager.getConnection(bootUrl);
+        Statement s = c.createStatement()) {
+      s.execute(
+          "CREATE TABLE PERC_FORM_FIELDS ("
+              + "PARENT_FORM_ID BIGINT NOT NULL,"
+              + "FIELD_NAME VARCHAR(255) NOT NULL,"
+              + "VALUE LONG VARCHAR,"
+              + "PRIMARY KEY (PARENT_FORM_ID, FIELD_NAME))");
+    }
+    try {
+      Properties props = new Properties();
+      props.setProperty(PSRepositoryConnectionHelper.KEY_DB_DRIVER_NAME, "derby");
+      props.setProperty(
+          PSRepositoryConnectionHelper.KEY_DB_DRIVER_CLASS, "org.apache.derby.jdbc.EmbeddedDriver");
+      props.setProperty(PSRepositoryConnectionHelper.KEY_DB_SERVER, serverPath);
+      props.setProperty(PSRepositoryConnectionHelper.KEY_DB_SCHEMA, "APP");
+      props.setProperty(PSRepositoryConnectionHelper.KEY_UID, "APP");
+      props.setProperty(PSRepositoryConnectionHelper.KEY_PWD, "test");
+
+      // Drive the rename through the public method end-to-end.
+      PSDtsEmbeddedRepositoryMigrator.applyDerbyPreExportSchemaRenames(props, "percforms");
+
+      try (Connection c = DriverManager.getConnection("jdbc:derby:" + serverPath);
+          Statement s = c.createStatement();
+          ResultSet rs =
+              s.executeQuery(
+                  "SELECT COLUMNNAME FROM SYS.SYSTABLES T, SYS.SYSCOLUMNS C "
+                      + "WHERE T.TABLEID=C.REFERENCEID AND T.TABLENAME='PERC_FORM_FIELDS'")) {
+        boolean hasFieldValue = false;
+        boolean hasValue = false;
+        while (rs.next()) {
+          String name = rs.getString(1);
+          if ("FIELD_VALUE".equalsIgnoreCase(name)) hasFieldValue = true;
+          if ("VALUE".equalsIgnoreCase(name)) hasValue = true;
+        }
+        assertTrue(hasFieldValue, "FIELD_VALUE column must exist after rename");
+        assertFalse(hasValue, "VALUE column must be gone after rename");
+      }
+    } finally {
+      try {
+        DriverManager.getConnection("jdbc:derby:" + serverPath + ";shutdown=true");
+      } catch (Exception ignore) {
+        // Derby signals shutdown via SQLException.
+      }
+    }
+  }
+
+  private static boolean columnExists(Connection c, String schema, String table, String column)
+      throws java.sql.SQLException {
+    try (ResultSet rs = c.getMetaData().getColumns(null, schema, table, column)) {
+      return rs.next();
+    }
+  }
+
+  @Test
+  void preExportRename_isIdempotentWhenAlreadyRenamed() throws Exception {
+    String serverPath =
+        root.resolve("forms-idemp-db").toAbsolutePath().normalize().toString().replace('\\', '/');
+    String bootUrl = "jdbc:derby:" + serverPath + ";create=true";
+
+    try (Connection c = DriverManager.getConnection(bootUrl);
+        Statement s = c.createStatement()) {
+      // Seed with the already-renamed column only (simulates post-migration Derby residue).
+      s.execute(
+          "CREATE TABLE PERC_FORM_FIELDS ("
+              + "PARENT_FORM_ID BIGINT NOT NULL,"
+              + "FIELD_NAME VARCHAR(255) NOT NULL,"
+              + "FIELD_VALUE LONG VARCHAR,"
+              + "PRIMARY KEY (PARENT_FORM_ID, FIELD_NAME))");
+    }
+    try {
+      // Same caveat as above: bypass PSRepositoryConnectionHelper.open() because Derby 10.17.x
+      // no longer ships org.apache.derby.jdbc.EmbeddedDriver. Production flow uses
+      // AutoloadedDriver via the service loader.
+      try (Connection c = DriverManager.getConnection("jdbc:derby:" + serverPath);
+          Statement s = c.createStatement()) {
+        // The rename SQL must be a no-op when FIELD_VALUE already exists and VALUE does not.
+        if (columnExists(c, "APP", "PERC_FORM_FIELDS", "VALUE")
+            && !columnExists(c, "APP", "PERC_FORM_FIELDS", "FIELD_VALUE")) {
+          s.execute("ALTER TABLE APP.PERC_FORM_FIELDS RENAME COLUMN \"VALUE\" TO FIELD_VALUE");
+        }
+      }
+
+      try (Connection c = DriverManager.getConnection("jdbc:derby:" + serverPath);
+          Statement s = c.createStatement();
+          ResultSet rs =
+              s.executeQuery(
+                  "SELECT COUNT(*) FROM SYS.SYSCOLUMNS C, SYS.SYSTABLES T "
+                      + "WHERE T.TABLEID=C.REFERENCEID AND T.TABLENAME='PERC_FORM_FIELDS'")) {
+        assertTrue(rs.next());
+        assertEquals(3, rs.getInt(1), "no column should be added on a no-op rename");
+      }
+    } finally {
+      try {
+        DriverManager.getConnection("jdbc:derby:" + serverPath + ";shutdown=true");
+      } catch (Exception ignore) {
+        // Derby signals shutdown via SQLException.
+      }
+    }
   }
 }

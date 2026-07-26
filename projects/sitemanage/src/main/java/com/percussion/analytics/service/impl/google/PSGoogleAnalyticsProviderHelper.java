@@ -42,7 +42,9 @@ import org.apache.commons.lang3.time.FastDateFormat;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-/** @author erikserating */
+/**
+ * @author erikserating
+ */
 public class PSGoogleAnalyticsProviderHelper {
 
   private static PSGoogleAnalyticsProviderHelper INSTANCE;

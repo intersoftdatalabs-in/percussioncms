@@ -44,8 +44,8 @@ public class PSOptionManager {
   /**
    * Creates a new instance of this object.
    *
-    * @param applet the applet which contains data needed to perform the request that will be
-   *     made to load and save the option. Must not be <code>null</code>.
+   * @param applet the applet which contains data needed to perform the request that will be made to
+   *     load and save the option. Must not be <code>null</code>.
    */
   public PSOptionManager(PSContentExplorerApplet applet) {
     if (applet == null) throw new IllegalArgumentException("applet must not be null or empty");
@@ -310,8 +310,8 @@ public class PSOptionManager {
   public static final String SESSIONOBJECT_CXOPTIONS = "cxoptions";
 
   /**
-   * This value is used to get the options from the session object, this is the value of a
-   * {@link IPSHtmlParameters#SYS_COMMAND IPSHtmlParameters.SYS_COMMAND} key.
+   * This value is used to get the options from the session object, this is the value of a {@link
+   * IPSHtmlParameters#SYS_COMMAND IPSHtmlParameters.SYS_COMMAND} key.
    */
   public static final String LOAD_COMMAND = "get";
 
@@ -322,8 +322,8 @@ public class PSOptionManager {
   public static final String LOAD_DEFAULT = "default";
 
   /**
-   * This value is used to put the options into the session object, this is the value of a
-   * {@link IPSHtmlParameters#SYS_COMMAND IPSHtmlParameters.SYS_COMMAND} key.
+   * This value is used to put the options into the session object, this is the value of a {@link
+   * IPSHtmlParameters#SYS_COMMAND IPSHtmlParameters.SYS_COMMAND} key.
    */
   public static final String SAVE_COMMAND = "put";
 }

@@ -23,6 +23,12 @@ import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
+import java.sql.Connection;
+import java.sql.DatabaseMetaData;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -70,9 +76,7 @@ public class PSDtsEmbeddedRepositoryMigrator {
    * @param performProductBackupIfNeeded attempt offline copy of derbydata when gate not confirmed
    */
   public PSDtsEmbeddedRepositoryMigrator(
-      Path dtsInstallRoot,
-      Properties systemProperties,
-      boolean performProductBackupIfNeeded) {
+      Path dtsInstallRoot, Properties systemProperties, boolean performProductBackupIfNeeded) {
     this.dtsInstallRoot =
         Objects.requireNonNull(dtsInstallRoot, "dtsInstallRoot").toAbsolutePath().normalize();
     this.systemProperties = Objects.requireNonNull(systemProperties, "systemProperties");
@@ -157,12 +161,15 @@ public class PSDtsEmbeddedRepositoryMigrator {
           gateKind = PSBackupGateKind.PRODUCT_BACKUP;
         } catch (Exception e) {
           failureReason =
-              "Product offline backup failed: "
-                  + PSMigrationSecretsRedactor.redact(e.getMessage());
+              "Product offline backup failed: " + PSMigrationSecretsRedactor.redact(e.getMessage());
           outcome = PSMigrationOutcome.BLOCKED_BACKUP_GATE;
           // Gate not satisfied — PRODUCT_BACKUP is reserved for successful product offline backup
           writeReport(
-              component, outcome, PSBackupGateKind.NOT_SATISFIED, sourceBackend, targetBackend,
+              component,
+              outcome,
+              PSBackupGateKind.NOT_SATISFIED,
+              sourceBackend,
+              targetBackend,
               failureReason);
           log(component, outcome, failureReason);
           return outcome;
@@ -191,8 +198,9 @@ public class PSDtsEmbeddedRepositoryMigrator {
 
         Properties sourceProps = buildDerbySourceProps(derbyDir);
         Properties targetProps = buildH2TargetProps(h2Base);
-        Files.createDirectories(
-            h2Base.getParent() != null ? h2Base.getParent() : serverRoot);
+        Files.createDirectories(h2Base.getParent() != null ? h2Base.getParent() : serverRoot);
+
+        applyDerbyPreExportSchemaRenames(sourceProps, serviceName);
 
         PSTableFactoryMigrationTransfer.Result transfer =
             PSTableFactoryMigrationTransfer.exportThenImport(sourceProps, targetProps, staging);
@@ -259,7 +267,8 @@ public class PSDtsEmbeddedRepositoryMigrator {
         continue;
       }
       String combined =
-          ((url == null ? "" : url) + " " + (driver == null ? "" : driver)).toLowerCase(Locale.ROOT);
+          ((url == null ? "" : url) + " " + (driver == null ? "" : driver))
+              .toLowerCase(Locale.ROOT);
       // Require service name in path or URL so global conf/perc is only used when it targets us
       if (!pathOrUrlMentionsService(propsPath, url, svc)) {
         continue;
@@ -302,7 +311,8 @@ public class PSDtsEmbeddedRepositoryMigrator {
           .filter(
               p -> {
                 String n = p.getFileName().toString();
-                return n.equals("perc-datasources.properties") || n.endsWith("-services.properties");
+                return n.equals("perc-datasources.properties")
+                    || n.endsWith("-services.properties");
               })
           .forEach(candidates::add);
     }
@@ -432,9 +442,7 @@ public class PSDtsEmbeddedRepositoryMigrator {
     }
   }
 
-  /**
-   * True if JDBC URL clearly targets another known service's live data directory.
-   */
+  /** True if JDBC URL clearly targets another known service's live data directory. */
   static boolean pointsAtDifferentService(String urlLower, String thisServiceLower) {
     String u = normalizeJdbcPath(urlLower);
     for (String other : DEFAULT_SERVICES) {
@@ -506,6 +514,105 @@ public class PSDtsEmbeddedRepositoryMigrator {
     return p;
   }
 
+  /**
+   * Apply any Derby schema renames that must happen on the source database before TableFactory
+   * export. Required when a column name in the source Derby schema is not legal in the target
+   * backend (e.g. H2 reserves {@code VALUE}).
+   *
+   * <p>Currently handled renames:
+   *
+   * <ul>
+   *   <li>{@code percforms.APP.PERC_FORM_FIELDS}: {@code VALUE → FIELD_VALUE} — H2 2.x rejects
+   *       unquoted {@code VALUE} as a column name; the JPA model has been renamed to {@code
+   *       FIELD_VALUE} so the imported H2 schema must match.
+   * </ul>
+   *
+   * <p>Each rename is idempotent: skipped if the new column already exists or the old column is not
+   * found (e.g. fresh install, prior migration). Failures are logged and surfaced so the migrator
+   * can be re-run after operator intervention.
+   *
+   * @param sourceProps Derby repository-style props (must include driver, server, uid, pwd)
+   * @param serviceName e.g. {@code percforms}
+   * @throws SQLException if a rename SQL statement fails for a reason other than already-applied
+   */
+  static void applyDerbyPreExportSchemaRenames(Properties sourceProps, String serviceName)
+      throws SQLException {
+    if (!"percforms".equalsIgnoreCase(serviceName)) {
+      return;
+    }
+    Connection conn = null;
+    boolean shutdownRequested = false;
+    try {
+      conn = PSRepositoryConnectionHelper.open(sourceProps, null);
+      shutdownRequested = true;
+
+      String schema = sourceProps.getProperty(PSRepositoryConnectionHelper.KEY_DB_SCHEMA, "APP");
+      // 1. PERC_FORM_FIELDS.VALUE → FIELD_VALUE (H2 reserved word)
+      if (columnExists(conn, schema, "PERC_FORM_FIELDS", "VALUE")
+          && !columnExists(conn, schema, "PERC_FORM_FIELDS", "FIELD_VALUE")) {
+        // Derby's RENAME COLUMN is a top-level statement (not an ALTER TABLE variant) and
+        // requires the table name qualified with the schema. Use the documented Derby syntax.
+        String sql = "RENAME COLUMN " + schema + ".PERC_FORM_FIELDS.\"VALUE\" TO FIELD_VALUE";
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+          ps.execute();
+        }
+        LOG.info(
+            () -> "DTS pre-export: renamed " + schema + ".PERC_FORM_FIELDS.VALUE → FIELD_VALUE");
+      }
+    } catch (ClassNotFoundException e) {
+      throw new SQLException(
+          "Derby driver class not found while applying pre-export renames: " + e.getMessage(), e);
+    } finally {
+      if (conn != null) {
+        try {
+          conn.close();
+        } catch (SQLException ignore) {
+          // best-effort close
+        }
+      }
+      // Derby embedded holds an exclusive lock on the DB; shutdown releases it so the TableFactory
+      // export can open the same DB. shutdown=true is the documented Derby release hook and signals
+      // success by throwing XJ015.
+      if (shutdownRequested) {
+        String driverName =
+            sourceProps.getProperty(PSRepositoryConnectionHelper.KEY_DB_DRIVER_NAME);
+        if (PSJdbcUtils.DERBY_DRIVER.equalsIgnoreCase(driverName)) {
+          String server = sourceProps.getProperty(PSRepositoryConnectionHelper.KEY_DB_SERVER, "");
+          if (!server.isBlank()) {
+            try {
+              // Derby signals successful shutdown by throwing SQLException. The exact message
+              // varies
+              // across versions (XJ015 "Database ... shutdown." historically; 08006 "Database ...
+              // shutdown." in Derby 10.17.x). Treat both as expected.
+              DriverManager.getConnection("jdbc:derby:" + server + ";shutdown=true");
+            } catch (SQLException e) {
+              String msg = e.getMessage() == null ? "" : e.getMessage();
+              if (msg.contains("shutdown") || msg.contains("XJ015") || msg.contains("08006")) {
+                LOG.fine(() -> "DTS pre-export: Derby shutdown OK for " + server);
+              } else {
+                LOG.log(
+                    Level.WARNING,
+                    "DTS pre-export: Derby shutdown error for "
+                        + server
+                        + "; downstream export"
+                        + " may still succeed",
+                    e);
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  private static boolean columnExists(Connection conn, String schema, String table, String column)
+      throws SQLException {
+    DatabaseMetaData md = conn.getMetaData();
+    try (ResultSet rs = md.getColumns(null, schema, table, column)) {
+      return rs.next();
+    }
+  }
+
   private void writeReport(
       String component,
       PSMigrationOutcome outcome,
@@ -518,13 +625,7 @@ public class PSDtsEmbeddedRepositoryMigrator {
     PSMigrationReportWriter.write(
         path,
         new PSMigrationReportWriter.Report(
-            component,
-            outcome,
-            gate,
-            sourceBackend,
-            targetBackend,
-            failureReason,
-            Instant.now()));
+            component, outcome, gate, sourceBackend, targetBackend, failureReason, Instant.now()));
   }
 
   private static void log(String component, PSMigrationOutcome outcome, String detail) {
@@ -547,7 +648,9 @@ public class PSDtsEmbeddedRepositoryMigrator {
     }
     try {
       Files.move(
-          tmp, path, java.nio.file.StandardCopyOption.REPLACE_EXISTING,
+          tmp,
+          path,
+          java.nio.file.StandardCopyOption.REPLACE_EXISTING,
           java.nio.file.StandardCopyOption.ATOMIC_MOVE);
     } catch (IOException e) {
       Files.move(tmp, path, java.nio.file.StandardCopyOption.REPLACE_EXISTING);

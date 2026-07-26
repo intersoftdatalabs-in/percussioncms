@@ -235,7 +235,7 @@ public class PSCopySiteNamePage extends PSWizardPanel {
      * Get the names of all sites that have the supplied folderRoot as their folder root. A
      * case-insensitive compare is done.
      *
-   * @return a list will all site names which have the supplied folder root, never <code>null
+     * @return a list will all site names which have the supplied folder root, never <code>null
      *     </code>, may be empty.
      */
     public Collection getSitesToCopy() {

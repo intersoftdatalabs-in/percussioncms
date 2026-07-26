@@ -26,8 +26,8 @@ import java.nio.file.Path;
 import org.junit.jupiter.api.Test;
 
 /**
- * Regression for GH-833 / v8.1.7 PR #834: sitewide framework gadget URLs are wrapped in
- * script/link tags via processFrameworkContent.
+ * Regression for GH-833 / v8.1.7 PR #834: sitewide framework gadget URLs are wrapped in script/link
+ * tags via processFrameworkContent.
  */
 class PSPageUtilsProcessFrameworkContentTest {
 
@@ -59,7 +59,8 @@ class PSPageUtilsProcessFrameworkContentTest {
         "<script src=\"/js/custom.js\"></script>", utils.processFrameworkContent("/js/custom.js"));
 
     assertEquals(
-        "<link rel=\"stylesheet\" href=\"https://code.jquery.com/ui/1.13.3/themes/smoothness/jquery-ui.css\" />",
+        "<link rel=\"stylesheet\""
+            + " href=\"https://code.jquery.com/ui/1.13.3/themes/smoothness/jquery-ui.css\" />",
         utils.processFrameworkContent(
             "https://code.jquery.com/ui/1.13.3/themes/smoothness/jquery-ui.css"));
     assertEquals(
@@ -76,20 +77,17 @@ class PSPageUtilsProcessFrameworkContentTest {
     PSPageUtils utils = new PSPageUtils();
     // Quote in URL must not break out of src/href attribute
     String withQuote = utils.processFrameworkContent("/a.js\"onload=alert(1).js");
-    assertEquals(
-        "<script src=\"/a.js&quot;onload=alert(1).js\"></script>", withQuote);
+    assertEquals("<script src=\"/a.js&quot;onload=alert(1).js\"></script>", withQuote);
 
     String cssAmp = utils.processFrameworkContent("/styles.css?a=1&b=2");
-    assertEquals(
-        "<link rel=\"stylesheet\" href=\"/styles.css?a=1&amp;b=2\" />", cssAmp);
+    assertEquals("<link rel=\"stylesheet\" href=\"/styles.css?a=1&amp;b=2\" />", cssAmp);
   }
 
   @Test
   void processFrameworkContentExtensionCheckIsCaseInsensitive() {
     PSPageUtils utils = new PSPageUtils();
     assertEquals(
-        "<script src=\"/js/Custom.JS\"></script>",
-        utils.processFrameworkContent("/js/Custom.JS"));
+        "<script src=\"/js/Custom.JS\"></script>", utils.processFrameworkContent("/js/Custom.JS"));
     assertEquals(
         "<link rel=\"stylesheet\" href=\"/styles.CSS\" />",
         utils.processFrameworkContent("/styles.CSS"));

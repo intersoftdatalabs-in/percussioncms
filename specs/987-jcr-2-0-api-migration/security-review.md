@@ -13,11 +13,14 @@
 - **Scope**: Compile & Runtime API dependency
 
 ### Dependency Tree Verification
+
 Verified via Maven `dependency:tree` output:
+
 ```text
 [INFO] com.percussion:perc-system:jar:8.2.0-SNAPSHOT
 [INFO] \- javax.jcr:jcr:jar:2.0:compile
 ```
+
 Zero references to legacy `javax.jcr:jcr:1.0` remain across the dependency hierarchy.
 
 ---

@@ -24,8 +24,8 @@ import org.junit.jupiter.api.Test;
 
 /**
  * Ensures build-gate mains do not call {@link System#exit} under the default (Maven in-process)
- * policy — that would kill {@code exec-maven-plugin:java} and abort the reactor after a
- * successful JDBC verify.
+ * policy — that would kill {@code exec-maven-plugin:java} and abort the reactor after a successful
+ * JDBC verify.
  */
 class BuildGateMainsTest {
 

@@ -37,37 +37,31 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
 /**
- * Regression tests for {@link PSFileSystemPathItemService} focused on
- * the {@code java/path-injection} finding closed at
- * {@code PSFileSystemPathItemService.java:207} (CodeQL alert #1053, T043).
+ * Regression tests for {@link PSFileSystemPathItemService} focused on the {@code
+ * java/path-injection} finding closed at {@code PSFileSystemPathItemService.java:207} (CodeQL alert
+ * #1053, T043).
  *
- * <p>The pre-fix code reached {@code child.isDirectory()} (line 207)
- * with a {@link File} constructed upstream by
- * {@code PSFileSystemService.getChildren}, where the user-supplied
- * {@code path} argument flows through {@code new File(root, path)}
- * and {@code pathFile.listFiles()} to produce the {@code child} File
- * without CodeQL recognizing {@code PSFileSystemService.validatePath}
- * as a sanitizer. The fix adds
- * {@link com.percussion.security.io.PSPathInjectionGuard#requireSafeFileName}
- * on {@code child.getName()} at the top of the private
- * {@code getPathItemFromFile} method, so any traversal or NUL-byte
- * payload in the file-name portion is rejected BEFORE any
- * {@code child.isDirectory()} / {@code child.getName()} / {@code child.getPath()}
- * calls below.
+ * <p>The pre-fix code reached {@code child.isDirectory()} (line 207) with a {@link File}
+ * constructed upstream by {@code PSFileSystemService.getChildren}, where the user-supplied {@code
+ * path} argument flows through {@code new File(root, path)} and {@code pathFile.listFiles()} to
+ * produce the {@code child} File without CodeQL recognizing {@code
+ * PSFileSystemService.validatePath} as a sanitizer. The fix adds {@link
+ * com.percussion.security.io.PSPathInjectionGuard#requireSafeFileName} on {@code child.getName()}
+ * at the top of the private {@code getPathItemFromFile} method, so any traversal or NUL-byte
+ * payload in the file-name portion is rejected BEFORE any {@code child.isDirectory()} / {@code
+ * child.getName()} / {@code child.getPath()} calls below.
  *
- * <p>Tests instantiate {@link PSFileSystemPathItemService} via its
- * real constructor (Mockito for the injected dependencies) and
- * reflectively invoke the private {@code getPathItemFromFile} method.
- * Files are constructed with {@link Path#resolve} for cross-platform
- * portability.
+ * <p>Tests instantiate {@link PSFileSystemPathItemService} via its real constructor (Mockito for
+ * the injected dependencies) and reflectively invoke the private {@code getPathItemFromFile}
+ * method. Files are constructed with {@link Path#resolve} for cross-platform portability.
  */
 public class PSFileSystemPathItemServicePathInjectionTest {
 
   /**
    * PSFileSystemPathItemService is abstract (it leaves IPSPathService entry points for concrete
    * subclasses like PSWebResourcesPathItemService). For the regression test we instantiate a
-   * minimal concrete subclass that wires the same three dependencies as the production
-   * constructor and stubs out the remaining abstract method.
+   * minimal concrete subclass that wires the same three dependencies as the production constructor
+   * and stubs out the remaining abstract method.
    */
   static class TestablePathItemService extends PSFileSystemPathItemService {
     TestablePathItemService(
@@ -239,7 +233,8 @@ public class PSFileSystemPathItemServicePathInjectionTest {
         "A legitimate filename like 'archive..tar.gz' must NOT trigger"
             + " the segment-check IllegalArgumentException. Pre-fix would have"
             + " thrown because requireSafeFileName rejects any name with '..'."
-            + " Exception message: " + exMessage);
+            + " Exception message: "
+            + exMessage);
   }
 
   // ====================================================================
@@ -253,8 +248,7 @@ public class PSFileSystemPathItemServicePathInjectionTest {
   @DisplayName("Validator accepts a real directory name like 'legit-dir'")
   void testValidatorAcceptsLegitDirectoryName() {
     assertDoesNotThrow(
-        () ->
-            com.percussion.security.io.PSPathInjectionGuard.requireSafeFileName("legit-dir"),
+        () -> com.percussion.security.io.PSPathInjectionGuard.requireSafeFileName("legit-dir"),
         "Validator MUST accept 'legit-dir' (this is the name form a real directory"
             + " would have when reachin line 207 of getPathItemFromFile).");
   }
@@ -263,8 +257,7 @@ public class PSFileSystemPathItemServicePathInjectionTest {
   @DisplayName("Validator accepts a real file name like 'readme.txt'")
   void testValidatorAcceptsLegitFileName() {
     assertDoesNotThrow(
-        () ->
-            com.percussion.security.io.PSPathInjectionGuard.requireSafeFileName("readme.txt"),
+        () -> com.percussion.security.io.PSPathInjectionGuard.requireSafeFileName("readme.txt"),
         "Validator MUST accept 'readme.txt'.");
   }
 
@@ -274,8 +267,7 @@ public class PSFileSystemPathItemServicePathInjectionTest {
           + " (dashes, dots, underscores)")
   void testValidatorAcceptsPunctuationInName() {
     assertDoesNotThrow(
-        () ->
-            com.percussion.security.io.PSPathInjectionGuard.requireSafeFileName("archive.tar.gz"),
+        () -> com.percussion.security.io.PSPathInjectionGuard.requireSafeFileName("archive.tar.gz"),
         "Validator MUST accept 'archive.tar.gz'.");
   }
 

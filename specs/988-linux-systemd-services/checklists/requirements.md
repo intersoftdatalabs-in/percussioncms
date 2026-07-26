@@ -34,3 +34,4 @@
 - Validation pass 2026-07-17: Spec is ready for `/speckit-plan`.
 - Exact TimeoutStartSec and unit Type (forking vs notify) deferred to plan as implementation choices under FR-004/FR-005.
 - DTS systemd deferred to follow-up (assumption).
+

@@ -35,7 +35,6 @@ import com.percussion.pathmanagement.data.PSMoveFolderItem;
 import com.percussion.pathmanagement.data.PSPathItem;
 import com.percussion.pathmanagement.data.PSRenameFolderItem;
 import com.percussion.pathmanagement.service.IPSPathService;
-import com.percussion.security.io.PSPathInjectionGuard;
 import com.percussion.share.dao.IPSFolderHelper;
 import com.percussion.share.dao.PSDateUtils;
 import com.percussion.share.data.IPSItemSummary.Category;
@@ -177,8 +176,7 @@ public abstract class PSFileSystemPathItemService implements IPSPathService {
         // Skip the entry and continue the listing rather than aborting
         // the whole directory browser on a single bad entry.
         log.warn(
-            "Skipping child entry rejected by path-injection segment check: {}",
-            child.getName());
+            "Skipping child entry rejected by path-injection segment check: {}", child.getName());
       }
     }
 
@@ -210,8 +208,7 @@ public abstract class PSFileSystemPathItemService implements IPSPathService {
         || name.indexOf('\\') >= 0
         || name.indexOf('\0') >= 0) {
       throw new IllegalArgumentException(
-          "child name is a path-traversal segment or contains a path separator / NUL: "
-              + name);
+          "child name is a path-traversal segment or contains a path separator / NUL: " + name);
     }
     // parent path should be a folder
     if (fileSystemService.getFile(parentPath).isFile()) {
@@ -221,7 +218,10 @@ public abstract class PSFileSystemPathItemService implements IPSPathService {
     var item = new PSPathItem();
     item.setName(fileSystemService.getNameFromFile(child));
     item.setId(generatePathItemId(child));
-    item.setType(child.isDirectory() ? FILE_SYSTEM_FOLDER_TYPE : FILE_SYSTEM_FILE_TYPE); // codeql[java/path-injection]
+    item.setType(
+        child.isDirectory()
+            ? FILE_SYSTEM_FOLDER_TYPE
+            : FILE_SYSTEM_FILE_TYPE); // codeql[java/path-injection]
     item.setIcon(getIcon(child));
 
     var itemPath = parentPath + child.getName();
@@ -320,8 +320,7 @@ public abstract class PSFileSystemPathItemService implements IPSPathService {
 
   @Override
   public PSPathItem renameFolder(PSRenameFolderItem item)
-      throws PSSpringValidationException, PSPathNotFoundServiceException,
-          PSPathServiceException {
+      throws PSSpringValidationException, PSPathNotFoundServiceException, PSPathServiceException {
     var errors = PSBeanValidationUtils.validate(item);
     errors.throwIfInvalid();
 

@@ -138,17 +138,17 @@ public class PSFormEncodeDecodeHelperTest {
   }
 
   /**
-   * Under-cap whitespace inside a real comment body. This test stays well under the 64 KiB cap
-   * (so the regex runs) and verifies the post-fix pattern matches a non-trivial whitespace-bearing
-   * body exactly the way the original did — i.e., the regex simplification did not change
-   * behavior on whitespace inside the body.
+   * Under-cap whitespace inside a real comment body. This test stays well under the 64 KiB cap (so
+   * the regex runs) and verifies the post-fix pattern matches a non-trivial whitespace-bearing body
+   * exactly the way the original did — i.e., the regex simplification did not change behavior on
+   * whitespace inside the body.
    *
    * <p>The cap-boundary tests above exercise the size-guard path; this one exercises the regex
    * simplification path on real content. Combined, they pin both layers of the fix.
    *
    * <p>Note: a regression that removed the regex simplification while keeping the size cap would
-   * still pass these tests (the redundant {@code [\r\n]} branch is functionally equivalent at
-   * every input size tested), so this is behavior parity, not defense-in-depth.
+   * still pass these tests (the redundant {@code [\r\n]} branch is functionally equivalent at every
+   * input size tested), so this is behavior parity, not defense-in-depth.
    */
   @Test
   void testUnderCapWhitespaceInCommentBodyBehavesIdentically() {
@@ -164,8 +164,8 @@ public class PSFormEncodeDecodeHelperTest {
    * Under-cap newlines as the WHOLE body (the most adversarial realistic shape). The regex must
    * complete quickly because there is no non-whitespace-non-dash boundary char to anchor on — the
    * engine must reject the input, not enumerate splits. Input size is kept under Java's regex
-   * recursion-depth limit (~5000 frames for a typical 512 KB stack), so this stays well under
-   * both the 64 KiB cap and the engine's recursion budget.
+   * recursion-depth limit (~5000 frames for a typical 512 KB stack), so this stays well under both
+   * the 64 KiB cap and the engine's recursion budget.
    */
   @Test
   void testUnderCapNewlineOnlyBodyRejectedQuickly() {
@@ -177,9 +177,7 @@ public class PSFormEncodeDecodeHelperTest {
     input.append("-->");
 
     int totalLen = input.length();
-    assertTrue(
-        totalLen < 65_536,
-        "Pre-condition: under the 64 KiB cap, got " + totalLen);
+    assertTrue(totalLen < 65_536, "Pre-condition: under the 64 KiB cap, got " + totalLen);
     assertTrue(
         totalLen < 4096,
         "Pre-condition: under Java's regex recursion budget (~4 KiB), got " + totalLen);
@@ -201,7 +199,10 @@ public class PSFormEncodeDecodeHelperTest {
    */
   private static final int PRODUCTION_MAX_COMMENT_INPUT_LENGTH = 64 * 1024;
 
-  /** Deliberately larger than {@link #PRODUCTION_MAX_COMMENT_INPUT_LENGTH} for the pass-through path. */
+  /**
+   * Deliberately larger than {@link #PRODUCTION_MAX_COMMENT_INPUT_LENGTH} for the pass-through
+   * path.
+   */
   private static final int OVERSIZE_INPUT_CHARS = 70 * 1024;
 
   /** Length of {@code <!--} + {@code -->} wrappers around the synthetic comment body. */
@@ -211,8 +212,9 @@ public class PSFormEncodeDecodeHelperTest {
    * Defensive: input above the size cap is returned unchanged (the helper must not throw, hang, or
    * truncate adversarial payloads). Builds a body of {@link #OVERSIZE_INPUT_CHARS} total chars so
    * the payload exceeds {@link #PRODUCTION_MAX_COMMENT_INPUT_LENGTH}; the body loop subtracts
-   * {@link #HTML_COMMENT_WRAPPER_LEN} so the full string length is exactly {@code OVERSIZE_INPUT_CHARS}.
-   * The production cap is {@code MAX_COMMENT_INPUT_LENGTH = 64 * 1024} (private in the helper).
+   * {@link #HTML_COMMENT_WRAPPER_LEN} so the full string length is exactly {@code
+   * OVERSIZE_INPUT_CHARS}. The production cap is {@code MAX_COMMENT_INPUT_LENGTH = 64 * 1024}
+   * (private in the helper).
    */
   @Test
   void testEncodePassesThroughOversizedInput() {

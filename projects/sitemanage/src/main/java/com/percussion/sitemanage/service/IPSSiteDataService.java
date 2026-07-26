@@ -32,7 +32,6 @@ import com.percussion.sitemanage.data.*;
 import com.percussion.sitemanage.error.PSSiteImportException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.ws.rs.core.Context;
-import java.io.IOException;
 import java.util.List;
 
 /** CRUD operations for sites. */
@@ -142,11 +141,11 @@ public interface IPSSiteDataService extends IPSDataService<PSSite, PSSiteSummary
    * are also created.
    *
    * @param request the {@link HttpServletRequest} object that represents that request.
-* @param config the import configuration for the new site with only name and baseUrl set. Not
-    *     <code>null</code> and the name of the site cannot be one of the existing site.
-    * @return the job id of the running job that is importing the site, never <code>null</code>.
-    */
-   Long createSiteFromUrlAsync(@Context HttpServletRequest request, PSSiteImportConfiguration config)
+   * @param config the import configuration for the new site with only name and baseUrl set. Not
+   *     <code>null</code> and the name of the site cannot be one of the existing site.
+   * @return the job id of the running job that is importing the site, never <code>null</code>.
+   */
+  Long createSiteFromUrlAsync(@Context HttpServletRequest request, PSSiteImportConfiguration config)
       throws PSValidationException, IPSFolderService.PSWorkflowNotFoundException;
 
   /**
@@ -193,10 +192,10 @@ public interface IPSSiteDataService extends IPSDataService<PSSite, PSSiteSummary
   /**
    * Updates the specified site with publish properties, the specified site is in publishprops
    *
-* @param publishProps publish properties of the site. never <code>null</code>
-    * @return the updated publish properties never <code>null</code>.
-    */
-   PSSitePublishProperties updateSitePublishProperties(PSSitePublishProperties publishProps)
+   * @param publishProps publish properties of the site. never <code>null</code>
+   * @return the updated publish properties never <code>null</code>.
+   */
+  PSSitePublishProperties updateSitePublishProperties(PSSitePublishProperties publishProps)
       throws DataServiceSaveException, PSNotFoundException;
 
   /**

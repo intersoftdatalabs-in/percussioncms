@@ -167,3 +167,10 @@
 | 18 | major | Windows service scripts | **addressed** — notes + defaults |
 
 Track residual GA items in the table above and GitHub #548.
+
+---
+
+## Notes
+
+- Do **not** mark #548 complete until all **hard** gates above are checked or explicitly waived with product owner sign-off in the issue.
+- Full OS install smoke (T038) and hard QC-023 package install IT remain open for GA; see residual table above.

@@ -79,7 +79,7 @@ const CASES = [
     expected: "&lt;img src=x onerror=&quot;alert(1)&quot;&gt;",
   },
   {
-    input: ">>><<<\"\"\"",
+    input: '>>><<<"""',
     expected: "&gt;&gt;&gt;&lt;&lt;&lt;&quot;&quot;&quot;",
   },
 ];
@@ -96,10 +96,7 @@ function extractEscapeFn(src, relPath) {
     );
   }
   // eslint-disable-next-line no-new-func
-  return new Function(
-    "SearchWord",
-    match[0] + "\nreturn SearchWord;"
-  );
+  return new Function("SearchWord", match[0] + "\nreturn SearchWord;");
 }
 
 let failures = 0;
@@ -144,9 +141,9 @@ for (const relPath of FILES) {
       actual = escapeFn(input);
     } catch (e) {
       console.error(
-        `FAIL: ${relPath}: escaping threw for input ${JSON.stringify(
-          input
-        )}: ${e.message}`
+        `FAIL: ${relPath}: escaping threw for input ${JSON.stringify(input)}: ${
+          e.message
+        }`
       );
       fileOk = false;
       failures++;

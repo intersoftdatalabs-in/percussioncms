@@ -46,10 +46,9 @@ import org.apache.tools.ant.taskdefs.Zip;
  * </pre>
  */
 public class PSZip extends Zip {
-  /**
-   * Creates a new zip task.
-   */
+  /** Creates a new zip task. */
   public PSZip() {}
+
   /**
    * Sets the file to be used as a comment.
    *

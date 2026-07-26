@@ -1175,7 +1175,8 @@ public class PSItemService implements IPSItemService {
         // parentId <= 0 means the link is orphaned / corrupt; skip and log (v8.1.7 #665)
         if (link.getParentId() <= 0) {
           log.warn(
-              "Managed Link with an invalid parentId of {} detected for Link Id: {}. Skipping link in findPagesLinkedToItem.",
+              "Managed Link with an invalid parentId of {} detected for Link Id: {}. Skipping link"
+                  + " in findPagesLinkedToItem.",
               link.getParentId(),
               link.getLinkId());
           continue;

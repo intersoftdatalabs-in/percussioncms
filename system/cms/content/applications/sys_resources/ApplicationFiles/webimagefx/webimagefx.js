@@ -28,10 +28,7 @@ function getWifxLicenseHandlerPath() {
   if (!/^\/[A-Za-z0-9._\-\/]*$/.test(rxRoot)) {
     rxRoot = "/Rhythmyx";
   }
-  var origin =
-    window.location.protocol +
-    "//" +
-    window.location.host;
+  var origin = window.location.protocol + "//" + window.location.host;
   return origin + rxRoot + "/rx_wep/ektron?licensekey=webimagefx1";
 }
 

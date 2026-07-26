@@ -34,6 +34,7 @@ Replace all legacy JSP/jQuery/Dojo-based Workflow Administration and Admin scree
 ## Project Structure
 
 ### Documentation (this feature)
+
 ```text
 specs/993-workflow-admin-react-ui/
 ├── plan.md              # This file
@@ -47,6 +48,7 @@ specs/993-workflow-admin-react-ui/
 ```
 
 ### Source Code (affected paths)
+
 ```text
 WebUI/
 ├── src/main/ts/
@@ -139,6 +141,7 @@ modules/perc-qa-automation/frontend/tests/
 ## Phases
 
 ### Phase 1: Foundation & WorkflowAdminShell (US1, US2)
+
 - Add `WorkflowAdminShell` to `registry.ts`
 - Add workflow API path constants to `api/paths.ts`
 - Implement `WorkflowAdminShell` with section state machine (Workflow | Roles | Users | Categories)
@@ -150,6 +153,7 @@ modules/perc-qa-automation/frontend/tests/
 - E2E Playwright specs for US1 and US2
 
 ### Phase 2: Roles & Users (US3, US4)
+
 - Implement `RolesSection` with role list, create/edit/delete, user dual-list
 - Implement `UsersSection` with user list, create/edit/delete, role assignment
 - Implement `LdapImportDialog` with directory search and import
@@ -157,37 +161,44 @@ modules/perc-qa-automation/frontend/tests/
 - E2E Playwright specs for US3 and US4
 
 ### Phase 3: In-Context Item Workflow (US5)
+
 - Implement `WorkflowActionsPanel` replacing `workflowactions.jsp`
 - Implement `TransitionDialog` with comment field and `AdhocSearch`
 - Integrate with content editor/preview entry points (replacing Dojo panel)
 - Unit tests; E2E Playwright spec for US5
 
 ### Phase 4: Categories Admin (US6)
+
 - Implement `CategoriesSection` with hierarchical tree, CRUD, lock indicators
 - Unit tests; E2E Playwright spec for US6
 
 ### Phase 5: AdminShell — Scheduled Tasks (US7)
+
 - Add `AdminShell` to `registry.ts`
 - Implement `TasksSection`, `TaskEditor`, `TaskLogsSection`, `TaskNotifications`
 - Add `adminModern.jsp` and update `index.jsp` view map
 - Unit tests; E2E Playwright spec for US7
 
 ### Phase 6: System Tools (US8 — P3)
+
 - Implement `ConsistencyChecker` component (or iframe bridge if timeline constrained)
 - Unit tests (or integration smoke test if iframe bridge)
 - E2E Playwright spec for US8
 
 ### Phase 7: Legacy Removal
+
 - Remove all legacy JSP/JS/Dojo files listed in the removal inventory
 - Remove legacy jQuery view and controller JS files for workflow/roles/users/categories
 - Distribution inventory check (verifies SC-002)
 
 ### Phase 8: i18n Audit & A11y
+
 - Add all new TMX keys to `CmsUi.tmx`; run i18n lint (SC-003)
 - Run accessibility audit against all new components (SC-004)
 - Fix any violations
 
 ### Phase 9: E2E & Integration Verification
+
 - Full Playwright test suite run against integration environment
 - UAT sign-off on P1 stories (SC-005)
 - Test coverage report ≥ 80% for new components (SC-006)
@@ -195,3 +206,4 @@ modules/perc-qa-automation/frontend/tests/
 ## Complexity Tracking
 
 - **No constitution violations.** This feature is a pure frontend modernization. All REST APIs are unchanged. No new Spring Boot dependencies, no schema changes, no new top-level modules.
+

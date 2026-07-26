@@ -24,9 +24,7 @@ import com.percussion.utils.jdbc.PSJdbcUtils;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
-/**
- * Driver-correct column rename SQL for recreate-style ALTER (#548 / PR #1494 Kilo).
- */
+/** Driver-correct column rename SQL for recreate-style ALTER (#548 / PR #1494 Kilo). */
 @Tag("UnitTest")
 public class PSJdbcStatementFactoryColumnRenameTest {
 

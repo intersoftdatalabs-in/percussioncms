@@ -8,7 +8,7 @@
     <url>https://www.github.com/intersoftdatalabs-in/percussioncms</url>
     <licenses>
         <license>
-           <name>The Apache Software License, Version 2.0</name>
+            <name>The Apache Software License, Version 2.0</name>
             <url>https://www.apache.org/licenses/LICENSE-2.0.txt</url>
             <distribution>repo</distribution>
         </license>
@@ -76,8 +76,6 @@
         <url>https://github.com/intersoftdatalabs-in/percussioncms</url>
     </scm>
     <properties>
-        <surefireArgLine></surefireArgLine>
-        <failsafeArgLine></failsafeArgLine>
         <activation.api.version>1.2.0</activation.api.version>
         <ant.contrib.version>1.0b3</ant.contrib.version>
         <ant.version>1.10.14</ant.version>
@@ -114,19 +112,20 @@
         <commons.validator.version>1.10.1</commons.validator.version>
         <cxf.version>4.1.4</cxf.version>
         <derby.version>10.17.1.0</derby.version>
-        <!-- #548 default embedded replacement (bake-off primary); Derby retained for migration window -->
-        <h2.version>2.3.232</h2.version>
         <duplicate.finder.maven.plugin.version>1.4.0</duplicate.finder.maven.plugin.version>
         <eclipse-manifest-location>META-INF</eclipse-manifest-location>
         <ehcache.version>3.10.8</ehcache.version>
         <esapi.encoder.version>1.4.0</esapi.encoder.version>
         <esapi.version>2.7.0.0</esapi.version>
+        <failsafeArgLine/>
         <fop.version>2.11</fop.version>
         <glassfish.jakarta.el.version>4.0.2</glassfish.jakarta.el.version>
         <google.java.format.version>1.33.0</google.java.format.version>
         <gson.version>2.13.2</gson.version>
         <guava.version>33.5.0-jre</guava.version>
         <gwt.maven.plugin.version>2.10.0</gwt.maven.plugin.version>
+        <!-- #548 default embedded replacement (bake-off primary); Derby retained for migration window -->
+        <h2.version>2.3.232</h2.version>
         <hibernate.validator.version>8.0.1.Final</hibernate.validator.version>
         <hibernate.version>7.2.6.Final</hibernate.version>
         <hikaricp.version>7.0.2</hikaricp.version>
@@ -177,6 +176,7 @@
         <liquibase.version>4.17.0</liquibase.version>
         <log4j2.version>2.25.4</log4j2.version>
         <lucene.version>8.11.4</lucene.version>
+        <mariadb.version>3.5.7</mariadb.version>
         <maven.antrun.plugin.version>3.2.0</maven.antrun.plugin.version>
         <maven.assembly.plugin.version>3.8.0</maven.assembly.plugin.version>
         <maven.build.helper.plugin.version>3.6.1</maven.build.helper.plugin.version>
@@ -212,10 +212,9 @@
         <maven.war.plugin.version>3.5.1</maven.war.plugin.version>
         <mockito.version>5.21.0</mockito.version>
         <mssql.version>13.3.1.jre11-preview</mssql.version>
-        <mariadb.version>3.5.7</mariadb.version>
         <mysql.connector.version>8.4.0</mysql.connector.version>
-        <ojdbc17.version>23.26.0.0.0</ojdbc17.version>
         <nettyall.version>4.2.9.Final</nettyall.version>
+        <ojdbc17.version>23.26.0.0.0</ojdbc17.version>
         <opencsv.version>5.12.0</opencsv.version>
         <oracle.version>12.1.0.1</oracle.version>
         <owasp.csrfguard.version>4.5.0-jakarta</owasp.csrfguard.version>
@@ -245,6 +244,7 @@
         <spring.version>7.0.7</spring.version>
         <sqlite.version>3.51.1.0</sqlite.version>
         <stax.version>1.0.1</stax.version>
+        <surefireArgLine/>
         <swagger.ui.version>5.31.0</swagger.ui.version>
         <swagger.version>2.2.42</swagger.version>
         <tika.version>3.2.3</tika.version>
@@ -1743,12 +1743,12 @@
                 <groupId>org.apache.commons</groupId>
                 <artifactId>commons-email</artifactId>
                 <version>${commons-email.version}</version>
-		<exclusions>
-			<exclusion>
-				<groupId>com.sun.mail</groupId>
-				<artifactId>jakarta.mail</artifactId>
-			</exclusion>
-		</exclusions>
+                <exclusions>
+                    <exclusion>
+                        <groupId>com.sun.mail</groupId>
+                        <artifactId>jakarta.mail</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
             <dependency>
                 <groupId>com.github.dfabulich</groupId>
@@ -1924,7 +1924,6 @@
                 <artifactId>simple-jndi</artifactId>
                 <version>${simple.jndi.version}</version>
             </dependency>
-        
             <!-- Google Cloud Libraries BOM for GA4 Analytics APIs -->
             <dependency>
                 <groupId>com.google.cloud</groupId>
@@ -1933,7 +1932,7 @@
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
-</dependencies>
+        </dependencies>
     </dependencyManagement>
     <build>
         <pluginManagement>
@@ -1959,9 +1958,10 @@
                         <includes>
                             <include>**/*Test.java</include>
                         </includes>
-                        <argLine>${surefireArgLine} -javaagent:${settings.localRepository}/org/mockito/mockito-core/${mockito.version}/mockito-core-${mockito.version}.jar -Xshare:off -Xmx1024m -Djava.awt.headless=true</argLine>
+                        <argLine>-XX:+EnableDynamicAgentLoading</argLine>
                         <forkCount>1</forkCount>
                         <reuseForks>true</reuseForks>
+                        <!-- <forkNode implementation="org.apache.maven.plugin.surefire.extensions.SurefireForkNodeFactory"/> -->
                     </configuration>
                     <dependencies/>
                 </plugin>
@@ -2842,7 +2842,8 @@
                     <includes>
                         <include>**/*Test.java</include>
                     </includes>
-                    <argLine>${surefireArgLine} -javaagent:${settings.localRepository}/org/mockito/mockito-core/${mockito.version}/mockito-core-${mockito.version}.jar -Xshare:off -Xmx1024m -Djava.awt.headless=true</argLine>
+                    <argLine>-XX:+EnableDynamicAgentLoading</argLine>
+                    <!-- <argLine>${surefireArgLine} -javaagent:${settings.localRepository}/org/mockito/mockito-core/${mockito.version}/mockito-core-${mockito.version}.jar -Xshare:off -Xmx1024m -Djava.awt.headless=true</argLine> -->
                     <forkCount>1</forkCount>
                     <reuseForks>true</reuseForks>
                 </configuration>

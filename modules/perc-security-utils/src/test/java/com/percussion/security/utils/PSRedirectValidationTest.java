@@ -481,7 +481,8 @@ class PSRedirectValidationTest {
   class RebuildValidatedRedirectTests {
 
     @Test
-    @DisplayName("Must not double-encode login sys_redirect query (Jetty Ambiguous URI path encoding)")
+    @DisplayName(
+        "Must not double-encode login sys_redirect query (Jetty Ambiguous URI path encoding)")
     void rebuildPreservesSingleEncodedSysRedirectQuery() {
       // addRedirect encodes once; rebuild must not turn %3a into %253a
       String loginWithRedirect =
@@ -552,10 +553,8 @@ class PSRedirectValidationTest {
     @Test
     @DisplayName("Decodes path-absolute percent sequences before .. gate (e.g. %2e%2e)")
     void decodesPathAbsoluteEncodedDotDot() {
-      assertEquals(
-          "/../secret", PSRedirectValidation.decodeOverEncodedRedirect("/%2e%2e/secret"));
-      assertEquals(
-          "/../secret", PSRedirectValidation.decodeOverEncodedRedirect("/%2E%2E/secret"));
+      assertEquals("/../secret", PSRedirectValidation.decodeOverEncodedRedirect("/%2e%2e/secret"));
+      assertEquals("/../secret", PSRedirectValidation.decodeOverEncodedRedirect("/%2E%2E/secret"));
     }
   }
 

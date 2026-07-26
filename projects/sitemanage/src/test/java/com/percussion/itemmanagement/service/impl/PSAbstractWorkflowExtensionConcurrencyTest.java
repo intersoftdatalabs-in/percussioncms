@@ -42,7 +42,8 @@ class PSAbstractWorkflowExtensionConcurrencyTest {
     assertTrue(
         PSAbstractWorkflowExtension.isConcurrencyException(new LockAcquisitionException("locked")));
     assertTrue(
-        PSAbstractWorkflowExtension.isConcurrencyException(new OptimisticLockException("optimistic")));
+        PSAbstractWorkflowExtension.isConcurrencyException(
+            new OptimisticLockException("optimistic")));
     assertTrue(
         PSAbstractWorkflowExtension.isConcurrencyException(
             new PessimisticLockException("pessimistic")));

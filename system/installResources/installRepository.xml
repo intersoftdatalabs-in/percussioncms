@@ -2,7 +2,8 @@
 <project name="install" default="install" basedir="..">
 
 
-	<!-- Embedded DB classpaths (H2 default #548; Derby retained for legacy/migration installs) -->
+	<!-- Embedded DB classpaths (H2 default #548; Derby retained for legacy/migration
+		installs) -->
 	<path id="DERBY_TOOL.CLASSPATH">
 		<fileset dir="C:\DevEnv\Installs\dev\Repository\lib">
 			<include name="derby.jar" />
@@ -12,7 +13,8 @@
 		</fileset>
 	</path>
 	<path id="H2_TOOL.CLASSPATH">
-		<fileset dir="${install.dir}/jetty/base/lib/jdbc" erroronmissingdir="false">
+		<fileset dir="${install.dir}/jetty/base/lib/jdbc"
+			erroronmissingdir="false">
 			<include name="h2*.jar" />
 		</fileset>
 		<fileset dir="${toolsdir}" erroronmissingdir="false">
@@ -106,7 +108,8 @@
 		</if>
 	</target>
 
-	<!-- Install embedded repository (H2 default #548; Derby NetworkServer legacy path retained) -->
+	<!-- Install embedded repository (H2 default #548; Derby NetworkServer legacy
+		path retained) -->
 	<target name="setupEmbeddedDB">
 		<property
 			file="${install.dir}/rxconfig/Installer/rxrepository.properties" />
@@ -117,21 +120,23 @@
 				propertyFile="rxconfig/Installer/rxrepository.properties"
 				propertyName="DB_DRIVER_NAME" />
 			<then>
-				<echo>Preparing embedded H2 repository (in-process, no NetworkServer)</echo>
+				<echo>Preparing embedded H2 repository (in-process, no
+					NetworkServer)</echo>
 				<mkdir dir="${install.dir}/Repository" />
 				<mkdir dir="${install.dir}/logs" />
-				<echo>Connecting to H2 file DB (fail install if driver/classpath/connect fails)...</echo>
-				<!--
-				  Fail-fast: do not use onerror=continue. Missing H2 JAR, empty classpath, or JDBC
-				  failure must abort install rather than print a false "connection successful".
-				-->
+				<echo>Connecting to H2 file DB (fail install if
+					driver/classpath/connect fails)...</echo>
+				<!-- Fail-fast: do not use onerror=continue. Missing H2 JAR, empty classpath,
+					or JDBC failure must abort install rather than print a false "connection
+					successful". -->
 				<sql driver="org.h2.Driver"
 					url="jdbc:h2:file:${install.dir}/Repository/CMDB;DB_CLOSE_ON_EXIT=FALSE"
 					classpathref="H2_TOOL.CLASSPATH" userid="sa" password=""
 					onerror="abort">
 					SELECT 1;
 				</sql>
-				<echo>H2 DB connection successful (empty file store; schema via TableFactory)...</echo>
+				<echo>H2 DB connection successful (empty file store; schema via
+					TableFactory)...</echo>
 			</then>
 		</if>
 		<!-- Derby: legacy path for installs that still declare DB_DRIVER_NAME=derby -->

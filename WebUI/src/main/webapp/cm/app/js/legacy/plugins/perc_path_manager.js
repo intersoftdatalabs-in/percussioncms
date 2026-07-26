@@ -207,9 +207,19 @@
             type: "GET",
             success: callback,
             error: function (xhr, status, error) {
-              if ((xhr.status === 500 || xhr.status === 404) && retryCount < maxRetries) {
+              if (
+                (xhr.status === 500 || xhr.status === 404) &&
+                retryCount < maxRetries
+              ) {
                 retryCount++;
-                console.log("open_path retry " + retryCount + " of " + maxRetries + " for path: " + path_str);
+                console.log(
+                  "open_path retry " +
+                    retryCount +
+                    " of " +
+                    maxRetries +
+                    " for path: " +
+                    path_str
+                );
                 setTimeout(doOpen, retryDelay);
               } else {
                 err(xhr, status, error);
@@ -224,9 +234,19 @@
             type: "GET",
             success: callback,
             error: function (xhr, status, error) {
-              if ((xhr.status === 500 || xhr.status === 404) && retryCount < maxRetries) {
+              if (
+                (xhr.status === 500 || xhr.status === 404) &&
+                retryCount < maxRetries
+              ) {
                 retryCount++;
-                console.log("open_path retry " + retryCount + " of " + maxRetries + " for path: " + path_str);
+                console.log(
+                  "open_path retry " +
+                    retryCount +
+                    " of " +
+                    maxRetries +
+                    " for path: " +
+                    path_str
+                );
                 setTimeout(doOpen, retryDelay);
               } else {
                 err(xhr, status, error);

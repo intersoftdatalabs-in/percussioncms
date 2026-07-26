@@ -44,9 +44,9 @@ public final class PSCallBack implements Callback<PopupFeatures, WebEngine> {
   /**
    * Creates a new popup callback handler.
    *
-    * @param popupWebView the WebView to use for the popup window
-    * @param width the width of the popup window
-    * @param heigth the height of the popup window
+   * @param popupWebView the WebView to use for the popup window
+   * @param width the width of the popup window
+   * @param heigth the height of the popup window
    */
   public PSCallBack(WebView popupWebView, double width, double heigth) {
 

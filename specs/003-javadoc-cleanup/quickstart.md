@@ -52,12 +52,12 @@ Expected outcome:
 
 ## Step 4 — Validate against success criteria
 
-| Criterion | How to verify |
-|-----------|---------------|
-| **SC-001** (≥ 80% warning reduction) | Compare the "N warnings" summary line between `baseline-raw.txt` and `post-cleanup.txt`. Compute `(baseline − post) / baseline`. Must be ≥ 0.80. |
-| **SC-002** (0 errors) | Last `N errors` summary line in `post-cleanup.txt` must read `0 errors`. |
-| **SC-003** (full module build succeeds) | `./mvn-env.sh -pl modules/DesktopContentExplorer -am verify -DskipTests` exits `0`. |
-| **SC-004** (no signature changes) | `git diff --stat -- ':!*.md'` on `modules/DesktopContentExplorer/` shows only comment/whitespace edits; non-comment lines unchanged. |
+|                Criterion                |                                                                  How to verify                                                                   |
+|-----------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------|
+| **SC-001** (≥ 80% warning reduction)    | Compare the "N warnings" summary line between `baseline-raw.txt` and `post-cleanup.txt`. Compute `(baseline − post) / baseline`. Must be ≥ 0.80. |
+| **SC-002** (0 errors)                   | Last `N errors` summary line in `post-cleanup.txt` must read `0 errors`.                                                                         |
+| **SC-003** (full module build succeeds) | `./mvn-env.sh -pl modules/DesktopContentExplorer -am verify -DskipTests` exits `0`.                                                              |
+| **SC-004** (no signature changes)       | `git diff --stat -- ':!*.md'` on `modules/DesktopContentExplorer/` shows only comment/whitespace edits; non-comment lines unchanged.             |
 
 ## Step 5 — Spot-check that no run-time behavior changed
 
@@ -72,3 +72,4 @@ suite is sufficient:
 > Per Constitution III (Test Discipline), the spec's FR-009 deliberately excludes
 > adding new tests for this docs-only feature. The existing tests must still pass
 > unchanged.
+

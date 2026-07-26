@@ -39,6 +39,7 @@ import org.apache.logging.log4j.Logger;
  */
 public class PSGoogleAnalyticsProviderHandler implements IPSAnalyticsProviderHandler {
   private static final Logger log = LogManager.getLogger(PSGoogleAnalyticsProviderHandler.class);
+
   /* */
   /* (non-Javadoc)
    * @see com.percussion.analytics.service.impl.IPSAnalyticsProviderHandler#getProfiles(java.lang.String, java.lang.String)

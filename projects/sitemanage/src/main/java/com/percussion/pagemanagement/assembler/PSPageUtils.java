@@ -87,7 +87,6 @@ import com.percussion.services.linkmanagement.IPSManagedLinkDao;
 import com.percussion.services.memory.IPSCacheAccess;
 import com.percussion.services.memory.PSCacheAccessLocator;
 import com.percussion.services.pubserver.data.PSPubServer;
-import com.percussion.services.pubserver.data.PSPubServerProperty;
 import com.percussion.services.relationship.IPSRelationshipService;
 import com.percussion.services.relationship.data.PSRelationshipData;
 import com.percussion.services.sitemgr.IPSSite;
@@ -1344,8 +1343,8 @@ public class PSPageUtils extends PSJexlUtilBase {
    * A utility method that collects the categories from the supplied list of assembled pages and
    * returns a hierarchical structure of unique categories and the number of occurrence of each
    * category. The returned object is a PSCategoryTree object. The first element is the string
-   * category, the second is a {@code PSPair<Integer, Integer>} which count the occurrence of the category
-   * of the current node and his children and the third is a list of PSCategoryTree.
+   * category, the second is a {@code PSPair<Integer, Integer>} which count the occurrence of the
+   * category of the current node and his children and the third is a list of PSCategoryTree.
    */
   @IPSJexlMethod(
       description = "Gets the processed list of categories.",
@@ -1908,9 +1907,7 @@ public class PSPageUtils extends PSJexlUtilBase {
    * Gets the dependent content id of the specified link
    *
    * @param linkId the id of the link, may be <code>null</code> or empty.
-   *
-   * @return The item content id, or an empty string if the supplied linkId is
-   *         not valid
+   * @return The item content id, or an empty string if the supplied linkId is not valid
    */
   @IPSJexlMethod(
       description = "Gets the dependent content id of the specified link.",

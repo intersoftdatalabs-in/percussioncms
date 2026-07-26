@@ -1,6 +1,7 @@
 # Quickstart validation: Linux systemd services (988)
 
 ## Prerequisites
+
 - Linux host with systemd (or a packaging-only machine for structural tests)
 - Built/installed CMS tree including `jetty/service/`
 - Root for live install tests; **no root** needed for Maven structural tests
@@ -60,5 +61,7 @@ sudo systemctl start PercussionStagingDTS
 ```
 
 ## Expected outcomes
-- SC-001–SC-004 satisfied on smoke host  
-- SC-005 satisfied in CI via structural tests  
+
+- SC-001–SC-004 satisfied on smoke host
+- SC-005 satisfied in CI via structural tests
+

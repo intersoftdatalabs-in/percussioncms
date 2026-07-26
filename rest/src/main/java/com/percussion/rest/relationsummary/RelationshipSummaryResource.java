@@ -51,18 +51,20 @@ import org.springframework.beans.factory.annotation.Autowired;
  * <p>All endpoints are read-only (GETs are CSRF-exempt). AuthZ is enforced server-side by the
  * underlying sitemanage service: id-resolution failure or read-access denial returns {@code
  * Optional.empty()}, which the sitemanage apibridge adaptor surfaces as a JAX-RS {@code
- * WebApplicationException} with status {@code 403 FORBIDDEN}. No exception mapper is required —
- * the framework translates the status code automatically.
+ * WebApplicationException} with status {@code 403 FORBIDDEN}. No exception mapper is required — the
+ * framework translates the status code automatically.
  *
- * <p>Bean id {@code restRelationshipSummaryResource} matches the CXF server registration at
- * {@code projects/sitemanage-beans.xml}. Wiring is auto-discovered via {@code @PSSiteManageBean}
- * + {@code component-scan}; no manual bean definition is required.
+ * <p>Bean id {@code restRelationshipSummaryResource} matches the CXF server registration at {@code
+ * projects/sitemanage-beans.xml}. Wiring is auto-discovered via {@code @PSSiteManageBean} + {@code
+ * component-scan}; no manual bean definition is required.
  *
  * @author Kilo (US8 / T098)
  */
 @PSSiteManageBean(value = "restRelationshipSummaryResource")
 @Path("/content-explorer/relationships")
-@Tag(name = "Content Explorer Relationships", description = "Relationship summary for the modern Content Explorer")
+@Tag(
+    name = "Content Explorer Relationships",
+    description = "Relationship summary for the modern Content Explorer")
 public class RelationshipSummaryResource {
 
   private final IRelationshipSummaryAdaptor adaptor;
@@ -74,8 +76,10 @@ public class RelationshipSummaryResource {
     this.adaptor = adaptor;
   }
 
-  /** Setter used by the test harness; the runtime JAX-RS service injects the same field via
-   * {@code @Context} and never calls this setter. */
+  /**
+   * Setter used by the test harness; the runtime JAX-RS service injects the same field via
+   * {@code @Context} and never calls this setter.
+   */
   public void setUriInfo(UriInfo uriInfo) {
     this.uriInfo = uriInfo;
   }
@@ -85,7 +89,8 @@ public class RelationshipSummaryResource {
   @Produces(MediaType.APPLICATION_JSON)
   @Operation(
       summary = "Outgoing relationships for an item",
-      description = "Counts the outgoing translation / linkback relationships for the supplied item id.")
+      description =
+          "Counts the outgoing translation / linkback relationships for the supplied item id.")
   @ApiResponse(responseCode = "200", description = "OK — outgoing summary returned")
   @ApiResponse(responseCode = "403", description = "Caller cannot read the item")
   public Response outgoing(
@@ -100,7 +105,8 @@ public class RelationshipSummaryResource {
   @Produces(MediaType.APPLICATION_JSON)
   @Operation(
       summary = "Incoming AA / linkback for an item",
-      description = "Counts the incoming active-assembly / linkback relationships for the supplied item id.")
+      description =
+          "Counts the incoming active-assembly / linkback relationships for the supplied item id.")
   @ApiResponse(responseCode = "200", description = "OK — incoming summary returned")
   @ApiResponse(responseCode = "403", description = "Caller cannot read the item")
   public Response incoming(
@@ -165,7 +171,9 @@ public class RelationshipSummaryResource {
   @Produces(MediaType.APPLICATION_JSON)
   @Operation(
       summary = "Consolidated per-node relationship summary",
-      description = "Single-shot summary consumed by the modern Content Explorer's DependencyViewer / RelationshipsView.")
+      description =
+          "Single-shot summary consumed by the modern Content Explorer's DependencyViewer /"
+              + " RelationshipsView.")
   @ApiResponse(responseCode = "200", description = "OK — consolidated summary returned")
   @ApiResponse(responseCode = "403", description = "Caller cannot read the item")
   public Response summary(

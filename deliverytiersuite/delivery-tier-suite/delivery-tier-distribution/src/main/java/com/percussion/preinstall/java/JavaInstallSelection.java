@@ -23,22 +23,21 @@ import java.util.List;
 import java.util.Locale;
 
 /**
- * Selects a Java home (major {@link JavaHomeResolver#REQUIRED_MAJOR} or later)
- * for the install and persists it to the install-root {@code java.properties}
- * file. Implements US3 (interactive multi-candidate selection) and US4
- * (unattended explicit {@code -Dperc.java.home=...}) in one entry point so the
- * preinstall does not need separate paths.
+ * Selects a Java home (major {@link JavaHomeResolver#REQUIRED_MAJOR} or later) for the install and
+ * persists it to the install-root {@code java.properties} file. Implements US3 (interactive
+ * multi-candidate selection) and US4 (unattended explicit {@code -Dperc.java.home=...}) in one
+ * entry point so the preinstall does not need separate paths.
  *
  * <p>Outcome rules:
  *
  * <ul>
- *   <li>When {@link #unattendedHome} is supplied, validate as a Java home with
- *       major 21 or later. Fail if invalid. Persist on success.
- *   <li>Otherwise, when {@link #interactivePrompt} is non-null and there are
- *       two or more eligible candidates, prompt the operator to choose.
+ *   <li>When {@link #unattendedHome} is supplied, validate as a Java home with major 21 or later.
+ *       Fail if invalid. Persist on success.
+ *   <li>Otherwise, when {@link #interactivePrompt} is non-null and there are two or more eligible
+ *       candidates, prompt the operator to choose.
  *   <li>If there is exactly one eligible candidate, auto-select and log.
- *   <li>If there are zero eligible candidates, fail with a clear error that
- *       names the minimum major version (21 or later).
+ *   <li>If there are zero eligible candidates, fail with a clear error that names the minimum major
+ *       version (21 or later).
  * </ul>
  */
 public final class JavaInstallSelection {
@@ -58,10 +57,9 @@ public final class JavaInstallSelection {
   }
 
   /**
-   * Selects and persists the chosen Java home. On success, returns the
-   * absolute launcher path of the chosen home; on failure throws
-   * {@link JavaSelectionException} with a clear operator message that
-   * mentions the minimum major version (21 or later).
+   * Selects and persists the chosen Java home. On success, returns the absolute launcher path of
+   * the chosen home; on failure throws {@link JavaSelectionException} with a clear operator message
+   * that mentions the minimum major version (21 or later).
    */
   public SelectionOutcome selectAndPersist() throws IOException, JavaSelectionException {
     Path chosen;
@@ -70,27 +68,31 @@ public final class JavaInstallSelection {
       chosen = unattendedHome.toAbsolutePath().normalize();
       if (!isValidJava21Home(chosen)) {
         throw new JavaSelectionException(
-            "Unattended Java home is not a valid Java install: " + chosen
+            "Unattended Java home is not a valid Java install: "
+                + chosen
                 + " (required: major version "
-                + JavaHomeResolver.REQUIRED_MAJOR + " or later)");
+                + JavaHomeResolver.REQUIRED_MAJOR
+                + " or later)");
       }
       source = "unattended (-Dperc.java.home)";
     } else {
-      List<JavaCandidateDiscovery.Candidate> eligible =
-          JavaCandidateDiscovery.discoverEligible();
+      List<JavaCandidateDiscovery.Candidate> eligible = JavaCandidateDiscovery.discoverEligible();
       if (eligible.isEmpty()) {
         throw new JavaSelectionException(
             "No eligible Java home found on this host. Required: major version "
-                + JavaHomeResolver.REQUIRED_MAJOR + " or later."
+                + JavaHomeResolver.REQUIRED_MAJOR
+                + " or later."
                 + " Set -Dperc.java.home=<path> or install a Java "
-                + JavaHomeResolver.REQUIRED_MAJOR + "+ JRE/JDK before"
+                + JavaHomeResolver.REQUIRED_MAJOR
+                + "+ JRE/JDK before"
                 + " continuing.");
       }
       if (eligible.size() == 1 || interactivePrompt == null || !isInteractiveAvailable()) {
         chosen = eligible.get(0).path().toAbsolutePath().normalize();
-        source = eligible.size() == 1
-            ? "auto-selected (single candidate)"
-            : "auto-selected (non-interactive batch)";
+        source =
+            eligible.size() == 1
+                ? "auto-selected (single candidate)"
+                : "auto-selected (non-interactive batch)";
       } else {
         chosen = promptForChoice(eligible);
         source = "selected by operator";
@@ -115,8 +117,13 @@ public final class JavaInstallSelection {
         .append("+ candidates detected. Select the Java home to use:\n");
     for (int i = 0; i < candidates.size(); i++) {
       JavaCandidateDiscovery.Candidate c = candidates.get(i);
-      menu.append("  [").append(i + 1).append("] ")
-          .append(c.path()).append(" (version ").append(c.versionDisplay()).append(")\n");
+      menu.append("  [")
+          .append(i + 1)
+          .append("] ")
+          .append(c.path())
+          .append(" (version ")
+          .append(c.versionDisplay())
+          .append(")\n");
     }
     menu.append("Enter choice (1-").append(candidates.size()).append("): ");
     String answer = interactivePrompt.readLine(menu.toString());
@@ -133,8 +140,8 @@ public final class JavaInstallSelection {
   }
 
   /**
-   * Best-effort "is this a Java home with major {@code >=}
-   * {@link JavaHomeResolver#REQUIRED_MAJOR}" check using a sibling release file.
+   * Best-effort "is this a Java home with major {@code >=} {@link JavaHomeResolver#REQUIRED_MAJOR}"
+   * check using a sibling release file.
    */
   static boolean isValidJava21Home(Path home) {
     if (home == null || !Files.isDirectory(home)) {

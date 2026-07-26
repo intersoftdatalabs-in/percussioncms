@@ -33,10 +33,10 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /**
- * Helper that presents a JavaFX {@code FileChooser} save dialog so the user can persist a
- * remote binary (such as an image, document, or spreadsheet) to the local file system. The
- * source URL and (optionally) a desired file name are supplied through the constructors;
- * {@link #startFileSaver()} launches the dialog on the JavaFX application thread.
+ * Helper that presents a JavaFX {@code FileChooser} save dialog so the user can persist a remote
+ * binary (such as an image, document, or spreadsheet) to the local file system. The source URL and
+ * (optionally) a desired file name are supplied through the constructors; {@link #startFileSaver()}
+ * launches the dialog on the JavaFX application thread.
  */
 public class PSFileSaver {
   private static final Logger log = LogManager.getLogger(PSFileSaver.class);
@@ -102,9 +102,7 @@ public class PSFileSaver {
     else fileExtension = "";
   }
 
-  /**
-   * Schedules the file-saver dialog to be shown on the JavaFX application thread.
-   */
+  /** Schedules the file-saver dialog to be shown on the JavaFX application thread. */
   public void startFileSaver() {
     Platform.runLater(
         new Runnable() {
@@ -120,8 +118,8 @@ public class PSFileSaver {
   /**
    * Shows the file-saver dialog on the supplied primary stage.
    *
-   * @param primaryStage the JavaFX stage on which to display the file-saver, may not be
-   *     <code>null</code>.
+   * @param primaryStage the JavaFX stage on which to display the file-saver, may not be <code>null
+   *     </code>.
    */
   public void showFileSaver(final Stage primaryStage) {
     primaryStage.setTitle("File Saver");

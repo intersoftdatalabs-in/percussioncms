@@ -171,8 +171,8 @@ public class PSSimpleSwingBrowser extends PSDesktopExplorerWindow {
   }
 
   /**
-   * JavaScript bridge that connects the Chrome DevTools debugger to the embedded web view,
-   * allowing the developer tools to attach for debugging.
+   * JavaScript bridge that connects the Chrome DevTools debugger to the embedded web view, allowing
+   * the developer tools to attach for debugging.
    */
   public class DevToolsJsBridge extends DevToolsDebuggerJsBridge {
     /**
@@ -373,8 +373,8 @@ public class PSSimpleSwingBrowser extends PSDesktopExplorerWindow {
   }
 
   /**
-   * Loads the given URL in the embedded web view. If the URL cannot be parsed it is treated as
-   * a relative {@code http://} reference.
+   * Loads the given URL in the embedded web view. If the URL cannot be parsed it is treated as a
+   * relative {@code http://} reference.
    *
    * @param url the URL to load, may not be <code>null</code>.
    */
@@ -895,8 +895,8 @@ public class PSSimpleSwingBrowser extends PSDesktopExplorerWindow {
   }
 
   /**
-   * Window state listener hook for the embedded web view's host window. Currently adjusts the
-   * size of the JavaFX panel when the window is maximized.
+   * Window state listener hook for the embedded web view's host window. Currently adjusts the size
+   * of the JavaFX panel when the window is maximized.
    *
    * @param e the window state change event, assumed not <code>null</code>.
    */

@@ -17,7 +17,6 @@ package com.percussion.share.relationship.service.impl;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
@@ -49,9 +48,9 @@ import org.mockito.MockitoAnnotations;
 /**
  * Pure unit tests for {@link PSRelationshipSummaryService} (US8 / T097).
  *
- * <p>Mocks the six collaborators and asserts the summary shape per dimension plus the
- * consolidated {@code /summary} endpoint. AuthZ denial is exercised by failing the guid
- * resolution and asserting {@link Optional#empty()}.
+ * <p>Mocks the six collaborators and asserts the summary shape per dimension plus the consolidated
+ * {@code /summary} endpoint. AuthZ denial is exercised by failing the guid resolution and asserting
+ * {@link Optional#empty()}.
  */
 class PSRelationshipSummaryServiceTest {
 
@@ -104,7 +103,8 @@ class PSRelationshipSummaryServiceTest {
     IPSGuid guid = stubGuid("456");
     when(systemWs.findDependents(
             org.mockito.ArgumentMatchers.eq(guid),
-            org.mockito.ArgumentMatchers.any(com.percussion.cms.objectstore.PSRelationshipFilter.class)))
+            org.mockito.ArgumentMatchers.any(
+                com.percussion.cms.objectstore.PSRelationshipFilter.class)))
         .thenReturn(List.of(guid));
     when(idMapper.<String>getString(guid)).thenReturn("only-1");
 
@@ -209,7 +209,9 @@ class PSRelationshipSummaryServiceTest {
 
     Optional<PSNodeRelationshipSummary> out = service.summarise("ok");
 
-    assertFalse(out.isPresent(), "taxonomy failure should propagate to empty-Optional at the consolidated endpoint");
+    assertFalse(
+        out.isPresent(),
+        "taxonomy failure should propagate to empty-Optional at the consolidated endpoint");
     assertFalse(service.summariseTaxonomy("ok").isPresent());
   }
 

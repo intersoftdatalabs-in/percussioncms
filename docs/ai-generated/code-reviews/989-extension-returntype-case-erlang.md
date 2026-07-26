@@ -1,14 +1,14 @@
 # Erlang review — PSExtensionMethod returntype attribute case
 
-| Field | Value |
-|-------|--------|
-| **Date** | 2026-07-18 |
-| **Branch** | `989-react-cui-widget-builder` |
-| **Scope** | Uncommitted local changes vs `HEAD` |
-| **Intent** | Fix perc.Baseline package install: pageutils extension fails with `returnType cannot be null or empty` because packages use `returntype` and code reads `returnType` |
-| **Recommendation** | **approve** |
-| **Gate** | **May commit/push: yes** |
-| **Memory patterns hit** | Case-sensitive XML attributes vs legacy package spelling; missing behavioral tests (avoided) |
+|          Field          |                                                                                Value                                                                                 |
+|-------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| **Date**                | 2026-07-18                                                                                                                                                           |
+| **Branch**              | `989-react-cui-widget-builder`                                                                                                                                       |
+| **Scope**               | Uncommitted local changes vs `HEAD`                                                                                                                                  |
+| **Intent**              | Fix perc.Baseline package install: pageutils extension fails with `returnType cannot be null or empty` because packages use `returntype` and code reads `returnType` |
+| **Recommendation**      | **approve**                                                                                                                                                          |
+| **Gate**                | **May commit/push: yes**                                                                                                                                             |
+| **Memory patterns hit** | Case-sensitive XML attributes vs legacy package spelling; missing behavioral tests (avoided)                                                                         |
 
 ## Summary
 
@@ -24,10 +24,10 @@ DOM attribute names are case-sensitive. Fix accepts both names; `toXML` continue
 
 ## Files
 
-| Path | Role |
-|------|------|
-| `system/.../PSExtensionMethod.java` | read both attribute spellings |
-| `system/.../PSExtensionMethodTest.java` | new unit tests |
+|                  Path                   |             Role              |
+|-----------------------------------------|-------------------------------|
+| `system/.../PSExtensionMethod.java`     | read both attribute spellings |
+| `system/.../PSExtensionMethodTest.java` | new unit tests                |
 
 ## Verification
 

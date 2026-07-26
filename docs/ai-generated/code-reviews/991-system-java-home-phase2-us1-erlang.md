@@ -34,14 +34,15 @@ approve
 ## Issues
 
 ### Issue 1 -- Severity: suggestion
+
 - File: `modules/perc-jetty/src/main/jetty/service/install-jetty-service.sh:318`
 - Description: When the resolver call inside the install script fails (or the
   resolver script is absent), the script silently falls back to a legacy
   `${rxDir}/JRE` / `${rxDir}/JRE64` path without re-validating major version
   21. If the legacy folder holds an older or broken runtime, the service
-  unit will be written, registered, and start attempts will then fail at
-  runtime — not at install time. This is the documented US6 fallback
-  contract, but the message printed to the operator could be louder.
+      unit will be written, registered, and start attempts will then fail at
+      runtime — not at install time. This is the documented US6 fallback
+      contract, but the message printed to the operator could be louder.
 - Suggestion: After falling back, log a warning that includes the resolved
   legacy path and the requirement to run the resolver or upgrade the legacy
   JRE to a Java 21 install. No hard code change; this can ride with a later
@@ -50,6 +51,7 @@ approve
 - Status: open (non-blocking)
 
 ### Issue 2 -- Severity: suggestion
+
 - File: `modules/perc-distribution-tree/src/main/java/com/percussion/preinstall/java/JavaHomeResolver.java:160`
 - Description: `readPropertiesIfPresent` silently swallows `IOException` and
   returns an empty map, so callers can not distinguish "no file" from "file
@@ -64,6 +66,7 @@ approve
 - Status: open (non-blocking)
 
 ### Issue 3 -- Severity: nit
+
 - File: `modules/perc-jetty/src/main/jetty/service/install-jetty-service.sh:344`
 - Description: `RESOLVE_SOURCE` is referenced when set; that requires sourcing
   the resolver into the current shell so the variable is visible. The

@@ -37,3 +37,4 @@ None.
 - The diagnostic includes both the missing file's absolute path and the cwd value, making an incorrect Surefire/module working directory actionable.
 - The message performs no raw path comparison or Unix-only path assertion; native separator formatting is diagnostic text and is portable.
 - The static import is the standard JUnit 5 API: `org.junit.jupiter.api.Assertions.fail`.
+

@@ -21,17 +21,17 @@ Primary consumers:
 ## Maven dependency direction (HARD RULE — no reactor cycles)
 
 ```text
-  rest  ──does NOT depend on──▶  sitemanage
-    ▲
-    │  Maven dependency (required)
-    │
-  sitemanage  ──depends on──▶  rest, perc-system, perc-deployer, ...
+rest  ──does NOT depend on──▶  sitemanage
+  ▲
+  │  Maven dependency (required)
+  │
+sitemanage  ──depends on──▶  rest, perc-system, perc-deployer, ...
 ```
 
-| Direction | Allowed? | Notes |
-|-----------|----------|--------|
-| **sitemanage → rest** | **Yes** | Already declared in this module’s `pom.xml`. Needed for `IXxxAdaptor`, wire DTOs, rest errors. |
-| **rest → sitemanage** | **Never** | Causes `ProjectCycleException`: `rest → sitemanage → rest`. |
+|       Direction       | Allowed?  |                                             Notes                                              |
+|-----------------------|-----------|------------------------------------------------------------------------------------------------|
+| **sitemanage → rest** | **Yes**   | Already declared in this module’s `pom.xml`. Needed for `IXxxAdaptor`, wire DTOs, rest errors. |
+| **rest → sitemanage** | **Never** | Causes `ProjectCycleException`: `rest → sitemanage → rest`.                                    |
 
 If rest code “needs” a sitemanage type:
 
@@ -63,13 +63,13 @@ sitemanage / perc-system domain services
 
 ### Conventions
 
-| Concern | Where | Example |
-|---------|--------|---------|
-| HTTP resource | `rest` | `RelationshipSummaryResource` |
-| Adaptor interface | `rest` | `IRelationshipSummaryAdaptor` |
-| Wire DTOs | `rest` | `com.percussion.share.relationship.data.PSRelationshipSummary` |
-| Adaptor impl | **this module** `apibridge` | `RelationshipSummaryAdaptor` |
-| Domain service | **this module** (or perc-system) | `IPSRelationshipSummaryService` / `PSRelationshipSummaryService` |
+|      Concern      |              Where               |                             Example                              |
+|-------------------|----------------------------------|------------------------------------------------------------------|
+| HTTP resource     | `rest`                           | `RelationshipSummaryResource`                                    |
+| Adaptor interface | `rest`                           | `IRelationshipSummaryAdaptor`                                    |
+| Wire DTOs         | `rest`                           | `com.percussion.share.relationship.data.PSRelationshipSummary`   |
+| Adaptor impl      | **this module** `apibridge`      | `RelationshipSummaryAdaptor`                                     |
+| Domain service    | **this module** (or perc-system) | `IPSRelationshipSummaryService` / `PSRelationshipSummaryService` |
 
 **Adaptor implementation checklist:**
 
@@ -103,12 +103,12 @@ sitemanage / perc-system domain services
 
 Canonical split after the rest↔sitemanage cycle fix:
 
-| Artifact | Module | Location |
-|----------|--------|----------|
-| Wire DTOs | rest | `rest/src/main/java/com/percussion/share/relationship/data/` |
-| Adaptor interface + resource | rest | `rest/src/main/java/com/percussion/rest/relationsummary/` |
-| Adaptor impl + tests | **sitemanage** | `apibridge/RelationshipSummaryAdaptor[.java]` + test |
-| Domain service | **sitemanage** | `share/relationship/service/` |
+|           Artifact           |     Module     |                           Location                           |
+|------------------------------|----------------|--------------------------------------------------------------|
+| Wire DTOs                    | rest           | `rest/src/main/java/com/percussion/share/relationship/data/` |
+| Adaptor interface + resource | rest           | `rest/src/main/java/com/percussion/rest/relationsummary/`    |
+| Adaptor impl + tests         | **sitemanage** | `apibridge/RelationshipSummaryAdaptor[.java]` + test         |
+| Domain service               | **sitemanage** | `share/relationship/service/`                                |
 
 Use this as the template for any new public REST feature that needs sitemanage domain code.
 
@@ -140,3 +140,4 @@ When changing layering, dependency direction, or apibridge conventions:
 1. Update **this** `AGENTS.md` and [rest/AGENTS.md](../../rest/AGENTS.md) together.
 2. Keep [README.md](README.md) aligned for human-oriented module overview.
 3. Add unit tests for new adaptor or domain behaviour (project rule — no exceptions).
+

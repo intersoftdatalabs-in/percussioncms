@@ -76,10 +76,10 @@ This separation allows REST endpoints to remain focused on HTTP/REST concerns wh
 Runtime wiring is in-process Spring; **Maven direction is one-way: `sitemanage` → `rest` only**
 (never `rest` → `sitemanage` — that creates a reactor cycle).
 
-| This module (`rest`) owns | `projects/sitemanage` owns |
-|---------------------------|----------------------------|
-| JAX-RS resources, OpenAPI annotations | Domain services, CM1/WebUI middleware |
-| Wire DTOs + `IXxxAdaptor` interfaces | `com.percussion.apibridge.*` adaptor **implementations** (`@PSSiteManageBean`) |
+|       This module (`rest`) owns       |                           `projects/sitemanage` owns                           |
+|---------------------------------------|--------------------------------------------------------------------------------|
+| JAX-RS resources, OpenAPI annotations | Domain services, CM1/WebUI middleware                                          |
+| Wire DTOs + `IXxxAdaptor` interfaces  | `com.percussion.apibridge.*` adaptor **implementations** (`@PSSiteManageBean`) |
 
 Resources inject adaptor interfaces; sitemanage provides the production beans (e.g.
 `PreferencesAdaptor`, `RelationshipSummaryAdaptor`). Agent rules: `rest/AGENTS.md` and

@@ -22,7 +22,6 @@ import static com.percussion.test.TestAssertions.*;
 import com.percussion.sitemanage.importer.IPSSiteImportLogger;
 import com.percussion.sitemanage.importer.IPSSiteImportLogger.PSLogObjectType;
 import com.percussion.sitemanage.importer.PSSiteImportLogger;
-import java.io.File;
 import java.io.IOException;
 import org.apache.commons.lang3.StringUtils;
 import org.jsoup.Jsoup;
@@ -63,8 +62,7 @@ class PSHTMLHeaderImporterTest {
     absoluteThemePath = installDir + absoluteThemePath;
     sourceDoc =
         Jsoup.parse(
-            "<!DOCTYPE html><html><head></head><body></body></html>",
-            "http://www.percussion.com");
+            "<!DOCTYPE html><html><head></head><body></body></html>", "http://www.percussion.com");
     docHeader = sourceDoc.head();
     docBody = sourceDoc.body();
     headerImporter =

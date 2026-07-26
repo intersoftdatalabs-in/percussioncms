@@ -81,7 +81,6 @@ public class PSRepositoryBackupGateTest {
   void productBackupTakesPrecedenceOverExternalConfirm() {
     Properties props = new Properties();
     props.setProperty(PSRepositoryBackupGate.EXTERNAL_BACKUP_CONFIRMED_PROPERTY, "true");
-    assertEquals(
-        PSBackupGateKind.PRODUCT_BACKUP, PSRepositoryBackupGate.evaluate(true, props));
+    assertEquals(PSBackupGateKind.PRODUCT_BACKUP, PSRepositoryBackupGate.evaluate(true, props));
   }
 }

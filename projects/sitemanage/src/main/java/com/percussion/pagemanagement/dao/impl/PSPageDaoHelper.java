@@ -40,7 +40,6 @@ import jakarta.persistence.PersistenceContext;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -403,8 +402,7 @@ public class PSPageDaoHelper implements IPSPageDaoHelper {
       // inputs - both result in "no rows match"). Per the review on
       // PR #1202.
       log.error(
-          "Invalid search field value in getContentIdsForFetchingByStatus: {}",
-          e.getMessage());
+          "Invalid search field value in getContentIdsForFetchingByStatus: {}", e.getMessage());
       return java.util.Collections.emptyList();
     } catch (SQLException e) {
       var error = "Failed to get the fully qualified table name for 'CT_PAGE'";
@@ -414,23 +412,22 @@ public class PSPageDaoHelper implements IPSPageDaoHelper {
   }
 
   /**
-   * Appends the search-field WHERE clauses for the supplied criteria, using
-   * named-parameter placeholders. Each user-supplied value is recorded in
-   * {@code params} and bound by the caller via {@code setParameter}. The
-   * values are NEVER concatenated into the SQL string.
+   * Appends the search-field WHERE clauses for the supplied criteria, using named-parameter
+   * placeholders. Each user-supplied value is recorded in {@code params} and bound by the caller
+   * via {@code setParameter}. The values are NEVER concatenated into the SQL string.
    *
    * <p>Field types:
+   *
    * <ul>
    *   <li>{@code templateid} — varchar (template name)
-   *   <li>{@code sys_contenttypeid}, {@code sys_contentstateid},
-   *       {@code sys_workflowid} — integer IDs
+   *   <li>{@code sys_contenttypeid}, {@code sys_contentstateid}, {@code sys_workflowid} — integer
+   *       IDs
    *   <li>{@code sys_contentlastmodifier} — varchar (partial match via LIKE)
    * </ul>
    *
-   * <p>CodeQL {@code java/sql-injection} closure: the user-supplied values
-   * are bound as parameters, not concatenated. See
-   * {@code specs/004-zero-code-scanning-alerts/tasks.md} T042 and
-   * {@code contracts/C2}.
+   * <p>CodeQL {@code java/sql-injection} closure: the user-supplied values are bound as parameters,
+   * not concatenated. See {@code specs/004-zero-code-scanning-alerts/tasks.md} T042 and {@code
+   * contracts/C2}.
    */
   String formGetByStatusSQLQuery(
       PSSearchCriteria criteria, String sql, Map<String, Object> params) {
@@ -466,14 +463,15 @@ public class PSPageDaoHelper implements IPSPageDaoHelper {
   }
 
   /**
-   * Parses a user-supplied search-field value as a {@code Long}, or returns
-   * {@code null} if the value is null.
+   * Parses a user-supplied search-field value as a {@code Long}, or returns {@code null} if the
+   * value is null.
    *
-   * @param value The value to parse, which may be a {@link Number} or a string representation of a long.
+   * @param value The value to parse, which may be a {@link Number} or a string representation of a
+   *     long.
    * @return The parsed {@code Long} value, or {@code null} if the input is null.
    * @throws NumberFormatException if the value is non-numeric and cannot be parsed. The caller
-   *         (getContentIdsForFetchingByStatus) catches this exception to return an empty result,
-   *         preventing invalid numeric IDs from matching or throwing uncaught errors.
+   *     (getContentIdsForFetchingByStatus) catches this exception to return an empty result,
+   *     preventing invalid numeric IDs from matching or throwing uncaught errors.
    */
   private static Long parseLongIdOrNull(Object value) {
     if (value == null) {

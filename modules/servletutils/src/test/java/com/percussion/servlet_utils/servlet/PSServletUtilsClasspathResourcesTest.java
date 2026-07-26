@@ -23,8 +23,8 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 /**
- * Guards EE11 WAR packaging contract for servlet-utils: filter properties and
- * mock servlet classes must be on the main classpath (not test-only).
+ * Guards EE11 WAR packaging contract for servlet-utils: filter properties and mock servlet classes
+ * must be on the main classpath (not test-only).
  */
 class PSServletUtilsClasspathResourcesTest {
 
@@ -32,8 +32,7 @@ class PSServletUtilsClasspathResourcesTest {
   @DisplayName("PSInputValidatorFilter.properties is on main classpath")
   void inputValidatorPropertiesPresent() {
     try (InputStream is =
-        PSInputValidatorFilter.class.getResourceAsStream(
-            "PSInputValidatorFilter.properties")) {
+        PSInputValidatorFilter.class.getResourceAsStream("PSInputValidatorFilter.properties")) {
       assertNotNull(
           is,
           "PSInputValidatorFilter.properties must ship under "

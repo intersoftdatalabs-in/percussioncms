@@ -185,7 +185,8 @@ public class PSDependencyFile implements IPSDeployComponent {
 
     // fileType is required — maps to TYPE_ENUM / TYPE_xxx constants
     m_type = UNDEFINED;
-    String fileTypeAttr = PSDeployComponentUtils.getRequiredAttribute(sourceNode, XML_ATTR_FILE_TYPE);
+    String fileTypeAttr =
+        PSDeployComponentUtils.getRequiredAttribute(sourceNode, XML_ATTR_FILE_TYPE);
     for (int i = 0; i < TYPE_ENUM.length && m_type == UNDEFINED; i++) {
       if (TYPE_ENUM[i].equals(fileTypeAttr)) {
         m_type = i;

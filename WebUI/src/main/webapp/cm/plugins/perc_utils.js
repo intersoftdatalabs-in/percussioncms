@@ -1682,10 +1682,10 @@
                 // never re-open. Skip the open() call -- the finder is already
                 // showing the pre-rename view.
                 if (result && result.PathItem && result.PathItem.path) {
-                                                var pth = result.PathItem.path.split("/");
-                                if (pth[pth.length - 1] === "") {
-                                    pth.pop();
-                                }
+                  var pth = result.PathItem.path.split("/");
+                  if (pth[pth.length - 1] === "") {
+                    pth.pop();
+                  }
                   $.perc_finder().lastClickPath = null;
                   $.perc_finder().open(pth);
                 }

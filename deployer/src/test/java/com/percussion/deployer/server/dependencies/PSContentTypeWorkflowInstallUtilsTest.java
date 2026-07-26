@@ -98,8 +98,7 @@ public class PSContentTypeWorkflowInstallUtilsTest {
 
   private static PSContentEditor newContentEditorWithWorkflow(int defaultId, List<Integer> ids) {
     PSContentEditor ce = new PSContentEditor("ceTest", 100L, defaultId);
-    ce.setWorkflowInfo(
-        new PSWorkflowInfo(PSWorkflowInfo.TYPE_INCLUSIONARY, new ArrayList<>(ids)));
+    ce.setWorkflowInfo(new PSWorkflowInfo(PSWorkflowInfo.TYPE_INCLUSIONARY, new ArrayList<>(ids)));
     return ce;
   }
 }

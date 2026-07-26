@@ -55,9 +55,7 @@ import org.apache.tools.ant.Task;
  */
 public class PSGetReleaseDocumentsPath extends Task {
 
-  /**
-   * Creates a new task to determine the release documents path.
-   */
+  /** Creates a new task to determine the release documents path. */
   public PSGetReleaseDocumentsPath() {
     super();
   }

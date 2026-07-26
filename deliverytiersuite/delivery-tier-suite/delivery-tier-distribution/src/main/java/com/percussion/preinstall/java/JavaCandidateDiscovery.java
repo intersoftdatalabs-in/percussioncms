@@ -22,28 +22,26 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 
 /**
- * Discovers Java candidate homes (major {@link JavaHomeResolver#REQUIRED_MAJOR}
- * or later) on the local host without invoking any launcher executable (so the
- * discovery itself is portable and safe to run during preinstall). Candidates
- * are drawn from:
+ * Discovers Java candidate homes (major {@link JavaHomeResolver#REQUIRED_MAJOR} or later) on the
+ * local host without invoking any launcher executable (so the discovery itself is portable and safe
+ * to run during preinstall). Candidates are drawn from:
  *
  * <ol>
  *   <li>the JVM currently running the preinstall,
  *   <li>process {@code JAVA_HOME},
- *   <li>common OS install locations (Linux/macOS /usr/lib/jvm, macOS /Library/Java,
- *       Windows {@code %ProgramFiles%\Java}, {@code %ProgramFiles%\Eclipse Adoptium}),
+ *   <li>common OS install locations (Linux/macOS /usr/lib/jvm, macOS /Library/Java, Windows {@code
+ *       %ProgramFiles%\Java}, {@code %ProgramFiles%\Eclipse Adoptium}),
  *   <li>{@code PATH} entries containing a {@code java} / {@code java.exe} launcher.
  * </ol>
  *
- * <p>Eligible candidates pass the minimum-major check (parsed from a sibling
- * {@code release} file when present) and have an executable launcher.
+ * <p>Eligible candidates pass the minimum-major check (parsed from a sibling {@code release} file
+ * when present) and have an executable launcher.
  */
 public final class JavaCandidateDiscovery {
 
@@ -53,12 +51,11 @@ public final class JavaCandidateDiscovery {
 
   /** Returns the ordered, deduplicated list of Java home candidates on this host. */
   public static List<Candidate> discover() {
-    return discover(System.getenv(), System.getProperty("java.home"),
-        System.getProperty("PATH"));
+    return discover(System.getenv(), System.getProperty("java.home"), System.getProperty("PATH"));
   }
 
-  static List<Candidate> discover(java.util.Map<String, String> env, String runningJavaHome,
-      String pathValue) {
+  static List<Candidate> discover(
+      java.util.Map<String, String> env, String runningJavaHome, String pathValue) {
     Set<Path> seen = new LinkedHashSet<>();
     List<Candidate> result = new ArrayList<>();
     addCandidate(seen, result, runningJavaHome != null ? Path.of(runningJavaHome) : null);
@@ -69,8 +66,8 @@ public final class JavaCandidateDiscovery {
   }
 
   /**
-   * Filters {@link #discover()} results to eligible (major {@code >=}
-   * {@link JavaHomeResolver#REQUIRED_MAJOR}, executable launcher).
+   * Filters {@link #discover()} results to eligible (major {@code >=} {@link
+   * JavaHomeResolver#REQUIRED_MAJOR}, executable launcher).
    */
   public static List<Candidate> eligible(List<Candidate> rawCandidates) {
     if (rawCandidates == null) {
@@ -111,7 +108,8 @@ public final class JavaCandidateDiscovery {
   }
 
   private static Candidate evaluate(Path home) {
-    return new Candidate(home, readVersion(home), isExecutableLauncher(home.resolve("bin").resolve(launcherName())));
+    return new Candidate(
+        home, readVersion(home), isExecutableLauncher(home.resolve("bin").resolve(launcherName())));
   }
 
   static String readVersion(Path home) {
@@ -220,9 +218,9 @@ public final class JavaCandidateDiscovery {
     }
 
     /**
-     * {@code versionDisplay} is typically the major token from {@code release}
-     * ({@code "21"}, {@code "25"}, or legacy {@code "1.8"}). Accept major
-     * {@code >=} {@link JavaHomeResolver#REQUIRED_MAJOR}.
+     * {@code versionDisplay} is typically the major token from {@code release} ({@code "21"},
+     * {@code "25"}, or legacy {@code "1.8"}). Accept major {@code >=} {@link
+     * JavaHomeResolver#REQUIRED_MAJOR}.
      */
     static boolean meetsMinimumMajor(String versionDisplay) {
       if (versionDisplay == null || versionDisplay.isBlank()) {

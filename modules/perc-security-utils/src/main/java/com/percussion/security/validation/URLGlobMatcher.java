@@ -27,8 +27,8 @@ public final class URLGlobMatcher {
   private URLGlobMatcher() {}
 
   /**
-   * Builds a comparable absolute URL string: {@code scheme://host[:port]/path[?query]} with
-   * scheme and host lowercased. Port is omitted when not explicit ({@code -1}).
+   * Builds a comparable absolute URL string: {@code scheme://host[:port]/path[?query]} with scheme
+   * and host lowercased. Port is omitted when not explicit ({@code -1}).
    */
   public static String normalize(URL url) {
     if (url == null) {

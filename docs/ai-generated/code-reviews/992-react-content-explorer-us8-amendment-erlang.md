@@ -15,31 +15,31 @@
 
 ### Spec amendment content
 
-| Artifact | Change | Compliance |
-|----------|--------|------------|
-| `specs/992-react-content-explorer/research/relationship-rest-gaps.md` (NEW) | The morning spike artifact that referenced but never authored; now on disk. Records the morning outcome (5 dimensions unknown with clientSidePreview) AND the post-policy US8 amendment with 5 typed GET endpoints + consolidated summary endpoint + sitemanage + rest + WebUI work breakdown. | ✅ Constitution II (no invented APIs — types mirror existing Java DTOs) |
-| `specs/992-react-content-explorer/tasks.md` Phase 11 (NEW) | Adds T092–T104 with the same task-shape convention used elsewhere in the spec (Vitest + Playwright + service-contract + Erlang pre-push gate + review-thread resolution). | ✅ Constitution V (Plan / Complexity) |
-| `specs/992-react-content-explorer/contracts/capability-matrix.md` P-Adv rows | Flips DependencyViewer + RelationshipsView from Partial → **Implemented** with US8 evidence; SC-012 release-decision indicator updated to "no partials permitted." | ✅ matrix preamble alignment |
-| `docs/ai-generated/release/security-review-992.md` | Adds US8 row to the threat-model scope with GET / CSRF / AuthZ / DoS controls; rest façade acknowledged per the same-day amendment. | ✅ Constitution VI |
-| `docs/ai-generated/release/992-8.2-parity-evidence.md` | §8 packet rewritten: SC-012 clears when US8 lands; Post-US8 SC-012 packet section added. | ✅ |
-| `specs/992-react-content-explorer/checklists/cutover-inventory.md` | New P-Adv (US8) row in the phase sign-off log. | ✅ |
-| T074 task entry | Annotation that T074 is done with both the morning AND the afternoon readings (per the policy revision). | ✅ |
-| T086 task entry | Updated to reflect US8 amendment and the **32 / 32 in-scope Done** post-US8 count. | ✅ |
-| T089 + T089a + T090 task entries | Updated to reflect US8 surface (5 GET endpoints) and the closed-loop open question. | ✅ |
+|                                   Artifact                                   |                                                                                                                                             Change                                                                                                                                             |                               Compliance                               |
+|------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|------------------------------------------------------------------------|
+| `specs/992-react-content-explorer/research/relationship-rest-gaps.md` (NEW)  | The morning spike artifact that referenced but never authored; now on disk. Records the morning outcome (5 dimensions unknown with clientSidePreview) AND the post-policy US8 amendment with 5 typed GET endpoints + consolidated summary endpoint + sitemanage + rest + WebUI work breakdown. | ✅ Constitution II (no invented APIs — types mirror existing Java DTOs) |
+| `specs/992-react-content-explorer/tasks.md` Phase 11 (NEW)                   | Adds T092–T104 with the same task-shape convention used elsewhere in the spec (Vitest + Playwright + service-contract + Erlang pre-push gate + review-thread resolution).                                                                                                                      | ✅ Constitution V (Plan / Complexity)                                   |
+| `specs/992-react-content-explorer/contracts/capability-matrix.md` P-Adv rows | Flips DependencyViewer + RelationshipsView from Partial → **Implemented** with US8 evidence; SC-012 release-decision indicator updated to "no partials permitted."                                                                                                                             | ✅ matrix preamble alignment                                            |
+| `docs/ai-generated/release/security-review-992.md`                           | Adds US8 row to the threat-model scope with GET / CSRF / AuthZ / DoS controls; rest façade acknowledged per the same-day amendment.                                                                                                                                                            | ✅ Constitution VI                                                      |
+| `docs/ai-generated/release/992-8.2-parity-evidence.md`                       | §8 packet rewritten: SC-012 clears when US8 lands; Post-US8 SC-012 packet section added.                                                                                                                                                                                                       | ✅                                                                      |
+| `specs/992-react-content-explorer/checklists/cutover-inventory.md`           | New P-Adv (US8) row in the phase sign-off log.                                                                                                                                                                                                                                                 | ✅                                                                      |
+| T074 task entry                                                              | Annotation that T074 is done with both the morning AND the afternoon readings (per the policy revision).                                                                                                                                                                                       | ✅                                                                      |
+| T086 task entry                                                              | Updated to reflect US8 amendment and the **32 / 32 in-scope Done** post-US8 count.                                                                                                                                                                                                             | ✅                                                                      |
+| T089 + T089a + T090 task entries                                             | Updated to reflect US8 surface (5 GET endpoints) and the closed-loop open question.                                                                                                                                                                                                            | ✅                                                                      |
 
 ### Constitutional compliance
 
-| Constraint | Compliance |
-|------------|------------|
-| I (no invariants violated) | ✅ — no shipped-code regression; this commit only re-authorizes spec & evidence files. |
-| II (no invented APIs) | ✅ — US8 types mirror existing Java DTOs (`IPSRelationshipCataloger`, `IPSNodeService`, `IPSWidgetAssetRelationshipService`); see `research/relationship-rest-gaps.md` §US8 §"Delivery surface (constitution II)". |
-| III (behavioral tests) | ✅ — T092/3/4/5 each ship Vitest/Playwright. |
-| IV (service-contract tests) | ✅ — T099 adds `rest/src/test/java/com/percussion/share/relationship/RelationshipSummaryResourceTest.java` with happy path + AuthZ negative + JSON wire envelope. |
-| V (Plan / Complexity) | ✅ — Plan recorded in T104 description (~18 new files: sitemanage 2 + rest 11 + WebUI 5 + 3 modified). No new DB; no CSRF surface; no path traversal. |
-| VI (threat-model note) | ✅ — updated `security-review-992.md` table covers US8 GETs. |
-| VII (format checks) | ✅ — `./mvn-env.sh -pl projects/sitemanage,rest -am verify` + `npx vitest run` + `npm test -- tests/us8-dependency.spec.js` (no Java / npm file changes in this commit; documented for the upcoming US8 PR train). |
-| IX (review-thread resolution per PR) | ✅ — each US8 sub-PR carries inline reply + `resolveReviewThread` per thread; T104 mandates this. |
-| E (no residuals out of spec phases) | ✅ — the amendment itself is the resolution to the residual. US8 is in scope; no out-of-spec work remains. |
+|              Constraint              |                                                                                                    Compliance                                                                                                     |
+|--------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| I (no invariants violated)           | ✅ — no shipped-code regression; this commit only re-authorizes spec & evidence files.                                                                                                                             |
+| II (no invented APIs)                | ✅ — US8 types mirror existing Java DTOs (`IPSRelationshipCataloger`, `IPSNodeService`, `IPSWidgetAssetRelationshipService`); see `research/relationship-rest-gaps.md` §US8 §"Delivery surface (constitution II)". |
+| III (behavioral tests)               | ✅ — T092/3/4/5 each ship Vitest/Playwright.                                                                                                                                                                       |
+| IV (service-contract tests)          | ✅ — T099 adds `rest/src/test/java/com/percussion/share/relationship/RelationshipSummaryResourceTest.java` with happy path + AuthZ negative + JSON wire envelope.                                                  |
+| V (Plan / Complexity)                | ✅ — Plan recorded in T104 description (~18 new files: sitemanage 2 + rest 11 + WebUI 5 + 3 modified). No new DB; no CSRF surface; no path traversal.                                                              |
+| VI (threat-model note)               | ✅ — updated `security-review-992.md` table covers US8 GETs.                                                                                                                                                       |
+| VII (format checks)                  | ✅ — `./mvn-env.sh -pl projects/sitemanage,rest -am verify` + `npx vitest run` + `npm test -- tests/us8-dependency.spec.js` (no Java / npm file changes in this commit; documented for the upcoming US8 PR train). |
+| IX (review-thread resolution per PR) | ✅ — each US8 sub-PR carries inline reply + `resolveReviewThread` per thread; T104 mandates this.                                                                                                                  |
+| E (no residuals out of spec phases)  | ✅ — the amendment itself is the resolution to the residual. US8 is in scope; no out-of-spec work remains.                                                                                                         |
 
 ### Cross-platform / portability
 
@@ -53,13 +53,13 @@ No file I/O, no path construction, no OS-specific concerns added or removed by t
 
 ### ER-typed summary
 
-| Category | Count |
-|----------|------:|
-| Blocking bugs | 0 |
-| Non-blocking observations | 1 (informational: US8 is a multi-week train; the implementer should kick off the sitemanage sub-PR first so the rest façade has a backing service.) |
-| Style cleanups | 0 |
-| Cross-platform portability findings | 0 |
-| Constitution rule violations | 0 |
+|              Category               |                                                                                                                                               Count |
+|-------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------:|
+| Blocking bugs                       |                                                                                                                                                   0 |
+| Non-blocking observations           | 1 (informational: US8 is a multi-week train; the implementer should kick off the sitemanage sub-PR first so the rest façade has a backing service.) |
+| Style cleanups                      |                                                                                                                                                   0 |
+| Cross-platform portability findings |                                                                                                                                                   0 |
+| Constitution rule violations        |                                                                                                                                                   0 |
 
 ### Non-blocking observation
 
@@ -67,7 +67,7 @@ No file I/O, no path construction, no OS-specific concerns added or removed by t
    1. Sitemanage sub-PR (T096 + T097) ships first — provides the backing service interface and impl.
    2. rest sub-PR (T098 + T099) consumes the sitemanage service — adds the JAX-RS resource + service-contract test.
    3. WebUI sub-PR (T100–T104) lands last — types + api client + view updates + Vitest + Playwright; matrix P-Adv flips from Partial → Implemented; SC-012 packet closes.
-   The Erlang pre-push gate fires per sub-PR.
+      The Erlang pre-push gate fires per sub-PR.
 
 ---
 

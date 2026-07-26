@@ -57,7 +57,8 @@ public class PSJdbcUtilsTest {
         PSJdbcUtils.JTDS_DB_BACKEND, PSJdbcUtils.getDBBackendForDriver(PSJdbcUtils.JTDS_DRIVER));
     assertEquals(
         PSJdbcUtils.ORACLE_DB_BACKEND, PSJdbcUtils.getDBBackendForDriver(PSJdbcUtils.ORACLE));
-    assertEquals(PSJdbcUtils.H2_DB_BACKEND, PSJdbcUtils.getDBBackendForDriver(PSJdbcUtils.H2_DRIVER));
+    assertEquals(
+        PSJdbcUtils.H2_DB_BACKEND, PSJdbcUtils.getDBBackendForDriver(PSJdbcUtils.H2_DRIVER));
     assertEquals(PSJdbcUtils.H2_DB_BACKEND, PSJdbcUtils.getDBBackendForDriver("h2"));
   }
 

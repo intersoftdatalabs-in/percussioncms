@@ -85,8 +85,7 @@ public final class ObsoleteInstallDirCleaner {
   }
 
   /**
-   * Parse {@code --clean-install-dir} from CLI options and optional system property. Default
-   * false.
+   * Parse {@code --clean-install-dir} from CLI options and optional system property. Default false.
    */
   public static boolean parseCleanInstallDirFlag(java.util.Map<String, String> cliOptions) {
     String fromCli =
@@ -137,8 +136,7 @@ public final class ObsoleteInstallDirCleaner {
   }
 
   /**
-   * JBoss bak is not eligible when on 5.3-era upgrade path without AppServer (cannot recreate
-   * bak).
+   * JBoss bak is not eligible when on 5.3-era upgrade path without AppServer (cannot recreate bak).
    */
   public static boolean isJBossBakEligible(Path installRoot, int majorVersion, int minorVersion) {
     boolean oldFiveThree = majorVersion == 5 && minorVersion < 4;
@@ -334,14 +332,12 @@ public final class ObsoleteInstallDirCleaner {
       Function<String, String> lineReader)
       throws IOException {
     if (!isUpgradeInstallRoot(installRoot)) {
-      return new CleanupResult(
-          List.of(), false, "not-upgrade", List.of(), List.of(), List.of());
+      return new CleanupResult(List.of(), false, "not-upgrade", List.of(), List.of(), List.of());
     }
 
     List<Candidate> candidates = listEligibleCandidates(installRoot, majorVersion, minorVersion);
     if (candidates.isEmpty()) {
-      return new CleanupResult(
-          List.of(), false, "no-candidates", List.of(), List.of(), List.of());
+      return new CleanupResult(List.of(), false, "no-candidates", List.of(), List.of(), List.of());
     }
 
     Decision decision = decide(true, cleanFlag, interactive, true);
@@ -366,8 +362,7 @@ public final class ObsoleteInstallDirCleaner {
     }
 
     if (!proceed) {
-      return new CleanupResult(
-          candidates, false, source, List.of(), List.of(), candidates);
+      return new CleanupResult(candidates, false, source, List.of(), List.of(), candidates);
     }
 
     List<Path> deleted = new ArrayList<>();
@@ -377,9 +372,7 @@ public final class ObsoleteInstallDirCleaner {
       try {
         deleteRecursivelyConfined(installRoot, c.absolutePath());
         if (Files.exists(c.absolutePath(), NO_FOLLOW)) {
-          failed.add(
-              new FailedPath(
-                  c.absolutePath(), "Path still exists after delete attempt"));
+          failed.add(new FailedPath(c.absolutePath(), "Path still exists after delete attempt"));
           stillPresent.add(c);
         } else {
           deleted.add(c.absolutePath());

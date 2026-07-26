@@ -365,15 +365,14 @@
 			sql="update RXSITES as site set site.IS_PAGE_BASED = 'T' where exists (select pubser.* from PSX_PUBSERVER pubser where pubser.SITEID = site.SITEID group by pubser.SITEID);"
 			failonerror="false" silenceerrors="true" />
 
-         <PSExecSQLStmt printExceptionStackTrace="true" qualifyTableNames="TRANSITIONS"
-                        qualifyViewNames=""
-                        sqlOracle="UPDATE TRANSITIONS SET TRANSITIONACTIONS = CASE WHEN TRANSITIONACTIONS IS NULL OR TRANSITIONACTIONS = ' ' THEN 'Java/global/percussion/extensions/general/sys_DirectoryIndexTouchWorkflowAction' WHEN TRANSITIONACTIONS LIKE '%sys_DirectoryIndexTouchWorkflowAction%' THEN TRANSITIONACTIONS ELSE TRANSITIONACTIONS || ',Java/global/percussion/extensions/general/sys_DirectoryIndexTouchWorkflowAction' END WHERE WORKFLOWAPPID = 6 AND TRANSITIONLABEL = 'Approve'"
-                        sqlSqlServer="UPDATE TRANSITIONS SET TRANSITIONACTIONS = CASE WHEN TRANSITIONACTIONS IS NULL OR TRANSITIONACTIONS = '' THEN 'Java/global/percussion/extensions/general/sys_DirectoryIndexTouchWorkflowAction' WHEN TRANSITIONACTIONS LIKE '%sys_DirectoryIndexTouchWorkflowAction%' THEN TRANSITIONACTIONS ELSE TRANSITIONACTIONS + ',Java/global/percussion/extensions/general/sys_DirectoryIndexTouchWorkflowAction' END WHERE WORKFLOWAPPID = 6 AND TRANSITIONLABEL = 'Approve'"
-                        sqlMysql="UPDATE TRANSITIONS SET TRANSITIONACTIONS = CASE WHEN TRANSITIONACTIONS IS NULL OR TRANSITIONACTIONS = '' THEN 'Java/global/percussion/extensions/general/sys_DirectoryIndexTouchWorkflowAction' WHEN TRANSITIONACTIONS LIKE '%sys_DirectoryIndexTouchWorkflowAction%' THEN TRANSITIONACTIONS ELSE CONCAT(TRANSITIONACTIONS, ',Java/global/percussion/extensions/general/sys_DirectoryIndexTouchWorkflowAction') END WHERE WORKFLOWAPPID = 6 AND TRANSITIONLABEL = 'Approve'"
-                        sqlDerby="UPDATE TRANSITIONS SET TRANSITIONACTIONS = CASE WHEN TRANSITIONACTIONS IS NULL OR TRANSITIONACTIONS = '' THEN 'Java/global/percussion/extensions/general/sys_DirectoryIndexTouchWorkflowAction' WHEN TRANSITIONACTIONS LIKE '%sys_DirectoryIndexTouchWorkflowAction%' THEN TRANSITIONACTIONS ELSE TRANSITIONACTIONS || ',Java/global/percussion/extensions/general/sys_DirectoryIndexTouchWorkflowAction' END WHERE WORKFLOWAPPID = 6 AND TRANSITIONLABEL = 'Approve'"
-                        sql="UPDATE TRANSITIONS SET TRANSITIONACTIONS = CASE WHEN TRANSITIONACTIONS IS NULL OR TRANSITIONACTIONS = '' THEN 'Java/global/percussion/extensions/general/sys_DirectoryIndexTouchWorkflowAction' WHEN TRANSITIONACTIONS LIKE '%sys_DirectoryIndexTouchWorkflowAction%' THEN TRANSITIONACTIONS ELSE TRANSITIONACTIONS || ',Java/global/percussion/extensions/general/sys_DirectoryIndexTouchWorkflowAction' END WHERE WORKFLOWAPPID = 6 AND TRANSITIONLABEL = 'Approve'"
-                        failonerror="false" silenceerrors="false"
-         />
+		<PSExecSQLStmt printExceptionStackTrace="true"
+			qualifyTableNames="TRANSITIONS" qualifyViewNames=""
+			sqlOracle="UPDATE TRANSITIONS SET TRANSITIONACTIONS = CASE WHEN TRANSITIONACTIONS IS NULL OR TRANSITIONACTIONS = ' ' THEN 'Java/global/percussion/extensions/general/sys_DirectoryIndexTouchWorkflowAction' WHEN TRANSITIONACTIONS LIKE '%sys_DirectoryIndexTouchWorkflowAction%' THEN TRANSITIONACTIONS ELSE TRANSITIONACTIONS || ',Java/global/percussion/extensions/general/sys_DirectoryIndexTouchWorkflowAction' END WHERE WORKFLOWAPPID = 6 AND TRANSITIONLABEL = 'Approve'"
+			sqlSqlServer="UPDATE TRANSITIONS SET TRANSITIONACTIONS = CASE WHEN TRANSITIONACTIONS IS NULL OR TRANSITIONACTIONS = '' THEN 'Java/global/percussion/extensions/general/sys_DirectoryIndexTouchWorkflowAction' WHEN TRANSITIONACTIONS LIKE '%sys_DirectoryIndexTouchWorkflowAction%' THEN TRANSITIONACTIONS ELSE TRANSITIONACTIONS + ',Java/global/percussion/extensions/general/sys_DirectoryIndexTouchWorkflowAction' END WHERE WORKFLOWAPPID = 6 AND TRANSITIONLABEL = 'Approve'"
+			sqlMysql="UPDATE TRANSITIONS SET TRANSITIONACTIONS = CASE WHEN TRANSITIONACTIONS IS NULL OR TRANSITIONACTIONS = '' THEN 'Java/global/percussion/extensions/general/sys_DirectoryIndexTouchWorkflowAction' WHEN TRANSITIONACTIONS LIKE '%sys_DirectoryIndexTouchWorkflowAction%' THEN TRANSITIONACTIONS ELSE CONCAT(TRANSITIONACTIONS, ',Java/global/percussion/extensions/general/sys_DirectoryIndexTouchWorkflowAction') END WHERE WORKFLOWAPPID = 6 AND TRANSITIONLABEL = 'Approve'"
+			sqlDerby="UPDATE TRANSITIONS SET TRANSITIONACTIONS = CASE WHEN TRANSITIONACTIONS IS NULL OR TRANSITIONACTIONS = '' THEN 'Java/global/percussion/extensions/general/sys_DirectoryIndexTouchWorkflowAction' WHEN TRANSITIONACTIONS LIKE '%sys_DirectoryIndexTouchWorkflowAction%' THEN TRANSITIONACTIONS ELSE TRANSITIONACTIONS || ',Java/global/percussion/extensions/general/sys_DirectoryIndexTouchWorkflowAction' END WHERE WORKFLOWAPPID = 6 AND TRANSITIONLABEL = 'Approve'"
+			sql="UPDATE TRANSITIONS SET TRANSITIONACTIONS = CASE WHEN TRANSITIONACTIONS IS NULL OR TRANSITIONACTIONS = '' THEN 'Java/global/percussion/extensions/general/sys_DirectoryIndexTouchWorkflowAction' WHEN TRANSITIONACTIONS LIKE '%sys_DirectoryIndexTouchWorkflowAction%' THEN TRANSITIONACTIONS ELSE TRANSITIONACTIONS || ',Java/global/percussion/extensions/general/sys_DirectoryIndexTouchWorkflowAction' END WHERE WORKFLOWAPPID = 6 AND TRANSITIONLABEL = 'Approve'"
+			failonerror="false" silenceerrors="false" />
 
 
 	</target>
@@ -390,7 +389,8 @@
 			<then>
 				<echo>Applying fresh-install database configuration...</echo>
 
-				<!-- Default embedded engine is H2 (#548); Derby still recognized for legacy/migration -->
+				<!-- Default embedded engine is H2 (#548); Derby still recognized for
+					legacy/migration -->
 				<property name="perc.db.type" value="h2" />
 				<property name="perc.db.ssl.enabled" value="true" />
 				<property name="perc.db.ssl.verify" value="true" />
@@ -526,7 +526,8 @@
 					<equals arg1="${perc.db.type}" arg2="h2"
 						casesensitive="false" />
 					<then>
-						<!-- Ensure H2 defaults when fresh-install path runs; ship file already H2 -->
+						<!-- Ensure H2 defaults when fresh-install path runs; ship file already
+							H2 -->
 						<propertyfile file="${rxrepository.properties}"
 							comment="Repository Properties">
 							<entry key="DB_BACKEND" value="H2" />
@@ -560,9 +561,10 @@
 
 		<PSMakeLasagna root="${install.dir}" />
 
-		<!-- New-install non-embedded only: fail fast if repository is unreachable (issue #949 FR-008).
-		     Skip embedded H2/Derby defaults (product defaults; validation targets enterprise backends).
-		     Upgrades excluded via do.install so backends are not re-validated/rewritten. -->
+		<!-- New-install non-embedded only: fail fast if repository is unreachable
+			(issue #949 FR-008). Skip embedded H2/Derby defaults (product defaults; validation
+			targets enterprise backends). Upgrades excluded via do.install so backends
+			are not re-validated/rewritten. -->
 		<if>
 			<and>
 				<istrue value="${do.install}" />
@@ -576,8 +578,8 @@
 				</not>
 			</and>
 			<then>
-				<PSValidateRepositoryConnection rootDir="${install.dir}"
-					loginTimeoutSeconds="15" />
+				<PSValidateRepositoryConnection
+					rootDir="${install.dir}" loginTimeoutSeconds="15" />
 			</then>
 		</if>
 	</target>

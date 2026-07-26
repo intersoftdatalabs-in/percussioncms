@@ -26,14 +26,12 @@ import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
-
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathFactory;
-
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.w3c.dom.Document;
@@ -44,13 +42,12 @@ import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
 /**
- * Guards the upgrade-time cleanup of retired JSF/javax WEB-INF artifacts and
- * Jetty-conflicting webapp trees in {@code install.xml}.
+ * Guards the upgrade-time cleanup of retired JSF/javax WEB-INF artifacts and Jetty-conflicting
+ * webapp trees in {@code install.xml}.
  *
- * <p>Without this target, upgrades leave MyFaces/Trinidad/Tomahawk JARs (and
- * their embedded META-INF TLDs/listeners) on the Rhythmyx classpath, which
- * breaks Jetty EE11 with {@code javax.servlet.ServletContextListener}
- * failures during Jasper TLD scan.
+ * <p>Without this target, upgrades leave MyFaces/Trinidad/Tomahawk JARs (and their embedded
+ * META-INF TLDs/listeners) on the Rhythmyx classpath, which breaks Jetty EE11 with {@code
+ * javax.servlet.ServletContextListener} failures during Jasper TLD scan.
  */
 class ObsoleteWebInfArtifactsCleanupTest {
 
@@ -182,8 +179,7 @@ class ObsoleteWebInfArtifactsCleanupTest {
 
   // --- helpers ----------------------------------------------------------
 
-  private Document loadInstallXml()
-      throws ParserConfigurationException, SAXException, IOException {
+  private Document loadInstallXml() throws ParserConfigurationException, SAXException, IOException {
     try (InputStream in = getClass().getResourceAsStream(INSTALL_XML)) {
       assertNotNull(in, INSTALL_XML + " must be on the classpath");
       DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
@@ -200,17 +196,13 @@ class ObsoleteWebInfArtifactsCleanupTest {
 
   private static Element findTarget(Document doc, String name) throws Exception {
     XPath xp = XPathFactory.newInstance().newXPath();
-    Node n =
-        (Node)
-            xp.evaluate("//target[@name='" + name + "']", doc, XPathConstants.NODE);
+    Node n = (Node) xp.evaluate("//target[@name='" + name + "']", doc, XPathConstants.NODE);
     return n instanceof Element ? (Element) n : null;
   }
 
   private static Element findPatternset(Document doc, String id) throws Exception {
     XPath xp = XPathFactory.newInstance().newXPath();
-    Node n =
-        (Node)
-            xp.evaluate("//patternset[@id='" + id + "']", doc, XPathConstants.NODE);
+    Node n = (Node) xp.evaluate("//patternset[@id='" + id + "']", doc, XPathConstants.NODE);
     return n instanceof Element ? (Element) n : null;
   }
 
@@ -233,8 +225,8 @@ class ObsoleteWebInfArtifactsCleanupTest {
   }
 
   /**
-   * Collect include/exclude names from filesets under {@code target} whose {@code dir}
-   * attribute contains {@code dirSubstring}.
+   * Collect include/exclude names from filesets under {@code target} whose {@code dir} attribute
+   * contains {@code dirSubstring}.
    */
   private static void collectFilesetIncludesExcludes(
       Element target, String dirSubstring, Set<String> includes, Set<String> excludes) {
