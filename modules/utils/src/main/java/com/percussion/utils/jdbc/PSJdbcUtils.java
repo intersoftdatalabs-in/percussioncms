@@ -453,6 +453,11 @@ public class PSJdbcUtils {
     ms_jdbcUrlToDriverMap.put(JTDS_DRIVER, JTDS_DRIVER);
     ms_jdbcUrlToDriverMap.put(DERBY_DRIVER, DERBY_DRIVER);
     ms_jdbcUrlToDriverMap.put(H2_DRIVER, H2_DRIVER);
+    // jdbc:h2:file:... / jdbc:h2:mem:... / jdbc:h2:tcp:... use a subprotocol segment;
+    // without these entries getDriverFromUrl would return "h2:file" etc. (#548 runtime).
+    ms_jdbcUrlToDriverMap.put("h2:file", H2_DRIVER);
+    ms_jdbcUrlToDriverMap.put("h2:mem", H2_DRIVER);
+    ms_jdbcUrlToDriverMap.put("h2:tcp", H2_DRIVER);
     ms_jdbcUrlToDriverMap.put(POSTGRES_DRIVER, POSTGRES_DRIVER);
     ms_jdbcUrlToDriverMap.put(MYSQL_DRIVER, MYSQL_DRIVER);
 

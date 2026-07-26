@@ -77,6 +77,13 @@ public class PSJdbcUtilsTest {
         "jdbc:h2:./data/cms;NON_KEYWORDS=VALUE,KEY",
         PSJdbcUtils.getJdbcUrl(PSJdbcUtils.H2_DRIVER, "./data/cms;NON_KEYWORDS=VALUE,KEY"));
     assertEquals("h2", PSJdbcUtils.getDriverFromUrl("jdbc:h2:./data/cms"));
+    // File/mem/tcp subprotocols must not surface as "h2:file" (PSSchedulerBean / install).
+    assertEquals(
+        "h2",
+        PSJdbcUtils.getDriverFromUrl(
+            "jdbc:h2:file:../../Repository/CMDB;DB_CLOSE_ON_EXIT=FALSE;NON_KEYWORDS=VALUE"));
+    assertEquals("h2", PSJdbcUtils.getDriverFromUrl("jdbc:h2:mem:test"));
+    assertEquals("h2", PSJdbcUtils.getDriverFromUrl("jdbc:h2:tcp://localhost/~/test"));
     assertEquals(PSJdbcUtils.H2_DRIVER_CLASS, "org.h2.Driver");
     assertEquals(PSJdbcUtils.H2, PSJdbcUtils.H2_DRIVER);
   }
