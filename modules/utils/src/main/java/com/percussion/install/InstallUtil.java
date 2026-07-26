@@ -1346,7 +1346,50 @@ public class InstallUtil {
       }
     }
 
+    // H2 file: DB_SERVER is product-relative (file:../../Repository/CMDB). Ant install runs with
+    // user.dir under the extract temp tree, so resolve against install root before connect so
+    // schema lands under installRoot/Repository and Jetty opens the same file (#548 / #1500).
+    if (PSJdbcUtils.H2_DRIVER.equalsIgnoreCase(driver)
+        && m_rootDir != null
+        && !m_rootDir.isBlank()
+        && !".".equals(m_rootDir.trim())) {
+      Path installRoot = Paths.get(m_rootDir);
+      String resolved = PSJdbcUtils.resolveEmbeddedFileServer(server, installRoot);
+      if (resolved != null && !resolved.equals(server)) {
+        logInfo("Resolved H2 DB_SERVER against install root: " + resolved);
+        server = resolved;
+      }
+      ensureH2RepositoryParent(resolved != null ? resolved : server);
+    }
+
     return createLoadedConnection(driver, server, db, uid, pw);
+  }
+
+  /**
+   * Ensure parent directory exists for an H2 {@code file:} server fragment so first connect can
+   * create the database under a clean install tree.
+   *
+   * @param serverFragment resolved {@code DB_SERVER} value
+   */
+  private static void ensureH2RepositoryParent(String serverFragment) {
+    if (serverFragment == null || !serverFragment.regionMatches(true, 0, "file:", 0, 5)) {
+      return;
+    }
+    String pathAndParams = serverFragment.substring(5);
+    int semi = pathAndParams.indexOf(';');
+    String pathPart = semi >= 0 ? pathAndParams.substring(0, semi) : pathAndParams;
+    if (pathPart.isEmpty()) {
+      return;
+    }
+    try {
+      Path dbPath = Paths.get(pathPart);
+      Path parent = dbPath.getParent();
+      if (parent != null) {
+        Files.createDirectories(parent);
+      }
+    } catch (IOException e) {
+      logError("Unable to create H2 repository parent directory: " + e.getMessage());
+    }
   }
 
   /**

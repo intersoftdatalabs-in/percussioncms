@@ -649,9 +649,12 @@
 		<antcall target="clean" inheritall="true" inheritrefs="true" />
 		<antcall target="install_server" inheritall="true"
 			inheritrefs="true" />
+		<!-- setupDB (repository_properties) must run before configure_jetty so
+			PSConfigureDatasource reads the target backend (postgresql/mysql/…) rather
+			than the shipped H2 defaults written during install_server (#1500 matrix). -->
+		<antcall target="setupDB" inheritall="true" inheritrefs="true" />
 		<antcall target="configure_jetty" inheritall="true"
 			inheritrefs="true" />
-		<antcall target="setupDB" inheritall="true" inheritrefs="true" />
 		<antcall target="updatePackages" inheritall="true"
 			inheritrefs="true" />
 		<antcall target="updateExtensions" inheritall="true"

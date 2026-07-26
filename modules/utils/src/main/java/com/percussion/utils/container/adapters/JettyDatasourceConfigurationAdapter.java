@@ -340,21 +340,31 @@ public class JettyDatasourceConfigurationAdapter
 
           props.setProperty(
               prefix + IPSJdbcJettyDbmsDefConstants.JETTY_SERVER_SUFFIX, datasource.getServer());
-          try {
-            String encPwd =
-                PSEncryptor.encryptProperty(
-                    PathUtils.getRxDir().getAbsolutePath().concat(PSEncryptor.SECURE_DIR),
-                    propertyFile.toAbsolutePath().toString(),
-                    IPSJdbcJettyDbmsDefConstants.JETTY_PWD_SUFFIX,
-                    datasource.getPassword());
-            props.setProperty(prefix + IPSJdbcJettyDbmsDefConstants.JETTY_PWD_SUFFIX, encPwd);
-            props.setProperty(
-                prefix + IPSJdbcJettyDbmsDefConstants.JETTY_PWD_ENCRYPTED_SUFFIX, "Y");
-          } catch (PSEncryptionException e) {
-            props.setProperty(
-                prefix + IPSJdbcJettyDbmsDefConstants.JETTY_PWD_SUFFIX, datasource.getPassword());
+          // H2 (and other) installs commonly use empty password (UID=sa, PWD=). Encrypting an empty
+          // string produces a non-empty ciphertext; if decrypt at Jetty start uses a different
+          // secure-dir key material (install cwd vs rxdeploydir), Hikari fails with H2
+          // "Wrong user name or password" and the webapp never starts (#548 / #1500 matrix smoke).
+          String plainPwd = datasource.getPassword();
+          if (plainPwd == null || plainPwd.isEmpty()) {
+            props.setProperty(prefix + IPSJdbcJettyDbmsDefConstants.JETTY_PWD_SUFFIX, "");
             props.setProperty(
                 prefix + IPSJdbcJettyDbmsDefConstants.JETTY_PWD_ENCRYPTED_SUFFIX, "N");
+          } else {
+            try {
+              String encPwd =
+                  PSEncryptor.encryptProperty(
+                      PathUtils.getRxDir().getAbsolutePath().concat(PSEncryptor.SECURE_DIR),
+                      propertyFile.toAbsolutePath().toString(),
+                      IPSJdbcJettyDbmsDefConstants.JETTY_PWD_SUFFIX,
+                      plainPwd);
+              props.setProperty(prefix + IPSJdbcJettyDbmsDefConstants.JETTY_PWD_SUFFIX, encPwd);
+              props.setProperty(
+                  prefix + IPSJdbcJettyDbmsDefConstants.JETTY_PWD_ENCRYPTED_SUFFIX, "Y");
+            } catch (PSEncryptionException e) {
+              props.setProperty(prefix + IPSJdbcJettyDbmsDefConstants.JETTY_PWD_SUFFIX, plainPwd);
+              props.setProperty(
+                  prefix + IPSJdbcJettyDbmsDefConstants.JETTY_PWD_ENCRYPTED_SUFFIX, "N");
+            }
           }
 
           props.setProperty(

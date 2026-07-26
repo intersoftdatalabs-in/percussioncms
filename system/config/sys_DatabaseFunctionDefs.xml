@@ -661,6 +661,15 @@
 			</Param>
 			<Description>Converts a CHAR type to an integer</Description>
 		</PSXDatabaseFunctionDef>
+		<PSXDatabaseFunctionDef
+			standardFunctionName="CHAR_TO_INT" driver="postgresql">
+			<Body>CAST({0} AS integer)</Body>
+			<Param name="source">
+				<Description>Required. Valid values are any replacement value
+					containing string representation of an integer.</Description>
+			</Param>
+			<Description>Converts a CHAR type to an integer</Description>
+		</PSXDatabaseFunctionDef>
 	</PSXDatabaseFunction>
 	<!-- DATEDIFF -->
 	<PSXDatabaseFunction
@@ -733,6 +742,16 @@
 		<PSXDatabaseFunctionDef
 			standardFunctionName="DAYSFROMDATE" driver="mysql">
 			<Body>CURDATE() - INTERVAL {0} DAY</Body>
+			<Param name="first date">
+				<Description>Required. Valid values are database columns that
+					contain a date.</Description>
+			</Param>
+			<Description>Compares two dates</Description>
+		</PSXDatabaseFunctionDef>
+		<!-- #1500: PostgreSQL days between date column and current date -->
+		<PSXDatabaseFunctionDef
+			standardFunctionName="DAYSFROMDATE" driver="postgresql">
+			<Body>(CURRENT_DATE - CAST({0} AS DATE))</Body>
 			<Param name="first date">
 				<Description>Required. Valid values are database columns that
 					contain a date.</Description>

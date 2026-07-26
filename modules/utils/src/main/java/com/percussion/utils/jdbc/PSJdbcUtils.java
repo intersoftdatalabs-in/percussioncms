@@ -16,6 +16,7 @@
  */
 package com.percussion.utils.jdbc;
 
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -186,8 +187,14 @@ public class PSJdbcUtils {
       "com.microsoft.sqlserver.jdbc.SQLServerDriver";
 
   /** Additional connection url parameters required to use unicode (UTF-8) with mysql. */
+  /**
+   * Default MySQL/MariaDB JDBC query string. {@code connectionCollation} keeps connection string
+   * literals aligned with utf8mb4 table columns so CREATE VIEW … UNION install steps do not fail
+   * with "Illegal mix of collations" (matrix MySQL 8 / #1500).
+   */
   public static String MYSQL_CONN_PARAMS =
-      "?useUnicode=yes&characterEncoding=UTF-8&useSSL=true&requireSSL=false&verifyServerCertificate=false";
+      "?useUnicode=yes&characterEncoding=UTF-8&connectionCollation=utf8mb4_unicode_ci"
+          + "&useSSL=true&requireSSL=false&verifyServerCertificate=false";
 
   /**
    * Parses the specified database URL and returns the driver for which this is a valid URL.
@@ -385,6 +392,51 @@ public class PSJdbcUtils {
   }
 
   /**
+   * Resolve relative H2 {@code file:} {@code DB_SERVER} fragments against the install tree.
+   *
+   * <p>Product default is {@code file:../../Repository/CMDB;...}, authored relative to {@code
+   * jetty/base}. During silent install Ant runs with {@code user.dir} under the extract temp tree,
+   * so without this resolution H2 creates the database under temp and Jetty later opens an empty
+   * database under the install root (matrix smoke / #548 / #1500).
+   *
+   * <p>Relative paths are always anchored at {@code installRoot/jetty/base} (whether or not that
+   * directory exists yet) so {@code ../../Repository/CMDB} normalizes to {@code
+   * installRoot/Repository/CMDB}. Absolute {@code file:} paths are normalized only. Non-{@code
+   * file:} fragments are returned unchanged.
+   *
+   * @param serverFragment value of {@code DB_SERVER} (not a full {@code jdbc:} URL); may be {@code
+   *     null}
+   * @param installRoot install root used as resolution base; if {@code null}, returns {@code
+   *     serverFragment} unchanged
+   * @return absolute {@code file:} fragment when input was relative; otherwise the original (or
+   *     path-normalized absolute) fragment
+   */
+  public static String resolveEmbeddedFileServer(String serverFragment, Path installRoot) {
+    if (serverFragment == null || installRoot == null) {
+      return serverFragment;
+    }
+    String s = serverFragment.trim();
+    if (!s.regionMatches(true, 0, "file:", 0, 5)) {
+      return s;
+    }
+    String pathAndParams = s.substring(5);
+    int semi = pathAndParams.indexOf(';');
+    String pathPart = semi >= 0 ? pathAndParams.substring(0, semi) : pathAndParams;
+    String params = semi >= 0 ? pathAndParams.substring(semi) : "";
+    if (pathPart.isEmpty()) {
+      return s;
+    }
+    Path path = Path.of(pathPart);
+    if (path.isAbsolute()) {
+      return "file:" + path.toAbsolutePath().normalize().toString().replace('\\', '/') + params;
+    }
+    // Product-relative H2 paths are authored for jetty/base (../../Repository/CMDB).
+    Path base = installRoot.toAbsolutePath().normalize().resolve("jetty").resolve("base");
+    Path resolved = base.resolve(pathPart).normalize().toAbsolutePath();
+    return "file:" + resolved.toString().replace('\\', '/') + params;
+  }
+
+  /**
    * Get the appropriate db backend for the specified driver.
    *
    * @param driver the driver type, may not be <code>null</code>. Assumed to be one of the
@@ -453,6 +505,11 @@ public class PSJdbcUtils {
     ms_jdbcUrlToDriverMap.put(JTDS_DRIVER, JTDS_DRIVER);
     ms_jdbcUrlToDriverMap.put(DERBY_DRIVER, DERBY_DRIVER);
     ms_jdbcUrlToDriverMap.put(H2_DRIVER, H2_DRIVER);
+    // jdbc:h2:file:... / jdbc:h2:mem:... / jdbc:h2:tcp:... use a subprotocol segment;
+    // without these entries getDriverFromUrl would return "h2:file" etc. (#548 runtime).
+    ms_jdbcUrlToDriverMap.put("h2:file", H2_DRIVER);
+    ms_jdbcUrlToDriverMap.put("h2:mem", H2_DRIVER);
+    ms_jdbcUrlToDriverMap.put("h2:tcp", H2_DRIVER);
     ms_jdbcUrlToDriverMap.put(POSTGRES_DRIVER, POSTGRES_DRIVER);
     ms_jdbcUrlToDriverMap.put(MYSQL_DRIVER, MYSQL_DRIVER);
 

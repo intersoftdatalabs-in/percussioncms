@@ -357,18 +357,6 @@ def start_db(
     service = meta.get("service") or ""
     if not profile or not service:
         return
-    argv = [
-        "docker",
-        "compose",
-        "-f",
-        str(compose_file),
-        "--profile",
-        profile,
-        "up",
-        "-d",
-        service,
-    ]
-    _run(argv, dry_run=dry_run, check=not dry_run)
     # Attach DB container to matrix network with a DNS alias matching the
     # compose service name (e.g. "postgres") so cells can use DB_HOST=postgres.
     container_by_service = {
@@ -377,6 +365,26 @@ def start_db(
         "sqlserver": "percussion-sqlserver",
     }
     container = container_by_service.get(service, f"percussion-{service}")
+
+    # If compose DB is already running (common on long-lived dev hosts), skip
+    # ``compose up`` so a host port clash (e.g. local Postgres on 5432) does not
+    # fail the cell after a no-op recreate attempt.
+    if not dry_run and _docker_container_running(container):
+        LOG.info("DB container %s already running; skipping compose up", container)
+    else:
+        argv = [
+            "docker",
+            "compose",
+            "-f",
+            str(compose_file),
+            "--profile",
+            profile,
+            "up",
+            "-d",
+            service,
+        ]
+        _run(argv, dry_run=dry_run, check=not dry_run)
+
     _run(
         [
             "docker",
@@ -390,6 +398,27 @@ def start_db(
         dry_run=dry_run,
         check=False,
     )
+
+
+def _docker_container_running(name: str) -> bool:
+    """Return True if a Docker container with ``name`` is in running state."""
+    try:
+        completed = subprocess.run(
+            [
+                "docker",
+                "inspect",
+                "-f",
+                "{{.State.Running}}",
+                name,
+            ],
+            check=False,
+            capture_output=True,
+            text=True,
+            timeout=30,
+        )
+    except (OSError, subprocess.TimeoutExpired):
+        return False
+    return completed.returncode == 0 and completed.stdout.strip().lower() == "true"
 
 
 def destroy_container(name: str, *, dry_run: bool) -> None:
