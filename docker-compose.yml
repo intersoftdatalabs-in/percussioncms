@@ -1,24 +1,15 @@
 services:
+  # ============================================================
+  # Dev CMS (bind-mounted install from host) - for development
+  # ============================================================
   cms-dts:
     build:
       context: .
       dockerfile: docker/cms/Dockerfile
     container_name: percussion-cms-dts
     restart: unless-stopped
-    # Run as the host UID/GID that owns /opt/Percussion. StartJetty.sh
-    # compares `whoami` to the owner of /opt/Percussion and refuses to
-    # su to a UID that doesn't exist in the container's /etc/passwd, so
-    # the container's UID MUST match the host's install-root owner.
-    #
-    # Override per host via .env.compose (CMS_UID / CMS_GID) or the env
-    # of the docker compose invocation. Default is 1000:1001 which
-    # matches the nate:mkd-dev owner that installed /opt/Percussion
-    # in the original dev setup; other developers can override.
     user: "${CMS_UID:-1000}:${CMS_GID:-1001}"
     environment:
-      # Container is service-only. The install lives entirely on the
-      # host (scripts/install-cms-dev.py) and the bind mount below
-      # surfaces the host's install_root/ as /opt/Percussion/.
       SERVICE_MODE: ${SERVICE_MODE:-cms-dts}
       PERC_INSTALL_ROOT: ${PERC_INSTALL_ROOT:-/opt/Percussion}
       CMS_PORT: ${CMS_PORT:-9992}
@@ -28,11 +19,6 @@ services:
       - "${DTS_PORT:-9980}:9980"
     volumes:
       - ${PROJECT_ROOT:-.}:/workspace:ro
-      # Single bind mount: the host install_root MUST equal the
-      # in-container path. The installer writes absolute paths into
-      # config files (rxrepository.properties etc.); if the host path
-      # differs from /opt/Percussion, those recorded paths will not
-      # resolve inside the container.
       - /opt/Percussion:/opt/Percussion
     healthcheck:
       test:
@@ -45,5 +31,89 @@ services:
       retries: ${PERC_HEALTHCHECK_RETRIES:-60}
       start_period: ${PERC_HEALTHCHECK_START_PERIOD:-30s}
 
+  # ============================================================
+  # Database backends for matrix install smoke (#1500)
+  #
+  # Ephemeral CMS/DTS install cells are NOT long-lived compose
+  # services. Use:
+  #   python3 docker/scripts/matrix-install-smoke.py \
+  #     --product cms,dts --db h2,postgresql
+  # which mounts perc-distribution-tree*.jar /
+  # delivery-tier-distribution*.jar, runs silent install, starts
+  # the product, probes login/health, records results, and
+  # destroys the cell (unless --keep for Playwright Layer 2).
+  # See docker/README.md and docker/matrix/.
+  # ============================================================
+
+  mysql:
+    image: mysql:8.0
+    container_name: percussion-mysql
+    restart: unless-stopped
+    profiles:
+      - mysql
+      - db-all
+    environment:
+      MYSQL_ROOT_PASSWORD: PercRootPass123
+      MYSQL_USER: percuser
+      MYSQL_PASSWORD: PercPass123
+      MYSQL_DATABASE: percdb
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+      - --default-authentication-plugin=mysql_native_password
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql-data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-pPercRootPass123"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  postgres:
+    image: postgres:16
+    container_name: percussion-postgres
+    restart: unless-stopped
+    profiles:
+      - postgres
+      - db-all
+    environment:
+      POSTGRES_USER: percuser
+      POSTGRES_PASSWORD: PercPass123
+      POSTGRES_DB: percdb
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U percuser -d percdb"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: percussion-sqlserver
+    restart: unless-stopped
+    profiles:
+      - sqlserver
+      - db-all
+    environment:
+      ACCEPT_EULA: Y
+      MSSQL_SA_PASSWORD: PercPass123!
+      MSSQL_PID: Developer
+    ports:
+      - "1433:1433"
+    volumes:
+      - sqlserver-data:/var/opt/mssql
+    healthcheck:
+      test: ["CMD-SHELL", "/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P 'PercPass123!' -Q 'SELECT 1'"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
 volumes:
   mysql-data:
+  postgres-data:
+  sqlserver-data:

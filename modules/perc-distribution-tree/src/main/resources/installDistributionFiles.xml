@@ -725,6 +725,8 @@
 				<include name="mssql-jdbc-*.jar" />
 				<include name="jtds-*.jar" />
 				<include name="ojdbc17-*.jar" />
+				<!-- #1500 PostgreSQL external CMS repository -->
+				<include name="postgresql-*.jar" />
 			</fileset>
 		</copy>
 		<!-- FR-001 / FR-007: physically remove the transient staging directory

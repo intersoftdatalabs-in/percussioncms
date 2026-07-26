@@ -1376,6 +1376,18 @@ public class PSSqlHelper {
   }
 
   /**
+   * @param driverName the database driver name, may be {@code null}
+   * @return {@code true} if the driver is PostgreSQL (GitHub #1500 external backend)
+   */
+  public static boolean isPostgres(String driverName) {
+    if (driverName == null) {
+      return false;
+    }
+    String d = driverName.toLowerCase();
+    return d.contains("postgresql") || "postgres".equals(d);
+  }
+
+  /**
    * Product-managed embedded file-store backends (Derby legacy or H2 default). Used for LOB
    * materialization and similar cross-engine behavior (must not treat only Derby as special).
    */

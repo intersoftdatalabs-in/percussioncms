@@ -1,18 +1,26 @@
 # docker/ — Percussion CMS Dev/Test Stack
 
-This directory holds the docker-compose stack, operator-facing control scripts, and container entrypoints for the cms-dts dev/test environment.
+This directory holds the docker-compose stack, operator-facing control scripts, and container entrypoints for the cms-dts **dev** environment and the **install matrix smoke** harness (#1500).
 
-Per spec 994 (`specs/994-python-build-scripts/spec.md`): the original `.sh` wrappers around these scripts have been removed (FR-004). Windows, Linux, and macOS operators now invoke the Python entry points identically (`python3 scripts/<name>.py`).
+Per spec 994 (`specs/994-python-build-scripts/spec.md`): the original `.sh` wrappers around these scripts have been removed (FR-004). Windows, Linux, and macOS operators now invoke the Python entry points identically (`python3 scripts/<name>.py` or `python3 docker/scripts/<name>.py`).
+
+## Two stacks (do not confuse them)
+
+| Stack | Purpose | How to run |
+|-------|---------|------------|
+| **Dev (`cms-dts`)** | Day-to-day coding: host install bind-mounted, hot-deploy jars | `perc-devctl.py` + `scripts/install-cms-dev.py` |
+| **Matrix install smoke** | Ephemeral silent install of **CMS and/or DTS** per DB, probe, record, destroy | `docker/scripts/matrix-install-smoke.py` |
 
 ## Layout
 
-|     Path      |                                 Purpose                                 |
-|---------------|-------------------------------------------------------------------------|
-| `cms/`        | Dockerfile + image for the cms-dts container                            |
-| `dev-data/`   | Persistent bind-mount volume (CMS install + DB)                         |
-| `entrypoint/` | Container-side startup scripts (run inside the cms-dts image)           |
-| `scripts/`    | Host-side operator control (CLI for `docker compose` + auxiliary tools) |
-| `logs/`       | Timestamped log files written by `perc-devctl.py`                       |
+| Path | Purpose |
+|------|---------|
+| `cms/` | Dockerfile + image for the long-lived cms-dts **dev** container |
+| `matrix/` | Dockerfile + in-cell entrypoint for ephemeral install matrix cells |
+| `dev-data/` | Persistent bind-mount volume (CMS install + DB) for **dev** only |
+| `entrypoint/` | Dev container service-start scripts (`install-update.py`) |
+| `scripts/` | Host-side operator control (`perc-devctl.py`, `matrix-install-smoke.py`) |
+| `logs/` | Timestamped logs + matrix JSON results |
 
 ## Host-side scripts
 
@@ -60,7 +68,49 @@ ENTRYPOINT ["/usr/local/bin/python3", "/usr/local/bin/install-update.py"]
 
 `--service-mode` defaults to `cms-dts` (start both). Other values: `cms`, `dts`.
 
-## Tests
+## Matrix install smoke (Layer 1 — CMS + DTS)
+
+Ephemeral cells mount the real installer jars (not a fictional `perc-preinstall.jar`):
+
+| Product | Installer jar (customer-shipped assembly only) | Start after install | Default host probe |
+|---------|------------------------------------------------|---------------------|--------------------|
+| CMS | `modules/perc-distribution-tree/target/perc-distribution-tree.jar` | `jetty/StartJetty.sh` | `http://127.0.0.1:9993/Rhythmyx/login` |
+| DTS | `…/delivery-tier-distribution/target/delivery-tier-distribution.jar` | `TomcatStartup.sh` / `startup.sh` | `http://127.0.0.1:9983/` |
+
+Do **not** use `*-SNAPSHOT.jar` — those are plain module jars without the runnable installer main class. Package with `mvn package` so the assembly `finalName` jars exist and are non-empty.
+
+```bash
+# Prereq: package installers (CMS required; DTS if --product includes dts)
+cd modules/perc-distribution-tree && ../../mvn-env.sh package -DskipTests
+cd deliverytiersuite/delivery-tier-suite/delivery-tier-distribution && ../../../../mvn-env.sh package -DskipTests
+
+# CMS + H2 (no external DB container)
+python3 docker/scripts/matrix-install-smoke.py --product cms --db h2
+
+# CMS + PostgreSQL (starts compose profile postgres)
+python3 docker/scripts/matrix-install-smoke.py --product cms --db postgresql
+
+# Both products × H2 and PostgreSQL
+python3 docker/scripts/matrix-install-smoke.py --product cms,dts --db h2,postgresql
+
+# Leave cell up for Playwright Layer 2 (perc-qa-automation)
+python3 docker/scripts/matrix-install-smoke.py --product cms --db postgresql --keep
+TEST_CMS_URL=http://localhost:9993 TEST_DB_TYPE=postgresql \
+  npm test --prefix modules/perc-qa-automation/frontend -- tests/install.spec.js
+
+# Dry-run (no docker)
+python3 docker/scripts/matrix-install-smoke.py --product cms --db h2 --dry-run --skip-image-build
+```
+
+Each run writes `docker/logs/matrix-results-<ts>.json` and a `RESULT:OK|FAIL STEP:matrix LOG:…` line.
+
+Unit tests (no docker):
+
+```bash
+python3 -m pytest docker/scripts/test_matrix_install_smoke.py -v
+```
+
+## Tests (spec 994 script suite)
 
 ```sh
 # Linux / macOS

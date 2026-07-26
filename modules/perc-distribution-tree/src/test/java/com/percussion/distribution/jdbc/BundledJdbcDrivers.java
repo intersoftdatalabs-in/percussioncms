@@ -85,7 +85,9 @@ final class BundledJdbcDrivers {
     "derbytools-*.jar",
     "mssql-jdbc-*.jar",
     "jtds-*.jar",
-    "ojdbc17-*.jar"
+    "ojdbc17-*.jar",
+    // #1500 PostgreSQL external CMS repository
+    "postgresql-*.jar"
   };
 
   /**
@@ -104,7 +106,8 @@ final class BundledJdbcDrivers {
     {"derbytools-*.jar", "derbytools"},
     {"mssql-jdbc-*.jar", "mssql-jdbc"},
     {"jtds-*.jar", "jtds"},
-    {"ojdbc17-*.jar", "ojdbc17"}
+    {"ojdbc17-*.jar", "ojdbc17"},
+    {"postgresql-*.jar", "postgresql"}
   };
 
   static {
@@ -118,6 +121,7 @@ final class BundledJdbcDrivers {
     filenames.add("mssql-jdbc-13.3.1.jre11-preview.jar");
     filenames.add("jtds-1.3.1.jar");
     filenames.add("ojdbc17-23.26.0.0.0.jar");
+    filenames.add("postgresql-42.7.7.jar");
     EXACT_FILENAMES = Collections.unmodifiableSet(filenames);
 
     // Prior release of this codebase: the versions immediately preceding

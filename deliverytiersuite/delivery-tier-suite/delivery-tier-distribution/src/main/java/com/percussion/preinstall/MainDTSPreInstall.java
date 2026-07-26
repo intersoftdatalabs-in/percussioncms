@@ -49,6 +49,8 @@ public class MainDTSPreInstall {
   private static final String DB_SSL_ENABLED_DEFAULT = "true";
   private static final String DB_SSL_VERIFY_DEFAULT = "true";
   private static final String DB_SSL_ALLOW_SELF_SIGNED_DEFAULT = "false";
+  /** CLI key for silent/non-interactive mode (--silent or --no-tty). */
+  private static final String SILENT_KEY = "silent";
 
   /**
    * Find a jar by path pattern to avoid hard coding / forcing version.
@@ -107,11 +109,17 @@ public class MainDTSPreInstall {
       ParsedArgs parsedArgs = parseArgs(args);
       if (parsedArgs.installPath() == null) {
         System.out.println("Must specify installation or upgrade folder");
+        System.out.println(
+            "Silent mode: --silent or --no-tty (disables interactive prompts for automated testing)");
         System.exit(0);
       }
 
       System.out.println("Installation folder =" + parsedArgs.installPath());
       var installPath = parsedArgs.installPath();
+
+      // Check for silent/non-interactive mode (--silent or --no-tty)
+      boolean silent = isSilentMode(parsedArgs.options());
+
       // Issue #1340 / US3 + US4 parity: persist the Java home used by DTS
       // start, stop, and service install paths into <installPath>/java.properties
       // before the Ant install runs. Honors -Dperc.java.home; otherwise
@@ -123,6 +131,9 @@ public class MainDTSPreInstall {
                     installPath,
                     unattended,
                     prompt -> {
+                      if (silent) {
+                        return "";
+                      }
                       java.io.Console c = System.console();
                       return c == null ? "" : c.readLine(prompt);
                     })
@@ -362,6 +373,26 @@ public class MainDTSPreInstall {
     return java.nio.file.Path.of(trimmed);
   }
 
+  /**
+   * Check if silent/non-interactive mode is enabled via --silent or --no-tty CLI options.
+   *
+   * @param options parsed CLI options
+   * @return true if silent mode is enabled
+   */
+  private static boolean isSilentMode(Map<String, String> options) {
+    if (options == null) {
+      return false;
+    }
+    String silent = options.get(SILENT_KEY);
+    String noTty = options.get("no-tty");
+    return "true".equalsIgnoreCase(silent)
+        || "yes".equalsIgnoreCase(silent)
+        || "1".equals(silent)
+        || "true".equalsIgnoreCase(noTty)
+        || "yes".equalsIgnoreCase(noTty)
+        || "1".equals(noTty);
+  }
+
   private static ResolvedDbConfig resolveDbConfig(Map<String, String> cliOptions) {
     Map<String, String> envFileValues = new HashMap<>();
     String envFilePath =
@@ -507,6 +538,19 @@ public class MainDTSPreInstall {
           "perc.db.dts.hibernateDialect",
           "com.percussion.delivery.rdbms.PSUnicodeSQLServerDialect");
       systemProperties.put("perc.db.dts.schema", firstNonBlank(schema, "DBO"));
+    } else if ("postgresql".equals(dbTypeNormalized) || "postgres".equals(dbTypeNormalized)) {
+      String dtsJdbcUrl =
+          "jdbc:postgresql://"
+              + host
+              + ":"
+              + port
+              + "/"
+              + name;
+      systemProperties.put("perc.db.dts.jdbcUrl", dtsJdbcUrl);
+      systemProperties.put("perc.db.dts.jdbcDriver", "org.postgresql.Driver");
+      systemProperties.put(
+          "perc.db.dts.hibernateDialect", "org.hibernate.dialect.PostgreSQLDialect");
+      systemProperties.put("perc.db.dts.schema", firstNonBlank(schema, "public"));
     }
 
     return new ResolvedDbConfig(systemProperties);

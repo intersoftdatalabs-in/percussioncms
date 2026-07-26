@@ -72,6 +72,8 @@ http://www.springframework.org/schema/beans/spring-beans.xsd">
 				value="com.percussion.services.datasource.PSCommunityDerbyDialect" />
 			<entry key="h2"
 				value="org.hibernate.dialect.H2Dialect" />
+			<entry key="postgresql"
+				value="org.hibernate.dialect.PostgreSQLDialect" />
 			<entry key="mysql"
 				value="org.hibernate.dialect.MySQLDialect" />
 			</map>

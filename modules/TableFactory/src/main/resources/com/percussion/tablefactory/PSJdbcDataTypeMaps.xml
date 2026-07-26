@@ -201,4 +201,31 @@
 		<DataType jdbc="LONGVARBINARY" native="BLOB" />
 		<DataType jdbc="BLOB" native="BLOB" />
 	</DataTypeMap>
+	<!-- PostgreSQL: external CMS repository backend (GitHub #1500). Prefer BOOLEAN / TEXT / BYTEA. -->
+	<DataTypeMap for="POSTGRES" os="" driver="postgresql">
+		<DataType jdbc="BIT" native="BOOLEAN" />
+		<DataType jdbc="BOOLEAN" native="BOOLEAN" />
+		<DataType jdbc="TINYINT" native="SMALLINT" />
+		<DataType jdbc="SMALLINT" native="SMALLINT" />
+		<DataType jdbc="INTEGER" native="INTEGER" />
+		<DataType jdbc="BIGINT" native="BIGINT" />
+		<DataType jdbc="FLOAT" native="DOUBLE PRECISION" />
+		<DataType jdbc="REAL" native="REAL" />
+		<DataType jdbc="DOUBLE" native="DOUBLE PRECISION" />
+		<DataType jdbc="NUMERIC" native="NUMERIC" defaultSize="18"
+			defaultScale="0" />
+		<DataType jdbc="DECIMAL" native="DECIMAL" defaultSize="18"
+			defaultScale="0" />
+		<DataType jdbc="CHAR" native="CHAR" defaultSize="1" />
+		<DataType jdbc="VARCHAR" native="VARCHAR" defaultSize="1" />
+		<DataType jdbc="LONGVARCHAR" native="TEXT" />
+		<DataType jdbc="CLOB" native="TEXT" />
+		<DataType jdbc="DATE" native="DATE" />
+		<DataType jdbc="TIME" native="TIME" />
+		<DataType jdbc="TIMESTAMP" native="TIMESTAMP" />
+		<DataType jdbc="BINARY" native="BYTEA" />
+		<DataType jdbc="VARBINARY" native="BYTEA" />
+		<DataType jdbc="LONGVARBINARY" native="BYTEA" />
+		<DataType jdbc="BLOB" native="BYTEA" />
+	</DataTypeMap>
 </DataTypeMaps>

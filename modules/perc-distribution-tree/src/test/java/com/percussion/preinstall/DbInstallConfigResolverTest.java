@@ -43,16 +43,93 @@ class DbInstallConfigResolverTest {
   }
 
   @Test
-  void backendLabelForTypeFailsFastOnUnknown() {
+  void backendLabelForTypeMapsKnownTypesIncludingPostgres() {
     assertEquals("H2", DbInstallConfigResolver.backendLabelForType("h2"));
     assertEquals("DERBY", DbInstallConfigResolver.backendLabelForType("derby"));
     assertEquals("MYSQL", DbInstallConfigResolver.backendLabelForType("mysql"));
+    assertEquals("POSTGRES", DbInstallConfigResolver.backendLabelForType("postgresql"));
     IllegalArgumentException ex =
         assertThrows(
             IllegalArgumentException.class,
-            () -> DbInstallConfigResolver.backendLabelForType("postgres"));
-    assertTrue(ex.getMessage().contains("postgres"));
+            () -> DbInstallConfigResolver.backendLabelForType("cockroach"));
+    assertTrue(ex.getMessage().contains("cockroach"));
     assertTrue(ex.getMessage().toLowerCase().contains("allowed"));
+  }
+
+  @Test
+  void structuredPostgresqlMapsCmsFields() {
+    Map<String, String> opts = new HashMap<>();
+    opts.put("db.type", "postgresql");
+    opts.put("db.host", "pg.example.com");
+    opts.put("db.port", "5432");
+    opts.put("db.name", "percussion");
+    opts.put("db.user", "cms");
+    opts.put("db.password", "s3cret");
+
+    DbInstallConfigResolver.ResolvedDbConfig cfg =
+        DbInstallConfigResolver.resolveDbConfig(opts);
+    Map<String, String> p = cfg.systemProperties();
+    assertEquals("postgresql", p.get("perc.db.type"));
+    assertEquals("POSTGRES", p.get("perc.db.cms.backend"));
+    assertEquals("postgresql", p.get("perc.db.cms.driverName"));
+    assertEquals("org.postgresql.Driver", p.get("perc.db.cms.driverClass"));
+    assertEquals("//pg.example.com:5432/percussion", p.get("perc.db.cms.server"));
+    assertEquals("public", p.get("perc.db.cms.schema"));
+    assertEquals("cms", p.get("perc.db.user"));
+    assertEquals("s3cret", p.get("perc.db.password"));
+    assertEquals(
+        "jdbc:postgresql://pg.example.com:5432/percussion", p.get("perc.db.dts.jdbcUrl"));
+    assertEquals(
+        "org.hibernate.dialect.PostgreSQLDialect", p.get("perc.db.dts.hibernateDialect"));
+  }
+
+  @Test
+  void structuredPostgresAliasNormalizesToPostgresql() {
+    Map<String, String> opts = new HashMap<>();
+    opts.put("db.type", "postgres");
+    opts.put("db.host", "pg.example.com");
+    opts.put("db.port", "5432");
+    opts.put("db.name", "cmsdb");
+    opts.put("db.user", "u");
+    opts.put("db.password", "p");
+    DbInstallConfigResolver.ResolvedDbConfig cfg =
+        DbInstallConfigResolver.resolveDbConfig(opts);
+    assertEquals("postgresql", cfg.systemProperties().get("perc.db.type"));
+    assertEquals("POSTGRES", cfg.systemProperties().get("perc.db.cms.backend"));
+  }
+
+  @Test
+  void dbpropsPostgresBackendAccepted() throws Exception {
+    Path props = tempDir.resolve("rxrepository.postgresql.properties");
+    Files.writeString(
+        props,
+        """
+        DB_BACKEND=POSTGRES
+        DB_SERVER=//db.example.com:5432/percussion
+        DB_NAME=percussion
+        DB_SCHEMA=public
+        DB_DRIVER_NAME=postgresql
+        DB_DRIVER_CLASS_NAME=org.postgresql.Driver
+        UID=cms
+        PWD=changeit
+        """,
+        StandardCharsets.UTF_8);
+    Map<String, String> opts = new HashMap<>();
+    opts.put("dbprops", props.toString());
+    DbInstallConfigResolver.ResolvedDbConfig cfg =
+        DbInstallConfigResolver.resolveDbConfig(opts);
+    assertEquals("postgresql", cfg.systemProperties().get("perc.db.type"));
+    assertEquals("POSTGRES", cfg.systemProperties().get("perc.db.cms.backend"));
+    assertEquals("postgresql", cfg.systemProperties().get("perc.db.cms.driverName"));
+    assertEquals("public", cfg.systemProperties().get("perc.db.cms.schema"));
+    // Locks applyDtsHintsFromCms: "jdbc:postgresql:" + DB_SERVER("//host:port/db")
+    // must yield jdbc:postgresql://host:port/db (two slashes after the scheme colon).
+    assertEquals(
+        "jdbc:postgresql://db.example.com:5432/percussion",
+        cfg.systemProperties().get("perc.db.dts.jdbcUrl"));
+    assertEquals(
+        "org.hibernate.dialect.PostgreSQLDialect",
+        cfg.systemProperties().get("perc.db.dts.hibernateDialect"));
   }
 
   @Test
@@ -287,13 +364,14 @@ class DbInstallConfigResolverTest {
   @Test
   void unknownBackendFailsWithAllowedList() throws Exception {
     Path props = tempDir.resolve("bad.properties");
-    Files.writeString(props, "DB_BACKEND=POSTGRES\n", StandardCharsets.UTF_8);
+    Files.writeString(props, "DB_BACKEND=COCKROACH\n", StandardCharsets.UTF_8);
     IllegalArgumentException ex =
         assertThrows(
             IllegalArgumentException.class,
             () -> DbInstallConfigResolver.resolveDbConfig(Map.of("dbprops", props.toString())));
     assertTrue(ex.getMessage().contains("MYSQL"));
     assertTrue(ex.getMessage().contains("ORACLE"));
+    assertTrue(ex.getMessage().contains("POSTGRES"));
   }
 
   @Test

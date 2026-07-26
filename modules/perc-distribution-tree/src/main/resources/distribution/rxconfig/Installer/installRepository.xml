@@ -250,6 +250,8 @@
 			sqlUDB="create view PSX_DISPLAYFORMATPROPERTY_VIEW as select * from PSX_DISPLAYFORMATPROPERTIES union select p.OBJECTID PROPERTYID, 'sys_community' PROPERTYNAME,   rtrim(char(p.COMMUNITYID)) PROPERTYVALUE, 'from acls' DESCRIPTION from PSX_COMMUNITY_PERMISSION_VIEW p where p.OBJECTTYPE = 31"
 			sqlMysql="create view PSX_DISPLAYFORMATPROPERTY_VIEW as select * from PSX_DISPLAYFORMATPROPERTIES union select p.OBJECTID PROPERTYID, 'sys_community' PROPERTYNAME,   rtrim(cast(p.COMMUNITYID AS CHAR CHARACTER SET utf8mb4)) PROPERTYVALUE, 'from acls' DESCRIPTION from PSX_COMMUNITY_PERMISSION_VIEW p where p.OBJECTTYPE = 31"
 			sqlDerby="create view PSX_DISPLAYFORMATPROPERTY_VIEW as select * from PSX_DISPLAYFORMATPROPERTIES union select p.OBJECTID PROPERTYID, 'sys_community' PROPERTYNAME,   rtrim(char(p.COMMUNITYID)) PROPERTYVALUE, 'from acls' DESCRIPTION from PSX_COMMUNITY_PERMISSION_VIEW p where p.OBJECTTYPE = 31"
+			sqlH2="create view PSX_DISPLAYFORMATPROPERTY_VIEW as select * from PSX_DISPLAYFORMATPROPERTIES union select p.OBJECTID PROPERTYID, 'sys_community' PROPERTYNAME,   rtrim(cast(p.COMMUNITYID as varchar)) PROPERTYVALUE, 'from acls' DESCRIPTION from PSX_COMMUNITY_PERMISSION_VIEW p where p.OBJECTTYPE = 31"
+			sqlPostgresql="create view PSX_DISPLAYFORMATPROPERTY_VIEW as select * from PSX_DISPLAYFORMATPROPERTIES union select p.OBJECTID PROPERTYID, 'sys_community' PROPERTYNAME,   cast(p.COMMUNITYID as varchar) PROPERTYVALUE, 'from acls' DESCRIPTION from PSX_COMMUNITY_PERMISSION_VIEW p where p.OBJECTTYPE = 31"
 			failonerror="true" silenceerrors="false" />
 
 		<!-- PSX_SEARCHPROPERTIES -->
@@ -261,6 +263,8 @@
 			sqlUDB="create view PSX_SEARCHPROPERTIES_VIEW as select * from PSX_SEARCHPROPERTIES union select p.OBJECTID PROPERTYID, 'sys_community' PROPERTYNAME, rtrim(char(p.COMMUNITYID)) PROPERTYVALUE, 'from acls' PROPERTYDESCRIPTION from PSX_COMMUNITY_PERMISSION_VIEW p where p.OBJECTTYPE = 15 OR p.OBJECTTYPE = 18"
 			sqlMysql="create view PSX_SEARCHPROPERTIES_VIEW as select * from PSX_SEARCHPROPERTIES union select p.OBJECTID PROPERTYID, 'sys_community' PROPERTYNAME, rtrim(cast(p.COMMUNITYID AS CHAR)) PROPERTYVALUE, 'from acls' PROPERTYDESCRIPTION from PSX_COMMUNITY_PERMISSION_VIEW p where p.OBJECTTYPE = 15 OR p.OBJECTTYPE = 18"
 			sqlDerby="create view PSX_SEARCHPROPERTIES_VIEW as select * from PSX_SEARCHPROPERTIES union select p.OBJECTID PROPERTYID, 'sys_community' PROPERTYNAME, rtrim(char(p.COMMUNITYID)) PROPERTYVALUE, 'from acls' PROPERTYDESCRIPTION from PSX_COMMUNITY_PERMISSION_VIEW p where p.OBJECTTYPE = 15 OR p.OBJECTTYPE = 18"
+			sqlH2="create view PSX_SEARCHPROPERTIES_VIEW as select * from PSX_SEARCHPROPERTIES union select p.OBJECTID PROPERTYID, 'sys_community' PROPERTYNAME, rtrim(cast(p.COMMUNITYID as varchar)) PROPERTYVALUE, 'from acls' PROPERTYDESCRIPTION from PSX_COMMUNITY_PERMISSION_VIEW p where p.OBJECTTYPE = 15 OR p.OBJECTTYPE = 18"
+			sqlPostgresql="create view PSX_SEARCHPROPERTIES_VIEW as select * from PSX_SEARCHPROPERTIES union select p.OBJECTID PROPERTYID, 'sys_community' PROPERTYNAME, cast(p.COMMUNITYID as varchar) PROPERTYVALUE, 'from acls' PROPERTYDESCRIPTION from PSX_COMMUNITY_PERMISSION_VIEW p where p.OBJECTTYPE = 15 OR p.OBJECTTYPE = 18"
 			failonerror="true" silenceerrors="false" />
 
 
@@ -273,6 +277,8 @@
 			sqlUDB="create view PSX_MENUVISIBILITY_VIEW as select * from RXMENUVISIBILITY where VISIBILITYCONTEXT &lt;&gt; '2' union select a.ACTIONID, '2' VISIBILITYCONTEXT, rtrim(char(C.COMMUNITYID)) VALUE, 'from acls' DESCRIPTION from RXMENUACTION a, RXCOMMUNITY C where (select count(*) from PSX_COMMUNITY_PERMISSION_VIEW p where p.OBJECTTYPE = 107 and p.OBJECTID = a.ACTIONID and (C.COMMUNITYID = COMMUNITYID) and p.PERMISSION = 40) = 0 and (select count(*) from PSX_ACLS ACL where OBJECTTYPE = 107 and OBJECTID = a.ACTIONID) &lt;&gt; 0"
 			sqlMysql="create view PSX_MENUVISIBILITY_VIEW as select * from RXMENUVISIBILITY where VISIBILITYCONTEXT &lt;&gt; '2' union select a.ACTIONID, '2' VISIBILITYCONTEXT, rtrim(cast(C.COMMUNITYID AS CHAR)) VALUE, 'from acls' DESCRIPTION from RXMENUACTION a, RXCOMMUNITY C where (select count(*) from PSX_COMMUNITY_PERMISSION_VIEW p where p.OBJECTTYPE = 107 and p.OBJECTID = a.ACTIONID and (C.COMMUNITYID = COMMUNITYID) and p.PERMISSION = 40) = 0 and (select count(*) from PSX_ACLS ACL where OBJECTTYPE = 107 and OBJECTID = a.ACTIONID) &lt;&gt; 0"
 			sqlDerby="create view PSX_MENUVISIBILITY_VIEW as select * from RXMENUVISIBILITY where VISIBILITYCONTEXT &lt;&gt; '2' union select a.ACTIONID, '2' VISIBILITYCONTEXT, rtrim(char(C.COMMUNITYID)) VALUE, 'from acls' DESCRIPTION from RXMENUACTION a, RXCOMMUNITY C where (select count(*) from PSX_COMMUNITY_PERMISSION_VIEW p where p.OBJECTTYPE = 107 and p.OBJECTID = a.ACTIONID and (C.COMMUNITYID = COMMUNITYID) and p.PERMISSION = 40) = 0 and (select count(*) from PSX_ACLS ACL where OBJECTTYPE = 107 and OBJECTID = a.ACTIONID) &lt;&gt; 0"
+			sqlH2="create view PSX_MENUVISIBILITY_VIEW as select * from RXMENUVISIBILITY where VISIBILITYCONTEXT &lt;&gt; '2' union select a.ACTIONID, '2' VISIBILITYCONTEXT, rtrim(cast(C.COMMUNITYID as varchar)) VALUE, 'from acls' DESCRIPTION from RXMENUACTION a, RXCOMMUNITY C where (select count(*) from PSX_COMMUNITY_PERMISSION_VIEW p where p.OBJECTTYPE = 107 and p.OBJECTID = a.ACTIONID and (C.COMMUNITYID = COMMUNITYID) and p.PERMISSION = 40) = 0 and (select count(*) from PSX_ACLS ACL where OBJECTTYPE = 107 and OBJECTID = a.ACTIONID) &lt;&gt; 0"
+			sqlPostgresql="create view PSX_MENUVISIBILITY_VIEW as select * from RXMENUVISIBILITY where VISIBILITYCONTEXT &lt;&gt; '2' union select a.ACTIONID, '2' VISIBILITYCONTEXT, cast(C.COMMUNITYID as varchar) VALUE, 'from acls' DESCRIPTION from RXMENUACTION a, RXCOMMUNITY C where (select count(*) from PSX_COMMUNITY_PERMISSION_VIEW p where p.OBJECTTYPE = 107 and p.OBJECTID = a.ACTIONID and (C.COMMUNITYID = COMMUNITYID) and p.PERMISSION = 40) = 0 and (select count(*) from PSX_ACLS ACL where OBJECTTYPE = 107 and OBJECTID = a.ACTIONID) &lt;&gt; 0"
 			failonerror="true" silenceerrors="false" />
 
 
@@ -534,7 +540,7 @@
 							<entry key="DB_DRIVER_NAME" value="h2" />
 							<entry key="DB_DRIVER_CLASS_NAME" value="org.h2.Driver" />
 							<entry key="DB_SERVER"
-								value="file:../../Repository/CMDB;DB_CLOSE_ON_EXIT=FALSE" />
+								value="file:../../Repository/CMDB;DB_CLOSE_ON_EXIT=FALSE;NON_KEYWORDS=VALUE" />
 							<entry key="DB_SCHEMA" value="PUBLIC" />
 							<entry key="UID" value="sa" />
 							<entry key="DB_SSL_ENABLED" value="${perc.db.ssl.enabled}" />

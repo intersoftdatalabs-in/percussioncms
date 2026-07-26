@@ -64,7 +64,18 @@ public class PSJdbcUtilsTest {
 
   @Test
   public void testH2JdbcUrlAndDriverMap() {
-    assertEquals("jdbc:h2:./data/cms", PSJdbcUtils.getJdbcUrl(PSJdbcUtils.H2_DRIVER, "./data/cms"));
+    // VALUE is an H2 keyword; getJdbcUrl appends NON_KEYWORDS so product columns named VALUE work.
+    assertEquals(
+        "jdbc:h2:./data/cms;NON_KEYWORDS=VALUE",
+        PSJdbcUtils.getJdbcUrl(PSJdbcUtils.H2_DRIVER, "./data/cms"));
+    assertEquals(
+        "jdbc:h2:file:../../Repository/CMDB;DB_CLOSE_ON_EXIT=FALSE;NON_KEYWORDS=VALUE",
+        PSJdbcUtils.getJdbcUrl(
+            PSJdbcUtils.H2_DRIVER, "file:../../Repository/CMDB;DB_CLOSE_ON_EXIT=FALSE"));
+    // Do not double-append when already present.
+    assertEquals(
+        "jdbc:h2:./data/cms;NON_KEYWORDS=VALUE,KEY",
+        PSJdbcUtils.getJdbcUrl(PSJdbcUtils.H2_DRIVER, "./data/cms;NON_KEYWORDS=VALUE,KEY"));
     assertEquals("h2", PSJdbcUtils.getDriverFromUrl("jdbc:h2:./data/cms"));
     assertEquals(PSJdbcUtils.H2_DRIVER_CLASS, "org.h2.Driver");
     assertEquals(PSJdbcUtils.H2, PSJdbcUtils.H2_DRIVER);
@@ -79,6 +90,27 @@ public class PSJdbcUtilsTest {
     assertTrue(PSSqlHelper.isEmbeddedFileStore("h2"));
     assertTrue(PSSqlHelper.isEmbeddedFileStore("derby"));
     assertFalse(PSSqlHelper.isEmbeddedFileStore("mysql"));
+  }
+
+  @Test
+  public void testPostgresJdbcUrlDriverMapAndBackend() {
+    assertEquals(
+        "jdbc:postgresql://db.example.com:5432/percussion",
+        PSJdbcUtils.getJdbcUrl(PSJdbcUtils.POSTGRES_DRIVER, "//db.example.com:5432/percussion"));
+    assertEquals(
+        "postgresql", PSJdbcUtils.getDriverFromUrl("jdbc:postgresql://db.example.com:5432/cms"));
+    assertEquals(PSJdbcUtils.POSTGRES_DRIVER_CLASS, "org.postgresql.Driver");
+    assertEquals(
+        PSJdbcUtils.POSTGRES_DB_BACKEND,
+        PSJdbcUtils.getDBBackendForDriver(PSJdbcUtils.POSTGRES_DRIVER));
+    assertEquals(PSJdbcUtils.POSTGRES_DB_BACKEND, PSJdbcUtils.getDBBackendForDriver("postgres"));
+    assertTrue(PSSqlHelper.isPostgres("postgresql"));
+    assertTrue(PSSqlHelper.isPostgres("POSTGRESQL"));
+    assertTrue(PSSqlHelper.isPostgres("postgres"));
+    assertFalse(PSSqlHelper.isPostgres("mysql"));
+    assertFalse(PSSqlHelper.isPostgres(null));
+    assertFalse(PSSqlHelper.isEmbeddedFileStore("postgresql"));
+    assertTrue(PSJdbcUtils.isExternalDriver(PSJdbcUtils.POSTGRES_DRIVER));
   }
 
   @Test
