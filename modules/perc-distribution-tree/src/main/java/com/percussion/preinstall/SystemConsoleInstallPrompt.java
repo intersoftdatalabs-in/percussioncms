@@ -17,10 +17,11 @@ package com.percussion.preinstall;
 
 import java.io.Console;
 import java.io.PrintStream;
+import java.util.Arrays;
 
 /**
  * {@link InstallPrompt} backed by {@link System#console()} when available, otherwise stdout plus
- * empty reads (caller should not treat as interactive when console is null).
+ * empty line reads / null passwords.
  */
 public final class SystemConsoleInstallPrompt implements InstallPrompt {
 
@@ -34,8 +35,7 @@ public final class SystemConsoleInstallPrompt implements InstallPrompt {
   }
 
   /**
-   * Visible for tests that need a redirected print stream while still using the system console for
-   * reads (rare). Prefer a scripted {@link InstallPrompt} in unit tests.
+   * Visible for tests that need a redirected print stream.
    *
    * @param out stream for messages; never {@code null}
    */
@@ -70,16 +70,20 @@ public final class SystemConsoleInstallPrompt implements InstallPrompt {
   }
 
   @Override
-  public String readPassword(String prompt) {
+  public char[] readPassword(String prompt) {
     print(prompt == null ? "" : prompt);
     Console console = System.console();
     if (console == null) {
-      return "";
+      // Distinguish unavailable console from empty password (empty char[]).
+      return null;
     }
     char[] chars = console.readPassword();
     if (chars == null) {
-      return "";
+      return new char[0];
     }
-    return new String(chars);
+    // Return a copy so Console's buffer can be zeroed if the implementation reuses it.
+    char[] copy = Arrays.copyOf(chars, chars.length);
+    Arrays.fill(chars, '\0');
+    return copy;
   }
 }

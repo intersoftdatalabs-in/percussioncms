@@ -34,11 +34,17 @@ import java.util.Objects;
  */
 public final class InteractiveDtsInstallWizard {
 
-  /** Exit code when the operator declines to proceed or cancels. */
+  /**
+   * Exit code when the operator declines to proceed or cancels. Zero so interactive cancel is not
+   * treated as a hard automation failure.
+   */
   public static final int EXIT_ABORTED = 0;
 
-  /** Exit code when required input is missing in non-interactive mode. */
-  public static final int EXIT_USAGE = 0;
+  /**
+   * Exit code when required input is missing in non-interactive mode (sysexits-style {@code
+   * EX_USAGE}). Distinct from {@link #EXIT_ABORTED}.
+   */
+  public static final int EXIT_USAGE = 64;
 
   /** Exit code when database configuration validation fails. */
   public static final int EXIT_DB_CONFIG = 1;
@@ -293,6 +299,9 @@ public final class InteractiveDtsInstallWizard {
       options.remove("db.schema");
       options.remove("db.user");
       options.remove("db.password");
+      options.remove("db.ssl.enabled");
+      options.remove("db.ssl.verify");
+      options.remove("db.ssl.allowSelfSigned");
     }
     throw new IllegalArgumentException("Too many failed database configuration attempts. Aborting.");
   }

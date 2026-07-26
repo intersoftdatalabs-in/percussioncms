@@ -18,6 +18,9 @@ package com.percussion.preinstall;
 /**
  * Operator I/O for the DTS interactive installer wizard (issue #1513). Production code uses {@link
  * SystemConsoleInstallPrompt}; unit tests supply scripted answers.
+ *
+ * <p>Callers that receive a non-null {@code char[]} from {@link #readPassword(String)} should zero
+ * the array after converting to the durable form they need.
  */
 public interface InstallPrompt {
 
@@ -39,15 +42,16 @@ public interface InstallPrompt {
    * Prompts and reads a single line of operator input.
    *
    * @param prompt text shown before reading; never {@code null}
-   * @return the line without terminator; empty string if EOF / unavailable (never {@code null})
+   * @return the line without terminator; empty string if EOF (never {@code null})
    */
   String readLine(String prompt);
 
   /**
-   * Prompts and reads a password without echoing when a console is available.
+   * Prompts and reads a password without echoing.
    *
    * @param prompt text shown before reading; never {@code null}
-   * @return password characters, or empty string if unavailable (never {@code null})
+   * @return password characters (caller should zero after use); empty array if the operator entered
+   *     an empty password; {@code null} if no console is available
    */
-  String readPassword(String prompt);
+  char[] readPassword(String prompt);
 }

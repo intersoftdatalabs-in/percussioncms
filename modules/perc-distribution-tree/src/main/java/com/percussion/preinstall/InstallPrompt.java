@@ -19,8 +19,9 @@ package com.percussion.preinstall;
  * Operator I/O for the interactive installer wizard. Production code uses {@link
  * SystemConsoleInstallPrompt}; unit tests supply scripted answers.
  *
- * <p>Implementations must never log or echo password characters returned from {@link
- * #readPassword(String)}.
+ * <p>Implementations must never log or echo password characters. Callers that receive a non-null
+ * {@code char[]} from {@link #readPassword(String)} should zero the array after converting to the
+ * durable form they need (e.g. options map).
  */
 public interface InstallPrompt {
 
@@ -42,15 +43,17 @@ public interface InstallPrompt {
    * Prompts and reads a single line of operator input.
    *
    * @param prompt text shown before reading; never {@code null}
-   * @return the line without terminator; empty string if EOF / unavailable (never {@code null})
+   * @return the line without terminator; empty string if EOF (never {@code null})
    */
   String readLine(String prompt);
 
   /**
-   * Prompts and reads a password without echoing. Phase 1 may not use this; later DB steps will.
+   * Prompts and reads a password without echoing.
    *
    * @param prompt text shown before reading; never {@code null}
-   * @return password characters, or empty string if unavailable (never {@code null})
+   * @return password characters (caller should zero after use); empty array if the operator entered
+   *     an empty password; {@code null} if no console is available (non-interactive / unavailable —
+   *     do not re-prompt forever)
    */
-  String readPassword(String prompt);
+  char[] readPassword(String prompt);
 }

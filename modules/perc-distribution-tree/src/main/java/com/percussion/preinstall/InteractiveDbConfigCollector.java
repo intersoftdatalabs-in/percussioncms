@@ -18,6 +18,7 @@ package com.percussion.preinstall;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.Locale;
 import java.util.Map;
@@ -196,15 +197,7 @@ public final class InteractiveDbConfigCollector {
     options.put(
         "db.user",
         promptRequired(prompt, "Database user: ", "Database user is required."));
-    String password = prompt.readPassword("Database password: ");
-    if (password == null || password.isEmpty()) {
-      // allow empty only if re-prompt once empty intentionally
-      password = prompt.readPassword("Password was empty. Re-enter database password: ");
-    }
-    if (password == null) {
-      password = "";
-    }
-    options.put("db.password", password);
+    options.put("db.password", readPasswordToString(prompt));
 
     String sslEnabled =
         promptWithDefault(prompt, "SSL enabled (true/false)", DbInstallConfigResolver.DB_SSL_ENABLED_DEFAULT);
@@ -231,6 +224,32 @@ public final class InteractiveDbConfigCollector {
       prompt.println(errorMessage);
     }
     throw new IllegalArgumentException(errorMessage);
+  }
+
+  /**
+   * Read a password as {@code char[]}; convert to String for the options map (CLI contract), then
+   * zero the buffer. {@code null} from the prompt means no console — fail fast rather than
+   * re-prompt forever.
+   */
+  static String readPasswordToString(InstallPrompt prompt) {
+    char[] chars = prompt.readPassword("Database password: ");
+    if (chars == null) {
+      throw new IllegalArgumentException(
+          "No console available to read database password (non-interactive environment).");
+    }
+    if (chars.length == 0) {
+      Arrays.fill(chars, '\0');
+      chars = prompt.readPassword("Password was empty. Re-enter database password: ");
+      if (chars == null) {
+        throw new IllegalArgumentException(
+            "No console available to read database password (non-interactive environment).");
+      }
+    }
+    try {
+      return new String(chars);
+    } finally {
+      Arrays.fill(chars, '\0');
+    }
   }
 
   private static String normalizeBool(String raw, String defaultValue) {

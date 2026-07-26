@@ -17,6 +17,7 @@ package com.percussion.preinstall;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.HashMap;
@@ -45,7 +46,6 @@ class RepositoryConnectionProbeTest {
     props.put("perc.db.user", "cms");
     props.put("perc.db.password", "secret-password-value");
     props.put("perc.db.cms.driverClass", "com.example.NonExistentDriver");
-    props.put("perc.db.dts.jdbcUrl", "jdbc:mysql://db.example.com:3306/percussion");
 
     RepositoryConnectionProbe.ProbeResult r = RepositoryConnectionProbe.probe(props, 5);
     assertEquals(RepositoryConnectionProbe.ProbeStatus.SKIPPED, r.status());
@@ -80,11 +80,48 @@ class RepositoryConnectionProbeTest {
   }
 
   @Test
+  void buildJdbcUrlRejectsInjectionInHost() {
+    Map<String, String> props = new HashMap<>();
+    props.put("perc.db.host", "db.example.com;allowPublicKeyRetrieval=true");
+    props.put("perc.db.port", "3306");
+    props.put("perc.db.name", "db");
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> RepositoryConnectionProbe.buildJdbcUrl("mysql", props));
+  }
+
+  @Test
+  void probeFailsCleanlyOnUnsafeHost() {
+    Map<String, String> props = new HashMap<>();
+    props.put("perc.db.type", "mysql");
+    props.put("perc.db.host", "evil;x=1");
+    props.put("perc.db.port", "3306");
+    props.put("perc.db.name", "db");
+    props.put("perc.db.user", "u");
+    props.put("perc.db.password", "p");
+    props.put("perc.db.cms.driverClass", "com.example.NonExistentDriver");
+    RepositoryConnectionProbe.ProbeResult r = RepositoryConnectionProbe.probe(props, 5);
+    assertEquals(RepositoryConnectionProbe.ProbeStatus.FAILED, r.status());
+    assertTrue(r.message().toLowerCase().contains("host"));
+  }
+
+  @Test
   void safeSqlMessageRedactsPasswordFragments() {
     java.sql.SQLException ex =
-        new java.sql.SQLException("login failed password=supersecret; host=x");
+        new java.sql.SQLException(
+            "login failed password=supersecret; pwd=also; user:token@host; PASSWORD:x");
     String msg = RepositoryConnectionProbe.safeSqlMessage(ex);
     assertFalse(msg.contains("supersecret"));
+    assertFalse(msg.contains("also"));
     assertTrue(msg.contains("***"));
+  }
+
+  @Test
+  void openConnectionOmitsPasswordPropertyWhenNull() throws Exception {
+    // Cannot open a real connection without a driver/URL; just ensure method accepts null password
+    // without NPE when URL is invalid — SQLException is expected, not NPE.
+    assertThrows(
+        java.sql.SQLException.class,
+        () -> RepositoryConnectionProbe.openConnection("jdbc:invalid:test", "user", null));
   }
 }

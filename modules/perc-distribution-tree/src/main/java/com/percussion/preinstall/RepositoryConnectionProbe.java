@@ -21,6 +21,8 @@ import java.sql.SQLException;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Properties;
+import java.util.regex.Pattern;
 
 /**
  * Best-effort pre-install JDBC connectivity probe for the interactive wizard (issue #1513).
@@ -31,12 +33,31 @@ import java.util.Objects;
  * ProbeStatus#SKIPPED} so the operator can continue and rely on ANT {@code
  * PSValidateRepositoryConnection} after files are written.
  *
- * <p>Never includes password values in messages.
+ * <p>Never includes password values in messages. JDBC URLs are composed only from validated
+ * host/port/name components (no operator-controlled query/parameter injection via {@code ;} /
+ * {@code ?} in host or name).
+ *
+ * <p><strong>Threading:</strong> not safe for concurrent use. {@link DriverManager} login timeout is
+ * process-global; this class serializes timeout set/restore on an internal lock and is intended for
+ * the single-threaded preinstall path only.
  */
 public final class RepositoryConnectionProbe {
 
   /** Default login timeout seconds for the probe. */
   public static final int DEFAULT_LOGIN_TIMEOUT_SECONDS = 10;
+
+  /**
+   * Host allowlist: letters, digits, dots, hyphens, underscores, colons/brackets (IPv6), no JDBC
+   * separators.
+   */
+  private static final Pattern SAFE_HOST =
+      Pattern.compile("^[A-Za-z0-9._\\-:\\[\\]]{1,253}$");
+
+  /** Database / service name allowlist (no JDBC parameter separators). */
+  private static final Pattern SAFE_NAME = Pattern.compile("^[A-Za-z0-9._\\-]{1,128}$");
+
+  /** Serializes mutations of {@link DriverManager#setLoginTimeout(int)}. */
+  private static final Object LOGIN_TIMEOUT_LOCK = new Object();
 
   private RepositoryConnectionProbe() {}
 
@@ -90,12 +111,22 @@ public final class RepositoryConnectionProbe {
           "Embedded " + type + " — connectivity is validated during install setup.");
     }
 
-    String driverClass = firstNonBlank(
-        systemProperties.get("perc.db.cms.driverClass"),
-        systemProperties.get("perc.db.dts.jdbcDriver"));
-    String jdbcUrl = buildJdbcUrl(type, systemProperties);
+    String driverClass =
+        firstNonBlank(
+            systemProperties.get("perc.db.cms.driverClass"),
+            systemProperties.get("perc.db.dts.jdbcDriver"));
+    String jdbcUrl;
+    try {
+      jdbcUrl = buildJdbcUrl(type, systemProperties);
+    } catch (IllegalArgumentException invalid) {
+      return new ProbeResult(ProbeStatus.FAILED, invalid.getMessage());
+    }
     String user = systemProperties.get("perc.db.user");
-    String password = systemProperties.get("perc.db.password");
+    // Preserve null vs empty: null means "no password property"; empty means explicit empty.
+    String password =
+        systemProperties.containsKey("perc.db.password")
+            ? systemProperties.get("perc.db.password")
+            : null;
 
     if (jdbcUrl == null || jdbcUrl.isBlank()) {
       return new ProbeResult(
@@ -118,38 +149,58 @@ public final class RepositoryConnectionProbe {
       }
     }
 
-    int previous = DriverManager.getLoginTimeout();
-    try {
-      if (loginTimeoutSeconds > 0) {
-        DriverManager.setLoginTimeout(loginTimeoutSeconds);
-      }
-      try (Connection conn =
-          user != null
-              ? DriverManager.getConnection(jdbcUrl, user, password == null ? "" : password)
-              : DriverManager.getConnection(jdbcUrl)) {
-        if (conn == null || conn.isClosed()) {
-          return new ProbeResult(
-              ProbeStatus.FAILED,
-              "Connection failed for " + jdbcUrl + " (null or closed connection).");
+    synchronized (LOGIN_TIMEOUT_LOCK) {
+      int previous = DriverManager.getLoginTimeout();
+      try {
+        if (loginTimeoutSeconds > 0) {
+          DriverManager.setLoginTimeout(loginTimeoutSeconds);
         }
+        try (Connection conn = openConnection(jdbcUrl, user, password)) {
+          if (conn == null || conn.isClosed()) {
+            return new ProbeResult(
+                ProbeStatus.FAILED,
+                "Connection failed for " + jdbcUrl + " (null or closed connection).");
+          }
+          return new ProbeResult(
+              ProbeStatus.SUCCESS,
+              "Connection succeeded for "
+                  + jdbcUrl
+                  + (user != null ? " user=" + user : "")
+                  + ".");
+        }
+      } catch (SQLException e) {
         return new ProbeResult(
-            ProbeStatus.SUCCESS,
-            "Connection succeeded for "
+            ProbeStatus.FAILED,
+            "Connection failed for "
                 + jdbcUrl
                 + (user != null ? " user=" + user : "")
-                + ".");
+                + ": "
+                + safeSqlMessage(e));
+      } finally {
+        DriverManager.setLoginTimeout(previous);
       }
-    } catch (SQLException e) {
-      return new ProbeResult(
-          ProbeStatus.FAILED,
-          "Connection failed for "
-              + jdbcUrl
-              + (user != null ? " user=" + user : "")
-              + ": "
-              + safeSqlMessage(e));
-    } finally {
-      DriverManager.setLoginTimeout(previous);
     }
+  }
+
+  /**
+   * Opens a connection without coercing a missing password to {@code ""}.
+   *
+   * @param jdbcUrl validated URL
+   * @param user user id or null
+   * @param password password or null when absent
+   */
+  static Connection openConnection(String jdbcUrl, String user, String password)
+      throws SQLException {
+    if (user == null) {
+      return DriverManager.getConnection(jdbcUrl);
+    }
+    Properties props = new Properties();
+    props.setProperty("user", user);
+    if (password != null) {
+      // Only set password when present; omit property entirely when null (not empty string).
+      props.setProperty("password", password);
+    }
+    return DriverManager.getConnection(jdbcUrl, props);
   }
 
   /**
@@ -158,61 +209,179 @@ public final class RepositoryConnectionProbe {
    * @param type normalized db type
    * @param p system properties
    * @return jdbc url or null
+   * @throws IllegalArgumentException when components fail safety validation
    */
   static String buildJdbcUrl(String type, Map<String, String> p) {
-    String dtsUrl = p.get("perc.db.dts.jdbcUrl");
-    if (dtsUrl != null && !dtsUrl.isBlank()) {
-      return dtsUrl.trim();
-    }
-
+    // Prefer product-composed DTS URL only when it was built from structured fields we can
+    // re-validate via host/port/name. Fall through to validated component composition.
     String host = p.get("perc.db.host");
     String port = p.get("perc.db.port");
     String name = firstNonBlank(p.get("perc.db.name"), p.get("perc.db.cms.name"));
-    if (host == null || port == null || name == null) {
-      // Fall back to cms.server composition when only dbprops path was used
-      String cmsServer = p.get("perc.db.cms.server");
-      String driverName = p.get("perc.db.cms.driverName");
-      if (cmsServer != null && driverName != null) {
-        return composeFromCmsServer(type, driverName, cmsServer, name);
-      }
-      return null;
+
+    if (host != null && port != null && name != null) {
+      validateHostPortName(host, port, name);
+      return switch (type) {
+        case "mysql" -> "jdbc:mysql://" + host + ":" + port + "/" + name;
+        case "postgresql" -> "jdbc:postgresql://" + host + ":" + port + "/" + name;
+        case "sqlserver" -> "jdbc:sqlserver://" + host + ":" + port + ";databaseName=" + name;
+        case "oracle" -> "jdbc:oracle:thin:@" + host + ":" + port + ":" + name;
+        default -> null;
+      };
     }
 
-    return switch (type) {
-      case "mysql" -> "jdbc:mysql://" + host + ":" + port + "/" + name;
-      case "postgresql" -> "jdbc:postgresql://" + host + ":" + port + "/" + name;
-      case "sqlserver" ->
-          "jdbc:sqlserver://" + host + ":" + port + ";databaseName=" + name;
-      case "oracle" -> "jdbc:oracle:thin:@" + host + ":" + port + ":" + name;
-      default -> null;
-    };
+    // Fall back to cms.server composition when only dbprops path was used
+    String cmsServer = p.get("perc.db.cms.server");
+    String driverName = p.get("perc.db.cms.driverName");
+    if (cmsServer != null && driverName != null) {
+      return composeFromCmsServer(type, driverName, cmsServer, name);
+    }
+    return null;
+  }
+
+  /**
+   * Validate host, port, and database/service name for use in JDBC URL composition.
+   *
+   * @throws IllegalArgumentException when any component is unsafe
+   */
+  static void validateHostPortName(String host, String port, String name) {
+    if (host == null || !SAFE_HOST.matcher(host.trim()).matches() || host.contains(";")) {
+      throw new IllegalArgumentException(
+          "Invalid database host for connection probe (disallowed characters).");
+    }
+    if (port == null || !isSafePort(port.trim())) {
+      throw new IllegalArgumentException(
+          "Invalid database port for connection probe (must be 1-65535).");
+    }
+    if (name == null || !SAFE_NAME.matcher(name.trim()).matches()) {
+      throw new IllegalArgumentException(
+          "Invalid database name for connection probe (disallowed characters).");
+    }
+  }
+
+  static boolean isSafePort(String port) {
+    try {
+      int p = Integer.parseInt(port);
+      return p >= 1 && p <= 65535;
+    } catch (NumberFormatException e) {
+      return false;
+    }
   }
 
   private static String composeFromCmsServer(
       String type, String driverName, String cmsServer, String name) {
-    // MySQL-style server already starts with //host:port/db?...
-    if ("mysql".equals(type) || "mysql".equalsIgnoreCase(driverName)) {
-      String s = cmsServer.startsWith("//") ? cmsServer : "//" + cmsServer;
-      int q = s.indexOf('?');
-      if (q > 0) {
-        s = s.substring(0, q);
-      }
-      return "jdbc:mysql:" + s;
+    // Reject obvious injection / credential embedding before any composition.
+    if (cmsServer == null || cmsServer.isBlank()) {
+      return null;
     }
-    if ("sqlserver".equals(type) || "sqlserver".equalsIgnoreCase(driverName)) {
-      String s = cmsServer.startsWith("//") ? cmsServer.substring(2) : cmsServer;
-      return "jdbc:sqlserver:" + (s.startsWith("//") ? s : "//" + s);
+    if (cmsServer.indexOf('@') >= 0 || cmsServer.contains("..")) {
+      throw new IllegalArgumentException(
+          "Invalid DB_SERVER for connection probe (credentials or path traversal rejected).");
     }
-    if ("oracle".equals(type) || (driverName != null && driverName.contains("oracle"))) {
-      String s = cmsServer.startsWith("@") ? cmsServer.substring(1) : cmsServer;
-      return "jdbc:oracle:thin:@" + s;
+
+    ParsedServer parsed = parseCmsServer(type, driverName, cmsServer, name);
+    if (parsed == null) {
+      throw new IllegalArgumentException(
+          "Unable to parse DB_SERVER into safe host/port/name for connection probe.");
     }
-    if ("postgresql".equals(type) || "postgresql".equalsIgnoreCase(driverName)) {
-      String s = cmsServer.startsWith("//") ? cmsServer : "//" + cmsServer;
-      return "jdbc:postgresql:" + s;
-    }
-    return null;
+    validateHostPortName(parsed.host(), parsed.port(), parsed.name());
+    return switch (parsed.type()) {
+      case "mysql" -> "jdbc:mysql://" + parsed.host() + ":" + parsed.port() + "/" + parsed.name();
+      case "postgresql" ->
+          "jdbc:postgresql://" + parsed.host() + ":" + parsed.port() + "/" + parsed.name();
+      case "sqlserver" ->
+          "jdbc:sqlserver://"
+              + parsed.host()
+              + ":"
+              + parsed.port()
+              + ";databaseName="
+              + parsed.name();
+      case "oracle" ->
+          "jdbc:oracle:thin:@" + parsed.host() + ":" + parsed.port() + ":" + parsed.name();
+      default -> null;
+    };
   }
+
+  /**
+   * Best-effort parse of product {@code DB_SERVER} / {@code perc.db.cms.server} shapes into host,
+   * port, and name without carrying query strings or extra properties.
+   */
+  static ParsedServer parseCmsServer(
+      String type, String driverName, String cmsServer, String fallbackName) {
+    String t = type == null ? "" : type.toLowerCase(Locale.ROOT);
+    if (t.isEmpty() && driverName != null) {
+      String d = driverName.toLowerCase(Locale.ROOT);
+      if (d.contains("mysql")) {
+        t = "mysql";
+      } else if (d.contains("postgres")) {
+        t = "postgresql";
+      } else if (d.contains("sqlserver") || d.contains("mssql")) {
+        t = "sqlserver";
+      } else if (d.contains("oracle")) {
+        t = "oracle";
+      }
+    }
+
+    String s = cmsServer.trim();
+    // Strip query string
+    int q = s.indexOf('?');
+    if (q >= 0) {
+      s = s.substring(0, q);
+    }
+    // SQL Server often embeds ;databaseName= — take only host:port portion
+    int semi = s.indexOf(';');
+    if (semi >= 0) {
+      s = s.substring(0, semi);
+    }
+    if (s.startsWith("//")) {
+      s = s.substring(2);
+    }
+    if (s.startsWith("@")) {
+      s = s.substring(1);
+    }
+
+    // forms: host:port/name  or  host:port:sid  or  host:port
+    String host;
+    String port;
+    String dbName = fallbackName;
+
+    int slash = s.indexOf('/');
+    if (slash >= 0) {
+      String hp = s.substring(0, slash);
+      dbName = s.substring(slash + 1);
+      int colon = hp.lastIndexOf(':');
+      if (colon <= 0) {
+        return null;
+      }
+      host = hp.substring(0, colon);
+      port = hp.substring(colon + 1);
+    } else {
+      // host:port:sid (oracle) or host:port
+      String[] parts = s.split(":");
+      if (parts.length == 2) {
+        host = parts[0];
+        port = parts[1];
+      } else if (parts.length == 3) {
+        host = parts[0];
+        port = parts[1];
+        dbName = parts[2];
+        if (t.isEmpty()) {
+          t = "oracle";
+        }
+      } else {
+        return null;
+      }
+    }
+
+    if (dbName == null || dbName.isBlank()) {
+      return null;
+    }
+    if (t.isEmpty()) {
+      t = "mysql";
+    }
+    return new ParsedServer(t, host, port, dbName);
+  }
+
+  record ParsedServer(String type, String host, String port, String name) {}
 
   static String safeSqlMessage(SQLException e) {
     if (e == null) {
@@ -222,8 +391,14 @@ public final class RepositoryConnectionProbe {
     if (msg == null) {
       return e.getClass().getSimpleName();
     }
-    // Strip common password-like substrings defensively
-    return msg.replaceAll("(?i)password\\s*=\\s*[^;\\s]+", "password=***");
+    String redacted = msg;
+    // password= / password: / pwd= / passwd=
+    redacted =
+        redacted.replaceAll(
+            "(?i)(password|passwd|pwd)\\s*[=:]\\s*[^;\\s,]+", "$1=***");
+    // user:secret@host in URL-like fragments
+    redacted = redacted.replaceAll("(?i)(://[^:/\\s]+):([^@/\\s]+)@", "$1:***@");
+    return redacted;
   }
 
   private static String firstNonBlank(String a, String b) {

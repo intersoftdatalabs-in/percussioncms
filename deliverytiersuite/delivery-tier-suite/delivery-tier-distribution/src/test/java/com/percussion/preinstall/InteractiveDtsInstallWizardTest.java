@@ -197,8 +197,9 @@ class InteractiveDtsInstallWizardTest {
     }
 
     @Override
-    public String readPassword(String prompt) {
-      return readLine(prompt);
+    public char[] readPassword(String prompt) {
+      String s = readLine(prompt);
+      return s == null ? null : s.toCharArray();
     }
 
     String outputsAsString() {
