@@ -29,6 +29,7 @@ import {
   navStyle,
   shellStyle,
 } from "./home.styles";
+import { BrandBar, BrandFooter, ThemeProvider } from "../ui-themes/components";
 import { BookmarksSection } from "./sections/BookmarksSection";
 import { CreateSection } from "./sections/CreateSection";
 import { LibrarySection } from "./sections/LibrarySection";
@@ -84,36 +85,44 @@ export function HomeShell({
   const [section, setSection] = useState<HomeSection>(start);
 
   return (
-    <div style={shellStyle} data-testid="home-shell">
-      <header style={headerStyle}>
-        <h1 style={{ margin: 0, fontSize: "1.25rem" }}>
-          {message(MSG.HOME_TITLE)}
-        </h1>
-      </header>
-      <nav style={navStyle} aria-label={message(MSG.HOME_TITLE)}>
-        {SECTIONS.map((s) => (
-          <button
-            key={s.id}
-            type="button"
-            style={navButtonStyle(section === s.id)}
-            aria-current={section === s.id ? "page" : undefined}
-            onClick={() => setSection(s.id)}
-          >
-            {message(s.key)}
-          </button>
-        ))}
-      </nav>
-      <main style={mainStyle}>
-        {section === "recent" && <RecentSection onOpenItem={onOpenItem} />}
-        {section === "bookmarks" && (
-          <BookmarksSection onOpenItem={onOpenItem} />
-        )}
-        {section === "library" && (
-          <LibrarySection isAdmin={isAdmin} onOpenItem={onOpenItem} />
-        )}
-        {section === "search" && <SearchSection onOpenItem={onOpenItem} />}
-        {section === "create" && <CreateSection />}
-      </main>
-    </div>
+    <ThemeProvider
+      as="div"
+      className="perc-home-theme-root"
+      data-testid="home-theme-root"
+    >
+      <div style={shellStyle} data-testid="home-shell">
+        <BrandBar />
+        <header style={headerStyle}>
+          <h1 style={{ margin: 0, fontSize: "1.25rem" }}>
+            {message(MSG.HOME_TITLE)}
+          </h1>
+        </header>
+        <nav style={navStyle} aria-label={message(MSG.HOME_TITLE)}>
+          {SECTIONS.map((s) => (
+            <button
+              key={s.id}
+              type="button"
+              style={navButtonStyle(section === s.id)}
+              aria-current={section === s.id ? "page" : undefined}
+              onClick={() => setSection(s.id)}
+            >
+              {message(s.key)}
+            </button>
+          ))}
+        </nav>
+        <main style={mainStyle}>
+          {section === "recent" && <RecentSection onOpenItem={onOpenItem} />}
+          {section === "bookmarks" && (
+            <BookmarksSection onOpenItem={onOpenItem} />
+          )}
+          {section === "library" && (
+            <LibrarySection isAdmin={isAdmin} onOpenItem={onOpenItem} />
+          )}
+          {section === "search" && <SearchSection onOpenItem={onOpenItem} />}
+          {section === "create" && <CreateSection />}
+        </main>
+        <BrandFooter />
+      </div>
+    </ThemeProvider>
   );
 }
