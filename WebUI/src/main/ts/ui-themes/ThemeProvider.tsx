@@ -22,9 +22,16 @@
  *
  * <p>The CSS custom properties follow the {@code --color-}, {@code --font-},
  * and {@code --space-} prefixes (see {@link Theme.toCssVariables}).</p>
+ *
+ * <p>Reactivity: when no {@link ThemeProviderProps.theme theme} prop is
+ * supplied, the provider re-resolves the active theme on every render so
+ * runtime changes to {@code window.PERC_THEME_ID} take effect on the next
+ * render, matching the behavior of {@link useTheme} used outside a
+ * provider. (Resolution is an O(1) registry lookup; the small CSS-var
+ * rebuild is intentional and far cheaper than maintaining a stale context.)</p>
  */
 
-import React, { createContext, useContext, useMemo, type ReactNode } from "react";
+import React, { createContext, useContext, type ReactNode } from "react";
 import type { CSSProperties, HTMLAttributes } from "react";
 import { getActiveTheme } from "./index";
 import type { Theme } from "./types";
@@ -49,11 +56,13 @@ export function ThemeProvider({
   style: extraStyle,
   ...rest
 }: ThemeProviderProps): React.ReactElement {
-  const resolved = useMemo<Theme>(() => theme ?? getActiveTheme(), [theme]);
-  const cssVars = useMemo<CSSProperties>(
-    () => resolved.toCssVariables() as CSSProperties,
-    [resolved],
-  );
+  // Re-resolve each render so a runtime change to window.PERC_THEME_ID
+  // is picked up immediately, the same way useTheme() does outside a
+  // provider. Do NOT wrap in useMemo([theme]) — the missing dep on the
+  // window override is the inconsistency the fall-back path already
+  // handles. See Erlang review comment 2026-07.
+  const resolved: Theme = theme ?? getActiveTheme();
+  const cssVars: CSSProperties = resolved.toCssVariables() as CSSProperties;
   const mergedStyle: CSSProperties = extraStyle
     ? ({ ...(cssVars as object), ...(extraStyle as object) } as CSSProperties)
     : cssVars;

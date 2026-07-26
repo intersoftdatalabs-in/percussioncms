@@ -117,3 +117,46 @@ describe("BrandBar / BrandFooter", () => {
     expect(bar.tagName.toLowerCase()).toBe("header");
   });
 });
+
+describe("ThemeProvider runtime reactivity", () => {
+  beforeEach(() => cleanup());
+
+  it("re-resolves the active theme on every render when no theme prop is supplied", () => {
+    // Two distinct theme objects with different ids; we mutate the
+    // global override between renders and assert the provider picks
+    // up the new one. This is the inconsistency flagged in the
+    // 2026-07 Erlang review of the original useMemo([theme]) path.
+    const themeA = {
+      ...intersoftTheme,
+      meta: { ...intersoftTheme.meta, id: "alpha" },
+    };
+    const themeB = {
+      ...intersoftTheme,
+      meta: { ...intersoftTheme.meta, id: "beta" },
+    };
+    let active = themeA;
+    vi.spyOn(
+      // Lazy import via require-style to avoid a top-level circular dep
+      // with the registry module that we are about to (effectively) patch.
+      require("../../../main/ts/ui-themes") as { getActiveTheme: () => typeof themeA },
+      "getActiveTheme",
+    ).mockImplementation(() => active);
+
+    const { rerender } = render(
+      React.createElement(ThemeProvider, { "data-testid": "scope" }),
+    );
+    expect(screen.getByTestId("scope").getAttribute("data-perc-theme")).toBe(
+      "alpha",
+    );
+
+    // Mutate the active theme and re-render: the provider must
+    // observe the change without a remount.
+    active = themeB;
+    rerender(React.createElement(ThemeProvider, { "data-testid": "scope" }));
+    expect(screen.getByTestId("scope").getAttribute("data-perc-theme")).toBe(
+      "beta",
+    );
+
+    vi.restoreAllMocks();
+  });
+});
