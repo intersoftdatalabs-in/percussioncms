@@ -44,6 +44,27 @@ Residual checklist: `docs/ai-generated/tasks/667-jakarta-ee11-residual-checklist
 ./mvn-env.sh -pl deliverytiersuite/delivery-tier-suite/delivery-tier-distribution -am clean install
 # Windows: mvn-env.bat -pl deliverytiersuite/delivery-tier-suite/delivery-tier-distribution -am clean install
 
+## Interactive installer mode (issue #1513)
+
+When a **console/TTY is available** and you do **not** pass `--silent` / `--no-tty`, the DTS preinstall walks through:
+
+1. Installation directory (prompted if the path argument is omitted)
+2. System Java 21+ home (discovery / multi-candidate menu; or `-Dperc.java.home=...`)
+3. Server type: Production vs Staging
+4. Database backend (menu: H2, SQL Server/Express, MySQL/MariaDB, PostgreSQL, or env-style config file)
+5. Optional connection test for external backends (best-effort)
+6. Summary (no secrets) and confirm
+
+Silent/automation installs are unchanged:
+
+```bash
+# Interactive (console)
+java -jar PercussionDTS.jar
+
+# Silent / CI
+java -jar PercussionDTS.jar /path/to/install/root --silent --db.type=h2
+```
+
 ## Java home resolution (GH-991 / issue #1340)
 
 Operators **do not** need to place a JRE under `<InstallDir>/JRE`. At DTS

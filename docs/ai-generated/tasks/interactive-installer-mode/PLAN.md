@@ -4,7 +4,7 @@
 **Feature branch:** `feat/1513-interactive-installer`  
 **Process:** Issue + feature branch implementation — **not** full Speckit  
 **Branch base:** `development`  
-**Status:** CMS Phases 1–3 implemented on branch (path, Java, DB multi-step, probe, confirm)  
+**Status:** CMS Phases 1–3 + DTS Phase 4 implemented on branch (single PR)  
 **Primary modules:** `modules/perc-distribution-tree` (CMS preinstall), `deliverytiersuite/.../delivery-tier-distribution` (DTS preinstall)  
 **Related work already landed:**
 
@@ -180,11 +180,12 @@ Recommended order for each field:
 - `RepositoryConnectionProbe` best-effort preinstall probe (SKIPPED when driver not on classpath).  
 - ANT `PSValidateRepositoryConnection` remains authoritative after files are written.
 
-### Phase 4 — DTS parity + docs
+### Phase 4 — DTS parity + docs ✅
 
-- Mirror flow in DTS preinstall.  
-- Update `modules/perc-distribution-tree/README.md` and DTS distribution README.  
-- Matrix/Docker remain on `--silent` + flags (document “interactive is for operators at a console”).
+- `InteractiveDtsInstallWizard` + collectors/probe in `delivery-tier-distribution`.  
+- Production vs staging wizard step.  
+- CMS + DTS READMEs document interactive mode.  
+- Matrix/Docker remain on `--silent` + flags.
 
 ### Phase 5 — Polish
 
