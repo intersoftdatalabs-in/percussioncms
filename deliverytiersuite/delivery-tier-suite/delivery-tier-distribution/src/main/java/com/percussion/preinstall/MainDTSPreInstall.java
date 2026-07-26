@@ -109,23 +109,8 @@ public class MainDTSPreInstall {
 
       System.out.println("Installation folder =" + parsedArgs.installPath());
       var installPath = parsedArgs.installPath();
-      // Issue #1340 / US3 + US4 parity: persist the Java home used by DTS
-      // start, stop, and service install paths into <installPath>/java.properties
-      // before the Ant install runs. Honors -Dperc.java.home; otherwise
-      // discovers eligible Java 21 candidates and prompts when interactive.
-      //
-      // Unattended installs (explicit -Dperc.java.home, or no console + CI
-      // markers per JavaInstallSelection.isInteractiveAvailable) pass null
-      // for the prompt so the operator is never asked to choose. When a
-      // single eligible candidate is found, the installer also auto-selects
-      // without prompting.
       try {
-        var unattended = parseUnattendedJavaHome(System.getProperty(PERC_JAVA_HOME));
-        JavaInstallSelection.InteractivePrompt prompt =
-            unattended == null ? (p -> readInteractiveLine(p)) : null;
-        var outcome =
-            new JavaInstallSelection(installPath, unattended, prompt).selectAndPersist();
-        System.out.println("DTS Java home selection: " + outcome.summary());
+        runJavaSelectionStep(installPath);
       } catch (JavaInstallSelection.JavaSelectionException sel) {
         System.out.println("DTS Java home selection failed: " + sel.getMessage());
         throw new AntJobFailedException(
@@ -360,6 +345,43 @@ public class MainDTSPreInstall {
       return null;
     }
     return java.nio.file.Path.of(trimmed);
+  }
+
+  /**
+   * Resolve and persist the Java home used by DTS start, stop, and service
+   * install paths into {@code <installPath>/java.properties} before the Ant
+   * install runs.
+   *
+   * <p>Selection rules:
+   * <ul>
+   *   <li>{@code -Dperc.java.home=<path>} is honored verbatim; the install
+   *       is treated as unattended and the home is validated for the
+   *       required major.</li>
+   *   <li>Otherwise, if {@code -Dperc.unattended=true} or the
+   *       {@code PERC_INSTALL_UNATTENDED} env var is set, the selector runs
+   *       in unattended mode (no prompt). The system {@code JAVA_HOME}
+   *       env var is used when set; if it is also absent, the selector
+   *       falls back to its candidate discovery — but if that yields zero
+   *       eligible candidates the install fails with a clear message
+   *       naming {@code -Dperc.java.home}. This preserves the original
+   *       {@code -Dperc.java.home} → {@code JAVA_HOME} → fail order for
+   *       scripted installs without hanging on a prompt.</li>
+   *   <li>Otherwise (no explicit unattended flag), the selector is
+   *       interactive: it prompts the operator when multiple eligible
+   *       candidates are discovered and auto-selects when exactly one is
+   *       available.</li>
+   * </ul>
+   */
+  static void runJavaSelectionStep(java.nio.file.Path installPath)
+      throws JavaInstallSelection.JavaSelectionException, IOException {
+    var unattended = parseUnattendedJavaHome(System.getProperty(PERC_JAVA_HOME));
+    boolean unattendedRequested =
+        unattended != null || JavaInstallSelection.isUnattendedRequested();
+    JavaInstallSelection.InteractivePrompt prompt =
+        unattendedRequested ? null : (p -> readInteractiveLine(p));
+    var outcome =
+        new JavaInstallSelection(installPath, unattended, prompt).selectAndPersist();
+    System.out.println("DTS Java home selection: " + outcome.summary());
   }
 
   /**

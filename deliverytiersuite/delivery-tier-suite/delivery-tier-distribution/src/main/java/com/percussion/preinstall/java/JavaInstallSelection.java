@@ -104,41 +104,30 @@ public final class JavaInstallSelection {
   }
 
   /**
-   * Detects whether the user can be prompted interactively. Mirrors the
-   * CMS sibling ({@code modules/perc-distribution-tree/.../JavaInstallSelection})
-   * so the two copies stay in lockstep. See the CMS javadoc for the full
-   * resolution order; the short version is:
+   * Detects whether the user can be prompted interactively. Resolution:
    * <ol>
-   *   <li>{@link System#console()} non-null → interactive.</li>
+   *   <li>{@link System#console()} non-null → interactive (real TTY).</li>
    *   <li>{@link java.io.InputStream#available() available() > 0} on
    *       {@code System.in} → interactive (operator piped input).</li>
-   *   <li>Otherwise, fall through to auto-select <em>only</em> when at
-   *       least one standard CI/cron env marker is set, so that
-   *       {@code < /dev/null}, cron, and CI runners no longer hang on the
-   *       prompt menu.</li>
+   *   <li>Otherwise → non-interactive. The caller MUST pair a non-interactive
+   *       return with an {@link #isUnattendedRequested()} check OR a
+   *       {@link #selectAndPersist} that resolves an explicit {@code
+   *       -Dperc.java.home}; otherwise the install will hang on
+   *       {@link #promptForChoice}.</li>
    * </ol>
-   *
-   * <p>The previous {@code available() >= 0} implementation hung CI / cron
-   * environments because {@code available()} returns {@code 0} for
-   * open-but-empty stdin (e.g. {@code < /dev/null}), so the {@code >= 0}
-   * check returned {@code true} and {@code Scanner.nextLine()} blocked
-   * forever.
    */
   static boolean isInteractiveAvailable() {
-    return isInteractiveAvailable(probeStdinHasBytes(), isCiEnvironment(System.getenv()));
+    return isInteractiveAvailable(probeStdinHasBytes());
   }
 
   /**
    * Pure-logic variant for tests; see CMS sibling for full javadoc.
    */
-  static boolean isInteractiveAvailable(boolean stdinHasBytes, boolean ciEnvironment) {
+  static boolean isInteractiveAvailable(boolean stdinHasBytes) {
     if (System.console() != null) {
       return true;
     }
-    if (stdinHasBytes) {
-      return true;
-    }
-    return !ciEnvironment;
+    return stdinHasBytes;
   }
 
   private static boolean probeStdinHasBytes() {
@@ -149,26 +138,46 @@ public final class JavaInstallSelection {
     }
   }
 
-  static boolean isCiEnvironment(java.util.Map<String, String> env) {
-    if (env == null) {
+  /**
+   * System property / env-var name that the operator sets to flag the
+   * install as unattended (no prompting, no discovery beyond the explicit
+   * Java home override). Mirrors the CMS sibling.
+   */
+  static final String PERC_UNATTENDED = "perc.unattended";
+  static final String PERC_INSTALL_UNATTENDED_ENV = "PERC_INSTALL_UNATTENDED";
+
+  /**
+   * Returns {@code true} when the operator has explicitly requested an
+   * unattended install via {@code -Dperc.unattended=<value>} or the
+   * {@code PERC_INSTALL_UNATTENDED} environment variable. Recognised truthy
+   * values: {@code true} / {@code 1} / {@code yes} (case-insensitive).
+   * Unset, blank, {@code false}, {@code 0}, or {@code no} returns
+   * {@code false}. Returning {@code true} is the installer's contract that
+   * no stdin read may block.
+   */
+  public static boolean isUnattendedRequested() {
+    return isTruthy(System.getProperty(PERC_UNATTENDED))
+        || isTruthy(System.getenv(PERC_INSTALL_UNATTENDED_ENV));
+  }
+
+  static boolean isUnattendedRequested(java.util.Map<String, String> sysProps,
+      java.util.Map<String, String> env) {
+    String propValue = sysProps == null ? null : sysProps.get(PERC_UNATTENDED);
+    String envValue = env == null ? null : env.get(PERC_INSTALL_UNATTENDED_ENV);
+    return isTruthy(propValue) || isTruthy(envValue);
+  }
+
+  private static boolean isTruthy(String value) {
+    if (value == null) {
       return false;
     }
-    String[] markers = {
-        "CI", "CONTINUOUS_INTEGRATION", "GITHUB_ACTIONS",
-        "JENKINS_URL", "BUILDKITE", "TF_BUILD",
-        "GITLAB_CI", "CIRCLECI"
-    };
-    for (String marker : markers) {
-      String value = env.get(marker);
-      if (value == null || value.isBlank()) {
-        continue;
-      }
-      if (value.equalsIgnoreCase("false") || value.equals("0")) {
-        continue;
-      }
-      return true;
+    String trimmed = value.trim();
+    if (trimmed.isEmpty()) {
+      return false;
     }
-    return false;
+    return !"false".equalsIgnoreCase(trimmed)
+        && !"0".equals(trimmed)
+        && !"no".equalsIgnoreCase(trimmed);
   }
 
   private Path promptForChoice(List<JavaCandidateDiscovery.Candidate> candidates)

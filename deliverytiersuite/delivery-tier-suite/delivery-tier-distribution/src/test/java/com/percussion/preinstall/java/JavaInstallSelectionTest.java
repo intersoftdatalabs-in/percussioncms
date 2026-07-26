@@ -17,6 +17,7 @@
 package com.percussion.preinstall.java;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -36,13 +37,6 @@ class JavaInstallSelectionTest {
 
   @Test
   void zeroEligibleCandidatesFailsClearly() throws Exception {
-    JavaInstallSelection sel = new JavaInstallSelection(tempDir, null, null);
-    // No fixture homes on the path; discovery may still find the running JVM
-    // but for this test we craft an environment where the running JVM's
-    // home is not eligible by passing a temp dir plus making the selection
-    // uses a synthetic scenario. Actually the running JVM's HOME is also a
-    // valid candidate; instead we simulate "no candidates" via the unattended
-    // path pointing at an invalid home.
     Path invalid = tempDir.resolve("does-not-exist");
     JavaInstallSelection unattended =
         new JavaInstallSelection(tempDir, invalid, null);
@@ -61,16 +55,11 @@ class JavaInstallSelectionTest {
     Path installRoot = tempDir.resolve("install");
     Files.createDirectories(installRoot);
     Path jdk = JavaCandidateDiscoveryTest.makeHome(installRoot.resolve("jdk21"), "21", "java");
-    // Override the running JVM + env via a process that only sees our jdk.
-    // We can't easily replace System properties, but we CAN call JavaHomeResolver
-    // directly via a selection that pre-seeds unattendedHome to the only valid
-    // candidate.
     JavaInstallSelection sel = new JavaInstallSelection(installRoot, jdk, null);
     JavaInstallSelection.SelectionOutcome out = sel.selectAndPersist();
     assertEquals(jdk.toAbsolutePath().normalize(), out.javaHome().toAbsolutePath().normalize());
     assertTrue(out.source().startsWith("unattended") || out.source().contains("auto"),
         "source tagged: " + out.source());
-    // java.properties was written.
     assertTrue(Files.exists(installRoot.resolve("java.properties")));
     String body = Files.readString(installRoot.resolve("java.properties"), StandardCharsets.UTF_8);
     assertTrue(body.contains("jdk21"),
@@ -99,17 +88,8 @@ class JavaInstallSelectionTest {
     AtomicReference<String> prompted = new AtomicReference<>();
     JavaInstallSelection.InteractivePrompt prompt = q -> {
       prompted.set(q);
-      // Pick the second candidate ("b") to exercise selection.
       return "2";
     };
-    JavaInstallSelection sel = new JavaInstallSelection(installRoot, null, prompt);
-    // We can't fully exercise the discovery-driven path without a fake PATH,
-    // so we pre-condition with unattended = null and a prompt that captures
-    // the menu. We assert the prompt text was emitted; the actual selection
-    // outcome then propagates from a callback stub.
-    // To keep this test deterministic we instead force unattended mode to a
-    // valid home (mirrors the unattended path) and verify the prompt is NOT
-    // called. This documents that unattended short-circuits interactive.
     JavaInstallSelection unattendedA = new JavaInstallSelection(installRoot, a, prompt);
     unattendedA.selectAndPersist();
     assertEquals(null, prompted.get(), "unattended path must not invoke the prompt");
@@ -118,56 +98,80 @@ class JavaInstallSelectionTest {
   @Test
   void listContainsAtLeastPathLauncherHome() {
     List<JavaCandidateDiscovery.Candidate> candidates = JavaCandidateDiscovery.discover();
-    // Robustness check: candidates list is never null.
     assertTrue(candidates != null);
   }
 
-  // ---------- isInteractiveAvailable() / isCiEnvironment(env) regression ----------
-  // (Mirror of CMS tests; see modules/perc-distribution-tree sibling for full
-  //  rationale on the CI-aware fallback heuristic.)
+  // ---------- isUnattendedRequested() / isInteractiveAvailable() regression ----------
 
   @Test
-  void isCiEnvironmentRecognizesAllStandardMarkers() {
-    String[] markers = {
-        "CI", "CONTINUOUS_INTEGRATION", "GITHUB_ACTIONS",
-        "JENKINS_URL", "BUILDKITE", "TF_BUILD",
-        "GITLAB_CI", "CIRCLECI"
-    };
-    for (String marker : markers) {
-      java.util.Map<String, String> env = java.util.Map.of(marker, "true");
-      assertTrue(JavaInstallSelection.isCiEnvironment(env),
-          "marker must be detected: " + marker);
-    }
+  void isUnattendedRequestedRecognizesAllTruthySources() {
+    assertTrue(JavaInstallSelection.isUnattendedRequested(
+        java.util.Map.of(JavaInstallSelection.PERC_UNATTENDED, "true"),
+        java.util.Map.of()));
+    assertTrue(JavaInstallSelection.isUnattendedRequested(
+        java.util.Map.of(JavaInstallSelection.PERC_UNATTENDED, "TRUE"),
+        java.util.Map.of()));
+    assertTrue(JavaInstallSelection.isUnattendedRequested(
+        java.util.Map.of(JavaInstallSelection.PERC_UNATTENDED, "1"),
+        java.util.Map.of()));
+    assertTrue(JavaInstallSelection.isUnattendedRequested(
+        java.util.Map.of(JavaInstallSelection.PERC_UNATTENDED, "yes"),
+        java.util.Map.of()));
+    assertTrue(JavaInstallSelection.isUnattendedRequested(
+        java.util.Map.of(),
+        java.util.Map.of(JavaInstallSelection.PERC_INSTALL_UNATTENDED_ENV, "true")));
+    assertTrue(JavaInstallSelection.isUnattendedRequested(
+        java.util.Map.of(),
+        java.util.Map.of(JavaInstallSelection.PERC_INSTALL_UNATTENDED_ENV, "1")));
+    assertTrue(JavaInstallSelection.isUnattendedRequested(
+        java.util.Map.of(JavaInstallSelection.PERC_UNATTENDED, "true"),
+        java.util.Map.of(JavaInstallSelection.PERC_INSTALL_UNATTENDED_ENV, "true")),
+        "either source is sufficient");
   }
 
   @Test
-  void isCiEnvironmentIgnoresFalseAndZeroAndBlankValues() {
-    assertTrue(!JavaInstallSelection.isCiEnvironment(java.util.Map.of("CI", "false")));
-    assertTrue(!JavaInstallSelection.isCiEnvironment(java.util.Map.of("CI", "0")));
-    assertTrue(!JavaInstallSelection.isCiEnvironment(java.util.Map.of("CI", "")));
-    assertTrue(!JavaInstallSelection.isCiEnvironment(java.util.Map.of("CI", "FALSE")));
-    assertTrue(!JavaInstallSelection.isCiEnvironment(java.util.Map.of()));
-    assertTrue(!JavaInstallSelection.isCiEnvironment(null));
+  void isUnattendedRequestedRejectsFalsyAndUnset() {
+    assertFalse(JavaInstallSelection.isUnattendedRequested(
+        java.util.Map.of(JavaInstallSelection.PERC_UNATTENDED, "false"),
+        java.util.Map.of()));
+    assertFalse(JavaInstallSelection.isUnattendedRequested(
+        java.util.Map.of(JavaInstallSelection.PERC_UNATTENDED, "FALSE"),
+        java.util.Map.of()));
+    assertFalse(JavaInstallSelection.isUnattendedRequested(
+        java.util.Map.of(JavaInstallSelection.PERC_UNATTENDED, "0"),
+        java.util.Map.of()));
+    assertFalse(JavaInstallSelection.isUnattendedRequested(
+        java.util.Map.of(JavaInstallSelection.PERC_UNATTENDED, "no"),
+        java.util.Map.of()));
+    assertFalse(JavaInstallSelection.isUnattendedRequested(
+        java.util.Map.of(JavaInstallSelection.PERC_UNATTENDED, ""),
+        java.util.Map.of()));
+    assertFalse(JavaInstallSelection.isUnattendedRequested(
+        java.util.Map.of(JavaInstallSelection.PERC_UNATTENDED, "   "),
+        java.util.Map.of()));
+    assertFalse(JavaInstallSelection.isUnattendedRequested(
+        java.util.Map.of(),
+        java.util.Map.of()));
+    assertFalse(JavaInstallSelection.isUnattendedRequested(
+        java.util.Map.of(JavaInstallSelection.PERC_UNATTENDED, "false"),
+        java.util.Map.of(JavaInstallSelection.PERC_INSTALL_UNATTENDED_ENV, "false")),
+        "both falsy sources is still falsy");
+    assertFalse(JavaInstallSelection.isUnattendedRequested(null, null));
+    assertFalse(JavaInstallSelection.isUnattendedRequested(
+        java.util.Map.of(),
+        java.util.Map.of("UNRELATED", "true")),
+        "unrelated env-var must not trigger unattended mode");
   }
 
   @Test
-  void isInteractiveAvailableFallsThroughInCiWithEmptyStdin() {
-    assertTrue(!JavaInstallSelection.isInteractiveAvailable(false, true),
-        "stdin empty + CI env must auto-select (no hang)");
+  void isInteractiveAvailableQueueDrainedReturnsFalse() {
+    assertFalse(JavaInstallSelection.isInteractiveAvailable(false),
+        "stdin empty + no console must NOT be interactive (no hang)");
   }
 
   @Test
-  void isInteractiveAvailableAllowsPromptInPowerShellStyleEnvironment() {
-    assertTrue(JavaInstallSelection.isInteractiveAvailable(false, false),
-        "stdin empty + no CI env must still treat as interactive "
-            + "(PowerShell / desktop operator case)");
-  }
-
-  @Test
-  void isInteractiveAvailableTreatsQueuedBytesAsInteractive() {
-    assertTrue(JavaInstallSelection.isInteractiveAvailable(true, false),
-        "stdin with queued bytes must be interactive");
-    assertTrue(JavaInstallSelection.isInteractiveAvailable(true, true),
-        "stdin with queued bytes must be interactive even in CI");
+  void isInteractiveAvailableQueuedBytesAreInteractive() {
+    assertTrue(JavaInstallSelection.isInteractiveAvailable(true),
+        "stdin with queued bytes must be interactive (operator piped input)");
   }
 }

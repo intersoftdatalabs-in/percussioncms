@@ -114,53 +114,30 @@ public final class JavaInstallSelection {
   }
 
   /**
-   * Detects whether the user can be prompted interactively.
-   *
-   * <p>Resolution order:
+   * Detects whether the user can be prompted interactively. Resolution:
    * <ol>
-   *   <li>If {@link System#console()} is non-null, the operator is at a real
-   *       TTY — interactive.</li>
-   *   <li>Otherwise (Windows PowerShell {@code java -jar}, CI runners, cron,
-   *       piped input, etc.), we probe stdin non-blockingly via
-   *       {@link java.io.InputStream#available()}. If bytes are already queued
-   *       ({@code > 0}), the operator piped input or is mid-typing — interactive.</li>
-   *   <li>Finally, if stdin is reachable but no bytes are queued, we fall
-   *       through to auto-select <em>only</em> when at least one standard
-   *       CI/cron environment marker is set ({@code CI},
-   *       {@code CONTINUOUS_INTEGRATION}, {@code GITHUB_ACTIONS},
-   *       {@code JENKINS_URL}, {@code BUILDKITE}, {@code TF_BUILD},
-   *       {@code GITLAB_CI}, {@code CIRCLECI}). This preserves the documented
-   *       "non-interactive installs auto-select" behavior on CI runners
-   *       while still showing the prompt menu to an operator who launched
-   *       the installer from PowerShell on a workstation (where none of
-   *       those markers are set).</li>
+   *   <li>{@link System#console()} non-null → interactive (real TTY).</li>
+   *   <li>{@link java.io.InputStream#available() available() > 0} on
+   *       {@code System.in} → interactive (operator piped input).</li>
+   *   <li>Otherwise → non-interactive. The caller MUST pair a non-interactive
+   *       return with an {@link #isUnattendedRequested()} check OR a
+   *       {@link #selectAndPersist} that resolves an explicit {@code
+   *       -Dperc.java.home}; otherwise the install will hang on
+   *       {@link #promptForChoice}.</li>
    * </ol>
-   *
-   * <p>The previous implementation used {@code System.in.available() >= 0},
-   * which returned {@code true} for an open-but-empty stdin (e.g.
-   * {@code < /dev/null} on Unix, or an exhausted pipe in a CI runner). That
-   * caused {@link #promptForChoice} to enter the interactive path, print
-   * the menu, and block forever on {@code Scanner.nextLine()} because no
-   * operator was watching — a hard hang in non-interactive environments.
    */
   static boolean isInteractiveAvailable() {
-    return isInteractiveAvailable(probeStdinHasBytes(), isCiEnvironment(System.getenv()));
+    return isInteractiveAvailable(probeStdinHasBytes());
   }
 
   /**
-   * Pure-logic variant of {@link #isInteractiveAvailable()} for tests. The
-   * {@link System#console()} check is still applied (it cannot be mocked
-   * cleanly from JUnit), so this overload primarily exercises the
-   * "no-console" decision branch.
+   * Pure-logic variant of {@link #isInteractiveAvailable()} for tests.
    */
-  static boolean isInteractiveAvailable(boolean stdinHasBytes, boolean ciEnvironment) {
+  static boolean isInteractiveAvailable(boolean stdinHasBytes) {
     if (System.console() != null) {
       return true;
     }
-    if (stdinHasBytes) {
-      return true;
-    }
-    return !ciEnvironment;
+    return stdinHasBytes;
   }
 
   /**
@@ -177,31 +154,45 @@ public final class JavaInstallSelection {
   }
 
   /**
-   * Detects whether the current process is running inside a CI / cron /
-   * batch environment by inspecting standard env-var markers. The marker
-   * is considered "set" when it is non-blank and not a literal
-   * {@code "false"} / {@code "0"}.
+   * System property / env-var names that flag the install as unattended
+   * (no prompting, no discovery beyond the explicit Java home override).
+   * Mirrors the DTS sibling.
    */
-  static boolean isCiEnvironment(java.util.Map<String, String> env) {
-    if (env == null) {
+  static final String PERC_UNATTENDED = "perc.unattended";
+  static final String PERC_INSTALL_UNATTENDED_ENV = "PERC_INSTALL_UNATTENDED";
+
+  /**
+   * Returns {@code true} when the operator has explicitly requested an
+   * unattended install via {@code -Dperc.unattended=<value>} or the
+   * {@code PERC_INSTALL_UNATTENDED} environment variable. Recognised truthy
+   * values: {@code true} / {@code 1} / {@code yes} (case-insensitive).
+   * Unset, blank, {@code false}, {@code 0}, or {@code no} returns
+   * {@code false}. Returning {@code true} is the installer's contract that
+   * no stdin read may block.
+   */
+  public static boolean isUnattendedRequested() {
+    return isTruthy(System.getProperty(PERC_UNATTENDED))
+        || isTruthy(System.getenv(PERC_INSTALL_UNATTENDED_ENV));
+  }
+
+  static boolean isUnattendedRequested(java.util.Map<String, String> sysProps,
+      java.util.Map<String, String> env) {
+    String propValue = sysProps == null ? null : sysProps.get(PERC_UNATTENDED);
+    String envValue = env == null ? null : env.get(PERC_INSTALL_UNATTENDED_ENV);
+    return isTruthy(propValue) || isTruthy(envValue);
+  }
+
+  private static boolean isTruthy(String value) {
+    if (value == null) {
       return false;
     }
-    String[] markers = {
-        "CI", "CONTINUOUS_INTEGRATION", "GITHUB_ACTIONS",
-        "JENKINS_URL", "BUILDKITE", "TF_BUILD",
-        "GITLAB_CI", "CIRCLECI"
-    };
-    for (String marker : markers) {
-      String value = env.get(marker);
-      if (value == null || value.isBlank()) {
-        continue;
-      }
-      if (value.equalsIgnoreCase("false") || value.equals("0")) {
-        continue;
-      }
-      return true;
+    String trimmed = value.trim();
+    if (trimmed.isEmpty()) {
+      return false;
     }
-    return false;
+    return !"false".equalsIgnoreCase(trimmed)
+        && !"0".equals(trimmed)
+        && !"no".equalsIgnoreCase(trimmed);
   }
 
   private Path promptForChoice(List<JavaCandidateDiscovery.Candidate> candidates)

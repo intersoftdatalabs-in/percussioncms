@@ -44,11 +44,9 @@ import java.util.Set;
  * <p>Eligible candidates pass the minimum-major check (parsed from a sibling
  * {@code release} file when present) and have an executable launcher.
  *
- * <p>Note: only the standard {@code JAVA_HOME} env var is scanned. The
- * per-major {@code JAVA_HOME_<NN>} convention used by the Maven toolchain
- * ({@code mvn-env.bat}) is intentionally <em>not</em> consulted here, because
- * that convention is a developer convenience and not part of the
- * installer / runtime contract. See CMS sibling for the same note.
+ * <p>Mirrors the CMS sibling
+ * ({@code modules/perc-distribution-tree/.../JavaCandidateDiscovery}) so the
+ * two copies stay in lockstep.
  */
 public final class JavaCandidateDiscovery {
 
