@@ -122,6 +122,14 @@ class DbInstallConfigResolverTest {
     assertEquals("POSTGRES", cfg.systemProperties().get("perc.db.cms.backend"));
     assertEquals("postgresql", cfg.systemProperties().get("perc.db.cms.driverName"));
     assertEquals("public", cfg.systemProperties().get("perc.db.cms.schema"));
+    // Locks applyDtsHintsFromCms: "jdbc:postgresql:" + DB_SERVER("//host:port/db")
+    // must yield jdbc:postgresql://host:port/db (two slashes after the scheme colon).
+    assertEquals(
+        "jdbc:postgresql://db.example.com:5432/percussion",
+        cfg.systemProperties().get("perc.db.dts.jdbcUrl"));
+    assertEquals(
+        "org.hibernate.dialect.PostgreSQLDialect",
+        cfg.systemProperties().get("perc.db.dts.hibernateDialect"));
   }
 
   @Test

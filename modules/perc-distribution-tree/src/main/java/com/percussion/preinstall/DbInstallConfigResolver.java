@@ -531,6 +531,9 @@ public final class DbInstallConfigResolver {
       systemProperties.put(
           "perc.db.dts.schema",
           (schema == null || schema.isEmpty()) ? POSTGRES_DEFAULT_SCHEMA : schema);
+      // DB_SERVER is product form "//host:port/database". Prefix with "jdbc:postgresql:"
+      // (not "jdbc:postgresql://") so the result is jdbc:postgresql://host:port/database —
+      // same pattern as mysql/sqlserver above.
       if (server != null && server.startsWith("//")) {
         systemProperties.put("perc.db.dts.jdbcUrl", "jdbc:postgresql:" + server);
       }
