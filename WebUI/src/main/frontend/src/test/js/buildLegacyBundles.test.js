@@ -53,9 +53,11 @@ const {
   OUTPUT_DIR,
   BUNDLE_CONFIG_DIR,
   REQUIRED_INTERMEDIATE_BUNDLES,
+  STANDALONE_NPM_COPIES,
   resolvePath,
   buildBundlesFromConfig,
   assertRequiredIntermediates,
+  syncStandaloneNpmLibraries,
 } = builder;
 
 /** Minimum expected size for a real shared-common.js (npm jquery alone is ~300KB). */
@@ -160,6 +162,56 @@ describe("legacy intermediate bundle builder", () => {
       // If a local leftover exists it is fine; git must not track it.
       // This test only asserts the packaging source of truth is OUTPUT_DIR.
       expect(path.join(OUTPUT_DIR, name)).not.toBe(path.join(webappCm, name));
+    }
+  });
+
+  it("does not keep standalone npm mins under the committed webapp tree", () => {
+    // Regenerable vendor mins live only under target/generated-webui (issue #1510).
+    for (const { dest } of STANDALONE_NPM_COPIES) {
+      const sourcePath = path.join(WAR_DIR, dest);
+      expect(
+        fs.existsSync(sourcePath),
+        `source must not contain regenerable ${dest}: ${sourcePath}`
+      ).toBe(false);
+    }
+  });
+
+  it("syncs standalone npm libraries only under target/generated-webui (issue #1510)", () => {
+    // Writing into src/main/webapp/cm breaks ai-build-integrity-maven-plugin seals:
+    // generate-hashes (validate) then npm-build-legacy rewrites sealed .js files.
+    expect(Array.isArray(STANDALONE_NPM_COPIES)).toBe(true);
+    expect(STANDALONE_NPM_COPIES.length).toBeGreaterThan(0);
+
+    const nodeModulesRoot = path.join(
+      path.dirname(path.dirname(path.dirname(__dirname))),
+      "node_modules"
+    );
+    const jqueryMin = path.join(
+      nodeModulesRoot,
+      "jquery",
+      "dist",
+      "jquery.min.js"
+    );
+    if (!fs.existsSync(jqueryMin)) {
+      return;
+    }
+
+    // Ensure source tree stays clean before and after sync.
+    for (const { dest } of STANDALONE_NPM_COPIES) {
+      expect(fs.existsSync(path.join(WAR_DIR, dest))).toBe(false);
+    }
+
+    syncStandaloneNpmLibraries();
+
+    for (const { dest } of STANDALONE_NPM_COPIES) {
+      const generated = path.join(OUTPUT_DIR, dest);
+      expect(fs.existsSync(generated), generated).toBe(true);
+      expect(fs.statSync(generated).size).toBeGreaterThan(1000);
+      const generatedNorm = generated.split(path.sep).join("/");
+      expect(generatedNorm.includes("target/generated-webui/cm")).toBe(true);
+      expect(generatedNorm.includes("src/main/webapp")).toBe(false);
+      // Source tree must still be free of regenerable mins after the build.
+      expect(fs.existsSync(path.join(WAR_DIR, dest))).toBe(false);
     }
   });
 });

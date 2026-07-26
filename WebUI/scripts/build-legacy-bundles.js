@@ -1,9 +1,16 @@
 #!/usr/bin/env node
 
 /**
- * Legacy Bundle Builder
- * Concatenates JavaScript and CSS files according to the minify JSON bundle configs.
- * This replaces the functionality of the removed minify-maven-plugin.
+ * Legacy Bundle Builder (stale WebUI/scripts/ entry point).
+ *
+ * Canonical script used by Maven / frontend-maven-plugin:
+ *   WebUI/src/main/frontend/scripts/build-legacy-bundles.js
+ *
+ * Prefer: cd src/main/frontend && npm run build:legacy
+ *
+ * This copy remains for accidental root package.json invocations. Standalone
+ * npm mins must go to target/generated-webui only (issue #1510) — never war/
+ * or src/main/webapp.
  */
 
 const fs = require("fs");
@@ -13,8 +20,13 @@ const path = require("path");
 const WEBUI_DIR = path.dirname(__dirname);
 const WAR_DIR = path.join(WEBUI_DIR, "war");
 const BUNDLE_CONFIG_DIR = path.join(WEBUI_DIR, "src/main/resources/minify");
-const OUTPUT_DIR = WAR_DIR;
-const NODE_MODULES_DIR = path.join(WEBUI_DIR, "node_modules");
+// Prefer generated overlay (matches canonical frontend builder). Reading still
+// uses war/ when present for this stale entry point's intermediate paths.
+const OUTPUT_DIR = path.join(WEBUI_DIR, "target/generated-webui/cm");
+const NODE_MODULES_DIR = path.join(
+  WEBUI_DIR,
+  "src/main/frontend/node_modules"
+);
 
 // Mapping of jslib paths to npm package names for npm-managed libraries
 const NPM_LIBRARY_MAPPINGS = {
@@ -152,9 +164,8 @@ function buildBundlesFromConfig(configFile, processingPhase = 1) {
 }
 
 /**
- * Standalone npm library files that should be copied to the WAR directory
- * for direct <script> loading (outside of bundles). The build always
- * overwrites these so the WAR stays in sync with the npm versions.
+ * Standalone npm mins → target/generated-webui/cm only (never war/ or src/).
+ * See issue #1510 / canonical frontend builder.
  */
 const STANDALONE_NPM_COPIES = [
   {
@@ -168,15 +179,16 @@ const STANDALONE_NPM_COPIES = [
 ];
 
 /**
- * Copy standalone npm library files to the WAR directory so they can be
- * loaded individually via <script> tags (e.g., from the AA page header).
+ * Copy standalone npm library files into the generated overlay.
  */
 function syncStandaloneNpmLibraries() {
-  console.log("📋 Phase 0: Syncing standalone npm libraries to war/...");
+  console.log(
+    "📋 Phase 0: Syncing standalone npm libraries to target/generated-webui/cm/..."
+  );
 
   STANDALONE_NPM_COPIES.forEach(({ src, dest }) => {
     const srcPath = path.join(NODE_MODULES_DIR, src);
-    const destPath = path.join(WAR_DIR, dest);
+    const destPath = path.join(OUTPUT_DIR, dest);
     const destDir = path.dirname(destPath);
 
     if (!fs.existsSync(destDir)) {
@@ -190,7 +202,7 @@ function syncStandaloneNpmLibraries() {
 
     fs.copyFileSync(srcPath, destPath);
     const sizeKb = (fs.statSync(destPath).size / 1024).toFixed(2);
-    console.log(`  ✓ ${dest} (${sizeKb}KB from npm)`);
+    console.log(`  ✓ ${dest} (${sizeKb}KB from npm → generated-webui)`);
   });
 }
 
@@ -203,7 +215,7 @@ function main() {
   console.log(`   Configs:       ${BUNDLE_CONFIG_DIR}\n`);
 
   try {
-    // Phase 0: Copy standalone npm libraries to war/ for direct <script> loading
+    // Phase 0: standalone npm mins → generated-webui only
     syncStandaloneNpmLibraries();
 
     // Phase 1: Build intermediate common bundles (shared-common.js, shared-finder.js, etc.)

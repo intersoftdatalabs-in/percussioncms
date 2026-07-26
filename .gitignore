@@ -103,6 +103,16 @@ WebUI/src/main/webapp/cm/shared-common.css
 WebUI/src/main/webapp/cm/shared-common-minuet.js
 WebUI/src/main/webapp/cm/shared-common-minuet.css
 WebUI/src/main/webapp/cm/shared-finder.js
+# Standalone npm jquery mins (build:legacy → target/generated-webui/cm/...).
+# Never commit under source trees — issue #1510 integrity seal + vendor drift.
+WebUI/src/main/webapp/cm/jslib/profiles/3x/jquery/jquery.min.js
+WebUI/src/main/webapp/cm/jslib/profiles/3x/jquery/jquery-migrate.min.js
+WebUI/src/main/webapp/jslib/profiles/3x/jquery/jquery.min.js
+WebUI/src/main/webapp/jslib/profiles/3x/jquery/jquery-migrate.min.js
+WebUI/war/jslib/profiles/3x/jquery/jquery.min.js
+WebUI/war/jslib/profiles/3x/jquery/jquery-migrate.min.js
+WebUI/src/main/frontend/war/
+WebUI/src/src/
 
 # Node/npm artifacts in WebUI
 WebUI/src/main/frontend/node_modules/
