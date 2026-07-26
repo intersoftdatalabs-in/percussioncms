@@ -36,31 +36,7 @@ This module is not intended to be shipped with the product and should not contai
 
 Default CodeQL setup must stay **disabled** (`not-configured`). Analyzer of record is advanced setup only.
 
-## Scripts
-
-The `scripts/` directory holds cross-platform Python utilities for AI resource signing, signature verification, and integrity checking. Per spec 994 (`specs/994-python-build-scripts/spec.md`), the original `.sh` wrappers have been removed (FR-004).
-
-|           Script            |                                                                                                  Purpose                                                                                                  |
-|-----------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `sign-ai-resources.py`      | Sign every tracked AI resource using Sigstore (delegates to `com.percussion.ai.signing.ResourceSigner` via `mvn-env.sh exec:java`). Excludes `*.sha256`, `*.sha256.sig`, `*.sigstore.json` sidecars.      |
-| `verify-signatures-hook.py` | Verify every tracked AI resource's Sigstore signature (delegates to `com.percussion.ai.signing.ResourceVerifier` via `mvn-env.sh exec:java`). Designed to be called by a git pre-commit hook.             |
-| `build-integrity-check.py`  | Build-time integrity check: verify SHA-256 hash + Sigstore signature sidecars for one or more AI resources. Uses `hashlib.sha256` (no shell dependency on `sha256sum`/`shasum`) and `cosign verify-blob`. |
-
-Both scripts accept `--dry-run` to print the planned Maven invocations without building or signing — used by pytest to exercise the wiring without paying the build-time cost.
-
-### Tests
-
-```sh
-python3 -m pytest modules/ai-shared-develop/scripts/ -v
-```
-
-Or via the cross-platform runner:
-
-```sh
-bash scripts/run-python-tests.sh --skip-install --pytest-args "-q"
-```
-
-### Erlang — strict pre-commit review
+## Erlang — strict pre-commit review
 
 **Goal:** Catch correctness bugs and weak tests **before** commit/PR so GitHub review cycles stay short.
 

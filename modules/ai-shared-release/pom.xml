@@ -8,72 +8,17 @@
         <relativePath>../../pom.xml</relativePath>
     </parent>
     <artifactId>ai-shared-release</artifactId>
-    <packaging>jar</packaging>
+    <packaging>pom</packaging>
     <name>Percussion AI Shared Release</name>
-    <description>Shared AI libraries for release distribution in Percussion CMS</description>
+    <description>AI tools (skills, prompts, instructions, plugins) shipped with Percussion CMS. The
+        contents of src/main/resources/ are staged into the CMS install at
+        &lt;InstallDir&gt;/sys_resources/ai-tools/ by the perc-distribution-tree build. The customer
+        overlay at &lt;InstallDir&gt;/rx_resources/ai-tools/ is left empty and survives upgrades.</description>
     <properties>
-        <assembly-directory>${basedir}/target/distribution</assembly-directory>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
-    <dependencies>
-        <dependency>
-            <groupId>dev.sigstore</groupId>
-            <artifactId>sigstore-java</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.logging.log4j</groupId>
-            <artifactId>log4j-api</artifactId>
-            <version>${log4j2.version}</version>
-        </dependency>
-    </dependencies>
     <build>
         <plugins>
-            <!-- Maven Compiler Plugin for Java 21 -->
-            <!-- Surefire Plugin for running tests -->
-            <!-- Maven Resources Plugin to copy resources to assembly directory -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-resources-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>copy-assembly-resources</id>
-                        <goals>
-                            <goal>copy-resources</goal>
-                        </goals>
-                        <phase>prepare-package</phase>
-                        <configuration>
-                            <useBuildFilters>false</useBuildFilters>
-                            <includeEmptyDirs>true</includeEmptyDirs>
-                            <outputDirectory>${assembly-directory}/ai</outputDirectory>
-                            <resources>
-                                <resource>
-                                    <directory>${basedir}/src/main/resources</directory>
-                                </resource>
-                            </resources>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-            <!-- Maven Assembly Plugin to create distributable archive -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-assembly-plugin</artifactId>
-                <configuration>
-                    <descriptors>
-                        <descriptor>src/main/assembly/assembly.xml</descriptor>
-                    </descriptors>
-                    <tarLongFileMode>posix</tarLongFileMode>
-                    <appendAssemblyId>false</appendAssemblyId>
-                </configuration>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>single</goal>
-                        </goals>
-                        <phase>package</phase>
-                    </execution>
-                </executions>
-            </plugin>
             <!-- Maven Site Plugin -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -82,3 +27,4 @@
         </plugins>
     </build>
 </project>
+

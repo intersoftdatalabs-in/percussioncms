@@ -92,11 +92,13 @@ fi
 
 echo "=== Running pytest over in-scope script dirs (spec 994) ==="
 # In-scope dirs per FR-013:
+# Note: modules/ai-shared-develop/scripts/ was removed as part of the
+# Sigstore removal (PR #1511); pytest for the percussioncms-dev and
+# javadoc skills now runs from modules/ai-shared-develop/src/main/resources/skills/.
 python3 -m pytest \
   scripts/ \
   docker/scripts/ \
   docker/entrypoint/ \
   modules/perc-distribution-tree/scripts/ \
-  modules/ai-shared-develop/scripts/ \
   modules/ai-shared-develop/src/main/resources/skills/ \
   "${PYTEST_EXTRA_ARGS[@]}"

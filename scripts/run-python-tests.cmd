@@ -80,12 +80,14 @@ if /i not "%SKIP_INSTALL%"=="true" (
 )
 
 echo === Running pytest over in-scope script dirs ^(spec 994^) ===
+REM Note: modules\ai-shared-develop\scripts\ was removed as part of the
+REM Sigstore removal (PR #1511); pytest for the percussioncms-dev and
+REM javadoc skills now runs from modules\ai-shared-develop\src\main\resources\skills\.
 python -m pytest ^
   scripts\ ^
   docker\scripts\ ^
   docker\entrypoint\ ^
   modules\perc-distribution-tree\scripts\ ^
-  modules\ai-shared-develop\scripts\ ^
   modules\ai-shared-develop\src\main\resources\skills\ ^
   %PYTEST_EXTRA_ARGS%
 set "PYTEST_EXIT=%errorlevel%"
