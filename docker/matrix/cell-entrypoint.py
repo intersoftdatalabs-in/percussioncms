@@ -119,7 +119,15 @@ def build_install_argv(
 
     Pure function for unit tests.
     """
-    argv: List[str] = [java, "-jar", str(installer_jar), str(install_root)]
+    # Always POSIX path form for java argv: this entrypoint runs in a Linux
+    # container; unit tests may import this module on Windows hosts where
+    # Path.__str__ would otherwise emit backslashes (AGENTS cross-platform).
+    argv: List[str] = [
+        java,
+        "-jar",
+        Path(installer_jar).as_posix(),
+        Path(install_root).as_posix(),
+    ]
     if silent:
         argv.extend(["--silent", "--no-tty"])
     argv.append(f"--db.type={db_type}")

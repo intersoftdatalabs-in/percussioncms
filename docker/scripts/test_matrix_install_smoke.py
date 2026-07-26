@@ -161,12 +161,19 @@ class InstallArgvTests(unittest.TestCase):
             db_schema="public",
             silent=True,
         )
-        self.assertEqual(argv[0:4], ["java", "-jar", "/installer/installer.jar", "/opt/Percussion"])
+        # Paths are POSIX form even when this test runs on Windows (container entrypoint).
+        self.assertEqual(
+            argv[0:4],
+            ["java", "-jar", "/installer/installer.jar", "/opt/Percussion"],
+        )
         self.assertIn("--silent", argv)
         self.assertIn("--no-tty", argv)
         self.assertIn("--db.type=postgresql", argv)
         self.assertIn("--db.host=postgres", argv)
         self.assertIn("--db.port=5432", argv)
+        # Ensure we never emit Windows separators into java -jar argv.
+        for part in argv[0:4]:
+            self.assertNotIn("\\", part)
 
     def test_h2_omits_remote_fields(self):
         argv = cell.build_install_argv(
