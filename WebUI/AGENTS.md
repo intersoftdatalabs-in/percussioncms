@@ -422,8 +422,19 @@ useEffect(() => {
 - `target/generated-webui/cm/jslibMin/` — Minified legacy JS
 - `target/generated-webui/cm/cssMin/` — Minified legacy CSS
 - `target/generated-webui/cm/shared-common.js` (and `-minuet`, `.css`, `shared-finder.js`) — intermediate concatenations from `src/main/resources/minify/*-bundles.json` via `src/main/frontend/scripts/build-legacy-bundles.js`
+- `target/generated-webui/cm/jslib/profiles/3x/jquery/jquery.min.js` and `jquery-migrate.min.js` — standalone npm copies for direct `<script>` tags (e.g. AA page header / `sys_aaPageHeader.html`). Synced from `node_modules` during `build:legacy` **only** into `target/generated-webui/` (never into `src/main/webapp/`). See issue #1510 (`ai-build-integrity-maven-plugin` seal).
 
-Do **not** check intermediate bundles into `src/main/webapp/cm/`. Maven overlays `target/generated-webui` into the WAR. Committed copies drift from source and create duplicate CodeQL false positives.
+Do **not** check intermediate bundles into `src/main/webapp/cm/`. Do **not** commit regenerable vendor min files such as `jquery.min.js` / `jquery-migrate.min.js` under `src/main/webapp` or `war/` — they are npm-sourced and overlaid from `target/generated-webui`. Do **not** let the legacy builder rewrite tracked files under `src/main/webapp/cm/` — that breaks the repo integrity seal between `validate` (generate-hashes) and `test` (verify-hashes). Maven overlays `target/generated-webui` into the WAR. Committed copies drift from source and create duplicate CodeQL false positives.
+
+**Keep in source (still loaded by JSPs / installer by path):** non-minified `jquery-3.6.0.js` and `jquery-migrate-3.3.2.js` under `cm/jslib/profiles/3x/jquery/` (and the parallel `WebUI/war/` copies used by `perc-distribution-tree` until that tree is re-pointed).
+
+**Committed `*.min.js` / `*.min.css` policy (issue #1510 follow-up):** only keep minified vendor files that are **directly referenced** by a runtime entry (JSP/HTML/bundle JSON). As of that prune, the allowlist under `src/main/webapp/cm/` is:
+
+- `api/lib/jquery-3.6.0.min.js`, `jquery.ba-bbq.min.js`, `jquery.slideto.min.js`, `jquery.wiggle.min.js` (Swagger UI page)
+- `jslib/.../bootstrap.min.js`, `bootstrap.bundle.min.js`, `bootstrap.min.css` (login / admin workflow JSPs)
+- `jslib/.../jquery.fancytree-all.min.js` + `skin-win8/ui.fancytree.min.css` (finder include + legacy bundles)
+
+Do **not** re-check in unused theme variants (DataTables/Bootstrap skins), validation locale `*.min.js`, backgrid `*.min.*`, or anything under `cm/vendor/js/legacy/` min trees — product code never references `/cm/vendor/`. Prefer non-min sources already listed in `src/main/resources/minify/*-bundles.json` when both exist.
 
 **.gitignore includes:**
 
@@ -440,6 +451,8 @@ WebUI/src/main/webapp/cm/shared-common-minuet.js
 WebUI/src/main/webapp/cm/shared-finder.js
 WebUI/src/main/webapp/cm/shared-common.css
 WebUI/src/main/webapp/cm/shared-common-minuet.css
+WebUI/src/main/webapp/cm/jslib/profiles/3x/jquery/jquery.min.js
+WebUI/src/main/webapp/cm/jslib/profiles/3x/jquery/jquery-migrate.min.js
 ```
 
 ### WAR Contents

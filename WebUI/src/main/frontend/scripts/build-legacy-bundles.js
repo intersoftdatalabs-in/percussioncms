@@ -229,9 +229,11 @@ function buildBundlesFromConfig(configFile, processingPhase = 1, options = {}) {
 }
 
 /**
- * Standalone npm library files that should be copied to the WAR directory
- * for direct <script> loading (outside of bundles). The build always
- * overwrites these so the WAR stays in sync with the npm versions.
+ * Standalone npm library files copied into the generated overlay for direct
+ * <script> loading (outside of bundles). Dest paths are relative to OUTPUT_DIR
+ * (target/generated-webui/cm/), never src/main/webapp/cm/ — writing into the
+ * source tree breaks ai-build-integrity-maven-plugin seals (issue #1510).
+ * maven-war-plugin overlays target/generated-webui onto the WAR at package time.
  */
 const STANDALONE_NPM_COPIES = [
   {
@@ -245,15 +247,18 @@ const STANDALONE_NPM_COPIES = [
 ];
 
 /**
- * Copy standalone npm library files to the WAR directory so they can be
- * loaded individually via <script> tags (e.g., from the AA page header).
+ * Copy standalone npm library files into target/generated-webui/cm/ so they can
+ * be loaded individually via <script> tags (e.g. sys_aaPageHeader.html).
+ * Does not write under src/main/webapp (source tree stays sealed).
  */
 function syncStandaloneNpmLibraries() {
-  console.log("📋 Phase 0: Syncing standalone npm libraries to webapp/cm/...");
+  console.log(
+    "📋 Phase 0: Syncing standalone npm libraries to target/generated-webui/cm/..."
+  );
 
   STANDALONE_NPM_COPIES.forEach(({ src, dest }) => {
     const srcPath = path.join(NODE_MODULES_DIR, src);
-    const destPath = path.join(WAR_DIR, dest);
+    const destPath = path.join(OUTPUT_DIR, dest);
     const destDir = path.dirname(destPath);
 
     if (!fs.existsSync(destDir)) {
@@ -267,7 +272,7 @@ function syncStandaloneNpmLibraries() {
 
     fs.copyFileSync(srcPath, destPath);
     const sizeKb = (fs.statSync(destPath).size / 1024).toFixed(2);
-    console.log(`  ✓ ${dest} (${sizeKb}KB from npm)`);
+    console.log(`  ✓ ${dest} (${sizeKb}KB from npm → generated-webui)`);
   });
 }
 
@@ -301,7 +306,7 @@ function main() {
   console.log(`   Configs:       ${BUNDLE_CONFIG_DIR}\n`);
 
   try {
-    // Phase 0: Copy standalone npm libraries into cm/ for direct <script> loading
+    // Phase 0: Copy standalone npm libraries into generated-webui only (not src/)
     syncStandaloneNpmLibraries();
 
     // Phase 1: Build intermediate common bundles (shared-common.js, shared-finder.js, etc.)
@@ -377,8 +382,10 @@ module.exports = {
   OUTPUT_DIR,
   BUNDLE_CONFIG_DIR,
   REQUIRED_INTERMEDIATE_BUNDLES,
+  STANDALONE_NPM_COPIES,
   resolvePath,
   buildBundlesFromConfig,
   assertRequiredIntermediates,
+  syncStandaloneNpmLibraries,
   main,
 };
