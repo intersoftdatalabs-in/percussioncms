@@ -378,10 +378,10 @@ public class PSCatalogTableData {
     Element tablesToExportRoot = tablesToExportDoc.createElement("tables");
     tablesToExportDoc.appendChild(tablesToExportRoot);
 
-    Collection tables = PSJdbcTableFactory.catalogTables(dbdef, "%");
-    Iterator iter = tables.iterator();
+    Collection<String> tables = PSJdbcTableFactory.catalogTables(dbdef, "%");
+    Iterator<String> iter = tables.iterator();
     while (iter.hasNext()) {
-      String tName = (String) iter.next();
+      String tName = iter.next();
       Element tn = tablesToExportDoc.createElement("table");
       tn.setAttribute("name", tName);
       tablesToExportRoot.appendChild(tn);

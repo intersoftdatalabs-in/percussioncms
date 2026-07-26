@@ -59,7 +59,7 @@ public class PSJdbcPreparedSqlStatement extends PSJdbcSqlStatement {
    * @throws IllegalArgumentException if values does not contain at least one object, or does not
    *     contain object of the correct type.
    */
-  public void setValues(PSCollection values) {
+  public final void setValues(PSCollection values) {
     if (values != null) {
       if (values.isEmpty())
         throw new IllegalArgumentException("values must contain at least one object");

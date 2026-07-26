@@ -33,6 +33,7 @@ import org.w3c.dom.Element;
  * immutable. This is so once it is set on a PSJdbcTableSchema object and validated, it cannot later
  * be modified and invalidated.
  */
+@SuppressWarnings("this-escape")
 public class PSJdbcRowData {
   /**
    * Create a row from a list of column values
@@ -128,7 +129,7 @@ public class PSJdbcRowData {
    *     empty
    * @throws IllegalArgumentException if tableName is <code>null</code> or empty.
    */
-  public void setTableName(String tableName) {
+  public final void setTableName(String tableName) {
     if ((tableName == null) || (tableName.trim().length() == 0))
       throw new IllegalArgumentException("tableName may not be null or empty");
 
@@ -153,7 +154,7 @@ public class PSJdbcRowData {
    *     be used for inserting this row into the database instead of INSERT INTO ...VALUES... else
    *     <code>false</code>
    */
-  public void setUseInsertIntoSelectStmt(boolean bUseInsertIntoSelectStmt) {
+  public final void setUseInsertIntoSelectStmt(boolean bUseInsertIntoSelectStmt) {
     m_bUseInsertIntoSelectStmt = bUseInsertIntoSelectStmt;
   }
 
@@ -372,7 +373,7 @@ public class PSJdbcRowData {
    * @throws IllegalArgumentException if sourceNode is <code>null</code>.
    * @throws PSJdbcTableFactoryException if there are any errors.
    */
-  public void fromXml(Element sourceNode) throws PSJdbcTableFactoryException {
+  public final void fromXml(Element sourceNode) throws PSJdbcTableFactoryException {
     if (sourceNode == null) throw new IllegalArgumentException("sourceNode may not be null");
 
     if (!sourceNode.getNodeName().equals(NODE_NAME)) {

@@ -37,6 +37,7 @@ import java.util.TreeMap;
  * Retrieves and caches table info from {@link java.sql.DatabaseMetaData}. Class is immutable after
  * ctor.
  */
+@SuppressWarnings("this-escape")
 public class PSJdbcTableMetaData {
   /**
    * Retrieve and cache table meta data for the specified table.
@@ -126,7 +127,7 @@ public class PSJdbcTableMetaData {
   /**
    * @return <code>true</code> if the table exists, <code>false</code> if not.
    */
-  public boolean exists() {
+  public final boolean exists() {
     return m_tableExists;
   }
 
@@ -310,7 +311,9 @@ public class PSJdbcTableMetaData {
         int jdbcType = meta.getColumnType(i);
         String nativeType = meta.getColumnTypeName(i);
 
-        jdbcType = PSSqlHelper.convertNativeDataType(new Short("" + jdbcType), nativeType, driver);
+        @SuppressWarnings("removal")
+        Short deprecated = new Short("" + jdbcType);
+        jdbcType = PSSqlHelper.convertNativeDataType(deprecated, nativeType, driver);
         String size;
         int sizeInt = meta.getColumnDisplaySize(i);
         if (m_dbmsDef.getDriver().equals("db2") && jdbcType == Types.BLOB) {

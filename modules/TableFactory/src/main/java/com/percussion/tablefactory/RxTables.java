@@ -43,10 +43,10 @@ class RxTables {
 
     for (int iSourceCol = 0; iSourceCol < vColumns.size(); ++iSourceCol) {
       boolean bFound = false;
-      RxColumns sourceCol = (RxColumns) vColumns.get(iSourceCol);
+      RxColumns sourceCol = vColumns.get(iSourceCol);
 
       for (int iTargetCol = 0; iTargetCol < targetTable.vColumns.size(); ++iTargetCol) {
-        RxColumns targetCol = (RxColumns) targetTable.vColumns.get(iTargetCol);
+        RxColumns targetCol = targetTable.vColumns.get(iTargetCol);
 
         if (targetCol != null && sourceCol != null) {
           if (targetCol.getColName().compareToIgnoreCase(sourceCol.getColName()) == 0) {
@@ -97,11 +97,11 @@ class RxTables {
 
     // look for columns that we do not know about
     for (int iTargetCol = 0; iTargetCol < targetTable.vColumns.size(); ++iTargetCol) {
-      RxColumns targetCol = (RxColumns) targetTable.vColumns.get(iTargetCol);
+      RxColumns targetCol = targetTable.vColumns.get(iTargetCol);
 
       boolean bFound = false;
       for (int iSourceCol = 0; iSourceCol < vColumns.size(); ++iSourceCol) {
-        RxColumns sourceCol = (RxColumns) vColumns.get(iSourceCol);
+        RxColumns sourceCol = vColumns.get(iSourceCol);
 
         if (targetCol != null && sourceCol != null) {
           if (targetCol.getColName().compareToIgnoreCase(sourceCol.getColName()) == 0) {

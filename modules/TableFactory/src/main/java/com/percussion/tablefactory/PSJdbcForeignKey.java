@@ -31,6 +31,7 @@ import org.w3c.dom.Element;
  * This class is used to represent a set of foreign key contraints for a table, and the action to
  * perform when that table schema is used to create or modify a table.
  */
+@SuppressWarnings("this-escape")
 public class PSJdbcForeignKey extends PSJdbcTableComponent {
   /**
    * Basic constructor for this class. Constructs a foreign Key definition with a constraint on one
@@ -124,7 +125,7 @@ public class PSJdbcForeignKey extends PSJdbcTableComponent {
    *     colName. May not be <code>null</code> or empty.
    * @throws IllegalArgumentException if any param is invalid.
    */
-  public void addColumn(String colName, String extTable, String extCol) {
+  public final void addColumn(String colName, String extTable, String extCol) {
     if (colName == null || colName.trim().length() == 0)
       throw new IllegalArgumentException("colName may not be null or empty");
 
@@ -224,7 +225,7 @@ public class PSJdbcForeignKey extends PSJdbcTableComponent {
    * @throws PSJdbcTableFactoryException if the Xml definition contains any empty or duplicate
    *     column names, or if there are any other errors.
    */
-  public void fromXml(Element sourceNode) throws PSJdbcTableFactoryException {
+  public final void fromXml(Element sourceNode) throws PSJdbcTableFactoryException {
     if (sourceNode == null) throw new IllegalArgumentException("sourceNode may not be null");
 
     if (!sourceNode.getNodeName().equals(NODE_NAME)) {

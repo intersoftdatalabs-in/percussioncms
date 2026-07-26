@@ -199,8 +199,7 @@ public class PSJdbcTableSchemaTest {
     Document doc = PSXmlDocumentBuilder.createXmlDocument();
     Element el = tableSchema1.toXml(doc);
     PSJdbcTableSchema tableSchema2 = new PSJdbcTableSchema(el, dataTypeMap);
-    PSJdbcIndex newIndex =
-        (PSJdbcIndex) tableSchema2.getIndexes(PSJdbcIndex.TYPE_NON_UNIQUE).next();
+    PSJdbcIndex newIndex = tableSchema2.getIndexes(PSJdbcIndex.TYPE_NON_UNIQUE).next();
 
     // Makes sure if the table schema has changed
     assertFalse((tableSchema1.equals(tableSchema2)));
@@ -266,8 +265,7 @@ public class PSJdbcTableSchemaTest {
     Document doc = PSXmlDocumentBuilder.createXmlDocument();
     Element el = tableSchema1.toXml(doc);
     PSJdbcTableSchema tableSchema2 = new PSJdbcTableSchema(el, dataTypeMap);
-    PSJdbcIndex newIndex =
-        (PSJdbcIndex) tableSchema2.getIndexes(PSJdbcIndex.TYPE_NON_UNIQUE).next();
+    PSJdbcIndex newIndex = tableSchema2.getIndexes(PSJdbcIndex.TYPE_NON_UNIQUE).next();
 
     // Makes sure if the table schema has changed
     assertFalse((tableSchema1.equals(tableSchema2)));
@@ -326,7 +324,7 @@ public class PSJdbcTableSchemaTest {
     Document doc = PSXmlDocumentBuilder.createXmlDocument();
     Element el = tableSchema1.toXml(doc);
     PSJdbcTableSchema tableSchema2 = new PSJdbcTableSchema(el, dataTypeMap);
-    PSJdbcIndex newIndex = (PSJdbcIndex) tableSchema2.getIndexes().next();
+    PSJdbcIndex newIndex = tableSchema2.getIndexes().next();
 
     // Makes sure if the table schema has not changed
     assertTrue((tableSchema1.equals(tableSchema2)));
@@ -373,8 +371,7 @@ public class PSJdbcTableSchemaTest {
     Document doc = PSXmlDocumentBuilder.createXmlDocument();
     Element el = tableSchema1.toXml(doc);
     PSJdbcTableSchema tableSchema2 = new PSJdbcTableSchema(el, dataTypeMap);
-    PSJdbcIndex newIndex =
-        (PSJdbcIndex) tableSchema2.getIndexes(PSJdbcIndex.TYPE_NON_UNIQUE).next();
+    PSJdbcIndex newIndex = tableSchema2.getIndexes(PSJdbcIndex.TYPE_NON_UNIQUE).next();
 
     // Makes sure if the table schema has changed.
     assertFalse((tableSchema1.equals(tableSchema2)));

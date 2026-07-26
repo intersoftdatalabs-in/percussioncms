@@ -33,6 +33,7 @@ import org.w3c.dom.Element;
  * foreign keys, unique indexes, and optionally table data as well. May also be used to specify
  * schema changes only.
  */
+@SuppressWarnings("this-escape")
 public class PSJdbcTableSchema implements Comparable<PSJdbcTableSchema> {
   /**
    * Creates a table schema using the supplied columns. The table action is defaulted to
@@ -210,7 +211,7 @@ public class PSJdbcTableSchema implements Comparable<PSJdbcTableSchema> {
    * @return <code>null</code> if there is not already a column with the same name that is replaced,
    *     or the old column object if it is replaced.
    */
-  public PSJdbcColumnDef setColumn(PSJdbcColumnDef column) {
+  public final PSJdbcColumnDef setColumn(PSJdbcColumnDef column) {
     if (column == null) throw new IllegalArgumentException("column may not be null");
 
     PSJdbcColumnDef oldCol = null;
@@ -535,7 +536,7 @@ public class PSJdbcTableSchema implements Comparable<PSJdbcTableSchema> {
    * @throws IllegalArgumentException if sourceNode is <code>null</code>.
    * @throws PSJdbcTableFactoryException if there are any errors.
    */
-  public void fromXml(Element sourceNode, PSJdbcDataTypeMap dataTypeMap)
+  public final void fromXml(Element sourceNode, PSJdbcDataTypeMap dataTypeMap)
       throws PSJdbcTableFactoryException {
     if (sourceNode == null) throw new IllegalArgumentException("sourceNode may not be null");
 
