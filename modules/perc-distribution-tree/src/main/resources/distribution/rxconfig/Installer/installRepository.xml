@@ -540,7 +540,7 @@
 							<entry key="DB_DRIVER_NAME" value="h2" />
 							<entry key="DB_DRIVER_CLASS_NAME" value="org.h2.Driver" />
 							<entry key="DB_SERVER"
-								value="file:../../Repository/CMDB;DB_CLOSE_ON_EXIT=FALSE" />
+								value="file:../../Repository/CMDB;DB_CLOSE_ON_EXIT=FALSE;NON_KEYWORDS=VALUE" />
 							<entry key="DB_SCHEMA" value="PUBLIC" />
 							<entry key="UID" value="sa" />
 							<entry key="DB_SSL_ENABLED" value="${perc.db.ssl.enabled}" />

@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
@@ -371,6 +372,12 @@ public class PSJdbcUtils {
     } else if (DERBY_DRIVER.equalsIgnoreCase(driverName)
         && serverNameOrConnUrl.indexOf(";create=true") == -1) {
       rval.append(";create=true");
+    } else if (H2_DRIVER.equalsIgnoreCase(driverName)
+        && !serverNameOrConnUrl.toUpperCase(Locale.ROOT).contains("NON_KEYWORDS")) {
+      // H2 treats VALUE as a keyword; product schema uses VALUE as a column name
+      // (RXMENUVISIBILITY, PSX_SHARED_PROPERTIES, etc.). Without NON_KEYWORDS,
+      // CREATE TABLE ... VALUE VARCHAR fails with "expected identifier" (#548).
+      rval.append(";NON_KEYWORDS=VALUE");
     }
     // H2 file URLs create the database by default; do not append Derby-style ";create=true".
 
