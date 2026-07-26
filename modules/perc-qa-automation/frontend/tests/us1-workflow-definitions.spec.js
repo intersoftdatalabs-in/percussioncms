@@ -6,7 +6,9 @@ test.describe("Workflow Administration - Workflow Definitions (US1)", () => {
     await loginAsAdmin(page);
   });
 
-  test("navigate to workflow admin and verify shell and list render", async ({ page }) => {
+  test("navigate to workflow admin and verify shell and list render", async ({
+    page,
+  }) => {
     await page.goto(`${BASE_URL}/cm/app/index.jsp?view=workflow`);
 
     // Verify WorkflowAdminShell container is present
@@ -26,7 +28,7 @@ test.describe("Workflow Administration - Workflow Definitions (US1)", () => {
 
   test("open create workflow form", async ({ page }) => {
     await page.goto(`${BASE_URL}/cm/app/index.jsp?view=workflow`);
-    
+
     const createBtn = page.locator("[data-testid='create-workflow-button']");
     await expect(createBtn).toBeVisible();
     await createBtn.click();
@@ -36,7 +38,9 @@ test.describe("Workflow Administration - Workflow Definitions (US1)", () => {
     await expect(editor).toBeVisible();
 
     // Verify inputs
-    await expect(page.locator("[data-testid='workflow-name-input']")).toBeVisible();
+    await expect(
+      page.locator("[data-testid='workflow-name-input']")
+    ).toBeVisible();
     await expect(page.locator("[data-testid='add-step-button']")).toBeVisible();
   });
 });

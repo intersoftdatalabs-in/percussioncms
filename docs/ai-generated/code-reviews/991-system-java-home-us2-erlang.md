@@ -33,6 +33,7 @@ approve
 ## Issues
 
 ### Issue 1 -- Severity: nit
+
 - File: `delivery-tier-distribution/src/main/rootFiles/TomcatStartup.sh:6`, `TomcatShutdown.sh:6`
 - Description: Switched the installer-root derivation from `CURDIR=$(pwd)` to
   `SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"` so the
@@ -58,6 +59,7 @@ approve
   call "%~dp0..\..\resolve-java-home.bat" "%~dp0..\.."`) — i.e., the
   install root that contains the resolve helper script. Producers and
   service installers agree on the install-root path.
+
 - Tests: structural assertions only. No raw OS-path string checks.
 
 ## Non-portable pattern hits: none
@@ -80,3 +82,4 @@ tests for paths.
 - Behavioral tests for the resolve scripts (US5/Polish follow-up): the
   current structural tests are sufficient for CI but a host with a real
   Java 21 install could exercise the full precedence end-to-end.
+

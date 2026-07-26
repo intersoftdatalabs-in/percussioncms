@@ -45,27 +45,33 @@ introduced.
 
 None.
 
-* #1772/#1773: the suppressed sinks are `throw new WebApplicationException(e);`
-  inside `catch (PSDataServiceException e) { … }`. The exception's
-  `message` may carry data-layer text but the JAX-RS provider
-  serializes the response via `@Produces({MediaType.APPLICATION_JSON,
-  MediaType.APPLICATION_XML})` (confirmed at lines 481 and 525),
-  and the client HTML-encodes the body before DOM insertion per the
-  REST contract. CodeQL does not model the exception→JAX-RS mapping
-  as a sanitizer, so the suppression is justified at the sink.
-* #1771: the suppressed sink is `return item;` inside
-  `updateItem(@PathParam("id") int id, Item item)`. The
-  `item.addError(...)` call uses a string-literal error message
-  (`"Content id from path different than content id specified in item"`)
-  — confirmed at line 1861 — with **no interpolation of `id`**.
-  JAX-RS parses `int` path params as primitive ints, so no XSS
-  payload can reach the message string. The data flow into the
-  sink is therefore empty; the suppression is justified.
+* 
+
+# 1772/#1773: the suppressed sinks are `throw new WebApplicationException(e);`
+
+inside `catch (PSDataServiceException e) { … }`. The exception's
+`message` may carry data-layer text but the JAX-RS provider
+serializes the response via `@Produces({MediaType.APPLICATION_JSON,
+MediaType.APPLICATION_XML})` (confirmed at lines 481 and 525),
+and the client HTML-encodes the body before DOM insertion per the
+REST contract. CodeQL does not model the exception→JAX-RS mapping
+as a sanitizer, so the suppression is justified at the sink.
+*
+
+# 1771: the suppressed sink is `return item;` inside
+
+`updateItem(@PathParam("id") int id, Item item)`. The
+`item.addError(...)` call uses a string-literal error message
+(`"Content id from path different than content id specified in item"`)
+— confirmed at line 1861 — with **no interpolation of `id`**.
+JAX-RS parses `int` path params as primitive ints, so no XSS
+payload can reach the message string. The data flow into the
+sink is therefore empty; the suppression is justified.
 * Suppression scope: each marker is `// codeql[java/xss] …`, which
-  is query-specific (it does not silence other queries) and
-  attaches to the immediately following code statement (CodeQL's
-  documented comment-suppression contract). No additional alerts
-  are inadvertently silenced.
+is query-specific (it does not silence other queries) and
+attaches to the immediately following code statement (CodeQL's
+documented comment-suppression contract). No additional alerts
+are inadvertently silenced.
 
 ### Maintainability / conventions (suggestion)
 
@@ -93,11 +99,11 @@ None.
 
 ## Suppression placement audit
 
-| Alert | File / sink line | Suppression block start | Distance to sink | Format |
-|-------|------------------|--------------------------|------------------|--------|
-| #1772 | `projects/sitemanage/.../PSAssetRestService.java:492` (`throw new WebApplicationException(e);`) | line 487 | 0 (block attaches to line 492) | `// codeql[java/xss] justification: …` |
-| #1773 | `projects/sitemanage/.../PSAssetRestService.java:543` (`throw new WebApplicationException(e);`) | line 538 | 0 (block attaches to line 543) | `// codeql[java/xss] justification: …` |
-| #1771 | `modules/perc-toolkit/.../ItemRestServiceImpl.java:1869` (`return item;`) | line 1862 | 0 (block attaches to line 1869) | `// codeql[java/xss] justification: …` |
+| Alert |                                        File / sink line                                         | Suppression block start |        Distance to sink         |                 Format                 |
+|-------|-------------------------------------------------------------------------------------------------|-------------------------|---------------------------------|----------------------------------------|
+| #1772 | `projects/sitemanage/.../PSAssetRestService.java:492` (`throw new WebApplicationException(e);`) | line 487                | 0 (block attaches to line 492)  | `// codeql[java/xss] justification: …` |
+| #1773 | `projects/sitemanage/.../PSAssetRestService.java:543` (`throw new WebApplicationException(e);`) | line 538                | 0 (block attaches to line 543)  | `// codeql[java/xss] justification: …` |
+| #1771 | `modules/perc-toolkit/.../ItemRestServiceImpl.java:1869` (`return item;`)                       | line 1862               | 0 (block attaches to line 1869) | `// codeql[java/xss] justification: …` |
 
 All three markers use the canonical `// codeql[java/xss] justification: …`
 form, matching the 17 existing working suppressions in
@@ -124,8 +130,7 @@ file-level statement suppression.
     rethrown as `WebApplicationException` whose JAX-RS body comes
     from the standard exception mapper chain. No direct string
     concat into an HTML response.
-  Accurate.
-
+    Accurate.
 * **#1771** — Claim: "XML REST Item DTO via JAXB; not an HTML
   response body. The Item object is serialized via the standard
   XML contract; the client HTML-encodes the response before DOM
@@ -143,7 +148,7 @@ file-level statement suppression.
     `"Content id from path different than content id specified in item"`.
     Grep on the file for `%s`, `String.format`, or any concatenation
     of `id` into the message confirms no interpolation.
-  Accurate.
+    Accurate.
 
 ## Spotless / build
 

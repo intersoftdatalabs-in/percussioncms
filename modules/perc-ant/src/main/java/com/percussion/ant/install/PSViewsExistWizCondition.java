@@ -56,10 +56,9 @@ import org.apache.tools.ant.taskdefs.condition.Condition;
  * </pre>
  */
 public class PSViewsExistWizCondition extends PSAction implements Condition {
-  /**
-   * Creates a new views exist wizard condition.
-   */
+  /** Creates a new views exist wizard condition. */
   public PSViewsExistWizCondition() {}
+
   /* (non-Javadoc)
    * @see org.apache.tools.ant.taskdefs.condition.Condition#eval()
    */

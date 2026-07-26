@@ -8,10 +8,9 @@
 ## Module Scope *(mandatory for this mono-repo)*
 
 <!--
-  Percussion CMS Constitution I — Module-First Boundaries.
-  Identify owning module(s) before detailing stories.
+Percussion CMS Constitution I — Module-First Boundaries.
+Identify owning module(s) before detailing stories.
 -->
-
 - **Primary module(s)**: `modules/DesktopContentExplorer/` (`com.percussion:perc-content-explorer`)
 - **Secondary / integration modules**: None — work is scoped to the content explorer module's own Java sources. No shared module is modified.
 - **AGENTS files to apply**:
@@ -23,8 +22,8 @@
 ## User Scenarios & Testing *(mandatory)*
 
 <!--
-  User stories prioritized as journeys. Each story independently testable.
-  -->
+User stories prioritized as journeys. Each story independently testable.
+-->
 
 ### User Story 1 - CI Build Succeeds for Content Explorer Module (Priority: P1)
 
@@ -132,3 +131,4 @@ not a runtime concept.
 - The cleanup is purely a source-code quality change. No schema, package, distribution, or runtime behavior is in scope.
 - Suppressing warnings is acceptable only as a last resort and only where the module already follows that pattern; otherwise root-cause fixes (writing the missing Javadoc) are required.
 - The feature is a one-time cleanup, not an ongoing enforcement policy. No new CI gate / quality rule is introduced as part of this spec.
+

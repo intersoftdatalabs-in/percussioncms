@@ -46,10 +46,7 @@ public class URLValidation {
   private static final Set<String> HARD_BLOCKED_HOSTNAMES =
       new HashSet<>(
           Arrays.asList(
-              "0.0.0.0",
-              "169.254.169.254",
-              "169.254.169.253",
-              "metadata.google.internal"));
+              "0.0.0.0", "169.254.169.254", "169.254.169.253", "metadata.google.internal"));
 
   private static final Set<String> LOOPBACK_HOSTNAMES =
       new HashSet<>(Arrays.asList("localhost", "127.0.0.1", "::1"));
@@ -100,8 +97,7 @@ public class URLValidation {
     // Block list wins over baseline and allow
     if (config.matchesBlock(normalized)) {
       throw new SecurityException(
-          String.format(
-              "URL is blocked by blockedUrls.properties pattern match: %s", host));
+          String.format("URL is blocked by blockedUrls.properties pattern match: %s", host));
     }
 
     // Baseline: loopback any port

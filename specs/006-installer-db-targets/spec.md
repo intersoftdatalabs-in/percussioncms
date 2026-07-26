@@ -171,3 +171,4 @@ An operator upgrading an existing CMS installation that already uses MySQL, SQL 
 - Pre-provisioned database/schema and network access from the install host to the RDBMS for non-Derby targets.
 - Existing multi-database repository setup/table-factory behavior used on upgrades must remain usable from the new-install path once configuration is written correctly.
 - Issue tracking: [GitHub #949](https://github.com/intersoftdatalabs-in/percussioncms/issues/949); milestone 8.2.
+

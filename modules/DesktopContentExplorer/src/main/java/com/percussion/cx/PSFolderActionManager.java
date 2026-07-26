@@ -606,8 +606,8 @@ public class PSFolderActionManager {
   }
 
   /**
-   * Delegates to the underlying folder processor proxy to copy the security (ACL) settings from
-   * the source folder to the target folder.
+   * Delegates to the underlying folder processor proxy to copy the security (ACL) settings from the
+   * source folder to the target folder.
    *
    * @param source the locator of the source folder whose security settings are to be copied, may
    *     not be <code>null</code>.

@@ -27,18 +27,18 @@ The audit tool emits four files per run. These JSON/Markdown schemas are the pub
 
 Field-level contract:
 
-| Field | Type | Required | Notes |
-|-------|------|----------|-------|
-| `number` | int | yes | Unique within the file |
-| `title` | string | yes | Full PR title |
-| `author` | string | yes | GitHub login |
-| `mergedAt` | string (ISO-8601 UTC) | yes | Used for the cutoff filter |
-| `baseRef` | string | yes | Must be `development-8.1.x` for this audit |
-| `mergeCommitSha` | string (40-char hex) | yes | Resolved via `gh pr view --json mergeCommit.oid` |
-| `modulePaths` | array of string | yes | May be empty `[]` for meta PRs |
-| `dependabotFlag` | bool | yes | If `true`, this PR is mis-recorded (excluded PRs go in `dependabot-excluded.json`, not here) |
-| `jdk8OnlyFlag` | bool | yes | Heuristic; see data-model.md |
-| `securityFlag` | bool | yes | Heuristic; see data-model.md |
+|      Field       |         Type          | Required |                                            Notes                                             |
+|------------------|-----------------------|----------|----------------------------------------------------------------------------------------------|
+| `number`         | int                   | yes      | Unique within the file                                                                       |
+| `title`          | string                | yes      | Full PR title                                                                                |
+| `author`         | string                | yes      | GitHub login                                                                                 |
+| `mergedAt`       | string (ISO-8601 UTC) | yes      | Used for the cutoff filter                                                                   |
+| `baseRef`        | string                | yes      | Must be `development-8.1.x` for this audit                                                   |
+| `mergeCommitSha` | string (40-char hex)  | yes      | Resolved via `gh pr view --json mergeCommit.oid`                                             |
+| `modulePaths`    | array of string       | yes      | May be empty `[]` for meta PRs                                                               |
+| `dependabotFlag` | bool                  | yes      | If `true`, this PR is mis-recorded (excluded PRs go in `dependabot-excluded.json`, not here) |
+| `jdk8OnlyFlag`   | bool                  | yes      | Heuristic; see data-model.md                                                                 |
+| `securityFlag`   | bool                  | yes      | Heuristic; see data-model.md                                                                 |
 
 ## Contract 2: `dependabot-excluded.json`
 
@@ -59,12 +59,12 @@ Field-level contract:
 
 Field-level contract:
 
-| Field | Type | Required | Notes |
-|-------|------|----------|-------|
-| `number` | int | yes | |
-| `title` | string | yes | |
-| `author` | string | yes | Always matches `dependabot[bot]` for this contract |
-| `mergedAt` | string (ISO-8601 UTC) | yes | |
+|   Field    |         Type          | Required |                       Notes                        |
+|------------|-----------------------|----------|----------------------------------------------------|
+| `number`   | int                   | yes      |                                                    |
+| `title`    | string                | yes      |                                                    |
+| `author`   | string                | yes      | Always matches `dependabot[bot]` for this contract |
+| `mergedAt` | string (ISO-8601 UTC) | yes      |                                                    |
 
 This file is the audit log proving that Dependabot PRs were considered and intentionally excluded (FR-002).
 
@@ -108,15 +108,15 @@ This file is the audit log proving that Dependabot PRs were considered and inten
 
 Field-level contract:
 
-| Field | Type | Required | Notes |
-|-------|------|----------|-------|
-| `prNumber` | int | yes | FK → inventory.json[].number |
-| `verdict` | string (enum) | yes | One of: `already-present`, `needs-migration`, `not-applicable`, `superseded`, `conflicts-with-newer-design` |
-| `evidenceCommit` | string or null | conditional | Required when verdict is `already-present` or `superseded` |
-| `evidenceFilePath` | string or null | conditional | Required when verdict is `already-present` or `superseded` |
-| `evidenceNote` | string | yes | Required for every verdict; explains the classification |
-| `jdk8Only` | bool | yes | |
-| `securityFlag` | bool | yes | |
+|       Field        |      Type      |  Required   |                                                    Notes                                                    |
+|--------------------|----------------|-------------|-------------------------------------------------------------------------------------------------------------|
+| `prNumber`         | int            | yes         | FK → inventory.json[].number                                                                                |
+| `verdict`          | string (enum)  | yes         | One of: `already-present`, `needs-migration`, `not-applicable`, `superseded`, `conflicts-with-newer-design` |
+| `evidenceCommit`   | string or null | conditional | Required when verdict is `already-present` or `superseded`                                                  |
+| `evidenceFilePath` | string or null | conditional | Required when verdict is `already-present` or `superseded`                                                  |
+| `evidenceNote`     | string         | yes         | Required for every verdict; explains the classification                                                     |
+| `jdk8Only`         | bool           | yes         |                                                                                                             |
+| `securityFlag`     | bool           | yes         |                                                                                                             |
 
 ## Contract 4: `migration-backlog.md`
 
@@ -135,14 +135,14 @@ Required sections (in order):
 
 Table column schema:
 
-| Column | Source | Format |
-|--------|--------|--------|
-| `PR` | inventory.json[].number | `[#NNN](https://github.com/intersoftdatalabs-in/percussioncms/pull/NNN)` |
-| `Title` | inventory.json[].title | First 90 chars; ellipsis if truncated |
-| `Module` | inventory.json[].modulePaths[0] | First non-empty entry; `(none)` if empty |
-| `Strategy` | MigrationBacklogItem.strategy | enum value |
-| `Test coverage in v8.1.7` | MigrationBacklogItem.testCoverageIn817 | one-line summary (e.g. "added PagesTest.testPageWithLeadingSitesPath") |
-| `Blockers` | MigrationBacklogItem.blockerNotes | one-line; empty if none |
+|          Column           |                 Source                 |                                  Format                                  |
+|---------------------------|----------------------------------------|--------------------------------------------------------------------------|
+| `PR`                      | inventory.json[].number                | `[#NNN](https://github.com/intersoftdatalabs-in/percussioncms/pull/NNN)` |
+| `Title`                   | inventory.json[].title                 | First 90 chars; ellipsis if truncated                                    |
+| `Module`                  | inventory.json[].modulePaths[0]        | First non-empty entry; `(none)` if empty                                 |
+| `Strategy`                | MigrationBacklogItem.strategy          | enum value                                                               |
+| `Test coverage in v8.1.7` | MigrationBacklogItem.testCoverageIn817 | one-line summary (e.g. "added PagesTest.testPageWithLeadingSitesPath")   |
+| `Blockers`                | MigrationBacklogItem.blockerNotes      | one-line; empty if none                                                  |
 
 ## Contract 5: `v8.1.7-to-8.2-migration-report.md`
 
@@ -170,13 +170,13 @@ The audit script exposes a minimal CLI:
 release-audit.sh --from-tag <TAG> --to-tag <TAG> [--target-branch <BRANCH>] [--output-dir <DIR>] [--include-dependabot]
 ```
 
-| Flag | Default | Notes |
-|------|---------|-------|
-| `--from-tag` | `v8.1.6` | Lower bound of tag range; required for the first run, optional after |
-| `--to-tag` | `v8.1.7` | Upper bound of tag range; required |
-| `--target-branch` | `development` | Branch to compare against; per FR-008 must be overridable |
-| `--output-dir` | `./tmp/release-audit/<from-tag>..<to-tag>` | Where the four output files are written |
-| `--include-dependabot` | `false` | When set, dependabot PRs are inventoried but flagged (FR-002 override) |
+|          Flag          |                  Default                   |                                 Notes                                  |
+|------------------------|--------------------------------------------|------------------------------------------------------------------------|
+| `--from-tag`           | `v8.1.6`                                   | Lower bound of tag range; required for the first run, optional after   |
+| `--to-tag`             | `v8.1.7`                                   | Upper bound of tag range; required                                     |
+| `--target-branch`      | `development`                              | Branch to compare against; per FR-008 must be overridable              |
+| `--output-dir`         | `./tmp/release-audit/<from-tag>..<to-tag>` | Where the four output files are written                                |
+| `--include-dependabot` | `false`                                    | When set, dependabot PRs are inventoried but flagged (FR-002 override) |
 
 Exit codes:
 
@@ -184,3 +184,4 @@ Exit codes:
 - `2`: partial failure; some output files may be present but with errors logged.
 - `3`: invalid arguments (e.g. tag range does not resolve on `origin`).
 - `4`: `gh` CLI not authenticated or `origin` unreachable.
+

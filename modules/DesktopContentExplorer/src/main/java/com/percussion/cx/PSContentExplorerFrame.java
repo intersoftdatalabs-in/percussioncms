@@ -246,8 +246,8 @@ public class PSContentExplorerFrame extends PSDesktopExplorerWindow
   }
 
   /**
-   * Initializes the content explorer session after a successful login. Initializes the applet,
-   * sets the user info, starts the applet, and positions the frame on the screen.
+   * Initializes the content explorer session after a successful login. Initializes the applet, sets
+   * the user info, starts the applet, and positions the frame on the screen.
    *
    * @throws PSCmsException if an error occurs initializing the applet session.
    */

@@ -33,8 +33,9 @@ import org.junit.jupiter.api.Test;
 
 /**
  * Regression for GH-757 / v8.1.7 PRs #763 and #767: published theme {@code vspan_*} regions use
- * {@code min-height} so sidebars grow with content (footer stays below), while editor decoration CSS
- * keeps fixed {@code height !important} and resets {@code min-height} so placeholders stay sized.
+ * {@code min-height} so sidebars grow with content (footer stays below), while editor decoration
+ * CSS keeps fixed {@code height !important} and resets {@code min-height} so placeholders stay
+ * sized.
  */
 class VspanFooterAlignmentCssTest {
 
@@ -136,8 +137,7 @@ class VspanFooterAlignmentCssTest {
       // At least one rule per span class (allow extra legitimate editor variants later).
       assertTrue(blocks >= 4, rel + ": expected at least vspan_2/4/6/8 rules, found " + blocks);
       for (Map.Entry<String, Integer> e : counts.entrySet()) {
-        assertTrue(
-            e.getValue() >= 1, rel + " .vspan_" + e.getKey() + " count=" + e.getValue());
+        assertTrue(e.getValue() >= 1, rel + " .vspan_" + e.getKey() + " count=" + e.getValue());
       }
     }
   }

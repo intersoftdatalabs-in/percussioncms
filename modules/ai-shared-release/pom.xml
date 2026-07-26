@@ -29,9 +29,7 @@
     <build>
         <plugins>
             <!-- Maven Compiler Plugin for Java 21 -->
-            
             <!-- Surefire Plugin for running tests -->
-            
             <!-- Maven Resources Plugin to copy resources to assembly directory -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -81,8 +79,6 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-site-plugin</artifactId>
             </plugin>
-            
-            
         </plugins>
     </build>
 </project>

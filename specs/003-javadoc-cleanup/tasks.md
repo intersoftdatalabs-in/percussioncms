@@ -194,9 +194,9 @@ Task: "Re-run ./mvn-env.sh -pl modules/DesktopContentExplorer javadoc:javadoc -D
 With multiple developers:
 1. Team completes Setup + Foundational together
 2. Once Foundational done:
-   - Developer A: US1 file clusters (T007–T015)
-   - Developer B: US2 description tasks (T016–T021)
-   - Developer C: US3 residual + artifacts (T022–T026)
+- Developer A: US1 file clusters (T007–T015)
+- Developer B: US2 description tasks (T016–T021)
+- Developer C: US3 residual + artifacts (T022–T026)
 3. Polish (T027–T031) runs after all stories merge
 
 ---
@@ -208,3 +208,4 @@ With multiple developers:
 - `[P]` tasks = disjoint files, no dependencies; run them in parallel to speed the cleanup.
 - Each `@SuppressWarnings("javadoc")` MUST carry a justification comment (T006/T023/T030).
 - Stop at any checkpoint to validate the story independently before proceeding.
+

@@ -71,8 +71,8 @@ public interface IPSThemeService
 
   /**
    * Creates a new theme from the default one when importing site from URL. The newly created theme
-* will be a copy of the existing default_theme located in
-    * {@code <INSTALL_DIR>}/rx_resources/default_theme
+   * will be a copy of the existing default_theme located in {@code
+   * <INSTALL_DIR>}/rx_resources/default_theme
    *
    * @param newTheme the new Theme name, never blank.
    * @return a {@link PSThemeSummary} object with information for the new Theme, never <code>null

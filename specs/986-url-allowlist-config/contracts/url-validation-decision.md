@@ -5,10 +5,10 @@
 
 ## Entry points (existing public API — keep signatures)
 
-| Method | Role |
-|--------|------|
-| `URLValidation.validateURL(URL)` | Validate; throw `SecurityException` if denied |
-| `URLValidation.validateURLString(String)` | Parse + validate; return `URL` or throw |
+|                  Method                   |                     Role                      |
+|-------------------------------------------|-----------------------------------------------|
+| `URLValidation.validateURL(URL)`          | Validate; throw `SecurityException` if denied |
+| `URLValidation.validateURLString(String)` | Parse + validate; return `URL` or throw       |
 
 Optional internal/test-visible: config built from explicit file paths.
 
@@ -19,10 +19,10 @@ Optional internal/test-visible: config built from explicit file paths.
 
 ## Outputs
 
-| Result | Behavior |
-|--------|----------|
-| Permit | Method returns normally (`validateURLString` returns `URL`) |
-| Deny | Throws `SecurityException` with non-secret message (no credentials) |
+| Result |                              Behavior                               |
+|--------|---------------------------------------------------------------------|
+| Permit | Method returns normally (`validateURLString` returns `URL`)         |
+| Deny   | Throws `SecurityException` with non-secret message (no credentials) |
 
 ## Ordering (normative)
 

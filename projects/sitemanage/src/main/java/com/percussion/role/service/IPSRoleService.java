@@ -77,19 +77,20 @@ public interface IPSRoleService {
    */
   PSUserList getAvailableUsers(PSRole role) throws PSDataServiceException;
 
-/**
-    * Validates that the specified role meets the following for deletion:
-    * <ul>
-    * <li>All users assigned to the role are also assigned to at least one other role.</li>
-    * <li>The role is not being used by a workflow, i.e., it is not assigned permissions (other than
-    *     READ) in a workflow.</li>
-    * </ul>
-    *
-    * @param role never null. A role object is used instead of a string in order to support non-ascii
-    *     characters in the role name.
-    * @throws PSDataServiceException with an appropriate message if the role does not meet the
-    *     requirements.
-    */
+  /**
+   * Validates that the specified role meets the following for deletion:
+   *
+   * <ul>
+   *   <li>All users assigned to the role are also assigned to at least one other role.
+   *   <li>The role is not being used by a workflow, i.e., it is not assigned permissions (other
+   *       than READ) in a workflow.
+   * </ul>
+   *
+   * @param role never null. A role object is used instead of a string in order to support non-ascii
+   *     characters in the role name.
+   * @throws PSDataServiceException with an appropriate message if the role does not meet the
+   *     requirements.
+   */
   void validateForDelete(PSRole role) throws PSDataServiceException;
 
   /**

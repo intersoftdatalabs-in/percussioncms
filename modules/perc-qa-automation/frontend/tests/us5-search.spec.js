@@ -56,12 +56,18 @@ test.describe("US5 P-Search \u2014 search panel (FR-017)", () => {
     await loginAsAdmin(page);
   });
 
-  test("SearchPanel pilot page mounts with input + submit", async ({ page }) => {
+  test("SearchPanel pilot page mounts with input + submit", async ({
+    page,
+  }) => {
     await page.goto(SEARCH_URL, { waitUntil: "networkidle" });
     const panel = page.locator('[data-testid="search-panel"]');
     await expect(panel).toBeVisible({ timeout: 15_000 });
-    await expect(page.locator('[data-testid="search-panel-input"]')).toBeVisible();
-    await expect(page.locator('[data-testid="search-panel-submit"]')).toBeVisible();
+    await expect(
+      page.locator('[data-testid="search-panel-input"]')
+    ).toBeVisible();
+    await expect(
+      page.locator('[data-testid="search-panel-submit"]')
+    ).toBeVisible();
   });
 
   test("legacy miller-column Finder chrome is NOT loaded on the search host", async ({
@@ -85,9 +91,9 @@ test.describe("US5 P-Search \u2014 search panel (FR-017)", () => {
     await expect(
       page
         .locator(
-          '[data-testid="search-panel-loading"], [data-testid="search-panel-error"], [data-testid="search-panel-empty"], [data-testid="search-panel-results"]',
+          '[data-testid="search-panel-loading"], [data-testid="search-panel-error"], [data-testid="search-panel-empty"], [data-testid="search-panel-results"]'
         )
-        .first(),
+        .first()
     ).toBeVisible({ timeout: 15_000 });
   });
 
@@ -96,7 +102,7 @@ test.describe("US5 P-Search \u2014 search panel (FR-017)", () => {
   }) => {
     await page.goto(SEARCH_URL, { waitUntil: "networkidle" });
     await expect(
-      page.locator('[data-testid="perc-search-root"]').first(),
+      page.locator('[data-testid="perc-search-root"]').first()
     ).toBeVisible({ timeout: 15_000 });
     // Confirm legacy Finder chrome is absent (echo of US6 expectation).
     await expect(page.locator(".perc-mcol")).toHaveCount(0);

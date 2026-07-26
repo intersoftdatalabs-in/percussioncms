@@ -17,16 +17,16 @@
 
 ### Expected outcomes
 
-| Scenario | Expected |
-|----------|----------|
-| `https://example.com/x` | Permit (baseline) |
-| `http://10.0.0.5/api` without allow | Deny |
-| Same private URL with allow pattern match | Permit |
-| Metadata `http://169.254.169.254/...` | Deny (hard and/or block list) |
-| Allow `*` alone | Ignored; arbitrary URL still denied if not baseline |
-| Block matches even if allow matches | Deny |
-| Seed missing files in temp dir | Files created with correct default character |
-| Seed when files exist | Content unchanged |
+|                 Scenario                  |                      Expected                       |
+|-------------------------------------------|-----------------------------------------------------|
+| `https://example.com/x`                   | Permit (baseline)                                   |
+| `http://10.0.0.5/api` without allow       | Deny                                                |
+| Same private URL with allow pattern match | Permit                                              |
+| Metadata `http://169.254.169.254/...`     | Deny (hard and/or block list)                       |
+| Allow `*` alone                           | Ignored; arbitrary URL still denied if not baseline |
+| Block matches even if allow matches       | Deny                                                |
+| Seed missing files in temp dir            | Files created with correct default character        |
+| Seed when files exist                     | Content unchanged                                   |
 
 ## 2. Manual / integration smoke (optional)
 
@@ -54,3 +54,4 @@ Existing SSRF denials must remain green.
 - File contract: [contracts/url-list-files.md](./contracts/url-list-files.md)
 - Decision contract: [contracts/url-validation-decision.md](./contracts/url-validation-decision.md)
 - Data model: [data-model.md](./data-model.md)
+

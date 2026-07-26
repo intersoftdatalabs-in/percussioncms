@@ -27,9 +27,9 @@ class DbInstallSamplePropertiesTest {
 
   @Test
   void samplePropertyFilesExistInDistributionTree() {
-    Path samples =
-        Path.of("src/main/resources/distribution/rxconfig/Installer/samples");
-    assertTrue(Files.isDirectory(samples), "samples directory missing: " + samples.toAbsolutePath());
+    Path samples = Path.of("src/main/resources/distribution/rxconfig/Installer/samples");
+    assertTrue(
+        Files.isDirectory(samples), "samples directory missing: " + samples.toAbsolutePath());
     assertTrue(Files.isRegularFile(samples.resolve("rxrepository.mysql.properties")));
     assertTrue(Files.isRegularFile(samples.resolve("rxrepository.sqlserver.properties")));
     assertTrue(Files.isRegularFile(samples.resolve("rxrepository.oracle.properties")));

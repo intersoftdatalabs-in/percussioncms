@@ -34,10 +34,10 @@
 
 **Decision**: All primary CMS/DTS start, stop, and service install paths implement this order:
 
-1. **Persisted product config** — `java.properties` under install root (`JAVA_HOME` and/or `JAVA`) if path exists and is version-compatible  
-2. **Process environment `JAVA_HOME`** — if set, exists, and major version is 21  
-3. **Legacy install-dir layout** — `<InstallDir>/JRE` then `<InstallDir>/JRE64` if valid Java home (operator copy/symlink only)  
-4. **`java` on `PATH`** — resolve home via known layout / `java -XshowSettings:properties -version` (or `dirname` of realpath to binary) when major version is 21  
+1. **Persisted product config** — `java.properties` under install root (`JAVA_HOME` and/or `JAVA`) if path exists and is version-compatible
+2. **Process environment `JAVA_HOME`** — if set, exists, and major version is 21
+3. **Legacy install-dir layout** — `<InstallDir>/JRE` then `<InstallDir>/JRE64` if valid Java home (operator copy/symlink only)
+4. **`java` on `PATH`** — resolve home via known layout / `java -XshowSettings:properties -version` (or `dirname` of realpath to binary) when major version is 21
 5. **Fail** with message listing sources tried and **required major version 21**
 
 **Rationale**: Matches FR-003 and keeps existing manual layouts working as fallback (US6) without requiring them for new installs (US1–US2).
@@ -52,8 +52,8 @@
 **Decision**:
 - Document the resolution algorithm in `contracts/java-home-resolution.md`.
 - Provide **platform-native helpers** with identical precedence:
-  - Unix: e.g. `resolve-java-home.sh` (sourced by Jetty/DTS scripts) under a shared location per product root (CMS: next to Jetty scripts or `rxconfig/Installer/`; DTS: DTS rootFiles).
-  - Windows: e.g. `resolve-java-home.bat` called with `call` / `set` of `JAVA_HOME`.
+- Unix: e.g. `resolve-java-home.sh` (sourced by Jetty/DTS scripts) under a shared location per product root (CMS: next to Jetty scripts or `rxconfig/Installer/`; DTS: DTS rootFiles).
+- Windows: e.g. `resolve-java-home.bat` called with `call` / `set` of `JAVA_HOME`.
 - Optionally a **Java unit-testable** pure function for version parsing / precedence (in `perc-distribution-tree` preinstall helpers or a small test-focused class) to avoid untested bash-only logic for version checks.
 
 **Rationale**: Cross-platform mandate (AGENTS); dual script forms are unavoidable for ops; shared contract + tests prevent drift. Full “generate bat from sh” generators are higher risk for this release.
@@ -80,8 +80,8 @@
 1. Collect candidates from: current process java home, `JAVA_HOME` env, common OS locations (Linux: `/usr/lib/jvm/*`; Windows: registry + common Program Files Java paths when practical; PATH `java`).
 2. Filter to major 21 + executable launcher.
 3. If 0 → fail with guidance.  
-   If 1 → auto-select + log.  
-   If >1 → prompt with path + version; write selection to `java.properties`.
+If 1 → auto-select + log.  
+If >1 → prompt with path + version; write selection to `java.properties`.
 
 Unattended: `-Dperc.java.home=...` (already known) and/or response-file / env mapped to the same writer; validate before write.
 
@@ -95,15 +95,15 @@ Unattended: `-Dperc.java.home=...` (already known) and/or response-file / env ma
 
 **Decision**: Treat the following as **in-scope primary** consumers of the resolver:
 
-| Area | Evidence |
-|------|----------|
-| CMS Jetty console | `modules/perc-jetty/.../StartJetty.sh`, `StartJetty.bat`, `StopJetty.bat` — hard-code `%rxDir%\JRE` / `${rxDir}/JRE` |
-| CMS Jetty service | `service/install-jetty-service.sh` writes `JAVA_HOME=${rxDir}/JRE` or `JRE64` into `/etc/default/`; `.bat` normalizes `..\JRE` for Procrun |
-| DTS console | `TomcatStartup.sh/.bat`, `TomcatShutdown.sh/.bat` — prefer `JRE` under install |
-| DTS services | `DTSProductionService` / `DTSStagingService` `.sh`/`.bat` — install-root JRE heuristics |
-| Preinstall | `perc.java.home` / `java.home` for installer JVM only today |
-| Install XML | `install.xml` JRE backup/`lib/ext` filesets assume install-dir JRE may exist — **gate** so missing JRE is not fatal when config Java is used |
-| Legacy installer helpers | `system/release/installer/**` still `./JRE` and outdated 1.8 messaging |
+|           Area           |                                                                   Evidence                                                                   |
+|--------------------------|----------------------------------------------------------------------------------------------------------------------------------------------|
+| CMS Jetty console        | `modules/perc-jetty/.../StartJetty.sh`, `StartJetty.bat`, `StopJetty.bat` — hard-code `%rxDir%\JRE` / `${rxDir}/JRE`                         |
+| CMS Jetty service        | `service/install-jetty-service.sh` writes `JAVA_HOME=${rxDir}/JRE` or `JRE64` into `/etc/default/`; `.bat` normalizes `..\JRE` for Procrun   |
+| DTS console              | `TomcatStartup.sh/.bat`, `TomcatShutdown.sh/.bat` — prefer `JRE` under install                                                               |
+| DTS services             | `DTSProductionService` / `DTSStagingService` `.sh`/`.bat` — install-root JRE heuristics                                                      |
+| Preinstall               | `perc.java.home` / `java.home` for installer JVM only today                                                                                  |
+| Install XML              | `install.xml` JRE backup/`lib/ext` filesets assume install-dir JRE may exist — **gate** so missing JRE is not fatal when config Java is used |
+| Legacy installer helpers | `system/release/installer/**` still `./JRE` and outdated 1.8 messaging                                                                       |
 
 **Secondary**: util scripts still calling `../JRE/bin/java` — update if still shipped; else document out of scope in tasks.
 
@@ -135,3 +135,4 @@ Unattended: `-Dperc.java.home=...` (already known) and/or response-file / env ma
 - Exact shared file names/locations under Jetty vs DTS trees (implementation detail).
 - Whether Windows service Procrun must re-run install after re-point (document: re-install service or update service JavaHome).
 - Whether DTS and CMS share one `java.properties` when co-located (default: each product root has its own file).
+

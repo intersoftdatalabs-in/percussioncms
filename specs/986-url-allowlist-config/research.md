@@ -68,10 +68,10 @@ Replace “explicit host/port/range allow” with allow-file globs. Retain in-co
 
 **Decision**:
 
-| File | Seed content |
-|------|----------------|
+|           File           |                                                                            Seed content                                                                             |
+|--------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | `blockedUrls.properties` | Active patterns for known-dangerous targets currently hard-coded (`http://169.254.169.254/*`, `https://169.254.169.254/*`, `http://0.0.0.0/*`, etc.) plus comments. |
-| `allowedUrls.properties` | Header comments explaining additive policy + private unlock; **commented-out** examples for weather/HR/i18n style URLs; zero active allow lines. |
+| `allowedUrls.properties` | Header comments explaining additive policy + private unlock; **commented-out** examples for weather/HR/i18n style URLs; zero active allow lines.                    |
 
 **Rationale**: Spec FR-003 / FR-003a.
 

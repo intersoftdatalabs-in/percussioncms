@@ -10,18 +10,18 @@ The file MUST survive process exit and contain at least: `outcome`, `backupGate`
 
 For each CMS/DTS component upgrade, logs **and** the durable migration report MUST allow support to answer:
 
-| Question | Required signal |
-|----------|-----------------|
-| Did migration run? | Explicit start line with component id |
-| Outcome? | One of: `SUCCESS`, `FAILED`, `SKIPPED_NON_DERBY`, `BLOCKED_BACKUP_GATE`, `ALREADY_MIGRATED` (canonical enum; data-model must match) |
-| Backup gate? | `PRODUCT_BACKUP` or `EXTERNAL_CONFIRM` or not satisfied |
-| Active backend after upgrade? | Logged backend label + driver class (no secrets) |
-| Failure reason? | Human-readable cause; **no passwords/tokens** |
+|           Question            |                                                           Required signal                                                           |
+|-------------------------------|-------------------------------------------------------------------------------------------------------------------------------------|
+| Did migration run?            | Explicit start line with component id                                                                                               |
+| Outcome?                      | One of: `SUCCESS`, `FAILED`, `SKIPPED_NON_DERBY`, `BLOCKED_BACKUP_GATE`, `ALREADY_MIGRATED` (canonical enum; data-model must match) |
+| Backup gate?                  | `PRODUCT_BACKUP` or `EXTERNAL_CONFIRM` or not satisfied                                                                             |
+| Active backend after upgrade? | Logged backend label + driver class (no secrets)                                                                                    |
+| Failure reason?               | Human-readable cause; **no passwords/tokens**                                                                                       |
 
 ## Log hygiene
 
-- Never log `PWD` or full JDBC URLs embedding passwords.  
-- Paths may be logged.  
+- Never log `PWD` or full JDBC URLs embedding passwords.
+- Paths may be logged.
 - Prefer structured key=value or clearly tagged lines for support grep.
 
 ## Idempotency signal

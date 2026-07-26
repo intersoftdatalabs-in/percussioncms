@@ -1,9 +1,7 @@
 {
   "version": "0.12.11",
   "integration_state_schema": 1,
-  "installed_integrations": [
-    "kilocode"
-  ],
+  "installed_integrations": ["kilocode"],
   "integration_settings": {
     "kilocode": {
       "script": "sh",

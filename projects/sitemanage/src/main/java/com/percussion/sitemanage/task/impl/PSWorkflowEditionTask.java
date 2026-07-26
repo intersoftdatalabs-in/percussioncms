@@ -137,7 +137,8 @@ public class PSWorkflowEditionTask extends PSAbstractWorkflowExtension implement
     } catch (Exception e) {
       if (isConcurrencyException(e)) {
         log.info(
-            "Concurrent modification detected while updating content dates for jobId: {}. The dates will be/were updated by another concurrent publish job.",
+            "Concurrent modification detected while updating content dates for jobId: {}. The dates"
+                + " will be/were updated by another concurrent publish job.",
             jobId);
         if (log.isDebugEnabled()) {
           log.debug("Concurrent modification details:", e);

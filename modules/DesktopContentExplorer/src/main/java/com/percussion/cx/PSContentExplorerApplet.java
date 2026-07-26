@@ -162,8 +162,8 @@ public class PSContentExplorerApplet extends JApplet implements IPSActionListene
   }
 
   /**
-   * Constructs an applet instance and marks whether it is being created from a hosting frame
-   * rather than launched as a browser applet.
+   * Constructs an applet instance and marks whether it is being created from a hosting frame rather
+   * than launched as a browser applet.
    *
    * @param createdFromFrame <code>true</code> if the applet is being created from the desktop
    *     content explorer frame, <code>false</code> otherwise.
@@ -214,8 +214,8 @@ public class PSContentExplorerApplet extends JApplet implements IPSActionListene
   }
 
   /**
-   * Loads the user information for the current user from the server. On failure an error dialog
-   * is shown and the error is logged.
+   * Loads the user information for the current user from the server. On failure an error dialog is
+   * shown and the error is logged.
    */
   public synchronized void setUserInfo() {
     // test logged in
@@ -592,8 +592,9 @@ public class PSContentExplorerApplet extends JApplet implements IPSActionListene
   }
 
   /**
-   * Logs the current user out by sending a logout request to the server. Any error encountered while
-   * sending the request is logged at debug level and ignored, as the session may already be closed.
+   * Logs the current user out by sending a logout request to the server. Any error encountered
+   * while sending the request is logged at debug level and ignored, as the session may already be
+   * closed.
    */
   public void logout() {
     try {
@@ -1792,7 +1793,8 @@ public class PSContentExplorerApplet extends JApplet implements IPSActionListene
   }
 
   /**
-   * Convenience method that calls {@link #getXMLDocument(String, Map) getXMLDocument(strUrl, null)}.
+   * Convenience method that calls {@link #getXMLDocument(String, Map) getXMLDocument(strUrl,
+   * null)}.
    *
    * @param strUrl a url relative to {@link #getRhythmyxCodeBase()}, must not be <code>null</code>,
    *     or empty.

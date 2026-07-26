@@ -40,9 +40,7 @@ public class ItemSummaryFinder {
 
   private IPSCmsContentSummaries cmsContentSummaries = null;
 
-  /**
-   * Creates a new item summary finder.
-   */
+  /** Creates a new item summary finder. */
   public ItemSummaryFinder() {
     super();
   }

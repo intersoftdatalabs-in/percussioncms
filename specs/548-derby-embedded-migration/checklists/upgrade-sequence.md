@@ -22,12 +22,12 @@ When **either or both** CMS and DTS still use product-managed Derby:
 
 ## Mixed estate
 
-| CMS | DTS service | CMS migrator | DTS that service |
-|-----|-------------|----------------|------------------|
-| Derby | Derby | migrates | migrates |
-| Derby | MySQL | migrates | `SKIPPED_NON_DERBY` |
-| H2 | Derby | `ALREADY_MIGRATED` | migrates |
-| MySQL | H2 | `SKIPPED_NON_DERBY` | `ALREADY_MIGRATED` |
+|  CMS  | DTS service |    CMS migrator     |  DTS that service   |
+|-------|-------------|---------------------|---------------------|
+| Derby | Derby       | migrates            | migrates            |
+| Derby | MySQL       | migrates            | `SKIPPED_NON_DERBY` |
+| H2    | Derby       | `ALREADY_MIGRATED`  | migrates            |
+| MySQL | H2          | `SKIPPED_NON_DERBY` | `ALREADY_MIGRATED`  |
 
 ## Dry-run checklist
 
@@ -46,3 +46,4 @@ When **either or both** CMS and DTS still use product-managed Derby:
 # External backup confirm (CMS and DTS migrators honor the same property)
 -Dperc.migration.externalBackupConfirmed=true
 ```
+

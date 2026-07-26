@@ -81,19 +81,20 @@ modules/perc-distribution-tree/
 ## Complexity Tracking
 
 | Violation | Why Needed | Simpler Alternative Rejected Because |
-|-----------|------------|-------------------------------------|
-| _none_ | | |
+|-----------|------------|--------------------------------------|
+| _none_    |            |                                      |
 
 ## Phase outputs
 
-| Phase | Artifact | Status |
-|-------|----------|--------|
-| 0 | [research.md](research.md) | Complete |
-| 1 | [data-model.md](data-model.md), [contracts/](contracts/), [quickstart.md](quickstart.md) | Complete |
-| 2 | `tasks.md` | Use `/speckit-tasks` |
+| Phase |                                         Artifact                                         |        Status        |
+|-------|------------------------------------------------------------------------------------------|----------------------|
+| 0     | [research.md](research.md)                                                               | Complete             |
+| 1     | [data-model.md](data-model.md), [contracts/](contracts/), [quickstart.md](quickstart.md) | Complete             |
+| 2     | `tasks.md`                                                                               | Use `/speckit-tasks` |
 
 ## Next command
 
 ```text
 /speckit-tasks
 ```
+

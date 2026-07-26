@@ -47,9 +47,7 @@ import org.apache.tools.ant.Task;
  * </pre>
  */
 public class PSValidateRepositoryConnection extends Task {
-  /**
-   * Creates a new repository connection validation task.
-   */
+  /** Creates a new repository connection validation task. */
   public PSValidateRepositoryConnection() {}
 
   private String rootDir;
@@ -203,8 +201,7 @@ public class PSValidateRepositoryConnection extends Task {
    * Build a user-facing failure message that never intentionally embeds secrets. When the root
    * cause looks like a missing driver, append FR-012-style remediation.
    */
-  static String failureMessage(
-      String backend, String server, String driverClass, String detail) {
+  static String failureMessage(String backend, String server, String driverClass, String detail) {
     StringBuilder msg = new StringBuilder();
     msg.append("Repository connection validation failed for backend=")
         .append(backend == null ? "" : backend)
@@ -252,12 +249,11 @@ public class PSValidateRepositoryConnection extends Task {
   }
 
   /**
-   * Register JARs from the install tree's JDBC driver drop directory so DriverManager can load
-   * them during fresh install validation.
+   * Register JARs from the install tree's JDBC driver drop directory so DriverManager can load them
+   * during fresh install validation.
    */
   static void registerJdbcDriversFromInstall(String installRoot) {
-    Path jdbcDir =
-        Paths.get(installRoot, "jetty", "base", "lib", "jdbc");
+    Path jdbcDir = Paths.get(installRoot, "jetty", "base", "lib", "jdbc");
     if (!Files.isDirectory(jdbcDir)) {
       return;
     }

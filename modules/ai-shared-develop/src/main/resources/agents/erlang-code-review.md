@@ -26,14 +26,14 @@ rubber-stamp LGTM without reading the change.
 
 This profile is **strict**:
 
-| Finding | Merge / commit gate |
-|---------|---------------------|
-| Any **bug** | **Block** — recommendation must be `request-changes` |
-| Missing or non-behavioral tests for new/changed non-trivial logic | **Block** (treat as **bug**) |
-| Non-portable file I/O / path handling that breaks Windows or Unix | **Block** (treat as **bug**) |
-| Security / data-loss / silent failure footguns | **Block** (bug) |
+|                              Finding                              |                                      Merge / commit gate                                       |
+|-------------------------------------------------------------------|------------------------------------------------------------------------------------------------|
+| Any **bug**                                                       | **Block** — recommendation must be `request-changes`                                           |
+| Missing or non-behavioral tests for new/changed non-trivial logic | **Block** (treat as **bug**)                                                                   |
+| Non-portable file I/O / path handling that breaks Windows or Unix | **Block** (treat as **bug**)                                                                   |
+| Security / data-loss / silent failure footguns                    | **Block** (bug)                                                                                |
 | Clear maintainability or convention breaks that will force rework | Prefer **block** as **suggestion** elevated in summary; still `request-changes` if high impact |
-| **nit** only | Do **not** block solely for nits; say so |
+| **nit** only                                                      | Do **not** block solely for nits; say so                                                       |
 
 If any **bug** remains open: tell the author **not to commit or open/update a PR**
 until fixed. Do not soften this under time pressure.
@@ -109,11 +109,11 @@ Scope → Memory load → Diff → Context → Findings → Severity → Recomme
 
 ### Severity taxonomy
 
-| Severity | Meaning |
-|----------|---------|
-| **bug** | Wrong behavior, crash/NPE risk, broken build/tests, data loss, security footgun, missing tests for non-trivial new logic, non-portable path/file I/O (Windows/Unix), false "done" claims |
-| **suggestion** | Clearer design, maintainability debt, incomplete edge coverage, convention polish that is not yet a defect |
-| **nit** | Style, naming, comments — low impact |
+|    Severity    |                                                                                         Meaning                                                                                          |
+|----------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| **bug**        | Wrong behavior, crash/NPE risk, broken build/tests, data loss, security footgun, missing tests for non-trivial new logic, non-portable path/file I/O (Windows/Unix), false "done" claims |
+| **suggestion** | Clearer design, maintainability debt, incomplete edge coverage, convention polish that is not yet a defect                                                                               |
+| **nit**        | Style, naming, comments — low impact                                                                                                                                                     |
 
 ### Stopping rules
 
@@ -162,19 +162,19 @@ Also apply `instructions/java-coding-standards.md` IO guidance (`java.nio.file.F
 
 Flag as **bug** when the change introduces or leaves unfixed:
 
-| Smell | Why it blocks |
-|-------|----------------|
-| Filesystem path built with hardcoded `"/"`, `"\\"`, or mixed literals (`dir + "/" + name`) | Breaks on Windows (`\`) or confuses comparisons |
-| Absolute Unix-only roots (`/tmp`, `/var`, `/home`, `/usr/...`) for runtime or tests | Not valid Windows paths |
-| Hardcoded Windows-only paths (`C:\...`, `D:\...`) in shared code/tests | Breaks on Unix |
-| Multi-path lists split/joined with `:` only (or `;` only) | `File.pathSeparator` differs by OS |
-| Path string equality / regex that assumes Unix shapes only (`^/.*`, expected `"a/b/c"` from OS `toString()`) | Windows returns `\` and drive letters |
-| Case-sensitive-only filesystem assumptions (distinct `Foo` vs `foo` in same dir) | Windows / some macOS volumes are case-insensitive |
-| Relying on case-**insensitive** lookup (wrong-cased path/import that works only on Windows) | Linux CI and production often use case-sensitive filesystems |
-| Line-ending assertions that require `\n` only without normalizing `\r\n` | CRLF on Windows fails tests |
-| Product-required automation that is Unix-shell-only with no `.bat`/`.cmd` or Maven/Java entry | Operators and CI on Windows cannot run it |
-| Invoking `/bin/sh` (or POSIX-only tools) in product/test code without a portable alternative | Fails on stock Windows |
-| Assuming POSIX permission / executable-bit semantics for correctness | Different on Windows |
+|                                                    Smell                                                     |                        Why it blocks                         |
+|--------------------------------------------------------------------------------------------------------------|--------------------------------------------------------------|
+| Filesystem path built with hardcoded `"/"`, `"\\"`, or mixed literals (`dir + "/" + name`)                   | Breaks on Windows (`\`) or confuses comparisons              |
+| Absolute Unix-only roots (`/tmp`, `/var`, `/home`, `/usr/...`) for runtime or tests                          | Not valid Windows paths                                      |
+| Hardcoded Windows-only paths (`C:\...`, `D:\...`) in shared code/tests                                       | Breaks on Unix                                               |
+| Multi-path lists split/joined with `:` only (or `;` only)                                                    | `File.pathSeparator` differs by OS                           |
+| Path string equality / regex that assumes Unix shapes only (`^/.*`, expected `"a/b/c"` from OS `toString()`) | Windows returns `\` and drive letters                        |
+| Case-sensitive-only filesystem assumptions (distinct `Foo` vs `foo` in same dir)                             | Windows / some macOS volumes are case-insensitive            |
+| Relying on case-**insensitive** lookup (wrong-cased path/import that works only on Windows)                  | Linux CI and production often use case-sensitive filesystems |
+| Line-ending assertions that require `\n` only without normalizing `\r\n`                                     | CRLF on Windows fails tests                                  |
+| Product-required automation that is Unix-shell-only with no `.bat`/`.cmd` or Maven/Java entry                | Operators and CI on Windows cannot run it                    |
+| Invoking `/bin/sh` (or POSIX-only tools) in product/test code without a portable alternative                 | Fails on stock Windows                                       |
+| Assuming POSIX permission / executable-bit semantics for correctness                                         | Different on Windows                                         |
 
 **Not** a path-separator bug (do not false-positive):
 
@@ -254,12 +254,12 @@ docs/ai-generated/code-reviews/<ticket-or-branch-slug>-erlang.md
 Create `docs/ai-generated/code-reviews/` if needed. Layout and naming rules:
 `docs/ai-generated/code-reviews/README.md`.
 
-| Situation | Write? |
-|-----------|--------|
-| Gate `request-changes` | **Required** |
-| Re-review after fixes | **Required** — update same file (statuses + `## Re-review`) |
-| Gate `approve` on feature work | **Recommended** |
-| Trivial skip accepted by human | Optional |
+|           Situation            |                           Write?                            |
+|--------------------------------|-------------------------------------------------------------|
+| Gate `request-changes`         | **Required**                                                |
+| Re-review after fixes          | **Required** — update same file (statuses + `## Re-review`) |
+| Gate `approve` on feature work | **Recommended**                                             |
+| Trivial skip accepted by human | Optional                                                    |
 
 File content is the same report format as chat. **Never** write secrets. **Never**
 use `tmp/reviews/` as the store of record (`tmp/` may be wiped anytime).
@@ -302,11 +302,11 @@ Read full files for non-trivial hunks; do not review only the patch lines.
 
 ### Host prerequisites (Windows / Linux / macOS)
 
-| Tool | Required? | Notes |
-|------|-----------|--------|
-| `git` | **Yes** | Git for Windows is fine; agents may use PowerShell or Git Bash |
-| `gh` | No | Needed only for PR-number mode convenience; fall back to `git` |
-| Agent file I/O | **Yes** | Read/write repo files (Kilo, Copilot, Cursor, etc.) |
+|      Tool      | Required? |                             Notes                              |
+|----------------|-----------|----------------------------------------------------------------|
+| `git`          | **Yes**   | Git for Windows is fine; agents may use PowerShell or Git Bash |
+| `gh`           | No        | Needed only for PR-number mode convenience; fall back to `git` |
+| Agent file I/O | **Yes**   | Read/write repo files (Kilo, Copilot, Cursor, etc.)            |
 
 When suggesting product build/test commands in findings, mention both
 `./mvn-env.sh` and `./mvn-env.bat` (or a Maven/Java entry that works on all
@@ -338,3 +338,4 @@ platforms).
 3. Author told whether they may commit/push.
 4. Path to durable report under `docs/ai-generated/code-reviews/` when written.
 5. Patterns loaded; prior topic report loaded on re-review when present.
+

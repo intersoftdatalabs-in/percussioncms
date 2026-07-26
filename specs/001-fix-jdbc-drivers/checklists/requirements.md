@@ -33,3 +33,4 @@
 
 - Items marked incomplete require spec updates before `/speckit.clarify` or `/speckit.plan`
 - The spec is implementation-leaning in a few spots (ANT script, `DEVELOPMENT` env var) only where those are explicitly part of the requirement surface (backward compatibility, regression surface). The success criteria themselves remain technology-agnostic (file presence, file size, server-start success).
+

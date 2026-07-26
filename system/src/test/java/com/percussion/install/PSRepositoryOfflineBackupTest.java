@@ -44,9 +44,7 @@ public class PSRepositoryOfflineBackupTest {
     Files.writeString(nested.resolve("seg1"), "data1", StandardCharsets.UTF_8);
 
     Path companion =
-        temp.resolve("rxconfig")
-            .resolve("Installer")
-            .resolve("rxrepository.properties");
+        temp.resolve("rxconfig").resolve("Installer").resolve("rxrepository.properties");
     Files.createDirectories(companion.getParent());
     Files.writeString(companion, "DB_BACKEND=DERBY\n", StandardCharsets.UTF_8);
 
@@ -65,14 +63,14 @@ public class PSRepositoryOfflineBackupTest {
             backupRoot.resolve("companion-config").resolve("rxrepository.properties")));
     assertEquals(
         "data0",
-        Files.readString(backupRoot.resolve("repository-data").resolve("seg0"), StandardCharsets.UTF_8));
+        Files.readString(
+            backupRoot.resolve("repository-data").resolve("seg0"), StandardCharsets.UTF_8));
   }
 
   @Test
   void diskSpaceCheckAgainstTemp() throws Exception {
     assertTrue(PSRepositoryOfflineBackup.hasSufficientDiskSpace(temp, 1L));
-    assertTrue(
-        !PSRepositoryOfflineBackup.hasSufficientDiskSpace(temp, Long.MAX_VALUE / 2));
+    assertTrue(!PSRepositoryOfflineBackup.hasSufficientDiskSpace(temp, Long.MAX_VALUE / 2));
   }
 
   @Test
@@ -95,8 +93,8 @@ public class PSRepositoryOfflineBackupTest {
   }
 
   /**
-   * T082 / QC-017: path building uses {@link Path#resolve} (portable separators). Companion dest
-   * is file-name only so Windows absolute paths do not leak into backup tree structure.
+   * T082 / QC-017: path building uses {@link Path#resolve} (portable separators). Companion dest is
+   * file-name only so Windows absolute paths do not leak into backup tree structure.
    */
   @Test
   void pathBuildingUsesPortableResolve_companionIsFilenameOnly() throws Exception {
@@ -109,9 +107,7 @@ public class PSRepositoryOfflineBackupTest {
     assertEquals(nested.normalize(), viaMulti.normalize());
 
     Path companion =
-        temp.resolve("rxconfig")
-            .resolve("Installer")
-            .resolve("rxrepository.properties");
+        temp.resolve("rxconfig").resolve("Installer").resolve("rxrepository.properties");
     Files.createDirectories(companion.getParent());
     Files.writeString(companion, "DB_BACKEND=DERBY\n", StandardCharsets.UTF_8);
 
@@ -120,13 +116,16 @@ public class PSRepositoryOfflineBackupTest {
         PSRepositoryOfflineBackup.copyRepositoryTree(repo, backupRoot, companion);
 
     assertTrue(result.filesCopied() >= 2);
-    Path companionDest =
-        backupRoot.resolve("companion-config").resolve("rxrepository.properties");
+    Path companionDest = backupRoot.resolve("companion-config").resolve("rxrepository.properties");
     assertTrue(Files.isRegularFile(companionDest));
     assertEquals("rxrepository.properties", companionDest.getFileName().toString());
     assertTrue(
         Files.isRegularFile(
-            backupRoot.resolve("repository-data").resolve("seg").resolve("nested").resolve("data.bin")));
+            backupRoot
+                .resolve("repository-data")
+                .resolve("seg")
+                .resolve("nested")
+                .resolve("data.bin")));
   }
 
   @Test

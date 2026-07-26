@@ -24,7 +24,6 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.jar.JarEntry;
@@ -152,8 +151,10 @@ class VerifyJdbcDriversTest {
     int codeMatch =
         VerifyJdbcDrivers.run(
             new String[] {
-              "--artifact", fakeArtifact.toString(),
-              "--workdir", workdir.resolve("out1").toString(),
+              "--artifact",
+              fakeArtifact.toString(),
+              "--workdir",
+              workdir.resolve("out1").toString(),
               "--expected-driver-glob",
               "derby-*.jar"
             });
@@ -162,8 +163,10 @@ class VerifyJdbcDriversTest {
     int codeMiss =
         VerifyJdbcDrivers.run(
             new String[] {
-              "--artifact", fakeArtifact.toString(),
-              "--workdir", workdir.resolve("out2").toString(),
+              "--artifact",
+              fakeArtifact.toString(),
+              "--workdir",
+              workdir.resolve("out2").toString(),
               "--expected-driver-glob",
               "missing-*.jar"
             });

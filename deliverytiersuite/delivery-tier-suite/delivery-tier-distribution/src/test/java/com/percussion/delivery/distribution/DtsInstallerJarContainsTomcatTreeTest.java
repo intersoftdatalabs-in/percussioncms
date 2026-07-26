@@ -28,11 +28,11 @@ import java.util.zip.ZipFile;
 import org.junit.jupiter.api.Test;
 
 /**
- * Regression guard: the DTS shipping jar must include the full Cargo-packaged Tomcat tree
- * (not only {@code Deployment/Server/common/lib} logging jars).
+ * Regression guard: the DTS shipping jar must include the full Cargo-packaged Tomcat tree (not only
+ * {@code Deployment/Server/common/lib} logging jars).
  *
- * <p>Without this, {@code java -jar delivery-tier-distribution.jar} can report BUILD SUCCESSFUL
- * in a few seconds while leaving no {@code conf/server.xml}, {@code bin/}, or DTS wars — the
+ * <p>Without this, {@code java -jar delivery-tier-distribution.jar} can report BUILD SUCCESSFUL in
+ * a few seconds while leaving no {@code conf/server.xml}, {@code bin/}, or DTS wars — the
  * hollow-payload failure mode after #1471/#1473/#1475 preinstall work.
  *
  * <p>No-op when {@code target/delivery-tier-distribution.jar} is absent (IDE / ad-hoc runs).

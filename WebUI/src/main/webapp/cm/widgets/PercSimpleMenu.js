@@ -129,7 +129,10 @@
         var imgs = doc.body.querySelectorAll("img");
         if (imgs.length === 1 && doc.body.children.length === 1) {
           var src = imgs[0].getAttribute("src") || "";
-          if (!/^\s*javascript:/i.test(src) && !/^\s*data:text\/html/i.test(src)) {
+          if (
+            !/^\s*javascript:/i.test(src) &&
+            !/^\s*data:text\/html/i.test(src)
+          ) {
             var img = document.createElement("img");
             img.setAttribute("src", src);
             if (imgs[0].getAttribute("alt") != null) {

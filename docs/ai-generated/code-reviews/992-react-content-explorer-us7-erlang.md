@@ -373,3 +373,4 @@ mitigation commit hash + `gh api graphql resolveReviewThread`).
   10. `docs(992/us7): T080 capability-matrix P-Adv Done + T081 evidence`
 - After this PR lands, the spec 992 GA gate (SC-012) remains for the
   Polish phase (T082–T091) per tasks.md.
+

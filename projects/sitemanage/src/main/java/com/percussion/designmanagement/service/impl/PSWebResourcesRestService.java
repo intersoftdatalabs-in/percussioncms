@@ -72,11 +72,14 @@ public class PSWebResourcesRestService {
   // server-side via PSExceptionUtils.getMessageForLog before this generic message is returned.
   private static final String GENERIC_INVALID_FILE_PATH = "Invalid file path";
 
-  private static final String GENERIC_FILE_ALREADY_EXISTS = "A file with the same name already exists";
+  private static final String GENERIC_FILE_ALREADY_EXISTS =
+      "A file with the same name already exists";
 
-  private static final String GENERIC_FILE_NAME_CONFLICT = "The file name conflicts with an existing folder or reserved name";
+  private static final String GENERIC_FILE_NAME_CONFLICT =
+      "The file name conflicts with an existing folder or reserved name";
 
-  private static final String GENERIC_FILE_OPERATION_ERROR = "An error occurred while processing the file";
+  private static final String GENERIC_FILE_OPERATION_ERROR =
+      "An error occurred while processing the file";
 
   private IPSFileSystemService fileSystemService;
   private IPSUserService userService;

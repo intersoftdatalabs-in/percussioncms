@@ -103,7 +103,9 @@ public class PSPropertyDefinition implements PropertyDefinition {
 
   @Override
   public String[] getAvailableQueryOperators() {
-    return new String[] {"=", "<>", "<", "<=", ">", ">=", "LIKE", "NOT LIKE", "IS NULL", "IS NOT NULL"};
+    return new String[] {
+      "=", "<>", "<", "<=", ">", ">=", "LIKE", "NOT LIKE", "IS NULL", "IS NOT NULL"
+    };
   }
 
   @Override

@@ -270,14 +270,15 @@ public interface IPSAssetService extends IPSDataService<PSAsset, PSAssetSummary,
       throws PSAssetServiceException;
 
   /**
-   * Copy a widget's local content to a shared asset using the supplied name, folder, and relationship.  The asset
-   * specified by the relationship will be copied and the new shared copy will be related to the widget specified by
-   * the relationship.
+   * Copy a widget's local content to a shared asset using the supplied name, folder, and
+   * relationship. The asset specified by the relationship will be copied and the new shared copy
+   * will be related to the widget specified by the relationship.
    *
    * @param name The name to use for the new asset, may not be <code>null</code> or empty.
-   * @param path The path that specifies the folder in which to create the asset, not <code>null</code> or empty, must be
-   *             a valid path.
-   * @param awRel The source asset-widget relationship, must specify local content, not <code>null</code>.
+   * @param path The path that specifies the folder in which to create the asset, not <code>null
+   *     </code> or empty, must be a valid path.
+   * @param awRel The source asset-widget relationship, must specify local content, not <code>null
+   *     </code>.
    * @return The new shared asset's item id. Eg: -1-101-709
    * @throws PSAssetServiceException If there are any errors.
    */

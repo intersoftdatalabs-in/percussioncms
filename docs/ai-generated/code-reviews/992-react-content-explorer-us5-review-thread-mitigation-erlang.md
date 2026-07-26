@@ -87,3 +87,4 @@ afterwards confirms `isResolved: true` for the thread.
 - Recommendation: `approve`. May commit/push: yes.
 - Suggested commit message:
   `fix(992/us5): address kilo-code-bot PR #1398 review thread (SearchPanel retry button)`
+

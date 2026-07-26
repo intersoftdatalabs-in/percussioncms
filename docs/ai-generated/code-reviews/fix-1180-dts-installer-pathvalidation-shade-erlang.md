@@ -60,9 +60,10 @@ behavioral extractArchive tests and a package `verify` antrun gate.
 
 ## Files
 
-| Path | Role |
-|------|------|
-| `…/pom.xml` | shade + junit test deps + verify antrun |
-| `…/MainDTSPreInstall.java` | catch PathValidation.SecurityException |
-| `…/MainDTSPreInstallExtractArchiveTest.java` | behavioral tests |
-| `…/README.md` | packaging contract docs |
+|                     Path                     |                  Role                   |
+|----------------------------------------------|-----------------------------------------|
+| `…/pom.xml`                                  | shade + junit test deps + verify antrun |
+| `…/MainDTSPreInstall.java`                   | catch PathValidation.SecurityException  |
+| `…/MainDTSPreInstallExtractArchiveTest.java` | behavioral tests                        |
+| `…/README.md`                                | packaging contract docs                 |
+

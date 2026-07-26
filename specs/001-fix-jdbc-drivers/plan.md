@@ -87,5 +87,6 @@ pom.xml (root)                                              # promote ${mariadb.
 > No constitution violations. Table intentionally empty.
 
 | Violation | Why Needed | Simpler Alternative Rejected Because |
-|-----------|------------|-------------------------------------|
-| _none_    | _none_     | _none_                              |
+|-----------|------------|--------------------------------------|
+| _none_    | _none_     | _none_                               |
+

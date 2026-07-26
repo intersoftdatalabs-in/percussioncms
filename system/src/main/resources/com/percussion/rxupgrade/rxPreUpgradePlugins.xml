@@ -1,11 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!--
-  Pre-upgrade plugins run with the CMS stopped (see install.xml preInstallForDevUpg /
-  production upgrade init). Modules that must run as pre-upgrade include <preupgrade/>.
-
-  #548: Derby→H2 migration must complete before SQL/upgrade plugins that assume the live
-  repository backend.
--->
+<!-- Pre-upgrade plugins run with the CMS stopped (see install.xml preInstallForDevUpg
+	/ production upgrade init). Modules that must run as pre-upgrade include
+	<preupgrade/>. #548: Derby→H2 migration must complete before SQL/upgrade
+	plugins that assume the live repository backend. -->
 <rxupgrade>
 	<module name="server"
 		logfile="PSUpgradePluginEmbeddedRepositoryMigration.log">

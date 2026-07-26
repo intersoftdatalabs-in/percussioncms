@@ -15,12 +15,12 @@ Open `java/xss` alerts are residual false positives: JAX-RS methods return typed
 
 ## Gate
 
-| Check | Result |
-|-------|--------|
-| Bugs | none |
-| Behavioral unit tests | present (`PSSiteDataRestServiceXssTest` + new same-line source pin) |
+|            Check             |                                   Result                                    |
+|------------------------------|-----------------------------------------------------------------------------|
+| Bugs                         | none                                                                        |
+| Behavioral unit tests        | present (`PSSiteDataRestServiceXssTest` + new same-line source pin)         |
 | Cross-platform path/file I/O | test uses `Path.of` + `Files.readString` with dual relative roots; portable |
-| May commit/push | **yes** |
+| May commit/push              | **yes**                                                                     |
 
 ## Issues
 
@@ -37,3 +37,4 @@ None blocking.
 ./mvn-env.sh -pl projects/sitemanage -Dtest=PSSiteDataRestServiceXssTest -Dai.integrity.skip=true test
 # Tests run: 17, Failures: 0
 ```
+

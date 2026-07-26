@@ -28,7 +28,6 @@ import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
 
-import com.percussion.foldermanagement.data.PSWorkflowAssignment;
 import com.percussion.foldermanagement.service.IPSFolderService;
 import com.percussion.foldermanagement.service.IPSFolderService.PSWorkflowAssignmentInProgressException;
 import com.percussion.foldermanagement.service.IPSFolderService.PSWorkflowNotFoundException;
@@ -43,8 +42,8 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 /**
- * Regression tests for PSFolderRestService that verify exception messages are not leaked back to the
- * HTTP client (CWE-209 / CodeQL {@code java/error-message-exposure}).
+ * Regression tests for PSFolderRestService that verify exception messages are not leaked back to
+ * the HTTP client (CWE-209 / CodeQL {@code java/error-message-exposure}).
  *
  * <p>Follows the Constitution III fail-then-pass contract: on pre-fix code the response body is
  * built from {@code e.getMessage()}, so these assertions fail. On post-fix code the body is a
@@ -55,14 +54,12 @@ class PSFolderRestServiceErrorExposureTest {
 
   private static final String SENSITIVE_TOKEN = "internal-secret-path=/etc/shadow";
 
-  private static final String LEAKY_WORKFLOW_NOT_FOUND =
-      "Workflow not found at " + SENSITIVE_TOKEN;
+  private static final String LEAKY_WORKFLOW_NOT_FOUND = "Workflow not found at " + SENSITIVE_TOKEN;
 
   private static final String LEAKY_ILLEGAL_ARG =
       "Illegal argument: bad value at " + SENSITIVE_TOKEN;
 
-  private static final String LEAKY_PATH_NOT_FOUND =
-      "Path not found at " + SENSITIVE_TOKEN;
+  private static final String LEAKY_PATH_NOT_FOUND = "Path not found at " + SENSITIVE_TOKEN;
 
   private static final String LEAKY_WORKFLOW_IN_PROGRESS =
       "Workflow assignment in progress for site db1.internal.example.com " + SENSITIVE_TOKEN;
@@ -81,7 +78,9 @@ class PSFolderRestServiceErrorExposureTest {
   }
 
   @Test
-  @DisplayName("Should not expose PSWorkflowNotFoundException details and should HTML-encode user input in startGetAssociatedFoldersJob")
+  @DisplayName(
+      "Should not expose PSWorkflowNotFoundException details and should HTML-encode user input in"
+          + " startGetAssociatedFoldersJob")
   void testStartGetAssociatedFoldersJobWorkflowNotFound() throws Exception {
     String badWorkflow = "<script>alert(1)</script>";
     when(mockFolderService.startGetAssignedFoldersJob(badWorkflow, "path", false))

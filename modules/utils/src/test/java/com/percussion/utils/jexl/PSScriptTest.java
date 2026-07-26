@@ -577,8 +577,8 @@ public class PSScriptTest {
   }
 
   /**
-   * Concurrent first-compile smoke: many threads hit an uncompiled instance together. Double-checked
-   * locking must publish a single usable compiled script without races.
+   * Concurrent first-compile smoke: many threads hit an uncompiled instance together.
+   * Double-checked locking must publish a single usable compiled script without races.
    */
   @Test
   public void testConcurrentFirstCompile() throws Exception {
@@ -611,7 +611,8 @@ public class PSScriptTest {
     }
 
     start.countDown();
-    assertTrue(done.await(15, TimeUnit.SECONDS), "All concurrent first-compile threads should finish");
+    assertTrue(
+        done.await(15, TimeUnit.SECONDS), "All concurrent first-compile threads should finish");
     executor.shutdownNow();
     if (error.get() != null) {
       throw new AssertionError("Concurrent first compile failed", error.get());
@@ -619,7 +620,8 @@ public class PSScriptTest {
 
     java.lang.reflect.Field compiledScriptField = PSScript.class.getDeclaredField("compiledScript");
     compiledScriptField.setAccessible(true);
-    assertNotNull(compiledScriptField.get(ps), "Compiled script should be published after concurrent eval");
+    assertNotNull(
+        compiledScriptField.get(ps), "Compiled script should be published after concurrent eval");
   }
 
   /**
@@ -651,14 +653,9 @@ public class PSScriptTest {
 
     // Control: RESTRICTED blocks non-allowlisted domain types (returns null, not the method result)
     JexlEngine restricted =
-        new JexlBuilder()
-            .permissions(JexlPermissions.RESTRICTED)
-            .strict(false)
-            .safe(true)
-            .create();
+        new JexlBuilder().permissions(JexlPermissions.RESTRICTED).strict(false).safe(true).create();
     MapContext restrictedCtx = new MapContext(bindings);
-    Object restrictedResult =
-        restricted.createScript("$widget.echo('ok')").execute(restrictedCtx);
+    Object restrictedResult = restricted.createScript("$widget.echo('ok')").execute(restrictedCtx);
     assertNotEquals(
         "ok",
         restrictedResult,

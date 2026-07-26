@@ -3,7 +3,7 @@
 **Date:** 2026-07-21  
 **Target Branch:** `fix/1388-mysql-connector-and-collation-fix`  
 **PR Target:** `development`  
-**Author:** Antigravity  
+**Author:** Antigravity
 
 ---
 
@@ -18,16 +18,20 @@ This review covers the fix for GitHub issue [#1388](https://github.com/intersoft
 ## 2. Review Findings
 
 ### 2.1 Correctness & Functional Logic — PASS
+
 - **JDBC Driver Distribution**: `mysql-connector-j-8.4.0.jar` is properly staged into `jetty/base/lib/jdbc/` during `perc-distribution-tree` packaging and verified by `verify-jdbc-drivers`.
 - **SQL Collation**: Explicitly casting `cast(p.COMMUNITYID AS CHAR)` to `utf8mb4_0900_ai_ci` ensures the UNION with `PSX_DISPLAYFORMATPROPERTIES.PROPERTYVALUE` succeeds on MySQL 8.0/8.4 default database collations.
 
 ### 2.2 Cross-Platform Compatibility — PASS
+
 - All path inclusions and delete specifications use portable globs (`mysql-connector-j-*.jar`) and platform-independent XML configurations.
 
 ### 2.3 Maven Verification & Tests — PASS
+
 - Standalone build (`cd modules/perc-distribution-tree && ../../mvn-env.sh clean install`) passes all 75 unit tests with zero failures or errors, including `StagingCleanupAntScriptTest`, `InstallXmlDeleteSetTest`, and `VerifyJdbcDrivers`.
 
 ---
 
 ## 3. Review Gate Conclusion
+
 **PASS** — Approved for commit and PR submission.

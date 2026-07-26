@@ -160,15 +160,15 @@ Phase 4 US1 Critical deprecation + behavior tests
 Phase 7 Polish + scripted smoke (feature-complete)
 ```
 
-| Phase | Depends on | Blocks |
-|-------|------------|--------|
-| Setup | — | Foundational |
-| Foundational | Setup | All stories |
-| US2 (P1) | Foundational | US1 recommended; hard gate for meaningful deprecation |
-| US1 (P1) | US2 merged | Feature-complete smoke quality |
-| US4 (P2) | US2; ideally US1 | — |
-| US3 (P2) | US2 | — |
-| Polish | US1–US4 | Feature done |
+|    Phase     |    Depends on    |                        Blocks                         |
+|--------------|------------------|-------------------------------------------------------|
+| Setup        | —                | Foundational                                          |
+| Foundational | Setup            | All stories                                           |
+| US2 (P1)     | Foundational     | US1 recommended; hard gate for meaningful deprecation |
+| US1 (P1)     | US2 merged       | Feature-complete smoke quality                        |
+| US4 (P2)     | US2; ideally US1 | —                                                     |
+| US3 (P2)     | US2              | —                                                     |
+| Polish       | US1–US4          | Feature done                                          |
 
 **Story completion order (recommended)**: US2 → US1 → US4 → US3 → Polish  
 (US3 docs can be drafted in parallel with US1/US4.)
@@ -218,25 +218,25 @@ Phase 7 Polish + scripted smoke (feature-complete)
 
 ## Task Summary
 
-| Phase | Story | Task IDs | Count |
-|-------|--------|----------|-------|
-| 1 Setup | — | T001–T004 | 4 |
-| 2 Foundational | — | T005–T010 | 6 |
-| 3 US2 Build (MVP) | US2 | T011–T032 | 22 |
-| 4 US1 Editors/Publishers | US1 | T033–T045 | 13 |
-| 5 US4 Integrators | US4 | T046–T055 | 10 |
-| 6 US3 Operators | US3 | T056–T061 | 6 |
-| 7 Polish | — | T062–T069 | 8 |
-| **Total** | | **T001–T069** | **69** |
+|          Phase           | Story |   Task IDs    | Count  |
+|--------------------------|-------|---------------|--------|
+| 1 Setup                  | —     | T001–T004     | 4      |
+| 2 Foundational           | —     | T005–T010     | 6      |
+| 3 US2 Build (MVP)        | US2   | T011–T032     | 22     |
+| 4 US1 Editors/Publishers | US1   | T033–T045     | 13     |
+| 5 US4 Integrators        | US4   | T046–T055     | 10     |
+| 6 US3 Operators          | US3   | T056–T061     | 6      |
+| 7 Polish                 | —     | T062–T069     | 8      |
+| **Total**                |       | **T001–T069** | **69** |
 
 ### Per user story
 
-| Story | Tasks | Independent test |
-|-------|-------|------------------|
-| US2 | 22 | Full compile + jcr 2.0 tree + compile-only PR |
-| US1 | 13 | Critical-path deprecation + module tests |
-| US4 | 10 | Toolkit/extension tests + rebuild contract |
-| US3 | 6 | Release notes + dependency/security evidence |
+| Story | Tasks |               Independent test                |
+|-------|-------|-----------------------------------------------|
+| US2   | 22    | Full compile + jcr 2.0 tree + compile-only PR |
+| US1   | 13    | Critical-path deprecation + module tests      |
+| US4   | 10    | Toolkit/extension tests + rebuild contract    |
+| US3   | 6     | Release notes + dependency/security evidence  |
 
 ### MVP scope
 

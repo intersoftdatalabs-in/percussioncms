@@ -11,6 +11,7 @@
 **Decision**: New shells are registered via a single `componentRegistry.set()` call in `WebUI/src/main/ts/registry.ts`.
 
 **Rationale**: The registry is a flat `Map<string, ComponentType<any>>`. New shells require no framework config, just one import and one `.set()` call:
+
 ```ts
 componentRegistry.set("WorkflowAdminShell", WorkflowAdminShell);
 componentRegistry.set("AdminShell", AdminShell);
@@ -105,14 +106,15 @@ None. All technical questions are resolved from codebase evidence.
 
 ## Confirmed Patterns Summary
 
-| Concern | Pattern | Evidence |
-|---|---|---|
-| Shell registration | `componentRegistry.set(name, Component)` in `registry.ts` | `registry.ts` lines 37–57 |
-| Intra-shell navigation | `useState<Section>` state machine | `PublishingShell.tsx` lines 73–100 |
-| REST API calls | `get<T>(PATHS.X)` from `api/client.ts` | `client.ts`, `paths.ts` |
-| i18n | `message(WF_MSG.KEY)` + per-module `messages.ts` | `message.ts`, `contentExplorer/messages.ts` |
-| Mount element | `perc-admin-workflow-explorer` | `adminWorkflow.jsp` lines 219–221 |
-| Mount call change | Replace `ContentExplorerShell` with `WorkflowAdminShell` | `adminWorkflow.jsp` line 240 |
-| Unit tests | `src/test/ts/workflowAdmin/*.test.tsx` via `npm test` | `package.json`, existing test files |
-| E2E specs | `perc-qa-automation/frontend/tests/{us-id}-workflow-admin.spec.js` | Existing spec files |
-| View dispatch | `views.put("workflowAdmin", "adminWorkflowModern.jsp")` in `index.jsp` | `index.jsp` lines 62–72 |
+|        Concern         |                                Pattern                                 |                  Evidence                   |
+|------------------------|------------------------------------------------------------------------|---------------------------------------------|
+| Shell registration     | `componentRegistry.set(name, Component)` in `registry.ts`              | `registry.ts` lines 37–57                   |
+| Intra-shell navigation | `useState<Section>` state machine                                      | `PublishingShell.tsx` lines 73–100          |
+| REST API calls         | `get<T>(PATHS.X)` from `api/client.ts`                                 | `client.ts`, `paths.ts`                     |
+| i18n                   | `message(WF_MSG.KEY)` + per-module `messages.ts`                       | `message.ts`, `contentExplorer/messages.ts` |
+| Mount element          | `perc-admin-workflow-explorer`                                         | `adminWorkflow.jsp` lines 219–221           |
+| Mount call change      | Replace `ContentExplorerShell` with `WorkflowAdminShell`               | `adminWorkflow.jsp` line 240                |
+| Unit tests             | `src/test/ts/workflowAdmin/*.test.tsx` via `npm test`                  | `package.json`, existing test files         |
+| E2E specs              | `perc-qa-automation/frontend/tests/{us-id}-workflow-admin.spec.js`     | Existing spec files                         |
+| View dispatch          | `views.put("workflowAdmin", "adminWorkflowModern.jsp")` in `index.jsp` | `index.jsp` lines 62–72                     |
+

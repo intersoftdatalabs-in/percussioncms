@@ -1,13 +1,13 @@
 # Erlang review — filter install managed-entity version nulling
 
-| Field | Value |
-|-------|--------|
-| **Date** | 2026-07-18 |
-| **Branch** | `989-react-cui-widget-builder` |
-| **Scope** | Uncommitted local changes vs `HEAD` |
-| **Intent** | Fix perc.Baseline UnexpectedRollbackException on filter install (`deserializeAndSaveFilter`) |
-| **Recommendation** | **approve** |
-| **Gate** | **May commit/push: yes** |
+|       Field        |                                            Value                                             |
+|--------------------|----------------------------------------------------------------------------------------------|
+| **Date**           | 2026-07-18                                                                                   |
+| **Branch**         | `989-react-cui-widget-builder`                                                               |
+| **Scope**          | Uncommitted local changes vs `HEAD`                                                          |
+| **Intent**         | Fix perc.Baseline UnexpectedRollbackException on filter install (`deserializeAndSaveFilter`) |
+| **Recommendation** | **approve**                                                                                  |
+| **Gate**           | **May commit/push: yes**                                                                     |
 
 ## Summary
 

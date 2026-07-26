@@ -97,7 +97,8 @@ public final class PSCxUtil {
    *
    * @param throwable the throwable whose stack trace should be displayed, may not be <code>null
    *     </code>.
-   * @param parentComponent the component used to locate the parent window, may be <code>null</code>.
+   * @param parentComponent the component used to locate the parent window, may be <code>null</code>
+   *     .
    * @param title the dialog title, may be <code>null</code> or empty.
    * @param message the message displayed above the stack trace, may be <code>null</code> or empty.
    */

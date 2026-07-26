@@ -43,3 +43,4 @@
   - VIII. Documentation & Operability — Markdown summary report (FR-010) is reviewable; audit script is a documented deliverable.
   - IX. PR Review Comment Resolution — N/A for this spec (audit + backlog only; porting PRs are a downstream workflow).
 - Items marked complete on this pass. Ready for `/speckit.clarify` or `/speckit.plan`.
+

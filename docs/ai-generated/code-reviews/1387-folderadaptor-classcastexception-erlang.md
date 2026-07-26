@@ -29,12 +29,12 @@ In `FolderAdaptor.java` line 298, `folderSummary` (returned by `folderHelper.fin
 
 ## Gate
 
-| Check | Result |
-|-------|--------|
-| Bugs blocking | None |
+|                   Check                    |                     Result                      |
+|--------------------------------------------|-------------------------------------------------|
+| Bugs blocking                              | None                                            |
 | Behavioral tests for new non-trivial logic | Existing `sitemanage` suite compiles and passes |
-| Secrets | None |
-| Cross-platform path handling | Clean |
+| Secrets                                    | None                                            |
+| Cross-platform path handling               | Clean                                           |
 
 ## Issues
 

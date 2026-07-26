@@ -48,14 +48,14 @@ class TwitterSiteTagEmitOnceTest {
     }
     String xml = Files.readString(widget, StandardCharsets.UTF_8);
     Pattern append =
-        Pattern.compile(
-            "setAdditionalHeadContent\\([^)]*meta_sitename", Pattern.MULTILINE);
+        Pattern.compile("setAdditionalHeadContent\\([^)]*meta_sitename", Pattern.MULTILINE);
     Matcher m = append.matcher(xml);
     int count = 0;
     while (m.find()) {
       count++;
     }
-    assertEquals(1, count, "twitter:site (meta_sitename) must be setAdditionalHeadContent exactly once");
+    assertEquals(
+        1, count, "twitter:site (meta_sitename) must be setAdditionalHeadContent exactly once");
     assertTrue(
         xml.contains("if(!empty($use_twitter_site))")
             || xml.contains("if (!empty($use_twitter_site))"),

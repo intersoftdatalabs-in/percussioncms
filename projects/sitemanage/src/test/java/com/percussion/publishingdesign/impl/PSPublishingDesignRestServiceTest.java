@@ -87,8 +87,7 @@ class PSPublishingDesignRestServiceTest {
   @Test
   void getEdition_notFound_404() throws Exception {
     when(guidManager.makeGuid(eq("7"), eq(PSTypeEnum.EDITION))).thenReturn(editionGuid);
-    when(publisherService.loadEdition(editionGuid))
-        .thenThrow(new PSNotFoundException("missing"));
+    when(publisherService.loadEdition(editionGuid)).thenThrow(new PSNotFoundException("missing"));
 
     WebApplicationException ex =
         assertThrows(WebApplicationException.class, () -> service.getEdition("7"));
@@ -97,8 +96,7 @@ class PSPublishingDesignRestServiceTest {
 
   @Test
   void getContentList_happyPath() throws Exception {
-    when(guidManager.makeGuid(eq("5"), eq(PSTypeEnum.CONTENT_LIST)))
-        .thenReturn(contentListGuid);
+    when(guidManager.makeGuid(eq("5"), eq(PSTypeEnum.CONTENT_LIST))).thenReturn(contentListGuid);
     IPSContentList cl = mock(IPSContentList.class);
     when(cl.getGUID()).thenReturn(contentListGuid);
     when(contentListGuid.getUUID()).thenReturn(5);
@@ -150,8 +148,7 @@ class PSPublishingDesignRestServiceTest {
 
   @Test
   void deleteContentList_notFound_404() throws Exception {
-    when(guidManager.makeGuid(eq("5"), eq(PSTypeEnum.CONTENT_LIST)))
-        .thenReturn(contentListGuid);
+    when(guidManager.makeGuid(eq("5"), eq(PSTypeEnum.CONTENT_LIST))).thenReturn(contentListGuid);
     when(publisherService.loadContentList(contentListGuid))
         .thenThrow(new PSNotFoundException("missing"));
 
@@ -166,8 +163,7 @@ class PSPublishingDesignRestServiceTest {
         new com.percussion.publishingdesign.data.PSEditionContentListAssoc();
     body.setContentListId("5");
     WebApplicationException ex =
-        assertThrows(
-            WebApplicationException.class, () -> service.associateContentList("1", body));
+        assertThrows(WebApplicationException.class, () -> service.associateContentList("1", body));
     assertEquals(400, ex.getResponse().getStatus());
   }
 

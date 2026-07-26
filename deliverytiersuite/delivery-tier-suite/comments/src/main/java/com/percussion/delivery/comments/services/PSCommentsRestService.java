@@ -441,9 +441,7 @@ public class PSCommentsRestService extends PSAbstractRestService implements IPSC
         return null;
       }
       String scheme = uri.getScheme();
-      if (scheme != null
-          && !"http".equalsIgnoreCase(scheme)
-          && !"https".equalsIgnoreCase(scheme)) {
+      if (scheme != null && !"http".equalsIgnoreCase(scheme) && !"https".equalsIgnoreCase(scheme)) {
         return null;
       }
       String path = uri.getRawPath();

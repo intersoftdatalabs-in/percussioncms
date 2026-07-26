@@ -25,10 +25,10 @@ import java.nio.file.Path;
 import org.junit.jupiter.api.Test;
 
 /**
- * US1 / T012: structural tests asserting that {@code install-jetty-service.sh}
- * and {@code install-jetty-service.bat} populate the service Java home from the
- * shared resolver / {@code java.properties} instead of relying solely on the
- * legacy operator-provided {@code <installRoot>/JRE} folder.
+ * US1 / T012: structural tests asserting that {@code install-jetty-service.sh} and {@code
+ * install-jetty-service.bat} populate the service Java home from the shared resolver / {@code
+ * java.properties} instead of relying solely on the legacy operator-provided {@code
+ * <installRoot>/JRE} folder.
  */
 class InstallJettyServiceJavaHomeTest {
 
@@ -41,11 +41,14 @@ class InstallJettyServiceJavaHomeTest {
   void installSh_usesResolvedJavaHome() throws Exception {
     assertTrue(Files.isRegularFile(INSTALL_SH), () -> "missing " + INSTALL_SH.toAbsolutePath());
     String s = Files.readString(INSTALL_SH, StandardCharsets.UTF_8);
-    assertTrue(s.contains("resolve-java-home.sh"),
+    assertTrue(
+        s.contains("resolve-java-home.sh"),
         "install-jetty-service.sh must call resolve-java-home.sh");
-    assertTrue(s.contains("RESOLVE_SOURCE"),
+    assertTrue(
+        s.contains("RESOLVE_SOURCE"),
         "install-jetty-service.sh must log / use RESOLVE_SOURCE output");
-    assertTrue(s.contains("JAVA_HOME=") || s.contains("JAVA_HOME:%"),
+    assertTrue(
+        s.contains("JAVA_HOME=") || s.contains("JAVA_HOME:%"),
         "install script writes JAVA_HOME to /etc/default");
   }
 
@@ -53,19 +56,20 @@ class InstallJettyServiceJavaHomeTest {
   void installBat_usesResolvedJavaHome() throws Exception {
     assertTrue(Files.isRegularFile(INSTALL_BAT), () -> "missing " + INSTALL_BAT.toAbsolutePath());
     String s = Files.readString(INSTALL_BAT, StandardCharsets.UTF_8);
-    assertTrue(s.contains("resolve-java-home.bat"),
+    assertTrue(
+        s.contains("resolve-java-home.bat"),
         "install-jetty-service.bat must call resolve-java-home.bat");
-    assertTrue(s.contains("--JavaHome=%JAVA_HOME%"),
-        "Procrun --JavaHome is wired to resolved JAVA_HOME");
-    assertTrue(s.contains("if errorlevel 1"),
+    assertTrue(
+        s.contains("--JavaHome=%JAVA_HOME%"), "Procrun --JavaHome is wired to resolved JAVA_HOME");
+    assertTrue(
+        s.contains("if errorlevel 1"),
         "install-jetty-service.bat must hard-fail when resolve fails");
   }
 
   /**
-   * Regression for kilo-code-bot PR review thread 3631027608:
-   * the resolver must be sourced INTO the install shell, not in a subshell.
-   * A subshell isolates the assignments of JAVA_HOME / JAVA / RESOLVE_SOURCE
-   * from the resolver and silently discards them, bypassing the documented
+   * Regression for kilo-code-bot PR review thread 3631027608: the resolver must be sourced INTO the
+   * install shell, not in a subshell. A subshell isolates the assignments of JAVA_HOME / JAVA /
+   * RESOLVE_SOURCE from the resolver and silently discards them, bypassing the documented
    * precedence contract in favor of the legacy JRE/JRE64 fallback.
    */
   @Test
@@ -77,9 +81,9 @@ class InstallJettyServiceJavaHomeTest {
   }
 
   /**
-   * GH-991: service install must hard-fail through resolve-java-home and must
-   * not re-introduce a mandatory or soft-fallback {@code <InstallDir>/JRE}
-   * requirement after install-time {@code java.properties} selection.
+   * GH-991: service install must hard-fail through resolve-java-home and must not re-introduce a
+   * mandatory or soft-fallback {@code <InstallDir>/JRE} requirement after install-time {@code
+   * java.properties} selection.
    */
   @Test
   void installSh_hardFailsOnResolveWithoutJreFallback() throws Exception {
@@ -94,6 +98,7 @@ class InstallJettyServiceJavaHomeTest {
         s.contains("Found ${rxDir}/JRE to use as JRE Folder")
             || s.contains("JAVA_HOME=${rxDir}/JRE")
             || s.contains("JAVA_HOME=${rxDir}/JRE64"),
-        "install-jetty-service.sh must not assign JAVA_HOME from a hard-coded JRE folder after resolve");
+        "install-jetty-service.sh must not assign JAVA_HOME from a hard-coded JRE folder after"
+            + " resolve");
   }
 }

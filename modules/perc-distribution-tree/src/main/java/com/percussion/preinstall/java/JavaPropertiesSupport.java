@@ -30,15 +30,14 @@ import java.util.Map;
 import java.util.Properties;
 
 /**
- * Pure helpers for the install-root {@code java.properties} file used by
- * CMS/DTS runtime start, stop, and service install scripts.
+ * Pure helpers for the install-root {@code java.properties} file used by CMS/DTS runtime start,
+ * stop, and service install scripts.
  *
  * <p>The contract (see {@code specs/991-system-java-home/contracts/java-properties-contract.md})
- * defines the file as a standard Java {@code .properties} file carrying at least
- * {@code JAVA_HOME} (absolute JRE/JDK home) and ideally {@code JAVA} (absolute
- * launcher path). Writers must validate that the selected home reports major
- * version 21 before persisting and must merge with existing keys so unrelated
- * settings survive.
+ * defines the file as a standard Java {@code .properties} file carrying at least {@code JAVA_HOME}
+ * (absolute JRE/JDK home) and ideally {@code JAVA} (absolute launcher path). Writers must validate
+ * that the selected home reports major version 21 before persisting and must merge with existing
+ * keys so unrelated settings survive.
  */
 public final class JavaPropertiesSupport {
 
@@ -50,6 +49,7 @@ public final class JavaPropertiesSupport {
 
   /** Marker key written/updated by this feature for round-trip diagnostics. */
   public static final String KEY_WRITTEN_BY = "#written-by";
+
   /** Value written into {@link #KEY_WRITTEN_BY} to identify the writer. */
   public static final String WRITTEN_BY_VALUE = "perc-preinstall-java-home";
 
@@ -57,10 +57,9 @@ public final class JavaPropertiesSupport {
   public JavaPropertiesSupport() {}
 
   /**
-   * Loads properties from {@code <installRoot>/java.properties} if present. Returns
-   * an empty map when the file does not exist so callers can treat absent-file as
-   * "no product config". Malformed entries are surfaced via {@link JavaLoadResult}
-   * to allow callers to log without throwing.
+   * Loads properties from {@code <installRoot>/java.properties} if present. Returns an empty map
+   * when the file does not exist so callers can treat absent-file as "no product config". Malformed
+   * entries are surfaced via {@link JavaLoadResult} to allow callers to log without throwing.
    *
    * @param installRoot directory expected to contain {@code java.properties}
    * @return load result describing the file and its contents
@@ -88,8 +87,8 @@ public final class JavaPropertiesSupport {
   }
 
   /**
-   * Returns the persisted {@code JAVA_HOME} value as a string, or {@code null} when
-   * not set or blank. Callers must validate the path before treating it as resolved.
+   * Returns the persisted {@code JAVA_HOME} value as a string, or {@code null} when not set or
+   * blank. Callers must validate the path before treating it as resolved.
    *
    * @param installRoot directory expected to contain {@code java.properties}
    * @return persisted {@code JAVA_HOME} value, or null
@@ -121,14 +120,15 @@ public final class JavaPropertiesSupport {
   }
 
   /**
-   * Writes the supplied {@code JAVA_HOME} and (when derivable) {@code JAVA} values to
-   * {@code <installRoot>/java.properties}, preserving any unrelated keys already on
-   * disk. Parent directories are created as needed. Relative paths supplied by the
-   * caller are rejected to avoid runtime ambiguity; absolute paths only.
+   * Writes the supplied {@code JAVA_HOME} and (when derivable) {@code JAVA} values to {@code
+   * <installRoot>/java.properties}, preserving any unrelated keys already on disk. Parent
+   * directories are created as needed. Relative paths supplied by the caller are rejected to avoid
+   * runtime ambiguity; absolute paths only.
    *
    * @param installRoot directory that will contain {@code java.properties}
    * @param javaHome absolute path to the Java home to persist
-   * @param javaLauncher absolute path to the launcher to persist, or null to derive from {@code javaHome}
+   * @param javaLauncher absolute path to the launcher to persist, or null to derive from {@code
+   *     javaHome}
    * @throws java.io.IOException if an I/O error occurs writing the file
    * @throws IllegalArgumentException if a path is null, blank, or relative
    */
@@ -143,15 +143,19 @@ public final class JavaPropertiesSupport {
     if (!Path.of(javaHome).isAbsolute()) {
       throw new IllegalArgumentException("javaHome must be absolute: " + javaHome);
     }
-    if (javaLauncher != null && !javaLauncher.isEmpty()
-        && !Path.of(javaLauncher).isAbsolute()) {
-      throw new IllegalArgumentException("javaLauncher must be absolute when provided: " + javaLauncher);
+    if (javaLauncher != null && !javaLauncher.isEmpty() && !Path.of(javaLauncher).isAbsolute()) {
+      throw new IllegalArgumentException(
+          "javaLauncher must be absolute when provided: " + javaLauncher);
     }
 
     JavaLoadResult existing = load(installRoot);
     Map<String, String> merged = new LinkedHashMap<>(existing.properties());
     merged.put(KEY_JAVA_HOME, javaHome);
-    merged.put(KEY_JAVA, javaLauncher != null ? javaLauncher : javaHome + inferBinSuffix() + "java" + inferExeSuffix());
+    merged.put(
+        KEY_JAVA,
+        javaLauncher != null
+            ? javaLauncher
+            : javaHome + inferBinSuffix() + "java" + inferExeSuffix());
     merged.put(KEY_WRITTEN_BY, WRITTEN_BY_VALUE);
 
     Files.createDirectories(installRoot);
@@ -166,18 +170,17 @@ public final class JavaPropertiesSupport {
   }
 
   /**
-   * Returns a map consisting of existing properties in the install-root
-   * {@code java.properties} file, merged with {@code additional}. Existing values
-   * take precedence — only keys absent on disk are added from {@code additional}.
-   * The file on disk is not modified by this call.
+   * Returns a map consisting of existing properties in the install-root {@code java.properties}
+   * file, merged with {@code additional}. Existing values take precedence — only keys absent on
+   * disk are added from {@code additional}. The file on disk is not modified by this call.
    *
    * @param installRoot directory expected to contain {@code java.properties}
    * @param additional extra properties to merge in
    * @return merged properties map
    * @throws java.io.IOException if an I/O error occurs reading the file
    */
-  public static Map<String, String> mergePreserving(Path installRoot,
-      Map<String, String> additional) throws IOException {
+  public static Map<String, String> mergePreserving(
+      Path installRoot, Map<String, String> additional) throws IOException {
     JavaLoadResult existing = load(installRoot);
     Map<String, String> merged = new LinkedHashMap<>(existing.properties());
     if (additional != null) {
@@ -189,9 +192,9 @@ public final class JavaPropertiesSupport {
   }
 
   /**
-   * Indicates the platform's {@code bin} directory separator. For portable test
-   * expectations we read {@link java.io.File#separator} but fall back to {@code /}
-   * (the URL/zip separator) when a normal separator is unavailable (rare test envs).
+   * Indicates the platform's {@code bin} directory separator. For portable test expectations we
+   * read {@link java.io.File#separator} but fall back to {@code /} (the URL/zip separator) when a
+   * normal separator is unavailable (rare test envs).
    */
   static String inferBinSuffix() {
     String sep = java.io.File.separator;

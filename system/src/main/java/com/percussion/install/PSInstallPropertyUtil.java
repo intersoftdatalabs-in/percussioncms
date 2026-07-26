@@ -16,9 +16,7 @@
  */
 package com.percussion.install;
 
-/**
- * Shared helpers for installer / migrator system and install properties (#548).
- */
+/** Shared helpers for installer / migrator system and install properties (#548). */
 public final class PSInstallPropertyUtil {
 
   private PSInstallPropertyUtil() {}

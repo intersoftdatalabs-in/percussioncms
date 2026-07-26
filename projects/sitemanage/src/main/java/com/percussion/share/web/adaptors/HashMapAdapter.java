@@ -28,8 +28,8 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
- * JAXB adapter for marshalling/unmarshalling a {@code Map<String, String>} to XML. Sunny Sal says: "Map it
- * like it's hot!"
+ * JAXB adapter for marshalling/unmarshalling a {@code Map<String, String>} to XML. Sunny Sal says:
+ * "Map it like it's hot!"
  */
 public class HashMapAdapter extends XmlAdapter<HashMapAdapter.MapType, Map<String, String>> {
 

@@ -17,9 +17,7 @@
 
 package com.percussion.pagemanagement.assembler;
 
-import com.percussion.services.assembly.IPSAssemblyItem;
 import com.percussion.services.assembly.IPSContentFinder;
-import java.util.Map;
 
 /**
  * Widget finders calculate which assets are related to a particular page or template via a widget.

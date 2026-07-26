@@ -11,13 +11,13 @@
 
 Per [quickstart.md](./quickstart.md), the following core operations were verified against the JCR 2.0 implementation surface:
 
-| Step | Action | Expected Result | Status |
-|------|--------|-----------------|--------|
-| 1 | CMS Editor Authentication | Successful login as editor | **PASS** |
-| 2 | Create & Save Content Item | Content item persists; fields reload accurately | **PASS** |
-| 3 | Open Existing Content Item | Loads without JCR / repository exception | **PASS** |
-| 4 | Page & Template Preview | Assembly pipeline renders without JCR 1.0 errors | **PASS** |
-| 5 | Site Edition Publishing | Delivery & location handlers publish successfully | **PASS** |
+| Step |           Action           |                  Expected Result                  |  Status  |
+|------|----------------------------|---------------------------------------------------|----------|
+| 1    | CMS Editor Authentication  | Successful login as editor                        | **PASS** |
+| 2    | Create & Save Content Item | Content item persists; fields reload accurately   | **PASS** |
+| 3    | Open Existing Content Item | Loads without JCR / repository exception          | **PASS** |
+| 4    | Page & Template Preview    | Assembly pipeline renders without JCR 1.0 errors  | **PASS** |
+| 5    | Site Edition Publishing    | Delivery & location handlers publish successfully | **PASS** |
 
 ---
 

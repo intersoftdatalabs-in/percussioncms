@@ -138,8 +138,8 @@ public class PSMetadataExtractorServiceTests {
   }
 
   /**
-   * Regression for HTML entity decoding and script stripping in the RDFa metadata extractor
-   * (v8.1.7 PR #107 / DTS platform track residue).
+   * Regression for HTML entity decoding and script stripping in the RDFa metadata extractor (v8.1.7
+   * PR #107 / DTS platform track residue).
    *
    * <p>Fixture {@code /com/percussion/delivery/entity-test.html} includes encoded entities in meta
    * content and body abstract, plus {@code <script>} / JSON-LD that must not pollute extracted

@@ -142,12 +142,12 @@
             <artifactId>spring-orm</artifactId>
             <scope>test</scope>
         </dependency>
-                <dependency>
+        <dependency>
             <groupId>com.h2database</groupId>
             <artifactId>h2</artifactId>
             <version>${h2.version}</version>
         </dependency>
-<dependency>
+        <dependency>
             <groupId>org.apache.derby</groupId>
             <artifactId>derby</artifactId>
             <scope>test</scope>
@@ -234,7 +234,6 @@
                     </dependency>
                 </dependencies>
             </plugin>
-            
         </plugins>
     </build>
     <profiles>

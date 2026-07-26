@@ -38,15 +38,15 @@
 
 **Decision**: Reuse `com.percussion.widgetbuilder.service.PSWidgetBuilderService` (`@Path("/widgetbuilder")` under widget management). Client paths (from `perc_path_constants.js`):
 
-| Operation | Method | Path constant |
-|-----------|--------|---------------|
-| Summaries | GET | `{SERVICES_ROOT}/widgetmanagement/widgetbuilder/summaries` |
-| Full definition | GET | `.../widgetbuilder/definition/{id}` |
-| Save | POST | `.../widgetbuilder/definition/` |
-| Validate | POST | `.../widgetbuilder/validate/` |
-| Deploy | POST | `.../widgetbuilder/deploy/{id}` |
-| Delete | DELETE | `.../widgetbuilder/definition/{id}` |
-| Active flag | GET | `.../widgetbuilder/active` |
+|    Operation    | Method |                       Path constant                        |
+|-----------------|--------|------------------------------------------------------------|
+| Summaries       | GET    | `{SERVICES_ROOT}/widgetmanagement/widgetbuilder/summaries` |
+| Full definition | GET    | `.../widgetbuilder/definition/{id}`                        |
+| Save            | POST   | `.../widgetbuilder/definition/`                            |
+| Validate        | POST   | `.../widgetbuilder/validate/`                              |
+| Deploy          | POST   | `.../widgetbuilder/deploy/{id}`                            |
+| Delete          | DELETE | `.../widgetbuilder/definition/{id}`                        |
+| Active flag     | GET    | `.../widgetbuilder/active`                                 |
 
 **Rationale**: Spec FR-006; server validation and package generation stay authoritative; last-write-wins matches typical POST save without ETag (FR-015).
 

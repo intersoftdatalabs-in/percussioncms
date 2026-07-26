@@ -38,7 +38,6 @@
     return p;
   }
 
-
   $(document).ready(function () {
     if ($(".perc-image-slider").length > 0) {
       $.percImageSliderSetup().renderEditor();
@@ -133,7 +132,8 @@
           $(this)
             .closest("tr")
             .children("#perc-content-image-thumbnail")
-            .empty().append(
+            .empty()
+            .append(
               $("<img/>", { id: "perc-thumbnail-preview", height: 33 }).attr(
                 "src", // codeql[js/xss-through-dom]
                 safeThumbnailSrc(thumbnailPath)
@@ -337,7 +337,8 @@
         );
       clonedTable
         .find("#perc-content-image-thumbnail")
-        .empty().append(
+        .empty()
+        .append(
           $("<img/>", { id: "perc-thumbnail-preview", height: 33 }).attr(
             "src", // codeql[js/xss-through-dom]
             safeThumbnailSrc(percImagePath)

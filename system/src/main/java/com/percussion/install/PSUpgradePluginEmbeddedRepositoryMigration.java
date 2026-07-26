@@ -22,8 +22,8 @@ import java.util.Properties;
 import org.w3c.dom.Element;
 
 /**
- * Upgrade plugin that migrates product-managed CMS Derby repository to H2 via TableFactory export
- * → import (#548 T063).
+ * Upgrade plugin that migrates product-managed CMS Derby repository to H2 via TableFactory export →
+ * import (#548 T063).
  *
  * <p>Intended to run as a <strong>pre-upgrade</strong> plugin (server stopped) so subsequent
  * upgrade plugins and SQL steps see H2 as the live repository when migration succeeds.
@@ -76,7 +76,10 @@ public class PSUpgradePluginEmbeddedRepositoryMigration implements IPSUpgradePlu
     } catch (Exception e) {
       String msg =
           PSMigrationSecretsRedactor.redact(
-              "CMS Derby→H2 migration failed: " + e.getClass().getSimpleName() + ": " + e.getMessage());
+              "CMS Derby→H2 migration failed: "
+                  + e.getClass().getSimpleName()
+                  + ": "
+                  + e.getMessage());
       if (log != null) {
         log.println(msg);
       }

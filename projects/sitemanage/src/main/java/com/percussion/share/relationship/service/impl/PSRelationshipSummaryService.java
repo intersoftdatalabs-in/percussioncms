@@ -19,6 +19,7 @@ import com.percussion.assetmanagement.service.IPSWidgetAssetRelationshipService;
 import com.percussion.cms.objectstore.PSRelationshipFilter;
 import com.percussion.pagemanagement.service.IPSPageService;
 import com.percussion.services.contentmgr.IPSContentMgr;
+import com.percussion.services.error.PSNotFoundException;
 import com.percussion.share.dao.IPSRelationshipCataloger;
 import com.percussion.share.dao.PSJcrNodeFinder;
 import com.percussion.share.relationship.data.PSLocalDependencySummary;
@@ -30,7 +31,6 @@ import com.percussion.share.relationship.data.PSTaxonomySummary;
 import com.percussion.share.relationship.service.IPSRelationshipSummaryService;
 import com.percussion.share.service.IPSIdMapper;
 import com.percussion.share.service.exception.PSValidationException;
-import com.percussion.services.error.PSNotFoundException;
 import com.percussion.system.utils.PSSiteManageBean;
 import com.percussion.utils.guid.IPSGuid;
 import com.percussion.webservices.system.IPSSystemWs;
@@ -52,38 +52,39 @@ import org.springframework.beans.factory.annotation.Qualifier;
  * <p>Backs onto the same plumbing the morning T074 spike pointed at:
  *
  * <ul>
- *   <li><strong>outgoing</strong> — {@link com.percussion.webservices.system.IPSSystemWs#findOwners}
- *       with a {@link PSRelationshipFilter} narrowed to the translation category.
- *   <li><strong>incoming</strong> — {@link com.percussion.webservices.system.IPSSystemWs#findDependents}
- *       with the same {@link PSRelationshipFilter}. The dependency view row reads
- *       "owners of me" / "incoming" — i.e. items that own the supplied item, computed via
- *       {@code findOwners} on the supplied item's dependents tree.
- *   <li><strong>reverse</strong> — incoming translation parents plus any inline-link parents
- *       from {@link IPSWidgetAssetRelationshipService#getLinkedPages}. Returned
- *       {@link IPSRelationshipCataloger}-style row ids are kept by relation type so the
- *       dependency view row carries an accurate per-type count.
- *   <li><strong>taxonomy</strong> — {@link PSJcrNodeFinder} on the item's
- *       JCR path. Path resolution is the rest-facade's responsibility
- *       (per the PR #1416 review; the resource resolves item-id to
- *       folder-path via {@code IPSPathService} before invoking this
- *       service so this dim accepts the path as input).
- *   <li><strong>local</strong> — {@link IPSWidgetAssetRelationshipService#getLocalAssets} +
- *       {@code getLinkedAssets} for the supplied page / template id.
+ *   <li><strong>outgoing</strong> — {@link
+ *       com.percussion.webservices.system.IPSSystemWs#findOwners} with a {@link
+ *       PSRelationshipFilter} narrowed to the translation category.
+ *   <li><strong>incoming</strong> — {@link
+ *       com.percussion.webservices.system.IPSSystemWs#findDependents} with the same {@link
+ *       PSRelationshipFilter}. The dependency view row reads "owners of me" / "incoming" — i.e.
+ *       items that own the supplied item, computed via {@code findOwners} on the supplied item's
+ *       dependents tree.
+ *   <li><strong>reverse</strong> — incoming translation parents plus any inline-link parents from
+ *       {@link IPSWidgetAssetRelationshipService#getLinkedPages}. Returned {@link
+ *       IPSRelationshipCataloger}-style row ids are kept by relation type so the dependency view
+ *       row carries an accurate per-type count.
+ *   <li><strong>taxonomy</strong> — {@link PSJcrNodeFinder} on the item's JCR path. Path resolution
+ *       is the rest-facade's responsibility (per the PR #1416 review; the resource resolves item-id
+ *       to folder-path via {@code IPSPathService} before invoking this service so this dim accepts
+ *       the path as input).
+ *   <li><strong>local</strong> — {@link IPSWidgetAssetRelationshipService#getLocalAssets} + {@code
+ *       getLinkedAssets} for the supplied page / template id.
  * </ul>
  *
- * <p>AuthZ follows the existing {@code PSObjectAcl} model: the supplied id must resolve via
- * {@link IPSIdMapper#getGuid} and the resolved guid must correspond to a content item the caller
- * can read. Failures return {@link Optional#empty()} so the JAX-RS resource can translate to
- * HTTP 403 (per {@code docs/ai-generated/release/security-review-992.md}). A collaborator that
- * throws {@link RuntimeException} for an unrelated reason (e.g. JCR transient outage) propagates
- * the exception so the framework can return 500 — the bot review on PR #1414/1415 confirmed that
- * silently converting infrastructure errors to 200-with-empty-data hides real bugs.
+ * <p>AuthZ follows the existing {@code PSObjectAcl} model: the supplied id must resolve via {@link
+ * IPSIdMapper#getGuid} and the resolved guid must correspond to a content item the caller can read.
+ * Failures return {@link Optional#empty()} so the JAX-RS resource can translate to HTTP 403 (per
+ * {@code docs/ai-generated/release/security-review-992.md}). A collaborator that throws {@link
+ * RuntimeException} for an unrelated reason (e.g. JCR transient outage) propagates the exception so
+ * the framework can return 500 — the bot review on PR #1414/1415 confirmed that silently converting
+ * infrastructure errors to 200-with-empty-data hides real bugs.
  *
  * <p>Concurrency: the service holds no mutable state of its own beyond the immutable injected
- * collaborators. The injected {@link PSJcrNodeFinder} is itself stateless once constructed;
- * the system-level facades ({@link com.percussion.webservices.system.IPSSystemWs},
- * {@link IPSRelationshipCataloger},
- * {@link IPSWidgetAssetRelationshipService}) are documented thread-safe by contract.
+ * collaborators. The injected {@link PSJcrNodeFinder} is itself stateless once constructed; the
+ * system-level facades ({@link com.percussion.webservices.system.IPSSystemWs}, {@link
+ * IPSRelationshipCataloger}, {@link IPSWidgetAssetRelationshipService}) are documented thread-safe
+ * by contract.
  *
  * @author Kilo (US8 / T092–T104)
  */
@@ -101,20 +102,20 @@ public class PSRelationshipSummaryService implements IPSRelationshipSummaryServi
   /**
    * Spring primary ctor. All collaborators are required.
    *
-   * <p>Constructs the {@link PSJcrNodeFinder} internally because it is not a Spring bean —
-   * see issue #1419 follow-up. The pattern matches {@link
+   * <p>Constructs the {@link PSJcrNodeFinder} internally because it is not a Spring bean — see
+   * issue #1419 follow-up. The pattern matches {@link
    * com.percussion.sitemanage.service.impl.PSSiteSectionService} and {@link
-   * com.percussion.pagemanagement.dao.impl.PSPageDao}, both of which take {@link IPSContentMgr}
-   * in their ctor and {@code new} up a finder scoped to {@link
-   * IPSPageService#PAGE_CONTENT_TYPE} / {@code sys_title}.
+   * com.percussion.pagemanagement.dao.impl.PSPageDao}, both of which take {@link IPSContentMgr} in
+   * their ctor and {@code new} up a finder scoped to {@link IPSPageService#PAGE_CONTENT_TYPE} /
+   * {@code sys_title}.
    *
    * @param idMapper mapping guid-string &harr; {@link IPSGuid}; required.
-   * @param systemWs the system-level web-services facade (used by the findDependents side of
-   *     the cataloger path); required.
+   * @param systemWs the system-level web-services facade (used by the findDependents side of the
+   *     cataloger path); required.
    * @param relationshipCataloger pre-existing typed wrapper over {@code systemWs.findOwners(...)};
    *     required. The {@code @Qualifier("relationshipCataloger")} is required to disambiguate from
-   *     {@code contentItemDao} (which also implements {@link IPSRelationshipCataloger} via
-   *     {@link com.percussion.share.dao.IPSContentItemDao}); see issue #1419.
+   *     {@code contentItemDao} (which also implements {@link IPSRelationshipCataloger} via {@link
+   *     com.percussion.share.dao.IPSContentItemDao}); see issue #1419.
    * @param contentMgr JCR content manager used to construct the {@link PSJcrNodeFinder}; required.
    * @param widgetAssetRelationshipService the AA / widget relationship service for local + linked
    *     assets; required.
@@ -136,8 +137,8 @@ public class PSRelationshipSummaryService implements IPSRelationshipSummaryServi
 
   /**
    * Test-friendly ctor. Used by unit tests to inject a pre-built {@link PSJcrNodeFinder} (typically
-   * a Mockito mock) directly without standing up a {@link IPSContentMgr} stub for
-   * {@code createQuery} / {@code executeQuery}. Spring uses the {@code @Autowired} ctor above.
+   * a Mockito mock) directly without standing up a {@link IPSContentMgr} stub for {@code
+   * createQuery} / {@code executeQuery}. Spring uses the {@code @Autowired} ctor above.
    *
    * @param idMapper mapping guid-string &harr; {@link IPSGuid}; required.
    * @param systemWs the system-level web-services facade; required.
@@ -163,7 +164,9 @@ public class PSRelationshipSummaryService implements IPSRelationshipSummaryServi
   @Override
   public Optional<PSRelationshipSummary> summariseOutgoing(String itemId) {
     if (!isResolvable(itemId)) return Optional.empty();
-    return Optional.of(summariseFromCataloger(itemId, PSRelationshipFilter.FILTER_CATEGORY_TRANSLATION, Direction.OWNERS));
+    return Optional.of(
+        summariseFromCataloger(
+            itemId, PSRelationshipFilter.FILTER_CATEGORY_TRANSLATION, Direction.OWNERS));
   }
 
   @Override
@@ -175,14 +178,17 @@ public class PSRelationshipSummaryService implements IPSRelationshipSummaryServi
     // with the supplied item treated as the owner. The cataloger helper delegates to the
     // systemWs facade per the direction parameter; the single-argument cataloger path is the
     // OWNERS direction only.
-    return Optional.of(summariseFromCataloger(itemId, PSRelationshipFilter.FILTER_CATEGORY_ACTIVE_ASSEMBLY, Direction.DEPENDENTS));
+    return Optional.of(
+        summariseFromCataloger(
+            itemId, PSRelationshipFilter.FILTER_CATEGORY_ACTIVE_ASSEMBLY, Direction.DEPENDENTS));
   }
 
   @Override
   public Optional<PSRelationshipSummary> summariseReverse(String itemId) {
     if (!isResolvable(itemId)) return Optional.empty();
     PSRelationshipSummary byOwners =
-        summariseFromCataloger(itemId, PSRelationshipFilter.FILTER_CATEGORY_TRANSLATION, Direction.OWNERS);
+        summariseFromCataloger(
+            itemId, PSRelationshipFilter.FILTER_CATEGORY_TRANSLATION, Direction.OWNERS);
     long extraParents = 0L;
     Map<String, Long> extraTypes = new HashMap<>();
     try {
@@ -262,7 +268,8 @@ public class PSRelationshipSummaryService implements IPSRelationshipSummaryServi
         | RuntimeException e) {
       // Catch RuntimeException (covers PSNotFoundException, which extends PSRuntimeException) so a
       // transient infra failure (e.g. JCR outage) does not leak 500s to the JAX-RS layer when the
-      // other dimension methods succeed. The local dimension intentionally traps to a 200 with empty
+      // other dimension methods succeed. The local dimension intentionally traps to a 200 with
+      // empty
       // links because there is no meaningful AuthZ-failure semantic on this surface.
       log.debug("Local-assets lookup unavailable for {}: {}", itemId, e.getMessage());
     }
@@ -289,8 +296,8 @@ public class PSRelationshipSummaryService implements IPSRelationshipSummaryServi
 
   /**
    * Cheap id-resolution pre-check. Catches {@code null} / blank id-strings and unresolvable
-   * guid-strings (e.g. random lookups on a private folder's content). Returns {@code false} if
-   * the supplied id cannot be resolved to a guid the caller has read access to; the per-dimension
+   * guid-strings (e.g. random lookups on a private folder's content). Returns {@code false} if the
+   * supplied id cannot be resolved to a guid the caller has read access to; the per-dimension
    * methods return {@link Optional#empty()} in that case.
    */
   private boolean isResolvable(String itemId) {
@@ -306,8 +313,8 @@ public class PSRelationshipSummaryService implements IPSRelationshipSummaryServi
 
   /**
    * Build a per-type summary by delegating to the underlying {@link
-   * com.percussion.webservices.system.IPSSystemWs#findOwners} (OWNERS) or
-   * {@link com.percussion.webservices.system.IPSSystemWs#findDependents} (DEPENDENTS) calls.
+   * com.percussion.webservices.system.IPSSystemWs#findOwners} (OWNERS) or {@link
+   * com.percussion.webservices.system.IPSSystemWs#findDependents} (DEPENDENTS) calls.
    *
    * <p>Throws {@link RuntimeException} on infrastructure failures (e.g. caller cannot read the
    * item) so the framework can return 500. The bot review on PR #1414/1415 flagged the previous
@@ -316,8 +323,8 @@ public class PSRelationshipSummaryService implements IPSRelationshipSummaryServi
    *
    * @param itemId the content id or guid-string of the item.
    * @param category the {@link PSRelationshipFilter} category to scope the lookup.
-   * @param direction OWNERS walks up the parents (incoming from item's POV); DEPENDENTS walks
-   *     down the children.
+   * @param direction OWNERS walks up the parents (incoming from item's POV); DEPENDENTS walks down
+   *     the children.
    */
   private PSRelationshipSummary summariseFromCataloger(
       String itemId, String category, Direction direction) {
@@ -335,7 +342,8 @@ public class PSRelationshipSummaryService implements IPSRelationshipSummaryServi
     } catch (RuntimeException e) {
       // Surface the exception to the framework so the JAX-RS layer emits a 5xx. The dependency
       // viewer treats this as a real error and the operator investigates via the application log.
-      log.warn("Relationship summary lookup failed for {} ({}): {}", itemId, category, e.getMessage());
+      log.warn(
+          "Relationship summary lookup failed for {} ({}): {}", itemId, category, e.getMessage());
       throw e;
     }
     Collections.sort(byType, (a, b) -> Long.compare(b.getCount(), a.getCount()));
@@ -347,10 +355,9 @@ public class PSRelationshipSummaryService implements IPSRelationshipSummaryServi
    * by the incoming dimension only; the per-owner query goes through {@link
    * IPSRelationshipCataloger#findOwners}.
    *
-   * <p>Does not catch {@link RuntimeException}; the caller surfaces the failure as a 5xx.
-   * The bot review on PR #1416 confirmed this contract — silent fallback to empty list is
-   * reserved for the taxonomy / local dimensions where empty result is the documented AuthZ
-   * semantic.
+   * <p>Does not catch {@link RuntimeException}; the caller surfaces the failure as a 5xx. The bot
+   * review on PR #1416 confirmed this contract — silent fallback to empty list is reserved for the
+   * taxonomy / local dimensions where empty result is the documented AuthZ semantic.
    */
   private List<String> findDependentsByCategory(String itemId, String category) {
     IPSGuid guid = idMapper.getGuid(itemId);
@@ -366,8 +373,9 @@ public class PSRelationshipSummaryService implements IPSRelationshipSummaryServi
   }
 
   /**
-   * Strip the internal {@code rs_} prefix used by {@link com.percussion.design.objectstore.PSRelationshipConfig}
-   * for its category ids so the dependency view does not display {@code rs_translation} to operators.
+   * Strip the internal {@code rs_} prefix used by {@link
+   * com.percussion.design.objectstore.PSRelationshipConfig} for its category ids so the dependency
+   * view does not display {@code rs_translation} to operators.
    */
   private static String normaliseCategoryLabel(String category) {
     if (category == null) return null;

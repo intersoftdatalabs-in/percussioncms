@@ -69,10 +69,9 @@ import org.w3c.dom.Document;
  * </pre>
  */
 public class PSTableAction extends PSAction {
-  /**
-   * Creates a new table action task.
-   */
+  /** Creates a new table action task. */
   public PSTableAction() {}
+
   // see base class
 
   @Override

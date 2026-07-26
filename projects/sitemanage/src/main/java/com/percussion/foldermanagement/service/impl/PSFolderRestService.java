@@ -16,8 +16,6 @@
  */
 package com.percussion.foldermanagement.service.impl;
 
-import org.owasp.encoder.Encode;
-
 import com.percussion.foldermanagement.data.PSFolderItem;
 import com.percussion.foldermanagement.data.PSGetAssignedFoldersJobStatus;
 import com.percussion.foldermanagement.data.PSWorkflowAssignment;
@@ -47,6 +45,7 @@ import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.owasp.encoder.Encode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -246,10 +245,10 @@ public class PSFolderRestService {
   /**
    * Builds a plain-text HTTP error response with the supplied status and HTML-encoded message.
    *
-   * <p>Centralizes the contract that all error responses from this service are emitted as
-   * {@code text/plain} so the browser cannot interpret the body as HTML (CWE-79 XSS via JSON
-   * consumers that re-render server output), and that any caller-supplied content included in
-   * {@code message} is HTML-encoded via the OWASP encoder before being placed on the wire.
+   * <p>Centralizes the contract that all error responses from this service are emitted as {@code
+   * text/plain} so the browser cannot interpret the body as HTML (CWE-79 XSS via JSON consumers
+   * that re-render server output), and that any caller-supplied content included in {@code message}
+   * is HTML-encoded via the OWASP encoder before being placed on the wire.
    */
   private Response plainTextError(Status status, String message) {
     return Response.status(status)

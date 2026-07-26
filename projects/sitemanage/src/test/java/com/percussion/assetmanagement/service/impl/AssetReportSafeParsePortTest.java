@@ -35,8 +35,7 @@ class AssetReportSafeParsePortTest {
             "projects/sitemanage/src/main/java/com/percussion/assetmanagement/service/impl/PSAssetService.java");
     Path wf = root.resolve("system/src/main/java/com/percussion/workflow/PSWorkFlowUtils.java");
     Path tmx = root.resolve("modules/perc-i18n/src/main/resources/i18n/CmsUi.tmx");
-    Path rest =
-        root.resolve("rest/src/main/java/com/percussion/rest/assets/AssetsResource.java");
+    Path rest = root.resolve("rest/src/main/java/com/percussion/rest/assets/AssetsResource.java");
     for (Path p : new Path[] {svc, wf, tmx, rest}) {
       if (!Files.isRegularFile(p)) fail(p.toString());
     }
@@ -44,8 +43,7 @@ class AssetReportSafeParsePortTest {
     assertTrue(asset.contains("safeParseInt"));
     assertTrue(asset.contains("safeParseLong"));
     assertTrue(
-        asset.contains(
-            "safeParseInt((String) a.getFields().get(IPSHtmlParameters.SYS_CONTENTID)"));
+        asset.contains("safeParseInt((String) a.getFields().get(IPSHtmlParameters.SYS_CONTENTID)"));
 
     String mail = Files.readString(wf, StandardCharsets.UTF_8);
     assertTrue(mail.contains("SMTP_PORT property is not a number"));

@@ -99,6 +99,7 @@ description: "Task list for JDBC Drivers Packaging Cleanup"
 ### Implementation for User Story 2
 
 - [x] T020 [US2] Edit `modules/perc-distribution-tree/src/main/resources/distribution/rxconfig/Installer/install.xml`: replace the entire `<delete failonerror="false" verbose="true">` block at lines 174-188 (the one with the 11 glob `<include>` lines) with a new `<delete failonerror="false" verbose="true">` block that lists exactly 7 `<include name="..."/>` entries (no globs) for the E2 filenames:
+
   ```
   <delete failonerror="false" verbose="true">
       <fileset dir="${install.dir}/jetty/base/lib/jdbc">
@@ -112,10 +113,15 @@ description: "Task list for JDBC Drivers Packaging Cleanup"
       </fileset>
   </delete>
   ```
+
   The `mysql-connector-java-*.jar`, `mysql-connector.jar`, `derbyshared-*.jar`, `derbytools-*.jar` globs are removed entirely. After editing, all 4 `@Test` methods in T017 must pass.
+
 - [x] T021 [US2] Update the surrounding comment at `install.xml:168-173` to honestly describe the new behavior: the delete set is the bundled-driver exact filenames for this release; integrator-supplied drivers are preserved; when driver versions bump, this list is updated in lockstep with the parent POM's version properties (and the README's "Extending the driver set" section in `README.md:80` is now truthful).
+
 - [x] T022 [US2] Run the US2 JUnit tests: `cd modules/perc-distribution-tree && ../../mvn-env.sh -o test -Dtest='InstallXmlDeleteSetTest'`. All 4 methods must pass.
+
 - [x] T023 [US2] Run the full module build: `cd modules/perc-distribution-tree && ../../mvn-env.sh -o clean verify`. Both `verify-jdbc-drivers` and the new `check-no-glob-deletes` executions must pass.
+
 - [x] T024 [US2] Commit the US2 changes as a single logical commit (e.g. `fix(distribution-tree): pin install.xml jdbc delete set to exact bundled filenames`)
 
 **Checkpoint**: At this point, User Stories 1 AND 2 are both complete and independently testable. The shipped JAR is correct AND the install/upgrade behavior is correct.
@@ -138,14 +144,20 @@ description: "Task list for JDBC Drivers Packaging Cleanup"
 ### Implementation for User Story 3
 
 - [x] T027 [US3] Edit `modules/perc-distribution-tree/scripts/README.md`: replace the example at lines 13-18 with an `--expected-driver-glob` example using the same globs wired into `pom.xml:737`. Use single-quote POSIX-safe quoting around the glob string (it contains `*`):
+
   ```
   ./scripts/verify-jdbc-drivers.sh --artifact path/to/perc-distribution-tree.jar \
       --expected-driver-glob 'mariadb-java-client-*.jar,derby-*.jar,derbyclient-*.jar,derbynet-*.jar,mssql-jdbc-*.jar,jtds-*.jar,ojdbc17-*.jar'
   ```
+
   After editing, T028's exit-0 assertion is the proof of SC-004.
+
 - [x] T028 [US3] Sanity-check the documented example by running it verbatim against the freshly built artifact: `cd modules/perc-distribution-tree && ../../mvn-env.sh -o clean package && ./scripts/verify-jdbc-drivers.sh --artifact target/perc-distribution-tree.jar --expected-driver-glob 'mariadb-java-client-*.jar,derby-*.jar,derbyclient-*.jar,derbynet-*.jar,mssql-jdbc-*.jar,jtds-*.jar,ojdbc17-*.jar'`. Expect exit 0 and `OK: 7 JDBC driver JAR(s) verified under jetty/base/lib/jdbc/`. This implements FR-006 and SC-004.
+
 - [x] T029 [US3] Update the example's exit-code table comment in `scripts/README.md` if needed to reflect that the documented example is `--expected-driver-glob` (not `--expected-driver-set`); minor wording consistency.
+
 - [x] T030 [US3] Run the full module build: `cd modules/perc-distribution-tree && ../../mvn-env.sh -o clean verify`. Both `verify` executions must pass: `verify-jdbc-drivers` and `check-no-glob-deletes`, plus the JUnit suite.
+
 - [x] T031 [US3] Commit the US3 changes as a single logical commit (e.g. `docs(distribution-tree): correct verify-jdbc-drivers.sh README example`)
 
 **Checkpoint**: All three user stories are now complete and independently testable. The shipped JAR is correct, the install/upgrade behavior is correct, and the documentation matches reality.
@@ -267,3 +279,4 @@ With multiple developers:
 - This module has no `src/test` tree and no JUnit 5 dependencies today; Phase 2 creates them — all user-story tests depend on Phase 2 being complete
 - Build/test invocations always use `../../mvn-env.sh` (or `mvn-env.bat` on Windows) per the module `AGENTS.md`
 - Do NOT use Spring Boot (Constitution V); do NOT add new top-level Maven modules (Constitution Complexity Budget)
+

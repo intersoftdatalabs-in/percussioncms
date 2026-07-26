@@ -42,8 +42,7 @@ public class PSRenderLinkServicePathInjectionTest {
   @DisplayName("region CSS path under themes root is accepted")
   void legitimateRegionCssPathAccepted(@TempDir Path temp) throws Exception {
     Path themesRoot = temp.resolve("themes");
-    Path css =
-        themesRoot.resolve("mytheme").resolve("perc").resolve("perc_region.css");
+    Path css = themesRoot.resolve("mytheme").resolve("perc").resolve("perc_region.css");
     Files.createDirectories(css.getParent());
     Files.writeString(css, "/* css */");
 
@@ -94,8 +93,7 @@ public class PSRenderLinkServicePathInjectionTest {
     Files.createDirectories(css.getParent());
     Files.writeString(css, "");
 
-    File resolved =
-        PSPathInjectionGuard.requireUnderBase(themesRoot.toFile(), "t/empty.css");
+    File resolved = PSPathInjectionGuard.requireUnderBase(themesRoot.toFile(), "t/empty.css");
     assertTrue(resolved.exists());
     assertTrue(resolved.length() == 0);
     // Call-site then returns empty PSRenderLink when length == 0; containment already succeeded.

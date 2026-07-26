@@ -131,3 +131,4 @@ re-introduce any thread.
   1. `fix(992/us2): re-add missing path-management + actions REST getters in paths.ts`
   2. `feat(992/us2): US2 T045d — host-folder-picker migration (JSP + mirror + Playwright)`
 - Patterns loaded; prior reports for the same PR loaded for continuity.
+

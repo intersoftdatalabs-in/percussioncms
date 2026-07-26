@@ -76,9 +76,7 @@ import org.w3c.dom.Document;
  * </pre>
  */
 public class PSModifyProviders extends PSAction {
-  /**
-   * Creates a new modify providers task.
-   */
+  /** Creates a new modify providers task. */
   public PSModifyProviders() {}
 
   private static final Logger log = LogManager.getLogger(PSModifyProviders.class);

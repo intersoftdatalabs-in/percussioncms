@@ -69,6 +69,7 @@ If `$ARGUMENTS` names a branch or path, limit the review accordingly.
    Required on `request-changes` or re-review; recommended on approve for feature
    work. See `docs/ai-generated/code-reviews/README.md`. Never use `tmp/` as the
    store of record.
+
 8. Optionally promote a generalized hard-gate principle into
    `skills/erlang-review/patterns.md` if this review revealed a recurring pattern.
 
@@ -77,3 +78,4 @@ If `$ARGUMENTS` names a branch or path, limit the review accordingly.
 - Stop if the user only wanted a review.
 - If the user says to fix findings, implement carefully, run relevant tests, then
   **re-run this workflow** on the fix pack before they commit.
+

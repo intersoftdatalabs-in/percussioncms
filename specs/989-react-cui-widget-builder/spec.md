@@ -6,6 +6,7 @@
 **Input**: Migrate CUI Home/Contributor shell and Widget Builder to the modern React UI stack; remove legacy CUI (Knockout) and Widget Builder (Backbone/jQuery) packs. Epics: (1) React Home / Contributor shell replacing CUI iframe + library mode strategy; (2) React Widget Builder keeping existing widget-builder server services; (3) Remove legacy CUI package, Knockout deps, Widget Builder packed bundles, and dead JSP includes.
 
 ## Module Scope
+
 - **Primary module(s)**: `WebUI/` (Home JSP shell, CUI SPA under `cm/cui` / `cm/pages/cui`, Widget Builder JSP and client under `cm/widgetbuilder`, modern frontend under `WebUI/src/main/ts` or `WebUI/src/main/frontend`)
 - **Secondary / integration modules**: `projects/sitemanage/` (widget builder services and related REST; content/finder APIs used by Home/CUI); shared REST/session/CSRF patterns already used by modern Dashboard
 - **AGENTS files to apply**: root `AGENTS.md`, `WebUI/AGENTS.md`, `projects/sitemanage` module AGENTS if present
@@ -13,7 +14,9 @@
 - **Install / upgrade impact**: web UI distribution only (no DB schema, no `.ppkg` format change). Upgrade must preserve navigation entry points and feature flags (e.g. Widget Builder enabled). **No dual-path cutover**: modern Home and Widget Builder ship as the only production path in the same release as US1+US2; US3 legacy removal is part of that switch (big-bang). Home is a **single shell** with sections/routes (not library-mode vs contributor-iframe modes).
 
 ## Clarifications
+
 ### Session 2026-07-17
+
 - Q: Release cutover strategy for modern vs classic Home/Widget Builder? → A: Big-bang — modern only when US1+US2 ship; no dual-path (US3 same release as switch).
 - Q: Deep links and bookmarks for old Home/CUI/Widget Builder URLs? → A: Redirect/map known legacy Home + Widget Builder URLs to modern equivalents; unknown paths get a clear message.
 - Q: Home information architecture (library mode vs contributor frame)? → A: Single modern Home shell with sections/routes (Recent, Library, Search, Create)—no dual-mode shell.
@@ -32,6 +35,7 @@
 - Q: Preserve classic My Bookmarks content list on modern Home? → A: **Keep** — required Home section listing bookmarked content (`getMyContent` / item/mycontent) with open-item parity.
 
 ## User Scenarios & Testing
+
 Each story must be independently testable.
 
 ### User Story 1 - Modern Home / Contributor shell (Priority: P1)
@@ -85,6 +89,7 @@ In the **same release** that ships modern Home (US1) and modern Widget Builder (
 6. **Given** US3 lands with modern Home/WB, **When** CI runs, **Then** no job depends on deleted legacy CUI/WB client scripts; critical flows are covered by modern UI and/or service-contract tests (legacy-only client tests removed and replaced in the same release).
 
 ### Edge Cases
+
 - User has Home access but not Widget Builder (or the reverse).
 - Multi-site vs no-site empty states on Home (admin vs non-admin messaging).
 - Slow network / large content lists in recent/library views.
@@ -100,7 +105,9 @@ In the **same release** that ships modern Home (US1) and modern Widget Builder (
 - Server/API error payloads: display server message when provided; do not require inventing TMX keys for every backend exception string in this feature unless the product already catalogs them.
 
 ## Requirements
+
 ### Functional Requirements
+
 - **FR-001**: Product MUST provide a modern Home / contributor experience that fulfills the primary tasks of today’s Home (browse/recent, library-style access, search, create page/asset/blog and related add flows) without requiring the legacy embedded contributor SPA for those tasks. Modernization is of **presentation and stack**, not a reduction of classic Home/CUI contributor capabilities listed as MUST in the [Home capability matrix](./contracts/home-capability-matrix.md).
 - **FR-001a**: Home **Create** MUST implement **page**, **asset**, and **blog post** creation with **equal capability** to classic CUI wizards (type chooser; site/template/folder or type/folder or site/blog selection as applicable; required title/name fields; authorization messaging; persist via existing create semantics; after create, open or locate the item). Free-text-only forms that omit product pickers are **not** sufficient. Detail rows: [home-capability-matrix.md](./contracts/home-capability-matrix.md) §6.
 - **FR-001b**: Opening a content item from Home Recent, Library, or Search MUST use the product’s existing path-based open/navigation behavior (classic equivalent: open path item into the editor)—not an incomplete ad-hoc URL that fails for normal contributor items.
@@ -131,6 +138,7 @@ In the **same release** that ships modern Home (US1) and modern Widget Builder (
 - **FR-014**: Dashboard modernization cleanup (if still dual-path) is **out of scope** except where shared shell/nav is required for Home mounting—Dashboard gadgets remain a separate effort unless already modern-only.
 
 ### Key Entities
+
 - **Home / contributor workspace**: Landing experience for content work (lists, search, create wizards).
 - **Content item (page, asset, blog post)**: Created or opened from Home flows.
 - **Widget definition**: Metadata, fields, display rules, and resources authored in Widget Builder.
@@ -139,7 +147,9 @@ In the **same release** that ships modern Home (US1) and modern Widget Builder (
 - **Feature enablement**: Product flag controlling Widget Builder availability.
 
 ## Success Criteria
+
 ### Measurable Outcomes
+
 - **SC-001**: Contributors complete the top Home tasks (open Home; use Recent; use Library to browse a site/folder and open an item; run Search; create at least one of page/asset/blog) without the legacy embedded contributor SPA, in a scripted UAT checklist with 100% of checklist items pass.
 - **SC-008**: For a checklist of primary Home and Widget Builder chrome strings (section labels, primary actions, empty-state titles, unavailable message), each string is backed by a TMX catalog key (reuse or newly added), verified by **manual/PR review** (key-presence checklist)—not a required Vitest multi-locale suite. When a non-default product locale is available in the test environment, a spot-check SHOULD show catalog resolution rather than source-hardcoded English only (FR-021). Automated unit tests are **not** required to assert `I18N.message` mocks or load real TMX for this feature.
 - **SC-002**: When Widget Builder is enabled, an admin can create, save, reload, and package a simple widget definition end-to-end on the modern UI in one continuous session (target: under 15 minutes for a trained tester with a scripted scenario).
@@ -150,6 +160,7 @@ In the **same release** that ships modern Home (US1) and modern Widget Builder (
 - **SC-007**: A checklist of documented legacy Home/Widget Builder URLs (minimum: main `home`/`widgetbuilder` views and Home `initialScreen` values library, list, search, newitem) resolves to modern destinations; a sample unmapped legacy path shows a clear **on-page** moved/unavailable message (UAT 100% of checklist pass).
 
 ## Assumptions
+
 - Strategic UI direction is the existing modern CM UI (Track B); this feature does not introduce a second SPA framework.
 - Server widget-builder services (`PSWidgetBuilderService` and related) remain authoritative; UI migration reuses them.
 - Home’s dual mode (library finder vs contributor frame) is replaced by one modern shell with Recent / Library / Search / Create sections (not two modes).
@@ -167,6 +178,7 @@ In the **same release** that ships modern Home (US1) and modern Widget Builder (
 - Runtime delivery uses existing **`tmx.jsp` + `I18N.message`** (or thin TS wrapper); structural locale parity for new keys per FR-022.
 
 ## Out of Scope
+
 - Migrating remaining ~20 jQuery WebUI admin screens (users, roles, publishing, templates, etc.).
 - Dojo Active Assembly Track A work (separate).
 - Desktop Content Explorer and Eclipse Workbench.
@@ -174,3 +186,4 @@ In the **same release** that ships modern Home (US1) and modern Widget Builder (
 - DTS public site UIs.
 - Full retirement of jQuery from the entire product (only Home/CUI and Widget Builder clients plus **proven orphan** vendors from the US3 **manual removal inventory** in this feature).
 - Replacing the entire Web Management content finder on non-Home screens (Home Library is scoped to contributor browse/open).
+

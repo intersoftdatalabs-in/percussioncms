@@ -21,7 +21,6 @@ import com.percussion.assetmanagement.data.PSAssetSummary;
 import com.percussion.assetmanagement.data.PSAssetWidgetRelationship;
 import com.percussion.assetmanagement.data.PSAssetWidgetRelationship.PSAssetResourceType;
 import com.percussion.assetmanagement.data.PSAssetWidgetRelationship.PSAssetWidgetRelationshipAction;
-import com.percussion.cms.PSCmsException;
 import com.percussion.design.objectstore.PSRelationship;
 import com.percussion.pagemanagement.data.PSPage;
 import com.percussion.pagemanagement.data.PSTemplate;
@@ -300,7 +299,7 @@ public interface IPSWidgetAssetRelationshipService {
    * corresponding relationships for the template and all the pages using it.
    *
    * @param templateId the id of the template, must not be blank.
-* @param changedWidgets the widget id (slot id) to new name mapping. Assumed not {@code null}.
+   * @param changedWidgets the widget id (slot id) to new name mapping. Assumed not {@code null}.
    */
   void updateWidgetsNames(String templateId, Map<String, PSPair<String, String>> changedWidgets)
       throws PSValidationException;

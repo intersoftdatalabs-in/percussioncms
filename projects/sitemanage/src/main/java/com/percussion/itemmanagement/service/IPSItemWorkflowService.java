@@ -246,16 +246,17 @@ public interface IPSItemWorkflowService {
    */
   int getLocalContentWorkflowId() throws PSItemWorkflowServiceException;
 
-/**
-    * Checks if a modification to the given item is allowed. The modifications are allowed if:
-    * <ul>
-    * <li>the item is checked out to the current user</li>
-    * <li>the item is not checked out to current user</li>
-    * </ul>
-    *
-    * @param id String with the id of the item. Must not be null
-    * @return true if the modifications are allowed, false otherwise
-    */
+  /**
+   * Checks if a modification to the given item is allowed. The modifications are allowed if:
+   *
+   * <ul>
+   *   <li>the item is checked out to the current user
+   *   <li>the item is not checked out to current user
+   * </ul>
+   *
+   * @param id String with the id of the item. Must not be null
+   * @return true if the modifications are allowed, false otherwise
+   */
   boolean isModifyAllowed(String id) throws PSValidationException, PSItemWorkflowServiceException;
 
   /**

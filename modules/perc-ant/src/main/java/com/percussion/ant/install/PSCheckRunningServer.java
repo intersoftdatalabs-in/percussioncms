@@ -45,10 +45,9 @@ import org.apache.tools.ant.BuildException;
  * @author vamsinukala
  */
 public class PSCheckRunningServer extends PSAction {
-  /**
-   * Creates a new running server check task.
-   */
+  /** Creates a new running server check task. */
   public PSCheckRunningServer() {}
+
   // see base class
   @Override
   public void execute() {

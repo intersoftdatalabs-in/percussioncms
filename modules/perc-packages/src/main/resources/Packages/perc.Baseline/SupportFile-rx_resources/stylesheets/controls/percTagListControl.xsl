@@ -101,7 +101,8 @@
 		</select>
 	</xsl:template>
 
-	<!-- Read-only (View Metadata): plain comma-separated text, not editable inputs. -->
+	<!-- Read-only (View Metadata): plain comma-separated text, not editable
+		inputs. -->
 	<xsl:template
 		match="Control[@name='percTagListControl' and @isReadOnly='yes']"
 		priority="10" mode="psxcontrol">
@@ -109,7 +110,9 @@
 			<xsl:for-each
 				select="DisplayChoices/DisplayEntry[@selected='yes']">
 				<xsl:value-of select="Value" />
-				<xsl:if test="not(position()=last())">, </xsl:if>
+				<xsl:if test="not(position()=last())">
+					,
+				</xsl:if>
 			</xsl:for-each>
 		</div>
 	</xsl:template>

@@ -24,13 +24,13 @@ import java.util.List;
 /**
  * Summary of the local (page-assembly) edges incident on the supplied item (US8 / T092–T104).
  *
- * <p>Backed by {@code IPSWidgetAssetRelationshipService.getLocalAssets(...)} +
- * {@code getLinkedPages(...)}: the service collects the assets used by the supplied page or
- * template (local + linked).
+ * <p>Backed by {@code IPSWidgetAssetRelationshipService.getLocalAssets(...)} + {@code
+ * getLinkedPages(...)}: the service collects the assets used by the supplied page or template
+ * (local + linked).
  *
  * <p>The {@link #links} field carries a {@link PSLocalDependencyLink} per local asset so the
- * dependency view can render "Local dependencies" with concrete target ids and types. Empty
- * (rather than {@code null}) when {@link #count} is 0.
+ * dependency view can render "Local dependencies" with concrete target ids and types. Empty (rather
+ * than {@code null}) when {@link #count} is 0.
  *
  * <p>Wire envelope: {@code {"PSLocalDependencySummary": { ... }}}.
  *
@@ -81,6 +81,7 @@ public class PSLocalDependencySummary extends PSAbstractDataObject {
 
     /** One of {@code local}, {@code linked}, {@code shared}. */
     private String type;
+
     private String targetId;
 
     public PSLocalDependencyLink() {

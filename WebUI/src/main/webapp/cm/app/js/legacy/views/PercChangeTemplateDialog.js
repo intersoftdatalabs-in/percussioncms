@@ -205,9 +205,7 @@
           sourceType = "TEMPLATE";
         }
 
-        $(".perc-label-left").text(
-          "Current Template: " + currentTemplateName
-        );
+        $(".perc-label-left").text("Current Template: " + currentTemplateName);
         $(".perc-label-right").text(
           "Selected Template: " + selectedTemplateName
         );
@@ -240,7 +238,10 @@
             style:
               "text-overflow:ellipsis;width:122px;overflow:hidden;white-space:nowrap",
           });
-          var $overflow = $("<div/>", { class: "perc-text-overflow", style: "float:none" })
+          var $overflow = $("<div/>", {
+            class: "perc-text-overflow",
+            style: "float:none",
+          })
             .attr("title", data.name)
             .attr("alt", data.name)
             .text(data.name);

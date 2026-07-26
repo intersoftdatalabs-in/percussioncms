@@ -57,8 +57,9 @@ class RelationshipSummaryResourceTest {
   @Test
   void outgoingReturns200WithBody() {
     PSRelationshipSummary summary = new PSRelationshipSummary(3L, Collections.emptyList());
-    when(adaptor.outgoing(org.mockito.ArgumentMatchers.any(),
-        org.mockito.ArgumentMatchers.eq("123"))).thenReturn(summary);
+    when(adaptor.outgoing(
+            org.mockito.ArgumentMatchers.any(), org.mockito.ArgumentMatchers.eq("123")))
+        .thenReturn(summary);
 
     Response resp = resource.outgoing("123");
 
@@ -69,8 +70,9 @@ class RelationshipSummaryResourceTest {
   @Test
   void taxonomyReturns200WithBody() {
     PSTaxonomySummary summary = new PSTaxonomySummary(2L, java.util.List.of("a"));
-    when(adaptor.taxonomy(org.mockito.ArgumentMatchers.any(),
-        org.mockito.ArgumentMatchers.eq("folder-1"))).thenReturn(summary);
+    when(adaptor.taxonomy(
+            org.mockito.ArgumentMatchers.any(), org.mockito.ArgumentMatchers.eq("folder-1")))
+        .thenReturn(summary);
 
     Response resp = resource.taxonomy("folder-1");
     assertEquals(200, resp.getStatus());
@@ -80,8 +82,9 @@ class RelationshipSummaryResourceTest {
   @Test
   void localReturns200WithBody() {
     PSLocalDependencySummary summary = new PSLocalDependencySummary(4L, Collections.emptyList());
-    when(adaptor.local(org.mockito.ArgumentMatchers.any(),
-        org.mockito.ArgumentMatchers.eq("page-1"))).thenReturn(summary);
+    when(adaptor.local(
+            org.mockito.ArgumentMatchers.any(), org.mockito.ArgumentMatchers.eq("page-1")))
+        .thenReturn(summary);
 
     Response resp = resource.local("page-1");
     assertEquals(200, resp.getStatus());
@@ -90,14 +93,16 @@ class RelationshipSummaryResourceTest {
 
   @Test
   void summaryReturns200WithBody() {
-    PSNodeRelationshipSummary consolidated = new PSNodeRelationshipSummary(
-        new PSRelationshipSummary(0L, Collections.emptyList()),
-        new PSRelationshipSummary(0L, Collections.emptyList()),
-        new PSTaxonomySummary(0L, Collections.emptyList()),
-        new PSLocalDependencySummary(0L, Collections.emptyList()),
-        new PSRelationshipSummary(0L, Collections.emptyList()));
-    when(adaptor.summary(org.mockito.ArgumentMatchers.any(),
-        org.mockito.ArgumentMatchers.eq("node-1"))).thenReturn(consolidated);
+    PSNodeRelationshipSummary consolidated =
+        new PSNodeRelationshipSummary(
+            new PSRelationshipSummary(0L, Collections.emptyList()),
+            new PSRelationshipSummary(0L, Collections.emptyList()),
+            new PSTaxonomySummary(0L, Collections.emptyList()),
+            new PSLocalDependencySummary(0L, Collections.emptyList()),
+            new PSRelationshipSummary(0L, Collections.emptyList()));
+    when(adaptor.summary(
+            org.mockito.ArgumentMatchers.any(), org.mockito.ArgumentMatchers.eq("node-1")))
+        .thenReturn(consolidated);
 
     Response resp = resource.summary("node-1");
     assertEquals(200, resp.getStatus());

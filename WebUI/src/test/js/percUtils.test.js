@@ -225,8 +225,12 @@ describe("perc_utils.js dialog content XSS regression (js/xss-through-dom)", () 
   });
 
   it("alert_dialog strips a disallowed <script> tag entirely, plain text still renders", () => {
-    const payload = "before<script>window.__perc_utils_pwned__=true</script>after";
-    globalThis.jQuery.perc_utils.alert_dialog({ title: "Test", content: payload });
+    const payload =
+      "before<script>window.__perc_utils_pwned__=true</script>after";
+    globalThis.jQuery.perc_utils.alert_dialog({
+      title: "Test",
+      content: payload,
+    });
 
     expect(document.querySelectorAll("script").length).toBe(0);
     expect(globalThis.__perc_utils_pwned__).toBeUndefined();
@@ -289,9 +293,9 @@ describe("perc_utils.js dialog content XSS regression (js/xss-through-dom)", () 
       cancel: () => {},
     });
 
-    expect(document.querySelector("#perc-delete-dialog-warning").textContent).toBe(
-      "Warning"
-    );
+    expect(
+      document.querySelector("#perc-delete-dialog-warning").textContent
+    ).toBe("Warning");
     expect(document.querySelector("strong").textContent).toBe(
       "This role has active users"
     );
@@ -344,9 +348,7 @@ describe("perc_utils.js dialog content XSS regression (js/xss-through-dom)", () 
       content: "LDAP import failed for the following users:<br/><br/>" + table,
     });
 
-    const rows = document.querySelectorAll(
-      "#perc-users-import-warning tr"
-    );
+    const rows = document.querySelectorAll("#perc-users-import-warning tr");
     expect(rows.length).toBe(2);
     expect(document.body.textContent).toContain("alice");
     expect(document.body.textContent).toContain("bob");
@@ -358,7 +360,10 @@ describe("perc_utils.js dialog content XSS regression (js/xss-through-dom)", () 
       `<tr><td><span><img src=x ${XSS_MARKER}></span></td></tr>` +
       "</table>";
 
-    globalThis.jQuery.perc_utils.alert_dialog({ title: "Test", content: table });
+    globalThis.jQuery.perc_utils.alert_dialog({
+      title: "Test",
+      content: table,
+    });
 
     expect(document.querySelectorAll("img").length).toBe(0);
     expect(globalThis.__perc_utils_pwned__).toBeUndefined();
@@ -373,7 +378,10 @@ describe("perc_utils.js dialog content XSS regression (js/xss-through-dom)", () 
     const message = globalThis.jQuery.perc_utils.replaceURLWithHTMLLinks(
       "See https://example.com/docs for details."
     );
-    globalThis.jQuery.perc_utils.alert_dialog({ title: "Test", content: message });
+    globalThis.jQuery.perc_utils.alert_dialog({
+      title: "Test",
+      content: message,
+    });
 
     const link = document.querySelector("a");
     expect(link).not.toBeNull();
@@ -446,9 +454,7 @@ describe("perc_utils.js htmlEntities regression (js/incomplete-sanitization)", (
   it("escapes every single quote in the input, not just the first", () => {
     const result = globalThis.htmlEntities("it's a 'test' of multiple quotes");
     expect(result).not.toContain("'");
-    expect(result).toBe(
-      "it&#39;s a &#39;test&#39; of multiple quotes"
-    );
+    expect(result).toBe("it&#39;s a &#39;test&#39; of multiple quotes");
   });
 
   it("still escapes the other special characters", () => {

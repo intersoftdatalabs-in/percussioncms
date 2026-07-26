@@ -298,7 +298,8 @@ public class PSLoginServlet extends HttpServlet {
 
   /**
    * Validates and rebuilds a post-login redirect target so open redirects cannot pivot off
-   * session-stored {@code RX_REDIRECT_URL} values (CodeQL {@code java/unvalidated-url-redirection}).
+   * session-stored {@code RX_REDIRECT_URL} values (CodeQL {@code
+   * java/unvalidated-url-redirection}).
    *
    * <ul>
    *   <li>Path-absolute ({@code /...}): {@link PSRedirectValidation#validateInternalRedirectUrl}
@@ -330,8 +331,8 @@ public class PSLoginServlet extends HttpServlet {
   }
 
   /**
-   * Runs {@link PSRedirectValidation} (or relative-path rules) on a separator-normalized
-   * candidate. Returns {@code null} when the target is not a safe same-app redirect.
+   * Runs {@link PSRedirectValidation} (or relative-path rules) on a separator-normalized candidate.
+   * Returns {@code null} when the target is not a safe same-app redirect.
    */
   static String validatePostLoginRedirectCandidate(HttpServletRequest request, String candidate) {
     if (StringUtils.isBlank(candidate)) {

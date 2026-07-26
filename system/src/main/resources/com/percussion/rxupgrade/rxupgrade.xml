@@ -2,9 +2,9 @@
 <!-- edited with XMLSPY v5 rel. 2 U (http://www.xmlspy.com) by Bhuvaneshwar
 	Joginipally (Percussion Software) -->
 <rxupgrade>
-	<!-- #548: Derby→H2 embedded migration (idempotent if already H2 / external DB).
-	     Also registered in rxPreUpgradePlugins.xml; listed first here so main upgrade
-	     path still migrates when pre-upgrade is not run. -->
+	<!-- #548: Derby→H2 embedded migration (idempotent if already H2 / external
+		DB). Also registered in rxPreUpgradePlugins.xml; listed first here so main
+		upgrade path still migrates when pre-upgrade is not run. -->
 	<module name="server"
 		logfile="PSUpgradePluginEmbeddedRepositoryMigration.log">
 		<from major="-1" minor="-1" micro="-1" build="-1" />

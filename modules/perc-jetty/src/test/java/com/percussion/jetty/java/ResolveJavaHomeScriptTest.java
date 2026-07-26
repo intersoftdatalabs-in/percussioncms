@@ -25,18 +25,15 @@ import java.nio.file.Path;
 import org.junit.jupiter.api.Test;
 
 /**
- * Structural / contract-marker tests for the {@code resolve-java-home} sh and bat
- * scripts shipped alongside the Jetty scripts. These enforce the dual-script
- * contract from specs/991-system-java-home/contracts/java-home-resolution.md
- * without trying to execute the scripts (which would require a Java 21+ install
- * matching the project's runtime contract).
+ * Structural / contract-marker tests for the {@code resolve-java-home} sh and bat scripts shipped
+ * alongside the Jetty scripts. These enforce the dual-script contract from
+ * specs/991-system-java-home/contracts/java-home-resolution.md without trying to execute the
+ * scripts (which would require a Java 21+ install matching the project's runtime contract).
  */
 class ResolveJavaHomeScriptTest {
 
-  private static final Path SH =
-      Path.of("src", "main", "jetty", "resolve-java-home.sh");
-  private static final Path BAT =
-      Path.of("src", "main", "jetty", "resolve-java-home.bat");
+  private static final Path SH = Path.of("src", "main", "jetty", "resolve-java-home.sh");
+  private static final Path BAT = Path.of("src", "main", "jetty", "resolve-java-home.bat");
 
   @Test
   void shScriptExistsAndIsSourcedStyle() throws Exception {
@@ -52,12 +49,11 @@ class ResolveJavaHomeScriptTest {
     assertTrue(
         s.contains("-ge \"$REQUIRED_MAJOR\"") || s.contains("-ge $REQUIRED_MAJOR"),
         "sh accepts major >= REQUIRED_MAJOR (21+), not equality-only");
-    assertTrue(s.contains("exit 1") || s.contains("return 1"),
-        "failure path exits non-zero");
-    assertTrue(s.contains("Required Java major version"),
+    assertTrue(s.contains("exit 1") || s.contains("return 1"), "failure path exits non-zero");
+    assertTrue(
+        s.contains("Required Java major version"),
         "failure message includes required major version label");
-    assertTrue(s.contains("or later"),
-        "failure message states 21 or later");
+    assertTrue(s.contains("or later"), "failure message states 21 or later");
   }
 
   @Test
@@ -69,20 +65,20 @@ class ResolveJavaHomeScriptTest {
     assertTrue(s.contains("PROCESS_ENV"), "contains PROCESS_ENV source label");
     assertTrue(s.contains("INSTALL_DIR_JRE"), "contains INSTALL_DIR_JRE source label");
     assertTrue(s.contains("REQUIRED_MAJOR=21"), "REQUIRED_MAJOR minimum is 21");
-    assertTrue(s.contains("GEQ %REQUIRED_MAJOR%"),
+    assertTrue(
+        s.contains("GEQ %REQUIRED_MAJOR%"),
         "bat accepts major >= REQUIRED_MAJOR (21+), not equality-only");
-    assertTrue(s.contains("Required Java major version"),
+    assertTrue(
+        s.contains("Required Java major version"),
         "failure message includes required major version label");
-    assertTrue(s.contains("or later"),
-        "failure message states 21 or later");
+    assertTrue(s.contains("or later"), "failure message states 21 or later");
     assertTrue(s.contains("exit /b 1"), "bat exits with /b 1 on failure");
   }
 
   /**
-   * Regression for kilo-code-bot PR review thread 3631027615:
-   * non-ASCII em-dashes render as Latin-1 mojibake under Windows cmd.exe's
-   * default OEM code page. The script must be ASCII-only in comments so it
-   * ships portably across code pages.
+   * Regression for kilo-code-bot PR review thread 3631027615: non-ASCII em-dashes render as Latin-1
+   * mojibake under Windows cmd.exe's default OEM code page. The script must be ASCII-only in
+   * comments so it ships portably across code pages.
    */
   @Test
   void batScriptIsAsciiSafe() throws Exception {
@@ -113,9 +109,10 @@ class ResolveJavaHomeScriptTest {
     int envIdx = s.indexOf("_env_source");
     int legacyIdx = s.indexOf("_legacy_source");
     int pathIdx = s.indexOf("_path_source");
-    assertTrue(configIdx > 0 && envIdx > 0 && legacyIdx > 0 && pathIdx > 0,
-        "all four sources referenced");
-    assertTrue(configIdx < envIdx && envIdx < legacyIdx && legacyIdx < pathIdx,
+    assertTrue(
+        configIdx > 0 && envIdx > 0 && legacyIdx > 0 && pathIdx > 0, "all four sources referenced");
+    assertTrue(
+        configIdx < envIdx && envIdx < legacyIdx && legacyIdx < pathIdx,
         "precedence order: config > env > legacy > PATH");
   }
 
@@ -133,9 +130,9 @@ class ResolveJavaHomeScriptTest {
     int env = s.indexOf(":try_env");
     int legacy = s.indexOf(":try_legacy");
     int path = s.indexOf(":try_path");
-    assertTrue(cfg > 0 && env > 0 && legacy > 0 && path > 0,
-        "all four sources referenced in bat");
-    assertTrue(cfg < env && env < legacy && legacy < path,
+    assertTrue(cfg > 0 && env > 0 && legacy > 0 && path > 0, "all four sources referenced in bat");
+    assertTrue(
+        cfg < env && env < legacy && legacy < path,
         "bat precedence order: config > env > legacy > PATH");
   }
 
@@ -144,25 +141,25 @@ class ResolveJavaHomeScriptTest {
     String sh = Files.readString(SH, StandardCharsets.UTF_8);
     String bat = Files.readString(BAT, StandardCharsets.UTF_8);
     // Guardrail: must not *only* accept <installRoot>/JRE (no other source).
-    assertFalse(sh.contains("JAVA_HOME=$INSTALL_ROOT/JRE") && !sh.contains("_env_source"),
+    assertFalse(
+        sh.contains("JAVA_HOME=$INSTALL_ROOT/JRE") && !sh.contains("_env_source"),
         "sh must not hard-code only JRE");
-    assertFalse(bat.contains("set JAVA_HOME=%INSTALL_ROOT%\\JRE") && !bat.contains(":try_env"),
+    assertFalse(
+        bat.contains("set JAVA_HOME=%INSTALL_ROOT%\\JRE") && !bat.contains(":try_env"),
         "bat must not hard-code only JRE");
   }
 
   // ----- US1 wiring assertions (T011) -----
 
-  private static final Path START_SH =
-      Path.of("src", "main", "jetty", "StartJetty.sh");
-  private static final Path START_BAT =
-      Path.of("src", "main", "jetty", "StartJetty.bat");
-  private static final Path STOP_BAT =
-      Path.of("src", "main", "jetty", "StopJetty.bat");
+  private static final Path START_SH = Path.of("src", "main", "jetty", "StartJetty.sh");
+  private static final Path START_BAT = Path.of("src", "main", "jetty", "StartJetty.bat");
+  private static final Path STOP_BAT = Path.of("src", "main", "jetty", "StopJetty.bat");
 
   @Test
   void startJettySh_sourcesResolveHelper() throws Exception {
     String s = Files.readString(START_SH, StandardCharsets.UTF_8);
-    assertTrue(s.contains("source \"${DIR}/resolve-java-home.sh\"")
+    assertTrue(
+        s.contains("source \"${DIR}/resolve-java-home.sh\"")
             || s.contains("source ./resolve-java-home.sh")
             || s.contains("resolve-java-home.sh"),
         "StartJetty.sh must source resolve-java-home.sh");
@@ -171,15 +168,15 @@ class ResolveJavaHomeScriptTest {
   @Test
   void startJettyBat_callsResolveHelper() throws Exception {
     String s = Files.readString(START_BAT, StandardCharsets.UTF_8);
-    assertTrue(s.contains("resolve-java-home.bat"),
-        "StartJetty.bat must call resolve-java-home.bat");
+    assertTrue(
+        s.contains("resolve-java-home.bat"), "StartJetty.bat must call resolve-java-home.bat");
   }
 
   @Test
   void stopJettyBat_callsResolveHelper() throws Exception {
     String s = Files.readString(STOP_BAT, StandardCharsets.UTF_8);
-    assertTrue(s.contains("resolve-java-home.bat"),
-        "StopJetty.bat must call resolve-java-home.bat");
+    assertTrue(
+        s.contains("resolve-java-home.bat"), "StopJetty.bat must call resolve-java-home.bat");
   }
 
   @Test
@@ -187,11 +184,14 @@ class ResolveJavaHomeScriptTest {
     String startSh = Files.readString(START_SH, StandardCharsets.UTF_8);
     String startBat = Files.readString(START_BAT, StandardCharsets.UTF_8);
     String stopBat = Files.readString(STOP_BAT, StandardCharsets.UTF_8);
-    assertFalse(startSh.contains("JAVA_HOME=${rxDir}/JRE"),
+    assertFalse(
+        startSh.contains("JAVA_HOME=${rxDir}/JRE"),
         "StartJetty.sh must not hard-code only ${rxDir}/JRE");
-    assertFalse(startBat.contains("SET JAVA_HOME=%rxDir%\\JRE"),
+    assertFalse(
+        startBat.contains("SET JAVA_HOME=%rxDir%\\JRE"),
         "StartJetty.bat must not hard-code only %rxDir%\\JRE");
-    assertFalse(stopBat.contains("SET JAVA_HOME=%rxDir%\\JRE"),
+    assertFalse(
+        stopBat.contains("SET JAVA_HOME=%rxDir%\\JRE"),
         "StopJetty.bat must not hard-code only %rxDir%\\JRE");
   }
 }

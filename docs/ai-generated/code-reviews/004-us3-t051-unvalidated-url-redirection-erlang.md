@@ -8,11 +8,11 @@
 
 Closes six `java/unvalidated-url-redirection` alerts by routing every redirect through `PSRedirectValidation` (or a fixed local path):
 
-| Alert | Site | Fix |
-|-------|------|-----|
-| #1081 | `PSUncaughtError` | Drop Referer-based host rebuild; always `/context/error.html` (internal) |
-| #643/#644 | `PSCommentsRestService` | `seeOtherIfSafe` — relative path or Host-allow-listed absolute URL |
-| #645–#647 | `PSSecurityFilter` | `sendValidatedRedirect` before every `sendRedirect` |
+|   Alert   |          Site           |                                   Fix                                    |
+|-----------|-------------------------|--------------------------------------------------------------------------|
+| #1081     | `PSUncaughtError`       | Drop Referer-based host rebuild; always `/context/error.html` (internal) |
+| #643/#644 | `PSCommentsRestService` | `seeOtherIfSafe` — relative path or Host-allow-listed absolute URL       |
+| #645–#647 | `PSSecurityFilter`      | `sendValidatedRedirect` before every `sendRedirect`                      |
 
 CodeQL model pack barrier for `PSRedirectValidation` (`url-redirection`). Existing 46-test suite for the helper remains the primary regression net.
 
@@ -28,6 +28,7 @@ CodeQL model pack barrier for `PSRedirectValidation` (`url-redirection`). Existi
 ## Issues
 
 ### Issue 1 — Severity: nit
+
 - Proxy+login path no longer double-appends `loginUrl` when proxy base is empty (pre-existing footgun). Behavior change is safer and matches intent.
 
 ## Handoff

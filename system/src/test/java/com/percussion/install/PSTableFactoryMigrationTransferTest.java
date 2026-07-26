@@ -59,8 +59,7 @@ public class PSTableFactoryMigrationTransferTest {
       // Use CHAR flags like product Derby BIT→char flags; CLOB for LOB probe
       st.execute(
           "CREATE TABLE CONTENT (ID INT PRIMARY KEY, TITLE VARCHAR(64), FLAG CHAR(1), BODY CLOB)");
-      st.execute(
-          "CREATE TABLE NEXTNUMBER (KEYNAME VARCHAR(64) PRIMARY KEY, NEXTNR INT NOT NULL)");
+      st.execute("CREATE TABLE NEXTNUMBER (KEYNAME VARCHAR(64) PRIMARY KEY, NEXTNR INT NOT NULL)");
       st.execute("INSERT INTO CONTENT VALUES (42, 'item', 'T', 'clob-body')");
       st.execute("INSERT INTO CONTENT VALUES (7, 'other', 'F', NULL)");
       st.execute("INSERT INTO NEXTNUMBER VALUES ('CONTENT', 100)");
@@ -88,8 +87,7 @@ public class PSTableFactoryMigrationTransferTest {
             DriverManager.getConnection(
                 "jdbc:h2:file:" + tgtPath + ";DB_CLOSE_ON_EXIT=FALSE", "sa", "");
         Statement st = c.createStatement();
-        ResultSet rs =
-            st.executeQuery("SELECT NEXTNR FROM NEXTNUMBER WHERE KEYNAME = 'CONTENT'")) {
+        ResultSet rs = st.executeQuery("SELECT NEXTNR FROM NEXTNUMBER WHERE KEYNAME = 'CONTENT'")) {
       assertTrue(rs.next());
       assertEquals(100, rs.getInt(1));
     }

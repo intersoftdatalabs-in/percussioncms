@@ -6,25 +6,25 @@
 
 ## Files reviewed
 
-| File | Action |
-|------|--------|
-| `WebUI/src/main/ts/api/contentExplorer/pathApi.ts` | **modified** (Phase 1+2 import bug: `apiFetch` → `get`/`post`; `encodePath` exported for testability) |
-| `WebUI/src/main/ts/contentExplorer/ContentExplorerShell.tsx` | modified (real layout, not placeholder; lifted selection state; folder default WRITE assumption) |
-| `WebUI/src/main/ts/contentExplorer/ExplorerTree.tsx` | new (lazy expand, keyboard nav, empty/error UX) |
-| `WebUI/src/main/ts/contentExplorer/DetailList.tsx` | new (paginated, page-size 50, page-0 reset on folder change) |
-| `WebUI/src/main/ts/contentExplorer/ReducedActions.tsx` | new (FR-010a 7-action bar, confirm-before-delete, no-throw preview) |
-| `WebUI/src/main/ts/contentExplorer/messages.ts` | new (TMX key catalog `perc.ui.explorer.*`) |
-| `WebUI/src/main/ts/contentExplorer/openInEditor.ts` | new (path-first / id-fallback navigation to editor) |
-| `WebUI/src/main/ts/contentExplorer/selection.ts` | new (PSPathItem helpers + access-level gates) |
-| `WebUI/src/main/ts/contentExplorer/styles.ts` | new (inline styles, matches `home.styles.ts` pattern) |
-| `WebUI/src/test/ts/contentExplorer/setup.ts` | new (Vitest setup; fetch mock per-test) |
-| `WebUI/src/test/ts/contentExplorer/pathApi.test.ts` | new (encodePath + paginatedFolder) |
-| `WebUI/src/test/ts/contentExplorer/ExplorerTree.test.tsx` | new (lazy expand + selection + error) |
-| `WebUI/src/test/ts/contentExplorer/DetailList.test.tsx` | new (pagination + folder-change reset + error) |
-| `WebUI/src/test/ts/contentExplorer/reducedActions.test.tsx` | new (disabled-state gating + confirm + error surfacing) |
-| `WebUI/src/test/ts/contentExplorer/sc005-perf-regression.test.ts` | new (SC-005 dev-machine regression guard, ≤ 5 s) |
-| `specs/992-react-content-explorer/contracts/capability-matrix.md` | modified (P0-Core Status column populated) |
-| `specs/992-react-content-explorer/tasks.md` | modified (T013-T023 + T015a + T026 marked `[x]`; T024/T024a/T025/T027 with `<!-- handoff -->` markers) |
+|                               File                                |                                                 Action                                                 |
+|-------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------|
+| `WebUI/src/main/ts/api/contentExplorer/pathApi.ts`                | **modified** (Phase 1+2 import bug: `apiFetch` → `get`/`post`; `encodePath` exported for testability)  |
+| `WebUI/src/main/ts/contentExplorer/ContentExplorerShell.tsx`      | modified (real layout, not placeholder; lifted selection state; folder default WRITE assumption)       |
+| `WebUI/src/main/ts/contentExplorer/ExplorerTree.tsx`              | new (lazy expand, keyboard nav, empty/error UX)                                                        |
+| `WebUI/src/main/ts/contentExplorer/DetailList.tsx`                | new (paginated, page-size 50, page-0 reset on folder change)                                           |
+| `WebUI/src/main/ts/contentExplorer/ReducedActions.tsx`            | new (FR-010a 7-action bar, confirm-before-delete, no-throw preview)                                    |
+| `WebUI/src/main/ts/contentExplorer/messages.ts`                   | new (TMX key catalog `perc.ui.explorer.*`)                                                             |
+| `WebUI/src/main/ts/contentExplorer/openInEditor.ts`               | new (path-first / id-fallback navigation to editor)                                                    |
+| `WebUI/src/main/ts/contentExplorer/selection.ts`                  | new (PSPathItem helpers + access-level gates)                                                          |
+| `WebUI/src/main/ts/contentExplorer/styles.ts`                     | new (inline styles, matches `home.styles.ts` pattern)                                                  |
+| `WebUI/src/test/ts/contentExplorer/setup.ts`                      | new (Vitest setup; fetch mock per-test)                                                                |
+| `WebUI/src/test/ts/contentExplorer/pathApi.test.ts`               | new (encodePath + paginatedFolder)                                                                     |
+| `WebUI/src/test/ts/contentExplorer/ExplorerTree.test.tsx`         | new (lazy expand + selection + error)                                                                  |
+| `WebUI/src/test/ts/contentExplorer/DetailList.test.tsx`           | new (pagination + folder-change reset + error)                                                         |
+| `WebUI/src/test/ts/contentExplorer/reducedActions.test.tsx`       | new (disabled-state gating + confirm + error surfacing)                                                |
+| `WebUI/src/test/ts/contentExplorer/sc005-perf-regression.test.ts` | new (SC-005 dev-machine regression guard, ≤ 5 s)                                                       |
+| `specs/992-react-content-explorer/contracts/capability-matrix.md` | modified (P0-Core Status column populated)                                                             |
+| `specs/992-react-content-explorer/tasks.md`                       | modified (T013-T023 + T015a + T026 marked `[x]`; T024/T024a/T025/T027 with `<!-- handoff -->` markers) |
 
 ## Summary
 
@@ -45,14 +45,14 @@ US1 ships the **core navigate surface** (FR-001…FR-005) on Track B React 19 + 
 
 ## Hard gates
 
-| Gate | Status |
-|------|--------|
-| Missing behavioral tests for non-trivial logic | **Pass** — T013–T016 + T015a cover path API, tree, list, ReducedActions, and SC-005 perf regression. |
-| Non-portable filesystem path joins | **Pass (n/a)** — no new filesystem path code. |
-| Empty catch / swallowed exceptions | **Pass** — `runItemAction` always surfaces errors via `onError`. `parseBody` in `client.ts` has documented fallbacks (unchanged from baseline). |
-| False-green on ignored exit codes | **Pass (n/a)** — no shell scripts in this commit. |
-| Path containment | **Pass (n/a)** — `encodePath` is a defensive encoder for URL segments; not a path-traversal guard (server enforces). |
-| Duplicate method declarations | **Pass** — no compile pass to confirm; manual review of new files shows no duplicates. |
+|                      Gate                      |                                                                     Status                                                                      |
+|------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------|
+| Missing behavioral tests for non-trivial logic | **Pass** — T013–T016 + T015a cover path API, tree, list, ReducedActions, and SC-005 perf regression.                                            |
+| Non-portable filesystem path joins             | **Pass (n/a)** — no new filesystem path code.                                                                                                   |
+| Empty catch / swallowed exceptions             | **Pass** — `runItemAction` always surfaces errors via `onError`. `parseBody` in `client.ts` has documented fallbacks (unchanged from baseline). |
+| False-green on ignored exit codes              | **Pass (n/a)** — no shell scripts in this commit.                                                                                               |
+| Path containment                               | **Pass (n/a)** — `encodePath` is a defensive encoder for URL segments; not a path-traversal guard (server enforces).                            |
+| Duplicate method declarations                  | **Pass** — no compile pass to confirm; manual review of new files shows no duplicates.                                                          |
 
 ## Recommendation
 

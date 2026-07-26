@@ -97,26 +97,26 @@ JVMs).
 
 ## Behavior parity check
 
-| Input | Pre-fix | Post-fix | Correct? |
-|-------|---------|----------|----------|
-| `themeRoot/file.css` (legitimate) | `FileInputStream` on file | `FileInputStream` on file | yes |
-| `themeRoot/../escape.css` | `File(path).exists()` returns false or escapes | `IllegalArgumentException` | yes |
-| `themeRoot/sub1/../../../../etc/passwd` | resolves to `/etc/passwd` then `new FileInputStream` | `IllegalArgumentException` | yes |
-| `null` | `new File(null)` — NPE / platform-dependent behavior | `IllegalArgumentException` | yes |
-| `"good.css\0../../etc/passwd"` | `new File(path).exists()` — NUL byte ignored by `File` | `IllegalArgumentException` | yes |
-| `themeRoot/out.css` (legitimate write) | `FileWriter` opens, writes | `FileWriter` opens, writes | yes |
+|                  Input                  |                        Pre-fix                         |          Post-fix          | Correct? |
+|-----------------------------------------|--------------------------------------------------------|----------------------------|----------|
+| `themeRoot/file.css` (legitimate)       | `FileInputStream` on file                              | `FileInputStream` on file  | yes      |
+| `themeRoot/../escape.css`               | `File(path).exists()` returns false or escapes         | `IllegalArgumentException` | yes      |
+| `themeRoot/sub1/../../../../etc/passwd` | resolves to `/etc/passwd` then `new FileInputStream`   | `IllegalArgumentException` | yes      |
+| `null`                                  | `new File(null)` — NPE / platform-dependent behavior   | `IllegalArgumentException` | yes      |
+| `"good.css\0../../etc/passwd"`          | `new File(path).exists()` — NUL byte ignored by `File` | `IllegalArgumentException` | yes      |
+| `themeRoot/out.css` (legitimate write)  | `FileWriter` opens, writes                             | `FileWriter` opens, writes | yes      |
 
 ## Fail-then-pass verification
 
 Pre-fix behavior reconstructed from the diff (`-` lines at `PSCSSParser.java:236`,
 `:264`, `:275`):
 - `fileExists` returned `new File(importPath).exists()` — silently false on
-  `/etc/passwd` (unless root user), never throws on the documented adversarial
-  inputs.
+`/etc/passwd` (unless root user), never throws on the documented adversarial
+inputs.
 - `saveFile` opened `new FileWriter(path)` directly with a traversal payload —
-  CodeQL flagged the construction at line 264 as a sink (alert #1056).
+CodeQL flagged the construction at line 264 as a sink (alert #1056).
 - `loadFileFromDisk` opened `new FileInputStream(new File(path))` directly —
-  CodeQL flagged the construction at line 275 (alert #1057).
+CodeQL flagged the construction at line 275 (alert #1057).
 
 Post-fix, every adversarial test asserts `IllegalArgumentException` (which only the
 new `requireUnderBase` call can throw on these inputs — the three sinks otherwise
@@ -153,12 +153,12 @@ are expected and consistent with the same pattern used by
 
 Notes:
 - This commit is already committed on the branch (`git log --oneline` shows
-  `b4b1a987a` on top of `f0bf34e5b`); the question is whether to merge / push / open
-  a PR. Erlang approves.
+`b4b1a987a` on top of `f0bf34e5b`); the question is whether to merge / push / open
+a PR. Erlang approves.
 - M-1 (missing trailing newline) and M-2 (redundant `@AfterEach` cleanup) are
-  optional polish, not gating.
+optional polish, not gating.
 - No new patterns to add to
-  `modules/ai-shared-develop/src/main/resources/skills/erlang-review/patterns.md` —
-  this commit follows the established T043 helper convention from
-  `PSSiteDataService` / `PSRegionCSSFileService` / `PSThemeService` and reuses the
-  same test harness shape.
+`modules/ai-shared-develop/src/main/resources/skills/erlang-review/patterns.md` —
+this commit follows the established T043 helper convention from
+`PSSiteDataService` / `PSRegionCSSFileService` / `PSThemeService` and reuses the
+same test harness shape.

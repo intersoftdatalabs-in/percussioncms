@@ -65,8 +65,7 @@ class DbInstallConfigResolverTest {
     opts.put("db.user", "cms");
     opts.put("db.password", "s3cret");
 
-    DbInstallConfigResolver.ResolvedDbConfig cfg =
-        DbInstallConfigResolver.resolveDbConfig(opts);
+    DbInstallConfigResolver.ResolvedDbConfig cfg = DbInstallConfigResolver.resolveDbConfig(opts);
     Map<String, String> p = cfg.systemProperties();
     assertEquals("mysql", p.get("perc.db.type"));
     assertEquals("MYSQL", p.get("perc.db.cms.backend"));
@@ -85,8 +84,7 @@ class DbInstallConfigResolverTest {
 
     IllegalArgumentException ex =
         assertThrows(
-            IllegalArgumentException.class,
-            () -> DbInstallConfigResolver.resolveDbConfig(opts));
+            IllegalArgumentException.class, () -> DbInstallConfigResolver.resolveDbConfig(opts));
     assertTrue(ex.getMessage().contains("db.host"));
     assertFalse(ex.getMessage().contains("super-secret-pw"));
   }
@@ -101,8 +99,7 @@ class DbInstallConfigResolverTest {
     opts.put("db.user", "sa");
     opts.put("db.password", "x");
 
-    DbInstallConfigResolver.ResolvedDbConfig cfg =
-        DbInstallConfigResolver.resolveDbConfig(opts);
+    DbInstallConfigResolver.ResolvedDbConfig cfg = DbInstallConfigResolver.resolveDbConfig(opts);
     assertEquals("sqlserver", cfg.systemProperties().get("perc.db.type"));
     assertEquals("MSSQL", cfg.systemProperties().get("perc.db.cms.backend"));
     assertEquals("dbo", cfg.systemProperties().get("perc.db.cms.schema"));
@@ -118,8 +115,7 @@ class DbInstallConfigResolverTest {
     opts.put("db.user", "cms");
     opts.put("db.password", "x");
 
-    DbInstallConfigResolver.ResolvedDbConfig cfg =
-        DbInstallConfigResolver.resolveDbConfig(opts);
+    DbInstallConfigResolver.ResolvedDbConfig cfg = DbInstallConfigResolver.resolveDbConfig(opts);
     assertEquals("oracle", cfg.systemProperties().get("perc.db.type"));
     assertEquals("ORACLE", cfg.systemProperties().get("perc.db.cms.backend"));
     assertEquals("oracle:thin", cfg.systemProperties().get("perc.db.cms.driverName"));
@@ -138,8 +134,7 @@ class DbInstallConfigResolverTest {
     // no db.name → must not produce @host:port:
     IllegalArgumentException ex =
         assertThrows(
-            IllegalArgumentException.class,
-            () -> DbInstallConfigResolver.resolveDbConfig(opts));
+            IllegalArgumentException.class, () -> DbInstallConfigResolver.resolveDbConfig(opts));
     assertTrue(ex.getMessage().contains("db.name"));
   }
 
@@ -153,8 +148,7 @@ class DbInstallConfigResolverTest {
     opts.put("db.user", "sa");
     opts.put("db.password", "x");
 
-    DbInstallConfigResolver.ResolvedDbConfig cfg =
-        DbInstallConfigResolver.resolveDbConfig(opts);
+    DbInstallConfigResolver.ResolvedDbConfig cfg = DbInstallConfigResolver.resolveDbConfig(opts);
     assertEquals("dbo", cfg.systemProperties().get("perc.db.cms.schema"));
   }
 
@@ -176,8 +170,7 @@ class DbInstallConfigResolverTest {
         StandardCharsets.UTF_8);
 
     Map<String, String> opts = Map.of("dbprops", props.toString());
-    DbInstallConfigResolver.ResolvedDbConfig cfg =
-        DbInstallConfigResolver.resolveDbConfig(opts);
+    DbInstallConfigResolver.ResolvedDbConfig cfg = DbInstallConfigResolver.resolveDbConfig(opts);
     Map<String, String> p = cfg.systemProperties();
     assertEquals("dbprops", cfg.source());
     assertEquals("mysql", p.get("perc.db.type"));
@@ -255,8 +248,7 @@ class DbInstallConfigResolverTest {
     opts.put("db.user", "ignored");
     opts.put("db.password", "ignored");
 
-    DbInstallConfigResolver.ResolvedDbConfig cfg =
-        DbInstallConfigResolver.resolveDbConfig(opts);
+    DbInstallConfigResolver.ResolvedDbConfig cfg = DbInstallConfigResolver.resolveDbConfig(opts);
     assertEquals("mysql", cfg.systemProperties().get("perc.db.type"));
     assertEquals("MYSQL", cfg.systemProperties().get("perc.db.cms.backend"));
   }
@@ -269,8 +261,9 @@ class DbInstallConfigResolverTest {
             () ->
                 DbInstallConfigResolver.resolveDbConfig(
                     Map.of("dbprops", tempDir.resolve("missing.properties").toString())));
-    assertTrue(ex.getMessage().toLowerCase().contains("not found")
-        || ex.getMessage().toLowerCase().contains("not readable"));
+    assertTrue(
+        ex.getMessage().toLowerCase().contains("not found")
+            || ex.getMessage().toLowerCase().contains("not readable"));
   }
 
   @Test
@@ -286,9 +279,7 @@ class DbInstallConfigResolverTest {
     IllegalArgumentException ex =
         assertThrows(
             IllegalArgumentException.class,
-            () ->
-                DbInstallConfigResolver.resolveDbConfig(
-                    Map.of("dbprops", props.toString())));
+            () -> DbInstallConfigResolver.resolveDbConfig(Map.of("dbprops", props.toString())));
     assertTrue(ex.getMessage().contains("DB_SERVER") || ex.getMessage().contains("UID"));
     assertFalse(ex.getMessage().contains("do-not-leak-this"));
   }
@@ -300,9 +291,7 @@ class DbInstallConfigResolverTest {
     IllegalArgumentException ex =
         assertThrows(
             IllegalArgumentException.class,
-            () ->
-                DbInstallConfigResolver.resolveDbConfig(
-                    Map.of("dbprops", props.toString())));
+            () -> DbInstallConfigResolver.resolveDbConfig(Map.of("dbprops", props.toString())));
     assertTrue(ex.getMessage().contains("MYSQL"));
     assertTrue(ex.getMessage().contains("ORACLE"));
   }

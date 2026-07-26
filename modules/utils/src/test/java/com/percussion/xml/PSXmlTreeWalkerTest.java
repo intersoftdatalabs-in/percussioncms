@@ -401,8 +401,8 @@ public class PSXmlTreeWalkerTest {
 
   /**
    * Regression test: the JDK XSLTC transformer (Java 9+) emits CRLF line separators and an extra
-   * trailing newline after the closing element when INDENT=yes. The historical Saxon serializer used
-   * LF only and did not add a trailing newline, and a number of unit tests across the codebase
+   * trailing newline after the closing element when INDENT=yes. The historical Saxon serializer
+   * used LF only and did not add a trailing newline, and a number of unit tests across the codebase
    * rely on that exact output. This guards PSXmlTreeWalker.write against regressing to the JDK
    * XSLTC default behavior.
    */
@@ -420,7 +420,9 @@ public class PSXmlTreeWalkerTest {
     // No CRLF should leak through; everything should be LF.
     assertEquals(-1, out.indexOf("\r"), "Output should not contain CR characters");
     // The output should end with a single LF after the closing element, not two.
-    assertTrue(out.endsWith("</Root>\n"), "Output should end with '</Root>\\n', was: " + describeTail(out));
+    assertTrue(
+        out.endsWith("</Root>\n"),
+        "Output should end with '</Root>\\n', was: " + describeTail(out));
     assertFalse(out.endsWith("</Root>\n\n"), "Output should not contain a double trailing newline");
   }
 

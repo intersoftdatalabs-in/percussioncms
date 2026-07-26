@@ -201,11 +201,11 @@ Tasks: **T116–T127** in `tasks.md`.
 
 ## Complexity Tracking
 
-| Item | Justification |
-|------|----------------|
-| Optional new sitemanage REST for Design/Runtime | Design is largely JSF-bound; browser cannot safely call internal Java services. Thin JSON façade over **existing** `IPSPublishingWs` / `IPSSiteManager` / `IPSRxPublisherService` is required for FR-007/008 without inventing engine logic. Prefer one coherent `/publishingdesign` or extend existing services—decision R3 in research. |
-| Phased cutover (not single big-bang for all three) | Spec assumption: ops value ships earlier; full design is larger. Final state still one UI. Document temporary dual entry in release notes. |
-| US9 residual after US8 tasks closed | Honest tracking: entry-path retirement ≠ full pixel parity. Keeps matrix as gate without inventing work as already done. |
+|                        Item                        |                                                                                                                                                               Justification                                                                                                                                                               |
+|----------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Optional new sitemanage REST for Design/Runtime    | Design is largely JSF-bound; browser cannot safely call internal Java services. Thin JSON façade over **existing** `IPSPublishingWs` / `IPSSiteManager` / `IPSRxPublisherService` is required for FR-007/008 without inventing engine logic. Prefer one coherent `/publishingdesign` or extend existing services—decision R3 in research. |
+| Phased cutover (not single big-bang for all three) | Spec assumption: ops value ships earlier; full design is larger. Final state still one UI. Document temporary dual entry in release notes.                                                                                                                                                                                                |
+| US9 residual after US8 tasks closed                | Honest tracking: entry-path retirement ≠ full pixel parity. Keeps matrix as gate without inventing work as already done.                                                                                                                                                                                                                  |
 
 ## PR / story checkpoint
 

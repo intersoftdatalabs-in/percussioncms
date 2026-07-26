@@ -155,3 +155,4 @@ A release engineer wants to re-run the same audit when v8.1.8 (or v8.2.0) is cut
 - All file outputs are plain text / JSON / Markdown so they diff cleanly in a PR review.
 - Per Constitution Principle II (Evidence Over Invention), the script cites concrete commit hashes and file paths for every verdict; it does not invent classifications without evidence.
 - Per Constitution Principle VII, JDK is fixed by branch: `development` is JDK 21, so any v8.1.7 fix that pins a dependency to a Java-8-only version is a "needs migration" item (upgrade to a JDK 21-compatible version), not a "not applicable" item, except where the dependency was already moved forward on `development`.
+

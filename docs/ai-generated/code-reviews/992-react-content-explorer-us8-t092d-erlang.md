@@ -23,25 +23,25 @@
 
 ### Spec / contract
 
-| Artifact | Change | Compliance |
-|----------|--------|------------|
-| `WebUI/src/test/ts/api/csrf.test.ts` (NEW) | Vitest spec for the cross-frame CSRF contract. 4 tests: `getCsrfToken` returns null when the global is absent; reads the global fresh per call (no memoization); `client.get` attaches the fresh CSRF token to every request (no shared header cache); graceful degradation when no token is set (no crash, header omitted). | ✅ Constitution III (behavioral tests). |
-| `modules/perc-qa-automation/frontend/tests/us8-edge-cases-cross-frame.spec.js` (NEW) | Playwright spec for the two-context scenario (modern explorer + legacy editor) for QA re-execution on the UAT candidate build. | ✅ |
-| `specs/992-react-content-explorer/tasks.md` | T092d entry marked done with evidence (4/4 csrf.test.ts tests passing; no client change required). | ✅ |
+|                                       Artifact                                       |                                                                                                                                                            Change                                                                                                                                                            |               Compliance               |
+|--------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|----------------------------------------|
+| `WebUI/src/test/ts/api/csrf.test.ts` (NEW)                                           | Vitest spec for the cross-frame CSRF contract. 4 tests: `getCsrfToken` returns null when the global is absent; reads the global fresh per call (no memoization); `client.get` attaches the fresh CSRF token to every request (no shared header cache); graceful degradation when no token is set (no crash, header omitted). | ✅ Constitution III (behavioral tests). |
+| `modules/perc-qa-automation/frontend/tests/us8-edge-cases-cross-frame.spec.js` (NEW) | Playwright spec for the two-context scenario (modern explorer + legacy editor) for QA re-execution on the UAT candidate build.                                                                                                                                                                                               | ✅                                      |
+| `specs/992-react-content-explorer/tasks.md`                                          | T092d entry marked done with evidence (4/4 csrf.test.ts tests passing; no client change required).                                                                                                                                                                                                                           | ✅                                      |
 
 ### Constitutional compliance
 
-| Constraint | Compliance |
-|------------|------------|
-| I (no invariants violated) | ✅ No shipped code modified; only test additions + spec doc updates. |
-| II (no invented APIs) | ✅ N/A — no API change. |
-| III (behavioral tests) | ✅ 4 new Vitest tests covering the CSRF contract; existing 4 tests in `csrf.test.ts` (none pre-existed; this is the first CSRF spec) all pass. |
-| IV (service-contract tests) | ✅ N/A — client-only verification. |
-| V (Plan / Complexity) | ✅ 2 new test files + 1 task entry. No new deps. |
-| VI (threat-model note) | ✅ Certifies the existing CSRF threat-model control (per `security-review-992.md` CSRF row); no new surface. |
-| VII (format checks) | ✅ `npx tsc --noEmit` clean; `npx vitest run ../../test/ts/api/csrf.test.ts` = 4/4. |
-| IX (review-thread resolution) | ⏳ Will resolve per-thread on PR review. |
-| E (no residuals out of spec phases) | ✅ Edge Cases #7 closed via this commit; only #4 / #5 / #6 / #12 remain partial (out of T092d scope). |
+|             Constraint              |                                                                  Compliance                                                                   |
+|-------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------|
+| I (no invariants violated)          | ✅ No shipped code modified; only test additions + spec doc updates.                                                                           |
+| II (no invented APIs)               | ✅ N/A — no API change.                                                                                                                        |
+| III (behavioral tests)              | ✅ 4 new Vitest tests covering the CSRF contract; existing 4 tests in `csrf.test.ts` (none pre-existed; this is the first CSRF spec) all pass. |
+| IV (service-contract tests)         | ✅ N/A — client-only verification.                                                                                                             |
+| V (Plan / Complexity)               | ✅ 2 new test files + 1 task entry. No new deps.                                                                                               |
+| VI (threat-model note)              | ✅ Certifies the existing CSRF threat-model control (per `security-review-992.md` CSRF row); no new surface.                                   |
+| VII (format checks)                 | ✅ `npx tsc --noEmit` clean; `npx vitest run ../../test/ts/api/csrf.test.ts` = 4/4.                                                            |
+| IX (review-thread resolution)       | ⏳ Will resolve per-thread on PR review.                                                                                                       |
+| E (no residuals out of spec phases) | ✅ Edge Cases #7 closed via this commit; only #4 / #5 / #6 / #12 remain partial (out of T092d scope).                                          |
 
 ### Cross-platform / portability
 
@@ -55,14 +55,14 @@ No file I/O, no path construction. Pure JS behavior tests.
 
 ### ER-typed summary
 
-| Category | Count |
-|----------|------:|
-| Blocking bugs | 0 |
-| Bugs caught-and-fixed-in-session | 0 (one stylistic catch: `mockResolvedValue` → `mockImplementation` to avoid body-read reuse) |
-| Non-blocking observations | 3 (certifies-not-changes; Playwright doc-first; graceful-degradation) |
-| Style cleanups | 0 |
-| Cross-platform portability findings | 0 |
-| Constitution rule violations | 0 |
+|              Category               |                                                                                        Count |
+|-------------------------------------|---------------------------------------------------------------------------------------------:|
+| Blocking bugs                       |                                                                                            0 |
+| Bugs caught-and-fixed-in-session    | 0 (one stylistic catch: `mockResolvedValue` → `mockImplementation` to avoid body-read reuse) |
+| Non-blocking observations           |                        3 (certifies-not-changes; Playwright doc-first; graceful-degradation) |
+| Style cleanups                      |                                                                                            0 |
+| Cross-platform portability findings |                                                                                            0 |
+| Constitution rule violations        |                                                                                            0 |
 
 ---
 

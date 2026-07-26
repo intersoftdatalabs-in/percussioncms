@@ -87,6 +87,7 @@ public class PSFilterInstallUtilsTest {
 
   @Test
   public void testFormatInstallErrorRejectsNull() {
-    assertThrows(IllegalArgumentException.class, () -> PSFilterInstallUtils.formatInstallError(null));
+    assertThrows(
+        IllegalArgumentException.class, () -> PSFilterInstallUtils.formatInstallError(null));
   }
 }

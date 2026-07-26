@@ -28,12 +28,12 @@ import java.util.Properties;
 /**
  * Durable migration report under the install tree (FR-017, contracts/migration-observability.md).
  *
- * <p>Default path: {@code <install-root>/rxconfig/Installer/migration-report-&lt;component&gt;.properties}
+ * <p>Default path: {@code
+ * <install-root>/rxconfig/Installer/migration-report-&lt;component&gt;.properties}
  */
 public final class PSMigrationReportWriter {
 
-  public static final String REPORT_DIR_RELATIVE =
-      Path.of("rxconfig", "Installer").toString();
+  public static final String REPORT_DIR_RELATIVE = Path.of("rxconfig", "Installer").toString();
 
   private PSMigrationReportWriter() {}
 
@@ -99,8 +99,7 @@ public final class PSMigrationReportWriter {
     props.setProperty("sourceBackend", nullToEmpty(report.sourceBackend()));
     props.setProperty("targetBackend", nullToEmpty(report.targetBackend()));
     props.setProperty(
-        "failureReason",
-        PSMigrationSecretsRedactor.redact(nullToEmpty(report.failureReason())));
+        "failureReason", PSMigrationSecretsRedactor.redact(nullToEmpty(report.failureReason())));
     props.setProperty(
         "finishedAt",
         report.finishedAt() == null ? Instant.now().toString() : report.finishedAt().toString());

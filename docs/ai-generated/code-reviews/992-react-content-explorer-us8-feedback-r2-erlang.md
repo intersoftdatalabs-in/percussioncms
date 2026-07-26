@@ -11,20 +11,20 @@
 
 ### PR #1410 (3 threads)
 
-| Thread | File | Fix |
-|--------|------|-----|
-| `PRRT_kwDOKZBp3M6SZAI-` | `RelationshipsView.tsx` line 165 (was) — wrong message key | Added `RELATIONSHIPS_ERROR` key to `messages.ts`; replaced `EXPLORER_MSG.DEPENDENCY_ERROR` with `EXPLORER_MSG.RELATIONSHIPS_ERROR`. |
-| `PRRT_kwDOKZBp3M6SZAJE` | `DependencyViewer.tsx` line 91 — empty `itemId` fetches `//summary` (404) | Added short-circuit guard in `useEffect`: `if (!itemId) { setState({ kind: "auth" }); return; }`. |
-| `PRRT_kwDOKZBp3M6SZAJJ` | `RelationshipsView.tsx` line 87 — same guard missing | Same short-circuit guard. |
+|         Thread          |                                   File                                    |                                                                 Fix                                                                 |
+|-------------------------|---------------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------|
+| `PRRT_kwDOKZBp3M6SZAI-` | `RelationshipsView.tsx` line 165 (was) — wrong message key                | Added `RELATIONSHIPS_ERROR` key to `messages.ts`; replaced `EXPLORER_MSG.DEPENDENCY_ERROR` with `EXPLORER_MSG.RELATIONSHIPS_ERROR`. |
+| `PRRT_kwDOKZBp3M6SZAJE` | `DependencyViewer.tsx` line 91 — empty `itemId` fetches `//summary` (404) | Added short-circuit guard in `useEffect`: `if (!itemId) { setState({ kind: "auth" }); return; }`.                                   |
+| `PRRT_kwDOKZBp3M6SZAJJ` | `RelationshipsView.tsx` line 87 — same guard missing                      | Same short-circuit guard.                                                                                                           |
 
 Two new tests added (`DependencyViewer.test.tsx` and `RelationshipsView.test.tsx`): `renders the auth placeholder and does not call loadServerSummary when item.id is missing`. **Both use `vi.fn()` to assert the loader is never called.**
 
 ### PR #1414 (2 threads)
 
-| Thread | File | Fix |
-|--------|------|-----|
+|         Thread          |                                                                                             File                                                                                              |                                                                                                    Fix                                                                                                     |
+|-------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | `PRRT_kwDOKZBp3M6SYpfw` | `PSRelationshipSummaryService.java` line 130 — comment says "findOwners" but code uses `Direction.DEPENDENTS` (which routes through `systemWs.findDependents` via `findDependentsByCategory`) | Replaced the comment with the corrected formulation: "the cataloger helper delegates to the systemWs facade per the direction parameter; the single-argument cataloger path is the OWNERS direction only". |
-| `PRRT_kwDOKZBp3M6SYpf3` | `PSRelationshipSummaryServiceTest.java` line 96 — `summariseIncomingReportsDependents` mocks the wrong collaborator | Stubs `systemWs.findDependents(guid, PSRelationshipFilter)` and `idMapper.getString(guid)` to match the new code path. |
+| `PRRT_kwDOKZBp3M6SYpf3` | `PSRelationshipSummaryServiceTest.java` line 96 — `summariseIncomingReportsDependents` mocks the wrong collaborator                                                                           | Stubs `systemWs.findDependents(guid, PSRelationshipFilter)` and `idMapper.getString(guid)` to match the new code path.                                                                                     |
 
 ### PR #1416 (6 threads)
 
@@ -45,23 +45,23 @@ No OS-specific code; the empty-itemId guard uses standard React `useEffect` sema
 
 ### Constitutional compliance
 
-| Constraint | Compliance | Notes |
-|------------|------------|-------|
-| II (no invented APIs) | ✅ | No new fields; the empty-itemId guard is a UX layer concern. |
-| III (behavioral tests) | ✅ | 2 new Vitest tests covering the empty-itemId guard path. Service tests updated to mock the right collaborator. |
-| VI (threat-model note for new façade) | ✅ | AuthZ: empty itemId short-circuits to the auth placeholder; no network call is made in that path. |
-| VII (format checks) | ✅ | No Java changes introduced by this fix-pack (the file edits pre-existed from the v1 fix-pack); Prettier clean on touched `.tsx` files; `tsc --noEmit` clean on WebUI contentExplorer paths. |
-| IX (review-thread resolution per PR) | ✅ | This fix-pack addresses the 8 review threads posted by `kilo-code-bot` (PR #1410 + PR #1414 + PR #1416 minus duplicates). |
+|              Constraint               | Compliance |                                                                                            Notes                                                                                            |
+|---------------------------------------|------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| II (no invented APIs)                 | ✅          | No new fields; the empty-itemId guard is a UX layer concern.                                                                                                                                |
+| III (behavioral tests)                | ✅          | 2 new Vitest tests covering the empty-itemId guard path. Service tests updated to mock the right collaborator.                                                                              |
+| VI (threat-model note for new façade) | ✅          | AuthZ: empty itemId short-circuits to the auth placeholder; no network call is made in that path.                                                                                           |
+| VII (format checks)                   | ✅          | No Java changes introduced by this fix-pack (the file edits pre-existed from the v1 fix-pack); Prettier clean on touched `.tsx` files; `tsc --noEmit` clean on WebUI contentExplorer paths. |
+| IX (review-thread resolution per PR)  | ✅          | This fix-pack addresses the 8 review threads posted by `kilo-code-bot` (PR #1410 + PR #1414 + PR #1416 minus duplicates).                                                                   |
 
 ### ER-typed summary
 
-| Category | Count |
-|----------|------:|
-| Blocking bugs | 0 (the 1 CRITICAL test-mock bug on PR #1416 is fixed) |
-| Non-blocking observations | 5 (all addressed inline or in this commit) |
-| Style cleanups | 0 |
-| Cross-platform portability findings | 0 |
-| Constitution rule violations | 0 |
+|              Category               |                                                 Count |
+|-------------------------------------|------------------------------------------------------:|
+| Blocking bugs                       | 0 (the 1 CRITICAL test-mock bug on PR #1416 is fixed) |
+| Non-blocking observations           |            5 (all addressed inline or in this commit) |
+| Style cleanups                      |                                                     0 |
+| Cross-platform portability findings |                                                     0 |
+| Constitution rule violations        |                                                     0 |
 
 ### Test result
 

@@ -116,8 +116,8 @@ public class PagesTest {
   }
 
   /**
-   * Regression for GH-891 / v8.1.7 PR #894: paths that include a leading {@code Sites/} (or
-   * {@code /Sites/}) prefix must strip that segment before matching site / folder / page.
+   * Regression for GH-891 / v8.1.7 PR #894: paths that include a leading {@code Sites/} (or {@code
+   * /Sites/}) prefix must strip that segment before matching site / folder / page.
    *
    * <p>Ported from the Jersey integration test on development-8.1.x to this Mockito unit suite on
    * JDK 21 {@code development}.
@@ -126,11 +126,11 @@ public class PagesTest {
   void shouldStripLeadingSitesPrefixOnGetPage() throws Exception {
     Page page = new Page();
     page.setName("page1.html");
-    when(adaptor.getPage(any(), eq("sitea"), eq("path1/pathsub /pathsub2/pathsub3"), eq("page1.html")))
+    when(adaptor.getPage(
+            any(), eq("sitea"), eq("path1/pathsub /pathsub2/pathsub3"), eq("page1.html")))
         .thenReturn(page);
 
-    Page result =
-        resource.getPage("Sites/sitea/path1/pathsub%20/pathsub2/pathsub3/page1.html");
+    Page result = resource.getPage("Sites/sitea/path1/pathsub%20/pathsub2/pathsub3/page1.html");
     assertSame(page, result);
     verify(adaptor)
         .getPage(uriInfo.getBaseUri(), "sitea", "path1/pathsub /pathsub2/pathsub3", "page1.html");
@@ -188,5 +188,3 @@ public class PagesTest {
     verify(adaptor).getPage(uriInfo.getBaseUri(), "Sites", "folder", "home.html");
   }
 }
-
-

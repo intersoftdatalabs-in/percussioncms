@@ -22,27 +22,24 @@ Product types that implement `javax.jcr.*` interfaces were extended for JSR-283 
 
 ## Gate
 
-| Check | Result |
-|-------|--------|
-| Bugs blocking | None open after test additions |
+|                   Check                    |                                  Result                                   |
+|--------------------------------------------|---------------------------------------------------------------------------|
+| Bugs blocking                              | None open after test additions                                            |
 | Behavioral tests for new non-trivial logic | Present: `PSBinaryTest`, `PSValuesTest` JCR 2.0 cases, `PSQueryJcr20Test` |
-| Secrets | None |
-| Invented APIs | None observed |
+| Secrets                                    | None                                                                      |
+| Invented APIs                              | None observed                                                             |
 
 ## Issues
 
 ### Suggestions (non-blocking for Phase 1)
 
-1. **`getNodes(String[])` returns empty always** (`PSContentNode`)  
+1. **`getNodes(String[])` returns empty always** (`PSContentNode`)
    - If any caller relies on name-glob filtering, behavior is incomplete. Acceptable for Phase 1 stubs; track for deprecation/behavior phase if needed.
-
-2. **`getQOMFactory` throws `UnsupportedOperationException`** (`PSContentMgr`)  
+2. **`getQOMFactory` throws `UnsupportedOperationException`** (`PSContentMgr`)
    - Interface does not declare checked exceptions; UOE is valid. Document for integrators (already in contracts).
-
-3. **`createValue(BigDecimal)` via `doubleValue()`** (`PSValueFactory`)  
+3. **`createValue(BigDecimal)` via `doubleValue()`** (`PSValueFactory`)
    - Precision loss for large decimals. Acceptable for compile-clean; improve later if decimal fields are used productively.
-
-4. **Full reactor enforcer failure** (rdf4j convergence on delivery-tier-distribution)  
+4. **Full reactor enforcer failure** (rdf4j convergence on delivery-tier-distribution)
    - Pre-existing / orthogonal; do not treat as JCR regression. Note in PR.
 
 ### Nits
@@ -57,3 +54,4 @@ Product types that implement `javax.jcr.*` interfaces were extended for JSR-283 
 - `system/.../PSProperty`, `PSContentNode`, `PSQuery`, `PSQueryResult`, `PSRow`, `PSNodeDefinition`
 - `PSContentMgr`, `PSTypeConfiguration`, `PSQueryResultUtils`, `PSDbUtils`
 - Tests: `PSValuesTest`, `PSBinaryTest`, `PSQueryJcr20Test`, `PSMockProperty`
+

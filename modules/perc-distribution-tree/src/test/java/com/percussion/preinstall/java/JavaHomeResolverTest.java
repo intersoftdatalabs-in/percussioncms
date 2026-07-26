@@ -136,11 +136,12 @@ class JavaHomeResolverTest {
     Path envHome = makeJavaHome(tempDir.resolve("envHome"));
     writeJavaProperties(tempDir, configHome);
 
-    ResolutionResult r = JavaHomeResolver.resolve(
-        tempDir,
-        Map.of("JAVA_HOME", envHome.toString()),
-        List.of(),
-        new FixtureProbe(configHome, envHome));
+    ResolutionResult r =
+        JavaHomeResolver.resolve(
+            tempDir,
+            Map.of("JAVA_HOME", envHome.toString()),
+            List.of(),
+            new FixtureProbe(configHome, envHome));
 
     assertTrue(r.success(), () -> r.renderFailure("expected precedence order"));
     assertEquals(ResolutionSource.PRODUCT_CONFIG, r.source());
@@ -152,9 +153,12 @@ class JavaHomeResolverTest {
     Path envHome = makeJavaHome(tempDir.resolve("envHome"));
     Path legacyHome = makeJavaHome(tempDir.resolve("legacy"));
 
-    ResolutionResult r = JavaHomeResolver.resolve(
-        tempDir, Map.of("JAVA_HOME", envHome.toString()), List.of(),
-        new FixtureProbe(envHome, legacyHome));
+    ResolutionResult r =
+        JavaHomeResolver.resolve(
+            tempDir,
+            Map.of("JAVA_HOME", envHome.toString()),
+            List.of(),
+            new FixtureProbe(envHome, legacyHome));
 
     assertTrue(r.success());
     assertEquals(ResolutionSource.PROCESS_ENV, r.source());
@@ -164,8 +168,8 @@ class JavaHomeResolverTest {
   @Test
   void legacyJreUsedWhenHigherSourcesAbsent() {
     Path legacy = makeJavaHome(tempDir.resolve("JRE"));
-    ResolutionResult r = JavaHomeResolver.resolve(
-        tempDir, Map.of(), List.of(), new FixtureProbe(legacy));
+    ResolutionResult r =
+        JavaHomeResolver.resolve(tempDir, Map.of(), List.of(), new FixtureProbe(legacy));
 
     assertTrue(r.success(), () -> r.renderFailure(""));
     assertEquals(ResolutionSource.INSTALL_DIR_JRE, r.source());
@@ -175,8 +179,8 @@ class JavaHomeResolverTest {
   @Test
   void legacyJre64UsedAfterJreWhenOnlyJre64Valid() {
     Path legacy64 = makeJavaHome(tempDir.resolve("JRE64"));
-    ResolutionResult r = JavaHomeResolver.resolve(
-        tempDir, Map.of(), List.of(), new FixtureProbe(legacy64));
+    ResolutionResult r =
+        JavaHomeResolver.resolve(tempDir, Map.of(), List.of(), new FixtureProbe(legacy64));
 
     assertTrue(r.success());
     assertEquals(ResolutionSource.INSTALL_DIR_JRE64, r.source());
@@ -187,8 +191,9 @@ class JavaHomeResolverTest {
   void pathLauncherUsedAsLastResort() {
     Path fromPath = makeJavaHome(tempDir.resolve("pathHome"));
     Path launcherDir = fromPath.resolve("bin");
-    ResolutionResult r = JavaHomeResolver.resolve(
-        tempDir, Map.of(), List.of(launcherDir), new FixtureProbe(fromPath));
+    ResolutionResult r =
+        JavaHomeResolver.resolve(
+            tempDir, Map.of(), List.of(launcherDir), new FixtureProbe(fromPath));
 
     assertTrue(r.success(), () -> r.renderFailure(""));
     assertEquals(ResolutionSource.PATH, r.source());
@@ -199,15 +204,16 @@ class JavaHomeResolverTest {
   void failureReturnsNONEAndListsAttempts() throws IOException {
     // Create a present-but-invalid install-dir JRE so the attempt is recorded.
     Files.createDirectory(tempDir.resolve("JRE"));
-    ResolutionResult r = JavaHomeResolver.resolve(
-        tempDir, Map.of("JAVA_HOME", "/nonexistent"), List.of(),
-        new FixtureProbe(/* none */));
+    ResolutionResult r =
+        JavaHomeResolver.resolve(
+            tempDir, Map.of("JAVA_HOME", "/nonexistent"), List.of(), new FixtureProbe(/* none */ ));
 
     assertFalse(r.success());
     assertEquals(ResolutionSource.NONE, r.source());
     List<Attempt> attempts = r.attempts();
     assertNotNull(attempts);
-    assertTrue(attempts.size() >= 2,
+    assertTrue(
+        attempts.size() >= 2,
         "expected at least PROCESS_ENV + INSTALL_DIR_JRE attempts, got " + attempts);
     String message = r.renderFailure("header");
     assertTrue(message.contains("21"), "message must mention minimum major version");
@@ -219,9 +225,7 @@ class JavaHomeResolverTest {
   void defaultProbeAcceptsMajor25ReleaseFile() throws Exception {
     Path jdk25 = tempDir.resolve("jdk25");
     Files.createDirectories(jdk25.resolve("bin"));
-    Files.writeString(jdk25.resolve("release"),
-        "JAVA_VERSION=\"25.0.1\"",
-        StandardCharsets.UTF_8);
+    Files.writeString(jdk25.resolve("release"), "JAVA_VERSION=\"25.0.1\"", StandardCharsets.UTF_8);
     Files.createFile(jdk25.resolve("bin").resolve(JavaHomeResolver.launcherName()));
     // Make launcher executable where POSIX permissions apply.
     jdk25.resolve("bin").resolve(JavaHomeResolver.launcherName()).toFile().setExecutable(true);
@@ -236,9 +240,7 @@ class JavaHomeResolverTest {
   void defaultProbeRejectsMajor17ReleaseFile() throws Exception {
     Path jdk17 = tempDir.resolve("jdk17");
     Files.createDirectories(jdk17.resolve("bin"));
-    Files.writeString(jdk17.resolve("release"),
-        "JAVA_VERSION=\"17.0.12\"",
-        StandardCharsets.UTF_8);
+    Files.writeString(jdk17.resolve("release"), "JAVA_VERSION=\"17.0.12\"", StandardCharsets.UTF_8);
     Files.createFile(jdk17.resolve("bin").resolve(JavaHomeResolver.launcherName()));
     jdk17.resolve("bin").resolve(JavaHomeResolver.launcherName()).toFile().setExecutable(true);
 
@@ -250,17 +252,17 @@ class JavaHomeResolverTest {
 
   @Test
   void rejectNullInstallRoot() {
-    assertThrows(IllegalArgumentException.class,
+    assertThrows(
+        IllegalArgumentException.class,
         () -> JavaHomeResolver.resolve(null, Map.of(), List.of(), new FixtureProbe()));
   }
 
   /**
-   * Regression for kilo-code-bot PR review thread 3631027624:
-   * if java.properties exists but is unreadable (permissions, corrupted),
-   * the resolver must NOT silently fall through. Today it logs a warning
-   * (System.Logger at WARNING); the test asserts the resolution still
-   * honors higher-precedence env or lower-precedence fallback so the
-   * contract holds, and that the I/O attempt occurred.
+   * Regression for kilo-code-bot PR review thread 3631027624: if java.properties exists but is
+   * unreadable (permissions, corrupted), the resolver must NOT silently fall through. Today it logs
+   * a warning (System.Logger at WARNING); the test asserts the resolution still honors
+   * higher-precedence env or lower-precedence fallback so the contract holds, and that the I/O
+   * attempt occurred.
    */
   @Test
   void unreadableConfigDoesNotPoisonResolution() throws Exception {
@@ -271,15 +273,19 @@ class JavaHomeResolverTest {
     boolean writable = propsFile.toFile().setWritable(false);
     try {
       Path envHome = makeJavaHome(tempDir.resolve("envHome"));
-      ResolutionResult r = JavaHomeResolver.resolve(
-          configDir,
-          Map.of("JAVA_HOME", envHome.toString()),
-          List.of(),
-          new FixtureProbe(envHome));
+      ResolutionResult r =
+          JavaHomeResolver.resolve(
+              configDir,
+              Map.of("JAVA_HOME", envHome.toString()),
+              List.of(),
+              new FixtureProbe(envHome));
       // The fallback env path is still honored because readPropertiesIfPresent
       // degrades to an empty map (with a warning) rather than throwing.
-      assertTrue(r.success(),
-          () -> "env fallback should still succeed when config is unreadable; r=" + r.renderFailure(""));
+      assertTrue(
+          r.success(),
+          () ->
+              "env fallback should still succeed when config is unreadable; r="
+                  + r.renderFailure(""));
       assertEquals(ResolutionSource.PROCESS_ENV, r.source());
     } finally {
       // Restore writable so JUnit can clean up the @TempDir.
@@ -297,9 +303,8 @@ class JavaHomeResolverTest {
   private static Path makeJavaHome(Path target) {
     try {
       Files.createDirectories(target.resolve("bin"));
-      Files.writeString(target.resolve("release"),
-          "JAVA_VERSION=\"21.0.2\"",
-          StandardCharsets.UTF_8);
+      Files.writeString(
+          target.resolve("release"), "JAVA_VERSION=\"21.0.2\"", StandardCharsets.UTF_8);
       Files.createFile(target.resolve("bin").resolve(JavaHomeResolver.launcherName()));
       return target;
     } catch (IOException e) {
@@ -308,7 +313,9 @@ class JavaHomeResolverTest {
   }
 
   private static void writeJavaProperties(Path installRoot, Path home) throws IOException {
-    JavaPropertiesSupport.write(installRoot, home.toAbsolutePath().toString(),
+    JavaPropertiesSupport.write(
+        installRoot,
+        home.toAbsolutePath().toString(),
         home.resolve("bin").resolve(JavaHomeResolver.launcherName()).toAbsolutePath().toString());
   }
 }

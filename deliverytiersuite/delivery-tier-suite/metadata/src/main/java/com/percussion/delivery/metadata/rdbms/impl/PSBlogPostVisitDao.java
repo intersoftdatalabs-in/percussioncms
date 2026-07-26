@@ -154,9 +154,13 @@ public class PSBlogPostVisitDao implements IPSBlogPostVisitDao {
                 criteriaBuilder.like(root.get("pagepath"), sectionPath), dateCriteria));
     criteriaQuery.groupBy(root.get("pagepath"));
     if (sortOrder == null || sortOrder.equalsIgnoreCase("desc")) {
-      criteriaQuery.orderBy(criteriaBuilder.desc(criteriaBuilder.sum(root.get("hitCount"))));
+      criteriaQuery.orderBy(
+          criteriaBuilder.desc(criteriaBuilder.sum(root.get("hitCount"))),
+          criteriaBuilder.desc(root.get("pagepath")));
     } else {
-      criteriaQuery.orderBy(criteriaBuilder.asc(criteriaBuilder.sum(root.get("hitCount"))));
+      criteriaQuery.orderBy(
+          criteriaBuilder.asc(criteriaBuilder.sum(root.get("hitCount"))),
+          criteriaBuilder.desc(root.get("pagepath")));
     }
 
     return session.createQuery(criteriaQuery).setMaxResults(limit).getResultList();
@@ -245,8 +249,7 @@ public class PSBlogPostVisitDao implements IPSBlogPostVisitDao {
       visit.setPagepath(
           visit
               .getPagepath()
-              .replaceAll(
-                  Pattern.quote(prevSiteName), Matcher.quoteReplacement(newSiteName)));
+              .replaceAll(Pattern.quote(prevSiteName), Matcher.quoteReplacement(newSiteName)));
       session.merge(visit);
     }
   }

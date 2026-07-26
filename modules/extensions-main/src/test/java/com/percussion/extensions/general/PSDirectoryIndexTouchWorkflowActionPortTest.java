@@ -30,8 +30,7 @@ import org.junit.jupiter.api.Test;
  */
 class PSDirectoryIndexTouchWorkflowActionPortTest {
 
-  private static final String ACTION =
-      "sys_DirectoryIndexTouchWorkflowAction";
+  private static final String ACTION = "sys_DirectoryIndexTouchWorkflowAction";
 
   @Test
   void directoryIndexTouchActionIsRegisteredAndWired() throws Exception {
@@ -39,8 +38,7 @@ class PSDirectoryIndexTouchWorkflowActionPortTest {
     Path clazz =
         root.resolve(
             "modules/extensions-main/src/main/java/com/percussion/extensions/general/PSDirectoryIndexTouchWorkflowAction.java");
-    Path ext =
-        root.resolve("modules/extensions-main/src/main/resources/Java/Extensions.xml");
+    Path ext = root.resolve("modules/extensions-main/src/main/resources/Java/Extensions.xml");
     Path wf =
         root.resolve(
             "modules/perc-packages/src/main/resources/Packages/perc.workflow/DefaultWorkflow(3).workflowDef");

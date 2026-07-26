@@ -87,8 +87,7 @@ class URLValidationTest {
     @Test
     void rejectPrivateWithoutAllow() throws Exception {
       assertThrows(
-          SecurityException.class,
-          () -> URLValidation.validateURL(new URL("http://10.0.0.5/api")));
+          SecurityException.class, () -> URLValidation.validateURL(new URL("http://10.0.0.5/api")));
     }
 
     @Test
@@ -108,8 +107,7 @@ class URLValidationTest {
       assertThrows(
           SecurityException.class,
           () ->
-              URLValidation.validateURL(
-                  new URL("http://169.254.169.254/latest/meta-data/"), cfg));
+              URLValidation.validateURL(new URL("http://169.254.169.254/latest/meta-data/"), cfg));
     }
 
     @Test
@@ -140,9 +138,7 @@ class URLValidationTest {
     @Test
     void allowCustomPortWithPattern() throws Exception {
       URLValidationConfig cfg =
-          URLValidationConfig.builder()
-              .addAllowPattern("http://api.example.com:8080/*")
-              .build();
+          URLValidationConfig.builder().addAllowPattern("http://api.example.com:8080/*").build();
       assertDoesNotThrow(
           () -> URLValidation.validateURL(new URL("http://api.example.com:8080/v1"), cfg));
     }
@@ -151,9 +147,7 @@ class URLValidationTest {
     void allowPathScopedPrivateHost() throws Exception {
       // Path scope only restricts non-baseline targets (private/custom-port)
       URLValidationConfig cfg =
-          URLValidationConfig.builder()
-              .addAllowPattern("http://10.0.0.9/v1/*")
-              .build();
+          URLValidationConfig.builder().addAllowPattern("http://10.0.0.9/v1/*").build();
       assertDoesNotThrow(
           () -> URLValidation.validateURL(new URL("http://10.0.0.9/v1/translate"), cfg));
       assertThrows(
@@ -164,8 +158,7 @@ class URLValidationTest {
     @Test
     void emptyAllowStillPermitsBaselinePublic() throws Exception {
       URLValidationConfig cfg = new URLValidationConfig();
-      assertDoesNotThrow(
-          () -> URLValidation.validateURL(new URL("https://example.com/ok"), cfg));
+      assertDoesNotThrow(() -> URLValidation.validateURL(new URL("https://example.com/ok"), cfg));
     }
 
     @Test
@@ -189,8 +182,7 @@ class URLValidationTest {
 
     @Test
     void emptyString() {
-      assertThrows(
-          IllegalArgumentException.class, () -> URLValidation.validateURLString(""));
+      assertThrows(IllegalArgumentException.class, () -> URLValidation.validateURLString(""));
     }
 
     @Test

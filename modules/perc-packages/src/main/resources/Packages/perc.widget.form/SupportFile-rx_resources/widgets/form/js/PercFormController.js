@@ -1822,16 +1822,16 @@
       var formAction = "/perc-form-processor/forms/form/";
       var formRenderedHtml;
       formRenderedHtml = $("<form/>", {
-          name: formData.config.name,
-          method: "post",
-          action: formAction
-        });
-        if (
-          $.PercFormVariables.IsHoneypotEnabled === 1 ||
-          $.PercFormVariables.IsRecaptchaEnabled === 1
-        ) {
-          formRenderedHtml.attr("onsubmit", "return validatePercForm();");
-        }
+        name: formData.config.name,
+        method: "post",
+        action: formAction,
+      });
+      if (
+        $.PercFormVariables.IsHoneypotEnabled === 1 ||
+        $.PercFormVariables.IsRecaptchaEnabled === 1
+      ) {
+        formRenderedHtml.attr("onsubmit", "return validatePercForm();");
+      }
 
       formRenderedHtml
         .append(

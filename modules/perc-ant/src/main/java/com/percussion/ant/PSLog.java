@@ -44,9 +44,7 @@ import org.apache.tools.ant.Task;
  * </pre>
  */
 public class PSLog extends Task {
-  /**
-   * Creates a new task for writing a message to a log file.
-   */
+  /** Creates a new task for writing a message to a log file. */
   public PSLog() {
     super();
   }

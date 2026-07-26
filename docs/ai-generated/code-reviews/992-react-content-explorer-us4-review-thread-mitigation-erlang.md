@@ -153,3 +153,4 @@ afterwards confirms `isResolved: true` for every thread.
 - After PR is updated and threads are resolved, US5's open thread
   can be addressed (see sibling fix-pack), then move to the Polish
   phase (T082–T091) per tasks.md.
+

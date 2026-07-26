@@ -45,14 +45,11 @@ import java.util.stream.Collectors;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
-/**
- * Exports database table definitions and data to XML files.
- */
+/** Exports database table definitions and data to XML files. */
 public class PSExportDatabase extends PSAction {
-  /**
-   * Creates a new database export task.
-   */
+  /** Creates a new database export task. */
   public PSExportDatabase() {}
+
   private static final String ERROR = "ERROR :";
 
   // see base class

@@ -148,10 +148,26 @@ function loadFactory() {
     };
   }
 
-  jq.fn.dialog = jq.fn.dialog || function () { return this; };
-  jq.fn.perc_dialog = jq.fn.perc_dialog || function () { return this; };
-  jq.fn.setDirty = jq.fn.setDirty || function () { return this; };
-  jq.fn.fancytree = jq.fn.fancytree || function () { return this; };
+  jq.fn.dialog =
+    jq.fn.dialog ||
+    function () {
+      return this;
+    };
+  jq.fn.perc_dialog =
+    jq.fn.perc_dialog ||
+    function () {
+      return this;
+    };
+  jq.fn.setDirty =
+    jq.fn.setDirty ||
+    function () {
+      return this;
+    };
+  jq.fn.fancytree =
+    jq.fn.fancytree ||
+    function () {
+      return this;
+    };
 
   // Run the source in the current global scope so its `})(jQuery)` tail
   // can see globalThis.jQuery without a Function wrapper.
@@ -203,7 +219,9 @@ describe("source-pattern (anti-regression for js/xss-through-dom)", () => {
 
   it("uses .text() for the role and narrow-search sinks", () => {
     expect(src).toMatch(/\.val\([^)]+\)\s*\.text\([^)]*userRole[^)]*\)/);
-    expect(src).toMatch(/\.val\([^)]+\)\s*\.text\([^)]*rolesArrayCache\[i\][^)]*\)/);
+    expect(src).toMatch(
+      /\.val\([^)]+\)\s*\.text\([^)]*rolesArrayCache\[i\][^)]*\)/
+    );
     expect(src).toMatch(/narrowSearchLabel\.text\(/);
   });
 });
@@ -219,7 +237,10 @@ describe("updateAssignedRoles (role-name sink)", () => {
 
     const select = document.querySelector("#perc-users-assigned-roles select");
     expect(select).toBeTruthy();
-    expect(select.querySelectorAll("script").length, "no <script> from role").toBe(0);
+    expect(
+      select.querySelectorAll("script").length,
+      "no <script> from role"
+    ).toBe(0);
     expect(window.__pwned).toBeUndefined();
   });
 
@@ -255,10 +276,7 @@ describe("updateAvailableRoles (role-name sink)", () => {
   });
 
   it("does not inject event-handler elements into available roles", () => {
-    api.updateAvailableRoles(
-      ['<img src="x" onerror="window.__pwned=1">'],
-      []
-    );
+    api.updateAvailableRoles(['<img src="x" onerror="window.__pwned=1">'], []);
     const select = document.querySelector("#perc-users-available-roles select");
     expect(select.querySelectorAll("img").length).toBe(0);
     expect(window.__pwned).toBeUndefined();
@@ -281,7 +299,7 @@ describe("updateImportUsersDialog (i18n narrow-search sink)", () => {
     globalThis.I18N = {
       message: (key, subs) =>
         key === "perc.ui.users.import.dialogs@NarrowSearch"
-          ? "<img src=x onerror=\"window.__pwned=1\">"
+          ? '<img src=x onerror="window.__pwned=1">'
           : "[other]",
     };
     // Re-seed and reload so the factory captures the new I18N.
@@ -348,7 +366,10 @@ describe("public API", () => {
 // ---------------------------------------------------------------------------
 describe("lockstep residual .html sinks (source pattern)", () => {
   const legacySrc = readFileSync(
-    resolve(__dirname, "../../main/webapp/cm/app/js/legacy/views/PercUserView.js"),
+    resolve(
+      __dirname,
+      "../../main/webapp/cm/app/js/legacy/views/PercUserView.js"
+    ),
     "utf8"
   );
   const mainSrc = readFileSync(

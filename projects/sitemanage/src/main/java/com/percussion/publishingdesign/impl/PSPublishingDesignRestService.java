@@ -20,16 +20,15 @@ import com.percussion.publishingdesign.data.PSContentListSummary;
 import com.percussion.publishingdesign.data.PSContextSummary;
 import com.percussion.publishingdesign.data.PSCopyEditionRequest;
 import com.percussion.publishingdesign.data.PSDeliveryTypeSummary;
+import com.percussion.publishingdesign.data.PSDemandPublishRequest;
 import com.percussion.publishingdesign.data.PSEditionContentListAssoc;
 import com.percussion.publishingdesign.data.PSEditionSummary;
 import com.percussion.publishingdesign.data.PSLocationSchemeSummary;
-import com.percussion.publishingdesign.data.PSSchemeParameter;
-import com.percussion.publishingdesign.data.PSDemandPublishRequest;
 import com.percussion.publishingdesign.data.PSRuntimeEditionStatus;
 import com.percussion.publishingdesign.data.PSRuntimeJobResponse;
+import com.percussion.publishingdesign.data.PSSchemeParameter;
 import com.percussion.publishingdesign.data.PSSiteDesignSummary;
 import com.percussion.publishingdesign.data.PSSitePropertyDto;
-import com.percussion.services.sitemgr.IPSSite;
 import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.services.catalog.PSTypeEnum;
 import com.percussion.services.error.PSNotFoundException;
@@ -45,6 +44,7 @@ import com.percussion.services.publisher.data.PSEditionContentList;
 import com.percussion.services.publisher.data.PSEditionContentListPK;
 import com.percussion.services.sitemgr.IPSLocationScheme;
 import com.percussion.services.sitemgr.IPSPublishingContext;
+import com.percussion.services.sitemgr.IPSSite;
 import com.percussion.services.sitemgr.IPSSiteManager;
 import com.percussion.services.sitemgr.PSSiteManagerLocator;
 import com.percussion.system.utils.PSSiteManageBean;
@@ -234,13 +234,10 @@ public class PSPublishingDesignRestService {
       throw badRequest("sourceEditionId and targetSiteId are required");
     }
     try {
-      IPSEdition source =
-          publisherService.loadEdition(toEditionGuid(request.getSourceEditionId()));
+      IPSEdition source = publisherService.loadEdition(toEditionGuid(request.getSourceEditionId()));
       IPSEdition copy = publisherService.createEdition();
       String newName =
-          isBlank(request.getNewName())
-              ? source.getName() + "_copy"
-              : request.getNewName().trim();
+          isBlank(request.getNewName()) ? source.getName() + "_copy" : request.getNewName().trim();
       copy.setName(newName);
       copy.setComment(source.getComment());
       if (source.getEditionType() != null) {
@@ -438,8 +435,7 @@ public class PSPublishingDesignRestService {
   @GET
   @Path("/deliverytypes/{deliveryTypeId}")
   @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
-  public PSDeliveryTypeSummary getDeliveryType(
-      @PathParam("deliveryTypeId") String deliveryTypeId) {
+  public PSDeliveryTypeSummary getDeliveryType(@PathParam("deliveryTypeId") String deliveryTypeId) {
     requireNonBlank(deliveryTypeId, "deliveryTypeId");
     try {
       IPSGuid guid = guidManager.makeGuid(deliveryTypeId, PSTypeEnum.DELIVERY_TYPE);
@@ -658,9 +654,7 @@ public class PSPublishingDesignRestService {
   public PSContentListSummary associateContentList(
       @PathParam("editionId") String editionId, PSEditionContentListAssoc body) {
     requireNonBlank(editionId, "editionId");
-    if (body == null
-        || isBlank(body.getContentListId())
-        || isBlank(body.getDeliveryContextId())) {
+    if (body == null || isBlank(body.getContentListId()) || isBlank(body.getDeliveryContextId())) {
       throw badRequest("contentListId and deliveryContextId are required");
     }
     try {
@@ -700,8 +694,7 @@ public class PSPublishingDesignRestService {
   @DELETE
   @Path("/editions/{editionId}/contentlists/{contentListId}")
   public void disassociateContentList(
-      @PathParam("editionId") String editionId,
-      @PathParam("contentListId") String contentListId) {
+      @PathParam("editionId") String editionId, @PathParam("contentListId") String contentListId) {
     requireNonBlank(editionId, "editionId");
     requireNonBlank(contentListId, "contentListId");
     try {
@@ -804,8 +797,7 @@ public class PSPublishingDesignRestService {
     }
     try {
       IPSPublishingContext ctx =
-          siteManager.loadContextModifiable(
-              guidManager.makeGuid(contextId, PSTypeEnum.CONTEXT));
+          siteManager.loadContextModifiable(guidManager.makeGuid(contextId, PSTypeEnum.CONTEXT));
       if (!isBlank(body.getName())) {
         ctx.setName(body.getName().trim());
       }

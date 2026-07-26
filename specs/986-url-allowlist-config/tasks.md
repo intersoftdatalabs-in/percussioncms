@@ -168,19 +168,19 @@
 
 ### User story dependencies
 
-| Story | Depends on | Notes |
-|-------|------------|--------|
-| US1 Allow lookups | Foundational | Additive allow + private unlock |
-| US2 Block defaults | Foundational | Block patterns + hard deny |
-| US3 Admin files/docs | Foundational + default file content | Packaging + docs |
-| US4 Upgrade seed | Foundational loader/seed | Create-if-absent |
+|        Story         |             Depends on              |              Notes              |
+|----------------------|-------------------------------------|---------------------------------|
+| US1 Allow lookups    | Foundational                        | Additive allow + private unlock |
+| US2 Block defaults   | Foundational                        | Block patterns + hard deny      |
+| US3 Admin files/docs | Foundational + default file content | Packaging + docs                |
+| US4 Upgrade seed     | Foundational loader/seed            | Create-if-absent                |
 
 ### Within each story
 
-1. Tests first (or alongside)  
-2. Implementation  
-3. Module test run  
-4. Commit / PR / review resolution  
+1. Tests first (or alongside)
+2. Implementation
+3. Module test run
+4. Commit / PR / review resolution
 
 ### Parallel opportunities
 
@@ -215,18 +215,18 @@ Task: "T031 admin help"
 
 ### MVP (minimum shippable)
 
-1. Phase 1 Setup  
-2. Phase 2 Foundational (matcher, loader, wire decision order, remove system props)  
-3. Phase 3 US1 (additive allow + private unlock proven)  
-4. Phase 4 US2 (block defaults + precedence)  
-5. Minimal packaging seed (T027–T028 + T034–T035) even if full docs follow  
+1. Phase 1 Setup
+2. Phase 2 Foundational (matcher, loader, wire decision order, remove system props)
+3. Phase 3 US1 (additive allow + private unlock proven)
+4. Phase 4 US2 (block defaults + precedence)
+5. Minimal packaging seed (T027–T028 + T034–T035) even if full docs follow
 
 ### Incremental delivery
 
-1. MVP → validate with `URLValidationTest`  
-2. US3 docs/packaging polish  
-3. US4 seed edge cases  
-4. Polish + consumer SSRF  
+1. MVP → validate with `URLValidationTest`
+2. US3 docs/packaging polish
+3. US4 seed edge cases
+4. Polish + consumer SSRF
 
 ### Story checkpoint (constitution)
 
@@ -237,33 +237,33 @@ After each story phase: commit, open/update PR, wait for Kilo/review, resolve th
 ## Task completeness validation
 
 | Story | Has tests? | Has implement tasks? | Independent test stated? |
-|-------|------------|----------------------|---------------------------|
-| US1 | T014 | T015–T016 | Yes |
-| US2 | T020 | T021–T023 | Yes |
-| US3 | T026 | T027–T031 | Yes |
-| US4 | T033 | T034–T035 | Yes |
+|-------|------------|----------------------|--------------------------|
+| US1   | T014       | T015–T016            | Yes                      |
+| US2   | T020       | T021–T023            | Yes                      |
+| US3   | T026       | T027–T031            | Yes                      |
+| US4   | T033       | T034–T035            | Yes                      |
 
-| Check | Status |
-|-------|--------|
-| All tasks use `- [ ] Tnnn ...` with paths | Yes |
-| Foundational blocks stories | Yes |
-| FR-013 coverage mapped | Yes |
-| Contracts mapped (files + decision) | T004–T011, T027–T028 |
+|                   Check                   |        Status        |
+|-------------------------------------------|----------------------|
+| All tasks use `- [ ] Tnnn ...` with paths | Yes                  |
+| Foundational blocks stories               | Yes                  |
+| FR-013 coverage mapped                    | Yes                  |
+| Contracts mapped (files + decision)       | T004–T011, T027–T028 |
 
 ---
 
 ## Summary
 
-| Metric | Value |
-|--------|--------|
-| **Total tasks** | 43 (T001–T043) |
-| **US1** | 6 (T014–T019) |
-| **US2** | 6 (T020–T025) |
-| **US3** | 7 (T026–T032) |
-| **US4** | 5 (T033–T037) |
-| **Setup + Foundational + Polish** | 3 + 10 + 6 |
-| **Parallelizable markers** | T002–T003, T005, T007, T014, T020, T026, T033, T038–T039 |
-| **MVP** | Setup + Foundational + US1 + US2 + minimal seed packaging |
+|              Metric               |                           Value                           |
+|-----------------------------------|-----------------------------------------------------------|
+| **Total tasks**                   | 43 (T001–T043)                                            |
+| **US1**                           | 6 (T014–T019)                                             |
+| **US2**                           | 6 (T020–T025)                                             |
+| **US3**                           | 7 (T026–T032)                                             |
+| **US4**                           | 5 (T033–T037)                                             |
+| **Setup + Foundational + Polish** | 3 + 10 + 6                                                |
+| **Parallelizable markers**        | T002–T003, T005, T007, T014, T020, T026, T033, T038–T039  |
+| **MVP**                           | Setup + Foundational + US1 + US2 + minimal seed packaging |
 
 ## Format validation
 

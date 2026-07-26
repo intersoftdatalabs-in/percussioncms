@@ -6,7 +6,7 @@
 
 ## Summary
 
-New CLI installs of Percussion CMS still default to embedded Derby and lack a complete, documented way to target MySQL/MariaDB, SQL Server, or Oracle using a repository properties file. Partial support already exists: `com.percussion.preinstall.Main.resolveDbConfig` maps structured `--db.*` / env inputs to `perc.db.*` system properties for **mysql** and **sqlserver**, and `installRepository.xml` `repository_properties` writes those into install-root `rxrepository.properties` when `do.install=true`.  
+New CLI installs of Percussion CMS still default to embedded Derby and lack a complete, documented way to target MySQL/MariaDB, SQL Server, or Oracle using a repository properties file. Partial support already exists: `com.percussion.preinstall.Main.resolveDbConfig` maps structured `--db.*` / env inputs to `perc.db.*` system properties for **mysql** and **sqlserver**, and `installRepository.xml` `repository_properties` writes those into install-root `rxrepository.properties` when `do.install=true`.
 
 This plan **completes** that path for issue #949 by: (1) adding `-Ddbprops` / `--dbprops` input in `rxrepository.properties` format; (2) adding **Oracle**; (3) aligning default MySQL-compatible driver class with shipped MariaDB JDBC; (4) fail-fast field validation and connectivity validation on new install; (5) samples + README; (6) unit tests with extracted resolver. Upgrade mode remains untouched for backend identity.
 
@@ -100,19 +100,20 @@ modules/utils/                       # READ-ONLY reference: PSJdbcUtils backend 
 *(No constitution exceptions.)*
 
 | Violation | Why Needed | Simpler Alternative Rejected Because |
-|-----------|------------|-------------------------------------|
-| _none_ | _none_ | _none_ |
+|-----------|------------|--------------------------------------|
+| _none_    | _none_     | _none_                               |
 
 ## Phase outputs
 
-| Phase | Artifact | Status |
-|-------|----------|--------|
-| 0 | [research.md](research.md) | Complete |
-| 1 | [data-model.md](data-model.md), [contracts/](contracts/), [quickstart.md](quickstart.md) | Complete |
-| 2 | `tasks.md` | **Not** created by `/speckit-plan` — use `/speckit-tasks` |
+| Phase |                                         Artifact                                         |                          Status                           |
+|-------|------------------------------------------------------------------------------------------|-----------------------------------------------------------|
+| 0     | [research.md](research.md)                                                               | Complete                                                  |
+| 1     | [data-model.md](data-model.md), [contracts/](contracts/), [quickstart.md](quickstart.md) | Complete                                                  |
+| 2     | `tasks.md`                                                                               | **Not** created by `/speckit-plan` — use `/speckit-tasks` |
 
 ## Next command
 
 ```text
 /speckit-tasks
 ```
+

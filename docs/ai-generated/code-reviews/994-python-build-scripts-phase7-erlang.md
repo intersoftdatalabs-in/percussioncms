@@ -68,20 +68,21 @@ Fixes a long-broken pre-existing dev container: `docker compose up` against the 
 
 ### Phase 7 verification (Scenario F excerpt)
 
-| SC  | Result | Notes |
-|-----|--------|-------|
-| SC-001 | ✅ | Survivors in `git ls-files` are vendor/runtime (`catalina.sh`, `digest.sh`, `perc-ant/bin/*`, `perc-packages/src/main/scripts/pkgBuild.{sh,bat}`, `system/release/tomcat/...`, `deliverytiersuite/.../tomcat*/bin/*`, `scripts/run-python-tests.sh` is the foundation runner); all explicitly out-of-scope per FR-013 / T004. |
-| SC-002 | ✅ | `bash scripts/run-python-tests.sh --skip-install` → **344 passed, 1 skipped** in 13.38 s. (Local Debian 12 PEP 668 forces `--skip-install`; CI ubuntu-latest installs cleanly.) |
-| SC-003 | ✅ | GH Actions last 4 runs on `development` (post-PR #1469 merge): all `success/completed` for both ubuntu-latest and windows-latest. |
-| SC-004 | ✅ | `mvn-env.sh` (head: `JAVA_HOME_21` + `set -e`) and `mvn-env.bat` (`@echo off` + `JAVA_HOME_21`) unchanged vs. pre-spec baseline. |
-| SC-005 | n/a | Requires `scripts/verify-triage-inventory.sh.LEGACY` snapshot (not retained per tasks.md). Phase 2 PR #1463 already validated parity; no regression possible since the `.sh` is gone. |
-| SC-006 | ✅ | 9 live references fixed; remaining matches are intentional/historical (see Notes 3). |
+|   SC   |         Result         |                                                                                                                                                                             Notes                                                                                                                                                                              |
+|--------|------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| SC-001 | ✅                      | Survivors in `git ls-files` are vendor/runtime (`catalina.sh`, `digest.sh`, `perc-ant/bin/*`, `perc-packages/src/main/scripts/pkgBuild.{sh,bat}`, `system/release/tomcat/...`, `deliverytiersuite/.../tomcat*/bin/*`, `scripts/run-python-tests.sh` is the foundation runner); all explicitly out-of-scope per FR-013 / T004.                                  |
+| SC-002 | ✅                      | `bash scripts/run-python-tests.sh --skip-install` → **344 passed, 1 skipped** in 13.38 s. (Local Debian 12 PEP 668 forces `--skip-install`; CI ubuntu-latest installs cleanly.)                                                                                                                                                                                |
+| SC-003 | ✅                      | GH Actions last 4 runs on `development` (post-PR #1469 merge): all `success/completed` for both ubuntu-latest and windows-latest.                                                                                                                                                                                                                              |
+| SC-004 | ✅                      | `mvn-env.sh` (head: `JAVA_HOME_21` + `set -e`) and `mvn-env.bat` (`@echo off` + `JAVA_HOME_21`) unchanged vs. pre-spec baseline.                                                                                                                                                                                                                               |
+| SC-005 | n/a                    | Requires `scripts/verify-triage-inventory.sh.LEGACY` snapshot (not retained per tasks.md). Phase 2 PR #1463 already validated parity; no regression possible since the `.sh` is gone.                                                                                                                                                                          |
+| SC-006 | ✅                      | 9 live references fixed; remaining matches are intentional/historical (see Notes 3).                                                                                                                                                                                                                                                                           |
 | SC-007 | (manual, prior phases) | Per AGENTS.md pre-PR Maven gate: rest + projects/sitemanage (Phase 4 PR #1468) + modules/perc-distribution-tree (Phase 6 PR #1467) + modules/ai-shared-develop (Phase 4 PR #1468 + Phase 5 PR #1469) all `BUILD SUCCESS` with `Tests run: N, Failures: 0`. Phase 7 touches none of those modules' sources — only `rest/AGENTS.md` and `rest/README.md` (docs). |
-| SC-008 | ✅ | Runner `scripts/run-python-tests.{sh,cmd}` exists; idempotent re-run produces identical `344 passed, 1 skipped`. |
+| SC-008 | ✅                      | Runner `scripts/run-python-tests.{sh,cmd}` exists; idempotent re-run produces identical `344 passed, 1 skipped`.                                                                                                                                                                                                                                               |
 
 ## Files changed (20)
 
 ### Live doc fixes (12)
+
 - `.env.compose.example:17,33` — `install-cms-dev.sh` → `.py`
 - `WebUI/AGENTS.md:493,563` — `hot-deploy-local.sh` → `.py`
 - `docker-compose.yml:28` — `install-cms-dev.sh` → `.py`
@@ -96,9 +97,11 @@ Fixes a long-broken pre-existing dev container: `docker compose up` against the 
 - `specs/992-react-content-explorer/spec.md:13,260` — `install-cms-dev.sh` → `.py` (2 occurrences)
 
 ### Behavioral fix (1)
+
 - `WebUI/src/test/ts/scripts/verify-no-finder-jsp-references.test.ts` — Vitest CI gate now invokes `scripts/verify-no-finder-jsp-references.py` via `python3` (was broken: invoked deleted `.sh`)
 
 ### T078 R3 carve-out deletions (6)
+
 - `docs/ai-generated/tasks/#000-webui-src-layout/check-migration-status.sh`
 - `docs/ai-generated/tasks/#000-webui-src-layout/phase-1-migrate-all-files.sh`
 - `docs/ai-generated/tasks/#000-webui-src-layout/phase-1-migrate-build-config.sh`
@@ -107,6 +110,7 @@ Fixes a long-broken pre-existing dev container: `docker compose up` against the 
 - `docs/ai-generated/tasks/#000-webui-src-layout/phase-1-validate-changes.sh`
 
 ### Tick-box update (1)
+
 - `specs/994-python-build-scripts/tasks.md` — `[ ] T078, T079, T080, T081, T082` → `[X]` (T083 and T084 remain `[ ]` until post-merge per the task wording)
 
 ## Handoff
@@ -115,3 +119,4 @@ Fixes a long-broken pre-existing dev container: `docker compose up` against the 
 - **Gate:** May commit/push: **yes**
 - **No blocking bugs**
 - Phase 7 is ready to commit and push to open the final docs(994) cleanup PR.
+

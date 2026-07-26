@@ -103,7 +103,8 @@ public class PSContentExplorerUtils {
    * server.
    *
    * @param actionUrl the url to split. This will have a syntax:
-   *     <p>http://&lt;server&gt;:port/Rhythmyx/appName/resource.html?param1= value1&amp;param2=value2....
+   *     <p>http://&lt;server&gt;:port/Rhythmyx/appName/resource.html?param1=
+   *     value1&amp;param2=value2....
    *     <p>The result would be such that the returned string is
    *     <p>http://&lt;server&gt;:port/Rhythmyx/appName/resource.html and the params object which is
    *     assumed to empty but not <code>null</code> will containg the paramN-valueN pairs.

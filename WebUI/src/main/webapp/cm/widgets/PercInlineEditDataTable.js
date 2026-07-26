@@ -229,13 +229,15 @@
         if (config.percShowValuesPlaceholders && value === placeHolderValue)
           value = "";
       }
-      $(nCol).empty().append(
-        $("<input/>")
-          .attr("id", "inputEdition" + colNumber)
-          .attr("placeholder", placeHolderValue)
-          .attr("type", "text")
-          .val(value)
-      );
+      $(nCol)
+        .empty()
+        .append(
+          $("<input/>")
+            .attr("id", "inputEdition" + colNumber)
+            .attr("placeholder", placeHolderValue)
+            .attr("type", "text")
+            .val(value)
+        );
       $(table).find("td input").on("focusout", tableCellFocusOut);
       var label = $("<label/>")
         .addClass("visuallyhidden")
@@ -286,13 +288,15 @@
           if (config.percShowValuesPlaceholders && value === placeHolderValue)
             value = "";
         }
-        $(jqTds[i]).empty().append(
-          $("<input/>")
-            .attr("id", "inputEdition" + i)
-            .attr("placeholder", placeHolderValue)
-            .attr("type", "text")
-            .val(value)
-        );
+        $(jqTds[i])
+          .empty()
+          .append(
+            $("<input/>")
+              .attr("id", "inputEdition" + i)
+              .attr("placeholder", placeHolderValue)
+              .attr("type", "text")
+              .val(value)
+          );
       }
       addPlaceHolder();
 

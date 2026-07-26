@@ -6,7 +6,9 @@ test.describe("Admin Shell - Scheduled Tasks & System Tools (US7, US8)", () => {
     await loginAsAdmin(page);
   });
 
-  test("navigate to admin shell and verify shell and task list render", async ({ page }) => {
+  test("navigate to admin shell and verify shell and task list render", async ({
+    page,
+  }) => {
     await page.goto(`${BASE_URL}/cm/app/index.jsp?view=admin`);
 
     // Verify AdminShell container is present
@@ -20,28 +22,40 @@ test.describe("Admin Shell - Scheduled Tasks & System Tools (US7, US8)", () => {
     // Verify tabs are present
     await expect(page.locator("[data-testid='tab-tasks']")).toBeVisible();
     await expect(page.locator("[data-testid='tab-logs']")).toBeVisible();
-    await expect(page.locator("[data-testid='tab-notifications']")).toBeVisible();
+    await expect(
+      page.locator("[data-testid='tab-notifications']")
+    ).toBeVisible();
     await expect(page.locator("[data-testid='tab-tools']")).toBeVisible();
   });
 
-  test("switch tabs to logs, notifications, and system tools", async ({ page }) => {
+  test("switch tabs to logs, notifications, and system tools", async ({
+    page,
+  }) => {
     await page.goto(`${BASE_URL}/cm/app/index.jsp?view=admin`);
 
     // Switch to Logs tab
     const logsTab = page.locator("[data-testid='tab-logs']");
     await logsTab.click();
-    await expect(page.locator("[data-testid='perc-task-logs-section']")).toBeVisible();
+    await expect(
+      page.locator("[data-testid='perc-task-logs-section']")
+    ).toBeVisible();
 
     // Switch to Notifications tab
     const notifTab = page.locator("[data-testid='tab-notifications']");
     await notifTab.click();
-    await expect(page.locator("[data-testid='perc-task-notifications-section']")).toBeVisible();
+    await expect(
+      page.locator("[data-testid='perc-task-notifications-section']")
+    ).toBeVisible();
 
     // Switch to System Tools tab
     const toolsTab = page.locator("[data-testid='tab-tools']");
     await toolsTab.click();
-    await expect(page.locator("[data-testid='perc-tools-section']")).toBeVisible();
-    await expect(page.locator("[data-testid='perc-consistency-checker']")).toBeVisible();
+    await expect(
+      page.locator("[data-testid='perc-tools-section']")
+    ).toBeVisible();
+    await expect(
+      page.locator("[data-testid='perc-consistency-checker']")
+    ).toBeVisible();
   });
 
   test("open create task editor dialog", async ({ page }) => {

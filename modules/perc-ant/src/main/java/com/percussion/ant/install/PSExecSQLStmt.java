@@ -74,10 +74,9 @@ import org.apache.tools.ant.BuildException;
  * </pre>
  */
 public class PSExecSQLStmt extends PSAction {
-  /**
-   * Creates a new SQL statement executor.
-   */
+  /** Creates a new SQL statement executor. */
   public PSExecSQLStmt() {}
+
   private static final Logger log = LogManager.getLogger(PSExecSQLStmt.class);
 
   // see base class

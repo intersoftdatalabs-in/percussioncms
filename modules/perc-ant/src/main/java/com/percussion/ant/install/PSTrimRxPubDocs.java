@@ -54,10 +54,9 @@ import java.sql.SQLException;
  * </pre>
  */
 public class PSTrimRxPubDocs extends PSAction {
-  /**
-   * Creates a new trim RX pub docs task.
-   */
+  /** Creates a new trim RX pub docs task. */
   public PSTrimRxPubDocs() {}
+
   // see base class
 
   @Override

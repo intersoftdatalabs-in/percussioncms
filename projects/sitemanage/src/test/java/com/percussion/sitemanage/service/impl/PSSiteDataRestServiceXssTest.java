@@ -28,34 +28,28 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 /**
- * Regression tests for {@link PSSiteDataRestService} (CodeQL
- * {@code java/xss}, T044, US3).
+ * Regression tests for {@link PSSiteDataRestService} (CodeQL {@code java/xss}, T044, US3).
  *
- * <p><strong>Background.</strong> The pre-fix code passed the
- * {@code id} / {@code siteName} / {@code siteId} / {@code sitename}
- * path parameters through the service layer to the response without
- * validating their content. A path parameter containing an XSS
- * payload ({@code <script>alert(1)</script>}) could flow through
- * the service layer to the JSON/XML response, which is then
- * rendered in HTML by the browser. The fix:
+ * <p><strong>Background.</strong> The pre-fix code passed the {@code id} / {@code siteName} /
+ * {@code siteId} / {@code sitename} path parameters through the service layer to the response
+ * without validating their content. A path parameter containing an XSS payload ({@code
+ * <script>alert(1)</script>}) could flow through the service layer to the JSON/XML response, which
+ * is then rendered in HTML by the browser. The fix:
+ *
  * <ol>
- *   <li>Validates path parameters against the {@code SAFE_ID_PATTERN}
- *       allow-list at the API boundary (alphanumeric, dot, dash,
- *       underscore, colon; length 1-128). Any input outside the
+ *   <li>Validates path parameters against the {@code SAFE_ID_PATTERN} allow-list at the API
+ *       boundary (alphanumeric, dot, dash, underscore, colon; length 1-128). Any input outside the
  *       allow-list is rejected with HTTP 400.
- *   <li>Documents the data flow for each REST method with a
- *       <strong>same-line</strong> {@code // codeql[java/xss] justification: ...}
- *       annotation on the {@code return} sink (CodeQL ignores multi-line
- *       justification blocks several lines above the sink) per
- *       {@code contracts/C2} and the CodeQL PR playbook.
+ *   <li>Documents the data flow for each REST method with a <strong>same-line</strong> {@code //
+ *       codeql[java/xss] justification: ...} annotation on the {@code return} sink (CodeQL ignores
+ *       multi-line justification blocks several lines above the sink) per {@code contracts/C2} and
+ *       the CodeQL PR playbook.
  * </ol>
  *
- * <p><strong>Fail-then-pass coverage (Constitution III).</strong>
- * The pre-fix code had no input validation; an XSS payload in the
- * path would have been accepted and passed to the service layer.
- * The post-fix code's {@code requireSafeId} is package-private
- * (testable directly) and rejects payloads with HTML/XML/JS
- * metacharacters.
+ * <p><strong>Fail-then-pass coverage (Constitution III).</strong> The pre-fix code had no input
+ * validation; an XSS payload in the path would have been accepted and passed to the service layer.
+ * The post-fix code's {@code requireSafeId} is package-private (testable directly) and rejects
+ * payloads with HTML/XML/JS metacharacters.
  */
 @DisplayName("PSSiteDataRestService — XSS (CWE-79) regression tests")
 class PSSiteDataRestServiceXssTest {
@@ -73,13 +67,15 @@ class PSSiteDataRestServiceXssTest {
     @Test
     @DisplayName("id with dot, dash, underscore is accepted")
     void testSpecialCharsInId() {
-      assertEquals("site.test-name_v2", PSSiteDataRestService.requireSafeId("site.test-name_v2", "id"));
+      assertEquals(
+          "site.test-name_v2", PSSiteDataRestService.requireSafeId("site.test-name_v2", "id"));
     }
 
     @Test
     @DisplayName("id with colon is accepted (CMS site-name namespace separator)")
     void testColonInId() {
-      assertEquals("namespace:site-name", PSSiteDataRestService.requireSafeId("namespace:site-name", "id"));
+      assertEquals(
+          "namespace:site-name", PSSiteDataRestService.requireSafeId("namespace:site-name", "id"));
     }
 
     @Test
@@ -108,9 +104,7 @@ class PSSiteDataRestServiceXssTest {
     void testImgOnerrorPayload() {
       assertThrows(
           WebApplicationException.class,
-          () ->
-              PSSiteDataRestService.requireSafeId(
-                  "<img src=x onerror=alert(1)>", "id"),
+          () -> PSSiteDataRestService.requireSafeId("<img src=x onerror=alert(1)>", "id"),
           "XSS img-onerror payload must be rejected");
     }
 
@@ -137,9 +131,7 @@ class PSSiteDataRestServiceXssTest {
     void testXmlInjection() {
       assertThrows(
           WebApplicationException.class,
-          () ->
-              PSSiteDataRestService.requireSafeId(
-                  "]]><script>alert(1)</script>", "id"),
+          () -> PSSiteDataRestService.requireSafeId("]]><script>alert(1)</script>", "id"),
           "XML injection payload must be rejected");
     }
 
@@ -186,10 +178,9 @@ class PSSiteDataRestServiceXssTest {
   class SinkLineAnnotations {
 
     /**
-     * Pins that the open CodeQL sinks use same-line annotations. Multi-line
-     * justification blocks several lines above {@code return} are ignored by
-     * CodeQL and left alerts #750/#751/#752/#1063 open despite correct
-     * {@code justification:} format.
+     * Pins that the open CodeQL sinks use same-line annotations. Multi-line justification blocks
+     * several lines above {@code return} are ignored by CodeQL and left alerts #750/#751/#752/#1063
+     * open despite correct {@code justification:} format.
      */
     @Test
     @DisplayName("open XSS sinks carry same-line codeql[java/xss] annotations")
@@ -214,9 +205,7 @@ class PSSiteDataRestServiceXssTest {
             "return siteDataService.updateSitePublishProperties(publishProps); // codeql[java/xss]",
           };
       for (String needle : required) {
-        assertTrue(
-            text.contains(needle),
-            "missing same-line CodeQL annotation: " + needle);
+        assertTrue(text.contains(needle), "missing same-line CodeQL annotation: " + needle);
       }
     }
   }
@@ -230,8 +219,7 @@ class PSSiteDataRestServiceXssTest {
     void testEscape() {
       String result = SecureStringUtils.sanitizeStringForHTML("<script>alert(1)</script>");
       assertTrue(
-          !result.contains("<script>"),
-          "the raw <script> tag must be escaped, got: " + result);
+          !result.contains("<script>"), "the raw <script> tag must be escaped, got: " + result);
       assertTrue(
           result.contains("&lt;") || result.contains("&#"),
           "the result must contain an HTML entity, got: " + result);
@@ -246,10 +234,11 @@ class PSSiteDataRestServiceXssTest {
     @Test
     @DisplayName("plain text passes through unchanged")
     void testEscapePlainText() {
-      assertDoesNotThrow(() -> {
-        String result = SecureStringUtils.sanitizeStringForHTML("hello world");
-        assertTrue(result.contains("hello world"));
-      });
+      assertDoesNotThrow(
+          () -> {
+            String result = SecureStringUtils.sanitizeStringForHTML("hello world");
+            assertTrue(result.contains("hello world"));
+          });
     }
   }
 }

@@ -99,7 +99,7 @@ function installPercShims() {
 function loadFactory() {
   let jq = jquery(globalThis.window);
   if (typeof jq !== "function") {
-    jq = typeof jquery === "function" ? jquery : (jquery.fn || jquery);
+    jq = typeof jquery === "function" ? jquery : jquery.fn || jquery;
     if (!jq.fn && jq.prototype) jq.fn = jq.prototype;
   }
   if (!jq.fn) throw new Error("jquery has neither .fn nor .prototype");
@@ -121,7 +121,12 @@ function loadFactory() {
   // Install shims BEFORE wrapping with counters so the wrap survives.
   installPercShims();
   // eslint-disable-next-line no-console
-  console.log("DEBUG stub perc_dialog typeof:", typeof $.fn.perc_dialog, "globalThis.jQuery.fn.perc_dialog typeof:", typeof globalThis.jQuery.fn.perc_dialog);
+  console.log(
+    "DEBUG stub perc_dialog typeof:",
+    typeof $.fn.perc_dialog,
+    "globalThis.jQuery.fn.perc_dialog typeof:",
+    typeof globalThis.jQuery.fn.perc_dialog
+  );
   installPercShims();
   // Wrap with counters AFTER installPercShims so they survive.
   globalThis.__percDialogCalls__ = { n: 0 };
@@ -138,7 +143,12 @@ function loadFactory() {
   };
   // Sanity: assert the wrap points at the append-to-body stub.
   // eslint-disable-next-line no-console
-  console.log("DEBUG wrap typeof realPercDialog===", typeof realPercDialog, "outerHTML len=", realPercDialog.toString().length);
+  console.log(
+    "DEBUG wrap typeof realPercDialog===",
+    typeof realPercDialog,
+    "outerHTML len=",
+    realPercDialog.toString().length
+  );
   // Run the source as a script in the global scope so its IIFE sees
   // globalThis.jQuery.
   (0, eval)(readFileSync(SRC_PATH, "utf8"));
@@ -173,14 +183,18 @@ describe("source-pattern (anti-regression for js/xss-through-dom)", () => {
   const src = readFileSync(SRC_PATH, "utf8");
 
   it("does not call .html(prefix + name) for the label sinks", () => {
-    expect(src).not.toMatch(/\.html\("Selected Template:[^"]*"\s*\+\s*itemName/);
+    expect(src).not.toMatch(
+      /\.html\("Selected Template:[^"]*"\s*\+\s*itemName/
+    );
     expect(src).not.toMatch(/\.html\("Current Template:[^"]*"\s*\+\s*\w+/);
   });
 
   it("does not build the template-entry HTML via string concatenation of data fields", () => {
     // The pre-fix createTemplateEntry uses .replace(/@ITEM_LABEL@/, data.name).
     // Post-fix must not substitute user-controlled strings into HTML.
-    expect(src).not.toMatch(/\.replace\(\s*\/@ITEM_LABEL@\/,\s*data\.name\s*\)/);
+    expect(src).not.toMatch(
+      /\.replace\(\s*\/@ITEM_LABEL@\/,\s*data\.name\s*\)/
+    );
     expect(src).not.toMatch(/\.replace\(\s*\/@ITEM_TT@\/g,\s*data\.name\s*\)/);
   });
 });
@@ -243,7 +257,7 @@ describe("openDialog (Current Template label sink)", () => {
 
 describe("openDialog (createTemplateEntry sink — imageThumbPath)", () => {
   it("does not produce a <script> element from a malicious imageThumbPath", () => {
-    const malicious = "/x.png\"><script>window.__pwned=true</script>";
+    const malicious = '/x.png"><script>window.__pwned=true</script>';
     api.openDialog("page-1", "tmpl-x", "SiteA", () => {});
     fireGetJson([
       { id: "t1", name: "Plain", imageThumbPath: malicious },
@@ -290,11 +304,15 @@ describe("openDialog (createTemplateEntry sink — name)", () => {
         (n) => `len=${n.children.length}`
       ),
       "dialog outerHTML:",
-      document.querySelector("#perc-change-template-dialog")?.outerHTML?.slice(0, 600),
+      document
+        .querySelector("#perc-change-template-dialog")
+        ?.outerHTML?.slice(0, 600),
       "dialog items:",
-      [...document.querySelectorAll("#perc-change-template-dialog .perc-items")].map(
-        (n) => `len=${n.children.length}`
-      )
+      [
+        ...document.querySelectorAll(
+          "#perc-change-template-dialog .perc-items"
+        ),
+      ].map((n) => `len=${n.children.length}`)
     );
     const texts = document.querySelectorAll(".perc-text-overflow");
     expect(texts.length).toBeGreaterThan(0);

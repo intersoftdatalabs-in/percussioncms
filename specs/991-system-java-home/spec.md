@@ -18,6 +18,7 @@ Today, operators must **manually copy** a JRE into that folder **or create a sym
 **This feature replaces that requirement** with install-time selection and/or system/`JAVA_HOME` resolution, so a post-install manual copy/symlink is no longer required for a working system.
 
 ## Module Scope
+
 - **Primary module(s)**: `modules/perc-jetty/` (CMS Jetty start/stop/service); `deliverytiersuite/delivery-tier-suite/delivery-tier-distribution/` (DTS Tomcat start/stop/service scripts); `modules/perc-distribution-tree/` (preinstall, install tree, JRE-related install assumptions); `system/release/installer/` (run/shutdown/service helpers)
 - **Secondary / integration modules**: service packaging shared with Linux systemd feature (`988-linux-systemd-services`) where units/env files carry `JAVA_HOME`; any install-root util scripts that still invoke a relative `<InstallDir>/JRE` (update or explicitly document out of scope)
 - **AGENTS files to apply**: root `AGENTS.md`; module AGENTS under `perc-jetty`, distribution-tree, delivery-tier-distribution if present
@@ -25,6 +26,7 @@ Today, operators must **manually copy** a JRE into that folder **or create a sym
 - **Install / upgrade impact**: installer prompts/config and start/stop/service scripts — **no** CMS schema, `.ppkg`, or application API contract changes; **no** change to “we ship a JRE in the archive” (we already do not)
 
 ## User Scenarios & Testing
+
 Each story must be independently testable.
 
 ### User Story 1 - Run CMS without a manual InstallDir/JRE copy or symlink (Priority: P1)
@@ -93,6 +95,7 @@ Some existing installs already have a **manually** copied tree or **symlink** at
 3. **Given** upgrade documentation, **When** operators migrate from “manual JRE under install dir” to system/config Java, **Then** they have clear steps and no requirement to keep the copy/symlink once config is set.
 
 ### Edge Cases
+
 - No compatible Java found on the host (all candidates wrong major version or broken installs).
 - `JAVA_HOME` set but points to a non-executable or incomplete runtime (missing `bin/java` / Windows binaries).
 - Multiple candidates with the same version string but different vendors/paths.
@@ -107,7 +110,9 @@ Some existing installs already have a **manually** copied tree or **symlink** at
 - Concurrent CMS and DTS installs sharing one machine-level Java vs per-product config.
 
 ## Requirements
+
 ### Functional Requirements
+
 - **FR-001**: Product runtime for CMS MUST resolve a Java home without requiring the operator to copy or symlink a JRE into `<InstallDir>/JRE` (or `JRE64`) when a valid Java 21 is available via install-persisted configuration or process environment.
 - **FR-002**: Product runtime for DTS (Production and Staging) MUST resolve Java under the same precedence and version rules as CMS.
 - **FR-003**: Product MUST implement and document a single cross-platform resolution order for runtime Java home, including at least: (1) install-persisted / explicit product configuration, (2) process environment `JAVA_HOME` when valid and version-compatible, (3) optional existing `<InstallDir>/JRE` (or legacy `JRE64`) if present as a valid home—**manual copy or symlink only; not product-shipped**, (4) `java` discoverable on `PATH` when it yields a resolvable home, (5) fail clearly if none succeed.
@@ -126,6 +131,7 @@ Some existing installs already have a **manually** copied tree or **symlink** at
 - **FR-016**: Product MUST NOT introduce a new requirement to ship or re-bundle a full JRE inside the distribution archive; the goal is to stop depending on a **manually operator-provided** install-dir JRE layout, not to start distributing Java again.
 
 ### Key Entities
+
 - **Java home**: Absolute filesystem location of a JRE/JDK used to launch CMS or DTS.
 - **Eligible candidate**: Detected Java installation that passes major-version 21 validation and basic executability checks.
 - **Persisted Java configuration**: Install-written durable setting (product-owned) that start/stop/service scripts read with highest precedence after any documented env override rules.
@@ -134,7 +140,9 @@ Some existing installs already have a **manually** copied tree or **symlink** at
 - **Runtime surface**: CMS Jetty start/stop/service and DTS Production/Staging start/stop/service on supported OSes.
 
 ## Success Criteria
+
 ### Measurable Outcomes
+
 - **SC-001**: On a clean Linux and Windows smoke install **without** any `<InstallDir>/JRE` copy or symlink, CMS starts and stops successfully when a valid system/config Java 21 is provided (checklist or automated smoke).
 - **SC-002**: Under the same conditions, DTS Production and Staging start and stop successfully.
 - **SC-003**: Interactive install with two mock/fixture Java 21 candidates records the operator’s selection and subsequent start uses that selection (100% of scripted UAT runs) **without** a post-install manual JRE placement step.
@@ -145,6 +153,7 @@ Some existing installs already have a **manually** copied tree or **symlink** at
 - **SC-008**: Existing installs that already have a valid operator-provided `<InstallDir>/JRE` (copy or symlink) and no higher-precedence config continue to start during the transition period (no forced break without documentation).
 
 ## Assumptions
+
 - Target product line is **8.2 / `development`** requiring **Java 21** only (not multi-version support).
 - **CMS and DTS** are both in scope for runtime scripts/services; other legacy tools under install root are either updated or explicitly listed out of scope in planning.
 - The product **does not and will not** reintroduce shipping a full JRE in the distribution as part of this feature; the pain being removed is the **mandatory operator copy/symlink** into `<InstallDir>/JRE`.
@@ -155,3 +164,4 @@ Some existing installs already have a **manually** copied tree or **symlink** at
 - Related systemd work (#962 / `988-linux-systemd-services`) may already place `JAVA_HOME` in service env files; this feature owns **how** that value is chosen, validated, and kept consistent with console scripts.
 - macOS is supported for the same resolution rules where the product already supports running CMS/DTS on macOS; if a surface is Windows/Linux-only today, this feature does not invent new macOS product support beyond fixing shared scripts used there.
 - No change to application business logic, public REST APIs, or database schema.
+

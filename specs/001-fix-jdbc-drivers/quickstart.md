@@ -127,3 +127,4 @@ Expected outcome: the Maven build runs the verification script as part of the `v
 - [x] Scenario 4 (forced failure) demonstrates the build fails loudly.
 - [x] Scenario 5 (legacy `DEVELOPMENT=true`) preserves prior behavior.
 - [x] Scenario 6 (CI integration) is wired and non-flaky.
+

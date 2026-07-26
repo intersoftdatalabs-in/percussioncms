@@ -89,9 +89,9 @@ class SocialButtonsXRebrandTest {
   }
 
   /**
-   * Walk parent directories from the process working directory until {@code
-   * modules/perc-packages} is found. Works whether Surefire runs from the
-   * monorepo root or from {@code projects/sitemanage}.
+   * Walk parent directories from the process working directory until {@code modules/perc-packages}
+   * is found. Works whether Surefire runs from the monorepo root or from {@code
+   * projects/sitemanage}.
    */
   private static Path resolveRepoRoot() {
     Path dir = Path.of("").toAbsolutePath().normalize();

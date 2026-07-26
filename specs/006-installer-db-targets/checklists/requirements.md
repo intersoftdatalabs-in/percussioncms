@@ -35,3 +35,4 @@
 - Spec is stakeholder-oriented: module paths appear only in Module Scope (mono-repo mandatory section) and path examples that integrators already use (`rxrepository.properties`, `-Ddbprops`).
 - No `[NEEDS CLARIFICATION]` markers; informed defaults recorded in Assumptions (properties-file contract, CMS new-install scope, DTS out of scope unless coupled, MySQL includes MariaDB-compatible).
 - Ready for `/speckit-clarify` (optional) or `/speckit-plan`.
+

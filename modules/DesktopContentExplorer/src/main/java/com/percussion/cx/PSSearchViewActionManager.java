@@ -67,8 +67,8 @@ public class PSSearchViewActionManager {
    *
    * @param proxy the remote proxy to use to make requests to the server, may not be <code>null
    *     </code>
-   * @param remCataloger the remote cataloger to use to get search configuration, may not be
-   *     <code>null</code>
+   * @param remCataloger the remote cataloger to use to get search configuration, may not be <code>
+   *     null</code>
    * @param urlBase the base url of the applet to make url requests, may not be <code>null</code>
    * @param applet the content explorer applet reference, may not be <code>null</code>
    * @throws PSContentExplorerException if an error occurs while initializing the search manager.

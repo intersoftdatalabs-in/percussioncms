@@ -42,7 +42,8 @@ public class PSKeywordInstallUtilsTest {
   public void testFormatInstallErrorIncludesTypesAndRootCause() {
     Exception root = new IllegalStateException("stale entity");
     RuntimeException wrapper =
-        new RuntimeException("Transaction silently rolled back because it has been marked as rollback-only", root);
+        new RuntimeException(
+            "Transaction silently rolled back because it has been marked as rollback-only", root);
 
     String msg = PSKeywordInstallUtils.formatInstallError(wrapper);
     assertTrue(msg.contains("RuntimeException"), msg);
@@ -53,6 +54,7 @@ public class PSKeywordInstallUtilsTest {
 
   @Test
   public void testFormatInstallErrorRejectsNull() {
-    assertThrows(IllegalArgumentException.class, () -> PSKeywordInstallUtils.formatInstallError(null));
+    assertThrows(
+        IllegalArgumentException.class, () -> PSKeywordInstallUtils.formatInstallError(null));
   }
 }

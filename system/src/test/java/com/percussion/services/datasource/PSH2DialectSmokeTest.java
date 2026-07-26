@@ -86,8 +86,7 @@ class PSH2DialectSmokeTest {
         assertEquals("ok", rs.getString(1));
       }
       // Pessimistic-style select; H2 supports FOR UPDATE
-      try (ResultSet rs =
-          st.executeQuery("SELECT NAME FROM T_H2_SMOKE WHERE ID = 1 FOR UPDATE")) {
+      try (ResultSet rs = st.executeQuery("SELECT NAME FROM T_H2_SMOKE WHERE ID = 1 FOR UPDATE")) {
         assertTrue(rs.next());
       }
     }

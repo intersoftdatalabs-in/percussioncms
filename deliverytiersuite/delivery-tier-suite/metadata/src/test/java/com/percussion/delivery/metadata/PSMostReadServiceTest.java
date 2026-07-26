@@ -99,17 +99,10 @@ public class PSMostReadServiceTest {
     query.setTimePeriod("WEEK");
     List<String> topPages = blogPostService.getTopVisitedBlogPosts(query);
 
-    assertTrue(topPages.size() > 0, "most read pages not empty");
-    assertEquals(3, topPages.size(), "size is equal to 3");
-
-    // hits should be returned based on last entry date as there is no more than 1
-    // entry for each page in DB at this time.
-    String testName = PAGE_FULL + "4.html";
-    assertEquals(testName, topPages.get(0), "first item in list was last item tracked");
-
-    // page 2 should be last item in list because we limited the query to 3
-    testName = PAGE_FULL + "2.html";
-    assertEquals(testName, topPages.get(2), "page2.html should be returned");
+    assertEquals(
+        List.of(PAGE_FULL + "4.html", PAGE_FULL + "3.html", PAGE_FULL + "2.html"),
+        topPages,
+        "equally visited pages should use descending page path as the tie-breaker");
   }
 
   /**

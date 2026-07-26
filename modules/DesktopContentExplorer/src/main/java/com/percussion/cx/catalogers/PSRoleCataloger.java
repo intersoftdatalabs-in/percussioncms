@@ -120,8 +120,8 @@ public class PSRoleCataloger {
     /**
      * Implementation of the interface method.
      *
-     * @param elemRoot the element that contains data for a single role, may not be
-     *     <code>null</code>.
+     * @param elemRoot the element that contains data for a single role, may not be <code>null
+     *     </code>.
      * @throws PSUnknownNodeTypeException if the element is not in the expected format.
      */
     public void fromXml(Element elemRoot) throws PSUnknownNodeTypeException {

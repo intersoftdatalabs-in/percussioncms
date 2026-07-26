@@ -35,7 +35,8 @@ public class ExternalDbSamplePropsPackagingTest {
   @Test
   void mysqlSampleIsExternalMysql() throws Exception {
     assertSample(
-        Path.of("src/main/resources/distribution/rxconfig/Installer/samples/rxrepository.mysql.properties"),
+        Path.of(
+            "src/main/resources/distribution/rxconfig/Installer/samples/rxrepository.mysql.properties"),
         "MYSQL",
         "mysql");
   }

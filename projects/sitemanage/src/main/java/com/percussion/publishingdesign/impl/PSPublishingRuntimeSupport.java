@@ -23,6 +23,7 @@ import com.percussion.rx.publisher.IPSPublisherJobStatus;
 import com.percussion.rx.publisher.IPSRxPublisherService;
 import com.percussion.rx.publisher.PSRxPublisherServiceLocator;
 import com.percussion.rx.publisher.data.PSDemandWork;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.services.catalog.PSTypeEnum;
 import com.percussion.services.content.data.PSItemSummary;
 import com.percussion.services.guidmgr.IPSGuidManager;
@@ -35,7 +36,6 @@ import com.percussion.webservices.content.IPSContentWs;
 import com.percussion.webservices.content.PSContentWsLocator;
 import com.percussion.webservices.publishing.IPSPublishingWs;
 import com.percussion.webservices.publishing.PSPublishingWsLocator;
-import com.percussion.security.error.PSExceptionUtils;
 import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.Response;
 import java.util.ArrayList;
@@ -173,9 +173,7 @@ public class PSPublishingRuntimeSupport {
 
   public PSRuntimeJobResponse demandPublish(String editionId, PSDemandPublishRequest request) {
     requireNonBlank(editionId, "editionId");
-    if (request == null
-        || request.getContentIds() == null
-        || request.getContentIds().isEmpty()) {
+    if (request == null || request.getContentIds() == null || request.getContentIds().isEmpty()) {
       throw badRequest("contentIds are required");
     }
     requirePubWs();
@@ -191,7 +189,9 @@ public class PSPublishingRuntimeSupport {
         }
         IPSGuid contentGuid = toItemGuid(cid.trim());
         IPSGuid folderGuid = null;
-        if (folderIds != null && i < folderIds.size() && folderIds.get(i) != null
+        if (folderIds != null
+            && i < folderIds.size()
+            && folderIds.get(i) != null
             && !folderIds.get(i).isBlank()) {
           folderGuid = toItemGuid(folderIds.get(i).trim());
         } else if (contentWs != null) {
@@ -267,8 +267,7 @@ public class PSPublishingRuntimeSupport {
     return fromStatus(st, editionId, st != null ? st.getJobId() : 0);
   }
 
-  private PSRuntimeJobResponse fromStatus(
-      IPSPublisherJobStatus st, String editionId, long jobId) {
+  private PSRuntimeJobResponse fromStatus(IPSPublisherJobStatus st, String editionId, long jobId) {
     PSRuntimeJobResponse r = new PSRuntimeJobResponse();
     r.setJobId(jobId);
     r.setEditionId(editionId);

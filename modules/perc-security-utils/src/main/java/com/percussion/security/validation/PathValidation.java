@@ -115,13 +115,12 @@ public class PathValidation {
    * detection we must reject any input that <em>looks</em> absolute regardless of the host OS.
    *
    * <p>Note: the drive-letter branch is only checked on platforms whose default filesystem is
-   * case-insensitive (Windows). On Linux/macOS, a colon is a legal filename character so a
-   * relative component like {@code C:report} or {@code x:data} is not an attempt at an absolute
-   * path and must not be rejected.
+   * case-insensitive (Windows). On Linux/macOS, a colon is a legal filename character so a relative
+   * component like {@code C:report} or {@code x:data} is not an attempt at an absolute path and
+   * must not be rejected.
    *
    * @param path the path string to inspect
-   * @return {@code true} if the path starts with a drive letter, a UNC root, or a leading
-   *     separator
+   * @return {@code true} if the path starts with a drive letter, a UNC root, or a leading separator
    */
   private static boolean looksAbsolute(String path) {
     if (path == null || path.isEmpty()) {
@@ -174,8 +173,8 @@ public class PathValidation {
    * macOS is classified correctly and containment checks remain consistent with the underlying
    * filesystem semantics.
    *
-   * <p>The result is cached on first read because {@code os.name} cannot change for the lifetime
-   * of the JVM.
+   * <p>The result is cached on first read because {@code os.name} cannot change for the lifetime of
+   * the JVM.
    */
   private static final boolean CASE_INSENSITIVE_FS = computeCaseInsensitiveFs();
 
@@ -188,8 +187,7 @@ public class PathValidation {
       return true;
     }
     String os = System.getProperty("os.name", "");
-    return os.regionMatches(true, 0, "mac", 0, 3)
-        || os.regionMatches(true, 0, "darwin", 0, 6);
+    return os.regionMatches(true, 0, "mac", 0, 3) || os.regionMatches(true, 0, "darwin", 0, 6);
   }
 
   /**
@@ -236,14 +234,14 @@ public class PathValidation {
    * @param baseDir The trusted base directory
    * @param userPath The user-supplied relative path
    * @param checkSymlinks If true, additionally rejects any resolved path component that is a
-   *     symbolic link whose target escapes {@code baseDir}. The base containment check (line
-   *     {@link #isWithin}) always runs and already guarantees the final path is within {@code
-   *     baseDir}; this flag adds a per-component symlink walk that explicitly identifies and
-   *     rejects symlinks pointing outside, suitable for high-security deployments.
-   * @return The canonical {@link File} for the safe path within {@code baseDir}. The canonical
-   *     form is returned for consistency with {@link #validatePathWithinDirectory(File, File)};
-   *     the underlying security guarantees are unchanged because canonicalization is already used
-   *     by the containment check.
+   *     symbolic link whose target escapes {@code baseDir}. The base containment check (line {@link
+   *     #isWithin}) always runs and already guarantees the final path is within {@code baseDir};
+   *     this flag adds a per-component symlink walk that explicitly identifies and rejects symlinks
+   *     pointing outside, suitable for high-security deployments.
+   * @return The canonical {@link File} for the safe path within {@code baseDir}. The canonical form
+   *     is returned for consistency with {@link #validatePathWithinDirectory(File, File)}; the
+   *     underlying security guarantees are unchanged because canonicalization is already used by
+   *     the containment check.
    * @throws SecurityException if escape/symlink attack detected
    * @throws IllegalArgumentException if inputs invalid
    */
@@ -304,8 +302,8 @@ public class PathValidation {
   }
 
   /**
-   * Walks from {@code resolved} up to (and including) {@code baseDir}, rejecting any existing
-   * path component that is a symbolic link whose canonical target escapes {@code baseDir}. This
+   * Walks from {@code resolved} up to (and including) {@code baseDir}, rejecting any existing path
+   * component that is a symbolic link whose canonical target escapes {@code baseDir}. This
    * complements {@link #isWithin(File, File)} (which verifies the final canonical path) by
    * providing per-component attribution of the offending symlink.
    *
@@ -322,8 +320,19 @@ public class PathValidation {
     while (cursor != null) {
       Path cursorPath = cursor.toPath();
       if (Files.exists(cursorPath) && Files.isSymbolicLink(cursorPath)) {
-        File resolvedTarget = cursor.getCanonicalFile();
-        if (!isWithin(resolvedTarget, baseCanonical)) {
+        // Use Files.readSymbolicLink rather than File.getCanonicalFile() to ensure
+        // the link target is resolved even on platforms (e.g. Windows) where the
+        // legacy File API may not follow symbolic links.
+        Path target;
+        try {
+          target = Files.readSymbolicLink(cursorPath);
+        } catch (IOException e) {
+          log.warn("Unable to read symlink target: {} for user path: {}", cursorPath, userPath);
+          throw new SecurityException("Symlink escapes base directory bounds: " + userPath);
+        }
+        Path resolvedTarget = target.isAbsolute() ? target : cursorPath.getParent().resolve(target);
+        resolvedTarget = resolvedTarget.normalize();
+        if (!isWithin(resolvedTarget.toFile(), baseCanonical)) {
           log.warn(
               "Symlink escape attempt: {} -> {} (outside allowed base {})",
               cursor,
@@ -448,9 +457,7 @@ public class PathValidation {
     try {
       if (!isWithin(current, baseDir)) {
         throw new SecurityException(
-            "Combined path escapes baseDir bounds: "
-                + current.getCanonicalPath()
-                + " (CWE-22)");
+            "Combined path escapes baseDir bounds: " + current.getCanonicalPath() + " (CWE-22)");
       }
     } catch (IOException e) {
       throw new SecurityException("Cannot validate path: " + e.getMessage(), e);

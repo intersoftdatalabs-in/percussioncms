@@ -24,12 +24,12 @@ Breaks the Maven reactor cycle `rest → sitemanage → rest` introduced by US8 
 
 ## Gate
 
-| Check | Result |
-|-------|--------|
-| bug findings | none |
+|                  Check                   |                                  Result                                  |
+|------------------------------------------|--------------------------------------------------------------------------|
+| bug findings                             | none                                                                     |
 | behavioral tests for moved/changed logic | retained (adaptor test moved with impl; resource + service tests remain) |
-| non-portable path/file I/O | n/a — not touched |
-| May commit/push | **yes** |
+| non-portable path/file I/O               | n/a — not touched                                                        |
+| May commit/push                          | **yes**                                                                  |
 
 ## Issues
 
@@ -56,3 +56,4 @@ _None._
 - `rest`: `RelationshipSummaryResourceTest` 4/4
 - `sitemanage`: `RelationshipSummaryAdaptorTest` 8/8 + `PSRelationshipSummaryServiceTest` 12/12
 - Reactor validate: no cycle (`rest` then `sitemanage`)
+

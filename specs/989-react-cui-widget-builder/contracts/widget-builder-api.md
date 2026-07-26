@@ -58,3 +58,4 @@ Modern React client MUST call these endpoints (typed wrappers OK). **No breaking
 
 - Non-2xx: modern UI shows recoverable message (no blank screen).
 - Validation failures: field/message list from results object—do not invent client-only package rules that contradict server.
+

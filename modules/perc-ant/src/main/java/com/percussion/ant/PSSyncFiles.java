@@ -36,10 +36,9 @@ import org.apache.tools.ant.Task;
  * source.
  */
 public class PSSyncFiles extends Task {
-  /**
-   * Creates a new file synchronization task.
-   */
+  /** Creates a new file synchronization task. */
   public PSSyncFiles() {}
+
   public void setFromdir(File fromDir) {
     m_fromDir = fromDir;
   }

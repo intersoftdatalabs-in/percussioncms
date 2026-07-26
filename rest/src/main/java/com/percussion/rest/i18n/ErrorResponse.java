@@ -24,35 +24,34 @@ import jakarta.xml.bind.annotation.XmlRootElement;
 @XmlRootElement(name = "error")
 public class ErrorResponse {
 
-    @JsonProperty("error")
-    @XmlElement
-    private String error;
+  @JsonProperty("error")
+  @XmlElement
+  private String error;
 
-    @JsonProperty("message")
-    @XmlElement
-    private String message;
+  @JsonProperty("message")
+  @XmlElement
+  private String message;
 
-    public ErrorResponse() {
-    }
+  public ErrorResponse() {}
 
-    public ErrorResponse(String error, String message) {
-        this.error = error;
-        this.message = message;
-    }
+  public ErrorResponse(String error, String message) {
+    this.error = error;
+    this.message = message;
+  }
 
-    public String getError() {
-        return error;
-    }
+  public String getError() {
+    return error;
+  }
 
-    public void setError(String error) {
-        this.error = error;
-    }
+  public void setError(String error) {
+    this.error = error;
+  }
 
-    public String getMessage() {
-        return message;
-    }
+  public String getMessage() {
+    return message;
+  }
 
-    public void setMessage(String message) {
-        this.message = message;
-    }
+  public void setMessage(String message) {
+    this.message = message;
+  }
 }

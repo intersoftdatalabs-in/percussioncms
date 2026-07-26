@@ -48,8 +48,7 @@
 			containerTypeMapping="DERBY" />
 		<!-- #548 H2 default embedded (Derby migration window retains derby entry) -->
 		<PSXJdbcDriverConfig driverName="h2"
-			className="org.h2.Driver"
-			containerTypeMapping="H2" />
+			className="org.h2.Driver" containerTypeMapping="H2" />
 	</JdbcDriverConfigs>
 	<SecurityProviders>
 		<!-- Disable old security providers <PSXSecurityProviderInstance id="0"

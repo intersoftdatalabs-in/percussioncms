@@ -15,7 +15,9 @@ test.describe("Unified Publishing UI - Runtime Editions (US5)", () => {
     await runtimeTab.click();
 
     // Verify Runtime edition views/tables
-    const runtimeContainer = page.locator(".perc-publishing-runtime-container, .perc-coming-soon");
+    const runtimeContainer = page.locator(
+      ".perc-publishing-runtime-container, .perc-coming-soon"
+    );
     await expect(runtimeContainer).toBeVisible();
   });
 });

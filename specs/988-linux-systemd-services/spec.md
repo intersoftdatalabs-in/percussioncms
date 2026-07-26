@@ -8,6 +8,7 @@
 **Related issue**: https://github.com/intersoftdatalabs-in/percussioncms/issues/962
 
 ## Module Scope
+
 - **Primary module(s)**: `modules/perc-jetty/` (CMS Jetty Linux service); `deliverytiersuite/delivery-tier-suite/delivery-tier-distribution/` (DTS Production + Staging Linux service)
 - **Secondary / integration modules**: `modules/perc-distribution-tree/` (ship CMS service assets in the distribution)
 - **AGENTS files to apply**: root `AGENTS.md`, `modules/perc-jetty/AGENTS.md`, delivery-tier-distribution README
@@ -15,6 +16,7 @@
 - **Install / upgrade impact**: distribution tree and install/ops scripts only — **no** schema, package `.ppkg`, or application API changes
 
 ## User Scenarios & Testing
+
 Each story must be independently testable.
 
 ### User Story 1 - Install CMS as a native systemd service (Priority: P1)
@@ -51,6 +53,7 @@ Operators who previously installed via init.d/chkconfig/update-rc.d can uninstal
 3. **Given** the service name is customized (not only the default PercussionCMS), **When** install/uninstall run with that name, **Then** unit and config paths use the same service name consistently.
 
 ### Edge Cases
+
 - What happens when `JAVA_HOME`, install directory, or run-as user are wrong or missing at install time?
 - How does the system handle a missing or stale PID file after a crash?
 - What happens when the operator is not root / lacks systemd privileges?
@@ -60,7 +63,9 @@ Operators who previously installed via init.d/chkconfig/update-rc.d can uninstal
 - Windows service install remains out of scope for behavioral change (existing `.bat` path).
 
 ## Requirements
+
 ### Functional Requirements
+
 - **FR-001**: Product MUST ship a documented **native systemd unit template** for the CMS Jetty service (installable by the Linux service installer).
 - **FR-002**: Linux service install MUST support installing the CMS service via **systemd** on hosts where systemd is the init system.
 - **FR-003**: Linux service install MUST retain an **init.d/SysV fallback** path for hosts without systemd (or when explicitly requested), without forcing dual registration on systemd hosts.
@@ -75,13 +80,16 @@ Operators who previously installed via init.d/chkconfig/update-rc.d can uninstal
 - **FR-012**: Windows service install scripts MUST remain functional; this feature MUST NOT regress Windows install.
 
 ### Key Entities
+
 - **Service unit**: Named systemd unit representing one CMS Jetty instance (default name PercussionCMS).
 - **Service environment config**: Environment/paths file (e.g. `/etc/default/<name>`) with JAVA_HOME, JETTY_HOME, JETTY_BASE, user, PID path.
 - **Service installer**: Linux install/uninstall script that detects init system and registers the correct artifacts.
 - **Init.d script**: Existing SysV/LSB script retained as fallback.
 
 ## Success Criteria
+
 ### Measurable Outcomes
+
 - **SC-001**: On a systemd host, a clean install + service install results in successful `systemctl start` and `systemctl is-active` active within the product-documented timeout, without manual process kill, in the standard smoke scenario.
 - **SC-002**: In a simulated slow-start scenario (startup work longer than 90 seconds but within the product max), the unit does not enter failed solely due to a short default start timeout.
 - **SC-003**: After a successful start, `journalctl -u <service>` (or documented log path) contains start-related messages or an explicit pointer to Jetty/CMS logs usable for diagnosis.
@@ -90,6 +98,7 @@ Operators who previously installed via init.d/chkconfig/update-rc.d can uninstal
 - **SC-006**: Existing init.d-only install path still documented and selectable; Windows service install path unchanged in behavior.
 
 ## Assumptions
+
 - Primary target is **Linux CMS Jetty** service (PercussionCMS / custom name), not Windows.
 - **systemd is the default** on supported modern distros; SysV/init.d remains a **fallback**, not removed in this feature.
 - Scope is **ops packaging and scripts**, not changing CMS upgrade business logic itself (DB/package upgrades may still be slow; the unit must tolerate that).
@@ -100,8 +109,10 @@ Operators who previously installed via init.d/chkconfig/update-rc.d can uninstal
 - Jetty upstream sample `jetty.service` is a reference only; Percussion must ship a unit wired to product paths and environment files.
 
 ## Out of Scope
+
 - Rewriting Jetty application logging (see #939).
 - Changing Windows `prunsrv` / `.bat` service install behavior.
 - Container orchestration (Kubernetes/Docker compose) as the primary service model.
 - Auto-migrating every existing customer unit drop-in without operator action.
 - Fixing all possible JVM hard hangs (only false timeout / inconsistent systemd state for normal long starts).
+

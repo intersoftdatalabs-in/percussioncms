@@ -315,7 +315,8 @@ public class PSSiteImporter {
     // trust store via `keytool -importcert -alias <name> -file <cert> -cacerts`.
     TrustManager[] defaultTrustManagers;
     try {
-      TrustManagerFactory tmf = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
+      TrustManagerFactory tmf =
+          TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
       tmf.init((KeyStore) null);
       defaultTrustManagers = tmf.getTrustManagers();
       if (defaultTrustManagers == null || defaultTrustManagers.length == 0) {

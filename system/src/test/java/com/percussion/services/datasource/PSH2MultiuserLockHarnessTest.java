@@ -82,11 +82,9 @@ public class PSH2MultiuserLockHarnessTest {
     Path dbDir = tempDir.resolve("h2multi");
     Files.createDirectories(dbDir);
     String path = dbDir.resolve("CMDB").toAbsolutePath().toString().replace('\\', '/');
-    // Same-JVM multi-connection file DB: disable process file lock; long lock wait for contention tests
-    String server =
-        "file:"
-            + path
-            + ";DB_CLOSE_ON_EXIT=FALSE;FILE_LOCK=NO;LOCK_TIMEOUT=10000";
+    // Same-JVM multi-connection file DB: disable process file lock; long lock wait for contention
+    // tests
+    String server = "file:" + path + ";DB_CLOSE_ON_EXIT=FALSE;FILE_LOCK=NO;LOCK_TIMEOUT=10000";
     jdbcUrl = PSJdbcUtils.getJdbcUrl(PSJdbcUtils.H2_DRIVER, server);
     Class.forName(PSJdbcUtils.H2_DRIVER_CLASS);
 
@@ -176,7 +174,13 @@ public class PSH2MultiuserLockHarnessTest {
                   }
                 } catch (Exception ex) {
                   failures.incrementAndGet();
-                  errors.add("editor-" + editor + ": " + ex.getClass().getSimpleName() + ": " + ex.getMessage());
+                  errors.add(
+                      "editor-"
+                          + editor
+                          + ": "
+                          + ex.getClass().getSimpleName()
+                          + ": "
+                          + ex.getMessage());
                 }
               }));
     }
@@ -189,17 +193,17 @@ public class PSH2MultiuserLockHarnessTest {
     assertTrue(pool.awaitTermination(30, TimeUnit.SECONDS));
 
     assertEquals(
-        EDITOR_COUNT,
-        successes.get(),
-        "All distinct checkouts should succeed; errors=" + errors);
-    assertEquals(0, failures.get(), "No editor failures expected on distinct items; errors=" + errors);
+        EDITOR_COUNT, successes.get(), "All distinct checkouts should succeed; errors=" + errors);
+    assertEquals(
+        0, failures.get(), "No editor failures expected on distinct items; errors=" + errors);
 
     // Integrity: each edited item body matches version bump
     try (Connection c = connect();
         Statement st = c.createStatement();
         ResultSet rs =
             st.executeQuery(
-                "SELECT CONTENTID, TITLE, CHECKOUTUSER, VERSION, BODY FROM CONTENT_ITEM WHERE CONTENTID <= "
+                "SELECT CONTENTID, TITLE, CHECKOUTUSER, VERSION, BODY FROM CONTENT_ITEM WHERE"
+                    + " CONTENTID <= "
                     + EDITOR_COUNT
                     + " ORDER BY CONTENTID")) {
       int count = 0;
@@ -316,7 +320,8 @@ public class PSH2MultiuserLockHarnessTest {
     try (Connection c = connect();
         Statement st = c.createStatement()) {
       st.execute(
-          "INSERT INTO OBJECT_LOCK (OBJECTID, SESSIONID, LOCKER, LOCKEDAT) VALUES (99, NULL, NULL, NULL)");
+          "INSERT INTO OBJECT_LOCK (OBJECTID, SESSIONID, LOCKER, LOCKEDAT) VALUES (99, NULL, NULL,"
+              + " NULL)");
       c.commit();
     }
 
@@ -394,8 +399,7 @@ public class PSH2MultiuserLockHarnessTest {
         }
       }
       try (PreparedStatement upd =
-          c.prepareStatement(
-              "UPDATE CONTENT_ITEM SET CHECKOUTUSER = ? WHERE CONTENTID = ?")) {
+          c.prepareStatement("UPDATE CONTENT_ITEM SET CHECKOUTUSER = ? WHERE CONTENTID = ?")) {
         upd.setString(1, user);
         upd.setInt(2, contentId);
         upd.executeUpdate();
@@ -420,7 +424,8 @@ public class PSH2MultiuserLockHarnessTest {
         int ver = rs.getInt(2);
         try (PreparedStatement upd =
             c.prepareStatement(
-                "UPDATE CONTENT_ITEM SET BODY = ?, VERSION = ? WHERE CONTENTID = ? AND CHECKOUTUSER = ?")) {
+                "UPDATE CONTENT_ITEM SET BODY = ?, VERSION = ? WHERE CONTENTID = ? AND CHECKOUTUSER"
+                    + " = ?")) {
           upd.setString(1, body);
           upd.setInt(2, ver + 1);
           upd.setInt(3, contentId);
@@ -437,7 +442,8 @@ public class PSH2MultiuserLockHarnessTest {
     try (Connection c = connect();
         PreparedStatement ps =
             c.prepareStatement(
-                "UPDATE CONTENT_ITEM SET CHECKOUTUSER = NULL WHERE CONTENTID = ? AND CHECKOUTUSER = ?")) {
+                "UPDATE CONTENT_ITEM SET CHECKOUTUSER = NULL WHERE CONTENTID = ? AND CHECKOUTUSER ="
+                    + " ?")) {
       ps.setInt(1, contentId);
       ps.setString(2, user);
       assertEquals(1, ps.executeUpdate());
@@ -450,7 +456,8 @@ public class PSH2MultiuserLockHarnessTest {
     try (Connection c = connect()) {
       try (PreparedStatement ins =
           c.prepareStatement(
-              "INSERT INTO OBJECT_LOCK (OBJECTID, SESSIONID, LOCKER, LOCKEDAT) VALUES (?, ?, ?, CURRENT_TIMESTAMP)")) {
+              "INSERT INTO OBJECT_LOCK (OBJECTID, SESSIONID, LOCKER, LOCKEDAT) VALUES (?, ?, ?,"
+                  + " CURRENT_TIMESTAMP)")) {
         ins.setInt(1, objectId);
         ins.setString(2, session);
         ins.setString(3, locker);
@@ -468,8 +475,7 @@ public class PSH2MultiuserLockHarnessTest {
       throws SQLException {
     try (Connection c = connect()) {
       try (PreparedStatement ps =
-          c.prepareStatement(
-              "SELECT LOCKER FROM OBJECT_LOCK WHERE OBJECTID = ? FOR UPDATE")) {
+          c.prepareStatement("SELECT LOCKER FROM OBJECT_LOCK WHERE OBJECTID = ? FOR UPDATE")) {
         ps.setInt(1, objectId);
         try (ResultSet rs = ps.executeQuery()) {
           if (!rs.next()) {
@@ -485,7 +491,8 @@ public class PSH2MultiuserLockHarnessTest {
       }
       try (PreparedStatement upd =
           c.prepareStatement(
-              "UPDATE OBJECT_LOCK SET SESSIONID = ?, LOCKER = ?, LOCKEDAT = CURRENT_TIMESTAMP WHERE OBJECTID = ? AND LOCKER IS NULL")) {
+              "UPDATE OBJECT_LOCK SET SESSIONID = ?, LOCKER = ?, LOCKEDAT = CURRENT_TIMESTAMP WHERE"
+                  + " OBJECTID = ? AND LOCKER IS NULL")) {
         upd.setString(1, session);
         upd.setString(2, locker);
         upd.setInt(3, objectId);
@@ -506,7 +513,8 @@ public class PSH2MultiuserLockHarnessTest {
     try (Connection c = connect();
         PreparedStatement ps =
             c.prepareStatement(
-                "UPDATE OBJECT_LOCK SET SESSIONID = NULL, LOCKER = NULL, LOCKEDAT = NULL WHERE OBJECTID = ? AND LOCKER = ?")) {
+                "UPDATE OBJECT_LOCK SET SESSIONID = NULL, LOCKER = NULL, LOCKEDAT = NULL WHERE"
+                    + " OBJECTID = ? AND LOCKER = ?")) {
       ps.setInt(1, objectId);
       ps.setString(2, locker);
       ps.executeUpdate();

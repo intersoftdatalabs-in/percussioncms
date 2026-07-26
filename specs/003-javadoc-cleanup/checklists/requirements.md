@@ -58,24 +58,24 @@
 **Baseline** (`specs/003-javadoc-cleanup/baseline-raw.txt`, captured via
 `mvn -pl modules/DesktopContentExplorer clean && mvn -pl modules/DesktopContentExplorer javadoc:javadoc -DskipTests`):
 - **0 errors** (Windows javadoc tool does not report the cross-module `{@link}` errors the
-  Linux baseline exhibited; those errors and the additional 198 raw warning lines captured
-  in the planning-time artifact remain documented in `baseline-raw.txt`'s history)
+Linux baseline exhibited; those errors and the additional 198 raw warning lines captured
+in the planning-time artifact remain documented in `baseline-raw.txt`'s history)
 - **100 warnings** (89 `no comment`, 4 `no @param for applet`, 2 `use of default constructor`,
-  2 `no main description`, 2 `no description for @param`, 1 `unknown enum constant`)
+2 `no main description`, 2 `no description for @param`, 1 `unknown enum constant`)
 
 **Post-cleanup** (`specs/003-javadoc-cleanup/post-cleanup.txt`, same command, same environment):
 - **0 errors**
 - **1 warning** (`unknown enum constant CacheConcurrencyStrategy.READ_WRITE` — unavoidable;
-  the Hibernate annotation class file is not on the module's javadoc classpath and adding it
-  would violate FR-005 "no new dependencies")
+the Hibernate annotation class file is not on the module's javadoc classpath and adding it
+would violate FR-005 "no new dependencies")
 
 **Result vs. success criteria**:
 - SC-001 (≥80% warning reduction): **99% reduction** (100 → 1) — **PASS**
 - SC-002 (0 errors): **PASS**
 - SC-003 (full module build exits 0): **PASS** — `mvn -pl modules/DesktopContentExplorer test` ran
-  the existing `PSNodeTest` (1 test) successfully; no test sources were modified per FR-009
+the existing `PSNodeTest` (1 test) successfully; no test sources were modified per FR-009
 - SC-004 (comment/whitespace-only diff): **PASS** — `git diff --stat` shows 81 files,
-  +1635/-147 lines, all comment-only; no signature, visibility, or behavior changes
++1635/-147 lines, all comment-only; no signature, visibility, or behavior changes
 
 **Files modified**: 81 files under `modules/DesktopContentExplorer/src/main/java/com/percussion/`,
 all Javadoc additions/cleanups. No pom, README, resources, or test sources touched. No new

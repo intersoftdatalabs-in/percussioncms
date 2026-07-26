@@ -33,11 +33,13 @@ Closes the three open `java/zipslip` code-scanning alerts (#720, #722, #723) by 
 ## Issues
 
 ### Issue 1 — Severity: nit
+
 - File: `system/.../PSArchiveFiles.java`
 - Description: Zip directory entries that use a trailing backslash (non-standard; ZIP always uses `/`) are not stripped before validation. Harmless on real archives.
 - Suggestion: Optional follow-up only if non-conformant archives appear in the wild.
 
 ### Issue 2 — Severity: suggestion
+
 - File: `projects/sitemanage/.../PSWidgetPackageBuilder.java`
 - Description: After `xform.transformPath`, re-validation uses `validatePathWithinDirectory` on the absolute `File`. Correct, but transformers that return paths outside `rootDir` now fail closed (good). Document that transformers must stay under `rootDir`.
 - Suggestion: Optional one-line javadoc on `setFileTransformers` — not blocking.

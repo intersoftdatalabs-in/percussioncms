@@ -82,7 +82,8 @@ public class PSConfigCutoverTest {
 
   @Test
   void shortPathDigest_isStableAndDistinct() {
-    String a = PSConfigCutover.shortPathDigest("/install/rxconfig/Installer/rxrepository.properties");
+    String a =
+        PSConfigCutover.shortPathDigest("/install/rxconfig/Installer/rxrepository.properties");
     String b = PSConfigCutover.shortPathDigest("/install/jetty/base/etc/perc-ds.properties");
     assertEquals(
         a, PSConfigCutover.shortPathDigest("/install/rxconfig/Installer/rxrepository.properties"));
@@ -98,8 +99,7 @@ public class PSConfigCutoverTest {
   void rollbackRestoresPreCutoverConfigs() throws Exception {
     Path rx = installRoot.resolve(PSConfigCutover.RXREPOSITORY_RELATIVE);
     Files.createDirectories(rx.getParent());
-    String derbyRx =
-        "DB_BACKEND=DERBY\nDB_DRIVER_NAME=derby\nDB_SERVER=//localhost:1527/CMDB\n";
+    String derbyRx = "DB_BACKEND=DERBY\nDB_DRIVER_NAME=derby\nDB_SERVER=//localhost:1527/CMDB\n";
     Files.writeString(rx, derbyRx, StandardCharsets.UTF_8);
 
     Path perc = installRoot.resolve(PSConfigCutover.PERC_DS_RELATIVE);

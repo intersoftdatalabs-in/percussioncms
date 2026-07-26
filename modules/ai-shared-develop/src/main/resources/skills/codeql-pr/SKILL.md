@@ -38,12 +38,12 @@ gh api --method PATCH repos/intersoftdatalabs-in/percussioncms/code-scanning/def
 
 ## When adding a sanitizer
 
-| Kind | Model kind string | Example type |
-|------|-------------------|--------------|
-| SSRF | `request-forgery` | `URLValidation` |
-| LDAP | `ldap-injection` | `PSJndiUtils.escapeLdapFilter` |
-| Path | `path-injection` | `PSPathInjectionGuard` |
-| XXE | `xxe` | `PSSecureXMLUtils.getSecuredSaxSource` |
+| Kind | Model kind string |              Example type              |
+|------|-------------------|----------------------------------------|
+| SSRF | `request-forgery` | `URLValidation`                        |
+| LDAP | `ldap-injection`  | `PSJndiUtils.escapeLdapFilter`         |
+| Path | `path-injection`  | `PSPathInjectionGuard`                 |
+| XXE  | `xxe`             | `PSSecureXMLUtils.getSecuredSaxSource` |
 
 Edit `.github/codeql/models/models/*.model.yml`, bump pack `version` in `codeql-pack.yml`, document in `suppressions.md` if replacing a path exclude.
 

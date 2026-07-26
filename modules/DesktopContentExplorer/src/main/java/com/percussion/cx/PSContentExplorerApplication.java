@@ -84,7 +84,9 @@ public class PSContentExplorerApplication extends Application {
     launch(args);
   }
 
-  /** The base desktop content explorer frame hosted by this application, may be <code>null</code>. */
+  /**
+   * The base desktop content explorer frame hosted by this application, may be <code>null</code>.
+   */
   private static PSContentExplorerFrame baseFrame = null;
 
   /**
@@ -300,8 +302,8 @@ public class PSContentExplorerApplication extends Application {
   }
 
   /**
-   * Gets the preferred main frame size used by the desktop content explorer. Equivalent to
-   * {@link #getDimension()}.
+   * Gets the preferred main frame size used by the desktop content explorer. Equivalent to {@link
+   * #getDimension()}.
    *
    * @return the main frame size, never <code>null</code>.
    */

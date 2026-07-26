@@ -20,10 +20,10 @@ package com.percussion.sitemanage.importer.theme;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.apache.commons.lang3.Validate.notNull;
 
+import com.percussion.security.io.PSPathInjectionGuard;
 import com.percussion.sitemanage.importer.IPSSiteImportLogger;
 import com.percussion.sitemanage.importer.IPSSiteImportLogger.PSLogEntryType;
 import com.percussion.sitemanage.importer.helpers.impl.PSImportThemeHelper;
-import com.percussion.security.io.PSPathInjectionGuard;
 import com.percussion.utils.types.PSPair;
 import java.io.File;
 import java.io.FileInputStream;

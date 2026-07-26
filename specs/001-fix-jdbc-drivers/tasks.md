@@ -225,3 +225,4 @@ With multiple developers (single-module change so not heavily parallel):
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same-file conflicts, cross-story dependencies that break independence
 - Constitution gates: I (module-first), II (evidence over invention — no invented drivers), III (tests required), V (no new frameworks / no Spring Boot), VII (no naked version strings; use parent-POM management)
+

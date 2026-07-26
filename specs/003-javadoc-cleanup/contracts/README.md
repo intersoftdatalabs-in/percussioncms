@@ -11,14 +11,14 @@ inherited from the parent POM (`pom.xml:2636-2653`, `maven-javadoc-plugin` 3.12.
 
 ### Inherited build-time contract
 
-| Aspect | Value (from parent POM) | Source |
-|--------|--------------------------|--------|
-| Plugin | `org.apache.maven.plugins:maven-javadoc-plugin` | `pom.xml:2636-2653` |
-| Version | `3.12.0` | `pom.xml:2639` |
-| `failOnError` | `false` | `pom.xml:2642` |
-| `failOnWarnings` | `false` | `pom.xml:2641` |
-| `doclint` | `all` | `pom.xml:2643` |
-| Goal bound to package phase | `jar` (execution id `attach-javadocs`) | `pom.xml:2646-2652` |
+|           Aspect            |             Value (from parent POM)             |       Source        |
+|-----------------------------|-------------------------------------------------|---------------------|
+| Plugin                      | `org.apache.maven.plugins:maven-javadoc-plugin` | `pom.xml:2636-2653` |
+| Version                     | `3.12.0`                                        | `pom.xml:2639`      |
+| `failOnError`               | `false`                                         | `pom.xml:2642`      |
+| `failOnWarnings`            | `false`                                         | `pom.xml:2641`      |
+| `doclint`                   | `all`                                           | `pom.xml:2643`      |
+| Goal bound to package phase | `jar` (execution id `attach-javadocs`)          | `pom.xml:2646-2652` |
 
 ### Forbidden changes (Constitution IV: Contract & Integration Integrity)
 

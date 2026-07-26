@@ -39,8 +39,8 @@ import org.mockito.MockitoAnnotations;
 
 /**
  * Regression tests for PSWebResourcesRestService that verify exception messages thrown by the
- * underlying file system service are not leaked back to the HTTP client (CWE-209 / CodeQL
- * {@code java/error-message-exposure}).
+ * underlying file system service are not leaked back to the HTTP client (CWE-209 / CodeQL {@code
+ * java/error-message-exposure}).
  *
  * <p>These tests follow the Constitution III fail-then-pass contract: on the pre-fix code they
  * assert that the response entity does NOT contain the sensitive exception message, so they fail
@@ -98,8 +98,9 @@ class PSWebResourcesRestServiceErrorExposureTest {
   @Test
   @DisplayName("validateFileUpload must not leak PSFileNameInUseByFolderException message")
   void testValidateFileUploadDoesNotLeakNameInUse() throws PSFileOperationException {
-    doThrow(new IPSFileSystemService.PSFileNameInUseByFolderException(
-            LEAKY_FILE_NAME_IN_USE_MESSAGE))
+    doThrow(
+            new IPSFileSystemService.PSFileNameInUseByFolderException(
+                LEAKY_FILE_NAME_IN_USE_MESSAGE))
         .when(fileSystemService)
         .validateFileUpload(anyString());
 

@@ -521,12 +521,24 @@
     var mailTo = $("#perc-formbuild-mail-to").val();
     var mailSubject = $("#perc-formbuild-mail-subject").val();
     // CodeQL js/xss-through-dom (#1430): escape DOM-sourced metadata before HTML concat.
-    var safeSuccessUrl = $("<div/>").text(successUrl || "").html();
-    var safeErrorUrl = $("<div/>").text(errorUrl || "").html();
-    var safeMetaDescription = $("<div/>").text(metaDescriptiton || "").html();
-    var safeMailTo = $("<div/>").text(mailTo || "").html();
-    var safeMailSubject = $("<div/>").text(mailSubject || "").html();
-    var safeSaveToUrl = $("<div/>").text(saveToUrl || "").html();
+    var safeSuccessUrl = $("<div/>")
+      .text(successUrl || "")
+      .html();
+    var safeErrorUrl = $("<div/>")
+      .text(errorUrl || "")
+      .html();
+    var safeMetaDescription = $("<div/>")
+      .text(metaDescriptiton || "")
+      .html();
+    var safeMailTo = $("<div/>")
+      .text(mailTo || "")
+      .html();
+    var safeMailSubject = $("<div/>")
+      .text(mailSubject || "")
+      .html();
+    var safeSaveToUrl = $("<div/>")
+      .text(saveToUrl || "")
+      .html();
     var readOnlyMetadata = $(
       "<div id='perc-form-metadata-panel'>" +
         "<div id='perc-form-edit-metadata-link' class='perc-form-spacer'>" +

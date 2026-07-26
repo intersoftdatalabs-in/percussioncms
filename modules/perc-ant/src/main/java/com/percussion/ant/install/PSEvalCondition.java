@@ -47,10 +47,9 @@ import org.apache.tools.ant.taskdefs.condition.Condition;
  * </pre>
  */
 public class PSEvalCondition extends PSAction implements Condition {
-  /**
-   * Creates a new evaluation condition task.
-   */
+  /** Creates a new evaluation condition task. */
   public PSEvalCondition() {}
+
   /* (non-Javadoc)
    * @see org.apache.tools.ant.taskdefs.condition.Condition#eval()
    */

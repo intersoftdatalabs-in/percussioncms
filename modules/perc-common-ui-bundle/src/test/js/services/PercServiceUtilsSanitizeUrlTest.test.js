@@ -57,7 +57,10 @@ describe("$.PercServiceUtils.sanitizeUrlForHref", () => {
       ["javascript: with embedded tab", "java\tscript:alert(1)"],
       ["javascript: with embedded newline", "java\nscript:alert(1)"],
       ["javascript: prefixed with DEL (\\u007f)", "\u007fjavascript:alert(1)"],
-      ["javascript: prefixed with C1 control (\\u0085)", "\u0085javascript:alert(1)"],
+      [
+        "javascript: prefixed with C1 control (\\u0085)",
+        "\u0085javascript:alert(1)",
+      ],
       ["data: URL", "data:text/html,<script>alert(1)</script>"],
       ["vbscript:", "vbscript:msgbox(1)"],
       ["file:", "file:///etc/passwd"],
@@ -147,9 +150,9 @@ describe("$.PercServiceUtils.sanitizeUrlForHref", () => {
     it("strips leading whitespace before scheme sniffing", () => {
       // The actual href value retains leading whitespace (browsers tolerate
       // it), but the scheme detection must not be tricked by it.
-      expect($.PercServiceUtils.sanitizeUrlForHref("  https://example.com")).toBe(
-        "  https://example.com"
-      );
+      expect(
+        $.PercServiceUtils.sanitizeUrlForHref("  https://example.com")
+      ).toBe("  https://example.com");
       expect(
         $.PercServiceUtils.sanitizeUrlForHref("  javascript:alert(1)")
       ).toBe("about:blank#blocked");
@@ -171,9 +174,9 @@ describe("$.PercServiceUtils.sanitizeUrlForHref", () => {
     });
 
     it("neutralizes backslash-prefixed host (some browsers treat \\\\ as //)", () => {
-      expect(
-        $.PercServiceUtils.sanitizeUrlForHref("/\\evil.example.com")
-      ).toBe("about:blank#blocked");
+      expect($.PercServiceUtils.sanitizeUrlForHref("/\\evil.example.com")).toBe(
+        "about:blank#blocked"
+      );
     });
 
     it("preserves a single leading slash (same-origin path)", () => {

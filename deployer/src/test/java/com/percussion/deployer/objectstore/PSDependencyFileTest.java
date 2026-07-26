@@ -63,7 +63,10 @@ public class PSDependencyFileTest {
         "toXml must write fileType attribute");
 
     PSDependencyFile restored = new PSDependencyFile(el);
-    assertEquals(fileType, restored.getType(), "fromXml must restore fileType for " + PSDependencyFile.TYPE_ENUM[fileType]);
+    assertEquals(
+        fileType,
+        restored.getType(),
+        "fromXml must restore fileType for " + PSDependencyFile.TYPE_ENUM[fileType]);
     assertEquals(source.getFile(), restored.getFile());
     assertEquals(source.getArchiveLocation(), restored.getArchiveLocation());
     assertNotNull(restored.getOriginalFile());
@@ -145,9 +148,7 @@ public class PSDependencyFileTest {
 
   @Test
   public void testConstructorRejectsInvalidType() {
-    assertThrows(
-        IllegalArgumentException.class,
-        () -> new PSDependencyFile(-1, new File("x")));
+    assertThrows(IllegalArgumentException.class, () -> new PSDependencyFile(-1, new File("x")));
     assertThrows(
         IllegalArgumentException.class,
         () -> new PSDependencyFile(PSDependencyFile.TYPE_ENUM.length, new File("x")));

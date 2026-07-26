@@ -1,14 +1,14 @@
 # Erlang review — content type package install workflow fixes
 
-| Field | Value |
-|-------|--------|
-| **Date** | 2026-07-17 |
-| **Branch** | `989-react-cui-widget-builder` |
-| **Scope** | Uncommitted local changes vs `HEAD` |
-| **Intent** | Fix content-type package install: inverted workflow association removal, Spring proxy cast for default workflow, empty deploy error message |
-| **Recommendation** | **approve** |
-| **Gate** | **May commit/push: yes** |
-| **Memory patterns hit** | Spring JDK proxy cast to concrete impl (hard gate family); modernization inverted condition; missing behavioral tests (avoided) |
+|          Field          |                                                                    Value                                                                    |
+|-------------------------|---------------------------------------------------------------------------------------------------------------------------------------------|
+| **Date**                | 2026-07-17                                                                                                                                  |
+| **Branch**              | `989-react-cui-widget-builder`                                                                                                              |
+| **Scope**               | Uncommitted local changes vs `HEAD`                                                                                                         |
+| **Intent**              | Fix content-type package install: inverted workflow association removal, Spring proxy cast for default workflow, empty deploy error message |
+| **Recommendation**      | **approve**                                                                                                                                 |
+| **Gate**                | **May commit/push: yes**                                                                                                                    |
+| **Memory patterns hit** | Spring JDK proxy cast to concrete impl (hard gate family); modernization inverted condition; missing behavioral tests (avoided)             |
 
 ## Summary
 
@@ -24,11 +24,11 @@ No hard-gate bugs. Cross-platform path checklist: N/A (no filesystem path logic 
 
 ## Files
 
-| Path | Role |
-|------|------|
-| `deployer/.../PSContentTypeDependencyHandler.java` | remove associations, default WF, error message, ensure inclusion |
-| `deployer/.../PSContentTypeWorkflowInstallUtils.java` | pure helpers (new) |
-| `deployer/.../PSContentTypeWorkflowInstallUtilsTest.java` | unit tests (new) |
+|                           Path                            |                               Role                               |
+|-----------------------------------------------------------|------------------------------------------------------------------|
+| `deployer/.../PSContentTypeDependencyHandler.java`        | remove associations, default WF, error message, ensure inclusion |
+| `deployer/.../PSContentTypeWorkflowInstallUtils.java`     | pure helpers (new)                                               |
+| `deployer/.../PSContentTypeWorkflowInstallUtilsTest.java` | unit tests (new)                                                 |
 
 ## Verification
 

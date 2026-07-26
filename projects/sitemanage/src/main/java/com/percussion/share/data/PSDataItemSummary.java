@@ -145,8 +145,7 @@ public class PSDataItemSummary extends PSAbstractPersistantObject implements IPS
   }
 
   public boolean isResource() {
-    return !isPage()
-        && ("percImageAsset".equals(type) || "percFileAsset".equals(type));
+    return !isPage() && ("percImageAsset".equals(type) || "percFileAsset".equals(type));
   }
 
   public Category getCategory() {

@@ -32,7 +32,7 @@ import java.util.logging.Logger;
  * XML</strong> (#548 T058).
  *
  * <p>Does <em>not</em> invent a JDBC pump. Uses product TableFactory:
-
+ *
  * <ol>
  *   <li>{@link PSCatalogTableData#exportDatabase} — catalog schema+data to staging XML
  *   <li>{@link PSJdbcTableFactory#importDatabase} — apply schema/data to target with datatype map

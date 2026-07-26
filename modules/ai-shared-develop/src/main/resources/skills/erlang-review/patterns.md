@@ -114,3 +114,4 @@ the current task:
 2. Add or reinforce a one-line principle under the right category.
 3. Do **not** dump nits or every issue from the report.
 4. Keep the briefing short (hard gates + ~15–40 recurring lines total is plenty).
+

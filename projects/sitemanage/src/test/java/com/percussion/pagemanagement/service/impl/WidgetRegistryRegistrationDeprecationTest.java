@@ -44,8 +44,7 @@ class WidgetRegistryRegistrationDeprecationTest {
     try (InputStream in =
         Thread.currentThread()
             .getContextClassLoader()
-            .getResourceAsStream(
-                "com/percussion/pagemanagement/service/impl/WidgetRegistry.xml")) {
+            .getResourceAsStream("com/percussion/pagemanagement/service/impl/WidgetRegistry.xml")) {
       assertNotNull(in, "WidgetRegistry.xml must be on the classpath");
       xml = new String(in.readAllBytes(), StandardCharsets.UTF_8);
     }
@@ -100,7 +99,8 @@ class WidgetRegistryRegistrationDeprecationTest {
         widgetText.contains("title=\"Registration (Deprecated)\""),
         "widget title must be Registration (Deprecated)");
     assertTrue(
-        widgetText.contains("description=\"Widget to build and render a registration form. (Deprecated)\"")
+        widgetText.contains(
+                "description=\"Widget to build and render a registration form. (Deprecated)\"")
             || widgetText.contains("registration form. (Deprecated)"),
         "widget description must include form. (Deprecated) suffix, not only title");
   }

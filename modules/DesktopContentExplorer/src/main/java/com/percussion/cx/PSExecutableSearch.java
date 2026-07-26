@@ -73,8 +73,8 @@ public class PSExecutableSearch extends PSWSExecutableSearch {
    *     <code>null</code>
    * @param search the search object that defines the criteria and maximum results to obtain, may
    *     not be <code>null</code>
-   * @param applet the content explorer applet used to resolve dynamic values, may not be
-   *     <code>null</code>.
+   * @param applet the content explorer applet used to resolve dynamic values, may not be <code>null
+   *     </code>.
    */
   public PSExecutableSearch(
       URL documentBaseURL,
@@ -105,8 +105,8 @@ public class PSExecutableSearch extends PSWSExecutableSearch {
    *     <code>null</code>.
    * @param contentIdList the list of content ids to search on, may not be <code>null</code> or
    *     empty.
-   * @param applet the content explorer applet used to resolve dynamic values, may not be
-   *     <code>null</code>.
+   * @param applet the content explorer applet used to resolve dynamic values, may not be <code>null
+   *     </code>.
    */
   public PSExecutableSearch(
       URL documentBaseURL,
@@ -129,8 +129,8 @@ public class PSExecutableSearch extends PSWSExecutableSearch {
    *     or empty.
    * @param search the search object that defines the criteria and maximum results to obtain, may be
    *     <code>null</code>
-   * @param applet the content explorer applet used to resolve dynamic values, may not be
-   *     <code>null</code>.
+   * @param applet the content explorer applet used to resolve dynamic values, may not be <code>null
+   *     </code>.
    */
   public PSExecutableSearch(
       URL documentBaseURL,
@@ -163,8 +163,8 @@ public class PSExecutableSearch extends PSWSExecutableSearch {
    *     </code> objects, may not be <code>null</code>.
    * @param contentIdList the list of content ids to search on, may not be <code>null</code> or
    *     empty.
-   * @param applet the content explorer applet used to resolve dynamic values, may not be
-   *     <code>null</code>.
+   * @param applet the content explorer applet used to resolve dynamic values, may not be <code>null
+   *     </code>.
    */
   public PSExecutableSearch(
       URL documentBaseURL, List columnNames, List contentIdList, PSContentExplorerApplet applet) {

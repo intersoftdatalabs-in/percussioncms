@@ -6,15 +6,15 @@
 
 ## Status summary
 
-| Area | Status |
-|------|--------|
-| CMS Jetty ee11 + parent Jakarta APIs | **Done** (pre-existing on `development`) |
-| DTS Tomcat packaging / naming / Cargo | **Done** (this branch) |
-| DTS descriptors / servlet props / Jersey 4 | **Done** (this branch) |
-| CMS shipped web.xml + jetty-ee11 Maven plugin | **Done** (this branch) |
-| Unit / module clean install (DTS suite) | **Done** — `BUILD SUCCESS` |
-| Runtime smoke (deployed CMS + DTS) | **Open** — required before closing #667 |
-| Issue body / checkbox hygiene on GitHub | **Open** — update when PR merges |
+|                     Area                      |                  Status                  |
+|-----------------------------------------------|------------------------------------------|
+| CMS Jetty ee11 + parent Jakarta APIs          | **Done** (pre-existing on `development`) |
+| DTS Tomcat packaging / naming / Cargo         | **Done** (this branch)                   |
+| DTS descriptors / servlet props / Jersey 4    | **Done** (this branch)                   |
+| CMS shipped web.xml + jetty-ee11 Maven plugin | **Done** (this branch)                   |
+| Unit / module clean install (DTS suite)       | **Done** — `BUILD SUCCESS`               |
+| Runtime smoke (deployed CMS + DTS)            | **Open** — required before closing #667  |
+| Issue body / checkbox hygiene on GitHub       | **Open** — update when PR merges         |
 
 ---
 
@@ -22,25 +22,25 @@
 
 ### A. DTS Tomcat packaging
 
-| ID | Item | Resolution |
-|----|------|------------|
-| A1 | Cargo `tomcat10x` / plugin 1.9.0 | **`cargo-maven3-plugin` 1.10.28**, `containerId=tomcat11x`; packager → `target/package` |
-| A2 | Conf tree `tomcat10/` | Renamed **`src/main/tomcat11/`**; conf `web.xml` → Servlet **6.1** |
-| A3 | Dead `tomcat9/` tree | **Removed** |
-| A4 | Windows Procrun 9/10 mismatch | **`tomcat11.exe` / `tomcat11w.exe`**; installDts + both service `.bat` aligned; unit tests added |
-| A5 | DTS `servlet.api.version` 6.0.0 | **6.1.0** |
-| A6 | WAR `web.xml` pre-Jakarta | All active DTS WARs + tests → **web-app_6_1.xsd** |
-| A7 | Jersey 3.1 vs JAX-RS 4.0 | **Jersey 4.0.2**; dropped discontinued `jaxrs-ri`; explicit `jakarta.xml.bind-api` |
-| A8 | metadata cargo `tomcat7x` | **`tomcat11x`** + `${tomcat.version}` zip |
-| A9 | DTS distribution README | Tomcat 11 / Cargo / Procrun table added |
+| ID |               Item               |                                            Resolution                                            |
+|----|----------------------------------|--------------------------------------------------------------------------------------------------|
+| A1 | Cargo `tomcat10x` / plugin 1.9.0 | **`cargo-maven3-plugin` 1.10.28**, `containerId=tomcat11x`; packager → `target/package`          |
+| A2 | Conf tree `tomcat10/`            | Renamed **`src/main/tomcat11/`**; conf `web.xml` → Servlet **6.1**                               |
+| A3 | Dead `tomcat9/` tree             | **Removed**                                                                                      |
+| A4 | Windows Procrun 9/10 mismatch    | **`tomcat11.exe` / `tomcat11w.exe`**; installDts + both service `.bat` aligned; unit tests added |
+| A5 | DTS `servlet.api.version` 6.0.0  | **6.1.0**                                                                                        |
+| A6 | WAR `web.xml` pre-Jakarta        | All active DTS WARs + tests → **web-app_6_1.xsd**                                                |
+| A7 | Jersey 3.1 vs JAX-RS 4.0         | **Jersey 4.0.2**; dropped discontinued `jaxrs-ri`; explicit `jakarta.xml.bind-api`               |
+| A8 | metadata cargo `tomcat7x`        | **`tomcat11x`** + `${tomcat.version}` zip                                                        |
+| A9 | DTS distribution README          | Tomcat 11 / Cargo / Procrun table added                                                          |
 
 ### B. CMS residuals
 
-| ID | Item | Resolution |
-|----|------|------------|
+| ID |             Item             |                                             Resolution                                              |
+|----|------------------------------|-----------------------------------------------------------------------------------------------------|
 | B1 | `jetty-maven-plugin` 11.0.26 | Parent pluginManagement → **`org.eclipse.jetty.ee11:jetty-ee11-maven-plugin`** @ `${jetty.version}` |
-| B2 | WebUI shipped `web.xml` | **Servlet 6.1** schemas (`WEB-INF`, `cm/WEB-INF`, `war/WEB-INF`) |
-| B3 | Tracker hygiene | Status comments + this checklist; formal issue checkbox edit after PR |
+| B2 | WebUI shipped `web.xml`      | **Servlet 6.1** schemas (`WEB-INF`, `cm/WEB-INF`, `war/WEB-INF`)                                    |
+| B3 | Tracker hygiene              | Status comments + this checklist; formal issue checkbox edit after PR                               |
 
 ### Tests added / updated
 
@@ -87,30 +87,31 @@ Shipping jar contains `distribution/tomcat11.exe`, `distribution/Deployment/Serv
 
 ## Key versions after residual work
 
-| Component | Version |
-|-----------|---------|
-| Jetty (CMS) | 12.1.7 ee11 |
-| Tomcat (DTS) | 11.0.22 |
-| Cargo | cargo-maven3-plugin 1.10.28 / tomcat11x |
-| Servlet API | 6.1.0 |
-| Jersey (DTS) | 4.0.2 |
-| JAX-RS API | 4.0.0 |
-| Spring | 7.0.7 |
-| Hibernate | 7.2.6.Final |
-| Java | 21 |
+|  Component   |                 Version                 |
+|--------------|-----------------------------------------|
+| Jetty (CMS)  | 12.1.7 ee11                             |
+| Tomcat (DTS) | 11.0.22                                 |
+| Cargo        | cargo-maven3-plugin 1.10.28 / tomcat11x |
+| Servlet API  | 6.1.0                                   |
+| Jersey (DTS) | 4.0.2                                   |
+| JAX-RS API   | 4.0.0                                   |
+| Spring       | 7.0.7                                   |
+| Hibernate    | 7.2.6.Final                             |
+| Java         | 21                                      |
 
 ---
 
 ## Work package map
 
-| WP | Status |
-|----|--------|
-| WP-0 Issue comment + checklist | Done (ongoing updates) |
-| WP-1 Cargo tomcat11x | Done |
-| WP-2 Rename tomcat10 / drop tomcat9 | Done |
-| WP-3 Windows Procrun alignment | Done |
-| WP-4 Servlet props + web.xml | Done |
-| WP-5 Jersey 4 | Done |
-| WP-6 CMS jetty-ee11 plugin + WebUI web.xml | Done |
-| WP-7 Build / tests / PR | In progress |
-| WP-8 Runtime smoke + close | **Blocked on lab/deploy** |
+|                     WP                     |          Status           |
+|--------------------------------------------|---------------------------|
+| WP-0 Issue comment + checklist             | Done (ongoing updates)    |
+| WP-1 Cargo tomcat11x                       | Done                      |
+| WP-2 Rename tomcat10 / drop tomcat9        | Done                      |
+| WP-3 Windows Procrun alignment             | Done                      |
+| WP-4 Servlet props + web.xml               | Done                      |
+| WP-5 Jersey 4                              | Done                      |
+| WP-6 CMS jetty-ee11 plugin + WebUI web.xml | Done                      |
+| WP-7 Build / tests / PR                    | In progress               |
+| WP-8 Runtime smoke + close                 | **Blocked on lab/deploy** |
+

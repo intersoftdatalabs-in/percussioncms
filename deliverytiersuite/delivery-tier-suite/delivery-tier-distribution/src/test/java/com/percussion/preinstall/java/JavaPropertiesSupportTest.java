@@ -23,7 +23,6 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.percussion.preinstall.java.JavaPropertiesSupport.JavaLoadResult;
-import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -46,17 +45,16 @@ class JavaPropertiesSupportTest {
 
   @Test
   void roundTripPreservesUnknownKeys() throws Exception {
-    Files.writeString(tempDir.resolve("java.properties"),
+    Files.writeString(
+        tempDir.resolve("java.properties"),
         "FOO=bar\nJAVA_HOME=" + tempDir.toAbsolutePath().resolve("old") + "\n");
     String newHome = tempDir.toAbsolutePath().resolve("jdk-21").toString();
     String newLauncher = newHome + "/bin/java";
     JavaPropertiesSupport.write(tempDir, newHome, newLauncher);
     String content = Files.readString(tempDir.resolve("java.properties"), StandardCharsets.UTF_8);
     assertTrue(content.contains("FOO=bar"), "FOO preserved: " + content);
-    assertTrue(content.contains("jdk-21"),
-        "JAVA_HOME contains new home suffix: " + content);
-    assertTrue(content.contains("bin/java"),
-        "JAVA contains new launcher suffix: " + content);
+    assertTrue(content.contains("jdk-21"), "JAVA_HOME contains new home suffix: " + content);
+    assertTrue(content.contains("bin/java"), "JAVA contains new launcher suffix: " + content);
   }
 
   @Test
@@ -69,28 +67,30 @@ class JavaPropertiesSupportTest {
     assertEquals(home, result.properties().get("JAVA_HOME"));
     String inferredLauncher = result.properties().get("JAVA");
     assertNotNull(inferredLauncher);
-    assertTrue(inferredLauncher.startsWith(home), "launcher derived under home: " + inferredLauncher);
-    assertTrue(inferredLauncher.endsWith("java") || inferredLauncher.endsWith("java.exe"),
+    assertTrue(
+        inferredLauncher.startsWith(home), "launcher derived under home: " + inferredLauncher);
+    assertTrue(
+        inferredLauncher.endsWith("java") || inferredLauncher.endsWith("java.exe"),
         "launcher suffix on " + inferredLauncher);
   }
 
   @Test
   void writeRejectsRelativeJavaHome() {
     String rel = "relative/JRE";
-    assertThrows(IllegalArgumentException.class,
-        () -> JavaPropertiesSupport.write(tempDir, rel, null));
+    assertThrows(
+        IllegalArgumentException.class, () -> JavaPropertiesSupport.write(tempDir, rel, null));
   }
 
   @Test
   void writeRejectsEmptyJavaHome() {
-    assertThrows(IllegalArgumentException.class,
-        () -> JavaPropertiesSupport.write(tempDir, "", null));
+    assertThrows(
+        IllegalArgumentException.class, () -> JavaPropertiesSupport.write(tempDir, "", null));
   }
 
   @Test
   void writeRejectsNullJavaHome() {
-    assertThrows(IllegalArgumentException.class,
-        () -> JavaPropertiesSupport.write(tempDir, null, null));
+    assertThrows(
+        IllegalArgumentException.class, () -> JavaPropertiesSupport.write(tempDir, null, null));
   }
 
   @Test
@@ -110,8 +110,8 @@ class JavaPropertiesSupportTest {
   @Test
   void mergePreservingAddsWithoutClobberingExisting() throws Exception {
     Files.writeString(tempDir.resolve("java.properties"), "FOO=keep\n");
-    Map<String, String> merged = JavaPropertiesSupport.mergePreserving(tempDir,
-        Map.of("BAR", "added", "FOO", "ignored"));
+    Map<String, String> merged =
+        JavaPropertiesSupport.mergePreserving(tempDir, Map.of("BAR", "added", "FOO", "ignored"));
     assertEquals("keep", merged.get("FOO"));
     assertEquals("added", merged.get("BAR"));
   }

@@ -40,7 +40,9 @@ function loadSafeThumbnailSrc(srcPath) {
     throw new Error("Could not parse safeThumbnailSrc body from " + srcPath);
   }
   // eslint-disable-next-line no-new-func
-  return new Function("return (" + endMatch[0].trim().replace(/;$/, "") + ")")();
+  return new Function(
+    "return (" + endMatch[0].trim().replace(/;$/, "") + ")"
+  )();
 }
 
 describe.each(PACKAGE_COPIES.map((p) => [p.split("/").slice(-5).join("/"), p]))(

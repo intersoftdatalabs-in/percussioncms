@@ -156,11 +156,11 @@
 
 ### Phase dependencies
 
-- **Phase 1 (Setup)**: no dependencies  
-- **Phase 2 (Foundational)**: after Setup; **blocks** US1–US3  
-- **Phase 3 (US1 Home)**: after Foundational  
-- **Phase 4 (US2 Widget Builder)**: after Foundational; preferably after US1 PR checkpoint (constitution story order) but code-independent of Home sections  
-- **Phase 5 (US3 Removal)**: after US1 and US2 production paths are live on the feature branch (must not delete classic while still mapped); **required before any shippable merge**  
+- **Phase 1 (Setup)**: no dependencies
+- **Phase 2 (Foundational)**: after Setup; **blocks** US1–US3
+- **Phase 3 (US1 Home)**: after Foundational
+- **Phase 4 (US2 Widget Builder)**: after Foundational; preferably after US1 PR checkpoint (constitution story order) but code-independent of Home sections
+- **Phase 5 (US3 Removal)**: after US1 and US2 production paths are live on the feature branch (must not delete classic while still mapped); **required before any shippable merge**
 - **Phase 6 (Polish)**: after US3 (or in parallel with late US3 docs once deletes are done)
 
 ### User story dependencies
@@ -174,21 +174,21 @@ Setup → Foundational → US1 (Home) → US2 (WB) → US3 (Removal) → Polish
 
 ### Within each story
 
-1. Tests (can start [P] with stubs)  
-2. Components / API usage  
-3. Shell JSP + `index.jsp` rewire  
-4. Test green  
-5. PR checkpoint  
+1. Tests (can start [P] with stubs)
+2. Components / API usage
+3. Shell JSP + `index.jsp` rewire
+4. Test green
+5. PR checkpoint
 
 ### Parallel opportunities
 
-- T006 || T007 (Home API vs WB API modules)  
-- T012–T014 Home tests in parallel  
-- T015–T018 Home sections in parallel after shell scaffold  
-- T028–T030 WB tests in parallel  
-- T031–T032 WB shell/list in parallel  
-- T043–T046 deletes can be parallelized carefully after rewires verified  
-- T054 || T055 polish items  
+- T006 || T007 (Home API vs WB API modules)
+- T012–T014 Home tests in parallel
+- T015–T018 Home sections in parallel after shell scaffold
+- T028–T030 WB tests in parallel
+- T031–T032 WB shell/list in parallel
+- T043–T046 deletes can be parallelized carefully after rewires verified
+- T054 || T055 polish items
 
 ---
 
@@ -225,57 +225,57 @@ Task: T032 DefinitionList.tsx
 
 ### MVP (recommended first delivery slice)
 
-1. Phase 1–2 complete  
-2. **US1 only**: modern Home with four sections + tests + view rewire  
-3. Validate SC-001 / deep links on a feature build  
+1. Phase 1–2 complete
+2. **US1 only**: modern Home with four sections + tests + view rewire
+3. Validate SC-001 / deep links on a feature build
 
 ### Incremental delivery to release
 
-1. US1 PR → review/merge stack  
-2. US2 PR → modern WB  
-3. US3 PR → hard delete + unavailable surface + inventory sign-off  
-4. Polish + quickstart smoke + **main-nav checklist (T056a)** + unmapped-path UAT (T056b) + **i18n key checklist (T056c / SC-008)**  
+1. US1 PR → review/merge stack
+2. US2 PR → modern WB
+3. US3 PR → hard delete + unavailable surface + inventory sign-off
+4. Polish + quickstart smoke + **main-nav checklist (T056a)** + unmapped-path UAT (T056b) + **i18n key checklist (T056c / SC-008)**
 5. Merge/release only when US1+US2+US3 present on the shippable train (FR-008 big-bang)—never US1/US2 alone
 
 ### Story independence
 
-| Story | Independently testable when |
-|-------|----------------------------|
-| US1 | `view=home` mounts React shell; sections work without WB |
-| US2 | `view=widgetbuilder` mounts React WB; server APIs unchanged |
-| US3 | Inventory + absence of classic trees; modern paths still green |
+| Story |                  Independently testable when                   |
+|-------|----------------------------------------------------------------|
+| US1   | `view=home` mounts React shell; sections work without WB       |
+| US2   | `view=widgetbuilder` mounts React WB; server APIs unchanged    |
+| US3   | Inventory + absence of classic trees; modern paths still green |
 
 ---
 
 ## Notes
 
-- **Do not** rewrite classic `home.jsp` / `widgetBuilder.jsp` as modern hosts (FR-017).  
-- **Do not** remove `perc_widget_library` or platform jQuery without inventory proof.  
-- **Do not** change Widget Builder package generation server algorithms unless fixing a blocking bug.  
-- **Do not** ship Home/WB user-visible chrome as English-only hardcoded React strings—use TMX + `I18N.message` (FR-021/023).  
-- Shell JSP final filenames are implementer choice; update inventory and tasks paths if names differ.  
-- Dual trees `cm/app` and `cm/pages` must stay in sync for rewire/delete.  
+- **Do not** rewrite classic `home.jsp` / `widgetBuilder.jsp` as modern hosts (FR-017).
+- **Do not** remove `perc_widget_library` or platform jQuery without inventory proof.
+- **Do not** change Widget Builder package generation server algorithms unless fixing a blocking bug.
+- **Do not** ship Home/WB user-visible chrome as English-only hardcoded React strings—use TMX + `I18N.message` (FR-021/023).
+- Shell JSP final filenames are implementer choice; update inventory and tasks paths if names differ.
+- Dual trees `cm/app` and `cm/pages` must stay in sync for rewire/delete.
 - Prefer key names under `perc.ui.home…` / `perc.ui.widgetbuilder…` (or existing peer prefixes) when adding units to `CmsUi.tmx`.
 
 ---
 
 ## Task summary
 
-| Phase | Tasks | Count |
-|-------|-------|-------|
-| Setup | T001–T004 (+ T003a) | 5 |
-| Foundational | T005–T011 (+ T010a) | 8 |
-| US1 Home | T012–T027 (+ T020a) | 17 |
-| US2 Widget Builder | T028–T040 (+ T034a) | 14 |
-| US3 Removal | T041–T053 (+ T050a/b/c) | 16 |
-| Polish | T054–T058 (+ T056a/b/c) | 8 |
-| **Total** | base + i18n/remediation suffixes | **~68** |
+|       Phase        |              Tasks               |  Count  |
+|--------------------|----------------------------------|---------|
+| Setup              | T001–T004 (+ T003a)              | 5       |
+| Foundational       | T005–T011 (+ T010a)              | 8       |
+| US1 Home           | T012–T027 (+ T020a)              | 17      |
+| US2 Widget Builder | T028–T040 (+ T034a)              | 14      |
+| US3 Removal        | T041–T053 (+ T050a/b/c)          | 16      |
+| Polish             | T054–T058 (+ T056a/b/c)          | 8       |
+| **Total**          | base + i18n/remediation suffixes | **~68** |
 
-| Story | Task IDs | Count |
-|-------|----------|-------|
-| US1 | T012–T027, T020a | 17 |
-| US2 | T028–T040, T034a | 14 |
-| US3 | T041–T053, T050a/b/c | 16 |
+| Story |       Task IDs       | Count |
+|-------|----------------------|-------|
+| US1   | T012–T027, T020a     | 17    |
+| US2   | T028–T040, T034a     | 14    |
+| US3   | T041–T053, T050a/b/c | 16    |
 
 **MVP scope**: Phases 1–2 + US1 (through T027, including T010a/T020a/T021 tmx)—feature-branch only; not shippable without US2+US3.  
 **Format validation**: All tasks use `- [ ]`, IDs, story labels on US phases only, and concrete file paths.

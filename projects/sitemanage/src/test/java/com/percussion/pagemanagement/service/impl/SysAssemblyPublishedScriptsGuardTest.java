@@ -36,8 +36,7 @@ import org.junit.jupiter.api.Test;
 class SysAssemblyPublishedScriptsGuardTest {
 
   private static final Path REL =
-      Path.of(
-          "system/cms/content/applications/sys_resources/ApplicationFiles/vm/sys_assembly.vm");
+      Path.of("system/cms/content/applications/sys_resources/ApplicationFiles/vm/sys_assembly.vm");
 
   @Test
   void bodyCloseAndDeliveryScriptsNotGatedByIncludeOnPublishedPage() throws Exception {
@@ -45,8 +44,7 @@ class SysAssemblyPublishedScriptsGuardTest {
 
     // jquery-ui edit/preview branches must not require includeOnPublishedPage
     assertFalse(
-        Pattern.compile(
-                "isEditMode\\(\\)\\s*&&\\s*\\(\\$includeOnPublishedPage\\s*!=\\s*\"no\"\\)")
+        Pattern.compile("isEditMode\\(\\)\\s*&&\\s*\\(\\$includeOnPublishedPage\\s*!=\\s*\"no\"\\)")
             .matcher(vm)
             .find(),
         "edit-mode jquery-ui branch must not gate on includeOnPublishedPage");
@@ -82,8 +80,7 @@ class SysAssemblyPublishedScriptsGuardTest {
     String vm = readAssemblyVm();
     // Macro body must start processing instances without an outer includeOnPublishedPage if
     assertTrue(
-        Pattern.compile(
-                "#macro\\(print_jqueryUI\\s+\\$location_name\\)##\\s*#set\\(\\$instances")
+        Pattern.compile("#macro\\(print_jqueryUI\\s+\\$location_name\\)##\\s*#set\\(\\$instances")
             .matcher(vm)
             .find(),
         "print_jqueryUI must not open with includeOnPublishedPage guard");

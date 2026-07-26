@@ -13,16 +13,16 @@ PR CodeQL check reported:
 
 ## Disposition
 
-| Finding | Action | Status |
-|---------|--------|--------|
-| #1847 SSRF | Extended sink-line `// codeql[java/ssrf]`; suppressions.md row; API dismiss as false positive | Done |
-| Login open-redirect | Runtime fix: `resolveSafePostLoginRedirect` → `PSRedirectValidation` + URI rebuild; sink-line residual; tests | Done |
+|       Finding       |                                                    Action                                                     | Status |
+|---------------------|---------------------------------------------------------------------------------------------------------------|--------|
+| #1847 SSRF          | Extended sink-line `// codeql[java/ssrf]`; suppressions.md row; API dismiss as false positive                 | Done   |
+| Login open-redirect | Runtime fix: `resolveSafePostLoginRedirect` → `PSRedirectValidation` + URI rebuild; sink-line residual; tests | Done   |
 
 ## Gate
 
-**Recommendation**: approve  
+**Recommendation**: approve
 
-**Gate**: pass  
+**Gate**: pass
 
 - Behavioral tests added and green (`PSLoginServletTest` 5/5)
 - No non-portable path I/O
@@ -45,3 +45,4 @@ None blocking.
 ./mvn-env.sh -pl system -Dtest=PSLoginServletTest -Dai.integrity.skip=true test
 # Tests run: 5, Failures: 0, Errors: 0
 ```
+

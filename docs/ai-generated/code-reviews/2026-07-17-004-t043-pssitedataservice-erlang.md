@@ -14,7 +14,9 @@ Fix closes CodeQL alert #1058 (`java/path-injection`) at
 and `newSiteName` **before** any `File` construction in
 `updateThumbnailCache`. The validator is the shared helper introduced
 by commit `78f0cca57` (PR #1207) and reused by PSThemeService (PR
-#1208), PSRegionCSSFileService (PR #1209), PSFileSystemService
+
+# 1208), PSRegionCSSFileService (PR #1209), PSFileSystemService
+
 (PR #1210), PSLocalCommandHandler (PR #1261), and PSSiteConfigUtils
 (PR #1296) — the pattern is the canonical T043 fix. The 9 new
 behavioral tests invoke the private `updateThumbnailCache` via
@@ -38,17 +40,17 @@ critical invariant for path-traversal defense, and it is satisfied.
 
 `PSSiteDataServicePathInjectionTest` has 9 tests:
 
-| # | Test | Behavior verified |
-|---|------|-------------------|
-| 1 | `testRejectsTraversalInOldSiteName` | `"../../../etc/passwd"` → IAE with message containing `"path"` |
-| 2 | `testRejectsTraversalInNewSiteName` | `"../escape"` → IAE |
-| 3 | `testRejectsForwardSlashInSiteName` | `"foo/bar"` → IAE (both positions) |
-| 4 | `testRejectsBackslashInSiteName` | `"foo\\bar"` → IAE |
-| 5 | `testRejectsAbsolutePathInSiteName` | `"/etc/passwd"` → IAE |
-| 6 | `testRejectsNullAndEmptySiteName` | null + empty in both positions → IAE |
-| 7 | `testRejectsNulInSiteName` | `"good\0site"` → IAE (both positions) |
-| 8 | `testRejectsSingleDotOrDotDot` | `"."` and `".."` → IAE (both positions) |
-| 9 | `testAcceptsSiteNameWithPunctuation` | `"MySite"`, `"my-site_v1.0"` → no IAE (sanity) |
+| # |                 Test                 |                       Behavior verified                        |
+|---|--------------------------------------|----------------------------------------------------------------|
+| 1 | `testRejectsTraversalInOldSiteName`  | `"../../../etc/passwd"` → IAE with message containing `"path"` |
+| 2 | `testRejectsTraversalInNewSiteName`  | `"../escape"` → IAE                                            |
+| 3 | `testRejectsForwardSlashInSiteName`  | `"foo/bar"` → IAE (both positions)                             |
+| 4 | `testRejectsBackslashInSiteName`     | `"foo\\bar"` → IAE                                             |
+| 5 | `testRejectsAbsolutePathInSiteName`  | `"/etc/passwd"` → IAE                                          |
+| 6 | `testRejectsNullAndEmptySiteName`    | null + empty in both positions → IAE                           |
+| 7 | `testRejectsNulInSiteName`           | `"good\0site"` → IAE (both positions)                          |
+| 8 | `testRejectsSingleDotOrDotDot`       | `"."` and `".."` → IAE (both positions)                        |
+| 9 | `testAcceptsSiteNameWithPunctuation` | `"MySite"`, `"my-site_v1.0"` → no IAE (sanity)                 |
 
 All assertions use `assertThrows(IllegalArgumentException.class, ...)`
 — behavioral, fail-then-pass. The single sanity test exercises the
@@ -143,18 +145,18 @@ environment the pre-fix call would proceed past `new File(...)` to
 because the deploy dir / static `RX_DIR` is uninitialized — see
 `PathUtils.getRxDir(null)` at `modules/utils/src/main/java/com/percussion/utils/io/PathUtils.java:66`).
 
-| Input (`old`, `new`) | Pre-fix | Post-fix | Correct? |
-|----------------------|---------|----------|----------|
-| `"MySite", "MySiteRenamed"` | throws from `PSServer.getRxDir()` (env-dependent) | throws from `PSServer.getRxDir()` (env-dependent) | yes — happy path unchanged |
-| `"../../../etc/passwd", "x"` | File built, then throws at PSServer | IAE from validator at line 498 | yes — reject before sink |
-| `"foo/bar", "goodSite"` | File built, then throws at PSServer | IAE from validator | yes |
-| `"goodSite", "foo\\bar"` | File built (Windows-only concern) | IAE from validator | yes |
-| `"/etc/passwd", "goodSite"` | File built (absolute), then throws at PSServer | IAE from validator | yes |
-| `null, "goodSite"` | File built with "null" string, then throws at PSServer | IAE from validator | yes |
-| `"goodSite", null` | File built with "null" string | IAE from validator | yes |
-| `".", "goodSite"` | File built for "." | IAE from validator | yes |
-| `"..", "goodSite"` | File built for ".." — **would have escaped cache dir** | IAE from validator | yes — closes the actual CodeQL sink |
-| `"good\0site", "x"` | File built with NUL, downstream would throw on rename | IAE from validator | yes |
+|     Input (`old`, `new`)     |                        Pre-fix                         |                     Post-fix                      |              Correct?               |
+|------------------------------|--------------------------------------------------------|---------------------------------------------------|-------------------------------------|
+| `"MySite", "MySiteRenamed"`  | throws from `PSServer.getRxDir()` (env-dependent)      | throws from `PSServer.getRxDir()` (env-dependent) | yes — happy path unchanged          |
+| `"../../../etc/passwd", "x"` | File built, then throws at PSServer                    | IAE from validator at line 498                    | yes — reject before sink            |
+| `"foo/bar", "goodSite"`      | File built, then throws at PSServer                    | IAE from validator                                | yes                                 |
+| `"goodSite", "foo\\bar"`     | File built (Windows-only concern)                      | IAE from validator                                | yes                                 |
+| `"/etc/passwd", "goodSite"`  | File built (absolute), then throws at PSServer         | IAE from validator                                | yes                                 |
+| `null, "goodSite"`           | File built with "null" string, then throws at PSServer | IAE from validator                                | yes                                 |
+| `"goodSite", null`           | File built with "null" string                          | IAE from validator                                | yes                                 |
+| `".", "goodSite"`            | File built for "."                                     | IAE from validator                                | yes                                 |
+| `"..", "goodSite"`           | File built for ".." — **would have escaped cache dir** | IAE from validator                                | yes — closes the actual CodeQL sink |
+| `"good\0site", "x"`          | File built with NUL, downstream would throw on rename  | IAE from validator                                | yes                                 |
 
 ## Fail-then-pass verification
 

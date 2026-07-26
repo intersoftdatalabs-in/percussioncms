@@ -29,8 +29,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /**
- * Bridge object exposed to the embedded web view's JavaScript as {@code java}. Provides methods
- * for logging, opening and closing windows, saving files and accessing the system clipboard.
+ * Bridge object exposed to the embedded web view's JavaScript as {@code java}. Provides methods for
+ * logging, opening and closing windows, saving files and accessing the system clipboard.
  */
 public class PSJavaBridge implements ClipboardOwner {
 

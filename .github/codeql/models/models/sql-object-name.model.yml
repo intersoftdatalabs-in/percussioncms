@@ -5,8 +5,58 @@ extensions:
       pack: codeql/java-all
       extensible: barrierModel
     data:
-      - ["com.percussion.security", "SecureStringUtils", false, "requireSqlObjectName", "(String)", "", "ReturnValue", "sql-injection", "manual"]
-      - ["com.percussion.security", "SecureStringUtils", false, "requireSqlObjectNameOrNull", "(String)", "", "ReturnValue", "sql-injection", "manual"]
-      - ["com.percussion.security", "SecureStringUtils", false, "requireSafeMetadataToken", "(String)", "", "ReturnValue", "sql-injection", "manual"]
-      - ["com.percussion.security", "SecureStringUtils", false, "requireSingleSqlStatement", "(String)", "", "ReturnValue", "sql-injection", "manual"]
-      - ["com.percussion.security", "SecureStringUtils", false, "requireFactorySqlStatement", "(String)", "", "ReturnValue", "sql-injection", "manual"]
+      - [
+          "com.percussion.security",
+          "SecureStringUtils",
+          false,
+          "requireSqlObjectName",
+          "(String)",
+          "",
+          "ReturnValue",
+          "sql-injection",
+          "manual",
+        ]
+      - [
+          "com.percussion.security",
+          "SecureStringUtils",
+          false,
+          "requireSqlObjectNameOrNull",
+          "(String)",
+          "",
+          "ReturnValue",
+          "sql-injection",
+          "manual",
+        ]
+      - [
+          "com.percussion.security",
+          "SecureStringUtils",
+          false,
+          "requireSafeMetadataToken",
+          "(String)",
+          "",
+          "ReturnValue",
+          "sql-injection",
+          "manual",
+        ]
+      - [
+          "com.percussion.security",
+          "SecureStringUtils",
+          false,
+          "requireSingleSqlStatement",
+          "(String)",
+          "",
+          "ReturnValue",
+          "sql-injection",
+          "manual",
+        ]
+      - [
+          "com.percussion.security",
+          "SecureStringUtils",
+          false,
+          "requireFactorySqlStatement",
+          "(String)",
+          "",
+          "ReturnValue",
+          "sql-injection",
+          "manual",
+        ]

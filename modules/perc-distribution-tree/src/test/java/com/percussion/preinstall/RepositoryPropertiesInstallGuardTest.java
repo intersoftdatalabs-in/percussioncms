@@ -33,9 +33,7 @@ class RepositoryPropertiesInstallGuardTest {
   void repositoryPropertiesTargetIsGatedByDoInstall() throws Exception {
     String xml;
     try (InputStream in =
-        getClass()
-            .getResourceAsStream(
-                "/distribution/rxconfig/Installer/installRepository.xml")) {
+        getClass().getResourceAsStream("/distribution/rxconfig/Installer/installRepository.xml")) {
       // Resource may live only under main resources — read via filesystem relative to module
       if (in == null) {
         xml =
@@ -49,8 +47,7 @@ class RepositoryPropertiesInstallGuardTest {
     }
 
     assertTrue(
-        xml.contains("name=\"repository_properties\""),
-        "repository_properties target must exist");
+        xml.contains("name=\"repository_properties\""), "repository_properties target must exist");
     // Fresh-install apply block must check do.install
     assertTrue(
         xml.contains("<istrue value=\"${do.install}\" />")
@@ -61,14 +58,10 @@ class RepositoryPropertiesInstallGuardTest {
         xml.contains("arg2=\"oracle\""), "oracle branch required for new-install db targets");
     // Connection validation wired and excluded for embedded H2/Derby new installs (#548)
     assertTrue(
-        xml.contains("PSValidateRepositoryConnection"),
-        "connection validation task must be wired");
+        xml.contains("PSValidateRepositoryConnection"), "connection validation task must be wired");
+    assertTrue(xml.contains("arg2=\"h2\""), "validation must exclude default h2 new installs");
     assertTrue(
-        xml.contains("arg2=\"h2\""),
-        "validation must exclude default h2 new installs");
-    assertTrue(
-        xml.contains("arg2=\"derby\""),
-        "validation must still exclude legacy derby new installs");
+        xml.contains("arg2=\"derby\""), "validation must still exclude legacy derby new installs");
   }
 
   @Test

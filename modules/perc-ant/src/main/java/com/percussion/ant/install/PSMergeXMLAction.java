@@ -64,9 +64,7 @@ import org.xml.sax.SAXException;
  */
 public class PSMergeXMLAction extends PSAction {
 
-  /**
-   * Creates a new action instance with default settings.
-   */
+  /** Creates a new action instance with default settings. */
   public PSMergeXMLAction() {}
 
   // see base class

@@ -1,14 +1,14 @@
 # Erlang review — keyword install Hibernate version / UnexpectedRollbackException
 
-| Field | Value |
-|-------|--------|
-| **Date** | 2026-07-18 |
-| **Branch** | `989-react-cui-widget-builder` |
-| **Scope** | Uncommitted local changes vs `HEAD` |
-| **Intent** | Fix perc.openGraphWidget (and similar) package install: `UnexpectedRollbackException` on keyword install |
-| **Recommendation** | **approve** |
-| **Gate** | **May commit/push: yes** |
-| **Memory patterns hit** | Forced Hibernate `@Version` bump before merge; Spring proxy / rollback masking root cause |
+|          Field          |                                                  Value                                                   |
+|-------------------------|----------------------------------------------------------------------------------------------------------|
+| **Date**                | 2026-07-18                                                                                               |
+| **Branch**              | `989-react-cui-widget-builder`                                                                           |
+| **Scope**               | Uncommitted local changes vs `HEAD`                                                                      |
+| **Intent**              | Fix perc.openGraphWidget (and similar) package install: `UnexpectedRollbackException` on keyword install |
+| **Recommendation**      | **approve**                                                                                              |
+| **Gate**                | **May commit/push: yes**                                                                                 |
+| **Memory patterns hit** | Forced Hibernate `@Version` bump before merge; Spring proxy / rollback masking root cause                |
 
 ## Summary
 

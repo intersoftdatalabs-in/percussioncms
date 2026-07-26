@@ -42,6 +42,7 @@ component); `npx tsc --noEmit` is clean; no new bugs introduced.
 ## Findings (open nits, not blocking)
 
 ### Nit 1
+
 - **File:** `siteWorkspaceBadConfig.test.tsx:144-148` (now
   with the hardening assertion at line ~155).
 - **Description:** (already addressed by the author after this
@@ -50,6 +51,7 @@ component); `npx tsc --noEmit` is clean; no new bugs introduced.
   future swap of helpers could leave both strings in the document.
 
 ### Nit 2
+
 - **File:** `SiteWorkspace.tsx:97-105` (`caughtErrorMessage`).
 - **Description:** for the generic `error` state,
   `caughtErrorMessage` returns `result.message` verbatim, which

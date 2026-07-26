@@ -6,13 +6,13 @@ Per spec 994 (`specs/994-python-build-scripts/spec.md`): the original `.sh` wrap
 
 ## Layout
 
-| Path | Purpose |
-|------|---------|
-| `cms/` | Dockerfile + image for the cms-dts container |
-| `dev-data/` | Persistent bind-mount volume (CMS install + DB) |
-| `entrypoint/` | Container-side startup scripts (run inside the cms-dts image) |
-| `scripts/` | Host-side operator control (CLI for `docker compose` + auxiliary tools) |
-| `logs/` | Timestamped log files written by `perc-devctl.py` |
+|     Path      |                                 Purpose                                 |
+|---------------|-------------------------------------------------------------------------|
+| `cms/`        | Dockerfile + image for the cms-dts container                            |
+| `dev-data/`   | Persistent bind-mount volume (CMS install + DB)                         |
+| `entrypoint/` | Container-side startup scripts (run inside the cms-dts image)           |
+| `scripts/`    | Host-side operator control (CLI for `docker compose` + auxiliary tools) |
+| `logs/`       | Timestamped log files written by `perc-devctl.py`                       |
 
 ## Host-side scripts
 

@@ -16,14 +16,11 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.tools.ant.BuildException;
 
-/**
- * Executes a SQL statement to check for duplicate templates and removes them if none are found.
- */
+/** Executes a SQL statement to check for duplicate templates and removes them if none are found. */
 public class PSExecSQLCheckDupTemplates extends PSExecSQLStmt {
-  /**
-   * Creates a new SQL check duplicate templates statement.
-   */
+  /** Creates a new SQL check duplicate templates statement. */
   public PSExecSQLCheckDupTemplates() {}
+
   private static final Logger log = LogManager.getLogger(PSExecSQLCheckDupTemplates.class);
   private String qualifyingTableName = "";
   private String qualifyingTableNameDelete = "";
@@ -145,8 +142,7 @@ public class PSExecSQLCheckDupTemplates extends PSExecSQLStmt {
   /**
    * Sets the qualifying table name for delete operations.
    *
-   * @param qualifyingTableNameDelete the qualifying table name for delete, may be
-   *     <code>null</code>
+   * @param qualifyingTableNameDelete the qualifying table name for delete, may be <code>null</code>
    */
   public void setQualifyingTableNameDelete(String qualifyingTableNameDelete) {
     if (qualifyingTableNameDelete == null) qualifyingTableNameDelete = "";

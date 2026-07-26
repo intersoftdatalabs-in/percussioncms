@@ -33,22 +33,22 @@ import java.util.zip.ZipFile;
 import java.util.zip.ZipInputStream;
 
 /**
- * Verifies that the assembled Percussion distribution artifact contains a valid, non-empty
- * {@code jetty/base/lib/jdbc/} directory with real JDBC driver JARs.
+ * Verifies that the assembled Percussion distribution artifact contains a valid, non-empty {@code
+ * jetty/base/lib/jdbc/} directory with real JDBC driver JARs.
  *
- * <p>Java port of {@code modules/perc-distribution-tree/scripts/verify-jdbc-drivers.sh},
- * bound to the Maven {@code verify} phase via {@code exec-maven-plugin:java} so the build gate
- * runs identically on Windows, Linux, and macOS. See
- * {@code modules/perc-distribution-tree/scripts/README.md} and root {@code AGENTS.md} cross-platform
+ * <p>Java port of {@code modules/perc-distribution-tree/scripts/verify-jdbc-drivers.sh}, bound to
+ * the Maven {@code verify} phase via {@code exec-maven-plugin:java} so the build gate runs
+ * identically on Windows, Linux, and macOS. See {@code
+ * modules/perc-distribution-tree/scripts/README.md} and root {@code AGENTS.md} cross-platform
  * rules.
  *
  * <p>Logical exit codes match the original POSIX script (and {@code run(String[])} return values)
  * so unit tests and the Python operator port stay aligned. The {@code main} method must
  * <strong>not</strong> call {@link System#exit} when invoked via {@code exec-maven-plugin:java}:
- * that goal runs in the Maven JVM, so {@code System.exit(0)} after a successful check aborts
- * the reactor mid-verify (no install, no later modules). Non-zero results throw so the mojo
- * fails the build; zero returns normally. Forked CLI runs that need process exit codes can pass
- * {@code -Dperc.build.gate.systemExit=true}.
+ * that goal runs in the Maven JVM, so {@code System.exit(0)} after a successful check aborts the
+ * reactor mid-verify (no install, no later modules). Non-zero results throw so the mojo fails the
+ * build; zero returns normally. Forked CLI runs that need process exit codes can pass {@code
+ * -Dperc.build.gate.systemExit=true}.
  */
 public final class VerifyJdbcDrivers {
 
@@ -179,7 +179,8 @@ public final class VerifyJdbcDrivers {
         }
         if (!missing.isEmpty()) {
           System.err.println(
-              "ERROR: expected driver(s) missing from jetty/base/lib/jdbc/:" + String.join(" ", missing));
+              "ERROR: expected driver(s) missing from jetty/base/lib/jdbc/:"
+                  + String.join(" ", missing));
           return EXIT_EXPECTED_MISSING;
         }
       }
@@ -194,7 +195,8 @@ public final class VerifyJdbcDrivers {
         }
         if (!missingGlobs.isEmpty()) {
           System.err.println(
-              "ERROR: no JAR matched any of expected driver globs:" + String.join(" ", missingGlobs));
+              "ERROR: no JAR matched any of expected driver globs:"
+                  + String.join(" ", missingGlobs));
           return EXIT_EXPECTED_MISSING;
         }
       }
@@ -284,9 +286,9 @@ public final class VerifyJdbcDrivers {
    * short backoff and clear the target between attempts so a partial prior iteration does not
    * contaminate the next one.
    *
-   * <p>Case-insensitive Windows path: the fat jar bundles both a top-level {@code LICENSE} file and a
-   * top-level {@code license/} directory. The two entries refer to the same filesystem path on NTFS.
-   * We pre-scan the archive and deterministically prefer the directory form (skipping the
+   * <p>Case-insensitive Windows path: the fat jar bundles both a top-level {@code LICENSE} file and
+   * a top-level {@code license/} directory. The two entries refer to the same filesystem path on
+   * NTFS. We pre-scan the archive and deterministically prefer the directory form (skipping the
    * colliding file entry) so the build completes without losing the per-directory license files.
    */
   static void unzipQuiet(Path source, Path target) throws IOException {
@@ -352,13 +354,14 @@ public final class VerifyJdbcDrivers {
    * NTFS, default macOS APFS). Exposed at package-private visibility for testing.
    */
   static boolean isCaseInsensitiveFs() {
-    return java.io.File.separatorChar == '\\' || System.getProperty("os.name", "").toLowerCase(java.util.Locale.ROOT).contains("mac");
+    return java.io.File.separatorChar == '\\'
+        || System.getProperty("os.name", "").toLowerCase(java.util.Locale.ROOT).contains("mac");
   }
 
   /**
    * Reads the ZIP central directory and returns a map of entry names (the value of {@link
-   * ZipEntry#getName()}) that should be skipped because they would case-insensitively collide
-   * with another entry whose path is a directory. The colliding directory always wins because the
+   * ZipEntry#getName()}) that should be skipped because they would case-insensitively collide with
+   * another entry whose path is a directory. The colliding directory always wins because the
    * per-directory files in the archive carry the actual license text on this module.
    */
   private static java.util.Map<String, String> collectCaseInsensitiveCollisions(Path source) {
@@ -372,9 +375,7 @@ public final class VerifyJdbcDrivers {
           // same key (ZIP files store directories as "name/" and files as "name"; we treat them
           // as the same logical path on case-insensitive filesystems).
           String key = stripTrailingSlash(e.getName()).toLowerCase(java.util.Locale.ROOT);
-          lowerToDirNames
-              .computeIfAbsent(key, k -> new java.util.HashSet<>())
-              .add(e.getName());
+          lowerToDirNames.computeIfAbsent(key, k -> new java.util.HashSet<>()).add(e.getName());
         }
       }
       // Now walk all entries again; if any FILE entry has a lowercase key already used by a
@@ -417,7 +418,8 @@ public final class VerifyJdbcDrivers {
       return;
     }
     try (var paths = Files.walk(root)) {
-      paths.sorted((a, b) -> b.compareTo(a))
+      paths
+          .sorted((a, b) -> b.compareTo(a))
           .forEach(
               p -> {
                 try {
@@ -437,7 +439,8 @@ public final class VerifyJdbcDrivers {
       return;
     }
     try (var paths = Files.walk(p)) {
-      paths.sorted((a, b) -> b.compareTo(a))
+      paths
+          .sorted((a, b) -> b.compareTo(a))
           .forEach(
               q -> {
                 try {
@@ -526,8 +529,8 @@ public final class VerifyJdbcDrivers {
 
   /**
    * Returns true if at least one {@code candidateName} matches the shell-glob {@code pattern}.
-   * Implements the subset of POSIX globbing the {@code .sh} relies on: {@code *} matches any run
-   * of characters (including empty), {@code ?} matches exactly one character. Does not implement
+   * Implements the subset of POSIX globbing the {@code .sh} relies on: {@code *} matches any run of
+   * characters (including empty), {@code ?} matches exactly one character. Does not implement
    * character classes.
    */
   static boolean matchesGlob(Set<String> candidateNames, String pattern) {
@@ -574,14 +577,14 @@ public final class VerifyJdbcDrivers {
           sb.append('\\').append(c);
           break;
         default:
-           sb.append(c);
-       }
-     }
-     sb.append('$');
-     return sb.toString();
-   }
+          sb.append(c);
+      }
+    }
+    sb.append('$');
+    return sb.toString();
+  }
 
-   private static void printUsage(java.io.PrintStream out) {
+  private static void printUsage(java.io.PrintStream out) {
     out.println(
         "Usage: VerifyJdbcDrivers [--artifact <path>] [--workdir <dir>]"
             + " [--expected-driver-set <csv>] [--expected-driver-glob <csv>]");

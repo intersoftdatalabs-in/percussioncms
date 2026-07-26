@@ -31,22 +31,18 @@ import org.junit.jupiter.api.Test;
 /**
  * Regression guard for issue #1473.
  *
- * <p>The bundled Ant installer (installDts.xml:344-349) sources log4j,
- * commons-logging, slf4j, and disruptor jars from
- * {@code ${install.src}/Deployment/Server/common/lib/}. Without the fix
- * in this commit, that directory is absent from the shipping jar and the
- * install fails at line 344 with
+ * <p>The bundled Ant installer (installDts.xml:344-349) sources log4j, commons-logging, slf4j, and
+ * disruptor jars from {@code ${install.src}/Deployment/Server/common/lib/}. Without the fix in this
+ * commit, that directory is absent from the shipping jar and the install fails at line 344 with
  * {@code Deployment\Server\common\lib does not exist}.
  *
- * <p>This test asserts the shipping jar contains the expected runtime jars
- * under {@code distribution/Deployment/Server/common/lib/}. The test is a
- * no-op when run outside Maven (no build artifact on disk) so IDE / ad-hoc
- * runs are unaffected.
+ * <p>This test asserts the shipping jar contains the expected runtime jars under {@code
+ * distribution/Deployment/Server/common/lib/}. The test is a no-op when run outside Maven (no build
+ * artifact on disk) so IDE / ad-hoc runs are unaffected.
  */
 class DtsInstallerJarContainsDeploymentCommonLibTest {
 
-  private static final String COMMON_LIB_PATH_PREFIX =
-      "distribution/Deployment/Server/common/lib/";
+  private static final String COMMON_LIB_PATH_PREFIX = "distribution/Deployment/Server/common/lib/";
 
   @Test
   void shippingJarBundlesRuntimeCommonLibJars() throws IOException {
@@ -71,19 +67,18 @@ class DtsInstallerJarContainsDeploymentCommonLibTest {
     // `disruptor*.jar`), the actual com.lmax:disruptor jar is bundled so
     // a corrected glob picks it up.
     String[] requiredPrefixes = {
-        "log4j-api-",
-        "log4j-core-",
-        "commons-logging-",
-        "slf4j-api-",
-        "disruptor-"
+      "log4j-api-", "log4j-core-", "commons-logging-", "slf4j-api-", "disruptor-"
     };
 
     StringBuilder missing = new StringBuilder();
     for (String prefix : requiredPrefixes) {
-      boolean found = matches.stream().anyMatch(name -> {
-        String base = name.substring(COMMON_LIB_PATH_PREFIX.length());
-        return base.startsWith(prefix) && base.endsWith(".jar");
-      });
+      boolean found =
+          matches.stream()
+              .anyMatch(
+                  name -> {
+                    String base = name.substring(COMMON_LIB_PATH_PREFIX.length());
+                    return base.startsWith(prefix) && base.endsWith(".jar");
+                  });
       if (!found) {
         if (missing.length() > 0) {
           missing.append(", ");
@@ -97,8 +92,8 @@ class DtsInstallerJarContainsDeploymentCommonLibTest {
               + COMMON_LIB_PATH_PREFIX
               + ": "
               + missing
-              + ". installDts.xml:344 reads from this directory and"
-              + " the install fails with 'Deployment\\Server\\common\\lib does not exist' (issue #1473).");
+              + ". installDts.xml:344 reads from this directory and the install fails with"
+              + " 'Deployment\\Server\\common\\lib does not exist' (issue #1473).");
     }
 
     // Sanity: the directory entry must exist (zip directories are usually
@@ -107,7 +102,10 @@ class DtsInstallerJarContainsDeploymentCommonLibTest {
         matches.stream().anyMatch(name -> name.equals(COMMON_LIB_PATH_PREFIX))
             || matches.stream().anyMatch(name -> name.startsWith(COMMON_LIB_PATH_PREFIX)),
         () ->
-            "No entries under " + COMMON_LIB_PATH_PREFIX + " in " + jar
+            "No entries under "
+                + COMMON_LIB_PATH_PREFIX
+                + " in "
+                + jar
                 + "; expected the runtime jars staged by the"
                 + " copy-deployment-server-common-lib maven-dependency-plugin:copy"
                 + " execution.");

@@ -67,8 +67,8 @@ public final class PSFilterInstallUtils {
    * Whether a filter-service error code means "no row with that name" (safe to insert).
    *
    * <p>Only {@link com.percussion.services.filter.IPSFilterServiceErrors#FILTER_MISSING} qualifies.
-   * All other codes must propagate so package install does not treat DB failures as a first
-   * install and then hit the unique NAME constraint.
+   * All other codes must propagate so package install does not treat DB failures as a first install
+   * and then hit the unique NAME constraint.
    *
    * @param errorCode {@link com.percussion.services.filter.PSFilterException#getErrorCode()}
    * @return {@code true} only for FILTER_MISSING

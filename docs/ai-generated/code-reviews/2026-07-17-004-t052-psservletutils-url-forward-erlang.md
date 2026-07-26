@@ -83,25 +83,25 @@ references); post-fix compile and 28/28 pass.
 
 ## Behavior parity check
 
-| Input | Verdict (accepted/rejected) | Correct? |
-|-------|----------------------------|----------|
-| `/Rhythmyx/ui` | accepted (no control char, no `..`, no WEB-INF/META-INF segment) | yes |
-| `/WEB-INF/web.xml` | rejected (target WEB-INF) | yes |
-| `/app/../etc/passwd` | rejected (traversal) | yes |
-| `/web-info/notes` | accepted (look-alike, segment boundary fails) | yes |
-| `/app\\..\\etc` | rejected (backslash control) | yes |
-| `/safe\0/foo` | rejected (NUL < 0x20) | yes |
-| `""` | rejected (blank → IAE pre-validation) | yes |
-| `null` | rejected (null → IAE pre-validation) | yes |
-| `/cm/main` | accepted | yes |
-| `/ui/widget/foo` | accepted | yes |
-| `..` | rejected (traversal, bare) | yes |
-| `/app/..?id=1` | rejected (traversal before `?`) | yes |
-| `/WEB_INF/file` | accepted (look-alike, underscore not hyphen) | yes |
-| `/meta-info/file` | accepted (look-alike) | yes |
-| `/app/%2e%2e/etc/passwd` | accepted (validator does not decode; container handles) | yes (intentional) |
-| `/foo/./bar` | accepted (single-dot is not traversal) | yes |
-| `/foo.../bar` | accepted (dot-run ≠ 2) | yes |
+|          Input           |                   Verdict (accepted/rejected)                    |     Correct?      |
+|--------------------------|------------------------------------------------------------------|-------------------|
+| `/Rhythmyx/ui`           | accepted (no control char, no `..`, no WEB-INF/META-INF segment) | yes               |
+| `/WEB-INF/web.xml`       | rejected (target WEB-INF)                                        | yes               |
+| `/app/../etc/passwd`     | rejected (traversal)                                             | yes               |
+| `/web-info/notes`        | accepted (look-alike, segment boundary fails)                    | yes               |
+| `/app\\..\\etc`          | rejected (backslash control)                                     | yes               |
+| `/safe\0/foo`            | rejected (NUL < 0x20)                                            | yes               |
+| `""`                     | rejected (blank → IAE pre-validation)                            | yes               |
+| `null`                   | rejected (null → IAE pre-validation)                             | yes               |
+| `/cm/main`               | accepted                                                         | yes               |
+| `/ui/widget/foo`         | accepted                                                         | yes               |
+| `..`                     | rejected (traversal, bare)                                       | yes               |
+| `/app/..?id=1`           | rejected (traversal before `?`)                                  | yes               |
+| `/WEB_INF/file`          | accepted (look-alike, underscore not hyphen)                     | yes               |
+| `/meta-info/file`        | accepted (look-alike)                                            | yes               |
+| `/app/%2e%2e/etc/passwd` | accepted (validator does not decode; container handles)          | yes (intentional) |
+| `/foo/./bar`             | accepted (single-dot is not traversal)                           | yes               |
+| `/foo.../bar`            | accepted (dot-run ≠ 2)                                           | yes               |
 
 ## Fail-then-pass verification
 
@@ -110,11 +110,14 @@ references); post-fix compile and 28/28 pass.
   this commit. `javac` would fail with `cannot find symbol` for `validateForwardPath`
   at `PSServletUtilsTest.java:67,76,82,...`. Compile-time gate is sufficient.
 - **Post-fix**:
+
   ```
   mvn-env.bat -Dai.integrity.skip=true -pl modules/servletutils \
       test -Dtest=PSServletUtilsTest -Dsurefire.failIfNoSpecifiedTests=false
   ```
+
   → `Tests run: 28, Failures: 0, Errors: 0, Skipped: 0`.
+
 - **Full module**: 41 tests run, 0 failures, 0 errors, 5 pre-existing skips (all in
   `PSInputValidatorFilterTest` and one in `PSTomcatUtilsTest`, unrelated to this
   commit). The pre-commit gate "all 41 tests pass on post-fix" is met.

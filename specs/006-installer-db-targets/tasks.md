@@ -151,13 +151,13 @@ Phase 7 US4 (P2)  Samples + README
 Phase 8 Polish
 ```
 
-| Story | Depends on | Notes |
-|-------|------------|-------|
-| US1 | Foundational | MVP; delivers issue #949 core value |
-| US2 | US1 merged (or same PR only if tiny) | Confirms additive default |
-| US5 | US1 (ANT changes exist) | Must stay before calling feature “done” for release |
-| US3 | US1 (+ ideally US5 guard intact) | Connect validate needs written props path |
-| US4 | US1 (samples match real keys) | Can draft samples in parallel after T013 mapping is stable |
+| Story |              Depends on              |                           Notes                            |
+|-------|--------------------------------------|------------------------------------------------------------|
+| US1   | Foundational                         | MVP; delivers issue #949 core value                        |
+| US2   | US1 merged (or same PR only if tiny) | Confirms additive default                                  |
+| US5   | US1 (ANT changes exist)              | Must stay before calling feature “done” for release        |
+| US3   | US1 (+ ideally US5 guard intact)     | Connect validate needs written props path                  |
+| US4   | US1 (samples match real keys)        | Can draft samples in parallel after T013 mapping is stable |
 
 **Story PR policy** (constitution): Implement → commit → PR per story → merge before next story when practical. US2 may be a thin follow-up PR if US1 already preserved Derby.
 
@@ -198,19 +198,19 @@ T034 resolver validation tests || T035 validate-action tests (after action skele
 
 ### MVP (minimum shippable for #949)
 
-1. Complete Phase 1–2  
-2. Complete **User Story 1** (dbprops + MySQL/MSSQL/Oracle effective config write)  
-3. Validate with US1 tests + quickstart Scenario 2–3  
+1. Complete Phase 1–2
+2. Complete **User Story 1** (dbprops + MySQL/MSSQL/Oracle effective config write)
+3. Validate with US1 tests + quickstart Scenario 2–3
 
 ### Incremental delivery
 
-| Increment | Stories | Customer-visible outcome |
-|-----------|---------|---------------------------|
-| MVP | US1 | Non-Derby new install via property file |
-| Safety | US2 + US5 | Default + upgrade safe |
-| Hardening | US3 | Fail-fast + connect validate |
-| Enablement | US4 | Docs/samples |
-| Close | Polish | CI green, secrets clean |
+| Increment  |  Stories  |        Customer-visible outcome         |
+|------------|-----------|-----------------------------------------|
+| MVP        | US1       | Non-Derby new install via property file |
+| Safety     | US2 + US5 | Default + upgrade safe                  |
+| Hardening  | US3       | Fail-fast + connect validate            |
+| Enablement | US4       | Docs/samples                            |
+| Close      | Polish    | CI green, secrets clean                 |
 
 ### Task format validation
 
@@ -218,25 +218,25 @@ All tasks use: `- [ ]`, sequential `T00N` IDs, optional `[P]`, story labels `[US
 
 ## Summary Counts
 
-| Phase | Task IDs | Count |
-|-------|----------|-------|
-| Setup | T001–T003 | 3 |
-| Foundational | T004–T009 | 6 |
-| US1 | T010–T021 | 12 |
-| US2 | T022–T027 | 6 |
-| US5 | T028–T033 | 6 |
-| US3 | T034–T042 | 9 |
-| US4 | T043–T049 | 7 |
-| Polish | T050–T055 | 6 |
-| **Total** | T001–T055 | **55** |
+|    Phase     | Task IDs  | Count  |
+|--------------|-----------|--------|
+| Setup        | T001–T003 | 3      |
+| Foundational | T004–T009 | 6      |
+| US1          | T010–T021 | 12     |
+| US2          | T022–T027 | 6      |
+| US5          | T028–T033 | 6      |
+| US3          | T034–T042 | 9      |
+| US4          | T043–T049 | 7      |
+| Polish       | T050–T055 | 6      |
+| **Total**    | T001–T055 | **55** |
 
 | User story | Task count (approx.) |
 |------------|----------------------|
-| US1 | 12 |
-| US2 | 6 |
-| US5 | 6 |
-| US3 | 9 |
-| US4 | 7 |
+| US1        | 12                   |
+| US2        | 6                    |
+| US5        | 6                    |
+| US3        | 9                    |
+| US4        | 7                    |
 
 **Suggested MVP scope**: Phase 1 + Phase 2 + **User Story 1** (T001–T021).
 

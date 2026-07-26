@@ -19,7 +19,9 @@ package com.percussion.secure.data;
 
 import java.util.Objects;
 
-/** @deprecated This class is part of the deprecated secure-membership module. */
+/**
+ * @deprecated This class is part of the deprecated secure-membership module.
+ */
 @Deprecated
 public class PSMembershipConfiguration {
   // Set by Spring beans config

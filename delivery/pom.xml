@@ -94,7 +94,6 @@
                     <warName>${project.artifactId}</warName>
                 </configuration>
             </plugin>
-            
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-site-plugin</artifactId>

@@ -80,8 +80,7 @@ public class PSEmbeddedRepositoryExternalDbTest {
     Properties mssql = new Properties();
     mssql.setProperty("DB_BACKEND", "MSSQL");
     mssql.setProperty("DB_DRIVER_NAME", "sqlserver");
-    mssql.setProperty(
-        "DB_DRIVER_CLASS_NAME", "com.microsoft.sqlserver.jdbc.SQLServerDriver");
+    mssql.setProperty("DB_DRIVER_CLASS_NAME", "com.microsoft.sqlserver.jdbc.SQLServerDriver");
     assertEquals(
         PSEmbeddedRepositoryDetector.Classification.NON_DERBY,
         PSEmbeddedRepositoryDetector.classify(mssql));
@@ -178,22 +177,19 @@ public class PSEmbeddedRepositoryExternalDbTest {
 
     var det = PSDtsEmbeddedRepositoryMigrator.detect(server, "percmetadata", derby);
     assertEquals(
-        PSDtsEmbeddedRepositoryMigrator.DetectionClass.PRODUCT_MANAGED_DERBY,
-        det.classification());
+        PSDtsEmbeddedRepositoryMigrator.DetectionClass.PRODUCT_MANAGED_DERBY, det.classification());
 
     // Without backup gate, DTS migrator blocks; CMS remains untouched
     PSDtsEmbeddedRepositoryMigrator dts =
         new PSDtsEmbeddedRepositoryMigrator(dtsRoot, new Properties(), false);
-    assertEquals(
-        PSMigrationOutcome.BLOCKED_BACKUP_GATE, dts.migrateService("percmetadata"));
+    assertEquals(PSMigrationOutcome.BLOCKED_BACKUP_GATE, dts.migrateService("percmetadata"));
     assertTrue(Files.readString(rx, StandardCharsets.UTF_8).contains("DB_BACKEND=MYSQL"));
 
     // With external confirm, migrator attempts transfer (fixture has no openable Derby) → FAILED
     // without rewriting CMS MySQL props
     Properties sys = new Properties();
     sys.setProperty(PSRepositoryBackupGate.EXTERNAL_BACKUP_CONFIRMED_PROPERTY, "true");
-    PSDtsEmbeddedRepositoryMigrator dts2 =
-        new PSDtsEmbeddedRepositoryMigrator(dtsRoot, sys, false);
+    PSDtsEmbeddedRepositoryMigrator dts2 = new PSDtsEmbeddedRepositoryMigrator(dtsRoot, sys, false);
     PSMigrationOutcome dtsOutcome = dts2.migrateService("percmetadata");
     assertTrue(
         dtsOutcome == PSMigrationOutcome.FAILED

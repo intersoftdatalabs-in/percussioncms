@@ -7,14 +7,14 @@
 
 ## Current-state findings
 
-| Topic | Evidence |
-|-------|----------|
-| Upgrade vs new install | `install.xml` sets `do.install` / `do.upgrade` from presence of `ObjectStore` and related conditions; preinstall `Main` loads `Version.properties` into `majorVersion` / `minorVersion` before ANT. |
-| PreInstall still referenced | `install.xml` `deleteOldLog4jJars` deletes under `${install.dir}/PreInstall/Backups/` with `failonerror="false"` — optional residue, not required for upgrade success. |
-| `_Percussion_Installation` | `remove_PercussionInstallation.xml` exists with **TODO: Implement Me**; comment uses `_Percussion_installation`, echo uses `_Percussion_Installation`. Never fully implemented. |
-| `JBossServerXML_BAK` | Created during upgrade from JBoss `AppServer/.../server.xml` (`install.xml` ~1689). `Main.updateJettyServerPortAndSSLToPreUpgradeSettings` reads it **after** ANT when `majorVersion == 5 && minorVersion < 4`. Early deletion of that stub is unsafe for that narrow upgrade class if `AppServer` is already gone. |
-| CLI parsing | `DbInstallConfigResolver.parseArgs` already supports `--key=value` and `--key value` (same style as `--dbprops`). |
-| Interactive console | Java `System.console()` is the portable TTY check; if null, treat as non-interactive. |
+|            Topic            |                                                                                                                                                      Evidence                                                                                                                                                       |
+|-----------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Upgrade vs new install      | `install.xml` sets `do.install` / `do.upgrade` from presence of `ObjectStore` and related conditions; preinstall `Main` loads `Version.properties` into `majorVersion` / `minorVersion` before ANT.                                                                                                                 |
+| PreInstall still referenced | `install.xml` `deleteOldLog4jJars` deletes under `${install.dir}/PreInstall/Backups/` with `failonerror="false"` — optional residue, not required for upgrade success.                                                                                                                                              |
+| `_Percussion_Installation`  | `remove_PercussionInstallation.xml` exists with **TODO: Implement Me**; comment uses `_Percussion_installation`, echo uses `_Percussion_Installation`. Never fully implemented.                                                                                                                                     |
+| `JBossServerXML_BAK`        | Created during upgrade from JBoss `AppServer/.../server.xml` (`install.xml` ~1689). `Main.updateJettyServerPortAndSSLToPreUpgradeSettings` reads it **after** ANT when `majorVersion == 5 && minorVersion < 4`. Early deletion of that stub is unsafe for that narrow upgrade class if `AppServer` is already gone. |
+| CLI parsing                 | `DbInstallConfigResolver.parseArgs` already supports `--key=value` and `--key value` (same style as `--dbprops`).                                                                                                                                                                                                   |
+| Interactive console         | Java `System.console()` is the portable TTY check; if null, treat as non-interactive.                                                                                                                                                                                                                               |
 
 ## Decisions
 
@@ -36,11 +36,11 @@
 
 **Decision**:
 
-| Relative path | Always offer if exists? | Notes |
-|---------------|-------------------------|--------|
-| `PreInstall` | Yes | Issue primary target; entire directory tree. |
-| `_Percussion_Installation` | Yes if either casing exists | Also check `_Percussion_installation` on case-sensitive FS; delete the path that exists. |
-| `JBossServerXML_BAK` | **Conditional** | Offer only when **not** in the 5.3-era migration window: i.e. when `majorVersion > 5` OR `majorVersion == 5 && minorVersion >= 4` OR version unparsable but `AppServer` still present (can recreate bak). If `majorVersion == 5 && minorVersion < 4` and `AppServer` is missing, **exclude** from candidates and log why. |
+|       Relative path        |   Always offer if exists?   |                                                                                                                                                           Notes                                                                                                                                                           |
+|----------------------------|-----------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `PreInstall`               | Yes                         | Issue primary target; entire directory tree.                                                                                                                                                                                                                                                                              |
+| `_Percussion_Installation` | Yes if either casing exists | Also check `_Percussion_installation` on case-sensitive FS; delete the path that exists.                                                                                                                                                                                                                                  |
+| `JBossServerXML_BAK`       | **Conditional**             | Offer only when **not** in the 5.3-era migration window: i.e. when `majorVersion > 5` OR `majorVersion == 5 && minorVersion >= 4` OR version unparsable but `AppServer` still present (can recreate bak). If `majorVersion == 5 && minorVersion < 4` and `AppServer` is missing, **exclude** from candidates and log why. |
 
 **Rationale**: Spec clarification B plus safety for Main’s post-ANT SSL/port migration.
 
@@ -82,11 +82,11 @@ Unit-test without full installer.
 
 ## Alternatives considered
 
-| Alternative | Why rejected |
-|-------------|----------------|
-| Always delete without flag/prompt | Violates #1157 and safe automation default |
-| Delete `AppServer` leftovers by default | Live upgrades may still zip/migrate AppServer; out of scope |
-| Only implement `remove_PercussionInstallation.xml` TODO | Does not cover PreInstall or interactive/space UX |
+|                       Alternative                       |                        Why rejected                         |
+|---------------------------------------------------------|-------------------------------------------------------------|
+| Always delete without flag/prompt                       | Violates #1157 and safe automation default                  |
+| Delete `AppServer` leftovers by default                 | Live upgrades may still zip/migrate AppServer; out of scope |
+| Only implement `remove_PercussionInstallation.xml` TODO | Does not cover PreInstall or interactive/space UX           |
 
 ## Open items for tasks (not blockers)
 

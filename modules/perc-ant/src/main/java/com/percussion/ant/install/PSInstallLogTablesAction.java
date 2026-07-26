@@ -49,9 +49,7 @@ import java.io.IOException;
  * </pre>
  */
 public class PSInstallLogTablesAction extends PSAction {
-  /**
-   * Creates a new action to install log table properties.
-   */
+  /** Creates a new action to install log table properties. */
   public PSInstallLogTablesAction() {
     super();
   }

@@ -54,13 +54,13 @@ The change is not merge-ready. `getLinkPaths()` also returns off-site HTTP(S) UR
 
 ## Behavior parity check
 
-| Input | Pre-fix | Post-fix | Correct? |
-|-------|---------|----------|----------|
-| themeRoot/missing.css (legit) | `new File(...).exists()` → false; entry stays | `requireUnderBase` passes; `File.exists()` → false; entry stays | yes |
-| themeRoot/real.css (legit, exists) | `new File(...).exists()` → true; entry removed | `requireUnderBase` passes; `File.exists()` → true; entry removed | yes |
-| themeRoot/../etc/passwd | `new File(...).exists()` may stat an outside target | direct `removeIfExists` invocation throws IAE; `process()` catches it | yes for sink protection; no for public failure signaling |
-| https://cdn.example/style.css (supported external link value) | usually absent as a relative `File`; entry stays | Windows canonicalization throws IAE and aborts remaining theme work; Unix checks a different path under theme root | no |
-| concurrent roots A and B | no validation base | call A can validate against call B's mutable base | no |
+|                             Input                             |                       Pre-fix                       |                                                      Post-fix                                                      |                         Correct?                         |
+|---------------------------------------------------------------|-----------------------------------------------------|--------------------------------------------------------------------------------------------------------------------|----------------------------------------------------------|
+| themeRoot/missing.css (legit)                                 | `new File(...).exists()` → false; entry stays       | `requireUnderBase` passes; `File.exists()` → false; entry stays                                                    | yes                                                      |
+| themeRoot/real.css (legit, exists)                            | `new File(...).exists()` → true; entry removed      | `requireUnderBase` passes; `File.exists()` → true; entry removed                                                   | yes                                                      |
+| themeRoot/../etc/passwd                                       | `new File(...).exists()` may stat an outside target | direct `removeIfExists` invocation throws IAE; `process()` catches it                                              | yes for sink protection; no for public failure signaling |
+| https://cdn.example/style.css (supported external link value) | usually absent as a relative `File`; entry stays    | Windows canonicalization throws IAE and aborts remaining theme work; Unix checks a different path under theme root | no                                                       |
+| concurrent roots A and B                                      | no validation base                                  | call A can validate against call B's mutable base                                                                  | no                                                       |
 
 ## Fail-then-pass verification
 
@@ -112,18 +112,18 @@ Fix the external-URL regression and eliminate mutable per-import security state 
 
 ### Behavior parity check (v2)
 
-| Input | Pre-fix (`removeIfExists(Map)` + cached field) | Post-fix (`removeIfExists(Map, String)` + URL skip) | Correct? |
-|-------|---------|----------|----------|
-| themeRoot/missing.css (legit, absent) | `new File(path).exists()` → false; entry stays | `isHttpUrl`=false → `requireUnderBase` passes → `File.exists()` → false; entry stays | yes |
-| themeRoot/real.css (legit, exists) | `new File(path).exists()` → true; entry removed | `isHttpUrl`=false → `requireUnderBase` passes → `File.exists()` → true; entry removed | yes |
-| themeRoot/../etc/passwd | `new File(path).exists()` silently stats outside target (vulnerability) | `requireUnderBase` throws IAE → caught by `process()` | yes (sink closed) |
-| themeRoot/<NUL>good.css\0../etc/passwd | `new File(path)` may throw or silently stat | `requireUnderBase` throws IAE on NUL byte before any File construction | yes |
-| https://cdn.example/style.css (URL value) | `new File(url).exists()` → false on Unix; on Windows pre-fix-v1 IAE-canonicalization broke | `isHttpUrl`=true → `continue`; entry preserved | yes |
-| http://other.example/main.css | same as above | same as above | yes |
-| HTTP://cdn.example/style.css (uppercase scheme) | n/a | `isHttpUrl` case-insensitive → skipped | yes (impl correct; not explicitly tested) |
-| null cssFile value | `new File(null)` throws NPE → caught by `process()` → silent abort | `isHttpUrl(null)`=false → `requireUnderBase` throws IAE → caught by `process()` → silent abort | yes |
-| Concurrent roots A then B | root field overwritten → B validates against B's root (race; v1-broken) | per-call parameter → each call validates against its own root | yes |
-| `removeIfExists(Map)` reflective call (pre-fix signature) | passes | throws `NoSuchMethodException` | expected (signature is the fix) |
+|                           Input                           |                       Pre-fix (`removeIfExists(Map)` + cached field)                       |                      Post-fix (`removeIfExists(Map, String)` + URL skip)                       |                 Correct?                  |
+|-----------------------------------------------------------|--------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------|-------------------------------------------|
+| themeRoot/missing.css (legit, absent)                     | `new File(path).exists()` → false; entry stays                                             | `isHttpUrl`=false → `requireUnderBase` passes → `File.exists()` → false; entry stays           | yes                                       |
+| themeRoot/real.css (legit, exists)                        | `new File(path).exists()` → true; entry removed                                            | `isHttpUrl`=false → `requireUnderBase` passes → `File.exists()` → true; entry removed          | yes                                       |
+| themeRoot/../etc/passwd                                   | `new File(path).exists()` silently stats outside target (vulnerability)                    | `requireUnderBase` throws IAE → caught by `process()`                                          | yes (sink closed)                         |
+| themeRoot/<NUL>good.css\0../etc/passwd                    | `new File(path)` may throw or silently stat                                                | `requireUnderBase` throws IAE on NUL byte before any File construction                         | yes                                       |
+| https://cdn.example/style.css (URL value)                 | `new File(url).exists()` → false on Unix; on Windows pre-fix-v1 IAE-canonicalization broke | `isHttpUrl`=true → `continue`; entry preserved                                                 | yes                                       |
+| http://other.example/main.css                             | same as above                                                                              | same as above                                                                                  | yes                                       |
+| HTTP://cdn.example/style.css (uppercase scheme)           | n/a                                                                                        | `isHttpUrl` case-insensitive → skipped                                                         | yes (impl correct; not explicitly tested) |
+| null cssFile value                                        | `new File(null)` throws NPE → caught by `process()` → silent abort                         | `isHttpUrl(null)`=false → `requireUnderBase` throws IAE → caught by `process()` → silent abort | yes                                       |
+| Concurrent roots A then B                                 | root field overwritten → B validates against B's root (race; v1-broken)                    | per-call parameter → each call validates against its own root                                  | yes                                       |
+| `removeIfExists(Map)` reflective call (pre-fix signature) | passes                                                                                     | throws `NoSuchMethodException`                                                                 | expected (signature is the fix)           |
 
 ### Fail-then-pass verification (v2)
 
@@ -141,3 +141,4 @@ Fix the external-URL regression and eliminate mutable per-import security state 
 All five v1 blocking findings are resolved. The cross-platform and test-coverage items are resolved by `Path.resolve` chains and the constructor+Mockito harness. Fail-then-pass is established via the signature change. The new `isHttpUrl` helper is correct (case-insensitive, null-safe, defensive). The remaining concerns (silent `catch (Exception)` in `process()`, unused import, no explicit uppercase-scheme test) are nits/suggestions, not blockers.
 
 - **May commit/push**: yes
+

@@ -10,10 +10,10 @@
 
 Default CodeQL setup and advanced setup used to run in parallel:
 
-| Analyzer | Loaded `codeql-config.yml` / model pack? | Effect on PRs |
-|----------|------------------------------------------|---------------|
-| **Default setup** | No | Re-opened critical residuals as new alert IDs (#1733 → #1735 → …) |
-| **Advanced workflow** | Yes (`query-filters`, `packs`) | Honored documented residuals |
+|       Analyzer        | Loaded `codeql-config.yml` / model pack? |                           Effect on PRs                           |
+|-----------------------|------------------------------------------|-------------------------------------------------------------------|
+| **Default setup**     | No                                       | Re-opened critical residuals as new alert IDs (#1733 → #1735 → …) |
+| **Advanced workflow** | Yes (`query-filters`, `packs`)           | Honored documented residuals                                      |
 
 Structural fixes were correct; **PR gating used the wrong analyzer**. That caused repeated CodeQL review comments, dismissals, and re-opens.
 
@@ -91,13 +91,13 @@ gh workflow run "CodeQL Advanced" --ref development
 
 When CodeQL flags a sink on a PR:
 
-| Step | Action | Done when |
-|------|--------|-----------|
-| **1. Runtime fix** | Structural sanitizer / safe rebuild; regression test that fails on pre-fix | Exploit path closed |
-| **2. Model pack** | Add/update `.github/codeql/models/models/*.model.yml` barrier for the custom sanitizer | Call sites stop tainting after `validate*` / `escape*` return |
-| **3. Sink-line suppression** | `// codeql[rule-id]` on the **exact alert line** (or the single line immediately above a one-line sink) | Re-scan does not re-open that line |
-| **4. Path `query-filters`** | Exclude path+rule in `codeql-config.yml` + row in `suppressions.md` | Only if model + sink-line still fail (known CodeQL blind spots) |
-| **5. Dismiss alert** | API/UI dismiss as false positive with ≤280 char reason, commit SHA, test name | Gate green; document in `suppressions.md` |
+|             Step             |                                                 Action                                                  |                            Done when                            |
+|------------------------------|---------------------------------------------------------------------------------------------------------|-----------------------------------------------------------------|
+| **1. Runtime fix**           | Structural sanitizer / safe rebuild; regression test that fails on pre-fix                              | Exploit path closed                                             |
+| **2. Model pack**            | Add/update `.github/codeql/models/models/*.model.yml` barrier for the custom sanitizer                  | Call sites stop tainting after `validate*` / `escape*` return   |
+| **3. Sink-line suppression** | `// codeql[rule-id]` on the **exact alert line** (or the single line immediately above a one-line sink) | Re-scan does not re-open that line                              |
+| **4. Path `query-filters`**  | Exclude path+rule in `codeql-config.yml` + row in `suppressions.md`                                     | Only if model + sink-line still fail (known CodeQL blind spots) |
+| **5. Dismiss alert**         | API/UI dismiss as false positive with ≤280 char reason, commit SHA, test name                           | Gate green; document in `suppressions.md`                       |
 
 Never start at step 5. Never open a parallel PR that only dismisses without steps 1–2.
 
@@ -166,7 +166,6 @@ HttpRequest.Builder b =
    Until then: runtime sanitizers + tests, sink-line `// codeql[...]`, path `query-filters`, then
    dismiss residual as FP (ladder step 5) with a short reason citing tests.
 
-
 Example (SSRF):
 
 ```yaml
@@ -233,18 +232,19 @@ Comment max **280 characters**. Always add a `suppressions.md` row.
 
 ## Metrics (monthly / release)
 
-| Metric | Healthy trend |
-|--------|----------------|
-| Open critical/high on `development` | Down |
-| PR residual reopens (same path, new alert ID) | Near zero |
-| Residuals with model pack row | Up |
-| Residuals that are dismiss-only | Down |
+|                    Metric                     | Healthy trend |
+|-----------------------------------------------|---------------|
+| Open critical/high on `development`           | Down          |
+| PR residual reopens (same path, new alert ID) | Near zero     |
+| Residuals with model pack row                 | Up            |
+| Residuals that are dismiss-only               | Down          |
 
 ---
 
 ## Related docs
 
-- `specs/004-zero-code-scanning-alerts/` — feature spec, contracts C2/C3, quickstart  
-- `suppressions.md` — suppression / path-exclude index  
-- `triage.md` — per-alert disposition  
-- Root `AGENTS.md` — PR review thread resolve protocol  
+- `specs/004-zero-code-scanning-alerts/` — feature spec, contracts C2/C3, quickstart
+- `suppressions.md` — suppression / path-exclude index
+- `triage.md` — per-alert disposition
+- Root `AGENTS.md` — PR review thread resolve protocol
+

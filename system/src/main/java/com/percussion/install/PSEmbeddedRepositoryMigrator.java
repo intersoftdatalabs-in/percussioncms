@@ -38,8 +38,7 @@ import java.util.logging.Logger;
  */
 public class PSEmbeddedRepositoryMigrator {
 
-  private static final Logger LOG =
-      Logger.getLogger(PSEmbeddedRepositoryMigrator.class.getName());
+  private static final Logger LOG = Logger.getLogger(PSEmbeddedRepositoryMigrator.class.getName());
 
   public static final String COMPONENT_CMS = "CMS";
 
@@ -184,14 +183,12 @@ public class PSEmbeddedRepositoryMigrator {
             PSRepositoryConnectionHelper.buildH2TargetProperties(installRoot, h2Base);
         h2Props.remove("INSTALL_ROOT_HINT");
 
-        Files.createDirectories(
-            h2Base.getParent() != null ? h2Base.getParent() : installRoot);
+        Files.createDirectories(h2Base.getParent() != null ? h2Base.getParent() : installRoot);
 
         // Resolve source DB_SERVER paths for TableFactory (file-relative / bare paths)
         Properties sourceProps = new Properties();
         sourceProps.putAll(repoProps);
-        String server =
-            sourceProps.getProperty(PSRepositoryConnectionHelper.KEY_DB_SERVER, "");
+        String server = sourceProps.getProperty(PSRepositoryConnectionHelper.KEY_DB_SERVER, "");
         String driver =
             sourceProps.getProperty(PSRepositoryConnectionHelper.KEY_DB_DRIVER_NAME, "");
         sourceProps.setProperty(
@@ -205,8 +202,7 @@ public class PSEmbeddedRepositoryMigrator {
                 .resolve(Long.toString(System.currentTimeMillis()));
 
         PSTableFactoryMigrationTransfer.Result transfer =
-            PSTableFactoryMigrationTransfer.exportThenImport(
-                sourceProps, h2Props, stagingDir);
+            PSTableFactoryMigrationTransfer.exportThenImport(sourceProps, h2Props, stagingDir);
         LOG.info(
             () ->
                 "component="
@@ -219,8 +215,7 @@ public class PSEmbeddedRepositoryMigrator {
                     + transfer.stagingDir());
 
         // Post-import smoke: open target and ensure at least tableDef tables landed
-        try (java.sql.Connection target =
-            PSRepositoryConnectionHelper.open(h2Props, installRoot)) {
+        try (java.sql.Connection target = PSRepositoryConnectionHelper.open(h2Props, installRoot)) {
           PSMigrationValidator.Result validation =
               PSMigrationValidator.validateTargetOnly(target, transfer.tablesImported());
           if (!validation.passed()) {
@@ -249,7 +244,9 @@ public class PSEmbeddedRepositoryMigrator {
                   + "; "
                   + validation.summary()
                   + (backupRoot != null ? "; productBackupRoot=" + backupRoot : ""));
-          logOutcome(outcome, "migration SUCCESS via TableFactory export/import; Derby residue retained (FR-019)");
+          logOutcome(
+              outcome,
+              "migration SUCCESS via TableFactory export/import; Derby residue retained (FR-019)");
           return outcome;
         }
       } catch (PSMigratorLock.MigratorLockException e) {

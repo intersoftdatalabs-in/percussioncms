@@ -32,11 +32,11 @@ import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 /**
- * Regression tests for {@link PSExtractJarFiles} ZipSlip defense (CodeQL {@code java/zipslip}
- * alert #720, T041).
+ * Regression tests for {@link PSExtractJarFiles} ZipSlip defense (CodeQL {@code java/zipslip} alert
+ * #720, T041).
  *
- * <p>Pre-fix code concatenated {@code destinationDir + File.separator + entryName} and wrote
- * the result with {@link FileOutputStream}, which is the classic ZipSlip vector (CWE-22). The fix
+ * <p>Pre-fix code concatenated {@code destinationDir + File.separator + entryName} and wrote the
+ * result with {@link FileOutputStream}, which is the classic ZipSlip vector (CWE-22). The fix
  * routes every entry name through {@code PathValidation.constructSafePath} and skips unsafe
  * entries.
  */

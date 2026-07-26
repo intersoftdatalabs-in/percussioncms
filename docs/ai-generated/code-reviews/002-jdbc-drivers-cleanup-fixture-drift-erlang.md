@@ -86,41 +86,41 @@ other Derby rows (`pom.xml:115`); also resolves under
 
 Did NOT touch:
 - `specs/002-jdbc-drivers-cleanup/{plan.md,quickstart.md,tasks.md}` —
-  these describe the original feature's 7-driver design (T012, T020
-  reference "7" as the implementation target). They are historical
-  design artifacts; updating them to refer to "9 curated drivers" goes
-  beyond the test-blocking fix.
+these describe the original feature's 7-driver design (T012, T020
+reference "7" as the implementation target). They are historical
+design artifacts; updating them to refer to "9 curated drivers" goes
+beyond the test-blocking fix.
 - `EXACT_FILENAMES` / `PRIOR_FILENAMES` — these pin install-time delete
-  filenames for upgrade cleanliness. `derbyshared-*/derbytools-*` are
-  NEW in this release (no prior release had them bundled), so there is
-  no upgrade-from-N-1 scenario that needs to purge a stale prior-version
-  copy of them. Per `InstallXmlDeleteSetTest.deleteSetPreservesIntegratorFilenames`
-  (lines 102-122) the codebase deliberately classifies them as
-  integrator-supplied for delete purposes, which is consistent.
+filenames for upgrade cleanliness. `derbyshared-*/derbytools-*` are
+NEW in this release (no prior release had them bundled), so there is
+no upgrade-from-N-1 scenario that needs to purge a stale prior-version
+copy of them. Per `InstallXmlDeleteSetTest.deleteSetPreservesIntegratorFilenames`
+(lines 102-122) the codebase deliberately classifies them as
+integrator-supplied for delete purposes, which is consistent.
 - `installDistributionFiles.xml` lines 712-726 staging block (already 9
-  globs; matches the new fixture).
+globs; matches the new fixture).
 - `modules/perc-distribution-tree/pom.xml` lines 167-177 (already has
-  `derbyshared` + `derbytools` as `provided` deps with the same
-  justification comment).
+`derbyshared` + `derbytools` as `provided` deps with the same
+justification comment).
 
 ## Behavioral evidence
 
 `./mvn-env.sh test -rf :perc-distribution-tree
-  -Dtest='StagingCleanupAntScriptTest,InstallXmlDeleteSetTest'
-  -Dsurefire.failIfNoSpecifiedTests=false -Dskip.ai.integrity=true`
+-Dtest='StagingCleanupAntScriptTest,InstallXmlDeleteSetTest'
+-Dsurefire.failIfNoSpecifiedTests=false -Dskip.ai.integrity=true`
 
 Result:
 - `perc-distribution-tree`: **SUCCESS** (`[ 44.662 s]`)
-  - Surefire reports:
-    - `StagingCleanupAntScriptTest` — Tests run: 4, Failures: 0, Errors: 0, Skipped: 0 (0.941 s)
-    - `InstallXmlDeleteSetTest` — Tests run: 4, Failures: 0, Errors: 0, Skipped: 0 (0.137 s)
-    - Plus all 8 other JDBC/preinstall/install test classes (57 tests total, all green)
+- Surefire reports:
+- `StagingCleanupAntScriptTest` — Tests run: 4, Failures: 0, Errors: 0, Skipped: 0 (0.941 s)
+- `InstallXmlDeleteSetTest` — Tests run: 4, Failures: 0, Errors: 0, Skipped: 0 (0.137 s)
+- Plus all 8 other JDBC/preinstall/install test classes (57 tests total, all green)
 - `perc-qa-automation`: FAILURE (unrelated; surefire skips a reactor module
-  with no matching `-Dtest=` pattern when `--fail-if-no-specified` is on
-  in the surefire config — not a regression caused by this fix; reconcile
-  by passing `-Dsurefire.failIfNoSpecifiedTests=false` at the parent
-  invocation, or by running `./mvn-env.sh -pl
-  modules/perc-distribution-tree test ...` for fixture-only runs).
+with no matching `-Dtest=` pattern when `--fail-if-no-specified` is on
+in the surefire config — not a regression caused by this fix; reconcile
+by passing `-Dsurefire.failIfNoSpecifiedTests=false` at the parent
+invocation, or by running `./mvn-env.sh -pl
+modules/perc-distribution-tree test ...` for fixture-only runs).
 
 ## Cross-platform path review
 
@@ -139,6 +139,7 @@ AGENTS.md.
 
 - Recommendation: `approve`. May commit/push: yes.
 - Suggested commit message:
+
   ```
   fix(002): STAGING_GLOBS fixture drift — add derbyshared + derbytools (7→9)
 
@@ -167,3 +168,4 @@ AGENTS.md.
   ```
 - Patterns loaded; no prior 002-jdbc-drivers-cleanup report to load
   (fresh fix).
+

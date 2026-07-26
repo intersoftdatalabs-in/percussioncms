@@ -133,9 +133,7 @@ test.describe("US6 hard cut — no miller-column Finder chrome (SC-006)", () => 
 
       if (shell.expectModernShell) {
         // Dedicated modern entry point: ContentExplorerShell mounts.
-        const shellEl = page.locator(
-          '[data-testid="content-explorer-shell"]',
-        );
+        const shellEl = page.locator('[data-testid="content-explorer-shell"]');
         await expect(shellEl).toBeVisible({ timeout: 15_000 });
       }
     });
@@ -143,7 +141,9 @@ test.describe("US6 hard cut — no miller-column Finder chrome (SC-006)", () => 
 });
 
 test.describe("US6 hard cut — cutover inventory evidence (FR-022)", () => {
-  test("primary-nav entry points are modern-only after US6", async ({ page }) => {
+  test("primary-nav entry points are modern-only after US6", async ({
+    page,
+  }) => {
     // After T031 (webmgt.jsp rewired to mount ContentExplorerShell,
     // STOP including miller Finder for primary exploration), the
     // hard-cut evidence is the absence of any Finder widget in the
@@ -171,7 +171,7 @@ test.describe("US6 hard cut — cutover inventory evidence (FR-022)", () => {
     // SC-009 (a11y) and SC-012 (FR-029 parity).
     await page.goto(
       `${BASE_URL}/Rhythmyx/cm/app/explorerModern.jsp?_=${Date.now()}`,
-      { waitUntil: "networkidle" },
+      { waitUntil: "networkidle" }
     );
     await expectNoSeriousA11yViolations(page, {
       scope: '[id="perc-modern-ui-mount"], [data-testid="explorer-tree"]',

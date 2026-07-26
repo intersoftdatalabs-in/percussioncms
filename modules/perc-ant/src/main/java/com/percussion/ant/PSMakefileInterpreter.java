@@ -21,9 +21,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * Interprets a simple makefile-like syntax and expands macro definitions.
- */
+/** Interprets a simple makefile-like syntax and expands macro definitions. */
 public class PSMakefileInterpreter {
   /**
    * Constructs a new interpreter for the specified makefile.

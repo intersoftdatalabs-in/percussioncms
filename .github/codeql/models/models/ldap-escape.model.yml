@@ -6,6 +6,36 @@ extensions:
       pack: codeql/java-all
       extensible: barrierModel
     data:
-      - ["com.percussion.security", "PSJndiUtils", false, "escapeLdapFilter", "(String)", "", "ReturnValue", "ldap-injection", "manual"]
-      - ["com.percussion.security", "PSJndiUtils", false, "getFilterString", "(String[],String,String)", "", "ReturnValue", "ldap-injection", "manual"]
-      - ["com.percussion.security", "PSJndiUtils", false, "andLdapFilters", "(String,String)", "", "ReturnValue", "ldap-injection", "manual"]
+      - [
+          "com.percussion.security",
+          "PSJndiUtils",
+          false,
+          "escapeLdapFilter",
+          "(String)",
+          "",
+          "ReturnValue",
+          "ldap-injection",
+          "manual",
+        ]
+      - [
+          "com.percussion.security",
+          "PSJndiUtils",
+          false,
+          "getFilterString",
+          "(String[],String,String)",
+          "",
+          "ReturnValue",
+          "ldap-injection",
+          "manual",
+        ]
+      - [
+          "com.percussion.security",
+          "PSJndiUtils",
+          false,
+          "andLdapFilters",
+          "(String,String)",
+          "",
+          "ReturnValue",
+          "ldap-injection",
+          "manual",
+        ]

@@ -2,20 +2,20 @@
 
 **Prerequisites**: plan.md, spec.md, research.md, data-model.md, contracts/, quickstart.md  
 **Branch**: `991-system-java-home`  
-**Issue**: https://github.com/intersoftdatalabs-in/percussioncms/issues/1340  
+**Issue**: https://github.com/intersoftdatalabs-in/percussioncms/issues/1340
 
 **GitHub story issues** (checklists live on the issues; T0xx remain here as the source of truth):
 
-| Phase / story | GitHub |
-|---------------|--------|
-| Setup + Foundational | #1377 |
-| US1 CMS Jetty | #1378 |
-| US2 DTS | #1379 |
-| US3 Interactive install | #1380 |
-| US4 Unattended install | #1381 |
-| US5 Re-point | #1382 |
-| US6 Legacy + install.xml | #1383 |
-| Polish | #1384 |
+|      Phase / story       | GitHub |
+|--------------------------|--------|
+| Setup + Foundational     | #1377  |
+| US1 CMS Jetty            | #1378  |
+| US2 DTS                  | #1379  |
+| US3 Interactive install  | #1380  |
+| US4 Unattended install   | #1381  |
+| US5 Re-point             | #1382  |
+| US6 Legacy + install.xml | #1383  |
+| Polish                   | #1384  |
 
 ## Phase 1: Setup
 
@@ -131,13 +131,14 @@
 
 - [x] T041 [US5] Finalize re-point docs: edit `java.properties`, restart console; for services re-run install-jetty-service / DTS service install or update `/etc/default` / Procrun — `modules/perc-jetty/README.md` (Java home resolution section), DTS README, `specs/991-system-java-home/quickstart.md`
 - [x] T042 [US5] Ensure resolve failure messages list attempted sources when config path is invalid after re-point — `resolve-java-home.sh` / `.bat` and Java helper `ResolutionResult.renderFailure` (`Sources tried:` block)
+
 <!--
-  Historical note: T043 was originally "Commit US5 (may combine with US6 polish PR)".
-  US5+US6 was committed as a single PR (#1466) per the "may combine" relaxation, so
-  T043 was folded into T049. The T043 row remains in the table to preserve the
-  historical task ID sequence; the work is documented on T049 below.
+Historical note: T043 was originally "Commit US5 (may combine with US6 polish PR)".
+US5+US6 was committed as a single PR (#1466) per the "may combine" relaxation, so
+T043 was folded into T049. The T043 row remains in the table to preserve the
+historical task ID sequence; the work is documented on T049 below.
 -->
-- [x] T043 [US5] (folded into T049) Commit US5 (originally combined with US6 polish PR per plan relaxation).
+- [x] T043 [US5](folded into T049) Commit US5 (originally combined with US6 polish PR per plan relaxation).
 
 ---
 
@@ -189,15 +190,15 @@ Phase 1 Setup
 
 **Phase 10 ordering note**: Phase 10 is a follow-up after the original story PRs (`#1466`, `#1476`) have landed. The current implementation satisfies layer-1 (unit) + layer-2 (structural). Phase 10 closes the FR-013 / SC-006 gap with layer-3 (behavioral script-invocation). Phase 10 should land in a dedicated PR **before** any further story PRs ship so SC-006 has a measurable, CI-enforced gate.
 
-| Story | Depends on | Blocks |
-|-------|------------|--------|
-| US1 | Foundational | Preferred before US2 for shared script pattern proof |
-| US2 | Foundational (+ US1 pattern recommended) | — |
-| US3 | Foundational (Java helpers for write/validate) | US4 can share PR |
-| US4 | US3 helpers / same preinstall pipeline | — |
-| US5 | US1 (runtime read path) | — |
-| US6 | US1 resolver fallback path | — |
-| Phase 10 | Foundational + Phases 1–9 (full implementation must exist before behavioral tests can reference resolved scripts) | SC-006; issue #1340 closure |
+|  Story   |                                                    Depends on                                                     |                        Blocks                        |
+|----------|-------------------------------------------------------------------------------------------------------------------|------------------------------------------------------|
+| US1      | Foundational                                                                                                      | Preferred before US2 for shared script pattern proof |
+| US2      | Foundational (+ US1 pattern recommended)                                                                          | —                                                    |
+| US3      | Foundational (Java helpers for write/validate)                                                                    | US4 can share PR                                     |
+| US4      | US3 helpers / same preinstall pipeline                                                                            | —                                                    |
+| US5      | US1 (runtime read path)                                                                                           | —                                                    |
+| US6      | US1 resolver fallback path                                                                                        | —                                                    |
+| Phase 10 | Foundational + Phases 1–9 (full implementation must exist before behavioral tests can reference resolved scripts) | SC-006; issue #1340 closure                          |
 
 ## Parallel Execution Examples
 
@@ -234,19 +235,19 @@ Each story PR: implement → tests pass via `./mvn-env.sh` → commit → PR →
 
 ## Task count summary
 
-| Phase | Story | Task IDs | Count |
-|-------|-------|----------|-------|
-| 1 Setup | — | T001–T002 | 2 |
-| 2 Foundational | — | T003–T010 | 8 |
-| 3 | US1 | T011–T019 | 9 |
-| 4 | US2 | T020–T027 | 8 |
-| 5 | US3 | T028–T034 | 7 |
-| 6 | US4 | T035–T039 | 5 |
-| 7 | US5 | T040–T043 | 3 (T043 superseded by T049) |
-| 8 | US6 | T044–T049 | 6 |
-| 9 Polish | — | T050–T056 | 7 |
-| 10 Post-Clarification Testing | — | T057–T063 | 7 |
-| **Total** | | **T001–T063** | **63** |
+|             Phase             | Story |   Task IDs    |            Count            |
+|-------------------------------|-------|---------------|-----------------------------|
+| 1 Setup                       | —     | T001–T002     | 2                           |
+| 2 Foundational                | —     | T003–T010     | 8                           |
+| 3                             | US1   | T011–T019     | 9                           |
+| 4                             | US2   | T020–T027     | 8                           |
+| 5                             | US3   | T028–T034     | 7                           |
+| 6                             | US4   | T035–T039     | 5                           |
+| 7                             | US5   | T040–T043     | 3 (T043 superseded by T049) |
+| 8                             | US6   | T044–T049     | 6                           |
+| 9 Polish                      | —     | T050–T056     | 7                           |
+| 10 Post-Clarification Testing | —     | T057–T063     | 7                           |
+| **Total**                     |       | **T001–T063** | **63**                      |
 
 ## Phase 10: Post-Clarification Testing Follow-up (FR-013 layer-3)
 
@@ -267,23 +268,23 @@ Each story PR: implement → tests pass via `./mvn-env.sh` → commit → PR →
 
 The matrix below is parameterized as `@ParameterizedTest` per scenario so each row is one or two test invocations. All paths use portable `java.nio.file.Path`.
 
-| # | Scenario | `<InstallDir>/JRE` | env `JAVA_HOME` | PATH `java` | Fake Java major | Expected outcome |
-|---|----------|---------------------|-----------------|--------------|-----------------|------------------|
-| 1 | config-only happy path | absent | absent | absent | 21 | success, source = `PRODUCT_CONFIG` |
-| 2 | env-only happy path | absent | set | absent | 21 | success, source = `PROCESS_ENV` |
-| 3 | legacy JRE happy path | present | absent | absent | 21 | success, source = `INSTALL_DIR_JRE` |
-| 4 | legacy JRE64 happy path | absent | absent | absent (JRE64 present) | 21 | success, source = `INSTALL_DIR_JRE64` |
-| 5 | PATH happy path | absent | absent | present | 21 | success, source = `PATH` |
-| 6 | config wins over env | absent | set (21) | absent | config=21, env=21 | success, source = `PRODUCT_CONFIG` |
-| 7 | env wins over legacy | present (21) | set (21) | absent | 21 | success, source = `PROCESS_ENV` |
-| 8 | legacy wins over PATH | absent | absent | present (21) | 21 | success, source = `INSTALL_DIR_JRE` (or `JRE64`, depending on which is present) |
-| 9 | config rejects invalid path | absent | absent | absent | config points at non-existent dir | failure, `Sources tried:` lists PRODUCT_CONFIG, PROCESS_ENV, INSTALL_DIR_JRE, INSTALL_DIR_JRE64, PATH; exit non-zero |
-| 10 | env rejects wrong major | absent | set (8) | absent | env=8 | failure, `Sources tried:` lists PROCESS_ENV (not Java 21) |
-| 11 | JRE rejects wrong major | present (8) | absent | absent | 8 | failure, `Sources tried:` lists INSTALL_DIR_JRE (not Java 21) |
-| 12 | PATH rejects wrong major | absent | absent | present (8) | 8 | failure, `Sources tried:` lists PATH (not Java 21) |
-| 13 | all sources wrong major | present (8) | set (17) | present (22) | mixed | failure, `Sources tried:` lists every attempt |
-| 14 | config valid + env wrong major | present (21) | set (17) | absent | config=21, env=17 | success, source = `PRODUCT_CONFIG` |
-| 15 | no sources at all | absent | absent | absent | n/a | failure, exit non-zero, message mentions required major 21 |
+| #  |            Scenario            | `<InstallDir>/JRE` | env `JAVA_HOME` |      PATH `java`       |          Fake Java major          |                                                   Expected outcome                                                   |
+|----|--------------------------------|--------------------|-----------------|------------------------|-----------------------------------|----------------------------------------------------------------------------------------------------------------------|
+| 1  | config-only happy path         | absent             | absent          | absent                 | 21                                | success, source = `PRODUCT_CONFIG`                                                                                   |
+| 2  | env-only happy path            | absent             | set             | absent                 | 21                                | success, source = `PROCESS_ENV`                                                                                      |
+| 3  | legacy JRE happy path          | present            | absent          | absent                 | 21                                | success, source = `INSTALL_DIR_JRE`                                                                                  |
+| 4  | legacy JRE64 happy path        | absent             | absent          | absent (JRE64 present) | 21                                | success, source = `INSTALL_DIR_JRE64`                                                                                |
+| 5  | PATH happy path                | absent             | absent          | present                | 21                                | success, source = `PATH`                                                                                             |
+| 6  | config wins over env           | absent             | set (21)        | absent                 | config=21, env=21                 | success, source = `PRODUCT_CONFIG`                                                                                   |
+| 7  | env wins over legacy           | present (21)       | set (21)        | absent                 | 21                                | success, source = `PROCESS_ENV`                                                                                      |
+| 8  | legacy wins over PATH          | absent             | absent          | present (21)           | 21                                | success, source = `INSTALL_DIR_JRE` (or `JRE64`, depending on which is present)                                      |
+| 9  | config rejects invalid path    | absent             | absent          | absent                 | config points at non-existent dir | failure, `Sources tried:` lists PRODUCT_CONFIG, PROCESS_ENV, INSTALL_DIR_JRE, INSTALL_DIR_JRE64, PATH; exit non-zero |
+| 10 | env rejects wrong major        | absent             | set (8)         | absent                 | env=8                             | failure, `Sources tried:` lists PROCESS_ENV (not Java 21)                                                            |
+| 11 | JRE rejects wrong major        | present (8)        | absent          | absent                 | 8                                 | failure, `Sources tried:` lists INSTALL_DIR_JRE (not Java 21)                                                        |
+| 12 | PATH rejects wrong major       | absent             | absent          | present (8)            | 8                                 | failure, `Sources tried:` lists PATH (not Java 21)                                                                   |
+| 13 | all sources wrong major        | present (8)        | set (17)        | present (22)           | mixed                             | failure, `Sources tried:` lists every attempt                                                                        |
+| 14 | config valid + env wrong major | present (21)       | set (17)        | absent                 | config=21, env=17                 | success, source = `PRODUCT_CONFIG`                                                                                   |
+| 15 | no sources at all              | absent             | absent          | absent                 | n/a                               | failure, exit non-zero, message mentions required major 21                                                           |
 
 Each scenario runs on Linux and Windows (fixtures parameterized by `OSUtil` / JUnit `@EnabledOnOs`). `Sources tried:` assertions use a regex-tolerant matcher so the exact ordering doesn't matter.
 
@@ -301,8 +302,9 @@ Each scenario runs on Linux and Windows (fixtures parameterized by `OSUtil` / JU
 
 ## Format validation
 
-- All tasks use `- [ ]`, sequential IDs, file paths  
-- `[P]` only on parallelizable tasks  
-- `[USn]` only on user-story phase tasks  
-- Tests included (FR-013 + constitution test discipline)  
-- Phase 10 layer-3 task numbering continues from T056 (T057+) to keep IDs unique and monotonic across phases  
+- All tasks use `- [ ]`, sequential IDs, file paths
+- `[P]` only on parallelizable tasks
+- `[USn]` only on user-story phase tasks
+- Tests included (FR-013 + constitution test discipline)
+- Phase 10 layer-3 task numbering continues from T056 (T057+) to keep IDs unique and monotonic across phases
+

@@ -20,20 +20,25 @@ This guide documents how to validate that the new Workflow Admin and Admin shell
 ## Build & Test
 
 ### Unit Tests (Vitest)
+
 ```bash
 cd WebUI
 npm test
 ```
+
 Expected: All tests pass. Coverage ≥ 80% for new components.
 
 ### Build the Bundle
+
 ```bash
 cd WebUI
 npm run build:modern
 ```
+
 Expected: `war/modern/assets/perc-modern-ui.js` produced without TypeScript or Vite errors.
 
 ### i18n Lint (verify no hard-coded strings)
+
 ```bash
 # Verify no hard-coded English strings in new TSX files
 grep -r '"[A-Z]' WebUI/src/main/ts/workflowAdmin/ WebUI/src/main/ts/admin/ WebUI/src/main/ts/workflowActions/ \
@@ -42,6 +47,7 @@ grep -r '"[A-Z]' WebUI/src/main/ts/workflowAdmin/ WebUI/src/main/ts/admin/ WebUI
 ```
 
 ### E2E Tests (Playwright)
+
 ```bash
 cd modules/perc-qa-automation/frontend
 BASE_URL=http://localhost:9992 npx playwright test tests/us1-workflow-definitions.spec.js
@@ -51,6 +57,7 @@ BASE_URL=http://localhost:9992 npx playwright test tests/us4-item-transitions.sp
 BASE_URL=http://localhost:9992 npx playwright test tests/us5-categories-admin.spec.js
 BASE_URL=http://localhost:9992 npx playwright test tests/us6-scheduled-tasks.spec.js
 ```
+
 Expected: All tests pass against the running CMS instance.
 
 ---
@@ -138,3 +145,4 @@ jar -tf WebUI/target/*.war | grep -E "adminWorkflow|percWorkflow|percRoles|percU
 - Admin API contracts: [contracts/admin-api.md](./contracts/admin-api.md)
 - Spec: [spec.md](./spec.md)
 - Plan: [plan.md](./plan.md)
+

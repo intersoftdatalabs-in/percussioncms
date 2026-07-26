@@ -54,9 +54,7 @@ import org.apache.tools.ant.taskdefs.condition.Condition;
  */
 public class PSPropertyCondition extends PSAction implements Condition {
 
-  /**
-   * Creates a new condition instance with default settings.
-   */
+  /** Creates a new condition instance with default settings. */
   public PSPropertyCondition() {}
 
   /* (non-Javadoc)
@@ -194,7 +192,8 @@ public class PSPropertyCondition extends PSAction implements Condition {
    * Sets whether the comparison of the specified property value and the actual value in the
    * property file should be case-sensitive or not.
    *
-   * @param b <code>true</code> if the comparison should be case-sensitive, otherwise <code>false</code>
+   * @param b <code>true</code> if the comparison should be case-sensitive, otherwise <code>false
+   *     </code>
    */
   public void setIsCaseSensitive(boolean b) {
     m_caseSensitive = b;

@@ -23,13 +23,11 @@ import java.util.List;
 import org.apache.tools.ant.launch.Launcher;
 
 /**
- * Launches an Apache Ant build with the provided arguments by delegating to
- * {@link org.apache.tools.ant.launch.Launcher}.
+ * Launches an Apache Ant build with the provided arguments by delegating to {@link
+ * org.apache.tools.ant.launch.Launcher}.
  */
 public class PSAntLauncher {
-  /**
-   * Creates a new Ant launcher.
-   */
+  /** Creates a new Ant launcher. */
   public PSAntLauncher() {}
 
   /**

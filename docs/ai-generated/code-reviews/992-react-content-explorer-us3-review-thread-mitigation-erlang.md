@@ -199,3 +199,4 @@ afterwards confirms `isResolved: true` for every thread.
   `fix(992/us3): address kilo-code-bot PR #1396 review threads (safeNavigate + keyboard activation + aria-controls)`
 - After PR is updated and threads are resolved, US5 (search,
   T065-T070) can proceed on a fresh branch off `development`.
+

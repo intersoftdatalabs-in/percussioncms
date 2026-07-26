@@ -21,9 +21,11 @@ and `google-java-format` will flag — fix before commit.
 ## Findings
 
 ### Bugs (blocking)
+
 - None.
 
 ### Missing / weak tests (blocking under Constitution III)
+
 - None. Both new tests are behavioral:
   - `testRemoveIfExistsSoftWhenThemeRootMissing` (line 278) constructs an entry
     whose value resolves under `themeRoot`, calls `removeIfExists` with a
@@ -34,6 +36,7 @@ and `google-java-format` will flag — fix before commit.
     throw + map unchanged. Covers the protocol-relative skip.
 
 ### Cross-platform / portability (blocking per AGENTS.md)
+
 - None. All filesystem joins in the new tests go through `themeRoot.resolve(...)`
   or `Files.createDirectories` / `Files.createFile` — no hardcoded `/` or `\\`.
   The protocol-relative fix (`isRemoteUrl` now matches `//`) is itself a
@@ -41,6 +44,7 @@ and `google-java-format` will flag — fix before commit.
   throws on Windows.
 
 ### Security / footguns (blocking)
+
 - None.
   - `isRemoteUrl` returns `false` for `null` (line 257), so a null `cssFile`
     falls through to `requireUnderBase` — that's correct: a null value was
@@ -56,6 +60,7 @@ and `google-java-format` will flag — fix before commit.
     `getLinkPaths()` in practice.
 
 ### Maintainability / conventions (suggestion — **but treated as blocking
+
 here because it's literally the same file the review just touched**)
 
 - **Indentation regression in `testPerCallRootParameterization`.**
@@ -73,11 +78,13 @@ here because it's literally the same file the review just touched**)
   file and churn the diff.
 
 ### Nits (non-blocking)
+
 - None.
 
 ## Verification of review comment fixes
 
 ### Comment 3605172614 — soft-fail guard
+
 - Issue: `requireUnderBase` throws `IllegalArgumentException` when
   `themeRoot` does not exist, silently aborting the whole import via
   `process()`'s `catch(Exception)`.
@@ -91,6 +98,7 @@ here because it's literally the same file the review just touched**)
   rationale (preserve pre-fix soft behavior). Pass.
 
 ### Comment 3605172619 — protocol-relative URLs
+
 - Issue: `getLinkPaths()` can produce protocol-relative
   `//cdn.example/style.css` values that the post-v2 `isHttpUrl` check did
   not match, causing them to be canonicalized as filesystem paths (throws
@@ -109,9 +117,10 @@ here because it's literally the same file the review just touched**)
   - `null` → false
   - `"ftp://other.example/file"` → false (will fall through to
     `requireUnderBase`, which rejects it — safe).
-  Pass.
+    Pass.
 
 ### Comment 3605172613 — unused import
+
 - Issue: `import com.percussion.sitemanage.importer.IPSSiteImportLogger;`
   unused after v2.
 - Fix: removed (test file line 28 of the pre-fix → absent in the diff).
@@ -119,6 +128,7 @@ here because it's literally the same file the review just touched**)
   (the import was the only occurrence). Pass.
 
 ### Comment 3605172626 — misleading test name
+
 - Issue: `testConcurrentImportsRaceRegression` was not actually a
   concurrency test; the body runs sequentially.
 - Fix: renamed to `testPerCallRootParameterization` with display name
@@ -132,6 +142,7 @@ here because it's literally the same file the review just touched**)
   needs repair.
 
 ### CodeQL alert #1774
+
 - Issue: residual `java/path-injection` after the v2 fix.
 - Closure plan per the prompt: runtime fix (requireUnderBase) is in
   place; model pack and path query-filter are out of scope for this PR.
@@ -179,3 +190,4 @@ change. Module test run was scoped to this class only as instructed.
   by two spaces to match the class-member convention used by every other
   test in the file. After the indent fix, re-run spotless + the targeted
   test suite as a sanity check, then commit.
+

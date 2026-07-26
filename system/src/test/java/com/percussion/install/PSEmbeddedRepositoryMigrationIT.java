@@ -66,8 +66,7 @@ public class PSEmbeddedRepositoryMigrationIT {
       st.execute(
           "CREATE TABLE CONTENT (ID INT PRIMARY KEY, TITLE VARCHAR(64), "
               + "FLAG CHAR(1), BODY CLOB)");
-      st.execute(
-          "CREATE TABLE NEXTNUMBER (KEYNAME VARCHAR(64) PRIMARY KEY, NEXTNR INT NOT NULL)");
+      st.execute("CREATE TABLE NEXTNUMBER (KEYNAME VARCHAR(64) PRIMARY KEY, NEXTNR INT NOT NULL)");
       st.execute("INSERT INTO CONTENT VALUES (99, 'preserved', 'T', 'hello-clob')");
       st.execute("INSERT INTO NEXTNUMBER VALUES ('CONTENT', 200)");
     }
@@ -82,8 +81,7 @@ public class PSEmbeddedRepositoryMigrationIT {
     source.setProperty("PWD", "");
     source.setProperty("PWD_ENCRYPTED", "N");
 
-    Properties h2Props =
-        PSRepositoryConnectionHelper.buildH2TargetProperties(installRoot, h2Base);
+    Properties h2Props = PSRepositoryConnectionHelper.buildH2TargetProperties(installRoot, h2Base);
     h2Props.remove("INSTALL_ROOT_HINT");
     h2Props.setProperty("PWD_ENCRYPTED", "N");
 
@@ -97,8 +95,12 @@ public class PSEmbeddedRepositoryMigrationIT {
     // Pretend live config was still Derby before cutover
     Files.writeString(
         rxProps,
-        "DB_BACKEND=DERBY\nDB_DRIVER_NAME=derby\nDB_DRIVER_CLASS_NAME=org.apache.derby.jdbc.EmbeddedDriver\n"
-            + "DB_SERVER=//localhost:1527/CMDB\nUID=\nPWD=\n",
+        "DB_BACKEND=DERBY\n"
+            + "DB_DRIVER_NAME=derby\n"
+            + "DB_DRIVER_CLASS_NAME=org.apache.derby.jdbc.EmbeddedDriver\n"
+            + "DB_SERVER=//localhost:1527/CMDB\n"
+            + "UID=\n"
+            + "PWD=\n",
         StandardCharsets.UTF_8);
 
     Path percDs = installRoot.resolve(PSConfigCutover.PERC_DS_RELATIVE);

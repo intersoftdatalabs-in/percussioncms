@@ -23,30 +23,30 @@
 
 ### Spec / contract
 
-| Artifact | Change | Compliance |
-|----------|--------|------------|
-| `WebUI/src/main/ts/api/contentExplorer/types.ts` | Adds optional `status?: number` field to `ClipboardPasteResultItem` so consumers can distinguish 409 (conflict) from generic 500 / network failures without parsing the message. JSDoc updated to reference Edge Cases #3 / T092c. | ✅ Constitution II (extension to existing typed surface; no invented fields). |
-| `WebUI/src/main/ts/api/contentExplorer/clipboardApi.ts` | `pasteClipboardItems` now extracts the HTTP status from the rejection reason when present, and produces a human-readable `"<status> <statusText>"` message when the reason is an ApiError-shaped object. The pre-existing generic-Error and non-Error string paths are preserved. | ✅ |
-| `WebUI/src/main/ts/contentExplorer/clipboard/ClipboardPanel.tsx` | Summary view's failure `<li>` adds `data-testid="clipboard-summary-failure-{idx}"` and `data-conflict="true"` when `r.status === 409`. Existing `data-testid="clipboard-summary-failures"` wrapper preserved. | ✅ |
-| `WebUI/src/test/ts/contentExplorer/clipboardApi.test.ts` | Adds second `describe` block "pasteClipboardItems / T092c / Edge Cases #3: concurrent rename/move 409" with 3 tests: single 409 from moveItem, mixed-clipboard 409 + 200, generic-Error no-status. | ✅ Constitution III (behavioral tests). |
-| `WebUI/src/test/ts/contentExplorer/ClipboardPanel.test.tsx` | Adds 1 test asserting `data-conflict="true"` + visible "409" text when the paste rejects with an ApiError-shaped Error of status 409. | ✅ |
-| `modules/perc-qa-automation/frontend/tests/us8-edge-cases-concurrent-move.spec.js` (NEW) | Playwright spec documenting the two-browser-context race for QA re-execution on the UAT candidate build. Asserts both contexts reach the modern explorer without auth/UI failure (the smoke proof of the concurrent-user load the Edge Case describes). | ✅ |
-| `specs/992-react-content-explorer/checklists/edge-cases-coverage.md` (NEW) | Edge Cases ↔ test anchor map. Edge Cases #3 / #7 / #11 flipped from `gap` / `partial` to `covered` per T092c / T092d / T092e. | ✅ |
-| `specs/992-react-content-explorer/tasks.md` | T092c entry marked done with evidence (11/11 ClipboardPanel; 8/8 clipboardApi; Playwright spec authored; server-side 409 detection noted as follow-on). | ✅ |
+|                                         Artifact                                         |                                                                                                                                      Change                                                                                                                                       |                                  Compliance                                  |
+|------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------|
+| `WebUI/src/main/ts/api/contentExplorer/types.ts`                                         | Adds optional `status?: number` field to `ClipboardPasteResultItem` so consumers can distinguish 409 (conflict) from generic 500 / network failures without parsing the message. JSDoc updated to reference Edge Cases #3 / T092c.                                                | ✅ Constitution II (extension to existing typed surface; no invented fields). |
+| `WebUI/src/main/ts/api/contentExplorer/clipboardApi.ts`                                  | `pasteClipboardItems` now extracts the HTTP status from the rejection reason when present, and produces a human-readable `"<status> <statusText>"` message when the reason is an ApiError-shaped object. The pre-existing generic-Error and non-Error string paths are preserved. | ✅                                                                            |
+| `WebUI/src/main/ts/contentExplorer/clipboard/ClipboardPanel.tsx`                         | Summary view's failure `<li>` adds `data-testid="clipboard-summary-failure-{idx}"` and `data-conflict="true"` when `r.status === 409`. Existing `data-testid="clipboard-summary-failures"` wrapper preserved.                                                                     | ✅                                                                            |
+| `WebUI/src/test/ts/contentExplorer/clipboardApi.test.ts`                                 | Adds second `describe` block "pasteClipboardItems / T092c / Edge Cases #3: concurrent rename/move 409" with 3 tests: single 409 from moveItem, mixed-clipboard 409 + 200, generic-Error no-status.                                                                                | ✅ Constitution III (behavioral tests).                                       |
+| `WebUI/src/test/ts/contentExplorer/ClipboardPanel.test.tsx`                              | Adds 1 test asserting `data-conflict="true"` + visible "409" text when the paste rejects with an ApiError-shaped Error of status 409.                                                                                                                                             | ✅                                                                            |
+| `modules/perc-qa-automation/frontend/tests/us8-edge-cases-concurrent-move.spec.js` (NEW) | Playwright spec documenting the two-browser-context race for QA re-execution on the UAT candidate build. Asserts both contexts reach the modern explorer without auth/UI failure (the smoke proof of the concurrent-user load the Edge Case describes).                           | ✅                                                                            |
+| `specs/992-react-content-explorer/checklists/edge-cases-coverage.md` (NEW)               | Edge Cases ↔ test anchor map. Edge Cases #3 / #7 / #11 flipped from `gap` / `partial` to `covered` per T092c / T092d / T092e.                                                                                                                                                     | ✅                                                                            |
+| `specs/992-react-content-explorer/tasks.md`                                              | T092c entry marked done with evidence (11/11 ClipboardPanel; 8/8 clipboardApi; Playwright spec authored; server-side 409 detection noted as follow-on).                                                                                                                           | ✅                                                                            |
 
 ### Constitutional compliance
 
-| Constraint | Compliance |
-|------------|------------|
-| I (no invariants violated) | ✅ Existing paste-summary shape preserved (new optional field); existing tests continue to pass. |
-| II (no invented APIs) | ✅ `status` field mirrors the existing `ApiError.status` from `client.ts`; type field added without changing existing field semantics. |
-| III (behavioral tests) | ✅ 4 new Vitest tests (3 in clipboardApi, 1 in ClipboardPanel); 8/8 + 11/11 suites pass. |
-| IV (service-contract tests) | ✅ N/A — client-only changes; the server contract is unchanged. |
-| V (Plan / Complexity) | ✅ 1 type extension + 1 status-extraction branch + 1 UI data-attribute + 4 tests + 1 Playwright spec + 1 checklist + 1 task entry. No new deps. |
-| VI (threat-model note) | ✅ N/A — no new auth flow, no new network surface. The 409 surfacing improves observability of the existing moveItem endpoint. |
-| VII (format checks) | ✅ `npx tsc --noEmit` clean; `npx vitest run ../../test/ts/contentExplorer/{clipboardApi,ClipboardPanel}.test.tsx` = 8/8 + 11/11. |
-| IX (review-thread resolution) | ⏳ Will resolve per-thread on PR review. |
-| E (no residuals out of spec phases) | ✅ Edge Cases #3 closed via this commit; Edge Cases #7 / #11 closed via T092d / T092e per the updated checklist. |
+|             Constraint              |                                                                   Compliance                                                                   |
+|-------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------|
+| I (no invariants violated)          | ✅ Existing paste-summary shape preserved (new optional field); existing tests continue to pass.                                                |
+| II (no invented APIs)               | ✅ `status` field mirrors the existing `ApiError.status` from `client.ts`; type field added without changing existing field semantics.          |
+| III (behavioral tests)              | ✅ 4 new Vitest tests (3 in clipboardApi, 1 in ClipboardPanel); 8/8 + 11/11 suites pass.                                                        |
+| IV (service-contract tests)         | ✅ N/A — client-only changes; the server contract is unchanged.                                                                                 |
+| V (Plan / Complexity)               | ✅ 1 type extension + 1 status-extraction branch + 1 UI data-attribute + 4 tests + 1 Playwright spec + 1 checklist + 1 task entry. No new deps. |
+| VI (threat-model note)              | ✅ N/A — no new auth flow, no new network surface. The 409 surfacing improves observability of the existing moveItem endpoint.                  |
+| VII (format checks)                 | ✅ `npx tsc --noEmit` clean; `npx vitest run ../../test/ts/contentExplorer/{clipboardApi,ClipboardPanel}.test.tsx` = 8/8 + 11/11.               |
+| IX (review-thread resolution)       | ⏳ Will resolve per-thread on PR review.                                                                                                        |
+| E (no residuals out of spec phases) | ✅ Edge Cases #3 closed via this commit; Edge Cases #7 / #11 closed via T092d / T092e per the updated checklist.                                |
 
 ### Cross-platform / portability
 
@@ -60,14 +60,14 @@ No file I/O, no path construction. Pure data-shape changes.
 
 ### ER-typed summary
 
-| Category | Count |
-|----------|------:|
-| Blocking bugs | 0 |
-| Bugs caught-and-fixed-in-session | 0 |
-| Non-blocking observations | 3 (1 server-side follow-on, 1 Playwright is doc-first, 1 ApiError typing pattern) |
-| Style cleanups | 0 |
-| Cross-platform portability findings | 0 |
-| Constitution rule violations | 0 |
+|              Category               |                                                                             Count |
+|-------------------------------------|----------------------------------------------------------------------------------:|
+| Blocking bugs                       |                                                                                 0 |
+| Bugs caught-and-fixed-in-session    |                                                                                 0 |
+| Non-blocking observations           | 3 (1 server-side follow-on, 1 Playwright is doc-first, 1 ApiError typing pattern) |
+| Style cleanups                      |                                                                                 0 |
+| Cross-platform portability findings |                                                                                 0 |
+| Constitution rule violations        |                                                                                 0 |
 
 ---
 

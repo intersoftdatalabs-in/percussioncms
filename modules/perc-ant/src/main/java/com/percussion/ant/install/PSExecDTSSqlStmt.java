@@ -30,13 +30,9 @@ import java.sql.Statement;
 import java.util.Properties;
 import org.apache.tools.ant.BuildException;
 
-/**
- * Executes a DTS specific SQL statement.
- */
+/** Executes a DTS specific SQL statement. */
 public class PSExecDTSSqlStmt extends PSExecSQLStmt {
-  /**
-   * Creates a new DTS SQL statement executor.
-   */
+  /** Creates a new DTS SQL statement executor. */
   public PSExecDTSSqlStmt() {}
 
   /**

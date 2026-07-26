@@ -58,21 +58,21 @@ public interface IPSFileSystemService {
   /**
    * Given a folder path, it gets the children and returns a List of File objects.
    *
-* @param path The path of the folder. Assumed not <code>null</code>.
-    * @return A list of children of the folder path represented by 'path'.
-    * @throws FileNotFoundException
-    */
-   List<File> getChildren(String path) throws FileNotFoundException;
+   * @param path The path of the folder. Assumed not <code>null</code>.
+   * @return A list of children of the folder path represented by 'path'.
+   * @throws FileNotFoundException
+   */
+  List<File> getChildren(String path) throws FileNotFoundException;
 
   /**
-   * Adds a new folder with a fixed name specified by the implementation class (for example,
-   * "New Folder") in the parent folder given as an argument. So after calling this method
-   * successfully, a new folder with that name is created. A {@link File} object is returned
-   * pointing to the newly created folder.
-   * <p>
-   * Note that subsequent calls using the same path will not file. If the folder name prefix
-   * specified by the implementation is, for instance, "New Folder", a second call will create
-   * a folder with the name "New Folder 1". The number is incremented in subsequent calls.
+   * Adds a new folder with a fixed name specified by the implementation class (for example, "New
+   * Folder") in the parent folder given as an argument. So after calling this method successfully,
+   * a new folder with that name is created. A {@link File} object is returned pointing to the newly
+   * created folder.
+   *
+   * <p>Note that subsequent calls using the same path will not file. If the folder name prefix
+   * specified by the implementation is, for instance, "New Folder", a second call will create a
+   * folder with the name "New Folder 1". The number is incremented in subsequent calls.
    *
    * @param parentPath Parent folder path. Cannot be <code>null</code>.
    * @return A File object pointing to the newly created folder. Never <code>null</code>.
@@ -169,8 +169,8 @@ public interface IPSFileSystemService {
    * there is a folder with the same name, it returns an error.
    *
    * @param path the path to the new file. It includes its name.
-* @param pageContent the file to save
-    */
+   * @param pageContent the file to save
+   */
   void fileUpload(String path, InputStream pageContent) throws PSFileOperationException;
 
   /**

@@ -37,3 +37,4 @@
 - SC-002 provides a concrete, verifiable distribution check for legacy JSP removal.
 - Consistency Checker / Admin Console scoped to P3 in Assumptions to manage delivery risk.
 - Ready for `/speckit-clarify` (optional) or `/speckit-plan`.
+

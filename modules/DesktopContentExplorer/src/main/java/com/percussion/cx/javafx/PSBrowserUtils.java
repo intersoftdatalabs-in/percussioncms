@@ -31,9 +31,7 @@ import java.net.URL;
  */
 public class PSBrowserUtils {
 
-  /**
-   * Default constructor. This class is not intended to be instantiated; all methods are static.
-   */
+  /** Default constructor. This class is not intended to be instantiated; all methods are static. */
   public PSBrowserUtils() {}
 
   /**

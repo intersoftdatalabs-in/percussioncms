@@ -40,12 +40,12 @@ import org.xml.sax.InputSource;
  * identically on Windows, Linux, and macOS. See root {@code AGENTS.md} cross-platform rules.
  *
  * <p>Companion to {@code InstallXmlDeleteSetTest} (which asserts the same invariant via JUnit).
- * This class is the build-time gate; the JUnit test runs in {@code test} phase, this runs in
- * {@code verify} phase, so the build still catches the regression when run with {@code mvn -DskipTests
+ * This class is the build-time gate; the JUnit test runs in {@code test} phase, this runs in {@code
+ * verify} phase, so the build still catches the regression when run with {@code mvn -DskipTests
  * install}.
  *
- * <p>Like {@link VerifyJdbcDrivers}, {@code main} must not call {@link System#exit} under
- * {@code exec-maven-plugin:java} (in-process Maven JVM). See {@link BuildGateMains}.
+ * <p>Like {@link VerifyJdbcDrivers}, {@code main} must not call {@link System#exit} under {@code
+ * exec-maven-plugin:java} (in-process Maven JVM). See {@link BuildGateMains}.
  */
 public final class CheckNoGlobDeletes {
 
@@ -97,7 +97,8 @@ public final class CheckNoGlobDeletes {
     }
     if (!globs.isEmpty()) {
       System.err.println(
-          "ERROR: glob-based <delete> patterns found in install_jdbc_drivers target of install.xml:");
+          "ERROR: glob-based <delete> patterns found in install_jdbc_drivers target of"
+              + " install.xml:");
       for (String g : globs) {
         System.err.println("  " + g);
       }
@@ -117,12 +118,13 @@ public final class CheckNoGlobDeletes {
    * <p>Tries several locations so the gate works both when the process CWD is the module root
    * (standalone {@code mvn} from {@code modules/perc-distribution-tree}) and when Maven was
    * launched from the monorepo root (multi-module reactor). The Maven {@code verify} execution
-   * still passes an explicit {@code --install-xml ${project.basedir}/...} path; this method is
-   * the fallback for CLI / tests without that argument.
+   * still passes an explicit {@code --install-xml ${project.basedir}/...} path; this method is the
+   * fallback for CLI / tests without that argument.
    */
   static Path computeDefaultInstallXmlPath() {
     Path relative =
-        Paths.get("src", "main", "resources", "distribution", "rxconfig", "Installer", "install.xml");
+        Paths.get(
+            "src", "main", "resources", "distribution", "rxconfig", "Installer", "install.xml");
     List<Path> candidates = new ArrayList<>();
     candidates.add(relative);
 
@@ -158,7 +160,8 @@ public final class CheckNoGlobDeletes {
               "install.xml"));
     }
 
-    // Walk up from user.dir looking for the module layout (operator CLI from a subdir / monorepo root)
+    // Walk up from user.dir looking for the module layout (operator CLI from a subdir / monorepo
+    // root)
     Path cwd = Paths.get("").toAbsolutePath().normalize();
     Path dir = cwd;
     for (int depth = 0; dir != null && depth < 8; depth++, dir = dir.getParent()) {
@@ -196,8 +199,8 @@ public final class CheckNoGlobDeletes {
   }
 
   /**
-   * Returns every {@code <include name="...">} value inside the {@code <delete>} of {@code
-   * <target name="install_jdbc_drivers">} that contains a glob wildcard ({@code *} or {@code ?}).
+   * Returns every {@code <include name="...">} value inside the {@code <delete>} of {@code <target
+   * name="install_jdbc_drivers">} that contains a glob wildcard ({@code *} or {@code ?}).
    *
    * <p>Exposed at package-private visibility for unit testing. Parses with a hardened XML factory
    * (no external entities) so an attacker-controlled {@code install.xml} cannot inject entities or

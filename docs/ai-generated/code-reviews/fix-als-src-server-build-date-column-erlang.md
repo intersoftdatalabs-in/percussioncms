@@ -16,13 +16,13 @@ This change restores the correct constant value and aligns unit test assertions.
 
 ## Gate
 
-| Check | Result |
-|-------|--------|
-| Bugs | none |
+|               Check                |                               Result                                |
+|------------------------------------|---------------------------------------------------------------------|
+| Bugs                               | none                                                                |
 | Behavioral tests for changed logic | present (`PSLogHandlerTest` asserts column name + JDBC date format) |
-| Cross-platform path/file I/O | N/A (no path I/O) |
-| Security / silent failure | none — restores correct metadata write path |
-| May commit/push | **yes** |
+| Cross-platform path/file I/O       | N/A (no path I/O)                                                   |
+| Security / silent failure          | none — restores correct metadata write path                         |
+| May commit/push                    | **yes**                                                             |
 
 ## Issues
 
@@ -36,3 +36,4 @@ None.
 
 - `cd deployer && ../mvn-env.sh -o test -Dtest=PSLogHandlerTest` — Tests run: 2, Failures: 0
 - Pre-PR: `cd deployer && ../mvn-env.sh -o clean install` (standalone)
+

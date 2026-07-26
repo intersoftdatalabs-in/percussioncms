@@ -27,9 +27,7 @@ import org.apache.tools.ant.types.FileSet;
  * structure.
  */
 public class PSCopyDirectory extends Copy {
-  /**
-   * Creates a new copy directory task.
-   */
+  /** Creates a new copy directory task. */
   public PSCopyDirectory() {}
 
   /**
