@@ -1081,6 +1081,21 @@
                                 <delete dir="${assembly-directory}/Deployment/Server/webapps/manager" failonerror="false"/>
                                 <delete dir="${assembly-directory}/Deployment/Server/webapps/host-manager" failonerror="false"/>
                                 <delete failonerror="false" file="${assembly-directory}/Deployment/Server/conf/logging.properties"/>
+                                <!--
+                                  Belt-and-suspenders: cargo:package can leave a stale target/package
+                                  with stock Tomcat conf (HTTP 8080) when configfiles are not reapplied
+                                  on incremental builds. Always force Percussion conf from source so
+                                  ${http.port}=9980 (perc-catalina.properties) is what customers get.
+                                -->
+                                <copy file="${project.basedir}/src/main/tomcat11/conf/server.xml"
+                                      tofile="${assembly-directory}/Deployment/Server/conf/server.xml"
+                                      overwrite="true" failonerror="true"/>
+                                <copy file="${project.basedir}/src/main/tomcat11/conf/catalina.properties"
+                                      tofile="${assembly-directory}/Deployment/Server/conf/catalina.properties"
+                                      overwrite="true" failonerror="true"/>
+                                <copy file="${project.basedir}/src/main/conf/perc/perc-catalina.properties"
+                                      tofile="${assembly-directory}/Deployment/Server/conf/perc/perc-catalina.properties"
+                                      overwrite="true" failonerror="true"/>
                                 <available file="${assembly-directory}/Deployment/Server/conf/server.xml" property="assembly.has.server.xml"/>
                                 <fail message="Assembly missing Deployment/Server/conf/server.xml after staging Cargo package" unless="assembly.has.server.xml"/>
                                 <available file="${assembly-directory}/Deployment/Server/webapps/perc-metadata-services.war" property="assembly.has.metadata.war"/>

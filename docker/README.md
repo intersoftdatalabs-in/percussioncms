@@ -93,6 +93,9 @@ python3 docker/scripts/matrix-install-smoke.py --product cms --db postgresql
 # Both products × H2 and PostgreSQL
 python3 docker/scripts/matrix-install-smoke.py --product cms,dts --db h2,postgresql
 
+# DTS only × full Layer-1 DB matrix (H2 + external compose profiles)
+python3 docker/scripts/matrix-install-smoke.py --product dts --db h2,postgresql,mysql,sqlserver
+
 # Leave cell up for Playwright Layer 2 (perc-qa-automation)
 python3 docker/scripts/matrix-install-smoke.py --product cms --db postgresql --keep
 TEST_CMS_URL=http://localhost:9993 TEST_DB_TYPE=postgresql \
@@ -101,6 +104,18 @@ TEST_CMS_URL=http://localhost:9993 TEST_DB_TYPE=postgresql \
 # Dry-run (no docker)
 python3 docker/scripts/matrix-install-smoke.py --product cms --db h2 --dry-run --skip-image-build
 ```
+
+### DTS packaging notes (HTTP 9980)
+
+DTS Tomcat listens on **`${http.port}`** from `conf/perc/perc-catalina.properties` (default **9980**), not stock Tomcat 8080. The shipping tree requires:
+
+| File | Requirement |
+|------|-------------|
+| `conf/server.xml` | Property-driven connectors (`port="${http.port}"`) + `PSSimpleRedirectorValve` |
+| `conf/catalina.properties` | `common.loader` includes `common/lib`; `PROPERTY_SOURCE=com.percussion.tomcat.PSTomcatPropertySource` |
+| `common/lib/perc-tomcat-common-*.jar` | Must contain `com.percussion.tomcat.valves.PSSimpleRedirectorValve` (correct package) |
+
+Matrix host probe: `http://127.0.0.1:9983/` → container **9980**.
 
 Each run writes `docker/logs/matrix-results-<ts>.json` and a `RESULT:OK|FAIL STEP:matrix LOG:…` line.
 

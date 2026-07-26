@@ -25,6 +25,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
+import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import org.junit.jupiter.api.Test;
 
@@ -109,6 +110,68 @@ class DtsInstallerJarContainsDeploymentCommonLibTest {
                 + "; expected the runtime jars staged by the"
                 + " copy-deployment-server-common-lib maven-dependency-plugin:copy"
                 + " execution.");
+  }
+
+  /**
+   * #1500 DTS matrix: {@code server.xml} loads {@code
+   * com.percussion.tomcat.valves.PSSimpleRedirectorValve}. A missing package declaration compiled
+   * that class into the default package (jar root) and Tomcat failed with FATAL "Cannot start
+   * server".
+   */
+  @Test
+  void percTomcatCommonBundlesRedirectorValveInCorrectPackage() throws IOException {
+    Path jar = Path.of("target", "delivery-tier-distribution.jar");
+    if (!Files.isRegularFile(jar)) {
+      return;
+    }
+
+    String tomcatCommonEntry = null;
+    try (ZipFile zip = new ZipFile(jar.toFile())) {
+      tomcatCommonEntry =
+          zip.stream()
+              .map(ZipEntry::getName)
+              .filter(n -> n.startsWith(COMMON_LIB_PATH_PREFIX))
+              .filter(n -> n.contains("perc-tomcat-common") && n.endsWith(".jar"))
+              .findFirst()
+              .orElse(null);
+    }
+    if (tomcatCommonEntry == null) {
+      fail("Shipping jar missing perc-tomcat-common under " + COMMON_LIB_PATH_PREFIX);
+    }
+
+    // Nested jar: extract entry bytes to a temp file and inspect package path.
+    Path nested = Files.createTempFile("perc-tomcat-common-", ".jar");
+    try {
+      try (ZipFile zip = new ZipFile(jar.toFile())) {
+        ZipEntry entry = zip.getEntry(tomcatCommonEntry);
+        try (var in = zip.getInputStream(entry)) {
+          Files.write(nested, in.readAllBytes());
+        }
+      }
+      boolean foundCorrect = false;
+      boolean foundDefaultPackage = false;
+      try (ZipFile nestedZip = new ZipFile(nested.toFile())) {
+        for (var it = nestedZip.entries().asIterator(); it.hasNext(); ) {
+          String name = it.next().getName();
+          if ("com/percussion/tomcat/valves/PSSimpleRedirectorValve.class".equals(name)) {
+            foundCorrect = true;
+          }
+          if ("PSSimpleRedirectorValve.class".equals(name)) {
+            foundDefaultPackage = true;
+          }
+        }
+      }
+      assertTrue(
+          foundCorrect,
+          "perc-tomcat-common must contain"
+              + " com/percussion/tomcat/valves/PSSimpleRedirectorValve.class"
+              + " (package declaration required for Tomcat digester)");
+      assertTrue(
+          !foundDefaultPackage,
+          "PSSimpleRedirectorValve.class must not be in the default package (jar root)");
+    } finally {
+      Files.deleteIfExists(nested);
+    }
   }
 
   @Test
