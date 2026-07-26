@@ -28,9 +28,23 @@
 - Hibernate dialect registration in server-beans copies
 - Unit tests (utils + perc-distribution-tree)
 
-## Later PRs (not foundation)
+## Install matrix smoke (Layer 1)
 
-- Full install schema smoke against live Postgres (Testcontainers / CI)
+Ephemeral Docker cells for **CMS and DTS** per backend (silent install → start → probe → destroy):
+
+```bash
+python3 docker/scripts/matrix-install-smoke.py --product cms --db postgresql
+python3 docker/scripts/matrix-install-smoke.py --product cms,dts --db h2,postgresql
+```
+
+Details: `docker/README.md`, `docker/matrix/`, `docker/scripts/matrix-install-smoke.py`.
+
+Playwright gate (Layer 2, after `--keep`): `modules/perc-qa-automation/frontend/tests/install.spec.js`.
+
+## Later PRs
+
+- CI workflow wiring for the matrix harness (subset on PR, fuller nightly)
+- Expand perc-qa-automation full suite against matrix cells (on demand + CI)
 - `sys_DatabaseFunctionDefs.xml` postgres function rows parity
 - Product SQL branches that still assume MySQL/MSSQL/Oracle only
 - DTS service default external-Postgres as a first-class install target (hints only today)

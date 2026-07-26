@@ -32,170 +32,17 @@ services:
       start_period: ${PERC_HEALTHCHECK_START_PERIOD:-30s}
 
   # ============================================================
-  # Fresh install CMS containers for database backend testing
-  # Each service: starts DB, installs CMS fresh, starts Jetty
-  # Usage: docker compose --profile cms-h2 up -d
-  # ============================================================
-
-  cms-h2:
-    build:
-      context: .
-      dockerfile: docker/cms/Dockerfile
-    container_name: percussion-cms-h2
-    restart: unless-stopped
-    profiles:
-      - cms-h2
-      - cms-all
-    user: "1000:1001"
-    environment:
-      CMS_PORT: "9993"
-      DB_TYPE: "h2"
-    ports:
-      - "9993:9993"
-    volumes:
-      - perc-h2-data:/opt/Percussion
-    command: >
-      /bin/sh -c "
-        echo 'Installing CMS with H2...' &&
-        java -jar /workspace/modules/perc-distribution-tree/target/perc-distribution-tree-*-bin.zip-extracted/perc-distribution-tree-*/perc-preinstall.jar
-        /opt/Percussion --silent --db.type=h2 &&
-        /opt/Percussion/StartJetty.sh
-      "
-    healthcheck:
-      test: ["CMD-SHELL", "curl -s -o /dev/null -w '%{http_code}' http://localhost:9993/Rhythmyx/login | grep -q '200\\|302'"]
-      interval: 30s
-      timeout: 10s
-      retries: 60
-
-  cms-mysql:
-    build:
-      context: .
-      dockerfile: docker/cms/Dockerfile
-    container_name: percussion-cms-mysql
-    restart: unless-stopped
-    profiles:
-      - cms-mysql
-      - cms-all
-    user: "1000:1001"
-    environment:
-      CMS_PORT: "9994"
-      DB_TYPE: "mysql"
-    ports:
-      - "9994:9994"
-    depends_on:
-      mysql:
-        condition: service_healthy
-    volumes:
-      - perc-mysql-data:/opt/Percussion
-    command: >
-      /bin/sh -c "
-        echo 'Waiting for MySQL...' &&
-        until mysql -h mysql -u percuser -pPercPass123 -e 'SELECT 1' 2>/dev/null; do
-          sleep 2;
-        done &&
-        echo 'MySQL ready, installing CMS...' &&
-        java -jar /workspace/modules/perc-distribution-tree/target/perc-distribution-tree-*-bin.zip-extracted/perc-distribution-tree-*/perc-preinstall.jar
-        /opt/Percussion --silent
-        --db.type=mysql
-        --db.host=mysql
-        --db.port=3306
-        --db.name=percdb
-        --db.user=percuser
-        --db.password=PercPass123 &&
-        /opt/Percussion/StartJetty.sh
-      "
-    healthcheck:
-      test: ["CMD-SHELL", "curl -s -o /dev/null -w '%{http_code}' http://localhost:9994/Rhythmyx/login | grep -q '200\\|302'"]
-      interval: 30s
-      timeout: 10s
-      retries: 60
-
-  cms-postgresql:
-    build:
-      context: .
-      dockerfile: docker/cms/Dockerfile
-    container_name: percussion-cms-postgresql
-    restart: unless-stopped
-    profiles:
-      - cms-postgresql
-      - cms-all
-    user: "1000:1001"
-    environment:
-      CMS_PORT: "9995"
-      DB_TYPE: "postgresql"
-    ports:
-      - "9995:9995"
-    depends_on:
-      postgres:
-        condition: service_healthy
-    volumes:
-      - perc-postgres-data:/opt/Percussion
-    command: >
-      /bin/sh -c "
-        echo 'Waiting for PostgreSQL...' &&
-        until pg_isready -h postgres -U percuser 2>/dev/null; do
-          sleep 2;
-        done &&
-        echo 'PostgreSQL ready, installing CMS...' &&
-        java -jar /workspace/modules/perc-distribution-tree/target/perc-distribution-tree-*-bin.zip-extracted/perc-distribution-tree-*/perc-preinstall.jar
-        /opt/Percussion --silent
-        --db.type=postgresql
-        --db.host=postgres
-        --db.port=5432
-        --db.name=percdb
-        --db.user=percuser
-        --db.password=PercPass123 &&
-        /opt/Percussion/StartJetty.sh
-      "
-    healthcheck:
-      test: ["CMD-SHELL", "curl -s -o /dev/null -w '%{http_code}' http://localhost:9995/Rhythmyx/login | grep -q '200\\|302'"]
-      interval: 30s
-      timeout: 10s
-      retries: 60
-
-  cms-sqlserver:
-    build:
-      context: .
-      dockerfile: docker/cms/Dockerfile
-    container_name: percussion-cms-sqlserver
-    restart: unless-stopped
-    profiles:
-      - cms-sqlserver
-      - cms-all
-    user: "1000:1001"
-    environment:
-      CMS_PORT: "9996"
-      DB_TYPE: "sqlserver"
-    ports:
-      - "9996:9996"
-    depends_on:
-      sqlserver:
-        condition: service_healthy
-    volumes:
-      - perc-sqlserver-data:/opt/Percussion
-    command: >
-      /bin/sh -c "
-        echo 'Waiting for SQL Server...' &&
-        sleep 15 &&
-        echo 'SQL Server ready, installing CMS...' &&
-        java -jar /workspace/modules/perc-distribution-tree/target/perc-distribution-tree-*-bin.zip-extracted/perc-distribution-tree-*/perc-preinstall.jar
-        /opt/Percussion --silent
-        --db.type=sqlserver
-        --db.host=sqlserver
-        --db.port=1433
-        --db.name=percdb
-        --db.user=percuser
-        --db.password=PercPass123! &&
-        /opt/Percussion/StartJetty.sh
-      "
-    healthcheck:
-      test: ["CMD-SHELL", "curl -s -o /dev/null -w '%{http_code}' http://localhost:9996/Rhythmyx/login | grep -q '200\\|302'"]
-      interval: 30s
-      timeout: 10s
-      retries: 60
-
-  # ============================================================
-  # Database backends for CMS testing
+  # Database backends for matrix install smoke (#1500)
+  #
+  # Ephemeral CMS/DTS install cells are NOT long-lived compose
+  # services. Use:
+  #   python3 docker/scripts/matrix-install-smoke.py \
+  #     --product cms,dts --db h2,postgresql
+  # which mounts perc-distribution-tree*.jar /
+  # delivery-tier-distribution*.jar, runs silent install, starts
+  # the product, probes login/health, records results, and
+  # destroys the cell (unless --keep for Playwright Layer 2).
+  # See docker/README.md and docker/matrix/.
   # ============================================================
 
   mysql:
@@ -270,7 +117,3 @@ volumes:
   mysql-data:
   postgres-data:
   sqlserver-data:
-  perc-h2-data:
-  perc-mysql-data:
-  perc-postgres-data:
-  perc-sqlserver-data:

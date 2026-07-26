@@ -47,9 +47,13 @@ Fetch code scanning (CodeQL) alerts for a repository using the `gh` CLI and writ
   - After fetching, the script invokes `filter_stale_alerts.py` to write `alerts-stale-cache.md` (T007b).
 - **Tests**: `python3 -m pytest scripts/test_fetch_gh_code_scanning_alerts.py -v`
 
+### Matrix install smoke (docker/scripts — not this directory)
+
+Ephemeral CMS/DTS install matrix for #1500 lives under **`docker/scripts/matrix-install-smoke.py`** (not here). It mounts `perc-distribution-tree*.jar` / `delivery-tier-distribution*.jar`, runs silent install, starts the product, probes login/health, records JSON under `docker/logs/`, and destroys the cell. See `docker/README.md`.
+
 ### `install-cms-dev.py`
 
-Run the Percussion CMS installer ONCE on the host into a persistent `install_root/` directory. The docker dev/test runtime bind-mounts that directory into the `cms-dts` container at `/opt/Percussion/` so:
+Run the Percussion CMS installer ONCE on the host into a persistent `install_root/` directory. The docker **dev** runtime bind-mounts that directory into the `cms-dts` container at `/opt/Percussion/` so:
 
 - the container's only job is to run `StartJetty.sh` (no in-container install);
 - container restarts do **not** re-install (the install persists on the host);
