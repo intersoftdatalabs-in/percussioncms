@@ -96,32 +96,27 @@ public class Main {
     try {
 
       DbInstallConfigResolver.ParsedArgs parsedArgs = DbInstallConfigResolver.parseArgs(args);
-      if (parsedArgs.installPath() == null) {
-        System.out.println("Must specify installation or upgrade folder");
-        System.out.println(
-            "Optional database target for new installs: -Ddbprops=<path> or --dbprops=<path>");
-        System.out.println(
-            "Optional upgrade cleanup: --clean-install-dir (default false) removes obsolete"
-                + " folders such as PreInstall");
-        System.out.println(
-            "Silent mode: --silent or --no-tty (disables interactive prompts for automated testing)");
-        System.exit(0);
-      }
-
-      Path installPath = parsedArgs.installPath();
-
-      // Check for silent/non-interactive mode (--silent or --no-tty)
       Map<String, String> options = parsedArgs.options();
+      // Check for silent/non-interactive mode (--silent or --no-tty)
       boolean silent = isSilentMode(options);
-
-      DbInstallConfigResolver.ResolvedDbConfig resolvedDbConfig;
-      try {
-        resolvedDbConfig = DbInstallConfigResolver.resolveDbConfig(parsedArgs.options());
-      } catch (IllegalArgumentException badDbConfig) {
-        System.out.println("Database configuration error: " + badDbConfig.getMessage());
-        System.exit(1);
+      // Issue #1513 Phase 1: interactive path prompt + summary/confirm when a TTY is present.
+      // Silent / no-console keeps the historical parameter-driven contract (usage if no path).
+      boolean interactive =
+          InteractiveInstallWizard.isInteractive(silent, System.console() != null);
+      InteractiveInstallWizard.Phase1Result phase1 =
+          InteractiveInstallWizard.runPhase1(
+              parsedArgs, interactive, SystemConsoleInstallPrompt.INSTANCE);
+      if (!phase1.proceed()) {
+        if (phase1.message() != null && !phase1.message().isBlank()) {
+          System.out.println(phase1.message());
+        }
+        System.exit(phase1.exitCode());
         return;
       }
+
+      Path installPath = phase1.installPath();
+      options = phase1.options();
+      DbInstallConfigResolver.ResolvedDbConfig resolvedDbConfig = phase1.dbConfig();
 
       debug = System.getProperty("DEBUG");
       if (debug == null || debug.equalsIgnoreCase("")) {
@@ -202,7 +197,7 @@ public class Main {
 
       // Issue #1157: optional early cleanup of obsolete install-root directories on upgrade only
       try {
-        runObsoleteInstallDirCleanup(installPath, parsedArgs.options(), silent);
+        runObsoleteInstallDirCleanup(installPath, options, silent);
       } catch (Exception cleanupEx) {
         System.out.println(
             "Obsolete directory cleanup reported an error (upgrade will continue): "
@@ -372,18 +367,8 @@ public class Main {
    * @param options parsed CLI options
    * @return true if silent mode is enabled
    */
-  private static boolean isSilentMode(Map<String, String> options) {
-    if (options == null) {
-      return false;
-    }
-    String silent = options.get(DbInstallConfigResolver.SILENT_KEY);
-    String noTty = options.get("no-tty");
-    return "true".equalsIgnoreCase(silent)
-        || "yes".equalsIgnoreCase(silent)
-        || "1".equals(silent)
-        || "true".equalsIgnoreCase(noTty)
-        || "yes".equalsIgnoreCase(noTty)
-        || "1".equals(noTty);
+  static boolean isSilentMode(Map<String, String> options) {
+    return InteractiveInstallWizard.isSilentMode(options);
   }
 
   private static void deleteOldJDBCJars(Path installPath) {

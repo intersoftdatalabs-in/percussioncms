@@ -4,7 +4,7 @@
 **Feature branch:** `feat/1513-interactive-installer`  
 **Process:** Issue + feature branch implementation — **not** full Speckit  
 **Branch base:** `development`  
-**Status:** Ready for implementation (MVP phases 1–3 CMS first)  
+**Status:** Phase 1 implemented on branch (CMS path prompt + summary/confirm)  
 **Primary modules:** `modules/perc-distribution-tree` (CMS preinstall), `deliverytiersuite/.../delivery-tier-distribution` (DTS preinstall)  
 **Related work already landed:**
 
@@ -161,12 +161,13 @@ Recommended order for each field:
 - Confirm DTS parity scope (same 5 steps vs DTS-specific production/staging).  
 - Confirm whether typed custom Java path is in MVP.
 
-### Phase 1 — CMS wizard skeleton
+### Phase 1 — CMS wizard skeleton ✅
 
 - Detect interactive mode in `Main`.  
 - Step 1: install directory prompt when missing.  
 - Step 5: summary + confirm (even if DB/Java still from CLI defaults).  
-- Unit tests with fake prompt.
+- Unit tests with fake prompt.  
+- **Landed:** `InteractiveInstallWizard`, `InstallPrompt`, `SystemConsoleInstallPrompt`, wired from `Main`; tests in `InteractiveInstallWizardTest`.
 
 ### Phase 2 — Java step integration
 
