@@ -525,8 +525,7 @@ def main(argv: list[str] | None = None) -> int:
     # Always write clean UTF-8 without NULs
     out.write_text(md.replace("\x00", ""), encoding="utf-8", newline="\n")
 
-    unknown_n = md.count("| unknown |")
-    # Count properly from disposition column — crude: lines ending disposition
+    # Count unknown rows from the disposition column (table data rows only).
     unknown_rows = sum(
         1
         for line in md.splitlines()

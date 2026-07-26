@@ -48,7 +48,7 @@ Full CMS login + DTS health on Windows/Linux/macOS: **pending** distribution art
 ## Residual risks
 
 1. DTS distribution may still carry Derby coordinates for migration/legacy paths — confirm start scripts use H2 home (QC-024), not only `derby.system.home`.
-2. Inventory file still has many **heuristic `unknown`** dispositions (QC-001 freeze) — separate triage pass; false positives include minified JS matching `derby` substring.
+2. **QC-001 freeze is met** — inventory reports **0 `unknown`** disposition rows (`python3 scripts/derby-surface-inventory.py --fail-on-unknown`; see `derby-surface-inventory.md`). Residual triage is disposition *quality* (soft/docs-only stamps, minified-JS false positives already reclassified), not an open unknown count.
 
 ## Sign-off
 
