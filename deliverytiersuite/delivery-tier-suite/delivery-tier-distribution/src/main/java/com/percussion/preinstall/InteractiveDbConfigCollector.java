@@ -137,13 +137,24 @@ public final class InteractiveDbConfigCollector {
     return options;
   }
 
-  private static void clearStructured(Map<String, String> options) {
+  /**
+   * Drop structured connection fields and SSL overrides so a backend switch (H2 / env file) does
+   * not inherit stale keys from a prior attempt or CLI partial options.
+   */
+  static void clearStructured(Map<String, String> options) {
     options.remove("db.host");
     options.remove("db.port");
     options.remove("db.name");
     options.remove("db.schema");
     options.remove("db.user");
     options.remove("db.password");
+    options.remove("db.ssl.enabled");
+    options.remove("db.ssl.verify");
+    options.remove("db.ssl.allowSelfSigned");
+    options.remove("db.ssl.trustStorePath");
+    options.remove("db.ssl.trustStorePassword");
+    options.remove("db.ssl.keyStorePath");
+    options.remove("db.ssl.keyStorePassword");
   }
 
   private static void collectExternalFields(

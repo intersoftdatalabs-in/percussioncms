@@ -68,6 +68,32 @@ class InteractiveDbConfigCollectorTest {
   }
 
   @Test
+  void h2SelectionClearsStaleSslKeys() {
+    // SSL-only leftovers (no host/user/password override) so the interactive menu still runs.
+    Map<String, String> existing = new HashMap<>();
+    existing.put("db.ssl.enabled", "false");
+    existing.put("db.ssl.verify", "false");
+    existing.put("db.ssl.trustStorePath", "/tmp/ts");
+    ScriptedPrompt prompt = new ScriptedPrompt("1");
+    Map<String, String> out =
+        InteractiveDbConfigCollector.collect(existing, false, prompt);
+    assertEquals("h2", out.get("db.type"));
+    assertFalse(out.containsKey("db.ssl.enabled"));
+    assertFalse(out.containsKey("db.ssl.verify"));
+    assertFalse(out.containsKey("db.ssl.trustStorePath"));
+  }
+
+  @Test
+  void clearStructuredAndSslRemovesAllSensitiveKeys() {
+    Map<String, String> opts = new HashMap<>();
+    opts.put("db.host", "h");
+    opts.put("db.ssl.enabled", "true");
+    opts.put("db.ssl.trustStorePassword", "x");
+    InteractiveDbConfigCollector.clearStructuredAndSsl(opts);
+    assertTrue(opts.isEmpty());
+  }
+
+  @Test
   void loadPropertiesFileOption() throws Exception {
     Path props = tempDir.resolve("rxrepository.mysql.properties");
     Files.writeString(

@@ -302,6 +302,10 @@ public final class InteractiveDtsInstallWizard {
       options.remove("db.ssl.enabled");
       options.remove("db.ssl.verify");
       options.remove("db.ssl.allowSelfSigned");
+      options.remove("db.ssl.trustStorePath");
+      options.remove("db.ssl.trustStorePassword");
+      options.remove("db.ssl.keyStorePath");
+      options.remove("db.ssl.keyStorePassword");
     }
     throw new IllegalArgumentException("Too many failed database configuration attempts. Aborting.");
   }

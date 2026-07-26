@@ -112,13 +112,7 @@ public final class InteractiveDbConfigCollector {
     switch (choice) {
       case "1" -> {
         options.put("db.type", "h2");
-        // Clear any stale structured keys
-        options.remove("db.host");
-        options.remove("db.port");
-        options.remove("db.name");
-        options.remove("db.schema");
-        options.remove("db.user");
-        options.remove("db.password");
+        clearStructuredAndSsl(options);
         prompt.println("Selected embedded H2.");
       }
       case "2" -> {
@@ -152,12 +146,7 @@ public final class InteractiveDbConfigCollector {
         }
         options.put(DbInstallConfigResolver.DBPROPS_KEY, p.toString());
         options.remove("db.type");
-        options.remove("db.host");
-        options.remove("db.port");
-        options.remove("db.name");
-        options.remove("db.schema");
-        options.remove("db.user");
-        options.remove("db.password");
+        clearStructuredAndSsl(options);
       }
       default ->
           throw new IllegalArgumentException(
@@ -165,6 +154,26 @@ public final class InteractiveDbConfigCollector {
     }
 
     return options;
+  }
+
+  /**
+   * Drop structured connection fields and SSL overrides so a backend switch (or H2 / dbprops path)
+   * does not inherit stale keys from a prior attempt or CLI partial options.
+   */
+  static void clearStructuredAndSsl(Map<String, String> options) {
+    options.remove("db.host");
+    options.remove("db.port");
+    options.remove("db.name");
+    options.remove("db.schema");
+    options.remove("db.user");
+    options.remove("db.password");
+    options.remove("db.ssl.enabled");
+    options.remove("db.ssl.verify");
+    options.remove("db.ssl.allowSelfSigned");
+    options.remove("db.ssl.trustStorePath");
+    options.remove("db.ssl.trustStorePassword");
+    options.remove("db.ssl.keyStorePath");
+    options.remove("db.ssl.keyStorePassword");
   }
 
   private static void collectExternalFields(

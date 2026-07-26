@@ -170,29 +170,48 @@ public final class RepositoryConnectionProbe {
     if (host == null || port == null || name == null) {
       return null;
     }
-    validateHostPortName(host, port, name);
+    ValidatedEndpoint ep = validateHostPortName(host, port, name);
     return switch (type) {
-      case "mysql" -> "jdbc:mysql://" + host + ":" + port + "/" + name;
-      case "postgresql", "postgres" -> "jdbc:postgresql://" + host + ":" + port + "/" + name;
-      case "sqlserver" -> "jdbc:sqlserver://" + host + ":" + port + ";databaseName=" + name;
+      case "mysql" -> "jdbc:mysql://" + ep.host() + ":" + ep.port() + "/" + ep.name();
+      case "postgresql", "postgres" ->
+          "jdbc:postgresql://" + ep.host() + ":" + ep.port() + "/" + ep.name();
+      case "sqlserver" ->
+          "jdbc:sqlserver://" + ep.host() + ":" + ep.port() + ";databaseName=" + ep.name();
       default -> null;
     };
   }
 
-  static void validateHostPortName(String host, String port, String name) {
-    if (host == null || !SAFE_HOST.matcher(host.trim()).matches() || host.contains(";")) {
+  /**
+   * Validate and normalize host, port, and database name for JDBC URL composition.
+   *
+   * @return trimmed components safe for concatenation
+   * @throws IllegalArgumentException when any component is unsafe
+   */
+  static ValidatedEndpoint validateHostPortName(String host, String port, String name) {
+    if (host == null || port == null || name == null) {
+      throw new IllegalArgumentException(
+          "Invalid database host/port/name for connection probe (null component).");
+    }
+    String h = host.trim();
+    String p = port.trim();
+    String n = name.trim();
+    if (h.isEmpty() || !SAFE_HOST.matcher(h).matches()) {
       throw new IllegalArgumentException(
           "Invalid database host for connection probe (disallowed characters).");
     }
-    if (port == null || !isSafePort(port.trim())) {
+    if (!isSafePort(p)) {
       throw new IllegalArgumentException(
           "Invalid database port for connection probe (must be 1-65535).");
     }
-    if (name == null || !SAFE_NAME.matcher(name.trim()).matches()) {
+    if (n.isEmpty() || !SAFE_NAME.matcher(n).matches()) {
       throw new IllegalArgumentException(
           "Invalid database name for connection probe (disallowed characters).");
     }
+    return new ValidatedEndpoint(h, p, n);
   }
+
+  /** Trimmed host/port/name after successful validation. */
+  record ValidatedEndpoint(String host, String port, String name) {}
 
   static boolean isSafePort(String port) {
     try {

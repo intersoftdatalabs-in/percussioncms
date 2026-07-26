@@ -91,6 +91,26 @@ class RepositoryConnectionProbeTest {
   }
 
   @Test
+  void buildJdbcUrlTrimsHostPortNameBeforeComposition() {
+    Map<String, String> props = new HashMap<>();
+    props.put("perc.db.host", "  myhost  ");
+    props.put("perc.db.port", " 3306 ");
+    props.put("perc.db.name", "  db  ");
+    assertEquals(
+        "jdbc:mysql://myhost:3306/db",
+        RepositoryConnectionProbe.buildJdbcUrl("mysql", props));
+  }
+
+  @Test
+  void validateHostPortNameReturnsTrimmedComponents() {
+    RepositoryConnectionProbe.ValidatedEndpoint ep =
+        RepositoryConnectionProbe.validateHostPortName(" host ", " 5432 ", " name ");
+    assertEquals("host", ep.host());
+    assertEquals("5432", ep.port());
+    assertEquals("name", ep.name());
+  }
+
+  @Test
   void probeFailsCleanlyOnUnsafeHost() {
     Map<String, String> props = new HashMap<>();
     props.put("perc.db.type", "mysql");

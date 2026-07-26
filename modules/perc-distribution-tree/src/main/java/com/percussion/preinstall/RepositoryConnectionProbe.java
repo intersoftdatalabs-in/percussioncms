@@ -219,12 +219,14 @@ public final class RepositoryConnectionProbe {
     String name = firstNonBlank(p.get("perc.db.name"), p.get("perc.db.cms.name"));
 
     if (host != null && port != null && name != null) {
-      validateHostPortName(host, port, name);
+      ValidatedEndpoint ep = validateHostPortName(host, port, name);
       return switch (type) {
-        case "mysql" -> "jdbc:mysql://" + host + ":" + port + "/" + name;
-        case "postgresql" -> "jdbc:postgresql://" + host + ":" + port + "/" + name;
-        case "sqlserver" -> "jdbc:sqlserver://" + host + ":" + port + ";databaseName=" + name;
-        case "oracle" -> "jdbc:oracle:thin:@" + host + ":" + port + ":" + name;
+        case "mysql" -> "jdbc:mysql://" + ep.host() + ":" + ep.port() + "/" + ep.name();
+        case "postgresql" ->
+            "jdbc:postgresql://" + ep.host() + ":" + ep.port() + "/" + ep.name();
+        case "sqlserver" ->
+            "jdbc:sqlserver://" + ep.host() + ":" + ep.port() + ";databaseName=" + ep.name();
+        case "oracle" -> "jdbc:oracle:thin:@" + ep.host() + ":" + ep.port() + ":" + ep.name();
         default -> null;
       };
     }
@@ -239,24 +241,36 @@ public final class RepositoryConnectionProbe {
   }
 
   /**
-   * Validate host, port, and database/service name for use in JDBC URL composition.
+   * Validate and normalize host, port, and database/service name for JDBC URL composition.
    *
+   * @return trimmed components safe for concatenation
    * @throws IllegalArgumentException when any component is unsafe
    */
-  static void validateHostPortName(String host, String port, String name) {
-    if (host == null || !SAFE_HOST.matcher(host.trim()).matches() || host.contains(";")) {
+  static ValidatedEndpoint validateHostPortName(String host, String port, String name) {
+    if (host == null || port == null || name == null) {
+      throw new IllegalArgumentException(
+          "Invalid database host/port/name for connection probe (null component).");
+    }
+    String h = host.trim();
+    String p = port.trim();
+    String n = name.trim();
+    if (h.isEmpty() || !SAFE_HOST.matcher(h).matches()) {
       throw new IllegalArgumentException(
           "Invalid database host for connection probe (disallowed characters).");
     }
-    if (port == null || !isSafePort(port.trim())) {
+    if (!isSafePort(p)) {
       throw new IllegalArgumentException(
           "Invalid database port for connection probe (must be 1-65535).");
     }
-    if (name == null || !SAFE_NAME.matcher(name.trim()).matches()) {
+    if (n.isEmpty() || !SAFE_NAME.matcher(n).matches()) {
       throw new IllegalArgumentException(
           "Invalid database name for connection probe (disallowed characters).");
     }
+    return new ValidatedEndpoint(h, p, n);
   }
+
+  /** Trimmed host/port/name after successful validation. */
+  record ValidatedEndpoint(String host, String port, String name) {}
 
   static boolean isSafePort(String port) {
     try {
@@ -283,20 +297,15 @@ public final class RepositoryConnectionProbe {
       throw new IllegalArgumentException(
           "Unable to parse DB_SERVER into safe host/port/name for connection probe.");
     }
-    validateHostPortName(parsed.host(), parsed.port(), parsed.name());
+    ValidatedEndpoint ep =
+        validateHostPortName(parsed.host(), parsed.port(), parsed.name());
     return switch (parsed.type()) {
-      case "mysql" -> "jdbc:mysql://" + parsed.host() + ":" + parsed.port() + "/" + parsed.name();
+      case "mysql" -> "jdbc:mysql://" + ep.host() + ":" + ep.port() + "/" + ep.name();
       case "postgresql" ->
-          "jdbc:postgresql://" + parsed.host() + ":" + parsed.port() + "/" + parsed.name();
+          "jdbc:postgresql://" + ep.host() + ":" + ep.port() + "/" + ep.name();
       case "sqlserver" ->
-          "jdbc:sqlserver://"
-              + parsed.host()
-              + ":"
-              + parsed.port()
-              + ";databaseName="
-              + parsed.name();
-      case "oracle" ->
-          "jdbc:oracle:thin:@" + parsed.host() + ":" + parsed.port() + ":" + parsed.name();
+          "jdbc:sqlserver://" + ep.host() + ":" + ep.port() + ";databaseName=" + ep.name();
+      case "oracle" -> "jdbc:oracle:thin:@" + ep.host() + ":" + ep.port() + ":" + ep.name();
       default -> null;
     };
   }
@@ -342,28 +351,28 @@ public final class RepositoryConnectionProbe {
     // forms: host:port/name  or  host:port:sid  or  host:port
     String host;
     String port;
-    String dbName = fallbackName;
+    String dbName = fallbackName == null ? null : fallbackName.trim();
 
     int slash = s.indexOf('/');
     if (slash >= 0) {
-      String hp = s.substring(0, slash);
-      dbName = s.substring(slash + 1);
+      String hp = s.substring(0, slash).trim();
+      dbName = s.substring(slash + 1).trim();
       int colon = hp.lastIndexOf(':');
       if (colon <= 0) {
         return null;
       }
-      host = hp.substring(0, colon);
-      port = hp.substring(colon + 1);
+      host = hp.substring(0, colon).trim();
+      port = hp.substring(colon + 1).trim();
     } else {
       // host:port:sid (oracle) or host:port
       String[] parts = s.split(":");
       if (parts.length == 2) {
-        host = parts[0];
-        port = parts[1];
+        host = parts[0].trim();
+        port = parts[1].trim();
       } else if (parts.length == 3) {
-        host = parts[0];
-        port = parts[1];
-        dbName = parts[2];
+        host = parts[0].trim();
+        port = parts[1].trim();
+        dbName = parts[2].trim();
         if (t.isEmpty()) {
           t = "oracle";
         }

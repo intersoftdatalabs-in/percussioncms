@@ -240,6 +240,10 @@ public final class InteractiveInstallWizard {
       options.remove("db.ssl.enabled");
       options.remove("db.ssl.verify");
       options.remove("db.ssl.allowSelfSigned");
+      options.remove("db.ssl.trustStorePath");
+      options.remove("db.ssl.trustStorePassword");
+      options.remove("db.ssl.keyStorePath");
+      options.remove("db.ssl.keyStorePassword");
     }
     throw new IllegalArgumentException(
         "Too many failed database configuration attempts. Aborting.");
@@ -416,12 +420,13 @@ public final class InteractiveInstallWizard {
     }
   }
 
+  /** First non-blank value, trimmed (aligned with {@code RepositoryConnectionProbe} contract). */
   private static String firstNonBlank(String a, String b) {
     if (a != null && !a.isBlank()) {
-      return a;
+      return a.trim();
     }
     if (b != null && !b.isBlank()) {
-      return b;
+      return b.trim();
     }
     return null;
   }
