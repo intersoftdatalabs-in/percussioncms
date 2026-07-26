@@ -187,8 +187,14 @@ public class PSJdbcUtils {
       "com.microsoft.sqlserver.jdbc.SQLServerDriver";
 
   /** Additional connection url parameters required to use unicode (UTF-8) with mysql. */
+  /**
+   * Default MySQL/MariaDB JDBC query string. {@code connectionCollation} keeps connection string
+   * literals aligned with utf8mb4 table columns so CREATE VIEW … UNION install steps do not fail
+   * with "Illegal mix of collations" (matrix MySQL 8 / #1500).
+   */
   public static String MYSQL_CONN_PARAMS =
-      "?useUnicode=yes&characterEncoding=UTF-8&useSSL=true&requireSSL=false&verifyServerCertificate=false";
+      "?useUnicode=yes&characterEncoding=UTF-8&connectionCollation=utf8mb4_unicode_ci"
+          + "&useSSL=true&requireSSL=false&verifyServerCertificate=false";
 
   /**
    * Parses the specified database URL and returns the driver for which this is a valid URL.

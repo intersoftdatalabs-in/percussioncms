@@ -171,6 +171,9 @@ class InstallArgvTests(unittest.TestCase):
         self.assertIn("--db.type=postgresql", argv)
         self.assertIn("--db.host=postgres", argv)
         self.assertIn("--db.port=5432", argv)
+        # Compose matrix DBs have no TLS; installer default ssl=true breaks MySQL/SQL Server.
+        self.assertIn("--db.ssl.enabled=false", argv)
+        self.assertIn("--db.ssl.verify=false", argv)
         # Ensure we never emit Windows separators into java -jar argv.
         for part in argv[0:4]:
             self.assertNotIn("\\", part)
@@ -192,6 +195,7 @@ class InstallArgvTests(unittest.TestCase):
         )
         self.assertIn("--db.type=h2", argv)
         self.assertNotIn("--db.host=ignored", argv)
+        self.assertNotIn("--db.ssl.enabled=false", argv)
 
 
 class ProbeUrlTests(unittest.TestCase):

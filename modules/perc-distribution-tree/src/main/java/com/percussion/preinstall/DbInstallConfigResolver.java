@@ -368,20 +368,17 @@ public final class DbInstallConfigResolver {
     if (Objects.equals(dbType, "mysql")) {
       // Schema may be empty for MySQL; do not use firstNonBlank("", ...) (empty is blank).
       String resolvedSchema = schema == null ? "" : schema.trim();
-      String cmsServer =
-          "//"
-              + host
-              + ":"
-              + port
-              + "/"
-              + name
-              + "?useUnicode=yes&characterEncoding=UTF-8"
+      // connectionCollation matches compose/server utf8mb4_unicode_ci so UNION views
+      // (installRepository sqlMysql) do not mix latin1_swedish_ci connection literals.
+      String mysqlParams =
+          "?useUnicode=yes&characterEncoding=UTF-8&connectionCollation=utf8mb4_unicode_ci"
               + "&useSSL="
               + sslEnabled
               + "&requireSSL="
               + sslEnabled
               + "&verifyServerCertificate="
               + sslVerify;
+      String cmsServer = "//" + host + ":" + port + "/" + name + mysqlParams;
       systemProperties.put("perc.db.cms.backend", "MYSQL");
       systemProperties.put("perc.db.cms.driverName", MYSQL_COMPAT_DRIVER_NAME);
       // Prefer MariaDB client shipped in jetty/base/lib/jdbc (specs/001-fix-jdbc-drivers)
@@ -391,19 +388,7 @@ public final class DbInstallConfigResolver {
       systemProperties.put("perc.db.cms.schema", resolvedSchema);
       systemProperties.put(
           "perc.db.dts.jdbcUrl",
-          "jdbc:mysql://"
-              + host
-              + ":"
-              + port
-              + "/"
-              + name
-              + "?useUnicode=yes&characterEncoding=UTF-8"
-              + "&useSSL="
-              + sslEnabled
-              + "&requireSSL="
-              + sslEnabled
-              + "&verifyServerCertificate="
-              + sslVerify);
+          "jdbc:mysql://" + host + ":" + port + "/" + name + mysqlParams);
       systemProperties.put("perc.db.dts.jdbcDriver", MARIADB_DRIVER_CLASS);
       systemProperties.put(
           "perc.db.dts.hibernateDialect", "org.hibernate.dialect.MySQL5InnoDBDialect");

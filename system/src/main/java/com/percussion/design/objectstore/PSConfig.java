@@ -22,7 +22,6 @@ import jakarta.persistence.Basic;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
-import jakarta.persistence.Lob;
 import jakarta.persistence.Table;
 import jakarta.persistence.Transient;
 import jakarta.persistence.Version;
@@ -34,6 +33,8 @@ import java.util.Properties;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
@@ -403,8 +404,13 @@ public class PSConfig extends PSComponent {
   /**
    * The string representation of the configuration content. Initialized in ctor, never <code>null
    * </code> after that.
+   *
+   * <p>Use {@link SqlTypes#LONGVARCHAR} rather than {@code @Lob}: on PostgreSQL, {@code @Lob} maps
+   * to OID large-objects, but the install schema stores CONFIGURATION as TEXT (see cmsTableDef).
+   * Reading OID from a TEXT column yields "Bad value for type long" when loading relationship
+   * configs.
    */
-  @Lob
+  @JdbcTypeCode(SqlTypes.LONGVARCHAR)
   @Column(name = "CONFIGURATION")
   private String m_configString = null;
 

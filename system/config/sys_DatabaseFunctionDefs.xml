@@ -661,6 +661,15 @@
 			</Param>
 			<Description>Converts a CHAR type to an integer</Description>
 		</PSXDatabaseFunctionDef>
+		<PSXDatabaseFunctionDef
+			standardFunctionName="CHAR_TO_INT" driver="postgresql">
+			<Body>CAST({0} AS integer)</Body>
+			<Param name="source">
+				<Description>Required. Valid values are any replacement value
+					containing string representation of an integer.</Description>
+			</Param>
+			<Description>Converts a CHAR type to an integer</Description>
+		</PSXDatabaseFunctionDef>
 	</PSXDatabaseFunction>
 	<!-- DATEDIFF -->
 	<PSXDatabaseFunction

@@ -162,6 +162,15 @@ public class PSJdbcUtilsTest {
   }
 
   @Test
+  public void testMysqlConnParamsIncludeUtf8mb4Collation() {
+    // Matrix MySQL 8 failed install views with latin1 connection vs utf8mb4 tables.
+    assertTrue(
+        PSJdbcUtils.MYSQL_CONN_PARAMS.contains("connectionCollation=utf8mb4_unicode_ci"),
+        PSJdbcUtils.MYSQL_CONN_PARAMS);
+    assertTrue(PSJdbcUtils.MYSQL_CONN_PARAMS.contains("characterEncoding=UTF-8"));
+  }
+
+  @Test
   public void testGetDatabaseFromUrl() {
     String DB_NAME = "myDatabase";
 
