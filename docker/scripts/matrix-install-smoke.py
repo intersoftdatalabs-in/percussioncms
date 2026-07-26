@@ -176,49 +176,54 @@ def expand_matrix(products: Sequence[str], dbs: Sequence[str]) -> List[CellSpec]
     return [CellSpec(product=p, db_type=d) for p in products for d in dbs]
 
 
-def resolve_installer_jar(repo_root: Path, product: str) -> Path:
-    """Find the fattest non-empty installer jar under the module target dir.
+# Customer-shipped installer assembly names (maven-assembly finalName, not *-SNAPSHOT.jar).
+CMS_INSTALLER_JAR_NAME = "perc-distribution-tree.jar"
+DTS_INSTALLER_JAR_NAME = "delivery-tier-distribution.jar"
 
-    Assembly ``finalName`` is unversioned (``perc-distribution-tree.jar``) but
-    some builds leave a 0-byte stub while the versioned SNAPSHOT holds content.
-    Prefer any non-empty match; if multiple, take the largest.
+
+def resolve_installer_jar(repo_root: Path, product: str) -> Path:
+    """Resolve the **shipped** installer assembly jar only.
+
+    CMS ships ``perc-distribution-tree.jar``; DTS ships
+    ``delivery-tier-distribution.jar``. These are the maven-assembly
+    ``jar-with-dependencies`` artifacts with ``Main-Class`` set — the same
+    files given to customers. Versioned ``*-SNAPSHOT.jar`` / ``*-javadoc.jar``
+    artifacts from the plain jar plugin are **never** used.
     """
     if product == "cms":
-        target = repo_root / "modules" / "perc-distribution-tree" / "target"
-        patterns = ("perc-distribution-tree.jar", "perc-distribution-tree-*.jar")
-    else:
-        target = (
+        path = (
+            repo_root
+            / "modules"
+            / "perc-distribution-tree"
+            / "target"
+            / CMS_INSTALLER_JAR_NAME
+        )
+        build_hint = (
+            "cd modules/perc-distribution-tree && ../../mvn-env.sh package "
+            f"(produces target/{CMS_INSTALLER_JAR_NAME})"
+        )
+    elif product == "dts":
+        path = (
             repo_root
             / "deliverytiersuite"
             / "delivery-tier-suite"
             / "delivery-tier-distribution"
             / "target"
+            / DTS_INSTALLER_JAR_NAME
         )
-        patterns = (
-            "delivery-tier-distribution.jar",
-            "delivery-tier-distribution-*.jar",
+        build_hint = (
+            "cd deliverytiersuite/delivery-tier-suite/delivery-tier-distribution "
+            f"&& ../../../../mvn-env.sh package (produces target/{DTS_INSTALLER_JAR_NAME})"
         )
+    else:
+        raise ValueError(f"Unknown product: {product}")
 
-    candidates: List[Path] = []
-    for pattern in patterns:
-        candidates.extend(target.glob(pattern))
-    # Exclude javadoc/sources
-    candidates = [
-        c
-        for c in candidates
-        if c.is_file()
-        and c.stat().st_size > 0
-        and "javadoc" not in c.name
-        and "sources" not in c.name
-    ]
-    if not candidates:
+    if not path.is_file() or path.stat().st_size == 0:
         raise FileNotFoundError(
-            f"No installer jar for product={product} under {target}. "
-            "Build with: cd modules/perc-distribution-tree && ../../mvn-env.sh package "
-            "(and delivery-tier-distribution for DTS)."
+            f"Shipped installer jar missing or empty: {path}. Build with: {build_hint}. "
+            "Do not use *-SNAPSHOT.jar — only the unversioned assembly jar is the customer artifact."
         )
-    candidates.sort(key=lambda p: p.stat().st_size, reverse=True)
-    return candidates[0]
+    return path
 
 
 def build_probe_url(product: str, host_port: int) -> str:

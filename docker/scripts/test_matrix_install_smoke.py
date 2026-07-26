@@ -44,24 +44,63 @@ class ParseAndExpandTests(unittest.TestCase):
 
 
 class ResolveJarTests(unittest.TestCase):
-    def test_resolve_picks_largest_nonempty(self):
+    def test_resolve_uses_shipped_cms_name_only(self):
         with tempfile.TemporaryDirectory() as td:
             root = Path(td)
             target = root / "modules" / "perc-distribution-tree" / "target"
             target.mkdir(parents=True)
-            (target / "perc-distribution-tree.jar").write_bytes(b"")
-            fat = target / "perc-distribution-tree-8.2.0-SNAPSHOT.jar"
-            fat.write_bytes(b"x" * 1000)
-            (target / "perc-distribution-tree-8.2.0-SNAPSHOT-javadoc.jar").write_bytes(
-                b"y" * 50
+            shipped = target / "perc-distribution-tree.jar"
+            shipped.write_bytes(b"shipped-assembly")
+            # SNAPSHOT must never be selected even if larger / present.
+            (target / "perc-distribution-tree-8.2.0-SNAPSHOT.jar").write_bytes(
+                b"x" * 50_000
             )
             resolved = smoke.resolve_installer_jar(root, "cms")
-            self.assertEqual(resolved, fat)
+            self.assertEqual(resolved, shipped)
+            self.assertEqual(resolved.name, smoke.CMS_INSTALLER_JAR_NAME)
+
+    def test_resolve_uses_shipped_dts_name_only(self):
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            target = (
+                root
+                / "deliverytiersuite"
+                / "delivery-tier-suite"
+                / "delivery-tier-distribution"
+                / "target"
+            )
+            target.mkdir(parents=True)
+            shipped = target / "delivery-tier-distribution.jar"
+            shipped.write_bytes(b"dts-assembly")
+            (target / "delivery-tier-distribution-8.2.0-SNAPSHOT.jar").write_bytes(
+                b"y" * 50_000
+            )
+            resolved = smoke.resolve_installer_jar(root, "dts")
+            self.assertEqual(resolved.name, smoke.DTS_INSTALLER_JAR_NAME)
 
     def test_resolve_missing_raises(self):
         with tempfile.TemporaryDirectory() as td:
             root = Path(td)
             (root / "modules" / "perc-distribution-tree" / "target").mkdir(parents=True)
+            # Only SNAPSHOT present — not good enough.
+            (
+                root
+                / "modules"
+                / "perc-distribution-tree"
+                / "target"
+                / "perc-distribution-tree-8.2.0-SNAPSHOT.jar"
+            ).write_bytes(b"not-the-customer-jar")
+            with self.assertRaises(FileNotFoundError) as ctx:
+                smoke.resolve_installer_jar(root, "cms")
+            self.assertIn("perc-distribution-tree.jar", str(ctx.exception))
+            self.assertIn("Do not use *-SNAPSHOT.jar", str(ctx.exception))
+
+    def test_resolve_empty_shipped_raises(self):
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            target = root / "modules" / "perc-distribution-tree" / "target"
+            target.mkdir(parents=True)
+            (target / "perc-distribution-tree.jar").write_bytes(b"")
             with self.assertRaises(FileNotFoundError):
                 smoke.resolve_installer_jar(root, "cms")
 
@@ -168,6 +207,7 @@ class DryRunCliTests(unittest.TestCase):
             root = Path(td)
             target = root / "modules" / "perc-distribution-tree" / "target"
             target.mkdir(parents=True)
+            # Exact customer-shipped assembly name (not *-SNAPSHOT.jar).
             (target / "perc-distribution-tree.jar").write_bytes(b"stub-jar-content")
             (root / "docker" / "logs").mkdir(parents=True)
             (root / "docker" / "matrix").mkdir(parents=True)

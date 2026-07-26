@@ -72,10 +72,12 @@ ENTRYPOINT ["/usr/local/bin/python3", "/usr/local/bin/install-update.py"]
 
 Ephemeral cells mount the real installer jars (not a fictional `perc-preinstall.jar`):
 
-| Product | Installer jar (from Maven `target/`) | Start after install | Default host probe |
-|---------|--------------------------------------|---------------------|--------------------|
-| CMS | `perc-distribution-tree*.jar` (`com.percussion.preinstall.Main`) | `jetty/StartJetty.sh` | `http://127.0.0.1:9993/Rhythmyx/login` |
-| DTS | `delivery-tier-distribution*.jar` (`MainDTSPreInstall`) | `TomcatStartup.sh` / `startup.sh` | `http://127.0.0.1:9983/` |
+| Product | Installer jar (customer-shipped assembly only) | Start after install | Default host probe |
+|---------|------------------------------------------------|---------------------|--------------------|
+| CMS | `modules/perc-distribution-tree/target/perc-distribution-tree.jar` | `jetty/StartJetty.sh` | `http://127.0.0.1:9993/Rhythmyx/login` |
+| DTS | `…/delivery-tier-distribution/target/delivery-tier-distribution.jar` | `TomcatStartup.sh` / `startup.sh` | `http://127.0.0.1:9983/` |
+
+Do **not** use `*-SNAPSHOT.jar` — those are plain module jars without the runnable installer main class. Package with `mvn package` so the assembly `finalName` jars exist and are non-empty.
 
 ```bash
 # Prereq: package installers (CMS required; DTS if --product includes dts)
