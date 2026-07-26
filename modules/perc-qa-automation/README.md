@@ -100,6 +100,58 @@ npx playwright test tests/login.spec.js
 
 `mvn test` from `modules/perc-qa-automation` runs Java Surefire (no tests in this module). Use `npm test` to run Playwright. The `frontend-maven-plugin` only installs Node + `npm ci` — it does NOT invoke Playwright at the Maven `test` phase; the Playwright run is an explicit `npm test` step after the Maven build.
 
+### Install matrix smoke (opt-in Maven profile)
+
+Layer 1 CMS/DTS install matrix (silent install → start → login/health probe → destroy)
+lives in `docker/scripts/matrix-install-smoke.py`. It is **not** part of the default
+reactor / `mvn test` (Docker + multi-minute installs).
+
+Enable with profile **`matrix-smoke`** from this module (use the repo-root `mvn-env`
+wrapper so JDK is correct):
+
+```bash
+# From modules/perc-qa-automation
+# CMS + H2 (default)
+../../mvn-env.sh -Pmatrix-smoke test
+
+# CMS + PostgreSQL (requires Docker compose profile postgres; host port 5433 by default)
+../../mvn-env.sh -Pmatrix-smoke -Dmatrix.db=postgresql test
+
+# Multiple backends (sequential cells)
+../../mvn-env.sh -Pmatrix-smoke -Dmatrix.db=h2,postgresql,mysql,sqlserver test
+
+# Product list
+../../mvn-env.sh -Pmatrix-smoke -Dmatrix.product=cms,dts -Dmatrix.db=h2 test
+```
+
+| Property | Default | Description |
+|----------|---------|-------------|
+| `matrix.product` | `cms` | Comma list: `cms`, `dts` |
+| `matrix.db` | `h2` | Comma list: `h2`, `postgresql`, `mysql`, `sqlserver` |
+| `matrix.probe.timeout` | `1200` | Seconds to wait for login/health HTTP |
+| `matrix.skip.image.build` | `true` | Passed as `--skip-image-build` when true |
+
+**Prerequisites**
+
+- Docker + Docker Compose
+- Built customer installer jar: `modules/perc-distribution-tree/target/perc-distribution-tree.jar`
+  (and DTS jar for `dts` product)
+- For external DBs: compose profiles (`postgres`, `mysql`, `sqlserver`) — see root `docker-compose.yml`
+
+**Manual harness (same script)**
+
+```bash
+# From repo root
+python3 docker/scripts/matrix-install-smoke.py --product cms --db postgresql --probe-timeout 1200
+
+# Leave cell up for Playwright Layer 2 (install.spec.js)
+python3 docker/scripts/matrix-install-smoke.py --product cms --db postgresql --keep
+TEST_CMS_URL=http://localhost:9993 TEST_DB_TYPE=postgresql \
+  npm test --prefix frontend -- tests/install.spec.js
+```
+
+Results: `docker/logs/matrix-results-*.json` and `RESULT:OK` / `RESULT:FAIL` on stdout.
+
 ## Test Configuration
 
 Tests are configured in `frontend/playwright.config.js`. Key settings:

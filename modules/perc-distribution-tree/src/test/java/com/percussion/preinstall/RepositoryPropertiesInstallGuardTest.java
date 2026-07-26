@@ -56,12 +56,34 @@ class RepositoryPropertiesInstallGuardTest {
     // Oracle branch present for new installs
     assertTrue(
         xml.contains("arg2=\"oracle\""), "oracle branch required for new-install db targets");
+    // #1500: PostgreSQL silent/matrix installs must rewrite rxrepository (not leave H2 defaults)
+    assertTrue(
+        xml.contains("arg2=\"postgresql\""),
+        "postgresql branch required for new-install db targets");
     // Connection validation wired and excluded for embedded H2/Derby new installs (#548)
     assertTrue(
         xml.contains("PSValidateRepositoryConnection"), "connection validation task must be wired");
     assertTrue(xml.contains("arg2=\"h2\""), "validation must exclude default h2 new installs");
     assertTrue(
         xml.contains("arg2=\"derby\""), "validation must still exclude legacy derby new installs");
+  }
+
+  @Test
+  void installChainAppliesRepositoryBeforeConfigureJetty() throws Exception {
+    String xml =
+        java.nio.file.Files.readString(
+            java.nio.file.Path.of(
+                "src/main/resources/distribution/rxconfig/Installer/install.xml"),
+            StandardCharsets.UTF_8);
+    int chain = xml.indexOf("<target name=\"install.chain\"");
+    assertTrue(chain >= 0, "install.chain target required");
+    String chainBody = xml.substring(chain, Math.min(xml.length(), chain + 1200));
+    int setupDb = chainBody.indexOf("target=\"setupDB\"");
+    int configureJetty = chainBody.indexOf("target=\"configure_jetty\"");
+    assertTrue(setupDb >= 0 && configureJetty >= 0, "setupDB and configure_jetty in install.chain");
+    assertTrue(
+        setupDb < configureJetty,
+        "setupDB must precede configure_jetty so external DB props apply before perc-ds");
   }
 
   @Test

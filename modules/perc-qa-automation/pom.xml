@@ -25,6 +25,13 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
+    <properties>
+        <!-- Layer-1 install matrix defaults (opt-in profile matrix-smoke) -->
+        <matrix.product>cms</matrix.product>
+        <matrix.db>h2</matrix.db>
+        <matrix.probe.timeout>1200</matrix.probe.timeout>
+        <matrix.skip.image.build>true</matrix.skip.image.build>
+    </properties>
     <build>
         <plugins>
             <plugin>
@@ -58,4 +65,58 @@
             </plugin>
         </plugins>
     </build>
+
+    <!--
+      Opt-in CMS/DTS install matrix (Layer 1: silent install + start + login probe).
+
+      Default ``mvn test`` / reactor builds do NOT run this (Docker + long installs).
+
+      Examples (from modules/perc-qa-automation, with repo-root mvn-env wrapper):
+
+        ../../mvn-env.sh -Pmatrix-smoke test
+        ../../mvn-env.sh -Pmatrix-smoke -Dmatrix.db=postgresql test
+        ../../mvn-env.sh -Pmatrix-smoke -Dmatrix.product=cms -Dmatrix.db=h2,postgresql,mysql,sqlserver test
+
+      Requires: Docker, docker compose, and a built perc-distribution-tree.jar
+      (or set installer path via env the harness understands). See README.
+    -->
+    <profiles>
+        <profile>
+            <id>matrix-smoke</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>exec-maven-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>matrix-install-smoke</id>
+                                <phase>test</phase>
+                                <goals>
+                                    <goal>exec</goal>
+                                </goals>
+                                <configuration>
+                                    <executable>python3</executable>
+                                    <workingDirectory>${project.basedir}/../..</workingDirectory>
+                                    <arguments>
+                                        <argument>docker/scripts/matrix-install-smoke.py</argument>
+                                        <argument>--product</argument>
+                                        <argument>${matrix.product}</argument>
+                                        <argument>--db</argument>
+                                        <argument>${matrix.db}</argument>
+                                        <argument>--probe-timeout</argument>
+                                        <argument>${matrix.probe.timeout}</argument>
+                                        <argument>--skip-image-build</argument>
+                                    </arguments>
+                                    <successCodes>
+                                        <successCode>0</successCode>
+                                    </successCodes>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 </project>

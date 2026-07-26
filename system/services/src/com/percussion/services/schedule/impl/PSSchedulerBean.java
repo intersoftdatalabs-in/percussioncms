@@ -266,9 +266,9 @@ public class PSSchedulerBean implements FactoryBean<Scheduler>, InitializingBean
             "db2", "org.quartz.impl.jdbcjobstore.DB2v8Delegate",
             "derby", "org.quartz.impl.jdbcjobstore.StdJDBCDelegate",
             "mysql", "org.quartz.impl.jdbcjobstore.StdJDBCDelegate",
-            // #548 default embedded H2; #1500 external PostgreSQL
+            // #548 default embedded H2; #1500 external PostgreSQL (use PG delegate, not Std)
             "h2", "org.quartz.impl.jdbcjobstore.StdJDBCDelegate",
-            "postgresql", "org.quartz.impl.jdbcjobstore.StdJDBCDelegate"
+            "postgresql", "org.quartz.impl.jdbcjobstore.PostgreSQLDelegate"
     );
 
     /**

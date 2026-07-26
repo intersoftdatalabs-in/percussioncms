@@ -739,5 +739,15 @@
 			</Param>
 			<Description>Compares two dates</Description>
 		</PSXDatabaseFunctionDef>
+		<!-- #1500: PostgreSQL days between date column and current date -->
+		<PSXDatabaseFunctionDef
+			standardFunctionName="DAYSFROMDATE" driver="postgresql">
+			<Body>(CURRENT_DATE - CAST({0} AS DATE))</Body>
+			<Param name="first date">
+				<Description>Required. Valid values are database columns that
+					contain a date.</Description>
+			</Param>
+			<Description>Compares two dates</Description>
+		</PSXDatabaseFunctionDef>
 	</PSXDatabaseFunction>
 </PSXDatabaseFunctionsColl>

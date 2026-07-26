@@ -33,6 +33,7 @@ class PSSchedulerBeanDriverDelegateTest {
 
   private static final String STD = "org.quartz.impl.jdbcjobstore.StdJDBCDelegate";
   private static final String MSSQL = "org.quartz.impl.jdbcjobstore.MSSQLDelegate";
+  private static final String PG = "org.quartz.impl.jdbcjobstore.PostgreSQLDelegate";
 
   @Test
   void h2AndH2FileFormsUseStdDelegate() {
@@ -44,10 +45,10 @@ class PSSchedulerBeanDriverDelegateTest {
   }
 
   @Test
-  void postgresqlUsesStdDelegate() {
-    assertEquals(STD, PSSchedulerBean.resolveDriverDelegateClass("postgresql"));
-    assertEquals(STD, PSSchedulerBean.resolveDriverDelegateClass("postgres"));
-    assertEquals(STD, PSSchedulerBean.resolveDriverDelegateClass("POSTGRESQL"));
+  void postgresqlUsesPostgreSQLDelegate() {
+    assertEquals(PG, PSSchedulerBean.resolveDriverDelegateClass("postgresql"));
+    assertEquals(PG, PSSchedulerBean.resolveDriverDelegateClass("postgres"));
+    assertEquals(PG, PSSchedulerBean.resolveDriverDelegateClass("POSTGRESQL"));
   }
 
   @Test
