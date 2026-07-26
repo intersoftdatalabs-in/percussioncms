@@ -79,6 +79,26 @@ JARs are placed in the install with their Maven-resolved filenames (e.g. `mariad
 
 Integrators who need a driver that is not bundled (for example an enterprise Oracle driver) can simply drop a JDBC driver JAR into `jetty/base/lib/jdbc/` of the unpacked distribution. The install scripts (`rxconfig/Installer/install.xml`, `installServer.xml`, `installRepository.xml`) do not purge this folder.
 
+## CLI installer: interactive mode (issue #1513)
+
+When a **console/TTY is available** and you do **not** pass `--silent` / `--no-tty`, the CMS preinstall walks through:
+
+1. Installation directory (prompted if the path argument is omitted)
+2. System Java 21+ home (discovery / multi-candidate menu; or `-Dperc.java.home=...`)
+3. Database backend (menu: H2, SQL Server/Express, MySQL/MariaDB, PostgreSQL, Oracle, or load a properties file)
+4. Optional connection test for external backends (best-effort; full validation still runs during install)
+5. Summary (no secrets) and confirm
+
+Silent/automation installs are unchanged: pass the install path and `--dbprops` / `--db.*` as before.
+
+```bash
+# Interactive (console): omit path to be prompted
+java -jar PercussionCMS.jar
+
+# Silent / CI
+java -jar PercussionCMS.jar /path/to/install/root --silent --db.type=h2
+```
+
 ## CLI installer: database targets for new installs
 
 By default a **new** command-line install uses the embedded **H2** repository (GitHub #548; Apache Derby is retired as the live default and retained only for upgrade migration). To target MySQL/MariaDB, SQL Server, or Oracle on a **new install only**, supply a repository properties file in the same format as `rxconfig/Installer/rxrepository.properties`:

@@ -96,31 +96,31 @@ public class Main {
     try {
 
       DbInstallConfigResolver.ParsedArgs parsedArgs = DbInstallConfigResolver.parseArgs(args);
-      if (parsedArgs.installPath() == null) {
-        System.out.println("Must specify installation or upgrade folder");
-        System.out.println(
-            "Optional database target for new installs: -Ddbprops=<path> or --dbprops=<path>");
-        System.out.println(
-            "Optional upgrade cleanup: --clean-install-dir (default false) removes obsolete"
-                + " folders such as PreInstall");
-        System.out.println(
-            "Silent mode: --silent or --no-tty (disables interactive prompts for automated testing)");
-        System.exit(0);
+      Map<String, String> options = parsedArgs.options();
+      // Check for silent/non-interactive mode (--silent or --no-tty)
+      boolean silent = isSilentMode(options);
+      // Issue #1513 Phase 1: interactive path prompt + summary/confirm when a TTY is present.
+      // Silent / no-console keeps the historical parameter-driven contract (usage if no path).
+      boolean interactive =
+          InteractiveInstallWizard.isInteractive(silent, System.console() != null);
+      InteractiveInstallWizard.Phase1Result phase1 =
+          InteractiveInstallWizard.runPhase1(
+              parsedArgs, interactive, SystemConsoleInstallPrompt.INSTANCE);
+      if (!phase1.proceed()) {
+        if (phase1.message() != null && !phase1.message().isBlank()) {
+          System.out.println(phase1.message());
+        }
+        System.exit(phase1.exitCode());
+        return;
       }
 
-      Path installPath = parsedArgs.installPath();
-
-      // Check for silent/non-interactive mode (--silent or --no-tty)
-      Map<String, String> options = parsedArgs.options();
-      boolean silent = isSilentMode(options);
-
-      DbInstallConfigResolver.ResolvedDbConfig resolvedDbConfig;
-      try {
-        resolvedDbConfig = DbInstallConfigResolver.resolveDbConfig(parsedArgs.options());
-      } catch (IllegalArgumentException badDbConfig) {
-        System.out.println("Database configuration error: " + badDbConfig.getMessage());
-        System.exit(1);
-        return;
+      Path installPath = phase1.installPath();
+      options = phase1.options();
+      DbInstallConfigResolver.ResolvedDbConfig resolvedDbConfig = phase1.dbConfig();
+      // Issue #1340 / #1513 Phase 2: Java home already selected and persisted by the wizard.
+      JavaInstallSelection.SelectionOutcome javaOutcome = phase1.javaOutcome();
+      if (javaOutcome != null) {
+        System.out.println("Java home selection: " + javaOutcome.summary());
       }
 
       debug = System.getProperty("DEBUG");
@@ -128,7 +128,10 @@ public class Main {
         debug = "false";
       }
 
-      String javaHome = System.getProperty(PERC_JAVA_HOME);
+      String javaHome =
+          javaOutcome != null && javaOutcome.javaHome() != null
+              ? javaOutcome.javaHome().toString()
+              : System.getProperty(PERC_JAVA_HOME);
       if (javaHome == null || javaHome.trim().equalsIgnoreCase(""))
         javaHome = System.getProperty(JAVA_HOME);
 
@@ -154,42 +157,6 @@ public class Main {
 
       System.out.println("Installation folder is " + installPath.toAbsolutePath().toString());
 
-      // Issue #1340 / US3 + US4: resolve and persist the Java home used at
-      // runtime by CMS / DTS start, stop, and service install paths. Honor an
-      // explicit -Dperc.java.home=... override; otherwise discover and (when
-      // interactive) prompt for a Java 21 home. Survives a non-interactive
-      // environment by auto-selecting single candidates and failing loudly
-      // when zero are eligible — never silently fall back to a manual
-      // <InstallDir>/JRE copy.
-      try {
-        Path unattended = parseUnattendedJavaHome(System.getProperty(PERC_JAVA_HOME));
-        JavaInstallSelection.SelectionOutcome outcome =
-            new JavaInstallSelection(
-                    installPath,
-                    unattended,
-                    prompt -> {
-                      if (silent) {
-                        return "";
-                      }
-                      java.io.Console c = System.console();
-                      return c == null ? "" : c.readLine(prompt);
-                    })
-                .selectAndPersist();
-        System.out.println("Java home selection: " + outcome.summary());
-      } catch (JavaInstallSelection.JavaSelectionException sel) {
-        System.out.println("Java home selection failed: " + sel.getMessage());
-        System.exit(2);
-        return;
-      } catch (IOException io) {
-        System.out.println(
-            "Could not write java.properties at "
-                + installPath.resolve("java.properties")
-                + ": "
-                + io.getMessage());
-        System.exit(2);
-        return;
-      }
-
       Properties existingVersion = loadVersionProperties(installPath);
       if (existingVersion != null) {
         String major = existingVersion.getProperty("majorVersion");
@@ -202,7 +169,7 @@ public class Main {
 
       // Issue #1157: optional early cleanup of obsolete install-root directories on upgrade only
       try {
-        runObsoleteInstallDirCleanup(installPath, parsedArgs.options(), silent);
+        runObsoleteInstallDirCleanup(installPath, options, silent);
       } catch (Exception cleanupEx) {
         System.out.println(
             "Obsolete directory cleanup reported an error (upgrade will continue): "
@@ -372,18 +339,8 @@ public class Main {
    * @param options parsed CLI options
    * @return true if silent mode is enabled
    */
-  private static boolean isSilentMode(Map<String, String> options) {
-    if (options == null) {
-      return false;
-    }
-    String silent = options.get(DbInstallConfigResolver.SILENT_KEY);
-    String noTty = options.get("no-tty");
-    return "true".equalsIgnoreCase(silent)
-        || "yes".equalsIgnoreCase(silent)
-        || "1".equals(silent)
-        || "true".equalsIgnoreCase(noTty)
-        || "yes".equalsIgnoreCase(noTty)
-        || "1".equals(noTty);
+  static boolean isSilentMode(Map<String, String> options) {
+    return InteractiveInstallWizard.isSilentMode(options);
   }
 
   private static void deleteOldJDBCJars(Path installPath) {
