@@ -459,8 +459,7 @@ public class PSCatalogTableData {
     int count = 0;
     if (tableDef.isFile()) {
       Document defDoc =
-          PSXmlDocumentBuilder.createXmlDocument(
-              new FileInputStream(tableDef), false);
+          PSXmlDocumentBuilder.createXmlDocument(new FileInputStream(tableDef), false);
       count = defDoc.getElementsByTagName("table").getLength();
     }
     return count;

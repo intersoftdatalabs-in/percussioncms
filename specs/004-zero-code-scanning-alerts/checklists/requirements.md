@@ -34,3 +34,4 @@
 - Spec is ready for `/speckit.clarify` or `/speckit.plan`.
 - Spec directory renamed from `003-` to `004-zero-code-scanning-alerts` per user direction (next sequential spec number is 004, not 003).
 - No [NEEDS CLARIFICATION] markers; all ambiguous points were resolved via documented Assumptions.
+

@@ -37,7 +37,8 @@ assert(
   "webimagefx does not build license path from location.href.substring"
 );
 assert(
-  /location\.pathname/.test(wifx) && /location\.(protocol|host|origin)/.test(wifx),
+  /location\.pathname/.test(wifx) &&
+    /location\.(protocol|host|origin)/.test(wifx),
   "webimagefx builds license path from origin + pathname"
 );
 assert(
@@ -55,7 +56,9 @@ function mockLicensePath(pathname, protocol, host) {
   if (!/^\/[A-Za-z0-9._\-\/]*$/.test(rxRoot)) {
     rxRoot = "/Rhythmyx";
   }
-  return protocol + "//" + host + rxRoot + "/rx_wep/ektron?licensekey=webimagefx1";
+  return (
+    protocol + "//" + host + rxRoot + "/rx_wep/ektron?licensekey=webimagefx1"
+  );
 }
 assert(
   mockLicensePath("/Rhythmyx/ui/foo", "https:", "cms.example") ===
@@ -113,7 +116,7 @@ function safeSameOriginHttpUrl(rawUrl, origin) {
   }
 }
 assert(
-  escapeHtml('<script>alert(1)</script>') ===
+  escapeHtml("<script>alert(1)</script>") ===
     "&lt;script&gt;alert(1)&lt;/script&gt;",
   "escapeHtml encodes script tags"
 );
@@ -122,17 +125,13 @@ assert(
   "escapeHtml encodes attribute breakout quotes"
 );
 assert(
-  safeSameOriginHttpUrl(
-    "https://evil.example/pwn",
-    "https://cms.example"
-  ) === "https://cms.example/",
+  safeSameOriginHttpUrl("https://evil.example/pwn", "https://cms.example") ===
+    "https://cms.example/",
   "cross-origin iframe src rejected"
 );
 assert(
-  safeSameOriginHttpUrl(
-    "javascript:alert(1)",
-    "https://cms.example"
-  ) === "https://cms.example/",
+  safeSameOriginHttpUrl("javascript:alert(1)", "https://cms.example") ===
+    "https://cms.example/",
   "javascript: iframe src rejected"
 );
 assert(

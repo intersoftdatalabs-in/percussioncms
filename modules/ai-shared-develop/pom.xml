@@ -40,9 +40,7 @@
     <build>
         <plugins>
             <!-- Maven Compiler Plugin for Java 21 -->
-            
             <!-- Surefire Plugin for running tests -->
-            
             <!-- Maven Site Plugin -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

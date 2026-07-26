@@ -53,7 +53,9 @@ public class PSMockHttpServletResponse implements HttpServletResponse {
   private PrintWriter writer;
   private ServletOutputStream outputStream;
 
-  /** @return response body using the configured character encoding */
+  /**
+   * @return response body using the configured character encoding
+   */
   public String getContentAsString() {
     Charset charset;
     try {
@@ -64,7 +66,9 @@ public class PSMockHttpServletResponse implements HttpServletResponse {
     return content.toString(charset);
   }
 
-  /** @return raw response bytes */
+  /**
+   * @return raw response bytes
+   */
   public byte[] getContentAsByteArray() {
     return content.toByteArray();
   }

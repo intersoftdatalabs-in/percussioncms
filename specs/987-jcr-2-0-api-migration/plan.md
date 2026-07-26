@@ -9,6 +9,7 @@
 The development line already pins **`javax.jcr:jcr:2.0`**. This plan restores **application compile compatibility** (Phase 1, own PR), then performs **deprecation cleanup** and verification (Phase 2+) without adopting optional new JCR 2.0 product features. Percussion’s content repository is a **JSR-170/283-typed projection** over the existing CMS store; implementors (`PSContentNode`, value/property factories, query types, `PSContentMgr`) must implement new 2.0 interface methods—typically with identity mapping or `UnsupportedRepositoryOperationException` for unsupported optional capabilities. Custom extensions require **source rebuild**. Feature-complete requires automated tests plus a short **scripted smoke** (create/save, open, preview, one publish).
 
 ## Technical Context
+
 - **Language/Version**: Java 21 on `development` (out of scope: `development-8.1.x` / Java 8)
 - **Owning Module(s)**: `system/` (contentmgr, assembly, publisher); `modules/utils` (`com.percussion.utils.jsr170`)
 - **Secondary modules**: `modules/perc-toolkit`, `projects/sitemanage`, `modules/segmentation-rx`, `modules/p13n-api`, `deployer`, selected `modules/extensions-*`, `modules/ContentUI`, limited DTS touchpoints
@@ -19,6 +20,7 @@ The development line already pins **`javax.jcr:jcr:2.0`**. This plan restores **
 - **Delivery**: Phase 1 compile PR first (FR-014); then deprecation PRs; smoke at feature-complete only
 
 ## Constitution Check
+
 - [x] **I. Module-First Boundaries** — Primary owners `system/`, `modules/utils`; shared helpers in utils jsr170 package
 - [x] **II. Evidence Over Invention** — `research.md` cites jar diffs and concrete classes (`PSContentNode`, `PSQuery`, `PSValueFactory`, …)
 - [x] **III. Test Discipline** — Unit tests for new implementor methods; module tests; smoke at feature-complete
@@ -31,10 +33,13 @@ The development line already pins **`javax.jcr:jcr:2.0`**. This plan restores **
 - [x] **Complexity Budget** — No new modules; stubs for unsupported JCR optional features justified in Complexity Tracking
 
 ### Post-design Constitution Check
+
 Re-validated after `research.md`, `data-model.md`, `contracts/`, `quickstart.md`: **pass**. No new violations.
 
 ## Project Structure
+
 ### Documentation (this feature)
+
 ```text
 specs/987-jcr-2-0-api-migration/
 ├── spec.md
@@ -50,6 +55,7 @@ specs/987-jcr-2-0-api-migration/
 ```
 
 ### Source Code (affected paths)
+
 ```text
 # Phase 1 — implementors (compile-critical)
 modules/utils/src/main/java/com/percussion/utils/jsr170/
@@ -77,11 +83,13 @@ pom.xml  # already 2.0 on development; ensure feature branch synced
 ## Implementation Approach
 
 ### Phase 0 — Sync and inventory
+
 1. Merge/rebase `origin/development` onto feature branch so BOM is jcr 2.0.
 2. Compile core modules; capture error list into `tmp/jcr-compile-phase1.log` (repo temp).
 3. Confirm implementor list vs `research.md` R2 (update inventory if new implementors appear).
 
 ### Phase 1 — Compile-clean (single PR)
+
 1. **Values / factory / property** (`modules/utils` + `system` PSProperty):
    - Add `getBinary()`, `getDecimal()`, Binary factory methods.
    - Adjust exception signatures for `Value` overrides.
@@ -97,6 +105,7 @@ pom.xml  # already 2.0 on development; ensure feature branch synced
 6. Unit tests for new methods; full compile; open **Phase 1 PR only**.
 
 ### Phase 2 — Deprecation cleanup (follow-on PRs)
+
 1. Type-aware inventory of `Node.getUUID` (exclude `IPSGuid.getUUID`).
 2. Migrate to `getIdentifier()` on JCR nodes; optional shared helper if repeated.
 3. Binary path improvements only where touch is natural (no drive-by rewrites).
@@ -105,38 +114,42 @@ pom.xml  # already 2.0 on development; ensure feature branch synced
 6. Keep module automated tests green per story PR.
 
 ### Phase 3 — Docs & security posture
+
 1. Release notes: 2.0 API, no data migration, extension rebuild.
 2. Link or summarize integrator contract.
 3. Dependency tree check for residual jcr 1.0; note CVE scan result.
 
 ### Phase 4 — Feature-complete gate
+
 1. Designated automated suites green.
 2. Scripted smoke per `quickstart.md`; record on final PR.
 3. Close #506 when criteria met (or track remaining exceptions).
 
 ## Test Plan (summary)
 
-| Phase | Tests |
-|-------|--------|
-| 1 | New unit tests for Binary/identifier/Query 2.0 methods; `modules/utils` value tests; compile all shipping modules |
-| 2 | Existing contentmgr/finder/publisher tests; update mocks (`Query.SQL` still valid) |
-| 4 | Scripted smoke; optional dependency:tree assertion in CI docs |
+| Phase |                                                       Tests                                                       |
+|-------|-------------------------------------------------------------------------------------------------------------------|
+| 1     | New unit tests for Binary/identifier/Query 2.0 methods; `modules/utils` value tests; compile all shipping modules |
+| 2     | Existing contentmgr/finder/publisher tests; update mocks (`Query.SQL` still valid)                                |
+| 4     | Scripted smoke; optional dependency:tree assertion in CI docs                                                     |
 
 ## Risks & Mitigations
 
-| Risk | Mitigation |
-|------|------------|
-| Large `getUUID` false-positive rename breaks GUID APIs | Type-aware review; never bulk-replace `getUUID` |
-| Stub methods hide real missing behavior | Prefer UROE; critical paths covered by smoke |
-| Feature branch lacks #531 pin | Phase 0 rebase/merge development first |
-| Toolkit `Value` types diverge from utils | Same Binary/decimal methods; share helper if possible |
-| QOM factory expectation from third-party code | Document UROE; rebuild note for integrators |
+|                          Risk                          |                      Mitigation                       |
+|--------------------------------------------------------|-------------------------------------------------------|
+| Large `getUUID` false-positive rename breaks GUID APIs | Type-aware review; never bulk-replace `getUUID`       |
+| Stub methods hide real missing behavior                | Prefer UROE; critical paths covered by smoke          |
+| Feature branch lacks #531 pin                          | Phase 0 rebase/merge development first                |
+| Toolkit `Value` types diverge from utils               | Same Binary/decimal methods; share helper if possible |
+| QOM factory expectation from third-party code          | Document UROE; rebuild note for integrators           |
 
 ## Complexity Tracking
+
 - **Violation**: Implementing full JSR-283 optional features (shareable nodes, lifecycle, JQOM) would expand scope far beyond product behavior.
 - **Justification & Alternatives**: Use interface-complete stubs (UROE/empty) consistent with existing unsupported versioning/lock methods on `PSContentNode`. Alternative (full Jackrabbit) rejected as storage rewrite.
 
 ## Generated Artifacts (Phase 0–1)
+
 - [research.md](./research.md)
 - [data-model.md](./data-model.md)
 - [contracts/jcr-2.0-implementor-surface.md](./contracts/jcr-2.0-implementor-surface.md)
@@ -144,4 +157,5 @@ pom.xml  # already 2.0 on development; ensure feature branch synced
 - [quickstart.md](./quickstart.md)
 
 ## Next Command
+
 `/speckit-tasks` — break Phase 0–4 into dependency-ordered implementation tasks aligned with user stories and PR phases.

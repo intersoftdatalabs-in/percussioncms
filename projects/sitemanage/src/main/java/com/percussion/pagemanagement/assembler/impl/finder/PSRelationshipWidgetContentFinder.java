@@ -52,16 +52,16 @@ import org.springframework.transaction.annotation.Transactional;
  * Find contents related to a page and/or template by Active Assembly relationships where the
  * "sys_slotid" property equals to the specified widget instance.
  *
-* The parameters of the finder are:
-  *
-  * <ul>
-  * <li><b>max_results</b> - Optional parameter. It is the maximum number of the returned result
-  * from the find method if specified, zero or negative indicates no limit.
-  * It defaults to zero if not specified.</li>
-  * <li><b>order_by</b> - Optional parameter. If it is specified, then the returned items will
-  * be re-ordered according to the specified value; otherwise the returned
-  * items are ordered by {@link PSContentFinderBase.ContentItem}.</li>
-  * </ul>
+ * <p>The parameters of the finder are:
+ *
+ * <ul>
+ *   <li><b>max_results</b> - Optional parameter. It is the maximum number of the returned result
+ *       from the find method if specified, zero or negative indicates no limit. It defaults to zero
+ *       if not specified.
+ *   <li><b>order_by</b> - Optional parameter. If it is specified, then the returned items will be
+ *       re-ordered according to the specified value; otherwise the returned items are ordered by
+ *       {@link PSContentFinderBase.ContentItem}.
+ * </ul>
  *
  * @author YuBingChen
  */

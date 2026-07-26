@@ -14,13 +14,13 @@ Engineering checklist: `specs/548-derby-embedded-migration/checklists/upgrade-se
 
 ## Mixed estate (QC-020)
 
-| Component | Backend | Migrator behavior |
-|-----------|---------|-------------------|
-| CMS | MySQL / MSSQL / other non-Derby | `SKIPPED_NON_DERBY` — connection keys unchanged |
-| CMS | H2 already | `ALREADY_MIGRATED` |
-| CMS | Product-managed Derby | Gate → pump → cutover |
-| DTS service A | Derby | Migrate that service only |
-| DTS service B | MySQL | Skip that service only |
+|   Component   |             Backend             |                Migrator behavior                |
+|---------------|---------------------------------|-------------------------------------------------|
+| CMS           | MySQL / MSSQL / other non-Derby | `SKIPPED_NON_DERBY` — connection keys unchanged |
+| CMS           | H2 already                      | `ALREADY_MIGRATED`                              |
+| CMS           | Product-managed Derby           | Gate → pump → cutover                           |
+| DTS service A | Derby                           | Migrate that service only                       |
+| DTS service B | MySQL                           | Skip that service only                          |
 
 Detection and cutover are **service-scoped** for DTS: migrating metadata must not rewrite forms (or other) configs.
 
@@ -39,3 +39,4 @@ Detection and cutover are **service-scoped** for DTS: migrating metadata must no
 
 - [operator-backup-restore.md](./operator-backup-restore.md)
 - [operator-migration-gate.md](./operator-migration-gate.md)
+

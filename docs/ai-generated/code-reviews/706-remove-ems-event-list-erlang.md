@@ -10,17 +10,17 @@
 Full retirement of the EMS Event List community widget and the EMS-only DTS
 `integrations` / `perc-integrations` service:
 
-| Area | Change |
-|------|--------|
-| Package | Deleted `modules/perc-packages/.../perc.widget.emseventlist` |
-| Install lists | Removed from all 5 InstallPackages (`system` + `perc-distribution-tree`) |
-| Widget tray | Removed from `WidgetRegistry.xml`; empty Community group removed |
-| CMS proxy | Deleted `projects/sitemanage/.../integrations/ems/**` (+ error-exposure tests for dead code) |
-| DTS | Deleted entire `deliverytiersuite/.../integrations` module (already commented out of reactor); cleaned distribution POM, log4j2, `server.xml` serviceNames |
-| Delivery config | Dropped `perc-integrations` from `delivery-servers.xml*` and test fixtures |
-| Constants / CSRF | Removed `SERVICE_INTEGRATIONS`; removed unused `CSRF_INTEGRATION_PATH` |
-| REST example | Dropped `percEmsEventList` from `ContentTypesResource` OpenAPI sample |
-| Tests | `EmsEventListRemovalTest` (package/proxy/module + InstallPackages + delivery-servers); updated `PSWidgetServiceValidationTest` |
+|       Area       |                                                                           Change                                                                           |
+|------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Package          | Deleted `modules/perc-packages/.../perc.widget.emseventlist`                                                                                               |
+| Install lists    | Removed from all 5 InstallPackages (`system` + `perc-distribution-tree`)                                                                                   |
+| Widget tray      | Removed from `WidgetRegistry.xml`; empty Community group removed                                                                                           |
+| CMS proxy        | Deleted `projects/sitemanage/.../integrations/ems/**` (+ error-exposure tests for dead code)                                                               |
+| DTS              | Deleted entire `deliverytiersuite/.../integrations` module (already commented out of reactor); cleaned distribution POM, log4j2, `server.xml` serviceNames |
+| Delivery config  | Dropped `perc-integrations` from `delivery-servers.xml*` and test fixtures                                                                                 |
+| Constants / CSRF | Removed `SERVICE_INTEGRATIONS`; removed unused `CSRF_INTEGRATION_PATH`                                                                                     |
+| REST example     | Dropped `percEmsEventList` from `ContentTypesResource` OpenAPI sample                                                                                      |
+| Tests            | `EmsEventListRemovalTest` (package/proxy/module + InstallPackages + delivery-servers); updated `PSWidgetServiceValidationTest`                             |
 
 ## Recommendation
 
@@ -28,12 +28,12 @@ Full retirement of the EMS Event List community widget and the EMS-only DTS
 
 ## Gate
 
-| Gate item | Result |
-|-----------|--------|
-| Bugs | None found |
-| Behavioral unit tests for new/changed non-trivial logic | Present — package absence + registry + installer list + delivery-servers assertions |
-| Cross-platform path / file I/O | Clean — tests use `java.nio.file.Path` / `Files` and monorepo-root walk (same pattern as other package tests); no hardcoded `/` filesystem joins for local paths |
-| May commit/push | **yes** |
+|                        Gate item                        |                                                                              Result                                                                              |
+|---------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Bugs                                                    | None found                                                                                                                                                       |
+| Behavioral unit tests for new/changed non-trivial logic | Present — package absence + registry + installer list + delivery-servers assertions                                                                              |
+| Cross-platform path / file I/O                          | Clean — tests use `java.nio.file.Path` / `Files` and monorepo-root walk (same pattern as other package tests); no hardcoded `/` filesystem joins for local paths |
+| May commit/push                                         | **yes**                                                                                                                                                          |
 
 ## Issues
 
@@ -60,13 +60,14 @@ None (blocking).
 
 ## Build evidence (pre-PR)
 
-| Module | Command | Result |
-|--------|---------|--------|
-| `modules/perc-packages` | `../../mvn-env.sh clean install` | BUILD SUCCESS |
-| `projects/sitemanage` | `../../mvn-env.sh clean install` | BUILD SUCCESS — Tests run: 552, Failures: 0; `EmsEventListRemovalTest` 3/0; `PSWidgetServiceValidationTest` 1/0 |
-| `rest` | `../mvn-env.sh clean install` | BUILD SUCCESS |
-| `deployer` | `../mvn-env.sh clean install` | BUILD SUCCESS |
-| `modules/perc-common-ui-bundle` | `../../mvn-env.sh clean install` | BUILD SUCCESS |
-| `delivery-tier-distribution` | `../../../mvn-env.sh clean install` | BUILD SUCCESS |
-| `modules/perc-distribution-tree` | `../../mvn-env.sh clean install` | BUILD SUCCESS |
-| `system` | `../mvn-env.sh clean install -Djavadoc.skip=true` | BUILD SUCCESS |
+|              Module              |                      Command                      |                                                     Result                                                      |
+|----------------------------------|---------------------------------------------------|-----------------------------------------------------------------------------------------------------------------|
+| `modules/perc-packages`          | `../../mvn-env.sh clean install`                  | BUILD SUCCESS                                                                                                   |
+| `projects/sitemanage`            | `../../mvn-env.sh clean install`                  | BUILD SUCCESS — Tests run: 552, Failures: 0; `EmsEventListRemovalTest` 3/0; `PSWidgetServiceValidationTest` 1/0 |
+| `rest`                           | `../mvn-env.sh clean install`                     | BUILD SUCCESS                                                                                                   |
+| `deployer`                       | `../mvn-env.sh clean install`                     | BUILD SUCCESS                                                                                                   |
+| `modules/perc-common-ui-bundle`  | `../../mvn-env.sh clean install`                  | BUILD SUCCESS                                                                                                   |
+| `delivery-tier-distribution`     | `../../../mvn-env.sh clean install`               | BUILD SUCCESS                                                                                                   |
+| `modules/perc-distribution-tree` | `../../mvn-env.sh clean install`                  | BUILD SUCCESS                                                                                                   |
+| `system`                         | `../mvn-env.sh clean install -Djavadoc.skip=true` | BUILD SUCCESS                                                                                                   |
+

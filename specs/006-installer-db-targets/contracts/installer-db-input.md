@@ -49,10 +49,10 @@ If neither A nor B supplies a non-Derby type, install uses **embedded Derby** (c
 
 ## Precedence (highest first)
 
-1. `--dbprops` / `-Ddbprops` file contents for repository identity fields  
-2. CLI `--db.*` (and env-style aliases on CLI)  
-3. Values from `--db.config.env.file`  
-4. Process environment variables  
+1. `--dbprops` / `-Ddbprops` file contents for repository identity fields
+2. CLI `--db.*` (and env-style aliases on CLI)
+3. Values from `--db.config.env.file`
+4. Process environment variables
 5. Built-in defaults (`db.type=derby`, SSL defaults true/true/false)
 
 Mixing: If `dbprops` is set, structured keys may still supply SSL-only overrides when not present in the file (implementation may document exact merge rules; identity fields come from the file).
@@ -76,25 +76,25 @@ DSCONFIG_NAME=PercussionData
 
 ## Supported `DB_BACKEND` / `db.type` values
 
-| File `DB_BACKEND` | Structured `db.type` | Notes |
-|-------------------|----------------------|-------|
-| `DERBY` | `derby` | Default |
-| `MYSQL` | `mysql` | MySQL or MariaDB-compatible server |
-| `MSSQL` | `sqlserver` | Microsoft SQL Server |
-| `ORACLE` | `oracle` | Oracle thin (recommended sample) |
+| File `DB_BACKEND` | Structured `db.type` |               Notes                |
+|-------------------|----------------------|------------------------------------|
+| `DERBY`           | `derby`              | Default                            |
+| `MYSQL`           | `mysql`              | MySQL or MariaDB-compatible server |
+| `MSSQL`           | `sqlserver`          | Microsoft SQL Server               |
+| `ORACLE`          | `oracle`             | Oracle thin (recommended sample)   |
 
 Any other value → validation error listing allowed values.
 
 ## Error contract
 
-| Condition | Behavior |
-|-----------|----------|
-| Missing install path | Message; non-success exit |
-| dbprops path missing/unreadable | Fail before schema; message includes path |
-| Required fields missing | Fail; list missing logical keys (never values of secrets) |
-| Unknown backend | Fail; list allowed backends |
-| Connectivity failure | Fail after props write attempt / before or during pre-schema validate; user-readable SQL/driver message; **no password** |
-| Missing JDBC driver JAR | Fail with guidance to place driver in documented `jetty/base/lib/jdbc` location |
+|            Condition            |                                                         Behavior                                                         |
+|---------------------------------|--------------------------------------------------------------------------------------------------------------------------|
+| Missing install path            | Message; non-success exit                                                                                                |
+| dbprops path missing/unreadable | Fail before schema; message includes path                                                                                |
+| Required fields missing         | Fail; list missing logical keys (never values of secrets)                                                                |
+| Unknown backend                 | Fail; list allowed backends                                                                                              |
+| Connectivity failure            | Fail after props write attempt / before or during pre-schema validate; user-readable SQL/driver message; **no password** |
+| Missing JDBC driver JAR         | Fail with guidance to place driver in documented `jetty/base/lib/jdbc` location                                          |
 
 ## Success contract
 

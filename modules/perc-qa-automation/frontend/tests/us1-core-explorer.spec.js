@@ -38,15 +38,10 @@
  */
 
 const { test, expect } = require("@playwright/test");
-const {
-  loginAsAdmin,
-  BASE_URL,
-  ADMIN_USERNAME,
-} = require("./helpers/auth");
+const { loginAsAdmin, BASE_URL, ADMIN_USERNAME } = require("./helpers/auth");
 const { expectNoSeriousA11yViolations } = require("./helpers/a11y");
 
-const EXPLORER_URL =
-  `${BASE_URL}/Rhythmyx/cm/app/explorerModern.jsp?_=${Date.now()}`;
+const EXPLORER_URL = `${BASE_URL}/Rhythmyx/cm/app/explorerModern.jsp?_=${Date.now()}`;
 
 test.describe("modern React Content Explorer (US1) — feature 992", () => {
   test.beforeEach(async ({ page }) => {
@@ -75,7 +70,9 @@ test.describe("modern React Content Explorer (US1) — feature 992", () => {
     // 7 reduced actions: open / preview / createFolder / rename / move / copy / delete.
     await expect(page.locator('[data-testid="action-open"]')).toBeVisible();
     await expect(page.locator('[data-testid="action-preview"]')).toBeVisible();
-    await expect(page.locator('[data-testid="action-create-folder"]')).toBeVisible();
+    await expect(
+      page.locator('[data-testid="action-create-folder"]')
+    ).toBeVisible();
     await expect(page.locator('[data-testid="action-rename"]')).toBeVisible();
     await expect(page.locator('[data-testid="action-move"]')).toBeVisible();
     await expect(page.locator('[data-testid="action-copy"]')).toBeVisible();
@@ -114,7 +111,8 @@ test.describe("modern React Content Explorer (US1) — feature 992", () => {
   }) => {
     await page.goto(EXPLORER_URL, { waitUntil: "networkidle" });
     await expectNoSeriousA11yViolations(page, {
-      scope: '[id="perc-modern-ui-mount"], [data-testid="explorer-tree"], [data-testid="detail-list"]',
+      scope:
+        '[id="perc-modern-ui-mount"], [data-testid="explorer-tree"], [data-testid="detail-list"]',
     });
   });
 });

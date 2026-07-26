@@ -131,7 +131,8 @@ public class PSCommunityCataloger {
      *
      * @param elemRoot the element that contains data for a single community, never <code>null
      *     </code>
-     * @throws PSUnknownNodeTypeException if the supplied element does not match the expected schema.
+     * @throws PSUnknownNodeTypeException if the supplied element does not match the expected
+     *     schema.
      */
     public Community(Element elemRoot) throws PSUnknownNodeTypeException {
       fromXml(elemRoot);
@@ -142,7 +143,8 @@ public class PSCommunityCataloger {
      *
      * @param elemRoot the element that contains data for a single community, never <code>null
      *     </code>.
-     * @throws PSUnknownNodeTypeException if the supplied element does not match the expected schema.
+     * @throws PSUnknownNodeTypeException if the supplied element does not match the expected
+     *     schema.
      */
     public void fromXml(Element elemRoot) throws PSUnknownNodeTypeException {
       PSXMLDomUtil.checkNode(elemRoot, XML_ELEM_LIST);
@@ -301,6 +303,7 @@ public class PSCommunityCataloger {
 
   /** The XML element name for the community name. */
   public static final String XML_ELEM_COMMUNITYNAME = "communityname";
+
   /** XML element name for the community identifier. */
   public static final String XML_ELEM_COMMUNITYID = "communityid";
 

@@ -13,14 +13,13 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
 /**
- * Regression tests for the CWE-22 path-traversal defense in
- * {@link PSFileSystemService} (spec 004 / T043d, PR #1210).
+ * Regression tests for the CWE-22 path-traversal defense in {@link PSFileSystemService} (spec 004 /
+ * T043d, PR #1210).
  *
- * <p>These verify that {@code validatePath} rejects every path whose
- * segments contain a traversal marker ({@code .} or {@code ..}) and
- * every path whose resolved canonical location escapes the configured
- * trusted root directory, regardless of which public entry point is
- * called. They also verify that legitimate in-root paths are accepted.
+ * <p>These verify that {@code validatePath} rejects every path whose segments contain a traversal
+ * marker ({@code .} or {@code ..}) and every path whose resolved canonical location escapes the
+ * configured trusted root directory, regardless of which public entry point is called. They also
+ * verify that legitimate in-root paths are accepted.
  */
 public class PSFileSystemServiceSecurityTest {
 
@@ -55,8 +54,7 @@ public class PSFileSystemServiceSecurityTest {
     // reliable escape target (guaranteed to be outside the root).
     File sibling =
         new File(
-            root.getParent().toFile(),
-            "ps-filesystem-security-test-" + System.nanoTime() + ".txt");
+            root.getParent().toFile(), "ps-filesystem-security-test-" + System.nanoTime() + ".txt");
     sibling.deleteOnExit();
     String escaped = sibling.getAbsolutePath();
     assertThrows(IllegalArgumentException.class, () -> svc.getFile(escaped));

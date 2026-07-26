@@ -10,62 +10,62 @@ This feature is an organizational / remediation workflow, not new application fu
 
 A single code-scanning finding as reported by the GitHub CodeQL dashboard for the `8.2` branch.
 
-| Field | Type | Description / Validation |
-|-------|------|--------------------------|
-| `alert_id` | integer (GitHub alert number) | Immutable identifier from the scanner; primary key |
-| `rule_id` | string | CodeQL query ID (e.g., `java/cleartext-log-injection`) |
-| `severity` | enum: `critical` \| `high` \| `medium` \| `low` \| `note` | From scanner output |
-| `tool` | string (default `CodeQL`) | From scanner output |
-| `file_path` | path (relative to repo root) | Where the finding was detected |
-| `line_range` | integer range (optional) | May be omitted if rule is path-level |
-| `message` | string | From scanner `most_recent_instance.message.text` |
-| `url` | URL | GitHub alert URL for traceability |
-| `state` | enum: `open` \| `closed` \| `suppressed` | From scanner, mirrored |
-| `created_at` | ISO-8601 timestamp | From scanner |
+|    Field     |                           Type                            |                Description / Validation                |
+|--------------|-----------------------------------------------------------|--------------------------------------------------------|
+| `alert_id`   | integer (GitHub alert number)                             | Immutable identifier from the scanner; primary key     |
+| `rule_id`    | string                                                    | CodeQL query ID (e.g., `java/cleartext-log-injection`) |
+| `severity`   | enum: `critical` \| `high` \| `medium` \| `low` \| `note` | From scanner output                                    |
+| `tool`       | string (default `CodeQL`)                                 | From scanner output                                    |
+| `file_path`  | path (relative to repo root)                              | Where the finding was detected                         |
+| `line_range` | integer range (optional)                                  | May be omitted if rule is path-level                   |
+| `message`    | string                                                    | From scanner `most_recent_instance.message.text`       |
+| `url`        | URL                                                       | GitHub alert URL for traceability                      |
+| `state`      | enum: `open` \| `closed` \| `suppressed`                  | From scanner, mirrored                                 |
+| `created_at` | ISO-8601 timestamp                                        | From scanner                                           |
 
 ### Disposition
 
 The categorization assigned during the triage pass. Every open `Alert` has exactly one `Disposition`; closed alerts may keep their last `Disposition` for audit.
 
-| Field | Type | Description / Validation |
-|-------|------|--------------------------|
-| `alert_id` | integer | Foreign key → `Alert.alert_id` |
-| `disposition` | enum: `obsolete` \| `valid` \| `false-positive` \| `accepted-risk` | Required; one of four values |
-| `module_owner` | path | Module path from `./AGENTS.md` (e.g., `system/`, `rest/`, `modules/perc-ant/`) |
-| `target_action` | string | Concrete next step (e.g., "delete file", "upgrade x.y.z", "apply inline suppression") |
-| `target_milestone` | enum: `8.2-blocker` \| `8.2-must-fix` \| `8.2-backlog` \| `accepted-risk` | Release-readiness bucket |
-| `triaged_by` | GitHub handle | Release/security engineer who classified |
-| `triaged_at` | ISO-8601 timestamp | When classification was assigned |
-| `linked_pr` | integer \| null | PR that closes the alert (set when known) |
-| `notes` | string | Free-form justification (required for `false-positive` and `accepted-risk`) |
+|       Field        |                                   Type                                    |                               Description / Validation                                |
+|--------------------|---------------------------------------------------------------------------|---------------------------------------------------------------------------------------|
+| `alert_id`         | integer                                                                   | Foreign key → `Alert.alert_id`                                                        |
+| `disposition`      | enum: `obsolete` \| `valid` \| `false-positive` \| `accepted-risk`        | Required; one of four values                                                          |
+| `module_owner`     | path                                                                      | Module path from `./AGENTS.md` (e.g., `system/`, `rest/`, `modules/perc-ant/`)        |
+| `target_action`    | string                                                                    | Concrete next step (e.g., "delete file", "upgrade x.y.z", "apply inline suppression") |
+| `target_milestone` | enum: `8.2-blocker` \| `8.2-must-fix` \| `8.2-backlog` \| `accepted-risk` | Release-readiness bucket                                                              |
+| `triaged_by`       | GitHub handle                                                             | Release/security engineer who classified                                              |
+| `triaged_at`       | ISO-8601 timestamp                                                        | When classification was assigned                                                      |
+| `linked_pr`        | integer \| null                                                           | PR that closes the alert (set when known)                                             |
+| `notes`            | string                                                                    | Free-form justification (required for `false-positive` and `accepted-risk`)           |
 
 ### SuppressionRecord
 
 A documented justification + scanner-native suppression entry for a `Disposition` of `false-positive`.
 
-| Field | Type | Description / Validation |
-|-------|------|--------------------------|
-| `alert_id` | integer | Foreign key → `Alert.alert_id` |
-| `rule_id` | string | CodeQL rule being suppressed |
-| `file_path` | path | File containing the inline comment (or config file for path-level filter) |
-| `line` | integer | Line number of the inline suppression comment |
-| `justification` | string | Concise reason another reviewer can verify (must reference a code path, control, or config key) |
-| `applied_on` | ISO-8601 date | Date the suppression was applied |
-| `review_by` | ISO-8601 date | Latest acceptable review date (= `applied_on` + 1 release cycle) |
-| `applied_by` | GitHub handle | Reviewer who authorized the suppression |
+|      Field      |     Type      |                                    Description / Validation                                     |
+|-----------------|---------------|-------------------------------------------------------------------------------------------------|
+| `alert_id`      | integer       | Foreign key → `Alert.alert_id`                                                                  |
+| `rule_id`       | string        | CodeQL rule being suppressed                                                                    |
+| `file_path`     | path          | File containing the inline comment (or config file for path-level filter)                       |
+| `line`          | integer       | Line number of the inline suppression comment                                                   |
+| `justification` | string        | Concise reason another reviewer can verify (must reference a code path, control, or config key) |
+| `applied_on`    | ISO-8601 date | Date the suppression was applied                                                                |
+| `review_by`     | ISO-8601 date | Latest acceptable review date (= `applied_on` + 1 release cycle)                                |
+| `applied_by`    | GitHub handle | Reviewer who authorized the suppression                                                         |
 
 ### AcceptedRisk
 
 A documented exception for an `Alert` that cannot be mitigated before `8.2` but is consciously accepted rather than ignored.
 
-| Field | Type | Description / Validation |
-|-------|------|--------------------------|
-| `alert_id` | integer | Foreign key → `Alert.alert_id` |
-| `rationale` | string | Why the finding cannot be fixed in this release (e.g., requires JDK upgrade) |
-| `compensating_control` | string | Existing control that reduces residual risk (or "none" with justification) |
-| `owner` | GitHub handle | Named individual accountable |
-| `target_milestone` | string | When remediation is committed to happen (e.g., `8.3`, `9.0`) |
-| `expires_at` | ISO-8601 date | Hard date by which the accepted-risk MUST be re-reviewed |
+|         Field          |     Type      |                           Description / Validation                           |
+|------------------------|---------------|------------------------------------------------------------------------------|
+| `alert_id`             | integer       | Foreign key → `Alert.alert_id`                                               |
+| `rationale`            | string        | Why the finding cannot be fixed in this release (e.g., requires JDK upgrade) |
+| `compensating_control` | string        | Existing control that reduces residual risk (or "none" with justification)   |
+| `owner`                | GitHub handle | Named individual accountable                                                 |
+| `target_milestone`     | string        | When remediation is committed to happen (e.g., `8.3`, `9.0`)                 |
+| `expires_at`           | ISO-8601 date | Hard date by which the accepted-risk MUST be re-reviewed                     |
 
 ## Relationships
 
@@ -79,13 +79,13 @@ Alert (1) ── (0..*) PR                                        [closing PRs; 
 
 The entities above do not live in a database. They are materialized as:
 
-| Entity | Primary location | Format |
-|--------|------------------|--------|
-| `Alert` (raw) | `docs/ai-generated/tasks/gh-codeql-alerts/alerts.md` | Markdown list produced by `scripts/fetch-gh-code-scanning-alerts.sh` |
-| `Disposition` | `docs/ai-generated/tasks/gh-codeql-alerts/triage.md` | Markdown table — one row per open alert |
-| `SuppressionRecord` | (a) inline comment in the suppressed file; (b) `docs/ai-generated/tasks/gh-codeql-alerts/suppressions.md` index | (a) `// codeql[rule-id]` comment; (b) Markdown row |
-| `AcceptedRisk` | `docs/ai-generated/tasks/gh-codeql-alerts/accepted-risks.md` | Markdown table |
-| `PR` closing record | GitHub PR description + linked closing commit | PR body citing the alert ID |
+|       Entity        |                                                Primary location                                                 |                                Format                                |
+|---------------------|-----------------------------------------------------------------------------------------------------------------|----------------------------------------------------------------------|
+| `Alert` (raw)       | `docs/ai-generated/tasks/gh-codeql-alerts/alerts.md`                                                            | Markdown list produced by `scripts/fetch-gh-code-scanning-alerts.sh` |
+| `Disposition`       | `docs/ai-generated/tasks/gh-codeql-alerts/triage.md`                                                            | Markdown table — one row per open alert                              |
+| `SuppressionRecord` | (a) inline comment in the suppressed file; (b) `docs/ai-generated/tasks/gh-codeql-alerts/suppressions.md` index | (a) `// codeql[rule-id]` comment; (b) Markdown row                   |
+| `AcceptedRisk`      | `docs/ai-generated/tasks/gh-codeql-alerts/accepted-risks.md`                                                    | Markdown table                                                       |
+| `PR` closing record | GitHub PR description + linked closing commit                                                                   | PR body citing the alert ID                                          |
 
 ## Validation Rules
 
@@ -128,3 +128,4 @@ The entities above do not live in a database. They are materialized as:
                                                        ▼
                                               (expires_at reached → re-triage)
 ```
+

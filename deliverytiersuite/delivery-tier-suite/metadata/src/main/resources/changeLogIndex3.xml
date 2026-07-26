@@ -69,8 +69,10 @@
 		author="user" dbms="h2">
 		<preConditions onFail="CONTINUE">
 			<dbms type="h2" />
-			<sqlCheck expectedResult="0">SELECT COUNT(*) FROM INFORMATION_SCHEMA.INDEXES
-				WHERE INDEX_NAME = 'IX_PRCPGMTDT_DATEVAL' AND TABLE_NAME = 'PERC_PAGE_METADATA_PROPERTIES'
+			<sqlCheck expectedResult="0">SELECT COUNT(*) FROM
+				INFORMATION_SCHEMA.INDEXES
+				WHERE INDEX_NAME = 'IX_PRCPGMTDT_DATEVAL'
+				AND TABLE_NAME = 'PERC_PAGE_METADATA_PROPERTIES'
 			</sqlCheck>
 		</preConditions>
 		<sql>CREATE INDEX IX_PRCPGMTDT_DATEVAL ON

@@ -66,8 +66,7 @@ public class PSH2DtsConcurrentWriteSmokeTest {
     Path dbDir = tempDir.resolve("h2dts");
     Files.createDirectories(dbDir);
     String path = dbDir.resolve("percmetadata").toAbsolutePath().toString().replace('\\', '/');
-    String server =
-        "file:" + path + ";DB_CLOSE_ON_EXIT=FALSE;FILE_LOCK=NO;LOCK_TIMEOUT=10000";
+    String server = "file:" + path + ";DB_CLOSE_ON_EXIT=FALSE;FILE_LOCK=NO;LOCK_TIMEOUT=10000";
     jdbcUrl = PSJdbcUtils.getJdbcUrl(PSJdbcUtils.H2_DRIVER, server);
     Class.forName(PSJdbcUtils.H2_DRIVER_CLASS);
 
@@ -185,15 +184,13 @@ public class PSH2DtsConcurrentWriteSmokeTest {
               upd.setInt(3, id);
               upd.setInt(4, ver);
               int n = upd.executeUpdate();
-              assertEquals(
-                  1,
-                  n,
-                  "expected optimistic update of id=" + id + " at version=" + ver);
+              assertEquals(1, n, "expected optimistic update of id=" + id + " at version=" + ver);
             }
           } else {
             try (PreparedStatement ins =
                 c.prepareStatement(
-                    "INSERT INTO METADATA_PAGE (PAGEPATH, SITE, PAYLOAD, VERSION) VALUES (?, ?, ?, 1)")) {
+                    "INSERT INTO METADATA_PAGE (PAGEPATH, SITE, PAYLOAD, VERSION) VALUES (?, ?, ?,"
+                        + " 1)")) {
               ins.setString(1, pagePath);
               ins.setString(2, site);
               ins.setString(3, payload);

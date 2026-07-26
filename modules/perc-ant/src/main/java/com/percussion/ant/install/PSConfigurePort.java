@@ -51,10 +51,9 @@ import org.apache.tools.ant.BuildException;
  * </pre>
  */
 public class PSConfigurePort extends PSAction {
-  /**
-   * Creates a new port configuration task.
-   */
+  /** Creates a new port configuration task. */
   public PSConfigurePort() {}
+
   // see base class
   @Override
   public void execute() {

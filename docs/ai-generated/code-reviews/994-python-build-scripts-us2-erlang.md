@@ -55,18 +55,19 @@ happy / help / failure case (FR-009). The foundation US1 sentinel
 
 ## Cross-platform path / file I/O checklist
 
-| Item | Status |
-|------|--------|
-| No hardcoded `/` or `\\` in filesystem-path joins | **PASS** — every filesystem path is built via `pathlib.Path` / `os.path.join` / `Path.resolve()`; the `/` strings in code are URL paths (`/repos/{repo}/code-scanning/alerts`), CMS-internal defaults (`/Sites/PerfFixture`, `/opt/Percussion` — these are CMS folder names, not local filesystem paths), or test constants. |
-| No Unix-only absolute roots in tests | **FAIL → FIXED** during review: `test_stage_triage_cluster.py::test_missing_cluster_name_exits_nonzero` originally used `/dev/null` (Unix-only); switched to `tmp_path / "does-not-exist.md"` for cross-platform support. |
-| `subprocess.run` always uses argv lists with `shell=False` | **PASS** — verified by grep; no `shell=True`, `os.system`, `bash -c`, `cmd /c`, or `cmd.exe` invocations anywhere in the new code. |
-| No third-party deps beyond pytest | **PASS** — only `pytest` (from `scripts/requirements-dev.txt`) appears in the new code; runtime imports are stdlib-only. |
-| `shebang` / `encoding` / `from __future__ import annotations` | **PASS** — every new script has all three. |
-| `pathlib.Path` for repo-root resolution | **PASS** — `REPO_ROOT = Path(__file__).resolve().parents[N]` per R7. |
+|                             Item                              |                                                                                                                                                            Status                                                                                                                                                            |
+|---------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| No hardcoded `/` or `\\` in filesystem-path joins             | **PASS** — every filesystem path is built via `pathlib.Path` / `os.path.join` / `Path.resolve()`; the `/` strings in code are URL paths (`/repos/{repo}/code-scanning/alerts`), CMS-internal defaults (`/Sites/PerfFixture`, `/opt/Percussion` — these are CMS folder names, not local filesystem paths), or test constants. |
+| No Unix-only absolute roots in tests                          | **FAIL → FIXED** during review: `test_stage_triage_cluster.py::test_missing_cluster_name_exits_nonzero` originally used `/dev/null` (Unix-only); switched to `tmp_path / "does-not-exist.md"` for cross-platform support.                                                                                                    |
+| `subprocess.run` always uses argv lists with `shell=False`    | **PASS** — verified by grep; no `shell=True`, `os.system`, `bash -c`, `cmd /c`, or `cmd.exe` invocations anywhere in the new code.                                                                                                                                                                                           |
+| No third-party deps beyond pytest                             | **PASS** — only `pytest` (from `scripts/requirements-dev.txt`) appears in the new code; runtime imports are stdlib-only.                                                                                                                                                                                                     |
+| `shebang` / `encoding` / `from __future__ import annotations` | **PASS** — every new script has all three.                                                                                                                                                                                                                                                                                   |
+| `pathlib.Path` for repo-root resolution                       | **PASS** — `REPO_ROOT = Path(__file__).resolve().parents[N]` per R7.                                                                                                                                                                                                                                                         |
 
 ## Issues
 
 ### Issue 1 -- Severity: suggestion (now resolved)
+
 - **File**: `scripts/test_stage_triage_cluster.py:40`
 - **Description**: Originally used `"/dev/null"` for the missing-file test,
   which is a Unix-only path and would break on `windows-latest`.
@@ -76,6 +77,7 @@ happy / help / failure case (FR-009). The foundation US1 sentinel
 - **Pattern-id**: paths.unix-only-root
 
 ### Issue 2 -- Severity: suggestion (not a bug; recorded for future work)
+
 - **File**: `scripts/release-audit/__main__.py`
 - **Description**: The package directory name is `release-audit/` (with a
   dash, per the contract), which Python cannot import as
@@ -92,6 +94,7 @@ happy / help / failure case (FR-009). The foundation US1 sentinel
 - **Pattern-id**: conventions.package-naming
 
 ### Issue 3 -- Severity: nit
+
 - **File**: `scripts/install-cms-dev.py:10`
 - **Description**: docstring contains `/opt/Percussion/` which triggered a
   `SyntaxWarning: invalid escape sequence '\o'` during `python3 -m py_compile`.
@@ -144,3 +147,4 @@ phase-3 work) is out of scope for US2.
 - **PR review thread protocol** (Constitution IX): when review comments
   arrive, reply inline AND resolve each thread via the GraphQL mutation
   before merge. Root `AGENTS.md` → "PR Review Comment Resolution".
+

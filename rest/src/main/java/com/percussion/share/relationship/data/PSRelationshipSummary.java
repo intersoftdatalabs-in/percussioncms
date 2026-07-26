@@ -27,22 +27,22 @@ import java.util.Objects;
  * Explorer's DependencyViewer (US8 / T092–T104):
  *
  * <ul>
- *   <li><strong>outgoing</strong>: items that own the supplied item via a non-AA relationship
- *       (e.g. translation parents, linkback source pages). Backed by
- *       {@code IPSSystemWs.findOwners(...)} with {@link
+ *   <li><strong>outgoing</strong>: items that own the supplied item via a non-AA relationship (e.g.
+ *       translation parents, linkback source pages). Backed by {@code IPSSystemWs.findOwners(...)}
+ *       with {@link
  *       com.percussion.cms.objectstore.PSRelationshipFilter#FILTER_CATEGORY_TRANSLATION}.
  *   <li><strong>incoming</strong>: items that are owned by the supplied item via the same category.
  *       Backed by {@code IPSSystemWs.findDependents(...)}.
  *   <li><strong>reverse</strong>: the union of incoming plus any inline-link parents; computed by
- *       combining the incoming dimension with the supplied item's
- *       {@code IPSWidgetAssetRelationshipService.getLinkedPages(...)} and
- *       {@code IPSWidgetAssetRelationshipService.getLinkedAssets(...)} parents.
+ *       combining the incoming dimension with the supplied item's {@code
+ *       IPSWidgetAssetRelationshipService.getLinkedPages(...)} and {@code
+ *       IPSWidgetAssetRelationshipService.getLinkedAssets(...)} parents.
  * </ul>
  *
  * <p>The shape mirrors the live Java DTOs that the underlying catalogers produce — no invented
- * fields. Counts are integers because the modern Content Explorer never needs an enumerated list
- * of owner-ids on the dependency-view row; the consolidated {@code PSNodeRelationshipSummary} is
- * the only DTO that ever carries per-link rows.
+ * fields. Counts are integers because the modern Content Explorer never needs an enumerated list of
+ * owner-ids on the dependency-view row; the consolidated {@code PSNodeRelationshipSummary} is the
+ * only DTO that ever carries per-link rows.
  *
  * <p>Wire envelope: {@code {"PSRelationshipSummary": { ... }}} on the JAX-RS side; rendered as
  * plain JSON by the modern Content Explorer's {@code relationshipsApi.ts} client.
@@ -56,7 +56,8 @@ public class PSRelationshipSummary extends PSAbstractDataObject {
   private static final long serialVersionUID = 1L;
 
   /**
-   * Total number of relationships that match the supplied filter. Always &ge; 0; never {@code null}.
+   * Total number of relationships that match the supplied filter. Always &ge; 0; never {@code
+   * null}.
    */
   private long count;
 

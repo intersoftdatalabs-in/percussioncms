@@ -27,7 +27,6 @@ import static org.mockito.Mockito.when;
 
 import com.percussion.theme.service.IPSThemeService;
 import java.io.File;
-import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.LinkedHashMap;
@@ -37,36 +36,30 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
 /**
- * Regression tests for {@link PSImportThemeHelper} focused on the
- * {@code java/path-injection} finding closed at
- * {@code PSImportThemeHelper.java:216} (CodeQL alert #1054, T043).
+ * Regression tests for {@link PSImportThemeHelper} focused on the {@code java/path-injection}
+ * finding closed at {@code PSImportThemeHelper.java:216} (CodeQL alert #1054, T043).
  *
- * <p>The pre-fix code in {@code removeIfExists(Map<String, String>)}
- * called {@code new File(cssFile)} with paths derived from CSS link
- * URLs extracted from the imported HTML header, without verifying the
- * resolved path was contained within the theme root. A malicious HTML
- * header with a {@code <link>} URL pointing outside the theme root
- * could escape the base directory.
+ * <p>The pre-fix code in {@code removeIfExists(Map<String, String>)} called {@code new
+ * File(cssFile)} with paths derived from CSS link URLs extracted from the imported HTML header,
+ * without verifying the resolved path was contained within the theme root. A malicious HTML header
+ * with a {@code <link>} URL pointing outside the theme root could escape the base directory.
  *
  * <p>The fix:
  *
  * <ol>
- *   <li>Passes {@code themeRootDirectory} as a method parameter (instead
- *       of caching it on the singleton) so concurrent imports do not
- *       race for the validation base.
- *   <li>Skips URL values (off-site CSS links) because they were never
- *       meant to be opened as files; this preserves external-stylesheet
- *       support on Windows where canonicalizing "https://..." throws.
- *   <li>Calls {@link com.percussion.security.io.PSPathInjectionGuard#requireUnderBase}
- *       on every non-URL value BEFORE File construction. Traversal
- *       payloads throw IllegalArgumentException.
+ *   <li>Passes {@code themeRootDirectory} as a method parameter (instead of caching it on the
+ *       singleton) so concurrent imports do not race for the validation base.
+ *   <li>Skips URL values (off-site CSS links) because they were never meant to be opened as files;
+ *       this preserves external-stylesheet support on Windows where canonicalizing "https://..."
+ *       throws.
+ *   <li>Calls {@link com.percussion.security.io.PSPathInjectionGuard#requireUnderBase} on every
+ *       non-URL value BEFORE File construction. Traversal payloads throw IllegalArgumentException.
  * </ol>
  *
- * <p>Tests instantiate {@link PSImportThemeHelper} via its real
- * {@code @Autowired} constructor with a Mockito-mocked
- * {@link IPSThemeService}, exercising the actual production flow (not
- * {@code sun.misc.Unsafe}). They also use {@link Path#resolve} to
- * build filesystem paths portably (no hardcoded "/" or "\").
+ * <p>Tests instantiate {@link PSImportThemeHelper} via its real {@code @Autowired} constructor with
+ * a Mockito-mocked {@link IPSThemeService}, exercising the actual production flow (not {@code
+ * sun.misc.Unsafe}). They also use {@link Path#resolve} to build filesystem paths portably (no
+ * hardcoded "/" or "\").
  */
 public class PSImportThemeHelperPathInjectionTest {
 
@@ -80,17 +73,15 @@ public class PSImportThemeHelperPathInjectionTest {
   }
 
   /**
-   * Reflectively invokes the private {@code removeIfExists} method with
-   * the supplied theme root. Reflection is used because the method is
-   * private; the constructor is exercised normally via the public
-   * {@code @Autowired} entry point.
+   * Reflectively invokes the private {@code removeIfExists} method with the supplied theme root.
+   * Reflection is used because the method is private; the constructor is exercised normally via the
+   * public {@code @Autowired} entry point.
    */
   private void invokeRemoveIfExists(
       PSImportThemeHelper h, Map<String, String> linkPaths, String themeRootDirectory)
       throws Exception {
     java.lang.reflect.Method m =
-        PSImportThemeHelper.class.getDeclaredMethod(
-            "removeIfExists", Map.class, String.class);
+        PSImportThemeHelper.class.getDeclaredMethod("removeIfExists", Map.class, String.class);
     m.setAccessible(true);
     try {
       m.invoke(h, linkPaths, themeRootDirectory);
@@ -152,8 +143,7 @@ public class PSImportThemeHelperPathInjectionTest {
     // Path.resolve rejects NUL bytes; build the path as a String so the
     // NUL byte reaches the validator. PSPathInjectionGuard.requireUnderBase
     // checks for NUL bytes before any File construction.
-    String payloadWithNul =
-        themeRoot.toString() + File.separator + "good.css\0../../etc/passwd";
+    String payloadWithNul = themeRoot.toString() + File.separator + "good.css\0../../etc/passwd";
     linkPaths.put("http://attacker.example/z.css", payloadWithNul);
     assertThrows(
         IllegalArgumentException.class,
@@ -171,8 +161,7 @@ public class PSImportThemeHelperPathInjectionTest {
     Map<String, String> linkPaths = new LinkedHashMap<>();
     Path insideRoot = themeRoot.resolve("missing.css");
     linkPaths.put("http://ok.example/missing.css", insideRoot.toString());
-    assertDoesNotThrow(
-        () -> invokeRemoveIfExists(h, linkPaths, themeRoot.toString()));
+    assertDoesNotThrow(() -> invokeRemoveIfExists(h, linkPaths, themeRoot.toString()));
     assertTrue(
         linkPaths.containsKey("http://ok.example/missing.css"),
         "Missing file under theme root must leave the link entry untouched");
@@ -186,8 +175,7 @@ public class PSImportThemeHelperPathInjectionTest {
     Files.createFile(existing);
     Map<String, String> linkPaths = new LinkedHashMap<>();
     linkPaths.put("http://ok.example/real.css", existing.toString());
-    assertDoesNotThrow(
-        () -> invokeRemoveIfExists(h, linkPaths, themeRoot.toString()));
+    assertDoesNotThrow(() -> invokeRemoveIfExists(h, linkPaths, themeRoot.toString()));
     assertFalse(
         linkPaths.containsKey("http://ok.example/real.css"),
         "Existing file under theme root must be removed from the link map");
@@ -275,7 +263,8 @@ public class PSImportThemeHelperPathInjectionTest {
   }
 
   @Test
-  @DisplayName("removeIfExists: soft-fails when themeRoot does not exist (no IllegalArgumentException)")
+  @DisplayName(
+      "removeIfExists: soft-fails when themeRoot does not exist (no IllegalArgumentException)")
   void testRemoveIfExistsSoftWhenThemeRootMissing() throws Exception {
     PSImportThemeHelper h = helper();
     Map<String, String> linkPaths = new LinkedHashMap<>();
@@ -295,9 +284,7 @@ public class PSImportThemeHelperPathInjectionTest {
             + " Throwing here would be silently swallowed by process()'s catch(Exception)"
             + " and abort the entire import.");
     assertEquals(
-        1,
-        linkPaths.size(),
-        "Entry stays — nothing under a missing root can exist anyway");
+        1, linkPaths.size(), "Entry stays — nothing under a missing root can exist anyway");
   }
 
   @Test

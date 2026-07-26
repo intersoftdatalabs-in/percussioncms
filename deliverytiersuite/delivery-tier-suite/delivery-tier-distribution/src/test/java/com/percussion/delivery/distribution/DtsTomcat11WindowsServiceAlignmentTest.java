@@ -50,8 +50,7 @@ class DtsTomcat11WindowsServiceAlignmentTest {
 
   @Test
   void installDtsXmlInstallsTomcat11ProcrunOnWindows() throws IOException {
-    Path install =
-        ROOT_FILES.resolve(Path.of("rxconfig", "Installer", "installDts.xml"));
+    Path install = ROOT_FILES.resolve(Path.of("rxconfig", "Installer", "installDts.xml"));
     String text = read(install);
     assertTrue(text.contains("tomcat11.exe"), "installDts.xml must install tomcat11.exe");
     assertTrue(text.contains("tomcat11w.exe"), "installDts.xml must install tomcat11w.exe");

@@ -69,14 +69,14 @@ Defaults:
 
 **Exit codes:**
 
-| Code | Meaning |
-|------|---------|
-| 0 | All checks passed: artifact unpacked, `jetty/base/lib/jdbc/` exists, ≥ 1 JAR present, every JAR > 0 bytes, every JAR passes `unzip -t`. |
-| 1 | Invocation error (bad args, artifact not found, etc.). |
-| 2 | `jetty/base/lib/jdbc/` missing or empty. |
-| 3 | One or more JARs are zero-byte. |
-| 4 | One or more JARs are not valid Java archives. |
-| 5 | Artifact could not be unpacked. |
+| Code |                                                                 Meaning                                                                 |
+|------|-----------------------------------------------------------------------------------------------------------------------------------------|
+| 0    | All checks passed: artifact unpacked, `jetty/base/lib/jdbc/` exists, ≥ 1 JAR present, every JAR > 0 bytes, every JAR passes `unzip -t`. |
+| 1    | Invocation error (bad args, artifact not found, etc.).                                                                                  |
+| 2    | `jetty/base/lib/jdbc/` missing or empty.                                                                                                |
+| 3    | One or more JARs are zero-byte.                                                                                                         |
+| 4    | One or more JARs are not valid Java archives.                                                                                           |
+| 5    | Artifact could not be unpacked.                                                                                                         |
 
 **Output:**
 
@@ -105,15 +105,15 @@ The `installDistributionFiles.xml` ANT script, which reads staged JARs from `${a
 
 ### Contract
 
-| Coordinate | Version source | Staged filename |
-|-----------|----------------|------------------|
+|               Coordinate               |                                    Version source                                    |                                        Staged filename                                         |
+|----------------------------------------|--------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------|
 | `org.mariadb.jdbc:mariadb-java-client` | `${mariadb.version}` (`3.5.7`) — promote to root `<dependencyManagement>` in this PR | `mariadb-connector.jar` (renamed for clarity, matches legacy `mysql-connector.jar` convention) |
-| `org.apache.derby:derby` | root `<dependencyManagement>` | `derby.jar` |
-| `org.apache.derby:derbyclient` | root `<dependencyManagement>` | `derby-client.jar` |
-| `org.apache.derby:derbynet` | root `<dependencyManagement>` | `derbynet.jar` |
-| `com.microsoft.sqlserver:mssql-jdbc` | `${mssql.version}` | `mssql-connector.jar` |
-| `net.sourceforge.jtds:jtds` | `${jtds.version}` | `jtds.jar` |
-| `com.oracle.database.jdbc:ojdbc17` | `23.26.0.0.0` (already in root mgmt) | `ojdbc17.jar` |
+| `org.apache.derby:derby`               | root `<dependencyManagement>`                                                        | `derby.jar`                                                                                    |
+| `org.apache.derby:derbyclient`         | root `<dependencyManagement>`                                                        | `derby-client.jar`                                                                             |
+| `org.apache.derby:derbynet`            | root `<dependencyManagement>`                                                        | `derbynet.jar`                                                                                 |
+| `com.microsoft.sqlserver:mssql-jdbc`   | `${mssql.version}`                                                                   | `mssql-connector.jar`                                                                          |
+| `net.sourceforge.jtds:jtds`            | `${jtds.version}`                                                                    | `jtds.jar`                                                                                     |
+| `com.oracle.database.jdbc:ojdbc17`     | `23.26.0.0.0` (already in root mgmt)                                                 | `ojdbc17.jar`                                                                                  |
 
 Versions MUST be tracked in `<dependencyManagement>` (no naked version strings in this POM).
 

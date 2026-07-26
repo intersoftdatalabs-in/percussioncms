@@ -53,9 +53,7 @@ import org.apache.tools.ant.Task;
  * </pre>
  */
 public class PSCheckVersion extends Task {
-  /**
-   * Creates a new version check task.
-   */
+  /** Creates a new version check task. */
   public PSCheckVersion() {}
 
   private static final Logger log = LogManager.getLogger(PSCheckVersion.class);
@@ -287,8 +285,8 @@ public class PSCheckVersion extends Task {
   /**
    * Sets the operation type.
    *
-   * @param operation the operation type, must be "install" or "uninstall", cannot be
-   *     <code>null</code>
+   * @param operation the operation type, must be "install" or "uninstall", cannot be <code>null
+   *     </code>
    */
   public void setOperation(String operation) {
     if (operation == null

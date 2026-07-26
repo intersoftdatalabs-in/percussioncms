@@ -652,10 +652,7 @@ public class AssetAdaptor extends SiteManageAdaptorBase implements IAssetAdaptor
             .put("percRichTextAsset", ImmutableList.<String>builder().add("text").build())
             .build();
     assetBinaryTypes =
-        ImmutableList.<String>builder()
-            .add(ASSET_TYPE_FILE)
-            .add(ASSET_TYPE_IMAGE)
-            .build();
+        ImmutableList.<String>builder().add(ASSET_TYPE_FILE).add(ASSET_TYPE_IMAGE).build();
   }
 
   @Override

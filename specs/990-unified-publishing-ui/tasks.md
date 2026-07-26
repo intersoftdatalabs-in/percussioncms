@@ -7,12 +7,12 @@
 
 **Organization**: Phases by user story. Prefer **one PR per story** (US1 → US8) per constitution story checkpoint. **Cutover policy** (spec Assumptions / research R5):
 
-| Milestone | After stories | Action |
-|-----------|---------------|--------|
-| Ops primary path | US1–US3 | Rewire `views.put("publish", "publishModern.jsp")`; dual-path Minuet files may still exist until US8 |
-| Design cutover | US4 + UAT | Map `/ui/publishing/*`; remove Design JSF from product path in US8 design portion |
-| Runtime cutover | US5 + UAT | Map `/ui/pubruntime/*`; remove Runtime JSF in US8 |
-| Full retirement | US8 | Delete exclusive classic clients; sign off [checklists/removal-inventory.md](./checklists/removal-inventory.md) |
+|    Milestone     | After stories |                                                     Action                                                      |
+|------------------|---------------|-----------------------------------------------------------------------------------------------------------------|
+| Ops primary path | US1–US3       | Rewire `views.put("publish", "publishModern.jsp")`; dual-path Minuet files may still exist until US8            |
+| Design cutover   | US4 + UAT     | Map `/ui/publishing/*`; remove Design JSF from product path in US8 design portion                               |
+| Runtime cutover  | US5 + UAT     | Map `/ui/pubruntime/*`; remove Runtime JSF in US8                                                               |
+| Full retirement  | US8           | Delete exclusive classic clients; sign off [checklists/removal-inventory.md](./checklists/removal-inventory.md) |
 
 ## Format
 
@@ -303,17 +303,17 @@ US1 (Sites & publish) ──→ US2 (Status & logs) ──→ US3 (Servers + ops
                                               Phase 11 Polish
 ```
 
-| Story | Depends on | Blocks |
-|-------|------------|--------|
-| US1 | Foundational | US2 (soft—can parallelize UI files but integrate after US1 PR) |
-| US2 | Foundational; prefer after US1 shell | — |
-| US3 | US1 site workspace; Foundational APIs | Ops cutover for later UAT |
-| US4 | Foundational; ops shell optional | US8 design delete |
-| US5 | Design/runtime façade patterns from US4 (or ops stop APIs) | US8 runtime delete |
-| US6 | US3 nav rewire | — |
-| US7 | US1–US5 UI present | — |
-| US8 | US1–US7 parity + matrix | Release retirement claim |
-| Polish | US8 preferred | — |
+| Story  |                         Depends on                         |                             Blocks                             |
+|--------|------------------------------------------------------------|----------------------------------------------------------------|
+| US1    | Foundational                                               | US2 (soft—can parallelize UI files but integrate after US1 PR) |
+| US2    | Foundational; prefer after US1 shell                       | —                                                              |
+| US3    | US1 site workspace; Foundational APIs                      | Ops cutover for later UAT                                      |
+| US4    | Foundational; ops shell optional                           | US8 design delete                                              |
+| US5    | Design/runtime façade patterns from US4 (or ops stop APIs) | US8 runtime delete                                             |
+| US6    | US3 nav rewire                                             | —                                                              |
+| US7    | US1–US5 UI present                                         | —                                                              |
+| US8    | US1–US7 parity + matrix                                    | Release retirement claim                                       |
+| Polish | US8 preferred                                              | —                                                              |
 
 **Story completion order**: US1 → US2 → US3 → US4 → US5 → US6 → US7 → US8 → Polish.
 
@@ -344,19 +344,19 @@ T064 Site editor || T066 Content lists || T068 Delivery types
 
 ### MVP (first shippable ops value)
 
-1. Phase 1–2 Foundations  
-2. **US1** sites + full/incremental publish  
-3. **US2** status + logs  
-4. **US3** servers + **rewire Publish nav** to modern shell  
-5. Validate quickstart A–C and SC-001  
+1. Phase 1–2 Foundations
+2. **US1** sites + full/incremental publish
+3. **US2** status + logs
+4. **US3** servers + **rewire Publish nav** to modern shell
+5. Validate quickstart A–C and SC-001
 
 Design/Runtime can follow in a later train; temporary dual existence of JSF Design/Runtime is allowed until US4/US5/US8.
 
 ### Incremental delivery
 
-- Each story: tests → implementation → matrix update → PR → review resolve → next story  
-- Do not delete classic Design/Runtime until matrix DES/RT Done  
-- Do not claim SC-006 until US8 removal inventory signed  
+- Each story: tests → implementation → matrix update → PR → review resolve → next story
+- Do not delete classic Design/Runtime until matrix DES/RT Done
+- Do not claim SC-006 until US8 removal inventory signed
 
 ### Suggested first agent slice
 
@@ -414,36 +414,36 @@ Start at **T001–T016** (setup + foundational), then **T017–T029** (US1) as f
 
 ## Task summary
 
-| Phase | Story | Task IDs | Count |
-|-------|-------|----------|-------|
-| 1 Setup | — | T001–T005 | 5 |
-| 2 Foundational | — | T006–T016 | 11 |
-| 3 | US1 | T017–T029 | 13 |
-| 4 | US2 | T030–T041 | 12 |
-| 5 | US3 | T042–T056 | 15 |
-| 6 | US4 | T057–T074 | 18 |
-| 7 | US5 | T075–T084 | 10 |
-| 8 | US6 | T085–T091 | 7 |
-| 9 | US7 | T092–T099 | 8 |
-| 10 | US8 | T100–T110 | 11 |
-| 11 Polish | — | T111–T115 | 5 |
-| 12 Residual | US9 | T116–T127 | 12 |
-| 13 Playwright | — | T128–T134 | 7 |
-| **Baseline total** | | **T001–T115** | **115** |
-| **With residual** | | **T001–T127** | **127** |
-| **With E2E automation** | | **T001–T134** | **134** |
+|          Phase          | Story |   Task IDs    |  Count  |
+|-------------------------|-------|---------------|---------|
+| 1 Setup                 | —     | T001–T005     | 5       |
+| 2 Foundational          | —     | T006–T016     | 11      |
+| 3                       | US1   | T017–T029     | 13      |
+| 4                       | US2   | T030–T041     | 12      |
+| 5                       | US3   | T042–T056     | 15      |
+| 6                       | US4   | T057–T074     | 18      |
+| 7                       | US5   | T075–T084     | 10      |
+| 8                       | US6   | T085–T091     | 7       |
+| 9                       | US7   | T092–T099     | 8       |
+| 10                      | US8   | T100–T110     | 11      |
+| 11 Polish               | —     | T111–T115     | 5       |
+| 12 Residual             | US9   | T116–T127     | 12      |
+| 13 Playwright           | —     | T128–T134     | 7       |
+| **Baseline total**      |       | **T001–T115** | **115** |
+| **With residual**       |       | **T001–T127** | **127** |
+| **With E2E automation** |       | **T001–T134** | **134** |
 
-| Story | Tasks (approx) | Priority |
-|-------|----------------|----------|
-| US1 | 14 | P1 MVP |
-| US2 | 13 | P1 MVP |
-| US3 | 16 | P1 MVP + ops cutover |
-| US4 | 19 | P2 |
-| US5 | 11 | P2 |
-| US6 | 7 | P2 |
-| US7 | 8 | P2 |
-| US8 | 11 | P3 retirement |
-| US9 | 12 | P2 residual parity |
-| E2E | 7 | P2 automation |
+| Story | Tasks (approx) |       Priority       |
+|-------|----------------|----------------------|
+| US1   | 14             | P1 MVP               |
+| US2   | 13             | P1 MVP               |
+| US3   | 16             | P1 MVP + ops cutover |
+| US4   | 19             | P2                   |
+| US5   | 11             | P2                   |
+| US6   | 7              | P2                   |
+| US7   | 8              | P2                   |
+| US8   | 11             | P3 retirement        |
+| US9   | 12             | P2 residual parity   |
+| E2E   | 7              | P2 automation        |
 
 **Format validation**: All tasks use `- [ ]` or `- [X]`, sequential IDs, `[USn]` on story phases only, `[P]` only when parallel-safe, and concrete file paths.

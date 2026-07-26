@@ -34,8 +34,7 @@ document.addEventListener("DOMContentLoaded", function (event) {
       }
 
       var prurl = window.location.href;
-      var baseurl =
-        window.location.protocol + "//" + window.location.host;
+      var baseurl = window.location.protocol + "//" + window.location.host;
       if (prurl.indexOf("percmobilepreview=true") > 0) {
         prurl = prurl.replace("percmobilepreview=true", "");
         prurl = safeSameOriginHttpUrl(prurl, baseurl);

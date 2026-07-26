@@ -28,23 +28,19 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 /**
- * Regression tests for {@link PSPageDaoHelper#formGetByStatusSQLQuery} (CodeQL
- * {@code java/sql-injection}, T042, US3).
+ * Regression tests for {@link PSPageDaoHelper#formGetByStatusSQLQuery} (CodeQL {@code
+ * java/sql-injection}, T042, US3).
  *
- * <p><strong>Background.</strong> The pre-fix code concatenated user-supplied
- * values from {@link PSSearchCriteria#getSearchFields()} directly into the
- * SQL string (e.g., {@code "AND P.TEMPLATEID='" + value + "'"}). The fix
- * uses named-parameter placeholders and binds the values via
- * {@code setParameter}.
+ * <p><strong>Background.</strong> The pre-fix code concatenated user-supplied values from {@link
+ * PSSearchCriteria#getSearchFields()} directly into the SQL string (e.g., {@code "AND
+ * P.TEMPLATEID='" + value + "'"}). The fix uses named-parameter placeholders and binds the values
+ * via {@code setParameter}.
  *
- * <p><strong>Fail-then-pass coverage (Constitution III).</strong> The
- * pre-fix code produced SQL containing the raw user value
- * (e.g., {@code AND P.TEMPLATEID='malicious'}). The post-fix code
- * produces SQL with named-parameter placeholders
- * (e.g., {@code AND P.TEMPLATEID = :templateid}) and records the value
- * separately in the params map. The test asserts the SQL string does
- * NOT contain the user value, which would fail on pre-fix and pass on
- * post-fix.
+ * <p><strong>Fail-then-pass coverage (Constitution III).</strong> The pre-fix code produced SQL
+ * containing the raw user value (e.g., {@code AND P.TEMPLATEID='malicious'}). The post-fix code
+ * produces SQL with named-parameter placeholders (e.g., {@code AND P.TEMPLATEID = :templateid}) and
+ * records the value separately in the params map. The test asserts the SQL string does NOT contain
+ * the user value, which would fail on pre-fix and pass on post-fix.
  */
 @DisplayName("PSPageDaoHelper.formGetByStatusSQLQuery — SQL injection (CWE-89) regression tests")
 class PSPageDaoHelperSqlInjectionTest {
@@ -130,7 +126,9 @@ class PSPageDaoHelperSqlInjectionTest {
   }
 
   @Test
-  @DisplayName("sys_contentlastmodifier is bound as a LIKE parameter with % wildcards applied at the boundary")
+  @DisplayName(
+      "sys_contentlastmodifier is bound as a LIKE parameter with % wildcards applied at the"
+          + " boundary")
   void testSysContentLastModifierUsesNamedParameter() {
     var fields = new HashMap<String, String>();
     fields.put("sys_contentlastmodifier", "admin");
@@ -140,8 +138,7 @@ class PSPageDaoHelperSqlInjectionTest {
 
     assertTrue(
         result.contains(":contentlastmodifier"),
-        "SQL must use a named parameter placeholder for sys_contentlastmodifier, got: "
-            + result);
+        "SQL must use a named parameter placeholder for sys_contentlastmodifier, got: " + result);
     // The SQL must NOT embed the user value with surrounding % wildcards
     // (the pre-fix code did exactly that: `LIKE '%admin%'`).
     assertFalse(
@@ -169,8 +166,7 @@ class PSPageDaoHelperSqlInjectionTest {
         result.contains(malicious),
         "the malicious payload must not appear in the SQL string, got: " + result);
     assertFalse(
-        result.toUpperCase().contains(" OR "),
-        "no 'OR' clause may be injected, got: " + result);
+        result.toUpperCase().contains(" OR "), "no 'OR' clause may be injected, got: " + result);
     assertTrue(result.contains(":templateid"));
     assertEquals(malicious, m_params.get("templateid"));
   }

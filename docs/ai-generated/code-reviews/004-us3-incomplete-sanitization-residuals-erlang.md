@@ -15,12 +15,12 @@ Closes all 14 remaining open GitHub CodeQL `js/incomplete-sanitization` alerts b
 
 ## Gate
 
-| Check | Result |
-|-------|--------|
-| Bugs | none |
-| Behavioral unit tests for non-trivial logic | present |
-| Cross-platform path/file I/O | N/A (string sanitisation only; test paths use `path.resolve` / `fileURLToPath`) |
-| May commit/push | **yes** |
+|                    Check                    |                                     Result                                      |
+|---------------------------------------------|---------------------------------------------------------------------------------|
+| Bugs                                        | none                                                                            |
+| Behavioral unit tests for non-trivial logic | present                                                                         |
+| Cross-platform path/file I/O                | N/A (string sanitisation only; test paths use `path.resolve` / `fileURLToPath`) |
+| May commit/push                             | **yes**                                                                         |
 
 ## Issues
 
@@ -48,3 +48,4 @@ Not applicable — no filesystem path construction, no OS temp hardcodes, no pat
 cd WebUI && npm test -- --run src/test/js/percGetDashboardColumn.test.js src/test/js/percIncompleteSanitization.test.js
 # 43 passed
 ```
+

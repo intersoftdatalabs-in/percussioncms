@@ -27,9 +27,7 @@ describe("PercFormView metadata HTML escape (DOM text as HTML)", () => {
     expect(src).toMatch(
       /var\s+safeErrorUrl\s*=\s*\$\("<div\/>"\)\.text\(errorUrl/
     );
-    expect(src).toMatch(
-      /var\s+safeMailTo\s*=\s*\$\("<div\/>"\)\.text\(mailTo/
-    );
+    expect(src).toMatch(/var\s+safeMailTo\s*=\s*\$\("<div\/>"\)\.text\(mailTo/);
     expect(src).toMatch(
       /var\s+safeMailSubject\s*=\s*\$\("<div\/>"\)\.text\(mailSubject/
     );

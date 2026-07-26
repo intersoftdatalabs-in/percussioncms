@@ -144,16 +144,16 @@ projects/sitemanage/
 
 No constitution violations requiring exceptions.
 
-| Risk | Mitigation |
-|------|------------|
-| Home create wizards depend on many adaptor paths | Follow [home-capability-matrix.md](./contracts/home-capability-matrix.md); port `PercContributorUiAdaptor` operations; P0 = §6 MUST rows before acceptance |
-| Losing classic Home function while only modernizing stack | Treat matrix MUST as non-negotiable; redesign is stack/look, not a thinner product |
-| Hard-cut JSP names break bookmarks | FR-013: map known URLs at dispatcher/nav level without stubs |
-| Dual trees `app/` vs `pages/` | Treat both as production-relevant; rewire/delete both in US3 inventory |
-| `war/` copies | Generated/synced artifacts—clean via build and inventory; do not leave live CUI under war if packaged |
-| Story PR vs big-bang | Stack US1→US2→US3 PRs on the feature branch; **do not merge US1/US2 alone to `development`/release without US3 in the same train**—classic JSPs left on disk until US3 must not ship to customers (FR-008) |
-| Unmapped legacy URLs | Dedicated moved/unavailable surface (FR-013); not log-only |
-| Main-nav regression | Explicit SC-005 / FR-020 smoke checklist in polish (Dashboard + non-Home tab) |
+|                           Risk                            |                                                                                                 Mitigation                                                                                                 |
+|-----------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Home create wizards depend on many adaptor paths          | Follow [home-capability-matrix.md](./contracts/home-capability-matrix.md); port `PercContributorUiAdaptor` operations; P0 = §6 MUST rows before acceptance                                                 |
+| Losing classic Home function while only modernizing stack | Treat matrix MUST as non-negotiable; redesign is stack/look, not a thinner product                                                                                                                         |
+| Hard-cut JSP names break bookmarks                        | FR-013: map known URLs at dispatcher/nav level without stubs                                                                                                                                               |
+| Dual trees `app/` vs `pages/`                             | Treat both as production-relevant; rewire/delete both in US3 inventory                                                                                                                                     |
+| `war/` copies                                             | Generated/synced artifacts—clean via build and inventory; do not leave live CUI under war if packaged                                                                                                      |
+| Story PR vs big-bang                                      | Stack US1→US2→US3 PRs on the feature branch; **do not merge US1/US2 alone to `development`/release without US3 in the same train**—classic JSPs left on disk until US3 must not ship to customers (FR-008) |
+| Unmapped legacy URLs                                      | Dedicated moved/unavailable surface (FR-013); not log-only                                                                                                                                                 |
+| Main-nav regression                                       | Explicit SC-005 / FR-020 smoke checklist in polish (Dashboard + non-Home tab)                                                                                                                              |
 
 ### Release gate (non-negotiable)
 
@@ -163,13 +163,13 @@ No constitution violations requiring exceptions.
 
 ## Generated design artifacts
 
-| Artifact | Path |
-|----------|------|
-| Research | [research.md](./research.md) |
-| Data model | [data-model.md](./data-model.md) |
-| Contracts | [contracts/](./contracts/) (includes [home-capability-matrix.md](./contracts/home-capability-matrix.md)) |
-| Quickstart | [quickstart.md](./quickstart.md) |
-| Removal inventory (seed) | [checklists/removal-inventory.md](./checklists/removal-inventory.md) |
-| i18n key checklist (SC-008) | [checklists/i18n-key-checklist.md](./checklists/i18n-key-checklist.md) |
+|          Artifact           |                                                   Path                                                   |
+|-----------------------------|----------------------------------------------------------------------------------------------------------|
+| Research                    | [research.md](./research.md)                                                                             |
+| Data model                  | [data-model.md](./data-model.md)                                                                         |
+| Contracts                   | [contracts/](./contracts/) (includes [home-capability-matrix.md](./contracts/home-capability-matrix.md)) |
+| Quickstart                  | [quickstart.md](./quickstart.md)                                                                         |
+| Removal inventory (seed)    | [checklists/removal-inventory.md](./checklists/removal-inventory.md)                                     |
+| i18n key checklist (SC-008) | [checklists/i18n-key-checklist.md](./checklists/i18n-key-checklist.md)                                   |
 
 **Next command**: `/speckit-implement` (tasks already generated; i18n tasks added post-analyze)

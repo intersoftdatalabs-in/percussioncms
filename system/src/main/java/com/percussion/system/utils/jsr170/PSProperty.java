@@ -494,8 +494,10 @@ public class PSProperty extends PSPropertyWrapper implements IPSProperty, IPSJcr
   }
 
   @Override
-  public Property getProperty() throws ItemNotFoundException, ValueFormatException, RepositoryException {
-    throw new ValueFormatException("PATH/REFERENCE property access via getProperty is not supported");
+  public Property getProperty()
+      throws ItemNotFoundException, ValueFormatException, RepositoryException {
+    throw new ValueFormatException(
+        "PATH/REFERENCE property access via getProperty is not supported");
   }
 
   @Override

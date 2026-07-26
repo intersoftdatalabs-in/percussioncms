@@ -174,16 +174,16 @@ public interface IPSFolderHelper {
   /**
    * Gets the parent folder ID for the specified item.
    *
-* @param itemId ID in question, not <code>null</code>.
-    * @return the folder ID, never <code>null</code>.
+   * @param itemId ID in question, not <code>null</code>.
+   * @return the folder ID, never <code>null</code>.
    */
   IPSGuid getParentFolderId(IPSGuid itemId) throws PSValidationException;
 
   /**
    * Gets the parent folder ID for the specified item.
    *
-* @param itemId ID in question, not <code>null</code>.
-    * @param isRequired if <code>true</code>, then the returned ID can never be <code>null</code>;
+   * @param itemId ID in question, not <code>null</code>.
+   * @param isRequired if <code>true</code>, then the returned ID can never be <code>null</code>;
    *     otherwise, the returned ID may be <code>null</code> if cannot find the parent folder.
    * @return the folder ID. It may be <code>null</code> if <code>isRequired</code> is <code>false
    *     </code> and cannot find the parent folder; otherwise it can never be <code>null</code> if
@@ -691,9 +691,9 @@ public interface IPSFolderHelper {
       String targetPath, String originalPath, String targetRelType, String origRelType);
 
   /**
-* Gets the user name and date when the specified item was last check in or out.
-    *
-    * @param id the id of the specified item, not <code>null</code>.
+   * Gets the user name and date when the specified item was last check in or out.
+   *
+   * @param id the id of the specified item, not <code>null</code>.
    * @param isPublishable <code>true</code> if item is in a publishable state, <code>false</code> if
    *     not.
    * @return the user name (1st element) and modified date (2nd element, never <code>null</code>.

@@ -21,23 +21,23 @@ After **you** have verified an external offline backup:
 -Dperc.migration.externalBackupConfirmed=true
 ```
 
-| Rule | Detail |
-|------|--------|
-| Affirmative | Must be explicitly `true` / yes / 1 — not default |
-| Non-silent | Logged on the durable migration report (`backupGate=EXTERNAL_CONFIRM`) |
-| No secrets | Confirmation flag is not a password; do not put secrets in property names |
+|    Rule     |                                  Detail                                   |
+|-------------|---------------------------------------------------------------------------|
+| Affirmative | Must be explicitly `true` / yes / 1 — not default                         |
+| Non-silent  | Logged on the durable migration report (`backupGate=EXTERNAL_CONFIRM`)    |
+| No secrets  | Confirmation flag is not a password; do not put secrets in property names |
 
 If neither A nor B is satisfied, outcome is **`BLOCKED_BACKUP_GATE`**: no pump, no cutover, Derby config unchanged.
 
 ## Outcomes operators may see
 
-| Outcome | Meaning |
-|---------|---------|
-| `SUCCESS` | Cutover complete; live configs point at H2 |
-| `ALREADY_MIGRATED` | Already H2 — no work |
-| `SKIPPED_NON_DERBY` | MySQL/MSSQL/other external — untouched |
-| `BLOCKED_BACKUP_GATE` | Gate not open |
-| `FAILED` | Error after gate (disk, lock, source, validation, …). **Live config remains Derby** |
+|        Outcome        |                                       Meaning                                       |
+|-----------------------|-------------------------------------------------------------------------------------|
+| `SUCCESS`             | Cutover complete; live configs point at H2                                          |
+| `ALREADY_MIGRATED`    | Already H2 — no work                                                                |
+| `SKIPPED_NON_DERBY`   | MySQL/MSSQL/other external — untouched                                              |
+| `BLOCKED_BACKUP_GATE` | Gate not open                                                                       |
+| `FAILED`              | Error after gate (disk, lock, source, validation, …). **Live config remains Derby** |
 
 Durable report (CMS example):
 

@@ -17,7 +17,6 @@
 // REFACTORED: CP-JAVA11
 package com.percussion.pagemanagement.service.impl;
 
-import com.percussion.security.io.PSPathInjectionGuard;
 import static com.percussion.pagemanagement.assembler.PSResourceLinkAndLocationUtils.concatPath;
 import static com.percussion.pagemanagement.assembler.PSResourceLinkAndLocationUtils.escapePathForUrl;
 import static com.percussion.share.web.service.PSRestServicePathConstants.ID_PATH_PARAM;
@@ -58,6 +57,7 @@ import com.percussion.pagemanagement.service.IPSResourceDefinitionService;
 import com.percussion.pagemanagement.service.IPSResourceLinkAndLocationService;
 import com.percussion.pathmanagement.service.impl.PSAssetPathItemService;
 import com.percussion.security.error.PSExceptionUtils;
+import com.percussion.security.io.PSPathInjectionGuard;
 import com.percussion.services.linkmanagement.IPSManagedLinkDao;
 import com.percussion.share.dao.PSFolderPathUtils;
 import com.percussion.share.data.IPSFolderPath;

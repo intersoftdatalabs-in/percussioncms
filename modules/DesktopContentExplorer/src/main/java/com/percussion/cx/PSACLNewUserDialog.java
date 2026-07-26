@@ -46,8 +46,8 @@ public class PSACLNewUserDialog extends PSDialog implements ItemListener {
    * @param dialog the dialog that is the owner of this dialog. May be <code>null</code>.
    * @param providers <code>Iterator</code> of security providers May not be <code>null</code>, but
    *     may be empty.
-   * @param applet the content explorer applet that owns this dialog and supplies its resources.
-   *     May not be <code>null</code>.
+   * @param applet the content explorer applet that owns this dialog and supplies its resources. May
+   *     not be <code>null</code>.
    */
   public PSACLNewUserDialog(Dialog dialog, Iterator providers, PSContentExplorerApplet applet) {
     super(dialog, applet.getResourceString(PSACLNewUserDialog.class, "New User ACL Entry"));
@@ -64,8 +64,8 @@ public class PSACLNewUserDialog extends PSDialog implements ItemListener {
    * @param frame the frame that is the owner of this dialog. May be <code>null</code>.
    * @param providers <code>Iterator</code> of security providers May not be <code>null</code>, but
    *     may be empty.
-   * @param applet the content explorer applet that owns this dialog and supplies its resources.
-   *     May not be <code>null</code>.
+   * @param applet the content explorer applet that owns this dialog and supplies its resources. May
+   *     not be <code>null</code>.
    */
   public PSACLNewUserDialog(Frame frame, Iterator providers, PSContentExplorerApplet applet) {
     super(frame, applet.getResourceString(PSACLNewUserDialog.class, "New User ACL Entry"));

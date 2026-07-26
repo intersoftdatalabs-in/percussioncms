@@ -42,8 +42,7 @@ class PSServletRequesterTestStackTraceExposureTest {
     writerField.setAccessible(true);
     writerField.set(harness, new PrintWriter(sw, true));
 
-    Method m =
-        PSServletRequesterTest.class.getDeclaredMethod("writeStackTrace", Exception.class);
+    Method m = PSServletRequesterTest.class.getDeclaredMethod("writeStackTrace", Exception.class);
     m.setAccessible(true);
     m.invoke(harness, new IllegalStateException(SECRET_MESSAGE));
 

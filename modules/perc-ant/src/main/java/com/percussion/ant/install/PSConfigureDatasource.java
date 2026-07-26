@@ -68,9 +68,7 @@ import org.w3c.dom.NodeList;
  * </pre>
  */
 public class PSConfigureDatasource extends PSAction {
-  /**
-   * Creates a new datasource configuration task.
-   */
+  /** Creates a new datasource configuration task. */
   public PSConfigureDatasource() {}
 
   private static final Logger log = LogManager.getLogger(PSConfigureDatasource.class);

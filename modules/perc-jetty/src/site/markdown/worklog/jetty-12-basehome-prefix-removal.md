@@ -101,9 +101,9 @@ directory and these `[files]` entries work as documented.
 
 ## Cross-platform behaviour
 
-| OS      | Before                                                                 | After                                                                 |
-|---------|------------------------------------------------------------------------|-----------------------------------------------------------------------|
-| Windows | `Path.of("basehome:lib/jdbc/…")` throws `InvalidPathException: Illegal char <:>`. Build fails. | `jetty.home`/`jetty.base` are set, `basehome:` resolves, build proceeds. |
+|   OS    |                                                           Before                                                            |                                    After                                    |
+|---------|-----------------------------------------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------|
+| Windows | `Path.of("basehome:lib/jdbc/…")` throws `InvalidPathException: Illegal char <:>`. Build fails.                              | `jetty.home`/`jetty.base` are set, `basehome:` resolves, build proceeds.    |
 | Linux   | `Path.of("basehome:lib/jdbc/…")` returns a literal path that does not exist. Build "succeeds" but JDBC drivers are missing. | `jetty.home`/`jetty.base` are set, `basehome:` resolves, JDBC drivers load. |
 
 ## Verification
@@ -129,19 +129,19 @@ directory and these `[files]` entries work as documented.
 
 Driver install location (unchanged product fact):
 
-| Location | JDBC jars? |
-|----------|------------|
-| `jetty/base/lib/jdbc/` | **Yes** — ANT copies staged drivers here |
-| `jetty/defaults/` | No jars (module defs + etc only) |
-| `jetty/upstream/` (`jetty.home`) | No Percussion JDBC set |
+|             Location             |                JDBC jars?                |
+|----------------------------------|------------------------------------------|
+| `jetty/base/lib/jdbc/`           | **Yes** — ANT copies staged drivers here |
+| `jetty/defaults/`                | No jars (module defs + etc only)         |
+| `jetty/upstream/` (`jetty.home`) | No Percussion JDBC set                   |
 
 Jetty 12 path rules (from `PathMatchers` / `FileArg` in jetty-start 12.1.7):
 
-| Scheme / form | Valid section | Meaning |
-|---------------|---------------|---------|
-| `lib/jdbc/*.jar` (relative) | **`[lib]`** | Search each config source dir (`jetty.base`, then `jetty.home`, then `--include-jetty-dir` e.g. defaults) for `lib/jdbc/*.jar` |
-| `basehome:…` / `home:…` | **`[files]` only** | FileInitializer URI: copy/materialize from home into base |
-| `basehome:lib/jdbc/*.jar` in **`[lib]`** | **Invalid** | Treated as a literal path name; Windows throws; Unix looks under `base/basehome:lib/jdbc/` |
+|              Scheme / form               |   Valid section    |                                                            Meaning                                                             |
+|------------------------------------------|--------------------|--------------------------------------------------------------------------------------------------------------------------------|
+| `lib/jdbc/*.jar` (relative)              | **`[lib]`**        | Search each config source dir (`jetty.base`, then `jetty.home`, then `--include-jetty-dir` e.g. defaults) for `lib/jdbc/*.jar` |
+| `basehome:…` / `home:…`                  | **`[files]` only** | FileInitializer URI: copy/materialize from home into base                                                                      |
+| `basehome:lib/jdbc/*.jar` in **`[lib]`** | **Invalid**        | Treated as a literal path name; Windows throws; Unix looks under `base/basehome:lib/jdbc/`                                     |
 
 So:
 

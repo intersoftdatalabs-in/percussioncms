@@ -1,26 +1,26 @@
 # Erlang review — remove commons-httpclient (Dependabot #81)
 
-| Field | Value |
-|-------|--------|
-| **Date** | 2026-07-17 |
-| **Branch** | `fix/remove-commons-httpclient-dependabot-81` |
-| **Base** | `development` / `HEAD` uncommitted |
-| **Intent** | Close Dependabot alert #81 by removing reintroduced `commons-httpclient:3.1` from `WebUI/pom.xml`; delete dead `PSFormDataServiceTest` |
-| **Reviewer** | Erlang (strict, independent) |
+|    Field     |                                                                 Value                                                                  |
+|--------------|----------------------------------------------------------------------------------------------------------------------------------------|
+| **Date**     | 2026-07-17                                                                                                                             |
+| **Branch**   | `fix/remove-commons-httpclient-dependabot-81`                                                                                          |
+| **Base**     | `development` / `HEAD` uncommitted                                                                                                     |
+| **Intent**   | Close Dependabot alert #81 by removing reintroduced `commons-httpclient:3.1` from `WebUI/pom.xml`; delete dead `PSFormDataServiceTest` |
+| **Reviewer** | Erlang (strict, independent)                                                                                                           |
 
 ## Scope
 
 **In scope (intentional):**
 
-| Path | Change |
-|------|--------|
-| `WebUI/pom.xml` | Delete direct dependency `commons-httpclient:commons-httpclient:3.1` |
+|                                                       Path                                                       |                                  Change                                   |
+|------------------------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------|
+| `WebUI/pom.xml`                                                                                                  | Delete direct dependency `commons-httpclient:commons-httpclient:3.1`      |
 | `projects/sitemanage/src/test/java/com/percussion/assetmanagement/forms/service/impl/PSFormDataServiceTest.java` | Delete entire file (vacuous `testNothing` + large commented legacy suite) |
 
 ```text
- WebUI/pom.xml                                      |   5 -
- .../forms/service/impl/PSFormDataServiceTest.java  | 371 ---------------------
- 2 files changed, 376 deletions(-)
+WebUI/pom.xml                                      |   5 -
+.../forms/service/impl/PSFormDataServiceTest.java  | 371 ---------------------
+2 files changed, 376 deletions(-)
 ```
 
 **Out of scope / do not commit:** working-tree noise on
@@ -49,16 +49,16 @@ These show as modified (line-ending / autocrlf churn, ~100k-line renoise). **Not
 
 ## Issues
 
-| ID | Severity | Status | Finding |
-|----|----------|--------|---------|
-| — | — | — | **No bugs.** |
+| ID | Severity | Status |   Finding    |
+|----|----------|--------|--------------|
+| —  | —        | —      | **No bugs.** |
 
 ### Suggestions (non-blocking)
 
-| ID | Severity | Finding |
-|----|----------|---------|
-| S1 | nit | After merge, confirm Dependabot alert #81 auto-closes; if the graph lags, wait for dependency submission refresh rather than manual dismiss. |
-| S2 | nit | Working tree may still dirty `shared-common*.js` via CRLF; stage only `WebUI/pom.xml` and the deleted test path. |
+| ID | Severity |                                                                   Finding                                                                    |
+|----|----------|----------------------------------------------------------------------------------------------------------------------------------------------|
+| S1 | nit      | After merge, confirm Dependabot alert #81 auto-closes; if the graph lags, wait for dependency submission refresh rather than manual dismiss. |
+| S2 | nit      | Working tree may still dirty `shared-common*.js` via CRLF; stage only `WebUI/pom.xml` and the deleted test path.                             |
 
 ## Recommendation
 
@@ -66,12 +66,12 @@ These show as modified (line-ending / autocrlf churn, ~100k-line renoise). **Not
 
 ## Gate
 
-| Check | Result |
-|-------|--------|
-| Bugs | none |
-| Missing behavioral tests for new logic | N/A (removal only) |
-| Non-portable path/file I/O | N/A |
-| Accidental bundle churn in commit | **Prevented by explicit staging** |
+|                 Check                  |              Result               |
+|----------------------------------------|-----------------------------------|
+| Bugs                                   | none                              |
+| Missing behavioral tests for new logic | N/A (removal only)                |
+| Non-portable path/file I/O             | N/A                               |
+| Accidental bundle churn in commit      | **Prevented by explicit staging** |
 
 **May commit/push: yes** — for the intentional two-path change only.
 
@@ -82,3 +82,4 @@ Do **not** include `shared-common.js` / `shared-common-minuet.js` in the commit.
 ```text
 fix(security): remove reintroduced commons-httpclient 3.1 (Dependabot #81)
 ```
+

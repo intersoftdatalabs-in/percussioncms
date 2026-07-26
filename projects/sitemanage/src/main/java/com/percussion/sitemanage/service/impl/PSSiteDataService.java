@@ -48,7 +48,6 @@ import com.percussion.pagemanagement.data.PSPage;
 import com.percussion.pagemanagement.data.PSTemplateSummary;
 import com.percussion.pagemanagement.service.IPSPageService;
 import com.percussion.pagemanagement.service.IPSTemplateService;
-import com.percussion.security.io.PSPathInjectionGuard;
 import com.percussion.pagemanagement.service.impl.PSPageService;
 import com.percussion.pathmanagement.data.PSDeleteFolderCriteria;
 import com.percussion.pathmanagement.data.PSFolderPermission;
@@ -62,6 +61,7 @@ import com.percussion.queue.IPSPageImportQueue;
 import com.percussion.recent.service.rest.IPSRecentService;
 import com.percussion.search.PSSearchIndexEventQueue;
 import com.percussion.security.error.PSExceptionUtils;
+import com.percussion.security.io.PSPathInjectionGuard;
 import com.percussion.server.PSServer;
 import com.percussion.services.catalog.PSTypeEnum;
 import com.percussion.services.contentchange.IPSContentChangeService;
@@ -498,8 +498,7 @@ public class PSSiteDataService extends PSAbstractDataService<PSSite, PSSiteSumma
     PSPathInjectionGuard.requireSafeFileName(oldSiteName);
     PSPathInjectionGuard.requireSafeFileName(newSiteName);
 
-    File cacheRoot =
-        new File(PSServer.getRxDir().getAbsolutePath() + PAGE_IMAGE_CACHE_DIR);
+    File cacheRoot = new File(PSServer.getRxDir().getAbsolutePath() + PAGE_IMAGE_CACHE_DIR);
     if (!cacheRoot.exists() && !cacheRoot.mkdirs() && !cacheRoot.isDirectory()) {
       // mkdirs() false can mean "already exists as dir after race" or true failure.
       log.error(
@@ -511,7 +510,7 @@ public class PSSiteDataService extends PSAbstractDataService<PSSite, PSSiteSumma
     var sourceCacheDir = PSPathInjectionGuard.requireUnderBase(cacheRoot, oldSiteName);
     var destCacheDir = PSPathInjectionGuard.requireUnderBase(cacheRoot, newSiteName);
     if (sourceCacheDir.renameTo(destCacheDir)) // codeql[java/path-injection]
-      log.info("Page and Template image cache folder moved to: {}", destCacheDir.getAbsolutePath());
+    log.info("Page and Template image cache folder moved to: {}", destCacheDir.getAbsolutePath());
     else
       log.error(
           "Unable to automatically move: {} to {}.  An administrator may need to stop the service"
@@ -1807,11 +1806,9 @@ public class PSSiteDataService extends PSAbstractDataService<PSSite, PSSiteSumma
             String quotedOriginal = Pattern.quote(original);
             String quotedReplacement = Matcher.quoteReplacement(replacement);
             if (replaceVal.contains(original + '/')) {
-              replaceVal =
-                  replaceVal.replaceFirst(quotedOriginal + '/', quotedReplacement + '/');
+              replaceVal = replaceVal.replaceFirst(quotedOriginal + '/', quotedReplacement + '/');
             } else if (replaceVal.contains(original + '%')) {
-              replaceVal =
-                  replaceVal.replaceFirst(quotedOriginal + '%', quotedReplacement + '%');
+              replaceVal = replaceVal.replaceFirst(quotedOriginal + '%', quotedReplacement + '%');
             } else {
               replaceVal = replaceVal.replaceFirst(quotedOriginal, quotedReplacement);
             }

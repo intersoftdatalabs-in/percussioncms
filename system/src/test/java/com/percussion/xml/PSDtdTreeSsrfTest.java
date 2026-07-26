@@ -24,7 +24,8 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 /**
- * SSRF regression tests for {@link PSDtdTree} (CodeQL {@code java/ssrf}, alert #726, T037 residual).
+ * SSRF regression tests for {@link PSDtdTree} (CodeQL {@code java/ssrf}, alert #726, T037
+ * residual).
  *
  * <p>Non-file DTD URLs must pass {@code URLValidation} before {@code openConnection}. Malicious
  * targets fail closed as {@link PSCatalogException}.

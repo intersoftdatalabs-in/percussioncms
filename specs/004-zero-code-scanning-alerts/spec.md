@@ -132,3 +132,4 @@ A module maintainer or security reviewer receives a "false positive" ticket for 
 - Removal of an obsolete file is considered safe if (a) no source file references it, (b) no build descriptor includes it, and (c) no runtime code path loads it. Anything more ambiguous is escalated to Valid or to the module maintainer's judgment call rather than auto-removed.
 - The project tolerates a small number of "accepted-risk" findings for the `8.2` release if (and only if) they are explicitly documented with a target milestone and an owner — but the explicit goal is zero active alerts, so accepted-risk is the exception path, not the default.
 - The release engineer has authority to assign tickets across modules for the duration of this effort; routine module ownership boundaries still apply but cross-module coordination for the triage pass is centralized.
+

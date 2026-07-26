@@ -27,8 +27,10 @@ public class PSLocationSchemeSummary {
   private String generator;
   private Long contentTypeId;
   private Long templateId;
+
   /** modern | legacy | unknown */
   private String schemeType;
+
   private java.util.List<PSSchemeParameter> parameters;
 
   public String getSchemeId() {

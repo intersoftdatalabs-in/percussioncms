@@ -190,7 +190,8 @@ public class PSMockProperty implements Property {
   }
 
   @Override
-  public Property getProperty() throws ItemNotFoundException, ValueFormatException, RepositoryException {
+  public Property getProperty()
+      throws ItemNotFoundException, ValueFormatException, RepositoryException {
     throw new RepositoryException("Not supported: getProperty()");
   }
 

@@ -19,13 +19,13 @@
 
 **Decision**: One **`PublishingShell`** with sections:
 
-| Section | Primary stories | Default for role |
-|---------|-----------------|------------------|
-| **Sites & servers** | US1, US3 | Default landing for publishers |
-| **Status** | US2 | |
-| **Logs** | US2 | |
-| **Design** | US4 | Admins/integrators |
-| **Runtime / Editions** | US5 | Power users / upgraded editions model |
+|        Section         | Primary stories |           Default for role            |
+|------------------------|-----------------|---------------------------------------|
+| **Sites & servers**    | US1, US3        | Default landing for publishers        |
+| **Status**             | US2             |                                       |
+| **Logs**               | US2             |                                       |
+| **Design**             | US4             | Admins/integrators                    |
+| **Runtime / Editions** | US5             | Power users / upgraded editions model |
 
 Routine publish never requires opening Design. Deep links may open a specific section via props/query (see contracts/deep-links.md).
 
@@ -37,14 +37,14 @@ Routine publish never requires opening Design. Deep links may open a specific se
 
 **Decision**:
 
-| Capability group | Backend | Client |
-|------------------|---------|--------|
-| Ops site publish, incremental, item publish | Existing sitemanage `/publish/*` | Typed TS API |
-| Status / logs / purge | Existing `/pubstatus/*` | Typed TS API |
-| Publish servers CRUD + helpers | Existing `/servers/*` | Typed TS API |
+|                                       Capability group                                        |                               Backend                               |                                    Client                                     |
+|-----------------------------------------------------------------------------------------------|---------------------------------------------------------------------|-------------------------------------------------------------------------------|
+| Ops site publish, incremental, item publish                                                   | Existing sitemanage `/publish/*`                                    | Typed TS API                                                                  |
+| Status / logs / purge                                                                         | Existing `/pubstatus/*`                                             | Typed TS API                                                                  |
+| Publish servers CRUD + helpers                                                                | Existing `/servers/*`                                               | Typed TS API                                                                  |
 | Design: sites, editions, content lists, edition tasks, demand queue, start job, purge job log | `IPSPublishingWs` + `IPSPublisherService` / `IPSRxPublisherService` | **New thin JSON REST** in sitemanage (or system REST) wrapping these services |
-| Design: contexts, location schemes | `IPSSiteManager` scheme/context APIs | Same façade |
-| Design: delivery types | `IPSPublisherService` delivery type APIs | Same façade |
+| Design: contexts, location schemes                                                            | `IPSSiteManager` scheme/context APIs                                | Same façade                                                                   |
+| Design: delivery types                                                                        | `IPSPublisherService` delivery type APIs                            | Same façade                                                                   |
 
 **Rationale**: Ops already has JSON. Design JSF talks to server-side beans, not a public JSON API. Façade must **delegate only**—no browser-side engine.
 
@@ -59,18 +59,18 @@ Routine publish never requires opening Design. Deep links may open a specific se
 
 From `WebUI/.../perc_path_constants.js` (SERVICES.SITEMGT prefix):
 
-| Constant | Path suffix |
-|----------|-------------|
-| SITE_PUBLISH | `/publish/{site}/{server}` |
-| INCREMENTAL_LIST | `/publish/incremental/content/...` |
-| INCREMENTAL related | `/publish/incremental/relatedcontent/...` |
-| INCREMENTAL_PUBLISH | `/publish/incremental/publish/...` |
-| PUBLISH_CURRENT_STATUS | `/pubstatus/current` (+ `/{siteId}`) |
-| PUBLISH_LOGS | `/pubstatus/logs` |
-| PUBLISH_PURGE | `/pubstatus/purge` |
-| PUBLISH_LOGS_DETAILS | `/pubstatus/details` |
-| Servers | `/servers/...` (see PSPubServerRestService) |
-| Item paths | PAGE_PUBLISH, RESOURCE_PUBLISH, takedown, staging variants |
+|        Constant        |                        Path suffix                         |
+|------------------------|------------------------------------------------------------|
+| SITE_PUBLISH           | `/publish/{site}/{server}`                                 |
+| INCREMENTAL_LIST       | `/publish/incremental/content/...`                         |
+| INCREMENTAL related    | `/publish/incremental/relatedcontent/...`                  |
+| INCREMENTAL_PUBLISH    | `/publish/incremental/publish/...`                         |
+| PUBLISH_CURRENT_STATUS | `/pubstatus/current` (+ `/{siteId}`)                       |
+| PUBLISH_LOGS           | `/pubstatus/logs`                                          |
+| PUBLISH_PURGE          | `/pubstatus/purge`                                         |
+| PUBLISH_LOGS_DETAILS   | `/pubstatus/details`                                       |
+| Servers                | `/servers/...` (see PSPubServerRestService)                |
+| Item paths             | PAGE_PUBLISH, RESOURCE_PUBLISH, takedown, staging variants |
 
 Full table: [contracts/ops-publish-api.md](./contracts/ops-publish-api.md).
 
@@ -78,9 +78,9 @@ Full table: [contracts/ops-publish-api.md](./contracts/ops-publish-api.md).
 
 **Decision**: **Phased by surface**, big-bang **within** each surface after UAT:
 
-1. Ops (US1–3) → rewire `views.put("publish", …)` → remove Minuet publish exclusive clients  
-2. Design (US4) → map `/ui/publishing/*` → remove JSF design pages from product path  
-3. Runtime (US5) → map `/ui/pubruntime/*` → remove JSF runtime pages  
+1. Ops (US1–3) → rewire `views.put("publish", …)` → remove Minuet publish exclusive clients
+2. Design (US4) → map `/ui/publishing/*` → remove JSF design pages from product path
+3. Runtime (US5) → map `/ui/pubruntime/*` → remove JSF runtime pages
 
 **Rationale**: Spec Assumptions; Design is larger than ops; still ends at one UI (FR-001, SC-006).
 
@@ -106,7 +106,7 @@ Full table: [contracts/ops-publish-api.md](./contracts/ops-publish-api.md).
 - Vitest: shell routing, form validation, progress helpers, API error mapping, purge confirmation  
 - JUnit: any new REST façade methods (happy path + AuthZ + not-found)  
 - Manual UAT: capability matrix rows per cutover milestone  
-- Cross-platform: no Unix-only paths in new code/tests  
+- Cross-platform: no Unix-only paths in new code/tests
 
 ## R10 — Security
 
@@ -114,22 +114,22 @@ Full table: [contracts/ops-publish-api.md](./contracts/ops-publish-api.md).
 
 ### T015 security surface assessment (implement)
 
-| Surface | Risk | Mitigation |
-|---------|------|------------|
-| CSRF on mutations | Session CSRF | Ops clients use `api/client.ts` which attaches OWASP CSRFGuard header on GET/POST/PUT/DELETE |
-| AuthZ errors | Silent failure | Map 403 / FORBIDDEN body tokens in `publishActions.ts`; clear i18n messaging |
-| Secrets (server passwords/keys) | Log leakage | Server editor (US3) must never put password/privateKey into error serialization (see `serverSecrets` tests); no console.log of server props |
-| Query props XSS | Reflected XSS | `publishModern.jsp` allowlists `section` and restricts `siteId`/`serverId` to safe charset; `deepLinkMap.mapIdParam` double-checks |
-| Design façade (US4+) | Privilege escalation | Must enforce same design/admin roles as JSF; JUnit AuthZ cases at façade |
+|             Surface             |         Risk         |                                                                 Mitigation                                                                  |
+|---------------------------------|----------------------|---------------------------------------------------------------------------------------------------------------------------------------------|
+| CSRF on mutations               | Session CSRF         | Ops clients use `api/client.ts` which attaches OWASP CSRFGuard header on GET/POST/PUT/DELETE                                                |
+| AuthZ errors                    | Silent failure       | Map 403 / FORBIDDEN body tokens in `publishActions.ts`; clear i18n messaging                                                                |
+| Secrets (server passwords/keys) | Log leakage          | Server editor (US3) must never put password/privateKey into error serialization (see `serverSecrets` tests); no console.log of server props |
+| Query props XSS                 | Reflected XSS        | `publishModern.jsp` allowlists `section` and restricts `siteId`/`serverId` to safe charset; `deepLinkMap.mapIdParam` double-checks          |
+| Design façade (US4+)            | Privilege escalation | Must enforce same design/admin roles as JSF; JUnit AuthZ cases at façade                                                                    |
 
 ## Resolved unknowns
 
-| Unknown | Resolution |
-|---------|------------|
-| React vs other | Track B React (R1) |
-| One vs multi shell | One PublishingShell (R2) |
-| Design without REST | Thin façade (R3) |
-| Cutover | Phased by surface (R5) |
-| Item actions scope | Regression-first (R7) |
+|       Unknown       |        Resolution        |
+|---------------------|--------------------------|
+| React vs other      | Track B React (R1)       |
+| One vs multi shell  | One PublishingShell (R2) |
+| Design without REST | Thin façade (R3)         |
+| Cutover             | Phased by surface (R5)   |
+| Item actions scope  | Regression-first (R7)    |
 
 No remaining NEEDS CLARIFICATION for plan phase.

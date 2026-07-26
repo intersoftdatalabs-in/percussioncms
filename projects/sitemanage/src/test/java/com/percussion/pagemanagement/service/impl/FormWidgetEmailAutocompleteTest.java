@@ -33,7 +33,8 @@ class FormWidgetEmailAutocompleteTest {
   @Test
   void formWidgetSetsEmailAutocomplete() throws Exception {
     Path root = resolveRepoRoot();
-    Path js = root.resolve(PKG.resolve("sys__UserDependency--web_resources/widgets/form/js/form.js"));
+    Path js =
+        root.resolve(PKG.resolve("sys__UserDependency--web_resources/widgets/form/js/form.js"));
     Path min =
         root.resolve(PKG.resolve("sys__UserDependency--web_resources/widgets/form/js/form.min.js"));
     Path archive = root.resolve(PKG.resolve("psx_archiveInfo.xml"));
@@ -43,11 +44,15 @@ class FormWidgetEmailAutocompleteTest {
       }
     }
     String form = Files.readString(js, StandardCharsets.UTF_8);
-    assertTrue(form.contains("getElementById(\"email-from\")") || form.contains("getElementById('email-from')"));
+    assertTrue(
+        form.contains("getElementById(\"email-from\")")
+            || form.contains("getElementById('email-from')"));
     assertTrue(form.contains("autocomplete") && form.contains("email"));
     // type is set via the DOM property (emailField.type = "email"), not setAttribute
     assertTrue(
-        form.contains(".type = \"email\"") || form.contains(".type='email'") || form.contains(".type = 'email'"));
+        form.contains(".type = \"email\"")
+            || form.contains(".type='email'")
+            || form.contains(".type = 'email'"));
     assertTrue(form.contains("setAttribute") && form.contains("autocomplete"));
 
     String minJs = Files.readString(min, StandardCharsets.UTF_8);
@@ -60,9 +65,9 @@ class FormWidgetEmailAutocompleteTest {
   }
 
   /**
-   * Walks up from the process working directory until a monorepo marker is
-   * found ({@code modules/perc-packages} next to root {@code pom.xml}), so the
-   * test is robust when run from repo root, module basedir, or nested CI paths.
+   * Walks up from the process working directory until a monorepo marker is found ({@code
+   * modules/perc-packages} next to root {@code pom.xml}), so the test is robust when run from repo
+   * root, module basedir, or nested CI paths.
    */
   private static Path resolveRepoRoot() {
     Path dir = Path.of("").toAbsolutePath().normalize();

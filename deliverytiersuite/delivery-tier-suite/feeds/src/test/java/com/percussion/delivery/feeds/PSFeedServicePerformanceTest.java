@@ -49,8 +49,10 @@ import org.junit.jupiter.api.extension.ExtendWith;
 @Server(url = "http://localhost:9980/", siteName = "Site1", feedName = "feeds1")
 public class PSFeedServicePerformanceTest {
   private static final Logger log = LogManager.getLogger(PSFeedServicePerformanceTest.class);
+
   /** Running sum of per-request wall-clock ms; long avoids long→int compound cast (CodeQL #796). */
   private static long sum = 0;
+
   private static int Threshold = 0;
   private static String URL = "";
   private static String SITENAME = "";

@@ -15,11 +15,11 @@ Solid structure: extractable resolver, good unit coverage for dbprops mapping/pr
 
 ## Gate
 
-| Item | Result |
-|------|--------|
-| Bugs open | **Yes (2)** |
+|                        Item                        |                                 Result                                  |
+|----------------------------------------------------|-------------------------------------------------------------------------|
+| Bugs open                                          | **Yes (2)**                                                             |
 | Missing behavioral tests for non-trivial new logic | Resolver: **adequate**. Validate action: **partial** (see suggestions). |
-| **May commit/push / open PR** | **No** |
+| **May commit/push / open PR**                      | **No**                                                                  |
 
 ---
 
@@ -28,7 +28,7 @@ Solid structure: extractable resolver, good unit coverage for dbprops mapping/pr
 ### BUG-1 — Premature `Class.forName` blocks InstallUtil driver loading path
 
 **Severity**: bug  
-**Location**: `modules/perc-ant/src/main/java/com/percussion/ant/install/PSValidateRepositoryConnection.java` ~115–134  
+**Location**: `modules/perc-ant/src/main/java/com/percussion/ant/install/PSValidateRepositoryConnection.java` ~115–134
 
 **What**: After `registerJdbcDriversFromInstall` (which only populates `InstallUtil` jar URL list), the task calls `Class.forName(driverClass)` and **throws** on `ClassNotFoundException`.
 
@@ -43,7 +43,7 @@ Solid structure: extractable resolver, good unit coverage for dbprops mapping/pr
 ### BUG-2 — Outer installer does not exit non-zero when ANT/validation fails
 
 **Severity**: bug (feature contract FR-008 / SC-003 / US3)  
-**Location**: `modules/perc-distribution-tree/src/main/java/com/percussion/preinstall/Main.java` ~193–201  
+**Location**: `modules/perc-distribution-tree/src/main/java/com/percussion/preinstall/Main.java` ~193–201
 
 **What**: `execJar(...)` returns `processCode` and sets `error` when ANT exits non-zero (including `PSValidateRepositoryConnection` `BuildException`). `main` **ignores** the return value, always prints `"Done extracting"`, and does not `System.exit(processCode)`.
 
@@ -58,7 +58,7 @@ Solid structure: extractable resolver, good unit coverage for dbprops mapping/pr
 ### SUGGESTION-1 — Password on `-Dperc.db.password=...` process command line
 
 **Severity**: suggestion (security hygiene)  
-**Location**: `Main.execJar` loop that adds all `ResolvedDbConfig.systemProperties` as `-D`  
+**Location**: `Main.execJar` loop that adds all `ResolvedDbConfig.systemProperties` as `-D`
 
 **What**: Repository password is passed as a JVM system property argument to the Ant process (visible via `ps` / process listings). Pre-existing pattern for structured `--db.*`; extended to dbprops path.
 
@@ -69,7 +69,7 @@ Solid structure: extractable resolver, good unit coverage for dbprops mapping/pr
 ### SUGGESTION-2 — Upgrade non-regression test is structural-only
 
 **Severity**: suggestion  
-**Location**: `RepositoryPropertiesInstallGuardTest`  
+**Location**: `RepositoryPropertiesInstallGuardTest`
 
 **What**: Asserts `installRepository.xml` contains `do.install` and task names. Good guardrail against accidental deletion of the gate; does not exercise Ant behavior.
 
@@ -80,7 +80,7 @@ Solid structure: extractable resolver, good unit coverage for dbprops mapping/pr
 ### SUGGESTION-3 — Connect-failure path under-tested
 
 **Severity**: suggestion  
-**Location**: `PSValidateRepositoryConnectionTest`  
+**Location**: `PSValidateRepositoryConnectionTest`
 
 **What**: Covers missing props file and missing driver class (via current Class.forName path). Does not assert unreachable host / SQLException → `BuildException` without password leak once Class.forName is removed.
 
@@ -91,7 +91,7 @@ Solid structure: extractable resolver, good unit coverage for dbprops mapping/pr
 ### NIT-1 — Sample `PWD=changeit`
 
 **Severity**: nit  
-**Location**: sample `rxrepository.*.properties`  
+**Location**: sample `rxrepository.*.properties`
 
 Acceptable placeholders; clearly documented. Prefer `# CHANGE_ME` comments only if product samples avoid any password-looking tokens in scanners.
 
@@ -116,17 +116,17 @@ Unrelated untracked tree under repo root (`org/apache/commons/jexl3/...`). Do no
 
 Author reported (this session):
 
-- `DbInstallConfigResolverTest` / guards / samples / extract: **16** tests green  
-- `PSValidateRepositoryConnectionTest`: green under prior reactor run  
+- `DbInstallConfigResolverTest` / guards / samples / extract: **16** tests green
+- `PSValidateRepositoryConnectionTest`: green under prior reactor run
 
 Re-run after fixes required.
 
 ## Handoff
 
-1. Fix **BUG-1** (Class.forName).  
-2. Fix **BUG-2** (Main exit code).  
-3. Strengthen **SUGGESTION-3** test if cheap.  
-4. Re-run unit tests via `./mvn-env.sh`.  
+1. Fix **BUG-1** (Class.forName).
+2. Fix **BUG-2** (Main exit code).
+3. Strengthen **SUGGESTION-3** test if cheap.
+4. Re-run unit tests via `./mvn-env.sh`.
 5. Re-request Erlang review; only then commit/push/PR.
 
 **May commit/push: no**

@@ -34,26 +34,18 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
 /**
- * GH-939: Jetty perc-logging must rotate at 10 MB and retain only the latest 10
- * rolled files (deleting older dated archives).
+ * GH-939: Jetty perc-logging must rotate at 10 MB and retain only the latest 10 rolled files
+ * (deleting older dated archives).
  *
- * <p>{@code DefaultRolloverStrategy max="10"} alone does not delete dated files when
- * {@code filePattern} contains {@code %d{yyyy-MM-dd}}; a {@code Delete}/
- * {@code IfAccumulatedFileCount} policy is required (same approach as DTS Tomcat
- * {@code log4j2-tomcat.xml}).
+ * <p>{@code DefaultRolloverStrategy max="10"} alone does not delete dated files when {@code
+ * filePattern} contains {@code %d{yyyy-MM-dd}}; a {@code Delete}/ {@code IfAccumulatedFileCount}
+ * policy is required (same approach as DTS Tomcat {@code log4j2-tomcat.xml}).
  */
 class PercLoggingLog4j2ConfigTest {
 
   private static final Path RELATIVE_FROM_MODULE =
       Path.of(
-          "src",
-          "main",
-          "jetty",
-          "defaults",
-          "modules",
-          "perc-logging",
-          "resources",
-          "log4j2.xml");
+          "src", "main", "jetty", "defaults", "modules", "perc-logging", "resources", "log4j2.xml");
 
   private static final Path RELATIVE_FROM_REPO_ROOT =
       Path.of("modules", "perc-jetty").resolve(RELATIVE_FROM_MODULE);
@@ -70,8 +62,8 @@ class PercLoggingLog4j2ConfigTest {
   private static Path log4j2Config;
 
   /**
-   * Resolve log4j2.xml whether surefire CWD is the module dir or the repo root
-   * (multi-module reactor / IDE).
+   * Resolve log4j2.xml whether surefire CWD is the module dir or the repo root (multi-module
+   * reactor / IDE).
    */
   private static Path resolveLog4j2Config() {
     Path cwd = Path.of("").toAbsolutePath().normalize();
@@ -95,9 +87,10 @@ class PercLoggingLog4j2ConfigTest {
     log4j2Config = resolveLog4j2Config();
     assertTrue(
         Files.isRegularFile(log4j2Config),
-        () -> "Missing perc-logging log4j2.xml (tried module- and repo-relative paths from "
-            + Path.of("").toAbsolutePath()
-            + ")");
+        () ->
+            "Missing perc-logging log4j2.xml (tried module- and repo-relative paths from "
+                + Path.of("").toAbsolutePath()
+                + ")");
     DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
     factory.setNamespaceAware(false);
     factory.setExpandEntityReferences(false);
@@ -115,7 +108,8 @@ class PercLoggingLog4j2ConfigTest {
       assertTrue(sizePolicy != null, name + " missing SizeBasedTriggeringPolicy");
       String size = sizePolicy.getAttribute("size").replace(" ", "");
       assertTrue(
-          size.equalsIgnoreCase("10MB"), name + " size should be 10 MB, was: " + sizePolicy.getAttribute("size"));
+          size.equalsIgnoreCase("10MB"),
+          name + " size should be 10 MB, was: " + sizePolicy.getAttribute("size"));
     }
   }
 

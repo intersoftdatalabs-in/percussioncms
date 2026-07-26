@@ -33,11 +33,11 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 /**
- * Regression tests for {@link PSWidgetPackageBuilder} ZipSlip defense (CodeQL {@code
- * java/zipslip} alert #722, T041).
+ * Regression tests for {@link PSWidgetPackageBuilder} ZipSlip defense (CodeQL {@code java/zipslip}
+ * alert #722, T041).
  *
- * <p>Pre-fix code used {@code new File(rootDir, resolvePath)} with the raw zip entry name, which
- * is the classic ZipSlip vector (CWE-22). The fix routes the resolved path through {@code
+ * <p>Pre-fix code used {@code new File(rootDir, resolvePath)} with the raw zip entry name, which is
+ * the classic ZipSlip vector (CWE-22). The fix routes the resolved path through {@code
  * PathValidation.constructSafePath} before any {@code FileOutputStream} / {@code mkdirs}.
  */
 @DisplayName("PSWidgetPackageBuilder — ZipSlip (CWE-22) regression tests")

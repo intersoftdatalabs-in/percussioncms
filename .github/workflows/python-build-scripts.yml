@@ -6,35 +6,35 @@ name: python-build-scripts
 on:
   pull_request:
     paths:
-      - 'scripts/**'
-      - 'scripts/requirements-dev.txt'
-      - 'scripts/run-python-tests.sh'
-      - 'scripts/run-python-tests.cmd'
-      - '.github/workflows/python-build-scripts.yml'
-      - 'docker/scripts/**'
-      - 'docker/entrypoint/**'
-      - 'modules/perc-distribution-tree/scripts/**'
-      - 'modules/perc-distribution-tree/AGENTS.md'
-      - 'modules/ai-shared-develop/scripts/**'
-      - 'modules/ai-shared-develop/src/main/resources/skills/**/scripts/**'
-      - 'modules/ai-shared-develop/AGENTS.md'
-      - 'docs/ai-generated/tasks/#000-webui-src-layout/**'
+      - "scripts/**"
+      - "scripts/requirements-dev.txt"
+      - "scripts/run-python-tests.sh"
+      - "scripts/run-python-tests.cmd"
+      - ".github/workflows/python-build-scripts.yml"
+      - "docker/scripts/**"
+      - "docker/entrypoint/**"
+      - "modules/perc-distribution-tree/scripts/**"
+      - "modules/perc-distribution-tree/AGENTS.md"
+      - "modules/ai-shared-develop/scripts/**"
+      - "modules/ai-shared-develop/src/main/resources/skills/**/scripts/**"
+      - "modules/ai-shared-develop/AGENTS.md"
+      - "docs/ai-generated/tasks/#000-webui-src-layout/**"
   push:
     branches: [development]
     paths:
-      - 'scripts/**'
-      - 'scripts/requirements-dev.txt'
-      - 'scripts/run-python-tests.sh'
-      - 'scripts/run-python-tests.cmd'
-      - '.github/workflows/python-build-scripts.yml'
-      - 'docker/scripts/**'
-      - 'docker/entrypoint/**'
-      - 'modules/perc-distribution-tree/scripts/**'
-      - 'modules/perc-distribution-tree/AGENTS.md'
-      - 'modules/ai-shared-develop/scripts/**'
-      - 'modules/ai-shared-develop/src/main/resources/skills/**/scripts/**'
-      - 'modules/ai-shared-develop/AGENTS.md'
-      - 'docs/ai-generated/tasks/#000-webui-src-layout/**'
+      - "scripts/**"
+      - "scripts/requirements-dev.txt"
+      - "scripts/run-python-tests.sh"
+      - "scripts/run-python-tests.cmd"
+      - ".github/workflows/python-build-scripts.yml"
+      - "docker/scripts/**"
+      - "docker/entrypoint/**"
+      - "modules/perc-distribution-tree/scripts/**"
+      - "modules/perc-distribution-tree/AGENTS.md"
+      - "modules/ai-shared-develop/scripts/**"
+      - "modules/ai-shared-develop/src/main/resources/skills/**/scripts/**"
+      - "modules/ai-shared-develop/AGENTS.md"
+      - "docs/ai-generated/tasks/#000-webui-src-layout/**"
 
 permissions:
   contents: read
@@ -56,8 +56,8 @@ jobs:
       - name: Set up Python 3.11
         uses: actions/setup-python@v5
         with:
-          python-version: '3.11'
-          cache: 'pip'
+          python-version: "3.11"
+          cache: "pip"
           cache-dependency-path: scripts/requirements-dev.txt
 
       - name: Run cross-platform Python-script tests (bash on Unix)

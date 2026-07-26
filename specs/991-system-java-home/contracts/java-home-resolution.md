@@ -9,13 +9,13 @@ Define the **behavioral contract** every production start/stop/service path must
 
 ## Inputs
 
-| Input | Required | Description |
-|-------|----------|-------------|
-| `INSTALL_ROOT` | yes | Absolute product install directory for this surface |
-| Process environment | no | Especially `JAVA_HOME` |
-| `{INSTALL_ROOT}/java.properties` | no | Product config if present |
-| `{INSTALL_ROOT}/JRE` / `JRE64` | no | Legacy operator copy/symlink |
-| `PATH` | no | For launcher discovery |
+|              Input               | Required |                     Description                     |
+|----------------------------------|----------|-----------------------------------------------------|
+| `INSTALL_ROOT`                   | yes      | Absolute product install directory for this surface |
+| Process environment              | no       | Especially `JAVA_HOME`                              |
+| `{INSTALL_ROOT}/java.properties` | no       | Product config if present                           |
+| `{INSTALL_ROOT}/JRE` / `JRE64`   | no       | Legacy operator copy/symlink                        |
+| `PATH`                           | no       | For launcher discovery                              |
 
 ## Algorithm (normative)
 
@@ -67,32 +67,33 @@ Must all hold:
 1. Path exists as a directory (follow symlinks for validity).  
 2. Launcher exists: Unix `bin/java` (executable); Windows `bin\java.exe`.  
 3. Running the launcher reports major version **>= 21** (parse `-version` or showSettings).  
-   Major **21 is the minimum**; 22, 25, and later are accepted. Majors below 21 (8, 11, 17, …) are rejected.
+Major **21 is the minimum**; 22, 25, and later are accepted. Majors below 21 (8, 11, 17, …) are rejected.
 
 ## Outputs (on success)
 
-| Output | Description |
-|--------|-------------|
-| `JAVA_HOME` | Absolute validated home |
-| `JAVA` | Absolute launcher path (`$JAVA_HOME/bin/java` or `.exe`) |
+|      Output       |                        Description                        |
+|-------------------|-----------------------------------------------------------|
+| `JAVA_HOME`       | Absolute validated home                                   |
+| `JAVA`            | Absolute launcher path (`$JAVA_HOME/bin/java` or `.exe`)  |
 | optional log line | Source used (config/env/install-dir/PATH) for diagnostics |
 
 ## Failure message (minimum content)
 
-- Statement that no compatible Java was found  
-- Required major version: **21 or later**  
-- At least a summary of sources tried (config / env / install-dir / PATH)  
-- Non-zero exit (scripts) / non-success return for installers  
+- Statement that no compatible Java was found
+- Required major version: **21 or later**
+- At least a summary of sources tried (config / env / install-dir / PATH)
+- Non-zero exit (scripts) / non-success return for installers
 
 ## Non-goals
 
-- Accepting Java 8/11/17 as success on 8.2  
-- Requiring an exact major match (equality-only 21) — **superseded**: 21+ is required  
-- Creating `<InstallDir>/JRE` automatically by copying a system JRE (optional symlink is **not** required for success)  
-- Changing application classpath layout  
+- Accepting Java 8/11/17 as success on 8.2
+- Requiring an exact major match (equality-only 21) — **superseded**: 21+ is required
+- Creating `<InstallDir>/JRE` automatically by copying a system JRE (optional symlink is **not** required for success)
+- Changing application classpath layout
 
 ## Platform notes
 
-- Path joining must use OS-native separators (scripts) or NIO `Path` (Java).  
-- Windows services must store **absolute** `JavaHome` / `jvm.dll` parent home consistent with this result.  
-- Unix `/etc/default/<service>` `JAVA_HOME=` must match this result at service install time.  
+- Path joining must use OS-native separators (scripts) or NIO `Path` (Java).
+- Windows services must store **absolute** `JavaHome` / `jvm.dll` parent home consistent with this result.
+- Unix `/etc/default/<service>` `JAVA_HOME=` must match this result at service install time.
+

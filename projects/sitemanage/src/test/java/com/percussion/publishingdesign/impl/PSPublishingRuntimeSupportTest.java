@@ -18,7 +18,6 @@ package com.percussion.publishingdesign.impl;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.isNull;
@@ -195,7 +194,8 @@ class PSPublishingRuntimeSupportTest {
   @Test
   void missingRx_returns503() {
     PSPublishingRuntimeSupport noRx =
-        new PSPublishingRuntimeSupport(publisherService, guidManager, null, publishingWs, contentWs);
+        new PSPublishingRuntimeSupport(
+            publisherService, guidManager, null, publishingWs, contentWs);
     WebApplicationException ex =
         assertThrows(WebApplicationException.class, () -> noRx.startEdition("1"));
     assertEquals(503, ex.getResponse().getStatus());

@@ -86,7 +86,10 @@
           var $fragment = $($.parseHTML(feedItem));
           $fragment.find("a").each(function () {
             var $a = $(this);
-            $a.attr("href", $.PercServiceUtils.sanitizeUrlForHref($a.attr("href")));
+            $a.attr(
+              "href",
+              $.PercServiceUtils.sanitizeUrlForHref($a.attr("href"))
+            );
           });
           currentFeedWidget.append($fragment);
           currentFeedWidget.attr("aria-busy", "false");

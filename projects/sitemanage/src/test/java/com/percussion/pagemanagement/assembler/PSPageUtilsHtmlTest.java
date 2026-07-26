@@ -16,8 +16,8 @@
  */
 package com.percussion.pagemanagement.assembler;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -85,8 +85,7 @@ class PSPageUtilsHtmlTest {
   @Test
   void mapMissingPropertyWithDefaultEscapesHtml() {
     Map<String, String> item = Map.of("other", "value");
-    assertEquals(
-        "&lt;b&gt;safe&lt;/b&gt;", utils.html(item, "missing", "<b>safe</b>"));
+    assertEquals("&lt;b&gt;safe&lt;/b&gt;", utils.html(item, "missing", "<b>safe</b>"));
   }
 
   @Test

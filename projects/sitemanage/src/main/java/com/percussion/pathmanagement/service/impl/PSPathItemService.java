@@ -857,12 +857,10 @@ public abstract class PSPathItemService implements IPSPathService {
   protected abstract String getInUseTemplatesResult() throws PSPathServiceException;
 
   /**
-   * Used to determine if an item should be filtered in
-   * {@link #findItems(String)}.
+   * Used to determine if an item should be filtered in {@link #findItems(String)}.
    *
    * @param item the summary that will be checked for filtering.
-* @return <code>true</code> if the item should be filtered,
-    *         <code>false</code> otherwise.
+   * @return <code>true</code> if the item should be filtered, <code>false</code> otherwise.
    */
   protected boolean shouldFilterItem(IPSItemSummary item) {
     return false;

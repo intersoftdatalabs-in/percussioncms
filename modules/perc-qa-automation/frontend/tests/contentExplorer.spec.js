@@ -30,11 +30,7 @@
  */
 
 const { test, expect } = require("@playwright/test");
-const {
-  loginAsAdmin,
-  BASE_URL,
-  ADMIN_USERNAME,
-} = require("./helpers/auth");
+const { loginAsAdmin, BASE_URL, ADMIN_USERNAME } = require("./helpers/auth");
 
 test.describe("modern React Content Explorer (US1) — feature 992", () => {
   test.beforeEach(async ({ page }) => {
@@ -62,12 +58,15 @@ test.describe("modern React Content Explorer (US1) — feature 992", () => {
     // failing CI.
     test.skip(
       true,
-      "BUG: FolderAdaptor throws PSDataItemSummary → PSItemSummary ClassCastException; see PR review notes for tracking",
+      "BUG: FolderAdaptor throws PSDataItemSummary → PSItemSummary ClassCastException; see PR review notes for tracking"
     );
 
-    const res = await request.get(`${BASE_URL}/Rhythmyx/rest/folders/by-path/Assets`, {
-      headers: { RX_USEBASICAUTH: "true" },
-    });
+    const res = await request.get(
+      `${BASE_URL}/Rhythmyx/rest/folders/by-path/Assets`,
+      {
+        headers: { RX_USEBASICAUTH: "true" },
+      }
+    );
     expect(res.status()).toBe(200);
     const body = await res.json();
     expect(Array.isArray(body) || Array.isArray(body.children)).toBeTruthy();
@@ -77,12 +76,12 @@ test.describe("modern React Content Explorer (US1) — feature 992", () => {
     // KNOWN BROKEN: similar ClassCastException on the items endpoint.
     test.skip(
       true,
-      "BUG: items endpoint throws ClassCastException; see PR review notes for tracking",
+      "BUG: items endpoint throws ClassCastException; see PR review notes for tracking"
     );
 
     const res = await request.get(
       `${BASE_URL}/Rhythmyx/rest/items/search?query=Page`,
-      { headers: { RX_USEBASICAUTH: "true" } },
+      { headers: { RX_USEBASICAUTH: "true" } }
     );
     expect(res.status()).toBe(200);
     const body = await res.json();

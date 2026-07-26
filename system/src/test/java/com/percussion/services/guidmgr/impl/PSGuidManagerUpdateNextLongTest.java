@@ -35,8 +35,8 @@ import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 
 /**
- * Behavioral coverage for {@link PSGuidManager#updateNextLong(Integer)} after
- * Hibernate 7 package-install failures (StaleObjectStateException on merge).
+ * Behavioral coverage for {@link PSGuidManager#updateNextLong(Integer)} after Hibernate 7
+ * package-install failures (StaleObjectStateException on merge).
  */
 class PSGuidManagerUpdateNextLongTest {
 
@@ -112,8 +112,9 @@ class PSGuidManagerUpdateNextLongTest {
     long first = mgr.updateNextLong(17);
 
     assertEquals(21L, first);
-    assertTrue(secondLoad.getValue() >= 20 + PSGuidManager.BLOCK_SIZE - 1
-        || secondLoad.getValue() == 20 + PSGuidManager.BLOCK_SIZE);
+    assertTrue(
+        secondLoad.getValue() >= 20 + PSGuidManager.BLOCK_SIZE - 1
+            || secondLoad.getValue() == 20 + PSGuidManager.BLOCK_SIZE);
     verify(session, org.mockito.Mockito.atLeastOnce()).clear();
   }
 }

@@ -35,3 +35,4 @@
 - Clarifications session 2026-07-16: MVP folder set, warn-and-continue, early timing, flag-over-prompt — re-validated; still all pass.
 - Module Scope mentions module paths (mono-repo mandatory section); stakeholder stories remain outcome-focused.
 - Ready for `/speckit-plan`.
+

@@ -58,7 +58,18 @@ public final class PSRepositoryConnectionHelper {
     String uid = nullToEmpty(repositoryProperties.getProperty(KEY_UID));
     String pwd = nullToEmpty(repositoryProperties.getProperty(KEY_PWD));
 
-    Class.forName(driverClass);
+    // Explicit pre-load is best-effort. Derby 10.17.x removed org.apache.derby.jdbc.EmbeddedDriver
+    // in favor of org.apache.derby.iapi.jdbc.AutoloadedDriver (registered via the JDBC service
+    // loader on META-INF/services/java.sql.Driver); legacy config values still reference the old
+    // name. Fall through to DriverManager.getConnection which will pick up the auto-registered
+    // driver when the explicit class load fails.
+    try {
+      Class.forName(driverClass);
+    } catch (ClassNotFoundException e) {
+      if (!PSJdbcUtils.DERBY_DRIVER.equalsIgnoreCase(driverName)) {
+        throw e;
+      }
+    }
     String resolvedServer = resolveServerFragment(server, installRoot, driverName);
     String url = PSJdbcUtils.getJdbcUrl(driverName, resolvedServer);
     return DriverManager.getConnection(url, uid, pwd);
@@ -118,7 +129,8 @@ public final class PSRepositoryConnectionHelper {
     if (installRoot == null) {
       return s;
     }
-    if (PSJdbcUtils.H2_DRIVER.equalsIgnoreCase(driverName) && s.regionMatches(true, 0, "file:", 0, 5)) {
+    if (PSJdbcUtils.H2_DRIVER.equalsIgnoreCase(driverName)
+        && s.regionMatches(true, 0, "file:", 0, 5)) {
       String pathAndParams = s.substring(5);
       int semi = pathAndParams.indexOf(';');
       String pathPart = semi >= 0 ? pathAndParams.substring(0, semi) : pathAndParams;

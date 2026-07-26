@@ -18,8 +18,8 @@
 package com.percussion.cx;
 
 /**
- * Encapsulates a Rhythmyx content GUID as a packed long value, providing accessors for the
- * content id, revision and content type components stored in the value.
+ * Encapsulates a Rhythmyx content GUID as a packed long value, providing accessors for the content
+ * id, revision and content type components stored in the value.
  */
 public class PSGuid {
   private long guid;

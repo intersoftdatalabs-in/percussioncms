@@ -47,7 +47,9 @@ class PSDocumentUtilsSsrfTest {
       IOException ex =
           assertThrows(
               IOException.class,
-              () -> utils.buildValidatedExternalRequestUri("http://169.254.169.254/latest/meta-data/"));
+              () ->
+                  utils.buildValidatedExternalRequestUri(
+                      "http://169.254.169.254/latest/meta-data/"));
       assertTrue(
           ex.getMessage().contains("SSRF") || ex.getCause() instanceof SecurityException,
           "expected SSRF validation failure, got: " + ex.getMessage());
@@ -65,8 +67,7 @@ class PSDocumentUtilsSsrfTest {
     @DisplayName("file scheme is rejected")
     void testFileSchemeRejected() {
       assertThrows(
-          IOException.class,
-          () -> utils.buildValidatedExternalRequestUri("file:///etc/passwd"));
+          IOException.class, () -> utils.buildValidatedExternalRequestUri("file:///etc/passwd"));
     }
   }
 
@@ -95,8 +96,8 @@ class PSDocumentUtilsSsrfTest {
   }
 
   /**
-   * Redirect.NEVER SSRF hardening (PR #1364 / Kilo): 3xx and soft transport errors
-   * must yield empty string per getDocument Javadoc, not unexpected throw.
+   * Redirect.NEVER SSRF hardening (PR #1364 / Kilo): 3xx and soft transport errors must yield empty
+   * string per getDocument Javadoc, not unexpected throw.
    */
   @Nested
   @DisplayName("Redirect.NEVER empty-string-on-error contract (source)")
@@ -114,15 +115,13 @@ class PSDocumentUtilsSsrfTest {
       }
       String text = java.nio.file.Files.readString(src);
       assertTrue(
-          text.contains("HttpClient.Redirect.NEVER"),
-          "must disable redirect following for SSRF");
+          text.contains("HttpClient.Redirect.NEVER"), "must disable redirect following for SSRF");
       assertTrue(
           text.contains("statusCode >= 300 && statusCode < 400"),
           "must treat 3xx as empty-string failure");
       // Soft IOException after validation returns "" (not rethrown)
       assertTrue(
-          text.contains("return \"\";")
-              && text.contains("catch (IOException e)"),
+          text.contains("return \"\";") && text.contains("catch (IOException e)"),
           "must soft-fail IOException after validation with empty string");
     }
   }

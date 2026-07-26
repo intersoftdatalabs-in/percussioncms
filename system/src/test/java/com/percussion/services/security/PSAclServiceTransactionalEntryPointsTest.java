@@ -27,18 +27,19 @@ import org.junit.jupiter.api.Test;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
- * Guards against regression of the interface-default / Spring proxy pitfall:
- * {@link IPSAclService} default methods that call {@code *Impl} never re-enter
- * the Spring proxy, so {@code @Transactional} on the impl alone is not applied
- * and package install fails with
- * {@code No transactional EntityManager available}.
+ * Guards against regression of the interface-default / Spring proxy pitfall: {@link IPSAclService}
+ * default methods that call {@code *Impl} never re-enter the Spring proxy, so
+ * {@code @Transactional} on the impl alone is not applied and package install fails with {@code No
+ * transactional EntityManager available}.
  */
 class PSAclServiceTransactionalEntryPointsTest {
 
   @Test
   @DisplayName("createAcl/saveAcls/deleteAcls are @Transactional on PSAclService")
   void publicEntryPointsAreTransactionalOnImpl() throws Exception {
-    assertTransactional("createAcl", com.percussion.utils.guid.IPSGuid.class,
+    assertTransactional(
+        "createAcl",
+        com.percussion.utils.guid.IPSGuid.class,
         com.percussion.security.IPSTypedPrincipal.class);
     assertTransactional("saveAcls", List.class);
     assertTransactional("deleteAcls", List.class);

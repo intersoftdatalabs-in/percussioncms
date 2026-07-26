@@ -8,6 +8,7 @@
 ⚠️ `branch_numbering` in `.specify/init-options.json` is deprecated. Rename to `feature_numbering`.
 
 ## Module Scope
+
 - **Primary module(s)**: repo-root `scripts/`, `docker/scripts/`, `docker/entrypoint/`, `modules/perc-distribution-tree/scripts/`, `modules/ai-shared-develop/scripts/`, `modules/ai-shared-develop/src/main/resources/skills/*/scripts/`, `docs/ai-generated/tasks/#000-webui-src-layout/*.sh`
 - **Explicitly EXCLUDED from this spec**: repo-root `mvn-env.{sh,bat}` — already works cross-platform and is left untouched (Q2 clarification)
 - **Secondary / integration modules**: `modules/perc-distribution-tree/` (developer convenience `APIUpdate-*.bat`, `UpdateTinyMCE.bat`); documentation under `scripts/README.md`, module `AGENTS.md`, root `AGENTS.md`, `docker/README.md`, `.specify/**` only as it relates to commands the spec touches
@@ -54,6 +55,7 @@ An AI agent invokes a skill helper (`api-client.sh`, `install-cms.sh`, `start-cm
 2. **Given** an AI agent invoking `python modules/ai-shared-develop/src/main/resources/skills/percussioncms-dev/scripts/api-client.py --help`, **When** the command runs, **Then** the same help text and exit code is shown on Linux and Windows
 
 ### Edge Cases
+
 - What happens when a script is invoked with `-h`/`--help`? → Each Python script must print a usage banner and exit 0 (argparse default) on either OS
 - What happens when Python is missing on the host? → Out of scope: the project already requires Python 3.9+ for `erlang-harvest-review-patterns`; if a host lacks Python, the script should print a clear error and exit non-zero (no shell fallback)
 - What happens when a build script is invoked from a module subdirectory? → Relative paths in scripts must be resolved with `pathlib.Path(__file__).resolve().parent` (no `cd`-then-`..` chains)
@@ -134,3 +136,4 @@ An AI agent invokes a skill helper (`api-client.sh`, `install-cms.sh`, `start-cm
 ## Open Questions
 
 - None blocking; the in-scope/out-of-scope split in FR-013 is the only judgment call and is fully enumerated above so review can challenge specific entries without re-litigating the policy
+

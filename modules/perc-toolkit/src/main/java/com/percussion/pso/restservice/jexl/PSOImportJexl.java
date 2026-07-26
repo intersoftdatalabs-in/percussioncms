@@ -277,9 +277,11 @@ public class PSOImportJexl extends PSJexlUtilBase implements IPSJexlExpression {
       log.error("Critical: Failed to set secure features on SAXReader", e);
       throw new RuntimeException("Failed to initialize secure XML parser", e);
     }
-    reader.setEntityResolver((publicId, systemId) -> {
-      throw new org.xml.sax.SAXException("Resolution of external entity is blocked: " + systemId);
-    });
+    reader.setEntityResolver(
+        (publicId, systemId) -> {
+          throw new org.xml.sax.SAXException(
+              "Resolution of external entity is blocked: " + systemId);
+        });
     return reader;
   }
 

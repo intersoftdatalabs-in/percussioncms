@@ -353,13 +353,13 @@ With multiple developers / module owners:
 
 ## Remediation History (from `/speckit.analyze` 2026-07-11)
 
-| Finding | Severity | Fix applied |
-|---------|----------|-------------|
-| C1 — Constitution IX per-PR gate | CRITICAL | Added **T078b**: per-PR pre-merge gate + PR-template checkbox + `scripts/verify-pr-review-resolution.sh`. Updated Phase Dependencies + Notes. |
-| C2 — Fail-then-pass for removals | HIGH | Added **T019b**: pre-removal baseline capture before T021–T031 merge. Updated Notes + Phase Dependencies. |
-| C3 — Accepted-risk in same PR | HIGH | Added **T061b**: same-PR rule for `accepted-risks.md` creation. Updated Phase Dependencies. |
-| A1 — Target milestone reconciliation | HIGH | Added scope note in "Scope Numbers" + clarified T014–T016 are the per-finding milestone decision point. |
-| U1 — Stale scanner cache | HIGH | Added **T007b**: stale-cache filter in `scripts/fetch-gh-code-scanning-alerts.sh` + new `alerts-stale-cache.md` audit file. Updated Phase Dependencies. |
+|               Finding                | Severity |                                                                       Fix applied                                                                       |
+|--------------------------------------|----------|---------------------------------------------------------------------------------------------------------------------------------------------------------|
+| C1 — Constitution IX per-PR gate     | CRITICAL | Added **T078b**: per-PR pre-merge gate + PR-template checkbox + `scripts/verify-pr-review-resolution.sh`. Updated Phase Dependencies + Notes.           |
+| C2 — Fail-then-pass for removals     | HIGH     | Added **T019b**: pre-removal baseline capture before T021–T031 merge. Updated Notes + Phase Dependencies.                                               |
+| C3 — Accepted-risk in same PR        | HIGH     | Added **T061b**: same-PR rule for `accepted-risks.md` creation. Updated Phase Dependencies.                                                             |
+| A1 — Target milestone reconciliation | HIGH     | Added scope note in "Scope Numbers" + clarified T014–T016 are the per-finding milestone decision point.                                                 |
+| U1 — Stale scanner cache             | HIGH     | Added **T007b**: stale-cache filter in `scripts/fetch-gh-code-scanning-alerts.sh` + new `alerts-stale-cache.md` audit file. Updated Phase Dependencies. |
 
 ---
 

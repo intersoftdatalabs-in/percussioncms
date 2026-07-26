@@ -120,3 +120,4 @@ Cross-platform path review: **no issues.**
   not a new generalization. **No patterns.md edit needed** per the
   "do not modify patterns.md unless a genuinely new generalized pattern emerges"
   instruction in the task brief.
+

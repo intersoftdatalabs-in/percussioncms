@@ -335,18 +335,18 @@ Phase 6 US3 (menus) ──→ Phase 7 US4 (ACL) ──→ Phase 8 US5 (search)
                     Phase 10 Polish + SC-012 (8.2 gate)
 ```
 
-| Phase | Depends on | Blocks 8.2 if incomplete? |
-|-------|------------|---------------------------|
-| Setup | — | No (dev only) |
-| Foundational | Setup | Indirect (blocks all) |
-| US1 | Foundational | **Yes** |
-| US6 | US1 | **Yes** (hard cut required for GA) |
-| US2 | Foundational + path API (US1 recommended) | **Yes** (hosts) |
-| US3 | US1 | **Yes** |
-| US4 | US1 | **Yes** |
-| US5 | US1 (browser search needs US2 for browser half) | **Yes** |
-| US7 | US1 (+ menus helpful) | **Yes** |
-| Polish / SC-012 | All stories | **Yes** — release gate |
+|      Phase      |                   Depends on                    |     Blocks 8.2 if incomplete?      |
+|-----------------|-------------------------------------------------|------------------------------------|
+| Setup           | —                                               | No (dev only)                      |
+| Foundational    | Setup                                           | Indirect (blocks all)              |
+| US1             | Foundational                                    | **Yes**                            |
+| US6             | US1                                             | **Yes** (hard cut required for GA) |
+| US2             | Foundational + path API (US1 recommended)       | **Yes** (hosts)                    |
+| US3             | US1                                             | **Yes**                            |
+| US4             | US1                                             | **Yes**                            |
+| US5             | US1 (browser search needs US2 for browser half) | **Yes**                            |
+| US7             | US1 (+ menus helpful)                           | **Yes**                            |
+| Polish / SC-012 | All stories                                     | **Yes** — release gate             |
 
 ---
 
@@ -382,15 +382,15 @@ Complete **US1–US7** + Phase 10 with **SC-012 pass**. Functional parity **bloc
 
 ### Story independence
 
-| Story | Independent test focus |
-|-------|------------------------|
-| US1 | Core navigate without Finder/CE |
-| US2 | Host selection payload |
-| US3 | ≥10 configured actions |
-| US4 | ACL save + second-user effect |
-| US5 | Search open/reveal |
-| US6 | No classic primary path |
-| US7 | Advanced matrix row UAT |
+| Story |     Independent test focus      |
+|-------|---------------------------------|
+| US1   | Core navigate without Finder/CE |
+| US2   | Host selection payload          |
+| US3   | ≥10 configured actions          |
+| US4   | ACL save + second-user effect   |
+| US5   | Search open/reveal              |
+| US6   | No classic primary path         |
+| US7   | Advanced matrix row UAT         |
 
 ### Notes for implementers
 
@@ -403,19 +403,19 @@ Complete **US1–US7** + Phase 10 with **SC-012 pass**. Functional parity **bloc
 
 ## Task count summary
 
-| Phase | Story | Tasks (approx) |
-|-------|-------|----------------|
-| 1 Setup | — | T001–T005 (5) |
-| 2 Foundational | — | T006–T012 + T012a–T012g (14) |
-| 3 | US1 | T013–T027 + T015a + T024a–T024b + T025b (19) |
-| 4 | US6 | T028–T036 + T028b + T029a (11) |
-| 5 | US2 | T037–T047 → split T045 → T045a–T045f + per-host Playwright T045*-pw + T046b (22) |
-| 6 | US3 | T048–T057 + T052a–T052b + T056b + T057b (14) |
-| 7 | US4 | T058–T064 + T064b (8) |
-| 8 | US5 | T065–T070 + T070b (7) |
-| 9 | US7 | T071–T081 + T081b (12) |
-| 10 Polish / 8.2 | — | T082–T091 + T082b + T089a (13) |
-| **Total** | | **T001–T091 + new IDs (125)** |
+|      Phase      | Story |                                  Tasks (approx)                                  |
+|-----------------|-------|----------------------------------------------------------------------------------|
+| 1 Setup         | —     | T001–T005 (5)                                                                    |
+| 2 Foundational  | —     | T006–T012 + T012a–T012g (14)                                                     |
+| 3               | US1   | T013–T027 + T015a + T024a–T024b + T025b (19)                                     |
+| 4               | US6   | T028–T036 + T028b + T029a (11)                                                   |
+| 5               | US2   | T037–T047 → split T045 → T045a–T045f + per-host Playwright T045*-pw + T046b (22) |
+| 6               | US3   | T048–T057 + T052a–T052b + T056b + T057b (14)                                     |
+| 7               | US4   | T058–T064 + T064b (8)                                                            |
+| 8               | US5   | T065–T070 + T070b (7)                                                            |
+| 9               | US7   | T071–T081 + T081b (12)                                                           |
+| 10 Polish / 8.2 | —     | T082–T091 + T082b + T089a (13)                                                   |
+| **Total**       |       | **T001–T091 + new IDs (125)**                                                    |
 
 **Format validation**: All tasks use `- [ ]`, sequential Task IDs, optional `[P]`, story labels on US phases only, and file paths in descriptions. New tasks (T012a–T012g, T015a, T024a–T024b, T025b, T028b, T029a, **T029b**, T045a–T045f + T045*-pw, T046b, T052a–T052b, T056b, T057b, T064b, T070b, T081b, T082b, T089a, T092b, T092c, T092d, T092e) follow the same format and respect [P] parallelism rules.
 

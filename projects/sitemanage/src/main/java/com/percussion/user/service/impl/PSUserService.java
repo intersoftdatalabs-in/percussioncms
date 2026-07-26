@@ -490,7 +490,8 @@ public class PSUserService implements IPSUserService {
     log.debug("creating user {}", user);
     doValidation(user, true);
 
-    // XSS residual (Jackson/JAXB/CXF or documented pass-through): JSON/XML DTO via Jackson/JAXB; not HTML body (alert #753)
+    // XSS residual (Jackson/JAXB/CXF or documented pass-through): JSON/XML DTO via Jackson/JAXB;
+    // not HTML body (alert #753)
     return createUser(user); // codeql[java/xss]
   }
 
@@ -741,7 +742,8 @@ public class PSUserService implements IPSUserService {
       log.error(PSExceptionUtils.getMessageForLog(e));
       log.debug(PSExceptionUtils.getDebugMessageForLog(e));
     }
-    // XSS residual (Jackson/JAXB/CXF or documented pass-through): JSON/XML DTO via Jackson/JAXB; not HTML body (alert #754)
+    // XSS residual (Jackson/JAXB/CXF or documented pass-through): JSON/XML DTO via Jackson/JAXB;
+    // not HTML body (alert #754)
     return rvalue; // codeql[java/xss]
   }
 
@@ -805,7 +807,8 @@ public class PSUserService implements IPSUserService {
       rvalue.setPassword(null);
     }
 
-    // XSS residual (Jackson/JAXB/CXF or documented pass-through): JSON/XML DTO via Jackson/JAXB; not HTML body (alert #755)
+    // XSS residual (Jackson/JAXB/CXF or documented pass-through): JSON/XML DTO via Jackson/JAXB;
+    // not HTML body (alert #755)
     return rvalue; // codeql[java/xss]
   }
 

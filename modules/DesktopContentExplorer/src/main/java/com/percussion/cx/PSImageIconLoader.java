@@ -98,14 +98,14 @@ public class PSImageIconLoader extends UIManager {
   }
 
   /**
-   * Loads the image icon from or archive. Tries to load from cache first then
-   * from archive. If load fails by either of these methods <code>null</code>
-   * returned. The cache is not maintained by this method.
-   * @param iconKey key name of the icon that is the name of the icon file
-   * without the extension. The extension '.gif' is always added by the method.
-   * Assumes the image file is located in 'images/' directory within the archive.
-   * Must not be <code>null</code> or <code>empty</code>, in which case
-   * <code>null</code> is returned.
+   * Loads the image icon from or archive. Tries to load from cache first then from archive. If load
+   * fails by either of these methods <code>null</code> returned. The cache is not maintained by
+   * this method.
+   *
+   * @param iconKey key name of the icon that is the name of the icon file without the extension.
+   *     The extension '.gif' is always added by the method. Assumes the image file is located in
+   *     'images/' directory within the archive. Must not be <code>null</code> or <code>empty</code>
+   *     , in which case <code>null</code> is returned.
    * @return icon object loaded from cache or archive, may be <code>null</code>.
    */
   public static Icon loadIcon(String iconKey) {

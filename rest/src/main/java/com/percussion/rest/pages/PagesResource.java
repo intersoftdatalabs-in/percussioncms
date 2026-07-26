@@ -458,8 +458,8 @@ public class PagesResource {
    *   <li>Treat {@code null} as empty.
    *   <li>Strip <em>all</em> leading {@code /} characters (so {@code //Sites/...} and {@code
    *       /Sites/...} are equivalent).
-   *   <li>If the path then starts with the CMS sites-root folder name {@code Sites/} (case-sensitive,
-   *       matching the folder-tree root), strip that single prefix once.
+   *   <li>If the path then starts with the CMS sites-root folder name {@code Sites/}
+   *       (case-sensitive, matching the folder-tree root), strip that single prefix once.
    * </ol>
    *
    * <p><b>Contract notes:</b> The leading {@code Sites/} segment is the CMS folder-tree root, not a

@@ -5,11 +5,11 @@ pre-PR reviews produced by **Erlang** (strict independent code review).
 
 ## Why here (not `tmp/`)
 
-| Location | Role |
-|----------|------|
-| **`docs/ai-generated/code-reviews/`** | Durable review reports — survives `tmp/` wipes, clones, and clean builds |
+|                               Location                               |                                    Role                                    |
+|----------------------------------------------------------------------|----------------------------------------------------------------------------|
+| **`docs/ai-generated/code-reviews/`**                                | Durable review reports — survives `tmp/` wipes, clones, and clean builds   |
 | **`modules/ai-shared-develop/.../skills/erlang-review/patterns.md`** | Institutional pattern memory (generalized hard gates / recurring findings) |
-| **`tmp/`** | Repo temp only — **do not** store Erlang reviews there |
+| **`tmp/`**                                                           | Repo temp only — **do not** store Erlang reviews there                     |
 
 Root `AGENTS.md` defines `./tmp` as throwaway. Review memory and re-review
 continuity must not depend on it.
@@ -40,12 +40,12 @@ Separate rereview files from older runs may still exist for history.
 
 ## When to write
 
-| Situation | Action |
-|-----------|--------|
-| Gate is `request-changes` | **Required** — write/update the topic file |
-| Re-review after fixes | **Required** — load prior file, update statuses / append re-review |
-| Gate is `approve` for a real feature branch | **Recommended** — leave an audit trail |
-| Trivial docs-only nit the author skips committing | Optional |
+|                     Situation                     |                               Action                               |
+|---------------------------------------------------|--------------------------------------------------------------------|
+| Gate is `request-changes`                         | **Required** — write/update the topic file                         |
+| Re-review after fixes                             | **Required** — load prior file, update statuses / append re-review |
+| Gate is `approve` for a real feature branch       | **Recommended** — leave an audit trail                             |
+| Trivial docs-only nit the author skips committing | Optional                                                           |
 
 ## What not to put here
 
@@ -98,10 +98,10 @@ python3 scripts/erlang-harvest-review-patterns.py --apply      # multi-PR → pa
 scripts\erlang-harvest-review-patterns.bat --apply             # Windows
 ```
 
-| Output | Path |
-|--------|------|
+|      Output      |                               Path                                |
+|------------------|-------------------------------------------------------------------|
 | Candidate report | `docs/ai-generated/code-reviews/harvest-candidates-YYYY-MM-DD.md` |
-| Pattern memory | `…/skills/erlang-review/patterns.md` (only with `--apply`) |
+| Pattern memory   | `…/skills/erlang-review/patterns.md` (only with `--apply`)        |
 
 What the script does:
 

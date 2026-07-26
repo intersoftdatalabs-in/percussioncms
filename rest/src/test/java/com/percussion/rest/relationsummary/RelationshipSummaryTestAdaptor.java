@@ -28,8 +28,8 @@ import org.springframework.stereotype.Component;
 
 /**
  * Stub {@link IRelationshipSummaryAdaptor} for {@link com.percussion.rest.MainTest}'s Spring
- * component-scan. Without this bean, context load fails because {@link
- * RelationshipSummaryResource} constructor-injects the adaptor.
+ * component-scan. Without this bean, context load fails because {@link RelationshipSummaryResource}
+ * constructor-injects the adaptor.
  *
  * <p>HTTP-layer behavior is covered by {@link RelationshipSummaryResourceTest} (Mockito); this
  * class only satisfies wiring for the shared CXF/Spring harness.

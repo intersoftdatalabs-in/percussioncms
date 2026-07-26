@@ -6,6 +6,7 @@
 **Input**: Inventory and consolidate legacy Rhythmyx publishing design, publishing runtime, and the modern CMS publishing screen into a new unified publishing UI implemented in the modern React TypeScript stack, with feature parity and ease of use, so an agent can implement the new publishing user interface from the resulting specs and plan.
 
 ## Module Scope
+
 - **Primary module(s)**: `WebUI/` (legacy JSF Publishing Design under `ui/publishing`, Publishing Runtime under `ui/pubruntime`, Minuet/jQuery Publish under `cm/app` and mirrors; modern Track B UI under `WebUI/src/main/ts` / frontend Vite pipeline)
 - **Secondary / integration modules**: `projects/sitemanage/` (site publish, publish status, pub server REST); `system/` (`services.publisher`, `rx.publisher`, publishing web services); optional `rest/` publishing-server DTOs; product help under `system/Docs/Rhythmyx_Publishing_*_Help` for capability reference only
 - **AGENTS files to apply**: root `AGENTS.md`, `WebUI/AGENTS.md` (Track B React modernization; Rhythmyx Publishing marked legacy/retiring)
@@ -13,12 +14,15 @@
 - **Install / upgrade impact**: web UI distribution and navigation rewiring; **no** intentional publishing engine rewrite, package format change, or schema migration unless plan discovers a documented API gap. Upgrade must preserve the ability to publish sites and manage design/runtime configuration for existing customer sites. Deep links and bookmarks to classic design/runtime/publish URLs must map to the unified UI or show a clear moved/unavailable message.
 
 ### Supporting inventory
+
 Evidence inventory of current surfaces and capability groups: [`research/inventory.md`](./research/inventory.md). That document is normative for **what exists today** for parity; this specification is normative for **what users must be able to do** in the unified product.
 
 ## Clarifications
+
 None yet. Reasonable defaults are recorded under **Assumptions**. Use `/speckit-clarify` if product owners reject a default (especially cutover phasing or design depth).
 
 ## User Scenarios & Testing
+
 Each story must be independently testable. Stories are ordered for delivery value: operators first, then design power users, then legacy retirement.
 
 ### User Story 1 - Unified Publishing home and site operations (Priority: P1)
@@ -125,6 +129,7 @@ In the release(s) that achieve parity for a surface, operators and developers no
 5. **Given** retirement inventory is signed off, **When** reviewers check the feature checklist, **Then** exclusive classic clients for retired surfaces are listed as removed and any retained shared libraries are justified.
 
 ### Edge Cases
+
 - User has access to view status/logs but not to start publish or edit servers.
 - Site has zero publish servers; publish actions disabled with guidance.
 - Concurrent jobs for multiple sites; status list remains usable and stop targets the correct job.
@@ -138,6 +143,7 @@ In the release(s) that achieve parity for a surface, operators and developers no
 - Hosted vs on-prem differences (EC2/regions); UI only offers environment-appropriate options.
 
 ## Requirements
+
 ### Functional Requirements
 
 - **FR-001**: The product MUST provide a single modern **Publishing** user experience that consolidates capabilities of (a) modern CMS Publish, (b) Rhythmyx Publishing Design, and (c) Rhythmyx Publishing Runtime, within the modern CMS chrome.
@@ -162,6 +168,7 @@ In the release(s) that achieve parity for a surface, operators and developers no
 - **FR-020**: Concurrent use of the Publishing UI by multiple operators MUST not corrupt server or design definitions; last-write-wins is acceptable where the product has no merge UI today, with success/failure clearly shown.
 
 ### Key Entities
+
 - **Site (publishing)**: A publishable site shown in ops lists and/or design hierarchy; has servers, editions, and logs.
 - **Publish server**: Named delivery configuration for a site (type, driver, properties, default/publish-now flag, production/staging).
 - **Edition**: Design/runtime unit that groups content lists and can be executed as a publish job.
@@ -174,7 +181,9 @@ In the release(s) that achieve parity for a surface, operators and developers no
 - **Incremental queue**: Set of items (and related items) pending incremental publish for a site/server.
 
 ## Success Criteria
+
 ### Measurable Outcomes
+
 - **SC-001**: An automated Playwright test verifies a publisher can complete **site select → full publish → visible job in status** in under **2 minutes** on a reference environment with a preconfigured server (excluding actual job runtime).
 - **SC-002**: **100%** of capability groups listed in `research/inventory.md` §7 that are marked in-scope for a cutover milestone have passing Playwright E2E automated test scripts before that surface’s classic UI is removed.
 - **SC-003**: In usability validation with at least five representative publishers, or via automated keyboard/accessibility checks using Playwright/A11y tools, **≥80%** successfully complete full publish **without** opening Design documentation or Design UI.
@@ -185,6 +194,7 @@ In the release(s) that achieve parity for a surface, operators and developers no
 - **SC-008**: Diagnostic flows for failed publishes are verified via automated Playwright test scripts simulating failures, ensuring the unified Status/Logs experience provides sufficient detail to diagnose representative failure cases.
 
 ## Assumptions
+
 - **Parity means outcomes, not pixel clones**: Layouts may improve for ease of use; every user-visible capability and business rule from the three surfaces remains available unless explicitly deprecated in a later clarify/plan decision.
 - **Phased cutover by surface is allowed**: Ops (Stories 1–3) may ship and retire Minuet Publish before Design/Runtime JSF retirement, provided navigation remains coherent and dual entry points are temporary and documented. Final state is one unified Publishing UI.
 - **Engine reuse**: Existing sitemanage publish/status/server services and system publisher/rx.publisher remain backend of record; plan phase may add thin adapters only where Design JSF has no REST equivalent today—without inventing undocumented engine behavior.
@@ -211,9 +221,11 @@ Publishers need full Minuet-equivalent incremental **approval** when related ite
 4. **Given** residual deep faces packaging cleanup is in scope for the release, **When** packaging is reviewed, **Then** exclusive deep design/runtime faces are absent or explicitly justified.
 
 ## Out of Scope
+
 - Rewriting the publishing engine, assembly pipeline, or edition task framework for its own sake.
 - Delivery Tier Service (DTS) microservice redesign.
 - Full Desktop Content Explorer modernization.
 - Changing publish package (`.ppkg`) formats or unrelated admin JSF areas.
 - New publishing cloud products or net-new delivery drivers beyond parity with what the product already supports in the three surfaces.
 - Full CMS site create/delete/copy inside the Publishing Design panel (site administration).
+

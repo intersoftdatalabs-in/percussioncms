@@ -24,20 +24,20 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 /**
- * Regression tests for {@link PSJndiUtils#escapeLdapFilter} (CodeQL
- * {@code java/ldap-injection}, T040, US3).
+ * Regression tests for {@link PSJndiUtils#escapeLdapFilter} (CodeQL {@code java/ldap-injection},
+ * T040, US3).
  *
  * <p><strong>Background.</strong> The pre-fix {@code PSJndiGroupProvider} concatenated DN
- * components into LDAP search filter strings without escaping the RFC 4515 metacharacters
- * {@code \}, {@code *}, {@code (}, {@code )} and the NUL byte. A malicious DN that
- * contained a parenthesised assertion (e.g. {@code *)(objectClass=*}) could break out
- * of the surrounding filter and inject arbitrary clauses.
+ * components into LDAP search filter strings without escaping the RFC 4515 metacharacters {@code
+ * \}, {@code *}, {@code (}, {@code )} and the NUL byte. A malicious DN that contained a
+ * parenthesised assertion (e.g. {@code *)(objectClass=*}) could break out of the surrounding filter
+ * and inject arbitrary clauses.
  *
- * <p><strong>Fail-then-pass coverage (Constitution III).</strong> The escape is a pure
- * string function that takes a raw input and returns the escaped output. The pre-fix
- * code had no such helper, so a test that asserts the output contains the hex-escape
- * form of the metacharacters would fail on pre-fix code (no escape at all) and pass
- * on post-fix code. This is the strict fail-then-pass test.
+ * <p><strong>Fail-then-pass coverage (Constitution III).</strong> The escape is a pure string
+ * function that takes a raw input and returns the escaped output. The pre-fix code had no such
+ * helper, so a test that asserts the output contains the hex-escape form of the metacharacters
+ * would fail on pre-fix code (no escape at all) and pass on post-fix code. This is the strict
+ * fail-then-pass test.
  */
 @DisplayName("PSJndiUtils.escapeLdapFilter — LDAP injection (CWE-90) regression tests")
 class PSJndiUtilsEscapeLdapFilterTest {
@@ -112,8 +112,8 @@ class PSJndiUtilsEscapeLdapFilterTest {
       // metacharacters that escapeLdapFilter hex-escapes are: `\`,
       // `*`, `(`, `)`. This test exercises a DN value containing no
       // metacharacters — it should pass through unchanged.
-      assertEquals("OU=Users,DC=example,DC=com",
-          PSJndiUtils.escapeLdapFilter("OU=Users,DC=example,DC=com"));
+      assertEquals(
+          "OU=Users,DC=example,DC=com", PSJndiUtils.escapeLdapFilter("OU=Users,DC=example,DC=com"));
     }
 
     @Test

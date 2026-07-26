@@ -26,26 +26,26 @@
 
 ### Spec / contract
 
-| Artifact | Change | Compliance |
-|----------|--------|------------|
-| `WebUI/src/main/ts/contentExplorer/DetailList.tsx` | Adds `DetailColumnId` union (7 ids), `DetailDisplayFormat` interface, 3 pure helpers (`resolveDisplayFormatColumns`, `renderDisplayFormatCell`, `columnHeaderLabel`), column-aware `<thead>` / `<tbody>` rendering using `data-testid="detail-col-header-{c}"` / `"detail-cell-{c}-{id}"` selectors. Default columns when `displayFormat` is absent or empty: `["name", "type", "path"]` (preserves existing UI behaviour). | ✅ Constitution II (column ids mirror `PSX_DISPLAYFORMATPROPERTY_VIEW` rows + `PSFolderProperties` fields; no invented fields). |
-| `WebUI/src/main/ts/contentExplorer/messages.ts` | Adds 4 i18n keys: `COL_MODIFIED`, `COL_TITLE`, `COL_CATEGORY`, `COL_WORKFLOW` (existing `COL_NAME` / `COL_TYPE` / `COL_PATH` reused). | ✅ |
-| `WebUI/src/test/ts/contentExplorer/DetailList.test.tsx` | Adds second `describe` block "T092b / FR-027: display-format column resolution" with 8 tests: default fallback, supplied-order + dedup, unknown-id filter, per-cell renderer for every supported column id, null-optional-field tolerance, translated headers, end-to-end render in supplied order with axe-core a11y gate, end-to-end render of default columns with axe-core a11y gate. Corrects 6 pre-existing mock responses to use the wire shape `{ PagedItemList: { childrenInPage, childrenCount, startIndex } }` (the shape `paginatedFolder()` actually unwraps — documented at `pathApi.ts:124-136`). | ✅ Constitution III (behavioral tests). |
-| `specs/992-react-content-explorer/tasks.md` | Adds T092b entry with implementation note + test evidence + pre-existing-failure annotation. | ✅ |
+|                        Artifact                         |                                                                                                                                                                                                                                                                                                      Change                                                                                                                                                                                                                                                                                                      |                                                           Compliance                                                           |
+|---------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------|
+| `WebUI/src/main/ts/contentExplorer/DetailList.tsx`      | Adds `DetailColumnId` union (7 ids), `DetailDisplayFormat` interface, 3 pure helpers (`resolveDisplayFormatColumns`, `renderDisplayFormatCell`, `columnHeaderLabel`), column-aware `<thead>` / `<tbody>` rendering using `data-testid="detail-col-header-{c}"` / `"detail-cell-{c}-{id}"` selectors. Default columns when `displayFormat` is absent or empty: `["name", "type", "path"]` (preserves existing UI behaviour).                                                                                                                                                                                      | ✅ Constitution II (column ids mirror `PSX_DISPLAYFORMATPROPERTY_VIEW` rows + `PSFolderProperties` fields; no invented fields). |
+| `WebUI/src/main/ts/contentExplorer/messages.ts`         | Adds 4 i18n keys: `COL_MODIFIED`, `COL_TITLE`, `COL_CATEGORY`, `COL_WORKFLOW` (existing `COL_NAME` / `COL_TYPE` / `COL_PATH` reused).                                                                                                                                                                                                                                                                                                                                                                                                                                                                            | ✅                                                                                                                              |
+| `WebUI/src/test/ts/contentExplorer/DetailList.test.tsx` | Adds second `describe` block "T092b / FR-027: display-format column resolution" with 8 tests: default fallback, supplied-order + dedup, unknown-id filter, per-cell renderer for every supported column id, null-optional-field tolerance, translated headers, end-to-end render in supplied order with axe-core a11y gate, end-to-end render of default columns with axe-core a11y gate. Corrects 6 pre-existing mock responses to use the wire shape `{ PagedItemList: { childrenInPage, childrenCount, startIndex } }` (the shape `paginatedFolder()` actually unwraps — documented at `pathApi.ts:124-136`). | ✅ Constitution III (behavioral tests).                                                                                         |
+| `specs/992-react-content-explorer/tasks.md`             | Adds T092b entry with implementation note + test evidence + pre-existing-failure annotation.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     | ✅                                                                                                                              |
 
 ### Constitutional compliance
 
-| Constraint | Compliance |
-|------------|------------|
-| I (no invariants violated) | ✅ — `DetailList` public surface extended with optional `displayFormat` prop; existing callers unaffected (default columns preserve prior UI). |
-| II (no invented APIs) | ✅ — column ids map to live `PSPathItem` fields (name / type / path / title / category) + future `PSFolderProperties` fields (modified / workflow). Documented inline as future API surface; not invoked from production paths. |
-| III (behavioral tests) | ✅ — 8/8 new T092b Vitest tests passing; 5/6 pre-existing DetailList tests now pass after wire-shape fix (1 pre-existing failure remains, out of scope). |
-| IV (service-contract tests) | ✅ N/A — no Java / API contract changes; WebUI consumer-only. |
-| V (Plan / Complexity) | ✅ — 1 component file extended + 1 helper-extracted helpers + 4 i18n keys + 8 tests + 1 task entry. No new deps. |
-| VI (threat-model note) | ✅ N/A — no new network surface, no new auth flow, no new field-with-PII. |
-| VII (format checks) | ✅ — `npx tsc --noEmit` clean; `npx vitest run ../../test/ts/contentExplorer/DetailList.test.tsx` = 13/14 (1 pre-existing). lint skip documented (script broken pre-existing on `development`). |
-| IX (review-thread resolution per PR) | ✅ N/A — first commit on fresh branch; review-thread resolution will fire on the PR per constitution IX convention. |
-| E (no residuals out of spec phases) | ✅ — T092b is the FR-027 implementation referenced in the US8 amendment; closing it leaves FR-027, FR-029, and the matrix P-Adv row text aligned. T092c / T092d / T092e remain open and tracked. |
+|              Constraint              |                                                                                                           Compliance                                                                                                           |
+|--------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| I (no invariants violated)           | ✅ — `DetailList` public surface extended with optional `displayFormat` prop; existing callers unaffected (default columns preserve prior UI).                                                                                  |
+| II (no invented APIs)                | ✅ — column ids map to live `PSPathItem` fields (name / type / path / title / category) + future `PSFolderProperties` fields (modified / workflow). Documented inline as future API surface; not invoked from production paths. |
+| III (behavioral tests)               | ✅ — 8/8 new T092b Vitest tests passing; 5/6 pre-existing DetailList tests now pass after wire-shape fix (1 pre-existing failure remains, out of scope).                                                                        |
+| IV (service-contract tests)          | ✅ N/A — no Java / API contract changes; WebUI consumer-only.                                                                                                                                                                   |
+| V (Plan / Complexity)                | ✅ — 1 component file extended + 1 helper-extracted helpers + 4 i18n keys + 8 tests + 1 task entry. No new deps.                                                                                                                |
+| VI (threat-model note)               | ✅ N/A — no new network surface, no new auth flow, no new field-with-PII.                                                                                                                                                       |
+| VII (format checks)                  | ✅ — `npx tsc --noEmit` clean; `npx vitest run ../../test/ts/contentExplorer/DetailList.test.tsx` = 13/14 (1 pre-existing). lint skip documented (script broken pre-existing on `development`).                                 |
+| IX (review-thread resolution per PR) | ✅ N/A — first commit on fresh branch; review-thread resolution will fire on the PR per constitution IX convention.                                                                                                             |
+| E (no residuals out of spec phases)  | ✅ — T092b is the FR-027 implementation referenced in the US8 amendment; closing it leaves FR-027, FR-029, and the matrix P-Adv row text aligned. T092c / T092d / T092e remain open and tracked.                                |
 
 ### Cross-platform / portability
 
@@ -60,14 +60,14 @@ No file I/O, no path construction, no OS-specific concerns added or removed. The
 
 ### ER-typed summary
 
-| Category | Count |
-|----------|------:|
-| Blocking bugs | 0 |
-| Bugs caught-and-fixed-in-session | 2 (rules-of-hooks, non-iterable guard) |
-| Non-blocking observations | 3 (1 future-API-surface, 1 pre-existing test failure, 1 lint script bug) |
-| Style cleanups | 0 |
-| Cross-platform portability findings | 0 |
-| Constitution rule violations | 0 |
+|              Category               |                                                                    Count |
+|-------------------------------------|-------------------------------------------------------------------------:|
+| Blocking bugs                       |                                                                        0 |
+| Bugs caught-and-fixed-in-session    |                                   2 (rules-of-hooks, non-iterable guard) |
+| Non-blocking observations           | 3 (1 future-API-surface, 1 pre-existing test failure, 1 lint script bug) |
+| Style cleanups                      |                                                                        0 |
+| Cross-platform portability findings |                                                                        0 |
+| Constitution rule violations        |                                                                        0 |
 
 ---
 

@@ -19,7 +19,10 @@ describe("PercRedirectHandler createDialogHtml (DOM text as HTML)", () => {
   ];
 
   for (const srcPath of paths) {
-    it(`${srcPath.split("/").slice(-3).join("/")} uses .text(getRelativePath(...)) not HTML concat`, () => {
+    it(`${srcPath
+      .split("/")
+      .slice(-3)
+      .join("/")} uses .text(getRelativePath(...)) not HTML concat`, () => {
       const src = readFileSync(srcPath, "utf8");
       expect(src).not.toMatch(
         /readonlyinput['"]?\s*>\s*['"]\s*\+\s*getRelativePath/

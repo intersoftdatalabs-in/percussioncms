@@ -5,12 +5,12 @@
 
 ## Residual jQuery paths (intentional — remain after shell cutover)
 
-| Caller | Service | Paths |
-|--------|---------|--------|
-| `PercPageView.js` | `PercItemPublisherService` | publish now, takedown, stage, unstage, schedule, actions |
-| `PercFinderView.js` | same | same actions from finder context menu |
-| `PercScheduleDialog.js` | schedule get/set | schedule dates API |
-| `PercPublishingHistoryDialog.js` | history table | item publish history (dialog stays jQuery) |
+|              Caller              |          Service           |                          Paths                           |
+|----------------------------------|----------------------------|----------------------------------------------------------|
+| `PercPageView.js`                | `PercItemPublisherService` | publish now, takedown, stage, unstage, schedule, actions |
+| `PercFinderView.js`              | same                       | same actions from finder context menu                    |
+| `PercScheduleDialog.js`          | schedule get/set           | schedule dates API                                       |
+| `PercPublishingHistoryDialog.js` | history table              | item publish history (dialog stays jQuery)               |
 
 ## REST (unchanged)
 
@@ -35,3 +35,4 @@ Legacy dialog may call `window.location` to that href when opening job context (
 
 - Full React rewrite of finder/editor publish-now menus
 - Changing server publish-now rules
+

@@ -48,8 +48,8 @@ public class PSHyperlinkListener implements ChangeListener<State>, EventListener
   /**
    * Constructs the listener for the given web view.
    *
-   * @param webView the web view whose anchor clicks will be intercepted, may not be
-   *     <code>null</code>.
+   * @param webView the web view whose anchor clicks will be intercepted, may not be <code>null
+   *     </code>.
    */
   public PSHyperlinkListener(WebView webView) {
     this.webView = webView;

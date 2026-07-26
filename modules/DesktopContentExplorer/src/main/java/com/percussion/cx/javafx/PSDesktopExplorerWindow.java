@@ -46,10 +46,10 @@ import org.jetbrains.annotations.NotNull;
 
 /**
  * Base class for desktop explorer windows that host a JavaFX WebView inside a Swing JFrame and
- * coordinate state, selection, and the parent/child window relationship with the
- * {@link PSWindowManager}. Concrete subclasses provide the browser instance via
- * {@link #instanceOpen()} and may pre-validate the open request with
- * {@link #validateOpen(String, String, String, PSSelection, PSMenuAction)}.
+ * coordinate state, selection, and the parent/child window relationship with the {@link
+ * PSWindowManager}. Concrete subclasses provide the browser instance via {@link #instanceOpen()}
+ * and may pre-validate the open request with {@link #validateOpen(String, String, String,
+ * PSSelection, PSMenuAction)}.
  */
 public abstract class PSDesktopExplorerWindow extends JFrame {
   /**
@@ -149,8 +149,8 @@ public abstract class PSDesktopExplorerWindow extends JFrame {
 
   /**
    * Opens this window for the supplied menu action context, sizing and positioning it relative to
-   * its parent window (or centered on screen when no parent is registered), and registers a
-   * resize listener with the window manager.
+   * its parent window (or centered on screen when no parent is registered), and registers a resize
+   * listener with the window manager.
    *
    * @param parent the parent window's target identifier
    * @param mi_actionurl the URL the web view should load
@@ -217,8 +217,8 @@ public abstract class PSDesktopExplorerWindow extends JFrame {
   }
 
   /**
-   * Validates whether the window may be opened with the given context. Subclasses may refuse,
-   * for example, when required fields are missing.
+   * Validates whether the window may be opened with the given context. Subclasses may refuse, for
+   * example, when required fields are missing.
    *
    * @param mi_actionurl the URL the web view should load
    * @param mi_target the window target identifier
@@ -284,8 +284,8 @@ public abstract class PSDesktopExplorerWindow extends JFrame {
   }
 
   /**
-   * Returns the JavaScript window object for the loaded page by executing {@code window} in the
-   * web engine.
+   * Returns the JavaScript window object for the loaded page by executing {@code window} in the web
+   * engine.
    *
    * @return the JavaScript window object for the loaded page
    */
@@ -326,8 +326,8 @@ public abstract class PSDesktopExplorerWindow extends JFrame {
   }
 
   /**
-   * Asks the parent window to reload itself with the supplied parameters on the AWT event
-   * dispatch thread.
+   * Asks the parent window to reload itself with the supplied parameters on the AWT event dispatch
+   * thread.
    *
    * @param newParams the parameters to forward to the parent window's reload
    */
@@ -424,9 +424,7 @@ public abstract class PSDesktopExplorerWindow extends JFrame {
     }
   }
 
-  /**
-   * Loads and injects the Firebug Lite bookmarklet into the page when Firebug mode is enabled.
-   */
+  /** Loads and injects the Firebug Lite bookmarklet into the page when Firebug mode is enabled. */
   public void showFirebug() {
     getEngine()
         .executeScript(

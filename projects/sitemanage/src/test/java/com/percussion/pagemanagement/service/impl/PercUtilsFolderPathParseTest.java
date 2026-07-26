@@ -17,13 +17,13 @@ class PercUtilsFolderPathParseTest {
     Path root = resolve();
     for (String rel :
         List.of(
-            "WebUI/war/plugins/perc_utils.js",
-            "WebUI/src/main/webapp/cm/plugins/perc_utils.js")) {
+            "WebUI/war/plugins/perc_utils.js", "WebUI/src/main/webapp/cm/plugins/perc_utils.js")) {
       Path p = root.resolve(rel);
       if (!Files.isRegularFile(p)) fail(p.toString());
       String js = Files.readString(p, StandardCharsets.UTF_8);
       assertTrue(js.contains("result.PathItem.path.split"), rel);
-      assertTrue(js.contains("pth[pth.length - 1] === \"\""), rel + " trims trailing empty segment");
+      assertTrue(
+          js.contains("pth[pth.length - 1] === \"\""), rel + " trims trailing empty segment");
       // Defensive guard against a SUCCESS payload that lacks a PathItem
       // (kilo-code-bot WARNING on PR #1246).
       assertTrue(

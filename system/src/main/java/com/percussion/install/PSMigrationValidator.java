@@ -207,7 +207,8 @@ public final class PSMigrationValidator {
     return 0;
   }
 
-  private static String findQuotedTableName(Connection conn, String tableUpper) throws SQLException {
+  private static String findQuotedTableName(Connection conn, String tableUpper)
+      throws SQLException {
     DatabaseMetaData md = conn.getMetaData();
     try (ResultSet rs = md.getTables(null, null, "%", new String[] {"TABLE"})) {
       while (rs.next()) {
@@ -225,8 +226,8 @@ public final class PSMigrationValidator {
    *
    * @return error message or null if OK / not applicable
    */
-  private static String probeBooleanLike(
-      Connection source, Connection target, Set<String> tables) throws SQLException {
+  private static String probeBooleanLike(Connection source, Connection target, Set<String> tables)
+      throws SQLException {
     for (String table : tables) {
       ColumnRef col = findColumnOfTypes(source, table, Types.BOOLEAN, Types.BIT, Types.CHAR);
       if (col == null || (col.dataType == Types.CHAR && col.size > 1)) {
@@ -274,8 +275,8 @@ public final class PSMigrationValidator {
     return null;
   }
 
-  private static String probeNextNumber(
-      Connection source, Connection target, Set<String> tables) throws SQLException {
+  private static String probeNextNumber(Connection source, Connection target, Set<String> tables)
+      throws SQLException {
     if (!tables.contains("NEXTNUMBER")) {
       return null;
     }
@@ -354,8 +355,7 @@ public final class PSMigrationValidator {
           while (cols.next()) {
             int dt = cols.getInt("DATA_TYPE");
             if (want.contains(dt)) {
-              return new ColumnRef(
-                  cols.getString("COLUMN_NAME"), dt, cols.getInt("COLUMN_SIZE"));
+              return new ColumnRef(cols.getString("COLUMN_NAME"), dt, cols.getInt("COLUMN_SIZE"));
             }
           }
         }

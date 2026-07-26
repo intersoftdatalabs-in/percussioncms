@@ -36,8 +36,8 @@ import java.util.Properties;
 public final class PSRepositoryBackupGate {
 
   /**
-   * Primary UX property for external-backup confirmation (contracts/migration-upgrade.md).
-   * Value must be the string {@code true} (case-insensitive).
+   * Primary UX property for external-backup confirmation (contracts/migration-upgrade.md). Value
+   * must be the string {@code true} (case-insensitive).
    */
   public static final String EXTERNAL_BACKUP_CONFIRMED_PROPERTY =
       "perc.migration.externalBackupConfirmed";

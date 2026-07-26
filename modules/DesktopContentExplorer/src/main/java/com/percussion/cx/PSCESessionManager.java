@@ -311,9 +311,7 @@ public class PSCESessionManager implements Runnable {
     }
   }
 
-  /**
-   * Stops the session manager scheduler without disposing any open dialog.
-   */
+  /** Stops the session manager scheduler without disposing any open dialog. */
   public void stop() {
     ex.shutdown();
   }

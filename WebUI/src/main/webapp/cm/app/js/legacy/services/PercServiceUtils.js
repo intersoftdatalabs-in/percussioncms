@@ -19,15 +19,24 @@
  * Utility functions and constants for use with client services.
  */
 (function ($) {
-
-    if (typeof jQuery !== 'undefined') {
-        if (typeof jQuery.getDeliveryServiceBase !== 'function' && typeof window.percDeliveryServiceBase !== 'undefined') {
-            jQuery.getDeliveryServiceBase = function() { return window.percDeliveryServiceBase; };
-        }
-        if (typeof jQuery.getCMSVersion !== 'function' && typeof window.percCMSVersion !== 'undefined') {
-            jQuery.getCMSVersion = function() { return window.percCMSVersion; };
-        }
+  if (typeof jQuery !== "undefined") {
+    if (
+      typeof jQuery.getDeliveryServiceBase !== "function" &&
+      typeof window.percDeliveryServiceBase !== "undefined"
+    ) {
+      jQuery.getDeliveryServiceBase = function () {
+        return window.percDeliveryServiceBase;
+      };
     }
+    if (
+      typeof jQuery.getCMSVersion !== "function" &&
+      typeof window.percCMSVersion !== "undefined"
+    ) {
+      jQuery.getCMSVersion = function () {
+        return window.percCMSVersion;
+      };
+    }
+  }
 
   /**
    * Constant indicating a successful request.

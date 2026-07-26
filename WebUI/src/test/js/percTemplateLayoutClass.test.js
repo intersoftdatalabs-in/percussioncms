@@ -55,9 +55,7 @@ const SRC_PATH = resolve(
 
 function loadPercTemplateCodeHasClass() {
   const src = readFileSync(SRC_PATH, "utf8");
-  const match = /function percTemplateCodeHasClass\([\s\S]*?\n {2}}/.exec(
-    src
-  );
+  const match = /function percTemplateCodeHasClass\([\s\S]*?\n {2}}/.exec(src);
   if (!match) {
     throw new Error(
       "percTemplateCodeHasClass() not found in perc_template_layout_class.js " +

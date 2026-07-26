@@ -35,7 +35,8 @@ class DtsSystemdUnitTemplateTest {
 
   @BeforeAll
   static void load() throws Exception {
-    assertTrue(Files.isRegularFile(UNIT_TEMPLATE), () -> "missing " + UNIT_TEMPLATE.toAbsolutePath());
+    assertTrue(
+        Files.isRegularFile(UNIT_TEMPLATE), () -> "missing " + UNIT_TEMPLATE.toAbsolutePath());
     unitText = Files.readString(UNIT_TEMPLATE, StandardCharsets.UTF_8);
   }
 

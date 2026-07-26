@@ -142,22 +142,22 @@ persist on a volume. Product code and packaging should prefer writing runtime-ge
 or operator-mutable files under `var/config` (or paths that resolve there) rather than
 into the immutable distribution tree.
 
-| Path | Role |
-|------|------|
-| `var/config/` | Root for persistent, instance-specific config and writable artifacts |
-| `var/config/generated/` | Auto-generated secrets and similar (e.g. first-boot passwords) |
-| `var/config/generated/passwords` | Generated CMS credentials on first startup |
-| `var/config/CustomXMLCatalog.xml` | Instance XML catalog overrides (when present) |
+|               Path                |                                 Role                                 |
+|-----------------------------------|----------------------------------------------------------------------|
+| `var/config/`                     | Root for persistent, instance-specific config and writable artifacts |
+| `var/config/generated/`           | Auto-generated secrets and similar (e.g. first-boot passwords)       |
+| `var/config/generated/passwords`  | Generated CMS credentials on first startup                           |
+| `var/config/CustomXMLCatalog.xml` | Instance XML catalog overrides (when present)                        |
 
 **Also treated as persistent / user-writable** (and often volume-mounted next to or via
 the same durability strategy as `var/`):
 
-| Path | Role |
-|------|------|
-| `ObjectStore/` | CMS object store (design-time apps, content editor defs, etc.) |
-| `rxconfig/` | Server runtime config (Installer, I18n, ESAPI, categories, …) |
-| `jetty/base/` | Jetty base (logs, webapps overlay, runtime jetty config) |
-| `Deployment/Server/conf/` | DTS Tomcat/conf and perc datasources |
+|           Path            |                              Role                              |
+|---------------------------|----------------------------------------------------------------|
+| `ObjectStore/`            | CMS object store (design-time apps, content editor defs, etc.) |
+| `rxconfig/`               | Server runtime config (Installer, I18n, ESAPI, categories, …)  |
+| `jetty/base/`             | Jetty base (logs, webapps overlay, runtime jetty config)       |
+| `Deployment/Server/conf/` | DTS Tomcat/conf and perc datasources                           |
 
 When adding new features that write files at runtime (generated passwords, locks,
 catalogs, local overrides), put them under **`var/config`** (or a clearly versioned

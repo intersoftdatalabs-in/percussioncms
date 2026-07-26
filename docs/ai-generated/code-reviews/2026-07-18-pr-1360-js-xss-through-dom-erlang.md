@@ -6,7 +6,7 @@
 **Branch:** `004/us3-js-xss-through-dom-dom-text`  
 **Head:** `85bf50742802bef8cdb7f1a1c4dcc7785e782e25`  
 **Base:** `origin/development` (`78b1465f9b8b4daeace4c5434cd9d91fff106a5f`)  
-**PR:** https://github.com/intersoftdatalabs-in/percussioncms/pull/1360  
+**PR:** https://github.com/intersoftdatalabs-in/percussioncms/pull/1360
 
 ## Summary
 
@@ -29,37 +29,37 @@ PR #1360 closes product CodeQL **high** `js/xss-through-dom` (DOM text reinterpr
 
 ### Changed files (review coverage)
 
-| Path | Intent |
-|------|--------|
-| `.github/codeql/codeql-config.yml` | Path `query-filters` exclude for both imageSlider copies (`js/xss-through-dom`) |
-| `WebUI/.../legacy/plugins/PercRedirectHandler.js` | Dialog: jQuery factories + `.text(getRelativePath(...))` |
-| `WebUI/war/plugins/PercRedirectHandler.js` | Lockstep war copy of redirect dialog fix |
-| `WebUI/.../legacy/views/PercUserView.js` | Role transfer options: `.html` → `.text` |
-| `WebUI/war/views/PercUserView.js` | Lockstep war copy |
-| `WebUI/src/test/js/percUserView.test.js` | Source-pattern lockstep residual for role-transfer sinks |
-| `WebUI/src/test/js/percRedirectHandlerDomText.test.js` | Source-pattern anti-concat for plugins + legacy |
-| `WebUI/src/test/js/percRssAndMostReadDomText.test.js` | Source-pattern RSS + mirrored heading allow-list unit |
-| `WebUI/src/test/js/percFormViewDomText.test.js` | Source-pattern form metadata escape incl. `saveToUrl` |
-| `modules/perc-common-ui-bundle/.../PercRssView.js` | Description plain-text + escape before HTML embed |
-| `modules/perc-common-ui-bundle/.../PercMostReadBlogPostsView.js` | `safeHeadingTag` whitelist |
-| `.../perc.widget.directory/.../perc-directory.js` | Options via `.val().text()` |
-| `.../perc.widget.form/.../PercFormController.js` | Form element factory (no name-in-HTML-string) |
-| `.../perc.widget.form/.../PercFormView.js` | Escape all read-only metadata fields incl. `saveToUrl` |
-| `.../imageSlider/.../percImageSlider.js` ×2 | Factory img + `safeThumbnailSrc` + sink-line suppress |
-| `.../socialButtons/.../percSocialButtons.js` ×2 | CSS-safe platform token for class selectors |
-| `.../lightbox/lightbox.js` | Filter by attr equality, not selector concat |
-| `.../percglobalvariables/plugin.js` | Regex title extract + `escAttr` |
+|                               Path                               |                                     Intent                                      |
+|------------------------------------------------------------------|---------------------------------------------------------------------------------|
+| `.github/codeql/codeql-config.yml`                               | Path `query-filters` exclude for both imageSlider copies (`js/xss-through-dom`) |
+| `WebUI/.../legacy/plugins/PercRedirectHandler.js`                | Dialog: jQuery factories + `.text(getRelativePath(...))`                        |
+| `WebUI/war/plugins/PercRedirectHandler.js`                       | Lockstep war copy of redirect dialog fix                                        |
+| `WebUI/.../legacy/views/PercUserView.js`                         | Role transfer options: `.html` → `.text`                                        |
+| `WebUI/war/views/PercUserView.js`                                | Lockstep war copy                                                               |
+| `WebUI/src/test/js/percUserView.test.js`                         | Source-pattern lockstep residual for role-transfer sinks                        |
+| `WebUI/src/test/js/percRedirectHandlerDomText.test.js`           | Source-pattern anti-concat for plugins + legacy                                 |
+| `WebUI/src/test/js/percRssAndMostReadDomText.test.js`            | Source-pattern RSS + mirrored heading allow-list unit                           |
+| `WebUI/src/test/js/percFormViewDomText.test.js`                  | Source-pattern form metadata escape incl. `saveToUrl`                           |
+| `modules/perc-common-ui-bundle/.../PercRssView.js`               | Description plain-text + escape before HTML embed                               |
+| `modules/perc-common-ui-bundle/.../PercMostReadBlogPostsView.js` | `safeHeadingTag` whitelist                                                      |
+| `.../perc.widget.directory/.../perc-directory.js`                | Options via `.val().text()`                                                     |
+| `.../perc.widget.form/.../PercFormController.js`                 | Form element factory (no name-in-HTML-string)                                   |
+| `.../perc.widget.form/.../PercFormView.js`                       | Escape all read-only metadata fields incl. `saveToUrl`                          |
+| `.../imageSlider/.../percImageSlider.js` ×2                      | Factory img + `safeThumbnailSrc` + sink-line suppress                           |
+| `.../socialButtons/.../percSocialButtons.js` ×2                  | CSS-safe platform token for class selectors                                     |
+| `.../lightbox/lightbox.js`                                       | Filter by attr equality, not selector concat                                    |
+| `.../percglobalvariables/plugin.js`                              | Regex title extract + `escAttr`                                                 |
 
 ### Lockstep verification (task-specific)
 
-| Asset set | Copies | In sync? |
-|-----------|--------|----------|
-| imageSlider `percImageSlider.js` | SupportFile + sys__UserDependency | **Yes** — same `safeThumbnailSrc` + `.attr("src", safe…)` pattern at both thumbnail sites |
-| socialButtons `percSocialButtons.js` | SupportFile + sys__UserDependency | **Yes** — same `safePlatform` replace + selector usage |
-| PercRedirectHandler | main `cm/plugins` (already safe), legacy (this PR), war (this PR) | **Yes** for security semantics (war style differs slightly; both use `.text(getRelativePath(...))`) |
-| PercUserView | main `cm/views` (already `.text`), legacy + war (this PR) | **Yes** for role-transfer sinks |
-| directory `perc-directory.js` | Single web_resources path (no SupportFile twin for this file) | N/A |
-| form PercFormView/Controller | SupportFile only (no UserDependency JS twin) | N/A |
+|              Asset set               |                              Copies                               |                                              In sync?                                               |
+|--------------------------------------|-------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------|
+| imageSlider `percImageSlider.js`     | SupportFile + sys__UserDependency                                 | **Yes** — same `safeThumbnailSrc` + `.attr("src", safe…)` pattern at both thumbnail sites           |
+| socialButtons `percSocialButtons.js` | SupportFile + sys__UserDependency                                 | **Yes** — same `safePlatform` replace + selector usage                                              |
+| PercRedirectHandler                  | main `cm/plugins` (already safe), legacy (this PR), war (this PR) | **Yes** for security semantics (war style differs slightly; both use `.text(getRelativePath(...))`) |
+| PercUserView                         | main `cm/views` (already `.text`), legacy + war (this PR)         | **Yes** for role-transfer sinks                                                                     |
+| directory `perc-directory.js`        | Single web_resources path (no SupportFile twin for this file)     | N/A                                                                                                 |
+| form PercFormView/Controller         | SupportFile only (no UserDependency JS twin)                      | N/A                                                                                                 |
 
 ### Kilo / CodeQL residual notes
 
@@ -148,14 +148,14 @@ Do not merge until blocking issues are fixed and Erlang re-reviews the fix pack.
 
 Applied (diff touches tests that resolve filesystem paths; no installer/packaging I/O).
 
-| Check | Outcome |
-|-------|---------|
+|                         Check                          |                   Outcome                    |
+|--------------------------------------------------------|----------------------------------------------|
 | Hardcoded `/` or `\\` filesystem joins in product code | **No issues** (URL/CSS/class selectors only) |
-| Tests use `path.resolve` / `dirname` / `fileURLToPath` | **OK** (portable Node path APIs) |
-| `srcPath.split("/")` in test display names | **Not a gate** (display only; not FS open) |
-| Unix-only roots / Windows-only drives | **No issues** |
-| Line-ending assertions | **No issues** |
-| Required Unix-only scripts | **No issues** |
+| Tests use `path.resolve` / `dirname` / `fileURLToPath` | **OK** (portable Node path APIs)             |
+| `srcPath.split("/")` in test display names             | **Not a gate** (display only; not FS open)   |
+| Unix-only roots / Windows-only drives                  | **No issues**                                |
+| Line-ending assertions                                 | **No issues**                                |
+| Required Unix-only scripts                             | **No issues**                                |
 
 **Cross-platform path review: no issues.**
 
@@ -184,3 +184,4 @@ Applied (diff touches tests that resolve filesystem paths; no installer/packagin
 3. Fix Issue 1 (behavioral tests for `safeThumbnailSrc`) and Issue 2 (`suppressions.md` rows) first; re-run Vitest WebUI suite; re-run Erlang.
 4. Durable report: `docs/ai-generated/code-reviews/2026-07-18-pr-1360-js-xss-through-dom-erlang.md`
 5. After code fixes, complete PR thread resolve protocol for remaining CodeQL residual threads.
+

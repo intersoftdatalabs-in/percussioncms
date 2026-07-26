@@ -43,9 +43,10 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 // src/test/js -> frontend root scripts/
-const builder = require(
-  path.resolve(__dirname, "../../../scripts/build-legacy-bundles.js")
-);
+const builder = require(path.resolve(
+  __dirname,
+  "../../../scripts/build-legacy-bundles.js"
+));
 
 const {
   WAR_DIR,

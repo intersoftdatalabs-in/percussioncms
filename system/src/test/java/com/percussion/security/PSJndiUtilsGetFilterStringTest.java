@@ -49,8 +49,7 @@ class PSJndiUtilsGetFilterStringTest {
 
       // Must not contain a raw clause break: unescaped ")(" would allow injection.
       assertFalse(
-          filter.contains(")("),
-          "filter must not contain raw )( clause break; got: " + filter);
+          filter.contains(")("), "filter must not contain raw )( clause break; got: " + filter);
       assertTrue(filter.contains("\\2a"), "asterisk must be hex-escaped: " + filter);
       assertTrue(filter.contains("\\28"), "open paren must be hex-escaped: " + filter);
       assertTrue(filter.contains("\\29"), "close paren must be hex-escaped: " + filter);
@@ -82,8 +81,7 @@ class PSJndiUtilsGetFilterStringTest {
     @DisplayName("base filter is AND-combined without re-escaping config text")
     void testBaseFilterCombined() throws PSSecurityException {
       String filter =
-          PSJndiUtils.getFilterString(
-              new String[] {"Editors"}, ATTR, "(objectClass=groupOfNames)");
+          PSJndiUtils.getFilterString(new String[] {"Editors"}, ATTR, "(objectClass=groupOfNames)");
       assertEquals("(& (| (cn=Editors)) (objectClass=groupOfNames))", filter);
     }
   }
@@ -119,7 +117,8 @@ class PSJndiUtilsGetFilterStringTest {
     @DisplayName("attr with filter metacharacters is escaped (misconfig defense)")
     void testAttrMetacharactersEscaped() throws PSSecurityException {
       // Misconfigured attr name must not break filter structure.
-      String filter = PSJndiUtils.getFilterString(new String[] {"Editors"}, "cn)(objectClass=*", null);
+      String filter =
+          PSJndiUtils.getFilterString(new String[] {"Editors"}, "cn)(objectClass=*", null);
       assertFalse(filter.contains(")("), "attr metacharacters must be hex-escaped: " + filter);
       assertTrue(filter.contains("\\29"), "close paren in attr must be escaped: " + filter);
       assertTrue(filter.contains("\\28"), "open paren in attr must be escaped: " + filter);

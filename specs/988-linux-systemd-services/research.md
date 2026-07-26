@@ -39,6 +39,7 @@
 ## R5 — Installer detection and coexistence
 
 **Decision**:
+
 ```text
 if systemd is active (systemctl available && /run/systemd/system exists)
   → install unit to /etc/systemd/system/<name>.service

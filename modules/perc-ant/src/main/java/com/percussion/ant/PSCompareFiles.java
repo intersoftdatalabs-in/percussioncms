@@ -27,9 +27,7 @@ import org.apache.tools.ant.Task;
  * from directory two.
  */
 public class PSCompareFiles extends Task {
-  /**
-   * Creates a new file comparison task.
-   */
+  /** Creates a new file comparison task. */
   public PSCompareFiles() {}
 
   /**

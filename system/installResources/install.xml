@@ -830,8 +830,9 @@
 					file="${releasedir}/src/com/percussion/rxupgrade/rxPreUpgradePlugins.xml" />
 				<PSUpgrade upgradeFileNames="rxPreUpgradePlugins.xml" />
 				<!-- Hard-fail gate: same migrator; throws BuildException if FAILED/blocked -->
-				<PSMigrateEmbeddedRepository rootDir="${install.dir}"
-					performProductBackup="true" failOnBlock="true" />
+				<PSMigrateEmbeddedRepository
+					rootDir="${install.dir}" performProductBackup="true"
+					failOnBlock="true" />
 
 				<if>
 					<isSet property="VERSION_50_TO_57" />
@@ -996,8 +997,9 @@
 							inheritall="true" />
 
 						<!-- #548: ensure Derby→H2 before plugins that use the repository -->
-						<PSMigrateEmbeddedRepository rootDir="${install.dir}"
-							performProductBackup="true" failOnBlock="true" />
+						<PSMigrateEmbeddedRepository
+							rootDir="${install.dir}" performProductBackup="true"
+							failOnBlock="true" />
 						<!-- Run Upgrade Plugins -->
 						<PSUpgrade
 							upgradeFileNames="rxupgrade.xml,rxOrphanedDataCleanupPlugins.xml" />

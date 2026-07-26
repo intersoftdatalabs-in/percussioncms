@@ -22,7 +22,6 @@ import java.lang.reflect.Field;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
-
 import org.junit.jupiter.api.Test;
 
 class PSFormatVersionTest {

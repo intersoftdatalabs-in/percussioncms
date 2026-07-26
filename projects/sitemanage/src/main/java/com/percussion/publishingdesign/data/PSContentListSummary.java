@@ -24,8 +24,10 @@ public class PSContentListSummary {
   private String contentListId;
   private String name;
   private String description;
+
   /** modern | legacy | unknown */
   private String listType;
+
   private String generator;
   private String url;
 

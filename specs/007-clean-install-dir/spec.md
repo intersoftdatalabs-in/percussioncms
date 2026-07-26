@@ -167,3 +167,4 @@ After cleanup (or when cleanup is skipped), the operator can tell from install o
 - Ability to distinguish **upgrade** vs **new install** in the existing installer (already present for other upgrade behaviors).
 - Accurate curated list of obsolete relative paths validated against current 8.x upgrade scripts; cleanup runs early so remaining upgrade steps must not require those paths after deletion.
 - Issue tracking: [#1157](https://github.com/intersoftdatalabs-in/percussioncms/issues/1157).
+

@@ -50,13 +50,13 @@ Lines 695–704 wrap the MySQL driver copy in an `<if><equals arg1="${DEVELOPMEN
 
 **Decision**: Ship the canonical JDBC driver set in `jetty/base/lib/jdbc/` for every production build of `modules/perc-distribution-tree`:
 
-| Driver | Coordinate | Source of truth |
-|--------|-----------|-----------------|
-| MariaDB / MySQL (default repository) | `org.mariadb.jdbc:mariadb-java-client` | `deliverytiersuite/delivery-tier-suite/pom.xml` `${mariadb.version}` (`3.5.7`) |
-| Derby (embedded/dev) | `org.apache.derby:derby`, `derbyclient`, `derbynet` | `modules/perc-jetty-jars/pom.xml` (move to root management in this PR) |
-| MS SQL Server (modern) | `com.microsoft.sqlserver:mssql-jdbc` | root `pom.xml` `${mssql.version}` |
-| MS SQL Server (legacy jTDS) | `net.sourceforge.jtds:jtds` | root `pom.xml` `${jtds.version}` |
-| Oracle | `com.oracle.database.jdbc:ojdbc17` | root `pom.xml` (`23.26.0.0.0`) |
+|                Driver                |                     Coordinate                      |                                Source of truth                                 |
+|--------------------------------------|-----------------------------------------------------|--------------------------------------------------------------------------------|
+| MariaDB / MySQL (default repository) | `org.mariadb.jdbc:mariadb-java-client`              | `deliverytiersuite/delivery-tier-suite/pom.xml` `${mariadb.version}` (`3.5.7`) |
+| Derby (embedded/dev)                 | `org.apache.derby:derby`, `derbyclient`, `derbynet` | `modules/perc-jetty-jars/pom.xml` (move to root management in this PR)         |
+| MS SQL Server (modern)               | `com.microsoft.sqlserver:mssql-jdbc`                | root `pom.xml` `${mssql.version}`                                              |
+| MS SQL Server (legacy jTDS)          | `net.sourceforge.jtds:jtds`                         | root `pom.xml` `${jtds.version}`                                               |
+| Oracle                               | `com.oracle.database.jdbc:ojdbc17`                  | root `pom.xml` (`23.26.0.0.0`)                                                 |
 
 **Rationale**: This matches the set `deliverytiersuite/delivery-tier-distribution` already ships for DTS and the set declared (but never properly packaged) in `modules/perc-jetty-jars`. MariaDB is added because it is the CMS default repository. The set covers every database backend the CMS installer scripts (`install.xml`, `installServer.xml`, `installRepository.xml`) accept.
 
@@ -100,12 +100,12 @@ Per module AGENTS convention, scripts live under `scripts/` with a README. The s
 
 ## Resolved Items (NEEDS CLARIFICATION → Decision)
 
-| # | Original Need | Resolution |
-|---|---------------|------------|
+| # |                              Original Need                               |                                                                           Resolution                                                                            |
+|---|--------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | 1 | Where does the bundled driver physically come from in production builds? | Maven coordinates managed in parent POM / DTS POM, copied via `maven-dependency-plugin:copy` into a staging dir, then ANT `<copy>` into `jetty/base/lib/jdbc/`. |
-| 2 | Which drivers must ship by default? | MariaDB (default), Derby, MSSQL (modern + jTDS), Oracle. |
-| 3 | How do we ensure FR-003 (loud failure)? | `failOnAnyMissingDependency=true` on the copy step + ANT `<copy>` failing on missing source. |
-| 4 | What about `DEVELOPMENT=true`? | Preserved as-is; legacy path adds extra dev driver on top of the unconditional production set. |
+| 2 | Which drivers must ship by default?                                      | MariaDB (default), Derby, MSSQL (modern + jTDS), Oracle.                                                                                                        |
+| 3 | How do we ensure FR-003 (loud failure)?                                  | `failOnAnyMissingDependency=true` on the copy step + ANT `<copy>` failing on missing source.                                                                    |
+| 4 | What about `DEVELOPMENT=true`?                                           | Preserved as-is; legacy path adds extra dev driver on top of the unconditional production set.                                                                  |
 
 ## Open / Deferred Items (none blocking)
 
@@ -135,3 +135,4 @@ None. All originally-ambiguous items resolved.
 - `pom.xml:1475-1489, 1245-1247` — root driver management (Oracle, jtds, mssql, sqlite)
 - `.specify/memory/constitution.md` — governing principles
 - `modules/perc-distribution-tree/AGENTS.md` — module-specific agent guidelines
+

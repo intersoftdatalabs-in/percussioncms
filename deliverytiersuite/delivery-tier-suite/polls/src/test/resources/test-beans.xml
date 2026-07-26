@@ -36,9 +36,8 @@
 			<props>
 				<!-- Global and database-agnostic Hibernate properties -->
 
-				<!-- Apache Derby -->
+				<!-- H2 in-memory database for tests -->
 				<prop key="jdbcUrl">jdbc:h2:mem:percpolls;DB_CLOSE_DELAY=-1</prop>
-				<!-- Keep Derby driver default aligned with other modules -->
 				<prop key="jdbcDriver">org.h2.Driver</prop>
 				<prop key="db.username">test</prop>
 				<prop key="db.password">test</prop>

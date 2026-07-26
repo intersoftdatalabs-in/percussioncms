@@ -3,10 +3,10 @@
 Production and Staging DTS installers prefer a **native systemd unit** when
 systemd is available (same approach as CMS Jetty / GH-962).
 
-| Installer | Default service name |
-|-----------|----------------------|
+|         Installer         |   Default service name    |
+|---------------------------|---------------------------|
 | `DTSProductionService.sh` | `PercussionProductionDTS` |
-| `DTSStagingService.sh` | `PercussionStagingDTS` |
+| `DTSStagingService.sh`    | `PercussionStagingDTS`    |
 
 ## Install
 
@@ -41,8 +41,8 @@ sudo ./DTSStagingService.sh [ServiceName] uninstall
 
 ## Migration from init.d-only
 
-1. Uninstall the old service  
-2. Re-run install (picks systemd when available)  
+1. Uninstall the old service
+2. Re-run install (picks systemd when available)
 3. `systemctl start <ServiceName>`
 
 ## Windows

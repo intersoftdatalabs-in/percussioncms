@@ -220,8 +220,8 @@ public class PSDisplayFormatTableModel extends PSTableModel {
    *
    * @param node the node in which the check will be made, may be <code>null</code> in which case
    *     <code>-1</code> will be returned.
-   * @param actionManager the action manager used to look up the display format, assumed not
-   *     <code>null</code>.
+   * @param actionManager the action manager used to look up the display format, assumed not <code>
+   *     null</code>.
    * @return the index of sys_title, <code>-1</code> if not found.
    */
   public static int getSysTitleIndex(PSNode node, PSActionManager actionManager) {

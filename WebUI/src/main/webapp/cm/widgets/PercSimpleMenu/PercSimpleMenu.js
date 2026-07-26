@@ -93,8 +93,8 @@
           label && label.jquery
             ? label
             : typeof label === "object" && label && label.nodeType
-              ? label
-              : $("<span>").text(label == null ? "" : String(label))
+            ? label
+            : $("<span>").text(label == null ? "" : String(label))
         )
         .addClass(menuItemClass)
         .data("callback", callback)

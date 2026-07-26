@@ -54,8 +54,7 @@ public final class PSMigrationSecretsRedactor {
     result = JDBC_USERINFO.matcher(result).replaceAll("$1$2:" + REDACTED + "@");
     // Property-file style PWD=value on its own line or fragment
     if (result.toLowerCase(Locale.ROOT).contains("pwd=")) {
-      result =
-          result.replaceAll("(?i)(PWD\\s*=\\s*)([^\\s\\r\\n]*)", "$1" + REDACTED);
+      result = result.replaceAll("(?i)(PWD\\s*=\\s*)([^\\s\\r\\n]*)", "$1" + REDACTED);
     }
     return result;
   }

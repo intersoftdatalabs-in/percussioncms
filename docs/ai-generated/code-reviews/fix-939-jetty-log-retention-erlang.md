@@ -48,9 +48,10 @@ property, structural JUnit coverage, and docs.
 
 ## Files
 
-| Path | Role |
-|------|------|
-| `…/perc-logging/resources/log4j2.xml` | Delete retention + logdir property |
-| `…/PercLoggingLog4j2ConfigTest.java` | Structural contract tests |
-| `modules/perc-jetty/pom.xml` | junit + test bindings (packaging=pom) |
-| `README.md` / `AGENTS.md` | Operator / agent notes |
+|                 Path                  |                 Role                  |
+|---------------------------------------|---------------------------------------|
+| `…/perc-logging/resources/log4j2.xml` | Delete retention + logdir property    |
+| `…/PercLoggingLog4j2ConfigTest.java`  | Structural contract tests             |
+| `modules/perc-jetty/pom.xml`          | junit + test bindings (packaging=pom) |
+| `README.md` / `AGENTS.md`             | Operator / agent notes                |
+

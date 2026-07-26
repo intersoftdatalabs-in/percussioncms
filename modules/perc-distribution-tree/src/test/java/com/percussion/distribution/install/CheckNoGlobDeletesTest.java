@@ -112,14 +112,14 @@ class CheckNoGlobDeletesTest {
         java.nio.charset.StandardCharsets.UTF_8);
 
     IOException ex =
-        assertThrows(
-            IOException.class, () -> CheckNoGlobDeletes.collectGlobsInDeleteBlock(xml));
+        assertThrows(IOException.class, () -> CheckNoGlobDeletes.collectGlobsInDeleteBlock(xml));
     assertNotNull(ex.getMessage());
     assertTrue(ex.getMessage().contains("install_jdbc_drivers"), ex.getMessage());
   }
 
   @Test
-  @DisplayName("End-to-end on the real shipped install.xml returns no globs (current install expectations)")
+  @DisplayName(
+      "End-to-end on the real shipped install.xml returns no globs (current install expectations)")
   void shippedInstallXmlHasNoGlobs() throws Exception {
     // Uses multi-candidate resolution (CWD, basedir, monorepo walk) so the assertion still
     // runs when surefire's user.dir is not the module root. We do NOT silently skip when

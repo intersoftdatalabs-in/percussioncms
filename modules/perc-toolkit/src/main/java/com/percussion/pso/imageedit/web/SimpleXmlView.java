@@ -79,9 +79,7 @@ public class SimpleXmlView extends AbstractView implements View {
     }
   }
 
-  /**
-   * Writes HTTP 500 with a constant body. Does not accept or rethrow exception text.
-   */
+  /** Writes HTTP 500 with a constant body. Does not accept or rethrow exception text. */
   private void writeGenericError(HttpServletResponse response) {
     try {
       response.resetBuffer();

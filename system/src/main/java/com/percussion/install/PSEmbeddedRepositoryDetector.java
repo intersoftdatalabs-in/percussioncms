@@ -97,8 +97,7 @@ public final class PSEmbeddedRepositoryDetector {
     if (PSJdbcUtils.H2_DRIVER.equalsIgnoreCase(driverName)) {
       return true;
     }
-    return driverClass != null
-        && driverClass.equalsIgnoreCase(PSJdbcUtils.H2_DRIVER_CLASS);
+    return driverClass != null && driverClass.equalsIgnoreCase(PSJdbcUtils.H2_DRIVER_CLASS);
   }
 
   private static boolean isDerby(String backend, String driverName, String driverClass) {

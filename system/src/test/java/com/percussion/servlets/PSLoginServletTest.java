@@ -58,8 +58,7 @@ public class PSLoginServletTest {
     request.setServerName("perc-test");
 
     assertEquals("/cm/app", PSLoginServlet.resolveSafePostLoginRedirect(request, "/cm/app"));
-    assertEquals(
-        "/cm/app", PSLoginServlet.resolveSafePostLoginRedirect(request, "\\cm\\app"));
+    assertEquals("/cm/app", PSLoginServlet.resolveSafePostLoginRedirect(request, "\\cm\\app"));
     // Default CMS index when blank / null
     assertEquals("index.jsp", PSLoginServlet.resolveSafePostLoginRedirect(request, null));
     assertEquals("index.jsp", PSLoginServlet.resolveSafePostLoginRedirect(request, "   "));
@@ -85,8 +84,7 @@ public class PSLoginServletTest {
         "index.jsp", PSLoginServlet.resolveSafePostLoginRedirect(request, "/../../etc/passwd"));
     // javascript: scheme (relative form rejected by colon rule)
     assertEquals(
-        "index.jsp",
-        PSLoginServlet.resolveSafePostLoginRedirect(request, "javascript:alert(1)"));
+        "index.jsp", PSLoginServlet.resolveSafePostLoginRedirect(request, "javascript:alert(1)"));
     // Same-host absolute is allowed
     assertEquals(
         "http://perc-test:9992/logout",
@@ -99,9 +97,9 @@ public class PSLoginServletTest {
     assertEquals("/admin", PSLoginServlet.validatePostLoginRedirectCandidate(request, "/admin"));
     assertNull(PSLoginServlet.validatePostLoginRedirectCandidate(request, "/../secret"));
     assertNull(
-        PSLoginServlet.validatePostLoginRedirectCandidate(
-            request, "http://evil.example/path"));
-    assertEquals("index.jsp", PSLoginServlet.validatePostLoginRedirectCandidate(request, "index.jsp"));
+        PSLoginServlet.validatePostLoginRedirectCandidate(request, "http://evil.example/path"));
+    assertEquals(
+        "index.jsp", PSLoginServlet.validatePostLoginRedirectCandidate(request, "index.jsp"));
   }
 
   @Test

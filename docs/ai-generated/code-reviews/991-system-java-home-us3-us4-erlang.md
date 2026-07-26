@@ -35,6 +35,7 @@ approve
 ## Issues
 
 ### Issue 1 -- Severity: suggestion
+
 - File: `deliverytiersuite/.../MainDTSPreInstall.java:129`
 - Description: The Java 21 validation reuses `JavaCandidateDiscovery.readVersion`
   (a release-file parser) instead of physically exec'ing the launcher.
@@ -50,6 +51,7 @@ approve
 - Status: open (non-blocking)
 
 ### Issue 2 -- Severity: nit
+
 - File: `modules/perc-distribution-tree/src/main/java/com/percussion/preinstall/Main.java:117`
 - Description: The preinstall still emits `perc.java.home=...` to stdout
   at the early stage before we know which home the runtime should use.

@@ -37,8 +37,7 @@ class WidgetRegistrySecureLoginDeprecationTest {
     try (InputStream in =
         Thread.currentThread()
             .getContextClassLoader()
-            .getResourceAsStream(
-                "com/percussion/pagemanagement/service/impl/WidgetRegistry.xml")) {
+            .getResourceAsStream("com/percussion/pagemanagement/service/impl/WidgetRegistry.xml")) {
       assertNotNull(in, "WidgetRegistry.xml must be on the classpath");
       xml = new String(in.readAllBytes(), StandardCharsets.UTF_8);
     }

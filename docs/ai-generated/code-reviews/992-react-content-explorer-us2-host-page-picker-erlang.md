@@ -6,12 +6,12 @@
 
 ## Files reviewed
 
-| File | Change |
-|------|--------|
+|                                                   File                                                   |                                                                                                                                                                                       Change                                                                                                                                                                                       |
+|----------------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | `WebUI/src/main/webapp/cm/app/pagePickerModern.jsp` (NEW) + `cm/pages/app/pagePickerModern.jsp` (mirror) | New modern entry point that mounts `ContentBrowser` in **select mode + multiSelect: true + allowedTypes: ['page']** (page-only filter; folders and assets are rejected client-side). Self-loading bridge pattern (idempotent; cb= cache-buster). The page demonstrates (a) the multi-select path of the ContentBrowser and (b) the page-only filter (folders and assets rejected). |
-| `modules/perc-qa-automation/frontend/tests/host-page-picker.spec.js` (NEW) | 4 Playwright tests covering the host contract: ContentBrowser mounts via PercModernUI bridge; no legacy miller-column Finder chrome; initial state confirm-disabled + multi-select summary empty; keyboard-completable Cancel button. |
-| `specs/992-react-content-explorer/checklists/cutover-inventory.md` | `host-page-picker` row Status updated to "Complete (2026-07-19)"; documents that the 4 legacy call sites in `PercSiteImpactView.js` / `PercActionDataTable.js` / `PercPageView.js` are the per-host follow-up (out of scope for the pilot commit). |
-| `specs/992-react-content-explorer/tasks.md` | T045b + T045b-pw marked `[x]`. |
+| `modules/perc-qa-automation/frontend/tests/host-page-picker.spec.js` (NEW)                               | 4 Playwright tests covering the host contract: ContentBrowser mounts via PercModernUI bridge; no legacy miller-column Finder chrome; initial state confirm-disabled + multi-select summary empty; keyboard-completable Cancel button.                                                                                                                                              |
+| `specs/992-react-content-explorer/checklists/cutover-inventory.md`                                       | `host-page-picker` row Status updated to "Complete (2026-07-19)"; documents that the 4 legacy call sites in `PercSiteImpactView.js` / `PercActionDataTable.js` / `PercPageView.js` are the per-host follow-up (out of scope for the pilot commit).                                                                                                                                 |
+| `specs/992-react-content-explorer/tasks.md`                                                              | T045b + T045b-pw marked `[x]`.                                                                                                                                                                                                                                                                                                                                                     |
 
 ## Verification against the live docker dev CMS
 
@@ -29,21 +29,21 @@ Running 4 tests using 1 worker
 
 ## Hard gates checked
 
-| Gate | Status |
-|------|--------|
-| Missing-behavioral-test gate | **Pass** — 4 Playwright tests cover the page-picker host contract (mount, no legacy chrome, initial state, keyboard). Combined with the 4 asset-picker tests + 4 ContentBrowser component tests = 12 tests in the US2 surface. |
-| Non-portable filesystem path joins | **Pass (n/a)** — no filesystem code. |
-| Secrets on command line | **Pass (n/a)** — no env-var changes. |
-| Path containment | **Pass** — the host page does not accept user-supplied `initialPath` (it's hardcoded to `/Sites`); the `ContentBrowser` component's initialPath allowlist validation (per T024 work) covers the broader contract. |
-| Empty catch / swallowed exceptions | **Pass (n/a)** — no new try/catch. |
-| Hardcoded secret paths | **Pass (n/a)** — no secret changes. |
-| `system/` module scope | **Pass** — web-only (per cutover-inventory §C T012d evaluation; no `system/` task needed). |
-| Bootstrap / install hygiene | **Pass (n/a)** — no install changes. |
-| Cross-platform path | **Pass** — all path tokens are JSP URL paths or absolute React mount targets. |
-| Idempotent scripts | **Pass** — the host page self-loads the bridge; idempotent guard. |
-| Multi-select dedup | **Pass** — verified in the upstream ContentBrowser fix (PR #1391 review thread #2): `handleListActivate` skips if `isSelected(sel.id)`. |
-| Empty-selection confirm guard | **Pass** — verified in the upstream ContentBrowser fix (PR #1391 review thread #1): `handleConfirm` is no-op for empty selections in BOTH modes. |
-| Selection filter for the page picker | **Pass** — `allowedTypes: ['page']` is client-side; the bridge passes it to `passesFilters(item, allowedTypes, allowedCategories)` which short-circuits on non-matching type and surfaces `BROWSER_MSG.TYPE_MISMATCH`. |
+|                 Gate                 |                                                                                                             Status                                                                                                             |
+|--------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Missing-behavioral-test gate         | **Pass** — 4 Playwright tests cover the page-picker host contract (mount, no legacy chrome, initial state, keyboard). Combined with the 4 asset-picker tests + 4 ContentBrowser component tests = 12 tests in the US2 surface. |
+| Non-portable filesystem path joins   | **Pass (n/a)** — no filesystem code.                                                                                                                                                                                           |
+| Secrets on command line              | **Pass (n/a)** — no env-var changes.                                                                                                                                                                                           |
+| Path containment                     | **Pass** — the host page does not accept user-supplied `initialPath` (it's hardcoded to `/Sites`); the `ContentBrowser` component's initialPath allowlist validation (per T024 work) covers the broader contract.              |
+| Empty catch / swallowed exceptions   | **Pass (n/a)** — no new try/catch.                                                                                                                                                                                             |
+| Hardcoded secret paths               | **Pass (n/a)** — no secret changes.                                                                                                                                                                                            |
+| `system/` module scope               | **Pass** — web-only (per cutover-inventory §C T012d evaluation; no `system/` task needed).                                                                                                                                     |
+| Bootstrap / install hygiene          | **Pass (n/a)** — no install changes.                                                                                                                                                                                           |
+| Cross-platform path                  | **Pass** — all path tokens are JSP URL paths or absolute React mount targets.                                                                                                                                                  |
+| Idempotent scripts                   | **Pass** — the host page self-loads the bridge; idempotent guard.                                                                                                                                                              |
+| Multi-select dedup                   | **Pass** — verified in the upstream ContentBrowser fix (PR #1391 review thread #2): `handleListActivate` skips if `isSelected(sel.id)`.                                                                                        |
+| Empty-selection confirm guard        | **Pass** — verified in the upstream ContentBrowser fix (PR #1391 review thread #1): `handleConfirm` is no-op for empty selections in BOTH modes.                                                                               |
+| Selection filter for the page picker | **Pass** — `allowedTypes: ['page']` is client-side; the bridge passes it to `passesFilters(item, allowedTypes, allowedCategories)` which short-circuits on non-matching type and surfaces `BROWSER_MSG.TYPE_MISMATCH`.         |
 
 ## Cross-platform path checklist
 

@@ -125,7 +125,8 @@ public class PSSitePathItemService extends PSPathItemService {
                         .getTranslationValue("perc.ui.pathmanagement@.  It may have been deleted.")
                 : PSI18NTranslationKeyValues.getInstance()
                     .getTranslationValue(
-                        "perc.ui.pathmanagement@Oops. We're sorry. The requested page is no longer available.");
+                        "perc.ui.pathmanagement@Oops. We're sorry. The requested page is no longer"
+                            + " available.");
         throw new PSPathNotFoundServiceException(msg);
       }
     }

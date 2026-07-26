@@ -231,7 +231,8 @@ public class PSAssetRestService {
         | IPSWidgetAssetRelationshipService.PSWidgetAssetRelationshipServiceException e) {
       throw new WebApplicationException(jakarta.ws.rs.core.Response.Status.INTERNAL_SERVER_ERROR);
     }
-    // XSS residual (Jackson/JAXB/CXF or documented pass-through): JSON/XML DTO via Jackson/JAXB; not HTML body (alert #735)
+    // XSS residual (Jackson/JAXB/CXF or documented pass-through): JSON/XML DTO via Jackson/JAXB;
+    // not HTML body (alert #735)
     return awRel; // codeql[java/xss]
   }
 
@@ -483,11 +484,11 @@ public class PSAssetRestService {
   @Consumes({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
   public PSAsset save(PSAsset object) {
     try {
-      // XSS residual (Jackson/JAXB/CXF or documented pass-through): JSON/XML DTO via Jackson/JAXB; not HTML body (alert #1843)
+      // XSS residual (Jackson/JAXB/CXF or documented pass-through): JSON/XML DTO via Jackson/JAXB;
+      // not HTML body (alert #1843)
       return assetService.save(object); // codeql[java/xss]
     } catch (PSDataServiceException e) {
-      throw new WebApplicationException(
-          jakarta.ws.rs.core.Response.Status.INTERNAL_SERVER_ERROR);
+      throw new WebApplicationException(jakarta.ws.rs.core.Response.Status.INTERNAL_SERVER_ERROR);
     }
   }
 
@@ -531,11 +532,11 @@ public class PSAssetRestService {
       PSAssetSummary sum = assetService.find(assetFolderRelationship.getAssetId());
       assetFolderRelationship.setAssetId(sum.getId());
 
-      // XSS residual (Jackson/JAXB/CXF or documented pass-through): JSON/XML DTO via Jackson/JAXB; not HTML body (alert #1844)
+      // XSS residual (Jackson/JAXB/CXF or documented pass-through): JSON/XML DTO via Jackson/JAXB;
+      // not HTML body (alert #1844)
       return assetFolderRelationship; // codeql[java/xss]
     } catch (PSDataServiceException e) {
-      throw new WebApplicationException(
-          jakarta.ws.rs.core.Response.Status.INTERNAL_SERVER_ERROR);
+      throw new WebApplicationException(jakarta.ws.rs.core.Response.Status.INTERNAL_SERVER_ERROR);
     }
   }
 

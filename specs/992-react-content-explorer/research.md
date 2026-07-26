@@ -27,16 +27,16 @@
 
 **Decision**: Reuse **sitemanage path management REST** as system of record for core navigate:
 
-| Capability | Evidence |
-|------------|----------|
-| Children / list | `GET …/pathmanagement/path/folder/{path}`, `GET …/paginatedFolder/{path}` |
-| Item by path/id | `GET …/item/{path}`, `GET …/item/id/{id}` |
-| Add folder | `GET …/addFolder|addNewFolder/{path}` |
-| Rename | `POST …/renameFolder` |
-| Move | `POST …/moveItem` |
-| Delete | path delete endpoints used by `PercPathService.js` |
-| Folder props / ACL | `GET …/folderProperties/{id}`, `POST …/saveFolderProperties` |
-| Search | `…/searchmanagement/search/get` and `/get/extendedresults` |
+|     Capability     |                                 Evidence                                  |
+|--------------------|---------------------------------------------------------------------------|
+| Children / list    | `GET …/pathmanagement/path/folder/{path}`, `GET …/paginatedFolder/{path}` |
+| Item by path/id    | `GET …/item/{path}`, `GET …/item/id/{id}`                                 |
+| Add folder         | `GET …/addFolder|addNewFolder/{path}`                                     |
+| Rename             | `POST …/renameFolder`                                                     |
+| Move               | `POST …/moveItem`                                                         |
+| Delete             | path delete endpoints used by `PercPathService.js`                        |
+| Folder props / ACL | `GET …/folderProperties/{id}`, `POST …/saveFolderProperties`              |
+| Search             | `…/searchmanagement/search/get` and `/get/extendedresults`                |
 
 Client reference: `WebUI/war/services/PercPathService.js`, modern roots in `WebUI/src/main/ts/api/paths.ts`.
 
@@ -117,13 +117,13 @@ Client reference: `WebUI/war/services/PercPathService.js`, modern roots in `WebU
 
 ## Open items deferred to implementation (not blocking plan)
 
-| Item | Handling |
-|------|----------|
-| Exact action **execution** map (action id → REST/URL) | Inventory during US3; gap → façade |
-| Concurrent ACL save policy | Server last-write / validation; surface server errors |
-| Home Library adoption of ContentBrowser | Coordinate with 989; non-blocking for US1 |
-| Display format full column parity | FR-027 matrix follow-on |
-| Site copy wizard REST completeness | US7 matrix research spike |
+|                         Item                          |                       Handling                        |
+|-------------------------------------------------------|-------------------------------------------------------|
+| Exact action **execution** map (action id → REST/URL) | Inventory during US3; gap → façade                    |
+| Concurrent ACL save policy                            | Server last-write / validation; surface server errors |
+| Home Library adoption of ContentBrowser               | Coordinate with 989; non-blocking for US1             |
+| Display format full column parity                     | FR-027 matrix follow-on                               |
+| Site copy wizard REST completeness                    | US7 matrix research spike                             |
 
 ## R12 — Security surface (T011 — implementer note, 2026-07-19)
 
@@ -147,3 +147,4 @@ Findings from the analyzer session while scaffolding Phase 2. Carry into US1 imp
 - `rest/src/main/java/com/percussion/rest/actions/ActionMenuResource.java`
 - `modules/DesktopContentExplorer/...` (UX inventory)
 - `docs/ai-generated/tasks/#000-unified-ui-plan/`
+

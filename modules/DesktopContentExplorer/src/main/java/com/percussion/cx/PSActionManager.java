@@ -149,10 +149,10 @@ public class PSActionManager implements IPSConstants, IPSSelectionListener {
    * Constructs the action manager with supplied parameters, a reference back to the parent applet.
    *
    * @param applet the applet for which actions are to be done, may not be <code>null</code>
-   * @throws PSContentExplorerException if an error occurs while initializing the action
-   *     managers or loading the display format / action visibility contexts.
-   * @throws PSCmsException if an error occurs while communicating with the Rhythmyx server
-   *     during initialization.
+   * @throws PSContentExplorerException if an error occurs while initializing the action managers or
+   *     loading the display format / action visibility contexts.
+   * @throws PSCmsException if an error occurs while communicating with the Rhythmyx server during
+   *     initialization.
    */
   public PSActionManager(PSContentExplorerApplet applet)
       throws PSContentExplorerException, PSCmsException {
@@ -1884,10 +1884,9 @@ public class PSActionManager implements IPSConstants, IPSSelectionListener {
    * format for the children on the parent node, otherwise clears the current display format. If the
    * document is empty or does not have any child nodes, sets empty child list on the parent.
    *
-   * <p>The document must conform to the following DTD fragment:
-   * &lt;!ELEMENT root(TableMeta?, Node*)&gt; See the
-   * {@link com.percussion.cx.objectstore.PSNode} for
-   * the expected format of the sub-elements.
+   * <p>The document must conform to the following DTD fragment: &lt;!ELEMENT root(TableMeta?,
+   * Node*)&gt; See the {@link com.percussion.cx.objectstore.PSNode} for the expected format of the
+   * sub-elements.
    *
    * @param parent the parent that need to set with children, may not be <code>null</code>.
    * @param doc the document containing child nodes, may not be <code>null</code>, must conform to
@@ -4318,8 +4317,8 @@ public class PSActionManager implements IPSConstants, IPSSelectionListener {
    *
    * @param strUrl must not be <code>null</code> or <code>empty</code>
    * @return HTTP Response code.
-   * @throws PSContentExplorerException if the URL cannot be built, or the server returns a
-   *     response code of 400 or greater.
+   * @throws PSContentExplorerException if the URL cannot be built, or the server returns a response
+   *     code of 400 or greater.
    */
   public int executeUrl(String strUrl) throws PSContentExplorerException {
     if (strUrl == null || strUrl.trim().length() == 0)
@@ -4428,10 +4427,10 @@ public class PSActionManager implements IPSConstants, IPSSelectionListener {
   /**
    * Helper method to convert from PSNode list object to PSLocator list object.
    *
-   * @param nodeList the iterator over the {@link PSNode} objects to convert; must not be
-   *     <code>null</code>.
-   * @return a list of {@link PSLocator} objects corresponding to the supplied nodes; never
-   *     <code>null</code>.
+   * @param nodeList the iterator over the {@link PSNode} objects to convert; must not be <code>null
+   *     </code>.
+   * @return a list of {@link PSLocator} objects corresponding to the supplied nodes; never <code>
+   *     null</code>.
    */
   public static List nodesToLocators(Iterator nodeList) {
     if (nodeList == null) throw new IllegalArgumentException("nodeList must not be null");
@@ -4519,8 +4518,8 @@ public class PSActionManager implements IPSConstants, IPSSelectionListener {
    * TYPE_SYS_FOLDERS</code>, <code>TYPE_SYS_VIEW</code>, <code>TYPE_CATEGORY
    * </code> and <code>TYPE_SLOT</code> can not be copied or moved.
    *
-   * @param target the node that is being checked for copy/move support; must not be
-   *     <code>null</code>.
+   * @param target the node that is being checked for copy/move support; must not be <code>null
+   *     </code>.
    * @return <code>true</code> if it can be copied or moved, otherwise <code>
    * false</code>
    */
@@ -4655,8 +4654,8 @@ public class PSActionManager implements IPSConstants, IPSSelectionListener {
    * @param view the view where the paste is going to be happening, armed with this specification,
    *     we decide if we can paste
    * @param target the target node where the paste is to be applied, may be <code>null</code>
-   * @param clipType the type of paste we are trying to accomplish, one of
-   *     <code>PSClipBoard.TYPE_DRAG</code> or <code>PSClipBoard.TYPE_COPY</code>
+   * @param clipType the type of paste we are trying to accomplish, one of <code>
+   *     PSClipBoard.TYPE_DRAG</code> or <code>PSClipBoard.TYPE_COPY</code>
    * @return <code>true</code> if it can accept, otherwise <code>false</code>
    */
   public boolean canAcceptPaste(String view, PSNode target, int clipType) {

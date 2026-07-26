@@ -55,11 +55,12 @@ No hard-gate bugs: portable path APIs, phase-1 fail-on-missing + size floor, and
 
 ## Files in change set
 
-| Path | Role |
-|------|------|
-| `WebUI/src/main/frontend/scripts/build-legacy-bundles.js` | WAR_DIR fix, fail-on-missing, assert sizes, exports |
-| `WebUI/src/main/frontend/src/test/js/buildLegacyBundles.test.js` | Behavioral tests |
-| `.gitignore`, `WebUI/.gitignore` | Ignore intermediates |
-| `WebUI/AGENTS.md` | Generated-not-committed contract |
-| `.github/codeql/codeql-config.yml` | Comment refresh (paths-ignore retained) |
-| Deletions under `webapp/cm/` + `war/shared-finder.js` | Stop tracking generated blobs |
+|                               Path                               |                        Role                         |
+|------------------------------------------------------------------|-----------------------------------------------------|
+| `WebUI/src/main/frontend/scripts/build-legacy-bundles.js`        | WAR_DIR fix, fail-on-missing, assert sizes, exports |
+| `WebUI/src/main/frontend/src/test/js/buildLegacyBundles.test.js` | Behavioral tests                                    |
+| `.gitignore`, `WebUI/.gitignore`                                 | Ignore intermediates                                |
+| `WebUI/AGENTS.md`                                                | Generated-not-committed contract                    |
+| `.github/codeql/codeql-config.yml`                               | Comment refresh (paths-ignore retained)             |
+| Deletions under `webapp/cm/` + `war/shared-finder.js`            | Stop tracking generated blobs                       |
+

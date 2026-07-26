@@ -2,11 +2,11 @@
 
 Relative to the CMS **install root**. Only delete if the path exists and is eligible.
 
-| Relative path | Eligibility | Purpose |
-|---------------|-------------|---------|
-| `PreInstall` | Always if present | Legacy preinstall/backup tree unused by 8.x (issue #1157) |
-| `_Percussion_Installation` | Always if present (also try `_Percussion_installation`) | Legacy install-metadata folder; historical cleanup stub never fully implemented |
-| `JBossServerXML_BAK` | Conditional — see below | JBoss-era `server.xml` backup used only for very old (5.3-era) port/SSL migration in preinstall post-steps |
+|       Relative path        |                       Eligibility                       |                                                  Purpose                                                   |
+|----------------------------|---------------------------------------------------------|------------------------------------------------------------------------------------------------------------|
+| `PreInstall`               | Always if present                                       | Legacy preinstall/backup tree unused by 8.x (issue #1157)                                                  |
+| `_Percussion_Installation` | Always if present (also try `_Percussion_installation`) | Legacy install-metadata folder; historical cleanup stub never fully implemented                            |
+| `JBossServerXML_BAK`       | Conditional — see below                                 | JBoss-era `server.xml` backup used only for very old (5.3-era) port/SSL migration in preinstall post-steps |
 
 ## JBossServerXML_BAK eligibility
 

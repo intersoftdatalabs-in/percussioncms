@@ -10,10 +10,10 @@
 
 ## 1. Stop the instance
 
-| Platform | CMS (typical) | DTS (typical) |
-|----------|---------------|---------------|
+|     Platform      |                                                                       CMS (typical)                                                                        |                                  DTS (typical)                                  |
+|-------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------|
 | **Linux / macOS** | Stop via service unit or install scripts under the CMS root (e.g. `./bin/RhythmyxServer` stop / product service). Ensure Jetty CMS process is not running. | Stop each DTS Tomcat instance (service, `shutdown.sh`, or product DTS scripts). |
-| **Windows** | Stop Windows service or stop scripts under the CMS install root. Confirm no `java` process holds repository files. | Stop DTS Windows service(s) / Tomcat. |
+| **Windows**       | Stop Windows service or stop scripts under the CMS install root. Confirm no `java` process holds repository files.                                         | Stop DTS Windows service(s) / Tomcat.                                           |
 
 Also stop **Derby Network Server** if still used for product-managed networked Derby (`//host:port/...` in `rxrepository.properties`).
 
@@ -31,10 +31,10 @@ Absence of markers does **not** prove the instance is stopped — always stop se
 
 ### CMS
 
-| Include | Typical relative path under install root |
-|---------|------------------------------------------|
-| Repository data directory | `Repository/` (or path resolved from `DB_SERVER` when using file-style URLs) |
-| Repository config | `rxconfig/Installer/rxrepository.properties` |
+|                Include                 |                            Typical relative path under install root                            |
+|----------------------------------------|------------------------------------------------------------------------------------------------|
+| Repository data directory              | `Repository/` (or path resolved from `DB_SERVER` when using file-style URLs)                   |
+| Repository config                      | `rxconfig/Installer/rxrepository.properties`                                                   |
 | Jetty datasource labels (when present) | `jetty/base/etc/perc-ds.properties` and/or `jetty/base/modules/perc-ds/etc/perc-ds.properties` |
 
 Product pre-migration backup (upgrade path) writes under:
@@ -78,3 +78,4 @@ Mixed estate: if CMS is MySQL/MSSQL and only some DTS services are Derby, backup
 
 - Spec contract: `specs/548-derby-embedded-migration/contracts/backup-restore.md`
 - Gate and cleanup: [operator-migration-gate.md](./operator-migration-gate.md)
+

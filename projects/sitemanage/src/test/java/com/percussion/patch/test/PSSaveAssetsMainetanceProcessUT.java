@@ -30,21 +30,18 @@ import org.junit.jupiter.api.Test;
 /**
  * Unit test for verifying anchor tag rel attributes for managed links.
  *
- * <p>Selector construction must append attribute filters to {@link
- * IPSManagedLinkService#A_HREF} ({@code "a[href]"}), not another {@code a[...]} segment. Broken
- * concatenation {@code a[href]a[target=...]} is not a valid jsoup query. Fix ported from v8.1.7
- * PR #716.
+ * <p>Selector construction must append attribute filters to {@link IPSManagedLinkService#A_HREF}
+ * ({@code "a[href]"}), not another {@code a[...]} segment. Broken concatenation {@code
+ * a[href]a[target=...]} is not a valid jsoup query. Fix ported from v8.1.7 PR #716.
  */
 public class PSSaveAssetsMainetanceProcessUT {
 
   /**
-   * Selector used by {@code PSSaveAssetsMaintenanceProcess#processLinks} for target=_blank
-   * anchors missing the safe rel attribute. Kept in lockstep with production code.
+   * Selector used by {@code PSSaveAssetsMaintenanceProcess#processLinks} for target=_blank anchors
+   * missing the safe rel attribute. Kept in lockstep with production code.
    */
   static final String TARGET_BLANK_UNSAFE_REL_SELECTOR =
-      IPSManagedLinkService.A_HREF
-          + "[target=\"_blank\"]"
-          + ":not([rel=\"noopener noreferrer\"])";
+      IPSManagedLinkService.A_HREF + "[target=\"_blank\"]" + ":not([rel=\"noopener noreferrer\"])";
 
   @Test
   void testTarget() {

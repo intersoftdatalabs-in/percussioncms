@@ -153,9 +153,7 @@ describe("renderGalleryEntry (name sink)", () => {
     const malicious = "<script>window.__pwned=true</script>";
     const controller = makeController();
     $.Percussion.cssGalleryView(controller);
-    fireGetThemeList([
-      { name: malicious, thumbUrl: "/img/t.png" },
-    ]);
+    fireGetThemeList([{ name: malicious, thumbUrl: "/img/t.png" }]);
 
     const scripts = document.querySelectorAll(
       "#perc-css-gallery #perc-themes-table script"
@@ -168,9 +166,7 @@ describe("renderGalleryEntry (name sink)", () => {
     const malicious = '<img src="x" onerror="window.__pwned=1">';
     const controller = makeController();
     $.Percussion.cssGalleryView(controller);
-    fireGetThemeList([
-      { name: malicious, thumbUrl: "/img/t.png" },
-    ]);
+    fireGetThemeList([{ name: malicious, thumbUrl: "/img/t.png" }]);
 
     const imgs = document.querySelectorAll(
       "#perc-css-gallery #perc-themes-table img"
@@ -182,13 +178,9 @@ describe("renderGalleryEntry (name sink)", () => {
   it("renders a benign theme name as inert text inside the gallery item", () => {
     const controller = makeController();
     $.Percussion.cssGalleryView(controller);
-    fireGetThemeList([
-      { name: "Plain Theme", thumbUrl: "/img/t.png" },
-    ]);
+    fireGetThemeList([{ name: "Plain Theme", thumbUrl: "/img/t.png" }]);
 
-    const names = document.querySelectorAll(
-      ".perc-css-gallery-item-name"
-    );
+    const names = document.querySelectorAll(".perc-css-gallery-item-name");
     expect(names.length).toBeGreaterThan(0);
     expect(names[0].textContent).toBe("Plain Theme");
   });
@@ -199,9 +191,7 @@ describe("renderGalleryEntry (thumbUrl sink)", () => {
     const malicious = '/img.png"><script>window.__pwned=true</script>';
     const controller = makeController();
     $.Percussion.cssGalleryView(controller);
-    fireGetThemeList([
-      { name: "Plain", thumbUrl: malicious },
-    ]);
+    fireGetThemeList([{ name: "Plain", thumbUrl: malicious }]);
 
     const scripts = document.querySelectorAll(
       "#perc-css-gallery #perc-themes-table script"
@@ -214,9 +204,7 @@ describe("renderGalleryEntry (thumbUrl sink)", () => {
     const malicious = '/img.png" onerror="window.__pwned=1" data-x="';
     const controller = makeController();
     $.Percussion.cssGalleryView(controller);
-    fireGetThemeList([
-      { name: "Plain", thumbUrl: malicious },
-    ]);
+    fireGetThemeList([{ name: "Plain", thumbUrl: malicious }]);
 
     // No inline handler attribute should appear on any element.
     document.querySelectorAll("#perc-css-gallery *").forEach((el) => {

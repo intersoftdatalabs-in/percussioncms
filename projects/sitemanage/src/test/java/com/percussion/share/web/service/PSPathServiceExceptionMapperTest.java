@@ -52,7 +52,6 @@ class PSPathServiceExceptionMapperTest {
     assertEquals(Response.Status.NOT_FOUND, mapper.getStatus(ex));
   }
 
-
   @Test
   void nestedNotFoundCauseIsNotFound() {
     Exception mid = new RuntimeException("mid", new CustomNotFoundException());

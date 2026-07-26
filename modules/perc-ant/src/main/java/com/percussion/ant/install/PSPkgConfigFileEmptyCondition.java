@@ -56,10 +56,9 @@ import org.w3c.dom.NodeList;
  * </pre>
  */
 public class PSPkgConfigFileEmptyCondition extends PSAction implements Condition {
-  /**
-   * Creates a new package config file empty condition.
-   */
+  /** Creates a new package config file empty condition. */
   public PSPkgConfigFileEmptyCondition() {}
+
   /* (non-Javadoc)
    * @see org.apache.tools.ant.taskdefs.condition.Condition#eval()
    */

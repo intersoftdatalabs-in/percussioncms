@@ -16,14 +16,11 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.tools.ant.BuildException;
 
-/**
- * Executes a SQL statement to remove duplicate rows from a table.
- */
+/** Executes a SQL statement to remove duplicate rows from a table. */
 public class PSExecSQLRemoveDupes extends PSExecSQLStmt {
-  /**
-   * Creates a new SQL remove duplicates statement.
-   */
+  /** Creates a new SQL remove duplicates statement. */
   public PSExecSQLRemoveDupes() {}
+
   private static final Logger log = LogManager.getLogger(PSExecSQLRemoveDupes.class);
   private String qualifyingTableName = "";
   private String columns = "";

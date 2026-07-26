@@ -155,3 +155,4 @@ The feature is complete when **all** of the following are true:
 - [ ] Every closing PR resolved all of its review threads (Constitution IX).
 - [ ] `release-readiness-8.2.md` decision is `PASS` or `PASS-WITH-EXCEPTIONS` and is referenced in the `8.2` release notes.
 - [ ] No suppression in `suppressions.md` is older than one release cycle (per FR-007) without a `stale-suppression` note and a re-review date.
+

@@ -27,6 +27,7 @@
 **Independent Test (per `quickstart.md` Scenario B)**: Each converted script's `--help` exits 0; the verify scripts pass on the existing fixtures; `python3 -m pytest scripts/` exits 0 on Linux; `python -m pytest scripts\` exits 0 on Windows; `find scripts/ -type f \( -name '*.sh' -o -name '*.bat' \)` returns empty (SC-005, SC-002).
 
 ### Tests + Implementation (per script — colocated test runs in same PR)
+
 - [X] T010 [P] [US2] Create `scripts/install-cms-dev.py` + `scripts/test_install_cms_dev.py` per `contracts/cli-schemas.md` Scope 1 entry (FR-002/FR-009); include `## Behavioral Notes` in module docstring (FR-009b, R2)
 - [X] T011 [P] [US2] Create `scripts/authenticate-sigstore.py` + `scripts/test_authenticate_sigstore.py` per contracts
 - [X] T012 [P] [US2] Create `scripts/gh-preflight.py` + `scripts/test_gh_preflight.py` per contracts
@@ -182,3 +183,4 @@ Phases 2, 4, 6 are mutually independent at the git level and could be paralleliz
   - US4 → quickstart Scenarios C + E (`python3 -m pytest docker/scripts/ modules/ai-shared-develop/`)
   - Final → quickstart Scenario F (SC-001..SC-008 sweep)
 - **No Maven in this work**: per Clarification Q4, neither pytest nor the new GH Actions workflow invokes Maven. The SC-007 Maven regression check in quickstart Scenario F is a manual local run, not part of CI (SC-007 is a pre-PR developer gate, not an automated gate).
+

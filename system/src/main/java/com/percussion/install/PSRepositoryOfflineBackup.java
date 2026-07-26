@@ -84,8 +84,8 @@ public final class PSRepositoryOfflineBackup {
     Objects.requireNonNull(repositoryDir, "repositoryDir");
     Objects.requireNonNull(backupRoot, "backupRoot");
     if (!Files.isDirectory(repositoryDir)) {
-      throw new IOException("Repository directory does not exist or is not a directory: "
-          + repositoryDir);
+      throw new IOException(
+          "Repository directory does not exist or is not a directory: " + repositoryDir);
     }
     if (refuseIfLive) {
       List<Path> live = findLiveMarkers(repositoryDir);

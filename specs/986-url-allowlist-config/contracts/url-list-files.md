@@ -5,8 +5,8 @@
 
 ## Locations (install root)
 
-| File | Path |
-|------|------|
+|    File    |                   Path                   |
+|------------|------------------------------------------|
 | Allow list | `rxconfig/Server/allowedUrls.properties` |
 | Block list | `rxconfig/Server/blockedUrls.properties` |
 
@@ -22,18 +22,18 @@
 
 ## Semantics
 
-| List | Meaning |
-|------|---------|
+| List  |                                                            Meaning                                                            |
+|-------|-------------------------------------------------------------------------------------------------------------------------------|
 | Allow | **Additive** permits beyond baseline (loopback; public host on default/80/443). Matching private/internal URLs are permitted. |
-| Block | Deny if match; **wins** over baseline and allow. |
+| Block | Deny if match; **wins** over baseline and allow.                                                                              |
 
 ## Upgrade / install guarantees
 
-| Condition | Behavior |
-|-----------|----------|
-| File missing | Create from product default template |
-| File exists | Do not overwrite |
-| Only one missing | Create only the missing file |
+|    Condition     |               Behavior               |
+|------------------|--------------------------------------|
+| File missing     | Create from product default template |
+| File exists      | Do not overwrite                     |
+| Only one missing | Create only the missing file         |
 
 ## Default templates (product)
 
@@ -52,3 +52,4 @@
 - JVM system properties for allow hosts/ports/ranges (removed)
 - Enabling non-http(s) schemes via allow patterns
 - Live reload without restart (v1: restart required)
+

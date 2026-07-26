@@ -168,16 +168,16 @@ $ git diff c50806467e~1..f2a8dde30d -- WebUI/src/main/ts/contentExplorer/SearchP
 
 The following issues exist in the merged state of `types.ts` but were authored in the parent PRs (`89c40c7102` US3, `bbb8e2d8e9` US5) before this merge. They are preserved verbatim by the merge. Listed here for transparency and to inform follow-up review of the original PRs:
 
-| TS field | TS source | Java DTO actual | Status |
-|----------|-----------|-----------------|--------|
-| `PSSearchCriteria.caseSensitive` | `types.ts:197` | **Not present** in `com.percussion.searchmanagement.data.PSSearchCriteria` | Field invention; suggest server-side addition or TS removal |
-| `PSItemProperties.title` | `types.ts:208` | Java field is `name`; `title` does not exist | Either rename to `name` or document intentional divergence |
-| `PSItemProperties.folderPath` | `types.ts:211` | Java field is `path` (`@NotEmpty String path`) | Mismatch |
-| `PSItemProperties.displayProperties` | `types.ts:215` | **Not present** on Java | Field invention |
-| `PSItemProperties.workflowState` | `types.ts:217` | Java has `workflow` (name) and `status` (current state); no `workflowState` | Mismatch |
-| `PSItemProperties.lastModified` | `types.ts:219` | Java field is `lastModifiedDate` | Mismatch |
-| `PSItemProperties.locale` | `types.ts:221` | **Not present** on Java | Field invention |
-| `ActionMenu.guid` | `types.ts:317` | Java `Guid` has 6 fields; TS uses `{ raw?: string }` | Oversimplified; round-trip data loss possible |
+|               TS field               |   TS source    |                               Java DTO actual                               |                           Status                            |
+|--------------------------------------|----------------|-----------------------------------------------------------------------------|-------------------------------------------------------------|
+| `PSSearchCriteria.caseSensitive`     | `types.ts:197` | **Not present** in `com.percussion.searchmanagement.data.PSSearchCriteria`  | Field invention; suggest server-side addition or TS removal |
+| `PSItemProperties.title`             | `types.ts:208` | Java field is `name`; `title` does not exist                                | Either rename to `name` or document intentional divergence  |
+| `PSItemProperties.folderPath`        | `types.ts:211` | Java field is `path` (`@NotEmpty String path`)                              | Mismatch                                                    |
+| `PSItemProperties.displayProperties` | `types.ts:215` | **Not present** on Java                                                     | Field invention                                             |
+| `PSItemProperties.workflowState`     | `types.ts:217` | Java has `workflow` (name) and `status` (current state); no `workflowState` | Mismatch                                                    |
+| `PSItemProperties.lastModified`      | `types.ts:219` | Java field is `lastModifiedDate`                                            | Mismatch                                                    |
+| `PSItemProperties.locale`            | `types.ts:221` | **Not present** on Java                                                     | Field invention                                             |
+| `ActionMenu.guid`                    | `types.ts:317` | Java `Guid` has 6 fields; TS uses `{ raw?: string }`                        | Oversimplified; round-trip data loss possible               |
 
 These were already present on `development` and on `992-react-content-explorer-us5` prior to the merge. The merge `bdb41210af` does not modify these declarations. **Do not block this PR** for pre-existing parent-PR issues; recommend opening a follow-up ticket to align TS with Java DTOs.
 
@@ -188,3 +188,4 @@ These were already present on `development` and on `992-react-content-explorer-u
 - **Recommendation**: **approve**. No blocking findings. May commit/push: **yes**.
 - **Continuity**: Prior reports — `992-react-content-explorer-us5-erlang.md`, `992-react-content-explorer-us5-review-thread-mitigation-erlang.md`, `992-react-content-explorer-us5-secondary-mitigation-erlang.md`.
 - **Next steps**: After push, verify PR #1398 review threads `PRRT_kwDOKZBp3M6ST4mT` and `PRRT_kwDOKZBp3M6SUIdK` are resolved inline (per root AGENTS.md **PR Review Comment Resolution** rule) with mitigation statements pointing at commits `c2794aeede` and `f2a8dde30d`.
+

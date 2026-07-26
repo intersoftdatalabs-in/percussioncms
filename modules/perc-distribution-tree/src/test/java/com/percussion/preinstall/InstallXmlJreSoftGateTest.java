@@ -24,14 +24,13 @@ import java.nio.file.Path;
 import org.junit.jupiter.api.Test;
 
 /**
- * US6 / T045: structural assertion that the {@code install.xml} Ant install
- * script soft-gates the JRE-directory-dependent tasks so the upgrade path
- * does not fail when the operator has stopped using {@code <InstallDir>/JRE}
- * or {@code <InstallDir>/JRE64}.
+ * US6 / T045: structural assertion that the {@code install.xml} Ant install script soft-gates the
+ * JRE-directory-dependent tasks so the upgrade path does not fail when the operator has stopped
+ * using {@code <InstallDir>/JRE} or {@code <InstallDir>/JRE64}.
  *
- * <p>The script already wraps the JRE/lib/ext fileset block in
- * {@code failonerror="false"}; this test makes that contract explicit so a
- * future change does not silently re-introduce a hard failure.
+ * <p>The script already wraps the JRE/lib/ext fileset block in {@code failonerror="false"}; this
+ * test makes that contract explicit so a future change does not silently re-introduce a hard
+ * failure.
  */
 class InstallXmlJreSoftGateTest {
 
@@ -50,11 +49,14 @@ class InstallXmlJreSoftGateTest {
     assertTrue(deleteTarget > 0, "deleteOldBouncyCastleJars target missing");
     int afterBlock = Math.min(xml.length(), deleteTarget + 4000);
     String block = xml.substring(deleteTarget, afterBlock);
-    assertTrue(block.contains("failonerror=\"false\""),
+    assertTrue(
+        block.contains("failonerror=\"false\""),
         "deleteOldBouncyCastleJars must be soft-gated with failonerror=false");
-    assertTrue(block.contains("${install.dir}/JRE/lib/ext"),
+    assertTrue(
+        block.contains("${install.dir}/JRE/lib/ext"),
         "deleteOldBouncyCastleJars must scan JRE/lib/ext");
-    assertTrue(block.contains("${install.dir}/JRE64/lib/ext"),
+    assertTrue(
+        block.contains("${install.dir}/JRE64/lib/ext"),
         "deleteOldBouncyCastleJars must scan JRE64/lib/ext");
   }
 }

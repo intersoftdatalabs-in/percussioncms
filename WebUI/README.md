@@ -12,18 +12,17 @@ Most ui elements are located under the war folder. When deployed they are placed
 
 war/
 
-
 ## Modern Publishing UI (feature 990)
 
 Primary nav `view=publish` loads `cm/app/publishModern.jsp` (mirrored under `cm/pages/app`), mounting React `PublishingShell` via `PercModernUI`.
 
 ### Query parameters (allowlisted)
 
-| Param | Purpose |
-|-------|---------|
-| `section` | `sites` (default), `status`, `logs`, `design`, `runtime` |
-| `siteId` | Preselect site (safe charset) |
-| `serverId` | Preselect server |
+|   Param    |                         Purpose                          |
+|------------|----------------------------------------------------------|
+| `section`  | `sites` (default), `status`, `logs`, `design`, `runtime` |
+| `siteId`   | Preselect site (safe charset)                            |
+| `serverId` | Preselect server                                         |
 
 Classic Minuet `publish.jsp` and JSF `/ui/publishing`, `/ui/pubruntime` entries redirect to this shell.
 
@@ -35,16 +34,16 @@ Modern React replacement for the legacy Miller-column Finder and the Desktop Con
 
 ### Entry points (modern JSP pilots)
 
-| Pilot | URL | Component(s) mounted |
-|-------|-----|----------------------|
-| Modern explorer shell | `cm/app/explorerModern.jsp` | `ContentExplorerShell` |
-| Modern ContentBrowser dialog | `cm/app/assetPickerModern.jsp` | `ContentBrowser` (asset-only, single-select) |
-| Modern ContentBrowser dialog | `cm/app/pagePickerModern.jsp` | `ContentBrowser` (page-only, single-select) |
-| Modern ContentBrowser dialog | `cm/app/folderPickerModern.jsp` | `ContentBrowser` (folder-only, single-select) |
-| Action menu pilot | `cm/app/actionMenuModern.jsp` | `ContextMenu` + `ActionToolbar` |
-| Folder security pilot | `cm/app/folderSecurityModern.jsp` | `FolderSecurityPanel` |
-| Search panel pilot | `cm/app/searchModern.jsp` | `SearchPanel` |
-| Advanced CE pilot | `cm/app/us7AdvancedModern.jsp` | `ClipboardPanel` + `SiteCopyWizard` + `SubfolderCopyWizard` + `DependencyViewer` + `RelationshipsView` |
+|            Pilot             |                URL                |                                          Component(s) mounted                                          |
+|------------------------------|-----------------------------------|--------------------------------------------------------------------------------------------------------|
+| Modern explorer shell        | `cm/app/explorerModern.jsp`       | `ContentExplorerShell`                                                                                 |
+| Modern ContentBrowser dialog | `cm/app/assetPickerModern.jsp`    | `ContentBrowser` (asset-only, single-select)                                                           |
+| Modern ContentBrowser dialog | `cm/app/pagePickerModern.jsp`     | `ContentBrowser` (page-only, single-select)                                                            |
+| Modern ContentBrowser dialog | `cm/app/folderPickerModern.jsp`   | `ContentBrowser` (folder-only, single-select)                                                          |
+| Action menu pilot            | `cm/app/actionMenuModern.jsp`     | `ContextMenu` + `ActionToolbar`                                                                        |
+| Folder security pilot        | `cm/app/folderSecurityModern.jsp` | `FolderSecurityPanel`                                                                                  |
+| Search panel pilot           | `cm/app/searchModern.jsp`         | `SearchPanel`                                                                                          |
+| Advanced CE pilot            | `cm/app/us7AdvancedModern.jsp`    | `ClipboardPanel` + `SiteCopyWizard` + `SubfolderCopyWizard` + `DependencyViewer` + `RelationshipsView` |
 
 All modern pilots are mirrored under `cm/pages/app/`. Legacy Finder chrome (`.perc-mcol`, `$.perc_finder()` widgets) is **not** loaded on any modern pilot page.
 
@@ -59,21 +58,21 @@ The legacy Miller-column Finder is hard-cut in 8.2:
 
 ### Modern REACT CHROME — interactive map
 
-| Component | Mount path | Role |
-|-----------|-----------|------|
-| `ContentExplorerShell` | `explorerModern.jsp` | Tree + detail-list + action toolbar + context-menu compose |
-| `ExplorerTree` | inside Shell | Sites / folders tree; lazy expand |
-| `DetailList` | inside Shell | Item list with pagination; SC-005 perf regression |
-| `ReducedActions` | inside Shell | Per-item menu (open/preview/createFolder/rename/move/copy/delete) |
-| `ContextMenu` | inside Shell | Right-click menu driven by server `actions/...` REST |
-| `ActionToolbar` | inside Shell | Top toolbar driven by the same server action set |
-| `FolderSecurityPanel` | `folderSecurityModern.jsp` | ACL viewer + editor; `aclLockout.ts` client gate |
-| `SearchPanel` | `searchModern.jsp` | Extended search with retry / open / reveal |
-| `ClipboardPanel` | `us7AdvancedModern.jsp` | Copy / cut / paste to a target folder |
-| `SiteCopyWizard` | same | 5-step site copy wizard |
-| `SubfolderCopyWizard` | same | 3-step subfolder copy wizard |
-| `DependencyViewer` | same | 6-dimension dependency summary (AA populated, 5 dimensions client-side preview) |
-| `RelationshipsView` | same | 4 primary IA rows + AA / reverse details (same partial) |
+|       Component        |         Mount path         |                                      Role                                       |
+|------------------------|----------------------------|---------------------------------------------------------------------------------|
+| `ContentExplorerShell` | `explorerModern.jsp`       | Tree + detail-list + action toolbar + context-menu compose                      |
+| `ExplorerTree`         | inside Shell               | Sites / folders tree; lazy expand                                               |
+| `DetailList`           | inside Shell               | Item list with pagination; SC-005 perf regression                               |
+| `ReducedActions`       | inside Shell               | Per-item menu (open/preview/createFolder/rename/move/copy/delete)               |
+| `ContextMenu`          | inside Shell               | Right-click menu driven by server `actions/...` REST                            |
+| `ActionToolbar`        | inside Shell               | Top toolbar driven by the same server action set                                |
+| `FolderSecurityPanel`  | `folderSecurityModern.jsp` | ACL viewer + editor; `aclLockout.ts` client gate                                |
+| `SearchPanel`          | `searchModern.jsp`         | Extended search with retry / open / reveal                                      |
+| `ClipboardPanel`       | `us7AdvancedModern.jsp`    | Copy / cut / paste to a target folder                                           |
+| `SiteCopyWizard`       | same                       | 5-step site copy wizard                                                         |
+| `SubfolderCopyWizard`  | same                       | 3-step subfolder copy wizard                                                    |
+| `DependencyViewer`     | same                       | 6-dimension dependency summary (AA populated, 5 dimensions client-side preview) |
+| `RelationshipsView`    | same                       | 4 primary IA rows + AA / reverse details (same partial)                         |
 
 ### Spec / artifacts
 
@@ -87,10 +86,10 @@ The legacy Miller-column Finder is hard-cut in 8.2:
 
 ### Verification
 
-| Suite | Where | Pattern |
-|-------|-------|---------|
-| Vitest (component + a11y gate) | `WebUI/src/test/ts/{contentExplorer,contentBrowser}/` | `cd WebUI/src/main/frontend && npx vitest run` |
-| Playwright (E2E + a11y gate) | `modules/perc-qa-automation/frontend/tests/` | `cd modules/perc-qa-automation/frontend && npm test` |
+|             Suite              |                         Where                         |                       Pattern                        |
+|--------------------------------|-------------------------------------------------------|------------------------------------------------------|
+| Vitest (component + a11y gate) | `WebUI/src/test/ts/{contentExplorer,contentBrowser}/` | `cd WebUI/src/main/frontend && npx vitest run`       |
+| Playwright (E2E + a11y gate)   | `modules/perc-qa-automation/frontend/tests/`          | `cd modules/perc-qa-automation/frontend && npm test` |
 
 ## Modern Unified Workflow & Admin UI (feature 993)
 
@@ -98,33 +97,32 @@ Modern React replacement for the legacy Workflow, Role, User, Category, and Admi
 
 ### Entry points (modern JSP host pages)
 
-| Page | URL | Component(s) mounted |
-|------|-----|----------------------|
-| Modern Workflow Shell | `cm/app/adminWorkflowModern.jsp` | `WorkflowAdminShell` (Workflow definitions, assignment, roles, users, categories) |
-| Modern Admin Shell | `cm/app/adminModern.jsp` | `AdminShell` (Scheduled Tasks, Task Logs, Task Notifications, System Consistency Checker) |
+|         Page          |               URL                |                                   Component(s) mounted                                    |
+|-----------------------|----------------------------------|-------------------------------------------------------------------------------------------|
+| Modern Workflow Shell | `cm/app/adminWorkflowModern.jsp` | `WorkflowAdminShell` (Workflow definitions, assignment, roles, users, categories)         |
+| Modern Admin Shell    | `cm/app/adminModern.jsp`         | `AdminShell` (Scheduled Tasks, Task Logs, Task Notifications, System Consistency Checker) |
 
 All modern JSP hosts are mirrored under `cm/pages/app/`.
 
 ### React Components — interactive map
 
-| Component | Mount path | Role |
-|-----------|-----------|------|
-| `WorkflowAdminShell` | `adminWorkflowModern.jsp` | Top-level workflow navigation (Workflows, Site Assign, Roles, Users, Categories) |
-| `WorkflowsSection` | inside Shell | Workflow list, creation, editing, state & transition management |
-| `WorkflowAssignmentSection` | inside Shell | Site-to-workflow mapping, contentType & publishing default template rules |
-| `RolesSection` | inside Shell | Role list, creation, member management with dual list picker |
-| `UsersSection` | inside Shell | User list, user creation, role & group assignment |
-| `CategoriesSection` | inside Shell | Category tree explorer, node creation, lock management |
-| `InContextTransitionButton` | standalone / editor | Action button for executing item workflow state transitions |
-| `AdminShell` | `adminModern.jsp` | System administration shell (Tasks, Logs, Notifications, System Tools) |
-| `TasksSection` | inside AdminShell | Scheduled task list, schedule builder, trigger actions |
-| `TaskLogsSection` | inside AdminShell | Task execution logs, status filter, detail viewer |
-| `TaskNotifications` | inside AdminShell | Email notification template manager |
-| `ToolsSection` | inside AdminShell | System tools layout container |
-| `ConsistencyChecker` | inside ToolsSection | Content tree consistency verification & fix launcher |
+|          Component          |        Mount path         |                                       Role                                       |
+|-----------------------------|---------------------------|----------------------------------------------------------------------------------|
+| `WorkflowAdminShell`        | `adminWorkflowModern.jsp` | Top-level workflow navigation (Workflows, Site Assign, Roles, Users, Categories) |
+| `WorkflowsSection`          | inside Shell              | Workflow list, creation, editing, state & transition management                  |
+| `WorkflowAssignmentSection` | inside Shell              | Site-to-workflow mapping, contentType & publishing default template rules        |
+| `RolesSection`              | inside Shell              | Role list, creation, member management with dual list picker                     |
+| `UsersSection`              | inside Shell              | User list, user creation, role & group assignment                                |
+| `CategoriesSection`         | inside Shell              | Category tree explorer, node creation, lock management                           |
+| `InContextTransitionButton` | standalone / editor       | Action button for executing item workflow state transitions                      |
+| `AdminShell`                | `adminModern.jsp`         | System administration shell (Tasks, Logs, Notifications, System Tools)           |
+| `TasksSection`              | inside AdminShell         | Scheduled task list, schedule builder, trigger actions                           |
+| `TaskLogsSection`           | inside AdminShell         | Task execution logs, status filter, detail viewer                                |
+| `TaskNotifications`         | inside AdminShell         | Email notification template manager                                              |
+| `ToolsSection`              | inside AdminShell         | System tools layout container                                                    |
+| `ConsistencyChecker`        | inside ToolsSection       | Content tree consistency verification & fix launcher                             |
 
 ### Spec / artifacts
 
 - Spec/plan/tasks: `specs/993-workflow-admin-react-ui/`.
-
 

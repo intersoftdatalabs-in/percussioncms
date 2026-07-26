@@ -257,8 +257,7 @@ class PathValidationTest {
     @DisplayName("Should not throw for colon-in-filename via combineSafePaths on Unix")
     void shouldAcceptColonComponentOnUnix() {
       if (File.separatorChar != '\\') {
-        File result =
-            PathValidation.combineSafePaths(baseDir, "user-data", "report:2025.txt");
+        File result = PathValidation.combineSafePaths(baseDir, "user-data", "report:2025.txt");
         assertNotNull(result);
         assertTrue(result.getPath().contains("report") || result.getPath().contains("user-data"));
       }
@@ -414,8 +413,10 @@ class PathValidationTest {
     @DisplayName("Should return canonical path from constructSafePath")
     void shouldReturnCanonicalPathFromConstructSafePath() throws IOException {
       File result = PathValidation.constructSafePath(baseDir, "subdir/file.txt");
-      // The returned File must report a canonical absolute path equal to baseDir + "subdir/file.txt"
-      assertEquals(new File(baseDir, "subdir/file.txt").getCanonicalPath(), result.getCanonicalPath());
+      // The returned File must report a canonical absolute path equal to baseDir +
+      // "subdir/file.txt"
+      assertEquals(
+          new File(baseDir, "subdir/file.txt").getCanonicalPath(), result.getCanonicalPath());
     }
 
     @Test
@@ -423,8 +424,7 @@ class PathValidationTest {
     void shouldReturnCanonicalPathFromCombineSafePaths() throws IOException {
       File result = PathValidation.combineSafePaths(baseDir, "themes", "dark", "style.css");
       assertEquals(
-          new File(baseDir, "themes/dark/style.css").getCanonicalPath(),
-          result.getCanonicalPath());
+          new File(baseDir, "themes/dark/style.css").getCanonicalPath(), result.getCanonicalPath());
     }
 
     @Test

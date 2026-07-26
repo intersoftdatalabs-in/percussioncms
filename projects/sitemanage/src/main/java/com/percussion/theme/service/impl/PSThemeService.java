@@ -167,11 +167,11 @@ public class PSThemeService implements IPSThemeService {
   }
 
   /**
-   * Sanitizes a session id to a single path segment for temp theme-cache paths
-   * and matching relative URLs. Public for unit tests.
+   * Sanitizes a session id to a single path segment for temp theme-cache paths and matching
+   * relative URLs. Public for unit tests.
    *
-   * <p>Session ids are system-issued; still constrain to {@code [a-zA-Z0-9._-]}
-   * so file path and relative URL never diverge.
+   * <p>Session ids are system-issued; still constrain to {@code [a-zA-Z0-9._-]} so file path and
+   * relative URL never diverge.
    */
   public static String safeSessionSegment(String sessionId) {
     if (sessionId == null || sessionId.isBlank()) {
@@ -181,30 +181,24 @@ public class PSThemeService implements IPSThemeService {
   }
 
   /**
-   * Resolves a theme-name File under the themes root with the CWE-22
-   * defense. Unlike {@link PSPathInjectionGuard#requireUnderBase} this
-   * helper tolerates a missing or non-directory base root, which is
-   * the case for {@link #getNewThemeFolder} (first-time creation of
-   * the themes directory) and for {@link #getThemeFolder} when the
-   * themes root has not yet been created on a fresh install.
+   * Resolves a theme-name File under the themes root with the CWE-22 defense. Unlike {@link
+   * PSPathInjectionGuard#requireUnderBase} this helper tolerates a missing or non-directory base
+   * root, which is the case for {@link #getNewThemeFolder} (first-time creation of the themes
+   * directory) and for {@link #getThemeFolder} when the themes root has not yet been created on a
+   * fresh install.
    *
-   * <p>The segment-marker check (rejecting ".", "..", and any path
-   * separator) is applied unconditionally via
-   * {@link PSPathInjectionGuard#requireSafeFileName}. The canonical
-   * path-containment check via
-   * {@link PSPathInjectionGuard#requireUnderBase} is applied only
-   * when the base root already exists; for a non-existent base the
-   * write-path canonical check is deferred to the actual write
-   * operation (which calls {@link java.io.File#getParentFile} to
+   * <p>The segment-marker check (rejecting ".", "..", and any path separator) is applied
+   * unconditionally via {@link PSPathInjectionGuard#requireSafeFileName}. The canonical
+   * path-containment check via {@link PSPathInjectionGuard#requireUnderBase} is applied only when
+   * the base root already exists; for a non-existent base the write-path canonical check is
+   * deferred to the actual write operation (which calls {@link java.io.File#getParentFile} to
    * ensure the parent exists).
    *
-   * @param root the themes root directory (may be null or non-existent
-   *             during first-time creation)
-   * @param themeName the user-supplied theme name; required to be a
-   *                 safe single segment (no ".", "..", or path
-   *                 separator)
-   * @return a File reference to the resolved theme folder (the
-   *         parent is created on demand if missing)
+   * @param root the themes root directory (may be null or non-existent during first-time creation)
+   * @param themeName the user-supplied theme name; required to be a safe single segment (no ".",
+   *     "..", or path separator)
+   * @return a File reference to the resolved theme folder (the parent is created on demand if
+   *     missing)
    */
   private static File safeThemeFolder(File root, String themeName) {
     // codeql[java/path-injection] reason: themeName is validated
@@ -229,11 +223,7 @@ public class PSThemeService implements IPSThemeService {
 
   private String getCachedRegionCSSRelativePath(String theme) {
     PSPathInjectionGuard.requireSafeFileName(theme);
-    return safeSessionSegment(getCurrentSessionId())
-        + "/"
-        + theme
-        + "/"
-        + THEME_REGION_CSS_PATH;
+    return safeSessionSegment(getCurrentSessionId()) + "/" + theme + "/" + THEME_REGION_CSS_PATH;
   }
 
   private File getCachedRegionCSSFileOnly(String theme) {
@@ -266,8 +256,7 @@ public class PSThemeService implements IPSThemeService {
     if (cssFile != null)
       cssFileService.copyFile(
           cssFile.getAbsolutePath(), tempFile.getAbsolutePath()); // codeql[java/path-injection]
-    else
-      cssFileService.copyFile(null, tempFile.getAbsolutePath()); // codeql[java/path-injection]
+    else cssFileService.copyFile(null, tempFile.getAbsolutePath()); // codeql[java/path-injection]
     return tempFile;
   }
 
@@ -327,7 +316,7 @@ public class PSThemeService implements IPSThemeService {
     // PSThemeNotFoundException as before.
     File themeFolder = safeThemeFolder(root, themeName);
     if (!themeFolder.isDirectory()) // codeql[java/path-injection]
-      throw new PSThemeNotFoundException(
+    throw new PSThemeNotFoundException(
           "Cannot find theme folder for theme: \"" + themeName + "\".");
 
     return themeFolder;
@@ -489,7 +478,8 @@ public class PSThemeService implements IPSThemeService {
 
     try {
       // create the new theme directory and copy the theme
-      FileUtils.copyDirectory(existingThemeFolder, newThemeFolder, false); // codeql[java/path-injection]
+      FileUtils.copyDirectory(
+          existingThemeFolder, newThemeFolder, false); // codeql[java/path-injection]
 
       return find(newTheme);
     } catch (IOException | PSValidationException e) {
@@ -512,7 +502,8 @@ public class PSThemeService implements IPSThemeService {
 
     try {
       // create the new theme directory and copy the theme
-      FileUtils.copyDirectory(existingThemeFolder, newThemeFolder, false); // codeql[java/path-injection]
+      FileUtils.copyDirectory(
+          existingThemeFolder, newThemeFolder, false); // codeql[java/path-injection]
 
       return find(newThemeFolder.getName());
     } catch (IOException | PSValidationException e) {

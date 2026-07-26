@@ -44,11 +44,11 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-		<groupId>com.percussion</groupId>
-		<artifactId>servlet-utils</artifactId>
-                <version>${project.parent.version}</version>
-		<scope>test</scope>
-	</dependency>
+            <groupId>com.percussion</groupId>
+            <artifactId>servlet-utils</artifactId>
+            <version>${project.parent.version}</version>
+            <scope>test</scope>
+        </dependency>
         <dependency>
             <groupId>org.jsoup</groupId>
             <artifactId>jsoup</artifactId>

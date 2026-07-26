@@ -109,8 +109,8 @@ public class PSContentExplorerLoginPanel extends JFrame {
   Font plainTextFont = new Font("Arial", Font.PLAIN, 18);
 
   /**
-   * Constructs the login panel for the given parent frame and applet. Initializes the GUI,
-   * restores remembered values such as the last user name, and prepares the panel for display.
+   * Constructs the login panel for the given parent frame and applet. Initializes the GUI, restores
+   * remembered values such as the last user name, and prepares the panel for display.
    *
    * @param parent the parent frame that will host this login panel, assumed not <code>null</code>.
    * @param applet the content explorer applet, may not be <code>null</code>.

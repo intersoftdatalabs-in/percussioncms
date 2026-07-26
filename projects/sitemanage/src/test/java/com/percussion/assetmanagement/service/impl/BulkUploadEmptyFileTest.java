@@ -86,7 +86,8 @@ class BulkUploadEmptyFileTest {
     assertTrue(msg.contains("empty or whitespace-only"));
     assertTrue(msg.contains("Cannot create a text-based asset from an empty file"));
     assertFalse(msg.contains("(0 bytes)"));
-    assertEquals(PSEmptyUploadContent.rejectionMessage(null), PSEmptyUploadContent.rejectionMessage(""));
+    assertEquals(
+        PSEmptyUploadContent.rejectionMessage(null), PSEmptyUploadContent.rejectionMessage(""));
   }
 
   private static Path resolveRepoRoot() {

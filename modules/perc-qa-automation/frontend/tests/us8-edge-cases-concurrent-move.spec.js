@@ -90,10 +90,14 @@ test.describe("T092c / Edge Cases #3 — concurrent rename/move 409", () => {
       // both contexts reach the explorer page (no UI / auth failure),
       // which proves the modern explorer mounts cleanly under the
       // concurrent-user load that the Edge Case describes.
-      await expect(pageA.locator('[data-testid="perc-explorer-host"]')).toBeVisible({
+      await expect(
+        pageA.locator('[data-testid="perc-explorer-host"]')
+      ).toBeVisible({
         timeout: 15_000,
       });
-      await expect(pageB.locator('[data-testid="perc-explorer-host"]')).toBeVisible({
+      await expect(
+        pageB.locator('[data-testid="perc-explorer-host"]')
+      ).toBeVisible({
         timeout: 15_000,
       });
       // Reference apiError to avoid the unused-binding lint hit on

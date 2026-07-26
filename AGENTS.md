@@ -5,11 +5,13 @@ root: "./"
 priority: "high"
 capabilities: ["code-generation", "refactoring", "documentation", "testing", "debugging", "code-review", "project-management", "internationalization", "legacy-code-maintenance", "modernization", "code-completion", "code-analysis", "dependency-management", "build-management", "git-management", "maven-management", "npm-management"]
 ---
+
 # Agent Guidelines
 
 This repository is a large mono-repo with many modules.  This code base has a lot of history and is currently in the process of being modernized and refactored; Do not assume that all code is up to date with current best practices.  When making code changes, follow these guidelines:
 
 ## Project Context
+
 - **Name** `Percussion CMS`
 - **Aliases** `Rhythmyx`, `CM1`, `CM System`, `E2 Server`, `PercussionCMS`
 - **Root:** `./`
@@ -21,12 +23,14 @@ This repository is a large mono-repo with many modules.  This code base has a lo
 - **Platforms**: Cross-platform product — builds, tests, installs, and runs on **Windows**, **Linux**, and **macOS**. All file I/O and path handling MUST be portable (see **Cross-Platform File I/O & Paths** below).
 
 ## Key Terms
+
 - **DTS**" `Delivery Tier Service` means `./deliverytiersuite/delivery-tier-suite`
 - **CMS**: `Content Management System` means `./`
 - **XML Application**: An XML application defined by the CMS and executed by the CMS XML application server
 - **Package**: A deployable unit of CMS components, `.ppkg` file extension, a zip.
 
 ## Key Links
+
 - **Git Repository**: [GitHub](https://github.com/intersoftdatalabs-in/percussioncms)
 - **Documentation Site**: [Help Site](https://percussioncmshelp.intsof.com/)
 
@@ -97,11 +101,11 @@ cd rest
 
 Adjust `../` vs `../../` (etc.) so the path points at the **repo-root** `mvn-env.sh` / `mvn-env.bat`. Maven uses the **current working directory**’s `pom.xml`, so only that module is built.
 
-| Situation | Command guidance |
-|-----------|------------------|
+|                         Situation                         |                                                                                                Command guidance                                                                                                 |
+|-----------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | One or more leaf modules’ sources/tests/resources changed | **`cd` into each module** → `…/mvn-env.sh clean install` (standalone). If module B depends on module A and you changed both, build **A first**, then B (each still standalone after A is installed to `~/.m2`). |
-| Only docs / AGENTS.md / non-Maven files | No Maven clean install required; say so in the PR body. |
-| Change **requires** a multi-module reactor (see below) | Only then use a root reactor command — and scope it as tightly as possible. |
+| Only docs / AGENTS.md / non-Maven files                   | No Maven clean install required; say so in the PR body.                                                                                                                                                         |
+| Change **requires** a multi-module reactor (see below)    | Only then use a root reactor command — and scope it as tightly as possible.                                                                                                                                     |
 
 ### When a full (or partial) reactor build *is* required
 
@@ -235,6 +239,7 @@ When a PR review comment is addressed, the fix is **not** complete until the com
 For each review comment on a PR you are working on (whether the comment is from a human reviewer, a `kilo-code-bot[bot]`, `github-actions[bot]`, or any other source):
 
 1. **Locate the review threads** for the PR:
+
    ```bash
    gh api graphql -H "X-GitHub-Api-Version: 2022-11-28" -f query='
      query($owner: String!, $repo: String!, $pr: Int!) {
@@ -252,12 +257,14 @@ For each review comment on a PR you are working on (whether the comment is from 
    - The commit hash that contains the fix (e.g. `f1908b961e`).
    - A short description of what changed, in enough detail that a reviewer can confirm correctness without re-reading the full diff.
    - A pointer to any new tests, scripts, or documentation that back the fix.
-   Use the REST endpoint, replying to the specific `databaseId` of the comment:
+     Use the REST endpoint, replying to the specific `databaseId` of the comment:
+
    ```bash
    gh api -X POST repos/<owner>/<repo>/pulls/<pr>/comments/<comment-id>/replies \
      -f body='**Mitigation (commit `<hash>`):** ...'
    ```
 3. **Resolve the review thread** via the GraphQL `resolveReviewThread` mutation, using the `id` from step 1 (NOT the `databaseId`):
+
    ```bash
    gh api graphql -H "X-GitHub-Api-Version: 2022-11-28" -f query='
      mutation($threadId: ID!) {
@@ -282,14 +289,14 @@ This rule applies to ALL review comments on a PR you own, including comments tha
 
 **Languages in scope:** Java + JavaScript/TypeScript only (see `.github/workflows/codeql.yml`).
 
-| Piece | Path / command |
-|-------|----------------|
-| Playbook (required reading for security/CodeQL PRs) | `docs/ai-generated/tasks/gh-codeql-alerts/codeql-pr-playbook.md` |
-| Advanced workflow (PRs + `development` + schedule + manual) | `.github/workflows/codeql.yml` |
-| Config (`paths-ignore`, Java `packs`, `query-filters`) | `.github/codeql/codeql-config.yml` |
-| Custom sanitizer models | `.github/codeql/models/` |
-| Agent skill | `modules/ai-shared-develop/src/main/resources/skills/codeql-pr/SKILL.md` |
-| Verify default setup off | `gh api repos/intersoftdatalabs-in/percussioncms/code-scanning/default-setup --jq .state` → `not-configured` |
+|                            Piece                            |                                                Path / command                                                |
+|-------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------|
+| Playbook (required reading for security/CodeQL PRs)         | `docs/ai-generated/tasks/gh-codeql-alerts/codeql-pr-playbook.md`                                             |
+| Advanced workflow (PRs + `development` + schedule + manual) | `.github/workflows/codeql.yml`                                                                               |
+| Config (`paths-ignore`, Java `packs`, `query-filters`)      | `.github/codeql/codeql-config.yml`                                                                           |
+| Custom sanitizer models                                     | `.github/codeql/models/`                                                                                     |
+| Agent skill                                                 | `modules/ai-shared-develop/src/main/resources/skills/codeql-pr/SKILL.md`                                     |
+| Verify default setup off                                    | `gh api repos/intersoftdatalabs-in/percussioncms/code-scanning/default-setup --jq .state` → `not-configured` |
 
 Disposition ladder: **runtime fix + test → model pack barrier → sink-line `// codeql[rule-id]` → path query-filters → dismiss last**. Put suppressions on the **exact sink line** (not above multi-line builders).
 
@@ -314,9 +321,11 @@ Disposition ladder: **runtime fix + test → model pack barrier → sink-line `/
 * Ignore module folders that are not referenced directly or indirectly in the `./pom.xml` as child modules.
 
 ## Skills
+
 - Locate and read the `./modules/ai-shared-develop/src/main/resources/skills/SKILLS.md` file for available project skills.
 
 ## Module List
+
 A list of child modules in this repository. Each bullet contains: Module name — module path — one-line description.
 
 - **perc-security-utils** — `./modules/perc-security-utils` - System wide security related utilities. Common re-usable security code shareable by all modules belongs here.
@@ -384,3 +393,4 @@ A list of child modules in this repository. Each bullet contains: Module name �
 - **secure-membership** — `./deliverytiersuite/delivery-tier-suite/secure-membership` — DTS micro-service that supports spring security based logins on the statically published website.
 - **delivery-tier-distribution** — `./deliverytiersuite/delivery-tier-suite/delivery-tier-distribution` — This is the installer module for the DTS.
 - **perc-distribution-tree** — `./modules/perc-distribution-tree` — This is the installer module for the CMS.
+

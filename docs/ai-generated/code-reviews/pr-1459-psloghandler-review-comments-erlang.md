@@ -19,11 +19,11 @@
 
 ## Verification of the four PR review threads
 
-| Thread | Concern | Status | Evidence |
-|---|---|---|---|
-| `PRRT_kwDOKZBp3M6SusWD` (db 3625805015) | Constructor `try/catch(Exception)` nullifies `m_dbmsHandle` + four schemas; breaks checked-exception contract | **fixed** | `PSLogHandler.java:66-84` — catch removed; only `throws PSDeployException` declared. Grep for `m_dbmsHandle\s*=\s*null` returns zero matches — no dead null-set residue. Javadoc `@throws PSDeployException If fail to get any of the table schemas` now honored. |
-| `PRRT_kwDOKZBp3M6SusWK` (db 3625805023) | Hardcoded `"localhost:9992"` fallback silently writes bogus `TGT_SERVER_NAME` | **fixed** | `PSLogHandler.java:797` (private path) and `:750` (public wrapper) call `PSServer.getHostName() + ":" + PSServer.getListenerPort()` with **no try/catch**. Both are simple static getters on `ms_hostName` / `ms_listenerPort`; they do not throw checked exceptions so the catch was both a data-corruption hazard and a code smell. Misconfiguration now propagates loudly. |
-| `PRRT_kwDOKZBp3M6SusWO` (db 3625805029) | Hardcoded `mockito-core 5.12.0` instead of `${mockito.version}` (5.21.0) | **fixed** | `deployer/pom.xml:121-125` — `<version>` element removed; dependency inherits from parent `dependencyManagement` (`mockito.version` = 5.21.0). Build succeeds with 5.21.0. |
+|                 Thread                  |                                                    Concern                                                    |  Status   |                                                                                                                                                                                                                   Evidence                                                                                                                                                                                                                    |
+|-----------------------------------------|---------------------------------------------------------------------------------------------------------------|-----------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `PRRT_kwDOKZBp3M6SusWD` (db 3625805015) | Constructor `try/catch(Exception)` nullifies `m_dbmsHandle` + four schemas; breaks checked-exception contract | **fixed** | `PSLogHandler.java:66-84` — catch removed; only `throws PSDeployException` declared. Grep for `m_dbmsHandle\s*=\s*null` returns zero matches — no dead null-set residue. Javadoc `@throws PSDeployException If fail to get any of the table schemas` now honored.                                                                                                                                                                             |
+| `PRRT_kwDOKZBp3M6SusWK` (db 3625805023) | Hardcoded `"localhost:9992"` fallback silently writes bogus `TGT_SERVER_NAME`                                 | **fixed** | `PSLogHandler.java:797` (private path) and `:750` (public wrapper) call `PSServer.getHostName() + ":" + PSServer.getListenerPort()` with **no try/catch**. Both are simple static getters on `ms_hostName` / `ms_listenerPort`; they do not throw checked exceptions so the catch was both a data-corruption hazard and a code smell. Misconfiguration now propagates loudly.                                                                 |
+| `PRRT_kwDOKZBp3M6SusWO` (db 3625805029) | Hardcoded `mockito-core 5.12.0` instead of `${mockito.version}` (5.21.0)                                      | **fixed** | `deployer/pom.xml:121-125` — `<version>` element removed; dependency inherits from parent `dependencyManagement` (`mockito.version` = 5.21.0). Build succeeds with 5.21.0.                                                                                                                                                                                                                                                                    |
 | `PRRT_kwDOKZBp3M6SusWT` (db 3625805034) | Test only stubs `getServerBuildDate()`; other methods return null → `PSXmlDocumentBuilder.toString(null)` NPE | **fixed** | `PSLogHandlerTest.java:43-117` — both tests stub `getArchiveRef`, `getUserName`, `getServerName`, `getServerVersion`, `getServerBuildId`, `getServerBuildDate`. `archiveManifest.toXml(Document)` is answered with a real DOM Element via `PSXmlDocumentBuilder.createRoot(...)`. Two behavioral tests assert every column by name + value (incl. `TGT_SERVER_NAME=rhythmx-target:9992` and `ALS_SRC_SERVER_BUILD_DATE=2026-07-21 15:30:45`). |
 
 ## Cross-platform / path review
@@ -36,6 +36,7 @@ agnostic. **Clean.**
 ## Findings (non-blocking)
 
 ### Issue 1 — suggestion (pre-existing)
+
 - File: `PSLogHandler.java:730-748`
 - Description: Two stacked `/** */` Javadoc blocks above
   `createArchiveLogSummaryTableData`. The legacy block (lines 730-738)
@@ -47,6 +48,7 @@ agnostic. **Clean.**
   739-748) is correct. **Pre-existing drift**, not a regression.
 
 ### Issue 2 — nit (resolved post-review)
+
 - File: `PSLogHandlerTest.java`
 - Description: Local helper `private static <T> T any(Class<T> ignored)`
   existed solely to forward to `org.mockito.ArgumentMatchers.any(...)`.
@@ -88,3 +90,4 @@ agnostic. **Clean.**
   requires inline mitigation replies on each of the four review threads
   citing the commit hash, **and** `resolveReviewThread` GraphQL mutations.
   Code-only fixes are not merge-ready on GitHub.
+

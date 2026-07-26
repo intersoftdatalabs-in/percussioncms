@@ -1432,12 +1432,7 @@ public class PSJdbcStatementFactory {
   static String buildColumnRenameStatement(
       String driver, String tableName, String fromColumn, String toColumn) {
     if (PSSqlHelper.isH2(driver)) {
-      return "ALTER TABLE "
-          + tableName
-          + " ALTER COLUMN "
-          + fromColumn
-          + " RENAME TO "
-          + toColumn;
+      return "ALTER TABLE " + tableName + " ALTER COLUMN " + fromColumn + " RENAME TO " + toColumn;
     }
     // Derby (and historical recreate path)
     return "RENAME COLUMN " + tableName + "." + fromColumn + " TO " + toColumn;

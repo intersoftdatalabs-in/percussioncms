@@ -302,29 +302,30 @@ interface UsersSectionState {
 
 ## REST API Mapping
 
-| Entity | Operation | REST Endpoint |
-|--------|-----------|---------------|
-| WorkflowDefinition | List | `GET /Rhythmyx/services/workflowmanagement/workflows/metadata` |
-| WorkflowDefinition | Get | `GET /Rhythmyx/services/workflowmanagement/workflows/{name}` |
-| WorkflowDefinition | Create | `POST /Rhythmyx/services/workflowmanagement/workflows/{name}` |
-| WorkflowDefinition | Update | `PUT /Rhythmyx/services/workflowmanagement/workflows/{name}` |
-| WorkflowDefinition | Delete | `DELETE /Rhythmyx/services/workflowmanagement/workflows/{name}` |
-| WorkflowStep | Create | `POST /Rhythmyx/services/workflowmanagement/workflows/{name}/steps/{stepName}` |
-| WorkflowStep | Update | `PUT /Rhythmyx/services/workflowmanagement/workflows/{name}/steps/{stepName}` |
-| WorkflowStep | Delete | `DELETE /Rhythmyx/services/workflowmanagement/workflows/{name}/steps/{stepName}` |
-| WorkflowAssignmentJob | Start | `GET /Rhythmyx/services/foldermanagement/GetAssociatedFoldersJob/start/{wfName}/{path}` |
-| WorkflowAssignmentJob | Poll | `GET /Rhythmyx/services/foldermanagement/workflowassignment/isInProgress` |
-| Role | List | `POST /Rhythmyx/services/rolemanagement/role/find` |
-| Role | Create | `POST /Rhythmyx/services/rolemanagement/role/create` |
-| Role | Update | `POST /Rhythmyx/services/rolemanagement/role/update` |
-| Role | Delete | `POST /Rhythmyx/services/rolemanagement/role/delete` |
-| User | List | `GET /Rhythmyx/services/user/user/users` |
-| User | Create | `POST /Rhythmyx/services/user/user/create` |
-| User | Update | `POST /Rhythmyx/services/user/user/update` |
-| User | Delete | `POST /Rhythmyx/services/user/user/delete` |
-| DirectoryUser | Search | `GET /Rhythmyx/services/user/user/external/find` |
-| DirectoryUser | Import | `POST /Rhythmyx/services/user/user/import` |
-| DirectoryStatus | Get | `GET /Rhythmyx/services/user/user/external/status` |
-| ItemWorkflowState | Get | `GET /Rhythmyx/services/itemmanagement/workflow/getTransitions/{id}` |
-| WorkflowTransition | Execute | `GET /Rhythmyx/services/itemmanagement/workflow/transitionWithComments/{id}/{trigger}` |
-| Item check in/out | Ops | `/Rhythmyx/services/itemmanagement/workflow/checkIn|checkOut|forceCheckOut/{id}` |
+|        Entity         | Operation |                                      REST Endpoint                                      |
+|-----------------------|-----------|-----------------------------------------------------------------------------------------|
+| WorkflowDefinition    | List      | `GET /Rhythmyx/services/workflowmanagement/workflows/metadata`                          |
+| WorkflowDefinition    | Get       | `GET /Rhythmyx/services/workflowmanagement/workflows/{name}`                            |
+| WorkflowDefinition    | Create    | `POST /Rhythmyx/services/workflowmanagement/workflows/{name}`                           |
+| WorkflowDefinition    | Update    | `PUT /Rhythmyx/services/workflowmanagement/workflows/{name}`                            |
+| WorkflowDefinition    | Delete    | `DELETE /Rhythmyx/services/workflowmanagement/workflows/{name}`                         |
+| WorkflowStep          | Create    | `POST /Rhythmyx/services/workflowmanagement/workflows/{name}/steps/{stepName}`          |
+| WorkflowStep          | Update    | `PUT /Rhythmyx/services/workflowmanagement/workflows/{name}/steps/{stepName}`           |
+| WorkflowStep          | Delete    | `DELETE /Rhythmyx/services/workflowmanagement/workflows/{name}/steps/{stepName}`        |
+| WorkflowAssignmentJob | Start     | `GET /Rhythmyx/services/foldermanagement/GetAssociatedFoldersJob/start/{wfName}/{path}` |
+| WorkflowAssignmentJob | Poll      | `GET /Rhythmyx/services/foldermanagement/workflowassignment/isInProgress`               |
+| Role                  | List      | `POST /Rhythmyx/services/rolemanagement/role/find`                                      |
+| Role                  | Create    | `POST /Rhythmyx/services/rolemanagement/role/create`                                    |
+| Role                  | Update    | `POST /Rhythmyx/services/rolemanagement/role/update`                                    |
+| Role                  | Delete    | `POST /Rhythmyx/services/rolemanagement/role/delete`                                    |
+| User                  | List      | `GET /Rhythmyx/services/user/user/users`                                                |
+| User                  | Create    | `POST /Rhythmyx/services/user/user/create`                                              |
+| User                  | Update    | `POST /Rhythmyx/services/user/user/update`                                              |
+| User                  | Delete    | `POST /Rhythmyx/services/user/user/delete`                                              |
+| DirectoryUser         | Search    | `GET /Rhythmyx/services/user/user/external/find`                                        |
+| DirectoryUser         | Import    | `POST /Rhythmyx/services/user/user/import`                                              |
+| DirectoryStatus       | Get       | `GET /Rhythmyx/services/user/user/external/status`                                      |
+| ItemWorkflowState     | Get       | `GET /Rhythmyx/services/itemmanagement/workflow/getTransitions/{id}`                    |
+| WorkflowTransition    | Execute   | `GET /Rhythmyx/services/itemmanagement/workflow/transitionWithComments/{id}/{trigger}`  |
+| Item check in/out     | Ops       | `/Rhythmyx/services/itemmanagement/workflow/checkIn|checkOut|forceCheckOut/{id}`        |
+

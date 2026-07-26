@@ -23,7 +23,6 @@ import com.percussion.install.PSMigrationSecretsRedactor;
 import com.percussion.install.PSRepositoryBackupGate;
 import java.nio.file.Path;
 import java.util.Map;
-import java.util.Properties;
 import org.apache.tools.ant.BuildException;
 
 /**
@@ -48,9 +47,7 @@ public class PSMigrateDtsEmbeddedRepository extends PSAction {
     this.failOnBlock = failOnBlock;
   }
 
-  /**
-   * Optional comma-separated service names; empty means all default services.
-   */
+  /** Optional comma-separated service names; empty means all default services. */
   public void setServices(String services) {
     this.services = services == null ? "" : services;
   }

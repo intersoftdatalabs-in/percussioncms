@@ -21,9 +21,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-/**
- * Log-injection hygiene for {@link PSSecurityFilter#sanitizeForLog(String)} (PR #1344 review).
- */
+/** Log-injection hygiene for {@link PSSecurityFilter#sanitizeForLog(String)} (PR #1344 review). */
 @DisplayName("PSSecurityFilter sanitizeForLog (T051)")
 class PSSecurityFilterSanitizeForLogTest {
 

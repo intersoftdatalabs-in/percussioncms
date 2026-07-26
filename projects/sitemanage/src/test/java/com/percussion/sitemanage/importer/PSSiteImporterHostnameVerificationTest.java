@@ -31,8 +31,8 @@ import org.junit.jupiter.api.Test;
  * (CodeQL {@code java/unsafe-hostname-verification} alert #663, T053).
  *
  * <p>Pre-fix code installed {@code (host, session) -> true}, which disables RFC 2818 hostname
- * matching. The fix leaves the JVM default {@code HostnameVerifier} in place while still
- * installing default trust managers for certificate validation.
+ * matching. The fix leaves the JVM default {@code HostnameVerifier} in place while still installing
+ * default trust managers for certificate validation.
  *
  * <p>HttpsURLConnection defaults are JVM-wide statics; this test captures/restores them in
  * {@code @BeforeEach}/{@code @AfterEach} and installs a unique sentinel verifier so the assertion

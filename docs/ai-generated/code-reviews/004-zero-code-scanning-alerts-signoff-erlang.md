@@ -27,30 +27,30 @@
 
 ### Spec / contract
 
-| Artifact | Change | Compliance |
-|----------|--------|------------|
-| `docs/ai-generated/tasks/gh-codeql-alerts/alerts.md` | Regenerated via `scripts/fetch-gh-code-scanning-alerts.sh ... open`. 0 rows. | ✅ Per `contracts/README.md` C6 (release-readiness source-of-truth). |
-| `docs/ai-generated/tasks/gh-codeql-alerts/triage.md` | Pruned to 192 `ready_to_close` rows; header updated to reflect 0 open + 192 ready_to_close + 674 historical. | ✅ C1 (no row count mismatch). |
-| `docs/ai-generated/tasks/gh-codeql-alerts/triage.archived-2026-07-21.md` (NEW) | 228836-byte archive of pre-prune triage.md. | ✅ Constitution V (no silent audit-trail deletion). |
-| `docs/ai-generated/tasks/gh-codeql-alerts/release-readiness-8.2.md` | Rewritten to PASS state. 0 open alerts; 8 accepted-risks; per-phase closure log in §5; §6 audit/archival note; §10 known gaps. | ✅ C6 (release sign-off). |
-| `docs/ai-generated/tasks/gh-codeql-alerts/README.md` | Disposition counts updated; sign-off banner; sign-off table updated. | ✅ |
-| `docs/ai-generated/tasks/gh-codeql-alerts/suppressions.md` | Removed 3 runtime-fix entries (#796, #638, #639 — alerts closed by code change, not inline suppression). | ✅ C3 (one row per inline `// codeql[...]` anchor). |
-| `specs/004-zero-code-scanning-alerts/tasks.md` | Bulk-flipped 77 open to [x] with closure annotation. Top-of-file SIGNED OFF banner. | ✅ Format conventions preserved. |
-| `tmp/gh-codeql-alerts/removed-files.txt` | Created (empty inventory; US2 cluster PRs already landed). | ✅ `verify-distribution-archive.sh` pre-check. |
+|                                    Artifact                                    |                                                             Change                                                             |                             Compliance                              |
+|--------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------|---------------------------------------------------------------------|
+| `docs/ai-generated/tasks/gh-codeql-alerts/alerts.md`                           | Regenerated via `scripts/fetch-gh-code-scanning-alerts.sh ... open`. 0 rows.                                                   | ✅ Per `contracts/README.md` C6 (release-readiness source-of-truth). |
+| `docs/ai-generated/tasks/gh-codeql-alerts/triage.md`                           | Pruned to 192 `ready_to_close` rows; header updated to reflect 0 open + 192 ready_to_close + 674 historical.                   | ✅ C1 (no row count mismatch).                                       |
+| `docs/ai-generated/tasks/gh-codeql-alerts/triage.archived-2026-07-21.md` (NEW) | 228836-byte archive of pre-prune triage.md.                                                                                    | ✅ Constitution V (no silent audit-trail deletion).                  |
+| `docs/ai-generated/tasks/gh-codeql-alerts/release-readiness-8.2.md`            | Rewritten to PASS state. 0 open alerts; 8 accepted-risks; per-phase closure log in §5; §6 audit/archival note; §10 known gaps. | ✅ C6 (release sign-off).                                            |
+| `docs/ai-generated/tasks/gh-codeql-alerts/README.md`                           | Disposition counts updated; sign-off banner; sign-off table updated.                                                           | ✅                                                                   |
+| `docs/ai-generated/tasks/gh-codeql-alerts/suppressions.md`                     | Removed 3 runtime-fix entries (#796, #638, #639 — alerts closed by code change, not inline suppression).                       | ✅ C3 (one row per inline `// codeql[...]` anchor).                  |
+| `specs/004-zero-code-scanning-alerts/tasks.md`                                 | Bulk-flipped 77 open to [x] with closure annotation. Top-of-file SIGNED OFF banner.                                            | ✅ Format conventions preserved.                                     |
+| `tmp/gh-codeql-alerts/removed-files.txt`                                       | Created (empty inventory; US2 cluster PRs already landed).                                                                     | ✅ `verify-distribution-archive.sh` pre-check.                       |
 
 ### Constitutional compliance
 
-| Constraint | Compliance |
-|------------|------------|
-| I (no invariants violated) | ✅ Doc-only change; no shipped code or test surface modified. |
-| II (no invented APIs) | ✅ N/A — no API change. |
-| III (behavioral tests) | ✅ 3 verify scripts pass on the current tree (verify-triage-inventory, verify-valid-fixes, verify-pr-review-resolution). 2 known gaps documented. |
-| IV (service-contract tests) | ✅ N/A — no Java change. |
-| V (Plan / Complexity) | ✅ 7 file changes; 1054 insertions / 7837 deletions (the deletions are mostly the alerts.md state=all refresh and the 674 historical triage rows moved to the archive). |
-| VI (threat-model note) | ✅ N/A — no new auth/network surface. |
-| VII (format checks) | ✅ `verify-triage-inventory.sh` PASS, `verify-valid-fixes.sh` PASS, `verify-pr-review-resolution.sh` PASS. |
-| IX (review-thread resolution) | ✅ All closing PRs (#1196-#1455) verified by `scripts/verify-pr-review-resolution.sh` (0 unresolved threads). |
-| E (no residuals out of spec phases) | ✅ Spec 004 sign-off; SC-001 met; 8 accepted-risks recorded per contracts/C4. |
+|             Constraint              |                                                                               Compliance                                                                               |
+|-------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| I (no invariants violated)          | ✅ Doc-only change; no shipped code or test surface modified.                                                                                                           |
+| II (no invented APIs)               | ✅ N/A — no API change.                                                                                                                                                 |
+| III (behavioral tests)              | ✅ 3 verify scripts pass on the current tree (verify-triage-inventory, verify-valid-fixes, verify-pr-review-resolution). 2 known gaps documented.                       |
+| IV (service-contract tests)         | ✅ N/A — no Java change.                                                                                                                                                |
+| V (Plan / Complexity)               | ✅ 7 file changes; 1054 insertions / 7837 deletions (the deletions are mostly the alerts.md state=all refresh and the 674 historical triage rows moved to the archive). |
+| VI (threat-model note)              | ✅ N/A — no new auth/network surface.                                                                                                                                   |
+| VII (format checks)                 | ✅ `verify-triage-inventory.sh` PASS, `verify-valid-fixes.sh` PASS, `verify-pr-review-resolution.sh` PASS.                                                              |
+| IX (review-thread resolution)       | ✅ All closing PRs (#1196-#1455) verified by `scripts/verify-pr-review-resolution.sh` (0 unresolved threads).                                                           |
+| E (no residuals out of spec phases) | ✅ Spec 004 sign-off; SC-001 met; 8 accepted-risks recorded per contracts/C4.                                                                                           |
 
 ### Cross-platform / portability
 
@@ -64,14 +64,14 @@ No file I/O, no path construction, no OS-specific concerns added or removed. The
 
 ### ER-typed summary
 
-| Category | Count |
-|----------|------:|
-| Blocking bugs | 0 |
-| Bugs caught-and-fixed-in-session | 1 (awk column separator; verified by PASS re-run) |
-| Non-blocking observations | 5 (archive rationale; 2 known script gaps; bulk-close annotation pattern; README update) |
-| Style cleanups | 0 |
-| Cross-platform portability findings | 0 |
-| Constitution rule violations | 0 |
+|              Category               |                                                                                    Count |
+|-------------------------------------|-----------------------------------------------------------------------------------------:|
+| Blocking bugs                       |                                                                                        0 |
+| Bugs caught-and-fixed-in-session    |                                        1 (awk column separator; verified by PASS re-run) |
+| Non-blocking observations           | 5 (archive rationale; 2 known script gaps; bulk-close annotation pattern; README update) |
+| Style cleanups                      |                                                                                        0 |
+| Cross-platform portability findings |                                                                                        0 |
+| Constitution rule violations        |                                                                                        0 |
 
 ---
 

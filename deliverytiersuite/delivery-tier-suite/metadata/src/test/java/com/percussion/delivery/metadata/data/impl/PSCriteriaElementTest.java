@@ -161,8 +161,8 @@ public class PSCriteriaElementTest {
 
   /**
    * Regression test for the {@code java/polynomial-redos} alerts CodeQL raised at
-   * PSCriteriaElement.java:111 and :118 on the {@code [-+]?[0-9]*\.?[0-9]+} numeric validator.
-   * The pre-fix pattern has overlapping {@code [0-9]*} / {@code [0-9]+} quantifiers that produce
+   * PSCriteriaElement.java:111 and :118 on the {@code [-+]?[0-9]*\.?[0-9]+} numeric validator. The
+   * pre-fix pattern has overlapping {@code [0-9]*} / {@code [0-9]+} quantifiers that produce
    * polynomial backtracking on adversarial inputs such as long runs of digits followed by a
    * non-digit. The post-fix validator ({@code NUMERIC_PATTERN}) is anchored and uses three
    * unambiguous alternation branches so each branch can match in linear time. We measure that a

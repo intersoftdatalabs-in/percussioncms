@@ -10,10 +10,10 @@
 
 **Sign-off**:
 
-| Role | Name | Date | Notes |
-|------|------|------|-------|
-| Implementer | | | |
-| Reviewer | | | |
+|    Role     | Name | Date | Notes |
+|-------------|------|------|-------|
+| Implementer |      |      |       |
+| Reviewer    |      |      |       |
 
 ---
 
@@ -29,47 +29,47 @@
 
 Fill **Key** (existing or new). Mark **New?** when added in this feature. **Locales** = structural parity present (e.g. en-us/es/hi).
 
-| UI string / surface | Key | New? | Locales OK | Notes |
-|---------------------|-----|------|------------|-------|
-| Home shell title / heading | perc.ui.home.modern@Home | Y | en/es/hi | |
-| Section: Recent | perc.ui.home@My Recent | reuse | existing | |
-| Section: My Bookmarks | perc.ui.home.modern@My Bookmarks | Y | en/es/hi | keep decision |
-| Bookmarks empty | perc.ui.home.modern@No Bookmarks | Y | en/es/hi | |
-| Section: Library | perc.ui.home.modern@Library | Y | en/es/hi | |
-| Section: Search | perc.ui.home.modern@Search | Y | en/es/hi | |
-| Section: Create | perc.ui.home@Add New | reuse | existing | |
-| Recent empty state | perc.ui.home.modern@No Recent Items | Y | en/es/hi | |
-| Library empty / no sites | perc.ui.home@No Site Exists | reuse | existing | |
-| Search empty / no results | perc.ui.home.modern@No Search Results | Y | en/es/hi | |
-| Create primary action(s) | perc.ui.home.modern@Create Page | Y | en/es/hi | page MVP |
-| Generic error / session recovery chrome (client) | perc.ui.home.modern@Error | Y | en/es/hi | |
-| Open item | perc.ui.home.modern@Open | Y | en/es/hi | |
-| Loading | perc.ui.home.modern@Loading | Y | en/es/hi | |
+|               UI string / surface                |                  Key                  | New?  | Locales OK |     Notes     |
+|--------------------------------------------------|---------------------------------------|-------|------------|---------------|
+| Home shell title / heading                       | perc.ui.home.modern@Home              | Y     | en/es/hi   |               |
+| Section: Recent                                  | perc.ui.home@My Recent                | reuse | existing   |               |
+| Section: My Bookmarks                            | perc.ui.home.modern@My Bookmarks      | Y     | en/es/hi   | keep decision |
+| Bookmarks empty                                  | perc.ui.home.modern@No Bookmarks      | Y     | en/es/hi   |               |
+| Section: Library                                 | perc.ui.home.modern@Library           | Y     | en/es/hi   |               |
+| Section: Search                                  | perc.ui.home.modern@Search            | Y     | en/es/hi   |               |
+| Section: Create                                  | perc.ui.home@Add New                  | reuse | existing   |               |
+| Recent empty state                               | perc.ui.home.modern@No Recent Items   | Y     | en/es/hi   |               |
+| Library empty / no sites                         | perc.ui.home@No Site Exists           | reuse | existing   |               |
+| Search empty / no results                        | perc.ui.home.modern@No Search Results | Y     | en/es/hi   |               |
+| Create primary action(s)                         | perc.ui.home.modern@Create Page       | Y     | en/es/hi   | page MVP      |
+| Generic error / session recovery chrome (client) | perc.ui.home.modern@Error             | Y     | en/es/hi   |               |
+| Open item                                        | perc.ui.home.modern@Open              | Y     | en/es/hi   |               |
+| Loading                                          | perc.ui.home.modern@Loading           | Y     | en/es/hi   |               |
 
 ---
 
 ## 3. Widget Builder primary chrome → TMX key
 
-| UI string / surface | Key | New? | Locales OK | Notes |
-|---------------------|-----|------|------------|-------|
-| WB shell title / heading | perc.ui.widgetbuilder.modern@Title | Y | en/es/hi | |
-| Empty list state | perc.ui.widgetbuilder.modern@Empty | Y | en/es/hi | |
-| Create / New definition | perc.ui.widgetbuilder.modern@New | Y | en/es/hi | |
-| Save | perc.ui.widgetbuilder.modern@Save | Y | en/es/hi | |
-| Validate | perc.ui.widgetbuilder.modern@Validate | Y | en/es/hi | |
-| Deploy / package | perc.ui.widgetbuilder.modern@Deploy | Y | en/es/hi | |
-| Delete (if exposed) | perc.ui.widgetbuilder.modern@Delete | Y | en/es/hi | |
-| Edit | perc.ui.widgetbuilder.modern@Edit | Y | en/es/hi | |
-| Disabled / access denied messaging | perc.ui.widgetbuilder.modern@Disabled | Y | en/es/hi | |
-| Saved / Valid / Deployed status | perc.ui.widgetbuilder.modern@Saved etc. | Y | en/es/hi | |
+|        UI string / surface         |                   Key                   | New? | Locales OK | Notes |
+|------------------------------------|-----------------------------------------|------|------------|-------|
+| WB shell title / heading           | perc.ui.widgetbuilder.modern@Title      | Y    | en/es/hi   |       |
+| Empty list state                   | perc.ui.widgetbuilder.modern@Empty      | Y    | en/es/hi   |       |
+| Create / New definition            | perc.ui.widgetbuilder.modern@New        | Y    | en/es/hi   |       |
+| Save                               | perc.ui.widgetbuilder.modern@Save       | Y    | en/es/hi   |       |
+| Validate                           | perc.ui.widgetbuilder.modern@Validate   | Y    | en/es/hi   |       |
+| Deploy / package                   | perc.ui.widgetbuilder.modern@Deploy     | Y    | en/es/hi   |       |
+| Delete (if exposed)                | perc.ui.widgetbuilder.modern@Delete     | Y    | en/es/hi   |       |
+| Edit                               | perc.ui.widgetbuilder.modern@Edit       | Y    | en/es/hi   |       |
+| Disabled / access denied messaging | perc.ui.widgetbuilder.modern@Disabled   | Y    | en/es/hi   |       |
+| Saved / Valid / Deployed status    | perc.ui.widgetbuilder.modern@Saved etc. | Y    | en/es/hi   |       |
 
 ---
 
 ## 4. Cross-cutting
 
-| UI string / surface | Key | New? | Locales OK | Notes |
-|---------------------|-----|------|------------|-------|
-| Moved / unavailable legacy path message | perc.ui.home.modern@Unavailable | Y | en/es/hi | FR-013 / SC-007 |
+|           UI string / surface           |               Key               | New? | Locales OK |      Notes      |
+|-----------------------------------------|---------------------------------|------|------------|-----------------|
+| Moved / unavailable legacy path message | perc.ui.home.modern@Unavailable | Y    | en/es/hi   | FR-013 / SC-007 |
 
 ---
 
@@ -91,3 +91,4 @@ If not available, mark N/A and rely on key-presence rows above.
 - [ ] New keys have structural locale parity (FR-022); en-us correct; placeholder non-en noted if any
 - [ ] Shells load `tmx.jsp` (section 1)
 - [ ] SC-008 considered satisfied for this release
+

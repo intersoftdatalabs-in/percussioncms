@@ -31,29 +31,23 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /**
- * Helper class that provides shared utilities for the Content Explorer, including resource
- * loading, default parameter initialization, and image icon resolution.
+ * Helper class that provides shared utilities for the Content Explorer, including resource loading,
+ * default parameter initialization, and image icon resolution.
  */
 public class PSContentExplorerHelper {
 
   /** Logger for this class. */
   private static final Logger log = LogManager.getLogger(PSContentExplorerHelper.class);
 
-  /**
-   * List of recognized HTML file extensions.
-   */
+  /** List of recognized HTML file extensions. */
   public static List<String> htmExt = Arrays.asList("html", "htm");
 
-  /**
-   * List of recognized Excel file extensions.
-   */
+  /** List of recognized Excel file extensions. */
   public static List<String> xlsExt = Arrays.asList("xls");
 
   private static ResourceBundle sm_res = null;
 
-  /**
-   * Constructs a new helper instance.
-   */
+  /** Constructs a new helper instance. */
   public PSContentExplorerHelper() {}
 
   /**
@@ -96,8 +90,8 @@ public class PSContentExplorerHelper {
   /**
    * Gets an image icon for the given class using the main icon path from the resource bundle.
    *
-   * @param clazz the class whose resource path is used to locate the icon, assumed not
-   *     <code>null</code>.
+   * @param clazz the class whose resource path is used to locate the icon, assumed not <code>null
+   *     </code>.
    * @return the loaded image icon, or <code>null</code> if it cannot be loaded.
    */
   public static ImageIcon getImageIcon(Class clazz) {

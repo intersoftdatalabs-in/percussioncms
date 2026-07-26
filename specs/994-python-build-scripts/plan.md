@@ -53,6 +53,7 @@ Replace all in-scope build-time `.sh`/`.bat` scripts with cross-platform Python 
 ## Project Structure
 
 ### Documentation (this feature)
+
 ```text
 specs/994-python-build-scripts/
 ├── plan.md              # Technical plan (this file)
@@ -124,6 +125,7 @@ modules/ai-shared-develop/AGENTS.md       (updated)
 ```
 
 ### OUT OF SCOPE — must NOT be touched
+
 - `mvn-env.sh`, `mvn-env.bat` (Clarification Q2)
 - `system/release/installer/**`, `system/release/ShellScripts/**`, `system/installResources/**`, `system/Tools/**`
 - `system/Testing/install.bat`, `system/Testing/beprovider/**`, `system/Testing/becredentials/**`
@@ -173,3 +175,4 @@ The one Complexity-Budget item worth recording: per-directory phasing (Clarifica
 - [x] **VIII. Documentation & Operability** — `quickstart.md` covers end-to-end validation; README updates per FR-011; per-script `## Behavioral Notes` per FR-009b
 - [x] **IX. PR Review Comment Resolution** — Per-PR inline reply + thread resolution per root AGENTS.md
 - [x] **Complexity Budget** — No violations
+

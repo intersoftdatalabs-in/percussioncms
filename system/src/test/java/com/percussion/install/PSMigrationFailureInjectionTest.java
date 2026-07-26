@@ -85,7 +85,8 @@ public class PSMigrationFailureInjectionTest {
         new PSEmbeddedRepositoryMigrator(installRoot, sys, false, null).migrate();
     assertEquals(PSMigrationOutcome.FAILED, outcome);
     assertFalse(
-        Files.isRegularFile(installRoot.resolve(PSEmbeddedRepositoryMigrator.RXREPOSITORY_RELATIVE)));
+        Files.isRegularFile(
+            installRoot.resolve(PSEmbeddedRepositoryMigrator.RXREPOSITORY_RELATIVE)));
     assertReport(PSMigrationOutcome.FAILED);
   }
 
@@ -164,8 +165,7 @@ public class PSMigrationFailureInjectionTest {
     PSMigrationReportWriter.Report report = readReport();
     assertEquals(PSMigrationOutcome.FAILED, report.outcome());
     assertTrue(
-        report.failureReason() != null
-            && report.failureReason().toLowerCase().contains("disk"),
+        report.failureReason() != null && report.failureReason().toLowerCase().contains("disk"),
         "failure reason should mention disk: " + report.failureReason());
   }
 
@@ -173,8 +173,7 @@ public class PSMigrationFailureInjectionTest {
   @Test
   void case08_diskPrecheckUnit_rejectsHugeRequirement() throws Exception {
     assertTrue(PSRepositoryOfflineBackup.hasSufficientDiskSpace(installRoot, 1L));
-    assertFalse(
-        PSRepositoryOfflineBackup.hasSufficientDiskSpace(installRoot, Long.MAX_VALUE / 2));
+    assertFalse(PSRepositoryOfflineBackup.hasSufficientDiskSpace(installRoot, Long.MAX_VALUE / 2));
   }
 
   /** Case 9 — post-import validation fails when target table count too low. */
@@ -195,15 +194,12 @@ public class PSMigrationFailureInjectionTest {
     }
   }
 
-  /**
-   * Case 10 — cutover backup + rollback restores Derby live configs (partial-cutover recovery).
-   */
+  /** Case 10 — cutover backup + rollback restores Derby live configs (partial-cutover recovery). */
   @Test
   void case10_cutoverRollback_restoresDerbyConfigs() throws Exception {
     Path rx = installRoot.resolve(PSConfigCutover.RXREPOSITORY_RELATIVE);
     Files.createDirectories(rx.getParent());
-    String derbyRx =
-        "DB_BACKEND=DERBY\nDB_DRIVER_NAME=derby\nDB_SERVER=//localhost:1527/CMDB\n";
+    String derbyRx = "DB_BACKEND=DERBY\nDB_DRIVER_NAME=derby\nDB_SERVER=//localhost:1527/CMDB\n";
     Files.writeString(rx, derbyRx, StandardCharsets.UTF_8);
 
     Path perc = installRoot.resolve(PSConfigCutover.PERC_DS_RELATIVE);

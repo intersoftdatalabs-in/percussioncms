@@ -101,8 +101,7 @@ public class PSAssetUploadServlet extends HttpServlet {
           out.flush();
         }
       } else {
-        safeWriteErrorResponse(
-            response, fileName, "No valid file was provided for upload.", 400);
+        safeWriteErrorResponse(response, fileName, "No valid file was provided for upload.", 400);
       }
     } catch (PSExtractHTMLException caE) {
       handleExtractionError(caE, response, fileName);

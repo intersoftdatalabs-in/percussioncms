@@ -42,8 +42,10 @@ public class MainDTSPreInstall {
   private static final String INSTALL_TEMPDIR = "percDTSInstallTmp_";
   private static final String PERC_ANT_JAR = "perc-ant";
   private static final String ANT_INSTALL = "installDts.xml";
+
   /** Default embedded engine after Apache Derby retirement (GitHub #548). */
   private static final String DB_TYPE_DEFAULT = "h2";
+
   private static final String DB_SSL_ENABLED_DEFAULT = "true";
   private static final String DB_SSL_VERIFY_DEFAULT = "true";
   private static final String DB_SSL_ALLOW_SELF_SIGNED_DEFAULT = "false";
@@ -139,8 +141,7 @@ public class MainDTSPreInstall {
         System.out.println("DTS Java home selection: " + outcome.summary());
       } catch (JavaInstallSelection.JavaSelectionException sel) {
         System.out.println("DTS Java home selection failed: " + sel.getMessage());
-        throw new AntJobFailedException(
-            String.format("Installation failed. %s", sel.getMessage()));
+        throw new AntJobFailedException(String.format("Installation failed. %s", sel.getMessage()));
       } catch (IOException io) {
         throw new AntJobFailedException(
             String.format(
@@ -358,9 +359,8 @@ public class MainDTSPreInstall {
   }
 
   /**
-   * Treat -Dperc.java.home=... as the unattended input to the Java home
-   * selector. Returns {@code null} when unset so the discovery / interactive
-   * path takes over.
+   * Treat -Dperc.java.home=... as the unattended input to the Java home selector. Returns {@code
+   * null} when unset so the discovery / interactive path takes over.
    */
   static java.nio.file.Path parseUnattendedJavaHome(String raw) {
     if (raw == null) {
@@ -470,8 +470,7 @@ public class MainDTSPreInstall {
     String schema = systemProperties.get("perc.db.schema");
 
     // Embedded engines (H2 default, Derby migration window) do not require host/port/name.
-    boolean embedded =
-        "h2".equals(dbTypeNormalized) || "derby".equals(dbTypeNormalized);
+    boolean embedded = "h2".equals(dbTypeNormalized) || "derby".equals(dbTypeNormalized);
     if (!embedded) {
       List<String> missing = new ArrayList<>();
       if (isBlank(host)) {

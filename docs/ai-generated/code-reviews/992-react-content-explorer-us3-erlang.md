@@ -107,7 +107,7 @@ no new Java; no cross-platform path concerns (URL endpoints only).
 - Cascading-children support via `useState<string | null>` for
   `openPivot`; each pivot has `role="menuitem"` + `aria-haspopup="menu"`
   + `aria-expanded={expanded}` + `id`/`aria-controls`-style identity for
-  external hooks.
+    external hooks.
 - `Escape` fires `onClose` (verified by Vitest test 4 +
   Playwright test 5).
 - `activate(action)` either navigates to `action.url` if provided OR
@@ -246,12 +246,17 @@ no new Java; no cross-platform path concerns (URL endpoints only).
 - Workflow set (#10–#12) all enumerated; #11 documents the gap
   (ActionMenuResource.getAllowedTransitions is "// Not implemented yet")
   with a non-blocking rationale (US3 P-Menu in 8.2 can render #10 and
-  #12; #11 surfaces a "not supported in this release" label until a
+
+  # 12; #11 surfaces a "not supported in this release" label until a
+
   follow-up rest enhancement lands).
+
 - T052 decision recorded: NO new sitemanage or rest façade required
   for US3 P-Menu in 8.2.
+
 - Test coverage map (Vitest + Playwright, by row) included for the
   release-evidence trail.
+
 - **No bugs.**
 
 ### `specs/992-react-content-explorer/tasks.md` (modified)
@@ -283,7 +288,7 @@ review thread:
 1. Reply inline with `**Mitigation (commit <hash>):** <description>`.
 2. Run `gh api graphql resolveReviewThread` per thread.
 3. Re-verify via the GraphQL `reviewThreads(first: 50) { nodes {
-   isResolved } }` query before merging.
+isResolved } }` query before merging.
 
 ## Handoff
 
@@ -300,3 +305,4 @@ review thread:
   verify) and the US4 ACL work (T058-T064); US3 enumeration is now
   measurable per `sc003-actions-checklist.md` and the new
   `tests/us3-menus.spec.js`.
+

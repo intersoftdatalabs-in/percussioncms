@@ -20,7 +20,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -44,12 +43,11 @@ class JavaInstallSelectionTest {
     // valid candidate; instead we simulate "no candidates" via the unattended
     // path pointing at an invalid home.
     Path invalid = tempDir.resolve("does-not-exist");
-    JavaInstallSelection unattended =
-        new JavaInstallSelection(tempDir, invalid, null);
-    var ex = assertThrows(JavaInstallSelection.JavaSelectionException.class,
-        unattended::selectAndPersist);
-    assertTrue(ex.getMessage().contains("21"),
-        "error message must mention minimum major version");
+    JavaInstallSelection unattended = new JavaInstallSelection(tempDir, invalid, null);
+    var ex =
+        assertThrows(
+            JavaInstallSelection.JavaSelectionException.class, unattended::selectAndPersist);
+    assertTrue(ex.getMessage().contains("21"), "error message must mention minimum major version");
     assertTrue(
         ex.getMessage().toLowerCase().contains("or later")
             || ex.getMessage().toLowerCase().contains("later"),
@@ -68,13 +66,13 @@ class JavaInstallSelectionTest {
     JavaInstallSelection sel = new JavaInstallSelection(installRoot, jdk, null);
     JavaInstallSelection.SelectionOutcome out = sel.selectAndPersist();
     assertEquals(jdk.toAbsolutePath().normalize(), out.javaHome().toAbsolutePath().normalize());
-    assertTrue(out.source().startsWith("unattended") || out.source().contains("auto"),
+    assertTrue(
+        out.source().startsWith("unattended") || out.source().contains("auto"),
         "source tagged: " + out.source());
     // java.properties was written.
     assertTrue(Files.exists(installRoot.resolve("java.properties")));
     String body = Files.readString(installRoot.resolve("java.properties"), StandardCharsets.UTF_8);
-    assertTrue(body.contains("jdk21"),
-        "properties file contains JAVA_HOME jdk21 suffix: " + body);
+    assertTrue(body.contains("jdk21"), "properties file contains JAVA_HOME jdk21 suffix: " + body);
   }
 
   @Test
@@ -97,11 +95,12 @@ class JavaInstallSelectionTest {
     Path b = JavaCandidateDiscoveryTest.makeHome(installRoot.resolve("b"), "21", "java");
 
     AtomicReference<String> prompted = new AtomicReference<>();
-    JavaInstallSelection.InteractivePrompt prompt = q -> {
-      prompted.set(q);
-      // Pick the second candidate ("b") to exercise selection.
-      return "2";
-    };
+    JavaInstallSelection.InteractivePrompt prompt =
+        q -> {
+          prompted.set(q);
+          // Pick the second candidate ("b") to exercise selection.
+          return "2";
+        };
     JavaInstallSelection sel = new JavaInstallSelection(installRoot, null, prompt);
     // We can't fully exercise the discovery-driven path without a fake PATH,
     // so we pre-condition with unattended = null and a prompt that captures

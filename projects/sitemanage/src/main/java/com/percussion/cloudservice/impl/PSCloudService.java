@@ -17,7 +17,6 @@
 
 package com.percussion.cloudservice.impl;
 
-import com.percussion.security.io.PSPathInjectionGuard;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.percussion.cloudservice.IPSCloudService;
 import com.percussion.cloudservice.data.PSCloudLicenseType;
@@ -30,6 +29,7 @@ import com.percussion.pagemanagement.data.PSPage;
 import com.percussion.pagemanagement.service.IPSPageService;
 import com.percussion.pagemanagement.service.IPSRenderService;
 import com.percussion.security.error.PSExceptionUtils;
+import com.percussion.security.io.PSPathInjectionGuard;
 import com.percussion.server.PSServer;
 import com.percussion.services.sitemgr.IPSSite;
 import com.percussion.share.dao.IPSFolderHelper;

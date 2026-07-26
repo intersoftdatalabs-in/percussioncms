@@ -174,9 +174,7 @@ public class PSThemeServiceSecurityTest {
     assertEquals("sess__id", PSThemeService.safeSessionSegment("sess::id"));
   }
 
-  /**
-   * clearCacheRegionCSS must reject theme-name traversal before any delete under the temp root.
-   */
+  /** clearCacheRegionCSS must reject theme-name traversal before any delete under the temp root. */
   @Test
   public void clearCacheRegionCSS_rejectsTraversalThemeName() {
     PSThemeService svc = new PSThemeService();
@@ -197,8 +195,8 @@ public class PSThemeServiceSecurityTest {
   }
 
   /**
-   * When temp root is missing, clearCache is a no-op (no exception). Ensures early-return path
-   * does not NPE after the session-segment rewrite.
+   * When temp root is missing, clearCache is a no-op (no exception). Ensures early-return path does
+   * not NPE after the session-segment rewrite.
    */
   @Test
   public void clearCacheRegionCSS_missingTempRootIsNoOp(@TempDir Path tempDir) {

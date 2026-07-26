@@ -41,21 +41,18 @@ class PublishServerNpeGuardTest {
         root.resolve(
             "system/business/src/com/percussion/rx/delivery/impl/PSMetadataDeliveryHandler.java");
     Path pubServer =
-        root.resolve(
-            "system/services/src/com/percussion/services/pubserver/data/PSPubServer.java");
+        root.resolve("system/services/src/com/percussion/services/pubserver/data/PSPubServer.java");
 
     String utils = Files.readString(pageUtils, StandardCharsets.UTF_8);
     // getDeliveryServer body should call getPublishServer, not raw property for publishServer
     assertTrue(utils.contains("getPublishServer()"));
     assertFalse(
-        utils.contains(
-            "getProperty(\"publishServer\").map(PSPubServerProperty::getValue)"),
+        utils.contains("getProperty(\"publishServer\").map(PSPubServerProperty::getValue)"),
         "getDeliveryServer must not use raw publishServer property map");
 
     String meta = Files.readString(metadata, StandardCharsets.UTF_8);
     assertTrue(meta.contains("getPublishServer()"));
-    assertFalse(
-        meta.contains("getProperty(\"publishServer\").map(PSPubServerProperty::getValue)"));
+    assertFalse(meta.contains("getProperty(\"publishServer\").map(PSPubServerProperty::getValue)"));
 
     String pub = Files.readString(pubServer, StandardCharsets.UTF_8);
     assertTrue(pub.contains("No DTS server is currently configured"));

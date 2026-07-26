@@ -1437,8 +1437,8 @@ public class SecureStringUtils {
 
   /**
    * Rejects multi-statement SQL (stacked queries) while allowing a single trailing semicolon.
-   * Suitable for general {@code Statement} wrappers where SQL line/block comments may appear
-   * inside string literals or vendor hints.
+   * Suitable for general {@code Statement} wrappers where SQL line/block comments may appear inside
+   * string literals or vendor hints.
    *
    * <p>CodeQL barrier target for {@code java/sql-injection} (T042 / alert #661).
    *

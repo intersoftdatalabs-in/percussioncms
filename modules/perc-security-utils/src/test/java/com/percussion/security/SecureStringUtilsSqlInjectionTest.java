@@ -57,8 +57,7 @@ class SecureStringUtilsSqlInjectionTest {
 
   @Test
   void requireSafeMetadataTokenAcceptsNamespacedNames() {
-    assertEquals(
-        "dcterms:created", SecureStringUtils.requireSafeMetadataToken("dcterms:created"));
+    assertEquals("dcterms:created", SecureStringUtils.requireSafeMetadataToken("dcterms:created"));
     assertEquals("linktext_lower", SecureStringUtils.requireSafeMetadataToken("linktext_lower"));
   }
 

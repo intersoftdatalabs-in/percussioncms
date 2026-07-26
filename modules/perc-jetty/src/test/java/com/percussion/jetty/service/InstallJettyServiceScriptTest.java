@@ -36,7 +36,8 @@ class InstallJettyServiceScriptTest {
 
   @BeforeAll
   static void load() throws Exception {
-    assertTrue(Files.isRegularFile(INSTALL_SCRIPT), () -> "missing " + INSTALL_SCRIPT.toAbsolutePath());
+    assertTrue(
+        Files.isRegularFile(INSTALL_SCRIPT), () -> "missing " + INSTALL_SCRIPT.toAbsolutePath());
     script = Files.readString(INSTALL_SCRIPT, StandardCharsets.UTF_8);
   }
 
@@ -76,16 +77,20 @@ class InstallJettyServiceScriptTest {
     assertTrue(script.contains("--initd"), "force init.d flag");
     assertTrue(script.contains("--systemd"), "force systemd flag");
     assertTrue(script.contains("removeSystemdUnit"), "uninstall systemd unit");
-    assertTrue(script.contains("disable --now") || script.contains("systemctl disable"), "disable unit");
+    assertTrue(
+        script.contains("disable --now") || script.contains("systemctl disable"), "disable unit");
   }
 
   @Test
   void defaultsFile_doesNotEmbedShellCommands() {
     // Historical bug: mkdir/chown were written into /etc/default and broke EnvironmentFile
     assertFalse(
-        script.contains("cat <<-EOF > /etc/default") && script.contains("mkdir -p ${JETTY_RUN}\n    chown"),
+        script.contains("cat <<-EOF > /etc/default")
+            && script.contains("mkdir -p ${JETTY_RUN}\n    chown"),
         "defaults heredoc must not include mkdir/chown shell lines");
-    assertTrue(script.contains("cat > \"/etc/default/${SERVICE_NAME}\"") || script.contains("cat > \"/etc/default/"),
+    assertTrue(
+        script.contains("cat > \"/etc/default/${SERVICE_NAME}\"")
+            || script.contains("cat > \"/etc/default/"),
         "writes defaults file");
   }
 }

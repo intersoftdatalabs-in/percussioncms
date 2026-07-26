@@ -828,9 +828,9 @@ public class PSSaveAssetsMaintenanceProcess
   }
 
   /**
-   * Legacy dual-column cleanup for {@code CT_PERCFILEASSET}: when both {@code
-   * ITEM_FILE_ATTACHMENT} and {@code ITEM_FILE_ATTACHMENTX} exist (or only the old name remains),
-   * rename the old column onto the canonical name.
+   * Legacy dual-column cleanup for {@code CT_PERCFILEASSET}: when both {@code ITEM_FILE_ATTACHMENT}
+   * and {@code ITEM_FILE_ATTACHMENTX} exist (or only the old name remains), rename the old column
+   * onto the canonical name.
    *
    * <p><b>Must not</b> drop {@code ITEM_FILE_ATTACHMENT} solely because {@code COUNT(... IS NOT
    * NULL) == 0} — that is true on empty / fresh installs and previously deleted the only real
@@ -847,8 +847,7 @@ public class PSSaveAssetsMaintenanceProcess
       rootDir = baseConfigDir.substring(0, baseConfigDir.lastIndexOf("jetty") - 1);
     }
     var propFile =
-        java.nio.file.Path.of(rootDir, "rxconfig", "Installer", "rxrepository.properties")
-            .toFile();
+        java.nio.file.Path.of(rootDir, "rxconfig", "Installer", "rxrepository.properties").toFile();
     log.info(propFile.getAbsolutePath());
     if (!(propFile.exists() && propFile.isFile())) {
       log.error("Unable to connect to the repository datasource file: {}", propFile);
@@ -960,12 +959,7 @@ public class PSSaveAssetsMaintenanceProcess
       throws SQLException {
     var md = conn.getMetaData();
     // Derby and others often store unquoted identifiers upper-case
-    try (var rs =
-        md.getColumns(
-            conn.getCatalog(),
-            schema,
-            table,
-            null)) {
+    try (var rs = md.getColumns(conn.getCatalog(), schema, table, null)) {
       while (rs.next()) {
         var name = rs.getString("COLUMN_NAME");
         if (name != null && name.equalsIgnoreCase(column)) {

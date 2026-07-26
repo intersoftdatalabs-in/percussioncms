@@ -7,7 +7,7 @@
 **Top-level comments kept:** 197  
 **Clusters:** 178  
 **Promotion threshold (multi-PR):** count ≥ 2 **and** distinct PRs ≥ 2 (use `--promote-critical` for single-PR CRITICAL gates)  
-**Patterns file:** `modules/ai-shared-develop/src/main/resources/skills/erlang-review/patterns.md`  
+**Patterns file:** `modules/ai-shared-develop/src/main/resources/skills/erlang-review/patterns.md`
 
 ## Auto-apply selection
 
@@ -18,88 +18,88 @@ Selected **1** theme(s) for merge into patterns:
 
 ## All clusters (by frequency)
 
-| Count | PRs | Sev | Category | Principle |
-|------:|----:|-----|----------|-----------|
-| 3 | 1 | suggestion | Maintainability | Copyright year regression from 2025 to 2023 |
-| 3 | 1 | suggestion | Maintainability | Misleading dead default for `autoCollapse` |
-| 3 | 1 | warning | Maintainability | Swallowed exception can mask a broken-tree state |
-| 2 | 2 | suggestion | Cross-platform / I/O | `parseLongIdOrNull` Javadoc contradicts implementation |
-| 2 | 1 | suggestion | Security / config | <test-symbol> is too broad to prove SSRF rejection |
-| 2 | 1 | warning | Cross-platform / I/O | Error handler signature changed from <symbol> to <symbol> |
-| 2 | 1 | critical | Installer / Ant / distribution | exec-maven-plugin `<systemProperty>` uses `<key>` instead of `<name>` |
-| 2 | 1 | warning | Cross-platform / I/O | Hardcoded expected dependabot count (229) is brittle |
-| 2 | 1 | warning | Cross-platform / I/O | Unguarded `result.PathItem.path` dereference introduces a new crash path |
-| 2 | 1 | warning | Maintainability | Unreachable <symbol> violates "never null" contract |
-| 1 | 1 | suggestion | Maintainability | "Complexity Tracking table" does not match the template format |
-| 1 | 1 | suggestion | Cross-platform / I/O | <symbol> assumes the test is executed exactly two directory levels below the monorepo root ( `projects/sitemanage` ),… |
-| 1 | 1 | warning | Cross-platform / I/O | <symbol> can never catch the `SecurityException` thrown by `validatePath` |
-| 1 | 1 | suggestion | Tests | <symbol> derives the monorepo location from the current working directory ( <symbol> + `../..` ). |
-| 1 | 1 | suggestion | Maintainability | <symbol> here is unreachable dead code. `checkAndThrowValidationException` always throws (either `PSParametersValidat… |
-| 1 | 1 | suggestion | Maintainability | <symbol> is called twice (again at line N) |
-| 1 | 1 | suggestion | Tests | <symbol> is implicitly working-directory dependent. |
-| 1 | 1 | warning | Maintainability | <symbol> may be an invalid flag |
-| 1 | 1 | suggestion | Cross-platform / I/O | <symbol> misclassifies macOS. |
-| 1 | 1 | critical | Cross-platform / I/O | <symbol> rejects ANY string containing a forward or back slash (path separators), but every caller in `PSThemeService… |
-| 1 | 1 | suggestion | Installer / Ant / distribution | <symbol> returns a boolean indicating whether the operation succeeded, and here the result is discarded. On filesyste… |
-| 1 | 1 | warning | Maintainability | <symbol> treats `\|` as a regex. In gawk `\|` matches the empty string, splitting the filename into individual charac… |
-| 1 | 1 | warning | Maintainability | <symbol> truncates the diff to 20 files |
-| 1 | 1 | critical | Cross-platform / I/O | <symbol> validates containment against the input-derived parent, not the trusted region CSS root — path traversal is … |
-| 1 | 1 | suggestion | Installer / Ant / distribution | `--expected-driver-set` example uses renamed names that won't match the shipped artifact |
-| 1 | 1 | warning | Installer / Ant / distribution | `_jdbc-stage` staging directory is never cleaned and leaks into the shipped distribution |
-| 1 | 1 | warning | Maintainability | `aria-label` is ineffective because the element is also marked `aria-hidden="true"` . |
-| 1 | 1 | warning | Cross-platform / I/O | `basehome:` prefix removed from `[lib]` path |
-| 1 | 1 | warning | Cross-platform / I/O | `containsForbiddenCharacters` returns `true` for safe filenames containing `..` . |
-| 1 | 1 | suggestion | Tests | `escapeHtmlForResponse` is only ever called from the test (no service method invokes it), yet it ships in production … |
-| 1 | 1 | warning | Maintainability | `parseLongId` Javadoc (line N) claims the caller catches `NumberFormatException` and that "an empty result is returne… |
-| 1 | 1 | suggestion | Maintainability | `parseLongId` returns `0L` when the value is `null` (line N). If a search-field key is present but its value is `null… |
-| 1 | 1 | warning | Installer / Ant / distribution | `PSValidateRepositoryConnection` is gated only by <path> so upgrades are correctly excluded. But validation now runs … |
-| 1 | 1 | suggestion | Maintainability | `Ratified` date dropped from the version line |
-| 1 | 1 | suggestion | Maintainability | `requireSafeFileName` can throw `IllegalArgumentException` that escapes the surrounding try/catch |
-| 1 | 1 | warning | Cross-platform / I/O | `requireSafeFileName` rejects forward slashes, breaking multi-segment relative paths |
-| 1 | 1 | warning | Cross-platform / I/O | `requireUnderBase` fast-path <symbol> is overly broad and causes false positives on legitimate inputs. |
-| 1 | 1 | warning | Maintainability | `requireUnderBase` throws `IllegalArgumentException` when the base directory does not exist |
-| 1 | 1 | warning | Cross-platform / I/O | `rootpath` is concatenated raw into the query string, while `sitename` is now `encodeURIComponent` -encoded. |
-| 1 | 1 | suggestion | Maintainability | `state_arg` is taken verbatim from `$2` with no validation. An invalid value is passed straight into the <symbol> URL… |
-| 1 | 1 | critical | Cross-platform / I/O | `testConstructSafePathRejectsAbsolutePath` uses a non-existent base directory |
-| 1 | 1 | suggestion | Tests | `window.pwned` is never reset in `afterEach` , but the injection assertions depend on it being `undefined` . |
-| 1 | 1 | warning | Installer / Ant / distribution | A null or closed connection is reported with a generic "Check host, credentials, ..." message, but <symbol> may retur… |
-| 1 | 1 | suggestion | Maintainability | Add `XMLConstants.FEATURE_SECURE_PROCESSING` for defense-in-depth |
-| 1 | 1 | suggestion | Tests | Add unit-test coverage for the new helper-level `requireSafeFilePath` validations |
-| 1 | 1 | warning | Maintainability | Appending null buildNum produces literal "null" in version string |
-| 1 | 1 | suggestion | Tests | Asserted exception type couples the test to the dead- `catch` behavior |
-| 1 | 1 | suggestion | Tests | Assertion is redundant and does not verify the guard |
-| 1 | 1 | warning | Cross-platform / I/O | Because line N already rejects every path containing a separator, the canonical-containment check here is effectively… |
-| 1 | 1 | suggestion | Tests | Brittle monorepo-root resolution tied to working directory |
-| 1 | 1 | warning | Tests | Brittle string-matching test |
-| 1 | 1 | warning | Maintainability | Broad <symbol> masks `NullPointerException` from `requireNonNull` |
-| 1 | 1 | suggestion | Maintainability | Broad <symbol> silently swallows every error. |
-| 1 | 1 | suggestion | Maintainability | Broadening the substring markers widens the false-positive surface |
-| 1 | 1 | warning | Cross-platform / I/O | Buffering the full serialized document in a StringWriter doubles peak memory for this serialization path |
-| 1 | 1 | suggestion | Maintainability | Catching `IllegalArgumentException` broadly and re-throwing only when <symbol> silently swallows any other `IllegalAr… |
-| 1 | 1 | suggestion | Installer / Ant / distribution | Comment overstates the ANT copy failure behavior |
-| 1 | 1 | suggestion | Maintainability | Comment says "merge date desc" but sort is ascending |
-| 1 | 1 | critical | Installer / Ant / distribution | Commit message pattern mismatch - condition won't prevent redundant runs from automated build-number workflow |
-| 1 | 1 | suggestion | Maintainability | Concurrency branch still marks the item FAILED |
-| 1 | 1 | warning | Maintainability | Concurrency detection by class-name substring misses common Spring/Hibernate lock exceptions |
-| 1 | 1 | suggestion | Maintainability | Confirm the 500 -> 400 status change is intended |
-| 1 | 1 | suggestion | Maintainability | Constitution Check no longer prompts for Complexity Budget / Complexity Tracking |
-| 1 | 1 | warning | Cross-platform / I/O | Constructor now rejects absolute `config` paths (regression risk + untested) |
-| 1 | 1 | suggestion | Cross-platform / I/O | CRLF normalization only handles \ `\r\n\` pairs |
-| 1 | 1 | warning | Security / config | Dangerous-element blocklist is incomplete |
-| 1 | 1 | suggestion | Maintainability | Dead/unused priority helpers |
-| 1 | 1 | suggestion | Cross-platform / I/O | Delivery module path is imprecise |
-| 1 | 1 | suggestion | Installer / Ant / distribution | Demoting "type not found" from WARN to DEBUG reduces production diagnosability |
-| 1 | 1 | suggestion | Tests | Description assertion's broad <symbol> fallback defeats the check |
-| 1 | 1 | suggestion | Cross-platform / I/O | Direct-cause-only check may miss nested `IPSNotFoundException` causes |
-| 1 | 1 | suggestion | Maintainability | Double-write risk if `writeErrorResponse` fails in the `else` branch |
-| 1 | 1 | suggestion | Cross-platform / I/O | Drive-letter detection can over-reject legitimate relative filenames on Unix. |
-| 1 | 1 | critical | Maintainability | Duplicate method declaration <symbol> prevents compilation |
-| 1 | 1 | suggestion | Tests | Exact <test-symbol> is brittle and inconsistent with the theme test |
-| 1 | 1 | warning | Cross-platform / I/O | Exception filtering relies on <symbol> to distinguish the parent-missing case from a traversal-escape detection. This… |
-| 1 | 1 | suggestion | Maintainability | Extension check is case-sensitive |
-| 1 | 1 | suggestion | Maintainability | Fix rationale may be incomplete for the stated root cause. |
-| 1 | 1 | warning | Cross-platform / I/O | Fragile working-directory dependency in resolveRoot() |
-| 1 | 1 | suggestion | Installer / Ant / distribution | Garbled Apache license header — <symbol> is a duplication. The standard boilerplate is <symbol> |
+| Count | PRs |    Sev     |            Category            |                                                       Principle                                                        |
+|------:|----:|------------|--------------------------------|------------------------------------------------------------------------------------------------------------------------|
+|     3 |   1 | suggestion | Maintainability                | Copyright year regression from 2025 to 2023                                                                            |
+|     3 |   1 | suggestion | Maintainability                | Misleading dead default for `autoCollapse`                                                                             |
+|     3 |   1 | warning    | Maintainability                | Swallowed exception can mask a broken-tree state                                                                       |
+|     2 |   2 | suggestion | Cross-platform / I/O           | `parseLongIdOrNull` Javadoc contradicts implementation                                                                 |
+|     2 |   1 | suggestion | Security / config              | <test-symbol> is too broad to prove SSRF rejection                                                                     |
+|     2 |   1 | warning    | Cross-platform / I/O           | Error handler signature changed from <symbol> to <symbol>                                                              |
+|     2 |   1 | critical   | Installer / Ant / distribution | exec-maven-plugin `<systemProperty>` uses `<key>` instead of `<name>`                                                  |
+|     2 |   1 | warning    | Cross-platform / I/O           | Hardcoded expected dependabot count (229) is brittle                                                                   |
+|     2 |   1 | warning    | Cross-platform / I/O           | Unguarded `result.PathItem.path` dereference introduces a new crash path                                               |
+|     2 |   1 | warning    | Maintainability                | Unreachable <symbol> violates "never null" contract                                                                    |
+|     1 |   1 | suggestion | Maintainability                | "Complexity Tracking table" does not match the template format                                                         |
+|     1 |   1 | suggestion | Cross-platform / I/O           | <symbol> assumes the test is executed exactly two directory levels below the monorepo root ( `projects/sitemanage` ),… |
+|     1 |   1 | warning    | Cross-platform / I/O           | <symbol> can never catch the `SecurityException` thrown by `validatePath`                                              |
+|     1 |   1 | suggestion | Tests                          | <symbol> derives the monorepo location from the current working directory ( <symbol> + `../..` ).                      |
+|     1 |   1 | suggestion | Maintainability                | <symbol> here is unreachable dead code. `checkAndThrowValidationException` always throws (either `PSParametersValidat… |
+|     1 |   1 | suggestion | Maintainability                | <symbol> is called twice (again at line N)                                                                             |
+|     1 |   1 | suggestion | Tests                          | <symbol> is implicitly working-directory dependent.                                                                    |
+|     1 |   1 | warning    | Maintainability                | <symbol> may be an invalid flag                                                                                        |
+|     1 |   1 | suggestion | Cross-platform / I/O           | <symbol> misclassifies macOS.                                                                                          |
+|     1 |   1 | critical   | Cross-platform / I/O           | <symbol> rejects ANY string containing a forward or back slash (path separators), but every caller in `PSThemeService… |
+|     1 |   1 | suggestion | Installer / Ant / distribution | <symbol> returns a boolean indicating whether the operation succeeded, and here the result is discarded. On filesyste… |
+|     1 |   1 | warning    | Maintainability                | <symbol> treats `\|` as a regex. In gawk `\|` matches the empty string, splitting the filename into individual charac… |
+|     1 |   1 | warning    | Maintainability                | <symbol> truncates the diff to 20 files                                                                                |
+|     1 |   1 | critical   | Cross-platform / I/O           | <symbol> validates containment against the input-derived parent, not the trusted region CSS root — path traversal is … |
+|     1 |   1 | suggestion | Installer / Ant / distribution | `--expected-driver-set` example uses renamed names that won't match the shipped artifact                               |
+|     1 |   1 | warning    | Installer / Ant / distribution | `_jdbc-stage` staging directory is never cleaned and leaks into the shipped distribution                               |
+|     1 |   1 | warning    | Maintainability                | `aria-label` is ineffective because the element is also marked `aria-hidden="true"` .                                  |
+|     1 |   1 | warning    | Cross-platform / I/O           | `basehome:` prefix removed from `[lib]` path                                                                           |
+|     1 |   1 | warning    | Cross-platform / I/O           | `containsForbiddenCharacters` returns `true` for safe filenames containing `..` .                                      |
+|     1 |   1 | suggestion | Tests                          | `escapeHtmlForResponse` is only ever called from the test (no service method invokes it), yet it ships in production … |
+|     1 |   1 | warning    | Maintainability                | `parseLongId` Javadoc (line N) claims the caller catches `NumberFormatException` and that "an empty result is returne… |
+|     1 |   1 | suggestion | Maintainability                | `parseLongId` returns `0L` when the value is `null` (line N). If a search-field key is present but its value is `null… |
+|     1 |   1 | warning    | Installer / Ant / distribution | `PSValidateRepositoryConnection` is gated only by <path> so upgrades are correctly excluded. But validation now runs … |
+|     1 |   1 | suggestion | Maintainability                | `Ratified` date dropped from the version line                                                                          |
+|     1 |   1 | suggestion | Maintainability                | `requireSafeFileName` can throw `IllegalArgumentException` that escapes the surrounding try/catch                      |
+|     1 |   1 | warning    | Cross-platform / I/O           | `requireSafeFileName` rejects forward slashes, breaking multi-segment relative paths                                   |
+|     1 |   1 | warning    | Cross-platform / I/O           | `requireUnderBase` fast-path <symbol> is overly broad and causes false positives on legitimate inputs.                 |
+|     1 |   1 | warning    | Maintainability                | `requireUnderBase` throws `IllegalArgumentException` when the base directory does not exist                            |
+|     1 |   1 | warning    | Cross-platform / I/O           | `rootpath` is concatenated raw into the query string, while `sitename` is now `encodeURIComponent` -encoded.           |
+|     1 |   1 | suggestion | Maintainability                | `state_arg` is taken verbatim from `$2` with no validation. An invalid value is passed straight into the <symbol> URL… |
+|     1 |   1 | critical   | Cross-platform / I/O           | `testConstructSafePathRejectsAbsolutePath` uses a non-existent base directory                                          |
+|     1 |   1 | suggestion | Tests                          | `window.pwned` is never reset in `afterEach` , but the injection assertions depend on it being `undefined` .           |
+|     1 |   1 | warning    | Installer / Ant / distribution | A null or closed connection is reported with a generic "Check host, credentials, ..." message, but <symbol> may retur… |
+|     1 |   1 | suggestion | Maintainability                | Add `XMLConstants.FEATURE_SECURE_PROCESSING` for defense-in-depth                                                      |
+|     1 |   1 | suggestion | Tests                          | Add unit-test coverage for the new helper-level `requireSafeFilePath` validations                                      |
+|     1 |   1 | warning    | Maintainability                | Appending null buildNum produces literal "null" in version string                                                      |
+|     1 |   1 | suggestion | Tests                          | Asserted exception type couples the test to the dead- `catch` behavior                                                 |
+|     1 |   1 | suggestion | Tests                          | Assertion is redundant and does not verify the guard                                                                   |
+|     1 |   1 | warning    | Cross-platform / I/O           | Because line N already rejects every path containing a separator, the canonical-containment check here is effectively… |
+|     1 |   1 | suggestion | Tests                          | Brittle monorepo-root resolution tied to working directory                                                             |
+|     1 |   1 | warning    | Tests                          | Brittle string-matching test                                                                                           |
+|     1 |   1 | warning    | Maintainability                | Broad <symbol> masks `NullPointerException` from `requireNonNull`                                                      |
+|     1 |   1 | suggestion | Maintainability                | Broad <symbol> silently swallows every error.                                                                          |
+|     1 |   1 | suggestion | Maintainability                | Broadening the substring markers widens the false-positive surface                                                     |
+|     1 |   1 | warning    | Cross-platform / I/O           | Buffering the full serialized document in a StringWriter doubles peak memory for this serialization path               |
+|     1 |   1 | suggestion | Maintainability                | Catching `IllegalArgumentException` broadly and re-throwing only when <symbol> silently swallows any other `IllegalAr… |
+|     1 |   1 | suggestion | Installer / Ant / distribution | Comment overstates the ANT copy failure behavior                                                                       |
+|     1 |   1 | suggestion | Maintainability                | Comment says "merge date desc" but sort is ascending                                                                   |
+|     1 |   1 | critical   | Installer / Ant / distribution | Commit message pattern mismatch - condition won't prevent redundant runs from automated build-number workflow          |
+|     1 |   1 | suggestion | Maintainability                | Concurrency branch still marks the item FAILED                                                                         |
+|     1 |   1 | warning    | Maintainability                | Concurrency detection by class-name substring misses common Spring/Hibernate lock exceptions                           |
+|     1 |   1 | suggestion | Maintainability                | Confirm the 500 -> 400 status change is intended                                                                       |
+|     1 |   1 | suggestion | Maintainability                | Constitution Check no longer prompts for Complexity Budget / Complexity Tracking                                       |
+|     1 |   1 | warning    | Cross-platform / I/O           | Constructor now rejects absolute `config` paths (regression risk + untested)                                           |
+|     1 |   1 | suggestion | Cross-platform / I/O           | CRLF normalization only handles \ `\r\n\` pairs                                                                        |
+|     1 |   1 | warning    | Security / config              | Dangerous-element blocklist is incomplete                                                                              |
+|     1 |   1 | suggestion | Maintainability                | Dead/unused priority helpers                                                                                           |
+|     1 |   1 | suggestion | Cross-platform / I/O           | Delivery module path is imprecise                                                                                      |
+|     1 |   1 | suggestion | Installer / Ant / distribution | Demoting "type not found" from WARN to DEBUG reduces production diagnosability                                         |
+|     1 |   1 | suggestion | Tests                          | Description assertion's broad <symbol> fallback defeats the check                                                      |
+|     1 |   1 | suggestion | Cross-platform / I/O           | Direct-cause-only check may miss nested `IPSNotFoundException` causes                                                  |
+|     1 |   1 | suggestion | Maintainability                | Double-write risk if `writeErrorResponse` fails in the `else` branch                                                   |
+|     1 |   1 | suggestion | Cross-platform / I/O           | Drive-letter detection can over-reject legitimate relative filenames on Unix.                                          |
+|     1 |   1 | critical   | Maintainability                | Duplicate method declaration <symbol> prevents compilation                                                             |
+|     1 |   1 | suggestion | Tests                          | Exact <test-symbol> is brittle and inconsistent with the theme test                                                    |
+|     1 |   1 | warning    | Cross-platform / I/O           | Exception filtering relies on <symbol> to distinguish the parent-missing case from a traversal-escape detection. This… |
+|     1 |   1 | suggestion | Maintainability                | Extension check is case-sensitive                                                                                      |
+|     1 |   1 | suggestion | Maintainability                | Fix rationale may be incomplete for the stated root cause.                                                             |
+|     1 |   1 | warning    | Cross-platform / I/O           | Fragile working-directory dependency in resolveRoot()                                                                  |
+|     1 |   1 | suggestion | Installer / Ant / distribution | Garbled Apache license header — <symbol> is a duplication. The standard boilerplate is <symbol>                        |
 
 _…and 98 more clusters omitted._
 

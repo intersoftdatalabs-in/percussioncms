@@ -43,8 +43,8 @@ public class PSContentExplorerHeader extends JPanel {
   /**
    * Constructs the header panel and initializes the sub-components for the supplied applet.
    *
-   * @param applet the content explorer applet this header is associated with, may not be
-   *     <code>null</code>.
+   * @param applet the content explorer applet this header is associated with, may not be <code>null
+   *     </code>.
    */
   public PSContentExplorerHeader(PSContentExplorerApplet applet) {
     super();

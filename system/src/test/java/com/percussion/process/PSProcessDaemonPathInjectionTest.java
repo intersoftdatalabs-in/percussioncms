@@ -192,10 +192,10 @@ class PSProcessDaemonPathInjectionTest {
 
   /**
    * Unix/macOS: a bare absolute path like {@code /tmp/.../outside.txt} is stripped of exactly one
-   * leading {@code /} by legacy daemon logic and becomes a relative segment under {@code
-   * pathRoot} (so it would NOT escape). To assert absolute-escape rejection, prefix an extra
-   * {@code /} so after the single strip the payload is still absolute and outside the root.
-   * Same technique as {@link #rejectsAbsoluteAfterSingleLeadingSlashStrip()}.
+   * leading {@code /} by legacy daemon logic and becomes a relative segment under {@code pathRoot}
+   * (so it would NOT escape). To assert absolute-escape rejection, prefix an extra {@code /} so
+   * after the single strip the payload is still absolute and outside the root. Same technique as
+   * {@link #rejectsAbsoluteAfterSingleLeadingSlashStrip()}.
    */
   @Test
   @EnabledOnOs({OS.LINUX, OS.MAC})
@@ -214,9 +214,9 @@ class PSProcessDaemonPathInjectionTest {
   }
 
   /**
-   * Windows: drive-letter absolute paths (e.g. {@code C:/...}) do not start with {@code /}, so
-   * the legacy leading-/ strip is skipped. {@code requireUnderBase} must still reject them when
-   * they resolve outside the virtual root.
+   * Windows: drive-letter absolute paths (e.g. {@code C:/...}) do not start with {@code /}, so the
+   * legacy leading-/ strip is skipped. {@code requireUnderBase} must still reject them when they
+   * resolve outside the virtual root.
    */
   @Test
   @EnabledOnOs(OS.WINDOWS)

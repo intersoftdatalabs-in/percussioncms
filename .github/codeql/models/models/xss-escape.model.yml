@@ -6,8 +6,58 @@ extensions:
       pack: codeql/java-all
       extensible: barrierModel
     data:
-      - ["com.percussion.security.validation", "XSSValidation", false, "escapeHtml", "(String)", "", "ReturnValue", "xss", "manual"]
-      - ["com.percussion.security.validation", "XSSValidation", false, "escapeXml", "(String)", "", "ReturnValue", "xss", "manual"]
-      - ["com.percussion.security.validation", "XSSValidation", false, "escapeJavaScript", "(String)", "", "ReturnValue", "xss", "manual"]
-      - ["com.percussion.security.validation", "XSSValidation", false, "sanitizeJsonpCallback", "(String)", "", "ReturnValue", "xss", "manual"]
-      - ["com.percussion.security", "SecureStringUtils", false, "sanitizeStringForHTML", "(String)", "", "ReturnValue", "xss", "manual"]
+      - [
+          "com.percussion.security.validation",
+          "XSSValidation",
+          false,
+          "escapeHtml",
+          "(String)",
+          "",
+          "ReturnValue",
+          "xss",
+          "manual",
+        ]
+      - [
+          "com.percussion.security.validation",
+          "XSSValidation",
+          false,
+          "escapeXml",
+          "(String)",
+          "",
+          "ReturnValue",
+          "xss",
+          "manual",
+        ]
+      - [
+          "com.percussion.security.validation",
+          "XSSValidation",
+          false,
+          "escapeJavaScript",
+          "(String)",
+          "",
+          "ReturnValue",
+          "xss",
+          "manual",
+        ]
+      - [
+          "com.percussion.security.validation",
+          "XSSValidation",
+          false,
+          "sanitizeJsonpCallback",
+          "(String)",
+          "",
+          "ReturnValue",
+          "xss",
+          "manual",
+        ]
+      - [
+          "com.percussion.security",
+          "SecureStringUtils",
+          false,
+          "sanitizeStringForHTML",
+          "(String)",
+          "",
+          "ReturnValue",
+          "xss",
+          "manual",
+        ]

@@ -37,9 +37,7 @@ import org.apache.tools.ant.types.FileSet;
  * @author Andriy Palamarchuk
  */
 public class PSCheckManifestsForDuplicateFiles extends Task {
-  /**
-   * Creates a new manifest duplicate files check task.
-   */
+  /** Creates a new manifest duplicate files check task. */
   public PSCheckManifestsForDuplicateFiles() {}
 
   /**
@@ -199,10 +197,9 @@ public class PSCheckManifestsForDuplicateFiles extends Task {
 
   /** Stores file name of a library excluded from the check. */
   public static class Exclude {
-    /**
-     * Creates a new exclude entry.
-     */
+    /** Creates a new exclude entry. */
     public Exclude() {}
+
     /**
      * File name of a library to be excluded from a check.
      *

@@ -55,10 +55,9 @@ import org.w3c.dom.Document;
  * </pre>
  */
 public class PSExtensions extends PSAction {
-  /**
-   * Creates a new extensions task.
-   */
+  /** Creates a new extensions task. */
   public PSExtensions() {}
+
   // see base class
   @Override
   public void execute() {

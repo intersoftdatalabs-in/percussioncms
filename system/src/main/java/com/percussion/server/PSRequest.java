@@ -38,6 +38,8 @@ import com.percussion.services.security.IPSRoleMgr;
 import com.percussion.services.security.PSRoleMgrLocator;
 import com.percussion.services.security.PSServletRequestWrapper;
 import com.percussion.services.security.PSTypedPrincipal;
+import com.percussion.servlet_utils.servlet.PSMockHttpServletRequest;
+import com.percussion.servlet_utils.servlet.PSMockHttpServletResponse;
 import com.percussion.servlets.PSSecurityFilter;
 import com.percussion.system.utils.IPSHtmlParameters;
 import com.percussion.util.PSBaseHttpUtils;
@@ -72,8 +74,6 @@ import javax.security.auth.Subject;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import com.percussion.servlet_utils.servlet.PSMockHttpServletRequest;
-import com.percussion.servlet_utils.servlet.PSMockHttpServletResponse;
 import org.w3c.dom.Document;
 
 /**

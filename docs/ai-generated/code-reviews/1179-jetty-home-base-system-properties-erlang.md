@@ -1,9 +1,9 @@
 # Erlang review — #1179 jetty.home/base system properties
 
-| Field | Value |
-|-------|--------|
-| **Date** | 2026-07-17 |
-| **Branch** | `fix/1179-jetty-home-base-system-properties` |
+|   Field    |                                            Value                                            |
+|------------|---------------------------------------------------------------------------------------------|
+| **Date**   | 2026-07-17                                                                                  |
+| **Branch** | `fix/1179-jetty-home-base-system-properties`                                                |
 | **Intent** | Re-apply fix for Windows `InvalidPathException` on `basehome:lib/jdbc/` during `setup-home` |
 
 ## Scope
@@ -19,10 +19,10 @@
 
 ## Cross-platform
 
-| OS | Before | After |
-|----|--------|-------|
+|   OS    |                      Before                      |               After               |
+|---------|--------------------------------------------------|-----------------------------------|
 | Windows | `Path.of("basehome:…")` → `InvalidPathException` | `basehome:` resolves via BaseHome |
-| Linux | Silent miss of JDBC path | Drivers resolve under jetty.base |
+| Linux   | Silent miss of JDBC path                         | Drivers resolve under jetty.base  |
 
 No hardcoded OS path separators introduced (Maven `${assembly-directory}` is OS-aware).
 

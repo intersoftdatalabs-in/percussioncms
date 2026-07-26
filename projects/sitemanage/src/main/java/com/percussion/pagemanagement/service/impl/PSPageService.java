@@ -236,9 +236,7 @@ public class PSPageService extends PSAbstractDataService<PSPage, PSPage, String>
     addPageChangeListener(new PSPageChangeHandler());
   }
 
-  /**
-   * {@inheritDoc}
-   */
+  /** {@inheritDoc} */
   @Override
   public void delete(String id) throws PSValidationException {
     var sites = publishingWs.getItemSites(idMapper.getGuid(id));
@@ -393,9 +391,7 @@ public class PSPageService extends PSAbstractDataService<PSPage, PSPage, String>
     }
   }
 
-  /**
-   * {@inheritDoc}
-   */
+  /** {@inheritDoc} */
   public PSPage find(String id)
       throws DataServiceLoadException, DataServiceNotFoundException, PSValidationException {
     return super.load(id);
@@ -429,9 +425,7 @@ public class PSPageService extends PSAbstractDataService<PSPage, PSPage, String>
     super.save(page);
   }
 
-  /**
-   * {@inheritDoc}
-   */
+  /** {@inheritDoc} */
   @Override
   public PSPagedItemList findPagesByTemplate(
       String templateId,
@@ -533,10 +527,10 @@ public class PSPageService extends PSAbstractDataService<PSPage, PSPage, String>
    *     empty.
    * @param startIndex {@link Integer} with the start index. The first item is 1. If the value is
    *     <code>null</code>, or less than 1, it will be changed to 1.
-* @param maxResults {@link Integer} indicating the maximum amount of results to return. May be
-    *     <code>null</code>, but if it isn't <code>null</code>, it must be greater than 0.
-    * @return {@link PSUnassignedResults} with the results, never <code>null</code>.
-    */
+   * @param maxResults {@link Integer} indicating the maximum amount of results to return. May be
+   *     <code>null</code>, but if it isn't <code>null</code>, it must be greater than 0.
+   * @return {@link PSUnassignedResults} with the results, never <code>null</code>.
+   */
   @Override
   public PSUnassignedResults getUnassignedPagesBySite(
       String sitename, Integer startIndex, Integer maxResults) throws PSPageException {

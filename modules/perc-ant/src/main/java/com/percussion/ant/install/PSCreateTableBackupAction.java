@@ -58,10 +58,9 @@ import java.util.Properties;
  * </pre>
  */
 public class PSCreateTableBackupAction extends PSAction {
-  /**
-   * Creates a new table backup action.
-   */
+  /** Creates a new table backup action. */
   public PSCreateTableBackupAction() {}
+
   // see base class
 
   @Override

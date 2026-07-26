@@ -26,7 +26,6 @@ import com.percussion.extension.PSExtensionProcessingException;
 import com.percussion.security.validation.URLValidation;
 import com.percussion.server.IPSRequestContext;
 import com.percussion.testing.PSMockRequestContext;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -163,20 +162,18 @@ class PSProxyQueryResourceTest {
   }
 
   /**
-   * Direct tests of the URLValidation utility used by
-   * {@link PSProxyQueryResource#processResultDocument}. These complement the
-   * {@code assertNull}-based tests in {@link SsrProtection} by proving
-   * that the validator itself rejects each malicious payload (independent
-   * of the production method's outer try/catch which converts any
-   * exception to a {@code null} return value).
+   * Direct tests of the URLValidation utility used by {@link
+   * PSProxyQueryResource#processResultDocument}. These complement the {@code assertNull}-based
+   * tests in {@link SsrProtection} by proving that the validator itself rejects each malicious
+   * payload (independent of the production method's outer try/catch which converts any exception to
+   * a {@code null} return value).
    *
-   * <p>Per the PR #1198 review at line 98 of PSProxyQueryResourceTest.java:
-   * "the tests assert null but do not actually prove SSRF protection [...]
-   * in CI (no outbound network), even a reverted/removed validation would
-   * make {@code client.send(...)} throw and still return {@code null}".
-   * The tests below close that gap by exercising the URLValidation call
-   * directly, asserting that {@link SecurityException} is thrown for each
-   * malicious payload before any URI/HTTP-client construction.
+   * <p>Per the PR #1198 review at line 98 of PSProxyQueryResourceTest.java: "the tests assert null
+   * but do not actually prove SSRF protection [...] in CI (no outbound network), even a
+   * reverted/removed validation would make {@code client.send(...)} throw and still return {@code
+   * null}". The tests below close that gap by exercising the URLValidation call directly, asserting
+   * that {@link SecurityException} is thrown for each malicious payload before any URI/HTTP-client
+   * construction.
    */
   @Nested
   @DisplayName("URLValidation rejects each SSRF payload directly")
@@ -238,8 +235,7 @@ class PSProxyQueryResourceTest {
       assertThrows(
           java.net.MalformedURLException.class,
           () -> URLValidation.validateURLString("not a valid url"),
-          "URLValidation MUST propagate the URL constructor's"
-              + " MalformedURLException");
+          "URLValidation MUST propagate the URL constructor's" + " MalformedURLException");
     }
 
     @Test
@@ -261,12 +257,10 @@ class PSProxyQueryResourceTest {
   }
 
   /**
-   * Integration test: when validateURLString throws on the input, the
-   * extension's outer catch wraps it as PSExtensionProcessingException.
-   * (The outer catch at the end of processResultDocument swallows the
-   * exception back to null, so we don't assertThrows here; we just verify
-   * the validator throws at the upstream site — done in
-   * {@link UrlValidationDirect}.)
+   * Integration test: when validateURLString throws on the input, the extension's outer catch wraps
+   * it as PSExtensionProcessingException. (The outer catch at the end of processResultDocument
+   * swallows the exception back to null, so we don't assertThrows here; we just verify the
+   * validator throws at the upstream site — done in {@link UrlValidationDirect}.)
    */
   @Nested
   @DisplayName("PSExtensionProcessingException is reachable (smoke)")
@@ -280,7 +274,8 @@ class PSProxyQueryResourceTest {
       // classpath so future refactors cannot silently remove the
       // typed-throws contract from the method signature.
       //
-      // (The previous `assertTrue(SecurityException.class.isAssignableFrom(SecurityException.class))`
+      // (The previous
+      // `assertTrue(SecurityException.class.isAssignableFrom(SecurityException.class))`
       //  was removed per the review at PR #1198 line 277 — it was a
       //  tautological self-check and provided no coverage.)
       assertNotNull(
@@ -290,8 +285,8 @@ class PSProxyQueryResourceTest {
   }
 
   /**
-   * Redirect.NEVER SSRF hardening (PR #1364 / Kilo): 3xx must fail closed with
-   * {@link PSExtensionProcessingException}, not soft-null via the outer catch.
+   * Redirect.NEVER SSRF hardening (PR #1364 / Kilo): 3xx must fail closed with {@link
+   * PSExtensionProcessingException}, not soft-null via the outer catch.
    */
   @Nested
   @DisplayName("Redirect.NEVER fail-closed contract (source)")
@@ -310,8 +305,7 @@ class PSProxyQueryResourceTest {
       }
       String text = java.nio.file.Files.readString(src);
       assertTrue(
-          text.contains("HttpClient.Redirect.NEVER"),
-          "must disable redirect following for SSRF");
+          text.contains("HttpClient.Redirect.NEVER"), "must disable redirect following for SSRF");
       assertTrue(
           text.contains("statusCode >= 300 && statusCode < 400"),
           "must explicitly refuse 3xx responses");
@@ -319,8 +313,7 @@ class PSProxyQueryResourceTest {
           text.contains("catch (PSExtensionProcessingException e)"),
           "must rethrow PSExtensionProcessingException (not return null)");
       assertTrue(
-          text.contains("Remote redirect refused"),
-          "redirect refusal message must be present");
+          text.contains("Remote redirect refused"), "redirect refusal message must be present");
     }
   }
 }

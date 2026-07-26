@@ -79,3 +79,4 @@ Expect: modern Home and Widget Builder Vitest suites green; **no** failing legac
 - Full Web Management finder admin parity
 - Dashboard gadget modernization
 - Active Assembly / Dojo Track A
+

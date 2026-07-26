@@ -245,9 +245,8 @@ public class PSCriteriaElement {
    * </ul>
    *
    * Equivalent in accepted/rejected strings to the previous {@code [-+]?[0-9]*\.?[0-9]+} pattern
-   * (which had overlapping {@code [0-9]*} / {@code [0-9]+} quantifiers flagged by CodeQL
-   * {@code java/polynomial-redos} at PSCriteriaElement.java:111 and :118).
+   * (which had overlapping {@code [0-9]*} / {@code [0-9]+} quantifiers flagged by CodeQL {@code
+   * java/polynomial-redos} at PSCriteriaElement.java:111 and :118).
    */
-  private static final Pattern NUMERIC_PATTERN =
-      Pattern.compile("[-+]?(\\d+\\.\\d+|\\.\\d+|\\d+)");
+  private static final Pattern NUMERIC_PATTERN = Pattern.compile("[-+]?(\\d+\\.\\d+|\\.\\d+|\\d+)");
 }

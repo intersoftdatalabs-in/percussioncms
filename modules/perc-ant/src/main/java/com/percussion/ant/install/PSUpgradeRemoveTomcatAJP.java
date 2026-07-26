@@ -27,9 +27,7 @@ import java.util.List;
 import org.apache.tools.ant.BuildException;
 
 public class PSUpgradeRemoveTomcatAJP extends PSAction {
-  /**
-   * Creates a new Tomcat AJP removal upgrade task.
-   */
+  /** Creates a new Tomcat AJP removal upgrade task. */
   public PSUpgradeRemoveTomcatAJP() {}
 
   /**

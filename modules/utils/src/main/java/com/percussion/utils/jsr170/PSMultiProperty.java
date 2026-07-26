@@ -249,7 +249,8 @@ public class PSMultiProperty extends PSPropertyWrapper implements IPSJcrCacheIte
   }
 
   @Override
-  public Property getProperty() throws ItemNotFoundException, ValueFormatException, RepositoryException {
+  public Property getProperty()
+      throws ItemNotFoundException, ValueFormatException, RepositoryException {
     throw new ValueFormatException("This is a multi valued property");
   }
 

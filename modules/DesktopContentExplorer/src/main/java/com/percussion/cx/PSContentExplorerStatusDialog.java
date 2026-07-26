@@ -48,8 +48,8 @@ public class PSContentExplorerStatusDialog extends PSDialog {
    * Constructs this dialog with specified process monitor.
    *
    * @param parent the parent frame of this dialog, may be <code>null</code>
-   * @param monitor the process monitor to use to monitor the process executing, may not be
-   *     <code>null</code>
+   * @param monitor the process monitor to use to monitor the process executing, may not be <code>
+   *     null</code>
    * @param applet the applet that initiated this dialog, may not be <code>null</code>
    * @throws IllegalArgumentException if any param is invalid.
    */

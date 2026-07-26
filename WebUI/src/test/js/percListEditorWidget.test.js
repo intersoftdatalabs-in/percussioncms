@@ -72,9 +72,15 @@ function loadSource() {
   $.perc_utils = { sortCaseInsensitive: (arr) => arr.sort() };
   $.browser = { msie: false, version: "0" };
   $.fn.autocomplete = function () {
-    return { result: () => this, flushCache: () => this, setOptions: () => this };
+    return {
+      result: () => this,
+      flushCache: () => this,
+      setOptions: () => this,
+    };
   };
-  $.fn.setOptions = function () { return this; };
+  $.fn.setOptions = function () {
+    return this;
+  };
   globalThis.I18N = { message: (key) => `[${key}]` };
   // Run the source as a script in the global scope so its IIFE sees
   // globalThis.jQuery.
@@ -126,7 +132,9 @@ describe("source-pattern (anti-regression for js/xss-through-dom)", () => {
     // Pre-fix `listItem.replace(/_username_/g, listItems[u])` builds a
     // string with attacker-controlled usernames, then `.append(li)`
     // parses it as HTML.
-    expect(src).not.toMatch(/\.replace\(\s*\/_username_\/g\s*,\s*listItems\[u\]\s*\)/);
+    expect(src).not.toMatch(
+      /\.replace\(\s*\/_username_\/g\s*,\s*listItems\[u\]\s*\)/
+    );
   });
 });
 
@@ -179,30 +187,34 @@ describe("username sink via setListItems", () => {
   it("does not inject an event-handler <img> from a malicious username", () => {
     widget = makeWidget();
     widget.setListItems(['<img src="x" onerror="window.__pwned=1">']);
-    document.querySelectorAll(
-      "#perc-list-editor-host #perc-ui-permission-user-list *"
-    ).forEach((el) => {
-      for (const attr of el.attributes) {
-        expect(/^on/i.test(attr.name), `inline handler ${attr.name}`).toBe(
-          false
-        );
-      }
-    });
+    document
+      .querySelectorAll(
+        "#perc-list-editor-host #perc-ui-permission-user-list *"
+      )
+      .forEach((el) => {
+        for (const attr of el.attributes) {
+          expect(/^on/i.test(attr.name), `inline handler ${attr.name}`).toBe(
+            false
+          );
+        }
+      });
     expect(window.__pwned).toBeUndefined();
   });
 
   it("does not break out of the delete-button id attribute via embedded quote", () => {
     widget = makeWidget();
     widget.setListItems(['a" onmouseover="window.__pwned=1" data-x="']);
-    document.querySelectorAll(
-      "#perc-list-editor-host #perc-ui-permission-user-list *"
-    ).forEach((el) => {
-      for (const attr of el.attributes) {
-        expect(/^on/i.test(attr.name), `inline handler ${attr.name}`).toBe(
-          false
-        );
-      }
-    });
+    document
+      .querySelectorAll(
+        "#perc-list-editor-host #perc-ui-permission-user-list *"
+      )
+      .forEach((el) => {
+        for (const attr of el.attributes) {
+          expect(/^on/i.test(attr.name), `inline handler ${attr.name}`).toBe(
+            false
+          );
+        }
+      });
     expect(window.__pwned).toBeUndefined();
   });
 

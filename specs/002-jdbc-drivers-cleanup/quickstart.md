@@ -39,6 +39,7 @@ unzip -l target/perc-distribution-tree.jar | awk '/jetty\/base\/lib\/jdbc/ && /\
 ```
 
 Expected output (exact 7 filenames, in any order):
+
 ```
 jetty/base/lib/jdbc/derby-10.17.1.0.jar
 jetty/base/lib/jdbc/derbyclient-10.17.1.0.jar
@@ -141,3 +142,4 @@ Expected: `mysql-connector-java-9.0.0.jar` is still present after `install_jdbc_
 - Data model (the 7 curated filenames, the 7 delete filenames): [data-model.md](./data-model.md)
 - Constitution compliance: [plan.md §Constitution Check](./plan.md#constitution-check)
 - Research evidence: [research.md](./research.md)
+

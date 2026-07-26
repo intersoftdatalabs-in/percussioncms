@@ -51,3 +51,4 @@
 - One judgment call worth reviewer attention: FR-013 lists `modules/patch-tools/install.{sh,bat}` and `uninstall.{sh,bat}` as runtime because they operate on an existing customer install directory and create a `backup/` next to it. If the maintainer wants them in scope, lift them out of FR-013 and add a User Story
 - Clarification Q2 (exclude `mvn-env.{sh,bat}`) reframes User Story 1 from "developer runs the Python wrapper" to "developer continues to use the unchanged wrapper"; the spec retains US1 as a regression-guard story so the boundary is visible
 - Items marked complete above are ready for `/speckit.plan`
+

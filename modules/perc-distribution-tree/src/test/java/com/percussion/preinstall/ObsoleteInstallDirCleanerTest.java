@@ -46,8 +46,7 @@ class ObsoleteInstallDirCleanerTest {
   @Test
   void listsPreInstallNotJetty() throws Exception {
     Files.createDirectories(tempDir.resolve("PreInstall/Backups"));
-    Files.writeString(
-        tempDir.resolve("PreInstall/Backups/a.bin"), "hello", StandardCharsets.UTF_8);
+    Files.writeString(tempDir.resolve("PreInstall/Backups/a.bin"), "hello", StandardCharsets.UTF_8);
     Files.createDirectories(tempDir.resolve("jetty/base"));
     Files.writeString(tempDir.resolve("jetty/base/keep.txt"), "live", StandardCharsets.UTF_8);
 
@@ -71,8 +70,7 @@ class ObsoleteInstallDirCleanerTest {
   void pathConfinementRejectsEscape() throws Exception {
     Path root = tempDir.resolve("install");
     Files.createDirectories(root);
-    assertFalse(
-        ObsoleteInstallDirCleaner.isUnderInstallRoot(root, tempDir.resolve("other")));
+    assertFalse(ObsoleteInstallDirCleaner.isUnderInstallRoot(root, tempDir.resolve("other")));
     assertFalse(ObsoleteInstallDirCleaner.isUnderInstallRoot(root, root));
     // sibling prefix attack
     Path sibling = tempDir.resolve("install_evil/x");
@@ -105,8 +103,10 @@ class ObsoleteInstallDirCleanerTest {
   @Test
   void parseFlag() {
     assertFalse(ObsoleteInstallDirCleaner.parseCleanInstallDirFlag(Map.of()));
-    assertTrue(ObsoleteInstallDirCleaner.parseCleanInstallDirFlag(Map.of("clean-install-dir", "true")));
-    assertTrue(ObsoleteInstallDirCleaner.parseCleanInstallDirFlag(Map.of("clean-install-dir", "true")));
+    assertTrue(
+        ObsoleteInstallDirCleaner.parseCleanInstallDirFlag(Map.of("clean-install-dir", "true")));
+    assertTrue(
+        ObsoleteInstallDirCleaner.parseCleanInstallDirFlag(Map.of("clean-install-dir", "true")));
     Map<String, String> bare = new HashMap<>();
     bare.put("clean-install-dir", "true"); // parseArgs sets true for bare flag
     assertTrue(ObsoleteInstallDirCleaner.parseCleanInstallDirFlag(bare));

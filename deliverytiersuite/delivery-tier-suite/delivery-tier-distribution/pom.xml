@@ -338,12 +338,12 @@
                 </exclusion>
             </exclusions>
         </dependency>
-                <dependency>
+        <dependency>
             <groupId>com.h2database</groupId>
             <artifactId>h2</artifactId>
             <version>${h2.version}</version>
         </dependency>
-<dependency>
+        <dependency>
             <groupId>org.apache.derby</groupId>
             <artifactId>derby</artifactId>
             <version>${derby.version}</version>
@@ -1067,13 +1067,12 @@
                         <phase>prepare-package</phase>
                         <configuration>
                             <target>
-                                <property name="cargo.package.dir" location="${project.build.directory}/package"/>
-                                <property name="cargo.package.server.xml" location="${cargo.package.dir}/conf/server.xml"/>
+                                <property location="${project.build.directory}/package" name="cargo.package.dir"/>
+                                <property location="${cargo.package.dir}/conf/server.xml" name="cargo.package.server.xml"/>
                                 <available file="${cargo.package.server.xml}" property="cargo.package.present"/>
-                                <fail unless="cargo.package.present"
-                                      message="Cargo package incomplete: missing ${cargo.package.server.xml}. cargo:package must run before this step (phase prepare-package)."/>
+                                <fail message="Cargo package incomplete: missing ${cargo.package.server.xml}. cargo:package must run before this step (phase prepare-package)." unless="cargo.package.present"/>
                                 <mkdir dir="${assembly-directory}/Deployment/Server"/>
-                                <copy todir="${assembly-directory}/Deployment/Server" overwrite="true" verbose="false">
+                                <copy overwrite="true" todir="${assembly-directory}/Deployment/Server" verbose="false">
                                     <fileset dir="${cargo.package.dir}">
                                         <exclude name="temp/**"/>
                                     </fileset>
@@ -1081,13 +1080,11 @@
                                 <!-- Match prior antrun cleanup: do not ship Tomcat manager apps -->
                                 <delete dir="${assembly-directory}/Deployment/Server/webapps/manager" failonerror="false"/>
                                 <delete dir="${assembly-directory}/Deployment/Server/webapps/host-manager" failonerror="false"/>
-                                <delete file="${assembly-directory}/Deployment/Server/conf/logging.properties" failonerror="false"/>
+                                <delete failonerror="false" file="${assembly-directory}/Deployment/Server/conf/logging.properties"/>
                                 <available file="${assembly-directory}/Deployment/Server/conf/server.xml" property="assembly.has.server.xml"/>
-                                <fail unless="assembly.has.server.xml"
-                                      message="Assembly missing Deployment/Server/conf/server.xml after staging Cargo package"/>
+                                <fail message="Assembly missing Deployment/Server/conf/server.xml after staging Cargo package" unless="assembly.has.server.xml"/>
                                 <available file="${assembly-directory}/Deployment/Server/webapps/perc-metadata-services.war" property="assembly.has.metadata.war"/>
-                                <fail unless="assembly.has.metadata.war"
-                                      message="Assembly missing perc-metadata-services.war after staging Cargo package"/>
+                                <fail message="Assembly missing perc-metadata-services.war after staging Cargo package" unless="assembly.has.metadata.war"/>
                                 <echo message="Staged Cargo package into ${assembly-directory}/Deployment/Server"/>
                             </target>
                         </configuration>
@@ -1105,30 +1102,30 @@
                         <phase>verify</phase>
                         <configuration>
                             <target>
-                                <property name="dts.installer.jar" location="${project.build.directory}/${project.build.finalName}.jar"/>
+                                <property location="${project.build.directory}/${project.build.finalName}.jar" name="dts.installer.jar"/>
                                 <available file="${dts.installer.jar}" property="dts.installer.jar.exists"/>
-                                <fail unless="dts.installer.jar.exists" message="DTS installer jar missing: ${dts.installer.jar}"/>
+                                <fail message="DTS installer jar missing: ${dts.installer.jar}" unless="dts.installer.jar.exists"/>
                                 <!-- Portable: jar tool is on the JDK used by Maven; works on Windows/Linux/macOS -->
-                                <exec executable="jar" outputproperty="dts.installer.listing" failonerror="true">
+                                <exec executable="jar" failonerror="true" outputproperty="dts.installer.listing">
                                     <arg value="tf"/>
                                     <arg file="${dts.installer.jar}"/>
                                 </exec>
                                 <condition property="dts.has.pathvalidation">
                                     <contains string="${dts.installer.listing}" substring="com/percussion/security/validation/PathValidation.class"/>
                                 </condition>
-                                <fail unless="dts.has.pathvalidation" message="GH-1180: ${dts.installer.jar} is missing PathValidation.class — minimal shade of perc-security-utils failed or was removed."/>
+                                <fail message="GH-1180: ${dts.installer.jar} is missing PathValidation.class — minimal shade of perc-security-utils failed or was removed." unless="dts.has.pathvalidation"/>
                                 <condition property="dts.has.log4j.api">
                                     <contains string="${dts.installer.listing}" substring="org/apache/logging/log4j/LogManager.class"/>
                                 </condition>
-                                <fail unless="dts.has.log4j.api" message="GH-1180: ${dts.installer.jar} is missing log4j-api (LogManager) required by PathValidation."/>
+                                <fail message="GH-1180: ${dts.installer.jar} is missing log4j-api (LogManager) required by PathValidation." unless="dts.has.log4j.api"/>
                                 <condition property="dts.has.server.xml">
                                     <contains string="${dts.installer.listing}" substring="distribution/Deployment/Server/conf/server.xml"/>
                                 </condition>
-                                <fail unless="dts.has.server.xml" message="DTS installer jar missing distribution/Deployment/Server/conf/server.xml (Cargo package not staged)."/>
+                                <fail message="DTS installer jar missing distribution/Deployment/Server/conf/server.xml (Cargo package not staged)." unless="dts.has.server.xml"/>
                                 <condition property="dts.has.metadata.war">
                                     <contains string="${dts.installer.listing}" substring="distribution/Deployment/Server/webapps/perc-metadata-services.war"/>
                                 </condition>
-                                <fail unless="dts.has.metadata.war" message="DTS installer jar missing perc-metadata-services.war (Cargo package not staged)."/>
+                                <fail message="DTS installer jar missing perc-metadata-services.war (Cargo package not staged)." unless="dts.has.metadata.war"/>
                                 <echo message="GH-1180: PathValidation + log4j-api + Tomcat/server.xml + metadata war present in ${dts.installer.jar}"/>
                             </target>
                         </configuration>

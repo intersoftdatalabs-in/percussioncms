@@ -18,12 +18,12 @@ The technical approach, locked in by the spec's clarification session, is: (1) a
 **Target Platform**: CMS distribution on Jetty (install tree) — installer payload is the artifact under change
 **Project Type**: Multi-module CMS mono-repo; this change is scoped to one module: `modules/perc-distribution-tree/`
 **Performance Goals**: N/A — no runtime path is affected; the installer is a one-shot operation
-**Constraints**: 
+**Constraints**:
 - Branch JDK 21 via `./mvn-env.sh` (per root `AGENTS.md` and `modules/perc-distribution-tree/AGENTS.md`)
 - No Spring Boot (Constitution V)
 - AGENTS hierarchy: root → module; module `AGENTS.md` requires README updates when build/ANT logic changes
 - Idempotency for the staging cleanup (FR-007)
-**Scale/Scope**: 
+**Scale/Scope**:
 - Modules touched: `modules/perc-distribution-tree` only
 - Files touched (planned): `pom.xml` (test wiring), `src/main/resources/installDistributionFiles.xml` (delete step + comment), `src/main/resources/distribution/rxconfig/Installer/install.xml` (delete list), `scripts/README.md` (example), `scripts/check-no-glob-deletes.sh` (new assertion script), `src/test/java/.../InstallXmlDeleteSetTest.java` (new JUnit 5 test), `README.md` (cross-reference update)
 - User roles affected: release engineer (build hygiene), integrator / ops / site admin (driver preservation on upgrade)
@@ -87,7 +87,7 @@ modules/perc-distribution-tree/
 > **Fill ONLY if Constitution Check has violations that must be justified**
 
 | Violation | Why Needed | Simpler Alternative Rejected Because |
-|-----------|------------|-------------------------------------|
-| *(none)*  |             |                                       |
+|-----------|------------|--------------------------------------|
+| *(none)*  |            |                                      |
 
 No Constitution violations. No complexity budget entries required.

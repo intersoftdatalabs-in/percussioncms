@@ -39,3 +39,4 @@
 - Post-analyze remediation (i18n coverage): plan/research R10; tasks T003a, T010a, T020a, T034a, T050c, T056c + shell tmx.jsp; `checklists/i18n-key-checklist.md`.
 - Home capability matrix added (`contracts/home-capability-matrix.md`); FR-001a/001b lock Create + open-path parity; classic Home was limited but complete—do not thin further.
 - Ready for Create parity implementation (matrix §6 MUST) before Home acceptance.
+

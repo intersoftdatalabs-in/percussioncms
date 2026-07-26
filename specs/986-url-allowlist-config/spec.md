@@ -7,6 +7,7 @@
 **Related**: PR #1198 (SSRF hardening via URL validation)
 
 ## Module Scope
+
 - **Primary module(s)**: `modules/perc-security-utils` (shared URL validation used system-wide)
 - **Secondary / integration modules**: CMS install/upgrade distribution (`rxconfig/Server/` property file packaging and upgrade create-if-absent), server consumers of URL validation (e.g. assembly / proxy query paths such as external resource lookups), release notes and end-user documentation
 - **AGENTS files to apply**: root `AGENTS.md`; `modules/perc-security-utils` local AGENTS if present
@@ -24,6 +25,7 @@
 - Q: What ships in default allowedUrls.properties? → A: **Comments + inactive examples** — documented sample patterns that do not actively allow anything until the administrator uncomments or edits them; blocked file still ships with active default dangerous targets.
 
 ## User Scenarios & Testing
+
 Each story must be independently testable.
 
 ### User Story 1 - Preserve legitimate external lookups after upgrade (Priority: P1)
@@ -61,7 +63,7 @@ As a CMS administrator, I need documented install-root configuration files for a
 1. **Given** the product is installed, **When** an administrator inspects install-root server configuration, **Then** `allowedUrls.properties` and `blockedUrls.properties` exist under `rxconfig/Server/` (or are created on first upgrade/startup path that is responsible for seeding them).
 2. **Given** an allow pattern uses `*` as a multi-character wildcard in a full-URL pattern (e.g. `https://api.example.com/v1/*`), **When** a candidate absolute URL matches that glob after normalization, **Then** validation treats it as allowed (unless blocked).
 3. **Given** an allow entry that is only `*` (wildcard alone), **When** the configuration is loaded, **Then** that entry is ignored and does not allow all URLs.
-3a. **Given** a pattern that includes scheme, host, path, and optional query wildcards, **When** only the host matches but the path does not, **Then** the pattern does not match (full-URL matching, not host-only).
+   3a. **Given** a pattern that includes scheme, host, path, and optional query wildcards, **When** only the host matches but the path does not, **Then** the pattern does not match (full-URL matching, not host-only).
 4. **Given** documentation and release notes for the release that introduces this feature, **When** an administrator reads them, **Then** they can find how to configure allowed and blocked URL patterns, that file-based lists are the configuration surface (not JVM system properties), and the upgrade behavior for existing files.
 
 ### User Story 4 - Safe upgrade seeding of configuration (Priority: P1)
@@ -75,6 +77,7 @@ As an operator upgrading an existing deployment, I need default allow/block file
 3. **Given** only one of the two files is missing, **When** upgrade/seed runs, **Then** only the missing file is created and the existing file is left intact.
 
 ### Edge Cases
+
 - Empty allow file: baseline permit rules still apply; only targets that would already fail baseline need allow patterns.
 - Empty block file: product-default blocked entries must still be present after seed; if an operator empties the file intentionally, only explicit empty content remains (documented risk).
 - Malformed lines in either file (invalid patterns are skipped or rejected with server-side log detail; they do not crash the server).
@@ -87,7 +90,9 @@ As an operator upgrading an existing deployment, I need default allow/block file
 - Relative URLs, non-http(s) schemes, and loopback targets (scheme restrictions and loopback policy remain defined and documented; non-http(s) remain disallowed unless product explicitly documents otherwise).
 
 ## Requirements
+
 ### Functional Requirements
+
 - **FR-001**: The system MUST load allowed-URL patterns from install-root `rxconfig/Server/allowedUrls.properties` as the source of truth for **additional** customer-allowed outbound URL patterns used by shared URL validation (additive to baseline permit rules).
 - **FR-002**: The system MUST load blocked-URL patterns from install-root `rxconfig/Server/blockedUrls.properties` as the source of truth for blocked outbound URL patterns used by shared URL validation.
 - **FR-003**: Product defaults that were previously hard-coded as blocked destinations MUST be shipped as **active** default entries in `blockedUrls.properties` so a new install retains equivalent protection without requiring administrators to recreate the list.
@@ -106,13 +111,16 @@ As an operator upgrading an existing deployment, I need default allow/block file
 - **FR-013**: Behavioral automated tests MUST cover allow match, block match, block-over-allow, ignore of lone `*`, default blocked targets, and create-if-absent / no-overwrite seed behavior (or an equivalent unit-level substitute for seed where install harness is unavailable).
 
 ### Key Entities
+
 - **Allowed URL configuration file**: Install-root file listing permitted URL patterns for outbound validation.
 - **Blocked URL configuration file**: Install-root file listing denied URL patterns; includes product-default dangerous targets.
 - **URL pattern**: A single allow or block entry that may include `*` wildcards; evaluated as a glob against the candidate’s normalized absolute URL string (scheme/host/port/path/query).
 - **URL validation decision**: Permit or deny outcome for a candidate URL, driven by protocol rules, baseline permit rules, allow list, and block list with defined precedence.
 
 ## Success Criteria
+
 ### Measurable Outcomes
+
 - **SC-001**: On a representative upgrade path, 100% of runs create missing `allowedUrls.properties` and `blockedUrls.properties` when absent, and 0% of runs overwrite either file when already present with non-default content.
 - **SC-002**: With only product default blocked entries, attempts to use known-dangerous destinations that were blocked before this feature (e.g. cloud metadata) are still denied in 100% of automated security regression cases.
 - **SC-003**: After an administrator adds three distinct allow patterns for targets that would fail baseline alone (e.g. internal HR host, custom-port external API), validation permits matching sample URLs for all three; a control URL that is neither baseline-permitted nor allow-matched remains denied; a separate public baseline-permitted control URL remains permitted with an empty allow file.
@@ -121,6 +129,7 @@ As an operator upgrading an existing deployment, I need default allow/block file
 - **SC-006**: Automated regression coverage for allow, block, precedence, wildcard, and upgrade seed behaviors passes in the project’s continuous verification for the affected product areas before release.
 
 ## Assumptions
+
 - Shared URL validation in `perc-security-utils` remains the single choke point for the server-side outbound URL checks described in the issue (e.g. assembly-time external lookups such as proxy query resource); other call sites already using that validation inherit the new lists without each reimplementing policy.
 - Property files live under CMS install-root `rxconfig/Server/` as stated in the issue; DTS-specific packaging is out of scope unless the same shared library is later configured with an equivalent path for a DTS process.
 - File format is a simple line-oriented properties-style list of URL patterns (comments and blank lines allowed); exact key/value vs bare-line format is an implementation detail so long as admin documentation matches the shipped defaults.
@@ -137,8 +146,10 @@ As an operator upgrading an existing deployment, I need default allow/block file
 - Related PR #1198 remains the historical context for SSRF validation; this feature softens operational breakage without reopening unrestricted outbound access.
 
 ## Out of Scope
+
 - Redesigning the full dashboard gadget model or unrelated security validators (path injection, XSS, LDAP).
 - A graphical UI for editing allow/block lists (file-based configuration is sufficient for this issue).
 - Automatically discovering or migrating customer URLs from existing content into the allow list.
 - Changing authentication or authorization for who may edit files on the server filesystem.
 - Retaining or documenting a deprecation period for unreleased `percussion.url.validation.*` system properties (they are removed, not deprecated).
+

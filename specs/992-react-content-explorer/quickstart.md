@@ -173,12 +173,13 @@ Evidence per row = sign-off name + date + linked PR / commit hash + Scenario res
 
 ## Troubleshooting
 
-| Symptom | Check |
-|---------|--------|
-| 404 on `/Rhythmyx/services/...` | Use `detectServicesRoot()` / context path (`api/paths.ts`) |
-| CSRF failures | Token header on POST; shell includes CSRF like other modern pages |
-| Empty tree | User community/permissions; path roots; network tab path API |
-| Hard cut still shows Finder | `webmgt.jsp` includes and nav wiring; cutover inventory |
-| Playwright `Module not found: playwright` | `cd modules/perc-qa-automation/frontend && npm ci` |
-| Playwright timeout on login | Verify docker CMS is up: `docker compose ps`. Verify `/opt/Percussion/var/config/generated/passwords` exists with `Admin=...` line. |
-| 500 on `/rest/folders/by-path/...` | Known upstream bug [issue #1387](https://github.com/intersoftdatalabs-in/percussioncms/issues/1387). Mark with `test.skip` + `BUG:` note; flip when fix lands. |
+|                  Symptom                  |                                                                             Check                                                                              |
+|-------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| 404 on `/Rhythmyx/services/...`           | Use `detectServicesRoot()` / context path (`api/paths.ts`)                                                                                                     |
+| CSRF failures                             | Token header on POST; shell includes CSRF like other modern pages                                                                                              |
+| Empty tree                                | User community/permissions; path roots; network tab path API                                                                                                   |
+| Hard cut still shows Finder               | `webmgt.jsp` includes and nav wiring; cutover inventory                                                                                                        |
+| Playwright `Module not found: playwright` | `cd modules/perc-qa-automation/frontend && npm ci`                                                                                                             |
+| Playwright timeout on login               | Verify docker CMS is up: `docker compose ps`. Verify `/opt/Percussion/var/config/generated/passwords` exists with `Admin=...` line.                            |
+| 500 on `/rest/folders/by-path/...`        | Known upstream bug [issue #1387](https://github.com/intersoftdatalabs-in/percussioncms/issues/1387). Mark with `test.skip` + `BUG:` note; flip when fix lands. |
+

@@ -83,24 +83,26 @@ public class PSAntEditionTask implements IPSEditionTask {
     return TaskType.PREEDITION;
   }
 
-/**
-* Executes an ant script provided in the params.
-    *
-    * <b>Parameters:</b>
-    * <ul>
-    * <li><b>ant_file</b> - The ant file that lives in sys_resources/ant</li>
-    * </ul>
-    *
-    * <p>The following properties are pushed into the ant script:
-    *
-    * <b>Properties:</b>
-    * <ul>
-    * <li><b>perc.site.name</b> - The site name</li>
-    * <li><b>perc.site.baseUrl</b> - The base url of the site (http://mysite.com)</li>
-    * <li><b>perc.site.root</b> - The physical root folder path of the site (/)</li>
-    * <li><b>perc.site.cmsFolderPath</b> - The site cm system folder path.</li>
-    * <li><b>perc.sys.dir</b> - The cm system directory.</li>
-    * </ul>
+  /**
+   * Executes an ant script provided in the params.
+   *
+   * <p><b>Parameters:</b>
+   *
+   * <ul>
+   *   <li><b>ant_file</b> - The ant file that lives in sys_resources/ant
+   * </ul>
+   *
+   * <p>The following properties are pushed into the ant script:
+   *
+   * <p><b>Properties:</b>
+   *
+   * <ul>
+   *   <li><b>perc.site.name</b> - The site name
+   *   <li><b>perc.site.baseUrl</b> - The base url of the site (http://mysite.com)
+   *   <li><b>perc.site.root</b> - The physical root folder path of the site (/)
+   *   <li><b>perc.site.cmsFolderPath</b> - The site cm system folder path.
+   *   <li><b>perc.sys.dir</b> - The cm system directory.
+   * </ul>
    */
   @Override
   public void perform(

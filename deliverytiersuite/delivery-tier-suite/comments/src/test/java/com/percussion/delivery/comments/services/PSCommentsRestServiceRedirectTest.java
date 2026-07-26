@@ -64,8 +64,7 @@ class PSCommentsRestServiceRedirectTest {
 
   @Test
   void rebuildRelativeRedirectUriPreservesPathQueryFragment() throws URISyntaxException {
-    URI rebuilt =
-        PSCommentsRestService.rebuildRelativeRedirectUri("/page?lastCommentId=1#top");
+    URI rebuilt = PSCommentsRestService.rebuildRelativeRedirectUri("/page?lastCommentId=1#top");
     assertNull(rebuilt.getScheme());
     assertEquals("/page", rebuilt.getPath());
     assertEquals("lastCommentId=1", rebuilt.getQuery());

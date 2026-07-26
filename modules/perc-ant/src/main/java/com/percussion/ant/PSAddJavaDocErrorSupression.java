@@ -32,9 +32,7 @@ import org.apache.tools.ant.Task;
  * error handler into the index.html file that will supress all javascript errors.
  */
 public class PSAddJavaDocErrorSupression extends Task {
-  /**
-   * Creates a new javadoc error suppression task.
-   */
+  /** Creates a new javadoc error suppression task. */
   public PSAddJavaDocErrorSupression() {}
 
   private static final Logger log = LogManager.getLogger(PSAddJavaDocErrorSupression.class);

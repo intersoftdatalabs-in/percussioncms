@@ -1,7 +1,7 @@
 # Quickstart Validation: JCR 2.0 API Migration
 
 **Feature**: `987-jcr-2-0-api-migration`  
-**Date**: 2026-07-16  
+**Date**: 2026-07-16
 
 Use this guide to prove Phase 1 (compile) and feature-complete (behavior) without re-deriving design from `plan.md` / `research.md`.
 
@@ -93,13 +93,13 @@ Run designated repository-backed module tests (adjust list during implementation
 
 On a running CMS build from the feature-complete branch:
 
-| Step | Action | Expected |
-|------|--------|----------|
-| 1 | Log in as editor | Success |
-| 2 | Create and save a page or asset | Persists; reopen shows same fields |
-| 3 | Open existing content item | Loads without repository errors |
-| 4 | Preview | Renders without new JCR errors |
-| 5 | Publish one site/edition (or minimal publish path) | Completes; no new repository API failures |
+| Step |                       Action                       |                 Expected                  |
+|------|----------------------------------------------------|-------------------------------------------|
+| 1    | Log in as editor                                   | Success                                   |
+| 2    | Create and save a page or asset                    | Persists; reopen shows same fields        |
+| 3    | Open existing content item                         | Loads without repository errors           |
+| 4    | Preview                                            | Renders without new JCR errors            |
+| 5    | Publish one site/edition (or minimal publish path) | Completes; no new repository API failures |
 
 Record: date, build id/commit, pass/fail per step (PR comment or checklist attachment).
 
@@ -121,3 +121,4 @@ Record: date, build id/commit, pass/fail per step (PR comment or checklist attac
 - Integrator rebuild: [contracts/integrator-rebuild.md](./contracts/integrator-rebuild.md)
 - Logical model: [data-model.md](./data-model.md)
 - Research decisions: [research.md](./research.md)
+

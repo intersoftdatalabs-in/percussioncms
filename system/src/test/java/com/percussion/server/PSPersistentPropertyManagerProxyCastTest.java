@@ -34,8 +34,7 @@ class PSPersistentPropertyManagerProxyCastTest {
   @Test
   @DisplayName("PSPersistentPropertyManager must not cast IPSCmsObjectMgr to PSCmsObjectMgr")
   void noConcreteCastToPsCmsObjectMgr() throws Exception {
-    Path src =
-        Paths.get("src/main/java/com/percussion/server/PSPersistentPropertyManager.java");
+    Path src = Paths.get("src/main/java/com/percussion/server/PSPersistentPropertyManager.java");
     if (!Files.isRegularFile(src)) {
       // surefire may run with module-relative or repo-relative cwd
       Path alt =

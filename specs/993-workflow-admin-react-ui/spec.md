@@ -23,30 +23,30 @@ The following JSP/jQuery screens are in scope for replacement. They will be full
 
 #### Legacy Workflow Admin (`adminWorkflow.jsp` shell — four tabs)
 
-| Tab | Key Features |
-|-----|-------------|
-| **Workflow** | Create, read, list, update, delete named stepped workflow definitions; mark a workflow as system default; configure staging-publish role permissions per workflow; assign workflows to sites and folder subtrees (async background job with progress tracking) |
-| **Workflow Steps** | Add, name, configure (role assignments), reorder, and delete individual steps within a workflow definition |
-| **Roles** | Create, read, list, update, delete roles; set role homepage; assign/remove users to/from a role |
-| **Users** | Create, read, list, update, delete local users; set username, password, email, assigned roles; import users from an external LDAP/directory; manage LDAP integration status |
+|        Tab         |                                                                                                                          Key Features                                                                                                                          |
+|--------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| **Workflow**       | Create, read, list, update, delete named stepped workflow definitions; mark a workflow as system default; configure staging-publish role permissions per workflow; assign workflows to sites and folder subtrees (async background job with progress tracking) |
+| **Workflow Steps** | Add, name, configure (role assignments), reorder, and delete individual steps within a workflow definition                                                                                                                                                     |
+| **Roles**          | Create, read, list, update, delete roles; set role homepage; assign/remove users to/from a role                                                                                                                                                                |
+| **Users**          | Create, read, list, update, delete local users; set username, password, email, assigned roles; import users from an external LDAP/directory; manage LDAP integration status                                                                                    |
 
 #### Legacy Admin UI (scheduler, tools, categories — currently in `admin.jsp` + `ui/admin/`)
 
-| Area | Key Features |
-|------|-------------|
-| **Categories** | Hierarchical category tree CRUD with lock management; add, delete, reorder categories |
-| **Scheduled Tasks** | Create, read, list, update, delete scheduled jobs; view task logs per job; view detailed log entries; configure and list email notifications per task; delete all logs; remove task confirmation |
-| **Consistency Checker** | Run, view results, and review content consistency checks |
-| **Admin Console** | Server admin console view |
+|          Area           |                                                                                           Key Features                                                                                           |
+|-------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| **Categories**          | Hierarchical category tree CRUD with lock management; add, delete, reorder categories                                                                                                            |
+| **Scheduled Tasks**     | Create, read, list, update, delete scheduled jobs; view task logs per job; view detailed log entries; configure and list email notifications per task; delete all logs; remove task confirmation |
+| **Consistency Checker** | Run, view results, and review content consistency checks                                                                                                                                         |
+| **Admin Console**       | Server admin console view                                                                                                                                                                        |
 
 #### In-Context Workflow (per content item — currently `workflowactions.jsp`)
 
-| Feature | Detail |
-|---------|--------|
-| Check In / Check Out / Force Check Out | Lock management per item |
-| Workflow Transitions | Execute named transitions (Submit, Approve, Reject, Live, etc.) |
-| Transition Comments | Optional or required comment textarea per transition |
-| Ad-hoc Assignees | Search users and assign them as ad-hoc reviewers for a transition |
+|                Feature                 |                              Detail                               |
+|----------------------------------------|-------------------------------------------------------------------|
+| Check In / Check Out / Force Check Out | Lock management per item                                          |
+| Workflow Transitions                   | Execute named transitions (Submit, Approve, Reject, Live, etc.)   |
+| Transition Comments                    | Optional or required comment textarea per transition              |
+| Ad-hoc Assignees                       | Search users and assign them as ad-hoc reviewers for a transition |
 
 ### Modern React Components Already Shipped (reference implementations)
 
@@ -229,3 +229,4 @@ As an Administrator, I need to run a consistency check on the CMS content store 
 - The `perc-i18n` TMX keys that currently cover the legacy screens (`perc.ui.workflow.*`, `perc.ui.users.*`, `perc.ui.roles.*`, etc.) will be reused or extended as needed; no TMX key renames that break backward compatibility.
 - "Consistency Checker" and "Admin Console" are lower-priority (P3) features implemented as native React components (`ConsistencyChecker.tsx` and `ToolsSection.tsx`) within `AdminShell`.
 - The content item in-context workflow action panel (US5) replaces `workflowactions.jsp` and its Dojo dependency and integrates into the existing content editor/preview UI entry points.
+

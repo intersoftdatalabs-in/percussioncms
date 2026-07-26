@@ -92,18 +92,18 @@ Walked through each input by hand, comparing capture groups pre- and
 post-fix. `\r` and `\n` are neither `-` nor space, so they belong to
 `[^\- ]`; the dropped `[\r\n]` branch was strictly redundant.
 
-| Input | Pre-fix capture (in `<!-- $1 -->`) | Post-fix capture | Match? |
-|-------|-----------------------------------|------------------|--------|
-| `<!--somecomment-->` | `somecomment` | `somecomment` | yes |
-| `<!--abc-->` | `abc` | `abc` | yes |
-| `<!--abc-def-->` | `abc-def` (middle `-d` via `-[^\- ]`) | `abc-def` | yes |
-| `<!--a-b-c-->` | `a-b-c` | `a-b-c` | yes |
-| `<!--   -->` (leading spaces) | no match (first char is space) | no match | yes |
-| `<!--X-->` | `X` | `X` | yes |
-| `<!--X\nY-->` | `X\nY` (middle `\n` via `[\r\n]` or `[^\- ]`) | `X\nY` (middle `\n` via `[^\- ]`) | yes |
-| `<!--a\r-->` | `a\r` | `a\r` | yes |
-| `<!-- already spaced -->` | no match | no match | yes |
-| `<!--somecomment with space-->` | `somecomment with space` | `somecomment with space` | yes |
+|              Input              |      Pre-fix capture (in `<!-- $1 -->`)       |         Post-fix capture          | Match? |
+|---------------------------------|-----------------------------------------------|-----------------------------------|--------|
+| `<!--somecomment-->`            | `somecomment`                                 | `somecomment`                     | yes    |
+| `<!--abc-->`                    | `abc`                                         | `abc`                             | yes    |
+| `<!--abc-def-->`                | `abc-def` (middle `-d` via `-[^\- ]`)         | `abc-def`                         | yes    |
+| `<!--a-b-c-->`                  | `a-b-c`                                       | `a-b-c`                           | yes    |
+| `<!--   -->` (leading spaces)   | no match (first char is space)                | no match                          | yes    |
+| `<!--X-->`                      | `X`                                           | `X`                               | yes    |
+| `<!--X\nY-->`                   | `X\nY` (middle `\n` via `[\r\n]` or `[^\- ]`) | `X\nY` (middle `\n` via `[^\- ]`) | yes    |
+| `<!--a\r-->`                    | `a\r`                                         | `a\r`                             | yes    |
+| `<!-- already spaced -->`       | no match                                      | no match                          | yes    |
+| `<!--somecomment with space-->` | `somecomment with space`                      | `somecomment with space`          | yes    |
 
 All canonical inputs are behavior-preserving. The dropped `[\r\n]` branch
 never accepted an input that `[^\- ]` would not have accepted, and the

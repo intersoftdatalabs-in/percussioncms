@@ -18,7 +18,6 @@ package com.percussion.security.validation;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -141,8 +140,7 @@ public final class URLListFileLoader {
 
   /** Reads classpath resource as UTF-8 string (for tests). */
   public static String readClasspathResource(String resource) throws IOException {
-    try (InputStream in =
-        URLListFileLoader.class.getClassLoader().getResourceAsStream(resource)) {
+    try (InputStream in = URLListFileLoader.class.getClassLoader().getResourceAsStream(resource)) {
       if (in == null) {
         throw new IOException("Missing classpath resource: " + resource);
       }

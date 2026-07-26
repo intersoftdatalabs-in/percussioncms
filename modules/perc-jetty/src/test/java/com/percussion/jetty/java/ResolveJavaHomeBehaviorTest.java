@@ -41,40 +41,38 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
 /**
- * Behavioral script-invocation tests (FR-013 layer-3) for the runtime
- * {@code resolve-java-home.sh} helper on Linux + macOS.
+ * Behavioral script-invocation tests (FR-013 layer-3) for the runtime {@code resolve-java-home.sh}
+ * helper on Linux + macOS.
  *
- * <p>The fixture lives at {@code src/test/resources/fixtures/fake-java-home/jre/bin/java}.
- * The fixture encodes the major version in its parent directory's basename suffix
- * (e.g. {@code fake-java-home-21/.../java}), so the same source file emits different
- * version strings depending on which {@code TempDir} the test creates the install
- * root in. No real JDK installations are required.
+ * <p>The fixture lives at {@code src/test/resources/fixtures/fake-java-home/jre/bin/java}. The
+ * fixture encodes the major version in its parent directory's basename suffix (e.g. {@code
+ * fake-java-home-21/.../java}), so the same source file emits different version strings depending
+ * on which {@code TempDir} the test creates the install root in. No real JDK installations are
+ * required.
  *
- * <p>The test class is a no-op when the fixture or the resolve-java-home script
- * is missing (same guard pattern as {@code DtsInstallerJarContainsPercAntTest})
- * so IDE / ad-hoc runs are unaffected.
+ * <p>The test class is a no-op when the fixture or the resolve-java-home script is missing (same
+ * guard pattern as {@code DtsInstallerJarContainsPercAntTest}) so IDE / ad-hoc runs are unaffected.
  *
- * <p><b>Scope:</b> Linux + macOS only. Windows requires a real PE-binary launcher
- * fixture (the {@code java.bat} content cannot execute as {@code java.exe}); Windows
- * coverage is provided by the structural tests {@code DtsJavaHomeScriptTest} and
- * {@code ResolveJavaHomeScriptTest} (FR-013 layer-2).
+ * <p><b>Scope:</b> Linux + macOS only. Windows requires a real PE-binary launcher fixture (the
+ * {@code java.bat} content cannot execute as {@code java.exe}); Windows coverage is provided by the
+ * structural tests {@code DtsJavaHomeScriptTest} and {@code ResolveJavaHomeScriptTest} (FR-013
+ * layer-2).
  */
 class ResolveJavaHomeBehaviorTest {
 
   private static final Path FIXTURE =
       Path.of("src", "test", "resources", "fixtures", "fake-java-home", "jre", "bin", "java");
-  private static final Path RESOLVE_SH =
-      Path.of("src", "main", "jetty", "resolve-java-home.sh");
+  private static final Path RESOLVE_SH = Path.of("src", "main", "jetty", "resolve-java-home.sh");
 
   @BeforeAll
   static void locateAssets() {
     Assumptions.assumeTrue(
         Files.isRegularFile(FIXTURE),
-        "fake-java fixture missing at " + FIXTURE.toAbsolutePath()
-            + "; skipping behavioral tests");
+        "fake-java fixture missing at " + FIXTURE.toAbsolutePath() + "; skipping behavioral tests");
     Assumptions.assumeTrue(
         Files.isRegularFile(RESOLVE_SH),
-        "resolve-java-home.sh missing at " + RESOLVE_SH.toAbsolutePath()
+        "resolve-java-home.sh missing at "
+            + RESOLVE_SH.toAbsolutePath()
             + "; skipping behavioral tests");
   }
 
@@ -137,15 +135,12 @@ class ResolveJavaHomeBehaviorTest {
   // --- Helpers ---
 
   /**
-   * Sets up a per-test install root with the fake-java fixture. The {@code @TempDir}
-   * parent is renamed to {@code fake-java-home-N-XXXX} so the fixture (which reads the
-   * parent dir's suffix) emits the right major version.
+   * Sets up a per-test install root with the fake-java fixture. The {@code @TempDir} parent is
+   * renamed to {@code fake-java-home-N-XXXX} so the fixture (which reads the parent dir's suffix)
+   * emits the right major version.
    */
   private static Path setupFakeJavaHome(
-      Path installRoot,
-      String fakeMajor,
-      boolean writeConfig,
-      boolean overwriteInvalidConfig)
+      Path installRoot, String fakeMajor, boolean writeConfig, boolean overwriteInvalidConfig)
       throws java.io.IOException {
     // We need a directory whose basename ends with -NN so the fixture's case
     // statement picks the right version. JUnit @TempDir can place us under a
@@ -160,14 +155,16 @@ class ResolveJavaHomeBehaviorTest {
     Path javaExe = bin.resolve("java");
     javaExe.toFile().setExecutable(true, false);
     try {
-      Files.setPosixFilePermissions(javaExe, Set.of(
-          PosixFilePermission.OWNER_READ,
-          PosixFilePermission.OWNER_WRITE,
-          PosixFilePermission.OWNER_EXECUTE,
-          PosixFilePermission.GROUP_READ,
-          PosixFilePermission.GROUP_EXECUTE,
-          PosixFilePermission.OTHERS_READ,
-          PosixFilePermission.OTHERS_EXECUTE));
+      Files.setPosixFilePermissions(
+          javaExe,
+          Set.of(
+              PosixFilePermission.OWNER_READ,
+              PosixFilePermission.OWNER_WRITE,
+              PosixFilePermission.OWNER_EXECUTE,
+              PosixFilePermission.GROUP_READ,
+              PosixFilePermission.GROUP_EXECUTE,
+              PosixFilePermission.OTHERS_READ,
+              PosixFilePermission.OTHERS_EXECUTE));
     } catch (UnsupportedOperationException ignored) {
       // not POSIX (e.g., Windows)
     }
@@ -196,14 +193,12 @@ class ResolveJavaHomeBehaviorTest {
   }
 
   /**
-   * Runs the resolver script and asserts the precedence-layer success case.
-   * The {@code envHome} / {@code onPath} flags control the parent-process
-   * environment (and the {@code PATH}) that is set up before invocation:
-   * {@code envHome=true} sets {@code JAVA_HOME} on the parent process to the
-   * fake Java home (so the resolver sees PROCESS_ENV); {@code onPath=true}
-   * prepends the fake {@code bin} to {@code PATH} (so the resolver sees PATH).
-   * {@code writeConfig=true} writes {@code java.properties} so the resolver
-   * sees PRODUCT_CONFIG. Each scenario is independent.
+   * Runs the resolver script and asserts the precedence-layer success case. The {@code envHome} /
+   * {@code onPath} flags control the parent-process environment (and the {@code PATH}) that is set
+   * up before invocation: {@code envHome=true} sets {@code JAVA_HOME} on the parent process to the
+   * fake Java home (so the resolver sees PROCESS_ENV); {@code onPath=true} prepends the fake {@code
+   * bin} to {@code PATH} (so the resolver sees PATH). {@code writeConfig=true} writes {@code
+   * java.properties} so the resolver sees PRODUCT_CONFIG. Each scenario is independent.
    */
   private static void runScript(
       Path scratch,
@@ -226,15 +221,13 @@ class ResolveJavaHomeBehaviorTest {
   }
 
   /**
-   * As {@link #runScript} but asserts the failure path: exit non-zero, output
-   * mentions the minimum major version (21 or later). The {@code
-   * overwriteInvalidConfig} parameter, when true, replaces the config with a
-   * non-existent path so the resolver rejects the PRODUCT_CONFIG source. When
-   * the caller additionally passes {@code envHome=true} or {@code onPath=true},
-   * the lower-precedence layers will be tried as part of the failure outcome;
-   * when both are false (as in {@code configRejectsInvalidPath}) the test
-   * exercises the config-rejection path only and the resolver fails with "no
-   * sources" after exhausting all (absent) sources.
+   * As {@link #runScript} but asserts the failure path: exit non-zero, output mentions the minimum
+   * major version (21 or later). The {@code overwriteInvalidConfig} parameter, when true, replaces
+   * the config with a non-existent path so the resolver rejects the PRODUCT_CONFIG source. When the
+   * caller additionally passes {@code envHome=true} or {@code onPath=true}, the lower-precedence
+   * layers will be tried as part of the failure outcome; when both are false (as in {@code
+   * configRejectsInvalidPath}) the test exercises the config-rejection path only and the resolver
+   * fails with "no sources" after exhausting all (absent) sources.
    */
   private static void runScriptFailure(
       Path scratch,
@@ -244,16 +237,14 @@ class ResolveJavaHomeBehaviorTest {
       boolean onPath,
       boolean overwriteInvalidConfig)
       throws Exception {
-    Path installRoot =
-        setupFakeJavaHome(scratch, fakeMajor, writeConfig, overwriteInvalidConfig);
+    Path installRoot = setupFakeJavaHome(scratch, fakeMajor, writeConfig, overwriteInvalidConfig);
     ResolveResult r = invokeResolver(installRoot, envHome, onPath);
     assertNotEquals(0, r.exit, "Expected non-zero exit. Output:\n" + r.output);
     assertTrue(
         r.output.contains("21"),
         "Output must mention minimum major version 21. Output:\n" + r.output);
     assertTrue(
-        r.output.toLowerCase().contains("or later")
-            || r.output.toLowerCase().contains("minimum"),
+        r.output.toLowerCase().contains("or later") || r.output.toLowerCase().contains("minimum"),
         "Output must describe 21 as a minimum (21+). Output:\n" + r.output);
   }
 
@@ -261,25 +252,23 @@ class ResolveJavaHomeBehaviorTest {
    * Invokes {@code resolve-java-home.sh} under a controlled environment:
    *
    * <ul>
-   *   <li>If {@code envHome} is true, the parent process {@code JAVA_HOME} is
-   *       set to the fake install root before launching — so the resolver sees
-   *       PROCESS_ENV.
-   *   <li>If {@code onPath} is true, the parent process {@code PATH} includes
-   *       only the fake {@code bin} (plus a tools dir) — so the resolver sees
-   *       PATH discovery from the fixture alone.
-   *   <li>If {@code writeConfig} is true (set during {@link #setupFakeJavaHome}),
-   *       the resolver also sees PRODUCT_CONFIG.
+   *   <li>If {@code envHome} is true, the parent process {@code JAVA_HOME} is set to the fake
+   *       install root before launching — so the resolver sees PROCESS_ENV.
+   *   <li>If {@code onPath} is true, the parent process {@code PATH} includes only the fake {@code
+   *       bin} (plus a tools dir) — so the resolver sees PATH discovery from the fixture alone.
+   *   <li>If {@code writeConfig} is true (set during {@link #setupFakeJavaHome}), the resolver also
+   *       sees PRODUCT_CONFIG.
    * </ul>
    *
-   * <p>PATH is always isolated from the host JVM's PATH. Without isolation the
-   * resolver falls through to a real system Java 21 (e.g. {@code /usr/bin/java})
-   * after config/env/fake-Java-8 fail, and the negative scenarios incorrectly
-   * exit 0. Tools the script needs ({@code awk}, {@code sed}, …) are exposed via
-   * a dedicated tools directory of symlinks that deliberately omits {@code java}.
+   * <p>PATH is always isolated from the host JVM's PATH. Without isolation the resolver falls
+   * through to a real system Java 21 (e.g. {@code /usr/bin/java}) after config/env/fake-Java-8
+   * fail, and the negative scenarios incorrectly exit 0. Tools the script needs ({@code awk},
+   * {@code sed}, …) are exposed via a dedicated tools directory of symlinks that deliberately omits
+   * {@code java}.
    *
-   * <p>After invocation we verify that the exit code is reported (with
-   * {@code destroyForcibly} on timeout) so a hung child process cannot mask
-   * test failures with {@code IllegalThreadStateException}.
+   * <p>After invocation we verify that the exit code is reported (with {@code destroyForcibly} on
+   * timeout) so a hung child process cannot mask test failures with {@code
+   * IllegalThreadStateException}.
    */
   private static ResolveResult invokeResolver(Path installRoot, boolean envHome, boolean onPath)
       throws Exception {
@@ -300,9 +289,12 @@ class ResolveJavaHomeBehaviorTest {
       bash = "/bin/bash";
     }
 
-    ProcessBuilder pb = new ProcessBuilder(
-        bash, RESOLVE_SH.toAbsolutePath().toString(), installRoot.toAbsolutePath().toString())
-        .redirectErrorStream(true);
+    ProcessBuilder pb =
+        new ProcessBuilder(
+                bash,
+                RESOLVE_SH.toAbsolutePath().toString(),
+                installRoot.toAbsolutePath().toString())
+            .redirectErrorStream(true);
     pb.environment().clear();
     pb.environment().putAll(env);
     pb.directory(installRoot.toFile());
@@ -335,15 +327,14 @@ class ResolveJavaHomeBehaviorTest {
   /**
    * Builds a PATH that never exposes the host {@code java} launcher.
    *
-   * <p>On merged-usr systems ({@code /bin → /usr/bin}) putting {@code /bin} or
-   * {@code /usr/bin} on PATH would reintroduce system Java and defeat the
-   * negative scenarios. Instead we symlink only the utilities the resolver
-   * script invokes ({@code awk}, {@code sed}, {@code head}, {@code tr},
+   * <p>On merged-usr systems ({@code /bin → /usr/bin}) putting {@code /bin} or {@code /usr/bin} on
+   * PATH would reintroduce system Java and defeat the negative scenarios. Instead we symlink only
+   * the utilities the resolver script invokes ({@code awk}, {@code sed}, {@code head}, {@code tr},
    * {@code uname}, …) into a private tools directory under the install root.
    *
    * @param installRoot fixture install root (also the home of the tools dir)
-   * @param onPath when true, prepend the fake {@code bin} so PATH discovery
-   *     sees the fixture launcher only
+   * @param onPath when true, prepend the fake {@code bin} so PATH discovery sees the fixture
+   *     launcher only
    */
   private static String buildIsolatedPath(Path installRoot, boolean onPath) throws Exception {
     Path toolsDir = installRoot.resolve(".resolve-test-tools");
@@ -365,8 +356,8 @@ class ResolveJavaHomeBehaviorTest {
   }
 
   /**
-   * Creates a symlink (or copy fallback) from {@code toolsDir/cmd} to the host
-   * executable for {@code cmd}. No-op when the host command cannot be found.
+   * Creates a symlink (or copy fallback) from {@code toolsDir/cmd} to the host executable for
+   * {@code cmd}. No-op when the host command cannot be found.
    */
   private static void linkHostCommand(Path toolsDir, String cmd) throws Exception {
     String host = findOnHostPath(cmd);
@@ -388,8 +379,8 @@ class ResolveJavaHomeBehaviorTest {
   }
 
   /**
-   * Locates {@code cmd} on the host process PATH (not the isolated test PATH).
-   * Returns an absolute path string, or {@code null} if not found.
+   * Locates {@code cmd} on the host process PATH (not the isolated test PATH). Returns an absolute
+   * path string, or {@code null} if not found.
    */
   private static String findOnHostPath(String cmd) {
     String hostPath = System.getenv("PATH");

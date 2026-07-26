@@ -9,6 +9,7 @@
 Ship a **native systemd unit** for Percussion CMS (Jetty) and teach `install-jetty-service.sh` to install/enable/uninstall it on systemd hosts, while retaining **init.d as a fallback**. Fix the support failure mode where LSB-generated units **timeout** on slow post-upgrade starts and leave **journalctl** nearly empty and state inconsistent. Approach: `Type=forking` + product PID file + `EnvironmentFile` + elevated `TimeoutStartSec` + journal stdout/stderr, structural tests, and ops docs.
 
 ## Technical Context
+
 - **Language/Version**: Shell (bash) for Linux installers; unit files (systemd); existing Jetty distribution packaging (Maven). JDK 21 on `development` for any Java tests.
 - **Owning Module(s)**: `modules/perc-jetty/` (primary); packaging via `modules/perc-distribution-tree/` if service tree copy needs a new file path.
 - **AGENTS Hierarchy**: root `AGENTS.md`, `modules/perc-jetty/AGENTS.md`, `modules/perc-distribution-tree/AGENTS.md` if distribution packaging changes.
@@ -17,6 +18,7 @@ Ship a **native systemd unit** for Percussion CMS (Jetty) and teach `install-jet
 - **Scale/Impact**: Ops-only; CMS app code unchanged; install/upgrade docs and distribution service folder.
 
 ## Constitution Check
+
 - [x] **I. Module-First Boundaries** — `perc-jetty` owns service scripts; no new top-level module
 - [x] **II. Evidence Over Invention** — extends `install-jetty-service.sh`, `rxjetty.sh`, Jetty upstream `jetty.service` as reference only
 - [x] **III. Test Discipline** — unit/structural tests planned for unit template + installer selection
@@ -29,7 +31,9 @@ Ship a **native systemd unit** for Percussion CMS (Jetty) and teach `install-jet
 - [x] **Complexity Budget** — no constitution exceptions
 
 ## Project Structure
+
 ### Documentation (this feature)
+
 ```text
 specs/988-linux-systemd-services/
 ├── plan.md
@@ -44,6 +48,7 @@ specs/988-linux-systemd-services/
 ```
 
 ### Source Code (affected paths)
+
 ```text
 modules/perc-jetty/src/main/jetty/service/
   install-jetty-service.sh          # detect systemd; install/uninstall unit
@@ -61,26 +66,30 @@ modules/perc-jetty/src/test/java/com/percussion/jetty/service/
 Windows `install-jetty-service.bat` — **no behavioral change** (regression-only awareness).
 
 ## Complexity Tracking
+
 *(None — no constitution violations.)*
 
 ## Implementation Decisions (from research.md)
 
-| Topic | Decision |
-|-------|----------|
-| Unit type | `Type=forking` + `PIDFile=` matching existing `JETTY_PID` |
-| Timeout | `TimeoutStartSec=1800` (30 min) default; document override via drop-in |
-| Logging | `StandardOutput=journal`, `StandardError=journal`; keep start.log path in EnvironmentFile |
-| Installer | Prefer systemd when `systemctl` + `/run/systemd/system` exist; else init.d |
-| Dual install | On systemd path, **do not** also register chkconfig/update-rc.d |
-| Fallback | Keep init.d install when not systemd or `--initd` flag |
-| DTS | Out of scope for this feature |
+|    Topic     |                                         Decision                                          |
+|--------------|-------------------------------------------------------------------------------------------|
+| Unit type    | `Type=forking` + `PIDFile=` matching existing `JETTY_PID`                                 |
+| Timeout      | `TimeoutStartSec=1800` (30 min) default; document override via drop-in                    |
+| Logging      | `StandardOutput=journal`, `StandardError=journal`; keep start.log path in EnvironmentFile |
+| Installer    | Prefer systemd when `systemctl` + `/run/systemd/system` exist; else init.d                |
+| Dual install | On systemd path, **do not** also register chkconfig/update-rc.d                           |
+| Fallback     | Keep init.d install when not systemd or `--initd` flag                                    |
+| DTS          | Out of scope for this feature                                                             |
 
 ## Story → PR Strategy (constitution workflow)
-1. **US1 PR**: unit template + systemd install path + tests + docs  
-2. **US2 PR**: timeout/journal/PID consistency hardening + tests  
-3. **US3 PR**: uninstall/migration + init.d coexistence + docs  
+
+1. **US1 PR**: unit template + systemd install path + tests + docs
+2. **US2 PR**: timeout/journal/PID consistency hardening + tests
+3. **US3 PR**: uninstall/migration + init.d coexistence + docs
 
 ## Phase mapping
+
 - **Phase 0**: research.md (done with this plan cycle)
 - **Phase 1**: data-model.md, contracts/, quickstart.md
 - **Next**: tasks.md → implement per story
+

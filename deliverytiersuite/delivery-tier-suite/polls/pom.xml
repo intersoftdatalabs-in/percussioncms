@@ -95,15 +95,10 @@
             <artifactId>spring-orm</artifactId>
             <scope>test</scope>
         </dependency>
-                <dependency>
+        <dependency>
             <groupId>com.h2database</groupId>
             <artifactId>h2</artifactId>
             <version>${h2.version}</version>
-        </dependency>
-<dependency>
-            <groupId>org.apache.derby</groupId>
-            <artifactId>derby</artifactId>
-            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
@@ -176,7 +171,6 @@
                     </systemProperties>
                 </configuration>
             </plugin>
-            
         </plugins>
     </build>
 </project>

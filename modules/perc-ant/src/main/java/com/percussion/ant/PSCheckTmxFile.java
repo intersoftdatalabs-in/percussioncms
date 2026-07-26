@@ -38,15 +38,13 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
 /**
- * Check the tmx file for correct data. The classes in the tmx file must actually exist. Spit
- * out errors for the ones that don't exist.
+ * Check the tmx file for correct data. The classes in the tmx file must actually exist. Spit out
+ * errors for the ones that don't exist.
  *
  * @author dougrand
  */
 public class PSCheckTmxFile extends Task {
-  /**
-   * Creates a new TMX file check task.
-   */
+  /** Creates a new TMX file check task. */
   public PSCheckTmxFile() {}
 
   private static final Logger log = LogManager.getLogger(PSCheckTmxFile.class);

@@ -112,7 +112,8 @@ class PSCreateSectionFromFolderValidatorEarlyReturnTest {
     // Only the source-folder reject — not the parent-section or landing-page follow-ons.
     assertEquals(1, errors.getErrorCount(), "must stop after primary folder-not-found reject");
     String all = String.valueOf(errors);
-    assertTrue(all.contains("folder with that path cannot be found") || all.contains("cannot be found"));
+    assertTrue(
+        all.contains("folder with that path cannot be found") || all.contains("cannot be found"));
     assertFalse(
         all.contains("parent path"),
         "must not continue into parent-path validation after source folder missing: " + all);

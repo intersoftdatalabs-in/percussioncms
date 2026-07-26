@@ -65,13 +65,13 @@ cd modules/perc-distribution-tree
 
 Every production build of this module ships a curated JDBC driver set into `jetty/base/lib/jdbc/` of the assembled distribution. The drivers are sourced from parent-POM-managed Maven coordinates and staged into `target/classes/distribution/_jdbc-stage/` by the `stage-jdbc-drivers` execution of `maven-dependency-plugin`, then copied into `jetty/base/lib/jdbc/` by the ANT script.
 
-| Database | Driver coordinate | Source of truth |
-|----------|------------------|-----------------|
-| MariaDB / MySQL (default repository) | `org.mariadb.jdbc:mariadb-java-client` | root `pom.xml` `${mariadb.version}` |
-| Derby (embedded/dev) | `org.apache.derby:derby`, `derbyclient`, `derbynet` | root `pom.xml` `${derby.version}` |
-| MS SQL Server (modern) | `com.microsoft.sqlserver:mssql-jdbc` | root `pom.xml` `${mssql.version}` |
-| MS SQL Server (legacy jTDS) | `net.sourceforge.jtds:jtds` | root `pom.xml` `${jtds.version}` |
-| Oracle | `com.oracle.database.jdbc:ojdbc17` | root `pom.xml` `${ojdbc17.version}` |
+|               Database               |                  Driver coordinate                  |           Source of truth           |
+|--------------------------------------|-----------------------------------------------------|-------------------------------------|
+| MariaDB / MySQL (default repository) | `org.mariadb.jdbc:mariadb-java-client`              | root `pom.xml` `${mariadb.version}` |
+| Derby (embedded/dev)                 | `org.apache.derby:derby`, `derbyclient`, `derbynet` | root `pom.xml` `${derby.version}`   |
+| MS SQL Server (modern)               | `com.microsoft.sqlserver:mssql-jdbc`                | root `pom.xml` `${mssql.version}`   |
+| MS SQL Server (legacy jTDS)          | `net.sourceforge.jtds:jtds`                         | root `pom.xml` `${jtds.version}`    |
+| Oracle                               | `com.oracle.database.jdbc:ojdbc17`                  | root `pom.xml` `${ojdbc17.version}` |
 
 JARs are placed in the install with their Maven-resolved filenames (e.g. `mariadb-java-client-3.5.7.jar`) so the bundled version is visible to integrators and any version drift is explicit.
 
@@ -91,13 +91,13 @@ java -jar PercussionCMS.jar /path/to/install/root --dbprops=/path/to/rxrepositor
 
 ### Supported backends
 
-| `DB_BACKEND` | Structured `db.type` | Notes |
-|--------------|----------------------|-------|
-| `H2` | `h2` | Default embedded engine when no override is given (#548) |
-| `DERBY` | `derby` | Legacy product-managed embedded; upgrade migration only |
-| `MYSQL` | `mysql` | MySQL or MariaDB-compatible; sample uses MariaDB driver class |
-| `MSSQL` | `sqlserver` | Microsoft SQL Server |
-| `ORACLE` | `oracle` | Oracle thin |
+| `DB_BACKEND` | Structured `db.type` |                             Notes                             |
+|--------------|----------------------|---------------------------------------------------------------|
+| `H2`         | `h2`                 | Default embedded engine when no override is given (#548)      |
+| `DERBY`      | `derby`              | Legacy product-managed embedded; upgrade migration only       |
+| `MYSQL`      | `mysql`              | MySQL or MariaDB-compatible; sample uses MariaDB driver class |
+| `MSSQL`      | `sqlserver`          | Microsoft SQL Server                                          |
+| `ORACLE`     | `oracle`             | Oracle thin                                                   |
 
 ### Sample files
 
@@ -128,11 +128,11 @@ Feature design artifacts: `specs/006-installer-db-targets/` (contracts under `co
 
 Long-lived installs may retain multi-GB **obsolete** directories (especially `PreInstall` from the old installer). On **upgrade only**, the preinstall step can remove a curated set **early** (before ANT upgrade work):
 
-| Relative path | Notes |
-|---------------|--------|
-| `PreInstall` | Legacy preinstall/backup tree unused by 8.x |
-| `_Percussion_Installation` (or `_Percussion_installation`) | Legacy install-metadata folder |
-| `JBossServerXML_BAK` | Offered only when safe for the detected version (not when a 5.3-era migration still needs it without `AppServer`) |
+|                       Relative path                        |                                                       Notes                                                       |
+|------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------|
+| `PreInstall`                                               | Legacy preinstall/backup tree unused by 8.x                                                                       |
+| `_Percussion_Installation` (or `_Percussion_installation`) | Legacy install-metadata folder                                                                                    |
+| `JBossServerXML_BAK`                                       | Offered only when safe for the detected version (not when a 5.3-era migration still needs it without `AppServer`) |
 
 ### Flag (automation)
 
@@ -161,7 +161,7 @@ The install/upgrade script's `<delete>` block in `install.xml` is pinned to the 
 2. **`BundledJdbcDrivers` (test source of truth)** — `modules/perc-distribution-tree/src/test/java/com/percussion/distribution/jdbc/BundledJdbcDrivers.java` exposes two sets:
    - `EXACT_FILENAMES` — the CURRENT bundled filenames for this release.
    - `PRIOR_FILENAMES` — the bundled filenames from the immediately preceding release.
-   Move the old filename from `EXACT_FILENAMES` to `PRIOR_FILENAMES` (or add a new `PRIOR_FILENAMES` entry if it isn't already there).
+     Move the old filename from `EXACT_FILENAMES` to `PRIOR_FILENAMES` (or add a new `PRIOR_FILENAMES` entry if it isn't already there).
 3. **`install.xml`** — `modules/perc-distribution-tree/src/main/resources/distribution/rxconfig/Installer/install.xml`. The `<delete>` block in the `install_jdbc_drivers` target has a CURRENT `<include>` list and a PRIOR `<include>` list. Update both to mirror `BundledJdbcDrivers` exactly.
 
 The PRIOR set exists so an upgrade from N-1 to N does not leave the prior-version JAR on the Jetty classpath (which can cause `LinkageError` / wrong-version-loaded issues). Old PRIOR entries can be removed by the release manager once they are confident no field upgrade from that era is still in flight. The pin list is enforced as exact filenames — no globs — by `scripts/check-no-glob-deletes.py` (cross-platform Python port; wired into the Maven `verify` phase via the `com.percussion.distribution.install.CheckNoGlobDeletes` Java main), and `InstallXmlDeleteSetTest.deleteSetContainsAllBundledFilenames` asserts that `install.xml`'s delete set equals the union of the two Java constants, so any drift between the three places fails the build with a clear JUnit error rather than silently corrupting the installer.

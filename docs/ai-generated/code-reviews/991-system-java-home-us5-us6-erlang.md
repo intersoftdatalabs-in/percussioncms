@@ -36,6 +36,7 @@ approve
 ## Issues
 
 ### Issue 1 -- Severity: nit
+
 - File: `system/release/installer/Linux/install-service.sh:127`
 - Description: Updated the "Must be version 1.8" error message to point at
   Java 21 and reference `specs/991-system-java-home/`. The legacy
@@ -48,6 +49,7 @@ approve
 - Status: open (non-blocking)
 
 ### Issue 2 -- Severity: nit
+
 - File: `system/release/installer/unix/` and `system/release/installer/windows/`
 - Description: Same "1.8" wording remains in the unix / windows siblings
   of `percussion-service.sh` / `install-jetty-service.sh`. Those
@@ -73,3 +75,4 @@ approve
   fallback contract.
 
 ## Author is also reviewer (disclosed)
+

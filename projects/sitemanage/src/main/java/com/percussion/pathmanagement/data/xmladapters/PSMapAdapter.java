@@ -25,8 +25,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Custom XmlAdapter to convert between a {@code Map<String, String>} and PSPathItemDisplayProperties. Used
- * for XML serialization/deserialization of display properties.
+ * Custom XmlAdapter to convert between a {@code Map<String, String>} and
+ * PSPathItemDisplayProperties. Used for XML serialization/deserialization of display properties.
  *
  * @author federicoromanelli
  */

@@ -1,11 +1,11 @@
-const { defineConfig } = require('@playwright/test');
+const { defineConfig } = require("@playwright/test");
 
 module.exports = defineConfig({
   // Resolved relative to this file (frontend/playwright.config.js). Specs
   // live in ./tests/ alongside this config; running from the parent
   // directory (e.g. `npx --prefix frontend playwright test`) breaks
   // resolution. Use `npx playwright test` from this directory.
-  testDir: './tests',
+  testDir: "./tests",
   // Serial worker: the dev CMS login is contended and the form
   // session cookies are per-context but the server's login endpoint
   // has no rate-limit, so concurrent logins from multiple workers
@@ -20,8 +20,8 @@ module.exports = defineConfig({
   },
   projects: [
     {
-      name: 'chromium',
-      use: { browserName: 'chromium' },
+      name: "chromium",
+      use: { browserName: "chromium" },
     },
   ],
 });

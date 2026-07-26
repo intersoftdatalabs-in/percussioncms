@@ -21,11 +21,11 @@ sudo ./install-jetty-service.sh [ServiceName] install
 
 Prompts for the run-as user (same as before), writes:
 
-| Artifact | Path |
-|----------|------|
-| Environment | `/etc/default/<ServiceName>` |
+|   Artifact   |                                              Path                                               |
+|--------------|-------------------------------------------------------------------------------------------------|
+| Environment  | `/etc/default/<ServiceName>`                                                                    |
 | Start helper | `/etc/init.d/<ServiceName>` (used by ExecStart; **not** enabled via chkconfig on systemd hosts) |
-| Unit | `/etc/systemd/system/<ServiceName>.service` |
+| Unit         | `/etc/systemd/system/<ServiceName>.service`                                                     |
 
 Then:
 
@@ -70,3 +70,4 @@ and clears the run directory for that service name.
 ```bash
 sudo ./install-jetty-service.sh PercussionCMS install --initd
 ```
+

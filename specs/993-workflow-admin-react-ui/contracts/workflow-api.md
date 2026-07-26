@@ -11,9 +11,11 @@ All endpoints require an authenticated CMS session cookie. CSRF tokens are auto-
 ## Workflow Management
 
 ### List All Workflows
+
 `GET /Rhythmyx/services/workflowmanagement/workflows/metadata`
 
 **Response** (200):
+
 ```json
 [
   { "name": "Default Workflow", "isDefault": true, "stagingRoleId": null },
@@ -22,9 +24,11 @@ All endpoints require an authenticated CMS session cookie. CSRF tokens are auto-
 ```
 
 ### Get Workflow Detail (with steps)
+
 `GET /Rhythmyx/services/workflowmanagement/workflows/{workflowName}`
 
 **Response** (200):
+
 ```json
 {
   "name": "Default Workflow",
@@ -38,6 +42,7 @@ All endpoints require an authenticated CMS session cookie. CSRF tokens are auto-
 ```
 
 ### Create Workflow
+
 `POST /Rhythmyx/services/workflowmanagement/workflows/{workflowName}`
 
 **Body**: `WorkflowDefinition` (without steps; add steps separately)
@@ -45,6 +50,7 @@ All endpoints require an authenticated CMS session cookie. CSRF tokens are auto-
 **Response** (201): Created workflow detail
 
 ### Update Workflow
+
 `PUT /Rhythmyx/services/workflowmanagement/workflows/{workflowName}`
 
 **Body**: Updated `WorkflowDefinition`
@@ -52,6 +58,7 @@ All endpoints require an authenticated CMS session cookie. CSRF tokens are auto-
 **Response** (200): Updated workflow detail
 
 ### Delete Workflow
+
 `DELETE /Rhythmyx/services/workflowmanagement/workflows/{workflowName}`
 
 **Response** (204): No content
@@ -63,6 +70,7 @@ All endpoints require an authenticated CMS session cookie. CSRF tokens are auto-
 ## Workflow Step Management
 
 ### Create Step
+
 `POST /Rhythmyx/services/workflowmanagement/workflows/{workflowName}/steps/{stepName}`
 
 **Body**: `{ "roleNames": ["Editor"], "position": 2 }`
@@ -70,6 +78,7 @@ All endpoints require an authenticated CMS session cookie. CSRF tokens are auto-
 **Response** (201): Updated full workflow with new step
 
 ### Update Step
+
 `PUT /Rhythmyx/services/workflowmanagement/workflows/{workflowName}/steps/{stepName}`
 
 **Body**: `{ "roleNames": ["Editor", "Publisher"], "position": 2 }`
@@ -77,6 +86,7 @@ All endpoints require an authenticated CMS session cookie. CSRF tokens are auto-
 **Response** (200): Updated full workflow
 
 ### Delete Step
+
 `DELETE /Rhythmyx/services/workflowmanagement/workflows/{workflowName}/steps/{stepName}`
 
 **Response** (200): Updated full workflow without the step
@@ -86,18 +96,23 @@ All endpoints require an authenticated CMS session cookie. CSRF tokens are auto-
 ## Folder/Site Workflow Assignment
 
 ### Start Assignment Job
+
 `GET /Rhythmyx/services/foldermanagement/GetAssociatedFoldersJob/start/{workflowName}/{encodedPath}`
 
 **Response** (200): `{ "jobId": "wfjob-123", "status": "RUNNING" }`
 
 ### Poll Assignment Progress
+
 `GET /Rhythmyx/services/foldermanagement/workflowassignment/isInProgress`
 
 **Response** (200):
+
 ```json
 { "isInProgress": true, "progressPercent": 45, "jobId": "wfjob-123" }
 ```
+
 or
+
 ```json
 { "isInProgress": false }
 ```
@@ -107,11 +122,13 @@ or
 ## Role Management
 
 ### List / Find Roles
+
 `POST /Rhythmyx/services/rolemanagement/role/find`
 
 **Body**: `{ "name": "" }` (empty = all roles)
 
 **Response** (200):
+
 ```json
 [
   { "name": "Editor",    "description": "Content editors", "homePage": "/", "assignedUsers": ["alice"] },
@@ -120,6 +137,7 @@ or
 ```
 
 ### Create Role
+
 `POST /Rhythmyx/services/rolemanagement/role/create`
 
 **Body**: `{ "name": "Reviewer", "description": "...", "homePage": "/" }`
@@ -127,6 +145,7 @@ or
 **Response** (201): Created role
 
 ### Update Role (including user membership)
+
 `POST /Rhythmyx/services/rolemanagement/role/update`
 
 **Body**: Full role object with updated `assignedUsers`
@@ -134,6 +153,7 @@ or
 **Response** (200): Updated role
 
 ### Delete Role
+
 `POST /Rhythmyx/services/rolemanagement/role/delete`
 
 **Body**: `{ "name": "Reviewer" }`
@@ -143,6 +163,7 @@ or
 **Error** (409): `{ "error": "Role is assigned to workflow steps: [Draft, Review]" }`
 
 ### Get Available Users for Role
+
 `POST /Rhythmyx/services/rolemanagement/role/availableUsers`
 
 **Body**: `{ "name": "Reviewer" }`
@@ -154,9 +175,11 @@ or
 ## User Management
 
 ### List Users
+
 `GET /Rhythmyx/services/user/user/users`
 
 **Response** (200):
+
 ```json
 [
   { "userName": "alice", "email": "alice@example.com", "assignedRoles": ["Editor"], "isExternalUser": false, "status": "ACTIVE" }
@@ -164,6 +187,7 @@ or
 ```
 
 ### Create User
+
 `POST /Rhythmyx/services/user/user/create`
 
 **Body**: `UserCreateRequest` (userName, password, confirmPassword, email, assignedRoles)
@@ -171,6 +195,7 @@ or
 **Response** (201): Created user
 
 ### Update User
+
 `POST /Rhythmyx/services/user/user/update`
 
 **Body**: User object (omit password fields to keep existing password)
@@ -178,6 +203,7 @@ or
 **Response** (200): Updated user
 
 ### Delete User
+
 `POST /Rhythmyx/services/user/user/delete`
 
 **Body**: `{ "userName": "alice" }`
@@ -185,6 +211,7 @@ or
 **Response** (200): `{ "success": true }`
 
 ### Change Password
+
 `POST /Rhythmyx/services/user/user/changepw`
 
 **Body**: `{ "userName": "alice", "password": "newpass", "confirmPassword": "newpass" }`
@@ -196,9 +223,11 @@ or
 ## LDAP / Directory
 
 ### Search Directory
+
 `GET /Rhythmyx/services/user/user/external/find?nameFilter={pattern}`
 
 **Response** (200):
+
 ```json
 [
   { "userName": "ext_user1", "email": "ext@example.com", "isAlreadyImported": false }
@@ -206,6 +235,7 @@ or
 ```
 
 ### Import Directory Users
+
 `POST /Rhythmyx/services/user/user/import`
 
 **Body**: `{ "userNames": ["ext_user1", "ext_user2"] }`
@@ -213,9 +243,11 @@ or
 **Response** (200): `{ "imported": 2, "errors": [] }`
 
 ### Directory Status
+
 `GET /Rhythmyx/services/user/user/external/status`
 
 **Response** (200):
+
 ```json
 { "isConfigured": true, "isReachable": true, "providerName": "LDAP" }
 ```
@@ -225,6 +257,7 @@ or
 ## Error Response Format
 
 All API errors follow:
+
 ```json
 {
   "error": "Human-readable error message",

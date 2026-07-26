@@ -13,10 +13,10 @@ BUG-1 fixed: `PSValidateRepositoryConnection` no longer hard-fails on `Class.for
 
 ## Gate
 
-| Item | Result |
-|------|--------|
-| Prior bugs | **Resolved** |
-| May commit/push / open PR | **Yes** |
+|           Item            |    Result    |
+|---------------------------|--------------|
+| Prior bugs                | **Resolved** |
+| May commit/push / open PR | **Yes**      |
 
 ## Residual (non-blocking)
 
@@ -25,5 +25,6 @@ BUG-1 fixed: `PSValidateRepositoryConnection` no longer hard-fails on `Class.for
 
 ## Test evidence
 
-- `PSValidateRepositoryConnectionTest`: 5 passed  
-- `DbInstallConfigResolverTest` + guards + samples + extract + `MainInstallExitCodeTest`: 20 passed  
+- `PSValidateRepositoryConnectionTest`: 5 passed
+- `DbInstallConfigResolverTest` + guards + samples + extract + `MainInstallExitCodeTest`: 20 passed
+

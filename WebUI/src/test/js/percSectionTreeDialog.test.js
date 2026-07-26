@@ -138,11 +138,17 @@ afterEach(() => {
 // ---------------------------------------------------------------------------
 // Fixture builders
 // ---------------------------------------------------------------------------
-function makeSectionNode({ id = "n1", title = "Home", sectionType, childNodes = "" } = {}) {
+function makeSectionNode({
+  id = "n1",
+  title = "Home",
+  sectionType,
+  childNodes = "",
+} = {}) {
   return {
     id,
     title,
-    sectionType: sectionType ?? $.Perc_SectionServiceClient.PERC_SECTION_TYPE.SECTION,
+    sectionType:
+      sectionType ?? $.Perc_SectionServiceClient.PERC_SECTION_TYPE.SECTION,
     childNodes,
   };
 }
@@ -156,7 +162,9 @@ function driveSuccess(sectionNode, opts = {}) {
     opts.okButton ?? "Move",
     () => {}
   );
-  getTreeSpy.cb($.PercServiceUtils.STATUS_SUCCESS, { SectionNode: sectionNode });
+  getTreeSpy.cb($.PercServiceUtils.STATUS_SUCCESS, {
+    SectionNode: sectionNode,
+  });
 }
 
 // ---------------------------------------------------------------------------
@@ -202,9 +210,7 @@ describe("treeLabel sanitization", () => {
     // is the float-left div that contains the tree; its direct text node is
     // the rendered label. There must not be any element children spawned
     // from the label string.
-    const labelContainer = dialogRoot.querySelector(
-      "div[style*='float:left']"
-    );
+    const labelContainer = dialogRoot.querySelector("div[style*='float:left']");
     expect(labelContainer).toBeTruthy();
     const firstChild = labelContainer.firstChild;
     expect(firstChild.nodeType, "first label child must be text").toBe(3);

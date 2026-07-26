@@ -30,6 +30,7 @@ No real multi-JDK installations required. CI runs all three layers in parallel w
 ## Smoke A — CMS without InstallDir/JRE (SC-001)
 
 1. Install CMS (or use existing tree) with install-root **`java.properties`**:
+
    ```properties
    JAVA_HOME=<absolute path to Java 21 home>
    JAVA=<absolute path to java launcher>
@@ -84,22 +85,22 @@ No real multi-JDK installations required. CI runs all three layers in parallel w
 
 ## Docs check (SC-007)
 
-- [ ] Ops README / install notes describe resolution order  
-- [ ] Docs say product does **not** ship a JRE  
-- [ ] Migration from “manual copy/symlink to InstallDir/JRE” documented  
-- [ ] No remaining “Must be version 1.8” in updated primary scripts  
+- [ ] Ops README / install notes describe resolution order
+- [ ] Docs say product does **not** ship a JRE
+- [ ] Migration from “manual copy/symlink to InstallDir/JRE” documented
+- [ ] No remaining “Must be version 1.8” in updated primary scripts
 
 ## Sign-off table
 
-| Scenario | Pass? | Notes |
-|----------|-------|-------|
-| A CMS no JRE folder | | |
-| B DTS no JRE folder | | |
-| C Env only | | |
-| D Legacy symlink fallback | | |
-| E Interactive multi | | |
-| F Unattended | | |
-| G Fail message | | |
-| Automated tests | | |
+|         Scenario          | Pass? | Notes |
+|---------------------------|-------|-------|
+| A CMS no JRE folder       |       |       |
+| B DTS no JRE folder       |       |       |
+| C Env only                |       |       |
+| D Legacy symlink fallback |       |       |
+| E Interactive multi       |       |       |
+| F Unattended              |       |       |
+| G Fail message            |       |       |
+| Automated tests           |       |       |
 
 **Tester / date / build**:

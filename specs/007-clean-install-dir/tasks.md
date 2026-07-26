@@ -123,12 +123,12 @@ Phase 6 US4 (P2)  Reporting / operator visibility
 Phase 7 Polish
 ```
 
-| Story | Depends on | Notes |
-|-------|------------|-------|
-| US1 | Foundational | Prompt + delete + Main early hook |
-| US2 | US1 decision API | Flag matrix builds on same decision path |
-| US3 | Foundational (+ US1 delete) | Eligibility expands candidate list |
-| US4 | US1–US3 results | Formats CleanupResult |
+| Story |         Depends on          |                  Notes                   |
+|-------|-----------------------------|------------------------------------------|
+| US1   | Foundational                | Prompt + delete + Main early hook        |
+| US2   | US1 decision API            | Flag matrix builds on same decision path |
+| US3   | Foundational (+ US1 delete) | Eligibility expands candidate list       |
+| US4   | US1–US3 results             | Formats CleanupResult                    |
 
 **Note**: US3 can start in parallel with US2 after Foundational if API is stable; PR policy may still sequence merges.
 
@@ -156,19 +156,19 @@ T036 README || T037 security re-read
 
 ### MVP (minimum shippable for #1157)
 
-1. Phase 1–2  
-2. **US1** (interactive PreInstall cleanup early on upgrade)  
-3. **US2** (flag for automation) — strongly recommended in same release as US1  
+1. Phase 1–2
+2. **US1** (interactive PreInstall cleanup early on upgrade)
+3. **US2** (flag for automation) — strongly recommended in same release as US1
 
 US3 eligibility + multi-path and US4 reporting complete the clarified MVP set.
 
 ### Incremental delivery
 
-| Increment | Stories | Outcome |
-|-----------|---------|---------|
-| Core | US1 + US2 | Interactive + flag cleanup of detected candidates |
-| List | US3 | Full MVP paths + safe JBoss rule |
-| Ops | US4 + Polish | Clear logs/docs |
+| Increment |   Stories    |                      Outcome                      |
+|-----------|--------------|---------------------------------------------------|
+| Core      | US1 + US2    | Interactive + flag cleanup of detected candidates |
+| List      | US3          | Full MVP paths + safe JBoss rule                  |
+| Ops       | US4 + Polish | Clear logs/docs                                   |
 
 ### Task format validation
 
@@ -176,23 +176,23 @@ All tasks use: `- [ ]`, sequential `T00N`, optional `[P]`, story labels `[US1]`�
 
 ## Summary Counts
 
-| Phase | Task IDs | Count |
-|-------|----------|-------|
-| Setup | T001–T003 | 3 |
-| Foundational | T004–T008 | 5 |
-| US1 | T009–T018 | 10 |
-| US2 | T019–T024 | 6 |
-| US3 | T025–T031 | 7 |
-| US4 | T032–T035 | 4 |
-| Polish | T036–T040 | 5 |
-| **Total** | T001–T040 | **40** |
+|    Phase     | Task IDs  | Count  |
+|--------------|-----------|--------|
+| Setup        | T001–T003 | 3      |
+| Foundational | T004–T008 | 5      |
+| US1          | T009–T018 | 10     |
+| US2          | T019–T024 | 6      |
+| US3          | T025–T031 | 7      |
+| US4          | T032–T035 | 4      |
+| Polish       | T036–T040 | 5      |
+| **Total**    | T001–T040 | **40** |
 
 | User story | Task count |
 |------------|------------|
-| US1 | 10 |
-| US2 | 6 |
-| US3 | 7 |
-| US4 | 4 |
+| US1        | 10         |
+| US2        | 6          |
+| US3        | 7          |
+| US4        | 4          |
 
 **Suggested MVP scope**: Phase 1 + 2 + **US1 + US2** (T001–T024).
 

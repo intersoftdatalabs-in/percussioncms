@@ -119,3 +119,4 @@ A maintainer reading the build XML around `stage-jdbc-drivers` must not be misle
 - `verify-jdbc-drivers.sh` is invoked by the Maven `verify` phase; whatever options/filenames are wired into that invocation are the ones that must succeed in the documented example.
 - The project is on the `development` branch (JDK 21) and the changes will be implemented using `./mvn-env.sh` per `AGENTS.md`.
 - No DB schema, package (`.ppkg`), or runtime config changes are required; this is a build-time and install-script cleanup only.
+

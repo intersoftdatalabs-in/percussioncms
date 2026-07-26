@@ -406,12 +406,14 @@ public class PSSitePublishServiceWebAdapter {
    * Get a paged list of items that are queued for incremental publish
    *
    * @param siteName The name of the site that will be published, not <code>null</code> or empty.
-   * @param serverName The name of the server that will be published to, not <code>null</code> or empty.
-* @param startIndex The starting index into the list to determine the page to return, if {@code <= 0},
-    * the first page of results is returned
-    * @param pageSize The max number of items to return per page, if {@code <=0}, all items will be returned in a single page
-   *
-   * @return A paged item list with the specified page of items, not <code>null</code>, may be empty.
+   * @param serverName The name of the server that will be published to, not <code>null</code> or
+   *     empty.
+   * @param startIndex The starting index into the list to determine the page to return, if {@code
+   *     <= 0}, the first page of results is returned
+   * @param pageSize The max number of items to return per page, if {@code <=0}, all items will be
+   *     returned in a single page
+   * @return A paged item list with the specified page of items, not <code>null</code>, may be
+   *     empty.
    */
   @GET
   @Path("/incremental/content/{name}/{server}")
@@ -430,15 +432,18 @@ public class PSSitePublishServiceWebAdapter {
   }
 
   /**
-   * Get a paged list of items that are unapproved but related to the items that are queued for incremental publish items
+   * Get a paged list of items that are unapproved but related to the items that are queued for
+   * incremental publish items
    *
    * @param siteName The name of the site that will be published, not <code>null</code> or empty.
-   * @param serverName The name of the server that will be published to, not <code>null</code> or empty.
-* @param startIndex The starting index into the list to determine the page to return, if {@code <= 0},
-    * the first page of results is returned
-    * @param pageSize The max number of items to return per page, if {@code <=0}, all items will be returned in a single page
-   *
-   * @return A paged item list with the specified page of items, not <code>null</code>, may be empty.
+   * @param serverName The name of the server that will be published to, not <code>null</code> or
+   *     empty.
+   * @param startIndex The starting index into the list to determine the page to return, if {@code
+   *     <= 0}, the first page of results is returned
+   * @param pageSize The max number of items to return per page, if {@code <=0}, all items will be
+   *     returned in a single page
+   * @return A paged item list with the specified page of items, not <code>null</code>, may be
+   *     empty.
    */
   @GET
   @Path("/incremental/relatedcontent/{name}/{server}")
