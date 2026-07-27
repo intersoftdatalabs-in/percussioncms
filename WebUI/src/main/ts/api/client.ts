@@ -23,6 +23,7 @@
  * {@code text/plain} (e.g. widgetbuilder /active) are parsed as text.</p>
  */
 
+import { redirectToLoginOnUnauthorized } from "../app/auth/sessionHandlers";
 import { getCsrfToken } from "./csrf";
 
 export interface ApiError {
@@ -71,6 +72,10 @@ async function parseBody(response: Response): Promise<unknown> {
 
 async function handleResponse<T>(response: Response): Promise<T> {
   if (!response.ok) {
+    // Mid-session expiry / auth loss → React Login (query return URL)
+    if (response.status === 401) {
+      redirectToLoginOnUnauthorized({ reason: "api-401" });
+    }
     let body: unknown;
     try {
       body = await parseBody(response);

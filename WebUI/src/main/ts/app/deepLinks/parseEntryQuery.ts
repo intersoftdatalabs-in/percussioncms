@@ -1,0 +1,129 @@
+/*
+ * Copyright 1999-2026 Percussion Software, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+import {
+  isSpaEntry,
+  normalizeAdminTab,
+  normalizeExplorerPath,
+  normalizeHomeSection,
+  normalizeId,
+  normalizePublishSection,
+  normalizeWorkflowTab,
+  type SpaEntry,
+} from "./allowlists";
+
+/**
+ * Parsed server-driven SPA entry (query contract only — never hash).
+ */
+export interface ParsedSpaEntry {
+  entry: SpaEntry;
+  /** Client hash route path (e.g. /home/library, /publish/logs) */
+  clientPath: string;
+  section?: string;
+  tab?: string;
+  siteId?: string;
+  serverId?: string;
+  path?: string;
+}
+
+/**
+ * Parse {@code window.location.search} (or a synthetic query string) into an
+ * allowlisted SPA entry and client route path.
+ */
+export function parseEntryQuery(
+  search: string = typeof window !== "undefined" ? window.location.search : "",
+): ParsedSpaEntry {
+  const q = search.startsWith("?") ? search.slice(1) : search;
+  const params = new URLSearchParams(q);
+
+  let entryRaw = (params.get("entry") || "home").trim().toLowerCase();
+  // Legacy alias
+  if (entryRaw === "widgetbuilder") {
+    entryRaw = "widget-builder";
+  }
+  const entry: SpaEntry = isSpaEntry(entryRaw) ? entryRaw : "home";
+
+  const sectionParam = params.get("section") ?? params.get("initialScreen");
+  const tabParam = params.get("tab");
+  const siteId = normalizeId(params.get("siteId"));
+  const serverId = normalizeId(params.get("serverId"));
+  const path = normalizeExplorerPath(params.get("path"));
+
+  switch (entry) {
+    case "home": {
+      const section = normalizeHomeSection(sectionParam);
+      return {
+        entry,
+        section,
+        clientPath: section ? `/home/${section}` : "/home",
+      };
+    }
+    case "publish": {
+      const section = normalizePublishSection(sectionParam);
+      let clientPath = section ? `/publish/${section}` : "/publish";
+      const qs = new URLSearchParams();
+      if (siteId) qs.set("siteId", siteId);
+      if (serverId) qs.set("serverId", serverId);
+      const qstr = qs.toString();
+      if (qstr) clientPath += `?${qstr}`;
+      return { entry, section, siteId, serverId, clientPath };
+    }
+    case "workflow": {
+      const tab = normalizeWorkflowTab(tabParam ?? sectionParam);
+      return {
+        entry,
+        tab,
+        clientPath: tab ? `/workflow/${tab}` : "/workflow",
+      };
+    }
+    case "admin": {
+      const tab = normalizeAdminTab(tabParam ?? sectionParam);
+      return {
+        entry,
+        tab,
+        clientPath: tab ? `/admin/${tab}` : "/admin",
+      };
+    }
+    case "widget-builder":
+      return { entry, clientPath: "/widget-builder" };
+    case "explorer": {
+      let clientPath = "/explorer";
+      if (path) {
+        clientPath += `?path=${encodeURIComponent(path)}`;
+      }
+      return { entry, path, clientPath };
+    }
+    case "unavailable":
+      return { entry, clientPath: "/unavailable" };
+    default:
+      return { entry: "home", clientPath: "/home" };
+  }
+}
+
+/**
+ * Rebuild an allowlisted query entry URL for login return / server redirects.
+ */
+export function toSpaEntryUrl(parsed: ParsedSpaEntry): string {
+  const params = new URLSearchParams();
+  params.set("entry", parsed.entry);
+  if (parsed.section) params.set("section", parsed.section);
+  if (parsed.tab) params.set("tab", parsed.tab);
+  if (parsed.siteId) params.set("siteId", parsed.siteId);
+  if (parsed.serverId) params.set("serverId", parsed.serverId);
+  if (parsed.path) params.set("path", parsed.path);
+  return `/cm/app/spa.jsp?${params.toString()}`;
+}

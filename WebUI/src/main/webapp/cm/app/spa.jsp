@@ -1,10 +1,14 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%@ page import="com.percussion.services.utils.jspel.PSRoleUtilities" %>
+<%@ page import="com.percussion.user.data.PSCurrentUser" %>
+<%@ page import="com.percussion.user.service.impl.PSUserService" %>
+<%@ page import="com.percussion.utils.PSSpringBeanProvider" %>
+<%@ page import="com.percussion.widgetbuilder.service.PSWidgetBuilderService" %>
 <%@ taglib uri="http://www.owasp.org/index.php/Category:OWASP_CSRFGuard_Project/Owasp.CsrfGuard.tld" prefix="csrf" %>
 <%--
-  Minimal authenticated SPA landing (PR-1).
-  Full router + feature shells land in subsequent PRs.
-  Entry: /cm/app/spa.jsp?entry=home (query contract — no hash redirects).
+  Authenticated SPA document (PR-2 app shell).
+  Entry: /cm/app/spa.jsp?entry=home (query contract — no hash on server redirects).
+  No header.jsp / mainnav.jsp — React AppLayout + TopNav.
 --%>
 <%!
     private static String jsonString(String s) {
@@ -43,6 +47,9 @@
             return "home";
         }
         String n = raw.trim().toLowerCase(java.util.Locale.ROOT);
+        if ("widgetbuilder".equals(n)) {
+            return "widget-builder";
+        }
         if ("home".equals(n) || "publish".equals(n) || "workflow".equals(n)
                 || "admin".equals(n) || "widget-builder".equals(n)
                 || "explorer".equals(n) || "unavailable".equals(n)) {
@@ -62,9 +69,44 @@
         lang = locale;
     }
     String entry = allowEntry(request.getParameter("entry"));
+
     String userName = request.getRemoteUser();
     if (userName == null) {
         userName = "";
+    }
+    boolean isAdmin = false;
+    boolean isDesigner = false;
+    boolean isWdgActive = false;
+    try {
+        PSUserService userService =
+            (PSUserService) PSSpringBeanProvider.getBean("userService");
+        PSCurrentUser user = userService.getCurrentUser();
+        if (user != null) {
+            if (user.getName() != null) {
+                userName = user.getName();
+            }
+            isAdmin = user.isAdminUser();
+            isDesigner = user.isDesignerUser();
+        }
+        PSWidgetBuilderService wb =
+            (PSWidgetBuilderService) PSSpringBeanProvider.getBean("widgetBuilderService");
+        if (wb != null) {
+            isWdgActive = wb.isWidgetBuilderEnabled();
+        }
+    } catch (Exception e) {
+        // Fall back to remote user only; nav still works with reduced chrome
+    }
+
+    // Role-based entry gate (server UX; REST remains authoritative)
+    if (("workflow".equals(entry) || "admin".equals(entry)) && !isAdmin) {
+        entry = "home";
+    }
+    if (("publish".equals(entry) || "widget-builder".equals(entry))
+            && !(isAdmin || isDesigner)) {
+        entry = "home";
+    }
+    if ("widget-builder".equals(entry) && !isWdgActive) {
+        entry = "home";
     }
 %>
 <!DOCTYPE html>
@@ -83,7 +125,10 @@
 <script type="application/json" id="perc-bootstrap">{
     "userName":<%= jsonString(userName) %>,
     "locale":<%= jsonString(locale) %>,
-    "entry":<%= jsonString(entry) %>
+    "entry":<%= jsonString(entry) %>,
+    "isAdmin":<%= isAdmin %>,
+    "isDesigner":<%= isDesigner %>,
+    "isWidgetBuilderActive":<%= isWdgActive %>
 }</script>
 <div id="perc-spa-root" data-testid="perc-spa-root"></div>
 </body>
