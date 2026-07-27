@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-import React, { useMemo } from "react";
+import React from "react";
 import { BrowserRouter } from "react-router";
 import { ThemeProvider } from "../ui-themes/ThemeProvider";
 import { BootstrapProvider } from "./bootstrap/BootstrapContext";
@@ -36,11 +36,15 @@ export interface AppProps {
 }
 
 /**
- * If the document URL is still {@code spa.jsp?entry=…}, rewrite to the path
- * client route under the SPA basename before BrowserRouter mounts.
- * Keeps the server query contract while giving BrowserRouter a clean first paint.
- * Path refreshes (filter → spa.jsp forward with browser URL already path-based)
- * leave the address bar unchanged.
+ * If the document URL is still {@code spa.jsp?entry=…}, rewrite the address bar
+ * to the path client route under the SPA basename via {@code history.replaceState}.
+ *
+ * <p>Must run <em>before</em> {@code BrowserRouter} mounts so its initial location
+ * is the feature path. Prefer {@link handoffSpaEntryBeforeMount} from {@code boot()}.
+ * Idempotent when already on a path route.
+ *
+ * <p>Not implemented via {@code useMemo} (Kilo #1542): that API is for pure
+ * computations, not history side effects.
  */
 export function applyEntryQueryToPath(
   pathname: string = typeof window !== "undefined" ? window.location.pathname : "",
@@ -56,7 +60,6 @@ export function applyEntryQueryToPath(
   if (!params.has("entry")) {
     return null;
   }
-  // Only rewrite when serving the SPA document by name (query handoff)
   const isSpaDocument =
     pathname.endsWith("/spa.jsp") ||
     pathname.endsWith("spa.jsp") ||
@@ -82,6 +85,21 @@ export function applyEntryQueryToPath(
   return next;
 }
 
+/** Call from {@code boot()} before {@code createRoot} for a clean first paint. */
+export function handoffSpaEntryBeforeMount(
+  basenameProp?: string,
+  entrySearch?: string,
+): string {
+  const pathname =
+    typeof window !== "undefined" ? window.location.pathname : "/cm/app";
+  const basename = basenameProp ?? detectSpaBasename(pathname);
+  const search =
+    entrySearch ??
+    (typeof window !== "undefined" ? window.location.search : "");
+  applyEntryQueryToPath(pathname, search, basename);
+  return basename;
+}
+
 /**
  * Authenticated SPA root: theme → bootstrap → BrowserRouter → routes.
  */
@@ -90,25 +108,20 @@ export function App({
   entrySearch,
   basename: basenameProp,
 }: AppProps): React.ReactElement {
-  const basename = useMemo(
-    () =>
-      basenameProp ??
-      detectSpaBasename(
-        typeof window !== "undefined" ? window.location.pathname : "/cm/app",
-      ),
-    [basenameProp],
-  );
+  const pathname =
+    typeof window !== "undefined" ? window.location.pathname : "/cm/app";
+  const basename = basenameProp ?? detectSpaBasename(pathname);
 
-  // Synchronous handoff so the first router match is the feature path, not /spa.jsp
-  useMemo(() => {
-    const search =
-      entrySearch ??
-      (typeof window !== "undefined" ? window.location.search : "");
-    const pathname =
-      typeof window !== "undefined" ? window.location.pathname : `${basename}/spa.jsp`;
-    applyEntryQueryToPath(pathname, search, basename);
-    return null;
-  }, [basename, entrySearch]);
+  // Handoff before BrowserRouter is created so initial location is the feature
+  // path. Production also calls handoffSpaEntryBeforeMount() in boot() — both
+  // are idempotent. Not useMemo (Kilo #1542).
+  if (typeof window !== "undefined") {
+    applyEntryQueryToPath(
+      window.location.pathname,
+      entrySearch ?? window.location.search,
+      basename,
+    );
+  }
 
   return (
     <ThemeProvider>

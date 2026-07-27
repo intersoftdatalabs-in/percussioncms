@@ -26,6 +26,7 @@ import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Locale;
@@ -190,9 +191,14 @@ public class PSWebUiSpaFallbackFilter implements Filter {
     if (trimmed.isEmpty()) {
       return null;
     }
+    // split on non-empty trimmed path always yields length >= 1
     String[] segments = trimmed.split("/");
-    if (segments.length == 0) {
-      return null;
+
+    // Reject path traversal / odd segments (decoded + encoded forms — Kilo #1542)
+    for (String seg : segments) {
+      if (isUnsafePathSegment(seg)) {
+        return null;
+      }
     }
 
     String entry = segments[0].toLowerCase(Locale.ROOT);
@@ -201,12 +207,6 @@ public class PSWebUiSpaFallbackFilter implements Filter {
     }
     if (!SPA_ENTRIES.contains(entry)) {
       return null;
-    }
-    // Reject path traversal / odd segments
-    for (String seg : segments) {
-      if (seg.isEmpty() || "..".equals(seg) || seg.indexOf('\\') >= 0) {
-        return null;
-      }
     }
 
     StringBuilder forward = new StringBuilder(prefix).append("/spa.jsp?entry=");
@@ -243,5 +243,47 @@ public class PSWebUiSpaFallbackFilter implements Filter {
 
   private static String urlEncode(String raw) {
     return URLEncoder.encode(raw, StandardCharsets.UTF_8);
+  }
+
+  /**
+   * True when a path segment must not be forwarded as an SPA route segment.
+   * Rejects empty segments, {@code ..}, backslashes, embedded slashes after
+   * decode, and URL-encoded dot sequences ({@code %2e%2e}) for defense-in-depth
+   * when the container leaves encoding in {@code getRequestURI()}.
+   */
+  static boolean isUnsafePathSegment(String segment) {
+    if (segment == null || segment.isEmpty()) {
+      return true;
+    }
+    if (segment.indexOf('\\') >= 0) {
+      return true;
+    }
+    // Raw encoded traversal (case-insensitive), before or without decode
+    String lower = segment.toLowerCase(Locale.ROOT);
+    if (lower.contains("%2e") || lower.contains("%252e")) {
+      return true;
+    }
+    if ("..".equals(segment) || ".".equals(segment)) {
+      return true;
+    }
+    String decoded = segment;
+    try {
+      decoded = URLDecoder.decode(segment, StandardCharsets.UTF_8);
+      // Double-encoded payloads
+      if (decoded.contains("%")) {
+        decoded = URLDecoder.decode(decoded, StandardCharsets.UTF_8);
+      }
+    } catch (IllegalArgumentException ex) {
+      // Malformed escape — do not forward
+      return true;
+    }
+    if ("..".equals(decoded) || ".".equals(decoded)) {
+      return true;
+    }
+    // Reject decode that introduces path separators (encoded slash in segment)
+    if (decoded.indexOf('/') >= 0 || decoded.indexOf('\\') >= 0) {
+      return true;
+    }
+    return false;
   }
 }

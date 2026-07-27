@@ -91,6 +91,16 @@ public class PSWebUiSpaFallbackFilterTest {
   @Test
   public void rejectsTraversalSegments() {
     assertNull(PSWebUiSpaFallbackFilter.buildSpaForwardPath("/cm/app/home/../admin", null));
+    // URL-encoded dots (defense-in-depth when URI not fully decoded)
+    assertNull(PSWebUiSpaFallbackFilter.buildSpaForwardPath("/cm/app/home/%2e%2e/admin", null));
+    assertNull(PSWebUiSpaFallbackFilter.buildSpaForwardPath("/cm/app/home/%2E%2E/admin", null));
+    assertNull(PSWebUiSpaFallbackFilter.buildSpaForwardPath("/cm/app/%2e%2e", null));
+    assertTrue(PSWebUiSpaFallbackFilter.isUnsafePathSegment(".."));
+    assertTrue(PSWebUiSpaFallbackFilter.isUnsafePathSegment("%2e%2e"));
+    assertTrue(PSWebUiSpaFallbackFilter.isUnsafePathSegment("%252e%252e"));
+    assertTrue(PSWebUiSpaFallbackFilter.isUnsafePathSegment("a%2fb"));
+    assertTrue(!PSWebUiSpaFallbackFilter.isUnsafePathSegment("library"));
+    assertTrue(!PSWebUiSpaFallbackFilter.isUnsafePathSegment("widget-builder"));
   }
 
   @Test
