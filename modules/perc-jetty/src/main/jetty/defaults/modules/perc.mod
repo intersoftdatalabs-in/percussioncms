@@ -26,6 +26,8 @@ perc-ds
 perc-logging
 perc-mq
 jvm
+# GH-1486: Jetty 12 ShutdownService (replaces deprecated STOP.PORT ShutdownMonitor)
+shutdown
 
 [xml]
 etc/installation.properties
@@ -57,12 +59,5 @@ jetty_perc_defaults?=${jetty.base}/../defaults
 jetty.server.stopTimeout=10000
 jetty.server.dumpBeforeStart=true
 jetty.webapp.addProtectedClasses+=,org.xml.sax.,org.w3c.,org.apache.xmlcommons.Version,org.apache.html.,org.apache.wml.,org.apache.xerces.,org.apache.xml.
-[exec]
--Djava.library.path=../../bin
--Djavax.xml.parsers.SAXParserFactory=com.percussion.xml.PSSaxParserFactoryImpl
--Dorg.apache.commons.logging.LogFactory=org.apache.commons.logging.impl.LogFactoryImpl
-# H2 file DB lives under ../../Repository (see perc-ds.properties). No Derby Network Server (#548).
--Djava.net.preferIPv4Stack=true
--Djava.net.preferIPv4Addresses=true
-
-
+# GH-1485: no [exec] here — JVM system properties live in start.d/jvm.ini so this
+# module does not force an extra start.jar JVM fork by itself.

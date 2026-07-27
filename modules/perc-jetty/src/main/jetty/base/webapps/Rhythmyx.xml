@@ -16,8 +16,16 @@
 			<Set name="httpOnly" type="boolean">true</Set>
 			<!-- When configuring https set this to true -->
 			<Set name="secure" type="boolean">false</Set>
-			<!-- When configuring https set this to __SAME_SITE_NONE__ -->
-			<Set name="comment" type="java.lang.String">__SAME_SITE_STRICT__</Set>
+			<!--
+			  GH-1486: CookieConfig.setComment is deprecated (Jetty 12.1 / Servlet 6).
+			  SameSite is a cookie attribute — use setAttribute (not the old
+			  __SAME_SITE_STRICT__ comment convention).
+			  For cross-site embeds with HTTPS, set secure=true and SameSite=None.
+			-->
+			<Call name="setAttribute">
+				<Arg>SameSite</Arg>
+				<Arg>Strict</Arg>
+			</Call>
 		</Get>
 	</Get>
 	<Get name="errorHandler">

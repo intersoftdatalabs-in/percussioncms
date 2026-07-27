@@ -6,7 +6,10 @@ SET JETTY_HOME=%mypath%upstream
 SET rxDir=%mypath%..
 SET JETTY_BASE=%mypath%base
 SET JETTY_DEFAULTS=%mypath%defaults
+REM Operator-customizable; must match StopJetty.bat / install-jetty-service.bat.
+REM Applied as Jetty start properties jetty.shutdown.* (not -DSTOP.PORT).
 set STOPPORT=50011
+set STOPKEY=SHUTDOWN
 
 REM GH-991: install-time selection wrote java.properties; resolve it (not a
 REM mandatory <InstallRoot>\JRE). Hard-fail on resolve. See java-home-resolution.md.
@@ -19,6 +22,10 @@ if errorlevel 1 (
 SET PATH=%JAVA_HOME%\bin;%PATH%
 
 cd %JETTY_BASE%
-"%JAVA%" --add-opens java.base/java.lang=ALL-UNNAMED -XX:+DisableAttachMechanism -Djava.net.preferIPv4Stack=true -Djava.net.preferIPv4Addresses=true -Dfile.encoding=UTF-8 -Dsun.jnu.encoding=UTF-8 -jar %JETTY_HOME%\start.jar -DSTOP.PORT=%STOPPORT% -DSTOP.KEY="SHUTDOWN" -Drxdeploydir="%rxDir%" -DTIKA_CONFIG="%rxDir%\rxconfig\tika-config.xml" -Djetty.base="%JETTY_BASE%" -Djetty_perc_defaults="%JETTY_DEFAULTS%" --include-jetty-dir="%JETTY_DEFAULTS%" %*
+REM GH-1486: do not pass -DSTOP.PORT/-DSTOP.KEY on the server JVM (activates
+REM deprecated ShutdownMonitor). Override start.d/shutdown.ini defaults with
+REM jetty.shutdown.port/key from STOPPORT/STOPKEY so operators can customize.
+REM StopJetty.bat still uses -DSTOP.PORT/-DSTOP.KEY as client params for --stop.
+"%JAVA%" --add-opens java.base/java.lang=ALL-UNNAMED -XX:+DisableAttachMechanism -Djava.net.preferIPv4Stack=true -Djava.net.preferIPv4Addresses=true -Dfile.encoding=UTF-8 -Dsun.jnu.encoding=UTF-8 -jar %JETTY_HOME%\start.jar -Drxdeploydir="%rxDir%" -DTIKA_CONFIG="%rxDir%\rxconfig\tika-config.xml" -Djetty.base="%JETTY_BASE%" -Djetty_perc_defaults="%JETTY_DEFAULTS%" --include-jetty-dir="%JETTY_DEFAULTS%" jetty.shutdown.port=%STOPPORT% jetty.shutdown.key=%STOPKEY% %*
 
 endlocal
