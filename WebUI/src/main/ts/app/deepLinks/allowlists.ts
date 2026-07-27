@@ -34,6 +34,7 @@ export const HOME_SECTIONS = [
   "library",
   "search",
   "create",
+  "gadgets",
 ] as const;
 
 export type HomeSection = (typeof HOME_SECTIONS)[number];
@@ -42,6 +43,11 @@ const HOME_SECTION_ALIASES: Record<string, HomeSection> = {
   list: "recent",
   newitem: "create",
   bookmark: "bookmarks",
+  // Former peer dashboard → Home gadgets (PR-7 product lock)
+  dash: "gadgets",
+  dashboard: "gadgets",
+  widgets: "gadgets",
+  gadget: "gadgets",
 };
 
 export const PUBLISH_SECTIONS = [

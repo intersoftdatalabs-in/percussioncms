@@ -58,22 +58,24 @@
     // Set attribute indicating  we have gone through the dispatcher.
     request.setAttribute("dispatched", "true");
 
-    // Legacy full-page exits only (PR-5). Modern views redirect to spa.jsp?entry=…
+    // Legacy full-page exits only. Modern views redirect to spa.jsp?entry=…
+    // PR-7: dash is no longer legacy — gadgets live on Home (see dash → SPA below).
     Map<String, String> legacyViews = new HashMap<String, String>();
     legacyViews.put("editAsset", "editAsset.jsp");
-    legacyViews.put("dash", "dashboard.jsp");
     legacyViews.put("design", "admin.jsp");
     legacyViews.put("arch", "siteArchitecture.jsp");
     legacyViews.put("editor", "webmgt.jsp");
     legacyViews.put("editTemplate", "editTemplate.jsp");
 
     // Modern SPA entries (query contract — never hash). *Modern.jsp is not product path.
+    // "dash" is handled as SPA Home gadgets (PR-7 product lock).
     String[] spaViews = new String[]{
             "home",
             "publish",
             "workflow",
             "admin",
-            "widgetbuilder"
+            "widgetbuilder",
+            "dash"
     };
 
     // List of views requiring admin role
@@ -218,6 +220,9 @@
             entry = "widget-builder";
         else if ("unavailable".equals(view))
             entry = "unavailable";
+        else if ("dash".equals(view))
+            // PR-7: former peer dashboard → Home gadgets (not spa entry=dashboard)
+            entry = "home";
         else if ("home".equals(view) || "publish".equals(view)
                 || "workflow".equals(view) || "admin".equals(view))
             entry = view;
@@ -227,7 +232,11 @@
         StringBuilder qs = new StringBuilder();
         qs.append("entry=").append(URLEncoder.encode(entry, "UTF-8"));
 
-        if ("home".equals(view))
+        if ("dash".equals(view))
+        {
+            qs.append("&section=").append(URLEncoder.encode("gadgets", "UTF-8"));
+        }
+        else if ("home".equals(view))
         {
             String section = firstAllowlisted(
                     request.getParameter("section"),
@@ -617,12 +626,16 @@
 
     // SPA deep-link allowlists (sync with WebUI/src/main/ts/app/deepLinks/allowlists.ts)
     private static final String[] HOME_SECTIONS = new String[]{
-            "recent", "bookmarks", "library", "search", "create"
+            "recent", "bookmarks", "library", "search", "create", "gadgets"
     };
     private static final Map<String, String> HOME_SECTION_ALIASES = Map.of(
             "list", "recent",
             "newitem", "create",
-            "bookmark", "bookmarks"
+            "bookmark", "bookmarks",
+            "dash", "gadgets",
+            "dashboard", "gadgets",
+            "widgets", "gadgets",
+            "gadget", "gadgets"
     );
     private static final String[] PUBLISH_SECTIONS = new String[]{
             "sites", "status", "logs", "design", "runtime", "editions"

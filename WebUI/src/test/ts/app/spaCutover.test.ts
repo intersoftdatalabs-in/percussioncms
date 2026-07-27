@@ -51,8 +51,7 @@ describe("PR-5 aggressive index.jsp SPA cutover", () => {
       expect(text).not.toMatch(
         /views\.put\("home",\s*"homeModern\.jsp"\)/,
       );
-      // Legacy exits preserved
-      expect(text).toMatch(/legacyViews\.put\("dash",\s*"dashboard\.jsp"\)/);
+      // Legacy exits preserved (dash moved to SPA Home gadgets in PR-7)
       expect(text).toMatch(/legacyViews\.put\("editor",\s*"webmgt\.jsp"\)/);
       expect(text).toMatch(/legacyViews\.put\("design",\s*"admin\.jsp"\)/);
       expect(text).toMatch(
@@ -79,6 +78,10 @@ describe("PR-5 aggressive index.jsp SPA cutover", () => {
     expect(text).toContain("WORKFLOW_TABS");
     expect(text).toContain("ADMIN_TABS");
     expect(text).toContain('"widget-builder"');
+    // PR-7: dash maps to Home gadgets, not legacy dashboard.jsp
+    expect(text).toContain('"gadgets"');
+    expect(text).toMatch(/"dash"/);
+    expect(text).not.toMatch(/legacyViews\.put\("dash",\s*"dashboard\.jsp"\)/);
   });
 
   it("retired_modern_redirect only re-forwards params buildSpaEntryRedirect consumes", () => {

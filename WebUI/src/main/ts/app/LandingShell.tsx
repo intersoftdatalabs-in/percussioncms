@@ -109,8 +109,11 @@ export function LandingShell({
               <a style={linkStyle} href="/cm/app/spa.jsp?entry=publish">
                 Publishing
               </a>
-              <a style={linkStyle} href="/cm/app/?view=dash">
-                Dashboard
+              <a
+                style={linkStyle}
+                href="/cm/app/spa.jsp?entry=home&section=gadgets"
+              >
+                Gadgets
               </a>
               <a style={linkStyle} href="/logout">
                 Logout
