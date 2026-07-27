@@ -13,6 +13,21 @@ Layer 1 harness:
   4. Probe login / health URL from the host
   5. Record JSON + RESULT line under ``docker/logs/``
   6. Destroy the cell unless ``--keep``
+  7. Stop external DBs this process started (unless ``--keep`` / ``--keep-db``)
+
+DB lifecycle (#1516)
+--------------------
+External compose DBs (``percussion-postgres`` / ``-mysql`` / ``-sqlserver``) are
+started only when not already running. After the matrix report is written:
+
+* **Default** — stop services this process brought up (``compose stop``, no ``-v``).
+* ``--keep`` — leave cells **and** DBs up (Playwright Layer 2 / debugging).
+* ``--keep-db`` — destroy cells (unless ``--keep``) but leave external DBs running.
+* ``--stop-db`` — stop every external DB used by this matrix, even if pre-existing
+  (destructive; does not remove volumes).
+
+Operator-owned DBs that were already running before the harness are left alone
+unless ``--stop-db`` is set.
 
 Usage
 -----
@@ -29,6 +44,9 @@ Usage
 
     # Leave stack up for Playwright Layer 2
     python3 docker/scripts/matrix-install-smoke.py --product cms --db postgresql --keep
+
+    # Destroy cells but reuse DBs for the next matrix run
+    python3 docker/scripts/matrix-install-smoke.py --product cms --db postgresql --keep-db
 
     # Dry-run (no docker/mvn)
     python3 docker/scripts/matrix-install-smoke.py --product cms --db h2 --dry-run
@@ -54,7 +72,7 @@ import urllib.request
 from dataclasses import asdict, dataclass, field
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Dict, Iterable, List, Optional, Sequence, Tuple
+from typing import Dict, Iterable, List, Optional, Sequence, Set, Tuple
 
 LOG = logging.getLogger("matrix-install-smoke")
 
@@ -114,8 +132,64 @@ DB_SERVICES: Dict[str, Dict[str, str]] = {
     },
 }
 
+# Compose service name → stable container_name from docker-compose.yml
+CONTAINER_BY_SERVICE: Dict[str, str] = {
+    "postgres": "percussion-postgres",
+    "mysql": "percussion-mysql",
+    "sqlserver": "percussion-sqlserver",
+}
+
 PRODUCTS = ("cms", "dts")
 DB_TYPES = tuple(DB_SERVICES.keys())
+
+
+def db_container_name(service: str) -> str:
+    """Return the Docker container name for a compose DB service."""
+    return CONTAINER_BY_SERVICE.get(service, f"percussion-{service}")
+
+
+def external_db_types(db_types: Iterable[str]) -> Set[str]:
+    """Return matrix DB keys that use an external compose service (not H2)."""
+    out: Set[str] = set()
+    for db_type in db_types:
+        meta = DB_SERVICES.get(db_type) or {}
+        if meta.get("service"):
+            out.add(db_type)
+    return out
+
+
+def select_dbs_to_stop(
+    *,
+    started_by_matrix: Iterable[str],
+    used_external: Iterable[str],
+    keep: bool,
+    keep_db: bool,
+    stop_db: bool,
+) -> Set[str]:
+    """Decide which external DB types to stop after a matrix run (pure policy).
+
+    Parameters
+    ----------
+    started_by_matrix
+        DB types this process actually brought up via ``compose up``.
+    used_external
+        External DB types selected for the matrix (pre-existing or started).
+    keep
+        Leave cells and DBs up (Layer 2).
+    keep_db
+        Leave DBs up even when cells are destroyed.
+    stop_db
+        Hard-stop every used external DB, including pre-existing ones.
+
+    ``--keep`` and ``--keep-db`` always win over ``--stop-db``.
+    Never includes H2 (no external container).
+    """
+    if keep or keep_db:
+        return set()
+    used = set(used_external)
+    if stop_db:
+        return used
+    return set(started_by_matrix) & used
 
 
 @dataclass
@@ -351,20 +425,26 @@ def start_db(
     db_type: str,
     *,
     dry_run: bool,
-) -> None:
+) -> Optional[bool]:
+    """Start an external compose DB for ``db_type`` if needed.
+
+    Returns
+    -------
+    Optional[bool]
+        ``None`` if ``db_type`` has no external compose service (e.g. H2).
+        ``True`` if this invocation brought the service up (or would under
+        ``--dry-run``).
+        ``False`` if the container was already running (operator-owned / reused).
+    """
     meta = DB_SERVICES[db_type]
     profile = meta.get("profile") or ""
     service = meta.get("service") or ""
     if not profile or not service:
-        return
+        return None
     # Attach DB container to matrix network with a DNS alias matching the
     # compose service name (e.g. "postgres") so cells can use DB_HOST=postgres.
-    container_by_service = {
-        "postgres": "percussion-postgres",
-        "mysql": "percussion-mysql",
-        "sqlserver": "percussion-sqlserver",
-    }
-    container = container_by_service.get(service, f"percussion-{service}")
+    container = db_container_name(service)
+    started_by_matrix = False
 
     # If compose DB is already running (common on long-lived dev hosts), skip
     # ``compose up`` so a host port clash (e.g. local Postgres on 5432) does not
@@ -384,6 +464,7 @@ def start_db(
             service,
         ]
         _run(argv, dry_run=dry_run, check=not dry_run)
+        started_by_matrix = True
 
     _run(
         [
@@ -398,6 +479,53 @@ def start_db(
         dry_run=dry_run,
         check=False,
     )
+    return started_by_matrix
+
+
+def stop_external_dbs(
+    compose_file: Path,
+    db_types: Iterable[str],
+    *,
+    dry_run: bool,
+) -> None:
+    """Stop external compose DB services (no volume wipe).
+
+    Disconnects each container from ``perc-matrix-net`` best-effort, then
+    ``docker compose … stop <service>`` (not ``down -v``).
+    """
+    for db_type in sorted(set(db_types)):
+        meta = DB_SERVICES.get(db_type) or {}
+        profile = meta.get("profile") or ""
+        service = meta.get("service") or ""
+        if not profile or not service:
+            continue
+        container = db_container_name(service)
+        LOG.info("Stopping matrix external DB %s (%s)", db_type, container)
+        _run(
+            [
+                "docker",
+                "network",
+                "disconnect",
+                MATRIX_NETWORK,
+                container,
+            ],
+            dry_run=dry_run,
+            check=False,
+        )
+        _run(
+            [
+                "docker",
+                "compose",
+                "-f",
+                str(compose_file),
+                "--profile",
+                profile,
+                "stop",
+                service,
+            ],
+            dry_run=dry_run,
+            check=False,
+        )
 
 
 def _docker_container_running(name: str) -> bool:
@@ -468,6 +596,8 @@ def run_cell(
     probe_timeout: int,
     dry_run: bool,
     log_dir: Path,
+    started_dbs: Optional[Set[str]] = None,
+    engaged_dbs: Optional[Set[str]] = None,
 ) -> CellResult:
     started = time.time()
     name = cell_container_name(cell)
@@ -492,7 +622,12 @@ def run_cell(
     LOG.info("Cell %s using jar %s (%s bytes)", cell.cell_id, jar, jar.stat().st_size if jar.is_file() else 0)
 
     destroy_container(name, dry_run=dry_run)
-    start_db(repo_root, compose_file, cell.db_type, dry_run=dry_run)
+    ownership = start_db(repo_root, compose_file, cell.db_type, dry_run=dry_run)
+    if ownership is not None:
+        if engaged_dbs is not None:
+            engaged_dbs.add(cell.db_type)
+        if ownership and started_dbs is not None:
+            started_dbs.add(cell.db_type)
 
     run_argv = build_docker_run_argv(
         image=MATRIX_IMAGE_TAG,
@@ -604,7 +739,27 @@ def _build_parser() -> argparse.ArgumentParser:
     p.add_argument(
         "--keep",
         action="store_true",
-        help="Leave the last/each cell container running for Playwright Layer 2",
+        help=(
+            "Leave cell containers running for Playwright Layer 2; "
+            "also leaves external DBs up (implies no DB teardown)"
+        ),
+    )
+    db_life = p.add_mutually_exclusive_group()
+    db_life.add_argument(
+        "--keep-db",
+        action="store_true",
+        help=(
+            "Leave external DB containers running after the matrix finishes "
+            "(cells still destroyed unless --keep). Opt-in to previous default."
+        ),
+    )
+    db_life.add_argument(
+        "--stop-db",
+        action="store_true",
+        help=(
+            "Stop every external DB used by this matrix, including containers "
+            "that were already running before the run (destructive; no volume wipe)"
+        ),
     )
     p.add_argument(
         "--probe-timeout",
@@ -647,52 +802,89 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
         return EXIT_INVOCATION
 
     cells = expand_matrix(products, dbs)
+    # Engaged = external DBs we actually start_db()'d for a cell (not merely selected).
+    engaged_external: Set[str] = set()
+    started_by_matrix: Set[str] = set()
     report = MatrixReport(started_at=datetime.now(timezone.utc).isoformat())
+    exit_code = EXIT_OK
 
     if not args.dry_run and shutil.which("docker") is None:
         LOG.error("docker not found on PATH")
         print("RESULT:FAIL STEP:matrix LOG:")
         return EXIT_INVOCATION
 
-    ensure_network(MATRIX_NETWORK, dry_run=args.dry_run)
-    if not args.skip_image_build:
-        try:
-            build_matrix_image(repo_root, dry_run=args.dry_run)
-        except subprocess.CalledProcessError as exc:
-            LOG.error("matrix image build failed: %s", exc)
-            print("RESULT:FAIL STEP:matrix-image LOG:")
-            return EXIT_CELL_FAILED
+    try:
+        ensure_network(MATRIX_NETWORK, dry_run=args.dry_run)
+        if not args.skip_image_build:
+            try:
+                build_matrix_image(repo_root, dry_run=args.dry_run)
+            except subprocess.CalledProcessError as exc:
+                LOG.error("matrix image build failed: %s", exc)
+                print("RESULT:FAIL STEP:matrix-image LOG:")
+                exit_code = EXIT_CELL_FAILED
+                return exit_code
 
-    for cell in cells:
-        LOG.info("=== matrix cell %s ===", cell.cell_id)
-        result = run_cell(
-            cell,
-            repo_root=repo_root,
-            compose_file=compose_file,
+        for cell in cells:
+            LOG.info("=== matrix cell %s ===", cell.cell_id)
+            result = run_cell(
+                cell,
+                repo_root=repo_root,
+                compose_file=compose_file,
+                keep=args.keep,
+                probe_timeout=args.probe_timeout,
+                dry_run=args.dry_run,
+                log_dir=log_dir,
+                started_dbs=started_by_matrix,
+                engaged_dbs=engaged_external,
+            )
+            report.results.append(result)
+            LOG.info(
+                "Cell %s → %s (%0.1fs) %s",
+                result.cell_id,
+                result.status,
+                result.duration_seconds,
+                result.detail,
+            )
+
+        report.finished_at = datetime.now(timezone.utc).isoformat()
+        report_path = log_dir / f"matrix-results-{_ts()}.json"
+        report_path.write_text(
+            json.dumps(report.to_dict(), indent=2) + "\n", encoding="utf-8"
+        )
+
+        failed = [r for r in report.results if r.status == "fail"]
+        if failed:
+            print(f"RESULT:FAIL STEP:matrix LOG:{report_path}")
+            exit_code = EXIT_CELL_FAILED
+        else:
+            print(f"RESULT:OK STEP:matrix LOG:{report_path}")
+            exit_code = EXIT_OK
+        return exit_code
+    finally:
+        # Always attempt DB teardown after cells (pass or fail), unless opted out.
+        # Only consider DBs this run actually engaged (start_db called).
+        to_stop = select_dbs_to_stop(
+            started_by_matrix=started_by_matrix,
+            used_external=engaged_external,
             keep=args.keep,
-            probe_timeout=args.probe_timeout,
-            dry_run=args.dry_run,
-            log_dir=log_dir,
+            keep_db=args.keep_db,
+            stop_db=args.stop_db,
         )
-        report.results.append(result)
-        LOG.info(
-            "Cell %s → %s (%0.1fs) %s",
-            result.cell_id,
-            result.status,
-            result.duration_seconds,
-            result.detail,
-        )
-
-    report.finished_at = datetime.now(timezone.utc).isoformat()
-    report_path = log_dir / f"matrix-results-{_ts()}.json"
-    report_path.write_text(json.dumps(report.to_dict(), indent=2) + "\n", encoding="utf-8")
-
-    failed = [r for r in report.results if r.status == "fail"]
-    if failed:
-        print(f"RESULT:FAIL STEP:matrix LOG:{report_path}")
-        return EXIT_CELL_FAILED
-    print(f"RESULT:OK STEP:matrix LOG:{report_path}")
-    return EXIT_OK
+        if to_stop:
+            LOG.info(
+                "Tearing down external DBs: %s",
+                ", ".join(sorted(to_stop)),
+            )
+            stop_external_dbs(compose_file, to_stop, dry_run=args.dry_run)
+        elif engaged_external and (args.keep or args.keep_db):
+            LOG.info(
+                "Leaving external DBs running (%s)",
+                "--keep" if args.keep else "--keep-db",
+            )
+        elif engaged_external and not started_by_matrix and not args.stop_db:
+            LOG.info(
+                "Leaving pre-existing external DBs running (not started by this matrix run)"
+            )
 
 
 if __name__ == "__main__":

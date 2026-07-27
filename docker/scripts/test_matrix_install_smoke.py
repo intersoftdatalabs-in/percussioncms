@@ -210,22 +210,140 @@ class ProbeUrlTests(unittest.TestCase):
         )
 
 
+class DbOwnershipAndTeardownTests(unittest.TestCase):
+    """Pure policy tests for #1516 external DB lifecycle (no live Docker)."""
+
+    def test_db_container_name_mapping(self):
+        self.assertEqual(smoke.db_container_name("postgres"), "percussion-postgres")
+        self.assertEqual(smoke.db_container_name("mysql"), "percussion-mysql")
+        self.assertEqual(smoke.db_container_name("sqlserver"), "percussion-sqlserver")
+        self.assertEqual(smoke.db_container_name("other"), "percussion-other")
+
+    def test_external_db_types_skips_h2(self):
+        self.assertEqual(
+            smoke.external_db_types(["h2", "postgresql", "mysql", "sqlserver"]),
+            {"postgresql", "mysql", "sqlserver"},
+        )
+        self.assertEqual(smoke.external_db_types(["h2"]), set())
+
+    def test_default_stops_only_started_by_matrix(self):
+        self.assertEqual(
+            smoke.select_dbs_to_stop(
+                started_by_matrix={"postgresql"},
+                used_external={"postgresql", "mysql"},
+                keep=False,
+                keep_db=False,
+                stop_db=False,
+            ),
+            {"postgresql"},
+        )
+
+    def test_default_stops_nothing_when_all_preexisting(self):
+        self.assertEqual(
+            smoke.select_dbs_to_stop(
+                started_by_matrix=set(),
+                used_external={"postgresql", "mysql"},
+                keep=False,
+                keep_db=False,
+                stop_db=False,
+            ),
+            set(),
+        )
+
+    def test_keep_leaves_all_dbs(self):
+        self.assertEqual(
+            smoke.select_dbs_to_stop(
+                started_by_matrix={"postgresql", "mysql"},
+                used_external={"postgresql", "mysql"},
+                keep=True,
+                keep_db=False,
+                stop_db=False,
+            ),
+            set(),
+        )
+
+    def test_keep_db_leaves_dbs_without_keep(self):
+        self.assertEqual(
+            smoke.select_dbs_to_stop(
+                started_by_matrix={"postgresql"},
+                used_external={"postgresql"},
+                keep=False,
+                keep_db=True,
+                stop_db=False,
+            ),
+            set(),
+        )
+
+    def test_stop_db_stops_all_used_including_preexisting(self):
+        self.assertEqual(
+            smoke.select_dbs_to_stop(
+                started_by_matrix={"postgresql"},
+                used_external={"postgresql", "mysql", "sqlserver"},
+                keep=False,
+                keep_db=False,
+                stop_db=True,
+            ),
+            {"postgresql", "mysql", "sqlserver"},
+        )
+
+    def test_keep_overrides_stop_db(self):
+        self.assertEqual(
+            smoke.select_dbs_to_stop(
+                started_by_matrix={"postgresql"},
+                used_external={"postgresql"},
+                keep=True,
+                keep_db=False,
+                stop_db=True,
+            ),
+            set(),
+        )
+
+    def test_keep_db_overrides_stop_db_via_mutex_policy(self):
+        # CLI makes these mutually exclusive; policy still prefers keep_db.
+        self.assertEqual(
+            smoke.select_dbs_to_stop(
+                started_by_matrix={"mysql"},
+                used_external={"mysql"},
+                keep=False,
+                keep_db=True,
+                stop_db=True,
+            ),
+            set(),
+        )
+
+    def test_started_unknown_to_used_is_ignored(self):
+        # Defensive: only stop DBs that were part of this matrix selection.
+        self.assertEqual(
+            smoke.select_dbs_to_stop(
+                started_by_matrix={"postgresql", "mysql"},
+                used_external={"postgresql"},
+                keep=False,
+                keep_db=False,
+                stop_db=False,
+            ),
+            {"postgresql"},
+        )
+
+
 class DryRunCliTests(unittest.TestCase):
+    def _stub_repo(self, root: Path) -> None:
+        target = root / "modules" / "perc-distribution-tree" / "target"
+        target.mkdir(parents=True)
+        # Exact customer-shipped assembly name (not *-SNAPSHOT.jar).
+        (target / "perc-distribution-tree.jar").write_bytes(b"stub-jar-content")
+        (root / "docker" / "logs").mkdir(parents=True)
+        (root / "docker" / "matrix").mkdir(parents=True)
+        (root / "docker" / "matrix" / "Dockerfile").write_text(
+            "FROM scratch\n", encoding="utf-8"
+        )
+        (root / "docker-compose.yml").write_text("services: {}\n", encoding="utf-8")
+
     def test_dry_run_exits_zero_for_h2(self):
         # dry-run still needs a jar on disk for resolve in run_cell —
         # dry-run path resolves jar before docker; create a stub tree.
         with tempfile.TemporaryDirectory() as td:
             root = Path(td)
-            target = root / "modules" / "perc-distribution-tree" / "target"
-            target.mkdir(parents=True)
-            # Exact customer-shipped assembly name (not *-SNAPSHOT.jar).
-            (target / "perc-distribution-tree.jar").write_bytes(b"stub-jar-content")
-            (root / "docker" / "logs").mkdir(parents=True)
-            (root / "docker" / "matrix").mkdir(parents=True)
-            (root / "docker" / "matrix" / "Dockerfile").write_text(
-                "FROM scratch\n", encoding="utf-8"
-            )
-            (root / "docker-compose.yml").write_text("services: {}\n", encoding="utf-8")
+            self._stub_repo(root)
             rc = smoke.main(
                 [
                     "--repo-root",
@@ -239,6 +357,30 @@ class DryRunCliTests(unittest.TestCase):
                 ]
             )
             self.assertEqual(rc, 0)
+
+    def test_dry_run_postgresql_exits_zero(self):
+        """External DB path exercises start/stop planning without live Docker."""
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            self._stub_repo(root)
+            rc = smoke.main(
+                [
+                    "--repo-root",
+                    str(root),
+                    "--product",
+                    "cms",
+                    "--db",
+                    "postgresql",
+                    "--dry-run",
+                    "--skip-image-build",
+                ]
+            )
+            self.assertEqual(rc, 0)
+
+    def test_keep_db_and_stop_db_are_mutually_exclusive(self):
+        with self.assertRaises(SystemExit) as ctx:
+            smoke._build_parser().parse_args(["--keep-db", "--stop-db"])
+        self.assertNotEqual(ctx.exception.code, 0)
 
 
 if __name__ == "__main__":
