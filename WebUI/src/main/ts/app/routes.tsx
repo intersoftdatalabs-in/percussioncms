@@ -91,7 +91,7 @@ export function AppRoutes(): React.ReactElement {
           element={
             <FeaturePlaceholder
               title="Content Explorer"
-              legacyHref="/cm/app/?view=home"
+              legacyHref="/cm/app/explorerModern.jsp"
               testId="route-explorer"
             />
           }

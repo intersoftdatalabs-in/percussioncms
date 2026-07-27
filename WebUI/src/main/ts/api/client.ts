@@ -32,6 +32,23 @@ export interface ApiError {
   body: unknown;
 }
 
+/**
+ * Thrown after a mid-session 401 has already started navigation to React Login.
+ * Callers should not surface this as a normal API failure (toasts / form errors).
+ */
+export class SessionRedirectError extends Error {
+  readonly status = 401;
+  constructor(message = "Session expired; redirecting to login") {
+    super(message);
+    this.name = "SessionRedirectError";
+  }
+}
+
+/** True when the error is a terminal session redirect (page is navigating away). */
+export function isSessionRedirectError(err: unknown): boolean {
+  return err instanceof SessionRedirectError;
+}
+
 function buildHeaders(extra: HeadersInit = {}, preferJson = true): Headers {
   const headers = new Headers(extra);
   if (!headers.has("Content-Type") && preferJson) {
@@ -72,9 +89,12 @@ async function parseBody(response: Response): Promise<unknown> {
 
 async function handleResponse<T>(response: Response): Promise<T> {
   if (!response.ok) {
-    // Mid-session expiry / auth loss → React Login (query return URL)
+    // Mid-session expiry / auth loss → React Login (query return URL).
+    // Do not parse the body or throw a normal ApiError — callers would race
+    // setState/toasts while the document navigates away (#1526 review).
     if (response.status === 401) {
       redirectToLoginOnUnauthorized({ reason: "api-401" });
+      throw new SessionRedirectError();
     }
     let body: unknown;
     try {

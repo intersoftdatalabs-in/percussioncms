@@ -4,15 +4,15 @@
 
 import { afterEach, describe, expect, it, vi } from "vitest";
 import {
-  __resetLoginRedirectLatchForTests,
   buildLoginReturnUrl,
   currentSpaReturnUrl,
   redirectToLoginOnUnauthorized,
+  resetLoginRedirectLatch,
 } from "../../../../main/ts/app/auth/sessionHandlers";
 
 describe("sessionHandlers", () => {
   afterEach(() => {
-    __resetLoginRedirectLatchForTests();
+    resetLoginRedirectLatch();
     vi.restoreAllMocks();
   });
 

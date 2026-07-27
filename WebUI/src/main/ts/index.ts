@@ -54,9 +54,16 @@ function bootSpa(): void {
   if (!el) {
     return;
   }
-  void import("./app/main").then((m) => {
-    m.boot(el);
-  });
+  void import("./app/main")
+    .then((m) => {
+      m.boot(el);
+    })
+    .catch((err) => {
+      console.error("[PercModernUI] Failed to load SPA app module", err);
+      el.setAttribute("data-perc-spa-boot-error", "1");
+      el.textContent =
+        "Unable to load the modern UI. Check the browser console or reload the page.";
+    });
 }
 
 function boot(): void {

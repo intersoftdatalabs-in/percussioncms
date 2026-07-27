@@ -150,9 +150,3 @@ export function isRegisteredComponent(name: string): boolean {
 export function listRegisteredComponentNames(): string[] {
   return Object.keys(loaders).sort();
 }
-
-/**
- * @deprecated Prefer {@link loadComponent}. Sync map is empty; kept for type
- * compatibility with older tests that import {@code componentRegistry}.
- */
-export const componentRegistry = new Map<string, ComponentType<any>>();
