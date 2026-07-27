@@ -45,6 +45,11 @@ export interface PublishingShellProps {
    * Default true — server does not yet expose a dedicated design role to the shell.
    */
   showDesign?: boolean;
+  /**
+   * When true (SPA AppLayout), shell is already under product chrome.
+   * Reserved for future chrome tweaks; currently no outer BrandBar.
+   */
+  embedded?: boolean;
 }
 
 /** Ops-first sections; design/runtime are secondary (US7 progressive disclosure). */

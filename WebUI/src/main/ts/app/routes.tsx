@@ -19,55 +19,23 @@ import React from "react";
 import { Navigate, Route, Routes } from "react-router-dom";
 import { FeaturePlaceholder } from "./FeaturePlaceholder";
 import { AppLayout } from "./layout/AppLayout";
+import { HomeRoute } from "./routes/HomeRoute";
+import { PublishRoute } from "./routes/PublishRoute";
 
 /**
- * Authenticated SPA routes. Placeholders until PR-3/PR-4 embed real shells.
+ * Authenticated SPA routes.
+ * Home is the product default landing. Publish is fully embedded (PR-3).
+ * Other modern modules remain placeholders until PR-4+.
  */
 export function AppRoutes(): React.ReactElement {
   return (
     <Routes>
       <Route element={<AppLayout />}>
         <Route index element={<Navigate to="/home" replace />} />
-        <Route
-          path="home"
-          element={
-            <FeaturePlaceholder
-              title="Home"
-              legacyHref="/cm/app/?view=home"
-              testId="route-home"
-            />
-          }
-        />
-        <Route
-          path="home/:section"
-          element={
-            <FeaturePlaceholder
-              title="Home"
-              legacyHref="/cm/app/?view=home"
-              testId="route-home"
-            />
-          }
-        />
-        <Route
-          path="publish"
-          element={
-            <FeaturePlaceholder
-              title="Publish"
-              legacyHref="/cm/app/?view=publish"
-              testId="route-publish"
-            />
-          }
-        />
-        <Route
-          path="publish/:section"
-          element={
-            <FeaturePlaceholder
-              title="Publish"
-              legacyHref="/cm/app/?view=publish"
-              testId="route-publish"
-            />
-          }
-        />
+        <Route path="home" element={<HomeRoute />} />
+        <Route path="home/:section" element={<HomeRoute />} />
+        <Route path="publish" element={<PublishRoute />} />
+        <Route path="publish/:section" element={<PublishRoute />} />
         <Route
           path="workflow"
           element={
@@ -134,10 +102,7 @@ export function AppRoutes(): React.ReactElement {
             <FeaturePlaceholder title="Unavailable" testId="route-unavailable" />
           }
         />
-        <Route
-          path="*"
-          element={<Navigate to="/unavailable" replace />}
-        />
+        <Route path="*" element={<Navigate to="/unavailable" replace />} />
       </Route>
     </Routes>
   );
