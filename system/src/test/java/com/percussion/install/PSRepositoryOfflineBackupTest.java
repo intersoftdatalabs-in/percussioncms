@@ -156,5 +156,46 @@ public class PSRepositoryOfflineBackupTest {
     PSRepositoryOfflineBackup.Result forced =
         PSRepositoryOfflineBackup.copyRepositoryTree(repo, backupRoot, false);
     assertTrue(forced.filesCopied() >= 1);
+    // Lock markers must never be archived — restore would reintroduce startup blockers
+    assertFalse(Files.exists(backupRoot.resolve("repository-data").resolve("db.lck")));
+    assertTrue(Files.isRegularFile(backupRoot.resolve("repository-data").resolve("seg0")));
+  }
+
+  @Test
+  void clearStaleLiveMarkersRemovesLocksAndLeavesData() throws Exception {
+    Path repo = temp.resolve("staleRepo");
+    Files.createDirectories(repo.resolve("nested"));
+    Files.writeString(repo.resolve("seg0"), "data", StandardCharsets.UTF_8);
+    Files.writeString(repo.resolve("db.lck"), "stale", StandardCharsets.UTF_8);
+    Files.writeString(repo.resolve("dbex.lck"), "stale", StandardCharsets.UTF_8);
+    Files.writeString(repo.resolve("nested").resolve("other.lck"), "stale", StandardCharsets.UTF_8);
+
+    assertTrue(PSRepositoryOfflineBackup.isLiveMarkerFileName("db.lck"));
+    assertTrue(PSRepositoryOfflineBackup.isLiveMarkerFileName("foo.lock.db"));
+    assertFalse(PSRepositoryOfflineBackup.isLiveMarkerFileName("seg0"));
+
+    var removed = PSRepositoryOfflineBackup.clearStaleLiveMarkers(repo);
+    assertEquals(3, removed.size());
+    assertTrue(PSRepositoryOfflineBackup.findLiveMarkers(repo).isEmpty());
+    assertTrue(Files.isRegularFile(repo.resolve("seg0")));
+    assertFalse(Files.exists(repo.resolve("db.lck")));
+    assertFalse(Files.exists(repo.resolve("dbex.lck")));
+  }
+
+  @Test
+  void clearThenCopyProducesRestorableBackupWithoutLocks() throws Exception {
+    Path repo = temp.resolve("offlineRepo");
+    Files.createDirectories(repo);
+    Files.writeString(repo.resolve("seg0"), "payload", StandardCharsets.UTF_8);
+    Files.writeString(repo.resolve("db.lck"), "stale", StandardCharsets.UTF_8);
+
+    PSRepositoryOfflineBackup.clearStaleLiveMarkers(repo);
+    Path backupRoot = temp.resolve("backup-clean");
+    PSRepositoryOfflineBackup.Result result =
+        PSRepositoryOfflineBackup.copyRepositoryTree(repo, backupRoot);
+    assertTrue(result.filesCopied() >= 1);
+    assertTrue(Files.isRegularFile(backupRoot.resolve("repository-data").resolve("seg0")));
+    assertFalse(Files.exists(backupRoot.resolve("repository-data").resolve("db.lck")));
+    assertTrue(PSRepositoryOfflineBackup.findLiveMarkers(backupRoot).isEmpty());
   }
 }

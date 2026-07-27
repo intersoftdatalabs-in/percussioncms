@@ -155,7 +155,17 @@ public class PSDtsEmbeddedRepositoryMigrator {
                   .resolve("dts-migration-backup")
                   .resolve(serviceName + "-" + System.currentTimeMillis());
           if (Files.isDirectory(derbyDir)) {
-            PSRepositoryOfflineBackup.copyRepositoryTree(derbyDir, backupRoot);
+            // DTS Ant task already aborts when Tomcat is running. Clear stale lock markers so
+            // backup is restorable and the subsequent Derby open for TableFactory is not blocked.
+            List<Path> cleared = PSRepositoryOfflineBackup.clearStaleLiveMarkers(derbyDir);
+            if (!cleared.isEmpty()) {
+              LOG.warning(
+                  "Cleared "
+                      + cleared.size()
+                      + " stale engine lock marker(s) before DTS FR-018a product backup for "
+                      + serviceName);
+            }
+            PSRepositoryOfflineBackup.copyRepositoryTree(derbyDir, backupRoot, false);
           }
           backupOk = true;
           gateKind = PSBackupGateKind.PRODUCT_BACKUP;

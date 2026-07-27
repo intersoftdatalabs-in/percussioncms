@@ -20,40 +20,39 @@ import com.percussion.install.InstallUtil;
 import org.apache.tools.ant.BuildException;
 
 /**
- * Install action that aborts when a CMS (Rhythmyx) server is still running under the target root
- * (bind port / Derby Network Server heuristics via {@link InstallUtil#checkServerRunning(String)}).
+ * Install action that aborts when a DTS Tomcat instance is still running under the target root
+ * (connector ports from {@code Deployment/Server/conf/server.xml} are bound).
  *
- * <p>Pair with {@link PSCheckRunningDtsServer} for DTS Tomcat instances.
+ * <p>Use for Production ({@code rootDir} = DTS install root) and Staging ({@code rootDir} =
+ * {@code <install>/Staging}). Pair with {@link PSCheckRunningServer} for CMS.
  *
  * <pre>{@code
- * <PSCheckRunningServer rootDir="${install.dir}"/>
+ * <PSCheckRunningDtsServer rootDir="${install.dir}"/>
+ * <PSCheckRunningDtsServer rootDir="${install.dir}/Staging"/>
  * }</pre>
- *
- * @author vamsinukala
  */
-public class PSCheckRunningServer extends PSAction {
-  /** Creates a new running server check task. */
-  public PSCheckRunningServer() {}
+public class PSCheckRunningDtsServer extends PSAction {
+
+  /** Creates a new DTS running-instance check task. */
+  public PSCheckRunningDtsServer() {}
 
   @Override
   public void execute() {
-    // Intentionally no super.execute(): this is a pure gate check without logger/version side
-    // effects.
+    // Pure gate check — no super.execute() logger/version side effects.
     String root = getRootDir();
     if (root == null || root.isBlank()) {
-      // Fall back to Ant project install.dir when task omits rootDir attribute
       if (getProject() != null) {
         root = getProject().getProperty("install.dir");
       }
     }
     if (root == null || root.isBlank()) {
-      throw new BuildException("PSCheckRunningServer: rootDir (or install.dir) is required");
+      throw new BuildException("PSCheckRunningDtsServer: rootDir (or install.dir) is required");
     }
-    if (InstallUtil.checkServerRunning(root)) {
+    if (InstallUtil.checkTomcatServerRunning(root)) {
       throw new BuildException(
-          "A running CMS (Rhythmyx) server has been detected in the installation directory "
+          "A running DTS (Tomcat) instance has been detected in the installation directory "
               + root
-              + ". Stop this instance before installing or upgrading to this location"
+              + ". Stop this DTS instance before installing or upgrading to this location"
               + " (offline only).");
     }
   }

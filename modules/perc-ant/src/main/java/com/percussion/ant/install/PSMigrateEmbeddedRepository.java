@@ -20,10 +20,12 @@ import com.percussion.install.InstallUtil;
 import com.percussion.install.PSEmbeddedRepositoryMigrator;
 import com.percussion.install.PSLogger;
 import com.percussion.install.PSMigrationOutcome;
+import com.percussion.install.PSMigrationReportWriter;
 import com.percussion.install.PSMigrationSecretsRedactor;
 import com.percussion.install.PSPluginResponse;
 import com.percussion.install.PSRepositoryBackupGate;
 import com.percussion.install.PSUpgradePluginEmbeddedRepositoryMigration;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Properties;
 import org.apache.tools.ant.BuildException;
@@ -92,6 +94,10 @@ public class PSMigrateEmbeddedRepository extends PSAction {
     PSPluginResponse response = PSUpgradePluginEmbeddedRepositoryMigration.mapOutcome(outcome);
     if (response.getType() == PSPluginResponse.EXCEPTION) {
       String msg = PSMigrationSecretsRedactor.redact(response.getMessage());
+      String detail = readReportFailureDetail(installRoot);
+      if (detail != null && !detail.isBlank()) {
+        msg = msg + " Detail: " + detail;
+      }
       if (failOnBlock) {
         throw new BuildException(
             msg
@@ -100,6 +106,30 @@ public class PSMigrateEmbeddedRepository extends PSAction {
                 + "=true if using external backup)");
       }
       PSLogger.logError(msg);
+    }
+  }
+
+  /**
+   * Best-effort read of durable migration report failure reason for operator-visible Ant errors.
+   *
+   * @param installRoot CMS install root
+   * @return redacted failure reason, or null if unavailable
+   */
+  static String readReportFailureDetail(Path installRoot) {
+    try {
+      Path reportPath =
+          PSMigrationReportWriter.reportPath(
+              installRoot, PSEmbeddedRepositoryMigrator.COMPONENT_CMS);
+      if (!Files.isRegularFile(reportPath)) {
+        return null;
+      }
+      PSMigrationReportWriter.Report report = PSMigrationReportWriter.read(reportPath);
+      if (report == null || report.failureReason() == null || report.failureReason().isBlank()) {
+        return null;
+      }
+      return PSMigrationSecretsRedactor.redact(report.failureReason());
+    } catch (Exception e) {
+      return null;
     }
   }
 }

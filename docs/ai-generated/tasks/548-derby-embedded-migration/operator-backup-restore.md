@@ -19,7 +19,7 @@ Also stop **Derby Network Server** if still used for product-managed networked D
 
 **Do not** copy repository files while the process is live — results are unsupported and may be inconsistent.
 
-Product offline backup (`PSRepositoryOfflineBackup`) **refuses** when common engine lock markers are present under the repository tree (e.g. Derby `db.lck`, H2 `*.lock.db`). Emergency override only:
+Product offline backup (`PSRepositoryOfflineBackup`) **refuses** when common engine lock markers are present under the repository tree (e.g. Derby `db.lck`, H2 `*.lock.db`) unless the caller already confirmed the instance is offline. The supported upgrade path clears those markers from the live tree before FR-018a product backup and omits them from the backup artifact so a restore does not reintroduce startup blockers. Emergency override only:
 
 ```text
 -Dperc.migration.allowLiveBackup=true

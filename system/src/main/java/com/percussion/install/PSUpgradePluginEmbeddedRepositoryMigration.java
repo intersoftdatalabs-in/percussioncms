@@ -114,10 +114,11 @@ public class PSUpgradePluginEmbeddedRepositoryMigration implements IPSUpgradePlu
       case BLOCKED_BACKUP_GATE ->
           new PSPluginResponse(
               PSPluginResponse.EXCEPTION,
-              "Derby→H2 migration blocked: backup gate not satisfied. Complete product offline"
-                  + " backup or set "
+              "Derby→H2 migration blocked: backup gate not satisfied. When the CMS is stopped,"
+                  + " upgrade automatically attempts product offline backup (FR-018a). If that"
+                  + " failed, see rxconfig/Installer/migration-report-CMS.properties. Or set "
                   + PSRepositoryBackupGate.EXTERNAL_BACKUP_CONFIRMED_PROPERTY
-                  + "=true after verifying an external backup (FR-018).");
+                  + "=true after verifying an external backup (FR-018b).");
       case FAILED ->
           new PSPluginResponse(
               PSPluginResponse.EXCEPTION,

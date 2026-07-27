@@ -16,6 +16,7 @@
  */
 package com.percussion.ant.install;
 
+import com.percussion.install.InstallUtil;
 import com.percussion.install.PSDtsEmbeddedRepositoryMigrator;
 import com.percussion.install.PSLogger;
 import com.percussion.install.PSMigrationOutcome;
@@ -27,6 +28,8 @@ import org.apache.tools.ant.BuildException;
 
 /**
  * ANT task: migrate product-managed DTS service embedded Derby DBs to H2 (#548 T064).
+ *
+ * <p>Aborts when DTS Tomcat appears to be running under {@code rootDir} (offline migration only).
  *
  * <pre>{@code
  * <PSMigrateDtsEmbeddedRepository rootDir="${install.dir}${staging.dir}"
@@ -58,6 +61,13 @@ public class PSMigrateDtsEmbeddedRepository extends PSAction {
     String root = getRootDir();
     if (root == null || root.isBlank()) {
       throw new BuildException("PSMigrateDtsEmbeddedRepository: rootDir is required");
+    }
+
+    if (InstallUtil.checkTomcatServerRunning(root)) {
+      throw new BuildException(
+          "PSMigrateDtsEmbeddedRepository: DTS appears to be running under "
+              + root
+              + ". Stop the DTS before upgrade (offline migration only).");
     }
 
     Path installRoot = Path.of(root);

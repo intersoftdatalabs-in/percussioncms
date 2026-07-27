@@ -621,6 +621,9 @@
 		</if>
 	</target>
 	<target name="install" depends="init">
+		<!-- Hard offline gate: refuse install/upgrade while CMS is running -->
+		<echo>Checking for running CMS server...</echo>
+		<PSCheckRunningServer rootDir="${install.dir}" />
 		<if>
 			<and>
 				<istrue value="${do.install}" />

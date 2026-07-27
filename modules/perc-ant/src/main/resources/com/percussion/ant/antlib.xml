@@ -26,6 +26,8 @@
 		classname="com.percussion.ant.install.PSUpdatePropFileWizAction" />
 	<taskdef name="PSCheckRunningServer"
 		classname="com.percussion.ant.install.PSCheckRunningServer" />
+	<taskdef name="PSCheckRunningDtsServer"
+		classname="com.percussion.ant.install.PSCheckRunningDtsServer" />
 	<taskdef name="PSUpgradeRepository"
 		classname="com.percussion.ant.install.PSUpgradeRepository" />
 	<taskdef name="PSCheckInstallLog"

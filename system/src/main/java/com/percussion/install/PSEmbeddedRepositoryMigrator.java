@@ -22,6 +22,7 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Instant;
+import java.util.List;
 import java.util.Objects;
 import java.util.Properties;
 import java.util.logging.Level;
@@ -297,7 +298,18 @@ public class PSEmbeddedRepositoryMigrator {
     Path sourceDir = guessSourceDataDir(repoProps);
     Path companion = installRoot.resolve(RXREPOSITORY_RELATIVE);
     if (sourceDir != null && Files.isDirectory(sourceDir)) {
-      PSRepositoryOfflineBackup.copyRepositoryTree(sourceDir, backupRoot, companion);
+      // Upgrade callers (Ant task / pre-upgrade plugin) already refuse when the CMS is running.
+      // Clear stale Derby/H2 lock markers so: (1) product backup is restorable without reintroducing
+      // locks, (2) subsequent TableFactory open of the live source is not blocked by leftover
+      // db.lck after unclean stop.
+      List<Path> cleared = PSRepositoryOfflineBackup.clearStaleLiveMarkers(sourceDir);
+      if (!cleared.isEmpty()) {
+        LOG.warning(
+            "Cleared "
+                + cleared.size()
+                + " stale engine lock marker(s) before FR-018a product backup");
+      }
+      PSRepositoryOfflineBackup.copyRepositoryTree(sourceDir, backupRoot, false, companion);
     } else {
       // Config-only backup when data dir cannot be resolved (e.g. networked Derby without local
       // path). Still records companion config for operators.
