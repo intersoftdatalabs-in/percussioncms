@@ -17,8 +17,9 @@ Read the root [@AGENTS.md](../AGENTS.md) for general guidelines. This file conta
 - ✅ Phase 2: Build output separation to `target/generated-webui/`
 - ✅ Phase 3: Full Maven integration validated
 - ✅ Track B Home + Widget Builder: React shells (`HomeShell`, `WidgetBuilderApp`) via `PercModernUI`; classic CUI/WB clients removed on feature `989-react-cui-widget-builder`
+- ✅ **Pure React SPA (login-first):** React Login front door (`rxlogin.jsp` host → `LoginPage`) + post-login SPA landing (`/cm/app/spa.jsp`). Design: `docs/ai-generated/tasks/#000-pure-react-spa/`. Classic markup: `rxlogin-classic.jsp` (reference only).
 - 🔄 Track A: Dojo→jQuery migration planned
-- 🚀 Track B: Incremental React component migration ongoing
+- 🚀 Track B / SPA: Router + feature shells cutover next (Home/Publish/Admin…)
 
 ---
 

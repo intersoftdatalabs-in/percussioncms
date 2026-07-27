@@ -561,8 +561,13 @@ public class PSLoginServlet extends HttpServlet {
     return new File(getServletContext().getRealPath("/WEB-INF")).getParentFile();
   }
 
-  /** Default CMS page constant */
-  private static final String CMS_INDEX_PAGE = "index.jsp";
+  /**
+   * Default post-login landing for the modern CMS UI.
+   *
+   * <p>Path-absolute SPA entry (query contract). See pure-react-spa design: never use hash
+   * fragments on server redirects. Form posts may also supply {@code sys_redirect}.
+   */
+  private static final String CMS_INDEX_PAGE = "/cm/app/spa.jsp?entry=home";
 
   private static final String LEGACY_INDEX_PAGE = "Rhythmyx/sys_cx/mainpage.html";
 
