@@ -29,7 +29,11 @@
 import React from "react";
 import { createRoot } from "react-dom/client";
 import "./bridge";
+import { ensureModernStyles } from "./ensureModernStyles";
 import { LoginPage, readLoginBootstrap } from "./login";
+
+// Entry CSS is not auto-linked without an HTML entry — inject before any boot.
+ensureModernStyles();
 
 function bootLogin(): void {
   const el = document.getElementById("perc-login-root");

@@ -26,13 +26,24 @@ export default defineConfig({
     outDir: "../../../target/generated-webui/cm/modern",
     emptyOutDir: true,
     sourcemap: true,
+    // Single CSS file with stable name — host JSPs / ensureModernStyles load it.
+    // Without this, entry CSS modules (Login, BrandBar) are hashed and never linked
+    // because thin JSPs only load the ES module entry (no Vite HTML transform).
+    cssCodeSplit: false,
     rollupOptions: {
       input: resolve(__dirname, "../ts/index.ts"),
       output: {
         // Stable entry name so thin JSPs can load PercModernUI without a manifest
         entryFileNames: "assets/perc-modern-ui.js",
         chunkFileNames: "assets/[name]-[hash].js",
-        assetFileNames: "assets/[name]-[hash][extname]",
+        assetFileNames: (assetInfo) => {
+          const names = (assetInfo as { names?: string[] }).names;
+          const name = names?.[0] ?? assetInfo.name ?? "";
+          if (typeof name === "string" && name.endsWith(".css")) {
+            return "assets/perc-modern-ui.css";
+          }
+          return "assets/[name]-[hash][extname]";
+        },
       },
     },
   },

@@ -58,19 +58,23 @@
     // Set attribute indicating  we have gone through the dispatcher.
     request.setAttribute("dispatched", "true");
 
-    // List of views and their pages
-    Map<String, String> views = new HashMap<String, String>();
-    views.put("editAsset", "editAsset.jsp");
-    views.put("dash", "dashboard.jsp");
-    views.put("design", "admin.jsp");
-    views.put("arch", "siteArchitecture.jsp");
-    views.put("editor", "webmgt.jsp");
-    views.put("publish", "publishModern.jsp");
-    views.put("workflow", "adminWorkflow.jsp");
-    views.put("editTemplate", "editTemplate.jsp");
-    views.put("widgetbuilder", "widgetBuilderModern.jsp");
-    views.put("home", "homeModern.jsp");
+    // Legacy full-page exits only (PR-5). Modern views redirect to spa.jsp?entry=…
+    Map<String, String> legacyViews = new HashMap<String, String>();
+    legacyViews.put("editAsset", "editAsset.jsp");
+    legacyViews.put("dash", "dashboard.jsp");
+    legacyViews.put("design", "admin.jsp");
+    legacyViews.put("arch", "siteArchitecture.jsp");
+    legacyViews.put("editor", "webmgt.jsp");
+    legacyViews.put("editTemplate", "editTemplate.jsp");
 
+    // Modern SPA entries (query contract — never hash). *Modern.jsp is not product path.
+    String[] spaViews = new String[]{
+            "home",
+            "publish",
+            "workflow",
+            "admin",
+            "widgetbuilder"
+    };
 
     // List of views requiring admin role
     String[] adminViews = new String[]{
@@ -78,7 +82,8 @@
             "arch",
             "publish",
             "workflow",
-            "widgetbuilder"
+            "widgetbuilder",
+            "admin"
     };
 
     // List of views requiring designer role
@@ -101,7 +106,7 @@
         }
         else
         {
-            // no designer access to workflow view, send to default view
+            // no designer access to workflow/admin view, send to default view
             view = null;
         }
     }
@@ -120,34 +125,42 @@
     }
     else if(view == null)
     {
-        Enumeration paramNames = request.getParameterNames();
-        StringBuilder buff = new StringBuilder();
-        int count = 0;
-        while(paramNames.hasMoreElements())
-        {
-            String key = (String)paramNames.nextElement();
-            // Skip null/blank keys (produces "?null=" garbage in redirect URL)
-            if(key == null || key.isBlank() || "null".equalsIgnoreCase(key) || "view".equals(key))
-                continue;
-            String value = request.getParameter(key);
-            if(value == null)
-                value = "";
-            buff.append(count == 0 ? "" : "&");
-            buff.append(URLEncoder.encode(key, "UTF-8"));
-            buff.append("=");
-            buff.append(URLEncoder.encode(value, "UTF-8"));
-            count++;
-
-        }
-
-
-        String sep = buff.length() == 0 ? "" : "&";
-        // Canonical app shell is /cm/app/ (static assets + relative ../cssMin paths live there)
-        String url = proxyURL+"/cm/app/?" + buff.toString() + sep + "view=" + defaultView;
         response.setHeader( "Pragma", "no-cache" );
         response.setHeader( "Cache-Control", "no-cache" );
         response.setDateHeader( "Expires", 0 );
-        response.sendRedirect(url);
+        // Default homepage Home → SPA; dash/editor stay legacy exits
+        if (ArrayUtils.contains(spaViews, defaultView))
+        {
+            response.sendRedirect(buildSpaEntryRedirect(proxyURL, defaultView, request));
+        }
+        else
+        {
+            Enumeration paramNames = request.getParameterNames();
+            StringBuilder buff = new StringBuilder();
+            int count = 0;
+            while(paramNames.hasMoreElements())
+            {
+                String key = (String)paramNames.nextElement();
+                // Skip null/blank keys (produces "?null=" garbage in redirect URL)
+                if(key == null || key.isBlank() || "null".equalsIgnoreCase(key) || "view".equals(key))
+                    continue;
+                String value = request.getParameter(key);
+                if(value == null)
+                    value = "";
+                buff.append(count == 0 ? "" : "&");
+                buff.append(URLEncoder.encode(key, "UTF-8"));
+                buff.append("=");
+                buff.append(URLEncoder.encode(value, "UTF-8"));
+                count++;
+
+            }
+
+
+            String sep = buff.length() == 0 ? "" : "&";
+            // Canonical app shell is /cm/app/ (static assets + relative ../cssMin paths live there)
+            String url = proxyURL+"/cm/app/?" + buff.toString() + sep + "view=" + defaultView;
+            response.sendRedirect(url);
+        }
     }
     else if(view.equals("popup") && popuppage != null)
     {
@@ -164,20 +177,145 @@
         }
         response.sendRedirect(url);
     }
+    else if (ArrayUtils.contains(spaViews, view))
+    {
+        // Aggressive cutover: modern ?view= → proxyURL + spa.jsp?entry=… (query only)
+        response.setHeader( "Pragma", "no-cache" );
+        response.setHeader( "Cache-Control", "no-cache" );
+        response.setDateHeader( "Expires", 0 );
+        response.sendRedirect(buildSpaEntryRedirect(proxyURL, view, request));
+    }
     else
     {
-        // Known views forward to mapped JSPs; unmapped/retired → moved/unavailable (FR-013)
-        String temp = views.get(view);
+        // Known legacy views forward to mapped JSPs; unmapped/retired → SPA unavailable
+        String temp = legacyViews.get(view);
         if(temp != null)
+        {
             forwardTo = temp;
+            pageContext.forward(forwardTo);
+        }
         else
-            forwardTo = "unavailableModern.jsp";
-
-        pageContext.forward(forwardTo);
+        {
+            response.setHeader( "Pragma", "no-cache" );
+            response.setHeader( "Cache-Control", "no-cache" );
+            response.setDateHeader( "Expires", 0 );
+            response.sendRedirect(buildSpaEntryRedirect(proxyURL, "unavailable", request));
+        }
     }
 %>
 <%-- Define methods --%>
 <%!
+
+    /**
+     * Build proxyURL-aware SPA entry redirect (query contract only — never #).
+     * Allowlists deep-link params in lockstep with WebUI parseEntryQuery / allowlists.ts.
+     */
+    protected String buildSpaEntryRedirect(String proxyURL, String view, HttpServletRequest request)
+            throws java.io.UnsupportedEncodingException
+    {
+        String entry;
+        if ("widgetbuilder".equals(view))
+            entry = "widget-builder";
+        else if ("unavailable".equals(view))
+            entry = "unavailable";
+        else if ("home".equals(view) || "publish".equals(view)
+                || "workflow".equals(view) || "admin".equals(view))
+            entry = view;
+        else
+            entry = "home";
+
+        StringBuilder qs = new StringBuilder();
+        qs.append("entry=").append(URLEncoder.encode(entry, "UTF-8"));
+
+        if ("home".equals(view))
+        {
+            String section = firstAllowlisted(
+                    request.getParameter("section"),
+                    request.getParameter("initialScreen"),
+                    HOME_SECTIONS,
+                    HOME_SECTION_ALIASES);
+            if (section != null)
+                qs.append("&section=").append(URLEncoder.encode(section, "UTF-8"));
+        }
+        else if ("publish".equals(view))
+        {
+            String section = firstAllowlisted(
+                    request.getParameter("section"),
+                    null,
+                    PUBLISH_SECTIONS,
+                    PUBLISH_SECTION_ALIASES);
+            if (section != null)
+                qs.append("&section=").append(URLEncoder.encode(section, "UTF-8"));
+            String siteId = allowId(request.getParameter("siteId"));
+            if (siteId != null)
+                qs.append("&siteId=").append(URLEncoder.encode(siteId, "UTF-8"));
+            String serverId = allowId(request.getParameter("serverId"));
+            if (serverId != null)
+                qs.append("&serverId=").append(URLEncoder.encode(serverId, "UTF-8"));
+        }
+        else if ("workflow".equals(view))
+        {
+            String tab = firstAllowlisted(
+                    request.getParameter("tab"),
+                    request.getParameter("section"),
+                    WORKFLOW_TABS,
+                    null);
+            if (tab != null)
+                qs.append("&tab=").append(URLEncoder.encode(tab, "UTF-8"));
+        }
+        else if ("admin".equals(view))
+        {
+            String tab = firstAllowlisted(
+                    request.getParameter("tab"),
+                    request.getParameter("section"),
+                    ADMIN_TABS,
+                    null);
+            if (tab != null)
+                qs.append("&tab=").append(URLEncoder.encode(tab, "UTF-8"));
+        }
+
+        // Canonical SPA document lives under /cm/app/ (both trees redirect here)
+        return (proxyURL == null ? "" : proxyURL) + "/cm/app/spa.jsp?" + qs.toString();
+    }
+
+    private String firstAllowlisted(String primary, String secondary, String[] allowed,
+            Map<String, String> aliases)
+    {
+        String v = allowToken(primary, allowed, aliases);
+        if (v != null)
+            return v;
+        return allowToken(secondary, allowed, aliases);
+    }
+
+    private String allowToken(String raw, String[] allowed, Map<String, String> aliases)
+    {
+        if (raw == null)
+            return null;
+        String n = raw.trim().toLowerCase(java.util.Locale.ROOT);
+        if (n.isEmpty())
+            return null;
+        if (ArrayUtils.contains(allowed, n))
+            return n;
+        if (aliases != null && aliases.containsKey(n))
+            return aliases.get(n);
+        return null;
+    }
+
+    private String allowId(String raw)
+    {
+        if (raw == null)
+            return null;
+        String t = raw.trim();
+        if (t.isEmpty() || t.length() > 128)
+            return null;
+        for (int i = 0; i < t.length(); i++)
+        {
+            char c = t.charAt(i);
+            if (!(Character.isLetterOrDigit(c) || c == '_' || c == '-'))
+                return null;
+        }
+        return t;
+    }
 
     protected boolean isMaintenanceInProgress(HttpServletRequest request, HttpServletResponse response) throws JspException
     {
@@ -476,6 +614,30 @@
     private static final String IS_WIDGET_BUILDER_ACTIVE = "isWidgetBuilderActive";
     private static final String MAINT_PAGE_URL = "/maintenance.jsp";
     private static final String MAINT_ERROR_PAGE_URL = "/maintenance-errors.jsp";
+
+    // SPA deep-link allowlists (sync with WebUI/src/main/ts/app/deepLinks/allowlists.ts)
+    private static final String[] HOME_SECTIONS = new String[]{
+            "recent", "bookmarks", "library", "search", "create"
+    };
+    private static final Map<String, String> HOME_SECTION_ALIASES = Map.of(
+            "list", "recent",
+            "newitem", "create",
+            "bookmark", "bookmarks"
+    );
+    private static final String[] PUBLISH_SECTIONS = new String[]{
+            "sites", "status", "logs", "design", "runtime", "editions"
+    };
+    private static final Map<String, String> PUBLISH_SECTION_ALIASES = Map.of(
+            "site", "sites",
+            "log", "logs",
+            "edition", "editions"
+    );
+    private static final String[] WORKFLOW_TABS = new String[]{
+            "workflow", "roles", "users", "categories"
+    };
+    private static final String[] ADMIN_TABS = new String[]{
+            "tasks", "logs", "notifications", "tools"
+    };
 
     //Bad Developers ... NO Coffee for you....
     //Don't ever do this again... calling HTTP internally causes port exhaustion

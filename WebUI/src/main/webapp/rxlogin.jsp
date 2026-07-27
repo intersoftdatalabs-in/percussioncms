@@ -107,8 +107,25 @@
     <meta name="_csrf_header" content="<csrf:tokenname/>"/>
     <meta name="_csrf" content="<csrf:tokenvalue/>"/>
     <script src="/JavaScriptServlet"></script>
+    <%-- Stable CSS entry (Vite cssCodeSplit:false). JS also injects if this is missing. --%>
+    <link rel="stylesheet" href="/cm/modern/assets/perc-modern-ui.css"/>
     <script type="module" src="/cm/modern/assets/perc-modern-ui.js"></script>
-    <style>html, body { margin: 0; padding: 0; }</style>
+    <style>
+        html, body { margin: 0; padding: 0; }
+        /* Defensive: if CSS fails to load, logo must not paint at intrinsic 1477×720 */
+        img[data-testid="perc-login-logo"],
+        img[data-testid="perc-brand-logo"] {
+            max-height: 48px;
+            max-width: 220px;
+            width: auto;
+            height: auto;
+            object-fit: contain;
+        }
+        img[data-testid="perc-brand-logo"] {
+            max-height: 32px;
+            max-width: 160px;
+        }
+    </style>
 </head>
 <body>
 <%-- Hidden holder for CSRF tags (merged into bootstrap before React mounts). --%>

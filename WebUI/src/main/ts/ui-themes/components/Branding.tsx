@@ -69,6 +69,8 @@ export function BrandBar({
             className={styles.brandLogo}
             src={theme.brand.logoHorizontal}
             alt={`${theme.brand.publisher} logo`}
+            width={160}
+            height={32}
             data-testid="perc-brand-logo"
           />
         </a>

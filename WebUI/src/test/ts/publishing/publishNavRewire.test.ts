@@ -5,15 +5,20 @@ import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { describe, expect, it } from "vitest";
 
-describe("publish nav rewire (US8)", () => {
-  it("index.jsp maps publish to publishModern.jsp", () => {
+describe("publish nav rewire (US8) — PR-5 SPA cutover", () => {
+  it("index.jsp maps publish to spa.jsp?entry=publish (not *Modern.jsp)", () => {
     // vite root is frontend/; module webapp is three levels up from frontend
     const indexPath = resolve(
       __dirname,
       "../../../main/webapp/cm/app/index.jsp",
     );
     const text = readFileSync(indexPath, "utf8");
-    expect(text).toContain('views.put("publish", "publishModern.jsp")');
+    expect(text).toContain("buildSpaEntryRedirect");
+    expect(text).toContain("/cm/app/spa.jsp?");
+    expect(text).toContain('"publish"');
+    expect(text).not.toMatch(
+      /legacyViews\.put\("publish",\s*"publishModern\.jsp"\)/,
+    );
     expect(text).not.toMatch(/views\.put\("publish",\s*"publish\.jsp"\)/);
   });
 
@@ -26,15 +31,15 @@ describe("publish nav rewire (US8)", () => {
     expect(text).not.toContain("PercPublishMinuetView");
   });
 
-  it("publishModern.jsp passes showDesign from Admin/Designer roles (Erlang S5)", () => {
+  it("publishModern.jsp is a retired host that re-enters the SPA dispatcher", () => {
     const modern = resolve(
       __dirname,
       "../../../main/webapp/cm/app/publishModern.jsp",
     );
     const text = readFileSync(modern, "utf8");
-    expect(text).toContain("showDesign");
-    expect(text).toContain("isAdminUser");
-    expect(text).toContain("isDesignerUser");
+    expect(text).toContain('retiredModernView", "publish"');
+    expect(text).toContain("retired_modern_redirect.jsp");
+    expect(text).not.toContain("PercModernUI.mount");
   });
 });
 

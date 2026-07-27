@@ -71,6 +71,8 @@ function LoginForm({ bootstrap }: LoginPageProps): React.ReactElement {
               className={styles.logo}
               src={theme.brand.logoHorizontal}
               alt={`${theme.brand.publisher} logo`}
+              width={220}
+              height={48}
               data-testid="perc-login-logo"
             />
           </div>

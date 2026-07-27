@@ -118,6 +118,7 @@
     <meta name="_csrf_header" content="<csrf:tokenname/>"/>
     <meta name="_csrf" content="<csrf:tokenvalue/>"/>
     <script src="/JavaScriptServlet"></script>
+    <link rel="stylesheet" href="/cm/modern/assets/perc-modern-ui.css"/>
     <script type="module" src="/cm/modern/assets/perc-modern-ui.js"></script>
     <style>html, body { margin: 0; padding: 0; }</style>
 </head>
