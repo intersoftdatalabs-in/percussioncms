@@ -1,3 +1,0 @@
-# Local install artifacts only — package.json / package-lock.json are shared
-node_modules/
-bun.lock
