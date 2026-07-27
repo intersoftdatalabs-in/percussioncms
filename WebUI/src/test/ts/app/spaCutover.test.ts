@@ -15,21 +15,56 @@
  * limitations under the License.
  */
 
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { describe, expect, it } from "vitest";
 
-const appIndex = resolve(__dirname, "../../../main/webapp/cm/app/index.jsp");
-const pagesIndex = resolve(
-  __dirname,
-  "../../../main/webapp/cm/pages/app/index.jsp",
-);
+const webappRoot = resolve(__dirname, "../../../main/webapp");
+const appIndex = resolve(webappRoot, "cm/app/index.jsp");
+const pagesIndex = resolve(webappRoot, "cm/pages/app/index.jsp");
 
 function read(path: string): string {
   return readFileSync(path, "utf8");
 }
 
-describe("PR-5 aggressive index.jsp SPA cutover", () => {
+/** Product host JSPs deleted in PR-8 (SPA owns these surfaces). */
+const DELETED_PRODUCT_HOSTS = [
+  "cm/app/homeModern.jsp",
+  "cm/app/publishModern.jsp",
+  "cm/app/adminModern.jsp",
+  "cm/app/adminWorkflowModern.jsp",
+  "cm/app/widgetBuilderModern.jsp",
+  "cm/app/unavailableModern.jsp",
+  "cm/app/explorerModern.jsp",
+  "cm/pages/app/homeModern.jsp",
+  "cm/pages/app/publishModern.jsp",
+  "cm/pages/app/widgetBuilderModern.jsp",
+  "cm/pages/app/unavailableModern.jsp",
+  "cm/pages/app/explorerModern.jsp",
+  "cm/app/includes/retired_modern_redirect.jsp",
+  "cm/pages/app/includes/retired_modern_redirect.jsp",
+  "cm/app/includes/modern_shell_head.jsp",
+  "rxlogin-classic.jsp",
+] as const;
+
+/** Residual bridge dialog hosts (must remain). assetPicker is app-tree only. */
+const RESIDUAL_BRIDGE_HOSTS = [
+  "cm/app/assetPickerModern.jsp",
+  "cm/app/pagePickerModern.jsp",
+  "cm/app/folderPickerModern.jsp",
+  "cm/app/folderSecurityModern.jsp",
+  "cm/app/searchModern.jsp",
+  "cm/app/actionMenuModern.jsp",
+  "cm/app/us7AdvancedModern.jsp",
+  "cm/pages/app/pagePickerModern.jsp",
+  "cm/pages/app/folderPickerModern.jsp",
+  "cm/pages/app/folderSecurityModern.jsp",
+  "cm/pages/app/searchModern.jsp",
+  "cm/pages/app/actionMenuModern.jsp",
+  "cm/pages/app/us7AdvancedModern.jsp",
+] as const;
+
+describe("PR-5 aggressive index.jsp SPA cutover (retained)", () => {
   it("maps modern views to spa.jsp?entry= (not *Modern.jsp product hosts)", () => {
     for (const indexPath of [appIndex, pagesIndex]) {
       const text = read(indexPath);
@@ -84,65 +119,61 @@ describe("PR-5 aggressive index.jsp SPA cutover", () => {
     expect(text).not.toMatch(/legacyViews\.put\("dash",\s*"dashboard\.jsp"\)/);
   });
 
-  it("retired_modern_redirect only re-forwards params buildSpaEntryRedirect consumes", () => {
-    const redirect = read(
-      resolve(
-        __dirname,
-        "../../../main/webapp/cm/app/includes/retired_modern_redirect.jsp",
-      ),
-    );
-    expect(redirect).toContain('"initialScreen"');
-    expect(redirect).toContain('"section"');
-    expect(redirect).toContain('"tab"');
-    expect(redirect).toContain('"siteId"');
-    expect(redirect).toContain('"serverId"');
-    // Intentionally not re-forwarded (Kilo #1531): not mapped for these SPA entries
-    expect(redirect).not.toMatch(/"path"\s*,/);
-    expect(redirect).not.toMatch(/"site"\s*\]/);
-  });
-
   it("dual-tree index.jsp files stay aligned for SPA cutover", () => {
     expect(read(appIndex)).toBe(read(pagesIndex));
   });
+});
 
-  it("retired *Modern.jsp product hosts re-enter dispatcher", () => {
-    const hosts = [
-      "homeModern.jsp",
-      "publishModern.jsp",
-      "adminModern.jsp",
-      "adminWorkflowModern.jsp",
-      "widgetBuilderModern.jsp",
-      "unavailableModern.jsp",
-    ];
-    for (const name of hosts) {
-      const path = resolve(
-        __dirname,
-        `../../../main/webapp/cm/app/${name}`,
-      );
-      const text = read(path);
-      expect(text).toContain("retired_modern_redirect.jsp");
-      expect(text).toContain("retiredModernView");
-      expect(text).not.toContain("PercModernUI.mount");
+describe("PR-8 delete obsolete product host JSPs", () => {
+  it("retired product *Modern.jsp shells and classic login are gone", () => {
+    for (const rel of DELETED_PRODUCT_HOSTS) {
+      expect(existsSync(resolve(webappRoot, rel)), rel).toBe(false);
     }
   });
 
-  it("explorerModern.jsp redirects to spa.jsp?entry=explorer (dual-tree aligned)", () => {
-    const appExplorer = resolve(
-      __dirname,
-      "../../../main/webapp/cm/app/explorerModern.jsp",
+  it("residual bridge dialog/legacy hosts remain", () => {
+    for (const rel of RESIDUAL_BRIDGE_HOSTS) {
+      expect(existsSync(resolve(webappRoot, rel)), rel).toBe(true);
+    }
+  });
+
+  it("spa.jsp remains the authenticated SPA document (dual-tree aligned)", () => {
+    const appSpa = resolve(webappRoot, "cm/app/spa.jsp");
+    const pagesSpa = resolve(webappRoot, "cm/pages/app/spa.jsp");
+    expect(existsSync(appSpa)).toBe(true);
+    expect(existsSync(pagesSpa)).toBe(true);
+    expect(read(appSpa)).toBe(read(pagesSpa));
+    // SPA boot root (index.ts accepts perc-spa-root / root / perc-app-root)
+    expect(read(appSpa)).toContain("perc-spa-root");
+  });
+
+  it("rxlogin.jsp remains the React login host", () => {
+    const login = resolve(webappRoot, "rxlogin.jsp");
+    expect(existsSync(login)).toBe(true);
+    const text = read(login);
+    expect(text).toContain("perc-login-root");
+    // Classic host file is gone; comment may still mention the name historically
+    expect(existsSync(resolve(webappRoot, "rxlogin-classic.jsp"))).toBe(false);
+  });
+
+  it("security conf no longer grants anonymous to deleted classic login", () => {
+    const conf = resolve(
+      webappRoot,
+      "WEB-INF/config/security/system-security-conf.xml",
     );
-    const pagesExplorer = resolve(
-      __dirname,
-      "../../../main/webapp/cm/pages/app/explorerModern.jsp",
-    );
-    const appText = read(appExplorer);
-    const pagesText = read(pagesExplorer);
-    expect(appText).toBe(pagesText);
-    expect(appText).toContain("spa.jsp?entry=explorer");
-    expect(appText).toContain("sendRedirect");
-    expect(appText).toContain("explorerPathHasParentSegment");
-    expect(appText).not.toContain("PercModernUI.mount");
-    // Segment-aware traversal (not contains(".."))
-    expect(appText).not.toMatch(/contains\s*\(\s*"\.\."\s*\)/);
+    const text = read(conf);
+    expect(text).toContain("/rxlogin.jsp");
+    expect(text).not.toContain("rxlogin-classic.jsp");
+  });
+
+  it("actionMenu residual host opens SPA explorer (not deleted explorerModern)", () => {
+    const appMenu = resolve(webappRoot, "cm/app/actionMenuModern.jsp");
+    const pagesMenu = resolve(webappRoot, "cm/pages/app/actionMenuModern.jsp");
+    for (const path of [appMenu, pagesMenu]) {
+      const text = read(path);
+      expect(text).toContain("/cm/app/spa.jsp?entry=explorer");
+      expect(text).not.toContain("explorerModern.jsp");
+    }
+    expect(read(appMenu)).toBe(read(pagesMenu));
   });
 });

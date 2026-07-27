@@ -7,8 +7,8 @@
 <%@ taglib uri="http://www.owasp.org/index.php/Category:OWASP_CSRFGuard_Project/Owasp.CsrfGuard.tld" prefix="csrf" %>
 <%--
   React Login SPA host (product front door).
-  Classic markup retained as reference: rxlogin-classic.jsp
   Auth remains POST /login — this page hosts the React UI + XSS-safe bootstrap.
+  Classic markup (rxlogin-classic.jsp) was removed in PR-8.
 --%>
 <%!
     private static String jsonString(String s) {

@@ -100,9 +100,9 @@ const SHELLS = [
     expectModernShell: true,
   },
   {
-    name: "explorerModern (dedicated modern entry point)",
-    path: "/Rhythmyx/cm/app/explorerModern.jsp",
-    asserted: true, // T024 complete on 2026-07-19
+    name: "SPA explorer (spa.jsp?entry=explorer)",
+    path: "/Rhythmyx/cm/app/spa.jsp?entry=explorer",
+    asserted: true, // T024 complete on 2026-07-19; PR-8 product host removed
     expectModernShell: true,
   },
 ];
@@ -120,7 +120,9 @@ test.describe("US6 hard cut — no miller-column Finder chrome (SC-006)", () => 
       : `${shell.name} (${shell.path}) [PENDING — cutover in progress]`;
 
     testFn(testName, async ({ page }) => {
-      await page.goto(`${BASE_URL}${shell.path}?_=${Date.now()}`, {
+      // Paths may already include query (e.g. spa.jsp?entry=explorer).
+      const sep = shell.path.includes("?") ? "&" : "?";
+      await page.goto(`${BASE_URL}${shell.path}${sep}_=${Date.now()}`, {
         waitUntil: "networkidle",
       });
 
@@ -170,11 +172,12 @@ test.describe("US6 hard cut — cutover inventory evidence (FR-022)", () => {
     // a11y regressions. A failing test here is a release-blocker for
     // SC-009 (a11y) and SC-012 (FR-029 parity).
     await page.goto(
-      `${BASE_URL}/Rhythmyx/cm/app/explorerModern.jsp?_=${Date.now()}`,
+      `${BASE_URL}/Rhythmyx/cm/app/spa.jsp?entry=explorer&_=${Date.now()}`,
       { waitUntil: "networkidle" }
     );
     await expectNoSeriousA11yViolations(page, {
-      scope: '[id="perc-modern-ui-mount"], [data-testid="explorer-tree"]',
+      scope:
+        '[data-testid="content-explorer-shell"], [data-testid="explorer-tree"]',
     });
   });
 });

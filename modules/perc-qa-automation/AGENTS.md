@@ -249,13 +249,13 @@ cp WebUI/target/generated-webui/cm/modern/assets/perc-modern-ui.js \
 # add a cache-buster to the test URL to force a fresh fetch.)
 ```
 
-**JSP-only changes** (e.g. new `explorerModern.jsp` page): copy the file to the runtime webapp, no build. Jetty serves the new JSP on the next request.
+**JSP-only changes** (e.g. residual dialog hosts or `spa.jsp`): copy the file to the runtime webapp, no build. Jetty serves the new JSP on the next request. Product explorer entry is `spa.jsp?entry=explorer` (PR-8 removed `explorerModern.jsp`).
 
 **Test URL cache-buster** (when the CMS-side bundle changes):
 
 ```javascript
 // in helpers/auth.js or the spec
-const EXPLORER_URL = `${BASE_URL}/Rhythmyx/cm/app/explorerModern.jsp?_=${Date.now()}`;
+const EXPLORER_URL = `${BASE_URL}/Rhythmyx/cm/app/spa.jsp?entry=explorer&_=${Date.now()}`;
 ```
 
 This avoids the browser caching the previous bundle across spec reruns.

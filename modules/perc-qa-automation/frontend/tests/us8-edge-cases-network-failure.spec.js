@@ -44,7 +44,7 @@
 const { test, expect } = require("@playwright/test");
 const { loginAsAdmin, BASE_URL } = require("./helpers/auth");
 
-const EXPLORER_URL = `${BASE_URL}/Rhythmyx/cm/app/explorerModern.jsp?_=${Date.now()}`;
+const EXPLORER_URL = `${BASE_URL}/Rhythmyx/cm/app/spa.jsp?entry=explorer&_=${Date.now()}`;
 
 test.describe("T092e / Edge Cases #11 — network failure mid-action", () => {
   test.setTimeout(120_000);
