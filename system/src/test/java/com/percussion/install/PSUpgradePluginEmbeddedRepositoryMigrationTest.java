@@ -50,6 +50,9 @@ public class PSUpgradePluginEmbeddedRepositoryMigrationTest {
     assertEquals(PSPluginResponse.EXCEPTION, blocked.getType());
     assertTrue(
         blocked.getMessage().contains(PSRepositoryBackupGate.EXTERNAL_BACKUP_CONFIRMED_PROPERTY));
+    assertTrue(
+        blocked.getMessage().toLowerCase().contains("automatically"),
+        "blocked message should mention automatic product offline backup: " + blocked.getMessage());
 
     PSPluginResponse failed =
         PSUpgradePluginEmbeddedRepositoryMigration.mapOutcome(PSMigrationOutcome.FAILED);

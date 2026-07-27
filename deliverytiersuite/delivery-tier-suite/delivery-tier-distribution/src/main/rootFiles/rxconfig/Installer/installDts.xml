@@ -92,6 +92,19 @@
 		<echo>Property configuration..</echo>
 		<echoproperties />
 
+		<!-- Hard offline gate: refuse install/upgrade while DTS Tomcat is running -->
+		<echo>Checking for running DTS (Production)...</echo>
+		<PSCheckRunningDtsServer rootDir="${install.dir}" />
+		<if>
+			<available
+				file="${install.dir}/Staging/Deployment/Server/conf/server.xml"
+				type="file" />
+			<then>
+				<echo>Checking for running DTS (Staging)...</echo>
+				<PSCheckRunningDtsServer rootDir="${install.dir}/Staging" />
+			</then>
+		</if>
+
 		<if>
 			<isset property="${isMac}" />
 			<then>

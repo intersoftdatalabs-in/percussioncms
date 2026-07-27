@@ -831,46 +831,134 @@ public class InstallUtil {
     return false;
   }
 
+  /**
+   * Whether a DTS Tomcat instance appears to be running under {@code dirName}.
+   *
+   * <p>Reads connector (and optional Server shutdown) ports from {@code
+   * Deployment/Server/conf/server.xml}. Product DTS configs use {@code ${http.port}} style
+   * placeholders resolved from {@code Deployment/Server/conf/perc/perc-catalina.properties}.
+   *
+   * @param dirName DTS install root (or Staging root that contains {@code Deployment/Server})
+   * @return {@code true} if any resolved connector/shutdown port is bound
+   */
   public static boolean checkTomcatServerRunning(String dirName) {
-    boolean isRunning = false;
-    String pathToServerConf =
-        dirName
-            + File.separator
-            + "Deployment"
-            + File.separator
-            + "Server"
-            + File.separator
-            + "conf"
-            + File.separator
-            + "server.xml";
     if (dirName == null || dirName.length() == 0)
       throw new IllegalArgumentException("install location may not be " + "null or empty");
 
-    DocumentBuilder docBuilder;
+    Path confDir =
+        Path.of(dirName).resolve("Deployment").resolve("Server").resolve("conf");
+    Path pathToServerConf = confDir.resolve("server.xml");
+    if (!Files.isRegularFile(pathToServerConf)) {
+      return false;
+    }
+
+    Properties catalinaProps = loadDtsCatalinaProperties(confDir);
+
     try {
       var docBuilderFactory =
           PSSecureXMLUtils.getSecuredDocumentBuilderFactory(PSXmlSecurityOptions.secureWithDtd());
-      docBuilder = docBuilderFactory.newDocumentBuilder();
-      Document doc = docBuilder.parse(new File(pathToServerConf));
+      DocumentBuilder docBuilder = docBuilderFactory.newDocumentBuilder();
+      Document doc = docBuilder.parse(pathToServerConf.toFile());
+
+      // Connector ports (HTTP/HTTPS) — primary signal that DTS is accepting traffic
       NodeList connectorList = doc.getElementsByTagName("Connector");
-      int i = 0;
-      while (i < connectorList.getLength()) {
-        NamedNodeMap serverAttributes = connectorList.item(i).getAttributes();
-        Node portNode = serverAttributes.getNamedItem("port");
-        if (portNode != null) {
-          String port = portNode.getTextContent();
-          isRunning = !portAvailable(Integer.parseInt(port));
-          if (isRunning) {
-            i = connectorList.getLength();
+      for (int i = 0; i < connectorList.getLength(); i++) {
+        NamedNodeMap attrs = connectorList.item(i).getAttributes();
+        if (attrs == null) {
+          continue;
+        }
+        Node portNode = attrs.getNamedItem("port");
+        if (portNode == null) {
+          continue;
+        }
+        Integer port = resolveTomcatPortToken(portNode.getTextContent(), catalinaProps);
+        if (port != null && !portAvailable(port)) {
+          return true;
+        }
+      }
+
+      // Server shutdown port as secondary signal
+      NodeList serverList = doc.getElementsByTagName("Server");
+      if (serverList.getLength() > 0) {
+        NamedNodeMap attrs = serverList.item(0).getAttributes();
+        if (attrs != null) {
+          Node portNode = attrs.getNamedItem("port");
+          if (portNode != null) {
+            Integer port = resolveTomcatPortToken(portNode.getTextContent(), catalinaProps);
+            if (port != null && !portAvailable(port)) {
+              return true;
+            }
           }
         }
-        i++;
       }
     } catch (Exception ex) {
-      isRunning = false;
+      logError("DTS running check failed: " + ex.getMessage());
+      return false;
     }
 
-    return isRunning;
+    return false;
+  }
+
+  /**
+   * Load DTS Catalina property placeholders used in server.xml (portable path join).
+   *
+   * @param confDir {@code Deployment/Server/conf}
+   * @return properties; never null (empty when file missing)
+   */
+  static Properties loadDtsCatalinaProperties(Path confDir) {
+    Properties props = new Properties();
+    if (confDir == null) {
+      return props;
+    }
+    Path catalina = confDir.resolve("perc").resolve("perc-catalina.properties");
+    if (!Files.isRegularFile(catalina)) {
+      return props;
+    }
+    try (InputStream in = Files.newInputStream(catalina)) {
+      props.load(in);
+    } catch (IOException e) {
+      logError("Unable to load DTS perc-catalina.properties: " + e.getMessage());
+    }
+    return props;
+  }
+
+  /**
+   * Resolve a Tomcat port attribute: bare integer or {@code ${property.name}} from catalina props.
+   *
+   * @param raw attribute text; may be null
+   * @param catalinaProps property bag for placeholders; may be empty
+   * @return port number, or null if not resolvable
+   */
+  static Integer resolveTomcatPortToken(String raw, Properties catalinaProps) {
+    if (raw == null) {
+      return null;
+    }
+    String token = raw.trim();
+    if (token.isEmpty()) {
+      return null;
+    }
+    if (token.startsWith("${") && token.endsWith("}") && token.length() > 3) {
+      String key = token.substring(2, token.length() - 1).trim();
+      if (catalinaProps != null) {
+        String resolved = catalinaProps.getProperty(key);
+        if (resolved != null) {
+          token = resolved.trim();
+        } else {
+          return null;
+        }
+      } else {
+        return null;
+      }
+    }
+    try {
+      int port = Integer.parseInt(token);
+      if (port < 1 || port > 65535) {
+        return null;
+      }
+      return port;
+    } catch (NumberFormatException e) {
+      return null;
+    }
   }
 
   /**

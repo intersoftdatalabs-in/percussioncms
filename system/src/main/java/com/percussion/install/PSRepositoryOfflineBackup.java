@@ -37,6 +37,13 @@ import java.util.logging.Logger;
  * <p>Uses portable NIO path APIs only (AGENTS cross-platform rules). Caller must ensure the
  * instance is stopped before invoking. When engine lock markers are present, {@link
  * #copyRepositoryTree} refuses by default (T088 / FR-020).
+ *
+ * <p>Upgrade-driven FR-018a product backup (CMS/DTS migrators after a confirmed-offline server
+ * check) clears stale Derby/H2 lock markers from the live tree, then copies with {@code
+ * refuseIfLive=false}. Lock markers are never included in the backup artifact so a restore does
+ * not reintroduce files that can block clean startup. Direct operator tools should keep the
+ * default refuse-if-live behavior unless they have independently confirmed the instance is
+ * offline and call {@link #clearStaleLiveMarkers(Path)}.
  */
 public final class PSRepositoryOfflineBackup {
 
@@ -62,6 +69,7 @@ public final class PSRepositoryOfflineBackup {
   /**
    * Copy repository data directory and optional companion config files into {@code backupRoot}.
    * Refuses when the repository appears live unless {@link #ALLOW_LIVE_BACKUP_PROPERTY} is set.
+   * Engine lock marker files are never copied into the backup tree.
    *
    * @param repositoryDir live repository data directory (source)
    * @param backupRoot destination directory (created if missing)
@@ -128,6 +136,23 @@ public final class PSRepositoryOfflineBackup {
   }
 
   /**
+   * Whether a file name is a known Derby/H2 engine lock marker (not durable repository data).
+   *
+   * @param fileName file name only (not a path); may be null
+   * @return true for {@code db.lck}, {@code dbex.lck}, {@code *.lck}, {@code *.lock.db}
+   */
+  public static boolean isLiveMarkerFileName(String fileName) {
+    if (fileName == null || fileName.isBlank()) {
+      return false;
+    }
+    String name = fileName.toLowerCase(Locale.ROOT);
+    return name.equals("db.lck")
+        || name.equals("dbex.lck")
+        || name.endsWith(".lck")
+        || name.endsWith(".lock.db");
+  }
+
+  /**
    * Heuristic live-instance detection for offline backup (T088 / FR-020).
    *
    * <p>Looks for common Derby/H2 engine lock marker file names under the repository tree. Presence
@@ -149,16 +174,51 @@ public final class PSRepositoryOfflineBackup {
       walk.filter(Files::isRegularFile)
           .forEach(
               p -> {
-                String name = p.getFileName().toString().toLowerCase(Locale.ROOT);
-                if (name.equals("db.lck")
-                    || name.endsWith(".lck")
-                    || name.endsWith(".lock.db")
-                    || name.equals("dbex.lck")) {
+                if (isLiveMarkerFileName(p.getFileName().toString())) {
                   markers.add(p);
                 }
               });
     }
     return List.copyOf(markers);
+  }
+
+  /**
+   * Delete engine lock marker files under a repository tree after the instance has been confirmed
+   * offline.
+   *
+   * <p>Stale markers left after an unclean stop can block Derby/H2 open, migration pump, and a
+   * later restore of a backup that still contained them. Call only when process/port checks (or
+   * equivalent) already show the service is stopped — never as a substitute for stopping a live
+   * engine.
+   *
+   * @param repositoryDir repository data directory
+   * @return absolute paths that were removed; empty if none found
+   * @throws IOException if a marker could not be deleted
+   */
+  public static List<Path> clearStaleLiveMarkers(Path repositoryDir) throws IOException {
+    Objects.requireNonNull(repositoryDir, "repositoryDir");
+    List<Path> found = findLiveMarkers(repositoryDir);
+    if (found.isEmpty()) {
+      return List.of();
+    }
+    List<Path> removed = new ArrayList<>(found.size());
+    for (Path marker : found) {
+      try {
+        if (Files.deleteIfExists(marker)) {
+          removed.add(marker.toAbsolutePath().normalize());
+        }
+      } catch (IOException e) {
+        throw new IOException(
+            "Failed to remove stale engine lock marker (confirm instance is stopped): " + marker,
+            e);
+      }
+    }
+    if (!removed.isEmpty()) {
+      LOG.warning(
+          "Removed stale engine lock markers after offline confirmation (not durable data): "
+              + removed);
+    }
+    return List.copyOf(removed);
   }
 
   /**
@@ -215,6 +275,10 @@ public final class PSRepositoryOfflineBackup {
           @Override
           public FileVisitResult visitFile(Path file, BasicFileAttributes attrs)
               throws IOException {
+            // Never archive engine lock markers — restore of those can block clean startup.
+            if (isLiveMarkerFileName(file.getFileName().toString())) {
+              return FileVisitResult.CONTINUE;
+            }
             Path fileAbs = file.toRealPath();
             if (!fileAbs.startsWith(sourceAbs)) {
               return FileVisitResult.CONTINUE;

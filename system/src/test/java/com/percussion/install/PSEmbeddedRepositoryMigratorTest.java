@@ -123,6 +123,66 @@ public class PSEmbeddedRepositoryMigratorTest {
     assertEquals(PSBackupGateKind.PRODUCT_BACKUP, report.backupGate());
   }
 
+  /**
+   * Upgrade auto product backup (FR-018a) must succeed when the instance is offline even if stale
+   * Derby lock markers remain from an unclean prior stop — those markers must not require {@code
+   * perc.migration.externalBackupConfirmed}. Live locks are cleared and omitted from the backup
+   * artifact so restore cannot reintroduce startup blockers.
+   */
+  @Test
+  void autoProductBackupClearsStaleLockMarkersWhenOffline() throws Exception {
+    writeRepo(
+        """
+        DB_BACKEND=DERBY
+        DB_DRIVER_NAME=derby
+        DB_DRIVER_CLASS_NAME=org.apache.derby.jdbc.EmbeddedDriver
+        DB_SERVER=CMDB;create=true
+        """);
+    Path cmdb = installRoot.resolve("Repository").resolve("CMDB");
+    Files.createDirectories(cmdb);
+    Files.writeString(cmdb.resolve("seg0"), "data", StandardCharsets.UTF_8);
+    Files.writeString(cmdb.resolve("db.lck"), "stale", StandardCharsets.UTF_8);
+    Files.writeString(cmdb.resolve("dbex.lck"), "stale", StandardCharsets.UTF_8);
+
+    PSMigrationOutcome outcome =
+        new PSEmbeddedRepositoryMigrator(installRoot, new Properties(), false, null, true)
+            .migrate();
+
+    // Gate must open via product backup; source is not a real Derby store so pump fails safely.
+    assertEquals(PSMigrationOutcome.FAILED, outcome);
+    PSMigrationReportWriter.Report report =
+        PSMigrationReportWriter.read(
+            PSMigrationReportWriter.reportPath(
+                installRoot, PSEmbeddedRepositoryMigrator.COMPONENT_CMS));
+    assertEquals(PSBackupGateKind.PRODUCT_BACKUP, report.backupGate());
+    assertNotNull(report.failureReason());
+    assertFalse(
+        report.failureReason().toLowerCase().contains("backup gate not satisfied"),
+        "must not block on backup gate when offline auto-backup ran: " + report.failureReason());
+
+    // Live source locks cleared for subsequent open/restore cleanliness
+    assertFalse(Files.exists(cmdb.resolve("db.lck")));
+    assertFalse(Files.exists(cmdb.resolve("dbex.lck")));
+    assertTrue(Files.isRegularFile(cmdb.resolve("seg0")));
+
+    // Product backup tree exists and must not contain lock markers
+    Path backupParent = installRoot.resolve("PreInstall").resolve("migration-backup");
+    assertTrue(Files.isDirectory(backupParent), "migration-backup dir expected");
+    try (var backups = Files.list(backupParent)) {
+      Path backupDir =
+          backups
+              .filter(Files::isDirectory)
+              .findFirst()
+              .orElseThrow(() -> new AssertionError("at least one product backup timestamp dir"));
+      assertTrue(
+          PSRepositoryOfflineBackup.findLiveMarkers(backupDir).isEmpty(),
+          "backup must not archive engine lock markers");
+      assertTrue(
+          Files.isRegularFile(backupDir.resolve("repository-data").resolve("seg0")),
+          "repository data must still be backed up");
+    }
+  }
+
   @Test
   void detectsClientDriverAsDerby() {
     Properties p = new Properties();
