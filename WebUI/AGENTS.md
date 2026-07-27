@@ -60,7 +60,7 @@ These are **not** peer product UIs. Agents may touch them only for security/hotf
 | Layer | Tech | Policy |
 |-------|------|--------|
 | Residual bridge dialogs / embeds | React via `PercModernUI.mount` on old JSPs | Delete when SPA owns the job; **no new mounts** |
-| WebUI legacy pages | jQuery / Backbone | No new features |
+| WebUI legacy pages | jQuery / Backbone | No new features; **never** depend on from `src/main/ts` |
 | Contributor UI leftovers | Knockout | No new features |
 | Active Assembly / residual `ps.*` | Historical Dojo-shaped code + shims | No new Dojo; replace with React when editor wave runs |
 | Package Manager | GWT | Legacy until React wave |
@@ -139,6 +139,7 @@ cp WebUI/target/generated-webui/cm/modern/assets/perc-modern-ui.css \
 - Styles: CSS modules preferred; theme tokens via `ui-themes`
 - Tests: Vitest for non-trivial logic; update tests with every behavior change
 - SPA routing: `app/routes.tsx` + deep-link allowlists; server entry allowlists stay in lockstep
+- **No jQuery** — see product lock #2. If a legacy page used `$('…')` or FancyTree, reimplement in React or use a non-jQuery primitive.
 
 ### Java (WebUI)
 
@@ -150,6 +151,7 @@ cp WebUI/target/generated-webui/cm/modern/assets/perc-modern-ui.css \
 - **Do not** add product features
 - **Do not** add Dojo
 - **Do not** add new `PercModernUI.mount` hosts
+- **Do not** pull jQuery into the modern SPA bundle or TS sources
 - Security/hotfix only, or delete after React acceptance
 
 ---
@@ -182,8 +184,9 @@ Follow the **screen checklist** in the unified UI plan. Home must pass on a **re
 | Ship SPA React features | Dual-mode / classic peer UIs |
 | Fix Home until functional | Declare “done” because shell renders |
 | Delete obsolete hosts after acceptance | New bridge product pages |
-| Align allowlists (TS + JSP/filter) | New Dojo / Knockout / jQuery product code |
-| Document acceptance evidence | Invent REST APIs without checking existing `api/` + `rest` module |
+| Align allowlists (TS + JSP/filter) | **jQuery / `$` / jQuery plugins in `src/main/ts` or modern bundle** |
+| Document acceptance evidence | New Dojo / Knockout product code |
+| Typed `api/*` + React UI | Wrap jQuery widgets in React “for speed” |
 
 ---
 

@@ -147,17 +147,19 @@ Same rule: **feature checklist per screen**, then delete legacy peer.
 ### DO
 
 - Implement features in **React + TypeScript** under `WebUI/src/main/ts/`.
-- Use SPA routes and existing REST + CSRF + TMX patterns.
+- Use SPA routes and existing REST + CSRF + TMX patterns (**no jQuery**).
 - For each screen: **acceptance checklist** + Vitest for non-trivial logic + real CMS smoke.
 - Prefer fixing broken SPA behavior over wiring another jQuery page.
-- After a surface is **Accepted**, delete obsolete hosts/scripts for that surface in the same or immediate follow-up PR.
+- After a surface is **Accepted**, delete obsolete hosts/scripts (including jQuery packs for that surface) in the same or immediate follow-up PR.
 
 ### DO NOT
 
 - Add dual-mode flags or “keep classic as production peer.”
 - Add new `PercModernUI.mount` product pages.
+- **Import or depend on jQuery from the SPA / modern bundle / `src/main/ts`.**
+- Wrap jQuery widgets in React or call `$.perc_*` from TypeScript.
 - Add new Dojo or new Knockout features.
-- Expand jQuery except critical security/hotfix on a surface not yet replaced.
+- Expand jQuery except critical security/hotfix on a **legacy** surface not yet replaced.
 - Call a route “done” because the shell renders.
 
 ### Residual bridge / legacy code
@@ -218,9 +220,10 @@ Infra PRs (login shell, cutover, path URLs) stay; **value is measured by accepte
 | ID | Decision |
 |----|----------|
 | KD-R1 | Product UI = React + TypeScript SPA only |
-| KD-R2 | No dual mode / no soft feature-flag cutover |
-| KD-R3 | No new PercModernUI product hosts |
-| KD-R4 | Shell ≠ done; feature acceptance required |
-| KD-R5 | Home first, then Publish → Explorer → Admin → Workflow → WB |
-| KD-R6 | Track A Dojo→jQuery as product strategy is retired; vendor Dojo already gone |
-| KD-R7 | Server redirects stay query `entry` contract; client uses path URLs |
+| KD-R2 | **No jQuery in the new UI** (modern bundle / `src/main/ts`); jQuery is delete-bound legacy only |
+| KD-R3 | No dual mode / no soft feature-flag cutover |
+| KD-R4 | No new PercModernUI product hosts |
+| KD-R5 | Shell ≠ done; feature acceptance required |
+| KD-R6 | Home first, then Publish → Explorer → Admin → Workflow → WB |
+| KD-R7 | Track A Dojo→jQuery as product strategy is retired; vendor Dojo already gone |
+| KD-R8 | Server redirects stay query `entry` contract; client uses path URLs |
