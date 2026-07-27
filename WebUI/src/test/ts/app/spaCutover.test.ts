@@ -103,4 +103,24 @@ describe("PR-5 aggressive index.jsp SPA cutover", () => {
       expect(text).not.toContain("PercModernUI.mount");
     }
   });
+
+  it("explorerModern.jsp redirects to spa.jsp?entry=explorer (dual-tree aligned)", () => {
+    const appExplorer = resolve(
+      __dirname,
+      "../../../main/webapp/cm/app/explorerModern.jsp",
+    );
+    const pagesExplorer = resolve(
+      __dirname,
+      "../../../main/webapp/cm/pages/app/explorerModern.jsp",
+    );
+    const appText = read(appExplorer);
+    const pagesText = read(pagesExplorer);
+    expect(appText).toBe(pagesText);
+    expect(appText).toContain("spa.jsp?entry=explorer");
+    expect(appText).toContain("sendRedirect");
+    expect(appText).toContain("explorerPathHasParentSegment");
+    expect(appText).not.toContain("PercModernUI.mount");
+    // Segment-aware traversal (not contains(".."))
+    expect(appText).not.toMatch(/contains\s*\(\s*"\.\."\s*\)/);
+  });
 });

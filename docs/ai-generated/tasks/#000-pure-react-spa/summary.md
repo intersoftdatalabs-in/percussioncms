@@ -42,8 +42,8 @@
 2. App shell + TopNav + entry query + 401→Login — **done** (#1526)  
 3. Home + Publish routes (embedded shells) — **done** (#1527); **Home is default landing**  
 4. Workflow + Admin + Widget Builder — **done** (#1528)  
-5. Aggressive `index.jsp` cutover — **in progress** (`feat/000-react-spa-pr5-index-cutover`): modern `?view=` → `spa.jsp?entry=…`; `*Modern.jsp` retired hosts  
-6. Explorer  
+5. Aggressive `index.jsp` cutover — **done** (#1531); includes login CSS load fix  
+6. Explorer SPA route + residual bridge doc — **in review** (#1533)  
 7. **Home + gadgets:** fold React Dashboard **widgets into Home** (not a peer `/dashboard` SPA). Legacy jQuery dash remains temporary exit until then.  
 8. Delete obsolete JSPs  
 9. Optional path URLs  

@@ -1,68 +1,50 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
-<%@ page import="com.percussion.services.utils.jspel.PSRoleUtilities" %>
-<%@ taglib uri="/WEB-INF/tmxtags.tld" prefix="i18n" %>
-<%@ taglib uri="http://www.owasp.org/index.php/Category:OWASP_CSRFGuard_Project/Owasp.CsrfGuard.tld" prefix="csrf" %>
+<%--
+  PR-6: retired product host. Content Explorer is the SPA route
+  spa.jsp?entry=explorer. Re-enter SPA query contract (proxyURL-aware).
+
+  Path allowlist MUST stay in lockstep with
+  WebUI/src/main/ts/app/deepLinks/allowlists.ts (EXPLORER_PATH_RE +
+  normalizeExplorerPath). ASCII charset only for deep-link query safety;
+  reject ".." as a path *segment* (not the substring ".." inside a name).
+--%>
+<%@ page import="com.percussion.server.PSServer" %>
+<%@ page import="java.net.URLEncoder" %>
 <%
-    String locale = PSRoleUtilities.getUserCurrentLocale();
-    String lang = "en";
-    if (locale == null) {
-        locale = "en-us";
-    } else if (locale.contains("-")) {
-        lang = locale.split("-")[0];
-    } else {
-        lang = locale;
+    String proxyURL = "";
+    if (PSServer.isRequestBehindProxy(request)) {
+        proxyURL = PSServer.getProxyURL(request, true);
     }
-    String debug = request.getParameter("debug");
-    if (debug == null) {
-        debug = "false";
+    StringBuilder url = new StringBuilder();
+    url.append(proxyURL).append("/cm/app/spa.jsp?entry=explorer");
+    String rawPath = request.getParameter("path");
+    if (rawPath == null || rawPath.isBlank()) {
+        rawPath = request.getParameter("initialPath");
     }
-    // initialPath query parameter is forwarded to the modern shell so tests
-    // and deep links can land on a specific folder. Must be a plain relative
-    // path beginning with "/" — strip everything else to avoid reflected XSS
-    // (the value is echoed as a string literal into the inline mount call).
-    String initialPath = "";
-    String rawInitialPath = request.getParameter("initialPath");
-    if (rawInitialPath != null && rawInitialPath.startsWith("/")
-            && rawInitialPath.length() < 2048
-            && rawInitialPath.matches("[/A-Za-z0-9._-]+")) {
-        initialPath = rawInitialPath;
+    if (rawPath != null
+            && rawPath.startsWith("/")
+            && rawPath.length() < 2048
+            && rawPath.matches("[/A-Za-z0-9._-]+")
+            && !explorerPathHasParentSegment(rawPath)) {
+        url.append("&path=").append(URLEncoder.encode(rawPath, "UTF-8"));
+    }
+    response.setHeader("Pragma", "no-cache");
+    response.setHeader("Cache-Control", "no-cache");
+    response.setDateHeader("Expires", 0);
+    response.sendRedirect(url.toString());
+%>
+<%!
+    /** True if any path segment is ".." (traversal). Allows "foo..bar" names. */
+    private static boolean explorerPathHasParentSegment(String path) {
+        if (path == null || path.isEmpty()) {
+            return false;
+        }
+        String[] segments = path.split("/", -1);
+        for (int i = 0; i < segments.length; i++) {
+            if ("..".equals(segments[i])) {
+                return true;
+            }
+        }
+        return false;
     }
 %>
-<i18n:settings lang="<%= locale %>" prefixes="perc.ui." debug="<%= debug %>"/>
-<!DOCTYPE html>
-<html lang="<%= lang %>">
-<head>
-    <title><i18n:message key="perc.ui.explorer@Content Explorer"/></title>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <%@include file="includes/common_meta.jsp" %>
-    <%@include file="includes/modern_shell_head.jsp" %>
-    <script src="/tmx/tmx.jsp?mode=js&amp;prefix=perc.ui.&amp;sys_lang=<%= locale %>"></script>
-    <script type="module" src="/cm/modern/assets/perc-modern-ui.js"></script>
-</head>
-<body>
-<div class="perc-main">
-    <jsp:include page="includes/header.jsp" flush="true">
-        <jsp:param name="mainNavTab" value="home"/>
-    </jsp:include>
-</div>
-<div id="perc-explorer-modern-root" data-testid="perc-explorer-modern-root" style="margin-top: 48px;"></div>
-<script>
-    (function () {
-        function mountExplorer() {
-            if (!window.PercModernUI || typeof window.PercModernUI.mount !== "function") {
-                window.setTimeout(mountExplorer, 50);
-                return;
-            }
-            window.PercModernUI.mount("perc-explorer-modern-root", "ContentExplorerShell", {
-                initialPath: "<%= initialPath %>"
-            });
-        }
-        if (document.readyState === "loading") {
-            document.addEventListener("DOMContentLoaded", mountExplorer);
-        } else {
-            mountExplorer();
-        }
-    })();
-</script>
-</body>
-</html>
