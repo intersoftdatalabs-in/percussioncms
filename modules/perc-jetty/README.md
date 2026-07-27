@@ -74,3 +74,20 @@ includes `%d{yyyy-MM-dd}`. The `Delete` action removes older **dated** archives 
 disk use stays bounded. Same retention idea as DTS `log4j2-tomcat.xml`.
 
 Unit tests: `src/test/java/com/percussion/jetty/logging/PercLoggingLog4j2ConfigTest.java`
+
+## Startup WARN hygiene (GH-1484 – GH-1487)
+
+Console noise from the Windows 8.2 smoke catalog is addressed in Jetty defaults
+and packaging (see worklog `src/site/markdown/worklog/jetty-startup-warn-hygiene-1484-1487.md`):
+
+| Issue | Topic | Config touchpoints |
+|-------|--------|--------------------|
+| #1484 | Single SLF4J provider (Log4j2) | `defaults/modules/perc-logging.mod` provides `logging\|default` |
+| #1485 | No `[exec]` on perc / perc-logging | JVM args consolidated in `defaults/start.d/jvm.ini` |
+| #1486 | `ShutdownService` + SameSite attribute | `start.d/shutdown.ini`, `StartJetty.bat`, `Rhythmyx.xml` |
+| #1487 | Named `jetty.xml` Args + DigesterFactory schemas | antrun patch of `upstream/etc/jetty.xml`; `perc-xml-schemas.jar` |
+
+Stop defaults are unchanged: port **50011**, key **SHUTDOWN**. `StopJetty` still
+uses `-DSTOP.PORT` / `-DSTOP.KEY` as **client** parameters for `start.jar --stop`.
+
+Unit tests: `src/test/java/com/percussion/jetty/StartupWarnHygieneTest.java`

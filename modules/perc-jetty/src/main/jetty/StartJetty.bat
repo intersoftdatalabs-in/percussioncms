@@ -19,6 +19,10 @@ if errorlevel 1 (
 SET PATH=%JAVA_HOME%\bin;%PATH%
 
 cd %JETTY_BASE%
-"%JAVA%" --add-opens java.base/java.lang=ALL-UNNAMED -XX:+DisableAttachMechanism -Djava.net.preferIPv4Stack=true -Djava.net.preferIPv4Addresses=true -Dfile.encoding=UTF-8 -Dsun.jnu.encoding=UTF-8 -jar %JETTY_HOME%\start.jar -DSTOP.PORT=%STOPPORT% -DSTOP.KEY="SHUTDOWN" -Drxdeploydir="%rxDir%" -DTIKA_CONFIG="%rxDir%\rxconfig\tika-config.xml" -Djetty.base="%JETTY_BASE%" -Djetty_perc_defaults="%JETTY_DEFAULTS%" --include-jetty-dir="%JETTY_DEFAULTS%" %*
+REM GH-1486: do not pass -DSTOP.PORT/-DSTOP.KEY on the server JVM (activates
+REM deprecated ShutdownMonitor). Shutdown is configured via start.d/shutdown.ini
+REM (jetty.shutdown.port=%STOPPORT%, jetty.shutdown.key=SHUTDOWN). StopJetty.bat
+REM still uses STOP.PORT/STOP.KEY as client params for start.jar --stop.
+"%JAVA%" --add-opens java.base/java.lang=ALL-UNNAMED -XX:+DisableAttachMechanism -Djava.net.preferIPv4Stack=true -Djava.net.preferIPv4Addresses=true -Dfile.encoding=UTF-8 -Dsun.jnu.encoding=UTF-8 -jar %JETTY_HOME%\start.jar -Drxdeploydir="%rxDir%" -DTIKA_CONFIG="%rxDir%\rxconfig\tika-config.xml" -Djetty.base="%JETTY_BASE%" -Djetty_perc_defaults="%JETTY_DEFAULTS%" --include-jetty-dir="%JETTY_DEFAULTS%" %*
 
 endlocal

@@ -74,7 +74,9 @@ set PR_STARTUP=auto
 set PR_STARTMODE=exe
 set PR_STARTCLASS=%JETTY_START_CLASS%
 set PR_START_PATH=%JETTY_ROOT%
-set PR_STARTPARAMS=-Drxdeploydir=%JETTY_ROOT%..;-DSTOP.PORT=%STOPPORT%;-DSTOP.KEY=%STOPKEY%
+REM GH-1486: server-side shutdown is jetty.shutdown.* in start.d/shutdown.ini.
+REM Do not pass -DSTOP.PORT on the service start JVM (deprecated ShutdownMonitor).
+set PR_STARTPARAMS=-Drxdeploydir=%JETTY_ROOT%..
 
 @REM Shutdown Configuration
 set PR_STOPMODE=exe

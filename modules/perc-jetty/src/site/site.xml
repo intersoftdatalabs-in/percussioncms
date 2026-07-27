@@ -55,6 +55,7 @@ under the License.
             <item name="Jetty 9 to Jetty 12 Migration" href="./worklog/jetty-12-compatibility-fixes.html"/>
             <item name="Jetty EE11 Migration" href="./worklog/jetty-ee11-migration-2026-03-12.html"/>
             <item name="Jetty 12 [lib] basehome: Prefix Removal" href="./worklog/jetty-12-basehome-prefix-removal.html"/>
+            <item name="Jetty startup WARN hygiene (GH-1484–1487)" href="./worklog/jetty-startup-warn-hygiene-1484-1487.html"/>
         </menu>
         <menu ref="reports"/>
     </body>
