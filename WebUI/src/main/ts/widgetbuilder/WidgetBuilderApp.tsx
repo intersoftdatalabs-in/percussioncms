@@ -67,7 +67,17 @@ function normalizeSummaries(raw: unknown[]): WidgetSummary[] {
   });
 }
 
-export function WidgetBuilderApp(): React.ReactElement {
+export interface WidgetBuilderAppProps {
+  /**
+   * When true (SPA AppLayout), shell is under product chrome.
+   * Reserved for layout tweaks.
+   */
+  embedded?: boolean;
+}
+
+export function WidgetBuilderApp({
+  embedded: _embedded = false,
+}: WidgetBuilderAppProps = {}): React.ReactElement {
   const [active, setActive] = useState<boolean | null>(null);
   const [summaries, setSummaries] = useState<WidgetSummary[]>([]);
   const [mode, setMode] = useState<Mode>("list");

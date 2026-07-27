@@ -19,13 +19,16 @@ import React from "react";
 import { Navigate, Route, Routes } from "react-router-dom";
 import { FeaturePlaceholder } from "./FeaturePlaceholder";
 import { AppLayout } from "./layout/AppLayout";
+import { AdminRoute } from "./routes/AdminRoute";
 import { HomeRoute } from "./routes/HomeRoute";
 import { PublishRoute } from "./routes/PublishRoute";
+import { WidgetBuilderRoute } from "./routes/WidgetBuilderRoute";
+import { WorkflowRoute } from "./routes/WorkflowRoute";
 
 /**
  * Authenticated SPA routes.
- * Home is the product default landing. Publish is fully embedded (PR-3).
- * Other modern modules remain placeholders until PR-4+.
+ * Home is the product default landing. Modern admin surfaces embedded (PR-3/PR-4).
+ * Explorer remains a placeholder until PR-6.
  */
 export function AppRoutes(): React.ReactElement {
   return (
@@ -36,56 +39,11 @@ export function AppRoutes(): React.ReactElement {
         <Route path="home/:section" element={<HomeRoute />} />
         <Route path="publish" element={<PublishRoute />} />
         <Route path="publish/:section" element={<PublishRoute />} />
-        <Route
-          path="workflow"
-          element={
-            <FeaturePlaceholder
-              title="Administration"
-              legacyHref="/cm/app/?view=workflow"
-              testId="route-workflow"
-            />
-          }
-        />
-        <Route
-          path="workflow/:tab"
-          element={
-            <FeaturePlaceholder
-              title="Administration"
-              legacyHref="/cm/app/?view=workflow"
-              testId="route-workflow"
-            />
-          }
-        />
-        <Route
-          path="admin"
-          element={
-            <FeaturePlaceholder
-              title="Admin tools"
-              legacyHref="/cm/app/?view=admin"
-              testId="route-admin"
-            />
-          }
-        />
-        <Route
-          path="admin/:tab"
-          element={
-            <FeaturePlaceholder
-              title="Admin tools"
-              legacyHref="/cm/app/?view=admin"
-              testId="route-admin"
-            />
-          }
-        />
-        <Route
-          path="widget-builder"
-          element={
-            <FeaturePlaceholder
-              title="Widget Builder"
-              legacyHref="/cm/app/?view=widgetbuilder"
-              testId="route-widget-builder"
-            />
-          }
-        />
+        <Route path="workflow" element={<WorkflowRoute />} />
+        <Route path="workflow/:tab" element={<WorkflowRoute />} />
+        <Route path="admin" element={<AdminRoute />} />
+        <Route path="admin/:tab" element={<AdminRoute />} />
+        <Route path="widget-builder" element={<WidgetBuilderRoute />} />
         <Route
           path="explorer"
           element={

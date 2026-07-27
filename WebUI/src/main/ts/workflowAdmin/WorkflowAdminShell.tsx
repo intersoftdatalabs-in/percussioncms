@@ -24,14 +24,41 @@ import { CategoriesSection } from "./category/CategoriesSection";
 
 export type WorkflowAdminTab = "workflow" | "roles" | "users" | "categories";
 
+const WORKFLOW_TABS: readonly WorkflowAdminTab[] = [
+  "workflow",
+  "roles",
+  "users",
+  "categories",
+];
+
+export function normalizeWorkflowAdminTab(
+  raw: string | null | undefined,
+): WorkflowAdminTab {
+  if (raw == null || !raw.trim()) {
+    return "workflow";
+  }
+  const n = raw.trim().toLowerCase();
+  return (WORKFLOW_TABS as readonly string[]).includes(n)
+    ? (n as WorkflowAdminTab)
+    : "workflow";
+}
+
 export interface WorkflowAdminShellProps {
-  initialTab?: WorkflowAdminTab;
+  initialTab?: WorkflowAdminTab | string;
+  /**
+   * When true (SPA AppLayout), shell is under product chrome.
+   * Reserved for layout tweaks; no BrandBar today.
+   */
+  embedded?: boolean;
 }
 
 export const WorkflowAdminShell: React.FC<WorkflowAdminShellProps> = ({
   initialTab = "workflow",
+  embedded: _embedded = false,
 }) => {
-  const [activeTab, setActiveTab] = useState<WorkflowAdminTab>(initialTab);
+  const [activeTab, setActiveTab] = useState<WorkflowAdminTab>(() =>
+    normalizeWorkflowAdminTab(initialTab),
+  );
 
   return (
     <div

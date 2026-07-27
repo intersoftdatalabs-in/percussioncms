@@ -17,32 +17,32 @@
 
 import React, { lazy } from "react";
 import { useParams } from "react-router-dom";
-import { useSpaBootstrap } from "../bootstrap/BootstrapContext";
 import { loadComponent } from "../../registry";
 import { LazyRouteFrame } from "./RouteErrorBoundary";
+import { RequireRole } from "./RequireRole";
 
-const HomeShellLazy = lazy(() =>
-  loadComponent("HomeShell").then((C) => ({ default: C })),
+const WorkflowAdminShellLazy = lazy(() =>
+  loadComponent("WorkflowAdminShell").then((C) => ({ default: C })),
 );
 
 /**
- * SPA Home route — product default landing after login.
- * Dashboard is intentionally not a peer SPA route; legacy dash remains optional exit.
+ * SPA Administration (workflow) route — Admin only.
  */
-export function HomeRoute(): React.ReactElement {
-  const { section } = useParams();
-  const { isAdmin } = useSpaBootstrap();
+export function WorkflowRoute(): React.ReactElement {
+  const { tab } = useParams();
 
   return (
-    <LazyRouteFrame
-      label="Home"
-      fallback={
-        <div data-testid="route-home-loading" style={{ padding: "1.5rem" }}>
-          Loading Home…
-        </div>
-      }
-    >
-      <HomeShellLazy embedded initialSection={section} isAdmin={isAdmin} />
-    </LazyRouteFrame>
+    <RequireRole gate="admin">
+      <LazyRouteFrame
+        label="Administration"
+        fallback={
+          <div data-testid="route-workflow-loading" style={{ padding: "1.5rem" }}>
+            Loading Administration…
+          </div>
+        }
+      >
+        <WorkflowAdminShellLazy embedded initialTab={tab} />
+      </LazyRouteFrame>
+    </RequireRole>
   );
 }

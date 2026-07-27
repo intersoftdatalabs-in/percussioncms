@@ -16,33 +16,33 @@
  */
 
 import React, { lazy } from "react";
-import { useParams } from "react-router-dom";
-import { useSpaBootstrap } from "../bootstrap/BootstrapContext";
 import { loadComponent } from "../../registry";
 import { LazyRouteFrame } from "./RouteErrorBoundary";
+import { RequireRole } from "./RequireRole";
 
-const HomeShellLazy = lazy(() =>
-  loadComponent("HomeShell").then((C) => ({ default: C })),
+const WidgetBuilderAppLazy = lazy(() =>
+  loadComponent("WidgetBuilderApp").then((C) => ({ default: C })),
 );
 
 /**
- * SPA Home route — product default landing after login.
- * Dashboard is intentionally not a peer SPA route; legacy dash remains optional exit.
+ * SPA Widget Builder route — Admin/Designer when WB is active.
  */
-export function HomeRoute(): React.ReactElement {
-  const { section } = useParams();
-  const { isAdmin } = useSpaBootstrap();
-
+export function WidgetBuilderRoute(): React.ReactElement {
   return (
-    <LazyRouteFrame
-      label="Home"
-      fallback={
-        <div data-testid="route-home-loading" style={{ padding: "1.5rem" }}>
-          Loading Home…
-        </div>
-      }
-    >
-      <HomeShellLazy embedded initialSection={section} isAdmin={isAdmin} />
-    </LazyRouteFrame>
+    <RequireRole gate="widgetBuilder">
+      <LazyRouteFrame
+        label="Widget Builder"
+        fallback={
+          <div
+            data-testid="route-widget-builder-loading"
+            style={{ padding: "1.5rem" }}
+          >
+            Loading Widget Builder…
+          </div>
+        }
+      >
+        <WidgetBuilderAppLazy embedded />
+      </LazyRouteFrame>
+    </RequireRole>
   );
 }
