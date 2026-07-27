@@ -20,6 +20,7 @@ import { useLocation } from "react-router-dom";
 import { normalizeExplorerPath } from "../deepLinks/allowlists";
 import { loadComponent } from "../../registry";
 import { LazyRouteFrame } from "./RouteErrorBoundary";
+import styles from "./ExplorerRoute.module.css";
 
 const ContentExplorerShellLazy = lazy(() =>
   loadComponent("ContentExplorerShell").then((C) => ({ default: C })),
@@ -41,9 +42,7 @@ export function ExplorerRoute(): React.ReactElement {
     <LazyRouteFrame
       label="Content Explorer"
       fallback={
-        <div data-testid="route-explorer-loading" style={{ padding: "1.5rem" }}>
-          Loading Content Explorer…
-        </div>
+        <div className={styles.loading}>Loading Content Explorer…</div>
       }
     >
       <ContentExplorerShellLazy initialPath={initialPath} />

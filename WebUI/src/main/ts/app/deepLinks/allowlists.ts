@@ -75,7 +75,14 @@ export const ADMIN_TABS = ["tasks", "logs", "notifications", "tools"] as const;
 export type AdminTab = (typeof ADMIN_TABS)[number];
 
 const ID_RE = /^[A-Za-z0-9_-]{1,128}$/;
-const EXPLORER_PATH_RE = /^[/A-Za-z0-9._-]+$/;
+
+/**
+ * Explorer deep-link path charset for the **query contract** (server Location +
+ * client parse). Intentionally ASCII-safe for JSP redirects / XSS hygiene.
+ * Full CMS folder names may be richer in-app; only deep-link query paths are
+ * constrained. Keep in lockstep with explorerModern.jsp path validation.
+ */
+export const EXPLORER_PATH_RE = /^[/A-Za-z0-9._-]+$/;
 
 export function isSpaEntry(value: string): value is SpaEntry {
   return (SPA_ENTRIES as readonly string[]).includes(value);
@@ -119,11 +126,21 @@ export function normalizeId(raw: string | null | undefined): string | undefined 
   return ID_RE.test(t) ? t : undefined;
 }
 
+/**
+ * Allowlist explorer deep-link paths. Rejects traversal **segments** ({@code ..}),
+ * not the substring {@code ..} inside a folder name (e.g. {@code /Sites/foo..bar}).
+ */
 export function normalizeExplorerPath(raw: string | null | undefined): string | undefined {
   if (raw == null || !raw.trim()) return undefined;
   const t = raw.trim();
-  if (!t.startsWith("/") || t.length >= 2048 || t.includes("..") || t.includes("://")) {
+  if (!t.startsWith("/") || t.length >= 2048 || t.includes("://")) {
     return undefined;
+  }
+  // Segment-aware: only reject ".." as a path segment (not "foo..bar")
+  for (const segment of t.split("/")) {
+    if (segment === "..") {
+      return undefined;
+    }
   }
   return EXPLORER_PATH_RE.test(t) ? t : undefined;
 }
