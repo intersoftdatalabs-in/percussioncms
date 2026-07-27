@@ -127,7 +127,7 @@
         <!-- #548 default embedded replacement (bake-off primary); Derby retained for migration window -->
         <h2.version>2.3.232</h2.version>
         <!-- #1500 external PostgreSQL repository backend (org.postgresql:postgresql, Java 21) -->
-        <postgresql.version>42.7.7</postgresql.version>
+        <postgresql.version>42.7.12</postgresql.version>
         <hibernate.validator.version>8.0.1.Final</hibernate.validator.version>
         <hibernate.version>7.2.6.Final</hibernate.version>
         <hikaricp.version>7.0.2</hikaricp.version>
