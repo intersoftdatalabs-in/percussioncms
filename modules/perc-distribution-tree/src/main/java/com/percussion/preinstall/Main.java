@@ -216,6 +216,15 @@ public class Main {
       Path execPath = installSrc.resolve(Paths.get("rxconfig", "Installer"));
       Path installAntJarPath =
           execPath.resolve(PathUtils.getVersionLessJarFilePath(execPath, PERC_ANT_JAR + "-*.jar"));
+
+      // Note: operator-supplied embedded H2 DB passwords are intentionally NOT
+      // persisted under var/config/generated/passwords. That file is reserved
+      // for credentials the system auto-generates (silent-install random
+      // cmdb password via PSGenerateRepositoryPassword, plus Admin / Editor /
+      // Contributor demo defaults managed by PSUserService). Operator-chosen
+      // secrets live only in rxrepository.properties and the encrypted
+      // perc-ds.properties written by PSConfigureDatasource.
+
       Integer antExit = execJar(installAntJarPath, execPath, installPath, resolvedDbConfig);
       deleteOldJDBCJars(installPath);
 
@@ -272,8 +281,7 @@ public class Main {
   }
 
   static void runObsoleteInstallDirCleanup(
-      Path installPath, java.util.Map<String, String> cliOptions, boolean silent)
-      throws Exception {
+      Path installPath, java.util.Map<String, String> cliOptions, boolean silent) throws Exception {
     if (!ObsoleteInstallDirCleaner.isUpgradeInstallRoot(installPath)) {
       return;
     }
@@ -560,7 +568,7 @@ public class Main {
     return processCode;
   }
 
-  private static Properties loadVersionProperties(Path installDir) {
+private static Properties loadVersionProperties(Path installDir) {
     File versionFile = new File(installDir + File.separator + VERSION_PROPERTIES);
     Properties rawVersionProperties = new Properties();
     if (versionFile.exists()) {

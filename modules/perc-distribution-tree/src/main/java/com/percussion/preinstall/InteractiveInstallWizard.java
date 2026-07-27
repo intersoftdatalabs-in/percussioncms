@@ -100,7 +100,11 @@ public final class InteractiveInstallWizard {
    */
   public static Phase1Result runPhase1(
       DbInstallConfigResolver.ParsedArgs parsedArgs, boolean interactive, InstallPrompt prompt) {
-    return runPhase1(parsedArgs, interactive, prompt, Main.parseUnattendedJavaHome(System.getProperty(Main.PERC_JAVA_HOME)));
+    return runPhase1(
+        parsedArgs,
+        interactive,
+        prompt,
+        Main.parseUnattendedJavaHome(System.getProperty(Main.PERC_JAVA_HOME)));
   }
 
   /**
@@ -166,7 +170,8 @@ public final class InteractiveInstallWizard {
         dbConfig = DbInstallConfigResolver.resolveDbConfig(options);
       }
     } catch (IllegalArgumentException badDb) {
-      return Phase1Result.abort(EXIT_DB_CONFIG, "Database configuration error: " + badDb.getMessage());
+      return Phase1Result.abort(
+          EXIT_DB_CONFIG, "Database configuration error: " + badDb.getMessage());
     }
 
     if (interactive) {
@@ -204,8 +209,7 @@ public final class InteractiveInstallWizard {
         return dbConfig;
       }
 
-      Boolean test =
-          parseYesNo(prompt.readLine("Test database connection now? [Y/n] "), true);
+      Boolean test = parseYesNo(prompt.readLine("Test database connection now? [Y/n] "), true);
       if (test == null || !test) {
         return dbConfig;
       }
@@ -221,8 +225,7 @@ public final class InteractiveInstallWizard {
 
       Boolean retry =
           parseYesNo(
-              prompt.readLine("Connection test failed. Re-enter database settings? [Y/n] "),
-              true);
+              prompt.readLine("Connection test failed. Re-enter database settings? [Y/n] "), true);
       if (retry == null || !retry) {
         throw new IllegalArgumentException(
             "Database connection test failed and operator chose not to re-enter settings.");
@@ -237,6 +240,7 @@ public final class InteractiveInstallWizard {
       options.remove("db.schema");
       options.remove("db.user");
       options.remove("db.password");
+      options.remove(InteractiveDbConfigCollector.EMBEDDED_H2_DB_PASSWORD_KEY);
       options.remove("db.ssl.enabled");
       options.remove("db.ssl.verify");
       options.remove("db.ssl.allowSelfSigned");
@@ -276,7 +280,9 @@ public final class InteractiveInstallWizard {
       return true;
     }
     String type =
-        dbConfig.systemProperties().getOrDefault("perc.db.type", DbInstallConfigResolver.DB_TYPE_DEFAULT);
+        dbConfig
+            .systemProperties()
+            .getOrDefault("perc.db.type", DbInstallConfigResolver.DB_TYPE_DEFAULT);
     String normalized = type == null ? "" : type.trim().toLowerCase(Locale.ROOT);
     return "h2".equals(normalized) || "derby".equals(normalized);
   }
@@ -301,6 +307,10 @@ public final class InteractiveInstallWizard {
     lines.add("Install path : " + installPath.toAbsolutePath().normalize());
     lines.add("Mode         : " + (isUpgradeInstall(installPath) ? "Upgrade" : "New install"));
     lines.add("Database     : " + formatDbSummary(dbConfig));
+    String secretLocation = formatDbSecretLocation(dbConfig);
+    if (secretLocation != null) {
+      lines.add("DB password  : stored in " + secretLocation);
+    }
     lines.add("Java home    : " + formatJavaHomeLine(javaOutcome));
     lines.add("========================================");
     return String.join(System.lineSeparator(), lines);
@@ -308,8 +318,7 @@ public final class InteractiveInstallWizard {
 
   /** Convenience for tests that omit a Java selection outcome. */
   @Deprecated
-  static String buildSummary(
-      Path installPath, DbInstallConfigResolver.ResolvedDbConfig dbConfig) {
+  static String buildSummary(Path installPath, DbInstallConfigResolver.ResolvedDbConfig dbConfig) {
     return buildSummary(installPath, dbConfig, null);
   }
 
@@ -332,8 +341,30 @@ public final class InteractiveInstallWizard {
     appendIfPresent(sb, "port", p.get("perc.db.port"));
     appendIfPresent(sb, "name", firstNonBlank(p.get("perc.db.name"), p.get("perc.db.cms.name")));
     appendIfPresent(sb, "user", p.get("perc.db.user"));
-    // Never append password / perc.db.password / truststore passwords
+    // Never append password / perc.db.password / truststore passwords. For
+    // embedded H2, see formatDbSecretLocation below for the operator-visible
+    // location: rxrepository.properties (operator-supplied) or
+    // var/config/generated/passwords (system-generated random value).
     return sb.toString();
+  }
+
+  static String formatDbSecretLocation(DbInstallConfigResolver.ResolvedDbConfig dbConfig) {
+    if (dbConfig == null || dbConfig.systemProperties() == null) {
+      return null;
+    }
+    String type = dbConfig.systemProperties().get("perc.db.type");
+    if (type == null || !"h2".equalsIgnoreCase(type)) {
+      return null;
+    }
+    // Interactive H2 installs: operator chose the password and it lives only in
+    // rxrepository.properties + perc-ds.properties (encrypted by Jetty). Silent
+    // installs: a random value was generated and persisted under
+    // var/config/generated/passwords (key cmdb).
+    String operatorSupplied = dbConfig.systemProperties().get("cmdb.password");
+    if (operatorSupplied != null && !operatorSupplied.isEmpty()) {
+      return "rxrepository.properties (PWD=...) — operator-chosen";
+    }
+    return "var/config/generated/passwords (key cmdb)";
   }
 
   static String formatJavaHomeLine(JavaInstallSelection.SelectionOutcome javaOutcome) {
@@ -435,9 +466,7 @@ public final class InteractiveInstallWizard {
     if (value == null) {
       return false;
     }
-    return "true".equalsIgnoreCase(value)
-        || "yes".equalsIgnoreCase(value)
-        || "1".equals(value);
+    return "true".equalsIgnoreCase(value) || "yes".equalsIgnoreCase(value) || "1".equals(value);
   }
 
   /**

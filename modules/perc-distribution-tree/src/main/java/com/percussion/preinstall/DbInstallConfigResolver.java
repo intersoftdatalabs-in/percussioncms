@@ -69,8 +69,10 @@ public final class DbInstallConfigResolver {
   private static final String MSSQL_DRIVER_CLASS = "com.microsoft.sqlserver.jdbc.SQLServerDriver";
   private static final String ORACLE_DRIVER_CLASS = "oracle.jdbc.OracleDriver";
   private static final String ORACLE_DRIVER_NAME = "oracle:thin";
+
   /** PostgreSQL JDBC (#1500). */
   private static final String POSTGRES_DRIVER_CLASS = "org.postgresql.Driver";
+
   private static final String POSTGRES_DRIVER_NAME = "postgresql";
   private static final String POSTGRES_DEFAULT_SCHEMA = "public";
 
@@ -342,6 +344,27 @@ public final class DbInstallConfigResolver {
     systemProperties.put("perc.db.ssl.enabled", sslEnabled);
     systemProperties.put("perc.db.ssl.verify", sslVerify);
     systemProperties.put("perc.db.ssl.allowSelfSigned", sslAllowSelfSigned);
+
+    // Embedded H2: pull the operator-confirmed password from the structured
+    // options map (interactive installs) and surface it as cmdb.password so
+    // ANT can use it as the H2 DB password. Persistence to
+    // var/config/generated/passwords is the installer's responsibility (see
+    // Main.execJar — it has the install root). Silent installs fall through to
+    // ANT's PSGenerateRepositoryPassword (random mode), which writes its own
+    // cmdb.password ANT property and persists the value.
+    String embeddedH2Password = null;
+    if ("h2".equals(dbType)) {
+      embeddedH2Password =
+          getConfigValue(
+              InteractiveDbConfigCollector.EMBEDDED_H2_DB_PASSWORD_KEY,
+              cliOptions,
+              environmentFileValues,
+              null);
+    }
+    if (!isBlank(embeddedH2Password)) {
+      systemProperties.put("cmdb.password", embeddedH2Password);
+    }
+
     setIfPresent(systemProperties, "perc.db.host", host);
     setIfPresent(systemProperties, "perc.db.port", port);
     setIfPresent(systemProperties, "perc.db.name", name);
@@ -387,8 +410,7 @@ public final class DbInstallConfigResolver {
       systemProperties.put("perc.db.cms.name", name);
       systemProperties.put("perc.db.cms.schema", resolvedSchema);
       systemProperties.put(
-          "perc.db.dts.jdbcUrl",
-          "jdbc:mysql://" + host + ":" + port + "/" + name + mysqlParams);
+          "perc.db.dts.jdbcUrl", "jdbc:mysql://" + host + ":" + port + "/" + name + mysqlParams);
       systemProperties.put("perc.db.dts.jdbcDriver", MARIADB_DRIVER_CLASS);
       systemProperties.put(
           "perc.db.dts.hibernateDialect", "org.hibernate.dialect.MySQL5InnoDBDialect");
@@ -455,9 +477,7 @@ public final class DbInstallConfigResolver {
       systemProperties.put("perc.db.dts.schema", resolvedSchema);
     } else if (Objects.equals(dbType, "postgresql")) {
       String resolvedSchema =
-          (schema == null || schema.trim().isEmpty())
-              ? POSTGRES_DEFAULT_SCHEMA
-              : schema.trim();
+          (schema == null || schema.trim().isEmpty()) ? POSTGRES_DEFAULT_SCHEMA : schema.trim();
       // Product DB_SERVER form mirrors MySQL: //host:port/database (jdbc:postgresql: + server)
       String cmsServer = "//" + host + ":" + port + "/" + name;
       systemProperties.put("perc.db.cms.backend", "POSTGRES");
@@ -585,7 +605,8 @@ public final class DbInstallConfigResolver {
           throw new IllegalArgumentException(
               "Unknown db.type='"
                   + dbType
-                  + "' for backend label. Allowed values: h2, derby, mysql, sqlserver, oracle, postgresql");
+                  + "' for backend label. Allowed values: h2, derby, mysql, sqlserver, oracle,"
+                  + " postgresql");
     };
   }
 
