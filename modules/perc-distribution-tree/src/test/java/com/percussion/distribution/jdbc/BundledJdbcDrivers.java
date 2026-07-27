@@ -121,20 +121,22 @@ final class BundledJdbcDrivers {
     filenames.add("mssql-jdbc-13.3.1.jre11-preview.jar");
     filenames.add("jtds-1.3.1.jar");
     filenames.add("ojdbc17-23.26.0.0.0.jar");
-    filenames.add("postgresql-42.7.7.jar");
+    filenames.add("postgresql-42.7.12.jar");
     EXACT_FILENAMES = Collections.unmodifiableSet(filenames);
 
     // Prior release of this codebase: the versions immediately preceding
     // the current ones in the development branch's recent history.
     // (derby.version bumped 10.16.1.1 -> 10.17.1.0; mssql.version bumped
-    // 13.3.0.jre11-preview -> 13.3.1.jre11-preview; mariadb / ojdbc17 /
-    // jtds are unchanged across the recent history of the development
-    // branch and so have no prior entry.)
+    // 13.3.0.jre11-preview -> 13.3.1.jre11-preview; postgresql.version
+    // bumped 42.7.7 -> 42.7.12; mariadb / ojdbc17 / jtds are unchanged
+    // across the recent history of the development branch and so have no
+    // prior entry.)
     Set<String> prior = new LinkedHashSet<>();
     prior.add("derby-10.16.1.1.jar");
     prior.add("derbyclient-10.16.1.1.jar");
     prior.add("derbynet-10.16.1.1.jar");
     prior.add("mssql-jdbc-13.3.0.jre11-preview.jar");
+    prior.add("postgresql-42.7.7.jar");
     PRIOR_FILENAMES = Collections.unmodifiableSet(prior);
   }
 

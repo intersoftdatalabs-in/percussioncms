@@ -195,7 +195,7 @@
 				<include name="jtds-1.3.1.jar" />
 				<include name="ojdbc17-23.26.0.0.0.jar" />
 				<!-- #1500 PostgreSQL external CMS repository -->
-				<include name="postgresql-42.7.7.jar" />
+				<include name="postgresql-42.7.12.jar" />
 				<!-- PRIOR: filenames from the immediately preceding release. Update
 					in lockstep when driver versions bump in the parent POM. Old PRIOR entries
 					can be removed by the release manager once they are confident no field upgrade
@@ -204,6 +204,7 @@
 				<include name="derbyclient-10.16.1.1.jar" />
 				<include name="derbynet-10.16.1.1.jar" />
 				<include name="mssql-jdbc-13.3.0.jre11-preview.jar" />
+				<include name="postgresql-42.7.7.jar" />
 			</fileset>
 		</delete>
 		<copy todir="${install.dir}/jetty/base/lib/jdbc" overwrite="true"
