@@ -40,9 +40,9 @@ export function HomeRoute(): React.ReactElement {
     (next: HomeSection) => {
       // recent is the default /home index (no extra segment)
       if (next === "recent") {
-        navigate("/home", { replace: false });
+        navigate("/home");
       } else {
-        navigate(`/home/${next}`, { replace: false });
+        navigate(`/home/${next}`);
       }
     },
     [navigate],

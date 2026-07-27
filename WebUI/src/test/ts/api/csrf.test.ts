@@ -32,4 +32,9 @@ describe("getCsrfToken", () => {
     expect(csrf?.headerName).toBe("OWASP-CSRFTOKEN");
     expect(csrf?.token).toBe(value);
   });
+
+  it("returns null when global and meta tags are both absent", () => {
+    expect(getCsrfToken()).toBeNull();
+  });
 });
+

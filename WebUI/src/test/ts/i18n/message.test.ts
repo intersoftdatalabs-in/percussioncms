@@ -32,4 +32,12 @@ describe("message / TMX fallback", () => {
     };
     expect(message("perc.ui.home.modern@Home")).toBe("Home");
   });
+
+  it("message falls back when I18N returns empty string", () => {
+    (window as unknown as { I18N: { message: () => string } }).I18N = {
+      message: () => "",
+    };
+    expect(message("perc.ui.home.modern@Home")).toBe("Home");
+  });
 });
+

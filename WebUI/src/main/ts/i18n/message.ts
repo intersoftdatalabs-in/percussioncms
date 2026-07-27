@@ -57,14 +57,12 @@ export function message(key: string, args?: unknown[]): string {
   if (i18n?.message) {
     try {
       const resolved = args != null ? i18n.message(key, args) : i18n.message(key);
-      // Some TMX stubs return the key unchanged when missing
-      if (resolved && resolved !== key) {
+      // Real translation: non-empty and not an echo of the catalog key
+      if (typeof resolved === "string" && resolved.trim() && resolved !== key) {
         return resolved;
       }
-      if (resolved === key) {
-        return fallbackLabelFromKey(key);
-      }
-      return resolved ?? fallbackLabelFromKey(key);
+      // Missing key / empty stub / key echo → human text after @
+      return fallbackLabelFromKey(key);
     } catch {
       return fallbackLabelFromKey(key);
     }
