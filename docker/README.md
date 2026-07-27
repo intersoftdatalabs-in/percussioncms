@@ -101,9 +101,29 @@ python3 docker/scripts/matrix-install-smoke.py --product cms --db postgresql --k
 TEST_CMS_URL=http://localhost:9993 TEST_DB_TYPE=postgresql \
   npm test --prefix modules/perc-qa-automation/frontend -- tests/install.spec.js
 
+# Destroy cells but keep external DBs for a follow-up matrix run
+python3 docker/scripts/matrix-install-smoke.py --product cms --db postgresql --keep-db
+
+# Force-stop every external DB used by this matrix (including pre-existing)
+python3 docker/scripts/matrix-install-smoke.py --product cms --db postgresql,mysql --stop-db
+
 # Dry-run (no docker)
 python3 docker/scripts/matrix-install-smoke.py --product cms --db h2 --dry-run --skip-image-build
 ```
+
+### External DB teardown policy (#1516)
+
+Matrix cells (`perc-matrix-*`) are destroyed after each cell unless `--keep`.
+External compose DBs (`percussion-postgres` / `percussion-mysql` / `percussion-sqlserver`) follow a separate ownership rule:
+
+| Flag | Cells | External DBs |
+|------|-------|--------------|
+| **Default** | Destroyed | Stop services **this process started** (`compose stop`; no volume wipe) |
+| `--keep` | Left running | Left running (Layer 2 / debugging) |
+| `--keep-db` | Destroyed (unless `--keep`) | Left running (reuse across runs) |
+| `--stop-db` | Destroyed (unless `--keep`) | Stop **all** external DBs used by the matrix, even if pre-existing |
+
+If a DB container was already running before the harness (e.g. long-lived dev stack), the default path **reuses** it and **does not** stop it at the end. Use `--stop-db` only when you intentionally want those containers stopped. Never uses `compose down -v` by default (named volumes / operator data are preserved).
 
 ### DTS packaging notes (HTTP 9980)
 
