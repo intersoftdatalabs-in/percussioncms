@@ -24,10 +24,17 @@ package com.percussion.delivery.likes.data;
  */
 public class PSRestLikes implements IPSLikes {
 
+  /** Default no-arg constructor required by Jackson and JAXB. */
+  public PSRestLikes() {}
+
+  /** The unique identifier for this like. */
   private String id;
   private String likeId;
+  /** The type of liked entity (page, comment, image). */
   private String type;
+  /** The site this like belongs to. */
   private String site;
+  /** The current total number of likes. */
   private int total;
 
   /**

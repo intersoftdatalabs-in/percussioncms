@@ -30,11 +30,14 @@ public class PSCommentIds {
 
   private Collection<String> comments;
 
+  /** Default no-arg constructor required by JAXB. Initializes the list to empty. */
   public PSCommentIds() {
     comments = new ArrayList<>();
   }
 
   /**
+   * Gets the wrapped collection of comment ids.
+   *
    * @return the ids
    */
   public Collection<String> getComments() {
@@ -42,7 +45,9 @@ public class PSCommentIds {
   }
 
   /**
-   * @param ids the ids to set
+   * Replaces the wrapped collection of comment ids.
+   *
+   * @param comments the comments to set
    */
   public void setComments(Collection<String> comments) {
     this.comments = comments;

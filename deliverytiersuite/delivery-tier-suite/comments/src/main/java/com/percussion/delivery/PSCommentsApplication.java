@@ -41,6 +41,7 @@ import org.glassfish.jersey.server.spring.scope.RequestContextFilter;
 @ApplicationPath("/")
 public class PSCommentsApplication extends ResourceConfig {
 
+  /** Registers Jersey/Spring components, REST resources, features, and providers for the comments and likes REST APIs. */
   public PSCommentsApplication() {
     // Register Jersey and Spring integration components
     register(RequestContextFilter.class);

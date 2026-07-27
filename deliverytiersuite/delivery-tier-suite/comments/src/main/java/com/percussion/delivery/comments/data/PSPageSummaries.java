@@ -34,12 +34,26 @@ import java.util.List;
     name = "",
     propOrder = {"summaries"})
 public class PSPageSummaries {
+  /** List of {@link PSPageSummary} entries. */
   protected List<PSPageSummary> summaries;
 
+  /** Default no-arg constructor required by JAXB. */
+  public PSPageSummaries() {}
+
+  /**
+   * Creates a new page summaries container.
+   *
+   * @param summaries the initial list of summaries, may be {@code null}.
+   */
   public PSPageSummaries(List<PSPageSummary> summaries) {
     this.summaries = summaries;
   }
 
+  /**
+   * Gets the list of page summaries. Lazily initializes an empty list if needed.
+   *
+   * @return the list of summaries, never {@code null}.
+   */
   public List<PSPageSummary> getSummaries() {
     if (summaries == null) summaries = new ArrayList<>();
     return summaries;

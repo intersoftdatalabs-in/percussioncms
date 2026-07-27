@@ -43,6 +43,10 @@ import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
 /**
+ * RDBMS-backed entity representing a comment. Mapped to the {@code PERC_PAGE_COMMENTS} table and
+ * related to its tags via {@link PSCommentTag}. Implements {@link IPSComment} so it can be used
+ * directly by the delivery tier service layer.
+ *
  * @author erikserating
  */
 @Entity
@@ -51,6 +55,7 @@ import org.hibernate.annotations.OnDeleteAction;
 public class PSComment implements IPSComment, Serializable {
   private static final long serialVersionUID = 1L;
 
+  /** Unique identifier for the comment. Assigned by the persistence layer. */
   @TableGenerator(
       name = "commentId",
       table = "PERC_ID_GEN",
@@ -62,32 +67,41 @@ public class PSComment implements IPSComment, Serializable {
   @GeneratedValue(strategy = GenerationType.TABLE, generator = "commentId")
   private long id;
 
+  /** Current approval state of the comment, stored as the string form of {@link APPROVAL_STATE}. */
   @Basic
   private String approvalState =
       IPSComment.approvalStateToString(IPSComment.APPROVAL_STATE.APPROVED);
 
+  /** Date and time the comment was created. */
   @Basic private Date createdDate;
 
+  /** Relative path of the page being commented on, not including the site. */
   @Basic private String pagePath;
 
+  /** Email address supplied by the comment author. May be {@code null}. */
   @Basic
   @Column(length = 4000)
   private String email;
 
+  /** User name supplied by the comment author. May be {@code null}. */
   @Basic
   @Column(length = 4000)
   private String username;
 
+  /** Body text of the comment. May be {@code null}. */
   @Lob
   @Column(length = Integer.MAX_VALUE)
   private String text;
 
+  /** Title of the comment. May be {@code null}. */
   @Basic
   @Column(length = 4000)
   private String title;
 
+  /** Numeric id of the parent comment, or {@code 0} for top-level comments. */
   @Basic private long parent;
 
+  /** Set of {@link PSCommentTag} entities associated with this comment. */
   @OneToMany(
       fetch = FetchType.EAGER,
       cascade = CascadeType.ALL,
@@ -98,18 +112,24 @@ public class PSComment implements IPSComment, Serializable {
   @OnDelete(action = OnDeleteAction.CASCADE)
   private Set<PSCommentTag> commentTags = new HashSet<>();
 
+  /** Flag indicating the comment has been moderated by a user action. */
   @Basic private boolean moderated;
 
+  /** Flag indicating the comment has been viewed by an admin. */
   @Basic private boolean viewed;
 
+  /** Site this comment belongs to. */
   @Basic private String site;
 
+  /** URL supplied by the comment author. May be {@code null}. */
   @Basic
   @Column(length = 2000)
   private String url;
 
+  /** Comment created date as a string, used for legacy clients. Not persisted. */
   @Transient private String commentCreatedDate;
 
+  /** Default no-arg constructor required by Hibernate. */
   public PSComment() {}
 
   /**
@@ -194,6 +214,11 @@ public class PSComment implements IPSComment, Serializable {
     return tagsAsString;
   }
 
+  /**
+   * Gets the set of tag entities attached to this comment.
+   *
+   * @return the set of {@link PSCommentTag} entities, never {@code null}.
+   */
   public Set<PSCommentTag> getCommentTags() {
     return this.commentTags;
   }
@@ -270,6 +295,12 @@ public class PSComment implements IPSComment, Serializable {
     this.parent = Long.valueOf(parent);
   }
 
+  /**
+   * Replaces the tags for this comment with a new set of tag strings. Each string is converted to a
+   * {@link PSCommentTag} and linked back to this comment.
+   *
+   * @param tags the tag strings, may be {@code null} (in which case no change is made).
+   */
   public void setTags(final Set<String> tags) {
     if (tags == null) return;
     PSCommentTag commentTag;
@@ -281,6 +312,11 @@ public class PSComment implements IPSComment, Serializable {
     }
   }
 
+  /**
+   * Replaces the tag entities for this comment.
+   *
+   * @param commentTags the new set of {@link PSCommentTag} entities, must not be {@code null}.
+   */
   public void setCommentTags(final Set<PSCommentTag> commentTags) {
     this.commentTags = commentTags;
   }

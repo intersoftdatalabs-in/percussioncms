@@ -31,6 +31,9 @@ import org.apache.logging.log4j.Logger;
 public class PSCommentCriteria {
   private static final Logger log = LogManager.getLogger(PSCommentCriteria.class);
 
+  /** Default no-arg constructor required for bean-style instantiation and JSON deserialization. */
+  public PSCommentCriteria() {}
+
   private String sortby;
   private String ascending;
   private String callback;
@@ -83,6 +86,8 @@ public class PSCommentCriteria {
   private String lastCommentId;
 
   /**
+   * Gets the page path filter.
+   *
    * @return the pagepath
    */
   public String getPagepath() {
@@ -90,6 +95,8 @@ public class PSCommentCriteria {
   }
 
   /**
+   * Sets the page path filter.
+   *
    * @param pagepath the pagepath to set
    */
   public void setPagepath(String pagepath) {
@@ -97,6 +104,8 @@ public class PSCommentCriteria {
   }
 
   /**
+   * Gets the username filter.
+   *
    * @return the username
    */
   public String getUsername() {
@@ -104,6 +113,8 @@ public class PSCommentCriteria {
   }
 
   /**
+   * Sets the username filter.
+   *
    * @param username the username to set
    */
   public void setUsername(String username) {
@@ -111,6 +122,8 @@ public class PSCommentCriteria {
   }
 
   /**
+   * Gets the tag filter.
+   *
    * @return the tag
    */
   public String getTag() {
@@ -118,6 +131,8 @@ public class PSCommentCriteria {
   }
 
   /**
+   * Sets the tag filter.
+   *
    * @param tag the tag to set
    */
   public void setTag(String tag) {
@@ -125,6 +140,8 @@ public class PSCommentCriteria {
   }
 
   /**
+   * Gets the sort order.
+   *
    * @return the sort
    */
   public PSCommentSort getSort() {
@@ -132,6 +149,8 @@ public class PSCommentCriteria {
   }
 
   /**
+   * Sets the sort order.
+   *
    * @param sort the sort to set
    */
   public void setSort(PSCommentSort sort) {
@@ -139,6 +158,8 @@ public class PSCommentCriteria {
   }
 
   /**
+   * Gets the approval state filter.
+   *
    * @return the state
    */
   public APPROVAL_STATE getState() {
@@ -146,6 +167,8 @@ public class PSCommentCriteria {
   }
 
   /**
+   * Sets the approval state filter.
+   *
    * @param state the state to set
    */
   public void setState(APPROVAL_STATE state) {
@@ -153,6 +176,8 @@ public class PSCommentCriteria {
   }
 
   /**
+   * Gets the site filter.
+   *
    * @return the site
    */
   public String getSite() {
@@ -160,6 +185,8 @@ public class PSCommentCriteria {
   }
 
   /**
+   * Sets the site filter.
+   *
    * @param site the site to set
    */
   public void setSite(String site) {
@@ -167,6 +194,8 @@ public class PSCommentCriteria {
   }
 
   /**
+   * Gets the maximum number of results to return.
+   *
    * @return the maxResults
    */
   public int getMaxResults() {
@@ -174,6 +203,8 @@ public class PSCommentCriteria {
   }
 
   /**
+   * Sets the maximum number of results to return.
+   *
    * @param maxResults the maxResults to set
    */
   public void setMaxResults(int maxResults) {
@@ -181,6 +212,8 @@ public class PSCommentCriteria {
   }
 
   /**
+   * Gets the start index used for paging.
+   *
    * @return the startIndex
    */
   public int getStartIndex() {
@@ -188,6 +221,8 @@ public class PSCommentCriteria {
   }
 
   /**
+   * Sets the start index used for paging.
+   *
    * @param startIndex the startIndex to set
    */
   public void setStartIndex(int startIndex) {
@@ -195,6 +230,8 @@ public class PSCommentCriteria {
   }
 
   /**
+   * Checks whether the moderated filter is set.
+   *
    * @return the moderated
    */
   public Boolean isModerated() {
@@ -202,6 +239,8 @@ public class PSCommentCriteria {
   }
 
   /**
+   * Sets the moderated filter.
+   *
    * @param moderated the moderated to set
    */
   public void setModerated(Boolean moderated) {
@@ -209,6 +248,8 @@ public class PSCommentCriteria {
   }
 
   /**
+   * Checks whether the viewed filter is set.
+   *
    * @return the viewed
    */
   public Boolean isViewed() {
@@ -216,6 +257,8 @@ public class PSCommentCriteria {
   }
 
   /**
+   * Sets the viewed filter.
+   *
    * @param viewed the viewed to set
    */
   public void setViewed(Boolean viewed) {
@@ -223,6 +266,8 @@ public class PSCommentCriteria {
   }
 
   /**
+   * Gets the id of the last comment added.
+   *
    * @return the id of the last comment
    */
   public String getLastCommentId() {
@@ -230,6 +275,8 @@ public class PSCommentCriteria {
   }
 
   /**
+   * Sets the id of the last comment added.
+   *
    * @param lastCommentId the id of the last comment to set
    */
   public void setLastCommentId(String lastCommentId) {
@@ -253,27 +300,56 @@ public class PSCommentCriteria {
     return ret;
   }
 
-  /** The relative path of the page not including the site. May be <code>null</code> or empty. */
+  /**
+   * Gets the relative path of the page not including the site. May be <code>null</code> or empty.
+   *
+   * @return the relative page path filter.
+   */
   public String getSortby() {
     return sortby;
   }
 
+  /**
+   * Sets the relative path of the page not including the site.
+   *
+   * @param sortby the sortby value to set.
+   */
   public void setSortby(String sortby) {
     this.sortby = sortby;
   }
 
+  /**
+   * Gets the ascending sort flag.
+   *
+   * @return the ascending flag value.
+   */
   public String getAscending() {
     return ascending;
   }
 
+  /**
+   * Sets the ascending sort flag.
+   *
+   * @param ascending the ascending flag value to set.
+   */
   public void setAscending(String ascending) {
     this.ascending = ascending;
   }
 
+  /**
+   * Gets the JSONP callback name.
+   *
+   * @return the JSONP callback name.
+   */
   public String getCallback() {
     return callback;
   }
 
+  /**
+   * Sets the JSONP callback name.
+   *
+   * @param callback the JSONP callback name to set.
+   */
   public void setCallback(String callback) {
     this.callback = callback;
   }

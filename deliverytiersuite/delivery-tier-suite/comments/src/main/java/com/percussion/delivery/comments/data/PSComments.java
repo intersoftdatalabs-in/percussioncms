@@ -39,6 +39,7 @@ import java.util.Objects;
 public class PSComments {
   private List<IPSComment> comments;
 
+  /** Default no-arg constructor required by JAXB. Initializes the comments list to empty. */
   public PSComments() {
     comments = new ArrayList<>();
   }
@@ -57,6 +58,8 @@ public class PSComments {
   }
 
   /**
+   * Gets the list of comments held by this container.
+   *
    * @return the list of comments. Never <code>null</code>.
    */
   public List<IPSComment> getComments() {

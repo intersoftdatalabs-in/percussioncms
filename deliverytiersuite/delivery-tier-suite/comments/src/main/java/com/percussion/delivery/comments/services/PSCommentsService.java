@@ -59,6 +59,11 @@ public class PSCommentsService implements IPSCommentsService {
   private List<IPSServiceDataChangeListener> listeners = new ArrayList<>();
   private final String[] PERC_COMMENTS_SERVICES = {"perc-comments-services"};
 
+  /**
+   * Creates a new comments service backed by the supplied DAO.
+   *
+   * @param dao the comments data access object, must not be {@code null}.
+   */
   @Autowired
   public PSCommentsService(IPSCommentsDao dao) {
     this.dao = dao;
@@ -87,7 +92,7 @@ public class PSCommentsService implements IPSCommentsService {
    * Adds a new comment in the database.
    * Notifies listeners of changes in comments so that cache regions can be flushed.
    *
-   * @param comment Comment to add. Must not be <code>null</null>.
+   * @param comment Comment to add. Must not be {@code null}.
    * May be any implementation of IPSComment interface.
    */
   public IPSComment addComment(IPSComment comment) {
@@ -493,16 +498,20 @@ public class PSCommentsService implements IPSCommentsService {
     throw new UnsupportedOperationException();
   }
 
-  /* (non-Javadoc)
-   * @see com.percussion.metadata.IPSMetadataIndexerService#addMetadataListener(com.percussion.metadata.event.IPSMetadataListener)
+  /**
+   * Adds a data change listener to this service.
+   *
+   * @param listener the listener to add, must not be {@code null}.
    */
   public void addMetadataListener(IPSServiceDataChangeListener listener) {
     Validate.notNull(listener, "listener cannot be null.");
     if (!listeners.contains(listener)) listeners.add(listener);
   }
 
-  /* (non-Javadoc)
-   * @see com.percussion.metadata.IPSMetadataIndexerService#removeMetadataListener(com.percussion.metadata.event.IPSMetadataListener)
+  /**
+   * Removes a data change listener from this service.
+   *
+   * @param listener the listener to remove, must not be {@code null}.
    */
   public void removeMetadataListener(IPSServiceDataChangeListener listener) {
     Validate.notNull(listener, "listener cannot be null.");

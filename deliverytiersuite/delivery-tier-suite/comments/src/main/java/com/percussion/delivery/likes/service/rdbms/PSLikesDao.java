@@ -36,13 +36,26 @@ import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+/**
+ * RDBMS-backed implementation of {@link IPSLikesDao}. Performs all likes persistence through
+ * Hibernate against the delivery tier database.
+ */
 @Repository
 @Scope("singleton")
 @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.READ_COMMITTED)
 public class PSLikesDao implements IPSLikesDao {
 
+  /** Hibernate session factory used by this DAO. */
   private SessionFactory sessionFactory;
 
+  /** Default no-arg constructor required by Spring for bean instantiation. */
+  public PSLikesDao() {}
+
+  /**
+   * Injects the Hibernate {@link SessionFactory} used by this DAO.
+   *
+   * @param sessionFactory the session factory to use, must not be {@code null}.
+   */
   @Autowired
   public void setSessionFactory(SessionFactory sessionFactory) {
     this.sessionFactory = sessionFactory;
