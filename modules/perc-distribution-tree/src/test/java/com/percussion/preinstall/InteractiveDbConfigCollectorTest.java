@@ -42,29 +42,25 @@ class InteractiveDbConfigCollectorTest {
     assertFalse(InteractiveDbConfigCollector.hasExplicitDbOverride(Map.of()));
     assertTrue(
         InteractiveDbConfigCollector.hasExplicitDbOverride(Map.of("dbprops", "/tmp/x.properties")));
-    assertTrue(
-        InteractiveDbConfigCollector.hasExplicitDbOverride(Map.of("db.type", "mysql")));
-    assertTrue(
-        InteractiveDbConfigCollector.hasExplicitDbOverride(Map.of("db.host", "h")));
-    assertFalse(
-        InteractiveDbConfigCollector.hasExplicitDbOverride(Map.of("db.type", "h2")));
+    assertTrue(InteractiveDbConfigCollector.hasExplicitDbOverride(Map.of("db.type", "mysql")));
+    assertTrue(InteractiveDbConfigCollector.hasExplicitDbOverride(Map.of("db.host", "h")));
+    assertFalse(InteractiveDbConfigCollector.hasExplicitDbOverride(Map.of("db.type", "h2")));
   }
 
   @Test
   void upgradeSkipsPrompts() {
     ScriptedPrompt prompt = new ScriptedPrompt();
-    Map<String, String> out =
-        InteractiveDbConfigCollector.collect(Map.of(), true, prompt);
+    Map<String, String> out = InteractiveDbConfigCollector.collect(Map.of(), true, prompt);
     assertTrue(out.isEmpty());
     assertTrue(prompt.outputsAsString().toLowerCase().contains("upgrade"));
   }
 
   @Test
   void defaultMenuSelectsH2() {
-    ScriptedPrompt prompt = new ScriptedPrompt("");
-    Map<String, String> out =
-        InteractiveDbConfigCollector.collect(new HashMap<>(), false, prompt);
+    ScriptedPrompt prompt = new ScriptedPrompt("", "default-pwd", "default-pwd");
+    Map<String, String> out = InteractiveDbConfigCollector.collect(new HashMap<>(), false, prompt);
     assertEquals("h2", out.get("db.type"));
+    assertEquals("default-pwd", out.get(InteractiveDbConfigCollector.EMBEDDED_H2_DB_PASSWORD_KEY));
   }
 
   @Test
@@ -74,13 +70,74 @@ class InteractiveDbConfigCollectorTest {
     existing.put("db.ssl.enabled", "false");
     existing.put("db.ssl.verify", "false");
     existing.put("db.ssl.trustStorePath", "/tmp/ts");
-    ScriptedPrompt prompt = new ScriptedPrompt("1");
-    Map<String, String> out =
-        InteractiveDbConfigCollector.collect(existing, false, prompt);
+    ScriptedPrompt prompt = new ScriptedPrompt("1", "secret", "secret");
+    Map<String, String> out = InteractiveDbConfigCollector.collect(existing, false, prompt);
     assertEquals("h2", out.get("db.type"));
     assertFalse(out.containsKey("db.ssl.enabled"));
     assertFalse(out.containsKey("db.ssl.verify"));
     assertFalse(out.containsKey("db.ssl.trustStorePath"));
+  }
+
+  @Test
+  void h2SelectionPromptsAndConfirmsDbPassword() {
+    ScriptedPrompt prompt = new ScriptedPrompt("1", "secret-pwd", "secret-pwd");
+    Map<String, String> out = InteractiveDbConfigCollector.collect(new HashMap<>(), false, prompt);
+    assertEquals("h2", out.get("db.type"));
+    assertEquals(
+        "secret-pwd",
+        out.get(InteractiveDbConfigCollector.EMBEDDED_H2_DB_PASSWORD_KEY),
+        "operator-confirmed password must be stored under EMBEDDED_H2_DB_PASSWORD_KEY");
+  }
+
+  @Test
+  void h2PasswordMismatchRetriesThenAborts() {
+    // Five failed attempts: each pair mismatched, exhausting the 5-attempt budget.
+    ScriptedPrompt prompt =
+        new ScriptedPrompt(
+            "1",
+            "first-a",
+            "first-b",
+            "second-a",
+            "second-b",
+            "third-a",
+            "third-b",
+            "fourth-a",
+            "fourth-b",
+            "fifth-a",
+            "fifth-b");
+    IllegalArgumentException ex =
+        org.junit.jupiter.api.Assertions.assertThrows(
+            IllegalArgumentException.class,
+            () -> InteractiveDbConfigCollector.collect(new HashMap<>(), false, prompt));
+    assertTrue(ex.getMessage().toLowerCase().contains("too many"), ex.getMessage());
+  }
+
+  @Test
+  void h2PasswordMismatchRecoversOnLaterAttempt() {
+    // First attempt mismatches, second attempt matches.
+    ScriptedPrompt prompt = new ScriptedPrompt("1", "first-a", "first-b", "second-a", "second-a");
+    Map<String, String> out = InteractiveDbConfigCollector.collect(new HashMap<>(), false, prompt);
+    assertEquals("second-a", out.get(InteractiveDbConfigCollector.EMBEDDED_H2_DB_PASSWORD_KEY));
+  }
+
+  @Test
+  void h2EmptyPasswordIsRejected() {
+    // Operator hits Enter twice; second attempt matches; value must not be blank.
+    ScriptedPrompt prompt = new ScriptedPrompt("1", "", "real-pwd", "real-pwd");
+    Map<String, String> out = InteractiveDbConfigCollector.collect(new HashMap<>(), false, prompt);
+    assertEquals("real-pwd", out.get(InteractiveDbConfigCollector.EMBEDDED_H2_DB_PASSWORD_KEY));
+  }
+
+  @Test
+  void dbH2PasswordKeyClearedOnReentry() {
+    Map<String, String> existing = new HashMap<>();
+    existing.put(InteractiveDbConfigCollector.EMBEDDED_H2_DB_PASSWORD_KEY, "stale");
+    ScriptedPrompt prompt = new ScriptedPrompt("1", "fresh", "fresh");
+    Map<String, String> out = InteractiveDbConfigCollector.collect(existing, false, prompt);
+    assertEquals("fresh", out.get(InteractiveDbConfigCollector.EMBEDDED_H2_DB_PASSWORD_KEY));
+    // collect returns a fresh map; the input is intentionally not mutated. The
+    // InteractiveInstallWizard's reentry loop clears the input map directly via
+    // options.remove(...) to force a re-prompt.
   }
 
   @Test
@@ -109,11 +166,9 @@ class InteractiveDbConfigCollectorTest {
         """,
         StandardCharsets.UTF_8);
     ScriptedPrompt prompt = new ScriptedPrompt("6", props.toString());
-    Map<String, String> out =
-        InteractiveDbConfigCollector.collect(new HashMap<>(), false, prompt);
+    Map<String, String> out = InteractiveDbConfigCollector.collect(new HashMap<>(), false, prompt);
     assertEquals(props.toAbsolutePath().normalize().toString(), out.get("dbprops"));
-    DbInstallConfigResolver.ResolvedDbConfig cfg =
-        DbInstallConfigResolver.resolveDbConfig(out);
+    DbInstallConfigResolver.ResolvedDbConfig cfg = DbInstallConfigResolver.resolveDbConfig(out);
     assertEquals("mysql", cfg.systemProperties().get("perc.db.type"));
   }
 

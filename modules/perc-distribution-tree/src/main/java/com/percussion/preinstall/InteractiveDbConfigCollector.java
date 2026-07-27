@@ -71,9 +71,7 @@ public final class InteractiveDbConfigCollector {
       Map<String, String> existingOptions, boolean upgrade, InstallPrompt prompt) {
     Objects.requireNonNull(prompt, "prompt");
     Map<String, String> options =
-        existingOptions != null
-            ? new LinkedHashMap<>(existingOptions)
-            : new LinkedHashMap<>();
+        existingOptions != null ? new LinkedHashMap<>(existingOptions) : new LinkedHashMap<>();
 
     if (upgrade) {
       prompt.println(
@@ -114,6 +112,14 @@ public final class InteractiveDbConfigCollector {
         options.put("db.type", "h2");
         clearStructuredAndSsl(options);
         prompt.println("Selected embedded H2.");
+        // Prompt+confirm a CMS DB password for the embedded H2 backend. The
+        // installer writes it under the "cmdb" key in var/config/generated/passwords
+        // and into rxrepository.properties so the runtime opens the H2 file DB
+        // without the "Wrong user name or password" failure mode that an empty
+        // PWD= can trigger (#548 / #1500 matrix smoke).
+        char[] pw = promptPasswordWithConfirm(prompt);
+        options.put(EMBEDDED_H2_DB_PASSWORD_KEY, new String(pw));
+        Arrays.fill(pw, '\0');
       }
       case "2" -> {
         options.put("db.type", "sqlserver");
@@ -138,11 +144,12 @@ public final class InteractiveDbConfigCollector {
       case "6" -> {
         String path =
             promptRequired(
-                prompt, "Path to repository properties file: ", "Properties file path is required.");
+                prompt,
+                "Path to repository properties file: ",
+                "Properties file path is required.");
         Path p = Paths.get(path).toAbsolutePath().normalize();
         if (!Files.isRegularFile(p) || !Files.isReadable(p)) {
-          throw new IllegalArgumentException(
-              "dbprops file not found or not readable: " + p);
+          throw new IllegalArgumentException("dbprops file not found or not readable: " + p);
         }
         options.put(DbInstallConfigResolver.DBPROPS_KEY, p.toString());
         options.remove("db.type");
@@ -182,19 +189,12 @@ public final class InteractiveDbConfigCollector {
       String defaultPort,
       String defaultSchema,
       String defaultName) {
+    options.put("db.host", promptWithDefault(prompt, "Database host", "localhost"));
+    options.put("db.port", promptWithDefault(prompt, "Database port", defaultPort));
     options.put(
-        "db.host",
-        promptWithDefault(prompt, "Database host", "localhost"));
-    options.put(
-        "db.port",
-        promptWithDefault(prompt, "Database port", defaultPort));
-    options.put(
-        "db.name",
-        promptWithDefault(prompt, "Database name (or Oracle service/SID)", defaultName));
+        "db.name", promptWithDefault(prompt, "Database name (or Oracle service/SID)", defaultName));
     if (defaultSchema != null && !defaultSchema.isEmpty()) {
-      options.put(
-          "db.schema",
-          promptWithDefault(prompt, "Schema", defaultSchema));
+      options.put("db.schema", promptWithDefault(prompt, "Schema", defaultSchema));
     } else {
       String schema = prompt.readLine("Schema (optional, Enter to skip): ").trim();
       if (!schema.isEmpty()) {
@@ -203,17 +203,22 @@ public final class InteractiveDbConfigCollector {
         options.remove("db.schema");
       }
     }
-    options.put(
-        "db.user",
-        promptRequired(prompt, "Database user: ", "Database user is required."));
+    options.put("db.user", promptRequired(prompt, "Database user: ", "Database user is required."));
     options.put("db.password", readPasswordToString(prompt));
 
     String sslEnabled =
-        promptWithDefault(prompt, "SSL enabled (true/false)", DbInstallConfigResolver.DB_SSL_ENABLED_DEFAULT);
-    options.put("db.ssl.enabled", normalizeBool(sslEnabled, DbInstallConfigResolver.DB_SSL_ENABLED_DEFAULT));
+        promptWithDefault(
+            prompt, "SSL enabled (true/false)", DbInstallConfigResolver.DB_SSL_ENABLED_DEFAULT);
+    options.put(
+        "db.ssl.enabled",
+        normalizeBool(sslEnabled, DbInstallConfigResolver.DB_SSL_ENABLED_DEFAULT));
     String sslVerify =
-        promptWithDefault(prompt, "SSL verify server cert (true/false)", DbInstallConfigResolver.DB_SSL_VERIFY_DEFAULT);
-    options.put("db.ssl.verify", normalizeBool(sslVerify, DbInstallConfigResolver.DB_SSL_VERIFY_DEFAULT));
+        promptWithDefault(
+            prompt,
+            "SSL verify server cert (true/false)",
+            DbInstallConfigResolver.DB_SSL_VERIFY_DEFAULT);
+    options.put(
+        "db.ssl.verify", normalizeBool(sslVerify, DbInstallConfigResolver.DB_SSL_VERIFY_DEFAULT));
   }
 
   static String promptWithDefault(InstallPrompt prompt, String label, String defaultValue) {
@@ -260,6 +265,50 @@ public final class InteractiveDbConfigCollector {
       Arrays.fill(chars, '\0');
     }
   }
+
+  /**
+   * Read and confirm a CMS DB password for the embedded H2 backend. Re-prompts until the operator
+   * enters two matching non-empty values (up to 5 attempts), then returns the confirmed value as a
+   * {@code char[]}. The caller is responsible for zeroing the buffer after use.
+   *
+   * @param prompt operator I/O; must not be {@code null}.
+   * @return confirmed password; never {@code null} or empty.
+   * @throws IllegalArgumentException when confirmation fails after 5 attempts or no console is
+   *     available.
+   */
+  static char[] promptPasswordWithConfirm(InstallPrompt prompt) {
+    Objects.requireNonNull(prompt, "prompt");
+    for (int attempt = 0; attempt < 5; attempt++) {
+      char[] first = prompt.readPassword("CMS database password (8+ chars recommended): ");
+      if (first == null) {
+        throw new IllegalArgumentException("No console available to read CMS database password.");
+      }
+      if (first.length == 0) {
+        Arrays.fill(first, '\0');
+        prompt.println("Password cannot be empty for embedded H2.");
+        continue;
+      }
+      char[] confirm = prompt.readPassword("Confirm CMS database password: ");
+      if (confirm == null) {
+        Arrays.fill(first, '\0');
+        throw new IllegalArgumentException(
+            "No console available to confirm CMS database password.");
+      }
+      if (!Arrays.equals(first, confirm)) {
+        Arrays.fill(first, '\0');
+        Arrays.fill(confirm, '\0');
+        prompt.println("Passwords do not match. Try again.");
+        continue;
+      }
+      Arrays.fill(confirm, '\0');
+      return first;
+    }
+    throw new IllegalArgumentException(
+        "Too many failed CMS database password confirmations. Aborting.");
+  }
+
+  /** Structured-options key carrying the operator-confirmed embedded H2 DB password. */
+  public static final String EMBEDDED_H2_DB_PASSWORD_KEY = "db.h2.password";
 
   private static String normalizeBool(String raw, String defaultValue) {
     if (raw == null || raw.isBlank()) {

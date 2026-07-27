@@ -91,8 +91,9 @@ class InteractiveInstallWizardTest {
   @Test
   void interactivePromptsForPathAndConfirmsDefaultYesForH2() {
     Path install = tempDir.resolve("interactive-cms");
-    // path → DB menu default H2 → confirm default Y
-    ScriptedPrompt prompt = new ScriptedPrompt(install.toString(), "", "");
+    // path → DB menu default H2 → CMS DB password + confirm → confirm default Y
+    ScriptedPrompt prompt =
+        new ScriptedPrompt(install.toString(), "", "operator-pwd", "operator-pwd", "");
     DbInstallConfigResolver.ParsedArgs parsed =
         new DbInstallConfigResolver.ParsedArgs(null, Map.of());
     InteractiveInstallWizard.Phase1Result result =
@@ -100,16 +101,21 @@ class InteractiveInstallWizardTest {
     assertTrue(result.proceed());
     assertEquals(install.toAbsolutePath().normalize(), result.installPath());
     assertEquals("h2", result.dbConfig().systemProperties().get("perc.db.type"));
+    assertEquals("operator-pwd", result.dbConfig().systemProperties().get("cmdb.password"));
     assertTrue(prompt.outputsAsString().contains("installation summary"));
     assertTrue(prompt.outputsAsString().contains("h2"));
     assertTrue(prompt.outputsAsString().contains("Java home"));
+    assertTrue(
+        prompt.outputsAsString().contains("rxrepository.properties"),
+        "interactive H2 summary must reference rxrepository.properties; was:\n"
+            + prompt.outputsAsString());
   }
 
   @Test
   void interactiveConfirmNoAborts() {
     Path install = tempDir.resolve("abort-cms");
-    // path → H2 menu → confirm n
-    ScriptedPrompt prompt = new ScriptedPrompt(install.toString(), "1", "n");
+    // path → H2 menu → CMS DB password + confirm → confirm n
+    ScriptedPrompt prompt = new ScriptedPrompt(install.toString(), "1", "secret", "secret", "n");
     DbInstallConfigResolver.ParsedArgs parsed =
         new DbInstallConfigResolver.ParsedArgs(null, Map.of());
     InteractiveInstallWizard.Phase1Result result =
@@ -122,8 +128,8 @@ class InteractiveInstallWizardTest {
   @Test
   void interactivePathAlreadySuppliedStillConfirms() {
     Path install = tempDir.resolve("cli-path");
-    // H2 menu → confirm y
-    ScriptedPrompt prompt = new ScriptedPrompt("1", "y");
+    // H2 menu → CMS DB password + confirm → confirm y
+    ScriptedPrompt prompt = new ScriptedPrompt("1", "secret", "secret", "y");
     DbInstallConfigResolver.ParsedArgs parsed =
         new DbInstallConfigResolver.ParsedArgs(install, Map.of());
     InteractiveInstallWizard.Phase1Result result =
@@ -243,11 +249,68 @@ class InteractiveInstallWizardTest {
         install.resolve(Main.VERSION_PROPERTIES),
         "majorVersion=8\nminorVersion=2\n",
         StandardCharsets.UTF_8);
-    DbInstallConfigResolver.ResolvedDbConfig db =
-        DbInstallConfigResolver.resolveDbConfig(Map.of());
+    DbInstallConfigResolver.ResolvedDbConfig db = DbInstallConfigResolver.resolveDbConfig(Map.of());
     String summary = InteractiveInstallWizard.buildSummary(install, db);
     assertTrue(summary.contains("Upgrade"));
     assertFalse(summary.contains("New install"));
+  }
+
+  @Test
+  void interactiveH2SummaryReferencesRxrepositoryProperties() {
+    // Operator-supplied H2 passwords live only in rxrepository.properties and
+    // perc-ds.properties; the system-generated passwords file is reserved for
+    // credentials the system auto-generates, not operator-chosen secrets.
+    Map<String, String> props = new HashMap<>();
+    props.put("perc.db.type", "h2");
+    props.put("cmdb.password", "operator-chosen-pwd");
+    DbInstallConfigResolver.ResolvedDbConfig db =
+        new DbInstallConfigResolver.ResolvedDbConfig(props, "structured");
+    Path install = tempDir.resolve("new-install-root");
+    String summary = InteractiveInstallWizard.buildSummary(install, db);
+    assertTrue(
+        summary.contains("rxrepository.properties"),
+        "interactive H2 summary must point the operator to rxrepository.properties; was:\n"
+            + summary);
+    assertFalse(
+        summary.contains("var/config/generated/passwords"),
+        "operator-chosen H2 passwords must NOT be advertised as living in"
+            + " var/config/generated/passwords; was:\n"
+            + summary);
+    assertFalse(
+        summary.contains("operator-chosen-pwd"),
+        "summary must never echo the password value; was:\n" + summary);
+  }
+
+  @Test
+  void silentH2SummaryReferencesGeneratedPasswordsFile() {
+    // Silent installs (no operator cmdb.password in the resolved config) get a
+    // random value persisted to var/config/generated/passwords by ANT's
+    // PSGenerateRepositoryPassword; the summary must point operators there.
+    Map<String, String> props = new HashMap<>();
+    props.put("perc.db.type", "h2");
+    DbInstallConfigResolver.ResolvedDbConfig db =
+        new DbInstallConfigResolver.ResolvedDbConfig(props, "default");
+    Path install = tempDir.resolve("new-install-root");
+    String summary = InteractiveInstallWizard.buildSummary(install, db);
+    assertTrue(
+        summary.contains("var/config/generated/passwords"),
+        "silent H2 summary must point operators to var/config/generated/passwords; was:\n"
+            + summary);
+    assertTrue(summary.contains("cmdb"), summary);
+  }
+
+  @Test
+  void externalDbSummaryDoesNotMentionGeneratedPasswords() {
+    Map<String, String> props = new HashMap<>();
+    props.put("perc.db.type", "postgresql");
+    props.put("perc.db.host", "localhost");
+    DbInstallConfigResolver.ResolvedDbConfig db =
+        new DbInstallConfigResolver.ResolvedDbConfig(props, "structured");
+    Path install = tempDir.resolve("new-install-root");
+    String summary = InteractiveInstallWizard.buildSummary(install, db);
+    assertFalse(
+        summary.contains("var/config/generated/passwords"),
+        "external backends manage their own credentials; was:\n" + summary);
   }
 
   @Test

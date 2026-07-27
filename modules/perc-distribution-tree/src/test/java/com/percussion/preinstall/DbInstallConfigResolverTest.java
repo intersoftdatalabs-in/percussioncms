@@ -66,8 +66,7 @@ class DbInstallConfigResolverTest {
     opts.put("db.user", "cms");
     opts.put("db.password", "s3cret");
 
-    DbInstallConfigResolver.ResolvedDbConfig cfg =
-        DbInstallConfigResolver.resolveDbConfig(opts);
+    DbInstallConfigResolver.ResolvedDbConfig cfg = DbInstallConfigResolver.resolveDbConfig(opts);
     Map<String, String> p = cfg.systemProperties();
     assertEquals("postgresql", p.get("perc.db.type"));
     assertEquals("POSTGRES", p.get("perc.db.cms.backend"));
@@ -77,10 +76,8 @@ class DbInstallConfigResolverTest {
     assertEquals("public", p.get("perc.db.cms.schema"));
     assertEquals("cms", p.get("perc.db.user"));
     assertEquals("s3cret", p.get("perc.db.password"));
-    assertEquals(
-        "jdbc:postgresql://pg.example.com:5432/percussion", p.get("perc.db.dts.jdbcUrl"));
-    assertEquals(
-        "org.hibernate.dialect.PostgreSQLDialect", p.get("perc.db.dts.hibernateDialect"));
+    assertEquals("jdbc:postgresql://pg.example.com:5432/percussion", p.get("perc.db.dts.jdbcUrl"));
+    assertEquals("org.hibernate.dialect.PostgreSQLDialect", p.get("perc.db.dts.hibernateDialect"));
   }
 
   @Test
@@ -92,8 +89,7 @@ class DbInstallConfigResolverTest {
     opts.put("db.name", "cmsdb");
     opts.put("db.user", "u");
     opts.put("db.password", "p");
-    DbInstallConfigResolver.ResolvedDbConfig cfg =
-        DbInstallConfigResolver.resolveDbConfig(opts);
+    DbInstallConfigResolver.ResolvedDbConfig cfg = DbInstallConfigResolver.resolveDbConfig(opts);
     assertEquals("postgresql", cfg.systemProperties().get("perc.db.type"));
     assertEquals("POSTGRES", cfg.systemProperties().get("perc.db.cms.backend"));
   }
@@ -116,8 +112,7 @@ class DbInstallConfigResolverTest {
         StandardCharsets.UTF_8);
     Map<String, String> opts = new HashMap<>();
     opts.put("dbprops", props.toString());
-    DbInstallConfigResolver.ResolvedDbConfig cfg =
-        DbInstallConfigResolver.resolveDbConfig(opts);
+    DbInstallConfigResolver.ResolvedDbConfig cfg = DbInstallConfigResolver.resolveDbConfig(opts);
     assertEquals("postgresql", cfg.systemProperties().get("perc.db.type"));
     assertEquals("POSTGRES", cfg.systemProperties().get("perc.db.cms.backend"));
     assertEquals("postgresql", cfg.systemProperties().get("perc.db.cms.driverName"));
@@ -382,5 +377,31 @@ class DbInstallConfigResolverTest {
     assertEquals(Path.of("/opt/install"), parsed.installPath());
     assertEquals("/tmp/a.properties", parsed.options().get("dbprops"));
     assertEquals("mysql", parsed.options().get("db.type"));
+  }
+
+  @Test
+  void structuredH2SurfacesCmdbPasswordAsSystemProperty() {
+    Map<String, String> opts = new HashMap<>();
+    opts.put("db.type", "h2");
+    opts.put(InteractiveDbConfigCollector.EMBEDDED_H2_DB_PASSWORD_KEY, "operator-chosen-pwd");
+    DbInstallConfigResolver.ResolvedDbConfig cfg = DbInstallConfigResolver.resolveDbConfig(opts);
+    assertEquals("h2", cfg.systemProperties().get("perc.db.type"));
+    assertEquals(
+        "operator-chosen-pwd",
+        cfg.systemProperties().get("cmdb.password"),
+        "interactive H2 installs must expose cmdb.password for ANT installRepository.xml");
+  }
+
+  @Test
+  void structuredH2WithoutPasswordDoesNotEmitCmdbPassword() {
+    // Silent / non-interactive path: no EMBEDDED_H2_DB_PASSWORD_KEY supplied; ANT's
+    // PSGenerateRepositoryPassword (random mode) takes over and emits cmdb.password
+    // itself. The resolver must not invent a value here.
+    DbInstallConfigResolver.ResolvedDbConfig cfg =
+        DbInstallConfigResolver.resolveDbConfig(Map.of("db.type", "h2"));
+    assertEquals("h2", cfg.systemProperties().get("perc.db.type"));
+    assertFalse(
+        cfg.systemProperties().containsKey("cmdb.password"),
+        "silent path must not synthesize a cmdb.password; ANT generates it");
   }
 }
