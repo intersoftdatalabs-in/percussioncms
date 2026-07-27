@@ -17,15 +17,21 @@
 venv/
 *.egg-info/
 dist/
-# --- Kilo Code (.kilocode): track Speckit workflows + package manifests ---
+
+# --- Kilo Code (.kilo): track Speckit workflows + package manifests ---
 # Keep memory-bank local (high-churn / stale-risk vs AGENTS.md + constitution)
-.kilocode/node_modules/
-.kilocode/bun.lock
-.kilocode/rules/memory-bank/
-.kilocode/rules/memory-bank-instructions.md
+.kilocode/
+.kilo/worktrees/
+.kilo/agent-manager.json
+.kilo/node_modules/
+.kilo/*.lock
+.kilo/*.local.jsonc
+.kilo/kilo.jsonc
+.kilo/package.json
+.kilo/rules/memory-bank/
+.kilo/rules/memory-bank-instructions.md
 
 # Personal agent state (always local)
-.kilo
 .grok
 
 docker/dev-data
