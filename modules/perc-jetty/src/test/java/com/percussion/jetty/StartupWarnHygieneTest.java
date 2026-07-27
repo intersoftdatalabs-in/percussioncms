@@ -145,11 +145,54 @@ class StartupWarnHygieneTest {
     for (String line : javaLines) {
       assertFalse(
           line.contains("-DSTOP.PORT"),
-          "StartJetty.bat start.jar line must not set -DSTOP.PORT (use shutdown.ini): " + line);
+          "StartJetty.bat start.jar line must not set -DSTOP.PORT (use jetty.shutdown.*): " + line);
       assertFalse(
           line.contains("-DSTOP.KEY"),
-          "StartJetty.bat start.jar line must not set -DSTOP.KEY (use shutdown.ini): " + line);
+          "StartJetty.bat start.jar line must not set -DSTOP.KEY (use jetty.shutdown.*): " + line);
+      assertTrue(
+          line.contains("jetty.shutdown.port=%STOPPORT%"),
+          "StartJetty.bat must pass jetty.shutdown.port from STOPPORT for operator overrides: "
+              + line);
+      assertTrue(
+          line.contains("jetty.shutdown.key=%STOPKEY%"),
+          "StartJetty.bat must pass jetty.shutdown.key from STOPKEY: " + line);
     }
+  }
+
+  /**
+   * GH-1486 / PR #1518 review: Windows service install must still wire operator
+   * STOPPORT/STOPKEY into the server start path without using -DSTOP.PORT.
+   */
+  @Test
+  void installJettyServiceBatPreservesCustomStopPortViaShutdownProperties() throws Exception {
+    String bat = read(file("service", "install-jetty-service.bat"));
+    assertTrue(
+        bat.contains("set STOPPORT="),
+        "install-jetty-service.bat must define STOPPORT for operator customization");
+    assertTrue(
+        bat.contains("set STOPKEY="),
+        "install-jetty-service.bat must define STOPKEY for operator customization");
+    assertTrue(
+        bat.contains("jetty.shutdown.port=%STOPPORT%"),
+        "PR_STARTPARAMS must pass jetty.shutdown.port=%STOPPORT% (not drop operator port)");
+    assertTrue(
+        bat.contains("jetty.shutdown.key=%STOPKEY%"),
+        "PR_STARTPARAMS must pass jetty.shutdown.key=%STOPKEY%");
+    // Server start params must not reintroduce deprecated ShutdownMonitor props
+    List<String> startParamLines =
+        Stream.of(bat.replace("\r\n", "\n").split("\n"))
+            .filter(l -> l.contains("PR_STARTPARAMS"))
+            .toList();
+    assertFalse(startParamLines.isEmpty(), "PR_STARTPARAMS must be set");
+    for (String line : startParamLines) {
+      assertFalse(
+          line.contains("-DSTOP.PORT") || line.contains("-DSTOP.KEY"),
+          "PR_STARTPARAMS must not use -DSTOP.PORT/-DSTOP.KEY on server: " + line);
+    }
+    // Stop client still uses STOP.* for start.jar --stop
+    assertTrue(
+        bat.contains("PR_STOPPARAMS") && bat.contains("-DSTOP.PORT=%STOPPORT%"),
+        "PR_STOPPARAMS must keep -DSTOP.PORT=%STOPPORT% for stop client");
   }
 
   /** GH-1486: StopJetty client still uses STOP.PORT/KEY to talk to ShutdownService. */
@@ -158,6 +201,7 @@ class StartupWarnHygieneTest {
     String bat = read(file("StopJetty.bat"));
     assertTrue(bat.contains("-DSTOP.PORT"), "StopJetty.bat must pass STOP.PORT for --stop client");
     assertTrue(bat.contains("-DSTOP.KEY"), "StopJetty.bat must pass STOP.KEY for --stop client");
+    assertTrue(bat.contains("%STOPKEY%"), "StopJetty.bat must use STOPKEY variable for key");
     assertTrue(bat.contains("--stop"), "StopJetty.bat must invoke start.jar --stop");
   }
 

@@ -68,14 +68,19 @@ moving those args onto the `StartJetty` `java` command line and removing
 **Change:**
 
 - Depend on Jetty stock `shutdown` module from `perc.mod`
-- `defaults/start.d/shutdown.ini`:
+- `defaults/start.d/shutdown.ini` defaults:
   - `jetty.shutdown.port=50011`
   - `jetty.shutdown.key=SHUTDOWN`
   - `jetty.shutdown.host=127.0.0.1`
-- Remove `-DSTOP.PORT` / `-DSTOP.KEY` from `StartJetty.bat` and Windows service
-  start params
-- **Keep** those properties on `StopJetty.bat` as **client** connection params
-  for `start.jar --stop` (must match `jetty.shutdown.*`)
+- `StartJetty.bat` / `install-jetty-service.bat` pass operator `STOPPORT` /
+  `STOPKEY` as Jetty start properties `jetty.shutdown.port` /
+  `jetty.shutdown.key` (overrides ini; does **not** activate ShutdownMonitor)
+- **Keep** `-DSTOP.PORT` / `-DSTOP.KEY` on `StopJetty.bat` and service
+  `PR_STOPPARAMS` as **client** connection params for `start.jar --stop`
+
+**PR #1518 review fix:** Restored operator customization of stop port/key on
+Windows service install (`PR_STARTPARAMS=jetty.shutdown.port=%STOPPORT%;…`).
+The first iteration had dropped `STOPPORT`/`STOPKEY` from start params entirely.
 
 ### CookieConfig.setComment → SameSite attribute
 

@@ -60,3 +60,15 @@ _None (hard gate)._
 
 - `cd modules/perc-jetty && ../../mvn-env.bat clean install`
 - **BUILD SUCCESS** — Tests run: 39, Failures: 0, Errors: 0, Skipped: 0
+
+## Re-review (PR #1518 kilo-code-bot WARNING)
+
+**Finding:** Operator-customizable stop port dropped from Windows service
+`PR_STARTPARAMS` when removing `-DSTOP.PORT`.
+
+**Mitigation:** Restore `STOPPORT`/`STOPKEY` wiring as Jetty start properties
+`jetty.shutdown.port` / `jetty.shutdown.key` on both `install-jetty-service.bat`
+(`PR_STARTPARAMS`) and `StartJetty.bat` (console). Stop client path unchanged.
+Added `installJettyServiceBatPreservesCustomStopPortViaShutdownProperties` test.
+
+**Gate:** still **approve** — no hard bugs; review feedback addressed.

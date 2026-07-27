@@ -87,7 +87,10 @@ and packaging (see worklog `src/site/markdown/worklog/jetty-startup-warn-hygiene
 | #1486 | `ShutdownService` + SameSite attribute | `start.d/shutdown.ini`, `StartJetty.bat`, `Rhythmyx.xml` |
 | #1487 | Named `jetty.xml` Args + DigesterFactory schemas | antrun patch of `upstream/etc/jetty.xml`; `perc-xml-schemas.jar` |
 
-Stop defaults are unchanged: port **50011**, key **SHUTDOWN**. `StopJetty` still
-uses `-DSTOP.PORT` / `-DSTOP.KEY` as **client** parameters for `start.jar --stop`.
+Stop defaults are unchanged: port **50011**, key **SHUTDOWN**. Customize by
+editing `STOPPORT` / `STOPKEY` in `StartJetty.bat`, `StopJetty.bat`, and
+`service/install-jetty-service.bat` (all three must match). Server start applies
+them as `jetty.shutdown.port` / `jetty.shutdown.key`; `StopJetty` still uses
+`-DSTOP.PORT` / `-DSTOP.KEY` as **client** parameters for `start.jar --stop`.
 
 Unit tests: `src/test/java/com/percussion/jetty/StartupWarnHygieneTest.java`

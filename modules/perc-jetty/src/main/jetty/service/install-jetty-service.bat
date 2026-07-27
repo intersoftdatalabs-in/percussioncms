@@ -27,11 +27,11 @@ set PR_DESCRIPTION="Percussion Services For CMS - Jetty Server"
 set JETTY_HOME="%JETTY_ROOT%upstream"
 set JETTY_BASE="%JETTY_ROOT%base"
 set JETTY_DEFAULTS="%JETTY_ROOT%defaults"
+REM Operator-customizable stop port/key (must match StopJetty.bat / StartJetty.bat).
+REM Change these before install/update if 50011 is taken or multiple CMS instances share a host.
+REM Values are applied as Jetty start properties jetty.shutdown.port / jetty.shutdown.key
+REM (ShutdownService). Do NOT use -DSTOP.PORT on the server JVM (deprecated ShutdownMonitor).
 set STOPKEY=SHUTDOWN
-
-REM Note stop port number must be available and unique on the server.  Copy this file,
-REM Change this number and the service name if you need
-REM to create a separate service.
 set STOPPORT=50011
 
 set PR_INSTALL="%JETTY_ROOT%service\win\prunsrv.exe"
@@ -74,11 +74,13 @@ set PR_STARTUP=auto
 set PR_STARTMODE=exe
 set PR_STARTCLASS=%JETTY_START_CLASS%
 set PR_START_PATH=%JETTY_ROOT%
-REM GH-1486: server-side shutdown is jetty.shutdown.* in start.d/shutdown.ini.
-REM Do not pass -DSTOP.PORT on the service start JVM (deprecated ShutdownMonitor).
-set PR_STARTPARAMS=-Drxdeploydir=%JETTY_ROOT%..
+REM GH-1486 / PR #1518 review: pass operator STOPPORT/STOPKEY as Jetty start properties
+REM (jetty.shutdown.*) so multi-instance installs keep a custom stop port without
+REM activating deprecated ShutdownMonitor via -DSTOP.PORT on the server JVM.
+REM StartJetty.bat already sets -Drxdeploydir; start params are forwarded via %*.
+set PR_STARTPARAMS=jetty.shutdown.port=%STOPPORT%;jetty.shutdown.key=%STOPKEY%
 
-@REM Shutdown Configuration
+@REM Shutdown Configuration (client: start.jar --stop still uses -DSTOP.PORT/-DSTOP.KEY)
 set PR_STOPMODE=exe
 set PR_STOPCLASS=%JETTY_STOP_CLASS%
 set PR_STOP_PATH=%JETTY_ROOT%

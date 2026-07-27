@@ -6,7 +6,9 @@ SET JETTY_HOME=%mypath%upstream
 SET rxDir=%mypath%..
 SET JETTY_BASE=%mypath%base
 SET JETTY_DEFAULTS=%mypath%defaults
+REM Must match StartJetty.bat / install-jetty-service.bat (jetty.shutdown.port/key).
 set STOPPORT=50011
+set STOPKEY=SHUTDOWN
 
 REM GH-991: same resolve path as StartJetty (java.properties primary; JRE not required).
 REM See specs/991-system-java-home/contracts/java-home-resolution.md.
@@ -19,6 +21,6 @@ if errorlevel 1 (
 SET PATH=%JAVA_HOME%\bin;%PATH%
 
 cd %JETTY_BASE%
-"%JAVA%" -jar %JETTY_HOME%\start.jar -DSTOP.PORT=%STOPPORT% -DSTOP.KEY="SHUTDOWN" -Drxdeploydir="%rxDir%" -Djetty.base="%JETTY_BASE%" -Djetty_perc_defaults="%JETTY_DEFAULTS%" --include-jetty-dir="%JETTY_DEFAULTS%" --stop
+"%JAVA%" -jar %JETTY_HOME%\start.jar -DSTOP.PORT=%STOPPORT% -DSTOP.KEY="%STOPKEY%" -Drxdeploydir="%rxDir%" -Djetty.base="%JETTY_BASE%" -Djetty_perc_defaults="%JETTY_DEFAULTS%" --include-jetty-dir="%JETTY_DEFAULTS%" --stop
 
 endlocal
