@@ -58,7 +58,7 @@ Pain of the current hybrid:
 | `UnavailableView` | `home/UnavailableView.tsx` | `unavailableModern.jsp` | SPA 404 / unknown |
 | `ContentExplorerShell` | `contentExplorer/…` | explorerModern + embeds | Product route **and** optional bridge mount only inside **still-legacy** jQuery pages |
 | `ContentBrowser`, `SearchPanel`, `FolderSecurityPanel`, `ActionToolbar`, `ContextMenu` | contentExplorer / contentBrowser | host dialog JSPs | Prefer SPA dialog routes when openers allow; else keep thin host until openers updated |
-| `Dashboard` + widgets | `dashboard/*` | Registered; product `dashboard.jsp` still jQuery PercDashboard | **SPA dashboard route** preferred aggressively once wired; until then legacy exit `?view=dash` is temporary hybrid exit only |
+| `Dashboard` + widgets | `dashboard/*` | Registered; product `dashboard.jsp` still jQuery PercDashboard | **Gadgets stay valuable** — long-term target is **compose on Home** (not a peer SPA `/dashboard`). Until then: legacy exit `?view=dash` only |
 
 #### B. `index.jsp` modern views → SPA immediately (aggressive)
 
@@ -75,7 +75,7 @@ Pain of the current hybrid:
 
 | `?view=` | JSP | Notes |
 |----------|-----|-------|
-| `dash` | `dashboard.jsp` | Until SPA Dashboard route ships |
+| `dash` | `dashboard.jsp` | Until gadgets live on Home; then remove peer dash surface |
 | `editor` | `webmgt.jsp` | Long-lived until editor migration |
 | `design` | `admin.jsp` | Temporary exit |
 | `arch` | `siteArchitecture.jsp` | Temporary exit |
@@ -240,7 +240,7 @@ Canonical SPA document: **`/cm/app/spa.jsp`** (or same params on the URL that `i
 | `/widget-builder` | WidgetBuilderApp | Admin or Designer + WB active |
 | `/explorer` | ContentExplorerShell | Auth |
 | `/unavailable` | UnavailableView | Auth |
-| *(future)* `/dashboard` | React Dashboard | Auth |
+| *(do not target)* `/dashboard` | — | Prefer **Home section / widgets**; avoid peer SPA dashboard |
 
 #### Router choice (client-only; still one product UI)
 
@@ -280,8 +280,9 @@ Do **not** keep serving `homeModern.jsp` as a working product alternative.
 ### 2.5 Layout & navigation
 
 - SPA always uses React `AppLayout` + `TopNav` (no jQuery `header.jsp` / `mainnav.jsp` on SPA document).
-- Nav parity with `mainnav.jsp`:
-  - Always: Home, Dashboard (**exit** or SPA dashboard when ready), Editor (**exit**)
+- Nav parity with `mainnav.jsp` (adjusted for product direction):
+  - Always: **Home** (default landing), Editor (**exit**)
+  - **Dashboard:** temporary **legacy exit** only (`?view=dash`) while gadgets still live on jQuery dash; **do not** invest in a peer SPA dashboard route — fold React gadgets into **Home** instead
   - Admin or Designer: Architecture (**exit**), Design (**exit**), Publish (**SPA**)
   - Admin: Administration → **SPA workflow** (product label unchanged)
   - WB active + Admin/Designer: Widget Builder → **SPA**
@@ -400,7 +401,7 @@ else:
 Default homepage:
 
 - User homepage Home → `spa.jsp?entry=home`  
-- Dashboard → legacy dash (until SPA dashboard)  
+- Dashboard → legacy dash exit only (until gadgets on Home)  
 - Editor → legacy editor  
 
 **Stop forwarding modern views to `*Modern.jsp`.** Those files become reference-only (or 302 to `spa.jsp?entry=…` with **query** params and **proxyURL**).
@@ -482,7 +483,7 @@ Mount Home, Publish, Workflow, Admin, Widget Builder, Explorer, Unavailable with
 ### Phase 4 — Cleanup reference files + remaining hybrid exits
 
 - Delete obsolete `*Modern.jsp` (and dead mounts) once SPA routes + tests own them.
-- SPA Dashboard route (retire jQuery dash when ready).
+- Compose gadgets into Home (retire peer dash surface when ready).
 - Dialog hosts → SPA dialogs or delete when openers updated.
 - Optional BrowserRouter + rewrite.
 - Align docs; mark stale REACT-ROUTER/REDUX guides non-authoritative.
@@ -503,7 +504,7 @@ See §2.4 tables (canonical paths/hashes, aliases, `?view=` map). That is the im
 
 | Kind | Behavior |
 |------|----------|
-| **SPA product** | Home, Publish, Workflow, Admin, Widget Builder, (Explorer), (Dashboard when ready) |
+| **SPA product** | Home (+ gadgets when folded in), Publish, Workflow, Admin, Widget Builder, (Explorer) |
 | **Legacy exit** | Full `window.location` to remaining JSPs |
 | **Legacy embed** | Bridge mount of explorer (etc.) **inside** those JSPs until page deleted |
 | **Not allowed** | Shipping the same feature as both live JSP shell and SPA “optional mode” |
@@ -557,7 +558,7 @@ Manual QA (short):
 2. Deep publish via `spa.jsp?entry=publish&section=logs` then refresh (client route stable).  
 3. Designer: publish OK; workflow denied server-side.  
 4. Editor exit works; return Home SPA.  
-5. Dashboard exit (or SPA dashboard if shipped).  
+5. Home as landing; gadgets on Home when ready (legacy dash exit until then).  
 6. Bootstrap XSS test fixtures green.
 
 ---
@@ -602,7 +603,7 @@ Manual QA (short):
 | ID | Question | Status |
 |----|----------|--------|
 | OQ-1 | Client hash vs path URLs | **Pragmatic lock:** client Hash first OK; **server always query `entry`**. Path client later. |
-| OQ-2 | Dashboard SPA now vs temporary dash exit | Prefer SPA Dashboard soon; hybrid exit only until then |
+| OQ-2 | Dashboard SPA vs Home | **Resolved:** gadgets → **Home**; no long-term peer SPA dashboard |
 | OQ-3 | Dialog hosts → SPA routes timing | Keep thin hosts until openers updated; not dual product for main nav |
 | OQ-4 | Feature flag soft cutover | **Closed — not used** |
 | OQ-5 | Administration → workflow | **Locked** (preserve mainnav) |
@@ -770,14 +771,14 @@ Each PR advances **SPA product UI**, starting at the **front door**. No soft-fla
 | **Deps** | PR-5 |
 | **Description** | Primary explorer in SPA; embeds only on remaining legacy pages. |
 
-### PR-7 — Dashboard SPA (or explicit exit only)
+### PR-7 — Gadgets on Home (not peer Dashboard SPA)
 
 | | |
 |--|--|
-| **Title** | `feat(webui): Dashboard SPA route using React Dashboard` **or** `chore(webui): TopNav dashboard legacy exit only` |
-| **Files** | dashboard route **or** nav exit; prefer React Dashboard if ready |
-| **Deps** | PR-5 |
-| **Description** | Prefer aggressive Dashboard SPA; temporary exit acceptable briefly. |
+| **Title** | `feat(webui): compose Dashboard gadgets into Home` (retire peer dash surface) |
+| **Files** | `home/*` (section or widgets area); reuse `dashboard/*` React widgets; TopNav (drop/relabel legacy dash exit); optional retire `dashboard.jsp` |
+| **Deps** | PR-3 (Home SPA route) |
+| **Description** | **Product lock:** gadget utility stays; **placement is Home**, not a separate SPA `/dashboard`. Reuse existing React widget components. Legacy jQuery dash exit only until this lands. |
 
 ### PR-8 — Delete obsolete login/Modern JSP product hosts + docs
 
@@ -817,7 +818,7 @@ Each PR advances **SPA product UI**, starting at the **front door**. No soft-fla
 | AdminShell | no shared header | title/tabs | tab (+ tools) | same |
 | WidgetBuilderApp | yes | app chrome | — | same |
 | ContentExplorerShell | host-dependent | panel | path | route or legacy embed |
-| Dashboard (React) | n/a product | layout | — | SPA when shipped |
+| Dashboard gadgets (React) | Home | widgets/section | reuse `dashboard/*` | Compose into Home; no peer SPA |
 
 ## Appendix C — What “aggressive” is not
 

@@ -11,6 +11,8 @@
 
 1. **SPA is the product UI** for modern features. No dual-mode, no soft feature-flag cutover. Old JSPs = reference until delete.
 2. **Start at the front door:** React Login is the first shippable slice for **stakeholder demos** (Login → SPA), then authenticated routes.
+3. **Home is the default product landing** after sign-in (not a separate “dashboard” peer).
+4. **Dashboard gadgets have real product value**, but that capability should **live on Home** (section / widgets / compose), **not** as a long-term separate SPA route. Until then: legacy `?view=dash` full-page exit only.
 
 ## Stakeholder demo path
 
@@ -42,7 +44,7 @@
 4. Workflow + Admin + Widget Builder  
 5. Aggressive `index.jsp` cutover  
 6. Explorer  
-7. **Dashboard:** deferred / likely **merge into Home** (not a separate SPA peer); legacy `?view=dash` exit only for now  
+7. **Home + gadgets:** fold React Dashboard **widgets into Home** (not a peer `/dashboard` SPA). Legacy jQuery dash remains temporary exit until then.  
 8. Delete obsolete JSPs  
 9. Optional path URLs  
 
