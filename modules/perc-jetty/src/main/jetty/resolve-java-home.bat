@@ -99,9 +99,25 @@ REM ----- source 1: install-root java.properties -----
     )
     set "CFG_HOME="
     set "CFG_LAUNCHER="
+    REM Properties.store() escapes backslashes (\ -> \\), colons (: -> \:), and
+    REM equality (= -> \=) inside property values. The for /f delims== above
+    REM preserves those escapes in !VAL!. Unescape them before using the path
+    REM with the filesystem or as a launcher arg (Windows treats ':' as a module
+    REM arg separator when the launcher path is fed back to start.jar). See
+    REM comments in modules/perc-jetty/src/main/jetty/resolve-java-home.bat.
+    REM
+    REM Replace \\ -> \ first (backslashes), then \= -> =, then \: -> :. Order
+    REM matters: \\ must be replaced before single \ to avoid double-unescape.
     for /f "usebackq tokens=1,2 delims==" %%a in ("%PROPS%") do (
         set "KEY=%%a"
-        set "VAL=%%b"
+        set "RAW=%%b"
+        set "VAL=!RAW!"
+        REM Properties.store() escapes : -> \: and \ -> \\ in values. Unescape in
+        REM the reverse order of escaping: backslash pairs first, then the
+        REM individual colons and equals.
+        call set "VAL=%%VAL:\\=\%%"
+        call set "VAL=%%VAL:\:=:%%"
+        call set "VAL=%%VAL:\^==%%"
         if /i "!KEY!"=="JAVA_HOME" set "CFG_HOME=!VAL!"
         if /i "!KEY!"=="JAVA" set "CFG_LAUNCHER=!VAL!"
     )

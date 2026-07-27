@@ -101,6 +101,30 @@ class ResolveJavaHomeScriptTest {
     }
   }
 
+  /**
+   * Regression for SHIFT-command parsing trap: the bat was originally edited with a comment
+   * marker that began with the literal token {@code SHIFT } followed by another keyword. cmd.exe
+   * parses {@code SHIFT /n} and {@code SHIFT REM ...} as commands (not comments), which prints
+   * "Invalid parameter to SHIFT command" on startup before the script reaches the launcher. The
+   * bat must not contain a {@code SHIFT} keyword anywhere outside a true SHIFT command (which
+   * the bat does not need).
+   */
+  @Test
+  void batScriptDoesNotInvokeShiftCommand() throws Exception {
+    String s = Files.readString(BAT, StandardCharsets.UTF_8);
+    // Match the SHIFT keyword only when followed by whitespace and another token (i.e. a real
+    // SHIFT invocation), or followed by '/' (SHIFT /n switch). REPLACE_ME-style SHIFT foo
+    // comments must not appear.
+    java.util.regex.Pattern p =
+        java.util.regex.Pattern.compile("(?im)^\\s*SHIFT\\s+[^/\\s]|\\bSHIFT\\s+/");
+    java.util.regex.Matcher m = p.matcher(s);
+    assertFalse(
+        m.find(),
+        "resolve-java-home.bat must not contain SHIFT command invocations"
+            + " (cmd.exe parses 'SHIFT foo' as a command, not a comment). Offending match: "
+            + (m.find() ? m.group() : ""));
+  }
+
   @Test
   void shPrefersConfigOverEnvMarker() throws Exception {
     String s = Files.readString(SH, StandardCharsets.UTF_8);
@@ -193,5 +217,45 @@ class ResolveJavaHomeScriptTest {
     assertFalse(
         stopBat.contains("SET JAVA_HOME=%rxDir%\\JRE"),
         "StopJetty.bat must not hard-code only %rxDir%\\JRE");
+  }
+
+  /**
+   * Regression: Properties.store() escapes {@code \} as {@code \\} and {@code :} as {@code \:} in
+   * values. The bat script reads values with {@code for /f "tokens=1,2 delims=="} which preserves
+   * those escapes verbatim, so a Windows path like {@code C:\Program Files\jdk-21} round-trips
+   * as {@code C\:\\Program Files\\jdk-21}. Jetty's start.jar then treats the {@code C:} colon as a
+   * {@code --module} arg separator and refuses to launch ("launcher missing: C\:\..."). The bat
+   * must unescape {@code \\}, {@code \:} and {@code \=} before validating the path. See issue
+   * surfaced during interactive-install smoke test (cmd.exe + Microsoft JDK in {@code Program
+   * Files}).
+   */
+  @Test
+  void batScriptUnescapesPropertiesStoreEscapes() throws Exception {
+    String s = Files.readString(BAT, StandardCharsets.UTF_8);
+    // The unescape must run inside :try_config after for /f parses the line.
+    // `call set` with %%VAR:SEARCH=REPLACE%% is the cmd.exe idiom for replacing
+    // special characters; Properties.store() escapes backslash, colon, and
+    // equals inside property values, so all three need to be reversed before the
+    // path is fed to the launcher arg.
+    int tryConfigIdx = s.indexOf(":try_config");
+    assertTrue(tryConfigIdx > 0, ":try_config block must exist");
+    int afterTryConfig = s.indexOf("for /f", tryConfigIdx);
+    assertTrue(afterTryConfig > 0, "for /f must appear inside :try_config");
+
+    int backslashIdx = s.indexOf("VAL:", afterTryConfig);
+    assertTrue(backslashIdx > 0, "bat must declare VAL inside :try_config");
+    // Read a wide window so all three `call set` unescape lines land in the
+    // substring check.
+    String valBlock = s.substring(backslashIdx, Math.min(s.length(), backslashIdx + 1000));
+    assertTrue(
+        valBlock.contains("VAL:\\\\=\\"),
+        "bat must unescape \\\\ in property values (call set VAL=%%VAL:\\\\=\\\\%%); was:\n"
+            + valBlock);
+    assertTrue(
+        valBlock.contains("VAL:\\^:=:") || valBlock.contains("VAL:\\:=:"),
+        "bat must unescape \\: in property values");
+    assertTrue(
+        valBlock.contains("VAL:\\^=="),
+        "bat must unescape \\= in property values");
   }
 }
