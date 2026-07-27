@@ -55,6 +55,10 @@ import java.util.Optional;
  * transition is placed into private objects in the request context.
  */
 public class PSExitPerformTransition implements IPSRequestPreProcessor {
+
+  /** Default constructor for the extension framework. */
+  public PSExitPerformTransition() {}
+
   /**
    * This is an inner class to encapsulate the parameters. We cannot keep these as class variables
    * due to threading issues. We instantiate this object in the main processrequest method (called
@@ -244,6 +248,8 @@ public class PSExitPerformTransition implements IPSRequestPreProcessor {
    *             <li>a PSEntryNotFoundException is caught because an expected data base entry does
    *                 not exist
    *           </ul>
+   *         </li>
+   *     </ul>
    */
   public void preProcessRequest(Object[] params, IPSRequestContext request)
       throws PSExtensionProcessingException {

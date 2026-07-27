@@ -101,6 +101,10 @@ import org.w3c.dom.Document;
 
 /** This exit sends mail notifications to the assigned roles for the new state after transition. */
 public class PSExitNotifyAssignees implements IPSResultDocumentProcessor {
+
+  /** Default constructor for the extension framework. */
+  public PSExitNotifyAssignees() {}
+
   private static final Logger m_log = LogManager.getLogger(IPSConstants.WORKFLOW_LOG);
 
   /** The fully qualified name of this extension. */

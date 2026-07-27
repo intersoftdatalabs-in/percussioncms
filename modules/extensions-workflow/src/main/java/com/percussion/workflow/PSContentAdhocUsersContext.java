@@ -68,6 +68,7 @@ public class PSContentAdhocUsersContext implements IPSContentAdhocUsersContext {
    * @param connection database connection - must not be <CODE>null</CODE>
    * @throws SQLException if an SQL error occurs
    * @throws IllegalArgumentException if the connection is <CODE>null</CODE>
+   * @throws PSRoleException if a workflow role error occurs while loading the adhoc users
    */
   @Deprecated // TODO: This class needs refactored to use spring  hibernate
   public PSContentAdhocUsersContext(int contentID, Connection connection)
@@ -410,6 +411,13 @@ public class PSContentAdhocUsersContext implements IPSContentAdhocUsersContext {
     return m_adhocAnonymousUserNames.size();
   }
 
+  /**
+   * Returns the role IDs from the supplied list that have no adhoc users assigned. The input list
+   * is not modified.
+   *
+   * @param roleIDList list of role IDs to check, may be <code>null</code> or empty.
+   * @return a new list containing the role IDs that have no adhoc users, never <code>null</code>.
+   */
   public List<Integer> getEmptyAdhocRoles(List<Integer> roleIDList) {
     List<Integer> emptyAdhocRoles = new ArrayList<>();
     Integer roleID;
@@ -426,6 +434,12 @@ public class PSContentAdhocUsersContext implements IPSContentAdhocUsersContext {
     return emptyAdhocRoles;
   }
 
+  /**
+   * Determines whether the given role has any adhoc users assigned.
+   *
+   * @param roleID the role ID to check.
+   * @return <code>true</code> if the role has adhoc users assigned, otherwise <code>false</code>.
+   */
   public boolean hasAdhocUsers(int roleID) {
     return (m_adhocRoleIDtoAdhocTypeMap.containsKey(roleID));
   }

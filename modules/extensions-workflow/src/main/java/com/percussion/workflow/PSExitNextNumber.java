@@ -36,6 +36,10 @@ import org.apache.logging.log4j.Logger;
 
 /** This extension returns the value of a counter obtained from a database stored procedure. */
 public class PSExitNextNumber implements IPSRequestPreProcessor {
+
+  /** Default constructor for the extension framework. */
+  public PSExitNextNumber() {}
+
   private static final String GLOBAL_KEY = "RXKEYGLOBAL";
 
   /* Set the parameter count to not initialized */

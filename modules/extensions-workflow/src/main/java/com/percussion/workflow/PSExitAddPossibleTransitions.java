@@ -39,7 +39,17 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 import org.w3c.dom.Text;
 
+/**
+ * Result-document processor exit that augments the supplied result document with the workflow
+ * transitions that are permitted for the current item. See the {@link
+ * IPSResultDocumentProcessor} contract for the parameters and return value of {@link
+ * #processResultDocument(Object[], IPSRequestContext, Document)}.
+ */
 public class PSExitAddPossibleTransitions implements IPSResultDocumentProcessor {
+
+  /** Default constructor for the extension framework. */
+  public PSExitAddPossibleTransitions() {}
+
   /**
    * This is an inner class to encapsulate the parameters. We cannot keep these as class variables
    * due to threading issues. We instantiate this object in the main processrequest method (called
@@ -502,23 +512,45 @@ public class PSExitAddPossibleTransitions implements IPSResultDocumentProcessor 
   /** Element and attribute names for the workflow information node. */
   public static final String ELEMENT_WORKFLOWINFO = "workflowinfo";
 
+  /** Content ID attribute name. */
   public static final String ATTRIB_CONTENTID = "contentid";
+
+  /** Workflow ID attribute name. */
   public static final String ATTRIB_WORKFLOWID = "workflowid";
+
+  /** Workflow name attribute name. */
   public static final String ATTRIB_WORKFLOWNAME = "workflowname";
 
+  /** Transition ID attribute name. */
   public static final String ATTRIB_TRANSITIONID = "transitionid";
 
+  /** User name element name. */
   public static final String ELEMENT_USERNAME = "username";
+
+  /** Assignment type attribute name. */
   public static final String ATTRIB_ASSIGNMENTTYPE = "assignmenttype";
 
+  /** Current state element name. */
   public static final String ELEMENT_CURRENTSTATE = "currentstate";
+
+  /** State ID attribute name. */
   public static final String ATTRIB_STATEID = "stateid";
+
+  /** Publishable attribute name. */
   public static final String ATTRIB_PUBLISHABLE = "publishable";
 
+  /** Check-out status element name. */
   public static final String ELEMENT_CHECKOUTSTATUS = "checkoutstatus";
+
+  /** Check-out user name attribute name. */
   public static final String ATTRIB_CHECKOUTUSERNAME = "checkoutusername";
 
+  /** Assigned roles container element name. */
   public static final String ELEMENT_ASSIGNEDROLES = "assignedroles";
+
+  /** Single assigned role element name. */
   public static final String ELEMENT_ASSIGNEDROLE = "assignedrole";
+
+  /** Role ID attribute name. */
   public static final String ATTRIB_ROLEID = "roleid";
 }

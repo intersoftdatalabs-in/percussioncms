@@ -47,6 +47,10 @@ import org.w3c.dom.Document;
  */
 public class PSExecuteWorkflowActions implements IPSResultDocumentProcessor {
 
+  /** Default constructor for the extension framework. */
+  public PSExecuteWorkflowActions() {}
+
+
   /** The fully qualified name of this extension. */
   private String m_fullExtensionName = "";
 
@@ -88,10 +92,10 @@ public class PSExecuteWorkflowActions implements IPSResultDocumentProcessor {
    *
    * @param params the parameters for this extension. Should be <CODE>null</CODE> or of size 0,
    *     because this extension does not have any parameters.
-   * @param requestContext the context of the request associated with this extension
+   * @param requestContext the context of the request associated with this extension. If there are
+   *     transition workflow action extensions to be performed, the following two private objects
+   *     must be present:
    *     <ul>
-   *       If there are transition workflow action extensions to be performed, the following two
-   *       private objects must be present:
    *       <li>workflow context - key <CODE>
    *                         IPSWorkFlowContext.WORKFLOW_CONTEXT_PRIVATE_OBJECT
    *                         </CODE>

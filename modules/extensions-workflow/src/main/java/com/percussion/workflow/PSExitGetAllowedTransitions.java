@@ -44,6 +44,10 @@ import org.w3c.dom.Element;
  */
 public class PSExitGetAllowedTransitions extends PSDefaultExtension
     implements IPSResultDocumentProcessor {
+
+  /** Default constructor for the extension framework. */
+  public PSExitGetAllowedTransitions() {}
+
   public boolean canModifyStyleSheet() {
     return false;
   }

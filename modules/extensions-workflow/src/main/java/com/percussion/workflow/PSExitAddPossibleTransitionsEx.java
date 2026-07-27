@@ -53,7 +53,16 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.w3c.dom.Text;
 
+/**
+ * Extended result-document processor exit that augments the supplied result document with the
+ * workflow transitions that are permitted for the current item, including hidden form parameters
+ * for action links. See {@link IPSResultDocumentProcessor} for the contract of {@link
+ * #processResultDocument(Object[], IPSRequestContext, Document)}.
+ */
 public class PSExitAddPossibleTransitionsEx implements IPSResultDocumentProcessor {
+
+  /** Default constructor for the extension framework. */
+  public PSExitAddPossibleTransitionsEx() {}
 
   private static final Logger log = LogManager.getLogger(PSExitAddPossibleTransitionsEx.class);
 
@@ -1103,8 +1112,13 @@ public class PSExitAddPossibleTransitionsEx implements IPSResultDocumentProcesso
   /** Element and attribute names for the workflow information node. */
   public static final String ELEMENT_WORKFLOWINFO = "BasicInfo";
 
+  /** Content ID attribute name. */
   public static final String ATTRIB_CONTENTID = "contentId";
+
+  /** Workflow ID attribute name. */
   public static final String ATTRIB_WORKFLOWID = "workflowId";
+
+  /** Name of the hidden form parameters node attached to action links. */
   public static final String HIDDEN_PARAMS_NAME = "HiddenFormParams";
 
   // element/attribute names for ActionLink and its children
@@ -1118,10 +1132,19 @@ public class PSExitAddPossibleTransitionsEx implements IPSResultDocumentProcesso
   private static final String DISABLED_ATTRIB = "isDisabled";
 
   // The next 4 values are the button's label as seen by the end user
+  /** Label for the check-in button. */
   private static final String CHECKIN_BUTTON_LABEL = "Check-in";
+
+  /** Label for the check-out button. */
   private static final String CHECKOUT_BUTTON_LABEL = "Check-out";
+
+  /** Label for the force check-in button. */
   private static final String FORCE_CHECKIN_BUTTON_LABEL = "Force Check-in";
+
+  /** Label for the edit button. */
   private static final String EDIT_BUTTON_LABEL = "Edit";
+
+  /** Label for the preview button. */
   private static final String PREVIEW_BUTTON_LABEL = "Preview";
 
   /** XML attribute value that represents true */
@@ -1133,13 +1156,25 @@ public class PSExitAddPossibleTransitionsEx implements IPSResultDocumentProcesso
   /** XML attribute value that represents false */
   private static final String ATTRIB_HIDE = "hide";
 
+  /** User name element name. */
   public static final String ELEMENT_USERNAME = "UserName";
+
+  /** Assignment type attribute name. */
   public static final String ATTRIB_ASSIGNMENTTYPE = "assignmentType";
+
+  /** Check-out user name attribute name. */
   public static final String ATTRIB_CHECKOUTUSERNAME = "CheckOutUserName";
+
+  /** Adhoc role type attribute name. */
   public static final String ATTRIB_ADHOCTYPE = "adhocType";
 
+  /** Assigned roles container element name. */
   public static final String ELEMENT_ASSIGNEDROLES = "AssignedRoles";
+
+  /** Single assigned role element name. */
   public static final String ELEMENT_ASSIGNEDROLE = "Role";
+
+  /** Role ID attribute name. */
   public static final String ATTRIB_ROLEID = "roleId";
 
   /** The internal name of the command handler that processes workflow actions. */

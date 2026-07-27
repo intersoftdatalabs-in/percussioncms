@@ -42,6 +42,9 @@ import org.w3c.dom.Text;
  */
 public class PSGetAssignees extends PSSimpleJavaUdfExtension implements IPSUdfProcessor {
 
+  /** Default constructor for the extension framework. */
+  public PSGetAssignees() {}
+
   private static final Logger log = LogManager.getLogger(PSGetAssignees.class);
 
   public Object processUdf(Object[] params, IPSRequestContext request)

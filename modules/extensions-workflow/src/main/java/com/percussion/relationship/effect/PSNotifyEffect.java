@@ -42,6 +42,10 @@ import org.w3c.dom.Document;
  * relationship is created.
  */
 public class PSNotifyEffect extends PSEffect {
+
+  /** Default constructor for the extension framework. */
+  public PSNotifyEffect() {}
+
   /**
    * This effect is only executed if the execution context indicates that this relationship was just
    * created. See base class for additional information.
@@ -66,9 +70,8 @@ public class PSNotifyEffect extends PSEffect {
    * @param request the request for which to send the notifications, not <code>null</code>.
    * @param context the execution context for which to process this effect, not used, can be <code>
    *     null</code>.
-   * @param result - effect result that is used to communicate effect result back to the engine,
+   * @param result the effect result that is used to communicate effect result back to the engine,
    *     assumed never <code>null</code>.
-   * @return <code>true</code> if the notifications are sent successfully.
    * @throws PSExtensionProcessingException for any error catched while notifying the assignees.
    */
   public void attempt(

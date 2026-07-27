@@ -37,6 +37,10 @@ import com.percussion.server.IPSRequestContext;
  * @see PSWorkFlowUtils
  */
 public class PSGetCheckOutStatusUdf extends PSSimpleJavaUdfExtension {
+
+  /** Default constructor for the extension framework. */
+  public PSGetCheckOutStatusUdf() {}
+
   /* ************ IPSUdfProcessor Interface Implementation ************ */
 
   /**

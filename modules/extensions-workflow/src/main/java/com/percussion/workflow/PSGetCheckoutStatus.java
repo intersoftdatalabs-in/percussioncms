@@ -58,6 +58,10 @@ import org.apache.logging.log4j.Logger;
  * images match the normal icon images in the content explorer.
  */
 public class PSGetCheckoutStatus extends PSSimpleJavaUdfExtension implements IPSUdfProcessor {
+
+  /** Default constructor for the extension framework. */
+  public PSGetCheckoutStatus() {}
+
   /**
    * Determines the image url to use.
    *
@@ -147,5 +151,6 @@ public class PSGetCheckoutStatus extends PSSimpleJavaUdfExtension implements IPS
     return result;
   }
 
+  /** Logger for this class. */
   protected static final Logger log = LogManager.getLogger(IPSConstants.WORKFLOW_LOG);
 }

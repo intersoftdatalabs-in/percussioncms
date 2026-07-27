@@ -26,7 +26,16 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.StringTokenizer;
 
+/**
+ * Pre-processor exit that prepares the request's HTML parameters for downstream workflow-related
+ * query filters, splitting any role list parameter into the individual role names expected by
+ * subsequent processing.
+ */
 public class PSExitPrepareQueryFilters implements IPSRequestPreProcessor {
+
+  /** Default constructor for the extension framework. */
+  public PSExitPrepareQueryFilters() {}
+
   /*role delimiter (in role list) */
   private static final String ROLE_DELIMITER = ",";
 

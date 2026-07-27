@@ -45,6 +45,7 @@ public class PSNotificationsContext extends PSAbstractWorkflowContext
    * @throws SQLException if an error occurs
    * @throws NamingException if a datasource cannot be resolved
    * @throws IllegalArgumentException if the connection is <CODE>null</CODE>
+   * @throws PSEntryNotFoundException if no notification row is found for the supplied IDs.
    */
   public PSNotificationsContext(int workflowID, int notificationID, Connection connection)
       throws SQLException, PSEntryNotFoundException, NamingException {

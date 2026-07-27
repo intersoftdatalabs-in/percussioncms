@@ -41,6 +41,10 @@ import org.apache.logging.log4j.Logger;
  * extension is to restrict updating a document in workflow when it is in state that is publishable.
  */
 public class PSExitDisallowUpdatePublished implements IPSRequestPreProcessor {
+
+  /** Default constructor for the extension framework. */
+  public PSExitDisallowUpdatePublished() {}
+
   private static final Logger ms_log = LogManager.getLogger(PSExitDisallowUpdatePublished.class);
   /* Set the parameter count to not initialized */
   private static int ms_correctParamCount = NOT_INITIALIZED;
@@ -63,9 +67,10 @@ public class PSExitDisallowUpdatePublished implements IPSRequestPreProcessor {
    * This overrides the method in the original interface and is called by the server while
    * processign the request.
    *
-   * @param params - array of objects that are parameters to the extension
-   * @param request - request context (IPSRequestContext)
-   * @throws PSExtensionProcessingException
+   * @param params the array of objects that are parameters to the extension.
+   * @param request the request context (IPSRequestContext).
+   * @throws PSExtensionProcessingException if the request cannot be processed, for example because
+   *     the content item is in a publishable state.
    */
   public void preProcessRequest(Object[] params, IPSRequestContext request)
       throws PSExtensionProcessingException, PSParameterMismatchException {
