@@ -30,7 +30,17 @@ on the classpath produced “not a subtype” errors and NOP fallback.
 
 - `defaults/modules/perc-logging.mod` → `[provides] logging|default` and
   `logging-log4j2`
-- Hide Log4j/SLF4J packages from webapps via `jetty.webapp.addHiddenClasses`
+- Share server Log4j with webapps via `jetty.webapp.addProtectedClasses` for
+  `org.apache.logging.log4j.` (WEB-INF excludes log4j jars; app code needs
+  `IoBuilder` etc. from server `lib/perc-logging`)
+- Keep server SLF4J hidden via `jetty.webapp.addHiddenClasses` for `org.slf4j.`
+  so WEB-INF `slf4j-api` wins for Artemis/Spring JMS
+
+**Follow-up (upgrade smoke):** An earlier draft of this work used
+`addHiddenClasses` for Log4j as well. That hid `log4j-iostreams` from the
+Rhythmyx webapp and failed startup with
+`NoClassDefFoundError: org/apache/logging/log4j/io/IoBuilder` from
+`PSConsole` static init. Protected (not hidden) is required for Log4j.
 
 Log4j2 remains the sole SLF4J binding from `lib/perc-logging/**.jar`
 (`perc-jetty-logging` assembly, unpacked nested jars).

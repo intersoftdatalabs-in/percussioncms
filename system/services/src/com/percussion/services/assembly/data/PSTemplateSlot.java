@@ -338,7 +338,44 @@ public class PSTemplateSlot
     public void fromXML(String xmlsource) throws IOException, SAXException {
         id = 0L; // Avoid problems during restore
         this.version=null;
-        PSXmlSerializationHelper.readFromXML(xmlsource, this);
+        // Package archives (perc.nav etc.) use unhyphenated association field names
+        // (contenttypeid/templateid/slotid). Default Betwixt/PSNameMapper expects
+        // content-type-id etc.; without that rewrite, associations restore as zeros and
+        // deploy fails with "ContentType with source ID 0".
+        PSXmlSerializationHelper.readFromXML(normalizePackageAssociationElementNames(xmlsource), this);
+    }
+
+    /**
+     * Rewrites legacy package element names on slot-type associations to hyphenated names expected
+     * by {@link PSXmlSerializationHelper}'s name mapper.
+     *
+     * <p>Only rewrites element open/close tags ({@code <name>} / {@code </name>} / {@code
+     * <name ...>}), not bare text or attribute values such as {@code name="contenttypeid"}.
+     */
+    static String normalizePackageAssociationElementNames(String xml) {
+        if (xml == null || xml.isEmpty()) {
+            return xml;
+        }
+        String out = xml;
+        out = renameElementTags(out, "contenttypeid", "content-type-id");
+        out = renameElementTags(out, "templateid", "template-id");
+        out = renameElementTags(out, "slotid", "slot-id");
+        return out;
+    }
+
+    /**
+     * Renames open/close tags for {@code from} to {@code to}. Open tags may include attributes
+     * ({@code <from attr="x">}) or self-close ({@code <from/>}).
+     */
+    static String renameElementTags(String xml, String from, String to) {
+        // Open or self-closing: <from> <from/> <from attr=...>
+        String open =
+                xml.replaceAll(
+                        "<" + java.util.regex.Pattern.quote(from) + "(\\s|/?>)",
+                        "<" + java.util.regex.Matcher.quoteReplacement(to) + "$1");
+        return open.replaceAll(
+                "</" + java.util.regex.Pattern.quote(from) + ">",
+                "</" + java.util.regex.Matcher.quoteReplacement(to) + ">");
     }
 
     /**

@@ -18,6 +18,7 @@ package com.percussion.services.assembly.data;
 
 import com.percussion.services.utils.xml.PSXmlSerializationHelper;
 import com.percussion.utils.guid.IPSGuid;
+import com.percussion.utils.xml.IPSXmlSerialization;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 
@@ -84,6 +85,12 @@ public class PSTemplateTypeSlotAssociation implements Serializable
    }
 
 
+   /**
+    * Hibernate embedded id. Suppressed from Betwixt so package XML attributes like {@code
+    * id="2"} (Betwixt object identity) are not mapped onto this PK — that left content/template
+    * ids at 0 and broke perc.nav slot deploy (ContentType source ID 0).
+    */
+   @IPSXmlSerialization(suppress = true)
    public PSTemplateTypeSlotAssociationPK getId() {
       return id;
    }

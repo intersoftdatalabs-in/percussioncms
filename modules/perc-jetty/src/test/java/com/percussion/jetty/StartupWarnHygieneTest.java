@@ -97,6 +97,25 @@ class StartupWarnHygieneTest {
         "perc-logging.mod must not declare [exec] (GH-1485 fork hygiene)");
   }
 
+  /**
+   * Log4j2 is server-owned (WEB-INF excludes log4j-* jars). Packages must be
+   * {@code addProtectedClasses} so webapps can load {@code IoBuilder} etc. Hiding them
+   * (addHiddenClasses) caused NoClassDefFoundError for org.apache.logging.log4j.io.IoBuilder.
+   */
+  @Test
+  void percLoggingExposesLog4jToWebappsAsProtected() throws Exception {
+    String mod = stripComments(read(file("defaults", "modules", "perc-logging.mod")));
+    assertTrue(
+        mod.contains("jetty.webapp.addProtectedClasses+=,org.apache.logging.log4j."),
+        "perc-logging.mod must protect (share) server Log4j with webapps");
+    assertFalse(
+        mod.contains("jetty.webapp.addHiddenClasses+=,org.apache.logging.log4j."),
+        "perc-logging.mod must not hide Log4j from webapps (breaks IoBuilder/PSConsole)");
+    assertTrue(
+        mod.contains("jetty.webapp.addHiddenClasses+=,org.slf4j."),
+        "perc-logging.mod should still hide server SLF4J so WEB-INF slf4j-api wins");
+  }
+
   /** GH-1485: perc.mod must not force its own JVM fork via [exec]. */
   @Test
   void percModHasNoExecSection() throws Exception {
@@ -121,6 +140,12 @@ class StartupWarnHygieneTest {
     assertTrue(
         jvm.contains("XmlParser.Validating=false"),
         "jvm.ini must keep intentional non-validating Jetty XML parse (GH-1487)");
+    assertTrue(
+        jvm.contains("xml.catalog.staticCatalog=true"),
+        "xml.catalog.staticCatalog must be boolean true (CatalogManager rejects non-true/yes)");
+    assertFalse(
+        jvm.contains("xml.catalog.staticCatalog=static-catalog"),
+        "xml.catalog.staticCatalog must not be set to the property name string");
   }
 
   /** GH-1486: ShutdownService configuration (not STOP.PORT ShutdownMonitor on server). */

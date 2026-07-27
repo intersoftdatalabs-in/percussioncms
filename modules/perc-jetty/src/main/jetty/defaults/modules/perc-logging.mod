@@ -29,6 +29,17 @@ logs/
 basehome:modules/perc-logging
 
 [ini]
-# Keep webapps from loading server Log4j/SLF4J implementation packages.
-jetty.webapp.addHiddenClasses+=,org.apache.logging.log4j.
+# Server-owned Log4j2 must be *visible* to webapps as protected (parent-first)
+# classes. WEB-INF packaging excludes log4j-* jars (see WebUI packagingExcludes);
+# application code such as PSConsole uses org.apache.logging.log4j.io.IoBuilder
+# from log4j-iostreams on the server classpath (lib/perc-logging).
+#
+# GH-1484 originally used addHiddenClasses for log4j, which hid those packages
+# from the webapp classloader and caused:
+#   java.lang.NoClassDefFoundError: org/apache/logging/log4j/io/IoBuilder
+# Use addProtectedClasses so webapps share the server Log4j2 stack and cannot
+# override it with a conflicting WEB-INF copy.
+jetty.webapp.addProtectedClasses+=,org.apache.logging.log4j.
+# Keep server SLF4J packages hidden so WEB-INF slf4j-api (and jcl-over-slf4j)
+# win for Artemis/Spring JMS (see WebUI packagingExcludes comments).
 jetty.webapp.addHiddenClasses+=,org.slf4j.

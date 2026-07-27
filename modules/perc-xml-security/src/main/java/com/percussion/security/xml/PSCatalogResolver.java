@@ -34,6 +34,36 @@ public class PSCatalogResolver extends CatalogResolver {
   private static final Logger log = LogManager.getLogger(PSCatalogResolver.class);
   private IPSInternalRequestURIResolver internalRequestURIResolver = null;
 
+  /**
+   * Builds a CatalogManager that prefers system IDs and uses a <em>private</em> catalog instance
+   * ({@code useStaticCatalog=false}) so one resolver's parse failures cannot corrupt a process-wide
+   * static catalog.
+   *
+   * <p>Catalog file paths still come from {@code xml.catalog.files} / CatalogManager.properties
+   * when set by the JVM (see perc-jetty {@code jvm.ini}). This product does not ship a classpath
+   * {@code CatalogManager.properties}; {@code ignoreMissingProperties=true} avoids a noisy
+   * CatalogManager warning on every resolver construction. Operators still configure catalogs via
+   * the JVM system properties above.
+   */
+  static CatalogManager createDefaultCatalogManager() {
+    return createCatalogManager(true);
+  }
+
+  /**
+   * @param privateCatalog when {@code true}, use a non-static (per-manager) catalog; when {@code
+   *     false}, allow CatalogManager's shared static catalog
+   */
+  static CatalogManager createCatalogManager(boolean privateCatalog) {
+    CatalogManager manager = new CatalogManager();
+    // No CatalogManager.properties on the product classpath — ignore is intentional (see above).
+    manager.setIgnoreMissingProperties(true);
+    manager.setPreferPublic(false); // prefer system (matches xml.catalog.prefer=system)
+    // false => getCatalog() returns a private Catalog (see CatalogManager.getCatalog)
+    manager.setUseStaticCatalog(!privateCatalog);
+    manager.setVerbosity(0);
+    return manager;
+  }
+
   public IPSInternalRequestURIResolver getInternalRequestURIResolver() {
     return internalRequestURIResolver;
   }
@@ -43,27 +73,32 @@ public class PSCatalogResolver extends CatalogResolver {
     this.internalRequestURIResolver = internalRequestURIResolver;
   }
 
-  /** Constructor */
+  /**
+   * Constructor. Uses a private CatalogManager so catalog parse failures (e.g. legacy TR9401
+   * fallback AIOOBE on mis-formed catalogs) cannot corrupt a shared static Catalog used by other
+   * resolvers.
+   */
   public PSCatalogResolver() {
-    super();
+    super(createDefaultCatalogManager());
   }
 
   /**
-   * Constructor
+   * Constructor.
    *
-   * @param privateCatalog
+   * @param privateCatalog when {@code true} (preferred), the CatalogManager uses a private catalog
+   *     instance; when {@code false}, the manager may use CatalogManager's shared static catalog
    */
   public PSCatalogResolver(boolean privateCatalog) {
-    super(privateCatalog);
+    super(createCatalogManager(privateCatalog));
   }
 
   /**
    * Constructor
    *
-   * @param manager
+   * @param manager catalog manager to use; when {@code null}, a private default manager is used
    */
   public PSCatalogResolver(CatalogManager manager) {
-    super(manager);
+    super(manager != null ? manager : createDefaultCatalogManager());
   }
 
   /** Return the underlying catalog */

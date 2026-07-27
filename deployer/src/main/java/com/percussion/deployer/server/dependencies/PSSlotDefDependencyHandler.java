@@ -455,7 +455,20 @@ public class PSSlotDefDependencyHandler extends PSDependencyHandler implements I
       PSTemplateTypeSlotAssociation assoc[] = ((PSTemplateSlot) slot).getSlotTypeAssociations();
       removeAllAssociationsOnSlot(slot);
       int slotId = slot.getGUID().getUUID();
+      List<PSTemplateTypeSlotAssociation> transformed = new ArrayList<>();
       for (PSTemplateTypeSlotAssociation a : assoc) {
+        // Skip empty associations (Betwixt can emit zeros when PK/id mapping fails).
+        // Mapping content type "0" throws MISSING_ID_MAPPING and aborts package install.
+        if (a.getContentTypeId() == 0L || a.getTemplateId() == 0L) {
+          m_log.warn(
+              "Skipping slot association with contentTypeId={}, templateId={} on slot {}"
+                  + " (zero ids are not valid for id mapping)",
+              a.getContentTypeId(),
+              a.getTemplateId(),
+              dep.getDisplayName());
+          continue;
+        }
+
         String ctId = String.valueOf(a.getContentTypeId());
         a.setSlotId(slotId);
         PSIdMapping ctMap = getIdMapping(ctx, ctId, PSCEDependencyHandler.DEPENDENCY_TYPE);
@@ -481,8 +494,9 @@ public class PSSlotDefDependencyHandler extends PSDependencyHandler implements I
         }
         if (tmpMap != null) tmpId = tmpMap.getTargetId();
         a.setTemplateId(Long.parseLong(tmpId));
+        transformed.add(a);
       }
-      addSlotAssociations(slot, Arrays.asList(assoc));
+      addSlotAssociations(slot, transformed);
     }
   }
 
