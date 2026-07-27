@@ -15,71 +15,107 @@
  * limitations under the License.
  */
 
-import React, { useEffect } from "react";
-import { HashRouter, useNavigate } from "react-router";
+import React, { useMemo } from "react";
+import { BrowserRouter } from "react-router";
 import { ThemeProvider } from "../ui-themes/ThemeProvider";
 import { BootstrapProvider } from "./bootstrap/BootstrapContext";
 import type { SpaBootstrap } from "./bootstrap/types";
 import { parseEntryQuery } from "./deepLinks/parseEntryQuery";
+import { detectSpaBasename } from "./deepLinks/spaBasename";
 import { AppRoutes } from "./routes";
 
 export interface AppProps {
   bootstrap: SpaBootstrap;
-  /** Override search for tests (default window.location.search) */
+  /**
+   * Override document search for tests / SSR-style entry handoff
+   * (default {@code window.location.search}).
+   */
   entrySearch?: string;
+  /** Override BrowserRouter basename (tests / dual-tree) */
+  basename?: string;
 }
 
 /**
- * Applies server-driven {@code ?entry=} query once, then leaves client routing
- * to HashRouter (refresh-safe under Jetty).
+ * If the document URL is still {@code spa.jsp?entry=…}, rewrite to the path
+ * client route under the SPA basename before BrowserRouter mounts.
+ * Keeps the server query contract while giving BrowserRouter a clean first paint.
+ * Path refreshes (filter → spa.jsp forward with browser URL already path-based)
+ * leave the address bar unchanged.
  */
-function EntryQueryApplier({
-  entrySearch,
-}: {
-  entrySearch?: string;
-}): null {
-  const navigate = useNavigate();
+export function applyEntryQueryToPath(
+  pathname: string = typeof window !== "undefined" ? window.location.pathname : "",
+  search: string = typeof window !== "undefined" ? window.location.search : "",
+  basename: string = detectSpaBasename(pathname),
+): string | null {
+  if (!search || search === "?") {
+    return null;
+  }
+  const params = new URLSearchParams(
+    search.startsWith("?") ? search.slice(1) : search,
+  );
+  if (!params.has("entry")) {
+    return null;
+  }
+  // Only rewrite when serving the SPA document by name (query handoff)
+  const isSpaDocument =
+    pathname.endsWith("/spa.jsp") ||
+    pathname.endsWith("spa.jsp") ||
+    pathname === basename ||
+    pathname === `${basename}/`;
+  if (!isSpaDocument) {
+    return null;
+  }
 
-  useEffect(() => {
+  const parsed = parseEntryQuery(search);
+  const [pathPart, queryPart] = parsed.clientPath.split("?");
+  let next = `${basename}${pathPart.startsWith("/") ? pathPart : `/${pathPart}`}`;
+  if (queryPart) {
+    next += `?${queryPart}`;
+  }
+  if (typeof window !== "undefined" && window.history?.replaceState) {
+    try {
+      window.history.replaceState(null, "", next);
+    } catch {
+      // ignore
+    }
+  }
+  return next;
+}
+
+/**
+ * Authenticated SPA root: theme → bootstrap → BrowserRouter → routes.
+ */
+export function App({
+  bootstrap,
+  entrySearch,
+  basename: basenameProp,
+}: AppProps): React.ReactElement {
+  const basename = useMemo(
+    () =>
+      basenameProp ??
+      detectSpaBasename(
+        typeof window !== "undefined" ? window.location.pathname : "/cm/app",
+      ),
+    [basenameProp],
+  );
+
+  // Synchronous handoff so the first router match is the feature path, not /spa.jsp
+  useMemo(() => {
     const search =
       entrySearch ??
       (typeof window !== "undefined" ? window.location.search : "");
-    if (!search || search === "?") {
-      return;
-    }
-    const parsed = parseEntryQuery(search);
-    navigate(parsed.clientPath, { replace: true });
-    // Strip entry query from the document URL after client route is applied
-    // so address bar shows hash route only (server entry already consumed).
-    if (typeof window !== "undefined" && window.history?.replaceState) {
-      try {
-        const url = new URL(window.location.href);
-        if (url.searchParams.has("entry") || url.search.length > 1) {
-          url.search = "";
-          window.history.replaceState(null, "", url.pathname + url.hash);
-        }
-      } catch {
-        // ignore
-      }
-    }
-    // Run once on mount for server entry handoff
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+    const pathname =
+      typeof window !== "undefined" ? window.location.pathname : `${basename}/spa.jsp`;
+    applyEntryQueryToPath(pathname, search, basename);
+    return null;
+  }, [basename, entrySearch]);
 
-  return null;
-}
-
-/**
- * Authenticated SPA root: theme → bootstrap → HashRouter → routes.
- */
-export function App({ bootstrap, entrySearch }: AppProps): React.ReactElement {
   return (
     <ThemeProvider>
       <BootstrapProvider value={bootstrap}>
-        <HashRouter>
-          <EntryQueryApplier entrySearch={entrySearch} />
+        <BrowserRouter basename={basename}>
           <AppRoutes />
-        </HashRouter>
+        </BrowserRouter>
       </BootstrapProvider>
     </ThemeProvider>
   );

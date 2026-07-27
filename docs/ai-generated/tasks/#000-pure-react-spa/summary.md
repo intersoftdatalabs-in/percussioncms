@@ -45,8 +45,8 @@
 5. Aggressive `index.jsp` cutover — **done** (#1531); includes login CSS load fix  
 6. Explorer SPA route + residual bridge doc — **done** (#1533)  
 7. **Home + gadgets:** fold React Dashboard widgets into Home — **done** (#1540)  
-8. Delete obsolete product host JSPs — **in progress** (`feat/000-react-spa-pr8-delete-obsolete-hosts`)  
-9. Optional path URLs (PR-9)
+8. Delete obsolete product host JSPs — **done** (#1541)  
+9. Path-based SPA URLs (BrowserRouter + fallback filter) — **in progress** (`feat/000-react-spa-pr9-path-urls`)
 
 ## Explicitly not first
 

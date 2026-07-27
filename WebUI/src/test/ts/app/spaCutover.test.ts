@@ -177,3 +177,27 @@ describe("PR-8 delete obsolete product host JSPs", () => {
     expect(read(appMenu)).toBe(read(pagesMenu));
   });
 });
+
+describe("PR-9 path-based SPA URLs + fallback filter", () => {
+  it("web.xml registers PSWebUiSpaFallbackFilter for app and pages trees", () => {
+    const webXml = resolve(webappRoot, "WEB-INF/web.xml");
+    const text = read(webXml);
+    expect(text).toContain("PSWebUiSpaFallbackFilter");
+    expect(text).toContain("com.percussion.webui.filter.PSWebUiSpaFallbackFilter");
+    expect(text).toContain("/cm/app/*");
+    expect(text).toContain("/cm/pages/app/*");
+  });
+
+  it("filter source allowlists SPA entries and spa.jsp forward", () => {
+    const filter = resolve(
+      __dirname,
+      "../../../main/java/com/percussion/webui/filter/PSWebUiSpaFallbackFilter.java",
+    );
+    const text = read(filter);
+    expect(text).toContain("spa.jsp?entry=");
+    expect(text).toContain("widget-builder");
+    expect(text).toContain("explorer");
+    expect(text).not.toMatch(/sendRedirect/);
+  });
+});
+

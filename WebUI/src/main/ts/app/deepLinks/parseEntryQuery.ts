@@ -25,13 +25,14 @@ import {
   normalizeWorkflowTab,
   type SpaEntry,
 } from "./allowlists";
+import { detectSpaBasename, pathAfterBasename } from "./spaBasename";
 
 /**
- * Parsed server-driven SPA entry (query contract only — never hash).
+ * Parsed server-driven SPA entry (query contract only — never hash on server).
  */
 export interface ParsedSpaEntry {
   entry: SpaEntry;
-  /** Client hash route path (e.g. /home/library, /publish/logs) */
+  /** Client route path under basename (e.g. /home/library, /publish/logs) */
   clientPath: string;
   section?: string;
   tab?: string;
@@ -116,6 +117,7 @@ export function parseEntryQuery(
 
 /**
  * Rebuild an allowlisted query entry URL for login return / server redirects.
+ * Always uses the app-tree spa.jsp (query contract — never path or hash).
  */
 export function toSpaEntryUrl(parsed: ParsedSpaEntry): string {
   const params = new URLSearchParams();
@@ -126,4 +128,109 @@ export function toSpaEntryUrl(parsed: ParsedSpaEntry): string {
   if (parsed.serverId) params.set("serverId", parsed.serverId);
   if (parsed.path) params.set("path", parsed.path);
   return `/cm/app/spa.jsp?${params.toString()}`;
+}
+
+/**
+ * Parse a BrowserRouter client path (after basename) plus optional search into
+ * a {@link ParsedSpaEntry}. Used for mid-session 401 return when the address
+ * bar is path-based (PR-9) rather than {@code spa.jsp?entry=…}.
+ *
+ * @param clientPath e.g. {@code /home/library} or {@code /publish/logs}
+ * @param search e.g. {@code ?path=/Sites/x} or empty
+ */
+export function parseClientPath(
+  clientPath: string,
+  search: string = "",
+): ParsedSpaEntry {
+  const q = search.startsWith("?") ? search.slice(1) : search;
+  const params = new URLSearchParams(q);
+  const siteId = normalizeId(params.get("siteId"));
+  const serverId = normalizeId(params.get("serverId"));
+  const explorerPath = normalizeExplorerPath(params.get("path"));
+
+  let pathOnly = clientPath || "/home";
+  if (!pathOnly.startsWith("/")) {
+    pathOnly = `/${pathOnly}`;
+  }
+  // Drop trailing slash except root
+  if (pathOnly.length > 1 && pathOnly.endsWith("/")) {
+    pathOnly = pathOnly.slice(0, -1);
+  }
+  const segments = pathOnly.split("/").filter(Boolean);
+  let entryRaw = (segments[0] || "home").toLowerCase();
+  if (entryRaw === "widgetbuilder") {
+    entryRaw = "widget-builder";
+  }
+  const entry: SpaEntry = isSpaEntry(entryRaw) ? entryRaw : "home";
+  const second = segments[1];
+
+  switch (entry) {
+    case "home": {
+      const section = normalizeHomeSection(second);
+      return {
+        entry,
+        section,
+        clientPath: section ? `/home/${section}` : "/home",
+      };
+    }
+    case "publish": {
+      const section = normalizePublishSection(second);
+      let cp = section ? `/publish/${section}` : "/publish";
+      const qs = new URLSearchParams();
+      if (siteId) qs.set("siteId", siteId);
+      if (serverId) qs.set("serverId", serverId);
+      const qstr = qs.toString();
+      if (qstr) cp += `?${qstr}`;
+      return { entry, section, siteId, serverId, clientPath: cp };
+    }
+    case "workflow": {
+      const tab = normalizeWorkflowTab(second);
+      return {
+        entry,
+        tab,
+        clientPath: tab ? `/workflow/${tab}` : "/workflow",
+      };
+    }
+    case "admin": {
+      const tab = normalizeAdminTab(second);
+      return {
+        entry,
+        tab,
+        clientPath: tab ? `/admin/${tab}` : "/admin",
+      };
+    }
+    case "widget-builder":
+      return { entry, clientPath: "/widget-builder" };
+    case "explorer": {
+      let cp = "/explorer";
+      if (explorerPath) {
+        cp += `?path=${encodeURIComponent(explorerPath)}`;
+      }
+      return { entry, path: explorerPath, clientPath: cp };
+    }
+    case "unavailable":
+      return { entry, clientPath: "/unavailable" };
+    default:
+      return { entry: "home", clientPath: "/home" };
+  }
+}
+
+/**
+ * Resolve SPA return URL for login from either query entry or path-based URL.
+ */
+export function resolveSpaReturnFromLocation(
+  pathname: string = typeof window !== "undefined" ? window.location.pathname : "/cm/app/spa.jsp",
+  search: string = typeof window !== "undefined" ? window.location.search : "",
+): string {
+  const q = search.startsWith("?") ? search.slice(1) : search;
+  const params = new URLSearchParams(q);
+  if (params.has("entry") || pathname.includes("spa.jsp")) {
+    return toSpaEntryUrl(parseEntryQuery(search));
+  }
+  const basename = detectSpaBasename(pathname);
+  const clientPath = pathAfterBasename(pathname, basename);
+  if (!clientPath) {
+    return toSpaEntryUrl(parseEntryQuery(search));
+  }
+  return toSpaEntryUrl(parseClientPath(clientPath, search));
 }

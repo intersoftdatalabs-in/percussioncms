@@ -16,7 +16,7 @@
  */
 
 import { DEFAULT_SPA_ENTRY_REDIRECT } from "../../login/redirect";
-import { parseEntryQuery, toSpaEntryUrl } from "../deepLinks/parseEntryQuery";
+import { resolveSpaReturnFromLocation } from "../deepLinks/parseEntryQuery";
 
 export const REACT_LOGIN_PATH = "/rxlogin.jsp";
 
@@ -50,13 +50,17 @@ export function buildLoginReturnUrl(
 }
 
 /**
- * Current SPA document return URL from location (query entry or default home).
+ * Current SPA document return URL from location.
+ * Prefers query {@code entry} contract; falls back to path-based client routes (PR-9).
  */
 export function currentSpaReturnUrl(
   search: string = typeof window !== "undefined" ? window.location.search : "",
+  pathname: string = typeof window !== "undefined"
+    ? window.location.pathname
+    : "/cm/app/spa.jsp",
 ): string {
   try {
-    return toSpaEntryUrl(parseEntryQuery(search));
+    return resolveSpaReturnFromLocation(pathname, search);
   } catch {
     return DEFAULT_SPA_ENTRY_REDIRECT;
   }

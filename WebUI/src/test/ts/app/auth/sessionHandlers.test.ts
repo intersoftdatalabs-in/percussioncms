@@ -37,6 +37,15 @@ describe("sessionHandlers", () => {
     );
   });
 
+  it("currentSpaReturnUrl derives entry from path-based URL (PR-9)", () => {
+    expect(currentSpaReturnUrl("", "/cm/app/publish/logs")).toBe(
+      "/cm/app/spa.jsp?entry=publish&section=logs",
+    );
+    expect(currentSpaReturnUrl("", "/cm/app/home/gadgets")).toBe(
+      "/cm/app/spa.jsp?entry=home&section=gadgets",
+    );
+  });
+
   it("redirectToLoginOnUnauthorized assigns login once", () => {
     const assign = vi.fn();
     const original = window.location;

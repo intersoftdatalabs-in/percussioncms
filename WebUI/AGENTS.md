@@ -20,7 +20,8 @@ Read the root [@AGENTS.md](../AGENTS.md) for general guidelines. This file conta
 - ✅ **Pure React SPA (login-first):** React Login front door (`rxlogin.jsp` host → `LoginPage`) + post-login SPA landing (`/cm/app/spa.jsp`). Design: `docs/ai-generated/tasks/#000-pure-react-spa/`.
 - ✅ **SPA product cutover (PR-5):** `cm/app/index.jsp` (and pages tree) maps modern `?view=` (home/publish/workflow/admin/widgetbuilder) → `proxyURL + /cm/app/spa.jsp?entry=…` (query only).
 - ✅ **Home gadgets (PR-7):** Dashboard React widgets compose as Home section `gadgets` (`/home/gadgets`, `?view=dash` → SPA). Not a peer SPA `/dashboard`.
-- ✅ **PR-8:** Deleted obsolete product hosts (`homeModern` / `publishModern` / `admin*Modern` / `widgetBuilderModern` / `unavailableModern` / `explorerModern`, classic `rxlogin-classic.jsp`). Residual bridge dialogs remain (pickers, search, action menu, US7 advanced). Optional next: path-based SPA URLs (PR-9).
+- ✅ **PR-8:** Deleted obsolete product hosts (`homeModern` / `publishModern` / `admin*Modern` / `widgetBuilderModern` / `unavailableModern` / `explorerModern`, classic `rxlogin-classic.jsp`). Residual bridge dialogs remain (pickers, search, action menu, US7 advanced).
+- ✅ **PR-9:** Path-based SPA URLs via `BrowserRouter` (basename `/cm/app` or `/cm/pages/app`, context-aware) + `PSWebUiSpaFallbackFilter` internal forward on refresh. Server deep links / login return remain `spa.jsp?entry=…` (query only).
 - 🔄 Track A: Dojo→jQuery migration planned
 
 ---

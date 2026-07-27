@@ -6,8 +6,9 @@
 <%@ page import="com.percussion.widgetbuilder.service.PSWidgetBuilderService" %>
 <%@ taglib uri="http://www.owasp.org/index.php/Category:OWASP_CSRFGuard_Project/Owasp.CsrfGuard.tld" prefix="csrf" %>
 <%--
-  Authenticated SPA document (PR-2 app shell).
-  Entry: /cm/app/spa.jsp?entry=home (query contract — no hash on server redirects).
+  Authenticated SPA document (PR-2 app shell; PR-9 BrowserRouter path URLs).
+  Server entry / login return: /cm/app/spa.jsp?entry=home (query contract — no hash).
+  Client routes: /cm/app/home, /cm/app/publish/… (refresh via PSWebUiSpaFallbackFilter).
   No header.jsp / mainnav.jsp — React AppLayout + TopNav.
 --%>
 <%!

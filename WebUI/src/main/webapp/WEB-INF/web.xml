@@ -120,6 +120,24 @@
         <filter-name>PSDispatchFilter</filter-name>
         <filter-class>com.percussion.servlets.PSDispatcherFilter</filter-class>
     </filter>
+    <!--
+      PR-9: BrowserRouter path refresh → internal spa.jsp forward.
+      Only allowlisted SPA entries under /cm/app and /cm/pages/app; real JSPs pass through.
+    -->
+    <filter>
+        <filter-name>PSWebUiSpaFallbackFilter</filter-name>
+        <filter-class>com.percussion.webui.filter.PSWebUiSpaFallbackFilter</filter-class>
+    </filter>
+    <filter-mapping>
+        <filter-name>PSWebUiSpaFallbackFilter</filter-name>
+        <url-pattern>/cm/app/*</url-pattern>
+        <dispatcher>REQUEST</dispatcher>
+    </filter-mapping>
+    <filter-mapping>
+        <filter-name>PSWebUiSpaFallbackFilter</filter-name>
+        <url-pattern>/cm/pages/app/*</url-pattern>
+        <dispatcher>REQUEST</dispatcher>
+    </filter-mapping>
     <filter-mapping>
         <filter-name>PSCharacterSetFilter</filter-name>
         <url-pattern>/*</url-pattern>
