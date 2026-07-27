@@ -15,9 +15,10 @@
  * limitations under the License.
  */
 
-import React, { Suspense, lazy } from "react";
+import React, { lazy } from "react";
 import { useParams } from "react-router-dom";
 import { loadComponent } from "../../registry";
+import { LazyRouteFrame } from "./RouteErrorBoundary";
 import { RequireRole } from "./RequireRole";
 
 const WorkflowAdminShellLazy = lazy(() =>
@@ -32,7 +33,8 @@ export function WorkflowRoute(): React.ReactElement {
 
   return (
     <RequireRole gate="admin">
-      <Suspense
+      <LazyRouteFrame
+        label="Administration"
         fallback={
           <div data-testid="route-workflow-loading" style={{ padding: "1.5rem" }}>
             Loading Administration…
@@ -40,7 +42,7 @@ export function WorkflowRoute(): React.ReactElement {
         }
       >
         <WorkflowAdminShellLazy embedded initialTab={tab} />
-      </Suspense>
+      </LazyRouteFrame>
     </RequireRole>
   );
 }

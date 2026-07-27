@@ -15,9 +15,10 @@
  * limitations under the License.
  */
 
-import React, { Suspense, lazy } from "react";
+import React, { lazy } from "react";
 import { useParams } from "react-router-dom";
 import { loadComponent } from "../../registry";
+import { LazyRouteFrame } from "./RouteErrorBoundary";
 import { RequireRole } from "./RequireRole";
 
 const AdminShellLazy = lazy(() =>
@@ -32,7 +33,8 @@ export function AdminRoute(): React.ReactElement {
 
   return (
     <RequireRole gate="admin">
-      <Suspense
+      <LazyRouteFrame
+        label="Admin tools"
         fallback={
           <div data-testid="route-admin-loading" style={{ padding: "1.5rem" }}>
             Loading Admin tools…
@@ -40,7 +42,7 @@ export function AdminRoute(): React.ReactElement {
         }
       >
         <AdminShellLazy embedded initialTab={tab} />
-      </Suspense>
+      </LazyRouteFrame>
     </RequireRole>
   );
 }

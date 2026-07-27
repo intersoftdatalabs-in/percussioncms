@@ -15,8 +15,9 @@
  * limitations under the License.
  */
 
-import React, { Suspense, lazy } from "react";
+import React, { lazy } from "react";
 import { loadComponent } from "../../registry";
+import { LazyRouteFrame } from "./RouteErrorBoundary";
 import { RequireRole } from "./RequireRole";
 
 const WidgetBuilderAppLazy = lazy(() =>
@@ -29,7 +30,8 @@ const WidgetBuilderAppLazy = lazy(() =>
 export function WidgetBuilderRoute(): React.ReactElement {
   return (
     <RequireRole gate="widgetBuilder">
-      <Suspense
+      <LazyRouteFrame
+        label="Widget Builder"
         fallback={
           <div
             data-testid="route-widget-builder-loading"
@@ -40,7 +42,7 @@ export function WidgetBuilderRoute(): React.ReactElement {
         }
       >
         <WidgetBuilderAppLazy embedded />
-      </Suspense>
+      </LazyRouteFrame>
     </RequireRole>
   );
 }

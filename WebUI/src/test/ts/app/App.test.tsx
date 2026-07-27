@@ -106,10 +106,9 @@ describe("App shell", () => {
       <App bootstrap={bootstrap} entrySearch="?entry=widget-builder" />,
     );
     await waitFor(() => {
-      expect(
-        screen.getByTestId("widget-builder-app") ||
-          screen.getByTestId("wb-disabled"),
-      ).toBeTruthy();
+      const app = screen.queryByTestId("widget-builder-app");
+      const disabled = screen.queryByTestId("wb-disabled");
+      expect(app ?? disabled).toBeTruthy();
     });
   });
 
@@ -123,5 +122,49 @@ describe("App shell", () => {
     await waitFor(() => {
       expect(screen.getByTestId("home-shell")).toBeTruthy();
     });
+  });
+
+  it("redirects non-admin away from admin tools to home", async () => {
+    render(
+      <App
+        bootstrap={{ ...bootstrap, isAdmin: false, isDesigner: true }}
+        entrySearch="?entry=admin"
+      />,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("home-shell")).toBeTruthy();
+    });
+    expect(screen.queryByTestId("perc-admin-shell")).toBeNull();
+  });
+
+  it("redirects ineligible users away from widget-builder to home", async () => {
+    render(
+      <App
+        bootstrap={{
+          ...bootstrap,
+          isAdmin: false,
+          isDesigner: false,
+          isWidgetBuilderActive: true,
+        }}
+        entrySearch="?entry=widget-builder"
+      />,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("home-shell")).toBeTruthy();
+    });
+    expect(screen.queryByTestId("widget-builder-app")).toBeNull();
+  });
+
+  it("redirects when widget builder inactive even for admin", async () => {
+    render(
+      <App
+        bootstrap={{ ...bootstrap, isWidgetBuilderActive: false }}
+        entrySearch="?entry=widget-builder"
+      />,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("home-shell")).toBeTruthy();
+    });
+    expect(screen.queryByTestId("widget-builder-app")).toBeNull();
   });
 });

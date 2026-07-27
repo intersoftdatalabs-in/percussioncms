@@ -15,10 +15,11 @@
  * limitations under the License.
  */
 
-import React, { Suspense, lazy } from "react";
+import React, { lazy } from "react";
 import { useParams, useSearchParams } from "react-router-dom";
 import { useSpaBootstrap } from "../bootstrap/BootstrapContext";
 import { loadComponent } from "../../registry";
+import { LazyRouteFrame } from "./RouteErrorBoundary";
 
 const PublishingShellLazy = lazy(() =>
   loadComponent("PublishingShell").then((C) => ({ default: C })),
@@ -37,7 +38,8 @@ export function PublishRoute(): React.ReactElement {
   const showDesign = isAdmin || isDesigner;
 
   return (
-    <Suspense
+    <LazyRouteFrame
+      label="Publish"
       fallback={
         <div data-testid="route-publish-loading" style={{ padding: "1.5rem" }}>
           Loading Publish…
@@ -51,6 +53,6 @@ export function PublishRoute(): React.ReactElement {
         serverId={serverId}
         showDesign={showDesign}
       />
-    </Suspense>
+    </LazyRouteFrame>
   );
 }

@@ -15,10 +15,11 @@
  * limitations under the License.
  */
 
-import React, { Suspense, lazy } from "react";
+import React, { lazy } from "react";
 import { useParams } from "react-router-dom";
 import { useSpaBootstrap } from "../bootstrap/BootstrapContext";
 import { loadComponent } from "../../registry";
+import { LazyRouteFrame } from "./RouteErrorBoundary";
 
 const HomeShellLazy = lazy(() =>
   loadComponent("HomeShell").then((C) => ({ default: C })),
@@ -33,18 +34,15 @@ export function HomeRoute(): React.ReactElement {
   const { isAdmin } = useSpaBootstrap();
 
   return (
-    <Suspense
+    <LazyRouteFrame
+      label="Home"
       fallback={
         <div data-testid="route-home-loading" style={{ padding: "1.5rem" }}>
           Loading Home…
         </div>
       }
     >
-      <HomeShellLazy
-        embedded
-        initialSection={section}
-        isAdmin={isAdmin}
-      />
-    </Suspense>
+      <HomeShellLazy embedded initialSection={section} isAdmin={isAdmin} />
+    </LazyRouteFrame>
   );
 }
