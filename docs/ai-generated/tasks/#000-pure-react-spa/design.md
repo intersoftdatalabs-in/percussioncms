@@ -7,7 +7,7 @@
 | **Branch base** | `development` |
 | **Stack (verified)** | React 19.1, TypeScript 5.8, Vite 8, Jetty WAR under `/cm/` |
 | **Canonical frontend** | `WebUI/src/main/frontend/` (Maven `frontend-maven-plugin` `workingDirectory`). Root `WebUI/package.json` / `WebUI/vite.config.ts` are **not** product build paths. |
-| **Product direction of record** | [`#000-unified-ui-plan/unified-ui-plan.md`](../#000-unified-ui-plan/unified-ui-plan.md) **rev 4.0** — React/TS only; no dual mode; no new bridges; shell ≠ done |
+| **Product direction of record** | [`#000-unified-ui-plan/unified-ui-plan.md`](../#000-unified-ui-plan/unified-ui-plan.md) **rev 4.1** — React/TS only; **no jQuery in SPA**; no dual mode; no new bridges; shell ≠ done |
 | **Supersedes** | Dual-mode / soft-flag strategies; Track A Dojo→jQuery as product strategy; bridge-first product pages; “shell = done” milestones |
 | **Cutover stance** | **Aggressive SPA-first.** The SPA is the product UI. No dual-mode production path. Residual hosts are **delete debt**, not peers. |
 | **Functional sequencing (locked)** | **Home first** (must be fully functional), then Publish → Explorer → Admin → Workflow → WB. Infra login/shell already shipped. |

@@ -2,8 +2,8 @@
 
 | Field | Value |
 |-------|--------|
-| **Status** | **Active — product direction (rev 4.0, 2026-07-27)** |
-| **Supersedes** | Track A (Dojo→jQuery as product strategy), Track B dual-mode / soft cutover, bridge-first hybrid, dual production modes |
+| **Status** | **Active — product direction (rev 4.1, 2026-07-27)** |
+| **Supersedes** | Track A (Dojo→jQuery as product strategy), Track B dual-mode / soft cutover, bridge-first hybrid, dual production modes, “carry jQuery into React” |
 | **Canonical SPA design** | [`#000-pure-react-spa/design.md`](../#000-pure-react-spa/design.md) (infra PRs 1–9) |
 | **Module** | `WebUI/` (React + TypeScript + Vite) |
 | **Stack** | React 19, TypeScript 5.8, Vite, Jetty WAR under `/cm/` |
@@ -13,11 +13,17 @@
 ## 1. Product locks (non-negotiable)
 
 1. **The product UI is React + TypeScript.** New user-facing work ships in `WebUI/src/main/ts/` inside the SPA (`spa.jsp` / path routes). Not jQuery, not Knockout, not Dojo, not a new bridge island for a product page.
-2. **No dual mode.** No feature flag that keeps classic and modern as peer production UIs for the same feature. Rollback = git revert / redeploy.
-3. **No new bridges.** `PercModernUI.mount` is **legacy debt**, not a pattern for new work. Do not add mounts for product navigation. Prefer SPA routes (and SPA dialogs when openers are ready).
-4. **No “shell counts as done.”** A screen is **not** accepted until features work end-to-end (load data, act, navigate, errors, roles). Empty chrome is a defect, not a milestone.
-5. **Screen-by-screen, feature-by-feature.** Prove one surface fully, then delete its legacy peer when safe, then move on. Home first.
-6. **Server entry stays query-only for redirects/login.** `spa.jsp?entry=…` (or path after client handoff). Never `Location: …#/…`.
+2. **Do not carry jQuery forward into the new UI.**  
+   - SPA / modern bundle (`perc-modern-ui.js`) and all of `src/main/ts/**` are **jQuery-free**.  
+   - No `import` of jQuery, no `window.$`, no jQuery UI / FancyTree / plugins from React.  
+   - Reimplement needed behavior with React + typed REST (`api/*`).  
+   - jQuery remaining in the WAR or in `frontend/package.json` is **only** for packing residual legacy pages (`build:legacy`) until those pages are deleted after SPA acceptance.  
+   - **Forbidden:** wrapping jQuery widgets in React, calling legacy `$.perc_*` from TS, or loading jQuery on `spa.jsp` / login for “convenience.”
+3. **No dual mode.** No feature flag that keeps classic and modern as peer production UIs for the same feature. Rollback = git revert / redeploy.
+4. **No new bridges.** `PercModernUI.mount` is **legacy debt**, not a pattern for new work. Do not add mounts for product navigation. Prefer SPA routes (and SPA dialogs when openers are ready).
+5. **No “shell counts as done.”** A screen is **not** accepted until features work end-to-end (load data, act, navigate, errors, roles). Empty chrome is a defect, not a milestone.
+6. **Screen-by-screen, feature-by-feature.** Prove one surface fully, then delete its legacy peer when safe, then move on. Home first.
+7. **Server entry stays query-only for redirects/login.** `spa.jsp?entry=…` (or path after client handoff). Never `Location: …#/…`.
 
 ---
 
@@ -57,7 +63,7 @@ Browser
 | New pages | SPA route (+ server allowlist if deep-linked) |
 | Legacy full-page exits | Temporary only until that feature is React; then delete exit |
 | Residual `PercModernUI.mount` | Only until that host is rewritten or deleted — **no new hosts** |
-| jQuery / Knockout / JSF / GWT / residual Dojo-shaped `ps.*` | **Debt**. Touch only to fix blockers or to delete after React replacement |
+| jQuery / Knockout / JSF / GWT / residual Dojo-shaped `ps.*` | **Debt only.** Never import into SPA. Touch only to fix blockers or to **delete** after React acceptance |
 
 ---
 

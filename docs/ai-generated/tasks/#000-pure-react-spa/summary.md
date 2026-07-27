@@ -4,7 +4,7 @@
 
 **Product UI = React + TypeScript SPA only.** No dual mode, no new bridges, no “shell = done.”
 
-- **Plan of record:** [`#000-unified-ui-plan/unified-ui-plan.md`](../#000-unified-ui-plan/unified-ui-plan.md) **rev 4.0**
+- **Plan of record:** [`#000-unified-ui-plan/unified-ui-plan.md`](../#000-unified-ui-plan/unified-ui-plan.md) **rev 4.1**
 - **Module rules:** [`WebUI/AGENTS.md`](../../../WebUI/AGENTS.md)
 - **Infra design (entry, bootstrap, PR 1–9):** [`design.md`](design.md)
 
@@ -35,7 +35,8 @@ These are **routing/chrome**. Functional acceptance is **screen-by-screen** per 
 3. Home is default landing (gadgets on Home, not peer `/dashboard`)  
 4. Server entry = query `spa.jsp?entry=…` only (never `#` on redirects)  
 5. No dual-mode / no new PercModernUI product hosts  
-6. Shell ≠ done  
+6. **No jQuery (or Knockout/Dojo) in `src/main/ts` / modern bundle**  
+7. Shell ≠ done  
 
 ## Explicitly not product strategy
 
