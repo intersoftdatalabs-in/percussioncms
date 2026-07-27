@@ -41,14 +41,21 @@ describe("mapInitialScreenToSection", () => {
     expect(mapInitialScreenToSection("not-a-screen")).toBe("recent");
   });
 
-  it("accepts modern section names including bookmarks", () => {
+  it("accepts modern section names including bookmarks and gadgets", () => {
     expect(mapInitialScreenToSection("create")).toBe("create");
     expect(mapInitialScreenToSection("bookmarks")).toBe("bookmarks");
+    expect(mapInitialScreenToSection("gadgets")).toBe("gadgets");
+  });
+
+  it("maps former dashboard aliases to gadgets (PR-7)", () => {
+    expect(mapInitialScreenToSection("dash")).toBe("gadgets");
+    expect(mapInitialScreenToSection("dashboard")).toBe("gadgets");
+    expect(mapInitialScreenToSection("widgets")).toBe("gadgets");
   });
 
   it("exposes known legacy screens", () => {
     expect(knownLegacyInitialScreens()).toEqual(
-      expect.arrayContaining(["library", "list", "search", "newitem"]),
+      expect.arrayContaining(["library", "list", "search", "newitem", "dash"]),
     );
   });
 });

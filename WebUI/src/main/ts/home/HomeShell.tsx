@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-import React, { useMemo, useState } from "react";
+import React, { Suspense, lazy, useEffect, useMemo, useState } from "react";
 import type { ContentListItem } from "../api/home/types";
 import { message, MSG } from "../i18n/message";
 import {
@@ -35,6 +35,13 @@ import { CreateSection } from "./sections/CreateSection";
 import { LibrarySection } from "./sections/LibrarySection";
 import { RecentSection } from "./sections/RecentSection";
 import { SearchSection } from "./sections/SearchSection";
+
+/** Lazy so default Home sections do not pay the full Dashboard widget graph */
+const GadgetsSectionLazy = lazy(() =>
+  import("./sections/GadgetsSection").then((m) => ({
+    default: m.GadgetsSection,
+  })),
+);
 
 export interface HomeShellProps {
   /** Legacy initialScreen or modern section name */
@@ -59,6 +66,7 @@ const SECTIONS: { id: HomeSection; key: string }[] = [
   { id: "library", key: MSG.SECTION_LIBRARY },
   { id: "search", key: MSG.SECTION_SEARCH },
   { id: "create", key: MSG.SECTION_CREATE },
+  { id: "gadgets", key: MSG.SECTION_GADGETS },
 ];
 
 /**
@@ -89,6 +97,11 @@ function HomeShellBody({
   );
   const [section, setSection] = useState<HomeSection>(start);
 
+  // SPA route param changes (e.g. TopNav → /home/gadgets) must update section
+  useEffect(() => {
+    setSection(mapInitialScreenToSection(initialSection));
+  }, [initialSection]);
+
   return (
     <>
       <header style={headerStyle}>
@@ -103,6 +116,7 @@ function HomeShellBody({
             type="button"
             style={navButtonStyle(section === s.id)}
             aria-current={section === s.id ? "page" : undefined}
+            data-testid={`home-nav-${s.id}`}
             onClick={() => setSection(s.id)}
           >
             {message(s.key)}
@@ -119,6 +133,17 @@ function HomeShellBody({
         )}
         {section === "search" && <SearchSection onOpenItem={onOpenItem} />}
         {section === "create" && <CreateSection />}
+        {section === "gadgets" && (
+          <Suspense
+            fallback={
+              <div data-testid="home-gadgets-loading" style={{ padding: "1rem" }}>
+                Loading gadgets…
+              </div>
+            }
+          >
+            <GadgetsSectionLazy />
+          </Suspense>
+        )}
       </main>
     </>
   );

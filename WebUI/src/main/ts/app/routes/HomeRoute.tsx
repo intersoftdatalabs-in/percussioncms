@@ -27,7 +27,7 @@ const HomeShellLazy = lazy(() =>
 
 /**
  * SPA Home route — product default landing after login.
- * Dashboard is intentionally not a peer SPA route; legacy dash remains optional exit.
+ * Dashboard gadgets compose as Home section {@code gadgets} (PR-7), not a peer SPA route.
  */
 export function HomeRoute(): React.ReactElement {
   const { section } = useParams();

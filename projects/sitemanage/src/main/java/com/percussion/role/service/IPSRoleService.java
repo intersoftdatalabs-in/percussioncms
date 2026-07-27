@@ -106,7 +106,9 @@ public interface IPSRoleService {
   /**
    * Gets the homepage for the logged in user.
    *
-   * @return String never null, if it is not set for any of the user roles, returns "Dashboard".
+   * @return String never null. Product default is {@link #HOMEPAGE_TYPE_HOME} when unset. When the
+   *     user has multiple roles, {@link #HOMEPAGE_TYPE_HOME} wins over Dashboard/Editor (SPA-first
+   *     landing).
    */
   String getUserHomepage() throws IPSGenericDao.LoadException;
 }

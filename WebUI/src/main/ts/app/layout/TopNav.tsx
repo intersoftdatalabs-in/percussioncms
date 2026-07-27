@@ -44,18 +44,17 @@ export function TopNav(): React.ReactElement {
         </li>
         <li>
           {/*
-            Legacy jQuery dashboard exit only. Product direction: Home is the
-            primary landing; we may fold dashboard widgets into Home later
-            rather than a peer SPA /dashboard route.
+            PR-7 product lock: gadgets live on Home (not a peer SPA /dashboard).
+            Label kept as Dashboard for familiarity; deep link is /home/gadgets.
           */}
-          <a
-            className={styles.navLink}
-            href="/cm/app/?view=dash"
+          <NavLink
+            to="/home/gadgets"
+            className={linkClass}
             data-testid="nav-dashboard"
-            title="Legacy dashboard (may merge into Home)"
+            title="Dashboard gadgets on Home"
           >
             Dashboard
-          </a>
+          </NavLink>
         </li>
         <li>
           <a

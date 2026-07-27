@@ -40,7 +40,7 @@ export function UnavailableView({
       <p>
         <a href="/cm/app/spa.jsp?entry=home">Home</a>
         {" · "}
-        <a href="/cm/app/?view=dash">Dashboard</a>
+        <a href="/cm/app/spa.jsp?entry=home&section=gadgets">Gadgets</a>
       </p>
     </div>
   );

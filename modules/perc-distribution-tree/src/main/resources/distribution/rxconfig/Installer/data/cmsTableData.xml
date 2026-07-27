@@ -23103,12 +23103,13 @@
     </table>
     <table name="PSX_METADATA" onCreateOnly="no">
         <row onTableCreateOnly="no" action="i">
+            <!-- SPA product default landing is Home (not Dashboard peer page) -->
             <column name="METAKEY">perc.role.homepage.Admin</column>
-            <column name="DATA">Dashboard</column>
+            <column name="DATA">Home</column>
         </row>
         <row onTableCreateOnly="no" action="i">
             <column name="METAKEY">perc.role.homepage.Designer</column>
-            <column name="DATA">Dashboard</column>
+            <column name="DATA">Home</column>
         </row>
         <row onTableCreateOnly="no" action="i">
             <column name="METAKEY">perc.role.homepage.Editor</column>

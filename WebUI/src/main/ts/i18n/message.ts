@@ -56,6 +56,8 @@ export const MSG = {
   SECTION_LIBRARY: "perc.ui.home.modern@Library",
   SECTION_SEARCH: "perc.ui.home.modern@Search",
   SECTION_CREATE: "perc.ui.home@Add New",
+  /** Dashboard gadgets composed on Home (PR-7) */
+  SECTION_GADGETS: "perc.ui.home.modern@Gadgets",
   RECENT_EMPTY: "perc.ui.home.modern@No Recent Items",
   BOOKMARKS_EMPTY: "perc.ui.home.modern@No Bookmarks",
   LIBRARY_EMPTY: "perc.ui.home@No Site Exists",

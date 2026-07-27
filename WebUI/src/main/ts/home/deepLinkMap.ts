@@ -26,7 +26,8 @@ export type HomeSection =
   | "bookmarks"
   | "library"
   | "search"
-  | "create";
+  | "create"
+  | "gadgets";
 
 const INITIAL_SCREEN_MAP: Record<string, HomeSection> = {
   library: "library",
@@ -35,7 +36,21 @@ const INITIAL_SCREEN_MAP: Record<string, HomeSection> = {
   newitem: "create",
   bookmarks: "bookmarks",
   bookmark: "bookmarks",
+  // Former peer dashboard surface → Home gadgets (PR-7)
+  dash: "gadgets",
+  dashboard: "gadgets",
+  widgets: "gadgets",
+  gadget: "gadgets",
 };
+
+const MODERN_SECTIONS: readonly HomeSection[] = [
+  "recent",
+  "bookmarks",
+  "library",
+  "search",
+  "create",
+  "gadgets",
+];
 
 /**
  * Map a legacy initialScreen value (or modern section name) to a Home section.
@@ -48,14 +63,8 @@ export function mapInitialScreenToSection(
     return "recent";
   }
   const normalized = initialScreen.trim().toLowerCase();
-  if (
-    normalized === "recent" ||
-    normalized === "bookmarks" ||
-    normalized === "library" ||
-    normalized === "search" ||
-    normalized === "create"
-  ) {
-    return normalized;
+  if ((MODERN_SECTIONS as readonly string[]).includes(normalized)) {
+    return normalized as HomeSection;
   }
   return INITIAL_SCREEN_MAP[normalized] ?? "recent";
 }

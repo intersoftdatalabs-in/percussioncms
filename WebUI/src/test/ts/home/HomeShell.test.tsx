@@ -28,6 +28,15 @@ vi.mock("@/api/home/homeApi", () => ({
   createPage: vi.fn().mockResolvedValue({}),
 }));
 
+// Lazy GadgetsSection pulls the full dashboard graph; stub for Home shell tests
+vi.mock("@/home/sections/GadgetsSection", () => ({
+  GadgetsSection: () => (
+    <div data-testid="home-gadgets-section">
+      <div data-testid="dashboard-root" data-embedded="1" />
+    </div>
+  ),
+}));
+
 describe("HomeShell", () => {
   beforeEach(() => {
     (window as unknown as { I18N: { message: (k: string) => string } }).I18N = {
@@ -35,7 +44,7 @@ describe("HomeShell", () => {
     };
   });
 
-  it("renders shell and section navigation", () => {
+  it("renders shell and section navigation including gadgets", () => {
     render(<HomeShell initialSection="list" />);
     expect(screen.getByTestId("home-shell")).toBeDefined();
     expect(screen.getByText("perc.ui.home@My Recent")).toBeDefined();
@@ -43,6 +52,18 @@ describe("HomeShell", () => {
     expect(screen.getByText("perc.ui.home.modern@Library")).toBeDefined();
     expect(screen.getByText("perc.ui.home.modern@Search")).toBeDefined();
     expect(screen.getByText("perc.ui.home@Add New")).toBeDefined();
+    expect(screen.getByText("perc.ui.home.modern@Gadgets")).toBeDefined();
+  });
+
+  it("opens gadgets section with dashboard widgets embedded", async () => {
+    render(<HomeShell embedded initialSection="gadgets" />);
+    await waitFor(() => {
+      expect(screen.getByTestId("home-gadgets-section")).toBeDefined();
+    });
+    expect(screen.getByTestId("dashboard-root")).toBeDefined();
+    expect(screen.getByTestId("dashboard-root").getAttribute("data-embedded")).toBe(
+      "1",
+    );
   });
 
   it("wraps the shell in the intersoft theme and renders branded chrome", () => {
