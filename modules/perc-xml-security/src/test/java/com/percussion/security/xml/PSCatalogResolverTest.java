@@ -52,8 +52,15 @@ class PSCatalogResolverTest {
     CatalogManager manager = PSCatalogResolver.createDefaultCatalogManager();
     assertNotNull(manager);
     assertTrue(manager.getIgnoreMissingProperties());
-    assertTrue(manager.getUseStaticCatalog());
+    // Private (non-static) catalog by default — avoids process-wide shared catalog corruption
+    assertFalse(manager.getUseStaticCatalog());
     assertFalse(manager.getPreferPublic());
+  }
+
+  @Test
+  void privateCatalogFlagControlsStaticCatalogSetting() {
+    assertFalse(PSCatalogResolver.createCatalogManager(true).getUseStaticCatalog());
+    assertTrue(PSCatalogResolver.createCatalogManager(false).getUseStaticCatalog());
   }
 
   @Test

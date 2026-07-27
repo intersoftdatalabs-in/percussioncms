@@ -149,6 +149,23 @@ class PSXmlSerializationHelperTest {
   }
 
   @Test
+  void rewriteLegacyNullRootIsCaseSensitive() {
+    String xml = "<?xml version=\"1.0\"?><Null id=\"1\"><label>X</label></Null>";
+    assertEquals(xml, PSXmlSerializationHelper.rewriteLegacyNullRoot(xml, SampleKeyword.class));
+  }
+
+  @Test
+  void rewriteLegacyNullRootAllowsTrailingCommentAfterClose() {
+    String xml =
+        "<?xml version=\"1.0\"?><null id=\"1\"><label>Time_Zones</label></null><!-- trailing -->\n";
+    String rewritten = PSXmlSerializationHelper.rewriteLegacyNullRoot(xml, SampleKeyword.class);
+    assertTrue(rewritten.contains("<sample-keyword"), rewritten);
+    assertTrue(rewritten.contains("</sample-keyword>"), rewritten);
+    assertTrue(rewritten.contains("<!-- trailing -->"), rewritten);
+    assertTrue(!rewritten.contains("</null>"), rewritten);
+  }
+
+  @Test
   void readFromXmlAcceptsLegacyNullRootElement() throws Exception {
     // Mirrors Time_Zones.keyword / other packaged keywords (root element is literally "null")
     // Register nested choice element name used in package XML (collection singular "choice").

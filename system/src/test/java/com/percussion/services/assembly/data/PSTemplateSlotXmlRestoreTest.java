@@ -86,11 +86,21 @@ class PSTemplateSlotXmlRestoreTest {
 
   @Test
   void normalizePackageAssociationElementNamesRewritesTags() {
-    String in = "<slot-type-association><slotid>1</slotid><templateid>2</templateid><contenttypeid>3</contenttypeid></slot-type-association>";
+    String in =
+        "<slot-type-association><slotid>1</slotid><templateid>2</templateid><contenttypeid>3</contenttypeid></slot-type-association>";
     String out = PSTemplateSlot.normalizePackageAssociationElementNames(in);
     assertTrue(out.contains("<content-type-id>3</content-type-id>"), out);
     assertTrue(out.contains("<template-id>2</template-id>"), out);
     assertTrue(out.contains("<slot-id>1</slot-id>"), out);
+  }
+
+  @Test
+  void normalizePackageAssociationElementNamesDoesNotTouchAttributeValues() {
+    String in = "<x name=\"contenttypeid\" templateid=\"keep\"><contenttypeid>9</contenttypeid></x>";
+    String out = PSTemplateSlot.normalizePackageAssociationElementNames(in);
+    assertTrue(out.contains("name=\"contenttypeid\""), out);
+    assertTrue(out.contains("templateid=\"keep\""), out);
+    assertTrue(out.contains("<content-type-id>9</content-type-id>"), out);
   }
 
   private static String describe(PSTemplateTypeSlotAssociation[] assocs) {

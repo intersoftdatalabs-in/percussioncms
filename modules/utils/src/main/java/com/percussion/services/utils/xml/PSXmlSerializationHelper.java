@@ -550,7 +550,7 @@ public class PSXmlSerializationHelper {
     if (clazz == null || StringUtils.isBlank(xmlString)) {
       return xmlString;
     }
-    // Fast path: most modern payloads are already correctly named
+    // Fast path: most modern payloads are already correctly named (case-sensitive)
     if (!xmlString.contains("<null") && !xmlString.contains("</null>")) {
       return xmlString;
     }
@@ -561,16 +561,36 @@ public class PSXmlSerializationHelper {
       return xmlString;
     }
 
-    // Only rewrite when the document element is literally "null" (not a nested tag).
-    // Match: optional XML declaration, then <null …> or <null>
-    String openReplaced =
-        xmlString.replaceFirst(
-            "(?is)^(\\s*<\\?xml\\b[^?]*\\?>\\s*)?<null(\\s|>)", "$1<" + mapped + "$2");
-    if (openReplaced.equals(xmlString)) {
-      return xmlString; // root was not <null>
+    // Case-sensitive: only legacy Betwixt root <null>, not <Null>/<NULL> or other types.
+    // Optional XML declaration, then root open tag. DOTALL for multiline prolog only.
+    java.util.regex.Pattern openPat =
+        java.util.regex.Pattern.compile(
+            "^(\\s*<\\?xml\\b[^?]*\\?>\\s*)?<null(\\s|>)", java.util.regex.Pattern.DOTALL);
+    java.util.regex.Matcher openM = openPat.matcher(xmlString);
+    if (!openM.find()) {
+      return xmlString;
     }
-    // Matching close tag at end of document (allow trailing whitespace)
-    return openReplaced.replaceFirst("(?is)</null>\\s*$", "</" + mapped + ">");
+    String decl = openM.group(1) != null ? openM.group(1) : "";
+    String afterName = openM.group(2);
+    StringBuffer openBuf = new StringBuffer();
+    // quoteReplacement so mapped names with $ or \ never act as backreferences
+    openM.appendReplacement(
+        openBuf, java.util.regex.Matcher.quoteReplacement(decl + "<" + mapped + afterName));
+    openM.appendTail(openBuf);
+    String openReplaced = openBuf.toString();
+
+    // Root close is the last </null> (package keyword XML has no nested <null>).
+    // Do not require end-of-string so trailing comments/whitespace remain valid.
+    final String closeLegacy = "</null>";
+    int closeAt = openReplaced.lastIndexOf(closeLegacy);
+    if (closeAt < 0) {
+      return openReplaced;
+    }
+    return openReplaced.substring(0, closeAt)
+        + "</"
+        + mapped
+        + ">"
+        + openReplaced.substring(closeAt + closeLegacy.length());
   }
 
   /**
