@@ -289,6 +289,8 @@ This rule applies to ALL review comments on a PR you own, including comments tha
 
 **Languages in scope:** Java + JavaScript/TypeScript only (see `.github/workflows/codeql.yml`).
 
+**Path-filtered on PR/push (repo-wide):** `Analyze (java-kotlin)` runs only when Java-relevant paths change; `Analyze (javascript-typescript)` only when JS/TS-relevant paths change. Docs-only changes skip both. Weekly schedule + `workflow_dispatch` still run full dual-language scans. Prefer required check name **`CodeQL`** (the always-on gate job) so skipped language jobs do not block merge.
+
 |                            Piece                            |                                                Path / command                                                |
 |-------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------|
 | Playbook (required reading for security/CodeQL PRs)         | `docs/ai-generated/tasks/gh-codeql-alerts/codeql-pr-playbook.md`                                             |
