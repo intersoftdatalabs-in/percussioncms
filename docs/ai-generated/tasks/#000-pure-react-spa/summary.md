@@ -2,7 +2,7 @@
 
 ## Direction of record (2026-07-27)
 
-**Product UI = React + TypeScript SPA only.** No dual mode, no new bridges, no “shell = done.”
+**Product UI = React + TypeScript SPA only.** No dual mode, no new bridges, **no jQuery in the SPA**, no “shell = done.”
 
 - **Plan of record:** [`#000-unified-ui-plan/unified-ui-plan.md`](../#000-unified-ui-plan/unified-ui-plan.md) **rev 4.1**
 - **Module rules:** [`WebUI/AGENTS.md`](../../../WebUI/AGENTS.md)
@@ -26,7 +26,7 @@ Then: Publish → Explorer → Admin → Workflow → Widget Builder, same bar.
 | 8 | Deleted obsolete product `*Modern.jsp` hosts |
 | 9 | BrowserRouter + `PSWebUiSpaFallbackFilter` path URLs |
 
-These are **routing/chrome**. Functional acceptance is **screen-by-screen** per unified-ui-plan rev 4.0.
+These are **routing/chrome**. Functional acceptance is **screen-by-screen** per unified-ui-plan rev 4.1.
 
 ## Product locks
 
