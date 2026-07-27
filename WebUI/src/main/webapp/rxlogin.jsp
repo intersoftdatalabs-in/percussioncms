@@ -1,165 +1,154 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%@ page import="java.util.*" %>
 <%@ page import="com.percussion.server.PSServer" %>
 <%@ page import="com.percussion.i18n.PSI18nUtils" %>
 <%@ page import="com.percussion.i18n.PSLocaleManager" %>
-<%@ page import="com.percussion.i18n.PSLocale" session="true" %>
-<%@ page import="com.percussion.i18n.PSLocaleException" %>
+<%@ page import="com.percussion.i18n.PSLocale" %>
 <%@ taglib uri="http://www.owasp.org/index.php/Category:OWASP_CSRFGuard_Project/Owasp.CsrfGuard.tld" prefix="csrf" %>
-<%@ taglib uri="http://rhythmyx.percussion.com/components"
-		   prefix="rxcomp"%>
+<%--
+  React Login SPA host (product front door).
+  Classic markup retained as reference: rxlogin-classic.jsp
+  Auth remains POST /login — this page hosts the React UI + XSS-safe bootstrap.
+--%>
+<%!
+    private static String jsonString(String s) {
+        if (s == null) {
+            return "null";
+        }
+        StringBuilder sb = new StringBuilder(s.length() + 16);
+        sb.append('"');
+        for (int i = 0; i < s.length(); i++) {
+            char c = s.charAt(i);
+            switch (c) {
+                case '\\': sb.append("\\\\"); break;
+                case '"': sb.append("\\\""); break;
+                case '\b': sb.append("\\b"); break;
+                case '\f': sb.append("\\f"); break;
+                case '\n': sb.append("\\n"); break;
+                case '\r': sb.append("\\r"); break;
+                case '\t': sb.append("\\t"); break;
+                case '<': sb.append("\\u003c"); break;
+                case '>': sb.append("\\u003e"); break;
+                case '&': sb.append("\\u0026"); break;
+                case '\u2028': sb.append("\\u2028"); break;
+                case '\u2029': sb.append("\\u2029"); break;
+                default:
+                    if (c < 0x20) {
+                        sb.append(String.format("\\u%04x", (int) c));
+                    } else {
+                        sb.append(c);
+                    }
+            }
+        }
+        sb.append('"');
+        return sb.toString();
+    }
+%>
 <%
-	String username = request.getParameter("j_username");
-	String password = request.getParameter("j_password");
-	String locale = request.getParameter("j_locale");
-	String error = request.getParameter("j_error");
-	String lang="en";
+    String username = request.getParameter("j_username");
+    String locale = request.getParameter("j_locale");
+    String error = request.getParameter("j_error");
+    String lang = "en";
 
-	if (username == null)
-		username = "";
-	if (password == null)
-		password = "";
+    if (username == null) {
+        username = "";
+    }
+    if (locale == null) {
+        locale = PSI18nUtils.getSystemLanguage();
+    }
+    if (locale != null && locale.contains("-")) {
+        lang = locale.split("-")[0];
+    } else if (locale != null) {
+        lang = locale;
+    }
 
-	if(locale==null){
-		locale= PSI18nUtils.getSystemLanguage();
-	}else{
-		if(locale.contains("-"))
-			lang=locale.split("-")[0];
-		else
-			lang=locale;
-	}
+    String loginComplete = PSServer.getServerProps().getProperty("loginAutoComplete");
+    String autocomplete = "on";
+    if (loginComplete != null && loginComplete.equalsIgnoreCase("off")) {
+        autocomplete = "off";
+    }
 
-	pageContext.setAttribute("locale",locale);
+    // Default post-login SPA entry (query contract — never use # fragments).
+    String defaultRedirect = "/cm/app/spa.jsp?entry=home";
+    String returnParam = request.getParameter("return");
+    if (returnParam != null
+            && returnParam.startsWith("/cm/app/spa.jsp")
+            && !returnParam.contains("..")
+            && !returnParam.contains("://")
+            && !returnParam.contains("#")
+            && returnParam.length() < 2048) {
+        defaultRedirect = returnParam;
+    }
 
-	String loginComplete = PSServer.getServerProps().getProperty("loginAutoComplete");
-	String autoComplete;
-	if(loginComplete != null && loginComplete.equalsIgnoreCase("off") ){
-		autoComplete = "autocomplete='off'";
-	}else{
-		autoComplete = "autocomplete='on'";
-	}
-
-	PSLocaleManager locManager = PSLocaleManager.getInstance();
-
+    PSLocaleManager locManager = PSLocaleManager.getInstance();
+    StringBuilder localesJson = new StringBuilder();
+    localesJson.append('[');
+    boolean first = true;
+    Iterator<PSLocale> locales = locManager.getLocales();
+    while (locales.hasNext()) {
+        PSLocale loc = locales.next();
+        if (!first) {
+            localesJson.append(',');
+        }
+        first = false;
+        localesJson.append('{')
+                .append("\"name\":").append(jsonString(loc.getName())).append(',')
+                .append("\"displayName\":").append(jsonString(loc.getDisplayName()))
+                .append('}');
+    }
+    localesJson.append(']');
 %>
 <!DOCTYPE html>
-<html lang="<%=lang %>">
+<html lang="<%= lang %>">
 <head>
-	<title>${rxcomp:i18ntext('jsp_login@Percussion Login',locale)}</title>
-	<style>
-		body {
-			font-family: Verdana, serif; margin: 0; padding: 0; }
-		.perc-login-logo {color: #121212; margin-top: 50px; margin-bottom: 50px;}
-		#loginform .perc-form    { }
-		#perc-forgot {color: #fff;}
-		#perc-forgot-username{display:none;}
-		#perc-forgot-pass{display:none;}
-		#perc-register{display:none;}
-
-		#perc-forgot:hover   {cursor:pointer;}
-		input { padding: 0; }
-		img:hover    {cursor: pointer;}
-		.error {font-weight:bold; margin-top:10px; }
-		.btn-primary {
-			background-color: #133c55 !important;
-			border-color: #FFFFFF !important;
-			color: #FFFFFF;
-		}
-	</style>
-	<script>
-		function setCursor() {
-			// leave focus in username
-			cmd = document.getElementById("perc-login-username");
-			cmd.focus();
-		}
-	</script>
-	<link rel="stylesheet" type="text/css" href="/cm/jslib/profiles/3x/libraries/bootstrap/css/bootstrap.min.css"/>
-	<script
-			src="/Rhythmyx/tmx/tmx.jsp?mode=js&amp;prefix=perc.ui.&amp;sys_lang=en-us"></script>
-	<script src="/JavaScriptServlet"></script>
-	<script src="/cm/jslib/profiles/3x/jquery/jquery-3.6.0.js"></script>
-	<script src="/cm/jslib/profiles/3x/jquery/jquery-migrate-3.3.2.js"></script>
-
-	<script src="/cm/jslib/profiles/3x/libraries/bootstrap/js/bootstrap.min.js"></script>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <title>Percussion CMS — Sign in</title>
+    <meta name="_csrf_header" content="<csrf:tokenname/>"/>
+    <meta name="_csrf" content="<csrf:tokenvalue/>"/>
+    <script src="/JavaScriptServlet"></script>
+    <script type="module" src="/cm/modern/assets/perc-modern-ui.js"></script>
+    <style>html, body { margin: 0; padding: 0; }</style>
 </head>
-<body onload="setCursor()">
-<div class="container">
-	<div class='perc-login row center-block'>
-		<csrf:form id="loginform" name="loginform" method="post" enctype="multipart/form-data" action="login">
-			<div class='perc-login-logo'><img src="/sys_resources/images/percussion-logo.png" alt="${rxcomp:i18ntext('general@Percussion Logo Alt',locale)}" title="${rxcomp:i18ntext('general@Percussion Logo Title',locale)}"/></div>
-			<div class='perc-form'>
-				<div class="form-group">
-					<label for="perc-login-username">${rxcomp:i18ntext('jsp_login@User name',locale)}</label>
-					<input type="text" id="perc-login-username"  name="j_username"  value="<%= username %>" tabindex="1" class="form-control" <%= autoComplete %>/>
-				</div>
-				<div class="form-group">
-					<label for="perc-login-password">${rxcomp:i18ntext('jsp_login@Password',locale)}</label>
-					<input type="password" id="perc-login-password" name="j_password" value="<%= password %>" tabindex="2" class="form-control" <%= autoComplete %>/>
-				</div>
-				<div class="form-group">
-					<label for="perc-login-locale">${rxcomp:i18ntext('jsp_login@Locale',locale)}</label>
-					<select id="perc-login-locale" name="j_locale" class="form-control">
-						<%
-							Iterator<PSLocale> locales = locManager.getLocales();
-							while (locales.hasNext())
-							{
-								PSLocale loc= locales.next();
-								String selected = "false";
-								if(loc.getName().equalsIgnoreCase("en-us"))
-									selected = "true";
-						%>
-						<option selected="<%= selected %>" value="<%=loc.getName() %>"><%= loc.getDisplayName() %></option>
-						<% }%>
-					</select>
-				</div>
-				<div class="form-group">
-					<label for="perc-login-select-ui">${rxcomp:i18ntext('jsp_login@SelectUI',locale)}</label>
-					<input id="perc-login-select-ui" name="j_selectUI" type="checkbox">
-				</div>
-				<button type="submit" id="perc-login-button" form="loginform" class="btn btn-primary btn-default">${rxcomp:i18ntext('jsp_login@LoginButton',locale)}</button>
-			</div>
-		</csrf:form>
-	</div>
-	<div class="row">
-		<div class="col-sm-4">
-			<hr/>
-		</div>
-	</div>
-	<div class="row">
-		<div id="perc-forgot-username" class="col-sm-4">
-			<p>
-				${rxcomp:i18ntext('jsp_login@Forgot your username',locale)} <a href="#" title="${rxcomp:i18ntext('jsp_login@Forgot your username',locale)}">${rxcomp:i18ntext('general@click here',locale)}</a>
-			</p>
-		</div>
-		<div id="perc-forgot-pass" class="col-sm-8">
-			<p>
-				${rxcomp:i18ntext('jsp_login@Forgot your password',locale)} <a href="#" title="${rxcomp:i18ntext('jsp_login@Forgot your password',locale)}">${rxcomp:i18ntext('general@click here',locale)}</a>
-			</p>
-		</div>
-	</div>
-	<div class="row">
-		<div id="perc-register" class="span 12">
-			<p>Don't have a login?  Click the button below to request access from your System Administrator.</p>
-			<button type="button" id="perc-register-button" class="btn btn-primary">Request an Account</button>
-		</div>
-	</div>
-	<%
-		if (error != null)
-		{
-	%>
-	<div class="error"><%=error%></div>
-	<%  }
-	%>
-
-</div>
+<body>
+<%-- Hidden holder for CSRF tags (merged into bootstrap before React mounts). --%>
+<div id="perc-csrf-holder"
+     data-csrf-name="<csrf:tokenname/>"
+     data-csrf-value="<csrf:tokenvalue/>"
+     hidden
+     aria-hidden="true"></div>
+<script type="application/json" id="perc-login-bootstrap">{
+  "locales":<%= localesJson.toString() %>,
+  "selectedLocale":<%= jsonString(locale) %>,
+  "username":<%= jsonString(username) %>,
+  "error":<%= error == null || error.isEmpty() ? "null" : jsonString(error) %>,
+  "autocomplete":<%= jsonString(autocomplete) %>,
+  "defaultRedirect":<%= jsonString(defaultRedirect) %>,
+  "csrfTokenName":"OWASP_CSRFTOKEN",
+  "csrfTokenValue":"",
+  "formAction":"login"
+}</script>
+<div id="perc-login-root" data-testid="perc-login-root"></div>
 <script>
-	jQuery(function ($) {
-		var checked = localStorage.getItem('perc-login-select-ui-checked') === "true";
-		$('#perc-login-select-ui').prop('checked', checked);
-		$('#perc-login-select-ui').on("change",function () {
-			var isChecked = $(this).is(':checked');
-			localStorage.setItem('perc-login-select-ui-checked', isChecked);
-		});
-	});
+    (function () {
+        try {
+            var holder = document.getElementById("perc-csrf-holder");
+            var bootEl = document.getElementById("perc-login-bootstrap");
+            if (!holder || !bootEl || !bootEl.textContent) return;
+            var data = JSON.parse(bootEl.textContent);
+            var name = holder.getAttribute("data-csrf-name") || "OWASP_CSRFTOKEN";
+            var value = holder.getAttribute("data-csrf-value") || "";
+            data.csrfTokenName = name;
+            if (value) {
+                data.csrfTokenValue = value;
+            } else if (window.OWASP_CSRFTOKEN && window.OWASP_CSRFTOKEN.token) {
+                data.csrfTokenValue = window.OWASP_CSRFTOKEN.token;
+            }
+            bootEl.textContent = JSON.stringify(data);
+        } catch (e) {
+            console.error("[rxlogin] CSRF bootstrap merge failed", e);
+        }
+    })();
 </script>
 </body>
 </html>

@@ -27,7 +27,11 @@
 	<path authType="anonymous">/cm/jslib/*</path>
 	<path authType="anonymous">/cm/css/*</path>
 	<path authType="anonymous">/cm/images/*</path>
+	<!-- React Login SPA assets (public front door) -->
+	<path authType="anonymous">/cm/modern/*</path>
+	<path authType="anonymous">/cm/themes/*</path>
 	<path authType="anonymous">/rxlogin.jsp</path>
+	<path authType="anonymous">/rxlogin-classic.jsp</path>
 	<path authType="anonymous">/locale.jsp</path>
 	<path authType="anonymous">/sessionstatus.jsp</path>
 	<path authType="anonymous">/rxlogin.jsp</path>

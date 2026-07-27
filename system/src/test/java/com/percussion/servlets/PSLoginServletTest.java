@@ -59,10 +59,18 @@ public class PSLoginServletTest {
 
     assertEquals("/cm/app", PSLoginServlet.resolveSafePostLoginRedirect(request, "/cm/app"));
     assertEquals("/cm/app", PSLoginServlet.resolveSafePostLoginRedirect(request, "\\cm\\app"));
-    // Default CMS index when blank / null
-    assertEquals("index.jsp", PSLoginServlet.resolveSafePostLoginRedirect(request, null));
-    assertEquals("index.jsp", PSLoginServlet.resolveSafePostLoginRedirect(request, "   "));
-    // App-relative entry points
+    // SPA entry is accepted
+    assertEquals(
+        "/cm/app/spa.jsp?entry=home",
+        PSLoginServlet.resolveSafePostLoginRedirect(request, "/cm/app/spa.jsp?entry=home"));
+    // Default CMS index when blank / null — modern SPA landing
+    assertEquals(
+        "/cm/app/spa.jsp?entry=home",
+        PSLoginServlet.resolveSafePostLoginRedirect(request, null));
+    assertEquals(
+        "/cm/app/spa.jsp?entry=home",
+        PSLoginServlet.resolveSafePostLoginRedirect(request, "   "));
+    // App-relative entry points still allowed
     assertEquals("index.jsp", PSLoginServlet.resolveSafePostLoginRedirect(request, "index.jsp"));
     assertEquals(
         "Rhythmyx/sys_cx/mainpage.html",
@@ -75,16 +83,18 @@ public class PSLoginServletTest {
     request.setServerPort(9992);
     request.setServerName("perc-test");
 
-    // External host → fall back to CMS index
+    // External host → fall back to CMS SPA index
     assertEquals(
-        "index.jsp",
+        "/cm/app/spa.jsp?entry=home",
         PSLoginServlet.resolveSafePostLoginRedirect(request, "http://evil.example/phish"));
     // Path traversal
     assertEquals(
-        "index.jsp", PSLoginServlet.resolveSafePostLoginRedirect(request, "/../../etc/passwd"));
+        "/cm/app/spa.jsp?entry=home",
+        PSLoginServlet.resolveSafePostLoginRedirect(request, "/../../etc/passwd"));
     // javascript: scheme (relative form rejected by colon rule)
     assertEquals(
-        "index.jsp", PSLoginServlet.resolveSafePostLoginRedirect(request, "javascript:alert(1)"));
+        "/cm/app/spa.jsp?entry=home",
+        PSLoginServlet.resolveSafePostLoginRedirect(request, "javascript:alert(1)"));
     // Same-host absolute is allowed
     assertEquals(
         "http://perc-test:9992/logout",

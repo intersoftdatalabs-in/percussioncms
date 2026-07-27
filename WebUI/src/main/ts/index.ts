@@ -16,13 +16,56 @@
  */
 
 /**
- * Main entry point for the modern UI bundle.
+ * Main entry for the modern UI bundle.
  *
- * <p>Importing this module initialises the bridge layer so that
- * {@code window.PercModernUI.mount()} is available for legacy pages.</p>
+ * <ul>
+ *   <li>Always registers {@code window.PercModernUI} for residual bridge embeds.</li>
+ *   <li>If {@code #perc-login-root} is present, boots the React Login front door.</li>
+ *   <li>If {@code #perc-spa-root} is present, boots the authenticated SPA landing.</li>
+ * </ul>
  */
 
-// Initialise the bridge (registers on window.PercModernUI)
+import React from "react";
+import { createRoot } from "react-dom/client";
 import "./bridge";
+import { LandingShell } from "./app/LandingShell";
+import { LoginPage, readLoginBootstrap, readSpaLandingBootstrap } from "./login";
+
+function bootLogin(): void {
+  const el = document.getElementById("perc-login-root");
+  if (!el) {
+    return;
+  }
+  const bootstrap = readLoginBootstrap();
+  createRoot(el).render(React.createElement(LoginPage, { bootstrap }));
+  console.info("[PercModernUI] Login SPA mounted.");
+}
+
+function bootSpaLanding(): void {
+  const el = document.getElementById("perc-spa-root");
+  if (!el) {
+    return;
+  }
+  const bootstrap = readSpaLandingBootstrap();
+  createRoot(el).render(React.createElement(LandingShell, { bootstrap }));
+  console.info("[PercModernUI] SPA landing mounted.");
+}
+
+function boot(): void {
+  // Login page is public and exclusive; SPA landing is authenticated.
+  if (document.getElementById("perc-login-root")) {
+    bootLogin();
+    return;
+  }
+  if (document.getElementById("perc-spa-root")) {
+    bootSpaLanding();
+  }
+}
+
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", boot);
+} else {
+  boot();
+}
 
 console.info("[PercModernUI] Modern UI bridge loaded.");
