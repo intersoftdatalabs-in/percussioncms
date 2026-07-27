@@ -23,8 +23,24 @@ Structural fixes were correct; **PR gating used the wrong analyzer**. That cause
 2. **Default CodeQL setup is disabled** (`state=not-configured` on the repo).
 3. **GitHub Code Quality** (dynamic workflow `Code Quality: CodeQL Setup` at `dynamic/github-code-scanning/codeql`) must stay **disabled** for this repo. It ignores `codeql-config.yml` / model packs, scans extra languages (C#, Python, Actions, …), and empty/stub analyses on the default branch close open alerts as "fixed".
 4. **Languages in scope**: **Java** (`java-kotlin` with `build-mode: none`) and **JavaScript/TypeScript** only.
-5. Custom sanitizers are modeled in `.github/codeql/models/` first; path `query-filters` are a fallback only.
-6. Dismiss-only is a last resort and must cite model/config + tests.
+5. **Path-filtered language jobs (repo-wide):** on `pull_request` and `push`, each language analyzer runs only when that language’s paths changed (see filters in `.github/workflows/codeql.yml`). Markdown/docs-only PRs skip both. **`schedule`** and **`workflow_dispatch`** still run **full** dual-language analysis so default-branch coverage does not rot.
+6. Custom sanitizers are modeled in `.github/codeql/models/` first; path `query-filters` are a fallback only.
+7. Dismiss-only is a last resort and must cite model/config + tests.
+
+### Path filters & branch protection
+
+| Check name | When it runs |
+|------------|----------------|
+| `Detect language changes` | Always (for PR/push/schedule/manual) |
+| `Analyze (java-kotlin)` | Java-relevant paths, or full scan events |
+| `Analyze (javascript-typescript)` | JS/TS-relevant paths, or full scan events |
+| **`CodeQL`** (gate) | Always — succeeds when required language jobs succeed or were legitimately skipped |
+
+**Prefer requiring the gate check `CodeQL`** in branch protection rather than the individual `Analyze (…)` names, so a docs-only PR is not blocked by a missing Java check.
+
+Java-relevant paths (summary): `**/*.{java,kt,kts}`, `**/pom.xml`, `**/.mvn/**`, `mvn-env.*`, `.github/codeql/**`, `.github/workflows/codeql.yml`.
+
+JS/TS-relevant paths (summary): `**/*.{js,jsx,ts,tsx,mjs,cjs}`, package/lock files, `tsconfig*`, Vite/Vitest/esbuild/webpack configs, same CodeQL workflow/config paths.
 
 ---
 
