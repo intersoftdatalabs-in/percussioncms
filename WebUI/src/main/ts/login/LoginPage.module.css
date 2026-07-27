@@ -36,8 +36,13 @@
 }
 
 .logo {
+  /* Source asset is large (~1477×720); never display at intrinsic size */
+  display: block;
   max-height: 48px;
+  max-width: min(220px, 100%);
   width: auto;
+  height: auto;
+  object-fit: contain;
 }
 
 .title {

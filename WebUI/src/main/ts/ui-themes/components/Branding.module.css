@@ -49,9 +49,13 @@
 }
 
 .brandLogo {
+  /* Source logo is large; cap height so missing CSS cannot blow up the bar */
   height: 32px;
+  max-height: 32px;
+  max-width: 160px;
   width: auto;
   display: block;
+  object-fit: contain;
 }
 
 .brandProduct {
