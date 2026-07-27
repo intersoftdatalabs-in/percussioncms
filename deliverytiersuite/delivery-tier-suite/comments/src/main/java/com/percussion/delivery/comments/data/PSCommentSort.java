@@ -43,6 +43,8 @@ public class PSCommentSort {
   }
 
   /**
+   * Gets the sort field.
+   *
    * @return the sortby field, never <code>null</code>.
    */
   public SORTBY getSortBy() {
@@ -50,6 +52,8 @@ public class PSCommentSort {
   }
 
   /**
+   * Indicates the sort direction.
+   *
    * @return <code>true</code> indicates an ascending sort direction.
    */
   public boolean isAscending() {
@@ -58,8 +62,11 @@ public class PSCommentSort {
 
   /** Enumeration of sort field options. */
   public enum SORTBY {
+    /** Sort by the comment creation date. */
     CREATEDDATE,
+    /** Sort by the comment author email. */
     EMAIL,
+    /** Sort by the comment author user name. */
     USERNAME
   }
 }

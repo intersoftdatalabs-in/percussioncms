@@ -28,30 +28,30 @@ public interface IPSLikesService {
   /**
    * Returns the total number of likes for the given URL, site and type
    *
-   * @param type
-   * @param likeId
-   * @param site
-   * @return int total
+   * @param site the site the like is associated with. Must not be {@code null} or empty.
+   * @param likeId the id of the liked entity. Must not be {@code null} or empty.
+   * @param type the type of the liked entity (page, comment, image). Must not be {@code null}.
+   * @return int total of likes for the specified entity.
    */
   public int getTotalLikes(String site, String likeId, String type);
 
   /**
    * Increments the total number of likes for the given URL and returns the number of total likes
    *
-   * @param type
-   * @param likeId
-   * @param site
-   * @return int total
+   * @param site the site the like is associated with. Must not be {@code null} or empty.
+   * @param likeId the id of the liked entity. Must not be {@code null} or empty.
+   * @param type the type of the liked entity (page, comment, image). Must not be {@code null}.
+   * @return int total of likes after the increment.
    */
   public int like(String site, String likeId, String type);
 
   /**
    * Decrements the total number of likes for the given URL and returns the number of total likes
    *
-   * @param type
-   * @param likeId
-   * @param site
-   * @return int total
+   * @param site the site the like is associated with. Must not be {@code null} or empty.
+   * @param likeId the id of the liked entity. Must not be {@code null} or empty.
+   * @param type the type of the liked entity (page, comment, image). Must not be {@code null}.
+   * @return int total of likes after the decrement.
    */
   public int unlike(String site, String likeId, String type);
 

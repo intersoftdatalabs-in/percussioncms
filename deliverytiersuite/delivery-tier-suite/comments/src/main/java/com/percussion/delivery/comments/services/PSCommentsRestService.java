@@ -84,12 +84,24 @@ public class PSCommentsRestService extends PSAbstractRestService implements IPSC
 
   private final IPSCommentsService commentService;
 
+  /**
+   * Creates a new comments REST service backed by the supplied service.
+   *
+   * @param service the underlying comments service, must not be {@code null}.
+   */
   @Inject
   @Autowired
   public PSCommentsRestService(IPSCommentsService service) {
     this.commentService = service;
   }
 
+  /**
+   * Issues a CSRF token response header derived from the {@code XSRF-TOKEN} cookie if present. Used
+   * by the comment form to satisfy CSRF protection.
+   *
+   * @param request the HTTP request.
+   * @param response the HTTP response, which receives the CSRF headers when applicable.
+   */
   @HEAD
   @Path("/csrf")
   public void csrf(@Context HttpServletRequest request, @Context HttpServletResponse response) {

@@ -43,13 +43,25 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
+ * RDBMS-backed implementation of {@link IPSCommentsDao}. Performs all comment persistence through
+ * Hibernate against the delivery tier database.
+ *
  * @author erikserating
  */
 @Repository
 public class PSCommentsDao implements IPSCommentsDao {
 
+  /** Hibernate session factory used by this DAO. */
   private SessionFactory sessionFactory;
 
+  /** Default no-arg constructor required by Spring for bean instantiation. */
+  public PSCommentsDao() {}
+
+  /**
+   * Injects the Hibernate {@link SessionFactory} used by this DAO.
+   *
+   * @param sessionFactory the session factory to use, must not be {@code null}.
+   */
   @Autowired
   public void setSessionFactory(SessionFactory sessionFactory) {
     this.sessionFactory = sessionFactory;

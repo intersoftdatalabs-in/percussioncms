@@ -38,14 +38,25 @@ public class PSLikes {
 
   private List<IPSLikes> likes;
 
+  /** Default no-arg constructor required by JAXB. */
   public PSLikes() {
     // Default constructor
   }
 
+  /**
+   * Creates a new likes container with the supplied list.
+   *
+   * @param likes the initial list of likes, may be {@code null}.
+   */
   public PSLikes(List<IPSLikes> likes) {
     this.likes = likes;
   }
 
+  /**
+   * Gets the wrapped list of likes. Lazily initializes an empty list if needed.
+   *
+   * @return the list of likes, never {@code null}.
+   */
   public List<IPSLikes> getLikes() {
     if (likes == null) {
       likes = new ArrayList<>();

@@ -22,6 +22,9 @@ import java.util.Date;
 import java.util.Set;
 
 /**
+ * REST-friendly implementation of {@link IPSComment}. Mirrors all the standard comment fields so
+ * they can be serialized to and from JSON without exposing persistence layer concerns.
+ *
  * @author erikserating
  */
 public class PSRestComment implements IPSComment {
@@ -42,6 +45,7 @@ public class PSRestComment implements IPSComment {
   private String url;
   private String commentCreatedDate;
 
+  /** Default no-arg constructor required by Jackson and JAXB. */
   public PSRestComment() {}
 
   /**
@@ -180,6 +184,8 @@ public class PSRestComment implements IPSComment {
   }
 
   /**
+   * Replaces the tag set for this comment.
+   *
    * @param tags the tags to set
    */
   public void setTags(Set<String> tags) {

@@ -31,12 +31,15 @@ public class PSPageSummary {
 
   private long newCommentCount;
 
-  /** */
+  /** Default no-arg constructor required by JAXB. */
   public PSPageSummary() {}
 
   /**
-   * @param pagePath
-   * @param commentCount
+   * Creates a new page summary without a new-comment count.
+   *
+   * @param pagePath the relative path of the page.
+   * @param commentCount the total number of comments on the page.
+   * @param approvedCount the number of approved comments on the page.
    */
   public PSPageSummary(String pagePath, long commentCount, long approvedCount) {
     this.pagePath = pagePath;
@@ -45,10 +48,12 @@ public class PSPageSummary {
   }
 
   /**
-   * @param pagePath
-   * @param commentCount
-   * @param approvedCount
-   * @param newCommentCount
+   * Creates a new page summary including the new-comment count.
+   *
+   * @param pagePath the relative path of the page.
+   * @param commentCount the total number of comments on the page.
+   * @param approvedCount the number of approved comments on the page.
+   * @param newCommentCount the number of comments that have not yet been viewed.
    */
   public PSPageSummary(
       String pagePath, long commentCount, long approvedCount, long newCommentCount) {
@@ -59,6 +64,8 @@ public class PSPageSummary {
   }
 
   /**
+   * Gets the relative page path.
+   *
    * @return the pagePath
    */
   public String getPagePath() {
@@ -66,6 +73,8 @@ public class PSPageSummary {
   }
 
   /**
+   * Sets the relative page path.
+   *
    * @param pagePath the pagePath to set
    */
   public void setPagePath(String pagePath) {
@@ -73,6 +82,8 @@ public class PSPageSummary {
   }
 
   /**
+   * Gets the total comment count for the page.
+   *
    * @return the commentCount
    */
   public long getCommentCount() {
@@ -80,6 +91,8 @@ public class PSPageSummary {
   }
 
   /**
+   * Sets the total comment count for the page.
+   *
    * @param commentCount the commentCount to set
    */
   public void setCommentCount(long commentCount) {
@@ -87,6 +100,8 @@ public class PSPageSummary {
   }
 
   /**
+   * Gets the number of approved comments for the page.
+   *
    * @return the approvedCount
    */
   public long getApprovedCount() {
@@ -94,6 +109,8 @@ public class PSPageSummary {
   }
 
   /**
+   * Sets the number of approved comments for the page.
+   *
    * @param approvedCount the approvedCount to set
    */
   public void setApprovedCount(long approvedCount) {
@@ -101,6 +118,8 @@ public class PSPageSummary {
   }
 
   /**
+   * Gets the number of unviewed (new) comments for the page.
+   *
    * @return the newCommentCount
    */
   public long getNewCommentCount() {
@@ -108,6 +127,8 @@ public class PSPageSummary {
   }
 
   /**
+   * Sets the number of unviewed (new) comments for the page.
+   *
    * @param newCommentCount the newCommentCount to set
    */
   public void setNewCommentCount(long newCommentCount) {

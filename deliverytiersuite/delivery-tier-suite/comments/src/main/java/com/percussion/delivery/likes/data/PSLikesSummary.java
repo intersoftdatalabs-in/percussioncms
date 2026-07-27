@@ -27,12 +27,20 @@ public class PSLikesSummary {
   /** Total number of likes. */
   private int total;
 
+  /** The like identifier. */
   private String likeId;
 
+  /** Default no-arg constructor required by JAXB. */
   public PSLikesSummary() {
     // Default constructor
   }
 
+  /**
+   * Creates a new likes summary with the supplied total and like id.
+   *
+   * @param total the total number of likes.
+   * @param likeId the like identifier.
+   */
   public PSLikesSummary(int total, String likeId) {
     this.total = total;
     this.likeId = likeId;

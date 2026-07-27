@@ -18,6 +18,10 @@
 
 package com.percussion.delivery.comments.data;
 
+/**
+ * Lightweight value object that summarizes a single page that has comments. Used in REST responses
+ * listing pages with comments.
+ */
 public class PSPageInfo {
 
   private String pagePath;
@@ -25,6 +29,14 @@ public class PSPageInfo {
   private long commentCount;
   private boolean viewed;
 
+  /**
+   * Creates a new page summary.
+   *
+   * @param pagePath the relative page path, must not be {@code null}.
+   * @param approvalState the approval state value as a string, may be {@code null}.
+   * @param commentCount the total number of comments on the page.
+   * @param viewed whether the page has been viewed by an admin.
+   */
   public PSPageInfo(String pagePath, String approvalState, long commentCount, boolean viewed) {
     this.pagePath = pagePath;
     this.approvalState = approvalState;
@@ -32,18 +44,38 @@ public class PSPageInfo {
     this.viewed = viewed;
   }
 
+  /**
+   * Gets the relative page path.
+   *
+   * @return the page path.
+   */
   public String getPagePath() {
     return pagePath;
   }
 
+  /**
+   * Gets the approval state of the page's comments.
+   *
+   * @return the approval state.
+   */
   public String getApprovalState() {
     return approvalState;
   }
 
+  /**
+   * Gets the number of comments on the page.
+   *
+   * @return the comment count.
+   */
   public long getCommentCount() {
     return commentCount;
   }
 
+  /**
+   * Checks whether an admin has viewed this page's comments.
+   *
+   * @return {@code true} if the page has been viewed.
+   */
   public boolean isViewed() {
     return viewed;
   }
