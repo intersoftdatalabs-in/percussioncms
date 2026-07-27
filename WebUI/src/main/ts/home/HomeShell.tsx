@@ -42,6 +42,11 @@ export interface HomeShellProps {
   /** When true, show admin empty-state messaging for no sites */
   isAdmin?: boolean;
   /**
+   * When true (SPA AppLayout), omit ThemeProvider / BrandBar / BrandFooter so
+   * chrome is not doubled under the product shell.
+   */
+  embedded?: boolean;
+  /**
    * Optional open-item handoff. Defaults to navigating parent to editor
    * when id/path are present.
    */
@@ -73,11 +78,11 @@ function defaultOpenItem(item: ContentListItem): void {
   }
 }
 
-export function HomeShell({
+function HomeShellBody({
   initialSection,
   isAdmin = false,
   onOpenItem = defaultOpenItem,
-}: HomeShellProps): React.ReactElement {
+}: Omit<HomeShellProps, "embedded">): React.ReactElement {
   const start = useMemo(
     () => mapInitialScreenToSection(initialSection),
     [initialSection],
@@ -85,44 +90,61 @@ export function HomeShell({
   const [section, setSection] = useState<HomeSection>(start);
 
   return (
+    <>
+      <header style={headerStyle}>
+        <h1 style={{ margin: 0, fontSize: "1.25rem" }}>
+          {message(MSG.HOME_TITLE)}
+        </h1>
+      </header>
+      <nav style={navStyle} aria-label={message(MSG.HOME_TITLE)}>
+        {SECTIONS.map((s) => (
+          <button
+            key={s.id}
+            type="button"
+            style={navButtonStyle(section === s.id)}
+            aria-current={section === s.id ? "page" : undefined}
+            onClick={() => setSection(s.id)}
+          >
+            {message(s.key)}
+          </button>
+        ))}
+      </nav>
+      <main style={mainStyle}>
+        {section === "recent" && <RecentSection onOpenItem={onOpenItem} />}
+        {section === "bookmarks" && (
+          <BookmarksSection onOpenItem={onOpenItem} />
+        )}
+        {section === "library" && (
+          <LibrarySection isAdmin={isAdmin} onOpenItem={onOpenItem} />
+        )}
+        {section === "search" && <SearchSection onOpenItem={onOpenItem} />}
+        {section === "create" && <CreateSection />}
+      </main>
+    </>
+  );
+}
+
+export function HomeShell({
+  embedded = false,
+  ...bodyProps
+}: HomeShellProps): React.ReactElement {
+  const inner = (
+    <div style={shellStyle} data-testid="home-shell">
+      <HomeShellBody {...bodyProps} />
+    </div>
+  );
+  if (embedded) {
+    return inner;
+  }
+  return (
     <ThemeProvider
       as="div"
       className="perc-home-theme-root"
       data-testid="home-theme-root"
     >
-      <div style={shellStyle} data-testid="home-shell">
-        <BrandBar />
-        <header style={headerStyle}>
-          <h1 style={{ margin: 0, fontSize: "1.25rem" }}>
-            {message(MSG.HOME_TITLE)}
-          </h1>
-        </header>
-        <nav style={navStyle} aria-label={message(MSG.HOME_TITLE)}>
-          {SECTIONS.map((s) => (
-            <button
-              key={s.id}
-              type="button"
-              style={navButtonStyle(section === s.id)}
-              aria-current={section === s.id ? "page" : undefined}
-              onClick={() => setSection(s.id)}
-            >
-              {message(s.key)}
-            </button>
-          ))}
-        </nav>
-        <main style={mainStyle}>
-          {section === "recent" && <RecentSection onOpenItem={onOpenItem} />}
-          {section === "bookmarks" && (
-            <BookmarksSection onOpenItem={onOpenItem} />
-          )}
-          {section === "library" && (
-            <LibrarySection isAdmin={isAdmin} onOpenItem={onOpenItem} />
-          )}
-          {section === "search" && <SearchSection onOpenItem={onOpenItem} />}
-          {section === "create" && <CreateSection />}
-        </main>
-        <BrandFooter />
-      </div>
+      <BrandBar />
+      {inner}
+      <BrandFooter />
     </ThemeProvider>
   );
 }

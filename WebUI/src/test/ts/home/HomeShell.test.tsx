@@ -56,6 +56,13 @@ describe("HomeShell", () => {
     expect(screen.getByTestId("perc-brand-footer")).toBeDefined();
   });
 
+  it("embedded mode omits brand chrome for SPA AppLayout", () => {
+    render(<HomeShell embedded initialSection="list" />);
+    expect(screen.getByTestId("home-shell")).toBeDefined();
+    expect(screen.queryByTestId("perc-brand-bar")).toBeNull();
+    expect(screen.queryByTestId("perc-brand-footer")).toBeNull();
+  });
+
   it("starts on library when initialScreen is library", async () => {
     render(<HomeShell initialSection="library" />);
     await waitFor(() => {

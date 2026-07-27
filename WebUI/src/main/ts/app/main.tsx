@@ -18,12 +18,15 @@
 import React from "react";
 import { createRoot } from "react-dom/client";
 import { App } from "./App";
+import { resetLoginRedirectLatch } from "./auth/sessionHandlers";
 import { loadSpaBootstrap } from "./bootstrap/loadBootstrap";
 
 /**
  * Boot the authenticated SPA into the given root element.
  */
 export function boot(rootEl: HTMLElement): void {
+  // Fresh SPA lifecycle — allow mid-session 401 redirects again
+  resetLoginRedirectLatch();
   const bootstrap = loadSpaBootstrap();
   createRoot(rootEl).render(React.createElement(App, { bootstrap }));
   console.info("[PercModernUI] SPA App mounted.");

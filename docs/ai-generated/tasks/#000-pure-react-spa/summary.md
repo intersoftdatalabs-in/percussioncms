@@ -11,6 +11,8 @@
 
 1. **SPA is the product UI** for modern features. No dual-mode, no soft feature-flag cutover. Old JSPs = reference until delete.
 2. **Start at the front door:** React Login is the first shippable slice for **stakeholder demos** (Login → SPA), then authenticated routes.
+3. **Home is the default product landing** after sign-in (not a separate “dashboard” peer).
+4. **Dashboard gadgets have real product value**, but that capability should **live on Home** (section / widgets / compose), **not** as a long-term separate SPA route. Until then: legacy `?view=dash` full-page exit only.
 
 ## Stakeholder demo path
 
@@ -37,12 +39,12 @@
 ## PR plan (login-first)
 
 1. **Login front door** + SPA landing — **done** (#1523)  
-2. App shell + TopNav + entry query + 401→Login — **in progress** (`feat/000-react-spa-pr2-app-shell`)  
-3. Home + Publish routes (embedded shells)  
+2. App shell + TopNav + entry query + 401→Login — **PR** (#1526)  
+3. Home + Publish routes (embedded shells) — **in progress** (`feat/000-react-spa-pr3-home-publish`); **Home is default landing**  
 4. Workflow + Admin + Widget Builder  
 5. Aggressive `index.jsp` cutover  
 6. Explorer  
-7. Dashboard  
+7. **Home + gadgets:** fold React Dashboard **widgets into Home** (not a peer `/dashboard` SPA). Legacy jQuery dash remains temporary exit until then.  
 8. Delete obsolete JSPs  
 9. Optional path URLs  
 

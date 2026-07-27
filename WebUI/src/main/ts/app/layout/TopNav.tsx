@@ -37,16 +37,22 @@ export function TopNav(): React.ReactElement {
     <nav className={styles.topNav} aria-label="Main" data-testid="perc-spa-topnav">
       <ul className={styles.navGroup}>
         <li>
-          <NavLink to="/home" className={linkClass} data-testid="nav-home">
+          {/* Product default landing after login (not a separate “dashboard” SPA) */}
+          <NavLink to="/home" className={linkClass} end data-testid="nav-home">
             Home
           </NavLink>
         </li>
         <li>
-          {/* Temporary hybrid exit until SPA dashboard route (PR-7) */}
+          {/*
+            Legacy jQuery dashboard exit only. Product direction: Home is the
+            primary landing; we may fold dashboard widgets into Home later
+            rather than a peer SPA /dashboard route.
+          */}
           <a
             className={styles.navLink}
             href="/cm/app/?view=dash"
             data-testid="nav-dashboard"
+            title="Legacy dashboard (may merge into Home)"
           >
             Dashboard
           </a>

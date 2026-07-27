@@ -20,7 +20,16 @@ import { parseEntryQuery, toSpaEntryUrl } from "../deepLinks/parseEntryQuery";
 
 export const REACT_LOGIN_PATH = "/rxlogin.jsp";
 
+/**
+ * Latch so concurrent 401s only navigate once. Reset on each SPA boot so
+ * remount/HMR does not permanently suppress redirects (#1526 review).
+ */
 let redirectingToLogin = false;
+
+/** Reset the redirect latch (call from SPA boot; tests may also call). */
+export function resetLoginRedirectLatch(): void {
+  redirectingToLogin = false;
+}
 
 /**
  * Build React Login URL with allowlisted SPA return query (never hash).
@@ -79,7 +88,7 @@ export function redirectToLoginOnUnauthorized(
   window.location.assign(target);
 }
 
-/** Test-only: reset redirect latch. */
+/** @deprecated Use {@link resetLoginRedirectLatch} */
 export function __resetLoginRedirectLatchForTests(): void {
-  redirectingToLogin = false;
+  resetLoginRedirectLatch();
 }
